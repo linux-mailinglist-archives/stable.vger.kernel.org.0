@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2147340DF37
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:07:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA56540E570
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:27:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233588AbhIPQHn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:07:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45294 "EHLO mail.kernel.org"
+        id S1350620AbhIPRLl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:11:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231868AbhIPQG3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:06:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D337061246;
-        Thu, 16 Sep 2021 16:05:08 +0000 (UTC)
+        id S1350156AbhIPRJV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:09:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E1F060F6E;
+        Thu, 16 Sep 2021 16:37:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808309;
-        bh=bBowjqX/qLyotTa5ZzNpO+8cTdqoN2SBnyfxm0ITq34=;
+        s=korg; t=1631810225;
+        bh=niG2Lt1Ingh5RIC5tdVdvtYyFU2QIjLuQ49vE2s/LNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vfa9qdYbmyaQ3yXKWi4TtxWd3l2Q4YAMgOn9oqYqQiUHvwAyI8SHuy8A0NanORThf
-         +L/Kc7SqCHnCwWgrTRN6xorp0aOKBoKxN+IMvTw5UzOEY2KQD4/w2BMoKr1LWY3bAU
-         6Cz5k09jmGDY1hMsNgX+W3BtqHjJ1vK3/53f4PYs=
+        b=KilgvC8LaMGIy6pMCRq3znqP6PA9pF7HwF55+cipZ+xAGN411bYNiCQ5v/BZofshz
+         GcDSwnv+/TaoUabqcojsoGb8AjjyEMSMeb6Qoz/lYbTByMj7LKq6CdaNdXidsMTMIO
+         C/rp2hoGGAxWhOf7qqJqHuEJQS/UnPs7hyBxW8mE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.10 033/306] cpufreq: schedutil: Use kobject release() method to free sugov_tunables
-Date:   Thu, 16 Sep 2021 17:56:18 +0200
-Message-Id: <20210916155755.075805845@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>
+Subject: [PATCH 5.14 030/432] pinctrl: stmfx: Fix hazardous u8[] to unsigned long cast
+Date:   Thu, 16 Sep 2021 17:56:19 +0200
+Message-Id: <20210916155811.841166486@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,125 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Hao <haokexin@gmail.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit e5c6b312ce3cc97e90ea159446e6bfa06645364d upstream.
+commit 1b73e588f47397dee6e4bdfd953e0306c60b5fe5 upstream.
 
-The struct sugov_tunables is protected by the kobject, so we can't free
-it directly. Otherwise we would get a call trace like this:
-  ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x30
-  WARNING: CPU: 3 PID: 720 at lib/debugobjects.c:505 debug_print_object+0xb8/0x100
-  Modules linked in:
-  CPU: 3 PID: 720 Comm: a.sh Tainted: G        W         5.14.0-rc1-next-20210715-yocto-standard+ #507
-  Hardware name: Marvell OcteonTX CN96XX board (DT)
-  pstate: 40400009 (nZcv daif +PAN -UAO -TCO BTYPE=--)
-  pc : debug_print_object+0xb8/0x100
-  lr : debug_print_object+0xb8/0x100
-  sp : ffff80001ecaf910
-  x29: ffff80001ecaf910 x28: ffff00011b10b8d0 x27: ffff800011043d80
-  x26: ffff00011a8f0000 x25: ffff800013cb3ff0 x24: 0000000000000000
-  x23: ffff80001142aa68 x22: ffff800011043d80 x21: ffff00010de46f20
-  x20: ffff800013c0c520 x19: ffff800011d8f5b0 x18: 0000000000000010
-  x17: 6e6968207473696c x16: 5f72656d6974203a x15: 6570797420746365
-  x14: 6a626f2029302065 x13: 303378302f307830 x12: 2b6e665f72656d69
-  x11: ffff8000124b1560 x10: ffff800012331520 x9 : ffff8000100ca6b0
-  x8 : 000000000017ffe8 x7 : c0000000fffeffff x6 : 0000000000000001
-  x5 : ffff800011d8c000 x4 : ffff800011d8c740 x3 : 0000000000000000
-  x2 : ffff0001108301c0 x1 : ab3c90eedf9c0f00 x0 : 0000000000000000
-  Call trace:
-   debug_print_object+0xb8/0x100
-   __debug_check_no_obj_freed+0x1c0/0x230
-   debug_check_no_obj_freed+0x20/0x88
-   slab_free_freelist_hook+0x154/0x1c8
-   kfree+0x114/0x5d0
-   sugov_exit+0xbc/0xc0
-   cpufreq_exit_governor+0x44/0x90
-   cpufreq_set_policy+0x268/0x4a8
-   store_scaling_governor+0xe0/0x128
-   store+0xc0/0xf0
-   sysfs_kf_write+0x54/0x80
-   kernfs_fop_write_iter+0x128/0x1c0
-   new_sync_write+0xf0/0x190
-   vfs_write+0x2d4/0x478
-   ksys_write+0x74/0x100
-   __arm64_sys_write+0x24/0x30
-   invoke_syscall.constprop.0+0x54/0xe0
-   do_el0_svc+0x64/0x158
-   el0_svc+0x2c/0xb0
-   el0t_64_sync_handler+0xb0/0xb8
-   el0t_64_sync+0x198/0x19c
-  irq event stamp: 5518
-  hardirqs last  enabled at (5517): [<ffff8000100cbd7c>] console_unlock+0x554/0x6c8
-  hardirqs last disabled at (5518): [<ffff800010fc0638>] el1_dbg+0x28/0xa0
-  softirqs last  enabled at (5504): [<ffff8000100106e0>] __do_softirq+0x4d0/0x6c0
-  softirqs last disabled at (5483): [<ffff800010049548>] irq_exit+0x1b0/0x1b8
+Casting a small array of u8 to an unsigned long is *never* OK:
 
-So split the original sugov_tunables_free() into two functions,
-sugov_clear_global_tunables() is just used to clear the global_tunables
-and the new sugov_tunables_free() is used as kobj_type::release to
-release the sugov_tunables safely.
+- it does funny thing when the array size is less than that of a long,
+  as it accesses random places in the stack
+- it makes everything even more fun with a BE kernel
 
-Fixes: 9bdcb44e391d ("cpufreq: schedutil: New governor based on scheduler utilization data")
-Cc: 4.7+ <stable@vger.kernel.org> # 4.7+
-Signed-off-by: Kevin Hao <haokexin@gmail.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fix this by building the unsigned long used as a bitmap byte by byte,
+in a way that works across endianess and has no undefined behaviours.
+
+An extra BUILD_BUG_ON() catches the unlikely case where the array
+would be larger than a single unsigned long.
+
+Fixes: 1490d9f841b1 ("pinctrl: Add STMFX GPIO expander Pinctrl/GPIO driver")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Cc: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Link: https://lore.kernel.org/r/20210725180830.250218-1-maz@kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/cpufreq_schedutil.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/pinctrl/pinctrl-stmfx.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/kernel/sched/cpufreq_schedutil.c
-+++ b/kernel/sched/cpufreq_schedutil.c
-@@ -610,9 +610,17 @@ static struct attribute *sugov_attrs[] =
- };
- ATTRIBUTE_GROUPS(sugov);
+--- a/drivers/pinctrl/pinctrl-stmfx.c
++++ b/drivers/pinctrl/pinctrl-stmfx.c
+@@ -566,7 +566,7 @@ static irqreturn_t stmfx_pinctrl_irq_thr
+ 	u8 pending[NR_GPIO_REGS];
+ 	u8 src[NR_GPIO_REGS] = {0, 0, 0};
+ 	unsigned long n, status;
+-	int ret;
++	int i, ret;
  
-+static void sugov_tunables_free(struct kobject *kobj)
-+{
-+	struct gov_attr_set *attr_set = container_of(kobj, struct gov_attr_set, kobj);
-+
-+	kfree(to_sugov_tunables(attr_set));
-+}
-+
- static struct kobj_type sugov_tunables_ktype = {
- 	.default_groups = sugov_groups,
- 	.sysfs_ops = &governor_sysfs_ops,
-+	.release = &sugov_tunables_free,
- };
+ 	ret = regmap_bulk_read(pctl->stmfx->map, STMFX_REG_IRQ_GPI_PENDING,
+ 			       &pending, NR_GPIO_REGS);
+@@ -576,7 +576,9 @@ static irqreturn_t stmfx_pinctrl_irq_thr
+ 	regmap_bulk_write(pctl->stmfx->map, STMFX_REG_IRQ_GPI_SRC,
+ 			  src, NR_GPIO_REGS);
  
- /********************** cpufreq governor interface *********************/
-@@ -712,12 +720,10 @@ static struct sugov_tunables *sugov_tuna
- 	return tunables;
- }
- 
--static void sugov_tunables_free(struct sugov_tunables *tunables)
-+static void sugov_clear_global_tunables(void)
- {
- 	if (!have_governor_per_policy())
- 		global_tunables = NULL;
--
--	kfree(tunables);
- }
- 
- static int sugov_init(struct cpufreq_policy *policy)
-@@ -780,7 +786,7 @@ out:
- fail:
- 	kobject_put(&tunables->attr_set.kobj);
- 	policy->governor_data = NULL;
--	sugov_tunables_free(tunables);
-+	sugov_clear_global_tunables();
- 
- stop_kthread:
- 	sugov_kthread_stop(sg_policy);
-@@ -807,7 +813,7 @@ static void sugov_exit(struct cpufreq_po
- 	count = gov_attr_set_put(&tunables->attr_set, &sg_policy->tunables_hook);
- 	policy->governor_data = NULL;
- 	if (!count)
--		sugov_tunables_free(tunables);
-+		sugov_clear_global_tunables();
- 
- 	mutex_unlock(&global_tunables_lock);
- 
+-	status = *(unsigned long *)pending;
++	BUILD_BUG_ON(NR_GPIO_REGS > sizeof(status));
++	for (i = 0, status = 0; i < NR_GPIO_REGS; i++)
++		status |= (unsigned long)pending[i] << (i * 8);
+ 	for_each_set_bit(n, &status, gc->ngpio) {
+ 		handle_nested_irq(irq_find_mapping(gc->irq.domain, n));
+ 		stmfx_pinctrl_irq_toggle_trigger(pctl, n);
 
 
