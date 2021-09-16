@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4634440E7E1
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:59:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43A4340E4A4
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349834AbhIPRnU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:43:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53754 "EHLO mail.kernel.org"
+        id S1344044AbhIPRE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:04:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353971AbhIPRh7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:37:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 99D4F63237;
-        Thu, 16 Sep 2021 16:49:54 +0000 (UTC)
+        id S1347354AbhIPQ6v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:58:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 429F76162E;
+        Thu, 16 Sep 2021 16:32:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810995;
-        bh=KGkS7OUjv67aEGceRwx3OK2/OzlLJ/+NxgxkJRzgIXM=;
+        s=korg; t=1631809934;
+        bh=RgyEE/gxv2+PbwT+Twl7+jMwQK+Cn83YUGhdVMiZbVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J21pAywJtBw/Q1wRlVXMnbTpoUs8st0+AbvrTU6/oG3wvcFT158KqUUEjJ99as5QM
-         hITLLCL4Rnrr1wC8z9v+1PXLVZOq0nvwVj9eXHRdA03Lu5HNo+1GMd6Ot5xPpdvO/e
-         WUGxswluU04AqZZTMfXxMWhLbPUOxtEDftVcpkbQ=
+        b=vWs8nvw9gn3E8mKL4ieHMrZ52lwYhxzo8K7gFFPOvbHPCbIbDdO0OdigYd+OhFba1
+         Bqa9bbmsH4WfZsHHquKHXEyI9ATXwRSscIXtQkBUEaOrqus0SKLPaPW9fwtXWkpXw3
+         WRwppI6ntUJTNLg9CHtSkl6L7Qqllb8W3UNLSma0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
-        Shawn Lin <shawn.lin@rock-chips.com>,
+        stable@vger.kernel.org, Chengfeng Ye <cyeaa@connect.ust.hk>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 345/432] mmc: core: Avoid hogging the CPU while polling for busy for mmc ioctls
+Subject: [PATCH 5.13 337/380] selftests/bpf: Fix potential unreleased lock
 Date:   Thu, 16 Sep 2021 18:01:34 +0200
-Message-Id: <20210916155822.522528425@linuxfoundation.org>
+Message-Id: <20210916155815.503899529@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Chengfeng Ye <cyeaa@connect.ust.hk>
 
-[ Upstream commit 468108155b0f89cc08189cc33f9bacfe9da8a125 ]
+[ Upstream commit 47bb27a20d6ea22cd092c1fc2bb4fcecac374838 ]
 
-When __mmc_blk_ioctl_cmd() calls card_busy_detect() to verify that the
-card's states moves back into transfer state, the polling with CMD13 is
-done without any delays in between the commands being sent.
+This lock is not released if the program
+return at the patched branch.
 
-Rather than fixing card_busy_detect() in this regards, let's instead
-convert into using the common mmc_poll_for_busy(), which also helps us to
-avoid open-coding.
-
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Reviewed-by: Shawn Lin <shawn.lin@rock-chips.com>
-Link: https://lore.kernel.org/r/20210702134229.357717-3-ulf.hansson@linaro.org
+Signed-off-by: Chengfeng Ye <cyeaa@connect.ust.hk>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20210827074140.118671-1-cyeaa@connect.ust.hk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/block.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/bpf/prog_tests/sockopt_inherit.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
-index 170343411f53..c30d0ab15539 100644
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -605,7 +605,8 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
- 		 * Ensure RPMB/R1B command has completed by polling CMD13
- 		 * "Send Status".
- 		 */
--		err = card_busy_detect(card, MMC_BLK_TIMEOUT_MS, NULL);
-+		err = mmc_poll_for_busy(card, MMC_BLK_TIMEOUT_MS, false,
-+					MMC_BUSY_IO);
- 	}
+diff --git a/tools/testing/selftests/bpf/prog_tests/sockopt_inherit.c b/tools/testing/selftests/bpf/prog_tests/sockopt_inherit.c
+index ec281b0363b8..86f97681ad89 100644
+--- a/tools/testing/selftests/bpf/prog_tests/sockopt_inherit.c
++++ b/tools/testing/selftests/bpf/prog_tests/sockopt_inherit.c
+@@ -195,8 +195,10 @@ static void run_test(int cgroup_fd)
  
- 	return err;
+ 	pthread_mutex_lock(&server_started_mtx);
+ 	if (CHECK_FAIL(pthread_create(&tid, NULL, server_thread,
+-				      (void *)&server_fd)))
++				      (void *)&server_fd))) {
++		pthread_mutex_unlock(&server_started_mtx);
+ 		goto close_server_fd;
++	}
+ 	pthread_cond_wait(&server_started, &server_started_mtx);
+ 	pthread_mutex_unlock(&server_started_mtx);
+ 
 -- 
 2.30.2
 
