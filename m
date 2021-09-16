@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DD4840E080
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8022340E303
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:19:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235075AbhIPQVl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:21:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55010 "EHLO mail.kernel.org"
+        id S1343688AbhIPQoD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:44:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241213AbhIPQPV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:15:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 353E0613B5;
-        Thu, 16 Sep 2021 16:11:20 +0000 (UTC)
+        id S245632AbhIPQmC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:42:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C022613B1;
+        Thu, 16 Sep 2021 16:24:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808680;
-        bh=ZLv1C3RG3riPpt4zVxb0SbdFlgyPyAJ537EUYTgLIes=;
+        s=korg; t=1631809465;
+        bh=6mcHWBWcWXuC5Tmts2xdto8ZuoMFECF0/tuKk/l87Uw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0gYNQbJHTZiGlbxsfX4qZvE4NPYK2HsZh6VvF9QkbvmKAHZ2O6V5A3L2Dd9EeVMdb
-         xNSBmHIAs2yTDtBJMwf+6L9R4NZU2oQgu1IZsMFLpy/3wWSCPO7+CinBPENtHuyGib
-         ZkaE7CTtLH1lxNdqIr6wbPSkbr+G3z27g6qLnJxI=
+        b=tGdTskoDGHsA8vhCJcf/2FrDY19/YI86mG9sXPdFe/eTdf2Pu82688qer6jID27T1
+         9YmxdnADQgHV3/VyMg4dxDfraJO2QV5NDitrYMrP+wBIr10Fgh/P82mPFnkS0ZpTgG
+         HI0CvOtQ2M8dorVYkVjK0w4mpq+4QPeHVZVlm6VE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        =?UTF-8?q?Cl=C3=A9ment=20L=C3=A9ger?= <clement.leger@bootlin.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 175/306] ARM: dts: at91: use the right property for shutdown controller
-Date:   Thu, 16 Sep 2021 17:58:40 +0200
-Message-Id: <20210916155800.043511564@linuxfoundation.org>
+Subject: [PATCH 5.13 164/380] Smack: Fix wrong semantics in smk_access_entry()
+Date:   Thu, 16 Sep 2021 17:58:41 +0200
+Message-Id: <20210916155809.664284642@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,122 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Ferre <nicolas.ferre@microchip.com>
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 
-[ Upstream commit 818c4593434e81c9971b8fc278215121622c755e ]
+[ Upstream commit 6d14f5c7028eea70760df284057fe198ce7778dd ]
 
-The wrong property "atmel,shdwc-debouncer" was used to specify the
-debounce delay for the shutdown controler. Replace it with the
-documented and implemented property "debounce-delay-us", as mentioned
-in v4 driver submission. See:
-https://lore.kernel.org/r/1458134390-23847-3-git-send-email-nicolas.ferre@atmel.com/
+In the smk_access_entry() function, if no matching rule is found
+in the rust_list, a negative error code will be used to perform bit
+operations with the MAY_ enumeration value. This is semantically
+wrong. This patch fixes this issue.
 
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Reported-by: Clément Léger <clement.leger@bootlin.com>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20210730172729.28093-1-nicolas.ferre@microchip.com/
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91-kizbox3_common.dtsi    | 2 +-
- arch/arm/boot/dts/at91-sam9x60ek.dts          | 2 +-
- arch/arm/boot/dts/at91-sama5d27_som1_ek.dts   | 2 +-
- arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts | 2 +-
- arch/arm/boot/dts/at91-sama5d2_icp.dts        | 2 +-
- arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts     | 2 +-
- arch/arm/boot/dts/at91-sama5d2_xplained.dts   | 2 +-
- 7 files changed, 7 insertions(+), 7 deletions(-)
+ security/smack/smack_access.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm/boot/dts/at91-kizbox3_common.dtsi b/arch/arm/boot/dts/at91-kizbox3_common.dtsi
-index 7c3076e245ef..dc77d8e80e56 100644
---- a/arch/arm/boot/dts/at91-kizbox3_common.dtsi
-+++ b/arch/arm/boot/dts/at91-kizbox3_common.dtsi
-@@ -336,7 +336,7 @@ &pwm0 {
- };
+diff --git a/security/smack/smack_access.c b/security/smack/smack_access.c
+index 7eabb448acab..169929c6c4eb 100644
+--- a/security/smack/smack_access.c
++++ b/security/smack/smack_access.c
+@@ -81,23 +81,22 @@ int log_policy = SMACK_AUDIT_DENIED;
+ int smk_access_entry(char *subject_label, char *object_label,
+ 			struct list_head *rule_list)
+ {
+-	int may = -ENOENT;
+ 	struct smack_rule *srp;
  
- &shutdown_controller {
--	atmel,shdwc-debouncer = <976>;
-+	debounce-delay-us = <976>;
- 	atmel,wakeup-rtc-timer;
+ 	list_for_each_entry_rcu(srp, rule_list, list) {
+ 		if (srp->smk_object->smk_known == object_label &&
+ 		    srp->smk_subject->smk_known == subject_label) {
+-			may = srp->smk_access;
+-			break;
++			int may = srp->smk_access;
++			/*
++			 * MAY_WRITE implies MAY_LOCK.
++			 */
++			if ((may & MAY_WRITE) == MAY_WRITE)
++				may |= MAY_LOCK;
++			return may;
+ 		}
+ 	}
  
- 	input@0 {
-diff --git a/arch/arm/boot/dts/at91-sam9x60ek.dts b/arch/arm/boot/dts/at91-sam9x60ek.dts
-index ebbc9b23aef1..b1068cca4228 100644
---- a/arch/arm/boot/dts/at91-sam9x60ek.dts
-+++ b/arch/arm/boot/dts/at91-sam9x60ek.dts
-@@ -662,7 +662,7 @@ &rtt {
- };
+-	/*
+-	 * MAY_WRITE implies MAY_LOCK.
+-	 */
+-	if ((may & MAY_WRITE) == MAY_WRITE)
+-		may |= MAY_LOCK;
+-	return may;
++	return -ENOENT;
+ }
  
- &shutdown_controller {
--	atmel,shdwc-debouncer = <976>;
-+	debounce-delay-us = <976>;
- 	status = "okay";
- 
- 	input@0 {
-diff --git a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
-index d3cd2443ba25..9a18453d7842 100644
---- a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
-+++ b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
-@@ -138,7 +138,7 @@ i2c3: i2c@600 {
- 			};
- 
- 			shdwc@f8048010 {
--				atmel,shdwc-debouncer = <976>;
-+				debounce-delay-us = <976>;
- 				atmel,wakeup-rtc-timer;
- 
- 				input@0 {
-diff --git a/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts b/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts
-index 4883b84b4ede..20bcb7480d2e 100644
---- a/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts
-+++ b/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts
-@@ -205,7 +205,7 @@ &sdmmc0 {
- };
- 
- &shutdown_controller {
--	atmel,shdwc-debouncer = <976>;
-+	debounce-delay-us = <976>;
- 	atmel,wakeup-rtc-timer;
- 
- 	input@0 {
-diff --git a/arch/arm/boot/dts/at91-sama5d2_icp.dts b/arch/arm/boot/dts/at91-sama5d2_icp.dts
-index 19bb50f50c1f..308d472bd104 100644
---- a/arch/arm/boot/dts/at91-sama5d2_icp.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_icp.dts
-@@ -693,7 +693,7 @@ &sdmmc0 {
- };
- 
- &shutdown_controller {
--	atmel,shdwc-debouncer = <976>;
-+	debounce-delay-us = <976>;
- 	atmel,wakeup-rtc-timer;
- 
- 	input@0 {
-diff --git a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-index 1c6361ba1aca..317c6ddb5677 100644
---- a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-@@ -203,7 +203,7 @@ i2c2: i2c@600 {
- 			};
- 
- 			shdwc@f8048010 {
--				atmel,shdwc-debouncer = <976>;
-+				debounce-delay-us = <976>;
- 
- 				input@0 {
- 					reg = <0>;
-diff --git a/arch/arm/boot/dts/at91-sama5d2_xplained.dts b/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-index d767968ae217..08c5182ba86b 100644
---- a/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-@@ -347,7 +347,7 @@ i2c2: i2c@600 {
- 			};
- 
- 			shdwc@f8048010 {
--				atmel,shdwc-debouncer = <976>;
-+				debounce-delay-us = <976>;
- 				atmel,wakeup-rtc-timer;
- 
- 				input@0 {
+ /**
 -- 
 2.30.2
 
