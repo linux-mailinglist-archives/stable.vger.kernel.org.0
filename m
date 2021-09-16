@@ -2,75 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF26940D0F7
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 02:36:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00DAB40D106
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 02:56:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233329AbhIPAhv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 20:37:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40850 "EHLO mail.kernel.org"
+        id S233405AbhIPA5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 20:57:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233237AbhIPAhu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Sep 2021 20:37:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05CBC610A6;
-        Thu, 16 Sep 2021 00:36:30 +0000 (UTC)
+        id S233393AbhIPA5c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Sep 2021 20:57:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C0811610D1;
+        Thu, 16 Sep 2021 00:56:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631752591;
-        bh=1AfdBcgWzbogf8HggZNDU4tJFfcbC5EYH6SpKNmqwFQ=;
+        s=k20201202; t=1631753773;
+        bh=pgnKBG0IkPmD5mHwnJGP4MO9grHBDDzdzGVxl2qC78U=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=q20NCwPembe62/tHsWPiOsDVsRICB1+8q4n7JLZ0sqKqZEBhl05vEVPPv7bxmcT4m
-         x3VN31kWGayqkEamDlwPMNAa+Sr1LWGI0teoJr1C0LS4hPGz4RXmPdHa2ib6hzGFLy
-         fXPDv4I5KRuckvqn5qtAiqXo++djfDIDMd87bbOd3WUzYcs2RXm9LzPhhbngHVB/YX
-         aXTShbIMHxwvOJbitMBeIl7zcAogfU+HYjAFAfkr7gACJmFPjnkvLd+aELMA6nc5Su
-         VElMcUFYZPl/kPDVJXM5n1n9/HBOVR42H1eqazltbh4bwapcZTcZ3lvELBPhmO5JFD
-         xrBWv3wbojbrg==
-Date:   Wed, 15 Sep 2021 20:36:30 -0400
+        b=u4MqB+Ol2Pu2+kDVyTXIumMPFx3phXhiXNm1EUAkGf7H0szTpY3eW4bWlBRbHUFkW
+         ErHNFPq6capQGoryArp9v1M7R3E6T6fKCBoKCVrpHrosYUZ7fksMHMGjpXBrO4C5/I
+         gMHis44MCQ/bG/nJd3Qldt9rVHXILfn1fxCP8fdNpupS5VPX4P20wLYzNkBZzj1P6+
+         21uX+nHtHkKhXayodDGiAa4yhBN0Y1TW5EFS35eeIhzrpvSL+D8AhkoFUHkQjZZbA1
+         Ex86rQKD7wvp4IIDeeFBKJbsvF8rOZ6GlnwPZrf+Ng0SB4TOv9y4OqcTvJ5LsLkL1B
+         Wa9IgE2aSDNyg==
+Date:   Wed, 15 Sep 2021 20:56:11 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Ohhoon Kwon <ohoono.kwon@samsung.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.14 19/25] connector: send event on write to
- /proc/[pid]/comm
-Message-ID: <YUKRju8/BayxKeC3@sashalap>
-References: <20210913223339.435347-1-sashal@kernel.org>
- <20210913223339.435347-19-sashal@kernel.org>
- <87v932ar5q.fsf@disp2133>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Hsin-Yi Wang <hsinyi@chromium.org>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Mattijs Korpershoek <mkorpershoek@baylibre.com>
+Subject: Re: [PATCH 5.10 157/236] Bluetooth: Move shutdown callback before
+ flushing tx and rx queue
+Message-ID: <YUKWK4EflIdFxFsp@sashalap>
+References: <20210913131100.316353015@linuxfoundation.org>
+ <20210913131105.720088593@linuxfoundation.org>
+ <20210915111843.GA16198@duo.ucw.cz>
+ <20210915143238.GA2403125@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <87v932ar5q.fsf@disp2133>
+In-Reply-To: <20210915143238.GA2403125@roeck-us.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 15, 2021 at 08:45:37AM -0500, Eric W. Biederman wrote:
->Sasha Levin <sashal@kernel.org> writes:
->
->> From: Ohhoon Kwon <ohoono.kwon@samsung.com>
+On Wed, Sep 15, 2021 at 07:32:38AM -0700, Guenter Roeck wrote:
+>On Wed, Sep 15, 2021 at 01:18:43PM +0200, Pavel Machek wrote:
+>> Hi!
 >>
->> [ Upstream commit c2f273ebd89a79ed87ef1025753343e327b99ac9 ]
+>> > [ Upstream commit 0ea53674d07fb6db2dd7a7ec2fdc85a12eb246c2 ]
 >>
->> While comm change event via prctl has been reported to proc connector by
->> 'commit f786ecba4158 ("connector: add comm change event report to proc
->> connector")', connector listeners were missing comm changes by explicit
->> writes on /proc/[pid]/comm.
+>> Upstream commit is okay...
 >>
->> Let explicit writes on /proc/[pid]/comm report to proc connector.
+>> > So move the shutdown callback before flushing TX/RX queue to resolve the
+>> > issue.
+>>
+>> ...but something went wrong in stable. This is not moving code, this
+>> is duplicating it:
+>>
+>> > --- a/net/bluetooth/hci_core.c
+>> > +++ b/net/bluetooth/hci_core.c
+>> > @@ -1726,6 +1726,14 @@ int hci_dev_do_close(struct hci_dev *hdev)
+>> >  	hci_request_cancel_all(hdev);
+>> >  	hci_req_sync_lock(hdev);
+>> >
+>> > +	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
+>> > +	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
+>> > +	    test_bit(HCI_UP, &hdev->flags)) {
+>> > +		/* Execute vendor specific shutdown routine */
+>> > +		if (hdev->shutdown)
+>> > +			hdev->shutdown(hdev);
+>> > +	}
+>> > +
+>> >  	if (!test_and_clear_bit(HCI_UP, &hdev->flags)) {
+>> >  		cancel_delayed_work_sync(&hdev->cmd_timer);
+>> >  		hci_req_sync_unlock(hdev);
+>>
+>> And yes, we end up with 2 copies in 5.10.
+>>
 >
->This is a potential userspace ABI breakage?  Why backport it?
->
->Especially if there is no one asking for the behavior change in
->userspace?
+>Same problem in v5.4.y, unfortunately.
 
-This sounds like a concern with the patch going upstream rather than
-going to stable? stable has the same policy around ABI changes such as
-upstream.
+Ugh, odd - it wasn't manually backported :/
+
+I'll drop it.
 
 -- 
 Thanks,
