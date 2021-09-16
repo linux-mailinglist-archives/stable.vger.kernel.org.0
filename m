@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A89E40E2B9
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFBEA40E62F
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241126AbhIPQlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:41:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50990 "EHLO mail.kernel.org"
+        id S1346021AbhIPRSx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:18:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243796AbhIPQjA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:39:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4365619FA;
-        Thu, 16 Sep 2021 16:22:48 +0000 (UTC)
+        id S1350816AbhIPRQw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:16:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C45361BA7;
+        Thu, 16 Sep 2021 16:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809369;
-        bh=YYBho95QdOM5VhV5o1hM07Vz0fnKXDen22OQtXq+tsM=;
+        s=korg; t=1631810425;
+        bh=Pl4jT/1pzimdql52fgjmzbZnSvgTJ6qtKEL9aVJzT3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cIp1Db9XeObsArtr0KBsn+EsQbURXPEa6L7mtEm4fxso0Q//kkaN0Rx3fT7orn1Dw
-         0JT0PQvfTnoIQGzyH2jciP4B4GYpzHbJhpyQ5aKHdOhgdaO9AonmRkINZQvN3wF8lj
-         bQuIP201R6H6MN05meBZuzia/XV2UOvxkTKBiJqM=
+        b=jn3s30sdRhXU3GkWuFJr6dYp4HmfTB26LBmmZ0IW5JQoQq9d7YziPG8UBsCIUMwtn
+         5XRoIjdL4kISJymm2/5Im7Ok0ssnJNXFEVi/F7YZBseLiFk14RQ8KarbmLXltkVktQ
+         j/5B+mIOEx4gqoieb21uN6Cja1Sf+2+EtvWwxy74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Junxian Huang <huangjunxian4@hisilicon.com>,
+        Wenpeng Liang <liangwenpeng@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 129/380] KVM: PPC: Fix clearing never mapped TCEs in realmode
+Subject: [PATCH 5.14 137/432] RDMA/hns: Bugfix for the missing assignment for dip_idx
 Date:   Thu, 16 Sep 2021 17:58:06 +0200
-Message-Id: <20210916155808.428855611@linuxfoundation.org>
+Message-Id: <20210916155815.405682126@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Junxian Huang <huangjunxian4@hisilicon.com>
 
-[ Upstream commit 1d78dfde33a02da1d816279c2e3452978b7abd39 ]
+[ Upstream commit 074f315fc54a9ce45559a44ca36d9fa1ee1ea2cd ]
 
-Since commit e1a1ef84cd07 ("KVM: PPC: Book3S: Allocate guest TCEs on
-demand too"), pages for TCE tables for KVM guests are allocated only
-when needed. This allows skipping any update when clearing TCEs. This
-works mostly fine as TCE updates are handled when the MMU is enabled.
-The realmode handlers fail with H_TOO_HARD when pages are not yet
-allocated, except when clearing a TCE in which case KVM prints a warning
-and proceeds to dereference a NULL pointer, which crashes the host OS.
+When the dgid-dip_idx mapping relationship exists, dip should be assigned.
 
-This has not been caught so far as the change in commit e1a1ef84cd07 is
-reasonably new, and POWER9 runs mostly radix which does not use realmode
-handlers. With hash, the default TCE table is memset() by QEMU when the
-machine is reset which triggers page faults and the KVM TCE device's
-kvm_spapr_tce_fault() handles those with MMU on. And the huge DMA
-windows are not cleared by VMs which instead successfully create a DMA
-window big enough to map the VM memory 1:1 and then VMs just map
-everything without clearing.
-
-This started crashing now as commit 381ceda88c4c ("powerpc/pseries/iommu:
-Make use of DDW for indirect mapping") added a mode when a dymanic DMA
-window not big enough to map the VM memory 1:1 but it is used anyway,
-and the VM now is the first (i.e. not QEMU) to clear a just created
-table. Note that upstream QEMU needs to be modified to trigger the VM to
-trigger the host OS crash.
-
-This replaces WARN_ON_ONCE_RM() with a check and return, and adds
-another warning if TCE is not being cleared.
-
-Fixes: e1a1ef84cd07 ("KVM: PPC: Book3S: Allocate guest TCEs on demand too")
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210827040706.517652-1-aik@ozlabs.ru
+Fixes: f91696f2f053 ("RDMA/hns: Support congestion control type selection according to the FW")
+Link: https://lore.kernel.org/r/1629884592-23424-3-git-send-email-liangwenpeng@huawei.com
+Signed-off-by: Junxian Huang <huangjunxian4@hisilicon.com>
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_64_vio_hv.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kvm/book3s_64_vio_hv.c b/arch/powerpc/kvm/book3s_64_vio_hv.c
-index 083a4e037718..e5ba96c41f3f 100644
---- a/arch/powerpc/kvm/book3s_64_vio_hv.c
-+++ b/arch/powerpc/kvm/book3s_64_vio_hv.c
-@@ -173,10 +173,13 @@ static void kvmppc_rm_tce_put(struct kvmppc_spapr_tce_table *stt,
- 	idx -= stt->offset;
- 	page = stt->pages[idx / TCES_PER_PAGE];
- 	/*
--	 * page must not be NULL in real mode,
--	 * kvmppc_rm_ioba_validate() must have taken care of this.
-+	 * kvmppc_rm_ioba_validate() allows pages not be allocated if TCE is
-+	 * being cleared, otherwise it returns H_TOO_HARD and we skip this.
- 	 */
--	WARN_ON_ONCE_RM(!page);
-+	if (!page) {
-+		WARN_ON_ONCE_RM(tce != 0);
-+		return;
-+	}
- 	tbl = kvmppc_page_address(page);
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index f4cea6dcec2f..d9e330a383b2 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -4514,8 +4514,10 @@ static int get_dip_ctx_idx(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
+ 	spin_lock_irqsave(&hr_dev->dip_list_lock, flags);
  
- 	tbl[idx % TCES_PER_PAGE] = tce;
+ 	list_for_each_entry(hr_dip, &hr_dev->dip_list, node) {
+-		if (!memcmp(grh->dgid.raw, hr_dip->dgid, 16))
++		if (!memcmp(grh->dgid.raw, hr_dip->dgid, 16)) {
++			*dip_idx = hr_dip->dip_idx;
+ 			goto out;
++		}
+ 	}
+ 
+ 	/* If no dgid is found, a new dip and a mapping between dgid and
 -- 
 2.30.2
 
