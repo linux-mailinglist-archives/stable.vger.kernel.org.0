@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 018F240DF5F
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:09:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77BB640E22B
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231649AbhIPQJT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:09:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48354 "EHLO mail.kernel.org"
+        id S241240AbhIPQfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:35:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234885AbhIPQIH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:08:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62B4B6126A;
-        Thu, 16 Sep 2021 16:06:46 +0000 (UTC)
+        id S237311AbhIPQdK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:33:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF789613DA;
+        Thu, 16 Sep 2021 16:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808406;
-        bh=TCbqOC2lMijmDTVUlPZ/0ufFEh+w9K8qNu7szvP34sU=;
+        s=korg; t=1631809208;
+        bh=eiUJ5cm6EUjMXmWsOkIArvbUh1BH3xkBosG2IV0HxsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DO+bWwKcuZ59/ovisIHysARscl7LCu1B8TSajqTyPwAX63MluYX2ZC1JL9DDC0y7K
-         KfIq98b3QSbkOCn1ZUETVyXKRni+I4tSQ+Dpq6I3knAYuoNaYwsX7QcoI0NWITLbvL
-         Ul3iW6aGgnFi+fD5+DA4uiHqH3Z7A2NaklD49iIQ=
+        b=GeZDtM2vdL1ksOzRYEuSlzO/LJtA07vAPQXMG2a7eNWnJ81+7IPb62JlYtKRlZjN1
+         SNQD7EsJnss4qM1PBhEHTKHn03p9CVhhzbj7CN2p2nEC5DQut7kHUvmE7dUTGb+JV4
+         1x5r2fMaPSUCtgchsrUuLiwWc53FC3hCX39fkDjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 080/306] SUNRPC query transports source port
-Date:   Thu, 16 Sep 2021 17:57:05 +0200
-Message-Id: <20210916155756.781145663@linuxfoundation.org>
+        stable@vger.kernel.org, Kenneth Albanowski <kenalba@google.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 069/380] HID: input: do not report stylus battery state as "full"
+Date:   Thu, 16 Sep 2021 17:57:06 +0200
+Message-Id: <20210916155806.343364653@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit a8482488a7d6d320f63a9ee1912dbb5ae5b80a61 ]
+[ Upstream commit f4abaa9eebde334045ed6ac4e564d050f1df3013 ]
 
-Provide ability to query transport's source port.
+The power supply states of discharging, charging, full, etc, represent
+state of charging, not the capacity level of the battery (for which
+we have a separate property). Current HID usage tables to not allow
+for expressing charging state of the batteries found in generic
+styli, so we should simply assume that the battery is discharging
+even if current capacity is at 100% when battery strength reporting
+is done via HID interface. In fact, we were doing just that before
+commit 581c4484769e.
 
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+This change helps UIs to not mis-represent fully charged batteries in
+styli as being charging/topping-off.
+
+Fixes: 581c4484769e ("HID: input: map digitizer battery usage")
+Reported-by: Kenneth Albanowski <kenalba@google.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sunrpc/xprtsock.h | 1 +
- net/sunrpc/xprtsock.c           | 7 +++++++
- 2 files changed, 8 insertions(+)
+ drivers/hid/hid-input.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/include/linux/sunrpc/xprtsock.h b/include/linux/sunrpc/xprtsock.h
-index 3c1423ee74b4..8c2a712cb242 100644
---- a/include/linux/sunrpc/xprtsock.h
-+++ b/include/linux/sunrpc/xprtsock.h
-@@ -10,6 +10,7 @@
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 68c8644234a4..f43b40450e97 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -419,8 +419,6 @@ static int hidinput_get_battery_property(struct power_supply *psy,
  
- int		init_socket_xprt(void);
- void		cleanup_socket_xprt(void);
-+unsigned short	get_srcport(struct rpc_xprt *);
- 
- #define RPC_MIN_RESVPORT	(1U)
- #define RPC_MAX_RESVPORT	(65535U)
-diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index 9c0f71e82d97..7d7c08af54de 100644
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -1639,6 +1639,13 @@ static int xs_get_srcport(struct sock_xprt *transport)
- 	return port;
- }
- 
-+unsigned short get_srcport(struct rpc_xprt *xprt)
-+{
-+	struct sock_xprt *sock = container_of(xprt, struct sock_xprt, xprt);
-+	return sock->srcport;
-+}
-+EXPORT_SYMBOL(get_srcport);
-+
- static unsigned short xs_next_srcport(struct sock_xprt *transport, unsigned short port)
- {
- 	if (transport->srcport != 0)
+ 		if (dev->battery_status == HID_BATTERY_UNKNOWN)
+ 			val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
+-		else if (dev->battery_capacity == 100)
+-			val->intval = POWER_SUPPLY_STATUS_FULL;
+ 		else
+ 			val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
+ 		break;
 -- 
 2.30.2
 
