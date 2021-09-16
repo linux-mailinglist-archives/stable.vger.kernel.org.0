@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AC3E40E83F
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25E9240E4E7
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353249AbhIPRoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:44:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53762 "EHLO mail.kernel.org"
+        id S1349561AbhIPRGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:06:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354953AbhIPRkw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:40:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F40C8611C8;
-        Thu, 16 Sep 2021 16:51:39 +0000 (UTC)
+        id S1348493AbhIPRC7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:02:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03E3561B25;
+        Thu, 16 Sep 2021 16:34:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811100;
-        bh=k7GlPxKjxxPV1E0dBBXMjRRHeWhi0zDdQc+CVA8fLYg=;
+        s=korg; t=1631810041;
+        bh=h8kVdUEkVzsjqaVb1iR/iLwVz0RLom4uufhPCsCk83Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FCXiZd2K5sZRwjUqSrg0SmC5vhXM4j9BAmPw+cmwlZBPctpFLvL1ZHI3ngfZMT99g
-         tlxiSg5zbwI38K1FP71l3hjOnjYje3LY8qNG2NNxh3cZkldkV7I8A1C/p78WGd7Od8
-         B/vqnte06edNyxnCn7Glg/8glyUR2GvKzOCu5aRA=
+        b=ai2KgHutogFvjjsBMuMxRH2jsLcoZD9KLSljE0Q/8nBF+DoKJzbLXE/3NlyE8+PK4
+         R0ytOH7DHfFGtrOB7ho1+p822Z9f3Tgkv6OU2xPOaqn4Ji+1Dfi83NlxFxLQVmoN9/
+         0GoUecQHGtb7RHgoePB9ZASODyvU6a6sPOJVow40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 384/432] wcn36xx: Fix missing frame timestamp for beacon/probe-resp
+        stable@vger.kernel.org, Aaron Liu <aaron.liu@amd.com>,
+        Huang Rui <ray.huang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.13 376/380] drm/amd/display: setup system context for APUs
 Date:   Thu, 16 Sep 2021 18:02:13 +0200
-Message-Id: <20210916155823.823416268@linuxfoundation.org>
+Message-Id: <20210916155816.840875841@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Loic Poulain <loic.poulain@linaro.org>
+From: Aaron Liu <aaron.liu@amd.com>
 
-[ Upstream commit 8678fd31f2d3eb14f2b8b39c9bc266f16fa24b22 ]
+commit 3ca001aff0878546494d7f403334c8d987924977 upstream.
 
-When receiving a beacon or probe response, we should update the
-boottime_ns field which is the timestamp the frame was received at.
-(cf mac80211.h)
+Scatter/gather is APU feature starting from carrizo.
+adev->apu_flags is not used for all APUs.
+adev->flags & AMD_IS_APU can be used for all APUs.
 
-This fixes a scanning issue with Android since it relies on this
-timestamp to determine when the AP has been seen for the last time
-(via the nl80211 BSS_LAST_SEEN_BOOTTIME parameter).
-
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1629992768-23785-1-git-send-email-loic.poulain@linaro.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Aaron Liu <aaron.liu@amd.com>
+Reviewed-by: Huang Rui <ray.huang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/wcn36xx/txrx.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/wcn36xx/txrx.c b/drivers/net/wireless/ath/wcn36xx/txrx.c
-index 1b831157ede1..cab196bb38cd 100644
---- a/drivers/net/wireless/ath/wcn36xx/txrx.c
-+++ b/drivers/net/wireless/ath/wcn36xx/txrx.c
-@@ -287,6 +287,10 @@ int wcn36xx_rx_skb(struct wcn36xx *wcn, struct sk_buff *skb)
- 		status.rate_idx = 0;
- 	}
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -1176,7 +1176,7 @@ static int amdgpu_dm_init(struct amdgpu_
+ 	dc_hardware_init(adev->dm.dc);
  
-+	if (ieee80211_is_beacon(hdr->frame_control) ||
-+	    ieee80211_is_probe_resp(hdr->frame_control))
-+		status.boottime_ns = ktime_get_boottime_ns();
-+
- 	memcpy(IEEE80211_SKB_RXCB(skb), &status, sizeof(status));
+ #if defined(CONFIG_DRM_AMD_DC_DCN)
+-	if (adev->apu_flags) {
++	if ((adev->flags & AMD_IS_APU) && (adev->asic_type >= CHIP_CARRIZO)) {
+ 		struct dc_phy_addr_space_config pa_config;
  
- 	if (ieee80211_is_beacon(hdr->frame_control)) {
--- 
-2.30.2
-
+ 		mmhub_read_system_context(adev, &pa_config);
 
 
