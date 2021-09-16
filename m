@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFEB540E2C5
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F89040E653
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244283AbhIPQlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:41:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51718 "EHLO mail.kernel.org"
+        id S234811AbhIPRU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:20:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244697AbhIPQj2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:39:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 726C561411;
-        Thu, 16 Sep 2021 16:23:16 +0000 (UTC)
+        id S1350949AbhIPRSA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:18:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D5A5861BA5;
+        Thu, 16 Sep 2021 16:40:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809397;
-        bh=6C9Zci5sx1brbhwFm+gIcGbsnC3UaZHavkliemDtluM=;
+        s=korg; t=1631810455;
+        bh=l7sCcpz+EikM5+nd93nOW43zOFYmRLpPP3UjL/+xjfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rtAFvcYJQekLcOanHJNWUPLdxCzE1a835A3T1XkmCX9vgJRRTV2onxKtMP2qL9WM7
-         oL5r5gm75MnjlSBpkDTJWlXDmxEU+wlrPjSRPk81LOLLisPyhRagHVUMY74iRdzVA8
-         EDzlJbEDjI4sRaydL0DmkMjbFGi2UhPCB+F495I0=
+        b=H964oy1AiK2MRqK5e2rc3ic6RPeS+vGAQ7RpEP9I+pgY+WtHjBltrUtUETsWB2sz1
+         tqnSbNS7RDVTqjBpzEuB9rwfb79ZVQyGP9ZW2l2mADyp15vV/GJijoOXuIQRRPp5Qz
+         8I6GIBhuHWIR/qJBid4R52MOUVGJ58MDnkqvXbK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Peter Xu <peterx@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 138/380] userfaultfd: prevent concurrent API initialization
-Date:   Thu, 16 Sep 2021 17:58:15 +0200
-Message-Id: <20210916155808.735904884@linuxfoundation.org>
+Subject: [PATCH 5.14 147/432] KVM: PPC: Fix clearing never mapped TCEs in realmode
+Date:   Thu, 16 Sep 2021 17:58:16 +0200
+Message-Id: <20210916155815.738424404@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,223 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-[ Upstream commit 22e5fe2a2a279d9a6fcbdfb4dffe73821bef1c90 ]
+[ Upstream commit 1d78dfde33a02da1d816279c2e3452978b7abd39 ]
 
-userfaultfd assumes that the enabled features are set once and never
-changed after UFFDIO_API ioctl succeeded.
+Since commit e1a1ef84cd07 ("KVM: PPC: Book3S: Allocate guest TCEs on
+demand too"), pages for TCE tables for KVM guests are allocated only
+when needed. This allows skipping any update when clearing TCEs. This
+works mostly fine as TCE updates are handled when the MMU is enabled.
+The realmode handlers fail with H_TOO_HARD when pages are not yet
+allocated, except when clearing a TCE in which case KVM prints a warning
+and proceeds to dereference a NULL pointer, which crashes the host OS.
 
-However, currently, UFFDIO_API can be called concurrently from two
-different threads, succeed on both threads and leave userfaultfd's
-features in non-deterministic state.  Theoretically, other uffd operations
-(ioctl's and page-faults) can be dispatched while adversely affected by
-such changes of features.
+This has not been caught so far as the change in commit e1a1ef84cd07 is
+reasonably new, and POWER9 runs mostly radix which does not use realmode
+handlers. With hash, the default TCE table is memset() by QEMU when the
+machine is reset which triggers page faults and the KVM TCE device's
+kvm_spapr_tce_fault() handles those with MMU on. And the huge DMA
+windows are not cleared by VMs which instead successfully create a DMA
+window big enough to map the VM memory 1:1 and then VMs just map
+everything without clearing.
 
-Moreover, the writes to ctx->state and ctx->features are not ordered,
-which can - theoretically, again - let userfaultfd_ioctl() think that
-userfaultfd API completed, while the features are still not initialized.
+This started crashing now as commit 381ceda88c4c ("powerpc/pseries/iommu:
+Make use of DDW for indirect mapping") added a mode when a dymanic DMA
+window not big enough to map the VM memory 1:1 but it is used anyway,
+and the VM now is the first (i.e. not QEMU) to clear a just created
+table. Note that upstream QEMU needs to be modified to trigger the VM to
+trigger the host OS crash.
 
-To avoid races, it is arguably best to get rid of ctx->state.  Since there
-are only 2 states, record the API initialization in ctx->features as the
-uppermost bit and remove ctx->state.
+This replaces WARN_ON_ONCE_RM() with a check and return, and adds
+another warning if TCE is not being cleared.
 
-Link: https://lkml.kernel.org/r/20210808020724.1022515-3-namit@vmware.com
-Fixes: 9cd75c3cd4c3d ("userfaultfd: non-cooperative: add ability to report non-PF events from uffd descriptor")
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Peter Xu <peterx@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: e1a1ef84cd07 ("KVM: PPC: Book3S: Allocate guest TCEs on demand too")
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210827040706.517652-1-aik@ozlabs.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/userfaultfd.c | 91 +++++++++++++++++++++++-------------------------
- 1 file changed, 44 insertions(+), 47 deletions(-)
+ arch/powerpc/kvm/book3s_64_vio_hv.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index 8fc8bbf9635b..e55f861d23fd 100644
---- a/fs/userfaultfd.c
-+++ b/fs/userfaultfd.c
-@@ -33,11 +33,6 @@ int sysctl_unprivileged_userfaultfd __read_mostly;
- 
- static struct kmem_cache *userfaultfd_ctx_cachep __read_mostly;
- 
--enum userfaultfd_state {
--	UFFD_STATE_WAIT_API,
--	UFFD_STATE_RUNNING,
--};
--
- /*
-  * Start with fault_pending_wqh and fault_wqh so they're more likely
-  * to be in the same cacheline.
-@@ -69,8 +64,6 @@ struct userfaultfd_ctx {
- 	unsigned int flags;
- 	/* features requested from the userspace */
- 	unsigned int features;
--	/* state machine */
--	enum userfaultfd_state state;
- 	/* released */
- 	bool released;
- 	/* memory mappings are changing because of non-cooperative event */
-@@ -104,6 +97,14 @@ struct userfaultfd_wake_range {
- 	unsigned long len;
- };
- 
-+/* internal indication that UFFD_API ioctl was successfully executed */
-+#define UFFD_FEATURE_INITIALIZED		(1u << 31)
-+
-+static bool userfaultfd_is_initialized(struct userfaultfd_ctx *ctx)
-+{
-+	return ctx->features & UFFD_FEATURE_INITIALIZED;
-+}
-+
- static int userfaultfd_wake_function(wait_queue_entry_t *wq, unsigned mode,
- 				     int wake_flags, void *key)
- {
-@@ -666,7 +667,6 @@ int dup_userfaultfd(struct vm_area_struct *vma, struct list_head *fcs)
- 
- 		refcount_set(&ctx->refcount, 1);
- 		ctx->flags = octx->flags;
--		ctx->state = UFFD_STATE_RUNNING;
- 		ctx->features = octx->features;
- 		ctx->released = false;
- 		ctx->mmap_changing = false;
-@@ -943,38 +943,33 @@ static __poll_t userfaultfd_poll(struct file *file, poll_table *wait)
- 
- 	poll_wait(file, &ctx->fd_wqh, wait);
- 
--	switch (ctx->state) {
--	case UFFD_STATE_WAIT_API:
-+	if (!userfaultfd_is_initialized(ctx))
- 		return EPOLLERR;
--	case UFFD_STATE_RUNNING:
--		/*
--		 * poll() never guarantees that read won't block.
--		 * userfaults can be waken before they're read().
--		 */
--		if (unlikely(!(file->f_flags & O_NONBLOCK)))
--			return EPOLLERR;
--		/*
--		 * lockless access to see if there are pending faults
--		 * __pollwait last action is the add_wait_queue but
--		 * the spin_unlock would allow the waitqueue_active to
--		 * pass above the actual list_add inside
--		 * add_wait_queue critical section. So use a full
--		 * memory barrier to serialize the list_add write of
--		 * add_wait_queue() with the waitqueue_active read
--		 * below.
--		 */
--		ret = 0;
--		smp_mb();
--		if (waitqueue_active(&ctx->fault_pending_wqh))
--			ret = EPOLLIN;
--		else if (waitqueue_active(&ctx->event_wqh))
--			ret = EPOLLIN;
- 
--		return ret;
--	default:
--		WARN_ON_ONCE(1);
-+	/*
-+	 * poll() never guarantees that read won't block.
-+	 * userfaults can be waken before they're read().
-+	 */
-+	if (unlikely(!(file->f_flags & O_NONBLOCK)))
- 		return EPOLLERR;
--	}
-+	/*
-+	 * lockless access to see if there are pending faults
-+	 * __pollwait last action is the add_wait_queue but
-+	 * the spin_unlock would allow the waitqueue_active to
-+	 * pass above the actual list_add inside
-+	 * add_wait_queue critical section. So use a full
-+	 * memory barrier to serialize the list_add write of
-+	 * add_wait_queue() with the waitqueue_active read
-+	 * below.
-+	 */
-+	ret = 0;
-+	smp_mb();
-+	if (waitqueue_active(&ctx->fault_pending_wqh))
-+		ret = EPOLLIN;
-+	else if (waitqueue_active(&ctx->event_wqh))
-+		ret = EPOLLIN;
-+
-+	return ret;
- }
- 
- static const struct file_operations userfaultfd_fops;
-@@ -1169,7 +1164,7 @@ static ssize_t userfaultfd_read(struct file *file, char __user *buf,
- 	int no_wait = file->f_flags & O_NONBLOCK;
- 	struct inode *inode = file_inode(file);
- 
--	if (ctx->state == UFFD_STATE_WAIT_API)
-+	if (!userfaultfd_is_initialized(ctx))
- 		return -EINVAL;
- 
- 	for (;;) {
-@@ -1905,9 +1900,10 @@ static int userfaultfd_continue(struct userfaultfd_ctx *ctx, unsigned long arg)
- static inline unsigned int uffd_ctx_features(__u64 user_features)
- {
+diff --git a/arch/powerpc/kvm/book3s_64_vio_hv.c b/arch/powerpc/kvm/book3s_64_vio_hv.c
+index dc6591548f0c..636c6ae0939b 100644
+--- a/arch/powerpc/kvm/book3s_64_vio_hv.c
++++ b/arch/powerpc/kvm/book3s_64_vio_hv.c
+@@ -173,10 +173,13 @@ static void kvmppc_rm_tce_put(struct kvmppc_spapr_tce_table *stt,
+ 	idx -= stt->offset;
+ 	page = stt->pages[idx / TCES_PER_PAGE];
  	/*
--	 * For the current set of features the bits just coincide
-+	 * For the current set of features the bits just coincide. Set
-+	 * UFFD_FEATURE_INITIALIZED to mark the features as enabled.
+-	 * page must not be NULL in real mode,
+-	 * kvmppc_rm_ioba_validate() must have taken care of this.
++	 * kvmppc_rm_ioba_validate() allows pages not be allocated if TCE is
++	 * being cleared, otherwise it returns H_TOO_HARD and we skip this.
  	 */
--	return (unsigned int)user_features;
-+	return (unsigned int)user_features | UFFD_FEATURE_INITIALIZED;
- }
+-	WARN_ON_ONCE_RM(!page);
++	if (!page) {
++		WARN_ON_ONCE_RM(tce != 0);
++		return;
++	}
+ 	tbl = kvmppc_page_address(page);
  
- /*
-@@ -1920,12 +1916,10 @@ static int userfaultfd_api(struct userfaultfd_ctx *ctx,
- {
- 	struct uffdio_api uffdio_api;
- 	void __user *buf = (void __user *)arg;
-+	unsigned int ctx_features;
- 	int ret;
- 	__u64 features;
- 
--	ret = -EINVAL;
--	if (ctx->state != UFFD_STATE_WAIT_API)
--		goto out;
- 	ret = -EFAULT;
- 	if (copy_from_user(&uffdio_api, buf, sizeof(uffdio_api)))
- 		goto out;
-@@ -1945,9 +1939,13 @@ static int userfaultfd_api(struct userfaultfd_ctx *ctx,
- 	ret = -EFAULT;
- 	if (copy_to_user(buf, &uffdio_api, sizeof(uffdio_api)))
- 		goto out;
--	ctx->state = UFFD_STATE_RUNNING;
-+
- 	/* only enable the requested features for this uffd context */
--	ctx->features = uffd_ctx_features(features);
-+	ctx_features = uffd_ctx_features(features);
-+	ret = -EINVAL;
-+	if (cmpxchg(&ctx->features, 0, ctx_features) != 0)
-+		goto err_out;
-+
- 	ret = 0;
- out:
- 	return ret;
-@@ -1964,7 +1962,7 @@ static long userfaultfd_ioctl(struct file *file, unsigned cmd,
- 	int ret = -EINVAL;
- 	struct userfaultfd_ctx *ctx = file->private_data;
- 
--	if (cmd != UFFDIO_API && ctx->state == UFFD_STATE_WAIT_API)
-+	if (cmd != UFFDIO_API && !userfaultfd_is_initialized(ctx))
- 		return -EINVAL;
- 
- 	switch(cmd) {
-@@ -2078,7 +2076,6 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
- 	refcount_set(&ctx->refcount, 1);
- 	ctx->flags = flags;
- 	ctx->features = 0;
--	ctx->state = UFFD_STATE_WAIT_API;
- 	ctx->released = false;
- 	ctx->mmap_changing = false;
- 	ctx->mm = current->mm;
+ 	tbl[idx % TCES_PER_PAGE] = tce;
 -- 
 2.30.2
 
