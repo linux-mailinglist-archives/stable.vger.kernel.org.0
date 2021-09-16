@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 814B540E2B7
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F075740E002
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:15:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241306AbhIPQlS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:41:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50780 "EHLO mail.kernel.org"
+        id S239380AbhIPQQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:16:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244351AbhIPQiz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:38:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CBE5619F6;
-        Thu, 16 Sep 2021 16:22:45 +0000 (UTC)
+        id S237698AbhIPQNM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:13:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4279361391;
+        Thu, 16 Sep 2021 16:09:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809366;
-        bh=oWRUCAFDJYgHIjgHuS3unULmVDpG7sU3d4EIncw7RW8=;
+        s=korg; t=1631808586;
+        bh=reU0cyggiRXlCOoC8r79/ZpqbrPAprKiA8MNgItW210=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GavS5cPbWDN/A7PI0eRR6TYM7ehfcYito2CtxPERv8KAbJinDJhJwDxlVSCZYNfH0
-         T5OHi3J7tzUEKGMZ1QiXb7YWD77hjIZcWq0s4w10Yd9bb6ME1WAGmm3j7isW5FMoCd
-         +uShgh1Hbh2Fz/rvbK3I3WZWpgZj8vcM8jBINszg=
+        b=p3CtTbgJhsO8NUbbFLYtHrcRwsaNDKDzKejh5KOpLErM0Gcj+pVYKpsNWL/9PWJEK
+         KmJqNHX6hXJkDjs1PO2Hw4eMDsip6VlvquDp0SYVukjNNtdSMRGrHM/7x76vGA2X1Z
+         WeAmf5flVKXQamDi6QMBInNRk/vUommijbyIUldw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 128/380] clk: at91: clk-generated: Limit the requested rate to our range
+Subject: [PATCH 5.10 140/306] selftests: firmware: Fix ignored return val of asprintf() warn
 Date:   Thu, 16 Sep 2021 17:58:05 +0200
-Message-Id: <20210916155808.389495052@linuxfoundation.org>
+Message-Id: <20210916155758.821178399@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit af7651e67b9d5f7e63ea23b118e3672ac662244a ]
+[ Upstream commit fe968ca2cac91888310b143a483123c84906e3fc ]
 
-On clk_generated_determine_rate(), the requested rate could be outside
-of clk's range. Limit the rate to the clock's range to not return an
-error.
+Fix the following ingonred return val of asprintf() warn during
+build:
 
-Fixes: df70aeef6083 ("clk: at91: add generated clock driver")
-Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Link: https://lore.kernel.org/r/20210707131213.3283509-1-codrin.ciubotariu@microchip.com
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+cc -Wall -O2    fw_namespace.c  -o ../tools/testing/selftests/firmware/fw_namespace
+fw_namespace.c: In function ‘main’:
+fw_namespace.c:132:2: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  132 |  asprintf(&fw_path, "/lib/firmware/%s", fw_name);
+      |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210708031827.51293-1-skhan@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/at91/clk-generated.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ tools/testing/selftests/firmware/fw_namespace.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/at91/clk-generated.c b/drivers/clk/at91/clk-generated.c
-index b4fc8d71daf2..b656d25a9767 100644
---- a/drivers/clk/at91/clk-generated.c
-+++ b/drivers/clk/at91/clk-generated.c
-@@ -128,6 +128,12 @@ static int clk_generated_determine_rate(struct clk_hw *hw,
- 	int i;
- 	u32 div;
+diff --git a/tools/testing/selftests/firmware/fw_namespace.c b/tools/testing/selftests/firmware/fw_namespace.c
+index 5ebc1aec7923..817b2f1e8ee6 100644
+--- a/tools/testing/selftests/firmware/fw_namespace.c
++++ b/tools/testing/selftests/firmware/fw_namespace.c
+@@ -129,7 +129,8 @@ int main(int argc, char **argv)
+ 		die("mounting tmpfs to /lib/firmware failed\n");
  
-+	/* do not look for a rate that is outside of our range */
-+	if (gck->range.max && req->rate > gck->range.max)
-+		req->rate = gck->range.max;
-+	if (gck->range.min && req->rate < gck->range.min)
-+		req->rate = gck->range.min;
-+
- 	for (i = 0; i < clk_hw_get_num_parents(hw); i++) {
- 		if (gck->chg_pid == i)
- 			continue;
+ 	sys_path = argv[1];
+-	asprintf(&fw_path, "/lib/firmware/%s", fw_name);
++	if (asprintf(&fw_path, "/lib/firmware/%s", fw_name) < 0)
++		die("error: failed to build full fw_path\n");
+ 
+ 	setup_fw(fw_path);
+ 
 -- 
 2.30.2
 
