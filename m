@@ -2,105 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE63140DE00
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 17:30:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30D2840DE2F
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 17:35:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239167AbhIPPcE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 11:32:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46492 "EHLO mail.kernel.org"
+        id S238827AbhIPPhA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 11:37:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239172AbhIPPcE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 11:32:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 431EA6121F;
-        Thu, 16 Sep 2021 15:30:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631806243;
-        bh=I0QaK/2rbPrDUqCwKDAgD9k9kSWTb+OYUzIOH/5tHyE=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=ahMad47Tp6ix1LHEXj8scA8cWHbqXa6tKiGjeK/GGxTwbxNOrsYFrAySpAj750Qwo
-         ZrfGbO7YyrSrRWkbBk3hUXdoQzavfQftNQsmEMqE4Ui4a4McaNS9z8mQ7YkfpyI1qv
-         x5cyj5ztgDYPxJCvPE4Xe8xUgwpV5lAIBVF2frjQtyujSuTuO6zpys+VHwm2so2BO9
-         P3YxnCptpn8ZPLCbbi2BRLAacxxiqPXYFgyWlHtVshJPfk1+O0+dqCsxZLPj8Kw+PJ
-         Yb7ytTSHc0CIYI49J8OXP5efmtrQVf29T0Nj9JrI1ZgTKf2G/4Td/xLCJbnCFJVkgm
-         pTthCaQScU9Kg==
-Date:   Thu, 16 Sep 2021 08:30:42 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Bjorn Helgaas <helgaas@kernel.org>
-Cc:     x86@kernel.org, jose.souza@intel.com, hpa@zytor.com, bp@alien8.de,
-        mingo@redhat.com, tglx@linutronix.de, kai.heng.feng@canonical.com,
-        bhelgaas@google.com, linux-pci@vger.kernel.org, rudolph@fb.com,
-        xapienz@fb.com, bmilton@fb.com, stable@vger.kernel.org,
-        paulmck@kernel.org
-Subject: Re: [PATCH] x86/intel: Disable HPET on another Intel Coffee Lake
- platform
-Message-ID: <20210916083042.5f63163a@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20210916150707.GA1611532@bjorn-Precision-5520>
-References: <20210916131739.1260552-1-kuba@kernel.org>
-        <20210916150707.GA1611532@bjorn-Precision-5520>
+        id S238369AbhIPPgx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 11:36:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9C656124B;
+        Thu, 16 Sep 2021 15:35:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1631806533;
+        bh=Uq540Eb660A3RdnDtZxYm2QC13y9TzkuL0EyF4xTRog=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Q9x3SZTTfk+2KxG+LC4B2c/JOcVQJwxoD5sqTTXd4oseA8zfqyhbmawG74DSd8/4s
+         n/hfABJjRs/HS6NKluOJNkngHO/B24iziFc+bcHWYSnKe7huJyQR+yT++9qWZ47a8B
+         G+yyMNRvlNMk0NUbOcgBgRo10f3xDkRaXas7hsQU=
+Date:   Thu, 16 Sep 2021 17:35:30 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Deucher, Alexander" <Alexander.Deucher@amd.com>
+Cc:     Michel =?iso-8859-1?Q?D=E4nzer?= <mdaenzer@redhat.com>,
+        "Koenig, Christian" <Christian.Koenig@amd.com>,
+        "Quan, Evan" <Evan.Quan@amd.com>,
+        "Lazar, Lijo" <Lijo.Lazar@amd.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] drm/amdgpu: Cancel delayed work when
+ GFXOFF is disabled" failed to apply to 5.14-stable tree
+Message-ID: <YUNkQgB2hJLLWvgT@kroah.com>
+References: <163179752354221@kroah.com>
+ <7fe8e175-efdc-b7d9-ab86-44aeec60c2e9@redhat.com>
+ <YUNLMkxQPw/empni@kroah.com>
+ <e5b4ad1d-4a4f-ae47-5c85-22842c1b44cc@redhat.com>
+ <BL1PR12MB514443A3990D3E9CEF5F1251F7DC9@BL1PR12MB5144.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <BL1PR12MB514443A3990D3E9CEF5F1251F7DC9@BL1PR12MB5144.namprd12.prod.outlook.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 16 Sep 2021 10:07:07 -0500 Bjorn Helgaas wrote:
-> On Thu, Sep 16, 2021 at 06:17:39AM -0700, Jakub Kicinski wrote:
-> > My Lenovo T490s with i7-8665U had been marking TSC as unstable
-> > since v5.13, resulting in very sluggish desktop experience...  
+On Thu, Sep 16, 2021 at 02:42:42PM +0000, Deucher, Alexander wrote:
+> [Public]
 > 
-> Including the actual dmesg log line here might help others locate this
-> fix.
-
-Good point, will add in v2.
-
-clocksource: timekeeping watchdog on CPU3: hpet read-back delay of 316000ns, attempt 4, marking unstable
-tsc: Marking TSC unstable due to clocksource watchdog
-TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
-sched_clock: Marking unstable (14539801827657, -530891666)<-(14539319241737, -48307500)
-clocksource: Checking clocksource tsc synchronization from CPU 3 to CPUs 0-2,6-7.
-clocksource: Switched to clocksource hpet
-
-> > I have a 8086:3e34 bridge, also known as "Host bridge: Intel
-> > Corporation Coffee Lake HOST and DRAM Controller (rev 0c)".
-> > Add it to the list.
+> > -----Original Message-----
+> > From: Michel Dänzer <mdaenzer@redhat.com>
+> > Sent: Thursday, September 16, 2021 9:55 AM
+> > To: Greg KH <gregkh@linuxfoundation.org>
+> > Cc: Deucher, Alexander <Alexander.Deucher@amd.com>; Koenig, Christian
+> > <Christian.Koenig@amd.com>; Quan, Evan <Evan.Quan@amd.com>; Lazar,
+> > Lijo <Lijo.Lazar@amd.com>; stable@vger.kernel.org
+> > Subject: Re: FAILED: patch "[PATCH] drm/amdgpu: Cancel delayed work
+> > when GFXOFF is disabled" failed to apply to 5.14-stable tree
 > > 
-> > We should perhaps consider applying this quirk more widely.
-> > The Intel documentation does not list my device [1], but
-> > linuxhw [2] does, and it seems to list a few more bridges
-> > we do not currently cover (3e31, 3ecc, 3e35, 3e0f).  
-> 
-> In the fine tradition of:
-> 
->   e0748539e3d5 ("x86/intel: Disable HPET on Intel Ice Lake platforms")
->   f8edbde885bb ("x86/intel: Disable HPET on Intel Coffee Lake H platforms")
->   fc5db58539b4 ("x86/quirks: Disable HPET on Intel Coffe Lake platforms")
->   62187910b0fc ("x86/intel: Add quirk to disable HPET for the Baytrail plat form")
-> 
-> This seems to be an ongoing issue, not just a point defect in a single
-> product, and I really hate the onesy-twosy nature of this.
-
-Indeed. Or at least cover all Coffee Lakes in one fell swoop.
-
-> Is there really no way to detect this issue automatically or fix
-> whatever Linux bug makes us trip over this?  I am no clock expert, so
-> I have absolutely no idea whether this is possible.
-
-I'm deferring to clock experts. Paul mentioned he has some prototype
-patches that may help.
-
-> > [1] https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/8th-gen-core-family-datasheet-vol-2.pdf
-> > [2] https://github.com/linuxhw/DevicePopulation/blob/master/README.md
+> > On 2021-09-16 15:48, Greg KH wrote:
+> > > On Thu, Sep 16, 2021 at 03:39:16PM +0200, Michel Dänzer wrote:
+> > >> On 2021-09-16 15:05, gregkh@linuxfoundation.org wrote:
+> > >>>
+> > >>> The patch below does not apply to the 5.14-stable tree.
+> > >>> If someone wants it applied there, or to any other stable or
+> > >>> longterm tree, then please email the backport, including the
+> > >>> original git commit id to <stable@vger.kernel.org>.
+> > >>
+> > >> It's already in 5.14, commit 32bc8f8373d2d6a681c96e4b25dca60d4d1c6016.
+> > >
+> > > Odd, how were we supposed to know that?
 > > 
-> > Cc: stable@vger.kernel.org # v5.13+  
+> > Looks like the fix was merged separately for 5.14 and 5.15. I don't know
+> > how/why that happened. Alex / Christian?
 > 
-> How did you pick v5.13?  force_disable_hpet() was added by
-> 62187910b0fc ("x86/intel: Add quirk to disable HPET for the Baytrail
-> platform"), which appeared in v3.15.
+> The fix already landed in drm-next, but since this was before the
+> merge window, we wanted to make sure the fix also landed in stable, so
+> I cherry-picked it to 5.14.  I'm not sure of a better way to handle
+> these sort of cases.
 
-Erm, good question, it started happening for me (and others with the
-same laptop) with v5.13. I just sort of assumed it was 2e27e793e280
-("clocksource: Reduce clocksource-skew threshold"). 
+You gotta give me a chance to know what happened.  As the drm developers
+do this a lot, they have been putting the "cherry picked from" line in
+the patch because they can not merge between branches and keep the git
+id the same.
 
-It usually takes  a day to repro (4 hours was the quickest repro I've
-seen) so bisection was kind of out of question.
+So try using the '-x' option to 'git cherry-pick' next time?
+
+thanks,
+
+greg k-h
