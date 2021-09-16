@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAABF40E855
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3860840E85C
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354267AbhIPRoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:44:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55272 "EHLO mail.kernel.org"
+        id S1354702AbhIPRoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:44:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354979AbhIPRky (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:40:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03A7263255;
-        Thu, 16 Sep 2021 16:52:03 +0000 (UTC)
+        id S1355053AbhIPRlB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:41:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F6E063251;
+        Thu, 16 Sep 2021 16:52:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811124;
-        bh=2FUurahQuMNoqoxElWAAqPLgyzavMl4Nm2d4EpBcabs=;
+        s=korg; t=1631811127;
+        bh=6G4IsplKoyeetAmOlTy7tdSl++/n/23XqHH2qpFwkFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=STTITEWYrYY8K69FIyWT2zw8Q/vuGajEuZSy9GaUWBS+b4F1AdMf6XtrSbuRM1o64
-         mlLDF0GXuGNhPmZOdU7Jyj2o1k/tM1RCtQh0+/chcZBDh/Xyv6RgzHUyuXmx7UqNhv
-         iduku/MM+oXaXXVdc7pyYY1jprFXRtapf5vqDAKk=
+        b=2Q4K/hGNmVO79ZLfEDe5Ub8rQfF89lvXMcMQqhUW394OvW/JRBs52uIRv27DSZ9/b
+         FN2chM4NEDiZ5xaANvfRNIYcMI6Kyfy8b9egWHaRXVkdOg2wER99IvgmAltuih4Nd6
+         s9JIllKnfGCwRu5GO8DQGd3CCSZ7WU3PxlOgeTBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Meelis Roos <mroos@linux.ee>, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.14 392/432] parisc: Fix compile failure when building 64-bit kernel natively
-Date:   Thu, 16 Sep 2021 18:02:21 +0200
-Message-Id: <20210916155824.096923936@linuxfoundation.org>
+        stable@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        John Ogness <john.ogness@linutronix.de>,
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH 5.14 393/432] printk/console: Check consistent sequence number when handling race in console_unlock()
+Date:   Thu, 16 Sep 2021 18:02:22 +0200
+Message-Id: <20210916155824.128483011@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -39,94 +41,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Petr Mladek <pmladek@suse.com>
 
-commit 5f6e0fe01b6b33894cf6f61b359ab5a6d2b7674e upstream.
+commit 11e4b63abbe23872b45f325a7c6c8b7f9ff42cad upstream.
 
-Commit 23243c1ace9f ("arch: use cross_compiling to check whether it is
-a cross build or not") broke 64-bit parisc builds on 32-bit parisc
-systems.
+The standard printk() tries to flush the message to the console
+immediately. It tries to take the console lock. If the lock is
+already taken then the current owner is responsible for flushing
+even the new message.
 
-Helge mentioned:
-  - 64-bit parisc userspace is not supported yet [1]
-  - hppa gcc does not support "-m64" flag [2]
+There is a small race window between checking whether a new message is
+available and releasing the console lock. It is solved by re-checking
+the state after releasing the console lock. If the check is positive
+then console_unlock() tries to take the lock again and process the new
+message as well.
 
-That means, parisc developers working on a 32-bit parisc machine need
-to use hppa64-linux-gnu-gcc (cross compiler) for building the 64-bit
-parisc kernel.
+The commit 996e966640ddea7b535c ("printk: remove logbuf_lock") causes that
+console_seq is not longer read atomically. As a result, the re-check might
+be done with an inconsistent 64-bit index.
 
-After the offending commit, gcc is used in such a case because
-both $(SRCARCH) and $(SUBARCH) are 'parisc', hence cross_compiling is
-unset.
+Solve it by using the last sequence number that has been checked under
+the console lock. In the worst case, it will take the lock again only
+to realized that the new message has already been proceed. But it
+was possible even before.
 
-A correct way is to introduce ARCH=parisc64 because building the 64-bit
-parisc kernel on a 32-bit parisc system is not exactly a native build,
-but rather a semi-cross build.
+The variable next_seq is marked as __maybe_unused to call down compiler
+warning when CONFIG_PRINTK is not defined.
 
-[1]: https://lore.kernel.org/linux-parisc/5dfd81eb-c8ca-b7f5-e80e-8632767c022d@gmx.de/#t
-[2]: https://lore.kernel.org/linux-parisc/89515325-fc21-31da-d238-6f7a9abbf9a0@gmx.de/
-
-Fixes: 23243c1ace9f ("arch: use cross_compiling to check whether it is a cross build or not")
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reported-by: Meelis Roos <mroos@linux.ee>
-Tested-by: Meelis Roos <mroos@linux.ee>
-Cc: <stable@vger.kernel.org> # v5.13+
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: commit 996e966640ddea7b535c ("printk: remove logbuf_lock")
+Reported-by: kernel test robot <lkp@intel.com>  # unused next_seq warning
+Cc: stable@vger.kernel.org # 5.13
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Acked-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Reviewed-by: John Ogness <john.ogness@linutronix.de>
+Link: https://lore.kernel.org/r/20210702150657.26760-1-pmladek@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile                |    5 +++++
- arch/parisc/Makefile    |    6 +++---
- scripts/subarch.include |    2 +-
- 3 files changed, 9 insertions(+), 4 deletions(-)
+ kernel/printk/printk.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -404,6 +404,11 @@ ifeq ($(ARCH),sparc64)
-        SRCARCH := sparc
- endif
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -2545,6 +2545,7 @@ void console_unlock(void)
+ 	bool do_cond_resched, retry;
+ 	struct printk_info info;
+ 	struct printk_record r;
++	u64 __maybe_unused next_seq;
  
-+# Additional ARCH settings for parisc
-+ifeq ($(ARCH),parisc64)
-+       SRCARCH := parisc
-+endif
-+
- export cross_compiling :=
- ifneq ($(SRCARCH),$(SUBARCH))
- cross_compiling := 1
---- a/arch/parisc/Makefile
-+++ b/arch/parisc/Makefile
-@@ -25,18 +25,18 @@ CHECKFLAGS	+= -D__hppa__=1
- ifdef CONFIG_64BIT
- UTS_MACHINE	:= parisc64
- CHECKFLAGS	+= -D__LP64__=1
--CC_ARCHES	= hppa64
- LD_BFD		:= elf64-hppa-linux
- else # 32-bit
--CC_ARCHES	= hppa hppa2.0 hppa1.1
- LD_BFD		:= elf32-hppa-linux
- endif
+ 	if (console_suspended) {
+ 		up_console_sem();
+@@ -2654,8 +2655,10 @@ skip:
+ 			cond_resched();
+ 	}
  
- # select defconfig based on actual architecture
--ifeq ($(shell uname -m),parisc64)
-+ifeq ($(ARCH),parisc64)
- 	KBUILD_DEFCONFIG := generic-64bit_defconfig
-+	CC_ARCHES := hppa64
- else
- 	KBUILD_DEFCONFIG := generic-32bit_defconfig
-+	CC_ARCHES := hppa hppa2.0 hppa1.1
- endif
+-	console_locked = 0;
++	/* Get consistent value of the next-to-be-used sequence number. */
++	next_seq = console_seq;
  
- export LD_BFD
---- a/scripts/subarch.include
-+++ b/scripts/subarch.include
-@@ -7,7 +7,7 @@
- SUBARCH := $(shell uname -m | sed -e s/i.86/x86/ -e s/x86_64/x86/ \
- 				  -e s/sun4u/sparc64/ \
- 				  -e s/arm.*/arm/ -e s/sa110/arm/ \
--				  -e s/s390x/s390/ -e s/parisc64/parisc/ \
-+				  -e s/s390x/s390/ \
- 				  -e s/ppc.*/powerpc/ -e s/mips.*/mips/ \
- 				  -e s/sh[234].*/sh/ -e s/aarch64.*/arm64/ \
- 				  -e s/riscv.*/riscv/)
++	console_locked = 0;
+ 	up_console_sem();
+ 
+ 	/*
+@@ -2664,7 +2667,7 @@ skip:
+ 	 * there's a new owner and the console_unlock() from them will do the
+ 	 * flush, no worries.
+ 	 */
+-	retry = prb_read_valid(prb, console_seq, NULL);
++	retry = prb_read_valid(prb, next_seq, NULL);
+ 	printk_safe_exit_irqrestore(flags);
+ 
+ 	if (retry && console_trylock())
 
 
