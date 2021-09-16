@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C0D140E5AD
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E7B240E278
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:16:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245718AbhIPROB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:14:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39800 "EHLO mail.kernel.org"
+        id S243829AbhIPQjC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:39:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345713AbhIPRLz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:11:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BEDA619E3;
-        Thu, 16 Sep 2021 16:38:03 +0000 (UTC)
+        id S242219AbhIPQgs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:36:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 14A6B619E4;
+        Thu, 16 Sep 2021 16:21:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810284;
+        s=korg; t=1631809312;
         bh=vyg56GirUNR23ovFMs3oCl25jd5CsoDzXuyzpiFOiB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S2wAEQ3NsTvHAG5lnbFElmtumdwYBqq3mseNOpv8BqSJ0CYCK0xHq0XUK/+TRdIQi
-         l/w1L36tRxR4QPIgNc+nOQQBb+6KpyfA45fmWpwwackWttjMA4F7nnlG1qkUFHBoDK
-         Sbf1UVrcrZu0V5fmoxfAL1u0IpMsHrf4fG1I4Hls=
+        b=pLrx/v5cjGeT440zAh0jOanwSYRbRPMfc9T98W1iN+8Qx25uRwBvl0kzSphtHKtbA
+         e9H1/6efVu4LxWBxA7Wq7BszRQRIYt77cpnlziNBHgdHQvvSXBdNTMz+075X5dmYqJ
+         M8/kjA8ezr8iB8FaF7EVu2UITI4nWAKGVDDhhYiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 084/432] docs: Fix infiniband uverbs minor number
+Subject: [PATCH 5.13 076/380] docs: Fix infiniband uverbs minor number
 Date:   Thu, 16 Sep 2021 17:57:13 +0200
-Message-Id: <20210916155813.629415774@linuxfoundation.org>
+Message-Id: <20210916155806.599431986@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
