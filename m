@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3C8D40E747
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8096F40E3B5
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244106AbhIPRbG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:31:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46944 "EHLO mail.kernel.org"
+        id S239858AbhIPQve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:51:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352338AbhIPR14 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:27:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D72ED61BF5;
-        Thu, 16 Sep 2021 16:45:40 +0000 (UTC)
+        id S245086AbhIPQsF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:48:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3661961390;
+        Thu, 16 Sep 2021 16:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810741;
-        bh=nv/jOUxKTaJ0v/uL56vZxSME+fATAGjjAdnhJxvqmvQ=;
+        s=korg; t=1631809629;
+        bh=oraHnGZFm1q6kF2RehNTcm+Sqn9GnMrRvzl+imUiu7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y75bvHB4LfHnvsNJy1X0yTQ2bF0x4UCABNPSiBrpt660fvgswRNsmQ4muWPeoxyD+
-         l8L28WdqZlSBwqeTHsGY2FFMfP8ch+gVf6jclMt3ys4A7NFNoIz6Zw6GSsfyhrFs77
-         ngDv7nmhbt89v8d+qCKLWAiWFau9rF0Fn0EmCIeE=
+        b=prchKh68Y8XxvjCaK4Dl5zTZU5n06wMvrZ26lH/z+C0pi4CqQB2NBlNpMJ/9ipQnj
+         /apMH40YXfeY04Hx/jnbSCTd8eT0BGaXiybmRh3EUTSSZb+LpeoxseiZEZ0wZnXEZb
+         /8cYUImgAd8eq0S3CZqQe3X+LIH9zrtjeEQtlvm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Jordy Zomer <jordy@pwning.systems>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Umang Jain <umang.jain@ideasonboard.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 233/432] serial: 8250_pci: make setup_port() parameters explicitly unsigned
+Subject: [PATCH 5.13 225/380] media: imx258: Rectify mismatch of VTS value
 Date:   Thu, 16 Sep 2021 17:59:42 +0200
-Message-Id: <20210916155818.744513375@linuxfoundation.org>
+Message-Id: <20210916155811.743478918@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 3a96e97ab4e835078e6f27b7e1c0947814df3841 ]
+[ Upstream commit 51f93add3669f1b1f540de1cf397815afbd4c756 ]
 
-The bar and offset parameters to setup_port() are used in pointer math,
-and while it would be very difficult to get them to wrap as a negative
-number, just be "safe" and make them unsigned so that static checkers do
-not trip over them unintentionally.
+The frame_length_lines (0x0340) registers are hard-coded as follows:
 
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Reported-by: Jordy Zomer <jordy@pwning.systems>
-Link: https://lore.kernel.org/r/20210726130717.2052096-1-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+- 4208x3118
+  frame_length_lines = 0x0c50
+
+- 2104x1560
+  frame_length_lines = 0x0638
+
+- 1048x780
+  frame_length_lines = 0x034c
+
+The driver exposes the V4L2_CID_VBLANK control in read-only mode and
+sets its value to vts_def - height, where vts_def is a mode-dependent
+value coming from the supported_modes array. It is set using one of
+the following macros defined in the driver:
+
+  #define IMX258_VTS_30FPS                0x0c98
+  #define IMX258_VTS_30FPS_2K             0x0638
+  #define IMX258_VTS_30FPS_VGA            0x034c
+
+There's a clear mismatch in the value for the full resolution mode i.e.
+IMX258_VTS_30FPS. Fix it by rectifying the macro with the value set for
+the frame_length_lines register as stated above.
+
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Umang Jain <umang.jain@ideasonboard.com>
+Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_pci.c | 2 +-
+ drivers/media/i2c/imx258.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
-index a808c283883e..726912b16a55 100644
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -87,7 +87,7 @@ static void moan_device(const char *str, struct pci_dev *dev)
+diff --git a/drivers/media/i2c/imx258.c b/drivers/media/i2c/imx258.c
+index a017ec4e0f50..b3fa28d05fa6 100644
+--- a/drivers/media/i2c/imx258.c
++++ b/drivers/media/i2c/imx258.c
+@@ -23,7 +23,7 @@
+ #define IMX258_CHIP_ID			0x0258
  
- static int
- setup_port(struct serial_private *priv, struct uart_8250_port *port,
--	   int bar, int offset, int regshift)
-+	   u8 bar, unsigned int offset, int regshift)
- {
- 	struct pci_dev *dev = priv->dev;
- 
+ /* V_TIMING internal */
+-#define IMX258_VTS_30FPS		0x0c98
++#define IMX258_VTS_30FPS		0x0c50
+ #define IMX258_VTS_30FPS_2K		0x0638
+ #define IMX258_VTS_30FPS_VGA		0x034c
+ #define IMX258_VTS_MAX			0xffff
 -- 
 2.30.2
 
