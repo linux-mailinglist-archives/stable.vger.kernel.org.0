@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D78AF40E840
+	by mail.lfdr.de (Postfix) with ESMTP id 8AC3E40E83F
 	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353446AbhIPRoR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:44:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53758 "EHLO mail.kernel.org"
+        id S1353249AbhIPRoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:44:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354955AbhIPRkw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1354953AbhIPRkw (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Sep 2021 13:40:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 397A9601FC;
-        Thu, 16 Sep 2021 16:51:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F40C8611C8;
+        Thu, 16 Sep 2021 16:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811097;
-        bh=RgyEE/gxv2+PbwT+Twl7+jMwQK+Cn83YUGhdVMiZbVs=;
+        s=korg; t=1631811100;
+        bh=k7GlPxKjxxPV1E0dBBXMjRRHeWhi0zDdQc+CVA8fLYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cUzGSSE/yUL1fPYbgmTA8igMEud3xaMMmME7TBpQu/pD+A+nYYQ3hY/OTL/NPfAZv
-         DBY/yc/iPRIBGtVjEnvWApyo+JaYIZ8A72rtFwbAzof4OC3SLelEbc1H+ItENn35wK
-         Pon+4gnk63sXBvL5POvfCCj9CIKgmJnpRDtLtjaw=
+        b=FCXiZd2K5sZRwjUqSrg0SmC5vhXM4j9BAmPw+cmwlZBPctpFLvL1ZHI3ngfZMT99g
+         tlxiSg5zbwI38K1FP71l3hjOnjYje3LY8qNG2NNxh3cZkldkV7I8A1C/p78WGd7Od8
+         B/vqnte06edNyxnCn7Glg/8glyUR2GvKzOCu5aRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengfeng Ye <cyeaa@connect.ust.hk>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 383/432] selftests/bpf: Fix potential unreleased lock
-Date:   Thu, 16 Sep 2021 18:02:12 +0200
-Message-Id: <20210916155823.791803824@linuxfoundation.org>
+Subject: [PATCH 5.14 384/432] wcn36xx: Fix missing frame timestamp for beacon/probe-resp
+Date:   Thu, 16 Sep 2021 18:02:13 +0200
+Message-Id: <20210916155823.823416268@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -40,37 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengfeng Ye <cyeaa@connect.ust.hk>
+From: Loic Poulain <loic.poulain@linaro.org>
 
-[ Upstream commit 47bb27a20d6ea22cd092c1fc2bb4fcecac374838 ]
+[ Upstream commit 8678fd31f2d3eb14f2b8b39c9bc266f16fa24b22 ]
 
-This lock is not released if the program
-return at the patched branch.
+When receiving a beacon or probe response, we should update the
+boottime_ns field which is the timestamp the frame was received at.
+(cf mac80211.h)
 
-Signed-off-by: Chengfeng Ye <cyeaa@connect.ust.hk>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20210827074140.118671-1-cyeaa@connect.ust.hk
+This fixes a scanning issue with Android since it relies on this
+timestamp to determine when the AP has been seen for the last time
+(via the nl80211 BSS_LAST_SEEN_BOOTTIME parameter).
+
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1629992768-23785-1-git-send-email-loic.poulain@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/sockopt_inherit.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/wcn36xx/txrx.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/sockopt_inherit.c b/tools/testing/selftests/bpf/prog_tests/sockopt_inherit.c
-index ec281b0363b8..86f97681ad89 100644
---- a/tools/testing/selftests/bpf/prog_tests/sockopt_inherit.c
-+++ b/tools/testing/selftests/bpf/prog_tests/sockopt_inherit.c
-@@ -195,8 +195,10 @@ static void run_test(int cgroup_fd)
+diff --git a/drivers/net/wireless/ath/wcn36xx/txrx.c b/drivers/net/wireless/ath/wcn36xx/txrx.c
+index 1b831157ede1..cab196bb38cd 100644
+--- a/drivers/net/wireless/ath/wcn36xx/txrx.c
++++ b/drivers/net/wireless/ath/wcn36xx/txrx.c
+@@ -287,6 +287,10 @@ int wcn36xx_rx_skb(struct wcn36xx *wcn, struct sk_buff *skb)
+ 		status.rate_idx = 0;
+ 	}
  
- 	pthread_mutex_lock(&server_started_mtx);
- 	if (CHECK_FAIL(pthread_create(&tid, NULL, server_thread,
--				      (void *)&server_fd)))
-+				      (void *)&server_fd))) {
-+		pthread_mutex_unlock(&server_started_mtx);
- 		goto close_server_fd;
-+	}
- 	pthread_cond_wait(&server_started, &server_started_mtx);
- 	pthread_mutex_unlock(&server_started_mtx);
++	if (ieee80211_is_beacon(hdr->frame_control) ||
++	    ieee80211_is_probe_resp(hdr->frame_control))
++		status.boottime_ns = ktime_get_boottime_ns();
++
+ 	memcpy(IEEE80211_SKB_RXCB(skb), &status, sizeof(status));
  
+ 	if (ieee80211_is_beacon(hdr->frame_control)) {
 -- 
 2.30.2
 
