@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85BC840DFAD
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:11:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB47340E5F8
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235765AbhIPQM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:12:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48354 "EHLO mail.kernel.org"
+        id S1350998AbhIPRQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:16:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237354AbhIPQKp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:10:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D476561350;
-        Thu, 16 Sep 2021 16:08:33 +0000 (UTC)
+        id S1351205AbhIPRPQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:15:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D06B461B63;
+        Thu, 16 Sep 2021 16:39:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808514;
-        bh=l5v/rb/8ioYC6MGBYgVUaNFI8j0ENAXTj6L18sSOvjM=;
+        s=korg; t=1631810371;
+        bh=4zGDp9DQBCT6MhNwNV6mwLkG2nvXf/iNZYIZcDbNJxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IBKL6b9G+xPbSfS/Rz7CsH92eLdVYuRGRp34mcA/wfaVC5psRhJmAMbTiarvSpczs
-         W9Svvr0tEhNuqu5AY9IF3RDKDZQp7xL4FVKHAaKPAb79nLOSS+3sIf7vs/39QocdQl
-         PvxVoMt89grArNCAsEeBLvrKtIpVaLXSnF6deCT8=
+        b=ksQ7TCdnmE6gvAVmSm0KCIkUona1fiu5CtqZSyI2YfsDmLPbaMJHaLL21CPF66Nv1
+         kxudDb530WqCPHhivFCe0H8WE+X27T8zttuv5vBYnwLNhK9ERhYSy2nt3RuhKP6hGj
+         wDyfmvKV8c5T0DWYQc6woUy/KAVE6ZKdV28E9TaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        kernel test robot <lkp@intel.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 120/306] iio: dac: ad5624r: Fix incorrect handling of an optional regulator.
+Subject: [PATCH 5.14 116/432] platform/x86: ISST: Fix optimization with use of numa
 Date:   Thu, 16 Sep 2021 17:57:45 +0200
-Message-Id: <20210916155758.160862677@linuxfoundation.org>
+Message-Id: <20210916155814.698293182@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,66 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit 97683c851f9cdbd3ea55697cbe2dcb6af4287bbd ]
+[ Upstream commit d36d4a1d75d2a8bd14ec00d5cb0ce166f6886146 ]
 
-The naming of the regulator is problematic.  VCC is usually a supply
-voltage whereas these devices have a separate VREF pin.
+When numa is used to map CPU to PCI device, the optimized path to read
+from cached data is not working and still calls _isst_if_get_pci_dev().
 
-Secondly, the regulator core might have provided a stub regulator if
-a real regulator wasn't provided. That would in turn have failed to
-provide a voltage when queried. So reality was that there was no way
-to use the internal reference.
+The reason is that when caching the mapping, numa information is not
+available as it is read later. So move the assignment of
+isst_cpu_info[cpu].numa_node before calling _isst_if_get_pci_dev().
 
-In order to avoid breaking any dts out in the wild, make sure to fallback
-to the original vcc naming if vref is not available.
-
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Acked-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210627163244.1090296-9-jic23@kernel.org
+Fixes: aa2ddd242572 ("platform/x86: ISST: Use numa node id for cpu pci dev mapping")
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Link: https://lore.kernel.org/r/20210727165052.427238-1-srinivas.pandruvada@linux.intel.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/dac/ad5624r_spi.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ drivers/platform/x86/intel_speed_select_if/isst_if_common.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/dac/ad5624r_spi.c b/drivers/iio/dac/ad5624r_spi.c
-index 2b2b8edfd258..ab4997bfd6d4 100644
---- a/drivers/iio/dac/ad5624r_spi.c
-+++ b/drivers/iio/dac/ad5624r_spi.c
-@@ -229,7 +229,7 @@ static int ad5624r_probe(struct spi_device *spi)
- 	if (!indio_dev)
- 		return -ENOMEM;
- 	st = iio_priv(indio_dev);
--	st->reg = devm_regulator_get(&spi->dev, "vcc");
-+	st->reg = devm_regulator_get_optional(&spi->dev, "vref");
- 	if (!IS_ERR(st->reg)) {
- 		ret = regulator_enable(st->reg);
- 		if (ret)
-@@ -240,6 +240,22 @@ static int ad5624r_probe(struct spi_device *spi)
- 			goto error_disable_reg;
+diff --git a/drivers/platform/x86/intel_speed_select_if/isst_if_common.c b/drivers/platform/x86/intel_speed_select_if/isst_if_common.c
+index 6f0cc679c8e5..8a4d52a9028d 100644
+--- a/drivers/platform/x86/intel_speed_select_if/isst_if_common.c
++++ b/drivers/platform/x86/intel_speed_select_if/isst_if_common.c
+@@ -379,6 +379,8 @@ static int isst_if_cpu_online(unsigned int cpu)
+ 	u64 data;
+ 	int ret;
  
- 		voltage_uv = ret;
-+	} else {
-+		if (PTR_ERR(st->reg) != -ENODEV)
-+			return PTR_ERR(st->reg);
-+		/* Backwards compatibility. This naming is not correct */
-+		st->reg = devm_regulator_get_optional(&spi->dev, "vcc");
-+		if (!IS_ERR(st->reg)) {
-+			ret = regulator_enable(st->reg);
-+			if (ret)
-+				return ret;
++	isst_cpu_info[cpu].numa_node = cpu_to_node(cpu);
 +
-+			ret = regulator_get_voltage(st->reg);
-+			if (ret < 0)
-+				goto error_disable_reg;
-+
-+			voltage_uv = ret;
-+		}
+ 	ret = rdmsrl_safe(MSR_CPU_BUS_NUMBER, &data);
+ 	if (ret) {
+ 		/* This is not a fatal error on MSR mailbox only I/F */
+@@ -397,7 +399,6 @@ static int isst_if_cpu_online(unsigned int cpu)
+ 		return ret;
  	}
+ 	isst_cpu_info[cpu].punit_cpu_id = data;
+-	isst_cpu_info[cpu].numa_node = cpu_to_node(cpu);
  
- 	spi_set_drvdata(spi, indio_dev);
+ 	isst_restore_msr_local(cpu);
+ 
 -- 
 2.30.2
 
