@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4B8D40E746
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE08340E3E5
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240891AbhIPRbF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:31:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47936 "EHLO mail.kernel.org"
+        id S232907AbhIPQwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:52:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352292AbhIPR14 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:27:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5822A61C16;
-        Thu, 16 Sep 2021 16:45:46 +0000 (UTC)
+        id S1345703AbhIPQui (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:50:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90A68615E2;
+        Thu, 16 Sep 2021 16:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810746;
-        bh=T+pyGVuoVHBZhTxcuYfPVs9mekt2VTw41BaXw7jkxoc=;
+        s=korg; t=1631809705;
+        bh=A/QQumOH8O6k/Xn5qDY6TMC4AxTRp7rzpMcWLtKRmjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=neB+iC5wzRUgAPNhAsHDXw3M5Jzq2XEAx58c4poG+0yhc5X/IDULGNcP25sBSCs6t
-         IHQBVItUQYcGO7gLD/7Y53WUC0OJjL98fzm3tyI12mXgVJre9j5uC8ByKa7ZW4Yzis
-         w11UNzu8Un04F8r3HHwUEG/GPRCEC/IARWmll6yY=
+        b=ERP6nqW1Q/l+RDIp1Cq+dHXG+sDgVkHVNXYnAPusUR7Lb/x0mWDcvyFkLKmJLEbjo
+         CWO13HDztzMzicq40ycP1i7Osb9FxRGrBGOIAMw6pl3MSjbHNEF6YrSOfaMbhRwAaR
+         Pj/HhybMhDMGGM9Ac6sc4KvyRdct2NiQUBSoGbrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 252/432] ASoC: Intel: update sof_pcm512x quirks
-Date:   Thu, 16 Sep 2021 18:00:01 +0200
-Message-Id: <20210916155819.366708688@linuxfoundation.org>
+Subject: [PATCH 5.13 245/380] net: ethernet: stmmac: Do not use unreachable() in ipq806x_gmac_probe()
+Date:   Thu, 16 Sep 2021 18:00:02 +0200
+Message-Id: <20210916155812.412083197@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,73 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 22414cade8dfec25ab94df52b3a4f7aa8edb6120 ]
+[ Upstream commit 4367355dd90942a71641c98c40c74589c9bddf90 ]
 
-The default SOF topology enables SSP capture and DMICs, even though
-both of these hardware capabilities are not always available in
-hardware (specific versions of HiFiberry and DMIC kit needed).
+When compiling with clang in certain configurations, an objtool warning
+appears:
 
-For the SSP capture, this leads to annoying "SP5-Codec: ASoC: no
-backend capture" and "streamSSP5-Codec: ASoC: no users capture at
-close - state 0" errors.
+drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.o: warning: objtool:
+ipq806x_gmac_probe() falls through to next function phy_modes()
 
-Update the quirks to match what the topology needs, which also allows
-for the ability to remove SSP capture and DMIC support.
+This happens because the unreachable annotation in the third switch
+statement is not eliminated. The compiler should know that the first
+default case would prevent the second and third from being reached as
+the comment notes but sanitizer options can make it harder for the
+compiler to reason this out.
 
-BugLink: https://github.com/thesofproject/linux/issues/3061
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Link: https://lore.kernel.org/r/20210802152151.15832-4-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Help the compiler out by eliminating the unreachable() annotation and
+unifying the default case error handling so that there is no objtool
+warning, the meaning of the code stays the same, and there is less
+duplication.
+
+Reported-by: Sami Tolvanen <samitolvanen@google.com>
+Tested-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_pcm512x.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ .../ethernet/stmicro/stmmac/dwmac-ipq806x.c    | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/sound/soc/intel/boards/sof_pcm512x.c b/sound/soc/intel/boards/sof_pcm512x.c
-index 2ec9c62366e2..6815204e58d5 100644
---- a/sound/soc/intel/boards/sof_pcm512x.c
-+++ b/sound/soc/intel/boards/sof_pcm512x.c
-@@ -26,11 +26,16 @@
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
+index 28dd0ed85a82..f7dc8458cde8 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
+@@ -289,10 +289,7 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
+ 		val &= ~NSS_COMMON_GMAC_CTL_PHY_IFACE_SEL;
+ 		break;
+ 	default:
+-		dev_err(&pdev->dev, "Unsupported PHY mode: \"%s\"\n",
+-			phy_modes(gmac->phy_mode));
+-		err = -EINVAL;
+-		goto err_remove_config_dt;
++		goto err_unsupported_phy;
+ 	}
+ 	regmap_write(gmac->nss_common, NSS_COMMON_GMAC_CTL(gmac->id), val);
  
- #define SOF_PCM512X_SSP_CODEC(quirk)		((quirk) & GENMASK(3, 0))
- #define SOF_PCM512X_SSP_CODEC_MASK			(GENMASK(3, 0))
-+#define SOF_PCM512X_ENABLE_SSP_CAPTURE		BIT(4)
-+#define SOF_PCM512X_ENABLE_DMIC			BIT(5)
+@@ -309,10 +306,7 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
+ 			NSS_COMMON_CLK_SRC_CTRL_OFFSET(gmac->id);
+ 		break;
+ 	default:
+-		dev_err(&pdev->dev, "Unsupported PHY mode: \"%s\"\n",
+-			phy_modes(gmac->phy_mode));
+-		err = -EINVAL;
+-		goto err_remove_config_dt;
++		goto err_unsupported_phy;
+ 	}
+ 	regmap_write(gmac->nss_common, NSS_COMMON_CLK_SRC_CTRL, val);
  
- #define IDISP_CODEC_MASK	0x4
+@@ -329,8 +323,7 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
+ 				NSS_COMMON_CLK_GATE_GMII_TX_EN(gmac->id);
+ 		break;
+ 	default:
+-		/* We don't get here; the switch above will have errored out */
+-		unreachable();
++		goto err_unsupported_phy;
+ 	}
+ 	regmap_write(gmac->nss_common, NSS_COMMON_CLK_GATE, val);
  
- /* Default: SSP5 */
--static unsigned long sof_pcm512x_quirk = SOF_PCM512X_SSP_CODEC(5);
-+static unsigned long sof_pcm512x_quirk =
-+	SOF_PCM512X_SSP_CODEC(5) |
-+	SOF_PCM512X_ENABLE_SSP_CAPTURE |
-+	SOF_PCM512X_ENABLE_DMIC;
+@@ -361,6 +354,11 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
  
- static bool is_legacy_cpu;
+ 	return 0;
  
-@@ -244,8 +249,9 @@ static struct snd_soc_dai_link *sof_card_dai_links_create(struct device *dev,
- 	links[id].dpcm_playback = 1;
- 	/*
- 	 * capture only supported with specific versions of the Hifiberry DAC+
--	 * links[id].dpcm_capture = 1;
- 	 */
-+	if (sof_pcm512x_quirk & SOF_PCM512X_ENABLE_SSP_CAPTURE)
-+		links[id].dpcm_capture = 1;
- 	links[id].no_pcm = 1;
- 	links[id].cpus = &cpus[id];
- 	links[id].num_cpus = 1;
-@@ -380,6 +386,9 @@ static int sof_audio_probe(struct platform_device *pdev)
- 
- 	ssp_codec = sof_pcm512x_quirk & SOF_PCM512X_SSP_CODEC_MASK;
- 
-+	if (!(sof_pcm512x_quirk & SOF_PCM512X_ENABLE_DMIC))
-+		dmic_be_num = 0;
++err_unsupported_phy:
++	dev_err(&pdev->dev, "Unsupported PHY mode: \"%s\"\n",
++		phy_modes(gmac->phy_mode));
++	err = -EINVAL;
 +
- 	/* compute number of dai links */
- 	sof_audio_card_pcm512x.num_links = 1 + dmic_be_num + hdmi_num;
+ err_remove_config_dt:
+ 	stmmac_remove_config_dt(pdev, plat_dat);
  
 -- 
 2.30.2
