@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EDFE40DF97
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:11:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A77840E257
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:16:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231255AbhIPQLt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:11:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49032 "EHLO mail.kernel.org"
+        id S241861AbhIPQhL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:37:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233599AbhIPQJm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:09:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D74B861361;
-        Thu, 16 Sep 2021 16:08:12 +0000 (UTC)
+        id S244371AbhIPQfI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:35:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 954C861994;
+        Thu, 16 Sep 2021 16:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808493;
-        bh=1wQoxymKe5+8ox3pj2UmRtrzTKZejCj9yDewLMQIuQ4=;
+        s=korg; t=1631809271;
+        bh=5BK9XdaeTZ82lpNiUBDQYwONct9Gtl02nQ2vZYZaTXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NaObthDb1W7FwnD4qh1oIsemr+7PG1xxXle8Anet7wFiPWhO/fTikJw/SU9ZeCB7R
-         9hAogblfug3cWPWyiIUhh4sMewn7/kj9o3CKmB7bZ5QqCvhD25a6SvJySn0VcvwNXf
-         ffujFngifxbNEZqN/OCsx3VwvnnYFDxiK3AczK00=
+        b=0tWB/CZOqq9mN0FUghJ56FiiM5HPskn/WcNYxQMh60X9BcSwlT2cj4moWP1MpIvjG
+         wCZBJklK44mr+7G9CMyk9uIpowM/Wd2LY+vmw2VNLIx7G3YPey45WBfuSuUCxa2rnP
+         Rbu0Ep3GIBxg/ng6Hs6vLmIptQJIeC0jG+K4AcUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 104/306] f2fs: fix to unmap pages from userspace process in punch_hole()
-Date:   Thu, 16 Sep 2021 17:57:29 +0200
-Message-Id: <20210916155757.616265230@linuxfoundation.org>
+Subject: [PATCH 5.13 093/380] xprtrdma: Put rpcrdma_reps before waking the tear-down completion
+Date:   Thu, 16 Sep 2021 17:57:30 +0200
+Message-Id: <20210916155807.198677255@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit c8dc3047c48540183744f959412d44b08c5435e1 ]
+[ Upstream commit 97480cae13ca3a9c1de3eb6fd66cf9650a60db42 ]
 
-We need to unmap pages from userspace process before removing pagecache
-in punch_hole() like we did in f2fs_setattr().
+Ensure the tear-down completion is awoken only /after/ we've stopped
+fiddling with rpcrdma_rep objects in rpcrdma_post_recvs().
 
-Similar change:
-commit 5e44f8c374dc ("ext4: hole-punch use truncate_pagecache_range")
-
-Fixes: fbfa2cc58d53 ("f2fs: add file operations")
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 15788d1d1077 ("xprtrdma: Do not refresh Receive Queue while it is draining")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/file.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ net/sunrpc/xprtrdma/verbs.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index 6ee8b1e0e174..1fbaab1f7aba 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -1080,7 +1080,6 @@ static int punch_hole(struct inode *inode, loff_t offset, loff_t len)
+diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
+index 649c23518ec0..5a11e318a0d9 100644
+--- a/net/sunrpc/xprtrdma/verbs.c
++++ b/net/sunrpc/xprtrdma/verbs.c
+@@ -1416,11 +1416,6 @@ void rpcrdma_post_recvs(struct rpcrdma_xprt *r_xprt, int needed, bool temp)
+ 
+ 	rc = ib_post_recv(ep->re_id->qp, wr,
+ 			  (const struct ib_recv_wr **)&bad_wr);
+-	if (atomic_dec_return(&ep->re_receiving) > 0)
+-		complete(&ep->re_done);
+-
+-out:
+-	trace_xprtrdma_post_recvs(r_xprt, count, rc);
+ 	if (rc) {
+ 		for (wr = bad_wr; wr;) {
+ 			struct rpcrdma_rep *rep;
+@@ -1431,6 +1426,11 @@ void rpcrdma_post_recvs(struct rpcrdma_xprt *r_xprt, int needed, bool temp)
+ 			--count;
  		}
- 
- 		if (pg_start < pg_end) {
--			struct address_space *mapping = inode->i_mapping;
- 			loff_t blk_start, blk_end;
- 			struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
- 
-@@ -1092,8 +1091,7 @@ static int punch_hole(struct inode *inode, loff_t offset, loff_t len)
- 			down_write(&F2FS_I(inode)->i_gc_rwsem[WRITE]);
- 			down_write(&F2FS_I(inode)->i_mmap_sem);
- 
--			truncate_inode_pages_range(mapping, blk_start,
--					blk_end - 1);
-+			truncate_pagecache_range(inode, blk_start, blk_end - 1);
- 
- 			f2fs_lock_op(sbi);
- 			ret = f2fs_truncate_hole(inode, pg_start, pg_end);
+ 	}
++	if (atomic_dec_return(&ep->re_receiving) > 0)
++		complete(&ep->re_done);
++
++out:
++	trace_xprtrdma_post_recvs(r_xprt, count, rc);
+ 	ep->re_receive_count += count;
+ 	return;
+ }
 -- 
 2.30.2
 
