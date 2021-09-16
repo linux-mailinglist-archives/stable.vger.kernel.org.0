@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50B3F40E042
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A48D440E34F
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:20:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233905AbhIPQUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:20:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54068 "EHLO mail.kernel.org"
+        id S242788AbhIPQrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:47:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240851AbhIPQR2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:17:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F29E461360;
-        Thu, 16 Sep 2021 16:12:32 +0000 (UTC)
+        id S1344196AbhIPQov (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:44:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E18EB613CE;
+        Thu, 16 Sep 2021 16:25:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808753;
-        bh=MHMT0o/iYDkIjbLMjQcYSIpoe6qqGnV09XfZJ68JTOk=;
+        s=korg; t=1631809553;
+        bh=M/TrmTe3ciJOP0PBC3RLTmAUzusLs0iiYOrZz9bKWK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j0r0MwKemoaGcnpX7fjE57sh9/B7z4dJAGfrSWHsMInKShlqoz8CpfQtqrnRgwNST
-         vw0c3mKjEYQ/syow7t80i/dFWmY0JTPcPWcPTAhS8v9DtkaxMZ8b723gOm/uaK36+b
-         vKSEdiQhdDFFwZMUWs+HCgXtXcw9Xipbb0B9ln8k=
+        b=UIWp26r7mPsmvBcy/MWYYGU2K7h6MBuoaY+yxa0bDwlLots51AWmOMRT0IyYFSlsC
+         JpUkk7fsQIEPOqBmyxUOWDUZyI1h6hNJKTq56Tbnyozx294zG0QSCluZckEJlW6EUB
+         W0gffIffYFirnELtcZNx/uY+vruia4Owfj3oqxq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 208/306] Bluetooth: avoid circular locks in sco_sock_connect
+Subject: [PATCH 5.13 196/380] video: fbdev: kyro: Error out if pixclock equals zero
 Date:   Thu, 16 Sep 2021 17:59:13 +0200
-Message-Id: <20210916155801.131094724@linuxfoundation.org>
+Message-Id: <20210916155810.748096642@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,235 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 734bc5ff783115aa3164f4e9dd5967ae78e0a8ab ]
+[ Upstream commit 1520b4b7ba964f8eec2e7dd14c571d50de3e5191 ]
 
-In a future patch, calls to bh_lock_sock in sco.c should be replaced
-by lock_sock now that none of the functions are run in IRQ context.
+The userspace program could pass any values to the driver through
+ioctl() interface. if the driver doesn't check the value of 'pixclock',
+it may cause divide error because the value of 'lineclock' and
+'frameclock' will be zero.
 
-However, doing so results in a circular locking dependency:
+Fix this by checking whether 'pixclock' is zero in kyrofb_check_var().
 
-======================================================
-WARNING: possible circular locking dependency detected
-5.14.0-rc4-syzkaller #0 Not tainted
-------------------------------------------------------
-syz-executor.2/14867 is trying to acquire lock:
-ffff88803e3c1120 (sk_lock-AF_BLUETOOTH-BTPROTO_SCO){+.+.}-{0:0}, at:
-lock_sock include/net/sock.h:1613 [inline]
-ffff88803e3c1120 (sk_lock-AF_BLUETOOTH-BTPROTO_SCO){+.+.}-{0:0}, at:
-sco_conn_del+0x12a/0x2a0 net/bluetooth/sco.c:191
+The following log reveals it:
 
-but task is already holding lock:
-ffffffff8d2dc7c8 (hci_cb_list_lock){+.+.}-{3:3}, at:
-hci_disconn_cfm include/net/bluetooth/hci_core.h:1497 [inline]
-ffffffff8d2dc7c8 (hci_cb_list_lock){+.+.}-{3:3}, at:
-hci_conn_hash_flush+0xda/0x260 net/bluetooth/hci_conn.c:1608
+[  103.073930] divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+[  103.073942] CPU: 4 PID: 12483 Comm: syz-executor Not tainted 5.14.0-rc2-00478-g2734d6c1b1a0-dirty #118
+[  103.073959] RIP: 0010:kyrofb_set_par+0x316/0xc80
+[  103.074045] Call Trace:
+[  103.074048]  ? ___might_sleep+0x1ee/0x2d0
+[  103.074060]  ? kyrofb_ioctl+0x330/0x330
+[  103.074069]  fb_set_var+0x5bf/0xeb0
+[  103.074078]  ? fb_blank+0x1a0/0x1a0
+[  103.074085]  ? lock_acquire+0x3bd/0x530
+[  103.074094]  ? lock_release+0x810/0x810
+[  103.074103]  ? ___might_sleep+0x1ee/0x2d0
+[  103.074114]  ? __mutex_lock+0x620/0x1190
+[  103.074126]  ? trace_hardirqs_on+0x6a/0x1c0
+[  103.074137]  do_fb_ioctl+0x31e/0x700
+[  103.074144]  ? fb_getput_cmap+0x280/0x280
+[  103.074152]  ? rcu_read_lock_sched_held+0x11/0x80
+[  103.074162]  ? rcu_read_lock_sched_held+0x11/0x80
+[  103.074171]  ? __sanitizer_cov_trace_switch+0x67/0xf0
+[  103.074181]  ? __sanitizer_cov_trace_const_cmp2+0x20/0x80
+[  103.074191]  ? do_vfs_ioctl+0x14b/0x16c0
+[  103.074199]  ? vfs_fileattr_set+0xb60/0xb60
+[  103.074207]  ? rcu_read_lock_sched_held+0x11/0x80
+[  103.074216]  ? lock_release+0x483/0x810
+[  103.074224]  ? __fget_files+0x217/0x3d0
+[  103.074234]  ? __fget_files+0x239/0x3d0
+[  103.074243]  ? do_fb_ioctl+0x700/0x700
+[  103.074250]  fb_ioctl+0xe6/0x130
 
-which lock already depends on the new lock.
-
-the existing dependency chain (in reverse order) is:
-
--> #2 (hci_cb_list_lock){+.+.}-{3:3}:
-       __mutex_lock_common kernel/locking/mutex.c:959 [inline]
-       __mutex_lock+0x12a/0x10a0 kernel/locking/mutex.c:1104
-       hci_connect_cfm include/net/bluetooth/hci_core.h:1482 [inline]
-       hci_remote_features_evt net/bluetooth/hci_event.c:3263 [inline]
-       hci_event_packet+0x2f4d/0x7c50 net/bluetooth/hci_event.c:6240
-       hci_rx_work+0x4f8/0xd30 net/bluetooth/hci_core.c:5122
-       process_one_work+0x98d/0x1630 kernel/workqueue.c:2276
-       worker_thread+0x658/0x11f0 kernel/workqueue.c:2422
-       kthread+0x3e5/0x4d0 kernel/kthread.c:319
-       ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
-
--> #1 (&hdev->lock){+.+.}-{3:3}:
-       __mutex_lock_common kernel/locking/mutex.c:959 [inline]
-       __mutex_lock+0x12a/0x10a0 kernel/locking/mutex.c:1104
-       sco_connect net/bluetooth/sco.c:245 [inline]
-       sco_sock_connect+0x227/0xa10 net/bluetooth/sco.c:601
-       __sys_connect_file+0x155/0x1a0 net/socket.c:1879
-       __sys_connect+0x161/0x190 net/socket.c:1896
-       __do_sys_connect net/socket.c:1906 [inline]
-       __se_sys_connect net/socket.c:1903 [inline]
-       __x64_sys_connect+0x6f/0xb0 net/socket.c:1903
-       do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-       do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-       entry_SYSCALL_64_after_hwframe+0x44/0xae
-
--> #0 (sk_lock-AF_BLUETOOTH-BTPROTO_SCO){+.+.}-{0:0}:
-       check_prev_add kernel/locking/lockdep.c:3051 [inline]
-       check_prevs_add kernel/locking/lockdep.c:3174 [inline]
-       validate_chain kernel/locking/lockdep.c:3789 [inline]
-       __lock_acquire+0x2a07/0x54a0 kernel/locking/lockdep.c:5015
-       lock_acquire kernel/locking/lockdep.c:5625 [inline]
-       lock_acquire+0x1ab/0x510 kernel/locking/lockdep.c:5590
-       lock_sock_nested+0xca/0x120 net/core/sock.c:3170
-       lock_sock include/net/sock.h:1613 [inline]
-       sco_conn_del+0x12a/0x2a0 net/bluetooth/sco.c:191
-       sco_disconn_cfm+0x71/0xb0 net/bluetooth/sco.c:1202
-       hci_disconn_cfm include/net/bluetooth/hci_core.h:1500 [inline]
-       hci_conn_hash_flush+0x127/0x260 net/bluetooth/hci_conn.c:1608
-       hci_dev_do_close+0x528/0x1130 net/bluetooth/hci_core.c:1778
-       hci_unregister_dev+0x1c0/0x5a0 net/bluetooth/hci_core.c:4015
-       vhci_release+0x70/0xe0 drivers/bluetooth/hci_vhci.c:340
-       __fput+0x288/0x920 fs/file_table.c:280
-       task_work_run+0xdd/0x1a0 kernel/task_work.c:164
-       exit_task_work include/linux/task_work.h:32 [inline]
-       do_exit+0xbd4/0x2a60 kernel/exit.c:825
-       do_group_exit+0x125/0x310 kernel/exit.c:922
-       get_signal+0x47f/0x2160 kernel/signal.c:2808
-       arch_do_signal_or_restart+0x2a9/0x1c40 arch/x86/kernel/signal.c:865
-       handle_signal_work kernel/entry/common.c:148 [inline]
-       exit_to_user_mode_loop kernel/entry/common.c:172 [inline]
-       exit_to_user_mode_prepare+0x17d/0x290 kernel/entry/common.c:209
-       __syscall_exit_to_user_mode_work kernel/entry/common.c:291 [inline]
-       syscall_exit_to_user_mode+0x19/0x60 kernel/entry/common.c:302
-       ret_from_fork+0x15/0x30 arch/x86/entry/entry_64.S:288
-
-other info that might help us debug this:
-
-Chain exists of:
-  sk_lock-AF_BLUETOOTH-BTPROTO_SCO --> &hdev->lock --> hci_cb_list_lock
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(hci_cb_list_lock);
-                               lock(&hdev->lock);
-                               lock(hci_cb_list_lock);
-  lock(sk_lock-AF_BLUETOOTH-BTPROTO_SCO);
-
- *** DEADLOCK ***
-
-The issue is that the lock hierarchy should go from &hdev->lock -->
-hci_cb_list_lock --> sk_lock-AF_BLUETOOTH-BTPROTO_SCO. For example,
-one such call trace is:
-
-  hci_dev_do_close():
-    hci_dev_lock();
-    hci_conn_hash_flush():
-      hci_disconn_cfm():
-        mutex_lock(&hci_cb_list_lock);
-        sco_disconn_cfm():
-        sco_conn_del():
-          lock_sock(sk);
-
-However, in sco_sock_connect, we call lock_sock before calling
-hci_dev_lock inside sco_connect, thus inverting the lock hierarchy.
-
-We fix this by pulling the call to hci_dev_lock out from sco_connect.
-
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1627293835-17441-3-git-send-email-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/sco.c | 39 ++++++++++++++++-----------------------
- 1 file changed, 16 insertions(+), 23 deletions(-)
+ drivers/video/fbdev/kyro/fbdev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-index 6a338c6926e0..7c24a9acbc45 100644
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -235,44 +235,32 @@ static int sco_chan_add(struct sco_conn *conn, struct sock *sk,
- 	return err;
- }
- 
--static int sco_connect(struct sock *sk)
-+static int sco_connect(struct hci_dev *hdev, struct sock *sk)
+diff --git a/drivers/video/fbdev/kyro/fbdev.c b/drivers/video/fbdev/kyro/fbdev.c
+index 4b8c7c16b1df..25801e8e3f74 100644
+--- a/drivers/video/fbdev/kyro/fbdev.c
++++ b/drivers/video/fbdev/kyro/fbdev.c
+@@ -399,6 +399,9 @@ static int kyrofb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
  {
- 	struct sco_conn *conn;
- 	struct hci_conn *hcon;
--	struct hci_dev  *hdev;
- 	int err, type;
+ 	struct kyrofb_info *par = info->par;
  
- 	BT_DBG("%pMR -> %pMR", &sco_pi(sk)->src, &sco_pi(sk)->dst);
- 
--	hdev = hci_get_route(&sco_pi(sk)->dst, &sco_pi(sk)->src, BDADDR_BREDR);
--	if (!hdev)
--		return -EHOSTUNREACH;
--
--	hci_dev_lock(hdev);
--
- 	if (lmp_esco_capable(hdev) && !disable_esco)
- 		type = ESCO_LINK;
- 	else
- 		type = SCO_LINK;
- 
- 	if (sco_pi(sk)->setting == BT_VOICE_TRANSPARENT &&
--	    (!lmp_transp_capable(hdev) || !lmp_esco_capable(hdev))) {
--		err = -EOPNOTSUPP;
--		goto done;
--	}
-+	    (!lmp_transp_capable(hdev) || !lmp_esco_capable(hdev)))
-+		return -EOPNOTSUPP;
- 
- 	hcon = hci_connect_sco(hdev, type, &sco_pi(sk)->dst,
- 			       sco_pi(sk)->setting);
--	if (IS_ERR(hcon)) {
--		err = PTR_ERR(hcon);
--		goto done;
--	}
-+	if (IS_ERR(hcon))
-+		return PTR_ERR(hcon);
- 
- 	conn = sco_conn_add(hcon);
- 	if (!conn) {
- 		hci_conn_drop(hcon);
--		err = -ENOMEM;
--		goto done;
-+		return -ENOMEM;
- 	}
- 
- 	/* Update source addr of the socket */
-@@ -280,7 +268,7 @@ static int sco_connect(struct sock *sk)
- 
- 	err = sco_chan_add(conn, sk, NULL);
- 	if (err)
--		goto done;
-+		return err;
- 
- 	if (hcon->state == BT_CONNECTED) {
- 		sco_sock_clear_timer(sk);
-@@ -290,9 +278,6 @@ static int sco_connect(struct sock *sk)
- 		sco_sock_set_timer(sk, sk->sk_sndtimeo);
- 	}
- 
--done:
--	hci_dev_unlock(hdev);
--	hci_dev_put(hdev);
- 	return err;
- }
- 
-@@ -585,6 +570,7 @@ static int sco_sock_connect(struct socket *sock, struct sockaddr *addr, int alen
- {
- 	struct sockaddr_sco *sa = (struct sockaddr_sco *) addr;
- 	struct sock *sk = sock->sk;
-+	struct hci_dev  *hdev;
- 	int err;
- 
- 	BT_DBG("sk %p", sk);
-@@ -599,12 +585,19 @@ static int sco_sock_connect(struct socket *sock, struct sockaddr *addr, int alen
- 	if (sk->sk_type != SOCK_SEQPACKET)
- 		return -EINVAL;
- 
-+	hdev = hci_get_route(&sa->sco_bdaddr, &sco_pi(sk)->src, BDADDR_BREDR);
-+	if (!hdev)
-+		return -EHOSTUNREACH;
-+	hci_dev_lock(hdev);
++	if (!var->pixclock)
++		return -EINVAL;
 +
- 	lock_sock(sk);
- 
- 	/* Set destination address and psm */
- 	bacpy(&sco_pi(sk)->dst, &sa->sco_bdaddr);
- 
--	err = sco_connect(sk);
-+	err = sco_connect(hdev, sk);
-+	hci_dev_unlock(hdev);
-+	hci_dev_put(hdev);
- 	if (err)
- 		goto done;
- 
+ 	if (var->bits_per_pixel != 16 && var->bits_per_pixel != 32) {
+ 		printk(KERN_WARNING "kyrofb: depth not supported: %u\n", var->bits_per_pixel);
+ 		return -EINVAL;
 -- 
 2.30.2
 
