@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B1FE40E4F6
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:26:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B8B940DEFE
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:04:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344510AbhIPRGU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:06:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34050 "EHLO mail.kernel.org"
+        id S240592AbhIPQFx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:05:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349316AbhIPRD6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:03:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55B3F61B3B;
-        Thu, 16 Sep 2021 16:34:55 +0000 (UTC)
+        id S240612AbhIPQFn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:05:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 29DD061241;
+        Thu, 16 Sep 2021 16:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810095;
-        bh=eZw1Wqw6VyQoWHMs3uyAQ7K7cS2UfO0u/boTmqTzgHg=;
+        s=korg; t=1631808262;
+        bh=niG2Lt1Ingh5RIC5tdVdvtYyFU2QIjLuQ49vE2s/LNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=12+6t9E195GhOKESzn2UjjrAhtG9lfmNPpiVVk3p/DRBu96Efnf1a7X/KLnJgB16e
-         sIDpLMlBQVFxFB70yr3ba8yfyN/iKdiHqXIblGIBTrefeMy+0ReV6YOqpOqPvz/klr
-         a+G8AEoSqAV6pIPhfzxe8gCzRDTbJEMyXlEyNSNc=
+        b=gFsq7U0MpFBljMfq1kwkcv2pHWNT1tO+sAoHWKWFm0v3GIYrFKYet6UByL5oFgDOl
+         wiMcpgH9olPy6N2931fRuZ8FGQjNV7Jy6vMKDqYnp6cxB1/xgN2p5uRV+fs1Y6JZI5
+         1e9yBIUFmQvY3klXcg1kAsM+EnBLbrk4dRLiUAfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Subject: [PATCH 5.14 016/432] btrfs: reset replace target device to allocation state on close
-Date:   Thu, 16 Sep 2021 17:56:05 +0200
-Message-Id: <20210916155811.366998849@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>
+Subject: [PATCH 5.10 021/306] pinctrl: stmfx: Fix hazardous u8[] to unsigned long cast
+Date:   Thu, 16 Sep 2021 17:56:06 +0200
+Message-Id: <20210916155754.661055443@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,125 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 0d977e0eba234e01a60bdde27314dc21374201b3 upstream.
+commit 1b73e588f47397dee6e4bdfd953e0306c60b5fe5 upstream.
 
-This crash was observed with a failed assertion on device close:
+Casting a small array of u8 to an unsigned long is *never* OK:
 
-  BTRFS: Transaction aborted (error -28)
-  WARNING: CPU: 1 PID: 3902 at fs/btrfs/extent-tree.c:2150 btrfs_run_delayed_refs+0x1d2/0x1e0 [btrfs]
-  Modules linked in: btrfs blake2b_generic libcrc32c crc32c_intel xor zstd_decompress zstd_compress xxhash lzo_compress lzo_decompress raid6_pq loop
-  CPU: 1 PID: 3902 Comm: kworker/u8:4 Not tainted 5.14.0-rc5-default+ #1532
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba527-rebuilt.opensuse.org 04/01/2014
-  Workqueue: events_unbound btrfs_async_reclaim_metadata_space [btrfs]
-  RIP: 0010:btrfs_run_delayed_refs+0x1d2/0x1e0 [btrfs]
-  RSP: 0018:ffffb7a5452d7d80 EFLAGS: 00010282
-  RAX: 0000000000000000 RBX: 0000000000000003 RCX: 0000000000000000
-  RDX: 0000000000000001 RSI: ffffffffabee13c4 RDI: 00000000ffffffff
-  RBP: ffff97834176a378 R08: 0000000000000001 R09: 0000000000000001
-  R10: 0000000000000000 R11: 0000000000000001 R12: ffff97835195d388
-  R13: 0000000005b08000 R14: ffff978385484000 R15: 000000000000016c
-  FS:  0000000000000000(0000) GS:ffff9783bd800000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 000056190d003fe8 CR3: 000000002a81e005 CR4: 0000000000170ea0
-  Call Trace:
-   flush_space+0x197/0x2f0 [btrfs]
-   btrfs_async_reclaim_metadata_space+0x139/0x300 [btrfs]
-   process_one_work+0x262/0x5e0
-   worker_thread+0x4c/0x320
-   ? process_one_work+0x5e0/0x5e0
-   kthread+0x144/0x170
-   ? set_kthread_struct+0x40/0x40
-   ret_from_fork+0x1f/0x30
-  irq event stamp: 19334989
-  hardirqs last  enabled at (19334997): [<ffffffffab0e0c87>] console_unlock+0x2b7/0x400
-  hardirqs last disabled at (19335006): [<ffffffffab0e0d0d>] console_unlock+0x33d/0x400
-  softirqs last  enabled at (19334900): [<ffffffffaba0030d>] __do_softirq+0x30d/0x574
-  softirqs last disabled at (19334893): [<ffffffffab0721ec>] irq_exit_rcu+0x12c/0x140
-  ---[ end trace 45939e308e0dd3c7 ]---
-  BTRFS: error (device vdd) in btrfs_run_delayed_refs:2150: errno=-28 No space left
-  BTRFS info (device vdd): forced readonly
-  BTRFS warning (device vdd): failed setting block group ro: -30
-  BTRFS info (device vdd): suspending dev_replace for unmount
-  assertion failed: !test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state), in fs/btrfs/volumes.c:1150
-  ------------[ cut here ]------------
-  kernel BUG at fs/btrfs/ctree.h:3431!
-  invalid opcode: 0000 [#1] PREEMPT SMP
-  CPU: 1 PID: 3982 Comm: umount Tainted: G        W         5.14.0-rc5-default+ #1532
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba527-rebuilt.opensuse.org 04/01/2014
-  RIP: 0010:assertfail.constprop.0+0x18/0x1a [btrfs]
-  RSP: 0018:ffffb7a5454c7db8 EFLAGS: 00010246
-  RAX: 0000000000000068 RBX: ffff978364b91c00 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: ffffffffabee13c4 RDI: 00000000ffffffff
-  RBP: ffff9783523a4c00 R08: 0000000000000001 R09: 0000000000000001
-  R10: 0000000000000000 R11: 0000000000000001 R12: ffff9783523a4d18
-  R13: 0000000000000000 R14: 0000000000000004 R15: 0000000000000003
-  FS:  00007f61c8f42800(0000) GS:ffff9783bd800000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 000056190cffa810 CR3: 0000000030b96002 CR4: 0000000000170ea0
-  Call Trace:
-   btrfs_close_one_device.cold+0x11/0x55 [btrfs]
-   close_fs_devices+0x44/0xb0 [btrfs]
-   btrfs_close_devices+0x48/0x160 [btrfs]
-   generic_shutdown_super+0x69/0x100
-   kill_anon_super+0x14/0x30
-   btrfs_kill_super+0x12/0x20 [btrfs]
-   deactivate_locked_super+0x2c/0xa0
-   cleanup_mnt+0x144/0x1b0
-   task_work_run+0x59/0xa0
-   exit_to_user_mode_loop+0xe7/0xf0
-   exit_to_user_mode_prepare+0xaf/0xf0
-   syscall_exit_to_user_mode+0x19/0x50
-   do_syscall_64+0x4a/0x90
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+- it does funny thing when the array size is less than that of a long,
+  as it accesses random places in the stack
+- it makes everything even more fun with a BE kernel
 
-This happens when close_ctree is called while a dev_replace hasn't
-completed. In close_ctree, we suspend the dev_replace, but keep the
-replace target around so that we can resume the dev_replace procedure
-when we mount the root again. This is the call trace:
+Fix this by building the unsigned long used as a bitmap byte by byte,
+in a way that works across endianess and has no undefined behaviours.
 
-  close_ctree():
-    btrfs_dev_replace_suspend_for_unmount();
-    btrfs_close_devices():
-      btrfs_close_fs_devices():
-        btrfs_close_one_device():
-          ASSERT(!test_bit(BTRFS_DEV_STATE_REPLACE_TGT,
-                 &device->dev_state));
+An extra BUILD_BUG_ON() catches the unlikely case where the array
+would be larger than a single unsigned long.
 
-However, since the replace target sticks around, there is a device
-with BTRFS_DEV_STATE_REPLACE_TGT set on close, and we fail the
-assertion in btrfs_close_one_device.
-
-To fix this, if we come across the replace target device when
-closing, we should properly reset it back to allocation state. This
-fix also ensures that if a non-target device has a corrupted state and
-has the BTRFS_DEV_STATE_REPLACE_TGT bit set, the assertion will still
-catch the error.
-
-Reported-by: David Sterba <dsterba@suse.com>
-Fixes: b2a616676839 ("btrfs: fix rw device counting in __btrfs_free_extra_devids")
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 1490d9f841b1 ("pinctrl: Add STMFX GPIO expander Pinctrl/GPIO driver")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Cc: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Link: https://lore.kernel.org/r/20210725180830.250218-1-maz@kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/volumes.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/pinctrl/pinctrl-stmfx.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -1130,6 +1130,9 @@ static void btrfs_close_one_device(struc
- 		fs_devices->rw_devices--;
- 	}
+--- a/drivers/pinctrl/pinctrl-stmfx.c
++++ b/drivers/pinctrl/pinctrl-stmfx.c
+@@ -566,7 +566,7 @@ static irqreturn_t stmfx_pinctrl_irq_thr
+ 	u8 pending[NR_GPIO_REGS];
+ 	u8 src[NR_GPIO_REGS] = {0, 0, 0};
+ 	unsigned long n, status;
+-	int ret;
++	int i, ret;
  
-+	if (device->devid == BTRFS_DEV_REPLACE_DEVID)
-+		clear_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);
-+
- 	if (test_bit(BTRFS_DEV_STATE_MISSING, &device->dev_state))
- 		fs_devices->missing_devices--;
+ 	ret = regmap_bulk_read(pctl->stmfx->map, STMFX_REG_IRQ_GPI_PENDING,
+ 			       &pending, NR_GPIO_REGS);
+@@ -576,7 +576,9 @@ static irqreturn_t stmfx_pinctrl_irq_thr
+ 	regmap_bulk_write(pctl->stmfx->map, STMFX_REG_IRQ_GPI_SRC,
+ 			  src, NR_GPIO_REGS);
  
+-	status = *(unsigned long *)pending;
++	BUILD_BUG_ON(NR_GPIO_REGS > sizeof(status));
++	for (i = 0, status = 0; i < NR_GPIO_REGS; i++)
++		status |= (unsigned long)pending[i] << (i * 8);
+ 	for_each_set_bit(n, &status, gc->ngpio) {
+ 		handle_nested_irq(irq_find_mapping(gc->irq.domain, n));
+ 		stmfx_pinctrl_irq_toggle_trigger(pctl, n);
 
 
