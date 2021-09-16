@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A81C40E0C3
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:27:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4360F40E41C
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:22:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240795AbhIPQXz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:23:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59260 "EHLO mail.kernel.org"
+        id S243663AbhIPQz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:55:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241192AbhIPQVV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:21:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B70261407;
-        Thu, 16 Sep 2021 16:14:47 +0000 (UTC)
+        id S1345944AbhIPQxB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:53:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E0C561A8D;
+        Thu, 16 Sep 2021 16:29:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808888;
-        bh=n4I1esLoy8tpS2difjeMdqt5o8f1DNiNEBQ5TqrEtPc=;
+        s=korg; t=1631809777;
+        bh=6XPkMybdNHKrHU4KwX8+K12QhA29HKIgLYqu2LzrJgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xntu0EWQxb3g2YjQ+6IOtCO0YaPZ8ZhXUtGOg17c712fZx7YA3dUDQm5vVKN6D/ZE
-         lV/H+0i1t2mE7u0bCZ7KyGcJrwo3Efvv9hqerKhrTzE8H+vOTJJ0EpJtSBnE5UJ2PB
-         V7BrIm/w94/PkmDtK3l0LWl/vTSKzmxMyGfPEHf8=
+        b=Y/Av5GyfVXpwD/KefIjLwhNLi4iQJhEco8Sp3eWR9Gtn70ATRGnqJQ/JEwAfVbEMg
+         Tr8u4ULuWv9XckiPgB+QVGhQIQU1cgYQyQX+Vfpiciqth7DdNNsI2l+B0C2eQh1IlY
+         axPh0Mul7c017Sh1yM72U58nTihdGFRTA1aM8F+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org,
+        Quanyang Wang <quanyang.wang@windriver.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 260/306] nfsd: fix crash on LOCKT on reexported NFSv3
+Subject: [PATCH 5.13 248/380] drm: xlnx: zynqmp_dpsub: Call pm_runtime_get_sync before setting pixel clock
 Date:   Thu, 16 Sep 2021 18:00:05 +0200
-Message-Id: <20210916155802.937771714@linuxfoundation.org>
+Message-Id: <20210916155812.519013106@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Quanyang Wang <quanyang.wang@windriver.com>
 
-[ Upstream commit 0bcc7ca40bd823193224e9f38bafbd8325aaf566 ]
+[ Upstream commit a19effb6dbe5bd1be77a6d68eba04dba8993ffeb ]
 
-Unlike other filesystems, NFSv3 tries to use fl_file in the GETLK case.
+The Runtime PM subsystem will force the device "fd4a0000.zynqmp-display"
+to enter suspend state while booting if the following conditions are met:
+- the usage counter is zero (pm_runtime_get_sync hasn't been called yet)
+- no 'active' children (no zynqmp-dp-snd-xx node under dpsub node)
+- no other device in the same power domain (dpdma node has no
+		"power-domains = <&zynqmp_firmware PD_DP>" property)
 
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+So there is a scenario as below:
+1) DP device enters suspend state   <- call zynqmp_gpd_power_off
+2) zynqmp_disp_crtc_setup_clock	    <- configurate register VPLL_FRAC_CFG
+3) pm_runtime_get_sync		    <- call zynqmp_gpd_power_on and clear previous
+				       VPLL_FRAC_CFG configuration
+4) clk_prepare_enable(disp->pclk)   <- enable failed since VPLL_FRAC_CFG
+				       configuration is corrupted
+
+>From above, we can see that pm_runtime_get_sync may clear register
+VPLL_FRAC_CFG configuration and result the failure of clk enabling.
+Putting pm_runtime_get_sync at the very beginning of the function
+zynqmp_disp_crtc_atomic_enable can resolve this issue.
+
+Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/xlnx/zynqmp_disp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index 142aac9b63a8..0313390fa4b4 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -6855,8 +6855,7 @@ nfsd4_lock(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
- /*
-  * The NFSv4 spec allows a client to do a LOCKT without holding an OPEN,
-  * so we do a temporary open here just to get an open file to pass to
-- * vfs_test_lock.  (Arguably perhaps test_lock should be done with an
-- * inode operation.)
-+ * vfs_test_lock.
-  */
- static __be32 nfsd_test_lock(struct svc_rqst *rqstp, struct svc_fh *fhp, struct file_lock *lock)
- {
-@@ -6871,7 +6870,9 @@ static __be32 nfsd_test_lock(struct svc_rqst *rqstp, struct svc_fh *fhp, struct
- 							NFSD_MAY_READ));
- 	if (err)
- 		goto out;
-+	lock->fl_file = nf->nf_file;
- 	err = nfserrno(vfs_test_lock(nf->nf_file, lock));
-+	lock->fl_file = NULL;
- out:
- 	fh_unlock(fhp);
- 	nfsd_file_put(nf);
+diff --git a/drivers/gpu/drm/xlnx/zynqmp_disp.c b/drivers/gpu/drm/xlnx/zynqmp_disp.c
+index 109d627968ac..01c6ce7784dd 100644
+--- a/drivers/gpu/drm/xlnx/zynqmp_disp.c
++++ b/drivers/gpu/drm/xlnx/zynqmp_disp.c
+@@ -1452,9 +1452,10 @@ zynqmp_disp_crtc_atomic_enable(struct drm_crtc *crtc,
+ 	struct drm_display_mode *adjusted_mode = &crtc->state->adjusted_mode;
+ 	int ret, vrefresh;
+ 
++	pm_runtime_get_sync(disp->dev);
++
+ 	zynqmp_disp_crtc_setup_clock(crtc, adjusted_mode);
+ 
+-	pm_runtime_get_sync(disp->dev);
+ 	ret = clk_prepare_enable(disp->pclk);
+ 	if (ret) {
+ 		dev_err(disp->dev, "failed to enable a pixel clock\n");
 -- 
 2.30.2
 
