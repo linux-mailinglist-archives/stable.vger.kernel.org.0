@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E066D40E0EC
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:28:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8057840E749
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241670AbhIPQZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:25:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59300 "EHLO mail.kernel.org"
+        id S245649AbhIPRbH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:31:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238703AbhIPQXi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:23:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB35761502;
-        Thu, 16 Sep 2021 16:15:55 +0000 (UTC)
+        id S1347794AbhIPR14 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:27:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCC5761BFC;
+        Thu, 16 Sep 2021 16:45:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808956;
-        bh=wm3vgGq28kagCEy8O6Nt9xmU1mL0EuDDPzYz6pRSOJE=;
+        s=korg; t=1631810735;
+        bh=o7gyH5Uz+ypBBqv8CcUZcrma9fUYs0sYBx4Lf2zN7+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G85/ySwVyLr8JLaXcFID8EPGQeplFUOEeFxFhBiuxHOo8iAOFnAGwQPZdquOParCY
-         CurmQaXS7VTK1MQM37cqW6tLwgwEFHvI2SZjbj9f6CHLTBGEgT3XGgjHWwEFtSvSwO
-         K51XoVf5LsFxRrqDxXYD0gFGx+EiBJHxVB46c7MI=
+        b=fzH0RazNje48QQxMCUOCGO4BHcmZFBILKe6dkZYkS8a6Fq4Vj+bjRypTh4qac6Ac0
+         chD36HNhGIxng/lCmn3ON23NObriScOKwBJeEg84NQT+NhGfsnDxkqDHb4K6XjzAUj
+         KztSvjYaN9zrTKMiJEkQYclJh3gQ9zLrcXUMmT60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ding Hui <dinghui@sangfor.com.cn>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        =?UTF-8?q?Cl=C3=A9ment=20L=C3=A9ger?= <clement.leger@bootlin.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 252/306] cifs: fix wrong release in sess_alloc_buffer() failed path
-Date:   Thu, 16 Sep 2021 17:59:57 +0200
-Message-Id: <20210916155802.658764736@linuxfoundation.org>
+Subject: [PATCH 5.14 249/432] ARM: dts: at91: use the right property for shutdown controller
+Date:   Thu, 16 Sep 2021 17:59:58 +0200
+Message-Id: <20210916155819.270314079@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +42,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ding Hui <dinghui@sangfor.com.cn>
+From: Nicolas Ferre <nicolas.ferre@microchip.com>
 
-[ Upstream commit d72c74197b70bc3c95152f351a568007bffa3e11 ]
+[ Upstream commit 818c4593434e81c9971b8fc278215121622c755e ]
 
-smb_buf is allocated by small_smb_init_no_tc(), and buf type is
-CIFS_SMALL_BUFFER, so we should use cifs_small_buf_release() to
-release it in failed path.
+The wrong property "atmel,shdwc-debouncer" was used to specify the
+debounce delay for the shutdown controler. Replace it with the
+documented and implemented property "debounce-delay-us", as mentioned
+in v4 driver submission. See:
+https://lore.kernel.org/r/1458134390-23847-3-git-send-email-nicolas.ferre@atmel.com/
 
-Signed-off-by: Ding Hui <dinghui@sangfor.com.cn>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Reported-by: Clément Léger <clement.leger@bootlin.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20210730172729.28093-1-nicolas.ferre@microchip.com/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/sess.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/at91-kizbox3_common.dtsi    | 2 +-
+ arch/arm/boot/dts/at91-sam9x60ek.dts          | 2 +-
+ arch/arm/boot/dts/at91-sama5d27_som1_ek.dts   | 2 +-
+ arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts | 2 +-
+ arch/arm/boot/dts/at91-sama5d2_icp.dts        | 2 +-
+ arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts     | 2 +-
+ arch/arm/boot/dts/at91-sama5d2_xplained.dts   | 2 +-
+ 7 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/fs/cifs/sess.c b/fs/cifs/sess.c
-index 1a0298d1e7cd..d58c5ffeca0d 100644
---- a/fs/cifs/sess.c
-+++ b/fs/cifs/sess.c
-@@ -888,7 +888,7 @@ sess_alloc_buffer(struct sess_data *sess_data, int wct)
- 	return 0;
+diff --git a/arch/arm/boot/dts/at91-kizbox3_common.dtsi b/arch/arm/boot/dts/at91-kizbox3_common.dtsi
+index c4b3750495da..abe27adfa4d6 100644
+--- a/arch/arm/boot/dts/at91-kizbox3_common.dtsi
++++ b/arch/arm/boot/dts/at91-kizbox3_common.dtsi
+@@ -336,7 +336,7 @@ &pwm0 {
+ };
  
- out_free_smb_buf:
--	kfree(smb_buf);
-+	cifs_small_buf_release(smb_buf);
- 	sess_data->iov[0].iov_base = NULL;
- 	sess_data->iov[0].iov_len = 0;
- 	sess_data->buf0_type = CIFS_NO_BUFFER;
+ &shutdown_controller {
+-	atmel,shdwc-debouncer = <976>;
++	debounce-delay-us = <976>;
+ 	atmel,wakeup-rtc-timer;
+ 
+ 	input@0 {
+diff --git a/arch/arm/boot/dts/at91-sam9x60ek.dts b/arch/arm/boot/dts/at91-sam9x60ek.dts
+index ebbc9b23aef1..b1068cca4228 100644
+--- a/arch/arm/boot/dts/at91-sam9x60ek.dts
++++ b/arch/arm/boot/dts/at91-sam9x60ek.dts
+@@ -662,7 +662,7 @@ &rtt {
+ };
+ 
+ &shutdown_controller {
+-	atmel,shdwc-debouncer = <976>;
++	debounce-delay-us = <976>;
+ 	status = "okay";
+ 
+ 	input@0 {
+diff --git a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
+index a9e6fee55a2a..8034e5dacc80 100644
+--- a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
++++ b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
+@@ -138,7 +138,7 @@ i2c3: i2c@600 {
+ 			};
+ 
+ 			shdwc@f8048010 {
+-				atmel,shdwc-debouncer = <976>;
++				debounce-delay-us = <976>;
+ 				atmel,wakeup-rtc-timer;
+ 
+ 				input@0 {
+diff --git a/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts b/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts
+index ff83967fd008..c145c4e5ef58 100644
+--- a/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts
++++ b/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts
+@@ -205,7 +205,7 @@ &sdmmc0 {
+ };
+ 
+ &shutdown_controller {
+-	atmel,shdwc-debouncer = <976>;
++	debounce-delay-us = <976>;
+ 	atmel,wakeup-rtc-timer;
+ 
+ 	input@0 {
+diff --git a/arch/arm/boot/dts/at91-sama5d2_icp.dts b/arch/arm/boot/dts/at91-sama5d2_icp.dts
+index bd64721fa23c..34faca597c35 100644
+--- a/arch/arm/boot/dts/at91-sama5d2_icp.dts
++++ b/arch/arm/boot/dts/at91-sama5d2_icp.dts
+@@ -693,7 +693,7 @@ &sdmmc0 {
+ };
+ 
+ &shutdown_controller {
+-	atmel,shdwc-debouncer = <976>;
++	debounce-delay-us = <976>;
+ 	atmel,wakeup-rtc-timer;
+ 
+ 	input@0 {
+diff --git a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
+index dfd150eb0fd8..3f972a4086c3 100644
+--- a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
++++ b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
+@@ -203,7 +203,7 @@ i2c2: i2c@600 {
+ 			};
+ 
+ 			shdwc@f8048010 {
+-				atmel,shdwc-debouncer = <976>;
++				debounce-delay-us = <976>;
+ 
+ 				input@0 {
+ 					reg = <0>;
+diff --git a/arch/arm/boot/dts/at91-sama5d2_xplained.dts b/arch/arm/boot/dts/at91-sama5d2_xplained.dts
+index 509c732a0d8b..627b7bf88d83 100644
+--- a/arch/arm/boot/dts/at91-sama5d2_xplained.dts
++++ b/arch/arm/boot/dts/at91-sama5d2_xplained.dts
+@@ -347,7 +347,7 @@ i2c2: i2c@600 {
+ 			};
+ 
+ 			shdwc@f8048010 {
+-				atmel,shdwc-debouncer = <976>;
++				debounce-delay-us = <976>;
+ 				atmel,wakeup-rtc-timer;
+ 
+ 				input@0 {
 -- 
 2.30.2
 
