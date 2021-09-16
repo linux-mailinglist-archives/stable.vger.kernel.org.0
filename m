@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48A1040E873
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BFA640E86F
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355949AbhIPRoh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:44:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57066 "EHLO mail.kernel.org"
+        id S1355943AbhIPRog (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:44:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355373AbhIPRlY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1355377AbhIPRlY (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Sep 2021 13:41:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D414D6324E;
-        Thu, 16 Sep 2021 16:52:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69ACF6325A;
+        Thu, 16 Sep 2021 16:52:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811154;
-        bh=Tm2faHpCHOl5c4OzcYYIMRfJQpMc9cNUrJj2eNBLEiM=;
+        s=korg; t=1631811157;
+        bh=95b3wlf+FrA0gjk15GOSQxUqJm1hscPLiRT5Brty8DQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QUNGwYPE5OQSIbJXze+bYL7YRwsPdAL8fYmTsnmyhls9orucw2Epfo2SosA5CrHVI
-         NDF+cc6SHf3P652Lvla7wQguIzYBG/ximj191BCbdrrrbsuJsltPybJAMyTLZebfPF
-         1lz+QmlWa1ZrDONtLjplP1LlbtAlbGeGyFFO3fo0=
+        b=asd385txsyANNJOUNGDiRao4T24Hyu8dYbS7EWXr5m912+1Rkc5mRy5rwGWYjnr1r
+         Ww4TwyTAyW9QoxJENi0QQrWIbZ0Ne5If6urjx2LvkQS11aGJsFdpV+JRVTw6cXSPcF
+         gehP1W8N49w7bXUcGA63Jx2ihG37YSbokC4LJHGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Wang <yun.wang@linux.alibaba.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Abaci <abaci@linux.alibaba.com>,
+        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
+        Guillaume Morin <guillaume@morinfr.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.14 402/432] mm: fix panic caused by __page_handle_poison()
-Date:   Thu, 16 Sep 2021 18:02:31 +0200
-Message-Id: <20210916155824.456233563@linuxfoundation.org>
+Subject: [PATCH 5.14 403/432] hugetlb: fix hugetlb cgroup refcounting during vma split
+Date:   Thu, 16 Sep 2021 18:02:32 +0200
+Message-Id: <20210916155824.490316776@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -42,72 +41,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Wang <yun.wang@linux.alibaba.com>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-commit f87060d345232c7d855167a43faf006e24afa999 upstream.
+commit 09a26e832705fdb7a9484495b71a05e0bbc65207 upstream.
 
-In commit 510d25c92ec4 ("mm/hwpoison: disable pcp for
-page_handle_poison()"), __page_handle_poison() was introduced, and if we
-mark:
+Guillaume Morin reported hitting the following WARNING followed by GPF or
+NULL pointer deference either in cgroups_destroy or in the kill_css path.:
 
-RET_A = dissolve_free_huge_page();
-RET_B = take_page_off_buddy();
+    percpu ref (css_release) <= 0 (-1) after switching to atomic
+    WARNING: CPU: 23 PID: 130 at lib/percpu-refcount.c:196 percpu_ref_switch_to_atomic_rcu+0x127/0x130
+    CPU: 23 PID: 130 Comm: ksoftirqd/23 Kdump: loaded Tainted: G           O      5.10.60 #1
+    RIP: 0010:percpu_ref_switch_to_atomic_rcu+0x127/0x130
+    Call Trace:
+       rcu_core+0x30f/0x530
+       rcu_core_si+0xe/0x10
+       __do_softirq+0x103/0x2a2
+       run_ksoftirqd+0x2b/0x40
+       smpboot_thread_fn+0x11a/0x170
+       kthread+0x10a/0x140
+       ret_from_fork+0x22/0x30
 
-then __page_handle_poison was supposed to return TRUE When RET_A == 0 &&
-RET_B == TRUE
+Upon further examination, it was discovered that the css structure was
+associated with hugetlb reservations.
 
-But since it failed to take care the case when RET_A is -EBUSY or -ENOMEM,
-and just return the ret as a bool which actually become TRUE, it break the
-original logic.
+For private hugetlb mappings the vma points to a reserve map that
+contains a pointer to the css.  At mmap time, reservations are set up
+and a reference to the css is taken.  This reference is dropped in the
+vma close operation; hugetlb_vm_op_close.  However, if a vma is split no
+additional reference to the css is taken yet hugetlb_vm_op_close will be
+called twice for the split vma resulting in an underflow.
 
-The following result is a huge page in freelist but was
-referenced as poisoned, and lead into the final panic:
+Fix by taking another reference in hugetlb_vm_op_open.  Note that the
+reference is only taken for the owner of the reserve map.  In the more
+common fork case, the pointer to the reserve map is cleared for
+non-owning vmas.
 
-  kernel BUG at mm/internal.h:95!
-  invalid opcode: 0000 [#1] SMP PTI
-  skip...
-  RIP: 0010:set_page_refcounted mm/internal.h:95 [inline]
-  RIP: 0010:remove_hugetlb_page+0x23c/0x240 mm/hugetlb.c:1371
-  skip...
-  Call Trace:
-   remove_pool_huge_page+0xe4/0x110 mm/hugetlb.c:1892
-   return_unused_surplus_pages+0x8d/0x150 mm/hugetlb.c:2272
-   hugetlb_acct_memory.part.91+0x524/0x690 mm/hugetlb.c:4017
-
-This patch replaces 'bool' with 'int' to handle RET_A correctly.
-
-Link: https://lkml.kernel.org/r/61782ac6-1e8a-4f6f-35e6-e94fce3b37f5@linux.alibaba.com
-Fixes: 510d25c92ec4 ("mm/hwpoison: disable pcp for page_handle_poison()")
-Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
-Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Cc: <stable@vger.kernel.org>	[5.14+]
+Link: https://lkml.kernel.org/r/20210830215015.155224-1-mike.kravetz@oracle.com
+Fixes: e9fe92ae0cd2 ("hugetlb_cgroup: add reservation accounting for private mappings")
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reported-by: Guillaume Morin <guillaume@morinfr.org>
+Suggested-by: Guillaume Morin <guillaume@morinfr.org>
+Tested-by: Guillaume Morin <guillaume@morinfr.org>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory-failure.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/hugetlb_cgroup.h |   12 ++++++++++++
+ mm/hugetlb.c                   |    4 +++-
+ 2 files changed, 15 insertions(+), 1 deletion(-)
 
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -68,7 +68,7 @@ atomic_long_t num_poisoned_pages __read_
- 
- static bool __page_handle_poison(struct page *page)
- {
--	bool ret;
-+	int ret;
- 
- 	zone_pcp_disable(page_zone(page));
- 	ret = dissolve_free_huge_page(page);
-@@ -76,7 +76,7 @@ static bool __page_handle_poison(struct
- 		ret = take_page_off_buddy(page);
- 	zone_pcp_enable(page_zone(page));
- 
--	return ret;
-+	return ret > 0;
+--- a/include/linux/hugetlb_cgroup.h
++++ b/include/linux/hugetlb_cgroup.h
+@@ -121,6 +121,13 @@ static inline void hugetlb_cgroup_put_rs
+ 	css_put(&h_cg->css);
  }
  
- static bool page_handle_poison(struct page *page, bool hugepage_or_freepage, bool release)
++static inline void resv_map_dup_hugetlb_cgroup_uncharge_info(
++						struct resv_map *resv_map)
++{
++	if (resv_map->css)
++		css_get(resv_map->css);
++}
++
+ extern int hugetlb_cgroup_charge_cgroup(int idx, unsigned long nr_pages,
+ 					struct hugetlb_cgroup **ptr);
+ extern int hugetlb_cgroup_charge_cgroup_rsvd(int idx, unsigned long nr_pages,
+@@ -199,6 +206,11 @@ static inline void hugetlb_cgroup_put_rs
+ {
+ }
+ 
++static inline void resv_map_dup_hugetlb_cgroup_uncharge_info(
++						struct resv_map *resv_map)
++{
++}
++
+ static inline int hugetlb_cgroup_charge_cgroup(int idx, unsigned long nr_pages,
+ 					       struct hugetlb_cgroup **ptr)
+ {
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -4033,8 +4033,10 @@ static void hugetlb_vm_op_open(struct vm
+ 	 * after this open call completes.  It is therefore safe to take a
+ 	 * new reference here without additional locking.
+ 	 */
+-	if (resv && is_vma_resv_set(vma, HPAGE_RESV_OWNER))
++	if (resv && is_vma_resv_set(vma, HPAGE_RESV_OWNER)) {
++		resv_map_dup_hugetlb_cgroup_uncharge_info(resv);
+ 		kref_get(&resv->refs);
++	}
+ }
+ 
+ static void hugetlb_vm_op_close(struct vm_area_struct *vma)
 
 
