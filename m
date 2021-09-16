@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 025A440E44C
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:23:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 691A040E690
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343760AbhIPQ5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:57:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52252 "EHLO mail.kernel.org"
+        id S1350246AbhIPRWb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:22:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346545AbhIPQzA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:55:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A8EA613AB;
-        Thu, 16 Sep 2021 16:30:31 +0000 (UTC)
+        id S243555AbhIPQzp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:55:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50AF86135A;
+        Thu, 16 Sep 2021 16:30:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809832;
-        bh=8LZEJQtrtWy5w2bYAQcyCjP4Njlb9gk133v3duhkGhM=;
+        s=korg; t=1631809834;
+        bh=n5trVym9rA9eKT958C+3eitE2IdRM6j8B2EA8KcOOJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HThpL04eN2gf3PYLkl/lgCG+0P0pV2asXJbof7iDEvBP8NIo7lTavoF7wA7z1DxDo
-         4Wpb5M+GBxgFADhkZzHyCFFqm1rtXYBDcRq7/AHg4MZhhp1q0gRXn4U2/wpklJ1DZl
-         +q8mDEYIW4q92CBA0HdaRgyyRr5Qd5IdcWE5emYE=
+        b=V0tq3WLd5y2WtYGcN56sKQvzwMgke1vCr2kuT1szWAFelAM7RKaH4dwUnGMYhsJFm
+         zH8mP2Mgz5jBxJ607/q9DhyGmr7y54Uud1j+XRYlsjI7vrZip1ftJUAGzbPxeR6rdM
+         9GhCBK/9cPMUNuIXrGaZOrcwsy0LrQf+Z81bXhOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
-        Hariprasad Kelam <hkelam@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Greg Ungerer <gerg@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 299/380] octeontx2-pf: Fix NIX1_RX interface backpressure
-Date:   Thu, 16 Sep 2021 18:00:56 +0200
-Message-Id: <20210916155814.234325100@linuxfoundation.org>
+Subject: [PATCH 5.13 300/380] m68knommu: only set CONFIG_ISA_DMA_API for ColdFire sub-arch
+Date:   Thu, 16 Sep 2021 18:00:57 +0200
+Message-Id: <20210916155814.266788937@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
 References: <20210916155803.966362085@linuxfoundation.org>
@@ -42,51 +40,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subbaraya Sundeep <sbhatta@marvell.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit e8fb4df1f5d84bc08dd4f4827821a851d2eab241 ]
+[ Upstream commit db87db65c1059f3be04506d122f8ec9b2fa3b05e ]
 
-'bp_ena' in Aura context is NIX block index, setting it
-zero will always backpressure NIX0 block, even if NIXLF
-belongs to NIX1. Hence fix this by setting it appropriately
-based on NIX block address.
+> Hi Arnd,
+>
+> First bad commit (maybe != root cause):
+>
+> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
+> head:   2f73937c9aa561e2082839bc1a8efaac75d6e244
+> commit: 47fd22f2b84765a2f7e3f150282497b902624547 [4771/5318] cs89x0: rework driver configuration
+> config: m68k-randconfig-c003-20210804 (attached as .config)
+> compiler: m68k-linux-gcc (GCC) 10.3.0
+> reproduce (this is a W=1 build):
+>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=47fd22f2b84765a2f7e3f150282497b902624547
+>         git remote add linux-next https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
+>         git fetch --no-tags linux-next master
+>         git checkout 47fd22f2b84765a2f7e3f150282497b902624547
+>         # save the attached .config to linux build tree
+>         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-10.3.0 make.cross ARCH=m68k
+>
+> If you fix the issue, kindly add following tag as appropriate
+> Reported-by: kernel test robot <lkp@intel.com>
+>
+> All errors (new ones prefixed by >>):
+>
+>    In file included from include/linux/kernel.h:19,
+>                     from include/linux/list.h:9,
+>                     from include/linux/module.h:12,
+>                     from drivers/net/ethernet/cirrus/cs89x0.c:51:
+>    drivers/net/ethernet/cirrus/cs89x0.c: In function 'net_open':
+>    drivers/net/ethernet/cirrus/cs89x0.c:897:20: error: implicit declaration of function 'isa_virt_to_bus'; did you mean 'virt_to_bus'? [-Werror=implicit-function-declaration]
+>      897 |     (unsigned long)isa_virt_to_bus(lp->dma_buff));
+>          |                    ^~~~~~~~~~~~~~~
+>    include/linux/printk.h:141:17: note: in definition of macro 'no_printk'
+>      141 |   printk(fmt, ##__VA_ARGS__);  \
+>          |                 ^~~~~~~~~~~
+>    drivers/net/ethernet/cirrus/cs89x0.c:86:3: note: in expansion of macro 'pr_debug'
+>       86 |   pr_##level(fmt, ##__VA_ARGS__);   \
+>          |   ^~~
+>    drivers/net/ethernet/cirrus/cs89x0.c:894:3: note: in expansion of macro 'cs89_dbg'
+>      894 |   cs89_dbg(1, debug, "%s: dma %lx %lx\n",
+>          |   ^~~~~~~~
+> >> drivers/net/ethernet/cirrus/cs89x0.c:914:3: error: implicit declaration of function 'disable_dma'; did you mean 'disable_irq'? [-Werror=implicit-function-declaration]
 
-Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Signed-off-by: Hariprasad Kelam <hkelam@marvell.com>
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+As far as I can tell, this is a bug with the m68kmmu architecture, not
+with my driver:
+The CONFIG_ISA_DMA_API option is provided for coldfire, which implements it,
+but dragonball also sets the option as a side-effect, without actually
+implementing
+the interfaces. The patch below should fix it.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/marvell/octeontx2/nic/otx2_common.c  | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ arch/m68k/Kconfig.bus | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-index e0d1af9e7770..6c64fdbef0df 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-@@ -1201,7 +1201,22 @@ static int otx2_aura_init(struct otx2_nic *pfvf, int aura_id,
- 	/* Enable backpressure for RQ aura */
- 	if (aura_id < pfvf->hw.rqpool_cnt && !is_otx2_lbkvf(pfvf->pdev)) {
- 		aq->aura.bp_ena = 0;
-+		/* If NIX1 LF is attached then specify NIX1_RX.
-+		 *
-+		 * Below NPA_AURA_S[BP_ENA] is set according to the
-+		 * NPA_BPINTF_E enumeration given as:
-+		 * 0x0 + a*0x1 where 'a' is 0 for NIX0_RX and 1 for NIX1_RX so
-+		 * NIX0_RX is 0x0 + 0*0x1 = 0
-+		 * NIX1_RX is 0x0 + 1*0x1 = 1
-+		 * But in HRM it is given that
-+		 * "NPA_AURA_S[BP_ENA](w1[33:32]) - Enable aura backpressure to
-+		 * NIX-RX based on [BP] level. One bit per NIX-RX; index
-+		 * enumerated by NPA_BPINTF_E."
-+		 */
-+		if (pfvf->nix_blkaddr == BLKADDR_NIX1)
-+			aq->aura.bp_ena = 1;
- 		aq->aura.nix0_bpid = pfvf->bpid[0];
-+
- 		/* Set backpressure level for RQ's Aura */
- 		aq->aura.bp = RQ_BP_LVL_AURA;
- 	}
+diff --git a/arch/m68k/Kconfig.bus b/arch/m68k/Kconfig.bus
+index f1be832e2b74..d1e93a39cd3b 100644
+--- a/arch/m68k/Kconfig.bus
++++ b/arch/m68k/Kconfig.bus
+@@ -63,7 +63,7 @@ source "drivers/zorro/Kconfig"
+ 
+ endif
+ 
+-if !MMU
++if COLDFIRE
+ 
+ config ISA_DMA_API
+ 	def_bool !M5272
 -- 
 2.30.2
 
