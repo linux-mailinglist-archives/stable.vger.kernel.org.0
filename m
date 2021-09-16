@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F0B640E6C3
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:31:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51A8740E2EA
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347735AbhIPRZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:25:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44344 "EHLO mail.kernel.org"
+        id S242871AbhIPQmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:42:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347104AbhIPRWu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:22:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08CEF61A2F;
-        Thu, 16 Sep 2021 16:43:13 +0000 (UTC)
+        id S242881AbhIPQkv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:40:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0C7461A2C;
+        Thu, 16 Sep 2021 16:24:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810594;
-        bh=NU5ZOx0naDK85oG0/HUbMQFEYp7Zrotfi5JaGSGDnmc=;
+        s=korg; t=1631809446;
+        bh=+oD3Z40EPoxc+Zp2fbcCpgeZeVQzVYMYQ5lI2GkuKSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PviFyakPMUB9lc9DShIgpQLRbk9e9GBiUqZR6dtiLrpIjHtWh+xClSTp8G/QKP31m
-         w82Zmz0x01FV8oe/22ESmTcSOT8ycMtj20i7jYzijK1FryybSAV47+iulTp7/Is+JT
-         fqttcTSGD2N6xVeyG7KgO3wsSDNXEcJL12DaCZwc=
+        b=uCFLFmmHr7zyN8eIP91HvjftNSazIRdiF/tmzoTkmFdgNXJhhUe/oG868MeJPl3F6
+         avNaEr4p8TIjsaoGsM8gPpCJy9UTGgrjmPvKG1r9Ik9QGwmI7BcktSZMifwSY+oRP9
+         HHbGaBXj0rZAn8Kh4LZAqXOkLCQ9K+ePw+NVRXN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        devicetree@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Douglas Anderson <dianders@chromium.org>,
+        stable@vger.kernel.org, Stefan Assmann <sassmann@kpanic.de>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 166/432] drm/panel: Fix up DT bindings for Samsung lms397kf04
+Subject: [PATCH 5.13 158/380] iavf: fix locking of critical sections
 Date:   Thu, 16 Sep 2021 17:58:35 +0200
-Message-Id: <20210916155816.371280765@linuxfoundation.org>
+Message-Id: <20210916155809.459995584@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +41,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Stefan Assmann <sassmann@kpanic.de>
 
-[ Upstream commit 710fa9aa16321f2ffdd8383f6f780c9cc1e5a197 ]
+[ Upstream commit 226d528512cfac890a1619aea4301f3dd314fe60 ]
 
-Improve the bindings and make them more usable:
+To avoid races between iavf_init_task(), iavf_reset_task(),
+iavf_watchdog_task(), iavf_adminq_task() as well as the shutdown and
+remove functions more locking is required.
+The current protection by __IAVF_IN_CRITICAL_TASK is needed in
+additional places.
 
-- Pick in spi-cpha and spi-cpol from the SPI node parent,
-  this will specify that we are "type 3" in the device tree
-  rather than hardcoding it in the operating system.
-- Drop the u32 ref from the SPI frequency: comes in from
-  the SPI host bindings.
-- Make spi-cpha, spi-cpol and port compulsory.
-- Update the example with a real-world SPI controller,
-  spi-gpio.
+- The reset task performs state transitions, therefore needs locking.
+- The adminq task acts on replies from the PF in
+  iavf_virtchnl_completion() which may alter the states.
+- The init task is not only run during probe but also if a VF gets stuck
+  to reinitialize it.
+- The shutdown function performs a state transition.
+- The remove function performs a state transition and also free's
+  resources.
 
-Cc: Noralf Trønnes <noralf@tronnes.org>
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210701213618.3818821-1-linus.walleij@linaro.org
+iavf_lock_timeout() is introduced to avoid waiting infinitely
+and cause a deadlock. Rather unlock and print a warning.
+
+Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../display/panel/samsung,lms397kf04.yaml      | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 57 ++++++++++++++++++---
+ 1 file changed, 50 insertions(+), 7 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/display/panel/samsung,lms397kf04.yaml b/Documentation/devicetree/bindings/display/panel/samsung,lms397kf04.yaml
-index 4cb75a5f2e3a..cd62968426fb 100644
---- a/Documentation/devicetree/bindings/display/panel/samsung,lms397kf04.yaml
-+++ b/Documentation/devicetree/bindings/display/panel/samsung,lms397kf04.yaml
-@@ -33,8 +33,11 @@ properties:
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 0d0f16617dde..e5e6a5b11e6d 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -131,6 +131,30 @@ enum iavf_status iavf_free_virt_mem_d(struct iavf_hw *hw,
+ 	return 0;
+ }
  
-   backlight: true
- 
-+  spi-cpha: true
++/**
++ * iavf_lock_timeout - try to set bit but give up after timeout
++ * @adapter: board private structure
++ * @bit: bit to set
++ * @msecs: timeout in msecs
++ *
++ * Returns 0 on success, negative on failure
++ **/
++static int iavf_lock_timeout(struct iavf_adapter *adapter,
++			     enum iavf_critical_section_t bit,
++			     unsigned int msecs)
++{
++	unsigned int wait, delay = 10;
 +
-+  spi-cpol: true
++	for (wait = 0; wait < msecs; wait += delay) {
++		if (!test_and_set_bit(bit, &adapter->crit_section))
++			return 0;
 +
-   spi-max-frequency:
--    $ref: /schemas/types.yaml#/definitions/uint32
-     description: inherited as a SPI client node, the datasheet specifies
-       maximum 300 ns minimum cycle which gives around 3 MHz max frequency
-     maximum: 3000000
-@@ -44,6 +47,9 @@ properties:
- required:
-   - compatible
-   - reg
-+  - spi-cpha
-+  - spi-cpol
-+  - port
++		msleep(delay);
++	}
++
++	return -1;
++}
++
+ /**
+  * iavf_schedule_reset - Set the flags and schedule a reset event
+  * @adapter: board private structure
+@@ -2097,6 +2121,10 @@ static void iavf_reset_task(struct work_struct *work)
+ 	if (test_bit(__IAVF_IN_REMOVE_TASK, &adapter->crit_section))
+ 		return;
  
- additionalProperties: false
++	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 200)) {
++		schedule_work(&adapter->reset_task);
++		return;
++	}
+ 	while (test_and_set_bit(__IAVF_IN_CLIENT_TASK,
+ 				&adapter->crit_section))
+ 		usleep_range(500, 1000);
+@@ -2311,6 +2339,8 @@ static void iavf_adminq_task(struct work_struct *work)
+ 	if (!event.msg_buf)
+ 		goto out;
  
-@@ -52,15 +58,23 @@ examples:
-     #include <dt-bindings/gpio/gpio.h>
++	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 200))
++		goto freedom;
+ 	do {
+ 		ret = iavf_clean_arq_element(hw, &event, &pending);
+ 		v_op = (enum virtchnl_ops)le32_to_cpu(event.desc.cookie_high);
+@@ -2324,6 +2354,7 @@ static void iavf_adminq_task(struct work_struct *work)
+ 		if (pending != 0)
+ 			memset(event.msg_buf, 0, IAVF_MAX_AQ_BUF_SIZE);
+ 	} while (pending);
++	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
  
-     spi {
-+      compatible = "spi-gpio";
-+      sck-gpios = <&gpio 0 GPIO_ACTIVE_HIGH>;
-+      miso-gpios = <&gpio 1 GPIO_ACTIVE_HIGH>;
-+      mosi-gpios = <&gpio 2 GPIO_ACTIVE_HIGH>;
-+      cs-gpios = <&gpio 3 GPIO_ACTIVE_HIGH>;
-+      num-chipselects = <1>;
-       #address-cells = <1>;
-       #size-cells = <0>;
-       panel@0 {
-         compatible = "samsung,lms397kf04";
-         spi-max-frequency = <3000000>;
-+        spi-cpha;
-+        spi-cpol;
-         reg = <0>;
-         vci-supply = <&lcd_3v0_reg>;
-         vccio-supply = <&lcd_1v8_reg>;
--        reset-gpios = <&gpio 1 GPIO_ACTIVE_LOW>;
-+        reset-gpios = <&gpio 4 GPIO_ACTIVE_LOW>;
-         backlight = <&ktd259>;
+ 	if ((adapter->flags &
+ 	     (IAVF_FLAG_RESET_PENDING | IAVF_FLAG_RESET_NEEDED)) ||
+@@ -3628,6 +3659,10 @@ static void iavf_init_task(struct work_struct *work)
+ 						    init_task.work);
+ 	struct iavf_hw *hw = &adapter->hw;
  
-         port {
++	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 5000)) {
++		dev_warn(&adapter->pdev->dev, "failed to set __IAVF_IN_CRITICAL_TASK in %s\n", __FUNCTION__);
++		return;
++	}
+ 	switch (adapter->state) {
+ 	case __IAVF_STARTUP:
+ 		if (iavf_startup(adapter) < 0)
+@@ -3640,14 +3675,14 @@ static void iavf_init_task(struct work_struct *work)
+ 	case __IAVF_INIT_GET_RESOURCES:
+ 		if (iavf_init_get_resources(adapter) < 0)
+ 			goto init_failed;
+-		return;
++		goto out;
+ 	default:
+ 		goto init_failed;
+ 	}
+ 
+ 	queue_delayed_work(iavf_wq, &adapter->init_task,
+ 			   msecs_to_jiffies(30));
+-	return;
++	goto out;
+ init_failed:
+ 	if (++adapter->aq_wait_count > IAVF_AQ_MAX_ERR) {
+ 		dev_err(&adapter->pdev->dev,
+@@ -3656,9 +3691,11 @@ static void iavf_init_task(struct work_struct *work)
+ 		iavf_shutdown_adminq(hw);
+ 		adapter->state = __IAVF_STARTUP;
+ 		queue_delayed_work(iavf_wq, &adapter->init_task, HZ * 5);
+-		return;
++		goto out;
+ 	}
+ 	queue_delayed_work(iavf_wq, &adapter->init_task, HZ);
++out:
++	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
+ }
+ 
+ /**
+@@ -3675,9 +3712,12 @@ static void iavf_shutdown(struct pci_dev *pdev)
+ 	if (netif_running(netdev))
+ 		iavf_close(netdev);
+ 
++	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 5000))
++		dev_warn(&adapter->pdev->dev, "failed to set __IAVF_IN_CRITICAL_TASK in %s\n", __FUNCTION__);
+ 	/* Prevent the watchdog from running. */
+ 	adapter->state = __IAVF_REMOVE;
+ 	adapter->aq_required = 0;
++	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
+ 
+ #ifdef CONFIG_PM
+ 	pci_save_state(pdev);
+@@ -3911,10 +3951,6 @@ static void iavf_remove(struct pci_dev *pdev)
+ 				 err);
+ 	}
+ 
+-	/* Shut down all the garbage mashers on the detention level */
+-	adapter->state = __IAVF_REMOVE;
+-	adapter->aq_required = 0;
+-	adapter->flags &= ~IAVF_FLAG_REINIT_ITR_NEEDED;
+ 	iavf_request_reset(adapter);
+ 	msleep(50);
+ 	/* If the FW isn't responding, kick it once, but only once. */
+@@ -3922,6 +3958,13 @@ static void iavf_remove(struct pci_dev *pdev)
+ 		iavf_request_reset(adapter);
+ 		msleep(50);
+ 	}
++	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 5000))
++		dev_warn(&adapter->pdev->dev, "failed to set __IAVF_IN_CRITICAL_TASK in %s\n", __FUNCTION__);
++
++	/* Shut down all the garbage mashers on the detention level */
++	adapter->state = __IAVF_REMOVE;
++	adapter->aq_required = 0;
++	adapter->flags &= ~IAVF_FLAG_REINIT_ITR_NEEDED;
+ 	iavf_free_all_tx_resources(adapter);
+ 	iavf_free_all_rx_resources(adapter);
+ 	iavf_misc_irq_disable(adapter);
 -- 
 2.30.2
 
