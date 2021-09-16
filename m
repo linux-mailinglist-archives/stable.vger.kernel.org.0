@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92F1640E2B1
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0082340E67F
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243999AbhIPQlO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:41:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52364 "EHLO mail.kernel.org"
+        id S232685AbhIPRV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:21:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243167AbhIPQiF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:38:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28938619EE;
-        Thu, 16 Sep 2021 16:22:32 +0000 (UTC)
+        id S1351937AbhIPRUA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:20:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51EFD61A10;
+        Thu, 16 Sep 2021 16:41:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809352;
-        bh=oDmVq/m/FO2d3NUR8EAoddW1ktVDSA17pYA8mnq7Me8=;
+        s=korg; t=1631810504;
+        bh=21bRNlJHjvzXKdcnLpXqGJVjQNQ/P5nEphiX9ffc22A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rw29nJHzkJL9f5HlL0GLnbhETzEt6rEcnzs0dSQ7SEnuVIsBDEFC0ds7iVpKmwP5F
-         /n7Yz8k3h65beDuN9gpL0mNOidAAuy9Gog+CUMgIMYW2I4C7DLHPe/lM/PXIvMo2n2
-         +uhYxCvGKvzB2RpX4zngziQXoG3tR44UzqcFOorY=
+        b=KgNRuTHsR+a2nLtGq4VpXzHBh+j8FLQL0GsXH0uj7UXOGMq9RoRRKoF/4OrMj3++G
+         M/8da/faMFKWLYAF+CNwhz3wpV1Wpi/LJ3cMSYj+WV/EFTvZYVizNAnTWKd0ptDDp5
+         uElSb78mivcr/LGAr92hhzDyPiPboCVpV4LV7GCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
+        Fabiano Rosas <farosas@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 124/380] powerpc/smp: Update cpu_core_map on all PowerPc systems
-Date:   Thu, 16 Sep 2021 17:58:01 +0200
-Message-Id: <20210916155808.261653450@linuxfoundation.org>
+Subject: [PATCH 5.14 133/432] KVM: PPC: Book3S HV Nested: Reflect guest PMU in-use to L0 when guest SPRs are live
+Date:   Thu, 16 Sep 2021 17:58:02 +0200
+Message-Id: <20210916155815.268614011@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,169 +41,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit b8b928030332a0ca16d42433eb2c3085600d8704 ]
+[ Upstream commit 1782663897945a5cf28e564ba5eed730098e9aa4 ]
 
-lscpu() uses core_siblings to list the number of sockets in the
-system. core_siblings is set using topology_core_cpumask.
+After the L1 saves its PMU SPRs but before loading the L2's PMU SPRs,
+switch the pmcregs_in_use field in the L1 lppaca to the value advertised
+by the L2 in its VPA. On the way out of the L2, set it back after saving
+the L2 PMU registers (if they were in-use).
 
-While optimizing the powerpc bootup path, Commit 4ca234a9cbd7
-("powerpc/smp: Stop updating cpu_core_mask").  it was found that
-updating cpu_core_mask() ended up taking a lot of time. It was thought
-that on Powerpc, cpu_core_mask() would always be same as
-cpu_cpu_mask() i.e number of sockets will always be equal to number of
-nodes. As an optimization, cpu_core_mask() was made a snapshot of
-cpu_cpu_mask().
+This transfers the PMU liveness indication between the L1 and L2 at the
+points where the registers are not live.
 
-However that was found to be false with PowerPc KVM guests, where each
-node could have more than one socket. So with Commit c47f892d7aa6
-("powerpc/smp: Reintroduce cpu_core_mask"), cpu_core_mask was updated
-based on chip_id but in an optimized way using some mask manipulations
-and chip_id caching.
+This fixes the nested HV bug for which a workaround was added to the L0
+HV by commit 63279eeb7f93a ("KVM: PPC: Book3S HV: Always save guest pmu
+for guest capable of nesting"), which explains the problem in detail.
+That workaround is no longer required for guests that include this bug
+fix.
 
-However on non-PowerNV and non-pseries KVM guests (i.e not
-implementing cpu_to_chip_id(), continued to use a copy of
-cpu_cpu_mask().
-
-There are two issues that were noticed on such systems
-1. lscpu would report one extra socket.
-On a IBM,9009-42A (aka zz system) which has only 2 chips/ sockets/
-nodes, lscpu would report
-Architecture:        ppc64le
-Byte Order:          Little Endian
-CPU(s):              160
-On-line CPU(s) list: 0-159
-Thread(s) per core:  8
-Core(s) per socket:  6
-Socket(s):           3                <--------------
-NUMA node(s):        2
-Model:               2.2 (pvr 004e 0202)
-Model name:          POWER9 (architected), altivec supported
-Hypervisor vendor:   pHyp
-Virtualization type: para
-L1d cache:           32K
-L1i cache:           32K
-L2 cache:            512K
-L3 cache:            10240K
-NUMA node0 CPU(s):   0-79
-NUMA node1 CPU(s):   80-159
-
-2. Currently cpu_cpu_mask is updated when a core is
-added/removed. However its not updated when smt mode switching or on
-CPUs are explicitly offlined. However all other percpu masks are
-updated to ensure only active/online CPUs are in the masks.
-This results in build_sched_domain traces since there will be CPUs in
-cpu_cpu_mask() but those CPUs are not present in SMT / CACHE / MC /
-NUMA domains. A loop of threads running smt mode switching and core
-add/remove will soon show this trace.
-Hence cpu_cpu_mask has to be update at smt mode switch.
-
-This will have impact on cpu_core_mask(). cpu_core_mask() is a
-snapshot of cpu_cpu_mask. Different CPUs within the same socket will
-end up having different cpu_core_masks since they are snapshots at
-different points of time. This means when lscpu will start reporting
-many more sockets than the actual number of sockets/ nodes / chips.
-
-Different ways to handle this problem:
-A. Update the snapshot aka cpu_core_mask for all CPUs whenever
-   cpu_cpu_mask is updated. This would a non-optimal solution.
-B. Instead of a cpumask_var_t, make cpu_core_map a cpumask pointer
-   pointing to cpu_cpu_mask. However percpu cpumask pointer is frowned
-   upon and we need a clean way to handle PowerPc KVM guest which is
-   not a snapshot.
-C. Update cpu_core_masks all PowerPc systems like in PowerPc KVM
-guests using mask manipulations. This approach is relatively simple
-and unifies with the existing code.
-D. On top of 3, we could also resurrect get_physical_package_id which
-   could return a nid for the said CPU. However this is not needed at this
-   time.
-
-Option C is the preferred approach for now.
-
-While this is somewhat a revert of Commit 4ca234a9cbd7 ("powerpc/smp:
-Stop updating cpu_core_mask").
-
-1. Plain revert has some conflicts
-2. For chip_id == -1, the cpu_core_mask is made identical to
-cpu_cpu_mask, unlike previously where cpu_core_mask was set to a core
-if chip_id doesn't exist.
-
-This goes by the principle that if chip_id is not exposed, then
-sockets / chip / node share the same set of CPUs.
-
-With the fix, lscpu o/p would be
-Architecture:        ppc64le
-Byte Order:          Little Endian
-CPU(s):              160
-On-line CPU(s) list: 0-159
-Thread(s) per core:  8
-Core(s) per socket:  6
-Socket(s):           2                     <--------------
-NUMA node(s):        2
-Model:               2.2 (pvr 004e 0202)
-Model name:          POWER9 (architected), altivec supported
-Hypervisor vendor:   pHyp
-Virtualization type: para
-L1d cache:           32K
-L1i cache:           32K
-L2 cache:            512K
-L3 cache:            10240K
-NUMA node0 CPU(s):   0-79
-NUMA node1 CPU(s):   80-159
-
-Fixes: 4ca234a9cbd7 ("powerpc/smp: Stop updating cpu_core_mask")
-Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Fixes: 360cae313702 ("KVM: PPC: Book3S HV: Nested guest entry via hypercall")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210826100401.412519-3-srikar@linux.vnet.ibm.com
+Reviewed-by: Fabiano Rosas <farosas@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210811160134.904987-10-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/smp.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ arch/powerpc/include/asm/pmc.h |  7 +++++++
+ arch/powerpc/kvm/book3s_hv.c   | 20 ++++++++++++++++++++
+ 2 files changed, 27 insertions(+)
 
-diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
-index 7da1e01e2c7f..fe505d8ed55b 100644
---- a/arch/powerpc/kernel/smp.c
-+++ b/arch/powerpc/kernel/smp.c
-@@ -1503,6 +1503,7 @@ static void add_cpu_to_masks(int cpu)
- 	 * add it to it's own thread sibling mask.
- 	 */
- 	cpumask_set_cpu(cpu, cpu_sibling_mask(cpu));
-+	cpumask_set_cpu(cpu, cpu_core_mask(cpu));
- 
- 	for (i = first_thread; i < first_thread + threads_per_core; i++)
- 		if (cpu_online(i))
-@@ -1520,11 +1521,6 @@ static void add_cpu_to_masks(int cpu)
- 	if (chip_id_lookup_table && ret)
- 		chip_id = cpu_to_chip_id(cpu);
- 
--	if (chip_id == -1) {
--		cpumask_copy(per_cpu(cpu_core_map, cpu), cpu_cpu_mask(cpu));
--		goto out;
--	}
--
- 	if (shared_caches)
- 		submask_fn = cpu_l2_cache_mask;
- 
-@@ -1534,6 +1530,10 @@ static void add_cpu_to_masks(int cpu)
- 	/* Skip all CPUs already part of current CPU core mask */
- 	cpumask_andnot(mask, cpu_online_mask, cpu_core_mask(cpu));
- 
-+	/* If chip_id is -1; limit the cpu_core_mask to within DIE*/
-+	if (chip_id == -1)
-+		cpumask_and(mask, mask, cpu_cpu_mask(cpu));
-+
- 	for_each_cpu(i, mask) {
- 		if (chip_id == cpu_to_chip_id(i)) {
- 			or_cpumasks_related(cpu, i, submask_fn, cpu_core_mask);
-@@ -1543,7 +1543,6 @@ static void add_cpu_to_masks(int cpu)
- 		}
- 	}
- 
--out:
- 	free_cpumask_var(mask);
+diff --git a/arch/powerpc/include/asm/pmc.h b/arch/powerpc/include/asm/pmc.h
+index c6bbe9778d3c..3c09109e708e 100644
+--- a/arch/powerpc/include/asm/pmc.h
++++ b/arch/powerpc/include/asm/pmc.h
+@@ -34,6 +34,13 @@ static inline void ppc_set_pmu_inuse(int inuse)
+ #endif
  }
  
++#ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
++static inline int ppc_get_pmu_inuse(void)
++{
++	return get_paca()->pmcregs_in_use;
++}
++#endif
++
+ extern void power4_enable_pmcs(void);
+ 
+ #else /* CONFIG_PPC64 */
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 085fb8ecbf68..af822f09785f 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -59,6 +59,7 @@
+ #include <asm/kvm_book3s.h>
+ #include <asm/mmu_context.h>
+ #include <asm/lppaca.h>
++#include <asm/pmc.h>
+ #include <asm/processor.h>
+ #include <asm/cputhreads.h>
+ #include <asm/page.h>
+@@ -3852,6 +3853,18 @@ static int kvmhv_p9_guest_entry(struct kvm_vcpu *vcpu, u64 time_limit,
+ 	    cpu_has_feature(CPU_FTR_P9_TM_HV_ASSIST))
+ 		kvmppc_restore_tm_hv(vcpu, vcpu->arch.shregs.msr, true);
+ 
++#ifdef CONFIG_PPC_PSERIES
++	if (kvmhv_on_pseries()) {
++		barrier();
++		if (vcpu->arch.vpa.pinned_addr) {
++			struct lppaca *lp = vcpu->arch.vpa.pinned_addr;
++			get_lppaca()->pmcregs_in_use = lp->pmcregs_in_use;
++		} else {
++			get_lppaca()->pmcregs_in_use = 1;
++		}
++		barrier();
++	}
++#endif
+ 	kvmhv_load_guest_pmu(vcpu);
+ 
+ 	msr_check_and_set(MSR_FP | MSR_VEC | MSR_VSX);
+@@ -3986,6 +3999,13 @@ static int kvmhv_p9_guest_entry(struct kvm_vcpu *vcpu, u64 time_limit,
+ 	save_pmu |= nesting_enabled(vcpu->kvm);
+ 
+ 	kvmhv_save_guest_pmu(vcpu, save_pmu);
++#ifdef CONFIG_PPC_PSERIES
++	if (kvmhv_on_pseries()) {
++		barrier();
++		get_lppaca()->pmcregs_in_use = ppc_get_pmu_inuse();
++		barrier();
++	}
++#endif
+ 
+ 	vc->entry_exit_map = 0x101;
+ 	vc->in_guest = 0;
 -- 
 2.30.2
 
