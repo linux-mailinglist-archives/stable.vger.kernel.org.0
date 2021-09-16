@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6755140E2D1
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F36B640E61F
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245693AbhIPQmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:42:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52424 "EHLO mail.kernel.org"
+        id S1346404AbhIPRSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:18:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245072AbhIPQkE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:40:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 483E961423;
-        Thu, 16 Sep 2021 16:23:35 +0000 (UTC)
+        id S243467AbhIPRP6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:15:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E5AE61B97;
+        Thu, 16 Sep 2021 16:39:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809415;
-        bh=I0QPgwcFRJ/GnSD7wz7KIPD699W5Jik5I6B903Tw7dA=;
+        s=korg; t=1631810390;
+        bh=fpu0kwbRNeA7FwCJ1kfquK8yT26beo2T44htSi7SdpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ndlzdcQaDyqq9JjJZZo0skhDq60zI8yeiJNMIU1VqOQFfG37QBhu2wYXXnzoc9g1a
-         dEQJipRLSjo2iAVY4Hnd6sLaAMewMoVqAWP7/V9BtIdH2+HcJoWgUfKGzUBSmuvOuB
-         RIK/dHyV1zlNmLBKR0XW5vGfXJkaQqcdK9jFb7vw=
+        b=o/sC2YJXJCuc+5h1iqfFpXP60MsLqQindvhFu+WKihdBc7dyCUvp+lkg0FjGTPkVi
+         fm+Bf3t7KR6s3J/hpNdQDHcdjvZoiP9wos/sQ+FEGKsdg3VBvB2QHz8YJFNhdngXD7
+         1aKDEeOiOLngX3xGBQRMBB9TH7CA9B4AbgMo+YGU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Abel Vesa <abel.vesa@nxp.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 114/380] clk: imx8mm: use correct mux type for clkout path
+        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 122/432] f2fs: fix to keep compatibility of fault injection interface
 Date:   Thu, 16 Sep 2021 17:57:51 +0200
-Message-Id: <20210916155807.923680167@linuxfoundation.org>
+Message-Id: <20210916155814.895796699@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit 1822b4dedc4d8cab96fd1d87bf8ff98194e29d9b ]
+[ Upstream commit b96d9b3b09f0427b289332c6f6bfbf747a19b654 ]
 
-The mux in the clkout path needs the current selected parent to
-be enabled for the switch to work. Use the correct mux type
-to have the clk framework take care of this requirement.
+The value of FAULT_* macros and its description in f2fs.rst became
+inconsistent, fix this to keep compatibility of fault injection
+interface.
 
-Fixes: c1ae5c6f789a ("clk: imx8mm: add clkout1/2 support")
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Abel Vesa <abel.vesa@nxp.com>
-Link: https://lore.kernel.org/r/20210628211554.2510238-1-l.stach@pengutronix.de
-Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
+Fixes: 67883ade7a98 ("f2fs: remove FAULT_ALLOC_BIO")
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-imx8mm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/filesystems/f2fs.rst | 1 +
+ fs/f2fs/f2fs.h                     | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/clk/imx/clk-imx8mm.c b/drivers/clk/imx/clk-imx8mm.c
-index f1919fafb124..ce7127ccddab 100644
---- a/drivers/clk/imx/clk-imx8mm.c
-+++ b/drivers/clk/imx/clk-imx8mm.c
-@@ -407,10 +407,10 @@ static int imx8mm_clocks_probe(struct platform_device *pdev)
- 	hws[IMX8MM_SYS_PLL2_500M] = imx_clk_hw_fixed_factor("sys_pll2_500m", "sys_pll2_500m_cg", 1, 2);
- 	hws[IMX8MM_SYS_PLL2_1000M] = imx_clk_hw_fixed_factor("sys_pll2_1000m", "sys_pll2_out", 1, 1);
- 
--	hws[IMX8MM_CLK_CLKOUT1_SEL] = imx_clk_hw_mux("clkout1_sel", base + 0x128, 4, 4, clkout_sels, ARRAY_SIZE(clkout_sels));
-+	hws[IMX8MM_CLK_CLKOUT1_SEL] = imx_clk_hw_mux2("clkout1_sel", base + 0x128, 4, 4, clkout_sels, ARRAY_SIZE(clkout_sels));
- 	hws[IMX8MM_CLK_CLKOUT1_DIV] = imx_clk_hw_divider("clkout1_div", "clkout1_sel", base + 0x128, 0, 4);
- 	hws[IMX8MM_CLK_CLKOUT1] = imx_clk_hw_gate("clkout1", "clkout1_div", base + 0x128, 8);
--	hws[IMX8MM_CLK_CLKOUT2_SEL] = imx_clk_hw_mux("clkout2_sel", base + 0x128, 20, 4, clkout_sels, ARRAY_SIZE(clkout_sels));
-+	hws[IMX8MM_CLK_CLKOUT2_SEL] = imx_clk_hw_mux2("clkout2_sel", base + 0x128, 20, 4, clkout_sels, ARRAY_SIZE(clkout_sels));
- 	hws[IMX8MM_CLK_CLKOUT2_DIV] = imx_clk_hw_divider("clkout2_div", "clkout2_sel", base + 0x128, 16, 4);
- 	hws[IMX8MM_CLK_CLKOUT2] = imx_clk_hw_gate("clkout2", "clkout2_div", base + 0x128, 24);
- 
+diff --git a/Documentation/filesystems/f2fs.rst b/Documentation/filesystems/f2fs.rst
+index ff9e7cc97c65..b5285599d972 100644
+--- a/Documentation/filesystems/f2fs.rst
++++ b/Documentation/filesystems/f2fs.rst
+@@ -185,6 +185,7 @@ fault_type=%d		 Support configuring fault injection type, should be
+ 			 FAULT_KVMALLOC		  0x000000002
+ 			 FAULT_PAGE_ALLOC	  0x000000004
+ 			 FAULT_PAGE_GET		  0x000000008
++			 FAULT_ALLOC_BIO	  0x000000010 (obsolete)
+ 			 FAULT_ALLOC_NID	  0x000000020
+ 			 FAULT_ORPHAN		  0x000000040
+ 			 FAULT_BLOCK		  0x000000080
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index bfcd5ef36907..db95829904e5 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -43,6 +43,7 @@ enum {
+ 	FAULT_KVMALLOC,
+ 	FAULT_PAGE_ALLOC,
+ 	FAULT_PAGE_GET,
++	FAULT_ALLOC_BIO,	/* it's obsolete due to bio_alloc() will never fail */
+ 	FAULT_ALLOC_NID,
+ 	FAULT_ORPHAN,
+ 	FAULT_BLOCK,
 -- 
 2.30.2
 
