@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A63BE40E1E1
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F6DA40DF20
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:06:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243568AbhIPQcI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:32:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38074 "EHLO mail.kernel.org"
+        id S232592AbhIPQHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:07:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242763AbhIPQ3b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:29:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0637A61373;
-        Thu, 16 Sep 2021 16:18:32 +0000 (UTC)
+        id S235355AbhIPQGm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:06:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F31A761250;
+        Thu, 16 Sep 2021 16:05:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809113;
-        bh=rBUMzl3onosp598T5s5G9TA9eIJrYtyHlU6jND7CCzQ=;
+        s=korg; t=1631808321;
+        bh=6tItJVs226dgQFi8nVcJYCNi5xl2xLQ138Uh+jQO3vI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zs7WLImkW0ierOsQTejD613SaV5c9DE9gQM8cvg1wlElmtLYQGQGrXOlokD5lqCvs
-         RzPcx19ZhgM4uXZiGrf+e+dwHBk9nuIftTkHqTgrKpuPOJIC/EwJU4Xuu0AqvxrQ9x
-         hPEEfhpLuga+nj94d0kexpH8lN/p8Odc9vcuyEa4=
+        b=cdU5d/gyLFDJ1iCAGm14wd/huhuAdCedhYRe6kVO4P9ahaRjHNsYiXhuP1v0tm8fK
+         SL8NMGDVbIvmqtoOGOD51CU4MBVlFAbg9KK+sBQHRDi2EzdIok8QiFN8aEEfFLRqcM
+         5MVNFcuIZ6dc9GrBQ2X4TusjKIK/+TRhJqWShkiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Drew Fustini <drew@pdp7.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.13 034/380] iio: ltc2983: fix device probe
+        stable@vger.kernel.org, Stuart Hayes <stuart.w.hayes@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 5.10 046/306] PCI/portdrv: Enable Bandwidth Notification only if port supports it
 Date:   Thu, 16 Sep 2021 17:56:31 +0200
-Message-Id: <20210916155805.125385937@linuxfoundation.org>
+Message-Id: <20210916155755.520590203@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,95 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Stuart Hayes <stuart.w.hayes@gmail.com>
 
-commit b76d26d69ecc97ebb24aaf40427a13c808a4f488 upstream.
+commit 00823dcbdd415c868390feaca16f0265101efab4 upstream.
 
-There is no reason to assume that the IRQ rising edge (indicating that
-the device start up phase is done) will happen after we request the IRQ.
-If the device is already up by the time we request it, the call to
-'wait_for_completion_timeout()' will timeout and we will fail the device
-probe even though there's nothing wrong.
+Previously we assumed that all Root Ports and Switch Downstream Ports
+supported Link Bandwidth Notification.  Per spec, this is only required
+for Ports supporting Links wider than x1 and/or multiple Link speeds
+(PCIe r5.0, sec 7.5.3.6).
 
-Fix it by just polling the status register until we get the indication that
-the device is up and running. As a side effect of this fix, requesting the
-IRQ is also moved to after the setup function.
+Because we assumed all Ports supported it, we tried to set up a Bandwidth
+Notification IRQ, which failed for devices that don't support IRQs at all,
+which meant pcieport didn't attach to the Port at all.
 
-Fixes: f110f3188e563 ("iio: temperature: Add support for LTC2983")
-Reported-and-tested-by: Drew Fustini <drew@pdp7.com>
-Reviewed-by: Drew Fustini <drew@pdp7.com>
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210811133220.190264-2-nuno.sa@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Check the Link Bandwidth Notification Capability bit and enable the service
+only when the Port supports it.
+
+[bhelgaas: commit log]
+Fixes: e8303bb7a75c ("PCI/LINK: Report degraded links via link bandwidth notification")
+Link: https://lore.kernel.org/r/20210512213314.7778-1-stuart.w.hayes@gmail.com
+Signed-off-by: Stuart Hayes <stuart.w.hayes@gmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/temperature/ltc2983.c |   30 ++++++++++++++----------------
- 1 file changed, 14 insertions(+), 16 deletions(-)
+ drivers/pci/pcie/portdrv_core.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/temperature/ltc2983.c
-+++ b/drivers/iio/temperature/ltc2983.c
-@@ -89,6 +89,8 @@
+--- a/drivers/pci/pcie/portdrv_core.c
++++ b/drivers/pci/pcie/portdrv_core.c
+@@ -260,8 +260,13 @@ static int get_port_device_capability(st
+ 		services |= PCIE_PORT_SERVICE_DPC;
  
- #define	LTC2983_STATUS_START_MASK	BIT(7)
- #define	LTC2983_STATUS_START(x)		FIELD_PREP(LTC2983_STATUS_START_MASK, x)
-+#define	LTC2983_STATUS_UP_MASK		GENMASK(7, 6)
-+#define	LTC2983_STATUS_UP(reg)		FIELD_GET(LTC2983_STATUS_UP_MASK, reg)
- 
- #define	LTC2983_STATUS_CHAN_SEL_MASK	GENMASK(4, 0)
- #define	LTC2983_STATUS_CHAN_SEL(x) \
-@@ -1362,17 +1364,16 @@ put_child:
- 
- static int ltc2983_setup(struct ltc2983_data *st, bool assign_iio)
- {
--	u32 iio_chan_t = 0, iio_chan_v = 0, chan, iio_idx = 0;
-+	u32 iio_chan_t = 0, iio_chan_v = 0, chan, iio_idx = 0, status;
- 	int ret;
--	unsigned long time;
--
--	/* make sure the device is up */
--	time = wait_for_completion_timeout(&st->completion,
--					    msecs_to_jiffies(250));
- 
--	if (!time) {
-+	/* make sure the device is up: start bit (7) is 0 and done bit (6) is 1 */
-+	ret = regmap_read_poll_timeout(st->regmap, LTC2983_STATUS_REG, status,
-+				       LTC2983_STATUS_UP(status) == 1, 25000,
-+				       25000 * 10);
-+	if (ret) {
- 		dev_err(&st->spi->dev, "Device startup timed out\n");
--		return -ETIMEDOUT;
-+		return ret;
- 	}
- 
- 	st->iio_chan = devm_kzalloc(&st->spi->dev,
-@@ -1492,10 +1493,11 @@ static int ltc2983_probe(struct spi_devi
- 	ret = ltc2983_parse_dt(st);
- 	if (ret)
- 		return ret;
--	/*
--	 * let's request the irq now so it is used to sync the device
--	 * startup in ltc2983_setup()
--	 */
+ 	if (pci_pcie_type(dev) == PCI_EXP_TYPE_DOWNSTREAM ||
+-	    pci_pcie_type(dev) == PCI_EXP_TYPE_ROOT_PORT)
+-		services |= PCIE_PORT_SERVICE_BWNOTIF;
++	    pci_pcie_type(dev) == PCI_EXP_TYPE_ROOT_PORT) {
++		u32 linkcap;
 +
-+	ret = ltc2983_setup(st, true);
-+	if (ret)
-+		return ret;
-+
- 	ret = devm_request_irq(&spi->dev, spi->irq, ltc2983_irq_handler,
- 			       IRQF_TRIGGER_RISING, name, st);
- 	if (ret) {
-@@ -1503,10 +1505,6 @@ static int ltc2983_probe(struct spi_devi
- 		return ret;
- 	}
++		pcie_capability_read_dword(dev, PCI_EXP_LNKCAP, &linkcap);
++		if (linkcap & PCI_EXP_LNKCAP_LBNC)
++			services |= PCIE_PORT_SERVICE_BWNOTIF;
++	}
  
--	ret = ltc2983_setup(st, true);
--	if (ret)
--		return ret;
--
- 	indio_dev->name = name;
- 	indio_dev->num_channels = st->iio_channels;
- 	indio_dev->channels = st->iio_chan;
+ 	return services;
+ }
 
 
