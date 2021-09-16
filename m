@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C015F40E180
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:30:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BF4440DF50
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:07:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242298AbhIPQaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:30:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37000 "EHLO mail.kernel.org"
+        id S231883AbhIPQI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:08:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240930AbhIPQ2s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:28:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4026961354;
-        Thu, 16 Sep 2021 16:18:13 +0000 (UTC)
+        id S230484AbhIPQHt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:07:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AE1A61241;
+        Thu, 16 Sep 2021 16:06:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809093;
-        bh=d6LoCSuTnfwIgOGiuZ/lv40mgJX33fKMA5AkF0j1eIE=;
+        s=korg; t=1631808388;
+        bh=Xw7WHIR8zlTaRNmVgAWcJpG6pB2TX1GUY6Q4q5Z2sBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I39rhNeP30TeoItn7jjmTonbgcUgfqfdYzEePv7WIsKCB277+olgi9BnRW2vwSYrw
-         4GZmDwiv6A+gf4uhW9QJXQKA8gpm8+YdWQHxsVWWR3xJkAY6ueI8DOHfPino4Yac5U
-         ma5skcRqTvm61UmMQoxyjniZr5JgE/NPrZpxS51o=
+        b=OAaz8Gt1hleUT4tyROnT/kC1x/Os6mALHnAhcldX0ZD9TM2YUb4JgpUoE2KIgOLo1
+         2xzJefuleJTGMfge43iTiMyrYwFT6Xpdnw4I+R/L6XxOcb4yRQi39m588rh5LkfVsM
+         ZHB5NlTK04kAtX/9h1LMDhxkgUHko+cqFalPe2dM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Iwona Winiarska <iwona.winiarska@intel.com>,
-        Andrew Jeffery <andrew@aj.id.au>, Joel Stanley <joel@aj.id.au>,
-        Joel Stanley <joel@jms.id.au>
-Subject: [PATCH 5.13 028/380] soc: aspeed: lpc-ctrl: Fix boundary check for mmap
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.10 040/306] s390/qdio: cancel the ESTABLISH ccw after timeout
 Date:   Thu, 16 Sep 2021 17:56:25 +0200
-Message-Id: <20210916155804.922880193@linuxfoundation.org>
+Message-Id: <20210916155755.314251643@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +40,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Iwona Winiarska <iwona.winiarska@intel.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-commit b49a0e69a7b1a68c8d3f64097d06dabb770fec96 upstream.
+commit 1c1dc8bda3a05c60877a6649775894db5343bdea upstream.
 
-The check mixes pages (vm_pgoff) with bytes (vm_start, vm_end) on one
-side of the comparison, and uses resource address (rather than just the
-resource size) on the other side of the comparison.
-This can allow malicious userspace to easily bypass the boundary check and
-map pages that are located outside memory-region reserved by the driver.
+When the ESTABLISH ccw does not complete within the specified timeout,
+try our best to cancel the ccw program that is still active on the
+device. Otherwise the IO subsystem might be accessing it even after
+the driver eg. called qdio_free().
 
-Fixes: 6c4e97678501 ("drivers/misc: Add Aspeed LPC control driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Iwona Winiarska <iwona.winiarska@intel.com>
-Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Tested-by: Andrew Jeffery <andrew@aj.id.au>
-Reviewed-by: Joel Stanley <joel@aj.id.au>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Cc: <stable@vger.kernel.org> # 2.6.27
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/aspeed/aspeed-lpc-ctrl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/cio/qdio_main.c |   51 +++++++++++++++++++++++++------------------
+ 1 file changed, 30 insertions(+), 21 deletions(-)
 
---- a/drivers/soc/aspeed/aspeed-lpc-ctrl.c
-+++ b/drivers/soc/aspeed/aspeed-lpc-ctrl.c
-@@ -51,7 +51,7 @@ static int aspeed_lpc_ctrl_mmap(struct f
- 	unsigned long vsize = vma->vm_end - vma->vm_start;
- 	pgprot_t prot = vma->vm_page_prot;
+--- a/drivers/s390/cio/qdio_main.c
++++ b/drivers/s390/cio/qdio_main.c
+@@ -1025,6 +1025,33 @@ static void qdio_shutdown_queues(struct
+ 	}
+ }
  
--	if (vma->vm_pgoff + vsize > lpc_ctrl->mem_base + lpc_ctrl->mem_size)
-+	if (vma->vm_pgoff + vma_pages(vma) > lpc_ctrl->mem_size >> PAGE_SHIFT)
- 		return -EINVAL;
++static int qdio_cancel_ccw(struct qdio_irq *irq, int how)
++{
++	struct ccw_device *cdev = irq->cdev;
++	int rc;
++
++	spin_lock_irq(get_ccwdev_lock(cdev));
++	qdio_set_state(irq, QDIO_IRQ_STATE_CLEANUP);
++	if (how & QDIO_FLAG_CLEANUP_USING_CLEAR)
++		rc = ccw_device_clear(cdev, QDIO_DOING_CLEANUP);
++	else
++		/* default behaviour is halt */
++		rc = ccw_device_halt(cdev, QDIO_DOING_CLEANUP);
++	spin_unlock_irq(get_ccwdev_lock(cdev));
++	if (rc) {
++		DBF_ERROR("%4x SHUTD ERR", irq->schid.sch_no);
++		DBF_ERROR("rc:%4d", rc);
++		return rc;
++	}
++
++	wait_event_interruptible_timeout(cdev->private->wait_q,
++					 irq->state == QDIO_IRQ_STATE_INACTIVE ||
++					 irq->state == QDIO_IRQ_STATE_ERR,
++					 10 * HZ);
++
++	return 0;
++}
++
+ /**
+  * qdio_shutdown - shut down a qdio subchannel
+  * @cdev: associated ccw device
+@@ -1063,27 +1090,7 @@ int qdio_shutdown(struct ccw_device *cde
+ 	qdio_shutdown_queues(irq_ptr);
+ 	qdio_shutdown_debug_entries(irq_ptr);
  
- 	/* ast2400/2500 AHB accesses are not cache coherent */
+-	/* cleanup subchannel */
+-	spin_lock_irq(get_ccwdev_lock(cdev));
+-	qdio_set_state(irq_ptr, QDIO_IRQ_STATE_CLEANUP);
+-	if (how & QDIO_FLAG_CLEANUP_USING_CLEAR)
+-		rc = ccw_device_clear(cdev, QDIO_DOING_CLEANUP);
+-	else
+-		/* default behaviour is halt */
+-		rc = ccw_device_halt(cdev, QDIO_DOING_CLEANUP);
+-	spin_unlock_irq(get_ccwdev_lock(cdev));
+-	if (rc) {
+-		DBF_ERROR("%4x SHUTD ERR", irq_ptr->schid.sch_no);
+-		DBF_ERROR("rc:%4d", rc);
+-		goto no_cleanup;
+-	}
+-
+-	wait_event_interruptible_timeout(cdev->private->wait_q,
+-		irq_ptr->state == QDIO_IRQ_STATE_INACTIVE ||
+-		irq_ptr->state == QDIO_IRQ_STATE_ERR,
+-		10 * HZ);
+-
+-no_cleanup:
++	rc = qdio_cancel_ccw(irq_ptr, how);
+ 	qdio_shutdown_thinint(irq_ptr);
+ 	qdio_shutdown_irq(irq_ptr);
+ 
+@@ -1316,10 +1323,12 @@ int qdio_establish(struct ccw_device *cd
+ 	return 0;
+ 
+ err_ccw_timeout:
++	qdio_cancel_ccw(irq_ptr, QDIO_FLAG_CLEANUP_USING_CLEAR);
+ err_ccw_start:
+ 	qdio_shutdown_thinint(irq_ptr);
+ err_thinint:
+ 	qdio_shutdown_irq(irq_ptr);
++	qdio_set_state(irq_ptr, QDIO_IRQ_STATE_INACTIVE);
+ 	mutex_unlock(&irq_ptr->setup_mutex);
+ 	return rc;
+ }
 
 
