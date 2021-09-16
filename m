@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AD2F40E17C
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:29:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81D5440E528
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:26:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241548AbhIPQas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:30:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38924 "EHLO mail.kernel.org"
+        id S244740AbhIPRI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:08:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242450AbhIPQ2Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:28:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D07E161288;
-        Thu, 16 Sep 2021 16:18:02 +0000 (UTC)
+        id S1349469AbhIPRFw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:05:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FF4F61B32;
+        Thu, 16 Sep 2021 16:35:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809083;
-        bh=z9UWIe0h1arWcJQZ3XEB/LMGrmp16FhSrvp1PuCqdhc=;
+        s=korg; t=1631810140;
+        bh=pTIOSYSSrv+8dmgfomR8eI6/xfAstEHMdPBwJYumySc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W59koAjMpAIuLtbk13ezFJ3+yknRHfzUpzFIyUvjU6VUs7TXMUcIpllsCWUXOnlRQ
-         T3eCBYTf9uWVgNVD+gz6+gHLq1WEAPf+0tsNWVCJODKRgMsQcA/xzL2gNoSEadgGc7
-         kTmW2bq56PzjSz/6+rh7i0QLF3jyHLDJdW+Uv3M4=
+        b=OoQix2xIpVLdLCyJ1pHeeP20zGW6b3lbc4moHdrhnvAv7Sp4gy+acyZAro7r/VcCe
+         FYdbd0kD3oHAjerkI9D5xbqIlvTNtMN1tOou1A53UN6Iwcey8VAvEP48lgWJy4tgr1
+         KJVMwx/nl4QrE6GWLVaxYFne3EIQ3nzmt96SXqaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20 ?= 
         <zhouyanjie@wanyeetech.com>,
         Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.13 024/380] pinctrl: ingenic: Fix incorrect pull up/down info
+Subject: [PATCH 5.14 032/432] pinctrl: ingenic: Fix bias config for X2000(E)
 Date:   Thu, 16 Sep 2021 17:56:21 +0200
-Message-Id: <20210916155804.793575424@linuxfoundation.org>
+Message-Id: <20210916155811.907165070@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,17 +43,19 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paul Cercueil <paul@crapouillou.net>
 
-commit d5e931403942b3af39212960c2592b5ba741b2bf upstream.
+commit 7261851e938f4b0fe8c0f5a8e627ae90e1ba9875 upstream.
 
-Fix the pull up/down info for both the JZ4760 and JZ4770 SoCs, as the
-previous values sometimes contradicted what's written in the programming
-manual.
+The ingenic_set_bias() function's "bias" argument is not a
+"enum pin_config_param", so its value should not be compared against
+values of that enum.
 
-Fixes: b5c23aa46537 ("pinctrl: add a pinctrl driver for the Ingenic jz47xx SoCs")
-Cc: <stable@vger.kernel.org> # v4.12
+This should fix the bias config not working on the X2000(E) SoCs.
+
+Fixes: 943e0da15370 ("pinctrl: Ingenic: Add pinctrl driver for X2000.")
+Cc: <stable@vger.kernel.org> # v5.12
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 Tested-by: 周琰杰 (Zhou Yanjie)<zhouyanjie@wanyeetech.com>
-Link: https://lore.kernel.org/r/20210717174836.14776-1-paul@crapouillou.net
+Link: https://lore.kernel.org/r/20210717174836.14776-2-paul@crapouillou.net
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
@@ -62,28 +64,26 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/pinctrl/pinctrl-ingenic.c
 +++ b/drivers/pinctrl/pinctrl-ingenic.c
-@@ -710,7 +710,7 @@ static const struct ingenic_chip_info jz
- };
+@@ -3441,17 +3441,17 @@ static void ingenic_set_bias(struct inge
+ {
+ 	if (jzpc->info->version >= ID_X2000) {
+ 		switch (bias) {
+-		case PIN_CONFIG_BIAS_PULL_UP:
++		case GPIO_PULL_UP:
+ 			ingenic_config_pin(jzpc, pin, X2000_GPIO_PEPD, false);
+ 			ingenic_config_pin(jzpc, pin, X2000_GPIO_PEPU, true);
+ 			break;
  
- static const u32 jz4760_pull_ups[6] = {
--	0xffffffff, 0xfffcf3ff, 0xffffffff, 0xffffcfff, 0xfffffb7c, 0xfffff00f,
-+	0xffffffff, 0xfffcf3ff, 0xffffffff, 0xffffcfff, 0xfffffb7c, 0x0000000f,
- };
+-		case PIN_CONFIG_BIAS_PULL_DOWN:
++		case GPIO_PULL_DOWN:
+ 			ingenic_config_pin(jzpc, pin, X2000_GPIO_PEPU, false);
+ 			ingenic_config_pin(jzpc, pin, X2000_GPIO_PEPD, true);
+ 			break;
  
- static const u32 jz4760_pull_downs[6] = {
-@@ -936,11 +936,11 @@ static const struct ingenic_chip_info jz
- };
- 
- static const u32 jz4770_pull_ups[6] = {
--	0x3fffffff, 0xfff0030c, 0xffffffff, 0xffff4fff, 0xfffffb7c, 0xffa7f00f,
-+	0x3fffffff, 0xfff0f3fc, 0xffffffff, 0xffff4fff, 0xfffffb7c, 0x0024f00f,
- };
- 
- static const u32 jz4770_pull_downs[6] = {
--	0x00000000, 0x000f0c03, 0x00000000, 0x0000b000, 0x00000483, 0x00580ff0,
-+	0x00000000, 0x000f0c03, 0x00000000, 0x0000b000, 0x00000483, 0x005b0ff0,
- };
- 
- static int jz4770_uart0_data_pins[] = { 0xa0, 0xa3, };
+-		case PIN_CONFIG_BIAS_DISABLE:
++		case GPIO_PULL_DIS:
+ 		default:
+ 			ingenic_config_pin(jzpc, pin, X2000_GPIO_PEPU, false);
+ 			ingenic_config_pin(jzpc, pin, X2000_GPIO_PEPD, false);
 
 
