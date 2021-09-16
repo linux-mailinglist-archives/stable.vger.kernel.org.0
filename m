@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 505AD40E767
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:33:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37DA540E0F3
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:28:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347542AbhIPRcC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:32:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50274 "EHLO mail.kernel.org"
+        id S240669AbhIPQZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:25:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353045AbhIPR3x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:29:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C61263220;
-        Thu, 16 Sep 2021 16:46:40 +0000 (UTC)
+        id S234853AbhIPQXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:23:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B83D613AC;
+        Thu, 16 Sep 2021 16:16:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810800;
-        bh=TVNg8zjVBTknJKY0S5oiSuuLo65vTE87yCYMkTpBwpg=;
+        s=korg; t=1631808961;
+        bh=KyrPSSFkkaFfgTa331w9So5Bp9nfhgXOj9h8Ox5YpWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0lN1rZtHPjJPM7ShOmJcemGVUoz0dwddPWR1WEnRzp4RhOQLtZGyCjcB2gxj+NjY1
-         rM8dqr5lTHIgxcUQfo4p2ZaRroG9nP5i27FWFqAAy0JMYWkMRVP7QBkoS0yqC5GeYU
-         GqK/5evO/MLLsBIPQI+uChfUyoyLk4D81REJW2eM=
+        b=gBFnU+trfrTdjp8zXtK1LYAxQl23iSZW8dLqCUr8D8EYbGMdVk1MB0RySzHZmk1Sc
+         zNGq9cOAzmuf68bh9LCkm74K4rf+hhnRLKquCXP+Fm9ZrlrMoJe9WUIn13mIT96bR9
+         sx2M3AsP9iZr3rJXV7E4sw476tV6NPFYCjDomVaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Lukasz Majczak <lma@semihalf.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 240/432] drm: rcar-du: Shutdown the display on system shutdown
+Subject: [PATCH 5.10 244/306] ASoC: Intel: Skylake: Fix module configuration for KPB and MIXER
 Date:   Thu, 16 Sep 2021 17:59:49 +0200
-Message-Id: <20210916155818.970320814@linuxfoundation.org>
+Message-Id: <20210916155802.381969720@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+From: Cezary Rojewski <cezary.rojewski@intel.com>
 
-[ Upstream commit 015f2ebb93767d40c442e749642fffaf10316d78 ]
+[ Upstream commit e4e0633bcadc950b4b4af06c7f1bb7f7e3e86321 ]
 
-When the system shuts down or warm reboots, the display may be active,
-with the hardware accessing system memory. Upon reboot, the DDR will not
-be accessible, which may cause issues.
+KeyPhrasebuffer, Mixin and Mixout modules configuration is described by
+firmware's basic module configuration structure. There are no extended
+parameters required. Update functions taking part in building
+INIT_INSTANCE IPC payload to reflect that.
 
-Implement the platform_driver .shutdown() operation and shut down the
-display to fix this.
-
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Tested-by: Lukasz Majczak <lma@semihalf.com>
+Link: https://lore.kernel.org/r/20210818075742.1515155-6-cezary.rojewski@intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rcar-du/rcar_du_drv.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ sound/soc/intel/skylake/skl-messages.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.c b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-index c22551c2facb..2a06ec1cbefb 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-@@ -559,6 +559,13 @@ static int rcar_du_remove(struct platform_device *pdev)
- 	return 0;
- }
+diff --git a/sound/soc/intel/skylake/skl-messages.c b/sound/soc/intel/skylake/skl-messages.c
+index 476ef1897961..79c6cf2c14bf 100644
+--- a/sound/soc/intel/skylake/skl-messages.c
++++ b/sound/soc/intel/skylake/skl-messages.c
+@@ -802,9 +802,12 @@ static u16 skl_get_module_param_size(struct skl_dev *skl,
  
-+static void rcar_du_shutdown(struct platform_device *pdev)
-+{
-+	struct rcar_du_device *rcdu = platform_get_drvdata(pdev);
+ 	case SKL_MODULE_TYPE_BASE_OUTFMT:
+ 	case SKL_MODULE_TYPE_MIC_SELECT:
+-	case SKL_MODULE_TYPE_KPB:
+ 		return sizeof(struct skl_base_outfmt_cfg);
+ 
++	case SKL_MODULE_TYPE_MIXER:
++	case SKL_MODULE_TYPE_KPB:
++		return sizeof(struct skl_base_cfg);
 +
-+	drm_atomic_helper_shutdown(&rcdu->ddev);
-+}
+ 	default:
+ 		/*
+ 		 * return only base cfg when no specific module type is
+@@ -857,10 +860,14 @@ static int skl_set_module_format(struct skl_dev *skl,
+ 
+ 	case SKL_MODULE_TYPE_BASE_OUTFMT:
+ 	case SKL_MODULE_TYPE_MIC_SELECT:
+-	case SKL_MODULE_TYPE_KPB:
+ 		skl_set_base_outfmt_format(skl, module_config, *param_data);
+ 		break;
+ 
++	case SKL_MODULE_TYPE_MIXER:
++	case SKL_MODULE_TYPE_KPB:
++		skl_set_base_module_format(skl, module_config, *param_data);
++		break;
 +
- static int rcar_du_probe(struct platform_device *pdev)
- {
- 	struct rcar_du_device *rcdu;
-@@ -615,6 +622,7 @@ static int rcar_du_probe(struct platform_device *pdev)
- static struct platform_driver rcar_du_platform_driver = {
- 	.probe		= rcar_du_probe,
- 	.remove		= rcar_du_remove,
-+	.shutdown	= rcar_du_shutdown,
- 	.driver		= {
- 		.name	= "rcar-du",
- 		.pm	= &rcar_du_pm_ops,
+ 	default:
+ 		skl_set_base_module_format(skl, module_config, *param_data);
+ 		break;
 -- 
 2.30.2
 
