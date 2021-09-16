@@ -2,135 +2,205 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E70D240D7D4
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 12:50:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3061240D84A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 13:19:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235570AbhIPKwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 06:52:09 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:47102 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235487AbhIPKwJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 06:52:09 -0400
-Date:   Thu, 16 Sep 2021 10:50:46 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1631789447;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=qR1o3qe0xaqHgLlXyLMRXicOoSOA+g6lTO49OyfrGAQ=;
-        b=R6M0LEvYdc2aywanBaQn+mbk4Tv55KBzU3sjq64ngLZEaldo3ptgcV80ORdf9SDbGwPhZK
-        bprFMNwlrH1KP813+qB4n1IT37Q9kGkv9mYOvF5XW3O7BJ/4XkOyKMZHBkiQgKwxSsfdxT
-        EuKWMyb9/QVmH31WoPUcbovdi5iyw2fuoRLHwUj1xHdA2OazUy6ZdMW20zx1S2JZp5LHwU
-        VSEh8qGxQQ4qL86tvRHWTsjhQj/ZIj/ozk9u2ssT73EaIdzkUmP1y9L8m6vuDjmwYfIPbh
-        yWvwOTZ8R0EDj+3J8bq0dQ6zfhtw/pNsjXFuM/YpAnkjBHrOKCEx370DfyZUaQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1631789447;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=qR1o3qe0xaqHgLlXyLMRXicOoSOA+g6lTO49OyfrGAQ=;
-        b=StJFRR0j2Icv+Cby3CODw4/gjzno25NRun6FXjkoZKbrHbLCOPTjUQJmYUlY71Q9yGZVcy
-        VzTUz5rtNqVzWfBg==
-From:   "tip-bot2 for Juergen Gross" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/setup: Call early_reserve_memory() earlier
-Cc:     marmarek@invisiblethingslab.com, Juergen Gross <jgross@suse.com>,
-        Borislav Petkov <bp@suse.de>,
-        Mike Rapoport <rppt@linux.ibm.com>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20210914094108.22482-1-jgross@suse.com>
-References: <20210914094108.22482-1-jgross@suse.com>
-MIME-Version: 1.0
-Message-ID: <163178944634.25758.17304720937855121489.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+        id S238099AbhIPLTe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 07:19:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59576 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237592AbhIPLSv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 07:18:51 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 164E8C061766
+        for <stable@vger.kernel.org>; Thu, 16 Sep 2021 04:17:27 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id c13-20020a17090a558d00b00198e6497a4fso7273644pji.4
+        for <stable@vger.kernel.org>; Thu, 16 Sep 2021 04:17:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Y67DPWz0nmUV/gSAS5ByoO1iO11C43ceTgyf9rt2vRM=;
+        b=EoxgvWkIl5FuZnacnc7Z+CW7rTEYebjCyWFXCSXrLNkFASOwabauwaqQpoEv6KdXkC
+         va4k5wKNtob4u/u6VSy5ShYsa8fYNC12VgGl5MjieircxleyNvIZ5QP3htYB58ZHInzE
+         SOsWJ6VRBZcaIEZ3QdOB+JQ3+RSpd9u7yap6PE7Lxl8SMw10U12UuIFSI5J8JJSceK0L
+         4uKDvPkYoFBz4OZ8bPx3GRQnx8OsJm6+r7nPcbxysGuDWdGiBcCOHHDQ91b7hsyhODOM
+         qnug6G1SSJ/5ND/mEBNAv/xoiB+9xLtXFFvry36/5qYM3IlBpOwCLlD1DtKbo5r8fJX7
+         P89w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Y67DPWz0nmUV/gSAS5ByoO1iO11C43ceTgyf9rt2vRM=;
+        b=RVFJU/6bXhlHgN7lKr49isA7ze6V9294UvyfKZ2T9IONesg0o9ANsyEYBrwtj78Peu
+         Q+aHb65ZqlHOhYm3dmNK3AqLztw+1StlwrfFq+i10npbs+HDQMsSisE5XKQO1K/Ccaxn
+         RO9HtW6FA4xZCtaMuUcjp9Fwh3X7jm9YS+JTrl8fVsQBuHRkq6lh4DOPeeaGafbQseia
+         5l5vtDzy2bj9sx1DC2q96jRy015Mdk8ioeouMEU+2C+pjy1pcdOeNdYDguzRohrSsBK2
+         YyQ0e3QBaMQ3Qm4zSHVP0kuiv6ALILrXjgTHtlZt+UhdHC1SR+x5i5lR6SAuD70SutAv
+         4mYw==
+X-Gm-Message-State: AOAM530ByV6ezCQ9ql7t4Ulz1zwSvLingqBEUgAqpSlbgUTOQhB8e0Iz
+        taky5wAAw7uBrAhe3kOHP2xCI5ipXNyJQSZuRvk=
+X-Google-Smtp-Source: ABdhPJz/LlGNgNuEh7NKfiaH5BOyEmh4fleft7yCAL+qo6zw8n01HKa7k8dfU/G94+FonPCISb8Aaw==
+X-Received: by 2002:a17:90a:bd08:: with SMTP id y8mr5448002pjr.123.1631791046221;
+        Thu, 16 Sep 2021 04:17:26 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id r13sm3057648pgl.90.2021.09.16.04.17.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Sep 2021 04:17:25 -0700 (PDT)
+Message-ID: <614327c5.1c69fb81.eef8f.b51a@mx.google.com>
+Date:   Thu, 16 Sep 2021 04:17:25 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.282-150-gf26597d59c72
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 84 runs,
+ 3 regressions (v4.9.282-150-gf26597d59c72)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+stable-rc/queue/4.9 baseline: 84 runs, 3 regressions (v4.9.282-150-gf26597d=
+59c72)
 
-Commit-ID:     1c1046581f1a3809e075669a3df0191869d96dd1
-Gitweb:        https://git.kernel.org/tip/1c1046581f1a3809e075669a3df0191869d=
-96dd1
-Author:        Juergen Gross <jgross@suse.com>
-AuthorDate:    Tue, 14 Sep 2021 11:41:08 +02:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Thu, 16 Sep 2021 12:38:05 +02:00
+Regressions Summary
+-------------------
 
-x86/setup: Call early_reserve_memory() earlier
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+i945gsex-qs          | i386 | lab-clabbe    | gcc-8    | i386_defconfig    =
+  | 1          =
 
-Commit in Fixes introduced early_reserve_memory() to do all needed
-initial memblock_reserve() calls in one function. Unfortunately, the call
-of early_reserve_memory() is done too late for Xen dom0, as in some
-cases a Xen hook called by e820__memory_setup() will need those memory
-reservations to have happened already.
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Move the call of early_reserve_memory() to the beginning of setup_arch()
-in order to avoid such problems.
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Fixes: a799c2bd29d1 ("x86/setup: Consolidate early memory reservations")
-Reported-by: Marek Marczykowski-G=C3=B3recki <marmarek@invisiblethingslab.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Mike Rapoport <rppt@linux.ibm.com>
-Tested-by: Marek Marczykowski-G=C3=B3recki <marmarek@invisiblethingslab.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210914094108.22482-1-jgross@suse.com
----
- arch/x86/kernel/setup.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index bff3a78..9095158 100644
---- a/arch/x86/kernel/setup.c
-+++ b/arch/x86/kernel/setup.c
-@@ -766,6 +766,20 @@ dump_kernel_offset(struct notifier_block *self, unsigned=
- long v, void *p)
-=20
- void __init setup_arch(char **cmdline_p)
- {
-+	/*
-+	 * Do some memory reservations *before* memory is added to memblock, so
-+	 * memblock allocations won't overwrite it.
-+	 *
-+	 * After this point, everything still needed from the boot loader or
-+	 * firmware or kernel text should be early reserved or marked not RAM in
-+	 * e820. All other memory is free game.
-+	 *
-+	 * This call needs to happen before e820__memory_setup() which calls
-+	 * xen_memory_setup() on Xen dom0 which relies on the fact that those
-+	 * early reservations have happened already.
-+	 */
-+	early_reserve_memory();
-+
- #ifdef CONFIG_X86_32
- 	memcpy(&boot_cpu_data, &new_cpu_data, sizeof(new_cpu_data));
-=20
-@@ -885,18 +899,6 @@ void __init setup_arch(char **cmdline_p)
-=20
- 	parse_early_param();
-=20
--	/*
--	 * Do some memory reservations *before* memory is added to
--	 * memblock, so memblock allocations won't overwrite it.
--	 * Do it after early param, so we could get (unlikely) panic from
--	 * serial.
--	 *
--	 * After this point everything still needed from the boot loader or
--	 * firmware or kernel text should be early reserved or marked not
--	 * RAM in e820. All other memory is free game.
--	 */
--	early_reserve_memory();
--
- #ifdef CONFIG_MEMORY_HOTPLUG
- 	/*
- 	 * Memory used by the kernel cannot be hot-removed because Linux
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.282-150-gf26597d59c72/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.282-150-gf26597d59c72
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f26597d59c723cffceb5cc280641555b0461be8b =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+i945gsex-qs          | i386 | lab-clabbe    | gcc-8    | i386_defconfig    =
+  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6142f36263cb3cabfb99a2f3
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: i386_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-1=
+50-gf26597d59c72/i386/i386_defconfig/gcc-8/lab-clabbe/baseline-i945gsex-qs.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-1=
+50-gf26597d59c72/i386/i386_defconfig/gcc-8/lab-clabbe/baseline-i945gsex-qs.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6142f36263cb3ca=
+bfb99a2fb
+        new failure (last pass: v4.9.282-102-g588ed610887d)
+        1 lines
+
+    2021-09-16T07:33:37.482279  kern  :emerg : do_IRQ: 0.236 No irq handler=
+ for vector
+    2021-09-16T07:33:37.491416  [   13.752617] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D1>   =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6142f26e935158bf5e99a2e7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-1=
+50-gf26597d59c72/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
+rsatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-1=
+50-gf26597d59c72/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
+rsatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6142f26e935158bf5e99a=
+2e8
+        failing since 306 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61430a5d260c81981a99a2e6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-1=
+50-gf26597d59c72/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-1=
+50-gf26597d59c72/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61430a5d260c81981a99a=
+2e7
+        failing since 306 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =20
