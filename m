@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89D5240E67E
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61C4840E680
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346911AbhIPRV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:21:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43516 "EHLO mail.kernel.org"
+        id S1346918AbhIPRV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:21:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351938AbhIPRUA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1351944AbhIPRUA (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Sep 2021 13:20:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F344360EE5;
-        Thu, 16 Sep 2021 16:41:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA7AB61A2A;
+        Thu, 16 Sep 2021 16:41:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810507;
-        bh=4hE52cXqdxjES0qafaKTL/fZ6kRAsV34oJ66ygiGwJ0=;
+        s=korg; t=1631810510;
+        bh=Va8bcP5CQ4q/oK4EpZUyhifW4YVhyPh0tA5iq7z/eMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=doAqHOfQzwJNSVtAujX+kZ65fimAsPSpuMHto0/GKn/DtrTsw2LgbltzWP/SI5l9y
-         2j6Mbss4vCotUy9PM5ErnJtDs+6UtauhwdWoCDCma61+vWq6uz3gdEDkBkjGBbcXFL
-         9RBU0q+B9uATI/746O1I1ZVdkc0eU2NUZypx5NMY=
+        b=CMwgTVpMbnXr71qLwJrMM7hgXmbYeonvGgT/B0z3wlWbg0BhQZwVO1YcuXRiRtRS1
+         a35SprlLycPczYuP8ludwF5ik4sOF/8XazgYr5d8X4fAygj420JCd26ACnZ82lsRFB
+         oRgcBOXh2RkedGZM+D6kti3cF4oEl36MQCsByGU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kajol Jain <kjain@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Yixing Liu <liuyixing1@huawei.com>,
+        Wenpeng Liang <liangwenpeng@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 134/432] powerpc/perf: Fix the check for SIAR value
-Date:   Thu, 16 Sep 2021 17:58:03 +0200
-Message-Id: <20210916155815.300420072@linuxfoundation.org>
+Subject: [PATCH 5.14 135/432] RDMA/hns: Fix incorrect lsn field
+Date:   Thu, 16 Sep 2021 17:58:04 +0200
+Message-Id: <20210916155815.331821768@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -40,58 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kajol Jain <kjain@linux.ibm.com>
+From: Yixing Liu <liuyixing1@huawei.com>
 
-[ Upstream commit 3c69a5f22223fa3e312689ec218b5059784d49d7 ]
+[ Upstream commit 9bed8a70716ba65d300b9cc30eb7e0276353f7bf ]
 
-Incase of random sampling, there can be scenarios where
-Sample Instruction Address Register(SIAR) may not latch
-to the sampled instruction and could result in
-the value of 0. In these scenarios it is preferred to
-return regs->nip. These corner cases are seen in the
-previous generation (p9) also.
+In RNR NAK screnario, according to the specification, when no credit is
+available, only the first fragment of the send request can be sent. The
+LSN(Limit Sequence Number) field should be 0 or the entire packet will be
+resent.
 
-Patch adds the check for SIAR value along with regs_use_siar
-and siar_valid checks so that the function will return
-regs->nip incase SIAR is zero.
-
-Patch drops the code under PPMU_P10_DD1 flag check
-which handles SIAR 0 case only for Power10 DD1.
-
-Fixes: 2ca13a4cc56c9 ("powerpc/perf: Use regs->nip when SIAR is zero")
-Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210818171556.36912-3-kjain@linux.ibm.com
+Fixes: 926a01dc000d ("RDMA/hns: Add QP operations support for hip08 SoC")
+Link: https://lore.kernel.org/r/1629883169-2306-1-git-send-email-liangwenpeng@huawei.com
+Signed-off-by: Yixing Liu <liuyixing1@huawei.com>
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/core-book3s.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
-index bb0ee716de91..b0a589409039 100644
---- a/arch/powerpc/perf/core-book3s.c
-+++ b/arch/powerpc/perf/core-book3s.c
-@@ -2251,18 +2251,10 @@ unsigned long perf_misc_flags(struct pt_regs *regs)
-  */
- unsigned long perf_instruction_pointer(struct pt_regs *regs)
- {
--	bool use_siar = regs_use_siar(regs);
- 	unsigned long siar = mfspr(SPRN_SIAR);
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index 0e0be5664137..f4cea6dcec2f 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -4489,9 +4489,6 @@ static int modify_qp_rtr_to_rts(struct ib_qp *ibqp,
  
--	if (ppmu && (ppmu->flags & PPMU_P10_DD1)) {
--		if (siar)
--			return siar;
--		else
--			return regs->nip;
--	} else if (use_siar && siar_valid(regs))
--		return mfspr(SPRN_SIAR) + perf_ip_adjust(regs);
--	else if (use_siar)
--		return 0;		// no valid instruction pointer
-+	if (regs_use_siar(regs) && siar_valid(regs) && siar)
-+		return siar + perf_ip_adjust(regs);
- 	else
- 		return regs->nip;
- }
+ 	hr_reg_clear(qpc_mask, QPC_CHECK_FLG);
+ 
+-	hr_reg_write(context, QPC_LSN, 0x100);
+-	hr_reg_clear(qpc_mask, QPC_LSN);
+-
+ 	hr_reg_clear(qpc_mask, QPC_V2_IRRL_HEAD);
+ 
+ 	return 0;
 -- 
 2.30.2
 
