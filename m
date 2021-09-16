@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F3B440E004
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:15:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E7D640E325
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:19:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239609AbhIPQQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:16:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54968 "EHLO mail.kernel.org"
+        id S243295AbhIPQpb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:45:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240694AbhIPQOW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:14:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35BAD613A4;
-        Thu, 16 Sep 2021 16:10:16 +0000 (UTC)
+        id S1343652AbhIPQna (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:43:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D67F661A52;
+        Thu, 16 Sep 2021 16:25:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808617;
-        bh=uwA0nUERC+utH2fpcqTViMZbqrZcqe6qSSC9TEOQ8Yg=;
+        s=korg; t=1631809504;
+        bh=XcIrP2j1CH1GVKuWS9cRF+bNGRLvYg1YpeIgxHSn9J8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lHd0YuMahYIVXzsNAlgClqePMUPrjSaKDmldRDqa+WQ5q2lskPqdVY1bBHf47hOI/
-         o7SzIehSJM+yglo5E/I9lannS2y1dvD+RnLnXsNz8Ljaj4VNIdIGEcm+N/8//5se/D
-         wQ+JDAP5rZ85/wjdrUUaKO9UHvJe2zE0zfLqZxsM=
+        b=WIf1B5mK40OjtZNfa8KIuDiAEMlowmvl6duqrrOo46Xgw5JcvepR6Q/pLtMDuAbHx
+         ETdFtbCQgbkLR7480bQF2lEk2GvXcPtS9zzkbGviIwPMUs3nALu0020mw2VklikK6o
+         qqBVlDPQJbmwfpj8J3l3eC15cmQwTiELpyf9O+SY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 159/306] s390/jump_label: print real address in a case of a jump label bug
+Subject: [PATCH 5.13 147/380] media: ti-vpe: cal: fix error handling in cal_camerarx_create
 Date:   Thu, 16 Sep 2021 17:58:24 +0200
-Message-Id: <20210916155759.503605566@linuxfoundation.org>
+Message-Id: <20210916155809.056158115@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 
-[ Upstream commit 5492886c14744d239e87f1b0b774b5a341e755cc ]
+[ Upstream commit 918d6d120a60c2640263396308eeb2b6afeb0cd6 ]
 
-In case of a jump label print the real address of the piece of code
-where a mismatch was detected. This is right before the system panics,
-so there is nothing revealed.
+cal_camerarx_create() doesn't handle error returned from
+cal_camerarx_sd_init_cfg(). Fix this.
 
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/jump_label.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/ti-vpe/cal-camerarx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/jump_label.c b/arch/s390/kernel/jump_label.c
-index ab584e8e3527..9156653b56f6 100644
---- a/arch/s390/kernel/jump_label.c
-+++ b/arch/s390/kernel/jump_label.c
-@@ -36,7 +36,7 @@ static void jump_label_bug(struct jump_entry *entry, struct insn *expected,
- 	unsigned char *ipe = (unsigned char *)expected;
- 	unsigned char *ipn = (unsigned char *)new;
+diff --git a/drivers/media/platform/ti-vpe/cal-camerarx.c b/drivers/media/platform/ti-vpe/cal-camerarx.c
+index cbe6114908de..63d13bcc83b4 100644
+--- a/drivers/media/platform/ti-vpe/cal-camerarx.c
++++ b/drivers/media/platform/ti-vpe/cal-camerarx.c
+@@ -842,7 +842,9 @@ struct cal_camerarx *cal_camerarx_create(struct cal_dev *cal,
+ 	if (ret)
+ 		goto error;
  
--	pr_emerg("Jump label code mismatch at %pS [%p]\n", ipc, ipc);
-+	pr_emerg("Jump label code mismatch at %pS [%px]\n", ipc, ipc);
- 	pr_emerg("Found:    %6ph\n", ipc);
- 	pr_emerg("Expected: %6ph\n", ipe);
- 	pr_emerg("New:      %6ph\n", ipn);
+-	cal_camerarx_sd_init_cfg(sd, NULL);
++	ret = cal_camerarx_sd_init_cfg(sd, NULL);
++	if (ret)
++		goto error;
+ 
+ 	ret = v4l2_device_register_subdev(&cal->v4l2_dev, sd);
+ 	if (ret)
 -- 
 2.30.2
 
