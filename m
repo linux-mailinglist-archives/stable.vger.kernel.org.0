@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7016240E255
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:16:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06D4040E621
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244478AbhIPQhK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:37:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44348 "EHLO mail.kernel.org"
+        id S1343583AbhIPRSM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:18:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244225AbhIPQfB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:35:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DCC061980;
-        Thu, 16 Sep 2021 16:21:04 +0000 (UTC)
+        id S1343571AbhIPRQH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:16:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D67661BAA;
+        Thu, 16 Sep 2021 16:40:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809265;
-        bh=lImvXFqv8F4CpYEnM2+99TdewWuYd0/Ydfc+dsWapjY=;
+        s=korg; t=1631810414;
+        bh=J8nPaCGPUOxM4kNUabgYZ5v2AM8pXvOTR8O1xEot5m0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gOAiBfF137VJ4HBQvwHN7MSwjXlmGm8XNUXlCc8GdYA+i72NjqTCMzxns86R2qaA0
-         NwW9evKnYAGGx6HHcWQPeRgE0l7CfN1IJsD1EdkNSkqftNA4kV7rGYtr3XCGvjSZjK
-         Fz3E3S86dm3kG7KJmNoZf2EEDiayM0UaOpkxWY+g=
+        b=eR6KjOKBTQ4g3SBoTXRMcanNAXRGiIPhzd+X/tKySW7YsnedkzBxNlF3bShSgA+bn
+         zyS6tsZzs8mJp3K4OUgm/uTvUl1/TUsNrvOY1nneeUJm/UTVPT2oycW4h1IBHTi0LE
+         T+gdEUnB6JkoGil0/go/eosKqxj5Wg0s1+Zpd5pE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        openrisc@lists.librecores.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 091/380] openrisc: dont printk() unconditionally
-Date:   Thu, 16 Sep 2021 17:57:28 +0200
-Message-Id: <20210916155807.135482548@linuxfoundation.org>
+        stable@vger.kernel.org, Yangtao Li <frank.li@vivo.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 100/432] f2fs: reduce the scope of setting fsck tag when de->name_len is zero
+Date:   Thu, 16 Sep 2021 17:57:29 +0200
+Message-Id: <20210916155814.166124444@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +40,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Yangtao Li <frank.li@vivo.com>
 
-[ Upstream commit 946e1052cdcc7e585ee5d1e72528ca49fb295243 ]
+[ Upstream commit d4bf15a7ce172d186d400d606adf4f34a59130d6 ]
 
-Don't call printk() when CONFIG_PRINTK is not set.
-Fixes the following build errors:
+I recently found a case where de->name_len is 0 in f2fs_fill_dentries()
+easily reproduced, and finally set the fsck flag.
 
-or1k-linux-ld: arch/openrisc/kernel/entry.o: in function `_external_irq_handler':
-(.text+0x804): undefined reference to `printk'
-(.text+0x804): relocation truncated to fit: R_OR1K_INSN_REL_26 against undefined symbol `printk'
+Thread A			Thread B
+- f2fs_readdir
+ - f2fs_read_inline_dir
+  - ctx->pos = d.max
+				- f2fs_add_dentry
+				 - f2fs_add_inline_entry
+				  - do_convert_inline_dir
+				 - f2fs_add_regular_entry
+- f2fs_readdir
+ - f2fs_fill_dentries
+  - set_sbi_flag(sbi, SBI_NEED_FSCK)
 
-Fixes: 9d02a4283e9c ("OpenRISC: Boot code")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: openrisc@lists.librecores.org
-Signed-off-by: Stafford Horne <shorne@gmail.com>
+Process A opens the folder, and has been reading without closing it.
+During this period, Process B created a file under the folder (occupying
+multiple f2fs_dir_entry, exceeding the d.max of the inline dir). After
+creation, process A uses the d.max of inline dir to read it again, and
+it will read that de->name_len is 0.
+
+And Chao pointed out that w/o inline conversion, the race condition still
+can happen as below:
+
+dir_entry1: A
+dir_entry2: B
+dir_entry3: C
+free slot: _
+ctx->pos: ^
+
+Thread A is traversing directory,
+ctx-pos moves to below position after readdir() by thread A:
+AAAABBBB___
+        ^
+
+Then thread B delete dir_entry2, and create dir_entry3.
+
+Thread A calls readdir() to lookup dirents starting from middle
+of new dirent slots as below:
+AAAACCCCCC_
+        ^
+In these scenarios, the file system is not damaged, and it's hard to
+avoid it. But we can bypass tagging FSCK flag if:
+a) bit_pos (:= ctx->pos % d->max) is non-zero and
+b) before bit_pos moves to first valid dir_entry.
+
+Fixes: ddf06b753a85 ("f2fs: fix to trigger fsck if dirent.name_len is zero")
+Signed-off-by: Yangtao Li <frank.li@vivo.com>
+[Chao: clean up description]
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/openrisc/kernel/entry.S | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/f2fs/dir.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
-index bc657e55c15f..98e4f97db515 100644
---- a/arch/openrisc/kernel/entry.S
-+++ b/arch/openrisc/kernel/entry.S
-@@ -547,6 +547,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
- 	l.bnf	1f			// ext irq enabled, all ok.
- 	l.nop
+diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
+index 456651682daf..c250bf46ef5e 100644
+--- a/fs/f2fs/dir.c
++++ b/fs/f2fs/dir.c
+@@ -1000,6 +1000,7 @@ int f2fs_fill_dentries(struct dir_context *ctx, struct f2fs_dentry_ptr *d,
+ 	struct f2fs_sb_info *sbi = F2FS_I_SB(d->inode);
+ 	struct blk_plug plug;
+ 	bool readdir_ra = sbi->readdir_ra == 1;
++	bool found_valid_dirent = false;
+ 	int err = 0;
  
-+#ifdef CONFIG_PRINTK
- 	l.addi  r1,r1,-0x8
- 	l.movhi r3,hi(42f)
- 	l.ori	r3,r3,lo(42f)
-@@ -560,6 +561,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
- 		.string "\n\rESR interrupt bug: in _external_irq_handler (ESR %x)\n\r"
- 		.align 4
- 	.previous
-+#endif
+ 	bit_pos = ((unsigned long)ctx->pos % d->max);
+@@ -1014,13 +1015,15 @@ int f2fs_fill_dentries(struct dir_context *ctx, struct f2fs_dentry_ptr *d,
  
- 	l.ori	r4,r4,SPR_SR_IEE	// fix the bug
- //	l.sw	PT_SR(r1),r4
+ 		de = &d->dentry[bit_pos];
+ 		if (de->name_len == 0) {
++			if (found_valid_dirent || !bit_pos) {
++				printk_ratelimited(
++					"%sF2FS-fs (%s): invalid namelen(0), ino:%u, run fsck to fix.",
++					KERN_WARNING, sbi->sb->s_id,
++					le32_to_cpu(de->ino));
++				set_sbi_flag(sbi, SBI_NEED_FSCK);
++			}
+ 			bit_pos++;
+ 			ctx->pos = start_pos + bit_pos;
+-			printk_ratelimited(
+-				"%sF2FS-fs (%s): invalid namelen(0), ino:%u, run fsck to fix.",
+-				KERN_WARNING, sbi->sb->s_id,
+-				le32_to_cpu(de->ino));
+-			set_sbi_flag(sbi, SBI_NEED_FSCK);
+ 			continue;
+ 		}
+ 
+@@ -1063,6 +1066,7 @@ int f2fs_fill_dentries(struct dir_context *ctx, struct f2fs_dentry_ptr *d,
+ 			f2fs_ra_node_page(sbi, le32_to_cpu(de->ino));
+ 
+ 		ctx->pos = start_pos + bit_pos;
++		found_valid_dirent = true;
+ 	}
+ out:
+ 	if (readdir_ra)
 -- 
 2.30.2
 
