@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94A6B40E0D3
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:28:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3FA840E7C5
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:59:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241270AbhIPQYu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:24:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58820 "EHLO mail.kernel.org"
+        id S1344684AbhIPRf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:35:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241181AbhIPQXO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:23:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2D8D61423;
-        Thu, 16 Sep 2021 16:15:31 +0000 (UTC)
+        id S1348307AbhIPRdw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:33:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6C3B61505;
+        Thu, 16 Sep 2021 16:47:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808932;
-        bh=cytdpkDYbEeqgmMYI47aiKliJqKFscmNN8PkvP5xabU=;
+        s=korg; t=1631810879;
+        bh=grpqI8sJsgtdBrayXqXN5K8Cvo1phWPDGxjB1M24YFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jurpy0iTnJ5l+9HCmtQBdidbEQ5eZPtwqHbG6A1GiuyiNoZvJhXGhGjZdvlYMrT0R
-         1N6msOBAnhP+RYs1wPIJ2CfWLYZlZpQXJrYjMOM5op2DXS/y7x7wCLd0lYByEu/XLv
-         dcgpzcwFcr23lSgg48jM47Rp6+9p/zuwlHy84Z7U=
+        b=qiuK0XwnR7D61pC1IZhWmnO/QlexjkFZd0oPahVy2N5LMMdj7sviZd20pig+e0YSI
+         cBFXD4yFtK3IO24z8whG9fH/8CZrDk2+7TjInKAmJ6VNwuGPOwawAAd2t2TksriiIk
+         Nx3dkpQ0kooHdVBtGL3zfsC9mOROP+KGDmlIfpn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci <abaci@linux.alibaba.com>,
-        Michael Wang <yun.wang@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 274/306] net: fix NULL pointer reference in cipso_v4_doi_free
+Subject: [PATCH 5.14 270/432] arm64: dts: qcom: ipq6018: drop 0x from unit address
 Date:   Thu, 16 Sep 2021 18:00:19 +0200
-Message-Id: <20210916155803.421191781@linuxfoundation.org>
+Message-Id: <20210916155819.970030949@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 王贇 <yun.wang@linux.alibaba.com>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit 733c99ee8be9a1410287cdbb943887365e83b2d6 ]
+[ Upstream commit 1b91b8ef60e9a67141e66af3cca532c00f4605fe ]
 
-In netlbl_cipsov4_add_std() when 'doi_def->map.std' alloc
-failed, we sometime observe panic:
+Nodes need not contain '0x' for the unit address. Drop it to fix the
+below warning:
 
-  BUG: kernel NULL pointer dereference, address:
-  ...
-  RIP: 0010:cipso_v4_doi_free+0x3a/0x80
-  ...
-  Call Trace:
-   netlbl_cipsov4_add_std+0xf4/0x8c0
-   netlbl_cipsov4_add+0x13f/0x1b0
-   genl_family_rcv_msg_doit.isra.15+0x132/0x170
-   genl_rcv_msg+0x125/0x240
+arch/arm64/boot/dts/qcom/ipq6018-cp01-c1.dt.yaml: reserved-memory:
+'memory@0x60000' does not match any of the regexes
 
-This is because in cipso_v4_doi_free() there is no check
-on 'doi_def->map.std' when 'doi_def->type' equal 1, which
-is possibe, since netlbl_cipsov4_add_std() haven't initialize
-it before alloc 'doi_def->map.std'.
-
-This patch just add the check to prevent panic happen for similar
-cases.
-
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20210308060826.3074234-19-vkoul@kernel.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlabel/netlabel_cipso_v4.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/qcom/ipq6018.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netlabel/netlabel_cipso_v4.c b/net/netlabel/netlabel_cipso_v4.c
-index 50f40943c815..f3f1df1b0f8e 100644
---- a/net/netlabel/netlabel_cipso_v4.c
-+++ b/net/netlabel/netlabel_cipso_v4.c
-@@ -144,8 +144,8 @@ static int netlbl_cipsov4_add_std(struct genl_info *info,
- 		return -ENOMEM;
- 	doi_def->map.std = kzalloc(sizeof(*doi_def->map.std), GFP_KERNEL);
- 	if (doi_def->map.std == NULL) {
--		ret_val = -ENOMEM;
--		goto add_std_failure;
-+		kfree(doi_def);
-+		return -ENOMEM;
- 	}
- 	doi_def->type = CIPSO_V4_MAP_TRANS;
+diff --git a/arch/arm64/boot/dts/qcom/ipq6018.dtsi b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
+index 9fa5b028e4f3..23ee1bfa4318 100644
+--- a/arch/arm64/boot/dts/qcom/ipq6018.dtsi
++++ b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
+@@ -151,7 +151,7 @@ reserved-memory {
+ 		#size-cells = <2>;
+ 		ranges;
  
+-		rpm_msg_ram: memory@0x60000 {
++		rpm_msg_ram: memory@60000 {
+ 			reg = <0x0 0x60000 0x0 0x6000>;
+ 			no-map;
+ 		};
 -- 
 2.30.2
 
