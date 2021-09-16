@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE06540DF85
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:10:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE2E540E24E
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:16:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237633AbhIPQKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:10:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48498 "EHLO mail.kernel.org"
+        id S244048AbhIPQgt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:36:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236184AbhIPQJP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:09:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12A4B61368;
-        Thu, 16 Sep 2021 16:07:45 +0000 (UTC)
+        id S244118AbhIPQes (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:34:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EA6461881;
+        Thu, 16 Sep 2021 16:20:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808466;
-        bh=YYBho95QdOM5VhV5o1hM07Vz0fnKXDen22OQtXq+tsM=;
+        s=korg; t=1631809254;
+        bh=cHUHS7ylQBndbebOAwQBZXt+puIUFvKgbQ0B7P73eJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oXYl8g0X6m3kbNJvlDOEfwLx+jVAvovSwRmM2UqEEleTuD/Jcy9DhbM8E4m2nfj59
-         QdOOJIHcIhlp2iwRg3cfbDsbvFY7x4+rpq6TGqdh66rlHFtDIs2UDjhF0vFCGZ7K5W
-         kLXnk3HHV58I+C+VeLbS9g2FFsnozXK2aolSYUwc=
+        b=Q/VQMXiIemw+aGNLN/ONJzePpLr7Aq8Bjo4xERk+b27nftvZnJ+zpU5B9drS/2KCi
+         SMlPyObTFLdOuo7iibHmHOhFejOi0qXSiwvUVrILCy71/8U1ltCrZA4Ec1J0INoJ4B
+         rP53ClXKcoDoEu2rCsekvigZoFFs+Epq9DRNR4nk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 100/306] KVM: PPC: Fix clearing never mapped TCEs in realmode
+Subject: [PATCH 5.13 088/380] RDMA/mlx5: Delete not-available udata check
 Date:   Thu, 16 Sep 2021 17:57:25 +0200
-Message-Id: <20210916155757.480379205@linuxfoundation.org>
+Message-Id: <20210916155807.038426146@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit 1d78dfde33a02da1d816279c2e3452978b7abd39 ]
+[ Upstream commit 5f6bb7e32283b8e3339b7adc00638234ac199cc4 ]
 
-Since commit e1a1ef84cd07 ("KVM: PPC: Book3S: Allocate guest TCEs on
-demand too"), pages for TCE tables for KVM guests are allocated only
-when needed. This allows skipping any update when clearing TCEs. This
-works mostly fine as TCE updates are handled when the MMU is enabled.
-The realmode handlers fail with H_TOO_HARD when pages are not yet
-allocated, except when clearing a TCE in which case KVM prints a warning
-and proceeds to dereference a NULL pointer, which crashes the host OS.
+XRC_TGT QPs are created through kernel verbs and don't have udata at all.
 
-This has not been caught so far as the change in commit e1a1ef84cd07 is
-reasonably new, and POWER9 runs mostly radix which does not use realmode
-handlers. With hash, the default TCE table is memset() by QEMU when the
-machine is reset which triggers page faults and the KVM TCE device's
-kvm_spapr_tce_fault() handles those with MMU on. And the huge DMA
-windows are not cleared by VMs which instead successfully create a DMA
-window big enough to map the VM memory 1:1 and then VMs just map
-everything without clearing.
-
-This started crashing now as commit 381ceda88c4c ("powerpc/pseries/iommu:
-Make use of DDW for indirect mapping") added a mode when a dymanic DMA
-window not big enough to map the VM memory 1:1 but it is used anyway,
-and the VM now is the first (i.e. not QEMU) to clear a just created
-table. Note that upstream QEMU needs to be modified to trigger the VM to
-trigger the host OS crash.
-
-This replaces WARN_ON_ONCE_RM() with a check and return, and adds
-another warning if TCE is not being cleared.
-
-Fixes: e1a1ef84cd07 ("KVM: PPC: Book3S: Allocate guest TCEs on demand too")
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210827040706.517652-1-aik@ozlabs.ru
+Fixes: 6eefa839c4dd ("RDMA/mlx5: Protect from kernel crash if XRC_TGT doesn't have udata")
+Fixes: e383085c2425 ("RDMA/mlx5: Set ECE options during QP create")
+Link: https://lore.kernel.org/r/b68228597e730675020aa5162745390a2d39d3a2.1628014762.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_64_vio_hv.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/mlx5/qp.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/powerpc/kvm/book3s_64_vio_hv.c b/arch/powerpc/kvm/book3s_64_vio_hv.c
-index 083a4e037718..e5ba96c41f3f 100644
---- a/arch/powerpc/kvm/book3s_64_vio_hv.c
-+++ b/arch/powerpc/kvm/book3s_64_vio_hv.c
-@@ -173,10 +173,13 @@ static void kvmppc_rm_tce_put(struct kvmppc_spapr_tce_table *stt,
- 	idx -= stt->offset;
- 	page = stt->pages[idx / TCES_PER_PAGE];
- 	/*
--	 * page must not be NULL in real mode,
--	 * kvmppc_rm_ioba_validate() must have taken care of this.
-+	 * kvmppc_rm_ioba_validate() allows pages not be allocated if TCE is
-+	 * being cleared, otherwise it returns H_TOO_HARD and we skip this.
- 	 */
--	WARN_ON_ONCE_RM(!page);
-+	if (!page) {
-+		WARN_ON_ONCE_RM(tce != 0);
-+		return;
-+	}
- 	tbl = kvmppc_page_address(page);
+diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
+index 5851486c0d93..2471f48ea5f3 100644
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -1896,7 +1896,6 @@ static int get_atomic_mode(struct mlx5_ib_dev *dev,
+ static int create_xrc_tgt_qp(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
+ 			     struct mlx5_create_qp_params *params)
+ {
+-	struct mlx5_ib_create_qp *ucmd = params->ucmd;
+ 	struct ib_qp_init_attr *attr = params->attr;
+ 	u32 uidx = params->uidx;
+ 	struct mlx5_ib_resources *devr = &dev->devr;
+@@ -1916,8 +1915,6 @@ static int create_xrc_tgt_qp(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
+ 	if (!in)
+ 		return -ENOMEM;
  
- 	tbl[idx % TCES_PER_PAGE] = tce;
+-	if (MLX5_CAP_GEN(mdev, ece_support) && ucmd)
+-		MLX5_SET(create_qp_in, in, ece, ucmd->ece_options);
+ 	qpc = MLX5_ADDR_OF(create_qp_in, in, qpc);
+ 
+ 	MLX5_SET(qpc, qpc, st, MLX5_QP_ST_XRC);
 -- 
 2.30.2
 
