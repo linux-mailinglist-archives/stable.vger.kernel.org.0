@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2877C40E054
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A31DD40E70E
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237160AbhIPQUv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:20:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55042 "EHLO mail.kernel.org"
+        id S1347322AbhIPR2D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:28:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241127AbhIPQTR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:19:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEFA76135A;
-        Thu, 16 Sep 2021 16:13:15 +0000 (UTC)
+        id S1348327AbhIPRZz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:25:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D10CC630EA;
+        Thu, 16 Sep 2021 16:44:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808796;
-        bh=NyYDkBj2exwUxrdJ3yy0kdAm2cAfu+ZrmkTsZjwhJdw=;
+        s=korg; t=1631810663;
+        bh=uKKv48X/rwTXchpUk/HynlKWdL8cvr6NSDQypKRjBG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=djF/8/R/B7BHGk9IBR5vQWX0LTiY8cskw1t7C/OYjUKQs3Jfdd6eAUmcvars81nKq
-         JvjYrkQvCIgUnUDU89GdxCFLj7OIPbGyRIKj+nyiGlkwd8KXEc1Lvz9lt+oj+PWJeB
-         ASOacEcKDmfLUBLGcHtD6BiGWm41AOtNhyjBkEM0=
+        b=bCtqouMJo1hLtOSXHL7D3d/BWn+vLEYngYxpafZWRQDNDz/02JkZkVYLPNd/kYkcB
+         mApKSg+MWSHOQSExP6uU0H/FwjpwetC3yKt8HMWchJJXTjS2DWqDBy9/T13HzF1Ici
+         14dRdHDQYgOV62Ziky2Vz2UYPD57qjDaFiaMRTQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 226/306] selftests/bpf: Fix flaky send_signal test
-Date:   Thu, 16 Sep 2021 17:59:31 +0200
-Message-Id: <20210916155801.749730750@linuxfoundation.org>
+Subject: [PATCH 5.14 223/432] net: ipa: fix ipa_cmd_table_valid()
+Date:   Thu, 16 Sep 2021 17:59:32 +0200
+Message-Id: <20210916155818.406946877@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,83 +40,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Alex Elder <elder@linaro.org>
 
-[ Upstream commit b16ac5bf732a5e23d164cf908ec7742d6a6120d3 ]
+[ Upstream commit f2c1dac0abcfa93e8b20065b8d6b4b2b6f9990aa ]
 
-libbpf CI has reported send_signal test is flaky although
-I am not able to reproduce it in my local environment.
-But I am able to reproduce with on-demand libbpf CI ([1]).
+Stop supporting different sizes for hashed and non-hashed filter or
+route tables.  Add BUILD_BUG_ON() calls to verify the sizes of the
+fields in the filter/route table initialization immediate command
+are the same.
 
-Through code analysis, the following is possible reason.
-The failed subtest runs bpf program in softirq environment.
-Since bpf_send_signal() only sends to a fork of "test_progs"
-process. If the underlying current task is
-not "test_progs", bpf_send_signal() will not be triggered
-and the subtest will fail.
+Add a check to ipa_cmd_table_valid() to ensure the size of the
+memory region being checked fits within the immediate command field
+that must hold it.
 
-To reduce the chances where the underlying process is not
-the intended one, this patch boosted scheduling priority to
--20 (highest allowed by setpriority() call). And I did
-10 runs with on-demand libbpf CI with this patch and I
-didn't observe any failures.
+Remove two Boolean parameters used only for error reporting.  This
+actually fixes a bug that would only show up if IPA_VALIDATE were
+defined.  Define ipa_cmd_table_valid() unconditionally (no longer
+dependent on IPA_VALIDATE).
 
- [1] https://github.com/libbpf/libbpf/actions/workflows/ondemand.yml
-
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20210817190923.3186725-1-yhs@fb.com
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/bpf/prog_tests/send_signal.c       | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/net/ipa/ipa_cmd.c   | 38 ++++++++++++++++++++++++-------------
+ drivers/net/ipa/ipa_cmd.h   | 15 +++------------
+ drivers/net/ipa/ipa_table.c |  2 +-
+ 3 files changed, 29 insertions(+), 26 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/send_signal.c b/tools/testing/selftests/bpf/prog_tests/send_signal.c
-index 7043e6ded0e6..75b72c751772 100644
---- a/tools/testing/selftests/bpf/prog_tests/send_signal.c
-+++ b/tools/testing/selftests/bpf/prog_tests/send_signal.c
-@@ -1,5 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
- #include <test_progs.h>
-+#include <sys/time.h>
-+#include <sys/resource.h>
- #include "test_send_signal_kern.skel.h"
+diff --git a/drivers/net/ipa/ipa_cmd.c b/drivers/net/ipa/ipa_cmd.c
+index af44ca41189e..bda8677eae88 100644
+--- a/drivers/net/ipa/ipa_cmd.c
++++ b/drivers/net/ipa/ipa_cmd.c
+@@ -159,35 +159,45 @@ static void ipa_cmd_validate_build(void)
+ 	BUILD_BUG_ON(TABLE_SIZE > field_max(IP_FLTRT_FLAGS_NHASH_SIZE_FMASK));
+ #undef TABLE_COUNT_MAX
+ #undef TABLE_SIZE
+-}
  
- static volatile int sigusr1_received = 0;
-@@ -41,12 +43,23 @@ static void test_send_signal_common(struct perf_event_attr *attr,
+-#ifdef IPA_VALIDATE
++	/* Hashed and non-hashed fields are assumed to be the same size */
++	BUILD_BUG_ON(field_max(IP_FLTRT_FLAGS_HASH_SIZE_FMASK) !=
++		     field_max(IP_FLTRT_FLAGS_NHASH_SIZE_FMASK));
++	BUILD_BUG_ON(field_max(IP_FLTRT_FLAGS_HASH_ADDR_FMASK) !=
++		     field_max(IP_FLTRT_FLAGS_NHASH_ADDR_FMASK));
++}
+ 
+ /* Validate a memory region holding a table */
+-bool ipa_cmd_table_valid(struct ipa *ipa, const struct ipa_mem *mem,
+-			 bool route, bool ipv6, bool hashed)
++bool ipa_cmd_table_valid(struct ipa *ipa, const struct ipa_mem *mem, bool route)
+ {
++	u32 offset_max = field_max(IP_FLTRT_FLAGS_NHASH_ADDR_FMASK);
++	u32 size_max = field_max(IP_FLTRT_FLAGS_NHASH_SIZE_FMASK);
++	const char *table = route ? "route" : "filter";
+ 	struct device *dev = &ipa->pdev->dev;
+-	u32 offset_max;
+ 
+-	offset_max = hashed ? field_max(IP_FLTRT_FLAGS_HASH_ADDR_FMASK)
+-			    : field_max(IP_FLTRT_FLAGS_NHASH_ADDR_FMASK);
++	/* Size must fit in the immediate command field that holds it */
++	if (mem->size > size_max) {
++		dev_err(dev, "%s table region size too large\n", table);
++		dev_err(dev, "    (0x%04x > 0x%04x)\n",
++			mem->size, size_max);
++
++		return false;
++	}
++
++	/* Offset must fit in the immediate command field that holds it */
+ 	if (mem->offset > offset_max ||
+ 	    ipa->mem_offset > offset_max - mem->offset) {
+-		dev_err(dev, "IPv%c %s%s table region offset too large\n",
+-			ipv6 ? '6' : '4', hashed ? "hashed " : "",
+-			route ? "route" : "filter");
++		dev_err(dev, "%s table region offset too large\n", table);
+ 		dev_err(dev, "    (0x%04x + 0x%04x > 0x%04x)\n",
+ 			ipa->mem_offset, mem->offset, offset_max);
+ 
+ 		return false;
  	}
  
- 	if (pid == 0) {
-+		int old_prio;
++	/* Entire memory range must fit within IPA-local memory */
+ 	if (mem->offset > ipa->mem_size ||
+ 	    mem->size > ipa->mem_size - mem->offset) {
+-		dev_err(dev, "IPv%c %s%s table region out of range\n",
+-			ipv6 ? '6' : '4', hashed ? "hashed " : "",
+-			route ? "route" : "filter");
++		dev_err(dev, "%s table region out of range\n", table);
+ 		dev_err(dev, "    (0x%04x + 0x%04x > 0x%04x)\n",
+ 			mem->offset, mem->size, ipa->mem_size);
+ 
+@@ -197,6 +207,8 @@ bool ipa_cmd_table_valid(struct ipa *ipa, const struct ipa_mem *mem,
+ 	return true;
+ }
+ 
++#ifdef IPA_VALIDATE
 +
- 		/* install signal handler and notify parent */
- 		signal(SIGUSR1, sigusr1_handler);
+ /* Validate the memory region that holds headers */
+ static bool ipa_cmd_header_valid(struct ipa *ipa)
+ {
+diff --git a/drivers/net/ipa/ipa_cmd.h b/drivers/net/ipa/ipa_cmd.h
+index b99262281f41..ea723419c826 100644
+--- a/drivers/net/ipa/ipa_cmd.h
++++ b/drivers/net/ipa/ipa_cmd.h
+@@ -57,20 +57,18 @@ struct ipa_cmd_info {
+ 	enum dma_data_direction direction;
+ };
  
- 		close(pipe_c2p[0]); /* close read */
- 		close(pipe_p2c[1]); /* close write */
- 
-+		/* boost with a high priority so we got a higher chance
-+		 * that if an interrupt happens, the underlying task
-+		 * is this process.
-+		 */
-+		errno = 0;
-+		old_prio = getpriority(PRIO_PROCESS, 0);
-+		ASSERT_OK(errno, "getpriority");
-+		ASSERT_OK(setpriority(PRIO_PROCESS, 0, -20), "setpriority");
+-#ifdef IPA_VALIDATE
+-
+ /**
+  * ipa_cmd_table_valid() - Validate a memory region holding a table
+  * @ipa:	- IPA pointer
+  * @mem:	- IPA memory region descriptor
+  * @route:	- Whether the region holds a route or filter table
+- * @ipv6:	- Whether the table is for IPv6 or IPv4
+- * @hashed:	- Whether the table is hashed or non-hashed
+  *
+  * Return:	true if region is valid, false otherwise
+  */
+ bool ipa_cmd_table_valid(struct ipa *ipa, const struct ipa_mem *mem,
+-			    bool route, bool ipv6, bool hashed);
++			    bool route);
 +
- 		/* notify parent signal handler is installed */
- 		CHECK(write(pipe_c2p[1], buf, 1) != 1, "pipe_write", "err %d\n", -errno);
++#ifdef IPA_VALIDATE
  
-@@ -62,6 +75,9 @@ static void test_send_signal_common(struct perf_event_attr *attr,
- 		/* wait for parent notification and exit */
- 		CHECK(read(pipe_p2c[0], buf, 1) != 1, "pipe_read", "err %d\n", -errno);
+ /**
+  * ipa_cmd_data_valid() - Validate command-realted configuration is valid
+@@ -82,13 +80,6 @@ bool ipa_cmd_data_valid(struct ipa *ipa);
  
-+		/* restore the old priority */
-+		ASSERT_OK(setpriority(PRIO_PROCESS, 0, old_prio), "setpriority");
-+
- 		close(pipe_c2p[1]);
- 		close(pipe_p2c[0]);
- 		exit(0);
+ #else /* !IPA_VALIDATE */
+ 
+-static inline bool ipa_cmd_table_valid(struct ipa *ipa,
+-				       const struct ipa_mem *mem, bool route,
+-				       bool ipv6, bool hashed)
+-{
+-	return true;
+-}
+-
+ static inline bool ipa_cmd_data_valid(struct ipa *ipa)
+ {
+ 	return true;
+diff --git a/drivers/net/ipa/ipa_table.c b/drivers/net/ipa/ipa_table.c
+index c617a9156f26..4f5b6749f6aa 100644
+--- a/drivers/net/ipa/ipa_table.c
++++ b/drivers/net/ipa/ipa_table.c
+@@ -161,7 +161,7 @@ ipa_table_valid_one(struct ipa *ipa, enum ipa_mem_id mem_id, bool route)
+ 	else
+ 		size = (1 + IPA_FILTER_COUNT_MAX) * sizeof(__le64);
+ 
+-	if (!ipa_cmd_table_valid(ipa, mem, route, ipv6, hashed))
++	if (!ipa_cmd_table_valid(ipa, mem, route))
+ 		return false;
+ 
+ 	/* mem->size >= size is sufficient, but we'll demand more */
 -- 
 2.30.2
 
