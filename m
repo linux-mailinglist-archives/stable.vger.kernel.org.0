@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2437840DF7C
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:09:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3924B40E5E6
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237141AbhIPQKc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:10:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48012 "EHLO mail.kernel.org"
+        id S1344276AbhIPRQN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:16:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235476AbhIPQJH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:09:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D6A956135E;
-        Thu, 16 Sep 2021 16:07:32 +0000 (UTC)
+        id S1344390AbhIPRNX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:13:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B280F61263;
+        Thu, 16 Sep 2021 16:38:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808453;
-        bh=kQ5PrhTdPYpk3ywUsdGkW4dHUxC9DRcGu0JK8ZVm+R4=;
+        s=korg; t=1631810325;
+        bh=3QmECldtHr1IgJyWG/9e3DT2CbZjRu4GNBs9oAMSUXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vLGbh+n4Ex2ZOCtVPGH1GUJf+b01iI0KUDqz23d5jETK7l1rEUAzMH/Tf2CDT0TME
-         +D6/eL/Ii5tV8PU1bQ0fEffo50DV/pYAuQPI+dcdUgyz8FtsMiZOyv2jxYP7SXo+57
-         0kT4pPNFtyUzke5swYqF2dIHwThIwDfPG0wt3tSQ=
+        b=IwIigM8+nrkkZWDyCGvaVqbf45jYL1QszP91/vVyCQhilPZSL2lJC/dhX+BkOyg45
+         GSuXYuRUxbAF2tzylXqZeyj6rV4m6dLCP3XoDOW/NCiRRHS1w7ep6jAI0r+bMQ5Geu
+         F2r96uhbx6LBNmjFRWhn+AVc3/rRYB6ENt9N0SB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Can Guo <cang@codeaurora.org>,
+        Asutosh Das <asutoshd@codeaurora.org>,
+        Avri Altman <avri.altman@wdc.com>,
+        Bean Huo <beanhuo@micron.com>,
+        Daejun Park <daejun7.park@samsung.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 096/306] powerpc/smp: Update cpu_core_map on all PowerPc systems
+Subject: [PATCH 5.14 092/432] scsi: ufs: Use DECLARE_COMPLETION_ONSTACK() where appropriate
 Date:   Thu, 16 Sep 2021 17:57:21 +0200
-Message-Id: <20210916155757.332816390@linuxfoundation.org>
+Message-Id: <20210916155813.896454635@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,169 +47,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit b8b928030332a0ca16d42433eb2c3085600d8704 ]
+[ Upstream commit 8a686f26eaa4b8a5c494b6b69e8a97815e3ffb82 ]
 
-lscpu() uses core_siblings to list the number of sockets in the
-system. core_siblings is set using topology_core_cpumask.
+>From Documentation/scheduler/completion.rst: "When a completion is declared
+as a local variable within a function, then the initialization should
+always use DECLARE_COMPLETION_ONSTACK() explicitly, not just to make
+lockdep happy, but also to make it clear that limited scope had been
+considered and is intentional."
 
-While optimizing the powerpc bootup path, Commit 4ca234a9cbd7
-("powerpc/smp: Stop updating cpu_core_mask").  it was found that
-updating cpu_core_mask() ended up taking a lot of time. It was thought
-that on Powerpc, cpu_core_mask() would always be same as
-cpu_cpu_mask() i.e number of sockets will always be equal to number of
-nodes. As an optimization, cpu_core_mask() was made a snapshot of
-cpu_cpu_mask().
-
-However that was found to be false with PowerPc KVM guests, where each
-node could have more than one socket. So with Commit c47f892d7aa6
-("powerpc/smp: Reintroduce cpu_core_mask"), cpu_core_mask was updated
-based on chip_id but in an optimized way using some mask manipulations
-and chip_id caching.
-
-However on non-PowerNV and non-pseries KVM guests (i.e not
-implementing cpu_to_chip_id(), continued to use a copy of
-cpu_cpu_mask().
-
-There are two issues that were noticed on such systems
-1. lscpu would report one extra socket.
-On a IBM,9009-42A (aka zz system) which has only 2 chips/ sockets/
-nodes, lscpu would report
-Architecture:        ppc64le
-Byte Order:          Little Endian
-CPU(s):              160
-On-line CPU(s) list: 0-159
-Thread(s) per core:  8
-Core(s) per socket:  6
-Socket(s):           3                <--------------
-NUMA node(s):        2
-Model:               2.2 (pvr 004e 0202)
-Model name:          POWER9 (architected), altivec supported
-Hypervisor vendor:   pHyp
-Virtualization type: para
-L1d cache:           32K
-L1i cache:           32K
-L2 cache:            512K
-L3 cache:            10240K
-NUMA node0 CPU(s):   0-79
-NUMA node1 CPU(s):   80-159
-
-2. Currently cpu_cpu_mask is updated when a core is
-added/removed. However its not updated when smt mode switching or on
-CPUs are explicitly offlined. However all other percpu masks are
-updated to ensure only active/online CPUs are in the masks.
-This results in build_sched_domain traces since there will be CPUs in
-cpu_cpu_mask() but those CPUs are not present in SMT / CACHE / MC /
-NUMA domains. A loop of threads running smt mode switching and core
-add/remove will soon show this trace.
-Hence cpu_cpu_mask has to be update at smt mode switch.
-
-This will have impact on cpu_core_mask(). cpu_core_mask() is a
-snapshot of cpu_cpu_mask. Different CPUs within the same socket will
-end up having different cpu_core_masks since they are snapshots at
-different points of time. This means when lscpu will start reporting
-many more sockets than the actual number of sockets/ nodes / chips.
-
-Different ways to handle this problem:
-A. Update the snapshot aka cpu_core_mask for all CPUs whenever
-   cpu_cpu_mask is updated. This would a non-optimal solution.
-B. Instead of a cpumask_var_t, make cpu_core_map a cpumask pointer
-   pointing to cpu_cpu_mask. However percpu cpumask pointer is frowned
-   upon and we need a clean way to handle PowerPc KVM guest which is
-   not a snapshot.
-C. Update cpu_core_masks all PowerPc systems like in PowerPc KVM
-guests using mask manipulations. This approach is relatively simple
-and unifies with the existing code.
-D. On top of 3, we could also resurrect get_physical_package_id which
-   could return a nid for the said CPU. However this is not needed at this
-   time.
-
-Option C is the preferred approach for now.
-
-While this is somewhat a revert of Commit 4ca234a9cbd7 ("powerpc/smp:
-Stop updating cpu_core_mask").
-
-1. Plain revert has some conflicts
-2. For chip_id == -1, the cpu_core_mask is made identical to
-cpu_cpu_mask, unlike previously where cpu_core_mask was set to a core
-if chip_id doesn't exist.
-
-This goes by the principle that if chip_id is not exposed, then
-sockets / chip / node share the same set of CPUs.
-
-With the fix, lscpu o/p would be
-Architecture:        ppc64le
-Byte Order:          Little Endian
-CPU(s):              160
-On-line CPU(s) list: 0-159
-Thread(s) per core:  8
-Core(s) per socket:  6
-Socket(s):           2                     <--------------
-NUMA node(s):        2
-Model:               2.2 (pvr 004e 0202)
-Model name:          POWER9 (architected), altivec supported
-Hypervisor vendor:   pHyp
-Virtualization type: para
-L1d cache:           32K
-L1i cache:           32K
-L2 cache:            512K
-L3 cache:            10240K
-NUMA node0 CPU(s):   0-79
-NUMA node1 CPU(s):   80-159
-
-Fixes: 4ca234a9cbd7 ("powerpc/smp: Stop updating cpu_core_mask")
-Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210826100401.412519-3-srikar@linux.vnet.ibm.com
+Link: https://lore.kernel.org/r/20210722033439.26550-6-bvanassche@acm.org
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Stanley Chu <stanley.chu@mediatek.com>
+Cc: Can Guo <cang@codeaurora.org>
+Cc: Asutosh Das <asutoshd@codeaurora.org>
+Cc: Avri Altman <avri.altman@wdc.com>
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Reviewed-by: Daejun Park <daejun7.park@samsung.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/smp.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
-index 26a028a9233a..91f274134884 100644
---- a/arch/powerpc/kernel/smp.c
-+++ b/arch/powerpc/kernel/smp.c
-@@ -1385,6 +1385,7 @@ static void add_cpu_to_masks(int cpu)
- 	 * add it to it's own thread sibling mask.
- 	 */
- 	cpumask_set_cpu(cpu, cpu_sibling_mask(cpu));
-+	cpumask_set_cpu(cpu, cpu_core_mask(cpu));
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 179227180961..0fe559ddc789 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -2949,11 +2949,11 @@ static int ufshcd_exec_dev_cmd(struct ufs_hba *hba,
+ 		enum dev_cmd_type cmd_type, int timeout)
+ {
+ 	struct request_queue *q = hba->cmd_queue;
++	DECLARE_COMPLETION_ONSTACK(wait);
+ 	struct request *req;
+ 	struct ufshcd_lrb *lrbp;
+ 	int err;
+ 	int tag;
+-	struct completion wait;
  
- 	for (i = first_thread; i < first_thread + threads_per_core; i++)
- 		if (cpu_online(i))
-@@ -1399,11 +1400,6 @@ static void add_cpu_to_masks(int cpu)
- 	if (has_coregroup_support())
- 		update_coregroup_mask(cpu, &mask);
+ 	down_read(&hba->clk_scaling_lock);
  
--	if (chip_id == -1 || !ret) {
--		cpumask_copy(per_cpu(cpu_core_map, cpu), cpu_cpu_mask(cpu));
--		goto out;
--	}
--
- 	if (shared_caches)
- 		submask_fn = cpu_l2_cache_mask;
- 
-@@ -1413,6 +1409,10 @@ static void add_cpu_to_masks(int cpu)
- 	/* Skip all CPUs already part of current CPU core mask */
- 	cpumask_andnot(mask, cpu_online_mask, cpu_core_mask(cpu));
- 
-+	/* If chip_id is -1; limit the cpu_core_mask to within DIE*/
-+	if (chip_id == -1)
-+		cpumask_and(mask, mask, cpu_cpu_mask(cpu));
-+
- 	for_each_cpu(i, mask) {
- 		if (chip_id == cpu_to_chip_id(i)) {
- 			or_cpumasks_related(cpu, i, submask_fn, cpu_core_mask);
-@@ -1422,7 +1422,6 @@ static void add_cpu_to_masks(int cpu)
- 		}
+@@ -2978,7 +2978,6 @@ static int ufshcd_exec_dev_cmd(struct ufs_hba *hba,
+ 		goto out;
  	}
  
--out:
- 	free_cpumask_var(mask);
- }
+-	init_completion(&wait);
+ 	lrbp = &hba->lrb[tag];
+ 	WARN_ON(lrbp->cmd);
+ 	err = ufshcd_compose_dev_cmd(hba, lrbp, cmd_type, tag);
+@@ -3985,14 +3984,13 @@ EXPORT_SYMBOL_GPL(ufshcd_dme_get_attr);
+  */
+ static int ufshcd_uic_pwr_ctrl(struct ufs_hba *hba, struct uic_command *cmd)
+ {
+-	struct completion uic_async_done;
++	DECLARE_COMPLETION_ONSTACK(uic_async_done);
+ 	unsigned long flags;
+ 	u8 status;
+ 	int ret;
+ 	bool reenable_intr = false;
  
+ 	mutex_lock(&hba->uic_cmd_mutex);
+-	init_completion(&uic_async_done);
+ 	ufshcd_add_delay_before_dme_cmd(hba);
+ 
+ 	spin_lock_irqsave(hba->host->host_lock, flags);
+@@ -6665,11 +6663,11 @@ static int ufshcd_issue_devman_upiu_cmd(struct ufs_hba *hba,
+ 					enum query_opcode desc_op)
+ {
+ 	struct request_queue *q = hba->cmd_queue;
++	DECLARE_COMPLETION_ONSTACK(wait);
+ 	struct request *req;
+ 	struct ufshcd_lrb *lrbp;
+ 	int err = 0;
+ 	int tag;
+-	struct completion wait;
+ 	u8 upiu_flags;
+ 
+ 	down_read(&hba->clk_scaling_lock);
+@@ -6687,7 +6685,6 @@ static int ufshcd_issue_devman_upiu_cmd(struct ufs_hba *hba,
+ 		goto out;
+ 	}
+ 
+-	init_completion(&wait);
+ 	lrbp = &hba->lrb[tag];
+ 	WARN_ON(lrbp->cmd);
+ 	lrbp->cmd = NULL;
 -- 
 2.30.2
 
