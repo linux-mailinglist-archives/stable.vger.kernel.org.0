@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B216740E3C7
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F173140E73A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243042AbhIPQwD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:52:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37600 "EHLO mail.kernel.org"
+        id S245565AbhIPRa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:30:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237311AbhIPQsy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:48:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BAE761A79;
-        Thu, 16 Sep 2021 16:27:44 +0000 (UTC)
+        id S1347880AbhIPR1v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:27:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A5D1361BFB;
+        Thu, 16 Sep 2021 16:45:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809664;
-        bh=syBfFwq/P4uSIrG4mOGpFqTGSAukmDJ6h1bvHPp9fjU=;
+        s=korg; t=1631810724;
+        bh=FT1WNIhf/t1k+WrTQhN5g0QjMZtSCFbXIR7DRyrzoX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oef4aISqvHf/hjWb2V2lgJI7VlCaa+PtAbAdK0cL3bYynFykPnUAE1u/4R2yyehCA
-         nAETbRchHzpNLZLdcaMNpySajSs42Ajxoivh/MksOl0wQkxiF3Now+KCfWQlsQBeVd
-         bAbQ81GFSju8q9g75dRKBO6HkgF1o0hYM8m2Xymg=
+        b=lWBf79sZXmeum3uf5kEjisz9ukhum+YYBTXJif9MQ8VE64tda7qkAPtHHQ0MxG01t
+         eERG526W66pfiNpczoRLkIbMs6cs9usHFvf68Bq3PFGwataKHDGP/bo0REkg7T7PIB
+         Q6h7yDUDV3Xw2VgcL6+PX7wy4L2ajNUliL8Nds/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Patrice Chotard <patrice.chotard@foss.st.com>,
+        Patrick Delaunay <patrick.delaunay@foss.st.com>,
+        linux-stm32@st-md-mailman.stormreply.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 237/380] arm64: dts: qcom: ipq8074: fix pci node reg property
+Subject: [PATCH 5.14 245/432] ARM: dts: stm32: Update AV96 adv7513 node per dtbs_check
 Date:   Thu, 16 Sep 2021 17:59:54 +0200
-Message-Id: <20210916155812.141421137@linuxfoundation.org>
+Message-Id: <20210916155819.139021574@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 52c9887fba71fc8f12d343833fc595c762aac8c7 ]
+[ Upstream commit 1e6bc5987a5252948e3411e5a2dbb434fd1ea107 ]
 
-reg property should be array of values, here it is a single array,
-leading to below warning:
+Swap reg and reg-names order and drop adi,input-justification
+and adi,input-style to fix the following dtbs_check warnings:
+arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dt.yaml: hdmi-transmitter@3d: adi,input-justification: False schema does not allow ['evenly']
+arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dt.yaml: hdmi-transmitter@3d: adi,input-style: False schema does not allow [[1]]
+arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dt.yaml: hdmi-transmitter@3d: reg-names:1: 'edid' was expected
+arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dt.yaml: hdmi-transmitter@3d: reg-names:2: 'cec' was expected
 
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:reg:0: [268435456, 3869, 268439328, 168, 557056, 8192, 269484032, 4096] is too long
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:ranges: 'oneOf' conditional failed, one must be fixed:
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:ranges: 'oneOf' conditional failed, one must be fixed:
-[[2164260864, 0, 270532608, 270532608, 0, 1048576, 2181038080, 0, 271581184, 271581184, 0, 13631488]] is not of type 'null'
-[2164260864, 0, 270532608, 270532608, 0, 1048576, 2181038080, 0, 271581184, 271581184, 0, 13631488] is too long
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:reg:0: [536870912, 3869, 536874784, 168, 524288, 8192, 537919488, 4096] is too long
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:ranges: 'oneOf' conditional failed, one must be fixed:
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:ranges: 'oneOf' conditional failed, one must be fixed:
-[[2164260864, 0, 538968064, 538968064, 0, 1048576, 2181038080, 0, 540016640, 540016640, 0, 13631488]] is not of type 'null'
-[2164260864, 0, 538968064, 538968064, 0, 1048576, 2181038080, 0, 540016640, 540016640, 0, 13631488] is too long
-
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20210308060826.3074234-17-vkoul@kernel.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Patrice Chotard <patrice.chotard@foss.st.com>
+Cc: Patrick Delaunay <patrick.delaunay@foss.st.com>
+Cc: linux-stm32@st-md-mailman.stormreply.com
+To: linux-arm-kernel@lists.infradead.org
+Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/ipq8074.dtsi | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/ipq8074.dtsi b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-index a32e5e79ab0b..e8db62470b23 100644
---- a/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-+++ b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-@@ -567,10 +567,10 @@ frame@b128000 {
+diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
+index 64dca5b7f748..6885948f3024 100644
+--- a/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
++++ b/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
+@@ -220,8 +220,8 @@ &i2c2 {	/* X6 I2C2 */
+ &i2c4 {
+ 	hdmi-transmitter@3d {
+ 		compatible = "adi,adv7513";
+-		reg = <0x3d>, <0x2d>, <0x4d>, <0x5d>;
+-		reg-names = "main", "cec", "edid", "packet";
++		reg = <0x3d>, <0x4d>, <0x2d>, <0x5d>;
++		reg-names = "main", "edid", "cec", "packet";
+ 		clocks = <&cec_clock>;
+ 		clock-names = "cec";
  
- 		pcie1: pci@10000000 {
- 			compatible = "qcom,pcie-ipq8074";
--			reg =  <0x10000000 0xf1d
--				0x10000f20 0xa8
--				0x00088000 0x2000
--				0x10100000 0x1000>;
-+			reg =  <0x10000000 0xf1d>,
-+			       <0x10000f20 0xa8>,
-+			       <0x00088000 0x2000>,
-+			       <0x10100000 0x1000>;
- 			reg-names = "dbi", "elbi", "parf", "config";
- 			device_type = "pci";
- 			linux,pci-domain = <1>;
-@@ -629,10 +629,10 @@ IRQ_TYPE_LEVEL_HIGH>, /* int_c */
+@@ -239,8 +239,6 @@ hdmi-transmitter@3d {
+ 		adi,input-depth = <8>;
+ 		adi,input-colorspace = "rgb";
+ 		adi,input-clock = "1x";
+-		adi,input-style = <1>;
+-		adi,input-justification = "evenly";
  
- 		pcie0: pci@20000000 {
- 			compatible = "qcom,pcie-ipq8074";
--			reg =  <0x20000000 0xf1d
--				0x20000f20 0xa8
--				0x00080000 0x2000
--				0x20100000 0x1000>;
-+			reg = <0x20000000 0xf1d>,
-+			      <0x20000f20 0xa8>,
-+			      <0x00080000 0x2000>,
-+			      <0x20100000 0x1000>;
- 			reg-names = "dbi", "elbi", "parf", "config";
- 			device_type = "pci";
- 			linux,pci-domain = <0>;
+ 		ports {
+ 			#address-cells = <1>;
 -- 
 2.30.2
 
