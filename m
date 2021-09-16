@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89A2940E4FC
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:26:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C291840DEF4
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:04:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245074AbhIPRG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:06:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34040 "EHLO mail.kernel.org"
+        id S240568AbhIPQFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:05:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349200AbhIPRDv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:03:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F8E7613DB;
-        Thu, 16 Sep 2021 16:34:47 +0000 (UTC)
+        id S240576AbhIPQFc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:05:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 52B9660232;
+        Thu, 16 Sep 2021 16:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810087;
-        bh=JjgT/S3x2botWUAD3hrCiDHjvvAWeqNys+YLdP5R5mU=;
+        s=korg; t=1631808250;
+        bh=rYpuYWuL85NPJVb7hEvBG/6OSBru/NwAp5iRIDttqi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I0cAc3ysev826lxGAGSAd2duVUncET9n0JmiGNVO2/sCxsM/iafBQDHZ9hPrknLIn
-         VrTyax5Pg/juaYDzDI76YIEWG1aMsC5uY0W1p8fyL2UZsG99+jcSIOwR4g9vwCKx2D
-         DZRL5lX87EsKhxdaS2yoJmsXoam8rUwLTuRxnu0Y=
+        b=ndwQNGWIul+BdlN4Oe9Mohm8aqW3rLTLvvdrDBuyTb7m3/CUkGLLXlHwCRSZw1lJ9
+         +xkj2Nmbz9Sr/Gc2Uy3qqxTdxqTD+Ies9WHT9QFDxmGjel42Y788XByVMRBS1kE2hS
+         82nEbw4h8QhpCfqJLD7jYVzR8L8/1EKCxeQFo66M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.14 013/432] btrfs: zoned: fix block group alloc_offset calculation
+        stable@vger.kernel.org, Rolf Eike Beer <eb@emlix.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 5.10 017/306] tools/thermal/tmon: Add cross compiling support
 Date:   Thu, 16 Sep 2021 17:56:02 +0200
-Message-Id: <20210916155811.259322586@linuxfoundation.org>
+Message-Id: <20210916155754.514415430@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: Rolf Eike Beer <eb@emlix.com>
 
-commit 0ae79c6fe70d5c5c645733b7ed39d5e6021d8c9a upstream.
+commit b5f7912bb604b47a0fe024560488a7556dce8ee7 upstream.
 
-alloc_offset is offset from the start of a block group and @offset is
-actually an address in logical space. Thus, we need to consider
-block_group->start when calculating them.
+Default to prefixed pkg-config when crosscompiling, this matches what
+other parts of the tools/ directory already do.
 
-Fixes: 011b41bffa3d ("btrfs: zoned: advance allocation pointer after tree log node")
-CC: stable@vger.kernel.org # 5.12+
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+[dlezcano] : Reworked description
+
+Signed-off-by: Rolf Eike Beer <eb@emlix.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/31302992.qZodDJZGDc@devpool47
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/free-space-cache.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ tools/thermal/tmon/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/free-space-cache.c
-+++ b/fs/btrfs/free-space-cache.c
-@@ -2652,8 +2652,11 @@ int btrfs_remove_free_space(struct btrfs
- 		 * btrfs_pin_extent_for_log_replay() when replaying the log.
- 		 * Advance the pointer not to overwrite the tree-log nodes.
- 		 */
--		if (block_group->alloc_offset < offset + bytes)
--			block_group->alloc_offset = offset + bytes;
-+		if (block_group->start + block_group->alloc_offset <
-+		    offset + bytes) {
-+			block_group->alloc_offset =
-+				offset + bytes - block_group->start;
-+		}
- 		return 0;
- 	}
+--- a/tools/thermal/tmon/Makefile
++++ b/tools/thermal/tmon/Makefile
+@@ -10,7 +10,7 @@ override CFLAGS+= $(call cc-option,-O3,-
+ # Add "-fstack-protector" only if toolchain supports it.
+ override CFLAGS+= $(call cc-option,-fstack-protector-strong)
+ CC?= $(CROSS_COMPILE)gcc
+-PKG_CONFIG?= pkg-config
++PKG_CONFIG?= $(CROSS_COMPILE)pkg-config
  
+ override CFLAGS+=-D VERSION=\"$(VERSION)\"
+ LDFLAGS+=
 
 
