@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC9A240E06D
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9031D40E381
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:20:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241198AbhIPQVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:21:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55110 "EHLO mail.kernel.org"
+        id S242347AbhIPQsz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:48:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241307AbhIPQP1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:15:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DE9460F6C;
-        Thu, 16 Sep 2021 16:11:39 +0000 (UTC)
+        id S1344670AbhIPQqb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:46:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A19A6135F;
+        Thu, 16 Sep 2021 16:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808699;
-        bh=4hIy8UnwQrH4j2ngGlzjY5U9vxLNhjopSfaM/eeqlH0=;
+        s=korg; t=1631809593;
+        bh=eKh/RbB0FE66jRLZpFyPGhzq2+Rphm3XQMLhLeNhtUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ve+JZHcM23cvRnthS3H4SfSMEcYf6An4ZiHDQUCF6LZbH96zCk/ZyS7N84srr5CZz
-         fCX5X5CHL/DlXLok7pC+vm4dHk1Q0o0HPGLc8FrqSSAn6WKUZk63CgtF4tCRow2ryM
-         XJW/ZxMZvAXBaA8hdLgCo0l+/1J7fgxdkrWt+PLI=
+        b=yCPMKEYKHLjwcw4o9Ac/AH+WVrSg56DyCUadR8bPSee9uLpiIcHV8tRBmKYKol07V
+         h6hE6apZfDPWcN1jcrKfEsfQU/MfXd5DUFZP9gUMr/my1Y7khoXNMVtjr644vU0Ydw
+         ysamNW8RlH18yLifU24ZM794Ag4UTPx06hlm7YWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Laurentiu Tudor <laurentiu.tudor@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 190/306] arm64: dts: qcom: sdm660: use reg value for memory node
-Date:   Thu, 16 Sep 2021 17:58:55 +0200
-Message-Id: <20210916155800.557077834@linuxfoundation.org>
+Subject: [PATCH 5.13 179/380] bus: fsl-mc: fix mmio base address for child DPRCs
+Date:   Thu, 16 Sep 2021 17:58:56 +0200
+Message-Id: <20210916155810.163220070@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +39,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
 
-[ Upstream commit c81210e38966cfa1c784364e4035081c3227cf5b ]
+[ Upstream commit 8990f96a012f42543005b07d9e482694192e9309 ]
 
-memory node like other node should be node@reg, which is missing in this
-case, so fix it up
+Some versions of the MC firmware wrongly report 0 for register base
+address of the DPMCP associated with child DPRC objects thus rendering
+them unusable. This is particularly troublesome in ACPI boot scenarios
+where the legacy way of extracting this base address from the device
+tree does not apply.
+Given that DPMCPs share the same base address, workaround this by using
+the base address extracted from the root DPRC container.
 
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 1073741824, 0, 536870912]]}
-
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20210308060826.3074234-18-vkoul@kernel.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Link: https://lore.kernel.org/r/20210715140718.8513-8-laurentiu.tudor@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/ipq8074-hk01.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/bus/fsl-mc/fsl-mc-bus.c | 24 ++++++++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts b/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
-index e8c37a1693d3..cc08dc4eb56a 100644
---- a/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
-+++ b/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
-@@ -20,7 +20,7 @@ chosen {
- 		stdout-path = "serial0";
- 	};
+diff --git a/drivers/bus/fsl-mc/fsl-mc-bus.c b/drivers/bus/fsl-mc/fsl-mc-bus.c
+index 74faaf3e4e27..57f78d1cc9d8 100644
+--- a/drivers/bus/fsl-mc/fsl-mc-bus.c
++++ b/drivers/bus/fsl-mc/fsl-mc-bus.c
+@@ -67,6 +67,8 @@ struct fsl_mc_addr_translation_range {
+ #define MC_FAPR_PL	BIT(18)
+ #define MC_FAPR_BMT	BIT(17)
  
--	memory {
-+	memory@40000000 {
- 		device_type = "memory";
- 		reg = <0x0 0x40000000 0x0 0x20000000>;
- 	};
++static phys_addr_t mc_portal_base_phys_addr;
++
+ /**
+  * fsl_mc_bus_match - device to driver matching callback
+  * @dev: the fsl-mc device to match against
+@@ -702,14 +704,30 @@ static int fsl_mc_device_get_mmio_regions(struct fsl_mc_device *mc_dev,
+ 		 * If base address is in the region_desc use it otherwise
+ 		 * revert to old mechanism
+ 		 */
+-		if (region_desc.base_address)
++		if (region_desc.base_address) {
+ 			regions[i].start = region_desc.base_address +
+ 						region_desc.base_offset;
+-		else
++		} else {
+ 			error = translate_mc_addr(mc_dev, mc_region_type,
+ 					  region_desc.base_offset,
+ 					  &regions[i].start);
+ 
++			/*
++			 * Some versions of the MC firmware wrongly report
++			 * 0 for register base address of the DPMCP associated
++			 * with child DPRC objects thus rendering them unusable.
++			 * This is particularly troublesome in ACPI boot
++			 * scenarios where the legacy way of extracting this
++			 * base address from the device tree does not apply.
++			 * Given that DPMCPs share the same base address,
++			 * workaround this by using the base address extracted
++			 * from the root DPRC container.
++			 */
++			if (is_fsl_mc_bus_dprc(mc_dev) &&
++			    regions[i].start == region_desc.base_offset)
++				regions[i].start += mc_portal_base_phys_addr;
++		}
++
+ 		if (error < 0) {
+ 			dev_err(parent_dev,
+ 				"Invalid MC offset: %#x (for %s.%d\'s region %d)\n",
+@@ -1125,6 +1143,8 @@ static int fsl_mc_bus_probe(struct platform_device *pdev)
+ 	plat_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	mc_portal_phys_addr = plat_res->start;
+ 	mc_portal_size = resource_size(plat_res);
++	mc_portal_base_phys_addr = mc_portal_phys_addr & ~0x3ffffff;
++
+ 	error = fsl_create_mc_io(&pdev->dev, mc_portal_phys_addr,
+ 				 mc_portal_size, NULL,
+ 				 FSL_MC_IO_ATOMIC_CONTEXT_PORTAL, &mc_io);
 -- 
 2.30.2
 
