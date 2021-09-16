@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BF4440DF50
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:07:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3761B40E521
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:26:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231883AbhIPQI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:08:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46774 "EHLO mail.kernel.org"
+        id S244777AbhIPRIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:08:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34075 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230484AbhIPQHt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:07:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AE1A61241;
-        Thu, 16 Sep 2021 16:06:27 +0000 (UTC)
+        id S1349565AbhIPRGD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:06:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4ABB461B26;
+        Thu, 16 Sep 2021 16:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808388;
-        bh=Xw7WHIR8zlTaRNmVgAWcJpG6pB2TX1GUY6Q4q5Z2sBI=;
+        s=korg; t=1631810153;
+        bh=foSDhwIrzkZlMBDyR4FVkWyGMHp6xfz85SD8oFVaNa8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OAaz8Gt1hleUT4tyROnT/kC1x/Os6mALHnAhcldX0ZD9TM2YUb4JgpUoE2KIgOLo1
-         2xzJefuleJTGMfge43iTiMyrYwFT6Xpdnw4I+R/L6XxOcb4yRQi39m588rh5LkfVsM
-         ZHB5NlTK04kAtX/9h1LMDhxkgUHko+cqFalPe2dM=
+        b=eoEwRIP768yNbBzBmgAMDd5bFTlUOt6sO9rceiaTVNBntBJZK304mjrSduGXvoyhI
+         Ww2tp6+mPfCsa4gkCJwqlaqcz6gD81wuKmNuEy9eMjdkjydUGgberMJPe1f078uGrV
+         IFIiPXRBUfpge34D/KdGPP8Po3aBJsrG43eyh0tE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.10 040/306] s390/qdio: cancel the ESTABLISH ccw after timeout
-Date:   Thu, 16 Sep 2021 17:56:25 +0200
-Message-Id: <20210916155755.314251643@linuxfoundation.org>
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.14 037/432] arm64: Move .hyp.rodata outside of the _sdata.._edata range
+Date:   Thu, 16 Sep 2021 17:56:26 +0200
+Message-Id: <20210916155812.069714470@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,102 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 1c1dc8bda3a05c60877a6649775894db5343bdea upstream.
+commit eb48d154cd0dade56a0e244f0cfa198ea2925ed3 upstream.
 
-When the ESTABLISH ccw does not complete within the specified timeout,
-try our best to cancel the ccw program that is still active on the
-device. Otherwise the IO subsystem might be accessing it even after
-the driver eg. called qdio_free().
+The HYP rodata section is currently lumped together with the BSS,
+which isn't exactly what is expected (it gets registered with
+kmemleak, for example).
 
-Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Cc: <stable@vger.kernel.org> # 2.6.27
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Move it away so that it is actually marked RO. As an added
+benefit, it isn't registered with kmemleak anymore.
+
+Fixes: 380e18ade4a5 ("KVM: arm64: Introduce a BSS section for use at Hyp")
+Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org #5.13
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20210802123830.2195174-2-maz@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/cio/qdio_main.c |   51 +++++++++++++++++++++++++------------------
- 1 file changed, 30 insertions(+), 21 deletions(-)
+ arch/arm64/kernel/vmlinux.lds.S |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/s390/cio/qdio_main.c
-+++ b/drivers/s390/cio/qdio_main.c
-@@ -1025,6 +1025,33 @@ static void qdio_shutdown_queues(struct
- 	}
- }
+--- a/arch/arm64/kernel/vmlinux.lds.S
++++ b/arch/arm64/kernel/vmlinux.lds.S
+@@ -181,6 +181,8 @@ SECTIONS
+ 	/* everything from this point to __init_begin will be marked RO NX */
+ 	RO_DATA(PAGE_SIZE)
  
-+static int qdio_cancel_ccw(struct qdio_irq *irq, int how)
-+{
-+	struct ccw_device *cdev = irq->cdev;
-+	int rc;
++	HYPERVISOR_DATA_SECTIONS
 +
-+	spin_lock_irq(get_ccwdev_lock(cdev));
-+	qdio_set_state(irq, QDIO_IRQ_STATE_CLEANUP);
-+	if (how & QDIO_FLAG_CLEANUP_USING_CLEAR)
-+		rc = ccw_device_clear(cdev, QDIO_DOING_CLEANUP);
-+	else
-+		/* default behaviour is halt */
-+		rc = ccw_device_halt(cdev, QDIO_DOING_CLEANUP);
-+	spin_unlock_irq(get_ccwdev_lock(cdev));
-+	if (rc) {
-+		DBF_ERROR("%4x SHUTD ERR", irq->schid.sch_no);
-+		DBF_ERROR("rc:%4d", rc);
-+		return rc;
-+	}
-+
-+	wait_event_interruptible_timeout(cdev->private->wait_q,
-+					 irq->state == QDIO_IRQ_STATE_INACTIVE ||
-+					 irq->state == QDIO_IRQ_STATE_ERR,
-+					 10 * HZ);
-+
-+	return 0;
-+}
-+
- /**
-  * qdio_shutdown - shut down a qdio subchannel
-  * @cdev: associated ccw device
-@@ -1063,27 +1090,7 @@ int qdio_shutdown(struct ccw_device *cde
- 	qdio_shutdown_queues(irq_ptr);
- 	qdio_shutdown_debug_entries(irq_ptr);
+ 	idmap_pg_dir = .;
+ 	. += IDMAP_DIR_SIZE;
+ 	idmap_pg_end = .;
+@@ -260,8 +262,6 @@ SECTIONS
+ 	_sdata = .;
+ 	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_ALIGN)
  
--	/* cleanup subchannel */
--	spin_lock_irq(get_ccwdev_lock(cdev));
--	qdio_set_state(irq_ptr, QDIO_IRQ_STATE_CLEANUP);
--	if (how & QDIO_FLAG_CLEANUP_USING_CLEAR)
--		rc = ccw_device_clear(cdev, QDIO_DOING_CLEANUP);
--	else
--		/* default behaviour is halt */
--		rc = ccw_device_halt(cdev, QDIO_DOING_CLEANUP);
--	spin_unlock_irq(get_ccwdev_lock(cdev));
--	if (rc) {
--		DBF_ERROR("%4x SHUTD ERR", irq_ptr->schid.sch_no);
--		DBF_ERROR("rc:%4d", rc);
--		goto no_cleanup;
--	}
+-	HYPERVISOR_DATA_SECTIONS
 -
--	wait_event_interruptible_timeout(cdev->private->wait_q,
--		irq_ptr->state == QDIO_IRQ_STATE_INACTIVE ||
--		irq_ptr->state == QDIO_IRQ_STATE_ERR,
--		10 * HZ);
--
--no_cleanup:
-+	rc = qdio_cancel_ccw(irq_ptr, how);
- 	qdio_shutdown_thinint(irq_ptr);
- 	qdio_shutdown_irq(irq_ptr);
- 
-@@ -1316,10 +1323,12 @@ int qdio_establish(struct ccw_device *cd
- 	return 0;
- 
- err_ccw_timeout:
-+	qdio_cancel_ccw(irq_ptr, QDIO_FLAG_CLEANUP_USING_CLEAR);
- err_ccw_start:
- 	qdio_shutdown_thinint(irq_ptr);
- err_thinint:
- 	qdio_shutdown_irq(irq_ptr);
-+	qdio_set_state(irq_ptr, QDIO_IRQ_STATE_INACTIVE);
- 	mutex_unlock(&irq_ptr->setup_mutex);
- 	return rc;
- }
+ 	/*
+ 	 * Data written with the MMU off but read with the MMU on requires
+ 	 * cache lines to be invalidated, discarding up to a Cache Writeback
 
 
