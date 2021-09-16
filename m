@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 985C140E235
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 259C540E59C
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:27:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242477AbhIPQf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:35:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44898 "EHLO mail.kernel.org"
+        id S244251AbhIPRNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:13:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242254AbhIPQdp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:33:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F05460698;
-        Thu, 16 Sep 2021 16:20:29 +0000 (UTC)
+        id S1349647AbhIPRLM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:11:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2FCD613A4;
+        Thu, 16 Sep 2021 16:37:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809230;
+        s=korg; t=1631810271;
         bh=t6xbDUtGupDzcGxTITp17lxS6T+CZ8laWc9Bu/yxFiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hwhz1OUmPwmigEQSCz18uCus6L2nqjPnhfACTt4lcLrpRFQl3oqvCnmc6yf24Fp+E
-         tWvbAuuVJYoFhgIh+G0bInlPVYoIH5fl9biN046hPblZi+yGESHcPb6YUYCMxJC9n3
-         j7OPQoRTWwHp1nZSXi9chrReyh/i1lWsCAXpcAnY=
+        b=oTAhSnGvr8J41cnABoeFCfWZGh8lKmvidjYiqQ7LDCMux+nL0urbOJbSzGabglxif
+         KGsQSQd38/X74x8s2NgFR0CN+94YpO2WumloYfFvAWGOjsyWf+G+aM8o8L4kXBJiM4
+         xpjeF+/UwT5ndZ2DNnHB4Wq+4al+hGBtbYxsIBf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Rob Herring <robh@kernel.org>,
         Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 071/380] pinctrl: armada-37xx: Correct PWM pins definitions
+Subject: [PATCH 5.14 079/432] pinctrl: armada-37xx: Correct PWM pins definitions
 Date:   Thu, 16 Sep 2021 17:57:08 +0200
-Message-Id: <20210916155806.416114730@linuxfoundation.org>
+Message-Id: <20210916155813.455513879@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
