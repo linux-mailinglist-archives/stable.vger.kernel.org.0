@@ -2,95 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AACDD40DBDB
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 15:54:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF29240DC16
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 16:00:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236663AbhIPN4F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 09:56:05 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:40925 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237400AbhIPN4B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 09:56:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1631800480;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ikJ3si1kDclS3fcOTgbT9nf0CRiQnFWds5xl3DPf3mI=;
-        b=GRS/nS8ReENH7yrv3KXGwlduxV5aTO2OKL9vaOTyyowqpgZBv7QCAiBEzrLOvwSyH0DR4J
-        DPkIvy8NsQKNz/YhTjkIq1GBMhGhJ0kN1Zmu9t4AjgNCUByFJ2mKYCPMuTeWjAkefqtf06
-        LPFAFePj1CH7XvZiEJiNpEWL0u52n3E=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-118-FiezGnKfMa6KIilDSKd2hw-1; Thu, 16 Sep 2021 09:54:39 -0400
-X-MC-Unique: FiezGnKfMa6KIilDSKd2hw-1
-Received: by mail-ed1-f72.google.com with SMTP id w24-20020a056402071800b003cfc05329f8so5512362edx.19
-        for <stable@vger.kernel.org>; Thu, 16 Sep 2021 06:54:38 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=ikJ3si1kDclS3fcOTgbT9nf0CRiQnFWds5xl3DPf3mI=;
-        b=LSB8EunOxJ28ZTuSAtMQZKr5ixjkNNOJfj89uF01p0sosBTIVN7U9eBPh695Hl/4nU
-         6d4nim/GoTBpVsCX3dUPq/1PcdB/nuZeuj9APKxc3o59JaE8UXIQWcyEoihFUXVyfOkU
-         Gqah0JhPH6/wgFvEt8C/IDST9xFRJVT/syfRaD81M8y2tTbb2Mnn8vOsTh7ACdSJo4lJ
-         reHkkk6gXLBBCyaMUeR+y+ReAAvnT2iPwz8HAOz8osY/ozb9EmPzlciVML84LODTGcFT
-         tNAL6Sbboel0oevXVuKRha+7sQZgYVBPjNu/1SnQpOodujTvK7r7cD3Gk6IioX9IKvUQ
-         j2Jw==
-X-Gm-Message-State: AOAM533p+Dp1B6lZ3TX+jG/ZjIoYJUF8994GHfoZKgzojUQX/JK3TTjC
-        dh73GCaJb/O8c9p0a+AHvqkuEDOz7MJnY8WcQwzDPPb5gxYVF8VzrjFLbanjGr7AeiaanCvNB3q
-        rEgfOhJBL2UDvefQy
-X-Received: by 2002:a50:bb09:: with SMTP id y9mr6519960ede.89.1631800477828;
-        Thu, 16 Sep 2021 06:54:37 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyBAgty7iDUXTe1UxqpNl2Z9dGbRY7r8zg2vpKQxNAYJhCtuzmlhrUAjoKproXd/Q2Qc6u1Qw==
-X-Received: by 2002:a50:bb09:: with SMTP id y9mr6519951ede.89.1631800477701;
-        Thu, 16 Sep 2021 06:54:37 -0700 (PDT)
-Received: from ?IPV6:2a02:1205:5026:3180:7cea:b72b:7e73:8d8? ([2a02:1205:5026:3180:7cea:b72b:7e73:8d8])
-        by smtp.gmail.com with ESMTPSA id c21sm1188237ejz.69.2021.09.16.06.54.37
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 16 Sep 2021 06:54:37 -0700 (PDT)
-Message-ID: <e5b4ad1d-4a4f-ae47-5c85-22842c1b44cc@redhat.com>
-Date:   Thu, 16 Sep 2021 15:54:37 +0200
+        id S237935AbhIPOCL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 10:02:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46500 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235843AbhIPOCK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 10:02:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 383A461244;
+        Thu, 16 Sep 2021 14:00:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1631800849;
+        bh=jwJbQIBIqNOLSAaFpgPlcQdpkvQwG+9Xs+Tn8H65bgg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=EPIANSn0pRJztpDkuN3cBmNMXLZ1d8YdN09eGZ4SXf3qc8NcJJIebXx4A7HQ4IlFU
+         8vds/IGpQ2Cl6UXxFWxhvBJrvLtPJPhUy4P6i2KFKJ5s9wXQULYbcNSVFnbmEGfCGs
+         cgzt9hC4kPg85DCAH7ZFSbZa/5cvFEtNXoYVKl6M=
+Date:   Thu, 16 Sep 2021 16:00:47 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Amir Goldstein <amir73il@gmail.com>
+Cc:     Jan Kara <jack@suse.cz>, stable@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 5.10] fanotify: limit number of event merge attempts
+Message-ID: <YUNOD/z1tfYDFEQX@kroah.com>
+References: <20210915182008.1369659-1-amir73il@gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.0
-Subject: Re: FAILED: patch "[PATCH] drm/amdgpu: Cancel delayed work when
- GFXOFF is disabled" failed to apply to 5.14-stable tree
-Content-Language: en-CA
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     alexander.deucher@amd.com, christian.koenig@amd.com,
-        evan.quan@amd.com, lijo.lazar@amd.com, stable@vger.kernel.org
-References: <163179752354221@kroah.com>
- <7fe8e175-efdc-b7d9-ab86-44aeec60c2e9@redhat.com>
- <YUNLMkxQPw/empni@kroah.com>
-From:   =?UTF-8?Q?Michel_D=c3=a4nzer?= <mdaenzer@redhat.com>
-In-Reply-To: <YUNLMkxQPw/empni@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210915182008.1369659-1-amir73il@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-09-16 15:48, Greg KH wrote:
-> On Thu, Sep 16, 2021 at 03:39:16PM +0200, Michel Dänzer wrote:
->> On 2021-09-16 15:05, gregkh@linuxfoundation.org wrote:
->>>
->>> The patch below does not apply to the 5.14-stable tree.
->>> If someone wants it applied there, or to any other stable or longterm
->>> tree, then please email the backport, including the original git commit
->>> id to <stable@vger.kernel.org>.
->>
->> It's already in 5.14, commit 32bc8f8373d2d6a681c96e4b25dca60d4d1c6016.
+On Wed, Sep 15, 2021 at 09:20:08PM +0300, Amir Goldstein wrote:
+> commit b8cd0ee8cda68a888a317991c1e918a8cba1a568 upstream.
 > 
-> Odd, how were we supposed to know that?
+> Event merges are expensive when event queue size is large, so limit the
+> linear search to 128 merge tests.
+> 
+> [Stable backport notes] The following statement from upstream commit is
+> irrelevant for backport:
+> -
+> -In combination with 128 size hash table, there is a potential to merge
+> -with up to 16K events in the hashed queue.
+> -
+> [Stable backport notes] The problem is as old as fanotify and described
+> in the linked cover letter "Performance improvement for fanotify merge".
+> This backported patch fixes the performance issue at the cost of merging
+> fewer potential events.  Fixing the performance issue is more important
+> than preserving the "event merge" behavior, which was not predictable in
+> any way that applications could rely on.
+> 
+> Link: https://lore.kernel.org/r/20210304104826.3993892-6-amir73il@gmail.com
+> Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+> Signed-off-by: Jan Kara <jack@suse.cz>
+> Cc: <stable@vger.kernel.org>
+> Link: https://lore.kernel.org/linux-fsdevel/20210202162010.305971-1-amir73il@gmail.com/
+> Link: https://lore.kernel.org/linux-fsdevel/20210915163334.GD6166@quack2.suse.cz/
+> Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+> ---
+>  fs/notify/fanotify/fanotify.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
 
-Looks like the fix was merged separately for 5.14 and 5.15. I don't know 
-how/why that happened. Alex / Christian?
+Now queued up, thanks.
 
-
--- 
-Earthling Michel Dänzer               |               https://redhat.com
-Libre software enthusiast             |             Mesa and X developer
-
+greg k-h
