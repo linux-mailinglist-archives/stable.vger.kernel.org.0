@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 536F140E3BC
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6042A40E04C
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241203AbhIPQvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:51:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36428 "EHLO mail.kernel.org"
+        id S240789AbhIPQUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:20:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343819AbhIPQs0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:48:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D42A96152B;
-        Thu, 16 Sep 2021 16:27:19 +0000 (UTC)
+        id S241093AbhIPQTQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:19:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA77A6138B;
+        Thu, 16 Sep 2021 16:13:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809640;
-        bh=TVNg8zjVBTknJKY0S5oiSuuLo65vTE87yCYMkTpBwpg=;
+        s=korg; t=1631808788;
+        bh=Pa/TsOTkeToUqSfDytYXPjHwWOrJDllgJUZXJA2hrxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D9KDA6uCReGdKOoA1k3YRDKs/b6kMY1W8swOaXDilXnLfKNfwHyFqUHT5B7aatpkN
-         02hZjk3WQhYT8WU1QumcAKna1+EyIBThA/B87YOo/tm5SoTdfYHgrVV9RlUB4kOnPV
-         32ImXuAuxVtU2rGPsrlPRUqRZGG/jJpipX1MdstY=
+        b=CLR/5dNTWSwaoUvqiIr8mukE5e1fciBAKZ343qrljutLQJ6Hzlq64IBTDsLel+OHI
+         tFJ7TrmeOswQ4t8DYzNACYS37iY4fEfIDRcaqhVNgNK+vyew7RYBNp6RIsdzstqPkH
+         tNYGjCO8BhBcaAckM8QNFWtQ8KeFZkRrYxMzCOuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 211/380] drm: rcar-du: Shutdown the display on system shutdown
+Subject: [PATCH 5.10 223/306] iomap: pass writeback errors to the mapping
 Date:   Thu, 16 Sep 2021 17:59:28 +0200
-Message-Id: <20210916155811.260441206@linuxfoundation.org>
+Message-Id: <20210916155801.654535592@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+From: Darrick J. Wong <djwong@kernel.org>
 
-[ Upstream commit 015f2ebb93767d40c442e749642fffaf10316d78 ]
+[ Upstream commit b69eea82d37d9ee7cfb3bf05103549dd4ed5ffc3 ]
 
-When the system shuts down or warm reboots, the display may be active,
-with the hardware accessing system memory. Upon reboot, the DDR will not
-be accessible, which may cause issues.
+Modern-day mapping_set_error has the ability to squash the usual
+negative error code into something appropriate for long-term storage in
+a struct address_space -- ENOSPC becomes AS_ENOSPC, and everything else
+becomes EIO.  iomap squashes /everything/ to EIO, just as XFS did before
+that, but this doesn't make sense.
 
-Implement the platform_driver .shutdown() operation and shut down the
-display to fix this.
+Fix this by making it so that we can pass ENOSPC to userspace when
+writeback fails due to space problems.
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rcar-du/rcar_du_drv.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/iomap/buffered-io.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.c b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-index c22551c2facb..2a06ec1cbefb 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-@@ -559,6 +559,13 @@ static int rcar_du_remove(struct platform_device *pdev)
- 	return 0;
- }
+diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
+index 10cc7979ce38..caed9d98c64a 100644
+--- a/fs/iomap/buffered-io.c
++++ b/fs/iomap/buffered-io.c
+@@ -1045,7 +1045,7 @@ iomap_finish_page_writeback(struct inode *inode, struct page *page,
  
-+static void rcar_du_shutdown(struct platform_device *pdev)
-+{
-+	struct rcar_du_device *rcdu = platform_get_drvdata(pdev);
-+
-+	drm_atomic_helper_shutdown(&rcdu->ddev);
-+}
-+
- static int rcar_du_probe(struct platform_device *pdev)
- {
- 	struct rcar_du_device *rcdu;
-@@ -615,6 +622,7 @@ static int rcar_du_probe(struct platform_device *pdev)
- static struct platform_driver rcar_du_platform_driver = {
- 	.probe		= rcar_du_probe,
- 	.remove		= rcar_du_remove,
-+	.shutdown	= rcar_du_shutdown,
- 	.driver		= {
- 		.name	= "rcar-du",
- 		.pm	= &rcar_du_pm_ops,
+ 	if (error) {
+ 		SetPageError(page);
+-		mapping_set_error(inode->i_mapping, -EIO);
++		mapping_set_error(inode->i_mapping, error);
+ 	}
+ 
+ 	WARN_ON_ONCE(i_blocks_per_page(inode, page) > 1 && !iop);
 -- 
 2.30.2
 
