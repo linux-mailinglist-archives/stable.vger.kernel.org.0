@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BE6C40D99B
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 14:15:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B031840D99D
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 14:15:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239429AbhIPMQv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 08:16:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33050 "EHLO mail.kernel.org"
+        id S239402AbhIPMQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 08:16:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239402AbhIPMQv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 08:16:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B069260F4A;
-        Thu, 16 Sep 2021 12:15:29 +0000 (UTC)
+        id S239308AbhIPMQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 08:16:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41BCC60F4A;
+        Thu, 16 Sep 2021 12:15:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631794530;
-        bh=rz5k0hYsdQxkImQLlVTRzPLIrr+RM9Jwg9dmqvFdIkY=;
+        s=korg; t=1631794538;
+        bh=ZDmH9uuCRfpXaq3nYJY52IMN//Ww28iH4B4mPEFGIjY=;
         h=Subject:To:Cc:From:Date:From;
-        b=R44n1Z+yDdT0QbUCplaxioptEMU4yWK3ptfaAf8jHAnA7wyKkFG/N4BdcRgrB0aJr
-         g4tMqnj0XjR2bzDSOr0RXlJZ2QjGSAgJC4DzRCPPXGIHj0zpJbx2Kor2rncI5EWWL2
-         40a/PYrAhNIiLMPOtdARH/jexfeSjVXAq1dy55e8=
-Subject: FAILED: patch "[PATCH] cpufreq: powernv: Fix init_chip_info initialization in" failed to apply to 4.4-stable tree
+        b=gnwtFjOAnJ1CnSkc+B7JCuEQ3gcCeC9Z9KYAujX41Vdwqixa248j/XASXidqqLhQW
+         0SFDqp61H8q3s71B4VeBURzZ8FbIl3PcHif9AdXruVk/TnfZddLFMArFPxVk5LOMVm
+         ZJFvrsCM7uMcVqkaE/hXTNDG7XuM46V5MO51gNE4=
+Subject: FAILED: patch "[PATCH] cpufreq: powernv: Fix init_chip_info initialization in" failed to apply to 4.9-stable tree
 To:     psampat@linux.ibm.com, ego@linux.vnet.ibm.com, mpe@ellerman.id.au,
         shirisha.ganta1@ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 16 Sep 2021 14:15:27 +0200
-Message-ID: <163179452773121@kroah.com>
+Date:   Thu, 16 Sep 2021 14:15:28 +0200
+Message-ID: <163179452841128@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
