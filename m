@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C8D940E4EF
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F37E640E801
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349588AbhIPRGP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:06:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34162 "EHLO mail.kernel.org"
+        id S1350111AbhIPRnk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:43:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348880AbhIPRDS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:03:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 741FD61B03;
-        Thu, 16 Sep 2021 16:34:22 +0000 (UTC)
+        id S1354331AbhIPRjn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:39:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF66063253;
+        Thu, 16 Sep 2021 16:50:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810062;
-        bh=+bY31dPJFtqpT+8jYpHZApMb6m8ON71lfddpGc5hhac=;
+        s=korg; t=1631811043;
+        bh=6+MONF8EmtdpRsVvsw+V+vRmiKz8kfaaA31jO5pe8sg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KhKkRRYeFTLMR/wHVS/VDxPV9CLnplgu801WtIZdIgJthcLjhvMQYyYOSR9mtNXzQ
-         rxPmI9a97BNhrpTH8WOBOiZEfrbmTadt+MWrnEkZJ8FKNZUiHlPBPQK5gDt/r9VTcm
-         OWZVxgPo8Q3RNqcauEqJDhlXiqrQo44jXWl9zd5o=
+        b=2n967IMJzmwkIrPoBq24VdhAVXkvtk4+uA4pHHSFfqiryfQ3FhosN75QrcfNifszz
+         FwYt3J/tEnZ/i4UJafvBYd008WreRtiJx+abqx2gGZ3aU8GZW+is8hkDmXCiPP7zAm
+         sRYxzSTOUMNAchpipFswwEw8MGVzCUtN5PQX4RlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shirisha Ganta <shirisha.ganta1@ibm.com>,
-        "Pratik R. Sampat" <psampat@linux.ibm.com>,
-        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.13 354/380] cpufreq: powernv: Fix init_chip_info initialization in numa=off
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 362/432] ASoC: soc-pcm: protect BE dailink state changes in trigger
 Date:   Thu, 16 Sep 2021 18:01:51 +0200
-Message-Id: <20210916155816.100646424@linuxfoundation.org>
+Message-Id: <20210916155823.081267083@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,89 +41,207 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pratik R. Sampat <psampat@linux.ibm.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-commit f34ee9cb2c5ac5af426fee6fa4591a34d187e696 upstream.
+[ Upstream commit 0c75fc7193387776c10f7c7b440d93496e3d5e21 ]
 
-In the numa=off kernel command-line configuration init_chip_info() loops
-around the number of chips and attempts to copy the cpumask of that node
-which is NULL for all iterations after the first chip.
+When more than one FE is connected to a BE, e.g. in a mixing use case,
+the BE can be triggered multiple times when the FE are opened/started
+concurrently. This race condition is problematic in the case of
+SoundWire BE dailinks, and this is not desirable in a general
+case. The code carefully checks when the BE can be stopped or
+hw_free'ed, but the trigger code does not use any mutual exclusion.
 
-Hence, store the cpu mask for each chip instead of derving cpumask from
-node while populating the "chips" struct array and copy that to the
-chips[i].mask
+Fix by using the same spinlock already used to check FE states, and
+set the state before the trigger. In case of errors,  the initial
+state will be restored.
 
-Fixes: 053819e0bf84 ("cpufreq: powernv: Handle throttling due to Pmax capping at chip level")
-Cc: stable@vger.kernel.org # v4.3+
-Reported-by: Shirisha Ganta <shirisha.ganta1@ibm.com>
-Signed-off-by: Pratik R. Sampat <psampat@linux.ibm.com>
-Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
-[mpe: Rename goto label to out_free_chip_cpu_mask]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210728120500.87549-2-psampat@linux.ibm.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch does not change how the triggers are handled, it only makes
+sure the states are handled in critical sections.
+
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Message-Id: <20210817164054.250028-2-pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/powernv-cpufreq.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ sound/soc/soc-pcm.c | 103 ++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 85 insertions(+), 18 deletions(-)
 
---- a/drivers/cpufreq/powernv-cpufreq.c
-+++ b/drivers/cpufreq/powernv-cpufreq.c
-@@ -36,6 +36,7 @@
- #define MAX_PSTATE_SHIFT	32
- #define LPSTATE_SHIFT		48
- #define GPSTATE_SHIFT		56
-+#define MAX_NR_CHIPS		32
- 
- #define MAX_RAMP_DOWN_TIME				5120
- /*
-@@ -1051,12 +1052,20 @@ static int init_chip_info(void)
- 	unsigned int *chip;
- 	unsigned int cpu, i;
- 	unsigned int prev_chip_id = UINT_MAX;
-+	cpumask_t *chip_cpu_mask;
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index d1c570ca21ea..b944f56a469a 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -2001,6 +2001,8 @@ int dpcm_be_dai_trigger(struct snd_soc_pcm_runtime *fe, int stream,
+ 	struct snd_soc_pcm_runtime *be;
+ 	struct snd_soc_dpcm *dpcm;
  	int ret = 0;
++	unsigned long flags;
++	enum snd_soc_dpcm_state state;
  
- 	chip = kcalloc(num_possible_cpus(), sizeof(*chip), GFP_KERNEL);
- 	if (!chip)
- 		return -ENOMEM;
+ 	for_each_dpcm_be(fe, stream, dpcm) {
+ 		struct snd_pcm_substream *be_substream;
+@@ -2017,76 +2019,141 @@ int dpcm_be_dai_trigger(struct snd_soc_pcm_runtime *fe, int stream,
  
-+	/* Allocate a chip cpu mask large enough to fit mask for all chips */
-+	chip_cpu_mask = kcalloc(MAX_NR_CHIPS, sizeof(cpumask_t), GFP_KERNEL);
-+	if (!chip_cpu_mask) {
-+		ret = -ENOMEM;
-+		goto free_and_return;
-+	}
+ 		switch (cmd) {
+ 		case SNDRV_PCM_TRIGGER_START:
++			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
+ 			if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_PREPARE) &&
+ 			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_STOP) &&
+-			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
++			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED)) {
++				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+ 				continue;
++			}
++			state = be->dpcm[stream].state;
++			be->dpcm[stream].state = SND_SOC_DPCM_STATE_START;
++			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+ 
+ 			ret = soc_pcm_trigger(be_substream, cmd);
+-			if (ret)
++			if (ret) {
++				spin_lock_irqsave(&fe->card->dpcm_lock, flags);
++				be->dpcm[stream].state = state;
++				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+ 				goto end;
++			}
+ 
+-			be->dpcm[stream].state = SND_SOC_DPCM_STATE_START;
+ 			break;
+ 		case SNDRV_PCM_TRIGGER_RESUME:
+-			if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_SUSPEND))
++			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
++			if (be->dpcm[stream].state != SND_SOC_DPCM_STATE_SUSPEND) {
++				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+ 				continue;
++			}
 +
- 	for_each_possible_cpu(cpu) {
- 		unsigned int id = cpu_to_chip_id(cpu);
++			state = be->dpcm[stream].state;
++			be->dpcm[stream].state = SND_SOC_DPCM_STATE_START;
++			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
  
-@@ -1064,22 +1073,25 @@ static int init_chip_info(void)
- 			prev_chip_id = id;
- 			chip[nr_chips++] = id;
+ 			ret = soc_pcm_trigger(be_substream, cmd);
+-			if (ret)
++			if (ret) {
++				spin_lock_irqsave(&fe->card->dpcm_lock, flags);
++				be->dpcm[stream].state = state;
++				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+ 				goto end;
++			}
+ 
+-			be->dpcm[stream].state = SND_SOC_DPCM_STATE_START;
+ 			break;
+ 		case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
+-			if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
++			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
++			if (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED) {
++				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+ 				continue;
++			}
++
++			state = be->dpcm[stream].state;
++			be->dpcm[stream].state = SND_SOC_DPCM_STATE_START;
++			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+ 
+ 			ret = soc_pcm_trigger(be_substream, cmd);
+-			if (ret)
++			if (ret) {
++				spin_lock_irqsave(&fe->card->dpcm_lock, flags);
++				be->dpcm[stream].state = state;
++				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+ 				goto end;
++			}
+ 
+-			be->dpcm[stream].state = SND_SOC_DPCM_STATE_START;
+ 			break;
+ 		case SNDRV_PCM_TRIGGER_STOP:
++			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
+ 			if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_START) &&
+-			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
++			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED)) {
++				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+ 				continue;
++			}
++			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+ 
+ 			if (!snd_soc_dpcm_can_be_free_stop(fe, be, stream))
+ 				continue;
+ 
++			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
++			state = be->dpcm[stream].state;
++			be->dpcm[stream].state = SND_SOC_DPCM_STATE_STOP;
++			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
++
+ 			ret = soc_pcm_trigger(be_substream, cmd);
+-			if (ret)
++			if (ret) {
++				spin_lock_irqsave(&fe->card->dpcm_lock, flags);
++				be->dpcm[stream].state = state;
++				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+ 				goto end;
++			}
+ 
+-			be->dpcm[stream].state = SND_SOC_DPCM_STATE_STOP;
+ 			break;
+ 		case SNDRV_PCM_TRIGGER_SUSPEND:
+-			if (be->dpcm[stream].state != SND_SOC_DPCM_STATE_START)
++			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
++			if (be->dpcm[stream].state != SND_SOC_DPCM_STATE_START) {
++				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+ 				continue;
++			}
++			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+ 
+ 			if (!snd_soc_dpcm_can_be_free_stop(fe, be, stream))
+ 				continue;
+ 
++			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
++			state = be->dpcm[stream].state;
++			be->dpcm[stream].state = SND_SOC_DPCM_STATE_STOP;
++			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
++
+ 			ret = soc_pcm_trigger(be_substream, cmd);
+-			if (ret)
++			if (ret) {
++				spin_lock_irqsave(&fe->card->dpcm_lock, flags);
++				be->dpcm[stream].state = state;
++				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+ 				goto end;
++			}
+ 
+-			be->dpcm[stream].state = SND_SOC_DPCM_STATE_SUSPEND;
+ 			break;
+ 		case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
+-			if (be->dpcm[stream].state != SND_SOC_DPCM_STATE_START)
++			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
++			if (be->dpcm[stream].state != SND_SOC_DPCM_STATE_START) {
++				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+ 				continue;
++			}
++			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+ 
+ 			if (!snd_soc_dpcm_can_be_free_stop(fe, be, stream))
+ 				continue;
+ 
++			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
++			state = be->dpcm[stream].state;
++			be->dpcm[stream].state = SND_SOC_DPCM_STATE_PAUSED;
++			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
++
+ 			ret = soc_pcm_trigger(be_substream, cmd);
+-			if (ret)
++			if (ret) {
++				spin_lock_irqsave(&fe->card->dpcm_lock, flags);
++				be->dpcm[stream].state = state;
++				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+ 				goto end;
++			}
+ 
+-			be->dpcm[stream].state = SND_SOC_DPCM_STATE_PAUSED;
+ 			break;
  		}
-+		cpumask_set_cpu(cpu, &chip_cpu_mask[nr_chips-1]);
  	}
- 
- 	chips = kcalloc(nr_chips, sizeof(struct chip), GFP_KERNEL);
- 	if (!chips) {
- 		ret = -ENOMEM;
--		goto free_and_return;
-+		goto out_free_chip_cpu_mask;
- 	}
- 
- 	for (i = 0; i < nr_chips; i++) {
- 		chips[i].id = chip[i];
--		cpumask_copy(&chips[i].mask, cpumask_of_node(chip[i]));
-+		cpumask_copy(&chips[i].mask, &chip_cpu_mask[i]);
- 		INIT_WORK(&chips[i].throttle, powernv_cpufreq_work_fn);
- 		for_each_cpu(cpu, &chips[i].mask)
- 			per_cpu(chip_info, cpu) =  &chips[i];
- 	}
- 
-+out_free_chip_cpu_mask:
-+	kfree(chip_cpu_mask);
- free_and_return:
- 	kfree(chip);
- 	return ret;
+-- 
+2.30.2
+
 
 
