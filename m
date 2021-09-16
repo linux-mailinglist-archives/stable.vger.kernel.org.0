@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CC4340E1F9
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8171940DF47
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:07:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240819AbhIPQd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:33:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44660 "EHLO mail.kernel.org"
+        id S233549AbhIPQIF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:08:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243386AbhIPQbY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:31:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 118C16138E;
-        Thu, 16 Sep 2021 16:19:21 +0000 (UTC)
+        id S235072AbhIPQHf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:07:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 440A46127C;
+        Thu, 16 Sep 2021 16:06:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809162;
-        bh=t36PD241Vt04inE54Cxt7bIoDCPhYYCSm2Egul+soOs=;
+        s=korg; t=1631808373;
+        bh=YBCjnvBPJ660mg4CiNXoN5VQkn+Bj7j2lmfI8Xu6H5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aKlhDTt1O3/23o2YJ0GxrVXMZgxpsSdu5jGcCJvjxnWoCH/VaPJ/mQFVBTtjBjnYG
-         Ugce8qoypS6rFoLFyVxLMdYhgvi3i2+INSgCjng4kubgSN23k7kNoTTe+Wfi1WSXWx
-         W4Y5lnDUU1/fMyLmV3NFk9JIGMAyCZO7dFXcNMbU=
+        b=chCiXVzunX3I8YrR9MaT8zkrxUe9crTuVrXNtJPv+edbt8/i4x/kKw7uWNEfIpcIL
+         UHbQFXkOhyeLsKbwzNZTi67rKlfO/rXUcHXO0I99pAEn1uXfxVTEu3xAZBau+veomf
+         G1rMTDIVrxoWoARTd8wTBEFzPCLpTlp0bC4YU9cw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andres Freund <andres@anarazel.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.13 054/380] io-wq: fix wakeup race when adding new work
+        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        Daejun Park <daejun7.park@samsung.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 066/306] scsi: ufs: Fix memory corruption by ufshcd_read_desc_param()
 Date:   Thu, 16 Sep 2021 17:56:51 +0200
-Message-Id: <20210916155805.820023413@linuxfoundation.org>
+Message-Id: <20210916155756.311202825@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,64 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit 87df7fb922d18e96992aa5e824aa34b2065fef59 upstream.
+[ Upstream commit d3d9c4570285090b533b00946b72647361f0345b ]
 
-When new work is added, io_wqe_enqueue() checks if we need to wake or
-create a new worker. But that check is done outside the lock that
-otherwise synchronizes us with a worker going to sleep, so we can end
-up in the following situation:
+If param_offset > buff_len then the memcpy() statement in
+ufshcd_read_desc_param() corrupts memory since it copies 256 + buff_len -
+param_offset bytes into a buffer with size buff_len.  Since param_offset <
+256 this results in writing past the bound of the output buffer.
 
-CPU0				CPU1
-lock
-insert work
-unlock
-atomic_read(nr_running) != 0
-				lock
-				atomic_dec(nr_running)
-no wakeup needed
-
-Hold the wqe lock around the "need to wakeup" check. Then we can also get
-rid of the temporary work_flags variable, as we know the work will remain
-valid as long as we hold the lock.
-
-Cc: stable@vger.kernel.org
-Reported-by: Andres Freund <andres@anarazel.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210722033439.26550-2-bvanassche@acm.org
+Fixes: cbe193f6f093 ("scsi: ufs: Fix potential NULL pointer access during memcpy")
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Reviewed-by: Daejun Park <daejun7.park@samsung.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io-wq.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -798,7 +798,7 @@ append:
- static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work)
- {
- 	struct io_wqe_acct *acct = io_work_get_acct(wqe, work);
--	int work_flags;
-+	bool do_wake;
- 	unsigned long flags;
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 854c96e63007..4dabd09400c6 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -3249,9 +3249,11 @@ int ufshcd_read_desc_param(struct ufs_hba *hba,
  
- 	/*
-@@ -811,14 +811,14 @@ static void io_wqe_enqueue(struct io_wqe
- 		return;
+ 	if (is_kmalloc) {
+ 		/* Make sure we don't copy more data than available */
+-		if (param_offset + param_size > buff_len)
+-			param_size = buff_len - param_offset;
+-		memcpy(param_read_buf, &desc_buf[param_offset], param_size);
++		if (param_offset >= buff_len)
++			ret = -EINVAL;
++		else
++			memcpy(param_read_buf, &desc_buf[param_offset],
++			       min_t(u32, param_size, buff_len - param_offset));
  	}
- 
--	work_flags = work->flags;
- 	raw_spin_lock_irqsave(&wqe->lock, flags);
- 	io_wqe_insert_work(wqe, work);
- 	wqe->flags &= ~IO_WQE_FLAG_STALLED;
-+	do_wake = (work->flags & IO_WQ_WORK_CONCURRENT) ||
-+			!atomic_read(&acct->nr_running);
- 	raw_spin_unlock_irqrestore(&wqe->lock, flags);
- 
--	if ((work_flags & IO_WQ_WORK_CONCURRENT) ||
--	    !atomic_read(&acct->nr_running))
-+	if (do_wake)
- 		io_wqe_wake_worker(wqe, acct);
- }
- 
+ out:
+ 	if (is_kmalloc)
+-- 
+2.30.2
+
 
 
