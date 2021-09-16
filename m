@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B97040E787
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:33:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5ED140E138
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:29:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353459AbhIPRd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:33:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50256 "EHLO mail.kernel.org"
+        id S241904AbhIPQ21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:28:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347148AbhIPRbw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:31:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D35D461269;
-        Thu, 16 Sep 2021 16:47:09 +0000 (UTC)
+        id S241917AbhIPQ00 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:26:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 874016152B;
+        Thu, 16 Sep 2021 16:17:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810830;
-        bh=Ex0gHPSByP8khE8zUY284+5N1Sxj04zJgqDxhSWF0f8=;
+        s=korg; t=1631809034;
+        bh=IJKP0UOwGNAsWCUOhenYOs6dc+NNB1BXv5lIKAXqvbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tps2mDjTFpLgAzEBaijJjWNqkBCnPhyLNHEJUHDnM0CH0v+SLz46EQNED6n9ON+9R
-         ELqhqrG1sl71l1m1TYYRvd670fksjW2XFnb+B9CRyYvqye+JKHYrd5YiEmwIM5YLcB
-         mp+1jzCInQqI7NtITHwaPX5BYVSmgoYPlURsXPW8=
+        b=uUGjPpW8VCkEksRaNHh35ljkZqbPJUECCV8FffjYTbYxTvZaDoaiVPXcopHa+JOJs
+         p9Z+4aFuPzlwPKIaz9y17VPts16QM1mPMZQNbOAGlBpu9m+k1o1v3W8bLmzBjKrJJQ
+         9S7xhPotsbn6vrWzd//WCoeiX3qFwgrvVmJ5P3x8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Koo <Anthony.Koo@amd.com>,
-        Anson Jacob <Anson.Jacob@amd.com>, Roy Chan <roy.chan@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 284/432] drm/amd/display: fix incorrect CM/TF programming sequence in dwb
+        stable@vger.kernel.org, Li Zhijian <lizhijian@cn.fujitsu.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 288/306] mm/hmm: bypass devmap pte when all pfn requested flags are fulfilled
 Date:   Thu, 16 Sep 2021 18:00:33 +0200
-Message-Id: <20210916155820.434298121@linuxfoundation.org>
+Message-Id: <20210916155803.924560407@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,190 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roy Chan <roy.chan@amd.com>
+From: Li Zhijian <lizhijian@cn.fujitsu.com>
 
-[ Upstream commit 781e1e23131cce56fb557e6ec2260480a6bd08cc ]
+commit 4b42fb213678d2b6a9eeea92a9be200f23e49583 upstream.
 
-[How]
-the programming sequeune was for old asic.
-the correct programming sequeunce should be similar to the one
-used in mpc. the fix is copied from the mpc programming sequeunce.
+Previously, we noticed the one rpma example was failed[1] since commit
+36f30e486dce ("IB/core: Improve ODP to use hmm_range_fault()"), where it
+will use ODP feature to do RDMA WRITE between fsdax files.
 
-Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
-Acked-by: Anson Jacob <Anson.Jacob@amd.com>
-Signed-off-by: Roy Chan <roy.chan@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+After digging into the code, we found hmm_vma_handle_pte() will still
+return EFAULT even though all the its requesting flags has been
+fulfilled.  That's because a DAX page will be marked as (_PAGE_SPECIAL |
+PAGE_DEVMAP) by pte_mkdevmap().
+
+Link: https://github.com/pmem/rpma/issues/1142 [1]
+Link: https://lkml.kernel.org/r/20210830094232.203029-1-lizhijian@cn.fujitsu.com
+Fixes: 405506274922 ("mm/hmm: add missing call to hmm_pte_need_fault in HMM_PFN_SPECIAL handling")
+Signed-off-by: Li Zhijian <lizhijian@cn.fujitsu.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../drm/amd/display/dc/dcn30/dcn30_dwb_cm.c   | 90 +++++++++++++------
- 1 file changed, 64 insertions(+), 26 deletions(-)
+ mm/hmm.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dwb_cm.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dwb_cm.c
-index 3fe9e41e4dbd..6a3d3a0ec0a3 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dwb_cm.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dwb_cm.c
-@@ -49,6 +49,11 @@
- static void dwb3_get_reg_field_ogam(struct dcn30_dwbc *dwbc30,
- 	struct dcn3_xfer_func_reg *reg)
- {
-+	reg->shifts.field_region_start_base = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION_START_BASE_B;
-+	reg->masks.field_region_start_base = dwbc30->dwbc_mask->DWB_OGAM_RAMA_EXP_REGION_START_BASE_B;
-+	reg->shifts.field_offset = dwbc30->dwbc_shift->DWB_OGAM_RAMA_OFFSET_B;
-+	reg->masks.field_offset = dwbc30->dwbc_mask->DWB_OGAM_RAMA_OFFSET_B;
-+
- 	reg->shifts.exp_region0_lut_offset = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION0_LUT_OFFSET;
- 	reg->masks.exp_region0_lut_offset = dwbc30->dwbc_mask->DWB_OGAM_RAMA_EXP_REGION0_LUT_OFFSET;
- 	reg->shifts.exp_region0_num_segments = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION0_NUM_SEGMENTS;
-@@ -66,8 +71,6 @@ static void dwb3_get_reg_field_ogam(struct dcn30_dwbc *dwbc30,
- 	reg->masks.field_region_end_base = dwbc30->dwbc_mask->DWB_OGAM_RAMA_EXP_REGION_END_BASE_B;
- 	reg->shifts.field_region_linear_slope = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION_START_SLOPE_B;
- 	reg->masks.field_region_linear_slope = dwbc30->dwbc_mask->DWB_OGAM_RAMA_EXP_REGION_START_SLOPE_B;
--	reg->masks.field_offset = dwbc30->dwbc_mask->DWB_OGAM_RAMA_OFFSET_B;
--	reg->shifts.field_offset = dwbc30->dwbc_shift->DWB_OGAM_RAMA_OFFSET_B;
- 	reg->shifts.exp_region_start = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION_START_B;
- 	reg->masks.exp_region_start = dwbc30->dwbc_mask->DWB_OGAM_RAMA_EXP_REGION_START_B;
- 	reg->shifts.exp_resion_start_segment = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION_START_SEGMENT_B;
-@@ -147,18 +150,19 @@ static enum dc_lut_mode dwb3_get_ogam_current(
- 	uint32_t state_mode;
- 	uint32_t ram_select;
+--- a/mm/hmm.c
++++ b/mm/hmm.c
+@@ -291,10 +291,13 @@ static int hmm_vma_handle_pte(struct mm_
+ 		goto fault;
  
--	REG_GET(DWB_OGAM_CONTROL,
--		DWB_OGAM_MODE, &state_mode);
--	REG_GET(DWB_OGAM_CONTROL,
--		DWB_OGAM_SELECT, &ram_select);
-+	REG_GET_2(DWB_OGAM_CONTROL,
-+		DWB_OGAM_MODE_CURRENT, &state_mode,
-+		DWB_OGAM_SELECT_CURRENT, &ram_select);
- 
- 	if (state_mode == 0) {
- 		mode = LUT_BYPASS;
- 	} else if (state_mode == 2) {
- 		if (ram_select == 0)
- 			mode = LUT_RAM_A;
--		else
-+		else if (ram_select == 1)
- 			mode = LUT_RAM_B;
-+		else
-+			mode = LUT_BYPASS;
- 	} else {
- 		// Reserved value
- 		mode = LUT_BYPASS;
-@@ -172,10 +176,10 @@ static void dwb3_configure_ogam_lut(
- 	struct dcn30_dwbc *dwbc30,
- 	bool is_ram_a)
- {
--	REG_UPDATE(DWB_OGAM_LUT_CONTROL,
--		DWB_OGAM_LUT_READ_COLOR_SEL, 7);
--	REG_UPDATE(DWB_OGAM_CONTROL,
--		DWB_OGAM_SELECT, is_ram_a == true ? 0 : 1);
-+	REG_UPDATE_2(DWB_OGAM_LUT_CONTROL,
-+		DWB_OGAM_LUT_WRITE_COLOR_MASK, 7,
-+		DWB_OGAM_LUT_HOST_SEL, (is_ram_a == true) ? 0 : 1);
-+
- 	REG_SET(DWB_OGAM_LUT_INDEX, 0, DWB_OGAM_LUT_INDEX, 0);
- }
- 
-@@ -185,17 +189,45 @@ static void dwb3_program_ogam_pwl(struct dcn30_dwbc *dwbc30,
- {
- 	uint32_t i;
- 
--    // triple base implementation
--	for (i = 0; i < num/2; i++) {
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+0].red_reg);
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+0].green_reg);
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+0].blue_reg);
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+1].red_reg);
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+1].green_reg);
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+1].blue_reg);
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+2].red_reg);
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+2].green_reg);
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+2].blue_reg);
-+	uint32_t last_base_value_red = rgb[num-1].red_reg + rgb[num-1].delta_red_reg;
-+	uint32_t last_base_value_green = rgb[num-1].green_reg + rgb[num-1].delta_green_reg;
-+	uint32_t last_base_value_blue = rgb[num-1].blue_reg + rgb[num-1].delta_blue_reg;
-+
-+	if (is_rgb_equal(rgb,  num)) {
-+		for (i = 0 ; i < num; i++)
-+			REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[i].red_reg);
-+
-+		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, last_base_value_red);
-+
-+	} else {
-+
-+		REG_UPDATE(DWB_OGAM_LUT_CONTROL,
-+				DWB_OGAM_LUT_WRITE_COLOR_MASK, 4);
-+
-+		for (i = 0 ; i < num; i++)
-+			REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[i].red_reg);
-+
-+		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, last_base_value_red);
-+
-+		REG_SET(DWB_OGAM_LUT_INDEX, 0, DWB_OGAM_LUT_INDEX, 0);
-+
-+		REG_UPDATE(DWB_OGAM_LUT_CONTROL,
-+				DWB_OGAM_LUT_WRITE_COLOR_MASK, 2);
-+
-+		for (i = 0 ; i < num; i++)
-+			REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[i].green_reg);
-+
-+		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, last_base_value_green);
-+
-+		REG_SET(DWB_OGAM_LUT_INDEX, 0, DWB_OGAM_LUT_INDEX, 0);
-+
-+		REG_UPDATE(DWB_OGAM_LUT_CONTROL,
-+				DWB_OGAM_LUT_WRITE_COLOR_MASK, 1);
-+
-+		for (i = 0 ; i < num; i++)
-+			REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[i].blue_reg);
-+
-+		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, last_base_value_blue);
- 	}
- }
- 
-@@ -211,6 +243,8 @@ static bool dwb3_program_ogam_lut(
- 		return false;
- 	}
- 
-+	REG_SET(DWB_OGAM_CONTROL, 0, DWB_OGAM_MODE, 2);
-+
- 	current_mode = dwb3_get_ogam_current(dwbc30);
- 	if (current_mode == LUT_BYPASS || current_mode == LUT_RAM_A)
- 		next_mode = LUT_RAM_B;
-@@ -227,8 +261,7 @@ static bool dwb3_program_ogam_lut(
- 	dwb3_program_ogam_pwl(
- 		dwbc30, params->rgb_resulted, params->hw_points_num);
- 
--	REG_SET(DWB_OGAM_CONTROL, 0, DWB_OGAM_MODE, 2);
--	REG_SET(DWB_OGAM_CONTROL, 0, DWB_OGAM_SELECT, next_mode == LUT_RAM_A ? 0 : 1);
-+	REG_UPDATE(DWB_OGAM_CONTROL, DWB_OGAM_SELECT, next_mode == LUT_RAM_A ? 0 : 1);
- 
- 	return true;
- }
-@@ -271,14 +304,19 @@ static void dwb3_program_gamut_remap(
- 
- 	struct color_matrices_reg gam_regs;
- 
--	REG_UPDATE(DWB_GAMUT_REMAP_COEF_FORMAT, DWB_GAMUT_REMAP_COEF_FORMAT, coef_format);
--
- 	if (regval == NULL || select == CM_GAMUT_REMAP_MODE_BYPASS) {
- 		REG_SET(DWB_GAMUT_REMAP_MODE, 0,
- 				DWB_GAMUT_REMAP_MODE, 0);
- 		return;
- 	}
- 
-+	REG_UPDATE(DWB_GAMUT_REMAP_COEF_FORMAT, DWB_GAMUT_REMAP_COEF_FORMAT, coef_format);
-+
-+	gam_regs.shifts.csc_c11 = dwbc30->dwbc_shift->DWB_GAMUT_REMAPA_C11;
-+	gam_regs.masks.csc_c11  = dwbc30->dwbc_mask->DWB_GAMUT_REMAPA_C11;
-+	gam_regs.shifts.csc_c12 = dwbc30->dwbc_shift->DWB_GAMUT_REMAPA_C12;
-+	gam_regs.masks.csc_c12 = dwbc30->dwbc_mask->DWB_GAMUT_REMAPA_C12;
-+
- 	switch (select) {
- 	case CM_GAMUT_REMAP_MODE_RAMA_COEFF:
- 		gam_regs.csc_c11_c12 = REG(DWB_GAMUT_REMAPA_C11_C12);
--- 
-2.30.2
-
+ 	/*
++	 * Bypass devmap pte such as DAX page when all pfn requested
++	 * flags(pfn_req_flags) are fulfilled.
+ 	 * Since each architecture defines a struct page for the zero page, just
+ 	 * fall through and treat it like a normal page.
+ 	 */
+-	if (pte_special(pte) && !is_zero_pfn(pte_pfn(pte))) {
++	if (pte_special(pte) && !pte_devmap(pte) &&
++	    !is_zero_pfn(pte_pfn(pte))) {
+ 		if (hmm_pte_need_fault(hmm_vma_walk, pfn_req_flags, 0)) {
+ 			pte_unmap(ptep);
+ 			return -EFAULT;
 
 
