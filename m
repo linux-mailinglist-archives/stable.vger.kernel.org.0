@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FED240E7FF
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B401340E673
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349456AbhIPRgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:36:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50298 "EHLO mail.kernel.org"
+        id S1346722AbhIPRVe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:21:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353610AbhIPRea (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:34:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 133056322D;
-        Thu, 16 Sep 2021 16:48:43 +0000 (UTC)
+        id S1344305AbhIPQ4o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:56:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DE5B61ACF;
+        Thu, 16 Sep 2021 16:31:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810924;
-        bh=wT3iu+1KsIblfmC2Xxu1rpoOWJc5iroPFIXC6zv3PRM=;
+        s=korg; t=1631809867;
+        bh=9FtpahGr9AGk+NCfYFtP6I3wLpCqDy1mxReJ2rVjrPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OsQJvuQBtz+wMh4XNtZcWTyY1A92eesy0h/j13Nn4bpH1zNwEteZLDyy2r+pHir9a
-         GK0kcP9doa6NVEIQcmAe8WBfAIlBveVyFPPk5khCd0gWLDGW85AwqyMxl3WECxUIFC
-         BSOCPhsUmXs96H5yZDOGk/AxQkqO4tBu6BfqdImU=
+        b=t9E5JkYp2eIWPrGejEuusRRNIa+NgutR9wypppPA21shdetjKTLXL8Uxi6SgUj9gI
+         RNIKzIn02rGTvn2RQ3pcnCbOZATJAozTYHKBfPPVCIaRe+NZcqHfxSM0z6oMOQizYz
+         dH8OLsiHq5cy0eQvIhLW2sUlUJQAM5y/VvddVihk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-staging@lists.linux.dev,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Nishad Kamdar <nishadkamdar@gmail.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 319/432] staging: rts5208: Fix get_ms_information() heap buffer size
+Subject: [PATCH 5.13 311/380] mmc: core: Return correct emmc response in case of ioctl error
 Date:   Thu, 16 Sep 2021 18:01:08 +0200
-Message-Id: <20210916155821.643187896@linuxfoundation.org>
+Message-Id: <20210916155814.643254566@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,82 +41,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Nishad Kamdar <nishadkamdar@gmail.com>
 
-[ Upstream commit cbe34165cc1b7d1110b268ba8b9f30843c941639 ]
+[ Upstream commit e72a55f2e5ddcfb3dce0701caf925ce435b87682 ]
 
-Fix buf allocation size (it needs to be 2 bytes larger). Found when
-__alloc_size() annotations were added to kmalloc() interfaces.
+When a read/write command is sent via ioctl to the kernel,
+and the command fails, the actual error response of the emmc
+is not sent to the user.
 
-In file included from ./include/linux/string.h:253,
-                 from ./include/linux/bitmap.h:10,
-                 from ./include/linux/cpumask.h:12,
-                 from ./arch/x86/include/asm/paravirt.h:17,
-                 from ./arch/x86/include/asm/irqflags.h:63,
-                 from ./include/linux/irqflags.h:16,
-                 from ./include/linux/rcupdate.h:26,
-                 from ./include/linux/rculist.h:11,
-                 from ./include/linux/pid.h:5,
-                 from ./include/linux/sched.h:14,
-                 from ./include/linux/blkdev.h:5,
-                 from drivers/staging/rts5208/rtsx_scsi.c:12:
-In function 'get_ms_information',
-    inlined from 'ms_sp_cmnd' at drivers/staging/rts5208/rtsx_scsi.c:2877:12,
-    inlined from 'rtsx_scsi_handler' at drivers/staging/rts5208/rtsx_scsi.c:3247:12:
-./include/linux/fortify-string.h:54:29: warning: '__builtin_memcpy' forming offset [106, 107] is out
- of the bounds [0, 106] [-Warray-bounds]
-   54 | #define __underlying_memcpy __builtin_memcpy
-      |                             ^
-./include/linux/fortify-string.h:417:2: note: in expansion of macro '__underlying_memcpy'
-  417 |  __underlying_##op(p, q, __fortify_size);   \
-      |  ^~~~~~~~~~~~~
-./include/linux/fortify-string.h:463:26: note: in expansion of macro '__fortify_memcpy_chk'
-  463 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,   \
-      |                          ^~~~~~~~~~~~~~~~~~~~
-drivers/staging/rts5208/rtsx_scsi.c:2851:3: note: in expansion of macro 'memcpy'
- 2851 |   memcpy(buf + i, ms_card->raw_sys_info, 96);
-      |   ^~~~~~
+IOCTL read/write tests are carried out using commands
+17 (Single BLock Read), 24 (Single Block Write),
+18 (Multi Block Read), 25 (Multi Block Write)
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-staging@lists.linux.dev
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210818044252.1533634-1-keescook@chromium.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The tests are carried out on a 64Gb emmc device. All of these
+tests try to access an "out of range" sector address (0x09B2FFFF).
+
+It is seen that without the patch the response received by the user
+is not OUT_OF_RANGE error (R1 response 31st bit is not set) as per
+JEDEC specification. After applying the patch proper response is seen.
+This is because the function returns without copying the response to
+the user in case of failure. This patch fixes the issue.
+
+Hence, this memcpy is required whether we get an error response or not.
+Therefor it is moved up from the current position up to immediately
+after we have called mmc_wait_for_req().
+
+The test code and the output of only the CMD17 is included in the
+commit to limit the message length.
+
+CMD17 (Test Code Snippet):
+==========================
+        printf("Forming CMD%d\n", opt_idx);
+        /*  single block read */
+        cmd.blksz = 512;
+        cmd.blocks = 1;
+        cmd.write_flag = 0;
+        cmd.opcode = 17;
+        //cmd.arg = atoi(argv[3]);
+        cmd.arg = 0x09B2FFFF;
+        /* Expecting response R1B */
+        cmd.flags = MMC_RSP_SPI_R1 | MMC_RSP_R1 | MMC_CMD_ADTC;
+
+        memset(data, 0, sizeof(__u8) * 512);
+        mmc_ioc_cmd_set_data(cmd, data);
+
+        printf("Sending CMD%d: ARG[0x%08x]\n", opt_idx, cmd.arg);
+        if(ioctl(fd, MMC_IOC_CMD, &cmd))
+                perror("Error");
+
+        printf("\nResponse: %08x\n", cmd.response[0]);
+
+CMD17 (Output without patch):
+=============================
+test@test-LIVA-Z:~$ sudo ./mmc cmd_test /dev/mmcblk0 17
+Entering the do_mmc_commands:Device: /dev/mmcblk0 nargs:4
+Entering the do_mmc_commands:Device: /dev/mmcblk0 options[17, 0x09B2FFF]
+Forming CMD17
+Sending CMD17: ARG[0x09b2ffff]
+Error: Connection timed out
+
+Response: 00000000
+(Incorrect response)
+
+CMD17 (Output with patch):
+==========================
+test@test-LIVA-Z:~$ sudo ./mmc cmd_test /dev/mmcblk0 17
+[sudo] password for test:
+Entering the do_mmc_commands:Device: /dev/mmcblk0 nargs:4
+Entering the do_mmc_commands:Device: /dev/mmcblk0 options[17, 09B2FFFF]
+Forming CMD17
+Sending CMD17: ARG[0x09b2ffff]
+Error: Connection timed out
+
+Response: 80000900
+(Correct OUT_OF_ERROR response as per JEDEC specification)
+
+Signed-off-by: Nishad Kamdar <nishadkamdar@gmail.com>
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Link: https://lore.kernel.org/r/20210824191726.8296-1-nishadkamdar@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rts5208/rtsx_scsi.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/mmc/core/block.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/staging/rts5208/rtsx_scsi.c b/drivers/staging/rts5208/rtsx_scsi.c
-index 1deb74112ad4..11d9d9155eef 100644
---- a/drivers/staging/rts5208/rtsx_scsi.c
-+++ b/drivers/staging/rts5208/rtsx_scsi.c
-@@ -2802,10 +2802,10 @@ static int get_ms_information(struct scsi_cmnd *srb, struct rtsx_chip *chip)
- 	}
+diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
+index 2518bc085659..d47829b9fc0f 100644
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -542,6 +542,7 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
+ 		return mmc_sanitize(card, idata->ic.cmd_timeout_ms);
  
- 	if (dev_info_id == 0x15) {
--		buf_len = 0x3A;
-+		buf_len = 0x3C;
- 		data_len = 0x3A;
- 	} else {
--		buf_len = 0x6A;
-+		buf_len = 0x6C;
- 		data_len = 0x6A;
- 	}
+ 	mmc_wait_for_req(card->host, &mrq);
++	memcpy(&idata->ic.response, cmd.resp, sizeof(cmd.resp));
  
-@@ -2855,11 +2855,7 @@ static int get_ms_information(struct scsi_cmnd *srb, struct rtsx_chip *chip)
- 	}
+ 	if (cmd.error) {
+ 		dev_err(mmc_dev(card->host), "%s: cmd error %d\n",
+@@ -591,8 +592,6 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
+ 	if (idata->ic.postsleep_min_us)
+ 		usleep_range(idata->ic.postsleep_min_us, idata->ic.postsleep_max_us);
  
- 	rtsx_stor_set_xfer_buf(buf, buf_len, srb);
+-	memcpy(&(idata->ic.response), cmd.resp, sizeof(cmd.resp));
 -
--	if (dev_info_id == 0x15)
--		scsi_set_resid(srb, scsi_bufflen(srb) - 0x3C);
--	else
--		scsi_set_resid(srb, scsi_bufflen(srb) - 0x6C);
-+	scsi_set_resid(srb, scsi_bufflen(srb) - buf_len);
- 
- 	kfree(buf);
- 	return STATUS_SUCCESS;
+ 	if (idata->rpmb || (cmd.flags & MMC_RSP_R1B) == MMC_RSP_R1B) {
+ 		/*
+ 		 * Ensure RPMB/R1B command has completed by polling CMD13
 -- 
 2.30.2
 
