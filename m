@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2179140DF9C
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:11:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A09D40E5E1
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236839AbhIPQMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:12:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48012 "EHLO mail.kernel.org"
+        id S1344872AbhIPRQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:16:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232867AbhIPQKb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:10:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFB6F61263;
-        Thu, 16 Sep 2021 16:08:25 +0000 (UTC)
+        id S1346588AbhIPROE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:14:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C985B613A7;
+        Thu, 16 Sep 2021 16:39:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808506;
-        bh=nUWogYyAQnIGP9PhkABR991SIxEYKSuFnYvAG0oKips=;
+        s=korg; t=1631810363;
+        bh=SPe3Atrtx8dggmwlZ7vQgSMlq1837EZK1fqXLmcadxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1u31975SvNTOhZ1iHiMIMzuaVr1dBXFnYBPmLEJHvfUMoO8arRaKbxScnhoFM38D2
-         xo/4Vi00W73s28Ss/H9ZsbUkofQnKtC9VNCqg9tQoeETXwn83PGEv1e23Iui8ouBXN
-         x1TrA7OWGEOQn6MiWHnAT6GH/LanNjMY3CfQY2Bo=
+        b=zgjfx55cbYoXpfUEbh98xiNQDhK1TJCe6VEVLHO21irWBZncB5eG3JOz9R7q3nWUS
+         KClVJwevj1ni1YEOFQh2cPsVa7F5DFikmAMwoSRktLn5Lgy1EiGsBvqWYqXD0ejeVz
+         RS9HwudkjlcpeewglDHI2YKFc754yiqMKVbh6Rt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 117/306] PCI: Use pci_update_current_state() in pci_enable_device_flags()
+Subject: [PATCH 5.14 113/432] pinctrl: single: Fix error return code in pcs_parse_bits_in_pinctrl_entry()
 Date:   Thu, 16 Sep 2021 17:57:42 +0200
-Message-Id: <20210916155758.056539337@linuxfoundation.org>
+Message-Id: <20210916155814.596471890@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 14858dcc3b3587f4bb5c48e130ee7d68fc2b0a29 ]
+[ Upstream commit d789a490d32fdf0465275e3607f8a3bc87d3f3ba ]
 
-Updating the current_state field of struct pci_dev the way it is done
-in pci_enable_device_flags() before calling do_pci_enable_device() may
-not work.  For example, if the given PCI device depends on an ACPI
-power resource whose _STA method initially returns 0 ("off"), but the
-config space of the PCI device is accessible and the power state
-retrieved from the PCI_PM_CTRL register is D0, the current_state
-field in the struct pci_dev representing that device will get out of
-sync with the power.state of its ACPI companion object and that will
-lead to power management issues going forward.
+Fix to return -ENOTSUPP instead of 0 when PCS_HAS_PINCONF is true, which
+is the same as that returned in pcs_parse_pinconf().
 
-To avoid such issues, make pci_enable_device_flags() call
-pci_update_current_state() which takes ACPI device power management
-into account, if present, to retrieve the current power state of the
-device.
-
-Link: https://lore.kernel.org/lkml/20210314000439.3138941-1-luzmaximilian@gmail.com/
-Reported-by: Maximilian Luz <luzmaximilian@gmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Tested-by: Maximilian Luz <luzmaximilian@gmail.com>
+Fixes: 4e7e8017a80e ("pinctrl: pinctrl-single: enhance to configure multiple pins of different modules")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210722033930.4034-2-thunder.leizhen@huawei.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/pinctrl/pinctrl-single.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 05a84f095fe7..eae6a9fdd33d 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1880,11 +1880,7 @@ static int pci_enable_device_flags(struct pci_dev *dev, unsigned long flags)
- 	 * so that things like MSI message writing will behave as expected
- 	 * (e.g. if the device really is in D0 at enable time).
- 	 */
--	if (dev->pm_cap) {
--		u16 pmcsr;
--		pci_read_config_word(dev, dev->pm_cap + PCI_PM_CTRL, &pmcsr);
--		dev->current_state = (pmcsr & PCI_PM_CTRL_STATE_MASK);
--	}
-+	pci_update_current_state(dev, dev->current_state);
+diff --git a/drivers/pinctrl/pinctrl-single.c b/drivers/pinctrl/pinctrl-single.c
+index e3aa64798f7d..4fcae8458359 100644
+--- a/drivers/pinctrl/pinctrl-single.c
++++ b/drivers/pinctrl/pinctrl-single.c
+@@ -1224,6 +1224,7 @@ static int pcs_parse_bits_in_pinctrl_entry(struct pcs_device *pcs,
  
- 	if (atomic_inc_return(&dev->enable_cnt) > 1)
- 		return 0;		/* already enabled */
+ 	if (PCS_HAS_PINCONF) {
+ 		dev_err(pcs->dev, "pinconf not supported\n");
++		res = -ENOTSUPP;
+ 		goto free_pingroups;
+ 	}
+ 
 -- 
 2.30.2
 
