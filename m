@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D94F40DFE2
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:15:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C275A40E2B5
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233419AbhIPQPe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:15:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48410 "EHLO mail.kernel.org"
+        id S244026AbhIPQlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:41:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234838AbhIPQMo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:12:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3B116128B;
-        Thu, 16 Sep 2021 16:09:26 +0000 (UTC)
+        id S243663AbhIPQiK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:38:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89E8C61263;
+        Thu, 16 Sep 2021 16:22:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808567;
-        bh=YSGUJuDHSnZzOzXmBsKZOAT80LCOSLiqvtDEwYmOCJs=;
+        s=korg; t=1631809361;
+        bh=3QzOoWllqrVwAdmoOqhylwbj530Jk04mhqnaBOffYo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OkjfebJz8ad8mIIdOklMjzHKpycDtZ0HZtoOlWkPPlxVtLyLBHW5I8YTKL/mzOUIz
-         v8YSvUxAwUiEuzXPG5gQEw54HlftuV+Uf73Hi/zg+O0G8MyKPSvJFmgZrHFJ5M5xYj
-         AZ0qn/SUinc8Nosz4zvzGQzikSwKFHXnYQdvTSrY=
+        b=2smnfmrKCGy7qapGXaECd8+r5Y5wjfUXnqJcAVC8Dh6zO6QZJZJOFIM/eE20cyOAg
+         PxPRZVuB8uYei27faMGsqM1uFAm/xdhHs4LmSzgONrgJF76AkkjXrw0lIPx2vrZSvG
+         /fA0WOkAgKaLNUIWvlTd3rXYeXGPQ5/KzDRu/76k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Jeff Layton <jlayton@redhat.com>, linux-cachefs@redhat.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 138/306] tty: serial: jsm: hold port lock when reporting modem line changes
+Subject: [PATCH 5.13 126/380] fscache: Fix cookie key hashing
 Date:   Thu, 16 Sep 2021 17:58:03 +0200
-Message-Id: <20210916155758.747243753@linuxfoundation.org>
+Message-Id: <20210916155808.324903117@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,84 +40,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 240e126c28df084222f0b661321e8e3ecb0d232e ]
+[ Upstream commit 35b72573e977ed6b18b094136a4fa3e0ffb13603 ]
 
-uart_handle_dcd_change() requires a port lock to be held and will emit a
-warning when lockdep is enabled.
+The current hash algorithm used for hashing cookie keys is really bad,
+producing almost no dispersion (after a test kernel build, ~30000 files
+were split over just 18 out of the 32768 hash buckets).
 
-Held corresponding lock to fix the following warnings.
+Borrow the full_name_hash() hash function into fscache to do the hashing
+for cookie keys and, in the future, volume keys.
 
-[  132.528648] WARNING: CPU: 5 PID: 11600 at drivers/tty/serial/serial_core.c:3046 uart_handle_dcd_change+0xf4/0x120
-[  132.530482] Modules linked in:
-[  132.531050] CPU: 5 PID: 11600 Comm: jsm Not tainted 5.14.0-rc1-00003-g7fef2edf7cc7-dirty #31
-[  132.535268] RIP: 0010:uart_handle_dcd_change+0xf4/0x120
-[  132.557100] Call Trace:
-[  132.557562]  ? __free_pages+0x83/0xb0
-[  132.558213]  neo_parse_modem+0x156/0x220
-[  132.558897]  neo_param+0x399/0x840
-[  132.559495]  jsm_tty_open+0x12f/0x2d0
-[  132.560131]  uart_startup.part.18+0x153/0x340
-[  132.560888]  ? lock_is_held_type+0xe9/0x140
-[  132.561660]  uart_port_activate+0x7f/0xe0
-[  132.562351]  ? uart_startup.part.18+0x340/0x340
-[  132.563003]  tty_port_open+0x8d/0xf0
-[  132.563523]  ? uart_set_options+0x1e0/0x1e0
-[  132.564125]  uart_open+0x24/0x40
-[  132.564604]  tty_open+0x15c/0x630
+I don't want to use full_name_hash() as-is because I want the hash value to
+be consistent across arches and over time as the hash value produced may
+get used on disk.
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/1626242003-3809-1-git-send-email-zheyuma97@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+I can also optimise parts of it away as the key will always be a padded
+array of aligned 32-bit words.
+
+Fixes: ec0328e46d6e ("fscache: Maintain a catalogue of allocated cookies")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@redhat.com>
+cc: linux-cachefs@redhat.com
+Link: https://lore.kernel.org/r/162431201844.2908479.8293647220901514696.stgit@warthog.procyon.org.uk/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/jsm/jsm_neo.c | 2 ++
- drivers/tty/serial/jsm/jsm_tty.c | 3 +++
- 2 files changed, 5 insertions(+)
+ fs/fscache/cookie.c   | 14 +-------------
+ fs/fscache/internal.h |  2 ++
+ fs/fscache/main.c     | 39 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 42 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/tty/serial/jsm/jsm_neo.c b/drivers/tty/serial/jsm/jsm_neo.c
-index bf0e2a4cb0ce..c6f927a76c3b 100644
---- a/drivers/tty/serial/jsm/jsm_neo.c
-+++ b/drivers/tty/serial/jsm/jsm_neo.c
-@@ -815,7 +815,9 @@ static void neo_parse_isr(struct jsm_board *brd, u32 port)
- 		/* Parse any modem signal changes */
- 		jsm_dbg(INTR, &ch->ch_bd->pci_dev,
- 			"MOD_STAT: sending to parse_modem_sigs\n");
-+		spin_lock_irqsave(&ch->uart_port.lock, lock_flags);
- 		neo_parse_modem(ch, readb(&ch->ch_neo_uart->msr));
-+		spin_unlock_irqrestore(&ch->uart_port.lock, lock_flags);
+diff --git a/fs/fscache/cookie.c b/fs/fscache/cookie.c
+index 751bc5b1cddf..6104f627cc71 100644
+--- a/fs/fscache/cookie.c
++++ b/fs/fscache/cookie.c
+@@ -74,10 +74,8 @@ void fscache_free_cookie(struct fscache_cookie *cookie)
+ static int fscache_set_key(struct fscache_cookie *cookie,
+ 			   const void *index_key, size_t index_key_len)
+ {
+-	unsigned long long h;
+ 	u32 *buf;
+ 	int bufs;
+-	int i;
+ 
+ 	bufs = DIV_ROUND_UP(index_key_len, sizeof(*buf));
+ 
+@@ -91,17 +89,7 @@ static int fscache_set_key(struct fscache_cookie *cookie,
  	}
+ 
+ 	memcpy(buf, index_key, index_key_len);
+-
+-	/* Calculate a hash and combine this with the length in the first word
+-	 * or first half word
+-	 */
+-	h = (unsigned long)cookie->parent;
+-	h += index_key_len + cookie->type;
+-
+-	for (i = 0; i < bufs; i++)
+-		h += buf[i];
+-
+-	cookie->key_hash = h ^ (h >> 32);
++	cookie->key_hash = fscache_hash(0, buf, bufs);
+ 	return 0;
  }
  
-diff --git a/drivers/tty/serial/jsm/jsm_tty.c b/drivers/tty/serial/jsm/jsm_tty.c
-index 689774c073ca..8438454ca653 100644
---- a/drivers/tty/serial/jsm/jsm_tty.c
-+++ b/drivers/tty/serial/jsm/jsm_tty.c
-@@ -187,6 +187,7 @@ static void jsm_tty_break(struct uart_port *port, int break_state)
+diff --git a/fs/fscache/internal.h b/fs/fscache/internal.h
+index c483863b740a..aee639d980ba 100644
+--- a/fs/fscache/internal.h
++++ b/fs/fscache/internal.h
+@@ -97,6 +97,8 @@ extern struct workqueue_struct *fscache_object_wq;
+ extern struct workqueue_struct *fscache_op_wq;
+ DECLARE_PER_CPU(wait_queue_head_t, fscache_object_cong_wait);
  
- static int jsm_tty_open(struct uart_port *port)
++extern unsigned int fscache_hash(unsigned int salt, unsigned int *data, unsigned int n);
++
+ static inline bool fscache_object_congested(void)
  {
-+	unsigned long lock_flags;
- 	struct jsm_board *brd;
- 	struct jsm_channel *channel =
- 		container_of(port, struct jsm_channel, uart_port);
-@@ -240,6 +241,7 @@ static int jsm_tty_open(struct uart_port *port)
- 	channel->ch_cached_lsr = 0;
- 	channel->ch_stops_sent = 0;
+ 	return workqueue_congested(WORK_CPU_UNBOUND, fscache_object_wq);
+diff --git a/fs/fscache/main.c b/fs/fscache/main.c
+index c1e6cc9091aa..4207f98e405f 100644
+--- a/fs/fscache/main.c
++++ b/fs/fscache/main.c
+@@ -93,6 +93,45 @@ static struct ctl_table fscache_sysctls_root[] = {
+ };
+ #endif
  
-+	spin_lock_irqsave(&port->lock, lock_flags);
- 	termios = &port->state->port.tty->termios;
- 	channel->ch_c_cflag	= termios->c_cflag;
- 	channel->ch_c_iflag	= termios->c_iflag;
-@@ -259,6 +261,7 @@ static int jsm_tty_open(struct uart_port *port)
- 	jsm_carrier(channel);
- 
- 	channel->ch_open_count++;
-+	spin_unlock_irqrestore(&port->lock, lock_flags);
- 
- 	jsm_dbg(OPEN, &channel->ch_bd->pci_dev, "finish\n");
- 	return 0;
++/*
++ * Mixing scores (in bits) for (7,20):
++ * Input delta: 1-bit      2-bit
++ * 1 round:     330.3     9201.6
++ * 2 rounds:   1246.4    25475.4
++ * 3 rounds:   1907.1    31295.1
++ * 4 rounds:   2042.3    31718.6
++ * Perfect:    2048      31744
++ *            (32*64)   (32*31/2 * 64)
++ */
++#define HASH_MIX(x, y, a)	\
++	(	x ^= (a),	\
++	y ^= x,	x = rol32(x, 7),\
++	x += y,	y = rol32(y,20),\
++	y *= 9			)
++
++static inline unsigned int fold_hash(unsigned long x, unsigned long y)
++{
++	/* Use arch-optimized multiply if one exists */
++	return __hash_32(y ^ __hash_32(x));
++}
++
++/*
++ * Generate a hash.  This is derived from full_name_hash(), but we want to be
++ * sure it is arch independent and that it doesn't change as bits of the
++ * computed hash value might appear on disk.  The caller also guarantees that
++ * the hashed data will be a series of aligned 32-bit words.
++ */
++unsigned int fscache_hash(unsigned int salt, unsigned int *data, unsigned int n)
++{
++	unsigned int a, x = 0, y = salt;
++
++	for (; n; n--) {
++		a = *data++;
++		HASH_MIX(x, y, a);
++	}
++	return fold_hash(x, y);
++}
++
+ /*
+  * initialise the fs caching module
+  */
 -- 
 2.30.2
 
