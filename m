@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5661540E210
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0322240E561
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:27:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241715AbhIPQeI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:34:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
+        id S1347356AbhIPRLH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:11:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242594AbhIPQcF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:32:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DF46615E4;
-        Thu, 16 Sep 2021 16:19:57 +0000 (UTC)
+        id S1349871AbhIPRHy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:07:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBACC61B41;
+        Thu, 16 Sep 2021 16:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809198;
-        bh=OHERr3ZhdAhIA9oMiS4cpS6pWJVWr7Z7glyeL/ocY/Q=;
+        s=korg; t=1631810183;
+        bh=8gg7AK441555JIJ//7xJtZMyg3TqeqWKgaUCit8Uwqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nYwFYT5OfWtg5Ilz+JADLlFnaHO8355Z1k8IPtjl7gEYAjA0enhxnJWwI6RQJnCVX
-         UDeUk1rS6ZclwgP4cDd5tv5vzdIx7i949XDTjgMG5N0crtrVNZGMbOu41bo2fcFs+w
-         VN6fHg+wzNUprbCtuwQ/OtE9hN6Oefaxw4l/W/9U=
+        b=kZUhasjudDGLAskB+ZJbEHGnIkb90FWh7bWEAwodCXQJSXX9kwc4kJIa9hpR2+EGO
+         VrtV11P2XWeOdg2UWUN14bjsVmHAGYoLiICn8Iysk3BQDKmPypju2Z5mFQhLRDyIEh
+         Id+1OrJ1o0WT1xhrq/DH5TCkc/jv5ksa/W2wBFu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.13 039/380] cpufreq: schedutil: Use kobject release() method to free sugov_tunables
+        stable@vger.kernel.org, DJ Gregor <dj@corelight.com>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Arne Welzel <arne.welzel@corelight.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.14 047/432] dm crypt: Avoid percpu_counter spinlock contention in crypt_page_alloc()
 Date:   Thu, 16 Sep 2021 17:56:36 +0200
-Message-Id: <20210916155805.299153663@linuxfoundation.org>
+Message-Id: <20210916155812.404259563@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,125 +41,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Hao <haokexin@gmail.com>
+From: Arne Welzel <arne.welzel@corelight.com>
 
-commit e5c6b312ce3cc97e90ea159446e6bfa06645364d upstream.
+commit 528b16bfc3ae5f11638e71b3b63a81f9999df727 upstream.
 
-The struct sugov_tunables is protected by the kobject, so we can't free
-it directly. Otherwise we would get a call trace like this:
-  ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x30
-  WARNING: CPU: 3 PID: 720 at lib/debugobjects.c:505 debug_print_object+0xb8/0x100
-  Modules linked in:
-  CPU: 3 PID: 720 Comm: a.sh Tainted: G        W         5.14.0-rc1-next-20210715-yocto-standard+ #507
-  Hardware name: Marvell OcteonTX CN96XX board (DT)
-  pstate: 40400009 (nZcv daif +PAN -UAO -TCO BTYPE=--)
-  pc : debug_print_object+0xb8/0x100
-  lr : debug_print_object+0xb8/0x100
-  sp : ffff80001ecaf910
-  x29: ffff80001ecaf910 x28: ffff00011b10b8d0 x27: ffff800011043d80
-  x26: ffff00011a8f0000 x25: ffff800013cb3ff0 x24: 0000000000000000
-  x23: ffff80001142aa68 x22: ffff800011043d80 x21: ffff00010de46f20
-  x20: ffff800013c0c520 x19: ffff800011d8f5b0 x18: 0000000000000010
-  x17: 6e6968207473696c x16: 5f72656d6974203a x15: 6570797420746365
-  x14: 6a626f2029302065 x13: 303378302f307830 x12: 2b6e665f72656d69
-  x11: ffff8000124b1560 x10: ffff800012331520 x9 : ffff8000100ca6b0
-  x8 : 000000000017ffe8 x7 : c0000000fffeffff x6 : 0000000000000001
-  x5 : ffff800011d8c000 x4 : ffff800011d8c740 x3 : 0000000000000000
-  x2 : ffff0001108301c0 x1 : ab3c90eedf9c0f00 x0 : 0000000000000000
-  Call trace:
-   debug_print_object+0xb8/0x100
-   __debug_check_no_obj_freed+0x1c0/0x230
-   debug_check_no_obj_freed+0x20/0x88
-   slab_free_freelist_hook+0x154/0x1c8
-   kfree+0x114/0x5d0
-   sugov_exit+0xbc/0xc0
-   cpufreq_exit_governor+0x44/0x90
-   cpufreq_set_policy+0x268/0x4a8
-   store_scaling_governor+0xe0/0x128
-   store+0xc0/0xf0
-   sysfs_kf_write+0x54/0x80
-   kernfs_fop_write_iter+0x128/0x1c0
-   new_sync_write+0xf0/0x190
-   vfs_write+0x2d4/0x478
-   ksys_write+0x74/0x100
-   __arm64_sys_write+0x24/0x30
-   invoke_syscall.constprop.0+0x54/0xe0
-   do_el0_svc+0x64/0x158
-   el0_svc+0x2c/0xb0
-   el0t_64_sync_handler+0xb0/0xb8
-   el0t_64_sync+0x198/0x19c
-  irq event stamp: 5518
-  hardirqs last  enabled at (5517): [<ffff8000100cbd7c>] console_unlock+0x554/0x6c8
-  hardirqs last disabled at (5518): [<ffff800010fc0638>] el1_dbg+0x28/0xa0
-  softirqs last  enabled at (5504): [<ffff8000100106e0>] __do_softirq+0x4d0/0x6c0
-  softirqs last disabled at (5483): [<ffff800010049548>] irq_exit+0x1b0/0x1b8
+On systems with many cores using dm-crypt, heavy spinlock contention in
+percpu_counter_compare() can be observed when the page allocation limit
+for a given device is reached or close to be reached. This is due
+to percpu_counter_compare() taking a spinlock to compute an exact
+result on potentially many CPUs at the same time.
 
-So split the original sugov_tunables_free() into two functions,
-sugov_clear_global_tunables() is just used to clear the global_tunables
-and the new sugov_tunables_free() is used as kobj_type::release to
-release the sugov_tunables safely.
+Switch to non-exact comparison of allocated and allowed pages by using
+the value returned by percpu_counter_read_positive() to avoid taking
+the percpu_counter spinlock.
 
-Fixes: 9bdcb44e391d ("cpufreq: schedutil: New governor based on scheduler utilization data")
-Cc: 4.7+ <stable@vger.kernel.org> # 4.7+
-Signed-off-by: Kevin Hao <haokexin@gmail.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+This may over/under estimate the actual number of allocated pages by at
+most (batch-1) * num_online_cpus().
+
+Currently, batch is bounded by 32. The system on which this issue was
+first observed has 256 CPUs and 512GB of RAM. With a 4k page size, this
+change may over/under estimate by 31MB. With ~10G (2%) allowed dm-crypt
+allocations, this seems an acceptable error. Certainly preferred over
+running into the spinlock contention.
+
+This behavior was reproduced on an EC2 c5.24xlarge instance with 96 CPUs
+and 192GB RAM as follows, but can be provoked on systems with less CPUs
+as well.
+
+ * Disable swap
+ * Tune vm settings to promote regular writeback
+     $ echo 50 > /proc/sys/vm/dirty_expire_centisecs
+     $ echo 25 > /proc/sys/vm/dirty_writeback_centisecs
+     $ echo $((128 * 1024 * 1024)) > /proc/sys/vm/dirty_background_bytes
+
+ * Create 8 dmcrypt devices based on files on a tmpfs
+ * Create and mount an ext4 filesystem on each crypt devices
+ * Run stress-ng --hdd 8 within one of above filesystems
+
+Total %system usage collected from sysstat goes to ~35%. Write throughput
+on the underlying loop device is ~2GB/s. perf profiling an individual
+kworker kcryptd thread shows the following profile, indicating spinlock
+contention in percpu_counter_compare():
+
+    99.98%     0.00%  kworker/u193:46  [kernel.kallsyms]  [k] ret_from_fork
+      |
+      --ret_from_fork
+        kthread
+        worker_thread
+        |
+         --99.92%--process_one_work
+            |
+            |--80.52%--kcryptd_crypt
+            |    |
+            |    |--62.58%--mempool_alloc
+            |    |  |
+            |    |   --62.24%--crypt_page_alloc
+            |    |     |
+            |    |      --61.51%--__percpu_counter_compare
+            |    |        |
+            |    |         --61.34%--__percpu_counter_sum
+            |    |           |
+            |    |           |--58.68%--_raw_spin_lock_irqsave
+            |    |           |  |
+            |    |           |   --58.30%--native_queued_spin_lock_slowpath
+            |    |           |
+            |    |            --0.69%--cpumask_next
+            |    |                |
+            |    |                 --0.51%--_find_next_bit
+            |    |
+            |    |--10.61%--crypt_convert
+            |    |          |
+            |    |          |--6.05%--xts_crypt
+            ...
+
+After applying this patch and running the same test, %system usage is
+lowered to ~7% and write throughput on the loop device increases
+to ~2.7GB/s. perf report shows mempool_alloc() as ~8% rather than ~62%
+in the profile and not hitting the percpu_counter() spinlock anymore.
+
+    |--8.15%--mempool_alloc
+    |    |
+    |    |--3.93%--crypt_page_alloc
+    |    |    |
+    |    |     --3.75%--__alloc_pages
+    |    |         |
+    |    |          --3.62%--get_page_from_freelist
+    |    |              |
+    |    |               --3.22%--rmqueue_bulk
+    |    |                   |
+    |    |                    --2.59%--_raw_spin_lock
+    |    |                      |
+    |    |                       --2.57%--native_queued_spin_lock_slowpath
+    |    |
+    |     --3.05%--_raw_spin_lock_irqsave
+    |               |
+    |                --2.49%--native_queued_spin_lock_slowpath
+
+Suggested-by: DJ Gregor <dj@corelight.com>
+Reviewed-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Arne Welzel <arne.welzel@corelight.com>
+Fixes: 5059353df86e ("dm crypt: limit the number of allocated pages")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/cpufreq_schedutil.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/md/dm-crypt.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/kernel/sched/cpufreq_schedutil.c
-+++ b/kernel/sched/cpufreq_schedutil.c
-@@ -536,9 +536,17 @@ static struct attribute *sugov_attrs[] =
- };
- ATTRIBUTE_GROUPS(sugov);
+--- a/drivers/md/dm-crypt.c
++++ b/drivers/md/dm-crypt.c
+@@ -2661,7 +2661,12 @@ static void *crypt_page_alloc(gfp_t gfp_
+ 	struct crypt_config *cc = pool_data;
+ 	struct page *page;
  
-+static void sugov_tunables_free(struct kobject *kobj)
-+{
-+	struct gov_attr_set *attr_set = container_of(kobj, struct gov_attr_set, kobj);
-+
-+	kfree(to_sugov_tunables(attr_set));
-+}
-+
- static struct kobj_type sugov_tunables_ktype = {
- 	.default_groups = sugov_groups,
- 	.sysfs_ops = &governor_sysfs_ops,
-+	.release = &sugov_tunables_free,
- };
- 
- /********************** cpufreq governor interface *********************/
-@@ -638,12 +646,10 @@ static struct sugov_tunables *sugov_tuna
- 	return tunables;
- }
- 
--static void sugov_tunables_free(struct sugov_tunables *tunables)
-+static void sugov_clear_global_tunables(void)
- {
- 	if (!have_governor_per_policy())
- 		global_tunables = NULL;
--
--	kfree(tunables);
- }
- 
- static int sugov_init(struct cpufreq_policy *policy)
-@@ -706,7 +712,7 @@ out:
- fail:
- 	kobject_put(&tunables->attr_set.kobj);
- 	policy->governor_data = NULL;
--	sugov_tunables_free(tunables);
-+	sugov_clear_global_tunables();
- 
- stop_kthread:
- 	sugov_kthread_stop(sg_policy);
-@@ -733,7 +739,7 @@ static void sugov_exit(struct cpufreq_po
- 	count = gov_attr_set_put(&tunables->attr_set, &sg_policy->tunables_hook);
- 	policy->governor_data = NULL;
- 	if (!count)
--		sugov_tunables_free(tunables);
-+		sugov_clear_global_tunables();
- 
- 	mutex_unlock(&global_tunables_lock);
+-	if (unlikely(percpu_counter_compare(&cc->n_allocated_pages, dm_crypt_pages_per_client) >= 0) &&
++	/*
++	 * Note, percpu_counter_read_positive() may over (and under) estimate
++	 * the current usage by at most (batch - 1) * num_online_cpus() pages,
++	 * but avoids potential spinlock contention of an exact result.
++	 */
++	if (unlikely(percpu_counter_read_positive(&cc->n_allocated_pages) >= dm_crypt_pages_per_client) &&
+ 	    likely(gfp_mask & __GFP_NORETRY))
+ 		return NULL;
  
 
 
