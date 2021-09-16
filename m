@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 381DF40E056
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D8C240E710
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240870AbhIPQUw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:20:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55232 "EHLO mail.kernel.org"
+        id S1347710AbhIPR2F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:28:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241478AbhIPQTi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:19:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A9CE7613D2;
-        Thu, 16 Sep 2021 16:13:37 +0000 (UTC)
+        id S1348357AbhIPRZz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:25:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 18F2861BF9;
+        Thu, 16 Sep 2021 16:44:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808818;
-        bh=K/PGg6kLoihHZ8O6+cHlmGT+jLvgPdnTCFTMk7Bxex0=;
+        s=korg; t=1631810682;
+        bh=ezkR6FE9Ez4NXnqgMlKtUypzQDU5EPkRhUYB0p2hiQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u4e0epFlL3anwwpR7d+23O0GlIT2X8xjj3rxNh0PRwZ4chvvQbzT9j4AjzAG/Im40
-         4Yf8RDtQnst1uiTZW3PWliPEuL3O/iAsDangZ/jxllm1/MkdBtsUC15TGr5Ze6CpfR
-         LsFE2z57uEBEkyir7o1EPwBBIqui1SqQVw85B+r4=
+        b=D2LMxyjtZ0mO1sgM4EhnkVdV3kd1ehjtvf4DHwxxzihuTUsF0Sxj5F4qR6jBCSYkK
+         qcx4REfkZTOtfp4RvB/oTEh1+0sJBc3yppz6+xjHX5cMrpTjQ2nqzbl6s3nFTVLeI8
+         nDjg60orZoQNvj/IBimL9LYjAlIdBfeNOVB4/yGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhipeng Wang <zhipeng.wang_1@nxp.com>,
-        Li Jun <jun.li@nxp.com>, Peter Chen <peter.chen@kernel.org>,
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 233/306] usb: chipidea: host: fix port index underflow and UBSAN complains
+Subject: [PATCH 5.14 229/432] serial: 8250: Define RX trigger levels for OxSemi 950 devices
 Date:   Thu, 16 Sep 2021 17:59:38 +0200
-Message-Id: <20210916155801.994045399@linuxfoundation.org>
+Message-Id: <20210916155818.603483573@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +39,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-[ Upstream commit e5d6a7c6cfae9e714a0e8ff64facd1ac68a784c6 ]
+[ Upstream commit d7aff291d069c4418285f3c8ee27b0ff67ce5998 ]
 
-If wIndex is 0 (and it often is), these calculations underflow and
-UBSAN complains, here resolve this by not decrementing the index when
-it is equal to 0, this copies the solution from commit 85e3990bea49
-("USB: EHCI: avoid undefined pointer arithmetic and placate UBSAN")
+Oxford Semiconductor 950 serial port devices have a 128-byte FIFO and in
+the enhanced (650) mode, which we select in `autoconfig_has_efr' with
+the ECB bit set in the EFR register, they support the receive interrupt
+trigger level selectable with FCR bits 7:6 from the set of 16, 32, 112,
+120.  This applies to the original OX16C950 discrete UART[1] as well as
+950 cores embedded into more complex devices.
 
-Reported-by: Zhipeng Wang <zhipeng.wang_1@nxp.com>
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Link: https://lore.kernel.org/r/1624004938-2399-1-git-send-email-jun.li@nxp.com
-Signed-off-by: Peter Chen <peter.chen@kernel.org>
+For these devices we set the default to 112, which sets an excessively
+high level of 112 or 7/8 of the FIFO capacity, unlike with other port
+types where we choose at most 1/2 of their respective FIFO capacities.
+Additionally we don't make the trigger level configurable.  Consequently
+frequent input overruns happen with high bit rates where hardware flow
+control cannot be used (e.g. terminal applications) even with otherwise
+highly-performant systems.
+
+Lower the default receive interrupt trigger level to 32 then, and make
+it configurable.  Document the trigger levels along with other port
+types, including the set of 16, 32, 64, 112 for the transmit interrupt
+as well[2].
+
+
+[1] "OX16C950 rev B High Performance UART with 128 byte FIFOs", Oxford
+    Semiconductor, Inc., DS-0031, Sep 05, Table 10: "Receiver Trigger
+    Levels", p. 22
+
+[2] same, Table 9: "Transmit Interrupt Trigger Levels", p. 22
+
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2106260608480.37803@angie.orcam.me.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/chipidea/host.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/tty/serial/8250/8250_port.c | 3 ++-
+ include/uapi/linux/serial_reg.h     | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/chipidea/host.c b/drivers/usb/chipidea/host.c
-index 48e4a5ca1835..f5f56ee07729 100644
---- a/drivers/usb/chipidea/host.c
-+++ b/drivers/usb/chipidea/host.c
-@@ -233,18 +233,26 @@ static int ci_ehci_hub_control(
- )
- {
- 	struct ehci_hcd	*ehci = hcd_to_ehci(hcd);
-+	unsigned int	ports = HCS_N_PORTS(ehci->hcs_params);
- 	u32 __iomem	*status_reg;
--	u32		temp;
-+	u32		temp, port_index;
- 	unsigned long	flags;
- 	int		retval = 0;
- 	struct device *dev = hcd->self.controller;
- 	struct ci_hdrc *ci = dev_get_drvdata(dev);
- 
--	status_reg = &ehci->regs->port_status[(wIndex & 0xff) - 1];
-+	port_index = wIndex & 0xff;
-+	port_index -= (port_index > 0);
-+	status_reg = &ehci->regs->port_status[port_index];
- 
- 	spin_lock_irqsave(&ehci->lock, flags);
- 
- 	if (typeReq == SetPortFeature && wValue == USB_PORT_FEAT_SUSPEND) {
-+		if (!wIndex || wIndex > ports) {
-+			retval = -EPIPE;
-+			goto done;
-+		}
-+
- 		temp = ehci_readl(ehci, status_reg);
- 		if ((temp & PORT_PE) == 0 || (temp & PORT_RESET) != 0) {
- 			retval = -EPIPE;
-@@ -273,7 +281,7 @@ static int ci_ehci_hub_control(
- 			ehci_writel(ehci, temp, status_reg);
- 		}
- 
--		set_bit((wIndex & 0xff) - 1, &ehci->suspended_ports);
-+		set_bit(port_index, &ehci->suspended_ports);
- 		goto done;
- 	}
- 
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index 1da29a219842..66374704747e 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -122,7 +122,8 @@ static const struct serial8250_config uart_config[] = {
+ 		.name		= "16C950/954",
+ 		.fifo_size	= 128,
+ 		.tx_loadsz	= 128,
+-		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_10,
++		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_01,
++		.rxtrig_bytes	= {16, 32, 112, 120},
+ 		/* UART_CAP_EFR breaks billionon CF bluetooth card. */
+ 		.flags		= UART_CAP_FIFO | UART_CAP_SLEEP,
+ 	},
+diff --git a/include/uapi/linux/serial_reg.h b/include/uapi/linux/serial_reg.h
+index be07b5470f4b..f51bc8f36813 100644
+--- a/include/uapi/linux/serial_reg.h
++++ b/include/uapi/linux/serial_reg.h
+@@ -62,6 +62,7 @@
+  * ST16C654:	 8  16  56  60		 8  16  32  56	PORT_16654
+  * TI16C750:	 1  16  32  56		xx  xx  xx  xx	PORT_16750
+  * TI16C752:	 8  16  56  60		 8  16  32  56
++ * OX16C950:	16  32 112 120		16  32  64 112	PORT_16C950
+  * Tegra:	 1   4   8  14		16   8   4   1	PORT_TEGRA
+  */
+ #define UART_FCR_R_TRIG_00	0x00
 -- 
 2.30.2
 
