@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0224740E658
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EA2D40E2AB
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244240AbhIPRVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:21:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43510 "EHLO mail.kernel.org"
+        id S243927AbhIPQlL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:41:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351008AbhIPRSA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:18:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6716A61A0A;
-        Thu, 16 Sep 2021 16:40:49 +0000 (UTC)
+        id S242870AbhIPQh3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:37:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7327861439;
+        Thu, 16 Sep 2021 16:22:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810449;
-        bh=iLuBPChP8CnU6bCYsrI2zTFECfXArob8xnTlED8KBIs=;
+        s=korg; t=1631809342;
+        bh=quXyZ1nLaoVG94oIBq0it1F7qds3SnrQl+zd90DLktw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XGCkruLRsq7RldVpZtH9ymT4lhi95J/5TbVJdKPZtVhAR0XxMFVVoJ0jq92tx7OAf
-         8M3gA7W+GZiCh7WANKlHMy4YWMHBcaN1R/dCrKN6gu2u6JSH9oR2c8z0A532KWlnfR
-         wdJlpSFXhi+ew9Fsa+79Fr5i0OyAz3audtT5mdT4=
+        b=xUy+DPFFFO4HUdbXyxQiZZVayl/tOHmAc+/bzzIvC79JZRKm6QJnaP7cQxWk00Mr2
+         7HuVKbMTqIdwAfhg5utaftcrFg97oosU22+cmlpHSOwDW4yyeLlfWNewMxWx+GgM1j
+         FS6Cr9/Ck48rgqMvrGkbPSnWMqaYsoBTmHwt8KDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lang Cheng <chenglang@huawei.com>,
+        stable@vger.kernel.org,
+        Junxian Huang <huangjunxian4@hisilicon.com>,
         Wenpeng Liang <liangwenpeng@huawei.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 128/432] RDMA/hns: Ownerbit mode add control field
+Subject: [PATCH 5.13 120/380] RDMA/hns: Bugfix for data type of dip_idx
 Date:   Thu, 16 Sep 2021 17:57:57 +0200
-Message-Id: <20210916155815.094417837@linuxfoundation.org>
+Message-Id: <20210916155808.118474406@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lang Cheng <chenglang@huawei.com>
+From: Junxian Huang <huangjunxian4@hisilicon.com>
 
-[ Upstream commit f8c549afd1e76ad78b1d044a307783c9b94ae3ab ]
+[ Upstream commit 4303e61264c45cb535255c5b76400f5c4ab1305d ]
 
-The ownerbit mode is for external card mode. Make it controlled by the
-firmware.
+dip_idx is associated with qp_num whose data type is u32. However, dip_idx
+is incorrectly defined as u8 data in the hns_roce_dip struct, which leads
+to data truncation during value assignment.
 
-Fixes: aba457ca890c ("RDMA/hns: Support owner mode doorbell")
-Link: https://lore.kernel.org/r/1629539607-33217-4-git-send-email-liangwenpeng@huawei.com
-Signed-off-by: Lang Cheng <chenglang@huawei.com>
+Fixes: f91696f2f053 ("RDMA/hns: Support congestion control type selection according to the FW")
+Link: https://lore.kernel.org/r/1629884592-23424-2-git-send-email-liangwenpeng@huawei.com
+Signed-off-by: Junxian Huang <huangjunxian4@hisilicon.com>
 Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 594d4cef31b3..0e0be5664137 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -4114,6 +4114,9 @@ static void modify_qp_reset_to_init(struct ib_qp *ibqp,
- 	if (hr_qp->en_flags & HNS_ROCE_QP_CAP_RQ_RECORD_DB)
- 		hr_reg_enable(context, QPC_RQ_RECORD_EN);
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
+index 23cf2f6bc7a5..d4da840dbc2e 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
+@@ -1784,7 +1784,7 @@ struct hns_roce_eq_context {
  
-+	if (hr_qp->en_flags & HNS_ROCE_QP_CAP_OWNER_DB)
-+		hr_reg_enable(context, QPC_OWNER_MODE);
-+
- 	hr_reg_write(context, QPC_RQ_DB_RECORD_ADDR_L,
- 		     lower_32_bits(hr_qp->rdb.dma) >> 1);
- 	hr_reg_write(context, QPC_RQ_DB_RECORD_ADDR_H,
+ struct hns_roce_dip {
+ 	u8 dgid[GID_LEN_V2];
+-	u8 dip_idx;
++	u32 dip_idx;
+ 	struct list_head node;	/* all dips are on a list */
+ };
+ 
 -- 
 2.30.2
 
