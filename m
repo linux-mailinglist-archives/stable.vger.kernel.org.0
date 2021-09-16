@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACF9E40E82B
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0070040E48F
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:24:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349589AbhIPRoB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:44:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54410 "EHLO mail.kernel.org"
+        id S244461AbhIPREm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:04:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354593AbhIPRkZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:40:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 965D3615E2;
-        Thu, 16 Sep 2021 16:51:23 +0000 (UTC)
+        id S1347196AbhIPQ6O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:58:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EE2260238;
+        Thu, 16 Sep 2021 16:31:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811084;
-        bh=n5trVym9rA9eKT958C+3eitE2IdRM6j8B2EA8KcOOJs=;
+        s=korg; t=1631809905;
+        bh=6r3e4fFI0L1s1Y97K3IG8jSgzDA1fv8BgWIJ2Yf6GyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sCwi2/58KM1iTJqpB3N6FUmeSbF0Vr+BqIPx6Qz5KoK3tW3gjGEGm/efhCMOB0+FV
-         k3NZJc48xTPmPbBpYH0+dDRoJbQwTJcExRV5bF7jryArPM0nfjJxrZMylLEjbvJ+mm
-         A3A+d1C5DK+gFD3hGLAW9KwAiTNMQwn13hLBm0+Y=
+        b=2KnPxA3BbH3yey+gYlC2D1cpp5sKv3FU0YZBQ++W9cmvwk7nB/sUs7xkL5w6IpKNQ
+         8GNE5ycrdwKgQdLLu0dncyXeAaw51b6sNFyhPeRdDAHeZ/DU4r9oaWWKunxK02P7YD
+         il7oVOHw5YsFdyur3yiZLcRos+CRYOxwUYMHWhcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Greg Ungerer <gerg@linux-m68k.org>,
+        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 335/432] m68knommu: only set CONFIG_ISA_DMA_API for ColdFire sub-arch
+Subject: [PATCH 5.13 327/380] iwlwifi: mvm: Do not use full SSIDs in 6GHz scan
 Date:   Thu, 16 Sep 2021 18:01:24 +0200
-Message-Id: <20210916155822.202926935@linuxfoundation.org>
+Message-Id: <20210916155815.172687528@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,80 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Ilan Peer <ilan.peer@intel.com>
 
-[ Upstream commit db87db65c1059f3be04506d122f8ec9b2fa3b05e ]
+[ Upstream commit deedf9b97cd4ef45da476c9bdd2a5f3276053956 ]
 
-> Hi Arnd,
->
-> First bad commit (maybe != root cause):
->
-> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
-> head:   2f73937c9aa561e2082839bc1a8efaac75d6e244
-> commit: 47fd22f2b84765a2f7e3f150282497b902624547 [4771/5318] cs89x0: rework driver configuration
-> config: m68k-randconfig-c003-20210804 (attached as .config)
-> compiler: m68k-linux-gcc (GCC) 10.3.0
-> reproduce (this is a W=1 build):
->         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->         chmod +x ~/bin/make.cross
->         # https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=47fd22f2b84765a2f7e3f150282497b902624547
->         git remote add linux-next https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
->         git fetch --no-tags linux-next master
->         git checkout 47fd22f2b84765a2f7e3f150282497b902624547
->         # save the attached .config to linux build tree
->         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-10.3.0 make.cross ARCH=m68k
->
-> If you fix the issue, kindly add following tag as appropriate
-> Reported-by: kernel test robot <lkp@intel.com>
->
-> All errors (new ones prefixed by >>):
->
->    In file included from include/linux/kernel.h:19,
->                     from include/linux/list.h:9,
->                     from include/linux/module.h:12,
->                     from drivers/net/ethernet/cirrus/cs89x0.c:51:
->    drivers/net/ethernet/cirrus/cs89x0.c: In function 'net_open':
->    drivers/net/ethernet/cirrus/cs89x0.c:897:20: error: implicit declaration of function 'isa_virt_to_bus'; did you mean 'virt_to_bus'? [-Werror=implicit-function-declaration]
->      897 |     (unsigned long)isa_virt_to_bus(lp->dma_buff));
->          |                    ^~~~~~~~~~~~~~~
->    include/linux/printk.h:141:17: note: in definition of macro 'no_printk'
->      141 |   printk(fmt, ##__VA_ARGS__);  \
->          |                 ^~~~~~~~~~~
->    drivers/net/ethernet/cirrus/cs89x0.c:86:3: note: in expansion of macro 'pr_debug'
->       86 |   pr_##level(fmt, ##__VA_ARGS__);   \
->          |   ^~~
->    drivers/net/ethernet/cirrus/cs89x0.c:894:3: note: in expansion of macro 'cs89_dbg'
->      894 |   cs89_dbg(1, debug, "%s: dma %lx %lx\n",
->          |   ^~~~~~~~
-> >> drivers/net/ethernet/cirrus/cs89x0.c:914:3: error: implicit declaration of function 'disable_dma'; did you mean 'disable_irq'? [-Werror=implicit-function-declaration]
+The scan request processing populated the direct SSIDs
+in the FW scan request command also for 6GHz scan, which is not
+needed and might result in unexpected behavior.
 
-As far as I can tell, this is a bug with the m68kmmu architecture, not
-with my driver:
-The CONFIG_ISA_DMA_API option is provided for coldfire, which implements it,
-but dragonball also sets the option as a side-effect, without actually
-implementing
-the interfaces. The patch below should fix it.
+Fix the code to add the direct SSIDs only in case the scan
+is not a 6GHz scan.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+Signed-off-by: Ilan Peer <ilan.peer@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210802170640.f465937c7bbf.Ic11a1659ddda850c3ec1b1afbe9e2b9577ac1800@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/Kconfig.bus | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/scan.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/m68k/Kconfig.bus b/arch/m68k/Kconfig.bus
-index f1be832e2b74..d1e93a39cd3b 100644
---- a/arch/m68k/Kconfig.bus
-+++ b/arch/m68k/Kconfig.bus
-@@ -63,7 +63,7 @@ source "drivers/zorro/Kconfig"
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/scan.c b/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
+index 5a0696c44f6d..3627de2af344 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
+@@ -2368,14 +2368,17 @@ static int iwl_mvm_scan_umac_v14(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
+ 	if (ret)
+ 		return ret;
  
- endif
+-	iwl_mvm_scan_umac_fill_probe_p_v4(params, &scan_p->probe_params,
+-					  &bitmap_ssid);
+ 	if (!params->scan_6ghz) {
++		iwl_mvm_scan_umac_fill_probe_p_v4(params, &scan_p->probe_params,
++					  &bitmap_ssid);
+ 		iwl_mvm_scan_umac_fill_ch_p_v6(mvm, params, vif,
+-					       &scan_p->channel_params, bitmap_ssid);
++				       &scan_p->channel_params, bitmap_ssid);
  
--if !MMU
-+if COLDFIRE
- 
- config ISA_DMA_API
- 	def_bool !M5272
+ 		return 0;
++	} else {
++		pb->preq = params->preq;
+ 	}
++
+ 	cp->flags = iwl_mvm_scan_umac_chan_flags_v2(mvm, params, vif);
+ 	cp->n_aps_override[0] = IWL_SCAN_ADWELL_N_APS_GO_FRIENDLY;
+ 	cp->n_aps_override[1] = IWL_SCAN_ADWELL_N_APS_SOCIAL_CHS;
 -- 
 2.30.2
 
