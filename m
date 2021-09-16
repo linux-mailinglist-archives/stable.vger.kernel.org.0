@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B031840D99D
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 14:15:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13F6140D9A5
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 14:16:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239402AbhIPMQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 08:16:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33112 "EHLO mail.kernel.org"
+        id S239418AbhIPMRb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 08:17:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239308AbhIPMQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 08:16:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41BCC60F4A;
-        Thu, 16 Sep 2021 12:15:38 +0000 (UTC)
+        id S239367AbhIPMRa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 08:17:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBAF460F4A;
+        Thu, 16 Sep 2021 12:16:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631794538;
-        bh=ZDmH9uuCRfpXaq3nYJY52IMN//Ww28iH4B4mPEFGIjY=;
+        s=korg; t=1631794570;
+        bh=7h3NyJpMbuyKhJbRDijEfzWZZarVy6pIX9tDAzhitW4=;
         h=Subject:To:Cc:From:Date:From;
-        b=gnwtFjOAnJ1CnSkc+B7JCuEQ3gcCeC9Z9KYAujX41Vdwqixa248j/XASXidqqLhQW
-         0SFDqp61H8q3s71B4VeBURzZ8FbIl3PcHif9AdXruVk/TnfZddLFMArFPxVk5LOMVm
-         ZJFvrsCM7uMcVqkaE/hXTNDG7XuM46V5MO51gNE4=
-Subject: FAILED: patch "[PATCH] cpufreq: powernv: Fix init_chip_info initialization in" failed to apply to 4.9-stable tree
-To:     psampat@linux.ibm.com, ego@linux.vnet.ibm.com, mpe@ellerman.id.au,
-        shirisha.ganta1@ibm.com
+        b=BjbtQwD5UR+fLWYjzFJr26P8DAVMZoucEKf2M521Ja+lV5RALjz/tCwnyXIHVfjkF
+         m3vXRsGz98qqDCQ2WaShVfwnGgWOindYwQA72MUltQ8F3ZZA7DP6DLGt88xcXzlNrw
+         oaOS33fCA3tAzyLNhwa0iL2k+aZ0aQ2X125ZAt8I=
+Subject: FAILED: patch "[PATCH] s390/topology: fix topology information when calling cpu" failed to apply to 5.10-stable tree
+To:     svens@linux.ibm.com, hca@linux.ibm.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 16 Sep 2021 14:15:28 +0200
-Message-ID: <163179452841128@kroah.com>
+Date:   Thu, 16 Sep 2021 14:16:08 +0200
+Message-ID: <163179456820396@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -46,88 +45,135 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f34ee9cb2c5ac5af426fee6fa4591a34d187e696 Mon Sep 17 00:00:00 2001
-From: "Pratik R. Sampat" <psampat@linux.ibm.com>
-Date: Wed, 28 Jul 2021 17:35:00 +0530
-Subject: [PATCH] cpufreq: powernv: Fix init_chip_info initialization in
- numa=off
+From a052096bdd6809eeab809202726634d1ac975aa1 Mon Sep 17 00:00:00 2001
+From: Sven Schnelle <svens@linux.ibm.com>
+Date: Fri, 27 Aug 2021 20:21:05 +0200
+Subject: [PATCH] s390/topology: fix topology information when calling cpu
+ hotplug notifiers
 
-In the numa=off kernel command-line configuration init_chip_info() loops
-around the number of chips and attempts to copy the cpumask of that node
-which is NULL for all iterations after the first chip.
+The cpu hotplug notifiers are called without updating the core/thread
+masks when a new CPU is added. This causes problems with code setting
+up data structures in a cpu hotplug notifier, and relying on that later
+in normal code.
 
-Hence, store the cpu mask for each chip instead of derving cpumask from
-node while populating the "chips" struct array and copy that to the
-chips[i].mask
+This caused a crash in the new core scheduling code (SCHED_CORE),
+where rq->core was set up in a notifier depending on cpu masks.
 
-Fixes: 053819e0bf84 ("cpufreq: powernv: Handle throttling due to Pmax capping at chip level")
-Cc: stable@vger.kernel.org # v4.3+
-Reported-by: Shirisha Ganta <shirisha.ganta1@ibm.com>
-Signed-off-by: Pratik R. Sampat <psampat@linux.ibm.com>
-Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
-[mpe: Rename goto label to out_free_chip_cpu_mask]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210728120500.87549-2-psampat@linux.ibm.com
+To fix this, add a cpu_setup_mask which is used in update_cpu_masks()
+instead of the cpu_online_mask to determine whether the cpu masks should
+be set for a certain cpu. Also move update_cpu_masks() to update the
+masks before calling notify_cpu_starting() so that the notifiers are
+seeing the updated masks.
 
-diff --git a/drivers/cpufreq/powernv-cpufreq.c b/drivers/cpufreq/powernv-cpufreq.c
-index 005600cef273..6fbb46b2f6da 100644
---- a/drivers/cpufreq/powernv-cpufreq.c
-+++ b/drivers/cpufreq/powernv-cpufreq.c
-@@ -36,6 +36,7 @@
- #define MAX_PSTATE_SHIFT	32
- #define LPSTATE_SHIFT		48
- #define GPSTATE_SHIFT		56
-+#define MAX_NR_CHIPS		32
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
+[hca@linux.ibm.com: get rid of cpu_online_mask handling]
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+
+diff --git a/arch/s390/include/asm/smp.h b/arch/s390/include/asm/smp.h
+index e317fd4866c1..f16f4d054ae2 100644
+--- a/arch/s390/include/asm/smp.h
++++ b/arch/s390/include/asm/smp.h
+@@ -18,6 +18,7 @@ extern struct mutex smp_cpu_state_mutex;
+ extern unsigned int smp_cpu_mt_shift;
+ extern unsigned int smp_cpu_mtid;
+ extern __vector128 __initdata boot_cpu_vector_save_area[__NUM_VXRS];
++extern cpumask_t cpu_setup_mask;
  
- #define MAX_RAMP_DOWN_TIME				5120
- /*
-@@ -1046,12 +1047,20 @@ static int init_chip_info(void)
- 	unsigned int *chip;
- 	unsigned int cpu, i;
- 	unsigned int prev_chip_id = UINT_MAX;
-+	cpumask_t *chip_cpu_mask;
- 	int ret = 0;
+ extern int __cpu_up(unsigned int cpu, struct task_struct *tidle);
  
- 	chip = kcalloc(num_possible_cpus(), sizeof(*chip), GFP_KERNEL);
- 	if (!chip)
- 		return -ENOMEM;
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index 2a991e43ead3..1a04e5bdf655 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -95,6 +95,7 @@ __vector128 __initdata boot_cpu_vector_save_area[__NUM_VXRS];
+ #endif
  
-+	/* Allocate a chip cpu mask large enough to fit mask for all chips */
-+	chip_cpu_mask = kcalloc(MAX_NR_CHIPS, sizeof(cpumask_t), GFP_KERNEL);
-+	if (!chip_cpu_mask) {
-+		ret = -ENOMEM;
-+		goto free_and_return;
+ static unsigned int smp_max_threads __initdata = -1U;
++cpumask_t cpu_setup_mask;
+ 
+ static int __init early_nosmt(char *s)
+ {
+@@ -902,13 +903,14 @@ static void smp_start_secondary(void *cpuvoid)
+ 	vtime_init();
+ 	vdso_getcpu_init();
+ 	pfault_init();
++	cpumask_set_cpu(cpu, &cpu_setup_mask);
++	update_cpu_masks();
+ 	notify_cpu_starting(cpu);
+ 	if (topology_cpu_dedicated(cpu))
+ 		set_cpu_flag(CIF_DEDICATED_CPU);
+ 	else
+ 		clear_cpu_flag(CIF_DEDICATED_CPU);
+ 	set_cpu_online(cpu, true);
+-	update_cpu_masks();
+ 	inc_irq_stat(CPU_RST);
+ 	local_irq_enable();
+ 	cpu_startup_entry(CPUHP_AP_ONLINE_IDLE);
+@@ -950,10 +952,13 @@ early_param("possible_cpus", _setup_possible_cpus);
+ int __cpu_disable(void)
+ {
+ 	unsigned long cregs[16];
++	int cpu;
+ 
+ 	/* Handle possible pending IPIs */
+ 	smp_handle_ext_call();
+-	set_cpu_online(smp_processor_id(), false);
++	cpu = smp_processor_id();
++	set_cpu_online(cpu, false);
++	cpumask_clear_cpu(cpu, &cpu_setup_mask);
+ 	update_cpu_masks();
+ 	/* Disable pseudo page faults on this cpu. */
+ 	pfault_fini();
+diff --git a/arch/s390/kernel/topology.c b/arch/s390/kernel/topology.c
+index d2458a29618f..58f8291950cb 100644
+--- a/arch/s390/kernel/topology.c
++++ b/arch/s390/kernel/topology.c
+@@ -67,7 +67,7 @@ static void cpu_group_map(cpumask_t *dst, struct mask_info *info, unsigned int c
+ 	static cpumask_t mask;
+ 
+ 	cpumask_clear(&mask);
+-	if (!cpu_online(cpu))
++	if (!cpumask_test_cpu(cpu, &cpu_setup_mask))
+ 		goto out;
+ 	cpumask_set_cpu(cpu, &mask);
+ 	switch (topology_mode) {
+@@ -88,7 +88,7 @@ static void cpu_group_map(cpumask_t *dst, struct mask_info *info, unsigned int c
+ 	case TOPOLOGY_MODE_SINGLE:
+ 		break;
+ 	}
+-	cpumask_and(&mask, &mask, cpu_online_mask);
++	cpumask_and(&mask, &mask, &cpu_setup_mask);
+ out:
+ 	cpumask_copy(dst, &mask);
+ }
+@@ -99,16 +99,16 @@ static void cpu_thread_map(cpumask_t *dst, unsigned int cpu)
+ 	int i;
+ 
+ 	cpumask_clear(&mask);
+-	if (!cpu_online(cpu))
++	if (!cpumask_test_cpu(cpu, &cpu_setup_mask))
+ 		goto out;
+ 	cpumask_set_cpu(cpu, &mask);
+ 	if (topology_mode != TOPOLOGY_MODE_HW)
+ 		goto out;
+ 	cpu -= cpu % (smp_cpu_mtid + 1);
+-	for (i = 0; i <= smp_cpu_mtid; i++)
+-		if (cpu_present(cpu + i))
++	for (i = 0; i <= smp_cpu_mtid; i++) {
++		if (cpumask_test_cpu(cpu + i, &cpu_setup_mask))
+ 			cpumask_set_cpu(cpu + i, &mask);
+-	cpumask_and(&mask, &mask, cpu_online_mask);
 +	}
-+
- 	for_each_possible_cpu(cpu) {
- 		unsigned int id = cpu_to_chip_id(cpu);
- 
-@@ -1059,22 +1068,25 @@ static int init_chip_info(void)
- 			prev_chip_id = id;
- 			chip[nr_chips++] = id;
- 		}
-+		cpumask_set_cpu(cpu, &chip_cpu_mask[nr_chips-1]);
- 	}
- 
- 	chips = kcalloc(nr_chips, sizeof(struct chip), GFP_KERNEL);
- 	if (!chips) {
- 		ret = -ENOMEM;
--		goto free_and_return;
-+		goto out_free_chip_cpu_mask;
- 	}
- 
- 	for (i = 0; i < nr_chips; i++) {
- 		chips[i].id = chip[i];
--		cpumask_copy(&chips[i].mask, cpumask_of_node(chip[i]));
-+		cpumask_copy(&chips[i].mask, &chip_cpu_mask[i]);
- 		INIT_WORK(&chips[i].throttle, powernv_cpufreq_work_fn);
- 		for_each_cpu(cpu, &chips[i].mask)
- 			per_cpu(chip_info, cpu) =  &chips[i];
- 	}
- 
-+out_free_chip_cpu_mask:
-+	kfree(chip_cpu_mask);
- free_and_return:
- 	kfree(chip);
- 	return ret;
+ out:
+ 	cpumask_copy(dst, &mask);
+ }
+@@ -569,6 +569,7 @@ void __init topology_init_early(void)
+ 	alloc_masks(info, &book_info, 2);
+ 	alloc_masks(info, &drawer_info, 3);
+ out:
++	cpumask_set_cpu(0, &cpu_setup_mask);
+ 	__arch_update_cpu_topology();
+ 	__arch_update_dedicated_flag(NULL);
+ }
 
