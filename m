@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C291540E7EC
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:59:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E080B40E0E0
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:28:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347889AbhIPRgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:36:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50268 "EHLO mail.kernel.org"
+        id S241444AbhIPQZM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:25:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349164AbhIPRdy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:33:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA6176321D;
-        Thu, 16 Sep 2021 16:48:06 +0000 (UTC)
+        id S235730AbhIPQXW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:23:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B802E61462;
+        Thu, 16 Sep 2021 16:15:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810887;
-        bh=8ktpIn8aD+vf73izuBIF3RDcvDUaoOZclSnHSOlqX9Y=;
+        s=korg; t=1631808940;
+        bh=OObXcfMPhShBnk286/vBx+X4jknTOz5u8U8voGgtQbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O/qC4IF8arI+FNyeExjGonNqYrLEjFJh2yVm5UpWyszJugVQ6MCJLqBhGm/8rvHd0
-         Z2W7NB7M4FHsV1A/VRl6zAWBC8bhLqtUxHJeWldvjqZJqPIjTr1cKPmEuHv25JVmtl
-         EFlN+TxBgrfZ7MsI85pqiu2GuozackVCkhnAL+8E=
+        b=IlBvCsTDAigex2VHMVPoLDkGrJHn2gVea7jsQQe64NK5Af+f/d/JcoUJz+Z+URalh
+         BSThs/HaS22WJ9i9hWCDqXab7AZfveZLWoigMtr5+wjUk26xeQOjUT9+fD5x8fRQYj
+         PVuEV9ONQ/YGwlx6Wh5C0XH53VoaxHgWkGftS5j4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Guojia Liao <liaoguojia@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 273/432] arm64: dts: qcom: msm8996: dont use underscore in node name
+Subject: [PATCH 5.10 277/306] net: hns3: clean up a type mismatch warning
 Date:   Thu, 16 Sep 2021 18:00:22 +0200
-Message-Id: <20210916155820.062076984@linuxfoundation.org>
+Message-Id: <20210916155803.516967343@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Guojia Liao <liaoguojia@huawei.com>
 
-[ Upstream commit 84f3efbe5b4654077608bc2fc027177fe4592321 ]
+[ Upstream commit e79c0e324b011b0288cd411a5b53870a7730f163 ]
 
-We have underscore (_) in node name leading to warning:
+abs() returns signed long, which could not convert the type
+as unsigned, and it may cause a mismatch type warning from
+static tools. To fix it, this patch uses an variable to save
+the abs()'s result and does a explicit conversion.
 
-arch/arm64/boot/dts/qcom/apq8096-db820c.dt.yaml: clocks: $nodename:0: 'clocks' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
-arch/arm64/boot/dts/qcom/apq8096-db820c.dt.yaml: clocks: xo_board: {'type': 'object'} is not allowed for {'compatible': ['fixed-clock'], '#clock-cells': [[0]], 'clock-frequency': [[19200000]], 'clock-output-names': ['xo_board'], 'phandle': [[115]]}
-
-Fix this by changing node name to use dash (-)
-
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20210308060826.3074234-10-vkoul@kernel.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Guojia Liao <liaoguojia@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8996.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
-index 78c55ca10ba9..77bc233f8380 100644
---- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
-@@ -19,14 +19,14 @@ / {
- 	chosen { };
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+index 61f6f0287cbe..ff9d84a7147f 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+@@ -10,7 +10,14 @@
  
- 	clocks {
--		xo_board: xo_board {
-+		xo_board: xo-board {
- 			compatible = "fixed-clock";
- 			#clock-cells = <0>;
- 			clock-frequency = <19200000>;
- 			clock-output-names = "xo_board";
- 		};
+ static u16 hclge_errno_to_resp(int errno)
+ {
+-	return abs(errno);
++	int resp = abs(errno);
++
++	/* The status for pf to vf msg cmd is u16, constrainted by HW.
++	 * We need to keep the same type with it.
++	 * The intput errno is the stander error code, it's safely to
++	 * use a u16 to store the abs(errno).
++	 */
++	return (u16)resp;
+ }
  
--		sleep_clk: sleep_clk {
-+		sleep_clk: sleep-clk {
- 			compatible = "fixed-clock";
- 			#clock-cells = <0>;
- 			clock-frequency = <32764>;
+ /* hclge_gen_resp_to_vf: used to generate a synchronous response to VF when PF
 -- 
 2.30.2
 
