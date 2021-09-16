@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE2E540E24E
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:16:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E47B40E61B
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244048AbhIPQgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:36:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43876 "EHLO mail.kernel.org"
+        id S1343542AbhIPRSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:18:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244118AbhIPQes (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:34:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EA6461881;
-        Thu, 16 Sep 2021 16:20:54 +0000 (UTC)
+        id S244033AbhIPRP6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:15:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA28161BA9;
+        Thu, 16 Sep 2021 16:40:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809254;
-        bh=cHUHS7ylQBndbebOAwQBZXt+puIUFvKgbQ0B7P73eJE=;
+        s=korg; t=1631810406;
+        bh=2c564s1YOaZHirVIPzFibjwRVW4tqyevA+HN7Iu96gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q/VQMXiIemw+aGNLN/ONJzePpLr7Aq8Bjo4xERk+b27nftvZnJ+zpU5B9drS/2KCi
-         SMlPyObTFLdOuo7iibHmHOhFejOi0qXSiwvUVrILCy71/8U1ltCrZA4Ec1J0INoJ4B
-         rP53ClXKcoDoEu2rCsekvigZoFFs+Epq9DRNR4nk=
+        b=w4DgvKc30QFLGhK5PPeHLgDZuMirv0QunDGN6ZBW2RSYsN4Qj0dx9Yr2q/ny1/TYd
+         Zz5nZOrfSry7uBroGmtRc0fyqOHEqBQ++lVdDZvozSfzC6+lTTQMC/evLW79w7ME+M
+         k6o8zP4yDM5vT5BoxmvAIMp+z3mcqvdE3Sedkhaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        stable@vger.kernel.org, Gal Pressman <galpress@amazon.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 088/380] RDMA/mlx5: Delete not-available udata check
-Date:   Thu, 16 Sep 2021 17:57:25 +0200
-Message-Id: <20210916155807.038426146@linuxfoundation.org>
+Subject: [PATCH 5.14 097/432] RDMA/efa: Remove double QP type assignment
+Date:   Thu, 16 Sep 2021 17:57:26 +0200
+Message-Id: <20210916155814.069583847@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +43,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit 5f6bb7e32283b8e3339b7adc00638234ac199cc4 ]
+[ Upstream commit f9193d266347fe9bed5c173e7a1bf96268142a79 ]
 
-XRC_TGT QPs are created through kernel verbs and don't have udata at all.
+The QP type is set by the IB/core and shouldn't be set in the driver.
 
-Fixes: 6eefa839c4dd ("RDMA/mlx5: Protect from kernel crash if XRC_TGT doesn't have udata")
-Fixes: e383085c2425 ("RDMA/mlx5: Set ECE options during QP create")
-Link: https://lore.kernel.org/r/b68228597e730675020aa5162745390a2d39d3a2.1628014762.git.leonro@nvidia.com
+Fixes: 40909f664d27 ("RDMA/efa: Add EFA verbs implementation")
+Link: https://lore.kernel.org/r/838c40134c1590167b888ca06ad51071139ff2ae.1627040189.git.leonro@nvidia.com
+Acked-by: Gal Pressman <galpress@amazon.com>
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/qp.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/infiniband/hw/efa/efa_verbs.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
-index 5851486c0d93..2471f48ea5f3 100644
---- a/drivers/infiniband/hw/mlx5/qp.c
-+++ b/drivers/infiniband/hw/mlx5/qp.c
-@@ -1896,7 +1896,6 @@ static int get_atomic_mode(struct mlx5_ib_dev *dev,
- static int create_xrc_tgt_qp(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
- 			     struct mlx5_create_qp_params *params)
- {
--	struct mlx5_ib_create_qp *ucmd = params->ucmd;
- 	struct ib_qp_init_attr *attr = params->attr;
- 	u32 uidx = params->uidx;
- 	struct mlx5_ib_resources *devr = &dev->devr;
-@@ -1916,8 +1915,6 @@ static int create_xrc_tgt_qp(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
- 	if (!in)
- 		return -ENOMEM;
+diff --git a/drivers/infiniband/hw/efa/efa_verbs.c b/drivers/infiniband/hw/efa/efa_verbs.c
+index be6d3ff0f1be..29c9df9f25aa 100644
+--- a/drivers/infiniband/hw/efa/efa_verbs.c
++++ b/drivers/infiniband/hw/efa/efa_verbs.c
+@@ -717,7 +717,6 @@ struct ib_qp *efa_create_qp(struct ib_pd *ibpd,
  
--	if (MLX5_CAP_GEN(mdev, ece_support) && ucmd)
--		MLX5_SET(create_qp_in, in, ece, ucmd->ece_options);
- 	qpc = MLX5_ADDR_OF(create_qp_in, in, qpc);
- 
- 	MLX5_SET(qpc, qpc, st, MLX5_QP_ST_XRC);
+ 	qp->qp_handle = create_qp_resp.qp_handle;
+ 	qp->ibqp.qp_num = create_qp_resp.qp_num;
+-	qp->ibqp.qp_type = init_attr->qp_type;
+ 	qp->max_send_wr = init_attr->cap.max_send_wr;
+ 	qp->max_recv_wr = init_attr->cap.max_recv_wr;
+ 	qp->max_send_sge = init_attr->cap.max_send_sge;
 -- 
 2.30.2
 
