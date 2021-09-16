@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1348A40E6C2
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:31:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EB2D40E2E8
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344041AbhIPRZM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:25:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44128 "EHLO mail.kernel.org"
+        id S1343613AbhIPQmt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:42:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236705AbhIPRWi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:22:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DAD061356;
-        Thu, 16 Sep 2021 16:43:11 +0000 (UTC)
+        id S242114AbhIPQks (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:40:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2638361A10;
+        Thu, 16 Sep 2021 16:24:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810592;
-        bh=sQlpCIQOIZc/1gWnMmczeaTUI9JHZ8cwU8Uv5hxetBk=;
+        s=korg; t=1631809443;
+        bh=p7uRIQ6xAKswJhj7snL0VgWGtQnH/OK2ukEsfDj4EoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mHd5qTGeBYBkkns/Va562UnUjR6u5gTECXP6PmbW3T2YiiMcjmSp3M8bgzv7I1FgI
-         rOdkzLUoWvwUEVoC1W3B984UcZhJICJZg/N7rTJyv5tL564ml+vurtFZpL7in0+99I
-         md7a9kj2uayQB+u1ktQ61juJl6xWEW5R191gZHgQ=
+        b=L00X0yuRBM6dIUuGkOAM7vzXzdSb3eARddb3ui6JNznVDq+BPONL3ociodbTo+J6V
+         M8DunRPD9mSiRX3LAfP5gdsaqSifMQHc3Oa/5ItP406wJjx/K4cpQ470sKA06oNEkd
+         vY8zpQYdvX0EP1hz/uDE6CTUcVGiX2shO9tyq9Y8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        stable@vger.kernel.org, Stefan Assmann <sassmann@kpanic.de>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 165/432] dma-buf: fix dma_resv_test_signaled test_all handling v2
+Subject: [PATCH 5.13 157/380] iavf: do not override the adapter state in the watchdog task
 Date:   Thu, 16 Sep 2021 17:58:34 +0200
-Message-Id: <20210916155816.339127096@linuxfoundation.org>
+Message-Id: <20210916155809.423041835@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,91 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Stefan Assmann <sassmann@kpanic.de>
 
-[ Upstream commit 9d38814d1e346ea37a51cbf31f4424c9d059459e ]
+[ Upstream commit 22c8fd71d3a5e6fe584ccc2c1e8760e5baefd5aa ]
 
-As the name implies if testing all fences is requested we
-should indeed test all fences and not skip the exclusive
-one because we see shared ones.
+The iavf watchdog task overrides adapter->state to __IAVF_RESETTING
+when it detects a pending reset. Then schedules iavf_reset_task() which
+takes care of the reset.
 
-v2: fix logic once more
+The reset task is capable of handling the reset without changing
+adapter->state. In fact we lose the state information when the watchdog
+task prematurely changes the adapter state. This may lead to a crash if
+instead of the reset task the iavf_remove() function gets called before
+the reset task.
+In that case (if we were in state __IAVF_RUNNING previously) the
+iavf_remove() function triggers iavf_close() which fails to close the
+device because of the incorrect state information.
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210702111642.17259-3-christian.koenig@amd.com
+This may result in a crash due to pending interrupts.
+kernel BUG at drivers/pci/msi.c:357!
+[...]
+Call Trace:
+ [<ffffffffbddf24dd>] pci_disable_msix+0x3d/0x50
+ [<ffffffffc08d2a63>] iavf_reset_interrupt_capability+0x23/0x40 [iavf]
+ [<ffffffffc08d312a>] iavf_remove+0x10a/0x350 [iavf]
+ [<ffffffffbddd3359>] pci_device_remove+0x39/0xc0
+ [<ffffffffbdeb492f>] __device_release_driver+0x7f/0xf0
+ [<ffffffffbdeb49c3>] device_release_driver+0x23/0x30
+ [<ffffffffbddcabb4>] pci_stop_bus_device+0x84/0xa0
+ [<ffffffffbddcacc2>] pci_stop_and_remove_bus_device+0x12/0x20
+ [<ffffffffbddf361f>] pci_iov_remove_virtfn+0xaf/0x160
+ [<ffffffffbddf3bcc>] sriov_disable+0x3c/0xf0
+ [<ffffffffbddf3ca3>] pci_disable_sriov+0x23/0x30
+ [<ffffffffc0667365>] i40e_free_vfs+0x265/0x2d0 [i40e]
+ [<ffffffffc0667624>] i40e_pci_sriov_configure+0x144/0x1f0 [i40e]
+ [<ffffffffbddd5307>] sriov_numvfs_store+0x177/0x1d0
+Code: 00 00 e8 3c 25 e3 ff 49 c7 86 88 08 00 00 00 00 00 00 5b 41 5c 41 5d 41 5e 41 5f 5d c3 48 8b 7b 28 e8 0d 44
+RIP  [<ffffffffbbbf1068>] free_msi_irqs+0x188/0x190
+
+The solution is to not touch the adapter->state in iavf_watchdog_task()
+and let the reset task handle the state transition.
+
+Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma-buf/dma-resv.c | 33 ++++++++++++---------------------
- 1 file changed, 12 insertions(+), 21 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/dma-buf/dma-resv.c b/drivers/dma-buf/dma-resv.c
-index f26c71747d43..e744fd87c63c 100644
---- a/drivers/dma-buf/dma-resv.c
-+++ b/drivers/dma-buf/dma-resv.c
-@@ -615,25 +615,21 @@ static inline int dma_resv_test_signaled_single(struct dma_fence *passed_fence)
-  */
- bool dma_resv_test_signaled(struct dma_resv *obj, bool test_all)
- {
--	unsigned int seq, shared_count;
-+	struct dma_fence *fence;
-+	unsigned int seq;
- 	int ret;
- 
- 	rcu_read_lock();
- retry:
- 	ret = true;
--	shared_count = 0;
- 	seq = read_seqcount_begin(&obj->seq);
- 
- 	if (test_all) {
- 		struct dma_resv_list *fobj = dma_resv_shared_list(obj);
--		unsigned int i;
--
--		if (fobj)
--			shared_count = fobj->shared_count;
-+		unsigned int i, shared_count;
- 
-+		shared_count = fobj ? fobj->shared_count : 0;
- 		for (i = 0; i < shared_count; ++i) {
--			struct dma_fence *fence;
--
- 			fence = rcu_dereference(fobj->shared[i]);
- 			ret = dma_resv_test_signaled_single(fence);
- 			if (ret < 0)
-@@ -641,24 +637,19 @@ bool dma_resv_test_signaled(struct dma_resv *obj, bool test_all)
- 			else if (!ret)
- 				break;
- 		}
--
--		if (read_seqcount_retry(&obj->seq, seq))
--			goto retry;
- 	}
- 
--	if (!shared_count) {
--		struct dma_fence *fence_excl = dma_resv_excl_fence(obj);
--
--		if (fence_excl) {
--			ret = dma_resv_test_signaled_single(fence_excl);
--			if (ret < 0)
--				goto retry;
-+	fence = dma_resv_excl_fence(obj);
-+	if (ret && fence) {
-+		ret = dma_resv_test_signaled_single(fence);
-+		if (ret < 0)
-+			goto retry;
- 
--			if (read_seqcount_retry(&obj->seq, seq))
--				goto retry;
--		}
- 	}
- 
-+	if (read_seqcount_retry(&obj->seq, seq))
-+		goto retry;
-+
- 	rcu_read_unlock();
- 	return ret;
- }
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 606a01ce4073..0d0f16617dde 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -1984,7 +1984,6 @@ static void iavf_watchdog_task(struct work_struct *work)
+ 		/* check for hw reset */
+ 	reg_val = rd32(hw, IAVF_VF_ARQLEN1) & IAVF_VF_ARQLEN1_ARQENABLE_MASK;
+ 	if (!reg_val) {
+-		adapter->state = __IAVF_RESETTING;
+ 		adapter->flags |= IAVF_FLAG_RESET_PENDING;
+ 		adapter->aq_required = 0;
+ 		adapter->current_op = VIRTCHNL_OP_UNKNOWN;
 -- 
 2.30.2
 
