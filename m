@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2013740E78C
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:33:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07F4940E107
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:28:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353470AbhIPRd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:33:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50264 "EHLO mail.kernel.org"
+        id S241143AbhIPQ0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:26:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347462AbhIPRby (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:31:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50EF16124F;
-        Thu, 16 Sep 2021 16:47:34 +0000 (UTC)
+        id S241171AbhIPQYu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:24:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 271EB613B5;
+        Thu, 16 Sep 2021 16:16:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810854;
-        bh=NBZ3JN46V0IjrFhuFn+RcDf9fW23nxajn0eDeMrhbLI=;
+        s=korg; t=1631808985;
+        bh=tf9OrmOWdZrKDyB7NvmpyNm12addAN9827dFW//GZRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YRNt/rBOaaQaVjSzsfKEeLZYZdlgoEuvgKfb/34xdhggIUR8PLgxHyG5U4SdkRDqT
-         puT3ByF5NRU+/NEuoSQV7iJCCt7MMD50j0wDto4F2jqENZm+zStJfqJX62feiX8VNy
-         r6hi2lyfbxHovIp5uYNRc2wC2S/MZEKhm8c9QxRk=
+        b=c3nHFRWO4Imd8e7FIQZph7sIKbmQMYMTZ85M+sZtsrammu+S2b0lkuFKJJKZ7kQuM
+         pnZofdXRrBR6PWRp0KAbX6RcgAOaoNHeknb4eTQNhthPQvUPPoEoC1XugfYM/mQGh3
+         KE8k/apatBHFh0Ll7D14NimrpN3lJJCgxZCbeh5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuogee Hsieh <khsieh@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 292/432] drm/msm/dp: return correct edid checksum after corrupted edid checksum read
+        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Emil Velikov <emil.velikov@collabora.com>,
+        Dave Airlie <airlied@redhat.com>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH 5.10 296/306] drm/mgag200: Select clock in PLL update functions
 Date:   Thu, 16 Sep 2021 18:00:41 +0200
-Message-Id: <20210916155820.722956261@linuxfoundation.org>
+Message-Id: <20210916155804.189022669@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +42,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <khsieh@codeaurora.org>
+From: Thomas Zimmermann <tzimmermann@suse.de>
 
-[ Upstream commit 7948fe12d47a946fb8025a0534c900e3dd4b5839 ]
+commit 147696720eca12ae48d020726208b9a61cdd80bc upstream.
 
-Response with correct edid checksum saved at connector after corrupted edid
-checksum read. This fixes Link Layer CTS cases 4.2.2.3, 4.2.2.6.
+Put the clock-selection code into each of the PLL-update functions to
+make them select the correct pixel clock. Instead of copying the code,
+introduce a new helper WREG_MISC_MASKED, which does masked writes into
+<MISC>. Use it from each individual PLL update function.
 
-Signed-off-by: Kuogee Hsieh <khsieh@codeaurora.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/1628196295-7382-6-git-send-email-khsieh@codeaurora.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The pixel clock for video output was not actually set before programming
+the clock's values. It worked because the device had the correct clock
+pre-set.
+
+v2:
+	* don't duplicate <MISC> update code (Sam)
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: db05f8d3dc87 ("drm/mgag200: Split MISC register update into PLL selection, SYNC and I/O")
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Emil Velikov <emil.velikov@collabora.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.9+
+Link: https://patchwork.freedesktop.org/patch/msgid/20210714142240.21979-2-tzimmermann@suse.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/dp/dp_panel.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/mgag200/mgag200_drv.h  |   16 ++++++++++++++++
+ drivers/gpu/drm/mgag200/mgag200_mode.c |   20 +++++++++++++-------
+ drivers/gpu/drm/mgag200/mgag200_reg.h  |    9 ++++-----
+ 3 files changed, 33 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_panel.c b/drivers/gpu/drm/msm/dp/dp_panel.c
-index 440b32753430..2181b60e1d1d 100644
---- a/drivers/gpu/drm/msm/dp/dp_panel.c
-+++ b/drivers/gpu/drm/msm/dp/dp_panel.c
-@@ -271,7 +271,7 @@ static u8 dp_panel_get_edid_checksum(struct edid *edid)
- {
- 	struct edid *last_block;
- 	u8 *raw_edid;
--	bool is_edid_corrupt;
-+	bool is_edid_corrupt = false;
+--- a/drivers/gpu/drm/mgag200/mgag200_drv.h
++++ b/drivers/gpu/drm/mgag200/mgag200_drv.h
+@@ -43,6 +43,22 @@
+ #define ATTR_INDEX 0x1fc0
+ #define ATTR_DATA 0x1fc1
  
- 	if (!edid) {
- 		DRM_ERROR("invalid edid input\n");
-@@ -303,7 +303,12 @@ void dp_panel_handle_sink_request(struct dp_panel *dp_panel)
- 	panel = container_of(dp_panel, struct dp_panel_private, dp_panel);
- 
- 	if (panel->link->sink_request & DP_TEST_LINK_EDID_READ) {
--		u8 checksum = dp_panel_get_edid_checksum(dp_panel->edid);
-+		u8 checksum;
++#define WREG_MISC(v)						\
++	WREG8(MGA_MISC_OUT, v)
 +
-+		if (dp_panel->edid)
-+			checksum = dp_panel_get_edid_checksum(dp_panel->edid);
-+		else
-+			checksum = dp_panel->connector->real_edid_checksum;
++#define RREG_MISC(v)						\
++	((v) = RREG8(MGA_MISC_IN))
++
++#define WREG_MISC_MASKED(v, mask)				\
++	do {							\
++		u8 misc_;					\
++		u8 mask_ = (mask);				\
++		RREG_MISC(misc_);				\
++		misc_ &= ~mask_;				\
++		misc_ |= ((v) & mask_);				\
++		WREG_MISC(misc_);				\
++	} while (0)
++
+ #define WREG_ATTR(reg, v)					\
+ 	do {							\
+ 		RREG8(0x1fda);					\
+--- a/drivers/gpu/drm/mgag200/mgag200_mode.c
++++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
+@@ -172,6 +172,8 @@ static int mgag200_g200_set_plls(struct
+ 	drm_dbg_kms(dev, "clock: %ld vco: %ld m: %d n: %d p: %d s: %d\n",
+ 		    clock, f_vco, m, n, p, s);
  
- 		dp_link_send_edid_checksum(panel->link, checksum);
- 		dp_link_send_test_response(panel->link);
--- 
-2.30.2
-
++	WREG_MISC_MASKED(MGAREG_MISC_CLKSEL_MGA, MGAREG_MISC_CLKSEL_MASK);
++
+ 	WREG_DAC(MGA1064_PIX_PLLC_M, m);
+ 	WREG_DAC(MGA1064_PIX_PLLC_N, n);
+ 	WREG_DAC(MGA1064_PIX_PLLC_P, (p | (s << 3)));
+@@ -287,6 +289,8 @@ static int mga_g200se_set_plls(struct mg
+ 		return 1;
+ 	}
+ 
++	WREG_MISC_MASKED(MGAREG_MISC_CLKSEL_MGA, MGAREG_MISC_CLKSEL_MASK);
++
+ 	WREG_DAC(MGA1064_PIX_PLLC_M, m);
+ 	WREG_DAC(MGA1064_PIX_PLLC_N, n);
+ 	WREG_DAC(MGA1064_PIX_PLLC_P, p);
+@@ -383,6 +387,8 @@ static int mga_g200wb_set_plls(struct mg
+ 		}
+ 	}
+ 
++	WREG_MISC_MASKED(MGAREG_MISC_CLKSEL_MGA, MGAREG_MISC_CLKSEL_MASK);
++
+ 	for (i = 0; i <= 32 && pll_locked == false; i++) {
+ 		if (i > 0) {
+ 			WREG8(MGAREG_CRTC_INDEX, 0x1e);
+@@ -520,6 +526,8 @@ static int mga_g200ev_set_plls(struct mg
+ 		}
+ 	}
+ 
++	WREG_MISC_MASKED(MGAREG_MISC_CLKSEL_MGA, MGAREG_MISC_CLKSEL_MASK);
++
+ 	WREG8(DAC_INDEX, MGA1064_PIX_CLK_CTL);
+ 	tmp = RREG8(DAC_DATA);
+ 	tmp |= MGA1064_PIX_CLK_CTL_CLK_DIS;
+@@ -652,6 +660,9 @@ static int mga_g200eh_set_plls(struct mg
+ 			}
+ 		}
+ 	}
++
++	WREG_MISC_MASKED(MGAREG_MISC_CLKSEL_MGA, MGAREG_MISC_CLKSEL_MASK);
++
+ 	for (i = 0; i <= 32 && pll_locked == false; i++) {
+ 		WREG8(DAC_INDEX, MGA1064_PIX_CLK_CTL);
+ 		tmp = RREG8(DAC_DATA);
+@@ -752,6 +763,8 @@ static int mga_g200er_set_plls(struct mg
+ 		}
+ 	}
+ 
++	WREG_MISC_MASKED(MGAREG_MISC_CLKSEL_MGA, MGAREG_MISC_CLKSEL_MASK);
++
+ 	WREG8(DAC_INDEX, MGA1064_PIX_CLK_CTL);
+ 	tmp = RREG8(DAC_DATA);
+ 	tmp |= MGA1064_PIX_CLK_CTL_CLK_DIS;
+@@ -785,8 +798,6 @@ static int mga_g200er_set_plls(struct mg
+ 
+ static int mgag200_crtc_set_plls(struct mga_device *mdev, long clock)
+ {
+-	u8 misc;
+-
+ 	switch(mdev->type) {
+ 	case G200_PCI:
+ 	case G200_AGP:
+@@ -811,11 +822,6 @@ static int mgag200_crtc_set_plls(struct
+ 		break;
+ 	}
+ 
+-	misc = RREG8(MGA_MISC_IN);
+-	misc &= ~MGAREG_MISC_CLK_SEL_MASK;
+-	misc |= MGAREG_MISC_CLK_SEL_MGA_MSK;
+-	WREG8(MGA_MISC_OUT, misc);
+-
+ 	return 0;
+ }
+ 
+--- a/drivers/gpu/drm/mgag200/mgag200_reg.h
++++ b/drivers/gpu/drm/mgag200/mgag200_reg.h
+@@ -222,11 +222,10 @@
+ 
+ #define MGAREG_MISC_IOADSEL	(0x1 << 0)
+ #define MGAREG_MISC_RAMMAPEN	(0x1 << 1)
+-#define MGAREG_MISC_CLK_SEL_MASK	GENMASK(3, 2)
+-#define MGAREG_MISC_CLK_SEL_VGA25	(0x0 << 2)
+-#define MGAREG_MISC_CLK_SEL_VGA28	(0x1 << 2)
+-#define MGAREG_MISC_CLK_SEL_MGA_PIX	(0x2 << 2)
+-#define MGAREG_MISC_CLK_SEL_MGA_MSK	(0x3 << 2)
++#define MGAREG_MISC_CLKSEL_MASK		GENMASK(3, 2)
++#define MGAREG_MISC_CLKSEL_VGA25	(0x0 << 2)
++#define MGAREG_MISC_CLKSEL_VGA28	(0x1 << 2)
++#define MGAREG_MISC_CLKSEL_MGA		(0x3 << 2)
+ #define MGAREG_MISC_VIDEO_DIS	(0x1 << 4)
+ #define MGAREG_MISC_HIGH_PG_SEL	(0x1 << 5)
+ #define MGAREG_MISC_HSYNCPOL		BIT(6)
 
 
