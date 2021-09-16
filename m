@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 165FE40DFC2
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:12:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0224740E658
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232398AbhIPQNk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:13:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49106 "EHLO mail.kernel.org"
+        id S244240AbhIPRVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:21:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232475AbhIPQL6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:11:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A20561374;
-        Thu, 16 Sep 2021 16:09:08 +0000 (UTC)
+        id S1351008AbhIPRSA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:18:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6716A61A0A;
+        Thu, 16 Sep 2021 16:40:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808549;
-        bh=JNXY5pqjn6ZBAI4XoXKVDv3/FtoedCudZkI/jhAZxwE=;
+        s=korg; t=1631810449;
+        bh=iLuBPChP8CnU6bCYsrI2zTFECfXArob8xnTlED8KBIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RO4VoN94/bbs585WEiJPnh1BZxQYE7NZ0XQHhu/U4skxaAdTAciY1sKBt8jqGV7B5
-         ytSVHY4L1wmnFlNU2mEUOoWQmQk7o2WYuEQtv0s4H696SoTg4/6DhdJ8J9hgRi6ul1
-         /Cph2ZCTrP/SXxHCnEQrVq/tHku2uDvVhDzKADhE=
+        b=XGCkruLRsq7RldVpZtH9ymT4lhi95J/5TbVJdKPZtVhAR0XxMFVVoJ0jq92tx7OAf
+         8M3gA7W+GZiCh7WANKlHMy4YWMHBcaN1R/dCrKN6gu2u6JSH9oR2c8z0A532KWlnfR
+         wdJlpSFXhi+ew9Fsa+79Fr5i0OyAz3audtT5mdT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kelly Devilliv <kelly.devilliv@gmail.com>,
+        stable@vger.kernel.org, Lang Cheng <chenglang@huawei.com>,
+        Wenpeng Liang <liangwenpeng@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 132/306] usb: host: fotg210: fix the endpoints transactional opportunities calculation
+Subject: [PATCH 5.14 128/432] RDMA/hns: Ownerbit mode add control field
 Date:   Thu, 16 Sep 2021 17:57:57 +0200
-Message-Id: <20210916155758.554893835@linuxfoundation.org>
+Message-Id: <20210916155815.094417837@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,140 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kelly Devilliv <kelly.devilliv@gmail.com>
+From: Lang Cheng <chenglang@huawei.com>
 
-[ Upstream commit c2e898764245c852bc8ee4857613ba4f3a6d761d ]
+[ Upstream commit f8c549afd1e76ad78b1d044a307783c9b94ae3ab ]
 
-Now that usb_endpoint_maxp() only returns the lowest
-11 bits from wMaxPacketSize, we should make use of the
-usb_endpoint_* helpers instead and remove the unnecessary
-max_packet()/hb_mult() macro.
+The ownerbit mode is for external card mode. Make it controlled by the
+firmware.
 
-Signed-off-by: Kelly Devilliv <kelly.devilliv@gmail.com>
-Link: https://lore.kernel.org/r/20210627125747.127646-3-kelly.devilliv@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: aba457ca890c ("RDMA/hns: Support owner mode doorbell")
+Link: https://lore.kernel.org/r/1629539607-33217-4-git-send-email-liangwenpeng@huawei.com
+Signed-off-by: Lang Cheng <chenglang@huawei.com>
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/fotg210-hcd.c | 36 ++++++++++++++++------------------
- 1 file changed, 17 insertions(+), 19 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/usb/host/fotg210-hcd.c b/drivers/usb/host/fotg210-hcd.c
-index bd958f059fe6..1eb8bb55c59c 100644
---- a/drivers/usb/host/fotg210-hcd.c
-+++ b/drivers/usb/host/fotg210-hcd.c
-@@ -2509,11 +2509,6 @@ static unsigned qh_completions(struct fotg210_hcd *fotg210,
- 	return count;
- }
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index 594d4cef31b3..0e0be5664137 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -4114,6 +4114,9 @@ static void modify_qp_reset_to_init(struct ib_qp *ibqp,
+ 	if (hr_qp->en_flags & HNS_ROCE_QP_CAP_RQ_RECORD_DB)
+ 		hr_reg_enable(context, QPC_RQ_RECORD_EN);
  
--/* high bandwidth multiplier, as encoded in highspeed endpoint descriptors */
--#define hb_mult(wMaxPacketSize) (1 + (((wMaxPacketSize) >> 11) & 0x03))
--/* ... and packet size, for any kind of endpoint descriptor */
--#define max_packet(wMaxPacketSize) ((wMaxPacketSize) & 0x07ff)
--
- /* reverse of qh_urb_transaction:  free a list of TDs.
-  * used for cleanup after errors, before HC sees an URB's TDs.
-  */
-@@ -2599,7 +2594,7 @@ static struct list_head *qh_urb_transaction(struct fotg210_hcd *fotg210,
- 		token |= (1 /* "in" */ << 8);
- 	/* else it's already initted to "out" pid (0 << 8) */
- 
--	maxpacket = max_packet(usb_maxpacket(urb->dev, urb->pipe, !is_input));
-+	maxpacket = usb_maxpacket(urb->dev, urb->pipe, !is_input);
- 
- 	/*
- 	 * buffer gets wrapped in one or more qtds;
-@@ -2713,9 +2708,11 @@ static struct fotg210_qh *qh_make(struct fotg210_hcd *fotg210, struct urb *urb,
- 		gfp_t flags)
- {
- 	struct fotg210_qh *qh = fotg210_qh_alloc(fotg210, flags);
-+	struct usb_host_endpoint *ep;
- 	u32 info1 = 0, info2 = 0;
- 	int is_input, type;
- 	int maxp = 0;
-+	int mult;
- 	struct usb_tt *tt = urb->dev->tt;
- 	struct fotg210_qh_hw *hw;
- 
-@@ -2730,14 +2727,15 @@ static struct fotg210_qh *qh_make(struct fotg210_hcd *fotg210, struct urb *urb,
- 
- 	is_input = usb_pipein(urb->pipe);
- 	type = usb_pipetype(urb->pipe);
--	maxp = usb_maxpacket(urb->dev, urb->pipe, !is_input);
-+	ep = usb_pipe_endpoint(urb->dev, urb->pipe);
-+	maxp = usb_endpoint_maxp(&ep->desc);
-+	mult = usb_endpoint_maxp_mult(&ep->desc);
- 
- 	/* 1024 byte maxpacket is a hardware ceiling.  High bandwidth
- 	 * acts like up to 3KB, but is built from smaller packets.
- 	 */
--	if (max_packet(maxp) > 1024) {
--		fotg210_dbg(fotg210, "bogus qh maxpacket %d\n",
--				max_packet(maxp));
-+	if (maxp > 1024) {
-+		fotg210_dbg(fotg210, "bogus qh maxpacket %d\n", maxp);
- 		goto done;
- 	}
- 
-@@ -2751,8 +2749,7 @@ static struct fotg210_qh *qh_make(struct fotg210_hcd *fotg210, struct urb *urb,
- 	 */
- 	if (type == PIPE_INTERRUPT) {
- 		qh->usecs = NS_TO_US(usb_calc_bus_time(USB_SPEED_HIGH,
--				is_input, 0,
--				hb_mult(maxp) * max_packet(maxp)));
-+				is_input, 0, mult * maxp));
- 		qh->start = NO_FRAME;
- 
- 		if (urb->dev->speed == USB_SPEED_HIGH) {
-@@ -2789,7 +2786,7 @@ static struct fotg210_qh *qh_make(struct fotg210_hcd *fotg210, struct urb *urb,
- 			think_time = tt ? tt->think_time : 0;
- 			qh->tt_usecs = NS_TO_US(think_time +
- 					usb_calc_bus_time(urb->dev->speed,
--					is_input, 0, max_packet(maxp)));
-+					is_input, 0, maxp));
- 			qh->period = urb->interval;
- 			if (qh->period > fotg210->periodic_size) {
- 				qh->period = fotg210->periodic_size;
-@@ -2852,11 +2849,11 @@ static struct fotg210_qh *qh_make(struct fotg210_hcd *fotg210, struct urb *urb,
- 			 * to help them do so.  So now people expect to use
- 			 * such nonconformant devices with Linux too; sigh.
- 			 */
--			info1 |= max_packet(maxp) << 16;
-+			info1 |= maxp << 16;
- 			info2 |= (FOTG210_TUNE_MULT_HS << 30);
- 		} else {		/* PIPE_INTERRUPT */
--			info1 |= max_packet(maxp) << 16;
--			info2 |= hb_mult(maxp) << 30;
-+			info1 |= maxp << 16;
-+			info2 |= mult << 30;
- 		}
- 		break;
- 	default:
-@@ -3926,6 +3923,7 @@ static void iso_stream_init(struct fotg210_hcd *fotg210,
- 	int is_input;
- 	long bandwidth;
- 	unsigned multi;
-+	struct usb_host_endpoint *ep;
- 
- 	/*
- 	 * this might be a "high bandwidth" highspeed endpoint,
-@@ -3933,14 +3931,14 @@ static void iso_stream_init(struct fotg210_hcd *fotg210,
- 	 */
- 	epnum = usb_pipeendpoint(pipe);
- 	is_input = usb_pipein(pipe) ? USB_DIR_IN : 0;
--	maxp = usb_maxpacket(dev, pipe, !is_input);
-+	ep = usb_pipe_endpoint(dev, pipe);
-+	maxp = usb_endpoint_maxp(&ep->desc);
- 	if (is_input)
- 		buf1 = (1 << 11);
- 	else
- 		buf1 = 0;
- 
--	maxp = max_packet(maxp);
--	multi = hb_mult(maxp);
-+	multi = usb_endpoint_maxp_mult(&ep->desc);
- 	buf1 |= maxp;
- 	maxp *= multi;
- 
++	if (hr_qp->en_flags & HNS_ROCE_QP_CAP_OWNER_DB)
++		hr_reg_enable(context, QPC_OWNER_MODE);
++
+ 	hr_reg_write(context, QPC_RQ_DB_RECORD_ADDR_L,
+ 		     lower_32_bits(hr_qp->rdb.dma) >> 1);
+ 	hr_reg_write(context, QPC_RQ_DB_RECORD_ADDR_H,
 -- 
 2.30.2
 
