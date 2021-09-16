@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D4A440E684
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F329240E2E3
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346942AbhIPRWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:22:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43506 "EHLO mail.kernel.org"
+        id S243159AbhIPQmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:42:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351941AbhIPRUA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:20:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4766A61B7B;
-        Thu, 16 Sep 2021 16:41:55 +0000 (UTC)
+        id S245524AbhIPQkf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:40:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EF4961501;
+        Thu, 16 Sep 2021 16:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810515;
-        bh=JMuvoOMn0WXbrk8IZIC+V8mXCbi5cEU69e4oQiPf2E0=;
+        s=korg; t=1631809438;
+        bh=vL1tCi+P8oHoCWquG29pMGeUOGlw7/g0zHRAzDDPO2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fkrcOQwY3vGotA6ZY3CNfnV8Lh0mDXqKkZWNMmw1/3hskbnf+HqzyWWlWwnfmS8yV
-         0IV+zsf9Uqz4d/aBJyUoAQoezLX+Z20q57AZkSIDdzFwmH7dcXJUxGVerdgbMggSWj
-         lGle7gkXf3gW24QGFPyqgouHVAMyvLxbqEBYVkXk=
+        b=jPjcW6eEYQvToo/+wIllTOb4MIw4RYnu5P11EdXBTTtdV/atHV5MASXhus1B/bCe6
+         IcdGUUKzjuI4+aSGEpZa3GvkuwmmfHO1n4GZbTmLDpzhtT1mI5oudA+wF5bp3DlV5B
+         M5cz9vEg2OhsOVY1A5LNXOadVsbv1J0JW2M1qjYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        Alexander Deucher <Alexander.Deucher@amd.com>,
-        Luben Tuikov <luben.tuikov@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 162/432] drm/amdgpu: Fix amdgpu_ras_eeprom_init()
-Date:   Thu, 16 Sep 2021 17:58:31 +0200
-Message-Id: <20210916155816.238341955@linuxfoundation.org>
+Subject: [PATCH 5.13 155/380] net: phy: Fix data type in DP83822 dp8382x_disable_wol()
+Date:   Thu, 16 Sep 2021 17:58:32 +0200
+Message-Id: <20210916155809.343387376@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luben Tuikov <luben.tuikov@amd.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit dce4400e6516d18313d23de45b5be8a18980b00e ]
+[ Upstream commit 0d6835ffe50c9c1f098b5704394331710b67af48 ]
 
-No need to account for the 2 bytes of EEPROM
-address--this is now well abstracted away by
-the fixes the the lower layers.
+The last argument of phy_clear_bits_mmd(..., u16 val); is u16 and not
+int, just inline the value into the function call arguments.
 
-Cc: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Cc: Alexander Deucher <Alexander.Deucher@amd.com>
-Signed-off-by: Luben Tuikov <luben.tuikov@amd.com>
-Acked-by: Alexander Deucher <Alexander.Deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+No functional change.
+
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: David S. Miller <davem@davemloft.net>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/dp83822.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
-index 38222de921d1..8dd151c9e459 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
-@@ -325,7 +325,7 @@ int amdgpu_ras_eeprom_init(struct amdgpu_ras_eeprom_control *control,
- 		return ret;
- 	}
+diff --git a/drivers/net/phy/dp83822.c b/drivers/net/phy/dp83822.c
+index f7a2ec150e54..211b5476a6f5 100644
+--- a/drivers/net/phy/dp83822.c
++++ b/drivers/net/phy/dp83822.c
+@@ -326,11 +326,9 @@ static irqreturn_t dp83822_handle_interrupt(struct phy_device *phydev)
  
--	__decode_table_header_from_buff(hdr, &buff[2]);
-+	__decode_table_header_from_buff(hdr, buff);
+ static int dp8382x_disable_wol(struct phy_device *phydev)
+ {
+-	int value = DP83822_WOL_EN | DP83822_WOL_MAGIC_EN |
+-		    DP83822_WOL_SECURE_ON;
+-
+-	return phy_clear_bits_mmd(phydev, DP83822_DEVADDR,
+-				  MII_DP83822_WOL_CFG, value);
++	return phy_clear_bits_mmd(phydev, DP83822_DEVADDR, MII_DP83822_WOL_CFG,
++				  DP83822_WOL_EN | DP83822_WOL_MAGIC_EN |
++				  DP83822_WOL_SECURE_ON);
+ }
  
- 	if (hdr->header == EEPROM_TABLE_HDR_VAL) {
- 		control->num_recs = (hdr->tbl_size - EEPROM_TABLE_HEADER_SIZE) /
+ static int dp83822_read_status(struct phy_device *phydev)
 -- 
 2.30.2
 
