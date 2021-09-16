@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B86B40E077
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77FDC40E6AA
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:31:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241460AbhIPQVf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:21:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55070 "EHLO mail.kernel.org"
+        id S1348138AbhIPRX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:23:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241282AbhIPQPZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:15:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F0D360F58;
-        Thu, 16 Sep 2021 16:11:36 +0000 (UTC)
+        id S1346889AbhIPRV5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:21:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 491C961462;
+        Thu, 16 Sep 2021 16:42:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808697;
-        bh=0sRjAYb+0qs4QnC1cjMiOdZudBqfkjzC6vfJ9zbTIDw=;
+        s=korg; t=1631810558;
+        bh=JZ9MTYb74+DaVR3kO13l/TOFbMF1Vw4Aj+rV2emckYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2p9kE5Yg4PhndvTzQHAo1O+/3aVnmns6J0BGK3IQs9zl6m5oXSegPODxj1dlOXFjT
-         xew9b1Ig/oAmnwU1JVe/FD+xiJE0Qr010EkC4ATRd6vAfl4WGSnKl2hGshdWoJ5Yzg
-         xOa7LYNauUoXU99y7BWYkaexYVHD9f1T9rLdwWy0=
+        b=JW5vP+sDGGNUhxURTozpYDPN/eG1fcdAhQezELOC3rnqRRO0+0l3jEtilkW36u7uH
+         1ovqK3qDcLsFur+1s4cpQ+RAMyppnWj8yZe631L2qA/ux799gM/QR/G77JPwSHTJp2
+         XOipgSmhlZxgtgebYoHVvzEbjUl8Ld7TSUPIDTpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        Yajun Deng <yajun.deng@linux.dev>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 189/306] arm64: dts: qcom: ipq8074: fix pci node reg property
+Subject: [PATCH 5.14 185/432] netlink: Deal with ESRCH error in nlmsg_notify()
 Date:   Thu, 16 Sep 2021 17:58:54 +0200
-Message-Id: <20210916155800.517255620@linuxfoundation.org>
+Message-Id: <20210916155817.005670614@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Yajun Deng <yajun.deng@linux.dev>
 
-[ Upstream commit 52c9887fba71fc8f12d343833fc595c762aac8c7 ]
+[ Upstream commit fef773fc8110d8124c73a5e6610f89e52814637d ]
 
-reg property should be array of values, here it is a single array,
-leading to below warning:
+Yonghong Song report:
+The bpf selftest tc_bpf failed with latest bpf-next.
+The following is the command to run and the result:
+$ ./test_progs -n 132
+[   40.947571] bpf_testmod: loading out-of-tree module taints kernel.
+test_tc_bpf:PASS:test_tc_bpf__open_and_load 0 nsec
+test_tc_bpf:PASS:bpf_tc_hook_create(BPF_TC_INGRESS) 0 nsec
+test_tc_bpf:PASS:bpf_tc_hook_create invalid hook.attach_point 0 nsec
+test_tc_bpf_basic:PASS:bpf_obj_get_info_by_fd 0 nsec
+test_tc_bpf_basic:PASS:bpf_tc_attach 0 nsec
+test_tc_bpf_basic:PASS:handle set 0 nsec
+test_tc_bpf_basic:PASS:priority set 0 nsec
+test_tc_bpf_basic:PASS:prog_id set 0 nsec
+test_tc_bpf_basic:PASS:bpf_tc_attach replace mode 0 nsec
+test_tc_bpf_basic:PASS:bpf_tc_query 0 nsec
+test_tc_bpf_basic:PASS:handle set 0 nsec
+test_tc_bpf_basic:PASS:priority set 0 nsec
+test_tc_bpf_basic:PASS:prog_id set 0 nsec
+libbpf: Kernel error message: Failed to send filter delete notification
+test_tc_bpf_basic:FAIL:bpf_tc_detach unexpected error: -3 (errno 3)
+test_tc_bpf:FAIL:test_tc_internal ingress unexpected error: -3 (errno 3)
 
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:reg:0: [268435456, 3869, 268439328, 168, 557056, 8192, 269484032, 4096] is too long
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:ranges: 'oneOf' conditional failed, one must be fixed:
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:ranges: 'oneOf' conditional failed, one must be fixed:
-[[2164260864, 0, 270532608, 270532608, 0, 1048576, 2181038080, 0, 271581184, 271581184, 0, 13631488]] is not of type 'null'
-[2164260864, 0, 270532608, 270532608, 0, 1048576, 2181038080, 0, 271581184, 271581184, 0, 13631488] is too long
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:reg:0: [536870912, 3869, 536874784, 168, 524288, 8192, 537919488, 4096] is too long
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:ranges: 'oneOf' conditional failed, one must be fixed:
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:ranges: 'oneOf' conditional failed, one must be fixed:
-[[2164260864, 0, 538968064, 538968064, 0, 1048576, 2181038080, 0, 540016640, 540016640, 0, 13631488]] is not of type 'null'
-[2164260864, 0, 538968064, 538968064, 0, 1048576, 2181038080, 0, 540016640, 540016640, 0, 13631488] is too long
+The failure seems due to the commit
+    cfdf0d9ae75b ("rtnetlink: use nlmsg_notify() in rtnetlink_send()")
 
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20210308060826.3074234-17-vkoul@kernel.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Deal with ESRCH error in nlmsg_notify() even the report variable is zero.
+
+Reported-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
+Link: https://lore.kernel.org/r/20210719051816.11762-1-yajun.deng@linux.dev
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/ipq8074.dtsi | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ net/netlink/af_netlink.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/ipq8074.dtsi b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-index 829e37ac82f6..776a6b0f61a6 100644
---- a/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-+++ b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-@@ -567,10 +567,10 @@ frame@b128000 {
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 380f95aacdec..24b7cf447bc5 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -2545,13 +2545,15 @@ int nlmsg_notify(struct sock *sk, struct sk_buff *skb, u32 portid,
+ 		/* errors reported via destination sk->sk_err, but propagate
+ 		 * delivery errors if NETLINK_BROADCAST_ERROR flag is set */
+ 		err = nlmsg_multicast(sk, skb, exclude_portid, group, flags);
++		if (err == -ESRCH)
++			err = 0;
+ 	}
  
- 		pcie1: pci@10000000 {
- 			compatible = "qcom,pcie-ipq8074";
--			reg =  <0x10000000 0xf1d
--				0x10000f20 0xa8
--				0x00088000 0x2000
--				0x10100000 0x1000>;
-+			reg =  <0x10000000 0xf1d>,
-+			       <0x10000f20 0xa8>,
-+			       <0x00088000 0x2000>,
-+			       <0x10100000 0x1000>;
- 			reg-names = "dbi", "elbi", "parf", "config";
- 			device_type = "pci";
- 			linux,pci-domain = <1>;
-@@ -629,10 +629,10 @@ IRQ_TYPE_LEVEL_HIGH>, /* int_c */
+ 	if (report) {
+ 		int err2;
  
- 		pcie0: pci@20000000 {
- 			compatible = "qcom,pcie-ipq8074";
--			reg =  <0x20000000 0xf1d
--				0x20000f20 0xa8
--				0x00080000 0x2000
--				0x20100000 0x1000>;
-+			reg = <0x20000000 0xf1d>,
-+			      <0x20000f20 0xa8>,
-+			      <0x00080000 0x2000>,
-+			      <0x20100000 0x1000>;
- 			reg-names = "dbi", "elbi", "parf", "config";
- 			device_type = "pci";
- 			linux,pci-domain = <0>;
+ 		err2 = nlmsg_unicast(sk, skb, portid);
+-		if (!err || err == -ESRCH)
++		if (!err)
+ 			err = err2;
+ 	}
+ 
 -- 
 2.30.2
 
