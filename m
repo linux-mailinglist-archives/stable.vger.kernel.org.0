@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 046D440DF15
+	by mail.lfdr.de (Postfix) with ESMTP id 9C37F40DF17
 	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:06:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233050AbhIPQGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:06:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45442 "EHLO mail.kernel.org"
+        id S234970AbhIPQGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:06:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232350AbhIPQGR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:06:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BCFD61260;
-        Thu, 16 Sep 2021 16:04:56 +0000 (UTC)
+        id S231562AbhIPQGU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:06:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF6B461241;
+        Thu, 16 Sep 2021 16:04:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808297;
-        bh=+WlHnPP/OYK4t7YBDA66m+OpClmkD9CppTefsEBPggY=;
+        s=korg; t=1631808299;
+        bh=Vd3eSoJaD7la4n3peQY8qjfvoXPiinKt4hqA7LAzS9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AMVtuq6LOP3JMJNbeZDipYpFNfgR69THz0cHRAxZH9/TwFKuZoqcQXQj2XzwD/BzE
-         y2RJKPeEAxYvm+IRRwaM6WCpqMcOlsPFsiAC5bv6MD5Z2sWGhXSDifICfZhmcNtbnP
-         +L5eiUJmCnLnAo2Enkkfvhp/zenMcwAg1swf4hqY=
+        b=YMV5d++bdOGPbCyOmbAczrCEFaWanqFdkCwPBUQqeTlZ5QkPz7y3dGmIApPbh504n
+         PEOrEMKfXxH5Bxjg0EkdfuqaGEEbhB6w/HGXgVidFtDRoKOnyGZ4g8GiX9rVSbbVyK
+         g7l9efojIYrIABj2kTrn+QJA6n7k3+CjMtZqGudw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andres Freund <andres@anarazel.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 006/306] io-wq: fix wakeup race when adding new work
-Date:   Thu, 16 Sep 2021 17:55:51 +0200
-Message-Id: <20210916155754.130352649@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 007/306] btrfs: wake up async_delalloc_pages waiters after submit
+Date:   Thu, 16 Sep 2021 17:55:52 +0200
+Message-Id: <20210916155754.171352724@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
 References: <20210916155753.903069397@linuxfoundation.org>
@@ -39,64 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 87df7fb922d18e96992aa5e824aa34b2065fef59 upstream.
+commit ac98141d140444fe93e26471d3074c603b70e2ca upstream.
 
-When new work is added, io_wqe_enqueue() checks if we need to wake or
-create a new worker. But that check is done outside the lock that
-otherwise synchronizes us with a worker going to sleep, so we can end
-up in the following situation:
+We use the async_delalloc_pages mechanism to make sure that we've
+completed our async work before trying to continue our delalloc
+flushing.  The reason for this is we need to see any ordered extents
+that were created by our delalloc flushing.  However we're waking up
+before we do the submit work, which is before we create the ordered
+extents.  This is a pretty wide race window where we could potentially
+think there are no ordered extents and thus exit shrink_delalloc
+prematurely.  Fix this by waking us up after we've done the work to
+create ordered extents.
 
-CPU0				CPU1
-lock
-insert work
-unlock
-atomic_read(nr_running) != 0
-				lock
-				atomic_dec(nr_running)
-no wakeup needed
-
-Hold the wqe lock around the "need to wakeup" check. Then we can also get
-rid of the temporary work_flags variable, as we know the work will remain
-valid as long as we hold the lock.
-
-Cc: stable@vger.kernel.org
-Reported-by: Andres Freund <andres@anarazel.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io-wq.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/btrfs/inode.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -895,7 +895,7 @@ append:
- static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work)
- {
- 	struct io_wqe_acct *acct = io_work_get_acct(wqe, work);
--	int work_flags;
-+	bool do_wake;
- 	unsigned long flags;
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -1202,11 +1202,6 @@ static noinline void async_cow_submit(st
+ 	nr_pages = (async_chunk->end - async_chunk->start + PAGE_SIZE) >>
+ 		PAGE_SHIFT;
  
+-	/* atomic_sub_return implies a barrier */
+-	if (atomic_sub_return(nr_pages, &fs_info->async_delalloc_pages) <
+-	    5 * SZ_1M)
+-		cond_wake_up_nomb(&fs_info->async_submit_wait);
+-
  	/*
-@@ -909,14 +909,14 @@ static void io_wqe_enqueue(struct io_wqe
- 		return;
- 	}
- 
--	work_flags = work->flags;
- 	raw_spin_lock_irqsave(&wqe->lock, flags);
- 	io_wqe_insert_work(wqe, work);
- 	wqe->flags &= ~IO_WQE_FLAG_STALLED;
-+	do_wake = (work->flags & IO_WQ_WORK_CONCURRENT) ||
-+			!atomic_read(&acct->nr_running);
- 	raw_spin_unlock_irqrestore(&wqe->lock, flags);
- 
--	if ((work_flags & IO_WQ_WORK_CONCURRENT) ||
--	    !atomic_read(&acct->nr_running))
-+	if (do_wake)
- 		io_wqe_wake_worker(wqe, acct);
+ 	 * ->inode could be NULL if async_chunk_start has failed to compress,
+ 	 * in which case we don't have anything to submit, yet we need to
+@@ -1215,6 +1210,11 @@ static noinline void async_cow_submit(st
+ 	 */
+ 	if (async_chunk->inode)
+ 		submit_compressed_extents(async_chunk);
++
++	/* atomic_sub_return implies a barrier */
++	if (atomic_sub_return(nr_pages, &fs_info->async_delalloc_pages) <
++	    5 * SZ_1M)
++		cond_wake_up_nomb(&fs_info->async_submit_wait);
  }
  
+ static noinline void async_cow_free(struct btrfs_work *work)
 
 
