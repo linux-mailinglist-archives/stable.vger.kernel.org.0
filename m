@@ -2,102 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C55740E9F2
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:35:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F3EB40E9D0
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:26:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346747AbhIPShB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 14:37:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47858 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245082AbhIPSg4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 14:36:56 -0400
-Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85E2DC0C131F
-        for <stable@vger.kernel.org>; Thu, 16 Sep 2021 09:52:55 -0700 (PDT)
-Received: by mail-io1-xd43.google.com with SMTP id f6so8810170iox.0
-        for <stable@vger.kernel.org>; Thu, 16 Sep 2021 09:52:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=4uozDo5pD5mr5wZ7iQLebLxDLwKFOVwcKiL4nVjWOU8=;
-        b=dJL7zL6w+xBlAJEtyvWfHDHA7wxxdLw9B/t3atozUcyxC7F6Q3OUqpt8AfDex2/S9m
-         i04d2RoJ+zYs6VS8Y/2kG2uWnU9SisFWf3nQGdafQ45J5STdQxdBnQJfAuS3E7ERikpn
-         JGojL3in8/a4b5uNwPplwHAm7qE2AGswxwkVADdfvAk5DPlybh1HV+y8Xb5RAcyzTYr5
-         bAXyK5dyTHtnBnV5eVtajtW1deY8fDDNy+XGxE6emO1xa0E55lcaqs3ERpxWIKGxqshs
-         PyeJcJkj0AHB0Gu+dEmd6WLQmhWHtsFBkM5AvlOTrVaHOBsdxSnfntpD6AzbuDiuBH6g
-         qt5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=4uozDo5pD5mr5wZ7iQLebLxDLwKFOVwcKiL4nVjWOU8=;
-        b=GTGgmeFf3J8A4ZL3PQkFa8v6jjx11TcA7ZK6ms7xunE0ysL0qBSuqg6/7QSZv6cNu8
-         OihwFJSquiBtF6dieU+nBvqNKpqwYppU4qOoEYMODO5/V4WrZ6zWRYjlgn7t6sucyvc8
-         bUNIcQ21qEmvbT/32tcpIXOrUZy/lXZxNopaq+ltw538icnfQRgkszUpR6SGpfaFCpvb
-         XwOg/5ojtBrEytr35mRqU2X3Yx8RYXiKMIFzLpyr/66EZ6F4PSWNeDXDywdyeDqsLK/D
-         r1KBMwJ4dEun/aeda4EabkAZyyWrTZMJdz3EWzKAaQ1DzPfe22QZHQQYQQaQWtRFXubV
-         JpFQ==
-X-Gm-Message-State: AOAM530nxr2Zruje7AOKJpzc1A8xFMSYG+Uen+iIbpfUWrro6hmq4LuJ
-        UkMba0OxE4vlQQng4INVwr7rwxvJv+Qwkmi89I8=
-X-Google-Smtp-Source: ABdhPJwJuv/YJ4F5fgv74lTj5XPCm2M9s6d1Rfvt7RUGmfYPHBdwlHZmXHxM4XBmgHQZQvx5O0+VdF+mPSLIJyehGBw=
-X-Received: by 2002:a6b:8f4e:: with SMTP id r75mr5315084iod.172.1631811174534;
- Thu, 16 Sep 2021 09:52:54 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a02:a58b:0:0:0:0:0 with HTTP; Thu, 16 Sep 2021 09:52:54
- -0700 (PDT)
-From:   phot akachi <photakachi@gmail.com>
-Date:   Thu, 16 Sep 2021 09:52:54 -0700
-Message-ID: <CAKTgzwzXT3a73P8NVOwJHVZfrgDYexXNKZaCD6s3ERkvA4mtYQ@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
+        id S244997AbhIPS1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 14:27:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39690 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S244880AbhIPS0y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 14:26:54 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5603F611EE;
+        Thu, 16 Sep 2021 18:25:32 +0000 (UTC)
+Received: from [198.52.44.129] (helo=wait-a-minute.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <maz@kernel.org>)
+        id 1mQw4g-00BEGF-8r; Thu, 16 Sep 2021 19:25:30 +0100
+Date:   Thu, 16 Sep 2021 19:25:27 +0100
+Message-ID: <87r1dobco8.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.13 345/380] KVM: arm64: vgic: move irq->get_input_level into an ops structure
+In-Reply-To: <20210916155815.779126002@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
+        <20210916155815.779126002@linuxfoundation.org>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 198.52.44.129
+X-SA-Exim-Rcpt-To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, sashal@kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-0JLQvdC40LzQsNC90LjQtSwg0L/QvtC20LDQu9GD0LnRgdGC0LAsDQoNCtCvINCR0LDRgC4gdWNo
-ZW5uYSBpbG9iaSwg0LrQsNC6INC00LXQu9CwLCDQvdCw0LTQtdGO0YHRjCDRgyDRgtC10LHRjyDQ
-stGB0LUg0YXQvtGA0L7RiNC+INC4INC30LTQvtGA0L7QstCwPw0K0KHQvtC+0LHRidCw0LXQvCDQ
-stCw0LwsINGH0YLQviDRjyDRg9GB0L/QtdGI0L3QviDQt9Cw0LLQtdGA0YjQuNC7INGB0LTQtdC7
-0LrRgyDRgSDQv9C+0LzQvtGJ0YzRjiDQvdC+0LLQvtCz0L4g0L/QsNGA0YLQvdC10YDQsA0K0LjQ
-tyDQktC10L3QtdGB0YPRjdC70YssINC4INGC0LXQv9C10YDRjCDRgdGA0LXQtNGB0YLQstCwINCx
-0YvQu9C4INC/0LXRgNC10LLQtdC00LXQvdGLINCyINCS0LXQvdC10YHRg9GN0LvRgyDQvdCwDQrQ
-sdCw0L3QutC+0LLRgdC60LjQuSDRgdGH0LXRgiDQvdC+0LLQvtCz0L4g0L/QsNGA0YLQvdC10YDQ
-sC4NCg0K0KLQtdC8INCy0YDQtdC80LXQvdC10Lwg0Y8g0YDQtdGI0LjQuyDQutC+0LzQv9C10L3R
-gdC40YDQvtCy0LDRgtGMINCy0LDQvCDRgdGD0LzQvNGDINCyIDM1MCAwMDAg0LTQvtC70LvQsNGA
-0L7QsiDQodCo0JANCijRgtGA0Lgg0YHQvtGC0L3QuCDQv9GP0YLRjNC00LXRgdGP0YIg0YLRi9GB
-0Y/RhyDQtNC+0LvQu9Cw0YDQvtCyINCh0KjQkCkg0LjQty3Qt9CwINCy0LDRiNC40YUg0L/RgNC+
-0YjQu9GL0YUg0YPRgdC40LvQuNC5LA0K0YXQvtGC0Y8g0LLRiyDQvNC10L3RjyDRgNCw0LfQvtGH
-0LDRgNC+0LLQsNC70LguINCd0L4sINGC0LXQvCDQvdC1INC80LXQvdC10LUsINGPINC+0YfQtdC9
-0Ywg0YDQsNC0INGD0YHQv9C10YjQvdC+0LzRgw0K0LfQsNCy0LXRgNGI0LXQvdC40Y4g0YLRgNCw
-0L3Qt9Cw0LrRhtC40Lgg0LHQtdC3INC60LDQutC40YUt0LvQuNCx0L4g0L/RgNC+0LHQu9C10Lws
-INC4INC/0L7RjdGC0L7QvNGDINGPINGA0LXRiNC40LsNCtC60L7QvNC/0LXQvdGB0LjRgNC+0LLQ
-sNGC0Ywg0LLQsNC8INGB0YPQvNC80YMg0LIg0YDQsNC30LzQtdGA0LUgMzUwIDAwMCwwMCDQtNC+
-0LvQu9Cw0YDQvtCyINCh0KjQkCwg0YfRgtC+0LHRiyDQstGLDQrRgNCw0LfQtNC10LvQuNC70Lgg
-0YHQviDQvNC90L7QuSDRgNCw0LTQvtGB0YLRjC4NCg0K0K8g0YHQvtCy0LXRgtGD0Y4g0LLQsNC8
-INC+0LHRgNCw0YLQuNGC0YzRgdGPINC6INC80L7QtdC80YMg0YHQtdC60YDQtdGC0LDRgNGOINC3
-0LAg0LHQsNC90LrQvtC80LDRgtC90L7QuSDQutCw0YDRgtC+0Lkg0L3QsA0KMzUwIDAwMCDQtNC+
-0LvQu9Cw0YDQvtCyINCh0KjQkCwg0LrQvtGC0L7RgNGD0Y4g0Y8g0L7RgdGC0LDQstC40Lsg0LTQ
-u9GPINCy0LDRgS4g0KHQstGP0LbQuNGC0LXRgdGMINGBINC90LjQvA0K0YHQtdC50YfQsNGBINCx
-0LXQtyDQv9GA0L7QvNC10LTQu9C10L3QuNGPLg0KDQrQndCw0LfQstCw0L3QuNC1OiDQsdGA0LXQ
-vdC00Lgg0YHQvtC70L7QvNC+0L0NCg0K0J/QvtGH0YLQsDogc29sb21vbmJyYW5keWZpdmVvbmVA
-Z21haWwuY29tDQoNCtCj0LHQtdC00LjRgtC10LvRjNC90L4g0L/QvtC00YLQstC10YDQtNC40YLQ
-tSDQtdC80YMg0YHQu9C10LTRg9GO0YnRg9GOINC40L3RhNC+0YDQvNCw0YbQuNGOOg0KDQrQktCw
-0YjQtSDQv9C+0LvQvdC+0LUg0LjQvNGPX19fX19fX19fX19fX19fX19fX19fX19fXw0K0JLQsNGI
-INCw0LTRgNC10YHRgV9fX19fX19fX19fX19fX19fX19fX19fX19fDQrQotCy0L7RjyDRgdGC0YDQ
-sNC90LBfX19fX19fX19fX19fX19fX19fX19fX19fX18NCtCi0LLQvtC5INCy0L7Qt9GA0LDRgdGC
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fDQrQktCw0Ygg0YDQvtC0INC30LDQvdGP0YLQ
-uNC5X19fX19fX19fX19fX19fX19fX19fX19fDQrQktCw0Ygg0L3QvtC80LXRgCDQvNC+0LHQuNC7
-0YzQvdC+0LPQviDRgtC10LvQtdGE0L7QvdCwIF9fX19fX19fX19fX19fX19fX19fX18NCg0K0J7Q
-sdGA0LDRgtC40YLQtSDQstC90LjQvNCw0L3QuNC1OiDQtdGB0LvQuCDQstGLINC90LUg0L7RgtC/
-0YDQsNCy0LjQu9C4INC10LzRgyDQv9C+0LvQvdGD0Y4g0LjQvdGE0L7RgNC80LDRhtC40Y4sINC+
-0L0g0L3QtQ0K0LLRi9C00LDRgdGCINCy0LDQvCDQutCw0YDRgtGDINCx0LDQvdC60L7QvNCw0YLQ
-sCwg0L/QvtGC0L7QvNGDINGH0YLQviDQvtC9INC00L7Qu9C20LXQvSDQsdGL0YLRjCDRg9Cy0LXR
-gNC10L0sINGH0YLQviDRjdGC0L4NCtCy0YsuINCf0L7Qv9GA0L7RgdC40YLQtSDQtdCz0L4g0LLR
-i9GB0LvQsNGC0Ywg0LLQsNC8INC60LDRgNGC0YMg0LHQsNC90LrQvtC80LDRgtCwINC90LAg0L7Q
-sdGJ0YPRjiDRgdGD0LzQvNGDICgzNTAgMDAwDQrQtNC+0LvQu9Cw0YDQvtCyINCh0KjQkCksINC6
-0L7RgtC+0YDRg9GOINGPINC+0YHRgtCw0LLQuNC7INC00LvRjyDQstCw0YEuDQoNCtChINC90LDQ
-uNC70YPRh9GI0LjQvNC4INC/0L7QttC10LvQsNC90LjRj9C80LgsDQoNCtCTLdC9INGD0YfQtdC9
-0L3QsCDQuNC70L7QsdC4DQo=
+On Thu, 16 Sep 2021 17:01:42 +0100,
+Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> 
+> From: Marc Zyngier <maz@kernel.org>
+> 
+> [ Upstream commit db75f1a33f82ad332b6e139c5960e01999969d2c ]
+> 
+> We already have the option to attach a callback to an interrupt
+> to retrieve its pending state. As we are planning to expand this
+> facility, move this callback into its own data structure.
+> 
+> This will limit the size of individual interrupts as the ops
+> structures can be shared across multiple interrupts.
+> 
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  arch/arm64/kvm/arch_timer.c |  8 ++++++--
+>  arch/arm64/kvm/vgic/vgic.c  | 14 +++++++-------
+>  include/kvm/arm_vgic.h      | 28 +++++++++++++++++-----------
+>  3 files changed, 30 insertions(+), 20 deletions(-)
+
+As I replied to Sasha earlier, I don't see a good reason to backport
+this, as it doesn't improve anything on its own. Unless there is a
+compelling reason to get this backported, I'd rather see it dropped.
+
+Thanks,
+
+	M.
+
+-- 
+Without deviation from the norm, progress is not possible.
