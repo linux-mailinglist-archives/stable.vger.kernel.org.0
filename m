@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 253E140E6DC
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:31:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2442940E060
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348973AbhIPR0C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:26:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46938 "EHLO mail.kernel.org"
+        id S240956AbhIPQVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:21:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348101AbhIPRX6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:23:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60DA261BBD;
-        Thu, 16 Sep 2021 16:43:33 +0000 (UTC)
+        id S240654AbhIPQTG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:19:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1681613D0;
+        Thu, 16 Sep 2021 16:12:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810614;
-        bh=fQ418/f7pqUObBNI+0drbdk82ICbaLCrqZ5MotFMp5w=;
+        s=korg; t=1631808775;
+        bh=ztAtmbFmho7lu+HYlHJUk3Lx17d7VGJuNyMsNnzdcRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2MHXAlhjbNWa2xkZSFVmIQ2CBUZ81WzSh/Uz/JJMaAvRc1IK0L1Nc/H/8Q2UBHlLI
-         zsKH9j4sVRD3BpOZl5aJxVbkEzKwOX4gTzxwn5aKsltS7vJYhmp9QZVbRwJRg4F0j8
-         m0YpS++qGonEBrLo7gBEiUf7b3qY1KE16Bdiryug=
+        b=ztcqZrjYdnzqnSNX1zZPOaupbTeiBRmzGmcyxw8ZRfQUZLzeEMIfNmWcsOk0psu1D
+         jLAth4b93jWrP70SLzzid4V3guh70KKgGuRccdcCQ3QvlHaGWThcUcRN5RbvmDDQxW
+         blnPmNy7dfkvuDN1lyAiRMb3ZNHJ9q6R9bmhP7L0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Oliver Logush <oliver.logush@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Eran Ben Elisha <eranbe@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 206/432] drm/amd/display: Fix timer_per_pixel unit error
+Subject: [PATCH 5.10 210/306] net/mlx5: Fix variable type to match 64bit
 Date:   Thu, 16 Sep 2021 17:59:15 +0200
-Message-Id: <20210916155817.804261680@linuxfoundation.org>
+Message-Id: <20210916155801.196527343@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Logush <oliver.logush@amd.com>
+From: Eran Ben Elisha <eranbe@nvidia.com>
 
-[ Upstream commit 23e55639b87fb16a9f0f66032ecb57060df6c46c ]
+[ Upstream commit 979aa51967add26b37f9d77e01729d44a2da8e5f ]
 
-[why]
-The units of the time_per_pixel variable were incorrect, this had to be
-changed for the code to properly function.
+Fix the following smatch warning:
+wait_func_handle_exec_timeout() warn: should '1 << ent->idx' be a 64 bit type?
 
-[how]
-The change was very straightforward, only required one line of code to
-be changed where the calculation was done.
+Use 1ULL, to have a 64 bit type variable.
 
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Oliver Logush <oliver.logush@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Eran Ben Elisha <eranbe@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-index b173fa3653b5..c78933a9d31c 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-@@ -2462,7 +2462,7 @@ void dcn20_set_mcif_arb_params(
- 				wb_arb_params->cli_watermark[k] = get_wm_writeback_urgent(&context->bw_ctx.dml, pipes, pipe_cnt) * 1000;
- 				wb_arb_params->pstate_watermark[k] = get_wm_writeback_dram_clock_change(&context->bw_ctx.dml, pipes, pipe_cnt) * 1000;
- 			}
--			wb_arb_params->time_per_pixel = 16.0 / context->res_ctx.pipe_ctx[i].stream->phy_pix_clk; /* 4 bit fraction, ms */
-+			wb_arb_params->time_per_pixel = 16.0 * 1000 / (context->res_ctx.pipe_ctx[i].stream->phy_pix_clk / 1000); /* 4 bit fraction, ms */
- 			wb_arb_params->slice_lines = 32;
- 			wb_arb_params->arbitration_slice = 2;
- 			wb_arb_params->max_scaled_time = dcn20_calc_max_scaled_time(wb_arb_params->time_per_pixel,
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+index e49387dbef98..2e55e0088871 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+@@ -865,7 +865,7 @@ static void cb_timeout_handler(struct work_struct *work)
+ 	ent->ret = -ETIMEDOUT;
+ 	mlx5_core_warn(dev, "cmd[%d]: %s(0x%x) Async, timeout. Will cause a leak of a command resource\n",
+ 		       ent->idx, mlx5_command_str(msg_to_opcode(ent->in)), msg_to_opcode(ent->in));
+-	mlx5_cmd_comp_handler(dev, 1UL << ent->idx, true);
++	mlx5_cmd_comp_handler(dev, 1ULL << ent->idx, true);
+ 
+ out:
+ 	cmd_ent_put(ent); /* for the cmd_ent_get() took on schedule delayed work */
+@@ -982,7 +982,7 @@ static void cmd_work_handler(struct work_struct *work)
+ 		MLX5_SET(mbox_out, ent->out, status, status);
+ 		MLX5_SET(mbox_out, ent->out, syndrome, drv_synd);
+ 
+-		mlx5_cmd_comp_handler(dev, 1UL << ent->idx, true);
++		mlx5_cmd_comp_handler(dev, 1ULL << ent->idx, true);
+ 		return;
+ 	}
+ 
+@@ -996,7 +996,7 @@ static void cmd_work_handler(struct work_struct *work)
+ 		poll_timeout(ent);
+ 		/* make sure we read the descriptor after ownership is SW */
+ 		rmb();
+-		mlx5_cmd_comp_handler(dev, 1UL << ent->idx, (ent->ret == -ETIMEDOUT));
++		mlx5_cmd_comp_handler(dev, 1ULL << ent->idx, (ent->ret == -ETIMEDOUT));
+ 	}
+ }
+ 
+@@ -1056,7 +1056,7 @@ static void wait_func_handle_exec_timeout(struct mlx5_core_dev *dev,
+ 		       mlx5_command_str(msg_to_opcode(ent->in)), msg_to_opcode(ent->in));
+ 
+ 	ent->ret = -ETIMEDOUT;
+-	mlx5_cmd_comp_handler(dev, 1UL << ent->idx, true);
++	mlx5_cmd_comp_handler(dev, 1ULL << ent->idx, true);
+ }
+ 
+ static int wait_func(struct mlx5_core_dev *dev, struct mlx5_cmd_work_ent *ent)
 -- 
 2.30.2
 
