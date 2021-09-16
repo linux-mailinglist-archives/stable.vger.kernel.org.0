@@ -2,70 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A12C40ED4A
-	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 00:24:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17A3F40ED4E
+	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 00:26:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240978AbhIPWZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 18:25:56 -0400
-Received: from mail-pl1-f171.google.com ([209.85.214.171]:34383 "EHLO
-        mail-pl1-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233314AbhIPWZz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 18:25:55 -0400
-Received: by mail-pl1-f171.google.com with SMTP id o8so4873592pll.1;
-        Thu, 16 Sep 2021 15:24:34 -0700 (PDT)
+        id S231820AbhIPW12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 18:27:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44496 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231534AbhIPW12 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 18:27:28 -0400
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 694D5C061574;
+        Thu, 16 Sep 2021 15:26:07 -0700 (PDT)
+Received: by mail-pf1-x432.google.com with SMTP id j6so7305593pfa.4;
+        Thu, 16 Sep 2021 15:26:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=K6+JaY039DlaFbi+21JP19lSDodq4tvysqsCfKLRO2M=;
+        b=UJJ3AnKrEDzNFhezYT1L2sw/eGnrs64PUIl6se1MxMEMbJThgmxzIDoVal61cTMZY9
+         qXarRJ01L8PxGqXb7skSdkj0JrXOxZJAKWFo2MhjlJomHrjKOZQy5zPmu7QrkZLpBa1t
+         F6jVl6FBmmevJxG80WRXMSkdBLP+IDkeyW19QGVR1XYbURcyxCBccM0g+uAZZiHV9oal
+         JYrl1DbXVPmjSHDqQIRSkBktuSS3Lbk8eRgwKxql/Jcl0nDj/3ZESxKGjjpKK07iNxRL
+         JWk9Oy29JJ29JrK5UFisUFufX/Bce/zX+fWecQIg7xtYMO9KKxy8tQ4GzKXbkV7h+vEh
+         IcqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=OGGvwLTy3palcoEN2dNH1AJwlmz0atE31sH3JI3RfZg=;
-        b=PIBFRD5WzRRcCQlurz8ragOkpzob9jYWkp/PXI/wQ9M1i3iZCYQuzQFVs+s6zatnIZ
-         nKAgSL+eQqEW8y7kHPnlhIzj81FYHulf6PwrDfhueLms0vMSnXnsP2s55c7qZ7pYE9J9
-         OuklvH4tqebFUOiL7H507by2MJAKhljf7/zR7CKpUD7SFZi6+dBgev1kaPNZtEm0iMzf
-         NUfpA5QPOg8YJSclKoMPHHOvWV6HXYeBay+0PQuRPP+1HHbQYt+B6KGUI7jCVoCqCfQ0
-         3FCYLp90Uz6bwcmPDS8udlSnYZj1JiXZrGh8bmu1k6GfUMPnMudA4FPa3INjyqmOydyB
-         RlLQ==
-X-Gm-Message-State: AOAM532GG7jHXLezaPvScamxfX2PmY8qbhXaNkC72py3r+M9qJeyhnNA
-        /00DLGFn9XdEyrqIFhv/Ctmb/eCA69M=
-X-Google-Smtp-Source: ABdhPJzbdbu4Gq/g6wJbXxCuuQ7EN3iEXjEVylMMctSGZlFahM5zRs9uQxLO16y/Ro5/TTRHMqGzRw==
-X-Received: by 2002:a17:902:d892:b0:138:abfd:ec7d with SMTP id b18-20020a170902d89200b00138abfdec7dmr6809708plz.15.1631831074275;
-        Thu, 16 Sep 2021 15:24:34 -0700 (PDT)
-Received: from localhost ([2601:647:5b00:6f70:be34:681b:b1e9:776f])
-        by smtp.gmail.com with ESMTPSA id x65sm4044956pfb.29.2021.09.16.15.24.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Sep 2021 15:24:33 -0700 (PDT)
-Date:   Thu, 16 Sep 2021 15:24:32 -0700
-From:   Moritz Fischer <mdf@kernel.org>
-To:     Russ Weight <russell.h.weight@intel.com>
-Cc:     mdf@kernel.org, linux-fpga@vger.kernel.org, trix@redhat.com,
-        lgoncalv@redhat.com, yilun.xu@intel.com, hao.wu@intel.com,
-        matthew.gerlach@intel.com, rc@silicom.dk, stable@vger.kernel.org
-Subject: Re: [PATCH 1/1] fpga: dfl: Avoid reads to AFU CSRs during enumeration
-Message-ID: <YUPEIDk7jMc/WpAQ@epycbox.lan>
-References: <20210916210733.153388-1-russell.h.weight@intel.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=K6+JaY039DlaFbi+21JP19lSDodq4tvysqsCfKLRO2M=;
+        b=wYN3MKVPD2xbSdURwO232YEtipFxrz5dospDdToMbYm4sRd3nmJwOoTpy74VwICkpH
+         t+IOIyj2hVDKCxEOTDAcQlzFPr9JiDqfaXmzgxlOsVtrxxTjjmdYutgdvEARofWJQKtL
+         5N2GFbOyw1mNxQwGVdqRP6lQlND3dID481Rico0+/E/xkUWnAQYzff3pIioUPyEs5lN8
+         FVSG25iqGSOuAW6gYnjnbHu54KAH8xyuXqXsBvpVuwUAO4Q++FxXuV1y2gLvNc7jfaho
+         VByggLX5kFx+JC06SWjP+tMGHbv/YT0ao6C9KodarplFO53Vnh4Ous0VajrnDUAEzkbr
+         3Rog==
+X-Gm-Message-State: AOAM532bl/g98wAUIjX2zT4KA3TVLKyymWPrQtdDsrtM/Ewdo+Og5SOF
+        sKiAeH2qYan+ljb1dDtOSuPKyg7wpMc=
+X-Google-Smtp-Source: ABdhPJz71CJd0hE1eLVEU03SUBWilT2c8lM+TZBjzT2Ynap5Pu4JOGMz9LN3bG3PIm8OzUH4h6AmzA==
+X-Received: by 2002:a62:7508:0:b0:43d:d9cf:1f95 with SMTP id q8-20020a627508000000b0043dd9cf1f95mr7228343pfc.4.1631831166277;
+        Thu, 16 Sep 2021 15:26:06 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id d15sm8460694pjw.4.2021.09.16.15.26.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 16 Sep 2021 15:26:05 -0700 (PDT)
+Subject: Re: [PATCH 5.10 000/306] 5.10.67-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210916155753.903069397@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <582ff14f-983a-d774-a528-cb17b92f8d61@gmail.com>
+Date:   Thu, 16 Sep 2021 15:26:03 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210916210733.153388-1-russell.h.weight@intel.com>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 16, 2021 at 02:07:33PM -0700, Russ Weight wrote:
-> CSR address space for Accelerator Functional Units (AFU) is not available
-> during the early Device Feature List (DFL) enumeration. Early access
-> to this space results in invalid data and port errors. This change adds
-> a condition to prevent an early read from the AFU CSR space.
+On 9/16/21 8:55 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.67 release.
+> There are 306 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Signed-off-by: Russ Weight <russell.h.weight@intel.com>
+> Responses should be made by Sat, 18 Sep 2021 15:57:06 +0000.
+> Anything received after that time might be too late.
 > 
-> Fixes: 23bcda750558 ("fpga: dfl: expose feature revision from struct
-> dfl_device")
-Did you mean:
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.67-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Fixes: 1604986c3e6b ("fpga: dfl: expose feature revision from struct dfl_device")
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-And for future please don't line break those, or we'll get yelled at :)
-
-I can locally fix it up, no need to resubmit
-
-- Moritz
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
