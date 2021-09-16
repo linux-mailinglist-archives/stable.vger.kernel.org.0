@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CFE540E442
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:23:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADACF40E7C4
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:59:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344381AbhIPQ4v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:56:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51938 "EHLO mail.kernel.org"
+        id S1349001AbhIPRnE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:43:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346406AbhIPQyu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:54:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96F1D615E3;
-        Thu, 16 Sep 2021 16:30:23 +0000 (UTC)
+        id S1348582AbhIPRgc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:36:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2411063233;
+        Thu, 16 Sep 2021 16:49:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809824;
-        bh=S/mYC2aZPFp2a9cuahC+9ncNQUxRy7at7ImfNz5LxPU=;
+        s=korg; t=1631810978;
+        bh=xNiP5LUet9FzFL26t126NxFdP7ULzNp+PHtiLsjkjxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UQPfCysK9h/FOYvlQ7KQa/a33NdHqysYYUpXCRrsmfQ/493NCyJCbs3BN80/xABjZ
-         Lt1P8Z6b63WjH8QQD+8Khsol3dsrTkEIs5b7bh4nmkEJl7gE/OpKjZ5OEP7/HNPgwu
-         e4LxSlViSy8lz9l0PckYuunCIEl/E2PTzW6luaE4=
+        b=NMyZVOf0reTAEJ/lIkXM8YWuiMUrxNB7+c19hBcqpUSbLwrM4gY3ScmLYNdaCzgQw
+         zzjYEIUyOEuNwC2yZ2ess+XX50ZfpZPNGIrLSmUrcEtsS0cCk+4aDCqlCnfo+ZRJom
+         OswDUXp44RjqiI/+lZjVsq9cCYuUjwwmk3CpDz7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 297/380] rtw88: wow: build wow function only if CONFIG_PM is on
-Date:   Thu, 16 Sep 2021 18:00:54 +0200
-Message-Id: <20210916155814.168494474@linuxfoundation.org>
+        stable@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Hannes Reinecke <hare@suse.de>,
+        Daniel Wagner <dwagner@suse.de>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 306/432] nvme: code command_id with a genctr for use-after-free validation
+Date:   Thu, 16 Sep 2021 18:00:55 +0200
+Message-Id: <20210916155821.191507147@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +42,255 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping-Ke Shih <pkshih@realtek.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 05e45887382c4c0f9522515759b34991aa17e69d ]
+[ Upstream commit e7006de6c23803799be000a5dcce4d916a36541a ]
 
-The kernel test robot reports undefined reference after we report wakeup
-reason to mac80211. This is because CONFIG_PM is not defined in the testing
-configuration file. In fact, functions within wow.c are used if CONFIG_PM
-is defined, so use CONFIG_PM to decide whether we build this file or not.
+We cannot detect a (perhaps buggy) controller that is sending us
+a completion for a request that was already completed (for example
+sending a completion twice), this phenomenon was seen in the wild
+a few times.
 
-The reported messages are:
-   hppa-linux-ld: drivers/net/wireless/realtek/rtw88/wow.o: in function `rtw_wow_show_wakeup_reason':
->> (.text+0x6c4): undefined reference to `ieee80211_report_wowlan_wakeup'
->> hppa-linux-ld: (.text+0x6e0): undefined reference to `ieee80211_report_wowlan_wakeup'
+So to protect against this, we use the upper 4 msbits of the nvme sqe
+command_id to use as a 4-bit generation counter and verify it matches
+the existing request generation that is incrementing on every execution.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210728014335.8785-4-pkshih@realtek.com
+The 16-bit command_id structure now is constructed by:
+| xxxx | xxxxxxxxxxxx |
+  gen    request tag
+
+This means that we are giving up some possible queue depth as 12 bits
+allow for a maximum queue depth of 4095 instead of 65536, however we
+never create such long queues anyways so no real harm done.
+
+Suggested-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Acked-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Daniel Wagner <dwagner@suse.de>
+Tested-by: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/core.c   |  3 ++-
+ drivers/nvme/host/nvme.h   | 47 +++++++++++++++++++++++++++++++++++++-
+ drivers/nvme/host/pci.c    |  2 +-
+ drivers/nvme/host/rdma.c   |  4 ++--
+ drivers/nvme/host/tcp.c    | 26 ++++++++++-----------
+ drivers/nvme/target/loop.c |  4 ++--
+ 6 files changed, 66 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/Makefile b/drivers/net/wireless/realtek/rtw88/Makefile
-index c0e4b111c8b4..73d6807a8cdf 100644
---- a/drivers/net/wireless/realtek/rtw88/Makefile
-+++ b/drivers/net/wireless/realtek/rtw88/Makefile
-@@ -15,9 +15,9 @@ rtw88_core-y += main.o \
- 	   ps.o \
- 	   sec.o \
- 	   bf.o \
--	   wow.o \
- 	   regd.o
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index dfd9dec0c1f6..2f0cbaba12ac 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1029,7 +1029,8 @@ blk_status_t nvme_setup_cmd(struct nvme_ns *ns, struct request *req)
+ 		return BLK_STS_IOERR;
+ 	}
  
-+rtw88_core-$(CONFIG_PM) += wow.o
+-	cmd->common.command_id = req->tag;
++	nvme_req(req)->genctr++;
++	cmd->common.command_id = nvme_cid(req);
+ 	trace_nvme_setup_cmd(req, cmd);
+ 	return ret;
+ }
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index 5cd1fa3b8464..26511794629b 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -158,6 +158,7 @@ enum nvme_quirks {
+ struct nvme_request {
+ 	struct nvme_command	*cmd;
+ 	union nvme_result	result;
++	u8			genctr;
+ 	u8			retries;
+ 	u8			flags;
+ 	u16			status;
+@@ -497,6 +498,49 @@ struct nvme_ctrl_ops {
+ 	int (*get_address)(struct nvme_ctrl *ctrl, char *buf, int size);
+ };
  
- obj-$(CONFIG_RTW88_8822B)	+= rtw88_8822b.o
- rtw88_8822b-objs		:= rtw8822b.o rtw8822b_table.o
++/*
++ * nvme command_id is constructed as such:
++ * | xxxx | xxxxxxxxxxxx |
++ *   gen    request tag
++ */
++#define nvme_genctr_mask(gen)			(gen & 0xf)
++#define nvme_cid_install_genctr(gen)		(nvme_genctr_mask(gen) << 12)
++#define nvme_genctr_from_cid(cid)		((cid & 0xf000) >> 12)
++#define nvme_tag_from_cid(cid)			(cid & 0xfff)
++
++static inline u16 nvme_cid(struct request *rq)
++{
++	return nvme_cid_install_genctr(nvme_req(rq)->genctr) | rq->tag;
++}
++
++static inline struct request *nvme_find_rq(struct blk_mq_tags *tags,
++		u16 command_id)
++{
++	u8 genctr = nvme_genctr_from_cid(command_id);
++	u16 tag = nvme_tag_from_cid(command_id);
++	struct request *rq;
++
++	rq = blk_mq_tag_to_rq(tags, tag);
++	if (unlikely(!rq)) {
++		pr_err("could not locate request for tag %#x\n",
++			tag);
++		return NULL;
++	}
++	if (unlikely(nvme_genctr_mask(nvme_req(rq)->genctr) != genctr)) {
++		dev_err(nvme_req(rq)->ctrl->device,
++			"request %#x genctr mismatch (got %#x expected %#x)\n",
++			tag, genctr, nvme_genctr_mask(nvme_req(rq)->genctr));
++		return NULL;
++	}
++	return rq;
++}
++
++static inline struct request *nvme_cid_to_rq(struct blk_mq_tags *tags,
++                u16 command_id)
++{
++	return blk_mq_tag_to_rq(tags, nvme_tag_from_cid(command_id));
++}
++
+ #ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
+ void nvme_fault_inject_init(struct nvme_fault_inject *fault_inj,
+ 			    const char *dev_name);
+@@ -594,7 +638,8 @@ static inline void nvme_put_ctrl(struct nvme_ctrl *ctrl)
+ 
+ static inline bool nvme_is_aen_req(u16 qid, __u16 command_id)
+ {
+-	return !qid && command_id >= NVME_AQ_BLK_MQ_DEPTH;
++	return !qid &&
++		nvme_tag_from_cid(command_id) >= NVME_AQ_BLK_MQ_DEPTH;
+ }
+ 
+ void nvme_complete_rq(struct request *req);
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 51852085239e..c246fdacba2e 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -1014,7 +1014,7 @@ static inline void nvme_handle_cqe(struct nvme_queue *nvmeq, u16 idx)
+ 		return;
+ 	}
+ 
+-	req = blk_mq_tag_to_rq(nvme_queue_tagset(nvmeq), command_id);
++	req = nvme_find_rq(nvme_queue_tagset(nvmeq), command_id);
+ 	if (unlikely(!req)) {
+ 		dev_warn(nvmeq->dev->ctrl.device,
+ 			"invalid id %d completed on queue %d\n",
+diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
+index 3bd9cbc80246..a68704e39084 100644
+--- a/drivers/nvme/host/rdma.c
++++ b/drivers/nvme/host/rdma.c
+@@ -1730,10 +1730,10 @@ static void nvme_rdma_process_nvme_rsp(struct nvme_rdma_queue *queue,
+ 	struct request *rq;
+ 	struct nvme_rdma_request *req;
+ 
+-	rq = blk_mq_tag_to_rq(nvme_rdma_tagset(queue), cqe->command_id);
++	rq = nvme_find_rq(nvme_rdma_tagset(queue), cqe->command_id);
+ 	if (!rq) {
+ 		dev_err(queue->ctrl->ctrl.device,
+-			"tag 0x%x on QP %#x not found\n",
++			"got bad command_id %#x on QP %#x\n",
+ 			cqe->command_id, queue->qp->qp_num);
+ 		nvme_rdma_error_recovery(queue->ctrl);
+ 		return;
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index f05892e2e6c4..48b70e5235a3 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -487,11 +487,11 @@ static int nvme_tcp_process_nvme_cqe(struct nvme_tcp_queue *queue,
+ {
+ 	struct request *rq;
+ 
+-	rq = blk_mq_tag_to_rq(nvme_tcp_tagset(queue), cqe->command_id);
++	rq = nvme_find_rq(nvme_tcp_tagset(queue), cqe->command_id);
+ 	if (!rq) {
+ 		dev_err(queue->ctrl->ctrl.device,
+-			"queue %d tag 0x%x not found\n",
+-			nvme_tcp_queue_id(queue), cqe->command_id);
++			"got bad cqe.command_id %#x on queue %d\n",
++			cqe->command_id, nvme_tcp_queue_id(queue));
+ 		nvme_tcp_error_recovery(&queue->ctrl->ctrl);
+ 		return -EINVAL;
+ 	}
+@@ -508,11 +508,11 @@ static int nvme_tcp_handle_c2h_data(struct nvme_tcp_queue *queue,
+ {
+ 	struct request *rq;
+ 
+-	rq = blk_mq_tag_to_rq(nvme_tcp_tagset(queue), pdu->command_id);
++	rq = nvme_find_rq(nvme_tcp_tagset(queue), pdu->command_id);
+ 	if (!rq) {
+ 		dev_err(queue->ctrl->ctrl.device,
+-			"queue %d tag %#x not found\n",
+-			nvme_tcp_queue_id(queue), pdu->command_id);
++			"got bad c2hdata.command_id %#x on queue %d\n",
++			pdu->command_id, nvme_tcp_queue_id(queue));
+ 		return -ENOENT;
+ 	}
+ 
+@@ -606,7 +606,7 @@ static int nvme_tcp_setup_h2c_data_pdu(struct nvme_tcp_request *req,
+ 	data->hdr.plen =
+ 		cpu_to_le32(data->hdr.hlen + hdgst + req->pdu_len + ddgst);
+ 	data->ttag = pdu->ttag;
+-	data->command_id = rq->tag;
++	data->command_id = nvme_cid(rq);
+ 	data->data_offset = cpu_to_le32(req->data_sent);
+ 	data->data_length = cpu_to_le32(req->pdu_len);
+ 	return 0;
+@@ -619,11 +619,11 @@ static int nvme_tcp_handle_r2t(struct nvme_tcp_queue *queue,
+ 	struct request *rq;
+ 	int ret;
+ 
+-	rq = blk_mq_tag_to_rq(nvme_tcp_tagset(queue), pdu->command_id);
++	rq = nvme_find_rq(nvme_tcp_tagset(queue), pdu->command_id);
+ 	if (!rq) {
+ 		dev_err(queue->ctrl->ctrl.device,
+-			"queue %d tag %#x not found\n",
+-			nvme_tcp_queue_id(queue), pdu->command_id);
++			"got bad r2t.command_id %#x on queue %d\n",
++			pdu->command_id, nvme_tcp_queue_id(queue));
+ 		return -ENOENT;
+ 	}
+ 	req = blk_mq_rq_to_pdu(rq);
+@@ -703,7 +703,7 @@ static int nvme_tcp_recv_data(struct nvme_tcp_queue *queue, struct sk_buff *skb,
+ {
+ 	struct nvme_tcp_data_pdu *pdu = (void *)queue->pdu;
+ 	struct request *rq =
+-		blk_mq_tag_to_rq(nvme_tcp_tagset(queue), pdu->command_id);
++		nvme_cid_to_rq(nvme_tcp_tagset(queue), pdu->command_id);
+ 	struct nvme_tcp_request *req = blk_mq_rq_to_pdu(rq);
+ 
+ 	while (true) {
+@@ -796,8 +796,8 @@ static int nvme_tcp_recv_ddgst(struct nvme_tcp_queue *queue,
+ 	}
+ 
+ 	if (pdu->hdr.flags & NVME_TCP_F_DATA_SUCCESS) {
+-		struct request *rq = blk_mq_tag_to_rq(nvme_tcp_tagset(queue),
+-						pdu->command_id);
++		struct request *rq = nvme_cid_to_rq(nvme_tcp_tagset(queue),
++					pdu->command_id);
+ 
+ 		nvme_tcp_end_request(rq, NVME_SC_SUCCESS);
+ 		queue->nr_cqe++;
+diff --git a/drivers/nvme/target/loop.c b/drivers/nvme/target/loop.c
+index 3a17a7e26bbf..0285ccc7541f 100644
+--- a/drivers/nvme/target/loop.c
++++ b/drivers/nvme/target/loop.c
+@@ -107,10 +107,10 @@ static void nvme_loop_queue_response(struct nvmet_req *req)
+ 	} else {
+ 		struct request *rq;
+ 
+-		rq = blk_mq_tag_to_rq(nvme_loop_tagset(queue), cqe->command_id);
++		rq = nvme_find_rq(nvme_loop_tagset(queue), cqe->command_id);
+ 		if (!rq) {
+ 			dev_err(queue->ctrl->ctrl.device,
+-				"tag 0x%x on queue %d not found\n",
++				"got bad command_id %#x on queue %d\n",
+ 				cqe->command_id, nvme_loop_queue_idx(queue));
+ 			return;
+ 		}
 -- 
 2.30.2
 
