@@ -2,63 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B0FD40ED81
-	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 00:47:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B462F40ED89
+	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 00:50:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235079AbhIPWtD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 18:49:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38210 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234289AbhIPWtD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 18:49:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D086611CA;
-        Thu, 16 Sep 2021 22:47:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631832462;
-        bh=e/tOVBZ2IgDrbEjaw0v9QkM1LOtgcU5zikPIdAMfJug=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=BQyxKY6iowvs1WcnsZuzWmN6exo7pf+KhiwdlL+3bLxuxGQzNqJ9rZpkPVyMWwMtF
-         nZk8i1PKCb1c+4b+5i9xHXW2/I7digL16MKJ2/xZ+Rd974NDJxSgB60wrH+MT+xSug
-         JQhlGqeyGo1iFTHf63La2gDxptqRzgjckd0tfau6R80V9uNbwq5Xr52u0KN9w0Ippv
-         2J3OULMNgww9tXnD1eysLnlfxqS1iz0tbm9OdSjageY2x3wLXDdJglncbeIc5nGNOw
-         OXvpxGlCTwlLAqp1FUpT88s6oP2UZCFbPongO9equifOvoi5Ytw9Pj9r3Dx7/WuvTI
-         j7VBy3VrPC27g==
-Subject: Re: [PATCH] clk: socfpga: agilex: fix duplicate s2f_user0_clk
-To:     Stephen Boyd <sboyd@kernel.org>
-Cc:     mturquette@baylibre.com, linux-clk@vger.kernel.org,
+        id S241279AbhIPWwC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 18:52:02 -0400
+Received: from mail-pj1-f47.google.com ([209.85.216.47]:42920 "EHLO
+        mail-pj1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241276AbhIPWwC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 18:52:02 -0400
+Received: by mail-pj1-f47.google.com with SMTP id p12-20020a17090adf8c00b0019c959bc795so314619pjv.1;
+        Thu, 16 Sep 2021 15:50:41 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Vw0j2AmAI+jDWlQA6oI7YirQNYbuAQxGA7HjiEIg9wU=;
+        b=TlpsgRjbTTaLG7gck4DqObcsq2MPqAIL1JbGqDqy8VP0PE4zjHLBiRKtXxpQ16dyGY
+         VtGJgMoi7pgrp9BirYHVtte9VttgI5w3bPVAzEBVDaegYr5PfssCsaP56JKVjnb4n6Gb
+         IMcP2g6oXaVLtWznOAMRo1tX7E+gN6Hi8XOe4y+4EYx1knvq9btjibBtaoT1KmLMlJDL
+         IsAC3ZWZO7FULHvUUL/mgpYkMR9xNBVE9JUIiZuyqIVpWHLlEwRGT9H6+tvApkxeLaJo
+         KMH/IHHZwZBHpaNYw+P0Jzdsp5JEdowUY5PFQKQdoGoz+b2jC+gb6KFmgU5jJ2/ZXJgo
+         lFCA==
+X-Gm-Message-State: AOAM531K1jRXDeytKQw9U+8wUK6P1liQFvit5Jz6bdxd4LOifRIEM9aP
+        AU/bs7khCZck8vCNKeKAxivicNHrRGA=
+X-Google-Smtp-Source: ABdhPJynvLv4SLwrfDof5iB0v728YZPksh5TOzXLr9hIot3CP6nykPOjBkK7REn1gOk5PtFBON/8kQ==
+X-Received: by 2002:a17:90a:ab90:: with SMTP id n16mr8561525pjq.157.1631832641003;
+        Thu, 16 Sep 2021 15:50:41 -0700 (PDT)
+Received: from localhost ([2601:647:5b00:6f70:be34:681b:b1e9:776f])
+        by smtp.gmail.com with ESMTPSA id k4sm4354227pga.92.2021.09.16.15.50.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Sep 2021 15:50:40 -0700 (PDT)
+Date:   Thu, 16 Sep 2021 15:50:39 -0700
+From:   Moritz Fischer <mdf@kernel.org>
+To:     Russ Weight <russell.h.weight@intel.com>
+Cc:     Moritz Fischer <mdf@kernel.org>, linux-fpga@vger.kernel.org,
+        trix@redhat.com, lgoncalv@redhat.com, yilun.xu@intel.com,
+        hao.wu@intel.com, matthew.gerlach@intel.com, rc@silicom.dk,
         stable@vger.kernel.org
-References: <20210913132102.883361-1-dinguyen@kernel.org>
- <163166856812.763609.13128310400246778720@swboyd.mtv.corp.google.com>
- <163166970028.763609.7710436848359965088@swboyd.mtv.corp.google.com>
-From:   Dinh Nguyen <dinguyen@kernel.org>
-Message-ID: <8298ec4f-913d-e00f-0d3e-c88e141563ef@kernel.org>
-Date:   Thu, 16 Sep 2021 17:47:24 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+Subject: Re: [PATCH 1/1] fpga: dfl: Avoid reads to AFU CSRs during enumeration
+Message-ID: <YUPKPxrgkLaqEZRr@epycbox.lan>
+References: <20210916210733.153388-1-russell.h.weight@intel.com>
+ <YUPEIDk7jMc/WpAQ@epycbox.lan>
+ <e070cf0f-76d4-5bd8-2e7f-67499351e449@intel.com>
 MIME-Version: 1.0
-In-Reply-To: <163166970028.763609.7710436848359965088@swboyd.mtv.corp.google.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e070cf0f-76d4-5bd8-2e7f-67499351e449@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 9/14/21 8:35 PM, Stephen Boyd wrote:
-> Quoting Stephen Boyd (2021-09-14 18:16:08)
->> Quoting Dinh Nguyen (2021-09-13 06:21:02)
->>> Remove the duplicate s2f_user0_clk.
->>
->> To fix what in particular? The patch is tagged for stable so I can only
->> imagine there's some badness that would be good to fix?
->>
+On Thu, Sep 16, 2021 at 03:34:39PM -0700, Russ Weight wrote:
 > 
-> Ah this is the patch that was missing. Please squash the two together
-> and resend with more info.
+> On 9/16/21 3:24 PM, Moritz Fischer wrote:
+> > On Thu, Sep 16, 2021 at 02:07:33PM -0700, Russ Weight wrote:
+> >> CSR address space for Accelerator Functional Units (AFU) is not available
+> >> during the early Device Feature List (DFL) enumeration. Early access
+> >> to this space results in invalid data and port errors. This change adds
+> >> a condition to prevent an early read from the AFU CSR space.
+> >>
+> >> Signed-off-by: Russ Weight <russell.h.weight@intel.com>
+> >>
+> >> Fixes: 23bcda750558 ("fpga: dfl: expose feature revision from struct
+> >> dfl_device")
+> > Did you mean:
+> >
+> > Fixes: 1604986c3e6b ("fpga: dfl: expose feature revision from struct dfl_device")
+> Oops - I must have been looking at the wrong branch. Yes - you have the
+> correct commit ID
+> >
+> > And for future please don't line break those, or we'll get yelled at :)
+> Got it.
 > 
+> Thanks!
+> - Russ
+> >
+> > I can locally fix it up, no need to resubmit
+> >
+> > - Moritz
+> 
+Applied w/changes to fixes,
 
-Sorry about that. Will do.
-
-Dinh
+- Moritz
