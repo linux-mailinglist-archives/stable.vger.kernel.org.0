@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FD3640E824
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7F0840E4A3
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348225AbhIPRn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:43:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54244 "EHLO mail.kernel.org"
+        id S243563AbhIPREz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:04:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354471AbhIPRkL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:40:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84EB76324D;
-        Thu, 16 Sep 2021 16:51:18 +0000 (UTC)
+        id S1347356AbhIPQ6v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:58:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE69B6139D;
+        Thu, 16 Sep 2021 16:32:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811079;
-        bh=6tA3zaJCVTiAss9xOo8/mchtrsaqR7RMpruWHOFR/Jc=;
+        s=korg; t=1631809932;
+        bh=6GYGAVk2gYlgVH3/XQYaDlJTce6H+5zqR3EON9Hy2B4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QOlTLhd7ieT2eHlvSeuQQHioGYNMHINpQuma/6ilzpdsj/dm2zaucPQq10vFMYbqm
-         IeRWxQFwc4XrMnBZF+Z9WOH8IIczIRFoiCbG/CPMBsctIks1TD4ok6EyQ6abxfsbtQ
-         4SfLxNlqkZlg08YrRNvMWiyH4QL8uYtwhjb1XT7I=
+        b=oRG09060+dEbfft9n7KWDSR9Ia7WncOTKYJ9HG9bmk2zL1uVpRmxKDfJF7b3K129S
+         OemKp7uyTqPXdiXRM4S0Ka45P8JJUFS/ipK38BKCDDQ98BKwjbN21Tb1HGwgvod7T5
+         cl1QWaAqvArDdOUKNBoigS3tyNhEkyGirwY4SNyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Narani <manish.narani@xilinx.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Colin Ian King <colin.king@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 343/432] mmc: sdhci-of-arasan: Check return value of non-void funtions
-Date:   Thu, 16 Sep 2021 18:01:32 +0200
-Message-Id: <20210916155822.457273315@linuxfoundation.org>
+Subject: [PATCH 5.13 336/380] parport: remove non-zero check on count
+Date:   Thu, 16 Sep 2021 18:01:33 +0200
+Message-Id: <20210916155815.473472906@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Narani <manish.narani@xilinx.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 66bad6ed2204fdb78a0a8fb89d824397106a5471 ]
+[ Upstream commit 0be883a0d795d9146f5325de582584147dd0dcdc ]
 
-At a couple of places, the return values of the non-void functions were
-not getting checked. This was reported by the coverity tool. Modify the
-code to check the return values of the same.
+The check for count appears to be incorrect since a non-zero count
+check occurs a couple of statements earlier. Currently the check is
+always false and the dev->port->irq != PARPORT_IRQ_NONE part of the
+check is never tested and the if statement is dead-code. Fix this
+by removing the check on count.
 
-Addresses-Coverity: ("check_return")
-Signed-off-by: Manish Narani <manish.narani@xilinx.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/1623753837-21035-5-git-send-email-manish.narani@xilinx.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Note that this code is pre-git history, so I can't find a sha for
+it.
+
+Acked-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Addresses-Coverity: ("Logically dead code")
+Link: https://lore.kernel.org/r/20210730100710.27405-1-colin.king@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-of-arasan.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/parport/ieee1284_ops.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/sdhci-of-arasan.c b/drivers/mmc/host/sdhci-of-arasan.c
-index 03c80c9bb7e3..b6902447d779 100644
---- a/drivers/mmc/host/sdhci-of-arasan.c
-+++ b/drivers/mmc/host/sdhci-of-arasan.c
-@@ -273,7 +273,12 @@ static void sdhci_arasan_set_clock(struct sdhci_host *host, unsigned int clock)
- 			 * through low speeds without power cycling.
- 			 */
- 			sdhci_set_clock(host, host->max_clk);
--			phy_power_on(sdhci_arasan->phy);
-+			if (phy_power_on(sdhci_arasan->phy)) {
-+				pr_err("%s: Cannot power on phy.\n",
-+				       mmc_hostname(host->mmc));
-+				return;
-+			}
-+
- 			sdhci_arasan->is_phy_on = true;
+diff --git a/drivers/parport/ieee1284_ops.c b/drivers/parport/ieee1284_ops.c
+index 2c11bd3fe1fd..17061f1df0f4 100644
+--- a/drivers/parport/ieee1284_ops.c
++++ b/drivers/parport/ieee1284_ops.c
+@@ -518,7 +518,7 @@ size_t parport_ieee1284_ecp_read_data (struct parport *port,
+ 				goto out;
  
- 			/*
-@@ -323,7 +328,12 @@ static void sdhci_arasan_set_clock(struct sdhci_host *host, unsigned int clock)
- 		msleep(20);
- 
- 	if (ctrl_phy) {
--		phy_power_on(sdhci_arasan->phy);
-+		if (phy_power_on(sdhci_arasan->phy)) {
-+			pr_err("%s: Cannot power on phy.\n",
-+			       mmc_hostname(host->mmc));
-+			return;
-+		}
-+
- 		sdhci_arasan->is_phy_on = true;
- 	}
- }
-@@ -479,7 +489,9 @@ static int sdhci_arasan_suspend(struct device *dev)
- 		ret = phy_power_off(sdhci_arasan->phy);
- 		if (ret) {
- 			dev_err(dev, "Cannot power off phy.\n");
--			sdhci_resume_host(host);
-+			if (sdhci_resume_host(host))
-+				dev_err(dev, "Cannot resume host.\n");
-+
- 			return ret;
- 		}
- 		sdhci_arasan->is_phy_on = false;
+ 			/* Yield the port for a while. */
+-			if (count && dev->port->irq != PARPORT_IRQ_NONE) {
++			if (dev->port->irq != PARPORT_IRQ_NONE) {
+ 				parport_release (dev);
+ 				schedule_timeout_interruptible(msecs_to_jiffies(40));
+ 				parport_claim_or_block (dev);
 -- 
 2.30.2
 
