@@ -2,34 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BFA640E86F
+	by mail.lfdr.de (Postfix) with ESMTP id A3A9E40E871
 	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355943AbhIPRog (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1355769AbhIPRog (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 16 Sep 2021 13:44:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57070 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355377AbhIPRlY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1355378AbhIPRlY (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Sep 2021 13:41:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69ACF6325A;
-        Thu, 16 Sep 2021 16:52:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F0A526325F;
+        Thu, 16 Sep 2021 16:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811157;
-        bh=95b3wlf+FrA0gjk15GOSQxUqJm1hscPLiRT5Brty8DQ=;
+        s=korg; t=1631811161;
+        bh=We1WAH98abIdQl6WDRwYDdwBqGyJa6AdZyPB/uCcD+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=asd385txsyANNJOUNGDiRao4T24Hyu8dYbS7EWXr5m912+1Rkc5mRy5rwGWYjnr1r
-         Ww4TwyTAyW9QoxJENi0QQrWIbZ0Ne5If6urjx2LvkQS11aGJsFdpV+JRVTw6cXSPcF
-         gehP1W8N49w7bXUcGA63Jx2ihG37YSbokC4LJHGc=
+        b=GlelumZY/s755cilsg6uAkNT07moi4pCLjpKd+eXda4UYQbg3BgyemZPthLeUjKUG
+         Xd8QOlG4FdsnDWMfryawWUD3s7BhF1bq4oVPZ0RhDccqG93U/wWTaDGLDWIKiOG8Sw
+         VECUIVa2BlLNeYOCQw05vVHAah54SRwHRWGP0CoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
-        Guillaume Morin <guillaume@morinfr.org>,
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Pankaj Gupta <pankaj.gupta@ionos.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+        Wei Yang <richard.weiyang@linux.alibaba.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        virtualization@lists.linux-foundation.org,
+        Andy Lutomirski <luto@kernel.org>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Anton Blanchard <anton@ozlabs.org>,
+        Ard Biesheuvel <ardb@kernel.org>, Baoquan He <bhe@redhat.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Dave Jiang <dave.jiang@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Jia He <justin.he@arm.com>, Joe Perches <joe@perches.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Laurent Dufour <ldufour@linux.ibm.com>,
+        Michel Lespinasse <michel@lespinasse.org>,
+        Nathan Lynch <nathanl@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Rich Felker <dalias@libc.org>,
+        Scott Cheloha <cheloha@linux.ibm.com>,
+        Sergei Trofimovich <slyfox@gentoo.org>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Will Deacon <will@kernel.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.14 403/432] hugetlb: fix hugetlb cgroup refcounting during vma split
-Date:   Thu, 16 Sep 2021 18:02:32 +0200
-Message-Id: <20210916155824.490316776@linuxfoundation.org>
+Subject: [PATCH 5.14 404/432] mm/memory_hotplug: use "unsigned long" for PFN in zone_for_pfn_range()
+Date:   Thu, 16 Sep 2021 18:02:33 +0200
+Message-Id: <20210916155824.533541303@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -41,97 +90,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: David Hildenbrand <david@redhat.com>
 
-commit 09a26e832705fdb7a9484495b71a05e0bbc65207 upstream.
+commit 7cf209ba8a86410939a24cb1aeb279479a7e0ca6 upstream.
 
-Guillaume Morin reported hitting the following WARNING followed by GPF or
-NULL pointer deference either in cgroups_destroy or in the kill_css path.:
+Patch series "mm/memory_hotplug: preparatory patches for new online policy and memory"
 
-    percpu ref (css_release) <= 0 (-1) after switching to atomic
-    WARNING: CPU: 23 PID: 130 at lib/percpu-refcount.c:196 percpu_ref_switch_to_atomic_rcu+0x127/0x130
-    CPU: 23 PID: 130 Comm: ksoftirqd/23 Kdump: loaded Tainted: G           O      5.10.60 #1
-    RIP: 0010:percpu_ref_switch_to_atomic_rcu+0x127/0x130
-    Call Trace:
-       rcu_core+0x30f/0x530
-       rcu_core_si+0xe/0x10
-       __do_softirq+0x103/0x2a2
-       run_ksoftirqd+0x2b/0x40
-       smpboot_thread_fn+0x11a/0x170
-       kthread+0x10a/0x140
-       ret_from_fork+0x22/0x30
+These are all cleanups and one fix previously sent as part of [1]:
+[PATCH v1 00/12] mm/memory_hotplug: "auto-movable" online policy and memory
+groups.
 
-Upon further examination, it was discovered that the css structure was
-associated with hugetlb reservations.
+These patches make sense even without the other series, therefore I pulled
+them out to make the other series easier to digest.
 
-For private hugetlb mappings the vma points to a reserve map that
-contains a pointer to the css.  At mmap time, reservations are set up
-and a reference to the css is taken.  This reference is dropped in the
-vma close operation; hugetlb_vm_op_close.  However, if a vma is split no
-additional reference to the css is taken yet hugetlb_vm_op_close will be
-called twice for the split vma resulting in an underflow.
+[1] https://lkml.kernel.org/r/20210607195430.48228-1-david@redhat.com
 
-Fix by taking another reference in hugetlb_vm_op_open.  Note that the
-reference is only taken for the owner of the reserve map.  In the more
-common fork case, the pointer to the reserve map is cleared for
-non-owning vmas.
+This patch (of 4):
 
-Link: https://lkml.kernel.org/r/20210830215015.155224-1-mike.kravetz@oracle.com
-Fixes: e9fe92ae0cd2 ("hugetlb_cgroup: add reservation accounting for private mappings")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reported-by: Guillaume Morin <guillaume@morinfr.org>
-Suggested-by: Guillaume Morin <guillaume@morinfr.org>
-Tested-by: Guillaume Morin <guillaume@morinfr.org>
+Checkpatch complained on a follow-up patch that we are using "unsigned"
+here, which defaults to "unsigned int" and checkpatch is correct.
+
+As we will search for a fitting zone using the wrong pfn, we might end
+up onlining memory to one of the special kernel zones, such as ZONE_DMA,
+which can end badly as the onlined memory does not satisfy properties of
+these zones.
+
+Use "unsigned long" instead, just as we do in other places when handling
+PFNs.  This can bite us once we have physical addresses in the range of
+multiple TB.
+
+Link: https://lkml.kernel.org/r/20210712124052.26491-2-david@redhat.com
+Fixes: e5e689302633 ("mm, memory_hotplug: display allowed zones in the preferred ordering")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Pankaj Gupta <pankaj.gupta@ionos.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: virtualization@lists.linux-foundation.org
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc: Anton Blanchard <anton@ozlabs.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jia He <justin.he@arm.com>
+Cc: Joe Perches <joe@perches.com>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Laurent Dufour <ldufour@linux.ibm.com>
+Cc: Michel Lespinasse <michel@lespinasse.org>
+Cc: Nathan Lynch <nathanl@linux.ibm.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Pierre Morel <pmorel@linux.ibm.com>
+Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Scott Cheloha <cheloha@linux.ibm.com>
+Cc: Sergei Trofimovich <slyfox@gentoo.org>
+Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/hugetlb_cgroup.h |   12 ++++++++++++
- mm/hugetlb.c                   |    4 +++-
- 2 files changed, 15 insertions(+), 1 deletion(-)
+ include/linux/memory_hotplug.h |    4 ++--
+ mm/memory_hotplug.c            |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/include/linux/hugetlb_cgroup.h
-+++ b/include/linux/hugetlb_cgroup.h
-@@ -121,6 +121,13 @@ static inline void hugetlb_cgroup_put_rs
- 	css_put(&h_cg->css);
+--- a/include/linux/memory_hotplug.h
++++ b/include/linux/memory_hotplug.h
+@@ -339,8 +339,8 @@ extern void sparse_remove_section(struct
+ 		unsigned long map_offset, struct vmem_altmap *altmap);
+ extern struct page *sparse_decode_mem_map(unsigned long coded_mem_map,
+ 					  unsigned long pnum);
+-extern struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
+-		unsigned long nr_pages);
++extern struct zone *zone_for_pfn_range(int online_type, int nid,
++		unsigned long start_pfn, unsigned long nr_pages);
+ extern int arch_create_linear_mapping(int nid, u64 start, u64 size,
+ 				      struct mhp_params *params);
+ void arch_remove_linear_mapping(u64 start, u64 size);
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -708,8 +708,8 @@ static inline struct zone *default_zone_
+ 	return movable_node_enabled ? movable_zone : kernel_zone;
  }
  
-+static inline void resv_map_dup_hugetlb_cgroup_uncharge_info(
-+						struct resv_map *resv_map)
-+{
-+	if (resv_map->css)
-+		css_get(resv_map->css);
-+}
-+
- extern int hugetlb_cgroup_charge_cgroup(int idx, unsigned long nr_pages,
- 					struct hugetlb_cgroup **ptr);
- extern int hugetlb_cgroup_charge_cgroup_rsvd(int idx, unsigned long nr_pages,
-@@ -199,6 +206,11 @@ static inline void hugetlb_cgroup_put_rs
+-struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
+-		unsigned long nr_pages)
++struct zone *zone_for_pfn_range(int online_type, int nid,
++		unsigned long start_pfn, unsigned long nr_pages)
  {
- }
- 
-+static inline void resv_map_dup_hugetlb_cgroup_uncharge_info(
-+						struct resv_map *resv_map)
-+{
-+}
-+
- static inline int hugetlb_cgroup_charge_cgroup(int idx, unsigned long nr_pages,
- 					       struct hugetlb_cgroup **ptr)
- {
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -4033,8 +4033,10 @@ static void hugetlb_vm_op_open(struct vm
- 	 * after this open call completes.  It is therefore safe to take a
- 	 * new reference here without additional locking.
- 	 */
--	if (resv && is_vma_resv_set(vma, HPAGE_RESV_OWNER))
-+	if (resv && is_vma_resv_set(vma, HPAGE_RESV_OWNER)) {
-+		resv_map_dup_hugetlb_cgroup_uncharge_info(resv);
- 		kref_get(&resv->refs);
-+	}
- }
- 
- static void hugetlb_vm_op_close(struct vm_area_struct *vma)
+ 	if (online_type == MMOP_ONLINE_KERNEL)
+ 		return default_kernel_zone_for_pfn(nid, start_pfn, nr_pages);
 
 
