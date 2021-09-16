@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A44E40E659
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0FB240E2C2
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244299AbhIPRVI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:21:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43506 "EHLO mail.kernel.org"
+        id S242201AbhIPQl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:41:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350969AbhIPRSA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:18:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A76161B73;
-        Thu, 16 Sep 2021 16:40:41 +0000 (UTC)
+        id S244564AbhIPQjT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:39:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1AFB6140D;
+        Thu, 16 Sep 2021 16:23:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810441;
-        bh=gODxnnV62JZe/xvsYsTtZIpK9rY0uoYCeUKIwMiMKeE=;
+        s=korg; t=1631809388;
+        bh=SrWbsL2c+wTgUKVBk/2/fr0BKD/MEpUT2ZCFzwO+5tw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OKe5IICSwpsxCrLOYv9HC1ojuaOjRmXs1vRNWvNBkh8bczoTgKGOWoIlxOHb7XCOL
-         CKwYwpkjRaqg5pN0ItiJSYvZPbno1UR3af7qDBNH1nDYDWDAwM7TfhcsCzr/pUdq9W
-         4sSCIeW977bUJnyuo/A5dTHbX+LYsbBEngcZxFxM=
+        b=mWfO7QxKUvU4RDoLuzHn18tdKzHlfT6tFZklAr8qj4NcpKfUhbwZjhqJz9AnL6NGO
+         s3UHMuHP0lf9tyS5Ic1J4YTqVt+qldxchAdTAq+Lvo0JElQe7+ujo4DYraCzzrNGEa
+         +oezw4oTeK8aINCd6jbs7kzhnl2OztH2r2DUsJNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenpeng Liang <liangwenpeng@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 143/432] RDMA/hns: Fix QPs resp incomplete assignment
+Subject: [PATCH 5.13 135/380] f2fs: should put a page beyond EOF when preparing a write
 Date:   Thu, 16 Sep 2021 17:58:12 +0200
-Message-Id: <20210916155815.609872506@linuxfoundation.org>
+Message-Id: <20210916155808.633622396@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenpeng Liang <liangwenpeng@huawei.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit d2e0ccffcdd7209fc9881c8970d2a7e28dcb43b9 ]
+[ Upstream commit 9605f75cf36e0bcc0f4ada07b5be712d30107607 ]
 
-The resp passed to the user space represents the enable flag of qp,
-incomplete assignment will cause some features of the user space to be
-disabled.
+The prepare_compress_overwrite() gets/locks a page to prepare a read, and calls
+f2fs_read_multi_pages() which checks EOF first. If there's any page beyond EOF,
+we unlock the page and set cc->rpages[i] = NULL, which we can't put the page
+anymore. This makes page leak, so let's fix by putting that page.
 
-Fixes: 90ae0b57e4a5 ("RDMA/hns: Combine enable flags of qp")
-Fixes: aba457ca890c ("RDMA/hns: Support owner mode doorbell")
-Link: https://lore.kernel.org/r/1629985056-57004-3-git-send-email-liangwenpeng@huawei.com
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: a949dc5f2c5c ("f2fs: compress: fix race condition of overwrite vs truncate")
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_qp.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/f2fs/data.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
-index 8f437806e07f..a6d1e44b75cf 100644
---- a/drivers/infiniband/hw/hns/hns_roce_qp.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
-@@ -848,7 +848,6 @@ static int alloc_qp_db(struct hns_roce_dev *hr_dev, struct hns_roce_qp *hr_qp,
- 				goto err_out;
- 			}
- 			hr_qp->en_flags |= HNS_ROCE_QP_CAP_SQ_RECORD_DB;
--			resp->cap_flags |= HNS_ROCE_QP_CAP_SQ_RECORD_DB;
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index 3cd509b085f2..198e5ad7c98b 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -2151,6 +2151,8 @@ int f2fs_read_multi_pages(struct compress_ctx *cc, struct bio **bio_ret,
+ 			continue;
  		}
- 
- 		if (user_qp_has_rdb(hr_dev, init_attr, udata, resp)) {
-@@ -861,7 +860,6 @@ static int alloc_qp_db(struct hns_roce_dev *hr_dev, struct hns_roce_qp *hr_qp,
- 				goto err_sdb;
- 			}
- 			hr_qp->en_flags |= HNS_ROCE_QP_CAP_RQ_RECORD_DB;
--			resp->cap_flags |= HNS_ROCE_QP_CAP_RQ_RECORD_DB;
- 		}
- 	} else {
- 		if (hr_dev->pci_dev->revision >= PCI_REVISION_ID_HIP09)
-@@ -1073,6 +1071,7 @@ static int hns_roce_create_qp_common(struct hns_roce_dev *hr_dev,
+ 		unlock_page(page);
++		if (for_write)
++			put_page(page);
+ 		cc->rpages[i] = NULL;
+ 		cc->nr_rpages--;
  	}
- 
- 	if (udata) {
-+		resp.cap_flags = hr_qp->en_flags;
- 		ret = ib_copy_to_udata(udata, &resp,
- 				       min(udata->outlen, sizeof(resp)));
- 		if (ret) {
 -- 
 2.30.2
 
