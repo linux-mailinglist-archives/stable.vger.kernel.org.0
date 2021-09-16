@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1D4440E741
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D77C40E3CA
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343555AbhIPRbC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:31:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46966 "EHLO mail.kernel.org"
+        id S243934AbhIPQwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:52:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348963AbhIPR1x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:27:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CE7161A57;
-        Thu, 16 Sep 2021 16:45:26 +0000 (UTC)
+        id S1344857AbhIPQtT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:49:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00E7461A7D;
+        Thu, 16 Sep 2021 16:27:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810727;
-        bh=N+oKi7eeVnuYEUVTGN5wXiWpy68Vo34sA0FAwHUYF8I=;
+        s=korg; t=1631809667;
+        bh=4hIy8UnwQrH4j2ngGlzjY5U9vxLNhjopSfaM/eeqlH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s/NqSpzQVGTotCtwJt1w0SkKmc2FAI9OTa3AdrO1qMbtkbaOT9mhp+fK25yG6s1Ot
-         SRaHIr+EA65slnuGYrIk4nPFxjoW9wu+38jJc1duVlQPBoaZ/7U6q/UTbg/BR4A2L4
-         d9HNAVKBBIyxfIwYG9tP3z3yAefIPQ8JKsU02ihE=
+        b=MKiYLdEJ4Mc+Lenmx3leM3Mq/mt8RajMeapNmCkUeLJZVbDWTMr0GYmnwVabafdyV
+         YLgPtw7YMZhnWtKtU0WVoGWQyq68bKaPzK2x2UZpMgJZUopcTTypl0eVFnY1XZR7CE
+         Rg0un7cLVrNuZ7USgB6G1rrSuLGqu2wzqc3KGgo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Akhil P Oommen <akhilpo@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 246/432] drm/msm/a6xx: Fix llcc configuration for a660 gpu
+Subject: [PATCH 5.13 238/380] arm64: dts: qcom: sdm660: use reg value for memory node
 Date:   Thu, 16 Sep 2021 17:59:55 +0200
-Message-Id: <20210916155819.171116974@linuxfoundation.org>
+Message-Id: <20210916155812.176993786@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,93 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akhil P Oommen <akhilpo@codeaurora.org>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit a6f24383f6c0a8d64d1f6afa10733ae4e8f236e0 ]
+[ Upstream commit c81210e38966cfa1c784364e4035081c3227cf5b ]
 
-Add the missing scache_cntl0 register programing which is required for
-a660 gpu.
+memory node like other node should be node@reg, which is missing in this
+case, so fix it up
 
-Signed-off-by: Akhil P Oommen <akhilpo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210730011945.v4.1.I110b87677ef16d97397fb7c81c07a16e1f5d211e@changeid
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 1073741824, 0, 536870912]]}
+
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20210308060826.3074234-18-vkoul@kernel.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 46 ++++++++++++++++-----------
- 1 file changed, 27 insertions(+), 19 deletions(-)
+ arch/arm64/boot/dts/qcom/ipq8074-hk01.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index 9c5e4618aa0a..183b9f9c1b31 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -1383,13 +1383,13 @@ static void a6xx_llc_activate(struct a6xx_gpu *a6xx_gpu)
- {
- 	struct adreno_gpu *adreno_gpu = &a6xx_gpu->base;
- 	struct msm_gpu *gpu = &adreno_gpu->base;
--	u32 cntl1_regval = 0;
-+	u32 gpu_scid, cntl1_regval = 0;
+diff --git a/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts b/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
+index e8c37a1693d3..cc08dc4eb56a 100644
+--- a/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
++++ b/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
+@@ -20,7 +20,7 @@ chosen {
+ 		stdout-path = "serial0";
+ 	};
  
- 	if (IS_ERR(a6xx_gpu->llc_mmio))
- 		return;
- 
- 	if (!llcc_slice_activate(a6xx_gpu->llc_slice)) {
--		u32 gpu_scid = llcc_get_slice_id(a6xx_gpu->llc_slice);
-+		gpu_scid = llcc_get_slice_id(a6xx_gpu->llc_slice);
- 
- 		gpu_scid &= 0x1f;
- 		cntl1_regval = (gpu_scid << 0) | (gpu_scid << 5) | (gpu_scid << 10) |
-@@ -1409,26 +1409,34 @@ static void a6xx_llc_activate(struct a6xx_gpu *a6xx_gpu)
- 		}
- 	}
- 
--	if (cntl1_regval) {
-+	if (!cntl1_regval)
-+		return;
-+
-+	/*
-+	 * Program the slice IDs for the various GPU blocks and GPU MMU
-+	 * pagetables
-+	 */
-+	if (!a6xx_gpu->have_mmu500) {
-+		a6xx_llc_write(a6xx_gpu,
-+			REG_A6XX_CX_MISC_SYSTEM_CACHE_CNTL_1, cntl1_regval);
-+
- 		/*
--		 * Program the slice IDs for the various GPU blocks and GPU MMU
--		 * pagetables
-+		 * Program cacheability overrides to not allocate cache
-+		 * lines on a write miss
- 		 */
--		if (a6xx_gpu->have_mmu500)
--			gpu_rmw(gpu, REG_A6XX_GBIF_SCACHE_CNTL1, GENMASK(24, 0),
--				cntl1_regval);
--		else {
--			a6xx_llc_write(a6xx_gpu,
--				REG_A6XX_CX_MISC_SYSTEM_CACHE_CNTL_1, cntl1_regval);
--
--			/*
--			 * Program cacheability overrides to not allocate cache
--			 * lines on a write miss
--			 */
--			a6xx_llc_rmw(a6xx_gpu,
--				REG_A6XX_CX_MISC_SYSTEM_CACHE_CNTL_0, 0xF, 0x03);
--		}
-+		a6xx_llc_rmw(a6xx_gpu,
-+			REG_A6XX_CX_MISC_SYSTEM_CACHE_CNTL_0, 0xF, 0x03);
-+		return;
- 	}
-+
-+	gpu_rmw(gpu, REG_A6XX_GBIF_SCACHE_CNTL1, GENMASK(24, 0), cntl1_regval);
-+
-+	/* On A660, the SCID programming for UCHE traffic is done in
-+	 * A6XX_GBIF_SCACHE_CNTL0[14:10]
-+	 */
-+	if (adreno_is_a660(adreno_gpu))
-+		gpu_rmw(gpu, REG_A6XX_GBIF_SCACHE_CNTL0, (0x1f << 10) |
-+			(1 << 8), (gpu_scid << 10) | (1 << 8));
- }
- 
- static void a6xx_llc_slices_destroy(struct a6xx_gpu *a6xx_gpu)
+-	memory {
++	memory@40000000 {
+ 		device_type = "memory";
+ 		reg = <0x0 0x40000000 0x0 0x20000000>;
+ 	};
 -- 
 2.30.2
 
