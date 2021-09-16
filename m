@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FC4340E03F
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF76A40E34E
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:20:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235312AbhIPQUd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:20:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55068 "EHLO mail.kernel.org"
+        id S242275AbhIPQrA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:47:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237226AbhIPQR0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:17:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D1A961357;
-        Thu, 16 Sep 2021 16:12:30 +0000 (UTC)
+        id S1344190AbhIPQop (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:44:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B459604E9;
+        Thu, 16 Sep 2021 16:25:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808750;
-        bh=XjTFrBT1ZSd+E/i9/xgsUXeFepBfNSiQ+baEUUNu/dA=;
+        s=korg; t=1631809550;
+        bh=CFxoJqTD6D2XgEUt9WJ2SR1eXohXAMMWRfLmxb/Gz8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nWllqYNJl7X5X0e+B9vjWxn5aEjbakf1hofE85NW98qtj45EL1yr/1d9CXr3ylA+G
-         ol+dmfiSWz8LQUGGPFmq4h6GHe28gA4SIWEC6KkAQKGXwDZlXl+JevViGi0tMdKEEV
-         goXDTMMiNf9tJpz+3m9Tynm+FPVEeELBOySfsna0=
+        b=LxzumITZvYzoHP+gy9biSdduhVdE2M2qbH376s/p/GRuVsOi73pXDGbThJhfqsMT5
+         nfEWhjxLBhevX6bt5H3V7bi0nzqxYDc6nIobq5FTBYcJwOIRuGylR39vJsiqydG8Db
+         z0icsm8mZTJ1OcHL1ogMgpkdZwE+H8ibotA57f5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+2f6d7c28bb4bf7e82060@syzkaller.appspotmail.com,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 207/306] Bluetooth: schedule SCO timeouts with delayed_work
+Subject: [PATCH 5.13 195/380] video: fbdev: asiliantfb: Error out if pixclock equals zero
 Date:   Thu, 16 Sep 2021 17:59:12 +0200
-Message-Id: <20210916155801.099700759@linuxfoundation.org>
+Message-Id: <20210916155810.698150123@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,147 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit ba316be1b6a00db7126ed9a39f9bee434a508043 ]
+[ Upstream commit b36b242d4b8ea178f7fd038965e3cac7f30c3f09 ]
 
-struct sock.sk_timer should be used as a sock cleanup timer. However,
-SCO uses it to implement sock timeouts.
+The userspace program could pass any values to the driver through
+ioctl() interface. If the driver doesn't check the value of 'pixclock',
+it may cause divide error.
 
-This causes issues because struct sock.sk_timer's callback is run in
-an IRQ context, and the timer callback function sco_sock_timeout takes
-a spin lock on the socket. However, other functions such as
-sco_conn_del and sco_conn_ready take the spin lock with interrupts
-enabled.
+Fix this by checking whether 'pixclock' is zero first.
 
-This inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} lock usage could
-lead to deadlocks as reported by Syzbot [1]:
-       CPU0
-       ----
-  lock(slock-AF_BLUETOOTH-BTPROTO_SCO);
-  <Interrupt>
-    lock(slock-AF_BLUETOOTH-BTPROTO_SCO);
+The following log reveals it:
 
-To fix this, we use delayed work to implement SCO sock timouts
-instead. This allows us to avoid taking the spin lock on the socket in
-an IRQ context, and corrects the misuse of struct sock.sk_timer.
+[   43.861711] divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+[   43.861737] CPU: 2 PID: 11764 Comm: i740 Not tainted 5.14.0-rc2-00513-gac532c9bbcfb-dirty #224
+[   43.861756] RIP: 0010:asiliantfb_check_var+0x4e/0x730
+[   43.861843] Call Trace:
+[   43.861848]  ? asiliantfb_remove+0x190/0x190
+[   43.861858]  fb_set_var+0x2e4/0xeb0
+[   43.861866]  ? fb_blank+0x1a0/0x1a0
+[   43.861873]  ? lock_acquire+0x1ef/0x530
+[   43.861884]  ? lock_release+0x810/0x810
+[   43.861892]  ? lock_is_held_type+0x100/0x140
+[   43.861903]  ? ___might_sleep+0x1ee/0x2d0
+[   43.861914]  ? __mutex_lock+0x620/0x1190
+[   43.861921]  ? do_fb_ioctl+0x313/0x700
+[   43.861929]  ? mutex_lock_io_nested+0xfa0/0xfa0
+[   43.861936]  ? __this_cpu_preempt_check+0x1d/0x30
+[   43.861944]  ? _raw_spin_unlock_irqrestore+0x46/0x60
+[   43.861952]  ? lockdep_hardirqs_on+0x59/0x100
+[   43.861959]  ? _raw_spin_unlock_irqrestore+0x46/0x60
+[   43.861967]  ? trace_hardirqs_on+0x6a/0x1c0
+[   43.861978]  do_fb_ioctl+0x31e/0x700
 
-As a note, cancel_delayed_work is used instead of
-cancel_delayed_work_sync in sco_sock_set_timer and
-sco_sock_clear_timer to avoid a deadlock. In the future, the call to
-bh_lock_sock inside sco_sock_timeout should be changed to lock_sock to
-synchronize with other functions using lock_sock. However, since
-sco_sock_set_timer and sco_sock_clear_timer are sometimes called under
-the locked socket (in sco_connect and __sco_sock_close),
-cancel_delayed_work_sync might cause them to sleep until an
-sco_sock_timeout that has started finishes running. But
-sco_sock_timeout would also sleep until it can grab the lock_sock.
-
-Using cancel_delayed_work is fine because sco_sock_timeout does not
-change from run to run, hence there is no functional difference
-between:
-1. waiting for a timeout to finish running before scheduling another
-timeout
-2. scheduling another timeout while a timeout is running.
-
-Link: https://syzkaller.appspot.com/bug?id=9089d89de0502e120f234ca0fc8a703f7368b31e [1]
-Reported-by: syzbot+2f6d7c28bb4bf7e82060@syzkaller.appspotmail.com
-Tested-by: syzbot+2f6d7c28bb4bf7e82060@syzkaller.appspotmail.com
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1627293835-17441-2-git-send-email-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/sco.c | 35 +++++++++++++++++++++++++++++------
- 1 file changed, 29 insertions(+), 6 deletions(-)
+ drivers/video/fbdev/asiliantfb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-index 600b1832e1dd..6a338c6926e0 100644
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -48,6 +48,8 @@ struct sco_conn {
- 	spinlock_t	lock;
- 	struct sock	*sk;
- 
-+	struct delayed_work	timeout_work;
-+
- 	unsigned int    mtu;
- };
- 
-@@ -74,9 +76,20 @@ struct sco_pinfo {
- #define SCO_CONN_TIMEOUT	(HZ * 40)
- #define SCO_DISCONN_TIMEOUT	(HZ * 2)
- 
--static void sco_sock_timeout(struct timer_list *t)
-+static void sco_sock_timeout(struct work_struct *work)
+diff --git a/drivers/video/fbdev/asiliantfb.c b/drivers/video/fbdev/asiliantfb.c
+index 3e006da47752..84c56f525889 100644
+--- a/drivers/video/fbdev/asiliantfb.c
++++ b/drivers/video/fbdev/asiliantfb.c
+@@ -227,6 +227,9 @@ static int asiliantfb_check_var(struct fb_var_screeninfo *var,
  {
--	struct sock *sk = from_timer(sk, t, sk_timer);
-+	struct sco_conn *conn = container_of(work, struct sco_conn,
-+					     timeout_work.work);
-+	struct sock *sk;
+ 	unsigned long Ftarget, ratio, remainder;
+ 
++	if (!var->pixclock)
++		return -EINVAL;
 +
-+	sco_conn_lock(conn);
-+	sk = conn->sk;
-+	if (sk)
-+		sock_hold(sk);
-+	sco_conn_unlock(conn);
-+
-+	if (!sk)
-+		return;
- 
- 	BT_DBG("sock %p state %d", sk, sk->sk_state);
- 
-@@ -90,14 +103,21 @@ static void sco_sock_timeout(struct timer_list *t)
- 
- static void sco_sock_set_timer(struct sock *sk, long timeout)
- {
-+	if (!sco_pi(sk)->conn)
-+		return;
-+
- 	BT_DBG("sock %p state %d timeout %ld", sk, sk->sk_state, timeout);
--	sk_reset_timer(sk, &sk->sk_timer, jiffies + timeout);
-+	cancel_delayed_work(&sco_pi(sk)->conn->timeout_work);
-+	schedule_delayed_work(&sco_pi(sk)->conn->timeout_work, timeout);
- }
- 
- static void sco_sock_clear_timer(struct sock *sk)
- {
-+	if (!sco_pi(sk)->conn)
-+		return;
-+
- 	BT_DBG("sock %p state %d", sk, sk->sk_state);
--	sk_stop_timer(sk, &sk->sk_timer);
-+	cancel_delayed_work(&sco_pi(sk)->conn->timeout_work);
- }
- 
- /* ---- SCO connections ---- */
-@@ -177,6 +197,9 @@ static void sco_conn_del(struct hci_conn *hcon, int err)
- 		sco_chan_del(sk, err);
- 		bh_unlock_sock(sk);
- 		sock_put(sk);
-+
-+		/* Ensure no more work items will run before freeing conn. */
-+		cancel_delayed_work_sync(&conn->timeout_work);
- 	}
- 
- 	hcon->sco_data = NULL;
-@@ -191,6 +214,8 @@ static void __sco_chan_add(struct sco_conn *conn, struct sock *sk,
- 	sco_pi(sk)->conn = conn;
- 	conn->sk = sk;
- 
-+	INIT_DELAYED_WORK(&conn->timeout_work, sco_sock_timeout);
-+
- 	if (parent)
- 		bt_accept_enqueue(parent, sk, true);
- }
-@@ -496,8 +521,6 @@ static struct sock *sco_sock_alloc(struct net *net, struct socket *sock,
- 
- 	sco_pi(sk)->setting = BT_VOICE_CVSD_16BIT;
- 
--	timer_setup(&sk->sk_timer, sco_sock_timeout, 0);
--
- 	bt_sock_link(&sco_sk_list, sk);
- 	return sk;
- }
+ 	ratio = 1000000 / var->pixclock;
+ 	remainder = 1000000 % var->pixclock;
+ 	Ftarget = 1000000 * ratio + (1000000 * remainder) / var->pixclock;
 -- 
 2.30.2
 
