@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAFED40EFBD
-	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 04:36:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7C9540EFC0
+	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 04:36:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243963AbhIQChr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 22:37:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34322 "EHLO mail.kernel.org"
+        id S243977AbhIQChs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 22:37:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243433AbhIQCgb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 22:36:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39D7061139;
-        Fri, 17 Sep 2021 02:35:09 +0000 (UTC)
+        id S243028AbhIQCgd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 22:36:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC8CE611C8;
+        Fri, 17 Sep 2021 02:35:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631846110;
-        bh=c3XCtVyOOmSN8//YWlQxWHyl3bALKGKJUAe/8BgASdE=;
+        s=k20201202; t=1631846112;
+        bh=6aH8dp9T3XgSjhg9I796aCVMOowHmzCeAiNWxh0Ub2c=;
         h=From:To:Cc:Subject:Date:From;
-        b=WW56fg2DEIBXn6QuZKh5v44CDC+eBZrYk+P7TzbcmHtRKAPjrVK526CA3Vo9vRkl/
-         d3j8ZZoTHmzw9eIxMn765ZrH275omKrfH+kuDTfXZSIxZTNx/k0QUdsONRqUUD8E/7
-         nsckq/HSOwAYlRbLu2Yml9CaH4iDPRwXYv+YLT12dXaNeJEQgY6/fatXsI3My7yHXj
-         +EUHkKZ8gZH4bt3jOpMXFClPptbscn2IBT+s3sqmB7LGiKiwIa/STu2TqG9Y4xToG5
-         Ki6AZ3g7boIoR2JQL7M62lJ1Rq9LB77z1x+EDqJaktihdL7YXN2rtZXtgWuz97Bmh3
-         vKBvx1nauHuOA==
+        b=NZUrFoYFXviw/YlbmWbQXHTwtg1ayCbDwuiCtRoevnKlRd3XtDTALTP7IUS/bThHY
+         Z/V+8UHMX035EuwDDlxcRxyWvXLRksnoTmC9UPqW4jdBg+pgzCvm0J5zc07WOGDZcC
+         Wonu9Cd08UBWr9Yz6FhEkWmRC035Zrw267Qf+FHauBkj5vProCbd7+/sKzCgTrYEww
+         wOb9J1xxtO4UUJUklGAa6Z2dRYjSXY81HV4mtx6SXaCgrsGMV9t2wtoCPTZx9HCsNP
+         5a64gOFcIis71biBY976WOfogHZcSTfD79jmBxQ5/Ncn+4ExXpUW1nUw761OmSjK1F
+         s3B9ldGW/gD/w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Li Jinlin <lijinlin3@huawei.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>, tj@kernel.org,
         cgroups@vger.kernel.org, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9] blk-throttle: fix UAF by deleteing timer in blk_throtl_exit()
-Date:   Thu, 16 Sep 2021 22:35:08 -0400
-Message-Id: <20210917023508.816980-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4] blk-throttle: fix UAF by deleteing timer in blk_throtl_exit()
+Date:   Thu, 16 Sep 2021 22:35:10 -0400
+Message-Id: <20210917023510.817042-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 X-stable: review
@@ -60,10 +60,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/block/blk-throttle.c b/block/blk-throttle.c
-index 3a4c9a3c1427..6435dc25be0a 100644
+index 17bdd6b55beb..fbd08c4569ce 100644
 --- a/block/blk-throttle.c
 +++ b/block/blk-throttle.c
-@@ -1584,6 +1584,7 @@ int blk_throtl_init(struct request_queue *q)
+@@ -1588,6 +1588,7 @@ int blk_throtl_init(struct request_queue *q)
  void blk_throtl_exit(struct request_queue *q)
  {
  	BUG_ON(!q->td);
