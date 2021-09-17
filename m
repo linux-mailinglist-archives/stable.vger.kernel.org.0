@@ -2,118 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8F6140F6D6
-	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 13:50:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5BB640F6FA
+	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 14:00:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242291AbhIQLv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Sep 2021 07:51:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34176 "EHLO mail.kernel.org"
+        id S242566AbhIQMBf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Sep 2021 08:01:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242141AbhIQLv0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Sep 2021 07:51:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12B0561216;
-        Fri, 17 Sep 2021 11:50:04 +0000 (UTC)
+        id S242509AbhIQMBf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 Sep 2021 08:01:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 457A7611C8;
+        Fri, 17 Sep 2021 12:00:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631879404;
-        bh=TxgPXz4WXZuDpnJVd8ABFgDYlXPBManWmJ/lxQHqzUk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oxsBDQGjDK+BdHU9M2Lzgxi4CBS409EpWZTxNggxPhhot+mT1l98fTCeUmXzzPWZ5
-         DRH8+8Zh0MgXkwttHvQpZa70Qr6Qyl7AyzXCA5l6yrNcQVzoVYajsNS3IGoeYwnqg8
-         ADVdVYJ++IlOKy/ir3QiQkcR45g19qJhoBNmiRxtzjtIPchc7X9DvN/wHM6Kp0ZmZE
-         IXEBRSg/DeD9bv8gn5VRMXstPB15Dgy6JLHiBXKjfKA1nuurFWtfXzAbNNcir489yX
-         mcdeFnqSa+JRf4+gxIVjmSof8MPvAQTwke4lQ50jhpsdTlIiZCVMxBM6XueDLyd8NK
-         6zmdU5sGw+cLg==
+        s=k20201202; t=1631880013;
+        bh=2yPmJ42W5A7xKKMjI/J74HKQmoVcMojtw2NU/P8DpZo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=hgq4gtSYEsfHTC4iyFbYw7TicgDaS5lBEky9vpyce7XrcTSyjQMoRkON9tUxGVSZK
+         0KNiHBxBlAQW7kK7e0E5PNh4z35cSJgf/RVM01uYjcop7rKzMrfAUrkOiLcZWonRst
+         auiu/ZQjbPHMCaJGbQ8LwMJq11PmxWU3y9FUzk1yY//pDVMSLIobdOmr0oY0V/MrFL
+         ibiNPlNjXAkjv0Cs7hHhwWbiN2of9iu+FzN4AwCj1eReODBafzzPm0vxdvEu9tZ1dX
+         wrF6e4Gi4f2NdhXriwSSs4xsWjtc7NhGqqwXWmbR1RfOON+VZ1ahpqxrlGBzXoAJOr
+         MRdNQoYKyKV0A==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan@kernel.org>)
-        id 1mRCNZ-0001RZ-W2; Fri, 17 Sep 2021 13:50:06 +0200
+        id 1mRCXO-0001X3-1J; Fri, 17 Sep 2021 14:00:14 +0200
 From:   Johan Hovold <johan@kernel.org>
-To:     Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
-        Jens Taprogge <jens.taprogge@taprogge.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     industrypack-devel@lists.sourceforge.net,
+To:     Scott Branden <scott.branden@broadcom.com>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        bcm-kernel-feedback-list@broadcom.com,
         linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        stable@vger.kernel.org, Federico Vaga <federico.vaga@cern.ch>
-Subject: [PATCH 5/6] ipack: ipoctal: fix module reference leak
-Date:   Fri, 17 Sep 2021 13:46:21 +0200
-Message-Id: <20210917114622.5412-6-johan@kernel.org>
+        stable@vger.kernel.org
+Subject: [PATCH] misc: bcm-vk: fix tty registration race
+Date:   Fri, 17 Sep 2021 13:57:36 +0200
+Message-Id: <20210917115736.5816-1-johan@kernel.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210917114622.5412-1-johan@kernel.org>
-References: <20210917114622.5412-1-johan@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A reference to the carrier module was taken on every open but was only
-released once when the final reference to the tty struct was dropped.
+Make sure to set the tty class-device driver data before registering the
+tty to avoid having a racing open() dereference a NULL pointer.
 
-Fix this by taking the module reference and initialising the tty driver
-data when installing the tty.
-
-Fixes: 82a82340bab6 ("ipoctal: get carrier driver to avoid rmmod")
-Cc: stable@vger.kernel.org      # 3.18
-Cc: Federico Vaga <federico.vaga@cern.ch>
+Fixes: 91ca10d6fa07 ("misc: bcm-vk: add ttyVK support")
+Cc: stable@vger.kernel.org      # 5.12
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/ipack/devices/ipoctal.c | 29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ drivers/misc/bcm-vk/bcm_vk_tty.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/ipack/devices/ipoctal.c b/drivers/ipack/devices/ipoctal.c
-index 61c41f535510..c709861198e5 100644
---- a/drivers/ipack/devices/ipoctal.c
-+++ b/drivers/ipack/devices/ipoctal.c
-@@ -82,22 +82,34 @@ static int ipoctal_port_activate(struct tty_port *port, struct tty_struct *tty)
- 	return 0;
- }
+diff --git a/drivers/misc/bcm-vk/bcm_vk_tty.c b/drivers/misc/bcm-vk/bcm_vk_tty.c
+index 1b6076a89ca6..6669625ba4c8 100644
+--- a/drivers/misc/bcm-vk/bcm_vk_tty.c
++++ b/drivers/misc/bcm-vk/bcm_vk_tty.c
+@@ -267,13 +267,13 @@ int bcm_vk_tty_init(struct bcm_vk *vk, char *name)
+ 		struct device *tty_dev;
  
--static int ipoctal_open(struct tty_struct *tty, struct file *file)
-+static int ipoctal_install(struct tty_driver *driver, struct tty_struct *tty)
- {
- 	struct ipoctal_channel *channel = dev_get_drvdata(tty->dev);
- 	struct ipoctal *ipoctal = chan_to_ipoctal(channel, tty->index);
--	int err;
--
--	tty->driver_data = channel;
-+	int res;
+ 		tty_port_init(&vk->tty[i].port);
+-		tty_dev = tty_port_register_device(&vk->tty[i].port, tty_drv,
+-						   i, dev);
++		tty_dev = tty_port_register_device_attr(&vk->tty[i].port,
++							tty_drv, i, dev, vk,
++							NULL);
+ 		if (IS_ERR(tty_dev)) {
+ 			err = PTR_ERR(tty_dev);
+ 			goto unwind;
+ 		}
+-		dev_set_drvdata(tty_dev, vk);
+ 		vk->tty[i].is_opened = false;
+ 	}
  
- 	if (!ipack_get_carrier(ipoctal->dev))
- 		return -EBUSY;
- 
--	err = tty_port_open(&channel->tty_port, tty, file);
--	if (err)
--		ipack_put_carrier(ipoctal->dev);
-+	res = tty_standard_install(driver, tty);
-+	if (res)
-+		goto err_put_carrier;
-+
-+	tty->driver_data = channel;
-+
-+	return 0;
-+
-+err_put_carrier:
-+	ipack_put_carrier(ipoctal->dev);
-+
-+	return res;
-+}
-+
-+static int ipoctal_open(struct tty_struct *tty, struct file *file)
-+{
-+	struct ipoctal_channel *channel = tty->driver_data;
- 
--	return err;
-+	return tty_port_open(&channel->tty_port, tty, file);
- }
- 
- static void ipoctal_reset_stats(struct ipoctal_stats *stats)
-@@ -661,6 +673,7 @@ static void ipoctal_cleanup(struct tty_struct *tty)
- 
- static const struct tty_operations ipoctal_fops = {
- 	.ioctl =		NULL,
-+	.install =		ipoctal_install,
- 	.open =			ipoctal_open,
- 	.close =		ipoctal_close,
- 	.write =		ipoctal_write_tty,
 -- 
 2.32.0
 
