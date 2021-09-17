@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EE6340EF71
-	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 04:36:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ACF340EF75
+	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 04:36:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243183AbhIQCgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 22:36:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33202 "EHLO mail.kernel.org"
+        id S243038AbhIQCgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 22:36:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243032AbhIQCft (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 22:35:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6824611F2;
-        Fri, 17 Sep 2021 02:34:27 +0000 (UTC)
+        id S242898AbhIQCfu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 22:35:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B637961108;
+        Fri, 17 Sep 2021 02:34:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631846068;
-        bh=4qL2nCkj/eXevPHCYaUW+W7reTCgw37bnvRwHgmksCw=;
+        s=k20201202; t=1631846069;
+        bh=vlCK4WYy/KKRxhgcgvPHcdRA5PJwzpKCtn2Prgoeo20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=at2PYaEqEoNi2GJm07HdNWxsGqQMWx0GIUICxamZGYqh9gHyBUe4uUOmiRVRON41j
-         f/iZiDeihE2YcXaO6LtrRUKqJLt2lIVJomMljyJa3TTHktfa/RpAQv5sWBYkpleKAH
-         HB67EOJCFj+yC0MjOOHT5TdMhrSetGaTo/WzXnkT5138kfnkhG6dHMJMhUYdCOxHlo
-         aVn/ptQUL1Z+10sR62RVvPjpGKuV9GF9Tnaj4J5VyxcPfMHvU6UqbDkDeVIkg1B5kh
-         Sj4ZmkZ1DJDytWwc1byCoqZxewtTFxDiZTKzr4e3F6zwKe8mn/apCnehNjZx9zM+K6
-         B1MyxQdlUKIfg==
+        b=OMGoVNo07NCoRTDuqCWkxv1cCBRwIzFaYzpqaldOwUbmbuDoft27Vb7XBOW+eYSNZ
+         NgGxMUhwfEvVNJoJ95a0gClwKc6N4bpqV1n1cl1UET4ZGt1XQo0HwpnmovuHWAF15M
+         Yb4yBDQYDw85A9ors7cd/s51lfrnFHkVQOCe6n674Wk+iPwZaaJwEGxlncIYS71frZ
+         AtfllYBJ6QULAWPXPl0AKTIULUQ2Iab7ti7Dye68uUwti5ZGymMMVtTbqYR0E0e0S3
+         SsZKX0DwXLQ7glbjMJWJrylDYKyYrRX0i7aAYgkFz3r30y/jJFyFJAYbynF0u+T1a8
+         h6uge3MSLe2sA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Song Liu <songliubraving@fb.com>,
-        Marcin Wanat <marcin.wanat@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.14 17/21] blk-mq: allow 4x BLK_MAX_REQUEST_COUNT at blk_plug for multiple_queues
-Date:   Thu, 16 Sep 2021 22:33:11 -0400
-Message-Id: <20210917023315.816225-17-sashal@kernel.org>
+Cc:     Yu-Tung Chang <mtwget@gmail.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, a.zummo@towertech.it
+Subject: [PATCH AUTOSEL 5.14 18/21] rtc: rx8010: select REGMAP_I2C
+Date:   Thu, 16 Sep 2021 22:33:12 -0400
+Message-Id: <20210917023315.816225-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210917023315.816225-1-sashal@kernel.org>
 References: <20210917023315.816225-1-sashal@kernel.org>
@@ -42,58 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Yu-Tung Chang <mtwget@gmail.com>
 
-[ Upstream commit 7f2a6a69f7ced6db8220298e0497cf60482a9d4b ]
+[ Upstream commit 0c45d3e24ef3d3d87c5e0077b8f38d1372af7176 ]
 
-Limiting number of request to BLK_MAX_REQUEST_COUNT at blk_plug hurts
-performance for large md arrays. [1] shows resync speed of md array drops
-for md array with more than 16 HDDs.
+The rtc-rx8010 uses the I2C regmap but doesn't select it in Kconfig so
+depending on the configuration the build may fail. Fix it.
 
-Fix this by allowing more request at plug queue. The multiple_queue flag
-is used to only apply higher limit to multiple queue cases.
-
-[1] https://lore.kernel.org/linux-raid/CAFDAVznS71BXW8Jxv6k9dXc2iR3ysX3iZRBww_rzA8WifBFxGg@mail.gmail.com/
-Tested-by: Marcin Wanat <marcin.wanat@gmail.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Yu-Tung Chang <mtwget@gmail.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210830052532.40356-1-mtwget@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/rtc/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 9d4fdc2be88a..9c64f0025a56 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -2135,6 +2135,18 @@ static void blk_add_rq_to_plug(struct blk_plug *plug, struct request *rq)
- 	}
- }
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 12153d5801ce..f7bf87097a9f 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -624,6 +624,7 @@ config RTC_DRV_FM3130
  
-+/*
-+ * Allow 4x BLK_MAX_REQUEST_COUNT requests on plug queue for multiple
-+ * queues. This is important for md arrays to benefit from merging
-+ * requests.
-+ */
-+static inline unsigned short blk_plug_max_rq_count(struct blk_plug *plug)
-+{
-+	if (plug->multiple_queues)
-+		return BLK_MAX_REQUEST_COUNT * 4;
-+	return BLK_MAX_REQUEST_COUNT;
-+}
-+
- /**
-  * blk_mq_submit_bio - Create and send a request to block device.
-  * @bio: Bio pointer.
-@@ -2231,7 +2243,7 @@ blk_qc_t blk_mq_submit_bio(struct bio *bio)
- 		else
- 			last = list_entry_rq(plug->mq_list.prev);
- 
--		if (request_count >= BLK_MAX_REQUEST_COUNT || (last &&
-+		if (request_count >= blk_plug_max_rq_count(plug) || (last &&
- 		    blk_rq_bytes(last) >= BLK_PLUG_FLUSH_SIZE)) {
- 			blk_flush_plug_list(plug, false);
- 			trace_block_plug(q);
+ config RTC_DRV_RX8010
+ 	tristate "Epson RX8010SJ"
++	select REGMAP_I2C
+ 	help
+ 	  If you say yes here you get support for the Epson RX8010SJ RTC
+ 	  chip.
 -- 
 2.30.2
 
