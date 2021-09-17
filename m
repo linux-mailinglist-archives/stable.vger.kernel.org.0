@@ -2,126 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D34440F8B6
-	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 15:03:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FA8540F8D0
+	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 15:07:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235898AbhIQNEc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Sep 2021 09:04:32 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:57349 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235210AbhIQNEa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Sep 2021 09:04:30 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.nyi.internal (Postfix) with ESMTP id D73655C01DA;
-        Fri, 17 Sep 2021 09:03:07 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Fri, 17 Sep 2021 09:03:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=2U3fIslTJuZNMwv6/
-        VsBSBUBzjTdiwpRKnbQ/edRf1Y=; b=VA3k71tS02nJBKeSx0ozoPgO3CAPhXKjE
-        Xuu9WrE18Bqd3maGY3VIyxuuKIOSaNijQI/xff0FSu4fgFSRr0i/k77woNGsgJTL
-        3vZpYwHPOF1QFVyS/X0BWC2p9DwWar3cmvczzPk1rI2BxzE1T4syl2FfJejHxgog
-        E10gFJ3u6sp5DDJ+N++5lKZdihb86AIG0RjAkXAPFY5CE4hvTlX6/otLGkpJQk2X
-        MNMuYzzpSWsTsVUOeZL/gf1sxm/vjy+3Wl1tESgYkKVSDeAckSYMALWffG/4Sf4Y
-        iEFmppiqibKJse06/fvWuj7VApbHKPZ+vUrAlul76igiJ69CiX2Qw==
-X-ME-Sender: <xms:C5JEYSlbHBCeLnjGsKSzyLYtKFo84uso2sli2-RnXAVnTFmfn5zXOQ>
-    <xme:C5JEYZ3CuzXI9sM8AtYn9OkrggMmO5p_IgP_CK6RbQP9V4S3n3dv7cN17yK095U0q
-    Jn-eJbMRY_BaWk>
-X-ME-Received: <xmr:C5JEYQpD5xcITgOLBxdIXPHNj3SXgChv4D4-UCu2R_QkLx68yv0WhQbiH2z9PUrZUxgEX9sGErk7Z0t7t08mjK6PqpEh8-tx5A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudehiedgheehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtre
-    dttdenucfhrhhomhepkfguohcuufgthhhimhhmvghluceoihguohhstghhsehiughoshgt
-    hhdrohhrgheqnecuggftrfgrthhtvghrnhepteevgefhvefggfffkeeuffeuvdfhueehhe
-    etffeikeegheevfedvgeelvdffudfhnecuvehluhhsthgvrhfuihiivgeptdenucfrrghr
-    rghmpehmrghilhhfrhhomhepihguohhstghhsehiughoshgthhdrohhrgh
-X-ME-Proxy: <xmx:C5JEYWnzzbGAvClfHp0NDEyiiI23JQTHObmSese1oIY2D5P5xCLQGw>
-    <xmx:C5JEYQ2-cGyanfSU6a4hQBmOW9L0GwvQLu7hCNLxPjggoGpjxoLhmg>
-    <xmx:C5JEYds1o3EJ93g4AOjgXSt3VMhLlFJQVsp2O1kBWDBes5k4evjdZQ>
-    <xmx:C5JEYU9YwI4DCgoStv59gGTx5ML6SlbLhhUUG-CK2khsSytuNAZn3w>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 17 Sep 2021 09:03:05 -0400 (EDT)
-From:   Ido Schimmel <idosch@idosch.org>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, dsahern@gmail.com,
-        petrm@nvidia.com, mlxsw@nvidia.com,
-        Ido Schimmel <idosch@nvidia.com>, stable@vger.kernel.org
-Subject: [PATCH net] nexthop: Fix division by zero while replacing a resilient group
-Date:   Fri, 17 Sep 2021 16:02:18 +0300
-Message-Id: <20210917130218.560510-1-idosch@idosch.org>
-X-Mailer: git-send-email 2.31.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S232530AbhIQNI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Sep 2021 09:08:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45734 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232200AbhIQNI5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Sep 2021 09:08:57 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5A10C061574;
+        Fri, 17 Sep 2021 06:07:35 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id m26so9206783pff.3;
+        Fri, 17 Sep 2021 06:07:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=SbspggahjkQzya3bg4IikWDV7m1YsRoruFbcX339TLk=;
+        b=Wm4KsdpLwSkANI9J4mWsWejLIvXInPqg+vSxHJQ8KAY5glO6FdYkN5VNzBrrujOMci
+         0DkYu0qmKru319Eg2tr3BNLYvdICdEB1LbIuk9IdyiLHS61aK6cij2UW2yLjAWhvncUx
+         2iONteFL3j+kP3gmxafUmUp00vE7OTAYcTYHOc8Pt5Mo6s05T4Bucx0sHlATLD4XQ1Kh
+         1g301wMEsSgwvMl3JMqBKcvtEE5S6BC1bmr1uLrU5D2TJ1tPt4SH6+XZs+kCSKBmwGZ3
+         Tn4ZLG/WX4sp3Lx3BU09tCqLhc93vq0UrdoLw/3Jz22UtlXRqC7m/nIQM3VdulL8e4er
+         ncwg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=SbspggahjkQzya3bg4IikWDV7m1YsRoruFbcX339TLk=;
+        b=b7X5evEgbux+Bh4/wdwvpPTis+58EWe78t18yNNAD5A+/P1RsCoI9eb/LvyGT2BS44
+         hQzCbumjN31kSErbo+F2zMoDEcYJGjwdwVS4TNjVlqcwhjvs+JZbyIOuqcKXWUgUx+oN
+         gMQgTPic7H56EHcN1oWvHwADPyuvpj853XqAzvqpnS5wVb1Tp408aagMmESz4Mo4L+By
+         z4YSD9bGSEC1UAxIN0Xqit4gDMfaEVGmlFiBwkNXixV/L+m8HWn/YZUDY7ieqzGFNcX0
+         8eA+laNyAgYhGBz/5QoFIeiLZ1JFSHWVMYc4J5EOI4ijILL13ZtbcGNPiIxyoNg1fZZb
+         DZUw==
+X-Gm-Message-State: AOAM532e1PZmjslDFB8I2Fz3PRbZdtjOWhGlhylB4LR2zRH/gaTEw8Yk
+        AYGrr5JX7+mEwNa5Dzxc7CnlkooY7hBu117HWuY=
+X-Google-Smtp-Source: ABdhPJyYFw6i6pJ0qpoUUQ4RTisx1Rt6LbibTN4CiHya24hKg9E1SPq28mcgUp3/FN+IYQ0bBW+zOw==
+X-Received: by 2002:aa7:8014:0:b029:3cd:b6f3:5dd6 with SMTP id j20-20020aa780140000b02903cdb6f35dd6mr10665486pfi.39.1631884054507;
+        Fri, 17 Sep 2021 06:07:34 -0700 (PDT)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [71.19.144.195])
+        by smtp.gmail.com with ESMTPSA id c15sm6249446pfl.181.2021.09.17.06.07.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Sep 2021 06:07:33 -0700 (PDT)
+Message-ID: <61449315.1c69fb81.72427.7777@mx.google.com>
+Date:   Fri, 17 Sep 2021 06:07:33 -0700 (PDT)
+X-Google-Original-Date: Fri, 17 Sep 2021 13:07:28 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+Subject: RE: [PATCH 5.14 000/432] 5.14.6-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+On Thu, 16 Sep 2021 17:55:49 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.14.6 release.
+> There are 432 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 18 Sep 2021 15:57:06 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.6-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-The resilient nexthop group torture tests in fib_nexthop.sh exposed a
-possible division by zero while replacing a resilient group [1]. The
-division by zero occurs when the data path sees a resilient nexthop
-group with zero buckets.
-
-The tests replace a resilient nexthop group in a loop while traffic is
-forwarded through it. The tests do not specify the number of buckets
-while performing the replacement, resulting in the kernel allocating a
-stub resilient table (i.e, 'struct nh_res_table') with zero buckets.
-
-This table should never be visible to the data path, but the old nexthop
-group (i.e., 'oldg') might still be used by the data path when the stub
-table is assigned to it.
-
-Fix this by only assigning the stub table to the old nexthop group after
-making sure the group is no longer used by the data path.
-
-Tested with fib_nexthops.sh:
-
-Tests passed: 222
-Tests failed:   0
-
-[1]
- divide error: 0000 [#1] PREEMPT SMP KASAN
- CPU: 0 PID: 1850 Comm: ping Not tainted 5.14.0-custom-10271-ga86eb53057fe #1107
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/01/2014
- RIP: 0010:nexthop_select_path+0x2d2/0x1a80
-[...]
- Call Trace:
-  fib_select_multipath+0x79b/0x1530
-  fib_select_path+0x8fb/0x1c10
-  ip_route_output_key_hash_rcu+0x1198/0x2da0
-  ip_route_output_key_hash+0x190/0x340
-  ip_route_output_flow+0x21/0x120
-  raw_sendmsg+0x91d/0x2e10
-  inet_sendmsg+0x9e/0xe0
-  __sys_sendto+0x23d/0x360
-  __x64_sys_sendto+0xe1/0x1b0
-  do_syscall_64+0x35/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Cc: stable@vger.kernel.org
-Fixes: 283a72a5599e ("nexthop: Add implementation of resilient next-hop groups")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
----
- net/ipv4/nexthop.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/net/ipv4/nexthop.c b/net/ipv4/nexthop.c
-index 75ca4b6e484f..0e75fd3e57b4 100644
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -1982,6 +1982,8 @@ static int replace_nexthop_grp(struct net *net, struct nexthop *old,
- 	rcu_assign_pointer(old->nh_grp, newg);
- 
- 	if (newg->resilient) {
-+		/* Make sure concurrent readers are not using 'oldg' anymore. */
-+		synchronize_net();
- 		rcu_assign_pointer(oldg->res_table, tmp_table);
- 		rcu_assign_pointer(oldg->spare->res_table, tmp_table);
- 	}
--- 
-2.31.1
+5.14.6-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
 
