@@ -2,245 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C197940F6AE
-	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 13:25:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69E3040F6D5
+	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 13:50:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241829AbhIQL0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Sep 2021 07:26:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50366 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229800AbhIQL0s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Sep 2021 07:26:48 -0400
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D0FAC061764
-        for <stable@vger.kernel.org>; Fri, 17 Sep 2021 04:25:26 -0700 (PDT)
-Received: by mail-ed1-x533.google.com with SMTP id g8so28773764edt.7
-        for <stable@vger.kernel.org>; Fri, 17 Sep 2021 04:25:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=KkBfKrBXy1fDp0O0FbJyBBlgnJBorb/M1zpwR4sM5Qk=;
-        b=P6NigRHu9MnGIfZpMok1YsnC8O+4aQpUEgSeCxAuFYdwVNwIk22F0QFodvfq+Zq2uh
-         JYBDXLUrSuNwiJ+SCrQ/8iFTc+Qj5BkC6E99r3393OpCJebaTd7ruMEhpp+4oOr7mvn5
-         igsxdpPb3t4GKqVKyWC8LcNaCJ3Z3r68vR+wARBoBSmQcusu2RnJcMNIFIKKfcFKNpYe
-         11V5iCw7iWK4NTwxrHeAPF9c4f4PAXAn3yd+5CPOEbGpPA/jrIz1ncrxXYsiuSDwghJF
-         SIiJWUm62ChDKM7rARBEczhm1cN6jotMGWrFdOPCrQLLQZwAZz2oxvXFGRwnw5Rznbl3
-         mgqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=KkBfKrBXy1fDp0O0FbJyBBlgnJBorb/M1zpwR4sM5Qk=;
-        b=zWwDTIUtDQS6i1FAzhHAoAy/75wrf8D++/T8LtO5MH/qmENMQFIGZAevVdJKca0jOp
-         59wWpdl69554/L6C/3FnHEK7H4uuzfK4GXleSEmUuXtsSTlF0utafeqW+B0Zs6Ql4zYn
-         /C3lr6v7E4Jyg1EyBbrWkpUV8qShnpx1ldqFJMnGOOsCweYspLy0j0Jor7FxehHlCICm
-         K7KrK38NOkI7YjSKPMgTcHap7AfAOXGse1tXFT14DyRpRXyqauxHJL0ndHkT1qtVQjCX
-         GeHV4m0V+6alaPKfwkrqK1/YFNbTAi2e4LxGWeFqhV/pO71GSbBDM/d7S8SUteGPUXxZ
-         3oLA==
-X-Gm-Message-State: AOAM533Xjjya0e4D3MFYXC5Tj3UMUpBgE2DRU+CobpIS3eoCvoXTTU/g
-        DH7dks5dWuNbraY76O1PGBJHhcOXQQ4sOUpfoLV6KQ==
-X-Google-Smtp-Source: ABdhPJxPf1bjOnqSNBZWo92E+P8mW1mJzRE7iX2vsvcI1KBZa1essHMLgCEJlW4YG/6NbC1wUfZPZuYZMU4scv7s95g=
-X-Received: by 2002:aa7:c85a:: with SMTP id g26mr11769867edt.217.1631877924758;
- Fri, 17 Sep 2021 04:25:24 -0700 (PDT)
+        id S242376AbhIQLv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Sep 2021 07:51:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34184 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S242143AbhIQLv0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 Sep 2021 07:51:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 197C761246;
+        Fri, 17 Sep 2021 11:50:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1631879404;
+        bh=jM5pVI7ArVyFMw54FNFbCHZZ1zuQegYsQ5VqBu/O4W8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=paVYw5QIoeE0qULSIDqORHEkt+mRy2Bt3QZL7D8QVXaBroyuCcaJynr6CFMyF0WP2
+         iXSEXR4HoKXre1q0lLcUTweB06b4ddmy/rQg9KMK23SXUHxf2MgTuez0YP3MWVS6oU
+         H1Z9PSL1zxWYSOdXBHtzLe5FuJdZrMpcfpd5eQljT4I//k/f/+lFmVHdbbpKx08nlV
+         nLmmPZjb4gShMaKHqADopOVswYaPXZP5lg1x/VUY929+c+1HfRf9H239yLv8FmtpZG
+         lQJXfgDq9yzNBYzSgbZviQHXu9sLrtMovlX/GtsDFz/Ccd6OJspZIhCOy3TcDhnQHB
+         nRe9uAnfzUGcw==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1mRCNZ-0001RP-Ki; Fri, 17 Sep 2021 13:50:05 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
+        Jens Taprogge <jens.taprogge@taprogge.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     industrypack-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/6] ipack: ipoctal: fix stack information leak
+Date:   Fri, 17 Sep 2021 13:46:17 +0200
+Message-Id: <20210917114622.5412-2-johan@kernel.org>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20210917114622.5412-1-johan@kernel.org>
+References: <20210917114622.5412-1-johan@kernel.org>
 MIME-Version: 1.0
-References: <20210916155753.903069397@linuxfoundation.org>
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 17 Sep 2021 16:55:13 +0530
-Message-ID: <CA+G9fYtySQ-K1wkp+grGWu-6j6Xs0qM0gFBW+aWJzTk_wocUsw@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/306] 5.10.67-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 16 Sept 2021 at 21:35, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.67 release.
-> There are 306 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 18 Sep 2021 15:57:06 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.67-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+The tty driver name is used also after registering the driver and must
+specifically not be allocated on the stack to avoid leaking information
+to user space (or triggering an oops).
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Drivers should not try to encode topology information in the tty device
+name but this one snuck in through staging without anyone noticing and
+another driver has since copied this malpractice.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Fixing the ABI is a separate issue, but this at least plugs the security
+hole.
 
-## Build
-* kernel: 5.10.67-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.10.y
-* git commit: 729f504fde252d9bd1854ba90456253c3df643f5
-* git describe: v5.10.66-307-g729f504fde25
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
-.66-307-g729f504fde25
+Fixes: ba4dc61fe8c5 ("Staging: ipack: add support for IP-OCTAL mezzanine board")
+Cc: stable@vger.kernel.org      # 3.5
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/ipack/devices/ipoctal.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-## No regressions (compared to v5.10.65-55-g84286fd568e7)
+diff --git a/drivers/ipack/devices/ipoctal.c b/drivers/ipack/devices/ipoctal.c
+index c14e65a5d38f..c62fec75987c 100644
+--- a/drivers/ipack/devices/ipoctal.c
++++ b/drivers/ipack/devices/ipoctal.c
+@@ -264,7 +264,6 @@ static int ipoctal_inst_slot(struct ipoctal *ipoctal, unsigned int bus_nr,
+ 	int res;
+ 	int i;
+ 	struct tty_driver *tty;
+-	char name[20];
+ 	struct ipoctal_channel *channel;
+ 	struct ipack_region *region;
+ 	void __iomem *addr;
+@@ -355,8 +354,11 @@ static int ipoctal_inst_slot(struct ipoctal *ipoctal, unsigned int bus_nr,
+ 	/* Fill struct tty_driver with ipoctal data */
+ 	tty->owner = THIS_MODULE;
+ 	tty->driver_name = KBUILD_MODNAME;
+-	sprintf(name, KBUILD_MODNAME ".%d.%d.", bus_nr, slot);
+-	tty->name = name;
++	tty->name = kasprintf(GFP_KERNEL, KBUILD_MODNAME ".%d.%d.", bus_nr, slot);
++	if (!tty->name) {
++		res = -ENOMEM;
++		goto err_put_driver;
++	}
+ 	tty->major = 0;
+ 
+ 	tty->minor_start = 0;
+@@ -371,8 +373,7 @@ static int ipoctal_inst_slot(struct ipoctal *ipoctal, unsigned int bus_nr,
+ 	res = tty_register_driver(tty);
+ 	if (res) {
+ 		dev_err(&ipoctal->dev->dev, "Can't register tty driver.\n");
+-		tty_driver_kref_put(tty);
+-		return res;
++		goto err_free_name;
+ 	}
+ 
+ 	/* Save struct tty_driver for use it when uninstalling the device */
+@@ -409,6 +410,13 @@ static int ipoctal_inst_slot(struct ipoctal *ipoctal, unsigned int bus_nr,
+ 				       ipoctal_irq_handler, ipoctal);
+ 
+ 	return 0;
++
++err_free_name:
++	kfree(tty->name);
++err_put_driver:
++	tty_driver_kref_put(tty);
++
++	return res;
+ }
+ 
+ static inline int ipoctal_copy_write_buffer(struct ipoctal_channel *channel,
+@@ -696,6 +704,7 @@ static void __ipoctal_remove(struct ipoctal *ipoctal)
+ 	}
+ 
+ 	tty_unregister_driver(ipoctal->tty_drv);
++	kfree(ipoctal->tty_drv->name);
+ 	tty_driver_kref_put(ipoctal->tty_drv);
+ 	kfree(ipoctal);
+ }
+-- 
+2.32.0
 
-## No fixes (compared to v5.10.65-55-g84286fd568e7)
-
-## Test result summary
-total: 86342, pass: 72348, fail: 568, skip: 12351, xfail: 1075
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 289 total, 289 passed, 0 failed
-* arm64: 39 total, 39 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 38 total, 38 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 51 total, 51 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 36 total, 35 passed, 1 failed
-* riscv: 30 total, 30 passed, 0 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 39 total, 39 passed, 0 failed
-
-## Test suites summary
-* fwts
-* install-android-platform-tools-r2600
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
