@@ -2,107 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0191A40EE8A
-	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 02:59:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C225F40EF48
+	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 04:33:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241980AbhIQBBF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 21:01:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50270 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230058AbhIQBBF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 21:01:05 -0400
-Received: from phobos.denx.de (phobos.denx.de [IPv6:2a01:238:438b:c500:173d:9f52:ddab:ee01])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33D82C061574;
-        Thu, 16 Sep 2021 17:59:44 -0700 (PDT)
-Received: from tr.lan (ip-89-176-112-137.net.upcbroadband.cz [89.176.112.137])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: marex@denx.de)
-        by phobos.denx.de (Postfix) with ESMTPSA id 61AA682D18;
-        Fri, 17 Sep 2021 02:59:37 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-        s=phobos-20191101; t=1631840381;
-        bh=bDuOrCdzoWsT+rs95Bjmzf6kn4ZJSlEQSQ56zrjHy00=;
+        id S240937AbhIQCew (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 22:34:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60390 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S242894AbhIQCej (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 22:34:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD2C2610C8;
+        Fri, 17 Sep 2021 02:33:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1631845997;
+        bh=oxSEl0L78Bsi4cp4QK3n/uSxdCPFeZyicU0XM9jbVBU=;
         h=From:To:Cc:Subject:Date:From;
-        b=XtwTVrXomL8ZRHqs6Dkl8BjlH0Ti6cypahlBILc0YUuU6lExCL5PBeihb/VNsEgmM
-         3OR70Jf9aeUfE5x63S3MvYRTWg3oybdsN/CNUS10yU1c1/yH3M5OYGlWRrikSyLCJx
-         /gM+hAolHkHatiPiRWU67/UQ8v6Sea7K9ydTR4Wch+T5GWRnG/2H560Er4q3qsmmMe
-         zJl6bsrfLFH06uN+fXtC+C9glX+wcMnLs0o86XVuAdvNUe3DBG4MLkElYdLDWMmAa8
-         33Ocksq5YJ3bCtXJBIB9Mut/+NZQ6xgwdwf6MvTSZ9bENMZ1EVL4OCs+pK3py1lVRY
-         ZSb82sU7X5mlA==
-From:   Marek Vasut <marex@denx.de>
-To:     linux-arm-msm@vger.kernel.org
-Cc:     freedreno@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        Marek Vasut <marex@denx.de>, Arnd Bergmann <arnd@arndb.de>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>, stable@vger.kernel.org
-Subject: [PATCH] drm/msm: Avoid potential overflow in timeout_to_jiffies()
-Date:   Fri, 17 Sep 2021 02:59:13 +0200
-Message-Id: <20210917005913.157379-1-marex@denx.de>
-X-Mailer: git-send-email 2.33.0
+        b=a2bnpo6BKrxJC3D4H46G93SWj0SFBSF86U0riNRmMfGaFTrBDRuhh85j81Qt3xhv4
+         lJd0LrwjUpYqf+2Z7KWqwxgZ2mAiWKJ/UKrpd8FPmq1+hubhc6eUqxW0qQ5x7cISxo
+         zky6B/QlFfCJYmM9B8p2+axa8tMaujMFCk+5jOow+detiyMSO0O36IipcJAWNzJk+U
+         K8DEF/sY/Qi7A3rtLeobKBaq85VqhCt0enhfQi3C7FsbCHRyne45Y2G7yxMwZr/1oW
+         j0Sx+rEIOxx2wV4f/ixTCD+vdV8F9LBxhFloG4DYZVUnECA3ImAQO4vt81NVSGki0N
+         1N/svWf7KSXjw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, niklas.soderlund@ragnatech.se,
+        rui.zhang@intel.com, linux-renesas-soc@vger.kernel.org,
+        linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 01/21] thermal/drivers/rcar_gen3_thermal: Store TSC id as unsigned int
+Date:   Thu, 16 Sep 2021 22:32:55 -0400
+Message-Id: <20210917023315.816225-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Virus-Scanned: clamav-milter 0.103.2 at phobos.denx.de
-X-Virus-Status: Clean
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The return type of ktime_divns() is s64. The timeout_to_jiffies() currently
-assigns the result of this ktime_divns() to unsigned long, which on 32 bit
-systems may overflow. Furthermore, the result of this function is sometimes
-also passed to functions which expect signed long, dma_fence_wait_timeout()
-is one such example.
+From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
 
-Fix this by adjusting the type of remaining_jiffies to s64, so we do not
-suffer overflow there, and return a value limited to range of 0..INT_MAX,
-which is safe for all usecases of this timeout.
+[ Upstream commit d3a2328e741bf6e9e6bda750e0a63832fa365a74 ]
 
-The above overflow can be triggered if userspace passes in too large timeout
-value, larger than INT_MAX / HZ seconds. The kernel detects it and complains
-about "schedule_timeout: wrong timeout value %lx" and generates a warning
-backtrace.
+The TSC id and number of TSC ids should be stored as unsigned int as
+they can't be negative. Fix the datatype of the loop counter 'i' and
+rcar_gen3_thermal_tsc.id to reflect this.
 
-Note that this fixes commit 6cedb8b377bb ("drm/msm: avoid using 'timespec'"),
-because the previously used timespec_to_jiffies() function returned unsigned
-long instead of s64:
-static inline unsigned long timespec_to_jiffies(const struct timespec *value)
-
-Fixes: 6cedb8b377bb ("drm/msm: avoid using 'timespec'")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Jordan Crouse <jcrouse@codeaurora.org>
-Cc: Rob Clark <robdclark@chromium.org>
-Cc: stable@vger.kernel.org # 5.6+
+Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210804091818.2196806-3-niklas.soderlund+renesas@ragnatech.se
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
-NOTE: This is related to Mesa MR
-      https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/12886
----
- drivers/gpu/drm/msm/msm_drv.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/thermal/rcar_gen3_thermal.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_drv.h b/drivers/gpu/drm/msm/msm_drv.h
-index 0b2686b060c73..d96b254b8aa46 100644
---- a/drivers/gpu/drm/msm/msm_drv.h
-+++ b/drivers/gpu/drm/msm/msm_drv.h
-@@ -543,7 +543,7 @@ static inline int align_pitch(int width, int bpp)
- static inline unsigned long timeout_to_jiffies(const ktime_t *timeout)
- {
- 	ktime_t now = ktime_get();
--	unsigned long remaining_jiffies;
-+	s64 remaining_jiffies;
+diff --git a/drivers/thermal/rcar_gen3_thermal.c b/drivers/thermal/rcar_gen3_thermal.c
+index fdf16aa34eb4..702696cf58b6 100644
+--- a/drivers/thermal/rcar_gen3_thermal.c
++++ b/drivers/thermal/rcar_gen3_thermal.c
+@@ -84,7 +84,7 @@ struct rcar_gen3_thermal_tsc {
+ 	struct thermal_zone_device *zone;
+ 	struct equation_coefs coef;
+ 	int tj_t;
+-	int id; /* thermal channel id */
++	unsigned int id; /* thermal channel id */
+ };
  
- 	if (ktime_compare(*timeout, now) < 0) {
- 		remaining_jiffies = 0;
-@@ -552,7 +552,7 @@ static inline unsigned long timeout_to_jiffies(const ktime_t *timeout)
- 		remaining_jiffies = ktime_divns(rem, NSEC_PER_SEC / HZ);
+ struct rcar_gen3_thermal_priv {
+@@ -310,7 +310,8 @@ static int rcar_gen3_thermal_probe(struct platform_device *pdev)
+ 	const int *ths_tj_1 = of_device_get_match_data(dev);
+ 	struct resource *res;
+ 	struct thermal_zone_device *zone;
+-	int ret, i;
++	unsigned int i;
++	int ret;
+ 
+ 	/* default values if FUSEs are missing */
+ 	/* TODO: Read values from hardware on supported platforms */
+@@ -376,7 +377,7 @@ static int rcar_gen3_thermal_probe(struct platform_device *pdev)
+ 		if (ret < 0)
+ 			goto error_unregister;
+ 
+-		dev_info(dev, "TSC%d: Loaded %d trip points\n", i, ret);
++		dev_info(dev, "TSC%u: Loaded %d trip points\n", i, ret);
  	}
  
--	return remaining_jiffies;
-+	return clamp(remaining_jiffies, 0LL, (s64)INT_MAX);
- }
- 
- #endif /* __MSM_DRV_H__ */
+ 	priv->num_tscs = i;
 -- 
-2.33.0
+2.30.2
 
