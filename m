@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAF9640EF4C
-	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 04:33:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7230A40EF4E
+	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 04:33:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242904AbhIQCe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 22:34:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60486 "EHLO mail.kernel.org"
+        id S234869AbhIQCfA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 22:35:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242821AbhIQCe4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 22:34:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AB71610C8;
-        Fri, 17 Sep 2021 02:33:33 +0000 (UTC)
+        id S242900AbhIQCe7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 22:34:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BCE1A61108;
+        Fri, 17 Sep 2021 02:33:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631846014;
-        bh=sy5M+xqv4ZYJlQYoKWpIawDg2VjTKjFxEXDYuL55F7A=;
+        s=k20201202; t=1631846018;
+        bh=V0rOTL1VXOnzu4mGUHvnH0iSCcAwtqMHazvEpiR1u3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kjfUMm3XgVMsiYFVfc0/aYKwEcfTxGoDLrGN6T0j00ZVPFHd6jexQSrLae2A4hywV
-         POG/Qz4GJkIfheVOvl1TFsAtMmVkqSfGmsVUhpqJCOX7n7UdtulrAbPRoB1NKIvsTJ
-         GImGJJswX2ct3g2SHtECKGRYVAR7XKCcV5su6kvP6EJ7Osuth5YeShtoxj8M9T9huZ
-         vlVt426vQuOWVITKxptxp4AhVy6PusVdPhga427iyktOvPeo+5wKrFu4Vav+qX4EHX
-         EURrLZOp+lnXOTJ6iNRAo+yPNG3Pmxm40jL7VYt4/fANwVOcCKu6Q4kj0/JKFqWj97
-         e4ivj7uVSvxTg==
+        b=k31loUQ23T4v0P7SyfxZuwjUz3D/aeEJUESduCRMwVLPVHJH5hg2liTCMEX9NWHWq
+         BXqze0LKzbirERLUFeS9xgDrulztyfSAD3NGLRLXg5EBKq3dh5fvGh5XmC2HHzHs8Z
+         AyEoQ7/VrVmSb2HaDxNpssEKvQJZhGR5t8sd/m/dsmCa3qTQPAr9fwNaR4EvIDVaYC
+         s2HVhIHSX9MLVfmSJvDoPzlopnNcvBOIJnFy5HAE8pp2OYql/ODdJmWs2IiKhzoeZi
+         wCUDS5N9CQnfPphbdEqPLGUxjufVWmolUdEOyHRM0urxoWaJQHiohe3POXaeSpI3ff
+         d6kqgLqapzA/g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Koby Elbaz <kelbaz@habana.ai>, Oded Gabbay <ogabbay@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, Arnd@vger.kernel.org,
-        gregkh@linuxfoundation.org, obitton@habana.ai, ttayar@habana.ai,
-        oshpigelman@habana.ai, osharabi@habana.ai, fkassabri@habana.ai,
-        ynudelman@habana.ai, mhaimovski@habana.ai, amizrahi@habana.ai
-Subject: [PATCH AUTOSEL 5.14 03/21] habanalabs: fix race between soft reset and heartbeat
-Date:   Thu, 16 Sep 2021 22:32:57 -0400
-Message-Id: <20210917023315.816225-3-sashal@kernel.org>
+Cc:     Luben Tuikov <luben.tuikov@amd.com>,
+        John Clements <john.clements@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <Alexander.Deucher@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
+        ray.huang@amd.com, Feifei.Xu@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.14 04/21] drm/amdgpu: Fixes to returning VBIOS RAS EEPROM address
+Date:   Thu, 16 Sep 2021 22:32:58 -0400
+Message-Id: <20210917023315.816225-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210917023315.816225-1-sashal@kernel.org>
 References: <20210917023315.816225-1-sashal@kernel.org>
@@ -44,242 +48,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Koby Elbaz <kelbaz@habana.ai>
+From: Luben Tuikov <luben.tuikov@amd.com>
 
-[ Upstream commit 8bb8b505761238be0d6a83dc41188867d65e5d4c ]
+[ Upstream commit a6a355a22f7a0efa6a11bc90b5161f394d51fe95 ]
 
-There is a scenario where an ongoing soft reset would race with an
-ongoing heartbeat routine, eventually causing heartbeat to fail and
-thus to escalate into a hard reset.
+1) Generalize the function--if the user didn't set
+   i2c_address, still return true/false to
+   indicate whether VBIOS contains the RAS EEPROM
+   address.  This function shouldn't evaluate
+   whether the user set the i2c_address pointer or
+   not.
 
-With this fix, soft-reset procedure will disable heartbeat CPU messages
-and flush the (ongoing) current one before continuing with reset code.
+2) Don't touch the caller's i2c_address, unless
+   you have to--this function shouldn't have side
+   effects.
 
-Signed-off-by: Koby Elbaz <kelbaz@habana.ai>
-Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+3) Correctly set the function comment as a
+   kernel-doc comment.
+
+Cc: John Clements <john.clements@amd.com>
+Cc: Hawking Zhang <Hawking.Zhang@amd.com>
+Cc: Alex Deucher <Alexander.Deucher@amd.com>
+Signed-off-by: Luben Tuikov <luben.tuikov@amd.com>
+Reviewed-by: Alex Deucher <Alexander.Deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/common/device.c      | 53 +++++++++++++++-----
- drivers/misc/habanalabs/common/firmware_if.c | 18 +++++--
- drivers/misc/habanalabs/common/habanalabs.h  |  4 +-
- drivers/misc/habanalabs/common/hw_queue.c    | 30 ++++-------
- 4 files changed, 67 insertions(+), 38 deletions(-)
+ .../gpu/drm/amd/amdgpu/amdgpu_atomfirmware.c  | 50 ++++++++++++-------
+ 1 file changed, 33 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/common/device.c b/drivers/misc/habanalabs/common/device.c
-index ff4cbde289c0..0a788a13f2c1 100644
---- a/drivers/misc/habanalabs/common/device.c
-+++ b/drivers/misc/habanalabs/common/device.c
-@@ -682,6 +682,44 @@ int hl_device_set_debug_mode(struct hl_device *hdev, bool enable)
- 	return rc;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_atomfirmware.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_atomfirmware.c
+index 8f53837d4d3e..97178b307ed6 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_atomfirmware.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_atomfirmware.c
+@@ -468,14 +468,18 @@ bool amdgpu_atomfirmware_dynamic_boot_config_supported(struct amdgpu_device *ade
+ 	return (fw_cap & ATOM_FIRMWARE_CAP_DYNAMIC_BOOT_CFG_ENABLE) ? true : false;
  }
  
-+static void take_release_locks(struct hl_device *hdev)
-+{
-+	/* Flush anyone that is inside the critical section of enqueue
-+	 * jobs to the H/W
-+	 */
-+	hdev->asic_funcs->hw_queues_lock(hdev);
-+	hdev->asic_funcs->hw_queues_unlock(hdev);
-+
-+	/* Flush processes that are sending message to CPU */
-+	mutex_lock(&hdev->send_cpu_message_lock);
-+	mutex_unlock(&hdev->send_cpu_message_lock);
-+
-+	/* Flush anyone that is inside device open */
-+	mutex_lock(&hdev->fpriv_list_lock);
-+	mutex_unlock(&hdev->fpriv_list_lock);
-+}
-+
-+static void cleanup_resources(struct hl_device *hdev, bool hard_reset)
-+{
-+	if (hard_reset)
-+		device_late_fini(hdev);
-+
-+	/*
-+	 * Halt the engines and disable interrupts so we won't get any more
-+	 * completions from H/W and we won't have any accesses from the
-+	 * H/W to the host machine
-+	 */
-+	hdev->asic_funcs->halt_engines(hdev, hard_reset);
-+
-+	/* Go over all the queues, release all CS and their jobs */
-+	hl_cs_rollback_all(hdev);
-+
-+	/* Release all pending user interrupts, each pending user interrupt
-+	 * holds a reference to user context
-+	 */
-+	hl_release_pending_user_interrupts(hdev);
-+}
-+
- /*
-  * hl_device_suspend - initiate device suspend
-  *
-@@ -707,16 +745,7 @@ int hl_device_suspend(struct hl_device *hdev)
- 	/* This blocks all other stuff that is not blocked by in_reset */
- 	hdev->disabled = true;
- 
--	/*
--	 * Flush anyone that is inside the critical section of enqueue
--	 * jobs to the H/W
--	 */
--	hdev->asic_funcs->hw_queues_lock(hdev);
--	hdev->asic_funcs->hw_queues_unlock(hdev);
--
--	/* Flush processes that are sending message to CPU */
--	mutex_lock(&hdev->send_cpu_message_lock);
--	mutex_unlock(&hdev->send_cpu_message_lock);
-+	take_release_locks(hdev);
- 
- 	rc = hdev->asic_funcs->suspend(hdev);
- 	if (rc)
-@@ -894,8 +923,8 @@ int hl_device_reset(struct hl_device *hdev, u32 flags)
- 		return 0;
- 	}
- 
--	hard_reset = (flags & HL_RESET_HARD) != 0;
--	from_hard_reset_thread = (flags & HL_RESET_FROM_RESET_THREAD) != 0;
-+	hard_reset = !!(flags & HL_RESET_HARD);
-+	from_hard_reset_thread = !!(flags & HL_RESET_FROM_RESET_THREAD);
- 
- 	if (!hard_reset && !hdev->supports_soft_reset) {
- 		hard_instead_soft = true;
-diff --git a/drivers/misc/habanalabs/common/firmware_if.c b/drivers/misc/habanalabs/common/firmware_if.c
-index 2e4d04ec6b53..653e8f5ef6ac 100644
---- a/drivers/misc/habanalabs/common/firmware_if.c
-+++ b/drivers/misc/habanalabs/common/firmware_if.c
-@@ -240,11 +240,15 @@ int hl_fw_send_cpu_message(struct hl_device *hdev, u32 hw_queue_id, u32 *msg,
- 	/* set fence to a non valid value */
- 	pkt->fence = cpu_to_le32(UINT_MAX);
- 
--	rc = hl_hw_queue_send_cb_no_cmpl(hdev, hw_queue_id, len, pkt_dma_addr);
--	if (rc) {
--		dev_err(hdev->dev, "Failed to send CB on CPU PQ (%d)\n", rc);
--		goto out;
--	}
-+	/*
-+	 * The CPU queue is a synchronous queue with an effective depth of
-+	 * a single entry (although it is allocated with room for multiple
-+	 * entries). We lock on it using 'send_cpu_message_lock' which
-+	 * serializes accesses to the CPU queue.
-+	 * Which means that we don't need to lock the access to the entire H/W
-+	 * queues module when submitting a JOB to the CPU queue.
-+	 */
-+	hl_hw_queue_submit_bd(hdev, queue, 0, len, pkt_dma_addr);
- 
- 	if (prop->fw_app_cpu_boot_dev_sts0 & CPU_BOOT_DEV_STS0_PKT_PI_ACK_EN)
- 		expected_ack_val = queue->pi;
-@@ -2235,6 +2239,10 @@ static int hl_fw_dynamic_init_cpu(struct hl_device *hdev,
- 	dev_info(hdev->dev,
- 		"Loading firmware to device, may take some time...\n");
- 
-+	/*
-+	 * In this stage, "cpu_dyn_regs" contains only LKD's hard coded values!
-+	 * It will be updated from FW after hl_fw_dynamic_request_descriptor().
-+	 */
- 	dyn_regs = &fw_loader->dynamic_loader.comm_desc.cpu_dyn_regs;
- 
- 	rc = hl_fw_dynamic_send_protocol_cmd(hdev, fw_loader, COMMS_RST_STATE,
-diff --git a/drivers/misc/habanalabs/common/habanalabs.h b/drivers/misc/habanalabs/common/habanalabs.h
-index 6b3cdd7e068a..c63e26da5135 100644
---- a/drivers/misc/habanalabs/common/habanalabs.h
-+++ b/drivers/misc/habanalabs/common/habanalabs.h
-@@ -2436,7 +2436,9 @@ void destroy_hdev(struct hl_device *hdev);
- int hl_hw_queues_create(struct hl_device *hdev);
- void hl_hw_queues_destroy(struct hl_device *hdev);
- int hl_hw_queue_send_cb_no_cmpl(struct hl_device *hdev, u32 hw_queue_id,
--				u32 cb_size, u64 cb_ptr);
-+		u32 cb_size, u64 cb_ptr);
-+void hl_hw_queue_submit_bd(struct hl_device *hdev, struct hl_hw_queue *q,
-+		u32 ctl, u32 len, u64 ptr);
- int hl_hw_queue_schedule_cs(struct hl_cs *cs);
- u32 hl_hw_queue_add_ptr(u32 ptr, u16 val);
- void hl_hw_queue_inc_ci_kernel(struct hl_device *hdev, u32 hw_queue_id);
-diff --git a/drivers/misc/habanalabs/common/hw_queue.c b/drivers/misc/habanalabs/common/hw_queue.c
-index bcabfdbf1e01..0afead229e97 100644
---- a/drivers/misc/habanalabs/common/hw_queue.c
-+++ b/drivers/misc/habanalabs/common/hw_queue.c
-@@ -65,7 +65,7 @@ void hl_hw_queue_update_ci(struct hl_cs *cs)
- }
- 
- /*
-- * ext_and_hw_queue_submit_bd() - Submit a buffer descriptor to an external or a
-+ * hl_hw_queue_submit_bd() - Submit a buffer descriptor to an external or a
-  *                                H/W queue.
-  * @hdev: pointer to habanalabs device structure
-  * @q: pointer to habanalabs queue structure
-@@ -80,8 +80,8 @@ void hl_hw_queue_update_ci(struct hl_cs *cs)
-  * This function must be called when the scheduler mutex is taken
-  *
-  */
--static void ext_and_hw_queue_submit_bd(struct hl_device *hdev,
--			struct hl_hw_queue *q, u32 ctl, u32 len, u64 ptr)
-+void hl_hw_queue_submit_bd(struct hl_device *hdev, struct hl_hw_queue *q,
-+		u32 ctl, u32 len, u64 ptr)
- {
- 	struct hl_bd *bd;
- 
-@@ -222,8 +222,8 @@ static int hw_queue_sanity_checks(struct hl_device *hdev, struct hl_hw_queue *q,
-  * @cb_size: size of CB
-  * @cb_ptr: pointer to CB location
-  *
-- * This function sends a single CB, that must NOT generate a completion entry
+-/*
+- * Helper function to query RAS EEPROM address
 - *
-+ * This function sends a single CB, that must NOT generate a completion entry.
-+ * Sending CPU messages can be done instead via 'hl_hw_queue_submit_bd()'
+- * @adev: amdgpu_device pointer
++/**
++ * amdgpu_atomfirmware_ras_rom_addr -- Get the RAS EEPROM addr from VBIOS
++ * adev: amdgpu_device pointer
++ * i2c_address: pointer to u8; if not NULL, will contain
++ *    the RAS EEPROM address if the function returns true
+  *
+- * Return true if vbios supports ras rom address reporting
++ * Return true if VBIOS supports RAS EEPROM address reporting,
++ * else return false. If true and @i2c_address is not NULL,
++ * will contain the RAS ROM address.
   */
- int hl_hw_queue_send_cb_no_cmpl(struct hl_device *hdev, u32 hw_queue_id,
- 				u32 cb_size, u64 cb_ptr)
-@@ -231,16 +231,7 @@ int hl_hw_queue_send_cb_no_cmpl(struct hl_device *hdev, u32 hw_queue_id,
- 	struct hl_hw_queue *q = &hdev->kernel_queues[hw_queue_id];
- 	int rc = 0;
+-bool amdgpu_atomfirmware_ras_rom_addr(struct amdgpu_device *adev, uint8_t* i2c_address)
++bool amdgpu_atomfirmware_ras_rom_addr(struct amdgpu_device *adev,
++				      u8 *i2c_address)
+ {
+ 	struct amdgpu_mode_info *mode_info = &adev->mode_info;
+ 	int index;
+@@ -483,27 +487,39 @@ bool amdgpu_atomfirmware_ras_rom_addr(struct amdgpu_device *adev, uint8_t* i2c_a
+ 	union firmware_info *firmware_info;
+ 	u8 frev, crev;
  
--	/*
--	 * The CPU queue is a synchronous queue with an effective depth of
--	 * a single entry (although it is allocated with room for multiple
--	 * entries). Therefore, there is a different lock, called
--	 * send_cpu_message_lock, that serializes accesses to the CPU queue.
--	 * As a result, we don't need to lock the access to the entire H/W
--	 * queues module when submitting a JOB to the CPU queue
--	 */
--	if (q->queue_type != QUEUE_TYPE_CPU)
--		hdev->asic_funcs->hw_queues_lock(hdev);
-+	hdev->asic_funcs->hw_queues_lock(hdev);
+-	if (i2c_address == NULL)
+-		return false;
+-
+-	*i2c_address = 0;
+-
+ 	index = get_index_into_master_table(atom_master_list_of_data_tables_v2_1,
+-			firmwareinfo);
++					    firmwareinfo);
  
- 	if (hdev->disabled) {
- 		rc = -EPERM;
-@@ -258,11 +249,10 @@ int hl_hw_queue_send_cb_no_cmpl(struct hl_device *hdev, u32 hw_queue_id,
- 			goto out;
+ 	if (amdgpu_atom_parse_data_header(adev->mode_info.atom_context,
+-				index, &size, &frev, &crev, &data_offset)) {
++					  index, &size, &frev, &crev,
++					  &data_offset)) {
+ 		/* support firmware_info 3.4 + */
+ 		if ((frev == 3 && crev >=4) || (frev > 3)) {
+ 			firmware_info = (union firmware_info *)
+ 				(mode_info->atom_context->bios + data_offset);
+-			*i2c_address = firmware_info->v34.ras_rom_i2c_slave_addr;
++			/* The ras_rom_i2c_slave_addr should ideally
++			 * be a 19-bit EEPROM address, which would be
++			 * used as is by the driver; see top of
++			 * amdgpu_eeprom.c.
++			 *
++			 * When this is the case, 0 is of course a
++			 * valid RAS EEPROM address, in which case,
++			 * we'll drop the first "if (firm...)" and only
++			 * leave the check for the pointer.
++			 *
++			 * The reason this works right now is because
++			 * ras_rom_i2c_slave_addr contains the EEPROM
++			 * device type qualifier 1010b in the top 4
++			 * bits.
++			 */
++			if (firmware_info->v34.ras_rom_i2c_slave_addr) {
++				if (i2c_address)
++					*i2c_address = firmware_info->v34.ras_rom_i2c_slave_addr;
++				return true;
++			}
+ 		}
  	}
  
--	ext_and_hw_queue_submit_bd(hdev, q, 0, cb_size, cb_ptr);
-+	hl_hw_queue_submit_bd(hdev, q, 0, cb_size, cb_ptr);
- 
- out:
--	if (q->queue_type != QUEUE_TYPE_CPU)
--		hdev->asic_funcs->hw_queues_unlock(hdev);
-+	hdev->asic_funcs->hw_queues_unlock(hdev);
- 
- 	return rc;
- }
-@@ -328,7 +318,7 @@ static void ext_queue_schedule_job(struct hl_cs_job *job)
- 	cq->pi = hl_cq_inc_ptr(cq->pi);
- 
- submit_bd:
--	ext_and_hw_queue_submit_bd(hdev, q, ctl, len, ptr);
-+	hl_hw_queue_submit_bd(hdev, q, ctl, len, ptr);
+-	if (*i2c_address != 0)
+-		return true;
+-
+ 	return false;
  }
  
- /*
-@@ -407,7 +397,7 @@ static void hw_queue_schedule_job(struct hl_cs_job *job)
- 	else
- 		ptr = (u64) (uintptr_t) job->user_cb;
- 
--	ext_and_hw_queue_submit_bd(hdev, q, ctl, len, ptr);
-+	hl_hw_queue_submit_bd(hdev, q, ctl, len, ptr);
- }
- 
- static int init_signal_cs(struct hl_device *hdev,
 -- 
 2.30.2
 
