@@ -2,196 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CE5D40F4D1
-	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 11:31:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DD4640F4E2
+	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 11:36:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239009AbhIQJcd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Sep 2021 05:32:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52212 "EHLO
+        id S241089AbhIQJhx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Sep 2021 05:37:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235794AbhIQJcZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Sep 2021 05:32:25 -0400
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C09CAC061764
-        for <stable@vger.kernel.org>; Fri, 17 Sep 2021 02:31:03 -0700 (PDT)
-Received: by mail-wr1-x42c.google.com with SMTP id t8so14106174wrq.4
-        for <stable@vger.kernel.org>; Fri, 17 Sep 2021 02:31:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=QTIEOKxWLANQY5Sj91t8yOn88f8yDa6LMFP2RHaNCbU=;
-        b=GKjKa7mQ/CCe6yL2G2vt6fueccCqqIcdpTBpt403pgw36KTYxx/xRwKNVVCvnjlxnN
-         hFuNy8EHYO68vINTCh2lakvwsgY0MQRjluMi9brGpT4tkZe3xVdHrFuPgSUgicqF06Cg
-         FHuzn8TTmjiTEncwmE+0iZoOPizXLfGAAi9KDuSUQUSD5OrEORjMMNrIXy6A4HSRuUbZ
-         2RRQzQZzwdSLvUIpG78ztrfBQSlI2iZeojPpmfLp2QrcaZIxIgHk2P3rOTEvCybDQ+Qr
-         rqHgtpW5W3565sOjX0x0+W6l0LHBS/WFSMvchC5L31J7kVXq/W0k/EMOZOj+SnwOjqrQ
-         8jHA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=QTIEOKxWLANQY5Sj91t8yOn88f8yDa6LMFP2RHaNCbU=;
-        b=K1KNBzN3De3hv6VsYNBETFvwW6s4pl8afT/47P+muWVfmCRxp/ru+pGlYYrGZ3PNP7
-         qsMCzDbDcEzpAk5TacbpGyWYQZX7lF/ws3D+qYf5x4yOdj/czloj7TQdNpWdaEHQSb5Z
-         yxacLEsZb2ktlZiy2XTYgcJkpC7JtJ/TDX/AxO6018DthS5DmeFv2KJc5OAGdzoxXiYx
-         jibc/WQB9kNzxlW0yRSh8N/vfYwhfYXQB4YYZoUtgOB9q1tAilE8SeImEErsVsrLH7g+
-         rptkVf7cm48u7vsFXLz3wb976kxiM3EnFH12DyqPpwA/bNGu1SlFnSs8fdIIlALvTLSL
-         KEuw==
-X-Gm-Message-State: AOAM530rInNLPb1NycXPytPZjkQ4xLqoathoVPqQnTFoBseOSwa+LxTO
-        xP9Rj0Fp/TxZzXin70ycCNctQOLayuqfoQ==
-X-Google-Smtp-Source: ABdhPJwbOrjqjTlETXUGsgOiKGwf3FZ90pR2q9c3P3vpwSuX6hrzPFMg526xOQKJqu0xjArPDmTesQ==
-X-Received: by 2002:a5d:444a:: with SMTP id x10mr10915654wrr.360.1631871062127;
-        Fri, 17 Sep 2021 02:31:02 -0700 (PDT)
-Received: from ?IPv6:2a01:e34:ed2f:f020:cf95:6508:8470:7171? ([2a01:e34:ed2f:f020:cf95:6508:8470:7171])
-        by smtp.googlemail.com with ESMTPSA id q19sm10215879wmq.29.2021.09.17.02.31.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 17 Sep 2021 02:31:01 -0700 (PDT)
-Subject: Re: [PATCH v2] thermal: Fix a NULL pointer dereference
-To:     Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Amit Kucheria <amitk@kernel.org>
-Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        David Collins <quic_collinsd@quicinc.com>,
-        Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>,
-        Ram Chandrasekar <rkumbako@codeaurora.org>,
-        stable@vger.kernel.org
-References: <1631041289-11804-1-git-send-email-quic_subbaram@quicinc.com>
-From:   Daniel Lezcano <daniel.lezcano@linaro.org>
-Message-ID: <55999619-22c7-63fd-7006-f91f144e4a60@linaro.org>
-Date:   Fri, 17 Sep 2021 11:31:00 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        with ESMTP id S241256AbhIQJhu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Sep 2021 05:37:50 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CBE7C061764;
+        Fri, 17 Sep 2021 02:36:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=p4JKQZLvY28YAWtmOrT5h9vdEtIffVYjwaqM8dQlSuk=; b=QQ1aRlrpBKnxNb39uc5Qg3Q7Mr
+        mtZkjFZ5HTcmaUZIpBhEXzPz8Jnq6weWSkgUpL2ZOUKilOgIzFGCCQ2JsASe/UWeepzzTAjnuDSq/
+        d6jWrwALsAtBH8rcEhZ+gYCxsXuVXFUGJOMOaY7EEWS0badAoBtcsot+9NjjB9RUWHxdKrXSpyoWO
+        SsUpBM5dYmSkstVKdjvPRDnp/KwGbaSrzJz1ye5fIQ+BmZREMveigINbT/jf2nETmaC4DVkZTgQty
+        TBmtDdFa01zzoYOtyQRMOP/09HS+XUE9of6QOoTBGDhK6xQ/sDImSguyhQk0jy0WfDEywITFiV7p3
+        fsnyYQIg==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mRAGX-00070u-2K; Fri, 17 Sep 2021 09:34:59 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 1C000300260;
+        Fri, 17 Sep 2021 11:34:40 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id EF47A2083B0E0; Fri, 17 Sep 2021 11:34:39 +0200 (CEST)
+Date:   Fri, 17 Sep 2021 11:34:39 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Bjorn Helgaas <helgaas@kernel.org>
+Cc:     Jakub Kicinski <kuba@kernel.org>, x86@kernel.org,
+        jose.souza@intel.com, hpa@zytor.com, bp@alien8.de,
+        mingo@redhat.com, tglx@linutronix.de, kai.heng.feng@canonical.com,
+        bhelgaas@google.com, linux-pci@vger.kernel.org, rudolph@fb.com,
+        xapienz@fb.com, bmilton@fb.com, stable@vger.kernel.org
+Subject: Re: [PATCH] x86/intel: Disable HPET on another Intel Coffee Lake
+ platform
+Message-ID: <YURhL33YyXRMkdC6@hirez.programming.kicks-ass.net>
+References: <20210916131739.1260552-1-kuba@kernel.org>
+ <20210916150707.GA1611532@bjorn-Precision-5520>
+ <YURb1bzc3L4gNI9Q@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-In-Reply-To: <1631041289-11804-1-git-send-email-quic_subbaram@quicinc.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YURb1bzc3L4gNI9Q@hirez.programming.kicks-ass.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 07/09/2021 21:01, Subbaraman Narayanamurthy wrote:
-> of_parse_thermal_zones() parses the thermal-zones node and registers a
-> thermal_zone device for each subnode. However, if a thermal zone is
-> consuming a thermal sensor and that thermal sensor device hasn't probed
-> yet, an attempt to set trip_point_*_temp for that thermal zone device
-> can cause a NULL pointer dereference. Fix it.
+On Fri, Sep 17, 2021 at 11:11:49AM +0200, Peter Zijlstra wrote:
+> On Thu, Sep 16, 2021 at 10:07:07AM -0500, Bjorn Helgaas wrote:
+> > This seems to be an ongoing issue, not just a point defect in a single
+> > product, and I really hate the onesy-twosy nature of this.  Is there
+> > really no way to detect this issue automatically or fix whatever Linux
+> > bug makes us trip over this?  I am no clock expert, so I have
+> > absolutely no idea whether this is possible.
 > 
->  console:/sys/class/thermal/thermal_zone87 # echo 120000 > trip_point_0_temp
->  ...
->  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000020
->  ...
->  Call trace:
->   of_thermal_set_trip_temp+0x40/0xc4
->   trip_point_temp_store+0xc0/0x1dc
->   dev_attr_store+0x38/0x88
->   sysfs_kf_write+0x64/0xc0
->   kernfs_fop_write_iter+0x108/0x1d0
->   vfs_write+0x2f4/0x368
->   ksys_write+0x7c/0xec
->   __arm64_sys_write+0x20/0x30
->   el0_svc_common.llvm.7279915941325364641+0xbc/0x1bc
->   do_el0_svc+0x28/0xa0
->   el0_svc+0x14/0x24
->   el0_sync_handler+0x88/0xec
->   el0_sync+0x1c0/0x200
+> X86 is gifted with the grant total of _0_ reliable clocks. Given no
+> accurate time, it is impossible to tell which one of them is broken
+> worst. Although I suppose we could attempt to synchronize against the
+> PMU or MPERF..
 > 
-> While at it, fix the possible NULL pointer dereference in other
-> functions as well: of_thermal_get_temp(), of_thermal_set_emul_temp(),
-> of_thermal_get_trend().
+> We could possibly disable the tsc watchdog for
+> X86_FEATURE_TSC_KNOWN_FREQ && X86_FEATURE_TSC_ADJUST I suppose.
 > 
-> Cc: stable@vger.kernel.org
-> Suggested-by: David Collins <quic_collinsd@quicinc.com>
-> Signed-off-by: Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>
-> ---
-> Changes for v2:
-> - Added checks in of_thermal_get_temp(), of_thermal_set_emul_temp(), of_thermal_get_trend().
-> 
->  drivers/thermal/thermal_of.c | 9 ++++++---
->  1 file changed, 6 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/thermal/thermal_of.c b/drivers/thermal/thermal_of.c
-> index 6379f26..9233f7e 100644
-> --- a/drivers/thermal/thermal_of.c
-> +++ b/drivers/thermal/thermal_of.c
-> @@ -89,7 +89,7 @@ static int of_thermal_get_temp(struct thermal_zone_device *tz,
->  {
->  	struct __thermal_zone *data = tz->devdata;
->  
-> -	if (!data->ops->get_temp)
-> +	if (!data->ops || !data->ops->get_temp)
+> And then have people with 'creative' BIOS get to keep the pieces.
 
-comment (1)
-
-AFAICT, if data->ops != NULL then data->ops->get_temp is also != NULL
-because of the code allocating/freeing the ops structure.
-
-The tests can be replaced by (!data->ops), no ?
-
->  		return -EINVAL;
->  
->  	return data->ops->get_temp(data->sensor_data, temp);
-> @@ -186,6 +186,9 @@ static int of_thermal_set_emul_temp(struct thermal_zone_device *tz,
->  {
->  	struct __thermal_zone *data = tz->devdata;
->  
-> +	if (!data->ops || !data->ops->set_emul_temp)
-> +		return -EINVAL;
-> +
-
-comment (2)
-
-The test looks pointless here (I mean both of them).
-
-If of_thermal_set_emul_temp() is called it is because the callback was
-set in thermal_zone_of_add_sensor().
-
-This one does:
-
-	tz->ops = ops;
-
-and
-	if (ops->set_emul_temp)
-                tzd->ops->set_emul_temp = of_thermal_set_emul_temp;
-
-If I'm not wrong if we are called, then data->ops &&
-data->ops->set_emul_temp is always true, right ?
-
-
->  	return data->ops->set_emul_temp(data->sensor_data, temp);
->  }
->  
-> @@ -194,7 +197,7 @@ static int of_thermal_get_trend(struct thermal_zone_device *tz, int trip,
->  {
->  	struct __thermal_zone *data = tz->devdata;
->  
-> -	if (!data->ops->get_trend)
-> +	if (!data->ops || !data->ops->get_trend)
->  		return -EINVAL;
-
-Same comment as (1)
-
->  	return data->ops->get_trend(data->sensor_data, trip, trend);
-> @@ -301,7 +304,7 @@ static int of_thermal_set_trip_temp(struct thermal_zone_device *tz, int trip,
->  	if (trip >= data->ntrips || trip < 0)
->  		return -EDOM;
->  
-> -	if (data->ops->set_trip_temp) {
-> +	if (data->ops && data->ops->set_trip_temp) {
-
-Same comment as (2)
-
->  		int ret;
->  
->  		ret = data->ops->set_trip_temp(data->sensor_data, trip, temp);
-> 
-
-
--- 
-<http://www.linaro.org/> Linaro.org │ Open source software for ARM SoCs
-
-Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
-<http://twitter.com/#!/linaroorg> Twitter |
-<http://www.linaro.org/linaro-blog/> Blog
+Alternatively, we can change what the TSC watchdog does for
+X86_FEATURE_TSC_ADJUST machines. Instead of checking time against HPET
+it can check if TSC_ADJUST changes. That should make it more resillient
+vs HPET time itself being off.
