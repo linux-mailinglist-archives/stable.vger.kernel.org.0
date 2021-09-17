@@ -2,199 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D5DC40F752
-	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 14:17:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D34440F8B6
+	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 15:03:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236384AbhIQMTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Sep 2021 08:19:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53014 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230031AbhIQMTE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Sep 2021 08:19:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2B1660F9C;
-        Fri, 17 Sep 2021 12:17:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631881062;
-        bh=fv8H9hS4ToB7OovAJem7g/i6KTXih4K64jSGFxkHiBY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BLPiHZrm7pdK+xX8QCNJKxCkgJCg5DF5Ng/wUue96tErLXwq6obgqiVJPpxEo72MR
-         7JfE6W9mS7V9/ZLtE3z1sx8h0fsorcgbOgIhkTv8qXoEd+AGbCczgonCUwSHxylMBf
-         y/3zFszpOwTAtq7fm7EU/FwGj0sVQe/vhtpaNrrg=
-Date:   Fri, 17 Sep 2021 14:17:38 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     akpm@linux-foundation.org, aneesh.kumar@linux.ibm.com,
-        anshuman.khandual@arm.com, anton@ozlabs.org, ardb@kernel.org,
-        bauerman@linux.ibm.com, benh@kernel.crashing.org, bhe@redhat.com,
-        borntraeger@de.ibm.com, bp@alien8.de, catalin.marinas@arm.com,
-        cheloha@linux.ibm.com, christophe.leroy@c-s.fr, dalias@libc.org,
-        dan.j.williams@intel.com, dave.hansen@linux.intel.com,
-        dave.jiang@intel.com, gor@linux.ibm.com, hca@linux.ibm.com,
-        hpa@zytor.com, jasowang@redhat.com, joe@perches.com,
-        justin.he@arm.com, ldufour@linux.ibm.com, lenb@kernel.org,
-        luto@kernel.org, mhocko@kernel.org, michel@lespinasse.org,
-        mingo@redhat.com, mpe@ellerman.id.au, mst@redhat.com,
-        nathanl@linux.ibm.com, npiggin@gmail.com, osalvador@suse.de,
-        pankaj.gupta.linux@gmail.com, pankaj.gupta@ionos.com,
-        pasha.tatashin@soleen.com, paulus@samba.org, peterz@infradead.org,
-        pmorel@linux.ibm.com, rafael.j.wysocki@intel.com,
-        richard.weiyang@linux.alibaba.com, rjw@rjwysocki.net,
-        rppt@kernel.org, slyfox@gentoo.org, songmuchun@bytedance.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        vbabka@suse.cz, vishal.l.verma@intel.com, vkuznets@redhat.com,
-        wangkefeng.wang@huawei.com, will@kernel.org,
-        ysato@users.sourceforge.jp
-Subject: Re: FAILED: patch "[PATCH] mm/memory_hotplug: use "unsigned long"
- for PFN in" failed to apply to 4.14-stable tree
-Message-ID: <YUSHYkIoEOCB1POR@kroah.com>
-References: <1631796969176240@kroah.com>
- <5873f775-a9a8-7d8e-f8a6-a314ad14a6ef@redhat.com>
+        id S235898AbhIQNEc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Sep 2021 09:04:32 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:57349 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235210AbhIQNEa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Sep 2021 09:04:30 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id D73655C01DA;
+        Fri, 17 Sep 2021 09:03:07 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Fri, 17 Sep 2021 09:03:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=2U3fIslTJuZNMwv6/
+        VsBSBUBzjTdiwpRKnbQ/edRf1Y=; b=VA3k71tS02nJBKeSx0ozoPgO3CAPhXKjE
+        Xuu9WrE18Bqd3maGY3VIyxuuKIOSaNijQI/xff0FSu4fgFSRr0i/k77woNGsgJTL
+        3vZpYwHPOF1QFVyS/X0BWC2p9DwWar3cmvczzPk1rI2BxzE1T4syl2FfJejHxgog
+        E10gFJ3u6sp5DDJ+N++5lKZdihb86AIG0RjAkXAPFY5CE4hvTlX6/otLGkpJQk2X
+        MNMuYzzpSWsTsVUOeZL/gf1sxm/vjy+3Wl1tESgYkKVSDeAckSYMALWffG/4Sf4Y
+        iEFmppiqibKJse06/fvWuj7VApbHKPZ+vUrAlul76igiJ69CiX2Qw==
+X-ME-Sender: <xms:C5JEYSlbHBCeLnjGsKSzyLYtKFo84uso2sli2-RnXAVnTFmfn5zXOQ>
+    <xme:C5JEYZ3CuzXI9sM8AtYn9OkrggMmO5p_IgP_CK6RbQP9V4S3n3dv7cN17yK095U0q
+    Jn-eJbMRY_BaWk>
+X-ME-Received: <xmr:C5JEYQpD5xcITgOLBxdIXPHNj3SXgChv4D4-UCu2R_QkLx68yv0WhQbiH2z9PUrZUxgEX9sGErk7Z0t7t08mjK6PqpEh8-tx5A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudehiedgheehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtre
+    dttdenucfhrhhomhepkfguohcuufgthhhimhhmvghluceoihguohhstghhsehiughoshgt
+    hhdrohhrgheqnecuggftrfgrthhtvghrnhepteevgefhvefggfffkeeuffeuvdfhueehhe
+    etffeikeegheevfedvgeelvdffudfhnecuvehluhhsthgvrhfuihiivgeptdenucfrrghr
+    rghmpehmrghilhhfrhhomhepihguohhstghhsehiughoshgthhdrohhrgh
+X-ME-Proxy: <xmx:C5JEYWnzzbGAvClfHp0NDEyiiI23JQTHObmSese1oIY2D5P5xCLQGw>
+    <xmx:C5JEYQ2-cGyanfSU6a4hQBmOW9L0GwvQLu7hCNLxPjggoGpjxoLhmg>
+    <xmx:C5JEYds1o3EJ93g4AOjgXSt3VMhLlFJQVsp2O1kBWDBes5k4evjdZQ>
+    <xmx:C5JEYU9YwI4DCgoStv59gGTx5ML6SlbLhhUUG-CK2khsSytuNAZn3w>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 17 Sep 2021 09:03:05 -0400 (EDT)
+From:   Ido Schimmel <idosch@idosch.org>
+To:     netdev@vger.kernel.org
+Cc:     davem@davemloft.net, kuba@kernel.org, dsahern@gmail.com,
+        petrm@nvidia.com, mlxsw@nvidia.com,
+        Ido Schimmel <idosch@nvidia.com>, stable@vger.kernel.org
+Subject: [PATCH net] nexthop: Fix division by zero while replacing a resilient group
+Date:   Fri, 17 Sep 2021 16:02:18 +0300
+Message-Id: <20210917130218.560510-1-idosch@idosch.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5873f775-a9a8-7d8e-f8a6-a314ad14a6ef@redhat.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 17, 2021 at 02:06:16PM +0200, David Hildenbrand wrote:
-> On 16.09.21 14:56, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 4.14-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> > ------------------ original commit in Linus's tree ------------------
-> > 
-> >  From 7cf209ba8a86410939a24cb1aeb279479a7e0ca6 Mon Sep 17 00:00:00 2001
-> > From: David Hildenbrand <david@redhat.com>
-> > Date: Tue, 7 Sep 2021 19:54:59 -0700
-> > Subject: [PATCH] mm/memory_hotplug: use "unsigned long" for PFN in
-> >   zone_for_pfn_range()
-> > 
-> > Patch series "mm/memory_hotplug: preparatory patches for new online policy and memory"
-> > 
-> > These are all cleanups and one fix previously sent as part of [1]:
-> > [PATCH v1 00/12] mm/memory_hotplug: "auto-movable" online policy and memory
-> > groups.
-> > 
-> > These patches make sense even without the other series, therefore I pulled
-> > them out to make the other series easier to digest.
-> > 
-> > [1] https://lkml.kernel.org/r/20210607195430.48228-1-david@redhat.com
-> > 
-> > This patch (of 4):
-> > 
-> > Checkpatch complained on a follow-up patch that we are using "unsigned"
-> > here, which defaults to "unsigned int" and checkpatch is correct.
-> > 
-> > As we will search for a fitting zone using the wrong pfn, we might end
-> > up onlining memory to one of the special kernel zones, such as ZONE_DMA,
-> > which can end badly as the onlined memory does not satisfy properties of
-> > these zones.
-> > 
-> > Use "unsigned long" instead, just as we do in other places when handling
-> > PFNs.  This can bite us once we have physical addresses in the range of
-> > multiple TB.
-> > 
-> > Link: https://lkml.kernel.org/r/20210712124052.26491-2-david@redhat.com
-> > Fixes: e5e689302633 ("mm, memory_hotplug: display allowed zones in the preferred ordering")
-> > Signed-off-by: David Hildenbrand <david@redhat.com>
-> > Reviewed-by: Pankaj Gupta <pankaj.gupta@ionos.com>
-> > Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-> > Reviewed-by: Oscar Salvador <osalvador@suse.de>
-> > Cc: David Hildenbrand <david@redhat.com>
-> > Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-> > Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> > Cc: Jason Wang <jasowang@redhat.com>
-> > Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-> > Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
-> > Cc: Michal Hocko <mhocko@kernel.org>
-> > Cc: Dan Williams <dan.j.williams@intel.com>
-> > Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-> > Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> > Cc: Vlastimil Babka <vbabka@suse.cz>
-> > Cc: Mike Rapoport <rppt@kernel.org>
-> > Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-> > Cc: Len Brown <lenb@kernel.org>
-> > Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-> > Cc: Heiko Carstens <hca@linux.ibm.com>
-> > Cc: Michael Ellerman <mpe@ellerman.id.au>
-> > Cc: Catalin Marinas <catalin.marinas@arm.com>
-> > Cc: virtualization@lists.linux-foundation.org
-> > Cc: Andy Lutomirski <luto@kernel.org>
-> > Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-> > Cc: Anton Blanchard <anton@ozlabs.org>
-> > Cc: Ard Biesheuvel <ardb@kernel.org>
-> > Cc: Baoquan He <bhe@redhat.com>
-> > Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> > Cc: Borislav Petkov <bp@alien8.de>
-> > Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> > Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-> > Cc: Dave Jiang <dave.jiang@intel.com>
-> > Cc: "H. Peter Anvin" <hpa@zytor.com>
-> > Cc: Ingo Molnar <mingo@redhat.com>
-> > Cc: Jia He <justin.he@arm.com>
-> > Cc: Joe Perches <joe@perches.com>
-> > Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-> > Cc: Laurent Dufour <ldufour@linux.ibm.com>
-> > Cc: Michel Lespinasse <michel@lespinasse.org>
-> > Cc: Nathan Lynch <nathanl@linux.ibm.com>
-> > Cc: Nicholas Piggin <npiggin@gmail.com>
-> > Cc: Paul Mackerras <paulus@samba.org>
-> > Cc: Peter Zijlstra <peterz@infradead.org>
-> > Cc: Pierre Morel <pmorel@linux.ibm.com>
-> > Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-> > Cc: Rich Felker <dalias@libc.org>
-> > Cc: Scott Cheloha <cheloha@linux.ibm.com>
-> > Cc: Sergei Trofimovich <slyfox@gentoo.org>
-> > Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-> > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > Cc: Vasily Gorbik <gor@linux.ibm.com>
-> > Cc: Vishal Verma <vishal.l.verma@intel.com>
-> > Cc: Will Deacon <will@kernel.org>
-> > Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-> > Cc: <stable@vger.kernel.org>
-> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> > 
-> > diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-> > index a7fd2c3ccb77..d01b504ce06f 100644
-> > --- a/include/linux/memory_hotplug.h
-> > +++ b/include/linux/memory_hotplug.h
-> > @@ -339,8 +339,8 @@ extern void sparse_remove_section(struct mem_section *ms,
-> >   		unsigned long map_offset, struct vmem_altmap *altmap);
-> >   extern struct page *sparse_decode_mem_map(unsigned long coded_mem_map,
-> >   					  unsigned long pnum);
-> > -extern struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
-> > -		unsigned long nr_pages);
-> > +extern struct zone *zone_for_pfn_range(int online_type, int nid,
-> > +		unsigned long start_pfn, unsigned long nr_pages);
-> >   extern int arch_create_linear_mapping(int nid, u64 start, u64 size,
-> >   				      struct mhp_params *params);
-> >   void arch_remove_linear_mapping(u64 start, u64 size);
-> > diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-> > index f829805fe1ca..fa349acb8810 100644
-> > --- a/mm/memory_hotplug.c
-> > +++ b/mm/memory_hotplug.c
-> > @@ -708,8 +708,8 @@ static inline struct zone *default_zone_for_pfn(int nid, unsigned long start_pfn
-> >   	return movable_node_enabled ? movable_zone : kernel_zone;
-> >   }
-> > -struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
-> > -		unsigned long nr_pages)
-> > +struct zone *zone_for_pfn_range(int online_type, int nid,
-> > +		unsigned long start_pfn, unsigned long nr_pages)
-> >   {
-> >   	if (online_type == MMOP_ONLINE_KERNEL)
-> >   		return default_kernel_zone_for_pfn(nid, start_pfn, nr_pages);
-> > 
-> 
-> AFAIKS, there are only contextual differences and they are pretty easy to
-> sort out. @Greg, I can send a backport if it helps.
+From: Ido Schimmel <idosch@nvidia.com>
 
-Please do, thanks!
+The resilient nexthop group torture tests in fib_nexthop.sh exposed a
+possible division by zero while replacing a resilient group [1]. The
+division by zero occurs when the data path sees a resilient nexthop
+group with zero buckets.
+
+The tests replace a resilient nexthop group in a loop while traffic is
+forwarded through it. The tests do not specify the number of buckets
+while performing the replacement, resulting in the kernel allocating a
+stub resilient table (i.e, 'struct nh_res_table') with zero buckets.
+
+This table should never be visible to the data path, but the old nexthop
+group (i.e., 'oldg') might still be used by the data path when the stub
+table is assigned to it.
+
+Fix this by only assigning the stub table to the old nexthop group after
+making sure the group is no longer used by the data path.
+
+Tested with fib_nexthops.sh:
+
+Tests passed: 222
+Tests failed:   0
+
+[1]
+ divide error: 0000 [#1] PREEMPT SMP KASAN
+ CPU: 0 PID: 1850 Comm: ping Not tainted 5.14.0-custom-10271-ga86eb53057fe #1107
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/01/2014
+ RIP: 0010:nexthop_select_path+0x2d2/0x1a80
+[...]
+ Call Trace:
+  fib_select_multipath+0x79b/0x1530
+  fib_select_path+0x8fb/0x1c10
+  ip_route_output_key_hash_rcu+0x1198/0x2da0
+  ip_route_output_key_hash+0x190/0x340
+  ip_route_output_flow+0x21/0x120
+  raw_sendmsg+0x91d/0x2e10
+  inet_sendmsg+0x9e/0xe0
+  __sys_sendto+0x23d/0x360
+  __x64_sys_sendto+0xe1/0x1b0
+  do_syscall_64+0x35/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Cc: stable@vger.kernel.org
+Fixes: 283a72a5599e ("nexthop: Add implementation of resilient next-hop groups")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+---
+ net/ipv4/nexthop.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/net/ipv4/nexthop.c b/net/ipv4/nexthop.c
+index 75ca4b6e484f..0e75fd3e57b4 100644
+--- a/net/ipv4/nexthop.c
++++ b/net/ipv4/nexthop.c
+@@ -1982,6 +1982,8 @@ static int replace_nexthop_grp(struct net *net, struct nexthop *old,
+ 	rcu_assign_pointer(old->nh_grp, newg);
+ 
+ 	if (newg->resilient) {
++		/* Make sure concurrent readers are not using 'oldg' anymore. */
++		synchronize_net();
+ 		rcu_assign_pointer(oldg->res_table, tmp_table);
+ 		rcu_assign_pointer(oldg->spare->res_table, tmp_table);
+ 	}
+-- 
+2.31.1
+
