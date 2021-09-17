@@ -2,81 +2,247 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B567740F690
-	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 13:11:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A9E440F69A
+	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 13:16:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243295AbhIQLM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Sep 2021 07:12:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47162 "EHLO
+        id S243416AbhIQLRU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Sep 2021 07:17:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242930AbhIQLMZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Sep 2021 07:12:25 -0400
-Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C602C061574
-        for <stable@vger.kernel.org>; Fri, 17 Sep 2021 04:11:03 -0700 (PDT)
-Received: by mail-lf1-x144.google.com with SMTP id x27so31465559lfu.5
-        for <stable@vger.kernel.org>; Fri, 17 Sep 2021 04:11:03 -0700 (PDT)
+        with ESMTP id S243258AbhIQLRS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Sep 2021 07:17:18 -0400
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B6F0C061764
+        for <stable@vger.kernel.org>; Fri, 17 Sep 2021 04:15:56 -0700 (PDT)
+Received: by mail-ed1-x532.google.com with SMTP id q3so28694031edt.5
+        for <stable@vger.kernel.org>; Fri, 17 Sep 2021 04:15:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=eoZa/S5Bbi4MgKAlg1c2Ir+Z/xp9Gnr8kwDA+q4GlrQ=;
-        b=U/SLVPlWU/V6A/u4bCNvJcTIz3HIkLOiKlpfl4SbVEFtkbLrgAgM9Xxp4bjAOvo7Ih
-         fSR0b44qsYBQovA9jKjoWgZk1A4ehOIu0OzIDf5oklTyreUTpAnWYMAZ3UWzf4s8P0+k
-         +PQ+1SR9e49QtO3pGt2nXBHhO/NR6WNvgCmcs/HgGNDaGFDjaZqLky/AfIJhlD8A55Mv
-         QoSeyi0VLEd1H4WurpO4QAUe2s6W3wgftBY7PYuOtWiQGMp6NfWCKa0pJncg2KjI7sXP
-         N74tqQVyIFKsnUgCgkqfPI3HKtGL4RfDA7JOeAhZ+MrKLKLufWB42KF0NgCqd2eb6YgQ
-         2NZg==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=dBeb22OnXynKgEpQb48BEmderySm2sos3qIILhuKWp0=;
+        b=ixAQ20jOIjJNAmr3Yliyy5xR9caKuy+uSHPCcOm0CvUGmWynhy7K52NHN86772riZu
+         tr064Lon8QLBGWXS/+urdcVU/UFwlCiFcHcCeCoe7PEqdNsa1xsFw1wzDMEEHbUhjjx+
+         13lsf3M1vkNB/B/dOCE926XXtKkgAP4OkCJz7EDIqWm0NLJtktwMrJ66F4GIeJD82khS
+         rApDIcuLUeN40mxyzZ6jfSY/UxVfHgisfDs9K9U8MIZQ9xfwaxcpzJNIrFK3izmf+c+/
+         VNF5wdPF+WjqVJf3mFzHOI3DnMZOjUCc7FreXZC10Yb+RQi8ZtLJT+SXcsMU6oCGfO5n
+         i+6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=eoZa/S5Bbi4MgKAlg1c2Ir+Z/xp9Gnr8kwDA+q4GlrQ=;
-        b=uAdaLxR170XUWIwf0HcA/cQ+sJWd2J0gq46EJRHCnclA0qr5HVR459zee/6djrELho
-         jfBDX0atQF7xLccd7CffCUrvW+eh663iuaAtOrhOn7Lf35Z6LcFvtUl90psaNvnEVcoV
-         oBH4Gx9dKjgH59ixQNhb4GeAq8MhR4HffzA2wAHHTeU03Bf0g7aZEfubEgqhAjZqSRVU
-         yQAbdpYaAtiXPxPIw1nwQkDBj6NbD0xkU2OZRvGkjwF5Xb9nuSXj/b4svNATwrglff4H
-         dQzwgrVnYVLAdBC9EyqaTgrCDdfw7rQZsOlI5zGfk1oTU0H16+AU1g9H1C2b/o2l6o3J
-         dy4w==
-X-Gm-Message-State: AOAM530uPyt0bSKgwUt0u0Fq3HorTNks82e6c8ImjqszxoXPk0exj8ZL
-        i4svlkOPpXEtG7pwucLB/eY6QWss4eS80pkLlBo=
-X-Google-Smtp-Source: ABdhPJyucwIM7Uj1tvLs5cvXr1dsqY1/tniote+vNy5wC3tOq1YIkkILLhm+Hl7XveNw8TwYJv9LvH1pllVkus1+lzE=
-X-Received: by 2002:a2e:5453:: with SMTP id y19mr8184228ljd.91.1631877061669;
- Fri, 17 Sep 2021 04:11:01 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=dBeb22OnXynKgEpQb48BEmderySm2sos3qIILhuKWp0=;
+        b=t/90UkLVQPtlAZSNSLCQSrKacSoFaAlqkxSJvUM9TXs94PrU/ANHOt/Y2O4i51poai
+         mF9ulJfyrd/BOxk7GouyVXk+MfEVh2awvAAkYEAdH0Pzx6fSV9FTaT8SIh1qsh7nRjXo
+         2egy0V6Lh+nOtVNk27LypJZJXsdlA8vbWKuB6u2PouEguVFd1Z+uHWoOj9n+eBSonABZ
+         aMfTO+xaYwlUS1MpBeLbWfxZfQAMzcphCtbDrIgY+26OcJ6STVGzjCvYPoSKHxVCjv11
+         5pGCBDNNv+w1Ql4BVGC+nulga8/lFUP2208TVUR81fMNtPsDQJujNVpEqxr4oWChGeqv
+         DZug==
+X-Gm-Message-State: AOAM53032d7S8Q/pTWcMThYHyUDp1WXQfzebl7/lV95tDvamBSFZGbEt
+        fMCTz4lCW4SwjWK2mxLoacx9XzeCxVMbNvAen5dalA==
+X-Google-Smtp-Source: ABdhPJznavZmWnm5D8kEH3jtMhPIWPMDyFRjL32QAXQD7tgnv3hoaY9n8XHhgUk5qXZLYMxWuecxYmdJBTgm/Cg5Sro=
+X-Received: by 2002:a17:906:52c5:: with SMTP id w5mr11492218ejn.567.1631877354859;
+ Fri, 17 Sep 2021 04:15:54 -0700 (PDT)
 MIME-Version: 1.0
-Received: by 2002:a2e:5805:0:0:0:0:0 with HTTP; Fri, 17 Sep 2021 04:11:01
- -0700 (PDT)
-From:   Dao Alpha <daoalpha44@gmail.com>
-Date:   Fri, 17 Sep 2021 11:11:01 +0000
-Message-ID: <CAKt4=qGH79ObghXZpvZMu+hYLA5O+2VpMgumqABZABWW6tMJjw@mail.gmail.com>
-Subject: Seasons of greetings to you and your family,!!!!
-To:     undisclosed-recipients:;
+References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 17 Sep 2021 16:45:43 +0530
+Message-ID: <CA+G9fYvFcv76g39wBdbZMy-yPHGywFKXngC3AQwscE1G=FFA-w@mail.gmail.com>
+Subject: Re: [PATCH 5.14 000/432] 5.14.6-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
-My Seasons of greetings to you and your family.
+On Thu, 16 Sept 2021 at 22:11, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.14.6 release.
+> There are 432 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 18 Sep 2021 15:57:06 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.14.6-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.14.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-First, I am Mr. Dao Alpha, a banker working with Bank of Africa here
-in my country Burkina Faso West Africa, I have a business transaction
-that will benefit both of us, and want to know if you can handle it
-and claim the fund to your country's account. The amount is
-($10.5Million). After the transfer, we have to share it, 50% for me,
-and 50% for you. Please let me know if you can assist me, for more
-details information regarding the transfer. I hope you will work with
-me honestly?
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-This is legal, risk free and will be 100% successful, because I work
-in the same bank and have arranged for it properly before contacting
-you.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-If yes, update me with your personal information such as;
+## Build
+* kernel: 5.14.6-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.14.y
+* git commit: e47ec8b38d19e947bd55388d7dbbf25e27475dac
+* git describe: v5.14.5-433-ge47ec8b38d19
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.14.y/build/v5.14=
+.5-433-ge47ec8b38d19
 
-1. Your name in Full:
-2. Your House Address:
-3. Your Occupation:
-4. Your Age:
-5. Your direct phone number;
+## No regressions (compared to v5.14.4-74-g739800791564)
 
-Regards.
-Mr. Dao Alpha.
+## No fixes (compared to v5.14.4-74-g739800791564)
+
+## Test result summary
+total: 89977, pass: 75054, fail: 950, skip: 12920, xfail: 1053
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 289 total, 277 passed, 12 failed
+* arm64: 39 total, 39 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 38 total, 38 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 51 total, 51 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 36 total, 35 passed, 1 failed
+* riscv: 30 total, 30 passed, 0 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 0 passed, 1 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 39 total, 39 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
