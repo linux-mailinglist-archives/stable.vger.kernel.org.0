@@ -2,72 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 032A5410691
-	for <lists+stable@lfdr.de>; Sat, 18 Sep 2021 14:59:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5E3F410764
+	for <lists+stable@lfdr.de>; Sat, 18 Sep 2021 17:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236781AbhIRNA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Sep 2021 09:00:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39350 "EHLO mail.kernel.org"
+        id S239903AbhIRPsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Sep 2021 11:48:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236097AbhIRNA6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Sep 2021 09:00:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 864E961074;
-        Sat, 18 Sep 2021 12:59:34 +0000 (UTC)
+        id S229575AbhIRPsY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Sep 2021 11:48:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA2886127A;
+        Sat, 18 Sep 2021 15:46:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631969975;
-        bh=U3Tmg9ovJTMuJ7nzZuzMGCCVitJuB6lrsDLkyWr/4dE=;
+        s=korg; t=1631980020;
+        bh=J5aL1LjIIzmZdFjro8IKYFFV9x4jCgd4GhcHKNXFQiE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=u0IFNR0VEipH3IxVdQ7dOoVIYWRGupX9KhzwbX4P6yXMBoVUMd7dBJ+dC0TLMWYMO
-         Mgd9ka+DQx+Y9U8UDb9d/ua9J9XLwjZ/ncA11LfbmOsUaZp7KR4dURg/kFRCep7jal
-         BTRo3sBXj+cW/CkbQQbEZ6RcNgIi6Y0PapyzVyIE=
-Date:   Sat, 18 Sep 2021 14:59:32 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     dmm@fb.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] io_uring: allow retry for O_NONBLOCK if
- async is supported" failed to apply to 5.14-stable tree
-Message-ID: <YUXitAkwde0qNmMH@kroah.com>
-References: <1631968451106199@kroah.com>
- <0c9365f0-e471-066d-0ab2-faee3ca2d927@kernel.dk>
- <YUXf+11Pv7oiiDAy@kroah.com>
- <03bed564-b681-c1c1-03da-4bc9db9d3621@kernel.dk>
+        b=1JKPdqVxRJCrPzbhxY5BrVIJ5FEMw0I42ZOXMkA14V9IW3JklXkvGu3G1A6puzmVc
+         MytYCCl2dYnJEwNrrHS8AltghN0p6gMkd/KzMVoEHYZ+Edzi87S1P1vAo7IArUm2pK
+         duSXHMJG27Fgswzb5k81jdDq1GCbi6/FV1KQ5EJ0=
+Date:   Sat, 18 Sep 2021 17:46:57 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Lukas Hannen <lukas.hannen@opensource.tttech-industrial.com>
+Subject: Re: [PATCH 5.14 298/334] time: Handle negative seconds correctly in
+ timespec64_to_ns()
+Message-ID: <YUYJ8WeOzPVwj16y@kroah.com>
+References: <20210913131113.390368911@linuxfoundation.org>
+ <20210913131123.500712780@linuxfoundation.org>
+ <CAK8P3a0z5jE=Z3Ps5bFTCFT7CHZR1JQ8VhdntDJAfsUxSPCcEw@mail.gmail.com>
+ <874kak9moe.ffs@tglx>
+ <YURQ4ZFDJ8E9MJZM@kroah.com>
+ <87sfy38p1o.ffs@tglx>
+ <YUSyKQwdpfSTbQ4H@kroah.com>
+ <87ee9n80gz.ffs@tglx>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <03bed564-b681-c1c1-03da-4bc9db9d3621@kernel.dk>
+In-Reply-To: <87ee9n80gz.ffs@tglx>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Sep 18, 2021 at 06:49:35AM -0600, Jens Axboe wrote:
-> On 9/18/21 6:47 AM, Greg KH wrote:
-> > On Sat, Sep 18, 2021 at 06:44:16AM -0600, Jens Axboe wrote:
-> >> On 9/18/21 6:34 AM, gregkh@linuxfoundation.org wrote:
-> >>>
-> >>> The patch below does not apply to the 5.14-stable tree.
-> >>> If someone wants it applied there, or to any other stable or longterm
-> >>> tree, then please email the backport, including the original git commit
-> >>> id to <stable@vger.kernel.org>.
-> >>
-> >> Just a trivial fuzz, here's a fixed version.
-> > 
-> > Sorry, no, the fuzz was easy, this breaks the build:
-> > 
-> > fs/io_uring.c: In function ‘io_prep_rw’:
-> > fs/io_uring.c:2715:47: error: implicit declaration of function ‘io_file_supports_nowait’; did you mean ‘io_file_supports_async’? [-Werror=implicit-function-declaration]
-> >  2715 |             ((file->f_flags & O_NONBLOCK) && !io_file_supports_nowait(req, rw)))
-> >       |                                               ^~~~~~~~~~~~~~~~~~~~~~~
-> >       |                                               io_file_supports_async
-> >   CHK     kernel/kheaders_data.tar.xz
-> > cc1: some warnings being treated as errors
-> > 
-> > 
-> > Any hint as to what that function would be in 5.14.y?
+On Fri, Sep 17, 2021 at 09:29:32PM +0200, Thomas Gleixner wrote:
+> Greg,
 > 
-> Ah sorry I'm an idiot, it should be that io_file_supports_nowait() that
-> also caused the fuzz in applying.
+> On Fri, Sep 17 2021 at 17:20, Greg Kroah-Hartman wrote:
+> > On Fri, Sep 17, 2021 at 12:38:43PM +0200, Thomas Gleixner wrote:
+> >> Nah. I try to pay more attention. I'm not against AUTOSEL per se, but
+> >> could we change the rules slightly?
+> >> 
+> >> Any change which is selected by AUTOSEL and lacks a Cc: stable@... is
+> >> put on hold until acked by the maintainer unless it is a prerequisite
+> >> for applying a stable tagged fix?
+> >> 
+> >> This can be default off and made effective on maintainer request.
+> >> 
+> >> Hmm?
+> >
+> > The whole point of the AUTOSEL patches are for the huge numbers of
+> > subsystems where maintainers and developers do not care about the stable
+> > trees at all, and so they do not mark patches to be backported.  So
+> > requireing an opt-in like this would defeat the purpose.
+> >
+> > We do allow the ability to take files/subsystems out of the AUTOSEL
+> > process as there are many maintainers that do do this right and get
+> > annoyed when patches are picked that they feel shouldn't have.  That's
+> > the best thing we can do for stuff like this.
+> 
+> I guess I was not able to express myself correctly. What I wanted to say
+> is:
+> 
+>   1) Default is AUTOSEL
+> 
+>   2) Maintainer can take files/subsystems out of AUTOSEL completely
+> 
+>      Exists today
+> 
+>   3) Maintainer allows AUTOSEL, but anything picked from files/subsystems
+>      without a stable tag requires an explicit ACK from the maintainer
+>      for the backport.
+> 
+>      Is new and I would be the first to opt-in :)
+> 
+> My rationale for #3 is that even when being careful about stable tags,
+> it happens that one is missing. Occasionaly AUTOSEL finds one of those
+> in my subsystems which I appreciate.
+> 
+> Does that make more sense now?
 
-This version worked, thanks!
+Ah, yes, that makes much more sense, sorry for the confusion.
+
+Sasha, what do you think?  You are the one that scripts all of this, not
+me :)
 
 greg k-h
