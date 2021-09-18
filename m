@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9903541065F
-	for <lists+stable@lfdr.de>; Sat, 18 Sep 2021 14:21:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E99F4410660
+	for <lists+stable@lfdr.de>; Sat, 18 Sep 2021 14:21:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233664AbhIRMWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Sep 2021 08:22:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51602 "EHLO mail.kernel.org"
+        id S234450AbhIRMWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Sep 2021 08:22:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232465AbhIRMWj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Sep 2021 08:22:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E5576127C;
-        Sat, 18 Sep 2021 12:21:15 +0000 (UTC)
+        id S234449AbhIRMWm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Sep 2021 08:22:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 111C061108;
+        Sat, 18 Sep 2021 12:21:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631967675;
-        bh=DjRVbWS5FYnQMIxmLmElkxQWSL/LoUChzuecB3tjxBk=;
+        s=korg; t=1631967678;
+        bh=UEWMronQAF1jOFlDS9MNp3CLf597tGiwujVf+BuW1DU=;
         h=Subject:To:Cc:From:Date:From;
-        b=qV4S89lzOWUwRfkK3IrlIPPJkKmDKYWrUSZkXJE9XOhL8FsW5XqFVkXC7Iwt3qpb8
-         YLrLdUnATG53tWjZUjYMJ9w/MSoBB+tm5wxl9krCDZVFQxf/Lm8Fkf5a0JRnBJnPxA
-         x3qQaixho8zXKPtayF8xePIuVK2Xa3uRQKnp+Xq0=
-Subject: FAILED: patch "[PATCH] swiotlb-xen: avoid double free" failed to apply to 4.4-stable tree
+        b=tqhu13DmG6FjGx+vkSORoVWDX98MNj3wzK1oRvjaos1ck1aOjSKXjy8cvb4cKPaEM
+         /IbtQNgtClzyN6n3SgS+5V68DYYxIanb5b2v3/8G3GlrVljClP2unzhY4Ier5zbWh1
+         O4rW//9q/dnpVk6RQoJEvDIq1jqBiTFd4t3C/nCw=
+Subject: FAILED: patch "[PATCH] swiotlb-xen: avoid double free" failed to apply to 4.19-stable tree
 To:     jbeulich@suse.com, hch@lst.de, jgross@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 18 Sep 2021 14:21:03 +0200
-Message-ID: <1631967663209214@kroah.com>
+Message-ID: <163196766377139@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
