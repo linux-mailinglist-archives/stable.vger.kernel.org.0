@@ -2,185 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44DBB41067F
-	for <lists+stable@lfdr.de>; Sat, 18 Sep 2021 14:49:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 032A5410691
+	for <lists+stable@lfdr.de>; Sat, 18 Sep 2021 14:59:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236522AbhIRMvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Sep 2021 08:51:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51146 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236580AbhIRMvB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Sep 2021 08:51:01 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0B7BC061574
-        for <stable@vger.kernel.org>; Sat, 18 Sep 2021 05:49:37 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id p12-20020a17090adf8c00b0019c959bc795so3767038pjv.1
-        for <stable@vger.kernel.org>; Sat, 18 Sep 2021 05:49:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language;
-        bh=yAOTOYCgb8CPVxTxBA6e7pU+dpxcQKZMwMkiKizDiIg=;
-        b=xrONHAJ9pMPwkfzC36wun5uVPjlnNvQwmgH9NAlLtobMjBCexXFRvJZQCPWoM82x8U
-         ixHwos5BHu9ZyDDfa4lMz/rp9BsFAmZEAUjcc+w9pgnAdes+BO07kono7aGRSlQk55QX
-         on/whXmVjJABe1VWd/SBmhcvp3uPxXWTwETA7f6JP9Dv4GtVpkFssNG66z6ozl6Fupl5
-         YnZdq9fpchGZnJkR6RVcQdNIDjIBQKni0vhYMqKwVIf2ir/o7eKMIk/ZzCFjxQNSUa8S
-         4BbSaOgR/xLwCxHbnQkgOlxHCEI/fPEzB6idHVzUsd276YqspUrK2uxWfLbUjFWaNZZ/
-         kGTw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language;
-        bh=yAOTOYCgb8CPVxTxBA6e7pU+dpxcQKZMwMkiKizDiIg=;
-        b=8ENeaE5ywVmbx6lzqtATzjncwT1EPBNAq/8/xRiBp/ofJ6M5XrhVNmb7UIo9OEfmyA
-         qpIZkELxQDxme5VwQeg19lAyv4mzXi8SpeWCqeEc/yVlLqJUx4rKkZe/1YMLtGHd9hbA
-         nf7D5U/CnankNMiVxUiFgSHSAtCia9QEn9kUeiaJoS0joekfrbBvZFMUBmyqdHUzIAr8
-         XGHPD9wgsCZOtGOk3f4xQ95CCsCzLXBFcV5Azh8GkN2DmWSOM6adwWSpaoRmC/I1h4C5
-         hL2PbcYUb+fNbId9u5q9Hm5AlCv/nflzchWCjklsa8AjcCXk8Sq9pkW5T463mEVlfxxk
-         q+5w==
-X-Gm-Message-State: AOAM5306rAPpJ5YW7+8Dm01OMQfWXlS3DXvUQa4kMBTKc/NNv03Bg6d/
-        /EP8MAJzVdFN7RoewC/2afZFNmGoqmGpog==
-X-Google-Smtp-Source: ABdhPJyiaVCC3fMuwQw0pQ006i3mjMXDYIm69tOYLJhqAL52pkHdGfM0j/5GCiHkJ8PFYMD4/fzYug==
-X-Received: by 2002:a17:90b:1488:: with SMTP id js8mr18551692pjb.41.1631969377109;
-        Sat, 18 Sep 2021 05:49:37 -0700 (PDT)
-Received: from ?IPv6:2620:10d:c085:21e8::1036? ([2620:10d:c090:400::5:d29])
-        by smtp.gmail.com with ESMTPSA id q3sm10176673pgf.18.2021.09.18.05.49.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 18 Sep 2021 05:49:36 -0700 (PDT)
+        id S236781AbhIRNA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Sep 2021 09:00:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39350 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236097AbhIRNA6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Sep 2021 09:00:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 864E961074;
+        Sat, 18 Sep 2021 12:59:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1631969975;
+        bh=U3Tmg9ovJTMuJ7nzZuzMGCCVitJuB6lrsDLkyWr/4dE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=u0IFNR0VEipH3IxVdQ7dOoVIYWRGupX9KhzwbX4P6yXMBoVUMd7dBJ+dC0TLMWYMO
+         Mgd9ka+DQx+Y9U8UDb9d/ua9J9XLwjZ/ncA11LfbmOsUaZp7KR4dURg/kFRCep7jal
+         BTRo3sBXj+cW/CkbQQbEZ6RcNgIi6Y0PapyzVyIE=
+Date:   Sat, 18 Sep 2021 14:59:32 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     dmm@fb.com, stable@vger.kernel.org
 Subject: Re: FAILED: patch "[PATCH] io_uring: allow retry for O_NONBLOCK if
  async is supported" failed to apply to 5.14-stable tree
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     dmm@fb.com, stable@vger.kernel.org
+Message-ID: <YUXitAkwde0qNmMH@kroah.com>
 References: <1631968451106199@kroah.com>
- <0c9365f0-e471-066d-0ab2-faee3ca2d927@kernel.dk> <YUXf+11Pv7oiiDAy@kroah.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <03bed564-b681-c1c1-03da-4bc9db9d3621@kernel.dk>
-Date:   Sat, 18 Sep 2021 06:49:35 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ <0c9365f0-e471-066d-0ab2-faee3ca2d927@kernel.dk>
+ <YUXf+11Pv7oiiDAy@kroah.com>
+ <03bed564-b681-c1c1-03da-4bc9db9d3621@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <YUXf+11Pv7oiiDAy@kroah.com>
-Content-Type: multipart/mixed;
- boundary="------------C493F9313270E3FA93B561EA"
-Content-Language: en-US
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <03bed564-b681-c1c1-03da-4bc9db9d3621@kernel.dk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------C493F9313270E3FA93B561EA
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-
-On 9/18/21 6:47 AM, Greg KH wrote:
-> On Sat, Sep 18, 2021 at 06:44:16AM -0600, Jens Axboe wrote:
->> On 9/18/21 6:34 AM, gregkh@linuxfoundation.org wrote:
->>>
->>> The patch below does not apply to the 5.14-stable tree.
->>> If someone wants it applied there, or to any other stable or longterm
->>> tree, then please email the backport, including the original git commit
->>> id to <stable@vger.kernel.org>.
->>
->> Just a trivial fuzz, here's a fixed version.
+On Sat, Sep 18, 2021 at 06:49:35AM -0600, Jens Axboe wrote:
+> On 9/18/21 6:47 AM, Greg KH wrote:
+> > On Sat, Sep 18, 2021 at 06:44:16AM -0600, Jens Axboe wrote:
+> >> On 9/18/21 6:34 AM, gregkh@linuxfoundation.org wrote:
+> >>>
+> >>> The patch below does not apply to the 5.14-stable tree.
+> >>> If someone wants it applied there, or to any other stable or longterm
+> >>> tree, then please email the backport, including the original git commit
+> >>> id to <stable@vger.kernel.org>.
+> >>
+> >> Just a trivial fuzz, here's a fixed version.
+> > 
+> > Sorry, no, the fuzz was easy, this breaks the build:
+> > 
+> > fs/io_uring.c: In function ‘io_prep_rw’:
+> > fs/io_uring.c:2715:47: error: implicit declaration of function ‘io_file_supports_nowait’; did you mean ‘io_file_supports_async’? [-Werror=implicit-function-declaration]
+> >  2715 |             ((file->f_flags & O_NONBLOCK) && !io_file_supports_nowait(req, rw)))
+> >       |                                               ^~~~~~~~~~~~~~~~~~~~~~~
+> >       |                                               io_file_supports_async
+> >   CHK     kernel/kheaders_data.tar.xz
+> > cc1: some warnings being treated as errors
+> > 
+> > 
+> > Any hint as to what that function would be in 5.14.y?
 > 
-> Sorry, no, the fuzz was easy, this breaks the build:
-> 
-> fs/io_uring.c: In function ‘io_prep_rw’:
-> fs/io_uring.c:2715:47: error: implicit declaration of function ‘io_file_supports_nowait’; did you mean ‘io_file_supports_async’? [-Werror=implicit-function-declaration]
->  2715 |             ((file->f_flags & O_NONBLOCK) && !io_file_supports_nowait(req, rw)))
->       |                                               ^~~~~~~~~~~~~~~~~~~~~~~
->       |                                               io_file_supports_async
->   CHK     kernel/kheaders_data.tar.xz
-> cc1: some warnings being treated as errors
-> 
-> 
-> Any hint as to what that function would be in 5.14.y?
+> Ah sorry I'm an idiot, it should be that io_file_supports_nowait() that
+> also caused the fuzz in applying.
 
-Ah sorry I'm an idiot, it should be that io_file_supports_nowait() that
-also caused the fuzz in applying.
+This version worked, thanks!
 
--- 
-Jens Axboe
-
-
---------------C493F9313270E3FA93B561EA
-Content-Type: text/x-patch; charset=UTF-8;
- name="0001-io_uring-allow-retry-for-O_NONBLOCK-if-async-is-supp.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename*0="0001-io_uring-allow-retry-for-O_NONBLOCK-if-async-is-supp.pa";
- filename*1="tch"
-
-From 71e536f57c2f4309de4c2d5ae352eb830cdf776c Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Tue, 14 Sep 2021 11:08:37 -0600
-Subject: [PATCH] io_uring: allow retry for O_NONBLOCK if async is supported
-
-commit 5d329e1286b0a040264e239b80257c937f6e685f upstream.
-
-A common complaint is that using O_NONBLOCK files with io_uring can be a
-bit of a pain. Be a bit nicer and allow normal retry IFF the file does
-support async behavior. This makes it possible to use io_uring more
-reliably with O_NONBLOCK files, for use cases where it either isn't
-possible or feasible to modify the file flags.
-
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: Dan Melnic <dmm@fb.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- fs/io_uring.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index c5d4638f6d7f..483cc024a40f 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2683,7 +2683,8 @@ static bool io_file_supports_async(struct io_kiocb *req, int rw)
- 	return __io_file_supports_async(req->file, rw);
- }
- 
--static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
-+static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe,
-+		      int rw)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
- 	struct kiocb *kiocb = &req->rw.kiocb;
-@@ -2705,8 +2706,13 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	if (unlikely(ret))
- 		return ret;
- 
--	/* don't allow async punt for O_NONBLOCK or RWF_NOWAIT */
--	if ((kiocb->ki_flags & IOCB_NOWAIT) || (file->f_flags & O_NONBLOCK))
-+	/*
-+	 * If the file is marked O_NONBLOCK, still allow retry for it if it
-+	 * supports async. Otherwise it's impossible to use O_NONBLOCK files
-+	 * reliably. If not, or it IOCB_NOWAIT is set, don't retry.
-+	 */
-+	if ((kiocb->ki_flags & IOCB_NOWAIT) ||
-+	    ((file->f_flags & O_NONBLOCK) && !io_file_supports_async(req, rw)))
- 		req->flags |= REQ_F_NOWAIT;
- 
- 	ioprio = READ_ONCE(sqe->ioprio);
-@@ -3190,7 +3196,7 @@ static int io_read_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
- 	if (unlikely(!(req->file->f_mode & FMODE_READ)))
- 		return -EBADF;
--	return io_prep_rw(req, sqe);
-+	return io_prep_rw(req, sqe, READ);
- }
- 
- /*
-@@ -3379,7 +3385,7 @@ static int io_write_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
- 	if (unlikely(!(req->file->f_mode & FMODE_WRITE)))
- 		return -EBADF;
--	return io_prep_rw(req, sqe);
-+	return io_prep_rw(req, sqe, WRITE);
- }
- 
- static int io_write(struct io_kiocb *req, unsigned int issue_flags)
--- 
-2.33.0
-
-
---------------C493F9313270E3FA93B561EA--
+greg k-h
