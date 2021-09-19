@@ -2,95 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F150C410D01
-	for <lists+stable@lfdr.de>; Sun, 19 Sep 2021 21:10:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF125410D05
+	for <lists+stable@lfdr.de>; Sun, 19 Sep 2021 21:15:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230280AbhISTLw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Sep 2021 15:11:52 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:34794 "EHLO
+        id S230158AbhISTQn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Sep 2021 15:16:43 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:35312 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229477AbhISTLv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Sep 2021 15:11:51 -0400
+        with ESMTP id S229477AbhISTQm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Sep 2021 15:16:42 -0400
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 22E111C0B7A; Sun, 19 Sep 2021 21:10:25 +0200 (CEST)
-Date:   Sun, 19 Sep 2021 21:10:25 +0200
+        id E6B211C0B82; Sun, 19 Sep 2021 21:15:15 +0200 (CEST)
+Date:   Sun, 19 Sep 2021 21:15:15 +0200
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@lst.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 058/306] scsi: bsg: Remove support for
- SCSI_IOCTL_SEND_COMMAND
-Message-ID: <20210919191025.GB12836@amd>
+Subject: Re: [PATCH 5.10 080/306] SUNRPC query transports source port
+Message-ID: <20210919191515.GC12836@amd>
 References: <20210916155753.903069397@linuxfoundation.org>
- <20210916155755.923264527@linuxfoundation.org>
+ <20210916155756.781145663@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="eAbsdosE1cNLO4uF"
+        protocol="application/pgp-signature"; boundary="WfZ7S8PLGjBY9Voh"
 Content-Disposition: inline
-In-Reply-To: <20210916155755.923264527@linuxfoundation.org>
+In-Reply-To: <20210916155756.781145663@linuxfoundation.org>
 User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---eAbsdosE1cNLO4uF
+--WfZ7S8PLGjBY9Voh
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> From: Christoph Hellwig <hch@lst.de>
+> [ Upstream commit a8482488a7d6d320f63a9ee1912dbb5ae5b80a61 ]
 >=20
-> [ Upstream commit beec64d0c9749afedf51c3c10cf52de1d9a89cc0 ]
->=20
-> SCSI_IOCTL_SEND_COMMAND has been deprecated longer than bsg exists and has
-> been warning for just as long.  More importantly it harcodes SCSI CDBs and
-> thus will do the wrong thing on non-SCSI bsg nodes.
+> Provide ability to query transport's source port.
 
-I see removing deprecated stuff is good idea in mainline, but do we
-want to do that in -stable?
+This adds unused function to 5.10 kernel. Next patch fixes it up, but
+user does not show up. Do we want it in 5.10-stable?
 
-Best regads,
+Best regards,
 								Pavel
 
-> +++ b/block/bsg.c
-> @@ -371,10 +371,13 @@ static long bsg_ioctl(struct file *file, unsigned i=
-nt cmd, unsigned long arg)
->  	case SG_GET_RESERVED_SIZE:
->  	case SG_SET_RESERVED_SIZE:
->  	case SG_EMULATED_HOST:
-> -	case SCSI_IOCTL_SEND_COMMAND:
->  		return scsi_cmd_ioctl(bd->queue, NULL, file->f_mode, cmd, uarg);
->  	case SG_IO:
->  		return bsg_sg_io(bd->queue, file->f_mode, uarg);
-> +	case SCSI_IOCTL_SEND_COMMAND:
-> +		pr_warn_ratelimited("%s: calling unsupported SCSI_IOCTL_SEND_COMMAND\n=
-",
-> +				current->comm);
-> +		return -EINVAL;
->  	default:
->  		return -ENOTTY;
->  	}
+> +++ b/net/sunrpc/xprtsock.c
+> @@ -1639,6 +1639,13 @@ static int xs_get_srcport(struct sock_xprt *transp=
+ort)
+>  	return port;
+>  }
+> =20
+> +unsigned short get_srcport(struct rpc_xprt *xprt)
+> +{
+> +	struct sock_xprt *sock =3D container_of(xprt, struct sock_xprt, xprt);
+> +	return sock->srcport;
+> +}
+> +EXPORT_SYMBOL(get_srcport);
+> +
+>  static unsigned short xs_next_srcport(struct sock_xprt *transport, unsig=
+ned short port)
+>  {
+>  	if (transport->srcport !=3D 0)
 
 --=20
 DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
 HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
---eAbsdosE1cNLO4uF
+--WfZ7S8PLGjBY9Voh
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iEYEARECAAYFAmFHiyAACgkQMOfwapXb+vLmdwCgs0WQx7XvtgmcxnDZppaLxCuR
-rcYAn1402PBt/0JDtUe9J3j40oWqWZYE
-=UZBQ
+iEYEARECAAYFAmFHjEMACgkQMOfwapXb+vJ4iQCfUMaMR3foHMBW/0B/hbsMKLs+
+OHMAoJMJn1EagVCn597O71ll0htPse+q
+=lCw6
 -----END PGP SIGNATURE-----
 
---eAbsdosE1cNLO4uF--
+--WfZ7S8PLGjBY9Voh--
