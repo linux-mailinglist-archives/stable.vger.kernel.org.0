@@ -2,121 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2C2141A854
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 08:02:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 814B341A909
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 08:41:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239460AbhI1GER (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 02:04:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48756 "EHLO mail.kernel.org"
+        id S238982AbhI1GnI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 02:43:08 -0400
+Received: from www.linuxtv.org ([130.149.80.248]:45542 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239860AbhI1GCr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Sep 2021 02:02:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2B34613AB;
-        Tue, 28 Sep 2021 05:57:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632808653;
-        bh=0X5Ea7nPNvK/wJmXAKq3SaM+LBzZhvucnf6K7T70JZA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k5nGUq72rUBIyWq9e+YyvU4XLZCrbmU8GXhm5+JnNbqyy5Fdb+tH/uNs7FXPoKRqe
-         S9So1HIxmc5B6db6RNgBMTcRhoCtlq8F41lnT+psjudU0MdtQNqCxzsB8BMYups4xD
-         c0TREvxoKouKe/tADOHNK/jzsLLCnQNdP7xBsMClbBlACD3grYocG5hlQFoTQRJ3y6
-         fp7mHfGF9oIgAoMBQADC6Zw5LW/hoRo3eIu/2fUCcpChzpECqfHBoM7kHNwk39xw6J
-         3qvSKwta/tFE/7bFLOOleqfORJuF7qe8+YwBA5jXijd8ojxjO+ltse/90FUdR6dDcD
-         nxoOyIESisplQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wen Xiong <wenxiong@linux.ibm.com>,
-        Brian King <brking@linux.ibm.com>,
-        James Bottomley <jejb@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 8/8] scsi: ses: Retry failed Send/Receive Diagnostic commands
-Date:   Tue, 28 Sep 2021 01:57:26 -0400
-Message-Id: <20210928055727.173078-8-sashal@kernel.org>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210928055727.173078-1-sashal@kernel.org>
-References: <20210928055727.173078-1-sashal@kernel.org>
-MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+        id S238903AbhI1GnD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Sep 2021 02:43:03 -0400
+Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1mV6nr-00BXcn-Cs; Tue, 28 Sep 2021 06:41:23 +0000
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Date:   Sun, 19 Sep 2021 09:19:37 +0000
+Subject: [git:media_stage/master] media: ir_toy: prevent device from hanging during transmit
+To:     linuxtv-commits@linuxtv.org
+Cc:     Sean Young <sean@mess.org>, stable@vger.kernel.org
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1mV6nr-00BXcn-Cs@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Xiong <wenxiong@linux.ibm.com>
+This is an automatic generated email to let you know that the following patch were queued:
 
-[ Upstream commit fbdac19e642899455b4e64c63aafe2325df7aafa ]
+Subject: media: ir_toy: prevent device from hanging during transmit
+Author:  Sean Young <sean@mess.org>
+Date:    Tue Sep 14 16:57:46 2021 +0200
 
-Setting SCSI logging level with error=3, we saw some errors from enclosues:
+If the IR Toy is receiving IR while a transmit is done, it may end up
+hanging. We can prevent this from happening by re-entering sample mode
+just before issuing the transmit command.
 
-[108017.360833] ses 0:0:9:0: tag#641 Done: NEEDS_RETRY Result: hostbyte=DID_ERROR driverbyte=DRIVER_OK cmd_age=0s
-[108017.360838] ses 0:0:9:0: tag#641 CDB: Receive Diagnostic 1c 01 01 00 20 00
-[108017.427778] ses 0:0:9:0: Power-on or device reset occurred
-[108017.427784] ses 0:0:9:0: tag#641 Done: SUCCESS Result: hostbyte=DID_OK driverbyte=DRIVER_OK cmd_age=0s
-[108017.427788] ses 0:0:9:0: tag#641 CDB: Receive Diagnostic 1c 01 01 00 20 00
-[108017.427791] ses 0:0:9:0: tag#641 Sense Key : Unit Attention [current]
-[108017.427793] ses 0:0:9:0: tag#641 Add. Sense: Bus device reset function occurred
-[108017.427801] ses 0:0:9:0: Failed to get diagnostic page 0x1
-[108017.427804] ses 0:0:9:0: Failed to bind enclosure -19
-[108017.427895] ses 0:0:10:0: Attached Enclosure device
-[108017.427942] ses 0:0:10:0: Attached scsi generic sg18 type 13
+Link: https://github.com/bengtmartensson/HarcHardware/discussions/25
 
-Retry if the Send/Receive Diagnostic commands complete with a transient
-error status (NOT_READY or UNIT_ATTENTION with ASC 0x29).
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-Link: https://lore.kernel.org/r/1631849061-10210-2-git-send-email-wenxiong@linux.ibm.com
-Reviewed-by: Brian King <brking@linux.ibm.com>
-Reviewed-by: James Bottomley <jejb@linux.ibm.com>
-Signed-off-by: Wen Xiong <wenxiong@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ drivers/media/rc/ir_toy.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
+
 ---
- drivers/scsi/ses.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/ses.c b/drivers/scsi/ses.c
-index 62f04c0511cf..4b993607887c 100644
---- a/drivers/scsi/ses.c
-+++ b/drivers/scsi/ses.c
-@@ -103,9 +103,16 @@ static int ses_recv_diag(struct scsi_device *sdev, int page_code,
- 		0
- 	};
- 	unsigned char recv_page_code;
-+	unsigned int retries = SES_RETRIES;
-+	struct scsi_sense_hdr sshdr;
+diff --git a/drivers/media/rc/ir_toy.c b/drivers/media/rc/ir_toy.c
+index 3e729a17b35f..48d52baec1a1 100644
+--- a/drivers/media/rc/ir_toy.c
++++ b/drivers/media/rc/ir_toy.c
+@@ -24,6 +24,7 @@ static const u8 COMMAND_VERSION[] = { 'v' };
+ // End transmit and repeat reset command so we exit sump mode
+ static const u8 COMMAND_RESET[] = { 0xff, 0xff, 0, 0, 0, 0, 0 };
+ static const u8 COMMAND_SMODE_ENTER[] = { 's' };
++static const u8 COMMAND_SMODE_EXIT[] = { 0 };
+ static const u8 COMMAND_TXSTART[] = { 0x26, 0x24, 0x25, 0x03 };
+ 
+ #define REPLY_XMITCOUNT 't'
+@@ -309,12 +310,30 @@ static int irtoy_tx(struct rc_dev *rc, uint *txbuf, uint count)
+ 		buf[i] = cpu_to_be16(v);
+ 	}
+ 
+-	buf[count] = cpu_to_be16(0xffff);
++	buf[count] = 0xffff;
+ 
+ 	irtoy->tx_buf = buf;
+ 	irtoy->tx_len = size;
+ 	irtoy->emitted = 0;
+ 
++	// There is an issue where if the unit is receiving IR while the
++	// first TXSTART command is sent, the device might end up hanging
++	// with its led on. It does not respond to any command when this
++	// happens. To work around this, re-enter sample mode.
++	err = irtoy_command(irtoy, COMMAND_SMODE_EXIT,
++			    sizeof(COMMAND_SMODE_EXIT), STATE_RESET);
++	if (err) {
++		dev_err(irtoy->dev, "exit sample mode: %d\n", err);
++		return err;
++	}
 +
-+	do {
-+		ret = scsi_execute_req(sdev, cmd, DMA_FROM_DEVICE, buf, bufflen,
-+				       &sshdr, SES_TIMEOUT, 1, NULL);
-+	} while (ret > 0 && --retries && scsi_sense_valid(&sshdr) &&
-+		 (sshdr.sense_key == NOT_READY ||
-+		  (sshdr.sense_key == UNIT_ATTENTION && sshdr.asc == 0x29)));
- 
--	ret =  scsi_execute_req(sdev, cmd, DMA_FROM_DEVICE, buf, bufflen,
--				NULL, SES_TIMEOUT, SES_RETRIES, NULL);
- 	if (unlikely(ret))
- 		return ret;
- 
-@@ -137,9 +144,16 @@ static int ses_send_diag(struct scsi_device *sdev, int page_code,
- 		bufflen & 0xff,
- 		0
- 	};
-+	struct scsi_sense_hdr sshdr;
-+	unsigned int retries = SES_RETRIES;
++	err = irtoy_command(irtoy, COMMAND_SMODE_ENTER,
++			    sizeof(COMMAND_SMODE_ENTER), STATE_COMMAND);
++	if (err) {
++		dev_err(irtoy->dev, "enter sample mode: %d\n", err);
++		return err;
++	}
 +
-+	do {
-+		result = scsi_execute_req(sdev, cmd, DMA_TO_DEVICE, buf, bufflen,
-+					  &sshdr, SES_TIMEOUT, 1, NULL);
-+	} while (result > 0 && --retries && scsi_sense_valid(&sshdr) &&
-+		 (sshdr.sense_key == NOT_READY ||
-+		  (sshdr.sense_key == UNIT_ATTENTION && sshdr.asc == 0x29)));
- 
--	result = scsi_execute_req(sdev, cmd, DMA_TO_DEVICE, buf, bufflen,
--				  NULL, SES_TIMEOUT, SES_RETRIES, NULL);
- 	if (result)
- 		sdev_printk(KERN_ERR, sdev, "SEND DIAGNOSTIC result: %8x\n",
- 			    result);
--- 
-2.33.0
-
+ 	err = irtoy_command(irtoy, COMMAND_TXSTART, sizeof(COMMAND_TXSTART),
+ 			    STATE_TX);
+ 	kfree(buf);
