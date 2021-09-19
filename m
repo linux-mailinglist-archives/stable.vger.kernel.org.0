@@ -2,85 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2420D410C98
-	for <lists+stable@lfdr.de>; Sun, 19 Sep 2021 19:15:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F1A9410CBD
+	for <lists+stable@lfdr.de>; Sun, 19 Sep 2021 19:53:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229570AbhISRRI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Sep 2021 13:17:08 -0400
-Received: from mail.skyhub.de ([5.9.137.197]:47644 "EHLO mail.skyhub.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229379AbhISRRH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 19 Sep 2021 13:17:07 -0400
-Received: from zn.tnic (p200300ec2f302e00633d6655d51f854e.dip0.t-ipconnect.de [IPv6:2003:ec:2f30:2e00:633d:6655:d51f:854e])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 63DA91EC0372;
-        Sun, 19 Sep 2021 19:15:36 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1632071736;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ERCO7ZhOdk5WvcsvtzhSYbJkZ2shXUi9qth76Fv/TZI=;
-        b=JXaySs6fDkKo9GsMW2Sg9DrWYV2Cce6r/zCAt79uh5x77ylhW+deqWt2O9LxvbYrvq47ka
-        V9odKC5IrYYhP1sa6z33WUrp6tfUT8NG2ZZThjH2xLeklA6MhEfDPv3RQq7oTDbEwCb85B
-        EMrDYtkFwV2kMEzM53bqpbjl6KwiKPI=
-Date:   Sun, 19 Sep 2021 19:15:30 +0200
-From:   Borislav Petkov <bp@alien8.de>
-To:     Mike Galbraith <efault@gmx.de>,
-        Thomas Gleixner <tglx@linutronix.de>
-Cc:     linux-kernel@vger.kernel.org, linux-tip-commits@vger.kernel.org,
-        marmarek@invisiblethingslab.com, Juergen Gross <jgross@suse.com>,
-        Borislav Petkov <bp@suse.de>,
-        Mike Rapoport <rppt@linux.ibm.com>, stable@vger.kernel.org,
-        x86@kernel.org
-Subject: Re: [tip: x86/urgent] x86/setup: Call early_reserve_memory() earlier
-Message-ID: <YUdwMm9ncgNuuN4f@zn.tnic>
-References: <20210914094108.22482-1-jgross@suse.com>
- <163178944634.25758.17304720937855121489.tip-bot2@tip-bot2>
- <4422257385dbee913eb5270bda5fded7fbb993ab.camel@gmx.de>
+        id S229612AbhISRyu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Sep 2021 13:54:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60686 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229517AbhISRyt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Sep 2021 13:54:49 -0400
+Received: from mail-vs1-xe36.google.com (mail-vs1-xe36.google.com [IPv6:2607:f8b0:4864:20::e36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7726FC061574
+        for <stable@vger.kernel.org>; Sun, 19 Sep 2021 10:53:24 -0700 (PDT)
+Received: by mail-vs1-xe36.google.com with SMTP id u8so14402031vsp.1
+        for <stable@vger.kernel.org>; Sun, 19 Sep 2021 10:53:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=xt9NixbDlO4ly8UWM5eIsYVpoy/oBTbBcPkc2ZpSd6k=;
+        b=izzFQPaFJIxjKK8udn/+UsWc5F5NeLFhVGREuYX8jJ93qapTlZYD8RFrG9+dBmGkPs
+         CbSpD+4EUH6WkYjL0FjfuN7m7EBMWhxPHFsJ6XhjPrniWLBvJM5O47hx6CxBvi8K0xgP
+         /zWtdc1UgK9Z3qmvcrELrDIcBpqWYEJtlUpSTC47SEbK1ekkbvL0/cwS6xgXiyQYZz8B
+         O8ohn2T81uZPgxbcKQPV3XC6+1bQJqg0hqd669kSNSUfse9121IyEHAhPvBLgiWPED8w
+         VONjjYyn+e6Bame5zAhhBhqe2xcoH+9oA8Gfr+mQ/d6hvVLX9qMv+maWx6BCha3mxWbs
+         isrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=xt9NixbDlO4ly8UWM5eIsYVpoy/oBTbBcPkc2ZpSd6k=;
+        b=GB/Q3Pc0BQlcS8L8cOzS2zyEr+F6Iy1UPZ2iZafq3tS1wPaTAPmgr/rRSWvis3UuzN
+         3NYfGpXOk8GQw02Wu7yaA/RMNFhGELfYnBYriIxwb40yB+KYQpyo+pFvBf2pWvO/l/Ul
+         vRdfYz8ZLoIQ7ZYMR8v/pwUXD/oKbb8DGcHpcu1bLtzHAcJ5yLUHGDWeSP7hlKP8S3wN
+         67ZTWFWya7EHYIu+YzQTFJTRBZevj5kpf5QaYbzfC6qmrB4OKDnQEvtzrispiIYRZboE
+         m+aU7Z7lBZ1QjOH4Fm8s5SmYZ+ayc+IQabsTjJ/mgvaHwKUawZK/D2YXjVlTc1yIFb9k
+         0lQQ==
+X-Gm-Message-State: AOAM532AwI6RlDTj2c5cU7FO+8uhfN1KeJmdhq15Dyys7p+WadC0DwzY
+        iRIzHzFPMysUHTFnN1TnBkxXLoIXBcCCpBWFC2E=
+X-Google-Smtp-Source: ABdhPJzKDb16DKPKDjnh1vOd6xfjqFViyrKbyfNvrfhVONPToYUsL8HOb6H0yyEBcOAHXZ0vR49VrV2asA4VLUS+ELQ=
+X-Received: by 2002:a67:c410:: with SMTP id c16mr14233840vsk.48.1632074003371;
+ Sun, 19 Sep 2021 10:53:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4422257385dbee913eb5270bda5fded7fbb993ab.camel@gmx.de>
+Received: by 2002:a9f:21cc:0:0:0:0:0 with HTTP; Sun, 19 Sep 2021 10:53:23
+ -0700 (PDT)
+Reply-To: fatimakhaledconfirm@gmail.com
+From:   "Mrs. Fatima Khaled" <jacobmoore.moores41@gmail.com>
+Date:   Sun, 19 Sep 2021 10:53:23 -0700
+Message-ID: <CAEedSLewLPFMP-FS2L_kfoW4-7xaPe=2fvnpK00AOsmjf7RW7w@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Sep 19, 2021 at 06:55:16PM +0200, Mike Galbraith wrote:
-> On Thu, 2021-09-16 at 10:50 +0000, tip-bot2 for Juergen Gross wrote:
-> > The following commit has been merged into the x86/urgent branch of
-> > tip:
-> >
-> > Commit-ID:     1c1046581f1a3809e075669a3df0191869d96dd1
-> > Gitweb:       
-> > https://git.kernel.org/tip/1c1046581f1a3809e075669a3df0191869d96dd1
-> > Author:        Juergen Gross <jgross@suse.com>
-> > AuthorDate:    Tue, 14 Sep 2021 11:41:08 +02:00
-> > Committer:     Borislav Petkov <bp@suse.de>
-> > CommitterDate: Thu, 16 Sep 2021 12:38:05 +02:00
-> >
-> > x86/setup: Call early_reserve_memory() earlier
-> 
-> This commit rendered tip toxic to my i4790 desktop box and i5-6200U
-> lappy.  Boot for both is instantly over without so much as a twitch.
-> 
-> Post bisect revert made both all better.
-
-I had a suspicion that moving stuff around like that would not just
-simply work in all cases, as our boot order is very lovely and fragile.
-
-And it booted just fine on my machines here.
-
-;-\
-
-Anyway, commit zapped from the x86/urgent lineup. We'll have to have a
-third try later.
-
 -- 
-Regards/Gruss,
-    Boris.
+Hello everyone, are you looking for a financial source without any
+upfront fees for a new apartment, construction, refinancing, debt
+consolidation, personal or business purpose? Small or large scale?
+Here is an open opportunity. We offer investment opportunities for
+each eligible person (s). * Borrow from  $5,000 dollars to  $
+80,000,000.00 Dollars, * Interest rate 0.2% Reply with the following
+information. Name: Amount Required: Loan Duration: Purpose, Reason:
+Location:Monthly income:Telephone number:, Yours sincerely. Interested
+parties should contact us at : fatimakhaledconfirm@gmail.com
 
-https://people.kernel.org/tglx/notes-about-netiquette
+
+Yours faithfully
+contact Mrs.  Fatima Khaled
+Finance Director
+call phone +1 (204) 410 4624
+WhatsApp: +1 (204) 410 4624
+contact Email: fatimakhaledconfirm@gmail.com
