@@ -2,88 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66E66410B45
-	for <lists+stable@lfdr.de>; Sun, 19 Sep 2021 13:26:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DB34410B8D
+	for <lists+stable@lfdr.de>; Sun, 19 Sep 2021 14:24:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230302AbhISL2K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Sep 2021 07:28:10 -0400
-Received: from imsva.erbakan.edu.tr ([95.183.198.89]:44386 "EHLO
-        imsva.erbakan.edu.tr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230051AbhISL2K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Sep 2021 07:28:10 -0400
-X-Greylist: delayed 1290 seconds by postgrey-1.27 at vger.kernel.org; Sun, 19 Sep 2021 07:28:10 EDT
-Received: from imsva.erbakan.edu.tr (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 61A941246D3;
-        Sun, 19 Sep 2021 13:57:16 +0300 (+03)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=erbakan.edu.tr;
-        s=dkim; t=1632049036;
-        bh=jGcawKY0726XjzhdnDY1eRO4ONAA1jUdQlGOScMASnU=; h=Date:From:To;
-        b=qjHFE811v1iqTSLu70NcXyXBAj7JSEG5oCQqXq0e+fX8lus49tZZu4wqMh/5EZRSu
-         O41gtHy9u6Q41WVySRofL/GKgTFSliO/nWVL/MsqkeuMSbPq6BY0hP0hysNZqWAT+h
-         0bBc5gSgpkxA+uSY0uHgruxCdAsSjzIvaD6B5mG0=
-Received: from imsva.erbakan.edu.tr (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4EF5B1246D0;
-        Sun, 19 Sep 2021 13:57:16 +0300 (+03)
-Received: from eposta.erbakan.edu.tr (unknown [172.42.40.30])
-        by imsva.erbakan.edu.tr (Postfix) with ESMTPS;
-        Sun, 19 Sep 2021 13:57:16 +0300 (+03)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by eposta.erbakan.edu.tr (Postfix) with ESMTP id CE6A71217C06F;
-        Sun, 19 Sep 2021 14:05:10 +0300 (+03)
-Received: from eposta.erbakan.edu.tr ([127.0.0.1])
-        by localhost (eposta.erbakan.edu.tr [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id SS-2W2CqfV0N; Sun, 19 Sep 2021 14:05:10 +0300 (+03)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by eposta.erbakan.edu.tr (Postfix) with ESMTP id 363141217C074;
-        Sun, 19 Sep 2021 14:05:09 +0300 (+03)
-DKIM-Filter: OpenDKIM Filter v2.10.3 eposta.erbakan.edu.tr 363141217C074
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=erbakan.edu.tr;
-        s=9A114B22-0D17-11E9-AE7D-5CB170D0BDE7; t=1632049509;
-        bh=UE+6Rh6p+D/Q/qnCC1rilRTfAwcozVy4J0wYoa1QJws=;
-        h=Date:From:Message-ID:MIME-Version;
-        b=hfEM4rA0bUbo9Zyv54RSV6CesX+gjQaCUuxdrpIZODF7yDC65j5bsi/fXKaUMLj1F
-         UCD1Hij1E/3kgk969OFbGv5L0ekMLN/qLybFzwxxze2XYXI79oJLxliihvKc/ZzmXz
-         1HX+S7KmiHvwphuO6LZXhIaLD2yOxEq9cSTjse06pANDyRYiAiJwj5c2LueUqYr+Fq
-         1oPuEn38DBECOVZPGPbFsnFyg5JgNT/QPm4ci7PN+mpBcWadVio9oYxYdYqph8SZPV
-         nw6yyT9Hidk8iuTFhkCihDeFsPxBZIzud2I8Vo2B18HfwnSA+9HnMIknfXec4eGNMz
-         m28q4B3sCLrUA==
-X-Virus-Scanned: amavisd-new at eposta.erbakan.edu.tr
-Received: from eposta.erbakan.edu.tr ([127.0.0.1])
-        by localhost (eposta.erbakan.edu.tr [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id d4icBEdytRRP; Sun, 19 Sep 2021 14:05:07 +0300 (+03)
-Received: from eposta.erbakan.edu.tr (eposta.konya.edu.tr [172.42.44.72])
-        by eposta.erbakan.edu.tr (Postfix) with ESMTP id 8AF7E1217C06F;
-        Sun, 19 Sep 2021 14:05:06 +0300 (+03)
-Date:   Sun, 19 Sep 2021 14:05:05 +0300 (EET)
-From:   =?utf-8?B?eWFyxLHFn21h?= gsf <yarismagsf@erbakan.edu.tr>
-Reply-To: =?utf-8?B?eWFyxLHFn21h?= gsf <oasisportfb@gmail.com>
-Message-ID: <1727401060.507086.1632049505971.JavaMail.zimbra@erbakan.edu.tr>
-Subject: Re: Quick loan
+        id S229977AbhISMZt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Sep 2021 08:25:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45732 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229662AbhISMZs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Sep 2021 08:25:48 -0400
+Received: from mail-ua1-x930.google.com (mail-ua1-x930.google.com [IPv6:2607:f8b0:4864:20::930])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87A96C061574
+        for <stable@vger.kernel.org>; Sun, 19 Sep 2021 05:24:23 -0700 (PDT)
+Received: by mail-ua1-x930.google.com with SMTP id e20so9243823uam.11
+        for <stable@vger.kernel.org>; Sun, 19 Sep 2021 05:24:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=ifmbnRVePpINkQY1V1Qh4IrZJpniPJH7HtTlSpQGGG4=;
+        b=nSyptokCFcMbFTStFfvKBsA/gYHzUiYc59Ep4kYeMv0nhPoQbCR8OJRXNjnfO8l+zl
+         hL3lX+d+wY4+/q4v2kPRAQI0tENaXNvnokIcCOT32rB87iWg9raSZahoS0FBlu0qNnv9
+         ws7nF0PMpGhy4UF+g/8e19e2ZTYrAmGJI5/CfJl8UCzGe6fDhh2wBGSx8KLbta7cz3Te
+         m/ZZtyirD71oe7r97WGyjhPgpxCXM3ciPicyLAyd6XFjRkqumspI5KZyB9/+bbXCnW6F
+         Gf5KBbkBKgQKXHwmtdlfbR5FnKld9MY50oaG48iOWYIqUDTip9bIEsTmpoFMZ0IUgB94
+         AlgA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=ifmbnRVePpINkQY1V1Qh4IrZJpniPJH7HtTlSpQGGG4=;
+        b=ZeLa6Isn5Fx35HyovDsAeb05aDvT/tWIa6aKHV1C8WlU6pAdeTeJ1wPxz8zF9deI5G
+         41PHRhe8rDw+IpNrDfo42+0iiOl0jiU7hF9sPqF5USF+P0T59u0aco9Ze6WqMhOY8cEc
+         yngSoE40VS9gdLsHfskg0TTZwrH5UG8capxnEMZJaXHRgTEtNbRWyJXMOasf7+NW9frd
+         ZMtxgOZJ+i+Y4bUxgGVKbogOYLhdxLmlkUtFnf8ITJbTybMoWDeSu5Mov+GjOJXOvs/7
+         htdq3kdP9SFs7jy1A6opyPk/lQ+H6GgiuqFJExYJrrEctxe53Iaj0S8HCsd8J9e0XMlm
+         7vEQ==
+X-Gm-Message-State: AOAM531rqGfQ3F3hpQkyWrh6P30KpJSey4DLNYXESjigK7CDDI7fohwW
+        +WfkR4nqIvxB5zY9eU6VmZelT+48votlg5wWtLU=
+X-Google-Smtp-Source: ABdhPJxKGSV0ltjWmi2ISkyP3fOGS/D+8DhUWZ/D8otAEJbRiDR2AVbmEkAmWsbq/LzJ3JNaLHfDHBOXKKyn6eyCTFI=
+X-Received: by 2002:ab0:6616:: with SMTP id r22mr9490086uam.129.1632054262528;
+ Sun, 19 Sep 2021 05:24:22 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: Zimbra 8.8.11_GA_3799 (ZimbraWebClient - GC92 (Win)/8.8.11_GA_3787)
-Thread-Index: P2TDt7MocwE3ITXoffzrn6NGArpNng==
-Thread-Topic: Quick loan
+Received: by 2002:ab0:204f:0:0:0:0:0 with HTTP; Sun, 19 Sep 2021 05:24:22
+ -0700 (PDT)
+Reply-To: sroomf70@gmail.com
+From:   "Prof. Dr. Diane" <mes64543@gmail.com>
+Date:   Sun, 19 Sep 2021 05:24:22 -0700
+Message-ID: <CAF4hjb9=dw3HDFurbM1W4aWPiR0pcY+FXyuZNGhZrbq4GYteJw@mail.gmail.com>
+Subject: Good Day,
 To:     undisclosed-recipients:;
-X-TM-AS-GCONF: 00
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Oasis is offering quick loans, without credit check to old and new customers. We give Short or long term loan with a relatively low interest rate of about 0.2% on Instant approval.
-Oasis Fintech a onetime solution to all your financial need. 
-Contact us today via email, oasisportfb@gmail.com,  and complete the loan form below....
-Your Full Name:
-Amount Required:
-Contact Phone #:
-Occupation:
-Loan Duration:
-Purpose:
-Location:
- 
-Ms. Bauer
-Contact us via: email:  oasisportfb@gmail.com
- 
+-- 
+Hello,
+From Prof. Dr Diane,  please a huge amount of payment was made into
+your account. as soon as your respond is noted the payment
+confirmation slip will immediately send to you.  please do not
+hesitate to reply as soon as you receive this message. awaiting your
+urgent reply please.
 
-
+Best regards
+Prof. Dr Diane
