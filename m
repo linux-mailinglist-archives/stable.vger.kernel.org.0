@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC9A44205A3
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 07:54:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D0C642059F
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 07:53:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232592AbhJDF4B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 01:56:01 -0400
-Received: from www.linuxtv.org ([130.149.80.248]:37362 "EHLO www.linuxtv.org"
+        id S232495AbhJDFzE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 01:55:04 -0400
+Received: from www.linuxtv.org ([130.149.80.248]:36842 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232131AbhJDF4B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 01:56:01 -0400
+        id S232131AbhJDFzE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 01:55:04 -0400
 Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
         (envelope-from <mchehab@linuxtv.org>)
-        id 1mXGvT-004Ah2-N9; Mon, 04 Oct 2021 05:54:11 +0000
+        id 1mXGuY-004APY-R1; Mon, 04 Oct 2021 05:53:14 +0000
 From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Date:   Sun, 19 Sep 2021 09:19:37 +0000
-Subject: [git:media_stage/master] media: ir_toy: prevent device from hanging during transmit
+Subject: [git:media_tree/master] media: ir_toy: prevent device from hanging during transmit
 To:     linuxtv-commits@linuxtv.org
-Cc:     stable@vger.kernel.org, Sean Young <sean@mess.org>
+Cc:     Sean Young <sean@mess.org>, stable@vger.kernel.org
 Mail-followup-to: linux-media@vger.kernel.org
 Forward-to: linux-media@vger.kernel.org
 Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1mXGvT-004Ah2-N9@www.linuxtv.org>
+Message-Id: <E1mXGuY-004APY-R1@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
