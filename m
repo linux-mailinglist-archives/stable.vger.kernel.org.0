@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42CF54121AB
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:06:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C41EB4121AA
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:06:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350832AbhITSHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1350824AbhITSHu (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 20 Sep 2021 14:07:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60636 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346741AbhITSHD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1358577AbhITSHD (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:07:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2798761A35;
-        Mon, 20 Sep 2021 17:18:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B87361A3A;
+        Mon, 20 Sep 2021 17:18:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158286;
-        bh=+/1nsuDi+tyPxBD0+9K5v/wxHpR/m6VSnTAGq6eGaMU=;
+        s=korg; t=1632158288;
+        bh=wFUqVaxrZp6e54TxAJ8IMZ0lei79O43bzWtLNiN//ic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQlIOYJzjG84goyc2we/bqKWt5hhn1XrZvRTnr2bmTBmIHcUM98gctc0xRzitW4FW
-         Tuh5vkWcinjWQmGrFJNfY3Sr/UaVZtAFOQpr2X202STH2pTStwzo1XIgoqLxyKQwmd
-         y2XHn6GHs1N+DEuC1rdzs3t35m7oMFAXFinMBSgA=
+        b=FgZZtWPdG1OzCj487rkdx0XPbdx2HSBxET3vsfH510iE1wz/NVbTjliiLqSxOERxe
+         JIZrbEEVMSSMkFmgXPH3joJD88pa9NZLdYSaTXWmnmSDTo9VTSNFLexw72eCzRZ4Ej
+         38gFvwC4K04EswuXHY8z923x3bqs3QFkeiQr3uVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Dan Carpenter <dan.carpenter@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 054/260] scsi: qedi: Fix error codes in qedi_alloc_global_queues()
-Date:   Mon, 20 Sep 2021 18:41:12 +0200
-Message-Id: <20210920163932.942343739@linuxfoundation.org>
+Subject: [PATCH 5.4 055/260] scsi: qedf: Fix error codes in qedf_alloc_global_queues()
+Date:   Mon, 20 Sep 2021 18:41:13 +0200
+Message-Id: <20210920163932.972946826@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -43,35 +43,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 4dbe57d46d54a847875fa33e7d05877bb341585e ]
+[ Upstream commit ccc89737aa6b9f248cf1623014038beb6c2b7f56 ]
 
-This function had some left over code that returned 1 on error instead
-negative error codes.  Convert everything to use negative error codes.  The
-caller treats all non-zero returns the same so this does not affect run
-time.
+This driver has some left over "return 1" on failure style code mixed with
+"return negative error codes" style code.  The caller doesn't care so we
+should just convert everything to return negative error codes.
 
-A couple places set "rc" instead of "status" so those error paths ended up
-returning success by mistake.  Get rid of the "rc" variable and use
-"status" everywhere.
+Then there was a problem that there were two variables used to store error
+codes which just resulted in confusion.  If qedf_alloc_bdq() returned a
+negative error code, we accidentally returned success instead of
+propagating the error code.  So get rid of the "rc" variable and use
+"status" every where.
 
-Remove the bogus "status = 0" initialization, as a future proofing measure
-so the compiler will warn about uninitialized error codes.
+Also remove the "status = 0" initialization so that these sorts of bugs
+will be detected by the compiler in the future.
 
-Link: https://lore.kernel.org/r/20210810084753.GD23810@kili
-Fixes: ace7f46ba5fd ("scsi: qedi: Add QLogic FastLinQ offload iSCSI driver framework.")
+Link: https://lore.kernel.org/r/20210810085023.GA23998@kili
+Fixes: 61d8658b4a43 ("scsi: qedf: Add QLogic FastLinQ offload FCoE driver framework.")
 Acked-by: Manish Rangankar <mrangankar@marvell.com>
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_main.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/scsi/qedf/qedf_main.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/scsi/qedi/qedi_main.c b/drivers/scsi/qedi/qedi_main.c
-index 1ec42c5f0b2a..92c4a367b7bd 100644
---- a/drivers/scsi/qedi/qedi_main.c
-+++ b/drivers/scsi/qedi/qedi_main.c
-@@ -1553,7 +1553,7 @@ static int qedi_alloc_global_queues(struct qedi_ctx *qedi)
+diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
+index 7a6306f8483e..c95e04cc6424 100644
+--- a/drivers/scsi/qedf/qedf_main.c
++++ b/drivers/scsi/qedf/qedf_main.c
+@@ -2894,7 +2894,7 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
  {
  	u32 *list;
  	int i;
@@ -80,41 +81,35 @@ index 1ec42c5f0b2a..92c4a367b7bd 100644
  	u32 *pbl;
  	dma_addr_t page;
  	int num_pages;
-@@ -1564,14 +1564,14 @@ static int qedi_alloc_global_queues(struct qedi_ctx *qedi)
+@@ -2906,7 +2906,7 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
  	 */
- 	if (!qedi->num_queues) {
- 		QEDI_ERR(&qedi->dbg_ctx, "No MSI-X vectors available!\n");
+ 	if (!qedf->num_queues) {
+ 		QEDF_ERR(&(qedf->dbg_ctx), "No MSI-X vectors available!\n");
 -		return 1;
 +		return -ENOMEM;
  	}
  
- 	/* Make sure we allocated the PBL that will contain the physical
+ 	/*
+@@ -2914,7 +2914,7 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
  	 * addresses of our queues
  	 */
- 	if (!qedi->p_cpuq) {
+ 	if (!qedf->p_cpuq) {
 -		status = 1;
 +		status = -EINVAL;
+ 		QEDF_ERR(&qedf->dbg_ctx, "p_cpuq is NULL.\n");
  		goto mem_alloc_failure;
  	}
- 
-@@ -1586,13 +1586,13 @@ static int qedi_alloc_global_queues(struct qedi_ctx *qedi)
- 		  "qedi->global_queues=%p.\n", qedi->global_queues);
+@@ -2930,8 +2930,8 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
+ 		   "qedf->global_queues=%p.\n", qedf->global_queues);
  
  	/* Allocate DMA coherent buffers for BDQ */
--	rc = qedi_alloc_bdq(qedi);
--	if (rc)
-+	status = qedi_alloc_bdq(qedi);
-+	if (status)
+-	rc = qedf_alloc_bdq(qedf);
+-	if (rc) {
++	status = qedf_alloc_bdq(qedf);
++	if (status) {
+ 		QEDF_ERR(&qedf->dbg_ctx, "Unable to allocate bdq.\n");
  		goto mem_alloc_failure;
- 
- 	/* Allocate DMA coherent buffers for NVM_ISCSI_CFG */
--	rc = qedi_alloc_nvm_iscsi_cfg(qedi);
--	if (rc)
-+	status = qedi_alloc_nvm_iscsi_cfg(qedi);
-+	if (status)
- 		goto mem_alloc_failure;
- 
- 	/* Allocate a CQ and an associated PBL for each MSI-X
+ 	}
 -- 
 2.30.2
 
