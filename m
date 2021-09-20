@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCE2F411D19
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:15:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BE9A411B3A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:55:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346385AbhITRQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:16:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42988 "EHLO mail.kernel.org"
+        id S1343751AbhITQ4p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:56:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347510AbhITROR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:14:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BC83619F7;
-        Mon, 20 Sep 2021 16:58:07 +0000 (UTC)
+        id S245752AbhITQym (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:54:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EA846138B;
+        Mon, 20 Sep 2021 16:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157087;
-        bh=n3lyOd2sjt6O5FYm8v++9uN5IidoxoTMiNxZYE5Wf4I=;
+        s=korg; t=1632156645;
+        bh=onUe9Tx0CiO6YpwNg8NIYuxQVQQT1EWhaSNkiyKwy+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S3tf6Fzxg08ljml6hvlnlQOTNXwWN64G7/fr3/jfcqBT8+g/jTpq9ISbWOq7BOZFy
-         KrESgT7lXiZQdhAFyigaRiw38Hk7o0Plzip4KodG0pJQHvM7AKNVcMJ7sbp6RkQyVL
-         WWJfIM5lWZdOjsmwfk8REHwwzLjb9ucpuo4//fVo=
+        b=dPCigM3FPzJg7uHe/57GZL0bfIfp01PxlXTcg7Ncubk4EuJ25Vg87ff5Uj9Es8nfo
+         IWuZQil8Qar6rkoQjmqQx7FKpmOgwitP07WVj/M9fgvsCzdIV+ACfAwDB3cCmyXrZf
+         fRmcwrBXFECCzzWURRhhwEI/lfUj1pjNRVpu9dBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phong Hoang <phong.hoang.wz@renesas.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 048/217] clocksource/drivers/sh_cmt: Fix wrong setting if dont request IRQ for clock source channel
+        stable@vger.kernel.org, Keerthy <j-keerthy@ti.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.9 020/175] PM / wakeirq: Enable dedicated wakeirq for suspend
 Date:   Mon, 20 Sep 2021 18:41:09 +0200
-Message-Id: <20210920163926.251694261@linuxfoundation.org>
+Message-Id: <20210920163918.738218588@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,98 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phong Hoang <phong.hoang.wz@renesas.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit be83c3b6e7b8ff22f72827a613bf6f3aa5afadbb ]
+commit c84345597558349474f55be2b7d4093256e42884 upstream.
 
-If CMT instance has at least two channels, one channel will be used
-as a clock source and another one used as a clock event device.
-In that case, IRQ is not requested for clock source channel so
-sh_cmt_clock_event_program_verify() might work incorrectly.
-Besides, when a channel is only used for clock source, don't need to
-re-set the next match_value since it should be maximum timeout as
-it still is.
+We currently rely on runtime PM to enable dedicated wakeirq for suspend.
+This assumption fails in the following two cases:
 
-On the other hand, due to no IRQ, total_cycles is not counted up
-when reaches compare match time (timer counter resets to zero),
-so sh_cmt_clocksource_read() returns unexpected value.
-Therefore, use 64-bit clocksoure's mask for 32-bit or 16-bit variants
-will also lead to wrong delta calculation. Hence, this mask should
-correspond to timer counter width, and above function just returns
-the raw value of timer counter register.
+1. If the consumer driver does not have runtime PM implemented, the
+   dedicated wakeirq never gets enabled for suspend
 
-Fixes: bfa76bb12f23 ("clocksource: sh_cmt: Request IRQ for clock event device only")
-Fixes: 37e7742c55ba ("clocksource/drivers/sh_cmt: Fix clocksource width for 32-bit machines")
-Signed-off-by: Phong Hoang <phong.hoang.wz@renesas.com>
-Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210422123443.73334-1-niklas.soderlund+renesas@ragnatech.se
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+2. If the consumer driver has runtime PM implemented, but does not idle
+   in suspend
+
+Let's fix the issue by always enabling the dedicated wakeirq during
+suspend.
+
+Depends-on: bed570307ed7 (PM / wakeirq: Fix dedicated wakeirq for drivers not using autosuspend)
+Fixes: 4990d4fe327b (PM / Wakeirq: Add automated device wake IRQ handling)
+Reported-by: Keerthy <j-keerthy@ti.com>
+Tested-by: Keerthy <j-keerthy@ti.com>
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+[ tony@atomide.com: updated based on bed570307ed7, added description ]
+Tested-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clocksource/sh_cmt.c | 30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ drivers/base/power/wakeirq.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clocksource/sh_cmt.c b/drivers/clocksource/sh_cmt.c
-index 3cd62f7c33e3..48eeee53a586 100644
---- a/drivers/clocksource/sh_cmt.c
-+++ b/drivers/clocksource/sh_cmt.c
-@@ -570,7 +570,8 @@ static int sh_cmt_start(struct sh_cmt_channel *ch, unsigned long flag)
- 	ch->flags |= flag;
+--- a/drivers/base/power/wakeirq.c
++++ b/drivers/base/power/wakeirq.c
+@@ -319,8 +319,12 @@ void dev_pm_arm_wake_irq(struct wake_irq
+ 	if (!wirq)
+ 		return;
  
- 	/* setup timeout if no clockevent */
--	if ((flag == FLAG_CLOCKSOURCE) && (!(ch->flags & FLAG_CLOCKEVENT)))
-+	if (ch->cmt->num_channels == 1 &&
-+	    flag == FLAG_CLOCKSOURCE && (!(ch->flags & FLAG_CLOCKEVENT)))
- 		__sh_cmt_set_next(ch, ch->max_match_value);
-  out:
- 	raw_spin_unlock_irqrestore(&ch->lock, flags);
-@@ -606,20 +607,25 @@ static struct sh_cmt_channel *cs_to_sh_cmt(struct clocksource *cs)
- static u64 sh_cmt_clocksource_read(struct clocksource *cs)
- {
- 	struct sh_cmt_channel *ch = cs_to_sh_cmt(cs);
--	unsigned long flags;
- 	u32 has_wrapped;
--	u64 value;
--	u32 raw;
- 
--	raw_spin_lock_irqsave(&ch->lock, flags);
--	value = ch->total_cycles;
--	raw = sh_cmt_get_counter(ch, &has_wrapped);
-+	if (ch->cmt->num_channels == 1) {
-+		unsigned long flags;
-+		u64 value;
-+		u32 raw;
- 
--	if (unlikely(has_wrapped))
--		raw += ch->match_value + 1;
--	raw_spin_unlock_irqrestore(&ch->lock, flags);
-+		raw_spin_lock_irqsave(&ch->lock, flags);
-+		value = ch->total_cycles;
-+		raw = sh_cmt_get_counter(ch, &has_wrapped);
+-	if (device_may_wakeup(wirq->dev))
++	if (device_may_wakeup(wirq->dev)) {
++		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED)
++			enable_irq(wirq->irq);
 +
-+		if (unlikely(has_wrapped))
-+			raw += ch->match_value + 1;
-+		raw_spin_unlock_irqrestore(&ch->lock, flags);
-+
-+		return value + raw;
+ 		enable_irq_wake(wirq->irq);
 +	}
- 
--	return value + raw;
-+	return sh_cmt_get_counter(ch, &has_wrapped);
  }
  
- static int sh_cmt_clocksource_enable(struct clocksource *cs)
-@@ -682,7 +688,7 @@ static int sh_cmt_register_clocksource(struct sh_cmt_channel *ch,
- 	cs->disable = sh_cmt_clocksource_disable;
- 	cs->suspend = sh_cmt_clocksource_suspend;
- 	cs->resume = sh_cmt_clocksource_resume;
--	cs->mask = CLOCKSOURCE_MASK(sizeof(u64) * 8);
-+	cs->mask = CLOCKSOURCE_MASK(ch->cmt->info->width);
- 	cs->flags = CLOCK_SOURCE_IS_CONTINUOUS;
+ /**
+@@ -335,6 +339,10 @@ void dev_pm_disarm_wake_irq(struct wake_
+ 	if (!wirq)
+ 		return;
  
- 	dev_info(&ch->cmt->pdev->dev, "ch%u: used as clock source\n",
--- 
-2.30.2
-
+-	if (device_may_wakeup(wirq->dev))
++	if (device_may_wakeup(wirq->dev)) {
+ 		disable_irq_wake(wirq->irq);
++
++		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED)
++			disable_irq_nosync(wirq->irq);
++	}
+ }
 
 
