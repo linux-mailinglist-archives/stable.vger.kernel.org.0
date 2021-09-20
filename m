@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5F0E411DC9
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:22:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2F3C411BF0
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:03:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345560AbhITRXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:23:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48050 "EHLO mail.kernel.org"
+        id S229881AbhITRFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:05:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344001AbhITRVq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:21:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27BF961A64;
-        Mon, 20 Sep 2021 17:00:59 +0000 (UTC)
+        id S1345336AbhITRCI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:02:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8869561425;
+        Mon, 20 Sep 2021 16:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157259;
-        bh=+eii1els+1XBzfb1kbtdJYcdE4V/C2g1ZQW0pY4cNVg=;
+        s=korg; t=1632156816;
+        bh=6422gvoGjZpiBQCCiC3od+yQYZXTTNtnzmysoQhm/HE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qbhAWp38KB5RTQNS4kgmv2aOB1sJ/J/qb9zerPpq6GugVIG7NA5aYtxnrgidvVhbo
-         OyjJXup3o4AmBtRCM47Op8pHy6TjQGu1jPmLBOpCEZGs65mGEhPBAt/WclWepF4vXr
-         g8viTfqrBTX061cyFEMxR+BCUm7pZzdI7zZA9X0Q=
+        b=tJsv9CnRT2i0On4pihXy+1zkU80qzb7oyaJW+TDpIyjgMdqRNZ7lweuuGxWdZTQS9
+         48SWXtG1EDzZH+jbF6aFLN7Z7SfRRCP1ypTNGQQ7DZ09lipAVx9Ddq59ymPx4EtLJW
+         T6D+FOLmptsbSs72yPlfvY6aqWQ62IA0FZgTUSEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        openrisc@lists.librecores.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 126/217] openrisc: dont printk() unconditionally
+        stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>,
+        David Heidelberg <david@ixit.cz>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.9 098/175] ARM: 9105/1: atags_to_fdt: dont warn about stack size
 Date:   Mon, 20 Sep 2021 18:42:27 +0200
-Message-Id: <20210920163928.927559640@linuxfoundation.org>
+Message-Id: <20210920163921.278407403@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: David Heidelberg <david@ixit.cz>
 
-[ Upstream commit 946e1052cdcc7e585ee5d1e72528ca49fb295243 ]
+commit b30d0289de72c62516df03fdad8d53f552c69839 upstream.
 
-Don't call printk() when CONFIG_PRINTK is not set.
-Fixes the following build errors:
+The merge_fdt_bootargs() function by definition consumes more than 1024
+bytes of stack because it has a 1024 byte command line on the stack,
+meaning that we always get a warning when building this file:
 
-or1k-linux-ld: arch/openrisc/kernel/entry.o: in function `_external_irq_handler':
-(.text+0x804): undefined reference to `printk'
-(.text+0x804): relocation truncated to fit: R_OR1K_INSN_REL_26 against undefined symbol `printk'
+arch/arm/boot/compressed/atags_to_fdt.c: In function 'merge_fdt_bootargs':
+arch/arm/boot/compressed/atags_to_fdt.c:98:1: warning: the frame size of 1032 bytes is larger than 1024 bytes [-Wframe-larger-than=]
 
-Fixes: 9d02a4283e9c ("OpenRISC: Boot code")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: openrisc@lists.librecores.org
-Signed-off-by: Stafford Horne <shorne@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, as this is the decompressor and we know that it has a very shallow
+call chain, and we do not actually risk overflowing the kernel stack
+at runtime here.
+
+This just shuts up the warning by disabling the warning flag for this
+file.
+
+Tested on Nexus 7 2012 builds.
+
+Acked-by: Nicolas Pitre <nico@fluxnic.net>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/openrisc/kernel/entry.S | 2 ++
+ arch/arm/boot/compressed/Makefile |    2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
-index 0fdfa7142f4b..272eda8d6368 100644
---- a/arch/openrisc/kernel/entry.S
-+++ b/arch/openrisc/kernel/entry.S
-@@ -495,6 +495,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
- 	l.bnf	1f			// ext irq enabled, all ok.
- 	l.nop
+--- a/arch/arm/boot/compressed/Makefile
++++ b/arch/arm/boot/compressed/Makefile
+@@ -86,6 +86,8 @@ $(addprefix $(obj)/,$(libfdt_objs) atags
+ 	$(addprefix $(obj)/,$(libfdt_hdrs))
  
-+#ifdef CONFIG_PRINTK
- 	l.addi  r1,r1,-0x8
- 	l.movhi r3,hi(42f)
- 	l.ori	r3,r3,lo(42f)
-@@ -508,6 +509,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
- 		.string "\n\rESR interrupt bug: in _external_irq_handler (ESR %x)\n\r"
- 		.align 4
- 	.previous
-+#endif
+ ifeq ($(CONFIG_ARM_ATAG_DTB_COMPAT),y)
++CFLAGS_REMOVE_atags_to_fdt.o += -Wframe-larger-than=${CONFIG_FRAME_WARN}
++CFLAGS_atags_to_fdt.o += -Wframe-larger-than=1280
+ OBJS	+= $(libfdt_objs) atags_to_fdt.o
+ endif
  
- 	l.ori	r4,r4,SPR_SR_IEE	// fix the bug
- //	l.sw	PT_SR(r1),r4
--- 
-2.30.2
-
 
 
