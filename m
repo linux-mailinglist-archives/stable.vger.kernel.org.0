@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AB91411CEB
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:13:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4EFA412120
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:00:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344489AbhITRPC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:15:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39304 "EHLO mail.kernel.org"
+        id S1356890AbhITSCI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:02:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344759AbhITRNT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:13:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1172161184;
-        Mon, 20 Sep 2021 16:57:42 +0000 (UTC)
+        id S1356431AbhITR7z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:59:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 32EF663222;
+        Mon, 20 Sep 2021 17:15:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157063;
-        bh=ddNa6ZUUwvpp1+I59j76O+1Y1sXYVdpyxv7gmFqsBVg=;
+        s=korg; t=1632158134;
+        bh=fkpJmItxZAh1VTg2jjoL2N7YC7WgQwXD95DqcrK7egA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2YZIPCaskUH88Ml5wwO25fAbAojuYhLvO0/LoPzRRcCUk8Xvk4p2/XRo0yvwrxOAE
-         uBdql3zTqN0QPbI8UjccvaIFGV2v0YcB+yVSnzPzfBtYSPZzPen+KFBluJMAk2uvhY
-         YcHIluDPA3DwZe626otu02O0gfGIHCMb1NVihAJs=
+        b=T4P9cfP0bFZFL2O2kYJcm+dNLsKtL2nf0QKzNaDe4l+eEpVvFinjoiHuArNd4400M
+         70AnzI0rRLFpM868WLY47Wz9U56s51FyiQGkfTMGSZHW1ijqSvwW4idr+0NPBbgc2l
+         Y7Vs8TMJkRRhUwPr3K2ec8bXIIylzevAd68AS3RM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prabhakar Kushwaha <pkushwaha@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        Shai Malin <smalin@marvell.com>,
-        Kees Cook <keescook@chromium.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 005/217] qede: Fix memset corruption
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 5.4 008/260] xen: fix setting of max_pfn in shared_info
 Date:   Mon, 20 Sep 2021 18:40:26 +0200
-Message-Id: <20210920163924.784406073@linuxfoundation.org>
+Message-Id: <20210920163931.414630351@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shai Malin <smalin@marvell.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit e543468869e2532f5d7926e8f417782b48eca3dc ]
+commit 4b511d5bfa74b1926daefd1694205c7f1bcf677f upstream.
 
-Thanks to Kees Cook who detected the problem of memset that starting
-from not the first member, but sized for the whole struct.
-The better change will be to remove the redundant memset and to clear
-only the msix_cnt member.
+Xen PV guests are specifying the highest used PFN via the max_pfn
+field in shared_info. This value is used by the Xen tools when saving
+or migrating the guest.
 
-Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: Shai Malin <smalin@marvell.com>
-Reported-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Unfortunately this field is misnamed, as in reality it is specifying
+the number of pages (including any memory holes) of the guest, so it
+is the highest used PFN + 1. Renaming isn't possible, as this is a
+public Xen hypervisor interface which needs to be kept stable.
+
+The kernel will set the value correctly initially at boot time, but
+when adding more pages (e.g. due to memory hotplug or ballooning) a
+real PFN number is stored in max_pfn. This is done when expanding the
+p2m array, and the PFN stored there is even possibly wrong, as it
+should be the last possible PFN of the just added P2M frame, and not
+one which led to the P2M expansion.
+
+Fix that by setting shared_info->max_pfn to the last possible PFN + 1.
+
+Fixes: 98dd166ea3a3c3 ("x86/xen/p2m: hint at the last populated P2M entry")
+Cc: stable@vger.kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Link: https://lore.kernel.org/r/20210730092622.9973-2-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qede/qede_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/xen/p2m.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qede/qede_main.c b/drivers/net/ethernet/qlogic/qede/qede_main.c
-index 8bb734486bf3..99de923728ec 100644
---- a/drivers/net/ethernet/qlogic/qede/qede_main.c
-+++ b/drivers/net/ethernet/qlogic/qede/qede_main.c
-@@ -1590,6 +1590,7 @@ static void qede_sync_free_irqs(struct qede_dev *edev)
+--- a/arch/x86/xen/p2m.c
++++ b/arch/x86/xen/p2m.c
+@@ -622,8 +622,8 @@ int xen_alloc_p2m_entry(unsigned long pf
  	}
  
- 	edev->int_info.used_cnt = 0;
-+	edev->int_info.msix_cnt = 0;
- }
+ 	/* Expanded the p2m? */
+-	if (pfn > xen_p2m_last_pfn) {
+-		xen_p2m_last_pfn = pfn;
++	if (pfn >= xen_p2m_last_pfn) {
++		xen_p2m_last_pfn = ALIGN(pfn + 1, P2M_PER_PAGE);
+ 		HYPERVISOR_shared_info->arch.max_pfn = xen_p2m_last_pfn;
+ 	}
  
- static int qede_req_msix_irqs(struct qede_dev *edev)
-@@ -2088,7 +2089,6 @@ static int qede_load(struct qede_dev *edev, enum qede_load_mode mode,
- 	goto out;
- err4:
- 	qede_sync_free_irqs(edev);
--	memset(&edev->int_info.msix_cnt, 0, sizeof(struct qed_int_info));
- err3:
- 	qede_napi_disable_remove(edev);
- err2:
--- 
-2.30.2
-
 
 
