@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E924411F4E
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:38:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 458A741212C
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:01:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348591AbhITRkB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:40:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40662 "EHLO mail.kernel.org"
+        id S1345217AbhITSCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:02:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244672AbhITRiZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:38:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 99FF061B3A;
-        Mon, 20 Sep 2021 17:07:10 +0000 (UTC)
+        id S1350726AbhITSAn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:00:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A49B463223;
+        Mon, 20 Sep 2021 17:15:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157631;
-        bh=bII51P2tUfCms6tTx8mM/wUna+3XggKrf2IkC5LWlpY=;
+        s=korg; t=1632158152;
+        bh=6YvKqsPIQwe4JWDksOW/bfbv51cHkYaGvOZJOpAzwGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hkLjjLM7l98gsx5hfmiD4tAupmhvvsSXr/fDvZcE6eRLKUU/fRygCSzYiekd6hg0O
-         o3jkW0rm0UkQhhujF+k1IY1IGt3H4nsgi3x6yDiGpgFj4nE6mxB4ANwqQb67IcdxGC
-         9Uifjxe7dbUiRiqexiu/fT51JB7uS3IYGd5X2/hI=
+        b=ARGi/iEgNRfXkAvhCHDMpFATBBSd7WKAnKw5yo+OqIxp1Lq62sWD2DxGu1EZxVc1J
+         G9rc7sM9xS1XL9EKYNCj58jAuDjvRhISSiLN3I85UQd6hPG+VkvAmd6P1wve1AY/Id
+         /pn6yD+5F2jWAWu2hDmSWTapSBO4aod6sszW6p2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 080/293] drm/msm/dsi: Fix some reference counted resource leaks
-Date:   Mon, 20 Sep 2021 18:40:42 +0200
-Message-Id: <20210920163936.008400859@linuxfoundation.org>
+        stable@vger.kernel.org, Robin Gong <yibin.gong@nxp.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Richard Leitner <richard.leitner@skidata.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.4 025/260] Revert "dmaengine: imx-sdma: refine to load context only once"
+Date:   Mon, 20 Sep 2021 18:40:43 +0200
+Message-Id: <20210920163931.983199204@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Robin Gong <yibin.gong@nxp.com>
 
-[ Upstream commit 6977cc89c87506ff17e6c05f0e37f46752256e82 ]
+commit 8592f02464d52776c5cfae4627c6413b0ae7602d upstream.
 
-'of_find_device_by_node()' takes a reference that must be released when
-not needed anymore.
-This is expected to be done in 'dsi_destroy()'.
+This reverts commit ad0d92d7ba6aecbe2705907c38ff8d8be4da1e9c, because
+in spi-imx case, burst length may be changed dynamically.
 
-However, there are 2 issues in 'dsi_get_phy()'.
-
-First, if 'of_find_device_by_node()' succeeds but 'platform_get_drvdata()'
-returns NULL, 'msm_dsi->phy_dev' will still be NULL, and the reference
-won't be released in 'dsi_destroy()'.
-
-Secondly, as 'of_find_device_by_node()' already takes a reference, there is
-no need for an additional 'get_device()'.
-
-Move the assignment to 'msm_dsi->phy_dev' a few lines above and remove the
-unneeded 'get_device()' to solve both issues.
-
-Fixes: ec31abf6684e ("drm/msm/dsi: Separate PHY to another platform device")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/f15bc57648a00e7c99f943903468a04639d50596.1628241097.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ad0d92d7ba6a ("dmaengine: imx-sdma: refine to load context only once")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Robin Gong <yibin.gong@nxp.com>
+Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
+Tested-by: Richard Leitner <richard.leitner@skidata.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/dma/imx-sdma.c |    8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi.c b/drivers/gpu/drm/msm/dsi/dsi.c
-index ff8164cc6738..822cef472a7e 100644
---- a/drivers/gpu/drm/msm/dsi/dsi.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi.c
-@@ -34,8 +34,10 @@ static int dsi_get_phy(struct msm_dsi *msm_dsi)
- 	}
+--- a/drivers/dma/imx-sdma.c
++++ b/drivers/dma/imx-sdma.c
+@@ -377,7 +377,6 @@ struct sdma_channel {
+ 	unsigned long			watermark_level;
+ 	u32				shp_addr, per_addr;
+ 	enum dma_status			status;
+-	bool				context_loaded;
+ 	struct imx_dma_data		data;
+ 	struct work_struct		terminate_worker;
+ };
+@@ -988,9 +987,6 @@ static int sdma_load_context(struct sdma
+ 	int ret;
+ 	unsigned long flags;
  
- 	phy_pdev = of_find_device_by_node(phy_node);
--	if (phy_pdev)
-+	if (phy_pdev) {
- 		msm_dsi->phy = platform_get_drvdata(phy_pdev);
-+		msm_dsi->phy_dev = &phy_pdev->dev;
-+	}
- 
- 	of_node_put(phy_node);
- 
-@@ -44,8 +46,6 @@ static int dsi_get_phy(struct msm_dsi *msm_dsi)
- 		return -EPROBE_DEFER;
- 	}
- 
--	msm_dsi->phy_dev = get_device(&phy_pdev->dev);
+-	if (sdmac->context_loaded)
+-		return 0;
 -
- 	return 0;
+ 	if (sdmac->direction == DMA_DEV_TO_MEM)
+ 		load_address = sdmac->pc_from_device;
+ 	else if (sdmac->direction == DMA_DEV_TO_DEV)
+@@ -1033,8 +1029,6 @@ static int sdma_load_context(struct sdma
+ 
+ 	spin_unlock_irqrestore(&sdma->channel_0_lock, flags);
+ 
+-	sdmac->context_loaded = true;
+-
+ 	return ret;
  }
  
--- 
-2.30.2
-
+@@ -1074,7 +1068,6 @@ static void sdma_channel_terminate_work(
+ 	sdmac->desc = NULL;
+ 	spin_unlock_irqrestore(&sdmac->vc.lock, flags);
+ 	vchan_dma_desc_free_list(&sdmac->vc, &head);
+-	sdmac->context_loaded = false;
+ }
+ 
+ static int sdma_disable_channel_async(struct dma_chan *chan)
+@@ -1335,7 +1328,6 @@ static void sdma_free_chan_resources(str
+ 
+ 	sdmac->event_id0 = 0;
+ 	sdmac->event_id1 = 0;
+-	sdmac->context_loaded = false;
+ 
+ 	sdma_set_channel_priority(sdmac, 0);
+ 
 
 
