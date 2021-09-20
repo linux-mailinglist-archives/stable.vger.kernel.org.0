@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 424CE411A32
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:46:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5795411B8E
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:59:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243439AbhITQrw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:47:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35988 "EHLO mail.kernel.org"
+        id S244420AbhITRA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:00:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240451AbhITQri (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:47:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F62E61213;
-        Mon, 20 Sep 2021 16:46:11 +0000 (UTC)
+        id S245489AbhITQ54 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:57:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58689613A8;
+        Mon, 20 Sep 2021 16:51:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156371;
-        bh=lT9AcnaDFYupHCAPOGiNrpbNTJbT8jM7aaKkVAzgiuo=;
+        s=korg; t=1632156708;
+        bh=89w5O5mvEhMy/uHuvN0tJIllL74mrZOos3Otfw4qbzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BtlXErAynyK2OYFvjcs+dYwqsi5LUA2mEBa+f26me3ixagkoSrYHXjpAPquksA/vw
-         eysNh2eob0A0SN/n1rIgb5QrqEJ82DPC985VHGFVva1tP7F4dyZdtw3vwkaJa2WSZs
-         kv7Rey6xynnwD7sCRWHzmg3vsbt8d79DOiRJd5r0=
+        b=eBK4NpNbOVEGRBmlo8+I/MUxDMULov/jTF6ESm3oMff1M1SxPqWafzF3eFM1pR1EH
+         BaBHZfnpWLJb3vxLEElQfzy2C/NPUeXJ4OfxWSB+5VVdRfoLYg3OamWfbA5twHghql
+         MTlPphfywSNMsPwegEonN1XniGyTAum09Nrm1afg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Yisheng Xie <xieyisheng1@huawei.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.4 021/133] mm/kmemleak.c: make cond_resched() rate-limiting more efficient
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Fiona Trahe <fiona.trahe@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 050/175] crypto: qat - use proper type for vf_mask
 Date:   Mon, 20 Sep 2021 18:41:39 +0200
-Message-Id: <20210920163913.305406107@linuxfoundation.org>
+Message-Id: <20210920163919.695384351@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Morton <akpm@linux-foundation.org>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-commit 13ab183d138f607d885e995d625e58d47678bf97 upstream.
+[ Upstream commit 462354d986b6a89c6449b85f17aaacf44e455216 ]
 
-Commit bde5f6bc68db ("kmemleak: add scheduling point to
-kmemleak_scan()") tries to rate-limit the frequency of cond_resched()
-calls, but does it in a way which might incur an expensive division
-operation in the inner loop.  Simplify this.
+Replace vf_mask type with unsigned long to avoid a stack-out-of-bound.
 
-Fixes: bde5f6bc68db5 ("kmemleak: add scheduling point to kmemleak_scan()")
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Yisheng Xie <xieyisheng1@huawei.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is to fix the following warning reported by KASAN the first time
+adf_msix_isr_ae() gets called.
+
+    [  692.091987] BUG: KASAN: stack-out-of-bounds in find_first_bit+0x28/0x50
+    [  692.092017] Read of size 8 at addr ffff88afdf789e60 by task swapper/32/0
+    [  692.092076] Call Trace:
+    [  692.092089]  <IRQ>
+    [  692.092101]  dump_stack+0x9c/0xcf
+    [  692.092132]  print_address_description.constprop.0+0x18/0x130
+    [  692.092164]  ? find_first_bit+0x28/0x50
+    [  692.092185]  kasan_report.cold+0x7f/0x111
+    [  692.092213]  ? static_obj+0x10/0x80
+    [  692.092234]  ? find_first_bit+0x28/0x50
+    [  692.092262]  find_first_bit+0x28/0x50
+    [  692.092288]  adf_msix_isr_ae+0x16e/0x230 [intel_qat]
+
+Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
+Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/kmemleak.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/qat/qat_common/adf_isr.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/mm/kmemleak.c
-+++ b/mm/kmemleak.c
-@@ -1394,7 +1394,7 @@ static void kmemleak_scan(void)
- 			if (page_count(page) == 0)
- 				continue;
- 			scan_block(page, page + 1, NULL);
--			if (!(pfn % (MAX_SCAN_SIZE / sizeof(*page))))
-+			if (!(pfn & 63))
- 				cond_resched();
- 		}
- 	}
+diff --git a/drivers/crypto/qat/qat_common/adf_isr.c b/drivers/crypto/qat/qat_common/adf_isr.c
+index 2c0be14309cf..7877ba677220 100644
+--- a/drivers/crypto/qat/qat_common/adf_isr.c
++++ b/drivers/crypto/qat/qat_common/adf_isr.c
+@@ -59,6 +59,8 @@
+ #include "adf_transport_access_macros.h"
+ #include "adf_transport_internal.h"
+ 
++#define ADF_MAX_NUM_VFS	32
++
+ static int adf_enable_msix(struct adf_accel_dev *accel_dev)
+ {
+ 	struct adf_accel_pci *pci_dev_info = &accel_dev->accel_pci_dev;
+@@ -111,7 +113,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
+ 		struct adf_bar *pmisc =
+ 			&GET_BARS(accel_dev)[hw_data->get_misc_bar_id(hw_data)];
+ 		void __iomem *pmisc_bar_addr = pmisc->virt_addr;
+-		u32 vf_mask;
++		unsigned long vf_mask;
+ 
+ 		/* Get the interrupt sources triggered by VFs */
+ 		vf_mask = ((ADF_CSR_RD(pmisc_bar_addr, ADF_ERRSOU5) &
+@@ -132,8 +134,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
+ 			 * unless the VF is malicious and is attempting to
+ 			 * flood the host OS with VF2PF interrupts.
+ 			 */
+-			for_each_set_bit(i, (const unsigned long *)&vf_mask,
+-					 (sizeof(vf_mask) * BITS_PER_BYTE)) {
++			for_each_set_bit(i, &vf_mask, ADF_MAX_NUM_VFS) {
+ 				vf_info = accel_dev->pf.vf_info + i;
+ 
+ 				if (!__ratelimit(&vf_info->vf2pf_ratelimit)) {
+-- 
+2.30.2
+
 
 
