@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C40AF411EEB
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:34:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55677411EC7
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:33:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351281AbhITRgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:36:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33732 "EHLO mail.kernel.org"
+        id S245412AbhITRfF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:35:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351160AbhITRcZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:32:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 079D461AF7;
-        Mon, 20 Sep 2021 17:04:55 +0000 (UTC)
+        id S1343783AbhITRc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:32:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31D7C61505;
+        Mon, 20 Sep 2021 17:04:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157496;
-        bh=VIPx58K1AeufaM7oNcG0tpTq3yGCZZTKT2EKBF+J7mo=;
+        s=korg; t=1632157498;
+        bh=tJwFCxVvDMx9HXo9GAUYplsoc62Y9n47t2yBEcF6GLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uO0KBIV9YsHswAS+9siy4MgdRH1kmcbCM2zAiBgwVb+NqtZJ0ypzWvhWkRpZsvRaa
-         PgJ3fN+0kqW/kcDEK06BqTEltO/wGC1800526rO1EXTO87yTpnvu/9g7lmFdIPCSjj
-         uVS5iXA5YJ9vyPEVXPnHsQlWRJoR8V/axt2lbY90=
+        b=I3/FteJ+iy+n2IRW+G3WOQ2fuaZZGwuKiM9v35hDXal4PzcKKGS/Ch0s3ytTTTcRg
+         XnQQoVvP33VMd3ZRSoWEZ+POp2vYPHydJzBP9KIGPnn7IhunPZrQc3QKlGFphC7dvQ
+         xsfCSAzYwynVs1P6loMEbpW9LbeaTLTlC4qYoXPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        David Ahern <dsahern@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 018/293] ipv4/icmp: l3mdev: Perform icmp error route lookup on source device routing table (v2)
-Date:   Mon, 20 Sep 2021 18:39:40 +0200
-Message-Id: <20210920163933.888043456@linuxfoundation.org>
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        "J. Bruce Fields" <bfields@redhat.com>
+Subject: [PATCH 4.19 019/293] SUNRPC/nfs: Fix return value for nfs4_callback_compound()
+Date:   Mon, 20 Sep 2021 18:39:41 +0200
+Message-Id: <20210920163933.918801092@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
 References: <20210920163933.258815435@linuxfoundation.org>
@@ -41,118 +40,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Trond Myklebust <trondmy@gmail.com>
 
-commit e1e84eb58eb494b77c8389fc6308b5042dcce791 upstream.
+commit 83dd59a0b9afc3b1a2642fb5c9b0585b1c08768f upstream.
 
-As per RFC792, ICMP errors should be sent to the source host.
+RPC server procedures are normally expected to return a __be32 encoded
+status value of type 'enum rpc_accept_stat', however at least one function
+wants to return an authentication status of type 'enum rpc_auth_stat'
+in the case where authentication fails.
+This patch adds functionality to allow this.
 
-However, in configurations with Virtual Routing and Forwarding tables,
-looking up which routing table to use is currently done by using the
-destination net_device.
-
-commit 9d1a6c4ea43e ("net: icmp_route_lookup should use rt dev to
-determine L3 domain") changes the interface passed to
-l3mdev_master_ifindex() and inet_addr_type_dev_table() from skb_in->dev
-to skb_dst(skb_in)->dev. This effectively uses the destination device
-rather than the source device for choosing which routing table should be
-used to lookup where to send the ICMP error.
-
-Therefore, if the source and destination interfaces are within separate
-VRFs, or one in the global routing table and the other in a VRF, looking
-up the source host in the destination interface's routing table will
-fail if the destination interface's routing table contains no route to
-the source host.
-
-One observable effect of this issue is that traceroute does not work in
-the following cases:
-
-- Route leaking between global routing table and VRF
-- Route leaking between VRFs
-
-Preferably use the source device routing table when sending ICMP error
-messages. If no source device is set, fall-back on the destination
-device routing table. Else, use the main routing table (index 0).
-
-[ It has been pointed out that a similar issue may exist with ICMP
-  errors triggered when forwarding between network namespaces. It would
-  be worthwhile to investigate, but is outside of the scope of this
-  investigation. ]
-
-[ It has also been pointed out that a similar issue exists with
-  unreachable / fragmentation needed messages, which can be triggered by
-  changing the MTU of eth1 in r1 to 1400 and running:
-
-  ip netns exec h1 ping -s 1450 -Mdo -c1 172.16.2.2
-
-  Some investigation points to raw_icmp_error() and raw_err() as being
-  involved in this last scenario. The focus of this patch is TTL expired
-  ICMP messages, which go through icmp_route_lookup.
-  Investigation of failure modes related to raw_icmp_error() is beyond
-  this investigation's scope. ]
-
-Fixes: 9d1a6c4ea43e ("net: icmp_route_lookup should use rt dev to determine L3 domain")
-Link: https://tools.ietf.org/html/rfc792
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: a4e187d83d88 ("NFS: Don't drop CB requests with invalid principals")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/icmp.c |   23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+ fs/nfs/callback_xdr.c      |    2 +-
+ include/linux/sunrpc/svc.h |    2 ++
+ net/sunrpc/svc.c           |   27 ++++++++++++++++++++++-----
+ 3 files changed, 25 insertions(+), 6 deletions(-)
 
---- a/net/ipv4/icmp.c
-+++ b/net/ipv4/icmp.c
-@@ -465,6 +465,23 @@ out_bh_enable:
- 	local_bh_enable();
+--- a/fs/nfs/callback_xdr.c
++++ b/fs/nfs/callback_xdr.c
+@@ -991,7 +991,7 @@ static __be32 nfs4_callback_compound(str
+ 
+ out_invalidcred:
+ 	pr_warn_ratelimited("NFS: NFSv4 callback contains invalid cred\n");
+-	return rpc_autherr_badcred;
++	return svc_return_autherr(rqstp, rpc_autherr_badcred);
  }
  
-+/*
-+ * The device used for looking up which routing table to use for sending an ICMP
-+ * error is preferably the source whenever it is set, which should ensure the
-+ * icmp error can be sent to the source host, else lookup using the routing
-+ * table of the destination device, else use the main routing table (index 0).
-+ */
-+static struct net_device *icmp_get_route_lookup_dev(struct sk_buff *skb)
+ /*
+--- a/include/linux/sunrpc/svc.h
++++ b/include/linux/sunrpc/svc.h
+@@ -271,6 +271,7 @@ struct svc_rqst {
+ #define	RQ_VICTIM	(5)			/* about to be shut down */
+ #define	RQ_BUSY		(6)			/* request is busy */
+ #define	RQ_DATA		(7)			/* request has data */
++#define RQ_AUTHERR	(8)			/* Request status is auth error */
+ 	unsigned long		rq_flags;	/* flags field */
+ 	ktime_t			rq_qtime;	/* enqueue time */
+ 
+@@ -504,6 +505,7 @@ unsigned int	   svc_fill_write_vector(st
+ char		  *svc_fill_symlink_pathname(struct svc_rqst *rqstp,
+ 					     struct kvec *first, void *p,
+ 					     size_t total);
++__be32		   svc_return_autherr(struct svc_rqst *rqstp, __be32 auth_err);
+ 
+ #define	RPC_MAX_ADDRBUFLEN	(63U)
+ 
+--- a/net/sunrpc/svc.c
++++ b/net/sunrpc/svc.c
+@@ -1146,6 +1146,22 @@ static __printf(2,3) void svc_printk(str
+ 
+ extern void svc_tcp_prep_reply_hdr(struct svc_rqst *);
+ 
++__be32
++svc_return_autherr(struct svc_rqst *rqstp, __be32 auth_err)
 +{
-+	struct net_device *route_lookup_dev = NULL;
++	set_bit(RQ_AUTHERR, &rqstp->rq_flags);
++	return auth_err;
++}
++EXPORT_SYMBOL_GPL(svc_return_autherr);
 +
-+	if (skb->dev)
-+		route_lookup_dev = skb->dev;
-+	else if (skb_dst(skb))
-+		route_lookup_dev = skb_dst(skb)->dev;
-+	return route_lookup_dev;
++static __be32
++svc_get_autherr(struct svc_rqst *rqstp, __be32 *statp)
++{
++	if (test_and_clear_bit(RQ_AUTHERR, &rqstp->rq_flags))
++		return *statp;
++	return rpc_auth_ok;
 +}
 +
- static struct rtable *icmp_route_lookup(struct net *net,
- 					struct flowi4 *fl4,
- 					struct sk_buff *skb_in,
-@@ -473,6 +490,7 @@ static struct rtable *icmp_route_lookup(
- 					int type, int code,
- 					struct icmp_bxm *param)
- {
-+	struct net_device *route_lookup_dev;
- 	struct rtable *rt, *rt2;
- 	struct flowi4 fl4_dec;
- 	int err;
-@@ -487,7 +505,8 @@ static struct rtable *icmp_route_lookup(
- 	fl4->flowi4_proto = IPPROTO_ICMP;
- 	fl4->fl4_icmp_type = type;
- 	fl4->fl4_icmp_code = code;
--	fl4->flowi4_oif = l3mdev_master_ifindex(skb_dst(skb_in)->dev);
-+	route_lookup_dev = icmp_get_route_lookup_dev(skb_in);
-+	fl4->flowi4_oif = l3mdev_master_ifindex(route_lookup_dev);
+ /*
+  * Common routine for processing the RPC request.
+  */
+@@ -1296,11 +1312,9 @@ svc_process_common(struct svc_rqst *rqst
+ 				procp->pc_release(rqstp);
+ 			goto dropit;
+ 		}
+-		if (*statp == rpc_autherr_badcred) {
+-			if (procp->pc_release)
+-				procp->pc_release(rqstp);
+-			goto err_bad_auth;
+-		}
++		auth_stat = svc_get_autherr(rqstp, statp);
++		if (auth_stat != rpc_auth_ok)
++			goto err_release_bad_auth;
+ 		if (*statp == rpc_success && procp->pc_encode &&
+ 		    !procp->pc_encode(rqstp, resv->iov_base + resv->iov_len)) {
+ 			dprintk("svc: failed to encode reply\n");
+@@ -1359,6 +1373,9 @@ err_bad_rpc:
+ 	svc_putnl(resv, 2);
+ 	goto sendit;
  
- 	security_skb_classify_flow(skb_in, flowi4_to_flowi(fl4));
- 	rt = ip_route_output_key_hash(net, fl4, skb_in);
-@@ -511,7 +530,7 @@ static struct rtable *icmp_route_lookup(
- 	if (err)
- 		goto relookup_failed;
- 
--	if (inet_addr_type_dev_table(net, skb_dst(skb_in)->dev,
-+	if (inet_addr_type_dev_table(net, route_lookup_dev,
- 				     fl4_dec.saddr) == RTN_LOCAL) {
- 		rt2 = __ip_route_output_key(net, &fl4_dec);
- 		if (IS_ERR(rt2))
++err_release_bad_auth:
++	if (procp->pc_release)
++		procp->pc_release(rqstp);
+ err_bad_auth:
+ 	dprintk("svc: authentication failed (%d)\n", ntohl(auth_stat));
+ 	serv->sv_stats->rpcbadauth++;
 
 
