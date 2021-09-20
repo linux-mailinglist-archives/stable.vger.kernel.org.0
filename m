@@ -2,72 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27EAE412AEF
-	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 04:02:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C107412AE8
+	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 04:01:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241879AbhIUCDd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 22:03:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35718 "EHLO
+        id S229485AbhIUCDY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 22:03:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241832AbhIUCDQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 22:03:16 -0400
-Received: from mail-qt1-x836.google.com (mail-qt1-x836.google.com [IPv6:2607:f8b0:4864:20::836])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 146BBC08EB59
-        for <stable@vger.kernel.org>; Mon, 20 Sep 2021 11:13:38 -0700 (PDT)
-Received: by mail-qt1-x836.google.com with SMTP id e16so5597296qte.13
-        for <stable@vger.kernel.org>; Mon, 20 Sep 2021 11:13:38 -0700 (PDT)
+        with ESMTP id S234357AbhIUBoh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 21:44:37 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7AD1C059379;
+        Mon, 20 Sep 2021 14:11:56 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id k23-20020a17090a591700b001976d2db364so936207pji.2;
+        Mon, 20 Sep 2021 14:11:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=pvo6MEzKPqvSnqMuVSEU2j4Wc9oFmpkpJEqXAbkOyyM=;
-        b=D2Zn3m+Po3J2M65Ciea5U6ug8D3yclkghX6docLBBmmRuzBib2C6FKhJnFHTTYGrKx
-         zeJSrdylCQFeIYilxcFlb5k17oHOTp8XXX961fO0hDRCqOrMiWCe6kxlwDvxQYM81HIq
-         NKKQlzETS+kJ6YElb8n7t9FomlfrnpkC6JpM0=
+        d=gmail.com; s=20210112;
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=JVdJjxGLLGY1GRkGrBP1UGsN1fvznTZbh/mzFYs4Abk=;
+        b=Ld3y5cZokZh9hoJL3ufsAax7dsi6TZrkBKTNE5MuAgPWFxBjnobDLHM/Q1KNExEV8D
+         NiiFZgN/XrQiGZmmk6JDgmf/bHiE7b/gWzp0auSShiZUJRsbR9jQ6/cjlASp6AEegBnR
+         mIcgndAGr/OkxyfNrlv5XIO3rPBxDK9/GQU7IEfzauqWUzVcs7FGkYDK3TdFwPCjviOi
+         kKjoPeRTgE/xqOhFEmG4y0FSxuJqpu6gbiPZCBuvPB6xUnCd/UKGhxL425qlf5g1gJVk
+         FeRaPRnT5wYufmYGcHa+Kgo9xBLAL6f0vhE0xYOgYUq8EclB5hTKHvLjPtdCyFBCDGLQ
+         ZdMg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=pvo6MEzKPqvSnqMuVSEU2j4Wc9oFmpkpJEqXAbkOyyM=;
-        b=bj+iWqktaW7ryu5ffs3PUMSXAypPEoLgw9gVmR0a9zWpAOyHtewrfMt0Y8pacgsGEo
-         O6o/+F9zV4HkxOtJTEw8IYZl68unHZOi5TAohd5R5kpp9dH5tEG54gBhdo2JCYIQeSov
-         BC44hYDmBgDbvT7wQK7GGh3i2vcpxDiOANPLz158WE57C94Tr5qlZYM1M9HushpZ6KDs
-         jAOLoFyvd0qT5/yyLnTQB+qbQxrGlsqK+OkC0+bpS092pDbgEp5ZFuW//LwcbCHdsmQE
-         XjHccCPPED8Eo/w1CvJHmrw0oppSotU9MJY3Xq/G3i+fwKHwNSITaKDhi1F9+4DOy1EZ
-         E9mA==
-X-Gm-Message-State: AOAM530nwwB6B0rzfq0QSSb0UZa0H2E64O+EzpbHTUom8gL0dmQNYzDo
-        r5RKrj4qQEPHhuFOX4tujkbNLc9/5CaUvegdkIiVNQ==
-X-Google-Smtp-Source: ABdhPJxv3M4Q3DyA/8nV9kXnhwWl4Jp/tLX6DzdAtOGhsSMaVriT0Tvl6jC6gMjFAotBRgBZ9aRtyaV6+FYHNi+U33Q=
-X-Received: by 2002:ac8:5d91:: with SMTP id d17mr3609906qtx.18.1632161615279;
- Mon, 20 Sep 2021 11:13:35 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210920163921.633181900@linuxfoundation.org> <20210920163927.070105317@linuxfoundation.org>
-In-Reply-To: <20210920163927.070105317@linuxfoundation.org>
-From:   Michael Chan <michael.chan@broadcom.com>
-Date:   Mon, 20 Sep 2021 11:13:24 -0700
-Message-ID: <CACKFLin7kZFio3Tj+2M7Juq_Vxrfw4KPPkVnE0rtm-hBgQK7nA@mail.gmail.com>
-Subject: Re: [PATCH 5.14 164/168] bnxt_en: Fix possible unintended driver
- initiated error recovery
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Edwin Peer <edwin.peer@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=JVdJjxGLLGY1GRkGrBP1UGsN1fvznTZbh/mzFYs4Abk=;
+        b=O7dXjhUcwhHtgM3slQ2n2HQ/HdIYcnDLAyFl+54sqIkMCvrDrUeY+VYdMOL/964yu1
+         Ztfn8hhO1Z9tgcZ9J9+NuAQ97q1z4INBV/pDQ9bKY2Nf6UQmjkvVank1zJhDNx0zakAM
+         YMaa9glBo1XU9n0NOVHbuQah3fTChjGPfDOnpW4uQKohQRk/97SDESKrxmLaBgKRQ53Y
+         UBrFrWYD9wIAa0iKcLkHFbI4nPXjUBtRz+ZmK534nd9YCPMuX/qEUzkv3yyFa6n6ATkL
+         vJgZjW+4xk5cpChATR207iP7eoUYFFO50SXttE/xSi4Py58lhJfGZDASC3O++5zoE43L
+         kIPw==
+X-Gm-Message-State: AOAM530FfPlNfT10I/0Ar8kzFX2iUpb2DFsxmvToMjnqZNti5QwCUoQ3
+        gE1t2B+syMaEJEm7pVRzexTJ2ZuHmqMHu/6+S18=
+X-Google-Smtp-Source: ABdhPJzfGOI24rst51uguJhn5uOY874xpVlbDvCd1Q81p8e2L7Nyv2kw+93I3SL7cDkduuVZdZfhZA==
+X-Received: by 2002:a17:90a:1904:: with SMTP id 4mr1096990pjg.191.1632172315748;
+        Mon, 20 Sep 2021 14:11:55 -0700 (PDT)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
+        by smtp.gmail.com with ESMTPSA id n9sm14982736pff.37.2021.09.20.14.11.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Sep 2021 14:11:54 -0700 (PDT)
+Message-ID: <6148f91a.1c69fb81.f036c.85e0@mx.google.com>
+Date:   Mon, 20 Sep 2021 14:11:54 -0700 (PDT)
+X-Google-Original-Date: Mon, 20 Sep 2021 21:11:53 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+Subject: RE: [PATCH 5.10 000/122] 5.10.68-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 20, 2021 at 10:35 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> From: Michael Chan <michael.chan@broadcom.com>
->
-> [ Upstream commit 1b2b91831983aeac3adcbb469aa8b0dc71453f89 ]
->
+On Mon, 20 Sep 2021 18:42:52 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.10.68 release.
+> There are 122 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 22 Sep 2021 16:38:49 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.68-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Please include this patch as well:
+5.10.68-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
 
-eca4cf12acda bnxt_en: Fix error recovery regression
-
-Otherwise, it can cause a regression.  Thanks.
