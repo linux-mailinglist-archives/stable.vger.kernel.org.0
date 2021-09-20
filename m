@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38890411BAA
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:00:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B6FD411FB6
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:43:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245731AbhITRBT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:01:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45916 "EHLO mail.kernel.org"
+        id S245513AbhITRo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:44:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344571AbhITQ7U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:59:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C427C613D1;
-        Mon, 20 Sep 2021 16:52:23 +0000 (UTC)
+        id S1347047AbhITRmT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:42:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E60C61B5E;
+        Mon, 20 Sep 2021 17:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156744;
-        bh=+u8srXkV50xvZ+pOwWTWX4CNnPYo9/ep1rAd/KVOufQ=;
+        s=korg; t=1632157731;
+        bh=DuBStQt5mVWOrW3wxvNKE+kyAnvAPfObhqFJftQAAsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ThWMjBQaoLJ/hYBOeeAb/NkXycTRGNNec42KkF40HTVBJWueEsZryOhaE9PUuXZ7F
-         azz7n0h4ZZESEgr2rMGLftu8nBEDmDOwOzTxLQhcFBCvSh4YNPBlJrjU5xGde9Y6KZ
-         j8BejOzTH5MnW64Sl2JD1O4o16sKnhLeF+4mhbYg=
+        b=KhOwBPrODfYxfFbhMZClnJtAp0WXLILfZqiPqMvIiy7PtVL11evcqEKLTdMEQZWGx
+         GjB7PFNL9yej7z3/XlCw1j7T5dq/QRxNH/nRBhN1mwhlxr1G5vqutF9gwoJ1i0ELsQ
+         1PSDQ4lbVRm5+0+EykXHeuwo1yZoJvcuD0HsUvuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lokesh Vutla <lokeshvutla@ti.com>,
-        Tero Kristo <kristo@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 038/175] crypto: omap-sham - clear dma flags only after omap_sham_update_dma_stop()
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 125/293] include/linux/list.h: add a macro to test if entry is pointing to the head
 Date:   Mon, 20 Sep 2021 18:41:27 +0200
-Message-Id: <20210920163919.308841116@linuxfoundation.org>
+Message-Id: <20210920163937.539431039@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +42,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit fe28140b3393b0ba1eb95cc109f974a7e58b26fd ]
+commit e130816164e244b692921de49771eeb28205152d upstream.
 
-We should not clear FLAGS_DMA_ACTIVE before omap_sham_update_dma_stop() is
-done calling dma_unmap_sg(). We already clear FLAGS_DMA_ACTIVE at the
-end of omap_sham_update_dma_stop().
+Add a macro to test if entry is pointing to the head of the list which is
+useful in cases like:
 
-The early clearing of FLAGS_DMA_ACTIVE is not causing issues as we do not
-need to defer anything based on FLAGS_DMA_ACTIVE currently. So this can be
-applied as clean-up.
+  list_for_each_entry(pos, &head, member) {
+    if (cond)
+      break;
+  }
+  if (list_entry_is_head(pos, &head, member))
+    return -ERRNO;
 
-Cc: Lokesh Vutla <lokeshvutla@ti.com>
-Cc: Tero Kristo <kristo@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+that allows to avoid additional variable to be added to track if loop has
+not been stopped in the middle.
+
+While here, convert list_for_each_entry*() family of macros to use a new one.
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lkml.kernel.org/r/20200929134342.51489-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/omap-sham.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/list.h |   29 +++++++++++++++++++----------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/crypto/omap-sham.c b/drivers/crypto/omap-sham.c
-index 4adcf89add25..801ae958b0ad 100644
---- a/drivers/crypto/omap-sham.c
-+++ b/drivers/crypto/omap-sham.c
-@@ -1745,7 +1745,7 @@ static void omap_sham_done_task(unsigned long data)
- 		if (test_and_clear_bit(FLAGS_OUTPUT_READY, &dd->flags))
- 			goto finish;
- 	} else if (test_bit(FLAGS_DMA_READY, &dd->flags)) {
--		if (test_and_clear_bit(FLAGS_DMA_ACTIVE, &dd->flags)) {
-+		if (test_bit(FLAGS_DMA_ACTIVE, &dd->flags)) {
- 			omap_sham_update_dma_stop(dd);
- 			if (dd->err) {
- 				err = dd->err;
--- 
-2.30.2
-
+--- a/include/linux/list.h
++++ b/include/linux/list.h
+@@ -485,6 +485,15 @@ static inline void list_splice_tail_init
+ 	     pos = n, n = pos->prev)
+ 
+ /**
++ * list_entry_is_head - test if the entry points to the head of the list
++ * @pos:	the type * to cursor
++ * @head:	the head for your list.
++ * @member:	the name of the list_head within the struct.
++ */
++#define list_entry_is_head(pos, head, member)				\
++	(&pos->member == (head))
++
++/**
+  * list_for_each_entry	-	iterate over list of given type
+  * @pos:	the type * to use as a loop cursor.
+  * @head:	the head for your list.
+@@ -492,7 +501,7 @@ static inline void list_splice_tail_init
+  */
+ #define list_for_each_entry(pos, head, member)				\
+ 	for (pos = list_first_entry(head, typeof(*pos), member);	\
+-	     &pos->member != (head);					\
++	     !list_entry_is_head(pos, head, member);			\
+ 	     pos = list_next_entry(pos, member))
+ 
+ /**
+@@ -503,7 +512,7 @@ static inline void list_splice_tail_init
+  */
+ #define list_for_each_entry_reverse(pos, head, member)			\
+ 	for (pos = list_last_entry(head, typeof(*pos), member);		\
+-	     &pos->member != (head); 					\
++	     !list_entry_is_head(pos, head, member); 			\
+ 	     pos = list_prev_entry(pos, member))
+ 
+ /**
+@@ -528,7 +537,7 @@ static inline void list_splice_tail_init
+  */
+ #define list_for_each_entry_continue(pos, head, member) 		\
+ 	for (pos = list_next_entry(pos, member);			\
+-	     &pos->member != (head);					\
++	     !list_entry_is_head(pos, head, member);			\
+ 	     pos = list_next_entry(pos, member))
+ 
+ /**
+@@ -542,7 +551,7 @@ static inline void list_splice_tail_init
+  */
+ #define list_for_each_entry_continue_reverse(pos, head, member)		\
+ 	for (pos = list_prev_entry(pos, member);			\
+-	     &pos->member != (head);					\
++	     !list_entry_is_head(pos, head, member);			\
+ 	     pos = list_prev_entry(pos, member))
+ 
+ /**
+@@ -554,7 +563,7 @@ static inline void list_splice_tail_init
+  * Iterate over list of given type, continuing from current position.
+  */
+ #define list_for_each_entry_from(pos, head, member) 			\
+-	for (; &pos->member != (head);					\
++	for (; !list_entry_is_head(pos, head, member);			\
+ 	     pos = list_next_entry(pos, member))
+ 
+ /**
+@@ -567,7 +576,7 @@ static inline void list_splice_tail_init
+  * Iterate backwards over list of given type, continuing from current position.
+  */
+ #define list_for_each_entry_from_reverse(pos, head, member)		\
+-	for (; &pos->member != (head);					\
++	for (; !list_entry_is_head(pos, head, member);			\
+ 	     pos = list_prev_entry(pos, member))
+ 
+ /**
+@@ -580,7 +589,7 @@ static inline void list_splice_tail_init
+ #define list_for_each_entry_safe(pos, n, head, member)			\
+ 	for (pos = list_first_entry(head, typeof(*pos), member),	\
+ 		n = list_next_entry(pos, member);			\
+-	     &pos->member != (head); 					\
++	     !list_entry_is_head(pos, head, member); 			\
+ 	     pos = n, n = list_next_entry(n, member))
+ 
+ /**
+@@ -596,7 +605,7 @@ static inline void list_splice_tail_init
+ #define list_for_each_entry_safe_continue(pos, n, head, member) 		\
+ 	for (pos = list_next_entry(pos, member), 				\
+ 		n = list_next_entry(pos, member);				\
+-	     &pos->member != (head);						\
++	     !list_entry_is_head(pos, head, member);				\
+ 	     pos = n, n = list_next_entry(n, member))
+ 
+ /**
+@@ -611,7 +620,7 @@ static inline void list_splice_tail_init
+  */
+ #define list_for_each_entry_safe_from(pos, n, head, member) 			\
+ 	for (n = list_next_entry(pos, member);					\
+-	     &pos->member != (head);						\
++	     !list_entry_is_head(pos, head, member);				\
+ 	     pos = n, n = list_next_entry(n, member))
+ 
+ /**
+@@ -627,7 +636,7 @@ static inline void list_splice_tail_init
+ #define list_for_each_entry_safe_reverse(pos, n, head, member)		\
+ 	for (pos = list_last_entry(head, typeof(*pos), member),		\
+ 		n = list_prev_entry(pos, member);			\
+-	     &pos->member != (head); 					\
++	     !list_entry_is_head(pos, head, member); 			\
+ 	     pos = n, n = list_prev_entry(n, member))
+ 
+ /**
 
 
