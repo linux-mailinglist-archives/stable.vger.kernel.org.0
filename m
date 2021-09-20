@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6B71411A8B
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:49:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AD80411BF2
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:03:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244226AbhITQuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:50:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36452 "EHLO mail.kernel.org"
+        id S245066AbhITRFH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:05:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244159AbhITQtR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:49:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B52961350;
-        Mon, 20 Sep 2021 16:47:46 +0000 (UTC)
+        id S1345410AbhITRCb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:02:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6128261439;
+        Mon, 20 Sep 2021 16:53:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156467;
-        bh=BqJfEM/XX6MFJpZr0x2o099gWdH/DC1TMCSauhMBGhE=;
+        s=korg; t=1632156826;
+        bh=4M6l8XnkxZIOgOak0YlBiTwRChEPn0n+I4psvZFEQy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KIGg+9Jml/zcYfGBCTyOD5eKongBKbduEy7FhxU7lA8iwkx+196ZV+mY/vv9IJWVT
-         5zapy39xF+McGOVibeEQ4aY7tiqGOdthHwOYfdFvZW7mRwifJUndheCeo1ZFGicow2
-         4sCg4AerQe651Bho67h8dXjcx11Gnzcdm8wRmwTs=
+        b=P0Zh+0d/6RmTvru/hDfr5edOX9Np4RvhdtsX/xWQM/UlbsemzQFw1sT9zc+cVKzmc
+         ImjDNYMaWw/E3gFIT1y9JXRgcHg4N3WiqpTOMqT3SYsB/0I2UrE2O2h6avLzCe0Qrs
+         g+bm6KQOLwhniNeBO8Wx+s2R+NwXXMCRVlBMlryU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.4 073/133] PCI/MSI: Skip masking MSI-X on Xen PV
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Stafford Horne <shorne@gmail.com>,
+        openrisc@lists.librecores.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 102/175] openrisc: dont printk() unconditionally
 Date:   Mon, 20 Sep 2021 18:42:31 +0200
-Message-Id: <20210920163915.034531162@linuxfoundation.org>
+Message-Id: <20210920163921.411426223@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 1a519dc7a73c977547d8b5108d98c6e769c89f4b upstream.
+[ Upstream commit 946e1052cdcc7e585ee5d1e72528ca49fb295243 ]
 
-When running as Xen PV guest, masking MSI-X is a responsibility of the
-hypervisor. The guest has no write access to the relevant BAR at all - when
-it tries to, it results in a crash like this:
+Don't call printk() when CONFIG_PRINTK is not set.
+Fixes the following build errors:
 
-    BUG: unable to handle page fault for address: ffffc9004069100c
-    #PF: supervisor write access in kernel mode
-    #PF: error_code(0x0003) - permissions violation
-    RIP: e030:__pci_enable_msix_range.part.0+0x26b/0x5f0
-     e1000e_set_interrupt_capability+0xbf/0xd0 [e1000e]
-     e1000_probe+0x41f/0xdb0 [e1000e]
-     local_pci_probe+0x42/0x80
-    (...)
+or1k-linux-ld: arch/openrisc/kernel/entry.o: in function `_external_irq_handler':
+(.text+0x804): undefined reference to `printk'
+(.text+0x804): relocation truncated to fit: R_OR1K_INSN_REL_26 against undefined symbol `printk'
 
-The recently introduced function msix_mask_all() does not check the global
-variable pci_msi_ignore_mask which is set by XEN PV to bypass the masking
-of MSI[-X] interrupts.
-
-Add the check to make this function XEN PV compatible.
-
-Fixes: 7d5ec3d36123 ("PCI/MSI: Mask all unused MSI-X entries")
-Signed-off-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210826170342.135172-1-marmarek@invisiblethingslab.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9d02a4283e9c ("OpenRISC: Boot code")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Cc: Stafford Horne <shorne@gmail.com>
+Cc: openrisc@lists.librecores.org
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/msi.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/openrisc/kernel/entry.S | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -748,6 +748,9 @@ static void msix_mask_all(void __iomem *
- 	u32 ctrl = PCI_MSIX_ENTRY_CTRL_MASKBIT;
- 	int i;
+diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
+index 3fbe420f49c4..92cdc1e56b60 100644
+--- a/arch/openrisc/kernel/entry.S
++++ b/arch/openrisc/kernel/entry.S
+@@ -491,6 +491,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
+ 	l.bnf	1f			// ext irq enabled, all ok.
+ 	l.nop
  
-+	if (pci_msi_ignore_mask)
-+		return;
-+
- 	for (i = 0; i < tsize; i++, base += PCI_MSIX_ENTRY_SIZE)
- 		writel(ctrl, base + PCI_MSIX_ENTRY_VECTOR_CTRL);
- }
++#ifdef CONFIG_PRINTK
+ 	l.addi  r1,r1,-0x8
+ 	l.movhi r3,hi(42f)
+ 	l.ori	r3,r3,lo(42f)
+@@ -504,6 +505,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
+ 		.string "\n\rESR interrupt bug: in _external_irq_handler (ESR %x)\n\r"
+ 		.align 4
+ 	.previous
++#endif
+ 
+ 	l.ori	r4,r4,SPR_SR_IEE	// fix the bug
+ //	l.sw	PT_SR(r1),r4
+-- 
+2.30.2
+
 
 
