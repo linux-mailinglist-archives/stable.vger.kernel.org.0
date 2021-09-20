@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D33F4125C8
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:49:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E69C7412447
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:31:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354330AbhITSsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:48:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59834 "EHLO mail.kernel.org"
+        id S1380025AbhITSdG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:33:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353992AbhITSqS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:46:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8F726335E;
-        Mon, 20 Sep 2021 17:33:13 +0000 (UTC)
+        id S1379872AbhITSbA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:31:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 94447632F5;
+        Mon, 20 Sep 2021 17:27:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159194;
-        bh=EFMNFVAc5CcSijdhhhVHCaxpm6yJnxx8kYaKNOizbCs=;
+        s=korg; t=1632158852;
+        bh=6you6jM5IneUAQtuSVKKOeeEHM1yVNaNq0/kkbNxMDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L7KrU0mk0ygdyHXYeSGBKrYi6C9TQJeyqh1Nh5MdmaBw7SgWbsMei3R/J/ifXNFnR
-         5XcNrbHulR2tsUOQ95u0qAKoyYGjXRFCidFPMy702jRsRHQAF23yZcGhP9kwowNGCB
-         AP/s2tkZUNDfzK3ZSHE4rrNbaDLwST6fN1Km+jLk=
+        b=AAdJv1mirXJfsEj656s1BEmICmPNGQ6uzZ2tRauEtuxxtDW59TRuCcB4tYqi5Hip6
+         H2G1U2pTulg4PF3kVVrzLHhRfuvmBHQJSzdfgExVqRE9+/8cxFhlJ6yHQO3r4WRgkR
+         +/E4NlprtmznY2aE1ytPOPUp0UyvwJPLiClRrNd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhaoxiao <long870912@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 119/168] stmmac: dwmac-loongson:Fix missing return value
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+649e339fa6658ee623d3@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 085/122] netfilter: nft_ct: protect nft_ct_pcpu_template_refcnt with mutex
 Date:   Mon, 20 Sep 2021 18:44:17 +0200
-Message-Id: <20210920163925.557187655@linuxfoundation.org>
+Message-Id: <20210920163918.576789653@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +42,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhaoxiao <long870912@gmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 5289de5929d1758a95477a4d160195397ccffa7b ]
+[ Upstream commit e3245a7b7b34bd2e97f744fd79463add6e9d41f4 ]
 
-Add the return value when phy_mode < 0.
+Syzbot hit use-after-free in nf_tables_dump_sets. The problem was in
+missing lock protection for nft_ct_pcpu_template_refcnt.
 
-Signed-off-by: zhaoxiao <long870912@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Before commit f102d66b335a ("netfilter: nf_tables: use dedicated
+mutex to guard transactions") all transactions were serialized by global
+mutex, but then global mutex was changed to local per netnamespace
+commit_mutex.
+
+This change causes use-after-free bug, when 2 netnamespaces concurently
+changing nft_ct_pcpu_template_refcnt without proper locking. Fix it by
+adding nft_ct_pcpu_mutex and protect all nft_ct_pcpu_template_refcnt
+changes with it.
+
+Fixes: f102d66b335a ("netfilter: nf_tables: use dedicated mutex to guard transactions")
+Reported-and-tested-by: syzbot+649e339fa6658ee623d3@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/netfilter/nft_ct.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c
-index 4c9a37dd0d3f..ecf759ee1c9f 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c
-@@ -109,8 +109,10 @@ static int loongson_dwmac_probe(struct pci_dev *pdev, const struct pci_device_id
- 		plat->bus_id = pci_dev_id(pdev);
+diff --git a/net/netfilter/nft_ct.c b/net/netfilter/nft_ct.c
+index 7af822a02ce9..7fcb73ac2e6e 100644
+--- a/net/netfilter/nft_ct.c
++++ b/net/netfilter/nft_ct.c
+@@ -41,6 +41,7 @@ struct nft_ct_helper_obj  {
+ #ifdef CONFIG_NF_CONNTRACK_ZONES
+ static DEFINE_PER_CPU(struct nf_conn *, nft_ct_pcpu_template);
+ static unsigned int nft_ct_pcpu_template_refcnt __read_mostly;
++static DEFINE_MUTEX(nft_ct_pcpu_mutex);
+ #endif
  
- 	phy_mode = device_get_phy_mode(&pdev->dev);
--	if (phy_mode < 0)
-+	if (phy_mode < 0) {
- 		dev_err(&pdev->dev, "phy_mode not found\n");
-+		return phy_mode;
-+	}
- 
- 	plat->phy_interface = phy_mode;
- 	plat->interface = PHY_INTERFACE_MODE_GMII;
+ static u64 nft_ct_get_eval_counter(const struct nf_conn_counter *c,
+@@ -526,8 +527,10 @@ static void __nft_ct_set_destroy(const struct nft_ctx *ctx, struct nft_ct *priv)
+ #endif
+ #ifdef CONFIG_NF_CONNTRACK_ZONES
+ 	case NFT_CT_ZONE:
++		mutex_lock(&nft_ct_pcpu_mutex);
+ 		if (--nft_ct_pcpu_template_refcnt == 0)
+ 			nft_ct_tmpl_put_pcpu();
++		mutex_unlock(&nft_ct_pcpu_mutex);
+ 		break;
+ #endif
+ 	default:
+@@ -565,9 +568,13 @@ static int nft_ct_set_init(const struct nft_ctx *ctx,
+ #endif
+ #ifdef CONFIG_NF_CONNTRACK_ZONES
+ 	case NFT_CT_ZONE:
+-		if (!nft_ct_tmpl_alloc_pcpu())
++		mutex_lock(&nft_ct_pcpu_mutex);
++		if (!nft_ct_tmpl_alloc_pcpu()) {
++			mutex_unlock(&nft_ct_pcpu_mutex);
+ 			return -ENOMEM;
++		}
+ 		nft_ct_pcpu_template_refcnt++;
++		mutex_unlock(&nft_ct_pcpu_mutex);
+ 		len = sizeof(u16);
+ 		break;
+ #endif
 -- 
 2.30.2
 
