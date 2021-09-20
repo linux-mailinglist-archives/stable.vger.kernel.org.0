@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A887412535
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:41:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C5C7412423
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:29:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349278AbhITSmU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:42:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56446 "EHLO mail.kernel.org"
+        id S1346662AbhITSbD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:31:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1382299AbhITSkR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:40:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F48663336;
-        Mon, 20 Sep 2021 17:31:01 +0000 (UTC)
+        id S1379311AbhITS26 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:28:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 592DA632E9;
+        Mon, 20 Sep 2021 17:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159061;
-        bh=2GJuYlt5+/+RNZzlYfYMWvApPEszUcLLoEHpH35uNAU=;
+        s=korg; t=1632158808;
+        bh=CDVPspepKHB71DLlPw/dpNjhXYCTvV8R0Lyv5FQGvb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pWUDfWlDB53nf7c5j000sQIWOK8v0pq+LcUaluoJwdXXt4TOGm9YiplWPyviHuGYs
-         uHVtoJ0TG6zHLjyuwZB8mOaeho0YRmbpKnbYoSSgCtYUycQulTXCOS4BO+MTErJHJK
-         /ui3NH5oWBq1KNHc8r7dj/Yd2XFvr9nW1Kdc9vVw=
+        b=IsLrqQ5CbPUj9BnIBrZxbDzuNkJ16q6Q6BBpR3Fhs6Om2JJkgAsdwWagwCalLZyG1
+         NKP/umKj+n9ZqFMygnON1+6zhrbUi5Q5z1HwP/GtfEO/Tq64iFzeziRNS+WXPUJueg
+         mVpQXWl2zqpliqdpbcwJ3CQkLsYU164PDm92W9JA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Baptiste Lepers <baptiste.lepers@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.14 057/168] events: Reuse value read using READ_ONCE instead of re-reading it
+        stable@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 023/122] net/{mlx5|nfp|bnxt}: Remove unnecessary RTNL lock assert
 Date:   Mon, 20 Sep 2021 18:43:15 +0200
-Message-Id: <20210920163923.518240867@linuxfoundation.org>
+Message-Id: <20210920163916.553678121@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baptiste Lepers <baptiste.lepers@gmail.com>
+From: Eli Cohen <elic@nvidia.com>
 
-commit b89a05b21f46150ac10a962aa50109250b56b03b upstream.
+commit 7c3a0a018e672a9723a79b128227272562300055 upstream.
 
-In perf_event_addr_filters_apply, the task associated with
-the event (event->ctx->task) is read using READ_ONCE at the beginning
-of the function, checked, and then re-read from event->ctx->task,
-voiding all guarantees of the checks. Reuse the value that was read by
-READ_ONCE to ensure the consistency of the task struct throughout the
-function.
+Remove the assert from the callback priv lookup function since it does
+not require RTNL lock and is already protected by flow_indr_block_lock.
 
-Fixes: 375637bc52495 ("perf/core: Introduce address range filtering")
-Signed-off-by: Baptiste Lepers <baptiste.lepers@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210906015310.12802-1-baptiste.lepers@gmail.com
+This will avoid warnings from being emitted to dmesg if the driver
+registers its callback after an ingress qdisc was created for a
+netdevice.
+
+The warnings started after the following patch was merged:
+commit 74fc4f828769 ("net: Fix offloading indirect devices dependency on qdisc order creation")
+
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_tc.c        |    3 ---
+ drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c |    3 ---
+ drivers/net/ethernet/netronome/nfp/flower/offload.c |    3 ---
+ 3 files changed, 9 deletions(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -10192,7 +10192,7 @@ static void perf_event_addr_filters_appl
- 		return;
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_tc.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_tc.c
+@@ -1870,9 +1870,6 @@ bnxt_tc_indr_block_cb_lookup(struct bnxt
+ {
+ 	struct bnxt_flower_indr_block_cb_priv *cb_priv;
  
- 	if (ifh->nr_file_filters) {
--		mm = get_task_mm(event->ctx->task);
-+		mm = get_task_mm(task);
- 		if (!mm)
- 			goto restart;
+-	/* All callback list access should be protected by RTNL. */
+-	ASSERT_RTNL();
+-
+ 	list_for_each_entry(cb_priv, &bp->tc_indr_block_list, list)
+ 		if (cb_priv->tunnel_netdev == netdev)
+ 			return cb_priv;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c
+@@ -298,9 +298,6 @@ mlx5e_rep_indr_block_priv_lookup(struct
+ {
+ 	struct mlx5e_rep_indr_block_priv *cb_priv;
  
+-	/* All callback list access should be protected by RTNL. */
+-	ASSERT_RTNL();
+-
+ 	list_for_each_entry(cb_priv,
+ 			    &rpriv->uplink_priv.tc_indr_block_priv_list,
+ 			    list)
+--- a/drivers/net/ethernet/netronome/nfp/flower/offload.c
++++ b/drivers/net/ethernet/netronome/nfp/flower/offload.c
+@@ -1732,9 +1732,6 @@ nfp_flower_indr_block_cb_priv_lookup(str
+ 	struct nfp_flower_indr_block_cb_priv *cb_priv;
+ 	struct nfp_flower_priv *priv = app->priv;
+ 
+-	/* All callback list access should be protected by RTNL. */
+-	ASSERT_RTNL();
+-
+ 	list_for_each_entry(cb_priv, &priv->indr_block_cb_priv, list)
+ 		if (cb_priv->netdev == netdev)
+ 			return cb_priv;
 
 
