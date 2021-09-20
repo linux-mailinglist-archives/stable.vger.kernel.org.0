@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 417C9412601
+	by mail.lfdr.de (Postfix) with ESMTP id B513C412602
 	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:51:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385862AbhITSwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:52:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33338 "EHLO mail.kernel.org"
+        id S1385865AbhITSwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:52:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1385478AbhITSu2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:50:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E36D63381;
-        Mon, 20 Sep 2021 17:34:49 +0000 (UTC)
+        id S1385496AbhITSua (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:50:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6058F63378;
+        Mon, 20 Sep 2021 17:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159289;
-        bh=1vU2pc2dafStELicyKO2T62E2HcMJTcWH94LaUxYn0k=;
+        s=korg; t=1632159291;
+        bh=8/yye/4zvPjG7kAcdR5+Vg31xWD23JRkZxSAEoaWl68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SgkEH/LVXRtSizpwRa5EG/sjZjqmIWoUJSD6k6lb7bOm7EgqG7fIbmhAUAzTcSEE5
-         i7YK+qJRuPAJsvNPYFio0EwalFJOlFDqQgxKsbV/LevcQ9bVcgcwS8Kx0jozexFGn5
-         gy9ETfQPaIcdQdj/J9Lp/LzNmiOAnpQjkf6EBilI=
+        b=ng63V6w33py0Tnh+1mnImFbwjLN+ulBUAFrN7o+jbrkZot5zlm59CiG9mKIgQ6Sfi
+         pi3pfXmpBb1PNqUKgMJN89Y8Ndx8H+A2lFoz4yZ7oY2CSseSBtaSKOhabzpMC7vyby
+         XDbapMI9ctVHqD0XpHqii4CZUF7vNJFvtYJ63088=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
+        Somnath Kotur <somnath.kotur@broadcom.com>,
         Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 162/168] bnxt_en: fix stored FW_PSID version masks
-Date:   Mon, 20 Sep 2021 18:45:00 +0200
-Message-Id: <20210920163926.997463008@linuxfoundation.org>
+Subject: [PATCH 5.14 163/168] bnxt_en: Fix asic.rev in devlink dev info command
+Date:   Mon, 20 Sep 2021 18:45:01 +0200
+Message-Id: <20210920163927.029982361@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
 References: <20210920163921.633181900@linuxfoundation.org>
@@ -41,36 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edwin Peer <edwin.peer@broadcom.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 1656db67233e4259281d2ac35b25f712edbbc20b ]
+[ Upstream commit 6fdab8a3ade2adc123bbf5c4fdec3394560b1fb1 ]
 
-The FW_PSID version components are 8 bits wide, not 4.
+The current asic.rev is incomplete and does not include the metal
+revision.  Add the metal revision and decode the complete asic
+revision into the more common and readable form (A0, B0, etc).
 
-Fixes: db28b6c77f40 ("bnxt_en: Fix devlink info's stored fw.psid version format.")
-Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
+Fixes: 7154917a12b2 ("bnxt_en: Refactor bnxt_dl_info_get().")
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
 Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
-index 64381be935a8..8b7f6a0ad401 100644
+index 8b7f6a0ad401..bb228619ec64 100644
 --- a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
 +++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
-@@ -471,8 +471,8 @@ static int bnxt_dl_info_get(struct devlink *dl, struct devlink_info_req *req,
- 	if (BNXT_PF(bp) && !bnxt_hwrm_get_nvm_cfg_ver(bp, &nvm_cfg_ver)) {
- 		u32 ver = nvm_cfg_ver.vu32;
+@@ -449,7 +449,7 @@ static int bnxt_dl_info_get(struct devlink *dl, struct devlink_info_req *req,
+ 		return rc;
  
--		sprintf(buf, "%d.%d.%d", (ver >> 16) & 0xf, (ver >> 8) & 0xf,
--			ver & 0xf);
-+		sprintf(buf, "%d.%d.%d", (ver >> 16) & 0xff, (ver >> 8) & 0xff,
-+			ver & 0xff);
- 		rc = bnxt_dl_info_put(bp, req, BNXT_VERSION_STORED,
- 				      DEVLINK_INFO_VERSION_GENERIC_FW_PSID,
- 				      buf);
+ 	ver_resp = &bp->ver_resp;
+-	sprintf(buf, "%X", ver_resp->chip_rev);
++	sprintf(buf, "%c%d", 'A' + ver_resp->chip_rev, ver_resp->chip_metal);
+ 	rc = bnxt_dl_info_put(bp, req, BNXT_VERSION_FIXED,
+ 			      DEVLINK_INFO_VERSION_GENERIC_ASIC_REV, buf);
+ 	if (rc)
 -- 
 2.30.2
 
