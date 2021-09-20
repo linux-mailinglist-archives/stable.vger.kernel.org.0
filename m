@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C24C411C4B
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:06:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C5D9412095
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:55:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346577AbhITRHv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:07:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55058 "EHLO mail.kernel.org"
+        id S1355638AbhITRzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:55:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229530AbhITRFt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:05:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 990E0615E0;
-        Mon, 20 Sep 2021 16:55:04 +0000 (UTC)
+        id S1354837AbhITRvc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:51:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64EAC61BD3;
+        Mon, 20 Sep 2021 17:12:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156905;
-        bh=tZ4XmEDq5WrOAOAVUR7U8zB9+XCNdK20ihOrupYXedc=;
+        s=korg; t=1632157948;
+        bh=8SDHb8hSl496jfByXxncjrG9+2gL6ZG90hdDm5d0zc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i+P2CdBHI/cfyoy0ZFK1UdobPf/V+DYTXmLo6enXO/SSsGydAONaeCKz2AWL+Llmt
-         7fzchMgX/JmGh1//3jnPUZx7ApeQmJ0ZaNmJOvjvVoEwqtShNVpVz4FAmGkdPb4fEH
-         3SOeeAxPJ9HW9VdnWx/IjbvnUFRBx7Ue/888Qxo0=
+        b=2ZgnOwyq79Q+gsMouVpHPYtZs0ITM2z9/c5sMQnXoqEa4xNNSp2JGS+tHbaqMItQL
+         /yo/MgSr+nJup6CyMkrvUY/iT++ehDyrcSxT1eHy6op2YZgL2mbXH7TwqFMT6c9DN3
+         f/0w7z1baOUlp4CYKlXn1JOU21Kk51YcQegrJbe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 138/175] gfs2: Dont call dlm after protocol is unmounted
-Date:   Mon, 20 Sep 2021 18:43:07 +0200
-Message-Id: <20210920163922.587702222@linuxfoundation.org>
+Subject: [PATCH 4.19 226/293] mmc: rtsx_pci: Fix long reads when clock is prescaled
+Date:   Mon, 20 Sep 2021 18:43:08 +0200
+Message-Id: <20210920163941.119968606@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,52 +40,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Thomas Hebb <tommyhebb@gmail.com>
 
-[ Upstream commit d1340f80f0b8066321b499a376780da00560e857 ]
+[ Upstream commit 3ac5e45291f3f0d699a721357380d4593bc2dcb3 ]
 
-In the gfs2 withdraw sequence, the dlm protocol is unmounted with a call
-to lm_unmount. After a withdraw, users are allowed to unmount the
-withdrawn file system. But at that point we may still have glocks left
-over that we need to free via unmount's call to gfs2_gl_hash_clear.
-These glocks may have never been completed because of whatever problem
-caused the withdraw (IO errors or whatever).
+For unexplained reasons, the prescaler register for this device needs to
+be cleared (set to 1) while performing a data read or else the command
+will hang. This does not appear to affect the real clock rate sent out
+on the bus, so I assume it's purely to work around a hardware bug.
 
-Before this patch, function gdlm_put_lock would still try to call into
-dlm to unlock these leftover glocks, which resulted in dlm returning
--EINVAL because the lock space was abandoned. These glocks were never
-freed because there was no mechanism after that to free them.
+During normal operation, the prescaler is already set to 1, so nothing
+needs to be done. However, in "initial mode" (which is used for sub-MHz
+clock speeds, like the core sets while enumerating cards), it's set to
+128 and so we need to reset it during data reads. We currently fail to
+do this for long reads.
 
-This patch adds a check to gdlm_put_lock to see if the locking protocol
-was inactive (DFL_UNMOUNT flag) and if so, free the glock and not
-make the invalid call into dlm.
+This has no functional affect on the driver's operation currently
+written, as the MMC core always sets a clock above 1MHz before
+attempting any long reads. However, the core could conceivably set any
+clock speed at any time and the driver should still work, so I think
+this fix is worthwhile.
 
-I could have combined this "if" with the one that follows, related to
-leftover glock LVBs, but I felt the code was more readable with its own
-if clause.
+I personally encountered this issue while performing data recovery on an
+external chip. My connections had poor signal integrity, so I modified
+the core code to reduce the clock speed. Without this change, I saw the
+card enumerate but was unable to actually read any data.
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Writes don't seem to work in the situation described above even with
+this change (and even if the workaround is extended to encompass data
+write commands). I was not able to find a way to get them working.
+
+Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+Link: https://lore.kernel.org/r/2fef280d8409ab0100c26c6ac7050227defd098d.1627818365.git.tommyhebb@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/lock_dlm.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/mmc/host/rtsx_pci_sdmmc.c | 36 ++++++++++++++++++++-----------
+ 1 file changed, 23 insertions(+), 13 deletions(-)
 
-diff --git a/fs/gfs2/lock_dlm.c b/fs/gfs2/lock_dlm.c
-index 3cbc9147286d..da9f97911852 100644
---- a/fs/gfs2/lock_dlm.c
-+++ b/fs/gfs2/lock_dlm.c
-@@ -296,6 +296,11 @@ static void gdlm_put_lock(struct gfs2_glock *gl)
- 	gfs2_sbstats_inc(gl, GFS2_LKS_DCOUNT);
- 	gfs2_update_request_times(gl);
+diff --git a/drivers/mmc/host/rtsx_pci_sdmmc.c b/drivers/mmc/host/rtsx_pci_sdmmc.c
+index 02de6a5701d6..c1de8fa50fe8 100644
+--- a/drivers/mmc/host/rtsx_pci_sdmmc.c
++++ b/drivers/mmc/host/rtsx_pci_sdmmc.c
+@@ -551,9 +551,22 @@ static int sd_write_long_data(struct realtek_pci_sdmmc *host,
+ 	return 0;
+ }
  
-+	/* don't want to call dlm if we've unmounted the lock protocol */
-+	if (test_bit(DFL_UNMOUNT, &ls->ls_recover_flags)) {
-+		gfs2_glock_free(gl);
-+		return;
++static inline void sd_enable_initial_mode(struct realtek_pci_sdmmc *host)
++{
++	rtsx_pci_write_register(host->pcr, SD_CFG1,
++			SD_CLK_DIVIDE_MASK, SD_CLK_DIVIDE_128);
++}
++
++static inline void sd_disable_initial_mode(struct realtek_pci_sdmmc *host)
++{
++	rtsx_pci_write_register(host->pcr, SD_CFG1,
++			SD_CLK_DIVIDE_MASK, SD_CLK_DIVIDE_0);
++}
++
+ static int sd_rw_multi(struct realtek_pci_sdmmc *host, struct mmc_request *mrq)
+ {
+ 	struct mmc_data *data = mrq->data;
++	int err;
+ 
+ 	if (host->sg_count < 0) {
+ 		data->error = host->sg_count;
+@@ -562,22 +575,19 @@ static int sd_rw_multi(struct realtek_pci_sdmmc *host, struct mmc_request *mrq)
+ 		return data->error;
+ 	}
+ 
+-	if (data->flags & MMC_DATA_READ)
+-		return sd_read_long_data(host, mrq);
++	if (data->flags & MMC_DATA_READ) {
++		if (host->initial_mode)
++			sd_disable_initial_mode(host);
+ 
+-	return sd_write_long_data(host, mrq);
+-}
++		err = sd_read_long_data(host, mrq);
+ 
+-static inline void sd_enable_initial_mode(struct realtek_pci_sdmmc *host)
+-{
+-	rtsx_pci_write_register(host->pcr, SD_CFG1,
+-			SD_CLK_DIVIDE_MASK, SD_CLK_DIVIDE_128);
+-}
++		if (host->initial_mode)
++			sd_enable_initial_mode(host);
+ 
+-static inline void sd_disable_initial_mode(struct realtek_pci_sdmmc *host)
+-{
+-	rtsx_pci_write_register(host->pcr, SD_CFG1,
+-			SD_CLK_DIVIDE_MASK, SD_CLK_DIVIDE_0);
++		return err;
 +	}
- 	/* don't want to skip dlm_unlock writing the lvb when lock has one */
++
++	return sd_write_long_data(host, mrq);
+ }
  
- 	if (test_bit(SDF_SKIP_DLM_UNLOCK, &sdp->sd_flags) &&
+ static void sd_normal_rw(struct realtek_pci_sdmmc *host,
 -- 
 2.30.2
 
