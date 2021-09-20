@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6399B411B6D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:57:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F149D411F84
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:41:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343552AbhITQ6h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:58:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47906 "EHLO mail.kernel.org"
+        id S1348637AbhITRlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:41:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245262AbhITQ4h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:56:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE7C861222;
-        Mon, 20 Sep 2021 16:51:19 +0000 (UTC)
+        id S1352361AbhITRjO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:39:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B71CB61B54;
+        Mon, 20 Sep 2021 17:07:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156680;
-        bh=sOcDb3H2CXjiS9xpKdmIHMAlAP6DiWdoQxdA9WNpa/s=;
+        s=korg; t=1632157657;
+        bh=fz1/QylEBCzGHxkqcKKKVK44SfT7RlLM0AJI4IcPicY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w7vdo2N5/fCkG6749fJwsmSwVcbDuZcK9Ra1RGSGvqqPZ40fSXRJlBmF7Hz0erxyp
-         7U6J5iPYUuIRY5lnH8NGwI5dyPDz9uMNjuAYQLmBK9JgOEs7lwZy9DOw+XwQhwJsPH
-         ieTrfX8Wzfj1ergaaXs+IPzBGrIOUgCKbqkWQUyE=
+        b=pgEKk9lBuCaF6zvcS/LW3vLYHfSWndvvFgX7PpI+iCXrTJFQ+VfJTyrU+66YRE42M
+         /SRRup8GqI7Ks0BAWiacl/8Ahld55lUBsqiV3tHWplnkUXP3OvI74DYCdJCwjYYGTu
+         3LO24YitED0gGFn8C+7BSlN1uDBLg5NAA3vB3IVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prabhakar Kushwaha <pkushwaha@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        Shai Malin <smalin@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 004/175] qed: Fix the VF msix vectors flow
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 091/293] i2c: s3c2410: fix IRQ check
 Date:   Mon, 20 Sep 2021 18:40:53 +0200
-Message-Id: <20210920163918.214329345@linuxfoundation.org>
+Message-Id: <20210920163936.380526993@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shai Malin <smalin@marvell.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit b0cd08537db8d2fbb227cdb2e5835209db295a24 ]
+[ Upstream commit d6840a5e370b7ea4fde16ce2caf431bcc87f9a75 ]
 
-For VFs we should return with an error in case we didn't get the exact
-number of msix vectors as we requested.
-Not doing that will lead to a crash when starting queues for this VF.
+Iff platform_get_irq() returns 0, the driver's probe() method will return 0
+early (as if the method's call was successful).  Let's consider IRQ0 valid
+for simplicity -- devm_request_irq() can always override that decision...
 
-Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: Shai Malin <smalin@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e0d1ec97853f ("i2c-s3c2410: Change IRQ to be plain integer.")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_main.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-s3c2410.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_main.c b/drivers/net/ethernet/qlogic/qed/qed_main.c
-index 708117fc6f73..7669d36151c6 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_main.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_main.c
-@@ -374,7 +374,12 @@ static int qed_enable_msix(struct qed_dev *cdev,
- 			rc = cnt;
- 	}
- 
--	if (rc > 0) {
-+	/* For VFs, we should return with an error in case we didn't get the
-+	 * exact number of msix vectors as we requested.
-+	 * Not doing that will lead to a crash when starting queues for
-+	 * this VF.
-+	 */
-+	if ((IS_PF(cdev) && rc > 0) || (IS_VF(cdev) && rc == cnt)) {
- 		/* MSI-x configuration was achieved */
- 		int_params->out.int_mode = QED_INT_MODE_MSIX;
- 		int_params->out.num_vectors = rc;
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index d3603e261a84..4c6036920388 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -1179,7 +1179,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	 */
+ 	if (!(i2c->quirks & QUIRK_POLL)) {
+ 		i2c->irq = ret = platform_get_irq(pdev, 0);
+-		if (ret <= 0) {
++		if (ret < 0) {
+ 			dev_err(&pdev->dev, "cannot find IRQ\n");
+ 			clk_unprepare(i2c->clk);
+ 			return ret;
 -- 
 2.30.2
 
