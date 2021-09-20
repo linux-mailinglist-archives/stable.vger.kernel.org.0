@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB65D411DB6
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:21:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C5AB411BE6
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:02:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349374AbhITRW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:22:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49382 "EHLO mail.kernel.org"
+        id S1345624AbhITRDv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:03:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347112AbhITRU5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:20:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8F8E61357;
-        Mon, 20 Sep 2021 17:00:43 +0000 (UTC)
+        id S1345228AbhITRBr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:01:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 902D16134F;
+        Mon, 20 Sep 2021 16:53:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157244;
-        bh=/thVWYMUoXkQ0lEVTbUxhcMeP9npuSU4+g/QNKMer6s=;
+        s=korg; t=1632156803;
+        bh=Bi6+0tvVMg2bvDTKx7eAnXNzqB6+GbCNe6ES9zLfERk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zvcDD50v7xhnfDGgT6Wq6ZrbAlgdN2FAWbgzV9i6gxjyV36RgLkF8KYOPzHMKJI06
-         aCkBjimiBSJ2DDsLNwQSrqT8WSOnQBbcPTynILR8IX4asvg70x9C+ecAzfOw/LSdBn
-         zd/F1Gj4XyVx5AlcPb5su4DC37P5FQzSuu/G8zQI=
+        b=NxGbMvp77Aga9oz687j/aZeIJMgwGxNEXLgs41Cv7Jqjx3/0GJHxdoswpFOf/xg6m
+         NiMTqvRQbixoCWTHLFulfZfbkdJYbFx4IsaWrhYAHaD3bO2wHvIYkUJBh5vj43pXIj
+         iqU4Bmpv8chqTs7jUrnwYDvP0sV3l6RiWd2kvw/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 4.14 120/217] PCI: aardvark: Fix masking and unmasking legacy INTx interrupts
+        stable@vger.kernel.org, zhenwei pi <pizhenwei@bytedance.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 4.9 092/175] crypto: public_key: fix overflow during implicit conversion
 Date:   Mon, 20 Sep 2021 18:42:21 +0200
-Message-Id: <20210920163928.726679596@linuxfoundation.org>
+Message-Id: <20210920163921.088114847@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,72 +39,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: zhenwei pi <pizhenwei@bytedance.com>
 
-commit d212dcee27c1f89517181047e5485fcbba4a25c2 upstream.
+commit f985911b7bc75d5c98ed24d8aaa8b94c590f7c6a upstream.
 
-irq_mask and irq_unmask callbacks need to be properly guarded by raw spin
-locks as masking/unmasking procedure needs atomic read-modify-write
-operation on hardware register.
+Hit kernel warning like this, it can be reproduced by verifying 256
+bytes datafile by keyctl command, run script:
+RAWDATA=rawdata
+SIGDATA=sigdata
 
-Link: https://lore.kernel.org/r/20210820155020.3000-1-pali@kernel.org
-Reported-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
+modprobe pkcs8_key_parser
+
+rm -rf *.der *.pem *.pfx
+rm -rf $RAWDATA
+dd if=/dev/random of=$RAWDATA bs=256 count=1
+
+openssl req -nodes -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem \
+  -subj "/C=CN/ST=GD/L=SZ/O=vihoo/OU=dev/CN=xx.com/emailAddress=yy@xx.com"
+
+KEY_ID=`openssl pkcs8 -in key.pem -topk8 -nocrypt -outform DER | keyctl \
+  padd asymmetric 123 @s`
+
+keyctl pkey_sign $KEY_ID 0 $RAWDATA enc=pkcs1 hash=sha1 > $SIGDATA
+keyctl pkey_verify $KEY_ID 0 $RAWDATA $SIGDATA enc=pkcs1 hash=sha1
+
+Then the kernel reports:
+ WARNING: CPU: 5 PID: 344556 at crypto/rsa-pkcs1pad.c:540
+   pkcs1pad_verify+0x160/0x190
+ ...
+ Call Trace:
+  public_key_verify_signature+0x282/0x380
+  ? software_key_query+0x12d/0x180
+  ? keyctl_pkey_params_get+0xd6/0x130
+  asymmetric_key_verify_signature+0x66/0x80
+  keyctl_pkey_verify+0xa5/0x100
+  do_syscall_64+0x35/0xb0
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The reason of this issue, in function 'asymmetric_key_verify_signature':
+'.digest_size(u8) = params->in_len(u32)' leads overflow of an u8 value,
+so use u32 instead of u8 for digest_size field. And reorder struct
+public_key_signature, it saves 8 bytes on a 64-bit machine.
+
 Cc: stable@vger.kernel.org
+Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/host/pci-aardvark.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ include/crypto/public_key.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/host/pci-aardvark.c
-+++ b/drivers/pci/host/pci-aardvark.c
-@@ -200,6 +200,7 @@ struct advk_pcie {
- 	struct list_head resources;
- 	struct irq_domain *irq_domain;
- 	struct irq_chip irq_chip;
-+	raw_spinlock_t irq_lock;
- 	struct irq_domain *msi_domain;
- 	struct irq_domain *msi_inner_domain;
- 	struct irq_chip msi_bottom_irq_chip;
-@@ -638,22 +639,28 @@ static void advk_pcie_irq_mask(struct ir
- {
- 	struct advk_pcie *pcie = d->domain->host_data;
- 	irq_hw_number_t hwirq = irqd_to_hwirq(d);
-+	unsigned long flags;
- 	u32 mask;
- 
-+	raw_spin_lock_irqsave(&pcie->irq_lock, flags);
- 	mask = advk_readl(pcie, PCIE_ISR1_MASK_REG);
- 	mask |= PCIE_ISR1_INTX_ASSERT(hwirq);
- 	advk_writel(pcie, mask, PCIE_ISR1_MASK_REG);
-+	raw_spin_unlock_irqrestore(&pcie->irq_lock, flags);
- }
- 
- static void advk_pcie_irq_unmask(struct irq_data *d)
- {
- 	struct advk_pcie *pcie = d->domain->host_data;
- 	irq_hw_number_t hwirq = irqd_to_hwirq(d);
-+	unsigned long flags;
- 	u32 mask;
- 
-+	raw_spin_lock_irqsave(&pcie->irq_lock, flags);
- 	mask = advk_readl(pcie, PCIE_ISR1_MASK_REG);
- 	mask &= ~PCIE_ISR1_INTX_ASSERT(hwirq);
- 	advk_writel(pcie, mask, PCIE_ISR1_MASK_REG);
-+	raw_spin_unlock_irqrestore(&pcie->irq_lock, flags);
- }
- 
- static int advk_pcie_irq_map(struct irq_domain *h,
-@@ -736,6 +743,8 @@ static int advk_pcie_init_irq_domain(str
- 	struct device_node *pcie_intc_node;
- 	struct irq_chip *irq_chip;
- 
-+	raw_spin_lock_init(&pcie->irq_lock);
-+
- 	pcie_intc_node =  of_get_next_child(node, NULL);
- 	if (!pcie_intc_node) {
- 		dev_err(dev, "No PCIe Intc node found\n");
+--- a/include/crypto/public_key.h
++++ b/include/crypto/public_key.h
+@@ -35,9 +35,9 @@ extern void public_key_free(struct publi
+ struct public_key_signature {
+ 	struct asymmetric_key_id *auth_ids[2];
+ 	u8 *s;			/* Signature */
+-	u32 s_size;		/* Number of bytes in signature */
+ 	u8 *digest;
+-	u8 digest_size;		/* Number of bytes in digest */
++	u32 s_size;		/* Number of bytes in signature */
++	u32 digest_size;	/* Number of bytes in digest */
+ 	const char *pkey_algo;
+ 	const char *hash_algo;
+ };
 
 
