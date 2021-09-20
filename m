@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B1B6411FC3
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:43:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B791411D9A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:20:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348934AbhITRpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:45:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48148 "EHLO mail.kernel.org"
+        id S1349156AbhITRWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:22:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353032AbhITRnV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:43:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 870C261B73;
-        Mon, 20 Sep 2021 17:09:14 +0000 (UTC)
+        id S1348781AbhITRUA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:20:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17E85613D0;
+        Mon, 20 Sep 2021 17:00:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157755;
-        bh=Ya1hswu0XwHbdQRGD+GudeTZTgcg2a4tO2uO/9KUCTQ=;
+        s=korg; t=1632157220;
+        bh=A/wZBZvwYSnuyax7WIFa7xd9QAEyItRXbZeV1zukuvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abPDJNPduytaR9YvWG4/U4xqVhpAS8z/3lrDeP1Fu0r2iZDBBOQpHyriF/4BBjDs7
-         DpfPKZaN2UeuHR3z+DrTJFOlIb/uPVmE99JJXcbjhwsU5y2sFeSm6N+SmJ1z0/mb5O
-         URkrHU49bFj43arfdRiX+/D7NpWk3//rRBW/y1PU=
+        b=RDUYzcImCgu6WNVbR5RhQdy5Tipp/hVTt3DBXRDGNm8uhG8udnsZ7tR8prp4FxQH6
+         3t3gG6n/mf0GnKkjFj8slCNLPeqwFXxdCR7+j3AlAqE6CuXku+6Ymj8R5+5bzLr0dC
+         +HLqf7B74fheusa+CrJ4Bfk8I48p86TnCJWXPEbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.19 135/293] selftests/bpf: fix tests due to const spill/fill
-Date:   Mon, 20 Sep 2021 18:41:37 +0200
-Message-Id: <20210920163937.901309320@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 077/217] i2c: s3c2410: fix IRQ check
+Date:   Mon, 20 Sep 2021 18:41:38 +0200
+Message-Id: <20210920163927.241414666@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,189 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexei Starovoitov <ast@kernel.org>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit fc559a70d57c6ee5443f7a750858503e94cdc941 upstream.
+[ Upstream commit d6840a5e370b7ea4fde16ce2caf431bcc87f9a75 ]
 
-fix tests that incorrectly assumed that the verifier
-cannot track constants through stack.
+Iff platform_get_irq() returns 0, the driver's probe() method will return 0
+early (as if the method's call was successful).  Let's consider IRQ0 valid
+for simplicity -- devm_request_irq() can always override that decision...
 
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-[OP: backport to 4.19]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e0d1ec97853f ("i2c-s3c2410: Change IRQ to be plain integer.")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/test_verifier.c |   31 +++++++++++++++-------------
- 1 file changed, 17 insertions(+), 14 deletions(-)
+ drivers/i2c/busses/i2c-s3c2410.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/testing/selftests/bpf/test_verifier.c
-+++ b/tools/testing/selftests/bpf/test_verifier.c
-@@ -3888,7 +3888,8 @@ static struct bpf_test tests[] = {
- 				    offsetof(struct __sk_buff, data)),
- 			BPF_LDX_MEM(BPF_W, BPF_REG_3, BPF_REG_1,
- 				    offsetof(struct __sk_buff, data_end)),
--			BPF_MOV64_IMM(BPF_REG_0, 0xffffffff),
-+			BPF_LDX_MEM(BPF_W, BPF_REG_0, BPF_REG_1,
-+			    offsetof(struct __sk_buff, mark)),
- 			BPF_STX_MEM(BPF_DW, BPF_REG_10, BPF_REG_0, -8),
- 			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_10, -8),
- 			BPF_ALU64_IMM(BPF_AND, BPF_REG_0, 0xffff),
-@@ -6560,9 +6561,9 @@ static struct bpf_test tests[] = {
- 	{
- 		"helper access to variable memory: stack, bitwise AND, zero included",
- 		.insns = {
-+			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_1, 8),
- 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_10),
- 			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, -64),
--			BPF_MOV64_IMM(BPF_REG_2, 16),
- 			BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_2, -128),
- 			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_1, -128),
- 			BPF_ALU64_IMM(BPF_AND, BPF_REG_2, 64),
-@@ -6577,9 +6578,9 @@ static struct bpf_test tests[] = {
- 	{
- 		"helper access to variable memory: stack, bitwise AND + JMP, wrong max",
- 		.insns = {
-+			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_1, 8),
- 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_10),
- 			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, -64),
--			BPF_MOV64_IMM(BPF_REG_2, 16),
- 			BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_2, -128),
- 			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_1, -128),
- 			BPF_ALU64_IMM(BPF_AND, BPF_REG_2, 65),
-@@ -6653,9 +6654,9 @@ static struct bpf_test tests[] = {
- 	{
- 		"helper access to variable memory: stack, JMP, bounds + offset",
- 		.insns = {
-+			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_1, 8),
- 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_10),
- 			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, -64),
--			BPF_MOV64_IMM(BPF_REG_2, 16),
- 			BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_2, -128),
- 			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_1, -128),
- 			BPF_JMP_IMM(BPF_JGT, BPF_REG_2, 64, 5),
-@@ -6674,9 +6675,9 @@ static struct bpf_test tests[] = {
- 	{
- 		"helper access to variable memory: stack, JMP, wrong max",
- 		.insns = {
-+			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_1, 8),
- 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_10),
- 			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, -64),
--			BPF_MOV64_IMM(BPF_REG_2, 16),
- 			BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_2, -128),
- 			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_1, -128),
- 			BPF_JMP_IMM(BPF_JGT, BPF_REG_2, 65, 4),
-@@ -6694,9 +6695,9 @@ static struct bpf_test tests[] = {
- 	{
- 		"helper access to variable memory: stack, JMP, no max check",
- 		.insns = {
-+			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_1, 8),
- 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_10),
- 			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, -64),
--			BPF_MOV64_IMM(BPF_REG_2, 16),
- 			BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_2, -128),
- 			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_1, -128),
- 			BPF_MOV64_IMM(BPF_REG_4, 0),
-@@ -6714,9 +6715,9 @@ static struct bpf_test tests[] = {
- 	{
- 		"helper access to variable memory: stack, JMP, no min check",
- 		.insns = {
-+			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_1, 8),
- 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_10),
- 			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, -64),
--			BPF_MOV64_IMM(BPF_REG_2, 16),
- 			BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_2, -128),
- 			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_1, -128),
- 			BPF_JMP_IMM(BPF_JGT, BPF_REG_2, 64, 3),
-@@ -6732,9 +6733,9 @@ static struct bpf_test tests[] = {
- 	{
- 		"helper access to variable memory: stack, JMP (signed), no min check",
- 		.insns = {
-+			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_1, 8),
- 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_10),
- 			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, -64),
--			BPF_MOV64_IMM(BPF_REG_2, 16),
- 			BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_2, -128),
- 			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_1, -128),
- 			BPF_JMP_IMM(BPF_JSGT, BPF_REG_2, 64, 3),
-@@ -6776,6 +6777,7 @@ static struct bpf_test tests[] = {
- 	{
- 		"helper access to variable memory: map, JMP, wrong max",
- 		.insns = {
-+			BPF_LDX_MEM(BPF_DW, BPF_REG_6, BPF_REG_1, 8),
- 			BPF_MOV64_REG(BPF_REG_2, BPF_REG_10),
- 			BPF_ALU64_IMM(BPF_ADD, BPF_REG_2, -8),
- 			BPF_ST_MEM(BPF_DW, BPF_REG_2, 0, 0),
-@@ -6783,7 +6785,7 @@ static struct bpf_test tests[] = {
- 			BPF_EMIT_CALL(BPF_FUNC_map_lookup_elem),
- 			BPF_JMP_IMM(BPF_JEQ, BPF_REG_0, 0, 10),
- 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_0),
--			BPF_MOV64_IMM(BPF_REG_2, sizeof(struct test_val)),
-+			BPF_MOV64_REG(BPF_REG_2, BPF_REG_6),
- 			BPF_STX_MEM(BPF_DW, BPF_REG_10, BPF_REG_2, -128),
- 			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_10, -128),
- 			BPF_JMP_IMM(BPF_JSGT, BPF_REG_2,
-@@ -6795,7 +6797,7 @@ static struct bpf_test tests[] = {
- 			BPF_MOV64_IMM(BPF_REG_0, 0),
- 			BPF_EXIT_INSN(),
- 		},
--		.fixup_map2 = { 3 },
-+		.fixup_map2 = { 4 },
- 		.errstr = "invalid access to map value, value_size=48 off=0 size=49",
- 		.result = REJECT,
- 		.prog_type = BPF_PROG_TYPE_TRACEPOINT,
-@@ -6830,6 +6832,7 @@ static struct bpf_test tests[] = {
- 	{
- 		"helper access to variable memory: map adjusted, JMP, wrong max",
- 		.insns = {
-+			BPF_LDX_MEM(BPF_DW, BPF_REG_6, BPF_REG_1, 8),
- 			BPF_MOV64_REG(BPF_REG_2, BPF_REG_10),
- 			BPF_ALU64_IMM(BPF_ADD, BPF_REG_2, -8),
- 			BPF_ST_MEM(BPF_DW, BPF_REG_2, 0, 0),
-@@ -6838,7 +6841,7 @@ static struct bpf_test tests[] = {
- 			BPF_JMP_IMM(BPF_JEQ, BPF_REG_0, 0, 11),
- 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_0),
- 			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 20),
--			BPF_MOV64_IMM(BPF_REG_2, sizeof(struct test_val)),
-+			BPF_MOV64_REG(BPF_REG_2, BPF_REG_6),
- 			BPF_STX_MEM(BPF_DW, BPF_REG_10, BPF_REG_2, -128),
- 			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_10, -128),
- 			BPF_JMP_IMM(BPF_JSGT, BPF_REG_2,
-@@ -6850,7 +6853,7 @@ static struct bpf_test tests[] = {
- 			BPF_MOV64_IMM(BPF_REG_0, 0),
- 			BPF_EXIT_INSN(),
- 		},
--		.fixup_map2 = { 3 },
-+		.fixup_map2 = { 4 },
- 		.errstr = "R1 min value is outside of the array range",
- 		.result = REJECT,
- 		.prog_type = BPF_PROG_TYPE_TRACEPOINT,
-@@ -6872,8 +6875,8 @@ static struct bpf_test tests[] = {
- 	{
- 		"helper access to variable memory: size > 0 not allowed on NULL (ARG_PTR_TO_MEM_OR_NULL)",
- 		.insns = {
-+			BPF_LDX_MEM(BPF_W, BPF_REG_2, BPF_REG_1, 0),
- 			BPF_MOV64_IMM(BPF_REG_1, 0),
--			BPF_MOV64_IMM(BPF_REG_2, 1),
- 			BPF_STX_MEM(BPF_DW, BPF_REG_10, BPF_REG_2, -128),
- 			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_10, -128),
- 			BPF_ALU64_IMM(BPF_AND, BPF_REG_2, 64),
-@@ -7100,6 +7103,7 @@ static struct bpf_test tests[] = {
- 	{
- 		"helper access to variable memory: 8 bytes leak",
- 		.insns = {
-+			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_1, 8),
- 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_10),
- 			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, -64),
- 			BPF_MOV64_IMM(BPF_REG_0, 0),
-@@ -7110,7 +7114,6 @@ static struct bpf_test tests[] = {
- 			BPF_STX_MEM(BPF_DW, BPF_REG_10, BPF_REG_0, -24),
- 			BPF_STX_MEM(BPF_DW, BPF_REG_10, BPF_REG_0, -16),
- 			BPF_STX_MEM(BPF_DW, BPF_REG_10, BPF_REG_0, -8),
--			BPF_MOV64_IMM(BPF_REG_2, 1),
- 			BPF_STX_MEM(BPF_DW, BPF_REG_10, BPF_REG_2, -128),
- 			BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_10, -128),
- 			BPF_ALU64_IMM(BPF_AND, BPF_REG_2, 63),
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index de10ca40aebc..911f8628128e 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -1181,7 +1181,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	 */
+ 	if (!(i2c->quirks & QUIRK_POLL)) {
+ 		i2c->irq = ret = platform_get_irq(pdev, 0);
+-		if (ret <= 0) {
++		if (ret < 0) {
+ 			dev_err(&pdev->dev, "cannot find IRQ\n");
+ 			clk_unprepare(i2c->clk);
+ 			return ret;
+-- 
+2.30.2
+
 
 
