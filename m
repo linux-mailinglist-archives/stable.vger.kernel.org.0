@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D401411DA9
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:21:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 427A6411A8A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:49:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349223AbhITRW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:22:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48642 "EHLO mail.kernel.org"
+        id S244467AbhITQuX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:50:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348826AbhITRU0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:20:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7A2661401;
-        Mon, 20 Sep 2021 17:00:28 +0000 (UTC)
+        id S244009AbhITQtB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:49:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B2FE6128A;
+        Mon, 20 Sep 2021 16:47:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157229;
-        bh=+sY1RogBu7o8Vua96xtphnscGs6DnwPjtPKD+wH/mKQ=;
+        s=korg; t=1632156447;
+        bh=M+ZNV6YOK3NY148Oj8APLlRC0NCN0y/NwKiXLgd1ajE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LtqhRRO6BwJ+rQlmxA8obv/xH+zlxx2Wn0nQOS0n0mcPRVNK0i94CkEimH+1HIUtu
-         jxd7nDOZyohAhfTIXIp+gH3zT+TpUSthVBrcoDY9NDb1h4vg0u3BVwwXYyOXrPaYzp
-         xZ24pE43lx8HxLTaQZtSg4FgA36h2E8RuwVG8Xk4=
+        b=WVkffLGlciXagTEJmzGWdBWWoM14fhUOLITHWD9h6PEDtVXyPiamyQb/D9VUFNxEc
+         gkznTmL2lgQOQiwyxSAAhcmEFPRy899qERNJawze1FEs5vZgnFi9fXkWE4z2K7edoZ
+         9XBhxSavEDAMMkhmCIeYZ2ayOqirH/Rk67baYmtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.14 113/217] media: rc-loopback: return number of emitters rather than error
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Nadezda Lutovinova <lutovinova@ispras.ru>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 056/133] usb: gadget: mv_u3d: request_irq() after initializing UDC
 Date:   Mon, 20 Sep 2021 18:42:14 +0200
-Message-Id: <20210920163928.485559538@linuxfoundation.org>
+Message-Id: <20210920163914.480702186@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,31 +40,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Nadezda Lutovinova <lutovinova@ispras.ru>
 
-commit 6b7f554be8c92319d7e6df92fd247ebb9beb4a45 upstream.
+[ Upstream commit 2af0c5ffadaf9d13eca28409d4238b4e672942d3 ]
 
-The LIRC_SET_TRANSMITTER_MASK ioctl should return the number of emitters
-if an invalid list was set.
+If IRQ occurs between calling  request_irq() and  mv_u3d_eps_init(),
+then null pointer dereference occurs since u3d->eps[] wasn't
+initialized yet but used in mv_u3d_nuke().
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+The patch puts registration of the interrupt handler after
+initializing of neccesery data.
+
+Found by Linux Driver Verification project (linuxtesting.org).
+
+Fixes: 90fccb529d24 ("usb: gadget: Gadget directory cleanup - group UDC drivers")
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
+Link: https://lore.kernel.org/r/20210818141247.4794-1-lutovinova@ispras.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/rc-loopback.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/udc/mv_u3d_core.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
---- a/drivers/media/rc/rc-loopback.c
-+++ b/drivers/media/rc/rc-loopback.c
-@@ -52,7 +52,7 @@ static int loop_set_tx_mask(struct rc_de
- 
- 	if ((mask & (RXMASK_REGULAR | RXMASK_LEARNING)) != mask) {
- 		dprintk("invalid tx mask: %u\n", mask);
--		return -EINVAL;
-+		return 2;
+diff --git a/drivers/usb/gadget/udc/mv_u3d_core.c b/drivers/usb/gadget/udc/mv_u3d_core.c
+index dafe74eb9ade..9ee4a2605dea 100644
+--- a/drivers/usb/gadget/udc/mv_u3d_core.c
++++ b/drivers/usb/gadget/udc/mv_u3d_core.c
+@@ -1929,14 +1929,6 @@ static int mv_u3d_probe(struct platform_device *dev)
+ 		goto err_get_irq;
  	}
+ 	u3d->irq = r->start;
+-	if (request_irq(u3d->irq, mv_u3d_irq,
+-		IRQF_SHARED, driver_name, u3d)) {
+-		u3d->irq = 0;
+-		dev_err(&dev->dev, "Request irq %d for u3d failed\n",
+-			u3d->irq);
+-		retval = -ENODEV;
+-		goto err_request_irq;
+-	}
  
- 	dprintk("setting tx mask: %u\n", mask);
+ 	/* initialize gadget structure */
+ 	u3d->gadget.ops = &mv_u3d_ops;	/* usb_gadget_ops */
+@@ -1949,6 +1941,15 @@ static int mv_u3d_probe(struct platform_device *dev)
+ 
+ 	mv_u3d_eps_init(u3d);
+ 
++	if (request_irq(u3d->irq, mv_u3d_irq,
++		IRQF_SHARED, driver_name, u3d)) {
++		u3d->irq = 0;
++		dev_err(&dev->dev, "Request irq %d for u3d failed\n",
++			u3d->irq);
++		retval = -ENODEV;
++		goto err_request_irq;
++	}
++
+ 	/* external vbus detection */
+ 	if (u3d->vbus) {
+ 		u3d->clock_gating = 1;
+@@ -1972,8 +1973,8 @@ static int mv_u3d_probe(struct platform_device *dev)
+ 
+ err_unregister:
+ 	free_irq(u3d->irq, u3d);
+-err_request_irq:
+ err_get_irq:
++err_request_irq:
+ 	kfree(u3d->status_req);
+ err_alloc_status_req:
+ 	kfree(u3d->eps);
+-- 
+2.30.2
+
 
 
