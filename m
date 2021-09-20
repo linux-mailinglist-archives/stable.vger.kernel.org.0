@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44F63411D8B
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:20:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 123B8411BF6
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:03:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349000AbhITRVS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:21:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49652 "EHLO mail.kernel.org"
+        id S1343615AbhITRFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:05:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348476AbhITRTY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:19:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB9DF61A4E;
-        Mon, 20 Sep 2021 17:00:06 +0000 (UTC)
+        id S1343699AbhITRDT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:03:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B67EE61452;
+        Mon, 20 Sep 2021 16:53:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157207;
-        bh=6XHjWAKNerRQDiuqKYanKdBuBCzG8ARQBBmSZljs6v4=;
+        s=korg; t=1632156831;
+        bh=LtVnrdfZS7Hu8rZRSdA6nbtxQspYleE7WyRSB+p2RW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NK1ODeH/SBrpCe3jsDZfMO9uypvDbGpyFhSpZNzIlsfCrNJPTOzGrY7n9yonTbL10
-         RcHxx3f5q8Lc8B2zuOpGu/Xnf8PV/YVKVmpgYRgNlRUNyWHc855TeYbbuP/2H6DJbM
-         4TWsg18RxesR6a7aGelsHwndOq/TAIdVZQhPtZ5k=
+        b=YOgEddsT5nwtUysrKJz7z12p7Fd2PBp09VJCNO/t31dVId6XtcVKwTiC2FG4Z0IvD
+         LeY029gE5BmLSEX2fj6kUnwZTmk3Zk+wCaUvBs52V5iWeGzv2PGohoEtJvqfuwoIyX
+         +plaYQ2uOFgo479qRtBUcxpBPPbLrps+UKXdn/xA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.14 101/217] PCI/MSI: Skip masking MSI-X on Xen PV
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 073/175] i2c: iop3xx: fix deferred probing
 Date:   Mon, 20 Sep 2021 18:42:02 +0200
-Message-Id: <20210920163928.061154020@linuxfoundation.org>
+Message-Id: <20210920163920.444290686@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit 1a519dc7a73c977547d8b5108d98c6e769c89f4b upstream.
+[ Upstream commit a1299505162ad00def3573260c2c68b9c8e8d697 ]
 
-When running as Xen PV guest, masking MSI-X is a responsibility of the
-hypervisor. The guest has no write access to the relevant BAR at all - when
-it tries to, it results in a crash like this:
+When adding the code to handle platform_get_irq*() errors in the commit
+489447380a29 ("handle errors returned by platform_get_irq*()"), the
+actual error code was enforced to be -ENXIO in the driver for some
+strange reason.  This didn't matter much until the deferred probing was
+introduced -- which requires an actual error code to be propagated
+upstream from the failure site.
 
-    BUG: unable to handle page fault for address: ffffc9004069100c
-    #PF: supervisor write access in kernel mode
-    #PF: error_code(0x0003) - permissions violation
-    RIP: e030:__pci_enable_msix_range.part.0+0x26b/0x5f0
-     e1000e_set_interrupt_capability+0xbf/0xd0 [e1000e]
-     e1000_probe+0x41f/0xdb0 [e1000e]
-     local_pci_probe+0x42/0x80
-    (...)
+While fixing this, also stop overriding the errors from request_irq() to
+-EIO (done since the pre-git era).
 
-The recently introduced function msix_mask_all() does not check the global
-variable pci_msi_ignore_mask which is set by XEN PV to bypass the masking
-of MSI[-X] interrupts.
-
-Add the check to make this function XEN PV compatible.
-
-Fixes: 7d5ec3d36123 ("PCI/MSI: Mask all unused MSI-X entries")
-Signed-off-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210826170342.135172-1-marmarek@invisiblethingslab.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 489447380a29 ("[PATCH] handle errors returned by platform_get_irq*()")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/msi.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/i2c/busses/i2c-iop3xx.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -754,6 +754,9 @@ static void msix_mask_all(void __iomem *
- 	u32 ctrl = PCI_MSIX_ENTRY_CTRL_MASKBIT;
- 	int i;
+diff --git a/drivers/i2c/busses/i2c-iop3xx.c b/drivers/i2c/busses/i2c-iop3xx.c
+index 85cbe4b55578..d4fe7ccccb22 100644
+--- a/drivers/i2c/busses/i2c-iop3xx.c
++++ b/drivers/i2c/busses/i2c-iop3xx.c
+@@ -456,16 +456,14 @@ iop3xx_i2c_probe(struct platform_device *pdev)
  
-+	if (pci_msi_ignore_mask)
-+		return;
-+
- 	for (i = 0; i < tsize; i++, base += PCI_MSIX_ENTRY_SIZE)
- 		writel(ctrl, base + PCI_MSIX_ENTRY_VECTOR_CTRL);
- }
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+-		ret = -ENXIO;
++		ret = irq;
+ 		goto unmap;
+ 	}
+ 	ret = request_irq(irq, iop3xx_i2c_irq_handler, 0,
+ 				pdev->name, adapter_data);
+ 
+-	if (ret) {
+-		ret = -EIO;
++	if (ret)
+ 		goto unmap;
+-	}
+ 
+ 	memcpy(new_adapter->name, pdev->name, strlen(pdev->name));
+ 	new_adapter->owner = THIS_MODULE;
+-- 
+2.30.2
+
 
 
