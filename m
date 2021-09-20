@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53714411B0F
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:54:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B53744120C4
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:58:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241373AbhITQzE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:55:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39212 "EHLO mail.kernel.org"
+        id S1354837AbhITR55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:57:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245262AbhITQwt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:52:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25B3B6137F;
-        Mon, 20 Sep 2021 16:50:06 +0000 (UTC)
+        id S1347329AbhITRzy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:55:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE34E619EB;
+        Mon, 20 Sep 2021 17:14:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156606;
-        bh=xR5dtT0Yhn7BMPnlc+CmhgTnWkuJ/KEOJgxhtS39P6w=;
+        s=korg; t=1632158051;
+        bh=Tg+4v6dbe4fuCWE9YJOPDUy5hW85h0kWe6WsdVR2NsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gGdhpaZ4hPLpT44tvc9vaNBSVJfDJv1q2ycoB9FmXmbJHvMV4XsOk4URuwhNqOmX3
-         K0K/SIGCIY5Jmh+UwWgnNgJ6ZSDV3go/Uj4XhlGl1tI2Y3dtrO8eD4K/4aR24R3CRz
-         L1sq228aQ8whlCQpHG7XH55TarM/dAUCCgmgs7Yg=
+        b=KCqsLv/TCXbdSNyjFnQP2yvRAs8wJiSpipPnPfVgt7VARgBtWhxzsxvkax7dT1zAM
+         i9uUbBBM4wkydNlAvH+aNghhPC8/KwNcTF+ld8JC7ciPfansq7cxqEj7QvAh5Z9syX
+         L4SFvcw4UsZpRSU9KIRfwPG33IJOzKSQsCub0Lxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 129/133] PCI: Sync __pci_register_driver() stub for CONFIG_PCI=n
+        stable@vger.kernel.org, Shirisha Ganta <shirisha.ganta1@ibm.com>,
+        "Pratik R. Sampat" <psampat@linux.ibm.com>,
+        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 245/293] cpufreq: powernv: Fix init_chip_info initialization in numa=off
 Date:   Mon, 20 Sep 2021 18:43:27 +0200
-Message-Id: <20210920163916.843197503@linuxfoundation.org>
+Message-Id: <20210920163941.779345237@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Pratik R. Sampat <psampat@linux.ibm.com>
 
-[ Upstream commit 817f9916a6e96ae43acdd4e75459ef4f92d96eb1 ]
+commit f34ee9cb2c5ac5af426fee6fa4591a34d187e696 upstream.
 
-The CONFIG_PCI=y case got a new parameter long time ago.  Sync the stub as
-well.
+In the numa=off kernel command-line configuration init_chip_info() loops
+around the number of chips and attempts to copy the cpumask of that node
+which is NULL for all iterations after the first chip.
 
-[bhelgaas: add parameter names]
-Fixes: 725522b5453d ("PCI: add the sysfs driver name to all modules")
-Link: https://lore.kernel.org/r/20210813153619.89574-1-andriy.shevchenko@linux.intel.com
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Hence, store the cpu mask for each chip instead of derving cpumask from
+node while populating the "chips" struct array and copy that to the
+chips[i].mask
+
+Fixes: 053819e0bf84 ("cpufreq: powernv: Handle throttling due to Pmax capping at chip level")
+Cc: stable@vger.kernel.org # v4.3+
+Reported-by: Shirisha Ganta <shirisha.ganta1@ibm.com>
+Signed-off-by: Pratik R. Sampat <psampat@linux.ibm.com>
+Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+[mpe: Rename goto label to out_free_chip_cpu_mask]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210728120500.87549-2-psampat@linux.ibm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/pci.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/cpufreq/powernv-cpufreq.c |   16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 5f37614f2451..c871b19cc915 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -1442,8 +1442,9 @@ static inline int pci_set_dma_seg_boundary(struct pci_dev *dev,
- { return -EIO; }
- static inline int pci_assign_resource(struct pci_dev *dev, int i)
- { return -EBUSY; }
--static inline int __pci_register_driver(struct pci_driver *drv,
--					struct module *owner)
-+static inline int __must_check __pci_register_driver(struct pci_driver *drv,
-+						     struct module *owner,
-+						     const char *mod_name)
- { return 0; }
- static inline int pci_register_driver(struct pci_driver *drv)
- { return 0; }
--- 
-2.30.2
-
+--- a/drivers/cpufreq/powernv-cpufreq.c
++++ b/drivers/cpufreq/powernv-cpufreq.c
+@@ -46,6 +46,7 @@
+ #define MAX_PSTATE_SHIFT	32
+ #define LPSTATE_SHIFT		48
+ #define GPSTATE_SHIFT		56
++#define MAX_NR_CHIPS		32
+ 
+ #define MAX_RAMP_DOWN_TIME				5120
+ /*
+@@ -1051,12 +1052,20 @@ static int init_chip_info(void)
+ 	unsigned int *chip;
+ 	unsigned int cpu, i;
+ 	unsigned int prev_chip_id = UINT_MAX;
++	cpumask_t *chip_cpu_mask;
+ 	int ret = 0;
+ 
+ 	chip = kcalloc(num_possible_cpus(), sizeof(*chip), GFP_KERNEL);
+ 	if (!chip)
+ 		return -ENOMEM;
+ 
++	/* Allocate a chip cpu mask large enough to fit mask for all chips */
++	chip_cpu_mask = kcalloc(MAX_NR_CHIPS, sizeof(cpumask_t), GFP_KERNEL);
++	if (!chip_cpu_mask) {
++		ret = -ENOMEM;
++		goto free_and_return;
++	}
++
+ 	for_each_possible_cpu(cpu) {
+ 		unsigned int id = cpu_to_chip_id(cpu);
+ 
+@@ -1064,22 +1073,25 @@ static int init_chip_info(void)
+ 			prev_chip_id = id;
+ 			chip[nr_chips++] = id;
+ 		}
++		cpumask_set_cpu(cpu, &chip_cpu_mask[nr_chips-1]);
+ 	}
+ 
+ 	chips = kcalloc(nr_chips, sizeof(struct chip), GFP_KERNEL);
+ 	if (!chips) {
+ 		ret = -ENOMEM;
+-		goto free_and_return;
++		goto out_free_chip_cpu_mask;
+ 	}
+ 
+ 	for (i = 0; i < nr_chips; i++) {
+ 		chips[i].id = chip[i];
+-		cpumask_copy(&chips[i].mask, cpumask_of_node(chip[i]));
++		cpumask_copy(&chips[i].mask, &chip_cpu_mask[i]);
+ 		INIT_WORK(&chips[i].throttle, powernv_cpufreq_work_fn);
+ 		for_each_cpu(cpu, &chips[i].mask)
+ 			per_cpu(chip_info, cpu) =  &chips[i];
+ 	}
+ 
++out_free_chip_cpu_mask:
++	kfree(chip_cpu_mask);
+ free_and_return:
+ 	kfree(chip);
+ 	return ret;
 
 
