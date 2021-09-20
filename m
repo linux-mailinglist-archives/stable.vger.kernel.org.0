@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 146A24122DF
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:17:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 812FE412591
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:45:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377366AbhITSS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:18:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40568 "EHLO mail.kernel.org"
+        id S1384008AbhITSqU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:46:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1359342AbhITSQX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:16:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEB9963296;
-        Mon, 20 Sep 2021 17:22:15 +0000 (UTC)
+        id S1382750AbhITSmT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:42:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 62A6C61AD2;
+        Mon, 20 Sep 2021 17:31:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158536;
-        bh=IAogcnxdLyI3hmQm+gsyK5ugXRi1rsEHfzSA4z6yE3c=;
+        s=korg; t=1632159113;
+        bh=g4eGBlnRG6fPLk2XoxMXa24CVhwkz+Ttj833hlqG8Kw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b3K78g5MZ55hgAULPt5nQQ4hcD7Muk1oATfnvpcK+k7mc8Wo2+nX9DFyLlT9U3KQp
-         7z/sRw5PYPcu7roaN2k3wHkZsdk8ZpFkPyanFgDVab0SmqE0nf2sAXSl+HtVTzWFks
-         qrfWW3P73vC/4KJLWy4yQECo5DRiT8IJn/xNP3N8=
+        b=RxvU5MtetcsDNJDsjI9qvUI6GecD5+hMDwbDL5btZrgqBzrXHYtqSEU+j9ID4krLG
+         63Vst7y9MFj+QSpiZgt6RDSHjO54hh8bWYMHY+4mfqr40f3Ck38ZJ1WTqkEwHjc+xI
+         IsZMpwxTaL40kefBgTDJegYW3P268KtGwGHkt2fs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Marek Vasut <marex@denx.de>,
-        Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: [PATCH 5.4 202/260] drm/etnaviv: keep MMU context across runtime suspend/resume
+        stable@vger.kernel.org, Yongxin Liu <yongxin.liu@windriver.com>,
+        Dave Ertman <david.m.ertman@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 082/168] ice: Correctly deal with PFs that do not support RDMA
 Date:   Mon, 20 Sep 2021 18:43:40 +0200
-Message-Id: <20210920163937.975219348@linuxfoundation.org>
+Message-Id: <20210920163924.334287100@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +42,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Dave Ertman <david.m.ertman@intel.com>
 
-commit 8f3eea9d01d7b0f95b0fe04187c0059019ada85b upstream.
+[ Upstream commit bfe84435090a6c85271b02a42b1d83fef9ff7cc7 ]
 
-The MMU state may be kept across a runtime suspend/resume cycle, as we
-avoid a full hardware reset to keep the latency of the runtime PM small.
+There are two cases where the current PF does not support RDMA
+functionality.  The first is if the NVM loaded on the device is set
+to not support RDMA (common_caps.rdma is false).  The second is if
+the kernel bonding driver has included the current PF in an active
+link aggregate.
 
-Don't pretend that the MMU state is lost in driver state. The MMU
-context is pushed out when new HW jobs with a different context are
-coming in. The only exception to this is when the GPU is unbound, in
-which case we need to make sure to also free the last active context.
+When the driver has determined that this PF does not support RDMA, then
+auxiliary devices should not be created on the auxiliary bus.  Without
+a device on the auxiliary bus, even if the irdma driver is present, there
+will be no RDMA activity attempted on this PF.
 
-Cc: stable@vger.kernel.org # 5.4
-Reported-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Tested-by: Michael Walle <michael@walle.cc>
-Tested-by: Marek Vasut <marex@denx.de>
-Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Currently, in the reset flow, an attempt to create auxiliary devices is
+performed without regard to the ability of the PF.  There needs to be a
+check in ice_aux_plug_dev (as the central point that creates auxiliary
+devices) to see if the PF is in a state to support the functionality.
+
+When disabling and re-enabling RDMA due to the inclusion/removal of the PF
+in a link aggregate, we also need to set/clear the bit which controls
+auxiliary device creation so that a reset recovery in a link aggregate
+situation doesn't try to create auxiliary devices when it shouldn't.
+
+Fixes: f9f5301e7e2d ("ice: Register auxiliary device to provide RDMA")
+Reported-by: Yongxin Liu <yongxin.liu@windriver.com>
+Signed-off-by: Dave Ertman <david.m.ertman@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_gpu.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/ice/ice.h     | 2 ++
+ drivers/net/ethernet/intel/ice/ice_idc.c | 6 ++++++
+ 2 files changed, 8 insertions(+)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-@@ -1547,9 +1547,6 @@ static int etnaviv_gpu_hw_suspend(struct
- 		 */
- 		etnaviv_gpu_wait_idle(gpu, 100);
- 
--		etnaviv_iommu_context_put(gpu->mmu_context);
--		gpu->mmu_context = NULL;
--
- 		gpu->fe_running = false;
+diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
+index eadcb9958346..3c4f08d20414 100644
+--- a/drivers/net/ethernet/intel/ice/ice.h
++++ b/drivers/net/ethernet/intel/ice/ice.h
+@@ -695,6 +695,7 @@ static inline void ice_set_rdma_cap(struct ice_pf *pf)
+ {
+ 	if (pf->hw.func_caps.common_cap.rdma && pf->num_rdma_msix) {
+ 		set_bit(ICE_FLAG_RDMA_ENA, pf->flags);
++		set_bit(ICE_FLAG_AUX_ENA, pf->flags);
+ 		ice_plug_aux_dev(pf);
  	}
+ }
+@@ -707,5 +708,6 @@ static inline void ice_clear_rdma_cap(struct ice_pf *pf)
+ {
+ 	ice_unplug_aux_dev(pf);
+ 	clear_bit(ICE_FLAG_RDMA_ENA, pf->flags);
++	clear_bit(ICE_FLAG_AUX_ENA, pf->flags);
+ }
+ #endif /* _ICE_H_ */
+diff --git a/drivers/net/ethernet/intel/ice/ice_idc.c b/drivers/net/ethernet/intel/ice/ice_idc.c
+index 1f2afdf6cd48..adcc9a251595 100644
+--- a/drivers/net/ethernet/intel/ice/ice_idc.c
++++ b/drivers/net/ethernet/intel/ice/ice_idc.c
+@@ -271,6 +271,12 @@ int ice_plug_aux_dev(struct ice_pf *pf)
+ 	struct auxiliary_device *adev;
+ 	int ret;
  
-@@ -1698,6 +1695,9 @@ static void etnaviv_gpu_unbind(struct de
- 	etnaviv_gpu_hw_suspend(gpu);
- #endif
- 
-+	if (gpu->mmu_context)
-+		etnaviv_iommu_context_put(gpu->mmu_context);
++	/* if this PF doesn't support a technology that requires auxiliary
++	 * devices, then gracefully exit
++	 */
++	if (!ice_is_aux_ena(pf))
++		return 0;
 +
- 	if (gpu->initialized) {
- 		etnaviv_cmdbuf_free(&gpu->buffer);
- 		etnaviv_iommu_global_fini(gpu);
+ 	iadev = kzalloc(sizeof(*iadev), GFP_KERNEL);
+ 	if (!iadev)
+ 		return -ENOMEM;
+-- 
+2.30.2
+
 
 
