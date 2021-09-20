@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFBE4411A41
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:47:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF68E411BAD
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:00:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243810AbhITQs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:48:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35830 "EHLO mail.kernel.org"
+        id S1345095AbhITRB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:01:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243426AbhITQrv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:47:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A5A960F38;
-        Mon, 20 Sep 2021 16:46:24 +0000 (UTC)
+        id S1344651AbhITQ70 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:59:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2BB861268;
+        Mon, 20 Sep 2021 16:52:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156384;
-        bh=ygTgi3ZOuywsl37Y3rfKuIb8lCI6FVLBpXonPSgzYwY=;
+        s=korg; t=1632156746;
+        bh=RfbUyVdgSWGh8UzBjgpM78qUWJju/apyLKq6voc5Q9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OOF/O70f4lAM72sbo3MNxMFs49aH4yObQQ4r2KzTZnKWkfhk4Xuev/LscZf2hseqa
-         jVaHkuMMEBFOKCBLCif9VNlmOHcvpxl7Y70lF47cCBRw8bVaWJz88oPlfodu68Cydr
-         jsExIvKTqWnS/4SzKXJGBvi32ITiuyrDXihHgsSo=
+        b=WMSrJfe68nDvjyqMd6oO1CtDlY1XZppXpLwfGz1xvnobq5aAYgI2sYllNjM3HiBb9
+         ME8dGiEqBZhSfNkXrRVg7B+RcwVlkd5M8ftyWOha4wSlM5lD8iqQh9+m8RWOzrY2Go
+         aMpjS87xw8g7Scg8OpXEFdT0iE6g0o93PQAJvuKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stian Skjelstad <stian.skjelstad@gmail.com>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 035/133] udf_get_extendedattr() had no boundary checks.
-Date:   Mon, 20 Sep 2021 18:41:53 +0200
-Message-Id: <20210920163913.771559949@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 065/175] usb: gadget: udc: at91: add IRQ check
+Date:   Mon, 20 Sep 2021 18:41:54 +0200
+Message-Id: <20210920163920.179409326@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stian Skjelstad <stian.skjelstad@gmail.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit 58bc6d1be2f3b0ceecb6027dfa17513ec6aa2abb ]
+[ Upstream commit 50855c31573b02963f0aa2aacfd4ea41c31ae0e0 ]
 
-When parsing the ExtendedAttr data, malicous or corrupt attribute length
-could cause kernel hangs and buffer overruns in some special cases.
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to devm_request_irq() (which takes
+*unsigned* IRQ #), causing it to fail with -EINVAL, overriding an original
+error code. Stop calling devm_request_irq() with the invalid IRQ #s.
 
-Link: https://lore.kernel.org/r/20210822093332.25234-1-stian.skjelstad@gmail.com
-Signed-off-by: Stian Skjelstad <stian.skjelstad@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: 8b2e76687b39 ("USB: AT91 UDC updates, mostly power management")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Link: https://lore.kernel.org/r/6654a224-739a-1a80-12f0-76d920f87b6c@omp.ru
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/misc.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/udc/at91_udc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/udf/misc.c b/fs/udf/misc.c
-index 71d1c25f360d..8c7f9ea251e5 100644
---- a/fs/udf/misc.c
-+++ b/fs/udf/misc.c
-@@ -175,13 +175,22 @@ struct genericFormat *udf_get_extendedattr(struct inode *inode, uint32_t type,
- 		else
- 			offset = le32_to_cpu(eahd->appAttrLocation);
+diff --git a/drivers/usb/gadget/udc/at91_udc.c b/drivers/usb/gadget/udc/at91_udc.c
+index 8bc78418d40e..cd92cda03d71 100644
+--- a/drivers/usb/gadget/udc/at91_udc.c
++++ b/drivers/usb/gadget/udc/at91_udc.c
+@@ -1895,7 +1895,9 @@ static int at91udc_probe(struct platform_device *pdev)
+ 	clk_disable(udc->iclk);
  
--		while (offset < iinfo->i_lenEAttr) {
-+		while (offset + sizeof(*gaf) < iinfo->i_lenEAttr) {
-+			uint32_t attrLength;
-+
- 			gaf = (struct genericFormat *)&ea[offset];
-+			attrLength = le32_to_cpu(gaf->attrLength);
-+
-+			/* Detect undersized elements and buffer overflows */
-+			if ((attrLength < sizeof(*gaf)) ||
-+			    (attrLength > (iinfo->i_lenEAttr - offset)))
-+				break;
-+
- 			if (le32_to_cpu(gaf->attrType) == type &&
- 					gaf->attrSubtype == subtype)
- 				return gaf;
- 			else
--				offset += le32_to_cpu(gaf->attrLength);
-+				offset += attrLength;
- 		}
- 	}
- 
+ 	/* request UDC and maybe VBUS irqs */
+-	udc->udp_irq = platform_get_irq(pdev, 0);
++	udc->udp_irq = retval = platform_get_irq(pdev, 0);
++	if (retval < 0)
++		goto err_unprepare_iclk;
+ 	retval = devm_request_irq(dev, udc->udp_irq, at91_udc_irq, 0,
+ 				  driver_name, udc);
+ 	if (retval) {
 -- 
 2.30.2
 
