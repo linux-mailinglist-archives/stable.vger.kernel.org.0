@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8255411C8C
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:09:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88BF941208C
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:55:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345875AbhITRLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:11:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33714 "EHLO mail.kernel.org"
+        id S1343957AbhITRz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:55:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345123AbhITRI6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:08:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07CD5617E1;
-        Mon, 20 Sep 2021 16:56:02 +0000 (UTC)
+        id S1355190AbhITRyS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:54:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D46A61BFE;
+        Mon, 20 Sep 2021 17:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156963;
-        bh=h4cabG8quT9jWEbXmVwOnnbV2rmN1SuRwXr0QGdj65A=;
+        s=korg; t=1632158007;
+        bh=dE7Vn0lCqonUuO3g+fvfTT795OVoIb9npFsBKYR+cKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l/I6bV9rIK+PDLeFCnFCQMlQAiwklW1mOaiCBho5jkSO7yXte4Raeq20FN/M/1l8t
-         EfbZOt8nE4jX8EI5KnGhzV0etppDJEzrh9sBSrqEXuf2f6YDC4MyzOhGsx6zvQyUXz
-         d+0aqiO6R6G53Y9XfRaXV8JvbiBIdhx9pV7P5vAM=
+        b=LK7p6P1Od8gYwADdlspmLgiSOFLOcgoXc+5uSjh6VW2pkmTyZUuyjcWkb3Xk/oqmU
+         KZSZhEK/mGu9iLSRejUzZT8oZxnOphF3jbw884EpAMy2X5FOy8IB9eHYkgqF+6GOfF
+         vlJroQTdgx2ycFDbTk7dgHcFiCkOHngOs5hBA4zs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Ryan J. Barnett" <ryan.barnett@collins.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 166/175] dt-bindings: mtd: gpmc: Fix the ECC bytes vs. OOB bytes equation
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 4.19 253/293] arm64/sve: Use correct size when reinitialising SVE state
 Date:   Mon, 20 Sep 2021 18:43:35 +0200
-Message-Id: <20210920163923.494463918@linuxfoundation.org>
+Message-Id: <20210920163942.047521269@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 778cb8e39f6ec252be50fc3850d66f3dcbd5dd5a ]
+commit e35ac9d0b56e9efefaeeb84b635ea26c2839ea86 upstream.
 
-"PAGESIZE / 512" is the number of ECC chunks.
-"ECC_BYTES" is the number of bytes needed to store a single ECC code.
-"2" is the space reserved by the bad block marker.
+When we need a buffer for SVE register state we call sve_alloc() to make
+sure that one is there. In order to avoid repeated allocations and frees
+we keep the buffer around unless we change vector length and just memset()
+it to ensure a clean register state. The function that deals with this
+takes the task to operate on as an argument, however in the case where we
+do a memset() we initialise using the SVE state size for the current task
+rather than the task passed as an argument.
 
-"2 + (PAGESIZE / 512) * ECC_BYTES" should of course be lower or equal
-than the total number of OOB bytes, otherwise it won't fit.
+This is only an issue in the case where we are setting the register state
+for a task via ptrace and the task being configured has a different vector
+length to the task tracing it. In the case where the buffer is larger in
+the traced process we will leak old state from the traced process to
+itself, in the case where the buffer is smaller in the traced process we
+will overflow the buffer and corrupt memory.
 
-Fix the equation by substituting s/>=/<=/.
-
-Suggested-by: Ryan J. Barnett <ryan.barnett@collins.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/linux-mtd/20210610143945.3504781-1-miquel.raynal@bootlin.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: bc0ee4760364 ("arm64/sve: Core task context handling")
+Cc: <stable@vger.kernel.org> # 4.15.x
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210909165356.10675-1-broonie@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/mtd/gpmc-nand.txt | 2 +-
+ arch/arm64/kernel/fpsimd.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-index 174f68c26c1b..34981b98d807 100644
---- a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-+++ b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-@@ -123,7 +123,7 @@ on various other factors also like;
- 	so the device should have enough free bytes available its OOB/Spare
- 	area to accommodate ECC for entire page. In general following expression
- 	helps in determining if given device can accommodate ECC syndrome:
--	"2 + (PAGESIZE / 512) * ECC_BYTES" >= OOBSIZE"
-+	"2 + (PAGESIZE / 512) * ECC_BYTES" <= OOBSIZE"
- 	where
- 		OOBSIZE		number of bytes in OOB/spare area
- 		PAGESIZE	number of bytes in main-area of device page
--- 
-2.30.2
-
+--- a/arch/arm64/kernel/fpsimd.c
++++ b/arch/arm64/kernel/fpsimd.c
+@@ -434,7 +434,7 @@ size_t sve_state_size(struct task_struct
+ void sve_alloc(struct task_struct *task)
+ {
+ 	if (task->thread.sve_state) {
+-		memset(task->thread.sve_state, 0, sve_state_size(current));
++		memset(task->thread.sve_state, 0, sve_state_size(task));
+ 		return;
+ 	}
+ 
 
 
