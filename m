@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EED13412008
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:47:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0A74411A5B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:47:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353934AbhITRsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:48:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52068 "EHLO mail.kernel.org"
+        id S244103AbhITQtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:49:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349270AbhITRqA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:46:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 371AE61BA6;
-        Mon, 20 Sep 2021 17:10:13 +0000 (UTC)
+        id S236886AbhITQsT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:48:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D32861262;
+        Mon, 20 Sep 2021 16:46:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157813;
-        bh=2wO1r7sYk2AHRkqPJtMZHAFruH6kzhf/sfeCAb4dSnU=;
+        s=korg; t=1632156413;
+        bh=OAuICGPFYNooVAgf6Q3TEPh/vMOymSiG9/Da2Z6hG/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SH3ZN0EAQjxgTLuK1pznmnk8A7oGcHXx96tuPuH6LWitQQZWnGEWxNW1HAdiWnavY
-         vGjarwDhvvlCVxS87XGOp23aqtTirpMtxDrXT5vHsUfZeix+kRw3I9jkSOwKpoN3ZF
-         abxKwmX5HxGYq1L0uzIrxRJuwg78/p7D2cLPAq+I=
+        b=0tg4Fq8uXrxEH5nBQk5bNEUIZbJxNhcZl64blf13LihwcStdRpdbOD9RxDaQHfkbq
+         LPUg/8cfGhesPqb2dQbvYKrhm4+voNAjaNr5RQNgMIbWzDFx/oLlPQJTdzj7n+GKG7
+         zMMitaxw8lvXEQZ4gx5LDznWyyAakJg7wbh/4R14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        openrisc@lists.librecores.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 163/293] openrisc: dont printk() unconditionally
+        stable@vger.kernel.org, Sam Protsenko <semen.protsenko@linaro.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 047/133] arm64: dts: exynos: correct GIC CPU interfaces address range on Exynos7
 Date:   Mon, 20 Sep 2021 18:42:05 +0200
-Message-Id: <20210920163938.864152614@linuxfoundation.org>
+Message-Id: <20210920163914.188587813@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit 946e1052cdcc7e585ee5d1e72528ca49fb295243 ]
+[ Upstream commit 01c72cad790cb6cd3ccbe4c1402b6cb6c6bbffd0 ]
 
-Don't call printk() when CONFIG_PRINTK is not set.
-Fixes the following build errors:
+The GIC-400 CPU interfaces address range is defined as 0x2000-0x3FFF (by
+ARM).
 
-or1k-linux-ld: arch/openrisc/kernel/entry.o: in function `_external_irq_handler':
-(.text+0x804): undefined reference to `printk'
-(.text+0x804): relocation truncated to fit: R_OR1K_INSN_REL_26 against undefined symbol `printk'
-
-Fixes: 9d02a4283e9c ("OpenRISC: Boot code")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: openrisc@lists.librecores.org
-Signed-off-by: Stafford Horne <shorne@gmail.com>
+Reported-by: Sam Protsenko <semen.protsenko@linaro.org>
+Reported-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Sam Protsenko <semen.protsenko@linaro.org>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Fixes: b9024cbc937d ("arm64: dts: Add initial device tree support for exynos7")
+Link: https://lore.kernel.org/r/20210805072110.4730-1-krzysztof.kozlowski@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/openrisc/kernel/entry.S | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/exynos/exynos7.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
-index 01b59d2ce174..c2c3ce8a0f84 100644
---- a/arch/openrisc/kernel/entry.S
-+++ b/arch/openrisc/kernel/entry.S
-@@ -551,6 +551,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
- 	l.bnf	1f			// ext irq enabled, all ok.
- 	l.nop
- 
-+#ifdef CONFIG_PRINTK
- 	l.addi  r1,r1,-0x8
- 	l.movhi r3,hi(42f)
- 	l.ori	r3,r3,lo(42f)
-@@ -564,6 +565,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
- 		.string "\n\rESR interrupt bug: in _external_irq_handler (ESR %x)\n\r"
- 		.align 4
- 	.previous
-+#endif
- 
- 	l.ori	r4,r4,SPR_SR_IEE	// fix the bug
- //	l.sw	PT_SR(r1),r4
+diff --git a/arch/arm64/boot/dts/exynos/exynos7.dtsi b/arch/arm64/boot/dts/exynos/exynos7.dtsi
+index f9c5a549c2c0..cb863891f29e 100644
+--- a/arch/arm64/boot/dts/exynos/exynos7.dtsi
++++ b/arch/arm64/boot/dts/exynos/exynos7.dtsi
+@@ -90,7 +90,7 @@
+ 			#address-cells = <0>;
+ 			interrupt-controller;
+ 			reg =	<0x11001000 0x1000>,
+-				<0x11002000 0x1000>,
++				<0x11002000 0x2000>,
+ 				<0x11004000 0x2000>,
+ 				<0x11006000 0x2000>;
+ 		};
 -- 
 2.30.2
 
