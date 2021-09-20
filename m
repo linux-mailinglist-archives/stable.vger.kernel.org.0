@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9483411B78
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:57:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2352F411F8A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:41:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244798AbhITQ64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:58:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45192 "EHLO mail.kernel.org"
+        id S1348911AbhITRmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:42:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244808AbhITQ4n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:56:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C61DE610A0;
-        Mon, 20 Sep 2021 16:51:30 +0000 (UTC)
+        id S1352426AbhITRjZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:39:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96BC461B47;
+        Mon, 20 Sep 2021 17:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156691;
-        bh=YNWLoRrqL+iKWwd00J29MTARknC6zIVmxqx30wnM0lY=;
+        s=korg; t=1632157668;
+        bh=/EGVjqjkW2ksLqUu86HsbHEeo55q7PD/vjBexqhu/68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=efiWOEjq1crr7qyRt++CSblqpoi+OtnjjIxdZBmsYcG9zfrjWinlJMiji+WTrB3qU
-         uwNoFkApPAKBRF5Jh/zlG/T4Pe1na2S7bvclXpYBLVjiUDOZ725gPlD0eerjw71naF
-         xpW4bldLXrKdsBAX8pRG8tifaqAoG6uVI+tP4sMI=
+        b=A0VOte0jcgwUdxoTwjwdcMT+/+M7h1PxHTfJeneeinM7JYHQmi08MoRPeeF/BBAAJ
+         e7xNLaGoIoQAia7ZX7TGcfdzQ4ZoggvbyWclXRmZVNCHdn32MpX6ag1aD3w4lqyBvL
+         uAdHijfb+u27/x97tlU9PaixL7sxiwPgTvoKJmMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zubin Mithra <zsm@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 009/175] ALSA: pcm: fix divide error in snd_pcm_lib_ioctl
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Evgeny Novikov <novikov@ispras.ru>,
+        Kirill Shilimanov <kirill.shilimanov@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 096/293] usb: ehci-orion: Handle errors of clk_prepare_enable() in probe
 Date:   Mon, 20 Sep 2021 18:40:58 +0200
-Message-Id: <20210920163918.372463225@linuxfoundation.org>
+Message-Id: <20210920163936.549910445@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zubin Mithra <zsm@chromium.org>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-commit f3eef46f0518a2b32ca1244015820c35a22cfe4a upstream.
+[ Upstream commit 4720f1bf4ee4a784d9ece05420ba33c9222a3004 ]
 
-Syzkaller reported a divide error in snd_pcm_lib_ioctl. fifo_size
-is of type snd_pcm_uframes_t(unsigned long). If frame_size
-is 0x100000000, the error occurs.
+ehci_orion_drv_probe() did not account for possible errors of
+clk_prepare_enable() that in particular could cause invocation of
+clk_disable_unprepare() on clocks that were not prepared/enabled yet,
+e.g. in remove or on handling errors of usb_add_hcd() in probe. Though,
+there were several patches fixing different issues with clocks in this
+driver, they did not solve this problem.
 
-Fixes: a9960e6a293e ("ALSA: pcm: fix fifo_size frame calculation")
-Signed-off-by: Zubin Mithra <zsm@chromium.org>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210827153735.789452-1-zsm@chromium.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Add handling of errors of clk_prepare_enable() in ehci_orion_drv_probe()
+to avoid calls of clk_disable_unprepare() without previous successful
+invocation of clk_prepare_enable().
+
+Found by Linux Driver Verification project (linuxtesting.org).
+
+Fixes: 8c869edaee07 ("ARM: Orion: EHCI: Add support for enabling clocks")
+Co-developed-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Signed-off-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
+Link: https://lore.kernel.org/r/20210825170902.11234-1-novikov@ispras.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/pcm_lib.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/ehci-orion.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/sound/core/pcm_lib.c
-+++ b/sound/core/pcm_lib.c
-@@ -1830,7 +1830,7 @@ static int snd_pcm_lib_ioctl_fifo_size(s
- 		channels = params_channels(params);
- 		frame_size = snd_pcm_format_size(format, channels);
- 		if (frame_size > 0)
--			params->fifo_size /= (unsigned)frame_size;
-+			params->fifo_size /= frame_size;
- 	}
- 	return 0;
- }
+diff --git a/drivers/usb/host/ehci-orion.c b/drivers/usb/host/ehci-orion.c
+index 1ad72647a069..da0f36af0b38 100644
+--- a/drivers/usb/host/ehci-orion.c
++++ b/drivers/usb/host/ehci-orion.c
+@@ -250,8 +250,11 @@ static int ehci_orion_drv_probe(struct platform_device *pdev)
+ 	 * the clock does not exists.
+ 	 */
+ 	priv->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (!IS_ERR(priv->clk))
+-		clk_prepare_enable(priv->clk);
++	if (!IS_ERR(priv->clk)) {
++		err = clk_prepare_enable(priv->clk);
++		if (err)
++			goto err_put_hcd;
++	}
+ 
+ 	priv->phy = devm_phy_optional_get(&pdev->dev, "usb");
+ 	if (IS_ERR(priv->phy)) {
+@@ -312,6 +315,7 @@ err_phy_init:
+ err_phy_get:
+ 	if (!IS_ERR(priv->clk))
+ 		clk_disable_unprepare(priv->clk);
++err_put_hcd:
+ 	usb_put_hcd(hcd);
+ err:
+ 	dev_err(&pdev->dev, "init %s fail, %d\n",
+-- 
+2.30.2
+
 
 
