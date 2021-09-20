@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F5EF4120D7
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:58:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CC0C411E62
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:29:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347862AbhITR6p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:58:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54630 "EHLO mail.kernel.org"
+        id S1347639AbhITRaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:30:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346780AbhITR4m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:56:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3C6A61CF3;
-        Mon, 20 Sep 2021 17:14:30 +0000 (UTC)
+        id S1350321AbhITR2J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:28:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD7E261AAC;
+        Mon, 20 Sep 2021 17:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158071;
-        bh=JSE/Ces+pBBrlQl/ACAcXCCM9tmsPyHfqc1XIx3Cojs=;
+        s=korg; t=1632157398;
+        bh=R6JsaxzHS3n+4oKo8hy8SgXPN/CtAdobzGO7SI6r+Ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N813svSlDF7CMDOLMc8WwcM34poi0Gs4M4hdrNfGz0C4F+9AtmC9dGa3f/aVf2Uhk
-         g98JorDXzFs9qWwk8y5H9uC0xxYre8n5zykhwwvztpfJikn/h5uUh9rDTLchIsurUd
-         nOns805YjbaSrcE8Mfc5AdzJH+nvBLh1TsSo8HSA=
+        b=klE94abTzzFXkDPBqec/IQXmMtUgglnhclGh+yRtPl2p4XDlEC3aNsp3uPiLti77H
+         uTI2DH8gebpdRRUCFVr+ToeybFV+NOECR0bYuRNfrryJuNvsRZkM4ZVax5rdAJbuLM
+         2YZb7nPwrIYbWnBdF0sgAfMPpFlR5/co4aQIjcIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        xiejingfeng <xiejingfeng@linux.alibaba.com>,
-        Jeffle Xu <jefflexu@linux.alibaba.com>
-Subject: [PATCH 4.19 250/293] dm thin metadata: Fix use-after-free in dm_bm_set_read_only
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 4.14 191/217] xen: reset legacy rtc flag for PV domU
 Date:   Mon, 20 Sep 2021 18:43:32 +0200
-Message-Id: <20210920163941.951233181@linuxfoundation.org>
+Message-Id: <20210920163931.107421685@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,111 +39,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 3a653b205f29b3f9827a01a0c88bfbcb0d169494 upstream.
+commit f68aa100d815b5b4467fd1c3abbe3b99d65fd028 upstream.
 
-The following error ocurred when testing disk online/offline:
+A Xen PV guest doesn't have a legacy RTC device, so reset the legacy
+RTC flag. Otherwise the following WARN splat will occur at boot:
 
-[  301.798344] device-mapper: thin: 253:5: aborting current metadata transaction
-[  301.848441] device-mapper: thin: 253:5: failed to abort metadata transaction
-[  301.849206] Aborting journal on device dm-26-8.
-[  301.850489] EXT4-fs error (device dm-26) in __ext4_new_inode:943: Journal has aborted
-[  301.851095] EXT4-fs (dm-26): Delayed block allocation failed for inode 398742 at logical offset 181 with max blocks 19 with error 30
-[  301.854476] BUG: KASAN: use-after-free in dm_bm_set_read_only+0x3a/0x40 [dm_persistent_data]
+[    1.333404] WARNING: CPU: 1 PID: 1 at /home/gross/linux/head/drivers/rtc/rtc-mc146818-lib.c:25 mc146818_get_time+0x1be/0x210
+[    1.333404] Modules linked in:
+[    1.333404] CPU: 1 PID: 1 Comm: swapper/0 Tainted: G        W         5.14.0-rc7-default+ #282
+[    1.333404] RIP: e030:mc146818_get_time+0x1be/0x210
+[    1.333404] Code: c0 64 01 c5 83 fd 45 89 6b 14 7f 06 83 c5 64 89 6b 14 41 83 ec 01 b8 02 00 00 00 44 89 63 10 5b 5d 41 5c 41 5d 41 5e 41 5f c3 <0f> 0b 48 c7 c7 30 0e ef 82 4c 89 e6 e8 71 2a 24 00 48 c7 c0 ff ff
+[    1.333404] RSP: e02b:ffffc90040093df8 EFLAGS: 00010002
+[    1.333404] RAX: 00000000000000ff RBX: ffffc90040093e34 RCX: 0000000000000000
+[    1.333404] RDX: 0000000000000001 RSI: 0000000000000000 RDI: 000000000000000d
+[    1.333404] RBP: ffffffff82ef0e30 R08: ffff888005013e60 R09: 0000000000000000
+[    1.333404] R10: ffffffff82373e9b R11: 0000000000033080 R12: 0000000000000200
+[    1.333404] R13: 0000000000000000 R14: 0000000000000002 R15: ffffffff82cdc6d4
+[    1.333404] FS:  0000000000000000(0000) GS:ffff88807d440000(0000) knlGS:0000000000000000
+[    1.333404] CS:  10000e030 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    1.333404] CR2: 0000000000000000 CR3: 000000000260a000 CR4: 0000000000050660
+[    1.333404] Call Trace:
+[    1.333404]  ? wakeup_sources_sysfs_init+0x30/0x30
+[    1.333404]  ? rdinit_setup+0x2b/0x2b
+[    1.333404]  early_resume_init+0x23/0xa4
+[    1.333404]  ? cn_proc_init+0x36/0x36
+[    1.333404]  do_one_initcall+0x3e/0x200
+[    1.333404]  kernel_init_freeable+0x232/0x28e
+[    1.333404]  ? rest_init+0xd0/0xd0
+[    1.333404]  kernel_init+0x16/0x120
+[    1.333404]  ret_from_fork+0x1f/0x30
 
-Reason is:
-
- metadata_operation_failed
-    abort_transaction
-        dm_pool_abort_metadata
-	    __create_persistent_data_objects
-	        r = __open_or_format_metadata
-	        if (r) --> If failed will free pmd->bm but pmd->bm not set NULL
-		    dm_block_manager_destroy(pmd->bm);
-    set_pool_mode
-	dm_pool_metadata_read_only(pool->pmd);
-	dm_bm_set_read_only(pmd->bm);  --> use-after-free
-
-Add checks to see if pmd->bm is NULL in dm_bm_set_read_only and
-dm_bm_set_read_write functions.  If bm is NULL it means creating the
-bm failed and so dm_bm_is_read_only must return true.
-
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: xiejingfeng <xiejingfeng@linux.alibaba.com>
-Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 8d152e7a5c7537 ("x86/rtc: Replace paravirt rtc check with platform legacy quirk")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20210903084937.19392-3-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-thin-metadata.c                 |    2 +-
- drivers/md/persistent-data/dm-block-manager.c |   14 ++++++++------
- 2 files changed, 9 insertions(+), 7 deletions(-)
+ arch/x86/xen/enlighten_pv.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/md/dm-thin-metadata.c
-+++ b/drivers/md/dm-thin-metadata.c
-@@ -901,7 +901,7 @@ int dm_pool_metadata_close(struct dm_poo
- 		return -EBUSY;
- 	}
- 
--	if (!dm_bm_is_read_only(pmd->bm) && !pmd->fail_io) {
-+	if (!pmd->fail_io && !dm_bm_is_read_only(pmd->bm)) {
- 		r = __commit_transaction(pmd);
- 		if (r < 0)
- 			DMWARN("%s: __commit_transaction() failed, error = %d",
---- a/drivers/md/persistent-data/dm-block-manager.c
-+++ b/drivers/md/persistent-data/dm-block-manager.c
-@@ -494,7 +494,7 @@ int dm_bm_write_lock(struct dm_block_man
- 	void *p;
- 	int r;
- 
--	if (bm->read_only)
-+	if (dm_bm_is_read_only(bm))
- 		return -EPERM;
- 
- 	p = dm_bufio_read(bm->bufio, b, (struct dm_buffer **) result);
-@@ -563,7 +563,7 @@ int dm_bm_write_lock_zero(struct dm_bloc
- 	struct buffer_aux *aux;
- 	void *p;
- 
--	if (bm->read_only)
-+	if (dm_bm_is_read_only(bm))
- 		return -EPERM;
- 
- 	p = dm_bufio_new(bm->bufio, b, (struct dm_buffer **) result);
-@@ -603,7 +603,7 @@ EXPORT_SYMBOL_GPL(dm_bm_unlock);
- 
- int dm_bm_flush(struct dm_block_manager *bm)
- {
--	if (bm->read_only)
-+	if (dm_bm_is_read_only(bm))
- 		return -EPERM;
- 
- 	return dm_bufio_write_dirty_buffers(bm->bufio);
-@@ -617,19 +617,21 @@ void dm_bm_prefetch(struct dm_block_mana
- 
- bool dm_bm_is_read_only(struct dm_block_manager *bm)
- {
--	return bm->read_only;
-+	return (bm ? bm->read_only : true);
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -1214,6 +1214,11 @@ static void __init xen_dom0_set_legacy_f
+ 	x86_platform.legacy.rtc = 1;
  }
- EXPORT_SYMBOL_GPL(dm_bm_is_read_only);
  
- void dm_bm_set_read_only(struct dm_block_manager *bm)
++static void __init xen_domu_set_legacy_features(void)
++{
++	x86_platform.legacy.rtc = 0;
++}
++
+ /* First C function to be called on Xen boot */
+ asmlinkage __visible void __init xen_start_kernel(void)
  {
--	bm->read_only = true;
-+	if (bm)
-+		bm->read_only = true;
- }
- EXPORT_SYMBOL_GPL(dm_bm_set_read_only);
- 
- void dm_bm_set_read_write(struct dm_block_manager *bm)
- {
--	bm->read_only = false;
-+	if (bm)
-+		bm->read_only = false;
- }
- EXPORT_SYMBOL_GPL(dm_bm_set_read_write);
- 
+@@ -1375,6 +1380,8 @@ asmlinkage __visible void __init xen_sta
+ 		add_preferred_console("hvc", 0, NULL);
+ 		if (pci_xen)
+ 			x86_init.pci.arch_init = pci_xen_init;
++		x86_platform.set_legacy_features =
++				xen_domu_set_legacy_features;
+ 	} else {
+ 		const struct dom0_vga_console_info *info =
+ 			(void *)((char *)xen_start_info +
 
 
