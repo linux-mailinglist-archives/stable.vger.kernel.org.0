@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8291F411163
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 10:53:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E032411162
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 10:52:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232226AbhITIyc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 04:54:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47404 "EHLO mail.kernel.org"
+        id S232221AbhITIyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 04:54:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229844AbhITIyb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 04:54:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4807160ED8;
-        Mon, 20 Sep 2021 08:53:04 +0000 (UTC)
+        id S229844AbhITIyW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 04:54:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01664601FF;
+        Mon, 20 Sep 2021 08:52:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632127984;
-        bh=bPpe2cO2+q0wp3dugMYNjERpknirbWG77R0S3w8Olf0=;
+        s=korg; t=1632127976;
+        bh=EDK37GqX0xoiUriuEmMuWyz7QBA3IcBixQQlXPKUfn8=;
         h=Subject:To:Cc:From:Date:From;
-        b=YwKJ/u5TRwK96FjaiBIETDaODbmFPaMrkF8PowYG6P4/Hh7Jz1IvN7NEvomxnF4PV
-         ZC0KDmY40RDuh9AEXc/qgtMx2HPxEA6YEutgoaIEbXt8mEMEiH8Q0uqX2xz+Pkxv/V
-         vtlCAJmo0Kr2ZoCb9pGGWwKm1n2frmNLO94/XLPs=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: Drop inline from" failed to apply to 5.14-stable tree
+        b=kXNCJFkkW9/JXxcQt0uQeWMhb/UNMjUsR8ar/Nkw5hDIzxi+S9v8cpPiwi4bVvQUR
+         bwIiihYKcbVebN/5XawG6jRoDAiGPB6F00nJJg2uw9gwvyWxMxUimVYaD36iYzucFk
+         d2ShQoJ+LFg3nmG0DJ0HvZ+cCPVLydEXxzwSaVH8=
+Subject: FAILED: patch "[PATCH] drm/amdgpu: Drop inline from" failed to apply to 5.10-stable tree
 To:     mdaenzer@redhat.com, alexander.deucher@amd.com, lyude@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 20 Sep 2021 10:52:54 +0200
-Message-ID: <1632127974199169@kroah.com>
+Message-ID: <1632127974199214@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.14-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
