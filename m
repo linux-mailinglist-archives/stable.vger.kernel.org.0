@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 311A1410FDA
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 09:08:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEA9E411005
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 09:23:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233646AbhITHKV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 03:10:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47808 "EHLO mail.kernel.org"
+        id S234110AbhITHZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 03:25:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230151AbhITHKU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 03:10:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0F8260F0F;
-        Mon, 20 Sep 2021 07:08:53 +0000 (UTC)
+        id S233764AbhITHZU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 03:25:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB1D2610CE;
+        Mon, 20 Sep 2021 07:23:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632121734;
-        bh=vKh3pirimwcdEeYM7deSviJlc+qs8OLB4173N1uKGCI=;
+        s=korg; t=1632122634;
+        bh=1++SdVgR4giXVT/hscZImjcfKGT6mPyRa4DQuZmzsow=;
         h=Subject:To:Cc:From:Date:From;
-        b=EPo6YJMR4o1A90so+eHo0372iTqYS9k5baX/RoY1l+ziCawA0khMitw/qmxtAoDaj
-         uD/q3WNMaJK75Ii/alKOu95iRoM2vHLjsgW8UKnjhlnQA4UURZ5Y8kQEP4ayK4TLVI
-         L/kIlP7hX5zctN6LpvtdDpddHsWraKdejMiR6p/w=
-Subject: FAILED: patch "[PATCH] x86/mce: Avoid infinite loop for copy from user recovery" failed to apply to 5.10-stable tree
-To:     tony.luck@intel.com, bp@suse.de, stable@vger.kernel.org
+        b=UPgNbIT+dEDBKi5J3nQc/I/HErlXh5hBaEgr/HEVxmEWJOQwKjjLY/wD8WWvs9EYA
+         aB4RBshzjP4wHHQS3yFO/5+mau6xMES3zVo7GJ+/DzsJb+rNe/8PoJ4C0MCifBpJ4d
+         PpRBAP5FzQWCLxVocdazhYaJ6eZFQeMWrIp94jBY=
+Subject: FAILED: patch "[PATCH] io-wq: split bounded and unbounded work into separate lists" failed to apply to 5.14-stable tree
+To:     axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Sep 2021 09:08:52 +0200
-Message-ID: <163212173281150@kroah.com>
+Date:   Mon, 20 Sep 2021 09:23:51 +0200
+Message-ID: <16321226316620@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,164 +45,411 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 81065b35e2486c024c7aa86caed452e1f01a59d4 Mon Sep 17 00:00:00 2001
-From: Tony Luck <tony.luck@intel.com>
-Date: Mon, 13 Sep 2021 14:52:39 -0700
-Subject: [PATCH] x86/mce: Avoid infinite loop for copy from user recovery
+From f95dc207b93da9c88ddbb7741ec3730c6657b88e Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Tue, 31 Aug 2021 13:57:32 -0600
+Subject: [PATCH] io-wq: split bounded and unbounded work into separate lists
 
-There are two cases for machine check recovery:
+We've got a few issues that all boil down to the fact that we have one
+list of pending work items, yet two different types of workers to
+serve them. This causes some oddities around workers switching type and
+even hashed work vs regular work on the same bounded list.
 
-1) The machine check was triggered by ring3 (application) code.
-   This is the simpler case. The machine check handler simply queues
-   work to be executed on return to user. That code unmaps the page
-   from all users and arranges to send a SIGBUS to the task that
-   triggered the poison.
+Just separate them out cleanly, similarly to how we already do
+accounting of what is running. That provides a clean separation and
+removes some corner cases that can cause stalls when handling IO
+that is punted to io-wq.
 
-2) The machine check was triggered in kernel code that is covered by
-   an exception table entry. In this case the machine check handler
-   still queues a work entry to unmap the page, etc. but this will
-   not be called right away because the #MC handler returns to the
-   fix up code address in the exception table entry.
+Fixes: ecc53c48c13d ("io-wq: check max_worker limits if a worker transitions bound state")
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-Problems occur if the kernel triggers another machine check before the
-return to user processes the first queued work item.
-
-Specifically, the work is queued using the ->mce_kill_me callback
-structure in the task struct for the current thread. Attempting to queue
-a second work item using this same callback results in a loop in the
-linked list of work functions to call. So when the kernel does return to
-user, it enters an infinite loop processing the same entry for ever.
-
-There are some legitimate scenarios where the kernel may take a second
-machine check before returning to the user.
-
-1) Some code (e.g. futex) first tries a get_user() with page faults
-   disabled. If this fails, the code retries with page faults enabled
-   expecting that this will resolve the page fault.
-
-2) Copy from user code retries a copy in byte-at-time mode to check
-   whether any additional bytes can be copied.
-
-On the other side of the fence are some bad drivers that do not check
-the return value from individual get_user() calls and may access
-multiple user addresses without noticing that some/all calls have
-failed.
-
-Fix by adding a counter (current->mce_count) to keep track of repeated
-machine checks before task_work() is called. First machine check saves
-the address information and calls task_work_add(). Subsequent machine
-checks before that task_work call back is executed check that the address
-is in the same page as the first machine check (since the callback will
-offline exactly one page).
-
-Expected worst case is four machine checks before moving on (e.g. one
-user access with page faults disabled, then a repeat to the same address
-with page faults enabled ... repeat in copy tail bytes). Just in case
-there is some code that loops forever enforce a limit of 10.
-
- [ bp: Massage commit message, drop noinstr, fix typo, extend panic
-   messages. ]
-
-Fixes: 5567d11c21a1 ("x86/mce: Send #MC singal from task work")
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/YT/IJ9ziLqmtqEPu@agluck-desk2.amr.corp.intel.com
-
-diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index 8cb7816d03b4..193204aee880 100644
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -1253,6 +1253,9 @@ static void __mc_scan_banks(struct mce *m, struct pt_regs *regs, struct mce *fin
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index aa9656eb832e..8cba77a937a1 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -32,7 +32,7 @@ enum {
+ };
  
- static void kill_me_now(struct callback_head *ch)
- {
-+	struct task_struct *p = container_of(ch, struct task_struct, mce_kill_me);
-+
-+	p->mce_count = 0;
- 	force_sig(SIGBUS);
+ enum {
+-	IO_WQE_FLAG_STALLED	= 1,	/* stalled on hash */
++	IO_ACCT_STALLED_BIT	= 0,	/* stalled on hash */
+ };
+ 
+ /*
+@@ -71,25 +71,24 @@ struct io_wqe_acct {
+ 	unsigned max_workers;
+ 	int index;
+ 	atomic_t nr_running;
++	struct io_wq_work_list work_list;
++	unsigned long flags;
+ };
+ 
+ enum {
+ 	IO_WQ_ACCT_BOUND,
+ 	IO_WQ_ACCT_UNBOUND,
++	IO_WQ_ACCT_NR,
+ };
+ 
+ /*
+  * Per-node worker thread pool
+  */
+ struct io_wqe {
+-	struct {
+-		raw_spinlock_t lock;
+-		struct io_wq_work_list work_list;
+-		unsigned flags;
+-	} ____cacheline_aligned_in_smp;
++	raw_spinlock_t lock;
++	struct io_wqe_acct acct[2];
+ 
+ 	int node;
+-	struct io_wqe_acct acct[2];
+ 
+ 	struct hlist_nulls_head free_list;
+ 	struct list_head all_list;
+@@ -195,11 +194,10 @@ static void io_worker_exit(struct io_worker *worker)
+ 	do_exit(0);
  }
  
-@@ -1262,6 +1265,7 @@ static void kill_me_maybe(struct callback_head *cb)
- 	int flags = MF_ACTION_REQUIRED;
- 	int ret;
+-static inline bool io_wqe_run_queue(struct io_wqe *wqe)
+-	__must_hold(wqe->lock)
++static inline bool io_acct_run_queue(struct io_wqe_acct *acct)
+ {
+-	if (!wq_list_empty(&wqe->work_list) &&
+-	    !(wqe->flags & IO_WQE_FLAG_STALLED))
++	if (!wq_list_empty(&acct->work_list) &&
++	    !test_bit(IO_ACCT_STALLED_BIT, &acct->flags))
+ 		return true;
+ 	return false;
+ }
+@@ -208,7 +206,8 @@ static inline bool io_wqe_run_queue(struct io_wqe *wqe)
+  * Check head of free list for an available worker. If one isn't available,
+  * caller must create one.
+  */
+-static bool io_wqe_activate_free_worker(struct io_wqe *wqe)
++static bool io_wqe_activate_free_worker(struct io_wqe *wqe,
++					struct io_wqe_acct *acct)
+ 	__must_hold(RCU)
+ {
+ 	struct hlist_nulls_node *n;
+@@ -222,6 +221,10 @@ static bool io_wqe_activate_free_worker(struct io_wqe *wqe)
+ 	hlist_nulls_for_each_entry_rcu(worker, n, &wqe->free_list, nulls_node) {
+ 		if (!io_worker_get(worker))
+ 			continue;
++		if (io_wqe_get_acct(worker) != acct) {
++			io_worker_release(worker);
++			continue;
++		}
+ 		if (wake_up_process(worker->task)) {
+ 			io_worker_release(worker);
+ 			return true;
+@@ -340,7 +343,7 @@ static void io_wqe_dec_running(struct io_worker *worker)
+ 	if (!(worker->flags & IO_WORKER_F_UP))
+ 		return;
  
-+	p->mce_count = 0;
- 	pr_err("Uncorrected hardware memory error in user-access at %llx", p->mce_addr);
- 
- 	if (!p->mce_ripv)
-@@ -1290,17 +1294,34 @@ static void kill_me_maybe(struct callback_head *cb)
+-	if (atomic_dec_and_test(&acct->nr_running) && io_wqe_run_queue(wqe)) {
++	if (atomic_dec_and_test(&acct->nr_running) && io_acct_run_queue(acct)) {
+ 		atomic_inc(&acct->nr_running);
+ 		atomic_inc(&wqe->wq->worker_refs);
+ 		io_queue_worker_create(wqe, worker, acct);
+@@ -355,29 +358,10 @@ static void __io_worker_busy(struct io_wqe *wqe, struct io_worker *worker,
+ 			     struct io_wq_work *work)
+ 	__must_hold(wqe->lock)
+ {
+-	bool worker_bound, work_bound;
+-
+-	BUILD_BUG_ON((IO_WQ_ACCT_UNBOUND ^ IO_WQ_ACCT_BOUND) != 1);
+-
+ 	if (worker->flags & IO_WORKER_F_FREE) {
+ 		worker->flags &= ~IO_WORKER_F_FREE;
+ 		hlist_nulls_del_init_rcu(&worker->nulls_node);
  	}
+-
+-	/*
+-	 * If worker is moving from bound to unbound (or vice versa), then
+-	 * ensure we update the running accounting.
+-	 */
+-	worker_bound = (worker->flags & IO_WORKER_F_BOUND) != 0;
+-	work_bound = (work->flags & IO_WQ_WORK_UNBOUND) == 0;
+-	if (worker_bound != work_bound) {
+-		int index = work_bound ? IO_WQ_ACCT_UNBOUND : IO_WQ_ACCT_BOUND;
+-		io_wqe_dec_running(worker);
+-		worker->flags ^= IO_WORKER_F_BOUND;
+-		wqe->acct[index].nr_workers--;
+-		wqe->acct[index ^ 1].nr_workers++;
+-		io_wqe_inc_running(worker);
+-	 }
  }
  
--static void queue_task_work(struct mce *m, int kill_current_task)
-+static void queue_task_work(struct mce *m, char *msg, int kill_current_task)
+ /*
+@@ -416,44 +400,23 @@ static void io_wait_on_hash(struct io_wqe *wqe, unsigned int hash)
+ 	spin_unlock_irq(&wq->hash->wait.lock);
+ }
+ 
+-/*
+- * We can always run the work if the worker is currently the same type as
+- * the work (eg both are bound, or both are unbound). If they are not the
+- * same, only allow it if incrementing the worker count would be allowed.
+- */
+-static bool io_worker_can_run_work(struct io_worker *worker,
+-				   struct io_wq_work *work)
+-{
+-	struct io_wqe_acct *acct;
+-
+-	if (!(worker->flags & IO_WORKER_F_BOUND) !=
+-	    !(work->flags & IO_WQ_WORK_UNBOUND))
+-		return true;
+-
+-	/* not the same type, check if we'd go over the limit */
+-	acct = io_work_get_acct(worker->wqe, work);
+-	return acct->nr_workers < acct->max_workers;
+-}
+-
+-static struct io_wq_work *io_get_next_work(struct io_wqe *wqe,
++static struct io_wq_work *io_get_next_work(struct io_wqe_acct *acct,
+ 					   struct io_worker *worker)
+ 	__must_hold(wqe->lock)
  {
--	current->mce_addr = m->addr;
--	current->mce_kflags = m->kflags;
--	current->mce_ripv = !!(m->mcgstatus & MCG_STATUS_RIPV);
--	current->mce_whole_page = whole_page(m);
-+	int count = ++current->mce_count;
+ 	struct io_wq_work_node *node, *prev;
+ 	struct io_wq_work *work, *tail;
+ 	unsigned int stall_hash = -1U;
++	struct io_wqe *wqe = worker->wqe;
  
--	if (kill_current_task)
--		current->mce_kill_me.func = kill_me_now;
--	else
--		current->mce_kill_me.func = kill_me_maybe;
-+	/* First call, save all the details */
-+	if (count == 1) {
-+		current->mce_addr = m->addr;
-+		current->mce_kflags = m->kflags;
-+		current->mce_ripv = !!(m->mcgstatus & MCG_STATUS_RIPV);
-+		current->mce_whole_page = whole_page(m);
-+
-+		if (kill_current_task)
-+			current->mce_kill_me.func = kill_me_now;
-+		else
-+			current->mce_kill_me.func = kill_me_maybe;
-+	}
-+
-+	/* Ten is likely overkill. Don't expect more than two faults before task_work() */
-+	if (count > 10)
-+		mce_panic("Too many consecutive machine checks while accessing user data", m, msg);
-+
-+	/* Second or later call, make sure page address matches the one from first call */
-+	if (count > 1 && (current->mce_addr >> PAGE_SHIFT) != (m->addr >> PAGE_SHIFT))
-+		mce_panic("Consecutive machine checks to different user pages", m, msg);
-+
-+	/* Do not call task_work_add() more than once */
-+	if (count > 1)
-+		return;
+-	wq_list_for_each(node, prev, &wqe->work_list) {
++	wq_list_for_each(node, prev, &acct->work_list) {
+ 		unsigned int hash;
  
- 	task_work_add(current, &current->mce_kill_me, TWA_RESUME);
- }
-@@ -1438,7 +1459,7 @@ noinstr void do_machine_check(struct pt_regs *regs)
- 		/* If this triggers there is no way to recover. Die hard. */
- 		BUG_ON(!on_thread_stack() || !user_mode(regs));
+ 		work = container_of(node, struct io_wq_work, list);
  
--		queue_task_work(&m, kill_current_task);
-+		queue_task_work(&m, msg, kill_current_task);
- 
- 	} else {
- 		/*
-@@ -1456,7 +1477,7 @@ noinstr void do_machine_check(struct pt_regs *regs)
+-		if (!io_worker_can_run_work(worker, work))
+-			break;
+-
+ 		/* not hashed, can run anytime */
+ 		if (!io_wq_is_hashed(work)) {
+-			wq_list_del(&wqe->work_list, node, prev);
++			wq_list_del(&acct->work_list, node, prev);
+ 			return work;
  		}
  
- 		if (m.kflags & MCE_IN_KERNEL_COPYIN)
--			queue_task_work(&m, kill_current_task);
-+			queue_task_work(&m, msg, kill_current_task);
- 	}
- out:
- 	mce_wrmsrl(MSR_IA32_MCG_STATUS, 0);
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 1780260f237b..361c7bc72cbb 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1468,6 +1468,7 @@ struct task_struct {
- 					mce_whole_page : 1,
- 					__mce_reserved : 62;
- 	struct callback_head		mce_kill_me;
-+	int				mce_count;
- #endif
+@@ -464,7 +427,7 @@ static struct io_wq_work *io_get_next_work(struct io_wqe *wqe,
+ 		/* hashed, can run if not already running */
+ 		if (!test_and_set_bit(hash, &wqe->wq->hash->map)) {
+ 			wqe->hash_tail[hash] = NULL;
+-			wq_list_cut(&wqe->work_list, &tail->list, prev);
++			wq_list_cut(&acct->work_list, &tail->list, prev);
+ 			return work;
+ 		}
+ 		if (stall_hash == -1U)
+@@ -478,7 +441,7 @@ static struct io_wq_work *io_get_next_work(struct io_wqe *wqe,
+ 		 * Set this before dropping the lock to avoid racing with new
+ 		 * work being added and clearing the stalled bit.
+ 		 */
+-		wqe->flags |= IO_WQE_FLAG_STALLED;
++		set_bit(IO_ACCT_STALLED_BIT, &acct->flags);
+ 		raw_spin_unlock(&wqe->lock);
+ 		io_wait_on_hash(wqe, stall_hash);
+ 		raw_spin_lock(&wqe->lock);
+@@ -515,6 +478,7 @@ static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work);
+ static void io_worker_handle_work(struct io_worker *worker)
+ 	__releases(wqe->lock)
+ {
++	struct io_wqe_acct *acct = io_wqe_get_acct(worker);
+ 	struct io_wqe *wqe = worker->wqe;
+ 	struct io_wq *wq = wqe->wq;
+ 	bool do_kill = test_bit(IO_WQ_BIT_EXIT, &wq->state);
+@@ -529,7 +493,7 @@ static void io_worker_handle_work(struct io_worker *worker)
+ 		 * can't make progress, any work completion or insertion will
+ 		 * clear the stalled flag.
+ 		 */
+-		work = io_get_next_work(wqe, worker);
++		work = io_get_next_work(acct, worker);
+ 		if (work)
+ 			__io_worker_busy(wqe, worker, work);
  
- #ifdef CONFIG_KRETPROBES
+@@ -563,10 +527,10 @@ static void io_worker_handle_work(struct io_worker *worker)
+ 
+ 			if (hash != -1U && !next_hashed) {
+ 				clear_bit(hash, &wq->hash->map);
++				clear_bit(IO_ACCT_STALLED_BIT, &acct->flags);
+ 				if (wq_has_sleeper(&wq->hash->wait))
+ 					wake_up(&wq->hash->wait);
+ 				raw_spin_lock(&wqe->lock);
+-				wqe->flags &= ~IO_WQE_FLAG_STALLED;
+ 				/* skip unnecessary unlock-lock wqe->lock */
+ 				if (!work)
+ 					goto get_next;
+@@ -581,6 +545,7 @@ static void io_worker_handle_work(struct io_worker *worker)
+ static int io_wqe_worker(void *data)
+ {
+ 	struct io_worker *worker = data;
++	struct io_wqe_acct *acct = io_wqe_get_acct(worker);
+ 	struct io_wqe *wqe = worker->wqe;
+ 	struct io_wq *wq = wqe->wq;
+ 	char buf[TASK_COMM_LEN];
+@@ -596,7 +561,7 @@ static int io_wqe_worker(void *data)
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ loop:
+ 		raw_spin_lock(&wqe->lock);
+-		if (io_wqe_run_queue(wqe)) {
++		if (io_acct_run_queue(acct)) {
+ 			io_worker_handle_work(worker);
+ 			goto loop;
+ 		}
+@@ -764,12 +729,13 @@ static void io_run_cancel(struct io_wq_work *work, struct io_wqe *wqe)
+ 
+ static void io_wqe_insert_work(struct io_wqe *wqe, struct io_wq_work *work)
+ {
++	struct io_wqe_acct *acct = io_work_get_acct(wqe, work);
+ 	unsigned int hash;
+ 	struct io_wq_work *tail;
+ 
+ 	if (!io_wq_is_hashed(work)) {
+ append:
+-		wq_list_add_tail(&work->list, &wqe->work_list);
++		wq_list_add_tail(&work->list, &acct->work_list);
+ 		return;
+ 	}
+ 
+@@ -779,7 +745,7 @@ static void io_wqe_insert_work(struct io_wqe *wqe, struct io_wq_work *work)
+ 	if (!tail)
+ 		goto append;
+ 
+-	wq_list_add_after(&work->list, &tail->list, &wqe->work_list);
++	wq_list_add_after(&work->list, &tail->list, &acct->work_list);
+ }
+ 
+ static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work)
+@@ -800,10 +766,10 @@ static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work)
+ 
+ 	raw_spin_lock(&wqe->lock);
+ 	io_wqe_insert_work(wqe, work);
+-	wqe->flags &= ~IO_WQE_FLAG_STALLED;
++	clear_bit(IO_ACCT_STALLED_BIT, &acct->flags);
+ 
+ 	rcu_read_lock();
+-	do_create = !io_wqe_activate_free_worker(wqe);
++	do_create = !io_wqe_activate_free_worker(wqe, acct);
+ 	rcu_read_unlock();
+ 
+ 	raw_spin_unlock(&wqe->lock);
+@@ -855,6 +821,7 @@ static inline void io_wqe_remove_pending(struct io_wqe *wqe,
+ 					 struct io_wq_work *work,
+ 					 struct io_wq_work_node *prev)
+ {
++	struct io_wqe_acct *acct = io_work_get_acct(wqe, work);
+ 	unsigned int hash = io_get_work_hash(work);
+ 	struct io_wq_work *prev_work = NULL;
+ 
+@@ -866,7 +833,7 @@ static inline void io_wqe_remove_pending(struct io_wqe *wqe,
+ 		else
+ 			wqe->hash_tail[hash] = NULL;
+ 	}
+-	wq_list_del(&wqe->work_list, &work->list, prev);
++	wq_list_del(&acct->work_list, &work->list, prev);
+ }
+ 
+ static void io_wqe_cancel_pending_work(struct io_wqe *wqe,
+@@ -874,22 +841,27 @@ static void io_wqe_cancel_pending_work(struct io_wqe *wqe,
+ {
+ 	struct io_wq_work_node *node, *prev;
+ 	struct io_wq_work *work;
++	int i;
+ 
+ retry:
+ 	raw_spin_lock(&wqe->lock);
+-	wq_list_for_each(node, prev, &wqe->work_list) {
+-		work = container_of(node, struct io_wq_work, list);
+-		if (!match->fn(work, match->data))
+-			continue;
+-		io_wqe_remove_pending(wqe, work, prev);
+-		raw_spin_unlock(&wqe->lock);
+-		io_run_cancel(work, wqe);
+-		match->nr_pending++;
+-		if (!match->cancel_all)
+-			return;
++	for (i = 0; i < IO_WQ_ACCT_NR; i++) {
++		struct io_wqe_acct *acct = io_get_acct(wqe, i == 0);
+ 
+-		/* not safe to continue after unlock */
+-		goto retry;
++		wq_list_for_each(node, prev, &acct->work_list) {
++			work = container_of(node, struct io_wq_work, list);
++			if (!match->fn(work, match->data))
++				continue;
++			io_wqe_remove_pending(wqe, work, prev);
++			raw_spin_unlock(&wqe->lock);
++			io_run_cancel(work, wqe);
++			match->nr_pending++;
++			if (!match->cancel_all)
++				return;
++
++			/* not safe to continue after unlock */
++			goto retry;
++		}
+ 	}
+ 	raw_spin_unlock(&wqe->lock);
+ }
+@@ -950,18 +922,24 @@ static int io_wqe_hash_wake(struct wait_queue_entry *wait, unsigned mode,
+ 			    int sync, void *key)
+ {
+ 	struct io_wqe *wqe = container_of(wait, struct io_wqe, wait);
++	int i;
+ 
+ 	list_del_init(&wait->entry);
+ 
+ 	rcu_read_lock();
+-	io_wqe_activate_free_worker(wqe);
++	for (i = 0; i < IO_WQ_ACCT_NR; i++) {
++		struct io_wqe_acct *acct = &wqe->acct[i];
++
++		if (test_and_clear_bit(IO_ACCT_STALLED_BIT, &acct->flags))
++			io_wqe_activate_free_worker(wqe, acct);
++	}
+ 	rcu_read_unlock();
+ 	return 1;
+ }
+ 
+ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
+ {
+-	int ret, node;
++	int ret, node, i;
+ 	struct io_wq *wq;
+ 
+ 	if (WARN_ON_ONCE(!data->free_work || !data->do_work))
+@@ -996,18 +974,20 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
+ 		cpumask_copy(wqe->cpu_mask, cpumask_of_node(node));
+ 		wq->wqes[node] = wqe;
+ 		wqe->node = alloc_node;
+-		wqe->acct[IO_WQ_ACCT_BOUND].index = IO_WQ_ACCT_BOUND;
+-		wqe->acct[IO_WQ_ACCT_UNBOUND].index = IO_WQ_ACCT_UNBOUND;
+ 		wqe->acct[IO_WQ_ACCT_BOUND].max_workers = bounded;
+-		atomic_set(&wqe->acct[IO_WQ_ACCT_BOUND].nr_running, 0);
+ 		wqe->acct[IO_WQ_ACCT_UNBOUND].max_workers =
+ 					task_rlimit(current, RLIMIT_NPROC);
+-		atomic_set(&wqe->acct[IO_WQ_ACCT_UNBOUND].nr_running, 0);
+-		wqe->wait.func = io_wqe_hash_wake;
+ 		INIT_LIST_HEAD(&wqe->wait.entry);
++		wqe->wait.func = io_wqe_hash_wake;
++		for (i = 0; i < IO_WQ_ACCT_NR; i++) {
++			struct io_wqe_acct *acct = &wqe->acct[i];
++
++			acct->index = i;
++			atomic_set(&acct->nr_running, 0);
++			INIT_WQ_LIST(&acct->work_list);
++		}
+ 		wqe->wq = wq;
+ 		raw_spin_lock_init(&wqe->lock);
+-		INIT_WQ_LIST(&wqe->work_list);
+ 		INIT_HLIST_NULLS_HEAD(&wqe->free_list, 0);
+ 		INIT_LIST_HEAD(&wqe->all_list);
+ 	}
+@@ -1189,7 +1169,7 @@ int io_wq_max_workers(struct io_wq *wq, int *new_count)
+ 	for_each_node(node) {
+ 		struct io_wqe_acct *acct;
+ 
+-		for (i = 0; i < 2; i++) {
++		for (i = 0; i < IO_WQ_ACCT_NR; i++) {
+ 			acct = &wq->wqes[node]->acct[i];
+ 			prev = max_t(int, acct->max_workers, prev);
+ 			if (new_count[i])
 
