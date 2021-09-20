@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01CEE411AA6
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:49:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A21A6411C11
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:04:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241038AbhITQuy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:50:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39212 "EHLO mail.kernel.org"
+        id S1344392AbhITRFt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:05:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244361AbhITQuJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:50:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5446761284;
-        Mon, 20 Sep 2021 16:48:41 +0000 (UTC)
+        id S1345672AbhITREH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:04:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB2436147F;
+        Mon, 20 Sep 2021 16:54:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156521;
-        bh=7wZnqVtzCaieeirAr59OTc2qWcSAp87QUfatIxHr23g=;
+        s=korg; t=1632156859;
+        bh=UDiClydY6tObt0PZNd1SZt9G8hnhTbLPunilXpDsPXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qMOkNv6WDwS+tWxMawBH8OstokqekHkgrQBNj2ei9Fy1DCYRNFhFWDBO2g65/7adR
-         JaKstmTW/ot0OZiikHWtXzGCJHnCTmd6Xl9KPRdx/VhKQFU+CDUIrdxbP5wF38KRyH
-         lQesdDKobeBXQdYSbgKys7IKEdJ8s+e+qn4rVLz4=
+        b=n0Xis6/5f+ULmlFxyi2gZ4w0glA9c6SeW0vLLsfx+SiwGKja1a6DjPdc7sLhx/cmV
+         G1LE8dMX2gQqYIquSts1Gcxeb8uZpfSPdzlz5gh9uZR/911mVACfUSL8ZkEc0O3PLv
+         7lhLN/sBB7vvbTMOkLYeJQ1HIbTOC92nBPgPuSNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 090/133] Smack: Fix wrong semantics in smk_access_entry()
+Subject: [PATCH 4.9 119/175] video: fbdev: asiliantfb: Error out if pixclock equals zero
 Date:   Mon, 20 Sep 2021 18:42:48 +0200
-Message-Id: <20210920163915.589327941@linuxfoundation.org>
+Message-Id: <20210920163921.970101592@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,58 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 6d14f5c7028eea70760df284057fe198ce7778dd ]
+[ Upstream commit b36b242d4b8ea178f7fd038965e3cac7f30c3f09 ]
 
-In the smk_access_entry() function, if no matching rule is found
-in the rust_list, a negative error code will be used to perform bit
-operations with the MAY_ enumeration value. This is semantically
-wrong. This patch fixes this issue.
+The userspace program could pass any values to the driver through
+ioctl() interface. If the driver doesn't check the value of 'pixclock',
+it may cause divide error.
 
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Fix this by checking whether 'pixclock' is zero first.
+
+The following log reveals it:
+
+[   43.861711] divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+[   43.861737] CPU: 2 PID: 11764 Comm: i740 Not tainted 5.14.0-rc2-00513-gac532c9bbcfb-dirty #224
+[   43.861756] RIP: 0010:asiliantfb_check_var+0x4e/0x730
+[   43.861843] Call Trace:
+[   43.861848]  ? asiliantfb_remove+0x190/0x190
+[   43.861858]  fb_set_var+0x2e4/0xeb0
+[   43.861866]  ? fb_blank+0x1a0/0x1a0
+[   43.861873]  ? lock_acquire+0x1ef/0x530
+[   43.861884]  ? lock_release+0x810/0x810
+[   43.861892]  ? lock_is_held_type+0x100/0x140
+[   43.861903]  ? ___might_sleep+0x1ee/0x2d0
+[   43.861914]  ? __mutex_lock+0x620/0x1190
+[   43.861921]  ? do_fb_ioctl+0x313/0x700
+[   43.861929]  ? mutex_lock_io_nested+0xfa0/0xfa0
+[   43.861936]  ? __this_cpu_preempt_check+0x1d/0x30
+[   43.861944]  ? _raw_spin_unlock_irqrestore+0x46/0x60
+[   43.861952]  ? lockdep_hardirqs_on+0x59/0x100
+[   43.861959]  ? _raw_spin_unlock_irqrestore+0x46/0x60
+[   43.861967]  ? trace_hardirqs_on+0x6a/0x1c0
+[   43.861978]  do_fb_ioctl+0x31e/0x700
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1627293835-17441-2-git-send-email-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/smack/smack_access.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/video/fbdev/asiliantfb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/security/smack/smack_access.c b/security/smack/smack_access.c
-index 0df316c62005..84f38b694242 100644
---- a/security/smack/smack_access.c
-+++ b/security/smack/smack_access.c
-@@ -90,23 +90,22 @@ int log_policy = SMACK_AUDIT_DENIED;
- int smk_access_entry(char *subject_label, char *object_label,
- 			struct list_head *rule_list)
+diff --git a/drivers/video/fbdev/asiliantfb.c b/drivers/video/fbdev/asiliantfb.c
+index 91eea4583382..ceb579eff1ea 100644
+--- a/drivers/video/fbdev/asiliantfb.c
++++ b/drivers/video/fbdev/asiliantfb.c
+@@ -227,6 +227,9 @@ static int asiliantfb_check_var(struct fb_var_screeninfo *var,
  {
--	int may = -ENOENT;
- 	struct smack_rule *srp;
+ 	unsigned long Ftarget, ratio, remainder;
  
- 	list_for_each_entry_rcu(srp, rule_list, list) {
- 		if (srp->smk_object->smk_known == object_label &&
- 		    srp->smk_subject->smk_known == subject_label) {
--			may = srp->smk_access;
--			break;
-+			int may = srp->smk_access;
-+			/*
-+			 * MAY_WRITE implies MAY_LOCK.
-+			 */
-+			if ((may & MAY_WRITE) == MAY_WRITE)
-+				may |= MAY_LOCK;
-+			return may;
- 		}
- 	}
- 
--	/*
--	 * MAY_WRITE implies MAY_LOCK.
--	 */
--	if ((may & MAY_WRITE) == MAY_WRITE)
--		may |= MAY_LOCK;
--	return may;
-+	return -ENOENT;
- }
- 
- /**
++	if (!var->pixclock)
++		return -EINVAL;
++
+ 	ratio = 1000000 / var->pixclock;
+ 	remainder = 1000000 % var->pixclock;
+ 	Ftarget = 1000000 * ratio + (1000000 * remainder) / var->pixclock;
 -- 
 2.30.2
 
