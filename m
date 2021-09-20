@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B27F412146
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:05:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C907412149
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:05:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357256AbhITSDp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:03:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57388 "EHLO mail.kernel.org"
+        id S1350451AbhITSDy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:03:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350878AbhITSBn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:01:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D6B90619EC;
-        Mon, 20 Sep 2021 17:16:06 +0000 (UTC)
+        id S1350360AbhITSBw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:01:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11D91613B3;
+        Mon, 20 Sep 2021 17:16:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158167;
-        bh=tMRUhg+5IP7iS3QDrQIfnJwdTixPGUXbFkAY1SQ5LYU=;
+        s=korg; t=1632158169;
+        bh=pB60Zso4c46j1gSOTCobNwTBswnNMKtjyGulBiit2T8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UvBmvQ8yMpOkYevnZGycvJQfeu1re7Mcwv1fRbdPlbWUgwtZ0MhBOwmpNI+w2Kh9c
-         RJ830CyjtoxPaFogwexRShlql5BqytJ/B86mEswABJZCSBIjhe56iZUacdb5LuujUr
-         C1NTy1kPFvA0vZsCZol5rGe+XrLeUbWMmNuY72qY=
+        b=gg4tTsO0RPaAk9RUhz9ICkcvheV2ULMP23VT5IiRdVJldJNjwdgjNIV5EgVzXPlFF
+         RPfGhboicpjN89KQW0sjimJcJB8pznB63oP1SEADMu9xszVSarhMC71caQcY37Vw65
+         dXVEP2UzhI/9+BkqSWTy2rSvE9TpYPUyD9VDP93o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.4 031/260] PCI: Return ~0 data on pciconfig_read() CAP_SYS_ADMIN failure
-Date:   Mon, 20 Sep 2021 18:40:49 +0200
-Message-Id: <20210920163932.178528111@linuxfoundation.org>
+        stable@vger.kernel.org, Hyun Kwon <hyun.kwon@xilinx.com>,
+        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.4 032/260] PCI: xilinx-nwl: Enable the clock through CCF
+Date:   Mon, 20 Sep 2021 18:40:50 +0200
+Message-Id: <20210920163932.210872945@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -40,53 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Wilczyński <kw@linux.com>
+From: Hyun Kwon <hyun.kwon@xilinx.com>
 
-commit a8bd29bd49c4156ea0ec5a97812333e2aeef44e7 upstream.
+commit de0a01f5296651d3a539f2d23d0db8f359483696 upstream.
 
-The pciconfig_read() syscall reads PCI configuration space using
-hardware-dependent config accessors.
+Enable PCIe reference clock. There is no remove function that's why
+this should be enough for simple operation.
+Normally this clock is enabled by default by firmware but there are
+usecases where this clock should be enabled by driver itself.
+It is also good that PCIe clock is recorded in a clock framework.
 
-If the read fails on PCI, most accessors don't return an error; they
-pretend the read was successful and got ~0 data from the device, so the
-syscall returns success with ~0 data in the buffer.
-
-When the accessor does return an error, pciconfig_read() normally fills the
-user's buffer with ~0 and returns an error in errno.  But after
-e4585da22ad0 ("pci syscall.c: Switch to refcounting API"), we don't fill
-the buffer with ~0 for the EPERM "user lacks CAP_SYS_ADMIN" error.
-
-Userspace may rely on the ~0 data to detect errors, but after e4585da22ad0,
-that would not detect CAP_SYS_ADMIN errors.
-
-Restore the original behaviour of filling the buffer with ~0 when the
-CAP_SYS_ADMIN check fails.
-
-[bhelgaas: commit log, fold in Nathan's fix
-https://lore.kernel.org/r/20210803200836.500658-1-nathan@kernel.org]
-Fixes: e4585da22ad0 ("pci syscall.c: Switch to refcounting API")
-Link: https://lore.kernel.org/r/20210729233755.1509616-1-kw@linux.com
-Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://lore.kernel.org/r/ee6997a08fab582b1c6de05f8be184f3fe8d5357.1624618100.git.michal.simek@xilinx.com
+Fixes: ab597d35ef11 ("PCI: xilinx-nwl: Add support for Xilinx NWL PCIe Host Controller")
+Signed-off-by: Hyun Kwon <hyun.kwon@xilinx.com>
+Signed-off-by: Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/syscall.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/pci/controller/pcie-xilinx-nwl.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/pci/syscall.c
-+++ b/drivers/pci/syscall.c
-@@ -22,8 +22,10 @@ SYSCALL_DEFINE5(pciconfig_read, unsigned
- 	long err;
- 	int cfg_ret;
+--- a/drivers/pci/controller/pcie-xilinx-nwl.c
++++ b/drivers/pci/controller/pcie-xilinx-nwl.c
+@@ -6,6 +6,7 @@
+  * (C) Copyright 2014 - 2015, Xilinx, Inc.
+  */
  
-+	err = -EPERM;
-+	dev = NULL;
- 	if (!capable(CAP_SYS_ADMIN))
--		return -EPERM;
-+		goto error;
++#include <linux/clk.h>
+ #include <linux/delay.h>
+ #include <linux/interrupt.h>
+ #include <linux/irq.h>
+@@ -169,6 +170,7 @@ struct nwl_pcie {
+ 	u8 root_busno;
+ 	struct nwl_msi msi;
+ 	struct irq_domain *legacy_irq_domain;
++	struct clk *clk;
+ 	raw_spinlock_t leg_mask_lock;
+ };
  
- 	err = -ENODEV;
- 	dev = pci_get_domain_bus_and_slot(0, bus, dfn);
+@@ -839,6 +841,16 @@ static int nwl_pcie_probe(struct platfor
+ 		return err;
+ 	}
+ 
++	pcie->clk = devm_clk_get(dev, NULL);
++	if (IS_ERR(pcie->clk))
++		return PTR_ERR(pcie->clk);
++
++	err = clk_prepare_enable(pcie->clk);
++	if (err) {
++		dev_err(dev, "can't enable PCIe ref clock\n");
++		return err;
++	}
++
+ 	err = nwl_pcie_bridge_init(pcie);
+ 	if (err) {
+ 		dev_err(dev, "HW Initialization failed\n");
 
 
