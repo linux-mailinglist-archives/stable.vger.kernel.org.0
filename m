@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D489C4125D0
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:49:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E345A412379
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:23:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384671AbhITSse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:48:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33544 "EHLO mail.kernel.org"
+        id S1346686AbhITSZM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:25:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1384096AbhITSqc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:46:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6D2263361;
-        Mon, 20 Sep 2021 17:33:39 +0000 (UTC)
+        id S1377996AbhITSW0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:22:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D825D632C5;
+        Mon, 20 Sep 2021 17:24:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159220;
-        bh=walABZlX11JaDQYOkSKG4JpsE8wTH7I7GPEVcS8ooGA=;
+        s=korg; t=1632158669;
+        bh=JpqSmo2IeRQkcCeiwk7z9u7KjYyVuoPgzrtDeoWdN7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SRM2GW7WVLz/mRmsipx2Wue5RhJgwXA+hzCU62ENSdJVimFnLVSPWt9msTCGyCIgY
-         CzerZLL5YF9tILmxkUWfkMYfUNeeeBDfGDlDu0PzBSeKxw+cvYKnbDFdWokBuCWJ3c
-         EW2vGlc4tSMr5qlIbm1tX4HScTp1ijEH03ZCsg9Q=
+        b=WPXrXmSWZU2/nQrUwxcF0OH2YwsqBEVkX0DONUL6RicIYMgAp3M73jgFm7sAynYXe
+         T3EykuXyVx0/K0TdTHUiJhzv8uwQ2W1iHkInSHVZzN/TvV5joJJlsiMzsu1C9Lm66O
+         7bKnId/RwQZVOsDLCxvuHwcbg2izr8xr0Bir1/zE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kenneth Lee <liguozhu@hisilicon.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 100/168] riscv: fix the global name pfn_base confliction error
-Date:   Mon, 20 Sep 2021 18:43:58 +0200
-Message-Id: <20210920163924.927901763@linuxfoundation.org>
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 221/260] net/af_unix: fix a data-race in unix_dgram_poll
+Date:   Mon, 20 Sep 2021 18:43:59 +0200
+Message-Id: <20210920163938.619203066@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,68 +40,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kenneth Lee <liguozhu@hisilicon.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit fb31f0a499332a053477ed57312b214e42476e6d ]
+commit 04f08eb44b5011493d77b602fdec29ff0f5c6cd5 upstream.
 
-RISCV uses a global variable pfn_base for page/pfn translation. But this
-is a common name and will be used elsewhere. In those cases, the
-page-pfn macros which refer to this name will be referred to the
-local/input variable instead. (such as in vfio_pin_pages_remote). This
-make everything wrong.
+syzbot reported another data-race in af_unix [1]
 
-This patch changes the name from pfn_base to riscv_pfn_base to fix
-this problem.
+Lets change __skb_insert() to use WRITE_ONCE() when changing
+skb head qlen.
 
-Signed-off-by: Kenneth Lee <liguozhu@hisilicon.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Also, change unix_dgram_poll() to use lockless version
+of unix_recvq_full()
+
+It is verry possible we can switch all/most unix_recvq_full()
+to the lockless version, this will be done in a future kernel version.
+
+[1] HEAD commit: 8596e589b787732c8346f0482919e83cc9362db1
+
+BUG: KCSAN: data-race in skb_queue_tail / unix_dgram_poll
+
+write to 0xffff88814eeb24e0 of 4 bytes by task 25815 on cpu 0:
+ __skb_insert include/linux/skbuff.h:1938 [inline]
+ __skb_queue_before include/linux/skbuff.h:2043 [inline]
+ __skb_queue_tail include/linux/skbuff.h:2076 [inline]
+ skb_queue_tail+0x80/0xa0 net/core/skbuff.c:3264
+ unix_dgram_sendmsg+0xff2/0x1600 net/unix/af_unix.c:1850
+ sock_sendmsg_nosec net/socket.c:703 [inline]
+ sock_sendmsg net/socket.c:723 [inline]
+ ____sys_sendmsg+0x360/0x4d0 net/socket.c:2392
+ ___sys_sendmsg net/socket.c:2446 [inline]
+ __sys_sendmmsg+0x315/0x4b0 net/socket.c:2532
+ __do_sys_sendmmsg net/socket.c:2561 [inline]
+ __se_sys_sendmmsg net/socket.c:2558 [inline]
+ __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2558
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+read to 0xffff88814eeb24e0 of 4 bytes by task 25834 on cpu 1:
+ skb_queue_len include/linux/skbuff.h:1869 [inline]
+ unix_recvq_full net/unix/af_unix.c:194 [inline]
+ unix_dgram_poll+0x2bc/0x3e0 net/unix/af_unix.c:2777
+ sock_poll+0x23e/0x260 net/socket.c:1288
+ vfs_poll include/linux/poll.h:90 [inline]
+ ep_item_poll fs/eventpoll.c:846 [inline]
+ ep_send_events fs/eventpoll.c:1683 [inline]
+ ep_poll fs/eventpoll.c:1798 [inline]
+ do_epoll_wait+0x6ad/0xf00 fs/eventpoll.c:2226
+ __do_sys_epoll_wait fs/eventpoll.c:2238 [inline]
+ __se_sys_epoll_wait fs/eventpoll.c:2233 [inline]
+ __x64_sys_epoll_wait+0xf6/0x120 fs/eventpoll.c:2233
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0x0000001b -> 0x00000001
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 25834 Comm: syz-executor.1 Tainted: G        W         5.14.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 86b18aaa2b5b ("skbuff: fix a data race in skb_queue_len()")
+Cc: Qian Cai <cai@lca.pw>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/include/asm/page.h | 4 ++--
- arch/riscv/mm/init.c          | 6 +++---
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ include/linux/skbuff.h |    2 +-
+ net/unix/af_unix.c     |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/riscv/include/asm/page.h b/arch/riscv/include/asm/page.h
-index b0ca5058e7ae..767852ae5e84 100644
---- a/arch/riscv/include/asm/page.h
-+++ b/arch/riscv/include/asm/page.h
-@@ -79,8 +79,8 @@ typedef struct page *pgtable_t;
- #endif
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -1887,7 +1887,7 @@ static inline void __skb_insert(struct s
+ 	WRITE_ONCE(newsk->prev, prev);
+ 	WRITE_ONCE(next->prev, newsk);
+ 	WRITE_ONCE(prev->next, newsk);
+-	list->qlen++;
++	WRITE_ONCE(list->qlen, list->qlen + 1);
+ }
  
- #ifdef CONFIG_MMU
--extern unsigned long pfn_base;
--#define ARCH_PFN_OFFSET		(pfn_base)
-+extern unsigned long riscv_pfn_base;
-+#define ARCH_PFN_OFFSET		(riscv_pfn_base)
- #else
- #define ARCH_PFN_OFFSET		(PAGE_OFFSET >> PAGE_SHIFT)
- #endif /* CONFIG_MMU */
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 7cb4f391d106..9786100f3a14 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -234,8 +234,8 @@ static struct pt_alloc_ops _pt_ops __initdata;
- #define pt_ops _pt_ops
- #endif
+ static inline void __skb_queue_splice(const struct sk_buff_head *list,
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -2734,7 +2734,7 @@ static __poll_t unix_dgram_poll(struct f
  
--unsigned long pfn_base __ro_after_init;
--EXPORT_SYMBOL(pfn_base);
-+unsigned long riscv_pfn_base __ro_after_init;
-+EXPORT_SYMBOL(riscv_pfn_base);
+ 		other = unix_peer(sk);
+ 		if (other && unix_peer(other) != sk &&
+-		    unix_recvq_full(other) &&
++		    unix_recvq_full_lockless(other) &&
+ 		    unix_dgram_peer_wake_me(sk, other))
+ 			writable = 0;
  
- pgd_t swapper_pg_dir[PTRS_PER_PGD] __page_aligned_bss;
- pgd_t trampoline_pg_dir[PTRS_PER_PGD] __page_aligned_bss;
-@@ -579,7 +579,7 @@ asmlinkage void __init setup_vm(uintptr_t dtb_pa)
- 	kernel_map.va_kernel_pa_offset = kernel_map.virt_addr - kernel_map.phys_addr;
- #endif
- 
--	pfn_base = PFN_DOWN(kernel_map.phys_addr);
-+	riscv_pfn_base = PFN_DOWN(kernel_map.phys_addr);
- 
- 	/*
- 	 * Enforce boot alignment requirements of RV32 and
--- 
-2.30.2
-
 
 
