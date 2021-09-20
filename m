@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED8504120BB
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:58:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34CE1411E93
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:31:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345536AbhITR5l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:57:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54542 "EHLO mail.kernel.org"
+        id S1351163AbhITRcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:32:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355655AbhITRzk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:55:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1574261C14;
-        Mon, 20 Sep 2021 17:13:59 +0000 (UTC)
+        id S1347544AbhITRaZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:30:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 970B261502;
+        Mon, 20 Sep 2021 17:04:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158040;
-        bh=RPJDfX75Egwejs6ADv5+aBjYQ29/+B/NLiXH+d+N2wI=;
+        s=korg; t=1632157453;
+        bh=34jJ84jhdG63AOvVSyLrvJxscMOwE5fWOo9WVCYniA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CGi9R7ZGubObz7gT/58abpg9pFmgyyU+ZTNz7bmsMF41v5uYXPLxwTa2bsNp9PMlG
-         NsqBiqshEGqDbt/r02YdDwKOvniueATDmee0eelm1AiXkG/crN19J7UbDLeOFi6RbB
-         qHLSbsB6B12XDu8timltcrMo+90oATAYx3YPvKBc=
+        b=OcV2OL06YvQqfh5TI6K9l4EtKK5DOkRj5o7jdKlFrrzX8oP0BNbkIoF7TBRreZgM5
+         wtwl+XGppG4oQBhIZ5L3E2U7BzuoA+ogoWkFwhQzl0AsaXgfr8PxOV8gOvTeoieGWA
+         nD3nzuPz1+GtOgqfP81+4e3lG4gghu4CfTEBgUhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 267/293] net/af_unix: fix a data-race in unix_dgram_poll
+        stable@vger.kernel.org,
+        George Cherian <george.cherian@marvell.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 208/217] PCI: Add ACS quirks for Cavium multi-function devices
 Date:   Mon, 20 Sep 2021 18:43:49 +0200
-Message-Id: <20210920163942.548898450@linuxfoundation.org>
+Message-Id: <20210920163931.674482719@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,97 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: George Cherian <george.cherian@marvell.com>
 
-commit 04f08eb44b5011493d77b602fdec29ff0f5c6cd5 upstream.
+[ Upstream commit 32837d8a8f63eb95dcb9cd005524a27f06478832 ]
 
-syzbot reported another data-race in af_unix [1]
+Some Cavium endpoints are implemented as multi-function devices without ACS
+capability, but they actually don't support peer-to-peer transactions.
 
-Lets change __skb_insert() to use WRITE_ONCE() when changing
-skb head qlen.
+Add ACS quirks to declare DMA isolation for the following devices:
 
-Also, change unix_dgram_poll() to use lockless version
-of unix_recvq_full()
+  - BGX device found on Octeon-TX (8xxx)
+  - CGX device found on Octeon-TX2 (9xxx)
+  - RPM device found on Octeon-TX3 (10xxx)
 
-It is verry possible we can switch all/most unix_recvq_full()
-to the lockless version, this will be done in a future kernel version.
-
-[1] HEAD commit: 8596e589b787732c8346f0482919e83cc9362db1
-
-BUG: KCSAN: data-race in skb_queue_tail / unix_dgram_poll
-
-write to 0xffff88814eeb24e0 of 4 bytes by task 25815 on cpu 0:
- __skb_insert include/linux/skbuff.h:1938 [inline]
- __skb_queue_before include/linux/skbuff.h:2043 [inline]
- __skb_queue_tail include/linux/skbuff.h:2076 [inline]
- skb_queue_tail+0x80/0xa0 net/core/skbuff.c:3264
- unix_dgram_sendmsg+0xff2/0x1600 net/unix/af_unix.c:1850
- sock_sendmsg_nosec net/socket.c:703 [inline]
- sock_sendmsg net/socket.c:723 [inline]
- ____sys_sendmsg+0x360/0x4d0 net/socket.c:2392
- ___sys_sendmsg net/socket.c:2446 [inline]
- __sys_sendmmsg+0x315/0x4b0 net/socket.c:2532
- __do_sys_sendmmsg net/socket.c:2561 [inline]
- __se_sys_sendmmsg net/socket.c:2558 [inline]
- __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2558
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-read to 0xffff88814eeb24e0 of 4 bytes by task 25834 on cpu 1:
- skb_queue_len include/linux/skbuff.h:1869 [inline]
- unix_recvq_full net/unix/af_unix.c:194 [inline]
- unix_dgram_poll+0x2bc/0x3e0 net/unix/af_unix.c:2777
- sock_poll+0x23e/0x260 net/socket.c:1288
- vfs_poll include/linux/poll.h:90 [inline]
- ep_item_poll fs/eventpoll.c:846 [inline]
- ep_send_events fs/eventpoll.c:1683 [inline]
- ep_poll fs/eventpoll.c:1798 [inline]
- do_epoll_wait+0x6ad/0xf00 fs/eventpoll.c:2226
- __do_sys_epoll_wait fs/eventpoll.c:2238 [inline]
- __se_sys_epoll_wait fs/eventpoll.c:2233 [inline]
- __x64_sys_epoll_wait+0xf6/0x120 fs/eventpoll.c:2233
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-value changed: 0x0000001b -> 0x00000001
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 25834 Comm: syz-executor.1 Tainted: G        W         5.14.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 86b18aaa2b5b ("skbuff: fix a data race in skb_queue_len()")
-Cc: Qian Cai <cai@lca.pw>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210810122425.1115156-1-george.cherian@marvell.com
+Signed-off-by: George Cherian <george.cherian@marvell.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/skbuff.h |    2 +-
- net/unix/af_unix.c     |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/quirks.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1761,7 +1761,7 @@ static inline void __skb_insert(struct s
- 	WRITE_ONCE(newsk->prev, prev);
- 	WRITE_ONCE(next->prev, newsk);
- 	WRITE_ONCE(prev->next, newsk);
--	list->qlen++;
-+	WRITE_ONCE(list->qlen, list->qlen + 1);
- }
- 
- static inline void __skb_queue_splice(const struct sk_buff_head *list,
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -2739,7 +2739,7 @@ static __poll_t unix_dgram_poll(struct f
- 
- 		other = unix_peer(sk);
- 		if (other && unix_peer(other) != sk &&
--		    unix_recvq_full(other) &&
-+		    unix_recvq_full_lockless(other) &&
- 		    unix_dgram_peer_wake_me(sk, other))
- 			writable = 0;
- 
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index d2164b88111e..eff361af792a 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -4739,6 +4739,10 @@ static const struct pci_dev_acs_enabled {
+ 	{ 0x10df, 0x720, pci_quirk_mf_endpoint_acs }, /* Emulex Skyhawk-R */
+ 	/* Cavium ThunderX */
+ 	{ PCI_VENDOR_ID_CAVIUM, PCI_ANY_ID, pci_quirk_cavium_acs },
++	/* Cavium multi-function devices */
++	{ PCI_VENDOR_ID_CAVIUM, 0xA026, pci_quirk_mf_endpoint_acs },
++	{ PCI_VENDOR_ID_CAVIUM, 0xA059, pci_quirk_mf_endpoint_acs },
++	{ PCI_VENDOR_ID_CAVIUM, 0xA060, pci_quirk_mf_endpoint_acs },
+ 	/* APM X-Gene */
+ 	{ PCI_VENDOR_ID_AMCC, 0xE004, pci_quirk_xgene_acs },
+ 	/* Ampere Computing */
+-- 
+2.30.2
+
 
 
