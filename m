@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5768F411E05
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:25:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A302B411C63
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:07:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350117AbhITR0j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:26:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54322 "EHLO mail.kernel.org"
+        id S1346757AbhITRJA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:09:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349819AbhITRYw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:24:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D64461A89;
-        Mon, 20 Sep 2021 17:02:06 +0000 (UTC)
+        id S1345356AbhITRGw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:06:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 943D2611C2;
+        Mon, 20 Sep 2021 16:55:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157326;
-        bh=K89+PjeYf+JmyFRph+y/P6rffIMvMSbu4Zh+Ou+QUiU=;
+        s=korg; t=1632156918;
+        bh=w1dLWK+wKJAWn9NNIxn1pmCs0AYI824cEWgBv9Ae0k8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vAXr31QER+vJr/NucFbhKyfWRVqxlTXd5T3PIF30t3UWPlt3Q5rb1eoXHIdafxbeo
-         suVZC7X/oorOp1Pz/mmvJtxwzlyoA/xvTUvbpBYrzeZTeSdpk083bgxyX7FABlzFFn
-         rne9QclQ8iLXsdGtSdKZcxB+C/Yv8Dlr9kwAXQ9k=
+        b=FUPPFt4kVb0u8HrnpoGMYqh40VpGtMKCVEp9PKOnGLZWr3dBCn8YHztAewrmQAFnj
+         4OaDTXzmWXDRtZlg2AVQdRzj7QOflkFruYV7xJry6NI1kEA5c/ESqbue7rG0JHKoft
+         LaKWU9LeAshwMkQh4z2Ph6kbSwDBR8aBDvXnCBzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -29,12 +29,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Lorenzo Colitti <lorenzo@google.com>,
         =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 140/217] usb: gadget: u_ether: fix a potential null pointer dereference
-Date:   Mon, 20 Sep 2021 18:42:41 +0200
-Message-Id: <20210920163929.391734906@linuxfoundation.org>
+Subject: [PATCH 4.9 113/175] usb: gadget: u_ether: fix a potential null pointer dereference
+Date:   Mon, 20 Sep 2021 18:42:42 +0200
+Message-Id: <20210920163921.764686180@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -74,10 +74,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
-index 989682cc8686..38a35f57b22c 100644
+index 589d1f5fb575..5d72872310e7 100644
 --- a/drivers/usb/gadget/function/u_ether.c
 +++ b/drivers/usb/gadget/function/u_ether.c
-@@ -495,8 +495,9 @@ static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
+@@ -499,8 +499,9 @@ static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
  	}
  	spin_unlock_irqrestore(&dev->lock, flags);
  
