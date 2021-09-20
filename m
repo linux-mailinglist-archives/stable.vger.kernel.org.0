@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0740B411A45
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:47:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CE4F411FEF
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:45:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243846AbhITQsa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:48:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36452 "EHLO mail.kernel.org"
+        id S1349004AbhITRqz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:46:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243378AbhITQr4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:47:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B45CD611ED;
-        Mon, 20 Sep 2021 16:46:28 +0000 (UTC)
+        id S1353496AbhITRow (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:44:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BDA261B7B;
+        Mon, 20 Sep 2021 17:09:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156389;
-        bh=2JqvXqvVZJfH9DPbT6roUpriO96zABwe2vLAyDsNh4w=;
+        s=korg; t=1632157789;
+        bh=42jQpy0bbH+YwaC6FFk1nb8v7qSXfmvXdLKUpShAfGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wEtsl1IbIRMov47S1AyxiUgh6L/eEwhoyjJ2M+m7og9XJVPdoKSZOuIWk1f65Xv4g
-         NXKF9p2Su/3B9BDZm9FqeUM83jX/R8fohqYmdoU0dHeREYacdcCqGnIK/kb/VAUGds
-         mnBGlrUS9mMrYijkiB2qk+k/J2PEW/YXMCiighDs=
+        b=RyEbSRdMboWV5Mik6zvMaOapBDQvswhms05LjExp+0XMqxvivkyPFNLevo37I87Lp
+         YSAjFgytLY9DphWPfFg0XcnIHVke7B/8WfsUftut7Zw9f9gQF03N28d4ZxVB16ip22
+         BzTl7QPXBoeBLgv0cenBOPm3tP3da2mBvUeO8/6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 037/133] certs: Trigger creation of RSA module signing key if its not an RSA key
+        stable@vger.kernel.org,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.19 153/293] PCI: Return ~0 data on pciconfig_read() CAP_SYS_ADMIN failure
 Date:   Mon, 20 Sep 2021 18:41:55 +0200
-Message-Id: <20210920163913.854205452@linuxfoundation.org>
+Message-Id: <20210920163938.520372466@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Berger <stefanb@linux.ibm.com>
+From: Krzysztof Wilczyński <kw@linux.com>
 
-[ Upstream commit ea35e0d5df6c92fa2e124bb1b91d09b2240715ba ]
+commit a8bd29bd49c4156ea0ec5a97812333e2aeef44e7 upstream.
 
-Address a kbuild issue where a developer created an ECDSA key for signing
-kernel modules and then builds an older version of the kernel, when bi-
-secting the kernel for example, that does not support ECDSA keys.
+The pciconfig_read() syscall reads PCI configuration space using
+hardware-dependent config accessors.
 
-If openssl is installed, trigger the creation of an RSA module signing
-key if it is not an RSA key.
+If the read fails on PCI, most accessors don't return an error; they
+pretend the read was successful and got ~0 data from the device, so the
+syscall returns success with ~0 data in the buffer.
 
-Fixes: cfc411e7fff3 ("Move certificate handling to its own directory")
-Cc: David Howells <dhowells@redhat.com>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Tested-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When the accessor does return an error, pciconfig_read() normally fills the
+user's buffer with ~0 and returns an error in errno.  But after
+e4585da22ad0 ("pci syscall.c: Switch to refcounting API"), we don't fill
+the buffer with ~0 for the EPERM "user lacks CAP_SYS_ADMIN" error.
+
+Userspace may rely on the ~0 data to detect errors, but after e4585da22ad0,
+that would not detect CAP_SYS_ADMIN errors.
+
+Restore the original behaviour of filling the buffer with ~0 when the
+CAP_SYS_ADMIN check fails.
+
+[bhelgaas: commit log, fold in Nathan's fix
+https://lore.kernel.org/r/20210803200836.500658-1-nathan@kernel.org]
+Fixes: e4585da22ad0 ("pci syscall.c: Switch to refcounting API")
+Link: https://lore.kernel.org/r/20210729233755.1509616-1-kw@linux.com
+Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- certs/Makefile | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/pci/syscall.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/certs/Makefile b/certs/Makefile
-index 2773c4afa24c..4417cc5cf5e8 100644
---- a/certs/Makefile
-+++ b/certs/Makefile
-@@ -39,11 +39,19 @@ endif
- redirect_openssl	= 2>&1
- quiet_redirect_openssl	= 2>&1
- silent_redirect_openssl = 2>/dev/null
-+openssl_available       = $(shell openssl help 2>/dev/null && echo yes)
+--- a/drivers/pci/syscall.c
++++ b/drivers/pci/syscall.c
+@@ -21,8 +21,10 @@ SYSCALL_DEFINE5(pciconfig_read, unsigned
+ 	long err;
+ 	int cfg_ret;
  
- # We do it this way rather than having a boolean option for enabling an
- # external private key, because 'make randconfig' might enable such a
- # boolean option and we unfortunately can't make it depend on !RANDCONFIG.
- ifeq ($(CONFIG_MODULE_SIG_KEY),"certs/signing_key.pem")
-+
-+ifeq ($(openssl_available),yes)
-+X509TEXT=$(shell openssl x509 -in "certs/signing_key.pem" -text 2>/dev/null)
-+
-+$(if $(findstring rsaEncryption,$(X509TEXT)),,$(shell rm -f "certs/signing_key.pem"))
-+endif
-+
- $(obj)/signing_key.pem: $(obj)/x509.genkey
- 	@$(kecho) "###"
- 	@$(kecho) "### Now generating an X.509 key pair to be used for signing modules."
--- 
-2.30.2
-
++	err = -EPERM;
++	dev = NULL;
+ 	if (!capable(CAP_SYS_ADMIN))
+-		return -EPERM;
++		goto error;
+ 
+ 	err = -ENODEV;
+ 	dev = pci_get_domain_bus_and_slot(0, bus, dfn);
 
 
