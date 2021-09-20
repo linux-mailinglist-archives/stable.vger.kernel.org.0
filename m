@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A7A4411DA6
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:21:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 151E4412059
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:54:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349212AbhITRW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:22:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48654 "EHLO mail.kernel.org"
+        id S1354848AbhITRyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:54:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348388AbhITRU0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:20:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC5916137E;
-        Mon, 20 Sep 2021 17:00:30 +0000 (UTC)
+        id S1349954AbhITRrW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:47:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3AF761BF8;
+        Mon, 20 Sep 2021 17:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157231;
-        bh=prmlWzbR6SIKMRkjD51ruVCl2HZ+URRY1eLGcp30GTE=;
+        s=korg; t=1632157853;
+        bh=9h41mFxz0626vf/nEKyIu3sMD2Lt/DduFtVl6r+vMnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W0RQqQAjqlUTIITngZzCcFyIdQBPKcOO4JWvmrMt5lFyWRPYTLDiFSWbhlymSCdc+
-         cKuOpvDskF4WWm9hMahIOnn9szC3AeoGICeyGHlwErY9PmmUl/h7vqiFu+VnUd6WHS
-         TNokW8nx1HbmLzztOa1196j3AY/ATzTKOYIab5qs=
+        b=mznBEhZOEMY4nRCeebeDOhP+o1+ew/f3tzIgck1tn0leaAFmbYGZWGgVVqiq3PZAz
+         /szPiDb4fhRp3Swc5aPuf3vSEpwB1enmJSW5UbbuEPcn3bwt1ttKd2ugjYZXYJH6Lj
+         cCMw8LT/XgXq8AerCjLlOaDFYI+q00NwBxsTI+ZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kate Hsuan <hpa@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.14 114/217] libata: add ATA_HORKAGE_NO_NCQ_TRIM for Samsung 860 and 870 SSDs
-Date:   Mon, 20 Sep 2021 18:42:15 +0200
-Message-Id: <20210920163928.517805113@linuxfoundation.org>
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 174/293] PCI: Use pci_update_current_state() in pci_enable_device_flags()
+Date:   Mon, 20 Sep 2021 18:42:16 +0200
+Message-Id: <20210920163939.238988278@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 8a6430ab9c9c87cb64c512e505e8690bbaee190b upstream.
+[ Upstream commit 14858dcc3b3587f4bb5c48e130ee7d68fc2b0a29 ]
 
-Commit ca6bfcb2f6d9 ("libata: Enable queued TRIM for Samsung SSD 860")
-limited the existing ATA_HORKAGE_NO_NCQ_TRIM quirk from "Samsung SSD 8*",
-covering all Samsung 800 series SSDs, to only apply to "Samsung SSD 840*"
-and "Samsung SSD 850*" series based on information from Samsung.
+Updating the current_state field of struct pci_dev the way it is done
+in pci_enable_device_flags() before calling do_pci_enable_device() may
+not work.  For example, if the given PCI device depends on an ACPI
+power resource whose _STA method initially returns 0 ("off"), but the
+config space of the PCI device is accessible and the power state
+retrieved from the PCI_PM_CTRL register is D0, the current_state
+field in the struct pci_dev representing that device will get out of
+sync with the power.state of its ACPI companion object and that will
+lead to power management issues going forward.
 
-But there is a large number of users which is still reporting issues
-with the Samsung 860 and 870 SSDs combined with Intel, ASmedia or
-Marvell SATA controllers and all reporters also report these problems
-going away when disabling queued trims.
+To avoid such issues, make pci_enable_device_flags() call
+pci_update_current_state() which takes ACPI device power management
+into account, if present, to retrieve the current power state of the
+device.
 
-Note that with AMD SATA controllers users are reporting even worse
-issues and only completely disabling NCQ helps there, this will be
-addressed in a separate patch.
-
-Fixes: ca6bfcb2f6d9 ("libata: Enable queued TRIM for Samsung SSD 860")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=203475
-Cc: stable@vger.kernel.org
-Cc: Kate Hsuan <hpa@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-Link: https://lore.kernel.org/r/20210823095220.30157-1-hdegoede@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/lkml/20210314000439.3138941-1-luzmaximilian@gmail.com/
+Reported-by: Maximilian Luz <luzmaximilian@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Tested-by: Maximilian Luz <luzmaximilian@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-core.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/pci/pci.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -4564,6 +4564,10 @@ static const struct ata_blacklist_entry
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
- 	{ "Samsung SSD 850*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
-+	{ "Samsung SSD 860*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
-+						ATA_HORKAGE_ZERO_AFTER_TRIM, },
-+	{ "Samsung SSD 870*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
-+						ATA_HORKAGE_ZERO_AFTER_TRIM, },
- 	{ "FCCT*M500*",			NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 1a78bf39ee9a..077cc0512dd2 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -1591,11 +1591,7 @@ static int pci_enable_device_flags(struct pci_dev *dev, unsigned long flags)
+ 	 * so that things like MSI message writing will behave as expected
+ 	 * (e.g. if the device really is in D0 at enable time).
+ 	 */
+-	if (dev->pm_cap) {
+-		u16 pmcsr;
+-		pci_read_config_word(dev, dev->pm_cap + PCI_PM_CTRL, &pmcsr);
+-		dev->current_state = (pmcsr & PCI_PM_CTRL_STATE_MASK);
+-	}
++	pci_update_current_state(dev, dev->current_state);
  
+ 	if (atomic_inc_return(&dev->enable_cnt) > 1)
+ 		return 0;		/* already enabled */
+-- 
+2.30.2
+
 
 
