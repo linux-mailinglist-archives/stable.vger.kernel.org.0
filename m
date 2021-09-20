@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CA0C411D55
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:17:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4940A411B33
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:55:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346712AbhITRSo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:18:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46190 "EHLO mail.kernel.org"
+        id S1343522AbhITQ4a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:56:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346866AbhITRQn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:16:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FB9661A03;
-        Mon, 20 Sep 2021 16:59:07 +0000 (UTC)
+        id S245543AbhITQy3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:54:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 423586124A;
+        Mon, 20 Sep 2021 16:50:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157148;
-        bh=5u9PJq7N7hzxm6sNiHCCpXP6/HjC2HxHXzIWC/PSEMY=;
+        s=korg; t=1632156632;
+        bh=lu2N8lO+YpA3RkhdQEW+XnoMKW/iNvXRDhVHiBjvcFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VjZBSq/N+nlZsE2/1Oo0EyZbkm1J+QLKQl26JzFqx+F3FyMNjH48Usbk6yMns1B7g
-         aelKo+Wc0o2pjvTSMQrSRfpdX8WoD0CMHV8f3h7T4LOgyP4UVodW2uc8Yor7cbON6S
-         bU09dPVsj95ZkDi9hEDz5h3LPj3eCXk0N8iCCams=
+        b=ApKgBjXzs2z/MXax6hO5lV1WcDq9xs31H1nNqEY5mqApA6+rSOnUPd0cWAsiGDZ5q
+         IA2MLavgjKDHhHIkwtZ1Bd1l8gteWoqLwjUaGjs8Y+ODEip4gVeyGvlMOZhJ5FDP1r
+         pP9ToqM0/gcDaITu0bvcSvDST5GW32t3Yv8bgLkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Fiona Trahe <fiona.trahe@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 043/217] crypto: qat - do not export adf_iov_putmsg()
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.9 015/175] media: stkwebcam: fix memory leak in stk_camera_probe
 Date:   Mon, 20 Sep 2021 18:41:04 +0200
-Message-Id: <20210920163926.083815157@linuxfoundation.org>
+Message-Id: <20210920163918.565997945@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 645ae0af1840199086c33e4f841892ebee73f615 ]
+commit 514e97674400462cc09c459a1ddfb9bf39017223 upstream.
 
-The function adf_iov_putmsg() is only used inside the intel_qat module
-therefore should not be exported.
-Remove EXPORT_SYMBOL for the function adf_iov_putmsg().
+My local syzbot instance hit memory leak in usb_set_configuration().
+The problem was in unputted usb interface. In case of errors after
+usb_get_intf() the reference should be putted to correclty free memory
+allocated for this interface.
 
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ec16dae5453e ("V4L/DVB (7019): V4L: add support for Syntek DC1125 webcams")
+Cc: stable@vger.kernel.org
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/qat/qat_common/adf_pf2vf_msg.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/media/usb/stkwebcam/stk-webcam.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-index 9dab2cc11fdf..c64481160b71 100644
---- a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-+++ b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-@@ -231,7 +231,6 @@ int adf_iov_putmsg(struct adf_accel_dev *accel_dev, u32 msg, u8 vf_nr)
+--- a/drivers/media/usb/stkwebcam/stk-webcam.c
++++ b/drivers/media/usb/stkwebcam/stk-webcam.c
+@@ -1362,7 +1362,7 @@ static int stk_camera_probe(struct usb_i
+ 	if (!dev->isoc_ep) {
+ 		STK_ERROR("Could not find isoc-in endpoint");
+ 		err = -ENODEV;
+-		goto error;
++		goto error_put;
+ 	}
+ 	dev->vsettings.palette = V4L2_PIX_FMT_RGB565;
+ 	dev->vsettings.mode = MODE_VGA;
+@@ -1375,10 +1375,12 @@ static int stk_camera_probe(struct usb_i
  
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(adf_iov_putmsg);
+ 	err = stk_register_video_device(dev);
+ 	if (err)
+-		goto error;
++		goto error_put;
  
- void adf_vf2pf_req_hndl(struct adf_accel_vf_info *vf_info)
- {
--- 
-2.30.2
-
+ 	return 0;
+ 
++error_put:
++	usb_put_intf(interface);
+ error:
+ 	v4l2_ctrl_handler_free(hdl);
+ 	v4l2_device_unregister(&dev->v4l2_dev);
 
 
