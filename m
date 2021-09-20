@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC714412171
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:05:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7611E41218B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:06:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350472AbhITSFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:05:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58232 "EHLO mail.kernel.org"
+        id S1358395AbhITSG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:06:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1357024AbhITSCm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:02:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BBCD363232;
-        Mon, 20 Sep 2021 17:16:30 +0000 (UTC)
+        id S1357041AbhITSCo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:02:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E030D63244;
+        Mon, 20 Sep 2021 17:16:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158191;
-        bh=e4tpBnp4JzHFi5Ikx6WKVk6++wDct7JiyB3GAFnvWQI=;
+        s=korg; t=1632158193;
+        bh=pPr+lQJQa08wUC9dVB/PsHh1UA4Qgln97N5XbGeZTMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U11x1bmGWEDOHawYb3Xe7vIwUyxhnJnUwXcGtEcf1QSnTfvjyCiaiS/sNBX+yRI8F
-         Wc2VuLJN5Hi/177+nRIVrsvQxPs8fJ3etCeHZOjN/uBVBy8Y68a4MbWyeSJY7Ip7un
-         d1dSp8dNVID9rSfAnsjriP8PYYp+USFKgo8KPDdQ=
+        b=B3MLcK6tn22EZyFIv6XQt102ML8g4MZD1XvRs6QMOpIDhEER+fK/kHfQzYdd10OY5
+         Sbr2WohCs9JsKitkAlsR81ryS7wc8Ofuc1I5MKdEuD/mTOu8agDz6wQWvIPf/4btxb
+         EtG7fk0JERTd7HCMdyDcJ1G0NzUB0cdo9FLzC/3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Jaehyoung Choi <jkkkkk.choi@samsung.com>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 041/260] docs: Fix infiniband uverbs minor number
-Date:   Mon, 20 Sep 2021 18:40:59 +0200
-Message-Id: <20210920163932.514811016@linuxfoundation.org>
+Subject: [PATCH 5.4 042/260] pinctrl: samsung: Fix pinctrl bank pin count
+Date:   Mon, 20 Sep 2021 18:41:00 +0200
+Message-Id: <20210920163932.546676444@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -40,43 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Jaehyoung Choi <jkkkkk.choi@samsung.com>
 
-[ Upstream commit 8d7e415d55610d503fdb8815344846b72d194a40 ]
+[ Upstream commit 70115558ab02fe8d28a6634350b3491a542aaa02 ]
 
-Starting from the beginning of infiniband subsystem, the uverbs char
-devices start from 192 as a minor number, see
-commit bc38a6abdd5a ("[PATCH] IB uverbs: core implementation").
+Commit 1abd18d1a51a ("pinctrl: samsung: Register pinctrl before GPIO")
+changes the order of GPIO and pinctrl registration: now pinctrl is
+registered before GPIO. That means gpio_chip->ngpio is not set when
+samsung_pinctrl_register() called, and one cannot rely on that value
+anymore. Use `pin_bank->nr_pins' instead of `pin_bank->gpio_chip.ngpio'
+to fix mentioned inconsistency.
 
-This patch updates the admin guide documentation to reflect it.
-
-Fixes: 9d85025b0418 ("docs-rst: create an user's manual book")
-Link: https://lore.kernel.org/r/bad03e6bcde45550c01e12908a6fe7dfa4770703.1627477347.git.leonro@nvidia.com
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 1abd18d1a51a ("pinctrl: samsung: Register pinctrl before GPIO")
+Signed-off-by: Jaehyoung Choi <jkkkkk.choi@samsung.com>
+Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
+Link: https://lore.kernel.org/r/20210730192905.7173-1-semen.protsenko@linaro.org
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/admin-guide/devices.txt | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/pinctrl/samsung/pinctrl-samsung.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/admin-guide/devices.txt b/Documentation/admin-guide/devices.txt
-index 1c5d2281efc9..771d9e7ae082 100644
---- a/Documentation/admin-guide/devices.txt
-+++ b/Documentation/admin-guide/devices.txt
-@@ -3002,10 +3002,10 @@
- 		65 = /dev/infiniband/issm1     Second InfiniBand IsSM device
- 		  ...
- 		127 = /dev/infiniband/issm63    63rd InfiniBand IsSM device
--		128 = /dev/infiniband/uverbs0   First InfiniBand verbs device
--		129 = /dev/infiniband/uverbs1   Second InfiniBand verbs device
-+		192 = /dev/infiniband/uverbs0   First InfiniBand verbs device
-+		193 = /dev/infiniband/uverbs1   Second InfiniBand verbs device
- 		  ...
--		159 = /dev/infiniband/uverbs31  31st InfiniBand verbs device
-+		223 = /dev/infiniband/uverbs31  31st InfiniBand verbs device
- 
-  232 char	Biometric Devices
- 		0 = /dev/biometric/sensor0/fingerprint	first fingerprint sensor on first device
+diff --git a/drivers/pinctrl/samsung/pinctrl-samsung.c b/drivers/pinctrl/samsung/pinctrl-samsung.c
+index f26574ef234a..601fffeba39f 100644
+--- a/drivers/pinctrl/samsung/pinctrl-samsung.c
++++ b/drivers/pinctrl/samsung/pinctrl-samsung.c
+@@ -918,7 +918,7 @@ static int samsung_pinctrl_register(struct platform_device *pdev,
+ 		pin_bank->grange.pin_base = drvdata->pin_base
+ 						+ pin_bank->pin_base;
+ 		pin_bank->grange.base = pin_bank->grange.pin_base;
+-		pin_bank->grange.npins = pin_bank->gpio_chip.ngpio;
++		pin_bank->grange.npins = pin_bank->nr_pins;
+ 		pin_bank->grange.gc = &pin_bank->gpio_chip;
+ 		pinctrl_add_gpio_range(drvdata->pctl_dev, &pin_bank->grange);
+ 	}
 -- 
 2.30.2
 
