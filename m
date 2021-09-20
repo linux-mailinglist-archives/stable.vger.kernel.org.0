@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A6CF411EAE
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:32:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FCB1411EC8
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:33:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351379AbhITRd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:33:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34904 "EHLO mail.kernel.org"
+        id S1345019AbhITRfH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:35:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244979AbhITRbY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:31:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 707D661AE1;
-        Mon, 20 Sep 2021 17:04:36 +0000 (UTC)
+        id S1351216AbhITRcj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:32:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 56E1361AEC;
+        Mon, 20 Sep 2021 17:05:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157476;
-        bh=ultJftXe2XkVYnmOk8UWy08LFzE4g3CVf/4sLRRd5MU=;
+        s=korg; t=1632157500;
+        bh=1Xc480vfCc7bkYjQyN3dbBapztLefZiyxToPrtjCaQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ijfFnl8H2m1Q8E+Oo1NpDgtTtRcILYv0IegiOjva8aLv0RoApwM+ljpZWMsnS3sYv
-         Ktd3J4yZOtmMYQXL3lOzr9J9VZVghcYpgPZOPvKhNvKVFoneAbYJ5TdnWB4YD1Nsl4
-         ACJwGKM5P0kBodEMhdkF8x87vbMpEMTxG0D5NKPA=
+        b=FXoGQ5HkFPVyjX4aL81V5qhmXlaFTTToeha9BE5zcctDxM6FDZciuYKrrTihpD4/V
+         715z1au2d6uOctV+YiGr3CSlHB92gJ/UDLADIuaOqpnComg1oDHiKyJ8gFtmQ2NfQ2
+         jl1+cA2fvRRI4dKEBa3tHPmhYhhuiZSv+KTw5gEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        syzbot+13146364637c7363a7de@syzkaller.appspotmail.com,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 001/293] ext4: fix race writing to an inline_data file while its xattrs are changing
-Date:   Mon, 20 Sep 2021 18:39:23 +0200
-Message-Id: <20210920163933.313683738@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Chris Zankel <chris@zankel.net>, linux-xtensa@linux-xtensa.org
+Subject: [PATCH 4.19 002/293] xtensa: fix kconfig unmet dependency warning for HAVE_FUTEX_CMPXCHG
+Date:   Mon, 20 Sep 2021 18:39:24 +0200
+Message-Id: <20210920163933.343788249@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
 References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,42 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit a54c4613dac1500b40e4ab55199f7c51f028e848 upstream.
+commit ed5aacc81cd41efc4d561e14af408d1003f7b855 upstream.
 
-The location of the system.data extended attribute can change whenever
-xattr_sem is not taken.  So we need to recalculate the i_inline_off
-field since it mgiht have changed between ext4_write_begin() and
-ext4_write_end().
+XTENSA should only select HAVE_FUTEX_CMPXCHG when FUTEX is
+set/enabled. This prevents a kconfig warning.
 
-This means that caching i_inline_off is probably not helpful, so in
-the long run we should probably get rid of it and shrink the in-memory
-ext4 inode slightly, but let's fix the race the simple way for now.
+WARNING: unmet direct dependencies detected for HAVE_FUTEX_CMPXCHG
+  Depends on [n]: FUTEX [=n]
+  Selected by [y]:
+  - XTENSA [=y] && !MMU [=n]
 
-Cc: stable@kernel.org
-Fixes: f19d5870cbf72 ("ext4: add normal write support for inline data")
-Reported-by: syzbot+13146364637c7363a7de@syzkaller.appspotmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: d951ba21b959 ("xtensa: nommu: select HAVE_FUTEX_CMPXCHG")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Max Filippov <jcmvbkbc@gmail.com>
+Cc: Chris Zankel <chris@zankel.net>
+Cc: linux-xtensa@linux-xtensa.org
+Message-Id: <20210526070337.28130-1-rdunlap@infradead.org>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inline.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/xtensa/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/inline.c
-+++ b/fs/ext4/inline.c
-@@ -750,6 +750,12 @@ int ext4_write_inline_data_end(struct in
- 	ext4_write_lock_xattr(inode, &no_expand);
- 	BUG_ON(!ext4_has_inline_data(inode));
- 
-+	/*
-+	 * ei->i_inline_off may have changed since ext4_write_begin()
-+	 * called ext4_try_to_write_inline_data()
-+	 */
-+	(void) ext4_find_inline_data_nolock(inode);
-+
- 	kaddr = kmap_atomic(page);
- 	ext4_write_inline_data(inode, &iloc, kaddr, pos, len);
- 	kunmap_atomic(kaddr);
+--- a/arch/xtensa/Kconfig
++++ b/arch/xtensa/Kconfig
+@@ -25,7 +25,7 @@ config XTENSA
+ 	select HAVE_DMA_CONTIGUOUS
+ 	select HAVE_EXIT_THREAD
+ 	select HAVE_FUNCTION_TRACER
+-	select HAVE_FUTEX_CMPXCHG if !MMU
++	select HAVE_FUTEX_CMPXCHG if !MMU && FUTEX
+ 	select HAVE_HW_BREAKPOINT if PERF_EVENTS
+ 	select HAVE_IRQ_TIME_ACCOUNTING
+ 	select HAVE_MEMBLOCK
 
 
