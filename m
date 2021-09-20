@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B791411D9A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:20:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC3B0411A65
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349156AbhITRWG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:22:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48414 "EHLO mail.kernel.org"
+        id S231607AbhITQtk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:49:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348781AbhITRUA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:20:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17E85613D0;
-        Mon, 20 Sep 2021 17:00:19 +0000 (UTC)
+        id S243997AbhITQs7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:48:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4794161264;
+        Mon, 20 Sep 2021 16:47:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157220;
-        bh=A/wZBZvwYSnuyax7WIFa7xd9QAEyItRXbZeV1zukuvM=;
+        s=korg; t=1632156445;
+        bh=pOg/xIhdqvB27tm47kaaTZEyxbpUhGzdwB5aIup9YpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RDUYzcImCgu6WNVbR5RhQdy5Tipp/hVTt3DBXRDGNm8uhG8udnsZ7tR8prp4FxQH6
-         3t3gG6n/mf0GnKkjFj8slCNLPeqwFXxdCR7+j3AlAqE6CuXku+6Ymj8R5+5bzLr0dC
-         +HLqf7B74fheusa+CrJ4Bfk8I48p86TnCJWXPEbo=
+        b=UhffPnND9+ISoE52TAH/jkfVnSAq9MiyBm3WZbjbGxQ9UdZmBO899j7tAZ85rrXkh
+         /wv/bVZGEQ0rQ50MhmcrmOWL1iy+4cy0JvAmoIf3IILPpfkbdSWB65/QRcyyEAyAxH
+         OOJ8L4fcZnMztbBQxDPMb/bZ9nqthQsDQruYEMlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 077/217] i2c: s3c2410: fix IRQ check
+        stable@vger.kernel.org, Vasily Gorbik <gor@linux.vnet.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [PATCH 4.4 020/133] s390/disassembler: correct disassembly lines alignment
 Date:   Mon, 20 Sep 2021 18:41:38 +0200
-Message-Id: <20210920163927.241414666@linuxfoundation.org>
+Message-Id: <20210920163913.269922416@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Vasily Gorbik <gor@linux.vnet.ibm.com>
 
-[ Upstream commit d6840a5e370b7ea4fde16ce2caf431bcc87f9a75 ]
+commit 26f4e759ef9b8a2bab1823d692ed6d56d40b66e3 upstream.
 
-Iff platform_get_irq() returns 0, the driver's probe() method will return 0
-early (as if the method's call was successful).  Let's consider IRQ0 valid
-for simplicity -- devm_request_irq() can always override that decision...
+176.718956 Krnl Code: 00000000004d38b0: a54c0018        llihh   %r4,24
+176.718956 	   00000000004d38b4: b9080014        agr     %r1,%r4
+           ^
+Using a tab to align disassembly lines which follow the first line with
+"Krnl Code: " doesn't always work, e.g. if there is a prefix (timestamp
+or syslog prefix) which is not 8 chars aligned. Go back to alignment
+with spaces.
 
-Fixes: e0d1ec97853f ("i2c-s3c2410: Change IRQ to be plain integer.")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b192571d1ae3 ("s390/disassembler: increase show_code buffer size")
+Signed-off-by: Vasily Gorbik <gor@linux.vnet.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-s3c2410.c | 2 +-
+ arch/s390/kernel/dis.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index de10ca40aebc..911f8628128e 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -1181,7 +1181,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
- 	 */
- 	if (!(i2c->quirks & QUIRK_POLL)) {
- 		i2c->irq = ret = platform_get_irq(pdev, 0);
--		if (ret <= 0) {
-+		if (ret < 0) {
- 			dev_err(&pdev->dev, "cannot find IRQ\n");
- 			clk_unprepare(i2c->clk);
- 			return ret;
--- 
-2.30.2
-
+--- a/arch/s390/kernel/dis.c
++++ b/arch/s390/kernel/dis.c
+@@ -2025,7 +2025,7 @@ void show_code(struct pt_regs *regs)
+ 		start += opsize;
+ 		printk(buffer);
+ 		ptr = buffer;
+-		ptr += sprintf(ptr, "\n\t  ");
++		ptr += sprintf(ptr, "\n          ");
+ 		hops++;
+ 	}
+ 	printk("\n");
 
 
