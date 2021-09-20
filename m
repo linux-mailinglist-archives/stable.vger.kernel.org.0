@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE45541250D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B061A4121F3
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:09:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353576AbhITSlP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:41:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53064 "EHLO mail.kernel.org"
+        id S1359572AbhITSLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:11:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1381474AbhITSiR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:38:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B615A63320;
-        Mon, 20 Sep 2021 17:29:53 +0000 (UTC)
+        id S1359451AbhITSJo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:09:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C97AC61A38;
+        Mon, 20 Sep 2021 17:19:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158994;
-        bh=k6rVEvMUvMNegWfy2BJWTK8oq5CB5o7Y15+9iq8TfwE=;
+        s=korg; t=1632158371;
+        bh=aPWGOzrcJUYBnY4fOgV8kDgDENBwRy9fv9+g8i3ZX9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LCLqhilOA3U3VLhLDXomrVeEGPsEKiFdvfEmFcAy30SQbDvBCoPaDTk5c+VE1TJPz
-         werXo0NLSm2zxXVVSL97B+CQUTSIGBiNuC9BxjoBF4FvbknLZIsXyx+pz9WuAL9qlu
-         hQE/jkdItl9/M0iTj5GJ9G0AuSrQ97LImgmoPeYU=
+        b=dV/HaTk0RRTxmep+8csdcDGwYVkfiSuUAqTJZtWHj+OMw4xWUN2Bx9bgIzYvQSLfp
+         Z1RMVibXP4/jcBBXj9IfN2Bl8ZlXWQAZrY/9rHdQxS78l/DrkTPy41l1K6mCanL8Tt
+         LuV77kfRK+FaMZsjrf5Dx0nTmQPu1UA0ajXKjbpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sander Eikelenboom <linux@eikelenboom.it>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.14 005/168] xen: fix usage of pmd_populate in mremap for pv guests
-Date:   Mon, 20 Sep 2021 18:42:23 +0200
-Message-Id: <20210920163921.823283166@linuxfoundation.org>
+        stable@vger.kernel.org, Jussi Maki <joamaki@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 126/260] selftests/bpf: Fix xdp_tx.c prog section name
+Date:   Mon, 20 Sep 2021 18:42:24 +0200
+Message-Id: <20210920163935.403650393@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,89 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Jussi Maki <joamaki@gmail.com>
 
-commit 36c9b5929b7094ea19a78827c0ede20d2e0e6c9c upstream.
+[ Upstream commit 95413846cca37f20000dd095cf6d91f8777129d7 ]
 
-Commit 0881ace292b662 ("mm/mremap: use pmd/pud_poplulate to update page
-table entries") introduced a regression when running as Xen PV guest.
+The program type cannot be deduced from 'tx' which causes an invalid
+argument error when trying to load xdp_tx.o using the skeleton.
+Rename the section name to "xdp" so that libbpf can deduce the type.
 
-Today pmd_populate() for Xen PV assumes that the PFN inserted is
-referencing a not yet used page table. In case of move_normal_pmd()
-this is not true, resulting in WARN splats like:
-
-[34321.304270] ------------[ cut here ]------------
-[34321.304277] WARNING: CPU: 0 PID: 23628 at arch/x86/xen/multicalls.c:102 xen_mc_flush+0x176/0x1a0
-[34321.304288] Modules linked in:
-[34321.304291] CPU: 0 PID: 23628 Comm: apt-get Not tainted 5.14.1-20210906-doflr-mac80211debug+ #1
-[34321.304294] Hardware name: MSI MS-7640/890FXA-GD70 (MS-7640)  , BIOS V1.8B1 09/13/2010
-[34321.304296] RIP: e030:xen_mc_flush+0x176/0x1a0
-[34321.304300] Code: 89 45 18 48 c1 e9 3f 48 89 ce e9 20 ff ff ff e8 60 03 00 00 66 90 5b 5d 41 5c 41 5d c3 48 c7 45 18 ea ff ff ff be 01 00 00 00 <0f> 0b 8b 55 00 48 c7 c7 10 97 aa 82 31 db 49 c7 c5 38 97 aa 82 65
-[34321.304303] RSP: e02b:ffffc90000a97c90 EFLAGS: 00010002
-[34321.304305] RAX: ffff88807d416398 RBX: ffff88807d416350 RCX: ffff88807d416398
-[34321.304306] RDX: 0000000000000001 RSI: 0000000000000001 RDI: deadbeefdeadf00d
-[34321.304308] RBP: ffff88807d416300 R08: aaaaaaaaaaaaaaaa R09: ffff888006160cc0
-[34321.304309] R10: deadbeefdeadf00d R11: ffffea000026a600 R12: 0000000000000000
-[34321.304310] R13: ffff888012f6b000 R14: 0000000012f6b000 R15: 0000000000000001
-[34321.304320] FS:  00007f5071177800(0000) GS:ffff88807d400000(0000) knlGS:0000000000000000
-[34321.304322] CS:  10000e030 DS: 0000 ES: 0000 CR0: 0000000080050033
-[34321.304323] CR2: 00007f506f542000 CR3: 00000000160cc000 CR4: 0000000000000660
-[34321.304326] Call Trace:
-[34321.304331]  xen_alloc_pte+0x294/0x320
-[34321.304334]  move_pgt_entry+0x165/0x4b0
-[34321.304339]  move_page_tables+0x6fa/0x8d0
-[34321.304342]  move_vma.isra.44+0x138/0x500
-[34321.304345]  __x64_sys_mremap+0x296/0x410
-[34321.304348]  do_syscall_64+0x3a/0x80
-[34321.304352]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[34321.304355] RIP: 0033:0x7f507196301a
-[34321.304358] Code: 73 01 c3 48 8b 0d 76 0e 0c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 49 89 ca b8 19 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 46 0e 0c 00 f7 d8 64 89 01 48
-[34321.304360] RSP: 002b:00007ffda1eecd38 EFLAGS: 00000246 ORIG_RAX: 0000000000000019
-[34321.304362] RAX: ffffffffffffffda RBX: 000056205f950f30 RCX: 00007f507196301a
-[34321.304363] RDX: 0000000001a00000 RSI: 0000000001900000 RDI: 00007f506dc56000
-[34321.304364] RBP: 0000000001a00000 R08: 0000000000000010 R09: 0000000000000004
-[34321.304365] R10: 0000000000000001 R11: 0000000000000246 R12: 00007f506dc56060
-[34321.304367] R13: 00007f506dc56000 R14: 00007f506dc56060 R15: 000056205f950f30
-[34321.304368] ---[ end trace a19885b78fe8f33e ]---
-[34321.304370] 1 of 2 multicall(s) failed: cpu 0
-[34321.304371]   call  2: op=12297829382473034410 arg=[aaaaaaaaaaaaaaaa] result=-22
-
-Fix that by modifying xen_alloc_ptpage() to only pin the page table in
-case it wasn't pinned already.
-
-Fixes: 0881ace292b662 ("mm/mremap: use pmd/pud_poplulate to update page table entries")
-Cc: <stable@vger.kernel.org>
-Reported-by: Sander Eikelenboom <linux@eikelenboom.it>
-Tested-by: Sander Eikelenboom <linux@eikelenboom.it>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20210908073640.11299-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jussi Maki <joamaki@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20210731055738.16820-7-joamaki@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/mmu_pv.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ tools/testing/selftests/bpf/progs/xdp_tx.c   | 2 +-
+ tools/testing/selftests/bpf/test_xdp_veth.sh | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/xen/mmu_pv.c
-+++ b/arch/x86/xen/mmu_pv.c
-@@ -1518,14 +1518,17 @@ static inline void xen_alloc_ptpage(stru
- 	if (pinned) {
- 		struct page *page = pfn_to_page(pfn);
+diff --git a/tools/testing/selftests/bpf/progs/xdp_tx.c b/tools/testing/selftests/bpf/progs/xdp_tx.c
+index 57912e7c94b0..9ed477776eca 100644
+--- a/tools/testing/selftests/bpf/progs/xdp_tx.c
++++ b/tools/testing/selftests/bpf/progs/xdp_tx.c
+@@ -3,7 +3,7 @@
+ #include <linux/bpf.h>
+ #include "bpf_helpers.h"
  
--		if (static_branch_likely(&xen_struct_pages_ready))
-+		pinned = false;
-+		if (static_branch_likely(&xen_struct_pages_ready)) {
-+			pinned = PagePinned(page);
- 			SetPagePinned(page);
-+		}
+-SEC("tx")
++SEC("xdp")
+ int xdp_tx(struct xdp_md *xdp)
+ {
+ 	return XDP_TX;
+diff --git a/tools/testing/selftests/bpf/test_xdp_veth.sh b/tools/testing/selftests/bpf/test_xdp_veth.sh
+index ba8ffcdaac30..995278e684b6 100755
+--- a/tools/testing/selftests/bpf/test_xdp_veth.sh
++++ b/tools/testing/selftests/bpf/test_xdp_veth.sh
+@@ -108,7 +108,7 @@ ip link set dev veth2 xdp pinned $BPF_DIR/progs/redirect_map_1
+ ip link set dev veth3 xdp pinned $BPF_DIR/progs/redirect_map_2
  
- 		xen_mc_batch();
+ ip -n ns1 link set dev veth11 xdp obj xdp_dummy.o sec xdp_dummy
+-ip -n ns2 link set dev veth22 xdp obj xdp_tx.o sec tx
++ip -n ns2 link set dev veth22 xdp obj xdp_tx.o sec xdp
+ ip -n ns3 link set dev veth33 xdp obj xdp_dummy.o sec xdp_dummy
  
- 		__set_pfn_prot(pfn, PAGE_KERNEL_RO);
- 
--		if (level == PT_PTE && USE_SPLIT_PTE_PTLOCKS)
-+		if (level == PT_PTE && USE_SPLIT_PTE_PTLOCKS && !pinned)
- 			__pin_pagetable_pfn(MMUEXT_PIN_L1_TABLE, pfn);
- 
- 		xen_mc_issue(PARAVIRT_LAZY_MMU);
+ trap cleanup EXIT
+-- 
+2.30.2
+
 
 
