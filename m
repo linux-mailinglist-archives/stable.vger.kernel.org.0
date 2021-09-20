@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46464412647
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C41B412656
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:55:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355015AbhITS4i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:56:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59828 "EHLO mail.kernel.org"
+        id S1359843AbhITS4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:56:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1384477AbhITSsQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:48:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E16763369;
-        Mon, 20 Sep 2021 17:33:46 +0000 (UTC)
+        id S1354266AbhITSsT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:48:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B1D163366;
+        Mon, 20 Sep 2021 17:33:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159226;
-        bh=alr/Fr+3BEJGzOrZJdEg4FUj83fn8nf0tz1XUxDuecY=;
+        s=korg; t=1632159228;
+        bh=SosDY6TkHHjXDch2sh5UZpPhBXrmL8n5ZlRGyg0bOio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f+y+WTGgwBVLnx2cu4a8A+lHOjBFwXxs5eesVHlXt2d1fcNNQ/GtzQdWy3CFxJBL2
-         B3vRGPkvWvsDvh+x3v0KBXZ79+BK+rKCQsj55LMVaY8Z7g8ghleCraV25y+XWx/xOS
-         tshMHbNnLHwMt7WTawMIBjJyAClqMOGtiVOqajK4=
+        b=UuWdXB490+yBfEfrnZ1QJ/+8kIgNGHbxttuAVxJsZ0MgKZwde1KaI0QGhvYFTjePa
+         u4YvmJswIY8zwbJkBzcvvtgwuk+lBqeR9bPVGJjmaq2eg65lMSgFRm31WWEWsOPc7X
+         S/4F9NG5Xk7f/hDow5OVUAXHC30w7CvokU89NdaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Nadeem Athani <nadeem@cadence.com>,
         Kishon Vijay Abraham I <kishon@ti.com>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 103/168] PCI: cadence: Use bitfield for *quirk_retrain_flag* instead of bool
-Date:   Mon, 20 Sep 2021 18:44:01 +0200
-Message-Id: <20210920163925.023361338@linuxfoundation.org>
+Subject: [PATCH 5.14 104/168] PCI: cadence: Add quirk flag to set minimum delay in LTSSM Detect.Quiet state
+Date:   Mon, 20 Sep 2021 18:44:02 +0200
+Message-Id: <20210920163925.055111088@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
 References: <20210920163921.633181900@linuxfoundation.org>
@@ -41,53 +41,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Nadeem Athani <nadeem@cadence.com>
 
-[ Upstream commit f4455748b2126a9ba2bcc9cfb2fbcaa08de29bb2 ]
+[ Upstream commit 09c24094b2e3a15ef3fc44f54a191b3db522fb11 ]
 
-No functional change. As we are intending to add additional 1-bit
-members in struct j721e_pcie_data/struct cdns_pcie_rc, use bitfields
-instead of bool since it takes less space. As discussed in [1],
-the preference is to use bitfileds instead of bool inside structures.
+PCIe fails to link up if SERDES lanes not used by PCIe are assigned to
+another protocol. For example, link training fails if lanes 2 and 3 are
+assigned to another protocol while lanes 0 and 1 are used for PCIe to
+form a two lane link. This failure is due to an incorrect tie-off on an
+internal status signal indicating electrical idle.
 
-[1] -> https://lore.kernel.org/linux-fsdevel/CA+55aFzKQ6Pj18TB8p4Yr0M4t+S+BsiHH=BJNmn=76-NcjTj-g@mail.gmail.com/
+Status signals going from SERDES to PCIe Controller are tied-off when a
+lane is not assigned to PCIe. Signal indicating electrical idle is
+incorrectly tied-off to a state that indicates non-idle. As a result,
+PCIe sees unused lanes to be out of electrical idle and this causes
+LTSSM to exit Detect.Quiet state without waiting for 12ms timeout to
+occur. If a receiver is not detected on the first receiver detection
+attempt in Detect.Active state, LTSSM goes back to Detect.Quiet and
+again moves forward to Detect.Active state without waiting for 12ms as
+required by PCIe base specification. Since wait time in Detect.Quiet is
+skipped, multiple receiver detect operations are performed back-to-back
+without allowing time for capacitance on the transmit lines to
+discharge. This causes subsequent receiver detection to always fail even
+if a receiver gets connected eventually.
 
-Suggested-by: Bjorn Helgaas <bhelgaas@google.com>
-Link: https://lore.kernel.org/r/20210811123336.31357-2-kishon@ti.com
+Add a quirk flag "quirk_detect_quiet_flag" to program the minimum
+time the LTSSM should wait on entering Detect.Quiet state here.
+This has to be set for J7200 as it has an incorrect tie-off on unused
+lanes.
+
+Link: https://lore.kernel.org/r/20210811123336.31357-3-kishon@ti.com
+Signed-off-by: Nadeem Athani <nadeem@cadence.com>
 Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/cadence/pci-j721e.c    | 2 +-
- drivers/pci/controller/cadence/pcie-cadence.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/controller/cadence/pcie-cadence-ep.c |  4 ++++
+ .../pci/controller/cadence/pcie-cadence-host.c   |  3 +++
+ drivers/pci/controller/cadence/pcie-cadence.c    | 16 ++++++++++++++++
+ drivers/pci/controller/cadence/pcie-cadence.h    | 15 +++++++++++++++
+ 4 files changed, 38 insertions(+)
 
-diff --git a/drivers/pci/controller/cadence/pci-j721e.c b/drivers/pci/controller/cadence/pci-j721e.c
-index 35e61048e133..0c5813b230b4 100644
---- a/drivers/pci/controller/cadence/pci-j721e.c
-+++ b/drivers/pci/controller/cadence/pci-j721e.c
-@@ -66,7 +66,7 @@ enum j721e_pcie_mode {
+diff --git a/drivers/pci/controller/cadence/pcie-cadence-ep.c b/drivers/pci/controller/cadence/pcie-cadence-ep.c
+index 897cdde02bd8..dd7df1ac7fda 100644
+--- a/drivers/pci/controller/cadence/pcie-cadence-ep.c
++++ b/drivers/pci/controller/cadence/pcie-cadence-ep.c
+@@ -623,6 +623,10 @@ int cdns_pcie_ep_setup(struct cdns_pcie_ep *ep)
+ 	ep->irq_pci_addr = CDNS_PCIE_EP_IRQ_PCI_ADDR_NONE;
+ 	/* Reserve region 0 for IRQs */
+ 	set_bit(0, &ep->ob_region_map);
++
++	if (ep->quirk_detect_quiet_flag)
++		cdns_pcie_detect_quiet_min_delay_set(&ep->pcie);
++
+ 	spin_lock_init(&ep->lock);
  
- struct j721e_pcie_data {
- 	enum j721e_pcie_mode	mode;
--	bool quirk_retrain_flag;
-+	unsigned int		quirk_retrain_flag:1;
- };
+ 	return 0;
+diff --git a/drivers/pci/controller/cadence/pcie-cadence-host.c b/drivers/pci/controller/cadence/pcie-cadence-host.c
+index ae1c55503513..fb96d37a135c 100644
+--- a/drivers/pci/controller/cadence/pcie-cadence-host.c
++++ b/drivers/pci/controller/cadence/pcie-cadence-host.c
+@@ -498,6 +498,9 @@ int cdns_pcie_host_setup(struct cdns_pcie_rc *rc)
+ 		return PTR_ERR(rc->cfg_base);
+ 	rc->cfg_res = res;
  
- static inline u32 j721e_pcie_user_readl(struct j721e_pcie *pcie, u32 offset)
++	if (rc->quirk_detect_quiet_flag)
++		cdns_pcie_detect_quiet_min_delay_set(&rc->pcie);
++
+ 	ret = cdns_pcie_start_link(pcie);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to start link\n");
+diff --git a/drivers/pci/controller/cadence/pcie-cadence.c b/drivers/pci/controller/cadence/pcie-cadence.c
+index 3c3646502d05..52767f26048f 100644
+--- a/drivers/pci/controller/cadence/pcie-cadence.c
++++ b/drivers/pci/controller/cadence/pcie-cadence.c
+@@ -7,6 +7,22 @@
+ 
+ #include "pcie-cadence.h"
+ 
++void cdns_pcie_detect_quiet_min_delay_set(struct cdns_pcie *pcie)
++{
++	u32 delay = 0x3;
++	u32 ltssm_control_cap;
++
++	/*
++	 * Set the LTSSM Detect Quiet state min. delay to 2ms.
++	 */
++	ltssm_control_cap = cdns_pcie_readl(pcie, CDNS_PCIE_LTSSM_CONTROL_CAP);
++	ltssm_control_cap = ((ltssm_control_cap &
++			    ~CDNS_PCIE_DETECT_QUIET_MIN_DELAY_MASK) |
++			    CDNS_PCIE_DETECT_QUIET_MIN_DELAY(delay));
++
++	cdns_pcie_writel(pcie, CDNS_PCIE_LTSSM_CONTROL_CAP, ltssm_control_cap);
++}
++
+ void cdns_pcie_set_outbound_region(struct cdns_pcie *pcie, u8 busnr, u8 fn,
+ 				   u32 r, bool is_io,
+ 				   u64 cpu_addr, u64 pci_addr, size_t size)
 diff --git a/drivers/pci/controller/cadence/pcie-cadence.h b/drivers/pci/controller/cadence/pcie-cadence.h
-index 30db2d68c17a..bc27d126f239 100644
+index bc27d126f239..4bde99b74135 100644
 --- a/drivers/pci/controller/cadence/pcie-cadence.h
 +++ b/drivers/pci/controller/cadence/pcie-cadence.h
-@@ -303,7 +303,7 @@ struct cdns_pcie_rc {
- 	u32			vendor_id;
+@@ -189,6 +189,14 @@
+ /* AXI link down register */
+ #define CDNS_PCIE_AT_LINKDOWN (CDNS_PCIE_AT_BASE + 0x0824)
+ 
++/* LTSSM Capabilities register */
++#define CDNS_PCIE_LTSSM_CONTROL_CAP             (CDNS_PCIE_LM_BASE + 0x0054)
++#define  CDNS_PCIE_DETECT_QUIET_MIN_DELAY_MASK  GENMASK(2, 1)
++#define  CDNS_PCIE_DETECT_QUIET_MIN_DELAY_SHIFT 1
++#define  CDNS_PCIE_DETECT_QUIET_MIN_DELAY(delay) \
++	 (((delay) << CDNS_PCIE_DETECT_QUIET_MIN_DELAY_SHIFT) & \
++	 CDNS_PCIE_DETECT_QUIET_MIN_DELAY_MASK)
++
+ enum cdns_pcie_rp_bar {
+ 	RP_BAR_UNDEFINED = -1,
+ 	RP_BAR0,
+@@ -295,6 +303,7 @@ struct cdns_pcie {
+  * @avail_ib_bar: Satus of RP_BAR0, RP_BAR1 and	RP_NO_BAR if it's free or
+  *                available
+  * @quirk_retrain_flag: Retrain link as quirk for PCIe Gen2
++ * @quirk_detect_quiet_flag: LTSSM Detect Quiet min delay set as quirk
+  */
+ struct cdns_pcie_rc {
+ 	struct cdns_pcie	pcie;
+@@ -304,6 +313,7 @@ struct cdns_pcie_rc {
  	u32			device_id;
  	bool			avail_ib_bar[CDNS_PCIE_RP_MAX_IB];
--	bool                    quirk_retrain_flag;
-+	unsigned int		quirk_retrain_flag:1;
+ 	unsigned int		quirk_retrain_flag:1;
++	unsigned int		quirk_detect_quiet_flag:1;
  };
  
  /**
+@@ -334,6 +344,7 @@ struct cdns_pcie_epf {
+  *        registers fields (RMW) accessible by both remote RC and EP to
+  *        minimize time between read and write
+  * @epf: Structure to hold info about endpoint function
++ * @quirk_detect_quiet_flag: LTSSM Detect Quiet min delay set as quirk
+  */
+ struct cdns_pcie_ep {
+ 	struct cdns_pcie	pcie;
+@@ -348,6 +359,7 @@ struct cdns_pcie_ep {
+ 	/* protect writing to PCI_STATUS while raising legacy interrupts */
+ 	spinlock_t		lock;
+ 	struct cdns_pcie_epf	*epf;
++	unsigned int		quirk_detect_quiet_flag:1;
+ };
+ 
+ 
+@@ -508,6 +520,9 @@ static inline int cdns_pcie_ep_setup(struct cdns_pcie_ep *ep)
+ 	return 0;
+ }
+ #endif
++
++void cdns_pcie_detect_quiet_min_delay_set(struct cdns_pcie *pcie);
++
+ void cdns_pcie_set_outbound_region(struct cdns_pcie *pcie, u8 busnr, u8 fn,
+ 				   u32 r, bool is_io,
+ 				   u64 cpu_addr, u64 pci_addr, size_t size);
 -- 
 2.30.2
 
