@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9537A412293
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 013064123B2
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:25:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358884AbhITSQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:16:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35758 "EHLO mail.kernel.org"
+        id S1352576AbhITS0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:26:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350559AbhITSMt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:12:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BFEF63284;
-        Mon, 20 Sep 2021 17:21:04 +0000 (UTC)
+        id S1378273AbhITSYV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:24:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60CAD632C9;
+        Mon, 20 Sep 2021 17:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158464;
-        bh=Uh4gAPJjL7EvxAYvjfESQ3h7Yip6zR0rBwfOQmMswjk=;
+        s=korg; t=1632158699;
+        bh=uID3M5NY/ZyLo6OReHmpO9w0K2LGnDWO4UgHwhHzyYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z03EOA3+g1Lmnn+csFwh9//Jjrl3k4os2JZN9x8kWtoKnsqvz9VtgoTghiGyPDxHx
-         UQWpVGtUJligqsFYhN/SzAsLcj8+scTLqEMmpdI6TooonTTRUmkcT/Rp+SZqRp4QWb
-         B2Np+dh91QJSjIH2/xdxAG5aSApEa4vxlJ0Omykw=
+        b=eZZMtikjp7pTQk+XtHhIitCzG8RGMzJM1mnvmu9qz49im11SnW10Ow7oo8QGyf1Cb
+         sL8ibIGC+vVLAdCrbrFc7fii93s5pXj4JgK/cGiMh+mtRnoACFIO3uTB96wzofUPr5
+         trML0EfEzbsk+jjrn/UncVLWVzgLZ5YDC1GhluQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 169/260] ath9k: fix OOB read ar9300_eeprom_restore_internal
-Date:   Mon, 20 Sep 2021 18:43:07 +0200
-Message-Id: <20210920163936.829836379@linuxfoundation.org>
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Michael Walle <michael@walle.cc>, Marek Vasut <marex@denx.de>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH 5.10 016/122] drm/etnaviv: reference MMU context when setting up hardware state
+Date:   Mon, 20 Sep 2021 18:43:08 +0200
+Message-Id: <20210920163916.307614368@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +40,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 23151b9ae79e3bc4f6a0c4cd3a7f355f68dad128 ]
+commit d6408538f091fb22d47f792d4efa58143d56c3fb upstream.
 
-Bad header can have large length field which can cause OOB.
-cptr is the last bytes for read, and the eeprom is parsed
-from high to low address. The OOB, triggered by the condition
-length > cptr could cause memory error with a read on
-negative index.
+Move the refcount manipulation of the MMU context to the point where the
+hardware state is programmed. At that point it is also known if a previous
+MMU state is still there, or the state needs to be reprogrammed with a
+potentially different context.
 
-There are some sanity check around length, but it is not
-compared with cptr (the remaining bytes). Here, the
-corrupted/bad EEPROM can cause panic.
-
-I was able to reproduce the crash, but I cannot find the
-log and the reproducer now. After I applied the patch, the
-bug is no longer reproducible.
-
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/YM3xKsQJ0Hw2hjrc@Zekuns-MBP-16.fios-router.home
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org # 5.4
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Tested-by: Michael Walle <michael@walle.cc>
+Tested-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath9k/ar9003_eeprom.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.c      |   24 ++++++++++++------------
+ drivers/gpu/drm/etnaviv/etnaviv_iommu.c    |    4 ++++
+ drivers/gpu/drm/etnaviv/etnaviv_iommu_v2.c |    8 ++++++++
+ 3 files changed, 24 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c b/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
-index b4885a700296..b0a4ca3559fd 100644
---- a/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
-+++ b/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
-@@ -3351,7 +3351,8 @@ static int ar9300_eeprom_restore_internal(struct ath_hw *ah,
- 			"Found block at %x: code=%d ref=%d length=%d major=%d minor=%d\n",
- 			cptr, code, reference, length, major, minor);
- 		if ((!AR_SREV_9485(ah) && length >= 1024) ||
--		    (AR_SREV_9485(ah) && length > EEPROM_DATA_LEN_9485)) {
-+		    (AR_SREV_9485(ah) && length > EEPROM_DATA_LEN_9485) ||
-+		    (length > cptr)) {
- 			ath_dbg(common, EEPROM, "Skipping bad header\n");
- 			cptr -= COMP_HDR_LEN;
- 			continue;
--- 
-2.30.2
-
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+@@ -633,17 +633,19 @@ void etnaviv_gpu_start_fe(struct etnaviv
+ 	gpu->fe_running = true;
+ }
+ 
+-static void etnaviv_gpu_start_fe_idleloop(struct etnaviv_gpu *gpu)
++static void etnaviv_gpu_start_fe_idleloop(struct etnaviv_gpu *gpu,
++					  struct etnaviv_iommu_context *context)
+ {
+-	u32 address = etnaviv_cmdbuf_get_va(&gpu->buffer,
+-				&gpu->mmu_context->cmdbuf_mapping);
+ 	u16 prefetch;
++	u32 address;
+ 
+ 	/* setup the MMU */
+-	etnaviv_iommu_restore(gpu, gpu->mmu_context);
++	etnaviv_iommu_restore(gpu, context);
+ 
+ 	/* Start command processor */
+ 	prefetch = etnaviv_buffer_init(gpu);
++	address = etnaviv_cmdbuf_get_va(&gpu->buffer,
++					&gpu->mmu_context->cmdbuf_mapping);
+ 
+ 	etnaviv_gpu_start_fe(gpu, address, prefetch);
+ }
+@@ -1357,14 +1359,12 @@ struct dma_fence *etnaviv_gpu_submit(str
+ 		goto out_unlock;
+ 	}
+ 
+-	if (!gpu->fe_running) {
+-		gpu->mmu_context = etnaviv_iommu_context_get(submit->mmu_context);
+-		etnaviv_gpu_start_fe_idleloop(gpu);
+-	} else {
+-		if (submit->prev_mmu_context)
+-			etnaviv_iommu_context_put(submit->prev_mmu_context);
+-		submit->prev_mmu_context = etnaviv_iommu_context_get(gpu->mmu_context);
+-	}
++	if (!gpu->fe_running)
++		etnaviv_gpu_start_fe_idleloop(gpu, submit->mmu_context);
++
++	if (submit->prev_mmu_context)
++		etnaviv_iommu_context_put(submit->prev_mmu_context);
++	submit->prev_mmu_context = etnaviv_iommu_context_get(gpu->mmu_context);
+ 
+ 	if (submit->nr_pmrs) {
+ 		gpu->event[event[1]].sync_point = &sync_point_perfmon_sample_pre;
+--- a/drivers/gpu/drm/etnaviv/etnaviv_iommu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_iommu.c
+@@ -92,6 +92,10 @@ static void etnaviv_iommuv1_restore(stru
+ 	struct etnaviv_iommuv1_context *v1_context = to_v1_context(context);
+ 	u32 pgtable;
+ 
++	if (gpu->mmu_context)
++		etnaviv_iommu_context_put(gpu->mmu_context);
++	gpu->mmu_context = etnaviv_iommu_context_get(context);
++
+ 	/* set base addresses */
+ 	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_RA, context->global->memory_base);
+ 	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_FE, context->global->memory_base);
+--- a/drivers/gpu/drm/etnaviv/etnaviv_iommu_v2.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_iommu_v2.c
+@@ -172,6 +172,10 @@ static void etnaviv_iommuv2_restore_nons
+ 	if (gpu_read(gpu, VIVS_MMUv2_CONTROL) & VIVS_MMUv2_CONTROL_ENABLE)
+ 		return;
+ 
++	if (gpu->mmu_context)
++		etnaviv_iommu_context_put(gpu->mmu_context);
++	gpu->mmu_context = etnaviv_iommu_context_get(context);
++
+ 	prefetch = etnaviv_buffer_config_mmuv2(gpu,
+ 				(u32)v2_context->mtlb_dma,
+ 				(u32)context->global->bad_page_dma);
+@@ -192,6 +196,10 @@ static void etnaviv_iommuv2_restore_sec(
+ 	if (gpu_read(gpu, VIVS_MMUv2_SEC_CONTROL) & VIVS_MMUv2_SEC_CONTROL_ENABLE)
+ 		return;
+ 
++	if (gpu->mmu_context)
++		etnaviv_iommu_context_put(gpu->mmu_context);
++	gpu->mmu_context = etnaviv_iommu_context_get(context);
++
+ 	gpu_write(gpu, VIVS_MMUv2_PTA_ADDRESS_LOW,
+ 		  lower_32_bits(context->global->v2.pta_dma));
+ 	gpu_write(gpu, VIVS_MMUv2_PTA_ADDRESS_HIGH,
 
 
