@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCFE1411A2B
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:46:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEE48411A2F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:46:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243376AbhITQrq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:47:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35746 "EHLO mail.kernel.org"
+        id S243021AbhITQrt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:47:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243121AbhITQr1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:47:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78B94611AE;
-        Mon, 20 Sep 2021 16:46:00 +0000 (UTC)
+        id S243190AbhITQra (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:47:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A33F560F38;
+        Mon, 20 Sep 2021 16:46:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156360;
-        bh=QEIpEauqMVQHTTKwPThLQMQF/ItxHwVo6fas/4hyDyA=;
+        s=korg; t=1632156363;
+        bh=YNWLoRrqL+iKWwd00J29MTARknC6zIVmxqx30wnM0lY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tZijFq0dwN0T3ags6bqx7drp0wV5j1MQ53xVOsI9d3QW6+owppXNOHaobWi4umi2F
-         apX7QopRf3mYBthzpzAFAz7d527/vLYcbv9Bau8IY3GLJNXez4iepwUfomemuHTFJt
-         SSPTGkRtzCAYGE1uqp1dP4li5li0ygadcHxCOoaA=
+        b=BeXtSCCG4UtQzgzL30QLxFv4/E/fSZ2dvQj8yY1JcTQxceRv0CVgdOnPh3w6pNHoi
+         nGDx3c9RLf1Ovr9e+29j6fh+y9eMZujkJOZ3jN/lS/xga34gKqqzr4xpSd2P21V6SQ
+         m9gNh/nHbI+2O1hDftJHpW+YP2MildOT0igMHoOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>,
-        Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.4 006/133] ARM: 8918/2: only build return_address() if needed
-Date:   Mon, 20 Sep 2021 18:41:24 +0200
-Message-Id: <20210920163912.813951997@linuxfoundation.org>
+        stable@vger.kernel.org, Zubin Mithra <zsm@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 007/133] ALSA: pcm: fix divide error in snd_pcm_lib_ioctl
+Date:   Mon, 20 Sep 2021 18:41:25 +0200
+Message-Id: <20210920163912.845346518@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
 References: <20210920163912.603434365@linuxfoundation.org>
@@ -39,65 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Dooks <ben-linux@fluff.org>
+From: Zubin Mithra <zsm@chromium.org>
 
-commit fb033c95c94ca1ee3d16e04ebdb85d65fb55fff8 upstream.
+commit f3eef46f0518a2b32ca1244015820c35a22cfe4a upstream.
 
-The system currently warns if the config conditions for
-building return_address in arch/arm/kernel/return_address.c
-are not met, leaving just an EXPORT_SYMBOL_GPL(return_address)
-of a function defined to be 'static linline'.
-This is a result of aeea3592a13b ("ARM: 8158/1: LLVMLinux: use static inline in ARM ftrace.h").
+Syzkaller reported a divide error in snd_pcm_lib_ioctl. fifo_size
+is of type snd_pcm_uframes_t(unsigned long). If frame_size
+is 0x100000000, the error occurs.
 
-Since we're not going to build anything other than an exported
-symbol for something that is already being defined to be an
-inline-able return of NULL, just avoid building the code to
-remove the following warning:
-
-Fixes: aeea3592a13b ("ARM: 8158/1: LLVMLinux: use static inline in ARM ftrace.h")
-Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Fixes: a9960e6a293e ("ALSA: pcm: fix fifo_size frame calculation")
+Signed-off-by: Zubin Mithra <zsm@chromium.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210827153735.789452-1-zsm@chromium.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/Makefile         |    6 +++++-
- arch/arm/kernel/return_address.c |    4 ----
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ sound/core/pcm_lib.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/kernel/Makefile
-+++ b/arch/arm/kernel/Makefile
-@@ -16,10 +16,14 @@ CFLAGS_REMOVE_return_address.o = -pg
- # Object file lists.
- 
- obj-y		:= elf.o entry-common.o irq.o opcodes.o \
--		   process.o ptrace.o reboot.o return_address.o \
-+		   process.o ptrace.o reboot.o \
- 		   setup.o signal.o sigreturn_codes.o \
- 		   stacktrace.o sys_arm.o time.o traps.o
- 
-+ifneq ($(CONFIG_ARM_UNWIND),y)
-+obj-$(CONFIG_FRAME_POINTER)	+= return_address.o
-+endif
-+
- obj-$(CONFIG_ATAGS)		+= atags_parse.o
- obj-$(CONFIG_ATAGS_PROC)	+= atags_proc.o
- obj-$(CONFIG_DEPRECATED_PARAM_STRUCT) += atags_compat.o
---- a/arch/arm/kernel/return_address.c
-+++ b/arch/arm/kernel/return_address.c
-@@ -10,8 +10,6 @@
-  */
- #include <linux/export.h>
- #include <linux/ftrace.h>
--
--#if defined(CONFIG_FRAME_POINTER) && !defined(CONFIG_ARM_UNWIND)
- #include <linux/sched.h>
- 
- #include <asm/stacktrace.h>
-@@ -56,6 +54,4 @@ void *return_address(unsigned int level)
- 		return NULL;
+--- a/sound/core/pcm_lib.c
++++ b/sound/core/pcm_lib.c
+@@ -1830,7 +1830,7 @@ static int snd_pcm_lib_ioctl_fifo_size(s
+ 		channels = params_channels(params);
+ 		frame_size = snd_pcm_format_size(format, channels);
+ 		if (frame_size > 0)
+-			params->fifo_size /= (unsigned)frame_size;
++			params->fifo_size /= frame_size;
+ 	}
+ 	return 0;
  }
- 
--#endif /* if defined(CONFIG_FRAME_POINTER) && !defined(CONFIG_ARM_UNWIND) */
--
- EXPORT_SYMBOL_GPL(return_address);
 
 
