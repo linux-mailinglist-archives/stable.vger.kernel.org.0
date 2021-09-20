@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CD85411A8C
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:49:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47B1C412030
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:51:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244475AbhITQuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:50:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36076 "EHLO mail.kernel.org"
+        id S1349629AbhITRxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:53:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244154AbhITQtQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:49:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7A7B611AE;
-        Mon, 20 Sep 2021 16:47:44 +0000 (UTC)
+        id S1349514AbhITRs1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:48:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 064E261BB3;
+        Mon, 20 Sep 2021 17:11:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156465;
-        bh=pnj+i46sPGEq1JTAZMpVNBwQm4VbW67pGIAfAs2Ew3s=;
+        s=korg; t=1632157868;
+        bh=AJpXbpPOr7yKBsBlNIWWsMTSvBZzIz7cDKjO3sAlSOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BDKlyEJUqXxinPFVZT3urgSMCWcs2i+RBttBcDY+rd3IwGoeDrznTJsR7SNM1S2Dj
-         FEqYUIRa1VsaK9zS0DuYwdMk0pqfV2/XhVe+rxT6Hr0eyodqrSAJcvvlXpXFblmzwt
-         qGekRkyRMg7XrFsL6toEA7+/bhLMPQTy6/dqKEpM=
+        b=gFJoYvUC/2qGAJEFgzNF1HL721UrjscGSyFxeS6LO0PY/zGHVlHAfVRPbA1n2/0MJ
+         cdW26j17XzrMYHIYsi5i/mjPQqRbq0WwHHfKkLNkj2wo/FUoTngfduYiLBopY9CfeI
+         lDmecPbfdlbhe9RZf6UXwTMIAkg9TXJ6Df7JJu2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Bambura <jenneron@protonmail.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 4.4 072/133] rtc: tps65910: Correct driver module alias
-Date:   Mon, 20 Sep 2021 18:42:30 +0200
-Message-Id: <20210920163915.002282517@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 189/293] bpf/tests: Do not PASS tests without actually testing the result
+Date:   Mon, 20 Sep 2021 18:42:31 +0200
+Message-Id: <20210920163939.738221715@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
 
-commit 8d448fa0a8bb1c8d94eef7647edffe9ac81a281e upstream.
+[ Upstream commit 2b7e9f25e590726cca76700ebdb10e92a7a72ca1 ]
 
-The TPS65910 RTC driver module doesn't auto-load because of the wrong
-module alias that doesn't match the device name, fix it.
+Each test case can have a set of sub-tests, where each sub-test can
+run the cBPF/eBPF test snippet with its own data_size and expected
+result. Before, the end of the sub-test array was indicated by both
+data_size and result being zero. However, most or all of the internal
+eBPF tests has a data_size of zero already. When such a test also had
+an expected value of zero, the test was never run but reported as
+PASS anyway.
 
-Cc: stable@vger.kernel.org
-Reported-by: Anton Bambura <jenneron@protonmail.com>
-Tested-by: Anton Bambura <jenneron@protonmail.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210808160030.8556-1-digetx@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Now the test runner always runs the first sub-test, regardless of the
+data_size and result values. The sub-test array zero-termination only
+applies for any additional sub-tests.
+
+There are other ways fix it of course, but this solution at least
+removes the surprise of eBPF tests with a zero result always succeeding.
+
+Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20210721103822.3755111-1-johan.almbladh@anyfinetworks.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-tps65910.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/test_bpf.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/rtc/rtc-tps65910.c
-+++ b/drivers/rtc/rtc-tps65910.c
-@@ -332,6 +332,6 @@ static struct platform_driver tps65910_r
- };
+diff --git a/lib/test_bpf.c b/lib/test_bpf.c
+index 98074a3bc161..49d79079e8b3 100644
+--- a/lib/test_bpf.c
++++ b/lib/test_bpf.c
+@@ -6687,7 +6687,14 @@ static int run_one(const struct bpf_prog *fp, struct bpf_test *test)
+ 		u64 duration;
+ 		u32 ret;
  
- module_platform_driver(tps65910_rtc_driver);
--MODULE_ALIAS("platform:rtc-tps65910");
-+MODULE_ALIAS("platform:tps65910-rtc");
- MODULE_AUTHOR("Venu Byravarasu <vbyravarasu@nvidia.com>");
- MODULE_LICENSE("GPL");
+-		if (test->test[i].data_size == 0 &&
++		/*
++		 * NOTE: Several sub-tests may be present, in which case
++		 * a zero {data_size, result} tuple indicates the end of
++		 * the sub-test array. The first test is always run,
++		 * even if both data_size and result happen to be zero.
++		 */
++		if (i > 0 &&
++		    test->test[i].data_size == 0 &&
+ 		    test->test[i].result == 0)
+ 			break;
+ 
+-- 
+2.30.2
+
 
 
