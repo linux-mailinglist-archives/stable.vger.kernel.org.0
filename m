@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB1004123CE
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:26:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CF6F4124F9
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378973AbhITS12 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:27:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43766 "EHLO mail.kernel.org"
+        id S230304AbhITSky (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:40:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348137AbhITSZ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:25:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25F5D632D0;
-        Mon, 20 Sep 2021 17:25:23 +0000 (UTC)
+        id S1381641AbhITSjB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:39:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5366B6332A;
+        Mon, 20 Sep 2021 17:30:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158723;
-        bh=Rzk16eFGZCHkcQPmr+mLyNt0vij5JEP7qj3OXPPf9mQ=;
+        s=korg; t=1632159022;
+        bh=fjj9M6Yc0QaqblYN9tqxKTaCjPZmyQrweOM9c/luXqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ChnCeAT5dTQbw0u8rW4gq5XR/FIxBsaD+r4VD4WuWxErWyTUb4Yp0dC8Pvl2pCtID
-         Y96oiIkKM2jwBVnqQRl9E0OOyZW+x09puCyF1xIEicbWBBNX5ri07daw9igjqcoS0N
-         BhSTz8lvs4kPg5vSQWJivAMowDxlr4eWk3zwRE5Q=
+        b=sdlvmgfrvWd7EBIIu4c6okg5uODKP4idPXL9d4vMyhVE0ZLXcHGs+2Gq82Y/8cmvv
+         cAtX8J1KLgLHUug8JvmFmjxs79Urhk5iavqWwWa+tAgOmneuG2RUpRsBd9tDSxv+TU
+         QV0Nlu+PixGL3Ku6BZ0ljEXYouAYfohbttO7XqoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.10 006/122] arm64/sve: Use correct size when reinitialising SVE state
-Date:   Mon, 20 Sep 2021 18:42:58 +0200
-Message-Id: <20210920163915.970625637@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.14 041/168] net-caif: avoid user-triggerable WARN_ON(1)
+Date:   Mon, 20 Sep 2021 18:42:59 +0200
+Message-Id: <20210920163922.998534322@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +39,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit e35ac9d0b56e9efefaeeb84b635ea26c2839ea86 upstream.
+commit 550ac9c1aaaaf51fd42e20d461f0b1cdbd55b3d2 upstream.
 
-When we need a buffer for SVE register state we call sve_alloc() to make
-sure that one is there. In order to avoid repeated allocations and frees
-we keep the buffer around unless we change vector length and just memset()
-it to ensure a clean register state. The function that deals with this
-takes the task to operate on as an argument, however in the case where we
-do a memset() we initialise using the SVE state size for the current task
-rather than the task passed as an argument.
+syszbot triggers this warning, which looks something
+we can easily prevent.
 
-This is only an issue in the case where we are setting the register state
-for a task via ptrace and the task being configured has a different vector
-length to the task tracing it. In the case where the buffer is larger in
-the traced process we will leak old state from the traced process to
-itself, in the case where the buffer is smaller in the traced process we
-will overflow the buffer and corrupt memory.
+If we initialize priv->list_field in chnl_net_init(),
+then always use list_del_init(), we can remove robust_list_del()
+completely.
 
-Fixes: bc0ee4760364 ("arm64/sve: Core task context handling")
-Cc: <stable@vger.kernel.org> # 4.15.x
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210909165356.10675-1-broonie@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+WARNING: CPU: 0 PID: 3233 at net/caif/chnl_net.c:67 robust_list_del net/caif/chnl_net.c:67 [inline]
+WARNING: CPU: 0 PID: 3233 at net/caif/chnl_net.c:67 chnl_net_uninit+0xc9/0x2e0 net/caif/chnl_net.c:375
+Modules linked in:
+CPU: 0 PID: 3233 Comm: syz-executor.3 Not tainted 5.14.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:robust_list_del net/caif/chnl_net.c:67 [inline]
+RIP: 0010:chnl_net_uninit+0xc9/0x2e0 net/caif/chnl_net.c:375
+Code: 89 eb e8 3a a3 ba f8 48 89 d8 48 c1 e8 03 42 80 3c 28 00 0f 85 bf 01 00 00 48 81 fb 00 14 4e 8d 48 8b 2b 75 d0 e8 17 a3 ba f8 <0f> 0b 5b 5d 41 5c 41 5d e9 0a a3 ba f8 4c 89 e3 e8 02 a3 ba f8 4c
+RSP: 0018:ffffc90009067248 EFLAGS: 00010202
+RAX: 0000000000008780 RBX: ffffffff8d4e1400 RCX: ffffc9000fd34000
+RDX: 0000000000040000 RSI: ffffffff88bb6e49 RDI: 0000000000000003
+RBP: ffff88802cd9ee08 R08: 0000000000000000 R09: ffffffff8d0e6647
+R10: ffffffff88bb6dc2 R11: 0000000000000000 R12: ffff88803791ae08
+R13: dffffc0000000000 R14: 00000000e600ffce R15: ffff888073ed3480
+FS:  00007fed10fa0700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b2c322000 CR3: 00000000164a6000 CR4: 00000000001506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ register_netdevice+0xadf/0x1500 net/core/dev.c:10347
+ ipcaif_newlink+0x4c/0x260 net/caif/chnl_net.c:468
+ __rtnl_newlink+0x106d/0x1750 net/core/rtnetlink.c:3458
+ rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3506
+ rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5572
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2504
+ netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1340
+ netlink_sendmsg+0x86d/0xdb0 net/netlink/af_netlink.c:1929
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:724
+ __sys_sendto+0x21c/0x320 net/socket.c:2036
+ __do_sys_sendto net/socket.c:2048 [inline]
+ __se_sys_sendto net/socket.c:2044 [inline]
+ __x64_sys_sendto+0xdd/0x1b0 net/socket.c:2044
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: cc36a070b590 ("net-caif: add CAIF netdevice")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/fpsimd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/caif/chnl_net.c |   19 +++----------------
+ 1 file changed, 3 insertions(+), 16 deletions(-)
 
---- a/arch/arm64/kernel/fpsimd.c
-+++ b/arch/arm64/kernel/fpsimd.c
-@@ -510,7 +510,7 @@ size_t sve_state_size(struct task_struct
- void sve_alloc(struct task_struct *task)
- {
- 	if (task->thread.sve_state) {
--		memset(task->thread.sve_state, 0, sve_state_size(current));
-+		memset(task->thread.sve_state, 0, sve_state_size(task));
- 		return;
- 	}
+--- a/net/caif/chnl_net.c
++++ b/net/caif/chnl_net.c
+@@ -53,20 +53,6 @@ struct chnl_net {
+ 	enum caif_states state;
+ };
  
+-static void robust_list_del(struct list_head *delete_node)
+-{
+-	struct list_head *list_node;
+-	struct list_head *n;
+-	ASSERT_RTNL();
+-	list_for_each_safe(list_node, n, &chnl_net_list) {
+-		if (list_node == delete_node) {
+-			list_del(list_node);
+-			return;
+-		}
+-	}
+-	WARN_ON(1);
+-}
+-
+ static int chnl_recv_cb(struct cflayer *layr, struct cfpkt *pkt)
+ {
+ 	struct sk_buff *skb;
+@@ -364,6 +350,7 @@ static int chnl_net_init(struct net_devi
+ 	ASSERT_RTNL();
+ 	priv = netdev_priv(dev);
+ 	strncpy(priv->name, dev->name, sizeof(priv->name));
++	INIT_LIST_HEAD(&priv->list_field);
+ 	return 0;
+ }
+ 
+@@ -372,7 +359,7 @@ static void chnl_net_uninit(struct net_d
+ 	struct chnl_net *priv;
+ 	ASSERT_RTNL();
+ 	priv = netdev_priv(dev);
+-	robust_list_del(&priv->list_field);
++	list_del_init(&priv->list_field);
+ }
+ 
+ static const struct net_device_ops netdev_ops = {
+@@ -537,7 +524,7 @@ static void __exit chnl_exit_module(void
+ 	rtnl_lock();
+ 	list_for_each_safe(list_node, _tmp, &chnl_net_list) {
+ 		dev = list_entry(list_node, struct chnl_net, list_field);
+-		list_del(list_node);
++		list_del_init(list_node);
+ 		delete_device(dev);
+ 	}
+ 	rtnl_unlock();
 
 
