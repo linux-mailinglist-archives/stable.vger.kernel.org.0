@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 336E3411BCC
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:02:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AA0F412018
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:47:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345370AbhITRCL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:02:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48100 "EHLO mail.kernel.org"
+        id S1349125AbhITRsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:48:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230026AbhITRAK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:00:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C17ED61357;
-        Mon, 20 Sep 2021 16:53:00 +0000 (UTC)
+        id S1343789AbhITRqw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:46:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C155617E3;
+        Mon, 20 Sep 2021 17:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156781;
-        bh=uDeBMJuKg5Vp+Na8Ijm9wuqjWClCzECe9LJUCwg8QtY=;
+        s=korg; t=1632157831;
+        bh=X7FP2Fj0bKKDeKQlga/svbnU86ocAnDdN+DJdKh3Y4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KFAkwvPLmTQbIu4xHhAviGSrGCKDkoEBJw1VBP8gWjx6Iy15Lx6GVkgsjMNv0e2AQ
-         ODxmjVf4nSm6e8/LF5sTG5LD2O8jz+YFQCQebEIMWgSREsJJa7eitCaYQhbNNNymzH
-         9LV52tdh4I8zIkVUoZTOGYoI7CiPGKE4vvE72UIE=
+        b=Imy6g277kqaivpiZQlL92q+jzteAUf9Zx9/tmPA2v60wIsW2yhHriGVrX5Ev2C/Os
+         a+btJ78kXTvyBDFfWc3r+7wni77aIxAPxPlkcXMN6tsUiGC+OvEIBtr+rdizmPl4Yi
+         TGO+zdGc/XBWUI4nj9vpfAJST799nmXcKZ92Y7SU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+97388eb9d31b997fe1d0@syzkaller.appspotmail.com,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Nguyen Dinh Phi <phind.uet@gmail.com>
-Subject: [PATCH 4.9 083/175] tty: Fix data race between tiocsti() and flush_to_ldisc()
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 170/293] MIPS: Malta: fix alignment of the devicetree buffer
 Date:   Mon, 20 Sep 2021 18:42:12 +0200
-Message-Id: <20210920163920.790326499@linuxfoundation.org>
+Message-Id: <20210920163939.105755190@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,59 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nguyen Dinh Phi <phind.uet@gmail.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-commit bb2853a6a421a052268eee00fd5d3f6b3504b2b1 upstream.
+[ Upstream commit bea6a94a279bcbe6b2cde348782b28baf12255a5 ]
 
-The ops->receive_buf() may be accessed concurrently from these two
-functions.  If the driver flushes data to the line discipline
-receive_buf() method while tiocsti() is waiting for the
-ops->receive_buf() to finish its work, the data race will happen.
+Starting with following patch MIPS Malta is not able to boot:
+| commit 79edff12060fe7772af08607eff50c0e2486c5ba
+| Author: Rob Herring <robh@kernel.org>
+| scripts/dtc: Update to upstream version v1.6.0-51-g183df9e9c2b9
 
-For example:
-tty_ioctl			|tty_ldisc_receive_buf
- ->tioctsi			| ->tty_port_default_receive_buf
-				|  ->tty_ldisc_receive_buf
-   ->hci_uart_tty_receive	|   ->hci_uart_tty_receive
-    ->h4_recv                   |    ->h4_recv
+The reason is the alignment test added to the fdt_ro_probe_(). To fix
+this issue, we need to make sure that fdt_buf is aligned.
 
-In this case, the h4 receive buffer will be overwritten by the
-latecomer, and we will lost the data.
+Since the dtc patch was designed to uncover potential issue, I handle
+initial MIPS Malta patch as initial bug.
 
-Hence, change tioctsi() function to use the exclusive lock interface
-from tty_buffer to avoid the data race.
-
-Reported-by: syzbot+97388eb9d31b997fe1d0@syzkaller.appspotmail.com
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
-Link: https://lore.kernel.org/r/20210823000641.2082292-1-phind.uet@gmail.com
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e81a8c7dabac ("MIPS: Malta: Setup RAM regions via DT")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/tty_io.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/mips/mti-malta/malta-dtshim.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/tty_io.c
-+++ b/drivers/tty/tty_io.c
-@@ -2312,8 +2312,6 @@ static int tty_fasync(int fd, struct fil
-  *	Locking:
-  *		Called functions take tty_ldiscs_lock
-  *		current->signal->tty check is safe without locks
-- *
-- *	FIXME: may race normal receive processing
-  */
+diff --git a/arch/mips/mti-malta/malta-dtshim.c b/arch/mips/mti-malta/malta-dtshim.c
+index 7859b6e49863..5b5d78a7882a 100644
+--- a/arch/mips/mti-malta/malta-dtshim.c
++++ b/arch/mips/mti-malta/malta-dtshim.c
+@@ -26,7 +26,7 @@
+ #define  ROCIT_CONFIG_GEN1_MEMMAP_SHIFT	8
+ #define  ROCIT_CONFIG_GEN1_MEMMAP_MASK	(0xf << 8)
  
- static int tiocsti(struct tty_struct *tty, char __user *p)
-@@ -2329,8 +2327,10 @@ static int tiocsti(struct tty_struct *tt
- 	ld = tty_ldisc_ref_wait(tty);
- 	if (!ld)
- 		return -EIO;
-+	tty_buffer_lock_exclusive(tty->port);
- 	if (ld->ops->receive_buf)
- 		ld->ops->receive_buf(tty, &ch, &mbz, 1);
-+	tty_buffer_unlock_exclusive(tty->port);
- 	tty_ldisc_deref(ld);
- 	return 0;
- }
+-static unsigned char fdt_buf[16 << 10] __initdata;
++static unsigned char fdt_buf[16 << 10] __initdata __aligned(8);
+ 
+ /* determined physical memory size, not overridden by command line args	 */
+ extern unsigned long physical_memsize;
+-- 
+2.30.2
+
 
 
