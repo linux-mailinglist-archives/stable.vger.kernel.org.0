@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A59F412432
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:30:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3279C412318
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:19:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346835AbhITSb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:31:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48630 "EHLO mail.kernel.org"
+        id S1347835AbhITSVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:21:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1379519AbhITS32 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:29:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 879526137F;
-        Mon, 20 Sep 2021 17:26:50 +0000 (UTC)
+        id S1377311AbhITSSS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:18:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1972C6329C;
+        Mon, 20 Sep 2021 17:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158811;
-        bh=O12ORUh350U1nDoSDlnv7lBP/4Stol3K7FbNOpeVNss=;
+        s=korg; t=1632158562;
+        bh=ZFyJ3uWk95sj7MYTu0DlobhvJ4N0rAzbNqrd2OmhwLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YufAmoD/Tk/LaFkdVzL/KSfCytcFbCj2bbwuF/P/qHZh3rZkVPvTbUztT6eJzdVW2
-         bbZjjKD+IBPaB3EmFH1f5Ie2JreV1VUMfJmezEVtb0acD15Z6u/6m4KF7jnU71VS8A
-         vLfn0Dgcdd2ZwH7H5MvDxecIIjMZCmPgDz3qE60U=
+        b=TdQWuK1Us4o/m9yGAqbkN8brakxIelumo/NFSx8a177dEpchRPbeRa7Pt6oUsZpCk
+         L83fc0lPqm6rsOw1BER/nAuIa5ch0mFRLkVkQUFzCdTwi7oxooGNXGRVTaikkOMaT1
+         65WH9bIOYOGTvP2I765sy+KVht0mNV8t23VkXbyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Om Prakash Singh <omp@nvidia.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Vidya Sagar <vidyas@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 059/122] PCI: tegra194: Fix handling BME_CHGED event
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 213/260] net/l2tp: Fix reference count leak in l2tp_udp_recv_core
 Date:   Mon, 20 Sep 2021 18:43:51 +0200
-Message-Id: <20210920163917.716160036@linuxfoundation.org>
+Message-Id: <20210920163938.352136995@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,86 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Om Prakash Singh <omp@nvidia.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit ceb1412c1c8ca5b28c4252bdb15f2f1f17b4a1b0 ]
+commit 9b6ff7eb666415e1558f1ba8a742f5db6a9954de upstream.
 
-In tegra_pcie_ep_hard_irq(), APPL_INTR_STATUS_L0 is stored in val and again
-APPL_INTR_STATUS_L1_0_0 is also stored in val. So when execution reaches
-"if (val & APPL_INTR_STATUS_L0_PCI_CMD_EN_INT)", val is not correct.
+The reference count leak issue may take place in an error handling
+path. If both conditions of tunnel->version == L2TP_HDR_VER_3 and the
+return value of l2tp_v3_ensure_opt_in_linear is nonzero, the function
+would directly jump to label invalid, without decrementing the reference
+count of the l2tp_session object session increased earlier by
+l2tp_tunnel_get_session(). This may result in refcount leaks.
 
-Link: https://lore.kernel.org/r/20210623100525.19944-2-omp@nvidia.com
-Signed-off-by: Om Prakash Singh <omp@nvidia.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Vidya Sagar <vidyas@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this issue by decrease the reference count before jumping to the
+label invalid.
+
+Fixes: 4522a70db7aa ("l2tp: fix reading optional fields of L2TPv3")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/dwc/pcie-tegra194.c | 30 +++++++++++-----------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+ net/l2tp/l2tp_core.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
-index 506f6a294eac..c2827a8d208f 100644
---- a/drivers/pci/controller/dwc/pcie-tegra194.c
-+++ b/drivers/pci/controller/dwc/pcie-tegra194.c
-@@ -515,19 +515,19 @@ static irqreturn_t tegra_pcie_ep_hard_irq(int irq, void *arg)
- 	struct tegra_pcie_dw *pcie = arg;
- 	struct dw_pcie_ep *ep = &pcie->pci.ep;
- 	int spurious = 1;
--	u32 val, tmp;
-+	u32 status_l0, status_l1, link_status;
- 
--	val = appl_readl(pcie, APPL_INTR_STATUS_L0);
--	if (val & APPL_INTR_STATUS_L0_LINK_STATE_INT) {
--		val = appl_readl(pcie, APPL_INTR_STATUS_L1_0_0);
--		appl_writel(pcie, val, APPL_INTR_STATUS_L1_0_0);
-+	status_l0 = appl_readl(pcie, APPL_INTR_STATUS_L0);
-+	if (status_l0 & APPL_INTR_STATUS_L0_LINK_STATE_INT) {
-+		status_l1 = appl_readl(pcie, APPL_INTR_STATUS_L1_0_0);
-+		appl_writel(pcie, status_l1, APPL_INTR_STATUS_L1_0_0);
- 
--		if (val & APPL_INTR_STATUS_L1_0_0_HOT_RESET_DONE)
-+		if (status_l1 & APPL_INTR_STATUS_L1_0_0_HOT_RESET_DONE)
- 			pex_ep_event_hot_rst_done(pcie);
- 
--		if (val & APPL_INTR_STATUS_L1_0_0_RDLH_LINK_UP_CHGED) {
--			tmp = appl_readl(pcie, APPL_LINK_STATUS);
--			if (tmp & APPL_LINK_STATUS_RDLH_LINK_UP) {
-+		if (status_l1 & APPL_INTR_STATUS_L1_0_0_RDLH_LINK_UP_CHGED) {
-+			link_status = appl_readl(pcie, APPL_LINK_STATUS);
-+			if (link_status & APPL_LINK_STATUS_RDLH_LINK_UP) {
- 				dev_dbg(pcie->dev, "Link is up with Host\n");
- 				dw_pcie_ep_linkup(ep);
- 			}
-@@ -536,11 +536,11 @@ static irqreturn_t tegra_pcie_ep_hard_irq(int irq, void *arg)
- 		spurious = 0;
+--- a/net/l2tp/l2tp_core.c
++++ b/net/l2tp/l2tp_core.c
+@@ -886,8 +886,10 @@ static int l2tp_udp_recv_core(struct l2t
  	}
  
--	if (val & APPL_INTR_STATUS_L0_PCI_CMD_EN_INT) {
--		val = appl_readl(pcie, APPL_INTR_STATUS_L1_15);
--		appl_writel(pcie, val, APPL_INTR_STATUS_L1_15);
-+	if (status_l0 & APPL_INTR_STATUS_L0_PCI_CMD_EN_INT) {
-+		status_l1 = appl_readl(pcie, APPL_INTR_STATUS_L1_15);
-+		appl_writel(pcie, status_l1, APPL_INTR_STATUS_L1_15);
+ 	if (tunnel->version == L2TP_HDR_VER_3 &&
+-	    l2tp_v3_ensure_opt_in_linear(session, skb, &ptr, &optr))
++	    l2tp_v3_ensure_opt_in_linear(session, skb, &ptr, &optr)) {
++		l2tp_session_dec_refcount(session);
+ 		goto error;
++	}
  
--		if (val & APPL_INTR_STATUS_L1_15_CFG_BME_CHGED)
-+		if (status_l1 & APPL_INTR_STATUS_L1_15_CFG_BME_CHGED)
- 			return IRQ_WAKE_THREAD;
- 
- 		spurious = 0;
-@@ -548,8 +548,8 @@ static irqreturn_t tegra_pcie_ep_hard_irq(int irq, void *arg)
- 
- 	if (spurious) {
- 		dev_warn(pcie->dev, "Random interrupt (STATUS = 0x%08X)\n",
--			 val);
--		appl_writel(pcie, val, APPL_INTR_STATUS_L0);
-+			 status_l0);
-+		appl_writel(pcie, status_l0, APPL_INTR_STATUS_L0);
- 	}
- 
- 	return IRQ_HANDLED;
--- 
-2.30.2
-
+ 	l2tp_recv_common(session, skb, ptr, optr, hdrflags, length);
+ 	l2tp_session_dec_refcount(session);
 
 
