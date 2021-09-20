@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22BC2411C73
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:08:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53714411B0F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:54:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242091AbhITRKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:10:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34922 "EHLO mail.kernel.org"
+        id S241373AbhITQzE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:55:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346517AbhITRHl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:07:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C86D615E6;
-        Mon, 20 Sep 2021 16:55:43 +0000 (UTC)
+        id S245262AbhITQwt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:52:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25B3B6137F;
+        Mon, 20 Sep 2021 16:50:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156943;
-        bh=B86PRED4PdLByGVox0tnjkMQ0m8otuqvicJQkt9BFPc=;
+        s=korg; t=1632156606;
+        bh=xR5dtT0Yhn7BMPnlc+CmhgTnWkuJ/KEOJgxhtS39P6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IcxmIaRuf8Bvqo7sRn6FpeSQbqwjqpAdgMASz0uy8d0IKS0770LeFk3M1rtSUJVdb
-         yiSfPOvYa9TNROnHjIY1IflGYskZnPByz70PQS8jO5tP5aoFErYVXI5Wh4vRKgMO1l
-         gXWMsJ28IWTR8gbFitgx6jMNC0q78nCOStE6NNeA=
+        b=gGdhpaZ4hPLpT44tvc9vaNBSVJfDJv1q2ycoB9FmXmbJHvMV4XsOk4URuwhNqOmX3
+         K0K/SIGCIY5Jmh+UwWgnNgJ6ZSDV3go/Uj4XhlGl1tI2Y3dtrO8eD4K/4aR24R3CRz
+         L1sq228aQ8whlCQpHG7XH55TarM/dAUCCgmgs7Yg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Xiong <xiongx18@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 158/175] net/l2tp: Fix reference count leak in l2tp_udp_recv_core
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 129/133] PCI: Sync __pci_register_driver() stub for CONFIG_PCI=n
 Date:   Mon, 20 Sep 2021 18:43:27 +0200
-Message-Id: <20210920163923.238338112@linuxfoundation.org>
+Message-Id: <20210920163916.843197503@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 9b6ff7eb666415e1558f1ba8a742f5db6a9954de upstream.
+[ Upstream commit 817f9916a6e96ae43acdd4e75459ef4f92d96eb1 ]
 
-The reference count leak issue may take place in an error handling
-path. If both conditions of tunnel->version == L2TP_HDR_VER_3 and the
-return value of l2tp_v3_ensure_opt_in_linear is nonzero, the function
-would directly jump to label invalid, without decrementing the reference
-count of the l2tp_session object session increased earlier by
-l2tp_tunnel_get_session(). This may result in refcount leaks.
+The CONFIG_PCI=y case got a new parameter long time ago.  Sync the stub as
+well.
 
-Fix this issue by decrease the reference count before jumping to the
-label invalid.
-
-Fixes: 4522a70db7aa ("l2tp: fix reading optional fields of L2TPv3")
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[bhelgaas: add parameter names]
+Fixes: 725522b5453d ("PCI: add the sysfs driver name to all modules")
+Link: https://lore.kernel.org/r/20210813153619.89574-1-andriy.shevchenko@linux.intel.com
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/l2tp/l2tp_core.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/linux/pci.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/l2tp/l2tp_core.c
-+++ b/net/l2tp/l2tp_core.c
-@@ -994,8 +994,10 @@ static int l2tp_udp_recv_core(struct l2t
- 	}
- 
- 	if (tunnel->version == L2TP_HDR_VER_3 &&
--	    l2tp_v3_ensure_opt_in_linear(session, skb, &ptr, &optr))
-+	    l2tp_v3_ensure_opt_in_linear(session, skb, &ptr, &optr)) {
-+		l2tp_session_dec_refcount(session);
- 		goto error;
-+	}
- 
- 	l2tp_recv_common(session, skb, ptr, optr, hdrflags, length, payload_hook);
- 	l2tp_session_dec_refcount(session);
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 5f37614f2451..c871b19cc915 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -1442,8 +1442,9 @@ static inline int pci_set_dma_seg_boundary(struct pci_dev *dev,
+ { return -EIO; }
+ static inline int pci_assign_resource(struct pci_dev *dev, int i)
+ { return -EBUSY; }
+-static inline int __pci_register_driver(struct pci_driver *drv,
+-					struct module *owner)
++static inline int __must_check __pci_register_driver(struct pci_driver *drv,
++						     struct module *owner,
++						     const char *mod_name)
+ { return 0; }
+ static inline int pci_register_driver(struct pci_driver *drv)
+ { return 0; }
+-- 
+2.30.2
+
 
 
