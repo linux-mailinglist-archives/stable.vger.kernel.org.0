@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75DF7412412
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:29:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDAAA412590
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:45:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379767AbhITSa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:30:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49242 "EHLO mail.kernel.org"
+        id S1384013AbhITSqV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:46:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1379141AbhITS2Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:28:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51AC8632E1;
-        Mon, 20 Sep 2021 17:26:15 +0000 (UTC)
+        id S1382807AbhITSm1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:42:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B5DBA63344;
+        Mon, 20 Sep 2021 17:31:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158775;
-        bh=swk5b0zsmAje9qFVJ9mu6vv8hRNv3yacUDVZDy2XFZ8=;
+        s=korg; t=1632159118;
+        bh=G0yWxee8sWhPe+DfRiOp12xOteHQ5FHmPimc8+eYH0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P46rTRV9oyEwveb1XsOc18/LKQny7oRo9Z73n/IYAYbDk+42TNMB0syaxEOvCNz+z
-         t71vOw6YzOGC9UkWwVJZS+oS2Wbf85Kbx3L497oHTfGCp6sUBAUrxnmKoxPANPVm+Z
-         go1Q2Yd7iHrQqN59EZ7ofiISA3JXTlcKMlE4xjoo=
+        b=VfaxTGlfF5KKrVyYVnyQPWBr+fKpZJ6UCqE5pf+4iO3U4ari4sFYJjjahI3cuVMyD
+         sSNJ6pLZEY5tAzjTM5rE387aQKNmSVwVMTbk3eFqhyxRnqrz54jAH1H/aPuku+BGV9
+         IrPaXlCMxY/GwqT5FrixLci/ehXBchGwoQFZribE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yufeng Mo <moyufeng@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 050/122] net: hns3: pad the short tunnel frame before sending to hardware
+        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Hauke Mehrtens <hauke@hauke-m.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 084/168] net: dsa: lantiq_gswip: Add 200ms assert delay
 Date:   Mon, 20 Sep 2021 18:43:42 +0200
-Message-Id: <20210920163917.429856460@linuxfoundation.org>
+Message-Id: <20210920163924.397678210@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufeng Mo <moyufeng@huawei.com>
+From: Aleksander Jan Bajkowski <olek2@wp.pl>
 
-commit d18e81183b1cb9c309266cbbce9acd3e0c528d04 upstream.
+[ Upstream commit 111b64e35ea03d58c882832744f571a88bb2e2e2 ]
 
-The hardware cannot handle short tunnel frames below 65 bytes,
-and will cause vlan tag missing problem. So pads packet size to
-65 bytes for tunnel frames to fix this bug.
+The delay is especially needed by the xRX300 and xRX330 SoCs. Without
+this patch, some phys are sometimes not properly detected.
 
-Fixes: 3db084d28dc0("net: hns3: Fix for vxlan tx checksum bug")
-Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+The patch was tested on BT Home Hub 5A and D-Link DWR-966.
+
+Fixes: a09d042b0862 ("net: dsa: lantiq: allow to use all GPHYs on xRX300 and xRX330")
+Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/dsa/lantiq_gswip.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -60,6 +60,7 @@ MODULE_PARM_DESC(debug, " Network interf
- #define HNS3_OUTER_VLAN_TAG	2
+diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
+index 64d6dfa83122..267324889dd6 100644
+--- a/drivers/net/dsa/lantiq_gswip.c
++++ b/drivers/net/dsa/lantiq_gswip.c
+@@ -1885,6 +1885,12 @@ static int gswip_gphy_fw_load(struct gswip_priv *priv, struct gswip_gphy_fw *gph
  
- #define HNS3_MIN_TX_LEN		33U
-+#define HNS3_MIN_TUN_PKT_LEN	65U
+ 	reset_control_assert(gphy_fw->reset);
  
- /* hns3_pci_tbl - PCI Device ID Table
-  *
-@@ -913,8 +914,11 @@ static int hns3_set_l2l3l4(struct sk_buf
- 			       l4.tcp->doff);
- 		break;
- 	case IPPROTO_UDP:
--		if (hns3_tunnel_csum_bug(skb))
--			return skb_checksum_help(skb);
-+		if (hns3_tunnel_csum_bug(skb)) {
-+			int ret = skb_put_padto(skb, HNS3_MIN_TUN_PKT_LEN);
++	/* The vendor BSP uses a 200ms delay after asserting the reset line.
++	 * Without this some users are observing that the PHY is not coming up
++	 * on the MDIO bus.
++	 */
++	msleep(200);
 +
-+			return ret ? ret : skb_checksum_help(skb);
-+		}
- 
- 		hns3_set_field(*type_cs_vlan_tso, HNS3_TXD_L4CS_B, 1);
- 		hns3_set_field(*type_cs_vlan_tso, HNS3_TXD_L4T_S,
+ 	ret = request_firmware(&fw, gphy_fw->fw_name, dev);
+ 	if (ret) {
+ 		dev_err(dev, "failed to load firmware: %s, error: %i\n",
+-- 
+2.30.2
+
 
 
