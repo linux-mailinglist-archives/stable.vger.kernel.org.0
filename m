@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD687411E75
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:29:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A27F8411CB2
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:10:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350908AbhITRbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:31:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34744 "EHLO mail.kernel.org"
+        id S1347143AbhITRMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:12:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350549AbhITR3I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:29:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7F5B6141B;
-        Mon, 20 Sep 2021 17:03:41 +0000 (UTC)
+        id S238707AbhITRJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:09:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3AAB60FC1;
+        Mon, 20 Sep 2021 16:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157422;
-        bh=aNLoZSiYbtettHw1u3953BGJ6SETfEbtewWQkgTp6Ow=;
+        s=korg; t=1632157000;
+        bh=gH1MQ8TC0f2MGbOHhzPDwImhHblcnsvDPs1Ax2948BM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lmOKJVM7V1smZh3O+jO0mbBR6DFK2TRJzQYc6wFGfW3bZ0j3ipRc/+y8o6Lj7Z4+t
-         Quboa7L4m7wig4/jL7JoqbPbSASfF7T0mbqbOA7xRQfISfiIZwezAFqbIOxcQ/6YRb
-         PxGyqnQN58LBBvRms67NHGVmaQqMmmR3prE982BA=
+        b=LzG2gNqTVM1B83iBXxYioqppR1KwlK2/NJ8lBYVfM2hLHKMFAA4o6kKfV8aRZalt4
+         4yJrPA2xp16+d2J2uTqpZSZ5Y3SPf0STHqy9DgsvQb8dvix7OxZGwhT/nE+oI52FH/
+         IgiZ9MEsqceWJQDufWTCGsNSOusfoxSgruPCe9PU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Baptiste Lepers <baptiste.lepers@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 4.14 201/217] events: Reuse value read using READ_ONCE instead of re-reading it
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 173/175] net: dsa: b53: Fix calculating number of switch ports
 Date:   Mon, 20 Sep 2021 18:43:42 +0200
-Message-Id: <20210920163931.441971405@linuxfoundation.org>
+Message-Id: <20210920163923.732091364@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baptiste Lepers <baptiste.lepers@gmail.com>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-commit b89a05b21f46150ac10a962aa50109250b56b03b upstream.
+[ Upstream commit cdb067d31c0fe4cce98b9d15f1f2ef525acaa094 ]
 
-In perf_event_addr_filters_apply, the task associated with
-the event (event->ctx->task) is read using READ_ONCE at the beginning
-of the function, checked, and then re-read from event->ctx->task,
-voiding all guarantees of the checks. Reuse the value that was read by
-READ_ONCE to ensure the consistency of the task struct throughout the
-function.
+It isn't true that CPU port is always the last one. Switches BCM5301x
+have 9 ports (port 6 being inactive) and they use port 5 as CPU by
+default (depending on design some other may be CPU ports too).
 
-Fixes: 375637bc52495 ("perf/core: Introduce address range filtering")
-Signed-off-by: Baptiste Lepers <baptiste.lepers@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210906015310.12802-1-baptiste.lepers@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+A more reliable way of determining number of ports is to check for the
+last set bit in the "enabled_ports" bitfield.
+
+This fixes b53 internal state, it will allow providing accurate info to
+the DSA and is required to fix BCM5301x support.
+
+Fixes: 967dd82ffc52 ("net: dsa: b53: Add support for Broadcom RoboSwitch")
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/b53/b53_common.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -8435,7 +8435,7 @@ static void perf_event_addr_filters_appl
- 	if (!ifh->nr_file_filters)
- 		return;
+diff --git a/drivers/net/dsa/b53/b53_common.c b/drivers/net/dsa/b53/b53_common.c
+index b6867a8915da..4b8f95ecd056 100644
+--- a/drivers/net/dsa/b53/b53_common.c
++++ b/drivers/net/dsa/b53/b53_common.c
+@@ -1798,9 +1798,8 @@ static int b53_switch_init(struct b53_device *dev)
+ 			dev->cpu_port = 5;
+ 	}
  
--	mm = get_task_mm(event->ctx->task);
-+	mm = get_task_mm(task);
- 	if (!mm)
- 		goto restart;
+-	/* cpu port is always last */
+-	dev->num_ports = dev->cpu_port + 1;
+ 	dev->enabled_ports |= BIT(dev->cpu_port);
++	dev->num_ports = fls(dev->enabled_ports);
  
+ 	dev->ports = devm_kzalloc(dev->dev,
+ 				  sizeof(struct b53_port) * dev->num_ports,
+-- 
+2.30.2
+
 
 
