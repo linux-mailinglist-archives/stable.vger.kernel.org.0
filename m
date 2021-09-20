@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2C6C411DDD
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:24:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4185411DDE
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:24:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347216AbhITRZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:25:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49652 "EHLO mail.kernel.org"
+        id S1347224AbhITRZc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:25:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347122AbhITRXS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1349048AbhITRXS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 13:23:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3D0160EE2;
-        Mon, 20 Sep 2021 17:01:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D908160F70;
+        Mon, 20 Sep 2021 17:01:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157294;
-        bh=LoB2cZlsvMGa/4mrkReg9115WjZ21ROhtAMeH0GVJFA=;
+        s=korg; t=1632157296;
+        bh=ehLdMPw+GPaf9EKjm+79dpUXrMkzSGpW6nCsdFJ2f8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dzSy+EZt9YqmGJnX52nuOnDm2adMEGsrI/1BwMnKh2fIW5uaH+HUOFf51AVDXpJ0e
-         V8vyttSHDaJnHvRqJ+CBqAZWqWD5J16E/8iAvzsjHnbTFEv3/3MtLtqHo2k+TLVxwk
-         +7e02JFK70eTEYWD8dQ61fcuTTpENojeLhQ+Uzcw=
+        b=Ly4qpCOyKqDhnR/gSLyR+2xk9uLNWuoKJxQLhTGvAuY3jvZrPHBAtsnyG6HcuEG4L
+         +VDQDqglutkqw2yKcOPQ9WJZWIqM88hw3MkRjrfjhxp453O697nmNHeEBL4oqCbeKv
+         10BYFOVDpjmwU087Uh6jNpWGvyP11ogdNpCMCj0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, DJ Gregor <dj@corelight.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Arne Welzel <arne.welzel@corelight.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.14 110/217] dm crypt: Avoid percpu_counter spinlock contention in crypt_page_alloc()
-Date:   Mon, 20 Sep 2021 18:42:11 +0200
-Message-Id: <20210920163928.362583332@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Jorgen Hansen <jhansen@vmware.com>,
+        Wang Hai <wanghai38@huawei.com>
+Subject: [PATCH 4.14 111/217] VMCI: fix NULL pointer dereference when unmapping queue pair
+Date:   Mon, 20 Sep 2021 18:42:12 +0200
+Message-Id: <20210920163928.394383330@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
 References: <20210920163924.591371269@linuxfoundation.org>
@@ -41,128 +40,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arne Welzel <arne.welzel@corelight.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-commit 528b16bfc3ae5f11638e71b3b63a81f9999df727 upstream.
+commit a30dc6cf0dc51419021550152e435736aaef8799 upstream.
 
-On systems with many cores using dm-crypt, heavy spinlock contention in
-percpu_counter_compare() can be observed when the page allocation limit
-for a given device is reached or close to be reached. This is due
-to percpu_counter_compare() taking a spinlock to compute an exact
-result on potentially many CPUs at the same time.
+I got a NULL pointer dereference report when doing fuzz test:
 
-Switch to non-exact comparison of allocated and allowed pages by using
-the value returned by percpu_counter_read_positive() to avoid taking
-the percpu_counter spinlock.
+Call Trace:
+  qp_release_pages+0xae/0x130
+  qp_host_unregister_user_memory.isra.25+0x2d/0x80
+  vmci_qp_broker_unmap+0x191/0x320
+  ? vmci_host_do_alloc_queuepair.isra.9+0x1c0/0x1c0
+  vmci_host_unlocked_ioctl+0x59f/0xd50
+  ? do_vfs_ioctl+0x14b/0xa10
+  ? tomoyo_file_ioctl+0x28/0x30
+  ? vmci_host_do_alloc_queuepair.isra.9+0x1c0/0x1c0
+  __x64_sys_ioctl+0xea/0x120
+  do_syscall_64+0x34/0xb0
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-This may over/under estimate the actual number of allocated pages by at
-most (batch-1) * num_online_cpus().
+When a queue pair is created by the following call, it will not
+register the user memory if the page_store is NULL, and the
+entry->state will be set to VMCIQPB_CREATED_NO_MEM.
 
-Currently, batch is bounded by 32. The system on which this issue was
-first observed has 256 CPUs and 512GB of RAM. With a 4k page size, this
-change may over/under estimate by 31MB. With ~10G (2%) allowed dm-crypt
-allocations, this seems an acceptable error. Certainly preferred over
-running into the spinlock contention.
+vmci_host_unlocked_ioctl
+  vmci_host_do_alloc_queuepair
+    vmci_qp_broker_alloc
+      qp_broker_alloc
+        qp_broker_create // set entry->state = VMCIQPB_CREATED_NO_MEM;
 
-This behavior was reproduced on an EC2 c5.24xlarge instance with 96 CPUs
-and 192GB RAM as follows, but can be provoked on systems with less CPUs
-as well.
+When unmapping this queue pair, qp_host_unregister_user_memory() will
+be called to unregister the non-existent user memory, which will
+result in a null pointer reference. It will also change
+VMCIQPB_CREATED_NO_MEM to VMCIQPB_CREATED_MEM, which should not be
+present in this operation.
 
- * Disable swap
- * Tune vm settings to promote regular writeback
-     $ echo 50 > /proc/sys/vm/dirty_expire_centisecs
-     $ echo 25 > /proc/sys/vm/dirty_writeback_centisecs
-     $ echo $((128 * 1024 * 1024)) > /proc/sys/vm/dirty_background_bytes
+Only when the qp broker has mem, it can unregister the user
+memory when unmapping the qp broker.
 
- * Create 8 dmcrypt devices based on files on a tmpfs
- * Create and mount an ext4 filesystem on each crypt devices
- * Run stress-ng --hdd 8 within one of above filesystems
+Only when the qp broker has no mem, it can register the user
+memory when mapping the qp broker.
 
-Total %system usage collected from sysstat goes to ~35%. Write throughput
-on the underlying loop device is ~2GB/s. perf profiling an individual
-kworker kcryptd thread shows the following profile, indicating spinlock
-contention in percpu_counter_compare():
-
-    99.98%     0.00%  kworker/u193:46  [kernel.kallsyms]  [k] ret_from_fork
-      |
-      --ret_from_fork
-        kthread
-        worker_thread
-        |
-         --99.92%--process_one_work
-            |
-            |--80.52%--kcryptd_crypt
-            |    |
-            |    |--62.58%--mempool_alloc
-            |    |  |
-            |    |   --62.24%--crypt_page_alloc
-            |    |     |
-            |    |      --61.51%--__percpu_counter_compare
-            |    |        |
-            |    |         --61.34%--__percpu_counter_sum
-            |    |           |
-            |    |           |--58.68%--_raw_spin_lock_irqsave
-            |    |           |  |
-            |    |           |   --58.30%--native_queued_spin_lock_slowpath
-            |    |           |
-            |    |            --0.69%--cpumask_next
-            |    |                |
-            |    |                 --0.51%--_find_next_bit
-            |    |
-            |    |--10.61%--crypt_convert
-            |    |          |
-            |    |          |--6.05%--xts_crypt
-            ...
-
-After applying this patch and running the same test, %system usage is
-lowered to ~7% and write throughput on the loop device increases
-to ~2.7GB/s. perf report shows mempool_alloc() as ~8% rather than ~62%
-in the profile and not hitting the percpu_counter() spinlock anymore.
-
-    |--8.15%--mempool_alloc
-    |    |
-    |    |--3.93%--crypt_page_alloc
-    |    |    |
-    |    |     --3.75%--__alloc_pages
-    |    |         |
-    |    |          --3.62%--get_page_from_freelist
-    |    |              |
-    |    |               --3.22%--rmqueue_bulk
-    |    |                   |
-    |    |                    --2.59%--_raw_spin_lock
-    |    |                      |
-    |    |                       --2.57%--native_queued_spin_lock_slowpath
-    |    |
-    |     --3.05%--_raw_spin_lock_irqsave
-    |               |
-    |                --2.49%--native_queued_spin_lock_slowpath
-
-Suggested-by: DJ Gregor <dj@corelight.com>
-Reviewed-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Arne Welzel <arne.welzel@corelight.com>
-Fixes: 5059353df86e ("dm crypt: limit the number of allocated pages")
-Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: 06164d2b72aa ("VMCI: queue pairs implementation.")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Link: https://lore.kernel.org/r/20210818124845.488312-1-wanghai38@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-crypt.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/misc/vmw_vmci/vmci_queue_pair.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/md/dm-crypt.c
-+++ b/drivers/md/dm-crypt.c
-@@ -2188,7 +2188,12 @@ static void *crypt_page_alloc(gfp_t gfp_
- 	struct crypt_config *cc = pool_data;
- 	struct page *page;
+--- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
++++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+@@ -2338,7 +2338,8 @@ int vmci_qp_broker_map(struct vmci_handl
+ 	is_local = entry->qp.flags & VMCI_QPFLAG_LOCAL;
+ 	result = VMCI_SUCCESS;
  
--	if (unlikely(percpu_counter_compare(&cc->n_allocated_pages, dm_crypt_pages_per_client) >= 0) &&
-+	/*
-+	 * Note, percpu_counter_read_positive() may over (and under) estimate
-+	 * the current usage by at most (batch - 1) * num_online_cpus() pages,
-+	 * but avoids potential spinlock contention of an exact result.
-+	 */
-+	if (unlikely(percpu_counter_read_positive(&cc->n_allocated_pages) >= dm_crypt_pages_per_client) &&
- 	    likely(gfp_mask & __GFP_NORETRY))
- 		return NULL;
+-	if (context_id != VMCI_HOST_CONTEXT_ID) {
++	if (context_id != VMCI_HOST_CONTEXT_ID &&
++	    !QPBROKERSTATE_HAS_MEM(entry)) {
+ 		struct vmci_qp_page_store page_store;
  
+ 		page_store.pages = guest_mem;
+@@ -2448,7 +2449,8 @@ int vmci_qp_broker_unmap(struct vmci_han
+ 
+ 	is_local = entry->qp.flags & VMCI_QPFLAG_LOCAL;
+ 
+-	if (context_id != VMCI_HOST_CONTEXT_ID) {
++	if (context_id != VMCI_HOST_CONTEXT_ID &&
++	    QPBROKERSTATE_HAS_MEM(entry)) {
+ 		qp_acquire_queue_mutex(entry->produce_q);
+ 		result = qp_save_headers(entry);
+ 		if (result < VMCI_SUCCESS)
 
 
