@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCC9E4122D5
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:16:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DE1E41258F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:45:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349493AbhITSST (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:18:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38976 "EHLO mail.kernel.org"
+        id S1354468AbhITSqU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:46:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376384AbhITSQR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:16:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E63D663292;
-        Mon, 20 Sep 2021 17:22:04 +0000 (UTC)
+        id S1382709AbhITSmR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:42:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60F0F63343;
+        Mon, 20 Sep 2021 17:31:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158525;
-        bh=v/tayfpX1bOz7k2xErtAMSvzzuqhs/FPU1R4fo7tjMg=;
+        s=korg; t=1632159100;
+        bh=CvchOUNTHdjar7sBjL9a72C3sS6vFes1cyYXWl3zJXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ymvf4Y839WPtkczEbAEuQn1PrG0K3AzHrxnmbkN943xthhMBOSm36U1+7cO9jvuP0
-         nK+mCTbVcJqLgD0YxrrUVlF5LOFBLvR2Fpn1XZxVqzk/EIGOXVUbKlQqKwbom3dXnS
-         3OggPY8GpqNrP4kb2aJS/JmXOTADNzObiW+soF/c=
+        b=DF+qj7K7HZF8/ZIukPtYF/GML99yxrH2sh4ro6C1H1ntOy3Pfh2X4UR2p57NqRQm7
+         b0qrlVdGuh+q7cQWiickrlNDn/RIPTg5svgsj5TGwHMLLhgZeJ+EuOdMVNPsGViJHT
+         gtzwOqhhIUOKLiBjGfhG28Mns5C08Ev/RO9fSv10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.4 197/260] PCI: Add AMD GPU multi-function power dependencies
+        stable@vger.kernel.org, Yufeng Mo <moyufeng@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.14 077/168] net: hns3: disable mac in flr process
 Date:   Mon, 20 Sep 2021 18:43:35 +0200
-Message-Id: <20210920163937.804777673@linuxfoundation.org>
+Message-Id: <20210920163924.172756238@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,63 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Yufeng Mo <moyufeng@huawei.com>
 
-commit 60b78ed088ebe1a872ee1320b6c5ad6ee2c4bd9a upstream.
+commit b81d8948746520f989e86d66292ff72b5056114a upstream.
 
-Some AMD GPUs have built-in USB xHCI and USB Type-C UCSI controllers with
-power dependencies between the GPU and the other functions as in
-6d2e369f0d4c ("PCI: Add NVIDIA GPU multi-function power dependencies").
+The firmware will not disable mac in flr process. Therefore, the driver
+needs to proactively disable mac during flr, which is the same as the
+function reset.
 
-Add device link support for the AMD integrated USB xHCI and USB Type-C UCSI
-controllers.
-
-Without this, runtime power management, including GPU resume and temp and
-fan sensors don't work correctly.
-
-Reported-at: https://gitlab.freedesktop.org/drm/amd/-/issues/1704
-Link: https://lore.kernel.org/r/20210903063311.3606226-1-evan.quan@amd.com
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org
+Fixes: 35d93a30040c ("net: hns3: adjust the process of PF reset")
+Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/quirks.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -5394,7 +5394,7 @@ DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR
- 			      PCI_CLASS_MULTIMEDIA_HD_AUDIO, 8, quirk_gpu_hda);
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -8120,11 +8120,12 @@ static void hclge_ae_stop(struct hnae3_h
+ 	hclge_clear_arfs_rules(hdev);
+ 	spin_unlock_bh(&hdev->fd_rule_lock);
  
- /*
-- * Create device link for NVIDIA GPU with integrated USB xHCI Host
-+ * Create device link for GPUs with integrated USB xHCI Host
-  * controller to VGA.
-  */
- static void quirk_gpu_usb(struct pci_dev *usb)
-@@ -5403,9 +5403,11 @@ static void quirk_gpu_usb(struct pci_dev
- }
- DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
- 			      PCI_CLASS_SERIAL_USB, 8, quirk_gpu_usb);
-+DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_ATI, PCI_ANY_ID,
-+			      PCI_CLASS_SERIAL_USB, 8, quirk_gpu_usb);
- 
- /*
-- * Create device link for NVIDIA GPU with integrated Type-C UCSI controller
-+ * Create device link for GPUs with integrated Type-C UCSI controller
-  * to VGA. Currently there is no class code defined for UCSI device over PCI
-  * so using UNKNOWN class for now and it will be updated when UCSI
-  * over PCI gets a class code.
-@@ -5418,6 +5420,9 @@ static void quirk_gpu_usb_typec_ucsi(str
- DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
- 			      PCI_CLASS_SERIAL_UNKNOWN, 8,
- 			      quirk_gpu_usb_typec_ucsi);
-+DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_ATI, PCI_ANY_ID,
-+			      PCI_CLASS_SERIAL_UNKNOWN, 8,
-+			      quirk_gpu_usb_typec_ucsi);
- 
- /*
-  * Enable the NVIDIA GPU integrated HDA controller if the BIOS left it
+-	/* If it is not PF reset, the firmware will disable the MAC,
++	/* If it is not PF reset or FLR, the firmware will disable the MAC,
+ 	 * so it only need to stop phy here.
+ 	 */
+ 	if (test_bit(HCLGE_STATE_RST_HANDLING, &hdev->state) &&
+-	    hdev->reset_type != HNAE3_FUNC_RESET) {
++	    hdev->reset_type != HNAE3_FUNC_RESET &&
++	    hdev->reset_type != HNAE3_FLR_RESET) {
+ 		hclge_mac_stop_phy(hdev);
+ 		hclge_update_link_status(hdev);
+ 		return;
 
 
