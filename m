@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39F2E411E87
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:31:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93648411C6A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:08:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344166AbhITRb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:31:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35392 "EHLO mail.kernel.org"
+        id S1346799AbhITRJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:09:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350833AbhITRaJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:30:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8672D61ACE;
-        Mon, 20 Sep 2021 17:03:59 +0000 (UTC)
+        id S1346389AbhITRHG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:07:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5152E6137B;
+        Mon, 20 Sep 2021 16:55:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157440;
-        bh=DVPcasjXqRCJ7pjR4tm+hxVvYjh0R8MRVB2pUj+6JXc=;
+        s=korg; t=1632156928;
+        bh=Pe0c4Naotru07EOpxLXGah0Sv3VqrqYzrNLckeO901M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=njapqFGeac5UufbOMaPwqqeryufphHFfbhLTD2bqnG4cKnpwjunlG6u1byed7i6Dd
-         46LHkQYX/FDs3Q1JLqxRV46AO/svKuTQHd1zd8Ahg9IZvBkkw3mER3hC4nMGOz5yVH
-         DpDUFk12eWPcvMUIkOkALRDrcnQOPPsjpb4qRLEI=
+        b=PrhOxmQWFnHtBrv4VuYuXph3zqZLx2LhHo2FPmWSrEouaQ5ewo1/aDG//+Ckr/xoN
+         lvDsdYgVYNrQj20exJfvp7SZJrJL2wWIfYnbLL0kPABr36Kk2tL1CBYKzHehYb00c2
+         bVsNQSdysngM1/IJtwCm+XAxxYIcQzgGUqbJN9GE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaotan Luo <lxt@rock-chips.com>,
-        Sugar Zhang <sugar.zhang@rock-chips.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 178/217] ASoC: rockchip: i2s: Fixup config for DAIFMT_DSP_A/B
-Date:   Mon, 20 Sep 2021 18:43:19 +0200
-Message-Id: <20210920163930.661292274@linuxfoundation.org>
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 151/175] memcg: enable accounting for pids in nested pid namespaces
+Date:   Mon, 20 Sep 2021 18:43:20 +0200
+Message-Id: <20210920163923.008428498@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaotan Luo <lxt@rock-chips.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 1bf56843e664eef2525bdbfae6a561e98910f676 ]
+commit fab827dbee8c2e06ca4ba000fa6c48bcf9054aba upstream.
 
-- DSP_A: PCM delay 1 bit mode, L data MSB after FRM LRC
-- DSP_B: PCM no delay mode, L data MSB during FRM LRC
+Commit 5d097056c9a0 ("kmemcg: account certain kmem allocations to memcg")
+enabled memcg accounting for pids allocated from init_pid_ns.pid_cachep,
+but forgot to adjust the setting for nested pid namespaces.  As a result,
+pid memory is not accounted exactly where it is really needed, inside
+memcg-limited containers with their own pid namespaces.
 
-Signed-off-by: Xiaotan Luo <lxt@rock-chips.com>
-Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
-Link: https://lore.kernel.org/r/1629950562-14281-3-git-send-email-sugar.zhang@rock-chips.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Pid was one the first kernel objects enabled for memcg accounting.
+init_pid_ns.pid_cachep marked by SLAB_ACCOUNT and we can expect that any
+new pids in the system are memcg-accounted.
+
+Though recently I've noticed that it is wrong.  nested pid namespaces
+creates own slab caches for pid objects, nested pids have increased size
+because contain id both for all parent and for own pid namespaces.  The
+problem is that these slab caches are _NOT_ marked by SLAB_ACCOUNT, as a
+result any pids allocated in nested pid namespaces are not
+memcg-accounted.
+
+Pid struct in nested pid namespace consumes up to 500 bytes memory, 100000
+such objects gives us up to ~50Mb unaccounted memory, this allow container
+to exceed assigned memcg limits.
+
+Link: https://lkml.kernel.org/r/8b6de616-fd1a-02c6-cbdb-976ecdcfa604@virtuozzo.com
+Fixes: 5d097056c9a0 ("kmemcg: account certain kmem allocations to memcg")
+Cc: stable@vger.kernel.org
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/rockchip/rockchip_i2s.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ kernel/pid_namespace.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
-index 93a4829f80cc..8d1a7114f6c2 100644
---- a/sound/soc/rockchip/rockchip_i2s.c
-+++ b/sound/soc/rockchip/rockchip_i2s.c
-@@ -235,12 +235,12 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
- 	case SND_SOC_DAIFMT_I2S:
- 		val = I2S_TXCR_IBM_NORMAL;
- 		break;
--	case SND_SOC_DAIFMT_DSP_A: /* PCM no delay mode */
--		val = I2S_TXCR_TFS_PCM;
--		break;
--	case SND_SOC_DAIFMT_DSP_B: /* PCM delay 1 mode */
-+	case SND_SOC_DAIFMT_DSP_A: /* PCM delay 1 bit mode */
- 		val = I2S_TXCR_TFS_PCM | I2S_TXCR_PBM_MODE(1);
- 		break;
-+	case SND_SOC_DAIFMT_DSP_B: /* PCM no delay mode */
-+		val = I2S_TXCR_TFS_PCM;
-+		break;
- 	default:
- 		ret = -EINVAL;
- 		goto err_pm_put;
-@@ -259,12 +259,12 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
- 	case SND_SOC_DAIFMT_I2S:
- 		val = I2S_RXCR_IBM_NORMAL;
- 		break;
--	case SND_SOC_DAIFMT_DSP_A: /* PCM no delay mode */
--		val = I2S_RXCR_TFS_PCM;
--		break;
--	case SND_SOC_DAIFMT_DSP_B: /* PCM delay 1 mode */
-+	case SND_SOC_DAIFMT_DSP_A: /* PCM delay 1 bit mode */
- 		val = I2S_RXCR_TFS_PCM | I2S_RXCR_PBM_MODE(1);
- 		break;
-+	case SND_SOC_DAIFMT_DSP_B: /* PCM no delay mode */
-+		val = I2S_RXCR_TFS_PCM;
-+		break;
- 	default:
- 		ret = -EINVAL;
- 		goto err_pm_put;
--- 
-2.30.2
-
+--- a/kernel/pid_namespace.c
++++ b/kernel/pid_namespace.c
+@@ -52,7 +52,7 @@ static struct kmem_cache *create_pid_cac
+ 	snprintf(pcache->name, sizeof(pcache->name), "pid_%d", nr_ids);
+ 	cachep = kmem_cache_create(pcache->name,
+ 			sizeof(struct pid) + (nr_ids - 1) * sizeof(struct upid),
+-			0, SLAB_HWCACHE_ALIGN, NULL);
++			0, SLAB_HWCACHE_ALIGN | SLAB_ACCOUNT, NULL);
+ 	if (cachep == NULL)
+ 		goto err_cachep;
+ 
 
 
