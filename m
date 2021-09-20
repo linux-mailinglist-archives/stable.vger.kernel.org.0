@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9A0A411CEF
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:13:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C982411F46
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:38:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344588AbhITRPF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:15:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42200 "EHLO mail.kernel.org"
+        id S1348284AbhITRj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:39:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346121AbhITRNe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:13:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B5318619E2;
-        Mon, 20 Sep 2021 16:57:51 +0000 (UTC)
+        id S1352055AbhITRhf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:37:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E42CF615E3;
+        Mon, 20 Sep 2021 17:07:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157072;
-        bh=2aHdkb5YRX3Br7FCKK/pMVRwy/uKaKPAhfAVgrU+nC0=;
+        s=korg; t=1632157622;
+        bh=YxPJzeJfDl35CnxlcjnqdFyy/WyVRKIWB6LiGb3t2NY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wVUG90VuuSrIhGTl69qEDwmNAYGM84HNydk/F9SJ+D168wIksZ9+CocP7IJW/onPx
-         E9OH4pFtEN2LfnD7cP9EEXL+Xh5Yx2fZqL1IzCSit8LZk9BLs7NjgJmOFtJOPJUTgx
-         nBLaxL1/RzHNBXqVyaZtYrSjFAms5bNgkZmHmTbI=
+        b=fgSuAE595lqiBkxGidyVuW9SedQ8uZIXCzze3fNh2+6y5OtbTAEwXFzmnZ2X0yZPd
+         swJXupnaSc1lLo1HMoYOk450t6K0kYb15Ry1dlH5M5r2K50ddsPohVyMrecBNcE/O3
+         xmYoDg03jNSWV1DmzYaSH1nCyKwG+GMCCMNc4bB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>,
-        Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.14 009/217] ARM: 8918/2: only build return_address() if needed
+        stable@vger.kernel.org, Martin KaFai Lau <kafai@fb.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 068/293] tcp: seq_file: Avoid skipping sk during tcp_seek_last_pos
 Date:   Mon, 20 Sep 2021 18:40:30 +0200
-Message-Id: <20210920163924.928970326@linuxfoundation.org>
+Message-Id: <20210920163935.589145054@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,65 +42,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Dooks <ben-linux@fluff.org>
+From: Martin KaFai Lau <kafai@fb.com>
 
-commit fb033c95c94ca1ee3d16e04ebdb85d65fb55fff8 upstream.
+[ Upstream commit 525e2f9fd0229eb10cb460a9e6d978257f24804e ]
 
-The system currently warns if the config conditions for
-building return_address in arch/arm/kernel/return_address.c
-are not met, leaving just an EXPORT_SYMBOL_GPL(return_address)
-of a function defined to be 'static linline'.
-This is a result of aeea3592a13b ("ARM: 8158/1: LLVMLinux: use static inline in ARM ftrace.h").
+st->bucket stores the current bucket number.
+st->offset stores the offset within this bucket that is the sk to be
+seq_show().  Thus, st->offset only makes sense within the same
+st->bucket.
 
-Since we're not going to build anything other than an exported
-symbol for something that is already being defined to be an
-inline-able return of NULL, just avoid building the code to
-remove the following warning:
+These two variables are an optimization for the common no-lseek case.
+When resuming the seq_file iteration (i.e. seq_start()),
+tcp_seek_last_pos() tries to continue from the st->offset
+at bucket st->bucket.
 
-Fixes: aeea3592a13b ("ARM: 8158/1: LLVMLinux: use static inline in ARM ftrace.h")
-Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+However, it is possible that the bucket pointed by st->bucket
+has changed and st->offset may end up skipping the whole st->bucket
+without finding a sk.  In this case, tcp_seek_last_pos() currently
+continues to satisfy the offset condition in the next (and incorrect)
+bucket.  Instead, regardless of the offset value, the first sk of the
+next bucket should be returned.  Thus, "bucket == st->bucket" check is
+added to tcp_seek_last_pos().
+
+The chance of hitting this is small and the issue is a decade old,
+so targeting for the next tree.
+
+Fixes: a8b690f98baf ("tcp: Fix slowness in read /proc/net/tcp")
+Signed-off-by: Martin KaFai Lau <kafai@fb.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20210701200541.1033917-1-kafai@fb.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/Makefile         |    6 +++++-
- arch/arm/kernel/return_address.c |    4 ----
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ net/ipv4/tcp_ipv4.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/arm/kernel/Makefile
-+++ b/arch/arm/kernel/Makefile
-@@ -17,10 +17,14 @@ CFLAGS_REMOVE_return_address.o = -pg
- # Object file lists.
+diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
+index 71236aa7388d..de4edfbc9e46 100644
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -2177,6 +2177,7 @@ static void *tcp_get_idx(struct seq_file *seq, loff_t pos)
+ static void *tcp_seek_last_pos(struct seq_file *seq)
+ {
+ 	struct tcp_iter_state *st = seq->private;
++	int bucket = st->bucket;
+ 	int offset = st->offset;
+ 	int orig_num = st->num;
+ 	void *rc = NULL;
+@@ -2187,7 +2188,7 @@ static void *tcp_seek_last_pos(struct seq_file *seq)
+ 			break;
+ 		st->state = TCP_SEQ_STATE_LISTENING;
+ 		rc = listening_get_next(seq, NULL);
+-		while (offset-- && rc)
++		while (offset-- && rc && bucket == st->bucket)
+ 			rc = listening_get_next(seq, rc);
+ 		if (rc)
+ 			break;
+@@ -2198,7 +2199,7 @@ static void *tcp_seek_last_pos(struct seq_file *seq)
+ 		if (st->bucket > tcp_hashinfo.ehash_mask)
+ 			break;
+ 		rc = established_get_first(seq);
+-		while (offset-- && rc)
++		while (offset-- && rc && bucket == st->bucket)
+ 			rc = established_get_next(seq, rc);
+ 	}
  
- obj-y		:= elf.o entry-common.o irq.o opcodes.o \
--		   process.o ptrace.o reboot.o return_address.o \
-+		   process.o ptrace.o reboot.o \
- 		   setup.o signal.o sigreturn_codes.o \
- 		   stacktrace.o sys_arm.o time.o traps.o
- 
-+ifneq ($(CONFIG_ARM_UNWIND),y)
-+obj-$(CONFIG_FRAME_POINTER)	+= return_address.o
-+endif
-+
- obj-$(CONFIG_ATAGS)		+= atags_parse.o
- obj-$(CONFIG_ATAGS_PROC)	+= atags_proc.o
- obj-$(CONFIG_DEPRECATED_PARAM_STRUCT) += atags_compat.o
---- a/arch/arm/kernel/return_address.c
-+++ b/arch/arm/kernel/return_address.c
-@@ -10,8 +10,6 @@
-  */
- #include <linux/export.h>
- #include <linux/ftrace.h>
--
--#if defined(CONFIG_FRAME_POINTER) && !defined(CONFIG_ARM_UNWIND)
- #include <linux/sched.h>
- 
- #include <asm/stacktrace.h>
-@@ -56,6 +54,4 @@ void *return_address(unsigned int level)
- 		return NULL;
- }
- 
--#endif /* if defined(CONFIG_FRAME_POINTER) && !defined(CONFIG_ARM_UNWIND) */
--
- EXPORT_SYMBOL_GPL(return_address);
+-- 
+2.30.2
+
 
 
