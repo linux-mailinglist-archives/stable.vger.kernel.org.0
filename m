@@ -2,34 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2688411FC5
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:43:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41FAF411D14
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:14:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347005AbhITRpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:45:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48616 "EHLO mail.kernel.org"
+        id S243577AbhITRQH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:16:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349063AbhITRnd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:43:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D23EC61B52;
-        Mon, 20 Sep 2021 17:09:18 +0000 (UTC)
+        id S1347415AbhITROE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:14:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 476C1619F6;
+        Mon, 20 Sep 2021 16:58:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157759;
-        bh=B8GJLQ0BvE2bjh1F8hpfVOQ1W3QsL9gIAWMF1VC1k+I=;
+        s=korg; t=1632157085;
+        bh=dJl91C0/eX+mQIGkNEJEiZiVrhcnNqrdebm1P6xLDPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jFPnfnAJDOv83SZvzbjb+tGmnnl4UARowQtSb02idD57xBpsB9gpKu49JcuOhnWwS
-         0KqJ2dYaEz2wPUrSDa/1tp8mXdUJc5dkGxpmm9cZfUDuxQ+1Pw0cmU7egDaFyT9KpI
-         fcNP+5qca5SkN+UPLoh3MTDTS9XiHaLzwz9yV1vU=
+        b=HM17/CmGw5yProwyQO8P+3Vy2JXQZFBeGixKjbodt/hXZ7e/N+HsEvDPUWqKu8VbT
+         nnOHgbIKvzjliiu1cj+s0cow29CxK02UW3nZnjOgfWoFCUdNfJRGLiZg1cdlXzhhHg
+         SyxObXER0dawIkg2u4DM1ZrFlJfHnDLYqkb1Dzq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 4.19 106/293] fscrypt: add fscrypt_symlink_getattr() for computing st_size
+        stable@vger.kernel.org,
+        Purna Chandra Mandal <purna.mandal@microchip.com>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 047/217] spi: spi-pic32: Fix issue with uninitialized dma_slave_config
 Date:   Mon, 20 Sep 2021 18:41:08 +0200
-Message-Id: <20210920163936.894472009@linuxfoundation.org>
+Message-Id: <20210920163926.218184855@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,145 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Tony Lindgren <tony@atomide.com>
 
-commit d18760560593e5af921f51a8c9b64b6109d634c2 upstream.
+[ Upstream commit 976c1de1de147bb7f4e0d87482f375221c05aeaf ]
 
-Add a helper function fscrypt_symlink_getattr() which will be called
-from the various filesystems' ->getattr() methods to read and decrypt
-the target of encrypted symlinks in order to report the correct st_size.
+Depending on the DMA driver being used, the struct dma_slave_config may
+need to be initialized to zero for the unused data.
 
-Detailed explanation:
+For example, we have three DMA drivers using src_port_window_size and
+dst_port_window_size. If these are left uninitialized, it can cause DMA
+failures.
 
-As required by POSIX and as documented in various man pages, st_size for
-a symlink is supposed to be the length of the symlink target.
-Unfortunately, st_size has always been wrong for encrypted symlinks
-because st_size is populated from i_size from disk, which intentionally
-contains the length of the encrypted symlink target.  That's slightly
-greater than the length of the decrypted symlink target (which is the
-symlink target that userspace usually sees), and usually won't match the
-length of the no-key encoded symlink target either.
+For spi-pic32, this is probably not currently an issue but is still good to
+fix though.
 
-This hadn't been fixed yet because reporting the correct st_size would
-require reading the symlink target from disk and decrypting or encoding
-it, which historically has been considered too heavyweight to do in
-->getattr().  Also historically, the wrong st_size had only broken a
-test (LTP lstat03) and there were no known complaints from real users.
-(This is probably because the st_size of symlinks isn't used too often,
-and when it is, typically it's for a hint for what buffer size to pass
-to readlink() -- which a slightly-too-large size still works for.)
-
-However, a couple things have changed now.  First, there have recently
-been complaints about the current behavior from real users:
-
-- Breakage in rpmbuild:
-  https://github.com/rpm-software-management/rpm/issues/1682
-  https://github.com/google/fscrypt/issues/305
-
-- Breakage in toybox cpio:
-  https://www.mail-archive.com/toybox@lists.landley.net/msg07193.html
-
-- Breakage in libgit2: https://issuetracker.google.com/issues/189629152
-  (on Android public issue tracker, requires login)
-
-Second, we now cache decrypted symlink targets in ->i_link.  Therefore,
-taking the performance hit of reading and decrypting the symlink target
-in ->getattr() wouldn't be as big a deal as it used to be, since usually
-it will just save having to do the same thing later.
-
-Also note that eCryptfs ended up having to read and decrypt symlink
-targets in ->getattr() as well, to fix this same issue; see
-commit 3a60a1686f0d ("eCryptfs: Decrypt symlink target for stat size").
-
-So, let's just bite the bullet, and read and decrypt the symlink target
-in ->getattr() in order to report the correct st_size.  Add a function
-fscrypt_symlink_getattr() which the filesystems will call to do this.
-
-(Alternatively, we could store the decrypted size of symlinks on-disk.
-But there isn't a great place to do so, and encryption is meant to hide
-the original size to some extent; that property would be lost.)
-
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210702065350.209646-2-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1bcb9f8ceb67 ("spi: spi-pic32: Add PIC32 SPI master driver")
+Cc: Purna Chandra Mandal <purna.mandal@microchip.com>
+Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Cc: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20210810081727.19491-2-tony@atomide.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/crypto/hooks.c               |   44 ++++++++++++++++++++++++++++++++++++++++
- include/linux/fscrypt_notsupp.h |    6 +++++
- include/linux/fscrypt_supp.h    |    1 
- 3 files changed, 51 insertions(+)
+ drivers/spi/spi-pic32.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/crypto/hooks.c
-+++ b/fs/crypto/hooks.c
-@@ -279,3 +279,47 @@ err_kfree:
- 	return ERR_PTR(err);
- }
- EXPORT_SYMBOL_GPL(fscrypt_get_symlink);
-+
-+/**
-+ * fscrypt_symlink_getattr() - set the correct st_size for encrypted symlinks
-+ * @path: the path for the encrypted symlink being queried
-+ * @stat: the struct being filled with the symlink's attributes
-+ *
-+ * Override st_size of encrypted symlinks to be the length of the decrypted
-+ * symlink target (or the no-key encoded symlink target, if the key is
-+ * unavailable) rather than the length of the encrypted symlink target.  This is
-+ * necessary for st_size to match the symlink target that userspace actually
-+ * sees.  POSIX requires this, and some userspace programs depend on it.
-+ *
-+ * This requires reading the symlink target from disk if needed, setting up the
-+ * inode's encryption key if possible, and then decrypting or encoding the
-+ * symlink target.  This makes lstat() more heavyweight than is normally the
-+ * case.  However, decrypted symlink targets will be cached in ->i_link, so
-+ * usually the symlink won't have to be read and decrypted again later if/when
-+ * it is actually followed, readlink() is called, or lstat() is called again.
-+ *
-+ * Return: 0 on success, -errno on failure
-+ */
-+int fscrypt_symlink_getattr(const struct path *path, struct kstat *stat)
-+{
-+	struct dentry *dentry = path->dentry;
-+	struct inode *inode = d_inode(dentry);
-+	const char *link;
-+	DEFINE_DELAYED_CALL(done);
-+
-+	/*
-+	 * To get the symlink target that userspace will see (whether it's the
-+	 * decrypted target or the no-key encoded target), we can just get it in
-+	 * the same way the VFS does during path resolution and readlink().
-+	 */
-+	link = READ_ONCE(inode->i_link);
-+	if (!link) {
-+		link = inode->i_op->get_link(dentry, inode, &done);
-+		if (IS_ERR(link))
-+			return PTR_ERR(link);
-+	}
-+	stat->size = strlen(link);
-+	do_delayed_call(&done);
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(fscrypt_symlink_getattr);
---- a/include/linux/fscrypt_notsupp.h
-+++ b/include/linux/fscrypt_notsupp.h
-@@ -234,4 +234,10 @@ static inline const char *fscrypt_get_sy
- 	return ERR_PTR(-EOPNOTSUPP);
- }
+diff --git a/drivers/spi/spi-pic32.c b/drivers/spi/spi-pic32.c
+index 661a40c653e9..d8cdb13ce3e4 100644
+--- a/drivers/spi/spi-pic32.c
++++ b/drivers/spi/spi-pic32.c
+@@ -369,6 +369,7 @@ static int pic32_spi_dma_config(struct pic32_spi *pic32s, u32 dma_width)
+ 	struct dma_slave_config cfg;
+ 	int ret;
  
-+static inline int fscrypt_symlink_getattr(const struct path *path,
-+					  struct kstat *stat)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
- #endif	/* _LINUX_FSCRYPT_NOTSUPP_H */
---- a/include/linux/fscrypt_supp.h
-+++ b/include/linux/fscrypt_supp.h
-@@ -231,5 +231,6 @@ extern int __fscrypt_encrypt_symlink(str
- extern const char *fscrypt_get_symlink(struct inode *inode, const void *caddr,
- 				       unsigned int max_size,
- 				       struct delayed_call *done);
-+int fscrypt_symlink_getattr(const struct path *path, struct kstat *stat);
- 
- #endif	/* _LINUX_FSCRYPT_SUPP_H */
++	memset(&cfg, 0, sizeof(cfg));
+ 	cfg.device_fc = true;
+ 	cfg.src_addr = pic32s->dma_base + buf_offset;
+ 	cfg.dst_addr = pic32s->dma_base + buf_offset;
+-- 
+2.30.2
+
 
 
