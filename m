@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B54D34122E1
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:17:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB95F412410
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:29:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346180AbhITSS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:18:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39020 "EHLO mail.kernel.org"
+        id S1379756AbhITSa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:30:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1359090AbhITSQX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:16:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E870063298;
-        Mon, 20 Sep 2021 17:22:17 +0000 (UTC)
+        id S1379136AbhITS2W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:28:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21845632E5;
+        Mon, 20 Sep 2021 17:26:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158538;
-        bh=p2nrOskp0iRRoTcoMNP5Dms5l6f8VGcORY2JUqOtx0I=;
+        s=korg; t=1632158773;
+        bh=Z9xGGIkiy9P+JuBAGNag+8punH9mjakHWhC+vrr1xJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eYwYc0YTk9gEzI3l88Xgj8H64hFmSJWJRd5sVeDdmTFvrtjA0tCtfyxzUS0EK52+u
-         7LLfLIpJKCQ1E0aU0+xfx/6S1tnh2pkNAFC00WvXBgS9JeqzEDLW1nyYPp0+nfb92M
-         Mpr+G0dhG1WssUdTE7c1kJYhaZwRO9oUk0q1xlRA=
+        b=bWDiLPVgmZbnMUsD6li3PreOQfNLHHrL+Nps6FijZsC4o5jvHn9hmXTc5bK4LLocA
+         rY8XMBgmI/EMpGf53cSpijUupdWpLOWFgbeK+JEuXGf37TLb4BXnFwPArObafp4WR4
+         GT/vHlKnq+BVvHYQVaylzg6Q3nC9hv5BJPhGAPmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Michael Walle <michael@walle.cc>, Marek Vasut <marex@denx.de>,
-        Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: [PATCH 5.4 203/260] drm/etnaviv: exec and MMU state is lost when resetting the GPU
+        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 049/122] bnxt_en: make bnxt_free_skbs() safe to call after bnxt_free_mem()
 Date:   Mon, 20 Sep 2021 18:43:41 +0200
-Message-Id: <20210920163938.008762974@linuxfoundation.org>
+Message-Id: <20210920163917.397525206@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Edwin Peer <edwin.peer@broadcom.com>
 
-commit 725cbc7884c37f3b4f1777bc1aea6432cded8ca5 upstream.
+commit 1affc01fdc6035189a5ab2a24948c9419ee0ecf2 upstream.
 
-When the GPU is reset both the current exec state, as well as all MMU
-state is lost. Move the driver side state tracking into the reset function
-to keep hardware and software state from diverging.
+The call to bnxt_free_mem(..., false) in the bnxt_half_open_nic() error
+path will deallocate ring descriptor memory via bnxt_free_?x_rings(),
+but because irq_re_init is false, the ring info itself is not freed.
 
-Cc: stable@vger.kernel.org # 5.4
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Tested-by: Michael Walle <michael@walle.cc>
-Tested-by: Marek Vasut <marex@denx.de>
-Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+To simplify error paths, deallocation functions have generally been
+written to be safe when called on unallocated memory. It should always
+be safe to call dev_close(), which calls bnxt_free_skbs() a second time,
+even in this semi- allocated ring state.
+
+Calling bnxt_free_skbs() a second time with the rings already freed will
+cause NULL pointer dereference.  Fix it by checking the rings are valid
+before proceeding in bnxt_free_tx_skbs() and
+bnxt_free_one_rx_ring_skbs().
+
+Fixes: 975bc99a4a39 ("bnxt_en: Refactor bnxt_free_rx_skbs().")
+Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_gpu.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-@@ -546,6 +546,8 @@ static int etnaviv_hw_reset(struct etnav
- 	etnaviv_gpu_update_clock(gpu);
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -2591,6 +2591,9 @@ static void bnxt_free_tx_skbs(struct bnx
+ 		struct bnxt_tx_ring_info *txr = &bp->tx_ring[i];
+ 		int j;
  
- 	gpu->fe_running = false;
-+	gpu->exec_state = -1;
-+	gpu->mmu_context = NULL;
++		if (!txr->tx_buf_ring)
++			continue;
++
+ 		for (j = 0; j < max_idx;) {
+ 			struct bnxt_sw_tx_bd *tx_buf = &txr->tx_buf_ring[j];
+ 			struct sk_buff *skb;
+@@ -2675,6 +2678,9 @@ static void bnxt_free_one_rx_ring_skbs(s
+ 	}
  
- 	return 0;
- }
-@@ -794,7 +796,6 @@ int etnaviv_gpu_init(struct etnaviv_gpu
- 	/* Now program the hardware */
- 	mutex_lock(&gpu->lock);
- 	etnaviv_gpu_hw_init(gpu);
--	gpu->exec_state = -1;
- 	mutex_unlock(&gpu->lock);
+ skip_rx_tpa_free:
++	if (!rxr->rx_buf_ring)
++		goto skip_rx_buf_free;
++
+ 	for (i = 0; i < max_idx; i++) {
+ 		struct bnxt_sw_rx_bd *rx_buf = &rxr->rx_buf_ring[i];
+ 		dma_addr_t mapping = rx_buf->mapping;
+@@ -2697,6 +2703,11 @@ skip_rx_tpa_free:
+ 			kfree(data);
+ 		}
+ 	}
++
++skip_rx_buf_free:
++	if (!rxr->rx_agg_ring)
++		goto skip_rx_agg_free;
++
+ 	for (i = 0; i < max_agg_idx; i++) {
+ 		struct bnxt_sw_rx_agg_bd *rx_agg_buf = &rxr->rx_agg_ring[i];
+ 		struct page *page = rx_agg_buf->page;
+@@ -2713,6 +2724,8 @@ skip_rx_tpa_free:
  
- 	pm_runtime_mark_last_busy(gpu->dev);
-@@ -998,8 +999,6 @@ void etnaviv_gpu_recover_hang(struct etn
- 	spin_unlock(&gpu->event_spinlock);
- 
- 	etnaviv_gpu_hw_init(gpu);
--	gpu->exec_state = -1;
--	gpu->mmu_context = NULL;
- 
- 	mutex_unlock(&gpu->lock);
- 	pm_runtime_mark_last_busy(gpu->dev);
+ 		__free_page(page);
+ 	}
++
++skip_rx_agg_free:
+ 	if (rxr->rx_page) {
+ 		__free_page(rxr->rx_page);
+ 		rxr->rx_page = NULL;
 
 
