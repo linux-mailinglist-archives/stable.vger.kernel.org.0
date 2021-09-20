@@ -2,91 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09601412CEF
+	by mail.lfdr.de (Postfix) with ESMTP id 56307412CF0
 	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 04:47:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242453AbhIUCs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 22:48:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40270 "EHLO
+        id S242464AbhIUCs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 22:48:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348943AbhIUCZB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 22:25:01 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE1DFC0A889C;
-        Mon, 20 Sep 2021 11:54:06 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id y8so17099826pfa.7;
-        Mon, 20 Sep 2021 11:54:06 -0700 (PDT)
+        with ESMTP id S1346993AbhIUCZy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 22:25:54 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95080C1E2269;
+        Mon, 20 Sep 2021 12:00:48 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id h3-20020a17090a580300b0019ce70f8243so146155pji.4;
+        Mon, 20 Sep 2021 12:00:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
+        h=subject:from:to:cc:references:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=IkjIzjHDCDALH4fxN/HhWlJ3UHaUw+i3IxXPF0eTxFw=;
-        b=YZ0tdw9qmo2wgWszO1noIKB32A//ZTw13cO9q9G1ryxdMPAJvvwlV3mZjAsWkYmG4F
-         KMCCcgD8Q/TN9rMPNvDR/gIAv4UZqqosnG/x651LEzVwl1/FzVamiBjzS8u+URq830EI
-         BBAZnMGNFUO0UBpw239yHzkiR9WUouQ7/YwgiH9231eKMiaQF3d53TFn63rl7p4kK32N
-         zAwvSdtGCgC0jb7zFvY0P5/adCwzJShs4gJ1qXz1e7/9DB1xPvaD9b+ZkwUL+Xn0lQj1
-         Iu+RHLxS3kbi7h06lMyR/Ukml+PHDX7HHyUAX5V32JfFDkghAz5MW+FL0j8PgbcuyWrU
-         GkYA==
+        bh=ZWqo4o25WJcX6VLB9kZ3eunxoV27J+URstmd+miGkGE=;
+        b=dskCyiCJJkWRNCQmLFng+qJV7sqv5sIolcsDlHMdpAjnltxIreMF7BoiCDwGRAkBA+
+         3VlLHTFU6seQYZtfaTlTc/TbkZMiD1rlZfMUqv5dEs3RGE14G6uZ0BH9FOpo3LZfbFCe
+         kFI7UGA3sjOL1az38Ik1uw0y6RuQSWtb1srx6FT/MJ9kFC1+q0SQRcVf17tgKV1EDW0P
+         hEwFwLpQZpb3pza4WfxPAAhSTcmaQ5cL9L5KJy9W2DCgt7bkEKV2dwXmuvU/vuZB6Ive
+         SyTea+OKongBqkjf29bZTiyib0ERXeGQlBFYROIT4hoeKItqqeIXNAMZCxbWTB9AfiGQ
+         3sxg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=IkjIzjHDCDALH4fxN/HhWlJ3UHaUw+i3IxXPF0eTxFw=;
-        b=XVbQnFDGaOl+iCWgfXBbRWKaQQ6ZI5qo483HYoXxfwLWdt9Pk6b5xBfLc1IKxAoK7K
-         JTfBXYc8CsztBKy/+pQPSW3i55GJN0G/HP+eZ76AsGw3E9nJxc5MFO1qlEQngeX/oDmD
-         Lz8+2f2KK6iVgmRR+cqlpXy4Kp2lvrLoY/+Rgo7r4xBL6+r8hDZy+ebkx9IWoF7UHewp
-         OS60yoM9Q5nu2XnsVrBRjKcTcYievRLeyszTOnmYQaWjlr/LJjIUhFe0bRME8O+AOSJi
-         u3udTjIn4mzg9xZLFJOjATds/48sZkVDYIo9HgF15E6GEr/JvYsjx1kyL4Xuz0+vG2Jj
-         xZ5A==
-X-Gm-Message-State: AOAM530+RdLteXWeYH1/lY0Es8U/xjO9XY7vKhSDjIr2rLUl+1A8Y6TX
-        LEoum+l+EabEythakgKa7ZyHIeH55ts=
-X-Google-Smtp-Source: ABdhPJyPuJJme41wVpGuaXgay6kguMxPOL2OWx1E4rHl30lX3QxTLoN94GvSJIzB9lal0TkIjkl7nA==
-X-Received: by 2002:a62:7e11:0:b0:444:bd85:e2c7 with SMTP id z17-20020a627e11000000b00444bd85e2c7mr19466313pfc.45.1632164046148;
-        Mon, 20 Sep 2021 11:54:06 -0700 (PDT)
+        bh=ZWqo4o25WJcX6VLB9kZ3eunxoV27J+URstmd+miGkGE=;
+        b=vMNHT+dMOlsGtBQPe6BBzXr5MhPazZ23gtD2iUeLa+WdsIGp56i5iZxOwFjyLAQLrQ
+         1JwflUbwfDNnvk00NT65+FqPYut1wkEicgwtFc15coq5jLKIIMg7fo+A4qpcm2xjosdG
+         2VWbp1IJwoCsH5LGu1raGvCjp1bneeK7Zud2qW25UPel+5fkBzwTCy8i/p3+32fH1Ffe
+         vNHOr4Pk9iE6rEGUiDwdvJ2Ey4HLmnuQ030xX9hFFpde5dU/dXnZaqJfPgPw3lmLF3dk
+         Cr3GxrExRuIBmmMkbalNsT1ID2PqD/LatSbmEIduLASlDKgyG3UqBXSBTT/gDm2i518p
+         mwGg==
+X-Gm-Message-State: AOAM531XM6mfndwiVdayGg3pjilzYHcV/z8InrzXE9bZtTtLx3Ipn5i+
+        MLBi0MK4F8cqnkfddYkFCNncwYLTqt4=
+X-Google-Smtp-Source: ABdhPJwAbTudI4WORc4tK0sVOLS51Bi66U0tPufeUQmaMUdiIhWsHWnOgaWir8BiDWPqZITAj10rNw==
+X-Received: by 2002:a17:90a:9317:: with SMTP id p23mr564534pjo.151.1632164447669;
+        Mon, 20 Sep 2021 12:00:47 -0700 (PDT)
 Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id t13sm579384pjj.1.2021.09.20.11.54.04
+        by smtp.googlemail.com with ESMTPSA id q3sm106706pfg.49.2021.09.20.12.00.42
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Sep 2021 11:54:05 -0700 (PDT)
-Subject: Re: [PATCH 5.14 000/168] 5.14.7-rc1 review
+        Mon, 20 Sep 2021 12:00:47 -0700 (PDT)
+Subject: Re: [PATCH 5.10 000/122] 5.10.68-rc1 review
+From:   Florian Fainelli <f.fainelli@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org,
-        =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>
+        linux-kernel@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         stable@vger.kernel.org
-References: <20210920163921.633181900@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <ca3953f8-e3a9-e3a9-d318-0f84ba96db12@gmail.com>
-Date:   Mon, 20 Sep 2021 11:54:04 -0700
+References: <20210920163915.757887582@linuxfoundation.org>
+ <87001227-a271-e9bb-38bc-059279caaf3b@gmail.com>
+Message-ID: <513b55c6-0f1f-4a84-65b7-fd05e99c0bcb@gmail.com>
+Date:   Mon, 20 Sep 2021 12:00:39 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.13.0
 MIME-Version: 1.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <87001227-a271-e9bb-38bc-059279caaf3b@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/20/21 9:42 AM, Greg Kroah-Hartman wrote:
+On 9/20/21 11:39 AM, Florian Fainelli wrote:
+> On 9/20/21 9:42 AM, Greg Kroah-Hartman wrote:
+>> This is the start of the stable review cycle for the 5.10.68 release.
+>> There are 122 patches in this series, all will be posted as a response
+>> to this one.  If anyone has any issues with these being applied, please
+>> let me know.
+>>
+>> Responses should be made by Wed, 22 Sep 2021 16:38:49 +0000.
+>> Anything received after that time might be too late.
+>>
+>> The whole patch series can be found in one patch at:
+>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.68-rc1.gz
+>> or in the git tree and branch at:
+>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+>> and the diffstat can be found below.
+>>
+>> thanks,
+>>
+>> greg k-h
 > 
-> Rafał Miłecki <rafal@milecki.pl>
->     net: dsa: b53: Set correct number of ports in the DSA struct
+> On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
+> 
+> Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+> 
 
-(same comment as for 5.10)
-
-This patch will cause an out of bounds access on two platforms that use
-the b53 driver, you would need to wait for this commit:
-
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=02319bf15acf54004216e40ac9c171437f24be24
-
-to land in Linus' tree and then you can also take Rafal's b53 change.
-This is applicable to both the 5.14 and 5.10 trees and any tree where
-this change would be back ported to in between.
-
-Thank you!
+Sorry taking that back, the merge did not really happen so I was not
+testing 5.10.68 but 5.10.67, see my other comment about one of the
+patches causing a regression, thanks!
 -- 
 Florian
