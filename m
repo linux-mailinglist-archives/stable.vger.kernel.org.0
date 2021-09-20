@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E345A412379
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:23:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C2FB4125D4
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:49:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346686AbhITSZM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:25:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44480 "EHLO mail.kernel.org"
+        id S1384679AbhITSsf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:48:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1377996AbhITSW0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:22:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D825D632C5;
-        Mon, 20 Sep 2021 17:24:28 +0000 (UTC)
+        id S1384101AbhITSqd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:46:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4E0A63363;
+        Mon, 20 Sep 2021 17:33:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158669;
-        bh=JpqSmo2IeRQkcCeiwk7z9u7KjYyVuoPgzrtDeoWdN7w=;
+        s=korg; t=1632159222;
+        bh=BvUepuoep7XTWaVhs83x1LXOtgm9K1UWGy0biRI2gO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WPXrXmSWZU2/nQrUwxcF0OH2YwsqBEVkX0DONUL6RicIYMgAp3M73jgFm7sAynYXe
-         T3EykuXyVx0/K0TdTHUiJhzv8uwQ2W1iHkInSHVZzN/TvV5joJJlsiMzsu1C9Lm66O
-         7bKnId/RwQZVOsDLCxvuHwcbg2izr8xr0Bir1/zE=
+        b=U7Y/YCEVjx5wJPuXyAp1x3uzChBur+IZEi1rd9jXymj9IKlbpJen2GdCP6pl4qjLj
+         rb+PwpIEV1/BtUde6E2FR9f9ZEI6jPrlWLchgRdp+00Q3siZ/GzbuByQjtJ+mqFbkA
+         jfKbFl+j9QA54zJmszF5JXM6S1yNQR1BSUHi0MJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 221/260] net/af_unix: fix a data-race in unix_dgram_poll
+        stable@vger.kernel.org, Andrew Scull <ascull@google.com>,
+        Quentin Perret <qperret@google.com>,
+        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 101/168] KVM: arm64: Make hyp_panic() more robust when protected mode is enabled
 Date:   Mon, 20 Sep 2021 18:43:59 +0200
-Message-Id: <20210920163938.619203066@linuxfoundation.org>
+Message-Id: <20210920163924.960132609@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,97 +41,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Will Deacon <will@kernel.org>
 
-commit 04f08eb44b5011493d77b602fdec29ff0f5c6cd5 upstream.
+[ Upstream commit ccac96977243d7916053550f62e6489760ad0adc ]
 
-syzbot reported another data-race in af_unix [1]
+When protected mode is enabled, the host is unable to access most parts
+of the EL2 hypervisor image, including 'hyp_physvirt_offset' and the
+contents of the hypervisor's '.rodata.str' section. Unfortunately,
+nvhe_hyp_panic_handler() tries to read from both of these locations when
+handling a BUG() triggered at EL2; the former for converting the ELR to
+a physical address and the latter for displaying the name of the source
+file where the BUG() occurred.
 
-Lets change __skb_insert() to use WRITE_ONCE() when changing
-skb head qlen.
+Hack the EL2 panic asm to pass both physical and virtual ELR values to
+the host and utilise the newly introduced CONFIG_NVHE_EL2_DEBUG so that
+we disable stage-2 protection for the host before returning to the EL1
+panic handler. If the debug option is not enabled, display the address
+instead of the source file:line information.
 
-Also, change unix_dgram_poll() to use lockless version
-of unix_recvq_full()
-
-It is verry possible we can switch all/most unix_recvq_full()
-to the lockless version, this will be done in a future kernel version.
-
-[1] HEAD commit: 8596e589b787732c8346f0482919e83cc9362db1
-
-BUG: KCSAN: data-race in skb_queue_tail / unix_dgram_poll
-
-write to 0xffff88814eeb24e0 of 4 bytes by task 25815 on cpu 0:
- __skb_insert include/linux/skbuff.h:1938 [inline]
- __skb_queue_before include/linux/skbuff.h:2043 [inline]
- __skb_queue_tail include/linux/skbuff.h:2076 [inline]
- skb_queue_tail+0x80/0xa0 net/core/skbuff.c:3264
- unix_dgram_sendmsg+0xff2/0x1600 net/unix/af_unix.c:1850
- sock_sendmsg_nosec net/socket.c:703 [inline]
- sock_sendmsg net/socket.c:723 [inline]
- ____sys_sendmsg+0x360/0x4d0 net/socket.c:2392
- ___sys_sendmsg net/socket.c:2446 [inline]
- __sys_sendmmsg+0x315/0x4b0 net/socket.c:2532
- __do_sys_sendmmsg net/socket.c:2561 [inline]
- __se_sys_sendmmsg net/socket.c:2558 [inline]
- __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2558
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-read to 0xffff88814eeb24e0 of 4 bytes by task 25834 on cpu 1:
- skb_queue_len include/linux/skbuff.h:1869 [inline]
- unix_recvq_full net/unix/af_unix.c:194 [inline]
- unix_dgram_poll+0x2bc/0x3e0 net/unix/af_unix.c:2777
- sock_poll+0x23e/0x260 net/socket.c:1288
- vfs_poll include/linux/poll.h:90 [inline]
- ep_item_poll fs/eventpoll.c:846 [inline]
- ep_send_events fs/eventpoll.c:1683 [inline]
- ep_poll fs/eventpoll.c:1798 [inline]
- do_epoll_wait+0x6ad/0xf00 fs/eventpoll.c:2226
- __do_sys_epoll_wait fs/eventpoll.c:2238 [inline]
- __se_sys_epoll_wait fs/eventpoll.c:2233 [inline]
- __x64_sys_epoll_wait+0xf6/0x120 fs/eventpoll.c:2233
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-value changed: 0x0000001b -> 0x00000001
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 25834 Comm: syz-executor.1 Tainted: G        W         5.14.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 86b18aaa2b5b ("skbuff: fix a data race in skb_queue_len()")
-Cc: Qian Cai <cai@lca.pw>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Andrew Scull <ascull@google.com>
+Cc: Quentin Perret <qperret@google.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210813130336.8139-1-will@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/skbuff.h |    2 +-
- net/unix/af_unix.c     |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/kvm/handle_exit.c   | 23 ++++++++++++++---------
+ arch/arm64/kvm/hyp/nvhe/host.S | 21 +++++++++++++++++----
+ 2 files changed, 31 insertions(+), 13 deletions(-)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1887,7 +1887,7 @@ static inline void __skb_insert(struct s
- 	WRITE_ONCE(newsk->prev, prev);
- 	WRITE_ONCE(next->prev, newsk);
- 	WRITE_ONCE(prev->next, newsk);
--	list->qlen++;
-+	WRITE_ONCE(list->qlen, list->qlen + 1);
+diff --git a/arch/arm64/kvm/handle_exit.c b/arch/arm64/kvm/handle_exit.c
+index 6f48336b1d86..04ebab299aa4 100644
+--- a/arch/arm64/kvm/handle_exit.c
++++ b/arch/arm64/kvm/handle_exit.c
+@@ -292,11 +292,12 @@ void handle_exit_early(struct kvm_vcpu *vcpu, int exception_index)
+ 		kvm_handle_guest_serror(vcpu, kvm_vcpu_get_esr(vcpu));
  }
  
- static inline void __skb_queue_splice(const struct sk_buff_head *list,
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -2734,7 +2734,7 @@ static __poll_t unix_dgram_poll(struct f
+-void __noreturn __cold nvhe_hyp_panic_handler(u64 esr, u64 spsr, u64 elr,
++void __noreturn __cold nvhe_hyp_panic_handler(u64 esr, u64 spsr,
++					      u64 elr_virt, u64 elr_phys,
+ 					      u64 par, uintptr_t vcpu,
+ 					      u64 far, u64 hpfar) {
+-	u64 elr_in_kimg = __phys_to_kimg(__hyp_pa(elr));
+-	u64 hyp_offset = elr_in_kimg - kaslr_offset() - elr;
++	u64 elr_in_kimg = __phys_to_kimg(elr_phys);
++	u64 hyp_offset = elr_in_kimg - kaslr_offset() - elr_virt;
+ 	u64 mode = spsr & PSR_MODE_MASK;
  
- 		other = unix_peer(sk);
- 		if (other && unix_peer(other) != sk &&
--		    unix_recvq_full(other) &&
-+		    unix_recvq_full_lockless(other) &&
- 		    unix_dgram_peer_wake_me(sk, other))
- 			writable = 0;
+ 	/*
+@@ -309,20 +310,24 @@ void __noreturn __cold nvhe_hyp_panic_handler(u64 esr, u64 spsr, u64 elr,
+ 		kvm_err("Invalid host exception to nVHE hyp!\n");
+ 	} else if (ESR_ELx_EC(esr) == ESR_ELx_EC_BRK64 &&
+ 		   (esr & ESR_ELx_BRK64_ISS_COMMENT_MASK) == BUG_BRK_IMM) {
+-		struct bug_entry *bug = find_bug(elr_in_kimg);
+ 		const char *file = NULL;
+ 		unsigned int line = 0;
  
+ 		/* All hyp bugs, including warnings, are treated as fatal. */
+-		if (bug)
+-			bug_get_file_line(bug, &file, &line);
++		if (!is_protected_kvm_enabled() ||
++		    IS_ENABLED(CONFIG_NVHE_EL2_DEBUG)) {
++			struct bug_entry *bug = find_bug(elr_in_kimg);
++
++			if (bug)
++				bug_get_file_line(bug, &file, &line);
++		}
+ 
+ 		if (file)
+ 			kvm_err("nVHE hyp BUG at: %s:%u!\n", file, line);
+ 		else
+-			kvm_err("nVHE hyp BUG at: %016llx!\n", elr + hyp_offset);
++			kvm_err("nVHE hyp BUG at: %016llx!\n", elr_virt + hyp_offset);
+ 	} else {
+-		kvm_err("nVHE hyp panic at: %016llx!\n", elr + hyp_offset);
++		kvm_err("nVHE hyp panic at: %016llx!\n", elr_virt + hyp_offset);
+ 	}
+ 
+ 	/*
+@@ -334,5 +339,5 @@ void __noreturn __cold nvhe_hyp_panic_handler(u64 esr, u64 spsr, u64 elr,
+ 	kvm_err("Hyp Offset: 0x%llx\n", hyp_offset);
+ 
+ 	panic("HYP panic:\nPS:%08llx PC:%016llx ESR:%08llx\nFAR:%016llx HPFAR:%016llx PAR:%016llx\nVCPU:%016lx\n",
+-	      spsr, elr, esr, far, hpfar, par, vcpu);
++	      spsr, elr_virt, esr, far, hpfar, par, vcpu);
+ }
+diff --git a/arch/arm64/kvm/hyp/nvhe/host.S b/arch/arm64/kvm/hyp/nvhe/host.S
+index 2b23400e0fb3..4b652ffb591d 100644
+--- a/arch/arm64/kvm/hyp/nvhe/host.S
++++ b/arch/arm64/kvm/hyp/nvhe/host.S
+@@ -7,6 +7,7 @@
+ #include <linux/linkage.h>
+ 
+ #include <asm/assembler.h>
++#include <asm/kvm_arm.h>
+ #include <asm/kvm_asm.h>
+ #include <asm/kvm_mmu.h>
+ 
+@@ -85,12 +86,24 @@ SYM_FUNC_START(__hyp_do_panic)
+ 
+ 	mov	x29, x0
+ 
++#ifdef CONFIG_NVHE_EL2_DEBUG
++	/* Ensure host stage-2 is disabled */
++	mrs	x0, hcr_el2
++	bic	x0, x0, #HCR_VM
++	msr	hcr_el2, x0
++	isb
++	tlbi	vmalls12e1
++	dsb	nsh
++#endif
++
+ 	/* Load the panic arguments into x0-7 */
+ 	mrs	x0, esr_el2
+-	get_vcpu_ptr x4, x5
+-	mrs	x5, far_el2
+-	mrs	x6, hpfar_el2
+-	mov	x7, xzr			// Unused argument
++	mov	x4, x3
++	mov	x3, x2
++	hyp_pa	x3, x6
++	get_vcpu_ptr x5, x6
++	mrs	x6, far_el2
++	mrs	x7, hpfar_el2
+ 
+ 	/* Enter the host, conditionally restoring the host context. */
+ 	cbz	x29, __host_enter_without_restoring
+-- 
+2.30.2
+
 
 
