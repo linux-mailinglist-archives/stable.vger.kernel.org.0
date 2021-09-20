@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4940A411B33
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:55:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08FA8411FD7
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:44:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343522AbhITQ4a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:56:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45016 "EHLO mail.kernel.org"
+        id S1345812AbhITRqC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:46:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245543AbhITQy3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:54:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 423586124A;
-        Mon, 20 Sep 2021 16:50:32 +0000 (UTC)
+        id S1353192AbhITRoH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:44:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBC9561B96;
+        Mon, 20 Sep 2021 17:09:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156632;
-        bh=lu2N8lO+YpA3RkhdQEW+XnoMKW/iNvXRDhVHiBjvcFs=;
+        s=korg; t=1632157772;
+        bh=nEeG0PuNY9HGJQDDbcpqwuUiiLVyOFTeNieVCtb0RKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ApKgBjXzs2z/MXax6hO5lV1WcDq9xs31H1nNqEY5mqApA6+rSOnUPd0cWAsiGDZ5q
-         IA2MLavgjKDHhHIkwtZ1Bd1l8gteWoqLwjUaGjs8Y+ODEip4gVeyGvlMOZhJ5FDP1r
-         pP9ToqM0/gcDaITu0bvcSvDST5GW32t3Yv8bgLkk=
+        b=d4v08htxxBFzDG4ZoRmV5Mp9kTVsTDsuHWkYNHPyY4ZT3qeWfMFRNvbN/y7QWgwzh
+         hC9OvtbHMDXJ16wj7ndkWmslFyzLIMPaXGGVK0MzRVQtua3tZkU/PitYXEpux3JTsK
+         O6WIbE+BaSoa6SMUeCCRp/y8HayBatdtAP+JxT10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.9 015/175] media: stkwebcam: fix memory leak in stk_camera_probe
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 102/293] net: sched: Fix qdisc_rate_table refcount leak when get tcf_block failed
 Date:   Mon, 20 Sep 2021 18:41:04 +0200
-Message-Id: <20210920163918.565997945@linuxfoundation.org>
+Message-Id: <20210920163936.752445327@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-commit 514e97674400462cc09c459a1ddfb9bf39017223 upstream.
+[ Upstream commit c66070125837900163b81a03063ddd657a7e9bfb ]
 
-My local syzbot instance hit memory leak in usb_set_configuration().
-The problem was in unputted usb interface. In case of errors after
-usb_get_intf() the reference should be putted to correclty free memory
-allocated for this interface.
+The reference counting issue happens in one exception handling path of
+cbq_change_class(). When failing to get tcf_block, the function forgets
+to decrease the refcount of "rtab" increased by qdisc_put_rtab(),
+causing a refcount leak.
 
-Fixes: ec16dae5453e ("V4L/DVB (7019): V4L: add support for Syntek DC1125 webcams")
-Cc: stable@vger.kernel.org
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this issue by jumping to "failure" label when get tcf_block failed.
+
+Fixes: 6529eaba33f0 ("net: sched: introduce tcf block infractructure")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Reviewed-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/r/1630252681-71588-1-git-send-email-xiyuyang19@fudan.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/stkwebcam/stk-webcam.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/sched/sch_cbq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/usb/stkwebcam/stk-webcam.c
-+++ b/drivers/media/usb/stkwebcam/stk-webcam.c
-@@ -1362,7 +1362,7 @@ static int stk_camera_probe(struct usb_i
- 	if (!dev->isoc_ep) {
- 		STK_ERROR("Could not find isoc-in endpoint");
- 		err = -ENODEV;
--		goto error;
-+		goto error_put;
+diff --git a/net/sched/sch_cbq.c b/net/sched/sch_cbq.c
+index ebc3c8c7e666..bc62e1b24653 100644
+--- a/net/sched/sch_cbq.c
++++ b/net/sched/sch_cbq.c
+@@ -1616,7 +1616,7 @@ cbq_change_class(struct Qdisc *sch, u32 classid, u32 parentid, struct nlattr **t
+ 	err = tcf_block_get(&cl->block, &cl->filter_list, sch, extack);
+ 	if (err) {
+ 		kfree(cl);
+-		return err;
++		goto failure;
  	}
- 	dev->vsettings.palette = V4L2_PIX_FMT_RGB565;
- 	dev->vsettings.mode = MODE_VGA;
-@@ -1375,10 +1375,12 @@ static int stk_camera_probe(struct usb_i
  
- 	err = stk_register_video_device(dev);
- 	if (err)
--		goto error;
-+		goto error_put;
- 
- 	return 0;
- 
-+error_put:
-+	usb_put_intf(interface);
- error:
- 	v4l2_ctrl_handler_free(hdl);
- 	v4l2_device_unregister(&dev->v4l2_dev);
+ 	if (tca[TCA_RATE]) {
+-- 
+2.30.2
+
 
 
