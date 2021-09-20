@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C44E411DD1
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:24:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6B71411A8B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:49:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345476AbhITRYG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:24:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48498 "EHLO mail.kernel.org"
+        id S244226AbhITQuY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:50:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349163AbhITRWG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:22:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C114561A63;
-        Mon, 20 Sep 2021 17:01:07 +0000 (UTC)
+        id S244159AbhITQtR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:49:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B52961350;
+        Mon, 20 Sep 2021 16:47:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157268;
-        bh=2vG7DtQbD1gqmqerqzkJ5XkSDU3JxYEJsQMutIDaoXY=;
+        s=korg; t=1632156467;
+        bh=BqJfEM/XX6MFJpZr0x2o099gWdH/DC1TMCSauhMBGhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mZZ9aHrhEwLQBBvxeq5CGMen+KdL3Kl5maW4FFpLonTs8cKpho6jzekpF9N/bGnGp
-         nxnStJAnDxChlmmiXHd7jHn2vDQmfJ1vPTnHGzh8rs84hsyVYw9vfMEUJD5SG8TcoF
-         bICK8Q59cHeZPOy7s/xxVXnA6ayyQQYhPb0BSkqA=
+        b=KIGg+9Jml/zcYfGBCTyOD5eKongBKbduEy7FhxU7lA8iwkx+196ZV+mY/vv9IJWVT
+         5zapy39xF+McGOVibeEQ4aY7tiqGOdthHwOYfdFvZW7mRwifJUndheCeo1ZFGicow2
+         4sCg4AerQe651Bho67h8dXjcx11Gnzcdm8wRmwTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 130/217] media: dib8000: rewrite the init prbs logic
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.4 073/133] PCI/MSI: Skip masking MSI-X on Xen PV
 Date:   Mon, 20 Sep 2021 18:42:31 +0200
-Message-Id: <20210920163929.066074349@linuxfoundation.org>
+Message-Id: <20210920163915.034531162@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,139 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
 
-[ Upstream commit 8db11aebdb8f93f46a8513c22c9bd52fa23263aa ]
+commit 1a519dc7a73c977547d8b5108d98c6e769c89f4b upstream.
 
-The logic at dib8000_get_init_prbs() has a few issues:
+When running as Xen PV guest, masking MSI-X is a responsibility of the
+hypervisor. The guest has no write access to the relevant BAR at all - when
+it tries to, it results in a crash like this:
 
-1. the tables used there has an extra unused value at the beginning;
-2. the dprintk() message doesn't write the right value when
-   transmission mode is not 8K;
-3. the array overflow validation is done by the callers.
+    BUG: unable to handle page fault for address: ffffc9004069100c
+    #PF: supervisor write access in kernel mode
+    #PF: error_code(0x0003) - permissions violation
+    RIP: e030:__pci_enable_msix_range.part.0+0x26b/0x5f0
+     e1000e_set_interrupt_capability+0xbf/0xd0 [e1000e]
+     e1000_probe+0x41f/0xdb0 [e1000e]
+     local_pci_probe+0x42/0x80
+    (...)
 
-Rewrite the code to fix such issues.
+The recently introduced function msix_mask_all() does not check the global
+variable pci_msi_ignore_mask which is set by XEN PV to bypass the masking
+of MSI[-X] interrupts.
 
-This should also shut up those smatch warnings:
+Add the check to make this function XEN PV compatible.
 
-	drivers/media/dvb-frontends/dib8000.c:2125 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_8k' 14 <= 14
-	drivers/media/dvb-frontends/dib8000.c:2129 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_2k' 14 <= 14
-	drivers/media/dvb-frontends/dib8000.c:2131 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_4k' 14 <= 14
-	drivers/media/dvb-frontends/dib8000.c:2134 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_8k' 14 <= 14
-
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7d5ec3d36123 ("PCI/MSI: Mask all unused MSI-X entries")
+Signed-off-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210826170342.135172-1-marmarek@invisiblethingslab.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/dvb-frontends/dib8000.c | 58 +++++++++++++++++++--------
- 1 file changed, 41 insertions(+), 17 deletions(-)
+ drivers/pci/msi.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/dvb-frontends/dib8000.c b/drivers/media/dvb-frontends/dib8000.c
-index 5d9381509b07..59ab01dc62b1 100644
---- a/drivers/media/dvb-frontends/dib8000.c
-+++ b/drivers/media/dvb-frontends/dib8000.c
-@@ -2110,32 +2110,55 @@ static void dib8000_load_ana_fe_coefs(struct dib8000_state *state, const s16 *an
- 			dib8000_write_word(state, 117 + mode, ana_fe[mode]);
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -748,6 +748,9 @@ static void msix_mask_all(void __iomem *
+ 	u32 ctrl = PCI_MSIX_ENTRY_CTRL_MASKBIT;
+ 	int i;
+ 
++	if (pci_msi_ignore_mask)
++		return;
++
+ 	for (i = 0; i < tsize; i++, base += PCI_MSIX_ENTRY_SIZE)
+ 		writel(ctrl, base + PCI_MSIX_ENTRY_VECTOR_CTRL);
  }
- 
--static const u16 lut_prbs_2k[14] = {
--	0, 0x423, 0x009, 0x5C7, 0x7A6, 0x3D8, 0x527, 0x7FF, 0x79B, 0x3D6, 0x3A2, 0x53B, 0x2F4, 0x213
-+static const u16 lut_prbs_2k[13] = {
-+	0x423, 0x009, 0x5C7,
-+	0x7A6, 0x3D8, 0x527,
-+	0x7FF, 0x79B, 0x3D6,
-+	0x3A2, 0x53B, 0x2F4,
-+	0x213
- };
--static const u16 lut_prbs_4k[14] = {
--	0, 0x208, 0x0C3, 0x7B9, 0x423, 0x5C7, 0x3D8, 0x7FF, 0x3D6, 0x53B, 0x213, 0x029, 0x0D0, 0x48E
-+
-+static const u16 lut_prbs_4k[13] = {
-+	0x208, 0x0C3, 0x7B9,
-+	0x423, 0x5C7, 0x3D8,
-+	0x7FF, 0x3D6, 0x53B,
-+	0x213, 0x029, 0x0D0,
-+	0x48E
- };
--static const u16 lut_prbs_8k[14] = {
--	0, 0x740, 0x069, 0x7DD, 0x208, 0x7B9, 0x5C7, 0x7FF, 0x53B, 0x029, 0x48E, 0x4C4, 0x367, 0x684
-+
-+static const u16 lut_prbs_8k[13] = {
-+	0x740, 0x069, 0x7DD,
-+	0x208, 0x7B9, 0x5C7,
-+	0x7FF, 0x53B, 0x029,
-+	0x48E, 0x4C4, 0x367,
-+	0x684
- };
- 
- static u16 dib8000_get_init_prbs(struct dib8000_state *state, u16 subchannel)
- {
- 	int sub_channel_prbs_group = 0;
-+	int prbs_group;
- 
--	sub_channel_prbs_group = (subchannel / 3) + 1;
--	dprintk("sub_channel_prbs_group = %d , subchannel =%d prbs = 0x%04x\n", sub_channel_prbs_group, subchannel, lut_prbs_8k[sub_channel_prbs_group]);
-+	sub_channel_prbs_group = subchannel / 3;
-+	if (sub_channel_prbs_group >= ARRAY_SIZE(lut_prbs_2k))
-+		return 0;
- 
- 	switch (state->fe[0]->dtv_property_cache.transmission_mode) {
- 	case TRANSMISSION_MODE_2K:
--			return lut_prbs_2k[sub_channel_prbs_group];
-+		prbs_group = lut_prbs_2k[sub_channel_prbs_group];
-+		break;
- 	case TRANSMISSION_MODE_4K:
--			return lut_prbs_4k[sub_channel_prbs_group];
-+		prbs_group =  lut_prbs_4k[sub_channel_prbs_group];
-+		break;
- 	default:
- 	case TRANSMISSION_MODE_8K:
--			return lut_prbs_8k[sub_channel_prbs_group];
-+		prbs_group = lut_prbs_8k[sub_channel_prbs_group];
- 	}
-+
-+	dprintk("sub_channel_prbs_group = %d , subchannel =%d prbs = 0x%04x\n",
-+		sub_channel_prbs_group, subchannel, prbs_group);
-+
-+	return prbs_group;
- }
- 
- static void dib8000_set_13seg_channel(struct dib8000_state *state)
-@@ -2412,10 +2435,8 @@ static void dib8000_set_isdbt_common_channel(struct dib8000_state *state, u8 seq
- 	/* TSB or ISDBT ? apply it now */
- 	if (c->isdbt_sb_mode) {
- 		dib8000_set_sb_channel(state);
--		if (c->isdbt_sb_subchannel < 14)
--			init_prbs = dib8000_get_init_prbs(state, c->isdbt_sb_subchannel);
--		else
--			init_prbs = 0;
-+		init_prbs = dib8000_get_init_prbs(state,
-+						  c->isdbt_sb_subchannel);
- 	} else {
- 		dib8000_set_13seg_channel(state);
- 		init_prbs = 0xfff;
-@@ -3007,6 +3028,7 @@ static int dib8000_tune(struct dvb_frontend *fe)
- 
- 	unsigned long *timeout = &state->timeout;
- 	unsigned long now = jiffies;
-+	u16 init_prbs;
- #ifdef DIB8000_AGC_FREEZE
- 	u16 agc1, agc2;
- #endif
-@@ -3305,8 +3327,10 @@ static int dib8000_tune(struct dvb_frontend *fe)
- 		break;
- 
- 	case CT_DEMOD_STEP_11:  /* 41 : init prbs autosearch */
--		if (state->subchannel <= 41) {
--			dib8000_set_subchannel_prbs(state, dib8000_get_init_prbs(state, state->subchannel));
-+		init_prbs = dib8000_get_init_prbs(state, state->subchannel);
-+
-+		if (init_prbs) {
-+			dib8000_set_subchannel_prbs(state, init_prbs);
- 			*tune_state = CT_DEMOD_STEP_9;
- 		} else {
- 			*tune_state = CT_DEMOD_STOP;
--- 
-2.30.2
-
 
 
