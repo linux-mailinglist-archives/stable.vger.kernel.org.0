@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44928411AD2
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:51:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15F30411C66
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:08:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240994AbhITQwi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:52:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38940 "EHLO mail.kernel.org"
+        id S1346774AbhITRJC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:09:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235055AbhITQus (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:50:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1EB661356;
-        Mon, 20 Sep 2021 16:49:11 +0000 (UTC)
+        id S1346366AbhITRHE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:07:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC22B6137A;
+        Mon, 20 Sep 2021 16:55:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156552;
-        bh=wvImG6Kd4LlMY5c/CMhznAAaoKkkYegLJ08YLuKwVOg=;
+        s=korg; t=1632156922;
+        bh=dTsEYmOqiKMEA1kAAcVAf3A056PrnmdV4UpiscEpHoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=np465ygQb6+Rx/j397rOUmoyjSK+mXgxjOEBQxC5LIiCgJFIt01wEpxolQm88WJaI
-         JPWRXo0m/9FfGkFifdd/Z0ziW3WHoH8qH9+BYh7i6FDDCZHhJvG7Pg/2C0a2YnXQXq
-         WyzRvNdzSUMMpPSfgectOygArvFkS//7mVP939RE=
+        b=vBRTpwXZCwiE2ul4JUHRoVTAOrQcfVvfWHbHF/lR5POn78cz41FZ1/OdfbhpJrIF6
+         LwpcyNOZc/T5viiTtkvgJoKWNhFEEBMg6JEMeHcwFT87zTpum670/9OYr3GGSkaFGO
+         2WmoE8deH86gjU5nbfDK4CMFiFEXBzJrwDGVfEV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
         Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 111/133] cifs: fix wrong release in sess_alloc_buffer() failed path
+Subject: [PATCH 4.9 140/175] cifs: fix wrong release in sess_alloc_buffer() failed path
 Date:   Mon, 20 Sep 2021 18:43:09 +0200
-Message-Id: <20210920163916.252755185@linuxfoundation.org>
+Message-Id: <20210920163922.653955899@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,7 +58,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/fs/cifs/sess.c b/fs/cifs/sess.c
-index 9bc7a29f88d6..2d3918cdcc28 100644
+index bb208076cb71..aeec5a896ea6 100644
 --- a/fs/cifs/sess.c
 +++ b/fs/cifs/sess.c
 @@ -602,7 +602,7 @@ sess_alloc_buffer(struct sess_data *sess_data, int wct)
