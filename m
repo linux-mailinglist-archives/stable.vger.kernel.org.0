@@ -2,200 +2,430 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32F17411146
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 10:46:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12BE6411143
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 10:45:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235959AbhITIr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 04:47:26 -0400
-Received: from mout.gmx.net ([212.227.17.21]:53515 "EHLO mout.gmx.net"
+        id S235937AbhITIrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 04:47:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230488AbhITIr0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 04:47:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1632127543;
-        bh=8wHa2v+XCpK+a8HTrvVCY/QP7fUklcA0VYbvY9SaqmE=;
-        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
-        b=ZUEdppxmzyKiaCncqtuTrgbVOMAw8PrnO+/PKqKKB+d4qE+p5cazlJ0UiL2pvLS7+
-         rQ5P8glBnKXZ+ETKQuEXJzvH+Y8E037MWbqX8SlFcHPGt/h9m8B3mjG7uGmTv8kgDI
-         1DwqX7WXlHapEmIiMh/03eMDRohsEUKkYUhrVAT4=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.20.59] ([92.116.139.149]) by mail.gmx.net (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MAOJP-1mZgmC16s7-00BtjF; Mon, 20
- Sep 2021 10:45:43 +0200
-Subject: Re: Patch "parisc: Declare pci_iounmap() parisc version only when
- CONFIG_PCI enabled" has been added to the 4.4-stable tree
-To:     gregkh@linuxfoundation.org, James.Bottomley@hansenpartnership.com,
-        arnd@arndb.de, krypton@ulrich-teichert.org, linux@roeck-us.net,
-        torvalds@linux-foundation.org, stable <stable@vger.kernel.org>
-Cc:     stable-commits@vger.kernel.org
-References: <163212536414258@kroah.com>
-From:   Helge Deller <deller@gmx.de>
-Message-ID: <8b36c2b6-3f5e-2f87-e45f-262d0b93b071@gmx.de>
-Date:   Mon, 20 Sep 2021 10:45:42 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S230053AbhITIrO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 04:47:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E76A60F21;
+        Mon, 20 Sep 2021 08:45:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1632127547;
+        bh=HwzLyE78+aAX1qNkoKMs1pdn4AC+Ahja2nShIP3ejd4=;
+        h=Subject:To:Cc:From:Date:From;
+        b=2pvmSPokApsRDm3cBmdGkyz3Wui2AyFRcYNDvMEkHbKoR3OGRAULf/7T2JZFRz5dV
+         ngskIVRGlAWGltO/s7SIlftieAE7TOGyDMIkDMXWp8eXpmHbQDBHXJ6hMCKRBJUXri
+         s1+kLfQp9peBFi4jEKyfE0gyWlo/tJkzk4rP2uS4=
+Subject: FAILED: patch "[PATCH] bpf, cgroups: Fix cgroup v2 fallback on v1/v2 mixed mode" failed to apply to 5.4-stable tree
+To:     daniel@iogearbox.net, ast@kernel.org, sdf@google.com, tj@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 20 Sep 2021 10:45:45 +0200
+Message-ID: <163212754518251@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <163212536414258@kroah.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:i8OMhYvsToYxEb40YUieYeIgZfJJu3g2ZgkYXiv0mWe4YCLofus
- aG/pBR4ILlhutHd0qxdoGXbDgCnHQFtir/eGR0pTQIxux0TW1UsUcXC014MFpXOhL31zOLa
- BClHDjS7+l25eOsDgSzEYFFyIhuwvKk2BcmCRZdl/t8gaELVzOZQZ3VO6ZtZQILL9KwzzFK
- rc7Xhqps7fXnCthbwoU6w==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:1yiZaWUdhxI=:9Y5yexTjn1ke9Ft8SIknxQ
- reUxep/W+DE7z4k+G/xN4AXiJ9fxcGCn8p+Hw9UraJ7pFJu9St/gqHHVaaktwmp35vcb0txah
- th5MAYDMb9n5iLsqUsowr2yacOwz0imLnnZsIdtCL5MYVxiLeU4GMygMt1E9QNd/ORCXTX/j4
- N91Mm3MN7t93TuQGSzjMLWWesix8/ZoYCUdYAIdFZ5Zn48GJ+Fte36hNzLTFYfZL83XkrCW/W
- xZ9KiOjrJzFcAPz2wIZCcZqizEDNwp07k+NRL15P2CETauezvgIxDcLnHB/MGUe4GnpQeWg7n
- SFuNlhZqxMgjtRv5fhNPNTTwuTmq3EXRqiPiazeKj3LSQk68BtX+ArXKG1/g9D78pBu6/c6Ax
- Y0Sb1vS+NELJGhyhdCAZSC6oNA3PoE16wDZyTy3Mmx+LdCUpNA+lvZw8sYLFTIQLnybKRULtr
- TJK3ffVnAkB4CZgs14df0C/6vUQF05HM9MBS7QU0CFjwbKPyNy84iq7/adIQCTv78jiqZQC89
- swAyfUDlhzrStuCiO68ARRKeUuH/AVcNMXpi/A/U+fbtdOijDbpcnZocljJ+glXd8G1Zfrjqc
- VQ4l4rtt9IVwpkeVDw+Ny/yUtfAqVBDbBUYJ7JCnt5v/9I7RJnnNgQiGtYIp5L55Sb9d0a9eS
- g7N0zzBGhFpd9Z1KPADc4+JLBshKU18PRq+i16kBBNglme2q4rUKbcRVebroCP28PG9K9YCZR
- 8hxuQ9wf1RbIcdt/niKPCrN6iIurnypalIrwrAOWI5g4GHUvl5jhGWiOHPIuURrqr906RSxq1
- yVfUcaAYSI3aLTcotYu+uvQgsJI07zPnUsvwJ9gFwZUGOWHYJGXBMz3ENDVJcQXCMj5ODo5aq
- veBUUbYgW1lkLPO4BYBqg9E5c6BRYHuwhSdkg8vllnzphtvNH1BOKuQ7eDaONNcTY4XpJLQXm
- pF78KSJ3UVrU2HpSXY3sbRdTQWB4fg+QxFHaRp5cYk57ItbzAz8esBLA3Q+/MBo1ygnZYiQ8r
- dMqOREeo6O8EbvVCN19bwjgL4nVI+P3Vam+VTd75oPaSeDytmpsQDPmVoyqUj/zjlAEnl5sjw
- ng2aDvhMhiAEdE=
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/20/21 10:09 AM, gregkh@linuxfoundation.org wrote:
->
-> This is a note to let you know that I've just added the patch titled
->
->      parisc: Declare pci_iounmap() parisc version only when CONFIG_PCI e=
-nabled
->
-> to the 4.4-stable tree which can be found at:
->      http://www.kernel.org/git/?p=3Dlinux/kernel/git/stable/stable-queue=
-.git;a=3Dsummary
->
-> The filename of the patch is:
->       parisc-declare-pci_iounmap-parisc-version-only-when-config_pci-ena=
-bled.patch
-> and it can be found in the queue-4.4 subdirectory.
->
-> If you, or anyone else, feels it should not be added to the stable tree,
-> please let <stable@vger.kernel.org> know about it.
 
-Please don't apply to 4.4 (or any stable tree yet).
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
+thanks,
 
-Helge
+greg k-h
 
+------------------ original commit in Linus's tree ------------------
 
->
->
->  From 9caea0007601d3bc6debec04f8b4cd6f4c2394be Mon Sep 17 00:00:00 2001
-> From: Helge Deller <deller@gmx.de>
-> Date: Sun, 19 Sep 2021 10:36:09 -0700
-> Subject: parisc: Declare pci_iounmap() parisc version only when CONFIG_P=
-CI enabled
->
-> From: Helge Deller <deller@gmx.de>
->
-> commit 9caea0007601d3bc6debec04f8b4cd6f4c2394be upstream.
->
-> Linus noticed odd declaration rules for pci_iounmap() in iomap.h and
-> pci_iomap.h, where it dependend on either NO_GENERIC_PCI_IOPORT_MAP or
-> GENERIC_IOMAP when CONFIG_PCI was disabled.
->
-> Testing on parisc seems to indicate that we need pci_iounmap() only when
-> CONFIG_PCI is enabled, so the declaration of pci_iounmap() can be moved
-> cleanly into pci_iomap.h in sync with the declarations of pci_iomap().
->
-> Link: https://lore.kernel.org/all/CAHk-=3DwjRrh98pZoQ+AzfWmsTZacWxTJKXZ9=
-eKU2X_0+jM=3DO8nw@mail.gmail.com/
-> Signed-off-by: Helge Deller <deller@gmx.de>
-> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Fixes: 97a29d59fc22 ("[PARISC] fix compile break caused by iomap: make I=
-OPORT/PCI mapping functions conditional")
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: Ulrich Teichert <krypton@ulrich-teichert.org>
-> Cc: James Bottomley <James.Bottomley@hansenpartnership.com>
-> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->   arch/parisc/lib/iomap.c         |    4 +++-
->   include/asm-generic/iomap.h     |   10 ----------
->   include/asm-generic/pci_iomap.h |    3 +++
->   3 files changed, 6 insertions(+), 11 deletions(-)
->
-> --- a/arch/parisc/lib/iomap.c
-> +++ b/arch/parisc/lib/iomap.c
-> @@ -436,12 +436,15 @@ void ioport_unmap(void __iomem *addr)
->   	}
->   }
->
-> +#ifdef CONFIG_PCI
->   void pci_iounmap(struct pci_dev *dev, void __iomem * addr)
->   {
->   	if (!INDIRECT_ADDR(addr)) {
->   		iounmap(addr);
->   	}
->   }
-> +EXPORT_SYMBOL(pci_iounmap);
-> +#endif
->
->   EXPORT_SYMBOL(ioread8);
->   EXPORT_SYMBOL(ioread16);
-> @@ -461,4 +464,3 @@ EXPORT_SYMBOL(iowrite16_rep);
->   EXPORT_SYMBOL(iowrite32_rep);
->   EXPORT_SYMBOL(ioport_map);
->   EXPORT_SYMBOL(ioport_unmap);
-> -EXPORT_SYMBOL(pci_iounmap);
-> --- a/include/asm-generic/iomap.h
-> +++ b/include/asm-generic/iomap.h
-> @@ -70,16 +70,6 @@ extern void ioport_unmap(void __iomem *)
->   #define ioremap_wt ioremap_nocache
->   #endif
->
-> -#ifdef CONFIG_PCI
-> -/* Destroy a virtual mapping cookie for a PCI BAR (memory or IO) */
-> -struct pci_dev;
-> -extern void pci_iounmap(struct pci_dev *dev, void __iomem *);
-> -#elif defined(CONFIG_GENERIC_IOMAP)
-> -struct pci_dev;
-> -static inline void pci_iounmap(struct pci_dev *dev, void __iomem *addr)
-> -{ }
-> -#endif
-> -
->   #include <asm-generic/pci_iomap.h>
->
->   #endif
-> --- a/include/asm-generic/pci_iomap.h
-> +++ b/include/asm-generic/pci_iomap.h
-> @@ -22,6 +22,7 @@ extern void __iomem *pci_iomap_range(str
->   extern void __iomem *pci_iomap_wc_range(struct pci_dev *dev, int bar,
->   					unsigned long offset,
->   					unsigned long maxlen);
-> +extern void pci_iounmap(struct pci_dev *dev, void __iomem *);
->   /* Create a virtual mapping cookie for a port on a given PCI device.
->    * Do not call this directly, it exists to make it easier for architec=
-tures
->    * to override */
-> @@ -54,6 +55,8 @@ static inline void __iomem *pci_iomap_wc
->   {
->   	return NULL;
->   }
-> +static inline void pci_iounmap(struct pci_dev *dev, void __iomem *addr)
-> +{ }
->   #endif
->
->   #endif /* __ASM_GENERIC_IO_H */
->
->
-> Patches currently in stable-queue which might be from deller@gmx.de are
->
-> queue-4.4/parisc-declare-pci_iounmap-parisc-version-only-when-config_pci=
--enabled.patch
-> queue-4.4/parisc-fix-crash-with-signals-and-alloca.patch
->
+From 8520e224f547cd070c7c8f97b1fc6d58cff7ccaa Mon Sep 17 00:00:00 2001
+From: Daniel Borkmann <daniel@iogearbox.net>
+Date: Tue, 14 Sep 2021 01:07:57 +0200
+Subject: [PATCH] bpf, cgroups: Fix cgroup v2 fallback on v1/v2 mixed mode
+
+Fix cgroup v1 interference when non-root cgroup v2 BPF programs are used.
+Back in the days, commit bd1060a1d671 ("sock, cgroup: add sock->sk_cgroup")
+embedded per-socket cgroup information into sock->sk_cgrp_data and in order
+to save 8 bytes in struct sock made both mutually exclusive, that is, when
+cgroup v1 socket tagging (e.g. net_cls/net_prio) is used, then cgroup v2
+falls back to the root cgroup in sock_cgroup_ptr() (&cgrp_dfl_root.cgrp).
+
+The assumption made was "there is no reason to mix the two and this is in line
+with how legacy and v2 compatibility is handled" as stated in bd1060a1d671.
+However, with Kubernetes more widely supporting cgroups v2 as well nowadays,
+this assumption no longer holds, and the possibility of the v1/v2 mixed mode
+with the v2 root fallback being hit becomes a real security issue.
+
+Many of the cgroup v2 BPF programs are also used for policy enforcement, just
+to pick _one_ example, that is, to programmatically deny socket related system
+calls like connect(2) or bind(2). A v2 root fallback would implicitly cause
+a policy bypass for the affected Pods.
+
+In production environments, we have recently seen this case due to various
+circumstances: i) a different 3rd party agent and/or ii) a container runtime
+such as [0] in the user's environment configuring legacy cgroup v1 net_cls
+tags, which triggered implicitly mentioned root fallback. Another case is
+Kubernetes projects like kind [1] which create Kubernetes nodes in a container
+and also add cgroup namespaces to the mix, meaning programs which are attached
+to the cgroup v2 root of the cgroup namespace get attached to a non-root
+cgroup v2 path from init namespace point of view. And the latter's root is
+out of reach for agents on a kind Kubernetes node to configure. Meaning, any
+entity on the node setting cgroup v1 net_cls tag will trigger the bypass
+despite cgroup v2 BPF programs attached to the namespace root.
+
+Generally, this mutual exclusiveness does not hold anymore in today's user
+environments and makes cgroup v2 usage from BPF side fragile and unreliable.
+This fix adds proper struct cgroup pointer for the cgroup v2 case to struct
+sock_cgroup_data in order to address these issues; this implicitly also fixes
+the tradeoffs being made back then with regards to races and refcount leaks
+as stated in bd1060a1d671, and removes the fallback, so that cgroup v2 BPF
+programs always operate as expected.
+
+  [0] https://github.com/nestybox/sysbox/
+  [1] https://kind.sigs.k8s.io/
+
+Fixes: bd1060a1d671 ("sock, cgroup: add sock->sk_cgroup")
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Stanislav Fomichev <sdf@google.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/bpf/20210913230759.2313-1-daniel@iogearbox.net
+
+diff --git a/include/linux/cgroup-defs.h b/include/linux/cgroup-defs.h
+index e1c705fdfa7c..db2e147e069f 100644
+--- a/include/linux/cgroup-defs.h
++++ b/include/linux/cgroup-defs.h
+@@ -752,107 +752,54 @@ static inline void cgroup_threadgroup_change_end(struct task_struct *tsk) {}
+  * sock_cgroup_data is embedded at sock->sk_cgrp_data and contains
+  * per-socket cgroup information except for memcg association.
+  *
+- * On legacy hierarchies, net_prio and net_cls controllers directly set
+- * attributes on each sock which can then be tested by the network layer.
+- * On the default hierarchy, each sock is associated with the cgroup it was
+- * created in and the networking layer can match the cgroup directly.
+- *
+- * To avoid carrying all three cgroup related fields separately in sock,
+- * sock_cgroup_data overloads (prioidx, classid) and the cgroup pointer.
+- * On boot, sock_cgroup_data records the cgroup that the sock was created
+- * in so that cgroup2 matches can be made; however, once either net_prio or
+- * net_cls starts being used, the area is overridden to carry prioidx and/or
+- * classid.  The two modes are distinguished by whether the lowest bit is
+- * set.  Clear bit indicates cgroup pointer while set bit prioidx and
+- * classid.
+- *
+- * While userland may start using net_prio or net_cls at any time, once
+- * either is used, cgroup2 matching no longer works.  There is no reason to
+- * mix the two and this is in line with how legacy and v2 compatibility is
+- * handled.  On mode switch, cgroup references which are already being
+- * pointed to by socks may be leaked.  While this can be remedied by adding
+- * synchronization around sock_cgroup_data, given that the number of leaked
+- * cgroups is bound and highly unlikely to be high, this seems to be the
+- * better trade-off.
++ * On legacy hierarchies, net_prio and net_cls controllers directly
++ * set attributes on each sock which can then be tested by the network
++ * layer. On the default hierarchy, each sock is associated with the
++ * cgroup it was created in and the networking layer can match the
++ * cgroup directly.
+  */
+ struct sock_cgroup_data {
+-	union {
+-#ifdef __LITTLE_ENDIAN
+-		struct {
+-			u8	is_data : 1;
+-			u8	no_refcnt : 1;
+-			u8	unused : 6;
+-			u8	padding;
+-			u16	prioidx;
+-			u32	classid;
+-		} __packed;
+-#else
+-		struct {
+-			u32	classid;
+-			u16	prioidx;
+-			u8	padding;
+-			u8	unused : 6;
+-			u8	no_refcnt : 1;
+-			u8	is_data : 1;
+-		} __packed;
++	struct cgroup	*cgroup; /* v2 */
++#ifdef CONFIG_CGROUP_NET_CLASSID
++	u32		classid; /* v1 */
++#endif
++#ifdef CONFIG_CGROUP_NET_PRIO
++	u16		prioidx; /* v1 */
+ #endif
+-		u64		val;
+-	};
+ };
+ 
+-/*
+- * There's a theoretical window where the following accessors race with
+- * updaters and return part of the previous pointer as the prioidx or
+- * classid.  Such races are short-lived and the result isn't critical.
+- */
+ static inline u16 sock_cgroup_prioidx(const struct sock_cgroup_data *skcd)
+ {
+-	/* fallback to 1 which is always the ID of the root cgroup */
+-	return (skcd->is_data & 1) ? skcd->prioidx : 1;
++#ifdef CONFIG_CGROUP_NET_PRIO
++	return READ_ONCE(skcd->prioidx);
++#else
++	return 1;
++#endif
+ }
+ 
+ static inline u32 sock_cgroup_classid(const struct sock_cgroup_data *skcd)
+ {
+-	/* fallback to 0 which is the unconfigured default classid */
+-	return (skcd->is_data & 1) ? skcd->classid : 0;
++#ifdef CONFIG_CGROUP_NET_CLASSID
++	return READ_ONCE(skcd->classid);
++#else
++	return 0;
++#endif
+ }
+ 
+-/*
+- * If invoked concurrently, the updaters may clobber each other.  The
+- * caller is responsible for synchronization.
+- */
+ static inline void sock_cgroup_set_prioidx(struct sock_cgroup_data *skcd,
+ 					   u16 prioidx)
+ {
+-	struct sock_cgroup_data skcd_buf = {{ .val = READ_ONCE(skcd->val) }};
+-
+-	if (sock_cgroup_prioidx(&skcd_buf) == prioidx)
+-		return;
+-
+-	if (!(skcd_buf.is_data & 1)) {
+-		skcd_buf.val = 0;
+-		skcd_buf.is_data = 1;
+-	}
+-
+-	skcd_buf.prioidx = prioidx;
+-	WRITE_ONCE(skcd->val, skcd_buf.val);	/* see sock_cgroup_ptr() */
++#ifdef CONFIG_CGROUP_NET_PRIO
++	WRITE_ONCE(skcd->prioidx, prioidx);
++#endif
+ }
+ 
+ static inline void sock_cgroup_set_classid(struct sock_cgroup_data *skcd,
+ 					   u32 classid)
+ {
+-	struct sock_cgroup_data skcd_buf = {{ .val = READ_ONCE(skcd->val) }};
+-
+-	if (sock_cgroup_classid(&skcd_buf) == classid)
+-		return;
+-
+-	if (!(skcd_buf.is_data & 1)) {
+-		skcd_buf.val = 0;
+-		skcd_buf.is_data = 1;
+-	}
+-
+-	skcd_buf.classid = classid;
+-	WRITE_ONCE(skcd->val, skcd_buf.val);	/* see sock_cgroup_ptr() */
++#ifdef CONFIG_CGROUP_NET_CLASSID
++	WRITE_ONCE(skcd->classid, classid);
++#endif
+ }
+ 
+ #else	/* CONFIG_SOCK_CGROUP_DATA */
+diff --git a/include/linux/cgroup.h b/include/linux/cgroup.h
+index 7bf60454a313..75c151413fda 100644
+--- a/include/linux/cgroup.h
++++ b/include/linux/cgroup.h
+@@ -829,33 +829,13 @@ static inline void cgroup_account_cputime_field(struct task_struct *task,
+  */
+ #ifdef CONFIG_SOCK_CGROUP_DATA
+ 
+-#if defined(CONFIG_CGROUP_NET_PRIO) || defined(CONFIG_CGROUP_NET_CLASSID)
+-extern spinlock_t cgroup_sk_update_lock;
+-#endif
+-
+-void cgroup_sk_alloc_disable(void);
+ void cgroup_sk_alloc(struct sock_cgroup_data *skcd);
+ void cgroup_sk_clone(struct sock_cgroup_data *skcd);
+ void cgroup_sk_free(struct sock_cgroup_data *skcd);
+ 
+ static inline struct cgroup *sock_cgroup_ptr(struct sock_cgroup_data *skcd)
+ {
+-#if defined(CONFIG_CGROUP_NET_PRIO) || defined(CONFIG_CGROUP_NET_CLASSID)
+-	unsigned long v;
+-
+-	/*
+-	 * @skcd->val is 64bit but the following is safe on 32bit too as we
+-	 * just need the lower ulong to be written and read atomically.
+-	 */
+-	v = READ_ONCE(skcd->val);
+-
+-	if (v & 3)
+-		return &cgrp_dfl_root.cgrp;
+-
+-	return (struct cgroup *)(unsigned long)v ?: &cgrp_dfl_root.cgrp;
+-#else
+-	return (struct cgroup *)(unsigned long)skcd->val;
+-#endif
++	return skcd->cgroup;
+ }
+ 
+ #else	/* CONFIG_CGROUP_DATA */
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index 881ce1470beb..8afa8690d288 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -6572,74 +6572,44 @@ int cgroup_parse_float(const char *input, unsigned dec_shift, s64 *v)
+  */
+ #ifdef CONFIG_SOCK_CGROUP_DATA
+ 
+-#if defined(CONFIG_CGROUP_NET_PRIO) || defined(CONFIG_CGROUP_NET_CLASSID)
+-
+-DEFINE_SPINLOCK(cgroup_sk_update_lock);
+-static bool cgroup_sk_alloc_disabled __read_mostly;
+-
+-void cgroup_sk_alloc_disable(void)
+-{
+-	if (cgroup_sk_alloc_disabled)
+-		return;
+-	pr_info("cgroup: disabling cgroup2 socket matching due to net_prio or net_cls activation\n");
+-	cgroup_sk_alloc_disabled = true;
+-}
+-
+-#else
+-
+-#define cgroup_sk_alloc_disabled	false
+-
+-#endif
+-
+ void cgroup_sk_alloc(struct sock_cgroup_data *skcd)
+ {
+-	if (cgroup_sk_alloc_disabled) {
+-		skcd->no_refcnt = 1;
+-		return;
+-	}
+-
+ 	/* Don't associate the sock with unrelated interrupted task's cgroup. */
+ 	if (in_interrupt())
+ 		return;
+ 
+ 	rcu_read_lock();
+-
+ 	while (true) {
+ 		struct css_set *cset;
+ 
+ 		cset = task_css_set(current);
+ 		if (likely(cgroup_tryget(cset->dfl_cgrp))) {
+-			skcd->val = (unsigned long)cset->dfl_cgrp;
++			skcd->cgroup = cset->dfl_cgrp;
+ 			cgroup_bpf_get(cset->dfl_cgrp);
+ 			break;
+ 		}
+ 		cpu_relax();
+ 	}
+-
+ 	rcu_read_unlock();
+ }
+ 
+ void cgroup_sk_clone(struct sock_cgroup_data *skcd)
+ {
+-	if (skcd->val) {
+-		if (skcd->no_refcnt)
+-			return;
+-		/*
+-		 * We might be cloning a socket which is left in an empty
+-		 * cgroup and the cgroup might have already been rmdir'd.
+-		 * Don't use cgroup_get_live().
+-		 */
+-		cgroup_get(sock_cgroup_ptr(skcd));
+-		cgroup_bpf_get(sock_cgroup_ptr(skcd));
+-	}
++	struct cgroup *cgrp = sock_cgroup_ptr(skcd);
++
++	/*
++	 * We might be cloning a socket which is left in an empty
++	 * cgroup and the cgroup might have already been rmdir'd.
++	 * Don't use cgroup_get_live().
++	 */
++	cgroup_get(cgrp);
++	cgroup_bpf_get(cgrp);
+ }
+ 
+ void cgroup_sk_free(struct sock_cgroup_data *skcd)
+ {
+ 	struct cgroup *cgrp = sock_cgroup_ptr(skcd);
+ 
+-	if (skcd->no_refcnt)
+-		return;
+ 	cgroup_bpf_put(cgrp);
+ 	cgroup_put(cgrp);
+ }
+diff --git a/net/core/netclassid_cgroup.c b/net/core/netclassid_cgroup.c
+index b49c57d35a88..1a6a86693b74 100644
+--- a/net/core/netclassid_cgroup.c
++++ b/net/core/netclassid_cgroup.c
+@@ -71,11 +71,8 @@ static int update_classid_sock(const void *v, struct file *file, unsigned n)
+ 	struct update_classid_context *ctx = (void *)v;
+ 	struct socket *sock = sock_from_file(file);
+ 
+-	if (sock) {
+-		spin_lock(&cgroup_sk_update_lock);
++	if (sock)
+ 		sock_cgroup_set_classid(&sock->sk->sk_cgrp_data, ctx->classid);
+-		spin_unlock(&cgroup_sk_update_lock);
+-	}
+ 	if (--ctx->batch == 0) {
+ 		ctx->batch = UPDATE_CLASSID_BATCH;
+ 		return n + 1;
+@@ -121,8 +118,6 @@ static int write_classid(struct cgroup_subsys_state *css, struct cftype *cft,
+ 	struct css_task_iter it;
+ 	struct task_struct *p;
+ 
+-	cgroup_sk_alloc_disable();
+-
+ 	cs->classid = (u32)value;
+ 
+ 	css_task_iter_start(css, 0, &it);
+diff --git a/net/core/netprio_cgroup.c b/net/core/netprio_cgroup.c
+index 99a431c56f23..8456dfbe2eb4 100644
+--- a/net/core/netprio_cgroup.c
++++ b/net/core/netprio_cgroup.c
+@@ -207,8 +207,6 @@ static ssize_t write_priomap(struct kernfs_open_file *of,
+ 	if (!dev)
+ 		return -ENODEV;
+ 
+-	cgroup_sk_alloc_disable();
+-
+ 	rtnl_lock();
+ 
+ 	ret = netprio_set_prio(of_css(of), dev, prio);
+@@ -221,12 +219,10 @@ static ssize_t write_priomap(struct kernfs_open_file *of,
+ static int update_netprio(const void *v, struct file *file, unsigned n)
+ {
+ 	struct socket *sock = sock_from_file(file);
+-	if (sock) {
+-		spin_lock(&cgroup_sk_update_lock);
++
++	if (sock)
+ 		sock_cgroup_set_prioidx(&sock->sk->sk_cgrp_data,
+ 					(unsigned long)v);
+-		spin_unlock(&cgroup_sk_update_lock);
+-	}
+ 	return 0;
+ }
+ 
+@@ -235,8 +231,6 @@ static void net_prio_attach(struct cgroup_taskset *tset)
+ 	struct task_struct *p;
+ 	struct cgroup_subsys_state *css;
+ 
+-	cgroup_sk_alloc_disable();
+-
+ 	cgroup_taskset_for_each(p, css, tset) {
+ 		void *v = (void *)(unsigned long)css->id;
+ 
 
