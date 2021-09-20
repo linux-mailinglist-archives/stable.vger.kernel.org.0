@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86AEA412029
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:51:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E369411A69
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:48:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345305AbhITRw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:52:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53088 "EHLO mail.kernel.org"
+        id S243849AbhITQtm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:49:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353844AbhITRrW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:47:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDE2861B98;
-        Mon, 20 Sep 2021 17:10:54 +0000 (UTC)
+        id S243741AbhITQtJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:49:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 02ADE611C2;
+        Mon, 20 Sep 2021 16:47:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157855;
-        bh=7ogRByi+HrVU9OAaW3OXKVjyZ76yXdlPY3Ky+LKYRHY=;
+        s=korg; t=1632156454;
+        bh=U2G66wHkSnzos6TmSUlb2QhEacu1eOLCfYlAOvpLa5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bk5zdBWUosetAUQIGVJBfWtEFOjv1IAvkTlpwFwobFbW4HStWi3BbWBuuzA36mLSb
-         WBIteP1Zn8WoiURoBEZEIYo8rt1f8hsus2ghPMQTn4vkl+fdtsc67jHcj1vE9ehWRS
-         ePIUBMkpuBzpdpCeUM54DZlP+mQF6M4/qLRXP/48=
+        b=qrm37yhaifgBparslzG1fefZrM+zWmFNgN/5KnPdDoKygbsJe+uW0JIkF+uCP54U/
+         kOP+6kCEdjamPyGvLpuvM5Jfbamc4zMUbOc3TtPKde146olZJlmtcai+rp5tYuXywB
+         hXP0DQMLQT9m3PdFByAXrWo7O61h76uTOJWBuuQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brooke Basile <brookebasile@gmail.com>,
-        "Bryan ODonoghue" <bryan.odonoghue@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        Lorenzo Colitti <lorenzo@google.com>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Keyu Man <kman001@ucr.edu>, Willy Tarreau <w@1wt.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        David Ahern <dsahern@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 183/293] usb: gadget: u_ether: fix a potential null pointer dereference
+Subject: [PATCH 4.4 067/133] ipv4: make exception cache less predictible
 Date:   Mon, 20 Sep 2021 18:42:25 +0200
-Message-Id: <20210920163939.538394252@linuxfoundation.org>
+Message-Id: <20210920163914.839570252@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +42,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 8ae01239609b29ec2eff55967c8e0fe3650cfa09 ]
+[ Upstream commit 67d6d681e15b578c1725bad8ad079e05d1c48a8e ]
 
-f_ncm tx timeout can call us with null skb to flush
-a pending frame.  In this case skb is NULL to begin
-with but ceases to be null after dev->wrap() completes.
+Even after commit 6457378fe796 ("ipv4: use siphash instead of Jenkins in
+fnhe_hashfun()"), an attacker can still use brute force to learn
+some secrets from a victim linux host.
 
-In such a case in->maxpacket will be read, even though
-we've failed to check that 'in' is not NULL.
+One way to defeat these attacks is to make the max depth of the hash
+table bucket a random value.
 
-Though I've never observed this fail in practice,
-however the 'flush operation' simply does not make sense with
-a null usb IN endpoint - there's nowhere to flush to...
-(note that we're the gadget/device, and IN is from the point
- of view of the host, so here IN actually means outbound...)
+Before this patch, each bucket of the hash table used to store exceptions
+could contain 6 items under attack.
 
-Cc: Brooke Basile <brookebasile@gmail.com>
-Cc: "Bryan O'Donoghue" <bryan.odonoghue@linaro.org>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Lorenzo Colitti <lorenzo@google.com>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Link: https://lore.kernel.org/r/20210701114834.884597-6-zenczykowski@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+After the patch, each bucket would contains a random number of items,
+between 6 and 10. The attacker can no longer infer secrets.
+
+This is slightly increasing memory size used by the hash table,
+by 50% in average, we do not expect this to be a problem.
+
+This patch is more complex than the prior one (IPv6 equivalent),
+because IPv4 was reusing the oldest entry.
+Since we need to be able to evict more than one entry per
+update_or_create_fnhe() call, I had to replace
+fnhe_oldest() with fnhe_remove_oldest().
+
+Also note that we will queue extra kfree_rcu() calls under stress,
+which hopefully wont be a too big issue.
+
+Fixes: 4895c771c7f0 ("ipv4: Add FIB nexthop exceptions.")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Keyu Man <kman001@ucr.edu>
+Cc: Willy Tarreau <w@1wt.eu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Tested-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/u_ether.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/ipv4/route.c | 46 ++++++++++++++++++++++++++++++----------------
+ 1 file changed, 30 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
-index 156651df6b4d..d7a12161e553 100644
---- a/drivers/usb/gadget/function/u_ether.c
-+++ b/drivers/usb/gadget/function/u_ether.c
-@@ -491,8 +491,9 @@ static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index 2ab2289d97a0..ed6483181676 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -597,18 +597,25 @@ static void fnhe_flush_routes(struct fib_nh_exception *fnhe)
  	}
- 	spin_unlock_irqrestore(&dev->lock, flags);
+ }
  
--	if (skb && !in) {
--		dev_kfree_skb_any(skb);
-+	if (!in) {
-+		if (skb)
-+			dev_kfree_skb_any(skb);
- 		return NETDEV_TX_OK;
+-static struct fib_nh_exception *fnhe_oldest(struct fnhe_hash_bucket *hash)
++static void fnhe_remove_oldest(struct fnhe_hash_bucket *hash)
+ {
+-	struct fib_nh_exception *fnhe, *oldest;
++	struct fib_nh_exception __rcu **fnhe_p, **oldest_p;
++	struct fib_nh_exception *fnhe, *oldest = NULL;
+ 
+-	oldest = rcu_dereference(hash->chain);
+-	for (fnhe = rcu_dereference(oldest->fnhe_next); fnhe;
+-	     fnhe = rcu_dereference(fnhe->fnhe_next)) {
+-		if (time_before(fnhe->fnhe_stamp, oldest->fnhe_stamp))
++	for (fnhe_p = &hash->chain; ; fnhe_p = &fnhe->fnhe_next) {
++		fnhe = rcu_dereference_protected(*fnhe_p,
++						 lockdep_is_held(&fnhe_lock));
++		if (!fnhe)
++			break;
++		if (!oldest ||
++		    time_before(fnhe->fnhe_stamp, oldest->fnhe_stamp)) {
+ 			oldest = fnhe;
++			oldest_p = fnhe_p;
++		}
  	}
+ 	fnhe_flush_routes(oldest);
+-	return oldest;
++	*oldest_p = oldest->fnhe_next;
++	kfree_rcu(oldest, rcu);
+ }
  
+ static inline u32 fnhe_hashfun(__be32 daddr)
+@@ -685,16 +692,21 @@ static void update_or_create_fnhe(struct fib_nh *nh, __be32 daddr, __be32 gw,
+ 		if (rt)
+ 			fill_route_from_fnhe(rt, fnhe);
+ 	} else {
+-		if (depth > FNHE_RECLAIM_DEPTH)
+-			fnhe = fnhe_oldest(hash);
+-		else {
+-			fnhe = kzalloc(sizeof(*fnhe), GFP_ATOMIC);
+-			if (!fnhe)
+-				goto out_unlock;
+-
+-			fnhe->fnhe_next = hash->chain;
+-			rcu_assign_pointer(hash->chain, fnhe);
++		/* Randomize max depth to avoid some side channels attacks. */
++		int max_depth = FNHE_RECLAIM_DEPTH +
++				prandom_u32_max(FNHE_RECLAIM_DEPTH);
++
++		while (depth > max_depth) {
++			fnhe_remove_oldest(hash);
++			depth--;
+ 		}
++
++		fnhe = kzalloc(sizeof(*fnhe), GFP_ATOMIC);
++		if (!fnhe)
++			goto out_unlock;
++
++		fnhe->fnhe_next = hash->chain;
++
+ 		fnhe->fnhe_genid = genid;
+ 		fnhe->fnhe_daddr = daddr;
+ 		fnhe->fnhe_gw = gw;
+@@ -702,6 +714,8 @@ static void update_or_create_fnhe(struct fib_nh *nh, __be32 daddr, __be32 gw,
+ 		fnhe->fnhe_mtu_locked = lock;
+ 		fnhe->fnhe_expires = expires;
+ 
++		rcu_assign_pointer(hash->chain, fnhe);
++
+ 		/* Exception created; mark the cached routes for the nexthop
+ 		 * stale, so anyone caching it rechecks if this exception
+ 		 * applies to them.
 -- 
 2.30.2
 
