@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA445411F70
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:39:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C304411D26
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:15:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348182AbhITRlV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:41:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42456 "EHLO mail.kernel.org"
+        id S1347610AbhITRQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:16:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352382AbhITRjQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:39:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70D566138D;
-        Mon, 20 Sep 2021 17:07:45 +0000 (UTC)
+        id S1347709AbhITROe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:14:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6270C6121E;
+        Mon, 20 Sep 2021 16:58:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157665;
-        bh=YHvBBEJO2TLMAOWyIBpwxVBAY3nEi6MMKL98naqdXc0=;
+        s=korg; t=1632157100;
+        bh=Ci8KDVpMEADlOHkWurzHkcZelu3nh3AyxqYz6cz8V/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ABQ3qm8QSRBhjbtDLVfagZ53mXggwwGJ+bQASA+aGs/V2E5h/dXuFhyMVePvMLZst
-         LqKT5TBQkN5qNbX1aFvfJ67GVDF+fSWsKGVbAJOO4H4u+tf/11dOVlTEo6WFQnOiBK
-         T0kAmg1v/cYGUaz1Pki13H1J7BrzXLb1zFKTFTZM=
+        b=igABBwS50xhzj5Xp408Ii05tAmpcWaVydUBq+h2V+zCxbsx84Dxu1QrV4eiq3nFD2
+         3LYN5zb0CLHOmpO3o0nbLTSTofwHgUaHyaZy9NU5XNGZ29+LP5Ff9z7sKhk8K6yKGY
+         y4/RadqyB4IevxPifPSf1IVH3KNnQhcGLv45etaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        Qii Wang <qii.wang@mediatek.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 095/293] i2c: mt65xx: fix IRQ check
+        stable@vger.kernel.org,
+        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 036/217] power: supply: max17042_battery: fix typo in MAx17042_TOFF
 Date:   Mon, 20 Sep 2021 18:40:57 +0200
-Message-Id: <20210920163936.518869581@linuxfoundation.org>
+Message-Id: <20210920163925.852107955@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
 
-[ Upstream commit 58fb7c643d346e2364404554f531cfa6a1a3917c ]
+[ Upstream commit ed0d0a0506025f06061325cedae1bbebd081620a ]
 
-Iff platform_get_irq() returns 0, the driver's probe() method will return 0
-early (as if the method's call was successful).  Let's consider IRQ0 valid
-for simplicity -- devm_request_irq() can always override that decision...
-
-Fixes: ce38815d39ea ("I2C: mediatek: Add driver for MediaTek I2C controller")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Reviewed-by: Qii Wang <qii.wang@mediatek.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-mt65xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/power/supply/max17042_battery.c | 2 +-
+ include/linux/power/max17042_battery.h  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 2bb4d20ead32..e09b065a6aff 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -804,7 +804,7 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 		return PTR_ERR(i2c->pdmabase);
+diff --git a/drivers/power/supply/max17042_battery.c b/drivers/power/supply/max17042_battery.c
+index 911d42366ef1..e824ab19318a 100644
+--- a/drivers/power/supply/max17042_battery.c
++++ b/drivers/power/supply/max17042_battery.c
+@@ -717,7 +717,7 @@ static inline void max17042_override_por_values(struct max17042_chip *chip)
+ 	struct max17042_config_data *config = chip->pdata->config_data;
  
- 	irq = platform_get_irq(pdev, 0);
--	if (irq <= 0)
-+	if (irq < 0)
- 		return irq;
+ 	max17042_override_por(map, MAX17042_TGAIN, config->tgain);
+-	max17042_override_por(map, MAx17042_TOFF, config->toff);
++	max17042_override_por(map, MAX17042_TOFF, config->toff);
+ 	max17042_override_por(map, MAX17042_CGAIN, config->cgain);
+ 	max17042_override_por(map, MAX17042_COFF, config->coff);
  
- 	init_completion(&i2c->msg_complete);
+diff --git a/include/linux/power/max17042_battery.h b/include/linux/power/max17042_battery.h
+index a7ed29baf44a..86e5ad8aeee4 100644
+--- a/include/linux/power/max17042_battery.h
++++ b/include/linux/power/max17042_battery.h
+@@ -82,7 +82,7 @@ enum max17042_register {
+ 	MAX17042_RelaxCFG	= 0x2A,
+ 	MAX17042_MiscCFG	= 0x2B,
+ 	MAX17042_TGAIN		= 0x2C,
+-	MAx17042_TOFF		= 0x2D,
++	MAX17042_TOFF		= 0x2D,
+ 	MAX17042_CGAIN		= 0x2E,
+ 	MAX17042_COFF		= 0x2F,
+ 
 -- 
 2.30.2
 
