@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D979410FD7
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 09:07:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F072410FD8
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 09:08:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233446AbhITHJS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 03:09:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47714 "EHLO mail.kernel.org"
+        id S233338AbhITHKE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 03:10:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233338AbhITHJR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 03:09:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F143E60F0F;
-        Mon, 20 Sep 2021 07:07:50 +0000 (UTC)
+        id S230151AbhITHKD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 03:10:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A5DDD60F0F;
+        Mon, 20 Sep 2021 07:08:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632121671;
-        bh=X0YWgM8DDE7ZPXczFL4Avjsjdf8b/oEO1NCRs0+zWTQ=;
+        s=korg; t=1632121717;
+        bh=KOdQxMciwA062eLY63XUSwymnbFDH1bDgts0LPh+Lw0=;
         h=Subject:To:Cc:From:Date:From;
-        b=Si/T/dq9jc8GM6m/L7aQ+i5nQ/VANb+kqh0D364rL7/rylS5759SpNvEz3hR0wbq6
-         9ZnxKKtFv+zj1pa0ttST7vHLZ7dCVFT9KddskgdPdLQpD8g1lGc3SmizpTc5kJB5Ay
-         4Osu9T5TIFnwvwH4uAfiE7WlItiDJTFzNxvPuJ0M=
-Subject: FAILED: patch "[PATCH] x86/pat: Pass valid address to sanitize_phys()" failed to apply to 4.19-stable tree
-To:     jmoyer@redhat.com, dan.j.williams@intel.com, david@redhat.com,
-        tglx@linutronix.de
+        b=LBFfVNhb/60Dcs0VlK31kfKfs8Yfh6mmrDTvg4babbafDdeZdMMOHeAMspjhrmcbT
+         XcmDR7NG91CX+7QOMg7sZPjbvSj8URAOoI32yK2fapW7824EKp2PDUCtA+f+qNgGVP
+         aWgA6TR5mhiiNZqptdm0jsumGa85xDvrv64S+kgY=
+Subject: FAILED: patch "[PATCH] x86/mm: Fix kern_addr_valid() to cope with existing but not" failed to apply to 4.4-stable tree
+To:     rppt@linux.ibm.com, bp@suse.de, dave.hansen@intel.com,
+        david@redhat.com, jolsa@redhat.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Sep 2021 09:07:41 +0200
-Message-ID: <1632121661121120@kroah.com>
+Date:   Mon, 20 Sep 2021 09:08:35 +0200
+Message-ID: <163212171511930@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -46,55 +46,114 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From aeef8b5089b76852bd84889f2809e69a7cfb414e Mon Sep 17 00:00:00 2001
-From: Jeff Moyer <jmoyer@redhat.com>
-Date: Wed, 11 Aug 2021 17:07:37 -0400
-Subject: [PATCH] x86/pat: Pass valid address to sanitize_phys()
+From 34b1999da935a33be6239226bfa6cd4f704c5c88 Mon Sep 17 00:00:00 2001
+From: Mike Rapoport <rppt@linux.ibm.com>
+Date: Thu, 19 Aug 2021 16:27:17 +0300
+Subject: [PATCH] x86/mm: Fix kern_addr_valid() to cope with existing but not
+ present entries
 
-The end address passed to memtype_reserve() is handed directly to
-sanitize_phys().  However, end is exclusive and sanitize_phys() expects
-an inclusive address.  If end falls at the end of the physical address
-space, sanitize_phys() will return 0.  This can result in drivers
-failing to load, and the following warning:
+Jiri Olsa reported a fault when running:
 
- WARNING: CPU: 26 PID: 749 at arch/x86/mm/pat.c:354 reserve_memtype+0x262/0x450
- reserve_memtype failed: [mem 0x3ffffff00000-0xffffffffffffffff], req uncached-minus
- Call Trace:
-  [<ffffffffa427b1f2>] reserve_memtype+0x262/0x450
-  [<ffffffffa42764aa>] ioremap_nocache+0x1a/0x20
-  [<ffffffffc04620a1>] mpt3sas_base_map_resources+0x151/0xa60 [mpt3sas]
-  [<ffffffffc0465555>] mpt3sas_base_attach+0xf5/0xa50 [mpt3sas]
- ---[ end trace 6d6eea4438db89ef ]---
- ioremap reserve_memtype failed -22
- mpt3sas_cm0: unable to map adapter memory! or resource not found
- mpt3sas_cm0: failure at drivers/scsi/mpt3sas/mpt3sas_scsih.c:10597/_scsih_probe()!
+  # cat /proc/kallsyms | grep ksys_read
+  ffffffff8136d580 T ksys_read
+  # objdump -d --start-address=0xffffffff8136d580 --stop-address=0xffffffff8136d590 /proc/kcore
 
-Fix this by passing the inclusive end address to sanitize_phys().
+  /proc/kcore:     file format elf64-x86-64
 
-Fixes: 510ee090abc3 ("x86/mm/pat: Prepare {reserve, free}_memtype() for "decoy" addresses")
-Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+  Segmentation fault
+
+  general protection fault, probably for non-canonical address 0xf887ffcbff000: 0000 [#1] SMP PTI
+  CPU: 12 PID: 1079 Comm: objdump Not tainted 5.14.0-rc5qemu+ #508
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-4.fc34 04/01/2014
+  RIP: 0010:kern_addr_valid
+  Call Trace:
+   read_kcore
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? trace_hardirqs_on
+   ? rcu_read_lock_sched_held
+   ? lock_acquire
+   ? lock_acquire
+   ? rcu_read_lock_sched_held
+   ? lock_acquire
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? lock_release
+   ? _raw_spin_unlock
+   ? __handle_mm_fault
+   ? rcu_read_lock_sched_held
+   ? lock_acquire
+   ? rcu_read_lock_sched_held
+   ? lock_release
+   proc_reg_read
+   ? vfs_read
+   vfs_read
+   ksys_read
+   do_syscall_64
+   entry_SYSCALL_64_after_hwframe
+
+The fault happens because kern_addr_valid() dereferences existent but not
+present PMD in the high kernel mappings.
+
+Such PMDs are created when free_kernel_image_pages() frees regions larger
+than 2Mb. In this case, a part of the freed memory is mapped with PMDs and
+the set_memory_np_noalias() -> ... -> __change_page_attr() sequence will
+mark the PMD as not present rather than wipe it completely.
+
+Have kern_addr_valid() check whether higher level page table entries are
+present before trying to dereference them to fix this issue and to avoid
+similar issues in the future.
+
+Stable backporting note:
+------------------------
+
+Note that the stable marking is for all active stable branches because
+there could be cases where pagetable entries exist but are not valid -
+see 9a14aefc1d28 ("x86: cpa, fix lookup_address"), for example. So make
+sure to be on the safe side here and use pXY_present() accessors rather
+than pXY_none() which could #GP when accessing pages in the direct map.
+
+Also see:
+
+  c40a56a7818c ("x86/mm/init: Remove freed kernel image areas from alias mapping")
+
+for more info.
+
+Reported-by: Jiri Olsa <jolsa@redhat.com>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/x49o8a3pu5i.fsf@segfault.boston.devel.redhat.com
+Acked-by: Dave Hansen <dave.hansen@intel.com>
+Tested-by: Jiri Olsa <jolsa@redhat.com>
+Cc: <stable@vger.kernel.org>	# 4.4+
+Link: https://lkml.kernel.org/r/20210819132717.19358-1-rppt@kernel.org
 
-diff --git a/arch/x86/mm/pat/memtype.c b/arch/x86/mm/pat/memtype.c
-index 3112ca7786ed..4ba2a3ee4bce 100644
---- a/arch/x86/mm/pat/memtype.c
-+++ b/arch/x86/mm/pat/memtype.c
-@@ -583,7 +583,12 @@ int memtype_reserve(u64 start, u64 end, enum page_cache_mode req_type,
- 	int err = 0;
+diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
+index ddeaba947eb3..879886c6cc53 100644
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -1433,18 +1433,18 @@ int kern_addr_valid(unsigned long addr)
+ 		return 0;
  
- 	start = sanitize_phys(start);
--	end = sanitize_phys(end);
-+
-+	/*
-+	 * The end address passed into this function is exclusive, but
-+	 * sanitize_phys() expects an inclusive address.
-+	 */
-+	end = sanitize_phys(end - 1) + 1;
- 	if (start >= end) {
- 		WARN(1, "%s failed: [mem %#010Lx-%#010Lx], req %s\n", __func__,
- 				start, end - 1, cattr_name(req_type));
+ 	p4d = p4d_offset(pgd, addr);
+-	if (p4d_none(*p4d))
++	if (!p4d_present(*p4d))
+ 		return 0;
+ 
+ 	pud = pud_offset(p4d, addr);
+-	if (pud_none(*pud))
++	if (!pud_present(*pud))
+ 		return 0;
+ 
+ 	if (pud_large(*pud))
+ 		return pfn_valid(pud_pfn(*pud));
+ 
+ 	pmd = pmd_offset(pud, addr);
+-	if (pmd_none(*pmd))
++	if (!pmd_present(*pmd))
+ 		return 0;
+ 
+ 	if (pmd_large(*pmd))
 
