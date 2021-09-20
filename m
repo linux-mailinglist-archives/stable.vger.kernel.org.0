@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42D6841114B
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 10:46:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EA2C41115D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 10:51:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235970AbhITIrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 04:47:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46112 "EHLO mail.kernel.org"
+        id S231562AbhITIxG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 04:53:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235979AbhITIrp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 04:47:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA75260F6D;
-        Mon, 20 Sep 2021 08:46:18 +0000 (UTC)
+        id S229844AbhITIxG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 04:53:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A82F260F36;
+        Mon, 20 Sep 2021 08:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632127579;
-        bh=pfWYESGV59PjkVCHXSqzyuv93dZQHadSS63kxMYnah4=;
+        s=korg; t=1632127900;
+        bh=Wimu3aDAfpXulUu7FCaINVnjuD3eGRAK/fm0kjEYw00=;
         h=Subject:To:Cc:From:Date:From;
-        b=CFGUrEGWq0YsOg8wFFnyD5QWDprN9cox5rQXodln8VdbaENhGHmZSdMSikeknaBS+
-         7nryj98PuUtkj/hWWO8ovuttj7zMFFeiOpWEJ3q0aGMT+rhb0gbJ5iUDy6oKOmn864
-         rdLJROPBMLleE46NemfQX1LotqJPn4x7uXBX4UNs=
-Subject: FAILED: patch "[PATCH] bpf, cgroups: Fix cgroup v2 fallback on v1/v2 mixed mode" failed to apply to 4.9-stable tree
-To:     daniel@iogearbox.net, ast@kernel.org, sdf@google.com, tj@kernel.org
+        b=vxexMfvl4TLwGMgFEBqQqOmPjVB8wnV6o05zlq7tipvup3/2epmQansnSu3SEBKNb
+         8WiCDT4tk+rsFHR2gsowWMOYK1m7kaqmjIwFKxsEX+HMwpcjPZUWz14be0V1T76WCo
+         JirFBQPjrpLh0pyjEV65BZTPtbq4d4fYKgKCMlRY=
+Subject: FAILED: patch "[PATCH] x86/hyperv: remove on-stack cpumask from" failed to apply to 5.10-stable tree
+To:     wei.liu@kernel.org, mikelley@microsoft.com,
+        torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Sep 2021 10:46:09 +0200
-Message-ID: <1632127569248169@kroah.com>
+Date:   Mon, 20 Sep 2021 10:51:37 +0200
+Message-ID: <16321278971116@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,387 +46,143 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8520e224f547cd070c7c8f97b1fc6d58cff7ccaa Mon Sep 17 00:00:00 2001
-From: Daniel Borkmann <daniel@iogearbox.net>
-Date: Tue, 14 Sep 2021 01:07:57 +0200
-Subject: [PATCH] bpf, cgroups: Fix cgroup v2 fallback on v1/v2 mixed mode
+From dfb5c1e12c28e35e4d4e5bc8022b0e9d585b89a7 Mon Sep 17 00:00:00 2001
+From: Wei Liu <wei.liu@kernel.org>
+Date: Fri, 10 Sep 2021 18:57:14 +0000
+Subject: [PATCH] x86/hyperv: remove on-stack cpumask from
+ hv_send_ipi_mask_allbutself
 
-Fix cgroup v1 interference when non-root cgroup v2 BPF programs are used.
-Back in the days, commit bd1060a1d671 ("sock, cgroup: add sock->sk_cgroup")
-embedded per-socket cgroup information into sock->sk_cgrp_data and in order
-to save 8 bytes in struct sock made both mutually exclusive, that is, when
-cgroup v1 socket tagging (e.g. net_cls/net_prio) is used, then cgroup v2
-falls back to the root cgroup in sock_cgroup_ptr() (&cgrp_dfl_root.cgrp).
+It is not a good practice to allocate a cpumask on stack, given it may
+consume up to 1 kilobytes of stack space if the kernel is configured to
+have 8192 cpus.
 
-The assumption made was "there is no reason to mix the two and this is in line
-with how legacy and v2 compatibility is handled" as stated in bd1060a1d671.
-However, with Kubernetes more widely supporting cgroups v2 as well nowadays,
-this assumption no longer holds, and the possibility of the v1/v2 mixed mode
-with the v2 root fallback being hit becomes a real security issue.
+The internal helper functions __send_ipi_mask{,_ex} need to loop over
+the provided mask anyway, so it is not too difficult to skip `self'
+there. We can thus do away with the on-stack cpumask in
+hv_send_ipi_mask_allbutself.
 
-Many of the cgroup v2 BPF programs are also used for policy enforcement, just
-to pick _one_ example, that is, to programmatically deny socket related system
-calls like connect(2) or bind(2). A v2 root fallback would implicitly cause
-a policy bypass for the affected Pods.
+Adjust call sites of __send_ipi_mask as needed.
 
-In production environments, we have recently seen this case due to various
-circumstances: i) a different 3rd party agent and/or ii) a container runtime
-such as [0] in the user's environment configuring legacy cgroup v1 net_cls
-tags, which triggered implicitly mentioned root fallback. Another case is
-Kubernetes projects like kind [1] which create Kubernetes nodes in a container
-and also add cgroup namespaces to the mix, meaning programs which are attached
-to the cgroup v2 root of the cgroup namespace get attached to a non-root
-cgroup v2 path from init namespace point of view. And the latter's root is
-out of reach for agents on a kind Kubernetes node to configure. Meaning, any
-entity on the node setting cgroup v1 net_cls tag will trigger the bypass
-despite cgroup v2 BPF programs attached to the namespace root.
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Suggested-by: Michael Kelley <mikelley@microsoft.com>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 68bb7bfb7985d ("X86/Hyper-V: Enable IPI enlightenments")
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20210910185714.299411-3-wei.liu@kernel.org
 
-Generally, this mutual exclusiveness does not hold anymore in today's user
-environments and makes cgroup v2 usage from BPF side fragile and unreliable.
-This fix adds proper struct cgroup pointer for the cgroup v2 case to struct
-sock_cgroup_data in order to address these issues; this implicitly also fixes
-the tradeoffs being made back then with regards to races and refcount leaks
-as stated in bd1060a1d671, and removes the fallback, so that cgroup v2 BPF
-programs always operate as expected.
-
-  [0] https://github.com/nestybox/sysbox/
-  [1] https://kind.sigs.k8s.io/
-
-Fixes: bd1060a1d671 ("sock, cgroup: add sock->sk_cgroup")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Stanislav Fomichev <sdf@google.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Link: https://lore.kernel.org/bpf/20210913230759.2313-1-daniel@iogearbox.net
-
-diff --git a/include/linux/cgroup-defs.h b/include/linux/cgroup-defs.h
-index e1c705fdfa7c..db2e147e069f 100644
---- a/include/linux/cgroup-defs.h
-+++ b/include/linux/cgroup-defs.h
-@@ -752,107 +752,54 @@ static inline void cgroup_threadgroup_change_end(struct task_struct *tsk) {}
-  * sock_cgroup_data is embedded at sock->sk_cgrp_data and contains
-  * per-socket cgroup information except for memcg association.
-  *
-- * On legacy hierarchies, net_prio and net_cls controllers directly set
-- * attributes on each sock which can then be tested by the network layer.
-- * On the default hierarchy, each sock is associated with the cgroup it was
-- * created in and the networking layer can match the cgroup directly.
-- *
-- * To avoid carrying all three cgroup related fields separately in sock,
-- * sock_cgroup_data overloads (prioidx, classid) and the cgroup pointer.
-- * On boot, sock_cgroup_data records the cgroup that the sock was created
-- * in so that cgroup2 matches can be made; however, once either net_prio or
-- * net_cls starts being used, the area is overridden to carry prioidx and/or
-- * classid.  The two modes are distinguished by whether the lowest bit is
-- * set.  Clear bit indicates cgroup pointer while set bit prioidx and
-- * classid.
-- *
-- * While userland may start using net_prio or net_cls at any time, once
-- * either is used, cgroup2 matching no longer works.  There is no reason to
-- * mix the two and this is in line with how legacy and v2 compatibility is
-- * handled.  On mode switch, cgroup references which are already being
-- * pointed to by socks may be leaked.  While this can be remedied by adding
-- * synchronization around sock_cgroup_data, given that the number of leaked
-- * cgroups is bound and highly unlikely to be high, this seems to be the
-- * better trade-off.
-+ * On legacy hierarchies, net_prio and net_cls controllers directly
-+ * set attributes on each sock which can then be tested by the network
-+ * layer. On the default hierarchy, each sock is associated with the
-+ * cgroup it was created in and the networking layer can match the
-+ * cgroup directly.
+diff --git a/arch/x86/hyperv/hv_apic.c b/arch/x86/hyperv/hv_apic.c
+index 90e682a92820..32a1ad356c18 100644
+--- a/arch/x86/hyperv/hv_apic.c
++++ b/arch/x86/hyperv/hv_apic.c
+@@ -99,7 +99,8 @@ static void hv_apic_eoi_write(u32 reg, u32 val)
+ /*
+  * IPI implementation on Hyper-V.
   */
- struct sock_cgroup_data {
--	union {
--#ifdef __LITTLE_ENDIAN
--		struct {
--			u8	is_data : 1;
--			u8	no_refcnt : 1;
--			u8	unused : 6;
--			u8	padding;
--			u16	prioidx;
--			u32	classid;
--		} __packed;
--#else
--		struct {
--			u32	classid;
--			u16	prioidx;
--			u8	padding;
--			u8	unused : 6;
--			u8	no_refcnt : 1;
--			u8	is_data : 1;
--		} __packed;
-+	struct cgroup	*cgroup; /* v2 */
-+#ifdef CONFIG_CGROUP_NET_CLASSID
-+	u32		classid; /* v1 */
-+#endif
-+#ifdef CONFIG_CGROUP_NET_PRIO
-+	u16		prioidx; /* v1 */
- #endif
--		u64		val;
--	};
- };
- 
--/*
-- * There's a theoretical window where the following accessors race with
-- * updaters and return part of the previous pointer as the prioidx or
-- * classid.  Such races are short-lived and the result isn't critical.
-- */
- static inline u16 sock_cgroup_prioidx(const struct sock_cgroup_data *skcd)
+-static bool __send_ipi_mask_ex(const struct cpumask *mask, int vector)
++static bool __send_ipi_mask_ex(const struct cpumask *mask, int vector,
++		bool exclude_self)
  {
--	/* fallback to 1 which is always the ID of the root cgroup */
--	return (skcd->is_data & 1) ? skcd->prioidx : 1;
-+#ifdef CONFIG_CGROUP_NET_PRIO
-+	return READ_ONCE(skcd->prioidx);
-+#else
-+	return 1;
-+#endif
- }
+ 	struct hv_send_ipi_ex **arg;
+ 	struct hv_send_ipi_ex *ipi_arg;
+@@ -123,7 +124,10 @@ static bool __send_ipi_mask_ex(const struct cpumask *mask, int vector)
  
- static inline u32 sock_cgroup_classid(const struct sock_cgroup_data *skcd)
- {
--	/* fallback to 0 which is the unconfigured default classid */
--	return (skcd->is_data & 1) ? skcd->classid : 0;
-+#ifdef CONFIG_CGROUP_NET_CLASSID
-+	return READ_ONCE(skcd->classid);
-+#else
-+	return 0;
-+#endif
- }
- 
--/*
-- * If invoked concurrently, the updaters may clobber each other.  The
-- * caller is responsible for synchronization.
-- */
- static inline void sock_cgroup_set_prioidx(struct sock_cgroup_data *skcd,
- 					   u16 prioidx)
- {
--	struct sock_cgroup_data skcd_buf = {{ .val = READ_ONCE(skcd->val) }};
--
--	if (sock_cgroup_prioidx(&skcd_buf) == prioidx)
--		return;
--
--	if (!(skcd_buf.is_data & 1)) {
--		skcd_buf.val = 0;
--		skcd_buf.is_data = 1;
--	}
--
--	skcd_buf.prioidx = prioidx;
--	WRITE_ONCE(skcd->val, skcd_buf.val);	/* see sock_cgroup_ptr() */
-+#ifdef CONFIG_CGROUP_NET_PRIO
-+	WRITE_ONCE(skcd->prioidx, prioidx);
-+#endif
- }
- 
- static inline void sock_cgroup_set_classid(struct sock_cgroup_data *skcd,
- 					   u32 classid)
- {
--	struct sock_cgroup_data skcd_buf = {{ .val = READ_ONCE(skcd->val) }};
--
--	if (sock_cgroup_classid(&skcd_buf) == classid)
--		return;
--
--	if (!(skcd_buf.is_data & 1)) {
--		skcd_buf.val = 0;
--		skcd_buf.is_data = 1;
--	}
--
--	skcd_buf.classid = classid;
--	WRITE_ONCE(skcd->val, skcd_buf.val);	/* see sock_cgroup_ptr() */
-+#ifdef CONFIG_CGROUP_NET_CLASSID
-+	WRITE_ONCE(skcd->classid, classid);
-+#endif
- }
- 
- #else	/* CONFIG_SOCK_CGROUP_DATA */
-diff --git a/include/linux/cgroup.h b/include/linux/cgroup.h
-index 7bf60454a313..75c151413fda 100644
---- a/include/linux/cgroup.h
-+++ b/include/linux/cgroup.h
-@@ -829,33 +829,13 @@ static inline void cgroup_account_cputime_field(struct task_struct *task,
-  */
- #ifdef CONFIG_SOCK_CGROUP_DATA
- 
--#if defined(CONFIG_CGROUP_NET_PRIO) || defined(CONFIG_CGROUP_NET_CLASSID)
--extern spinlock_t cgroup_sk_update_lock;
--#endif
--
--void cgroup_sk_alloc_disable(void);
- void cgroup_sk_alloc(struct sock_cgroup_data *skcd);
- void cgroup_sk_clone(struct sock_cgroup_data *skcd);
- void cgroup_sk_free(struct sock_cgroup_data *skcd);
- 
- static inline struct cgroup *sock_cgroup_ptr(struct sock_cgroup_data *skcd)
- {
--#if defined(CONFIG_CGROUP_NET_PRIO) || defined(CONFIG_CGROUP_NET_CLASSID)
--	unsigned long v;
--
--	/*
--	 * @skcd->val is 64bit but the following is safe on 32bit too as we
--	 * just need the lower ulong to be written and read atomically.
--	 */
--	v = READ_ONCE(skcd->val);
--
--	if (v & 3)
--		return &cgrp_dfl_root.cgrp;
--
--	return (struct cgroup *)(unsigned long)v ?: &cgrp_dfl_root.cgrp;
--#else
--	return (struct cgroup *)(unsigned long)skcd->val;
--#endif
-+	return skcd->cgroup;
- }
- 
- #else	/* CONFIG_CGROUP_DATA */
-diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-index 881ce1470beb..8afa8690d288 100644
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -6572,74 +6572,44 @@ int cgroup_parse_float(const char *input, unsigned dec_shift, s64 *v)
-  */
- #ifdef CONFIG_SOCK_CGROUP_DATA
- 
--#if defined(CONFIG_CGROUP_NET_PRIO) || defined(CONFIG_CGROUP_NET_CLASSID)
--
--DEFINE_SPINLOCK(cgroup_sk_update_lock);
--static bool cgroup_sk_alloc_disabled __read_mostly;
--
--void cgroup_sk_alloc_disable(void)
--{
--	if (cgroup_sk_alloc_disabled)
--		return;
--	pr_info("cgroup: disabling cgroup2 socket matching due to net_prio or net_cls activation\n");
--	cgroup_sk_alloc_disabled = true;
--}
--
--#else
--
--#define cgroup_sk_alloc_disabled	false
--
--#endif
--
- void cgroup_sk_alloc(struct sock_cgroup_data *skcd)
- {
--	if (cgroup_sk_alloc_disabled) {
--		skcd->no_refcnt = 1;
--		return;
--	}
--
- 	/* Don't associate the sock with unrelated interrupted task's cgroup. */
- 	if (in_interrupt())
- 		return;
- 
- 	rcu_read_lock();
--
- 	while (true) {
- 		struct css_set *cset;
- 
- 		cset = task_css_set(current);
- 		if (likely(cgroup_tryget(cset->dfl_cgrp))) {
--			skcd->val = (unsigned long)cset->dfl_cgrp;
-+			skcd->cgroup = cset->dfl_cgrp;
- 			cgroup_bpf_get(cset->dfl_cgrp);
- 			break;
- 		}
- 		cpu_relax();
+ 	if (!cpumask_equal(mask, cpu_present_mask)) {
+ 		ipi_arg->vp_set.format = HV_GENERIC_SET_SPARSE_4K;
+-		nr_bank = cpumask_to_vpset(&(ipi_arg->vp_set), mask);
++		if (exclude_self)
++			nr_bank = cpumask_to_vpset_noself(&(ipi_arg->vp_set), mask);
++		else
++			nr_bank = cpumask_to_vpset(&(ipi_arg->vp_set), mask);
  	}
--
- 	rcu_read_unlock();
+ 	if (nr_bank < 0)
+ 		goto ipi_mask_ex_done;
+@@ -138,15 +142,25 @@ static bool __send_ipi_mask_ex(const struct cpumask *mask, int vector)
+ 	return hv_result_success(status);
  }
  
- void cgroup_sk_clone(struct sock_cgroup_data *skcd)
+-static bool __send_ipi_mask(const struct cpumask *mask, int vector)
++static bool __send_ipi_mask(const struct cpumask *mask, int vector,
++		bool exclude_self)
  {
--	if (skcd->val) {
--		if (skcd->no_refcnt)
--			return;
--		/*
--		 * We might be cloning a socket which is left in an empty
--		 * cgroup and the cgroup might have already been rmdir'd.
--		 * Don't use cgroup_get_live().
--		 */
--		cgroup_get(sock_cgroup_ptr(skcd));
--		cgroup_bpf_get(sock_cgroup_ptr(skcd));
--	}
-+	struct cgroup *cgrp = sock_cgroup_ptr(skcd);
+-	int cur_cpu, vcpu;
++	int cur_cpu, vcpu, this_cpu = smp_processor_id();
+ 	struct hv_send_ipi ipi_arg;
+ 	u64 status;
++	unsigned int weight;
+ 
+ 	trace_hyperv_send_ipi_mask(mask, vector);
+ 
+-	if (cpumask_empty(mask))
++	weight = cpumask_weight(mask);
 +
 +	/*
-+	 * We might be cloning a socket which is left in an empty
-+	 * cgroup and the cgroup might have already been rmdir'd.
-+	 * Don't use cgroup_get_live().
++	 * Do nothing if
++	 *   1. the mask is empty
++	 *   2. the mask only contains self when exclude_self is true
 +	 */
-+	cgroup_get(cgrp);
-+	cgroup_bpf_get(cgrp);
++	if (weight == 0 ||
++	    (exclude_self && weight == 1 && cpumask_test_cpu(this_cpu, mask)))
+ 		return true;
+ 
+ 	if (!hv_hypercall_pg)
+@@ -172,6 +186,8 @@ static bool __send_ipi_mask(const struct cpumask *mask, int vector)
+ 	ipi_arg.cpu_mask = 0;
+ 
+ 	for_each_cpu(cur_cpu, mask) {
++		if (exclude_self && cur_cpu == this_cpu)
++			continue;
+ 		vcpu = hv_cpu_number_to_vp_number(cur_cpu);
+ 		if (vcpu == VP_INVAL)
+ 			return false;
+@@ -191,7 +207,7 @@ static bool __send_ipi_mask(const struct cpumask *mask, int vector)
+ 	return hv_result_success(status);
+ 
+ do_ex_hypercall:
+-	return __send_ipi_mask_ex(mask, vector);
++	return __send_ipi_mask_ex(mask, vector, exclude_self);
  }
  
- void cgroup_sk_free(struct sock_cgroup_data *skcd)
+ static bool __send_ipi_one(int cpu, int vector)
+@@ -208,7 +224,7 @@ static bool __send_ipi_one(int cpu, int vector)
+ 		return false;
+ 
+ 	if (vp >= 64)
+-		return __send_ipi_mask_ex(cpumask_of(cpu), vector);
++		return __send_ipi_mask_ex(cpumask_of(cpu), vector, false);
+ 
+ 	status = hv_do_fast_hypercall16(HVCALL_SEND_IPI, vector, BIT_ULL(vp));
+ 	return hv_result_success(status);
+@@ -222,20 +238,13 @@ static void hv_send_ipi(int cpu, int vector)
+ 
+ static void hv_send_ipi_mask(const struct cpumask *mask, int vector)
  {
- 	struct cgroup *cgrp = sock_cgroup_ptr(skcd);
- 
--	if (skcd->no_refcnt)
--		return;
- 	cgroup_bpf_put(cgrp);
- 	cgroup_put(cgrp);
+-	if (!__send_ipi_mask(mask, vector))
++	if (!__send_ipi_mask(mask, vector, false))
+ 		orig_apic.send_IPI_mask(mask, vector);
  }
-diff --git a/net/core/netclassid_cgroup.c b/net/core/netclassid_cgroup.c
-index b49c57d35a88..1a6a86693b74 100644
---- a/net/core/netclassid_cgroup.c
-+++ b/net/core/netclassid_cgroup.c
-@@ -71,11 +71,8 @@ static int update_classid_sock(const void *v, struct file *file, unsigned n)
- 	struct update_classid_context *ctx = (void *)v;
- 	struct socket *sock = sock_from_file(file);
  
--	if (sock) {
--		spin_lock(&cgroup_sk_update_lock);
-+	if (sock)
- 		sock_cgroup_set_classid(&sock->sk->sk_cgrp_data, ctx->classid);
--		spin_unlock(&cgroup_sk_update_lock);
--	}
- 	if (--ctx->batch == 0) {
- 		ctx->batch = UPDATE_CLASSID_BATCH;
- 		return n + 1;
-@@ -121,8 +118,6 @@ static int write_classid(struct cgroup_subsys_state *css, struct cftype *cft,
- 	struct css_task_iter it;
- 	struct task_struct *p;
- 
--	cgroup_sk_alloc_disable();
--
- 	cs->classid = (u32)value;
- 
- 	css_task_iter_start(css, 0, &it);
-diff --git a/net/core/netprio_cgroup.c b/net/core/netprio_cgroup.c
-index 99a431c56f23..8456dfbe2eb4 100644
---- a/net/core/netprio_cgroup.c
-+++ b/net/core/netprio_cgroup.c
-@@ -207,8 +207,6 @@ static ssize_t write_priomap(struct kernfs_open_file *of,
- 	if (!dev)
- 		return -ENODEV;
- 
--	cgroup_sk_alloc_disable();
--
- 	rtnl_lock();
- 
- 	ret = netprio_set_prio(of_css(of), dev, prio);
-@@ -221,12 +219,10 @@ static ssize_t write_priomap(struct kernfs_open_file *of,
- static int update_netprio(const void *v, struct file *file, unsigned n)
+ static void hv_send_ipi_mask_allbutself(const struct cpumask *mask, int vector)
  {
- 	struct socket *sock = sock_from_file(file);
--	if (sock) {
--		spin_lock(&cgroup_sk_update_lock);
-+
-+	if (sock)
- 		sock_cgroup_set_prioidx(&sock->sk->sk_cgrp_data,
- 					(unsigned long)v);
--		spin_unlock(&cgroup_sk_update_lock);
--	}
- 	return 0;
+-	unsigned int this_cpu = smp_processor_id();
+-	struct cpumask new_mask;
+-	const struct cpumask *local_mask;
+-
+-	cpumask_copy(&new_mask, mask);
+-	cpumask_clear_cpu(this_cpu, &new_mask);
+-	local_mask = &new_mask;
+-	if (!__send_ipi_mask(local_mask, vector))
++	if (!__send_ipi_mask(mask, vector, true))
+ 		orig_apic.send_IPI_mask_allbutself(mask, vector);
  }
  
-@@ -235,8 +231,6 @@ static void net_prio_attach(struct cgroup_taskset *tset)
- 	struct task_struct *p;
- 	struct cgroup_subsys_state *css;
+@@ -246,7 +255,7 @@ static void hv_send_ipi_allbutself(int vector)
  
--	cgroup_sk_alloc_disable();
--
- 	cgroup_taskset_for_each(p, css, tset) {
- 		void *v = (void *)(unsigned long)css->id;
+ static void hv_send_ipi_all(int vector)
+ {
+-	if (!__send_ipi_mask(cpu_online_mask, vector))
++	if (!__send_ipi_mask(cpu_online_mask, vector, false))
+ 		orig_apic.send_IPI_all(vector);
+ }
  
 
