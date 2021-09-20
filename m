@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C36AA41213C
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:04:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63A3D412188
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:06:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357169AbhITSDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:03:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57186 "EHLO mail.kernel.org"
+        id S1358382AbhITSGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:06:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356705AbhITSBG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:01:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF0536322E;
-        Mon, 20 Sep 2021 17:16:04 +0000 (UTC)
+        id S1356974AbhITSCg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:02:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8ED2663230;
+        Mon, 20 Sep 2021 17:16:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158165;
-        bh=GU2Z7/AwJSTTaqUDY2O7hlm3FYTmsB1TFalm7Ie9rF4=;
+        s=korg; t=1632158189;
+        bh=OtYyeNVEmiHOkCZyO54XEpO15PXrjbdloWEzf05+4KI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a+g2Iti7LS0SevDU8pGW7iBNqji/94u7crHO1KERoQ39KR4yYgeaqKuTZG6JNKpLk
-         0r5vhSbJFMtGbZaSr7bzxmd/roKivSqgDVNCPHn5ewkmKCAvYvJ4ZPQ914aW0KSziL
-         EHB6dSFbh0/KlQYG3lIsCh1HnJOSXgpQ0f5aBWEc=
+        b=kmk7rfT6XpU2pXb3xd6bJ7KNwrX09EZHimVC0X+eQ0et8qN2SBy+7W0NuOr16VCdb
+         PZHcH1sSVWdDEjjlOUKOEd1R1u621n59irHCA929ae+3M04JEiStiamT0McFXUoxNf
+         Cfe2Q9ppazsxEaIkrsqxv/oJ5KgiG9ZIYP7Z36qA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20 ?= 
-        <zhouyanjie@wanyeetech.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.4 013/260] pinctrl: ingenic: Fix incorrect pull up/down info
-Date:   Mon, 20 Sep 2021 18:40:31 +0200
-Message-Id: <20210920163931.572972960@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.4 014/260] soc: qcom: aoss: Fix the out of bound usage of cooling_devs
+Date:   Mon, 20 Sep 2021 18:40:32 +0200
+Message-Id: <20210920163931.606307946@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -41,49 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-commit d5e931403942b3af39212960c2592b5ba741b2bf upstream.
+commit a89f355e469dcda129c2522be4fdba00c1c74c83 upstream.
 
-Fix the pull up/down info for both the JZ4760 and JZ4770 SoCs, as the
-previous values sometimes contradicted what's written in the programming
-manual.
+In "qmp_cooling_devices_register", the count value is initially
+QMP_NUM_COOLING_RESOURCES, which is 2. Based on the initial count value,
+the memory for cooling_devs is allocated. Then while calling the
+"qmp_cooling_device_add" function, count value is post-incremented for
+each child node.
 
-Fixes: b5c23aa46537 ("pinctrl: add a pinctrl driver for the Ingenic jz47xx SoCs")
-Cc: <stable@vger.kernel.org> # v4.12
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Tested-by: 周琰杰 (Zhou Yanjie)<zhouyanjie@wanyeetech.com>
-Link: https://lore.kernel.org/r/20210717174836.14776-1-paul@crapouillou.net
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+This makes the out of bound access to the cooling_dev array. Fix it by
+passing the QMP_NUM_COOLING_RESOURCES definition to devm_kzalloc() and
+initializing the count to 0.
+
+While at it, let's also free the memory allocated to cooling_dev if no
+cooling device is found in DT and during unroll phase.
+
+Cc: stable@vger.kernel.org # 5.4
+Fixes: 05589b30b21a ("soc: qcom: Extend AOSS QMP driver to support resources that are used to wake up the SoC.")
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/20210629153249.73428-1-manivannan.sadhasivam@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-ingenic.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/soc/qcom/qcom_aoss.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/pinctrl/pinctrl-ingenic.c
-+++ b/drivers/pinctrl/pinctrl-ingenic.c
-@@ -348,7 +348,7 @@ static const struct ingenic_chip_info jz
- };
+--- a/drivers/soc/qcom/qcom_aoss.c
++++ b/drivers/soc/qcom/qcom_aoss.c
+@@ -472,12 +472,12 @@ static int qmp_cooling_device_add(struct
+ static int qmp_cooling_devices_register(struct qmp *qmp)
+ {
+ 	struct device_node *np, *child;
+-	int count = QMP_NUM_COOLING_RESOURCES;
++	int count = 0;
+ 	int ret;
  
- static const u32 jz4760_pull_ups[6] = {
--	0xffffffff, 0xfffcf3ff, 0xffffffff, 0xffffcfff, 0xfffffb7c, 0xfffff00f,
-+	0xffffffff, 0xfffcf3ff, 0xffffffff, 0xffffcfff, 0xfffffb7c, 0x0000000f,
- };
+ 	np = qmp->dev->of_node;
  
- static const u32 jz4760_pull_downs[6] = {
-@@ -611,11 +611,11 @@ static const struct ingenic_chip_info jz
- };
+-	qmp->cooling_devs = devm_kcalloc(qmp->dev, count,
++	qmp->cooling_devs = devm_kcalloc(qmp->dev, QMP_NUM_COOLING_RESOURCES,
+ 					 sizeof(*qmp->cooling_devs),
+ 					 GFP_KERNEL);
  
- static const u32 jz4770_pull_ups[6] = {
--	0x3fffffff, 0xfff0030c, 0xffffffff, 0xffff4fff, 0xfffffb7c, 0xffa7f00f,
-+	0x3fffffff, 0xfff0f3fc, 0xffffffff, 0xffff4fff, 0xfffffb7c, 0x0024f00f,
- };
+@@ -493,12 +493,16 @@ static int qmp_cooling_devices_register(
+ 			goto unroll;
+ 	}
  
- static const u32 jz4770_pull_downs[6] = {
--	0x00000000, 0x000f0c03, 0x00000000, 0x0000b000, 0x00000483, 0x00580ff0,
-+	0x00000000, 0x000f0c03, 0x00000000, 0x0000b000, 0x00000483, 0x005b0ff0,
- };
++	if (!count)
++		devm_kfree(qmp->dev, qmp->cooling_devs);
++
+ 	return 0;
  
- static int jz4770_uart0_data_pins[] = { 0xa0, 0xa3, };
+ unroll:
+ 	while (--count >= 0)
+ 		thermal_cooling_device_unregister
+ 			(qmp->cooling_devs[count].cdev);
++	devm_kfree(qmp->dev, qmp->cooling_devs);
+ 
+ 	return ret;
+ }
 
 
