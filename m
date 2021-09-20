@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A38A4122EE
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:17:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63A874123DF
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:27:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377456AbhITSTA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:19:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40990 "EHLO mail.kernel.org"
+        id S1379161AbhITS21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:28:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1357928AbhITSQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:16:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 816BC61A64;
-        Mon, 20 Sep 2021 17:22:24 +0000 (UTC)
+        id S1378761AbhITS0W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:26:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59D4C632DD;
+        Mon, 20 Sep 2021 17:25:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158545;
-        bh=EGHgnibzqYya6Ch+ZLle0Aa1249hycTtjyFaBntuLkU=;
+        s=korg; t=1632158738;
+        bh=bWFyB2GCQjZchfq8B6SsuD9LGSGlwgPReH0hiIu473g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=onNr7RapfUe1nRRSP84/el/o/arf4yE92yvQoZ4XWxS3xktIy0FgIH/sd77e/br9w
-         JmcZJWNLew+HhzfpPfYUaPe40iHIuYHVEMUITeqeFrd1OTI3nZvFKTWKU+fQS0ycYn
-         zhoqBS5iMSNB5ST+Zn/1jGPBhsoIS0SRX0aYV2Zg=
+        b=gXXkIoa619v9m9UrtkSO4IrE+2PmPXfS/nu+EEEsvyXb998zbDAceLYtfpx0cPTPB
+         UmknDSr1TKn6v3IPsq3JifrS9bieHd/5UnwiguIW+m0wAyLkLHfnczyBpF/JgIAicR
+         gQW921aHHgVIwgOAG9YSmDnpuVCMBPw5uQ5QK2hM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
-Subject: [PATCH 5.4 188/260] drm/amdgpu: Fix BUG_ON assert
+        stable@vger.kernel.org, Samuel Jones <sjones@kalrayinc.com>,
+        Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.10 034/122] nvme-tcp: fix io_work priority inversion
 Date:   Mon, 20 Sep 2021 18:43:26 +0200
-Message-Id: <20210920163937.508232655@linuxfoundation.org>
+Message-Id: <20210920163916.915224696@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,32 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+From: Keith Busch <kbusch@kernel.org>
 
-commit ea7acd7c5967542353430947f3faf699e70602e5 upstream.
+commit 70f437fb4395ad4d1d16fab9a1ad9fbc9fc0579b upstream.
 
-With added CPU domain to placement you can have
-now 3 placemnts at once.
+Dispatching requests inline with the .queue_rq() call may block while
+holding the send_mutex. If the tcp io_work also happens to schedule, it
+may see the req_list is non-empty, leaving "pending" true and remaining
+in TASK_RUNNING. Since io_work is of higher scheduling priority, the
+.queue_rq task may not get a chance to run, blocking forward progress
+and leading to io timeouts.
 
-CC: stable@kernel.org
-Signed-off-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210622162339.761651-5-andrey.grodzovsky@amd.com
+Instead of checking for pending requests within io_work, let the queueing
+restart io_work outside the send_mutex lock if there is more work to be
+done.
+
+Fixes: a0fdd1418007f ("nvme-tcp: rerun io_work if req_list is not empty")
+Reported-by: Samuel Jones <sjones@kalrayinc.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_object.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/tcp.c |   20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
-@@ -200,7 +200,7 @@ void amdgpu_bo_placement_from_domain(str
- 		c++;
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -273,6 +273,12 @@ static inline void nvme_tcp_send_all(str
+ 	} while (ret > 0);
+ }
+ 
++static inline bool nvme_tcp_queue_more(struct nvme_tcp_queue *queue)
++{
++	return !list_empty(&queue->send_list) ||
++		!llist_empty(&queue->req_list) || queue->more_requests;
++}
++
+ static inline void nvme_tcp_queue_request(struct nvme_tcp_request *req,
+ 		bool sync, bool last)
+ {
+@@ -293,9 +299,10 @@ static inline void nvme_tcp_queue_reques
+ 		nvme_tcp_send_all(queue);
+ 		queue->more_requests = false;
+ 		mutex_unlock(&queue->send_mutex);
+-	} else if (last) {
+-		queue_work_on(queue->io_cpu, nvme_tcp_wq, &queue->io_work);
  	}
++
++	if (last && nvme_tcp_queue_more(queue))
++		queue_work_on(queue->io_cpu, nvme_tcp_wq, &queue->io_work);
+ }
  
--	BUG_ON(c >= AMDGPU_BO_MAX_PLACEMENTS);
-+	BUG_ON(c > AMDGPU_BO_MAX_PLACEMENTS);
+ static void nvme_tcp_process_req_list(struct nvme_tcp_queue *queue)
+@@ -890,12 +897,6 @@ done:
+ 	read_unlock_bh(&sk->sk_callback_lock);
+ }
  
- 	placement->num_placement = c;
- 	placement->placement = places;
+-static inline bool nvme_tcp_queue_more(struct nvme_tcp_queue *queue)
+-{
+-	return !list_empty(&queue->send_list) ||
+-		!llist_empty(&queue->req_list) || queue->more_requests;
+-}
+-
+ static inline void nvme_tcp_done_send_req(struct nvme_tcp_queue *queue)
+ {
+ 	queue->request = NULL;
+@@ -1132,8 +1133,7 @@ static void nvme_tcp_io_work(struct work
+ 				pending = true;
+ 			else if (unlikely(result < 0))
+ 				break;
+-		} else
+-			pending = !llist_empty(&queue->req_list);
++		}
+ 
+ 		result = nvme_tcp_try_recv(queue);
+ 		if (result > 0)
 
 
