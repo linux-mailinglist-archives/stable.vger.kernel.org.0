@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 075E7412313
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:19:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E674F4123E8
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:27:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377802AbhITSU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:20:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39242 "EHLO mail.kernel.org"
+        id S1379221AbhITS2h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:28:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351318AbhITSS5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:18:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B460632A6;
-        Mon, 20 Sep 2021 17:23:10 +0000 (UTC)
+        id S1378787AbhITS00 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:26:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6056561244;
+        Mon, 20 Sep 2021 17:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158590;
-        bh=Yj1TZDy2FUjXAXfIjbZskgaCeCbx9tYsqXQSQSi/SP8=;
+        s=korg; t=1632158751;
+        bh=aHzs2Pypu+HwoFsHuPJXCeG8sMuoKR+6muI/CLd3l2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jwSOinp8VshhZTIwtKnL9bjjWOgk++XT9Wbcvy3b6AJoHnuz7TRJB3DGAKGLFc77O
-         KHLHCbRcil/uYsAFS2P6IOXjO6gFYCO2OEljaRQEVhWa+iFc22ECEdvoJ4IikydJza
-         7UwfU4bSbYWwuF5v1TxBquzom4gK9G1Em6MWTiMQ=
+        b=GZnmUKQmidXegRZBvRDZ1Q8XiqJT/a42HlUj2SueX5KG7turx7C2oWFI+v8WlhddU
+         uYYls0HFu6K4bo2AdFQ7Uea/CsWAM+C39+hSyZXiu8ixX7bEC1wd5KpHbAoi1MX1vu
+         thfI2/zjzluYrmGvtkzwMlq2C/e8wUC70xZgLJKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Bunk <bunk@kernel.org>,
-        YunQiang Su <wzssyqa@gmail.com>,
-        Shai Malin <smalin@marvell.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 194/260] bnx2x: Fix enabling network interfaces without VFs
+Subject: [PATCH 5.10 040/122] net: dsa: destroy the phylink instance on any error in dsa_slave_phy_setup
 Date:   Mon, 20 Sep 2021 18:43:32 +0200
-Message-Id: <20210920163937.704556034@linuxfoundation.org>
+Message-Id: <20210920163917.103844544@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Bunk <bunk@kernel.org>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 52ce14c134a003fee03d8fc57442c05a55b53715 upstream.
+commit 6a52e73368038f47f6618623d75061dc263b26ae upstream.
 
-This function is called to enable SR-IOV when available,
-not enabling interfaces without VFs was a regression.
+DSA supports connecting to a phy-handle, and has a fallback to a non-OF
+based method of connecting to an internal PHY on the switch's own MDIO
+bus, if no phy-handle and no fixed-link nodes were present.
 
-Fixes: 65161c35554f ("bnx2x: Fix missing error code in bnx2x_iov_init_one()")
-Signed-off-by: Adrian Bunk <bunk@kernel.org>
-Reported-by: YunQiang Su <wzssyqa@gmail.com>
-Tested-by: YunQiang Su <wzssyqa@gmail.com>
-Cc: stable@vger.kernel.org
-Acked-by: Shai Malin <smalin@marvell.com>
-Link: https://lore.kernel.org/r/20210912190523.27991-1-bunk@kernel.org
+The -ENODEV error code from the first attempt (phylink_of_phy_connect)
+is what triggers the second attempt (phylink_connect_phy).
+
+However, when the first attempt returns a different error code than
+-ENODEV, this results in an unbalance of calls to phylink_create and
+phylink_destroy by the time we exit the function. The phylink instance
+has leaked.
+
+There are many other error codes that can be returned by
+phylink_of_phy_connect. For example, phylink_validate returns -EINVAL.
+So this is a practical issue too.
+
+Fixes: aab9c4067d23 ("net: dsa: Plug in PHYLINK support")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/20210914134331.2303380-1-vladimir.oltean@nxp.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/dsa/slave.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
-@@ -1246,7 +1246,7 @@ int bnx2x_iov_init_one(struct bnx2x *bp,
- 
- 	/* SR-IOV capability was enabled but there are no VFs*/
- 	if (iov->total == 0) {
--		err = -EINVAL;
-+		err = 0;
- 		goto failed;
+--- a/net/dsa/slave.c
++++ b/net/dsa/slave.c
+@@ -1728,13 +1728,11 @@ static int dsa_slave_phy_setup(struct ne
+ 		 * use the switch internal MDIO bus instead
+ 		 */
+ 		ret = dsa_slave_phy_connect(slave_dev, dp->index);
+-		if (ret) {
+-			netdev_err(slave_dev,
+-				   "failed to connect to port %d: %d\n",
+-				   dp->index, ret);
+-			phylink_destroy(dp->pl);
+-			return ret;
+-		}
++	}
++	if (ret) {
++		netdev_err(slave_dev, "failed to connect to PHY: %pe\n",
++			   ERR_PTR(ret));
++		phylink_destroy(dp->pl);
  	}
  
+ 	return ret;
 
 
