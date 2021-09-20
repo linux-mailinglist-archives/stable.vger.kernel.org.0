@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2633411F2A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:37:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B839411CB9
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:11:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344688AbhITRi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:38:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40662 "EHLO mail.kernel.org"
+        id S1343815AbhITRMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:12:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348455AbhITRg1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:36:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 342E6615E0;
-        Mon, 20 Sep 2021 17:06:27 +0000 (UTC)
+        id S1345426AbhITRKn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:10:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31C3A6127B;
+        Mon, 20 Sep 2021 16:56:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157587;
-        bh=Mw3hIYQzh0QVHvYsLwLfms21TRhmklsfso0cJCrNguU=;
+        s=korg; t=1632157002;
+        bh=gNwRRiDBqyXy7tVbUpKck/4vsx3U8udjXf+tDUARaOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LZjbM/PJ+KABhkrBIRNx1uXp1PKuMic6Mk40grC0gnwXNDsn+Jfr5IjE7Vk3n50CR
-         3OcZ6HZyoV38CiqN8CbRHDrpvNE7S5g8OgvSrOwz2qVaRV/81XjrIxfwaaxMpTnhiK
-         ZwPqJAz7/FEP4VGPXEiFpXjQE/rQv5Bh2DcvklmQ=
+        b=oAaVMphB4MRoz3T1AJiKmNqL0dyEzF6XRhTEC6TMQezn74FeoeBB2pUP85vKe/lzS
+         syYngikACyGTWRp5178d8Asb/CMgI2uFVW+Jgt33Tdx9oPN92/jLhnBtyG8n7cJ8U1
+         4/QzmKWsErZhbxrqrY4MABv7c/Abx7hPLUpGcykU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Fiona Trahe <fiona.trahe@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 059/293] crypto: qat - use proper type for vf_mask
-Date:   Mon, 20 Sep 2021 18:40:21 +0200
-Message-Id: <20210920163935.274785162@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        syzbot+13146364637c7363a7de@syzkaller.appspotmail.com,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.14 001/217] ext4: fix race writing to an inline_data file while its xattrs are changing
+Date:   Mon, 20 Sep 2021 18:40:22 +0200
+Message-Id: <20210920163924.649351188@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,72 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit 462354d986b6a89c6449b85f17aaacf44e455216 ]
+commit a54c4613dac1500b40e4ab55199f7c51f028e848 upstream.
 
-Replace vf_mask type with unsigned long to avoid a stack-out-of-bound.
+The location of the system.data extended attribute can change whenever
+xattr_sem is not taken.  So we need to recalculate the i_inline_off
+field since it mgiht have changed between ext4_write_begin() and
+ext4_write_end().
 
-This is to fix the following warning reported by KASAN the first time
-adf_msix_isr_ae() gets called.
+This means that caching i_inline_off is probably not helpful, so in
+the long run we should probably get rid of it and shrink the in-memory
+ext4 inode slightly, but let's fix the race the simple way for now.
 
-    [  692.091987] BUG: KASAN: stack-out-of-bounds in find_first_bit+0x28/0x50
-    [  692.092017] Read of size 8 at addr ffff88afdf789e60 by task swapper/32/0
-    [  692.092076] Call Trace:
-    [  692.092089]  <IRQ>
-    [  692.092101]  dump_stack+0x9c/0xcf
-    [  692.092132]  print_address_description.constprop.0+0x18/0x130
-    [  692.092164]  ? find_first_bit+0x28/0x50
-    [  692.092185]  kasan_report.cold+0x7f/0x111
-    [  692.092213]  ? static_obj+0x10/0x80
-    [  692.092234]  ? find_first_bit+0x28/0x50
-    [  692.092262]  find_first_bit+0x28/0x50
-    [  692.092288]  adf_msix_isr_ae+0x16e/0x230 [intel_qat]
-
-Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@kernel.org
+Fixes: f19d5870cbf72 ("ext4: add normal write support for inline data")
+Reported-by: syzbot+13146364637c7363a7de@syzkaller.appspotmail.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/qat/qat_common/adf_isr.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/ext4/inline.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_isr.c b/drivers/crypto/qat/qat_common/adf_isr.c
-index 4898ef41fd9f..7d319c5c071c 100644
---- a/drivers/crypto/qat/qat_common/adf_isr.c
-+++ b/drivers/crypto/qat/qat_common/adf_isr.c
-@@ -59,6 +59,8 @@
- #include "adf_transport_access_macros.h"
- #include "adf_transport_internal.h"
+--- a/fs/ext4/inline.c
++++ b/fs/ext4/inline.c
+@@ -756,6 +756,12 @@ int ext4_write_inline_data_end(struct in
+ 	ext4_write_lock_xattr(inode, &no_expand);
+ 	BUG_ON(!ext4_has_inline_data(inode));
  
-+#define ADF_MAX_NUM_VFS	32
++	/*
++	 * ei->i_inline_off may have changed since ext4_write_begin()
++	 * called ext4_try_to_write_inline_data()
++	 */
++	(void) ext4_find_inline_data_nolock(inode);
 +
- static int adf_enable_msix(struct adf_accel_dev *accel_dev)
- {
- 	struct adf_accel_pci *pci_dev_info = &accel_dev->accel_pci_dev;
-@@ -111,7 +113,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
- 		struct adf_bar *pmisc =
- 			&GET_BARS(accel_dev)[hw_data->get_misc_bar_id(hw_data)];
- 		void __iomem *pmisc_bar_addr = pmisc->virt_addr;
--		u32 vf_mask;
-+		unsigned long vf_mask;
- 
- 		/* Get the interrupt sources triggered by VFs */
- 		vf_mask = ((ADF_CSR_RD(pmisc_bar_addr, ADF_ERRSOU5) &
-@@ -132,8 +134,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
- 			 * unless the VF is malicious and is attempting to
- 			 * flood the host OS with VF2PF interrupts.
- 			 */
--			for_each_set_bit(i, (const unsigned long *)&vf_mask,
--					 (sizeof(vf_mask) * BITS_PER_BYTE)) {
-+			for_each_set_bit(i, &vf_mask, ADF_MAX_NUM_VFS) {
- 				vf_info = accel_dev->pf.vf_info + i;
- 
- 				if (!__ratelimit(&vf_info->vf2pf_ratelimit)) {
--- 
-2.30.2
-
+ 	kaddr = kmap_atomic(page);
+ 	ext4_write_inline_data(inode, &iloc, kaddr, pos, len);
+ 	kunmap_atomic(kaddr);
 
 
