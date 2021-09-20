@@ -2,83 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C1464120C3
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:58:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC0F64120D0
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:58:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347670AbhITR54 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:57:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54554 "EHLO mail.kernel.org"
+        id S244500AbhITR6c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:58:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354387AbhITRzz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:55:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26C0B619EE;
-        Mon, 20 Sep 2021 17:14:15 +0000 (UTC)
+        id S1355715AbhITR4a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:56:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B59116320E;
+        Mon, 20 Sep 2021 17:14:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158056;
-        bh=vnDx+FAgvXBGFE4mzB1titc8sw7HkALXbKlAHCbdROk=;
+        s=korg; t=1632158058;
+        bh=jygjKuYSAr1zC+kR0YLyJRZABPLOTjAS8JXvQEALrwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jVJJ+E+O+PdZgvujoTqsNmCkQrh2RfUf3exmV0/igodjvKSMs3maOdJusjCLJ3MFd
-         DA0YNspy7PoQMOEvLkTRqv0PSzPeOe/OvCCk8s1nk66zo0I8BoWArrK2f7QgzFiZWI
-         GwSH2QiC7PUsUKPevEhzQuTMsn4qvNNS8bK2uFVQ=
+        b=mC8W+lOfF8bIYSG2w0NLqGZwuoFkOtmEqaxs1ae3o5qfjt7gstfHq/DVfgCytPAWb
+         /pD7IbXlaZt5HvOa5FLXh5XnbtzTLb1s64OaD7QHF/3jQklepP/sohhc0tRBdkrGF7
+         CcHhnZ+ke05tUyQn+7aDKoVODc6xz3VAIbdGxf1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Pankaj Gupta <pankaj.gupta@ionos.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
-        Wei Yang <richard.weiyang@linux.alibaba.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        virtualization@lists.linux-foundation.org,
-        Andy Lutomirski <luto@kernel.org>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Anton Blanchard <anton@ozlabs.org>,
-        Ard Biesheuvel <ardb@kernel.org>, Baoquan He <bhe@redhat.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Dave Jiang <dave.jiang@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Jia He <justin.he@arm.com>, Joe Perches <joe@perches.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Laurent Dufour <ldufour@linux.ibm.com>,
-        Michel Lespinasse <michel@lespinasse.org>,
-        Nathan Lynch <nathanl@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Rich Felker <dalias@libc.org>,
-        Scott Cheloha <cheloha@linux.ibm.com>,
-        Sergei Trofimovich <slyfox@gentoo.org>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Will Deacon <will@kernel.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 273/293] mm/memory_hotplug: use "unsigned long" for PFN in zone_for_pfn_range()
-Date:   Mon, 20 Sep 2021 18:43:55 +0200
-Message-Id: <20210920163942.759283241@linuxfoundation.org>
+        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        =?UTF-8?q?Christian=20Borntr=C3=A4ger?= <borntraeger@de.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [PATCH 4.19 274/293] KVM: s390: index kvm->arch.idle_mask by vcpu_idx
+Date:   Mon, 20 Sep 2021 18:43:56 +0200
+Message-Id: <20210920163942.795516656@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
 References: <20210920163933.258815435@linuxfoundation.org>
@@ -90,125 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-commit 7cf209ba8a86410939a24cb1aeb279479a7e0ca6 upstream.
+commit a3e03bc1368c1bc16e19b001fc96dc7430573cc8 upstream.
 
-Patch series "mm/memory_hotplug: preparatory patches for new online policy and memory"
+While in practice vcpu->vcpu_idx ==  vcpu->vcp_id is often true, it may
+not always be, and we must not rely on this. Reason is that KVM decides
+the vcpu_idx, userspace decides the vcpu_id, thus the two might not
+match.
 
-These are all cleanups and one fix previously sent as part of [1]:
-[PATCH v1 00/12] mm/memory_hotplug: "auto-movable" online policy and memory
-groups.
+Currently kvm->arch.idle_mask is indexed by vcpu_id, which implies
+that code like
+for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
+                vcpu = kvm_get_vcpu(kvm, vcpu_id);
+		do_stuff(vcpu);
+}
+is not legit. Reason is that kvm_get_vcpu expects an vcpu_idx, not an
+vcpu_id.  The trouble is, we do actually use kvm->arch.idle_mask like
+this. To fix this problem we have two options. Either use
+kvm_get_vcpu_by_id(vcpu_id), which would loop to find the right vcpu_id,
+or switch to indexing via vcpu_idx. The latter is preferable for obvious
+reasons.
 
-These patches make sense even without the other series, therefore I pulled
-them out to make the other series easier to digest.
+Let us make switch from indexing kvm->arch.idle_mask by vcpu_id to
+indexing it by vcpu_idx.  To keep gisa_int.kicked_mask indexed by the
+same index as idle_mask lets make the same change for it as well.
 
-[1] https://lkml.kernel.org/r/20210607195430.48228-1-david@redhat.com
-
-This patch (of 4):
-
-Checkpatch complained on a follow-up patch that we are using "unsigned"
-here, which defaults to "unsigned int" and checkpatch is correct.
-
-As we will search for a fitting zone using the wrong pfn, we might end
-up onlining memory to one of the special kernel zones, such as ZONE_DMA,
-which can end badly as the onlined memory does not satisfy properties of
-these zones.
-
-Use "unsigned long" instead, just as we do in other places when handling
-PFNs.  This can bite us once we have physical addresses in the range of
-multiple TB.
-
-Link: https://lkml.kernel.org/r/20210712124052.26491-2-david@redhat.com
-Fixes: e5e689302633 ("mm, memory_hotplug: display allowed zones in the preferred ordering")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Pankaj Gupta <pankaj.gupta@ionos.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Len Brown <lenb@kernel.org>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: virtualization@lists.linux-foundation.org
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc: Anton Blanchard <anton@ozlabs.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jia He <justin.he@arm.com>
-Cc: Joe Perches <joe@perches.com>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Laurent Dufour <ldufour@linux.ibm.com>
-Cc: Michel Lespinasse <michel@lespinasse.org>
-Cc: Nathan Lynch <nathanl@linux.ibm.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Pierre Morel <pmorel@linux.ibm.com>
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Scott Cheloha <cheloha@linux.ibm.com>
-Cc: Sergei Trofimovich <slyfox@gentoo.org>
-Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Fixes: 1ee0bc559dc3 ("KVM: s390: get rid of local_int array")
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reviewed-by: Christian Bornträger <borntraeger@de.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: <stable@vger.kernel.org> # 3.15+
+Link: https://lore.kernel.org/r/20210827125429.1912577-1-pasic@linux.ibm.com
+[borntraeger@de.ibm.com]: change  idle mask, remove kicked_mask 
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/linux/memory_hotplug.h |    4 ++--
- mm/memory_hotplug.c            |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -344,6 +344,6 @@ extern struct page *sparse_decode_mem_ma
- 					  unsigned long pnum);
- extern bool allow_online_pfn_range(int nid, unsigned long pfn, unsigned long nr_pages,
- 		int online_type);
--extern struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
--		unsigned long nr_pages);
-+extern struct zone *zone_for_pfn_range(int online_type, int nid,
-+		unsigned long start_pfn, unsigned long nr_pages);
- #endif /* __LINUX_MEMORY_HOTPLUG_H */
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -783,8 +783,8 @@ static inline struct zone *default_zone_
- 	return movable_node_enabled ? movable_zone : kernel_zone;
+---
+ arch/s390/kvm/interrupt.c |    4 ++--
+ arch/s390/kvm/kvm-s390.h  |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -318,13 +318,13 @@ static unsigned long deliverable_irqs(st
+ static void __set_cpu_idle(struct kvm_vcpu *vcpu)
+ {
+ 	kvm_s390_set_cpuflags(vcpu, CPUSTAT_WAIT);
+-	set_bit(vcpu->vcpu_id, vcpu->kvm->arch.float_int.idle_mask);
++	set_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.float_int.idle_mask);
  }
  
--struct zone * zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
--		unsigned long nr_pages)
-+struct zone *zone_for_pfn_range(int online_type, int nid,
-+		unsigned long start_pfn, unsigned long nr_pages)
+ static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
  {
- 	if (online_type == MMOP_ONLINE_KERNEL)
- 		return default_kernel_zone_for_pfn(nid, start_pfn, nr_pages);
+ 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
+-	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.float_int.idle_mask);
++	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.float_int.idle_mask);
+ }
+ 
+ static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -67,7 +67,7 @@ static inline int is_vcpu_stopped(struct
+ 
+ static inline int is_vcpu_idle(struct kvm_vcpu *vcpu)
+ {
+-	return test_bit(vcpu->vcpu_id, vcpu->kvm->arch.float_int.idle_mask);
++	return test_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.float_int.idle_mask);
+ }
+ 
+ static inline int kvm_is_ucontrol(struct kvm *kvm)
 
 
