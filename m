@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BDBC411C8B
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:09:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33159411E67
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:29:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345854AbhITRK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:10:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33538 "EHLO mail.kernel.org"
+        id S1347714AbhITRad (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:30:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345932AbhITRI6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:08:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8D4A6139E;
-        Mon, 20 Sep 2021 16:56:00 +0000 (UTC)
+        id S1347500AbhITR2R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:28:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67F5061452;
+        Mon, 20 Sep 2021 17:03:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156961;
-        bh=zWRyMRxFe1EWlVNwJftPpmD8XfzvNluhmXS0Qz9Tbkk=;
+        s=korg; t=1632157406;
+        bh=kTIULCP1z6wRky27o8R+gQLIL1uO5RfMbjMxVrnXaqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bifDPxGDCRH5g5DGfZbqr/awBt2AV3yYlo6PJSgE9OOTQYMX6OfJWwtC4AcBpCgoR
-         XethweVO0SPCThxGXyfF5PHfiZnYxhwEUr/GryaPnEz4SWBxE+UspC+dkfKpG4ToH/
-         XHVVegYqkDjruq472X7EKhGwBOr7i6X7dBj9LW6A=
+        b=Vb2lhBoMl7uwP6pZoXY7wS10M0hGMVOzjQmZ0LY8XQ9nZrSRMRkvdIydy2BqYYd+o
+         5sAff2f73KyNcPm+WjCe0zPecJQPZ+GJTBFOlyKNr5EPRBLz5bO2pJyEaUiQ4eWY3J
+         25uRJksg/eNjjL7vg2DskPfkIXMmHYaXnar8YLtc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Borislav Petkov <bp@suse.de>,
         David Hildenbrand <david@redhat.com>,
         Dave Hansen <dave.hansen@intel.com>
-Subject: [PATCH 4.9 165/175] x86/mm: Fix kern_addr_valid() to cope with existing but not present entries
-Date:   Mon, 20 Sep 2021 18:43:34 +0200
-Message-Id: <20210920163923.459567132@linuxfoundation.org>
+Subject: [PATCH 4.14 194/217] x86/mm: Fix kern_addr_valid() to cope with existing but not present entries
+Date:   Mon, 20 Sep 2021 18:43:35 +0200
+Message-Id: <20210920163931.212928124@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -124,17 +124,21 @@ Tested-by: Jiri Olsa <jolsa@redhat.com>
 Cc: <stable@vger.kernel.org>	# 4.4+
 Link: https://lkml.kernel.org/r/20210819132717.19358-1-rppt@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
  arch/x86/mm/init_64.c |    6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 --- a/arch/x86/mm/init_64.c
 +++ b/arch/x86/mm/init_64.c
-@@ -1126,21 +1126,21 @@ int kern_addr_valid(unsigned long addr)
+@@ -1282,18 +1282,18 @@ int kern_addr_valid(unsigned long addr)
  		return 0;
  
- 	pud = pud_offset(pgd, addr);
+ 	p4d = p4d_offset(pgd, addr);
+-	if (p4d_none(*p4d))
++	if (!p4d_present(*p4d))
+ 		return 0;
+ 
+ 	pud = pud_offset(p4d, addr);
 -	if (pud_none(*pud))
 +	if (!pud_present(*pud))
  		return 0;
@@ -148,13 +152,5 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		return 0;
  
  	if (pmd_large(*pmd))
- 		return pfn_valid(pmd_pfn(*pmd));
- 
- 	pte = pte_offset_kernel(pmd, addr);
--	if (pte_none(*pte))
-+	if (!pte_present(*pte))
- 		return 0;
- 
- 	return pfn_valid(pte_pfn(*pte));
 
 
