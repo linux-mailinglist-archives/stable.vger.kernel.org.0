@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4839541231D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:19:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5886E41247F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:34:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351392AbhITSVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:21:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40368 "EHLO mail.kernel.org"
+        id S1352663AbhITSff (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:35:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358883AbhITSSS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:18:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4474C6135E;
-        Mon, 20 Sep 2021 17:22:44 +0000 (UTC)
+        id S1380079AbhITSc1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:32:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19B0D632F2;
+        Mon, 20 Sep 2021 17:27:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158564;
-        bh=s4HQuz1Gq+kbJ/mEFzo9C6PTGG/TxCf56IN1M5lLZ6M=;
+        s=korg; t=1632158858;
+        bh=KzrJ81mWKnjw/4GM+UnXKoRBrHQtG01lpAJSOH1umeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qA2W4w9tvJ1wVPGji8wqYTE+otDG5qZNBjPcu0yDNBtpyxuHwawo4L1uDGS+K1Gim
-         GDoPo8m9iuYm1+MisaikNs+4+RGaw0TDlE/IwBedvzYrju0vHqM+ulbVRPfMVFX7xr
-         ylJ+j+X5So8T+u26V0sNPTKyUAKvn7bIzeg0WdZ0=
+        b=ZTWFGMOA5RhYSGxQ+q+qaKBNTq+w6WoY9cMIe+1xhxR8dZ9bvn5TkiC+vPGBf1iTc
+         d1Rvvio8qiJtfruAuHOVRIE4ge6tPvQwBFquRWlsHXiLXIO7S1+Pb2vKer3UrNBEdv
+         /UCx9+a7C9x/kGAEcv8zCNj8e3ZxYq6wjbPYucyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrius V <vezhlys@gmail.com>,
-        Darek Strugacz <darek.strugacz@op.pl>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 214/260] r6040: Restore MDIO clock frequency after MAC reset
-Date:   Mon, 20 Sep 2021 18:43:52 +0200
-Message-Id: <20210920163938.385688390@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Vidya Sagar <vidyas@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 061/122] PCI: tegra: Fix OF node reference leak
+Date:   Mon, 20 Sep 2021 18:43:53 +0200
+Message-Id: <20210920163917.781295862@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,73 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit e3f0cc1a945fcefec0c7c9d9dfd028a51daa1846 upstream.
+[ Upstream commit eff21f5da308265678e7e59821795e606f3e560f ]
 
-A number of users have reported that they were not able to get the PHY
-to successfully link up, especially after commit c36757eb9dee ("net:
-phy: consider AN_RESTART status when reading link status") where we
-stopped reading just BMSR, but we also read BMCR to determine the link
-status.
+Commit 9e38e690ace3 ("PCI: tegra: Fix OF node reference leak") has fixed
+some node reference leaks in this function but missed some of them.
 
-Andrius at NetBSD did a wonderful job at debugging the problem
-and found out that the MDIO bus clock frequency would be incorrectly set
-back to its default value which would prevent the MDIO bus controller
-from reading PHY registers properly. Back when we only read BMSR, if we
-read all 1s, we could falsely indicate a link status, though in general
-there is a cable plugged in, so this went unnoticed. After a second read
-of BMCR was added, a wrong read will lead to the inability to determine
-a link UP condition which is when it started to be visibly broken, even
-if it was long before that.
+In fact, having 'port' referenced in the 'rp' structure is not enough to
+prevent the leak, until 'rp' is actually added in the 'pcie->ports' list.
 
-The fix consists in restoring the value of the MD_CSR register that was
-set prior to the MAC reset.
+Add the missing 'goto err_node_put' accordingly.
 
-Link: http://gnats.netbsd.org/cgi-bin/query-pr-single.pl?number=53494
-Fixes: 90f750a81a29 ("r6040: consolidate MAC reset to its own function")
-Reported-by: Andrius V <vezhlys@gmail.com>
-Reported-by: Darek Strugacz <darek.strugacz@op.pl>
-Tested-by: Darek Strugacz <darek.strugacz@op.pl>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/55b11e9a7fa2987fbc0869d68ae59888954d65e2.1620148539.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Vidya Sagar <vidyas@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/rdc/r6040.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/pci/controller/pci-tegra.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/rdc/r6040.c
-+++ b/drivers/net/ethernet/rdc/r6040.c
-@@ -119,6 +119,8 @@
- #define PHY_ST		0x8A	/* PHY status register */
- #define MAC_SM		0xAC	/* MAC status machine */
- #define  MAC_SM_RST	0x0002	/* MAC status machine reset */
-+#define MD_CSC		0xb6	/* MDC speed control register */
-+#define  MD_CSC_DEFAULT	0x0030
- #define MAC_ID		0xBE	/* Identifier register */
+diff --git a/drivers/pci/controller/pci-tegra.c b/drivers/pci/controller/pci-tegra.c
+index 1a2af963599c..b4eb75f25906 100644
+--- a/drivers/pci/controller/pci-tegra.c
++++ b/drivers/pci/controller/pci-tegra.c
+@@ -2160,13 +2160,15 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
+ 		rp->np = port;
  
- #define TX_DCNT		0x80	/* TX descriptor count */
-@@ -354,8 +356,9 @@ static void r6040_reset_mac(struct r6040
- {
- 	void __iomem *ioaddr = lp->base;
- 	int limit = MAC_DEF_TIMEOUT;
--	u16 cmd;
-+	u16 cmd, md_csc;
+ 		rp->base = devm_pci_remap_cfg_resource(dev, &rp->regs);
+-		if (IS_ERR(rp->base))
+-			return PTR_ERR(rp->base);
++		if (IS_ERR(rp->base)) {
++			err = PTR_ERR(rp->base);
++			goto err_node_put;
++		}
  
-+	md_csc = ioread16(ioaddr + MD_CSC);
- 	iowrite16(MAC_RST, ioaddr + MCR1);
- 	while (limit--) {
- 		cmd = ioread16(ioaddr + MCR1);
-@@ -367,6 +370,10 @@ static void r6040_reset_mac(struct r6040
- 	iowrite16(MAC_SM_RST, ioaddr + MAC_SM);
- 	iowrite16(0, ioaddr + MAC_SM);
- 	mdelay(5);
-+
-+	/* Restore MDIO clock frequency */
-+	if (md_csc != MD_CSC_DEFAULT)
-+		iowrite16(md_csc, ioaddr + MD_CSC);
- }
+ 		label = devm_kasprintf(dev, GFP_KERNEL, "pex-reset-%u", index);
+ 		if (!label) {
+-			dev_err(dev, "failed to create reset GPIO label\n");
+-			return -ENOMEM;
++			err = -ENOMEM;
++			goto err_node_put;
+ 		}
  
- static void r6040_init_mac_regs(struct net_device *dev)
+ 		/*
+@@ -2184,7 +2186,8 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
+ 			} else {
+ 				dev_err(dev, "failed to get reset GPIO: %ld\n",
+ 					PTR_ERR(rp->reset_gpio));
+-				return PTR_ERR(rp->reset_gpio);
++				err = PTR_ERR(rp->reset_gpio);
++				goto err_node_put;
+ 			}
+ 		}
+ 
+-- 
+2.30.2
+
 
 
