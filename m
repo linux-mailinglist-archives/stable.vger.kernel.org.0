@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E508641230C
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:19:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D489C4125D0
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:49:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376364AbhITSUu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:20:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40570 "EHLO mail.kernel.org"
+        id S1384671AbhITSse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:48:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1377348AbhITSSY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:18:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9583361A62;
-        Mon, 20 Sep 2021 17:22:59 +0000 (UTC)
+        id S1384096AbhITSqc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:46:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6D2263361;
+        Mon, 20 Sep 2021 17:33:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158580;
-        bh=ikfZ892KD0SNUlbUzD2rhuzPSMKNp0bILxoF/E3DFCw=;
+        s=korg; t=1632159220;
+        bh=walABZlX11JaDQYOkSKG4JpsE8wTH7I7GPEVcS8ooGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tjt+sKbs7eeKoeDuIdxMW+yazBXAXgCHL/lp3S0oRE3Tc2WVUrAeQVTsfxmoLeGMc
-         BplR8Ff/qT3be9mMRF3Zsi7wHLTo1J8TObA4ZU34iTP2ze6bjsYSste1QBhlCWgT8C
-         CTYpMxKi1vxRyExbAKLF+a+y1HjC0tsb9C4xPoQs=
+        b=SRM2GW7WVLz/mRmsipx2Wue5RhJgwXA+hzCU62ENSdJVimFnLVSPWt9msTCGyCIgY
+         CzerZLL5YF9tILmxkUWfkMYfUNeeeBDfGDlDu0PzBSeKxw+cvYKnbDFdWokBuCWJ3c
+         EW2vGlc4tSMr5qlIbm1tX4HScTp1ijEH03ZCsg9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 220/260] vhost_net: fix OoB on sendmsg() failure.
+        stable@vger.kernel.org, Kenneth Lee <liguozhu@hisilicon.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 100/168] riscv: fix the global name pfn_base confliction error
 Date:   Mon, 20 Sep 2021 18:43:58 +0200
-Message-Id: <20210920163938.586875942@linuxfoundation.org>
+Message-Id: <20210920163924.927901763@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +40,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Kenneth Lee <liguozhu@hisilicon.com>
 
-commit 3c4cea8fa7f71f00c5279547043a84bc2a4d8b8c upstream.
+[ Upstream commit fb31f0a499332a053477ed57312b214e42476e6d ]
 
-If the sendmsg() call in vhost_tx_batch() fails, both the 'batched_xdp'
-and 'done_idx' indexes are left unchanged. If such failure happens
-when batched_xdp == VHOST_NET_BATCH, the next call to
-vhost_net_build_xdp() will access and write memory outside the xdp
-buffers area.
+RISCV uses a global variable pfn_base for page/pfn translation. But this
+is a common name and will be used elsewhere. In those cases, the
+page-pfn macros which refer to this name will be referred to the
+local/input variable instead. (such as in vfio_pin_pages_remote). This
+make everything wrong.
 
-Since sendmsg() can only error with EBADFD, this change addresses the
-issue explicitly freeing the XDP buffers batch on error.
+This patch changes the name from pfn_base to riscv_pfn_base to fix
+this problem.
 
-Fixes: 0a0be13b8fe2 ("vhost_net: batch submitting XDP buffers to underlayer sockets")
-Suggested-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Kenneth Lee <liguozhu@hisilicon.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/net.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ arch/riscv/include/asm/page.h | 4 ++--
+ arch/riscv/mm/init.c          | 6 +++---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -466,7 +466,7 @@ static void vhost_tx_batch(struct vhost_
- 		.num = nvq->batched_xdp,
- 		.ptr = nvq->xdp,
- 	};
--	int err;
-+	int i, err;
+diff --git a/arch/riscv/include/asm/page.h b/arch/riscv/include/asm/page.h
+index b0ca5058e7ae..767852ae5e84 100644
+--- a/arch/riscv/include/asm/page.h
++++ b/arch/riscv/include/asm/page.h
+@@ -79,8 +79,8 @@ typedef struct page *pgtable_t;
+ #endif
  
- 	if (nvq->batched_xdp == 0)
- 		goto signal_used;
-@@ -475,6 +475,15 @@ static void vhost_tx_batch(struct vhost_
- 	err = sock->ops->sendmsg(sock, msghdr, 0);
- 	if (unlikely(err < 0)) {
- 		vq_err(&nvq->vq, "Fail to batch sending packets\n");
-+
-+		/* free pages owned by XDP; since this is an unlikely error path,
-+		 * keep it simple and avoid more complex bulk update for the
-+		 * used pages
-+		 */
-+		for (i = 0; i < nvq->batched_xdp; ++i)
-+			put_page(virt_to_head_page(nvq->xdp[i].data));
-+		nvq->batched_xdp = 0;
-+		nvq->done_idx = 0;
- 		return;
- 	}
+ #ifdef CONFIG_MMU
+-extern unsigned long pfn_base;
+-#define ARCH_PFN_OFFSET		(pfn_base)
++extern unsigned long riscv_pfn_base;
++#define ARCH_PFN_OFFSET		(riscv_pfn_base)
+ #else
+ #define ARCH_PFN_OFFSET		(PAGE_OFFSET >> PAGE_SHIFT)
+ #endif /* CONFIG_MMU */
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index 7cb4f391d106..9786100f3a14 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -234,8 +234,8 @@ static struct pt_alloc_ops _pt_ops __initdata;
+ #define pt_ops _pt_ops
+ #endif
  
+-unsigned long pfn_base __ro_after_init;
+-EXPORT_SYMBOL(pfn_base);
++unsigned long riscv_pfn_base __ro_after_init;
++EXPORT_SYMBOL(riscv_pfn_base);
+ 
+ pgd_t swapper_pg_dir[PTRS_PER_PGD] __page_aligned_bss;
+ pgd_t trampoline_pg_dir[PTRS_PER_PGD] __page_aligned_bss;
+@@ -579,7 +579,7 @@ asmlinkage void __init setup_vm(uintptr_t dtb_pa)
+ 	kernel_map.va_kernel_pa_offset = kernel_map.virt_addr - kernel_map.phys_addr;
+ #endif
+ 
+-	pfn_base = PFN_DOWN(kernel_map.phys_addr);
++	riscv_pfn_base = PFN_DOWN(kernel_map.phys_addr);
+ 
+ 	/*
+ 	 * Enforce boot alignment requirements of RV32 and
+-- 
+2.30.2
+
 
 
