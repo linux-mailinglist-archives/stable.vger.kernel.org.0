@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C2FB4125D4
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:49:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ACF141248A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:34:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384679AbhITSsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:48:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59876 "EHLO mail.kernel.org"
+        id S1352957AbhITSfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:35:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1384101AbhITSqd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:46:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4E0A63363;
-        Mon, 20 Sep 2021 17:33:41 +0000 (UTC)
+        id S1380113AbhITSce (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:32:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4554A632FF;
+        Mon, 20 Sep 2021 17:28:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159222;
-        bh=BvUepuoep7XTWaVhs83x1LXOtgm9K1UWGy0biRI2gO4=;
+        s=korg; t=1632158885;
+        bh=fkMFqX2Y8okYx4GsUhULMqkocPJE0oowUtWnfYSmQOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U7Y/YCEVjx5wJPuXyAp1x3uzChBur+IZEi1rd9jXymj9IKlbpJen2GdCP6pl4qjLj
-         rb+PwpIEV1/BtUde6E2FR9f9ZEI6jPrlWLchgRdp+00Q3siZ/GzbuByQjtJ+mqFbkA
-         jfKbFl+j9QA54zJmszF5JXM6S1yNQR1BSUHi0MJk=
+        b=ugQcjJAfY4a+Sc0AQd/oyhWZO7hdrPhNQr7ebKFCcVi4lhchGy/vt+Vs8vTMjBSXD
+         mPNpvTPIabRU/fx/NMRjMwT4cjjCp2rnMn+gL/sjwidXmkLBaocN5eUgneTGLtKo9h
+         Zcl2CIDGeSLvTqvnPm4Vd2lDrdxFkVnc88sGHKgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Scull <ascull@google.com>,
-        Quentin Perret <qperret@google.com>,
-        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 101/168] KVM: arm64: Make hyp_panic() more robust when protected mode is enabled
+Subject: [PATCH 5.10 067/122] PCI: j721e: Add PCIe support for J7200
 Date:   Mon, 20 Sep 2021 18:43:59 +0200
-Message-Id: <20210920163924.960132609@linuxfoundation.org>
+Message-Id: <20210920163917.972910768@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,133 +40,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-[ Upstream commit ccac96977243d7916053550f62e6489760ad0adc ]
+[ Upstream commit f1de58802f0fff364cf49f5e47d1be744baa434f ]
 
-When protected mode is enabled, the host is unable to access most parts
-of the EL2 hypervisor image, including 'hyp_physvirt_offset' and the
-contents of the hypervisor's '.rodata.str' section. Unfortunately,
-nvhe_hyp_panic_handler() tries to read from both of these locations when
-handling a BUG() triggered at EL2; the former for converting the ELR to
-a physical address and the latter for displaying the name of the source
-file where the BUG() occurred.
+J7200 has the same PCIe IP as in J721E with minor changes in the
+wrapper. J7200 allows byte access of bridge configuration space
+registers and the register field for LINK_DOWN interrupt is different.
+J7200 also requires "quirk_detect_quiet_flag" to be set. Configure these
+changes as part of driver data applicable only to J7200.
 
-Hack the EL2 panic asm to pass both physical and virtual ELR values to
-the host and utilise the newly introduced CONFIG_NVHE_EL2_DEBUG so that
-we disable stage-2 protection for the host before returning to the EL1
-panic handler. If the debug option is not enabled, display the address
-instead of the source file:line information.
-
-Cc: Andrew Scull <ascull@google.com>
-Cc: Quentin Perret <qperret@google.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210813130336.8139-1-will@kernel.org
+Link: https://lore.kernel.org/r/20210811123336.31357-4-kishon@ti.com
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/handle_exit.c   | 23 ++++++++++++++---------
- arch/arm64/kvm/hyp/nvhe/host.S | 21 +++++++++++++++++----
- 2 files changed, 31 insertions(+), 13 deletions(-)
+ drivers/pci/controller/cadence/pci-j721e.c | 40 +++++++++++++++++++---
+ 1 file changed, 36 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/kvm/handle_exit.c b/arch/arm64/kvm/handle_exit.c
-index 6f48336b1d86..04ebab299aa4 100644
---- a/arch/arm64/kvm/handle_exit.c
-+++ b/arch/arm64/kvm/handle_exit.c
-@@ -292,11 +292,12 @@ void handle_exit_early(struct kvm_vcpu *vcpu, int exception_index)
- 		kvm_handle_guest_serror(vcpu, kvm_vcpu_get_esr(vcpu));
+diff --git a/drivers/pci/controller/cadence/pci-j721e.c b/drivers/pci/controller/cadence/pci-j721e.c
+index 973b309ac9ba..2f5a49c77074 100644
+--- a/drivers/pci/controller/cadence/pci-j721e.c
++++ b/drivers/pci/controller/cadence/pci-j721e.c
+@@ -25,6 +25,7 @@
+ #define STATUS_REG_SYS_2	0x508
+ #define STATUS_CLR_REG_SYS_2	0x708
+ #define LINK_DOWN		BIT(1)
++#define J7200_LINK_DOWN		BIT(10)
+ 
+ #define J721E_PCIE_USER_CMD_STATUS	0x4
+ #define LINK_TRAINING_ENABLE		BIT(0)
+@@ -54,6 +55,7 @@ struct j721e_pcie {
+ 	struct cdns_pcie	*cdns_pcie;
+ 	void __iomem		*user_cfg_base;
+ 	void __iomem		*intd_cfg_base;
++	u32			linkdown_irq_regfield;
+ };
+ 
+ enum j721e_pcie_mode {
+@@ -64,6 +66,9 @@ enum j721e_pcie_mode {
+ struct j721e_pcie_data {
+ 	enum j721e_pcie_mode	mode;
+ 	unsigned int		quirk_retrain_flag:1;
++	unsigned int		quirk_detect_quiet_flag:1;
++	u32			linkdown_irq_regfield;
++	unsigned int		byte_access_allowed:1;
+ };
+ 
+ static inline u32 j721e_pcie_user_readl(struct j721e_pcie *pcie, u32 offset)
+@@ -95,12 +100,12 @@ static irqreturn_t j721e_pcie_link_irq_handler(int irq, void *priv)
+ 	u32 reg;
+ 
+ 	reg = j721e_pcie_intd_readl(pcie, STATUS_REG_SYS_2);
+-	if (!(reg & LINK_DOWN))
++	if (!(reg & pcie->linkdown_irq_regfield))
+ 		return IRQ_NONE;
+ 
+ 	dev_err(dev, "LINK DOWN!\n");
+ 
+-	j721e_pcie_intd_writel(pcie, STATUS_CLR_REG_SYS_2, LINK_DOWN);
++	j721e_pcie_intd_writel(pcie, STATUS_CLR_REG_SYS_2, pcie->linkdown_irq_regfield);
+ 	return IRQ_HANDLED;
  }
  
--void __noreturn __cold nvhe_hyp_panic_handler(u64 esr, u64 spsr, u64 elr,
-+void __noreturn __cold nvhe_hyp_panic_handler(u64 esr, u64 spsr,
-+					      u64 elr_virt, u64 elr_phys,
- 					      u64 par, uintptr_t vcpu,
- 					      u64 far, u64 hpfar) {
--	u64 elr_in_kimg = __phys_to_kimg(__hyp_pa(elr));
--	u64 hyp_offset = elr_in_kimg - kaslr_offset() - elr;
-+	u64 elr_in_kimg = __phys_to_kimg(elr_phys);
-+	u64 hyp_offset = elr_in_kimg - kaslr_offset() - elr_virt;
- 	u64 mode = spsr & PSR_MODE_MASK;
+@@ -109,7 +114,7 @@ static void j721e_pcie_config_link_irq(struct j721e_pcie *pcie)
+ 	u32 reg;
  
- 	/*
-@@ -309,20 +310,24 @@ void __noreturn __cold nvhe_hyp_panic_handler(u64 esr, u64 spsr, u64 elr,
- 		kvm_err("Invalid host exception to nVHE hyp!\n");
- 	} else if (ESR_ELx_EC(esr) == ESR_ELx_EC_BRK64 &&
- 		   (esr & ESR_ELx_BRK64_ISS_COMMENT_MASK) == BUG_BRK_IMM) {
--		struct bug_entry *bug = find_bug(elr_in_kimg);
- 		const char *file = NULL;
- 		unsigned int line = 0;
- 
- 		/* All hyp bugs, including warnings, are treated as fatal. */
--		if (bug)
--			bug_get_file_line(bug, &file, &line);
-+		if (!is_protected_kvm_enabled() ||
-+		    IS_ENABLED(CONFIG_NVHE_EL2_DEBUG)) {
-+			struct bug_entry *bug = find_bug(elr_in_kimg);
-+
-+			if (bug)
-+				bug_get_file_line(bug, &file, &line);
-+		}
- 
- 		if (file)
- 			kvm_err("nVHE hyp BUG at: %s:%u!\n", file, line);
- 		else
--			kvm_err("nVHE hyp BUG at: %016llx!\n", elr + hyp_offset);
-+			kvm_err("nVHE hyp BUG at: %016llx!\n", elr_virt + hyp_offset);
- 	} else {
--		kvm_err("nVHE hyp panic at: %016llx!\n", elr + hyp_offset);
-+		kvm_err("nVHE hyp panic at: %016llx!\n", elr_virt + hyp_offset);
- 	}
- 
- 	/*
-@@ -334,5 +339,5 @@ void __noreturn __cold nvhe_hyp_panic_handler(u64 esr, u64 spsr, u64 elr,
- 	kvm_err("Hyp Offset: 0x%llx\n", hyp_offset);
- 
- 	panic("HYP panic:\nPS:%08llx PC:%016llx ESR:%08llx\nFAR:%016llx HPFAR:%016llx PAR:%016llx\nVCPU:%016lx\n",
--	      spsr, elr, esr, far, hpfar, par, vcpu);
-+	      spsr, elr_virt, esr, far, hpfar, par, vcpu);
+ 	reg = j721e_pcie_intd_readl(pcie, ENABLE_REG_SYS_2);
+-	reg |= LINK_DOWN;
++	reg |= pcie->linkdown_irq_regfield;
+ 	j721e_pcie_intd_writel(pcie, ENABLE_REG_SYS_2, reg);
  }
-diff --git a/arch/arm64/kvm/hyp/nvhe/host.S b/arch/arm64/kvm/hyp/nvhe/host.S
-index 2b23400e0fb3..4b652ffb591d 100644
---- a/arch/arm64/kvm/hyp/nvhe/host.S
-+++ b/arch/arm64/kvm/hyp/nvhe/host.S
-@@ -7,6 +7,7 @@
- #include <linux/linkage.h>
  
- #include <asm/assembler.h>
-+#include <asm/kvm_arm.h>
- #include <asm/kvm_asm.h>
- #include <asm/kvm_mmu.h>
+@@ -272,10 +277,25 @@ static struct pci_ops cdns_ti_pcie_host_ops = {
+ static const struct j721e_pcie_data j721e_pcie_rc_data = {
+ 	.mode = PCI_MODE_RC,
+ 	.quirk_retrain_flag = true,
++	.byte_access_allowed = false,
++	.linkdown_irq_regfield = LINK_DOWN,
+ };
  
-@@ -85,12 +86,24 @@ SYM_FUNC_START(__hyp_do_panic)
- 
- 	mov	x29, x0
- 
-+#ifdef CONFIG_NVHE_EL2_DEBUG
-+	/* Ensure host stage-2 is disabled */
-+	mrs	x0, hcr_el2
-+	bic	x0, x0, #HCR_VM
-+	msr	hcr_el2, x0
-+	isb
-+	tlbi	vmalls12e1
-+	dsb	nsh
-+#endif
+ static const struct j721e_pcie_data j721e_pcie_ep_data = {
+ 	.mode = PCI_MODE_EP,
++	.linkdown_irq_regfield = LINK_DOWN,
++};
 +
- 	/* Load the panic arguments into x0-7 */
- 	mrs	x0, esr_el2
--	get_vcpu_ptr x4, x5
--	mrs	x5, far_el2
--	mrs	x6, hpfar_el2
--	mov	x7, xzr			// Unused argument
-+	mov	x4, x3
-+	mov	x3, x2
-+	hyp_pa	x3, x6
-+	get_vcpu_ptr x5, x6
-+	mrs	x6, far_el2
-+	mrs	x7, hpfar_el2
++static const struct j721e_pcie_data j7200_pcie_rc_data = {
++	.mode = PCI_MODE_RC,
++	.quirk_detect_quiet_flag = true,
++	.linkdown_irq_regfield = J7200_LINK_DOWN,
++	.byte_access_allowed = true,
++};
++
++static const struct j721e_pcie_data j7200_pcie_ep_data = {
++	.mode = PCI_MODE_EP,
++	.quirk_detect_quiet_flag = true,
+ };
  
- 	/* Enter the host, conditionally restoring the host context. */
- 	cbz	x29, __host_enter_without_restoring
+ static const struct of_device_id of_j721e_pcie_match[] = {
+@@ -287,6 +307,14 @@ static const struct of_device_id of_j721e_pcie_match[] = {
+ 		.compatible = "ti,j721e-pcie-ep",
+ 		.data = &j721e_pcie_ep_data,
+ 	},
++	{
++		.compatible = "ti,j7200-pcie-host",
++		.data = &j7200_pcie_rc_data,
++	},
++	{
++		.compatible = "ti,j7200-pcie-ep",
++		.data = &j7200_pcie_ep_data,
++	},
+ 	{},
+ };
+ 
+@@ -319,6 +347,7 @@ static int j721e_pcie_probe(struct platform_device *pdev)
+ 
+ 	pcie->dev = dev;
+ 	pcie->mode = mode;
++	pcie->linkdown_irq_regfield = data->linkdown_irq_regfield;
+ 
+ 	base = devm_platform_ioremap_resource_byname(pdev, "intd_cfg");
+ 	if (IS_ERR(base))
+@@ -378,9 +407,11 @@ static int j721e_pcie_probe(struct platform_device *pdev)
+ 			goto err_get_sync;
+ 		}
+ 
+-		bridge->ops = &cdns_ti_pcie_host_ops;
++		if (!data->byte_access_allowed)
++			bridge->ops = &cdns_ti_pcie_host_ops;
+ 		rc = pci_host_bridge_priv(bridge);
+ 		rc->quirk_retrain_flag = data->quirk_retrain_flag;
++		rc->quirk_detect_quiet_flag = data->quirk_detect_quiet_flag;
+ 
+ 		cdns_pcie = &rc->pcie;
+ 		cdns_pcie->dev = dev;
+@@ -430,6 +461,7 @@ static int j721e_pcie_probe(struct platform_device *pdev)
+ 			ret = -ENOMEM;
+ 			goto err_get_sync;
+ 		}
++		ep->quirk_detect_quiet_flag = data->quirk_detect_quiet_flag;
+ 
+ 		cdns_pcie = &ep->pcie;
+ 		cdns_pcie->dev = dev;
 -- 
 2.30.2
 
