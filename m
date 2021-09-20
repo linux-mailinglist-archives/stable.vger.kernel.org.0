@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4B394122D1
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:16:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56105412502
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376904AbhITSSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:18:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40192 "EHLO mail.kernel.org"
+        id S1346515AbhITSlG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:41:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358881AbhITSQO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:16:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06320613D5;
-        Mon, 20 Sep 2021 17:21:53 +0000 (UTC)
+        id S1381640AbhITSjB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:39:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24F7D63326;
+        Mon, 20 Sep 2021 17:30:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158514;
-        bh=wN6vSEPhPLmzIulhSS4Va0sPao8QvE+7Z2WVoHmIeuc=;
+        s=korg; t=1632159020;
+        bh=hjQw1FsWVyVIKSRoQkKjd5yOzPMsspegKkmUG41isls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v1fFRtFdi+BaR8fBIvkH0aFqLNO8883PQK2RuJsRr3URDym3k8Z1Wh2Rn6U5WPFw3
-         T0jK3eBTUEZ5pHijCw0iQT74ouThtUMcPeWNfDaN6/dicsyHr3TX+ZOmp6rrIbO6L8
-         6pnuz6kgBUdYd1xJ/KoMNkTAtp6PnDtst9+tS6fY=
+        b=mzjdNEEToXcPB/NhuqOi152aAmdX0ItPO4MPvx8YElR9CikuD+pUG4/UfOuVXSWba
+         +VYBu5sH8M9HZp6gpJbDdbVqsxe6iUJbw0zpraZlcyrx75l1eEFoevPU7a3Nqwqp/E
+         KCYxIsz4d9893FBT1rWpiyNG31WSA0JqX4/g4CC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Anirudh Rayabharam <mail@anirudhrb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 159/260] usbip: give back URBs for unsent unlink requests during cleanup
-Date:   Mon, 20 Sep 2021 18:42:57 +0200
-Message-Id: <20210920163936.501956170@linuxfoundation.org>
+        stable@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.14 040/168] net/{mlx5|nfp|bnxt}: Remove unnecessary RTNL lock assert
+Date:   Mon, 20 Sep 2021 18:42:58 +0200
+Message-Id: <20210920163922.968661000@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,71 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Eli Cohen <elic@nvidia.com>
 
-[ Upstream commit 258c81b341c8025d79073ce2d6ce19dcdc7d10d2 ]
+commit 7c3a0a018e672a9723a79b128227272562300055 upstream.
 
-In vhci_device_unlink_cleanup(), the URBs for unsent unlink requests are
-not given back. This sometimes causes usb_kill_urb to wait indefinitely
-for that urb to be given back. syzbot has reported a hung task issue [1]
-for this.
+Remove the assert from the callback priv lookup function since it does
+not require RTNL lock and is already protected by flow_indr_block_lock.
 
-To fix this, give back the urbs corresponding to unsent unlink requests
-(unlink_tx list) similar to how urbs corresponding to unanswered unlink
-requests (unlink_rx list) are given back.
+This will avoid warnings from being emitted to dmesg if the driver
+registers its callback after an ingress qdisc was created for a
+netdevice.
 
-[1]: https://syzkaller.appspot.com/bug?id=08f12df95ae7da69814e64eb5515d5a85ed06b76
+The warnings started after the following patch was merged:
+commit 74fc4f828769 ("net: Fix offloading indirect devices dependency on qdisc order creation")
 
-Reported-by: syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com
-Tested-by: syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Link: https://lore.kernel.org/r/20210820190122.16379-2-mail@anirudhrb.com
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usbip/vhci_hcd.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_tc.c        |    3 ---
+ drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c |    3 ---
+ drivers/net/ethernet/netronome/nfp/flower/offload.c |    3 ---
+ 3 files changed, 9 deletions(-)
 
-diff --git a/drivers/usb/usbip/vhci_hcd.c b/drivers/usb/usbip/vhci_hcd.c
-index 98636fbf7188..46a46cde2070 100644
---- a/drivers/usb/usbip/vhci_hcd.c
-+++ b/drivers/usb/usbip/vhci_hcd.c
-@@ -952,8 +952,32 @@ static void vhci_device_unlink_cleanup(struct vhci_device *vdev)
- 	spin_lock(&vdev->priv_lock);
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_tc.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_tc.c
+@@ -1870,9 +1870,6 @@ bnxt_tc_indr_block_cb_lookup(struct bnxt
+ {
+ 	struct bnxt_flower_indr_block_cb_priv *cb_priv;
  
- 	list_for_each_entry_safe(unlink, tmp, &vdev->unlink_tx, list) {
-+		struct urb *urb;
-+
-+		/* give back urb of unsent unlink request */
- 		pr_info("unlink cleanup tx %lu\n", unlink->unlink_seqnum);
-+
-+		urb = pickup_urb_and_free_priv(vdev, unlink->unlink_seqnum);
-+		if (!urb) {
-+			list_del(&unlink->list);
-+			kfree(unlink);
-+			continue;
-+		}
-+
-+		urb->status = -ENODEV;
-+
-+		usb_hcd_unlink_urb_from_ep(hcd, urb);
-+
- 		list_del(&unlink->list);
-+
-+		spin_unlock(&vdev->priv_lock);
-+		spin_unlock_irqrestore(&vhci->lock, flags);
-+
-+		usb_hcd_giveback_urb(hcd, urb, urb->status);
-+
-+		spin_lock_irqsave(&vhci->lock, flags);
-+		spin_lock(&vdev->priv_lock);
-+
- 		kfree(unlink);
- 	}
+-	/* All callback list access should be protected by RTNL. */
+-	ASSERT_RTNL();
+-
+ 	list_for_each_entry(cb_priv, &bp->tc_indr_block_list, list)
+ 		if (cb_priv->tunnel_netdev == netdev)
+ 			return cb_priv;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c
+@@ -300,9 +300,6 @@ mlx5e_rep_indr_block_priv_lookup(struct
+ {
+ 	struct mlx5e_rep_indr_block_priv *cb_priv;
  
--- 
-2.30.2
-
+-	/* All callback list access should be protected by RTNL. */
+-	ASSERT_RTNL();
+-
+ 	list_for_each_entry(cb_priv,
+ 			    &rpriv->uplink_priv.tc_indr_block_priv_list,
+ 			    list)
+--- a/drivers/net/ethernet/netronome/nfp/flower/offload.c
++++ b/drivers/net/ethernet/netronome/nfp/flower/offload.c
+@@ -1766,9 +1766,6 @@ nfp_flower_indr_block_cb_priv_lookup(str
+ 	struct nfp_flower_indr_block_cb_priv *cb_priv;
+ 	struct nfp_flower_priv *priv = app->priv;
+ 
+-	/* All callback list access should be protected by RTNL. */
+-	ASSERT_RTNL();
+-
+ 	list_for_each_entry(cb_priv, &priv->indr_block_cb_priv, list)
+ 		if (cb_priv->netdev == netdev)
+ 			return cb_priv;
 
 
