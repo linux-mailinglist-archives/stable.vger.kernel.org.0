@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F0C641227E
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25F59412506
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351596AbhITSP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:15:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35806 "EHLO mail.kernel.org"
+        id S1353086AbhITSlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:41:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376444AbhITSMT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:12:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23E4C63288;
-        Mon, 20 Sep 2021 17:20:50 +0000 (UTC)
+        id S1353443AbhITSjF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:39:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB9AA6332B;
+        Mon, 20 Sep 2021 17:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158451;
-        bh=UsaLy+VS9uGznDshld/1XfrmZjQm8g1fmvtDiPhgZ/Y=;
+        s=korg; t=1632159027;
+        bh=nlLP1PcMFvreRz2bXlOXcM6f5l++eOJOjZaNDzVxO4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u18UyKF2QGL+bqo0sbI8fQYMpxfZWObpi52nk6TXMkdZri7hG4wDSMYuPzFeSNIoR
-         RjyU80dL1GRC6oFhosXrbrdglNH+36PyM8zxXGv32SE8S6ia/bIM0+tfnH/K2fBhu1
-         TQaonJgXlWX0c8Mt+QSGP1jJuYzBXhmRgHeb76ww=
+        b=qbLtwwSLEn5b3o6oVrUs/in7qQoAH3PtsrXA/ckAJSBLLkDMg7cUB53qoeI6SjJxM
+         9YpI2T2ft+8zBFFrmE0hj9jfpYMLXGDqIgwQkdjxWopPCjLJAZ5xEgfeLbxr80YkVs
+         qoUNSx1kH9e7QvxHKwglDQkDmXmHZvUyKfoBGn0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Keely <Sean.Keely@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 163/260] drm/amdkfd: Account for SH/SE count when setting up cu masks.
+        stable@vger.kernel.org, Zhenpeng Lin <zplin@psu.edu>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.14 043/168] dccp: dont duplicate ccid when cloning dccp sock
 Date:   Mon, 20 Sep 2021 18:43:01 +0200
-Message-Id: <20210920163936.634507194@linuxfoundation.org>
+Message-Id: <20210920163923.062782335@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,150 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Keely <Sean.Keely@amd.com>
+From: Lin, Zhenpeng <zplin@psu.edu>
 
-[ Upstream commit 1ec06c2dee679e9f089e78ed20cb74ee90155f61 ]
+commit d9ea761fdd197351890418acd462c51f241014a7 upstream.
 
-On systems with multiple SH per SE compute_static_thread_mgmt_se#
-is split into independent masks, one for each SH, in the upper and
-lower 16 bits.  We need to detect this and apply cu masking to each
-SH.  The cu mask bits are assigned first to each SE, then to
-alternate SHs, then finally to higher CU id.  This ensures that
-the maximum number of SPIs are engaged as early as possible while
-balancing CU assignment to each SH.
+Commit 2677d2067731 ("dccp: don't free ccid2_hc_tx_sock ...") fixed
+a UAF but reintroduced CVE-2017-6074.
 
-v2: Use max SH/SE rather than max SH in cu_per_sh.
+When the sock is cloned, two dccps_hc_tx_ccid will reference to the
+same ccid. So one can free the ccid object twice from two socks after
+cloning.
 
-v3: Fix comment blocks, ensure se_mask is initially zero filled,
-    and correctly assign se.sh.cu positions to unset bits in cu_mask.
+This issue was found by "Hadar Manor" as well and assigned with
+CVE-2020-16119, which was fixed in Ubuntu's kernel. So here I port
+the patch from Ubuntu to fix it.
 
-Signed-off-by: Sean Keely <Sean.Keely@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The patch prevents cloned socks from referencing the same ccid.
+
+Fixes: 2677d2067731410 ("dccp: don't free ccid2_hc_tx_sock ...")
+Signed-off-by: Zhenpeng Lin <zplin@psu.edu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.c | 84 +++++++++++++++-----
- drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.h |  1 +
- 2 files changed, 64 insertions(+), 21 deletions(-)
+ net/dccp/minisocks.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.c
-index 88813dad731f..c021519af810 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.c
-@@ -98,36 +98,78 @@ void mqd_symmetrically_map_cu_mask(struct mqd_manager *mm,
- 		uint32_t *se_mask)
- {
- 	struct kfd_cu_info cu_info;
--	uint32_t cu_per_se[KFD_MAX_NUM_SE] = {0};
--	int i, se, sh, cu = 0;
--
-+	uint32_t cu_per_sh[KFD_MAX_NUM_SE][KFD_MAX_NUM_SH_PER_SE] = {0};
-+	int i, se, sh, cu;
- 	amdgpu_amdkfd_get_cu_info(mm->dev->kgd, &cu_info);
- 
- 	if (cu_mask_count > cu_info.cu_active_number)
- 		cu_mask_count = cu_info.cu_active_number;
- 
-+	/* Exceeding these bounds corrupts the stack and indicates a coding error.
-+	 * Returning with no CU's enabled will hang the queue, which should be
-+	 * attention grabbing.
-+	 */
-+	if (cu_info.num_shader_engines > KFD_MAX_NUM_SE) {
-+		pr_err("Exceeded KFD_MAX_NUM_SE, chip reports %d\n", cu_info.num_shader_engines);
-+		return;
-+	}
-+	if (cu_info.num_shader_arrays_per_engine > KFD_MAX_NUM_SH_PER_SE) {
-+		pr_err("Exceeded KFD_MAX_NUM_SH, chip reports %d\n",
-+			cu_info.num_shader_arrays_per_engine * cu_info.num_shader_engines);
-+		return;
-+	}
-+	/* Count active CUs per SH.
-+	 *
-+	 * Some CUs in an SH may be disabled.	HW expects disabled CUs to be
-+	 * represented in the high bits of each SH's enable mask (the upper and lower
-+	 * 16 bits of se_mask) and will take care of the actual distribution of
-+	 * disabled CUs within each SH automatically.
-+	 * Each half of se_mask must be filled only on bits 0-cu_per_sh[se][sh]-1.
-+	 *
-+	 * See note on Arcturus cu_bitmap layout in gfx_v9_0_get_cu_info.
-+	 */
- 	for (se = 0; se < cu_info.num_shader_engines; se++)
- 		for (sh = 0; sh < cu_info.num_shader_arrays_per_engine; sh++)
--			cu_per_se[se] += hweight32(cu_info.cu_bitmap[se % 4][sh + (se / 4)]);
--
--	/* Symmetrically map cu_mask to all SEs:
--	 * cu_mask[0] bit0 -> se_mask[0] bit0;
--	 * cu_mask[0] bit1 -> se_mask[1] bit0;
--	 * ... (if # SE is 4)
--	 * cu_mask[0] bit4 -> se_mask[0] bit1;
-+			cu_per_sh[se][sh] = hweight32(cu_info.cu_bitmap[se % 4][sh + (se / 4)]);
-+
-+	/* Symmetrically map cu_mask to all SEs & SHs:
-+	 * se_mask programs up to 2 SH in the upper and lower 16 bits.
-+	 *
-+	 * Examples
-+	 * Assuming 1 SH/SE, 4 SEs:
-+	 * cu_mask[0] bit0 -> se_mask[0] bit0
-+	 * cu_mask[0] bit1 -> se_mask[1] bit0
-+	 * ...
-+	 * cu_mask[0] bit4 -> se_mask[0] bit1
-+	 * ...
-+	 *
-+	 * Assuming 2 SH/SE, 4 SEs
-+	 * cu_mask[0] bit0 -> se_mask[0] bit0 (SE0,SH0,CU0)
-+	 * cu_mask[0] bit1 -> se_mask[1] bit0 (SE1,SH0,CU0)
-+	 * ...
-+	 * cu_mask[0] bit4 -> se_mask[0] bit16 (SE0,SH1,CU0)
-+	 * cu_mask[0] bit5 -> se_mask[1] bit16 (SE1,SH1,CU0)
-+	 * ...
-+	 * cu_mask[0] bit8 -> se_mask[0] bit1 (SE0,SH0,CU1)
- 	 * ...
-+	 *
-+	 * First ensure all CUs are disabled, then enable user specified CUs.
- 	 */
--	se = 0;
--	for (i = 0; i < cu_mask_count; i++) {
--		if (cu_mask[i / 32] & (1 << (i % 32)))
--			se_mask[se] |= 1 << cu;
--
--		do {
--			se++;
--			if (se == cu_info.num_shader_engines) {
--				se = 0;
--				cu++;
-+	for (i = 0; i < cu_info.num_shader_engines; i++)
-+		se_mask[i] = 0;
-+
-+	i = 0;
-+	for (cu = 0; cu < 16; cu++) {
-+		for (sh = 0; sh < cu_info.num_shader_arrays_per_engine; sh++) {
-+			for (se = 0; se < cu_info.num_shader_engines; se++) {
-+				if (cu_per_sh[se][sh] > cu) {
-+					if (cu_mask[i / 32] & (1 << (i % 32)))
-+						se_mask[se] |= 1 << (cu + sh * 16);
-+					i++;
-+					if (i == cu_mask_count)
-+						return;
-+				}
- 			}
--		} while (cu >= cu_per_se[se] && cu < 32);
-+		}
- 	}
- }
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.h b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.h
-index fbdb16418847..4edc012e3138 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.h
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.h
-@@ -27,6 +27,7 @@
- #include "kfd_priv.h"
- 
- #define KFD_MAX_NUM_SE 8
-+#define KFD_MAX_NUM_SH_PER_SE 2
- 
- /**
-  * struct mqd_manager
--- 
-2.30.2
-
+--- a/net/dccp/minisocks.c
++++ b/net/dccp/minisocks.c
+@@ -94,6 +94,8 @@ struct sock *dccp_create_openreq_child(c
+ 		newdp->dccps_role	    = DCCP_ROLE_SERVER;
+ 		newdp->dccps_hc_rx_ackvec   = NULL;
+ 		newdp->dccps_service_list   = NULL;
++		newdp->dccps_hc_rx_ccid     = NULL;
++		newdp->dccps_hc_tx_ccid     = NULL;
+ 		newdp->dccps_service	    = dreq->dreq_service;
+ 		newdp->dccps_timestamp_echo = dreq->dreq_timestamp_echo;
+ 		newdp->dccps_timestamp_time = dreq->dreq_timestamp_time;
 
 
