@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C53941251F
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0A35412542
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:41:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352839AbhITSle (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:41:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55446 "EHLO mail.kernel.org"
+        id S1382897AbhITSml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:42:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353268AbhITSiR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:38:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E05261411;
-        Mon, 20 Sep 2021 17:29:47 +0000 (UTC)
+        id S1382499AbhITSka (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:40:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA7E76147F;
+        Mon, 20 Sep 2021 17:31:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158987;
-        bh=EY4CsRbvm70G4HuhNf4gaYtW7p9yA2mLcifBqqEej3s=;
+        s=korg; t=1632159081;
+        bh=0riqdmja0mAB96sZTmyNskyimcXEmYFrkIokWKWV/qo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jMgkKwAVrLHb+Uty3zpX37N2UArCew801boZSDEuOiP/tkmpWm7gdokzpdowYl66I
-         0zxYFRT7LopbN14Mw1AJL7aDI57YQVMXwACQmymzTZDX+lA4RT3yylE3+M1y12yCoW
-         N0Nc+/zGRGi2726HXljrumoFzsj/3dzicU+/5Xhk=
+        b=J5VeojLj2zlXwzVwM1h4L/C5lh2xIM5JmOrwaJO4yEWNbRq6dso07VAAn3hUlBL2U
+         Z/5RSD7Uu0su/Pkyhi0Ve+QWBYU9cRjNt7S/bX8oU1V9dP78vEFqc8RatYB1wj6JE1
+         6FD3o1lUvRxhwBBwPqX6Esmp/niRiBnZpRHGlWVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
         Michael Walle <michael@walle.cc>, Marek Vasut <marex@denx.de>,
         Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: [PATCH 5.14 024/168] drm/etnaviv: return context from etnaviv_iommu_context_get
-Date:   Mon, 20 Sep 2021 18:42:42 +0200
-Message-Id: <20210920163922.440358140@linuxfoundation.org>
+Subject: [PATCH 5.14 025/168] drm/etnaviv: put submit prev MMU context when it exists
+Date:   Mon, 20 Sep 2021 18:42:43 +0200
+Message-Id: <20210920163922.474363483@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
 References: <20210920163921.633181900@linuxfoundation.org>
@@ -42,10 +42,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lucas Stach <l.stach@pengutronix.de>
 
-commit 78edefc05e41352099ffb8f06f8d9b2d091e29cd upstream.
+commit cda7532916f7bc860b36a1806cb8352e6f63dacb upstream.
 
-Being able to have the refcount manipulation in an assignment makes
-it much easier to parse the code.
+The prev context is the MMU context at the time of the job
+queueing in hardware. As a job might be queued multiple times
+due to recovery after a GPU hang, we need to make sure to put
+the stale prev MMU context from a prior queuing, to avoid the
+reference and thus the MMU context leaking.
 
 Cc: stable@vger.kernel.org # 5.4
 Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
@@ -54,80 +57,19 @@ Tested-by: Marek Vasut <marex@denx.de>
 Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_buffer.c     |    3 +--
- drivers/gpu/drm/etnaviv/etnaviv_gem.c        |    3 +--
- drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c |    3 +--
- drivers/gpu/drm/etnaviv/etnaviv_gpu.c        |    6 ++----
- drivers/gpu/drm/etnaviv/etnaviv_mmu.h        |    4 +++-
- 5 files changed, 8 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_buffer.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_buffer.c
-@@ -397,8 +397,7 @@ void etnaviv_buffer_queue(struct etnaviv
- 		if (switch_mmu_context) {
- 			struct etnaviv_iommu_context *old_context = gpu->mmu_context;
- 
--			etnaviv_iommu_context_get(mmu_context);
--			gpu->mmu_context = mmu_context;
-+			gpu->mmu_context = etnaviv_iommu_context_get(mmu_context);
- 			etnaviv_iommu_context_put(old_context);
- 		}
- 
---- a/drivers/gpu/drm/etnaviv/etnaviv_gem.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
-@@ -303,8 +303,7 @@ struct etnaviv_vram_mapping *etnaviv_gem
- 		list_del(&mapping->obj_node);
- 	}
- 
--	etnaviv_iommu_context_get(mmu_context);
--	mapping->context = mmu_context;
-+	mapping->context = etnaviv_iommu_context_get(mmu_context);
- 	mapping->use = 1;
- 
- 	ret = etnaviv_iommu_map_gem(mmu_context, etnaviv_obj,
---- a/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
-@@ -532,8 +532,7 @@ int etnaviv_ioctl_gem_submit(struct drm_
- 		goto err_submit_objects;
- 
- 	submit->ctx = file->driver_priv;
--	etnaviv_iommu_context_get(submit->ctx->mmu);
--	submit->mmu_context = submit->ctx->mmu;
-+	submit->mmu_context = etnaviv_iommu_context_get(submit->ctx->mmu);
- 	submit->exec_state = args->exec_state;
- 	submit->flags = args->flags;
- 
 --- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
 +++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-@@ -1365,12 +1365,10 @@ struct dma_fence *etnaviv_gpu_submit(str
- 	}
- 
- 	if (!gpu->mmu_context) {
--		etnaviv_iommu_context_get(submit->mmu_context);
--		gpu->mmu_context = submit->mmu_context;
-+		gpu->mmu_context = etnaviv_iommu_context_get(submit->mmu_context);
+@@ -1368,6 +1368,8 @@ struct dma_fence *etnaviv_gpu_submit(str
+ 		gpu->mmu_context = etnaviv_iommu_context_get(submit->mmu_context);
  		etnaviv_gpu_start_fe_idleloop(gpu);
  	} else {
--		etnaviv_iommu_context_get(gpu->mmu_context);
--		submit->prev_mmu_context = gpu->mmu_context;
-+		submit->prev_mmu_context = etnaviv_iommu_context_get(gpu->mmu_context);
++		if (submit->prev_mmu_context)
++			etnaviv_iommu_context_put(submit->prev_mmu_context);
+ 		submit->prev_mmu_context = etnaviv_iommu_context_get(gpu->mmu_context);
  	}
  
- 	if (submit->nr_pmrs) {
---- a/drivers/gpu/drm/etnaviv/etnaviv_mmu.h
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_mmu.h
-@@ -105,9 +105,11 @@ void etnaviv_iommu_dump(struct etnaviv_i
- struct etnaviv_iommu_context *
- etnaviv_iommu_context_init(struct etnaviv_iommu_global *global,
- 			   struct etnaviv_cmdbuf_suballoc *suballoc);
--static inline void etnaviv_iommu_context_get(struct etnaviv_iommu_context *ctx)
-+static inline struct etnaviv_iommu_context *
-+etnaviv_iommu_context_get(struct etnaviv_iommu_context *ctx)
- {
- 	kref_get(&ctx->refcount);
-+	return ctx;
- }
- void etnaviv_iommu_context_put(struct etnaviv_iommu_context *ctx);
- void etnaviv_iommu_restore(struct etnaviv_gpu *gpu,
 
 
