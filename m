@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B8DA412571
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:44:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8346541231B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:19:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353787AbhITSpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:45:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55616 "EHLO mail.kernel.org"
+        id S1377309AbhITSVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:21:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1382859AbhITSmb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:42:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25F036334B;
-        Mon, 20 Sep 2021 17:32:15 +0000 (UTC)
+        id S1376429AbhITSSS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:18:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8203632A0;
+        Mon, 20 Sep 2021 17:22:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159135;
-        bh=GnPecZJGuwV53OXbZHobSnBO4x7RYDRMd7dyX5YOZV0=;
+        s=korg; t=1632158558;
+        bh=cdIMnGOF4CkU42daacZN2R1isEuvbkTI+FGt9W79hLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y2/vMmmXCVzISpl5iDMzAh+/59o86+Vuz84C+5HzscVSNq5op8I0ck+WZQah8HCfF
-         AzAWeEDKgLA76VtLhXankP+DCtksLUzYdBy2r0TJA488Kn4ZAA73MFs/erqetSV04f
-         LHi34/ij0kWiH3KWu1nU0Vr0OxVUkD0/+PzuQy/k=
+        b=GiIqjXjaq0wQt4zVrwN3wbV11b3rkP069CpNOc1PDKo8ZNyt/zUNH9smn7DJ5FnCI
+         HPY+sz4stVewENuDeoLTd7miFyvWGOqADnMzPr6LcjV8X+KkmCc+CEIvUER73tFol6
+         h9MVytVuuxFciScGeAM57MOY0h9RAOUZdrpHGEUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Anibal Limon <anibal.limon@linaro.org>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 091/168] remoteproc: qcom: wcnss: Fix race with iris probe
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Richard Cochran <richard.cochran@omicron.at>,
+        John Stultz <john.stultz@linaro.org>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 211/260] ptp: dp83640: dont define PAGE0
 Date:   Mon, 20 Sep 2021 18:43:49 +0200
-Message-Id: <20210920163924.625790337@linuxfoundation.org>
+Message-Id: <20210920163938.276868167@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,319 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 1fcef985c8bdd542c43da0d87bd9d51980c3859b ]
+commit 7366c23ff492ad260776a3ee1aaabba9fc773a8b upstream.
 
-The remoteproc driver is split between the responsibilities of getting
-the SoC-internal ARM core up and running and the external RF (aka
-"Iris") part configured.
+Building dp83640.c on arch/parisc/ produces a build warning for
+PAGE0 being redefined. Since the macro is not used in the dp83640
+driver, just make it a comment for documentation purposes.
 
-In order to satisfy the regulator framework's need of a struct device *
-to look up supplies this was implemented as two different drivers, using
-of_platform_populate() in the remoteproc part to probe the iris part.
+In file included from ../drivers/net/phy/dp83640.c:23:
+../drivers/net/phy/dp83640_reg.h:8: warning: "PAGE0" redefined
+    8 | #define PAGE0                     0x0000
+                 from ../drivers/net/phy/dp83640.c:11:
+../arch/parisc/include/asm/page.h:187: note: this is the location of the previous definition
+  187 | #define PAGE0   ((struct zeropage *)__PAGE_OFFSET)
 
-Unfortunately it's possible that the iris part probe defers on yet not
-available regulators and an attempt to start the remoteproc will have to
-be rejected, until this has been resolved. But there's no useful
-mechanism of knowing when this would be.
-
-Instead replace the of_platform_populate() and the iris probe with a
-function that rolls its own struct device, with the relevant of_node
-associated that is enough to acquire regulators and clocks specified in
-the DT node and that may propagate the EPROBE_DEFER back to the wcnss
-device's probe.
-
-Acked-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Reported-by: Anibal Limon <anibal.limon@linaro.org>
-Reported-by: Loic Poulain <loic.poulain@linaro.org>
-Tested-by: Anibal Limon <anibal.limon@linaro.org>
-Link: https://lore.kernel.org/r/20210312002251.3273013-1-bjorn.andersson@linaro.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: cb646e2b02b2 ("ptp: Added a clock driver for the National Semiconductor PHYTER.")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Richard Cochran <richard.cochran@omicron.at>
+Cc: John Stultz <john.stultz@linaro.org>
+Cc: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20210913220605.19682-1-rdunlap@infradead.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/remoteproc/qcom_wcnss.c      |  49 +++--------
- drivers/remoteproc/qcom_wcnss.h      |   4 +-
- drivers/remoteproc/qcom_wcnss_iris.c | 120 +++++++++++++++++----------
- 3 files changed, 89 insertions(+), 84 deletions(-)
+ drivers/net/phy/dp83640_reg.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/remoteproc/qcom_wcnss.c b/drivers/remoteproc/qcom_wcnss.c
-index f1cbc6b2edbb..ebadc6c08e11 100644
---- a/drivers/remoteproc/qcom_wcnss.c
-+++ b/drivers/remoteproc/qcom_wcnss.c
-@@ -142,18 +142,6 @@ static const struct wcnss_data pronto_v2_data = {
- 	.num_vregs = 1,
- };
+--- a/drivers/net/phy/dp83640_reg.h
++++ b/drivers/net/phy/dp83640_reg.h
+@@ -5,7 +5,7 @@
+ #ifndef HAVE_DP83640_REGISTERS
+ #define HAVE_DP83640_REGISTERS
  
--void qcom_wcnss_assign_iris(struct qcom_wcnss *wcnss,
--			    struct qcom_iris *iris,
--			    bool use_48mhz_xo)
--{
--	mutex_lock(&wcnss->iris_lock);
--
--	wcnss->iris = iris;
--	wcnss->use_48mhz_xo = use_48mhz_xo;
--
--	mutex_unlock(&wcnss->iris_lock);
--}
--
- static int wcnss_load(struct rproc *rproc, const struct firmware *fw)
- {
- 	struct qcom_wcnss *wcnss = (struct qcom_wcnss *)rproc->priv;
-@@ -639,12 +627,20 @@ static int wcnss_probe(struct platform_device *pdev)
- 		goto detach_pds;
- 	}
+-#define PAGE0                     0x0000
++/* #define PAGE0                  0x0000 */
+ #define PHYCR2                    0x001c /* PHY Control Register 2 */
  
-+	wcnss->iris = qcom_iris_probe(&pdev->dev, &wcnss->use_48mhz_xo);
-+	if (IS_ERR(wcnss->iris)) {
-+		ret = PTR_ERR(wcnss->iris);
-+		goto detach_pds;
-+	}
-+
- 	ret = rproc_add(rproc);
- 	if (ret)
--		goto detach_pds;
-+		goto remove_iris;
- 
--	return of_platform_populate(pdev->dev.of_node, NULL, NULL, &pdev->dev);
-+	return 0;
- 
-+remove_iris:
-+	qcom_iris_remove(wcnss->iris);
- detach_pds:
- 	wcnss_release_pds(wcnss);
- free_rproc:
-@@ -657,7 +653,7 @@ static int wcnss_remove(struct platform_device *pdev)
- {
- 	struct qcom_wcnss *wcnss = platform_get_drvdata(pdev);
- 
--	of_platform_depopulate(&pdev->dev);
-+	qcom_iris_remove(wcnss->iris);
- 
- 	rproc_del(wcnss->rproc);
- 
-@@ -686,28 +682,7 @@ static struct platform_driver wcnss_driver = {
- 	},
- };
- 
--static int __init wcnss_init(void)
--{
--	int ret;
--
--	ret = platform_driver_register(&wcnss_driver);
--	if (ret)
--		return ret;
--
--	ret = platform_driver_register(&qcom_iris_driver);
--	if (ret)
--		platform_driver_unregister(&wcnss_driver);
--
--	return ret;
--}
--module_init(wcnss_init);
--
--static void __exit wcnss_exit(void)
--{
--	platform_driver_unregister(&qcom_iris_driver);
--	platform_driver_unregister(&wcnss_driver);
--}
--module_exit(wcnss_exit);
-+module_platform_driver(wcnss_driver);
- 
- MODULE_DESCRIPTION("Qualcomm Peripheral Image Loader for Wireless Subsystem");
- MODULE_LICENSE("GPL v2");
-diff --git a/drivers/remoteproc/qcom_wcnss.h b/drivers/remoteproc/qcom_wcnss.h
-index 62c8682d0a92..6d01ee6afa7f 100644
---- a/drivers/remoteproc/qcom_wcnss.h
-+++ b/drivers/remoteproc/qcom_wcnss.h
-@@ -17,9 +17,9 @@ struct wcnss_vreg_info {
- 	bool super_turbo;
- };
- 
-+struct qcom_iris *qcom_iris_probe(struct device *parent, bool *use_48mhz_xo);
-+void qcom_iris_remove(struct qcom_iris *iris);
- int qcom_iris_enable(struct qcom_iris *iris);
- void qcom_iris_disable(struct qcom_iris *iris);
- 
--void qcom_wcnss_assign_iris(struct qcom_wcnss *wcnss, struct qcom_iris *iris, bool use_48mhz_xo);
--
- #endif
-diff --git a/drivers/remoteproc/qcom_wcnss_iris.c b/drivers/remoteproc/qcom_wcnss_iris.c
-index 169acd305ae3..09720ddddc85 100644
---- a/drivers/remoteproc/qcom_wcnss_iris.c
-+++ b/drivers/remoteproc/qcom_wcnss_iris.c
-@@ -17,7 +17,7 @@
- #include "qcom_wcnss.h"
- 
- struct qcom_iris {
--	struct device *dev;
-+	struct device dev;
- 
- 	struct clk *xo_clk;
- 
-@@ -75,7 +75,7 @@ int qcom_iris_enable(struct qcom_iris *iris)
- 
- 	ret = clk_prepare_enable(iris->xo_clk);
- 	if (ret) {
--		dev_err(iris->dev, "failed to enable xo clk\n");
-+		dev_err(&iris->dev, "failed to enable xo clk\n");
- 		goto disable_regulators;
- 	}
- 
-@@ -93,43 +93,90 @@ void qcom_iris_disable(struct qcom_iris *iris)
- 	regulator_bulk_disable(iris->num_vregs, iris->vregs);
- }
- 
--static int qcom_iris_probe(struct platform_device *pdev)
-+static const struct of_device_id iris_of_match[] = {
-+	{ .compatible = "qcom,wcn3620", .data = &wcn3620_data },
-+	{ .compatible = "qcom,wcn3660", .data = &wcn3660_data },
-+	{ .compatible = "qcom,wcn3660b", .data = &wcn3680_data },
-+	{ .compatible = "qcom,wcn3680", .data = &wcn3680_data },
-+	{}
-+};
-+
-+static void qcom_iris_release(struct device *dev)
-+{
-+	struct qcom_iris *iris = container_of(dev, struct qcom_iris, dev);
-+
-+	of_node_put(iris->dev.of_node);
-+	kfree(iris);
-+}
-+
-+struct qcom_iris *qcom_iris_probe(struct device *parent, bool *use_48mhz_xo)
- {
-+	const struct of_device_id *match;
- 	const struct iris_data *data;
--	struct qcom_wcnss *wcnss;
-+	struct device_node *of_node;
- 	struct qcom_iris *iris;
- 	int ret;
- 	int i;
- 
--	iris = devm_kzalloc(&pdev->dev, sizeof(struct qcom_iris), GFP_KERNEL);
--	if (!iris)
--		return -ENOMEM;
-+	of_node = of_get_child_by_name(parent->of_node, "iris");
-+	if (!of_node) {
-+		dev_err(parent, "No child node \"iris\" found\n");
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	iris = kzalloc(sizeof(*iris), GFP_KERNEL);
-+	if (!iris) {
-+		of_node_put(of_node);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
-+	device_initialize(&iris->dev);
-+	iris->dev.parent = parent;
-+	iris->dev.release = qcom_iris_release;
-+	iris->dev.of_node = of_node;
-+
-+	dev_set_name(&iris->dev, "%s.iris", dev_name(parent));
-+
-+	ret = device_add(&iris->dev);
-+	if (ret) {
-+		put_device(&iris->dev);
-+		return ERR_PTR(ret);
-+	}
-+
-+	match = of_match_device(iris_of_match, &iris->dev);
-+	if (!match) {
-+		dev_err(&iris->dev, "no matching compatible for iris\n");
-+		ret = -EINVAL;
-+		goto err_device_del;
-+	}
- 
--	data = of_device_get_match_data(&pdev->dev);
--	wcnss = dev_get_drvdata(pdev->dev.parent);
-+	data = match->data;
- 
--	iris->xo_clk = devm_clk_get(&pdev->dev, "xo");
-+	iris->xo_clk = devm_clk_get(&iris->dev, "xo");
- 	if (IS_ERR(iris->xo_clk)) {
--		if (PTR_ERR(iris->xo_clk) != -EPROBE_DEFER)
--			dev_err(&pdev->dev, "failed to acquire xo clk\n");
--		return PTR_ERR(iris->xo_clk);
-+		ret = PTR_ERR(iris->xo_clk);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(&iris->dev, "failed to acquire xo clk\n");
-+		goto err_device_del;
- 	}
- 
- 	iris->num_vregs = data->num_vregs;
--	iris->vregs = devm_kcalloc(&pdev->dev,
-+	iris->vregs = devm_kcalloc(&iris->dev,
- 				   iris->num_vregs,
- 				   sizeof(struct regulator_bulk_data),
- 				   GFP_KERNEL);
--	if (!iris->vregs)
--		return -ENOMEM;
-+	if (!iris->vregs) {
-+		ret = -ENOMEM;
-+		goto err_device_del;
-+	}
- 
- 	for (i = 0; i < iris->num_vregs; i++)
- 		iris->vregs[i].supply = data->vregs[i].name;
- 
--	ret = devm_regulator_bulk_get(&pdev->dev, iris->num_vregs, iris->vregs);
-+	ret = devm_regulator_bulk_get(&iris->dev, iris->num_vregs, iris->vregs);
- 	if (ret) {
--		dev_err(&pdev->dev, "failed to get regulators\n");
--		return ret;
-+		dev_err(&iris->dev, "failed to get regulators\n");
-+		goto err_device_del;
- 	}
- 
- 	for (i = 0; i < iris->num_vregs; i++) {
-@@ -143,34 +190,17 @@ static int qcom_iris_probe(struct platform_device *pdev)
- 					   data->vregs[i].load_uA);
- 	}
- 
--	qcom_wcnss_assign_iris(wcnss, iris, data->use_48mhz_xo);
--
--	return 0;
--}
-+	*use_48mhz_xo = data->use_48mhz_xo;
- 
--static int qcom_iris_remove(struct platform_device *pdev)
--{
--	struct qcom_wcnss *wcnss = dev_get_drvdata(pdev->dev.parent);
-+	return iris;
- 
--	qcom_wcnss_assign_iris(wcnss, NULL, false);
-+err_device_del:
-+	device_del(&iris->dev);
- 
--	return 0;
-+	return ERR_PTR(ret);
- }
- 
--static const struct of_device_id iris_of_match[] = {
--	{ .compatible = "qcom,wcn3620", .data = &wcn3620_data },
--	{ .compatible = "qcom,wcn3660", .data = &wcn3660_data },
--	{ .compatible = "qcom,wcn3660b", .data = &wcn3680_data },
--	{ .compatible = "qcom,wcn3680", .data = &wcn3680_data },
--	{}
--};
--MODULE_DEVICE_TABLE(of, iris_of_match);
--
--struct platform_driver qcom_iris_driver = {
--	.probe = qcom_iris_probe,
--	.remove = qcom_iris_remove,
--	.driver = {
--		.name = "qcom-iris",
--		.of_match_table = iris_of_match,
--	},
--};
-+void qcom_iris_remove(struct qcom_iris *iris)
-+{
-+	device_del(&iris->dev);
-+}
--- 
-2.30.2
-
+ #define PAGE4                     0x0004
 
 
