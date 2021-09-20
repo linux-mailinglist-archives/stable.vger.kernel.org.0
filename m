@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A26E4120EF
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:59:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02FCA411E96
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:31:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350036AbhITSAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:00:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56658 "EHLO mail.kernel.org"
+        id S242108AbhITRca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:32:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355737AbhITR4d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:56:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DCF9B61CA7;
-        Mon, 20 Sep 2021 17:14:19 +0000 (UTC)
+        id S1347583AbhITRa2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:30:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C30E3614C8;
+        Mon, 20 Sep 2021 17:04:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158060;
-        bh=xESobgeIkbpJA62rLjpHEFlWrZqp6AXEsmRZp0ZSGiw=;
+        s=korg; t=1632157455;
+        bh=bMESw49mkS6QQcCTRAfwz9+qRU4yXyTHv10Knqpe5rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S9zePXkdiCyWF3egT3uBieR/bTTBEGR/cm22bIsZxtq+TqwT7xH5b4VKyGNlZRP1B
-         A7i/VwGo+psop34mOVdVaEylhvP0w+51vbf2yPiB0JjebhvdvGbUlh7e2s27xAJvoi
-         uUq6LesnYHycbhKcZDRFdji65T5lQA6tvnOiCjS4=
+        b=D/R54l3DMD2Wbs7nQygMnLeCvAK4oOO3r437u06oauZGxNCNrGyI+E7EJUs/eV0rQ
+         j7brNgA1fQCm9Yk7m5O/6Up/Koipom43f+esqu310lxQvehhY6HV0aQYyALMgaEivO
+         JipkeaSnheDy+zj0Q9dNqM8Ep44nVgLD6sSQgAi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Ryan J. Barnett" <ryan.barnett@collins.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 275/293] dt-bindings: mtd: gpmc: Fix the ECC bytes vs. OOB bytes equation
-Date:   Mon, 20 Sep 2021 18:43:57 +0200
-Message-Id: <20210920163942.831129095@linuxfoundation.org>
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 217/217] net: renesas: sh_eth: Fix freeing wrong tx descriptor
+Date:   Mon, 20 Sep 2021 18:43:58 +0200
+Message-Id: <20210920163931.974871377@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit 778cb8e39f6ec252be50fc3850d66f3dcbd5dd5a ]
+[ Upstream commit 0341d5e3d1ee2a36dd5a49b5bef2ce4ad1cfa6b4 ]
 
-"PAGESIZE / 512" is the number of ECC chunks.
-"ECC_BYTES" is the number of bytes needed to store a single ECC code.
-"2" is the space reserved by the bad block marker.
+The cur_tx counter must be incremented after TACT bit of
+txdesc->status was set. However, a CPU is possible to reorder
+instructions and/or memory accesses between cur_tx and
+txdesc->status. And then, if TX interrupt happened at such a
+timing, the sh_eth_tx_free() may free the descriptor wrongly.
+So, add wmb() before cur_tx++.
+Otherwise NETDEV WATCHDOG timeout is possible to happen.
 
-"2 + (PAGESIZE / 512) * ECC_BYTES" should of course be lower or equal
-than the total number of OOB bytes, otherwise it won't fit.
-
-Fix the equation by substituting s/>=/<=/.
-
-Suggested-by: Ryan J. Barnett <ryan.barnett@collins.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/linux-mtd/20210610143945.3504781-1-miquel.raynal@bootlin.com
+Fixes: 86a74ff21a7a ("net: sh_eth: add support for Renesas SuperH Ethernet")
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/mtd/gpmc-nand.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/renesas/sh_eth.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-index c059ab74ed88..a4a75fa79524 100644
---- a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-+++ b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-@@ -122,7 +122,7 @@ on various other factors also like;
- 	so the device should have enough free bytes available its OOB/Spare
- 	area to accommodate ECC for entire page. In general following expression
- 	helps in determining if given device can accommodate ECC syndrome:
--	"2 + (PAGESIZE / 512) * ECC_BYTES" >= OOBSIZE"
-+	"2 + (PAGESIZE / 512) * ECC_BYTES" <= OOBSIZE"
- 	where
- 		OOBSIZE		number of bytes in OOB/spare area
- 		PAGESIZE	number of bytes in main-area of device page
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index 36f1019809ea..0fa6403ab085 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -2442,6 +2442,7 @@ static int sh_eth_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 	else
+ 		txdesc->status |= cpu_to_le32(TD_TACT);
+ 
++	wmb(); /* cur_tx must be incremented after TACT bit was set */
+ 	mdp->cur_tx++;
+ 
+ 	if (!(sh_eth_read(ndev, EDTRR) & sh_eth_get_edtrr_trns(mdp)))
 -- 
 2.30.2
 
