@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DC204125A5
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:45:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8217741237D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:23:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384160AbhITSqp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:46:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56480 "EHLO mail.kernel.org"
+        id S1378090AbhITSZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:25:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1383438AbhITSoc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:44:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91F7B61AF8;
-        Mon, 20 Sep 2021 17:32:45 +0000 (UTC)
+        id S1377998AbhITSW0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:22:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D308632C0;
+        Mon, 20 Sep 2021 17:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159166;
-        bh=35EQIKN/9h25gcgOYWiXfQA+AyYb4dfm3rZV5sJttjA=;
+        s=korg; t=1632158662;
+        bh=lQy3aUGkazS7jvwfZTLBzYM7ykK1mJIA2BHSH1PLwfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PnjGer2WEciVBY+mw91eUsvqZbbgqT/cp+A8IZMN7KFd9BblOtvHmLS/JcXntcY0K
-         J3Etz+Ilh1wFmWRTA7v1A6dtwKHuUxhuXtiOp6Ukr4KRNTnCLTyAvZswcGbECtlDj8
-         9TgRAl7HKqiJvNpAmaZ+Ej+e1q4lcwDN+08frgb0=
+        b=AGYuljDpABZG+oAsePRI2GUg/MCWOQgyCKFqur18tharnkqxG4K1f2RK/N58pjnLI
+         cE7r44HMys7SZcCtesrK80V8Jx73uozhuE2xztwDcfirOqGTxdBFL+z4XXoaoCU+U5
+         A8RoCzrWmBSL2LhGqA/GtvcJLKKFlVgmAI+teHqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        George Cherian <george.cherian@marvell.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 107/168] PCI: Add ACS quirks for Cavium multi-function devices
-Date:   Mon, 20 Sep 2021 18:44:05 +0200
-Message-Id: <20210920163925.154715931@linuxfoundation.org>
+        stable@vger.kernel.org, Yufeng Mo <moyufeng@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 228/260] net: hns3: pad the short tunnel frame before sending to hardware
+Date:   Mon, 20 Sep 2021 18:44:06 +0200
+Message-Id: <20210920163938.865212406@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Cherian <george.cherian@marvell.com>
+From: Yufeng Mo <moyufeng@huawei.com>
 
-[ Upstream commit 32837d8a8f63eb95dcb9cd005524a27f06478832 ]
+commit d18e81183b1cb9c309266cbbce9acd3e0c528d04 upstream.
 
-Some Cavium endpoints are implemented as multi-function devices without ACS
-capability, but they actually don't support peer-to-peer transactions.
+The hardware cannot handle short tunnel frames below 65 bytes,
+and will cause vlan tag missing problem. So pads packet size to
+65 bytes for tunnel frames to fix this bug.
 
-Add ACS quirks to declare DMA isolation for the following devices:
-
-  - BGX device found on Octeon-TX (8xxx)
-  - CGX device found on Octeon-TX2 (9xxx)
-  - RPM device found on Octeon-TX3 (10xxx)
-
-Link: https://lore.kernel.org/r/20210810122425.1115156-1-george.cherian@marvell.com
-Signed-off-by: George Cherian <george.cherian@marvell.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3db084d28dc0("net: hns3: Fix for vxlan tx checksum bug")
+Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/quirks.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 950290d8cafc..8c3c1ef92171 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -4854,6 +4854,10 @@ static const struct pci_dev_acs_enabled {
- 	{ 0x10df, 0x720, pci_quirk_mf_endpoint_acs }, /* Emulex Skyhawk-R */
- 	/* Cavium ThunderX */
- 	{ PCI_VENDOR_ID_CAVIUM, PCI_ANY_ID, pci_quirk_cavium_acs },
-+	/* Cavium multi-function devices */
-+	{ PCI_VENDOR_ID_CAVIUM, 0xA026, pci_quirk_mf_endpoint_acs },
-+	{ PCI_VENDOR_ID_CAVIUM, 0xA059, pci_quirk_mf_endpoint_acs },
-+	{ PCI_VENDOR_ID_CAVIUM, 0xA060, pci_quirk_mf_endpoint_acs },
- 	/* APM X-Gene */
- 	{ PCI_VENDOR_ID_AMCC, 0xE004, pci_quirk_xgene_acs },
- 	/* Ampere Computing */
--- 
-2.30.2
-
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -56,6 +56,7 @@ MODULE_PARM_DESC(debug, " Network interf
+ #define HNS3_OUTER_VLAN_TAG	2
+ 
+ #define HNS3_MIN_TX_LEN		33U
++#define HNS3_MIN_TUN_PKT_LEN	65U
+ 
+ /* hns3_pci_tbl - PCI Device ID Table
+  *
+@@ -931,8 +932,11 @@ static int hns3_set_l2l3l4(struct sk_buf
+ 			       l4.tcp->doff);
+ 		break;
+ 	case IPPROTO_UDP:
+-		if (hns3_tunnel_csum_bug(skb))
+-			return skb_checksum_help(skb);
++		if (hns3_tunnel_csum_bug(skb)) {
++			int ret = skb_put_padto(skb, HNS3_MIN_TUN_PKT_LEN);
++
++			return ret ? ret : skb_checksum_help(skb);
++		}
+ 
+ 		hns3_set_field(*type_cs_vlan_tso, HNS3_TXD_L4CS_B, 1);
+ 		hns3_set_field(*type_cs_vlan_tso, HNS3_TXD_L4T_S,
 
 
