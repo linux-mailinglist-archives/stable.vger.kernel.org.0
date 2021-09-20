@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBCCF411FFC
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA69C411DF3
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:24:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346103AbhITRrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:47:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48734 "EHLO mail.kernel.org"
+        id S1347291AbhITR0R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:26:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349178AbhITRpX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:45:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 077EE61355;
-        Mon, 20 Sep 2021 17:10:10 +0000 (UTC)
+        id S1345846AbhITRXZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:23:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F73F61A7A;
+        Mon, 20 Sep 2021 17:01:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157811;
-        bh=1WbPcJ5VlyzEjPfdYbJ/yD7UxrywBSz0W9k6KY7nMqQ=;
+        s=korg; t=1632157300;
+        bh=w19I8oZ9rhYp53yKQs341qULcXAwjcFJktO1aC5SfCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gZc7g2ib8yoBSvch/8Kz6VI2lyZKmt6Zfy7yOzRfqwQfx7gM20IWWrYt91hPuQRIZ
-         z+BwAmxJ2ZcYRlsTS68ZmX8vdNLnDwN0MyImzZyBFKTn3MlmQo/fQvr4yUPLDArapZ
-         HyN9QO+LVooZ2vU4Xb6h6S2BnrtPlaKW4vbNn0fo=
+        b=T+GSfVBA0yjupxKCMpNY5heHTXZ3B7YPWI5pmZy2L3ClGdSAjHmdYIAZorsg4l/ed
+         +WE72lZUsSh8qkKSA+E9mhq5OAL9diRzRpIAmOjoYw1gbyD2tQmB510AlXMPUNsbf/
+         l7ckb2xQTrbg1pnakOPcacYSbAsVAMR+88FTwCp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 162/293] powerpc/stacktrace: Include linux/delay.h
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 4.14 103/217] xen: fix setting of max_pfn in shared_info
 Date:   Mon, 20 Sep 2021 18:42:04 +0200
-Message-Id: <20210920163938.832899072@linuxfoundation.org>
+Message-Id: <20210920163928.129083534@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Suchanek <msuchanek@suse.de>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit a6cae77f1bc89368a4e2822afcddc45c3062d499 ]
+commit 4b511d5bfa74b1926daefd1694205c7f1bcf677f upstream.
 
-commit 7c6986ade69e ("powerpc/stacktrace: Fix spurious "stale" traces in raise_backtrace_ipi()")
-introduces udelay() call without including the linux/delay.h header.
-This may happen to work on master but the header that declares the
-functionshould be included nonetheless.
+Xen PV guests are specifying the highest used PFN via the max_pfn
+field in shared_info. This value is used by the Xen tools when saving
+or migrating the guest.
 
-Fixes: 7c6986ade69e ("powerpc/stacktrace: Fix spurious "stale" traces in raise_backtrace_ipi()")
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210729180103.15578-1-msuchanek@suse.de
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Unfortunately this field is misnamed, as in reality it is specifying
+the number of pages (including any memory holes) of the guest, so it
+is the highest used PFN + 1. Renaming isn't possible, as this is a
+public Xen hypervisor interface which needs to be kept stable.
+
+The kernel will set the value correctly initially at boot time, but
+when adding more pages (e.g. due to memory hotplug or ballooning) a
+real PFN number is stored in max_pfn. This is done when expanding the
+p2m array, and the PFN stored there is even possibly wrong, as it
+should be the last possible PFN of the just added P2M frame, and not
+one which led to the P2M expansion.
+
+Fix that by setting shared_info->max_pfn to the last possible PFN + 1.
+
+Fixes: 98dd166ea3a3c3 ("x86/xen/p2m: hint at the last populated P2M entry")
+Cc: stable@vger.kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Link: https://lore.kernel.org/r/20210730092622.9973-2-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/stacktrace.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/xen/p2m.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kernel/stacktrace.c b/arch/powerpc/kernel/stacktrace.c
-index 23b5f755e419..dadcc8bab336 100644
---- a/arch/powerpc/kernel/stacktrace.c
-+++ b/arch/powerpc/kernel/stacktrace.c
-@@ -8,6 +8,7 @@
-  * Copyright 2018 Nick Piggin, Michael Ellerman, IBM Corp.
-  */
+--- a/arch/x86/xen/p2m.c
++++ b/arch/x86/xen/p2m.c
+@@ -613,8 +613,8 @@ int xen_alloc_p2m_entry(unsigned long pf
+ 	}
  
-+#include <linux/delay.h>
- #include <linux/export.h>
- #include <linux/kallsyms.h>
- #include <linux/module.h>
--- 
-2.30.2
-
+ 	/* Expanded the p2m? */
+-	if (pfn > xen_p2m_last_pfn) {
+-		xen_p2m_last_pfn = pfn;
++	if (pfn >= xen_p2m_last_pfn) {
++		xen_p2m_last_pfn = ALIGN(pfn + 1, P2M_PER_PAGE);
+ 		HYPERVISOR_shared_info->arch.max_pfn = xen_p2m_last_pfn;
+ 	}
+ 
 
 
