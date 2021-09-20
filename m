@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DEFD411D45
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:16:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49C6F411B94
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:59:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245057AbhITRSD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:18:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40226 "EHLO mail.kernel.org"
+        id S244002AbhITRA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:00:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346280AbhITRQG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:16:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E87B61A02;
-        Mon, 20 Sep 2021 16:58:48 +0000 (UTC)
+        id S1344162AbhITQ6a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:58:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 33B1D613AD;
+        Mon, 20 Sep 2021 16:51:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157129;
-        bh=XyBsipfhO+Ql6KmfvM3leT4O7kztWwxeptpq58KuB7Q=;
+        s=korg; t=1632156719;
+        bh=L1qXIABr0fi71aY6AbBBkABF2IOD7mjCBEPVMB4oXrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PWPlQHPre62yPqfwxnFr0G3r61kanvqEqhrocieUMtc2KgROpY5QcO4Lj1lMySAzH
-         1+ZDs5LaHkzkGZKwxoNX/2IBEwMjxZOQwgOMz+O12tK3z+WRxIhFT1DwpbOGIp9eEs
-         2RNXU+pDbdftQtXrqck2u/J/KKOv1KVG3s5GSLx0=
+        b=liwBmD5BpCJA6X/VPRsJHK8H8zezCPtldMLkZv73fMy3DwecgaTQmIjMFAQph9G+Q
+         xVQXig3Dv2rCaxUlRWL5sFVBmj+UtLLyIPaDeptfK8Md8kPGVgUOGVGVZYG1yo0ZDv
+         z+ELsSgSAjh8JZkFMmQTfrgnsRzUi9gPT4D8CX4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 065/217] Bluetooth: fix repeated calls to sco_sock_kill
+Subject: [PATCH 4.9 037/175] power: supply: axp288_fuel_gauge: Report register-address on readb / writeb errors
 Date:   Mon, 20 Sep 2021 18:41:26 +0200
-Message-Id: <20210920163926.828709420@linuxfoundation.org>
+Message-Id: <20210920163919.275686278@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,84 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit e1dee2c1de2b4dd00eb44004a4bda6326ed07b59 ]
+[ Upstream commit caa534c3ba40c6e8352b42cbbbca9ba481814ac8 ]
 
-In commit 4e1a720d0312 ("Bluetooth: avoid killing an already killed
-socket"), a check was added to sco_sock_kill to skip killing a socket
-if the SOCK_DEAD flag was set.
+When fuel_gauge_reg_readb()/_writeb() fails, report which register we
+were trying to read / write when the error happened.
 
-This was done after a trace for a use-after-free bug showed that the
-same sock pointer was being killed twice.
+Also reword the message a bit:
+- Drop the axp288 prefix, dev_err() already prints this
+- Switch from telegram / abbreviated style to a normal sentence, aligning
+  the message with those from fuel_gauge_read_*bit_word()
 
-Unfortunately, this check prevents sco_sock_kill from running on any
-socket. sco_sock_kill kills a socket only if it's zapped and orphaned,
-however sock_orphan announces that the socket is dead before detaching
-it. i.e., orphaned sockets have the SOCK_DEAD flag set.
-
-To fix this, we remove the check for SOCK_DEAD, and avoid repeated
-calls to sco_sock_kill by removing incorrect calls in:
-
-1. sco_sock_timeout. The socket should not be killed on timeout as
-further processing is expected to be done. For example,
-sco_sock_connect sets the timer then waits for the socket to be
-connected or for an error to be returned.
-
-2. sco_conn_del. This function should clean up resources for the
-connection, but the socket itself should be cleaned up in
-sco_sock_release.
-
-3. sco_sock_close. Calls to sco_sock_close in sco_sock_cleanup_listen
-and sco_sock_release are followed by sco_sock_kill. Hence the
-duplicated call should be removed.
-
-Fixes: 4e1a720d0312 ("Bluetooth: avoid killing an already killed socket")
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/sco.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/power/supply/axp288_fuel_gauge.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-index 930828ec2afb..f4b997fb33d6 100644
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -84,7 +84,6 @@ static void sco_sock_timeout(unsigned long arg)
- 	sk->sk_state_change(sk);
- 	bh_unlock_sock(sk);
- 
--	sco_sock_kill(sk);
- 	sock_put(sk);
- }
- 
-@@ -176,7 +175,6 @@ static void sco_conn_del(struct hci_conn *hcon, int err)
- 		sco_sock_clear_timer(sk);
- 		sco_chan_del(sk, err);
- 		bh_unlock_sock(sk);
--		sco_sock_kill(sk);
- 		sock_put(sk);
+diff --git a/drivers/power/supply/axp288_fuel_gauge.c b/drivers/power/supply/axp288_fuel_gauge.c
+index 089056cb8e73..85e6c9bacf06 100644
+--- a/drivers/power/supply/axp288_fuel_gauge.c
++++ b/drivers/power/supply/axp288_fuel_gauge.c
+@@ -169,7 +169,7 @@ static int fuel_gauge_reg_readb(struct axp288_fg_info *info, int reg)
  	}
  
-@@ -393,8 +391,7 @@ static void sco_sock_cleanup_listen(struct sock *parent)
-  */
- static void sco_sock_kill(struct sock *sk)
- {
--	if (!sock_flag(sk, SOCK_ZAPPED) || sk->sk_socket ||
--	    sock_flag(sk, SOCK_DEAD))
-+	if (!sock_flag(sk, SOCK_ZAPPED) || sk->sk_socket)
- 		return;
+ 	if (ret < 0) {
+-		dev_err(&info->pdev->dev, "axp288 reg read err:%d\n", ret);
++		dev_err(&info->pdev->dev, "Error reading reg 0x%02x err: %d\n", reg, ret);
+ 		return ret;
+ 	}
  
- 	BT_DBG("sk %p state %d", sk, sk->sk_state);
-@@ -446,7 +443,6 @@ static void sco_sock_close(struct sock *sk)
- 	lock_sock(sk);
- 	__sco_sock_close(sk);
- 	release_sock(sk);
--	sco_sock_kill(sk);
+@@ -183,7 +183,7 @@ static int fuel_gauge_reg_writeb(struct axp288_fg_info *info, int reg, u8 val)
+ 	ret = regmap_write(info->regmap, reg, (unsigned int)val);
+ 
+ 	if (ret < 0)
+-		dev_err(&info->pdev->dev, "axp288 reg write err:%d\n", ret);
++		dev_err(&info->pdev->dev, "Error writing reg 0x%02x err: %d\n", reg, ret);
+ 
+ 	return ret;
  }
- 
- static void sco_sock_init(struct sock *sk, struct sock *parent)
 -- 
 2.30.2
 
