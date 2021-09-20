@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E42BE41227D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:14:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55C684123EA
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:27:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351580AbhITSP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:15:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35804 "EHLO mail.kernel.org"
+        id S1377671AbhITS2l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:28:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350767AbhITSMT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:12:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFE6B63280;
-        Mon, 20 Sep 2021 17:20:48 +0000 (UTC)
+        id S1378758AbhITS0W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:26:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7C14632CD;
+        Mon, 20 Sep 2021 17:25:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158449;
-        bh=P+/wLJ/gFGrvYwx3f2jPm2N/LlOMEr7UHMQiQaYEkU4=;
+        s=korg; t=1632158730;
+        bh=fbMyY/4KGBdq5dALuZ3wWpG73aHr5JeVlSKLDkNfDKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EAKC5onYgy9nhLeMdbgRo93VnnOlYSg8Mr2rRLj2or6iR4m17iFXA9aRwm8eOCgZT
-         EAnNHSlciZtPtNn2BIKDDaa9UQyjskuXb6cLGm6FiSfWJtb77yr1mrfXrz5tAFGgi6
-         FJKGcFdjgX9LueqOLmu+Uqwu5SLrH4qXcQ72AQ6c=
+        b=lXlfVNH0PtSLOj1fAIdyFej6qdlFzXK7h1Yd1U/P4UbCn6ngF2Rj6OwBm9rkKKHGJ
+         AVd6HFjkdIu7Shf6teFgMg5YE742Ky1P5IXfEqpFlwUEbURjX5giDYRc3rFR6BRbQh
+         Mxz2htQdUwRiixHXAh42kV855dYacyDOUMplRKIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaotan Luo <lxt@rock-chips.com>,
-        Sugar Zhang <sugar.zhang@rock-chips.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 162/260] ASoC: rockchip: i2s: Fixup config for DAIFMT_DSP_A/B
-Date:   Mon, 20 Sep 2021 18:43:00 +0200
-Message-Id: <20210920163936.602313797@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ernst=20Sj=C3=B6strand?= <ernstp@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 009/122] drm/amd/amdgpu: Increase HWIP_MAX_INSTANCE to 10
+Date:   Mon, 20 Sep 2021 18:43:01 +0200
+Message-Id: <20210920163916.071405631@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaotan Luo <lxt@rock-chips.com>
+From: Ernst Sjöstrand <ernstp@gmail.com>
 
-[ Upstream commit 1bf56843e664eef2525bdbfae6a561e98910f676 ]
+commit 67a44e659888569a133a8f858c8230e9d7aad1d5 upstream.
 
-- DSP_A: PCM delay 1 bit mode, L data MSB after FRM LRC
-- DSP_B: PCM no delay mode, L data MSB during FRM LRC
+Seems like newer cards can have even more instances now.
+Found by UBSAN: array-index-out-of-bounds in
+drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c:318:29
+index 8 is out of range for type 'uint32_t *[8]'
 
-Signed-off-by: Xiaotan Luo <lxt@rock-chips.com>
-Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
-Link: https://lore.kernel.org/r/1629950562-14281-3-git-send-email-sugar.zhang@rock-chips.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1697
+Cc: stable@vger.kernel.org
+Signed-off-by: Ernst Sjöstrand <ernstp@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/rockchip/rockchip_i2s.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
-index f48b146cd96a..086c90e09577 100644
---- a/sound/soc/rockchip/rockchip_i2s.c
-+++ b/sound/soc/rockchip/rockchip_i2s.c
-@@ -233,12 +233,12 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
- 	case SND_SOC_DAIFMT_I2S:
- 		val = I2S_TXCR_IBM_NORMAL;
- 		break;
--	case SND_SOC_DAIFMT_DSP_A: /* PCM no delay mode */
--		val = I2S_TXCR_TFS_PCM;
--		break;
--	case SND_SOC_DAIFMT_DSP_B: /* PCM delay 1 mode */
-+	case SND_SOC_DAIFMT_DSP_A: /* PCM delay 1 bit mode */
- 		val = I2S_TXCR_TFS_PCM | I2S_TXCR_PBM_MODE(1);
- 		break;
-+	case SND_SOC_DAIFMT_DSP_B: /* PCM no delay mode */
-+		val = I2S_TXCR_TFS_PCM;
-+		break;
- 	default:
- 		ret = -EINVAL;
- 		goto err_pm_put;
-@@ -257,12 +257,12 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
- 	case SND_SOC_DAIFMT_I2S:
- 		val = I2S_RXCR_IBM_NORMAL;
- 		break;
--	case SND_SOC_DAIFMT_DSP_A: /* PCM no delay mode */
--		val = I2S_RXCR_TFS_PCM;
--		break;
--	case SND_SOC_DAIFMT_DSP_B: /* PCM delay 1 mode */
-+	case SND_SOC_DAIFMT_DSP_A: /* PCM delay 1 bit mode */
- 		val = I2S_RXCR_TFS_PCM | I2S_RXCR_PBM_MODE(1);
- 		break;
-+	case SND_SOC_DAIFMT_DSP_B: /* PCM no delay mode */
-+		val = I2S_RXCR_TFS_PCM;
-+		break;
- 	default:
- 		ret = -EINVAL;
- 		goto err_pm_put;
--- 
-2.30.2
-
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
+@@ -717,7 +717,7 @@ enum amd_hw_ip_block_type {
+ 	MAX_HWIP
+ };
+ 
+-#define HWIP_MAX_INSTANCE	8
++#define HWIP_MAX_INSTANCE	10
+ 
+ struct amd_powerplay {
+ 	void *pp_handle;
 
 
