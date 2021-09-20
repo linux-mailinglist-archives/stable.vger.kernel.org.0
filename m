@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38AB7411D67
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:18:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8FD0411B9D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:00:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346788AbhITRUI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:20:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47490 "EHLO mail.kernel.org"
+        id S239993AbhITRAr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:00:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344921AbhITRRg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:17:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE2EB61A3A;
-        Mon, 20 Sep 2021 16:59:29 +0000 (UTC)
+        id S1344283AbhITQ6r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:58:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2180613BD;
+        Mon, 20 Sep 2021 16:52:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157170;
-        bh=+IRgp8iJ9xtJxrBbNWlDkuTlgYynfQ71jkcBitNje1g=;
+        s=korg; t=1632156728;
+        bh=uLsbej8As3Z7LC8izUaOy5/i10mwpAJ1+ug+RWl0KA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fBFs70lXzDPoSgZRs/1dj+WqLQzcjQGM4SbseH9IhqltXs0SmN1KgBnTSbAeAk7Ob
-         ze5S+3XkueBolkuHQdpIvGRLRfVYvtLbUL93EJ1+V30lflHSxPxvD1bnGYyuY3pZVf
-         Mco7buzZY8S5wCdo/G/ZIXknXUKasRNhPygBO0nk=
+        b=NqYi500l1AZ/7YfmTRtvvttcnofjISQlqtv99VKbofS28vtpPnLDXcf3GtTTL3ELa
+         kYpCy81FQAO6Q+9AZRf/OLL+6aWBs3OCaBX5nYpRGvCsM8k3iGwGeTMknnboR+LCn0
+         y9mWl/Au7+DrhqcuOZB5snijqNmRvSnaJcQeJL7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 086/217] bcma: Fix memory leak for internally-handled cores
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 058/175] i2c: highlander: add IRQ check
 Date:   Mon, 20 Sep 2021 18:41:47 +0200
-Message-Id: <20210920163927.551359062@linuxfoundation.org>
+Message-Id: <20210920163919.951810815@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zenghui Yu <yuzenghui@huawei.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit b63aed3ff195130fef12e0af590f4838cf0201d8 ]
+[ Upstream commit f16a3bb69aa6baabf8f0aca982c8cf21e2a4f6bc ]
 
-kmemleak reported that dev_name() of internally-handled cores were leaked
-on driver unbinding. Let's use device_initialize() to take refcounts for
-them and put_device() to properly free the related stuff.
+The driver is written as if platform_get_irq() returns 0 on errors (while
+actually it returns a negative error code), blithely passing these error
+codes to request_irq() (which takes *unsigned* IRQ #) -- which fails with
+-EINVAL. Add the necessary error check to the pre-existing *if* statement
+forcing the driver into the polling mode...
 
-While looking at it, there's another potential issue for those which should
-be *registered* into driver core. If device_register() failed, we put
-device once and freed bcma_device structures. In bcma_unregister_cores(),
-they're treated as unregistered and we hit both UAF and double-free. That
-smells not good and has also been fixed now.
-
-Fixes: ab54bc8460b5 ("bcma: fill core details for every device")
-Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210727025232.663-2-yuzenghui@huawei.com
+Fixes: 4ad48e6ab18c ("i2c: Renesas Highlander FPGA SMBus support")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bcma/main.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-highlander.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/bcma/main.c b/drivers/bcma/main.c
-index e6986c7608f1..b1783f5b5cb5 100644
---- a/drivers/bcma/main.c
-+++ b/drivers/bcma/main.c
-@@ -236,6 +236,7 @@ EXPORT_SYMBOL(bcma_core_irq);
+diff --git a/drivers/i2c/busses/i2c-highlander.c b/drivers/i2c/busses/i2c-highlander.c
+index 56dc69e7349f..9ad031ea3300 100644
+--- a/drivers/i2c/busses/i2c-highlander.c
++++ b/drivers/i2c/busses/i2c-highlander.c
+@@ -382,7 +382,7 @@ static int highlander_i2c_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, dev);
  
- void bcma_prepare_core(struct bcma_bus *bus, struct bcma_device *core)
- {
-+	device_initialize(&core->dev);
- 	core->dev.release = bcma_release_core_dev;
- 	core->dev.bus = &bcma_bus_type;
- 	dev_set_name(&core->dev, "bcma%d:%d", bus->num, core->core_index);
-@@ -299,11 +300,10 @@ static void bcma_register_core(struct bcma_bus *bus, struct bcma_device *core)
- {
- 	int err;
+ 	dev->irq = platform_get_irq(pdev, 0);
+-	if (iic_force_poll)
++	if (dev->irq < 0 || iic_force_poll)
+ 		dev->irq = 0;
  
--	err = device_register(&core->dev);
-+	err = device_add(&core->dev);
- 	if (err) {
- 		bcma_err(bus, "Could not register dev for core 0x%03X\n",
- 			 core->id.id);
--		put_device(&core->dev);
- 		return;
- 	}
- 	core->dev_registered = true;
-@@ -394,7 +394,7 @@ void bcma_unregister_cores(struct bcma_bus *bus)
- 	/* Now noone uses internally-handled cores, we can free them */
- 	list_for_each_entry_safe(core, tmp, &bus->cores, list) {
- 		list_del(&core->list);
--		kfree(core);
-+		put_device(&core->dev);
- 	}
- }
- 
+ 	if (dev->irq) {
 -- 
 2.30.2
 
