@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02C38412501
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4B394122D1
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:16:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349154AbhITSlF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:41:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53122 "EHLO mail.kernel.org"
+        id S1376904AbhITSSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:18:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1381637AbhITSjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:39:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8DE463327;
-        Mon, 20 Sep 2021 17:30:17 +0000 (UTC)
+        id S1358881AbhITSQO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:16:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06320613D5;
+        Mon, 20 Sep 2021 17:21:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159018;
-        bh=XZ3OOusOdLmmB63r+AVWl5u+lWawr9Lg7iJ70qgnZRI=;
+        s=korg; t=1632158514;
+        bh=wN6vSEPhPLmzIulhSS4Va0sPao8QvE+7Z2WVoHmIeuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xpUFz+CL37M4b8RVL9XDFxVmCUsOwEwqiuUg2wo0w/bbIS/xdIicQpKZhhgjAoDhg
-         3VW9plE+nFiYd9zuAR+vcy9VPhxzIR8tboFBx5KKy9cjowbaX4u/TIxhlcnK0lqOW0
-         NsKcAgBBqySRxahXe2VD8FVm/NF+4bthz96Hz2ko=
+        b=v1fFRtFdi+BaR8fBIvkH0aFqLNO8883PQK2RuJsRr3URDym3k8Z1Wh2Rn6U5WPFw3
+         T0jK3eBTUEZ5pHijCw0iQT74ouThtUMcPeWNfDaN6/dicsyHr3TX+ZOmp6rrIbO6L8
+         6pnuz6kgBUdYd1xJ/KoMNkTAtp6PnDtst9+tS6fY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
-        Michael Wang <yun.wang@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 039/168] net: remove the unnecessary check in cipso_v4_doi_free
+        stable@vger.kernel.org,
+        syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Anirudh Rayabharam <mail@anirudhrb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 159/260] usbip: give back URBs for unsent unlink requests during cleanup
 Date:   Mon, 20 Sep 2021 18:42:57 +0200
-Message-Id: <20210920163922.937928633@linuxfoundation.org>
+Message-Id: <20210920163936.501956170@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +42,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 王贇 <yun.wang@linux.alibaba.com>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-commit 9756e44fd4d283ebcc94df353642f322428b73de upstream.
+[ Upstream commit 258c81b341c8025d79073ce2d6ce19dcdc7d10d2 ]
 
-The commit 733c99ee8be9 ("net: fix NULL pointer reference in
-cipso_v4_doi_free") was merged by a mistake, this patch try
-to cleanup the mess.
+In vhci_device_unlink_cleanup(), the URBs for unsent unlink requests are
+not given back. This sometimes causes usb_kill_urb to wait indefinitely
+for that urb to be given back. syzbot has reported a hung task issue [1]
+for this.
 
-And we already have the commit e842cb60e8ac ("net: fix NULL
-pointer reference in cipso_v4_doi_free") which fixed the root
-cause of the issue mentioned in it's description.
+To fix this, give back the urbs corresponding to unsent unlink requests
+(unlink_tx list) similar to how urbs corresponding to unanswered unlink
+requests (unlink_rx list) are given back.
 
-Suggested-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[1]: https://syzkaller.appspot.com/bug?id=08f12df95ae7da69814e64eb5515d5a85ed06b76
+
+Reported-by: syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com
+Tested-by: syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Link: https://lore.kernel.org/r/20210820190122.16379-2-mail@anirudhrb.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/cipso_ipv4.c |   18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ drivers/usb/usbip/vhci_hcd.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
---- a/net/ipv4/cipso_ipv4.c
-+++ b/net/ipv4/cipso_ipv4.c
-@@ -465,16 +465,14 @@ void cipso_v4_doi_free(struct cipso_v4_d
- 	if (!doi_def)
- 		return;
+diff --git a/drivers/usb/usbip/vhci_hcd.c b/drivers/usb/usbip/vhci_hcd.c
+index 98636fbf7188..46a46cde2070 100644
+--- a/drivers/usb/usbip/vhci_hcd.c
++++ b/drivers/usb/usbip/vhci_hcd.c
+@@ -952,8 +952,32 @@ static void vhci_device_unlink_cleanup(struct vhci_device *vdev)
+ 	spin_lock(&vdev->priv_lock);
  
--	if (doi_def->map.std) {
--		switch (doi_def->type) {
--		case CIPSO_V4_MAP_TRANS:
--			kfree(doi_def->map.std->lvl.cipso);
--			kfree(doi_def->map.std->lvl.local);
--			kfree(doi_def->map.std->cat.cipso);
--			kfree(doi_def->map.std->cat.local);
--			kfree(doi_def->map.std);
--			break;
--		}
-+	switch (doi_def->type) {
-+	case CIPSO_V4_MAP_TRANS:
-+		kfree(doi_def->map.std->lvl.cipso);
-+		kfree(doi_def->map.std->lvl.local);
-+		kfree(doi_def->map.std->cat.cipso);
-+		kfree(doi_def->map.std->cat.local);
-+		kfree(doi_def->map.std);
-+		break;
+ 	list_for_each_entry_safe(unlink, tmp, &vdev->unlink_tx, list) {
++		struct urb *urb;
++
++		/* give back urb of unsent unlink request */
+ 		pr_info("unlink cleanup tx %lu\n", unlink->unlink_seqnum);
++
++		urb = pickup_urb_and_free_priv(vdev, unlink->unlink_seqnum);
++		if (!urb) {
++			list_del(&unlink->list);
++			kfree(unlink);
++			continue;
++		}
++
++		urb->status = -ENODEV;
++
++		usb_hcd_unlink_urb_from_ep(hcd, urb);
++
+ 		list_del(&unlink->list);
++
++		spin_unlock(&vdev->priv_lock);
++		spin_unlock_irqrestore(&vhci->lock, flags);
++
++		usb_hcd_giveback_urb(hcd, urb, urb->status);
++
++		spin_lock_irqsave(&vhci->lock, flags);
++		spin_lock(&vdev->priv_lock);
++
+ 		kfree(unlink);
  	}
- 	kfree(doi_def);
- }
+ 
+-- 
+2.30.2
+
 
 
