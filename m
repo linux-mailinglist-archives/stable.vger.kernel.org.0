@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D7F641239E
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:25:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FE2A41251E
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352049AbhITS0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:26:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46128 "EHLO mail.kernel.org"
+        id S1349149AbhITSld (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:41:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1378263AbhITSYT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:24:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2291A61A86;
-        Mon, 20 Sep 2021 17:24:43 +0000 (UTC)
+        id S1353420AbhITSia (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:38:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 451A563324;
+        Mon, 20 Sep 2021 17:30:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158684;
-        bh=3qHHijCYxJm+P+XXOkVa9sKBdREAC2QdlWEg93aqQQU=;
+        s=korg; t=1632159009;
+        bh=n3lpyUkHAm7OtwDbNT3bvlXmfR46S0xuBOUzjB3bx94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kBjgPlKME93p7XsgDbsSTY3AsuH3iQBhaODJ03yFR8Hm0f7pX2nLsQvEPHKcLzWu6
-         wW9gqe4LPM1K/Dh+K5TQ4nBvENihouUBZKVwrFC8aa1AE5HnBJhjbxeU30I3f0dJmp
-         kcnQa0n40vIe1wd0w3/w2gx2YdE69qESiUriYmsA=
+        b=jKmhEhc1Zr6T7CpuUdvVQT+NpU9uqCJmOwyKY3a8qXIQ01a59fUfBStyIREjJUvVB
+         l5c4cbv67ZpON6FrgX6wpBPQ/XWO5TpkBWb9rHWKfGwOANNplxHnj0EnQESh5JxLjs
+         6BHoJ/cl409vSRparChxSsQkvXTzs1RKMP4jfrgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Anibal Limon <anibal.limon@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.10 001/122] drm/bridge: lt9611: Fix handling of 4k panels
+        stable@vger.kernel.org, Jiri Olsa <jolsa@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Borislav Petkov <bp@suse.de>,
+        David Hildenbrand <david@redhat.com>,
+        Dave Hansen <dave.hansen@intel.com>
+Subject: [PATCH 5.14 035/168] x86/mm: Fix kern_addr_valid() to cope with existing but not present entries
 Date:   Mon, 20 Sep 2021 18:42:53 +0200
-Message-Id: <20210920163915.808718406@linuxfoundation.org>
+Message-Id: <20210920163922.802977727@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,46 +42,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Foss <robert.foss@linaro.org>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-commit d1a97648ae028a44536927c87837c45ada7141c9 upstream.
+commit 34b1999da935a33be6239226bfa6cd4f704c5c88 upstream.
 
-4k requires two dsi pipes, so don't report MODE_OK when only a
-single pipe is configured. But rather report MODE_PANEL to
-signal that requirements of the panel are not being met.
+Jiri Olsa reported a fault when running:
 
-Reported-by: Peter Collingbourne <pcc@google.com>
-Suggested-by: Peter Collingbourne <pcc@google.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Tested-by: John Stultz <john.stultz@linaro.org>
-Tested-by: Anibal Limon <anibal.limon@linaro.org>
-Tested-by: Peter Collingbourne <pcc@google.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Acked-by: Vinod Koul <vkoul@kernel.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201217140933.1133969-1-robert.foss@linaro.org
-Cc: Peter Collingbourne <pcc@google.com>
+  # cat /proc/kallsyms | grep ksys_read
+  ffffffff8136d580 T ksys_read
+  # objdump -d --start-address=0xffffffff8136d580 --stop-address=0xffffffff8136d590 /proc/kcore
+
+  /proc/kcore:     file format elf64-x86-64
+
+  Segmentation fault
+
+  general protection fault, probably for non-canonical address 0xf887ffcbff000: 0000 [#1] SMP PTI
+  CPU: 12 PID: 1079 Comm: objdump Not tainted 5.14.0-rc5qemu+ #508
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-4.fc34 04/01/2014
+  RIP: 0010:kern_addr_valid
+  Call Trace:
+   read_kcore
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? trace_hardirqs_on
+   ? rcu_read_lock_sched_held
+   ? lock_acquire
+   ? lock_acquire
+   ? rcu_read_lock_sched_held
+   ? lock_acquire
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? lock_release
+   ? _raw_spin_unlock
+   ? __handle_mm_fault
+   ? rcu_read_lock_sched_held
+   ? lock_acquire
+   ? rcu_read_lock_sched_held
+   ? lock_release
+   proc_reg_read
+   ? vfs_read
+   vfs_read
+   ksys_read
+   do_syscall_64
+   entry_SYSCALL_64_after_hwframe
+
+The fault happens because kern_addr_valid() dereferences existent but not
+present PMD in the high kernel mappings.
+
+Such PMDs are created when free_kernel_image_pages() frees regions larger
+than 2Mb. In this case, a part of the freed memory is mapped with PMDs and
+the set_memory_np_noalias() -> ... -> __change_page_attr() sequence will
+mark the PMD as not present rather than wipe it completely.
+
+Have kern_addr_valid() check whether higher level page table entries are
+present before trying to dereference them to fix this issue and to avoid
+similar issues in the future.
+
+Stable backporting note:
+------------------------
+
+Note that the stable marking is for all active stable branches because
+there could be cases where pagetable entries exist but are not valid -
+see 9a14aefc1d28 ("x86: cpa, fix lookup_address"), for example. So make
+sure to be on the safe side here and use pXY_present() accessors rather
+than pXY_none() which could #GP when accessing pages in the direct map.
+
+Also see:
+
+  c40a56a7818c ("x86/mm/init: Remove freed kernel image areas from alias mapping")
+
+for more info.
+
+Reported-by: Jiri Olsa <jolsa@redhat.com>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Dave Hansen <dave.hansen@intel.com>
+Tested-by: Jiri Olsa <jolsa@redhat.com>
+Cc: <stable@vger.kernel.org>	# 4.4+
+Link: https://lkml.kernel.org/r/20210819132717.19358-1-rppt@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/bridge/lontium-lt9611.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/x86/mm/init_64.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/bridge/lontium-lt9611.c
-+++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
-@@ -867,8 +867,14 @@ static enum drm_mode_status lt9611_bridg
- 						     const struct drm_display_mode *mode)
- {
- 	struct lt9611_mode *lt9611_mode = lt9611_find_mode(mode);
-+	struct lt9611 *lt9611 = bridge_to_lt9611(bridge);
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -1433,18 +1433,18 @@ int kern_addr_valid(unsigned long addr)
+ 		return 0;
  
--	return lt9611_mode ? MODE_OK : MODE_BAD;
-+	if (!lt9611_mode)
-+		return MODE_BAD;
-+	else if (lt9611_mode->intfs > 1 && !lt9611->dsi1)
-+		return MODE_PANEL;
-+	else
-+		return MODE_OK;
- }
+ 	p4d = p4d_offset(pgd, addr);
+-	if (p4d_none(*p4d))
++	if (!p4d_present(*p4d))
+ 		return 0;
  
- static void lt9611_bridge_pre_enable(struct drm_bridge *bridge)
+ 	pud = pud_offset(p4d, addr);
+-	if (pud_none(*pud))
++	if (!pud_present(*pud))
+ 		return 0;
+ 
+ 	if (pud_large(*pud))
+ 		return pfn_valid(pud_pfn(*pud));
+ 
+ 	pmd = pmd_offset(pud, addr);
+-	if (pmd_none(*pmd))
++	if (!pmd_present(*pmd))
+ 		return 0;
+ 
+ 	if (pmd_large(*pmd))
 
 
