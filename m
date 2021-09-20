@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D9D14122B9
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D47C412424
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:29:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351343AbhITSRD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:17:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36231 "EHLO mail.kernel.org"
+        id S1348519AbhITSbD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:31:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376852AbhITSOu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:14:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1FB960EE4;
-        Mon, 20 Sep 2021 17:21:38 +0000 (UTC)
+        id S1379306AbhITS26 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:28:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2BEE61362;
+        Mon, 20 Sep 2021 17:26:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158499;
-        bh=v20QQcURcpcNS3G1sFZ/ZLQ59gjDrOIr9tYfVPep7To=;
+        s=korg; t=1632158802;
+        bh=8drDd3EAJ6H/8qs3pR5E3EP4p+gz4fhSiFbxHOCXAKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AmZYnor3rouoBKcwyj4Q9HIODcj3lahtER24pIvLelDG3RHaNsyzZiHWQbnJs5Zhv
-         N5DtGcNdHEOKsTuDyYvqdHg1V2bij5YQbKvPDGs67b+aXUUNJbgGhpPFQCKtdjsXsa
-         oBl0if1FfFCY6ieHjwlgxTZCSradkUn0QC0rVuJw=
+        b=zbGmKqr3k8d40AOi1djLAwRAhyGWYSEO0s+t6pRMf6IA07ko2SGvZ9XGWPTqY7yhp
+         SxQTRN1WZiQkC0ziAsuts+jOEm98i59RkKHwkK7dpZT+E9ZBUpDComvwJtwpm3lqAV
+         6Q8yQN49tGWmGKorMXdn7mb4TznLhb8/XMPqFFHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 183/260] memcg: enable accounting for pids in nested pid namespaces
-Date:   Mon, 20 Sep 2021 18:43:21 +0200
-Message-Id: <20210920163937.334911953@linuxfoundation.org>
+Subject: [PATCH 5.10 030/122] drm/rockchip: cdn-dp-core: Make cdn_dp_core_resume __maybe_unused
+Date:   Mon, 20 Sep 2021 18:43:22 +0200
+Message-Id: <20210920163916.789275673@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit fab827dbee8c2e06ca4ba000fa6c48bcf9054aba upstream.
+commit 040b8907ccf1c78d020aca29800036565d761d73 upstream.
 
-Commit 5d097056c9a0 ("kmemcg: account certain kmem allocations to memcg")
-enabled memcg accounting for pids allocated from init_pid_ns.pid_cachep,
-but forgot to adjust the setting for nested pid namespaces.  As a result,
-pid memory is not accounted exactly where it is really needed, inside
-memcg-limited containers with their own pid namespaces.
+With the new static annotation, the compiler warns when the functions
+are actually unused:
 
-Pid was one the first kernel objects enabled for memcg accounting.
-init_pid_ns.pid_cachep marked by SLAB_ACCOUNT and we can expect that any
-new pids in the system are memcg-accounted.
+   drivers/gpu/drm/rockchip/cdn-dp-core.c:1123:12: error: 'cdn_dp_resume' defined but not used [-Werror=unused-function]
+    1123 | static int cdn_dp_resume(struct device *dev)
+         |            ^~~~~~~~~~~~~
 
-Though recently I've noticed that it is wrong.  nested pid namespaces
-creates own slab caches for pid objects, nested pids have increased size
-because contain id both for all parent and for own pid namespaces.  The
-problem is that these slab caches are _NOT_ marked by SLAB_ACCOUNT, as a
-result any pids allocated in nested pid namespaces are not
-memcg-accounted.
+Mark them __maybe_unused to suppress that warning as well.
 
-Pid struct in nested pid namespace consumes up to 500 bytes memory, 100000
-such objects gives us up to ~50Mb unaccounted memory, this allow container
-to exceed assigned memcg limits.
+[ Not so 'new' static annotations any more, and I removed the part of
+  the patch that added __maybe_unused to cdn_dp_suspend(), because it's
+  used by the shutdown/remove code.
 
-Link: https://lkml.kernel.org/r/8b6de616-fd1a-02c6-cbdb-976ecdcfa604@virtuozzo.com
-Fixes: 5d097056c9a0 ("kmemcg: account certain kmem allocations to memcg")
-Cc: stable@vger.kernel.org
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+  So only the resume function ends up possibly unused if CONFIG_PM isn't
+  set     - Linus ]
+
+Fixes: 7c49abb4c2f8 ("drm/rockchip: cdn-dp-core: Make cdn_dp_core_suspend/resume static")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/pid_namespace.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/rockchip/cdn-dp-core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/pid_namespace.c
-+++ b/kernel/pid_namespace.c
-@@ -53,7 +53,8 @@ static struct kmem_cache *create_pid_cac
- 	mutex_lock(&pid_caches_mutex);
- 	/* Name collision forces to do allocation under mutex. */
- 	if (!*pkc)
--		*pkc = kmem_cache_create(name, len, 0, SLAB_HWCACHE_ALIGN, 0);
-+		*pkc = kmem_cache_create(name, len, 0,
-+					 SLAB_HWCACHE_ALIGN | SLAB_ACCOUNT, 0);
- 	mutex_unlock(&pid_caches_mutex);
- 	/* current can fail, but someone else can succeed. */
- 	return READ_ONCE(*pkc);
+--- a/drivers/gpu/drm/rockchip/cdn-dp-core.c
++++ b/drivers/gpu/drm/rockchip/cdn-dp-core.c
+@@ -1122,7 +1122,7 @@ static int cdn_dp_suspend(struct device
+ 	return ret;
+ }
+ 
+-static int cdn_dp_resume(struct device *dev)
++static __maybe_unused int cdn_dp_resume(struct device *dev)
+ {
+ 	struct cdn_dp_device *dp = dev_get_drvdata(dev);
+ 
 
 
