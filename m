@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C599B41204D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:52:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60848411B05
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:54:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354612AbhITRxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:53:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52816 "EHLO mail.kernel.org"
+        id S1343745AbhITQyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:54:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354597AbhITRuj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:50:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8D2C61BE4;
-        Mon, 20 Sep 2021 17:12:06 +0000 (UTC)
+        id S245056AbhITQwX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:52:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6575E6135F;
+        Mon, 20 Sep 2021 16:49:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157927;
-        bh=LnkxSRlZlGz97B1C0web42fPnux/0Hyme/3MF6rOfpQ=;
+        s=korg; t=1632156584;
+        bh=tpsUBxbwHyahRTHJl8F6xAiSAZHaGuLkki7aXRR/kiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uDCsrQUOWI7GDnuvmmk27kMbenbs4g1qkrMk2sU0nyrwSQxEmNjKV173QAValLLNl
-         JcukMid/yMHQj+GutawMTdEuHhCzAhp+bJjLASKTB+r/bnKTq97PmKSDDEU7DyzHwY
-         Gce4Y1VJUJuxjxQCioucfTyNzXOefxSfPfxjIIFs=
+        b=sLKuf2uwz0TIxtIBB0pMTSUg695+Y8pCuvoV+HK+/e+PUPouzRxrcBFFROQkdA5K1
+         0M7rfpWg2nhYJpavdJt5O+pwImAgjrG4kxjOtJJ64ttZJAYEyPlHcrhqLbps0BCWXN
+         Y+N09pIaRg0jC4+zhYlmJ2O/v7pkzBTTEgWXP6Ck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        =?UTF-8?q?Krzysztof=20Ha=C5=82asa?= <khalasa@piap.pl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 208/293] media: v4l2-dv-timings.c: fix wrong condition in two for-loops
-Date:   Mon, 20 Sep 2021 18:42:50 +0200
-Message-Id: <20210920163940.388804511@linuxfoundation.org>
+Subject: [PATCH 4.4 093/133] tty: serial: jsm: hold port lock when reporting modem line changes
+Date:   Mon, 20 Sep 2021 18:42:51 +0200
+Message-Id: <20210920163915.682147187@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +39,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 4108b3e6db31acc4c68133290bbcc87d4db905c9 ]
+[ Upstream commit 240e126c28df084222f0b661321e8e3ecb0d232e ]
 
-These for-loops should test against v4l2_dv_timings_presets[i].bt.width,
-not if i < v4l2_dv_timings_presets[i].bt.width. Luckily nothing ever broke,
-since the smallest width is still a lot higher than the total number of
-presets, but it is wrong.
+uart_handle_dcd_change() requires a port lock to be held and will emit a
+warning when lockdep is enabled.
 
-The last item in the presets array is all 0, so the for-loop must stop
-when it reaches that sentinel.
+Held corresponding lock to fix the following warnings.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reported-by: Krzysztof Hałasa <khalasa@piap.pl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+[  132.528648] WARNING: CPU: 5 PID: 11600 at drivers/tty/serial/serial_core.c:3046 uart_handle_dcd_change+0xf4/0x120
+[  132.530482] Modules linked in:
+[  132.531050] CPU: 5 PID: 11600 Comm: jsm Not tainted 5.14.0-rc1-00003-g7fef2edf7cc7-dirty #31
+[  132.535268] RIP: 0010:uart_handle_dcd_change+0xf4/0x120
+[  132.557100] Call Trace:
+[  132.557562]  ? __free_pages+0x83/0xb0
+[  132.558213]  neo_parse_modem+0x156/0x220
+[  132.558897]  neo_param+0x399/0x840
+[  132.559495]  jsm_tty_open+0x12f/0x2d0
+[  132.560131]  uart_startup.part.18+0x153/0x340
+[  132.560888]  ? lock_is_held_type+0xe9/0x140
+[  132.561660]  uart_port_activate+0x7f/0xe0
+[  132.562351]  ? uart_startup.part.18+0x340/0x340
+[  132.563003]  tty_port_open+0x8d/0xf0
+[  132.563523]  ? uart_set_options+0x1e0/0x1e0
+[  132.564125]  uart_open+0x24/0x40
+[  132.564604]  tty_open+0x15c/0x630
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/1626242003-3809-1-git-send-email-zheyuma97@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-dv-timings.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/jsm/jsm_neo.c | 2 ++
+ drivers/tty/serial/jsm/jsm_tty.c | 3 +++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/media/v4l2-core/v4l2-dv-timings.c b/drivers/media/v4l2-core/v4l2-dv-timings.c
-index a24b40dfec97..af38c989ff33 100644
---- a/drivers/media/v4l2-core/v4l2-dv-timings.c
-+++ b/drivers/media/v4l2-core/v4l2-dv-timings.c
-@@ -196,7 +196,7 @@ bool v4l2_find_dv_timings_cap(struct v4l2_dv_timings *t,
- 	if (!v4l2_valid_dv_timings(t, cap, fnc, fnc_handle))
- 		return false;
+diff --git a/drivers/tty/serial/jsm/jsm_neo.c b/drivers/tty/serial/jsm/jsm_neo.c
+index 932b2accd06f..4ed0c099c757 100644
+--- a/drivers/tty/serial/jsm/jsm_neo.c
++++ b/drivers/tty/serial/jsm/jsm_neo.c
+@@ -827,7 +827,9 @@ static inline void neo_parse_isr(struct jsm_board *brd, u32 port)
+ 		/* Parse any modem signal changes */
+ 		jsm_dbg(INTR, &ch->ch_bd->pci_dev,
+ 			"MOD_STAT: sending to parse_modem_sigs\n");
++		spin_lock_irqsave(&ch->uart_port.lock, lock_flags);
+ 		neo_parse_modem(ch, readb(&ch->ch_neo_uart->msr));
++		spin_unlock_irqrestore(&ch->uart_port.lock, lock_flags);
+ 	}
+ }
  
--	for (i = 0; i < v4l2_dv_timings_presets[i].bt.width; i++) {
-+	for (i = 0; v4l2_dv_timings_presets[i].bt.width; i++) {
- 		if (v4l2_valid_dv_timings(v4l2_dv_timings_presets + i, cap,
- 					  fnc, fnc_handle) &&
- 		    v4l2_match_dv_timings(t, v4l2_dv_timings_presets + i,
-@@ -218,7 +218,7 @@ bool v4l2_find_dv_timings_cea861_vic(struct v4l2_dv_timings *t, u8 vic)
+diff --git a/drivers/tty/serial/jsm/jsm_tty.c b/drivers/tty/serial/jsm/jsm_tty.c
+index 524e86ab3cae..dad3abab8280 100644
+--- a/drivers/tty/serial/jsm/jsm_tty.c
++++ b/drivers/tty/serial/jsm/jsm_tty.c
+@@ -195,6 +195,7 @@ static void jsm_tty_break(struct uart_port *port, int break_state)
+ 
+ static int jsm_tty_open(struct uart_port *port)
  {
- 	unsigned int i;
++	unsigned long lock_flags;
+ 	struct jsm_board *brd;
+ 	struct jsm_channel *channel =
+ 		container_of(port, struct jsm_channel, uart_port);
+@@ -248,6 +249,7 @@ static int jsm_tty_open(struct uart_port *port)
+ 	channel->ch_cached_lsr = 0;
+ 	channel->ch_stops_sent = 0;
  
--	for (i = 0; i < v4l2_dv_timings_presets[i].bt.width; i++) {
-+	for (i = 0; v4l2_dv_timings_presets[i].bt.width; i++) {
- 		const struct v4l2_bt_timings *bt =
- 			&v4l2_dv_timings_presets[i].bt;
++	spin_lock_irqsave(&port->lock, lock_flags);
+ 	termios = &port->state->port.tty->termios;
+ 	channel->ch_c_cflag	= termios->c_cflag;
+ 	channel->ch_c_iflag	= termios->c_iflag;
+@@ -267,6 +269,7 @@ static int jsm_tty_open(struct uart_port *port)
+ 	jsm_carrier(channel);
  
+ 	channel->ch_open_count++;
++	spin_unlock_irqrestore(&port->lock, lock_flags);
+ 
+ 	jsm_dbg(OPEN, &channel->ch_bd->pci_dev, "finish\n");
+ 	return 0;
 -- 
 2.30.2
 
