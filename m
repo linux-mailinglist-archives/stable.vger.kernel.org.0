@@ -2,179 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBD1B41145E
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 14:28:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FFF9411544
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 15:06:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238009AbhITM3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 08:29:25 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:23757 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238181AbhITM3Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 08:29:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1632140877;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ogpkesyQIobk7UfMIDXUwt8PLrLq3ty2TaxR9317jpk=;
-        b=KI9dsCl/3daDHo52a/wwBQcsRkIyD8h9U1apDMQ6JoFkIE/3ONrXRHt04rdF8XOY5V2LbL
-        SEVnmzBTNURbQZ7ADBldAPJf0ZY87J6LIlCO2pUzYco3nZV6lzKyZL+mCVj8Q7Comp2r2/
-        S3fp+fwK5lzJ4aVJ+GbB1yZhOOiWjOk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-557-sa8WFbHpNIK09g5mi75w8Q-1; Mon, 20 Sep 2021 08:27:56 -0400
-X-MC-Unique: sa8WFbHpNIK09g5mi75w8Q-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B93B2802928;
-        Mon, 20 Sep 2021 12:27:54 +0000 (UTC)
-Received: from t480s.redhat.com (unknown [10.39.194.236])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D69215D9D5;
-        Mon, 20 Sep 2021 12:27:28 +0000 (UTC)
-From:   David Hildenbrand <david@redhat.com>
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        gregkh@linuxfoundation.org, David Hildenbrand <david@redhat.com>,
-        Pankaj Gupta <pankaj.gupta@ionos.com>,
+        id S233851AbhITNIY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 09:08:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34704 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231704AbhITNIX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 09:08:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9681560F6E;
+        Mon, 20 Sep 2021 13:06:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1632143217;
+        bh=dHyxhZp0tyLVmdPwvjpHcTls+PuoexgxlB2XEK6+C3Y=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ldcyr+Xr05YzGDkFJSyXEtRL3CTtV1TwtFOFeUqruRkuW467HEqiVoLZ2VgmZTLZo
+         mgeT5tgSDHiNXq3/+BaqYt01tSSzFvprH6McXBUhcev+AO5K2lmIxbiZKnOaqnIdoj
+         zU1kgEyDEZ34Aw6GIBJ9kLawsN9QVNTsfHvyRx9U=
+Date:   Mon, 20 Sep 2021 15:06:54 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, Pankaj Gupta <pankaj.gupta@ionos.com>,
         Muchun Song <songmuchun@bytedance.com>,
         Oscar Salvador <osalvador@suse.de>
-Subject: [PATCH 5.10 STABLE] mm/memory_hotplug: use "unsigned long" for PFN in zone_for_pfn_range()
-Date:   Mon, 20 Sep 2021 14:27:28 +0200
-Message-Id: <20210920122728.8241-1-david@redhat.com>
-In-Reply-To: <163179697512923@kroah.com>
-References: <163179697512923@kroah.com>
+Subject: Re: [PATCH 4.19 STABLE] mm/memory_hotplug: use "unsigned long" for
+ PFN in zone_for_pfn_range()
+Message-ID: <YUiHbj8hfb74zaP7@kroah.com>
+References: <163179697124554@kroah.com>
+ <20210920113224.7478-1-david@redhat.com>
+ <YUh6kI6f4Q9NgB7B@kroah.com>
+ <469a6a19-fef0-2e5f-1b61-34305eaf02bb@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <469a6a19-fef0-2e5f-1b61-34305eaf02bb@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 7cf209ba8a86410939a24cb1aeb279479a7e0ca6 upstream.
+On Mon, Sep 20, 2021 at 02:19:53PM +0200, David Hildenbrand wrote:
+> On 20.09.21 14:12, Greg KH wrote:
+> > On Mon, Sep 20, 2021 at 01:32:24PM +0200, David Hildenbrand wrote:
+> > > commit 7cf209ba8a86410939a24cb1aeb279479a7e0ca6 upstream.
+> > > 
+> > 
+> > We also need a 5.4.y version if we are going to be able to apply the
+> > 4.19.y and 4.14.y versions.
+> 
+> On it, still compiling :)
 
-Patch series "mm/memory_hotplug: preparatory patches for new online policy and memory"
+Ah, thanks, all now queued up.
 
-These are all cleanups and one fix previously sent as part of [1]:
-[PATCH v1 00/12] mm/memory_hotplug: "auto-movable" online policy and memory
-groups.
-
-These patches make sense even without the other series, therefore I pulled
-them out to make the other series easier to digest.
-
-[1] https://lkml.kernel.org/r/20210607195430.48228-1-david@redhat.com
-
-This patch (of 4):
-
-Checkpatch complained on a follow-up patch that we are using "unsigned"
-here, which defaults to "unsigned int" and checkpatch is correct.
-
-As we will search for a fitting zone using the wrong pfn, we might end
-up onlining memory to one of the special kernel zones, such as ZONE_DMA,
-which can end badly as the onlined memory does not satisfy properties of
-these zones.
-
-Use "unsigned long" instead, just as we do in other places when handling
-PFNs.  This can bite us once we have physical addresses in the range of
-multiple TB.
-
-Link: https://lkml.kernel.org/r/20210712124052.26491-2-david@redhat.com
-Fixes: e5e689302633 ("mm, memory_hotplug: display allowed zones in the preferred ordering")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Pankaj Gupta <pankaj.gupta@ionos.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Len Brown <lenb@kernel.org>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: virtualization@lists.linux-foundation.org
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc: Anton Blanchard <anton@ozlabs.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jia He <justin.he@arm.com>
-Cc: Joe Perches <joe@perches.com>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Laurent Dufour <ldufour@linux.ibm.com>
-Cc: Michel Lespinasse <michel@lespinasse.org>
-Cc: Nathan Lynch <nathanl@linux.ibm.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Pierre Morel <pmorel@linux.ibm.com>
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Scott Cheloha <cheloha@linux.ibm.com>
-Cc: Sergei Trofimovich <slyfox@gentoo.org>
-Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- include/linux/memory_hotplug.h | 4 ++--
- mm/memory_hotplug.c            | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index 551093b74596..1dafc7c7f5cf 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -359,8 +359,8 @@ extern void sparse_remove_section(struct mem_section *ms,
- 		unsigned long map_offset, struct vmem_altmap *altmap);
- extern struct page *sparse_decode_mem_map(unsigned long coded_mem_map,
- 					  unsigned long pnum);
--extern struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
--		unsigned long nr_pages);
-+extern struct zone *zone_for_pfn_range(int online_type, int nid,
-+		unsigned long start_pfn, unsigned long nr_pages);
- #endif /* CONFIG_MEMORY_HOTPLUG */
- 
- #endif /* __LINUX_MEMORY_HOTPLUG_H */
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index b9de2df5b835..6275b1c05f11 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -765,8 +765,8 @@ static inline struct zone *default_zone_for_pfn(int nid, unsigned long start_pfn
- 	return movable_node_enabled ? movable_zone : kernel_zone;
- }
- 
--struct zone * zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
--		unsigned long nr_pages)
-+struct zone *zone_for_pfn_range(int online_type, int nid,
-+		unsigned long start_pfn, unsigned long nr_pages)
- {
- 	if (online_type == MMOP_ONLINE_KERNEL)
- 		return default_kernel_zone_for_pfn(nid, start_pfn, nr_pages);
--- 
-2.31.1
-
+greg k-h
