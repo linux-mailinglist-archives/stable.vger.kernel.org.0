@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AD80411BF2
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:03:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2D61412031
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:51:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245066AbhITRFH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:05:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52718 "EHLO mail.kernel.org"
+        id S1349645AbhITRxF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:53:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345410AbhITRCb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:02:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6128261439;
-        Mon, 20 Sep 2021 16:53:46 +0000 (UTC)
+        id S1345106AbhITRsl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:48:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BC2961B9F;
+        Mon, 20 Sep 2021 17:11:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156826;
-        bh=4M6l8XnkxZIOgOak0YlBiTwRChEPn0n+I4psvZFEQy8=;
+        s=korg; t=1632157870;
+        bh=PX2xQm/C4MK4PU4j7gsqvgYGjt7b7XdaBqs4CaQJ+Bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P0Zh+0d/6RmTvru/hDfr5edOX9Np4RvhdtsX/xWQM/UlbsemzQFw1sT9zc+cVKzmc
-         ImjDNYMaWw/E3gFIT1y9JXRgcHg4N3WiqpTOMqT3SYsB/0I2UrE2O2h6avLzCe0Qrs
-         g+bm6KQOLwhniNeBO8Wx+s2R+NwXXMCRVlBMlryU=
+        b=qRboPTfjKxSPui/Ddjhb0Hc/k+OJBlcfYhmeqNPgEnROP81UqhpQv+OjLWsYM691e
+         oNpKoy1g7HetjeqnTcwCxWKU2mEy/4oqpvOMCXdJ/FajQvOB8ElbaE34b2JG367nt7
+         z4QV2k80e7f42A9yQNHOM8wEsdYB77h9tRD8aWjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        openrisc@lists.librecores.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 102/175] openrisc: dont printk() unconditionally
-Date:   Mon, 20 Sep 2021 18:42:31 +0200
-Message-Id: <20210920163921.411426223@linuxfoundation.org>
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 190/293] video: fbdev: asiliantfb: Error out if pixclock equals zero
+Date:   Mon, 20 Sep 2021 18:42:32 +0200
+Message-Id: <20210920163939.775721639@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 946e1052cdcc7e585ee5d1e72528ca49fb295243 ]
+[ Upstream commit b36b242d4b8ea178f7fd038965e3cac7f30c3f09 ]
 
-Don't call printk() when CONFIG_PRINTK is not set.
-Fixes the following build errors:
+The userspace program could pass any values to the driver through
+ioctl() interface. If the driver doesn't check the value of 'pixclock',
+it may cause divide error.
 
-or1k-linux-ld: arch/openrisc/kernel/entry.o: in function `_external_irq_handler':
-(.text+0x804): undefined reference to `printk'
-(.text+0x804): relocation truncated to fit: R_OR1K_INSN_REL_26 against undefined symbol `printk'
+Fix this by checking whether 'pixclock' is zero first.
 
-Fixes: 9d02a4283e9c ("OpenRISC: Boot code")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: openrisc@lists.librecores.org
-Signed-off-by: Stafford Horne <shorne@gmail.com>
+The following log reveals it:
+
+[   43.861711] divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+[   43.861737] CPU: 2 PID: 11764 Comm: i740 Not tainted 5.14.0-rc2-00513-gac532c9bbcfb-dirty #224
+[   43.861756] RIP: 0010:asiliantfb_check_var+0x4e/0x730
+[   43.861843] Call Trace:
+[   43.861848]  ? asiliantfb_remove+0x190/0x190
+[   43.861858]  fb_set_var+0x2e4/0xeb0
+[   43.861866]  ? fb_blank+0x1a0/0x1a0
+[   43.861873]  ? lock_acquire+0x1ef/0x530
+[   43.861884]  ? lock_release+0x810/0x810
+[   43.861892]  ? lock_is_held_type+0x100/0x140
+[   43.861903]  ? ___might_sleep+0x1ee/0x2d0
+[   43.861914]  ? __mutex_lock+0x620/0x1190
+[   43.861921]  ? do_fb_ioctl+0x313/0x700
+[   43.861929]  ? mutex_lock_io_nested+0xfa0/0xfa0
+[   43.861936]  ? __this_cpu_preempt_check+0x1d/0x30
+[   43.861944]  ? _raw_spin_unlock_irqrestore+0x46/0x60
+[   43.861952]  ? lockdep_hardirqs_on+0x59/0x100
+[   43.861959]  ? _raw_spin_unlock_irqrestore+0x46/0x60
+[   43.861967]  ? trace_hardirqs_on+0x6a/0x1c0
+[   43.861978]  do_fb_ioctl+0x31e/0x700
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1627293835-17441-2-git-send-email-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/openrisc/kernel/entry.S | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/video/fbdev/asiliantfb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
-index 3fbe420f49c4..92cdc1e56b60 100644
---- a/arch/openrisc/kernel/entry.S
-+++ b/arch/openrisc/kernel/entry.S
-@@ -491,6 +491,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
- 	l.bnf	1f			// ext irq enabled, all ok.
- 	l.nop
+diff --git a/drivers/video/fbdev/asiliantfb.c b/drivers/video/fbdev/asiliantfb.c
+index ea31054a28ca..c1d6e6336225 100644
+--- a/drivers/video/fbdev/asiliantfb.c
++++ b/drivers/video/fbdev/asiliantfb.c
+@@ -227,6 +227,9 @@ static int asiliantfb_check_var(struct fb_var_screeninfo *var,
+ {
+ 	unsigned long Ftarget, ratio, remainder;
  
-+#ifdef CONFIG_PRINTK
- 	l.addi  r1,r1,-0x8
- 	l.movhi r3,hi(42f)
- 	l.ori	r3,r3,lo(42f)
-@@ -504,6 +505,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
- 		.string "\n\rESR interrupt bug: in _external_irq_handler (ESR %x)\n\r"
- 		.align 4
- 	.previous
-+#endif
- 
- 	l.ori	r4,r4,SPR_SR_IEE	// fix the bug
- //	l.sw	PT_SR(r1),r4
++	if (!var->pixclock)
++		return -EINVAL;
++
+ 	ratio = 1000000 / var->pixclock;
+ 	remainder = 1000000 % var->pixclock;
+ 	Ftarget = 1000000 * ratio + (1000000 * remainder) / var->pixclock;
 -- 
 2.30.2
 
