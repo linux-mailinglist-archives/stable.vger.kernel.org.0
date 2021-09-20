@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 349A04121BC
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:09:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8ACC4121BF
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:09:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357157AbhITSIq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:08:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33262 "EHLO mail.kernel.org"
+        id S1358912AbhITSIw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:08:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358465AbhITSGp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1358466AbhITSGp (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:06:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CEB4F61A2E;
-        Mon, 20 Sep 2021 17:18:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0344961A0A;
+        Mon, 20 Sep 2021 17:18:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158282;
-        bh=yuQK2qNJKWmN4dbeOc055QGSwYjfqNRklBCpm3A7tP4=;
+        s=korg; t=1632158284;
+        bh=e0tCBIpXP830zSFWZVwp2PAZyI9TCrwSfKZyz5fKlWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UrjeO6Sm2JtTt7FYM3zaAvyM3050sYhSZ/K7Y6HUsKk9i2oDO7AUjQecymhtaBnNr
-         UvjMxien5pIte9aowWYngBWcJiOOWLdh/7XxunMoy5TawrUfKPU3MTFCI/YrGjhur+
-         L9PPIr/WzZf2rTy2SVAY6daVDIHxz+aSAWsOPU+U=
+        b=fFXlANVjgHIfwew+4zgZ0PfuFgsobnlKgDDBfLgMfrpdGXCgzMcexTzdE1l59Suie
+         3k87DSKI7o+N6jCR1zux1XJQfxbsbg3l4znbbCYlQqYCM/f3bCQwWu45pe2L4AMRFg
+         8dj2l/uGvFIFlvNevBg9zqPn6yKnib1LxztRtUZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 052/260] pinctrl: single: Fix error return code in pcs_parse_bits_in_pinctrl_entry()
-Date:   Mon, 20 Sep 2021 18:41:10 +0200
-Message-Id: <20210920163932.877027305@linuxfoundation.org>
+Subject: [PATCH 5.4 053/260] scsi: smartpqi: Fix an error code in pqi_get_raid_map()
+Date:   Mon, 20 Sep 2021 18:41:11 +0200
+Message-Id: <20210920163932.908728333@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -41,35 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit d789a490d32fdf0465275e3607f8a3bc87d3f3ba ]
+[ Upstream commit d1f6581a6796c4e9fd8a4a24e8b77463d18f0df1 ]
 
-Fix to return -ENOTSUPP instead of 0 when PCS_HAS_PINCONF is true, which
-is the same as that returned in pcs_parse_pinconf().
+Return -EINVAL on failure instead of success.
 
-Fixes: 4e7e8017a80e ("pinctrl: pinctrl-single: enhance to configure multiple pins of different modules")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Link: https://lore.kernel.org/r/20210722033930.4034-2-thunder.leizhen@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210810084613.GB23810@kili
+Fixes: a91aaae0243b ("scsi: smartpqi: allow for larger raid maps")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-single.c | 1 +
+ drivers/scsi/smartpqi/smartpqi_init.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pinctrl/pinctrl-single.c b/drivers/pinctrl/pinctrl-single.c
-index a9d511982780..fb1c8965cb99 100644
---- a/drivers/pinctrl/pinctrl-single.c
-+++ b/drivers/pinctrl/pinctrl-single.c
-@@ -1201,6 +1201,7 @@ static int pcs_parse_bits_in_pinctrl_entry(struct pcs_device *pcs,
- 
- 	if (PCS_HAS_PINCONF) {
- 		dev_err(pcs->dev, "pinconf not supported\n");
-+		res = -ENOTSUPP;
- 		goto free_pingroups;
+diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
+index 9bc451004184..80ff00025c03 100644
+--- a/drivers/scsi/smartpqi/smartpqi_init.c
++++ b/drivers/scsi/smartpqi/smartpqi_init.c
+@@ -1192,6 +1192,7 @@ static int pqi_get_raid_map(struct pqi_ctrl_info *ctrl_info,
+ 				"Requested %d bytes, received %d bytes",
+ 				raid_map_size,
+ 				get_unaligned_le32(&raid_map->structure_size));
++			rc = -EINVAL;
+ 			goto error;
+ 		}
  	}
- 
 -- 
 2.30.2
 
