@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A2914124CF
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:39:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A834412357
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:22:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352943AbhITSiU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:38:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53064 "EHLO mail.kernel.org"
+        id S1378105AbhITSX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:23:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345205AbhITSgR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:36:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C07B61ABC;
-        Mon, 20 Sep 2021 17:29:10 +0000 (UTC)
+        id S1377865AbhITSV0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:21:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9055A632B3;
+        Mon, 20 Sep 2021 17:23:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158950;
-        bh=cJ3NQfE3i5NwaEgG3zavK9D/1v2g+RS6x7MbSVm/nfo=;
+        s=korg; t=1632158639;
+        bh=4yDISMmyrm+cG+A5+reyGD82tQKcWXQHwS2eIO1obUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I5hT8QmJ5vLcw5TY6lAbiLRB/706QxzwyD0MQ/y6HM5wy4c/50VhhzMP8l83HAjXJ
-         mek6m1bARKNIh7j5LCNIP95uVEk5k2LcwIE8h5VmtMcGabsoiJKeck28oyhosh+nKK
-         NV+WeJFNydDMPd3RFlG8y+O0GmB/EZxtmqlT55Lg=
+        b=XrTXB50AwG2Bl9KfUle5ZXjPlyHzZ/2wOPm1ZqeYZ8GjhAheloQuldIFzu5ZTlzk/
+         haB/g69agTZr22UqeyRV+Mg+iGfGmHL8SQmEO7DIW5gVefIAaaLkwWwqX73rS1/9eu
+         K71xaSXhyYErVQjP0N2oXQCXs1iJacyuUgrYP/DE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 094/122] PCI: Sync __pci_register_driver() stub for CONFIG_PCI=n
+Subject: [PATCH 5.4 248/260] PCI: Fix pci_dev_str_match_path() alloc while atomic bug
 Date:   Mon, 20 Sep 2021 18:44:26 +0200
-Message-Id: <20210920163918.876275560@linuxfoundation.org>
+Message-Id: <20210920163939.541069072@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 817f9916a6e96ae43acdd4e75459ef4f92d96eb1 ]
+[ Upstream commit 7eb6ea4148579b85540a41d57bcec315b8af8ff8 ]
 
-The CONFIG_PCI=y case got a new parameter long time ago.  Sync the stub as
-well.
+pci_dev_str_match_path() is often called with a spinlock held so the
+allocation has to be atomic.  The call tree is:
 
-[bhelgaas: add parameter names]
-Fixes: 725522b5453d ("PCI: add the sysfs driver name to all modules")
-Link: https://lore.kernel.org/r/20210813153619.89574-1-andriy.shevchenko@linux.intel.com
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+  pci_specified_resource_alignment() <-- takes spin_lock();
+    pci_dev_str_match()
+      pci_dev_str_match_path()
+
+Fixes: 45db33709ccc ("PCI: Allow specifying devices using a base bus and path of devfns")
+Link: https://lore.kernel.org/r/20210812070004.GC31863@kili
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/pci.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/pci/pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 22207a79762c..a55097b4d992 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -1713,8 +1713,9 @@ static inline void pci_disable_device(struct pci_dev *dev) { }
- static inline int pcim_enable_device(struct pci_dev *pdev) { return -EIO; }
- static inline int pci_assign_resource(struct pci_dev *dev, int i)
- { return -EBUSY; }
--static inline int __pci_register_driver(struct pci_driver *drv,
--					struct module *owner)
-+static inline int __must_check __pci_register_driver(struct pci_driver *drv,
-+						     struct module *owner,
-+						     const char *mod_name)
- { return 0; }
- static inline int pci_register_driver(struct pci_driver *drv)
- { return 0; }
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 91b2733ded17..b9550cd4280c 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -224,7 +224,7 @@ static int pci_dev_str_match_path(struct pci_dev *dev, const char *path,
+ 
+ 	*endptr = strchrnul(path, ';');
+ 
+-	wpath = kmemdup_nul(path, *endptr - path, GFP_KERNEL);
++	wpath = kmemdup_nul(path, *endptr - path, GFP_ATOMIC);
+ 	if (!wpath)
+ 		return -ENOMEM;
+ 
 -- 
 2.30.2
 
