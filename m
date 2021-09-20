@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DE954124B7
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:35:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D02B412619
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:51:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381251AbhITShF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:37:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52160 "EHLO mail.kernel.org"
+        id S1385894AbhITSxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:53:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1380891AbhITSfB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:35:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 32B5E63310;
-        Mon, 20 Sep 2021 17:28:57 +0000 (UTC)
+        id S1385515AbhITSue (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:50:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 920C263382;
+        Mon, 20 Sep 2021 17:34:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158937;
-        bh=qQ7ssa6Xpm4dQiqcjOkijvkCiwWeXZmz+j/SQ5HIY6o=;
+        s=korg; t=1632159294;
+        bh=GDh1oJgfaumRs5nc3q4ACijDRerreORaEJwNHlV1E4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Np8zzCDGOJUxgr5o60Qs6AXC5MnHK+t84P7JKMe/b118g9+y9YgEZYkkTV3ATMm79
-         HOPzxKYvZU9878Qb//tl727dMu2LuDTcgBa/35b0D7ZabISgMvdmOQqMZjHGG+qtql
-         vlu97cf2vQrhT5sZtOnyFvn49cMmavBCt1sn90+c=
+        b=fI5kZwtOIH//2LeVMlcXQguAE4k13o4c3IBoUD+bSRxf78bSzC44nGfNoWdqxyqb3
+         0sCU+3YYp64mgUzCJXwugCNx+o7XvSgbS01C0EsIEms88reETqMuYEshRbCa1KGR8g
+         nKumZ9GTmvVu6ptVdF1sfETUaogvLkP48HJsP8qU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 098/122] perf bench inject-buildid: Handle writen() errors
-Date:   Mon, 20 Sep 2021 18:44:30 +0200
-Message-Id: <20210920163919.001822226@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Upton <oupton@google.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 133/168] KVM: arm64: Fix read-side race on updates to vcpu reset state
+Date:   Mon, 20 Sep 2021 18:44:31 +0200
+Message-Id: <20210920163926.039345484@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,159 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Oliver Upton <oupton@google.com>
 
-[ Upstream commit edf7b4a2d85e37a1ee77156bddaed4aa6af9c5e1 ]
+[ Upstream commit 6654f9dfcb88fea3b9affc180dc3c04333d0f306 ]
 
-The build on fedora:35 and fedora:rawhide with clang is failing with:
+KVM correctly serializes writes to a vCPU's reset state, however since
+we do not take the KVM lock on the read side it is entirely possible to
+read state from two different reset requests.
 
-  49    41.00 fedora:35                     : FAIL clang version 13.0.0 (Fedora 13.0.0~rc1-1.fc35)
-    bench/inject-buildid.c:351:6: error: variable 'len' set but not used [-Werror,-Wunused-but-set-variable]
-            u64 len = 0;
-                ^
-    1 error generated.
-    make[3]: *** [/git/perf-5.14.0-rc7/tools/build/Makefile.build:139: bench] Error 2
-  50    41.11 fedora:rawhide                : FAIL clang version 13.0.0 (Fedora 13.0.0~rc1-1.fc35)
-    bench/inject-buildid.c:351:6: error: variable 'len' set but not used [-Werror,-Wunused-but-set-variable]
-            u64 len = 0;
-                ^
-    1 error generated.
-    make[3]: *** [/git/perf-5.14.0-rc7/tools/build/Makefile.build:139: bench] Error 2
+Cure the race for now by taking the KVM lock when reading the
+reset_state structure.
 
-That 'len' variable is not used at all, so just make sure all the
-synthesize_RECORD() routines return ssize_t to propagate the writen()
-return, as it may fail, ditch the 'ret' var and bail out if those
-routines fail.
-
-Fixes: 0bf02a0d80427f26 ("perf bench: Add build-id injection benchmark")
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/CAM9d7cgEZNSor+B+7Y2C+QYGme_v5aH0Zn0RLfxoQ+Fy83EHrg@mail.gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 358b28f09f0a ("arm/arm64: KVM: Allow a VCPU to fully reset itself")
+Signed-off-by: Oliver Upton <oupton@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210818202133.1106786-2-oupton@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/bench/inject-buildid.c | 52 ++++++++++++++++++-------------
- 1 file changed, 30 insertions(+), 22 deletions(-)
+ arch/arm64/kvm/reset.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/tools/perf/bench/inject-buildid.c b/tools/perf/bench/inject-buildid.c
-index 280227e3ffd7..f4ec01da8da6 100644
---- a/tools/perf/bench/inject-buildid.c
-+++ b/tools/perf/bench/inject-buildid.c
-@@ -133,7 +133,7 @@ static u64 dso_map_addr(struct bench_dso *dso)
- 	return 0x400000ULL + dso->ino * 8192ULL;
- }
- 
--static u32 synthesize_attr(struct bench_data *data)
-+static ssize_t synthesize_attr(struct bench_data *data)
+diff --git a/arch/arm64/kvm/reset.c b/arch/arm64/kvm/reset.c
+index 78d4bd897fbc..d010778b93ff 100644
+--- a/arch/arm64/kvm/reset.c
++++ b/arch/arm64/kvm/reset.c
+@@ -210,10 +210,16 @@ static bool vcpu_allowed_register_width(struct kvm_vcpu *vcpu)
+  */
+ int kvm_reset_vcpu(struct kvm_vcpu *vcpu)
  {
- 	union perf_event event;
++	struct vcpu_reset_state reset_state;
+ 	int ret;
+ 	bool loaded;
+ 	u32 pstate;
  
-@@ -151,7 +151,7 @@ static u32 synthesize_attr(struct bench_data *data)
- 	return writen(data->input_pipe[1], &event, event.header.size);
- }
- 
--static u32 synthesize_fork(struct bench_data *data)
-+static ssize_t synthesize_fork(struct bench_data *data)
- {
- 	union perf_event event;
- 
-@@ -169,8 +169,7 @@ static u32 synthesize_fork(struct bench_data *data)
- 	return writen(data->input_pipe[1], &event, event.header.size);
- }
- 
--static u32 synthesize_mmap(struct bench_data *data, struct bench_dso *dso,
--			   u64 timestamp)
-+static ssize_t synthesize_mmap(struct bench_data *data, struct bench_dso *dso, u64 timestamp)
- {
- 	union perf_event event;
- 	size_t len = offsetof(struct perf_record_mmap2, filename);
-@@ -198,23 +197,25 @@ static u32 synthesize_mmap(struct bench_data *data, struct bench_dso *dso,
- 
- 	if (len > sizeof(event.mmap2)) {
- 		/* write mmap2 event first */
--		writen(data->input_pipe[1], &event, len - bench_id_hdr_size);
-+		if (writen(data->input_pipe[1], &event, len - bench_id_hdr_size) < 0)
-+			return -1;
- 		/* zero-fill sample id header */
- 		memset(id_hdr_ptr, 0, bench_id_hdr_size);
- 		/* put timestamp in the right position */
- 		ts_idx = (bench_id_hdr_size / sizeof(u64)) - 2;
- 		id_hdr_ptr[ts_idx] = timestamp;
--		writen(data->input_pipe[1], id_hdr_ptr, bench_id_hdr_size);
--	} else {
--		ts_idx = (len / sizeof(u64)) - 2;
--		id_hdr_ptr[ts_idx] = timestamp;
--		writen(data->input_pipe[1], &event, len);
-+		if (writen(data->input_pipe[1], id_hdr_ptr, bench_id_hdr_size) < 0)
-+			return -1;
++	mutex_lock(&vcpu->kvm->lock);
++	reset_state = vcpu->arch.reset_state;
++	WRITE_ONCE(vcpu->arch.reset_state.reset, false);
++	mutex_unlock(&vcpu->kvm->lock);
 +
-+		return len;
- 	}
--	return len;
-+
-+	ts_idx = (len / sizeof(u64)) - 2;
-+	id_hdr_ptr[ts_idx] = timestamp;
-+	return writen(data->input_pipe[1], &event, len);
- }
+ 	/* Reset PMU outside of the non-preemptible section */
+ 	kvm_pmu_vcpu_reset(vcpu);
  
--static u32 synthesize_sample(struct bench_data *data, struct bench_dso *dso,
--			     u64 timestamp)
-+static ssize_t synthesize_sample(struct bench_data *data, struct bench_dso *dso, u64 timestamp)
- {
- 	union perf_event event;
- 	struct perf_sample sample = {
-@@ -233,7 +234,7 @@ static u32 synthesize_sample(struct bench_data *data, struct bench_dso *dso,
- 	return writen(data->input_pipe[1], &event, event.header.size);
- }
+@@ -276,8 +282,8 @@ int kvm_reset_vcpu(struct kvm_vcpu *vcpu)
+ 	 * Additional reset state handling that PSCI may have imposed on us.
+ 	 * Must be done after all the sys_reg reset.
+ 	 */
+-	if (vcpu->arch.reset_state.reset) {
+-		unsigned long target_pc = vcpu->arch.reset_state.pc;
++	if (reset_state.reset) {
++		unsigned long target_pc = reset_state.pc;
  
--static u32 synthesize_flush(struct bench_data *data)
-+static ssize_t synthesize_flush(struct bench_data *data)
- {
- 	struct perf_event_header header = {
- 		.size = sizeof(header),
-@@ -348,14 +349,16 @@ static int inject_build_id(struct bench_data *data, u64 *max_rss)
- 	int status;
- 	unsigned int i, k;
- 	struct rusage rusage;
--	u64 len = 0;
+ 		/* Gracefully handle Thumb2 entry point */
+ 		if (vcpu_mode_is_32bit(vcpu) && (target_pc & 1)) {
+@@ -286,13 +292,11 @@ int kvm_reset_vcpu(struct kvm_vcpu *vcpu)
+ 		}
  
- 	/* this makes the child to run */
- 	if (perf_header__write_pipe(data->input_pipe[1]) < 0)
- 		return -1;
+ 		/* Propagate caller endianness */
+-		if (vcpu->arch.reset_state.be)
++		if (reset_state.be)
+ 			kvm_vcpu_set_be(vcpu);
  
--	len += synthesize_attr(data);
--	len += synthesize_fork(data);
-+	if (synthesize_attr(data) < 0)
-+		return -1;
-+
-+	if (synthesize_fork(data) < 0)
-+		return -1;
- 
- 	for (i = 0; i < nr_mmaps; i++) {
- 		int idx = rand() % (nr_dsos - 1);
-@@ -363,13 +366,18 @@ static int inject_build_id(struct bench_data *data, u64 *max_rss)
- 		u64 timestamp = rand() % 1000000;
- 
- 		pr_debug2("   [%d] injecting: %s\n", i+1, dso->name);
--		len += synthesize_mmap(data, dso, timestamp);
-+		if (synthesize_mmap(data, dso, timestamp) < 0)
-+			return -1;
- 
--		for (k = 0; k < nr_samples; k++)
--			len += synthesize_sample(data, dso, timestamp + k * 1000);
-+		for (k = 0; k < nr_samples; k++) {
-+			if (synthesize_sample(data, dso, timestamp + k * 1000) < 0)
-+				return -1;
-+		}
- 
--		if ((i + 1) % 10 == 0)
--			len += synthesize_flush(data);
-+		if ((i + 1) % 10 == 0) {
-+			if (synthesize_flush(data) < 0)
-+				return -1;
-+		}
+ 		*vcpu_pc(vcpu) = target_pc;
+-		vcpu_set_reg(vcpu, 0, vcpu->arch.reset_state.r0);
+-
+-		vcpu->arch.reset_state.reset = false;
++		vcpu_set_reg(vcpu, 0, reset_state.r0);
  	}
  
- 	/* tihs makes the child to finish */
+ 	/* Reset timer */
 -- 
 2.30.2
 
