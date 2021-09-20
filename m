@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D73D412574
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:44:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D9D14122B9
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353819AbhITSpK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:45:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55618 "EHLO mail.kernel.org"
+        id S1351343AbhITSRD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:17:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36231 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1382860AbhITSmb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:42:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFCEC6333D;
-        Mon, 20 Sep 2021 17:32:10 +0000 (UTC)
+        id S1376852AbhITSOu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:14:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1FB960EE4;
+        Mon, 20 Sep 2021 17:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159131;
-        bh=5vfnFv5YTe1smOkZHNVJBYzX67YVWPYp3juTMNgC++Q=;
+        s=korg; t=1632158499;
+        bh=v20QQcURcpcNS3G1sFZ/ZLQ59gjDrOIr9tYfVPep7To=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F3lB9WRZoTm79TPllUfmi3hesh41Rkc/RFpLqkx7JBIT4cJou+ByKF6PjphSkvBam
-         RNYl57lozwcDO3QgrmKsfV6CAsV626JlCpzwohRN9Ioq0LFmX3pFyMHzhMp03trdhw
-         V0gP8XmuHXZxFXhXdHIQpNj2xzct6PT/aZnk2C2Y=
+        b=AmZYnor3rouoBKcwyj4Q9HIODcj3lahtER24pIvLelDG3RHaNsyzZiHWQbnJs5Zhv
+         N5DtGcNdHEOKsTuDyYvqdHg1V2bij5YQbKvPDGs67b+aXUUNJbgGhpPFQCKtdjsXsa
+         oBl0if1FfFCY6ieHjwlgxTZCSradkUn0QC0rVuJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bill Wendling <morbo@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.14 063/168] x86/uaccess: Fix 32-bit __get_user_asm_u64() when CC_HAS_ASM_GOTO_OUTPUT=y
+Subject: [PATCH 5.4 183/260] memcg: enable accounting for pids in nested pid namespaces
 Date:   Mon, 20 Sep 2021 18:43:21 +0200
-Message-Id: <20210920163923.708444313@linuxfoundation.org>
+Message-Id: <20210920163937.334911953@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit a69ae291e1cc2d08ae77c2029579c59c9bde5061 upstream.
+commit fab827dbee8c2e06ca4ba000fa6c48bcf9054aba upstream.
 
-Commit 865c50e1d279 ("x86/uaccess: utilize CONFIG_CC_HAS_ASM_GOTO_OUTPUT")
-added an optimised version of __get_user_asm() for x86 using 'asm goto'.
+Commit 5d097056c9a0 ("kmemcg: account certain kmem allocations to memcg")
+enabled memcg accounting for pids allocated from init_pid_ns.pid_cachep,
+but forgot to adjust the setting for nested pid namespaces.  As a result,
+pid memory is not accounted exactly where it is really needed, inside
+memcg-limited containers with their own pid namespaces.
 
-Like the non-optimised code, the 32-bit implementation of 64-bit
-get_user() expands to a pair of 32-bit accesses.  Unlike the
-non-optimised code, the _original_ pointer is incremented to copy the
-high word instead of loading through a new pointer explicitly
-constructed to point at a 32-bit type.  Consequently, if the pointer
-points at a 64-bit type then we end up loading the wrong data for the
-upper 32-bits.
+Pid was one the first kernel objects enabled for memcg accounting.
+init_pid_ns.pid_cachep marked by SLAB_ACCOUNT and we can expect that any
+new pids in the system are memcg-accounted.
 
-This was observed as a mount() failure in Android targeting i686 after
-b0cfcdd9b967 ("d_path: make 'prepend()' fill up the buffer exactly on
-overflow") because the call to copy_from_kernel_nofault() from
-prepend_copy() ends up in __get_kernel_nofault() and casts the source
-pointer to a 'u64 __user *'.  An attempt to mount at "/debug_ramdisk"
-therefore ends up failing trying to mount "/debumdismdisk".
+Though recently I've noticed that it is wrong.  nested pid namespaces
+creates own slab caches for pid objects, nested pids have increased size
+because contain id both for all parent and for own pid namespaces.  The
+problem is that these slab caches are _NOT_ marked by SLAB_ACCOUNT, as a
+result any pids allocated in nested pid namespaces are not
+memcg-accounted.
 
-Use the existing '__gu_ptr' source pointer to unsigned int for 32-bit
-__get_user_asm_u64() instead of the original pointer.
+Pid struct in nested pid namespace consumes up to 500 bytes memory, 100000
+such objects gives us up to ~50Mb unaccounted memory, this allow container
+to exceed assigned memcg limits.
 
-Cc: Bill Wendling <morbo@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Reported-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Fixes: 865c50e1d279 ("x86/uaccess: utilize CONFIG_CC_HAS_ASM_GOTO_OUTPUT")
-Signed-off-by: Will Deacon <will@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/8b6de616-fd1a-02c6-cbdb-976ecdcfa604@virtuozzo.com
+Fixes: 5d097056c9a0 ("kmemcg: account certain kmem allocations to memcg")
+Cc: stable@vger.kernel.org
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/uaccess.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/pid_namespace.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/uaccess.h
-+++ b/arch/x86/include/asm/uaccess.h
-@@ -301,8 +301,8 @@ do {									\
- 	unsigned int __gu_low, __gu_high;				\
- 	const unsigned int __user *__gu_ptr;				\
- 	__gu_ptr = (const void __user *)(ptr);				\
--	__get_user_asm(__gu_low, ptr, "l", "=r", label);		\
--	__get_user_asm(__gu_high, ptr+1, "l", "=r", label);		\
-+	__get_user_asm(__gu_low, __gu_ptr, "l", "=r", label);		\
-+	__get_user_asm(__gu_high, __gu_ptr+1, "l", "=r", label);	\
- 	(x) = ((unsigned long long)__gu_high << 32) | __gu_low;		\
- } while (0)
- #else
+--- a/kernel/pid_namespace.c
++++ b/kernel/pid_namespace.c
+@@ -53,7 +53,8 @@ static struct kmem_cache *create_pid_cac
+ 	mutex_lock(&pid_caches_mutex);
+ 	/* Name collision forces to do allocation under mutex. */
+ 	if (!*pkc)
+-		*pkc = kmem_cache_create(name, len, 0, SLAB_HWCACHE_ALIGN, 0);
++		*pkc = kmem_cache_create(name, len, 0,
++					 SLAB_HWCACHE_ALIGN | SLAB_ACCOUNT, 0);
+ 	mutex_unlock(&pid_caches_mutex);
+ 	/* current can fail, but someone else can succeed. */
+ 	return READ_ONCE(*pkc);
 
 
