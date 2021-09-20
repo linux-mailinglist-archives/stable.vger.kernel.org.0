@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09D3D411D4F
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:17:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF547411F7A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:40:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348231AbhITRSe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:18:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45924 "EHLO mail.kernel.org"
+        id S1352771AbhITRlk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:41:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348008AbhITRQd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:16:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72AE961A05;
-        Mon, 20 Sep 2021 16:58:59 +0000 (UTC)
+        id S1352580AbhITRjq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:39:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DA5B61B49;
+        Mon, 20 Sep 2021 17:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157139;
-        bh=6UmB6ykUfxJtqzo3qnDcVnv31GjeZXUQrxUoahVRJAA=;
+        s=korg; t=1632157676;
+        bh=Vk7es1wbOk7HPq+3z7VwMH4gSuoKpxacI6znwZk5m0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2NXojb6d7g5EcQUyIymD2hppW2U0A22rouYGZuA1zpPfc5zwvh711u9uVAAfH9tUg
-         Ua7rOcBZ7QentVB7LIpYFW58SwKiCDG+5jDeUE3jBBlVSexzyohvB+I/OweUO8tj0B
-         ExHooVYJEnNNNQwbX9/TeJXzXUKLy2GP+veqU/2Y=
+        b=hkO5RSnqJknOBuHm/4iq0l8dXi9N2iSek9+QxVOwYaeApwZdIhuBr/oEIaNb683JG
+         xXjOj4zYLsHQVvRB0AzMbNCvKf1UQj0Kgv74r340Cn/JIc6IkkYezdmrZLYckRDPSC
+         rLtx5FGxnDkyGAbLRuiET/0XgIGHJR/NvulBHyXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Fiona Trahe <fiona.trahe@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 039/217] crypto: qat - do not ignore errors from enable_vf2pf_comms()
-Date:   Mon, 20 Sep 2021 18:41:00 +0200
-Message-Id: <20210920163925.957360916@linuxfoundation.org>
+Subject: [PATCH 4.19 099/293] ath6kl: wmi: fix an error code in ath6kl_wmi_sync_point()
+Date:   Mon, 20 Sep 2021 18:41:01 +0200
+Message-Id: <20210920163936.654338402@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 5147f0906d50a9d26f2b8698cd06b5680e9867ff ]
+[ Upstream commit fd6729ec534cffbbeb3917761e6d1fe6a412d3fe ]
 
-The function adf_dev_init() ignores the error code reported by
-enable_vf2pf_comms(). If the latter fails, e.g. the VF is not compatible
-with the pf, then the load of the VF driver progresses.
-This patch changes adf_dev_init() so that the error code from
-enable_vf2pf_comms() is returned to the caller.
+This error path is unlikely because of it checked for NULL and
+returned -ENOMEM earlier in the function.  But it should return
+an error code here as well if we ever do hit it because of a
+race condition or something.
 
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: bdcd81707973 ("Add ath6kl cleaned up driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210813113438.GB30697@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_init.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath6kl/wmi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_init.c b/drivers/crypto/qat/qat_common/adf_init.c
-index 26556c713049..7a7d43c47534 100644
---- a/drivers/crypto/qat/qat_common/adf_init.c
-+++ b/drivers/crypto/qat/qat_common/adf_init.c
-@@ -105,6 +105,7 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
- 	struct service_hndl *service;
- 	struct list_head *list_itr;
- 	struct adf_hw_device_data *hw_data = accel_dev->hw_device;
-+	int ret;
+diff --git a/drivers/net/wireless/ath/ath6kl/wmi.c b/drivers/net/wireless/ath/ath6kl/wmi.c
+index 987ebae8ea0e..afa7a82ffd5d 100644
+--- a/drivers/net/wireless/ath/ath6kl/wmi.c
++++ b/drivers/net/wireless/ath/ath6kl/wmi.c
+@@ -2513,8 +2513,10 @@ static int ath6kl_wmi_sync_point(struct wmi *wmi, u8 if_idx)
+ 		goto free_data_skb;
  
- 	if (!hw_data) {
- 		dev_err(&GET_DEV(accel_dev),
-@@ -171,9 +172,9 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
- 	}
+ 	for (index = 0; index < num_pri_streams; index++) {
+-		if (WARN_ON(!data_sync_bufs[index].skb))
++		if (WARN_ON(!data_sync_bufs[index].skb)) {
++			ret = -ENOMEM;
+ 			goto free_data_skb;
++		}
  
- 	hw_data->enable_error_correction(accel_dev);
--	hw_data->enable_vf2pf_comms(accel_dev);
-+	ret = hw_data->enable_vf2pf_comms(accel_dev);
- 
--	return 0;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(adf_dev_init);
- 
+ 		ep_id = ath6kl_ac2_endpoint_id(wmi->parent_dev,
+ 					       data_sync_bufs[index].
 -- 
 2.30.2
 
