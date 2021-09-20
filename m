@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71CB241207E
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:54:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 689A2411C6F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:08:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347245AbhITRzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:55:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54630 "EHLO mail.kernel.org"
+        id S238985AbhITRJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:09:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349458AbhITRwu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:52:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A7546140A;
-        Mon, 20 Sep 2021 17:13:05 +0000 (UTC)
+        id S1346455AbhITRHV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:07:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9C8D61390;
+        Mon, 20 Sep 2021 16:55:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157985;
-        bh=rSes+fkgNcdnRhQdFfMj5NVACGIdVJzrMcuJwL51u4I=;
+        s=korg; t=1632156935;
+        bh=tLJ8L+O+cx79R6uqRRqWUj+XQj3Ws6VC37Zq7sSvx0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GEX98TFzjvXfrQZXe4AdZoR090FIilbElwIMjk2AK/phShRSe9uIN3SjO6t1/O9cX
-         15xJlXoqQxLeNHXq15uPj/ZX12UWttAiu7eZ7eqrmHZVYGQP95feI96jT6+lo2L+EF
-         kzRSnuQfxu4AEWBMgCK3yiN9lmuxgvz5jj3JpDMM=
+        b=yci46gWT9+JJe0I4O6v4hxlYppJL3KmsYuy8QA0nXaGbYpciQQKcyhcY68Y7A0YnK
+         78nM9gRjJysKY+871LiHDGw5fNvOvBnu6OQs7oddsZxcVA9NfoFDw8TD6EJfmqq7b7
+         nTnqldA9CW5hg8BxCaNVSHh5NRxDQZule1/sNn48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.19 241/293] parisc: fix crash with signals and alloca
+        stable@vger.kernel.org, Adrian Bunk <bunk@kernel.org>,
+        YunQiang Su <wzssyqa@gmail.com>,
+        Shai Malin <smalin@marvell.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 154/175] bnx2x: Fix enabling network interfaces without VFs
 Date:   Mon, 20 Sep 2021 18:43:23 +0200
-Message-Id: <20210920163941.644286313@linuxfoundation.org>
+Message-Id: <20210920163923.109980807@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,84 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Adrian Bunk <bunk@kernel.org>
 
-commit 030f653078316a9cc9ca6bd1b0234dcf858be35d upstream.
+commit 52ce14c134a003fee03d8fc57442c05a55b53715 upstream.
 
-I was debugging some crashes on parisc and I found out that there is a
-crash possibility if a function using alloca is interrupted by a signal.
-The reason for the crash is that the gcc alloca implementation leaves
-garbage in the upper 32 bits of the sp register. This normally doesn't
-matter (the upper bits are ignored because the PSW W-bit is clear),
-however the signal delivery routine in the kernel uses full 64 bits of sp
-and it fails with -EFAULT if the upper 32 bits are not zero.
+This function is called to enable SR-IOV when available,
+not enabling interfaces without VFs was a regression.
 
-I created this program that demonstrates the problem:
-
-#include <stdlib.h>
-#include <unistd.h>
-#include <signal.h>
-#include <alloca.h>
-
-static __attribute__((noinline,noclone)) void aa(int *size)
-{
-	void * volatile p = alloca(-*size);
-	while (1) ;
-}
-
-static void handler(int sig)
-{
-	write(1, "signal delivered\n", 17);
-	_exit(0);
-}
-
-int main(void)
-{
-	int size = -0x100;
-	signal(SIGALRM, handler);
-	alarm(1);
-	aa(&size);
-}
-
-If you compile it with optimizations, it will crash.
-The "aa" function has this disassembly:
-
-000106a0 <aa>:
-   106a0:       08 03 02 41     copy r3,r1
-   106a4:       08 1e 02 43     copy sp,r3
-   106a8:       6f c1 00 80     stw,ma r1,40(sp)
-   106ac:       37 dc 3f c1     ldo -20(sp),ret0
-   106b0:       0c 7c 12 90     stw ret0,8(r3)
-   106b4:       0f 40 10 9c     ldw 0(r26),ret0		; ret0 = 0x00000000FFFFFF00
-   106b8:       97 9c 00 7e     subi 3f,ret0,ret0	; ret0 = 0xFFFFFFFF0000013F
-   106bc:       d7 80 1c 1a     depwi 0,31,6,ret0	; ret0 = 0xFFFFFFFF00000100
-   106c0:       0b 9e 0a 1e     add,l sp,ret0,sp	;   sp = 0xFFFFFFFFxxxxxxxx
-   106c4:       e8 1f 1f f7     b,l,n 106c4 <aa+0x24>,r0
-
-This patch fixes the bug by truncating the "usp" variable to 32 bits.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Fixes: 65161c35554f ("bnx2x: Fix missing error code in bnx2x_iov_init_one()")
+Signed-off-by: Adrian Bunk <bunk@kernel.org>
+Reported-by: YunQiang Su <wzssyqa@gmail.com>
+Tested-by: YunQiang Su <wzssyqa@gmail.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Helge Deller <deller@gmx.de>
+Acked-by: Shai Malin <smalin@marvell.com>
+Link: https://lore.kernel.org/r/20210912190523.27991-1-bunk@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/signal.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/parisc/kernel/signal.c
-+++ b/arch/parisc/kernel/signal.c
-@@ -239,6 +239,12 @@ setup_rt_frame(struct ksignal *ksig, sig
- #endif
- 	
- 	usp = (regs->gr[30] & ~(0x01UL));
-+#ifdef CONFIG_64BIT
-+	if (is_compat_task()) {
-+		/* The gcc alloca implementation leaves garbage in the upper 32 bits of sp */
-+		usp = (compat_uint_t)usp;
-+	}
-+#endif
- 	/*FIXME: frame_size parameter is unused, remove it. */
- 	frame = get_sigframe(&ksig->ka, usp, sizeof(*frame));
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
+@@ -1241,7 +1241,7 @@ int bnx2x_iov_init_one(struct bnx2x *bp,
+ 
+ 	/* SR-IOV capability was enabled but there are no VFs*/
+ 	if (iov->total == 0) {
+-		err = -EINVAL;
++		err = 0;
+ 		goto failed;
+ 	}
  
 
 
