@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99E5841226D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:14:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E24D4121BD
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:09:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350848AbhITSPk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:15:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33078 "EHLO mail.kernel.org"
+        id S1358910AbhITSIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:08:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358098AbhITSF0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:05:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA46763248;
-        Mon, 20 Sep 2021 17:17:46 +0000 (UTC)
+        id S1358464AbhITSGp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:06:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A378D61A0B;
+        Mon, 20 Sep 2021 17:17:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158267;
-        bh=nbwWSCKy9q4DxA0i5QSHUj+4pyyuSx6dn3R8lNa2nxo=;
+        s=korg; t=1632158280;
+        bh=7jspRymjruWv8ZVQQoIyyjjJyKqgfsOq/RILWjA1krM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mrr5n0grYkQIppYThBGJ1hketPZXID7/DNr0u2ZgVVX7CtbfsspBpK8j1lm/jA1Qb
-         AmokbLC6G5ZyrUrsP27QKylLFFRxOzKLVBTh/eYMJOEtie8poSteZH4FSmOBjlA3IF
-         MOa2TRY1S2XOj3cLrCVVrIj8+xTX+rx83FxAW8eE=
+        b=LOkSGxU76kx/sOdP5peqG/azaiCMs3ihCBI+wlhjkdUQuOtodKVDbIsqmROkqLx1n
+         lO4g3B5UwmU5Th2Y5UfMVqJpP2UCT1ipQZN7GH/3Mm+YuQr4U5/EpN1KWf+2GGEixK
+         FDfrHc3ah6bRo+dItnDFKqR9CFhD9Zs4sjzJN/l4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Li <liwei391@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 050/260] SUNRPC: Fix potential memory corruption
-Date:   Mon, 20 Sep 2021 18:41:08 +0200
-Message-Id: <20210920163932.810824907@linuxfoundation.org>
+Subject: [PATCH 5.4 051/260] scsi: fdomain: Fix error return code in fdomain_probe()
+Date:   Mon, 20 Sep 2021 18:41:09 +0200
+Message-Id: <20210920163932.842490887@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -41,67 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Wei Li <liwei391@huawei.com>
 
-[ Upstream commit c2dc3e5fad13aca5d7bdf4bcb52b1a1d707c8555 ]
+[ Upstream commit 632c4ae6da1d629eddf9da1e692d7617c568c256 ]
 
-We really should not call rpc_wake_up_queued_task_set_status() with
-xprt->snd_task as an argument unless we are certain that is actually an
-rpc_task.
+If request_region() fails the return value is not set. Return -EBUSY on
+error.
 
-Fixes: 0445f92c5d53 ("SUNRPC: Fix disconnection races")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Link: https://lore.kernel.org/r/20210715032625.1395495-1-liwei391@huawei.com
+Fixes: 8674a8aa2c39 ("scsi: fdomain: Add PCMCIA support")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Li <liwei391@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sunrpc/xprt.h | 1 +
- net/sunrpc/xprt.c           | 6 ++++--
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/scsi/pcmcia/fdomain_cs.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/sunrpc/xprt.h b/include/linux/sunrpc/xprt.h
-index d7ef5b97174c..3c6c4b1dbf1a 100644
---- a/include/linux/sunrpc/xprt.h
-+++ b/include/linux/sunrpc/xprt.h
-@@ -419,6 +419,7 @@ void			xprt_unlock_connect(struct rpc_xprt *, void *);
- #define XPRT_CONGESTED		(9)
- #define XPRT_CWND_WAIT		(10)
- #define XPRT_WRITE_SPACE	(11)
-+#define XPRT_SND_IS_COOKIE	(12)
+diff --git a/drivers/scsi/pcmcia/fdomain_cs.c b/drivers/scsi/pcmcia/fdomain_cs.c
+index e42acf314d06..33df6a9ba9b5 100644
+--- a/drivers/scsi/pcmcia/fdomain_cs.c
++++ b/drivers/scsi/pcmcia/fdomain_cs.c
+@@ -45,8 +45,10 @@ static int fdomain_probe(struct pcmcia_device *link)
+ 		goto fail_disable;
  
- static inline void xprt_set_connected(struct rpc_xprt *xprt)
- {
-diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index 639837b3a5d9..3653898f465f 100644
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -729,9 +729,9 @@ void xprt_force_disconnect(struct rpc_xprt *xprt)
- 	/* Try to schedule an autoclose RPC call */
- 	if (test_and_set_bit(XPRT_LOCKED, &xprt->state) == 0)
- 		queue_work(xprtiod_workqueue, &xprt->task_cleanup);
--	else if (xprt->snd_task)
-+	else if (xprt->snd_task && !test_bit(XPRT_SND_IS_COOKIE, &xprt->state))
- 		rpc_wake_up_queued_task_set_status(&xprt->pending,
--				xprt->snd_task, -ENOTCONN);
-+						   xprt->snd_task, -ENOTCONN);
- 	spin_unlock(&xprt->transport_lock);
- }
- EXPORT_SYMBOL_GPL(xprt_force_disconnect);
-@@ -820,6 +820,7 @@ bool xprt_lock_connect(struct rpc_xprt *xprt,
- 		goto out;
- 	if (xprt->snd_task != task)
- 		goto out;
-+	set_bit(XPRT_SND_IS_COOKIE, &xprt->state);
- 	xprt->snd_task = cookie;
- 	ret = true;
- out:
-@@ -835,6 +836,7 @@ void xprt_unlock_connect(struct rpc_xprt *xprt, void *cookie)
- 	if (!test_bit(XPRT_LOCKED, &xprt->state))
- 		goto out;
- 	xprt->snd_task =NULL;
-+	clear_bit(XPRT_SND_IS_COOKIE, &xprt->state);
- 	xprt->ops->release_xprt(xprt, NULL);
- 	xprt_schedule_autodisconnect(xprt);
- out:
+ 	if (!request_region(link->resource[0]->start, FDOMAIN_REGION_SIZE,
+-			    "fdomain_cs"))
++			    "fdomain_cs")) {
++		ret = -EBUSY;
+ 		goto fail_disable;
++	}
+ 
+ 	sh = fdomain_create(link->resource[0]->start, link->irq, 7, &link->dev);
+ 	if (!sh) {
 -- 
 2.30.2
 
