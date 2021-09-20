@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DBE041226B
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:14:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C8EF41226F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:14:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350117AbhITSPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:15:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33072 "EHLO mail.kernel.org"
+        id S1351208AbhITSPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:15:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358096AbhITSF0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:05:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82E79619F8;
-        Mon, 20 Sep 2021 17:17:44 +0000 (UTC)
+        id S1358123AbhITSF1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:05:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD6E16324A;
+        Mon, 20 Sep 2021 17:17:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158265;
-        bh=nvB+kxdE2/bCuWP15cGyfj9DM+8pzf5lSucXuRagoMU=;
+        s=korg; t=1632158269;
+        bh=KLdNNpiGulrcPlS+HcqvOs4Ctr1qIKhW0Dvj0QE4AhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQD4mizzZG+dtA3Fa4y9eJHr+wfaKeL80rzyNYJKugjpzefa4JMr+Tb4V25qjVjPL
-         MSOkxR7E4TU7zxefKRiLeN/AXsEELZC9lJyutfeiPkgJU8S7VBbS/pT8CplKlmzLnD
-         dgCoyYCcaiyTiBEmUXJcJQgan44840H0Nv19OlrM=
+        b=mt444b/pWnaSwxULBIiHRqm2kVbrrw8+LOTiqBgfY1SLxf/OUiTtPqpwS64gIoLns
+         L3pP1ovD6DgwXo4WeNCLfrZVFAaUVIf8SPHAE9aqXeqyNw+K23Dy/lUspTJnxQIbPU
+         /IjkuYPlIfOWsnuEOG237VQyra516XpdIMgIEE0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Jon Maloy <jmaloy@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 076/260] PCI: Use pci_update_current_state() in pci_enable_device_flags()
-Date:   Mon, 20 Sep 2021 18:41:34 +0200
-Message-Id: <20210920163933.718936840@linuxfoundation.org>
+Subject: [PATCH 5.4 077/260] tipc: keep the skb in rcv queue until the whole data is read
+Date:   Mon, 20 Sep 2021 18:41:35 +0200
+Message-Id: <20210920163933.753249050@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -40,51 +41,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 14858dcc3b3587f4bb5c48e130ee7d68fc2b0a29 ]
+[ Upstream commit f4919ff59c2828064b4156e3c3600a169909bcf4 ]
 
-Updating the current_state field of struct pci_dev the way it is done
-in pci_enable_device_flags() before calling do_pci_enable_device() may
-not work.  For example, if the given PCI device depends on an ACPI
-power resource whose _STA method initially returns 0 ("off"), but the
-config space of the PCI device is accessible and the power state
-retrieved from the PCI_PM_CTRL register is D0, the current_state
-field in the struct pci_dev representing that device will get out of
-sync with the power.state of its ACPI companion object and that will
-lead to power management issues going forward.
+Currently, when userspace reads a datagram with a buffer that is
+smaller than this datagram, the data will be truncated and only
+part of it can be received by users. It doesn't seem right that
+users don't know the datagram size and have to use a huge buffer
+to read it to avoid the truncation.
 
-To avoid such issues, make pci_enable_device_flags() call
-pci_update_current_state() which takes ACPI device power management
-into account, if present, to retrieve the current power state of the
-device.
+This patch to fix it by keeping the skb in rcv queue until the
+whole data is read by users. Only the last msg of the datagram
+will be marked with MSG_EOR, just as TCP/SCTP does.
 
-Link: https://lore.kernel.org/lkml/20210314000439.3138941-1-luzmaximilian@gmail.com/
-Reported-by: Maximilian Luz <luzmaximilian@gmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Tested-by: Maximilian Luz <luzmaximilian@gmail.com>
+Note that this will work as above only when MSG_EOR is set in the
+flags parameter of recvmsg(), so that it won't break any old user
+applications.
+
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ net/tipc/socket.c | 36 +++++++++++++++++++++++++++---------
+ 1 file changed, 27 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 58c33b65d451..91b2733ded17 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1672,11 +1672,7 @@ static int pci_enable_device_flags(struct pci_dev *dev, unsigned long flags)
- 	 * so that things like MSI message writing will behave as expected
- 	 * (e.g. if the device really is in D0 at enable time).
- 	 */
--	if (dev->pm_cap) {
--		u16 pmcsr;
--		pci_read_config_word(dev, dev->pm_cap + PCI_PM_CTRL, &pmcsr);
--		dev->current_state = (pmcsr & PCI_PM_CTRL_STATE_MASK);
--	}
-+	pci_update_current_state(dev, dev->current_state);
+diff --git a/net/tipc/socket.c b/net/tipc/socket.c
+index a5922ce9109c..231f9e1bf6bb 100644
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -1756,6 +1756,7 @@ static int tipc_recvmsg(struct socket *sock, struct msghdr *m,
+ 	bool connected = !tipc_sk_type_connectionless(sk);
+ 	struct tipc_sock *tsk = tipc_sk(sk);
+ 	int rc, err, hlen, dlen, copy;
++	struct tipc_skb_cb *skb_cb;
+ 	struct sk_buff_head xmitq;
+ 	struct tipc_msg *hdr;
+ 	struct sk_buff *skb;
+@@ -1779,6 +1780,7 @@ static int tipc_recvmsg(struct socket *sock, struct msghdr *m,
+ 		if (unlikely(rc))
+ 			goto exit;
+ 		skb = skb_peek(&sk->sk_receive_queue);
++		skb_cb = TIPC_SKB_CB(skb);
+ 		hdr = buf_msg(skb);
+ 		dlen = msg_data_sz(hdr);
+ 		hlen = msg_hdr_sz(hdr);
+@@ -1798,18 +1800,33 @@ static int tipc_recvmsg(struct socket *sock, struct msghdr *m,
  
- 	if (atomic_inc_return(&dev->enable_cnt) > 1)
- 		return 0;		/* already enabled */
+ 	/* Capture data if non-error msg, otherwise just set return value */
+ 	if (likely(!err)) {
+-		copy = min_t(int, dlen, buflen);
+-		if (unlikely(copy != dlen))
+-			m->msg_flags |= MSG_TRUNC;
+-		rc = skb_copy_datagram_msg(skb, hlen, m, copy);
++		int offset = skb_cb->bytes_read;
++
++		copy = min_t(int, dlen - offset, buflen);
++		rc = skb_copy_datagram_msg(skb, hlen + offset, m, copy);
++		if (unlikely(rc))
++			goto exit;
++		if (unlikely(offset + copy < dlen)) {
++			if (flags & MSG_EOR) {
++				if (!(flags & MSG_PEEK))
++					skb_cb->bytes_read = offset + copy;
++			} else {
++				m->msg_flags |= MSG_TRUNC;
++				skb_cb->bytes_read = 0;
++			}
++		} else {
++			if (flags & MSG_EOR)
++				m->msg_flags |= MSG_EOR;
++			skb_cb->bytes_read = 0;
++		}
+ 	} else {
+ 		copy = 0;
+ 		rc = 0;
+-		if (err != TIPC_CONN_SHUTDOWN && connected && !m->msg_control)
++		if (err != TIPC_CONN_SHUTDOWN && connected && !m->msg_control) {
+ 			rc = -ECONNRESET;
++			goto exit;
++		}
+ 	}
+-	if (unlikely(rc))
+-		goto exit;
+ 
+ 	/* Mark message as group event if applicable */
+ 	if (unlikely(grp_evt)) {
+@@ -1832,9 +1849,10 @@ static int tipc_recvmsg(struct socket *sock, struct msghdr *m,
+ 		tipc_node_distr_xmit(sock_net(sk), &xmitq);
+ 	}
+ 
+-	tsk_advance_rx_queue(sk);
++	if (!skb_cb->bytes_read)
++		tsk_advance_rx_queue(sk);
+ 
+-	if (likely(!connected))
++	if (likely(!connected) || skb_cb->bytes_read)
+ 		goto exit;
+ 
+ 	/* Send connection flow control advertisement when applicable */
 -- 
 2.30.2
 
