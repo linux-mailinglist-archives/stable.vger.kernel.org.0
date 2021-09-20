@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41FAF411D14
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:14:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCE2F411D19
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:15:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243577AbhITRQH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:16:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40226 "EHLO mail.kernel.org"
+        id S1346385AbhITRQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:16:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347415AbhITROE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:14:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 476C1619F6;
-        Mon, 20 Sep 2021 16:58:05 +0000 (UTC)
+        id S1347510AbhITROR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:14:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BC83619F7;
+        Mon, 20 Sep 2021 16:58:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157085;
-        bh=dJl91C0/eX+mQIGkNEJEiZiVrhcnNqrdebm1P6xLDPg=;
+        s=korg; t=1632157087;
+        bh=n3lyOd2sjt6O5FYm8v++9uN5IidoxoTMiNxZYE5Wf4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HM17/CmGw5yProwyQO8P+3Vy2JXQZFBeGixKjbodt/hXZ7e/N+HsEvDPUWqKu8VbT
-         nnOHgbIKvzjliiu1cj+s0cow29CxK02UW3nZnjOgfWoFCUdNfJRGLiZg1cdlXzhhHg
-         SyxObXER0dawIkg2u4DM1ZrFlJfHnDLYqkb1Dzq4=
+        b=S3tf6Fzxg08ljml6hvlnlQOTNXwWN64G7/fr3/jfcqBT8+g/jTpq9ISbWOq7BOZFy
+         KrESgT7lXiZQdhAFyigaRiw38Hk7o0Plzip4KodG0pJQHvM7AKNVcMJ7sbp6RkQyVL
+         WWJfIM5lWZdOjsmwfk8REHwwzLjb9ucpuo4//fVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Purna Chandra Mandal <purna.mandal@microchip.com>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Phong Hoang <phong.hoang.wz@renesas.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 047/217] spi: spi-pic32: Fix issue with uninitialized dma_slave_config
-Date:   Mon, 20 Sep 2021 18:41:08 +0200
-Message-Id: <20210920163926.218184855@linuxfoundation.org>
+Subject: [PATCH 4.14 048/217] clocksource/drivers/sh_cmt: Fix wrong setting if dont request IRQ for clock source channel
+Date:   Mon, 20 Sep 2021 18:41:09 +0200
+Message-Id: <20210920163926.251694261@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
 References: <20210920163924.591371269@linuxfoundation.org>
@@ -44,44 +42,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Phong Hoang <phong.hoang.wz@renesas.com>
 
-[ Upstream commit 976c1de1de147bb7f4e0d87482f375221c05aeaf ]
+[ Upstream commit be83c3b6e7b8ff22f72827a613bf6f3aa5afadbb ]
 
-Depending on the DMA driver being used, the struct dma_slave_config may
-need to be initialized to zero for the unused data.
+If CMT instance has at least two channels, one channel will be used
+as a clock source and another one used as a clock event device.
+In that case, IRQ is not requested for clock source channel so
+sh_cmt_clock_event_program_verify() might work incorrectly.
+Besides, when a channel is only used for clock source, don't need to
+re-set the next match_value since it should be maximum timeout as
+it still is.
 
-For example, we have three DMA drivers using src_port_window_size and
-dst_port_window_size. If these are left uninitialized, it can cause DMA
-failures.
+On the other hand, due to no IRQ, total_cycles is not counted up
+when reaches compare match time (timer counter resets to zero),
+so sh_cmt_clocksource_read() returns unexpected value.
+Therefore, use 64-bit clocksoure's mask for 32-bit or 16-bit variants
+will also lead to wrong delta calculation. Hence, this mask should
+correspond to timer counter width, and above function just returns
+the raw value of timer counter register.
 
-For spi-pic32, this is probably not currently an issue but is still good to
-fix though.
-
-Fixes: 1bcb9f8ceb67 ("spi: spi-pic32: Add PIC32 SPI master driver")
-Cc: Purna Chandra Mandal <purna.mandal@microchip.com>
-Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Cc: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210810081727.19491-2-tony@atomide.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: bfa76bb12f23 ("clocksource: sh_cmt: Request IRQ for clock event device only")
+Fixes: 37e7742c55ba ("clocksource/drivers/sh_cmt: Fix clocksource width for 32-bit machines")
+Signed-off-by: Phong Hoang <phong.hoang.wz@renesas.com>
+Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210422123443.73334-1-niklas.soderlund+renesas@ragnatech.se
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-pic32.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clocksource/sh_cmt.c | 30 ++++++++++++++++++------------
+ 1 file changed, 18 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/spi/spi-pic32.c b/drivers/spi/spi-pic32.c
-index 661a40c653e9..d8cdb13ce3e4 100644
---- a/drivers/spi/spi-pic32.c
-+++ b/drivers/spi/spi-pic32.c
-@@ -369,6 +369,7 @@ static int pic32_spi_dma_config(struct pic32_spi *pic32s, u32 dma_width)
- 	struct dma_slave_config cfg;
- 	int ret;
+diff --git a/drivers/clocksource/sh_cmt.c b/drivers/clocksource/sh_cmt.c
+index 3cd62f7c33e3..48eeee53a586 100644
+--- a/drivers/clocksource/sh_cmt.c
++++ b/drivers/clocksource/sh_cmt.c
+@@ -570,7 +570,8 @@ static int sh_cmt_start(struct sh_cmt_channel *ch, unsigned long flag)
+ 	ch->flags |= flag;
  
-+	memset(&cfg, 0, sizeof(cfg));
- 	cfg.device_fc = true;
- 	cfg.src_addr = pic32s->dma_base + buf_offset;
- 	cfg.dst_addr = pic32s->dma_base + buf_offset;
+ 	/* setup timeout if no clockevent */
+-	if ((flag == FLAG_CLOCKSOURCE) && (!(ch->flags & FLAG_CLOCKEVENT)))
++	if (ch->cmt->num_channels == 1 &&
++	    flag == FLAG_CLOCKSOURCE && (!(ch->flags & FLAG_CLOCKEVENT)))
+ 		__sh_cmt_set_next(ch, ch->max_match_value);
+  out:
+ 	raw_spin_unlock_irqrestore(&ch->lock, flags);
+@@ -606,20 +607,25 @@ static struct sh_cmt_channel *cs_to_sh_cmt(struct clocksource *cs)
+ static u64 sh_cmt_clocksource_read(struct clocksource *cs)
+ {
+ 	struct sh_cmt_channel *ch = cs_to_sh_cmt(cs);
+-	unsigned long flags;
+ 	u32 has_wrapped;
+-	u64 value;
+-	u32 raw;
+ 
+-	raw_spin_lock_irqsave(&ch->lock, flags);
+-	value = ch->total_cycles;
+-	raw = sh_cmt_get_counter(ch, &has_wrapped);
++	if (ch->cmt->num_channels == 1) {
++		unsigned long flags;
++		u64 value;
++		u32 raw;
+ 
+-	if (unlikely(has_wrapped))
+-		raw += ch->match_value + 1;
+-	raw_spin_unlock_irqrestore(&ch->lock, flags);
++		raw_spin_lock_irqsave(&ch->lock, flags);
++		value = ch->total_cycles;
++		raw = sh_cmt_get_counter(ch, &has_wrapped);
++
++		if (unlikely(has_wrapped))
++			raw += ch->match_value + 1;
++		raw_spin_unlock_irqrestore(&ch->lock, flags);
++
++		return value + raw;
++	}
+ 
+-	return value + raw;
++	return sh_cmt_get_counter(ch, &has_wrapped);
+ }
+ 
+ static int sh_cmt_clocksource_enable(struct clocksource *cs)
+@@ -682,7 +688,7 @@ static int sh_cmt_register_clocksource(struct sh_cmt_channel *ch,
+ 	cs->disable = sh_cmt_clocksource_disable;
+ 	cs->suspend = sh_cmt_clocksource_suspend;
+ 	cs->resume = sh_cmt_clocksource_resume;
+-	cs->mask = CLOCKSOURCE_MASK(sizeof(u64) * 8);
++	cs->mask = CLOCKSOURCE_MASK(ch->cmt->info->width);
+ 	cs->flags = CLOCK_SOURCE_IS_CONTINUOUS;
+ 
+ 	dev_info(&ch->cmt->pdev->dev, "ch%u: used as clock source\n",
 -- 
 2.30.2
 
