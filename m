@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 019CE41201A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:47:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00C91411B93
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:59:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354117AbhITRsz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:48:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52812 "EHLO mail.kernel.org"
+        id S244843AbhITRA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:00:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348345AbhITRqx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:46:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A92961B7C;
-        Mon, 20 Sep 2021 17:10:37 +0000 (UTC)
+        id S1344118AbhITQ6U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:58:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00BE6611AE;
+        Mon, 20 Sep 2021 16:51:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157837;
-        bh=mNINtN00EoE5fNjTY0n3xsXJqBYhlUF+h6yxqaYywuM=;
+        s=korg; t=1632156717;
+        bh=FUVgSAJ5K5SRh/aieYK5iXse8prfOpHH+RuRx+jPoZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ads+7+DGwAGq5b04hFQA2hVF+n+ov2sDRmU8hzwuI/C7V6wt3zKwH/9/4gSJr+Jg+
-         jKjTy1CGvsL2JyIT36h2WqlyHgYIwthxjYuZa8io2UGHRDfwfE8uOmxheLppDs5cLk
-         iP2OCfcjStc75wfz+mr9S2FK4BUf9LH5QXFQxP0M=
+        b=uIRgoUj5zm8zWhIr5cgN0imCqv0t81ARPLIbUqzLxteU47E0w6u+QbaIPAh1VQoVt
+         ntXNHKVmafkwhD/TWUHBAnW1cbU+MFJdkJcN7pNLMiWacZGWm57dFtgWZoW1sPFpqV
+         zoTXC2whLJmvakM+NhTPc1o1ynb5lCnry0ERL4Sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Iwona Winiarska <iwona.winiarska@intel.com>,
-        Andrew Jeffery <andrew@aj.id.au>, Joel Stanley <joel@aj.id.au>,
-        Joel Stanley <joel@jms.id.au>
-Subject: [PATCH 4.19 141/293] soc: aspeed: lpc-ctrl: Fix boundary check for mmap
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 054/175] media: go7007: remove redundant initialization
 Date:   Mon, 20 Sep 2021 18:41:43 +0200
-Message-Id: <20210920163938.108245817@linuxfoundation.org>
+Message-Id: <20210920163919.825236476@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +41,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Iwona Winiarska <iwona.winiarska@intel.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit b49a0e69a7b1a68c8d3f64097d06dabb770fec96 upstream.
+[ Upstream commit 6f5885a7750545973bf1a942d2f0f129aef0aa06 ]
 
-The check mixes pages (vm_pgoff) with bytes (vm_start, vm_end) on one
-side of the comparison, and uses resource address (rather than just the
-resource size) on the other side of the comparison.
-This can allow malicious userspace to easily bypass the boundary check and
-map pages that are located outside memory-region reserved by the driver.
+In go7007_alloc() kzalloc() is used for struct go7007
+allocation. It means that there is no need in zeroing
+any members, because kzalloc will take care of it.
 
-Fixes: 6c4e97678501 ("drivers/misc: Add Aspeed LPC control driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Iwona Winiarska <iwona.winiarska@intel.com>
-Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Tested-by: Andrew Jeffery <andrew@aj.id.au>
-Reviewed-by: Joel Stanley <joel@aj.id.au>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Removing these reduntant initialization steps increases
+execution speed a lot:
+
+	Before:
+		+ 86.802 us   |    go7007_alloc();
+	After:
+		+ 29.595 us   |    go7007_alloc();
+
+Fixes: 866b8695d67e8 ("Staging: add the go7007 video driver")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/aspeed-lpc-ctrl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/go7007/go7007-driver.c | 26 ------------------------
+ 1 file changed, 26 deletions(-)
 
---- a/drivers/misc/aspeed-lpc-ctrl.c
-+++ b/drivers/misc/aspeed-lpc-ctrl.c
-@@ -50,7 +50,7 @@ static int aspeed_lpc_ctrl_mmap(struct f
- 	unsigned long vsize = vma->vm_end - vma->vm_start;
- 	pgprot_t prot = vma->vm_page_prot;
+diff --git a/drivers/media/usb/go7007/go7007-driver.c b/drivers/media/usb/go7007/go7007-driver.c
+index 05b1126f263e..d861d7225f49 100644
+--- a/drivers/media/usb/go7007/go7007-driver.c
++++ b/drivers/media/usb/go7007/go7007-driver.c
+@@ -698,49 +698,23 @@ struct go7007 *go7007_alloc(const struct go7007_board_info *board,
+ 						struct device *dev)
+ {
+ 	struct go7007 *go;
+-	int i;
  
--	if (vma->vm_pgoff + vsize > lpc_ctrl->mem_base + lpc_ctrl->mem_size)
-+	if (vma->vm_pgoff + vma_pages(vma) > lpc_ctrl->mem_size >> PAGE_SHIFT)
- 		return -EINVAL;
+ 	go = kzalloc(sizeof(struct go7007), GFP_KERNEL);
+ 	if (go == NULL)
+ 		return NULL;
+ 	go->dev = dev;
+ 	go->board_info = board;
+-	go->board_id = 0;
+ 	go->tuner_type = -1;
+-	go->channel_number = 0;
+-	go->name[0] = 0;
+ 	mutex_init(&go->hw_lock);
+ 	init_waitqueue_head(&go->frame_waitq);
+ 	spin_lock_init(&go->spinlock);
+ 	go->status = STATUS_INIT;
+-	memset(&go->i2c_adapter, 0, sizeof(go->i2c_adapter));
+-	go->i2c_adapter_online = 0;
+-	go->interrupt_available = 0;
+ 	init_waitqueue_head(&go->interrupt_waitq);
+-	go->input = 0;
+ 	go7007_update_board(go);
+-	go->encoder_h_halve = 0;
+-	go->encoder_v_halve = 0;
+-	go->encoder_subsample = 0;
+ 	go->format = V4L2_PIX_FMT_MJPEG;
+ 	go->bitrate = 1500000;
+ 	go->fps_scale = 1;
+-	go->pali = 0;
+ 	go->aspect_ratio = GO7007_RATIO_1_1;
+-	go->gop_size = 0;
+-	go->ipb = 0;
+-	go->closed_gop = 0;
+-	go->repeat_seqhead = 0;
+-	go->seq_header_enable = 0;
+-	go->gop_header_enable = 0;
+-	go->dvd_mode = 0;
+-	go->interlace_coding = 0;
+-	for (i = 0; i < 4; ++i)
+-		go->modet[i].enable = 0;
+-	for (i = 0; i < 1624; ++i)
+-		go->modet_map[i] = 0;
+-	go->audio_deliver = NULL;
+-	go->audio_enabled = 0;
  
- 	/* ast2400/2500 AHB accesses are not cache coherent */
+ 	return go;
+ }
+-- 
+2.30.2
+
 
 
