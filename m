@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFE7F412476
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:34:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4839541231D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:19:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381084AbhITSfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:35:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49300 "EHLO mail.kernel.org"
+        id S1351392AbhITSVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:21:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1379766AbhITSa1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:30:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68480632F7;
-        Mon, 20 Sep 2021 17:27:14 +0000 (UTC)
+        id S1358883AbhITSSS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:18:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4474C6135E;
+        Mon, 20 Sep 2021 17:22:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158834;
-        bh=tSld2HOwibPSCdTrA5wJUDFuSG0AdJmTLSluveSg8WU=;
+        s=korg; t=1632158564;
+        bh=s4HQuz1Gq+kbJ/mEFzo9C6PTGG/TxCf56IN1M5lLZ6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FtfkiYCYOXJDapl2Qdu1G0iEeTJ16ScM+E9P/sWWidSXBEeNLvFpY//Nlc6D2Cvts
-         nWv9VucARbpFw9hH5cwFiI7UyEYrChUE+WPbnQG6k86JSEWWJ6LEZ+T9ZBq1fSpnGi
-         aJF6RhE5LeY+P1/YK9ACwL4opVJHASF3+IsnEhAU=
+        b=qA2W4w9tvJ1wVPGji8wqYTE+otDG5qZNBjPcu0yDNBtpyxuHwawo4L1uDGS+K1Gim
+         GDoPo8m9iuYm1+MisaikNs+4+RGaw0TDlE/IwBedvzYrju0vHqM+ulbVRPfMVFX7xr
+         ylJ+j+X5So8T+u26V0sNPTKyUAKvn7bIzeg0WdZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Om Prakash Singh <omp@nvidia.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Vidya Sagar <vidyas@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 060/122] PCI: tegra194: Fix MSI-X programming
+        stable@vger.kernel.org, Andrius V <vezhlys@gmail.com>,
+        Darek Strugacz <darek.strugacz@op.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 214/260] r6040: Restore MDIO clock frequency after MAC reset
 Date:   Mon, 20 Sep 2021 18:43:52 +0200
-Message-Id: <20210920163917.747617427@linuxfoundation.org>
+Message-Id: <20210920163938.385688390@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +41,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Om Prakash Singh <omp@nvidia.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 43537cf7e351264a1f05ed42ad402942bfc9140e ]
+commit e3f0cc1a945fcefec0c7c9d9dfd028a51daa1846 upstream.
 
-Lower order MSI-X address is programmed in MSIX_ADDR_MATCH_HIGH_OFF
-DBI register instead of higher order address. This patch fixes this
-programming mistake.
+A number of users have reported that they were not able to get the PHY
+to successfully link up, especially after commit c36757eb9dee ("net:
+phy: consider AN_RESTART status when reading link status") where we
+stopped reading just BMSR, but we also read BMCR to determine the link
+status.
 
-Link: https://lore.kernel.org/r/20210623100525.19944-3-omp@nvidia.com
-Signed-off-by: Om Prakash Singh <omp@nvidia.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Vidya Sagar <vidyas@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Andrius at NetBSD did a wonderful job at debugging the problem
+and found out that the MDIO bus clock frequency would be incorrectly set
+back to its default value which would prevent the MDIO bus controller
+from reading PHY registers properly. Back when we only read BMSR, if we
+read all 1s, we could falsely indicate a link status, though in general
+there is a cable plugged in, so this went unnoticed. After a second read
+of BMCR was added, a wrong read will lead to the inability to determine
+a link UP condition which is when it started to be visibly broken, even
+if it was long before that.
+
+The fix consists in restoring the value of the MD_CSR register that was
+set prior to the MAC reset.
+
+Link: http://gnats.netbsd.org/cgi-bin/query-pr-single.pl?number=53494
+Fixes: 90f750a81a29 ("r6040: consolidate MAC reset to its own function")
+Reported-by: Andrius V <vezhlys@gmail.com>
+Reported-by: Darek Strugacz <darek.strugacz@op.pl>
+Tested-by: Darek Strugacz <darek.strugacz@op.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/dwc/pcie-tegra194.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/rdc/r6040.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
-index c2827a8d208f..a5b677ec0769 100644
---- a/drivers/pci/controller/dwc/pcie-tegra194.c
-+++ b/drivers/pci/controller/dwc/pcie-tegra194.c
-@@ -1778,7 +1778,7 @@ static void pex_ep_event_pex_rst_deassert(struct tegra_pcie_dw *pcie)
- 	val = (ep->msi_mem_phys & MSIX_ADDR_MATCH_LOW_OFF_MASK);
- 	val |= MSIX_ADDR_MATCH_LOW_OFF_EN;
- 	dw_pcie_writel_dbi(pci, MSIX_ADDR_MATCH_LOW_OFF, val);
--	val = (lower_32_bits(ep->msi_mem_phys) & MSIX_ADDR_MATCH_HIGH_OFF_MASK);
-+	val = (upper_32_bits(ep->msi_mem_phys) & MSIX_ADDR_MATCH_HIGH_OFF_MASK);
- 	dw_pcie_writel_dbi(pci, MSIX_ADDR_MATCH_HIGH_OFF, val);
+--- a/drivers/net/ethernet/rdc/r6040.c
++++ b/drivers/net/ethernet/rdc/r6040.c
+@@ -119,6 +119,8 @@
+ #define PHY_ST		0x8A	/* PHY status register */
+ #define MAC_SM		0xAC	/* MAC status machine */
+ #define  MAC_SM_RST	0x0002	/* MAC status machine reset */
++#define MD_CSC		0xb6	/* MDC speed control register */
++#define  MD_CSC_DEFAULT	0x0030
+ #define MAC_ID		0xBE	/* Identifier register */
  
- 	ret = dw_pcie_ep_init_complete(ep);
--- 
-2.30.2
-
+ #define TX_DCNT		0x80	/* TX descriptor count */
+@@ -354,8 +356,9 @@ static void r6040_reset_mac(struct r6040
+ {
+ 	void __iomem *ioaddr = lp->base;
+ 	int limit = MAC_DEF_TIMEOUT;
+-	u16 cmd;
++	u16 cmd, md_csc;
+ 
++	md_csc = ioread16(ioaddr + MD_CSC);
+ 	iowrite16(MAC_RST, ioaddr + MCR1);
+ 	while (limit--) {
+ 		cmd = ioread16(ioaddr + MCR1);
+@@ -367,6 +370,10 @@ static void r6040_reset_mac(struct r6040
+ 	iowrite16(MAC_SM_RST, ioaddr + MAC_SM);
+ 	iowrite16(0, ioaddr + MAC_SM);
+ 	mdelay(5);
++
++	/* Restore MDIO clock frequency */
++	if (md_csc != MD_CSC_DEFAULT)
++		iowrite16(md_csc, ioaddr + MD_CSC);
+ }
+ 
+ static void r6040_init_mac_regs(struct net_device *dev)
 
 
