@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F164A411B39
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:55:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 228A6411B3F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:55:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245621AbhITQ4p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:56:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38968 "EHLO mail.kernel.org"
+        id S244774AbhITQ4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:56:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245648AbhITQyi (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245667AbhITQyi (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 12:54:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BBE0C61381;
-        Mon, 20 Sep 2021 16:50:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E409361374;
+        Mon, 20 Sep 2021 16:50:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156639;
-        bh=PZbCtAJmeIrW8WlWhTrHS10/diXLwx0G+VOXzeRS7t8=;
+        s=korg; t=1632156641;
+        bh=H7A+ut54xGdFXn+yKNopAfYAAV4loLicS8xQGpK1qAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pNr0li/zJLScwyUyR5zaNjWtaZOQDAJEIaYgmU/jQu29Qn2/VvY5xRsua4OTqz3vN
-         IreHrriml/u4qW4i9qoAzy0X1XYBUNfPa5sxzAnOfAj6LlnlY8lkG4dz4ZFsutWt+B
-         Fk2Wh9EPOr8uCJV1Br4W2oefDFyNu0w+xZvALTNM=
+        b=pAYcdiX7f71CJb4aBlLnxJ94tnR3JPNdS7CsCdJ1W6wRC2LFgEJXOKHb2NCc61wci
+         f67bTJM8ixONR6z+aT8DWtIm2YVL8OLgLt5I9VI4jqWPfdY0wQKJvCmETeTR8XIFG+
+         7/myGy6E+jI4/R9kICeXuVxP2gWI7093U2c8EH2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 018/175] USB: serial: mos7720: improve OOM-handling in read_mos_reg()
-Date:   Mon, 20 Sep 2021 18:41:07 +0200
-Message-Id: <20210920163918.665550129@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Blakey <paulb@mellanox.com>,
+        Roi Dayan <roid@mellanox.com>, Jiri Pirko <jiri@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 019/175] net/sched: cls_flower: Use mask for addr_type
+Date:   Mon, 20 Sep 2021 18:41:08 +0200
+Message-Id: <20210920163918.704707053@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
 References: <20210920163918.068823680@linuxfoundation.org>
@@ -39,51 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Paul Blakey <paulb@mellanox.com>
 
-commit 161a582bd1d8681095f158d11bc679a58f1d026b upstream.
+commit 970bfcd09791282de7de6589bfe440eb11e2efd2 upstream.
 
-clang static analysis reports this problem
+When addr_type is set, mask should also be set.
 
-mos7720.c:352:2: warning: Undefined or garbage value returned to caller
-        return d;
-        ^~~~~~~~
-
-In the parport_mos7715_read_data()'s call to read_mos_reg(), 'd' is
-only set after the alloc block.
-
-	buf = kmalloc(1, GFP_KERNEL);
-	if (!buf)
-		return -ENOMEM;
-
-Although the problem is reported in parport_most7715_read_data(),
-none of the callee's of read_mos_reg() check the return status.
-
-Make sure to clear the return-value buffer also on allocation failures.
-
-Fixes: 0d130367abf5 ("USB: serial: mos7720: fix control-message error handling")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Link: https://lore.kernel.org/r/20210111220904.1035957-1-trix@redhat.com
-[ johan: only clear the buffer on errors, amend commit message ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 66530bdf85eb ('sched,cls_flower: set key address type when present')
+Fixes: bc3103f1ed40 ('net/sched: cls_flower: Classify packet in ip tunnels')
+Signed-off-by: Paul Blakey <paulb@mellanox.com>
+Reviewed-by: Roi Dayan <roid@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/mos7720.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/sched/cls_flower.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/serial/mos7720.c
-+++ b/drivers/usb/serial/mos7720.c
-@@ -229,8 +229,10 @@ static int read_mos_reg(struct usb_seria
- 	int status;
+--- a/net/sched/cls_flower.c
++++ b/net/sched/cls_flower.c
+@@ -445,6 +445,7 @@ static int fl_set_key(struct net *net, s
  
- 	buf = kmalloc(1, GFP_KERNEL);
--	if (!buf)
-+	if (!buf) {
-+		*data = 0;
- 		return -ENOMEM;
-+	}
- 
- 	status = usb_control_msg(usbdev, pipe, request, requesttype, value,
- 				     index, buf, 1, MOS_WDR_TIMEOUT);
+ 	if (tb[TCA_FLOWER_KEY_IPV4_SRC] || tb[TCA_FLOWER_KEY_IPV4_DST]) {
+ 		key->control.addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
++		mask->control.addr_type = ~0;
+ 		fl_set_key_val(tb, &key->ipv4.src, TCA_FLOWER_KEY_IPV4_SRC,
+ 			       &mask->ipv4.src, TCA_FLOWER_KEY_IPV4_SRC_MASK,
+ 			       sizeof(key->ipv4.src));
+@@ -453,6 +454,7 @@ static int fl_set_key(struct net *net, s
+ 			       sizeof(key->ipv4.dst));
+ 	} else if (tb[TCA_FLOWER_KEY_IPV6_SRC] || tb[TCA_FLOWER_KEY_IPV6_DST]) {
+ 		key->control.addr_type = FLOW_DISSECTOR_KEY_IPV6_ADDRS;
++		mask->control.addr_type = ~0;
+ 		fl_set_key_val(tb, &key->ipv6.src, TCA_FLOWER_KEY_IPV6_SRC,
+ 			       &mask->ipv6.src, TCA_FLOWER_KEY_IPV6_SRC_MASK,
+ 			       sizeof(key->ipv6.src));
+@@ -480,6 +482,7 @@ static int fl_set_key(struct net *net, s
+ 	if (tb[TCA_FLOWER_KEY_ENC_IPV4_SRC] ||
+ 	    tb[TCA_FLOWER_KEY_ENC_IPV4_DST]) {
+ 		key->enc_control.addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
++		mask->enc_control.addr_type = ~0;
+ 		fl_set_key_val(tb, &key->enc_ipv4.src,
+ 			       TCA_FLOWER_KEY_ENC_IPV4_SRC,
+ 			       &mask->enc_ipv4.src,
+@@ -495,6 +498,7 @@ static int fl_set_key(struct net *net, s
+ 	if (tb[TCA_FLOWER_KEY_ENC_IPV6_SRC] ||
+ 	    tb[TCA_FLOWER_KEY_ENC_IPV6_DST]) {
+ 		key->enc_control.addr_type = FLOW_DISSECTOR_KEY_IPV6_ADDRS;
++		mask->enc_control.addr_type = ~0;
+ 		fl_set_key_val(tb, &key->enc_ipv6.src,
+ 			       TCA_FLOWER_KEY_ENC_IPV6_SRC,
+ 			       &mask->enc_ipv6.src,
 
 
