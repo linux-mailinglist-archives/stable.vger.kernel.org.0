@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2606B411F7E
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:40:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09D3D411D4F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:17:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352798AbhITRlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:41:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46376 "EHLO mail.kernel.org"
+        id S1348231AbhITRSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:18:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352557AbhITRjn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:39:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 29ACE6152A;
-        Mon, 20 Sep 2021 17:07:54 +0000 (UTC)
+        id S1348008AbhITRQd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:16:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72AE961A05;
+        Mon, 20 Sep 2021 16:58:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157674;
-        bh=nmDD1Fm5wkT0WQQ0xdu0qiv3NE8y4txPDoEklNeqtcA=;
+        s=korg; t=1632157139;
+        bh=6UmB6ykUfxJtqzo3qnDcVnv31GjeZXUQrxUoahVRJAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Me7KCg9s1mPZVQYzsw2nxkn0miEOKIm1m11Y3KPfDVVYxH/u/a2bDSyEeaBiyj8af
-         zfTnAgIeNH2rRiFWX/jt/ONHf09b4araKPAyVz6bXLnq5nFAFWJk0EseAP9Dispj8o
-         1N7WsZMiHvLXc+oDuZFb9pf73p8hMi3zmwQbH2JM=
+        b=2NXojb6d7g5EcQUyIymD2hppW2U0A22rouYGZuA1zpPfc5zwvh711u9uVAAfH9tUg
+         Ua7rOcBZ7QentVB7LIpYFW58SwKiCDG+5jDeUE3jBBlVSexzyohvB+I/OweUO8tj0B
+         ExHooVYJEnNNNQwbX9/TeJXzXUKLy2GP+veqU/2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
-        Adriana Reus <adriana.reus@nxp.com>,
-        Sherry Sun <sherry.sun@nxp.com>,
-        Andy Duan <fugang.duan@nxp.com>,
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Fiona Trahe <fiona.trahe@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 098/293] tty: serial: fsl_lpuart: fix the wrong mapbase value
+Subject: [PATCH 4.14 039/217] crypto: qat - do not ignore errors from enable_vf2pf_comms()
 Date:   Mon, 20 Sep 2021 18:41:00 +0200
-Message-Id: <20210920163936.615606367@linuxfoundation.org>
+Message-Id: <20210920163925.957360916@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Duan <fugang.duan@nxp.com>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit d5c38948448abc2bb6b36dbf85a554bf4748885e ]
+[ Upstream commit 5147f0906d50a9d26f2b8698cd06b5680e9867ff ]
 
-Register offset needs to be applied on mapbase also.
-dma_tx/rx_request use the physical address of UARTDATA.
-Register offset is currently only applied to membase (the
-corresponding virtual addr) but not on mapbase.
+The function adf_dev_init() ignores the error code reported by
+enable_vf2pf_comms(). If the latter fails, e.g. the VF is not compatible
+with the pf, then the load of the VF driver progresses.
+This patch changes adf_dev_init() so that the error code from
+enable_vf2pf_comms() is returned to the caller.
 
-Fixes: 24b1e5f0e83c ("tty: serial: lpuart: add imx7ulp support")
-Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
-Signed-off-by: Adriana Reus <adriana.reus@nxp.com>
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Signed-off-by: Andy Duan <fugang.duan@nxp.com>
-Link: https://lore.kernel.org/r/20210819021033.32606-1-sherry.sun@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
+Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/qat/qat_common/adf_init.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index deb9d4fa9cb0..b757fd1bdbfa 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -2164,7 +2164,7 @@ static int lpuart_probe(struct platform_device *pdev)
- 		return PTR_ERR(sport->port.membase);
+diff --git a/drivers/crypto/qat/qat_common/adf_init.c b/drivers/crypto/qat/qat_common/adf_init.c
+index 26556c713049..7a7d43c47534 100644
+--- a/drivers/crypto/qat/qat_common/adf_init.c
++++ b/drivers/crypto/qat/qat_common/adf_init.c
+@@ -105,6 +105,7 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
+ 	struct service_hndl *service;
+ 	struct list_head *list_itr;
+ 	struct adf_hw_device_data *hw_data = accel_dev->hw_device;
++	int ret;
  
- 	sport->port.membase += sdata->reg_off;
--	sport->port.mapbase = res->start;
-+	sport->port.mapbase = res->start + sdata->reg_off;
- 	sport->port.dev = &pdev->dev;
- 	sport->port.type = PORT_LPUART;
- 	ret = platform_get_irq(pdev, 0);
+ 	if (!hw_data) {
+ 		dev_err(&GET_DEV(accel_dev),
+@@ -171,9 +172,9 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
+ 	}
+ 
+ 	hw_data->enable_error_correction(accel_dev);
+-	hw_data->enable_vf2pf_comms(accel_dev);
++	ret = hw_data->enable_vf2pf_comms(accel_dev);
+ 
+-	return 0;
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(adf_dev_init);
+ 
 -- 
 2.30.2
 
