@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C2A64124AD
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:35:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44EC64124B2
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:35:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380513AbhITSg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:36:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53086 "EHLO mail.kernel.org"
+        id S1381120AbhITSg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:36:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1380608AbhITSee (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1380609AbhITSee (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:34:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B8656330D;
-        Mon, 20 Sep 2021 17:28:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 868DE6136A;
+        Mon, 20 Sep 2021 17:28:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158924;
-        bh=bGPYk2VjfWE2VI+iTRgmo5Udcb1r7vEPRS2ltyUFxqQ=;
+        s=korg; t=1632158927;
+        bh=74MJXDGJ4K3AoGJVt5qkFWCkF8xXBBPjtzy3qMHCPWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nvyJ4kqno2cUYtBuN4ljYKtOwluP8TVhmNSNi34zZt6YGdRbhXQMBpoVf54uKJIMp
-         kr4TrJgBvZVzvIkVnv9z2ON/xr7tMUb3RvyxXU8SAwllg8GyJm8i+k7O8msqki6105
-         BwN+XfBeKXTOsgGdxkZHAsY3o6zP5LelYp9PDVPI=
+        b=k0BYORuds4bFYBr7e0dAoipuqyP3nMgTdrsjxiv7W4N3uWVOgK4wNUctm/TdJAKwe
+         GLB6PjoaprrKcnvI7TZaWvX4onGmcNxk8yVkTxhVvLkWGqb23zFdGYab2RBTqTH8AA
+         Dus+N1o34omuER+a5Hk4iJrviaGQP/CEtQy0JpQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 118/122] bnxt_en: Fix possible unintended driver initiated error recovery
-Date:   Mon, 20 Sep 2021 18:44:50 +0200
-Message-Id: <20210920163919.680890632@linuxfoundation.org>
+Subject: [PATCH 5.10 119/122] mfd: lpc_sch: Partially revert "Add support for Intel Quark X1000"
+Date:   Mon, 20 Sep 2021 18:44:51 +0200
+Message-Id: <20210920163919.716089644@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
 References: <20210920163915.757887582@linuxfoundation.org>
@@ -41,94 +41,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 1b2b91831983aeac3adcbb469aa8b0dc71453f89 ]
+[ Upstream commit 922e8ce883e59b52786b2c11656d84dc58ef084a ]
 
-If error recovery is already enabled, bnxt_timer() will periodically
-check the heartbeat register and the reset counter.  If we get an
-error recovery async. notification from the firmware (e.g. change in
-primary/secondary role), we will immediately read and update the
-heartbeat register and the reset counter.  If the timer for the next
-health check expires soon after this, we may read the heartbeat register
-again in quick succession and find that it hasn't changed.  This will
-trigger error recovery unintentionally.
+The IRQ support for SCH GPIO is not specific to the Intel Quark SoC.
+Moreover the IRQ routing is quite interesting there, so while it's
+needs a special support, the driver haven't it anyway yet.
 
-The likelihood is small because we also reset fw_health->tmr_counter
-which will reset the interval for the next health check.  But the
-update is not protected and bnxt_timer() can miss the update and
-perform the health check without waiting for the full interval.
+Due to above remove basically redundant code of IRQ support.
 
-Fix it by only reading the heartbeat register and reset counter in
-bnxt_async_event_process() if error recovery is trasitioning to the
-enabled state.  Also add proper memory barriers so that when enabling
-for the first time, bnxt_timer() will see the tmr_counter interval and
-perform the health check after the full interval has elapsed.
+This reverts commit ec689a8a8155ce8b966bd5d7737a3916f5e48be3.
 
-Fixes: 7e914027f757 ("bnxt_en: Enable health monitoring.")
-Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 25 ++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ drivers/mfd/lpc_sch.c | 32 ++++++--------------------------
+ 1 file changed, 6 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 4c1c41495e9f..71656e669755 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -2112,25 +2112,34 @@ static int bnxt_async_event_process(struct bnxt *bp,
- 		if (!fw_health)
- 			goto async_event_process_exit;
+diff --git a/drivers/mfd/lpc_sch.c b/drivers/mfd/lpc_sch.c
+index f27eb8dabc1c..428a526cbe86 100644
+--- a/drivers/mfd/lpc_sch.c
++++ b/drivers/mfd/lpc_sch.c
+@@ -26,9 +26,6 @@
+ #define GPIO_IO_SIZE	64
+ #define GPIO_IO_SIZE_CENTERTON	128
  
--		fw_health->enabled = EVENT_DATA1_RECOVERY_ENABLED(data1);
--		fw_health->master = EVENT_DATA1_RECOVERY_MASTER_FUNC(data1);
--		if (!fw_health->enabled) {
-+		if (!EVENT_DATA1_RECOVERY_ENABLED(data1)) {
-+			fw_health->enabled = false;
- 			netif_info(bp, drv, bp->dev,
- 				   "Error recovery info: error recovery[0]\n");
- 			break;
- 		}
-+		fw_health->master = EVENT_DATA1_RECOVERY_MASTER_FUNC(data1);
- 		fw_health->tmr_multiplier =
- 			DIV_ROUND_UP(fw_health->polling_dsecs * HZ,
- 				     bp->current_interval * 10);
- 		fw_health->tmr_counter = fw_health->tmr_multiplier;
--		fw_health->last_fw_heartbeat =
--			bnxt_fw_health_readl(bp, BNXT_FW_HEARTBEAT_REG);
--		fw_health->last_fw_reset_cnt =
--			bnxt_fw_health_readl(bp, BNXT_FW_RESET_CNT_REG);
-+		if (!fw_health->enabled) {
-+			fw_health->last_fw_heartbeat =
-+				bnxt_fw_health_readl(bp, BNXT_FW_HEARTBEAT_REG);
-+			fw_health->last_fw_reset_cnt =
-+				bnxt_fw_health_readl(bp, BNXT_FW_RESET_CNT_REG);
-+		}
- 		netif_info(bp, drv, bp->dev,
- 			   "Error recovery info: error recovery[1], master[%d], reset count[%u], health status: 0x%x\n",
- 			   fw_health->master, fw_health->last_fw_reset_cnt,
- 			   bnxt_fw_health_readl(bp, BNXT_FW_HEALTH_REG));
-+		if (!fw_health->enabled) {
-+			/* Make sure tmr_counter is set and visible to
-+			 * bnxt_health_check() before setting enabled to true.
-+			 */
-+			smp_wmb();
-+			fw_health->enabled = true;
-+		}
- 		goto async_event_process_exit;
- 	}
- 	case ASYNC_EVENT_CMPL_EVENT_ID_DEBUG_NOTIFICATION:
-@@ -10738,6 +10747,8 @@ static void bnxt_fw_health_check(struct bnxt *bp)
- 	if (!fw_health->enabled || test_bit(BNXT_STATE_IN_FW_RESET, &bp->state))
- 		return;
+-/* Intel Quark X1000 GPIO IRQ Number */
+-#define GPIO_IRQ_QUARK_X1000	9
+-
+ #define WDTBASE		0x84
+ #define WDT_IO_SIZE	64
  
-+	/* Make sure it is enabled before checking the tmr_counter. */
-+	smp_rmb();
- 	if (fw_health->tmr_counter) {
- 		fw_health->tmr_counter--;
- 		return;
+@@ -43,30 +40,25 @@ struct lpc_sch_info {
+ 	unsigned int io_size_smbus;
+ 	unsigned int io_size_gpio;
+ 	unsigned int io_size_wdt;
+-	int irq_gpio;
+ };
+ 
+ static struct lpc_sch_info sch_chipset_info[] = {
+ 	[LPC_SCH] = {
+ 		.io_size_smbus = SMBUS_IO_SIZE,
+ 		.io_size_gpio = GPIO_IO_SIZE,
+-		.irq_gpio = -1,
+ 	},
+ 	[LPC_ITC] = {
+ 		.io_size_smbus = SMBUS_IO_SIZE,
+ 		.io_size_gpio = GPIO_IO_SIZE,
+ 		.io_size_wdt = WDT_IO_SIZE,
+-		.irq_gpio = -1,
+ 	},
+ 	[LPC_CENTERTON] = {
+ 		.io_size_smbus = SMBUS_IO_SIZE,
+ 		.io_size_gpio = GPIO_IO_SIZE_CENTERTON,
+ 		.io_size_wdt = WDT_IO_SIZE,
+-		.irq_gpio = -1,
+ 	},
+ 	[LPC_QUARK_X1000] = {
+ 		.io_size_gpio = GPIO_IO_SIZE,
+-		.irq_gpio = GPIO_IRQ_QUARK_X1000,
+ 		.io_size_wdt = WDT_IO_SIZE,
+ 	},
+ };
+@@ -113,13 +105,13 @@ static int lpc_sch_get_io(struct pci_dev *pdev, int where, const char *name,
+ }
+ 
+ static int lpc_sch_populate_cell(struct pci_dev *pdev, int where,
+-				 const char *name, int size, int irq,
+-				 int id, struct mfd_cell *cell)
++				 const char *name, int size, int id,
++				 struct mfd_cell *cell)
+ {
+ 	struct resource *res;
+ 	int ret;
+ 
+-	res = devm_kcalloc(&pdev->dev, 2, sizeof(*res), GFP_KERNEL);
++	res = devm_kzalloc(&pdev->dev, sizeof(*res), GFP_KERNEL);
+ 	if (!res)
+ 		return -ENOMEM;
+ 
+@@ -135,18 +127,6 @@ static int lpc_sch_populate_cell(struct pci_dev *pdev, int where,
+ 	cell->ignore_resource_conflicts = true;
+ 	cell->id = id;
+ 
+-	/* Check if we need to add an IRQ resource */
+-	if (irq < 0)
+-		return 0;
+-
+-	res++;
+-
+-	res->start = irq;
+-	res->end = irq;
+-	res->flags = IORESOURCE_IRQ;
+-
+-	cell->num_resources++;
+-
+ 	return 0;
+ }
+ 
+@@ -158,7 +138,7 @@ static int lpc_sch_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	int ret;
+ 
+ 	ret = lpc_sch_populate_cell(dev, SMBASE, "isch_smbus",
+-				    info->io_size_smbus, -1,
++				    info->io_size_smbus,
+ 				    id->device, &lpc_sch_cells[cells]);
+ 	if (ret < 0)
+ 		return ret;
+@@ -166,7 +146,7 @@ static int lpc_sch_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 		cells++;
+ 
+ 	ret = lpc_sch_populate_cell(dev, GPIOBASE, "sch_gpio",
+-				    info->io_size_gpio, info->irq_gpio,
++				    info->io_size_gpio,
+ 				    id->device, &lpc_sch_cells[cells]);
+ 	if (ret < 0)
+ 		return ret;
+@@ -174,7 +154,7 @@ static int lpc_sch_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 		cells++;
+ 
+ 	ret = lpc_sch_populate_cell(dev, WDTBASE, "ie6xx_wdt",
+-				    info->io_size_wdt, -1,
++				    info->io_size_wdt,
+ 				    id->device, &lpc_sch_cells[cells]);
+ 	if (ret < 0)
+ 		return ret;
 -- 
 2.30.2
 
