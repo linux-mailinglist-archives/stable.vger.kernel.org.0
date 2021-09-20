@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAB0841239C
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:25:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30089412620
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:52:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348672AbhITS0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:26:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41848 "EHLO mail.kernel.org"
+        id S1386083AbhITSxc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:53:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1377966AbhITSWR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:22:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD2EA632B4;
-        Mon, 20 Sep 2021 17:24:00 +0000 (UTC)
+        id S1385521AbhITSue (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:50:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A732C61527;
+        Mon, 20 Sep 2021 17:35:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158641;
-        bh=IgGRRYUx03ppDCeNILicbpNJWVH45/hR5eMovhrvfr0=;
+        s=korg; t=1632159307;
+        bh=iWpQz4tSFoRFavqd00yNJF85NFFxJrunEhC7CELaIIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ai4Jhrvgmg16T6+7NVto1nrxG+tDKxjlMnicxWSIdm6jnscrCvXO9vrnQw4HljTz2
-         6T7lUniKZ295LC6Bo/QOxfxwyrUxhIngOiRnzt0O6uAMBwDjzDa1nPFtdNijxfxN/P
-         q8K+nzNHZ14CaGMbiEdyQEIKVTJxIcB/j2ClFku0=
+        b=L19DhpTv2XJB2QnZO2UVQHuc+00JowPdd/LlRWTyGGmrM6EJDQ0CEV9AlMGcsmln7
+         9pwb1mrpc13ttlU1yGpZF0gcddZ8DhQ1VYZYVR+n4409wU1D03G0CLJe8BjebeDbSu
+         Lqy64FR4u2MmmjGwIkm11tuNKhav6BlvUcXzX99A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
         Andrew Lunn <andrew@lunn.ch>, Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 249/260] mfd: tqmx86: Clear GPIO IRQ resource when no IRQ is set
+Subject: [PATCH 5.14 129/168] mfd: tqmx86: Clear GPIO IRQ resource when no IRQ is set
 Date:   Mon, 20 Sep 2021 18:44:27 +0200
-Message-Id: <20210920163939.574705597@linuxfoundation.org>
+Message-Id: <20210920163925.907385045@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,10 +61,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/drivers/mfd/tqmx86.c b/drivers/mfd/tqmx86.c
-index 22d2f02d855c..ccc5a9ac788c 100644
+index ddddf08b6a4c..732013f40e4e 100644
 --- a/drivers/mfd/tqmx86.c
 +++ b/drivers/mfd/tqmx86.c
-@@ -210,6 +210,8 @@ static int tqmx86_probe(struct platform_device *pdev)
+@@ -209,6 +209,8 @@ static int tqmx86_probe(struct platform_device *pdev)
  
  		/* Assumes the IRQ resource is first. */
  		tqmx_gpio_resources[0].start = gpio_irq;
