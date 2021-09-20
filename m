@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAC17411E68
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:29:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B02D541208F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:55:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347721AbhITRad (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:30:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33732 "EHLO mail.kernel.org"
+        id S1355144AbhITR4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:56:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344894AbhITR2Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:28:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90C9561ABA;
-        Mon, 20 Sep 2021 17:03:28 +0000 (UTC)
+        id S1355193AbhITRyT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:54:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1CA161184;
+        Mon, 20 Sep 2021 17:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157409;
-        bh=2eaf8PsKT1qgkG5wRwMJB86v5xC3s3EUqHIRoSnKvR0=;
+        s=korg; t=1632158012;
+        bh=nK+11VL7k6V/+67a+Uxl5QmBHaZ716hS3u4SKKpoFJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BtRDW5O0vmt77XNDcr8K7BvXwhVtRGIdT68/IMhoacoeUI6nFWemitCK/k1+G2wHX
-         5g82F8ITRiipWCxNg/O3fn5NeoPCNpJPheMa9KVZHUI+Y7OTlRGGy3YM8mEdiLpZnB
-         XgFfeuXKpG5BzZAYUt5KuTz8UmIO3z1eT3HkzcUU=
+        b=ysqmTDv4GC/SXR0m3DyM9WsOTv7Vr9K3KTTXzlD6z18hqGJuXXVIemxuO1n5P5aqG
+         rGilvf9LZZX7lPoRKLo2DFfklG2H7WKo4MbkBjpnMKEHFjfMccK6ZPNDSDsNLG58vv
+         ov9d2gQlHpGEiZ4rb7LptSOL+q4FbgYT8v6G4G6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 195/217] net-caif: avoid user-triggerable WARN_ON(1)
-Date:   Mon, 20 Sep 2021 18:43:36 +0200
-Message-Id: <20210920163931.245162690@linuxfoundation.org>
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.19 255/293] PCI: Add AMD GPU multi-function power dependencies
+Date:   Mon, 20 Sep 2021 18:43:37 +0200
+Message-Id: <20210920163942.115450144@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,112 +39,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Evan Quan <evan.quan@amd.com>
 
-commit 550ac9c1aaaaf51fd42e20d461f0b1cdbd55b3d2 upstream.
+commit 60b78ed088ebe1a872ee1320b6c5ad6ee2c4bd9a upstream.
 
-syszbot triggers this warning, which looks something
-we can easily prevent.
+Some AMD GPUs have built-in USB xHCI and USB Type-C UCSI controllers with
+power dependencies between the GPU and the other functions as in
+6d2e369f0d4c ("PCI: Add NVIDIA GPU multi-function power dependencies").
 
-If we initialize priv->list_field in chnl_net_init(),
-then always use list_del_init(), we can remove robust_list_del()
-completely.
+Add device link support for the AMD integrated USB xHCI and USB Type-C UCSI
+controllers.
 
-WARNING: CPU: 0 PID: 3233 at net/caif/chnl_net.c:67 robust_list_del net/caif/chnl_net.c:67 [inline]
-WARNING: CPU: 0 PID: 3233 at net/caif/chnl_net.c:67 chnl_net_uninit+0xc9/0x2e0 net/caif/chnl_net.c:375
-Modules linked in:
-CPU: 0 PID: 3233 Comm: syz-executor.3 Not tainted 5.14.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:robust_list_del net/caif/chnl_net.c:67 [inline]
-RIP: 0010:chnl_net_uninit+0xc9/0x2e0 net/caif/chnl_net.c:375
-Code: 89 eb e8 3a a3 ba f8 48 89 d8 48 c1 e8 03 42 80 3c 28 00 0f 85 bf 01 00 00 48 81 fb 00 14 4e 8d 48 8b 2b 75 d0 e8 17 a3 ba f8 <0f> 0b 5b 5d 41 5c 41 5d e9 0a a3 ba f8 4c 89 e3 e8 02 a3 ba f8 4c
-RSP: 0018:ffffc90009067248 EFLAGS: 00010202
-RAX: 0000000000008780 RBX: ffffffff8d4e1400 RCX: ffffc9000fd34000
-RDX: 0000000000040000 RSI: ffffffff88bb6e49 RDI: 0000000000000003
-RBP: ffff88802cd9ee08 R08: 0000000000000000 R09: ffffffff8d0e6647
-R10: ffffffff88bb6dc2 R11: 0000000000000000 R12: ffff88803791ae08
-R13: dffffc0000000000 R14: 00000000e600ffce R15: ffff888073ed3480
-FS:  00007fed10fa0700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b2c322000 CR3: 00000000164a6000 CR4: 00000000001506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- register_netdevice+0xadf/0x1500 net/core/dev.c:10347
- ipcaif_newlink+0x4c/0x260 net/caif/chnl_net.c:468
- __rtnl_newlink+0x106d/0x1750 net/core/rtnetlink.c:3458
- rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3506
- rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5572
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2504
- netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1340
- netlink_sendmsg+0x86d/0xdb0 net/netlink/af_netlink.c:1929
- sock_sendmsg_nosec net/socket.c:704 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:724
- __sys_sendto+0x21c/0x320 net/socket.c:2036
- __do_sys_sendto net/socket.c:2048 [inline]
- __se_sys_sendto net/socket.c:2044 [inline]
- __x64_sys_sendto+0xdd/0x1b0 net/socket.c:2044
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+Without this, runtime power management, including GPU resume and temp and
+fan sensors don't work correctly.
 
-Fixes: cc36a070b590 ("net-caif: add CAIF netdevice")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-at: https://gitlab.freedesktop.org/drm/amd/-/issues/1704
+Link: https://lore.kernel.org/r/20210903063311.3606226-1-evan.quan@amd.com
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/caif/chnl_net.c |   19 +++----------------
- 1 file changed, 3 insertions(+), 16 deletions(-)
+ drivers/pci/quirks.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/net/caif/chnl_net.c
-+++ b/net/caif/chnl_net.c
-@@ -54,20 +54,6 @@ struct chnl_net {
- 	enum caif_states state;
- };
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -5254,7 +5254,7 @@ DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR
+ 			      PCI_CLASS_MULTIMEDIA_HD_AUDIO, 8, quirk_gpu_hda);
  
--static void robust_list_del(struct list_head *delete_node)
--{
--	struct list_head *list_node;
--	struct list_head *n;
--	ASSERT_RTNL();
--	list_for_each_safe(list_node, n, &chnl_net_list) {
--		if (list_node == delete_node) {
--			list_del(list_node);
--			return;
--		}
--	}
--	WARN_ON(1);
--}
--
- static int chnl_recv_cb(struct cflayer *layr, struct cfpkt *pkt)
- {
- 	struct sk_buff *skb;
-@@ -369,6 +355,7 @@ static int chnl_net_init(struct net_devi
- 	ASSERT_RTNL();
- 	priv = netdev_priv(dev);
- 	strncpy(priv->name, dev->name, sizeof(priv->name));
-+	INIT_LIST_HEAD(&priv->list_field);
- 	return 0;
+ /*
+- * Create device link for NVIDIA GPU with integrated USB xHCI Host
++ * Create device link for GPUs with integrated USB xHCI Host
+  * controller to VGA.
+  */
+ static void quirk_gpu_usb(struct pci_dev *usb)
+@@ -5263,9 +5263,11 @@ static void quirk_gpu_usb(struct pci_dev
  }
+ DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
+ 			      PCI_CLASS_SERIAL_USB, 8, quirk_gpu_usb);
++DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_ATI, PCI_ANY_ID,
++			      PCI_CLASS_SERIAL_USB, 8, quirk_gpu_usb);
  
-@@ -377,7 +364,7 @@ static void chnl_net_uninit(struct net_d
- 	struct chnl_net *priv;
- 	ASSERT_RTNL();
- 	priv = netdev_priv(dev);
--	robust_list_del(&priv->list_field);
-+	list_del_init(&priv->list_field);
- }
+ /*
+- * Create device link for NVIDIA GPU with integrated Type-C UCSI controller
++ * Create device link for GPUs with integrated Type-C UCSI controller
+  * to VGA. Currently there is no class code defined for UCSI device over PCI
+  * so using UNKNOWN class for now and it will be updated when UCSI
+  * over PCI gets a class code.
+@@ -5278,6 +5280,9 @@ static void quirk_gpu_usb_typec_ucsi(str
+ DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
+ 			      PCI_CLASS_SERIAL_UNKNOWN, 8,
+ 			      quirk_gpu_usb_typec_ucsi);
++DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_ATI, PCI_ANY_ID,
++			      PCI_CLASS_SERIAL_UNKNOWN, 8,
++			      quirk_gpu_usb_typec_ucsi);
  
- static const struct net_device_ops netdev_ops = {
-@@ -542,7 +529,7 @@ static void __exit chnl_exit_module(void
- 	rtnl_lock();
- 	list_for_each_safe(list_node, _tmp, &chnl_net_list) {
- 		dev = list_entry(list_node, struct chnl_net, list_field);
--		list_del(list_node);
-+		list_del_init(list_node);
- 		delete_device(dev);
- 	}
- 	rtnl_unlock();
+ /*
+  * Enable the NVIDIA GPU integrated HDA controller if the BIOS left it
 
 
