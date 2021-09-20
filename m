@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB6DB412621
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:52:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C90141236B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:23:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386091AbhITSxe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:53:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33540 "EHLO mail.kernel.org"
+        id S1351052AbhITSZH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:25:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1385512AbhITSue (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:50:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B98BB61B1B;
-        Mon, 20 Sep 2021 17:34:55 +0000 (UTC)
+        id S1377972AbhITSWV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:22:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 916B2632BC;
+        Mon, 20 Sep 2021 17:24:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159296;
-        bh=S9GpUT2zPaFCVHTn4TLRuJ0//T5Z664GS/xBdhStYvI=;
+        s=korg; t=1632158654;
+        bh=xKGyVLOlE+RnBiowuQgwg1FE1BkCcuhEkcim+VJv6mg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q4AMaL8EVKnq5kLzxlryKtWzMt9E4MkUGsyrjfwJTp5D/3k6HoHPsx/VNc15ELcGh
-         5N/lOv6MUQvZNiqb6+4WD9+92R28QxxU0+UeTjF3PWeg8E/4O0IVr13r6dJjh3MsyA
-         BZ0rxf1lAVUMDfiB8l4sFs96APkD49ZB0DBIERbc=
+        b=XUoolweD/Us0SC2gJCrcnMk+q2/lLjfZqelMoBCqQIUUvYv1K8crQJP3sitf0JSFP
+         yVKWq9m8Xp8WO2LzMklV/tScthUIMkmcoDVrd9lFeHFvrfdmx5JOMao8W4sXqM8uuJ
+         eqw2is98dQGtMHZH5Og0ZFiCcwRVAxYYNd1vpnnc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Upton <oupton@google.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 134/168] KVM: arm64: Handle PSCI resets before userspace touches vCPU state
+        stable@vger.kernel.org, Li Huafei <lihuafei1@huawei.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        He Kuang <hekuang@huawei.com>, Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Zhang Jinhao <zhangjinhao2@huawei.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 254/260] perf unwind: Do not overwrite FEATURE_CHECK_LDFLAGS-libunwind-{x86,aarch64}
 Date:   Mon, 20 Sep 2021 18:44:32 +0200
-Message-Id: <20210920163926.070528257@linuxfoundation.org>
+Message-Id: <20210920163939.742550042@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +46,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Upton <oupton@google.com>
+From: Li Huafei <lihuafei1@huawei.com>
 
-[ Upstream commit 6826c6849b46aaa91300201213701eb861af4ba0 ]
+[ Upstream commit cdf32b44678c382a31dc183d9a767306915cda7b ]
 
-The CPU_ON PSCI call takes a payload that KVM uses to configure a
-destination vCPU to run. This payload is non-architectural state and not
-exposed through any existing UAPI. Effectively, we have a race between
-CPU_ON and userspace saving/restoring a guest: if the target vCPU isn't
-ran again before the VMM saves its state, the requested PC and context
-ID are lost. When restored, the target vCPU will be runnable and start
-executing at its old PC.
+When setting LIBUNWIND_DIR, we first set
 
-We can avoid this race by making sure the reset payload is serviced
-before userspace can access a vCPU's state.
+ FEATURE_CHECK_LDFLAGS-libunwind-{aarch64,x86} = -L$(LIBUNWIND_DIR)/lib.
 
-Fixes: 358b28f09f0a ("arm/arm64: KVM: Allow a VCPU to fully reset itself")
-Signed-off-by: Oliver Upton <oupton@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210818202133.1106786-3-oupton@google.com
+<committer note>
+This happens a bit before, the overwritting, in:
+
+  libunwind_arch_set_flags = $(eval $(libunwind_arch_set_flags_code))
+  define libunwind_arch_set_flags_code
+    FEATURE_CHECK_CFLAGS-libunwind-$(1)  = -I$(LIBUNWIND_DIR)/include
+    FEATURE_CHECK_LDFLAGS-libunwind-$(1) = -L$(LIBUNWIND_DIR)/lib
+  endef
+
+  ifdef LIBUNWIND_DIR
+    LIBUNWIND_CFLAGS  = -I$(LIBUNWIND_DIR)/include
+    LIBUNWIND_LDFLAGS = -L$(LIBUNWIND_DIR)/lib
+    LIBUNWIND_ARCHS = x86 x86_64 arm aarch64 debug-frame-arm debug-frame-aarch64
+    $(foreach libunwind_arch,$(LIBUNWIND_ARCHS),$(call libunwind_arch_set_flags,$(libunwind_arch)))
+  endif
+
+Look at that 'foreach' on all the LIBUNWIND_ARCHS.
+</>
+
+After commit 5c4d7c82c0dc ("perf unwind: Do not put libunwind-{x86,aarch64}
+in FEATURE_TESTS_BASIC"), FEATURE_CHECK_LDFLAGS-libunwind-{x86,aarch64} is
+overwritten. As a result, the remote libunwind libraries cannot be searched
+from $(LIBUNWIND_DIR)/lib directory during feature check tests. Fix it with
+variable appending.
+
+Before this patch:
+
+  perf$ make VF=1 LIBUNWIND_DIR=/opt/libunwind_aarch64
+   BUILD:   Doing 'make -j16' parallel build
+  <SNIP>
+  ...
+  ...                    libopencsd: [ OFF ]
+  ...                 libunwind-x86: [ OFF ]
+  ...              libunwind-x86_64: [ OFF ]
+  ...                 libunwind-arm: [ OFF ]
+  ...             libunwind-aarch64: [ OFF ]
+  ...         libunwind-debug-frame: [ OFF ]
+  ...     libunwind-debug-frame-arm: [ OFF ]
+  ... libunwind-debug-frame-aarch64: [ OFF ]
+  ...                           cxx: [ OFF ]
+  <SNIP>
+
+  perf$ cat ../build/feature/test-libunwind-aarch64.make.output
+  /usr/bin/ld: cannot find -lunwind-aarch64
+  /usr/bin/ld: cannot find -lunwind-aarch64
+  collect2: error: ld returned 1 exit status
+
+After this patch:
+
+  perf$ make VF=1 LIBUNWIND_DIR=/opt/libunwind_aarch64
+   BUILD:   Doing 'make -j16' parallel build
+  <SNIP>
+  ...                    libopencsd: [ OFF ]
+  ...                 libunwind-x86: [ OFF ]
+  ...              libunwind-x86_64: [ OFF ]
+  ...                 libunwind-arm: [ OFF ]
+  ...             libunwind-aarch64: [ on  ]
+  ...         libunwind-debug-frame: [ OFF ]
+  ...     libunwind-debug-frame-arm: [ OFF ]
+  ... libunwind-debug-frame-aarch64: [ OFF ]
+  ...                           cxx: [ OFF ]
+  <SNIP>
+
+  perf$ cat ../build/feature/test-libunwind-aarch64.make.output
+
+  perf$ ldd ./perf
+        linux-vdso.so.1 (0x00007ffdf07da000)
+        libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f30953dc000)
+        librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f30951d4000)
+        libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f3094e36000)
+        libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f3094c32000)
+        libelf.so.1 => /usr/lib/x86_64-linux-gnu/libelf.so.1 (0x00007f3094a18000)
+        libdw.so.1 => /usr/lib/x86_64-linux-gnu/libdw.so.1 (0x00007f30947cc000)
+        libunwind-x86_64.so.8 => /usr/lib/x86_64-linux-gnu/libunwind-x86_64.so.8 (0x00007f30945ad000)
+        libunwind.so.8 => /usr/lib/x86_64-linux-gnu/libunwind.so.8 (0x00007f3094392000)
+        liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007f309416c000)
+        libunwind-aarch64.so.8 => not found
+        libslang.so.2 => /lib/x86_64-linux-gnu/libslang.so.2 (0x00007f3093c8a000)
+        libpython2.7.so.1.0 => /usr/local/lib/libpython2.7.so.1.0 (0x00007f309386b000)
+        libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f309364e000)
+        libnuma.so.1 => /usr/lib/x86_64-linux-gnu/libnuma.so.1 (0x00007f3093443000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f3093052000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007f3096097000)
+        libbz2.so.1.0 => /lib/x86_64-linux-gnu/libbz2.so.1.0 (0x00007f3092e42000)
+        libutil.so.1 => /lib/x86_64-linux-gnu/libutil.so.1 (0x00007f3092c3f000)
+
+Fixes: 5c4d7c82c0dceccf ("perf unwind: Do not put libunwind-{x86,aarch64} in FEATURE_TESTS_BASIC")
+Signed-off-by: Li Huafei <lihuafei1@huawei.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: He Kuang <hekuang@huawei.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Zhang Jinhao <zhangjinhao2@huawei.com>
+Link: http://lore.kernel.org/lkml/20210823134340.60955-1-lihuafei1@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/arm.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ tools/perf/Makefile.config | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
-index 5d1fc9c4bca5..45ee8abcf202 100644
---- a/arch/arm64/kvm/arm.c
-+++ b/arch/arm64/kvm/arm.c
-@@ -1220,6 +1220,14 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
- 		if (copy_from_user(&reg, argp, sizeof(reg)))
- 			break;
+diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
+index 9832affd5d54..c75c9b03d6e7 100644
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -118,10 +118,10 @@ FEATURE_CHECK_LDFLAGS-libunwind = $(LIBUNWIND_LDFLAGS) $(LIBUNWIND_LIBS)
+ FEATURE_CHECK_CFLAGS-libunwind-debug-frame = $(LIBUNWIND_CFLAGS)
+ FEATURE_CHECK_LDFLAGS-libunwind-debug-frame = $(LIBUNWIND_LDFLAGS) $(LIBUNWIND_LIBS)
  
-+		/*
-+		 * We could owe a reset due to PSCI. Handle the pending reset
-+		 * here to ensure userspace register accesses are ordered after
-+		 * the reset.
-+		 */
-+		if (kvm_check_request(KVM_REQ_VCPU_RESET, vcpu))
-+			kvm_reset_vcpu(vcpu);
-+
- 		if (ioctl == KVM_SET_ONE_REG)
- 			r = kvm_arm_set_reg(vcpu, &reg);
- 		else
+-FEATURE_CHECK_LDFLAGS-libunwind-arm = -lunwind -lunwind-arm
+-FEATURE_CHECK_LDFLAGS-libunwind-aarch64 = -lunwind -lunwind-aarch64
+-FEATURE_CHECK_LDFLAGS-libunwind-x86 = -lunwind -llzma -lunwind-x86
+-FEATURE_CHECK_LDFLAGS-libunwind-x86_64 = -lunwind -llzma -lunwind-x86_64
++FEATURE_CHECK_LDFLAGS-libunwind-arm += -lunwind -lunwind-arm
++FEATURE_CHECK_LDFLAGS-libunwind-aarch64 += -lunwind -lunwind-aarch64
++FEATURE_CHECK_LDFLAGS-libunwind-x86 += -lunwind -llzma -lunwind-x86
++FEATURE_CHECK_LDFLAGS-libunwind-x86_64 += -lunwind -llzma -lunwind-x86_64
+ 
+ FEATURE_CHECK_LDFLAGS-libcrypto = -lcrypto
+ 
 -- 
 2.30.2
 
