@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA618411C8E
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:09:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B707441208A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:55:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345949AbhITRLF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:11:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58130 "EHLO mail.kernel.org"
+        id S1347340AbhITRz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:55:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346772AbhITRJC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:09:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DE7A615E1;
-        Mon, 20 Sep 2021 16:56:05 +0000 (UTC)
+        id S1355189AbhITRyS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:54:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2A1061C11;
+        Mon, 20 Sep 2021 17:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156965;
-        bh=VwBTH3akZ0cGtn7HBMp2OIKwuqXbg4ly2AvoUdLDUgE=;
+        s=korg; t=1632158010;
+        bh=l16qG+F5o+7kNpPs82jL7PXkKb+2Vx1dGgZH8LU5+/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d/nHYRez7CkMK3vU0uB3R7LHrlqEujuzM2HbxmOi2X0SiFa4I37ye2ZiWSWp2OJdI
-         LwmgDR1FeDB24V1cvcgUIzm1hUiqehRiqGRUkWSKpkYrdgiwYgBFBgyTekc9h1NyyW
-         /VdGI+ZuTa2RtJHs6UqN5Nk5zsh5vt978mqCNKlM=
+        b=b5ZrGuEPIZsudzCIZGCQLE40q4SdqqTWfDPJYgRt5USAQZSsmRHebxRArHPxgUJGu
+         iRYsRTVZY83BewNNW4uh6+5bQZtWndiwtCS3y01qKWCbCE2BnvVFSkErDtMa3qbbE7
+         oJd5l4Spp+6MrPQj1Rqd6rRPqLo15qntmd5M4FQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 167/175] mfd: Dont use irq_create_mapping() to resolve a mapping
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: [PATCH 4.19 254/293] PM: base: power: dont try to use non-existing RTC for storing data
 Date:   Mon, 20 Sep 2021 18:43:36 +0200
-Message-Id: <20210920163923.526990240@linuxfoundation.org>
+Message-Id: <20210920163942.081415111@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,95 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 9ff80e2de36d0554e3a6da18a171719fe8663c17 ]
+commit 0560204b360a332c321124dbc5cdfd3364533a74 upstream.
 
-Although irq_create_mapping() is able to deal with duplicate
-mappings, it really isn't supposed to be a substitute for
-irq_find_mapping(), and can result in allocations that take place
-in atomic context if the mapping didn't exist.
+If there is no legacy RTC device, don't try to use it for storing trace
+data across suspend/resume.
 
-Fix the handful of MFD drivers that use irq_create_mapping() in
-interrupt context by using irq_find_mapping() instead.
-
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Rafael J. Wysocki <rafael@kernel.org>
+Link: https://lore.kernel.org/r/20210903084937.19392-2-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mfd/ab8500-core.c | 2 +-
- drivers/mfd/stmpe.c       | 4 ++--
- drivers/mfd/tc3589x.c     | 2 +-
- drivers/mfd/wm8994-irq.c  | 2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/base/power/trace.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/mfd/ab8500-core.c b/drivers/mfd/ab8500-core.c
-index 2f212bdc187a..83484c43b1dc 100644
---- a/drivers/mfd/ab8500-core.c
-+++ b/drivers/mfd/ab8500-core.c
-@@ -489,7 +489,7 @@ static int ab8500_handle_hierarchical_line(struct ab8500 *ab8500,
- 		if (line == AB8540_INT_GPIO43F || line == AB8540_INT_GPIO44F)
- 			line += 1;
+--- a/drivers/base/power/trace.c
++++ b/drivers/base/power/trace.c
+@@ -11,6 +11,7 @@
+ #include <linux/export.h>
+ #include <linux/rtc.h>
+ #include <linux/suspend.h>
++#include <linux/init.h>
  
--		handle_nested_irq(irq_create_mapping(ab8500->domain, line));
-+		handle_nested_irq(irq_find_mapping(ab8500->domain, line));
- 	}
+ #include <linux/mc146818rtc.h>
  
+@@ -165,6 +166,9 @@ void generate_pm_trace(const void *trace
+ 	const char *file = *(const char **)(tracedata + 2);
+ 	unsigned int user_hash_value, file_hash_value;
+ 
++	if (!x86_platform.legacy.rtc)
++		return;
++
+ 	user_hash_value = user % USERHASH;
+ 	file_hash_value = hash_string(lineno, file, FILEHASH);
+ 	set_magic_time(user_hash_value, file_hash_value, dev_hash_value);
+@@ -267,6 +271,9 @@ static struct notifier_block pm_trace_nb
+ 
+ static int early_resume_init(void)
+ {
++	if (!x86_platform.legacy.rtc)
++		return 0;
++
+ 	hash_value_early_read = read_magic_time();
+ 	register_pm_notifier(&pm_trace_nb);
  	return 0;
-diff --git a/drivers/mfd/stmpe.c b/drivers/mfd/stmpe.c
-index b0c7bcdaf5df..61fb4873c061 100644
---- a/drivers/mfd/stmpe.c
-+++ b/drivers/mfd/stmpe.c
-@@ -1033,7 +1033,7 @@ static irqreturn_t stmpe_irq(int irq, void *data)
+@@ -277,6 +284,9 @@ static int late_resume_init(void)
+ 	unsigned int val = hash_value_early_read;
+ 	unsigned int user, file, dev;
  
- 	if (variant->id_val == STMPE801_ID ||
- 	    variant->id_val == STMPE1600_ID) {
--		int base = irq_create_mapping(stmpe->domain, 0);
-+		int base = irq_find_mapping(stmpe->domain, 0);
- 
- 		handle_nested_irq(base);
- 		return IRQ_HANDLED;
-@@ -1061,7 +1061,7 @@ static irqreturn_t stmpe_irq(int irq, void *data)
- 		while (status) {
- 			int bit = __ffs(status);
- 			int line = bank * 8 + bit;
--			int nestedirq = irq_create_mapping(stmpe->domain, line);
-+			int nestedirq = irq_find_mapping(stmpe->domain, line);
- 
- 			handle_nested_irq(nestedirq);
- 			status &= ~(1 << bit);
-diff --git a/drivers/mfd/tc3589x.c b/drivers/mfd/tc3589x.c
-index 274bf39968aa..96187c1e5f8f 100644
---- a/drivers/mfd/tc3589x.c
-+++ b/drivers/mfd/tc3589x.c
-@@ -187,7 +187,7 @@ again:
- 
- 	while (status) {
- 		int bit = __ffs(status);
--		int virq = irq_create_mapping(tc3589x->domain, bit);
-+		int virq = irq_find_mapping(tc3589x->domain, bit);
- 
- 		handle_nested_irq(virq);
- 		status &= ~(1 << bit);
-diff --git a/drivers/mfd/wm8994-irq.c b/drivers/mfd/wm8994-irq.c
-index 18710f3b5c53..2c58d9b99a39 100644
---- a/drivers/mfd/wm8994-irq.c
-+++ b/drivers/mfd/wm8994-irq.c
-@@ -159,7 +159,7 @@ static irqreturn_t wm8994_edge_irq(int irq, void *data)
- 	struct wm8994 *wm8994 = data;
- 
- 	while (gpio_get_value_cansleep(wm8994->pdata.irq_gpio))
--		handle_nested_irq(irq_create_mapping(wm8994->edge_irq, 0));
-+		handle_nested_irq(irq_find_mapping(wm8994->edge_irq, 0));
- 
- 	return IRQ_HANDLED;
- }
--- 
-2.30.2
-
++	if (!x86_platform.legacy.rtc)
++		return 0;
++
+ 	user = val % USERHASH;
+ 	val = val / USERHASH;
+ 	file = val % FILEHASH;
 
 
