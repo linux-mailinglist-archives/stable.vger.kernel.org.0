@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49EAC41209A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:55:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86BDF411C92
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:09:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229854AbhITR4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:56:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54482 "EHLO mail.kernel.org"
+        id S231770AbhITRLI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:11:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355273AbhITRye (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:54:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30A3A61C13;
-        Mon, 20 Sep 2021 17:13:36 +0000 (UTC)
+        id S1346794AbhITRJH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:09:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D087E613A0;
+        Mon, 20 Sep 2021 16:56:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158016;
-        bh=TyxM5SvYeQnp6DDVWh03ujfsXqFTCc5qr0xIxjJ/xYQ=;
+        s=korg; t=1632156974;
+        bh=J68Kg05DkhrC6Gk7pgrDHMKfH6aF/9ZyoHTu9yzNPVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lBhYilFtEsbjLV8Xilae0TCLAXRUEQSe8ZJKZcr8HWl9utMOB8YhuN5nOdLvSuJ9X
-         IaApeWUnjRcPxAAMdiWfz261Lg1kxxRYX7DL3I/HGsd37WYce6ywNWRogIi+80c9hz
-         rVJ08ehAlP5ubYQTLK1T/xvi5iCxoLK4gnr5Pcns=
+        b=mdiHN0MInJz4bG9T3eblwphf9z1lbU96TClSTV6XsJ/K+pd/25CPOMOAgIkZ2BZ08
+         p/ZX8qG02hmNSKVRhL3gKlC5y5R9bGyJD2S6KATupIcM2lAGmBbKYjF/td+sFrrT8I
+         jErFPmnAm1N+1GI3Gg9jU+cq3mY2MfPeOKgb+UfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e6741b97d5552f97c24d@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 257/293] tipc: fix an use-after-free issue in tipc_recvmsg
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 170/175] PCI: Sync __pci_register_driver() stub for CONFIG_PCI=n
 Date:   Mon, 20 Sep 2021 18:43:39 +0200
-Message-Id: <20210920163942.195994202@linuxfoundation.org>
+Message-Id: <20210920163923.630295896@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit cc19862ffe454a5b632ca202e5a51bfec9f89fd2 upstream.
+[ Upstream commit 817f9916a6e96ae43acdd4e75459ef4f92d96eb1 ]
 
-syzbot reported an use-after-free crash:
+The CONFIG_PCI=y case got a new parameter long time ago.  Sync the stub as
+well.
 
-  BUG: KASAN: use-after-free in tipc_recvmsg+0xf77/0xf90 net/tipc/socket.c:1979
-  Call Trace:
-   tipc_recvmsg+0xf77/0xf90 net/tipc/socket.c:1979
-   sock_recvmsg_nosec net/socket.c:943 [inline]
-   sock_recvmsg net/socket.c:961 [inline]
-   sock_recvmsg+0xca/0x110 net/socket.c:957
-   tipc_conn_rcv_from_sock+0x162/0x2f0 net/tipc/topsrv.c:398
-   tipc_conn_recv_work+0xeb/0x190 net/tipc/topsrv.c:421
-   process_one_work+0x98d/0x1630 kernel/workqueue.c:2276
-   worker_thread+0x658/0x11f0 kernel/workqueue.c:2422
-
-As Hoang pointed out, it was caused by skb_cb->bytes_read still accessed
-after calling tsk_advance_rx_queue() to free the skb in tipc_recvmsg().
-
-This patch is to fix it by accessing skb_cb->bytes_read earlier than
-calling tsk_advance_rx_queue().
-
-Fixes: f4919ff59c28 ("tipc: keep the skb in rcv queue until the whole data is read")
-Reported-by: syzbot+e6741b97d5552f97c24d@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[bhelgaas: add parameter names]
+Fixes: 725522b5453d ("PCI: add the sysfs driver name to all modules")
+Link: https://lore.kernel.org/r/20210813153619.89574-1-andriy.shevchenko@linux.intel.com
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/socket.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ include/linux/pci.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -1809,10 +1809,12 @@ static int tipc_recvmsg(struct socket *s
- 		tipc_node_distr_xmit(sock_net(sk), &xmitq);
- 	}
- 
--	if (!skb_cb->bytes_read)
--		tsk_advance_rx_queue(sk);
-+	if (skb_cb->bytes_read)
-+		goto exit;
-+
-+	tsk_advance_rx_queue(sk);
- 
--	if (likely(!connected) || skb_cb->bytes_read)
-+	if (likely(!connected))
- 		goto exit;
- 
- 	/* Send connection flow control advertisement when applicable */
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index b9ac0ba81221..7563261bed88 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -1552,8 +1552,9 @@ static inline int pci_enable_device(struct pci_dev *dev) { return -EIO; }
+ static inline void pci_disable_device(struct pci_dev *dev) { }
+ static inline int pci_assign_resource(struct pci_dev *dev, int i)
+ { return -EBUSY; }
+-static inline int __pci_register_driver(struct pci_driver *drv,
+-					struct module *owner)
++static inline int __must_check __pci_register_driver(struct pci_driver *drv,
++						     struct module *owner,
++						     const char *mod_name)
+ { return 0; }
+ static inline int pci_register_driver(struct pci_driver *drv)
+ { return 0; }
+-- 
+2.30.2
+
 
 
