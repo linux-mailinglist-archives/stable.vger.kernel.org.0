@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A97F411CA4
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:10:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4449412078
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:54:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347193AbhITRLh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:11:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34920 "EHLO mail.kernel.org"
+        id S1345610AbhITRzp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:55:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346968AbhITRJf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:09:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B58E66187F;
-        Mon, 20 Sep 2021 16:56:24 +0000 (UTC)
+        id S1354995AbhITRwe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:52:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8311461BF5;
+        Mon, 20 Sep 2021 17:12:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156985;
-        bh=rxqNsyf+5zOsajsG/cLOwTR5w2JzO9s+Wk3tEDzXAFE=;
+        s=korg; t=1632157964;
+        bh=bUgsprxYkWRQV0vT9CE+lHVKPe6ac3+wr/LEurofRg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f9WUWbEHedTdxxb4QNOMZKa2q0SFq7utEi6rmuDN952XBdMyG20GyGgGyCepGK+A3
-         EYSKYa/CzYhsHNrAsso4bWr84ZytCAC10lK4fjXnRzl1VIEJP05UuRT+jtZpfipbG7
-         GpuybEURaAgkbyR0b95gKYkSpRfzevNpSMV4/Ex8=
+        b=BfBmFS5ZFxmYSyMDZqq68zIec/3jwjoImpChJ8HGqrUyhXhXGccax5jU9Tw5JDcO+
+         +LrGdts/4FivxsGlaHF2IFUYl4bapsS954SPEMDZWtFjU9P43bh+95ex4+Y0OdBr6q
+         0pw7UIfbuCW1tpxu8uCBqUhSKfXe+EYOeD85wvS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Anirudh Rayabharam <mail@anirudhrb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 145/175] ath9k: fix sleeping in atomic context
+Subject: [PATCH 4.19 232/293] usbip: give back URBs for unsent unlink requests during cleanup
 Date:   Mon, 20 Sep 2021 18:43:14 +0200
-Message-Id: <20210920163922.814153383@linuxfoundation.org>
+Message-Id: <20210920163941.338325417@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +42,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqing Pan <miaoqing@codeaurora.org>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-[ Upstream commit 7c48662b9d56666219f526a71ace8c15e6e12f1f ]
+[ Upstream commit 258c81b341c8025d79073ce2d6ce19dcdc7d10d2 ]
 
-The problem is that gpio_free() can sleep and the cfg_soc() can be
-called with spinlocks held. One problematic call tree is:
+In vhci_device_unlink_cleanup(), the URBs for unsent unlink requests are
+not given back. This sometimes causes usb_kill_urb to wait indefinitely
+for that urb to be given back. syzbot has reported a hung task issue [1]
+for this.
 
---> ath_reset_internal() takes &sc->sc_pcu_lock spin lock
-   --> ath9k_hw_reset()
-      --> ath9k_hw_gpio_request_in()
-         --> ath9k_hw_gpio_request()
-            --> ath9k_hw_gpio_cfg_soc()
+To fix this, give back the urbs corresponding to unsent unlink requests
+(unlink_tx list) similar to how urbs corresponding to unanswered unlink
+requests (unlink_rx list) are given back.
 
-Remove gpio_free(), use error message instead, so we should make sure
-there is no GPIO conflict.
+[1]: https://syzkaller.appspot.com/bug?id=08f12df95ae7da69814e64eb5515d5a85ed06b76
 
-Also remove ath9k_hw_gpio_free() from ath9k_hw_apply_gpio_override(),
-as gpio_mask will never be set for SOC chips.
-
-Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1628481916-15030-1-git-send-email-miaoqing@codeaurora.org
+Reported-by: syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com
+Tested-by: syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Link: https://lore.kernel.org/r/20210820190122.16379-2-mail@anirudhrb.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hw.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/usb/usbip/vhci_hcd.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hw.c b/drivers/net/wireless/ath/ath9k/hw.c
-index 9d664398a41b..b707c14dab6f 100644
---- a/drivers/net/wireless/ath/ath9k/hw.c
-+++ b/drivers/net/wireless/ath/ath9k/hw.c
-@@ -1595,7 +1595,6 @@ static void ath9k_hw_apply_gpio_override(struct ath_hw *ah)
- 		ath9k_hw_gpio_request_out(ah, i, NULL,
- 					  AR_GPIO_OUTPUT_MUX_AS_OUTPUT);
- 		ath9k_hw_set_gpio(ah, i, !!(ah->gpio_val & BIT(i)));
--		ath9k_hw_gpio_free(ah, i);
- 	}
- }
+diff --git a/drivers/usb/usbip/vhci_hcd.c b/drivers/usb/usbip/vhci_hcd.c
+index b13ed5a7618d..a4ead4099869 100644
+--- a/drivers/usb/usbip/vhci_hcd.c
++++ b/drivers/usb/usbip/vhci_hcd.c
+@@ -957,8 +957,32 @@ static void vhci_device_unlink_cleanup(struct vhci_device *vdev)
+ 	spin_lock(&vdev->priv_lock);
  
-@@ -2702,14 +2701,17 @@ static void ath9k_hw_gpio_cfg_output_mux(struct ath_hw *ah, u32 gpio, u32 type)
- static void ath9k_hw_gpio_cfg_soc(struct ath_hw *ah, u32 gpio, bool out,
- 				  const char *label)
- {
-+	int err;
+ 	list_for_each_entry_safe(unlink, tmp, &vdev->unlink_tx, list) {
++		struct urb *urb;
 +
- 	if (ah->caps.gpio_requested & BIT(gpio))
- 		return;
++		/* give back urb of unsent unlink request */
+ 		pr_info("unlink cleanup tx %lu\n", unlink->unlink_seqnum);
++
++		urb = pickup_urb_and_free_priv(vdev, unlink->unlink_seqnum);
++		if (!urb) {
++			list_del(&unlink->list);
++			kfree(unlink);
++			continue;
++		}
++
++		urb->status = -ENODEV;
++
++		usb_hcd_unlink_urb_from_ep(hcd, urb);
++
+ 		list_del(&unlink->list);
++
++		spin_unlock(&vdev->priv_lock);
++		spin_unlock_irqrestore(&vhci->lock, flags);
++
++		usb_hcd_giveback_urb(hcd, urb, urb->status);
++
++		spin_lock_irqsave(&vhci->lock, flags);
++		spin_lock(&vdev->priv_lock);
++
+ 		kfree(unlink);
+ 	}
  
--	/* may be requested by BSP, free anyway */
--	gpio_free(gpio);
--
--	if (gpio_request_one(gpio, out ? GPIOF_OUT_INIT_LOW : GPIOF_IN, label))
-+	err = gpio_request_one(gpio, out ? GPIOF_OUT_INIT_LOW : GPIOF_IN, label);
-+	if (err) {
-+		ath_err(ath9k_hw_common(ah), "request GPIO%d failed:%d\n",
-+			gpio, err);
- 		return;
-+	}
- 
- 	ah->caps.gpio_requested |= BIT(gpio);
- }
 -- 
 2.30.2
 
