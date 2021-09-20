@@ -2,59 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C1854115D3
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 15:30:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79C59411684
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 16:13:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233845AbhITNb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 09:31:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37800 "EHLO
+        id S230175AbhITOOc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 10:14:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232938AbhITNb1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 09:31:27 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1A05C061760
-        for <stable@vger.kernel.org>; Mon, 20 Sep 2021 06:30:00 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id co2so14939923edb.8
-        for <stable@vger.kernel.org>; Mon, 20 Sep 2021 06:30:00 -0700 (PDT)
+        with ESMTP id S237435AbhITOOQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 10:14:16 -0400
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB99BC061764
+        for <stable@vger.kernel.org>; Mon, 20 Sep 2021 07:12:49 -0700 (PDT)
+Received: by mail-lf1-x133.google.com with SMTP id e15so29929744lfr.10
+        for <stable@vger.kernel.org>; Mon, 20 Sep 2021 07:12:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=0NqHQYP/c3mUi/IFOx7CMz/U7QYzqFRbcXZKclx3qeg=;
-        b=lxER13Igiu2IqlfXeN6tgXTOjX0PEXwns8HcYnVtYRf4+qGTsENC88A4EaFoqOeIco
-         +hcWm0zJcmT5zq5Qya/dafOszNvHOK7t9sGR72wa72UPhIvksP7sY/gTcWpA213zGs+I
-         uUNiU6ijjiOcd0MOlCMnbP912oOVroDoMLJ7k0l9r+B6ZH0XlOka3Fgn/b/k3+EpfanZ
-         vEDNUN27Urv0Xc85hLnMpXvKPLel8djIv30eRoICWZQfT6tQCQt5IqzWIgVcrLEEHz+y
-         3HQD+ZVBk/OIJRiWn7I9/th8hnkgWJ4MvbuWj4zdnd48tXAQBibdhdO6KuEJhe+jnOcR
-         pXew==
+        d=semihalf-com.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=/V7PO4oKi+Cdn3boVLzzbggsDJhCE3vfiLfp0i9c8rA=;
+        b=JuQc1D7eggnCJORwmJNKVRhuCGoZrE608OuQeEreGHUosyUeSjKhdov70YzPFDmRge
+         BsfU0v9yrOoDCHoepSExTAJsQbbJ1AtekwYK3Cj31xc850uEuYHsL/WI6nUVj4RdKd5k
+         Tl0KQyQeoBqeG+aMQ9vmSc1Np4p245bj1ALUQF/Z5vwxSH/G+vMuQO/WN2Oi3hJ65EA9
+         1ehEIevF8wNc+M4IT4+xRjQ0pcEwy+8dpbRGcRIpYWEq0iOI5iQqwAog+ae4CsOkgeTV
+         zxjtEVgie3Si+z/wGD8iiMQAQv+JoxNSXGHYiDNxuVghWQwG0qqontIfVMLA0jUSBfVp
+         1a3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=0NqHQYP/c3mUi/IFOx7CMz/U7QYzqFRbcXZKclx3qeg=;
-        b=P5lK4pH4QyHm2WrBT9yjPsnINK27ufHUwTIU1KY0u84IM4/twgtkW0Auj/42g7667q
-         zVPL3748LL2F3lIAAGz+MViuCL5STGPkwSCaGExXbkTwMmP/PWGzrlqcJFUOl1qklqEn
-         sTTCIe4JgjRVvaAC2NA1KWuS/r04ZXYIIJTpyKz0rz1tAZ9hX8XGRLvautWLGcR2SQJX
-         mZjQrcB19TIskzNG/gCbQNpZiUtEOz1z3/YCqJHr6i0NaAbQPWHG39SENWuZ6rO9dt82
-         Hd4f6afwjKA66+6wJ39MABfK8D2ZSAOVhymSBpqd/NL1KN/+RVQV0GgCr5h6jRpAMtNr
-         FeFw==
-X-Gm-Message-State: AOAM5316WSca3UXvfuVO587kMuJpc4nRoDz9BaTBpLtYmpEZhuSuRGaY
-        UXkkRiLQjtJK1KdNlCeyNpjY0YT4KVPHOiQMhcA=
-X-Google-Smtp-Source: ABdhPJwRSF02B3IvNbUOh6nvTVI/PHpQFmUaH8PU55x6fE6q8ijrKbQHXZxym3yrAyENe14FmS49PQAb7uH3cYtFhfQ=
-X-Received: by 2002:a50:bf46:: with SMTP id g6mr18871254edk.182.1632144594910;
- Mon, 20 Sep 2021 06:29:54 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=/V7PO4oKi+Cdn3boVLzzbggsDJhCE3vfiLfp0i9c8rA=;
+        b=Ncod5OhG2h7egzFdLwys43Yyxqk/z30bsSVhJ411k9RskhMDYmqbAEDhZkF+Q7qEzi
+         FObvdwgfksQSoMF0N2VkZhfQpwHTdUPjjUXYrkhtHCtKyc61hqGvu/za9XrKSObbMFuB
+         fG9SSbpw/6pBUbXs3BbRvyQsWJ5MQUTgq+hwUCwKMlecye8gbGFGNvuypoUVeTrtR/4p
+         nHxtblKp9/Nvbarka6I1pRRoqkXHJJxIufsWkppgBpO4vRZOyFI7w8KaZq3brt6J0Vko
+         2E/xrv0Mudcx4KKZkcmoveDJHhYC9h4aKF6PO8N98TEMFY7GFvRBp+JF+x5UVlJbqM9N
+         k3sg==
+X-Gm-Message-State: AOAM531mjj/c/2klhpmjc3teKkeZYQ7slB5+6KsSc9zUZQp7SxISsue9
+        YHhwcfXW4OsFJCNR2Ww9Zen+zA==
+X-Google-Smtp-Source: ABdhPJw3fSrrEgjePCdoFq/02ePMQn26eyLTxe8tnNccEoy/DKbaqGEAhKjOZq/GbDQMuJEKrGiUtg==
+X-Received: by 2002:a05:6512:118c:: with SMTP id g12mr18941294lfr.143.1632147091114;
+        Mon, 20 Sep 2021 07:11:31 -0700 (PDT)
+Received: from lmajczak1-l.roam.corp.google.com ([83.142.187.84])
+        by smtp.gmail.com with ESMTPSA id a6sm1389505lfs.160.2021.09.20.07.11.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Sep 2021 07:11:30 -0700 (PDT)
+From:   Lukasz Majczak <lma@semihalf.com>
+To:     Jose Roberto de Souza <jose.souza@intel.com>,
+        Shawn C Lee <shawn.c.lee@intel.com>
+Cc:     Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        upstream@semihalf.com, Lukasz Majczak <lma@semihalf.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v1] drm/i915/bdb: Fix version check
+Date:   Mon, 20 Sep 2021 16:11:01 +0200
+Message-Id: <20210920141101.194959-1-lma@semihalf.com>
+X-Mailer: git-send-email 2.33.0.464.g1972c5931b-goog
 MIME-Version: 1.0
-Received: by 2002:a50:4da:0:0:0:0:0 with HTTP; Mon, 20 Sep 2021 06:29:54 -0700 (PDT)
-Reply-To: monica43brown@gmail.com
-From:   monicabrown <kamroc60@gmail.com>
-Date:   Mon, 20 Sep 2021 14:29:54 +0100
-Message-ID: <CAJPeDC--j8zmuA6rM=QX2CHWCZbeZ7wqUbnNhtAiPgThYCCQNQ@mail.gmail.com>
-Subject: Hi
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings from me
-My name is Monica Brown and how are you today, please I have something that
-i will like to share with you okay please try and get back.
+With patch "drm/i915/vbt: Fix backlight parsing for VBT 234+"
+the size of bdb_lfp_backlight_data structure has been increased,
+causing if-statement in the parse_lfp_backlight function
+that comapres this structure size to the one retrieved from BDB,
+always to fail for older revisions.
+This patch fixes it by comparing a total size of all fileds from
+the structure (present before the change) with the value gathered from BDB.
+Tested on Chromebook Pixelbook (Nocturne) (reports bdb->version = 221)
+
+Cc: <stable@vger.kernel.org> # 5.4+
+Tested-by: Lukasz Majczak <lma@semihalf.com>
+Signed-off-by: Lukasz Majczak <lma@semihalf.com>
+---
+ drivers/gpu/drm/i915/display/intel_bios.c     | 4 +++-
+ drivers/gpu/drm/i915/display/intel_vbt_defs.h | 5 +++++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/i915/display/intel_bios.c b/drivers/gpu/drm/i915/display/intel_bios.c
+index 3c25926092de..052a19b455d1 100644
+--- a/drivers/gpu/drm/i915/display/intel_bios.c
++++ b/drivers/gpu/drm/i915/display/intel_bios.c
+@@ -452,7 +452,9 @@ parse_lfp_backlight(struct drm_i915_private *i915,
+ 
+ 	i915->vbt.backlight.type = INTEL_BACKLIGHT_DISPLAY_DDI;
+ 	if (bdb->version >= 191 &&
+-	    get_blocksize(backlight_data) >= sizeof(*backlight_data)) {
++	    get_blocksize(backlight_data) >= (sizeof(backlight_data->entry_size) +
++					      sizeof(backlight_data->data) +
++					      sizeof(backlight_data->level))) {
+ 		const struct lfp_backlight_control_method *method;
+ 
+ 		method = &backlight_data->backlight_control[panel_type];
+diff --git a/drivers/gpu/drm/i915/display/intel_vbt_defs.h b/drivers/gpu/drm/i915/display/intel_vbt_defs.h
+index 330077c2e588..fff456bf8783 100644
+--- a/drivers/gpu/drm/i915/display/intel_vbt_defs.h
++++ b/drivers/gpu/drm/i915/display/intel_vbt_defs.h
+@@ -814,6 +814,11 @@ struct lfp_brightness_level {
+ 	u16 reserved;
+ } __packed;
+ 
++/*
++ * Changing struct bdb_lfp_backlight_data might affect its
++ * size comparation to the value hold in BDB.
++ * (e.g. in parse_lfp_backlight())
++ */
+ struct bdb_lfp_backlight_data {
+ 	u8 entry_size;
+ 	struct lfp_backlight_data_entry data[16];
+-- 
+2.33.0.464.g1972c5931b-goog
+
