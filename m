@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DB6341212E
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:01:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4407F411CDE
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357135AbhITSDB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:03:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57102 "EHLO mail.kernel.org"
+        id S1347375AbhITRNu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:13:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356663AbhITSA6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:00:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 072BE63225;
-        Mon, 20 Sep 2021 17:15:55 +0000 (UTC)
+        id S1343726AbhITRLr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:11:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E926619E4;
+        Mon, 20 Sep 2021 16:57:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158156;
-        bh=NZBw4Ex3/5MqZZMX7Wn6xPNs+ml3TBrMxKqbfYqvCaU=;
+        s=korg; t=1632157039;
+        bh=ebuzE1UCxEDOCi5+/oFZ6jUdKHF/h/xY3/MRIosohsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AfKeYbFn90mUo24xnV/udR+txDNisruU9+6k1hHS/xT8UDgZlg69XEvDYqkBpWPKa
-         zLZSK45KM19jqGVWWP//xtYHmLUBPcstU1mO/ALmsY8cPSKLekGBAcoTBUyHbptOGJ
-         7S3pASNjgsyq6PFWpQ0+caQSwBsHG1kWRBsaICBo=
+        b=xQ6DaTVEI+vLCoNqmCuj4Qr9kWkN0mKEjua+9KMi0JAfirSt4nOclvykNPdHgETC7
+         /5A7DiYM7WD4AP+lA8n/gOONWb6LY9z3MrWWtVLbj741de3f6Y69gQpwiIyvKRcq+v
+         /z7fcFOod38qb5uGwOBQeQXZ+xD79ev8LCRi3DfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kate Hsuan <hpa@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 027/260] libata: add ATA_HORKAGE_NO_NCQ_TRIM for Samsung 860 and 870 SSDs
-Date:   Mon, 20 Sep 2021 18:40:45 +0200
-Message-Id: <20210920163932.048375849@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Zygo Blaxell <ce3g8jdj@umail.furryterror.org>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 025/217] Revert "btrfs: compression: dont try to compress if we dont have enough pages"
+Date:   Mon, 20 Sep 2021 18:40:46 +0200
+Message-Id: <20210920163925.463411096@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 8a6430ab9c9c87cb64c512e505e8690bbaee190b upstream.
+commit 4e9655763b82a91e4c341835bb504a2b1590f984 upstream.
 
-Commit ca6bfcb2f6d9 ("libata: Enable queued TRIM for Samsung SSD 860")
-limited the existing ATA_HORKAGE_NO_NCQ_TRIM quirk from "Samsung SSD 8*",
-covering all Samsung 800 series SSDs, to only apply to "Samsung SSD 840*"
-and "Samsung SSD 850*" series based on information from Samsung.
+This reverts commit f2165627319ffd33a6217275e5690b1ab5c45763.
 
-But there is a large number of users which is still reporting issues
-with the Samsung 860 and 870 SSDs combined with Intel, ASmedia or
-Marvell SATA controllers and all reporters also report these problems
-going away when disabling queued trims.
+[BUG]
+It's no longer possible to create compressed inline extent after commit
+f2165627319f ("btrfs: compression: don't try to compress if we don't
+have enough pages").
 
-Note that with AMD SATA controllers users are reporting even worse
-issues and only completely disabling NCQ helps there, this will be
-addressed in a separate patch.
+[CAUSE]
+For compression code, there are several possible reasons we have a range
+that needs to be compressed while it's no more than one page.
 
-Fixes: ca6bfcb2f6d9 ("libata: Enable queued TRIM for Samsung SSD 860")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=203475
-Cc: stable@vger.kernel.org
-Cc: Kate Hsuan <hpa@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-Link: https://lore.kernel.org/r/20210823095220.30157-1-hdegoede@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+- Compressed inline write
+  The data is always smaller than one sector and the test lacks the
+  condition to properly recognize a non-inline extent.
+
+- Compressed subpage write
+  For the incoming subpage compressed write support, we require page
+  alignment of the delalloc range.
+  And for 64K page size, we can compress just one page into smaller
+  sectors.
+
+For those reasons, the requirement for the data to be more than one page
+is not correct, and is already causing regression for compressed inline
+data writeback.  The idea of skipping one page to avoid wasting CPU time
+could be revisited in the future.
+
+[FIX]
+Fix it by reverting the offending commit.
+
+Reported-by: Zygo Blaxell <ce3g8jdj@umail.furryterror.org>
+Link: https://lore.kernel.org/linux-btrfs/afa2742.c084f5d6.17b6b08dffc@tnonline.net
+Fixes: f2165627319f ("btrfs: compression: don't try to compress if we don't have enough pages")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/libata-core.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/btrfs/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -4556,6 +4556,10 @@ static const struct ata_blacklist_entry
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
- 	{ "Samsung SSD 850*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
-+	{ "Samsung SSD 860*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
-+						ATA_HORKAGE_ZERO_AFTER_TRIM, },
-+	{ "Samsung SSD 870*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
-+						ATA_HORKAGE_ZERO_AFTER_TRIM, },
- 	{ "FCCT*M500*",			NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
- 
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -540,7 +540,7 @@ again:
+ 	 * inode has not been flagged as nocompress.  This flag can
+ 	 * change at any time if we discover bad compression ratios.
+ 	 */
+-	if (nr_pages > 1 && inode_need_compress(inode, start, end)) {
++	if (inode_need_compress(inode, start, end)) {
+ 		WARN_ON(pages);
+ 		pages = kcalloc(nr_pages, sizeof(struct page *), GFP_NOFS);
+ 		if (!pages) {
 
 
