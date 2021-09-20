@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6345D411FBC
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:43:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2023B411D80
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:20:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345466AbhITRpC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:45:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48028 "EHLO mail.kernel.org"
+        id S1347117AbhITRU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:20:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353005AbhITRnS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:43:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8D6C61B71;
-        Mon, 20 Sep 2021 17:09:03 +0000 (UTC)
+        id S1346752AbhITRTG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:19:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A2BB61268;
+        Mon, 20 Sep 2021 16:59:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157744;
-        bh=ZTcogegeiHMo//rdXoOLS40olM09Mwxz3I6ssu7qfCM=;
+        s=korg; t=1632157200;
+        bh=i18Bpb7iEllwoi8u1EQgC4wkqQFXMJzUlPXx8tuuouU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qsc7GIAfBESJ52UCuVPbaTtxi1puDlbqhh17gyhgXLdtbXKdKCFDcVi3l/ySICHmR
-         XcKqVcm3cPSH1qh3HyqxMsBqPitaKe1uI/smPc2Qml9GaCJpNHxv3wzdq1mAnewFtn
-         DYV1oTNGdRYpmtq4qCY//n+VzkV7w9wPfpMFT1lg=
+        b=M2LKk7aI6zRgQwQfx7gFa+3XWe1zia8ECKqVdiMfZc7vEEOzj9SB3ouEjak/taBDQ
+         XGjRiYwr3vJtuzzjdzFwSw9Smq+azeVBLxGWHayD8RbcXRf3tG5/dIA76NGAenbxWM
+         pgzDo3KUDLZFqmiiJes3Xd0LIsLGuqbX6v4kXFqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrey Ignatov <rdna@fb.com>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.19 131/293] bpf: Reject indirect var_off stack access in unpriv mode
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 072/217] usb: phy: tahvo: add IRQ check
 Date:   Mon, 20 Sep 2021 18:41:33 +0200
-Message-Id: <20210920163937.756222682@linuxfoundation.org>
+Message-Id: <20210920163927.065278452@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,65 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Ignatov <rdna@fb.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit 088ec26d9c2da9d879ab73e3f4117f9df6c566ee upstream.
+[ Upstream commit 0d45a1373e669880b8beaecc8765f44cb0241e47 ]
 
-Proper support of indirect stack access with variable offset in
-unprivileged mode (!root) requires corresponding support in Spectre
-masking for stack ALU in retrieve_ptr_limit().
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to request_threaded_irq() (which
+takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding an
+original error code.  Stop calling request_threaded_irq() with the invalid
+IRQ #s.
 
-There are no use-case for variable offset in unprivileged mode though so
-make verifier reject such accesses for simplicity.
-
-Pointer arithmetics is one (and only?) way to cause variable offset and
-it's already rejected in unpriv mode so that verifier won't even get to
-helper function whose argument contains variable offset, e.g.:
-
-  0: (7a) *(u64 *)(r10 -16) = 0
-  1: (7a) *(u64 *)(r10 -8) = 0
-  2: (61) r2 = *(u32 *)(r1 +0)
-  3: (57) r2 &= 4
-  4: (17) r2 -= 16
-  5: (0f) r2 += r10
-  variable stack access var_off=(0xfffffffffffffff0; 0x4) off=-16 size=1R2
-  stack pointer arithmetic goes out of range, prohibited for !root
-
-Still it looks like a good idea to reject variable offset indirect stack
-access for unprivileged mode in check_stack_boundary() explicitly.
-
-Fixes: 2011fccfb61b ("bpf: Support variable offset stack access from helpers")
-Reported-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Andrey Ignatov <rdna@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-[OP: drop comment in retrieve_ptr_limit()]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Fixes: 9ba96ae5074c ("usb: omap1: Tahvo USB transceiver driver")
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Link: https://lore.kernel.org/r/8280d6a4-8e9a-7cfe-1aa9-db586dc9afdf@omp.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/usb/phy/phy-tahvo.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -1811,6 +1811,19 @@ static int check_stack_boundary(struct b
- 		if (err)
- 			return err;
- 	} else {
-+		/* Variable offset is prohibited for unprivileged mode for
-+		 * simplicity since it requires corresponding support in
-+		 * Spectre masking for stack ALU.
-+		 * See also retrieve_ptr_limit().
-+		 */
-+		if (!env->allow_ptr_leaks) {
-+			char tn_buf[48];
-+
-+			tnum_strn(tn_buf, sizeof(tn_buf), reg->var_off);
-+			verbose(env, "R%d indirect variable offset stack access prohibited for !root, var_off=%s\n",
-+				regno, tn_buf);
-+			return -EACCES;
-+		}
- 		/* Only initialized buffer on stack is allowed to be accessed
- 		 * with variable offset. With uninitialized buffer it's hard to
- 		 * guarantee that whole memory is marked as initialized on
+diff --git a/drivers/usb/phy/phy-tahvo.c b/drivers/usb/phy/phy-tahvo.c
+index 1ec00eae339a..e4fc73bf6ee9 100644
+--- a/drivers/usb/phy/phy-tahvo.c
++++ b/drivers/usb/phy/phy-tahvo.c
+@@ -404,7 +404,9 @@ static int tahvo_usb_probe(struct platform_device *pdev)
+ 
+ 	dev_set_drvdata(&pdev->dev, tu);
+ 
+-	tu->irq = platform_get_irq(pdev, 0);
++	tu->irq = ret = platform_get_irq(pdev, 0);
++	if (ret < 0)
++		return ret;
+ 	ret = request_threaded_irq(tu->irq, NULL, tahvo_usb_vbus_interrupt,
+ 				   IRQF_ONESHOT,
+ 				   "tahvo-vbus", tu);
+-- 
+2.30.2
+
 
 
