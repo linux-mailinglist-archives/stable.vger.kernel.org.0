@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6098411F42
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:38:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66863411F44
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:38:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348444AbhITRjw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:39:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42360 "EHLO mail.kernel.org"
+        id S1346557AbhITRjx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:39:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348712AbhITRha (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:37:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CABB61381;
-        Mon, 20 Sep 2021 17:06:55 +0000 (UTC)
+        id S242547AbhITRhb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:37:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 84FCC61B30;
+        Mon, 20 Sep 2021 17:06:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157615;
-        bh=GQ9lV9zBSX7ryX4LY8y0KL8mtGf2KgywVURBNcGLNkc=;
+        s=korg; t=1632157618;
+        bh=QeAN0Royt6Nj2hOWr3xe61aG/pFXYz+1x53hNKSbeME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jE63iUahRbbU19FaF35MCjSTkddgg0grvM4r/DAzlnYCMFJyFx5x0NEwly0AdNiif
-         LyQ3Bt/YYcy84AaWon3PSB/mMdtdB2hNGXYwsjVHtKFWWj3rRp/CiM3Et3eaPZZlKj
-         TSAMNaQNbugD2Clq+2TozMEV+NSlKn7QJ/WoKdOc=
+        b=M2kecIlH+EmduIMrVDGA1uYgatc4K/8d7to6yC0We1dYuhEeIOggCsf/1wmpJ7OSu
+         4auDfdZvTeIxQJs+FKS9Iky0dyWBu2d9dg6/88bU1sGAxmg3EnBu1TFY0j1Hia2x/B
+         x0O/zCiirM4mpvxXFzzI4z6FVNzfpJBp/wIW59TQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+7fbfe5fed73ebb675748@syzkaller.appspotmail.com,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
         Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 040/293] udf: Check LVID earlier
-Date:   Mon, 20 Sep 2021 18:40:02 +0200
-Message-Id: <20210920163934.647035360@linuxfoundation.org>
+Subject: [PATCH 4.19 041/293] isofs: joliet: Fix iocharset=utf8 mount option
+Date:   Mon, 20 Sep 2021 18:40:03 +0200
+Message-Id: <20210920163934.676610536@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
 References: <20210920163933.258815435@linuxfoundation.org>
@@ -40,84 +40,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 781d2a9a2fc7d0be53a072794dc03ef6de770f3d ]
+[ Upstream commit 28ce50f8d96ec9035f60c9348294ea26b94db944 ]
 
-We were checking validity of LVID entries only when getting
-implementation use information from LVID in udf_sb_lvidiu(). However if
-the LVID is suitably corrupted, it can cause problems also to code such
-as udf_count_free() which doesn't use udf_sb_lvidiu(). So check validity
-of LVID already when loading it from the disk and just disable LVID
-altogether when it is not valid.
+Currently iocharset=utf8 mount option is broken. To use UTF-8 as iocharset,
+it is required to use utf8 mount option.
 
-Reported-by: syzbot+7fbfe5fed73ebb675748@syzkaller.appspotmail.com
+Fix iocharset=utf8 mount option to use be equivalent to the utf8 mount
+option.
+
+If UTF-8 as iocharset is used then s_nls_iocharset is set to NULL. So
+simplify code around, remove s_utf8 field as to distinguish between UTF-8
+and non-UTF-8 it is needed just to check if s_nls_iocharset is set to NULL
+or not.
+
+Link: https://lore.kernel.org/r/20210808162453.1653-5-pali@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/super.c | 25 ++++++++++++++++---------
- 1 file changed, 16 insertions(+), 9 deletions(-)
+ fs/isofs/inode.c  | 27 +++++++++++++--------------
+ fs/isofs/isofs.h  |  1 -
+ fs/isofs/joliet.c |  4 +---
+ 3 files changed, 14 insertions(+), 18 deletions(-)
 
-diff --git a/fs/udf/super.c b/fs/udf/super.c
-index c7f6243f318b..9c71246e6d60 100644
---- a/fs/udf/super.c
-+++ b/fs/udf/super.c
-@@ -112,16 +112,10 @@ struct logicalVolIntegrityDescImpUse *udf_sb_lvidiu(struct super_block *sb)
- 		return NULL;
- 	lvid = (struct logicalVolIntegrityDesc *)UDF_SB(sb)->s_lvid_bh->b_data;
- 	partnum = le32_to_cpu(lvid->numOfPartitions);
--	if ((sb->s_blocksize - sizeof(struct logicalVolIntegrityDescImpUse) -
--	     offsetof(struct logicalVolIntegrityDesc, impUse)) /
--	     (2 * sizeof(uint32_t)) < partnum) {
--		udf_err(sb, "Logical volume integrity descriptor corrupted "
--			"(numOfPartitions = %u)!\n", partnum);
--		return NULL;
--	}
- 	/* The offset is to skip freeSpaceTable and sizeTable arrays */
- 	offset = partnum * 2 * sizeof(uint32_t);
--	return (struct logicalVolIntegrityDescImpUse *)&(lvid->impUse[offset]);
-+	return (struct logicalVolIntegrityDescImpUse *)
-+					(((uint8_t *)(lvid + 1)) + offset);
+diff --git a/fs/isofs/inode.c b/fs/isofs/inode.c
+index 488a9e7f8f66..2355ad62b81f 100644
+--- a/fs/isofs/inode.c
++++ b/fs/isofs/inode.c
+@@ -157,7 +157,6 @@ struct iso9660_options{
+ 	unsigned int overriderockperm:1;
+ 	unsigned int uid_set:1;
+ 	unsigned int gid_set:1;
+-	unsigned int utf8:1;
+ 	unsigned char map;
+ 	unsigned char check;
+ 	unsigned int blocksize;
+@@ -357,7 +356,6 @@ static int parse_options(char *options, struct iso9660_options *popt)
+ 	popt->gid = GLOBAL_ROOT_GID;
+ 	popt->uid = GLOBAL_ROOT_UID;
+ 	popt->iocharset = NULL;
+-	popt->utf8 = 0;
+ 	popt->overriderockperm = 0;
+ 	popt->session=-1;
+ 	popt->sbsector=-1;
+@@ -390,10 +388,13 @@ static int parse_options(char *options, struct iso9660_options *popt)
+ 		case Opt_cruft:
+ 			popt->cruft = 1;
+ 			break;
++#ifdef CONFIG_JOLIET
+ 		case Opt_utf8:
+-			popt->utf8 = 1;
++			kfree(popt->iocharset);
++			popt->iocharset = kstrdup("utf8", GFP_KERNEL);
++			if (!popt->iocharset)
++				return 0;
+ 			break;
+-#ifdef CONFIG_JOLIET
+ 		case Opt_iocharset:
+ 			kfree(popt->iocharset);
+ 			popt->iocharset = match_strdup(&args[0]);
+@@ -496,7 +497,6 @@ static int isofs_show_options(struct seq_file *m, struct dentry *root)
+ 	if (sbi->s_nocompress)		seq_puts(m, ",nocompress");
+ 	if (sbi->s_overriderockperm)	seq_puts(m, ",overriderockperm");
+ 	if (sbi->s_showassoc)		seq_puts(m, ",showassoc");
+-	if (sbi->s_utf8)		seq_puts(m, ",utf8");
+ 
+ 	if (sbi->s_check)		seq_printf(m, ",check=%c", sbi->s_check);
+ 	if (sbi->s_mapping)		seq_printf(m, ",map=%c", sbi->s_mapping);
+@@ -519,9 +519,10 @@ static int isofs_show_options(struct seq_file *m, struct dentry *root)
+ 		seq_printf(m, ",fmode=%o", sbi->s_fmode);
+ 
+ #ifdef CONFIG_JOLIET
+-	if (sbi->s_nls_iocharset &&
+-	    strcmp(sbi->s_nls_iocharset->charset, CONFIG_NLS_DEFAULT) != 0)
++	if (sbi->s_nls_iocharset)
+ 		seq_printf(m, ",iocharset=%s", sbi->s_nls_iocharset->charset);
++	else
++		seq_puts(m, ",iocharset=utf8");
+ #endif
+ 	return 0;
  }
+@@ -865,14 +866,13 @@ root_found:
+ 	sbi->s_nls_iocharset = NULL;
  
- /* UDF filesystem type */
-@@ -1529,6 +1523,7 @@ static void udf_load_logicalvolint(struct super_block *sb, struct kernel_extent_
- 	struct udf_sb_info *sbi = UDF_SB(sb);
- 	struct logicalVolIntegrityDesc *lvid;
- 	int indirections = 0;
-+	u32 parts, impuselen;
- 
- 	while (++indirections <= UDF_MAX_LVID_NESTING) {
- 		final_bh = NULL;
-@@ -1555,15 +1550,27 @@ static void udf_load_logicalvolint(struct super_block *sb, struct kernel_extent_
- 
- 		lvid = (struct logicalVolIntegrityDesc *)final_bh->b_data;
- 		if (lvid->nextIntegrityExt.extLength == 0)
--			return;
-+			goto check;
- 
- 		loc = leea_to_cpu(lvid->nextIntegrityExt);
+ #ifdef CONFIG_JOLIET
+-	if (joliet_level && opt.utf8 == 0) {
++	if (joliet_level) {
+ 		char *p = opt.iocharset ? opt.iocharset : CONFIG_NLS_DEFAULT;
+-		sbi->s_nls_iocharset = load_nls(p);
+-		if (! sbi->s_nls_iocharset) {
+-			/* Fail only if explicit charset specified */
+-			if (opt.iocharset)
++		if (strcmp(p, "utf8") != 0) {
++			sbi->s_nls_iocharset = opt.iocharset ?
++				load_nls(opt.iocharset) : load_nls_default();
++			if (!sbi->s_nls_iocharset)
+ 				goto out_freesbi;
+-			sbi->s_nls_iocharset = load_nls_default();
+ 		}
  	}
+ #endif
+@@ -888,7 +888,6 @@ root_found:
+ 	sbi->s_gid = opt.gid;
+ 	sbi->s_uid_set = opt.uid_set;
+ 	sbi->s_gid_set = opt.gid_set;
+-	sbi->s_utf8 = opt.utf8;
+ 	sbi->s_nocompress = opt.nocompress;
+ 	sbi->s_overriderockperm = opt.overriderockperm;
+ 	/*
+diff --git a/fs/isofs/isofs.h b/fs/isofs/isofs.h
+index 055ec6c586f7..dcdc191ed183 100644
+--- a/fs/isofs/isofs.h
++++ b/fs/isofs/isofs.h
+@@ -44,7 +44,6 @@ struct isofs_sb_info {
+ 	unsigned char s_session;
+ 	unsigned int  s_high_sierra:1;
+ 	unsigned int  s_rock:2;
+-	unsigned int  s_utf8:1;
+ 	unsigned int  s_cruft:1; /* Broken disks with high byte of length
+ 				  * containing junk */
+ 	unsigned int  s_nocompress:1;
+diff --git a/fs/isofs/joliet.c b/fs/isofs/joliet.c
+index be8b6a9d0b92..c0f04a1e7f69 100644
+--- a/fs/isofs/joliet.c
++++ b/fs/isofs/joliet.c
+@@ -41,14 +41,12 @@ uni16_to_x8(unsigned char *ascii, __be16 *uni, int len, struct nls_table *nls)
+ int
+ get_joliet_filename(struct iso_directory_record * de, unsigned char *outname, struct inode * inode)
+ {
+-	unsigned char utf8;
+ 	struct nls_table *nls;
+ 	unsigned char len = 0;
  
- 	udf_warn(sb, "Too many LVID indirections (max %u), ignoring.\n",
- 		UDF_MAX_LVID_NESTING);
-+out_err:
- 	brelse(sbi->s_lvid_bh);
- 	sbi->s_lvid_bh = NULL;
-+	return;
-+check:
-+	parts = le32_to_cpu(lvid->numOfPartitions);
-+	impuselen = le32_to_cpu(lvid->lengthOfImpUse);
-+	if (parts >= sb->s_blocksize || impuselen >= sb->s_blocksize ||
-+	    sizeof(struct logicalVolIntegrityDesc) + impuselen +
-+	    2 * parts * sizeof(u32) > sb->s_blocksize) {
-+		udf_warn(sb, "Corrupted LVID (parts=%u, impuselen=%u), "
-+			 "ignoring.\n", parts, impuselen);
-+		goto out_err;
-+	}
- }
+-	utf8 = ISOFS_SB(inode->i_sb)->s_utf8;
+ 	nls = ISOFS_SB(inode->i_sb)->s_nls_iocharset;
  
- /*
+-	if (utf8) {
++	if (!nls) {
+ 		len = utf16s_to_utf8s((const wchar_t *) de->name,
+ 				de->name_len[0] >> 1, UTF16_BIG_ENDIAN,
+ 				outname, PAGE_SIZE);
 -- 
 2.30.2
 
