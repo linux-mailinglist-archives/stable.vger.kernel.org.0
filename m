@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 408A641249C
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:34:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E7D241233E
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:21:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244992AbhITSgO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:36:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50466 "EHLO mail.kernel.org"
+        id S1378020AbhITSWc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:22:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1379738AbhITSaX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:30:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFD5F61AA2;
-        Mon, 20 Sep 2021 17:26:54 +0000 (UTC)
+        id S1377712AbhITSUZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:20:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 557D6632B1;
+        Mon, 20 Sep 2021 17:23:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158815;
-        bh=LRAZICBCUDopvk35HXaaFIpFsajdAv961wccYQcqU5c=;
+        s=korg; t=1632158621;
+        bh=39iHvOVHxKDRSPMRsyX33AfPrvSX7JWv2YA8pRpbUy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A0gf4FKap0Vg+2lJd/S0wrK7DK1OcJTQURDiw0aeYA0Cih08md7WmA5rgDxmGgXHV
-         VgTbcEhdFoOiHQZpLG27y/27zheKqT1SKvcJU9UkU3i03vSgBSJu/A0mcQbD/ygiZb
-         O+wcP7meLfQoTqws5D3g1rcXQT9jP5rEEObJdTCw=
+        b=dwz6o1euv3f/z/kYFW0ACIMNs3DeS4yvbOezvhGwLTmxm4UpC7ZC5H295HBWyARWc
+         6+S0RcsKC6QcdsdvUJE6mkrKT2RIHFVwQB+cGCPZD/+6WyoeIfFUY6GaJfNeDy8lKk
+         p1lgdOJbe9ngWRD+BaQLTrTWkUYJTecU/tBVwvlg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        George Cherian <george.cherian@marvell.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 069/122] PCI: Add ACS quirks for Cavium multi-function devices
+        stable@vger.kernel.org, zhenggy <zhenggy@chinatelecom.cn>,
+        Eric Dumazet <edumazet@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 223/260] tcp: fix tp->undo_retrans accounting in tcp_sacktag_one()
 Date:   Mon, 20 Sep 2021 18:44:01 +0200
-Message-Id: <20210920163918.037227330@linuxfoundation.org>
+Message-Id: <20210920163938.690340626@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Cherian <george.cherian@marvell.com>
+From: zhenggy <zhenggy@chinatelecom.cn>
 
-[ Upstream commit 32837d8a8f63eb95dcb9cd005524a27f06478832 ]
+commit 4f884f3962767877d7aabbc1ec124d2c307a4257 upstream.
 
-Some Cavium endpoints are implemented as multi-function devices without ACS
-capability, but they actually don't support peer-to-peer transactions.
+Commit 10d3be569243 ("tcp-tso: do not split TSO packets at retransmit
+time") may directly retrans a multiple segments TSO/GSO packet without
+split, Since this commit, we can no longer assume that a retransmitted
+packet is a single segment.
 
-Add ACS quirks to declare DMA isolation for the following devices:
+This patch fixes the tp->undo_retrans accounting in tcp_sacktag_one()
+that use the actual segments(pcount) of the retransmitted packet.
 
-  - BGX device found on Octeon-TX (8xxx)
-  - CGX device found on Octeon-TX2 (9xxx)
-  - RPM device found on Octeon-TX3 (10xxx)
+Before that commit (10d3be569243), the assumption underlying the
+tp->undo_retrans-- seems correct.
 
-Link: https://lore.kernel.org/r/20210810122425.1115156-1-george.cherian@marvell.com
-Signed-off-by: George Cherian <george.cherian@marvell.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 10d3be569243 ("tcp-tso: do not split TSO packets at retransmit time")
+Signed-off-by: zhenggy <zhenggy@chinatelecom.cn>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Yuchung Cheng <ycheng@google.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/quirks.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/ipv4/tcp_input.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index f2e95944f681..5d2acebc3e96 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -4864,6 +4864,10 @@ static const struct pci_dev_acs_enabled {
- 	{ 0x10df, 0x720, pci_quirk_mf_endpoint_acs }, /* Emulex Skyhawk-R */
- 	/* Cavium ThunderX */
- 	{ PCI_VENDOR_ID_CAVIUM, PCI_ANY_ID, pci_quirk_cavium_acs },
-+	/* Cavium multi-function devices */
-+	{ PCI_VENDOR_ID_CAVIUM, 0xA026, pci_quirk_mf_endpoint_acs },
-+	{ PCI_VENDOR_ID_CAVIUM, 0xA059, pci_quirk_mf_endpoint_acs },
-+	{ PCI_VENDOR_ID_CAVIUM, 0xA060, pci_quirk_mf_endpoint_acs },
- 	/* APM X-Gene */
- 	{ PCI_VENDOR_ID_AMCC, 0xE004, pci_quirk_xgene_acs },
- 	/* Ampere Computing */
--- 
-2.30.2
-
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -1209,7 +1209,7 @@ static u8 tcp_sacktag_one(struct sock *s
+ 	if (dup_sack && (sacked & TCPCB_RETRANS)) {
+ 		if (tp->undo_marker && tp->undo_retrans > 0 &&
+ 		    after(end_seq, tp->undo_marker))
+-			tp->undo_retrans--;
++			tp->undo_retrans = max_t(int, 0, tp->undo_retrans - pcount);
+ 		if ((sacked & TCPCB_SACKED_ACKED) &&
+ 		    before(start_seq, state->reord))
+ 				state->reord = start_seq;
 
 
