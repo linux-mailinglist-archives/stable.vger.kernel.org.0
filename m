@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C41EB4121AA
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:06:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 973FE4121AC
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:06:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350824AbhITSHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:07:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33266 "EHLO mail.kernel.org"
+        id S1358664AbhITSHv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:07:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358577AbhITSHD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1358576AbhITSHD (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:07:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B87361A3A;
-        Mon, 20 Sep 2021 17:18:08 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 782456324B;
+        Mon, 20 Sep 2021 17:18:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158288;
-        bh=wFUqVaxrZp6e54TxAJ8IMZ0lei79O43bzWtLNiN//ic=;
+        s=korg; t=1632158290;
+        bh=Yym8bEaKDwwuCUq5lo+2cM1dPMXePaTtmzxRKHHMX8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FgZZtWPdG1OzCj487rkdx0XPbdx2HSBxET3vsfH510iE1wz/NVbTjliiLqSxOERxe
-         JIZrbEEVMSSMkFmgXPH3joJD88pa9NZLdYSaTXWmnmSDTo9VTSNFLexw72eCzRZ4Ej
-         38gFvwC4K04EswuXHY8z923x3bqs3QFkeiQr3uVE=
+        b=geJTfsXv2GoOYNxj6a2KmeRJ8GD120s9Jv6W2yZV91dTCOCH9DhWSjm6fL8PvY0lp
+         Ljgj2wovgZkOfdzfHN/LJrS2bwaAXRT90Gd8BvCulE13sM/MCt1ybZZPPVSf6tFOCg
+         jdlzqeFiH48U79vSngue9uceg2AXWD72UTrzG6Y0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 055/260] scsi: qedf: Fix error codes in qedf_alloc_global_queues()
-Date:   Mon, 20 Sep 2021 18:41:13 +0200
-Message-Id: <20210920163932.972946826@linuxfoundation.org>
+Subject: [PATCH 5.4 056/260] powerpc/config: Renable MTD_PHYSMAP_OF
+Date:   Mon, 20 Sep 2021 18:41:14 +0200
+Message-Id: <20210920163933.004627805@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -41,75 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit ccc89737aa6b9f248cf1623014038beb6c2b7f56 ]
+[ Upstream commit d0e28a6145c3455b69991245e7f6147eb914b34a ]
 
-This driver has some left over "return 1" on failure style code mixed with
-"return negative error codes" style code.  The caller doesn't care so we
-should just convert everything to return negative error codes.
+CONFIG_MTD_PHYSMAP_OF is not longer enabled as it depends on
+MTD_PHYSMAP which is not enabled.
 
-Then there was a problem that there were two variables used to store error
-codes which just resulted in confusion.  If qedf_alloc_bdq() returned a
-negative error code, we accidentally returned success instead of
-propagating the error code.  So get rid of the "rc" variable and use
-"status" every where.
+This is a regression from commit 642b1e8dbed7 ("mtd: maps: Merge
+physmap_of.c into physmap-core.c"), which added the extra dependency.
+Add CONFIG_MTD_PHYSMAP=y so this stays in the config, as Christophe said
+it is useful for build coverage.
 
-Also remove the "status = 0" initialization so that these sorts of bugs
-will be detected by the compiler in the future.
-
-Link: https://lore.kernel.org/r/20210810085023.GA23998@kili
-Fixes: 61d8658b4a43 ("scsi: qedf: Add QLogic FastLinQ offload FCoE driver framework.")
-Acked-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 642b1e8dbed7 ("mtd: maps: Merge physmap_of.c into physmap-core.c")
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Acked-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210817045407.2445664-3-joel@jms.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedf/qedf_main.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/powerpc/configs/mpc885_ads_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
-index 7a6306f8483e..c95e04cc6424 100644
---- a/drivers/scsi/qedf/qedf_main.c
-+++ b/drivers/scsi/qedf/qedf_main.c
-@@ -2894,7 +2894,7 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
- {
- 	u32 *list;
- 	int i;
--	int status = 0, rc;
-+	int status;
- 	u32 *pbl;
- 	dma_addr_t page;
- 	int num_pages;
-@@ -2906,7 +2906,7 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
- 	 */
- 	if (!qedf->num_queues) {
- 		QEDF_ERR(&(qedf->dbg_ctx), "No MSI-X vectors available!\n");
--		return 1;
-+		return -ENOMEM;
- 	}
- 
- 	/*
-@@ -2914,7 +2914,7 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
- 	 * addresses of our queues
- 	 */
- 	if (!qedf->p_cpuq) {
--		status = 1;
-+		status = -EINVAL;
- 		QEDF_ERR(&qedf->dbg_ctx, "p_cpuq is NULL.\n");
- 		goto mem_alloc_failure;
- 	}
-@@ -2930,8 +2930,8 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
- 		   "qedf->global_queues=%p.\n", qedf->global_queues);
- 
- 	/* Allocate DMA coherent buffers for BDQ */
--	rc = qedf_alloc_bdq(qedf);
--	if (rc) {
-+	status = qedf_alloc_bdq(qedf);
-+	if (status) {
- 		QEDF_ERR(&qedf->dbg_ctx, "Unable to allocate bdq.\n");
- 		goto mem_alloc_failure;
- 	}
+diff --git a/arch/powerpc/configs/mpc885_ads_defconfig b/arch/powerpc/configs/mpc885_ads_defconfig
+index 285d506c5a76..2f5e06309f09 100644
+--- a/arch/powerpc/configs/mpc885_ads_defconfig
++++ b/arch/powerpc/configs/mpc885_ads_defconfig
+@@ -39,6 +39,7 @@ CONFIG_MTD_CFI_GEOMETRY=y
+ # CONFIG_MTD_CFI_I2 is not set
+ CONFIG_MTD_CFI_I4=y
+ CONFIG_MTD_CFI_AMDSTD=y
++CONFIG_MTD_PHYSMAP=y
+ CONFIG_MTD_PHYSMAP_OF=y
+ # CONFIG_BLK_DEV is not set
+ CONFIG_NETDEVICES=y
 -- 
 2.30.2
 
