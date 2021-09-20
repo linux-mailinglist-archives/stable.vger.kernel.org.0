@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97EB64120B2
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:55:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3999411E7F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:30:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229605AbhITR5H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:57:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54994 "EHLO mail.kernel.org"
+        id S1350998AbhITRbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:31:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355519AbhITRy6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:54:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D00361D7C;
-        Mon, 20 Sep 2021 17:13:53 +0000 (UTC)
+        id S1350704AbhITR3e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:29:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F15F61526;
+        Mon, 20 Sep 2021 17:03:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158034;
-        bh=4R1L67LfxjJDJn+J1ic2X9V7Y9C4vbAYyK8LFeOdbuY=;
+        s=korg; t=1632157435;
+        bh=mdToDSP4iZ2cukpJ3ZT/GEREaE+0G5rXlJ0MG9HZdX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DTKWchFouq3HYC28jmexDouywo0O7Ul4vqQA2J/kalqiJsiU6SoJzarnyEcnMnnP/
-         e7eBPOIlgAud4agUtDN+3QADSxQdhl4ugBf/GAj87uN9sOElDDyzuV+s1Iq64kVZpn
-         m+Ilf8Oo9RETpQrYGd4ce+teTGRDwzhICk/x4IDA=
+        b=gQxQkeIldC/qo94GgQhfQTeSxtpfOmqHO+JttEx1Xxn0oxIyPCOy3k6GwH8Kevwzl
+         Xy44P2hDiO0LIebzKIazAIRxfXoIoiMWMkkN4Xoc9KKqW1Wn6AjF+WMh3aMr6TzNLx
+         mnQPeE/6IPZ0TOWsERTGoRPb7+eXA6NtiDXC8oOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
-        Milian Wolff <milian.wolff@kdab.com>,
-        Jiri Olsa <jolsa@redhat.com>, Juri Lelli <jlelli@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.19 264/293] perf machine: Initialize srcline string member in add_location struct
-Date:   Mon, 20 Sep 2021 18:43:46 +0200
-Message-Id: <20210920163942.434713828@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Ryan J. Barnett" <ryan.barnett@collins.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 206/217] dt-bindings: mtd: gpmc: Fix the ECC bytes vs. OOB bytes equation
+Date:   Mon, 20 Sep 2021 18:43:47 +0200
+Message-Id: <20210920163931.609449882@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,132 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Petlan <mpetlan@redhat.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 57f0ff059e3daa4e70a811cb1d31a49968262d20 upstream.
+[ Upstream commit 778cb8e39f6ec252be50fc3850d66f3dcbd5dd5a ]
 
-It's later supposed to be either a correct address or NULL. Without the
-initialization, it may contain an undefined value which results in the
-following segmentation fault:
+"PAGESIZE / 512" is the number of ECC chunks.
+"ECC_BYTES" is the number of bytes needed to store a single ECC code.
+"2" is the space reserved by the bad block marker.
 
-  # perf top --sort comm -g --ignore-callees=do_idle
+"2 + (PAGESIZE / 512) * ECC_BYTES" should of course be lower or equal
+than the total number of OOB bytes, otherwise it won't fit.
 
-terminates with:
+Fix the equation by substituting s/>=/<=/.
 
-  #0  0x00007ffff56b7685 in __strlen_avx2 () from /lib64/libc.so.6
-  #1  0x00007ffff55e3802 in strdup () from /lib64/libc.so.6
-  #2  0x00005555558cb139 in hist_entry__init (callchain_size=<optimized out>, sample_self=true, template=0x7fffde7fb110, he=0x7fffd801c250) at util/hist.c:489
-  #3  hist_entry__new (template=template@entry=0x7fffde7fb110, sample_self=sample_self@entry=true) at util/hist.c:564
-  #4  0x00005555558cb4ba in hists__findnew_entry (hists=hists@entry=0x5555561d9e38, entry=entry@entry=0x7fffde7fb110, al=al@entry=0x7fffde7fb420,
-      sample_self=sample_self@entry=true) at util/hist.c:657
-  #5  0x00005555558cba1b in __hists__add_entry (hists=hists@entry=0x5555561d9e38, al=0x7fffde7fb420, sym_parent=<optimized out>, bi=bi@entry=0x0, mi=mi@entry=0x0,
-      sample=sample@entry=0x7fffde7fb4b0, sample_self=true, ops=0x0, block_info=0x0) at util/hist.c:288
-  #6  0x00005555558cbb70 in hists__add_entry (sample_self=true, sample=0x7fffde7fb4b0, mi=0x0, bi=0x0, sym_parent=<optimized out>, al=<optimized out>, hists=0x5555561d9e38)
-      at util/hist.c:1056
-  #7  iter_add_single_cumulative_entry (iter=0x7fffde7fb460, al=<optimized out>) at util/hist.c:1056
-  #8  0x00005555558cc8a4 in hist_entry_iter__add (iter=iter@entry=0x7fffde7fb460, al=al@entry=0x7fffde7fb420, max_stack_depth=<optimized out>, arg=arg@entry=0x7fffffff7db0)
-      at util/hist.c:1231
-  #9  0x00005555557cdc9a in perf_event__process_sample (machine=<optimized out>, sample=0x7fffde7fb4b0, evsel=<optimized out>, event=<optimized out>, tool=0x7fffffff7db0)
-      at builtin-top.c:842
-  #10 deliver_event (qe=<optimized out>, qevent=<optimized out>) at builtin-top.c:1202
-  #11 0x00005555558a9318 in do_flush (show_progress=false, oe=0x7fffffff80e0) at util/ordered-events.c:244
-  #12 __ordered_events__flush (oe=oe@entry=0x7fffffff80e0, how=how@entry=OE_FLUSH__TOP, timestamp=timestamp@entry=0) at util/ordered-events.c:323
-  #13 0x00005555558a9789 in __ordered_events__flush (timestamp=<optimized out>, how=<optimized out>, oe=<optimized out>) at util/ordered-events.c:339
-  #14 ordered_events__flush (how=OE_FLUSH__TOP, oe=0x7fffffff80e0) at util/ordered-events.c:341
-  #15 ordered_events__flush (oe=oe@entry=0x7fffffff80e0, how=how@entry=OE_FLUSH__TOP) at util/ordered-events.c:339
-  #16 0x00005555557cd631 in process_thread (arg=0x7fffffff7db0) at builtin-top.c:1114
-  #17 0x00007ffff7bb817a in start_thread () from /lib64/libpthread.so.0
-  #18 0x00007ffff5656dc3 in clone () from /lib64/libc.so.6
-
-If you look at the frame #2, the code is:
-
-488	 if (he->srcline) {
-489          he->srcline = strdup(he->srcline);
-490          if (he->srcline == NULL)
-491              goto err_rawdata;
-492	 }
-
-If he->srcline is not NULL (it is not NULL if it is uninitialized rubbish),
-it gets strdupped and strdupping a rubbish random string causes the problem.
-
-Also, if you look at the commit 1fb7d06a509e, it adds the srcline property
-into the struct, but not initializing it everywhere needed.
-
-Committer notes:
-
-Now I see, when using --ignore-callees=do_idle we end up here at line
-2189 in add_callchain_ip():
-
-2181         if (al.sym != NULL) {
-2182                 if (perf_hpp_list.parent && !*parent &&
-2183                     symbol__match_regex(al.sym, &parent_regex))
-2184                         *parent = al.sym;
-2185                 else if (have_ignore_callees && root_al &&
-2186                   symbol__match_regex(al.sym, &ignore_callees_regex)) {
-2187                         /* Treat this symbol as the root,
-2188                            forgetting its callees. */
-2189                         *root_al = al;
-2190                         callchain_cursor_reset(cursor);
-2191                 }
-2192         }
-
-And the al that doesn't have the ->srcline field initialized will be
-copied to the root_al, so then, back to:
-
-1211 int hist_entry_iter__add(struct hist_entry_iter *iter, struct addr_location *al,
-1212                          int max_stack_depth, void *arg)
-1213 {
-1214         int err, err2;
-1215         struct map *alm = NULL;
-1216
-1217         if (al)
-1218                 alm = map__get(al->map);
-1219
-1220         err = sample__resolve_callchain(iter->sample, &callchain_cursor, &iter->parent,
-1221                                         iter->evsel, al, max_stack_depth);
-1222         if (err) {
-1223                 map__put(alm);
-1224                 return err;
-1225         }
-1226
-1227         err = iter->ops->prepare_entry(iter, al);
-1228         if (err)
-1229                 goto out;
-1230
-1231         err = iter->ops->add_single_entry(iter, al);
-1232         if (err)
-1233                 goto out;
-1234
-
-That al at line 1221 is what hist_entry_iter__add() (called from
-sample__resolve_callchain()) saw as 'root_al', and then:
-
-        iter->ops->add_single_entry(iter, al);
-
-will go on with al->srcline with a bogus value, I'll add the above
-sequence to the cset and apply, thanks!
-
-Signed-off-by: Michael Petlan <mpetlan@redhat.com>
-CC: Milian Wolff <milian.wolff@kdab.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Fixes: 1fb7d06a509e ("perf report Use srcline from callchain for hist entries")
-Link: https //lore.kernel.org/r/20210719145332.29747-1-mpetlan@redhat.com
-Reported-by: Juri Lelli <jlelli@redhat.com>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Ryan J. Barnett <ryan.barnett@collins.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/linux-mtd/20210610143945.3504781-1-miquel.raynal@bootlin.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/machine.c |    1 +
- 1 file changed, 1 insertion(+)
+ Documentation/devicetree/bindings/mtd/gpmc-nand.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/perf/util/machine.c
-+++ b/tools/perf/util/machine.c
-@@ -1893,6 +1893,7 @@ static int add_callchain_ip(struct threa
- 
- 	al.filtered = 0;
- 	al.sym = NULL;
-+	al.srcline = NULL;
- 	if (!cpumode) {
- 		thread__find_cpumode_addr_location(thread, ip, &al);
- 	} else {
+diff --git a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
+index dd559045593d..d2d1bae63a36 100644
+--- a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
++++ b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
+@@ -123,7 +123,7 @@ on various other factors also like;
+ 	so the device should have enough free bytes available its OOB/Spare
+ 	area to accommodate ECC for entire page. In general following expression
+ 	helps in determining if given device can accommodate ECC syndrome:
+-	"2 + (PAGESIZE / 512) * ECC_BYTES" >= OOBSIZE"
++	"2 + (PAGESIZE / 512) * ECC_BYTES" <= OOBSIZE"
+ 	where
+ 		OOBSIZE		number of bytes in OOB/spare area
+ 		PAGESIZE	number of bytes in main-area of device page
+-- 
+2.30.2
+
 
 
