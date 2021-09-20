@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 052A8411BB2
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:00:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A578A411A48
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:47:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345168AbhITRBk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:01:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51846 "EHLO mail.kernel.org"
+        id S243857AbhITQsg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:48:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344785AbhITQ7i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:59:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E4A3613CE;
-        Mon, 20 Sep 2021 16:52:30 +0000 (UTC)
+        id S243500AbhITQr6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:47:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB5E261213;
+        Mon, 20 Sep 2021 16:46:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156750;
-        bh=c25asRwqYAQOjVBY8o5GjpFWgQbiQ0BNFR+/EROjpyc=;
+        s=korg; t=1632156391;
+        bh=FRJN1kVuMA+DU2b6XUb3iI4PPD27xsc9yWkNzhhfxjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=joyTO/KV/rd5fEw6jiMfiIVepIP9kpI+0hbzMk8EYxbmuAB2IcGdjlkKyiDo15RwS
-         n8rU2gN5iPtoAdU8goMK230f4E2hQ76ubbMtUdf0SHLEPTR+cwTsneg4LIT4kdE6z2
-         yiJS2VpRoSsOU/a3UzlOH0EzcCTC8g4+dkEbyH68=
+        b=K9O6pbkdYk+9vuzZPtC5ZGvS/ARlPwnaU0i9q1X9nMIIHjE5ByWfrtDvR+BODlteE
+         nqRUObk3IOW9JgRXBRUNuaMBpnEky4y/IruAKe+qONu+ANHKXGe9cHXwP6888g9gvT
+         tM7puwMCY7+nK9T3hM/LxAhmEHlrOQ9zniOu6XoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        stable@vger.kernel.org,
+        syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 067/175] usb: phy: twl6030: add IRQ checks
+Subject: [PATCH 4.4 038/133] media: dvb-usb: fix uninit-value in dvb_usb_adapter_dvb_init
 Date:   Mon, 20 Sep 2021 18:41:56 +0200
-Message-Id: <20210920163920.252015975@linuxfoundation.org>
+Message-Id: <20210920163913.887114722@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 0881e22c06e66af0b64773c91c8868ead3d01aa1 ]
+[ Upstream commit c5453769f77ce19a5b03f1f49946fd3f8a374009 ]
 
-The driver neglects to check the result of platform_get_irq()'s calls and
-blithely passes the negative error codes to request_threaded_irq() (which
-takes *unsigned* IRQ #), causing them both to fail with -EINVAL, overriding
-an original error code.  Stop calling request_threaded_irq() with the
-invalid IRQ #s.
+If dibusb_read_eeprom_byte fails, the mac address is not initialized.
+And nova_t_read_mac_address does not handle this failure, which leads to
+the uninit-value in dvb_usb_adapter_dvb_init.
 
-Fixes: c33fad0c3748 ("usb: otg: Adding twl6030-usb transceiver driver for OMAP4430")
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Link: https://lore.kernel.org/r/9507f50b-50f1-6dc4-f57c-3ed4e53a1c25@omp.ru
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by handling the failure of dibusb_read_eeprom_byte.
+
+Reported-by: syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com
+Fixes: 786baecfe78f ("[media] dvb-usb: move it to drivers/media/usb/dvb-usb")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/phy/phy-twl6030-usb.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/media/usb/dvb-usb/nova-t-usb2.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/phy/phy-twl6030-usb.c b/drivers/usb/phy/phy-twl6030-usb.c
-index cf0b67433ac9..ccb36e240953 100644
---- a/drivers/usb/phy/phy-twl6030-usb.c
-+++ b/drivers/usb/phy/phy-twl6030-usb.c
-@@ -352,6 +352,11 @@ static int twl6030_usb_probe(struct platform_device *pdev)
- 	twl->irq2		= platform_get_irq(pdev, 1);
- 	twl->linkstat		= MUSB_UNKNOWN;
+diff --git a/drivers/media/usb/dvb-usb/nova-t-usb2.c b/drivers/media/usb/dvb-usb/nova-t-usb2.c
+index 6c55384e2fca..c570c4af64f3 100644
+--- a/drivers/media/usb/dvb-usb/nova-t-usb2.c
++++ b/drivers/media/usb/dvb-usb/nova-t-usb2.c
+@@ -122,7 +122,7 @@ static int nova_t_rc_query(struct dvb_usb_device *d, u32 *event, int *state)
  
-+	if (twl->irq1 < 0)
-+		return twl->irq1;
-+	if (twl->irq2 < 0)
-+		return twl->irq2;
-+
- 	twl->comparator.set_vbus	= twl6030_set_vbus;
- 	twl->comparator.start_srp	= twl6030_start_srp;
+ static int nova_t_read_mac_address (struct dvb_usb_device *d, u8 mac[6])
+ {
+-	int i;
++	int i, ret;
+ 	u8 b;
  
+ 	mac[0] = 0x00;
+@@ -131,7 +131,9 @@ static int nova_t_read_mac_address (struct dvb_usb_device *d, u8 mac[6])
+ 
+ 	/* this is a complete guess, but works for my box */
+ 	for (i = 136; i < 139; i++) {
+-		dibusb_read_eeprom_byte(d,i, &b);
++		ret = dibusb_read_eeprom_byte(d, i, &b);
++		if (ret)
++			return ret;
+ 
+ 		mac[5 - (i - 136)] = b;
+ 	}
 -- 
 2.30.2
 
