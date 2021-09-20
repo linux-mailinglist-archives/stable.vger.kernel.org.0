@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A25C412618
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:51:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE668412381
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:23:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386038AbhITSxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:53:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33544 "EHLO mail.kernel.org"
+        id S1352146AbhITSZT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:25:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1385513AbhITSue (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:50:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23C8063388;
-        Mon, 20 Sep 2021 17:34:59 +0000 (UTC)
+        id S1378123AbhITSW7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:22:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B5D4632CA;
+        Mon, 20 Sep 2021 17:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159300;
-        bh=sX5b8JoeFfHZzYyBd4omOF5TuWeokLyGeF1c9CTjjq8=;
+        s=korg; t=1632158671;
+        bh=e0zTfS91sQ6P5ZCx06i6sK0TJnuasKU/tyDK1eqvzwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nxK3r7exj3W3GgvTd4SqxQ9mMKuQMTwp/Za24gB79kypt4oHdoPlqMkv9tpLUZuDX
-         Qe4I82nJCWDeU7/wAAJXj64RFw/u63MKF+pmsaaRMAxmaLsnPaCqn6KiOzBftmoXba
-         Fok6EWlzIrOqFZ4j2VnhHn1RUz74YOSpV4FEcN3M=
+        b=QCI1WeoKwahKOsnatyYFJWwoW2brzrobaFhYw7FG7dpLfWO0KU1SRErLlmS15pMv4
+         cLT1aUv1tjLFkyDVMxhKodzjB57eLj9lVqbRwZHQWqFZRVrAhh+UowtOqbo27qu2WW
+         c4OyqOPX0ZMBySKO3sTkPgjXkkgQxj2tB5vzCTlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Benjamin Hesmans <benjamin.hesmans@tessares.net>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 136/168] PCI: Sync __pci_register_driver() stub for CONFIG_PCI=n
+Subject: [PATCH 5.4 256/260] netfilter: socket: icmp6: fix use-after-scope
 Date:   Mon, 20 Sep 2021 18:44:34 +0200
-Message-Id: <20210920163926.131715683@linuxfoundation.org>
+Message-Id: <20210920163939.811207750@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Benjamin Hesmans <benjamin.hesmans@tessares.net>
 
-[ Upstream commit 817f9916a6e96ae43acdd4e75459ef4f92d96eb1 ]
+[ Upstream commit 730affed24bffcd1eebd5903171960f5ff9f1f22 ]
 
-The CONFIG_PCI=y case got a new parameter long time ago.  Sync the stub as
-well.
+Bug reported by KASAN:
 
-[bhelgaas: add parameter names]
-Fixes: 725522b5453d ("PCI: add the sysfs driver name to all modules")
-Link: https://lore.kernel.org/r/20210813153619.89574-1-andriy.shevchenko@linux.intel.com
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+BUG: KASAN: use-after-scope in inet6_ehashfn (net/ipv6/inet6_hashtables.c:40)
+Call Trace:
+(...)
+inet6_ehashfn (net/ipv6/inet6_hashtables.c:40)
+(...)
+nf_sk_lookup_slow_v6 (net/ipv6/netfilter/nf_socket_ipv6.c:91
+net/ipv6/netfilter/nf_socket_ipv6.c:146)
+
+It seems that this bug has already been fixed by Eric Dumazet in the
+past in:
+commit 78296c97ca1f ("netfilter: xt_socket: fix a stack corruption bug")
+
+But a variant of the same issue has been introduced in
+commit d64d80a2cde9 ("netfilter: x_tables: don't extract flow keys on early demuxed sks in socket match")
+
+`daddr` and `saddr` potentially hold a reference to ipv6_var that is no
+longer in scope when the call to `nf_socket_get_sock_v6` is made.
+
+Fixes: d64d80a2cde9 ("netfilter: x_tables: don't extract flow keys on early demuxed sks in socket match")
+Acked-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Benjamin Hesmans <benjamin.hesmans@tessares.net>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/pci.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/ipv6/netfilter/nf_socket_ipv6.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 540b377ca8f6..acbed2ecf6e8 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -1740,8 +1740,9 @@ static inline void pci_disable_device(struct pci_dev *dev) { }
- static inline int pcim_enable_device(struct pci_dev *pdev) { return -EIO; }
- static inline int pci_assign_resource(struct pci_dev *dev, int i)
- { return -EBUSY; }
--static inline int __pci_register_driver(struct pci_driver *drv,
--					struct module *owner)
-+static inline int __must_check __pci_register_driver(struct pci_driver *drv,
-+						     struct module *owner,
-+						     const char *mod_name)
- { return 0; }
- static inline int pci_register_driver(struct pci_driver *drv)
- { return 0; }
+diff --git a/net/ipv6/netfilter/nf_socket_ipv6.c b/net/ipv6/netfilter/nf_socket_ipv6.c
+index b9df879c48d3..69c021704abd 100644
+--- a/net/ipv6/netfilter/nf_socket_ipv6.c
++++ b/net/ipv6/netfilter/nf_socket_ipv6.c
+@@ -99,7 +99,7 @@ struct sock *nf_sk_lookup_slow_v6(struct net *net, const struct sk_buff *skb,
+ {
+ 	__be16 uninitialized_var(dport), uninitialized_var(sport);
+ 	const struct in6_addr *daddr = NULL, *saddr = NULL;
+-	struct ipv6hdr *iph = ipv6_hdr(skb);
++	struct ipv6hdr *iph = ipv6_hdr(skb), ipv6_var;
+ 	struct sk_buff *data_skb = NULL;
+ 	int doff = 0;
+ 	int thoff = 0, tproto;
+@@ -129,8 +129,6 @@ struct sock *nf_sk_lookup_slow_v6(struct net *net, const struct sk_buff *skb,
+ 			thoff + sizeof(*hp);
+ 
+ 	} else if (tproto == IPPROTO_ICMPV6) {
+-		struct ipv6hdr ipv6_var;
+-
+ 		if (extract_icmp6_fields(skb, thoff, &tproto, &saddr, &daddr,
+ 					 &sport, &dport, &ipv6_var))
+ 			return NULL;
 -- 
 2.30.2
 
