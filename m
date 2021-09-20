@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4D3412192
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:06:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0F24412144
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:05:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358409AbhITSGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:06:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60150 "EHLO mail.kernel.org"
+        id S1357238AbhITSDk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:03:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1357322AbhITSDz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:03:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D325F6323F;
-        Mon, 20 Sep 2021 17:16:54 +0000 (UTC)
+        id S1356552AbhITSAe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:00:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FFE86321B;
+        Mon, 20 Sep 2021 17:15:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158215;
-        bh=jFcCMolORMRzw5EQjau9Hnqk/Q1zcbFyS3Q36idEqCY=;
+        s=korg; t=1632158145;
+        bh=QlJJ9g6oDafpKf1UXnmxpl/ubm3+gpg3qtxl0d4dDoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zwvAWI6f8qk3r8rnZ+Ia+2uHcWDjIB1Fv/rKb95Uu2P/Cp2VV5p4YST0cEFd+nZ1P
-         BM/p/SJoWX7B89ubfP7h5hI/5g291d8H/9G7iMOaC63llp0l91WICb+9lIAGuScFW6
-         bfte9WbUzvsmjW6Xq5fGuohCU8Mok9HU0eh9ej5w=
+        b=IsB2XtQkZx174BuWserXuudtAoSyO5semijPkg2be7jFRQoOYCFin9DBV0oAbR0co
+         vgOS7R+ojefgwroCMQhkJigCh1McXlByQF4hpA2RL1Hi3FbKFKZK3FFLxg/twQnuXp
+         J5nvIymS5dJo/mCqv7RfDTH4iKxEEnOpm88TpL2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 5.4 020/260] power: supply: max17042: handle fails of reading status register
-Date:   Mon, 20 Sep 2021 18:40:38 +0200
-Message-Id: <20210920163931.806223908@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Jorgen Hansen <jhansen@vmware.com>,
+        Wang Hai <wanghai38@huawei.com>
+Subject: [PATCH 5.4 022/260] VMCI: fix NULL pointer dereference when unmapping queue pair
+Date:   Mon, 20 Sep 2021 18:40:40 +0200
+Message-Id: <20210920163931.885348947@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -41,43 +40,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-commit 54784ffa5b267f57161eb8fbb811499f22a0a0bf upstream.
+commit a30dc6cf0dc51419021550152e435736aaef8799 upstream.
 
-Reading status register can fail in the interrupt handler.  In such
-case, the regmap_read() will not store anything useful under passed
-'val' variable and random stack value will be used to determine type of
-interrupt.
+I got a NULL pointer dereference report when doing fuzz test:
 
-Handle the regmap_read() failure to avoid handling interrupt type and
-triggering changed power supply event based on random stack value.
+Call Trace:
+  qp_release_pages+0xae/0x130
+  qp_host_unregister_user_memory.isra.25+0x2d/0x80
+  vmci_qp_broker_unmap+0x191/0x320
+  ? vmci_host_do_alloc_queuepair.isra.9+0x1c0/0x1c0
+  vmci_host_unlocked_ioctl+0x59f/0xd50
+  ? do_vfs_ioctl+0x14b/0xa10
+  ? tomoyo_file_ioctl+0x28/0x30
+  ? vmci_host_do_alloc_queuepair.isra.9+0x1c0/0x1c0
+  __x64_sys_ioctl+0xea/0x120
+  do_syscall_64+0x34/0xb0
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: 39e7213edc4f ("max17042_battery: Support regmap to access device's registers")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+When a queue pair is created by the following call, it will not
+register the user memory if the page_store is NULL, and the
+entry->state will be set to VMCIQPB_CREATED_NO_MEM.
+
+vmci_host_unlocked_ioctl
+  vmci_host_do_alloc_queuepair
+    vmci_qp_broker_alloc
+      qp_broker_alloc
+        qp_broker_create // set entry->state = VMCIQPB_CREATED_NO_MEM;
+
+When unmapping this queue pair, qp_host_unregister_user_memory() will
+be called to unregister the non-existent user memory, which will
+result in a null pointer reference. It will also change
+VMCIQPB_CREATED_NO_MEM to VMCIQPB_CREATED_MEM, which should not be
+present in this operation.
+
+Only when the qp broker has mem, it can unregister the user
+memory when unmapping the qp broker.
+
+Only when the qp broker has no mem, it can register the user
+memory when mapping the qp broker.
+
+Fixes: 06164d2b72aa ("VMCI: queue pairs implementation.")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Link: https://lore.kernel.org/r/20210818124845.488312-1-wanghai38@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/power/supply/max17042_battery.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/misc/vmw_vmci/vmci_queue_pair.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/power/supply/max17042_battery.c
-+++ b/drivers/power/supply/max17042_battery.c
-@@ -842,8 +842,12 @@ static irqreturn_t max17042_thread_handl
- {
- 	struct max17042_chip *chip = dev;
- 	u32 val;
-+	int ret;
-+
-+	ret = regmap_read(chip->regmap, MAX17042_STATUS, &val);
-+	if (ret)
-+		return IRQ_HANDLED;
+--- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
++++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+@@ -2238,7 +2238,8 @@ int vmci_qp_broker_map(struct vmci_handl
  
--	regmap_read(chip->regmap, MAX17042_STATUS, &val);
- 	if ((val & STATUS_INTR_SOCMIN_BIT) ||
- 		(val & STATUS_INTR_SOCMAX_BIT)) {
- 		dev_info(&chip->client->dev, "SOC threshold INTR\n");
+ 	result = VMCI_SUCCESS;
+ 
+-	if (context_id != VMCI_HOST_CONTEXT_ID) {
++	if (context_id != VMCI_HOST_CONTEXT_ID &&
++	    !QPBROKERSTATE_HAS_MEM(entry)) {
+ 		struct vmci_qp_page_store page_store;
+ 
+ 		page_store.pages = guest_mem;
+@@ -2345,7 +2346,8 @@ int vmci_qp_broker_unmap(struct vmci_han
+ 		goto out;
+ 	}
+ 
+-	if (context_id != VMCI_HOST_CONTEXT_ID) {
++	if (context_id != VMCI_HOST_CONTEXT_ID &&
++	    QPBROKERSTATE_HAS_MEM(entry)) {
+ 		qp_acquire_queue_mutex(entry->produce_q);
+ 		result = qp_save_headers(entry);
+ 		if (result < VMCI_SUCCESS)
 
 
