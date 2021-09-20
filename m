@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04EE5411F24
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:36:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9112412104
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:59:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352143AbhITRiF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:38:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42976 "EHLO mail.kernel.org"
+        id S1356723AbhITSBM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:01:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351922AbhITRgI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:36:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AA0461555;
-        Mon, 20 Sep 2021 17:06:24 +0000 (UTC)
+        id S1347903AbhITR7A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:59:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BF7163218;
+        Mon, 20 Sep 2021 17:15:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157585;
-        bh=18SKgSVfcandKcQgfjEOvlaxnLA9BHY6NckDc9DEQPA=;
+        s=korg; t=1632158121;
+        bh=N01rFWMIESTbGlmm3z6+y+F94ZscUPhe8NXzPUvifdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XNtdRyuC6NVTPjC4xqjmFOlWWVYiZOvNxZdSbVR1Rm+Y8pEnLy2VcqpBasccMJg6K
-         lTj7aZylAj97gOjFYqXfndwBBOC6PQFv0g2DxDspNeT2SMBQ1aoD7BPwn4g6/6w/RC
-         zcq+2nQzsqwY/6OXOJ1niFd/XqGLxbKOH2Rc34SU=
+        b=IOmAueTxi50CFCqqX7WOK3JzRsuC5VmwzpB9nzrG61V6+41TP3d4laCQo6e99epIi
+         M/e8O0wYa3yo/sjeqH6T9D7Mlf5WzKLQyAtjcjf/aPE27cTk96iWDU9kQtjj7c/3fQ
+         WlHB2TPQYq6r8Zt2ONq/Q/DH0wNI9YNeMKyQ2LCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phong Hoang <phong.hoang.wz@renesas.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 058/293] clocksource/drivers/sh_cmt: Fix wrong setting if dont request IRQ for clock source channel
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 002/260] btrfs: wake up async_delalloc_pages waiters after submit
 Date:   Mon, 20 Sep 2021 18:40:20 +0200
-Message-Id: <20210920163935.241595705@linuxfoundation.org>
+Message-Id: <20210920163931.207132508@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,98 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phong Hoang <phong.hoang.wz@renesas.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit be83c3b6e7b8ff22f72827a613bf6f3aa5afadbb ]
+commit ac98141d140444fe93e26471d3074c603b70e2ca upstream.
 
-If CMT instance has at least two channels, one channel will be used
-as a clock source and another one used as a clock event device.
-In that case, IRQ is not requested for clock source channel so
-sh_cmt_clock_event_program_verify() might work incorrectly.
-Besides, when a channel is only used for clock source, don't need to
-re-set the next match_value since it should be maximum timeout as
-it still is.
+We use the async_delalloc_pages mechanism to make sure that we've
+completed our async work before trying to continue our delalloc
+flushing.  The reason for this is we need to see any ordered extents
+that were created by our delalloc flushing.  However we're waking up
+before we do the submit work, which is before we create the ordered
+extents.  This is a pretty wide race window where we could potentially
+think there are no ordered extents and thus exit shrink_delalloc
+prematurely.  Fix this by waking us up after we've done the work to
+create ordered extents.
 
-On the other hand, due to no IRQ, total_cycles is not counted up
-when reaches compare match time (timer counter resets to zero),
-so sh_cmt_clocksource_read() returns unexpected value.
-Therefore, use 64-bit clocksoure's mask for 32-bit or 16-bit variants
-will also lead to wrong delta calculation. Hence, this mask should
-correspond to timer counter width, and above function just returns
-the raw value of timer counter register.
-
-Fixes: bfa76bb12f23 ("clocksource: sh_cmt: Request IRQ for clock event device only")
-Fixes: 37e7742c55ba ("clocksource/drivers/sh_cmt: Fix clocksource width for 32-bit machines")
-Signed-off-by: Phong Hoang <phong.hoang.wz@renesas.com>
-Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210422123443.73334-1-niklas.soderlund+renesas@ragnatech.se
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clocksource/sh_cmt.c | 30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ fs/btrfs/inode.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/clocksource/sh_cmt.c b/drivers/clocksource/sh_cmt.c
-index cec90a4c79b3..7a6d4c4c0feb 100644
---- a/drivers/clocksource/sh_cmt.c
-+++ b/drivers/clocksource/sh_cmt.c
-@@ -576,7 +576,8 @@ static int sh_cmt_start(struct sh_cmt_channel *ch, unsigned long flag)
- 	ch->flags |= flag;
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -1200,11 +1200,6 @@ static noinline void async_cow_submit(st
+ 	nr_pages = (async_chunk->end - async_chunk->start + PAGE_SIZE) >>
+ 		PAGE_SHIFT;
  
- 	/* setup timeout if no clockevent */
--	if ((flag == FLAG_CLOCKSOURCE) && (!(ch->flags & FLAG_CLOCKEVENT)))
-+	if (ch->cmt->num_channels == 1 &&
-+	    flag == FLAG_CLOCKSOURCE && (!(ch->flags & FLAG_CLOCKEVENT)))
- 		__sh_cmt_set_next(ch, ch->max_match_value);
-  out:
- 	raw_spin_unlock_irqrestore(&ch->lock, flags);
-@@ -612,20 +613,25 @@ static struct sh_cmt_channel *cs_to_sh_cmt(struct clocksource *cs)
- static u64 sh_cmt_clocksource_read(struct clocksource *cs)
- {
- 	struct sh_cmt_channel *ch = cs_to_sh_cmt(cs);
--	unsigned long flags;
- 	u32 has_wrapped;
--	u64 value;
--	u32 raw;
- 
--	raw_spin_lock_irqsave(&ch->lock, flags);
--	value = ch->total_cycles;
--	raw = sh_cmt_get_counter(ch, &has_wrapped);
-+	if (ch->cmt->num_channels == 1) {
-+		unsigned long flags;
-+		u64 value;
-+		u32 raw;
- 
--	if (unlikely(has_wrapped))
--		raw += ch->match_value + 1;
--	raw_spin_unlock_irqrestore(&ch->lock, flags);
-+		raw_spin_lock_irqsave(&ch->lock, flags);
-+		value = ch->total_cycles;
-+		raw = sh_cmt_get_counter(ch, &has_wrapped);
+-	/* atomic_sub_return implies a barrier */
+-	if (atomic_sub_return(nr_pages, &fs_info->async_delalloc_pages) <
+-	    5 * SZ_1M)
+-		cond_wake_up_nomb(&fs_info->async_submit_wait);
+-
+ 	/*
+ 	 * ->inode could be NULL if async_chunk_start has failed to compress,
+ 	 * in which case we don't have anything to submit, yet we need to
+@@ -1213,6 +1208,11 @@ static noinline void async_cow_submit(st
+ 	 */
+ 	if (async_chunk->inode)
+ 		submit_compressed_extents(async_chunk);
 +
-+		if (unlikely(has_wrapped))
-+			raw += ch->match_value + 1;
-+		raw_spin_unlock_irqrestore(&ch->lock, flags);
-+
-+		return value + raw;
-+	}
- 
--	return value + raw;
-+	return sh_cmt_get_counter(ch, &has_wrapped);
++	/* atomic_sub_return implies a barrier */
++	if (atomic_sub_return(nr_pages, &fs_info->async_delalloc_pages) <
++	    5 * SZ_1M)
++		cond_wake_up_nomb(&fs_info->async_submit_wait);
  }
  
- static int sh_cmt_clocksource_enable(struct clocksource *cs)
-@@ -688,7 +694,7 @@ static int sh_cmt_register_clocksource(struct sh_cmt_channel *ch,
- 	cs->disable = sh_cmt_clocksource_disable;
- 	cs->suspend = sh_cmt_clocksource_suspend;
- 	cs->resume = sh_cmt_clocksource_resume;
--	cs->mask = CLOCKSOURCE_MASK(sizeof(u64) * 8);
-+	cs->mask = CLOCKSOURCE_MASK(ch->cmt->info->width);
- 	cs->flags = CLOCK_SOURCE_IS_CONTINUOUS;
- 
- 	dev_info(&ch->cmt->pdev->dev, "ch%u: used as clock source\n",
--- 
-2.30.2
-
+ static noinline void async_cow_free(struct btrfs_work *work)
 
 
