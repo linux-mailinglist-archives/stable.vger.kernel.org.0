@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF097411BEE
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:03:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC8DC411BEC
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:03:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345667AbhITREG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:04:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54784 "EHLO mail.kernel.org"
+        id S1345662AbhITREF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:04:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245413AbhITRB4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:01:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EEFA6137F;
-        Mon, 20 Sep 2021 16:53:31 +0000 (UTC)
+        id S1345298AbhITRB5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:01:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6344B613DA;
+        Mon, 20 Sep 2021 16:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156811;
-        bh=oyLOSIVASuQSXrbHxkz62uBgMEAL4jGn252Izme2//I=;
+        s=korg; t=1632156813;
+        bh=KSNiTAYKJX6+lqV69obGyJMyTDrmBAIkvhqmk5WEcRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=usS2UC+Z/sqxTkedEht0MSchxE67PJJ9rNpUn6FOXsc0zI8e8CdVWCG552Ml+igyo
-         VJQFCQGwIl9IOD8ItF8RwpLF7FBLNWeZ9NREfrFlZfYHt29o8s7JoBvmOusro9eyd8
-         VFAeczZJdR7tjmZFJAEdx97O3lGnHAVyKrZTgGoE=
+        b=byWREgj4kv8ljv8ARbYBbC9/l6l5AMiQa3YGf5U1yGAwjab+MIKlJbstvf/ohZkc5
+         c+JKD0BQDwmZGr9FJEcThHWGGzWMuP5ZewDfboRHKBUojYbEpTgYZlhHuOtUam1s+1
+         MAdwSpFY/du6ouHajLkgCHJ/5vRugtqoqJ5QNd/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.9 096/175] media: rc-loopback: return number of emitters rather than error
-Date:   Mon, 20 Sep 2021 18:42:25 +0200
-Message-Id: <20210920163921.216058907@linuxfoundation.org>
+        stable@vger.kernel.org, Kate Hsuan <hpa@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.9 097/175] libata: add ATA_HORKAGE_NO_NCQ_TRIM for Samsung 860 and 870 SSDs
+Date:   Mon, 20 Sep 2021 18:42:26 +0200
+Message-Id: <20210920163921.247505488@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
 References: <20210920163918.068823680@linuxfoundation.org>
@@ -39,31 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 6b7f554be8c92319d7e6df92fd247ebb9beb4a45 upstream.
+commit 8a6430ab9c9c87cb64c512e505e8690bbaee190b upstream.
 
-The LIRC_SET_TRANSMITTER_MASK ioctl should return the number of emitters
-if an invalid list was set.
+Commit ca6bfcb2f6d9 ("libata: Enable queued TRIM for Samsung SSD 860")
+limited the existing ATA_HORKAGE_NO_NCQ_TRIM quirk from "Samsung SSD 8*",
+covering all Samsung 800 series SSDs, to only apply to "Samsung SSD 840*"
+and "Samsung SSD 850*" series based on information from Samsung.
 
+But there is a large number of users which is still reporting issues
+with the Samsung 860 and 870 SSDs combined with Intel, ASmedia or
+Marvell SATA controllers and all reporters also report these problems
+going away when disabling queued trims.
+
+Note that with AMD SATA controllers users are reporting even worse
+issues and only completely disabling NCQ helps there, this will be
+addressed in a separate patch.
+
+Fixes: ca6bfcb2f6d9 ("libata: Enable queued TRIM for Samsung SSD 860")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=203475
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Cc: Kate Hsuan <hpa@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://lore.kernel.org/r/20210823095220.30157-1-hdegoede@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/rc/rc-loopback.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ata/libata-core.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/media/rc/rc-loopback.c
-+++ b/drivers/media/rc/rc-loopback.c
-@@ -55,7 +55,7 @@ static int loop_set_tx_mask(struct rc_de
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -4447,6 +4447,10 @@ static const struct ata_blacklist_entry
+ 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+ 	{ "Samsung SSD 850*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+ 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
++	{ "Samsung SSD 860*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
++						ATA_HORKAGE_ZERO_AFTER_TRIM, },
++	{ "Samsung SSD 870*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
++						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+ 	{ "FCCT*M500*",			NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+ 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
  
- 	if ((mask & (RXMASK_REGULAR | RXMASK_LEARNING)) != mask) {
- 		dprintk("invalid tx mask: %u\n", mask);
--		return -EINVAL;
-+		return 2;
- 	}
- 
- 	dprintk("setting tx mask: %u\n", mask);
 
 
