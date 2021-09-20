@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCAF5412052
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:52:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26A82411C38
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:05:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346687AbhITRx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:53:58 -0400
+        id S1346412AbhITRHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:07:09 -0400
 Received: from mail.kernel.org ([198.145.29.99]:54482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354678AbhITRvC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:51:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A0B861980;
-        Mon, 20 Sep 2021 17:12:10 +0000 (UTC)
+        id S235055AbhITRFG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:05:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 363F261373;
+        Mon, 20 Sep 2021 16:54:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157931;
-        bh=lgyJqY37wVR0fCdWeG71C/wMo90q90ZYZB5sq9RJS0Y=;
+        s=korg; t=1632156887;
+        bh=3jNSMhNgV8VpDGHADUKhdFPeiU4t88d5JG+96o8RGMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ED4MtoAyNGwTNWytjotLPldhC1MF5yLHjkLA9LUKiaBHNHltxhDYjMayimNOQ3a4u
-         BxYRMxhkDLIzyutpje+5O1gpGQHXE9+rigcMswtzdd8AeuDd4JPWS2qwgokGb1IxlA
-         86Jw44baUmJeO9Q+b7IbeeZD+KsDmVXDLjxhEpSQ=
+        b=SbDFI2yHIiCUY09wbhYrmQoH+bwfnhM00YIWOJoxxHAXrQF5XSXDZbibe34DqtU8m
+         ZVviqJ/+LAgdxSq4i+uX7i32N/aXEv5kJ+rmFl87E4qHS4KAUL2cbEBlbJSTlqTdvz
+         0WToPIFg9WAp3xPlTcIl9NIYpgdTVQaMwvnTpdk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com,
+        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
         Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 218/293] Bluetooth: Fix handling of LE Enhanced Connection Complete
+Subject: [PATCH 4.9 131/175] Bluetooth: skip invalid hci_sync_conn_complete_evt
 Date:   Mon, 20 Sep 2021 18:43:00 +0200
-Message-Id: <20210920163940.838571714@linuxfoundation.org>
+Message-Id: <20210920163922.363374245@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,167 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit cafae4cd625502f65d1798659c1aa9b62d38cc56 ]
+[ Upstream commit 92fe24a7db751b80925214ede43f8d2be792ea7b ]
 
-LE Enhanced Connection Complete contains the Local RPA used in the
-connection which must be used when set otherwise there could problems
-when pairing since the address used by the remote stack could be the
-Local RPA:
+Syzbot reported a corrupted list in kobject_add_internal [1]. This
+happens when multiple HCI_EV_SYNC_CONN_COMPLETE event packets with
+status 0 are sent for the same HCI connection. This causes us to
+register the device more than once which corrupts the kset list.
 
-BLUETOOTH CORE SPECIFICATION Version 5.2 | Vol 4, Part E
-page 2396
+As this is forbidden behavior, we add a check for whether we're
+trying to process the same HCI_EV_SYNC_CONN_COMPLETE event multiple
+times for one connection. If that's the case, the event is invalid, so
+we report an error that the device is misbehaving, and ignore the
+packet.
 
-  'Resolvable Private Address being used by the local device for this
-  connection. This is only valid when the Own_Address_Type (from the
-  HCI_LE_Create_Connection, HCI_LE_Set_Advertising_Parameters,
-  HCI_LE_Set_Extended_Advertising_Parameters, or
-  HCI_LE_Extended_Create_Connection commands) is set to 0x02 or
-  0x03, and the Controller generated a resolvable private address for the
-  local device using a non-zero local IRK. For other Own_Address_Type
-  values, the Controller shall return all zeros.'
-
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Link: https://syzkaller.appspot.com/bug?extid=66264bf2fd0476be7e6c [1]
+Reported-by: syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com
+Tested-by: syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c | 93 ++++++++++++++++++++++++++-------------
- 1 file changed, 62 insertions(+), 31 deletions(-)
+ net/bluetooth/hci_event.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
 diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 714a45355610..937cada5595e 100644
+index 44eeb27e341a..f9484755a9ba 100644
 --- a/net/bluetooth/hci_event.c
 +++ b/net/bluetooth/hci_event.c
-@@ -4801,9 +4801,64 @@ static void hci_disconn_phylink_complete_evt(struct hci_dev *hdev,
- }
- #endif
+@@ -3761,6 +3761,21 @@ static void hci_sync_conn_complete_evt(struct hci_dev *hdev,
  
-+static void le_conn_update_addr(struct hci_conn *conn, bdaddr_t *bdaddr,
-+				u8 bdaddr_type, bdaddr_t *local_rpa)
-+{
-+	if (conn->out) {
-+		conn->dst_type = bdaddr_type;
-+		conn->resp_addr_type = bdaddr_type;
-+		bacpy(&conn->resp_addr, bdaddr);
-+
-+		/* Check if the controller has set a Local RPA then it must be
-+		 * used instead or hdev->rpa.
+ 	switch (ev->status) {
+ 	case 0x00:
++		/* The synchronous connection complete event should only be
++		 * sent once per new connection. Receiving a successful
++		 * complete event when the connection status is already
++		 * BT_CONNECTED means that the device is misbehaving and sent
++		 * multiple complete event packets for the same new connection.
++		 *
++		 * Registering the device more than once can corrupt kernel
++		 * memory, hence upon detecting this invalid event, we report
++		 * an error and ignore the packet.
 +		 */
-+		if (local_rpa && bacmp(local_rpa, BDADDR_ANY)) {
-+			conn->init_addr_type = ADDR_LE_DEV_RANDOM;
-+			bacpy(&conn->init_addr, local_rpa);
-+		} else if (hci_dev_test_flag(conn->hdev, HCI_PRIVACY)) {
-+			conn->init_addr_type = ADDR_LE_DEV_RANDOM;
-+			bacpy(&conn->init_addr, &conn->hdev->rpa);
-+		} else {
-+			hci_copy_identity_address(conn->hdev, &conn->init_addr,
-+						  &conn->init_addr_type);
-+		}
-+	} else {
-+		conn->resp_addr_type = conn->hdev->adv_addr_type;
-+		/* Check if the controller has set a Local RPA then it must be
-+		 * used instead or hdev->rpa.
-+		 */
-+		if (local_rpa && bacmp(local_rpa, BDADDR_ANY)) {
-+			conn->resp_addr_type = ADDR_LE_DEV_RANDOM;
-+			bacpy(&conn->resp_addr, local_rpa);
-+		} else if (conn->hdev->adv_addr_type == ADDR_LE_DEV_RANDOM) {
-+			/* In case of ext adv, resp_addr will be updated in
-+			 * Adv Terminated event.
-+			 */
-+			if (!ext_adv_capable(conn->hdev))
-+				bacpy(&conn->resp_addr,
-+				      &conn->hdev->random_addr);
-+		} else {
-+			bacpy(&conn->resp_addr, &conn->hdev->bdaddr);
++		if (conn->state == BT_CONNECTED) {
++			bt_dev_err(hdev, "Ignoring connect complete event for existing connection");
++			goto unlock;
 +		}
 +
-+		conn->init_addr_type = bdaddr_type;
-+		bacpy(&conn->init_addr, bdaddr);
-+
-+		/* For incoming connections, set the default minimum
-+		 * and maximum connection interval. They will be used
-+		 * to check if the parameters are in range and if not
-+		 * trigger the connection update procedure.
-+		 */
-+		conn->le_conn_min_interval = conn->hdev->le_conn_min_interval;
-+		conn->le_conn_max_interval = conn->hdev->le_conn_max_interval;
-+	}
-+}
-+
- static void le_conn_complete_evt(struct hci_dev *hdev, u8 status,
--			bdaddr_t *bdaddr, u8 bdaddr_type, u8 role, u16 handle,
--			u16 interval, u16 latency, u16 supervision_timeout)
-+				 bdaddr_t *bdaddr, u8 bdaddr_type,
-+				 bdaddr_t *local_rpa, u8 role, u16 handle,
-+				 u16 interval, u16 latency,
-+				 u16 supervision_timeout)
- {
- 	struct hci_conn_params *params;
- 	struct hci_conn *conn;
-@@ -4851,32 +4906,7 @@ static void le_conn_complete_evt(struct hci_dev *hdev, u8 status,
- 		cancel_delayed_work(&conn->le_conn_timeout);
- 	}
- 
--	if (!conn->out) {
--		/* Set the responder (our side) address type based on
--		 * the advertising address type.
--		 */
--		conn->resp_addr_type = hdev->adv_addr_type;
--		if (hdev->adv_addr_type == ADDR_LE_DEV_RANDOM) {
--			/* In case of ext adv, resp_addr will be updated in
--			 * Adv Terminated event.
--			 */
--			if (!ext_adv_capable(hdev))
--				bacpy(&conn->resp_addr, &hdev->random_addr);
--		} else {
--			bacpy(&conn->resp_addr, &hdev->bdaddr);
--		}
--
--		conn->init_addr_type = bdaddr_type;
--		bacpy(&conn->init_addr, bdaddr);
--
--		/* For incoming connections, set the default minimum
--		 * and maximum connection interval. They will be used
--		 * to check if the parameters are in range and if not
--		 * trigger the connection update procedure.
--		 */
--		conn->le_conn_min_interval = hdev->le_conn_min_interval;
--		conn->le_conn_max_interval = hdev->le_conn_max_interval;
--	}
-+	le_conn_update_addr(conn, bdaddr, bdaddr_type, local_rpa);
- 
- 	/* Lookup the identity address from the stored connection
- 	 * address and address type.
-@@ -4974,7 +5004,7 @@ static void hci_le_conn_complete_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 	BT_DBG("%s status 0x%2.2x", hdev->name, ev->status);
- 
- 	le_conn_complete_evt(hdev, ev->status, &ev->bdaddr, ev->bdaddr_type,
--			     ev->role, le16_to_cpu(ev->handle),
-+			     NULL, ev->role, le16_to_cpu(ev->handle),
- 			     le16_to_cpu(ev->interval),
- 			     le16_to_cpu(ev->latency),
- 			     le16_to_cpu(ev->supervision_timeout));
-@@ -4988,7 +5018,7 @@ static void hci_le_enh_conn_complete_evt(struct hci_dev *hdev,
- 	BT_DBG("%s status 0x%2.2x", hdev->name, ev->status);
- 
- 	le_conn_complete_evt(hdev, ev->status, &ev->bdaddr, ev->bdaddr_type,
--			     ev->role, le16_to_cpu(ev->handle),
-+			     &ev->local_rpa, ev->role, le16_to_cpu(ev->handle),
- 			     le16_to_cpu(ev->interval),
- 			     le16_to_cpu(ev->latency),
- 			     le16_to_cpu(ev->supervision_timeout));
-@@ -5019,7 +5049,8 @@ static void hci_le_ext_adv_term_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 	if (conn) {
- 		struct adv_info *adv_instance;
- 
--		if (hdev->adv_addr_type != ADDR_LE_DEV_RANDOM)
-+		if (hdev->adv_addr_type != ADDR_LE_DEV_RANDOM ||
-+		    bacmp(&conn->resp_addr, BDADDR_ANY))
- 			return;
- 
- 		if (!hdev->cur_adv_instance) {
+ 		conn->handle = __le16_to_cpu(ev->handle);
+ 		conn->state  = BT_CONNECTED;
+ 		conn->type   = ev->link_type;
 -- 
 2.30.2
 
