@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87FC441264A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:55:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02CDE41264F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:55:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387232AbhITS4l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:56:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33540 "EHLO mail.kernel.org"
+        id S1355223AbhITS4t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:56:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1383438AbhITSsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1384654AbhITSsd (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:48:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 685E96337A;
-        Mon, 20 Sep 2021 17:34:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D26B6337F;
+        Mon, 20 Sep 2021 17:34:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159252;
-        bh=wxfST2Fog1zgK7JmnzSoNEyc7dj48I3zfUBseGYCqaw=;
+        s=korg; t=1632159255;
+        bh=ocT6c1jhHQBjdp3TAMdERgGoc6Sxjjr/tVGyR5mrRgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sJIqLvf3F4+dbwzivJ/Iwp8uqQwqdIvF93YcmI3i//2FsJjwsmpZ3uFdsxgsqLW1P
-         GX7Nxr/Hl5NDjbT+WU6S5MjP+EkvrIh2QdA5AlOAYMcMEu8U5/GTZJQoPy+Ku3HWLV
-         T7mqpkkWZIKRZmgMMF8mI4HuDUGzeUmife1wgmCs=
+        b=teejxA5dgCI+EEJ6xoDMGGIq2/r6Y21R+GiX01KMuYrdd5xtD2nrNwmyQyrldzHiC
+         2w5wwQrMOjkLO+Ws2R7/hYg0QZx3WbeIDGsw+djQ2UZFYvGk6zgTOniAUtAUbYY5NF
+         QYVw7wyObZPfiu2vCrKQiYOPhdyJE0tgb3kXFXv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
-        Mauri Sandberg <sandberg@mailfence.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 147/168] net: dsa: tag_rtl4_a: Fix egress tags
-Date:   Mon, 20 Sep 2021 18:44:45 +0200
-Message-Id: <20210920163926.489089758@linuxfoundation.org>
+Subject: [PATCH 5.14 148/168] tools build: Fix feature detect clean for out of source builds
+Date:   Mon, 20 Sep 2021 18:44:46 +0200
+Message-Id: <20210920163926.522631543@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
 References: <20210920163921.633181900@linuxfoundation.org>
@@ -43,58 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: James Clark <james.clark@arm.com>
 
-[ Upstream commit 0e90dfa7a8d817db755c7b5d89d77b9c485e4180 ]
+[ Upstream commit 8af52e69772d053bc7caab12ad1c59f18ef2e3e2 ]
 
-I noticed that only port 0 worked on the RTL8366RB since we
-started to use custom tags.
+Currently the clean target when using O= isn't cleaning the feature
+detect output. This is because O= and OUTPUT= are set to canonical
+paths. For example in tools/perf/Makefile:
 
-It turns out that the format of egress custom tags is actually
-different from ingress custom tags. While the lower bits just
-contain the port number in ingress tags, egress tags need to
-indicate destination port by setting the bit for the
-corresponding port.
+  FULL_O := $(shell cd $(PWD); readlink -f $(O) || echo $(O))
 
-It was working on port 0 because port 0 added 0x00 as port
-number in the lower bits, and if you do this the packet appears
-at all ports, including the intended port. Ooops.
+This means that OUTPUT ends in a / and most usages prepend it to a file
+without adding an extra /. This line that was changed adds an extra /
+before the 'feature' folder but not to the end, resulting in a clean
+command like this:
 
-Fix this and all ports work again. Use the define for shifting
-the "type A" into place while we're at it.
+  rm -f /tmp/build//featuretest-all.bin ...
 
-Tested on the D-Link DIR-685 by sending traffic to each of
-the ports in turn. It works.
+After the change the clean command looks like this:
 
-Fixes: 86dd9868b878 ("net: dsa: tag_rtl4_a: Support also egress tags")
-Cc: DENG Qingfang <dqfext@gmail.com>
-Cc: Mauri Sandberg <sandberg@mailfence.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  rm -f /tmp/build/feature/test-all.bin ...
+
+Fixes: 762323eb39a257c3 ("perf build: Move feature cleanup under tools/build")
+Signed-off-by: James Clark <james.clark@arm.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Link: http://lore.kernel.org/lkml/20210816130705.1331868-1-james.clark@arm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/tag_rtl4_a.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ tools/build/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/dsa/tag_rtl4_a.c b/net/dsa/tag_rtl4_a.c
-index 57c46b4ab2b3..e34b80fa52e1 100644
---- a/net/dsa/tag_rtl4_a.c
-+++ b/net/dsa/tag_rtl4_a.c
-@@ -54,9 +54,10 @@ static struct sk_buff *rtl4a_tag_xmit(struct sk_buff *skb,
- 	p = (__be16 *)tag;
- 	*p = htons(RTL4_A_ETHERTYPE);
+diff --git a/tools/build/Makefile b/tools/build/Makefile
+index 5ed41b96fcde..6f11e6fc9ffe 100644
+--- a/tools/build/Makefile
++++ b/tools/build/Makefile
+@@ -32,7 +32,7 @@ all: $(OUTPUT)fixdep
  
--	out = (RTL4_A_PROTOCOL_RTL8366RB << 12) | (2 << 8);
--	/* The lower bits is the port number */
--	out |= (u8)dp->index;
-+	out = (RTL4_A_PROTOCOL_RTL8366RB << RTL4_A_PROTOCOL_SHIFT) | (2 << 8);
-+	/* The lower bits indicate the port number */
-+	out |= BIT(dp->index);
-+
- 	p = (__be16 *)(tag + 2);
- 	*p = htons(out);
+ # Make sure there's anything to clean,
+ # feature contains check for existing OUTPUT
+-TMP_O := $(if $(OUTPUT),$(OUTPUT)/feature,./)
++TMP_O := $(if $(OUTPUT),$(OUTPUT)feature/,./)
  
+ clean:
+ 	$(call QUIET_CLEAN, fixdep)
 -- 
 2.30.2
 
