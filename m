@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9506E411D6D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:18:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B34FC411FED
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:45:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346845AbhITRUL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:20:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45924 "EHLO mail.kernel.org"
+        id S1346042AbhITRqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:46:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346683AbhITRSd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:18:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B581D613D2;
-        Mon, 20 Sep 2021 16:59:42 +0000 (UTC)
+        id S1353492AbhITRow (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:44:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F042161875;
+        Mon, 20 Sep 2021 17:09:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157183;
-        bh=+u2gdY82twVzZc/+FP/9XeCbDZTaNroa7jCYQ0Oh/lM=;
+        s=korg; t=1632157785;
+        bh=TUEd5GgCPvHCqT4uiCo//+eCmN6z45ot8WQiTPkqidw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sJ0U11GO7XPTcyYPUG1n453ML23Lv/KrZ1LmDP/2DHp72sexpeRoU8W2OWqEOyXc1
-         DQNK3lL0Y8eh5KeKUIFzs9kTV1m8kslPRmzaGJ3VRnD1/8Xp1nNvZWK1q1pDlWfII+
-         hGHRaAwvZoOmDCd0zrdUDjUeGiF/m+V8ih+TEqHw=
+        b=PcUenqJnoyMHqyHNV8p3ZehuyklZ4JTQjA9FDXr1lCh3Y1nZNow2KUvCqXgLGA7s4
+         2K9EGyanMpmid0S47zSOYLG1tO8q+rM88kmM+sZdyZ2Mhjd7oKlk5cOYUAKeWxee00
+         7vtWBc4ZcoT0ZQD+tgdl3Dqvy9phPr50w8DzHf6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+97388eb9d31b997fe1d0@syzkaller.appspotmail.com,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Nguyen Dinh Phi <phind.uet@gmail.com>
-Subject: [PATCH 4.14 091/217] tty: Fix data race between tiocsti() and flush_to_ldisc()
-Date:   Mon, 20 Sep 2021 18:41:52 +0200
-Message-Id: <20210920163927.721004034@linuxfoundation.org>
+        stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>,
+        David Heidelberg <david@ixit.cz>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.19 151/293] ARM: 9105/1: atags_to_fdt: dont warn about stack size
+Date:   Mon, 20 Sep 2021 18:41:53 +0200
+Message-Id: <20210920163938.449309386@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,59 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nguyen Dinh Phi <phind.uet@gmail.com>
+From: David Heidelberg <david@ixit.cz>
 
-commit bb2853a6a421a052268eee00fd5d3f6b3504b2b1 upstream.
+commit b30d0289de72c62516df03fdad8d53f552c69839 upstream.
 
-The ops->receive_buf() may be accessed concurrently from these two
-functions.  If the driver flushes data to the line discipline
-receive_buf() method while tiocsti() is waiting for the
-ops->receive_buf() to finish its work, the data race will happen.
+The merge_fdt_bootargs() function by definition consumes more than 1024
+bytes of stack because it has a 1024 byte command line on the stack,
+meaning that we always get a warning when building this file:
 
-For example:
-tty_ioctl			|tty_ldisc_receive_buf
- ->tioctsi			| ->tty_port_default_receive_buf
-				|  ->tty_ldisc_receive_buf
-   ->hci_uart_tty_receive	|   ->hci_uart_tty_receive
-    ->h4_recv                   |    ->h4_recv
+arch/arm/boot/compressed/atags_to_fdt.c: In function 'merge_fdt_bootargs':
+arch/arm/boot/compressed/atags_to_fdt.c:98:1: warning: the frame size of 1032 bytes is larger than 1024 bytes [-Wframe-larger-than=]
 
-In this case, the h4 receive buffer will be overwritten by the
-latecomer, and we will lost the data.
+However, as this is the decompressor and we know that it has a very shallow
+call chain, and we do not actually risk overflowing the kernel stack
+at runtime here.
 
-Hence, change tioctsi() function to use the exclusive lock interface
-from tty_buffer to avoid the data race.
+This just shuts up the warning by disabling the warning flag for this
+file.
 
-Reported-by: syzbot+97388eb9d31b997fe1d0@syzkaller.appspotmail.com
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
-Link: https://lore.kernel.org/r/20210823000641.2082292-1-phind.uet@gmail.com
-Cc: stable <stable@vger.kernel.org>
+Tested on Nexus 7 2012 builds.
+
+Acked-by: Nicolas Pitre <nico@fluxnic.net>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/tty_io.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/compressed/Makefile |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/tty/tty_io.c
-+++ b/drivers/tty/tty_io.c
-@@ -2165,8 +2165,6 @@ static int tty_fasync(int fd, struct fil
-  *	Locking:
-  *		Called functions take tty_ldiscs_lock
-  *		current->signal->tty check is safe without locks
-- *
-- *	FIXME: may race normal receive processing
-  */
+--- a/arch/arm/boot/compressed/Makefile
++++ b/arch/arm/boot/compressed/Makefile
+@@ -90,6 +90,8 @@ $(addprefix $(obj)/,$(libfdt_objs) atags
+ 	$(addprefix $(obj)/,$(libfdt_hdrs))
  
- static int tiocsti(struct tty_struct *tty, char __user *p)
-@@ -2182,8 +2180,10 @@ static int tiocsti(struct tty_struct *tt
- 	ld = tty_ldisc_ref_wait(tty);
- 	if (!ld)
- 		return -EIO;
-+	tty_buffer_lock_exclusive(tty->port);
- 	if (ld->ops->receive_buf)
- 		ld->ops->receive_buf(tty, &ch, &mbz, 1);
-+	tty_buffer_unlock_exclusive(tty->port);
- 	tty_ldisc_deref(ld);
- 	return 0;
- }
+ ifeq ($(CONFIG_ARM_ATAG_DTB_COMPAT),y)
++CFLAGS_REMOVE_atags_to_fdt.o += -Wframe-larger-than=${CONFIG_FRAME_WARN}
++CFLAGS_atags_to_fdt.o += -Wframe-larger-than=1280
+ OBJS	+= $(libfdt_objs) atags_to_fdt.o
+ endif
+ 
 
 
