@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9741412575
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:44:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D881D412306
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:19:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353836AbhITSpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:45:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56476 "EHLO mail.kernel.org"
+        id S1347946AbhITSUI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:20:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1382850AbhITSmb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:42:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AFFD61AF0;
-        Mon, 20 Sep 2021 17:32:06 +0000 (UTC)
+        id S1358747AbhITSRY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:17:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C96F6329B;
+        Mon, 20 Sep 2021 17:22:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159126;
-        bh=G1E7ac7GdflTp/GdhZCOeFUB2YLp8l10fKzj1WtTc1k=;
+        s=korg; t=1632158551;
+        bh=1y5/HgB6PeMTVT0P5yHEzsEalWNK47db5BBpt4xfi7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=enFc+Fl2xL9y/6q1TxiCtJLfvLAvQh4qVADf756h+cTzLgVddwm3S6Uxlwnu1nh8f
-         gq4ePgSSG0uo5i9r4J3vz2Y4W0n0FgKF3qcv8Lcjwun+UDIa7ibnVllqjI82OBPi1K
-         Z/Ns6O0oTxRmhzDgW9CCU7hbjui+5vrIiS6SX7xY=
+        b=ma2vgqRZToo/wbKqwcByu6FCpNwltcA4GVMDI8WbRio0paHZERiEggackiah/GbUf
+         g64euzjU/Zz8Nie/K3CzIUa0XJXvHJQ48VmQyCp8LR+/o0dX8uzSdn6mSWbVtYxm6h
+         yZcGr6ho7NMbJNG3Vvm0crW+3ZMKgyScmVsytigc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 088/168] net: dsa: flush switchdev workqueue before tearing down CPU/DSA ports
+        stable@vger.kernel.org, Jiri Olsa <jolsa@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Borislav Petkov <bp@suse.de>,
+        David Hildenbrand <david@redhat.com>,
+        Dave Hansen <dave.hansen@intel.com>
+Subject: [PATCH 5.4 208/260] x86/mm: Fix kern_addr_valid() to cope with existing but not present entries
 Date:   Mon, 20 Sep 2021 18:43:46 +0200
-Message-Id: <20210920163924.527871711@linuxfoundation.org>
+Message-Id: <20210920163938.175926843@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,184 +42,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-[ Upstream commit a57d8c217aadac75530b8e7ffb3a3e1b7bfd0330 ]
+commit 34b1999da935a33be6239226bfa6cd4f704c5c88 upstream.
 
-Sometimes when unbinding the mv88e6xxx driver on Turris MOX, these error
-messages appear:
+Jiri Olsa reported a fault when running:
 
-mv88e6085 d0032004.mdio-mii:12: port 1 failed to delete be:79:b4:9e:9e:96 vid 1 from fdb: -2
-mv88e6085 d0032004.mdio-mii:12: port 1 failed to delete be:79:b4:9e:9e:96 vid 0 from fdb: -2
-mv88e6085 d0032004.mdio-mii:12: port 1 failed to delete d8:58:d7:00:ca:6d vid 100 from fdb: -2
-mv88e6085 d0032004.mdio-mii:12: port 1 failed to delete d8:58:d7:00:ca:6d vid 1 from fdb: -2
-mv88e6085 d0032004.mdio-mii:12: port 1 failed to delete d8:58:d7:00:ca:6d vid 0 from fdb: -2
+  # cat /proc/kallsyms | grep ksys_read
+  ffffffff8136d580 T ksys_read
+  # objdump -d --start-address=0xffffffff8136d580 --stop-address=0xffffffff8136d590 /proc/kcore
 
-(and similarly for other ports)
+  /proc/kcore:     file format elf64-x86-64
 
-What happens is that DSA has a policy "even if there are bugs, let's at
-least not leak memory" and dsa_port_teardown() clears the dp->fdbs and
-dp->mdbs lists, which are supposed to be empty.
+  Segmentation fault
 
-But deleting that cleanup code, the warnings go away.
+  general protection fault, probably for non-canonical address 0xf887ffcbff000: 0000 [#1] SMP PTI
+  CPU: 12 PID: 1079 Comm: objdump Not tainted 5.14.0-rc5qemu+ #508
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-4.fc34 04/01/2014
+  RIP: 0010:kern_addr_valid
+  Call Trace:
+   read_kcore
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? trace_hardirqs_on
+   ? rcu_read_lock_sched_held
+   ? lock_acquire
+   ? lock_acquire
+   ? rcu_read_lock_sched_held
+   ? lock_acquire
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? lock_release
+   ? _raw_spin_unlock
+   ? __handle_mm_fault
+   ? rcu_read_lock_sched_held
+   ? lock_acquire
+   ? rcu_read_lock_sched_held
+   ? lock_release
+   proc_reg_read
+   ? vfs_read
+   vfs_read
+   ksys_read
+   do_syscall_64
+   entry_SYSCALL_64_after_hwframe
 
-=> the FDB and MDB lists (used for refcounting on shared ports, aka CPU
-and DSA ports) will eventually be empty, but are not empty by the time
-we tear down those ports. Aka we are deleting them too soon.
+The fault happens because kern_addr_valid() dereferences existent but not
+present PMD in the high kernel mappings.
 
-The addresses that DSA complains about are host-trapped addresses: the
-local addresses of the ports, and the MAC address of the bridge device.
+Such PMDs are created when free_kernel_image_pages() frees regions larger
+than 2Mb. In this case, a part of the freed memory is mapped with PMDs and
+the set_memory_np_noalias() -> ... -> __change_page_attr() sequence will
+mark the PMD as not present rather than wipe it completely.
 
-The problem is that offloading those entries happens from a deferred
-work item scheduled by the SWITCHDEV_FDB_DEL_TO_DEVICE handler, and this
-races with the teardown of the CPU and DSA ports where the refcounting
-is kept.
+Have kern_addr_valid() check whether higher level page table entries are
+present before trying to dereference them to fix this issue and to avoid
+similar issues in the future.
 
-In fact, not only it races, but fundamentally speaking, if we iterate
-through the port list linearly, we might end up tearing down the shared
-ports even before we delete a DSA user port which has a bridge upper.
+Stable backporting note:
+------------------------
 
-So as it turns out, we need to first tear down the user ports (and the
-unused ones, for no better place of doing that), then the shared ports
-(the CPU and DSA ports). In between, we need to ensure that all work
-items scheduled by our switchdev handlers (which only run for user
-ports, hence the reason why we tear them down first) have finished.
+Note that the stable marking is for all active stable branches because
+there could be cases where pagetable entries exist but are not valid -
+see 9a14aefc1d28 ("x86: cpa, fix lookup_address"), for example. So make
+sure to be on the safe side here and use pXY_present() accessors rather
+than pXY_none() which could #GP when accessing pages in the direct map.
 
-Fixes: 161ca59d39e9 ("net: dsa: reference count the MDB entries at the cross-chip notifier level")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20210914134726.2305133-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Also see:
+
+  c40a56a7818c ("x86/mm/init: Remove freed kernel image areas from alias mapping")
+
+for more info.
+
+Reported-by: Jiri Olsa <jolsa@redhat.com>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Dave Hansen <dave.hansen@intel.com>
+Tested-by: Jiri Olsa <jolsa@redhat.com>
+Cc: <stable@vger.kernel.org>	# 4.4+
+Link: https://lkml.kernel.org/r/20210819132717.19358-1-rppt@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/dsa.h  |  5 +++++
- net/dsa/dsa.c      |  5 +++++
- net/dsa/dsa2.c     | 46 +++++++++++++++++++++++++++++++---------------
- net/dsa/dsa_priv.h |  1 +
- 4 files changed, 42 insertions(+), 15 deletions(-)
+ arch/x86/mm/init_64.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/net/dsa.h b/include/net/dsa.h
-index 048d297623c9..d833f717e802 100644
---- a/include/net/dsa.h
-+++ b/include/net/dsa.h
-@@ -437,6 +437,11 @@ static inline bool dsa_port_is_user(struct dsa_port *dp)
- 	return dp->type == DSA_PORT_TYPE_USER;
- }
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -1355,18 +1355,18 @@ int kern_addr_valid(unsigned long addr)
+ 		return 0;
  
-+static inline bool dsa_port_is_unused(struct dsa_port *dp)
-+{
-+	return dp->type == DSA_PORT_TYPE_UNUSED;
-+}
-+
- static inline bool dsa_is_unused_port(struct dsa_switch *ds, int p)
- {
- 	return dsa_to_port(ds, p)->type == DSA_PORT_TYPE_UNUSED;
-diff --git a/net/dsa/dsa.c b/net/dsa/dsa.c
-index 84cad1be9ce4..e058a2e320e3 100644
---- a/net/dsa/dsa.c
-+++ b/net/dsa/dsa.c
-@@ -345,6 +345,11 @@ bool dsa_schedule_work(struct work_struct *work)
- 	return queue_work(dsa_owq, work);
- }
+ 	p4d = p4d_offset(pgd, addr);
+-	if (p4d_none(*p4d))
++	if (!p4d_present(*p4d))
+ 		return 0;
  
-+void dsa_flush_workqueue(void)
-+{
-+	flush_workqueue(dsa_owq);
-+}
-+
- int dsa_devlink_param_get(struct devlink *dl, u32 id,
- 			  struct devlink_param_gset_ctx *ctx)
- {
-diff --git a/net/dsa/dsa2.c b/net/dsa/dsa2.c
-index 185629f27f80..79267b00af68 100644
---- a/net/dsa/dsa2.c
-+++ b/net/dsa/dsa2.c
-@@ -809,6 +809,33 @@ static void dsa_switch_teardown(struct dsa_switch *ds)
- 	ds->setup = false;
- }
+ 	pud = pud_offset(p4d, addr);
+-	if (pud_none(*pud))
++	if (!pud_present(*pud))
+ 		return 0;
  
-+/* First tear down the non-shared, then the shared ports. This ensures that
-+ * all work items scheduled by our switchdev handlers for user ports have
-+ * completed before we destroy the refcounting kept on the shared ports.
-+ */
-+static void dsa_tree_teardown_ports(struct dsa_switch_tree *dst)
-+{
-+	struct dsa_port *dp;
-+
-+	list_for_each_entry(dp, &dst->ports, list)
-+		if (dsa_port_is_user(dp) || dsa_port_is_unused(dp))
-+			dsa_port_teardown(dp);
-+
-+	dsa_flush_workqueue();
-+
-+	list_for_each_entry(dp, &dst->ports, list)
-+		if (dsa_port_is_dsa(dp) || dsa_port_is_cpu(dp))
-+			dsa_port_teardown(dp);
-+}
-+
-+static void dsa_tree_teardown_switches(struct dsa_switch_tree *dst)
-+{
-+	struct dsa_port *dp;
-+
-+	list_for_each_entry(dp, &dst->ports, list)
-+		dsa_switch_teardown(dp->ds);
-+}
-+
- static int dsa_tree_setup_switches(struct dsa_switch_tree *dst)
- {
- 	struct dsa_port *dp;
-@@ -835,26 +862,13 @@ static int dsa_tree_setup_switches(struct dsa_switch_tree *dst)
- 	return 0;
+ 	if (pud_large(*pud))
+ 		return pfn_valid(pud_pfn(*pud));
  
- teardown:
--	list_for_each_entry(dp, &dst->ports, list)
--		dsa_port_teardown(dp);
-+	dsa_tree_teardown_ports(dst);
+ 	pmd = pmd_offset(pud, addr);
+-	if (pmd_none(*pmd))
++	if (!pmd_present(*pmd))
+ 		return 0;
  
--	list_for_each_entry(dp, &dst->ports, list)
--		dsa_switch_teardown(dp->ds);
-+	dsa_tree_teardown_switches(dst);
- 
- 	return err;
- }
- 
--static void dsa_tree_teardown_switches(struct dsa_switch_tree *dst)
--{
--	struct dsa_port *dp;
--
--	list_for_each_entry(dp, &dst->ports, list)
--		dsa_port_teardown(dp);
--
--	list_for_each_entry(dp, &dst->ports, list)
--		dsa_switch_teardown(dp->ds);
--}
--
- static int dsa_tree_setup_master(struct dsa_switch_tree *dst)
- {
- 	struct dsa_port *dp;
-@@ -964,6 +978,8 @@ static void dsa_tree_teardown(struct dsa_switch_tree *dst)
- 
- 	dsa_tree_teardown_master(dst);
- 
-+	dsa_tree_teardown_ports(dst);
-+
- 	dsa_tree_teardown_switches(dst);
- 
- 	dsa_tree_teardown_default_cpu(dst);
-diff --git a/net/dsa/dsa_priv.h b/net/dsa/dsa_priv.h
-index cddf7cb0f398..6c00557ca9bf 100644
---- a/net/dsa/dsa_priv.h
-+++ b/net/dsa/dsa_priv.h
-@@ -158,6 +158,7 @@ void dsa_tag_driver_put(const struct dsa_device_ops *ops);
- const struct dsa_device_ops *dsa_find_tagger_by_name(const char *buf);
- 
- bool dsa_schedule_work(struct work_struct *work);
-+void dsa_flush_workqueue(void);
- const char *dsa_tag_protocol_to_str(const struct dsa_device_ops *ops);
- 
- static inline int dsa_tag_protocol_overhead(const struct dsa_device_ops *ops)
--- 
-2.30.2
-
+ 	if (pmd_large(*pmd))
 
 
