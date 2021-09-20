@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83D07411FD6
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:44:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1413A411D27
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:15:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349272AbhITRqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:46:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46840 "EHLO mail.kernel.org"
+        id S1348075AbhITRQm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:16:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348596AbhITRoE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:44:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B56EA61B80;
-        Mon, 20 Sep 2021 17:09:29 +0000 (UTC)
+        id S1347689AbhITROd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:14:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C1FC613AB;
+        Mon, 20 Sep 2021 16:58:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157770;
-        bh=uPXrmDh7kZSvKIn0RbuwYZeVyuqUtokgGqN/KQMWdVY=;
+        s=korg; t=1632157098;
+        bh=V1J8g2vImMD8hB2+/OrAOmcaDISvKluNEVVVP7io990=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CL/KpwC7+/3AX2XAYfeTiyg8ehSOELQxmsCRZGgLzUswZduKn8SEq0COkA0CZmX62
-         Gok9qyguZVTeHpxBNeQPQkWdlfU66tBDOprC0bIQlrD2kkXFZEMyX6naQGXB9Y7CED
-         GUslEsJOCQ3Kj3NVehP/VP95i+VAOe59WhRJqY/k=
+        b=eOD1bltageop9+ACuKK1gRniReXDj2iyHl0KQZctyCsA6wPhGT0DV7ggEk62wDKTc
+         RHwGtRdZhgDviJuii0ktvs2U/2Uav3js05nXmRDp/XAJJua7ETNYjzHQeywxAdL1vD
+         ln/VKBoTn84U01AezTIMe+Yyb83c43F8nDZdcjwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Terry Bowman <Terry.Bowman@amd.com>,
-        kernel test robot <lkp@intel.com>,
-        Babu Moger <babu.moger@amd.com>, Borislav Petkov <bp@suse.de>,
-        Reinette Chatre <reinette.chatre@intel.com>
-Subject: [PATCH 4.19 111/293] x86/resctrl: Fix a maybe-uninitialized build warning treated as error
-Date:   Mon, 20 Sep 2021 18:41:13 +0200
-Message-Id: <20210920163937.061762377@linuxfoundation.org>
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 053/217] media: dvb-usb: fix uninit-value in vp702x_read_mac_addr
+Date:   Mon, 20 Sep 2021 18:41:14 +0200
+Message-Id: <20210920163926.421631550@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,64 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Babu Moger <babu.moger@amd.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit 527f721478bce3f49b513a733bacd19d6f34b08c upstream.
+[ Upstream commit 797c061ad715a9a1480eb73f44b6939fbe3209ed ]
 
-The recent commit
+If vp702x_usb_in_op fails, the mac address is not initialized.
+And vp702x_read_mac_addr does not handle this failure, which leads to
+the uninit-value in dvb_usb_adapter_dvb_init.
 
-  064855a69003 ("x86/resctrl: Fix default monitoring groups reporting")
+Fix this by handling the failure of vp702x_usb_in_op.
 
-caused a RHEL build failure with an uninitialized variable warning
-treated as an error because it removed the default case snippet.
-
-The RHEL Makefile uses '-Werror=maybe-uninitialized' to force possibly
-uninitialized variable warnings to be treated as errors. This is also
-reported by smatch via the 0day robot.
-
-The error from the RHEL build is:
-
-  arch/x86/kernel/cpu/resctrl/monitor.c: In function ‘__mon_event_count’:
-  arch/x86/kernel/cpu/resctrl/monitor.c:261:12: error: ‘m’ may be used
-  uninitialized in this function [-Werror=maybe-uninitialized]
-    m->chunks += chunks;
-              ^~
-
-The upstream Makefile does not build using '-Werror=maybe-uninitialized'.
-So, the problem is not seen there. Fix the problem by putting back the
-default case snippet.
-
- [ bp: note that there's nothing wrong with the code and other compilers
-   do not trigger this warning - this is being done just so the RHEL compiler
-   is happy. ]
-
-Fixes: 064855a69003 ("x86/resctrl: Fix default monitoring groups reporting")
-Reported-by: Terry Bowman <Terry.Bowman@amd.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Babu Moger <babu.moger@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/162949631908.23903.17090272726012848523.stgit@bmoger-ubuntu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 786baecfe78f ("[media] dvb-usb: move it to drivers/media/usb/dvb-usb")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/intel_rdt_monitor.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/media/usb/dvb-usb/vp702x.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kernel/cpu/intel_rdt_monitor.c
-+++ b/arch/x86/kernel/cpu/intel_rdt_monitor.c
-@@ -252,6 +252,12 @@ static u64 __mon_event_count(u32 rmid, s
- 	case QOS_L3_MBM_LOCAL_EVENT_ID:
- 		m = &rr->d->mbm_local[rmid];
- 		break;
-+	default:
-+		/*
-+		 * Code would never reach here because an invalid
-+		 * event id would fail the __rmid_read.
-+		 */
-+		return RMID_VAL_ERROR;
- 	}
+diff --git a/drivers/media/usb/dvb-usb/vp702x.c b/drivers/media/usb/dvb-usb/vp702x.c
+index 40de33de90a7..5c3b0a7ca27e 100644
+--- a/drivers/media/usb/dvb-usb/vp702x.c
++++ b/drivers/media/usb/dvb-usb/vp702x.c
+@@ -294,16 +294,22 @@ static int vp702x_rc_query(struct dvb_usb_device *d, u32 *event, int *state)
+ static int vp702x_read_mac_addr(struct dvb_usb_device *d,u8 mac[6])
+ {
+ 	u8 i, *buf;
++	int ret;
+ 	struct vp702x_device_state *st = d->priv;
  
- 	if (rr->first) {
+ 	mutex_lock(&st->buf_mutex);
+ 	buf = st->buf;
+-	for (i = 6; i < 12; i++)
+-		vp702x_usb_in_op(d, READ_EEPROM_REQ, i, 1, &buf[i - 6], 1);
++	for (i = 6; i < 12; i++) {
++		ret = vp702x_usb_in_op(d, READ_EEPROM_REQ, i, 1,
++				       &buf[i - 6], 1);
++		if (ret < 0)
++			goto err;
++	}
+ 
+ 	memcpy(mac, buf, 6);
++err:
+ 	mutex_unlock(&st->buf_mutex);
+-	return 0;
++	return ret;
+ }
+ 
+ static int vp702x_frontend_attach(struct dvb_usb_adapter *adap)
+-- 
+2.30.2
+
 
 
