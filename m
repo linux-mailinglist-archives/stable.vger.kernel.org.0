@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F072410FD8
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 09:08:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D0E8410FD9
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 09:08:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233338AbhITHKE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 03:10:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47750 "EHLO mail.kernel.org"
+        id S233599AbhITHKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 03:10:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230151AbhITHKD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 03:10:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A5DDD60F0F;
-        Mon, 20 Sep 2021 07:08:36 +0000 (UTC)
+        id S230151AbhITHKN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 03:10:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 559FD60FBF;
+        Mon, 20 Sep 2021 07:08:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632121717;
-        bh=KOdQxMciwA062eLY63XUSwymnbFDH1bDgts0LPh+Lw0=;
+        s=korg; t=1632121726;
+        bh=ztloDpH1erp7UXRFobGQhveQEl4AU4S3xc+Ke/WySrQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=LBFfVNhb/60Dcs0VlK31kfKfs8Yfh6mmrDTvg4babbafDdeZdMMOHeAMspjhrmcbT
-         XcmDR7NG91CX+7QOMg7sZPjbvSj8URAOoI32yK2fapW7824EKp2PDUCtA+f+qNgGVP
-         aWgA6TR5mhiiNZqptdm0jsumGa85xDvrv64S+kgY=
-Subject: FAILED: patch "[PATCH] x86/mm: Fix kern_addr_valid() to cope with existing but not" failed to apply to 4.4-stable tree
+        b=DgRt4kOjenOSk0JBEKUeFszQcDnQOrzuCkLATclccIF7ZoxenExOpMDIKO2VKq+ds
+         j1+VaXo08xH1jXEZ8m6GON+pp8912vzAA3YN9ziTpkC9ZpaMMgT+U6DMTwdW9FgxAK
+         lrBG/veSg81RH948ayZfa6VfjH6H3GRd1wBnvc6w=
+Subject: FAILED: patch "[PATCH] x86/mm: Fix kern_addr_valid() to cope with existing but not" failed to apply to 4.9-stable tree
 To:     rppt@linux.ibm.com, bp@suse.de, dave.hansen@intel.com,
         david@redhat.com, jolsa@redhat.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Sep 2021 09:08:35 +0200
-Message-ID: <163212171511930@kroah.com>
+Date:   Mon, 20 Sep 2021 09:08:36 +0200
+Message-ID: <1632121716149175@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
