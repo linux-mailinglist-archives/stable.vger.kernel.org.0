@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93288411F18
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:36:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65361411F19
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:36:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348192AbhITRhd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:37:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42382 "EHLO mail.kernel.org"
+        id S1348195AbhITRhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:37:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348099AbhITRfs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:35:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D0E961368;
-        Mon, 20 Sep 2021 17:06:14 +0000 (UTC)
+        id S1351091AbhITRfu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:35:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A802615A7;
+        Mon, 20 Sep 2021 17:06:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157574;
-        bh=E3trja30u49PQGxLI5iO0/3F9tdhTe9oBxHfSyclHs4=;
+        s=korg; t=1632157576;
+        bh=l7385ZFdomGiFMyukTPaBhMpcELxzfHOSJdQJlm8wPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FDznhRqvHxghVjzYn6yxbtgBBG0bhgQdccvE7HtsslrcTkM5xll1HKrmjhxdolfT5
-         icJ4Hyn44ohmx7M7jBoD8/tb7R3gxeqt8A8YJ3EnwVUc2Ae0Gz170eY7yB7Rn9FM/L
-         TxbFd0wFF+WyLkznfYh78pa4FKGoSo8fA8pfTPLQ=
+        b=b26L+KVh3CXgkK+IsbWGUyLbmIQURxje6cNZARzONR9XJpLMkARVmKrjKOBHsOoDM
+         GxPu8H4HIFij72vbiVPIkZYXdwTTjsTdobT42NqmIUXOQEvrh+G4wXDz0Ky164qZrE
+         RD3J0uhsmXL4sQhH0BHY7Q3YjAgxlfgpUXbGomS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stian Skjelstad <stian.skjelstad@gmail.com>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 053/293] udf_get_extendedattr() had no boundary checks.
-Date:   Mon, 20 Sep 2021 18:40:15 +0200
-Message-Id: <20210920163935.075193228@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 054/293] m68k: emu: Fix invalid free in nfeth_cleanup()
+Date:   Mon, 20 Sep 2021 18:40:16 +0200
+Message-Id: <20210920163935.111700421@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
 References: <20210920163933.258815435@linuxfoundation.org>
@@ -40,50 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stian Skjelstad <stian.skjelstad@gmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 58bc6d1be2f3b0ceecb6027dfa17513ec6aa2abb ]
+[ Upstream commit 761608f5cf70e8876c2f0e39ca54b516bdcb7c12 ]
 
-When parsing the ExtendedAttr data, malicous or corrupt attribute length
-could cause kernel hangs and buffer overruns in some special cases.
+In the for loop all nfeth_dev array members should be freed, not only
+the first one.  Freeing only the first array member can cause
+double-free bugs and memory leaks.
 
-Link: https://lore.kernel.org/r/20210822093332.25234-1-stian.skjelstad@gmail.com
-Signed-off-by: Stian Skjelstad <stian.skjelstad@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: 9cd7b148312f ("m68k/atari: ARAnyM - Add support for network access")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/20210705204727.10743-1-paskripkin@gmail.com
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/misc.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ arch/m68k/emu/nfeth.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/udf/misc.c b/fs/udf/misc.c
-index 401e64cde1be..853bcff51043 100644
---- a/fs/udf/misc.c
-+++ b/fs/udf/misc.c
-@@ -173,13 +173,22 @@ struct genericFormat *udf_get_extendedattr(struct inode *inode, uint32_t type,
- 		else
- 			offset = le32_to_cpu(eahd->appAttrLocation);
+diff --git a/arch/m68k/emu/nfeth.c b/arch/m68k/emu/nfeth.c
+index e45ce4243aaa..76262dc40e79 100644
+--- a/arch/m68k/emu/nfeth.c
++++ b/arch/m68k/emu/nfeth.c
+@@ -258,8 +258,8 @@ static void __exit nfeth_cleanup(void)
  
--		while (offset < iinfo->i_lenEAttr) {
-+		while (offset + sizeof(*gaf) < iinfo->i_lenEAttr) {
-+			uint32_t attrLength;
-+
- 			gaf = (struct genericFormat *)&ea[offset];
-+			attrLength = le32_to_cpu(gaf->attrLength);
-+
-+			/* Detect undersized elements and buffer overflows */
-+			if ((attrLength < sizeof(*gaf)) ||
-+			    (attrLength > (iinfo->i_lenEAttr - offset)))
-+				break;
-+
- 			if (le32_to_cpu(gaf->attrType) == type &&
- 					gaf->attrSubtype == subtype)
- 				return gaf;
- 			else
--				offset += le32_to_cpu(gaf->attrLength);
-+				offset += attrLength;
+ 	for (i = 0; i < MAX_UNIT; i++) {
+ 		if (nfeth_dev[i]) {
+-			unregister_netdev(nfeth_dev[0]);
+-			free_netdev(nfeth_dev[0]);
++			unregister_netdev(nfeth_dev[i]);
++			free_netdev(nfeth_dev[i]);
  		}
  	}
- 
+ 	free_irq(nfEtherIRQ, nfeth_interrupt);
 -- 
 2.30.2
 
