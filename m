@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65361411F19
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:36:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83CF5411F1B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:36:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348195AbhITRhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1349041AbhITRhg (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 20 Sep 2021 13:37:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42454 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351091AbhITRfu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1351113AbhITRfu (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 13:35:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A802615A7;
-        Mon, 20 Sep 2021 17:06:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86C7361B25;
+        Mon, 20 Sep 2021 17:06:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157576;
-        bh=l7385ZFdomGiFMyukTPaBhMpcELxzfHOSJdQJlm8wPg=;
+        s=korg; t=1632157579;
+        bh=RbBvp2XwYSSV+3wS9IW4NJuamyao1uPKjNnWkemrGro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b26L+KVh3CXgkK+IsbWGUyLbmIQURxje6cNZARzONR9XJpLMkARVmKrjKOBHsOoDM
-         GxPu8H4HIFij72vbiVPIkZYXdwTTjsTdobT42NqmIUXOQEvrh+G4wXDz0Ky164qZrE
-         RD3J0uhsmXL4sQhH0BHY7Q3YjAgxlfgpUXbGomS0=
+        b=g0tUGiIZtB3n+wam4F4wX74kHqSg+EMr6SLagxj5yRKqpP/ljeNXBGJmA1CMxVUmI
+         EtgJs9t/zA7akOjHJ69aA9CC4maLTApd4c9QvTD3I8IWxhBqh1lXJ9C9UPyCD73nfk
+         NGjhFPUGWi+JN649qf2l6s6BauvG5XaM0hrVPQj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org, Sanchayan Maity <maitysanchayan@gmail.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 054/293] m68k: emu: Fix invalid free in nfeth_cleanup()
-Date:   Mon, 20 Sep 2021 18:40:16 +0200
-Message-Id: <20210920163935.111700421@linuxfoundation.org>
+Subject: [PATCH 4.19 055/293] spi: spi-fsl-dspi: Fix issue with uninitialized dma_slave_config
+Date:   Mon, 20 Sep 2021 18:40:17 +0200
+Message-Id: <20210920163935.144754740@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
 References: <20210920163933.258815435@linuxfoundation.org>
@@ -40,38 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 761608f5cf70e8876c2f0e39ca54b516bdcb7c12 ]
+[ Upstream commit 209ab223ad5b18e437289235e3bde12593b94ac4 ]
 
-In the for loop all nfeth_dev array members should be freed, not only
-the first one.  Freeing only the first array member can cause
-double-free bugs and memory leaks.
+Depending on the DMA driver being used, the struct dma_slave_config may
+need to be initialized to zero for the unused data.
 
-Fixes: 9cd7b148312f ("m68k/atari: ARAnyM - Add support for network access")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/20210705204727.10743-1-paskripkin@gmail.com
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+For example, we have three DMA drivers using src_port_window_size and
+dst_port_window_size. If these are left uninitialized, it can cause DMA
+failures.
+
+For spi-fsl-dspi, this is probably not currently an issue but is still
+good to fix though.
+
+Fixes: 90ba37033cb9 ("spi: spi-fsl-dspi: Add DMA support for Vybrid")
+Cc: Sanchayan Maity <maitysanchayan@gmail.com>
+Cc: Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Cc: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20210810081727.19491-1-tony@atomide.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/emu/nfeth.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/spi/spi-fsl-dspi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/m68k/emu/nfeth.c b/arch/m68k/emu/nfeth.c
-index e45ce4243aaa..76262dc40e79 100644
---- a/arch/m68k/emu/nfeth.c
-+++ b/arch/m68k/emu/nfeth.c
-@@ -258,8 +258,8 @@ static void __exit nfeth_cleanup(void)
- 
- 	for (i = 0; i < MAX_UNIT; i++) {
- 		if (nfeth_dev[i]) {
--			unregister_netdev(nfeth_dev[0]);
--			free_netdev(nfeth_dev[0]);
-+			unregister_netdev(nfeth_dev[i]);
-+			free_netdev(nfeth_dev[i]);
- 		}
+diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
+index 25486ee8379b..cfbf1ffb61bf 100644
+--- a/drivers/spi/spi-fsl-dspi.c
++++ b/drivers/spi/spi-fsl-dspi.c
+@@ -430,6 +430,7 @@ static int dspi_request_dma(struct fsl_dspi *dspi, phys_addr_t phy_addr)
+ 		goto err_rx_dma_buf;
  	}
- 	free_irq(nfEtherIRQ, nfeth_interrupt);
+ 
++	memset(&cfg, 0, sizeof(cfg));
+ 	cfg.src_addr = phy_addr + SPI_POPR;
+ 	cfg.dst_addr = phy_addr + SPI_PUSHR;
+ 	cfg.src_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
 -- 
 2.30.2
 
