@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B229411A9A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:49:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68569412043
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:52:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243415AbhITQus (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:50:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38940 "EHLO mail.kernel.org"
+        id S237353AbhITRxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:53:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244081AbhITQuB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:50:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 719F961245;
-        Mon, 20 Sep 2021 16:48:30 +0000 (UTC)
+        id S1354502AbhITRuN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:50:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F363613A3;
+        Mon, 20 Sep 2021 17:11:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156510;
-        bh=QM53qf0i/7e0dwga1vWh5MnbgvfUlKtIQfgN/VKBaBU=;
+        s=korg; t=1632157912;
+        bh=jy87Hs9DjEstU082RReFi1SFX5hfII05KU1e+UcXikQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YcaY6VTnVmwgfVtC53MOLgozW7RJIOLOfdVpG7yusdcQzXd1Wd93xRjt/3Ws3Pzhq
-         3RpmYtpAgLsaEe/VuWU225dLODV2Hq8NyjRTrYveU4L5MPiL19++kcQ6Pm4lgRM/8Y
-         vtZNWz2yS4e4zP1oHy5LjY6XjKxNS+Zh30ZFahH4=
+        b=CDwBrxHQfjAcPDnuNYwHSVQ4jiekIb8tVq1JfGXEval/ebtIXQ4q+Cl4INM7FFAKo
+         F+4AgpNWPhJlBtiLfMCJS4ee+7Wl4FCDpI6B5WBh7GKW/zHD9SrnRGTRl+dlPdzIq+
+         NS7j/VzUEtagUJ0ERuXtagIL2CL3HEFD8rphces4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonas Jensen <jonas.jensen@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Brian Masney <masneyb@onstation.org>,
+        David Heidelberg <david@ixit.cz>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 061/133] mmc: moxart: Fix issue with uninitialized dma_slave_config
+Subject: [PATCH 4.19 177/293] ARM: dts: qcom: apq8064: correct clock names
 Date:   Mon, 20 Sep 2021 18:42:19 +0200
-Message-Id: <20210920163914.647749159@linuxfoundation.org>
+Message-Id: <20210920163939.336167198@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: David Heidelberg <david@ixit.cz>
 
-[ Upstream commit ee5165354d498e5bceb0b386e480ac84c5f8c28c ]
+[ Upstream commit 0dc6c59892ead17a9febd11202c9f6794aac1895 ]
 
-Depending on the DMA driver being used, the struct dma_slave_config may
-need to be initialized to zero for the unused data.
+Since new code doesn't take old clk names in account, it does fixes
+error:
 
-For example, we have three DMA drivers using src_port_window_size and
-dst_port_window_size. If these are left uninitialized, it can cause DMA
-failures.
+msm_dsi 4700000.mdss_dsi: dev_pm_opp_set_clkname: Couldn't find clock: -2
 
-For moxart, this is probably not currently an issue but is still good to
-fix though.
+and following kernel oops introduced by
+b0530eb1191 ("drm/msm/dpu: Use OPP API to set clk/perf state").
 
-Fixes: 1b66e94e6b99 ("mmc: moxart: Add MOXA ART SD/MMC driver")
-Cc: Jonas Jensen <jonas.jensen@gmail.com>
-Cc: Vinod Koul <vkoul@kernel.org>
-Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210810081644.19353-3-tony@atomide.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Also removes warning about deprecated clock names.
+
+Tested against linux-5.10.y LTS on Nexus 7 2013.
+
+Reviewed-by: Brian Masney <masneyb@onstation.org>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Link: https://lore.kernel.org/r/20210707131453.24041-1-david@ixit.cz
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/moxart-mmc.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/qcom-apq8064.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mmc/host/moxart-mmc.c b/drivers/mmc/host/moxart-mmc.c
-index bbad309679cf..41a5493cb68d 100644
---- a/drivers/mmc/host/moxart-mmc.c
-+++ b/drivers/mmc/host/moxart-mmc.c
-@@ -633,6 +633,7 @@ static int moxart_probe(struct platform_device *pdev)
- 			 host->dma_chan_tx, host->dma_chan_rx);
- 		host->have_dma = true;
+diff --git a/arch/arm/boot/dts/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom-apq8064.dtsi
+index 4a99c9255104..d0153bbbdbeb 100644
+--- a/arch/arm/boot/dts/qcom-apq8064.dtsi
++++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
+@@ -1296,9 +1296,9 @@ dsi0: mdss_dsi@4700000 {
+ 				<&mmcc DSI1_BYTE_CLK>,
+ 				<&mmcc DSI_PIXEL_CLK>,
+ 				<&mmcc DSI1_ESC_CLK>;
+-			clock-names = "iface_clk", "bus_clk", "core_mmss_clk",
+-					"src_clk", "byte_clk", "pixel_clk",
+-					"core_clk";
++			clock-names = "iface", "bus", "core_mmss",
++					"src", "byte", "pixel",
++					"core";
  
-+		memset(&cfg, 0, sizeof(cfg));
- 		cfg.src_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
- 		cfg.dst_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
- 
+ 			assigned-clocks = <&mmcc DSI1_BYTE_SRC>,
+ 					<&mmcc DSI1_ESC_SRC>,
 -- 
 2.30.2
 
