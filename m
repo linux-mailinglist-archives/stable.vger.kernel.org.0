@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E526B412032
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:51:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A80C411DD7
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:24:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349677AbhITRxK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:53:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52814 "EHLO mail.kernel.org"
+        id S1346886AbhITRZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:25:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354104AbhITRsx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:48:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAEBE61BBD;
-        Mon, 20 Sep 2021 17:11:18 +0000 (UTC)
+        id S244186AbhITRWe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:22:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90F4161A62;
+        Mon, 20 Sep 2021 17:01:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157879;
-        bh=nByLFaMD35WwgCE/IAJRNJFyrTtfUCWRwfD8GuXB5zw=;
+        s=korg; t=1632157279;
+        bh=vB0KYNHGxCN1lO8Jxd+fn371xRiVqBtRljeuyckGFEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gwNT+CkK1PNFxRagpFadAeAzHL9onFnqCa8NJ/MI3zlCW1HgaFVw4e6rmEL8ECKAe
-         t4q1Zw/yavaRUonYPjAxGIkCMkQU31bBkqDlPKQIGSC8XTSlS3jySzAmImLRCNFGNg
-         q1Eze0EDwl+R2brm4/8+f7mWQnCvqUTb7YONppCo=
+        b=cvpnfScwD0YzIoWvAAsqIKfTtE8srUCgoHOIshzv3TTeRrQNB0/kf/g1pmhpKlguh
+         RrgBksQUaDlZuVXkPzPgDPqLgejNkKE608xiF/K9aJo2kYyQjdLg22IY4S8sosJczJ
+         9jaEP/mwxY/jMi3HylLZF4MjW/TjT7VNi+3tgt54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Brian Masney <masneyb@onstation.org>,
+        David Heidelberg <david@ixit.cz>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 193/293] ipv4: ip_output.c: Fix out-of-bounds warning in ip_copy_addrs()
+Subject: [PATCH 4.14 134/217] ARM: dts: qcom: apq8064: correct clock names
 Date:   Mon, 20 Sep 2021 18:42:35 +0200
-Message-Id: <20210920163939.876990340@linuxfoundation.org>
+Message-Id: <20210920163929.198138275@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavoars@kernel.org>
+From: David Heidelberg <david@ixit.cz>
 
-[ Upstream commit 6321c7acb82872ef6576c520b0e178eaad3a25c0 ]
+[ Upstream commit 0dc6c59892ead17a9febd11202c9f6794aac1895 ]
 
-Fix the following out-of-bounds warning:
+Since new code doesn't take old clk names in account, it does fixes
+error:
 
-    In function 'ip_copy_addrs',
-        inlined from '__ip_queue_xmit' at net/ipv4/ip_output.c:517:2:
-net/ipv4/ip_output.c:449:2: warning: 'memcpy' offset [40, 43] from the object at 'fl' is out of the bounds of referenced subobject 'saddr' with type 'unsigned int' at offset 36 [-Warray-bounds]
-      449 |  memcpy(&iph->saddr, &fl4->saddr,
-          |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      450 |         sizeof(fl4->saddr) + sizeof(fl4->daddr));
-          |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+msm_dsi 4700000.mdss_dsi: dev_pm_opp_set_clkname: Couldn't find clock: -2
 
-The problem is that the original code is trying to copy data into a
-couple of struct members adjacent to each other in a single call to
-memcpy(). This causes a legitimate compiler warning because memcpy()
-overruns the length of &iph->saddr and &fl4->saddr. As these are just
-a couple of struct members, fix this by using direct assignments,
-instead of memcpy().
+and following kernel oops introduced by
+b0530eb1191 ("drm/msm/dpu: Use OPP API to set clk/perf state").
 
-This helps with the ongoing efforts to globally enable -Warray-bounds
-and get us closer to being able to tighten the FORTIFY_SOURCE routines
-on memcpy().
+Also removes warning about deprecated clock names.
 
-Link: https://github.com/KSPP/linux/issues/109
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/d5ae2e65-1f18-2577-246f-bada7eee6ccd@intel.com/
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Tested against linux-5.10.y LTS on Nexus 7 2013.
+
+Reviewed-by: Brian Masney <masneyb@onstation.org>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Link: https://lore.kernel.org/r/20210707131453.24041-1-david@ixit.cz
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_output.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/qcom-apq8064.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
-index e63905f7f6f9..25beecee8949 100644
---- a/net/ipv4/ip_output.c
-+++ b/net/ipv4/ip_output.c
-@@ -419,8 +419,9 @@ static void ip_copy_addrs(struct iphdr *iph, const struct flowi4 *fl4)
- {
- 	BUILD_BUG_ON(offsetof(typeof(*fl4), daddr) !=
- 		     offsetof(typeof(*fl4), saddr) + sizeof(fl4->saddr));
--	memcpy(&iph->saddr, &fl4->saddr,
--	       sizeof(fl4->saddr) + sizeof(fl4->daddr));
-+
-+	iph->saddr = fl4->saddr;
-+	iph->daddr = fl4->daddr;
- }
+diff --git a/arch/arm/boot/dts/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom-apq8064.dtsi
+index 6089c8d56cd5..eef243998392 100644
+--- a/arch/arm/boot/dts/qcom-apq8064.dtsi
++++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
+@@ -1228,9 +1228,9 @@ dsi0: mdss_dsi@4700000 {
+ 				<&mmcc DSI1_BYTE_CLK>,
+ 				<&mmcc DSI_PIXEL_CLK>,
+ 				<&mmcc DSI1_ESC_CLK>;
+-			clock-names = "iface_clk", "bus_clk", "core_mmss_clk",
+-					"src_clk", "byte_clk", "pixel_clk",
+-					"core_clk";
++			clock-names = "iface", "bus", "core_mmss",
++					"src", "byte", "pixel",
++					"core";
  
- /* Note: skb->sk can be different from sk, in case of tunnels */
+ 			assigned-clocks = <&mmcc DSI1_BYTE_SRC>,
+ 					<&mmcc DSI1_ESC_SRC>,
 -- 
 2.30.2
 
