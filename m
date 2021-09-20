@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDD37412598
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:45:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFE7F412476
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:34:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354474AbhITSqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:46:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56448 "EHLO mail.kernel.org"
+        id S1381084AbhITSfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:35:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1383233AbhITSoR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:44:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA8D963353;
-        Mon, 20 Sep 2021 17:32:21 +0000 (UTC)
+        id S1379766AbhITSa1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:30:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68480632F7;
+        Mon, 20 Sep 2021 17:27:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159142;
-        bh=hG+7UnzuY21Kf9pUuVV2XycR5F+kwOT2KtokM/cSP+U=;
+        s=korg; t=1632158834;
+        bh=tSld2HOwibPSCdTrA5wJUDFuSG0AdJmTLSluveSg8WU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l3QilqJP44B77ZUiSDxs5IlNVdXo0f0/ghiJBGe47mvp/5pM1kc3gdBke/c39dKSR
-         MY95M9LqhBGIb46KRngaJCtRWkjj3eGCWdhxLmke1d+juA0GltIx5aVsPiJVgj85Jl
-         l35lJg7ofWrwecCqxeU7jyvb6B28xfPRU0V+lxXM=
+        b=FtfkiYCYOXJDapl2Qdu1G0iEeTJ16ScM+E9P/sWWidSXBEeNLvFpY//Nlc6D2Cvts
+         nWv9VucARbpFw9hH5cwFiI7UyEYrChUE+WPbnQG6k86JSEWWJ6LEZ+T9ZBq1fSpnGi
+         aJF6RhE5LeY+P1/YK9ACwL4opVJHASF3+IsnEhAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, lijiazi <lijiazi@xiaomi.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
+        stable@vger.kernel.org, Om Prakash Singh <omp@nvidia.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Vidya Sagar <vidyas@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 094/168] fuse: fix use after free in fuse_read_interrupt()
+Subject: [PATCH 5.10 060/122] PCI: tegra194: Fix MSI-X programming
 Date:   Mon, 20 Sep 2021 18:43:52 +0200
-Message-Id: <20210920163924.721426651@linuxfoundation.org>
+Message-Id: <20210920163917.747617427@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,59 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Om Prakash Singh <omp@nvidia.com>
 
-[ Upstream commit e1e71c168813564be0f6ea3d6740a059ca42d177 ]
+[ Upstream commit 43537cf7e351264a1f05ed42ad402942bfc9140e ]
 
-There is a potential race between fuse_read_interrupt() and
-fuse_request_end().
+Lower order MSI-X address is programmed in MSIX_ADDR_MATCH_HIGH_OFF
+DBI register instead of higher order address. This patch fixes this
+programming mistake.
 
-TASK1
-  in fuse_read_interrupt(): delete req->intr_entry (while holding
-  fiq->lock)
-
-TASK2
-  in fuse_request_end(): req->intr_entry is empty -> skip fiq->lock
-  wake up TASK3
-
-TASK3
-  request is freed
-
-TASK1
-  in fuse_read_interrupt(): dereference req->in.h.unique ***BAM***
-
-Fix by always grabbing fiq->lock if the request was ever interrupted
-(FR_INTERRUPTED set) thereby serializing with concurrent
-fuse_read_interrupt() calls.
-
-FR_INTERRUPTED is set before the request is queued on fiq->interrupts.
-Dequeing the request is done with list_del_init() but FR_INTERRUPTED is not
-cleared in this case.
-
-Reported-by: lijiazi <lijiazi@xiaomi.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Link: https://lore.kernel.org/r/20210623100525.19944-3-omp@nvidia.com
+Signed-off-by: Om Prakash Singh <omp@nvidia.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Vidya Sagar <vidyas@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/dev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/controller/dwc/pcie-tegra194.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
-index 1c8f79b3dd06..dde341a6388a 100644
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -288,10 +288,10 @@ void fuse_request_end(struct fuse_req *req)
+diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
+index c2827a8d208f..a5b677ec0769 100644
+--- a/drivers/pci/controller/dwc/pcie-tegra194.c
++++ b/drivers/pci/controller/dwc/pcie-tegra194.c
+@@ -1778,7 +1778,7 @@ static void pex_ep_event_pex_rst_deassert(struct tegra_pcie_dw *pcie)
+ 	val = (ep->msi_mem_phys & MSIX_ADDR_MATCH_LOW_OFF_MASK);
+ 	val |= MSIX_ADDR_MATCH_LOW_OFF_EN;
+ 	dw_pcie_writel_dbi(pci, MSIX_ADDR_MATCH_LOW_OFF, val);
+-	val = (lower_32_bits(ep->msi_mem_phys) & MSIX_ADDR_MATCH_HIGH_OFF_MASK);
++	val = (upper_32_bits(ep->msi_mem_phys) & MSIX_ADDR_MATCH_HIGH_OFF_MASK);
+ 	dw_pcie_writel_dbi(pci, MSIX_ADDR_MATCH_HIGH_OFF, val);
  
- 	/*
- 	 * test_and_set_bit() implies smp_mb() between bit
--	 * changing and below intr_entry check. Pairs with
-+	 * changing and below FR_INTERRUPTED check. Pairs with
- 	 * smp_mb() from queue_interrupt().
- 	 */
--	if (!list_empty(&req->intr_entry)) {
-+	if (test_bit(FR_INTERRUPTED, &req->flags)) {
- 		spin_lock(&fiq->lock);
- 		list_del_init(&req->intr_entry);
- 		spin_unlock(&fiq->lock);
+ 	ret = dw_pcie_ep_init_complete(ep);
 -- 
 2.30.2
 
