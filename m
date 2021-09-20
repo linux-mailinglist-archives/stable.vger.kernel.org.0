@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFFD7411F65
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:39:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D7F3411B3E
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:55:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346748AbhITRlA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:41:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41022 "EHLO mail.kernel.org"
+        id S1343768AbhITQ4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:56:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345641AbhITRi6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:38:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35C92611C2;
-        Mon, 20 Sep 2021 17:07:30 +0000 (UTC)
+        id S245711AbhITQyl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:54:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E70F36137A;
+        Mon, 20 Sep 2021 16:50:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157650;
-        bh=3ZjcMKku0QHghHQfWo84FCqjec1aaxpy9utY0WxZBI4=;
+        s=korg; t=1632156643;
+        bh=niTFWEk7klu7nPWlyngsrkThD/lS2WUfHlng/Jt+MD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VGMBr5afPMO9nzMku9npuRMvcHEglkdpEpJ1wrrYkZSxIglx3YpAPRJGucrPPzfrI
-         FvpYqL27nL9EDvqcKmdM2razteD1UjUVnun3/usQBL5LF7ab8Gv97mgcwgi3nj8U/P
-         hxpOPwIL2iBezPqOJT9y6kMz+NzqvtdeGk8j6I1E=
+        b=K/ZPHUOAg2WyORp0UVJXohDKDs8lmGwQ0avD0I67ADTwamDidxy/se9F3BVM7kNEN
+         NHb0LUA0jK8nqbijoAsAIHC8OPKXsvwFDRLhKdlGj/BitSxeNiwb0iZcLUCR2US9KD
+         L7rDdjB5CFTMl0sAqOaMmf5Lqt0puOtvTEscoZUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Nadezda Lutovinova <lutovinova@ispras.ru>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 088/293] usb: gadget: mv_u3d: request_irq() after initializing UDC
-Date:   Mon, 20 Sep 2021 18:40:50 +0200
-Message-Id: <20210920163936.280851460@linuxfoundation.org>
+        stable@vger.kernel.org, Wenyou Yang <wenyou.yang@atmel.com>,
+        Josh Wu <rainyfeeling@outlook.com>,
+        Boris Brezillon <boris.brezillon@free-electrons.com>,
+        Richard Weinberger <richard@nod.at>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Marek Vasut <marek.vasut@gmail.com>,
+        Cyrille Pitchen <cyrille.pitchen@atmel.com>
+Subject: [PATCH 4.9 002/175] mtd: nand: atmel_nand: remove build warning in atmel_nand_remove()
+Date:   Mon, 20 Sep 2021 18:40:51 +0200
+Message-Id: <20210920163918.152400834@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,76 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadezda Lutovinova <lutovinova@ispras.ru>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 2af0c5ffadaf9d13eca28409d4238b4e672942d3 ]
+In the 4.9.y tree, the following build warning keeps showing up:
 
-If IRQ occurs between calling  request_irq() and  mv_u3d_eps_init(),
-then null pointer dereference occurs since u3d->eps[] wasn't
-initialized yet but used in mv_u3d_nuke().
+	drivers/mtd/nand/atmel_nand.c:2337:19: warning: unused variable 'mtd' [-Wunused-variable]
 
-The patch puts registration of the interrupt handler after
-initializing of neccesery data.
+This driver was deleted / restructured in newer kernels so this is a
+4.9.y patch only.
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Fixes: 90fccb529d24 ("usb: gadget: Gadget directory cleanup - group UDC drivers")
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
-Link: https://lore.kernel.org/r/20210818141247.4794-1-lutovinova@ispras.ru
+Cc: Wenyou Yang <wenyou.yang@atmel.com>
+Cc: Josh Wu <rainyfeeling@outlook.com>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: Brian Norris <computersforpeace@gmail.com>
+Cc: Marek Vasut <marek.vasut@gmail.com>
+Cc: Cyrille Pitchen <cyrille.pitchen@atmel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/mv_u3d_core.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/mtd/nand/atmel_nand.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/mv_u3d_core.c b/drivers/usb/gadget/udc/mv_u3d_core.c
-index 35e02a8d0091..bdba3f48c052 100644
---- a/drivers/usb/gadget/udc/mv_u3d_core.c
-+++ b/drivers/usb/gadget/udc/mv_u3d_core.c
-@@ -1922,14 +1922,6 @@ static int mv_u3d_probe(struct platform_device *dev)
- 		goto err_get_irq;
- 	}
- 	u3d->irq = r->start;
--	if (request_irq(u3d->irq, mv_u3d_irq,
--		IRQF_SHARED, driver_name, u3d)) {
--		u3d->irq = 0;
--		dev_err(&dev->dev, "Request irq %d for u3d failed\n",
--			u3d->irq);
--		retval = -ENODEV;
--		goto err_request_irq;
--	}
+--- a/drivers/mtd/nand/atmel_nand.c
++++ b/drivers/mtd/nand/atmel_nand.c
+@@ -2334,7 +2334,6 @@ err_nand_ioremap:
+ static int atmel_nand_remove(struct platform_device *pdev)
+ {
+ 	struct atmel_nand_host *host = platform_get_drvdata(pdev);
+-	struct mtd_info *mtd = nand_to_mtd(&host->nand_chip);
  
- 	/* initialize gadget structure */
- 	u3d->gadget.ops = &mv_u3d_ops;	/* usb_gadget_ops */
-@@ -1942,6 +1934,15 @@ static int mv_u3d_probe(struct platform_device *dev)
+ 	nand_release(&host->nand_chip);
  
- 	mv_u3d_eps_init(u3d);
- 
-+	if (request_irq(u3d->irq, mv_u3d_irq,
-+		IRQF_SHARED, driver_name, u3d)) {
-+		u3d->irq = 0;
-+		dev_err(&dev->dev, "Request irq %d for u3d failed\n",
-+			u3d->irq);
-+		retval = -ENODEV;
-+		goto err_request_irq;
-+	}
-+
- 	/* external vbus detection */
- 	if (u3d->vbus) {
- 		u3d->clock_gating = 1;
-@@ -1965,8 +1966,8 @@ static int mv_u3d_probe(struct platform_device *dev)
- 
- err_unregister:
- 	free_irq(u3d->irq, u3d);
--err_request_irq:
- err_get_irq:
-+err_request_irq:
- 	kfree(u3d->status_req);
- err_alloc_status_req:
- 	kfree(u3d->eps);
--- 
-2.30.2
-
 
 
