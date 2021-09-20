@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FACA4125FD
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:51:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3AE7412632
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:54:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354178AbhITSw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:52:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33192 "EHLO mail.kernel.org"
+        id S1354842AbhITS4W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:56:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1385433AbhITSu0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1385434AbhITSu0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:50:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39D4963380;
-        Mon, 20 Sep 2021 17:34:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6119763384;
+        Mon, 20 Sep 2021 17:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159276;
-        bh=b/rRNjwkpOX6ShPOUdeXpzNgnbvmGEbOzQ6Xy+tOEmk=;
+        s=korg; t=1632159278;
+        bh=eP7jEqB4S3rVHetyAJFcQ8BNFU7NTT24eYg6fwPEhcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ngbUz1xg3b7tBkoelw/wBXzqA76nSAHn6Hc9UJr7RiDijCW/Nmtsa4w1b6T/JwAJ2
-         Up0UytqyemXy0pkBVTOoTl2RTqoooTYXY8/z/xQcfm/ydvXnJpJ2hYd9Vd2XvJAG9c
-         1ZC8zpZCOzyn2iV/CtxIbiZlCaSorxYofdOHN0dM=
+        b=K5KF2gKFRDId4RCnApyhu5yLb2w9Xxg9/XNboFS20HNZZ+91RMYMvjQ+TNCm8gw3r
+         j4fxjBUY7cr5RpdU2QwVb9wwIDtnvIr4hidK443fxq63gXFbky0iI963kRYzjH5owO
+         tWXvjIyj/mgfPaePb0QrBnjzuQgSwViiP20X6SeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dror Moshe <drorx.moshe@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 157/168] qlcnic: Remove redundant unlock in qlcnic_pinit_from_rom
-Date:   Mon, 20 Sep 2021 18:44:55 +0200
-Message-Id: <20210920163926.828996568@linuxfoundation.org>
+Subject: [PATCH 5.14 158/168] iwlwifi: move get pnvm file name to a separate function
+Date:   Mon, 20 Sep 2021 18:44:56 +0200
+Message-Id: <20210920163926.861763258@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
 References: <20210920163921.633181900@linuxfoundation.org>
@@ -40,36 +40,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Dror Moshe <drorx.moshe@intel.com>
 
-[ Upstream commit 9ddbc2a00d7f63fa9748f4278643193dac985f2d ]
+[ Upstream commit b05c1d14a177eaffe3aa7fa18b39df3a3e1f3a47 ]
 
-Previous commit 68233c583ab4 removes the qlcnic_rom_lock()
-in qlcnic_pinit_from_rom(), but remains its corresponding
-unlock function, which is odd. I'm not very sure whether the
-lock is missing, or the unlock is redundant. This bug is
-suggested by a static analysis tool, please advise.
+Move code that generates the pnvm file name to a separate function,
+so that it can be reused.
 
-Fixes: 68233c583ab4 ("qlcnic: updated reset sequence")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Dror Moshe <drorx.moshe@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210826224715.7d2dd18c75a2.I3652584755b9ab44909ddcd09ff4d80c6690a1ad@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_init.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/fw/pnvm.c | 13 ++-----------
+ drivers/net/wireless/intel/iwlwifi/fw/pnvm.h | 20 ++++++++++++++++++++
+ 2 files changed, 22 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_init.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_init.c
-index e6784023bce4..aa7ee43f9252 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_init.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_init.c
-@@ -439,7 +439,6 @@ int qlcnic_pinit_from_rom(struct qlcnic_adapter *adapter)
- 	QLCWR32(adapter, QLCNIC_CRB_PEG_NET_4 + 0x3c, 1);
- 	msleep(20);
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/pnvm.c b/drivers/net/wireless/intel/iwlwifi/fw/pnvm.c
+index b4b1f75b9c2a..830257e94126 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/pnvm.c
++++ b/drivers/net/wireless/intel/iwlwifi/fw/pnvm.c
+@@ -230,19 +230,10 @@ static int iwl_pnvm_parse(struct iwl_trans *trans, const u8 *data,
+ static int iwl_pnvm_get_from_fs(struct iwl_trans *trans, u8 **data, size_t *len)
+ {
+ 	const struct firmware *pnvm;
+-	char pnvm_name[64];
++	char pnvm_name[MAX_PNVM_NAME];
+ 	int ret;
  
--	qlcnic_rom_unlock(adapter);
- 	/* big hammer don't reset CAM block on reset */
- 	QLCWR32(adapter, QLCNIC_ROMUSB_GLB_SW_RESET, 0xfeffffff);
+-	/*
+-	 * The prefix unfortunately includes a hyphen at the end, so
+-	 * don't add the dot here...
+-	 */
+-	snprintf(pnvm_name, sizeof(pnvm_name), "%spnvm",
+-		 trans->cfg->fw_name_pre);
+-
+-	/* ...but replace the hyphen with the dot here. */
+-	if (strlen(trans->cfg->fw_name_pre) < sizeof(pnvm_name))
+-		pnvm_name[strlen(trans->cfg->fw_name_pre) - 1] = '.';
++	iwl_pnvm_get_fs_name(trans, pnvm_name, sizeof(pnvm_name));
  
+ 	ret = firmware_request_nowarn(&pnvm, pnvm_name, trans->dev);
+ 	if (ret) {
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/pnvm.h b/drivers/net/wireless/intel/iwlwifi/fw/pnvm.h
+index 61d3d4e0b7d9..203c367dd4de 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/pnvm.h
++++ b/drivers/net/wireless/intel/iwlwifi/fw/pnvm.h
+@@ -12,7 +12,27 @@
+ 
+ #define MVM_UCODE_PNVM_TIMEOUT	(HZ / 4)
+ 
++#define MAX_PNVM_NAME  64
++
+ int iwl_pnvm_load(struct iwl_trans *trans,
+ 		  struct iwl_notif_wait_data *notif_wait);
+ 
++static inline
++void iwl_pnvm_get_fs_name(struct iwl_trans *trans,
++			  u8 *pnvm_name, size_t max_len)
++{
++	int pre_len;
++
++	/*
++	 * The prefix unfortunately includes a hyphen at the end, so
++	 * don't add the dot here...
++	 */
++	snprintf(pnvm_name, max_len, "%spnvm", trans->cfg->fw_name_pre);
++
++	/* ...but replace the hyphen with the dot here. */
++	pre_len = strlen(trans->cfg->fw_name_pre);
++	if (pre_len < max_len && pre_len > 0)
++		pnvm_name[pre_len - 1] = '.';
++}
++
+ #endif /* __IWL_PNVM_H__ */
 -- 
 2.30.2
 
