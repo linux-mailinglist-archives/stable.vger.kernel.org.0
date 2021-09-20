@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3C294121DA
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:09:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E6654121DB
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:09:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359823AbhITSKt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:10:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33076 "EHLO mail.kernel.org"
+        id S1350898AbhITSKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:10:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358690AbhITSH0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1358692AbhITSH0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:07:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6B2863253;
-        Mon, 20 Sep 2021 17:18:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE88663255;
+        Mon, 20 Sep 2021 17:18:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158308;
-        bh=uTNrrX/S4t6/ZBcUg0zRYdoMNiMsoigv8fWLoQZC3gE=;
+        s=korg; t=1632158310;
+        bh=PX2xQm/C4MK4PU4j7gsqvgYGjt7b7XdaBqs4CaQJ+Bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WanllQqxp2UOdFys7Fv2+Y37W0MG2CstTp2QmlXXsPWtY00/NIc7Ha8E5nNXfyGWd
-         D7gLkl4WN7Laou3aa0aL0v2op8TtKht28LWYsmQDTXmNv1hUYypwEcXrgTJ+MFbqb2
-         7OF0tjqzBi5qc2KpL5oP3tiLFVVljWZZ8fBQnDM0=
+        b=SUIXveFc6javHF7hf+//q6KyGroMQWyD9gsRFFL7dgDV04W6oTGmZVh/wqk36+WMl
+         U5hnjCafJOgagmOjvAR6BefibEgqtfdXnZPWgUqbSKkURFV3znMuSyhJp9VQwBn3Y5
+         vao4+aNi7fJDWpGemsooFW13XmYGA6IHVCoECoOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 097/260] bpf/tests: Do not PASS tests without actually testing the result
-Date:   Mon, 20 Sep 2021 18:41:55 +0200
-Message-Id: <20210920163934.430780943@linuxfoundation.org>
+Subject: [PATCH 5.4 098/260] video: fbdev: asiliantfb: Error out if pixclock equals zero
+Date:   Mon, 20 Sep 2021 18:41:56 +0200
+Message-Id: <20210920163934.464848684@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -41,53 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 2b7e9f25e590726cca76700ebdb10e92a7a72ca1 ]
+[ Upstream commit b36b242d4b8ea178f7fd038965e3cac7f30c3f09 ]
 
-Each test case can have a set of sub-tests, where each sub-test can
-run the cBPF/eBPF test snippet with its own data_size and expected
-result. Before, the end of the sub-test array was indicated by both
-data_size and result being zero. However, most or all of the internal
-eBPF tests has a data_size of zero already. When such a test also had
-an expected value of zero, the test was never run but reported as
-PASS anyway.
+The userspace program could pass any values to the driver through
+ioctl() interface. If the driver doesn't check the value of 'pixclock',
+it may cause divide error.
 
-Now the test runner always runs the first sub-test, regardless of the
-data_size and result values. The sub-test array zero-termination only
-applies for any additional sub-tests.
+Fix this by checking whether 'pixclock' is zero first.
 
-There are other ways fix it of course, but this solution at least
-removes the surprise of eBPF tests with a zero result always succeeding.
+The following log reveals it:
 
-Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20210721103822.3755111-1-johan.almbladh@anyfinetworks.com
+[   43.861711] divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+[   43.861737] CPU: 2 PID: 11764 Comm: i740 Not tainted 5.14.0-rc2-00513-gac532c9bbcfb-dirty #224
+[   43.861756] RIP: 0010:asiliantfb_check_var+0x4e/0x730
+[   43.861843] Call Trace:
+[   43.861848]  ? asiliantfb_remove+0x190/0x190
+[   43.861858]  fb_set_var+0x2e4/0xeb0
+[   43.861866]  ? fb_blank+0x1a0/0x1a0
+[   43.861873]  ? lock_acquire+0x1ef/0x530
+[   43.861884]  ? lock_release+0x810/0x810
+[   43.861892]  ? lock_is_held_type+0x100/0x140
+[   43.861903]  ? ___might_sleep+0x1ee/0x2d0
+[   43.861914]  ? __mutex_lock+0x620/0x1190
+[   43.861921]  ? do_fb_ioctl+0x313/0x700
+[   43.861929]  ? mutex_lock_io_nested+0xfa0/0xfa0
+[   43.861936]  ? __this_cpu_preempt_check+0x1d/0x30
+[   43.861944]  ? _raw_spin_unlock_irqrestore+0x46/0x60
+[   43.861952]  ? lockdep_hardirqs_on+0x59/0x100
+[   43.861959]  ? _raw_spin_unlock_irqrestore+0x46/0x60
+[   43.861967]  ? trace_hardirqs_on+0x6a/0x1c0
+[   43.861978]  do_fb_ioctl+0x31e/0x700
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1627293835-17441-2-git-send-email-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_bpf.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/asiliantfb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/lib/test_bpf.c b/lib/test_bpf.c
-index 5e985ed68b2a..3ae002ced4c7 100644
---- a/lib/test_bpf.c
-+++ b/lib/test_bpf.c
-@@ -6684,7 +6684,14 @@ static int run_one(const struct bpf_prog *fp, struct bpf_test *test)
- 		u64 duration;
- 		u32 ret;
+diff --git a/drivers/video/fbdev/asiliantfb.c b/drivers/video/fbdev/asiliantfb.c
+index ea31054a28ca..c1d6e6336225 100644
+--- a/drivers/video/fbdev/asiliantfb.c
++++ b/drivers/video/fbdev/asiliantfb.c
+@@ -227,6 +227,9 @@ static int asiliantfb_check_var(struct fb_var_screeninfo *var,
+ {
+ 	unsigned long Ftarget, ratio, remainder;
  
--		if (test->test[i].data_size == 0 &&
-+		/*
-+		 * NOTE: Several sub-tests may be present, in which case
-+		 * a zero {data_size, result} tuple indicates the end of
-+		 * the sub-test array. The first test is always run,
-+		 * even if both data_size and result happen to be zero.
-+		 */
-+		if (i > 0 &&
-+		    test->test[i].data_size == 0 &&
- 		    test->test[i].result == 0)
- 			break;
- 
++	if (!var->pixclock)
++		return -EINVAL;
++
+ 	ratio = 1000000 / var->pixclock;
+ 	remainder = 1000000 % var->pixclock;
+ 	Ftarget = 1000000 * ratio + (1000000 * remainder) / var->pixclock;
 -- 
 2.30.2
 
