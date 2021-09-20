@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32545412530
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52C834123FA
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:28:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349277AbhITSmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:42:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56448 "EHLO mail.kernel.org"
+        id S1346720AbhITS3B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:29:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1382301AbhITSkR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:40:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8664C63331;
-        Mon, 20 Sep 2021 17:31:03 +0000 (UTC)
+        id S1352244AbhITS0y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:26:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DE95D632E8;
+        Mon, 20 Sep 2021 17:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159064;
-        bh=aU5jjJkB3VmCgVUlzT1/mI1oGjuuEmcURWIZ7K3uIXw=;
+        s=korg; t=1632158758;
+        bh=cdIMnGOF4CkU42daacZN2R1isEuvbkTI+FGt9W79hLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YMSXFpJCFUtIsI8/2tMDZdWO8ODqISSpU9YOdEYZeovecwpOSS7CsjDVGoJVX9Fv0
-         Ed9W2WB/mFLMUNti0PnJmgB/IGu1NKTjU5zwrqOExp0FLKL4xfsKZiRhCbWnnFYOZf
-         vz/u14aQjSXbFDfhZg/M3r7gHKM2XudLPJeVONEs=
+        b=GXTq8MRPZ/Q94EdW5H+kEyPjUEyR5cGJH8gMJAmTP2mXokfC2zMQQHtIijWeGG/oT
+         dI2Sim3eH9F3OR35ZbRpUrWbdc+1fC0+FYS4F/NI7Gq0HrMljuOEg4njXyoiaX2nX5
+         vTgknYMvFpzr6nNulSZKmvB67q7q1S4VhoX4zwNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 058/168] net: ipa: initialize all filter table slots
-Date:   Mon, 20 Sep 2021 18:43:16 +0200
-Message-Id: <20210920163923.548389478@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Richard Cochran <richard.cochran@omicron.at>,
+        John Stultz <john.stultz@linaro.org>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 025/122] ptp: dp83640: dont define PAGE0
+Date:   Mon, 20 Sep 2021 18:43:17 +0200
+Message-Id: <20210920163916.626364739@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit b5c102238cea985d8126b173d06b9e1de88037ee upstream.
+commit 7366c23ff492ad260776a3ee1aaabba9fc773a8b upstream.
 
-There is an off-by-one problem in ipa_table_init_add(), when
-initializing filter tables.
+Building dp83640.c on arch/parisc/ produces a build warning for
+PAGE0 being redefined. Since the macro is not used in the dp83640
+driver, just make it a comment for documentation purposes.
 
-In that function, the number of filter table entries is determined
-based on the number of set bits in the filter map.  However that
-count does *not* include the extra "slot" in the filter table that
-holds the filter map itself.  Meanwhile, ipa_table_addr() *does*
-include the filter map in the memory it returns, but because the
-count it's provided doesn't include it, it includes one too few
-table entries.
+In file included from ../drivers/net/phy/dp83640.c:23:
+../drivers/net/phy/dp83640_reg.h:8: warning: "PAGE0" redefined
+    8 | #define PAGE0                     0x0000
+                 from ../drivers/net/phy/dp83640.c:11:
+../arch/parisc/include/asm/page.h:187: note: this is the location of the previous definition
+  187 | #define PAGE0   ((struct zeropage *)__PAGE_OFFSET)
 
-Fix this by including the extra slot for the filter map in the count
-computed in ipa_table_init_add().
-
-Note: ipa_filter_reset_table() does not have this problem; it resets
-filter table entries one by one, but does not overwrite the filter
-bitmap.
-
-Fixes: 2b9feef2b6c2 ("soc: qcom: ipa: filter and routing tables")
-Signed-off-by: Alex Elder <elder@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: cb646e2b02b2 ("ptp: Added a clock driver for the National Semiconductor PHYTER.")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Richard Cochran <richard.cochran@omicron.at>
+Cc: John Stultz <john.stultz@linaro.org>
+Cc: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20210913220605.19682-1-rdunlap@infradead.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ipa/ipa_table.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/phy/dp83640_reg.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ipa/ipa_table.c
-+++ b/drivers/net/ipa/ipa_table.c
-@@ -430,7 +430,8 @@ static void ipa_table_init_add(struct gs
- 	 * table region determines the number of entries it has.
- 	 */
- 	if (filter) {
--		count = hweight32(ipa->filter_map);
-+		/* Include one extra "slot" to hold the filter map itself */
-+		count = 1 + hweight32(ipa->filter_map);
- 		hash_count = hash_mem->size ? count : 0;
- 	} else {
- 		count = mem->size / sizeof(__le64);
+--- a/drivers/net/phy/dp83640_reg.h
++++ b/drivers/net/phy/dp83640_reg.h
+@@ -5,7 +5,7 @@
+ #ifndef HAVE_DP83640_REGISTERS
+ #define HAVE_DP83640_REGISTERS
+ 
+-#define PAGE0                     0x0000
++/* #define PAGE0                  0x0000 */
+ #define PHYCR2                    0x001c /* PHY Control Register 2 */
+ 
+ #define PAGE4                     0x0004
 
 
