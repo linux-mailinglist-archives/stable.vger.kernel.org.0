@@ -2,86 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBEA1412415
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:29:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9741412575
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:44:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379160AbhITSaa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:30:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49246 "EHLO mail.kernel.org"
+        id S1353836AbhITSpL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:45:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1379143AbhITS2Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:28:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05609632DF;
-        Mon, 20 Sep 2021 17:26:26 +0000 (UTC)
+        id S1382850AbhITSmb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:42:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AFFD61AF0;
+        Mon, 20 Sep 2021 17:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158787;
-        bh=ftxornbp7ysvlGlzARJMZTYWT0McZORP/P3/CsBmJY8=;
+        s=korg; t=1632159126;
+        bh=G1E7ac7GdflTp/GdhZCOeFUB2YLp8l10fKzj1WtTc1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GIP9xz9CRXIMFOyCxljitpdcD3x0MkJJYaICpftBX58mxJir4jZSOTbePbGUOPzIe
-         6PhfQPwqpCpj1bTnozddCFWmETFTyb5clCeqhVrQSEvYIIe9UEaYFujc5/3tTjdEk8
-         xbKx2TAJfCBcNkR0+ePKycEoLlvkey8qUCuDxpYU=
+        b=enFc+Fl2xL9y/6q1TxiCtJLfvLAvQh4qVADf756h+cTzLgVddwm3S6Uxlwnu1nh8f
+         gq4ePgSSG0uo5i9r4J3vz2Y4W0n0FgKF3qcv8Lcjwun+UDIa7ibnVllqjI82OBPi1K
+         Z/Ns6O0oTxRmhzDgW9CCU7hbjui+5vrIiS6SX7xY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Pankaj Gupta <pankaj.gupta@ionos.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
-        Wei Yang <richard.weiyang@linux.alibaba.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        virtualization@lists.linux-foundation.org,
-        Andy Lutomirski <luto@kernel.org>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Anton Blanchard <anton@ozlabs.org>,
-        Ard Biesheuvel <ardb@kernel.org>, Baoquan He <bhe@redhat.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Dave Jiang <dave.jiang@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Jia He <justin.he@arm.com>, Joe Perches <joe@perches.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Laurent Dufour <ldufour@linux.ibm.com>,
-        Michel Lespinasse <michel@lespinasse.org>,
-        Nathan Lynch <nathanl@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Rich Felker <dalias@libc.org>,
-        Scott Cheloha <cheloha@linux.ibm.com>,
-        Sergei Trofimovich <slyfox@gentoo.org>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Will Deacon <will@kernel.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 054/122] mm/memory_hotplug: use "unsigned long" for PFN in zone_for_pfn_range()
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 088/168] net: dsa: flush switchdev workqueue before tearing down CPU/DSA ports
 Date:   Mon, 20 Sep 2021 18:43:46 +0200
-Message-Id: <20210920163917.559777423@linuxfoundation.org>
+Message-Id: <20210920163924.527871711@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -90,127 +41,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 7cf209ba8a86410939a24cb1aeb279479a7e0ca6 upstream.
+[ Upstream commit a57d8c217aadac75530b8e7ffb3a3e1b7bfd0330 ]
 
-Patch series "mm/memory_hotplug: preparatory patches for new online policy and memory"
+Sometimes when unbinding the mv88e6xxx driver on Turris MOX, these error
+messages appear:
 
-These are all cleanups and one fix previously sent as part of [1]:
-[PATCH v1 00/12] mm/memory_hotplug: "auto-movable" online policy and memory
-groups.
+mv88e6085 d0032004.mdio-mii:12: port 1 failed to delete be:79:b4:9e:9e:96 vid 1 from fdb: -2
+mv88e6085 d0032004.mdio-mii:12: port 1 failed to delete be:79:b4:9e:9e:96 vid 0 from fdb: -2
+mv88e6085 d0032004.mdio-mii:12: port 1 failed to delete d8:58:d7:00:ca:6d vid 100 from fdb: -2
+mv88e6085 d0032004.mdio-mii:12: port 1 failed to delete d8:58:d7:00:ca:6d vid 1 from fdb: -2
+mv88e6085 d0032004.mdio-mii:12: port 1 failed to delete d8:58:d7:00:ca:6d vid 0 from fdb: -2
 
-These patches make sense even without the other series, therefore I pulled
-them out to make the other series easier to digest.
+(and similarly for other ports)
 
-[1] https://lkml.kernel.org/r/20210607195430.48228-1-david@redhat.com
+What happens is that DSA has a policy "even if there are bugs, let's at
+least not leak memory" and dsa_port_teardown() clears the dp->fdbs and
+dp->mdbs lists, which are supposed to be empty.
 
-This patch (of 4):
+But deleting that cleanup code, the warnings go away.
 
-Checkpatch complained on a follow-up patch that we are using "unsigned"
-here, which defaults to "unsigned int" and checkpatch is correct.
+=> the FDB and MDB lists (used for refcounting on shared ports, aka CPU
+and DSA ports) will eventually be empty, but are not empty by the time
+we tear down those ports. Aka we are deleting them too soon.
 
-As we will search for a fitting zone using the wrong pfn, we might end
-up onlining memory to one of the special kernel zones, such as ZONE_DMA,
-which can end badly as the onlined memory does not satisfy properties of
-these zones.
+The addresses that DSA complains about are host-trapped addresses: the
+local addresses of the ports, and the MAC address of the bridge device.
 
-Use "unsigned long" instead, just as we do in other places when handling
-PFNs.  This can bite us once we have physical addresses in the range of
-multiple TB.
+The problem is that offloading those entries happens from a deferred
+work item scheduled by the SWITCHDEV_FDB_DEL_TO_DEVICE handler, and this
+races with the teardown of the CPU and DSA ports where the refcounting
+is kept.
 
-Link: https://lkml.kernel.org/r/20210712124052.26491-2-david@redhat.com
-Fixes: e5e689302633 ("mm, memory_hotplug: display allowed zones in the preferred ordering")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Pankaj Gupta <pankaj.gupta@ionos.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Len Brown <lenb@kernel.org>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: virtualization@lists.linux-foundation.org
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc: Anton Blanchard <anton@ozlabs.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jia He <justin.he@arm.com>
-Cc: Joe Perches <joe@perches.com>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Laurent Dufour <ldufour@linux.ibm.com>
-Cc: Michel Lespinasse <michel@lespinasse.org>
-Cc: Nathan Lynch <nathanl@linux.ibm.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Pierre Morel <pmorel@linux.ibm.com>
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Scott Cheloha <cheloha@linux.ibm.com>
-Cc: Sergei Trofimovich <slyfox@gentoo.org>
-Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In fact, not only it races, but fundamentally speaking, if we iterate
+through the port list linearly, we might end up tearing down the shared
+ports even before we delete a DSA user port which has a bridge upper.
+
+So as it turns out, we need to first tear down the user ports (and the
+unused ones, for no better place of doing that), then the shared ports
+(the CPU and DSA ports). In between, we need to ensure that all work
+items scheduled by our switchdev handlers (which only run for user
+ports, hence the reason why we tear them down first) have finished.
+
+Fixes: 161ca59d39e9 ("net: dsa: reference count the MDB entries at the cross-chip notifier level")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20210914134726.2305133-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/memory_hotplug.h |    4 ++--
- mm/memory_hotplug.c            |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ include/net/dsa.h  |  5 +++++
+ net/dsa/dsa.c      |  5 +++++
+ net/dsa/dsa2.c     | 46 +++++++++++++++++++++++++++++++---------------
+ net/dsa/dsa_priv.h |  1 +
+ 4 files changed, 42 insertions(+), 15 deletions(-)
 
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -359,8 +359,8 @@ extern void sparse_remove_section(struct
- 		unsigned long map_offset, struct vmem_altmap *altmap);
- extern struct page *sparse_decode_mem_map(unsigned long coded_mem_map,
- 					  unsigned long pnum);
--extern struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
--		unsigned long nr_pages);
-+extern struct zone *zone_for_pfn_range(int online_type, int nid,
-+		unsigned long start_pfn, unsigned long nr_pages);
- #endif /* CONFIG_MEMORY_HOTPLUG */
- 
- #endif /* __LINUX_MEMORY_HOTPLUG_H */
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -765,8 +765,8 @@ static inline struct zone *default_zone_
- 	return movable_node_enabled ? movable_zone : kernel_zone;
+diff --git a/include/net/dsa.h b/include/net/dsa.h
+index 048d297623c9..d833f717e802 100644
+--- a/include/net/dsa.h
++++ b/include/net/dsa.h
+@@ -437,6 +437,11 @@ static inline bool dsa_port_is_user(struct dsa_port *dp)
+ 	return dp->type == DSA_PORT_TYPE_USER;
  }
  
--struct zone * zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
--		unsigned long nr_pages)
-+struct zone *zone_for_pfn_range(int online_type, int nid,
-+		unsigned long start_pfn, unsigned long nr_pages)
++static inline bool dsa_port_is_unused(struct dsa_port *dp)
++{
++	return dp->type == DSA_PORT_TYPE_UNUSED;
++}
++
+ static inline bool dsa_is_unused_port(struct dsa_switch *ds, int p)
  {
- 	if (online_type == MMOP_ONLINE_KERNEL)
- 		return default_kernel_zone_for_pfn(nid, start_pfn, nr_pages);
+ 	return dsa_to_port(ds, p)->type == DSA_PORT_TYPE_UNUSED;
+diff --git a/net/dsa/dsa.c b/net/dsa/dsa.c
+index 84cad1be9ce4..e058a2e320e3 100644
+--- a/net/dsa/dsa.c
++++ b/net/dsa/dsa.c
+@@ -345,6 +345,11 @@ bool dsa_schedule_work(struct work_struct *work)
+ 	return queue_work(dsa_owq, work);
+ }
+ 
++void dsa_flush_workqueue(void)
++{
++	flush_workqueue(dsa_owq);
++}
++
+ int dsa_devlink_param_get(struct devlink *dl, u32 id,
+ 			  struct devlink_param_gset_ctx *ctx)
+ {
+diff --git a/net/dsa/dsa2.c b/net/dsa/dsa2.c
+index 185629f27f80..79267b00af68 100644
+--- a/net/dsa/dsa2.c
++++ b/net/dsa/dsa2.c
+@@ -809,6 +809,33 @@ static void dsa_switch_teardown(struct dsa_switch *ds)
+ 	ds->setup = false;
+ }
+ 
++/* First tear down the non-shared, then the shared ports. This ensures that
++ * all work items scheduled by our switchdev handlers for user ports have
++ * completed before we destroy the refcounting kept on the shared ports.
++ */
++static void dsa_tree_teardown_ports(struct dsa_switch_tree *dst)
++{
++	struct dsa_port *dp;
++
++	list_for_each_entry(dp, &dst->ports, list)
++		if (dsa_port_is_user(dp) || dsa_port_is_unused(dp))
++			dsa_port_teardown(dp);
++
++	dsa_flush_workqueue();
++
++	list_for_each_entry(dp, &dst->ports, list)
++		if (dsa_port_is_dsa(dp) || dsa_port_is_cpu(dp))
++			dsa_port_teardown(dp);
++}
++
++static void dsa_tree_teardown_switches(struct dsa_switch_tree *dst)
++{
++	struct dsa_port *dp;
++
++	list_for_each_entry(dp, &dst->ports, list)
++		dsa_switch_teardown(dp->ds);
++}
++
+ static int dsa_tree_setup_switches(struct dsa_switch_tree *dst)
+ {
+ 	struct dsa_port *dp;
+@@ -835,26 +862,13 @@ static int dsa_tree_setup_switches(struct dsa_switch_tree *dst)
+ 	return 0;
+ 
+ teardown:
+-	list_for_each_entry(dp, &dst->ports, list)
+-		dsa_port_teardown(dp);
++	dsa_tree_teardown_ports(dst);
+ 
+-	list_for_each_entry(dp, &dst->ports, list)
+-		dsa_switch_teardown(dp->ds);
++	dsa_tree_teardown_switches(dst);
+ 
+ 	return err;
+ }
+ 
+-static void dsa_tree_teardown_switches(struct dsa_switch_tree *dst)
+-{
+-	struct dsa_port *dp;
+-
+-	list_for_each_entry(dp, &dst->ports, list)
+-		dsa_port_teardown(dp);
+-
+-	list_for_each_entry(dp, &dst->ports, list)
+-		dsa_switch_teardown(dp->ds);
+-}
+-
+ static int dsa_tree_setup_master(struct dsa_switch_tree *dst)
+ {
+ 	struct dsa_port *dp;
+@@ -964,6 +978,8 @@ static void dsa_tree_teardown(struct dsa_switch_tree *dst)
+ 
+ 	dsa_tree_teardown_master(dst);
+ 
++	dsa_tree_teardown_ports(dst);
++
+ 	dsa_tree_teardown_switches(dst);
+ 
+ 	dsa_tree_teardown_default_cpu(dst);
+diff --git a/net/dsa/dsa_priv.h b/net/dsa/dsa_priv.h
+index cddf7cb0f398..6c00557ca9bf 100644
+--- a/net/dsa/dsa_priv.h
++++ b/net/dsa/dsa_priv.h
+@@ -158,6 +158,7 @@ void dsa_tag_driver_put(const struct dsa_device_ops *ops);
+ const struct dsa_device_ops *dsa_find_tagger_by_name(const char *buf);
+ 
+ bool dsa_schedule_work(struct work_struct *work);
++void dsa_flush_workqueue(void);
+ const char *dsa_tag_protocol_to_str(const struct dsa_device_ops *ops);
+ 
+ static inline int dsa_tag_protocol_overhead(const struct dsa_device_ops *ops)
+-- 
+2.30.2
+
 
 
