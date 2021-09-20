@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5A18412643
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:55:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0980441261E
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:52:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386256AbhITS4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:56:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38108 "EHLO mail.kernel.org"
+        id S1348300AbhITSxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:53:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1385807AbhITSw2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:52:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90F4163383;
-        Mon, 20 Sep 2021 17:35:17 +0000 (UTC)
+        id S1385533AbhITSue (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:50:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2C1C63392;
+        Mon, 20 Sep 2021 17:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159318;
-        bh=AV3XuGOzlaAqvqRuTjT43u2zLAVdU4oHwauY6QUT+jk=;
+        s=korg; t=1632159309;
+        bh=gRFSAITfTuC4f8wJ31FrDKiHmtxEGLwA5hnuzmRXpps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G8/JU6d/nbi5xHvdg3ivGKpjnqMnTPCreC1qpAV6lpLTqTqhImlyyIYAHjwXlfvlp
-         RZij61Tk5yyeTRI4ozl4tA8hOuj4riKekEhwFvTyZ2YRnPNtK7LFA97u44sYxmUouE
-         p9GvzB50G/Ah36NR+OiQQiV8XgIgtyJHIcm1GLCs=
+        b=XKK5+c5e+RtFOWlXg5dpEmJ3it46841pr5498XjOXQZd1gfIVIiZ5A4zSw7iVLQOR
+         SlRS026JpCefezDum36nHAL/HKTLHiZgLy6m/HOzL6b0DIyTXtSuGLbnmHW5hsuArG
+         VhG2FUsWjD3QZNMy0JEdObi+PO697ZwIwbjmoLng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 164/168] bnxt_en: Fix possible unintended driver initiated error recovery
-Date:   Mon, 20 Sep 2021 18:45:02 +0200
-Message-Id: <20210920163927.070105317@linuxfoundation.org>
+Subject: [PATCH 5.14 165/168] ip6_gre: Revert "ip6_gre: add validation for csum_start"
+Date:   Mon, 20 Sep 2021 18:45:03 +0200
+Message-Id: <20210920163927.102531590@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
 References: <20210920163921.633181900@linuxfoundation.org>
@@ -41,94 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 1b2b91831983aeac3adcbb469aa8b0dc71453f89 ]
+[ Upstream commit fe63339ef36bfb1cc12962015a9b254170eea057 ]
 
-If error recovery is already enabled, bnxt_timer() will periodically
-check the heartbeat register and the reset counter.  If we get an
-error recovery async. notification from the firmware (e.g. change in
-primary/secondary role), we will immediately read and update the
-heartbeat register and the reset counter.  If the timer for the next
-health check expires soon after this, we may read the heartbeat register
-again in quick succession and find that it hasn't changed.  This will
-trigger error recovery unintentionally.
+This reverts commit 9cf448c200ba9935baa94e7a0964598ce947db9d.
 
-The likelihood is small because we also reset fw_health->tmr_counter
-which will reset the interval for the next health check.  But the
-update is not protected and bnxt_timer() can miss the update and
-perform the health check without waiting for the full interval.
+This commit was added for equivalence with a similar fix to ip_gre.
+That fix proved to have a bug. Upon closer inspection, ip6_gre is not
+susceptible to the original bug.
 
-Fix it by only reading the heartbeat register and reset counter in
-bnxt_async_event_process() if error recovery is trasitioning to the
-enabled state.  Also add proper memory barriers so that when enabling
-for the first time, bnxt_timer() will see the tmr_counter interval and
-perform the health check after the full interval has elapsed.
+So revert the unnecessary extra check.
 
-Fixes: 7e914027f757 ("bnxt_en: Enable health monitoring.")
-Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+In short, ipgre_xmit calls skb_pull to remove ipv4 headers previously
+inserted by dev_hard_header. ip6gre_tunnel_xmit does not.
+
+Link: https://lore.kernel.org/netdev/CA+FuTSe+vJgTVLc9SojGuN-f9YQ+xWLPKE_S4f=f+w+_P2hgUg@mail.gmail.com/#t
+Fixes: 9cf448c200ba ("ip6_gre: add validation for csum_start")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 25 ++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ net/ipv6/ip6_gre.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 1acf8633399f..2660dfc6875a 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -2172,25 +2172,34 @@ static int bnxt_async_event_process(struct bnxt *bp,
- 		if (!fw_health)
- 			goto async_event_process_exit;
+diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
+index 7a5e90e09363..bc224f917bbd 100644
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -629,8 +629,6 @@ drop:
  
--		fw_health->enabled = EVENT_DATA1_RECOVERY_ENABLED(data1);
--		fw_health->master = EVENT_DATA1_RECOVERY_MASTER_FUNC(data1);
--		if (!fw_health->enabled) {
-+		if (!EVENT_DATA1_RECOVERY_ENABLED(data1)) {
-+			fw_health->enabled = false;
- 			netif_info(bp, drv, bp->dev,
- 				   "Error recovery info: error recovery[0]\n");
- 			break;
- 		}
-+		fw_health->master = EVENT_DATA1_RECOVERY_MASTER_FUNC(data1);
- 		fw_health->tmr_multiplier =
- 			DIV_ROUND_UP(fw_health->polling_dsecs * HZ,
- 				     bp->current_interval * 10);
- 		fw_health->tmr_counter = fw_health->tmr_multiplier;
--		fw_health->last_fw_heartbeat =
--			bnxt_fw_health_readl(bp, BNXT_FW_HEARTBEAT_REG);
--		fw_health->last_fw_reset_cnt =
--			bnxt_fw_health_readl(bp, BNXT_FW_RESET_CNT_REG);
-+		if (!fw_health->enabled) {
-+			fw_health->last_fw_heartbeat =
-+				bnxt_fw_health_readl(bp, BNXT_FW_HEARTBEAT_REG);
-+			fw_health->last_fw_reset_cnt =
-+				bnxt_fw_health_readl(bp, BNXT_FW_RESET_CNT_REG);
-+		}
- 		netif_info(bp, drv, bp->dev,
- 			   "Error recovery info: error recovery[1], master[%d], reset count[%u], health status: 0x%x\n",
- 			   fw_health->master, fw_health->last_fw_reset_cnt,
- 			   bnxt_fw_health_readl(bp, BNXT_FW_HEALTH_REG));
-+		if (!fw_health->enabled) {
-+			/* Make sure tmr_counter is set and visible to
-+			 * bnxt_health_check() before setting enabled to true.
-+			 */
-+			smp_wmb();
-+			fw_health->enabled = true;
-+		}
- 		goto async_event_process_exit;
- 	}
- 	case ASYNC_EVENT_CMPL_EVENT_ID_DEBUG_NOTIFICATION:
-@@ -11250,6 +11259,8 @@ static void bnxt_fw_health_check(struct bnxt *bp)
- 	if (!fw_health->enabled || test_bit(BNXT_STATE_IN_FW_RESET, &bp->state))
- 		return;
- 
-+	/* Make sure it is enabled before checking the tmr_counter. */
-+	smp_rmb();
- 	if (fw_health->tmr_counter) {
- 		fw_health->tmr_counter--;
- 		return;
+ static int gre_handle_offloads(struct sk_buff *skb, bool csum)
+ {
+-	if (csum && skb_checksum_start(skb) < skb->data)
+-		return -EINVAL;
+ 	return iptunnel_handle_offloads(skb,
+ 					csum ? SKB_GSO_GRE_CSUM : SKB_GSO_GRE);
+ }
 -- 
 2.30.2
 
