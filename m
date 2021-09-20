@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72CF841201D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:47:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96288411A86
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:49:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354125AbhITRs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:48:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52816 "EHLO mail.kernel.org"
+        id S244445AbhITQuS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:50:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349426AbhITRqx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:46:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 799A461B97;
-        Mon, 20 Sep 2021 17:10:39 +0000 (UTC)
+        id S243890AbhITQso (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:48:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8976461211;
+        Mon, 20 Sep 2021 16:47:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157839;
-        bh=HrENAoPSa9HeSp9luRI1RkJG1k5i1MbrAH/bpIgfSrI=;
+        s=korg; t=1632156437;
+        bh=mQG8IH/HJSkH6P8c5RlulqNS25ErDLDkcMn184/RKjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KGPhHoNrHd/9BQKbDwMDaZ2kQOAix0pwixt0P04k+Xp0a7hYI63HFuLxRrpQlzbso
-         0Jf/AwzVCa1fg8VdCWG72l3hTzG+V/KyKoBFFQ9jzcSyHzBKrzctNtVeCBF3/CKf0C
-         qk2eq9+r9OTVVrI9XECAeL5gFQ+NBMKafM2o05Kk=
+        b=rWCQH+LSqMaptYpjCFotb2m8XvvJgxuJ2l/I/X+OhuPiZdeplYKUnKx90byaMFhOG
+         WC4zi6ZkJfacU10pAyzS9PkWg+H3KrwXWliAasW0UiR+Vbw6uf7rAsE1XklAzAFYkK
+         pFqkJz2n+36w0e3tyTADd9+87dQuZzs1gXswNuSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Steve Capper <steve.capper@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 4.19 142/293] arm64: head: avoid over-mapping in map_memory
+        stable@vger.kernel.org,
+        Zygo Blaxell <ce3g8jdj@umail.furryterror.org>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.4 026/133] Revert "btrfs: compression: dont try to compress if we dont have enough pages"
 Date:   Mon, 20 Sep 2021 18:41:44 +0200
-Message-Id: <20210920163938.141111078@linuxfoundation.org>
+Message-Id: <20210920163913.469248773@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,106 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 90268574a3e8a6b883bd802d702a2738577e1006 upstream.
+commit 4e9655763b82a91e4c341835bb504a2b1590f984 upstream.
 
-The `compute_indices` and `populate_entries` macros operate on inclusive
-bounds, and thus the `map_memory` macro which uses them also operates
-on inclusive bounds.
+This reverts commit f2165627319ffd33a6217275e5690b1ab5c45763.
 
-We pass `_end` and `_idmap_text_end` to `map_memory`, but these are
-exclusive bounds, and if one of these is sufficiently aligned (as a
-result of kernel configuration, physical placement, and KASLR), then:
+[BUG]
+It's no longer possible to create compressed inline extent after commit
+f2165627319f ("btrfs: compression: don't try to compress if we don't
+have enough pages").
 
-* In `compute_indices`, the computed `iend` will be in the page/block *after*
-  the final byte of the intended mapping.
+[CAUSE]
+For compression code, there are several possible reasons we have a range
+that needs to be compressed while it's no more than one page.
 
-* In `populate_entries`, an unnecessary entry will be created at the end
-  of each level of table. At the leaf level, this entry will map up to
-  SWAPPER_BLOCK_SIZE bytes of physical addresses that we did not intend
-  to map.
+- Compressed inline write
+  The data is always smaller than one sector and the test lacks the
+  condition to properly recognize a non-inline extent.
 
-As we may map up to SWAPPER_BLOCK_SIZE bytes more than intended, we may
-violate the boot protocol and map physical address past the 2MiB-aligned
-end address we are permitted to map. As we map these with Normal memory
-attributes, this may result in further problems depending on what these
-physical addresses correspond to.
+- Compressed subpage write
+  For the incoming subpage compressed write support, we require page
+  alignment of the delalloc range.
+  And for 64K page size, we can compress just one page into smaller
+  sectors.
 
-The final entry at each level may require an additional table at that
-level. As EARLY_ENTRIES() calculates an inclusive bound, we allocate
-enough memory for this.
+For those reasons, the requirement for the data to be more than one page
+is not correct, and is already causing regression for compressed inline
+data writeback.  The idea of skipping one page to avoid wasting CPU time
+could be revisited in the future.
 
-Avoid the extraneous mapping by having map_memory convert the exclusive
-end address to an inclusive end address by subtracting one, and do
-likewise in EARLY_ENTRIES() when calculating the number of required
-tables. For clarity, comments are updated to more clearly document which
-boundaries the macros operate on.  For consistency with the other
-macros, the comments in map_memory are also updated to describe `vstart`
-and `vend` as virtual addresses.
+[FIX]
+Fix it by reverting the offending commit.
 
-Fixes: 0370b31e4845 ("arm64: Extend early page table code to allow for larger kernels")
-Cc: <stable@vger.kernel.org> # 4.16.x
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Steve Capper <steve.capper@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Acked-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20210823101253.55567-1-mark.rutland@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Reported-by: Zygo Blaxell <ce3g8jdj@umail.furryterror.org>
+Link: https://lore.kernel.org/linux-btrfs/afa2742.c084f5d6.17b6b08dffc@tnonline.net
+Fixes: f2165627319f ("btrfs: compression: don't try to compress if we don't have enough pages")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/kernel-pgtable.h |    4 ++--
- arch/arm64/kernel/head.S                |   11 ++++++-----
- 2 files changed, 8 insertions(+), 7 deletions(-)
+ fs/btrfs/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/kernel-pgtable.h
-+++ b/arch/arm64/include/asm/kernel-pgtable.h
-@@ -76,8 +76,8 @@
- #define EARLY_KASLR	(0)
- #endif
- 
--#define EARLY_ENTRIES(vstart, vend, shift) (((vend) >> (shift)) \
--					- ((vstart) >> (shift)) + 1 + EARLY_KASLR)
-+#define EARLY_ENTRIES(vstart, vend, shift) \
-+	((((vend) - 1) >> (shift)) - ((vstart) >> (shift)) + 1 + EARLY_KASLR)
- 
- #define EARLY_PGDS(vstart, vend) (EARLY_ENTRIES(vstart, vend, PGDIR_SHIFT))
- 
---- a/arch/arm64/kernel/head.S
-+++ b/arch/arm64/kernel/head.S
-@@ -202,7 +202,7 @@ ENDPROC(preserve_boot_args)
-  * to be composed of multiple pages. (This effectively scales the end index).
-  *
-  *	vstart:	virtual address of start of range
-- *	vend:	virtual address of end of range
-+ *	vend:	virtual address of end of range - we map [vstart, vend]
-  *	shift:	shift used to transform virtual address into index
-  *	ptrs:	number of entries in page table
-  *	istart:	index in table corresponding to vstart
-@@ -239,17 +239,18 @@ ENDPROC(preserve_boot_args)
-  *
-  *	tbl:	location of page table
-  *	rtbl:	address to be used for first level page table entry (typically tbl + PAGE_SIZE)
-- *	vstart:	start address to map
-- *	vend:	end address to map - we map [vstart, vend]
-+ *	vstart:	virtual address of start of range
-+ *	vend:	virtual address of end of range - we map [vstart, vend - 1]
-  *	flags:	flags to use to map last level entries
-  *	phys:	physical address corresponding to vstart - physical memory is contiguous
-  *	pgds:	the number of pgd entries
-  *
-  * Temporaries:	istart, iend, tmp, count, sv - these need to be different registers
-- * Preserves:	vstart, vend, flags
-- * Corrupts:	tbl, rtbl, istart, iend, tmp, count, sv
-+ * Preserves:	vstart, flags
-+ * Corrupts:	tbl, rtbl, vend, istart, iend, tmp, count, sv
-  */
- 	.macro map_memory, tbl, rtbl, vstart, vend, flags, phys, pgds, istart, iend, tmp, count, sv
-+	sub \vend, \vend, #1
- 	add \rtbl, \tbl, #PAGE_SIZE
- 	mov \sv, \rtbl
- 	mov \count, #0
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -476,7 +476,7 @@ again:
+ 	 * inode has not been flagged as nocompress.  This flag can
+ 	 * change at any time if we discover bad compression ratios.
+ 	 */
+-	if (nr_pages > 1 && inode_need_compress(inode)) {
++	if (inode_need_compress(inode)) {
+ 		WARN_ON(pages);
+ 		pages = kcalloc(nr_pages, sizeof(struct page *), GFP_NOFS);
+ 		if (!pages) {
 
 
