@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A9BD412222
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:11:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE9CE41251B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359848AbhITSNI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:13:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36234 "EHLO mail.kernel.org"
+        id S1380717AbhITSl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:41:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356735AbhITSKr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:10:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4185063277;
-        Mon, 20 Sep 2021 17:20:14 +0000 (UTC)
+        id S1381515AbhITSia (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:38:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E77961526;
+        Mon, 20 Sep 2021 17:30:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158414;
-        bh=6LOksXce/k5HvDLNXSjLG9Te585jaGoi0SD0jX9pYW4=;
+        s=korg; t=1632159007;
+        bh=zyxRADBY8AibZMZCvqLlk+7TZnMjJWiKSInp8UYynvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sjw1SVxAX1ca0vVYIf7oEqEsK9Y8frh0zNeiRFYAw34f0yU2wmKNw6Pj8iZqA40JV
-         RDnVrP5RZDQn6HNcHHK8Eo+hOtQzvPyubGAThLloXqW0y3Jnrld39ucMVpqpho/kSq
-         oTlqhmRC8y8ujxMrvPAXSF7e9Hy6Csh9gj3qgbxs=
+        b=QYa7TyXH7Yq/T9ihjTQ4QqvC9PL18CDYMlRjnEIl/VWbQXLLHpeCQEnglkQYoqLSM
+         TOKrq6fMkxON+xwqsP59E58OsquoRB8/vS3mrsTyaBEjOxYjoBU1KimlCxI7yNoMVE
+         e0OxHbUpQmFq1DeqTmzqmL8+REwQDP49fKTZinio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daire Byrne <daire@dneg.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 145/260] lockd: lockd server-side shouldnt set fl_ops
-Date:   Mon, 20 Sep 2021 18:42:43 +0200
-Message-Id: <20210920163936.043800511@linuxfoundation.org>
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Michael Walle <michael@walle.cc>, Marek Vasut <marex@denx.de>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH 5.14 026/168] drm/etnaviv: stop abusing mmu_context as FE running marker
+Date:   Mon, 20 Sep 2021 18:42:44 +0200
+Message-Id: <20210920163922.507844848@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,85 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 7de875b231edb807387a81cde288aa9e1015ef9e ]
+commit 23e0f5a57d0ecec86e1fc82194acd94aede21a46 upstream.
 
-Locks have two sets of op arrays, fl_lmops for the lock manager (lockd
-or nfsd), fl_ops for the filesystem.  The server-side lockd code has
-been setting its own fl_ops, which leads to confusion (and crashes) in
-the reexport case, where the filesystem expects to be the only one
-setting fl_ops.
+While the DMA frontend can only be active when the MMU context is set, the
+reverse isn't necessarily true, as the frontend can be stopped while the
+MMU state is kept. Stop treating mmu_context being set as a indication that
+the frontend is running and instead add a explicit property.
 
-And there's no reason for it that I can see-the lm_get/put_owner ops do
-the same job.
-
-Reported-by: Daire Byrne <daire@dneg.com>
-Tested-by: Daire Byrne <daire@dneg.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org # 5.4
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Tested-by: Michael Walle <michael@walle.cc>
+Tested-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/lockd/svclock.c | 30 ++++++++++++------------------
- 1 file changed, 12 insertions(+), 18 deletions(-)
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.c |   10 ++++++++--
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.h |    1 +
+ 2 files changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/fs/lockd/svclock.c b/fs/lockd/svclock.c
-index 498cb70c2c0d..273a81971ed5 100644
---- a/fs/lockd/svclock.c
-+++ b/fs/lockd/svclock.c
-@@ -395,28 +395,10 @@ nlmsvc_release_lockowner(struct nlm_lock *lock)
- 		nlmsvc_put_lockowner(lock->fl.fl_owner);
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+@@ -569,6 +569,8 @@ static int etnaviv_hw_reset(struct etnav
+ 	/* We rely on the GPU running, so program the clock */
+ 	etnaviv_gpu_update_clock(gpu);
+ 
++	gpu->fe_running = false;
++
+ 	return 0;
  }
  
--static void nlmsvc_locks_copy_lock(struct file_lock *new, struct file_lock *fl)
--{
--	struct nlm_lockowner *nlm_lo = (struct nlm_lockowner *)fl->fl_owner;
--	new->fl_owner = nlmsvc_get_lockowner(nlm_lo);
--}
--
--static void nlmsvc_locks_release_private(struct file_lock *fl)
--{
--	nlmsvc_put_lockowner((struct nlm_lockowner *)fl->fl_owner);
--}
--
--static const struct file_lock_operations nlmsvc_lock_ops = {
--	.fl_copy_lock = nlmsvc_locks_copy_lock,
--	.fl_release_private = nlmsvc_locks_release_private,
--};
--
- void nlmsvc_locks_init_private(struct file_lock *fl, struct nlm_host *host,
- 						pid_t pid)
+@@ -631,6 +633,8 @@ void etnaviv_gpu_start_fe(struct etnaviv
+ 			  VIVS_MMUv2_SEC_COMMAND_CONTROL_ENABLE |
+ 			  VIVS_MMUv2_SEC_COMMAND_CONTROL_PREFETCH(prefetch));
+ 	}
++
++	gpu->fe_running = true;
+ }
+ 
+ static void etnaviv_gpu_start_fe_idleloop(struct etnaviv_gpu *gpu)
+@@ -1364,7 +1368,7 @@ struct dma_fence *etnaviv_gpu_submit(str
+ 		goto out_unlock;
+ 	}
+ 
+-	if (!gpu->mmu_context) {
++	if (!gpu->fe_running) {
+ 		gpu->mmu_context = etnaviv_iommu_context_get(submit->mmu_context);
+ 		etnaviv_gpu_start_fe_idleloop(gpu);
+ 	} else {
+@@ -1573,7 +1577,7 @@ int etnaviv_gpu_wait_idle(struct etnaviv
+ 
+ static int etnaviv_gpu_hw_suspend(struct etnaviv_gpu *gpu)
  {
- 	fl->fl_owner = nlmsvc_find_lockowner(host, pid);
--	if (fl->fl_owner != NULL)
--		fl->fl_ops = &nlmsvc_lock_ops;
- }
+-	if (gpu->initialized && gpu->mmu_context) {
++	if (gpu->initialized && gpu->fe_running) {
+ 		/* Replace the last WAIT with END */
+ 		mutex_lock(&gpu->lock);
+ 		etnaviv_buffer_end(gpu);
+@@ -1588,6 +1592,8 @@ static int etnaviv_gpu_hw_suspend(struct
  
- /*
-@@ -788,9 +770,21 @@ nlmsvc_notify_blocked(struct file_lock *fl)
- 	printk(KERN_WARNING "lockd: notification for unknown block!\n");
- }
- 
-+static fl_owner_t nlmsvc_get_owner(fl_owner_t owner)
-+{
-+	return nlmsvc_get_lockowner(owner);
-+}
+ 		etnaviv_iommu_context_put(gpu->mmu_context);
+ 		gpu->mmu_context = NULL;
 +
-+static void nlmsvc_put_owner(fl_owner_t owner)
-+{
-+	nlmsvc_put_lockowner(owner);
-+}
-+
- const struct lock_manager_operations nlmsvc_lock_operations = {
- 	.lm_notify = nlmsvc_notify_blocked,
- 	.lm_grant = nlmsvc_grant_deferred,
-+	.lm_get_owner = nlmsvc_get_owner,
-+	.lm_put_owner = nlmsvc_put_owner,
- };
++		gpu->fe_running = false;
+ 	}
  
- /*
--- 
-2.30.2
-
+ 	gpu->exec_state = -1;
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.h
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.h
+@@ -101,6 +101,7 @@ struct etnaviv_gpu {
+ 	struct workqueue_struct *wq;
+ 	struct drm_gpu_scheduler sched;
+ 	bool initialized;
++	bool fe_running;
+ 
+ 	/* 'ring'-buffer: */
+ 	struct etnaviv_cmdbuf buffer;
 
 
