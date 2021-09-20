@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CBA2411FA1
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:42:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 666E1411B55
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:57:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349013AbhITRn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:43:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48038 "EHLO mail.kernel.org"
+        id S243787AbhITQ5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:57:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348552AbhITRlO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:41:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C32D61205;
-        Mon, 20 Sep 2021 17:08:20 +0000 (UTC)
+        id S244789AbhITQzf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:55:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DB7A6128A;
+        Mon, 20 Sep 2021 16:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157700;
-        bh=pR6ydHKps1CHHFsfAgt4lhr4lBJk6of7DJKdWDaIesw=;
+        s=korg; t=1632156658;
+        bh=kiedoINhRcM+JPQ71WYuzapGU4ux5/PHUwA9IQFoTWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zpHtX9/7cZyw1x+QLZhKJC7Ig82AAA9UEnu11nHWo58WkhvT4PmjETdy2rThp9iiy
-         wU34W3cODvIqOfa38+Ad6FBfqjw6PiuxibVfxCcVFjzU+6hc7JcOgYZk0b/qOVvosK
-         InlXh7e/07ItzCCOB35OzcamO+Rju/6px1rGVjwY=
+        b=AULpBfrWD4ynBPvTc7jzkYz52+9w8DBeq1tg9fiyN2uht8TmZQD6uRewauZwimNCl
+         WO/2UvoQp8OeKrNi59AfDVUwOJlOh5fllgp899XKA5y6ATyXCYILbaZc1fEAJV0Jgm
+         tAoZM/BfEImwcYStU569BnzGsT7lCVOoF0ABCmJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zelin Deng <zelin.deng@linux.alibaba.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 112/293] KVM: x86: Update vCPUs hv_clock before back to guest when tsc_offset is adjusted
-Date:   Mon, 20 Sep 2021 18:41:14 +0200
-Message-Id: <20210920163937.092002857@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Yisheng Xie <xieyisheng1@huawei.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.9 026/175] mm/kmemleak.c: make cond_resched() rate-limiting more efficient
+Date:   Mon, 20 Sep 2021 18:41:15 +0200
+Message-Id: <20210920163918.924504484@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,40 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zelin Deng <zelin.deng@linux.alibaba.com>
+From: Andrew Morton <akpm@linux-foundation.org>
 
-commit d9130a2dfdd4b21736c91b818f87dbc0ccd1e757 upstream.
+commit 13ab183d138f607d885e995d625e58d47678bf97 upstream.
 
-When MSR_IA32_TSC_ADJUST is written by guest due to TSC ADJUST feature
-especially there's a big tsc warp (like a new vCPU is hot-added into VM
-which has been up for a long time), tsc_offset is added by a large value
-then go back to guest. This causes system time jump as tsc_timestamp is
-not adjusted in the meantime and pvclock monotonic character.
-To fix this, just notify kvm to update vCPU's guest time before back to
-guest.
+Commit bde5f6bc68db ("kmemleak: add scheduling point to
+kmemleak_scan()") tries to rate-limit the frequency of cond_resched()
+calls, but does it in a way which might incur an expensive division
+operation in the inner loop.  Simplify this.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Zelin Deng <zelin.deng@linux.alibaba.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Message-Id: <1619576521-81399-2-git-send-email-zelin.deng@linux.alibaba.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: bde5f6bc68db5 ("kmemleak: add scheduling point to kmemleak_scan()")
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Yisheng Xie <xieyisheng1@huawei.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ mm/kmemleak.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -2511,6 +2511,10 @@ int kvm_set_msr_common(struct kvm_vcpu *
- 			if (!msr_info->host_initiated) {
- 				s64 adj = data - vcpu->arch.ia32_tsc_adjust_msr;
- 				adjust_tsc_offset_guest(vcpu, adj);
-+				/* Before back to guest, tsc_timestamp must be adjusted
-+				 * as well, otherwise guest's percpu pvclock time could jump.
-+				 */
-+				kvm_make_request(KVM_REQ_CLOCK_UPDATE, vcpu);
- 			}
- 			vcpu->arch.ia32_tsc_adjust_msr = data;
+--- a/mm/kmemleak.c
++++ b/mm/kmemleak.c
+@@ -1442,7 +1442,7 @@ static void kmemleak_scan(void)
+ 			if (page_count(page) == 0)
+ 				continue;
+ 			scan_block(page, page + 1, NULL);
+-			if (!(pfn % (MAX_SCAN_SIZE / sizeof(*page))))
++			if (!(pfn & 63))
+ 				cond_resched();
  		}
+ 	}
 
 
