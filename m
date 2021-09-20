@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C8FC412638
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:55:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24197412637
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:55:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385392AbhITS42 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:56:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33542 "EHLO mail.kernel.org"
+        id S1354945AbhITS41 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:56:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1384656AbhITSsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1384659AbhITSsd (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:48:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E291B6336A;
-        Mon, 20 Sep 2021 17:34:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 18DC56152B;
+        Mon, 20 Sep 2021 17:34:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159259;
-        bh=jCgFchMhrEFWJTw//iknOW6XerRyT1Awbe0hGFmAHks=;
+        s=korg; t=1632159261;
+        bh=RvZMJUwPwvICKJLCLPqT7k/SWeRAM9TQK5Wn4bOsmww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LHsihNOwQXnmO3Ec5gqkj5WYr6TpQpTSt6/sLX42lcNamXj0BWNbsXRj3uFxNDc9Y
-         XbNqB2XKekApO9HRBnk+6e+2eo8gbpUs91ZUi8VLmSjMX9M3AUGmUtJM3iGlEwd+Ox
-         AdPDSHOyOE1ZUAtsahyigA9R+recM2SXB8wRct/Q=
+        b=nvnu+B4LkKvYNg3jqSQcKGIC5mIWrpsWd0xB3HUdPeCcQdsfHLJGMJrY1MrNvlrc6
+         72pRq853/0JSKoI2ZdHug2z9iVuwpP2fqsrztndwkvoNVo1TWqz7JWiunPRyTGB9mS
+         EhQacj2atIXgSbwqcIvNblTHKDWXub/zJ6HVC0xU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
         Mat Martineau <mathew.j.martineau@linux.intel.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 149/168] mptcp: fix possible divide by zero
-Date:   Mon, 20 Sep 2021 18:44:47 +0200
-Message-Id: <20210920163926.556501207@linuxfoundation.org>
+Subject: [PATCH 5.14 150/168] selftests: mptcp: clean tmp files in simult_flows
+Date:   Mon, 20 Sep 2021 18:44:48 +0200
+Message-Id: <20210920163926.588013597@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
 References: <20210920163921.633181900@linuxfoundation.org>
@@ -42,203 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Matthieu Baerts <matthieu.baerts@tessares.net>
 
-[ Upstream commit 1094c6fe7280e17e0e87934add5ad2585e990def ]
+[ Upstream commit bfd862a7e9318dd906844807a713d27cdd1a72b1 ]
 
-Florian noted that if mptcp_alloc_tx_skb() allocation fails
-in __mptcp_push_pending(), we can end-up invoking
-mptcp_push_release()/tcp_push() with a zero mss, causing
-a divide by 0 error.
+'$cin' and '$sin' variables are local to a function: they are then not
+available from the cleanup trap.
 
-This change addresses the issue refactoring the skb allocation
-code checking if skb collapsing will happen for sure and doing
-the skb allocation only after such check. Skb allocation will
-now happen only after the call to tcp_send_mss() which
-correctly initializes mss_now.
+Instead, we need to use '$large' and '$small' that are not local and
+defined just before setting the trap.
 
-As side bonuses we now fill the skb tx cache only when needed,
-and this also clean-up a bit the output path.
+Without this patch, running this script in a loop might cause a:
 
-v1 -> v2:
- - use lockdep_assert_held_once() - Jakub
- - fix indentation - Jakub
+  write: No space left on device
 
-Reported-by: Florian Westphal <fw@strlen.de>
-Fixes: 724cfd2ee8aa ("mptcp: allocate TX skbs in msk context")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+issue.
+
+Fixes: 1a418cb8e888 ("mptcp: simult flow self-tests")
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
 Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/protocol.c | 76 ++++++++++++++++++++------------------------
- 1 file changed, 35 insertions(+), 41 deletions(-)
+ tools/testing/selftests/net/mptcp/simult_flows.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index a88924947815..c018b591db0b 100644
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -994,6 +994,13 @@ static void mptcp_wmem_uncharge(struct sock *sk, int size)
- 	msk->wmem_reserved += size;
- }
+diff --git a/tools/testing/selftests/net/mptcp/simult_flows.sh b/tools/testing/selftests/net/mptcp/simult_flows.sh
+index fd63ebfe9a2b..910d8126af8f 100755
+--- a/tools/testing/selftests/net/mptcp/simult_flows.sh
++++ b/tools/testing/selftests/net/mptcp/simult_flows.sh
+@@ -22,8 +22,8 @@ usage() {
  
-+static void __mptcp_mem_reclaim_partial(struct sock *sk)
-+{
-+	lockdep_assert_held_once(&sk->sk_lock.slock);
-+	__mptcp_update_wmem(sk);
-+	sk_mem_reclaim_partial(sk);
-+}
-+
- static void mptcp_mem_reclaim_partial(struct sock *sk)
+ cleanup()
  {
- 	struct mptcp_sock *msk = mptcp_sk(sk);
-@@ -1069,12 +1076,8 @@ static void __mptcp_clean_una(struct sock *sk)
- 	}
+-	rm -f "$cin" "$cout"
+-	rm -f "$sin" "$sout"
++	rm -f "$cout" "$sout"
++	rm -f "$large" "$small"
+ 	rm -f "$capout"
  
- out:
--	if (cleaned) {
--		if (tcp_under_memory_pressure(sk)) {
--			__mptcp_update_wmem(sk);
--			sk_mem_reclaim_partial(sk);
--		}
--	}
-+	if (cleaned && tcp_under_memory_pressure(sk))
-+		__mptcp_mem_reclaim_partial(sk);
- 
- 	if (snd_una == READ_ONCE(msk->snd_nxt)) {
- 		if (msk->timer_ival && !mptcp_data_fin_enabled(msk))
-@@ -1154,6 +1157,7 @@ struct mptcp_sendmsg_info {
- 	u16 limit;
- 	u16 sent;
- 	unsigned int flags;
-+	bool data_lock_held;
- };
- 
- static int mptcp_check_allowed_size(struct mptcp_sock *msk, u64 data_seq,
-@@ -1225,17 +1229,17 @@ static bool __mptcp_alloc_tx_skb(struct sock *sk, struct sock *ssk, gfp_t gfp)
- 	return false;
- }
- 
--static bool mptcp_must_reclaim_memory(struct sock *sk, struct sock *ssk)
-+static bool mptcp_alloc_tx_skb(struct sock *sk, struct sock *ssk, bool data_lock_held)
- {
--	return !ssk->sk_tx_skb_cache &&
--	       tcp_under_memory_pressure(sk);
--}
-+	gfp_t gfp = data_lock_held ? GFP_ATOMIC : sk->sk_allocation;
- 
--static bool mptcp_alloc_tx_skb(struct sock *sk, struct sock *ssk)
--{
--	if (unlikely(mptcp_must_reclaim_memory(sk, ssk)))
--		mptcp_mem_reclaim_partial(sk);
--	return __mptcp_alloc_tx_skb(sk, ssk, sk->sk_allocation);
-+	if (unlikely(tcp_under_memory_pressure(sk))) {
-+		if (data_lock_held)
-+			__mptcp_mem_reclaim_partial(sk);
-+		else
-+			mptcp_mem_reclaim_partial(sk);
-+	}
-+	return __mptcp_alloc_tx_skb(sk, ssk, gfp);
- }
- 
- /* note: this always recompute the csum on the whole skb, even
-@@ -1259,7 +1263,7 @@ static int mptcp_sendmsg_frag(struct sock *sk, struct sock *ssk,
- 	bool zero_window_probe = false;
- 	struct mptcp_ext *mpext = NULL;
- 	struct sk_buff *skb, *tail;
--	bool can_collapse = false;
-+	bool must_collapse = false;
- 	int size_bias = 0;
- 	int avail_size;
- 	size_t ret = 0;
-@@ -1279,16 +1283,24 @@ static int mptcp_sendmsg_frag(struct sock *sk, struct sock *ssk,
- 		 * SSN association set here
- 		 */
- 		mpext = skb_ext_find(skb, SKB_EXT_MPTCP);
--		can_collapse = (info->size_goal - skb->len > 0) &&
--			 mptcp_skb_can_collapse_to(data_seq, skb, mpext);
--		if (!can_collapse) {
-+		if (!mptcp_skb_can_collapse_to(data_seq, skb, mpext)) {
- 			TCP_SKB_CB(skb)->eor = 1;
--		} else {
-+			goto alloc_skb;
-+		}
-+
-+		must_collapse = (info->size_goal - skb->len > 0) &&
-+				(skb_shinfo(skb)->nr_frags < sysctl_max_skb_frags);
-+		if (must_collapse) {
- 			size_bias = skb->len;
- 			avail_size = info->size_goal - skb->len;
- 		}
- 	}
- 
-+alloc_skb:
-+	if (!must_collapse && !ssk->sk_tx_skb_cache &&
-+	    !mptcp_alloc_tx_skb(sk, ssk, info->data_lock_held))
-+		return 0;
-+
- 	/* Zero window and all data acked? Probe. */
- 	avail_size = mptcp_check_allowed_size(msk, data_seq, avail_size);
- 	if (avail_size == 0) {
-@@ -1318,7 +1330,6 @@ static int mptcp_sendmsg_frag(struct sock *sk, struct sock *ssk,
- 	if (skb == tail) {
- 		TCP_SKB_CB(tail)->tcp_flags &= ~TCPHDR_PSH;
- 		mpext->data_len += ret;
--		WARN_ON_ONCE(!can_collapse);
- 		WARN_ON_ONCE(zero_window_probe);
- 		goto out;
- 	}
-@@ -1470,15 +1481,6 @@ static void __mptcp_push_pending(struct sock *sk, unsigned int flags)
- 			if (ssk != prev_ssk || !prev_ssk)
- 				lock_sock(ssk);
- 
--			/* keep it simple and always provide a new skb for the
--			 * subflow, even if we will not use it when collapsing
--			 * on the pending one
--			 */
--			if (!mptcp_alloc_tx_skb(sk, ssk)) {
--				mptcp_push_release(sk, ssk, &info);
--				goto out;
--			}
--
- 			ret = mptcp_sendmsg_frag(sk, ssk, dfrag, &info);
- 			if (ret <= 0) {
- 				mptcp_push_release(sk, ssk, &info);
-@@ -1512,7 +1514,9 @@ out:
- static void __mptcp_subflow_push_pending(struct sock *sk, struct sock *ssk)
- {
- 	struct mptcp_sock *msk = mptcp_sk(sk);
--	struct mptcp_sendmsg_info info;
-+	struct mptcp_sendmsg_info info = {
-+		.data_lock_held = true,
-+	};
- 	struct mptcp_data_frag *dfrag;
- 	struct sock *xmit_ssk;
- 	int len, copied = 0;
-@@ -1538,13 +1542,6 @@ static void __mptcp_subflow_push_pending(struct sock *sk, struct sock *ssk)
- 				goto out;
- 			}
- 
--			if (unlikely(mptcp_must_reclaim_memory(sk, ssk))) {
--				__mptcp_update_wmem(sk);
--				sk_mem_reclaim_partial(sk);
--			}
--			if (!__mptcp_alloc_tx_skb(sk, ssk, GFP_ATOMIC))
--				goto out;
--
- 			ret = mptcp_sendmsg_frag(sk, ssk, dfrag, &info);
- 			if (ret <= 0)
- 				goto out;
-@@ -2296,9 +2293,6 @@ static void __mptcp_retrans(struct sock *sk)
- 	info.sent = 0;
- 	info.limit = READ_ONCE(msk->csum_enabled) ? dfrag->data_len : dfrag->already_sent;
- 	while (info.sent < info.limit) {
--		if (!mptcp_alloc_tx_skb(sk, ssk))
--			break;
--
- 		ret = mptcp_sendmsg_frag(sk, ssk, dfrag, &info);
- 		if (ret <= 0)
- 			break;
+ 	local netns
 -- 
 2.30.2
 
