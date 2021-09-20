@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABAD641205D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:54:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5DA8411DDA
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:24:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355112AbhITRyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:54:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52816 "EHLO mail.kernel.org"
+        id S1347183AbhITRZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:25:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354108AbhITRsy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:48:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27DA461BB2;
-        Mon, 20 Sep 2021 17:11:23 +0000 (UTC)
+        id S1345886AbhITRWt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:22:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E5B9E61A8C;
+        Mon, 20 Sep 2021 17:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157883;
-        bh=pPUTDhlbhoWxCecJxjTKaCYpbhlU/dyhrWccM8e4UF0=;
+        s=korg; t=1632157283;
+        bh=V6ijfqFBdOhmQm49dXWo4Zqqkv+oDbwVPN0UeuYElyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q9iZ0CX2vmyEoxL4Dx2E9aEU1vKc2SdKnMrbmKSSoXpBxETiIofgQ0gxMVQFBAkFg
-         8iWUF9r6J/14yUtsp7+a4XHpk/PWNPFKGEO+K88YK220DhQocDEi0PMZf1lQVhgrI/
-         xK91mfPwZdYQnFxqeo//Aa0RpS5emz5N9OQw7TrU=
+        b=m2fU7f4F3Sccnb3XfwTGKQUqD0iZhcnsFcQr1IV43NWInmL/ce/hx9Z5HipbN7Ea7
+         Qka0g04vx3MFxHoxKwnDyF1aatod8AciKwlNwRiEst1kRbiOSml0Pk+nSjwuKkyggv
+         AJwDb0zngmqOL+t9cu9pM71nyrbG42Ajq6kKfq7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        Yajun Deng <yajun.deng@linux.dev>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 195/293] s390/jump_label: print real address in a case of a jump label bug
+Subject: [PATCH 4.14 136/217] netlink: Deal with ESRCH error in nlmsg_notify()
 Date:   Mon, 20 Sep 2021 18:42:37 +0200
-Message-Id: <20210920163939.945703939@linuxfoundation.org>
+Message-Id: <20210920163929.262254249@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Yajun Deng <yajun.deng@linux.dev>
 
-[ Upstream commit 5492886c14744d239e87f1b0b774b5a341e755cc ]
+[ Upstream commit fef773fc8110d8124c73a5e6610f89e52814637d ]
 
-In case of a jump label print the real address of the piece of code
-where a mismatch was detected. This is right before the system panics,
-so there is nothing revealed.
+Yonghong Song report:
+The bpf selftest tc_bpf failed with latest bpf-next.
+The following is the command to run and the result:
+$ ./test_progs -n 132
+[   40.947571] bpf_testmod: loading out-of-tree module taints kernel.
+test_tc_bpf:PASS:test_tc_bpf__open_and_load 0 nsec
+test_tc_bpf:PASS:bpf_tc_hook_create(BPF_TC_INGRESS) 0 nsec
+test_tc_bpf:PASS:bpf_tc_hook_create invalid hook.attach_point 0 nsec
+test_tc_bpf_basic:PASS:bpf_obj_get_info_by_fd 0 nsec
+test_tc_bpf_basic:PASS:bpf_tc_attach 0 nsec
+test_tc_bpf_basic:PASS:handle set 0 nsec
+test_tc_bpf_basic:PASS:priority set 0 nsec
+test_tc_bpf_basic:PASS:prog_id set 0 nsec
+test_tc_bpf_basic:PASS:bpf_tc_attach replace mode 0 nsec
+test_tc_bpf_basic:PASS:bpf_tc_query 0 nsec
+test_tc_bpf_basic:PASS:handle set 0 nsec
+test_tc_bpf_basic:PASS:priority set 0 nsec
+test_tc_bpf_basic:PASS:prog_id set 0 nsec
+libbpf: Kernel error message: Failed to send filter delete notification
+test_tc_bpf_basic:FAIL:bpf_tc_detach unexpected error: -3 (errno 3)
+test_tc_bpf:FAIL:test_tc_internal ingress unexpected error: -3 (errno 3)
 
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+The failure seems due to the commit
+    cfdf0d9ae75b ("rtnetlink: use nlmsg_notify() in rtnetlink_send()")
+
+Deal with ESRCH error in nlmsg_notify() even the report variable is zero.
+
+Reported-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
+Link: https://lore.kernel.org/r/20210719051816.11762-1-yajun.deng@linux.dev
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/jump_label.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netlink/af_netlink.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/jump_label.c b/arch/s390/kernel/jump_label.c
-index 68f415e334a5..10009a0cdb37 100644
---- a/arch/s390/kernel/jump_label.c
-+++ b/arch/s390/kernel/jump_label.c
-@@ -41,7 +41,7 @@ static void jump_label_bug(struct jump_entry *entry, struct insn *expected,
- 	unsigned char *ipe = (unsigned char *)expected;
- 	unsigned char *ipn = (unsigned char *)new;
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 140bec3568ec..955041c54702 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -2476,13 +2476,15 @@ int nlmsg_notify(struct sock *sk, struct sk_buff *skb, u32 portid,
+ 		/* errors reported via destination sk->sk_err, but propagate
+ 		 * delivery errors if NETLINK_BROADCAST_ERROR flag is set */
+ 		err = nlmsg_multicast(sk, skb, exclude_portid, group, flags);
++		if (err == -ESRCH)
++			err = 0;
+ 	}
  
--	pr_emerg("Jump label code mismatch at %pS [%p]\n", ipc, ipc);
-+	pr_emerg("Jump label code mismatch at %pS [%px]\n", ipc, ipc);
- 	pr_emerg("Found:    %6ph\n", ipc);
- 	pr_emerg("Expected: %6ph\n", ipe);
- 	pr_emerg("New:      %6ph\n", ipn);
+ 	if (report) {
+ 		int err2;
+ 
+ 		err2 = nlmsg_unicast(sk, skb, portid);
+-		if (!err || err == -ESRCH)
++		if (!err)
+ 			err = err2;
+ 	}
+ 
 -- 
 2.30.2
 
