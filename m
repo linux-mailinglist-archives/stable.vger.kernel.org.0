@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39A9941236F
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:23:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5012F4125AA
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:45:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352110AbhITSZH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:25:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44436 "EHLO mail.kernel.org"
+        id S1349529AbhITSqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:46:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1377970AbhITSWV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:22:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BE24632B8;
-        Mon, 20 Sep 2021 17:24:17 +0000 (UTC)
+        id S1383381AbhITSo2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:44:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 629B263355;
+        Mon, 20 Sep 2021 17:32:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158658;
-        bh=IZK9OZv12p0XxyvgtipBzxEnU5T0Fdju4ohFkjkdYYQ=;
+        s=korg; t=1632159163;
+        bh=KZx2coV5sDm2IWpgob1FGB4ClO7nRf9NDLHt8uR2oMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TJqTxJm3ZrhKC4KrcG5vXOwaJKALLiQq1JKNQkOPa/V+Q2aNIIOmGa6BC+S+XqI5k
-         bowivuTlSvh8v64xclDxdWUBuwSbFReYQvqyh+oKfRgZxxKIks5BKk+jdsMNQMRhDj
-         B1wCG+Oy8NWFtEdD7yoHV8Wjb6nKUoUZiEpSXgoc=
+        b=JUqhvJ6SNxfaN7u8FvRSGVGh9wysoT5wswQEwu+qrA0AAvCKcTrZw0CebvYfDWKqh
+         M+7wwQtS5ziwOl3TpB6xbpYLkD3Zeg7eaL3LmbroERz/leqcG4cUfEv7DZG7ISuEtQ
+         XPdb/FGzPMzcb9rLMOhQeQAnOIY0SKOqfiY6J9Yc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 226/260] ibmvnic: check failover_pending in login response
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 106/168] PCI: j721e: Add PCIe support for AM64
 Date:   Mon, 20 Sep 2021 18:44:04 +0200
-Message-Id: <20210920163938.794105888@linuxfoundation.org>
+Message-Id: <20210920163925.121932739@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-commit 273c29e944bda9a20a30c26cfc34c9a3f363280b upstream.
+[ Upstream commit c8a375a8e15ac31293d7fda08008d6da8f5df3db ]
 
-If a failover occurs before a login response is received, the login
-response buffer maybe undefined. Check that there was no failover
-before accessing the login response buffer.
+AM64 has the same PCIe IP as in J7200 with certain erratas not
+applicable (quirk_detect_quiet_flag). Add support for "ti,am64-pcie-host"
+compatible and "ti,am64-pcie-ep" compatible that is specific to AM64.
 
-Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210811123336.31357-5-kishon@ti.com
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/pci/controller/cadence/pci-j721e.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -4277,6 +4277,14 @@ static int handle_login_rsp(union ibmvni
- 		return 0;
- 	}
+diff --git a/drivers/pci/controller/cadence/pci-j721e.c b/drivers/pci/controller/cadence/pci-j721e.c
+index 10b13b728284..ffb176d288cd 100644
+--- a/drivers/pci/controller/cadence/pci-j721e.c
++++ b/drivers/pci/controller/cadence/pci-j721e.c
+@@ -310,6 +310,17 @@ static const struct j721e_pcie_data j7200_pcie_ep_data = {
+ 	.quirk_detect_quiet_flag = true,
+ };
  
-+	if (adapter->failover_pending) {
-+		adapter->init_done_rc = -EAGAIN;
-+		netdev_dbg(netdev, "Failover pending, ignoring login response\n");
-+		complete(&adapter->init_done);
-+		/* login response buffer will be released on reset */
-+		return 0;
-+	}
++static const struct j721e_pcie_data am64_pcie_rc_data = {
++	.mode = PCI_MODE_RC,
++	.linkdown_irq_regfield = J7200_LINK_DOWN,
++	.byte_access_allowed = true,
++};
 +
- 	netdev->mtu = adapter->req_mtu - ETH_HLEN;
++static const struct j721e_pcie_data am64_pcie_ep_data = {
++	.mode = PCI_MODE_EP,
++	.linkdown_irq_regfield = J7200_LINK_DOWN,
++};
++
+ static const struct of_device_id of_j721e_pcie_match[] = {
+ 	{
+ 		.compatible = "ti,j721e-pcie-host",
+@@ -327,6 +338,14 @@ static const struct of_device_id of_j721e_pcie_match[] = {
+ 		.compatible = "ti,j7200-pcie-ep",
+ 		.data = &j7200_pcie_ep_data,
+ 	},
++	{
++		.compatible = "ti,am64-pcie-host",
++		.data = &am64_pcie_rc_data,
++	},
++	{
++		.compatible = "ti,am64-pcie-ep",
++		.data = &am64_pcie_ep_data,
++	},
+ 	{},
+ };
  
- 	netdev_dbg(adapter->netdev, "Login Response Buffer:\n");
+-- 
+2.30.2
+
 
 
