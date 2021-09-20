@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B054C41251D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 133FB4122C8
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:16:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353007AbhITSlc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:41:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53082 "EHLO mail.kernel.org"
+        id S1351395AbhITSRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:17:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1381505AbhITSia (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:38:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 923BA63325;
-        Mon, 20 Sep 2021 17:30:13 +0000 (UTC)
+        id S1377167AbhITSPY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:15:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4CEE61A65;
+        Mon, 20 Sep 2021 17:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159014;
-        bh=uaLzsrKXU0y7gZmS6t7XQBLvcTt8U9l50H81dd7GlIk=;
+        s=korg; t=1632158510;
+        bh=S9K1QYjCZxHE59FZS1YbNPPOaNzHIP6WAu8aihOolSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kl7T49Yj/bf61HGrRG24BYsb+bypHfeDXKddfto7Tw397w11MoR/MJaWsM2azUBaI
-         YJCV3Y3O4Xj+l0sr+3U+/68cUhMSlHLP704JJ/OzjgopI1aMCL8MYBwCvRpNegqJUw
-         R93OfFhNPEks6d89eZzDNT8BUkYMTYtExs9aGm5I=
+        b=dfaCuQz25ZiwV7Pqwo/iHCpRhkOdB9hMgqjJ88+THN8cl/6ERm3g2tjwJkDwWS4qX
+         EIu3zCOszgrcHJFlSwrDRPXb5/b7g6tYt3kg3rQ7Yks+mBRsDY2Gtn3Rf07REBEygk
+         cRqEzMS3rAgNnCOy0nIjNJ/6N8c75KZyNOGkDCc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+e6741b97d5552f97c24d@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 037/168] tipc: fix an use-after-free issue in tipc_recvmsg
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 157/260] Revert "USB: xhci: fix U1/U2 handling for hardware with XHCI_INTEL_HOST quirk set"
 Date:   Mon, 20 Sep 2021 18:42:55 +0200
-Message-Id: <20210920163922.865479003@linuxfoundation.org>
+Message-Id: <20210920163936.438395883@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +40,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit cc19862ffe454a5b632ca202e5a51bfec9f89fd2 upstream.
+[ Upstream commit 2847c46c61486fd8bca9136a6e27177212e78c69 ]
 
-syzbot reported an use-after-free crash:
+This reverts commit 5d5323a6f3625f101dbfa94ba3ef7706cce38760.
 
-  BUG: KASAN: use-after-free in tipc_recvmsg+0xf77/0xf90 net/tipc/socket.c:1979
-  Call Trace:
-   tipc_recvmsg+0xf77/0xf90 net/tipc/socket.c:1979
-   sock_recvmsg_nosec net/socket.c:943 [inline]
-   sock_recvmsg net/socket.c:961 [inline]
-   sock_recvmsg+0xca/0x110 net/socket.c:957
-   tipc_conn_rcv_from_sock+0x162/0x2f0 net/tipc/topsrv.c:398
-   tipc_conn_recv_work+0xeb/0x190 net/tipc/topsrv.c:421
-   process_one_work+0x98d/0x1630 kernel/workqueue.c:2276
-   worker_thread+0x658/0x11f0 kernel/workqueue.c:2422
+That commit effectively disabled Intel host initiated U1/U2 lpm for devices
+with periodic endpoints.
 
-As Hoang pointed out, it was caused by skb_cb->bytes_read still accessed
-after calling tsk_advance_rx_queue() to free the skb in tipc_recvmsg().
+Before that commit we disabled host initiated U1/U2 lpm if the exit latency
+was larger than any periodic endpoint service interval, this is according
+to xhci spec xhci 1.1 specification section 4.23.5.2
 
-This patch is to fix it by accessing skb_cb->bytes_read earlier than
-calling tsk_advance_rx_queue().
+After that commit we incorrectly checked that service interval was smaller
+than U1/U2 inactivity timeout. This is not relevant, and can't happen for
+Intel hosts as previously set U1/U2 timeout = 105% * service interval.
 
-Fixes: f4919ff59c28 ("tipc: keep the skb in rcv queue until the whole data is read")
-Reported-by: syzbot+e6741b97d5552f97c24d@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Patch claimed it solved cases where devices can't be enumerated because of
+bandwidth issues. This might be true but it's a side effect of accidentally
+turning off lpm.
+
+exit latency calculations have been revised since then
+
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210820123503.2605901-5-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/socket.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/usb/host/xhci.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -1979,10 +1979,12 @@ static int tipc_recvmsg(struct socket *s
- 		tipc_node_distr_xmit(sock_net(sk), &xmitq);
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index a3813c75a3de..505da4999e20 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -4662,19 +4662,19 @@ static u16 xhci_calculate_u1_timeout(struct xhci_hcd *xhci,
+ {
+ 	unsigned long long timeout_ns;
+ 
+-	if (xhci->quirks & XHCI_INTEL_HOST)
+-		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
+-	else
+-		timeout_ns = udev->u1_params.sel;
+-
+ 	/* Prevent U1 if service interval is shorter than U1 exit latency */
+ 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
+-		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
++		if (xhci_service_interval_to_ns(desc) <= udev->u1_params.mel) {
+ 			dev_dbg(&udev->dev, "Disable U1, ESIT shorter than exit latency\n");
+ 			return USB3_LPM_DISABLED;
+ 		}
  	}
  
--	if (!skb_cb->bytes_read)
--		tsk_advance_rx_queue(sk);
-+	if (skb_cb->bytes_read)
-+		goto exit;
++	if (xhci->quirks & XHCI_INTEL_HOST)
++		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
++	else
++		timeout_ns = udev->u1_params.sel;
 +
-+	tsk_advance_rx_queue(sk);
+ 	/* The U1 timeout is encoded in 1us intervals.
+ 	 * Don't return a timeout of zero, because that's USB3_LPM_DISABLED.
+ 	 */
+@@ -4726,19 +4726,19 @@ static u16 xhci_calculate_u2_timeout(struct xhci_hcd *xhci,
+ {
+ 	unsigned long long timeout_ns;
  
--	if (likely(!connected) || skb_cb->bytes_read)
-+	if (likely(!connected))
- 		goto exit;
+-	if (xhci->quirks & XHCI_INTEL_HOST)
+-		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
+-	else
+-		timeout_ns = udev->u2_params.sel;
+-
+ 	/* Prevent U2 if service interval is shorter than U2 exit latency */
+ 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
+-		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
++		if (xhci_service_interval_to_ns(desc) <= udev->u2_params.mel) {
+ 			dev_dbg(&udev->dev, "Disable U2, ESIT shorter than exit latency\n");
+ 			return USB3_LPM_DISABLED;
+ 		}
+ 	}
  
- 	/* Send connection flow control advertisement when applicable */
++	if (xhci->quirks & XHCI_INTEL_HOST)
++		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
++	else
++		timeout_ns = udev->u2_params.sel;
++
+ 	/* The U2 timeout is encoded in 256us intervals */
+ 	timeout_ns = DIV_ROUND_UP_ULL(timeout_ns, 256 * 1000);
+ 	/* If the necessary timeout value is bigger than what we can set in the
+-- 
+2.30.2
+
 
 
