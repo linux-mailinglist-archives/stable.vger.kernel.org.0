@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C39F5411C67
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:08:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AA13411AF0
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:52:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245352AbhITRJD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:09:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33864 "EHLO mail.kernel.org"
+        id S245467AbhITQxx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:53:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346367AbhITRHE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:07:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2319B6138F;
-        Mon, 20 Sep 2021 16:55:23 +0000 (UTC)
+        id S243494AbhITQvu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:51:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89F5061268;
+        Mon, 20 Sep 2021 16:49:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156924;
-        bh=w/kDaKTFGgloQP4eAEJ0gqqROLs2ZFubLB+N/NogCEc=;
+        s=korg; t=1632156574;
+        bh=vn5V48WHea7ZI1gUMJLNHFexHBmcof4BOoIcF9NdWyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XzxDHMVN36Pf3m6GZord40ePA89ET91a2IEi6r00yIWH4tiM6g+MXUF0VfZsw3DVs
-         i3X53/+UdrESe8jwNFrNkq0vIj7BQ+N1U2fArd7tJtyzKL51v3RZ2V1wpQ97oRRI6H
-         QFuOzmhKXEXGwkFHdzWSavSZ3MA7fH0if6H1bFLw=
+        b=KlIFUYNOawbFkRhlpUzWDP7enJQWr0CCTb5DI+JR88IjlCK/tgPIzxwcDdayBEZoU
+         DUCI6fFuGzuEnX9fa4pO+HWRS2uRnmnhJkVsPb0+cTX39DXYDm9Rb/RbycNNnbc7k0
+         iOYCmwraT6T9PW0T7RF1vnJUOQMt871rwyHI7jK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Khalid Aziz <khalid@gonehiking.org>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.9 149/175] scsi: BusLogic: Fix missing pr_cont() use
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Richard Cochran <richard.cochran@omicron.at>,
+        John Stultz <john.stultz@linaro.org>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.4 120/133] ptp: dp83640: dont define PAGE0
 Date:   Mon, 20 Sep 2021 18:43:18 +0200
-Message-Id: <20210920163922.946246480@linuxfoundation.org>
+Message-Id: <20210920163916.546337866@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,108 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 44d01fc86d952f5a8b8b32bdb4841504d5833d95 upstream.
+commit 7366c23ff492ad260776a3ee1aaabba9fc773a8b upstream.
 
-Update BusLogic driver's messaging system to use pr_cont() for continuation
-lines, bringing messy output:
+Building dp83640.c on arch/parisc/ produces a build warning for
+PAGE0 being redefined. Since the macro is not used in the dp83640
+driver, just make it a comment for documentation purposes.
 
-pci 0000:00:13.0: PCI->APIC IRQ transform: INT A -> IRQ 17
-scsi: ***** BusLogic SCSI Driver Version 2.1.17 of 12 September 2013 *****
-scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
-scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
-scsi0:   Firmware Version: 5.07B, I/O Address: 0x7000, IRQ Channel: 17/Level
-scsi0:   PCI Bus: 0, Device: 19, Address:
-0xE0012000,
-Host Adapter SCSI ID: 7
-scsi0:   Parity Checking: Enabled, Extended Translation: Enabled
-scsi0:   Synchronous Negotiation: Ultra, Wide Negotiation: Enabled
-scsi0:   Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
-scsi0:   Scatter/Gather Limit: 128 of 8192 segments, Mailboxes: 211
-scsi0:   Driver Queue Depth: 211, Host Adapter Queue Depth: 192
-scsi0:   Tagged Queue Depth:
-Automatic
-, Untagged Queue Depth: 3
-scsi0:   SCSI Bus Termination: Both Enabled
-, SCAM: Disabled
+In file included from ../drivers/net/phy/dp83640.c:23:
+../drivers/net/phy/dp83640_reg.h:8: warning: "PAGE0" redefined
+    8 | #define PAGE0                     0x0000
+                 from ../drivers/net/phy/dp83640.c:11:
+../arch/parisc/include/asm/page.h:187: note: this is the location of the previous definition
+  187 | #define PAGE0   ((struct zeropage *)__PAGE_OFFSET)
 
-scsi0: *** BusLogic BT-958 Initialized Successfully ***
-scsi host0: BusLogic BT-958
-
-back to order:
-
-pci 0000:00:13.0: PCI->APIC IRQ transform: INT A -> IRQ 17
-scsi: ***** BusLogic SCSI Driver Version 2.1.17 of 12 September 2013 *****
-scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
-scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
-scsi0:   Firmware Version: 5.07B, I/O Address: 0x7000, IRQ Channel: 17/Level
-scsi0:   PCI Bus: 0, Device: 19, Address: 0xE0012000, Host Adapter SCSI ID: 7
-scsi0:   Parity Checking: Enabled, Extended Translation: Enabled
-scsi0:   Synchronous Negotiation: Ultra, Wide Negotiation: Enabled
-scsi0:   Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
-scsi0:   Scatter/Gather Limit: 128 of 8192 segments, Mailboxes: 211
-scsi0:   Driver Queue Depth: 211, Host Adapter Queue Depth: 192
-scsi0:   Tagged Queue Depth: Automatic, Untagged Queue Depth: 3
-scsi0:   SCSI Bus Termination: Both Enabled, SCAM: Disabled
-scsi0: *** BusLogic BT-958 Initialized Successfully ***
-scsi host0: BusLogic BT-958
-
-Also diagnostic output such as with the BusLogic=TraceConfiguration
-parameter is affected and becomes vertical and therefore hard to read.
-This has now been corrected, e.g.:
-
-pci 0000:00:13.0: PCI->APIC IRQ transform: INT A -> IRQ 17
-blogic_cmd(86) Status = 30:  4 ==>  4: FF 05 93 00
-blogic_cmd(95) Status = 28: (Modify I/O Address)
-blogic_cmd(91) Status = 30:  1 ==>  1: 01
-blogic_cmd(04) Status = 30:  4 ==>  4: 41 41 35 30
-blogic_cmd(8D) Status = 30: 14 ==> 14: 45 DC 00 20 00 00 00 00 00 40 30 37 42 1D
-scsi: ***** BusLogic SCSI Driver Version 2.1.17 of 12 September 2013 *****
-scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
-blogic_cmd(04) Status = 30:  4 ==>  4: 41 41 35 30
-blogic_cmd(0B) Status = 30:  3 ==>  3: 00 08 07
-blogic_cmd(0D) Status = 30: 34 ==> 34: 03 01 07 04 00 00 00 00 00 00 00 00 00 00 00 00 FF 42 44 46 FF 00 00 00 00 00 00 00 00 00 FF 00 FF 00
-blogic_cmd(8D) Status = 30: 14 ==> 14: 45 DC 00 20 00 00 00 00 00 40 30 37 42 1D
-blogic_cmd(84) Status = 30:  1 ==>  1: 37
-blogic_cmd(8B) Status = 30:  5 ==>  5: 39 35 38 20 20
-blogic_cmd(85) Status = 30:  1 ==>  1: 42
-blogic_cmd(86) Status = 30:  4 ==>  4: FF 05 93 00
-blogic_cmd(91) Status = 30: 64 ==> 64: 41 46 3E 20 39 35 38 20 20 00 C4 00 04 01 07 2F 07 04 35 FF FF FF FF FF FF FF FF FF FF 01 00 FE FF 08 FF FF 00 00 00 00 00 00 00 01 00 01 00 00 FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 FC
-scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
-
-etc.
-
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2104201940430.44318@angie.orcam.me.uk
-Fixes: 4bcc595ccd80 ("printk: reinstate KERN_CONT for printing continuation lines")
-Cc: stable@vger.kernel.org # v4.9+
-Acked-by: Khalid Aziz <khalid@gonehiking.org>
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: cb646e2b02b2 ("ptp: Added a clock driver for the National Semiconductor PHYTER.")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Richard Cochran <richard.cochran@omicron.at>
+Cc: John Stultz <john.stultz@linaro.org>
+Cc: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20210913220605.19682-1-rdunlap@infradead.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/BusLogic.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/phy/dp83640_reg.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/BusLogic.c
-+++ b/drivers/scsi/BusLogic.c
-@@ -3597,7 +3597,7 @@ static void blogic_msg(enum blogic_msgle
- 			if (buf[0] != '\n' || len > 1)
- 				printk("%sscsi%d: %s", blogic_msglevelmap[msglevel], adapter->host_no, buf);
- 		} else
--			printk("%s", buf);
-+			pr_cont("%s", buf);
- 	} else {
- 		if (begin) {
- 			if (adapter != NULL && adapter->adapter_initd)
-@@ -3605,7 +3605,7 @@ static void blogic_msg(enum blogic_msgle
- 			else
- 				printk("%s%s", blogic_msglevelmap[msglevel], buf);
- 		} else
--			printk("%s", buf);
-+			pr_cont("%s", buf);
- 	}
- 	begin = (buf[len - 1] == '\n');
- }
+--- a/drivers/net/phy/dp83640_reg.h
++++ b/drivers/net/phy/dp83640_reg.h
+@@ -4,7 +4,7 @@
+ #ifndef HAVE_DP83640_REGISTERS
+ #define HAVE_DP83640_REGISTERS
+ 
+-#define PAGE0                     0x0000
++/* #define PAGE0                  0x0000 */
+ #define PHYCR2                    0x001c /* PHY Control Register 2 */
+ 
+ #define PAGE4                     0x0004
 
 
