@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C907412149
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:05:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 243DC412151
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:05:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350451AbhITSDy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:03:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58900 "EHLO mail.kernel.org"
+        id S1357380AbhITSEH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:04:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350360AbhITSBw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:01:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11D91613B3;
-        Mon, 20 Sep 2021 17:16:08 +0000 (UTC)
+        id S1349996AbhITSBz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:01:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B608613BD;
+        Mon, 20 Sep 2021 17:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158169;
-        bh=pB60Zso4c46j1gSOTCobNwTBswnNMKtjyGulBiit2T8=;
+        s=korg; t=1632158171;
+        bh=1pb6JtBLzjcJDoxUCZ/FysfWLh7sM5qxK/N4zJC2x6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gg4tTsO0RPaAk9RUhz9ICkcvheV2ULMP23VT5IiRdVJldJNjwdgjNIV5EgVzXPlFF
-         RPfGhboicpjN89KQW0sjimJcJB8pznB63oP1SEADMu9xszVSarhMC71caQcY37Vw65
-         dXVEP2UzhI/9+BkqSWTy2rSvE9TpYPUyD9VDP93o=
+        b=X7LfOtGWAk4I4KVZ92EaQu+WpgZBHELy+uoAab+R3RMApOkFZkjLLtlhZub87xzAL
+         bLC5R1FzUShKSUqXyFbOWTE7lukg4XNYvdGAxEJyTI1+XXXI2c7C2Wy5HGiuZCZjOS
+         GksU//O/1HTqmDo5NkJpPiZFdzQ+zOGuH+GDM8BE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyun Kwon <hyun.kwon@xilinx.com>,
-        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.4 032/260] PCI: xilinx-nwl: Enable the clock through CCF
-Date:   Mon, 20 Sep 2021 18:40:50 +0200
-Message-Id: <20210920163932.210872945@linuxfoundation.org>
+        stable@vger.kernel.org, Victor Gu <xigu@marvell.com>,
+        Evan Wang <xswang@marvell.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+Subject: [PATCH 5.4 033/260] PCI: aardvark: Fix checking for PIO status
+Date:   Mon, 20 Sep 2021 18:40:51 +0200
+Message-Id: <20210920163932.251474246@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -41,62 +42,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyun Kwon <hyun.kwon@xilinx.com>
+From: Evan Wang <xswang@marvell.com>
 
-commit de0a01f5296651d3a539f2d23d0db8f359483696 upstream.
+commit fcb461e2bc8b83b7eaca20cb2221e8b940f2189c upstream.
 
-Enable PCIe reference clock. There is no remove function that's why
-this should be enough for simple operation.
-Normally this clock is enabled by default by firmware but there are
-usecases where this clock should be enabled by driver itself.
-It is also good that PCIe clock is recorded in a clock framework.
+There is an issue that when PCIe switch is connected to an Armada 3700
+board, there will be lots of warnings about PIO errors when reading the
+config space. According to Aardvark PIO read and write sequence in HW
+specification, the current way to check PIO status has the following
+issues:
 
-Link: https://lore.kernel.org/r/ee6997a08fab582b1c6de05f8be184f3fe8d5357.1624618100.git.michal.simek@xilinx.com
-Fixes: ab597d35ef11 ("PCI: xilinx-nwl: Add support for Xilinx NWL PCIe Host Controller")
-Signed-off-by: Hyun Kwon <hyun.kwon@xilinx.com>
-Signed-off-by: Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+1) For PIO read operation, it reports the error message, which should be
+   avoided according to HW specification.
+
+2) For PIO read and write operations, it only checks PIO operation complete
+   status, which is not enough, and error status should also be checked.
+
+This patch aligns the code with Aardvark PIO read and write sequence in HW
+specification on PIO status check and fix the warnings when reading config
+space.
+
+[pali: Fix CRS handling when CRSSVE is not enabled]
+
+Link: https://lore.kernel.org/r/20210722144041.12661-2-pali@kernel.org
+Tested-by: Victor Gu <xigu@marvell.com>
+Signed-off-by: Evan Wang <xswang@marvell.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org
+Reviewed-by: Victor Gu <xigu@marvell.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org # b1bd5714472c ("PCI: aardvark: Indicate error in 'val' when config read fails")
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pcie-xilinx-nwl.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/pci/controller/pci-aardvark.c |   62 +++++++++++++++++++++++++++++-----
+ 1 file changed, 54 insertions(+), 8 deletions(-)
 
---- a/drivers/pci/controller/pcie-xilinx-nwl.c
-+++ b/drivers/pci/controller/pcie-xilinx-nwl.c
-@@ -6,6 +6,7 @@
-  * (C) Copyright 2014 - 2015, Xilinx, Inc.
-  */
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -62,6 +62,7 @@
+ #define   PIO_COMPLETION_STATUS_CRS		2
+ #define   PIO_COMPLETION_STATUS_CA		4
+ #define   PIO_NON_POSTED_REQ			BIT(10)
++#define   PIO_ERR_STATUS			BIT(11)
+ #define PIO_ADDR_LS				(PIO_BASE_ADDR + 0x8)
+ #define PIO_ADDR_MS				(PIO_BASE_ADDR + 0xc)
+ #define PIO_WR_DATA				(PIO_BASE_ADDR + 0x10)
+@@ -363,7 +364,7 @@ static void advk_pcie_setup_hw(struct ad
+ 	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
+ }
  
-+#include <linux/clk.h>
- #include <linux/delay.h>
- #include <linux/interrupt.h>
- #include <linux/irq.h>
-@@ -169,6 +170,7 @@ struct nwl_pcie {
- 	u8 root_busno;
- 	struct nwl_msi msi;
- 	struct irq_domain *legacy_irq_domain;
-+	struct clk *clk;
- 	raw_spinlock_t leg_mask_lock;
- };
+-static void advk_pcie_check_pio_status(struct advk_pcie *pcie)
++static int advk_pcie_check_pio_status(struct advk_pcie *pcie, u32 *val)
+ {
+ 	struct device *dev = &pcie->pdev->dev;
+ 	u32 reg;
+@@ -374,14 +375,49 @@ static void advk_pcie_check_pio_status(s
+ 	status = (reg & PIO_COMPLETION_STATUS_MASK) >>
+ 		PIO_COMPLETION_STATUS_SHIFT;
  
-@@ -839,6 +841,16 @@ static int nwl_pcie_probe(struct platfor
- 		return err;
+-	if (!status)
+-		return;
+-
++	/*
++	 * According to HW spec, the PIO status check sequence as below:
++	 * 1) even if COMPLETION_STATUS(bit9:7) indicates successful,
++	 *    it still needs to check Error Status(bit11), only when this bit
++	 *    indicates no error happen, the operation is successful.
++	 * 2) value Unsupported Request(1) of COMPLETION_STATUS(bit9:7) only
++	 *    means a PIO write error, and for PIO read it is successful with
++	 *    a read value of 0xFFFFFFFF.
++	 * 3) value Completion Retry Status(CRS) of COMPLETION_STATUS(bit9:7)
++	 *    only means a PIO write error, and for PIO read it is successful
++	 *    with a read value of 0xFFFF0001.
++	 * 4) value Completer Abort (CA) of COMPLETION_STATUS(bit9:7) means
++	 *    error for both PIO read and PIO write operation.
++	 * 5) other errors are indicated as 'unknown'.
++	 */
+ 	switch (status) {
++	case PIO_COMPLETION_STATUS_OK:
++		if (reg & PIO_ERR_STATUS) {
++			strcomp_status = "COMP_ERR";
++			break;
++		}
++		/* Get the read result */
++		if (val)
++			*val = advk_readl(pcie, PIO_RD_DATA);
++		/* No error */
++		strcomp_status = NULL;
++		break;
+ 	case PIO_COMPLETION_STATUS_UR:
+ 		strcomp_status = "UR";
+ 		break;
+ 	case PIO_COMPLETION_STATUS_CRS:
++		/* PCIe r4.0, sec 2.3.2, says:
++		 * If CRS Software Visibility is not enabled, the Root Complex
++		 * must re-issue the Configuration Request as a new Request.
++		 * A Root Complex implementation may choose to limit the number
++		 * of Configuration Request/CRS Completion Status loops before
++		 * determining that something is wrong with the target of the
++		 * Request and taking appropriate action, e.g., complete the
++		 * Request to the host as a failed transaction.
++		 *
++		 * To simplify implementation do not re-issue the Configuration
++		 * Request and complete the Request as a failed transaction.
++		 */
+ 		strcomp_status = "CRS";
+ 		break;
+ 	case PIO_COMPLETION_STATUS_CA:
+@@ -392,6 +428,9 @@ static void advk_pcie_check_pio_status(s
+ 		break;
  	}
  
-+	pcie->clk = devm_clk_get(dev, NULL);
-+	if (IS_ERR(pcie->clk))
-+		return PTR_ERR(pcie->clk);
++	if (!strcomp_status)
++		return 0;
 +
-+	err = clk_prepare_enable(pcie->clk);
-+	if (err) {
-+		dev_err(dev, "can't enable PCIe ref clock\n");
-+		return err;
+ 	if (reg & PIO_NON_POSTED_REQ)
+ 		str_posted = "Non-posted";
+ 	else
+@@ -399,6 +438,8 @@ static void advk_pcie_check_pio_status(s
+ 
+ 	dev_err(dev, "%s PIO Response Status: %s, %#x @ %#x\n",
+ 		str_posted, strcomp_status, reg, advk_readl(pcie, PIO_ADDR_LS));
++
++	return -EFAULT;
+ }
+ 
+ static int advk_pcie_wait_pio(struct advk_pcie *pcie)
+@@ -625,10 +666,13 @@ static int advk_pcie_rd_conf(struct pci_
+ 	if (ret < 0)
+ 		return PCIBIOS_SET_FAILED;
+ 
+-	advk_pcie_check_pio_status(pcie);
++	/* Check PIO status and get the read result */
++	ret = advk_pcie_check_pio_status(pcie, val);
++	if (ret < 0) {
++		*val = 0xffffffff;
++		return PCIBIOS_SET_FAILED;
 +	}
-+
- 	err = nwl_pcie_bridge_init(pcie);
- 	if (err) {
- 		dev_err(dev, "HW Initialization failed\n");
+ 
+-	/* Get the read result */
+-	*val = advk_readl(pcie, PIO_RD_DATA);
+ 	if (size == 1)
+ 		*val = (*val >> (8 * (where & 3))) & 0xff;
+ 	else if (size == 2)
+@@ -692,7 +736,9 @@ static int advk_pcie_wr_conf(struct pci_
+ 	if (ret < 0)
+ 		return PCIBIOS_SET_FAILED;
+ 
+-	advk_pcie_check_pio_status(pcie);
++	ret = advk_pcie_check_pio_status(pcie, NULL);
++	if (ret < 0)
++		return PCIBIOS_SET_FAILED;
+ 
+ 	return PCIBIOS_SUCCESSFUL;
+ }
 
 
