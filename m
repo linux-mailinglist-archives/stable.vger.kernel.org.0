@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2B564125FE
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:51:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 338C64124BD
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:35:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385841AbhITSw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:52:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33186 "EHLO mail.kernel.org"
+        id S1381262AbhITShJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:37:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1385435AbhITSu0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:50:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E5DC61B03;
-        Mon, 20 Sep 2021 17:34:33 +0000 (UTC)
+        id S1380889AbhITSfB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:35:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A3DF61ABB;
+        Mon, 20 Sep 2021 17:28:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159274;
-        bh=KAregwlMscd5uw90uV8kW1moOjFbUefEZg0er8b6MUM=;
+        s=korg; t=1632158933;
+        bh=43SxzmFKTqG6M1TynZWIgKseI2ME78ti4N0HTvupqHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1503ivzZ4KbZAN56BMNpxsE+/Rc0YL76na4vZBRpcxPpdVO/qSTjd4E63f5GK61XT
-         w+orMfUEWOzm51SSyFLVAUJHYfPhwfpPCnajWuG+xp3yAlOrU0J6o66kmggIx3VRGC
-         tR+RjaGh1ZOXrjZNPoHu/TwpQ7SBgLR6kdJRxxZY=
+        b=DNZRlnAufGecN+RCEA8qEFemHcjVndlwhcdt2wJTPOYnhy17H3QbU9LCFfYLyM99F
+         jZbneZxCVWO+3nlxiJItN3JI8L2lEkALUwebZLQZst4mF6cVu6oBqn4vuW6evbHoMR
+         ONepuGJkm3+VcC3dVSogSj+XXxEmCHVm619RO6y8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 156/168] fq_codel: reject silly quantum parameters
+        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.10 122/122] x86/mce: Avoid infinite loop for copy from user recovery
 Date:   Mon, 20 Sep 2021 18:44:54 +0200
-Message-Id: <20210920163926.795422352@linuxfoundation.org>
+Message-Id: <20210920163919.810398108@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,89 +39,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Tony Luck <tony.luck@intel.com>
 
-[ Upstream commit c7c5e6ff533fe1f9afef7d2fa46678987a1335a7 ]
+commit 81065b35e2486c024c7aa86caed452e1f01a59d4 upstream.
 
-syzbot found that forcing a big quantum attribute would crash hosts fast,
-essentially using this:
+There are two cases for machine check recovery:
 
-tc qd replace dev eth0 root fq_codel quantum 4294967295
+1) The machine check was triggered by ring3 (application) code.
+   This is the simpler case. The machine check handler simply queues
+   work to be executed on return to user. That code unmaps the page
+   from all users and arranges to send a SIGBUS to the task that
+   triggered the poison.
 
-This is because fq_codel_dequeue() would have to loop
-~2^31 times in :
+2) The machine check was triggered in kernel code that is covered by
+   an exception table entry. In this case the machine check handler
+   still queues a work entry to unmap the page, etc. but this will
+   not be called right away because the #MC handler returns to the
+   fix up code address in the exception table entry.
 
-	if (flow->deficit <= 0) {
-		flow->deficit += q->quantum;
-		list_move_tail(&flow->flowchain, &q->old_flows);
-		goto begin;
-	}
+Problems occur if the kernel triggers another machine check before the
+return to user processes the first queued work item.
 
-SFQ max quantum is 2^19 (half a megabyte)
-Lets adopt a max quantum of one megabyte for FQ_CODEL.
+Specifically, the work is queued using the ->mce_kill_me callback
+structure in the task struct for the current thread. Attempting to queue
+a second work item using this same callback results in a loop in the
+linked list of work functions to call. So when the kernel does return to
+user, it enters an infinite loop processing the same entry for ever.
 
-Fixes: 4b549a2ef4be ("fq_codel: Fair Queue Codel AQM")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+There are some legitimate scenarios where the kernel may take a second
+machine check before returning to the user.
+
+1) Some code (e.g. futex) first tries a get_user() with page faults
+   disabled. If this fails, the code retries with page faults enabled
+   expecting that this will resolve the page fault.
+
+2) Copy from user code retries a copy in byte-at-time mode to check
+   whether any additional bytes can be copied.
+
+On the other side of the fence are some bad drivers that do not check
+the return value from individual get_user() calls and may access
+multiple user addresses without noticing that some/all calls have
+failed.
+
+Fix by adding a counter (current->mce_count) to keep track of repeated
+machine checks before task_work() is called. First machine check saves
+the address information and calls task_work_add(). Subsequent machine
+checks before that task_work call back is executed check that the address
+is in the same page as the first machine check (since the callback will
+offline exactly one page).
+
+Expected worst case is four machine checks before moving on (e.g. one
+user access with page faults disabled, then a repeat to the same address
+with page faults enabled ... repeat in copy tail bytes). Just in case
+there is some code that loops forever enforce a limit of 10.
+
+ [ bp: Massage commit message, drop noinstr, fix typo, extend panic
+   messages. ]
+
+Fixes: 5567d11c21a1 ("x86/mce: Send #MC singal from task work")
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/YT/IJ9ziLqmtqEPu@agluck-desk2.amr.corp.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/uapi/linux/pkt_sched.h |  2 ++
- net/sched/sch_fq_codel.c       | 12 ++++++++++--
- 2 files changed, 12 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/mce/core.c |   45 ++++++++++++++++++++++++++++++-----------
+ include/linux/sched.h          |    1 
+ 2 files changed, 34 insertions(+), 12 deletions(-)
 
-diff --git a/include/uapi/linux/pkt_sched.h b/include/uapi/linux/pkt_sched.h
-index 79a699f106b1..ec88590b3198 100644
---- a/include/uapi/linux/pkt_sched.h
-+++ b/include/uapi/linux/pkt_sched.h
-@@ -827,6 +827,8 @@ struct tc_codel_xstats {
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -1241,6 +1241,9 @@ static void __mc_scan_banks(struct mce *
  
- /* FQ_CODEL */
- 
-+#define FQ_CODEL_QUANTUM_MAX (1 << 20)
-+
- enum {
- 	TCA_FQ_CODEL_UNSPEC,
- 	TCA_FQ_CODEL_TARGET,
-diff --git a/net/sched/sch_fq_codel.c b/net/sched/sch_fq_codel.c
-index bbd5f8753600..99e8db262198 100644
---- a/net/sched/sch_fq_codel.c
-+++ b/net/sched/sch_fq_codel.c
-@@ -369,6 +369,7 @@ static int fq_codel_change(struct Qdisc *sch, struct nlattr *opt,
+ static void kill_me_now(struct callback_head *ch)
  {
- 	struct fq_codel_sched_data *q = qdisc_priv(sch);
- 	struct nlattr *tb[TCA_FQ_CODEL_MAX + 1];
-+	u32 quantum = 0;
- 	int err;
++	struct task_struct *p = container_of(ch, struct task_struct, mce_kill_me);
++
++	p->mce_count = 0;
+ 	force_sig(SIGBUS);
+ }
  
- 	if (!opt)
-@@ -386,6 +387,13 @@ static int fq_codel_change(struct Qdisc *sch, struct nlattr *opt,
- 		    q->flows_cnt > 65536)
- 			return -EINVAL;
+@@ -1249,6 +1252,7 @@ static void kill_me_maybe(struct callbac
+ 	struct task_struct *p = container_of(cb, struct task_struct, mce_kill_me);
+ 	int flags = MF_ACTION_REQUIRED;
+ 
++	p->mce_count = 0;
+ 	pr_err("Uncorrected hardware memory error in user-access at %llx", p->mce_addr);
+ 
+ 	if (!p->mce_ripv)
+@@ -1269,17 +1273,34 @@ static void kill_me_maybe(struct callbac
  	}
-+	if (tb[TCA_FQ_CODEL_QUANTUM]) {
-+		quantum = max(256U, nla_get_u32(tb[TCA_FQ_CODEL_QUANTUM]));
-+		if (quantum > FQ_CODEL_QUANTUM_MAX) {
-+			NL_SET_ERR_MSG(extack, "Invalid quantum");
-+			return -EINVAL;
-+		}
+ }
+ 
+-static void queue_task_work(struct mce *m, int kill_it)
++static void queue_task_work(struct mce *m, char *msg, int kill_current_task)
+ {
+-	current->mce_addr = m->addr;
+-	current->mce_kflags = m->kflags;
+-	current->mce_ripv = !!(m->mcgstatus & MCG_STATUS_RIPV);
+-	current->mce_whole_page = whole_page(m);
+-
+-	if (kill_it)
+-		current->mce_kill_me.func = kill_me_now;
+-	else
+-		current->mce_kill_me.func = kill_me_maybe;
++	int count = ++current->mce_count;
++
++	/* First call, save all the details */
++	if (count == 1) {
++		current->mce_addr = m->addr;
++		current->mce_kflags = m->kflags;
++		current->mce_ripv = !!(m->mcgstatus & MCG_STATUS_RIPV);
++		current->mce_whole_page = whole_page(m);
++
++		if (kill_current_task)
++			current->mce_kill_me.func = kill_me_now;
++		else
++			current->mce_kill_me.func = kill_me_maybe;
 +	}
- 	sch_tree_lock(sch);
++
++	/* Ten is likely overkill. Don't expect more than two faults before task_work() */
++	if (count > 10)
++		mce_panic("Too many consecutive machine checks while accessing user data", m, msg);
++
++	/* Second or later call, make sure page address matches the one from first call */
++	if (count > 1 && (current->mce_addr >> PAGE_SHIFT) != (m->addr >> PAGE_SHIFT))
++		mce_panic("Consecutive machine checks to different user pages", m, msg);
++
++	/* Do not call task_work_add() more than once */
++	if (count > 1)
++		return;
  
- 	if (tb[TCA_FQ_CODEL_TARGET]) {
-@@ -412,8 +420,8 @@ static int fq_codel_change(struct Qdisc *sch, struct nlattr *opt,
- 	if (tb[TCA_FQ_CODEL_ECN])
- 		q->cparams.ecn = !!nla_get_u32(tb[TCA_FQ_CODEL_ECN]);
+ 	task_work_add(current, &current->mce_kill_me, TWA_RESUME);
+ }
+@@ -1427,7 +1448,7 @@ noinstr void do_machine_check(struct pt_
+ 		/* If this triggers there is no way to recover. Die hard. */
+ 		BUG_ON(!on_thread_stack() || !user_mode(regs));
  
--	if (tb[TCA_FQ_CODEL_QUANTUM])
--		q->quantum = max(256U, nla_get_u32(tb[TCA_FQ_CODEL_QUANTUM]));
-+	if (quantum)
-+		q->quantum = quantum;
+-		queue_task_work(&m, kill_it);
++		queue_task_work(&m, msg, kill_it);
  
- 	if (tb[TCA_FQ_CODEL_DROP_BATCH_SIZE])
- 		q->drop_batch_size = max(1U, nla_get_u32(tb[TCA_FQ_CODEL_DROP_BATCH_SIZE]));
--- 
-2.30.2
-
+ 	} else {
+ 		/*
+@@ -1445,7 +1466,7 @@ noinstr void do_machine_check(struct pt_
+ 		}
+ 
+ 		if (m.kflags & MCE_IN_KERNEL_COPYIN)
+-			queue_task_work(&m, kill_it);
++			queue_task_work(&m, msg, kill_it);
+ 	}
+ out:
+ 	mce_wrmsrl(MSR_IA32_MCG_STATUS, 0);
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1354,6 +1354,7 @@ struct task_struct {
+ 					mce_whole_page : 1,
+ 					__mce_reserved : 62;
+ 	struct callback_head		mce_kill_me;
++	int				mce_count;
+ #endif
+ 
+ 	/*
 
 
