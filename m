@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CB814120B1
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:55:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A0E8411E7B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:29:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347568AbhITR5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:57:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54992 "EHLO mail.kernel.org"
+        id S1343756AbhITRbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:31:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355520AbhITRy6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:54:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60443630EA;
-        Mon, 20 Sep 2021 17:13:51 +0000 (UTC)
+        id S1350577AbhITR3T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:29:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 606A861ACF;
+        Mon, 20 Sep 2021 17:03:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158031;
-        bh=LvF0qNSntJm1FIBmsYr0T9p/RJEzWFm9/QwaPCdfBTo=;
+        s=korg; t=1632157430;
+        bh=SQjGFetPpk6N4GBoD1LNmVG9aoBGJ4mJk14APzbS0vU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nw1W1WXy557S6m6JKmU0oPhxzzi2mEZQf99Str8WBwyZ9t8PQi9xDqAyoynxwWiYd
-         0JexpXcHpoxwvou+BMbaY3+VRyiiT9vOBmOntxyoEDFDyBB9wpHU2ZC3fBEaWUeRJr
-         JbsUMJH11wal3cjTh6pMi7u0rVgZP0nGD1DWwP08=
+        b=LdWJpGXVFqN78TE1OFFK5X7F+IKNUWfAB04Ei6sEU8ZBTgMbKJ5ZSyJTYq7gKCkxv
+         WisyQAed3mXKjD0i3F+v4aqbVnr4Giakf9DAx9/HQQHCop8idTRpCP7VwDtjC4gqXV
+         87NrLL+zQeKqoT46L7W8MInWSOfEgWMZoRpdtAAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
+        stable@vger.kernel.org,
+        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 263/293] tipc: increase timeout in tipc_sk_enqueue()
+Subject: [PATCH 4.14 204/217] ibmvnic: check failover_pending in login response
 Date:   Mon, 20 Sep 2021 18:43:45 +0200
-Message-Id: <20210920163942.394826750@linuxfoundation.org>
+Message-Id: <20210920163931.540119838@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
 
-commit f4bb62e64c88c93060c051195d3bbba804e56945 upstream.
+commit 273c29e944bda9a20a30c26cfc34c9a3f363280b upstream.
 
-In tipc_sk_enqueue() we use hardcoded 2 jiffies to extract
-socket buffer from generic queue to particular socket.
-The 2 jiffies is too short in case there are other high priority
-tasks get CPU cycles for multiple jiffies update. As result, no
-buffer could be enqueued to particular socket.
+If a failover occurs before a login response is received, the login
+response buffer maybe undefined. Check that there was no failover
+before accessing the login response buffer.
 
-To solve this, we switch to use constant timeout 20msecs.
-Then, the function will be expired between 2 jiffies (CONFIG_100HZ)
-and 20 jiffies (CONFIG_1000HZ).
-
-Fixes: c637c1035534 ("tipc: resolve race problem at unicast message reception")
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
+Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/socket.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/ibm/ibmvnic.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -2223,7 +2223,7 @@ static int tipc_sk_backlog_rcv(struct so
- static void tipc_sk_enqueue(struct sk_buff_head *inputq, struct sock *sk,
- 			    u32 dport, struct sk_buff_head *xmitq)
- {
--	unsigned long time_limit = jiffies + 2;
-+	unsigned long time_limit = jiffies + usecs_to_jiffies(20000);
- 	struct sk_buff *skb;
- 	unsigned int lim;
- 	atomic_t *dcnt;
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -3965,6 +3965,14 @@ static int ibmvnic_probe(struct vio_dev
+ 			goto ibmvnic_init_fail;
+ 	} while (rc == EAGAIN);
+ 
++	if (adapter->failover_pending) {
++		adapter->init_done_rc = -EAGAIN;
++		netdev_dbg(netdev, "Failover pending, ignoring login response\n");
++		complete(&adapter->init_done);
++		/* login response buffer will be released on reset */
++		return 0;
++	}
++
+ 	netdev->mtu = adapter->req_mtu - ETH_HLEN;
+ 
+ 	rc = device_create_file(&dev->dev, &dev_attr_failover);
 
 
