@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BED17411D9D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:20:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B8A2411BF8
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:03:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344739AbhITRWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:22:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45924 "EHLO mail.kernel.org"
+        id S244311AbhITRFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:05:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346525AbhITRUI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:20:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 922E86135A;
-        Mon, 20 Sep 2021 17:00:26 +0000 (UTC)
+        id S1345523AbhITRDi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:03:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4386161360;
+        Mon, 20 Sep 2021 16:53:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157227;
-        bh=DuBStQt5mVWOrW3wxvNKE+kyAnvAPfObhqFJftQAAsg=;
+        s=korg; t=1632156837;
+        bh=QM53qf0i/7e0dwga1vWh5MnbgvfUlKtIQfgN/VKBaBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jxEULqWK2ArkMjD4OTjirO/pEGs7NkrW9oH1UB638JFjEIz/8lASMpO3PyQyFQQ4S
-         u1pOGwcHPIOblmqnqSc5LG8CLV/3taFXLXfOtZaFpJ+1toHFlPPI+T5bNUZyxPEX9q
-         Dwlc+QOSzTXPb2sshVtrFGHm++olTM+OQKru1kiI=
+        b=ZyFCYlvznANbxEGyiK41V1/SOy8A0q9956cn8mrKsWDnyS9Nv/usmThXUxuJ0oFsW
+         e9TSJl/dJM2+d16SEMgg3nDWAd2RRASO6xQ0H/Ei6DMZLFBhOFoyIK8Rg/OGfdWitu
+         dPtl9ADv9yJApPjTr8d+6q8uFERAEXGX0mzPg9wk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 104/217] include/linux/list.h: add a macro to test if entry is pointing to the head
+        stable@vger.kernel.org, Jonas Jensen <jonas.jensen@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 076/175] mmc: moxart: Fix issue with uninitialized dma_slave_config
 Date:   Mon, 20 Sep 2021 18:42:05 +0200
-Message-Id: <20210920163928.162261373@linuxfoundation.org>
+Message-Id: <20210920163920.540505105@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,142 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Tony Lindgren <tony@atomide.com>
 
-commit e130816164e244b692921de49771eeb28205152d upstream.
+[ Upstream commit ee5165354d498e5bceb0b386e480ac84c5f8c28c ]
 
-Add a macro to test if entry is pointing to the head of the list which is
-useful in cases like:
+Depending on the DMA driver being used, the struct dma_slave_config may
+need to be initialized to zero for the unused data.
 
-  list_for_each_entry(pos, &head, member) {
-    if (cond)
-      break;
-  }
-  if (list_entry_is_head(pos, &head, member))
-    return -ERRNO;
+For example, we have three DMA drivers using src_port_window_size and
+dst_port_window_size. If these are left uninitialized, it can cause DMA
+failures.
 
-that allows to avoid additional variable to be added to track if loop has
-not been stopped in the middle.
+For moxart, this is probably not currently an issue but is still good to
+fix though.
 
-While here, convert list_for_each_entry*() family of macros to use a new one.
-
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lkml.kernel.org/r/20200929134342.51489-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1b66e94e6b99 ("mmc: moxart: Add MOXA ART SD/MMC driver")
+Cc: Jonas Jensen <jonas.jensen@gmail.com>
+Cc: Vinod Koul <vkoul@kernel.org>
+Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20210810081644.19353-3-tony@atomide.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/list.h |   29 +++++++++++++++++++----------
- 1 file changed, 19 insertions(+), 10 deletions(-)
+ drivers/mmc/host/moxart-mmc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/linux/list.h
-+++ b/include/linux/list.h
-@@ -485,6 +485,15 @@ static inline void list_splice_tail_init
- 	     pos = n, n = pos->prev)
+diff --git a/drivers/mmc/host/moxart-mmc.c b/drivers/mmc/host/moxart-mmc.c
+index bbad309679cf..41a5493cb68d 100644
+--- a/drivers/mmc/host/moxart-mmc.c
++++ b/drivers/mmc/host/moxart-mmc.c
+@@ -633,6 +633,7 @@ static int moxart_probe(struct platform_device *pdev)
+ 			 host->dma_chan_tx, host->dma_chan_rx);
+ 		host->have_dma = true;
  
- /**
-+ * list_entry_is_head - test if the entry points to the head of the list
-+ * @pos:	the type * to cursor
-+ * @head:	the head for your list.
-+ * @member:	the name of the list_head within the struct.
-+ */
-+#define list_entry_is_head(pos, head, member)				\
-+	(&pos->member == (head))
-+
-+/**
-  * list_for_each_entry	-	iterate over list of given type
-  * @pos:	the type * to use as a loop cursor.
-  * @head:	the head for your list.
-@@ -492,7 +501,7 @@ static inline void list_splice_tail_init
-  */
- #define list_for_each_entry(pos, head, member)				\
- 	for (pos = list_first_entry(head, typeof(*pos), member);	\
--	     &pos->member != (head);					\
-+	     !list_entry_is_head(pos, head, member);			\
- 	     pos = list_next_entry(pos, member))
++		memset(&cfg, 0, sizeof(cfg));
+ 		cfg.src_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
+ 		cfg.dst_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
  
- /**
-@@ -503,7 +512,7 @@ static inline void list_splice_tail_init
-  */
- #define list_for_each_entry_reverse(pos, head, member)			\
- 	for (pos = list_last_entry(head, typeof(*pos), member);		\
--	     &pos->member != (head); 					\
-+	     !list_entry_is_head(pos, head, member); 			\
- 	     pos = list_prev_entry(pos, member))
- 
- /**
-@@ -528,7 +537,7 @@ static inline void list_splice_tail_init
-  */
- #define list_for_each_entry_continue(pos, head, member) 		\
- 	for (pos = list_next_entry(pos, member);			\
--	     &pos->member != (head);					\
-+	     !list_entry_is_head(pos, head, member);			\
- 	     pos = list_next_entry(pos, member))
- 
- /**
-@@ -542,7 +551,7 @@ static inline void list_splice_tail_init
-  */
- #define list_for_each_entry_continue_reverse(pos, head, member)		\
- 	for (pos = list_prev_entry(pos, member);			\
--	     &pos->member != (head);					\
-+	     !list_entry_is_head(pos, head, member);			\
- 	     pos = list_prev_entry(pos, member))
- 
- /**
-@@ -554,7 +563,7 @@ static inline void list_splice_tail_init
-  * Iterate over list of given type, continuing from current position.
-  */
- #define list_for_each_entry_from(pos, head, member) 			\
--	for (; &pos->member != (head);					\
-+	for (; !list_entry_is_head(pos, head, member);			\
- 	     pos = list_next_entry(pos, member))
- 
- /**
-@@ -567,7 +576,7 @@ static inline void list_splice_tail_init
-  * Iterate backwards over list of given type, continuing from current position.
-  */
- #define list_for_each_entry_from_reverse(pos, head, member)		\
--	for (; &pos->member != (head);					\
-+	for (; !list_entry_is_head(pos, head, member);			\
- 	     pos = list_prev_entry(pos, member))
- 
- /**
-@@ -580,7 +589,7 @@ static inline void list_splice_tail_init
- #define list_for_each_entry_safe(pos, n, head, member)			\
- 	for (pos = list_first_entry(head, typeof(*pos), member),	\
- 		n = list_next_entry(pos, member);			\
--	     &pos->member != (head); 					\
-+	     !list_entry_is_head(pos, head, member); 			\
- 	     pos = n, n = list_next_entry(n, member))
- 
- /**
-@@ -596,7 +605,7 @@ static inline void list_splice_tail_init
- #define list_for_each_entry_safe_continue(pos, n, head, member) 		\
- 	for (pos = list_next_entry(pos, member), 				\
- 		n = list_next_entry(pos, member);				\
--	     &pos->member != (head);						\
-+	     !list_entry_is_head(pos, head, member);				\
- 	     pos = n, n = list_next_entry(n, member))
- 
- /**
-@@ -611,7 +620,7 @@ static inline void list_splice_tail_init
-  */
- #define list_for_each_entry_safe_from(pos, n, head, member) 			\
- 	for (n = list_next_entry(pos, member);					\
--	     &pos->member != (head);						\
-+	     !list_entry_is_head(pos, head, member);				\
- 	     pos = n, n = list_next_entry(n, member))
- 
- /**
-@@ -627,7 +636,7 @@ static inline void list_splice_tail_init
- #define list_for_each_entry_safe_reverse(pos, n, head, member)		\
- 	for (pos = list_last_entry(head, typeof(*pos), member),		\
- 		n = list_prev_entry(pos, member);			\
--	     &pos->member != (head); 					\
-+	     !list_entry_is_head(pos, head, member); 			\
- 	     pos = n, n = list_prev_entry(n, member))
- 
- /**
+-- 
+2.30.2
+
 
 
