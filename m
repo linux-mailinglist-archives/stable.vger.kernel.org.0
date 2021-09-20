@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01FD7411A3C
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:46:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5098411FE7
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:45:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243767AbhITQsP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:48:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35746 "EHLO mail.kernel.org"
+        id S1353283AbhITRqf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:46:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242994AbhITQrr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:47:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B70961268;
-        Mon, 20 Sep 2021 16:46:19 +0000 (UTC)
+        id S1353423AbhITRop (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:44:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 954D66128A;
+        Mon, 20 Sep 2021 17:09:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156380;
-        bh=clXMKOQaOVCgNBc8yNDwl8dc99PObU2SUq/jp2khmFs=;
+        s=korg; t=1632157781;
+        bh=+sY1RogBu7o8Vua96xtphnscGs6DnwPjtPKD+wH/mKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hqz92j1giwk/NMvVksoF1+nIfzq7N9FjCHkH5mREqhdKfNSe2V8jHoLLdP/zdbTAN
-         xrzzRoGT/yz2quigQ2h0toqWIiciaLuUaU8sd2vG5ctG6zUBxwKY0R1HFl1aRCQOf0
-         iAATJ43f7IXnoCUDerG1nJ6ZwplySgn7WKWguUC0=
+        b=qTXuVgco3+NukoAXj6XOC/jyVz3GTbK59Q7xoNG3/XZtMVavW9xtd5F3Sp5ZVz0V3
+         B94rwrC5/dBp8scZle5NMg9xrEIzxQTfUdULEBIm9Te+sK85tpj+fxQgNaSTHwlYdM
+         LUWTWm6yVmzY6UW6z/JVf4ba+kD7WN9xH/1x6tbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Fiona Trahe <fiona.trahe@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 033/133] crypto: qat - do not ignore errors from enable_vf2pf_comms()
+        stable@vger.kernel.org, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.19 149/293] media: rc-loopback: return number of emitters rather than error
 Date:   Mon, 20 Sep 2021 18:41:51 +0200
-Message-Id: <20210920163913.705812267@linuxfoundation.org>
+Message-Id: <20210920163938.384840536@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +39,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit 5147f0906d50a9d26f2b8698cd06b5680e9867ff ]
+commit 6b7f554be8c92319d7e6df92fd247ebb9beb4a45 upstream.
 
-The function adf_dev_init() ignores the error code reported by
-enable_vf2pf_comms(). If the latter fails, e.g. the VF is not compatible
-with the pf, then the load of the VF driver progresses.
-This patch changes adf_dev_init() so that the error code from
-enable_vf2pf_comms() is returned to the caller.
+The LIRC_SET_TRANSMITTER_MASK ioctl should return the number of emitters
+if an invalid list was set.
 
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/qat/qat_common/adf_init.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/media/rc/rc-loopback.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_init.c b/drivers/crypto/qat/qat_common/adf_init.c
-index d873eeecc363..06b35edb0d43 100644
---- a/drivers/crypto/qat/qat_common/adf_init.c
-+++ b/drivers/crypto/qat/qat_common/adf_init.c
-@@ -121,6 +121,7 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
- 	struct service_hndl *service;
- 	struct list_head *list_itr;
- 	struct adf_hw_device_data *hw_data = accel_dev->hw_device;
-+	int ret;
+--- a/drivers/media/rc/rc-loopback.c
++++ b/drivers/media/rc/rc-loopback.c
+@@ -52,7 +52,7 @@ static int loop_set_tx_mask(struct rc_de
  
- 	if (!hw_data) {
- 		dev_err(&GET_DEV(accel_dev),
-@@ -187,9 +188,9 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
+ 	if ((mask & (RXMASK_REGULAR | RXMASK_LEARNING)) != mask) {
+ 		dprintk("invalid tx mask: %u\n", mask);
+-		return -EINVAL;
++		return 2;
  	}
  
- 	hw_data->enable_error_correction(accel_dev);
--	hw_data->enable_vf2pf_comms(accel_dev);
-+	ret = hw_data->enable_vf2pf_comms(accel_dev);
- 
--	return 0;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(adf_dev_init);
- 
--- 
-2.30.2
-
+ 	dprintk("setting tx mask: %u\n", mask);
 
 
