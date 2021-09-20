@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82E5B41261D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:52:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8964A41248F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:34:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354569AbhITSxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:53:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37308 "EHLO mail.kernel.org"
+        id S1353031AbhITSfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:35:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1385534AbhITSue (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:50:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FAC361503;
-        Mon, 20 Sep 2021 17:35:04 +0000 (UTC)
+        id S1380247AbhITSdA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:33:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C93E6632FE;
+        Mon, 20 Sep 2021 17:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159305;
-        bh=0x2De22Szmsl8Wa6aJUPQ0rUXTWgSLDA/cNGXPNVDSU=;
+        s=korg; t=1632158892;
+        bh=JEe4bSM/d/cMLyOdHbt4YOf5ZbCaa4HacIYRcMD/EiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yRWQJJW2Cw/MuSNMzsVrRFsdDRc+P4WnlsPblj95PQ1vxqdyLT1TxZByw97OhcmLV
-         wlu0jhTY8WrjMT3Ga3BOfoYSpRubs+YkehYbe2BG/TyE+C8xFgnbn6BBs8Vj07xmr8
-         mla1eqbEVvbhjcJROa+hPJBovlg6HgIYNM9PIoZs=
+        b=OAA86cjgwuaS9FIXDjTN+o1q1Asj0BZog4kWJu6CqgXuHcG+Rp9zd3GUBsPdTOztv
+         6DaqEaxqiCC107jcJ+PG73O5ig16yHeSohbEhEgV+QVsu5K+jkH2qNR5AP9dWkzk1P
+         zptQzEh4ZFxSG49tyzagVnr823s2PYBh7aEgwPkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 138/168] mtd: rawnand: cafe: Fix a resource leak in the error handling path of cafe_nand_probe()
+Subject: [PATCH 5.10 104/122] net: hso: add failure handler for add_net_device
 Date:   Mon, 20 Sep 2021 18:44:36 +0200
-Message-Id: <20210920163926.194334077@linuxfoundation.org>
+Message-Id: <20210920163919.204390489@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 6b430c7595e4eb95fae8fb54adc3c3ce002e75ae ]
+[ Upstream commit ecdc28defc46af476566fffd9e5cb4495a2f176e ]
 
-A successful 'init_rs_non_canonical()' call should be balanced by a
-corresponding 'free_rs()' call in the error handling path of the probe, as
-already done in the remove function.
+If the network devices connected to the system beyond
+HSO_MAX_NET_DEVICES. add_net_device() in hso_create_net_device()
+will be failed for the network_table is full. It will lead to
+business failure which rely on network_table, for example,
+hso_suspend() and hso_resume(). It will also lead to memory leak
+because resource release process can not search the hso_device
+object from network_table in hso_free_interface().
 
-Update the error handling path accordingly.
+Add failure handler for add_net_device() in hso_create_net_device()
+to solve the above problems.
 
-Fixes: 8c61b7a7f4d4 ("[MTD] [NAND] Use rslib for CAFÉ ECC")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/fd313d3fb787458bcc73189e349f481133a2cdc9.1629532640.git.christophe.jaillet@wanadoo.fr
+Fixes: 72dc1c096c70 ("HSO: add option hso driver")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/cafe_nand.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/usb/hso.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/cafe_nand.c b/drivers/mtd/nand/raw/cafe_nand.c
-index d0e8ffd55c22..9dbf031716a6 100644
---- a/drivers/mtd/nand/raw/cafe_nand.c
-+++ b/drivers/mtd/nand/raw/cafe_nand.c
-@@ -751,7 +751,7 @@ static int cafe_nand_probe(struct pci_dev *pdev,
- 			  "CAFE NAND", mtd);
- 	if (err) {
- 		dev_warn(&pdev->dev, "Could not register IRQ %d\n", pdev->irq);
--		goto out_ior;
-+		goto out_free_rs;
+diff --git a/drivers/net/usb/hso.c b/drivers/net/usb/hso.c
+index 5b3aff2c279f..f269337c82c5 100644
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -2537,13 +2537,17 @@ static struct hso_device *hso_create_net_device(struct usb_interface *interface,
+ 	if (!hso_net->mux_bulk_tx_buf)
+ 		goto err_free_tx_urb;
+ 
+-	add_net_device(hso_dev);
++	result = add_net_device(hso_dev);
++	if (result) {
++		dev_err(&interface->dev, "Failed to add net device\n");
++		goto err_free_tx_buf;
++	}
+ 
+ 	/* registering our net device */
+ 	result = register_netdev(net);
+ 	if (result) {
+ 		dev_err(&interface->dev, "Failed to register device\n");
+-		goto err_free_tx_buf;
++		goto err_rmv_ndev;
  	}
  
- 	/* Disable master reset, enable NAND clock */
-@@ -795,6 +795,8 @@ static int cafe_nand_probe(struct pci_dev *pdev,
- 	/* Disable NAND IRQ in global IRQ mask register */
- 	cafe_writel(cafe, ~1 & cafe_readl(cafe, GLOBAL_IRQ_MASK), GLOBAL_IRQ_MASK);
- 	free_irq(pdev->irq, mtd);
-+ out_free_rs:
-+	free_rs(cafe->rs);
-  out_ior:
- 	pci_iounmap(pdev, cafe->mmio);
-  out_free_mtd:
+ 	hso_log_port(hso_dev);
+@@ -2552,8 +2556,9 @@ static struct hso_device *hso_create_net_device(struct usb_interface *interface,
+ 
+ 	return hso_dev;
+ 
+-err_free_tx_buf:
++err_rmv_ndev:
+ 	remove_net_device(hso_dev);
++err_free_tx_buf:
+ 	kfree(hso_net->mux_bulk_tx_buf);
+ err_free_tx_urb:
+ 	usb_free_urb(hso_net->mux_bulk_tx_urb);
 -- 
 2.30.2
 
