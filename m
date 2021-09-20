@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18E5A412282
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE1DC41250A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351635AbhITSQA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:16:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36230 "EHLO mail.kernel.org"
+        id S1353510AbhITSlM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:41:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376523AbhITSMt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:12:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7550263282;
-        Mon, 20 Sep 2021 17:20:55 +0000 (UTC)
+        id S1381719AbhITSjN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:39:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E65D6127A;
+        Mon, 20 Sep 2021 17:30:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158455;
-        bh=oJpfI5W9ctG0X9pE+OiIxGDJtoXkPq5cScPWvxtw7w4=;
+        s=korg; t=1632159033;
+        bh=leO96kbURlF2o9JVp1cR10FCQGvL+ciEs8fPANnyStg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XwNThZZi2xkdzQSus7JpNcA3uiIRWXf6DH5TOeNm3TPymhh3wdfuXGN0LR2sxfuGw
-         fBI9sCMAWR7APMuX7WcnJ7tJ8wE5HYZzXspbWaID5G3tpAKFwPAsXfLQ3yCNEIefNE
-         NS5j1jqtyD4KUDSYaoyv2qorafmq3Zj7rkp2wkus=
+        b=IBK/dckzI2ZeHgXHXjoSDc9hEZpgs3Ch/czSt+EFOiOjEvDV0vx2tuRUq6vkqtGKu
+         VtuEaLB+hjSlxKDP5EggE737cQPjzowcg5bgaaoN543SjWybhSj4Fdwmk0lQJXg/6i
+         Z1jNGl4pDZ+xkitLqT/uXNCRHPF4IVKze6e1JATE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 165/260] iwlwifi: mvm: avoid static queue number aliasing
+        stable@vger.kernel.org, Andrius V <vezhlys@gmail.com>,
+        Darek Strugacz <darek.strugacz@op.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.14 045/168] r6040: Restore MDIO clock frequency after MAC reset
 Date:   Mon, 20 Sep 2021 18:43:03 +0200
-Message-Id: <20210920163936.696277674@linuxfoundation.org>
+Message-Id: <20210920163923.126693900@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,235 +41,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit c6ce1c74ef2923b8ffd85f7f8b486f804f343b39 ]
+commit e3f0cc1a945fcefec0c7c9d9dfd028a51daa1846 upstream.
 
-When TVQM is enabled (iwl_mvm_has_new_tx_api() is true), then
-queue numbers are just sequentially assigned 0, 1, 2, ...
-Prior to TVQM, in DQA, there were some statically allocated
-queue numbers:
- * IWL_MVM_DQA_AUX_QUEUE == 1,
- * both IWL_MVM_DQA_INJECT_MONITOR_QUEUE and
-   IWL_MVM_DQA_P2P_DEVICE_QUEUE == 2, and
- * IWL_MVM_DQA_AP_PROBE_RESP_QUEUE == 9.
+A number of users have reported that they were not able to get the PHY
+to successfully link up, especially after commit c36757eb9dee ("net:
+phy: consider AN_RESTART status when reading link status") where we
+stopped reading just BMSR, but we also read BMCR to determine the link
+status.
 
-Now, these values are assigned to the members mvm->aux_queue,
-mvm->snif_queue, mvm->probe_queue and mvm->p2p_dev_queue by
-default. Normally, this doesn't really matter, and if TVQM is
-in fact available we override them to the real values after
-allocating a queue for use there.
+Andrius at NetBSD did a wonderful job at debugging the problem
+and found out that the MDIO bus clock frequency would be incorrectly set
+back to its default value which would prevent the MDIO bus controller
+from reading PHY registers properly. Back when we only read BMSR, if we
+read all 1s, we could falsely indicate a link status, though in general
+there is a cable plugged in, so this went unnoticed. After a second read
+of BMCR was added, a wrong read will lead to the inability to determine
+a link UP condition which is when it started to be visibly broken, even
+if it was long before that.
 
-However, this allocation doesn't always happen. For example,
-for mvm->p2p_dev_queue (== 2) it only happens when the P2P
-Device interface is started, if any. If it's not started, the
-value in mvm->p2p_dev_queue remains 2. This wouldn't really
-matter all that much if it weren't for iwl_mvm_is_static_queue()
-which checks a queue number against one of those four static
-numbers.
+The fix consists in restoring the value of the MD_CSR register that was
+set prior to the MAC reset.
 
-Now, if no P2P Device or monitor interface is added then queue
-2 may be dynamically allocated, yet alias mvm->p2p_dev_queue or
-mvm->snif_queue, and thus iwl_mvm_is_static_queue() erroneously
-returns true for it. If it then gets full, all interface queues
-are stopped, instead of just backpressuring against the one TXQ
-that's really the only affected one.
-
-This clearly can lead to issues, as everything is stopped even
-if just a single TXQ filled its corresponding HW queue, if it
-happens to have an appropriate number (2 or 9, AUX is always
-reassigned.) Due to a mac80211 bug, this also led to a situation
-in which the queues remained stopped across a deauthentication
-and then attempts to connect to a new AP started failing, but
-that's fixed separately.
-
-Fix all of this by simply initializing the queue numbers to
-the invalid value until they're used, if TVQM is enabled, and
-also setting them back to that value when the queues are later
-freed again.
-
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210802172232.2e47e623f9e2.I9b0830dafbb68ef35b7b8f0f46160abec02ac7d0@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: http://gnats.netbsd.org/cgi-bin/query-pr-single.pl?number=53494
+Fixes: 90f750a81a29 ("r6040: consolidate MAC reset to its own function")
+Reported-by: Andrius V <vezhlys@gmail.com>
+Reported-by: Darek Strugacz <darek.strugacz@op.pl>
+Tested-by: Darek Strugacz <darek.strugacz@op.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/ops.c | 24 +++++++++++++---
- drivers/net/wireless/intel/iwlwifi/mvm/sta.c | 30 ++++++++++++--------
- 2 files changed, 38 insertions(+), 16 deletions(-)
+ drivers/net/ethernet/rdc/r6040.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-index 8b0576cde797..a9aab6c690e8 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-@@ -687,10 +687,26 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
+--- a/drivers/net/ethernet/rdc/r6040.c
++++ b/drivers/net/ethernet/rdc/r6040.c
+@@ -119,6 +119,8 @@
+ #define PHY_ST		0x8A	/* PHY status register */
+ #define MAC_SM		0xAC	/* MAC status machine */
+ #define  MAC_SM_RST	0x0002	/* MAC status machine reset */
++#define MD_CSC		0xb6	/* MDC speed control register */
++#define  MD_CSC_DEFAULT	0x0030
+ #define MAC_ID		0xBE	/* Identifier register */
  
- 	mvm->fw_restart = iwlwifi_mod_params.fw_restart ? -1 : 0;
+ #define TX_DCNT		0x80	/* TX descriptor count */
+@@ -355,8 +357,9 @@ static void r6040_reset_mac(struct r6040
+ {
+ 	void __iomem *ioaddr = lp->base;
+ 	int limit = MAC_DEF_TIMEOUT;
+-	u16 cmd;
++	u16 cmd, md_csc;
  
--	mvm->aux_queue = IWL_MVM_DQA_AUX_QUEUE;
--	mvm->snif_queue = IWL_MVM_DQA_INJECT_MONITOR_QUEUE;
--	mvm->probe_queue = IWL_MVM_DQA_AP_PROBE_RESP_QUEUE;
--	mvm->p2p_dev_queue = IWL_MVM_DQA_P2P_DEVICE_QUEUE;
-+	if (iwl_mvm_has_new_tx_api(mvm)) {
-+		/*
-+		 * If we have the new TX/queue allocation API initialize them
-+		 * all to invalid numbers. We'll rewrite the ones that we need
-+		 * later, but that doesn't happen for all of them all of the
-+		 * time (e.g. P2P Device is optional), and if a dynamic queue
-+		 * ends up getting number 2 (IWL_MVM_DQA_P2P_DEVICE_QUEUE) then
-+		 * iwl_mvm_is_static_queue() erroneously returns true, and we
-+		 * might have things getting stuck.
-+		 */
-+		mvm->aux_queue = IWL_MVM_INVALID_QUEUE;
-+		mvm->snif_queue = IWL_MVM_INVALID_QUEUE;
-+		mvm->probe_queue = IWL_MVM_INVALID_QUEUE;
-+		mvm->p2p_dev_queue = IWL_MVM_INVALID_QUEUE;
-+	} else {
-+		mvm->aux_queue = IWL_MVM_DQA_AUX_QUEUE;
-+		mvm->snif_queue = IWL_MVM_DQA_INJECT_MONITOR_QUEUE;
-+		mvm->probe_queue = IWL_MVM_DQA_AP_PROBE_RESP_QUEUE;
-+		mvm->p2p_dev_queue = IWL_MVM_DQA_P2P_DEVICE_QUEUE;
-+	}
- 
- 	mvm->sf_state = SF_UNINIT;
- 	if (iwl_mvm_has_unified_ucode(mvm))
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-index 40cafcf40ccf..5df4bbb6c6de 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-@@ -346,8 +346,9 @@ static int iwl_mvm_invalidate_sta_queue(struct iwl_mvm *mvm, int queue,
++	md_csc = ioread16(ioaddr + MD_CSC);
+ 	iowrite16(MAC_RST, ioaddr + MCR1);
+ 	while (limit--) {
+ 		cmd = ioread16(ioaddr + MCR1);
+@@ -368,6 +371,10 @@ static void r6040_reset_mac(struct r6040
+ 	iowrite16(MAC_SM_RST, ioaddr + MAC_SM);
+ 	iowrite16(0, ioaddr + MAC_SM);
+ 	mdelay(5);
++
++	/* Restore MDIO clock frequency */
++	if (md_csc != MD_CSC_DEFAULT)
++		iowrite16(md_csc, ioaddr + MD_CSC);
  }
  
- static int iwl_mvm_disable_txq(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
--			       int queue, u8 tid, u8 flags)
-+			       u16 *queueptr, u8 tid, u8 flags)
- {
-+	int queue = *queueptr;
- 	struct iwl_scd_txq_cfg_cmd cmd = {
- 		.scd_queue = queue,
- 		.action = SCD_CFG_DISABLE_QUEUE,
-@@ -356,6 +357,7 @@ static int iwl_mvm_disable_txq(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
- 
- 	if (iwl_mvm_has_new_tx_api(mvm)) {
- 		iwl_trans_txq_free(mvm->trans, queue);
-+		*queueptr = IWL_MVM_INVALID_QUEUE;
- 
- 		return 0;
- 	}
-@@ -517,6 +519,7 @@ static int iwl_mvm_free_inactive_queue(struct iwl_mvm *mvm, int queue,
- 	u8 sta_id, tid;
- 	unsigned long disable_agg_tids = 0;
- 	bool same_sta;
-+	u16 queue_tmp = queue;
- 	int ret;
- 
- 	lockdep_assert_held(&mvm->mutex);
-@@ -539,7 +542,7 @@ static int iwl_mvm_free_inactive_queue(struct iwl_mvm *mvm, int queue,
- 		iwl_mvm_invalidate_sta_queue(mvm, queue,
- 					     disable_agg_tids, false);
- 
--	ret = iwl_mvm_disable_txq(mvm, old_sta, queue, tid, 0);
-+	ret = iwl_mvm_disable_txq(mvm, old_sta, &queue_tmp, tid, 0);
- 	if (ret) {
- 		IWL_ERR(mvm,
- 			"Failed to free inactive queue %d (ret=%d)\n",
-@@ -1209,6 +1212,7 @@ static int iwl_mvm_sta_alloc_queue(struct iwl_mvm *mvm,
- 	unsigned int wdg_timeout =
- 		iwl_mvm_get_wd_timeout(mvm, mvmsta->vif, false, false);
- 	int queue = -1;
-+	u16 queue_tmp;
- 	unsigned long disable_agg_tids = 0;
- 	enum iwl_mvm_agg_state queue_state;
- 	bool shared_queue = false, inc_ssn;
-@@ -1357,7 +1361,8 @@ static int iwl_mvm_sta_alloc_queue(struct iwl_mvm *mvm,
- 	return 0;
- 
- out_err:
--	iwl_mvm_disable_txq(mvm, sta, queue, tid, 0);
-+	queue_tmp = queue;
-+	iwl_mvm_disable_txq(mvm, sta, &queue_tmp, tid, 0);
- 
- 	return ret;
- }
-@@ -1795,7 +1800,7 @@ static void iwl_mvm_disable_sta_queues(struct iwl_mvm *mvm,
- 		if (mvm_sta->tid_data[i].txq_id == IWL_MVM_INVALID_QUEUE)
- 			continue;
- 
--		iwl_mvm_disable_txq(mvm, sta, mvm_sta->tid_data[i].txq_id, i,
-+		iwl_mvm_disable_txq(mvm, sta, &mvm_sta->tid_data[i].txq_id, i,
- 				    0);
- 		mvm_sta->tid_data[i].txq_id = IWL_MVM_INVALID_QUEUE;
- 	}
-@@ -2005,7 +2010,7 @@ static int iwl_mvm_add_int_sta_with_queue(struct iwl_mvm *mvm, int macidx,
- 	ret = iwl_mvm_add_int_sta_common(mvm, sta, NULL, macidx, maccolor);
- 	if (ret) {
- 		if (!iwl_mvm_has_new_tx_api(mvm))
--			iwl_mvm_disable_txq(mvm, NULL, *queue,
-+			iwl_mvm_disable_txq(mvm, NULL, queue,
- 					    IWL_MAX_TID_COUNT, 0);
- 		return ret;
- 	}
-@@ -2073,7 +2078,7 @@ int iwl_mvm_rm_snif_sta(struct iwl_mvm *mvm, struct ieee80211_vif *vif)
- 	if (WARN_ON_ONCE(mvm->snif_sta.sta_id == IWL_MVM_INVALID_STA))
- 		return -EINVAL;
- 
--	iwl_mvm_disable_txq(mvm, NULL, mvm->snif_queue, IWL_MAX_TID_COUNT, 0);
-+	iwl_mvm_disable_txq(mvm, NULL, &mvm->snif_queue, IWL_MAX_TID_COUNT, 0);
- 	ret = iwl_mvm_rm_sta_common(mvm, mvm->snif_sta.sta_id);
- 	if (ret)
- 		IWL_WARN(mvm, "Failed sending remove station\n");
-@@ -2090,7 +2095,7 @@ int iwl_mvm_rm_aux_sta(struct iwl_mvm *mvm)
- 	if (WARN_ON_ONCE(mvm->aux_sta.sta_id == IWL_MVM_INVALID_STA))
- 		return -EINVAL;
- 
--	iwl_mvm_disable_txq(mvm, NULL, mvm->aux_queue, IWL_MAX_TID_COUNT, 0);
-+	iwl_mvm_disable_txq(mvm, NULL, &mvm->aux_queue, IWL_MAX_TID_COUNT, 0);
- 	ret = iwl_mvm_rm_sta_common(mvm, mvm->aux_sta.sta_id);
- 	if (ret)
- 		IWL_WARN(mvm, "Failed sending remove station\n");
-@@ -2186,7 +2191,7 @@ static void iwl_mvm_free_bcast_sta_queues(struct iwl_mvm *mvm,
- 					  struct ieee80211_vif *vif)
- {
- 	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
--	int queue;
-+	u16 *queueptr, queue;
- 
- 	lockdep_assert_held(&mvm->mutex);
- 
-@@ -2195,10 +2200,10 @@ static void iwl_mvm_free_bcast_sta_queues(struct iwl_mvm *mvm,
- 	switch (vif->type) {
- 	case NL80211_IFTYPE_AP:
- 	case NL80211_IFTYPE_ADHOC:
--		queue = mvm->probe_queue;
-+		queueptr = &mvm->probe_queue;
- 		break;
- 	case NL80211_IFTYPE_P2P_DEVICE:
--		queue = mvm->p2p_dev_queue;
-+		queueptr = &mvm->p2p_dev_queue;
- 		break;
- 	default:
- 		WARN(1, "Can't free bcast queue on vif type %d\n",
-@@ -2206,7 +2211,8 @@ static void iwl_mvm_free_bcast_sta_queues(struct iwl_mvm *mvm,
- 		return;
- 	}
- 
--	iwl_mvm_disable_txq(mvm, NULL, queue, IWL_MAX_TID_COUNT, 0);
-+	queue = *queueptr;
-+	iwl_mvm_disable_txq(mvm, NULL, queueptr, IWL_MAX_TID_COUNT, 0);
- 	if (iwl_mvm_has_new_tx_api(mvm))
- 		return;
- 
-@@ -2441,7 +2447,7 @@ int iwl_mvm_rm_mcast_sta(struct iwl_mvm *mvm, struct ieee80211_vif *vif)
- 
- 	iwl_mvm_flush_sta(mvm, &mvmvif->mcast_sta, true, 0);
- 
--	iwl_mvm_disable_txq(mvm, NULL, mvmvif->cab_queue, 0, 0);
-+	iwl_mvm_disable_txq(mvm, NULL, &mvmvif->cab_queue, 0, 0);
- 
- 	ret = iwl_mvm_rm_sta_common(mvm, mvmvif->mcast_sta.sta_id);
- 	if (ret)
--- 
-2.30.2
-
+ static void r6040_init_mac_regs(struct net_device *dev)
 
 
