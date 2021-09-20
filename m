@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E5474123A8
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:25:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15AF84122AB
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378312AbhITS0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:26:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44476 "EHLO mail.kernel.org"
+        id S1376697AbhITSQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:16:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1378350AbhITSY0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:24:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38017632C6;
-        Mon, 20 Sep 2021 17:25:10 +0000 (UTC)
+        id S1376694AbhITSOP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:14:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47A4763287;
+        Mon, 20 Sep 2021 17:21:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158710;
-        bh=dc+e0zej0Q32wyD5utT0OrRCTsaAzJdhBe6RukD8kbA=;
+        s=korg; t=1632158477;
+        bh=HzTPcJVTGan/rMt9PqtYiL85Ua2qbAclqKgVjq1StcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ztRnED2i0AY4okUQEf352TEHcHoqsbwXuezEdqsT4FFjI5W3afkJ+C3FQ8j3JqJs0
-         K2zctNt1jMBiZzY1qfr/zICtXX/Q+04r08W4xaIJewPF4KSodpB/ZH1n/7D40Q2NQN
-         bo2aw0wWAM3/W4cbacFB3ROxJbAdh0uTw0ft4iHg=
+        b=CfzLLcKtEGfhV0rba+IX8sklQmX5LNuf0rLDqCbPKmvzwJuyyi0NZkuIA7T9+fMFx
+         LxNfQj1k77nkZGZVGKlzXURbVbBoM990dH+iScbgUOYEpdyNDs8sMoK33S+GusxbW4
+         +UnG9ANeaDbB6CnwD+YppXZwLoPB6bMdkuN4IaXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Olsa <jolsa@redhat.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Borislav Petkov <bp@suse.de>,
-        David Hildenbrand <david@redhat.com>,
-        Dave Hansen <dave.hansen@intel.com>
-Subject: [PATCH 5.10 020/122] x86/mm: Fix kern_addr_valid() to cope with existing but not present entries
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.4 174/260] parisc: fix crash with signals and alloca
 Date:   Mon, 20 Sep 2021 18:43:12 +0200
-Message-Id: <20210920163916.438453746@linuxfoundation.org>
+Message-Id: <20210920163936.998061782@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,115 +39,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 34b1999da935a33be6239226bfa6cd4f704c5c88 upstream.
+commit 030f653078316a9cc9ca6bd1b0234dcf858be35d upstream.
 
-Jiri Olsa reported a fault when running:
+I was debugging some crashes on parisc and I found out that there is a
+crash possibility if a function using alloca is interrupted by a signal.
+The reason for the crash is that the gcc alloca implementation leaves
+garbage in the upper 32 bits of the sp register. This normally doesn't
+matter (the upper bits are ignored because the PSW W-bit is clear),
+however the signal delivery routine in the kernel uses full 64 bits of sp
+and it fails with -EFAULT if the upper 32 bits are not zero.
 
-  # cat /proc/kallsyms | grep ksys_read
-  ffffffff8136d580 T ksys_read
-  # objdump -d --start-address=0xffffffff8136d580 --stop-address=0xffffffff8136d590 /proc/kcore
+I created this program that demonstrates the problem:
 
-  /proc/kcore:     file format elf64-x86-64
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <alloca.h>
 
-  Segmentation fault
+static __attribute__((noinline,noclone)) void aa(int *size)
+{
+	void * volatile p = alloca(-*size);
+	while (1) ;
+}
 
-  general protection fault, probably for non-canonical address 0xf887ffcbff000: 0000 [#1] SMP PTI
-  CPU: 12 PID: 1079 Comm: objdump Not tainted 5.14.0-rc5qemu+ #508
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-4.fc34 04/01/2014
-  RIP: 0010:kern_addr_valid
-  Call Trace:
-   read_kcore
-   ? rcu_read_lock_sched_held
-   ? rcu_read_lock_sched_held
-   ? rcu_read_lock_sched_held
-   ? trace_hardirqs_on
-   ? rcu_read_lock_sched_held
-   ? lock_acquire
-   ? lock_acquire
-   ? rcu_read_lock_sched_held
-   ? lock_acquire
-   ? rcu_read_lock_sched_held
-   ? rcu_read_lock_sched_held
-   ? rcu_read_lock_sched_held
-   ? lock_release
-   ? _raw_spin_unlock
-   ? __handle_mm_fault
-   ? rcu_read_lock_sched_held
-   ? lock_acquire
-   ? rcu_read_lock_sched_held
-   ? lock_release
-   proc_reg_read
-   ? vfs_read
-   vfs_read
-   ksys_read
-   do_syscall_64
-   entry_SYSCALL_64_after_hwframe
+static void handler(int sig)
+{
+	write(1, "signal delivered\n", 17);
+	_exit(0);
+}
 
-The fault happens because kern_addr_valid() dereferences existent but not
-present PMD in the high kernel mappings.
+int main(void)
+{
+	int size = -0x100;
+	signal(SIGALRM, handler);
+	alarm(1);
+	aa(&size);
+}
 
-Such PMDs are created when free_kernel_image_pages() frees regions larger
-than 2Mb. In this case, a part of the freed memory is mapped with PMDs and
-the set_memory_np_noalias() -> ... -> __change_page_attr() sequence will
-mark the PMD as not present rather than wipe it completely.
+If you compile it with optimizations, it will crash.
+The "aa" function has this disassembly:
 
-Have kern_addr_valid() check whether higher level page table entries are
-present before trying to dereference them to fix this issue and to avoid
-similar issues in the future.
+000106a0 <aa>:
+   106a0:       08 03 02 41     copy r3,r1
+   106a4:       08 1e 02 43     copy sp,r3
+   106a8:       6f c1 00 80     stw,ma r1,40(sp)
+   106ac:       37 dc 3f c1     ldo -20(sp),ret0
+   106b0:       0c 7c 12 90     stw ret0,8(r3)
+   106b4:       0f 40 10 9c     ldw 0(r26),ret0		; ret0 = 0x00000000FFFFFF00
+   106b8:       97 9c 00 7e     subi 3f,ret0,ret0	; ret0 = 0xFFFFFFFF0000013F
+   106bc:       d7 80 1c 1a     depwi 0,31,6,ret0	; ret0 = 0xFFFFFFFF00000100
+   106c0:       0b 9e 0a 1e     add,l sp,ret0,sp	;   sp = 0xFFFFFFFFxxxxxxxx
+   106c4:       e8 1f 1f f7     b,l,n 106c4 <aa+0x24>,r0
 
-Stable backporting note:
-------------------------
+This patch fixes the bug by truncating the "usp" variable to 32 bits.
 
-Note that the stable marking is for all active stable branches because
-there could be cases where pagetable entries exist but are not valid -
-see 9a14aefc1d28 ("x86: cpa, fix lookup_address"), for example. So make
-sure to be on the safe side here and use pXY_present() accessors rather
-than pXY_none() which could #GP when accessing pages in the direct map.
-
-Also see:
-
-  c40a56a7818c ("x86/mm/init: Remove freed kernel image areas from alias mapping")
-
-for more info.
-
-Reported-by: Jiri Olsa <jolsa@redhat.com>
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Dave Hansen <dave.hansen@intel.com>
-Tested-by: Jiri Olsa <jolsa@redhat.com>
-Cc: <stable@vger.kernel.org>	# 4.4+
-Link: https://lkml.kernel.org/r/20210819132717.19358-1-rppt@kernel.org
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/mm/init_64.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/parisc/kernel/signal.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -1389,18 +1389,18 @@ int kern_addr_valid(unsigned long addr)
- 		return 0;
+--- a/arch/parisc/kernel/signal.c
++++ b/arch/parisc/kernel/signal.c
+@@ -238,6 +238,12 @@ setup_rt_frame(struct ksignal *ksig, sig
+ #endif
+ 	
+ 	usp = (regs->gr[30] & ~(0x01UL));
++#ifdef CONFIG_64BIT
++	if (is_compat_task()) {
++		/* The gcc alloca implementation leaves garbage in the upper 32 bits of sp */
++		usp = (compat_uint_t)usp;
++	}
++#endif
+ 	/*FIXME: frame_size parameter is unused, remove it. */
+ 	frame = get_sigframe(&ksig->ka, usp, sizeof(*frame));
  
- 	p4d = p4d_offset(pgd, addr);
--	if (p4d_none(*p4d))
-+	if (!p4d_present(*p4d))
- 		return 0;
- 
- 	pud = pud_offset(p4d, addr);
--	if (pud_none(*pud))
-+	if (!pud_present(*pud))
- 		return 0;
- 
- 	if (pud_large(*pud))
- 		return pfn_valid(pud_pfn(*pud));
- 
- 	pmd = pmd_offset(pud, addr);
--	if (pmd_none(*pmd))
-+	if (!pmd_present(*pmd))
- 		return 0;
- 
- 	if (pmd_large(*pmd))
 
 
