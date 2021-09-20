@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38F9C4121DD
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:09:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 737B1412204
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:10:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359837AbhITSKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:10:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33250 "EHLO mail.kernel.org"
+        id S1344560AbhITSL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:11:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358796AbhITSIA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:08:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7FDD61A3F;
-        Mon, 20 Sep 2021 17:18:40 +0000 (UTC)
+        id S1358837AbhITSIQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:08:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9D8A613D2;
+        Mon, 20 Sep 2021 17:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158321;
-        bh=FdW8nJXIGgat2ntg19fcpH4kFetY/ojysidmGAJDBlc=;
+        s=korg; t=1632158323;
+        bh=uwA0nUERC+utH2fpcqTViMZbqrZcqe6qSSC9TEOQ8Yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SNH7DUONxghkRawlC1LcisBYuw2Mjgzl5vmMcjxCZ4GtKLVNzDpPPeL88eZ6FOM2s
-         rbLXU79TjCHdTxNT/guCfWsMRmNCxRpZ6qtG5UmMPFANclMMdI+Zjs/uMAesBm9Kha
-         GdSaS6T0Abeu+/CFXNQA+O8YKiF89vMjrPv8I3o8=
+        b=ITz0HZ9jUwiqiMZeZsVJUQNMseIqM5CgB/NQ5kg3BL2hN0zZGnYg2PZ7/dUpPUhGt
+         LyBlAeACf26MBH/1ogxiUT98hYAgTcHQK6UMgG7Pne52GJ+r5V8/CBKvZQHigzpNZC
+         Xw4Hh6F5QZET2zrBumYtHokm7QFm5lkPPHywXv8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 102/260] flow_dissector: Fix out-of-bounds warnings
-Date:   Mon, 20 Sep 2021 18:42:00 +0200
-Message-Id: <20210920163934.596456864@linuxfoundation.org>
+Subject: [PATCH 5.4 103/260] s390/jump_label: print real address in a case of a jump label bug
+Date:   Mon, 20 Sep 2021 18:42:01 +0200
+Message-Id: <20210920163934.630268438@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -41,84 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavoars@kernel.org>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 323e0cb473e2a8706ff162b6b4f4fa16023c9ba7 ]
+[ Upstream commit 5492886c14744d239e87f1b0b774b5a341e755cc ]
 
-Fix the following out-of-bounds warnings:
+In case of a jump label print the real address of the piece of code
+where a mismatch was detected. This is right before the system panics,
+so there is nothing revealed.
 
-    net/core/flow_dissector.c: In function '__skb_flow_dissect':
->> net/core/flow_dissector.c:1104:4: warning: 'memcpy' offset [24, 39] from the object at '<unknown>' is out of the bounds of referenced subobject 'saddr' with type 'struct in6_addr' at offset 8 [-Warray-bounds]
-     1104 |    memcpy(&key_addrs->v6addrs, &iph->saddr,
-          |    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     1105 |           sizeof(key_addrs->v6addrs));
-          |           ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    In file included from include/linux/ipv6.h:5,
-                     from net/core/flow_dissector.c:6:
-    include/uapi/linux/ipv6.h:133:18: note: subobject 'saddr' declared here
-      133 |  struct in6_addr saddr;
-          |                  ^~~~~
->> net/core/flow_dissector.c:1059:4: warning: 'memcpy' offset [16, 19] from the object at '<unknown>' is out of the bounds of referenced subobject 'saddr' with type 'unsigned int' at offset 12 [-Warray-bounds]
-     1059 |    memcpy(&key_addrs->v4addrs, &iph->saddr,
-          |    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     1060 |           sizeof(key_addrs->v4addrs));
-          |           ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    In file included from include/linux/ip.h:17,
-                     from net/core/flow_dissector.c:5:
-    include/uapi/linux/ip.h:103:9: note: subobject 'saddr' declared here
-      103 |  __be32 saddr;
-          |         ^~~~~
-
-The problem is that the original code is trying to copy data into a
-couple of struct members adjacent to each other in a single call to
-memcpy().  So, the compiler legitimately complains about it. As these
-are just a couple of members, fix this by copying each one of them in
-separate calls to memcpy().
-
-This helps with the ongoing efforts to globally enable -Warray-bounds
-and get us closer to being able to tighten the FORTIFY_SOURCE routines
-on memcpy().
-
-Link: https://github.com/KSPP/linux/issues/109
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/d5ae2e65-1f18-2577-246f-bada7eee6ccd@intel.com/
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/flow_dissector.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ arch/s390/kernel/jump_label.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/flow_dissector.c b/net/core/flow_dissector.c
-index 96957a7c732f..b740a74f06f2 100644
---- a/net/core/flow_dissector.c
-+++ b/net/core/flow_dissector.c
-@@ -1025,8 +1025,10 @@ bool __skb_flow_dissect(const struct net *net,
- 							      FLOW_DISSECTOR_KEY_IPV4_ADDRS,
- 							      target_container);
+diff --git a/arch/s390/kernel/jump_label.c b/arch/s390/kernel/jump_label.c
+index ab584e8e3527..9156653b56f6 100644
+--- a/arch/s390/kernel/jump_label.c
++++ b/arch/s390/kernel/jump_label.c
+@@ -36,7 +36,7 @@ static void jump_label_bug(struct jump_entry *entry, struct insn *expected,
+ 	unsigned char *ipe = (unsigned char *)expected;
+ 	unsigned char *ipn = (unsigned char *)new;
  
--			memcpy(&key_addrs->v4addrs, &iph->saddr,
--			       sizeof(key_addrs->v4addrs));
-+			memcpy(&key_addrs->v4addrs.src, &iph->saddr,
-+			       sizeof(key_addrs->v4addrs.src));
-+			memcpy(&key_addrs->v4addrs.dst, &iph->daddr,
-+			       sizeof(key_addrs->v4addrs.dst));
- 			key_control->addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
- 		}
- 
-@@ -1070,8 +1072,10 @@ bool __skb_flow_dissect(const struct net *net,
- 							      FLOW_DISSECTOR_KEY_IPV6_ADDRS,
- 							      target_container);
- 
--			memcpy(&key_addrs->v6addrs, &iph->saddr,
--			       sizeof(key_addrs->v6addrs));
-+			memcpy(&key_addrs->v6addrs.src, &iph->saddr,
-+			       sizeof(key_addrs->v6addrs.src));
-+			memcpy(&key_addrs->v6addrs.dst, &iph->daddr,
-+			       sizeof(key_addrs->v6addrs.dst));
- 			key_control->addr_type = FLOW_DISSECTOR_KEY_IPV6_ADDRS;
- 		}
- 
+-	pr_emerg("Jump label code mismatch at %pS [%p]\n", ipc, ipc);
++	pr_emerg("Jump label code mismatch at %pS [%px]\n", ipc, ipc);
+ 	pr_emerg("Found:    %6ph\n", ipc);
+ 	pr_emerg("Expected: %6ph\n", ipe);
+ 	pr_emerg("New:      %6ph\n", ipn);
 -- 
 2.30.2
 
