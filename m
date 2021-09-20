@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E52D7411B37
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:55:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3BB6411FE2
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:44:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238015AbhITQ4i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:56:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38940 "EHLO mail.kernel.org"
+        id S1349777AbhITRqV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:46:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245613AbhITQyh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:54:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92C0E61372;
-        Mon, 20 Sep 2021 16:50:36 +0000 (UTC)
+        id S1353006AbhITRnS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:43:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFBB161B72;
+        Mon, 20 Sep 2021 17:09:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156637;
-        bh=RQw5DQ89xXCXSo5Id/Pm7fMDv0gBzher2VlGUzcwsiw=;
+        s=korg; t=1632157746;
+        bh=GVDe6dytpR8MZgWC71Q+k/v2IWhxvAb5Tj1GIdvifOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ks7XvBh1T8DtxtSkagQ9MtyIGHPBOLW/io2AZmqC8OAXd+PeCf7CtUo84lCSiHeju
-         NtIGtg7gclVJzEllaWVctsZJ8kSKLYzqp1PU6ddXf8MSZF4bxWzlYTXZpW0Ojcr6Hf
-         CVJ+zS9GQpaYU/d+O5Cv/+aqSqYx2kAGhEItKFjA=
+        b=Xo8dXNKe6zSASi5faISY/y2QrjScBUsXCzqvDLB9dibMkOkRC5gaI1uMkq60bXkjm
+         bEvqAOat91QKuHc98yd4IGt3dBysDvgdsKQXqWpr1uNhrKDuLZgf7Q0MNq4G5fstG2
+         CuiASYIFwsrZ8VdV0SsfHfusRU78EHvG7X6XaC3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH 4.9 017/175] usb: phy: isp1301: Fix build warning when CONFIG_OF is disabled
-Date:   Mon, 20 Sep 2021 18:41:06 +0200
-Message-Id: <20210920163918.632790429@linuxfoundation.org>
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>
+Subject: [PATCH 4.19 105/293] netns: protect netns ID lookups with RCU
+Date:   Mon, 20 Sep 2021 18:41:07 +0200
+Message-Id: <20210920163936.858871708@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,36 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier Martinez Canillas <javier@osg.samsung.com>
+From: Guillaume Nault <gnault@redhat.com>
 
-commit a7f12a21f6b32bdd8d76d3af81eef9e72ce41ec0 upstream.
+commit 2dce224f469f060b9998a5a869151ef83c08ce77 upstream.
 
-Commit fd567653bdb9 ("usb: phy: isp1301: Add OF device ID table")
-added an OF device ID table, but used the of_match_ptr() macro
-that will lead to a build warning if CONFIG_OF symbol is disabled:
+__peernet2id() can be protected by RCU as it only calls idr_for_each(),
+which is RCU-safe, and never modifies the nsid table.
 
-drivers/usb/phy//phy-isp1301.c:36:34: warning: ‘isp1301_of_match’ defined but not used [-Wunused-const-variable=]
- static const struct of_device_id isp1301_of_match[] = {
-                                  ^~~~~~~~~~~~~~~~
+rtnl_net_dumpid() can also do lockless lookups. It does two nested
+idr_for_each() calls on nsid tables (one direct call and one indirect
+call because of rtnl_net_dumpid_one() calling __peernet2id()). The
+netnsid tables are never updated. Therefore it is safe to not take the
+nsid_lock and run within an RCU-critical section instead.
 
-Fixes: fd567653bdb9 ("usb: phy: isp1301: Add OF device ID table")
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/phy/phy-isp1301.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
 
---- a/drivers/usb/phy/phy-isp1301.c
-+++ b/drivers/usb/phy/phy-isp1301.c
-@@ -136,7 +136,7 @@ static int isp1301_remove(struct i2c_cli
- static struct i2c_driver isp1301_driver = {
- 	.driver = {
- 		.name = DRV_NAME,
--		.of_match_table = of_match_ptr(isp1301_of_match),
-+		.of_match_table = isp1301_of_match,
- 	},
- 	.probe = isp1301_probe,
- 	.remove = isp1301_remove,
+---
+ net/core/net_namespace.c |   18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
+
+--- a/net/core/net_namespace.c
++++ b/net/core/net_namespace.c
+@@ -192,9 +192,9 @@ static int net_eq_idr(int id, void *net,
+ 	return 0;
+ }
+ 
+-/* Should be called with nsid_lock held. If a new id is assigned, the bool alloc
+- * is set to true, thus the caller knows that the new id must be notified via
+- * rtnl.
++/* Must be called from RCU-critical section or with nsid_lock held. If
++ * a new id is assigned, the bool alloc is set to true, thus the
++ * caller knows that the new id must be notified via rtnl.
+  */
+ static int __peernet2id_alloc(struct net *net, struct net *peer, bool *alloc)
+ {
+@@ -218,7 +218,7 @@ static int __peernet2id_alloc(struct net
+ 	return NETNSA_NSID_NOT_ASSIGNED;
+ }
+ 
+-/* should be called with nsid_lock held */
++/* Must be called from RCU-critical section or with nsid_lock held */
+ static int __peernet2id(struct net *net, struct net *peer)
+ {
+ 	bool no = false;
+@@ -261,9 +261,10 @@ int peernet2id(struct net *net, struct n
+ {
+ 	int id;
+ 
+-	spin_lock_bh(&net->nsid_lock);
++	rcu_read_lock();
+ 	id = __peernet2id(net, peer);
+-	spin_unlock_bh(&net->nsid_lock);
++	rcu_read_unlock();
++
+ 	return id;
+ }
+ EXPORT_SYMBOL(peernet2id);
+@@ -837,6 +838,7 @@ struct rtnl_net_dump_cb {
+ 	int s_idx;
+ };
+ 
++/* Runs in RCU-critical section. */
+ static int rtnl_net_dumpid_one(int id, void *peer, void *data)
+ {
+ 	struct rtnl_net_dump_cb *net_cb = (struct rtnl_net_dump_cb *)data;
+@@ -867,9 +869,9 @@ static int rtnl_net_dumpid(struct sk_buf
+ 		.s_idx = cb->args[0],
+ 	};
+ 
+-	spin_lock_bh(&net->nsid_lock);
++	rcu_read_lock();
+ 	idr_for_each(&net->netns_ids, rtnl_net_dumpid_one, &net_cb);
+-	spin_unlock_bh(&net->nsid_lock);
++	rcu_read_unlock();
+ 
+ 	cb->args[0] = net_cb.idx;
+ 	return skb->len;
 
 
