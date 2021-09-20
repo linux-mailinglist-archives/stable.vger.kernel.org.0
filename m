@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D2F7411D77
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:19:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA563411A4F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:47:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346957AbhITRUf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:20:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48844 "EHLO mail.kernel.org"
+        id S243972AbhITQsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:48:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348313AbhITRSq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:18:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F86B61A56;
-        Mon, 20 Sep 2021 16:59:53 +0000 (UTC)
+        id S243148AbhITQsE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:48:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 648D961252;
+        Mon, 20 Sep 2021 16:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157194;
-        bh=2+69YOaFMQV3IeG+2xp7JYf6jg/oriN58muh/MO/R1w=;
+        s=korg; t=1632156397;
+        bh=RDXPhV+XhK+KSulAbJypG6MW1JMnxdbZe8aVEVQvtW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zuWjJydHLAJmuJXAAm86qeMSZKpRY3A17YvA+IAs/nhp78FlXO0xT1Wt1eK9ofMoy
-         sE/9pqVF/JsZE6ee3gPRbLay3WbVhLlGLqYJ8NxTsfvOzzi6XvGZidS8CKT3OFS6g5
-         acEqm7k2Q1fRO7iQWidFjZ80cf+E9Xa1vsAYkgrA=
+        b=DVSkVYx5V2Iji66xu9/ZTm+GyEhAM24N+Kz/Rchr9aGfDKa7GLHORfhpuacs4e6X5
+         2xcC0GQh9pzrFXcbZ+/YGRlPOrS0UPt0rxLVNSHd2BQFVpKlRI3mT0hSNoToqebs/d
+         QykgUaHWVS80OQ2TtKpWJcE3wokqXOCjQN7oLeLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 4.14 096/217] clk: kirkwood: Fix a clocking boot regression
-Date:   Mon, 20 Sep 2021 18:41:57 +0200
-Message-Id: <20210920163927.892559131@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 040/133] media: go7007: remove redundant initialization
+Date:   Mon, 20 Sep 2021 18:41:58 +0200
+Message-Id: <20210920163913.964733082@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +41,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit aaedb9e00e5400220a8871180d23a83e67f29f63 upstream.
+[ Upstream commit 6f5885a7750545973bf1a942d2f0f129aef0aa06 ]
 
-Since a few kernel releases the Pogoplug 4 has crashed like this
-during boot:
+In go7007_alloc() kzalloc() is used for struct go7007
+allocation. It means that there is no need in zeroing
+any members, because kzalloc will take care of it.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000002
-(...)
-[<c04116ec>] (strlen) from [<c00ead80>] (kstrdup+0x1c/0x4c)
-[<c00ead80>] (kstrdup) from [<c04591d8>] (__clk_register+0x44/0x37c)
-[<c04591d8>] (__clk_register) from [<c04595ec>] (clk_hw_register+0x20/0x44)
-[<c04595ec>] (clk_hw_register) from [<c045bfa8>] (__clk_hw_register_mux+0x198/0x1e4)
-[<c045bfa8>] (__clk_hw_register_mux) from [<c045c050>] (clk_register_mux_table+0x5c/0x6c)
-[<c045c050>] (clk_register_mux_table) from [<c0acf3e0>] (kirkwood_clk_muxing_setup.constprop.0+0x13c/0x1ac)
-[<c0acf3e0>] (kirkwood_clk_muxing_setup.constprop.0) from [<c0aceae0>] (of_clk_init+0x12c/0x214)
-[<c0aceae0>] (of_clk_init) from [<c0ab576c>] (time_init+0x20/0x2c)
-[<c0ab576c>] (time_init) from [<c0ab3d18>] (start_kernel+0x3dc/0x56c)
-[<c0ab3d18>] (start_kernel) from [<00000000>] (0x0)
-Code: e3130020 1afffffb e12fff1e c08a1078 (e5d03000)
+Removing these reduntant initialization steps increases
+execution speed a lot:
 
-This is because the "powersave" mux clock 0 was provided in an unterminated
-array, which is required by the loop in the driver:
+	Before:
+		+ 86.802 us   |    go7007_alloc();
+	After:
+		+ 29.595 us   |    go7007_alloc();
 
-        /* Count, allocate, and register clock muxes */
-        for (n = 0; desc[n].name;)
-                n++;
-
-Here n will go out of bounds and then call clk_register_mux() on random
-memory contents after the mux clock.
-
-Fix this by terminating the array with a blank entry.
-
-Fixes: 105299381d87 ("cpufreq: kirkwood: use the powersave multiplexer")
-Cc: stable@vger.kernel.org
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
-Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210814235514.403426-1-linus.walleij@linaro.org
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 866b8695d67e8 ("Staging: add the go7007 video driver")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mvebu/kirkwood.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/usb/go7007/go7007-driver.c | 26 ------------------------
+ 1 file changed, 26 deletions(-)
 
---- a/drivers/clk/mvebu/kirkwood.c
-+++ b/drivers/clk/mvebu/kirkwood.c
-@@ -254,6 +254,7 @@ static const char *powersave_parents[] =
- static const struct clk_muxing_soc_desc kirkwood_mux_desc[] __initconst = {
- 	{ "powersave", powersave_parents, ARRAY_SIZE(powersave_parents),
- 		11, 1, 0 },
-+	{ }
- };
+diff --git a/drivers/media/usb/go7007/go7007-driver.c b/drivers/media/usb/go7007/go7007-driver.c
+index ae1cfa792c58..11429bf28c8a 100644
+--- a/drivers/media/usb/go7007/go7007-driver.c
++++ b/drivers/media/usb/go7007/go7007-driver.c
+@@ -698,49 +698,23 @@ struct go7007 *go7007_alloc(const struct go7007_board_info *board,
+ 						struct device *dev)
+ {
+ 	struct go7007 *go;
+-	int i;
  
- static struct clk *clk_muxing_get_src(
+ 	go = kzalloc(sizeof(struct go7007), GFP_KERNEL);
+ 	if (go == NULL)
+ 		return NULL;
+ 	go->dev = dev;
+ 	go->board_info = board;
+-	go->board_id = 0;
+ 	go->tuner_type = -1;
+-	go->channel_number = 0;
+-	go->name[0] = 0;
+ 	mutex_init(&go->hw_lock);
+ 	init_waitqueue_head(&go->frame_waitq);
+ 	spin_lock_init(&go->spinlock);
+ 	go->status = STATUS_INIT;
+-	memset(&go->i2c_adapter, 0, sizeof(go->i2c_adapter));
+-	go->i2c_adapter_online = 0;
+-	go->interrupt_available = 0;
+ 	init_waitqueue_head(&go->interrupt_waitq);
+-	go->input = 0;
+ 	go7007_update_board(go);
+-	go->encoder_h_halve = 0;
+-	go->encoder_v_halve = 0;
+-	go->encoder_subsample = 0;
+ 	go->format = V4L2_PIX_FMT_MJPEG;
+ 	go->bitrate = 1500000;
+ 	go->fps_scale = 1;
+-	go->pali = 0;
+ 	go->aspect_ratio = GO7007_RATIO_1_1;
+-	go->gop_size = 0;
+-	go->ipb = 0;
+-	go->closed_gop = 0;
+-	go->repeat_seqhead = 0;
+-	go->seq_header_enable = 0;
+-	go->gop_header_enable = 0;
+-	go->dvd_mode = 0;
+-	go->interlace_coding = 0;
+-	for (i = 0; i < 4; ++i)
+-		go->modet[i].enable = 0;
+-	for (i = 0; i < 1624; ++i)
+-		go->modet_map[i] = 0;
+-	go->audio_deliver = NULL;
+-	go->audio_enabled = 0;
+ 
+ 	return go;
+ }
+-- 
+2.30.2
+
 
 
