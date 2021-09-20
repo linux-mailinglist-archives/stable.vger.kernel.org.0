@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE142412570
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:44:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD63B412323
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:20:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350023AbhITSpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:45:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56480 "EHLO mail.kernel.org"
+        id S1347947AbhITSV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:21:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1382858AbhITSmb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:42:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC9976334F;
-        Mon, 20 Sep 2021 17:32:12 +0000 (UTC)
+        id S1351452AbhITSSP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:18:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B01361A59;
+        Mon, 20 Sep 2021 17:22:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159133;
-        bh=hjns1O5VBB1oEQxpCGhtIp+uuv+3hKCDt4L6L2WPSCw=;
+        s=korg; t=1632158555;
+        bh=FT+H7xlm5QLnnodeS1WBcVi57s+i3bzxuP0lWo0nr/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wXZSMMC6+qrnmwAqREytGqUNxZl8ft2GwKRhGlXG2RMVKZK5Kk2Vpnvpe/aQXDXEz
-         +GvQidjrOBPIAS6CIOwK9e/eAM455g1Y5fi8+zGEdVOhs3yG9z1RGjqJ1QIONWfQSc
-         NoDebc2IHvrkUVLfBd7SjQF9rI53hUJUfrmnOB10=
+        b=SNVQp7j89L9Cppb6bqOK6Pudr7mu00COKnJQguUfl1dLRZo16Dxua1hw5/+hJaMEi
+         pxhpvje2AQSM7gqWbWZRB4G5aZUO8V/tM85bRoq7shOAKEwUtzuKho6O80BQgfG0wz
+         1lHEkQiB9rwkcRxXBdLgLkrVNm4OYD29b+qJIer0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Ryan J. Barnett" <ryan.barnett@collins.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 090/168] dt-bindings: mtd: gpmc: Fix the ECC bytes vs. OOB bytes equation
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 210/260] net-caif: avoid user-triggerable WARN_ON(1)
 Date:   Mon, 20 Sep 2021 18:43:48 +0200
-Message-Id: <20210920163924.593863090@linuxfoundation.org>
+Message-Id: <20210920163938.243686309@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +39,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 778cb8e39f6ec252be50fc3850d66f3dcbd5dd5a ]
+commit 550ac9c1aaaaf51fd42e20d461f0b1cdbd55b3d2 upstream.
 
-"PAGESIZE / 512" is the number of ECC chunks.
-"ECC_BYTES" is the number of bytes needed to store a single ECC code.
-"2" is the space reserved by the bad block marker.
+syszbot triggers this warning, which looks something
+we can easily prevent.
 
-"2 + (PAGESIZE / 512) * ECC_BYTES" should of course be lower or equal
-than the total number of OOB bytes, otherwise it won't fit.
+If we initialize priv->list_field in chnl_net_init(),
+then always use list_del_init(), we can remove robust_list_del()
+completely.
 
-Fix the equation by substituting s/>=/<=/.
+WARNING: CPU: 0 PID: 3233 at net/caif/chnl_net.c:67 robust_list_del net/caif/chnl_net.c:67 [inline]
+WARNING: CPU: 0 PID: 3233 at net/caif/chnl_net.c:67 chnl_net_uninit+0xc9/0x2e0 net/caif/chnl_net.c:375
+Modules linked in:
+CPU: 0 PID: 3233 Comm: syz-executor.3 Not tainted 5.14.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:robust_list_del net/caif/chnl_net.c:67 [inline]
+RIP: 0010:chnl_net_uninit+0xc9/0x2e0 net/caif/chnl_net.c:375
+Code: 89 eb e8 3a a3 ba f8 48 89 d8 48 c1 e8 03 42 80 3c 28 00 0f 85 bf 01 00 00 48 81 fb 00 14 4e 8d 48 8b 2b 75 d0 e8 17 a3 ba f8 <0f> 0b 5b 5d 41 5c 41 5d e9 0a a3 ba f8 4c 89 e3 e8 02 a3 ba f8 4c
+RSP: 0018:ffffc90009067248 EFLAGS: 00010202
+RAX: 0000000000008780 RBX: ffffffff8d4e1400 RCX: ffffc9000fd34000
+RDX: 0000000000040000 RSI: ffffffff88bb6e49 RDI: 0000000000000003
+RBP: ffff88802cd9ee08 R08: 0000000000000000 R09: ffffffff8d0e6647
+R10: ffffffff88bb6dc2 R11: 0000000000000000 R12: ffff88803791ae08
+R13: dffffc0000000000 R14: 00000000e600ffce R15: ffff888073ed3480
+FS:  00007fed10fa0700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b2c322000 CR3: 00000000164a6000 CR4: 00000000001506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ register_netdevice+0xadf/0x1500 net/core/dev.c:10347
+ ipcaif_newlink+0x4c/0x260 net/caif/chnl_net.c:468
+ __rtnl_newlink+0x106d/0x1750 net/core/rtnetlink.c:3458
+ rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3506
+ rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5572
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2504
+ netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1340
+ netlink_sendmsg+0x86d/0xdb0 net/netlink/af_netlink.c:1929
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:724
+ __sys_sendto+0x21c/0x320 net/socket.c:2036
+ __do_sys_sendto net/socket.c:2048 [inline]
+ __se_sys_sendto net/socket.c:2044 [inline]
+ __x64_sys_sendto+0xdd/0x1b0 net/socket.c:2044
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Suggested-by: Ryan J. Barnett <ryan.barnett@collins.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/linux-mtd/20210610143945.3504781-1-miquel.raynal@bootlin.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: cc36a070b590 ("net-caif: add CAIF netdevice")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/mtd/gpmc-nand.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/caif/chnl_net.c |   19 +++----------------
+ 1 file changed, 3 insertions(+), 16 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-index 44919d48d241..c459f169a904 100644
---- a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-+++ b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-@@ -122,7 +122,7 @@ on various other factors also like;
- 	so the device should have enough free bytes available its OOB/Spare
- 	area to accommodate ECC for entire page. In general following expression
- 	helps in determining if given device can accommodate ECC syndrome:
--	"2 + (PAGESIZE / 512) * ECC_BYTES" >= OOBSIZE"
-+	"2 + (PAGESIZE / 512) * ECC_BYTES" <= OOBSIZE"
- 	where
- 		OOBSIZE		number of bytes in OOB/spare area
- 		PAGESIZE	number of bytes in main-area of device page
--- 
-2.30.2
-
+--- a/net/caif/chnl_net.c
++++ b/net/caif/chnl_net.c
+@@ -53,20 +53,6 @@ struct chnl_net {
+ 	enum caif_states state;
+ };
+ 
+-static void robust_list_del(struct list_head *delete_node)
+-{
+-	struct list_head *list_node;
+-	struct list_head *n;
+-	ASSERT_RTNL();
+-	list_for_each_safe(list_node, n, &chnl_net_list) {
+-		if (list_node == delete_node) {
+-			list_del(list_node);
+-			return;
+-		}
+-	}
+-	WARN_ON(1);
+-}
+-
+ static int chnl_recv_cb(struct cflayer *layr, struct cfpkt *pkt)
+ {
+ 	struct sk_buff *skb;
+@@ -368,6 +354,7 @@ static int chnl_net_init(struct net_devi
+ 	ASSERT_RTNL();
+ 	priv = netdev_priv(dev);
+ 	strncpy(priv->name, dev->name, sizeof(priv->name));
++	INIT_LIST_HEAD(&priv->list_field);
+ 	return 0;
+ }
+ 
+@@ -376,7 +363,7 @@ static void chnl_net_uninit(struct net_d
+ 	struct chnl_net *priv;
+ 	ASSERT_RTNL();
+ 	priv = netdev_priv(dev);
+-	robust_list_del(&priv->list_field);
++	list_del_init(&priv->list_field);
+ }
+ 
+ static const struct net_device_ops netdev_ops = {
+@@ -541,7 +528,7 @@ static void __exit chnl_exit_module(void
+ 	rtnl_lock();
+ 	list_for_each_safe(list_node, _tmp, &chnl_net_list) {
+ 		dev = list_entry(list_node, struct chnl_net, list_field);
+-		list_del(list_node);
++		list_del_init(list_node);
+ 		delete_device(dev);
+ 	}
+ 	rtnl_unlock();
 
 
