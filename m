@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD7E3411E5A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:29:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9172411E5B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:29:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347535AbhITRaX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:30:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57188 "EHLO mail.kernel.org"
+        id S1345911AbhITRaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:30:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345911AbhITR1L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:27:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 801AE61AA5;
-        Mon, 20 Sep 2021 17:03:02 +0000 (UTC)
+        id S1344060AbhITR1P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:27:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B066161AA6;
+        Mon, 20 Sep 2021 17:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157383;
-        bh=Q0cQCk3RegAqSM6Iok9iBLC48m97x124h4IDoj8wG9Q=;
+        s=korg; t=1632157385;
+        bh=SueQYwpv99GQGxKfVB4UpOLiYZpOz1H7abY1IwtjASg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PUTre/GWsX0uzCEk9Ac2PE8lNBqYEnUmBRKU2E2UnfYrp0wikZoNcqned8NTSfsV/
-         fMCE9F81TXPyX4bTky7M98LqtXdMMpByCYNS5257MJSPLxXXD59lb/nMRmsB0JBTN7
-         tIbZU5ZsadD2FH+ac6dKbEFVCEtwmDbHFrFfUD78=
+        b=i5taLKMVgtmYJoldAwaP6TZqhhq6oRVbX+pcpZ0BUz200+sPVjQlYnEqtY7K5BFVV
+         F+dniu+ByqCb9dfPVlZXbW8ou97kzbVQI1NZuVLq1wv2Ja/RhhVDBCN8eoyzqxbQhR
+         Rw1RhdsVGZo7KrKseq3u12jYxtoXsXJeD8b/qAdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 184/217] parisc: fix crash with signals and alloca
-Date:   Mon, 20 Sep 2021 18:43:25 +0200
-Message-Id: <20210920163930.860476541@linuxfoundation.org>
+        stable@vger.kernel.org, Khalid Aziz <khalid@gonehiking.org>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 185/217] scsi: BusLogic: Fix missing pr_cont() use
+Date:   Mon, 20 Sep 2021 18:43:26 +0200
+Message-Id: <20210920163930.894811070@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
 References: <20210920163924.591371269@linuxfoundation.org>
@@ -39,84 +40,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit 030f653078316a9cc9ca6bd1b0234dcf858be35d upstream.
+commit 44d01fc86d952f5a8b8b32bdb4841504d5833d95 upstream.
 
-I was debugging some crashes on parisc and I found out that there is a
-crash possibility if a function using alloca is interrupted by a signal.
-The reason for the crash is that the gcc alloca implementation leaves
-garbage in the upper 32 bits of the sp register. This normally doesn't
-matter (the upper bits are ignored because the PSW W-bit is clear),
-however the signal delivery routine in the kernel uses full 64 bits of sp
-and it fails with -EFAULT if the upper 32 bits are not zero.
+Update BusLogic driver's messaging system to use pr_cont() for continuation
+lines, bringing messy output:
 
-I created this program that demonstrates the problem:
+pci 0000:00:13.0: PCI->APIC IRQ transform: INT A -> IRQ 17
+scsi: ***** BusLogic SCSI Driver Version 2.1.17 of 12 September 2013 *****
+scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
+scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
+scsi0:   Firmware Version: 5.07B, I/O Address: 0x7000, IRQ Channel: 17/Level
+scsi0:   PCI Bus: 0, Device: 19, Address:
+0xE0012000,
+Host Adapter SCSI ID: 7
+scsi0:   Parity Checking: Enabled, Extended Translation: Enabled
+scsi0:   Synchronous Negotiation: Ultra, Wide Negotiation: Enabled
+scsi0:   Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
+scsi0:   Scatter/Gather Limit: 128 of 8192 segments, Mailboxes: 211
+scsi0:   Driver Queue Depth: 211, Host Adapter Queue Depth: 192
+scsi0:   Tagged Queue Depth:
+Automatic
+, Untagged Queue Depth: 3
+scsi0:   SCSI Bus Termination: Both Enabled
+, SCAM: Disabled
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <signal.h>
-#include <alloca.h>
+scsi0: *** BusLogic BT-958 Initialized Successfully ***
+scsi host0: BusLogic BT-958
 
-static __attribute__((noinline,noclone)) void aa(int *size)
-{
-	void * volatile p = alloca(-*size);
-	while (1) ;
-}
+back to order:
 
-static void handler(int sig)
-{
-	write(1, "signal delivered\n", 17);
-	_exit(0);
-}
+pci 0000:00:13.0: PCI->APIC IRQ transform: INT A -> IRQ 17
+scsi: ***** BusLogic SCSI Driver Version 2.1.17 of 12 September 2013 *****
+scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
+scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
+scsi0:   Firmware Version: 5.07B, I/O Address: 0x7000, IRQ Channel: 17/Level
+scsi0:   PCI Bus: 0, Device: 19, Address: 0xE0012000, Host Adapter SCSI ID: 7
+scsi0:   Parity Checking: Enabled, Extended Translation: Enabled
+scsi0:   Synchronous Negotiation: Ultra, Wide Negotiation: Enabled
+scsi0:   Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
+scsi0:   Scatter/Gather Limit: 128 of 8192 segments, Mailboxes: 211
+scsi0:   Driver Queue Depth: 211, Host Adapter Queue Depth: 192
+scsi0:   Tagged Queue Depth: Automatic, Untagged Queue Depth: 3
+scsi0:   SCSI Bus Termination: Both Enabled, SCAM: Disabled
+scsi0: *** BusLogic BT-958 Initialized Successfully ***
+scsi host0: BusLogic BT-958
 
-int main(void)
-{
-	int size = -0x100;
-	signal(SIGALRM, handler);
-	alarm(1);
-	aa(&size);
-}
+Also diagnostic output such as with the BusLogic=TraceConfiguration
+parameter is affected and becomes vertical and therefore hard to read.
+This has now been corrected, e.g.:
 
-If you compile it with optimizations, it will crash.
-The "aa" function has this disassembly:
+pci 0000:00:13.0: PCI->APIC IRQ transform: INT A -> IRQ 17
+blogic_cmd(86) Status = 30:  4 ==>  4: FF 05 93 00
+blogic_cmd(95) Status = 28: (Modify I/O Address)
+blogic_cmd(91) Status = 30:  1 ==>  1: 01
+blogic_cmd(04) Status = 30:  4 ==>  4: 41 41 35 30
+blogic_cmd(8D) Status = 30: 14 ==> 14: 45 DC 00 20 00 00 00 00 00 40 30 37 42 1D
+scsi: ***** BusLogic SCSI Driver Version 2.1.17 of 12 September 2013 *****
+scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
+blogic_cmd(04) Status = 30:  4 ==>  4: 41 41 35 30
+blogic_cmd(0B) Status = 30:  3 ==>  3: 00 08 07
+blogic_cmd(0D) Status = 30: 34 ==> 34: 03 01 07 04 00 00 00 00 00 00 00 00 00 00 00 00 FF 42 44 46 FF 00 00 00 00 00 00 00 00 00 FF 00 FF 00
+blogic_cmd(8D) Status = 30: 14 ==> 14: 45 DC 00 20 00 00 00 00 00 40 30 37 42 1D
+blogic_cmd(84) Status = 30:  1 ==>  1: 37
+blogic_cmd(8B) Status = 30:  5 ==>  5: 39 35 38 20 20
+blogic_cmd(85) Status = 30:  1 ==>  1: 42
+blogic_cmd(86) Status = 30:  4 ==>  4: FF 05 93 00
+blogic_cmd(91) Status = 30: 64 ==> 64: 41 46 3E 20 39 35 38 20 20 00 C4 00 04 01 07 2F 07 04 35 FF FF FF FF FF FF FF FF FF FF 01 00 FE FF 08 FF FF 00 00 00 00 00 00 00 01 00 01 00 00 FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 FC
+scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
 
-000106a0 <aa>:
-   106a0:       08 03 02 41     copy r3,r1
-   106a4:       08 1e 02 43     copy sp,r3
-   106a8:       6f c1 00 80     stw,ma r1,40(sp)
-   106ac:       37 dc 3f c1     ldo -20(sp),ret0
-   106b0:       0c 7c 12 90     stw ret0,8(r3)
-   106b4:       0f 40 10 9c     ldw 0(r26),ret0		; ret0 = 0x00000000FFFFFF00
-   106b8:       97 9c 00 7e     subi 3f,ret0,ret0	; ret0 = 0xFFFFFFFF0000013F
-   106bc:       d7 80 1c 1a     depwi 0,31,6,ret0	; ret0 = 0xFFFFFFFF00000100
-   106c0:       0b 9e 0a 1e     add,l sp,ret0,sp	;   sp = 0xFFFFFFFFxxxxxxxx
-   106c4:       e8 1f 1f f7     b,l,n 106c4 <aa+0x24>,r0
+etc.
 
-This patch fixes the bug by truncating the "usp" variable to 32 bits.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Helge Deller <deller@gmx.de>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2104201940430.44318@angie.orcam.me.uk
+Fixes: 4bcc595ccd80 ("printk: reinstate KERN_CONT for printing continuation lines")
+Cc: stable@vger.kernel.org # v4.9+
+Acked-by: Khalid Aziz <khalid@gonehiking.org>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/signal.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/scsi/BusLogic.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/parisc/kernel/signal.c
-+++ b/arch/parisc/kernel/signal.c
-@@ -242,6 +242,12 @@ setup_rt_frame(struct ksignal *ksig, sig
- #endif
- 	
- 	usp = (regs->gr[30] & ~(0x01UL));
-+#ifdef CONFIG_64BIT
-+	if (is_compat_task()) {
-+		/* The gcc alloca implementation leaves garbage in the upper 32 bits of sp */
-+		usp = (compat_uint_t)usp;
-+	}
-+#endif
- 	/*FIXME: frame_size parameter is unused, remove it. */
- 	frame = get_sigframe(&ksig->ka, usp, sizeof(*frame));
- 
+--- a/drivers/scsi/BusLogic.c
++++ b/drivers/scsi/BusLogic.c
+@@ -3605,7 +3605,7 @@ static void blogic_msg(enum blogic_msgle
+ 			if (buf[0] != '\n' || len > 1)
+ 				printk("%sscsi%d: %s", blogic_msglevelmap[msglevel], adapter->host_no, buf);
+ 		} else
+-			printk("%s", buf);
++			pr_cont("%s", buf);
+ 	} else {
+ 		if (begin) {
+ 			if (adapter != NULL && adapter->adapter_initd)
+@@ -3613,7 +3613,7 @@ static void blogic_msg(enum blogic_msgle
+ 			else
+ 				printk("%s%s", blogic_msglevelmap[msglevel], buf);
+ 		} else
+-			printk("%s", buf);
++			pr_cont("%s", buf);
+ 	}
+ 	begin = (buf[len - 1] == '\n');
+ }
 
 
