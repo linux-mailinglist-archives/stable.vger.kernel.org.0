@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70F2A411F34
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:38:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98D7C4120FE
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:59:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352257AbhITRiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:38:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43458 "EHLO mail.kernel.org"
+        id S1356708AbhITSBG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:01:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348466AbhITRga (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:36:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D22A61B28;
-        Mon, 20 Sep 2021 17:06:29 +0000 (UTC)
+        id S1356263AbhITR7F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:59:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BFE1619E9;
+        Mon, 20 Sep 2021 17:15:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157589;
-        bh=S3kVn85mjnu0Qvr5bIEbxz2Euwg5MAybncTBszSHQiI=;
+        s=korg; t=1632158125;
+        bh=GtS+MMkWgp999l+GrKKbBpEiBmli5o+aicXaKShSfpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uxlz2SQ0AEgipVQkwX5YQ/EbICyqcg5NwU4nyaGzAJWEZxPVnqDxZIe1o/15fyby5
-         tm+lJAnRbtIpp2FfnIKzaHPY+U79/28aNjXhcTflEgE5TnpKnKws9RQEiWz1Af3Ndc
-         G574NCmSWQ2nZ2JfQjw18FgaG3OZUZ9DIo7tDm+U=
+        b=sB9j0+OFWbkj+FkjaPefoLUU86eyK0SQ5kSzTl8ps/P3Hb3dlAEMd7SXbYlZCyrxR
+         hDwonVt5B/gjGCjInQ1VVLlDrdZQ1loifXwdyrGUpzEai0sIwXs2Px+m3oM1nNg3wx
+         AzycfVirfctCSGCfg7yt4k3seetrh1qmYenbSSzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 060/293] certs: Trigger creation of RSA module signing key if its not an RSA key
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Aravind Ramesh <aravind.ramesh@wdc.com>,
+        Adam Manzanares <a.manzanares@samsung.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 004/260] blk-zoned: allow zone management send operations without CAP_SYS_ADMIN
 Date:   Mon, 20 Sep 2021 18:40:22 +0200
-Message-Id: <20210920163935.319048896@linuxfoundation.org>
+Message-Id: <20210920163931.278620855@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Berger <stefanb@linux.ibm.com>
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-[ Upstream commit ea35e0d5df6c92fa2e124bb1b91d09b2240715ba ]
+commit ead3b768bb51259e3a5f2287ff5fc9041eb6f450 upstream.
 
-Address a kbuild issue where a developer created an ECDSA key for signing
-kernel modules and then builds an older version of the kernel, when bi-
-secting the kernel for example, that does not support ECDSA keys.
+Zone management send operations (BLKRESETZONE, BLKOPENZONE, BLKCLOSEZONE
+and BLKFINISHZONE) should be allowed under the same permissions as write().
+(write() does not require CAP_SYS_ADMIN).
 
-If openssl is installed, trigger the creation of an RSA module signing
-key if it is not an RSA key.
+Additionally, other ioctls like BLKSECDISCARD and BLKZEROOUT only check if
+the fd was successfully opened with FMODE_WRITE.
+(They do not require CAP_SYS_ADMIN).
 
-Fixes: cfc411e7fff3 ("Move certificate handling to its own directory")
-Cc: David Howells <dhowells@redhat.com>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Tested-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Currently, zone management send operations require both CAP_SYS_ADMIN
+and that the fd was successfully opened with FMODE_WRITE.
+
+Remove the CAP_SYS_ADMIN requirement, so that zone management send
+operations match the access control requirement of write(), BLKSECDISCARD
+and BLKZEROOUT.
+
+Fixes: 3ed05a987e0f ("blk-zoned: implement ioctls")
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Reviewed-by: Aravind Ramesh <aravind.ramesh@wdc.com>
+Reviewed-by: Adam Manzanares <a.manzanares@samsung.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Cc: stable@vger.kernel.org # v4.10+
+Link: https://lore.kernel.org/r/20210811110505.29649-2-Niklas.Cassel@wdc.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- certs/Makefile | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ block/blk-zoned.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/certs/Makefile b/certs/Makefile
-index 5d0999b9e21b..ca3c71e3a3d9 100644
---- a/certs/Makefile
-+++ b/certs/Makefile
-@@ -46,11 +46,19 @@ endif
- redirect_openssl	= 2>&1
- quiet_redirect_openssl	= 2>&1
- silent_redirect_openssl = 2>/dev/null
-+openssl_available       = $(shell openssl help 2>/dev/null && echo yes)
+--- a/block/blk-zoned.c
++++ b/block/blk-zoned.c
+@@ -374,9 +374,6 @@ int blkdev_reset_zones_ioctl(struct bloc
+ 	if (!blk_queue_is_zoned(q))
+ 		return -ENOTTY;
  
- # We do it this way rather than having a boolean option for enabling an
- # external private key, because 'make randconfig' might enable such a
- # boolean option and we unfortunately can't make it depend on !RANDCONFIG.
- ifeq ($(CONFIG_MODULE_SIG_KEY),"certs/signing_key.pem")
-+
-+ifeq ($(openssl_available),yes)
-+X509TEXT=$(shell openssl x509 -in "certs/signing_key.pem" -text 2>/dev/null)
-+
-+$(if $(findstring rsaEncryption,$(X509TEXT)),,$(shell rm -f "certs/signing_key.pem"))
-+endif
-+
- $(obj)/signing_key.pem: $(obj)/x509.genkey
- 	@$(kecho) "###"
- 	@$(kecho) "### Now generating an X.509 key pair to be used for signing modules."
--- 
-2.30.2
-
+-	if (!capable(CAP_SYS_ADMIN))
+-		return -EACCES;
+-
+ 	if (!(mode & FMODE_WRITE))
+ 		return -EBADF;
+ 
 
 
