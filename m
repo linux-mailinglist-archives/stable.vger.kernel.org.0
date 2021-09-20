@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E6BD411AA0
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:49:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B806D411A67
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:48:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243821AbhITQuu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:50:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36476 "EHLO mail.kernel.org"
+        id S243283AbhITQtl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:49:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243742AbhITQuE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:50:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F23BA6124C;
-        Mon, 20 Sep 2021 16:48:36 +0000 (UTC)
+        id S240442AbhITQtE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:49:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9336960F6E;
+        Mon, 20 Sep 2021 16:47:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156517;
-        bh=e3yvkwGqp2Vy9cKkHKiS14Ci8X3/ufrLWKBheCxYQeA=;
+        s=korg; t=1632156450;
+        bh=CIKTzQK4SW+tNg6ZnnS3KIZMCYc5yLGjNKHn83PhXFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VKYNoSTvN02wtOzs4Rf730dQ1064pUjEjkaC62cARXdsnylaqZR/rpMi7Cy7wZzIf
-         O2JG4fy4qfYGzM2hxpaXl78tFvd73IDN2d5nRfPAq5NMFECYk1KylhpTUjPtAxfPmP
-         CxTbem2awku68gFXJRppIf1QYsS+hMpZJpp02wbI=
+        b=p1DPSArfashyWq/AigEvXKy8i24SIWNSZltUCz/6+FdVtzvE1WlWgdhffUAIBlYNe
+         ci4DPDZxU44bCTUlhJuoMYP8H/RFhA9ArW8Mvp4hwFlGzTLqHAhpTRRKJ2+HKuXQ8W
+         ZEFzIwGZheTZP1o3K9YIUd5IP4iEh88CxtMzj4So=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Evgeny Novikov <novikov@ispras.ru>,
-        Kirill Shilimanov <kirill.shilimanov@huawei.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 064/133] usb: ehci-orion: Handle errors of clk_prepare_enable() in probe
-Date:   Mon, 20 Sep 2021 18:42:22 +0200
-Message-Id: <20210920163914.744392555@linuxfoundation.org>
+Subject: [PATCH 4.4 065/133] ath6kl: wmi: fix an error code in ath6kl_wmi_sync_point()
+Date:   Mon, 20 Sep 2021 18:42:23 +0200
+Message-Id: <20210920163914.776001575@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
 References: <20210920163912.603434365@linuxfoundation.org>
@@ -42,62 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 4720f1bf4ee4a784d9ece05420ba33c9222a3004 ]
+[ Upstream commit fd6729ec534cffbbeb3917761e6d1fe6a412d3fe ]
 
-ehci_orion_drv_probe() did not account for possible errors of
-clk_prepare_enable() that in particular could cause invocation of
-clk_disable_unprepare() on clocks that were not prepared/enabled yet,
-e.g. in remove or on handling errors of usb_add_hcd() in probe. Though,
-there were several patches fixing different issues with clocks in this
-driver, they did not solve this problem.
+This error path is unlikely because of it checked for NULL and
+returned -ENOMEM earlier in the function.  But it should return
+an error code here as well if we ever do hit it because of a
+race condition or something.
 
-Add handling of errors of clk_prepare_enable() in ehci_orion_drv_probe()
-to avoid calls of clk_disable_unprepare() without previous successful
-invocation of clk_prepare_enable().
-
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Fixes: 8c869edaee07 ("ARM: Orion: EHCI: Add support for enabling clocks")
-Co-developed-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Signed-off-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Link: https://lore.kernel.org/r/20210825170902.11234-1-novikov@ispras.ru
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bdcd81707973 ("Add ath6kl cleaned up driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210813113438.GB30697@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ehci-orion.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath6kl/wmi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/ehci-orion.c b/drivers/usb/host/ehci-orion.c
-index ee8d5faa0194..3eecf47d4e89 100644
---- a/drivers/usb/host/ehci-orion.c
-+++ b/drivers/usb/host/ehci-orion.c
-@@ -218,8 +218,11 @@ static int ehci_orion_drv_probe(struct platform_device *pdev)
- 	 * the clock does not exists.
- 	 */
- 	priv->clk = devm_clk_get(&pdev->dev, NULL);
--	if (!IS_ERR(priv->clk))
--		clk_prepare_enable(priv->clk);
-+	if (!IS_ERR(priv->clk)) {
-+		err = clk_prepare_enable(priv->clk);
-+		if (err)
-+			goto err_put_hcd;
-+	}
+diff --git a/drivers/net/wireless/ath/ath6kl/wmi.c b/drivers/net/wireless/ath/ath6kl/wmi.c
+index 7e1010475cfb..f94d2433a42f 100644
+--- a/drivers/net/wireless/ath/ath6kl/wmi.c
++++ b/drivers/net/wireless/ath/ath6kl/wmi.c
+@@ -2508,8 +2508,10 @@ static int ath6kl_wmi_sync_point(struct wmi *wmi, u8 if_idx)
+ 		goto free_data_skb;
  
- 	priv->phy = devm_phy_optional_get(&pdev->dev, "usb");
- 	if (IS_ERR(priv->phy)) {
-@@ -280,6 +283,7 @@ err_phy_init:
- err_phy_get:
- 	if (!IS_ERR(priv->clk))
- 		clk_disable_unprepare(priv->clk);
-+err_put_hcd:
- 	usb_put_hcd(hcd);
- err:
- 	dev_err(&pdev->dev, "init %s fail, %d\n",
+ 	for (index = 0; index < num_pri_streams; index++) {
+-		if (WARN_ON(!data_sync_bufs[index].skb))
++		if (WARN_ON(!data_sync_bufs[index].skb)) {
++			ret = -ENOMEM;
+ 			goto free_data_skb;
++		}
+ 
+ 		ep_id = ath6kl_ac2_endpoint_id(wmi->parent_dev,
+ 					       data_sync_bufs[index].
 -- 
 2.30.2
 
