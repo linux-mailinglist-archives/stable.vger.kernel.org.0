@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B545D412205
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:10:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 885104121FB
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:10:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345765AbhITSL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:11:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35216 "EHLO mail.kernel.org"
+        id S1344904AbhITSLY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:11:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346796AbhITSIQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:08:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EE206325B;
-        Mon, 20 Sep 2021 17:18:44 +0000 (UTC)
+        id S1358881AbhITSIp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:08:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39C706325C;
+        Mon, 20 Sep 2021 17:18:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158325;
-        bh=Gzp0EJzkHuDhxjp51t7I5moS+Z52F5QgC3NbHB6kIuE=;
+        s=korg; t=1632158327;
+        bh=nfSbRpx/njMRzVNgvAP0Ih8byR6bBjhtTOf78yWrWaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PISYrP6qSgFSNLlzVsX6nTuQJQ+gyvH0kOtI5Qk6V6H5lCi+VG3HeJKUjho+vjePp
-         ApD1hi9TuLGv5eknV55UzW8EeWE6HTzeoWApIXHUrVBFBQ0XyrVq1EixMzTAFtVfsB
-         ZCkbqTNzmT5qmKWwHlrd/dYKdn8vLFtIZKeOytsg=
+        b=kS9uLxewk3JuHL6G+muMC4wLHoOJffgKXwkgKvj1aWfaGoZny2LBT2oJtj+rId+Yw
+         PcHb2mSzuyjZy4FpxKKlz2gBXKDhX1qxhDNUF/UI31ZIHdm6d99U9VAVRpCTZtG1rt
+         SqFaVkDOSK2u3NjM3ywu9OMYG4GwVDFTypXdvy0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 104/260] s390: make PCI mio support a machine flag
-Date:   Mon, 20 Sep 2021 18:42:02 +0200
-Message-Id: <20210920163934.664453518@linuxfoundation.org>
+Subject: [PATCH 5.4 105/260] serial: 8250: Define RX trigger levels for OxSemi 950 devices
+Date:   Mon, 20 Sep 2021 18:42:03 +0200
+Message-Id: <20210920163934.699013116@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -40,102 +39,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Schnelle <schnelle@linux.ibm.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-[ Upstream commit 3322ba0d7bea1e24ae464418626f6a15b69533ab ]
+[ Upstream commit d7aff291d069c4418285f3c8ee27b0ff67ce5998 ]
 
-Kernel support for the newer PCI mio instructions can be toggled off
-with the pci=nomio command line option which needs to integrate with
-common code PCI option parsing. However this option then toggles static
-branches which can't be toggled yet in an early_param() call.
+Oxford Semiconductor 950 serial port devices have a 128-byte FIFO and in
+the enhanced (650) mode, which we select in `autoconfig_has_efr' with
+the ECB bit set in the EFR register, they support the receive interrupt
+trigger level selectable with FCR bits 7:6 from the set of 16, 32, 112,
+120.  This applies to the original OX16C950 discrete UART[1] as well as
+950 cores embedded into more complex devices.
 
-Thus commit 9964f396f1d0 ("s390: fix setting of mio addressing control")
-moved toggling the static branches to the PCI init routine.
+For these devices we set the default to 112, which sets an excessively
+high level of 112 or 7/8 of the FIFO capacity, unlike with other port
+types where we choose at most 1/2 of their respective FIFO capacities.
+Additionally we don't make the trigger level configurable.  Consequently
+frequent input overruns happen with high bit rates where hardware flow
+control cannot be used (e.g. terminal applications) even with otherwise
+highly-performant systems.
 
-With this setup however we can't check for mio support outside the PCI
-code during early boot, i.e. before switching the static branches, which
-we need to be able to export this as an ELF HWCAP.
+Lower the default receive interrupt trigger level to 32 then, and make
+it configurable.  Document the trigger levels along with other port
+types, including the set of 16, 32, 64, 112 for the transmit interrupt
+as well[2].
 
-Improve on this by turning mio availability into a machine flag that
-gets initially set based on CONFIG_PCI and the facility bit and gets
-toggled off if pci=nomio is found during PCI option parsing allowing
-simple access to this machine flag after early init.
 
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+[1] "OX16C950 rev B High Performance UART with 128 byte FIFOs", Oxford
+    Semiconductor, Inc., DS-0031, Sep 05, Table 10: "Receiver Trigger
+    Levels", p. 22
+
+[2] same, Table 9: "Transmit Interrupt Trigger Levels", p. 22
+
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2106260608480.37803@angie.orcam.me.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/setup.h | 2 ++
- arch/s390/kernel/early.c      | 4 ++++
- arch/s390/pci/pci.c           | 5 ++---
- 3 files changed, 8 insertions(+), 3 deletions(-)
+ drivers/tty/serial/8250/8250_port.c | 3 ++-
+ include/uapi/linux/serial_reg.h     | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/setup.h b/arch/s390/include/asm/setup.h
-index 1932088686a6..e6a5007f017d 100644
---- a/arch/s390/include/asm/setup.h
-+++ b/arch/s390/include/asm/setup.h
-@@ -39,6 +39,7 @@
- #define MACHINE_FLAG_NX		BIT(15)
- #define MACHINE_FLAG_GS		BIT(16)
- #define MACHINE_FLAG_SCC	BIT(17)
-+#define MACHINE_FLAG_PCI_MIO	BIT(18)
- 
- #define LPP_MAGIC		BIT(31)
- #define LPP_PID_MASK		_AC(0xffffffff, UL)
-@@ -106,6 +107,7 @@ extern unsigned long __swsusp_reset_dma;
- #define MACHINE_HAS_NX		(S390_lowcore.machine_flags & MACHINE_FLAG_NX)
- #define MACHINE_HAS_GS		(S390_lowcore.machine_flags & MACHINE_FLAG_GS)
- #define MACHINE_HAS_SCC		(S390_lowcore.machine_flags & MACHINE_FLAG_SCC)
-+#define MACHINE_HAS_PCI_MIO	(S390_lowcore.machine_flags & MACHINE_FLAG_PCI_MIO)
- 
- /*
-  * Console mode. Override with conmode=
-diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-index 2531776cf6cf..eb89cb0aa60b 100644
---- a/arch/s390/kernel/early.c
-+++ b/arch/s390/kernel/early.c
-@@ -252,6 +252,10 @@ static __init void detect_machine_facilities(void)
- 		clock_comparator_max = -1ULL >> 1;
- 		__ctl_set_bit(0, 53);
- 	}
-+	if (IS_ENABLED(CONFIG_PCI) && test_facility(153)) {
-+		S390_lowcore.machine_flags |= MACHINE_FLAG_PCI_MIO;
-+		/* the control bit is set during PCI initialization */
-+	}
- }
- 
- static inline void save_vector_registers(void)
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 6105b1b6e49b..b8ddacf1efe1 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -854,7 +854,6 @@ static void zpci_mem_exit(void)
- }
- 
- static unsigned int s390_pci_probe __initdata = 1;
--static unsigned int s390_pci_no_mio __initdata;
- unsigned int s390_pci_force_floating __initdata;
- static unsigned int s390_pci_initialized;
- 
-@@ -865,7 +864,7 @@ char * __init pcibios_setup(char *str)
- 		return NULL;
- 	}
- 	if (!strcmp(str, "nomio")) {
--		s390_pci_no_mio = 1;
-+		S390_lowcore.machine_flags &= ~MACHINE_FLAG_PCI_MIO;
- 		return NULL;
- 	}
- 	if (!strcmp(str, "force_floating")) {
-@@ -890,7 +889,7 @@ static int __init pci_base_init(void)
- 	if (!test_facility(69) || !test_facility(71))
- 		return 0;
- 
--	if (test_facility(153) && !s390_pci_no_mio) {
-+	if (MACHINE_HAS_PCI_MIO) {
- 		static_branch_enable(&have_mio);
- 		ctl_set_bit(2, 5);
- 	}
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index 8a7c6d65f10e..777ef1a9591c 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -125,7 +125,8 @@ static const struct serial8250_config uart_config[] = {
+ 		.name		= "16C950/954",
+ 		.fifo_size	= 128,
+ 		.tx_loadsz	= 128,
+-		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_10,
++		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_01,
++		.rxtrig_bytes	= {16, 32, 112, 120},
+ 		/* UART_CAP_EFR breaks billionon CF bluetooth card. */
+ 		.flags		= UART_CAP_FIFO | UART_CAP_SLEEP,
+ 	},
+diff --git a/include/uapi/linux/serial_reg.h b/include/uapi/linux/serial_reg.h
+index be07b5470f4b..f51bc8f36813 100644
+--- a/include/uapi/linux/serial_reg.h
++++ b/include/uapi/linux/serial_reg.h
+@@ -62,6 +62,7 @@
+  * ST16C654:	 8  16  56  60		 8  16  32  56	PORT_16654
+  * TI16C750:	 1  16  32  56		xx  xx  xx  xx	PORT_16750
+  * TI16C752:	 8  16  56  60		 8  16  32  56
++ * OX16C950:	16  32 112 120		16  32  64 112	PORT_16C950
+  * Tegra:	 1   4   8  14		16   8   4   1	PORT_TEGRA
+  */
+ #define UART_FCR_R_TRIG_00	0x00
 -- 
 2.30.2
 
