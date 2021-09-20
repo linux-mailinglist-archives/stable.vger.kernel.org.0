@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17913412514
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8E79412513
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353642AbhITSlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:41:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56242 "EHLO mail.kernel.org"
+        id S1353257AbhITSlS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:41:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1381810AbhITSjY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:39:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D81A6332F;
-        Mon, 20 Sep 2021 17:30:37 +0000 (UTC)
+        id S1381830AbhITSj0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:39:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A81A663334;
+        Mon, 20 Sep 2021 17:30:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159037;
-        bh=Yo7QJlKkuJiBVS14uvsKjHFdFVdEYs0VGor2xfgVqFA=;
+        s=korg; t=1632159040;
+        bh=/cpfH3dptpidwa9JVEZ48BNodiCBRY90W7xY2qMYQpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dht1A681gOiG99u3OE/GuvZHwbuaXwO+nSdMynyOiT/ESv8wSQz+ijbSFb3Czm9uK
-         QhXJZzs1uG1hiDWHlUgd2GAVSEPS5Hwnugg18kiPdEl2sQYyujHTsV2oRnQBP+BnAn
-         YHSgWzZDHfVhj2o7wSEwyUlGySh9kzUgrENz5eSI=
+        b=kwNgj8v/GYMgc3cFLZsfE2ElHpAP24O+vDl6Bhc6xdm40JpcEi//kqpJ6AGtGbHH/
+         Da/ZNdbLQ3B1iUcbD2fAlv+cHaQfT2/w/tHzqzQR+dn5OYfknobVNJOivWgNWVOqlD
+         KwWosGjGJOcMm3PR6zvuAWx0TCwmL9tgZwIf4tpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.14 047/168] drm/rockchip: cdn-dp-core: Make cdn_dp_core_resume __maybe_unused
-Date:   Mon, 20 Sep 2021 18:43:05 +0200
-Message-Id: <20210920163923.187989654@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Xiaofei Tan <tanxiaofei@huawei.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>
+Subject: [PATCH 5.14 048/168] rtc: cmos: Disable irq around direct invocation of cmos_interrupt()
+Date:   Mon, 20 Sep 2021 18:43:06 +0200
+Message-Id: <20210920163923.219716003@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
 References: <20210920163921.633181900@linuxfoundation.org>
@@ -40,45 +43,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 040b8907ccf1c78d020aca29800036565d761d73 upstream.
+commit 13be2efc390acd2a46a69a359f6efc00ca434599 upstream.
 
-With the new static annotation, the compiler warns when the functions
-are actually unused:
+As previously noted in commit 66e4f4a9cc38 ("rtc: cmos: Use
+spin_lock_irqsave() in cmos_interrupt()"):
 
-   drivers/gpu/drm/rockchip/cdn-dp-core.c:1123:12: error: 'cdn_dp_resume' defined but not used [-Werror=unused-function]
-    1123 | static int cdn_dp_resume(struct device *dev)
-         |            ^~~~~~~~~~~~~
+<4>[  254.192378] WARNING: inconsistent lock state
+<4>[  254.192384] 5.12.0-rc1-CI-CI_DRM_9834+ #1 Not tainted
+<4>[  254.192396] --------------------------------
+<4>[  254.192400] inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
+<4>[  254.192409] rtcwake/5309 [HC0[0]:SC0[0]:HE1:SE1] takes:
+<4>[  254.192429] ffffffff8263c5f8 (rtc_lock){?...}-{2:2}, at: cmos_interrupt+0x18/0x100
+<4>[  254.192481] {IN-HARDIRQ-W} state was registered at:
+<4>[  254.192488]   lock_acquire+0xd1/0x3d0
+<4>[  254.192504]   _raw_spin_lock+0x2a/0x40
+<4>[  254.192519]   cmos_interrupt+0x18/0x100
+<4>[  254.192536]   rtc_handler+0x1f/0xc0
+<4>[  254.192553]   acpi_ev_fixed_event_detect+0x109/0x13c
+<4>[  254.192574]   acpi_ev_sci_xrupt_handler+0xb/0x28
+<4>[  254.192596]   acpi_irq+0x13/0x30
+<4>[  254.192620]   __handle_irq_event_percpu+0x43/0x2c0
+<4>[  254.192641]   handle_irq_event_percpu+0x2b/0x70
+<4>[  254.192661]   handle_irq_event+0x2f/0x50
+<4>[  254.192680]   handle_fasteoi_irq+0x9e/0x150
+<4>[  254.192693]   __common_interrupt+0x76/0x140
+<4>[  254.192715]   common_interrupt+0x96/0xc0
+<4>[  254.192732]   asm_common_interrupt+0x1e/0x40
+<4>[  254.192750]   _raw_spin_unlock_irqrestore+0x38/0x60
+<4>[  254.192767]   resume_irqs+0xba/0xf0
+<4>[  254.192786]   dpm_resume_noirq+0x245/0x3d0
+<4>[  254.192811]   suspend_devices_and_enter+0x230/0xaa0
+<4>[  254.192835]   pm_suspend.cold.8+0x301/0x34a
+<4>[  254.192859]   state_store+0x7b/0xe0
+<4>[  254.192879]   kernfs_fop_write_iter+0x11d/0x1c0
+<4>[  254.192899]   new_sync_write+0x11d/0x1b0
+<4>[  254.192916]   vfs_write+0x265/0x390
+<4>[  254.192933]   ksys_write+0x5a/0xd0
+<4>[  254.192949]   do_syscall_64+0x33/0x80
+<4>[  254.192965]   entry_SYSCALL_64_after_hwframe+0x44/0xae
+<4>[  254.192986] irq event stamp: 43775
+<4>[  254.192994] hardirqs last  enabled at (43775): [<ffffffff81c00c42>] asm_sysvec_apic_timer_interrupt+0x12/0x20
+<4>[  254.193023] hardirqs last disabled at (43774): [<ffffffff81aa691a>] sysvec_apic_timer_interrupt+0xa/0xb0
+<4>[  254.193049] softirqs last  enabled at (42548): [<ffffffff81e00342>] __do_softirq+0x342/0x48e
+<4>[  254.193074] softirqs last disabled at (42543): [<ffffffff810b45fd>] irq_exit_rcu+0xad/0xd0
+<4>[  254.193101]
+                  other info that might help us debug this:
+<4>[  254.193107]  Possible unsafe locking scenario:
 
-Mark them __maybe_unused to suppress that warning as well.
+<4>[  254.193112]        CPU0
+<4>[  254.193117]        ----
+<4>[  254.193121]   lock(rtc_lock);
+<4>[  254.193137]   <Interrupt>
+<4>[  254.193142]     lock(rtc_lock);
+<4>[  254.193156]
+                   *** DEADLOCK ***
 
-[ Not so 'new' static annotations any more, and I removed the part of
-  the patch that added __maybe_unused to cdn_dp_suspend(), because it's
-  used by the shutdown/remove code.
+<4>[  254.193161] 6 locks held by rtcwake/5309:
+<4>[  254.193174]  #0: ffff888104861430 (sb_writers#5){.+.+}-{0:0}, at: ksys_write+0x5a/0xd0
+<4>[  254.193232]  #1: ffff88810f823288 (&of->mutex){+.+.}-{3:3}, at: kernfs_fop_write_iter+0xe7/0x1c0
+<4>[  254.193282]  #2: ffff888100cef3c0 (kn->active#285
+<7>[  254.192706] i915 0000:00:02.0: [drm:intel_modeset_setup_hw_state [i915]] [CRTC:51:pipe A] hw state readout: disabled
+<4>[  254.193307] ){.+.+}-{0:0}, at: kernfs_fop_write_iter+0xf0/0x1c0
+<4>[  254.193333]  #3: ffffffff82649fa8 (system_transition_mutex){+.+.}-{3:3}, at: pm_suspend.cold.8+0xce/0x34a
+<4>[  254.193387]  #4: ffffffff827a2108 (acpi_scan_lock){+.+.}-{3:3}, at: acpi_suspend_begin+0x47/0x70
+<4>[  254.193433]  #5: ffff8881019ea178 (&dev->mutex){....}-{3:3}, at: device_resume+0x68/0x1e0
+<4>[  254.193485]
+                  stack backtrace:
+<4>[  254.193492] CPU: 1 PID: 5309 Comm: rtcwake Not tainted 5.12.0-rc1-CI-CI_DRM_9834+ #1
+<4>[  254.193514] Hardware name: Google Soraka/Soraka, BIOS MrChromebox-4.10 08/25/2019
+<4>[  254.193524] Call Trace:
+<4>[  254.193536]  dump_stack+0x7f/0xad
+<4>[  254.193567]  mark_lock.part.47+0x8ca/0xce0
+<4>[  254.193604]  __lock_acquire+0x39b/0x2590
+<4>[  254.193626]  ? asm_sysvec_apic_timer_interrupt+0x12/0x20
+<4>[  254.193660]  lock_acquire+0xd1/0x3d0
+<4>[  254.193677]  ? cmos_interrupt+0x18/0x100
+<4>[  254.193716]  _raw_spin_lock+0x2a/0x40
+<4>[  254.193735]  ? cmos_interrupt+0x18/0x100
+<4>[  254.193758]  cmos_interrupt+0x18/0x100
+<4>[  254.193785]  cmos_resume+0x2ac/0x2d0
+<4>[  254.193813]  ? acpi_pm_set_device_wakeup+0x1f/0x110
+<4>[  254.193842]  ? pnp_bus_suspend+0x10/0x10
+<4>[  254.193864]  pnp_bus_resume+0x5e/0x90
+<4>[  254.193885]  dpm_run_callback+0x5f/0x240
+<4>[  254.193914]  device_resume+0xb2/0x1e0
+<4>[  254.193942]  ? pm_dev_err+0x25/0x25
+<4>[  254.193974]  dpm_resume+0xea/0x3f0
+<4>[  254.194005]  dpm_resume_end+0x8/0x10
+<4>[  254.194030]  suspend_devices_and_enter+0x29b/0xaa0
+<4>[  254.194066]  pm_suspend.cold.8+0x301/0x34a
+<4>[  254.194094]  state_store+0x7b/0xe0
+<4>[  254.194124]  kernfs_fop_write_iter+0x11d/0x1c0
+<4>[  254.194151]  new_sync_write+0x11d/0x1b0
+<4>[  254.194183]  vfs_write+0x265/0x390
+<4>[  254.194207]  ksys_write+0x5a/0xd0
+<4>[  254.194232]  do_syscall_64+0x33/0x80
+<4>[  254.194251]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+<4>[  254.194274] RIP: 0033:0x7f07d79691e7
+<4>[  254.194293] Code: 64 89 02 48 c7 c0 ff ff ff ff eb bb 0f 1f 80 00 00 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74 24
+<4>[  254.194312] RSP: 002b:00007ffd9cc2c768 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+<4>[  254.194337] RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 00007f07d79691e7
+<4>[  254.194352] RDX: 0000000000000004 RSI: 0000556ebfc63590 RDI: 000000000000000b
+<4>[  254.194366] RBP: 0000556ebfc63590 R08: 0000000000000000 R09: 0000000000000004
+<4>[  254.194379] R10: 0000556ebf0ec2a6 R11: 0000000000000246 R12: 0000000000000004
 
-  So only the resume function ends up possibly unused if CONFIG_PM isn't
-  set     - Linus ]
+which breaks S3-resume on fi-kbl-soraka presumably as that's slow enough
+to trigger the alarm during the suspend.
 
-Fixes: 7c49abb4c2f8 ("drm/rockchip: cdn-dp-core: Make cdn_dp_core_suspend/resume static")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 6950d046eb6e ("rtc: cmos: Replace spin_lock_irqsave with spin_lock in hard IRQ")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Xiaofei Tan <tanxiaofei@huawei.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210305122140.28774-1-chris@chris-wilson.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/rockchip/cdn-dp-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-cmos.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/rockchip/cdn-dp-core.c
-+++ b/drivers/gpu/drm/rockchip/cdn-dp-core.c
-@@ -1123,7 +1123,7 @@ static int cdn_dp_suspend(struct device
- 	return ret;
- }
- 
--static int cdn_dp_resume(struct device *dev)
-+static __maybe_unused int cdn_dp_resume(struct device *dev)
- {
- 	struct cdn_dp_device *dp = dev_get_drvdata(dev);
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -1053,7 +1053,9 @@ static void cmos_check_wkalrm(struct dev
+ 	 * ACK the rtc irq here
+ 	 */
+ 	if (t_now >= cmos->alarm_expires && cmos_use_acpi_alarm()) {
++		local_irq_disable();
+ 		cmos_interrupt(0, (void *)cmos->rtc);
++		local_irq_enable();
+ 		return;
+ 	}
  
 
 
