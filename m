@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E77004125DC
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:49:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E87441244F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:32:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384763AbhITSsx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:48:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33240 "EHLO mail.kernel.org"
+        id S1352734AbhITSda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:33:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1383998AbhITSqU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:46:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 178F16335F;
-        Mon, 20 Sep 2021 17:33:15 +0000 (UTC)
+        id S1379952AbhITSb3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:31:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 987B8632FA;
+        Mon, 20 Sep 2021 17:27:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159196;
-        bh=m6Wm/qddtfW+l7ogkdQ6+MMFbsJpdP3j+V1APxkGLdA=;
+        s=korg; t=1632158854;
+        bh=Y8+9tCBQVls13rEL6Xs1lf2KcOsG+GSp0ZpACO/oVfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxl+6GZWo4QUA153pM22GhuZOrWiSYHtQ3J3sS5wOIEyd1+hpSbniuqjpS4MbR29N
-         u7JFq7qvtkeeJpGqrpI6Oj3pGFeVFavZSOp63kzX6xou529N1m2I5YvuPuZJoP+CAZ
-         EXjYy6dYg8AvlQdBU+qT48bBS/H37Tl5m3P3f/SQ=
+        b=XS1rEveY7x2lURzz0FEQRxzWneogijiQnPaQCY0FWm0SNNOqyyhcfPMYjePEXfPS4
+         s/fhp5ABCq1V6lFmhr7gRVTc6E4CdXJgq+zG+uZu32gcf6k0sIY9PW47yKI3MOTtOv
+         nONPRe6A8wswAl8gPYURiZPo239Dufy9PDSUYOkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 120/168] net: phylink: add suspend/resume support
+Subject: [PATCH 5.10 086/122] KVM: arm64: Restrict IPA size to maximum 48 bits on 4K and 16K page size
 Date:   Mon, 20 Sep 2021 18:44:18 +0200
-Message-Id: <20210920163925.591274966@linuxfoundation.org>
+Message-Id: <20210920163918.608984519@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,151 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
 
-[ Upstream commit f97493657c6372eeefe70faadd214bf31488c44e ]
+[ Upstream commit 5e5df9571c319fb107d7a523cc96fcc99961ee70 ]
 
-Joakim Zhang reports that Wake-on-Lan with the stmmac ethernet driver broke
-when moving the incorrect handling of mac link state out of mac_config().
-This reason this breaks is because the stmmac's WoL is handled by the MAC
-rather than the PHY, and phylink doesn't cater for that scenario.
+Even though ID_AA64MMFR0.PARANGE reports 52 bit PA size support, it cannot
+be enabled as guest IPA size on 4K or 16K page size configurations. Hence
+kvm_ipa_limit must be restricted to 48 bits. This change achieves required
+IPA capping.
 
-This patch adds the necessary phylink code to handle suspend/resume events
-according to whether the MAC still needs a valid link or not. This is the
-barest minimum for this support.
+Before the commit c9b69a0cf0b4 ("KVM: arm64: Don't constrain maximum IPA
+size based on host configuration"), the problem here would have been just
+latent via PHYS_MASK_SHIFT (which earlier in turn capped kvm_ipa_limit),
+which remains capped at 48 bits on 4K and 16K configs.
 
-Reported-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Tested-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Alexandru Elisei <alexandru.elisei@arm.com>
+Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: kvmarm@lists.cs.columbia.edu
+Cc: linux-kernel@vger.kernel.org
+Fixes: c9b69a0cf0b4 ("KVM: arm64: Don't constrain maximum IPA size based on host configuration")
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/1628680275-16578-1-git-send-email-anshuman.khandual@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phylink.c | 82 +++++++++++++++++++++++++++++++++++++++
- include/linux/phylink.h   |  3 ++
- 2 files changed, 85 insertions(+)
+ arch/arm64/kvm/reset.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/phy/phylink.c b/drivers/net/phy/phylink.c
-index eb29ef53d971..42e5a681183f 100644
---- a/drivers/net/phy/phylink.c
-+++ b/drivers/net/phy/phylink.c
-@@ -33,6 +33,7 @@
- enum {
- 	PHYLINK_DISABLE_STOPPED,
- 	PHYLINK_DISABLE_LINK,
-+	PHYLINK_DISABLE_MAC_WOL,
- };
+diff --git a/arch/arm64/kvm/reset.c b/arch/arm64/kvm/reset.c
+index b969c2157ad2..6058a80ec9ec 100644
+--- a/arch/arm64/kvm/reset.c
++++ b/arch/arm64/kvm/reset.c
+@@ -366,6 +366,14 @@ int kvm_set_ipa_limit(void)
+ 	mmfr0 = read_sanitised_ftr_reg(SYS_ID_AA64MMFR0_EL1);
+ 	parange = cpuid_feature_extract_unsigned_field(mmfr0,
+ 				ID_AA64MMFR0_PARANGE_SHIFT);
++	/*
++	 * IPA size beyond 48 bits could not be supported
++	 * on either 4K or 16K page size. Hence let's cap
++	 * it to 48 bits, in case it's reported as larger
++	 * on the system.
++	 */
++	if (PAGE_SIZE != SZ_64K)
++		parange = min(parange, (unsigned int)ID_AA64MMFR0_PARANGE_48);
  
- /**
-@@ -1281,6 +1282,9 @@ EXPORT_SYMBOL_GPL(phylink_start);
-  * network device driver's &struct net_device_ops ndo_stop() method.  The
-  * network device's carrier state should not be changed prior to calling this
-  * function.
-+ *
-+ * This will synchronously bring down the link if the link is not already
-+ * down (in other words, it will trigger a mac_link_down() method call.)
-  */
- void phylink_stop(struct phylink *pl)
- {
-@@ -1300,6 +1304,84 @@ void phylink_stop(struct phylink *pl)
- }
- EXPORT_SYMBOL_GPL(phylink_stop);
- 
-+/**
-+ * phylink_suspend() - handle a network device suspend event
-+ * @pl: a pointer to a &struct phylink returned from phylink_create()
-+ * @mac_wol: true if the MAC needs to receive packets for Wake-on-Lan
-+ *
-+ * Handle a network device suspend event. There are several cases:
-+ * - If Wake-on-Lan is not active, we can bring down the link between
-+ *   the MAC and PHY by calling phylink_stop().
-+ * - If Wake-on-Lan is active, and being handled only by the PHY, we
-+ *   can also bring down the link between the MAC and PHY.
-+ * - If Wake-on-Lan is active, but being handled by the MAC, the MAC
-+ *   still needs to receive packets, so we can not bring the link down.
-+ */
-+void phylink_suspend(struct phylink *pl, bool mac_wol)
-+{
-+	ASSERT_RTNL();
-+
-+	if (mac_wol && (!pl->netdev || pl->netdev->wol_enabled)) {
-+		/* Wake-on-Lan enabled, MAC handling */
-+		mutex_lock(&pl->state_mutex);
-+
-+		/* Stop the resolver bringing the link up */
-+		__set_bit(PHYLINK_DISABLE_MAC_WOL, &pl->phylink_disable_state);
-+
-+		/* Disable the carrier, to prevent transmit timeouts,
-+		 * but one would hope all packets have been sent. This
-+		 * also means phylink_resolve() will do nothing.
-+		 */
-+		netif_carrier_off(pl->netdev);
-+
-+		/* We do not call mac_link_down() here as we want the
-+		 * link to remain up to receive the WoL packets.
-+		 */
-+		mutex_unlock(&pl->state_mutex);
-+	} else {
-+		phylink_stop(pl);
-+	}
-+}
-+EXPORT_SYMBOL_GPL(phylink_suspend);
-+
-+/**
-+ * phylink_resume() - handle a network device resume event
-+ * @pl: a pointer to a &struct phylink returned from phylink_create()
-+ *
-+ * Undo the effects of phylink_suspend(), returning the link to an
-+ * operational state.
-+ */
-+void phylink_resume(struct phylink *pl)
-+{
-+	ASSERT_RTNL();
-+
-+	if (test_bit(PHYLINK_DISABLE_MAC_WOL, &pl->phylink_disable_state)) {
-+		/* Wake-on-Lan enabled, MAC handling */
-+
-+		/* Call mac_link_down() so we keep the overall state balanced.
-+		 * Do this under the state_mutex lock for consistency. This
-+		 * will cause a "Link Down" message to be printed during
-+		 * resume, which is harmless - the true link state will be
-+		 * printed when we run a resolve.
-+		 */
-+		mutex_lock(&pl->state_mutex);
-+		phylink_link_down(pl);
-+		mutex_unlock(&pl->state_mutex);
-+
-+		/* Re-apply the link parameters so that all the settings get
-+		 * restored to the MAC.
-+		 */
-+		phylink_mac_initial_config(pl, true);
-+
-+		/* Re-enable and re-resolve the link parameters */
-+		clear_bit(PHYLINK_DISABLE_MAC_WOL, &pl->phylink_disable_state);
-+		phylink_run_resolve(pl);
-+	} else {
-+		phylink_start(pl);
-+	}
-+}
-+EXPORT_SYMBOL_GPL(phylink_resume);
-+
- /**
-  * phylink_ethtool_get_wol() - get the wake on lan parameters for the PHY
-  * @pl: a pointer to a &struct phylink returned from phylink_create()
-diff --git a/include/linux/phylink.h b/include/linux/phylink.h
-index afb3ded0b691..237291196ce2 100644
---- a/include/linux/phylink.h
-+++ b/include/linux/phylink.h
-@@ -451,6 +451,9 @@ void phylink_mac_change(struct phylink *, bool up);
- void phylink_start(struct phylink *);
- void phylink_stop(struct phylink *);
- 
-+void phylink_suspend(struct phylink *pl, bool mac_wol);
-+void phylink_resume(struct phylink *pl);
-+
- void phylink_ethtool_get_wol(struct phylink *, struct ethtool_wolinfo *);
- int phylink_ethtool_set_wol(struct phylink *, struct ethtool_wolinfo *);
- 
+ 	/*
+ 	 * Check with ARMv8.5-GTG that our PAGE_SIZE is supported at
 -- 
 2.30.2
 
