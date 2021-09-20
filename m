@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A97EC411E88
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:31:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 277C6411AF4
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:52:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244228AbhITRb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:31:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33352 "EHLO mail.kernel.org"
+        id S242182AbhITQx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:53:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350840AbhITRaJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:30:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B562061AD1;
-        Mon, 20 Sep 2021 17:04:01 +0000 (UTC)
+        id S243599AbhITQv6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:51:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA7BF61245;
+        Mon, 20 Sep 2021 16:49:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157442;
-        bh=QRAfYCMlD1tydVAsQqC38dv/IQY/ZID3c6hiYrYC74A=;
+        s=korg; t=1632156578;
+        bh=JKb5xj6pEm3/ajHDs40qfOjoV8+Jz2PznN0JRk/mzaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YAproJEDugRKldHEc6LaooZYaxRptKqq2/3uh13pSgi9EuHo4wiPC3ioWQ20TfP90
-         y3sjU9kkTGtxk1H382Kwfl9MUNCdpoFO1f+fv0xDBqQ78FlYpgz/r73rD57iIrYWsp
-         ZELUGdvTXHke6xkseVyob+iwjlu+bxSXVUIVN4eo=
+        b=U8oprgtt5Pfe8toyk3LMqnOZGzpI7Gno9i6+eqDOQph+dngNR5RQ/bEKU6rAJ4BAD
+         S9Ks7vbBMF3hcNBL31xp+mC8TIsG/8r7gQLMbrHGPO70o7G8TtfAOFdyDpcMtys8yg
+         lyrfBAeDO+hkWhpygz9cd6Owp0FAUyeTKZJqiQIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 179/217] parport: remove non-zero check on count
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 122/133] net/l2tp: Fix reference count leak in l2tp_udp_recv_core
 Date:   Mon, 20 Sep 2021 18:43:20 +0200
-Message-Id: <20210920163930.693121502@linuxfoundation.org>
+Message-Id: <20210920163916.611967028@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit 0be883a0d795d9146f5325de582584147dd0dcdc ]
+commit 9b6ff7eb666415e1558f1ba8a742f5db6a9954de upstream.
 
-The check for count appears to be incorrect since a non-zero count
-check occurs a couple of statements earlier. Currently the check is
-always false and the dev->port->irq != PARPORT_IRQ_NONE part of the
-check is never tested and the if statement is dead-code. Fix this
-by removing the check on count.
+The reference count leak issue may take place in an error handling
+path. If both conditions of tunnel->version == L2TP_HDR_VER_3 and the
+return value of l2tp_v3_ensure_opt_in_linear is nonzero, the function
+would directly jump to label invalid, without decrementing the reference
+count of the l2tp_session object session increased earlier by
+l2tp_tunnel_get_session(). This may result in refcount leaks.
 
-Note that this code is pre-git history, so I can't find a sha for
-it.
+Fix this issue by decrease the reference count before jumping to the
+label invalid.
 
-Acked-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Addresses-Coverity: ("Logically dead code")
-Link: https://lore.kernel.org/r/20210730100710.27405-1-colin.king@canonical.com
+Fixes: 4522a70db7aa ("l2tp: fix reading optional fields of L2TPv3")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/parport/ieee1284_ops.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/l2tp/l2tp_core.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/parport/ieee1284_ops.c b/drivers/parport/ieee1284_ops.c
-index 5d41dda6da4e..75daa16f38b7 100644
---- a/drivers/parport/ieee1284_ops.c
-+++ b/drivers/parport/ieee1284_ops.c
-@@ -535,7 +535,7 @@ size_t parport_ieee1284_ecp_read_data (struct parport *port,
- 				goto out;
+--- a/net/l2tp/l2tp_core.c
++++ b/net/l2tp/l2tp_core.c
+@@ -990,8 +990,10 @@ static int l2tp_udp_recv_core(struct l2t
+ 	}
  
- 			/* Yield the port for a while. */
--			if (count && dev->port->irq != PARPORT_IRQ_NONE) {
-+			if (dev->port->irq != PARPORT_IRQ_NONE) {
- 				parport_release (dev);
- 				schedule_timeout_interruptible(msecs_to_jiffies(40));
- 				parport_claim_or_block (dev);
--- 
-2.30.2
-
+ 	if (tunnel->version == L2TP_HDR_VER_3 &&
+-	    l2tp_v3_ensure_opt_in_linear(session, skb, &ptr, &optr))
++	    l2tp_v3_ensure_opt_in_linear(session, skb, &ptr, &optr)) {
++		l2tp_session_dec_refcount(session);
+ 		goto error;
++	}
+ 
+ 	l2tp_recv_common(session, skb, ptr, optr, hdrflags, length, payload_hook);
+ 	l2tp_session_dec_refcount(session);
 
 
