@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71A7841203E
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:52:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD3CE411A98
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:49:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354078AbhITRxe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:53:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52068 "EHLO mail.kernel.org"
+        id S240419AbhITQuq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:50:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354387AbhITRtu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:49:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A50D361107;
-        Mon, 20 Sep 2021 17:11:40 +0000 (UTC)
+        id S244043AbhITQt4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:49:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42FC76126A;
+        Mon, 20 Sep 2021 16:48:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157901;
-        bh=ys93JIkJor0XQfcdfHsBQ3ju1Zsl222TxIT0neTqpJQ=;
+        s=korg; t=1632156508;
+        bh=zBOa4a2NLtFvjXQzzYMCfKFizliRUmmgMZgOtvlFwvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ad0adb00jiZKYWCMY+Tg74ThwHSfq0lhBjzXmCOdJe4hbQZufqxBg9Lc6A1FDnLYG
-         9029Ja8rK+WhvPUm2+ZuU3Bz4ldpHDBPCEzyy5Hw86rOD+tu61V+wMMUHUtAO+QKIc
-         1+Pow2Ll7kRDZEPgClvnK6tcMl3koDZGS+hrgP5Q=
+        b=wawWn2lLyLCFYkeRqKTC00aFll6ky8+7SkJAkKgtjmQ87v2p2Gj6cr7MX2z656nDV
+         k/ukurOjTDMgi1WEwnnP/289eVf6PFHy9VIBrRoYtSDPb2iMAcazw1q9R5fXEQjM7L
+         b7rGY/fq/bTkjybFKKSqVzWbe/MPGlQiOREZ84UA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        kernel test robot <lkp@intel.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        stable@vger.kernel.org, Shawn Lin <shawn.lin@rock-chips.com>,
+        Jaehoon Chung <jh80.chung@samsung.com>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 176/293] iio: dac: ad5624r: Fix incorrect handling of an optional regulator.
+Subject: [PATCH 4.4 060/133] mmc: dw_mmc: Fix issue with uninitialized dma_slave_config
 Date:   Mon, 20 Sep 2021 18:42:18 +0200
-Message-Id: <20210920163939.303771935@linuxfoundation.org>
+Message-Id: <20210920163914.613873335@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,66 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 97683c851f9cdbd3ea55697cbe2dcb6af4287bbd ]
+[ Upstream commit c3ff0189d3bc9c03845fe37472c140f0fefd0c79 ]
 
-The naming of the regulator is problematic.  VCC is usually a supply
-voltage whereas these devices have a separate VREF pin.
+Depending on the DMA driver being used, the struct dma_slave_config may
+need to be initialized to zero for the unused data.
 
-Secondly, the regulator core might have provided a stub regulator if
-a real regulator wasn't provided. That would in turn have failed to
-provide a voltage when queried. So reality was that there was no way
-to use the internal reference.
+For example, we have three DMA drivers using src_port_window_size and
+dst_port_window_size. If these are left uninitialized, it can cause DMA
+failures.
 
-In order to avoid breaking any dts out in the wild, make sure to fallback
-to the original vcc naming if vref is not available.
+For dw_mmc, this is probably not currently an issue but is still good to
+fix though.
 
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Acked-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210627163244.1090296-9-jic23@kernel.org
+Fixes: 3fc7eaef44db ("mmc: dw_mmc: Add external dma interface support")
+Cc: Shawn Lin <shawn.lin@rock-chips.com>
+Cc: Jaehoon Chung <jh80.chung@samsung.com>
+Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Cc: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20210810081644.19353-2-tony@atomide.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/dac/ad5624r_spi.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ drivers/mmc/host/dw_mmc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iio/dac/ad5624r_spi.c b/drivers/iio/dac/ad5624r_spi.c
-index 13fdb4dfe356..cc3a24c43e57 100644
---- a/drivers/iio/dac/ad5624r_spi.c
-+++ b/drivers/iio/dac/ad5624r_spi.c
-@@ -230,7 +230,7 @@ static int ad5624r_probe(struct spi_device *spi)
- 	if (!indio_dev)
- 		return -ENOMEM;
- 	st = iio_priv(indio_dev);
--	st->reg = devm_regulator_get(&spi->dev, "vcc");
-+	st->reg = devm_regulator_get_optional(&spi->dev, "vref");
- 	if (!IS_ERR(st->reg)) {
- 		ret = regulator_enable(st->reg);
- 		if (ret)
-@@ -241,6 +241,22 @@ static int ad5624r_probe(struct spi_device *spi)
- 			goto error_disable_reg;
+diff --git a/drivers/mmc/host/dw_mmc.c b/drivers/mmc/host/dw_mmc.c
+index 9eff3b41a086..03ac8d599763 100644
+--- a/drivers/mmc/host/dw_mmc.c
++++ b/drivers/mmc/host/dw_mmc.c
+@@ -701,6 +701,7 @@ static int dw_mci_edmac_start_dma(struct dw_mci *host,
+ 	int ret = 0;
  
- 		voltage_uv = ret;
-+	} else {
-+		if (PTR_ERR(st->reg) != -ENODEV)
-+			return PTR_ERR(st->reg);
-+		/* Backwards compatibility. This naming is not correct */
-+		st->reg = devm_regulator_get_optional(&spi->dev, "vcc");
-+		if (!IS_ERR(st->reg)) {
-+			ret = regulator_enable(st->reg);
-+			if (ret)
-+				return ret;
-+
-+			ret = regulator_get_voltage(st->reg);
-+			if (ret < 0)
-+				goto error_disable_reg;
-+
-+			voltage_uv = ret;
-+		}
- 	}
- 
- 	spi_set_drvdata(spi, indio_dev);
+ 	/* Set external dma config: burst size, burst width */
++	memset(&cfg, 0, sizeof(cfg));
+ 	cfg.dst_addr = host->phy_regs + fifo_offset;
+ 	cfg.src_addr = cfg.dst_addr;
+ 	cfg.dst_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
 -- 
 2.30.2
 
