@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D990412102
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:59:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C3B7411F97
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:41:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349765AbhITSBL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:01:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58468 "EHLO mail.kernel.org"
+        id S1352995AbhITRnL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:43:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345734AbhITR7A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:59:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 074E46321E;
-        Mon, 20 Sep 2021 17:15:18 +0000 (UTC)
+        id S1347108AbhITRlF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:41:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6FF26159A;
+        Mon, 20 Sep 2021 17:08:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158119;
-        bh=aQ3ss94Ysz8Z2rgJ7EBicK34Av2AyGubTaj1Y/1YGx4=;
+        s=korg; t=1632157696;
+        bh=l7dYb2FILjwjGaHnMkVytN2Btj+NT6HuS2Oz7Ku7KHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ft5abr21jPaYvV5GQvwoZdJei4RGAGNIIHyM7llhVgpNoWILG6kTkWQJioslN6sYJ
-         4SGa2dk1slRylfKCcIuPnOMQI5jQU4IhWakeN52I8s807lAZW0Ed9JKh5Vyqx6JyNr
-         epXFpH1x8NOGY+FnjqODDMkXEo5NU0VV7ENAPop0=
+        b=rQlWKR3IOscluhul7QK2ly4lDM+jto28a78b+Uo55CvPdYgHzJ2ifvMCxuIFDrfXh
+         U/kYxW+G+ai6Wpx4ITAKxRKQHd6xJUSGlpUENnESPcpvrJz5g7LzIfT7b3dEu9xOgf
+         DDE53gsE+H5m3s2VeNkQzPCGNZb1OJoPlaiwdT4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Harshvardhan Jha <harshvardhan.jha@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Dominique Martinet <asmadeus@codewreck.org>
-Subject: [PATCH 5.4 010/260] 9p/xen: Fix end of loop tests for list_for_each_entry
-Date:   Mon, 20 Sep 2021 18:40:28 +0200
-Message-Id: <20210920163931.478272759@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 067/293] Bluetooth: sco: prevent information leak in sco_conn_defer_accept()
+Date:   Mon, 20 Sep 2021 18:40:29 +0200
+Message-Id: <20210920163935.549817243@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshvardhan Jha <harshvardhan.jha@oracle.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 732b33d0dbf17e9483f0b50385bf606f724f50a2 upstream.
+[ Upstream commit 59da0b38bc2ea570ede23a3332ecb3e7574ce6b2 ]
 
-This patch addresses the following problems:
- - priv can never be NULL, so this part of the check is useless
- - if the loop ran through the whole list, priv->client is invalid and
-it is more appropriate and sufficient to check for the end of
-list_for_each_entry loop condition.
+Smatch complains that some of these struct members are not initialized
+leading to a stack information disclosure:
 
-Link: http://lkml.kernel.org/r/20210727000709.225032-1-harshvardhan.jha@oracle.com
-Signed-off-by: Harshvardhan Jha <harshvardhan.jha@oracle.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Tested-by: Stefano Stabellini <sstabellini@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    net/bluetooth/sco.c:778 sco_conn_defer_accept() warn:
+    check that 'cp.retrans_effort' doesn't leak information
+
+This seems like a valid warning.  I've added a default case to fix
+this issue.
+
+Fixes: 2f69a82acf6f ("Bluetooth: Use voice setting in deferred SCO connection request")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_xen.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/bluetooth/sco.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/net/9p/trans_xen.c
-+++ b/net/9p/trans_xen.c
-@@ -138,7 +138,7 @@ static bool p9_xen_write_todo(struct xen
- 
- static int p9_xen_request(struct p9_client *client, struct p9_req_t *p9_req)
- {
--	struct xen_9pfs_front_priv *priv = NULL;
-+	struct xen_9pfs_front_priv *priv;
- 	RING_IDX cons, prod, masked_cons, masked_prod;
- 	unsigned long flags;
- 	u32 size = p9_req->tc.size;
-@@ -151,7 +151,7 @@ static int p9_xen_request(struct p9_clie
+diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
+index a4ca55df7390..2561e462400e 100644
+--- a/net/bluetooth/sco.c
++++ b/net/bluetooth/sco.c
+@@ -761,6 +761,11 @@ static void sco_conn_defer_accept(struct hci_conn *conn, u16 setting)
+ 			cp.max_latency = cpu_to_le16(0xffff);
+ 			cp.retrans_effort = 0xff;
  			break;
- 	}
- 	read_unlock(&xen_9pfs_lock);
--	if (!priv || priv->client != client)
-+	if (list_entry_is_head(priv, &xen_9pfs_devs, list))
- 		return -EINVAL;
++		default:
++			/* use CVSD settings as fallback */
++			cp.max_latency = cpu_to_le16(0xffff);
++			cp.retrans_effort = 0xff;
++			break;
+ 		}
  
- 	num = p9_req->tc.tag % priv->num_rings;
+ 		hci_send_cmd(hdev, HCI_OP_ACCEPT_SYNC_CONN_REQ,
+-- 
+2.30.2
+
 
 
