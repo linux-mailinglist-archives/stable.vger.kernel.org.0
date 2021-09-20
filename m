@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 033C1411E64
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:29:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3977341208B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:55:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347698AbhITRab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:30:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56306 "EHLO mail.kernel.org"
+        id S245724AbhITRz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:55:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347496AbhITR2Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:28:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40D1861AAA;
-        Mon, 20 Sep 2021 17:03:24 +0000 (UTC)
+        id S1355186AbhITRyS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:54:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 538FE619E8;
+        Mon, 20 Sep 2021 17:13:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157404;
-        bh=l16qG+F5o+7kNpPs82jL7PXkKb+2Vx1dGgZH8LU5+/8=;
+        s=korg; t=1632158005;
+        bh=fvQgCBKYGisPejRhGEFl2aUh1j1YdbWQOp0Ga5d9CN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KDwX21YyJeKlhrdXOs1rngEH1aLQiVd3+7eanTIEmXOKzxmkkKfVAuZZVVG8pk2MV
-         SMkYrYjBJ9VRF7syUKFKO0wLMwhlZ1WUWeMQlDE1pgJbb0qm+yfnBSSDb83BCh6DTI
-         B6jZl+ik7NOCacEY/ri04eKDDLvXkxvFsoeJNNwQ=
+        b=fSBk2X9e6n0mg4DpvSIQ7+wJUgnJShlbEsIDMYf0q45Y5kDz/7fna1eX5SXlVUnp7
+         hCvHMU1dSDEnDk1RXoeyTpFqWgDNigQ5E/GB9OKOVLANBYiG57tJBBBq64oHBKVWBQ
+         Bfamg7lG3YSpcEVftfQiEetJPKhnRaenB7MfR5XY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: [PATCH 4.14 193/217] PM: base: power: dont try to use non-existing RTC for storing data
+        stable@vger.kernel.org, Adrian Bunk <bunk@kernel.org>,
+        YunQiang Su <wzssyqa@gmail.com>,
+        Shai Malin <smalin@marvell.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 252/293] bnx2x: Fix enabling network interfaces without VFs
 Date:   Mon, 20 Sep 2021 18:43:34 +0200
-Message-Id: <20210920163931.180448520@linuxfoundation.org>
+Message-Id: <20210920163942.014499180@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Adrian Bunk <bunk@kernel.org>
 
-commit 0560204b360a332c321124dbc5cdfd3364533a74 upstream.
+commit 52ce14c134a003fee03d8fc57442c05a55b53715 upstream.
 
-If there is no legacy RTC device, don't try to use it for storing trace
-data across suspend/resume.
+This function is called to enable SR-IOV when available,
+not enabling interfaces without VFs was a regression.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Rafael J. Wysocki <rafael@kernel.org>
-Link: https://lore.kernel.org/r/20210903084937.19392-2-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: 65161c35554f ("bnx2x: Fix missing error code in bnx2x_iov_init_one()")
+Signed-off-by: Adrian Bunk <bunk@kernel.org>
+Reported-by: YunQiang Su <wzssyqa@gmail.com>
+Tested-by: YunQiang Su <wzssyqa@gmail.com>
+Cc: stable@vger.kernel.org
+Acked-by: Shai Malin <smalin@marvell.com>
+Link: https://lore.kernel.org/r/20210912190523.27991-1-bunk@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/power/trace.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/base/power/trace.c
-+++ b/drivers/base/power/trace.c
-@@ -11,6 +11,7 @@
- #include <linux/export.h>
- #include <linux/rtc.h>
- #include <linux/suspend.h>
-+#include <linux/init.h>
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
+@@ -1245,7 +1245,7 @@ int bnx2x_iov_init_one(struct bnx2x *bp,
  
- #include <linux/mc146818rtc.h>
+ 	/* SR-IOV capability was enabled but there are no VFs*/
+ 	if (iov->total == 0) {
+-		err = -EINVAL;
++		err = 0;
+ 		goto failed;
+ 	}
  
-@@ -165,6 +166,9 @@ void generate_pm_trace(const void *trace
- 	const char *file = *(const char **)(tracedata + 2);
- 	unsigned int user_hash_value, file_hash_value;
- 
-+	if (!x86_platform.legacy.rtc)
-+		return;
-+
- 	user_hash_value = user % USERHASH;
- 	file_hash_value = hash_string(lineno, file, FILEHASH);
- 	set_magic_time(user_hash_value, file_hash_value, dev_hash_value);
-@@ -267,6 +271,9 @@ static struct notifier_block pm_trace_nb
- 
- static int early_resume_init(void)
- {
-+	if (!x86_platform.legacy.rtc)
-+		return 0;
-+
- 	hash_value_early_read = read_magic_time();
- 	register_pm_notifier(&pm_trace_nb);
- 	return 0;
-@@ -277,6 +284,9 @@ static int late_resume_init(void)
- 	unsigned int val = hash_value_early_read;
- 	unsigned int user, file, dev;
- 
-+	if (!x86_platform.legacy.rtc)
-+		return 0;
-+
- 	user = val % USERHASH;
- 	val = val / USERHASH;
- 	file = val % FILEHASH;
 
 
