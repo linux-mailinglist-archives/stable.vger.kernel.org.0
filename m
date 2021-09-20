@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00C91411B93
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:59:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E405411D64
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:18:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244843AbhITRA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:00:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44992 "EHLO mail.kernel.org"
+        id S245250AbhITRUE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:20:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344118AbhITQ6U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:58:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00BE6611AE;
-        Mon, 20 Sep 2021 16:51:56 +0000 (UTC)
+        id S244754AbhITRRd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:17:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 29BCD61A09;
+        Mon, 20 Sep 2021 16:59:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156717;
-        bh=FUVgSAJ5K5SRh/aieYK5iXse8prfOpHH+RuRx+jPoZA=;
+        s=korg; t=1632157161;
+        bh=24/E/U+6FDqECccTGlcsh9mtP/uLKfWS5SKnNvV4lgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uIRgoUj5zm8zWhIr5cgN0imCqv0t81ARPLIbUqzLxteU47E0w6u+QbaIPAh1VQoVt
-         ntXNHKVmafkwhD/TWUHBAnW1cbU+MFJdkJcN7pNLMiWacZGWm57dFtgWZoW1sPFpqV
-         zoTXC2whLJmvakM+NhTPc1o1ynb5lCnry0ERL4Sw=
+        b=Nv3FbS2TiEvKomqYOlas5TKxyN926CIWfiWJwZXrQ6MkJCuyeTAF8OfJFk5H3vPJ7
+         M746QnIik3GmsHeeivm70ZX5u1v2K5t1TFLsts5ggzESTK1HNv0QRvUPfYHi2gO9vh
+         A47vjoWobAhdxJGdcu20GlyQRjWRm6kQL9Y+GUlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Evgeny Novikov <novikov@ispras.ru>,
+        Kirill Shilimanov <kirill.shilimanov@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 054/175] media: go7007: remove redundant initialization
+Subject: [PATCH 4.14 082/217] usb: ehci-orion: Handle errors of clk_prepare_enable() in probe
 Date:   Mon, 20 Sep 2021 18:41:43 +0200
-Message-Id: <20210920163919.825236476@linuxfoundation.org>
+Message-Id: <20210920163927.413480588@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,85 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit 6f5885a7750545973bf1a942d2f0f129aef0aa06 ]
+[ Upstream commit 4720f1bf4ee4a784d9ece05420ba33c9222a3004 ]
 
-In go7007_alloc() kzalloc() is used for struct go7007
-allocation. It means that there is no need in zeroing
-any members, because kzalloc will take care of it.
+ehci_orion_drv_probe() did not account for possible errors of
+clk_prepare_enable() that in particular could cause invocation of
+clk_disable_unprepare() on clocks that were not prepared/enabled yet,
+e.g. in remove or on handling errors of usb_add_hcd() in probe. Though,
+there were several patches fixing different issues with clocks in this
+driver, they did not solve this problem.
 
-Removing these reduntant initialization steps increases
-execution speed a lot:
+Add handling of errors of clk_prepare_enable() in ehci_orion_drv_probe()
+to avoid calls of clk_disable_unprepare() without previous successful
+invocation of clk_prepare_enable().
 
-	Before:
-		+ 86.802 us   |    go7007_alloc();
-	After:
-		+ 29.595 us   |    go7007_alloc();
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Fixes: 866b8695d67e8 ("Staging: add the go7007 video driver")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 8c869edaee07 ("ARM: Orion: EHCI: Add support for enabling clocks")
+Co-developed-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Signed-off-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
+Link: https://lore.kernel.org/r/20210825170902.11234-1-novikov@ispras.ru
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/go7007/go7007-driver.c | 26 ------------------------
- 1 file changed, 26 deletions(-)
+ drivers/usb/host/ehci-orion.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/go7007/go7007-driver.c b/drivers/media/usb/go7007/go7007-driver.c
-index 05b1126f263e..d861d7225f49 100644
---- a/drivers/media/usb/go7007/go7007-driver.c
-+++ b/drivers/media/usb/go7007/go7007-driver.c
-@@ -698,49 +698,23 @@ struct go7007 *go7007_alloc(const struct go7007_board_info *board,
- 						struct device *dev)
- {
- 	struct go7007 *go;
--	int i;
+diff --git a/drivers/usb/host/ehci-orion.c b/drivers/usb/host/ehci-orion.c
+index 1aec87ec68df..753c73624fb6 100644
+--- a/drivers/usb/host/ehci-orion.c
++++ b/drivers/usb/host/ehci-orion.c
+@@ -253,8 +253,11 @@ static int ehci_orion_drv_probe(struct platform_device *pdev)
+ 	 * the clock does not exists.
+ 	 */
+ 	priv->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (!IS_ERR(priv->clk))
+-		clk_prepare_enable(priv->clk);
++	if (!IS_ERR(priv->clk)) {
++		err = clk_prepare_enable(priv->clk);
++		if (err)
++			goto err_put_hcd;
++	}
  
- 	go = kzalloc(sizeof(struct go7007), GFP_KERNEL);
- 	if (go == NULL)
- 		return NULL;
- 	go->dev = dev;
- 	go->board_info = board;
--	go->board_id = 0;
- 	go->tuner_type = -1;
--	go->channel_number = 0;
--	go->name[0] = 0;
- 	mutex_init(&go->hw_lock);
- 	init_waitqueue_head(&go->frame_waitq);
- 	spin_lock_init(&go->spinlock);
- 	go->status = STATUS_INIT;
--	memset(&go->i2c_adapter, 0, sizeof(go->i2c_adapter));
--	go->i2c_adapter_online = 0;
--	go->interrupt_available = 0;
- 	init_waitqueue_head(&go->interrupt_waitq);
--	go->input = 0;
- 	go7007_update_board(go);
--	go->encoder_h_halve = 0;
--	go->encoder_v_halve = 0;
--	go->encoder_subsample = 0;
- 	go->format = V4L2_PIX_FMT_MJPEG;
- 	go->bitrate = 1500000;
- 	go->fps_scale = 1;
--	go->pali = 0;
- 	go->aspect_ratio = GO7007_RATIO_1_1;
--	go->gop_size = 0;
--	go->ipb = 0;
--	go->closed_gop = 0;
--	go->repeat_seqhead = 0;
--	go->seq_header_enable = 0;
--	go->gop_header_enable = 0;
--	go->dvd_mode = 0;
--	go->interlace_coding = 0;
--	for (i = 0; i < 4; ++i)
--		go->modet[i].enable = 0;
--	for (i = 0; i < 1624; ++i)
--		go->modet_map[i] = 0;
--	go->audio_deliver = NULL;
--	go->audio_enabled = 0;
- 
- 	return go;
- }
+ 	priv->phy = devm_phy_optional_get(&pdev->dev, "usb");
+ 	if (IS_ERR(priv->phy)) {
+@@ -315,6 +318,7 @@ err_phy_init:
+ err_phy_get:
+ 	if (!IS_ERR(priv->clk))
+ 		clk_disable_unprepare(priv->clk);
++err_put_hcd:
+ 	usb_put_hcd(hcd);
+ err:
+ 	dev_err(&pdev->dev, "init %s fail, %d\n",
 -- 
 2.30.2
 
