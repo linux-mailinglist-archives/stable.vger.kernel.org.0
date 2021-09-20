@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C4C7411B99
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:59:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2815411FDB
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:44:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244457AbhITRAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:00:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45192 "EHLO mail.kernel.org"
+        id S1349731AbhITRqE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:46:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344269AbhITQ6r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:58:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A80C61211;
-        Mon, 20 Sep 2021 16:52:12 +0000 (UTC)
+        id S1353278AbhITRoS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:44:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 408856139E;
+        Mon, 20 Sep 2021 17:09:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156732;
-        bh=IeRJ7WR8IhBrQd5C/O7U6OQlo4PBC+0CG9QJLZoqJQs=;
+        s=korg; t=1632157776;
+        bh=/GDFhvJmsiJgpH8qOeGu8nCnYFPDKYh/W8GGJaWxl0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A/fpg6dqEO4U6e2hdtIadu8rojqd9f1jn5NsenXGzsqlFOXT+yc2baIp+CkXbyiy4
-         8wzAJXQz+YHqnZB9+7LRaXsDDmKffpATUE6PhvdEfXfbQN92XjmFEPQOhe/iazjY4W
-         MHYpPNQTTqO1Opt6HQEtAybmbSscVF9k6QRF2/3I=
+        b=J1naeVZx55bHUBQbOd/yC+9/0ukWSSbdOjXCJbk/l2EUGOPgGeJ0tAfdSqnYo5vju
+         Cs7zoeUfeSaHhFjbAEzyO7AlqUeC9ESkFsQpEuxtE24KMDLnj4lNH9ZJK3+jXAff/5
+         RGQ1u7rReJO57t9SBBT7BhKZViercgnLHIjezMIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 060/175] soc: qcom: smsm: Fix missed interrupts if state changes while masked
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Jorgen Hansen <jhansen@vmware.com>,
+        Wang Hai <wanghai38@huawei.com>
+Subject: [PATCH 4.19 147/293] VMCI: fix NULL pointer dereference when unmapping queue pair
 Date:   Mon, 20 Sep 2021 18:41:49 +0200
-Message-Id: <20210920163920.015989108@linuxfoundation.org>
+Message-Id: <20210920163938.309457899@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,78 +40,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit e3d4571955050736bbf3eda0a9538a09d9fcfce8 ]
+commit a30dc6cf0dc51419021550152e435736aaef8799 upstream.
 
-The SMSM driver detects interrupt edges by tracking the last state
-it has seen (and has triggered the interrupt handler for). This works
-fine, but only if the interrupt does not change state while masked.
+I got a NULL pointer dereference report when doing fuzz test:
 
-For example, if an interrupt is unmasked while the state is HIGH,
-the stored last_value for that interrupt might still be LOW. Then,
-when the remote processor triggers smsm_intr() we assume that nothing
-has changed, even though the state might have changed from HIGH to LOW.
+Call Trace:
+  qp_release_pages+0xae/0x130
+  qp_host_unregister_user_memory.isra.25+0x2d/0x80
+  vmci_qp_broker_unmap+0x191/0x320
+  ? vmci_host_do_alloc_queuepair.isra.9+0x1c0/0x1c0
+  vmci_host_unlocked_ioctl+0x59f/0xd50
+  ? do_vfs_ioctl+0x14b/0xa10
+  ? tomoyo_file_ioctl+0x28/0x30
+  ? vmci_host_do_alloc_queuepair.isra.9+0x1c0/0x1c0
+  __x64_sys_ioctl+0xea/0x120
+  do_syscall_64+0x34/0xb0
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Attempt to fix this by checking the current remote state before
-unmasking an IRQ. Use atomic operations to avoid the interrupt handler
-from interfering with the unmask function.
+When a queue pair is created by the following call, it will not
+register the user memory if the page_store is NULL, and the
+entry->state will be set to VMCIQPB_CREATED_NO_MEM.
 
-This fixes modem crashes in some edge cases with the BAM-DMUX driver.
-Specifically, the BAM-DMUX interrupt handler is not called for the
-HIGH -> LOW smsm state transition if the BAM-DMUX driver is loaded
-(and therefore unmasks the interrupt) after the modem was already started:
+vmci_host_unlocked_ioctl
+  vmci_host_do_alloc_queuepair
+    vmci_qp_broker_alloc
+      qp_broker_alloc
+        qp_broker_create // set entry->state = VMCIQPB_CREATED_NO_MEM;
 
-qcom-q6v5-mss 4080000.remoteproc: fatal error received: a2_task.c:3188:
-  Assert FALSE failed: A2 DL PER deadlock timer expired waiting for Apps ACK
+When unmapping this queue pair, qp_host_unregister_user_memory() will
+be called to unregister the non-existent user memory, which will
+result in a null pointer reference. It will also change
+VMCIQPB_CREATED_NO_MEM to VMCIQPB_CREATED_MEM, which should not be
+present in this operation.
 
-Fixes: c97c4090ff72 ("soc: qcom: smsm: Add driver for Qualcomm SMSM")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Link: https://lore.kernel.org/r/20210712135703.324748-2-stephan@gerhold.net
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Only when the qp broker has mem, it can unregister the user
+memory when unmapping the qp broker.
+
+Only when the qp broker has no mem, it can register the user
+memory when mapping the qp broker.
+
+Fixes: 06164d2b72aa ("VMCI: queue pairs implementation.")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Link: https://lore.kernel.org/r/20210818124845.488312-1-wanghai38@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/qcom/smsm.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/misc/vmw_vmci/vmci_queue_pair.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/soc/qcom/smsm.c b/drivers/soc/qcom/smsm.c
-index d0337b2a71c8..783cb3364599 100644
---- a/drivers/soc/qcom/smsm.c
-+++ b/drivers/soc/qcom/smsm.c
-@@ -117,7 +117,7 @@ struct smsm_entry {
- 	DECLARE_BITMAP(irq_enabled, 32);
- 	DECLARE_BITMAP(irq_rising, 32);
- 	DECLARE_BITMAP(irq_falling, 32);
--	u32 last_value;
-+	unsigned long last_value;
+--- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
++++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+@@ -2249,7 +2249,8 @@ int vmci_qp_broker_map(struct vmci_handl
  
- 	u32 *remote_state;
- 	u32 *subscription;
-@@ -212,8 +212,7 @@ static irqreturn_t smsm_intr(int irq, void *data)
- 	u32 val;
+ 	result = VMCI_SUCCESS;
  
- 	val = readl(entry->remote_state);
--	changed = val ^ entry->last_value;
--	entry->last_value = val;
-+	changed = val ^ xchg(&entry->last_value, val);
+-	if (context_id != VMCI_HOST_CONTEXT_ID) {
++	if (context_id != VMCI_HOST_CONTEXT_ID &&
++	    !QPBROKERSTATE_HAS_MEM(entry)) {
+ 		struct vmci_qp_page_store page_store;
  
- 	for_each_set_bit(i, entry->irq_enabled, 32) {
- 		if (!(changed & BIT(i)))
-@@ -274,6 +273,12 @@ static void smsm_unmask_irq(struct irq_data *irqd)
- 	struct qcom_smsm *smsm = entry->smsm;
- 	u32 val;
+ 		page_store.pages = guest_mem;
+@@ -2356,7 +2357,8 @@ int vmci_qp_broker_unmap(struct vmci_han
+ 		goto out;
+ 	}
  
-+	/* Make sure our last cached state is up-to-date */
-+	if (readl(entry->remote_state) & BIT(irq))
-+		set_bit(irq, &entry->last_value);
-+	else
-+		clear_bit(irq, &entry->last_value);
-+
- 	set_bit(irq, entry->irq_enabled);
- 
- 	if (entry->subscription) {
--- 
-2.30.2
-
+-	if (context_id != VMCI_HOST_CONTEXT_ID) {
++	if (context_id != VMCI_HOST_CONTEXT_ID &&
++	    QPBROKERSTATE_HAS_MEM(entry)) {
+ 		qp_acquire_queue_mutex(entry->produce_q);
+ 		result = qp_save_headers(entry);
+ 		if (result < VMCI_SUCCESS)
 
 
