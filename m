@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0C8F41236D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:23:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A71A541259E
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:45:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348806AbhITSZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:25:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44432 "EHLO mail.kernel.org"
+        id S1384113AbhITSqf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:46:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1377971AbhITSWV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:22:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DDEFD632BF;
-        Mon, 20 Sep 2021 17:24:15 +0000 (UTC)
+        id S1383366AbhITSo2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:44:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BA0C61B01;
+        Mon, 20 Sep 2021 17:32:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158656;
-        bh=DONT+Fc80aZDftDWzaJG+IhkUgb+ZlqTzWSgqVEpfVg=;
+        s=korg; t=1632159161;
+        bh=KfGxBqgb3mnKJOc11Ogxd2i4fFLWa3cqb+xQVzKN5Vo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hJaa1BQzsys/f6oAfFF1KG1cmOQQQeUPoPamcLSeElMOcIO1K2B0Nache+xWU99bI
-         B0Yu+NFdWI7mqtVRZixbJJlYCz/vUuO3JDzvgaR44i/izMFvKiDN8UROUjbLauwyGJ
-         nMHWI7tsRMseTxUCJB9DvrIG5BUZCF7+esZ8F3Cs=
+        b=L1YeZ8fKb2lq9WcTP3xbaVgR+lDwVFBl+eipsYtNQFMmpROGAD0N3L5Ywae8uoOJF
+         sWJcoqCEXzReH1v+fhqrNdmGkvymsK4MWCT8CNf9QnjFkHF5KF0lPx2selaMFOUkJu
+         kzLLOptzQooOAYyhzKRC4hMq4WGWi300D5LP6w04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.4 225/260] dt-bindings: arm: Fix Toradex compatible typo
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 105/168] PCI: j721e: Add PCIe support for J7200
 Date:   Mon, 20 Sep 2021 18:44:03 +0200
-Message-Id: <20210920163938.762608956@linuxfoundation.org>
+Message-Id: <20210920163925.088506184@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,31 +40,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Heidelberg <david@ixit.cz>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-commit 55c21d57eafb7b379bb7b3e93baf9ca2695895b0 upstream.
+[ Upstream commit f1de58802f0fff364cf49f5e47d1be744baa434f ]
 
-Fix board compatible typo reported by dtbs_check.
+J7200 has the same PCIe IP as in J721E with minor changes in the
+wrapper. J7200 allows byte access of bridge configuration space
+registers and the register field for LINK_DOWN interrupt is different.
+J7200 also requires "quirk_detect_quiet_flag" to be set. Configure these
+changes as part of driver data applicable only to J7200.
 
-Fixes: f4d1577e9bc6 ("dt-bindings: arm: Convert Tegra board/soc bindings to json-schema")
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Link: https://lore.kernel.org/r/20210912165120.188490-1-david@ixit.cz
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210811123336.31357-4-kishon@ti.com
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/arm/tegra.yaml |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/cadence/pci-j721e.c | 40 +++++++++++++++++++---
+ 1 file changed, 36 insertions(+), 4 deletions(-)
 
---- a/Documentation/devicetree/bindings/arm/tegra.yaml
-+++ b/Documentation/devicetree/bindings/arm/tegra.yaml
-@@ -49,7 +49,7 @@ properties:
-           - const: toradex,apalis_t30
-           - const: nvidia,tegra30
-       - items:
--          - const: toradex,apalis_t30-eval-v1.1
-+          - const: toradex,apalis_t30-v1.1-eval
-           - const: toradex,apalis_t30-eval
-           - const: toradex,apalis_t30-v1.1
-           - const: toradex,apalis_t30
+diff --git a/drivers/pci/controller/cadence/pci-j721e.c b/drivers/pci/controller/cadence/pci-j721e.c
+index 0c5813b230b4..10b13b728284 100644
+--- a/drivers/pci/controller/cadence/pci-j721e.c
++++ b/drivers/pci/controller/cadence/pci-j721e.c
+@@ -27,6 +27,7 @@
+ #define STATUS_REG_SYS_2	0x508
+ #define STATUS_CLR_REG_SYS_2	0x708
+ #define LINK_DOWN		BIT(1)
++#define J7200_LINK_DOWN		BIT(10)
+ 
+ #define J721E_PCIE_USER_CMD_STATUS	0x4
+ #define LINK_TRAINING_ENABLE		BIT(0)
+@@ -57,6 +58,7 @@ struct j721e_pcie {
+ 	struct cdns_pcie	*cdns_pcie;
+ 	void __iomem		*user_cfg_base;
+ 	void __iomem		*intd_cfg_base;
++	u32			linkdown_irq_regfield;
+ };
+ 
+ enum j721e_pcie_mode {
+@@ -67,6 +69,9 @@ enum j721e_pcie_mode {
+ struct j721e_pcie_data {
+ 	enum j721e_pcie_mode	mode;
+ 	unsigned int		quirk_retrain_flag:1;
++	unsigned int		quirk_detect_quiet_flag:1;
++	u32			linkdown_irq_regfield;
++	unsigned int		byte_access_allowed:1;
+ };
+ 
+ static inline u32 j721e_pcie_user_readl(struct j721e_pcie *pcie, u32 offset)
+@@ -98,12 +103,12 @@ static irqreturn_t j721e_pcie_link_irq_handler(int irq, void *priv)
+ 	u32 reg;
+ 
+ 	reg = j721e_pcie_intd_readl(pcie, STATUS_REG_SYS_2);
+-	if (!(reg & LINK_DOWN))
++	if (!(reg & pcie->linkdown_irq_regfield))
+ 		return IRQ_NONE;
+ 
+ 	dev_err(dev, "LINK DOWN!\n");
+ 
+-	j721e_pcie_intd_writel(pcie, STATUS_CLR_REG_SYS_2, LINK_DOWN);
++	j721e_pcie_intd_writel(pcie, STATUS_CLR_REG_SYS_2, pcie->linkdown_irq_regfield);
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -112,7 +117,7 @@ static void j721e_pcie_config_link_irq(struct j721e_pcie *pcie)
+ 	u32 reg;
+ 
+ 	reg = j721e_pcie_intd_readl(pcie, ENABLE_REG_SYS_2);
+-	reg |= LINK_DOWN;
++	reg |= pcie->linkdown_irq_regfield;
+ 	j721e_pcie_intd_writel(pcie, ENABLE_REG_SYS_2, reg);
+ }
+ 
+@@ -284,10 +289,25 @@ static struct pci_ops cdns_ti_pcie_host_ops = {
+ static const struct j721e_pcie_data j721e_pcie_rc_data = {
+ 	.mode = PCI_MODE_RC,
+ 	.quirk_retrain_flag = true,
++	.byte_access_allowed = false,
++	.linkdown_irq_regfield = LINK_DOWN,
+ };
+ 
+ static const struct j721e_pcie_data j721e_pcie_ep_data = {
+ 	.mode = PCI_MODE_EP,
++	.linkdown_irq_regfield = LINK_DOWN,
++};
++
++static const struct j721e_pcie_data j7200_pcie_rc_data = {
++	.mode = PCI_MODE_RC,
++	.quirk_detect_quiet_flag = true,
++	.linkdown_irq_regfield = J7200_LINK_DOWN,
++	.byte_access_allowed = true,
++};
++
++static const struct j721e_pcie_data j7200_pcie_ep_data = {
++	.mode = PCI_MODE_EP,
++	.quirk_detect_quiet_flag = true,
+ };
+ 
+ static const struct of_device_id of_j721e_pcie_match[] = {
+@@ -299,6 +319,14 @@ static const struct of_device_id of_j721e_pcie_match[] = {
+ 		.compatible = "ti,j721e-pcie-ep",
+ 		.data = &j721e_pcie_ep_data,
+ 	},
++	{
++		.compatible = "ti,j7200-pcie-host",
++		.data = &j7200_pcie_rc_data,
++	},
++	{
++		.compatible = "ti,j7200-pcie-ep",
++		.data = &j7200_pcie_ep_data,
++	},
+ 	{},
+ };
+ 
+@@ -332,6 +360,7 @@ static int j721e_pcie_probe(struct platform_device *pdev)
+ 
+ 	pcie->dev = dev;
+ 	pcie->mode = mode;
++	pcie->linkdown_irq_regfield = data->linkdown_irq_regfield;
+ 
+ 	base = devm_platform_ioremap_resource_byname(pdev, "intd_cfg");
+ 	if (IS_ERR(base))
+@@ -391,9 +420,11 @@ static int j721e_pcie_probe(struct platform_device *pdev)
+ 			goto err_get_sync;
+ 		}
+ 
+-		bridge->ops = &cdns_ti_pcie_host_ops;
++		if (!data->byte_access_allowed)
++			bridge->ops = &cdns_ti_pcie_host_ops;
+ 		rc = pci_host_bridge_priv(bridge);
+ 		rc->quirk_retrain_flag = data->quirk_retrain_flag;
++		rc->quirk_detect_quiet_flag = data->quirk_detect_quiet_flag;
+ 
+ 		cdns_pcie = &rc->pcie;
+ 		cdns_pcie->dev = dev;
+@@ -459,6 +490,7 @@ static int j721e_pcie_probe(struct platform_device *pdev)
+ 			ret = -ENOMEM;
+ 			goto err_get_sync;
+ 		}
++		ep->quirk_detect_quiet_flag = data->quirk_detect_quiet_flag;
+ 
+ 		cdns_pcie = &ep->pcie;
+ 		cdns_pcie->dev = dev;
+-- 
+2.30.2
+
 
 
