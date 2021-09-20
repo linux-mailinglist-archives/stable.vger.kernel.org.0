@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2D61412031
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:51:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F99C411DED
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:24:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349645AbhITRxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:53:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54102 "EHLO mail.kernel.org"
+        id S1344767AbhITR0K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:26:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345106AbhITRsl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:48:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BC2961B9F;
-        Mon, 20 Sep 2021 17:11:10 +0000 (UTC)
+        id S1348823AbhITRWI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:22:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E505F6135E;
+        Mon, 20 Sep 2021 17:01:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157870;
-        bh=PX2xQm/C4MK4PU4j7gsqvgYGjt7b7XdaBqs4CaQJ+Bo=;
+        s=korg; t=1632157270;
+        bh=Om+0l7HaKDX3wFPLSuNlYCw9Kr38MZ6aMLR9ZMfwcXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qRboPTfjKxSPui/Ddjhb0Hc/k+OJBlcfYhmeqNPgEnROP81UqhpQv+OjLWsYM691e
-         oNpKoy1g7HetjeqnTcwCxWKU2mEy/4oqpvOMCXdJ/FajQvOB8ElbaE34b2JG367nt7
-         z4QV2k80e7f42A9yQNHOM8wEsdYB77h9tRD8aWjo=
+        b=xJPikY+sbK4DE/7syT4E3S1BQAcSVh/aziLUco67SRli1cWxJLlr5eEzfCcDNoxzO
+         oV5JIGQkxP+i7QJ3rGf9vWRDuzzR+RXgQa0hc+rJCVm5nDhfGHbAB10jcxaNnhDF9j
+         e9KnC3ivxOtpkXaZP7Y/lLDyJY1CbK3pI1fezTFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Sean Anderson <sean.anderson@seco.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 190/293] video: fbdev: asiliantfb: Error out if pixclock equals zero
+Subject: [PATCH 4.14 131/217] crypto: mxs-dcp - Use sg_mapping_iter to copy data
 Date:   Mon, 20 Sep 2021 18:42:32 +0200
-Message-Id: <20210920163939.775721639@linuxfoundation.org>
+Message-Id: <20210920163929.099597764@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +40,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Sean Anderson <sean.anderson@seco.com>
 
-[ Upstream commit b36b242d4b8ea178f7fd038965e3cac7f30c3f09 ]
+[ Upstream commit 2e6d793e1bf07fe5e20cfbbdcec9e1af7e5097eb ]
 
-The userspace program could pass any values to the driver through
-ioctl() interface. If the driver doesn't check the value of 'pixclock',
-it may cause divide error.
+This uses the sg_pcopy_from_buffer to copy data, instead of doing it
+ourselves.
 
-Fix this by checking whether 'pixclock' is zero first.
+In addition to reducing code size, this fixes the following oops
+resulting from failing to kmap the page:
 
-The following log reveals it:
+[   68.896381] Unable to handle kernel NULL pointer dereference at virtual address 00000ab8
+[   68.904539] pgd = 3561adb3
+[   68.907475] [00000ab8] *pgd=00000000
+[   68.911153] Internal error: Oops: 805 [#1] ARM
+[   68.915618] Modules linked in: cfg80211 rfkill des_generic libdes arc4 libarc4 cbc ecb algif_skcipher sha256_generic libsha256 sha1_generic hmac aes_generic libaes cmac sha512_generic md5 md4 algif_hash af_alg i2c_imx i2c_core ci_hdrc_imx ci_hdrc mxs_dcp ulpi roles udc_core imx_sdma usbmisc_imx usb_common firmware_class virt_dma phy_mxs_usb nf_tables nfnetlink ip_tables x_tables ipv6 autofs4
+[   68.950741] CPU: 0 PID: 139 Comm: mxs_dcp_chan/ae Not tainted 5.10.34 #296
+[   68.958501] Hardware name: Freescale i.MX6 Ultralite (Device Tree)
+[   68.964710] PC is at memcpy+0xa8/0x330
+[   68.968479] LR is at 0xd7b2bc9d
+[   68.971638] pc : [<c053e7c8>]    lr : [<d7b2bc9d>]    psr: 000f0013
+[   68.977920] sp : c2cbbee4  ip : 00000010  fp : 00000010
+[   68.983159] r10: 00000000  r9 : c3283a40  r8 : 1a5a6f08
+[   68.988402] r7 : 4bfe0ecc  r6 : 76d8a220  r5 : c32f9050  r4 : 00000001
+[   68.994945] r3 : 00000ab8  r2 : fffffff0  r1 : c32f9050  r0 : 00000ab8
+[   69.001492] Flags: nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+[   69.008646] Control: 10c53c7d  Table: 83664059  DAC: 00000051
+[   69.014414] Process mxs_dcp_chan/ae (pid: 139, stack limit = 0x667b57ab)
+[   69.021133] Stack: (0xc2cbbee4 to 0xc2cbc000)
+[   69.025519] bee0:          c32f9050 c3235408 00000010 00000010 00000ab8 00000001 bf10406c
+[   69.033720] bf00: 00000000 00000000 00000010 00000000 c32355d0 832fb080 00000000 c13de2fc
+[   69.041921] bf20: c3628010 00000010 c33d5780 00000ab8 bf1067e8 00000002 c21e5010 c2cba000
+[   69.050125] bf40: c32f8040 00000000 bf106a40 c32f9040 c3283a80 00000001 bf105240 c3234040
+[   69.058327] bf60: ffffe000 c3204100 c2c69800 c2cba000 00000000 bf103b84 00000000 c2eddc54
+[   69.066530] bf80: c3204144 c0140d1c c2cba000 c2c69800 c0140be8 00000000 00000000 00000000
+[   69.074730] bfa0: 00000000 00000000 00000000 c0100114 00000000 00000000 00000000 00000000
+[   69.082932] bfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[   69.091131] bfe0: 00000000 00000000 00000000 00000000 00000013 00000000 00000000 00000000
+[   69.099364] [<c053e7c8>] (memcpy) from [<bf10406c>] (dcp_chan_thread_aes+0x4e8/0x840 [mxs_dcp])
+[   69.108117] [<bf10406c>] (dcp_chan_thread_aes [mxs_dcp]) from [<c0140d1c>] (kthread+0x134/0x160)
+[   69.116941] [<c0140d1c>] (kthread) from [<c0100114>] (ret_from_fork+0x14/0x20)
+[   69.124178] Exception stack(0xc2cbbfb0 to 0xc2cbbff8)
+[   69.129250] bfa0:                                     00000000 00000000 00000000 00000000
+[   69.137450] bfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[   69.145648] bfe0: 00000000 00000000 00000000 00000000 00000013 00000000
+[   69.152289] Code: e320f000 e4803004 e4804004 e4805004 (e4806004)
 
-[   43.861711] divide error: 0000 [#1] PREEMPT SMP KASAN PTI
-[   43.861737] CPU: 2 PID: 11764 Comm: i740 Not tainted 5.14.0-rc2-00513-gac532c9bbcfb-dirty #224
-[   43.861756] RIP: 0010:asiliantfb_check_var+0x4e/0x730
-[   43.861843] Call Trace:
-[   43.861848]  ? asiliantfb_remove+0x190/0x190
-[   43.861858]  fb_set_var+0x2e4/0xeb0
-[   43.861866]  ? fb_blank+0x1a0/0x1a0
-[   43.861873]  ? lock_acquire+0x1ef/0x530
-[   43.861884]  ? lock_release+0x810/0x810
-[   43.861892]  ? lock_is_held_type+0x100/0x140
-[   43.861903]  ? ___might_sleep+0x1ee/0x2d0
-[   43.861914]  ? __mutex_lock+0x620/0x1190
-[   43.861921]  ? do_fb_ioctl+0x313/0x700
-[   43.861929]  ? mutex_lock_io_nested+0xfa0/0xfa0
-[   43.861936]  ? __this_cpu_preempt_check+0x1d/0x30
-[   43.861944]  ? _raw_spin_unlock_irqrestore+0x46/0x60
-[   43.861952]  ? lockdep_hardirqs_on+0x59/0x100
-[   43.861959]  ? _raw_spin_unlock_irqrestore+0x46/0x60
-[   43.861967]  ? trace_hardirqs_on+0x6a/0x1c0
-[   43.861978]  do_fb_ioctl+0x31e/0x700
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1627293835-17441-2-git-send-email-zheyuma97@gmail.com
+Signed-off-by: Sean Anderson <sean.anderson@seco.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/asiliantfb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/crypto/mxs-dcp.c | 36 +++++++++---------------------------
+ 1 file changed, 9 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/video/fbdev/asiliantfb.c b/drivers/video/fbdev/asiliantfb.c
-index ea31054a28ca..c1d6e6336225 100644
---- a/drivers/video/fbdev/asiliantfb.c
-+++ b/drivers/video/fbdev/asiliantfb.c
-@@ -227,6 +227,9 @@ static int asiliantfb_check_var(struct fb_var_screeninfo *var,
- {
- 	unsigned long Ftarget, ratio, remainder;
+diff --git a/drivers/crypto/mxs-dcp.c b/drivers/crypto/mxs-dcp.c
+index 96b6808847c7..e986be405411 100644
+--- a/drivers/crypto/mxs-dcp.c
++++ b/drivers/crypto/mxs-dcp.c
+@@ -297,21 +297,20 @@ static int mxs_dcp_aes_block_crypt(struct crypto_async_request *arq)
  
-+	if (!var->pixclock)
-+		return -EINVAL;
-+
- 	ratio = 1000000 / var->pixclock;
- 	remainder = 1000000 % var->pixclock;
- 	Ftarget = 1000000 * ratio + (1000000 * remainder) / var->pixclock;
+ 	struct scatterlist *dst = req->dst;
+ 	struct scatterlist *src = req->src;
+-	const int nents = sg_nents(req->src);
++	int dst_nents = sg_nents(dst);
+ 
+ 	const int out_off = DCP_BUF_SZ;
+ 	uint8_t *in_buf = sdcp->coh->aes_in_buf;
+ 	uint8_t *out_buf = sdcp->coh->aes_out_buf;
+ 
+-	uint8_t *out_tmp, *src_buf, *dst_buf = NULL;
+ 	uint32_t dst_off = 0;
++	uint8_t *src_buf = NULL;
+ 	uint32_t last_out_len = 0;
+ 
+ 	uint8_t *key = sdcp->coh->aes_key;
+ 
+ 	int ret = 0;
+-	int split = 0;
+-	unsigned int i, len, clen, rem = 0, tlen = 0;
++	unsigned int i, len, clen, tlen = 0;
+ 	int init = 0;
+ 	bool limit_hit = false;
+ 
+@@ -329,7 +328,7 @@ static int mxs_dcp_aes_block_crypt(struct crypto_async_request *arq)
+ 		memset(key + AES_KEYSIZE_128, 0, AES_KEYSIZE_128);
+ 	}
+ 
+-	for_each_sg(req->src, src, nents, i) {
++	for_each_sg(req->src, src, sg_nents(src), i) {
+ 		src_buf = sg_virt(src);
+ 		len = sg_dma_len(src);
+ 		tlen += len;
+@@ -354,34 +353,17 @@ static int mxs_dcp_aes_block_crypt(struct crypto_async_request *arq)
+ 			 * submit the buffer.
+ 			 */
+ 			if (actx->fill == out_off || sg_is_last(src) ||
+-				limit_hit) {
++			    limit_hit) {
+ 				ret = mxs_dcp_run_aes(actx, req, init);
+ 				if (ret)
+ 					return ret;
+ 				init = 0;
+ 
+-				out_tmp = out_buf;
++				sg_pcopy_from_buffer(dst, dst_nents, out_buf,
++						     actx->fill, dst_off);
++				dst_off += actx->fill;
+ 				last_out_len = actx->fill;
+-				while (dst && actx->fill) {
+-					if (!split) {
+-						dst_buf = sg_virt(dst);
+-						dst_off = 0;
+-					}
+-					rem = min(sg_dma_len(dst) - dst_off,
+-						  actx->fill);
+-
+-					memcpy(dst_buf + dst_off, out_tmp, rem);
+-					out_tmp += rem;
+-					dst_off += rem;
+-					actx->fill -= rem;
+-
+-					if (dst_off == sg_dma_len(dst)) {
+-						dst = sg_next(dst);
+-						split = 0;
+-					} else {
+-						split = 1;
+-					}
+-				}
++				actx->fill = 0;
+ 			}
+ 		} while (len);
+ 
 -- 
 2.30.2
 
