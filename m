@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B16D411F68
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:39:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D827C411CE7
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:13:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345321AbhITRlG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:41:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44120 "EHLO mail.kernel.org"
+        id S1344163AbhITRPA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:15:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349373AbhITRjH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:39:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6499361B46;
-        Mon, 20 Sep 2021 17:07:32 +0000 (UTC)
+        id S1345741AbhITRNE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:13:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3627D619E7;
+        Mon, 20 Sep 2021 16:57:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157652;
-        bh=nagUNhdVX+TGIxHlhOJnRD2CoM61qtbYaveI4oAPrpE=;
+        s=korg; t=1632157052;
+        bh=LKeb44O/8oNZrLGxLBNEi+k/ZqALmJ/spWKETQRo9Wc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SK2dIAQhbG6Qj0AP0dyXcQK0HH/Sfqs9MdaXUVg3nDolaNlHy2oi2u3g/el5x5n5g
-         ie7WZXc12MXLPjIDZxwcDZxqjOePU9jTP8Rc3RO1JwBpdWRBdT3IoRciZ9DgeiUkfD
-         ywD5r6x6cyIjCsTbjFWgMOB3XvTPFfmPtq06zVrY=
+        b=duvR4ay8+AHq78dBolQy4q8xu+qzmLr9A/Q3LI7ADLub1sxPtrpFjkWT1Rcn66s54
+         R2HXoh98rUPMOHFh3heTP0ZzgFtLX4sfhU3fdqp7Yohhg/Ez0Kv4agwdEkJRlLjCGa
+         LmTK4J34JhlQ9NgDc6AJeh5/a/zu467WFkGJWtXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+be2baed593ea56c6a84c@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 089/293] Bluetooth: add timeout sanity check to hci_inquiry
+        stable@vger.kernel.org, Sean Anderson <sean.anderson@seco.com>,
+        Richard Weinberger <richard@nod.at>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 030/217] crypto: mxs-dcp - Check for DMA mapping errors
 Date:   Mon, 20 Sep 2021 18:40:51 +0200
-Message-Id: <20210920163936.315828623@linuxfoundation.org>
+Message-Id: <20210920163925.637751982@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +41,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Sean Anderson <sean.anderson@seco.com>
 
-[ Upstream commit f41a4b2b5eb7872109723dab8ae1603bdd9d9ec1 ]
+[ Upstream commit df6313d707e575a679ada3313358289af24454c0 ]
 
-Syzbot hit "task hung" bug in hci_req_sync(). The problem was in
-unreasonable huge inquiry timeout passed from userspace.
-Fix it by adding sanity check for timeout value to hci_inquiry().
+After calling dma_map_single(), we must also call dma_mapping_error().
+This fixes the following warning when compiling with CONFIG_DMA_API_DEBUG:
 
-Since hci_inquiry() is the only user of hci_req_sync() with user
-controlled timeout value, it makes sense to check timeout value in
-hci_inquiry() and don't touch hci_req_sync().
+[  311.241478] WARNING: CPU: 0 PID: 428 at kernel/dma/debug.c:1027 check_unmap+0x79c/0x96c
+[  311.249547] DMA-API: mxs-dcp 2280000.crypto: device driver failed to check map error[device address=0x00000000860cb080] [size=32 bytes] [mapped as single]
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-and-tested-by: syzbot+be2baed593ea56c6a84c@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sean Anderson <sean.anderson@seco.com>
+Reviewed-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_core.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/crypto/mxs-dcp.c | 45 +++++++++++++++++++++++++++++++---------
+ 1 file changed, 35 insertions(+), 10 deletions(-)
 
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index ec6150564f59..26acacb2fa95 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -1296,6 +1296,12 @@ int hci_inquiry(void __user *arg)
- 		goto done;
- 	}
+diff --git a/drivers/crypto/mxs-dcp.c b/drivers/crypto/mxs-dcp.c
+index eb569cf06309..96b6808847c7 100644
+--- a/drivers/crypto/mxs-dcp.c
++++ b/drivers/crypto/mxs-dcp.c
+@@ -167,15 +167,19 @@ static struct dcp *global_sdcp;
  
-+	/* Restrict maximum inquiry length to 60 seconds */
-+	if (ir.length > 60) {
-+		err = -EINVAL;
-+		goto done;
-+	}
+ static int mxs_dcp_start_dma(struct dcp_async_ctx *actx)
+ {
++	int dma_err;
+ 	struct dcp *sdcp = global_sdcp;
+ 	const int chan = actx->chan;
+ 	uint32_t stat;
+ 	unsigned long ret;
+ 	struct dcp_dma_desc *desc = &sdcp->coh->desc[actx->chan];
+-
+ 	dma_addr_t desc_phys = dma_map_single(sdcp->dev, desc, sizeof(*desc),
+ 					      DMA_TO_DEVICE);
+ 
++	dma_err = dma_mapping_error(sdcp->dev, desc_phys);
++	if (dma_err)
++		return dma_err;
 +
- 	hci_dev_lock(hdev);
- 	if (inquiry_cache_age(hdev) > INQUIRY_CACHE_AGE_MAX ||
- 	    inquiry_cache_empty(hdev) || ir.flags & IREQ_CACHE_FLUSH) {
+ 	reinit_completion(&sdcp->completion[chan]);
+ 
+ 	/* Clear status register. */
+@@ -213,18 +217,29 @@ static int mxs_dcp_start_dma(struct dcp_async_ctx *actx)
+ static int mxs_dcp_run_aes(struct dcp_async_ctx *actx,
+ 			   struct ablkcipher_request *req, int init)
+ {
++	dma_addr_t key_phys, src_phys, dst_phys;
+ 	struct dcp *sdcp = global_sdcp;
+ 	struct dcp_dma_desc *desc = &sdcp->coh->desc[actx->chan];
+ 	struct dcp_aes_req_ctx *rctx = ablkcipher_request_ctx(req);
+ 	int ret;
+ 
+-	dma_addr_t key_phys = dma_map_single(sdcp->dev, sdcp->coh->aes_key,
+-					     2 * AES_KEYSIZE_128,
+-					     DMA_TO_DEVICE);
+-	dma_addr_t src_phys = dma_map_single(sdcp->dev, sdcp->coh->aes_in_buf,
+-					     DCP_BUF_SZ, DMA_TO_DEVICE);
+-	dma_addr_t dst_phys = dma_map_single(sdcp->dev, sdcp->coh->aes_out_buf,
+-					     DCP_BUF_SZ, DMA_FROM_DEVICE);
++	key_phys = dma_map_single(sdcp->dev, sdcp->coh->aes_key,
++				  2 * AES_KEYSIZE_128, DMA_TO_DEVICE);
++	ret = dma_mapping_error(sdcp->dev, key_phys);
++	if (ret)
++		return ret;
++
++	src_phys = dma_map_single(sdcp->dev, sdcp->coh->aes_in_buf,
++				  DCP_BUF_SZ, DMA_TO_DEVICE);
++	ret = dma_mapping_error(sdcp->dev, src_phys);
++	if (ret)
++		goto err_src;
++
++	dst_phys = dma_map_single(sdcp->dev, sdcp->coh->aes_out_buf,
++				  DCP_BUF_SZ, DMA_FROM_DEVICE);
++	ret = dma_mapping_error(sdcp->dev, dst_phys);
++	if (ret)
++		goto err_dst;
+ 
+ 	if (actx->fill % AES_BLOCK_SIZE) {
+ 		dev_err(sdcp->dev, "Invalid block size!\n");
+@@ -262,10 +277,12 @@ static int mxs_dcp_run_aes(struct dcp_async_ctx *actx,
+ 	ret = mxs_dcp_start_dma(actx);
+ 
+ aes_done_run:
++	dma_unmap_single(sdcp->dev, dst_phys, DCP_BUF_SZ, DMA_FROM_DEVICE);
++err_dst:
++	dma_unmap_single(sdcp->dev, src_phys, DCP_BUF_SZ, DMA_TO_DEVICE);
++err_src:
+ 	dma_unmap_single(sdcp->dev, key_phys, 2 * AES_KEYSIZE_128,
+ 			 DMA_TO_DEVICE);
+-	dma_unmap_single(sdcp->dev, src_phys, DCP_BUF_SZ, DMA_TO_DEVICE);
+-	dma_unmap_single(sdcp->dev, dst_phys, DCP_BUF_SZ, DMA_FROM_DEVICE);
+ 
+ 	return ret;
+ }
+@@ -565,6 +582,10 @@ static int mxs_dcp_run_sha(struct ahash_request *req)
+ 	dma_addr_t buf_phys = dma_map_single(sdcp->dev, sdcp->coh->sha_in_buf,
+ 					     DCP_BUF_SZ, DMA_TO_DEVICE);
+ 
++	ret = dma_mapping_error(sdcp->dev, buf_phys);
++	if (ret)
++		return ret;
++
+ 	/* Fill in the DMA descriptor. */
+ 	desc->control0 = MXS_DCP_CONTROL0_DECR_SEMAPHORE |
+ 		    MXS_DCP_CONTROL0_INTERRUPT |
+@@ -597,6 +618,10 @@ static int mxs_dcp_run_sha(struct ahash_request *req)
+ 	if (rctx->fini) {
+ 		digest_phys = dma_map_single(sdcp->dev, sdcp->coh->sha_out_buf,
+ 					     DCP_SHA_PAY_SZ, DMA_FROM_DEVICE);
++		ret = dma_mapping_error(sdcp->dev, digest_phys);
++		if (ret)
++			goto done_run;
++
+ 		desc->control0 |= MXS_DCP_CONTROL0_HASH_TERM;
+ 		desc->payload = digest_phys;
+ 	}
 -- 
 2.30.2
 
