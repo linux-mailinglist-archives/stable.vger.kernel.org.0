@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B839411CB9
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:11:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70F2A411F34
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:38:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343815AbhITRMi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:12:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36416 "EHLO mail.kernel.org"
+        id S1352257AbhITRiz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:38:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345426AbhITRKn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:10:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31C3A6127B;
-        Mon, 20 Sep 2021 16:56:42 +0000 (UTC)
+        id S1348466AbhITRga (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:36:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D22A61B28;
+        Mon, 20 Sep 2021 17:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157002;
-        bh=gNwRRiDBqyXy7tVbUpKck/4vsx3U8udjXf+tDUARaOY=;
+        s=korg; t=1632157589;
+        bh=S3kVn85mjnu0Qvr5bIEbxz2Euwg5MAybncTBszSHQiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oAaVMphB4MRoz3T1AJiKmNqL0dyEzF6XRhTEC6TMQezn74FeoeBB2pUP85vKe/lzS
-         syYngikACyGTWRp5178d8Asb/CMgI2uFVW+Jgt33Tdx9oPN92/jLhnBtyG8n7cJ8U1
-         4/QzmKWsErZhbxrqrY4MABv7c/Abx7hPLUpGcykU=
+        b=Uxlz2SQ0AEgipVQkwX5YQ/EbICyqcg5NwU4nyaGzAJWEZxPVnqDxZIe1o/15fyby5
+         tm+lJAnRbtIpp2FfnIKzaHPY+U79/28aNjXhcTflEgE5TnpKnKws9RQEiWz1Af3Ndc
+         G574NCmSWQ2nZ2JfQjw18FgaG3OZUZ9DIo7tDm+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        syzbot+13146364637c7363a7de@syzkaller.appspotmail.com,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 001/217] ext4: fix race writing to an inline_data file while its xattrs are changing
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 060/293] certs: Trigger creation of RSA module signing key if its not an RSA key
 Date:   Mon, 20 Sep 2021 18:40:22 +0200
-Message-Id: <20210920163924.649351188@linuxfoundation.org>
+Message-Id: <20210920163935.319048896@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,42 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Stefan Berger <stefanb@linux.ibm.com>
 
-commit a54c4613dac1500b40e4ab55199f7c51f028e848 upstream.
+[ Upstream commit ea35e0d5df6c92fa2e124bb1b91d09b2240715ba ]
 
-The location of the system.data extended attribute can change whenever
-xattr_sem is not taken.  So we need to recalculate the i_inline_off
-field since it mgiht have changed between ext4_write_begin() and
-ext4_write_end().
+Address a kbuild issue where a developer created an ECDSA key for signing
+kernel modules and then builds an older version of the kernel, when bi-
+secting the kernel for example, that does not support ECDSA keys.
 
-This means that caching i_inline_off is probably not helpful, so in
-the long run we should probably get rid of it and shrink the in-memory
-ext4 inode slightly, but let's fix the race the simple way for now.
+If openssl is installed, trigger the creation of an RSA module signing
+key if it is not an RSA key.
 
-Cc: stable@kernel.org
-Fixes: f19d5870cbf72 ("ext4: add normal write support for inline data")
-Reported-by: syzbot+13146364637c7363a7de@syzkaller.appspotmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: cfc411e7fff3 ("Move certificate handling to its own directory")
+Cc: David Howells <dhowells@redhat.com>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Tested-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inline.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ certs/Makefile | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/fs/ext4/inline.c
-+++ b/fs/ext4/inline.c
-@@ -756,6 +756,12 @@ int ext4_write_inline_data_end(struct in
- 	ext4_write_lock_xattr(inode, &no_expand);
- 	BUG_ON(!ext4_has_inline_data(inode));
+diff --git a/certs/Makefile b/certs/Makefile
+index 5d0999b9e21b..ca3c71e3a3d9 100644
+--- a/certs/Makefile
++++ b/certs/Makefile
+@@ -46,11 +46,19 @@ endif
+ redirect_openssl	= 2>&1
+ quiet_redirect_openssl	= 2>&1
+ silent_redirect_openssl = 2>/dev/null
++openssl_available       = $(shell openssl help 2>/dev/null && echo yes)
  
-+	/*
-+	 * ei->i_inline_off may have changed since ext4_write_begin()
-+	 * called ext4_try_to_write_inline_data()
-+	 */
-+	(void) ext4_find_inline_data_nolock(inode);
+ # We do it this way rather than having a boolean option for enabling an
+ # external private key, because 'make randconfig' might enable such a
+ # boolean option and we unfortunately can't make it depend on !RANDCONFIG.
+ ifeq ($(CONFIG_MODULE_SIG_KEY),"certs/signing_key.pem")
 +
- 	kaddr = kmap_atomic(page);
- 	ext4_write_inline_data(inode, &iloc, kaddr, pos, len);
- 	kunmap_atomic(kaddr);
++ifeq ($(openssl_available),yes)
++X509TEXT=$(shell openssl x509 -in "certs/signing_key.pem" -text 2>/dev/null)
++
++$(if $(findstring rsaEncryption,$(X509TEXT)),,$(shell rm -f "certs/signing_key.pem"))
++endif
++
+ $(obj)/signing_key.pem: $(obj)/x509.genkey
+ 	@$(kecho) "###"
+ 	@$(kecho) "### Now generating an X.509 key pair to be used for signing modules."
+-- 
+2.30.2
+
 
 
