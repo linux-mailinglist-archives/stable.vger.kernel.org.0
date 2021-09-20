@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A478D411B19
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:54:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 993D0411E61
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:29:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244812AbhITQzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:55:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39558 "EHLO mail.kernel.org"
+        id S1347614AbhITRa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:30:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245229AbhITQxi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:53:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8B9C6127A;
-        Mon, 20 Sep 2021 16:50:14 +0000 (UTC)
+        id S1347913AbhITR2H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:28:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 961DC61AAB;
+        Mon, 20 Sep 2021 17:03:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156615;
-        bh=zd0DkbpuQcpBmHy18xkWnu4PKH7ypTbTfRWtx7Uo9sY=;
+        s=korg; t=1632157396;
+        bh=ixuY3a0UrtYDmZDeLqu+/tO2jdxICJpxyE48c7wpCIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JXUOvaktPeO1Xfyn5n8gE7bpnfKjYlP3T+IFB1/MsujCQZzl/Dy1wE+IG1CpugqCV
-         /PYvYzufY66O/MIL96/G7PHa6Q9FGAiQOY7pGRM9R/AeXz2Kgu5dxsh+uQ6FTfmZ/9
-         I5Y3Y9utASMZ9ZuyBo8PJXjW6IjJjy2bNOgVZuwU=
+        b=hopzwCq6XcUjtuydExFf0lmsLrIdEdB70fOb+29V3pQ4y+oBHPBCn7EsVEUuo3MWf
+         ClrKPj9RXeM9vUBjAftj3BHPwvW8ZPFxlLfRMkLXAoA8UDxDg8CcVlRVWzhMeElzj3
+         PmVWQmtLAUCXcg7x2+EvF0dm3lAQhI5OZBAZT/K8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 133/133] net: renesas: sh_eth: Fix freeing wrong tx descriptor
+        stable@vger.kernel.org, Patryk Duda <pdk@semihalf.com>,
+        Benson Leung <bleung@chromium.org>
+Subject: [PATCH 4.14 190/217] platform/chrome: cros_ec_proto: Send command again when timeout occurs
 Date:   Mon, 20 Sep 2021 18:43:31 +0200
-Message-Id: <20210920163916.971064473@linuxfoundation.org>
+Message-Id: <20210920163931.066672695@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Patryk Duda <pdk@semihalf.com>
 
-[ Upstream commit 0341d5e3d1ee2a36dd5a49b5bef2ce4ad1cfa6b4 ]
+commit 3abc16af57c9939724df92fcbda296b25cc95168 upstream.
 
-The cur_tx counter must be incremented after TACT bit of
-txdesc->status was set. However, a CPU is possible to reorder
-instructions and/or memory accesses between cur_tx and
-txdesc->status. And then, if TX interrupt happened at such a
-timing, the sh_eth_tx_free() may free the descriptor wrongly.
-So, add wmb() before cur_tx++.
-Otherwise NETDEV WATCHDOG timeout is possible to happen.
+Sometimes kernel is trying to probe Fingerprint MCU (FPMCU) when it
+hasn't initialized SPI yet. This can happen because FPMCU is restarted
+during system boot and kernel can send message in short window
+eg. between sysjump to RW and SPI initialization.
 
-Fixes: 86a74ff21a7a ("net: sh_eth: add support for Renesas SuperH Ethernet")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> # 4.4+
+Signed-off-by: Patryk Duda <pdk@semihalf.com>
+Link: https://lore.kernel.org/r/20210518140758.29318-1-pdk@semihalf.com
+Signed-off-by: Benson Leung <bleung@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/renesas/sh_eth.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/chrome/cros_ec_proto.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
-index 1942264b621b..73fc8e9683b7 100644
---- a/drivers/net/ethernet/renesas/sh_eth.c
-+++ b/drivers/net/ethernet/renesas/sh_eth.c
-@@ -2426,6 +2426,7 @@ static int sh_eth_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- 	else
- 		txdesc->status |= cpu_to_edmac(mdp, TD_TACT);
+--- a/drivers/platform/chrome/cros_ec_proto.c
++++ b/drivers/platform/chrome/cros_ec_proto.c
+@@ -217,6 +217,15 @@ static int cros_ec_host_command_proto_qu
+ 	msg->insize = sizeof(struct ec_response_get_protocol_info);
  
-+	wmb(); /* cur_tx must be incremented after TACT bit was set */
- 	mdp->cur_tx++;
+ 	ret = send_command(ec_dev, msg);
++	/*
++	 * Send command once again when timeout occurred.
++	 * Fingerprint MCU (FPMCU) is restarted during system boot which
++	 * introduces small window in which FPMCU won't respond for any
++	 * messages sent by kernel. There is no need to wait before next
++	 * attempt because we waited at least EC_MSG_DEADLINE_MS.
++	 */
++	if (ret == -ETIMEDOUT)
++		ret = send_command(ec_dev, msg);
  
- 	if (!(sh_eth_read(ndev, EDTRR) & sh_eth_get_edtrr_trns(mdp)))
--- 
-2.30.2
-
+ 	if (ret < 0) {
+ 		dev_dbg(ec_dev->dev,
 
 
