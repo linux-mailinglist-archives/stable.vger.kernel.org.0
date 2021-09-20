@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 962FA411DF9
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:24:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4BF2411B09
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:54:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347574AbhITR0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:26:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56306 "EHLO mail.kernel.org"
+        id S233586AbhITQzB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:55:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349685AbhITRYP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:24:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 611B36140B;
-        Mon, 20 Sep 2021 17:01:55 +0000 (UTC)
+        id S229940AbhITQwh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:52:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E539F61244;
+        Mon, 20 Sep 2021 16:49:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157315;
-        bh=r446m8pgCDqDqqBFIcnPB6QgyEjhIR50RJe63O/wUZ0=;
+        s=korg; t=1632156591;
+        bh=ovSl2u1v1UUxmr8ZvewG/tT0E+y2m3G4BQGjE2dUXeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fY8oatAzGT445BkwtG6fD9Xrm7Ae9Pank2FMiPTGE7opvrrL7e2YwxsuV5MMjYbEn
-         gRohOugqxvVmF9eQtJZKB/7bgEk/YetqO0hn1OJjCVkWhvBYKHtkrpBXi0HJ9WV89p
-         ibR7c5wtOSTMZLab2UuuXIXZHEJrqqAoQO9RpgDo=
+        b=buexsj89IsA0LtzJ3vFI0raebKPpOhvbAamC9LaTjjIzheFROgJusx99aKBO92mBs
+         WLJjkyn1Wuy0fUX+g+1/uU0EzTAOp87tWoQ7VGDAWyhrnmwdgiKkeOc2PdXvETBL21
+         p8IT0k1Z2AAPnDp8KZcpxe7sRMIExLrB6vzBsfAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        linux-xtensa@linux-xtensa.org, Jiri Slaby <jslaby@suse.cz>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 153/217] xtensa: ISS: dont panic in rs_init
+Subject: [PATCH 4.4 096/133] video: fbdev: asiliantfb: Error out if pixclock equals zero
 Date:   Mon, 20 Sep 2021 18:42:54 +0200
-Message-Id: <20210920163929.823146859@linuxfoundation.org>
+Message-Id: <20210920163915.776986937@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,71 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 23411c720052ad860b3e579ee4873511e367130a ]
+[ Upstream commit b36b242d4b8ea178f7fd038965e3cac7f30c3f09 ]
 
-While alloc_tty_driver failure in rs_init would mean we have much bigger
-problem, there is no reason to panic when tty_register_driver fails
-there. It can fail for various reasons.
+The userspace program could pass any values to the driver through
+ioctl() interface. If the driver doesn't check the value of 'pixclock',
+it may cause divide error.
 
-So handle the failure gracefully. Actually handle them both while at it.
-This will make at least the console functional as it was enabled earlier
-by console_initcall in iss_console_init. Instead of shooting down the
-whole system.
+Fix this by checking whether 'pixclock' is zero first.
 
-We move tty_port_init() after alloc_tty_driver(), so that we don't need
-to destroy the port in case the latter function fails.
+The following log reveals it:
 
-Cc: Chris Zankel <chris@zankel.net>
-Cc: Max Filippov <jcmvbkbc@gmail.com>
-Cc: linux-xtensa@linux-xtensa.org
-Acked-by: Max Filippov <jcmvbkbc@gmail.com>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20210723074317.32690-2-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[   43.861711] divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+[   43.861737] CPU: 2 PID: 11764 Comm: i740 Not tainted 5.14.0-rc2-00513-gac532c9bbcfb-dirty #224
+[   43.861756] RIP: 0010:asiliantfb_check_var+0x4e/0x730
+[   43.861843] Call Trace:
+[   43.861848]  ? asiliantfb_remove+0x190/0x190
+[   43.861858]  fb_set_var+0x2e4/0xeb0
+[   43.861866]  ? fb_blank+0x1a0/0x1a0
+[   43.861873]  ? lock_acquire+0x1ef/0x530
+[   43.861884]  ? lock_release+0x810/0x810
+[   43.861892]  ? lock_is_held_type+0x100/0x140
+[   43.861903]  ? ___might_sleep+0x1ee/0x2d0
+[   43.861914]  ? __mutex_lock+0x620/0x1190
+[   43.861921]  ? do_fb_ioctl+0x313/0x700
+[   43.861929]  ? mutex_lock_io_nested+0xfa0/0xfa0
+[   43.861936]  ? __this_cpu_preempt_check+0x1d/0x30
+[   43.861944]  ? _raw_spin_unlock_irqrestore+0x46/0x60
+[   43.861952]  ? lockdep_hardirqs_on+0x59/0x100
+[   43.861959]  ? _raw_spin_unlock_irqrestore+0x46/0x60
+[   43.861967]  ? trace_hardirqs_on+0x6a/0x1c0
+[   43.861978]  do_fb_ioctl+0x31e/0x700
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1627293835-17441-2-git-send-email-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/platforms/iss/console.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/video/fbdev/asiliantfb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/xtensa/platforms/iss/console.c b/arch/xtensa/platforms/iss/console.c
-index 0140a22551c8..63d6d043af16 100644
---- a/arch/xtensa/platforms/iss/console.c
-+++ b/arch/xtensa/platforms/iss/console.c
-@@ -182,9 +182,13 @@ static const struct tty_operations serial_ops = {
- 
- int __init rs_init(void)
+diff --git a/drivers/video/fbdev/asiliantfb.c b/drivers/video/fbdev/asiliantfb.c
+index 7e8ddf00ccc2..dbcc6ebaf904 100644
+--- a/drivers/video/fbdev/asiliantfb.c
++++ b/drivers/video/fbdev/asiliantfb.c
+@@ -227,6 +227,9 @@ static int asiliantfb_check_var(struct fb_var_screeninfo *var,
  {
--	tty_port_init(&serial_port);
-+	int ret;
+ 	unsigned long Ftarget, ratio, remainder;
  
- 	serial_driver = alloc_tty_driver(SERIAL_MAX_NUM_LINES);
-+	if (!serial_driver)
-+		return -ENOMEM;
++	if (!var->pixclock)
++		return -EINVAL;
 +
-+	tty_port_init(&serial_port);
- 
- 	printk ("%s %s\n", serial_name, serial_version);
- 
-@@ -204,8 +208,15 @@ int __init rs_init(void)
- 	tty_set_operations(serial_driver, &serial_ops);
- 	tty_port_link_device(&serial_port, serial_driver, 0);
- 
--	if (tty_register_driver(serial_driver))
--		panic("Couldn't register serial driver\n");
-+	ret = tty_register_driver(serial_driver);
-+	if (ret) {
-+		pr_err("Couldn't register serial driver\n");
-+		tty_driver_kref_put(serial_driver);
-+		tty_port_destroy(&serial_port);
-+
-+		return ret;
-+	}
-+
- 	return 0;
- }
- 
+ 	ratio = 1000000 / var->pixclock;
+ 	remainder = 1000000 % var->pixclock;
+ 	Ftarget = 1000000 * ratio + (1000000 * remainder) / var->pixclock;
 -- 
 2.30.2
 
