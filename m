@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F626412650
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:55:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4D54412372
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:23:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387245AbhITS4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:56:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59874 "EHLO mail.kernel.org"
+        id S1352116AbhITSZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:25:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1384657AbhITSsd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:48:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6F2363368;
-        Mon, 20 Sep 2021 17:34:16 +0000 (UTC)
+        id S1351954AbhITSWV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:22:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22A93632B5;
+        Mon, 20 Sep 2021 17:24:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159257;
-        bh=Gxqs7vcnkyg6slCKZ4aPq89mbLPunvfhing9PV39mbY=;
+        s=korg; t=1632158647;
+        bh=L6WM1aTLdwLszvmaKezF1OmMbD/Ou2uHCn3ZmDl21rc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qi5Ndgk9OP5eMpg4KGIaDBjh35gRmzqkJDf1wgwVWQMixCF+srWGIlhiL6tvJ3HxQ
-         bncFvXIZbQKnuy1CGQfjEqxwzIW74P5LMn9hbWi5ODa1mPFRg4BIx+tZjwwSYh7QD6
-         Y2r6WW0mZLwXtiX8MfP5p+gAP3PJic1wyG2blZIA=
+        b=MW4GKhJadIUNxQUmJOol/whn3PMqcb0HijCsv30TGgbwQP55Z3D8Wo/FEbuv5jBHi
+         14Wjt0a2nm8AcUHsOM2FjKSap8jv7/xV28DJHl7lkJfk49Z92e+dol2KsOaisubCqT
+         CyYJlTjWRbbWJScN0UkfCB3Xou+YxPomyZ/2xvKk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 131/168] mtd: mtdconcat: Judge callback existence based on the master
+Subject: [PATCH 5.4 251/260] PCI: Sync __pci_register_driver() stub for CONFIG_PCI=n
 Date:   Mon, 20 Sep 2021 18:44:29 +0200
-Message-Id: <20210920163925.973187656@linuxfoundation.org>
+Message-Id: <20210920163939.639844872@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,139 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit f9e109a209a8e01e16f37e1252304f1eb3908be4 ]
+[ Upstream commit 817f9916a6e96ae43acdd4e75459ef4f92d96eb1 ]
 
-Since commit 46b5889cc2c5("mtd: implement proper partition handling")
-applied, mtd partition device won't hold some callback functions, such
-as _block_isbad, _block_markbad, etc. Besides, function mtd_block_isbad()
-will get mtd device's master mtd device, then invokes master mtd device's
-callback function. So, following process may result mtd_block_isbad()
-always return 0, even though mtd device has bad blocks:
+The CONFIG_PCI=y case got a new parameter long time ago.  Sync the stub as
+well.
 
-1. Split a mtd device into 3 partitions: PA, PB, PC
-[ Each mtd partition device won't has callback function _block_isbad(). ]
-2. Concatenate PA and PB as a new mtd device PN
-[ mtd_concat_create() finds out each subdev has no callback function
-_block_isbad(), so PN won't be assigned callback function
-concat_block_isbad(). ]
-Then, mtd_block_isbad() checks "!master->_block_isbad" is true, will
-always return 0.
-
-Reproducer:
-// reproduce.c
-static int __init init_diy_module(void)
-{
-	struct mtd_info *mtd[2];
-	struct mtd_info *mtd_combine = NULL;
-
-	mtd[0] = get_mtd_device_nm("NAND simulator partition 0");
-	if (!mtd[0]) {
-		pr_err("cannot find mtd1\n");
-		return -EINVAL;
-	}
-	mtd[1] = get_mtd_device_nm("NAND simulator partition 1");
-	if (!mtd[1]) {
-		pr_err("cannot find mtd2\n");
-		return -EINVAL;
-	}
-
-	put_mtd_device(mtd[0]);
-	put_mtd_device(mtd[1]);
-
-	mtd_combine = mtd_concat_create(mtd, 2, "Combine mtd");
-	if (mtd_combine == NULL) {
-		pr_err("combine failed\n");
-		return -EINVAL;
-	}
-
-	mtd_device_register(mtd_combine, NULL, 0);
-	pr_info("Combine success\n");
-
-	return 0;
-}
-
-1. ID="0x20,0xac,0x00,0x15"
-2. modprobe nandsim id_bytes=$ID parts=50,100 badblocks=100
-3. insmod reproduce.ko
-4. flash_erase /dev/mtd3 0 0
-  libmtd: error!: MEMERASE64 ioctl failed for eraseblock 100 (mtd3)
-  error 5 (Input/output error)
-  // Should be "flash_erase: Skipping bad block at 00c80000"
-
-Fixes: 46b5889cc2c54bac ("mtd: implement proper partition handling")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210817114857.2784825-2-chengzhihao1@huawei.com
+[bhelgaas: add parameter names]
+Fixes: 725522b5453d ("PCI: add the sysfs driver name to all modules")
+Link: https://lore.kernel.org/r/20210813153619.89574-1-andriy.shevchenko@linux.intel.com
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/mtdconcat.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ include/linux/pci.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mtd/mtdconcat.c b/drivers/mtd/mtdconcat.c
-index 6e4d0017c0bd..af51eee6b5e8 100644
---- a/drivers/mtd/mtdconcat.c
-+++ b/drivers/mtd/mtdconcat.c
-@@ -641,6 +641,7 @@ struct mtd_info *mtd_concat_create(struct mtd_info *subdev[],	/* subdevices to c
- 	int i;
- 	size_t size;
- 	struct mtd_concat *concat;
-+	struct mtd_info *subdev_master = NULL;
- 	uint32_t max_erasesize, curr_erasesize;
- 	int num_erase_region;
- 	int max_writebufsize = 0;
-@@ -679,17 +680,19 @@ struct mtd_info *mtd_concat_create(struct mtd_info *subdev[],	/* subdevices to c
- 	concat->mtd.subpage_sft = subdev[0]->subpage_sft;
- 	concat->mtd.oobsize = subdev[0]->oobsize;
- 	concat->mtd.oobavail = subdev[0]->oobavail;
--	if (subdev[0]->_writev)
-+
-+	subdev_master = mtd_get_master(subdev[0]);
-+	if (subdev_master->_writev)
- 		concat->mtd._writev = concat_writev;
--	if (subdev[0]->_read_oob)
-+	if (subdev_master->_read_oob)
- 		concat->mtd._read_oob = concat_read_oob;
--	if (subdev[0]->_write_oob)
-+	if (subdev_master->_write_oob)
- 		concat->mtd._write_oob = concat_write_oob;
--	if (subdev[0]->_block_isbad)
-+	if (subdev_master->_block_isbad)
- 		concat->mtd._block_isbad = concat_block_isbad;
--	if (subdev[0]->_block_markbad)
-+	if (subdev_master->_block_markbad)
- 		concat->mtd._block_markbad = concat_block_markbad;
--	if (subdev[0]->_panic_write)
-+	if (subdev_master->_panic_write)
- 		concat->mtd._panic_write = concat_panic_write;
- 
- 	concat->mtd.ecc_stats.badblocks = subdev[0]->ecc_stats.badblocks;
-@@ -721,14 +724,22 @@ struct mtd_info *mtd_concat_create(struct mtd_info *subdev[],	/* subdevices to c
- 				    subdev[i]->flags & MTD_WRITEABLE;
- 		}
- 
-+		subdev_master = mtd_get_master(subdev[i]);
- 		concat->mtd.size += subdev[i]->size;
- 		concat->mtd.ecc_stats.badblocks +=
- 			subdev[i]->ecc_stats.badblocks;
- 		if (concat->mtd.writesize   !=  subdev[i]->writesize ||
- 		    concat->mtd.subpage_sft != subdev[i]->subpage_sft ||
- 		    concat->mtd.oobsize    !=  subdev[i]->oobsize ||
--		    !concat->mtd._read_oob  != !subdev[i]->_read_oob ||
--		    !concat->mtd._write_oob != !subdev[i]->_write_oob) {
-+		    !concat->mtd._read_oob  != !subdev_master->_read_oob ||
-+		    !concat->mtd._write_oob != !subdev_master->_write_oob) {
-+			/*
-+			 * Check against subdev[i] for data members, because
-+			 * subdev's attributes may be different from master
-+			 * mtd device. Check against subdev's master mtd
-+			 * device for callbacks, because the existence of
-+			 * subdev's callbacks is decided by master mtd device.
-+			 */
- 			kfree(concat);
- 			printk("Incompatible OOB or ECC data on \"%s\"\n",
- 			       subdev[i]->name);
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 6a6a819c5b49..9a937f8b2783 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -1688,8 +1688,9 @@ static inline int pci_enable_device(struct pci_dev *dev) { return -EIO; }
+ static inline void pci_disable_device(struct pci_dev *dev) { }
+ static inline int pci_assign_resource(struct pci_dev *dev, int i)
+ { return -EBUSY; }
+-static inline int __pci_register_driver(struct pci_driver *drv,
+-					struct module *owner)
++static inline int __must_check __pci_register_driver(struct pci_driver *drv,
++						     struct module *owner,
++						     const char *mod_name)
+ { return 0; }
+ static inline int pci_register_driver(struct pci_driver *drv)
+ { return 0; }
 -- 
 2.30.2
 
