@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAE0B4124B1
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:35:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D50641262E
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:54:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349079AbhITSg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:36:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52048 "EHLO mail.kernel.org"
+        id S1354780AbhITS4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:56:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1380612AbhITSee (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:34:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB00161452;
-        Mon, 20 Sep 2021 17:28:48 +0000 (UTC)
+        id S1385444AbhITSu0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:50:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8ECC63375;
+        Mon, 20 Sep 2021 17:34:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158929;
-        bh=wqxoSHrYnFKb1yKlRlNEg66y5BaK5jtnPVEV/r+uDP8=;
+        s=korg; t=1632159272;
+        bh=n8+TiQ4yNKT8/fz9Ul5M3sOI9kFv2BGLFwuALFg8MVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2svgqj6sg8Y9ofH1VlUondVUnVf6QkscS9hXlOVlbrQv29IGvUOyiBbWtxrgk++23
-         phIurhrXsymIISWhT/OCfhjvVf6Crv8AC6bki1EXgcnVkfSg9zozKiO05p9pPuy+mA
-         ZJqZpR0hsdjqUoJjxLa5BMlQzvAlp4WA0pyzo3XU=
+        b=EPJBdx15H59Mw2ojb5d3aKlmXeY+lgVZ3cY1go8x8oqwB6xiNLkw17R7NV6yj6y/a
+         A4CnMqqo1HYNurZ2jVJHDT5wpX0RRi+3MsPJm62wNPxN+8GvEXiEDNAGd8t1tT2S/Q
+         KVU54RA8Bd1X3htaY7oLSnhwhdS5UmP3OWcQ1Oz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Turischev <denis@compulab.co.il>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Benjamin Hesmans <benjamin.hesmans@tessares.net>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 120/122] mfd: lpc_sch: Rename GPIOBASE to prevent build error
-Date:   Mon, 20 Sep 2021 18:44:52 +0200
-Message-Id: <20210920163919.747056318@linuxfoundation.org>
+Subject: [PATCH 5.14 155/168] netfilter: socket: icmp6: fix use-after-scope
+Date:   Mon, 20 Sep 2021 18:44:53 +0200
+Message-Id: <20210920163926.763218527@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Benjamin Hesmans <benjamin.hesmans@tessares.net>
 
-[ Upstream commit cdff1eda69326fb46de10c5454212b3efcf4bb41 ]
+[ Upstream commit 730affed24bffcd1eebd5903171960f5ff9f1f22 ]
 
-One MIPS platform (mach-rc32434) defines GPIOBASE. This macro
-conflicts with one of the same name in lpc_sch.c. Rename the latter one
-to prevent the build error.
+Bug reported by KASAN:
 
-../drivers/mfd/lpc_sch.c:25: error: "GPIOBASE" redefined [-Werror]
-   25 | #define GPIOBASE        0x44
-../arch/mips/include/asm/mach-rc32434/rb.h:32: note: this is the location of the previous definition
-   32 | #define GPIOBASE        0x050000
+BUG: KASAN: use-after-scope in inet6_ehashfn (net/ipv6/inet6_hashtables.c:40)
+Call Trace:
+(...)
+inet6_ehashfn (net/ipv6/inet6_hashtables.c:40)
+(...)
+nf_sk_lookup_slow_v6 (net/ipv6/netfilter/nf_socket_ipv6.c:91
+net/ipv6/netfilter/nf_socket_ipv6.c:146)
 
-Cc: Denis Turischev <denis@compulab.co.il>
-Fixes: e82c60ae7d3a ("mfd: Introduce lpc_sch for Intel SCH LPC bridge")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+It seems that this bug has already been fixed by Eric Dumazet in the
+past in:
+commit 78296c97ca1f ("netfilter: xt_socket: fix a stack corruption bug")
+
+But a variant of the same issue has been introduced in
+commit d64d80a2cde9 ("netfilter: x_tables: don't extract flow keys on early demuxed sks in socket match")
+
+`daddr` and `saddr` potentially hold a reference to ipv6_var that is no
+longer in scope when the call to `nf_socket_get_sock_v6` is made.
+
+Fixes: d64d80a2cde9 ("netfilter: x_tables: don't extract flow keys on early demuxed sks in socket match")
+Acked-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Benjamin Hesmans <benjamin.hesmans@tessares.net>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/lpc_sch.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv6/netfilter/nf_socket_ipv6.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/mfd/lpc_sch.c b/drivers/mfd/lpc_sch.c
-index 428a526cbe86..9ab9adce06fd 100644
---- a/drivers/mfd/lpc_sch.c
-+++ b/drivers/mfd/lpc_sch.c
-@@ -22,7 +22,7 @@
- #define SMBASE		0x40
- #define SMBUS_IO_SIZE	64
+diff --git a/net/ipv6/netfilter/nf_socket_ipv6.c b/net/ipv6/netfilter/nf_socket_ipv6.c
+index 6fd54744cbc3..aa5bb8789ba0 100644
+--- a/net/ipv6/netfilter/nf_socket_ipv6.c
++++ b/net/ipv6/netfilter/nf_socket_ipv6.c
+@@ -99,7 +99,7 @@ struct sock *nf_sk_lookup_slow_v6(struct net *net, const struct sk_buff *skb,
+ {
+ 	__be16 dport, sport;
+ 	const struct in6_addr *daddr = NULL, *saddr = NULL;
+-	struct ipv6hdr *iph = ipv6_hdr(skb);
++	struct ipv6hdr *iph = ipv6_hdr(skb), ipv6_var;
+ 	struct sk_buff *data_skb = NULL;
+ 	int doff = 0;
+ 	int thoff = 0, tproto;
+@@ -129,8 +129,6 @@ struct sock *nf_sk_lookup_slow_v6(struct net *net, const struct sk_buff *skb,
+ 			thoff + sizeof(*hp);
  
--#define GPIOBASE	0x44
-+#define GPIO_BASE	0x44
- #define GPIO_IO_SIZE	64
- #define GPIO_IO_SIZE_CENTERTON	128
- 
-@@ -145,7 +145,7 @@ static int lpc_sch_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	if (ret == 0)
- 		cells++;
- 
--	ret = lpc_sch_populate_cell(dev, GPIOBASE, "sch_gpio",
-+	ret = lpc_sch_populate_cell(dev, GPIO_BASE, "sch_gpio",
- 				    info->io_size_gpio,
- 				    id->device, &lpc_sch_cells[cells]);
- 	if (ret < 0)
+ 	} else if (tproto == IPPROTO_ICMPV6) {
+-		struct ipv6hdr ipv6_var;
+-
+ 		if (extract_icmp6_fields(skb, thoff, &tproto, &saddr, &daddr,
+ 					 &sport, &dport, &ipv6_var))
+ 			return NULL;
 -- 
 2.30.2
 
