@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60351411FAB
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:42:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E52D7411B37
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:55:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353134AbhITRnz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:43:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48734 "EHLO mail.kernel.org"
+        id S238015AbhITQ4i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:56:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352759AbhITRlk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:41:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E9E1261B63;
-        Mon, 20 Sep 2021 17:08:41 +0000 (UTC)
+        id S245613AbhITQyh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:54:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 92C0E61372;
+        Mon, 20 Sep 2021 16:50:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157722;
-        bh=ZRg9tBO70UphgkvhuQCuYQVfzIBZWJPP6hkwL1qnChA=;
+        s=korg; t=1632156637;
+        bh=RQw5DQ89xXCXSo5Id/Pm7fMDv0gBzher2VlGUzcwsiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LL20G5BN5fDZZOYFh7m42RhwWUF7TccQJjKkEA5k/6AHztiI3o7+aG2u3FypBDUo7
-         zBkRRHv1WColaecxl2G4EFwg/6LAiQRx3iPlT6I+SAzoSKeZ2ytiRHiRlqq+eKNL6l
-         PcdPDJLgZjDqqHzF/cqKgjtmihkyMvlpD8SnSIY4=
+        b=ks7XvBh1T8DtxtSkagQ9MtyIGHPBOLW/io2AZmqC8OAXd+PeCf7CtUo84lCSiHeju
+         NtIGtg7gclVJzEllaWVctsZJ8kSKLYzqp1PU6ddXf8MSZF4bxWzlYTXZpW0Ojcr6Hf
+         CVJ+zS9GQpaYU/d+O5Cv/+aqSqYx2kAGhEItKFjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Roopa Prabhu <roopa@nvidia.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 104/293] ipv4: fix endianness issue in inet_rtm_getroute_build_skb()
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [PATCH 4.9 017/175] usb: phy: isp1301: Fix build warning when CONFIG_OF is disabled
 Date:   Mon, 20 Sep 2021 18:41:06 +0200
-Message-Id: <20210920163936.818194608@linuxfoundation.org>
+Message-Id: <20210920163918.632790429@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
 
-[ Upstream commit 92548b0ee220e000d81c27ac9a80e0ede895a881 ]
+commit a7f12a21f6b32bdd8d76d3af81eef9e72ce41ec0 upstream.
 
-The UDP length field should be in network order.
-This removes the following sparse error:
+Commit fd567653bdb9 ("usb: phy: isp1301: Add OF device ID table")
+added an OF device ID table, but used the of_match_ptr() macro
+that will lead to a build warning if CONFIG_OF symbol is disabled:
 
-net/ipv4/route.c:3173:27: warning: incorrect type in assignment (different base types)
-net/ipv4/route.c:3173:27:    expected restricted __be16 [usertype] len
-net/ipv4/route.c:3173:27:    got unsigned long
+drivers/usb/phy//phy-isp1301.c:36:34: warning: ‘isp1301_of_match’ defined but not used [-Wunused-const-variable=]
+ static const struct of_device_id isp1301_of_match[] = {
+                                  ^~~~~~~~~~~~~~~~
 
-Fixes: 404eb77ea766 ("ipv4: support sport, dport and ip_proto in RTM_GETROUTE")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Roopa Prabhu <roopa@nvidia.com>
-Cc: David Ahern <dsahern@kernel.org>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fd567653bdb9 ("usb: phy: isp1301: Add OF device ID table")
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/route.c | 2 +-
+ drivers/usb/phy/phy-isp1301.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index d72bffab6ffc..730a15fc497c 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -2815,7 +2815,7 @@ static struct sk_buff *inet_rtm_getroute_build_skb(__be32 src, __be32 dst,
- 		udph = skb_put_zero(skb, sizeof(struct udphdr));
- 		udph->source = sport;
- 		udph->dest = dport;
--		udph->len = sizeof(struct udphdr);
-+		udph->len = htons(sizeof(struct udphdr));
- 		udph->check = 0;
- 		break;
- 	}
--- 
-2.30.2
-
+--- a/drivers/usb/phy/phy-isp1301.c
++++ b/drivers/usb/phy/phy-isp1301.c
+@@ -136,7 +136,7 @@ static int isp1301_remove(struct i2c_cli
+ static struct i2c_driver isp1301_driver = {
+ 	.driver = {
+ 		.name = DRV_NAME,
+-		.of_match_table = of_match_ptr(isp1301_of_match),
++		.of_match_table = isp1301_of_match,
+ 	},
+ 	.probe = isp1301_probe,
+ 	.remove = isp1301_remove,
 
 
