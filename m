@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0951412075
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:54:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCB8D411AEE
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:52:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345004AbhITRzn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:55:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54466 "EHLO mail.kernel.org"
+        id S244730AbhITQxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:53:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354991AbhITRwe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:52:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1072A61BF7;
-        Mon, 20 Sep 2021 17:12:49 +0000 (UTC)
+        id S244311AbhITQvd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:51:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60F4161211;
+        Mon, 20 Sep 2021 16:49:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157970;
-        bh=fC6QYkKb0IHwHjrnEGhMbjdLvJ8CwfArCdiSRj6BIH4=;
+        s=korg; t=1632156571;
+        bh=1SJ+3tFQpT/O7HZVK6ufF2Lb0DIzd7kKQIkRuBTS0EM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RGn2thMjQsK1mBxw9NxMxrajZzHDMNiM0kNIZ+W1KFW0bq4CQA+X29lr2jx8xmr2K
-         IIlzec2WkppCs9ZqjQxJ0bI/r21z7dX4J1tlbM9/AAhu/NpEV9+8Jt7KhmaUavxovr
-         Yv3EHtEx65aw/I/wGIAklabCJugar0b8FIN1VptQ=
+        b=AUzL/juwrD9iBgE1cWQEKmSO6VLWIprSiSRLc7w2afxIBJaLz+5llgb8h3FVaIclu
+         ws6oZWdqsAeliZ2c181SvpY11WXW2LVIzSKTRd/cg7TPlSic3e9ZPSyvRDqwvKB77e
+         JCmR8O53sr+Wtp+T9KoIVJzlVUx5uuh/Dg7JAKXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaotan Luo <lxt@rock-chips.com>,
-        Sugar Zhang <sugar.zhang@rock-chips.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 235/293] ASoC: rockchip: i2s: Fixup config for DAIFMT_DSP_A/B
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 119/133] net-caif: avoid user-triggerable WARN_ON(1)
 Date:   Mon, 20 Sep 2021 18:43:17 +0200
-Message-Id: <20210920163941.445203565@linuxfoundation.org>
+Message-Id: <20210920163916.515472141@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +39,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaotan Luo <lxt@rock-chips.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 1bf56843e664eef2525bdbfae6a561e98910f676 ]
+commit 550ac9c1aaaaf51fd42e20d461f0b1cdbd55b3d2 upstream.
 
-- DSP_A: PCM delay 1 bit mode, L data MSB after FRM LRC
-- DSP_B: PCM no delay mode, L data MSB during FRM LRC
+syszbot triggers this warning, which looks something
+we can easily prevent.
 
-Signed-off-by: Xiaotan Luo <lxt@rock-chips.com>
-Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
-Link: https://lore.kernel.org/r/1629950562-14281-3-git-send-email-sugar.zhang@rock-chips.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If we initialize priv->list_field in chnl_net_init(),
+then always use list_del_init(), we can remove robust_list_del()
+completely.
+
+WARNING: CPU: 0 PID: 3233 at net/caif/chnl_net.c:67 robust_list_del net/caif/chnl_net.c:67 [inline]
+WARNING: CPU: 0 PID: 3233 at net/caif/chnl_net.c:67 chnl_net_uninit+0xc9/0x2e0 net/caif/chnl_net.c:375
+Modules linked in:
+CPU: 0 PID: 3233 Comm: syz-executor.3 Not tainted 5.14.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:robust_list_del net/caif/chnl_net.c:67 [inline]
+RIP: 0010:chnl_net_uninit+0xc9/0x2e0 net/caif/chnl_net.c:375
+Code: 89 eb e8 3a a3 ba f8 48 89 d8 48 c1 e8 03 42 80 3c 28 00 0f 85 bf 01 00 00 48 81 fb 00 14 4e 8d 48 8b 2b 75 d0 e8 17 a3 ba f8 <0f> 0b 5b 5d 41 5c 41 5d e9 0a a3 ba f8 4c 89 e3 e8 02 a3 ba f8 4c
+RSP: 0018:ffffc90009067248 EFLAGS: 00010202
+RAX: 0000000000008780 RBX: ffffffff8d4e1400 RCX: ffffc9000fd34000
+RDX: 0000000000040000 RSI: ffffffff88bb6e49 RDI: 0000000000000003
+RBP: ffff88802cd9ee08 R08: 0000000000000000 R09: ffffffff8d0e6647
+R10: ffffffff88bb6dc2 R11: 0000000000000000 R12: ffff88803791ae08
+R13: dffffc0000000000 R14: 00000000e600ffce R15: ffff888073ed3480
+FS:  00007fed10fa0700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b2c322000 CR3: 00000000164a6000 CR4: 00000000001506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ register_netdevice+0xadf/0x1500 net/core/dev.c:10347
+ ipcaif_newlink+0x4c/0x260 net/caif/chnl_net.c:468
+ __rtnl_newlink+0x106d/0x1750 net/core/rtnetlink.c:3458
+ rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3506
+ rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5572
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2504
+ netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1340
+ netlink_sendmsg+0x86d/0xdb0 net/netlink/af_netlink.c:1929
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:724
+ __sys_sendto+0x21c/0x320 net/socket.c:2036
+ __do_sys_sendto net/socket.c:2048 [inline]
+ __se_sys_sendto net/socket.c:2044 [inline]
+ __x64_sys_sendto+0xdd/0x1b0 net/socket.c:2044
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: cc36a070b590 ("net-caif: add CAIF netdevice")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/rockchip/rockchip_i2s.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ net/caif/chnl_net.c |   19 +++----------------
+ 1 file changed, 3 insertions(+), 16 deletions(-)
 
-diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
-index cab381c9dea1..c6d11a59310f 100644
---- a/sound/soc/rockchip/rockchip_i2s.c
-+++ b/sound/soc/rockchip/rockchip_i2s.c
-@@ -236,12 +236,12 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
- 	case SND_SOC_DAIFMT_I2S:
- 		val = I2S_TXCR_IBM_NORMAL;
- 		break;
--	case SND_SOC_DAIFMT_DSP_A: /* PCM no delay mode */
--		val = I2S_TXCR_TFS_PCM;
--		break;
--	case SND_SOC_DAIFMT_DSP_B: /* PCM delay 1 mode */
-+	case SND_SOC_DAIFMT_DSP_A: /* PCM delay 1 bit mode */
- 		val = I2S_TXCR_TFS_PCM | I2S_TXCR_PBM_MODE(1);
- 		break;
-+	case SND_SOC_DAIFMT_DSP_B: /* PCM no delay mode */
-+		val = I2S_TXCR_TFS_PCM;
-+		break;
- 	default:
- 		ret = -EINVAL;
- 		goto err_pm_put;
-@@ -260,12 +260,12 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
- 	case SND_SOC_DAIFMT_I2S:
- 		val = I2S_RXCR_IBM_NORMAL;
- 		break;
--	case SND_SOC_DAIFMT_DSP_A: /* PCM no delay mode */
--		val = I2S_RXCR_TFS_PCM;
--		break;
--	case SND_SOC_DAIFMT_DSP_B: /* PCM delay 1 mode */
-+	case SND_SOC_DAIFMT_DSP_A: /* PCM delay 1 bit mode */
- 		val = I2S_RXCR_TFS_PCM | I2S_RXCR_PBM_MODE(1);
- 		break;
-+	case SND_SOC_DAIFMT_DSP_B: /* PCM no delay mode */
-+		val = I2S_RXCR_TFS_PCM;
-+		break;
- 	default:
- 		ret = -EINVAL;
- 		goto err_pm_put;
--- 
-2.30.2
-
+--- a/net/caif/chnl_net.c
++++ b/net/caif/chnl_net.c
+@@ -56,20 +56,6 @@ struct chnl_net {
+ 	enum caif_states state;
+ };
+ 
+-static void robust_list_del(struct list_head *delete_node)
+-{
+-	struct list_head *list_node;
+-	struct list_head *n;
+-	ASSERT_RTNL();
+-	list_for_each_safe(list_node, n, &chnl_net_list) {
+-		if (list_node == delete_node) {
+-			list_del(list_node);
+-			return;
+-		}
+-	}
+-	WARN_ON(1);
+-}
+-
+ static int chnl_recv_cb(struct cflayer *layr, struct cfpkt *pkt)
+ {
+ 	struct sk_buff *skb;
+@@ -371,6 +357,7 @@ static int chnl_net_init(struct net_devi
+ 	ASSERT_RTNL();
+ 	priv = netdev_priv(dev);
+ 	strncpy(priv->name, dev->name, sizeof(priv->name));
++	INIT_LIST_HEAD(&priv->list_field);
+ 	return 0;
+ }
+ 
+@@ -379,7 +366,7 @@ static void chnl_net_uninit(struct net_d
+ 	struct chnl_net *priv;
+ 	ASSERT_RTNL();
+ 	priv = netdev_priv(dev);
+-	robust_list_del(&priv->list_field);
++	list_del_init(&priv->list_field);
+ }
+ 
+ static const struct net_device_ops netdev_ops = {
+@@ -542,7 +529,7 @@ static void __exit chnl_exit_module(void
+ 	rtnl_lock();
+ 	list_for_each_safe(list_node, _tmp, &chnl_net_list) {
+ 		dev = list_entry(list_node, struct chnl_net, list_field);
+-		list_del(list_node);
++		list_del_init(list_node);
+ 		delete_device(dev);
+ 	}
+ 	rtnl_unlock();
 
 
