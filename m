@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93648411C6A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:08:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C00EF41207F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:54:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346799AbhITRJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:09:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33890 "EHLO mail.kernel.org"
+        id S1347266AbhITRzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:55:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346389AbhITRHG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:07:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5152E6137B;
-        Mon, 20 Sep 2021 16:55:28 +0000 (UTC)
+        id S1349361AbhITRwt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:52:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED8BC61BFA;
+        Mon, 20 Sep 2021 17:12:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156928;
-        bh=Pe0c4Naotru07EOpxLXGah0Sv3VqrqYzrNLckeO901M=;
+        s=korg; t=1632157979;
+        bh=Ik+gmW3s+O/Swvk0mkwqOcdh7BweWA/f2oX9j8z58RE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PrhOxmQWFnHtBrv4VuYuXph3zqZLx2LhHo2FPmWSrEouaQ5ewo1/aDG//+Ckr/xoN
-         lvDsdYgVYNrQj20exJfvp7SZJrJL2wWIfYnbLL0kPABr36Kk2tL1CBYKzHehYb00c2
-         bVsNQSdysngM1/IJtwCm+XAxxYIcQzgGUqbJN9GE=
+        b=PtEKmgDixBdBF8VS8RnXRIIE4LG+PmKUaYzI6+6a4cndwiUdJKconO/kdEpbc9P2d
+         GXfzE3JYj6Tovw7xyGvysDkvMC6aHyrjUYRmjVK33jqFAGtiUgBkExXg2yAyQuuRAB
+         5hcUr9T3MYLvWbywdFrUb/Dbjdw78IGcgurg4Fe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 151/175] memcg: enable accounting for pids in nested pid namespaces
+        stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 238/293] ath9k: fix sleeping in atomic context
 Date:   Mon, 20 Sep 2021 18:43:20 +0200
-Message-Id: <20210920163923.008428498@linuxfoundation.org>
+Message-Id: <20210920163941.544229283@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Miaoqing Pan <miaoqing@codeaurora.org>
 
-commit fab827dbee8c2e06ca4ba000fa6c48bcf9054aba upstream.
+[ Upstream commit 7c48662b9d56666219f526a71ace8c15e6e12f1f ]
 
-Commit 5d097056c9a0 ("kmemcg: account certain kmem allocations to memcg")
-enabled memcg accounting for pids allocated from init_pid_ns.pid_cachep,
-but forgot to adjust the setting for nested pid namespaces.  As a result,
-pid memory is not accounted exactly where it is really needed, inside
-memcg-limited containers with their own pid namespaces.
+The problem is that gpio_free() can sleep and the cfg_soc() can be
+called with spinlocks held. One problematic call tree is:
 
-Pid was one the first kernel objects enabled for memcg accounting.
-init_pid_ns.pid_cachep marked by SLAB_ACCOUNT and we can expect that any
-new pids in the system are memcg-accounted.
+--> ath_reset_internal() takes &sc->sc_pcu_lock spin lock
+   --> ath9k_hw_reset()
+      --> ath9k_hw_gpio_request_in()
+         --> ath9k_hw_gpio_request()
+            --> ath9k_hw_gpio_cfg_soc()
 
-Though recently I've noticed that it is wrong.  nested pid namespaces
-creates own slab caches for pid objects, nested pids have increased size
-because contain id both for all parent and for own pid namespaces.  The
-problem is that these slab caches are _NOT_ marked by SLAB_ACCOUNT, as a
-result any pids allocated in nested pid namespaces are not
-memcg-accounted.
+Remove gpio_free(), use error message instead, so we should make sure
+there is no GPIO conflict.
 
-Pid struct in nested pid namespace consumes up to 500 bytes memory, 100000
-such objects gives us up to ~50Mb unaccounted memory, this allow container
-to exceed assigned memcg limits.
+Also remove ath9k_hw_gpio_free() from ath9k_hw_apply_gpio_override(),
+as gpio_mask will never be set for SOC chips.
 
-Link: https://lkml.kernel.org/r/8b6de616-fd1a-02c6-cbdb-976ecdcfa604@virtuozzo.com
-Fixes: 5d097056c9a0 ("kmemcg: account certain kmem allocations to memcg")
-Cc: stable@vger.kernel.org
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1628481916-15030-1-git-send-email-miaoqing@codeaurora.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/pid_namespace.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/hw.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/kernel/pid_namespace.c
-+++ b/kernel/pid_namespace.c
-@@ -52,7 +52,7 @@ static struct kmem_cache *create_pid_cac
- 	snprintf(pcache->name, sizeof(pcache->name), "pid_%d", nr_ids);
- 	cachep = kmem_cache_create(pcache->name,
- 			sizeof(struct pid) + (nr_ids - 1) * sizeof(struct upid),
--			0, SLAB_HWCACHE_ALIGN, NULL);
-+			0, SLAB_HWCACHE_ALIGN | SLAB_ACCOUNT, NULL);
- 	if (cachep == NULL)
- 		goto err_cachep;
+diff --git a/drivers/net/wireless/ath/ath9k/hw.c b/drivers/net/wireless/ath/ath9k/hw.c
+index 9f438d8e59f2..daad9e7b17cf 100644
+--- a/drivers/net/wireless/ath/ath9k/hw.c
++++ b/drivers/net/wireless/ath/ath9k/hw.c
+@@ -1622,7 +1622,6 @@ static void ath9k_hw_apply_gpio_override(struct ath_hw *ah)
+ 		ath9k_hw_gpio_request_out(ah, i, NULL,
+ 					  AR_GPIO_OUTPUT_MUX_AS_OUTPUT);
+ 		ath9k_hw_set_gpio(ah, i, !!(ah->gpio_val & BIT(i)));
+-		ath9k_hw_gpio_free(ah, i);
+ 	}
+ }
  
+@@ -2729,14 +2728,17 @@ static void ath9k_hw_gpio_cfg_output_mux(struct ath_hw *ah, u32 gpio, u32 type)
+ static void ath9k_hw_gpio_cfg_soc(struct ath_hw *ah, u32 gpio, bool out,
+ 				  const char *label)
+ {
++	int err;
++
+ 	if (ah->caps.gpio_requested & BIT(gpio))
+ 		return;
+ 
+-	/* may be requested by BSP, free anyway */
+-	gpio_free(gpio);
+-
+-	if (gpio_request_one(gpio, out ? GPIOF_OUT_INIT_LOW : GPIOF_IN, label))
++	err = gpio_request_one(gpio, out ? GPIOF_OUT_INIT_LOW : GPIOF_IN, label);
++	if (err) {
++		ath_err(ath9k_hw_common(ah), "request GPIO%d failed:%d\n",
++			gpio, err);
+ 		return;
++	}
+ 
+ 	ah->caps.gpio_requested |= BIT(gpio);
+ }
+-- 
+2.30.2
+
 
 
