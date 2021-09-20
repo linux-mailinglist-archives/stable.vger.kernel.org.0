@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B3D8412494
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EBE1412658
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:57:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353352AbhITSgA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:36:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52526 "EHLO mail.kernel.org"
+        id S1387261AbhITS4x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:56:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1380334AbhITSda (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:33:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5050A63303;
-        Mon, 20 Sep 2021 17:28:18 +0000 (UTC)
+        id S1384558AbhITSsV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:48:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 309A263371;
+        Mon, 20 Sep 2021 17:33:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158898;
-        bh=n8+TiQ4yNKT8/fz9Ul5M3sOI9kFv2BGLFwuALFg8MVU=;
+        s=korg; t=1632159239;
+        bh=WJe888GmZMO8tNP8Mva3SIeLGpeDoflV3yrH7klLyPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XMNALItHOpAz39aeFTGrPv2ZFG0QTB/gBMwbWIboXnbtYG53OISfvfhMCJdhWk78y
-         xR3/GH//Yku9614cgYHu+4yX8nIbdHDhXb72z8FfPaJ+2kn6wpOMpw1IDGEmwLaNBe
-         +eWwH2Xerd9vrdPwRBP2XeWe4J+KAToivXWzlsqw=
+        b=IwmBFXhxzuQGo/9Bf1o9I5xplO+lYTWnnZsAgZNjPYrF1ozJNHgQU8uXeylMg+g3O
+         IQm4lMjt8XOudtFisEvNwSJgR9mGmZJRNo0ZuPCgY1AoWOntqSemYmwSHGqguiVfad
+         7Yd4LoBLGP7tbvaRGbAyV8ISQGpBzbT9kSvq5FpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Benjamin Hesmans <benjamin.hesmans@tessares.net>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Li Huafei <lihuafei1@huawei.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        He Kuang <hekuang@huawei.com>, Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Zhang Jinhao <zhangjinhao2@huawei.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 107/122] netfilter: socket: icmp6: fix use-after-scope
+Subject: [PATCH 5.14 141/168] perf unwind: Do not overwrite FEATURE_CHECK_LDFLAGS-libunwind-{x86,aarch64}
 Date:   Mon, 20 Sep 2021 18:44:39 +0200
-Message-Id: <20210920163919.314979559@linuxfoundation.org>
+Message-Id: <20210920163926.291811876@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +46,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Hesmans <benjamin.hesmans@tessares.net>
+From: Li Huafei <lihuafei1@huawei.com>
 
-[ Upstream commit 730affed24bffcd1eebd5903171960f5ff9f1f22 ]
+[ Upstream commit cdf32b44678c382a31dc183d9a767306915cda7b ]
 
-Bug reported by KASAN:
+When setting LIBUNWIND_DIR, we first set
 
-BUG: KASAN: use-after-scope in inet6_ehashfn (net/ipv6/inet6_hashtables.c:40)
-Call Trace:
-(...)
-inet6_ehashfn (net/ipv6/inet6_hashtables.c:40)
-(...)
-nf_sk_lookup_slow_v6 (net/ipv6/netfilter/nf_socket_ipv6.c:91
-net/ipv6/netfilter/nf_socket_ipv6.c:146)
+ FEATURE_CHECK_LDFLAGS-libunwind-{aarch64,x86} = -L$(LIBUNWIND_DIR)/lib.
 
-It seems that this bug has already been fixed by Eric Dumazet in the
-past in:
-commit 78296c97ca1f ("netfilter: xt_socket: fix a stack corruption bug")
+<committer note>
+This happens a bit before, the overwritting, in:
 
-But a variant of the same issue has been introduced in
-commit d64d80a2cde9 ("netfilter: x_tables: don't extract flow keys on early demuxed sks in socket match")
+  libunwind_arch_set_flags = $(eval $(libunwind_arch_set_flags_code))
+  define libunwind_arch_set_flags_code
+    FEATURE_CHECK_CFLAGS-libunwind-$(1)  = -I$(LIBUNWIND_DIR)/include
+    FEATURE_CHECK_LDFLAGS-libunwind-$(1) = -L$(LIBUNWIND_DIR)/lib
+  endef
 
-`daddr` and `saddr` potentially hold a reference to ipv6_var that is no
-longer in scope when the call to `nf_socket_get_sock_v6` is made.
+  ifdef LIBUNWIND_DIR
+    LIBUNWIND_CFLAGS  = -I$(LIBUNWIND_DIR)/include
+    LIBUNWIND_LDFLAGS = -L$(LIBUNWIND_DIR)/lib
+    LIBUNWIND_ARCHS = x86 x86_64 arm aarch64 debug-frame-arm debug-frame-aarch64
+    $(foreach libunwind_arch,$(LIBUNWIND_ARCHS),$(call libunwind_arch_set_flags,$(libunwind_arch)))
+  endif
 
-Fixes: d64d80a2cde9 ("netfilter: x_tables: don't extract flow keys on early demuxed sks in socket match")
-Acked-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Benjamin Hesmans <benjamin.hesmans@tessares.net>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Look at that 'foreach' on all the LIBUNWIND_ARCHS.
+</>
+
+After commit 5c4d7c82c0dc ("perf unwind: Do not put libunwind-{x86,aarch64}
+in FEATURE_TESTS_BASIC"), FEATURE_CHECK_LDFLAGS-libunwind-{x86,aarch64} is
+overwritten. As a result, the remote libunwind libraries cannot be searched
+from $(LIBUNWIND_DIR)/lib directory during feature check tests. Fix it with
+variable appending.
+
+Before this patch:
+
+  perf$ make VF=1 LIBUNWIND_DIR=/opt/libunwind_aarch64
+   BUILD:   Doing 'make -j16' parallel build
+  <SNIP>
+  ...
+  ...                    libopencsd: [ OFF ]
+  ...                 libunwind-x86: [ OFF ]
+  ...              libunwind-x86_64: [ OFF ]
+  ...                 libunwind-arm: [ OFF ]
+  ...             libunwind-aarch64: [ OFF ]
+  ...         libunwind-debug-frame: [ OFF ]
+  ...     libunwind-debug-frame-arm: [ OFF ]
+  ... libunwind-debug-frame-aarch64: [ OFF ]
+  ...                           cxx: [ OFF ]
+  <SNIP>
+
+  perf$ cat ../build/feature/test-libunwind-aarch64.make.output
+  /usr/bin/ld: cannot find -lunwind-aarch64
+  /usr/bin/ld: cannot find -lunwind-aarch64
+  collect2: error: ld returned 1 exit status
+
+After this patch:
+
+  perf$ make VF=1 LIBUNWIND_DIR=/opt/libunwind_aarch64
+   BUILD:   Doing 'make -j16' parallel build
+  <SNIP>
+  ...                    libopencsd: [ OFF ]
+  ...                 libunwind-x86: [ OFF ]
+  ...              libunwind-x86_64: [ OFF ]
+  ...                 libunwind-arm: [ OFF ]
+  ...             libunwind-aarch64: [ on  ]
+  ...         libunwind-debug-frame: [ OFF ]
+  ...     libunwind-debug-frame-arm: [ OFF ]
+  ... libunwind-debug-frame-aarch64: [ OFF ]
+  ...                           cxx: [ OFF ]
+  <SNIP>
+
+  perf$ cat ../build/feature/test-libunwind-aarch64.make.output
+
+  perf$ ldd ./perf
+        linux-vdso.so.1 (0x00007ffdf07da000)
+        libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f30953dc000)
+        librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f30951d4000)
+        libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f3094e36000)
+        libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f3094c32000)
+        libelf.so.1 => /usr/lib/x86_64-linux-gnu/libelf.so.1 (0x00007f3094a18000)
+        libdw.so.1 => /usr/lib/x86_64-linux-gnu/libdw.so.1 (0x00007f30947cc000)
+        libunwind-x86_64.so.8 => /usr/lib/x86_64-linux-gnu/libunwind-x86_64.so.8 (0x00007f30945ad000)
+        libunwind.so.8 => /usr/lib/x86_64-linux-gnu/libunwind.so.8 (0x00007f3094392000)
+        liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007f309416c000)
+        libunwind-aarch64.so.8 => not found
+        libslang.so.2 => /lib/x86_64-linux-gnu/libslang.so.2 (0x00007f3093c8a000)
+        libpython2.7.so.1.0 => /usr/local/lib/libpython2.7.so.1.0 (0x00007f309386b000)
+        libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f309364e000)
+        libnuma.so.1 => /usr/lib/x86_64-linux-gnu/libnuma.so.1 (0x00007f3093443000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f3093052000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007f3096097000)
+        libbz2.so.1.0 => /lib/x86_64-linux-gnu/libbz2.so.1.0 (0x00007f3092e42000)
+        libutil.so.1 => /lib/x86_64-linux-gnu/libutil.so.1 (0x00007f3092c3f000)
+
+Fixes: 5c4d7c82c0dceccf ("perf unwind: Do not put libunwind-{x86,aarch64} in FEATURE_TESTS_BASIC")
+Signed-off-by: Li Huafei <lihuafei1@huawei.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: He Kuang <hekuang@huawei.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Zhang Jinhao <zhangjinhao2@huawei.com>
+Link: http://lore.kernel.org/lkml/20210823134340.60955-1-lihuafei1@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/netfilter/nf_socket_ipv6.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ tools/perf/Makefile.config | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/ipv6/netfilter/nf_socket_ipv6.c b/net/ipv6/netfilter/nf_socket_ipv6.c
-index 6fd54744cbc3..aa5bb8789ba0 100644
---- a/net/ipv6/netfilter/nf_socket_ipv6.c
-+++ b/net/ipv6/netfilter/nf_socket_ipv6.c
-@@ -99,7 +99,7 @@ struct sock *nf_sk_lookup_slow_v6(struct net *net, const struct sk_buff *skb,
- {
- 	__be16 dport, sport;
- 	const struct in6_addr *daddr = NULL, *saddr = NULL;
--	struct ipv6hdr *iph = ipv6_hdr(skb);
-+	struct ipv6hdr *iph = ipv6_hdr(skb), ipv6_var;
- 	struct sk_buff *data_skb = NULL;
- 	int doff = 0;
- 	int thoff = 0, tproto;
-@@ -129,8 +129,6 @@ struct sock *nf_sk_lookup_slow_v6(struct net *net, const struct sk_buff *skb,
- 			thoff + sizeof(*hp);
+diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
+index eb8e487ef90b..29ffd57f5cd8 100644
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -133,10 +133,10 @@ FEATURE_CHECK_LDFLAGS-libunwind = $(LIBUNWIND_LDFLAGS) $(LIBUNWIND_LIBS)
+ FEATURE_CHECK_CFLAGS-libunwind-debug-frame = $(LIBUNWIND_CFLAGS)
+ FEATURE_CHECK_LDFLAGS-libunwind-debug-frame = $(LIBUNWIND_LDFLAGS) $(LIBUNWIND_LIBS)
  
- 	} else if (tproto == IPPROTO_ICMPV6) {
--		struct ipv6hdr ipv6_var;
--
- 		if (extract_icmp6_fields(skb, thoff, &tproto, &saddr, &daddr,
- 					 &sport, &dport, &ipv6_var))
- 			return NULL;
+-FEATURE_CHECK_LDFLAGS-libunwind-arm = -lunwind -lunwind-arm
+-FEATURE_CHECK_LDFLAGS-libunwind-aarch64 = -lunwind -lunwind-aarch64
+-FEATURE_CHECK_LDFLAGS-libunwind-x86 = -lunwind -llzma -lunwind-x86
+-FEATURE_CHECK_LDFLAGS-libunwind-x86_64 = -lunwind -llzma -lunwind-x86_64
++FEATURE_CHECK_LDFLAGS-libunwind-arm += -lunwind -lunwind-arm
++FEATURE_CHECK_LDFLAGS-libunwind-aarch64 += -lunwind -lunwind-aarch64
++FEATURE_CHECK_LDFLAGS-libunwind-x86 += -lunwind -llzma -lunwind-x86
++FEATURE_CHECK_LDFLAGS-libunwind-x86_64 += -lunwind -llzma -lunwind-x86_64
+ 
+ FEATURE_CHECK_LDFLAGS-libcrypto = -lcrypto
+ 
 -- 
 2.30.2
 
