@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C25DB4122B0
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 551FB41259A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:45:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242070AbhITSQr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:16:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39020 "EHLO mail.kernel.org"
+        id S1384107AbhITSqe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:46:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376722AbhITSOW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:14:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A76E61357;
-        Mon, 20 Sep 2021 17:21:30 +0000 (UTC)
+        id S1383269AbhITSoU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:44:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4B2D61AFB;
+        Mon, 20 Sep 2021 17:32:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158490;
-        bh=qlg1y0Bd7rAZ6ydjMTUQqzyYTLtSOtt7u7SEugMD1KY=;
+        s=korg; t=1632159157;
+        bh=kJ3W0/eZlIctqLUHyPrNqD80xBPS2iOUV4vkEAQbbKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=msNog/SQc6EX3zABu9KJ9mHi3XzcDwjcWXEdC+Cz2CzHaV5QUOkwV5TzFIxVEVkVH
-         DpiW1lbBARIP6nXp1M5f6bHW7ouYObtjVlKJkIixLSJE8m2mZfefIA2x4h5sz3n8f5
-         f4zXZJcATNhA1agsBVBH51chyYwGUo14340nNKPM=
+        b=0AEmHy1ffYrXK+buOIlakscosaBKVz580LHcjP23+OgZSPvAiVMgsnVjnoQvkacAp
+         xZ755Ch/ETPga4/vFsXLsCrrK7ULFvqDP+Rs9wi5OQZUbD4I4lPMvtFgxOetRIYIhF
+         VxpSFK3UFZGkyPkjlltP+xw9ywzXrke55bPQliyc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Konrad Rzeszutek Wilk <konrad@kernel.org>
-Subject: [PATCH 5.4 180/260] s390/pv: fix the forcing of the swiotlb
+        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.14 060/168] vhost_net: fix OoB on sendmsg() failure.
 Date:   Mon, 20 Sep 2021 18:43:18 +0200
-Message-Id: <20210920163937.211114213@linuxfoundation.org>
+Message-Id: <20210920163923.611496519@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit 93ebb6828723b8aef114415c4dc3518342f7dcad upstream.
+commit 3c4cea8fa7f71f00c5279547043a84bc2a4d8b8c upstream.
 
-Since commit 903cd0f315fe ("swiotlb: Use is_swiotlb_force_bounce for
-swiotlb data bouncing") if code sets swiotlb_force it needs to do so
-before the swiotlb is initialised. Otherwise
-io_tlb_default_mem->force_bounce will not get set to true, and devices
-that use (the default) swiotlb will not bounce despite switolb_force
-having the value of SWIOTLB_FORCE.
+If the sendmsg() call in vhost_tx_batch() fails, both the 'batched_xdp'
+and 'done_idx' indexes are left unchanged. If such failure happens
+when batched_xdp == VHOST_NET_BATCH, the next call to
+vhost_net_build_xdp() will access and write memory outside the xdp
+buffers area.
 
-Let us restore swiotlb functionality for PV by fulfilling this new
-requirement.
+Since sendmsg() can only error with EBADFD, this change addresses the
+issue explicitly freeing the XDP buffers batch on error.
 
-This change addresses what turned out to be a fragility in
-commit 64e1f0c531d1 ("s390/mm: force swiotlb for protected
-virtualization"), which ain't exactly broken in its original context,
-but could give us some more headache if people backport the broken
-change and forget this fix.
-
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Fixes: 903cd0f315fe ("swiotlb: Use is_swiotlb_force_bounce for swiotlb data bouncing")
-Fixes: 64e1f0c531d1 ("s390/mm: force swiotlb for protected virtualization")
-Cc: stable@vger.kernel.org #5.3+
-Signed-off-by: Konrad Rzeszutek Wilk <konrad@kernel.org>
+Fixes: 0a0be13b8fe2 ("vhost_net: batch submitting XDP buffers to underlayer sockets")
+Suggested-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/mm/init.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vhost/net.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -168,9 +168,9 @@ static void pv_init(void)
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -467,7 +467,7 @@ static void vhost_tx_batch(struct vhost_
+ 		.num = nvq->batched_xdp,
+ 		.ptr = nvq->xdp,
+ 	};
+-	int err;
++	int i, err;
+ 
+ 	if (nvq->batched_xdp == 0)
+ 		goto signal_used;
+@@ -476,6 +476,15 @@ static void vhost_tx_batch(struct vhost_
+ 	err = sock->ops->sendmsg(sock, msghdr, 0);
+ 	if (unlikely(err < 0)) {
+ 		vq_err(&nvq->vq, "Fail to batch sending packets\n");
++
++		/* free pages owned by XDP; since this is an unlikely error path,
++		 * keep it simple and avoid more complex bulk update for the
++		 * used pages
++		 */
++		for (i = 0; i < nvq->batched_xdp; ++i)
++			put_page(virt_to_head_page(nvq->xdp[i].data));
++		nvq->batched_xdp = 0;
++		nvq->done_idx = 0;
  		return;
+ 	}
  
- 	/* make sure bounce buffers are shared */
-+	swiotlb_force = SWIOTLB_FORCE;
- 	swiotlb_init(1);
- 	swiotlb_update_mem_attributes();
--	swiotlb_force = SWIOTLB_FORCE;
- }
- 
- void __init mem_init(void)
 
 
