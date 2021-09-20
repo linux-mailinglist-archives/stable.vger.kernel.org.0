@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52F19411CE8
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:13:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6399B411B6D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:57:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344348AbhITRPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:15:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41400 "EHLO mail.kernel.org"
+        id S1343552AbhITQ6h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:58:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345803AbhITRNG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:13:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C47F6197A;
-        Mon, 20 Sep 2021 16:57:36 +0000 (UTC)
+        id S245262AbhITQ4h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:56:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DE7C861222;
+        Mon, 20 Sep 2021 16:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157057;
-        bh=+bev58bVKwRrcOyb0CjLvJuGlpklQmuYyABCx8sCT1U=;
+        s=korg; t=1632156680;
+        bh=sOcDb3H2CXjiS9xpKdmIHMAlAP6DiWdoQxdA9WNpa/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJfm//JQNyFpRSo7YCCtKQXolypifwA5ym1Om4VS2n9LKwdBxHjFxanbXCNoaPbMq
-         og9e5Bj7N2hFaNrt+o/nRV9isFEGZH9r8XTF37gc8lCBq1VFCVWAgQkhjAFCTjDR7j
-         0lM0eObpq3HGPx7GQo+btOAKsz8fqePzSaHh7l2o=
+        b=w7vdo2N5/fCkG6749fJwsmSwVcbDuZcK9Ra1RGSGvqqPZ40fSXRJlBmF7Hz0erxyp
+         7U6J5iPYUuIRY5lnH8NGwI5dyPDz9uMNjuAYQLmBK9JgOEs7lwZy9DOw+XwQhwJsPH
+         ieTrfX8Wzfj1ergaaXs+IPzBGrIOUgCKbqkWQUyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lokesh Vutla <lokeshvutla@ti.com>,
-        Tero Kristo <kristo@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Prabhakar Kushwaha <pkushwaha@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        Shai Malin <smalin@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 032/217] crypto: omap-sham - clear dma flags only after omap_sham_update_dma_stop()
+Subject: [PATCH 4.9 004/175] qed: Fix the VF msix vectors flow
 Date:   Mon, 20 Sep 2021 18:40:53 +0200
-Message-Id: <20210920163925.711867250@linuxfoundation.org>
+Message-Id: <20210920163918.214329345@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Shai Malin <smalin@marvell.com>
 
-[ Upstream commit fe28140b3393b0ba1eb95cc109f974a7e58b26fd ]
+[ Upstream commit b0cd08537db8d2fbb227cdb2e5835209db295a24 ]
 
-We should not clear FLAGS_DMA_ACTIVE before omap_sham_update_dma_stop() is
-done calling dma_unmap_sg(). We already clear FLAGS_DMA_ACTIVE at the
-end of omap_sham_update_dma_stop().
+For VFs we should return with an error in case we didn't get the exact
+number of msix vectors as we requested.
+Not doing that will lead to a crash when starting queues for this VF.
 
-The early clearing of FLAGS_DMA_ACTIVE is not causing issues as we do not
-need to defer anything based on FLAGS_DMA_ACTIVE currently. So this can be
-applied as clean-up.
-
-Cc: Lokesh Vutla <lokeshvutla@ti.com>
-Cc: Tero Kristo <kristo@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: Shai Malin <smalin@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/omap-sham.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qed/qed_main.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/omap-sham.c b/drivers/crypto/omap-sham.c
-index e34e9561e77d..adf958956982 100644
---- a/drivers/crypto/omap-sham.c
-+++ b/drivers/crypto/omap-sham.c
-@@ -1746,7 +1746,7 @@ static void omap_sham_done_task(unsigned long data)
- 		if (test_and_clear_bit(FLAGS_OUTPUT_READY, &dd->flags))
- 			goto finish;
- 	} else if (test_bit(FLAGS_DMA_READY, &dd->flags)) {
--		if (test_and_clear_bit(FLAGS_DMA_ACTIVE, &dd->flags)) {
-+		if (test_bit(FLAGS_DMA_ACTIVE, &dd->flags)) {
- 			omap_sham_update_dma_stop(dd);
- 			if (dd->err) {
- 				err = dd->err;
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_main.c b/drivers/net/ethernet/qlogic/qed/qed_main.c
+index 708117fc6f73..7669d36151c6 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_main.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_main.c
+@@ -374,7 +374,12 @@ static int qed_enable_msix(struct qed_dev *cdev,
+ 			rc = cnt;
+ 	}
+ 
+-	if (rc > 0) {
++	/* For VFs, we should return with an error in case we didn't get the
++	 * exact number of msix vectors as we requested.
++	 * Not doing that will lead to a crash when starting queues for
++	 * this VF.
++	 */
++	if ((IS_PF(cdev) && rc > 0) || (IS_VF(cdev) && rc == cnt)) {
+ 		/* MSI-x configuration was achieved */
+ 		int_params->out.int_mode = QED_INT_MODE_MSIX;
+ 		int_params->out.num_vectors = rc;
 -- 
 2.30.2
 
