@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E69C7412447
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:31:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1364541233D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380025AbhITSdG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:33:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49716 "EHLO mail.kernel.org"
+        id S236921AbhITSWa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:22:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1379872AbhITSbA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:31:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94447632F5;
-        Mon, 20 Sep 2021 17:27:31 +0000 (UTC)
+        id S1377714AbhITSUZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:20:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0341C632B0;
+        Mon, 20 Sep 2021 17:23:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158852;
-        bh=6you6jM5IneUAQtuSVKKOeeEHM1yVNaNq0/kkbNxMDQ=;
+        s=korg; t=1632158617;
+        bh=NJqq6v/ZSiJFgHNyuGmhk4djZzWzmkKOy5QImzh5YvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AAdJv1mirXJfsEj656s1BEmICmPNGQ6uzZ2tRauEtuxxtDW59TRuCcB4tYqi5Hip6
-         H2G1U2pTulg4PF3kVVrzLHhRfuvmBHQJSzdfgExVqRE9+/8cxFhlJ6yHQO3r4WRgkR
-         +/E4NlprtmznY2aE1ytPOPUp0UyvwJPLiClRrNd4=
+        b=pThzj25ZwEUUVu/ywaoMtQg1HXLRkXQUwKZHvYXy96YJYDmHRd6xwwLvCDUspPQpj
+         WRkOnRgpSkQLtjhp8H+aug4n17pbBBZKK7ury3tfnDFldL0WZ4N8QfrDfpT7buLfKX
+         P+Fl++LgSc058Wx4FhPz+aMkOXp5kB9cZRLhe35A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+649e339fa6658ee623d3@syzkaller.appspotmail.com
-Subject: [PATCH 5.10 085/122] netfilter: nft_ct: protect nft_ct_pcpu_template_refcnt with mutex
+        stable@vger.kernel.org,
+        George Cherian <george.cherian@marvell.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 239/260] PCI: Add ACS quirks for Cavium multi-function devices
 Date:   Mon, 20 Sep 2021 18:44:17 +0200
-Message-Id: <20210920163918.576789653@linuxfoundation.org>
+Message-Id: <20210920163939.252266166@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,71 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: George Cherian <george.cherian@marvell.com>
 
-[ Upstream commit e3245a7b7b34bd2e97f744fd79463add6e9d41f4 ]
+[ Upstream commit 32837d8a8f63eb95dcb9cd005524a27f06478832 ]
 
-Syzbot hit use-after-free in nf_tables_dump_sets. The problem was in
-missing lock protection for nft_ct_pcpu_template_refcnt.
+Some Cavium endpoints are implemented as multi-function devices without ACS
+capability, but they actually don't support peer-to-peer transactions.
 
-Before commit f102d66b335a ("netfilter: nf_tables: use dedicated
-mutex to guard transactions") all transactions were serialized by global
-mutex, but then global mutex was changed to local per netnamespace
-commit_mutex.
+Add ACS quirks to declare DMA isolation for the following devices:
 
-This change causes use-after-free bug, when 2 netnamespaces concurently
-changing nft_ct_pcpu_template_refcnt without proper locking. Fix it by
-adding nft_ct_pcpu_mutex and protect all nft_ct_pcpu_template_refcnt
-changes with it.
+  - BGX device found on Octeon-TX (8xxx)
+  - CGX device found on Octeon-TX2 (9xxx)
+  - RPM device found on Octeon-TX3 (10xxx)
 
-Fixes: f102d66b335a ("netfilter: nf_tables: use dedicated mutex to guard transactions")
-Reported-and-tested-by: syzbot+649e339fa6658ee623d3@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Link: https://lore.kernel.org/r/20210810122425.1115156-1-george.cherian@marvell.com
+Signed-off-by: George Cherian <george.cherian@marvell.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_ct.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/pci/quirks.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/netfilter/nft_ct.c b/net/netfilter/nft_ct.c
-index 7af822a02ce9..7fcb73ac2e6e 100644
---- a/net/netfilter/nft_ct.c
-+++ b/net/netfilter/nft_ct.c
-@@ -41,6 +41,7 @@ struct nft_ct_helper_obj  {
- #ifdef CONFIG_NF_CONNTRACK_ZONES
- static DEFINE_PER_CPU(struct nf_conn *, nft_ct_pcpu_template);
- static unsigned int nft_ct_pcpu_template_refcnt __read_mostly;
-+static DEFINE_MUTEX(nft_ct_pcpu_mutex);
- #endif
- 
- static u64 nft_ct_get_eval_counter(const struct nf_conn_counter *c,
-@@ -526,8 +527,10 @@ static void __nft_ct_set_destroy(const struct nft_ctx *ctx, struct nft_ct *priv)
- #endif
- #ifdef CONFIG_NF_CONNTRACK_ZONES
- 	case NFT_CT_ZONE:
-+		mutex_lock(&nft_ct_pcpu_mutex);
- 		if (--nft_ct_pcpu_template_refcnt == 0)
- 			nft_ct_tmpl_put_pcpu();
-+		mutex_unlock(&nft_ct_pcpu_mutex);
- 		break;
- #endif
- 	default:
-@@ -565,9 +568,13 @@ static int nft_ct_set_init(const struct nft_ctx *ctx,
- #endif
- #ifdef CONFIG_NF_CONNTRACK_ZONES
- 	case NFT_CT_ZONE:
--		if (!nft_ct_tmpl_alloc_pcpu())
-+		mutex_lock(&nft_ct_pcpu_mutex);
-+		if (!nft_ct_tmpl_alloc_pcpu()) {
-+			mutex_unlock(&nft_ct_pcpu_mutex);
- 			return -ENOMEM;
-+		}
- 		nft_ct_pcpu_template_refcnt++;
-+		mutex_unlock(&nft_ct_pcpu_mutex);
- 		len = sizeof(u16);
- 		break;
- #endif
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index e230a7b5e70a..686298c0f6cd 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -4922,6 +4922,10 @@ static const struct pci_dev_acs_enabled {
+ 	{ 0x10df, 0x720, pci_quirk_mf_endpoint_acs }, /* Emulex Skyhawk-R */
+ 	/* Cavium ThunderX */
+ 	{ PCI_VENDOR_ID_CAVIUM, PCI_ANY_ID, pci_quirk_cavium_acs },
++	/* Cavium multi-function devices */
++	{ PCI_VENDOR_ID_CAVIUM, 0xA026, pci_quirk_mf_endpoint_acs },
++	{ PCI_VENDOR_ID_CAVIUM, 0xA059, pci_quirk_mf_endpoint_acs },
++	{ PCI_VENDOR_ID_CAVIUM, 0xA060, pci_quirk_mf_endpoint_acs },
+ 	/* APM X-Gene */
+ 	{ PCI_VENDOR_ID_AMCC, 0xE004, pci_quirk_xgene_acs },
+ 	/* Ampere Computing */
 -- 
 2.30.2
 
