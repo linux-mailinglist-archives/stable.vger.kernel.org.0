@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F1DF41211A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:00:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9ED6411F4D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:38:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356875AbhITSCA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:02:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57658 "EHLO mail.kernel.org"
+        id S1348577AbhITRkB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:40:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356437AbhITR75 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:59:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05DE5613B1;
-        Mon, 20 Sep 2021 17:15:42 +0000 (UTC)
+        id S1348235AbhITRiE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:38:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3957961B3C;
+        Mon, 20 Sep 2021 17:07:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158143;
-        bh=xnOhGEu/UnEKhDj5LFFI8Bgz1MkAYlSNyc7RZmoFzb0=;
+        s=korg; t=1632157626;
+        bh=7wCbPctBaHKo+m8zmxBUtdLHHn8b5uphh6h1f+0Sh/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zp3y9qftyF+asHHIXO73FHMvmI6BbDgbhqjuDv1lcpaWv1qrWJmehOuBJyMkpR9w2
-         NQRHk7MoTwbNOXJAej6kLbqqmGnjd8nTBMfuRyyf4J29vXC7TjiNPGkIYeVfEIqFsd
-         bxlwPl7wRwRC6CZ+pjILbaGvgKRcyQeiBK1GCzJ0=
+        b=ij5je5mYnqEvGbUddOXeSebCP/dn1ERpDFXgPt9LORuugX65qoCogq9N/LqLOW9B6
+         2nhTjePEsQDGcdr7rDnsf38y8vckR1v/0l3S7ORkJ54/dmafy4/aRWgonnNEOIIwWY
+         wFV5l4ZuL9B+zw7FBUGOgVrbniiQpIG7zlfNWY3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, DJ Gregor <dj@corelight.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Arne Welzel <arne.welzel@corelight.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.4 021/260] dm crypt: Avoid percpu_counter spinlock contention in crypt_page_alloc()
-Date:   Mon, 20 Sep 2021 18:40:39 +0200
-Message-Id: <20210920163931.844537956@linuxfoundation.org>
+        stable@vger.kernel.org, Sam Protsenko <semen.protsenko@linaro.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 078/293] arm64: dts: exynos: correct GIC CPU interfaces address range on Exynos7
+Date:   Mon, 20 Sep 2021 18:40:40 +0200
+Message-Id: <20210920163935.941474858@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,128 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arne Welzel <arne.welzel@corelight.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit 528b16bfc3ae5f11638e71b3b63a81f9999df727 upstream.
+[ Upstream commit 01c72cad790cb6cd3ccbe4c1402b6cb6c6bbffd0 ]
 
-On systems with many cores using dm-crypt, heavy spinlock contention in
-percpu_counter_compare() can be observed when the page allocation limit
-for a given device is reached or close to be reached. This is due
-to percpu_counter_compare() taking a spinlock to compute an exact
-result on potentially many CPUs at the same time.
+The GIC-400 CPU interfaces address range is defined as 0x2000-0x3FFF (by
+ARM).
 
-Switch to non-exact comparison of allocated and allowed pages by using
-the value returned by percpu_counter_read_positive() to avoid taking
-the percpu_counter spinlock.
-
-This may over/under estimate the actual number of allocated pages by at
-most (batch-1) * num_online_cpus().
-
-Currently, batch is bounded by 32. The system on which this issue was
-first observed has 256 CPUs and 512GB of RAM. With a 4k page size, this
-change may over/under estimate by 31MB. With ~10G (2%) allowed dm-crypt
-allocations, this seems an acceptable error. Certainly preferred over
-running into the spinlock contention.
-
-This behavior was reproduced on an EC2 c5.24xlarge instance with 96 CPUs
-and 192GB RAM as follows, but can be provoked on systems with less CPUs
-as well.
-
- * Disable swap
- * Tune vm settings to promote regular writeback
-     $ echo 50 > /proc/sys/vm/dirty_expire_centisecs
-     $ echo 25 > /proc/sys/vm/dirty_writeback_centisecs
-     $ echo $((128 * 1024 * 1024)) > /proc/sys/vm/dirty_background_bytes
-
- * Create 8 dmcrypt devices based on files on a tmpfs
- * Create and mount an ext4 filesystem on each crypt devices
- * Run stress-ng --hdd 8 within one of above filesystems
-
-Total %system usage collected from sysstat goes to ~35%. Write throughput
-on the underlying loop device is ~2GB/s. perf profiling an individual
-kworker kcryptd thread shows the following profile, indicating spinlock
-contention in percpu_counter_compare():
-
-    99.98%     0.00%  kworker/u193:46  [kernel.kallsyms]  [k] ret_from_fork
-      |
-      --ret_from_fork
-        kthread
-        worker_thread
-        |
-         --99.92%--process_one_work
-            |
-            |--80.52%--kcryptd_crypt
-            |    |
-            |    |--62.58%--mempool_alloc
-            |    |  |
-            |    |   --62.24%--crypt_page_alloc
-            |    |     |
-            |    |      --61.51%--__percpu_counter_compare
-            |    |        |
-            |    |         --61.34%--__percpu_counter_sum
-            |    |           |
-            |    |           |--58.68%--_raw_spin_lock_irqsave
-            |    |           |  |
-            |    |           |   --58.30%--native_queued_spin_lock_slowpath
-            |    |           |
-            |    |            --0.69%--cpumask_next
-            |    |                |
-            |    |                 --0.51%--_find_next_bit
-            |    |
-            |    |--10.61%--crypt_convert
-            |    |          |
-            |    |          |--6.05%--xts_crypt
-            ...
-
-After applying this patch and running the same test, %system usage is
-lowered to ~7% and write throughput on the loop device increases
-to ~2.7GB/s. perf report shows mempool_alloc() as ~8% rather than ~62%
-in the profile and not hitting the percpu_counter() spinlock anymore.
-
-    |--8.15%--mempool_alloc
-    |    |
-    |    |--3.93%--crypt_page_alloc
-    |    |    |
-    |    |     --3.75%--__alloc_pages
-    |    |         |
-    |    |          --3.62%--get_page_from_freelist
-    |    |              |
-    |    |               --3.22%--rmqueue_bulk
-    |    |                   |
-    |    |                    --2.59%--_raw_spin_lock
-    |    |                      |
-    |    |                       --2.57%--native_queued_spin_lock_slowpath
-    |    |
-    |     --3.05%--_raw_spin_lock_irqsave
-    |               |
-    |                --2.49%--native_queued_spin_lock_slowpath
-
-Suggested-by: DJ Gregor <dj@corelight.com>
-Reviewed-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Arne Welzel <arne.welzel@corelight.com>
-Fixes: 5059353df86e ("dm crypt: limit the number of allocated pages")
-Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Sam Protsenko <semen.protsenko@linaro.org>
+Reported-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Sam Protsenko <semen.protsenko@linaro.org>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Fixes: b9024cbc937d ("arm64: dts: Add initial device tree support for exynos7")
+Link: https://lore.kernel.org/r/20210805072110.4730-1-krzysztof.kozlowski@canonical.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-crypt.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/exynos/exynos7.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm-crypt.c
-+++ b/drivers/md/dm-crypt.c
-@@ -2092,7 +2092,12 @@ static void *crypt_page_alloc(gfp_t gfp_
- 	struct crypt_config *cc = pool_data;
- 	struct page *page;
- 
--	if (unlikely(percpu_counter_compare(&cc->n_allocated_pages, dm_crypt_pages_per_client) >= 0) &&
-+	/*
-+	 * Note, percpu_counter_read_positive() may over (and under) estimate
-+	 * the current usage by at most (batch - 1) * num_online_cpus() pages,
-+	 * but avoids potential spinlock contention of an exact result.
-+	 */
-+	if (unlikely(percpu_counter_read_positive(&cc->n_allocated_pages) >= dm_crypt_pages_per_client) &&
- 	    likely(gfp_mask & __GFP_NORETRY))
- 		return NULL;
- 
+diff --git a/arch/arm64/boot/dts/exynos/exynos7.dtsi b/arch/arm64/boot/dts/exynos/exynos7.dtsi
+index 5c5e57026c27..c607297922fd 100644
+--- a/arch/arm64/boot/dts/exynos/exynos7.dtsi
++++ b/arch/arm64/boot/dts/exynos/exynos7.dtsi
+@@ -91,7 +91,7 @@
+ 			#address-cells = <0>;
+ 			interrupt-controller;
+ 			reg =	<0x11001000 0x1000>,
+-				<0x11002000 0x1000>,
++				<0x11002000 0x2000>,
+ 				<0x11004000 0x2000>,
+ 				<0x11006000 0x2000>;
+ 		};
+-- 
+2.30.2
+
 
 
