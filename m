@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 133FB4122C8
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:16:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C0394123C5
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:26:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351395AbhITSRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:17:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39460 "EHLO mail.kernel.org"
+        id S1352264AbhITS1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:27:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1377167AbhITSPY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:15:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4CEE61A65;
-        Mon, 20 Sep 2021 17:21:49 +0000 (UTC)
+        id S1378566AbhITSYy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:24:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3CE9632CE;
+        Mon, 20 Sep 2021 17:25:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158510;
-        bh=S9K1QYjCZxHE59FZS1YbNPPOaNzHIP6WAu8aihOolSI=;
+        s=korg; t=1632158717;
+        bh=nzua3uabntPw7Sn/aTHOrJaeGCy4iNNn0TKBm/3YooA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dfaCuQz25ZiwV7Pqwo/iHCpRhkOdB9hMgqjJ88+THN8cl/6ERm3g2tjwJkDwWS4qX
-         EIu3zCOszgrcHJFlSwrDRPXb5/b7g6tYt3kg3rQ7Yks+mBRsDY2Gtn3Rf07REBEygk
-         cRqEzMS3rAgNnCOy0nIjNJ/6N8c75KZyNOGkDCc8=
+        b=e9gGoUg7JUBPIiC0b/O+oiYevJt2nXQjKYK5S3xnYPxZA7hIeAp9g0vXY2xaOQ0Ox
+         S24S8OwntE5OWGJxdMplZ+tuYNAK3POWSnsGabG5wwOaJrCHXuspOuoL+N687tmhmW
+         vyZoISThlWkvp+935N/vP6TCSzWwa1lpVZmBmFqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 157/260] Revert "USB: xhci: fix U1/U2 handling for hardware with XHCI_INTEL_HOST quirk set"
+        stable@vger.kernel.org, Valentina Palmiotti <vpalmiotti@gmail.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 003/122] io_uring: ensure symmetry in handling iter types in loop_rw_iter()
 Date:   Mon, 20 Sep 2021 18:42:55 +0200
-Message-Id: <20210920163936.438395883@linuxfoundation.org>
+Message-Id: <20210920163915.872920929@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,95 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 2847c46c61486fd8bca9136a6e27177212e78c69 ]
+commit 16c8d2df7ec0eed31b7d3b61cb13206a7fb930cc upstream.
 
-This reverts commit 5d5323a6f3625f101dbfa94ba3ef7706cce38760.
+When setting up the next segment, we check what type the iter is and
+handle it accordingly. However, when incrementing and processed amount
+we do not, and both iter advance and addr/len are adjusted, regardless
+of type. Split the increment side just like we do on the setup side.
 
-That commit effectively disabled Intel host initiated U1/U2 lpm for devices
-with periodic endpoints.
-
-Before that commit we disabled host initiated U1/U2 lpm if the exit latency
-was larger than any periodic endpoint service interval, this is according
-to xhci spec xhci 1.1 specification section 4.23.5.2
-
-After that commit we incorrectly checked that service interval was smaller
-than U1/U2 inactivity timeout. This is not relevant, and can't happen for
-Intel hosts as previously set U1/U2 timeout = 105% * service interval.
-
-Patch claimed it solved cases where devices can't be enumerated because of
-bandwidth issues. This might be true but it's a side effect of accidentally
-turning off lpm.
-
-exit latency calculations have been revised since then
-
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210820123503.2605901-5-mathias.nyman@linux.intel.com
+Fixes: 4017eb91a9e7 ("io_uring: make loop_rw_iter() use original user supplied pointers")
+Cc: stable@vger.kernel.org
+Reported-by: Valentina Palmiotti <vpalmiotti@gmail.com>
+Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ fs/io_uring.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index a3813c75a3de..505da4999e20 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -4662,19 +4662,19 @@ static u16 xhci_calculate_u1_timeout(struct xhci_hcd *xhci,
- {
- 	unsigned long long timeout_ns;
- 
--	if (xhci->quirks & XHCI_INTEL_HOST)
--		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
--	else
--		timeout_ns = udev->u1_params.sel;
--
- 	/* Prevent U1 if service interval is shorter than U1 exit latency */
- 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
--		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
-+		if (xhci_service_interval_to_ns(desc) <= udev->u1_params.mel) {
- 			dev_dbg(&udev->dev, "Disable U1, ESIT shorter than exit latency\n");
- 			return USB3_LPM_DISABLED;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -3206,12 +3206,15 @@ static ssize_t loop_rw_iter(int rw, stru
+ 				ret = nr;
+ 			break;
  		}
++		if (!iov_iter_is_bvec(iter)) {
++			iov_iter_advance(iter, nr);
++		} else {
++			req->rw.len -= nr;
++			req->rw.addr += nr;
++		}
+ 		ret += nr;
+ 		if (nr != iovec.iov_len)
+ 			break;
+-		req->rw.len -= nr;
+-		req->rw.addr += nr;
+-		iov_iter_advance(iter, nr);
  	}
  
-+	if (xhci->quirks & XHCI_INTEL_HOST)
-+		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
-+	else
-+		timeout_ns = udev->u1_params.sel;
-+
- 	/* The U1 timeout is encoded in 1us intervals.
- 	 * Don't return a timeout of zero, because that's USB3_LPM_DISABLED.
- 	 */
-@@ -4726,19 +4726,19 @@ static u16 xhci_calculate_u2_timeout(struct xhci_hcd *xhci,
- {
- 	unsigned long long timeout_ns;
- 
--	if (xhci->quirks & XHCI_INTEL_HOST)
--		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
--	else
--		timeout_ns = udev->u2_params.sel;
--
- 	/* Prevent U2 if service interval is shorter than U2 exit latency */
- 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
--		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
-+		if (xhci_service_interval_to_ns(desc) <= udev->u2_params.mel) {
- 			dev_dbg(&udev->dev, "Disable U2, ESIT shorter than exit latency\n");
- 			return USB3_LPM_DISABLED;
- 		}
- 	}
- 
-+	if (xhci->quirks & XHCI_INTEL_HOST)
-+		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
-+	else
-+		timeout_ns = udev->u2_params.sel;
-+
- 	/* The U2 timeout is encoded in 256us intervals */
- 	timeout_ns = DIV_ROUND_UP_ULL(timeout_ns, 256 * 1000);
- 	/* If the necessary timeout value is bigger than what we can set in the
--- 
-2.30.2
-
+ 	return ret;
 
 
