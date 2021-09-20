@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F2B84121E5
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:09:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9239F4121E3
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:09:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357374AbhITSK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:10:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35752 "EHLO mail.kernel.org"
+        id S1376273AbhITSK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:10:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1359121AbhITSJQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1359124AbhITSJQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:09:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E599C61A2C;
-        Mon, 20 Sep 2021 17:19:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AC0061A2F;
+        Mon, 20 Sep 2021 17:19:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158345;
-        bh=9OHCdoC2zS+9x1XGxywbtw+tpN9NjKwHyk7WhAEKvX4=;
+        s=korg; t=1632158347;
+        bh=Xlm9vH/YjbETQX8HEjiDtLEamI5UM7yyDWivHSRuFoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Utg2ABgqApOhLRU+cvBx96zdLSa+04xA8Yz5B6JHidFPpSHRLzZprm2BIP78QyMYK
-         QDxYvv+1XlytuC3X+eYyLeABaD+D9LLbge5L2HKkQ2jcKSHOKZBF1l8xUNyIuKpmvl
-         aJORACtiV0EfD35SmEzEVQKwVoOCWCQ5gQ7NQoEE=
+        b=a/89sdiu/z2LbtZ4uLbUgLpM4XfdtMzjbM4uagaYf85HLohZXTKCoJlvR26xj+vd2
+         hccJbCkHuQlycC3/t7kKLAyPBpiTnwDZ98d3ne3kSz818NeuCS1loGlBUz3HfgTdWt
+         c/t7oUm6b4AeyHWpT5Zf1vKw+vzCwenlwhnHEUtc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 112/260] Bluetooth: skip invalid hci_sync_conn_complete_evt
-Date:   Mon, 20 Sep 2021 18:42:10 +0200
-Message-Id: <20210920163934.940572991@linuxfoundation.org>
+        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 113/260] workqueue: Fix possible memory leaks in wq_numa_init()
+Date:   Mon, 20 Sep 2021 18:42:11 +0200
+Message-Id: <20210920163934.980383338@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -42,57 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 92fe24a7db751b80925214ede43f8d2be792ea7b ]
+[ Upstream commit f728c4a9e8405caae69d4bc1232c54ff57b5d20f ]
 
-Syzbot reported a corrupted list in kobject_add_internal [1]. This
-happens when multiple HCI_EV_SYNC_CONN_COMPLETE event packets with
-status 0 are sent for the same HCI connection. This causes us to
-register the device more than once which corrupts the kset list.
+In error handling branch "if (WARN_ON(node == NUMA_NO_NODE))", the
+previously allocated memories are not released. Doing this before
+allocating memory eliminates memory leaks.
 
-As this is forbidden behavior, we add a check for whether we're
-trying to process the same HCI_EV_SYNC_CONN_COMPLETE event multiple
-times for one connection. If that's the case, the event is invalid, so
-we report an error that the device is misbehaving, and ignore the
-packet.
+tj: Note that the condition only occurs when the arch code is pretty broken
+and the WARN_ON might as well be BUG_ON().
 
-Link: https://syzkaller.appspot.com/bug?extid=66264bf2fd0476be7e6c [1]
-Reported-by: syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com
-Tested-by: syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Reviewed-by: Lai Jiangshan <jiangshanlai@gmail.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ kernel/workqueue.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index e8e7f108b016..82e42d8e2ea0 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -4202,6 +4202,21 @@ static void hci_sync_conn_complete_evt(struct hci_dev *hdev,
+diff --git a/kernel/workqueue.c b/kernel/workqueue.c
+index 6aeb53b4e19f..885d4792abdf 100644
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -5869,6 +5869,13 @@ static void __init wq_numa_init(void)
+ 		return;
+ 	}
  
- 	switch (ev->status) {
- 	case 0x00:
-+		/* The synchronous connection complete event should only be
-+		 * sent once per new connection. Receiving a successful
-+		 * complete event when the connection status is already
-+		 * BT_CONNECTED means that the device is misbehaving and sent
-+		 * multiple complete event packets for the same new connection.
-+		 *
-+		 * Registering the device more than once can corrupt kernel
-+		 * memory, hence upon detecting this invalid event, we report
-+		 * an error and ignore the packet.
-+		 */
-+		if (conn->state == BT_CONNECTED) {
-+			bt_dev_err(hdev, "Ignoring connect complete event for existing connection");
-+			goto unlock;
++	for_each_possible_cpu(cpu) {
++		if (WARN_ON(cpu_to_node(cpu) == NUMA_NO_NODE)) {
++			pr_warn("workqueue: NUMA node mapping not available for cpu%d, disabling NUMA support\n", cpu);
++			return;
 +		}
++	}
 +
- 		conn->handle = __le16_to_cpu(ev->handle);
- 		conn->state  = BT_CONNECTED;
- 		conn->type   = ev->link_type;
+ 	wq_update_unbound_numa_attrs_buf = alloc_workqueue_attrs();
+ 	BUG_ON(!wq_update_unbound_numa_attrs_buf);
+ 
+@@ -5886,11 +5893,6 @@ static void __init wq_numa_init(void)
+ 
+ 	for_each_possible_cpu(cpu) {
+ 		node = cpu_to_node(cpu);
+-		if (WARN_ON(node == NUMA_NO_NODE)) {
+-			pr_warn("workqueue: NUMA node mapping not available for cpu%d, disabling NUMA support\n", cpu);
+-			/* happens iff arch is bonkers, let's just proceed */
+-			return;
+-		}
+ 		cpumask_set_cpu(cpu, tbl[node]);
+ 	}
+ 
 -- 
 2.30.2
 
