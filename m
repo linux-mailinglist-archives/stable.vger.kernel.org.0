@@ -2,39 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EBE1412658
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:57:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45B77412655
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:55:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387261AbhITS4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:56:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33246 "EHLO mail.kernel.org"
+        id S1387256AbhITS4v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:56:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1384558AbhITSsV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1384557AbhITSsV (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:48:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 309A263371;
-        Mon, 20 Sep 2021 17:33:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AEEB63370;
+        Mon, 20 Sep 2021 17:34:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159239;
-        bh=WJe888GmZMO8tNP8Mva3SIeLGpeDoflV3yrH7klLyPQ=;
+        s=korg; t=1632159242;
+        bh=vJfuJtT04oEyvNLNclBtZQYkSoy2LkJlQZTTJaBXSO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IwmBFXhxzuQGo/9Bf1o9I5xplO+lYTWnnZsAgZNjPYrF1ozJNHgQU8uXeylMg+g3O
-         IQm4lMjt8XOudtFisEvNwSJgR9mGmZJRNo0ZuPCgY1AoWOntqSemYmwSHGqguiVfad
-         7Yd4LoBLGP7tbvaRGbAyV8ISQGpBzbT9kSvq5FpA=
+        b=W0ZOMc6Yeans5twLgHqSF5Pwd48fHiABBLvaZKvCmGjzlc3l+2w8NbZYz4wcLenAO
+         Ceko0GghbKo+wJqopqJSJHOdYU1eyPgVfaAgTcCTpjYoSI+glXsG1iEDg5azsvPoFB
+         y8doJnylpSvNCoG1s4ippMT4GH2jPkzp6vtV0EXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Huafei <lihuafei1@huawei.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        He Kuang <hekuang@huawei.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Zhang Jinhao <zhangjinhao2@huawei.com>,
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 141/168] perf unwind: Do not overwrite FEATURE_CHECK_LDFLAGS-libunwind-{x86,aarch64}
-Date:   Mon, 20 Sep 2021 18:44:39 +0200
-Message-Id: <20210920163926.291811876@linuxfoundation.org>
+Subject: [PATCH 5.14 142/168] perf bench inject-buildid: Handle writen() errors
+Date:   Mon, 20 Sep 2021 18:44:40 +0200
+Message-Id: <20210920163926.324189750@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
 References: <20210920163921.633181900@linuxfoundation.org>
@@ -46,135 +40,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Huafei <lihuafei1@huawei.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit cdf32b44678c382a31dc183d9a767306915cda7b ]
+[ Upstream commit edf7b4a2d85e37a1ee77156bddaed4aa6af9c5e1 ]
 
-When setting LIBUNWIND_DIR, we first set
+The build on fedora:35 and fedora:rawhide with clang is failing with:
 
- FEATURE_CHECK_LDFLAGS-libunwind-{aarch64,x86} = -L$(LIBUNWIND_DIR)/lib.
+  49    41.00 fedora:35                     : FAIL clang version 13.0.0 (Fedora 13.0.0~rc1-1.fc35)
+    bench/inject-buildid.c:351:6: error: variable 'len' set but not used [-Werror,-Wunused-but-set-variable]
+            u64 len = 0;
+                ^
+    1 error generated.
+    make[3]: *** [/git/perf-5.14.0-rc7/tools/build/Makefile.build:139: bench] Error 2
+  50    41.11 fedora:rawhide                : FAIL clang version 13.0.0 (Fedora 13.0.0~rc1-1.fc35)
+    bench/inject-buildid.c:351:6: error: variable 'len' set but not used [-Werror,-Wunused-but-set-variable]
+            u64 len = 0;
+                ^
+    1 error generated.
+    make[3]: *** [/git/perf-5.14.0-rc7/tools/build/Makefile.build:139: bench] Error 2
 
-<committer note>
-This happens a bit before, the overwritting, in:
+That 'len' variable is not used at all, so just make sure all the
+synthesize_RECORD() routines return ssize_t to propagate the writen()
+return, as it may fail, ditch the 'ret' var and bail out if those
+routines fail.
 
-  libunwind_arch_set_flags = $(eval $(libunwind_arch_set_flags_code))
-  define libunwind_arch_set_flags_code
-    FEATURE_CHECK_CFLAGS-libunwind-$(1)  = -I$(LIBUNWIND_DIR)/include
-    FEATURE_CHECK_LDFLAGS-libunwind-$(1) = -L$(LIBUNWIND_DIR)/lib
-  endef
-
-  ifdef LIBUNWIND_DIR
-    LIBUNWIND_CFLAGS  = -I$(LIBUNWIND_DIR)/include
-    LIBUNWIND_LDFLAGS = -L$(LIBUNWIND_DIR)/lib
-    LIBUNWIND_ARCHS = x86 x86_64 arm aarch64 debug-frame-arm debug-frame-aarch64
-    $(foreach libunwind_arch,$(LIBUNWIND_ARCHS),$(call libunwind_arch_set_flags,$(libunwind_arch)))
-  endif
-
-Look at that 'foreach' on all the LIBUNWIND_ARCHS.
-</>
-
-After commit 5c4d7c82c0dc ("perf unwind: Do not put libunwind-{x86,aarch64}
-in FEATURE_TESTS_BASIC"), FEATURE_CHECK_LDFLAGS-libunwind-{x86,aarch64} is
-overwritten. As a result, the remote libunwind libraries cannot be searched
-from $(LIBUNWIND_DIR)/lib directory during feature check tests. Fix it with
-variable appending.
-
-Before this patch:
-
-  perf$ make VF=1 LIBUNWIND_DIR=/opt/libunwind_aarch64
-   BUILD:   Doing 'make -j16' parallel build
-  <SNIP>
-  ...
-  ...                    libopencsd: [ OFF ]
-  ...                 libunwind-x86: [ OFF ]
-  ...              libunwind-x86_64: [ OFF ]
-  ...                 libunwind-arm: [ OFF ]
-  ...             libunwind-aarch64: [ OFF ]
-  ...         libunwind-debug-frame: [ OFF ]
-  ...     libunwind-debug-frame-arm: [ OFF ]
-  ... libunwind-debug-frame-aarch64: [ OFF ]
-  ...                           cxx: [ OFF ]
-  <SNIP>
-
-  perf$ cat ../build/feature/test-libunwind-aarch64.make.output
-  /usr/bin/ld: cannot find -lunwind-aarch64
-  /usr/bin/ld: cannot find -lunwind-aarch64
-  collect2: error: ld returned 1 exit status
-
-After this patch:
-
-  perf$ make VF=1 LIBUNWIND_DIR=/opt/libunwind_aarch64
-   BUILD:   Doing 'make -j16' parallel build
-  <SNIP>
-  ...                    libopencsd: [ OFF ]
-  ...                 libunwind-x86: [ OFF ]
-  ...              libunwind-x86_64: [ OFF ]
-  ...                 libunwind-arm: [ OFF ]
-  ...             libunwind-aarch64: [ on  ]
-  ...         libunwind-debug-frame: [ OFF ]
-  ...     libunwind-debug-frame-arm: [ OFF ]
-  ... libunwind-debug-frame-aarch64: [ OFF ]
-  ...                           cxx: [ OFF ]
-  <SNIP>
-
-  perf$ cat ../build/feature/test-libunwind-aarch64.make.output
-
-  perf$ ldd ./perf
-        linux-vdso.so.1 (0x00007ffdf07da000)
-        libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f30953dc000)
-        librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f30951d4000)
-        libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f3094e36000)
-        libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f3094c32000)
-        libelf.so.1 => /usr/lib/x86_64-linux-gnu/libelf.so.1 (0x00007f3094a18000)
-        libdw.so.1 => /usr/lib/x86_64-linux-gnu/libdw.so.1 (0x00007f30947cc000)
-        libunwind-x86_64.so.8 => /usr/lib/x86_64-linux-gnu/libunwind-x86_64.so.8 (0x00007f30945ad000)
-        libunwind.so.8 => /usr/lib/x86_64-linux-gnu/libunwind.so.8 (0x00007f3094392000)
-        liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007f309416c000)
-        libunwind-aarch64.so.8 => not found
-        libslang.so.2 => /lib/x86_64-linux-gnu/libslang.so.2 (0x00007f3093c8a000)
-        libpython2.7.so.1.0 => /usr/local/lib/libpython2.7.so.1.0 (0x00007f309386b000)
-        libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f309364e000)
-        libnuma.so.1 => /usr/lib/x86_64-linux-gnu/libnuma.so.1 (0x00007f3093443000)
-        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f3093052000)
-        /lib64/ld-linux-x86-64.so.2 (0x00007f3096097000)
-        libbz2.so.1.0 => /lib/x86_64-linux-gnu/libbz2.so.1.0 (0x00007f3092e42000)
-        libutil.so.1 => /lib/x86_64-linux-gnu/libutil.so.1 (0x00007f3092c3f000)
-
-Fixes: 5c4d7c82c0dceccf ("perf unwind: Do not put libunwind-{x86,aarch64} in FEATURE_TESTS_BASIC")
-Signed-off-by: Li Huafei <lihuafei1@huawei.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: He Kuang <hekuang@huawei.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Zhang Jinhao <zhangjinhao2@huawei.com>
-Link: http://lore.kernel.org/lkml/20210823134340.60955-1-lihuafei1@huawei.com
+Fixes: 0bf02a0d80427f26 ("perf bench: Add build-id injection benchmark")
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Link: http://lore.kernel.org/lkml/CAM9d7cgEZNSor+B+7Y2C+QYGme_v5aH0Zn0RLfxoQ+Fy83EHrg@mail.gmail.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/Makefile.config | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ tools/perf/bench/inject-buildid.c | 52 ++++++++++++++++++-------------
+ 1 file changed, 30 insertions(+), 22 deletions(-)
 
-diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
-index eb8e487ef90b..29ffd57f5cd8 100644
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -133,10 +133,10 @@ FEATURE_CHECK_LDFLAGS-libunwind = $(LIBUNWIND_LDFLAGS) $(LIBUNWIND_LIBS)
- FEATURE_CHECK_CFLAGS-libunwind-debug-frame = $(LIBUNWIND_CFLAGS)
- FEATURE_CHECK_LDFLAGS-libunwind-debug-frame = $(LIBUNWIND_LDFLAGS) $(LIBUNWIND_LIBS)
+diff --git a/tools/perf/bench/inject-buildid.c b/tools/perf/bench/inject-buildid.c
+index 55d373b75791..17672790f123 100644
+--- a/tools/perf/bench/inject-buildid.c
++++ b/tools/perf/bench/inject-buildid.c
+@@ -133,7 +133,7 @@ static u64 dso_map_addr(struct bench_dso *dso)
+ 	return 0x400000ULL + dso->ino * 8192ULL;
+ }
  
--FEATURE_CHECK_LDFLAGS-libunwind-arm = -lunwind -lunwind-arm
--FEATURE_CHECK_LDFLAGS-libunwind-aarch64 = -lunwind -lunwind-aarch64
--FEATURE_CHECK_LDFLAGS-libunwind-x86 = -lunwind -llzma -lunwind-x86
--FEATURE_CHECK_LDFLAGS-libunwind-x86_64 = -lunwind -llzma -lunwind-x86_64
-+FEATURE_CHECK_LDFLAGS-libunwind-arm += -lunwind -lunwind-arm
-+FEATURE_CHECK_LDFLAGS-libunwind-aarch64 += -lunwind -lunwind-aarch64
-+FEATURE_CHECK_LDFLAGS-libunwind-x86 += -lunwind -llzma -lunwind-x86
-+FEATURE_CHECK_LDFLAGS-libunwind-x86_64 += -lunwind -llzma -lunwind-x86_64
+-static u32 synthesize_attr(struct bench_data *data)
++static ssize_t synthesize_attr(struct bench_data *data)
+ {
+ 	union perf_event event;
  
- FEATURE_CHECK_LDFLAGS-libcrypto = -lcrypto
+@@ -151,7 +151,7 @@ static u32 synthesize_attr(struct bench_data *data)
+ 	return writen(data->input_pipe[1], &event, event.header.size);
+ }
  
+-static u32 synthesize_fork(struct bench_data *data)
++static ssize_t synthesize_fork(struct bench_data *data)
+ {
+ 	union perf_event event;
+ 
+@@ -169,8 +169,7 @@ static u32 synthesize_fork(struct bench_data *data)
+ 	return writen(data->input_pipe[1], &event, event.header.size);
+ }
+ 
+-static u32 synthesize_mmap(struct bench_data *data, struct bench_dso *dso,
+-			   u64 timestamp)
++static ssize_t synthesize_mmap(struct bench_data *data, struct bench_dso *dso, u64 timestamp)
+ {
+ 	union perf_event event;
+ 	size_t len = offsetof(struct perf_record_mmap2, filename);
+@@ -198,23 +197,25 @@ static u32 synthesize_mmap(struct bench_data *data, struct bench_dso *dso,
+ 
+ 	if (len > sizeof(event.mmap2)) {
+ 		/* write mmap2 event first */
+-		writen(data->input_pipe[1], &event, len - bench_id_hdr_size);
++		if (writen(data->input_pipe[1], &event, len - bench_id_hdr_size) < 0)
++			return -1;
+ 		/* zero-fill sample id header */
+ 		memset(id_hdr_ptr, 0, bench_id_hdr_size);
+ 		/* put timestamp in the right position */
+ 		ts_idx = (bench_id_hdr_size / sizeof(u64)) - 2;
+ 		id_hdr_ptr[ts_idx] = timestamp;
+-		writen(data->input_pipe[1], id_hdr_ptr, bench_id_hdr_size);
+-	} else {
+-		ts_idx = (len / sizeof(u64)) - 2;
+-		id_hdr_ptr[ts_idx] = timestamp;
+-		writen(data->input_pipe[1], &event, len);
++		if (writen(data->input_pipe[1], id_hdr_ptr, bench_id_hdr_size) < 0)
++			return -1;
++
++		return len;
+ 	}
+-	return len;
++
++	ts_idx = (len / sizeof(u64)) - 2;
++	id_hdr_ptr[ts_idx] = timestamp;
++	return writen(data->input_pipe[1], &event, len);
+ }
+ 
+-static u32 synthesize_sample(struct bench_data *data, struct bench_dso *dso,
+-			     u64 timestamp)
++static ssize_t synthesize_sample(struct bench_data *data, struct bench_dso *dso, u64 timestamp)
+ {
+ 	union perf_event event;
+ 	struct perf_sample sample = {
+@@ -233,7 +234,7 @@ static u32 synthesize_sample(struct bench_data *data, struct bench_dso *dso,
+ 	return writen(data->input_pipe[1], &event, event.header.size);
+ }
+ 
+-static u32 synthesize_flush(struct bench_data *data)
++static ssize_t synthesize_flush(struct bench_data *data)
+ {
+ 	struct perf_event_header header = {
+ 		.size = sizeof(header),
+@@ -348,14 +349,16 @@ static int inject_build_id(struct bench_data *data, u64 *max_rss)
+ 	int status;
+ 	unsigned int i, k;
+ 	struct rusage rusage;
+-	u64 len = 0;
+ 
+ 	/* this makes the child to run */
+ 	if (perf_header__write_pipe(data->input_pipe[1]) < 0)
+ 		return -1;
+ 
+-	len += synthesize_attr(data);
+-	len += synthesize_fork(data);
++	if (synthesize_attr(data) < 0)
++		return -1;
++
++	if (synthesize_fork(data) < 0)
++		return -1;
+ 
+ 	for (i = 0; i < nr_mmaps; i++) {
+ 		int idx = rand() % (nr_dsos - 1);
+@@ -363,13 +366,18 @@ static int inject_build_id(struct bench_data *data, u64 *max_rss)
+ 		u64 timestamp = rand() % 1000000;
+ 
+ 		pr_debug2("   [%d] injecting: %s\n", i+1, dso->name);
+-		len += synthesize_mmap(data, dso, timestamp);
++		if (synthesize_mmap(data, dso, timestamp) < 0)
++			return -1;
+ 
+-		for (k = 0; k < nr_samples; k++)
+-			len += synthesize_sample(data, dso, timestamp + k * 1000);
++		for (k = 0; k < nr_samples; k++) {
++			if (synthesize_sample(data, dso, timestamp + k * 1000) < 0)
++				return -1;
++		}
+ 
+-		if ((i + 1) % 10 == 0)
+-			len += synthesize_flush(data);
++		if ((i + 1) % 10 == 0) {
++			if (synthesize_flush(data) < 0)
++				return -1;
++		}
+ 	}
+ 
+ 	/* this makes the child to finish */
 -- 
 2.30.2
 
