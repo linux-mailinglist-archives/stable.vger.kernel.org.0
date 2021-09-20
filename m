@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0297F41241C
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:29:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD6FE412320
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:19:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378351AbhITSad (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:30:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49300 "EHLO mail.kernel.org"
+        id S1377846AbhITSVS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:21:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1379162AbhITS21 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:28:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7404632E0;
-        Mon, 20 Sep 2021 17:26:28 +0000 (UTC)
+        id S1351462AbhITSSP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:18:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CEA4632A2;
+        Mon, 20 Sep 2021 17:22:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158789;
-        bh=hjns1O5VBB1oEQxpCGhtIp+uuv+3hKCDt4L6L2WPSCw=;
+        s=korg; t=1632158553;
+        bh=GYqZbqkLQ4C4Ds8JdpEkexRz/rAqdZNfCAd97Sy5WmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0USE7iEPUUzRUp3Y3umgsfkkS+xrNWKKFurrHVEvBrN9j6qToFGppUlCVq5ZjGRYF
-         IupfQFcIUA8HqhDRdr3m8PaEqIePS3gQWFpzktJ6vYhP6h3yXYglq8ToNQFPutY96G
-         GiT8bM8+bV2t9ytidDuyUrhAKCAanKBoqG59To/c=
+        b=D6kbSsLS2+dmXkLtT/lmXzC/GKJxwbXn39iyr6Jysthm+4zX5HCOy98eUqXpPJRn/
+         /lj6Vq9W4PuuhQ19Vc/wJ4syrk+Y1J4dVYcM6wnh/JR1UOrYzJnqihDWuecbwVBxkL
+         jSP6RnDfaaIHlh2vrNcKwd9rzexBOOpxj9JRi0GY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Ryan J. Barnett" <ryan.barnett@collins.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 055/122] dt-bindings: mtd: gpmc: Fix the ECC bytes vs. OOB bytes equation
+        syzbot+e6741b97d5552f97c24d@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 209/260] tipc: fix an use-after-free issue in tipc_recvmsg
 Date:   Mon, 20 Sep 2021 18:43:47 +0200
-Message-Id: <20210920163917.592109319@linuxfoundation.org>
+Message-Id: <20210920163938.211574882@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 778cb8e39f6ec252be50fc3850d66f3dcbd5dd5a ]
+commit cc19862ffe454a5b632ca202e5a51bfec9f89fd2 upstream.
 
-"PAGESIZE / 512" is the number of ECC chunks.
-"ECC_BYTES" is the number of bytes needed to store a single ECC code.
-"2" is the space reserved by the bad block marker.
+syzbot reported an use-after-free crash:
 
-"2 + (PAGESIZE / 512) * ECC_BYTES" should of course be lower or equal
-than the total number of OOB bytes, otherwise it won't fit.
+  BUG: KASAN: use-after-free in tipc_recvmsg+0xf77/0xf90 net/tipc/socket.c:1979
+  Call Trace:
+   tipc_recvmsg+0xf77/0xf90 net/tipc/socket.c:1979
+   sock_recvmsg_nosec net/socket.c:943 [inline]
+   sock_recvmsg net/socket.c:961 [inline]
+   sock_recvmsg+0xca/0x110 net/socket.c:957
+   tipc_conn_rcv_from_sock+0x162/0x2f0 net/tipc/topsrv.c:398
+   tipc_conn_recv_work+0xeb/0x190 net/tipc/topsrv.c:421
+   process_one_work+0x98d/0x1630 kernel/workqueue.c:2276
+   worker_thread+0x658/0x11f0 kernel/workqueue.c:2422
 
-Fix the equation by substituting s/>=/<=/.
+As Hoang pointed out, it was caused by skb_cb->bytes_read still accessed
+after calling tsk_advance_rx_queue() to free the skb in tipc_recvmsg().
 
-Suggested-by: Ryan J. Barnett <ryan.barnett@collins.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/linux-mtd/20210610143945.3504781-1-miquel.raynal@bootlin.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch is to fix it by accessing skb_cb->bytes_read earlier than
+calling tsk_advance_rx_queue().
+
+Fixes: f4919ff59c28 ("tipc: keep the skb in rcv queue until the whole data is read")
+Reported-by: syzbot+e6741b97d5552f97c24d@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/mtd/gpmc-nand.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/tipc/socket.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-index 44919d48d241..c459f169a904 100644
---- a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-+++ b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-@@ -122,7 +122,7 @@ on various other factors also like;
- 	so the device should have enough free bytes available its OOB/Spare
- 	area to accommodate ECC for entire page. In general following expression
- 	helps in determining if given device can accommodate ECC syndrome:
--	"2 + (PAGESIZE / 512) * ECC_BYTES" >= OOBSIZE"
-+	"2 + (PAGESIZE / 512) * ECC_BYTES" <= OOBSIZE"
- 	where
- 		OOBSIZE		number of bytes in OOB/spare area
- 		PAGESIZE	number of bytes in main-area of device page
--- 
-2.30.2
-
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -1849,10 +1849,12 @@ static int tipc_recvmsg(struct socket *s
+ 		tipc_node_distr_xmit(sock_net(sk), &xmitq);
+ 	}
+ 
+-	if (!skb_cb->bytes_read)
+-		tsk_advance_rx_queue(sk);
++	if (skb_cb->bytes_read)
++		goto exit;
++
++	tsk_advance_rx_queue(sk);
+ 
+-	if (likely(!connected) || skb_cb->bytes_read)
++	if (likely(!connected))
+ 		goto exit;
+ 
+ 	/* Send connection flow control advertisement when applicable */
 
 
