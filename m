@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B62334124DC
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:39:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0056541222E
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:12:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379738AbhITSim (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:38:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53082 "EHLO mail.kernel.org"
+        id S1358796AbhITSNg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:13:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1380655AbhITSg1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:36:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D138063318;
-        Mon, 20 Sep 2021 17:29:29 +0000 (UTC)
+        id S1359680AbhITSKK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:10:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EB1D63263;
+        Mon, 20 Sep 2021 17:19:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158970;
-        bh=VzkhfAzd0nfpuUZebesnToiQjgXAkm5q69+Q7WSNwgk=;
+        s=korg; t=1632158399;
+        bh=MHCT81CLOAfWfwatB+GSh3H35Orvn8JtecjqpHpu6L8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KyvI1t825dJ9tG70uQzHNmaxNaL/qCePT/f8znFUzSZQXvRTOc10seA8G2ieQzC0m
-         rq6OnJN6o/ujE73rRch8ihKW5U5uD7gYUActB1owDUHXtxijspmXkozsNXrL2wkDSl
-         UCh3ji/bYUybYfhchTeybxOdGBfCei0ssqVFOYCI=
+        b=zOYdiMfXo9+XMGj9TL6x0Xd1bpMouBnoMNAHZ2wSQUxbhJ6NCFqEQlXkYsKsC2f9v
+         YzHciyG0YdUjtzlnH8JT3ZjKbngQqYCXWuDr8mFAbvKcTO5cw7p70Hss+Hdx1Tk41b
+         dkdIzsOc97W6SlXCNmQnx30ijb76smG+g7CL3j+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Zhu <James.Zhu@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.14 017/168] drm/amdgpu: add amdgpu_amdkfd_resume_iommu
-Date:   Mon, 20 Sep 2021 18:42:35 +0200
-Message-Id: <20210920163922.212118654@linuxfoundation.org>
+        stable@vger.kernel.org, Rajendra Nayak <rnayak@codeaurora.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 138/260] opp: Dont print an error if required-opps is missing
+Date:   Mon, 20 Sep 2021 18:42:36 +0200
+Message-Id: <20210920163935.807261708@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Zhu <James.Zhu@amd.com>
+From: Rajendra Nayak <rnayak@codeaurora.org>
 
-commit 8066008482e533e91934bee49765bf8b4a7c40db upstream.
+[ Upstream commit 020d86fc0df8b865f6dc168d88a7c2dccabd0a9e ]
 
-Add amdgpu_amdkfd_resume_iommu for amdgpu.
+The 'required-opps' property is considered optional, hence remove
+the pr_err() in of_parse_required_opp() when we find the property is
+missing.
+While at it, also fix the return value of
+of_get_required_opp_performance_state() when of_parse_required_opp()
+fails, return a -ENODEV instead of the -EINVAL.
 
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=211277
-Signed-off-by: James Zhu <James.Zhu@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Rajendra Nayak <rnayak@codeaurora.org>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.c |   10 ++++++++++
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h |    1 +
- 2 files changed, 11 insertions(+)
+ drivers/opp/of.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.c
-@@ -191,6 +191,16 @@ void amdgpu_amdkfd_suspend(struct amdgpu
- 		kgd2kfd_suspend(adev->kfd.dev, run_pm);
+diff --git a/drivers/opp/of.c b/drivers/opp/of.c
+index 603c688fe23d..30cc407c8f93 100644
+--- a/drivers/opp/of.c
++++ b/drivers/opp/of.c
+@@ -95,15 +95,7 @@ static struct dev_pm_opp *_find_opp_of_np(struct opp_table *opp_table,
+ static struct device_node *of_parse_required_opp(struct device_node *np,
+ 						 int index)
+ {
+-	struct device_node *required_np;
+-
+-	required_np = of_parse_phandle(np, "required-opps", index);
+-	if (unlikely(!required_np)) {
+-		pr_err("%s: Unable to parse required-opps: %pOF, index: %d\n",
+-		       __func__, np, index);
+-	}
+-
+-	return required_np;
++	return of_parse_phandle(np, "required-opps", index);
  }
  
-+int amdgpu_amdkfd_resume_iommu(struct amdgpu_device *adev)
-+{
-+	int r = 0;
-+
-+	if (adev->kfd.dev)
-+		r = kgd2kfd_resume_iommu(adev->kfd.dev);
-+
-+	return r;
-+}
-+
- int amdgpu_amdkfd_resume(struct amdgpu_device *adev, bool run_pm)
- {
- 	int r = 0;
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h
-@@ -137,6 +137,7 @@ int amdgpu_amdkfd_init(void);
- void amdgpu_amdkfd_fini(void);
+ /* The caller must call dev_pm_opp_put_opp_table() after the table is used */
+@@ -996,7 +988,7 @@ int of_get_required_opp_performance_state(struct device_node *np, int index)
  
- void amdgpu_amdkfd_suspend(struct amdgpu_device *adev, bool run_pm);
-+int amdgpu_amdkfd_resume_iommu(struct amdgpu_device *adev);
- int amdgpu_amdkfd_resume(struct amdgpu_device *adev, bool run_pm);
- void amdgpu_amdkfd_interrupt(struct amdgpu_device *adev,
- 			const void *ih_ring_entry);
+ 	required_np = of_parse_required_opp(np, index);
+ 	if (!required_np)
+-		return -EINVAL;
++		return -ENODEV;
+ 
+ 	opp_table = _find_table_of_opp_np(required_np);
+ 	if (IS_ERR(opp_table)) {
+-- 
+2.30.2
+
 
 
