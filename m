@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2A2A41214E
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:05:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 199A541214A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:05:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350464AbhITSED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:04:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57652 "EHLO mail.kernel.org"
+        id S1350465AbhITSEA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:04:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355535AbhITSB4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1356861AbhITSB4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:01:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 627656322C;
-        Mon, 20 Sep 2021 17:16:13 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 84C666322F;
+        Mon, 20 Sep 2021 17:16:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158173;
-        bh=kMIPK3p1+GqVP8rNQfK2kavic9ZJWZ0hHHMV3CkJ/eg=;
+        s=korg; t=1632158176;
+        bh=uAgDrDaQvuwlGbDQmjOOVb1AG5MD5EJZLfmWEmvOr2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nSbkFemqTRLACqx9PJP1x+tn7F3aW3SVxs4MQ5Fu4LDzYO1S9te6NCsvPxe011QRP
-         9t2AIOOjgVdXQ78pk9w/OveFiFxIBnKz+QsecOkn33e/57/osGrUUj2SJDP1uK+QiH
-         f304FdogvbabNXa+FSPbpRrUnktAPJS6M+UAISPY=
+        b=EYkfodtnLRI79ojhuxpXJ4QJRMMBoce1qEeo3G/J6PV48YfWfpELT0p3EPTclsHLy
+         g0vBtWS1xeVlF7DdPuiAq4PyqwlVGh2Vnu2+hYcXt+zM5/NrKnMBG2iarn+pAozoG3
+         3A31qvE+yXkve/Lr1d17LMYN23Sy5csmNSOQGbr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
         =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 5.4 034/260] PCI: aardvark: Increase polling delay to 1.5s while waiting for PIO response
-Date:   Mon, 20 Sep 2021 18:40:52 +0200
-Message-Id: <20210920163932.283601932@linuxfoundation.org>
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.4 035/260] PCI: aardvark: Fix masking and unmasking legacy INTx interrupts
+Date:   Mon, 20 Sep 2021 18:40:53 +0200
+Message-Id: <20210920163932.316505502@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -43,50 +42,70 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-commit 02bcec3ea5591720114f586960490b04b093a09e upstream.
+commit d212dcee27c1f89517181047e5485fcbba4a25c2 upstream.
 
-Measurements in different conditions showed that aardvark hardware PIO
-response can take up to 1.44s. Increase wait timeout from 1ms to 1.5s to
-ensure that we do not miss responses from hardware. After 1.44s hardware
-returns errors (e.g. Completer abort).
+irq_mask and irq_unmask callbacks need to be properly guarded by raw spin
+locks as masking/unmasking procedure needs atomic read-modify-write
+operation on hardware register.
 
-The previous two patches fixed checking for PIO status, so now we can use
-it to also catch errors which are reported by hardware after 1.44s.
-
-After applying this patch, kernel can detect and print PIO errors to dmesg:
-
-    [    6.879999] advk-pcie d0070000.pcie: Non-posted PIO Response Status: CA, 0xe00 @ 0x100004
-    [    6.896436] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100004
-    [    6.913049] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100010
-    [    6.929663] advk-pcie d0070000.pcie: Non-posted PIO Response Status: CA, 0xe00 @ 0x100010
-    [    6.953558] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100014
-    [    6.970170] advk-pcie d0070000.pcie: Non-posted PIO Response Status: CA, 0xe00 @ 0x100014
-    [    6.994328] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100004
-
-Without this patch kernel prints only a generic error to dmesg:
-
-    [    5.246847] advk-pcie d0070000.pcie: config read/write timed out
-
-Link: https://lore.kernel.org/r/20210722144041.12661-3-pali@kernel.org
+Link: https://lore.kernel.org/r/20210820155020.3000-1-pali@kernel.org
+Reported-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Cc: stable@vger.kernel.org # 7fbcb5da811b ("PCI: aardvark: Don't rely on jiffies while holding spinlock")
+Acked-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/pci-aardvark.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
 --- a/drivers/pci/controller/pci-aardvark.c
 +++ b/drivers/pci/controller/pci-aardvark.c
-@@ -177,7 +177,7 @@
- 	(PCIE_CONF_BUS(bus) | PCIE_CONF_DEV(PCI_SLOT(devfn))	| \
- 	 PCIE_CONF_FUNC(PCI_FUNC(devfn)) | PCIE_CONF_REG(where))
+@@ -194,6 +194,7 @@ struct advk_pcie {
+ 	struct list_head resources;
+ 	struct irq_domain *irq_domain;
+ 	struct irq_chip irq_chip;
++	raw_spinlock_t irq_lock;
+ 	struct irq_domain *msi_domain;
+ 	struct irq_domain *msi_inner_domain;
+ 	struct irq_chip msi_bottom_irq_chip;
+@@ -812,22 +813,28 @@ static void advk_pcie_irq_mask(struct ir
+ {
+ 	struct advk_pcie *pcie = d->domain->host_data;
+ 	irq_hw_number_t hwirq = irqd_to_hwirq(d);
++	unsigned long flags;
+ 	u32 mask;
  
--#define PIO_RETRY_CNT			500
-+#define PIO_RETRY_CNT			750000 /* 1.5 s */
- #define PIO_RETRY_DELAY			2 /* 2 us*/
++	raw_spin_lock_irqsave(&pcie->irq_lock, flags);
+ 	mask = advk_readl(pcie, PCIE_ISR1_MASK_REG);
+ 	mask |= PCIE_ISR1_INTX_ASSERT(hwirq);
+ 	advk_writel(pcie, mask, PCIE_ISR1_MASK_REG);
++	raw_spin_unlock_irqrestore(&pcie->irq_lock, flags);
+ }
  
- #define LINK_WAIT_MAX_RETRIES		10
+ static void advk_pcie_irq_unmask(struct irq_data *d)
+ {
+ 	struct advk_pcie *pcie = d->domain->host_data;
+ 	irq_hw_number_t hwirq = irqd_to_hwirq(d);
++	unsigned long flags;
+ 	u32 mask;
+ 
++	raw_spin_lock_irqsave(&pcie->irq_lock, flags);
+ 	mask = advk_readl(pcie, PCIE_ISR1_MASK_REG);
+ 	mask &= ~PCIE_ISR1_INTX_ASSERT(hwirq);
+ 	advk_writel(pcie, mask, PCIE_ISR1_MASK_REG);
++	raw_spin_unlock_irqrestore(&pcie->irq_lock, flags);
+ }
+ 
+ static int advk_pcie_irq_map(struct irq_domain *h,
+@@ -911,6 +918,8 @@ static int advk_pcie_init_irq_domain(str
+ 	struct irq_chip *irq_chip;
+ 	int ret = 0;
+ 
++	raw_spin_lock_init(&pcie->irq_lock);
++
+ 	pcie_intc_node =  of_get_next_child(node, NULL);
+ 	if (!pcie_intc_node) {
+ 		dev_err(dev, "No PCIe Intc node found\n");
 
 
