@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F24AF411CDF
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:13:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 280F4411F5C
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:39:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347387AbhITRNv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:13:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40008 "EHLO mail.kernel.org"
+        id S1352030AbhITRkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:40:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347073AbhITRLr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:11:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58B6161350;
-        Mon, 20 Sep 2021 16:57:21 +0000 (UTC)
+        id S1352202AbhITRiu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:38:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB2FD61B39;
+        Mon, 20 Sep 2021 17:07:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157041;
-        bh=hWhDc7dbmhAKqUO18Fm/Dsde/pOq7/pgSKo4GL1lKmg=;
+        s=korg; t=1632157644;
+        bh=JrgKcjGem19bpdgcVwD4oLBFY0A8EOmoJlFoUAx8LOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1SEOs6t8CBZ4Mdw5uFjmDTpiAuozayfDzKcGOlWMArrp+59gyX6rhHTv+d/6qhFm7
-         4EBhoubAz5T2pDQwYn+r6Z9t5KOJ7RgZR7f6ZAzdPrO0s2WYKwXZBBbHVsYNKCTkjh
-         Yzo5MlAkGKpoNcSRez5C4BX67N6WRpYOv7F7ZYBc=
+        b=Cns4Q9frfKuBGf99pJUt0wKhzpU3S22/B6bjg0E3xExRchi0lCXQ2fltdrbzdNefy
+         W+goO64VzXUtWEe+LbkYqx7yItJlr1G9eD53/B5ww8w0bPYmT0UCmbzmKJNtwVLlMf
+         mPXMEPEIt3ad91AW44E4bdZo/MfCJ0nwVk0eoftU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 4.14 026/217] usb: host: xhci-rcar: Dont reload firmware after the completion
-Date:   Mon, 20 Sep 2021 18:40:47 +0200
-Message-Id: <20210920163925.500043879@linuxfoundation.org>
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 086/293] usb: phy: tahvo: add IRQ check
+Date:   Mon, 20 Sep 2021 18:40:48 +0200
+Message-Id: <20210920163936.214321794@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit 57f3ffdc11143f56f1314972fe86fe17a0dcde85 upstream.
+[ Upstream commit 0d45a1373e669880b8beaecc8765f44cb0241e47 ]
 
-According to the datasheet, "Upon the completion of FW Download,
-there is no need to write or reload FW.". Otherwise, it's possible
-to cause unexpected behaviors. So, adds such a condition.
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to request_threaded_irq() (which
+takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding an
+original error code.  Stop calling request_threaded_irq() with the invalid
+IRQ #s.
 
-Fixes: 4ac8918f3a73 ("usb: host: xhci-plat: add support for the R-Car H2 and M2 xHCI controllers")
-Cc: stable@vger.kernel.org # v3.17+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20210827063227.81990-1-yoshihiro.shimoda.uh@renesas.com
+Fixes: 9ba96ae5074c ("usb: omap1: Tahvo USB transceiver driver")
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Link: https://lore.kernel.org/r/8280d6a4-8e9a-7cfe-1aa9-db586dc9afdf@omp.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-rcar.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/usb/phy/phy-tahvo.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-rcar.c
-+++ b/drivers/usb/host/xhci-rcar.c
-@@ -152,6 +152,13 @@ static int xhci_rcar_download_firmware(s
- 	const struct soc_device_attribute *attr;
- 	const char *firmware_name;
+diff --git a/drivers/usb/phy/phy-tahvo.c b/drivers/usb/phy/phy-tahvo.c
+index 0981abc3d1ad..60d390e28289 100644
+--- a/drivers/usb/phy/phy-tahvo.c
++++ b/drivers/usb/phy/phy-tahvo.c
+@@ -396,7 +396,9 @@ static int tahvo_usb_probe(struct platform_device *pdev)
  
-+	/*
-+	 * According to the datasheet, "Upon the completion of FW Download,
-+	 * there is no need to write or reload FW".
-+	 */
-+	if (readl(regs + RCAR_USB3_DL_CTRL) & RCAR_USB3_DL_CTRL_FW_SUCCESS)
-+		return 0;
-+
- 	attr = soc_device_match(rcar_quirks_match);
- 	if (attr)
- 		quirks = (uintptr_t)attr->data;
+ 	dev_set_drvdata(&pdev->dev, tu);
+ 
+-	tu->irq = platform_get_irq(pdev, 0);
++	tu->irq = ret = platform_get_irq(pdev, 0);
++	if (ret < 0)
++		return ret;
+ 	ret = request_threaded_irq(tu->irq, NULL, tahvo_usb_vbus_interrupt,
+ 				   IRQF_ONESHOT,
+ 				   "tahvo-vbus", tu);
+-- 
+2.30.2
+
 
 
