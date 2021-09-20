@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D929410FD6
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 09:07:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D979410FD7
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 09:07:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233217AbhITHJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 03:09:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47680 "EHLO mail.kernel.org"
+        id S233446AbhITHJS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 03:09:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233338AbhITHJJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 03:09:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4958560FBF;
-        Mon, 20 Sep 2021 07:07:42 +0000 (UTC)
+        id S233338AbhITHJR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 03:09:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F143E60F0F;
+        Mon, 20 Sep 2021 07:07:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632121662;
-        bh=/5rwuQCf9HdrRVTQEWDwoIUvH62q/UK53Ly9YTVv/f0=;
+        s=korg; t=1632121671;
+        bh=X0YWgM8DDE7ZPXczFL4Avjsjdf8b/oEO1NCRs0+zWTQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=o3UTgINZH9B7AQnKS6TZ+PiVpufHsHRbYEjyIDfAw47a0Me3xAPKoUOS2hp5oU57W
-         HfbZmvS5DfT+bMXuYzgqXywF9zhgWwmY0TNMUt0DPpK4T98EIf54XjrAmKLbA+TYsL
-         nwH/I+27sP503guGoxeq8euZIAsrSDwJvyQcHRG8=
-Subject: FAILED: patch "[PATCH] x86/pat: Pass valid address to sanitize_phys()" failed to apply to 5.4-stable tree
+        b=Si/T/dq9jc8GM6m/L7aQ+i5nQ/VANb+kqh0D364rL7/rylS5759SpNvEz3hR0wbq6
+         9ZnxKKtFv+zj1pa0ttST7vHLZ7dCVFT9KddskgdPdLQpD8g1lGc3SmizpTc5kJB5Ay
+         4Osu9T5TIFnwvwH4uAfiE7WlItiDJTFzNxvPuJ0M=
+Subject: FAILED: patch "[PATCH] x86/pat: Pass valid address to sanitize_phys()" failed to apply to 4.19-stable tree
 To:     jmoyer@redhat.com, dan.j.williams@intel.com, david@redhat.com,
         tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Sep 2021 09:07:40 +0200
-Message-ID: <1632121660186243@kroah.com>
+Date:   Mon, 20 Sep 2021 09:07:41 +0200
+Message-ID: <1632121661121120@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
