@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 578D7411BD3
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:02:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC987411AA8
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:49:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245230AbhITRCb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:02:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52718 "EHLO mail.kernel.org"
+        id S233406AbhITQux (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:50:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235934AbhITRAa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:00:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8B126135E;
-        Mon, 20 Sep 2021 16:53:02 +0000 (UTC)
+        id S244343AbhITQuG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:50:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A9936127A;
+        Mon, 20 Sep 2021 16:48:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156783;
-        bh=ecdzkSPgQbxYf5hpjar8p9p+f2rloYzIymYxhWyvR8w=;
+        s=korg; t=1632156519;
+        bh=BEdHrqnaRumpSH1/KUdNA/axJLqGlsErWO+bLDxSrxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ammXn4tX6FcX23t2vAkPve24gfKe5jleI/i47oW7kQiIdM9aBkY/PKD5oEXYuLUHf
-         0WEZtn/ZvmsK0TIDBFTMo+fTncDs5iMzF2PDkuP2nttD4rY7c8sk0cnlMF35FCTjH/
-         snG0+5A/EzML9Abf8Fj7ljCtGgMU0I7eNr8U2YP0=
+        b=RveQDywjkYIhOYflohE+WaJKJjAOKOnZ1wvnSMrqMvLn/HE/DUPSw/IGM/tlmckNb
+         vOwFhzdIDSoOS670YAWnjjJmPp0x/kOkf0qysMiMN/U933jlV88j8F65npddJg9BUE
+         cT512TcRPAt2nu6nDAOcdLXXbpgDq9yu86x1ujPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zelin Deng <zelin.deng@linux.alibaba.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.9 084/175] KVM: x86: Update vCPUs hv_clock before back to guest when tsc_offset is adjusted
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 055/133] usb: phy: tahvo: add IRQ check
 Date:   Mon, 20 Sep 2021 18:42:13 +0200
-Message-Id: <20210920163920.822847551@linuxfoundation.org>
+Message-Id: <20210920163914.447595907@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,40 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zelin Deng <zelin.deng@linux.alibaba.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit d9130a2dfdd4b21736c91b818f87dbc0ccd1e757 upstream.
+[ Upstream commit 0d45a1373e669880b8beaecc8765f44cb0241e47 ]
 
-When MSR_IA32_TSC_ADJUST is written by guest due to TSC ADJUST feature
-especially there's a big tsc warp (like a new vCPU is hot-added into VM
-which has been up for a long time), tsc_offset is added by a large value
-then go back to guest. This causes system time jump as tsc_timestamp is
-not adjusted in the meantime and pvclock monotonic character.
-To fix this, just notify kvm to update vCPU's guest time before back to
-guest.
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to request_threaded_irq() (which
+takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding an
+original error code.  Stop calling request_threaded_irq() with the invalid
+IRQ #s.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Zelin Deng <zelin.deng@linux.alibaba.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Message-Id: <1619576521-81399-2-git-send-email-zelin.deng@linux.alibaba.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 9ba96ae5074c ("usb: omap1: Tahvo USB transceiver driver")
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Link: https://lore.kernel.org/r/8280d6a4-8e9a-7cfe-1aa9-db586dc9afdf@omp.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/phy/phy-tahvo.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -2315,6 +2315,10 @@ int kvm_set_msr_common(struct kvm_vcpu *
- 			if (!msr_info->host_initiated) {
- 				s64 adj = data - vcpu->arch.ia32_tsc_adjust_msr;
- 				adjust_tsc_offset_guest(vcpu, adj);
-+				/* Before back to guest, tsc_timestamp must be adjusted
-+				 * as well, otherwise guest's percpu pvclock time could jump.
-+				 */
-+				kvm_make_request(KVM_REQ_CLOCK_UPDATE, vcpu);
- 			}
- 			vcpu->arch.ia32_tsc_adjust_msr = data;
- 		}
+diff --git a/drivers/usb/phy/phy-tahvo.c b/drivers/usb/phy/phy-tahvo.c
+index 335a1ef35224..ec86eedd789b 100644
+--- a/drivers/usb/phy/phy-tahvo.c
++++ b/drivers/usb/phy/phy-tahvo.c
+@@ -404,7 +404,9 @@ static int tahvo_usb_probe(struct platform_device *pdev)
+ 
+ 	dev_set_drvdata(&pdev->dev, tu);
+ 
+-	tu->irq = platform_get_irq(pdev, 0);
++	tu->irq = ret = platform_get_irq(pdev, 0);
++	if (ret < 0)
++		return ret;
+ 	ret = request_threaded_irq(tu->irq, NULL, tahvo_usb_vbus_interrupt,
+ 				   IRQF_ONESHOT,
+ 				   "tahvo-vbus", tu);
+-- 
+2.30.2
+
 
 
