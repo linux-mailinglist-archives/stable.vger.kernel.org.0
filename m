@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAB2C411D1E
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:15:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B27C9411B40
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:55:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344355AbhITRQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:16:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41200 "EHLO mail.kernel.org"
+        id S238127AbhITQ4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:56:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347610AbhITRO1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:14:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 97A67619F9;
-        Mon, 20 Sep 2021 16:58:09 +0000 (UTC)
+        id S1343557AbhITQyp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:54:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A1F76138F;
+        Mon, 20 Sep 2021 16:50:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157090;
-        bh=89w5O5mvEhMy/uHuvN0tJIllL74mrZOos3Otfw4qbzw=;
+        s=korg; t=1632156649;
+        bh=X73W8+lecl+2gQJjUWNNpqFRg2L8jX9VBx6ncKnREhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gy0dm4S4+IAsp/D1QPCxGSHhqfd1cMgMXDwG3XIelco3w4rV51czZJkWFyD7YyZMh
-         w/IHSShIic7HKtouhcSJq7qlika7/43cLNTUVQuDl3Mm+QR/DGv09Pv5GFhLpUg7+1
-         /Dg9V5cxE3tgp2dC9H8DEwNTr49YezLs2/+Q4eEs=
+        b=cYjPAFKVL+c/SQ3Glr8cuCMs2LTkiTh9hW6I2OYzE7JT/hhaEmi49vNo1Pe96dc9c
+         SIYE4fE0m74A/4yPMDNhdbjvYqVJ7Gc9Sw2KvDlq1Ek/vXty0cFLIRWzWcX7csTRBv
+         UKBLULpswROmKZ1GsC0EbbOledtTE/8uEsRS0x9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Fiona Trahe <fiona.trahe@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 049/217] crypto: qat - use proper type for vf_mask
-Date:   Mon, 20 Sep 2021 18:41:10 +0200
-Message-Id: <20210920163926.286272039@linuxfoundation.org>
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Keith Busch <keith.busch@intel.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.9 022/175] nvme-pci: Fix an error handling path in nvme_probe()
+Date:   Mon, 20 Sep 2021 18:41:11 +0200
+Message-Id: <20210920163918.799178405@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,72 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 462354d986b6a89c6449b85f17aaacf44e455216 ]
+commit b00c9b7aa06786fc5469783965ff3e2a705a1dec upstream.
 
-Replace vf_mask type with unsigned long to avoid a stack-out-of-bound.
+Release resources in the correct order in order not to miss a
+'put_device()' if 'nvme_dev_map()' fails.
 
-This is to fix the following warning reported by KASAN the first time
-adf_msix_isr_ae() gets called.
-
-    [  692.091987] BUG: KASAN: stack-out-of-bounds in find_first_bit+0x28/0x50
-    [  692.092017] Read of size 8 at addr ffff88afdf789e60 by task swapper/32/0
-    [  692.092076] Call Trace:
-    [  692.092089]  <IRQ>
-    [  692.092101]  dump_stack+0x9c/0xcf
-    [  692.092132]  print_address_description.constprop.0+0x18/0x130
-    [  692.092164]  ? find_first_bit+0x28/0x50
-    [  692.092185]  kasan_report.cold+0x7f/0x111
-    [  692.092213]  ? static_obj+0x10/0x80
-    [  692.092234]  ? find_first_bit+0x28/0x50
-    [  692.092262]  find_first_bit+0x28/0x50
-    [  692.092288]  adf_msix_isr_ae+0x16e/0x230 [intel_qat]
-
-Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b00a726a9fd8 ("NVMe: Don't unmap controller registers on reset")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Keith Busch <keith.busch@intel.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/qat/qat_common/adf_isr.c | 7 ++++---
+ drivers/nvme/host/pci.c |    7 ++++---
  1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_isr.c b/drivers/crypto/qat/qat_common/adf_isr.c
-index 2c0be14309cf..7877ba677220 100644
---- a/drivers/crypto/qat/qat_common/adf_isr.c
-+++ b/drivers/crypto/qat/qat_common/adf_isr.c
-@@ -59,6 +59,8 @@
- #include "adf_transport_access_macros.h"
- #include "adf_transport_internal.h"
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -1927,7 +1927,7 @@ static int nvme_probe(struct pci_dev *pd
  
-+#define ADF_MAX_NUM_VFS	32
-+
- static int adf_enable_msix(struct adf_accel_dev *accel_dev)
- {
- 	struct adf_accel_pci *pci_dev_info = &accel_dev->accel_pci_dev;
-@@ -111,7 +113,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
- 		struct adf_bar *pmisc =
- 			&GET_BARS(accel_dev)[hw_data->get_misc_bar_id(hw_data)];
- 		void __iomem *pmisc_bar_addr = pmisc->virt_addr;
--		u32 vf_mask;
-+		unsigned long vf_mask;
+ 	result = nvme_dev_map(dev);
+ 	if (result)
+-		goto free;
++		goto put_pci;
  
- 		/* Get the interrupt sources triggered by VFs */
- 		vf_mask = ((ADF_CSR_RD(pmisc_bar_addr, ADF_ERRSOU5) &
-@@ -132,8 +134,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
- 			 * unless the VF is malicious and is attempting to
- 			 * flood the host OS with VF2PF interrupts.
- 			 */
--			for_each_set_bit(i, (const unsigned long *)&vf_mask,
--					 (sizeof(vf_mask) * BITS_PER_BYTE)) {
-+			for_each_set_bit(i, &vf_mask, ADF_MAX_NUM_VFS) {
- 				vf_info = accel_dev->pf.vf_info + i;
+ 	INIT_WORK(&dev->reset_work, nvme_reset_work);
+ 	INIT_WORK(&dev->remove_work, nvme_remove_dead_ctrl_work);
+@@ -1938,7 +1938,7 @@ static int nvme_probe(struct pci_dev *pd
  
- 				if (!__ratelimit(&vf_info->vf2pf_ratelimit)) {
--- 
-2.30.2
-
+ 	result = nvme_setup_prp_pools(dev);
+ 	if (result)
+-		goto put_pci;
++		goto unmap;
+ 
+ 	result = nvme_init_ctrl(&dev->ctrl, &pdev->dev, &nvme_pci_ctrl_ops,
+ 			id->driver_data);
+@@ -1953,9 +1953,10 @@ static int nvme_probe(struct pci_dev *pd
+ 
+  release_pools:
+ 	nvme_release_prp_pools(dev);
++ unmap:
++	nvme_dev_unmap(dev);
+  put_pci:
+ 	put_device(dev->dev);
+-	nvme_dev_unmap(dev);
+  free:
+ 	kfree(dev->queues);
+ 	kfree(dev);
 
 
