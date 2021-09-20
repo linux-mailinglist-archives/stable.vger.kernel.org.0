@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9649F411EAB
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:32:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED8504120BB
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:58:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346326AbhITRdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:33:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34854 "EHLO mail.kernel.org"
+        id S1345536AbhITR5l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:57:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244021AbhITRbQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:31:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BF7D61AD2;
-        Mon, 20 Sep 2021 17:04:34 +0000 (UTC)
+        id S1355655AbhITRzk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:55:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1574261C14;
+        Mon, 20 Sep 2021 17:13:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157474;
-        bh=CF4znAEktDes8o/h9vI0NdXDlx+HSW6xSZRtfRzHPro=;
+        s=korg; t=1632158040;
+        bh=RPJDfX75Egwejs6ADv5+aBjYQ29/+B/NLiXH+d+N2wI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TQ0PjGiOpYaOZosKOuxFZIEaGhhDF1uv6vdaPwbMREiT2of1LJa9dmgiLVR0jDNBF
-         vBfVS2qHQUSt2wgzuZUFd8ABBD9M16vQAYmpC2G5hH0wK3wKdnoVO7WoqESdptajMh
-         SEhpZZWs5BjELcCNue50jk2DqVh8CGSMbTkUoAZ0=
+        b=CGi9R7ZGubObz7gT/58abpg9pFmgyyU+ZTNz7bmsMF41v5uYXPLxwTa2bsNp9PMlG
+         NsqBiqshEGqDbt/r02YdDwKOvniueATDmee0eelm1AiXkG/crN19J7UbDLeOFi6RbB
+         qHLSbsB6B12XDu8timltcrMo+90oATAYx3YPvKBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 207/217] mfd: Dont use irq_create_mapping() to resolve a mapping
-Date:   Mon, 20 Sep 2021 18:43:48 +0200
-Message-Id: <20210920163931.641627387@linuxfoundation.org>
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 267/293] net/af_unix: fix a data-race in unix_dgram_poll
+Date:   Mon, 20 Sep 2021 18:43:49 +0200
+Message-Id: <20210920163942.548898450@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,95 +40,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 9ff80e2de36d0554e3a6da18a171719fe8663c17 ]
+commit 04f08eb44b5011493d77b602fdec29ff0f5c6cd5 upstream.
 
-Although irq_create_mapping() is able to deal with duplicate
-mappings, it really isn't supposed to be a substitute for
-irq_find_mapping(), and can result in allocations that take place
-in atomic context if the mapping didn't exist.
+syzbot reported another data-race in af_unix [1]
 
-Fix the handful of MFD drivers that use irq_create_mapping() in
-interrupt context by using irq_find_mapping() instead.
+Lets change __skb_insert() to use WRITE_ONCE() when changing
+skb head qlen.
 
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Also, change unix_dgram_poll() to use lockless version
+of unix_recvq_full()
+
+It is verry possible we can switch all/most unix_recvq_full()
+to the lockless version, this will be done in a future kernel version.
+
+[1] HEAD commit: 8596e589b787732c8346f0482919e83cc9362db1
+
+BUG: KCSAN: data-race in skb_queue_tail / unix_dgram_poll
+
+write to 0xffff88814eeb24e0 of 4 bytes by task 25815 on cpu 0:
+ __skb_insert include/linux/skbuff.h:1938 [inline]
+ __skb_queue_before include/linux/skbuff.h:2043 [inline]
+ __skb_queue_tail include/linux/skbuff.h:2076 [inline]
+ skb_queue_tail+0x80/0xa0 net/core/skbuff.c:3264
+ unix_dgram_sendmsg+0xff2/0x1600 net/unix/af_unix.c:1850
+ sock_sendmsg_nosec net/socket.c:703 [inline]
+ sock_sendmsg net/socket.c:723 [inline]
+ ____sys_sendmsg+0x360/0x4d0 net/socket.c:2392
+ ___sys_sendmsg net/socket.c:2446 [inline]
+ __sys_sendmmsg+0x315/0x4b0 net/socket.c:2532
+ __do_sys_sendmmsg net/socket.c:2561 [inline]
+ __se_sys_sendmmsg net/socket.c:2558 [inline]
+ __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2558
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+read to 0xffff88814eeb24e0 of 4 bytes by task 25834 on cpu 1:
+ skb_queue_len include/linux/skbuff.h:1869 [inline]
+ unix_recvq_full net/unix/af_unix.c:194 [inline]
+ unix_dgram_poll+0x2bc/0x3e0 net/unix/af_unix.c:2777
+ sock_poll+0x23e/0x260 net/socket.c:1288
+ vfs_poll include/linux/poll.h:90 [inline]
+ ep_item_poll fs/eventpoll.c:846 [inline]
+ ep_send_events fs/eventpoll.c:1683 [inline]
+ ep_poll fs/eventpoll.c:1798 [inline]
+ do_epoll_wait+0x6ad/0xf00 fs/eventpoll.c:2226
+ __do_sys_epoll_wait fs/eventpoll.c:2238 [inline]
+ __se_sys_epoll_wait fs/eventpoll.c:2233 [inline]
+ __x64_sys_epoll_wait+0xf6/0x120 fs/eventpoll.c:2233
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0x0000001b -> 0x00000001
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 25834 Comm: syz-executor.1 Tainted: G        W         5.14.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 86b18aaa2b5b ("skbuff: fix a data race in skb_queue_len()")
+Cc: Qian Cai <cai@lca.pw>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mfd/ab8500-core.c | 2 +-
- drivers/mfd/stmpe.c       | 4 ++--
- drivers/mfd/tc3589x.c     | 2 +-
- drivers/mfd/wm8994-irq.c  | 2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ include/linux/skbuff.h |    2 +-
+ net/unix/af_unix.c     |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/ab8500-core.c b/drivers/mfd/ab8500-core.c
-index 11ab17f64c64..f0527e769867 100644
---- a/drivers/mfd/ab8500-core.c
-+++ b/drivers/mfd/ab8500-core.c
-@@ -493,7 +493,7 @@ static int ab8500_handle_hierarchical_line(struct ab8500 *ab8500,
- 		if (line == AB8540_INT_GPIO43F || line == AB8540_INT_GPIO44F)
- 			line += 1;
- 
--		handle_nested_irq(irq_create_mapping(ab8500->domain, line));
-+		handle_nested_irq(irq_find_mapping(ab8500->domain, line));
- 	}
- 
- 	return 0;
-diff --git a/drivers/mfd/stmpe.c b/drivers/mfd/stmpe.c
-index 566caca4efd8..722ad2c368a5 100644
---- a/drivers/mfd/stmpe.c
-+++ b/drivers/mfd/stmpe.c
-@@ -1035,7 +1035,7 @@ static irqreturn_t stmpe_irq(int irq, void *data)
- 
- 	if (variant->id_val == STMPE801_ID ||
- 	    variant->id_val == STMPE1600_ID) {
--		int base = irq_create_mapping(stmpe->domain, 0);
-+		int base = irq_find_mapping(stmpe->domain, 0);
- 
- 		handle_nested_irq(base);
- 		return IRQ_HANDLED;
-@@ -1063,7 +1063,7 @@ static irqreturn_t stmpe_irq(int irq, void *data)
- 		while (status) {
- 			int bit = __ffs(status);
- 			int line = bank * 8 + bit;
--			int nestedirq = irq_create_mapping(stmpe->domain, line);
-+			int nestedirq = irq_find_mapping(stmpe->domain, line);
- 
- 			handle_nested_irq(nestedirq);
- 			status &= ~(1 << bit);
-diff --git a/drivers/mfd/tc3589x.c b/drivers/mfd/tc3589x.c
-index cc9e563f23aa..7062baf60685 100644
---- a/drivers/mfd/tc3589x.c
-+++ b/drivers/mfd/tc3589x.c
-@@ -187,7 +187,7 @@ again:
- 
- 	while (status) {
- 		int bit = __ffs(status);
--		int virq = irq_create_mapping(tc3589x->domain, bit);
-+		int virq = irq_find_mapping(tc3589x->domain, bit);
- 
- 		handle_nested_irq(virq);
- 		status &= ~(1 << bit);
-diff --git a/drivers/mfd/wm8994-irq.c b/drivers/mfd/wm8994-irq.c
-index 18710f3b5c53..2c58d9b99a39 100644
---- a/drivers/mfd/wm8994-irq.c
-+++ b/drivers/mfd/wm8994-irq.c
-@@ -159,7 +159,7 @@ static irqreturn_t wm8994_edge_irq(int irq, void *data)
- 	struct wm8994 *wm8994 = data;
- 
- 	while (gpio_get_value_cansleep(wm8994->pdata.irq_gpio))
--		handle_nested_irq(irq_create_mapping(wm8994->edge_irq, 0));
-+		handle_nested_irq(irq_find_mapping(wm8994->edge_irq, 0));
- 
- 	return IRQ_HANDLED;
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -1761,7 +1761,7 @@ static inline void __skb_insert(struct s
+ 	WRITE_ONCE(newsk->prev, prev);
+ 	WRITE_ONCE(next->prev, newsk);
+ 	WRITE_ONCE(prev->next, newsk);
+-	list->qlen++;
++	WRITE_ONCE(list->qlen, list->qlen + 1);
  }
--- 
-2.30.2
-
+ 
+ static inline void __skb_queue_splice(const struct sk_buff_head *list,
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -2739,7 +2739,7 @@ static __poll_t unix_dgram_poll(struct f
+ 
+ 		other = unix_peer(sk);
+ 		if (other && unix_peer(other) != sk &&
+-		    unix_recvq_full(other) &&
++		    unix_recvq_full_lockless(other) &&
+ 		    unix_dgram_peer_wake_me(sk, other))
+ 			writable = 0;
+ 
 
 
