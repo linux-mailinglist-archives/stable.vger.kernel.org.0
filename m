@@ -2,113 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A31E5411712
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 16:31:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2B2B4117C4
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 17:06:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236382AbhITOch (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 10:32:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57068 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237053AbhITOcg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 10:32:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DA2C60E76;
-        Mon, 20 Sep 2021 14:31:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632148269;
-        bh=3dmn2ESyInoHV7ZvI5AvHLnNmL2juxEiVTBz45sOKcU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tkgRUSSaoa/wVrUelusV2Lh+tn7C4Lsaf1XytpyDtJdH+O0P3CGjFgZdgxPxE6Af7
-         QlobpPoxEe7uiIya6pvIR1uUVZiyxfbdIj+UYBlI8ofLMPvhHF1QMFO4/5DAHtKQA1
-         Fnu05PIpfN8Tz6fkw1hIr9dkyptKKgi86DM6eNpzua3/ff5zbf/BZ3LZD6UsVyDTZR
-         WW5oQEpU2p0ViAewhwtE39IpbK6IGG8OHlZopsy4tuglDGk0ULzuGQmJfqrZXg06Vz
-         eBQV50Jr0KYnxnr5N6K96VwTrj75feRVirgvB44H8WoCVWIUlTLtJKJwPckdYv1LwV
-         a9Ah66zye7dnw==
-Date:   Mon, 20 Sep 2021 10:31:08 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Arnd Bergmann <arnd@kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Lukas Hannen <lukas.hannen@opensource.tttech-industrial.com>
-Subject: Re: [PATCH 5.14 298/334] time: Handle negative seconds correctly in
- timespec64_to_ns()
-Message-ID: <YUibLGZAVgqiyCUq@sashalap>
-References: <20210913131113.390368911@linuxfoundation.org>
- <20210913131123.500712780@linuxfoundation.org>
- <CAK8P3a0z5jE=Z3Ps5bFTCFT7CHZR1JQ8VhdntDJAfsUxSPCcEw@mail.gmail.com>
- <874kak9moe.ffs@tglx>
- <YURQ4ZFDJ8E9MJZM@kroah.com>
- <87sfy38p1o.ffs@tglx>
- <YUSyKQwdpfSTbQ4H@kroah.com>
- <87ee9n80gz.ffs@tglx>
- <YUYJ8WeOzPVwj16y@kroah.com>
+        id S235244AbhITPIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 11:08:02 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21124 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S234857AbhITPIB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 11:08:01 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18KEstcC004747;
+        Mon, 20 Sep 2021 11:06:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-type :
+ content-transfer-encoding; s=pp1;
+ bh=TwRvPekDDJoXGB/PKjSgwn63N2whwnXRm3mTsfhMsD0=;
+ b=hlNi9WXQu7lYMvFqMHcJ5wzr1uYwlgRn4Iw+njeU6MJ6Md1B5kk0GNY+aicd+jPSz+0y
+ rA/2JVyL8k2n4ZTWm1NFmfbMp4PVrDgumS6iw08AZeDQmk01NYab8opLm4u3in93wFKQ
+ dlv/ClZHlTsfCGLfY/+3OnS/E9M8uwNpkUxgdvjZBcPDDAaZIbNyxvXIin2PwRvNsaAq
+ d4E8N9yIkX64rnu8A1C4wUQTyGZSTnSHpcWlp8UC0rx0nfH/4KojLlALEX6V8tdcmPtJ
+ jid1kO33NyACRjFJ6sq7zk8F3HiojhzI2Ws05f3OUb25MwEGUGmMaSkK/MSTHTxIDyGW WA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3b5wa1aegp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Sep 2021 11:06:33 -0400
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18KEvp9r016352;
+        Mon, 20 Sep 2021 11:06:33 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3b5wa1aeft-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Sep 2021 11:06:32 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18KF36gq001999;
+        Mon, 20 Sep 2021 15:06:31 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3b57r8j2r3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Sep 2021 15:06:31 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18KF6Rpr41222492
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 20 Sep 2021 15:06:27 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 619F15204F;
+        Mon, 20 Sep 2021 15:06:27 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 55DEB52078;
+        Mon, 20 Sep 2021 15:06:27 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
+        id EFD96E18F4; Mon, 20 Sep 2021 17:06:26 +0200 (CEST)
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+To:     stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
+Cc:     gregkh@linuxfoundation.org, KVM <kvm@vger.kernel.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
+        Nitesh Narayan Lal <nitesh@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: [PATCH 0/1] KVM: s390: backport for stable of "KVM: s390: index
+Date:   Mon, 20 Sep 2021 17:06:15 +0200
+Message-Id: <20210920150616.15668-1-borntraeger@de.ibm.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <YUYJ8WeOzPVwj16y@kroah.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 1-ySJq7-cdHjJL8EsKAvEAgeeCwxkUCO
+X-Proofpoint-GUID: eFYG-Hu2mfFfqYne1IfnbS_W_W9ZqHG2
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-09-20_07,2021-09-20_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
+ priorityscore=1501 lowpriorityscore=0 clxscore=1015 suspectscore=0
+ bulkscore=0 mlxscore=0 phishscore=0 spamscore=0 impostorscore=0
+ malwarescore=0 mlxlogscore=603 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2109030001 definitions=main-2109200097
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Sep 18, 2021 at 05:46:57PM +0200, Greg Kroah-Hartman wrote:
->On Fri, Sep 17, 2021 at 09:29:32PM +0200, Thomas Gleixner wrote:
->> Greg,
->>
->> On Fri, Sep 17 2021 at 17:20, Greg Kroah-Hartman wrote:
->> > On Fri, Sep 17, 2021 at 12:38:43PM +0200, Thomas Gleixner wrote:
->> >> Nah. I try to pay more attention. I'm not against AUTOSEL per se, but
->> >> could we change the rules slightly?
->> >>
->> >> Any change which is selected by AUTOSEL and lacks a Cc: stable@... is
->> >> put on hold until acked by the maintainer unless it is a prerequisite
->> >> for applying a stable tagged fix?
->> >>
->> >> This can be default off and made effective on maintainer request.
->> >>
->> >> Hmm?
->> >
->> > The whole point of the AUTOSEL patches are for the huge numbers of
->> > subsystems where maintainers and developers do not care about the stable
->> > trees at all, and so they do not mark patches to be backported.  So
->> > requireing an opt-in like this would defeat the purpose.
->> >
->> > We do allow the ability to take files/subsystems out of the AUTOSEL
->> > process as there are many maintainers that do do this right and get
->> > annoyed when patches are picked that they feel shouldn't have.  That's
->> > the best thing we can do for stuff like this.
->>
->> I guess I was not able to express myself correctly. What I wanted to say
->> is:
->>
->>   1) Default is AUTOSEL
->>
->>   2) Maintainer can take files/subsystems out of AUTOSEL completely
->>
->>      Exists today
->>
->>   3) Maintainer allows AUTOSEL, but anything picked from files/subsystems
->>      without a stable tag requires an explicit ACK from the maintainer
->>      for the backport.
->>
->>      Is new and I would be the first to opt-in :)
->>
->> My rationale for #3 is that even when being careful about stable tags,
->> it happens that one is missing. Occasionaly AUTOSEL finds one of those
->> in my subsystems which I appreciate.
->>
->> Does that make more sense now?
->
->Ah, yes, that makes much more sense, sorry for the confusion.
->
->Sasha, what do you think?  You are the one that scripts all of this, not
->me :)
+Stable team,
 
-I could give it a go. It adds some complexity here but is probably worth
-it to avoid issues.
+here is a backport for 4.19 of
+commit a3e03bc1368 ("KVM: s390: index kvm->arch.idle_mask by vcpu_idx")
+This basically removes the kick_mask parts that were introduced with
+kernel 5.0 and fixes up the location of the idle_mask to the older
+place.
 
-Let me think about the best way to go about it.
+FWIW, it might be a good idea to also backport
+8750e72a79dd ("KVM: remember position in kvm->vcpus array") to avoid
+a performance regression for large guests (many vCPUs) when this patch
+is applied. 
+@Paolo Bonzini, would you be ok with 8750e72a79dd in older stable releases?
+
+
+
+Halil Pasic (1):
+  KVM: s390: index kvm->arch.idle_mask by vcpu_idx
+
+ arch/s390/kvm/interrupt.c | 4 ++--
+ arch/s390/kvm/kvm-s390.h  | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
 -- 
-Thanks,
-Sasha
+2.31.1
+
