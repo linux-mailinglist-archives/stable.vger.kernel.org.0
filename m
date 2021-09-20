@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55677411EC7
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18570411EEC
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:34:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245412AbhITRfF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:35:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35794 "EHLO mail.kernel.org"
+        id S1346324AbhITRgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:36:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343783AbhITRc2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:32:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31D7C61505;
-        Mon, 20 Sep 2021 17:04:58 +0000 (UTC)
+        id S1351235AbhITRcq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:32:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7788261AED;
+        Mon, 20 Sep 2021 17:05:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157498;
-        bh=tJwFCxVvDMx9HXo9GAUYplsoc62Y9n47t2yBEcF6GLw=;
+        s=korg; t=1632157502;
+        bh=PvS1AAQEt6tZylI6z9g9kWmK5tDs+S0OIYRmXS5hoP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I3/FteJ+iy+n2IRW+G3WOQ2fuaZZGwuKiM9v35hDXal4PzcKKGS/Ch0s3ytTTTcRg
-         XnQQoVvP33VMd3ZRSoWEZ+POp2vYPHydJzBP9KIGPnn7IhunPZrQc3QKlGFphC7dvQ
-         xsfCSAzYwynVs1P6loMEbpW9LbeaTLTlC4qYoXPg=
+        b=n+UmnriAbXKYtkJxilRY/ItjQXK9tXEvGuqIZEJnqw9rX9D4EFXzJS8z6YGvC1W5/
+         RWue9tw5p+tD2GRhntOoTn6b1rSPzkcpdgpBHpwprku5VhC1ypHR0ikH/O+zGDOk+h
+         kNKyWvyKeu5TuX+08tR25uGZ1VRlKFnnrD6zDbdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 4.19 019/293] SUNRPC/nfs: Fix return value for nfs4_callback_compound()
-Date:   Mon, 20 Sep 2021 18:39:41 +0200
-Message-Id: <20210920163933.918801092@linuxfoundation.org>
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 020/293] crypto: talitos - reduce max key size for SEC1
+Date:   Mon, 20 Sep 2021 18:39:42 +0200
+Message-Id: <20210920163933.961295389@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
 References: <20210920163933.258815435@linuxfoundation.org>
@@ -40,104 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 83dd59a0b9afc3b1a2642fb5c9b0585b1c08768f upstream.
+commit b8fbdc2bc4e71b62646031d5df5f08aafe15d5ad upstream.
 
-RPC server procedures are normally expected to return a __be32 encoded
-status value of type 'enum rpc_accept_stat', however at least one function
-wants to return an authentication status of type 'enum rpc_auth_stat'
-in the case where authentication fails.
-This patch adds functionality to allow this.
+SEC1 doesn't support SHA384/512, so it doesn't require
+longer keys.
 
-Fixes: a4e187d83d88 ("NFS: Don't drop CB requests with invalid principals")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+This patch reduces the max key size when the driver
+is built for SEC1 only.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: 03d2c5114c95 ("crypto: talitos - Extend max key length for SHA384/512-HMAC and AEAD")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/callback_xdr.c      |    2 +-
- include/linux/sunrpc/svc.h |    2 ++
- net/sunrpc/svc.c           |   27 ++++++++++++++++++++++-----
- 3 files changed, 25 insertions(+), 6 deletions(-)
+ drivers/crypto/talitos.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/nfs/callback_xdr.c
-+++ b/fs/nfs/callback_xdr.c
-@@ -991,7 +991,7 @@ static __be32 nfs4_callback_compound(str
- 
- out_invalidcred:
- 	pr_warn_ratelimited("NFS: NFSv4 callback contains invalid cred\n");
--	return rpc_autherr_badcred;
-+	return svc_return_autherr(rqstp, rpc_autherr_badcred);
- }
- 
- /*
---- a/include/linux/sunrpc/svc.h
-+++ b/include/linux/sunrpc/svc.h
-@@ -271,6 +271,7 @@ struct svc_rqst {
- #define	RQ_VICTIM	(5)			/* about to be shut down */
- #define	RQ_BUSY		(6)			/* request is busy */
- #define	RQ_DATA		(7)			/* request has data */
-+#define RQ_AUTHERR	(8)			/* Request status is auth error */
- 	unsigned long		rq_flags;	/* flags field */
- 	ktime_t			rq_qtime;	/* enqueue time */
- 
-@@ -504,6 +505,7 @@ unsigned int	   svc_fill_write_vector(st
- char		  *svc_fill_symlink_pathname(struct svc_rqst *rqstp,
- 					     struct kvec *first, void *p,
- 					     size_t total);
-+__be32		   svc_return_autherr(struct svc_rqst *rqstp, __be32 auth_err);
- 
- #define	RPC_MAX_ADDRBUFLEN	(63U)
- 
---- a/net/sunrpc/svc.c
-+++ b/net/sunrpc/svc.c
-@@ -1146,6 +1146,22 @@ static __printf(2,3) void svc_printk(str
- 
- extern void svc_tcp_prep_reply_hdr(struct svc_rqst *);
- 
-+__be32
-+svc_return_autherr(struct svc_rqst *rqstp, __be32 auth_err)
-+{
-+	set_bit(RQ_AUTHERR, &rqstp->rq_flags);
-+	return auth_err;
-+}
-+EXPORT_SYMBOL_GPL(svc_return_autherr);
-+
-+static __be32
-+svc_get_autherr(struct svc_rqst *rqstp, __be32 *statp)
-+{
-+	if (test_and_clear_bit(RQ_AUTHERR, &rqstp->rq_flags))
-+		return *statp;
-+	return rpc_auth_ok;
-+}
-+
- /*
-  * Common routine for processing the RPC request.
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -853,7 +853,11 @@ static void talitos_unregister_rng(struc
+  * HMAC_SNOOP_NO_AFEA (HSNA) instead of type IPSEC_ESP
   */
-@@ -1296,11 +1312,9 @@ svc_process_common(struct svc_rqst *rqst
- 				procp->pc_release(rqstp);
- 			goto dropit;
- 		}
--		if (*statp == rpc_autherr_badcred) {
--			if (procp->pc_release)
--				procp->pc_release(rqstp);
--			goto err_bad_auth;
--		}
-+		auth_stat = svc_get_autherr(rqstp, statp);
-+		if (auth_stat != rpc_auth_ok)
-+			goto err_release_bad_auth;
- 		if (*statp == rpc_success && procp->pc_encode &&
- 		    !procp->pc_encode(rqstp, resv->iov_base + resv->iov_len)) {
- 			dprintk("svc: failed to encode reply\n");
-@@ -1359,6 +1373,9 @@ err_bad_rpc:
- 	svc_putnl(resv, 2);
- 	goto sendit;
+ #define TALITOS_CRA_PRIORITY_AEAD_HSNA	(TALITOS_CRA_PRIORITY - 1)
++#ifdef CONFIG_CRYPTO_DEV_TALITOS_SEC2
+ #define TALITOS_MAX_KEY_SIZE		(AES_MAX_KEY_SIZE + SHA512_BLOCK_SIZE)
++#else
++#define TALITOS_MAX_KEY_SIZE		(AES_MAX_KEY_SIZE + SHA256_BLOCK_SIZE)
++#endif
+ #define TALITOS_MAX_IV_LENGTH		16 /* max of AES_BLOCK_SIZE, DES3_EDE_BLOCK_SIZE */
  
-+err_release_bad_auth:
-+	if (procp->pc_release)
-+		procp->pc_release(rqstp);
- err_bad_auth:
- 	dprintk("svc: authentication failed (%d)\n", ntohl(auth_stat));
- 	serv->sv_stats->rpcbadauth++;
+ struct talitos_ctx {
 
 
