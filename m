@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89ECD4125CB
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:49:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A2B54124A0
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:35:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384628AbhITSsa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:48:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33444 "EHLO mail.kernel.org"
+        id S1379167AbhITSgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:36:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1384058AbhITSq3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:46:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CACE161AFC;
-        Mon, 20 Sep 2021 17:33:26 +0000 (UTC)
+        id S1380111AbhITSce (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:32:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0C6461AA7;
+        Mon, 20 Sep 2021 17:27:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159207;
-        bh=nJGjqA4VqaiblFXEo8JfggKKB+XrHLLpy63g1y+s3nY=;
+        s=korg; t=1632158878;
+        bh=LFNy3iIa87mVaeGgL4yMp5NJGuXQztt4Sr4cbRdUIVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sxcv3nSzzM/GoUQlU+H0sj13g/FUvAHUUqASJHk8HFHOMD26lVVZJpUrGdVfw3Xbt
-         zTjuJuCGPnykuf/JbVLSbN3BVfTREPCr9z9WDNpX4LddWD1Oz/4OvDGQYZlhulkPix
-         GYeeCw1Qcyyam0afvOkrqqNuxfTsg597DLwXBYGs=
+        b=keQ0D1LHzM/hjj4bZ0BiSktKF/0eX+olGaZzDeOKCLM6xPmpdePexwOB6XvDwyPeh
+         y6mOrkN0kbO6prSoa5z53beuxpUhnW/UYk0XXPHsoUyubuaIbCqwDOgZdYSitdtClL
+         VT/DQJ7mxCvuRkJ7GNsedFfGkyYz/HC8MUd71AdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 098/168] mfd: Dont use irq_create_mapping() to resolve a mapping
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 064/122] tracing/probes: Reject events which have the same name of existing one
 Date:   Mon, 20 Sep 2021 18:43:56 +0200
-Message-Id: <20210920163924.850784488@linuxfoundation.org>
+Message-Id: <20210920163917.876178732@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,93 +40,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 9ff80e2de36d0554e3a6da18a171719fe8663c17 ]
+[ Upstream commit 8e242060c6a4947e8ae7d29794af6a581db08841 ]
 
-Although irq_create_mapping() is able to deal with duplicate
-mappings, it really isn't supposed to be a substitute for
-irq_find_mapping(), and can result in allocations that take place
-in atomic context if the mapping didn't exist.
+Since kprobe_events and uprobe_events only check whether the
+other same-type probe event has the same name or not, if the
+user gives the same name of the existing tracepoint event (or
+the other type of probe events), it silently fails to create
+the tracefs entry (but registered.) as below.
 
-Fix the handful of MFD drivers that use irq_create_mapping() in
-interrupt context by using irq_find_mapping() instead.
+/sys/kernel/tracing # ls events/task/task_rename
+enable   filter   format   hist     id       trigger
+/sys/kernel/tracing # echo p:task/task_rename vfs_read >> kprobe_events
+[  113.048508] Could not create tracefs 'task_rename' directory
+/sys/kernel/tracing # cat kprobe_events
+p:task/task_rename vfs_read
 
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+To fix this issue, check whether the existing events have the
+same name or not in trace_probe_register_event_call(). If exists,
+it rejects to register the new event.
+
+Link: https://lkml.kernel.org/r/162936876189.187130.17558311387542061930.stgit@devnote2
+
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/ab8500-core.c | 2 +-
- drivers/mfd/stmpe.c       | 4 ++--
- drivers/mfd/tc3589x.c     | 2 +-
- drivers/mfd/wm8994-irq.c  | 2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ kernel/trace/trace_kprobe.c |  6 +++++-
+ kernel/trace/trace_probe.c  | 25 +++++++++++++++++++++++++
+ kernel/trace/trace_probe.h  |  1 +
+ kernel/trace/trace_uprobe.c |  6 +++++-
+ 4 files changed, 36 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/ab8500-core.c b/drivers/mfd/ab8500-core.c
-index 30489670ea52..cca0aac26148 100644
---- a/drivers/mfd/ab8500-core.c
-+++ b/drivers/mfd/ab8500-core.c
-@@ -485,7 +485,7 @@ static int ab8500_handle_hierarchical_line(struct ab8500 *ab8500,
- 		if (line == AB8540_INT_GPIO43F || line == AB8540_INT_GPIO44F)
- 			line += 1;
- 
--		handle_nested_irq(irq_create_mapping(ab8500->domain, line));
-+		handle_nested_irq(irq_find_mapping(ab8500->domain, line));
+diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
+index 68150b9cbde9..552dbc9d5226 100644
+--- a/kernel/trace/trace_kprobe.c
++++ b/kernel/trace/trace_kprobe.c
+@@ -647,7 +647,11 @@ static int register_trace_kprobe(struct trace_kprobe *tk)
+ 	/* Register new event */
+ 	ret = register_kprobe_event(tk);
+ 	if (ret) {
+-		pr_warn("Failed to register probe event(%d)\n", ret);
++		if (ret == -EEXIST) {
++			trace_probe_log_set_index(0);
++			trace_probe_log_err(0, EVENT_EXIST);
++		} else
++			pr_warn("Failed to register probe event(%d)\n", ret);
+ 		goto end;
  	}
  
- 	return 0;
-diff --git a/drivers/mfd/stmpe.c b/drivers/mfd/stmpe.c
-index 1dd39483e7c1..58d09c615e67 100644
---- a/drivers/mfd/stmpe.c
-+++ b/drivers/mfd/stmpe.c
-@@ -1095,7 +1095,7 @@ static irqreturn_t stmpe_irq(int irq, void *data)
- 
- 	if (variant->id_val == STMPE801_ID ||
- 	    variant->id_val == STMPE1600_ID) {
--		int base = irq_create_mapping(stmpe->domain, 0);
-+		int base = irq_find_mapping(stmpe->domain, 0);
- 
- 		handle_nested_irq(base);
- 		return IRQ_HANDLED;
-@@ -1123,7 +1123,7 @@ static irqreturn_t stmpe_irq(int irq, void *data)
- 		while (status) {
- 			int bit = __ffs(status);
- 			int line = bank * 8 + bit;
--			int nestedirq = irq_create_mapping(stmpe->domain, line);
-+			int nestedirq = irq_find_mapping(stmpe->domain, line);
- 
- 			handle_nested_irq(nestedirq);
- 			status &= ~(1 << bit);
-diff --git a/drivers/mfd/tc3589x.c b/drivers/mfd/tc3589x.c
-index 7614f8fe0e91..13583cdb93b6 100644
---- a/drivers/mfd/tc3589x.c
-+++ b/drivers/mfd/tc3589x.c
-@@ -187,7 +187,7 @@ again:
- 
- 	while (status) {
- 		int bit = __ffs(status);
--		int virq = irq_create_mapping(tc3589x->domain, bit);
-+		int virq = irq_find_mapping(tc3589x->domain, bit);
- 
- 		handle_nested_irq(virq);
- 		status &= ~(1 << bit);
-diff --git a/drivers/mfd/wm8994-irq.c b/drivers/mfd/wm8994-irq.c
-index 6c3a619e2628..651a028bc519 100644
---- a/drivers/mfd/wm8994-irq.c
-+++ b/drivers/mfd/wm8994-irq.c
-@@ -154,7 +154,7 @@ static irqreturn_t wm8994_edge_irq(int irq, void *data)
- 	struct wm8994 *wm8994 = data;
- 
- 	while (gpio_get_value_cansleep(wm8994->pdata.irq_gpio))
--		handle_nested_irq(irq_create_mapping(wm8994->edge_irq, 0));
-+		handle_nested_irq(irq_find_mapping(wm8994->edge_irq, 0));
- 
- 	return IRQ_HANDLED;
+diff --git a/kernel/trace/trace_probe.c b/kernel/trace/trace_probe.c
+index d2867ccc6aca..1d31bc4acf7a 100644
+--- a/kernel/trace/trace_probe.c
++++ b/kernel/trace/trace_probe.c
+@@ -1029,11 +1029,36 @@ error:
+ 	return ret;
  }
+ 
++static struct trace_event_call *
++find_trace_event_call(const char *system, const char *event_name)
++{
++	struct trace_event_call *tp_event;
++	const char *name;
++
++	list_for_each_entry(tp_event, &ftrace_events, list) {
++		if (!tp_event->class->system ||
++		    strcmp(system, tp_event->class->system))
++			continue;
++		name = trace_event_name(tp_event);
++		if (!name || strcmp(event_name, name))
++			continue;
++		return tp_event;
++	}
++
++	return NULL;
++}
++
+ int trace_probe_register_event_call(struct trace_probe *tp)
+ {
+ 	struct trace_event_call *call = trace_probe_event_call(tp);
+ 	int ret;
+ 
++	lockdep_assert_held(&event_mutex);
++
++	if (find_trace_event_call(trace_probe_group_name(tp),
++				  trace_probe_name(tp)))
++		return -EEXIST;
++
+ 	ret = register_trace_event(&call->event);
+ 	if (!ret)
+ 		return -ENODEV;
+diff --git a/kernel/trace/trace_probe.h b/kernel/trace/trace_probe.h
+index 2f703a20c724..6d41e20c47ce 100644
+--- a/kernel/trace/trace_probe.h
++++ b/kernel/trace/trace_probe.h
+@@ -398,6 +398,7 @@ extern int traceprobe_define_arg_fields(struct trace_event_call *event_call,
+ 	C(NO_EVENT_NAME,	"Event name is not specified"),		\
+ 	C(EVENT_TOO_LONG,	"Event name is too long"),		\
+ 	C(BAD_EVENT_NAME,	"Event name must follow the same rules as C identifiers"), \
++	C(EVENT_EXIST,		"Given group/event name is already used by another event"), \
+ 	C(RETVAL_ON_PROBE,	"$retval is not available on probe"),	\
+ 	C(BAD_STACK_NUM,	"Invalid stack number"),		\
+ 	C(BAD_ARG_NUM,		"Invalid argument number"),		\
+diff --git a/kernel/trace/trace_uprobe.c b/kernel/trace/trace_uprobe.c
+index 3cf7128e1ad3..0dd6e286e519 100644
+--- a/kernel/trace/trace_uprobe.c
++++ b/kernel/trace/trace_uprobe.c
+@@ -514,7 +514,11 @@ static int register_trace_uprobe(struct trace_uprobe *tu)
+ 
+ 	ret = register_uprobe_event(tu);
+ 	if (ret) {
+-		pr_warn("Failed to register probe event(%d)\n", ret);
++		if (ret == -EEXIST) {
++			trace_probe_log_set_index(0);
++			trace_probe_log_err(0, EVENT_EXIST);
++		} else
++			pr_warn("Failed to register probe event(%d)\n", ret);
+ 		goto end;
+ 	}
+ 
 -- 
 2.30.2
 
