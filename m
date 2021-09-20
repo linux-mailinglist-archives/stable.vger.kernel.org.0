@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1CB9412311
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:19:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21E744123E6
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:27:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377793AbhITSU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:20:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40990 "EHLO mail.kernel.org"
+        id S1379205AbhITS2d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:28:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344009AbhITSS5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:18:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6DF9632AB;
-        Mon, 20 Sep 2021 17:23:12 +0000 (UTC)
+        id S1378789AbhITS00 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:26:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 851AD632DB;
+        Mon, 20 Sep 2021 17:25:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158593;
-        bh=nFgCtX4TUZ4Is7S8X4Jxx5TU8pPnTOTTKO3PHLhqnzU=;
+        s=korg; t=1632158754;
+        bh=5vfnFv5YTe1smOkZHNVJBYzX67YVWPYp3juTMNgC++Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RklfHSS0yBz1QEEi3ZNwrA9Lh9/qWxkf0TOOJjLMee1nR5ai/yxYzNpIwC2/sZw5t
-         u7Z1bozKHIv9YIgoIqKS+rXhVRrpMUUzGzfyAk8hTWFEyP7vRG50ko/xSCGhaPLTL+
-         kbE+nQVZnXb8fkcC6p4aBiFRnOi3hCGfjHz1i3yo=
+        b=FwzBgkqPMh3bqQG4wmgXcnkjxKdZYoQFj3HGTYw2Wns50EtQ2+i2b29oej84qHpCN
+         C8J73T/Ea6XFParTsSAwPReRLsPm9V4PwQBCZkF1pK1lFVjdwO3M7TC8Meykh5wkAE
+         igD78k9SpGDyUfOrTfMs6psSwXBR5DnMeEHRvVO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.4 195/260] arm64/sve: Use correct size when reinitialising SVE state
+        stable@vger.kernel.org, Bill Wendling <morbo@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 041/122] x86/uaccess: Fix 32-bit __get_user_asm_u64() when CC_HAS_ASM_GOTO_OUTPUT=y
 Date:   Mon, 20 Sep 2021 18:43:33 +0200
-Message-Id: <20210920163937.737954530@linuxfoundation.org>
+Message-Id: <20210920163917.135546735@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Will Deacon <will@kernel.org>
 
-commit e35ac9d0b56e9efefaeeb84b635ea26c2839ea86 upstream.
+commit a69ae291e1cc2d08ae77c2029579c59c9bde5061 upstream.
 
-When we need a buffer for SVE register state we call sve_alloc() to make
-sure that one is there. In order to avoid repeated allocations and frees
-we keep the buffer around unless we change vector length and just memset()
-it to ensure a clean register state. The function that deals with this
-takes the task to operate on as an argument, however in the case where we
-do a memset() we initialise using the SVE state size for the current task
-rather than the task passed as an argument.
+Commit 865c50e1d279 ("x86/uaccess: utilize CONFIG_CC_HAS_ASM_GOTO_OUTPUT")
+added an optimised version of __get_user_asm() for x86 using 'asm goto'.
 
-This is only an issue in the case where we are setting the register state
-for a task via ptrace and the task being configured has a different vector
-length to the task tracing it. In the case where the buffer is larger in
-the traced process we will leak old state from the traced process to
-itself, in the case where the buffer is smaller in the traced process we
-will overflow the buffer and corrupt memory.
+Like the non-optimised code, the 32-bit implementation of 64-bit
+get_user() expands to a pair of 32-bit accesses.  Unlike the
+non-optimised code, the _original_ pointer is incremented to copy the
+high word instead of loading through a new pointer explicitly
+constructed to point at a 32-bit type.  Consequently, if the pointer
+points at a 64-bit type then we end up loading the wrong data for the
+upper 32-bits.
 
-Fixes: bc0ee4760364 ("arm64/sve: Core task context handling")
-Cc: <stable@vger.kernel.org> # 4.15.x
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210909165356.10675-1-broonie@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+This was observed as a mount() failure in Android targeting i686 after
+b0cfcdd9b967 ("d_path: make 'prepend()' fill up the buffer exactly on
+overflow") because the call to copy_from_kernel_nofault() from
+prepend_copy() ends up in __get_kernel_nofault() and casts the source
+pointer to a 'u64 __user *'.  An attempt to mount at "/debug_ramdisk"
+therefore ends up failing trying to mount "/debumdismdisk".
+
+Use the existing '__gu_ptr' source pointer to unsigned int for 32-bit
+__get_user_asm_u64() instead of the original pointer.
+
+Cc: Bill Wendling <morbo@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Reported-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 865c50e1d279 ("x86/uaccess: utilize CONFIG_CC_HAS_ASM_GOTO_OUTPUT")
+Signed-off-by: Will Deacon <will@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/fpsimd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/uaccess.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/kernel/fpsimd.c
-+++ b/arch/arm64/kernel/fpsimd.c
-@@ -498,7 +498,7 @@ size_t sve_state_size(struct task_struct
- void sve_alloc(struct task_struct *task)
- {
- 	if (task->thread.sve_state) {
--		memset(task->thread.sve_state, 0, sve_state_size(current));
-+		memset(task->thread.sve_state, 0, sve_state_size(task));
- 		return;
- 	}
- 
+--- a/arch/x86/include/asm/uaccess.h
++++ b/arch/x86/include/asm/uaccess.h
+@@ -301,8 +301,8 @@ do {									\
+ 	unsigned int __gu_low, __gu_high;				\
+ 	const unsigned int __user *__gu_ptr;				\
+ 	__gu_ptr = (const void __user *)(ptr);				\
+-	__get_user_asm(__gu_low, ptr, "l", "=r", label);		\
+-	__get_user_asm(__gu_high, ptr+1, "l", "=r", label);		\
++	__get_user_asm(__gu_low, __gu_ptr, "l", "=r", label);		\
++	__get_user_asm(__gu_high, __gu_ptr+1, "l", "=r", label);	\
+ 	(x) = ((unsigned long long)__gu_high << 32) | __gu_low;		\
+ } while (0)
+ #else
 
 
