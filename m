@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1F3D411A6C
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:48:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E091041205B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:54:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243888AbhITQto (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:49:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35806 "EHLO mail.kernel.org"
+        id S1355107AbhITRyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:54:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242396AbhITQtK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:49:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5219E61222;
-        Mon, 20 Sep 2021 16:47:38 +0000 (UTC)
+        id S1353929AbhITRsD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:48:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 364B561BB4;
+        Mon, 20 Sep 2021 17:10:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156458;
-        bh=dEv5uWSnTsZuRdQzUV80WWkPD19ZrAlZ393d2hK5Kis=;
+        s=korg; t=1632157859;
+        bh=JU4iJc6oY871eBLmLglTyk8lAnK2nHC5KV9FVXhDFpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OWNJwyyRj3etI+EP/rircdAcTj02ZD4KgzejO2n8qrbKCKiWjfoePV/WlB1ntOpmL
-         fmrq0moI/wr2L/OBbVG3f1ytFCr9FVp8FRG/6Yg1bnBNMRAt74Skax//hAvXrurQRm
-         vH4AGTfQIDT6xDU9KPtNuS3YRNiztyP3esDClcGA=
+        b=eDJzKrmL7n9suIBRLAuH1+QNTsmNP6ILGAzk7xwIGz4jgjEgkWmoufRMpgcXjjYEf
+         6JdpK5XOJXTwooYoXMJVTB9nxiYB+LOPxnrZMgLo+b6idIaAwJNrxZMIuxDLZRJMIW
+         OCYgB64mc+2OSAVrWL4h2ID03T/FtHWtObqRq2/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zelin Deng <zelin.deng@linux.alibaba.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.4 069/133] KVM: x86: Update vCPUs hv_clock before back to guest when tsc_offset is adjusted
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 185/293] staging: board: Fix uninitialized spinlock when attaching genpd
 Date:   Mon, 20 Sep 2021 18:42:27 +0200
-Message-Id: <20210920163914.908269791@linuxfoundation.org>
+Message-Id: <20210920163939.600861708@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,40 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zelin Deng <zelin.deng@linux.alibaba.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit d9130a2dfdd4b21736c91b818f87dbc0ccd1e757 upstream.
+[ Upstream commit df00609821bf17f50a75a446266d19adb8339d84 ]
 
-When MSR_IA32_TSC_ADJUST is written by guest due to TSC ADJUST feature
-especially there's a big tsc warp (like a new vCPU is hot-added into VM
-which has been up for a long time), tsc_offset is added by a large value
-then go back to guest. This causes system time jump as tsc_timestamp is
-not adjusted in the meantime and pvclock monotonic character.
-To fix this, just notify kvm to update vCPU's guest time before back to
-guest.
+On Armadillo-800-EVA with CONFIG_DEBUG_SPINLOCK=y:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Zelin Deng <zelin.deng@linux.alibaba.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Message-Id: <1619576521-81399-2-git-send-email-zelin.deng@linux.alibaba.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+    BUG: spinlock bad magic on CPU#0, swapper/1
+     lock: lcdc0_device+0x10c/0x308, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    CPU: 0 PID: 1 Comm: swapper Not tainted 5.11.0-rc5-armadillo-00036-gbbca04be7a80-dirty #287
+    Hardware name: Generic R8A7740 (Flattened Device Tree)
+    [<c010c3c8>] (unwind_backtrace) from [<c010a49c>] (show_stack+0x10/0x14)
+    [<c010a49c>] (show_stack) from [<c0159534>] (do_raw_spin_lock+0x20/0x94)
+    [<c0159534>] (do_raw_spin_lock) from [<c040858c>] (dev_pm_get_subsys_data+0x8c/0x11c)
+    [<c040858c>] (dev_pm_get_subsys_data) from [<c05fbcac>] (genpd_add_device+0x78/0x2b8)
+    [<c05fbcac>] (genpd_add_device) from [<c0412db4>] (of_genpd_add_device+0x34/0x4c)
+    [<c0412db4>] (of_genpd_add_device) from [<c0a1ea74>] (board_staging_register_device+0x11c/0x148)
+    [<c0a1ea74>] (board_staging_register_device) from [<c0a1eac4>] (board_staging_register_devices+0x24/0x28)
+
+of_genpd_add_device() is called before platform_device_register(), as it
+needs to attach the genpd before the device is probed.  But the spinlock
+is only initialized when the device is registered.
+
+Fix this by open-coding the spinlock initialization, cfr.
+device_pm_init_common() in the internal drivers/base code, and in the
+SuperH early platform code.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/57783ece7ddae55f2bda2f59f452180bff744ea0.1626257398.git.geert+renesas@glider.be
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/staging/board/board.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -2172,6 +2172,10 @@ int kvm_set_msr_common(struct kvm_vcpu *
- 			if (!msr_info->host_initiated) {
- 				s64 adj = data - vcpu->arch.ia32_tsc_adjust_msr;
- 				adjust_tsc_offset_guest(vcpu, adj);
-+				/* Before back to guest, tsc_timestamp must be adjusted
-+				 * as well, otherwise guest's percpu pvclock time could jump.
-+				 */
-+				kvm_make_request(KVM_REQ_CLOCK_UPDATE, vcpu);
- 			}
- 			vcpu->arch.ia32_tsc_adjust_msr = data;
- 		}
+diff --git a/drivers/staging/board/board.c b/drivers/staging/board/board.c
+index cb6feb34dd40..f980af037345 100644
+--- a/drivers/staging/board/board.c
++++ b/drivers/staging/board/board.c
+@@ -136,6 +136,7 @@ int __init board_staging_register_clock(const struct board_staging_clk *bsc)
+ static int board_staging_add_dev_domain(struct platform_device *pdev,
+ 					const char *domain)
+ {
++	struct device *dev = &pdev->dev;
+ 	struct of_phandle_args pd_args;
+ 	struct device_node *np;
+ 
+@@ -148,7 +149,11 @@ static int board_staging_add_dev_domain(struct platform_device *pdev,
+ 	pd_args.np = np;
+ 	pd_args.args_count = 0;
+ 
+-	return of_genpd_add_device(&pd_args, &pdev->dev);
++	/* Initialization similar to device_pm_init_common() */
++	spin_lock_init(&dev->power.lock);
++	dev->power.early_init = true;
++
++	return of_genpd_add_device(&pd_args, dev);
+ }
+ #else
+ static inline int board_staging_add_dev_domain(struct platform_device *pdev,
+-- 
+2.30.2
+
 
 
