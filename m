@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9792B411B80
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:58:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63186411FB8
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:43:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344455AbhITQ7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:59:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48552 "EHLO mail.kernel.org"
+        id S1345300AbhITRo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:44:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245418AbhITQ5G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:57:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BCB961184;
-        Mon, 20 Sep 2021 16:51:37 +0000 (UTC)
+        id S1353007AbhITRnS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:43:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 056FF61B56;
+        Mon, 20 Sep 2021 17:09:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156697;
-        bh=Bx6ebCy6IMUhrvLMURL4TkUSCZQW3y4A8HoOQDe80z0=;
+        s=korg; t=1632157748;
+        bh=F5ab1dKS3zh2eAk3ATJKaVCpYoTpuE1LGjOcbu/8rQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zpDgXxkK30xCwFXJaqyv8CsrbQa4gZdtsGXjOBoHP9YlMQPtAH3QUWiTkBmIUShs0
-         PNPgGkuOatfkGEuZ6kzb2uQjBe07pGRjmftkwOZJKNsXtU917VR6FIKreGeRo4Ul7k
-         MzGXwGJEo3Ag/m6lLFm47PVY950WBmrPwRI3GGYc=
+        b=q5AFYzRmWxWOaJTfZ61jqeivxxgAYQWVr4RbRuRjgGQMU0BB+9nSflPOCV9zYQmox
+         Hc3TnkdZDyC84rTYCFZxQyA5sSN10EfdgcWPqICmdjPfkfF+bYSUBh4ZlH3sBdCStK
+         LmFfl+h7CA4OOff2118aZKU8wrguX+vJdUBTWriU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Fiona Trahe <fiona.trahe@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 045/175] crypto: qat - fix naming for init/shutdown VF to PF notifications
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrey Ignatov <rdna@fb.com>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 132/293] bpf: Sanity check max value for var_off stack access
 Date:   Mon, 20 Sep 2021 18:41:34 +0200
-Message-Id: <20210920163919.531215437@linuxfoundation.org>
+Message-Id: <20210920163937.788876284@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,162 +40,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Chiappero <marco.chiappero@intel.com>
+From: Andrey Ignatov <rdna@fb.com>
 
-[ Upstream commit b90c1c4d3fa8cd90f4e8245b13564380fd0bfad1 ]
+commit 107c26a70ca81bfc33657366ad69d02fdc9efc9d upstream.
 
-At start and shutdown, VFs notify the PF about their state. These
-notifications are carried out through a message exchange using the PFVF
-protocol.
+As discussed in [1] max value of variable offset has to be checked for
+overflow on stack access otherwise verifier would accept code like this:
 
-Function names lead to believe they do perform init or shutdown logic.
-This is to fix the naming to better reflect their purpose.
+  0: (b7) r2 = 6
+  1: (b7) r3 = 28
+  2: (7a) *(u64 *)(r10 -16) = 0
+  3: (7a) *(u64 *)(r10 -8) = 0
+  4: (79) r4 = *(u64 *)(r1 +168)
+  5: (c5) if r4 s< 0x0 goto pc+4
+   R1=ctx(id=0,off=0,imm=0) R2=inv6 R3=inv28
+   R4=inv(id=0,umax_value=9223372036854775807,var_off=(0x0;
+   0x7fffffffffffffff)) R10=fp0,call_-1 fp-8=mmmmmmmm fp-16=mmmmmmmm
+  6: (17) r4 -= 16
+  7: (0f) r4 += r10
+  8: (b7) r5 = 8
+  9: (85) call bpf_getsockopt#57
+  10: (b7) r0 = 0
+  11: (95) exit
 
-Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
-Co-developed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+, where R4 obviosly has unbounded max value.
+
+Fix it by checking that reg->smax_value is inside (-BPF_MAX_VAR_OFF;
+BPF_MAX_VAR_OFF) range.
+
+reg->smax_value is used instead of reg->umax_value because stack
+pointers are calculated using negative offset from fp. This is opposite
+to e.g. map access where offset must be non-negative and where
+umax_value is used.
+
+Also dedicated verbose logs are added for both min and max bound check
+failures to have diagnostics consistent with variable offset handling in
+check_map_access().
+
+[1] https://marc.info/?l=linux-netdev&m=155433357510597&w=2
+
+Fixes: 2011fccfb61b ("bpf: Support variable offset stack access from helpers")
+Reported-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Andrey Ignatov <rdna@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/qat/qat_c3xxxvf/adf_c3xxxvf_hw_data.c |  4 ++--
- drivers/crypto/qat/qat_c62xvf/adf_c62xvf_hw_data.c   |  4 ++--
- drivers/crypto/qat/qat_common/adf_common_drv.h       |  8 ++++----
- drivers/crypto/qat/qat_common/adf_vf2pf_msg.c        | 12 ++++++------
- .../qat/qat_dh895xccvf/adf_dh895xccvf_hw_data.c      |  4 ++--
- 5 files changed, 16 insertions(+), 16 deletions(-)
+ kernel/bpf/verifier.c |   18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_c3xxxvf/adf_c3xxxvf_hw_data.c b/drivers/crypto/qat/qat_c3xxxvf/adf_c3xxxvf_hw_data.c
-index d2d0ae445fd8..7c7d49a8a403 100644
---- a/drivers/crypto/qat/qat_c3xxxvf/adf_c3xxxvf_hw_data.c
-+++ b/drivers/crypto/qat/qat_c3xxxvf/adf_c3xxxvf_hw_data.c
-@@ -123,10 +123,10 @@ void adf_init_hw_data_c3xxxiov(struct adf_hw_device_data *hw_data)
- 	hw_data->enable_error_correction = adf_vf_void_noop;
- 	hw_data->init_admin_comms = adf_vf_int_noop;
- 	hw_data->exit_admin_comms = adf_vf_void_noop;
--	hw_data->send_admin_init = adf_vf2pf_init;
-+	hw_data->send_admin_init = adf_vf2pf_notify_init;
- 	hw_data->init_arb = adf_vf_int_noop;
- 	hw_data->exit_arb = adf_vf_void_noop;
--	hw_data->disable_iov = adf_vf2pf_shutdown;
-+	hw_data->disable_iov = adf_vf2pf_notify_shutdown;
- 	hw_data->get_accel_mask = get_accel_mask;
- 	hw_data->get_ae_mask = get_ae_mask;
- 	hw_data->get_num_accels = get_num_accels;
-diff --git a/drivers/crypto/qat/qat_c62xvf/adf_c62xvf_hw_data.c b/drivers/crypto/qat/qat_c62xvf/adf_c62xvf_hw_data.c
-index 38e4bc04f407..90e8a7564756 100644
---- a/drivers/crypto/qat/qat_c62xvf/adf_c62xvf_hw_data.c
-+++ b/drivers/crypto/qat/qat_c62xvf/adf_c62xvf_hw_data.c
-@@ -123,10 +123,10 @@ void adf_init_hw_data_c62xiov(struct adf_hw_device_data *hw_data)
- 	hw_data->enable_error_correction = adf_vf_void_noop;
- 	hw_data->init_admin_comms = adf_vf_int_noop;
- 	hw_data->exit_admin_comms = adf_vf_void_noop;
--	hw_data->send_admin_init = adf_vf2pf_init;
-+	hw_data->send_admin_init = adf_vf2pf_notify_init;
- 	hw_data->init_arb = adf_vf_int_noop;
- 	hw_data->exit_arb = adf_vf_void_noop;
--	hw_data->disable_iov = adf_vf2pf_shutdown;
-+	hw_data->disable_iov = adf_vf2pf_notify_shutdown;
- 	hw_data->get_accel_mask = get_accel_mask;
- 	hw_data->get_ae_mask = get_ae_mask;
- 	hw_data->get_num_accels = get_num_accels;
-diff --git a/drivers/crypto/qat/qat_common/adf_common_drv.h b/drivers/crypto/qat/qat_common/adf_common_drv.h
-index 0d596a99f564..88c8831503e4 100644
---- a/drivers/crypto/qat/qat_common/adf_common_drv.h
-+++ b/drivers/crypto/qat/qat_common/adf_common_drv.h
-@@ -239,8 +239,8 @@ void adf_enable_vf2pf_interrupts(struct adf_accel_dev *accel_dev,
- void adf_enable_pf2vf_interrupts(struct adf_accel_dev *accel_dev);
- void adf_disable_pf2vf_interrupts(struct adf_accel_dev *accel_dev);
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -1833,16 +1833,28 @@ static int check_stack_boundary(struct b
+ 		if (meta && meta->raw_mode)
+ 			meta = NULL;
  
--int adf_vf2pf_init(struct adf_accel_dev *accel_dev);
--void adf_vf2pf_shutdown(struct adf_accel_dev *accel_dev);
-+int adf_vf2pf_notify_init(struct adf_accel_dev *accel_dev);
-+void adf_vf2pf_notify_shutdown(struct adf_accel_dev *accel_dev);
- int adf_init_pf_wq(void);
- void adf_exit_pf_wq(void);
- int adf_init_vf_wq(void);
-@@ -263,12 +263,12 @@ static inline void adf_disable_pf2vf_interrupts(struct adf_accel_dev *accel_dev)
- {
- }
++		if (reg->smax_value >= BPF_MAX_VAR_OFF ||
++		    reg->smax_value <= -BPF_MAX_VAR_OFF) {
++			verbose(env, "R%d unbounded indirect variable offset stack access\n",
++				regno);
++			return -EACCES;
++		}
+ 		min_off = reg->smin_value + reg->off;
+-		max_off = reg->umax_value + reg->off;
++		max_off = reg->smax_value + reg->off;
+ 		err = __check_stack_boundary(env, regno, min_off, access_size,
+ 					     zero_size_allowed);
+-		if (err)
++		if (err) {
++			verbose(env, "R%d min value is outside of stack bound\n",
++				regno);
+ 			return err;
++		}
+ 		err = __check_stack_boundary(env, regno, max_off, access_size,
+ 					     zero_size_allowed);
+-		if (err)
++		if (err) {
++			verbose(env, "R%d max value is outside of stack bound\n",
++				regno);
+ 			return err;
++		}
+ 	}
  
--static inline int adf_vf2pf_init(struct adf_accel_dev *accel_dev)
-+static inline int adf_vf2pf_notify_init(struct adf_accel_dev *accel_dev)
- {
- 	return 0;
- }
- 
--static inline void adf_vf2pf_shutdown(struct adf_accel_dev *accel_dev)
-+static inline void adf_vf2pf_notify_shutdown(struct adf_accel_dev *accel_dev)
- {
- }
- 
-diff --git a/drivers/crypto/qat/qat_common/adf_vf2pf_msg.c b/drivers/crypto/qat/qat_common/adf_vf2pf_msg.c
-index cd5f37dffe8a..1830194567e8 100644
---- a/drivers/crypto/qat/qat_common/adf_vf2pf_msg.c
-+++ b/drivers/crypto/qat/qat_common/adf_vf2pf_msg.c
-@@ -49,14 +49,14 @@
- #include "adf_pf2vf_msg.h"
- 
- /**
-- * adf_vf2pf_init() - send init msg to PF
-+ * adf_vf2pf_notify_init() - send init msg to PF
-  * @accel_dev:  Pointer to acceleration VF device.
-  *
-  * Function sends an init messge from the VF to a PF
-  *
-  * Return: 0 on success, error code otherwise.
-  */
--int adf_vf2pf_init(struct adf_accel_dev *accel_dev)
-+int adf_vf2pf_notify_init(struct adf_accel_dev *accel_dev)
- {
- 	u32 msg = (ADF_VF2PF_MSGORIGIN_SYSTEM |
- 		(ADF_VF2PF_MSGTYPE_INIT << ADF_VF2PF_MSGTYPE_SHIFT));
-@@ -69,17 +69,17 @@ int adf_vf2pf_init(struct adf_accel_dev *accel_dev)
- 	set_bit(ADF_STATUS_PF_RUNNING, &accel_dev->status);
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(adf_vf2pf_init);
-+EXPORT_SYMBOL_GPL(adf_vf2pf_notify_init);
- 
- /**
-- * adf_vf2pf_shutdown() - send shutdown msg to PF
-+ * adf_vf2pf_notify_shutdown() - send shutdown msg to PF
-  * @accel_dev:  Pointer to acceleration VF device.
-  *
-  * Function sends a shutdown messge from the VF to a PF
-  *
-  * Return: void
-  */
--void adf_vf2pf_shutdown(struct adf_accel_dev *accel_dev)
-+void adf_vf2pf_notify_shutdown(struct adf_accel_dev *accel_dev)
- {
- 	u32 msg = (ADF_VF2PF_MSGORIGIN_SYSTEM |
- 	    (ADF_VF2PF_MSGTYPE_SHUTDOWN << ADF_VF2PF_MSGTYPE_SHIFT));
-@@ -89,4 +89,4 @@ void adf_vf2pf_shutdown(struct adf_accel_dev *accel_dev)
- 			dev_err(&GET_DEV(accel_dev),
- 				"Failed to send Shutdown event to PF\n");
- }
--EXPORT_SYMBOL_GPL(adf_vf2pf_shutdown);
-+EXPORT_SYMBOL_GPL(adf_vf2pf_notify_shutdown);
-diff --git a/drivers/crypto/qat/qat_dh895xccvf/adf_dh895xccvf_hw_data.c b/drivers/crypto/qat/qat_dh895xccvf/adf_dh895xccvf_hw_data.c
-index a3b4dd8099a7..3a8361c83f0b 100644
---- a/drivers/crypto/qat/qat_dh895xccvf/adf_dh895xccvf_hw_data.c
-+++ b/drivers/crypto/qat/qat_dh895xccvf/adf_dh895xccvf_hw_data.c
-@@ -123,10 +123,10 @@ void adf_init_hw_data_dh895xcciov(struct adf_hw_device_data *hw_data)
- 	hw_data->enable_error_correction = adf_vf_void_noop;
- 	hw_data->init_admin_comms = adf_vf_int_noop;
- 	hw_data->exit_admin_comms = adf_vf_void_noop;
--	hw_data->send_admin_init = adf_vf2pf_init;
-+	hw_data->send_admin_init = adf_vf2pf_notify_init;
- 	hw_data->init_arb = adf_vf_int_noop;
- 	hw_data->exit_arb = adf_vf_void_noop;
--	hw_data->disable_iov = adf_vf2pf_shutdown;
-+	hw_data->disable_iov = adf_vf2pf_notify_shutdown;
- 	hw_data->get_accel_mask = get_accel_mask;
- 	hw_data->get_ae_mask = get_ae_mask;
- 	hw_data->get_num_accels = get_num_accels;
--- 
-2.30.2
-
+ 	if (meta && meta->raw_mode) {
 
 
