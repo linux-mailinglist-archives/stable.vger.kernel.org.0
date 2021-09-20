@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EA2C41115D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 10:51:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4F3C41115E
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 10:51:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231562AbhITIxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 04:53:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47188 "EHLO mail.kernel.org"
+        id S231770AbhITIxP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 04:53:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229844AbhITIxG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 04:53:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A82F260F36;
-        Mon, 20 Sep 2021 08:51:39 +0000 (UTC)
+        id S229844AbhITIxO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 04:53:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED819601FF;
+        Mon, 20 Sep 2021 08:51:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632127900;
-        bh=Wimu3aDAfpXulUu7FCaINVnjuD3eGRAK/fm0kjEYw00=;
+        s=korg; t=1632127908;
+        bh=hfV6YVOgz1EvAVey2azkEg6dDyz7D5yXO6ABAZWBL9A=;
         h=Subject:To:Cc:From:Date:From;
-        b=vxexMfvl4TLwGMgFEBqQqOmPjVB8wnV6o05zlq7tipvup3/2epmQansnSu3SEBKNb
-         8WiCDT4tk+rsFHR2gsowWMOYK1m7kaqmjIwFKxsEX+HMwpcjPZUWz14be0V1T76WCo
-         JirFBQPjrpLh0pyjEV65BZTPtbq4d4fYKgKCMlRY=
-Subject: FAILED: patch "[PATCH] x86/hyperv: remove on-stack cpumask from" failed to apply to 5.10-stable tree
+        b=Kd8IZ1ZkP1ope2LvHsDEXer5TI4ubWz+AA3f2Z3LA24M4LJtt4RFJjXiGV9pSGJrp
+         3dAqgFHqgaC10811aqxDemqaibb1Mzd6a6oO3MRZHAsM0Yb33r5gRy4k5u11pt8Ste
+         YiCV8SHyda0ntSTLapeoqFLYIr/W4lgw9BleWnl0=
+Subject: FAILED: patch "[PATCH] x86/hyperv: remove on-stack cpumask from" failed to apply to 4.19-stable tree
 To:     wei.liu@kernel.org, mikelley@microsoft.com,
         torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Sep 2021 10:51:37 +0200
-Message-ID: <16321278971116@kroah.com>
+Date:   Mon, 20 Sep 2021 10:51:38 +0200
+Message-ID: <1632127898177194@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
