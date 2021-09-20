@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6806A41209D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:55:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D69CF411ABF
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:50:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347518AbhITR4N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:56:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53086 "EHLO mail.kernel.org"
+        id S244975AbhITQvw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:51:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354727AbhITRvI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:51:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C5DF60F3A;
-        Mon, 20 Sep 2021 17:12:15 +0000 (UTC)
+        id S244458AbhITQuV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:50:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63DAB60F6E;
+        Mon, 20 Sep 2021 16:48:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157935;
-        bh=+j+ku3WMfVme/OizryAaBaf/ukhHdSZTlb15h09RTME=;
+        s=korg; t=1632156534;
+        bh=t2DnsPgOihfcUtjeeX67dy+A84XuD9Hq03BYlV5z3uA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pNdXW0RicFNyUMNaIZp56tJh5CZ59Kdlh55IyO5pKa8P6+AzivRFVDfXj8+rYDKWf
-         kCj32N/ifW1l++O1Zc6hbx63LLCFjMIEJzCBlvMIHneZvayA68PlO+EcOKGq8QuwIr
-         hAAn2e/VsNLam/7zb4lUbpFzoU3vn6scYqMtIXRY=
+        b=IlIEBGs56qVesHbDQh814vjYdZTd/0LoxmHoAR+mFsBy/9mzdWKFH5cIUBp/c4iyy
+         /7nOkyy1h/vb6tDM6HEEb6h7+Qg8m5UA8RrVzJgb13qZ+hcxrCF0CXTxIC4AcUcOZg
+         9tbbzuCxVu3bM0HoCUb9S9nGnJs29ZNDTWgzXNVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luke Hsiao <lukehsiao@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Jordy Zomer <jordy@pwning.systems>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 220/293] tcp: enable data-less, empty-cookie SYN with TFO_SERVER_COOKIE_NOT_REQD
+Subject: [PATCH 4.4 104/133] serial: 8250_pci: make setup_port() parameters explicitly unsigned
 Date:   Mon, 20 Sep 2021 18:43:02 +0200
-Message-Id: <20210920163940.913779773@linuxfoundation.org>
+Message-Id: <20210920163916.032531017@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke Hsiao <lukehsiao@google.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit e3faa49bcecdfcc80e94dd75709d6acb1a5d89f6 ]
+[ Upstream commit 3a96e97ab4e835078e6f27b7e1c0947814df3841 ]
 
-Since the original TFO server code was implemented in commit
-168a8f58059a22feb9e9a2dcc1b8053dbbbc12ef ("tcp: TCP Fast Open Server -
-main code path") the TFO server code has supported the sysctl bit flag
-TFO_SERVER_COOKIE_NOT_REQD. Currently, when the TFO_SERVER_ENABLE and
-TFO_SERVER_COOKIE_NOT_REQD sysctl bit flags are set, a server connection
-will accept a SYN with N bytes of data (N > 0) that has no TFO cookie,
-create a new fast open connection, process the incoming data in the SYN,
-and make the connection ready for accepting. After accepting, the
-connection is ready for read()/recvmsg() to read the N bytes of data in
-the SYN, ready for write()/sendmsg() calls and data transmissions to
-transmit data.
+The bar and offset parameters to setup_port() are used in pointer math,
+and while it would be very difficult to get them to wrap as a negative
+number, just be "safe" and make them unsigned so that static checkers do
+not trip over them unintentionally.
 
-This commit changes an edge case in this feature by changing this
-behavior to apply to (N >= 0) bytes of data in the SYN rather than only
-(N > 0) bytes of data in the SYN. Now, a server will accept a data-less
-SYN without a TFO cookie if TFO_SERVER_COOKIE_NOT_REQD is set.
-
-Caveat! While this enables a new kind of TFO (data-less empty-cookie
-SYN), some firewall rules setup may not work if they assume such packets
-are not legit TFOs and will filter them.
-
-Signed-off-by: Luke Hsiao <lukehsiao@google.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Acked-by: Yuchung Cheng <ycheng@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20210816205105.2533289-1-luke.w.hsiao@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Reported-by: Jordy Zomer <jordy@pwning.systems>
+Link: https://lore.kernel.org/r/20210726130717.2052096-1-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_fastopen.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/tty/serial/8250/8250_pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_fastopen.c b/net/ipv4/tcp_fastopen.c
-index 2ab371f55525..119d2c2f3b04 100644
---- a/net/ipv4/tcp_fastopen.c
-+++ b/net/ipv4/tcp_fastopen.c
-@@ -342,8 +342,7 @@ struct sock *tcp_try_fastopen(struct sock *sk, struct sk_buff *skb,
- 		return NULL;
- 	}
+diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
+index 72f6cde146b5..db66e533319e 100644
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -78,7 +78,7 @@ static void moan_device(const char *str, struct pci_dev *dev)
  
--	if (syn_data &&
--	    tcp_fastopen_no_cookie(sk, dst, TFO_SERVER_COOKIE_NOT_REQD))
-+	if (tcp_fastopen_no_cookie(sk, dst, TFO_SERVER_COOKIE_NOT_REQD))
- 		goto fastopen;
+ static int
+ setup_port(struct serial_private *priv, struct uart_8250_port *port,
+-	   int bar, int offset, int regshift)
++	   u8 bar, unsigned int offset, int regshift)
+ {
+ 	struct pci_dev *dev = priv->dev;
  
- 	if (foc->len >= 0 &&  /* Client presents or requests a cookie */
 -- 
 2.30.2
 
