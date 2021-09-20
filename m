@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C24154121E1
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:09:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFF104121E8
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:09:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359869AbhITSKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:10:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35750 "EHLO mail.kernel.org"
+        id S1376295AbhITSLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:11:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1359044AbhITSJM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:09:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BAFBA61A50;
-        Mon, 20 Sep 2021 17:19:02 +0000 (UTC)
+        id S1359257AbhITSJZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:09:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DE8463262;
+        Mon, 20 Sep 2021 17:19:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158343;
-        bh=L0uvE418LEtuoJirJEY/yF7uXg0fi/F05OFKbzd6Fvc=;
+        s=korg; t=1632158354;
+        bh=mfBbaY/QwPlxus1dTIJvOTmo7EBirUdNiBi567a2M98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JJ3QN5OJIP3Eb7Lrd32aIx6s6SrSu4/1eevsefcob0EFCmDW/8r3lb3B6WbVbCv12
-         KCvHBywrPQCNAs5tOLcRhnA8QOC8VC95d4w9LaKMNDP1oVP5YNyuVP+USuh8hVHDpw
-         9QafBunZtfuaZiLNo3dLOkhCvg1RMN3xCquBH5LM=
+        b=c5av+p4hvqKkJ3P4rhMCJWMoOHwdcepWySek17vPZKhAze5c7S0C0//ExaixBYx6c
+         /yyJMUszi5FgnsIs53u5EeaQs1HuC0Loojm1nF8GV+NHYfnp1bPn16ezLCZVRPz9u7
+         p58uenIFgOijNzC69J5PXhUfpmvgvF65zYlyMRYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 085/260] drm: avoid blocking in drm_clients_infos rcu section
-Date:   Mon, 20 Sep 2021 18:41:43 +0200
-Message-Id: <20210920163934.036054472@linuxfoundation.org>
+Subject: [PATCH 5.4 086/260] igc: Check if num of q_vectors is smaller than max before array access
+Date:   Mon, 20 Sep 2021 18:41:44 +0200
+Message-Id: <20210920163934.067235495@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -41,93 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-[ Upstream commit 5eff9585de220cdd131237f5665db5e6c6bdf590 ]
+[ Upstream commit 373e2829e7c2e1e606503cdb5c97749f512a4be9 ]
 
-Inside drm_clients_info, the rcu_read_lock is held to lock
-pid_task()->comm. However, within this protected section, a call to
-drm_is_current_master is made, which involves a mutex lock in a future
-patch. However, this is illegal because the mutex lock might block
-while in the RCU read-side critical section.
+Ensure that the adapter->q_vector[MAX_Q_VECTORS] array isn't accessed
+beyond its size. It was fixed by using a local variable num_q_vectors
+as a limit for loop index, and ensure that num_q_vectors is not bigger
+than MAX_Q_VECTORS.
 
-Since drm_is_current_master isn't protected by rcu_read_lock, we avoid
-this by moving it out of the RCU critical section.
-
-The following report came from intel-gfx ci's
-igt@debugfs_test@read_all_entries testcase:
-
-=============================
-[ BUG: Invalid wait context ]
-5.13.0-CI-Patchwork_20515+ #1 Tainted: G        W
------------------------------
-debugfs_test/1101 is trying to lock:
-ffff888132d901a8 (&dev->master_mutex){+.+.}-{3:3}, at:
-drm_is_current_master+0x1e/0x50
-other info that might help us debug this:
-context-{4:4}
-3 locks held by debugfs_test/1101:
- #0: ffff88810fdffc90 (&p->lock){+.+.}-{3:3}, at:
- seq_read_iter+0x53/0x3b0
- #1: ffff888132d90240 (&dev->filelist_mutex){+.+.}-{3:3}, at:
- drm_clients_info+0x63/0x2a0
- #2: ffffffff82734220 (rcu_read_lock){....}-{1:2}, at:
- drm_clients_info+0x1b1/0x2a0
-stack backtrace:
-CPU: 8 PID: 1101 Comm: debugfs_test Tainted: G        W
-5.13.0-CI-Patchwork_20515+ #1
-Hardware name: Intel Corporation CometLake Client Platform/CometLake S
-UDIMM (ERB/CRB), BIOS CMLSFWR1.R00.1263.D00.1906260926 06/26/2019
-Call Trace:
- dump_stack+0x7f/0xad
- __lock_acquire.cold.78+0x2af/0x2ca
- lock_acquire+0xd3/0x300
- ? drm_is_current_master+0x1e/0x50
- ? __mutex_lock+0x76/0x970
- ? lockdep_hardirqs_on+0xbf/0x130
- __mutex_lock+0xab/0x970
- ? drm_is_current_master+0x1e/0x50
- ? drm_is_current_master+0x1e/0x50
- ? drm_is_current_master+0x1e/0x50
- drm_is_current_master+0x1e/0x50
- drm_clients_info+0x107/0x2a0
- seq_read_iter+0x178/0x3b0
- seq_read+0x104/0x150
- full_proxy_read+0x4e/0x80
- vfs_read+0xa5/0x1b0
- ksys_read+0x5a/0xd0
- do_syscall_64+0x39/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210712043508.11584-3-desmondcheongzx@gmail.com
+Suggested-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_debugfs.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/igc/igc_main.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_debugfs.c b/drivers/gpu/drm/drm_debugfs.c
-index 00debd02c322..0ba92428ef56 100644
---- a/drivers/gpu/drm/drm_debugfs.c
-+++ b/drivers/gpu/drm/drm_debugfs.c
-@@ -91,6 +91,7 @@ static int drm_clients_info(struct seq_file *m, void *data)
- 	mutex_lock(&dev->filelist_mutex);
- 	list_for_each_entry_reverse(priv, &dev->filelist, lhead) {
- 		struct task_struct *task;
-+		bool is_current_master = drm_is_current_master(priv);
+diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
+index 084cf4a4114a..9ba05d9aa8e0 100644
+--- a/drivers/net/ethernet/intel/igc/igc_main.c
++++ b/drivers/net/ethernet/intel/igc/igc_main.c
+@@ -2693,6 +2693,7 @@ static irqreturn_t igc_msix_ring(int irq, void *data)
+  */
+ static int igc_request_msix(struct igc_adapter *adapter)
+ {
++	unsigned int num_q_vectors = adapter->num_q_vectors;
+ 	int i = 0, err = 0, vector = 0, free_vector = 0;
+ 	struct net_device *netdev = adapter->netdev;
  
- 		rcu_read_lock(); /* locks pid_task()->comm */
- 		task = pid_task(priv->pid, PIDTYPE_PID);
-@@ -99,7 +100,7 @@ static int drm_clients_info(struct seq_file *m, void *data)
- 			   task ? task->comm : "<unknown>",
- 			   pid_vnr(priv->pid),
- 			   priv->minor->index,
--			   drm_is_current_master(priv) ? 'y' : 'n',
-+			   is_current_master ? 'y' : 'n',
- 			   priv->authenticated ? 'y' : 'n',
- 			   from_kuid_munged(seq_user_ns(m), uid),
- 			   priv->magic);
+@@ -2701,7 +2702,13 @@ static int igc_request_msix(struct igc_adapter *adapter)
+ 	if (err)
+ 		goto err_out;
+ 
+-	for (i = 0; i < adapter->num_q_vectors; i++) {
++	if (num_q_vectors > MAX_Q_VECTORS) {
++		num_q_vectors = MAX_Q_VECTORS;
++		dev_warn(&adapter->pdev->dev,
++			 "The number of queue vectors (%d) is higher than max allowed (%d)\n",
++			 adapter->num_q_vectors, MAX_Q_VECTORS);
++	}
++	for (i = 0; i < num_q_vectors; i++) {
+ 		struct igc_q_vector *q_vector = adapter->q_vector[i];
+ 
+ 		vector++;
 -- 
 2.30.2
 
