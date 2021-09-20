@@ -2,136 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB0EE41132D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 12:57:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 554C6411359
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 13:07:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230089AbhITK6t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 06:58:49 -0400
-Received: from mail.netline.ch ([148.251.143.180]:46339 "EHLO
-        netline-mail3.netline.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229999AbhITK6q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 06:58:46 -0400
-X-Greylist: delayed 427 seconds by postgrey-1.27 at vger.kernel.org; Mon, 20 Sep 2021 06:58:46 EDT
-Received: from localhost (localhost [127.0.0.1])
-        by netline-mail3.netline.ch (Postfix) with ESMTP id 4F55B20201B;
-        Mon, 20 Sep 2021 12:50:11 +0200 (CEST)
-X-Virus-Scanned: Debian amavisd-new at netline-mail3.netline.ch
-Received: from netline-mail3.netline.ch ([127.0.0.1])
-        by localhost (netline-mail3.netline.ch [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id gN7c22HlVRu9; Mon, 20 Sep 2021 12:50:10 +0200 (CEST)
-Received: from thor (24.99.2.85.dynamic.wline.res.cust.swisscom.ch [85.2.99.24])
-        by netline-mail3.netline.ch (Postfix) with ESMTPA id A999620201A;
-        Mon, 20 Sep 2021 12:50:10 +0200 (CEST)
-Received: from [127.0.0.1]
-        by thor with esmtp (Exim 4.95-RC2)
-        (envelope-from <michel@daenzer.net>)
-        id 1mSGsD-000Wag-Ug;
-        Mon, 20 Sep 2021 12:50:09 +0200
-Message-ID: <8d632b43-c41f-dd46-3d4c-cef19dbd3994@daenzer.net>
-Date:   Mon, 20 Sep 2021 12:50:09 +0200
+        id S232462AbhITLJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 07:09:07 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:56771 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232382AbhITLJG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 07:09:06 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.nyi.internal (Postfix) with ESMTP id 076615C0048;
+        Mon, 20 Sep 2021 07:07:40 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Mon, 20 Sep 2021 07:07:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
+         h=from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=fm2; bh=1MCndy9cLnlMIcCifBnqzwJc/+
+        Zfm3QLxX/qfshnxIM=; b=giIS6sDgRzSwSn+8t9vSyp8FA8blvOcarGEp41GDea
+        XOLUI3hsP0s6mIRKJDlqB0f1Tt04RjEZ7UcHnQcT8p1HMTlzPKwnxUZCucXTZqj2
+        ILAt+LOBBUrD1xTngkTnmClXReSKinylePKK9GXOC0kFDqOWkkW097bMcY9XzBIo
+        XgvGqLzivMFGlZR860eDWb9r0AouLgeKKwCrPC/0uh6vbRKNW7aMwmjwW9Bx8Nbg
+        k3XfB6ndPAlqaXvEEPI4wjSEKZoP8B+YLvE9sicfreSmunDdyAQCGibos6YR1Onj
+        WvTAUbxpOxNP/+hd0QGwToIX63OzPmD5LMagxSBC9zWA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=1MCndy9cLnlMIcCif
+        BnqzwJc/+Zfm3QLxX/qfshnxIM=; b=NFpRM1F1ztT+Hv6+pKC4XEP2TEkhPdpqN
+        vBusmnHVP+qj2l9bb3cRZFspHcKxSeJRXDXnsPQM3BDKgyzCdedeVGpmZ0El0JGu
+        CXiVQG+5qkPN86wZ6SCOY8x4tyCPwWwEGNaIxXNe50vjltgAFrGLH3yFgZjqD6j/
+        nfxUSneRqfAhoHJyXXk1pV4QrRBOFRe/rLi1Sqalu3mqAbuuV3n8EkdhN1Tk2mcO
+        ItU1n29AwV9KVJP/aOYycHvx94nOXfCwFnZnUeUZzpec5lM6tmcg9S5M9NH+jAFv
+        HIt5chMAbQopMwLwoRfZdFk4OBC/6waP5cCDWM0FcT9fbSEnfJXAA==
+X-ME-Sender: <xms:e2tIYVvDmFINcuJiFK2d_MRyk0XC2Lx8iuxgSyfl7ZZ4A1iXch1CUw>
+    <xme:e2tIYecLabQswtpiWAoEUeRLX5qEy5QLRl2rTuJnNBqNl35czPzl-7-fkfnLGZ-0E
+    xZGXP6cf_e2wwcBj70>
+X-ME-Received: <xmr:e2tIYYzzv3OwSkch2C1p7gC-0CAUD2to6WsgJQI2fvVx37UdWwN2Fkx8j6CFPdxFbJrNtzGPxnHERfTyslyRG_wKRgFhZo5m09c-H0yrlw6InYwtcJ55>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudeivddgfeeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtre
+    dttdenucfhrhhomhepvfgrkhgrshhhihcuufgrkhgrmhhothhouceoohdqthgrkhgrshhh
+    ihesshgrkhgrmhhotggthhhirdhjpheqnecuggftrfgrthhtvghrnhepudejteelhfdttd
+    ekgfdtueeilefhgfetjeejheekgeevuddvveegieehueeukeejnecuvehluhhsthgvrhfu
+    ihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepohdqthgrkhgrshhhihesshgrkh
+    grmhhotggthhhirdhjph
+X-ME-Proxy: <xmx:e2tIYcPmfe_Bww4c149BsVcW6oDPm6Mb1MZnP8VUBFgAnpAZE5W-Nw>
+    <xmx:e2tIYV839ie9qBygWjakTWzEUgu90N9k40C65cFW1TNFbkny788zDg>
+    <xmx:e2tIYcWJDyi_YJAFMo2ccN5TQZjjjXqietw9jgw9aqG5tGJxj4TpYA>
+    <xmx:fGtIYXIxp9H9wO4Ldz6JEAjqXRTVDA5_7DDyCbsSLC0zHOJEgskEnA>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 20 Sep 2021 07:07:37 -0400 (EDT)
+From:   Takashi Sakamoto <o-takashi@sakamocchi.jp>
+To:     tiwai@suse.de
+Cc:     clemens@ladisch.de, alsa-devel@alsa-project.org,
+        stable@vger.kernel.org
+Subject: [PATCH] ALSA: firewire-motu: fix truncated bytes in message tracepoints
+Date:   Mon, 20 Sep 2021 20:07:34 +0900
+Message-Id: <20210920110734.27161-1-o-takashi@sakamocchi.jp>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.0
-Content-Language: en-CA
-To:     Simon Ser <contact@emersion.fr>
-Cc:     stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
-        Harry Wentland <hwentlan@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
-        amd-gfx@lists.freedesktop.org
-References: <20210920103133.3573-1-contact@emersion.fr>
-From:   =?UTF-8?Q?Michel_D=c3=a4nzer?= <michel@daenzer.net>
-Subject: Re: [PATCH] amdgpu: check tiling flags when creating FB on GFX8-
-In-Reply-To: <20210920103133.3573-1-contact@emersion.fr>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-09-20 12:31, Simon Ser wrote:
-> On GFX9+, format modifiers are always enabled and ensure the
-> frame-buffers can be scanned out at ADDFB2 time.
-> 
-> On GFX8-, format modifiers are not supported and no other check
-> is performed. This means ADDFB2 IOCTLs will succeed even if the
-> tiling isn't supported for scan-out, and will result in garbage
-> displayed on screen [1].
-> 
-> Fix this by adding a check for tiling flags for GFX8 and older.
-> The check is taken from radeonsi in Mesa (see how is_displayable
-> is populated in gfx6_compute_surface).
-> 
-> [1]: https://github.com/swaywm/wlroots/issues/3185
-> 
-> Signed-off-by: Simon Ser <contact@emersion.fr>
-> Cc: stable@vger.kernel.org
-> Cc: Alex Deucher <alexander.deucher@amd.com>
-> Cc: Harry Wentland <hwentlan@amd.com>
-> Cc: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-> Cc: Michel Dänzer <michel@daenzer.net>
-> Cc: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
-> ---
->  drivers/gpu/drm/amd/amdgpu/amdgpu_display.c | 31 +++++++++++++++++++++
->  1 file changed, 31 insertions(+)
-> 
-> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-> index 58bfc7f00d76..dfe434a56a8c 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-> @@ -837,6 +837,28 @@ static int convert_tiling_flags_to_modifier(struct amdgpu_framebuffer *afb)
->  	return 0;
->  }
->  
-> +/* Mirrors the is_displayable check in radeonsi's gfx6_compute_surface */
-> +static int check_tiling_flags_gfx6(struct amdgpu_framebuffer *afb)
-> +{
-> +	u64 micro_tile_mode;
-> +
-> +	/* Zero swizzle mode means linear */
-> +	if (AMDGPU_TILING_GET(afb->tiling_flags, SWIZZLE_MODE) == 0)
-> +		return 0;
-> +
-> +	micro_tile_mode = AMDGPU_TILING_GET(afb->tiling_flags, MICRO_TILE_MODE);
-> +	switch (micro_tile_mode) {
-> +	case 0: /* DISPLAY */
-> +	case 3: /* RENDER */
-> +		return 0;
-> +	default:
-> +		drm_dbg_kms(afb->base.dev,
-> +			    "Micro tile mode %llu not supported for scanout\n",
-> +			    micro_tile_mode);
-> +		return -EINVAL;
-> +	}
-> +}
-> +
->  static void get_block_dimensions(unsigned int block_log2, unsigned int cpp,
->  				 unsigned int *width, unsigned int *height)
->  {
-> @@ -1103,6 +1125,7 @@ int amdgpu_display_framebuffer_init(struct drm_device *dev,
->  				    const struct drm_mode_fb_cmd2 *mode_cmd,
->  				    struct drm_gem_object *obj)
->  {
-> +	struct amdgpu_device *adev = drm_to_adev(dev);
->  	int ret, i;
->  
->  	/*
-> @@ -1122,6 +1145,14 @@ int amdgpu_display_framebuffer_init(struct drm_device *dev,
->  	if (ret)
->  		return ret;
->  
-> +	if (!dev->mode_config.allow_fb_modifiers) {
-> +		drm_WARN(dev, adev->family >= AMDGPU_FAMILY_AI,
-> +			 "GFX9+ requires FB check based on format modifier\n");
+In MOTU protocol v2/v3, first two data chunks across 2nd and 3rd data
+channels includes message bytes from device. The total size of message
+is 48 bits per data block.
 
-drm_WARN_ONCE would be better, to avoid spamming dmesg if there's a driver bug.
+The 'data_block_message' tracepoints event produced by ALSA firewire-motu
+driver exposes the sequence of messages to userspace in 64 bit storage,
+however lower 32 bits are actually available since current implementation
+truncates 16 bits in upper of the message as a result of bit shift
+operation within 32 bit storage.
 
+This commit fixes the bug by perform the bit shift in 64 bit storage.
 
-With that,
+Fixes: c6b0b9e65f09 ("ALSA: firewire-motu: add tracepoints for messages for unique protocol")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+---
+ sound/firewire/motu/amdtp-motu.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-Acked-by: Michel Dänzer <mdaenzer@redhat.com>
-
-
+diff --git a/sound/firewire/motu/amdtp-motu.c b/sound/firewire/motu/amdtp-motu.c
+index 5388b85fb60e..a18c2c033e83 100644
+--- a/sound/firewire/motu/amdtp-motu.c
++++ b/sound/firewire/motu/amdtp-motu.c
+@@ -276,10 +276,11 @@ static void __maybe_unused copy_message(u64 *frames, __be32 *buffer,
+ 
+ 	/* This is just for v2/v3 protocol. */
+ 	for (i = 0; i < data_blocks; ++i) {
+-		*frames = (be32_to_cpu(buffer[1]) << 16) |
+-			  (be32_to_cpu(buffer[2]) >> 16);
++		*frames = be32_to_cpu(buffer[1]);
++		*frames <<= 16;
++		*frames |= be32_to_cpu(buffer[2]) >> 16;
++		++frames;
+ 		buffer += data_block_quadlets;
+-		frames++;
+ 	}
+ }
+ 
 -- 
-Earthling Michel Dänzer            |                  https://redhat.com
-Libre software enthusiast          |         Mesa and Xwayland developer
+2.30.2
+
