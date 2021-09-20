@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B85B411C12
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:04:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C599B41204D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:52:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344249AbhITRFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:05:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55058 "EHLO mail.kernel.org"
+        id S1354612AbhITRxx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:53:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345691AbhITREL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:04:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C1A261507;
-        Mon, 20 Sep 2021 16:54:23 +0000 (UTC)
+        id S1354597AbhITRuj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:50:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8D2C61BE4;
+        Mon, 20 Sep 2021 17:12:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156863;
-        bh=fszcVQ54+MRHL1zDTWIOZl6b4IzBfRpD5N0vgFm23/Y=;
+        s=korg; t=1632157927;
+        bh=LnkxSRlZlGz97B1C0web42fPnux/0Hyme/3MF6rOfpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wAEQSRaVUNxc/U/jA9ck4b7Ziql9S/7a8KKIgJrDhUqCbOJ4nE0m4+M2iJodneNXR
-         z2gkucQLt6O8iXdGQgx+02TgU9uErFWTLrulJtbetrSeWgAP0Kv07ZJdp2PLfN8iR7
-         z+7ExUJAWTSx9QbNUiUDv6i/FXj3KEiawdd9Fsfk=
+        b=uDCsrQUOWI7GDnuvmmk27kMbenbs4g1qkrMk2sU0nyrwSQxEmNjKV173QAValLLNl
+         JcukMid/yMHQj+GutawMTdEuHhCzAhp+bJjLASKTB+r/bnKTq97PmKSDDEU7DyzHwY
+         Gce4Y1VJUJuxjxQCioucfTyNzXOefxSfPfxjIIFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        =?UTF-8?q?Krzysztof=20Ha=C5=82asa?= <khalasa@piap.pl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 121/175] video: fbdev: riva: Error out if pixclock equals zero
+Subject: [PATCH 4.19 208/293] media: v4l2-dv-timings.c: fix wrong condition in two for-loops
 Date:   Mon, 20 Sep 2021 18:42:50 +0200
-Message-Id: <20210920163922.032803305@linuxfoundation.org>
+Message-Id: <20210920163940.388804511@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit f92763cb0feba247e0939ed137b495601fd072a5 ]
+[ Upstream commit 4108b3e6db31acc4c68133290bbcc87d4db905c9 ]
 
-The userspace program could pass any values to the driver through
-ioctl() interface. If the driver doesn't check the value of 'pixclock',
-it may cause divide error.
+These for-loops should test against v4l2_dv_timings_presets[i].bt.width,
+not if i < v4l2_dv_timings_presets[i].bt.width. Luckily nothing ever broke,
+since the smallest width is still a lot higher than the total number of
+presets, but it is wrong.
 
-Fix this by checking whether 'pixclock' is zero first.
+The last item in the presets array is all 0, so the for-loop must stop
+when it reaches that sentinel.
 
-The following log reveals it:
-
-[   33.396850] divide error: 0000 [#1] PREEMPT SMP KASAN PTI
-[   33.396864] CPU: 5 PID: 11754 Comm: i740 Not tainted 5.14.0-rc2-00513-gac532c9bbcfb-dirty #222
-[   33.396883] RIP: 0010:riva_load_video_mode+0x417/0xf70
-[   33.396969] Call Trace:
-[   33.396973]  ? debug_smp_processor_id+0x1c/0x20
-[   33.396984]  ? tick_nohz_tick_stopped+0x1a/0x90
-[   33.396996]  ? rivafb_copyarea+0x3c0/0x3c0
-[   33.397003]  ? wake_up_klogd.part.0+0x99/0xd0
-[   33.397014]  ? vprintk_emit+0x110/0x4b0
-[   33.397024]  ? vprintk_default+0x26/0x30
-[   33.397033]  ? vprintk+0x9c/0x1f0
-[   33.397041]  ? printk+0xba/0xed
-[   33.397054]  ? record_print_text.cold+0x16/0x16
-[   33.397063]  ? __kasan_check_read+0x11/0x20
-[   33.397074]  ? profile_tick+0xc0/0x100
-[   33.397084]  ? __sanitizer_cov_trace_const_cmp4+0x24/0x80
-[   33.397094]  ? riva_set_rop_solid+0x2a0/0x2a0
-[   33.397102]  rivafb_set_par+0xbe/0x610
-[   33.397111]  ? riva_set_rop_solid+0x2a0/0x2a0
-[   33.397119]  fb_set_var+0x5bf/0xeb0
-[   33.397127]  ? fb_blank+0x1a0/0x1a0
-[   33.397134]  ? lock_acquire+0x1ef/0x530
-[   33.397143]  ? lock_release+0x810/0x810
-[   33.397151]  ? lock_is_held_type+0x100/0x140
-[   33.397159]  ? ___might_sleep+0x1ee/0x2d0
-[   33.397170]  ? __mutex_lock+0x620/0x1190
-[   33.397180]  ? trace_hardirqs_on+0x6a/0x1c0
-[   33.397190]  do_fb_ioctl+0x31e/0x700
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1627293835-17441-4-git-send-email-zheyuma97@gmail.com
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reported-by: Krzysztof Hałasa <khalasa@piap.pl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/riva/fbdev.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/v4l2-core/v4l2-dv-timings.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/riva/fbdev.c b/drivers/video/fbdev/riva/fbdev.c
-index 2ef26ad99341..69f3acd405c5 100644
---- a/drivers/video/fbdev/riva/fbdev.c
-+++ b/drivers/video/fbdev/riva/fbdev.c
-@@ -1088,6 +1088,9 @@ static int rivafb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
- 	int mode_valid = 0;
- 	
- 	NVTRACE_ENTER();
-+	if (!var->pixclock)
-+		return -EINVAL;
-+
- 	switch (var->bits_per_pixel) {
- 	case 1 ... 8:
- 		var->red.offset = var->green.offset = var->blue.offset = 0;
+diff --git a/drivers/media/v4l2-core/v4l2-dv-timings.c b/drivers/media/v4l2-core/v4l2-dv-timings.c
+index a24b40dfec97..af38c989ff33 100644
+--- a/drivers/media/v4l2-core/v4l2-dv-timings.c
++++ b/drivers/media/v4l2-core/v4l2-dv-timings.c
+@@ -196,7 +196,7 @@ bool v4l2_find_dv_timings_cap(struct v4l2_dv_timings *t,
+ 	if (!v4l2_valid_dv_timings(t, cap, fnc, fnc_handle))
+ 		return false;
+ 
+-	for (i = 0; i < v4l2_dv_timings_presets[i].bt.width; i++) {
++	for (i = 0; v4l2_dv_timings_presets[i].bt.width; i++) {
+ 		if (v4l2_valid_dv_timings(v4l2_dv_timings_presets + i, cap,
+ 					  fnc, fnc_handle) &&
+ 		    v4l2_match_dv_timings(t, v4l2_dv_timings_presets + i,
+@@ -218,7 +218,7 @@ bool v4l2_find_dv_timings_cea861_vic(struct v4l2_dv_timings *t, u8 vic)
+ {
+ 	unsigned int i;
+ 
+-	for (i = 0; i < v4l2_dv_timings_presets[i].bt.width; i++) {
++	for (i = 0; v4l2_dv_timings_presets[i].bt.width; i++) {
+ 		const struct v4l2_bt_timings *bt =
+ 			&v4l2_dv_timings_presets[i].bt;
+ 
 -- 
 2.30.2
 
