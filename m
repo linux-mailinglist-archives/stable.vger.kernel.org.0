@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B513C412602
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:51:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5A18412643
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:55:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385865AbhITSwc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:52:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33380 "EHLO mail.kernel.org"
+        id S1386256AbhITS4g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:56:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1385496AbhITSua (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:50:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6058F63378;
-        Mon, 20 Sep 2021 17:34:51 +0000 (UTC)
+        id S1385807AbhITSw2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:52:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90F4163383;
+        Mon, 20 Sep 2021 17:35:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159291;
-        bh=8/yye/4zvPjG7kAcdR5+Vg31xWD23JRkZxSAEoaWl68=;
+        s=korg; t=1632159318;
+        bh=AV3XuGOzlaAqvqRuTjT43u2zLAVdU4oHwauY6QUT+jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ng63V6w33py0Tnh+1mnImFbwjLN+ulBUAFrN7o+jbrkZot5zlm59CiG9mKIgQ6Sfi
-         pi3pfXmpBb1PNqUKgMJN89Y8Ndx8H+A2lFoz4yZ7oY2CSseSBtaSKOhabzpMC7vyby
-         XDbapMI9ctVHqD0XpHqii4CZUF7vNJFvtYJ63088=
+        b=G8/JU6d/nbi5xHvdg3ivGKpjnqMnTPCreC1qpAV6lpLTqTqhImlyyIYAHjwXlfvlp
+         RZij61Tk5yyeTRI4ozl4tA8hOuj4riKekEhwFvTyZ2YRnPNtK7LFA97u44sYxmUouE
+         p9GvzB50G/Ah36NR+OiQQiV8XgIgtyJHIcm1GLCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
-        Somnath Kotur <somnath.kotur@broadcom.com>,
         Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 163/168] bnxt_en: Fix asic.rev in devlink dev info command
-Date:   Mon, 20 Sep 2021 18:45:01 +0200
-Message-Id: <20210920163927.029982361@linuxfoundation.org>
+Subject: [PATCH 5.14 164/168] bnxt_en: Fix possible unintended driver initiated error recovery
+Date:   Mon, 20 Sep 2021 18:45:02 +0200
+Message-Id: <20210920163927.070105317@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
 References: <20210920163921.633181900@linuxfoundation.org>
@@ -44,35 +43,92 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 6fdab8a3ade2adc123bbf5c4fdec3394560b1fb1 ]
+[ Upstream commit 1b2b91831983aeac3adcbb469aa8b0dc71453f89 ]
 
-The current asic.rev is incomplete and does not include the metal
-revision.  Add the metal revision and decode the complete asic
-revision into the more common and readable form (A0, B0, etc).
+If error recovery is already enabled, bnxt_timer() will periodically
+check the heartbeat register and the reset counter.  If we get an
+error recovery async. notification from the firmware (e.g. change in
+primary/secondary role), we will immediately read and update the
+heartbeat register and the reset counter.  If the timer for the next
+health check expires soon after this, we may read the heartbeat register
+again in quick succession and find that it hasn't changed.  This will
+trigger error recovery unintentionally.
 
-Fixes: 7154917a12b2 ("bnxt_en: Refactor bnxt_dl_info_get().")
+The likelihood is small because we also reset fw_health->tmr_counter
+which will reset the interval for the next health check.  But the
+update is not protected and bnxt_timer() can miss the update and
+perform the health check without waiting for the full interval.
+
+Fix it by only reading the heartbeat register and reset counter in
+bnxt_async_event_process() if error recovery is trasitioning to the
+enabled state.  Also add proper memory barriers so that when enabling
+for the first time, bnxt_timer() will see the tmr_counter interval and
+perform the health check after the full interval has elapsed.
+
+Fixes: 7e914027f757 ("bnxt_en: Enable health monitoring.")
 Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
-Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
 Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 25 ++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
-index 8b7f6a0ad401..bb228619ec64 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
-@@ -449,7 +449,7 @@ static int bnxt_dl_info_get(struct devlink *dl, struct devlink_info_req *req,
- 		return rc;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 1acf8633399f..2660dfc6875a 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -2172,25 +2172,34 @@ static int bnxt_async_event_process(struct bnxt *bp,
+ 		if (!fw_health)
+ 			goto async_event_process_exit;
  
- 	ver_resp = &bp->ver_resp;
--	sprintf(buf, "%X", ver_resp->chip_rev);
-+	sprintf(buf, "%c%d", 'A' + ver_resp->chip_rev, ver_resp->chip_metal);
- 	rc = bnxt_dl_info_put(bp, req, BNXT_VERSION_FIXED,
- 			      DEVLINK_INFO_VERSION_GENERIC_ASIC_REV, buf);
- 	if (rc)
+-		fw_health->enabled = EVENT_DATA1_RECOVERY_ENABLED(data1);
+-		fw_health->master = EVENT_DATA1_RECOVERY_MASTER_FUNC(data1);
+-		if (!fw_health->enabled) {
++		if (!EVENT_DATA1_RECOVERY_ENABLED(data1)) {
++			fw_health->enabled = false;
+ 			netif_info(bp, drv, bp->dev,
+ 				   "Error recovery info: error recovery[0]\n");
+ 			break;
+ 		}
++		fw_health->master = EVENT_DATA1_RECOVERY_MASTER_FUNC(data1);
+ 		fw_health->tmr_multiplier =
+ 			DIV_ROUND_UP(fw_health->polling_dsecs * HZ,
+ 				     bp->current_interval * 10);
+ 		fw_health->tmr_counter = fw_health->tmr_multiplier;
+-		fw_health->last_fw_heartbeat =
+-			bnxt_fw_health_readl(bp, BNXT_FW_HEARTBEAT_REG);
+-		fw_health->last_fw_reset_cnt =
+-			bnxt_fw_health_readl(bp, BNXT_FW_RESET_CNT_REG);
++		if (!fw_health->enabled) {
++			fw_health->last_fw_heartbeat =
++				bnxt_fw_health_readl(bp, BNXT_FW_HEARTBEAT_REG);
++			fw_health->last_fw_reset_cnt =
++				bnxt_fw_health_readl(bp, BNXT_FW_RESET_CNT_REG);
++		}
+ 		netif_info(bp, drv, bp->dev,
+ 			   "Error recovery info: error recovery[1], master[%d], reset count[%u], health status: 0x%x\n",
+ 			   fw_health->master, fw_health->last_fw_reset_cnt,
+ 			   bnxt_fw_health_readl(bp, BNXT_FW_HEALTH_REG));
++		if (!fw_health->enabled) {
++			/* Make sure tmr_counter is set and visible to
++			 * bnxt_health_check() before setting enabled to true.
++			 */
++			smp_wmb();
++			fw_health->enabled = true;
++		}
+ 		goto async_event_process_exit;
+ 	}
+ 	case ASYNC_EVENT_CMPL_EVENT_ID_DEBUG_NOTIFICATION:
+@@ -11250,6 +11259,8 @@ static void bnxt_fw_health_check(struct bnxt *bp)
+ 	if (!fw_health->enabled || test_bit(BNXT_STATE_IN_FW_RESET, &bp->state))
+ 		return;
+ 
++	/* Make sure it is enabled before checking the tmr_counter. */
++	smp_rmb();
+ 	if (fw_health->tmr_counter) {
+ 		fw_health->tmr_counter--;
+ 		return;
 -- 
 2.30.2
 
