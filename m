@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 242C7411B96
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:59:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FE9B412022
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:51:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244862AbhITRAa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:00:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47902 "EHLO mail.kernel.org"
+        id S1346951AbhITRtD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:49:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344211AbhITQ6g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:58:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60100613AC;
-        Mon, 20 Sep 2021 16:52:01 +0000 (UTC)
+        id S1353760AbhITRrG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:47:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A396561B95;
+        Mon, 20 Sep 2021 17:10:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156721;
-        bh=nM9KDf4fQgUhc9doufy0Tl3PUKGDHTLP1Ze5aXqipoQ=;
+        s=korg; t=1632157842;
+        bh=Bi6+0tvVMg2bvDTKx7eAnXNzqB6+GbCNe6ES9zLfERk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AaQiws+Ufrv17qZuKkh2+gAS7FcbsLETRQZXLMvowYws7FuinX3j/DHQXhaNFBEbp
-         D+xVGUFH+DM6T6FmN5tqpMDAlBhBPJXPpTQzNOviSgylyrscHgPzjnhSQHlDmWzvNl
-         S9veJUYsx3N47jDM/xirjianjRe4Ir0q/0LnIjxA=
+        b=uJ6Y3kMpnQ/S0BmQMPll6vVYscXXhVy5cLJzJZITw7x2w2h9tPaTGoGDlxL3nDuAJ
+         /qUJV/pGAG6x0JqXKn+fuEJuPHF8m0WRXw1QTSjrtkl5QGudHJ9kVsrN6p00CHs0N3
+         +KYteUblTrocrDSQ4Bl8IBlXR0VfNJgzpIcdzQDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 055/175] Bluetooth: sco: prevent information leak in sco_conn_defer_accept()
-Date:   Mon, 20 Sep 2021 18:41:44 +0200
-Message-Id: <20210920163919.856026712@linuxfoundation.org>
+        stable@vger.kernel.org, zhenwei pi <pizhenwei@bytedance.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 4.19 143/293] crypto: public_key: fix overflow during implicit conversion
+Date:   Mon, 20 Sep 2021 18:41:45 +0200
+Message-Id: <20210920163938.173697910@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +39,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: zhenwei pi <pizhenwei@bytedance.com>
 
-[ Upstream commit 59da0b38bc2ea570ede23a3332ecb3e7574ce6b2 ]
+commit f985911b7bc75d5c98ed24d8aaa8b94c590f7c6a upstream.
 
-Smatch complains that some of these struct members are not initialized
-leading to a stack information disclosure:
+Hit kernel warning like this, it can be reproduced by verifying 256
+bytes datafile by keyctl command, run script:
+RAWDATA=rawdata
+SIGDATA=sigdata
 
-    net/bluetooth/sco.c:778 sco_conn_defer_accept() warn:
-    check that 'cp.retrans_effort' doesn't leak information
+modprobe pkcs8_key_parser
 
-This seems like a valid warning.  I've added a default case to fix
-this issue.
+rm -rf *.der *.pem *.pfx
+rm -rf $RAWDATA
+dd if=/dev/random of=$RAWDATA bs=256 count=1
 
-Fixes: 2f69a82acf6f ("Bluetooth: Use voice setting in deferred SCO connection request")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+openssl req -nodes -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem \
+  -subj "/C=CN/ST=GD/L=SZ/O=vihoo/OU=dev/CN=xx.com/emailAddress=yy@xx.com"
+
+KEY_ID=`openssl pkcs8 -in key.pem -topk8 -nocrypt -outform DER | keyctl \
+  padd asymmetric 123 @s`
+
+keyctl pkey_sign $KEY_ID 0 $RAWDATA enc=pkcs1 hash=sha1 > $SIGDATA
+keyctl pkey_verify $KEY_ID 0 $RAWDATA $SIGDATA enc=pkcs1 hash=sha1
+
+Then the kernel reports:
+ WARNING: CPU: 5 PID: 344556 at crypto/rsa-pkcs1pad.c:540
+   pkcs1pad_verify+0x160/0x190
+ ...
+ Call Trace:
+  public_key_verify_signature+0x282/0x380
+  ? software_key_query+0x12d/0x180
+  ? keyctl_pkey_params_get+0xd6/0x130
+  asymmetric_key_verify_signature+0x66/0x80
+  keyctl_pkey_verify+0xa5/0x100
+  do_syscall_64+0x35/0xb0
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The reason of this issue, in function 'asymmetric_key_verify_signature':
+'.digest_size(u8) = params->in_len(u32)' leads overflow of an u8 value,
+so use u32 instead of u8 for digest_size field. And reorder struct
+public_key_signature, it saves 8 bytes on a 64-bit machine.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/sco.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ include/crypto/public_key.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-index 95fd7a837dc5..3174eab6eafc 100644
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -763,6 +763,11 @@ static void sco_conn_defer_accept(struct hci_conn *conn, u16 setting)
- 			cp.max_latency = cpu_to_le16(0xffff);
- 			cp.retrans_effort = 0xff;
- 			break;
-+		default:
-+			/* use CVSD settings as fallback */
-+			cp.max_latency = cpu_to_le16(0xffff);
-+			cp.retrans_effort = 0xff;
-+			break;
- 		}
- 
- 		hci_send_cmd(hdev, HCI_OP_ACCEPT_SYNC_CONN_REQ,
--- 
-2.30.2
-
+--- a/include/crypto/public_key.h
++++ b/include/crypto/public_key.h
+@@ -35,9 +35,9 @@ extern void public_key_free(struct publi
+ struct public_key_signature {
+ 	struct asymmetric_key_id *auth_ids[2];
+ 	u8 *s;			/* Signature */
+-	u32 s_size;		/* Number of bytes in signature */
+ 	u8 *digest;
+-	u8 digest_size;		/* Number of bytes in digest */
++	u32 s_size;		/* Number of bytes in signature */
++	u32 digest_size;	/* Number of bytes in digest */
+ 	const char *pkey_algo;
+ 	const char *hash_algo;
+ };
 
 
