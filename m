@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A5E1411BC8
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:01:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E60EC41200B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:47:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343810AbhITRCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:02:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52168 "EHLO mail.kernel.org"
+        id S1353956AbhITRsF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:48:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345098AbhITRAH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:00:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 112A861407;
-        Mon, 20 Sep 2021 16:52:51 +0000 (UTC)
+        id S1345867AbhITRqE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:46:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA0EA60E54;
+        Mon, 20 Sep 2021 17:10:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156772;
-        bh=e3yvkwGqp2Vy9cKkHKiS14Ci8X3/ufrLWKBheCxYQeA=;
+        s=korg; t=1632157820;
+        bh=52syZvdNJBYKRLSk5gMqTNEZMjAprRlqMQ6ql/otX5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OtgiGAPbdjWG+KqKMvahj2HfUqvAKies/oDUY9sNlTOruLg4/iNS+NfMLOM1x4XSz
-         P0N/WJBmzQEFUs82zQIdF+etCt/unOmCRD8BPVy0L8P8Pto6A//Yy7fgdIRfzOXbqX
-         Y36NJ12Hsa3os6qNPZr+G80IhIHJ8xf5r1UkIfbM=
+        b=uYb7Iq6BOOmWzgc8ovjUJGl9z3DIQkmLkvWQaK4IPiB8UwnL9RXJBa/aYJugFLaAZ
+         RPUj7Kyjfch9tm4cpH6SwlAzSD9KUS+yqowi1QWMIeNWpkoHnE6c/nnIbQWmPNlBuH
+         6ct02YSgrU8IgNcoA29uk9U9aDAdGgh8bkfKxHfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Evgeny Novikov <novikov@ispras.ru>,
-        Kirill Shilimanov <kirill.shilimanov@huawei.com>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 079/175] usb: ehci-orion: Handle errors of clk_prepare_enable() in probe
+Subject: [PATCH 4.19 166/293] platform/x86: dell-smbios-wmi: Add missing kfree in error-exit from run_smbios_call
 Date:   Mon, 20 Sep 2021 18:42:08 +0200
-Message-Id: <20210920163920.646772609@linuxfoundation.org>
+Message-Id: <20210920163938.975233342@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,62 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 4720f1bf4ee4a784d9ece05420ba33c9222a3004 ]
+[ Upstream commit 0487d4fc42d7f31a56cfd9e2237f9ebd889e6112 ]
 
-ehci_orion_drv_probe() did not account for possible errors of
-clk_prepare_enable() that in particular could cause invocation of
-clk_disable_unprepare() on clocks that were not prepared/enabled yet,
-e.g. in remove or on handling errors of usb_add_hcd() in probe. Though,
-there were several patches fixing different issues with clocks in this
-driver, they did not solve this problem.
+As pointed out be Kees Cook if we return -EIO because the
+obj->type != ACPI_TYPE_BUFFER, then we must kfree the
+output buffer before the return.
 
-Add handling of errors of clk_prepare_enable() in ehci_orion_drv_probe()
-to avoid calls of clk_disable_unprepare() without previous successful
-invocation of clk_prepare_enable().
-
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Fixes: 8c869edaee07 ("ARM: Orion: EHCI: Add support for enabling clocks")
-Co-developed-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Signed-off-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Link: https://lore.kernel.org/r/20210825170902.11234-1-novikov@ispras.ru
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1a258e670434 ("platform/x86: dell-smbios-wmi: Add new WMI dispatcher driver")
+Reported-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210826140822.71198-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ehci-orion.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/platform/x86/dell-smbios-wmi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/host/ehci-orion.c b/drivers/usb/host/ehci-orion.c
-index ee8d5faa0194..3eecf47d4e89 100644
---- a/drivers/usb/host/ehci-orion.c
-+++ b/drivers/usb/host/ehci-orion.c
-@@ -218,8 +218,11 @@ static int ehci_orion_drv_probe(struct platform_device *pdev)
- 	 * the clock does not exists.
- 	 */
- 	priv->clk = devm_clk_get(&pdev->dev, NULL);
--	if (!IS_ERR(priv->clk))
--		clk_prepare_enable(priv->clk);
-+	if (!IS_ERR(priv->clk)) {
-+		err = clk_prepare_enable(priv->clk);
-+		if (err)
-+			goto err_put_hcd;
-+	}
- 
- 	priv->phy = devm_phy_optional_get(&pdev->dev, "usb");
- 	if (IS_ERR(priv->phy)) {
-@@ -280,6 +283,7 @@ err_phy_init:
- err_phy_get:
- 	if (!IS_ERR(priv->clk))
- 		clk_disable_unprepare(priv->clk);
-+err_put_hcd:
- 	usb_put_hcd(hcd);
- err:
- 	dev_err(&pdev->dev, "init %s fail, %d\n",
+diff --git a/drivers/platform/x86/dell-smbios-wmi.c b/drivers/platform/x86/dell-smbios-wmi.c
+index ccccce9b67ef..0ebcf412f6ca 100644
+--- a/drivers/platform/x86/dell-smbios-wmi.c
++++ b/drivers/platform/x86/dell-smbios-wmi.c
+@@ -72,6 +72,7 @@ static int run_smbios_call(struct wmi_device *wdev)
+ 		if (obj->type == ACPI_TYPE_INTEGER)
+ 			dev_dbg(&wdev->dev, "SMBIOS call failed: %llu\n",
+ 				obj->integer.value);
++		kfree(output.pointer);
+ 		return -EIO;
+ 	}
+ 	memcpy(&priv->buf->std, obj->buffer.pointer, obj->buffer.length);
 -- 
 2.30.2
 
