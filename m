@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1753941220D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:10:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 191DB412524
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376448AbhITSMU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:12:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35804 "EHLO mail.kernel.org"
+        id S1353542AbhITSll (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:41:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1359799AbhITSKT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:10:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 927EB63270;
-        Mon, 20 Sep 2021 17:20:05 +0000 (UTC)
+        id S1353092AbhITShD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:37:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D065563322;
+        Mon, 20 Sep 2021 17:29:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158406;
-        bh=1eVM9060H543AHeb/3mDnABC/6PfU2rVPqL0/npPluQ=;
+        s=korg; t=1632158983;
+        bh=MwLgoaxQ710nxayWGUIn6POkndliC9rSgcVdZwxI3l4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yaLURNKy7VIUoWpX9ciVdLlQkoNaEmueLqKqnzqW4ytUAvzb4XsbcwFhrSun4LkwK
-         PoGco1rNVYaIqbaEa7S1uRXenJcPl8mjXqmJhTIED/nEuDcdgrb4KpMAUjo+tQNmk1
-         A4s+coPcPNGeqpdk36eIPGU7SWbCj3VnCWWYeX5w=
+        b=UZGmshzVJUS7XZVUieHV1pj8vq87Bg5bxJENJ8uPBjbI8T7k6gGgXs+LwsFeNJ7tx
+         T8NfoiHN/gB0VzuqxEneqJL+koPdKYANWNFKsySVeXUSZiWZSuNlHWEr4tgapQgY+g
+         zouwx2GM2k4Q/Kly3ITZOTdixaMvX9Y2kQqwsdj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 141/260] rpc: fix gss_svc_init cleanup on failure
-Date:   Mon, 20 Sep 2021 18:42:39 +0200
-Message-Id: <20210920163935.905393301@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Dan Melnic <dmm@fb.com>
+Subject: [PATCH 5.14 022/168] io_uring: allow retry for O_NONBLOCK if async is supported
+Date:   Mon, 20 Sep 2021 18:42:40 +0200
+Message-Id: <20210920163922.377541288@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +39,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 5a4753446253a427c0ff1e433b9c4933e5af207c ]
+commit 5d329e1286b0a040264e239b80257c937f6e685f upstream.
 
-The failure case here should be rare, but it's obviously wrong.
+A common complaint is that using O_NONBLOCK files with io_uring can be a
+bit of a pain. Be a bit nicer and allow normal retry IFF the file does
+support async behavior. This makes it possible to use io_uring more
+reliably with O_NONBLOCK files, for use cases where it either isn't
+possible or feasible to modify the file flags.
 
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-and-tested-by: Dan Melnic <dmm@fb.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/auth_gss/svcauth_gss.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/net/sunrpc/auth_gss/svcauth_gss.c b/net/sunrpc/auth_gss/svcauth_gss.c
-index d5470c7fe879..c0016473a255 100644
---- a/net/sunrpc/auth_gss/svcauth_gss.c
-+++ b/net/sunrpc/auth_gss/svcauth_gss.c
-@@ -1937,7 +1937,7 @@ gss_svc_init_net(struct net *net)
- 		goto out2;
- 	return 0;
- out2:
--	destroy_use_gss_proxy_proc_entry(net);
-+	rsi_cache_destroy_net(net);
- out1:
- 	rsc_cache_destroy_net(net);
- 	return rv;
--- 
-2.30.2
-
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -2683,7 +2683,8 @@ static bool io_file_supports_async(struc
+ 	return __io_file_supports_async(req->file, rw);
+ }
+ 
+-static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
++static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe,
++		      int rw)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 	struct kiocb *kiocb = &req->rw.kiocb;
+@@ -2705,8 +2706,13 @@ static int io_prep_rw(struct io_kiocb *r
+ 	if (unlikely(ret))
+ 		return ret;
+ 
+-	/* don't allow async punt for O_NONBLOCK or RWF_NOWAIT */
+-	if ((kiocb->ki_flags & IOCB_NOWAIT) || (file->f_flags & O_NONBLOCK))
++	/*
++	 * If the file is marked O_NONBLOCK, still allow retry for it if it
++	 * supports async. Otherwise it's impossible to use O_NONBLOCK files
++	 * reliably. If not, or it IOCB_NOWAIT is set, don't retry.
++	 */
++	if ((kiocb->ki_flags & IOCB_NOWAIT) ||
++	    ((file->f_flags & O_NONBLOCK) && !io_file_supports_async(req, rw)))
+ 		req->flags |= REQ_F_NOWAIT;
+ 
+ 	ioprio = READ_ONCE(sqe->ioprio);
+@@ -3193,7 +3199,7 @@ static int io_read_prep(struct io_kiocb
+ {
+ 	if (unlikely(!(req->file->f_mode & FMODE_READ)))
+ 		return -EBADF;
+-	return io_prep_rw(req, sqe);
++	return io_prep_rw(req, sqe, READ);
+ }
+ 
+ /*
+@@ -3382,7 +3388,7 @@ static int io_write_prep(struct io_kiocb
+ {
+ 	if (unlikely(!(req->file->f_mode & FMODE_WRITE)))
+ 		return -EBADF;
+-	return io_prep_rw(req, sqe);
++	return io_prep_rw(req, sqe, WRITE);
+ }
+ 
+ static int io_write(struct io_kiocb *req, unsigned int issue_flags)
 
 
