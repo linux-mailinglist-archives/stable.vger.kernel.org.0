@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58076412653
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:55:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AEDB4124A2
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:35:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387252AbhITS4u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:56:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33338 "EHLO mail.kernel.org"
+        id S1352648AbhITSgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:36:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1384584AbhITSs1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:48:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF9FB63379;
-        Mon, 20 Sep 2021 17:34:05 +0000 (UTC)
+        id S1380558AbhITSeb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:34:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC68B63308;
+        Mon, 20 Sep 2021 17:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159246;
-        bh=bctpGfzMw5o3U7ExE35/OvyYBNCX8ZGZmwVaVROj7KU=;
+        s=korg; t=1632158905;
+        bh=uMaNey5bY5FmnaAhFfgRORfIG30CzHaoiYonZxb42RM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d5NdF7YOXyUkrAHC1to6UkBLcujbq5sQJMbFwqggagtb2xgwJ1gJ61HhjeI42MOAD
-         8jYL6bJzHRoFuQIdPiNm6wkN+ftctM/bo3qkTyWuztsxb31OGrTKHD84Dq7ourcKAN
-         HiOJ8kU2EA3pTyajWz3h4wG8Sl+uuWlViutKHeEc=
+        b=QiKAVhhz8fAHl4YSKrNPpmIEjitVAY1w8gi57JG38UTDyiJ/s3/dHvI70bS9UqcQr
+         BXqkxkGVdol0ugfpRGX0TboM7T9EDQsosUPZveL3DZBqQ5B7hiVzC9LrGX7Em91dYl
+         CVnNfyRQ/MNCPITaIuBINXrp2me2UlFWovs23fLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@idosch.org>,
+        Alexander Duyck <alexander.duyck@gmail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 144/168] gpio: mpc8xxx: Fix a potential double iounmap call in mpc8xxx_probe()
+Subject: [PATCH 5.10 110/122] ip_gre: validate csum_start only on pull
 Date:   Mon, 20 Sep 2021 18:44:42 +0200
-Message-Id: <20210920163926.393311485@linuxfoundation.org>
+Message-Id: <20210920163919.413818609@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,77 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 7d6588931ccd4c09e70a08175cf2e0cf7fc3b869 ]
+[ Upstream commit 8a0ed250f911da31a2aef52101bc707846a800ff ]
 
-Commit 76c47d1449fc ("gpio: mpc8xxx: Add ACPI support") has switched to a
-managed version when dealing with 'mpc8xxx_gc->regs'. So the corresponding
-'iounmap()' call in the error handling path and in the remove should be
-removed to avoid a double unmap.
+The GRE tunnel device can pull existing outer headers in ipge_xmit.
+This is a rare path, apparently unique to this device. The below
+commit ensured that pulling does not move skb->data beyond csum_start.
 
-This also allows some simplification in the probe. All the error handling
-paths related to managed resources can be direct returns and a NULL check
-in what remains in the error handling path can be removed.
+But it has a false positive if ip_summed is not CHECKSUM_PARTIAL and
+thus csum_start is irrelevant.
 
-Fixes: 76c47d1449fc ("gpio: mpc8xxx: Add ACPI support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Refine to exclude this. At the same time simplify and strengthen the
+test.
+
+Simplify, by moving the check next to the offending pull, making it
+more self documenting and removing an unnecessary branch from other
+code paths.
+
+Strengthen, by also ensuring that the transport header is correct and
+therefore the inner headers will be after skb_reset_inner_headers.
+The transport header is set to csum_start in skb_partial_csum_set.
+
+Link: https://lore.kernel.org/netdev/YS+h%2FtqCJJiQei+W@shredder/
+Fixes: 1d011c4803c7 ("ip_gre: add validation for csum_start")
+Reported-by: Ido Schimmel <idosch@idosch.org>
+Suggested-by: Alexander Duyck <alexander.duyck@gmail.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-mpc8xxx.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ net/ipv4/ip_gre.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpio/gpio-mpc8xxx.c b/drivers/gpio/gpio-mpc8xxx.c
-index 9acfa25ad6ee..fdb22c2e1085 100644
---- a/drivers/gpio/gpio-mpc8xxx.c
-+++ b/drivers/gpio/gpio-mpc8xxx.c
-@@ -332,7 +332,7 @@ static int mpc8xxx_probe(struct platform_device *pdev)
- 				 mpc8xxx_gc->regs + GPIO_DIR, NULL,
- 				 BGPIOF_BIG_ENDIAN);
- 		if (ret)
--			goto err;
-+			return ret;
- 		dev_dbg(&pdev->dev, "GPIO registers are LITTLE endian\n");
+diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
+index a0829495b211..a9cc05043fa4 100644
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -468,8 +468,6 @@ static void __gre_xmit(struct sk_buff *skb, struct net_device *dev,
+ 
+ static int gre_handle_offloads(struct sk_buff *skb, bool csum)
+ {
+-	if (csum && skb_checksum_start(skb) < skb->data)
+-		return -EINVAL;
+ 	return iptunnel_handle_offloads(skb, csum ? SKB_GSO_GRE_CSUM : SKB_GSO_GRE);
+ }
+ 
+@@ -627,15 +625,20 @@ static netdev_tx_t ipgre_xmit(struct sk_buff *skb,
+ 	}
+ 
+ 	if (dev->header_ops) {
++		const int pull_len = tunnel->hlen + sizeof(struct iphdr);
++
+ 		if (skb_cow_head(skb, 0))
+ 			goto free_skb;
+ 
+ 		tnl_params = (const struct iphdr *)skb->data;
+ 
++		if (pull_len > skb_transport_offset(skb))
++			goto free_skb;
++
+ 		/* Pull skb since ip_tunnel_xmit() needs skb->data pointing
+ 		 * to gre header.
+ 		 */
+-		skb_pull(skb, tunnel->hlen + sizeof(struct iphdr));
++		skb_pull(skb, pull_len);
+ 		skb_reset_mac_header(skb);
  	} else {
- 		ret = bgpio_init(gc, &pdev->dev, 4,
-@@ -342,7 +342,7 @@ static int mpc8xxx_probe(struct platform_device *pdev)
- 				 BGPIOF_BIG_ENDIAN
- 				 | BGPIOF_BIG_ENDIAN_BYTE_ORDER);
- 		if (ret)
--			goto err;
-+			return ret;
- 		dev_dbg(&pdev->dev, "GPIO registers are BIG endian\n");
- 	}
- 
-@@ -384,7 +384,7 @@ static int mpc8xxx_probe(struct platform_device *pdev)
- 	if (ret) {
- 		dev_err(&pdev->dev,
- 			"GPIO chip registration failed with status %d\n", ret);
--		goto err;
-+		return ret;
- 	}
- 
- 	mpc8xxx_gc->irqn = platform_get_irq(pdev, 0);
-@@ -416,9 +416,7 @@ static int mpc8xxx_probe(struct platform_device *pdev)
- 
- 	return 0;
- err:
--	if (mpc8xxx_gc->irq)
--		irq_domain_remove(mpc8xxx_gc->irq);
--	iounmap(mpc8xxx_gc->regs);
-+	irq_domain_remove(mpc8xxx_gc->irq);
- 	return ret;
- }
- 
-@@ -432,7 +430,6 @@ static int mpc8xxx_remove(struct platform_device *pdev)
- 	}
- 
- 	gpiochip_remove(&mpc8xxx_gc->gc);
--	iounmap(mpc8xxx_gc->regs);
- 
- 	return 0;
- }
+ 		if (skb_cow_head(skb, dev->needed_headroom))
 -- 
 2.30.2
 
