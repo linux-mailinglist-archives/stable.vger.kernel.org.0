@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53C9A41229D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90659412539
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:41:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358702AbhITSQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:16:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37204 "EHLO mail.kernel.org"
+        id S1382810AbhITSm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:42:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344224AbhITSMG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:12:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 34C1161245;
-        Mon, 20 Sep 2021 17:20:27 +0000 (UTC)
+        id S1382342AbhITSkT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:40:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 097C063332;
+        Mon, 20 Sep 2021 17:31:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158427;
-        bh=j3KnQedw5EvhmvfAXTvgNcftKEVZJ9z77zCDEAAO7VU=;
+        s=korg; t=1632159070;
+        bh=P75pvy33ug7JZowvaX1raiDaNwPdivMCxGg07yOJ9D8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=noXG7RICwV5v52f171OCLtuWRqKN9dWMUc1N0FKrIKFqLr5DhiK4UTV9CadiPlcYk
-         sCenTqprfE/yNM/1Pp8ksDjt0yc1EXrWbsJcbO91glhSGMLSZGrXlYk1a40+tqcNB/
-         EDTOWxuQLgqbTRNF/z0mZpNOt6an1/Pbw6JSBt/4=
+        b=y2TKiI5ejGWrrHaxVAr4TIBgt2xhQdu9bvCMpzgn9IzZ57D4WWIqmD0zeiuXCHIt3
+         i6W6NjUK8Ugp1sa7vWr2N4oSSIUXVJCKox/y2GoR6ArlJuY4uAfFHaMw2BIlWo2lBi
+         sBd2Ivftv91zNE4IAndu+f3TNNv5rkjza/qpA3MA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gustaw Lewandowski <gustaw.lewandowski@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Lukasz Majczak <lma@semihalf.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 150/260] ASoC: Intel: Skylake: Fix passing loadable flag for module
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Michael Walle <michael@walle.cc>, Marek Vasut <marex@denx.de>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH 5.14 030/168] drm/etnaviv: reference MMU context when setting up hardware state
 Date:   Mon, 20 Sep 2021 18:42:48 +0200
-Message-Id: <20210920163936.210641483@linuxfoundation.org>
+Message-Id: <20210920163922.638019530@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,80 +40,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustaw Lewandowski <gustaw.lewandowski@linux.intel.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit c5ed9c547cba1dc1238c6e8a0c290fd62ee6e127 ]
+commit d6408538f091fb22d47f792d4efa58143d56c3fb upstream.
 
-skl_get_module_info() tries to set mconfig->module->loadable before
-mconfig->module has been assigned thus flag was always set to false
-and driver did not try to load module binaries.
+Move the refcount manipulation of the MMU context to the point where the
+hardware state is programmed. At that point it is also known if a previous
+MMU state is still there, or the state needs to be reprogrammed with a
+potentially different context.
 
-Signed-off-by: Gustaw Lewandowski <gustaw.lewandowski@linux.intel.com>
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Tested-by: Lukasz Majczak <lma@semihalf.com>
-Link: https://lore.kernel.org/r/20210818075742.1515155-7-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org # 5.4
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Tested-by: Michael Walle <michael@walle.cc>
+Tested-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/skylake/skl-pcm.c | 25 +++++++++----------------
- 1 file changed, 9 insertions(+), 16 deletions(-)
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.c      |   24 ++++++++++++------------
+ drivers/gpu/drm/etnaviv/etnaviv_iommu.c    |    4 ++++
+ drivers/gpu/drm/etnaviv/etnaviv_iommu_v2.c |    8 ++++++++
+ 3 files changed, 24 insertions(+), 12 deletions(-)
 
-diff --git a/sound/soc/intel/skylake/skl-pcm.c b/sound/soc/intel/skylake/skl-pcm.c
-index 7f287424af9b..439dd4ba690c 100644
---- a/sound/soc/intel/skylake/skl-pcm.c
-+++ b/sound/soc/intel/skylake/skl-pcm.c
-@@ -1333,21 +1333,6 @@ static int skl_get_module_info(struct skl_dev *skl,
- 		return -EIO;
- 	}
- 
--	list_for_each_entry(module, &skl->uuid_list, list) {
--		if (guid_equal(uuid_mod, &module->uuid)) {
--			mconfig->id.module_id = module->id;
--			if (mconfig->module)
--				mconfig->module->loadable = module->is_loadable;
--			ret = 0;
--			break;
--		}
--	}
--
--	if (ret)
--		return ret;
--
--	uuid_mod = &module->uuid;
--	ret = -EIO;
- 	for (i = 0; i < skl->nr_modules; i++) {
- 		skl_module = skl->modules[i];
- 		uuid_tplg = &skl_module->uuid;
-@@ -1357,10 +1342,18 @@ static int skl_get_module_info(struct skl_dev *skl,
- 			break;
- 		}
- 	}
-+
- 	if (skl->nr_modules && ret)
- 		return ret;
- 
-+	ret = -EIO;
- 	list_for_each_entry(module, &skl->uuid_list, list) {
-+		if (guid_equal(uuid_mod, &module->uuid)) {
-+			mconfig->id.module_id = module->id;
-+			mconfig->module->loadable = module->is_loadable;
-+			ret = 0;
-+		}
-+
- 		for (i = 0; i < MAX_IN_QUEUE; i++) {
- 			pin_id = &mconfig->m_in_pin[i].id;
- 			if (guid_equal(&pin_id->mod_uuid, &module->uuid))
-@@ -1374,7 +1367,7 @@ static int skl_get_module_info(struct skl_dev *skl,
- 		}
- 	}
- 
--	return 0;
-+	return ret;
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+@@ -641,17 +641,19 @@ void etnaviv_gpu_start_fe(struct etnaviv
+ 	gpu->fe_running = true;
  }
  
- static int skl_populate_modules(struct skl_dev *skl)
--- 
-2.30.2
-
+-static void etnaviv_gpu_start_fe_idleloop(struct etnaviv_gpu *gpu)
++static void etnaviv_gpu_start_fe_idleloop(struct etnaviv_gpu *gpu,
++					  struct etnaviv_iommu_context *context)
+ {
+-	u32 address = etnaviv_cmdbuf_get_va(&gpu->buffer,
+-				&gpu->mmu_context->cmdbuf_mapping);
+ 	u16 prefetch;
++	u32 address;
+ 
+ 	/* setup the MMU */
+-	etnaviv_iommu_restore(gpu, gpu->mmu_context);
++	etnaviv_iommu_restore(gpu, context);
+ 
+ 	/* Start command processor */
+ 	prefetch = etnaviv_buffer_init(gpu);
++	address = etnaviv_cmdbuf_get_va(&gpu->buffer,
++					&gpu->mmu_context->cmdbuf_mapping);
+ 
+ 	etnaviv_gpu_start_fe(gpu, address, prefetch);
+ }
+@@ -1369,14 +1371,12 @@ struct dma_fence *etnaviv_gpu_submit(str
+ 		goto out_unlock;
+ 	}
+ 
+-	if (!gpu->fe_running) {
+-		gpu->mmu_context = etnaviv_iommu_context_get(submit->mmu_context);
+-		etnaviv_gpu_start_fe_idleloop(gpu);
+-	} else {
+-		if (submit->prev_mmu_context)
+-			etnaviv_iommu_context_put(submit->prev_mmu_context);
+-		submit->prev_mmu_context = etnaviv_iommu_context_get(gpu->mmu_context);
+-	}
++	if (!gpu->fe_running)
++		etnaviv_gpu_start_fe_idleloop(gpu, submit->mmu_context);
++
++	if (submit->prev_mmu_context)
++		etnaviv_iommu_context_put(submit->prev_mmu_context);
++	submit->prev_mmu_context = etnaviv_iommu_context_get(gpu->mmu_context);
+ 
+ 	if (submit->nr_pmrs) {
+ 		gpu->event[event[1]].sync_point = &sync_point_perfmon_sample_pre;
+--- a/drivers/gpu/drm/etnaviv/etnaviv_iommu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_iommu.c
+@@ -92,6 +92,10 @@ static void etnaviv_iommuv1_restore(stru
+ 	struct etnaviv_iommuv1_context *v1_context = to_v1_context(context);
+ 	u32 pgtable;
+ 
++	if (gpu->mmu_context)
++		etnaviv_iommu_context_put(gpu->mmu_context);
++	gpu->mmu_context = etnaviv_iommu_context_get(context);
++
+ 	/* set base addresses */
+ 	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_RA, context->global->memory_base);
+ 	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_FE, context->global->memory_base);
+--- a/drivers/gpu/drm/etnaviv/etnaviv_iommu_v2.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_iommu_v2.c
+@@ -172,6 +172,10 @@ static void etnaviv_iommuv2_restore_nons
+ 	if (gpu_read(gpu, VIVS_MMUv2_CONTROL) & VIVS_MMUv2_CONTROL_ENABLE)
+ 		return;
+ 
++	if (gpu->mmu_context)
++		etnaviv_iommu_context_put(gpu->mmu_context);
++	gpu->mmu_context = etnaviv_iommu_context_get(context);
++
+ 	prefetch = etnaviv_buffer_config_mmuv2(gpu,
+ 				(u32)v2_context->mtlb_dma,
+ 				(u32)context->global->bad_page_dma);
+@@ -192,6 +196,10 @@ static void etnaviv_iommuv2_restore_sec(
+ 	if (gpu_read(gpu, VIVS_MMUv2_SEC_CONTROL) & VIVS_MMUv2_SEC_CONTROL_ENABLE)
+ 		return;
+ 
++	if (gpu->mmu_context)
++		etnaviv_iommu_context_put(gpu->mmu_context);
++	gpu->mmu_context = etnaviv_iommu_context_get(context);
++
+ 	gpu_write(gpu, VIVS_MMUv2_PTA_ADDRESS_LOW,
+ 		  lower_32_bits(context->global->v2.pta_dma));
+ 	gpu_write(gpu, VIVS_MMUv2_PTA_ADDRESS_HIGH,
 
 
