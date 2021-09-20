@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF2E3411CAB
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:10:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 799A4411AD0
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:51:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344133AbhITRLq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:11:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35192 "EHLO mail.kernel.org"
+        id S245175AbhITQwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:52:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347065AbhITRJp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:09:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7268F60E54;
-        Mon, 20 Sep 2021 16:56:33 +0000 (UTC)
+        id S230002AbhITQuq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:50:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9232B61352;
+        Mon, 20 Sep 2021 16:49:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156993;
-        bh=DDKw6eXX6/jUoop7J/yyf2zQ+aVc75RaP/tP26YJafg=;
+        s=korg; t=1632156550;
+        bh=3aoe/YoOU1sRjQ8Os9P9/b5GuVMlXzYaF6tz5eVLXz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mqQ29wZLVN7QAxagqtBGnWdL/L9AnwyKdpw2xlqlxmTZhRvXGs/J6HECbBRRR8wh3
-         iLDFO084qDQld86Uwl2oPW8X2frjUnniYYiEj0Jx5ua30M4OSBwM5SEU3GvYFYoeva
-         QEpB/HJFSCf9kfoA79gn9vNMEYRoM6p/p+D05nhY=
+        b=md+fK08IRkzp6DIo8gWtCmHOu0LbKx8OEzFwO4U7EMLPNlZG7hmym1SrDGEUdnr8H
+         jQdtv/C2pIFhGLOJg3JNHA8Sl4oGiBaKg4ezR7nU0uomIR7hxWAOER0x7mPwIfvFno
+         opnb5ZUuFNO2yqQgkIfjuVPX8U98bs/YuvjdMFC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 139/175] mmc: rtsx_pci: Fix long reads when clock is prescaled
+Subject: [PATCH 4.4 110/133] mmc: rtsx_pci: Fix long reads when clock is prescaled
 Date:   Mon, 20 Sep 2021 18:43:08 +0200
-Message-Id: <20210920163922.618821876@linuxfoundation.org>
+Message-Id: <20210920163916.220980107@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -79,10 +79,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 23 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/mmc/host/rtsx_pci_sdmmc.c b/drivers/mmc/host/rtsx_pci_sdmmc.c
-index 3ccaa1415f33..efd995e3cb0b 100644
+index 93137483ecde..10ec88833889 100644
 --- a/drivers/mmc/host/rtsx_pci_sdmmc.c
 +++ b/drivers/mmc/host/rtsx_pci_sdmmc.c
-@@ -552,9 +552,22 @@ static int sd_write_long_data(struct realtek_pci_sdmmc *host,
+@@ -553,9 +553,22 @@ static int sd_write_long_data(struct realtek_pci_sdmmc *host,
  	return 0;
  }
  
@@ -105,7 +105,7 @@ index 3ccaa1415f33..efd995e3cb0b 100644
  
  	if (host->sg_count < 0) {
  		data->error = host->sg_count;
-@@ -563,22 +576,19 @@ static int sd_rw_multi(struct realtek_pci_sdmmc *host, struct mmc_request *mrq)
+@@ -564,22 +577,19 @@ static int sd_rw_multi(struct realtek_pci_sdmmc *host, struct mmc_request *mrq)
  		return data->error;
  	}
  
