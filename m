@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA69C411DF3
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:24:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57552411A5A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:47:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347291AbhITR0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:26:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55284 "EHLO mail.kernel.org"
+        id S243750AbhITQtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:49:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345846AbhITRXZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:23:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F73F61A7A;
-        Mon, 20 Sep 2021 17:01:40 +0000 (UTC)
+        id S243799AbhITQsR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:48:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6243F6124C;
+        Mon, 20 Sep 2021 16:46:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157300;
-        bh=w19I8oZ9rhYp53yKQs341qULcXAwjcFJktO1aC5SfCE=;
+        s=korg; t=1632156410;
+        bh=uuZMw6J5hMtC9lRbJ1wg88tUyZpGYzYRmpNXWwfNY5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T+GSfVBA0yjupxKCMpNY5heHTXZ3B7YPWI5pmZy2L3ClGdSAjHmdYIAZorsg4l/ed
-         +WE72lZUsSh8qkKSA+E9mhq5OAL9diRzRpIAmOjoYw1gbyD2tQmB510AlXMPUNsbf/
-         l7ckb2xQTrbg1pnakOPcacYSbAsVAMR+88FTwCp8=
+        b=OYq/D/ePgJXbH07P20TrbjH14aWIsQmrTL+Ay1EEElGIrFXbhmP7IJ8TjKTzfXz5m
+         q7baDivQ4DcsHm/sHbPSNeREX4q6GYJi96ZglYsU6C6CKY5ni4pbI8MohAyDyrKm/C
+         1ueFSBP6cwjhXuT92fZhxKHPduoY1hzaaceCbSKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 4.14 103/217] xen: fix setting of max_pfn in shared_info
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 046/133] Bluetooth: increase BTNAMSIZ to 21 chars to fix potential buffer overflow
 Date:   Mon, 20 Sep 2021 18:42:04 +0200
-Message-Id: <20210920163928.129083534@linuxfoundation.org>
+Message-Id: <20210920163914.157258532@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 4b511d5bfa74b1926daefd1694205c7f1bcf677f upstream.
+[ Upstream commit 713baf3dae8f45dc8ada4ed2f5fdcbf94a5c274d ]
 
-Xen PV guests are specifying the highest used PFN via the max_pfn
-field in shared_info. This value is used by the Xen tools when saving
-or migrating the guest.
+An earlier commit replaced using batostr to using %pMR sprintf for the
+construction of session->name. Static analysis detected that this new
+method can use a total of 21 characters (including the trailing '\0')
+so we need to increase the BTNAMSIZ from 18 to 21 to fix potential
+buffer overflows.
 
-Unfortunately this field is misnamed, as in reality it is specifying
-the number of pages (including any memory holes) of the guest, so it
-is the highest used PFN + 1. Renaming isn't possible, as this is a
-public Xen hypervisor interface which needs to be kept stable.
-
-The kernel will set the value correctly initially at boot time, but
-when adding more pages (e.g. due to memory hotplug or ballooning) a
-real PFN number is stored in max_pfn. This is done when expanding the
-p2m array, and the PFN stored there is even possibly wrong, as it
-should be the last possible PFN of the just added P2M frame, and not
-one which led to the P2M expansion.
-
-Fix that by setting shared_info->max_pfn to the last possible PFN + 1.
-
-Fixes: 98dd166ea3a3c3 ("x86/xen/p2m: hint at the last populated P2M entry")
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Link: https://lore.kernel.org/r/20210730092622.9973-2-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Addresses-Coverity: ("Out-of-bounds write")
+Fixes: fcb73338ed53 ("Bluetooth: Use %pMR in sprintf/seq_printf instead of batostr")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/p2m.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/bluetooth/cmtp/cmtp.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/xen/p2m.c
-+++ b/arch/x86/xen/p2m.c
-@@ -613,8 +613,8 @@ int xen_alloc_p2m_entry(unsigned long pf
- 	}
+diff --git a/net/bluetooth/cmtp/cmtp.h b/net/bluetooth/cmtp/cmtp.h
+index c32638dddbf9..f6b9dc4e408f 100644
+--- a/net/bluetooth/cmtp/cmtp.h
++++ b/net/bluetooth/cmtp/cmtp.h
+@@ -26,7 +26,7 @@
+ #include <linux/types.h>
+ #include <net/bluetooth/bluetooth.h>
  
- 	/* Expanded the p2m? */
--	if (pfn > xen_p2m_last_pfn) {
--		xen_p2m_last_pfn = pfn;
-+	if (pfn >= xen_p2m_last_pfn) {
-+		xen_p2m_last_pfn = ALIGN(pfn + 1, P2M_PER_PAGE);
- 		HYPERVISOR_shared_info->arch.max_pfn = xen_p2m_last_pfn;
- 	}
+-#define BTNAMSIZ 18
++#define BTNAMSIZ 21
  
+ /* CMTP ioctl defines */
+ #define CMTPCONNADD	_IOW('C', 200, int)
+-- 
+2.30.2
+
 
 
