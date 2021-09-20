@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5CB34123C6
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:26:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 951E9412518
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352266AbhITS1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:27:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45090 "EHLO mail.kernel.org"
+        id S1353654AbhITSlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:41:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1378568AbhITSYy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:24:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD58261284;
-        Mon, 20 Sep 2021 17:25:18 +0000 (UTC)
+        id S1381521AbhITSia (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:38:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BED4461465;
+        Mon, 20 Sep 2021 17:30:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158719;
-        bh=DDbRb11PRpFRvA6+r9bIVL+WMhLYEsdUqkPV85Qi4Dk=;
+        s=korg; t=1632159016;
+        bh=0I9fSVzAffHneJnq+oY27ZVSWwKgWxtyDoF/GpHxxMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ahBFRH6+BNIDobswI8LilPVY9PkvBW3TRH1hJuRPfQyhtL30ZqJYn212rR8aBjIPl
-         zHkW+8MIQW0ezlp4ZSmB0xtPEqBwNU2rtFy9P28N/nbtnip2pn+ug2VbVbDmzDfCZN
-         Nu3i7Olm3bDB5FuQcZ/xOoh6RKVpFwPi6gEhqDCc=
+        b=pcHNiokQS+p0/uxy5SZZasZ78hqnleXPxfSnIWqhJDKwcdcrdrW35KXwub/yWBeM5
+         vuOUl/qpUSqqq8PS4LHv0aeywUHRxvchgTAYKwtqSz28jc9h3ElkiB6e/GUsom2pK2
+         OPyyo3Y/apgObkORfgJmJcox7/LK2u3JLmkE89Qw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 5.10 004/122] xen: reset legacy rtc flag for PV domU
+        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
+        Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.14 038/168] ethtool: Fix rxnfc copy to user buffer overflow
 Date:   Mon, 20 Sep 2021 18:42:56 +0200
-Message-Id: <20210920163915.905983397@linuxfoundation.org>
+Message-Id: <20210920163922.897273501@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,71 +41,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Saeed Mahameed <saeedm@nvidia.com>
 
-commit f68aa100d815b5b4467fd1c3abbe3b99d65fd028 upstream.
+commit 9b29a161ef38040f000dcf9ccf78e34495edfd55 upstream.
 
-A Xen PV guest doesn't have a legacy RTC device, so reset the legacy
-RTC flag. Otherwise the following WARN splat will occur at boot:
+In the cited commit, copy_to_user() got called with the wrong pointer,
+instead of passing the actual buffer ptr to copy from, a pointer to
+the pointer got passed, which causes a buffer overflow calltrace to pop
+up when executing "ethtool -x ethX".
 
-[    1.333404] WARNING: CPU: 1 PID: 1 at /home/gross/linux/head/drivers/rtc/rtc-mc146818-lib.c:25 mc146818_get_time+0x1be/0x210
-[    1.333404] Modules linked in:
-[    1.333404] CPU: 1 PID: 1 Comm: swapper/0 Tainted: G        W         5.14.0-rc7-default+ #282
-[    1.333404] RIP: e030:mc146818_get_time+0x1be/0x210
-[    1.333404] Code: c0 64 01 c5 83 fd 45 89 6b 14 7f 06 83 c5 64 89 6b 14 41 83 ec 01 b8 02 00 00 00 44 89 63 10 5b 5d 41 5c 41 5d 41 5e 41 5f c3 <0f> 0b 48 c7 c7 30 0e ef 82 4c 89 e6 e8 71 2a 24 00 48 c7 c0 ff ff
-[    1.333404] RSP: e02b:ffffc90040093df8 EFLAGS: 00010002
-[    1.333404] RAX: 00000000000000ff RBX: ffffc90040093e34 RCX: 0000000000000000
-[    1.333404] RDX: 0000000000000001 RSI: 0000000000000000 RDI: 000000000000000d
-[    1.333404] RBP: ffffffff82ef0e30 R08: ffff888005013e60 R09: 0000000000000000
-[    1.333404] R10: ffffffff82373e9b R11: 0000000000033080 R12: 0000000000000200
-[    1.333404] R13: 0000000000000000 R14: 0000000000000002 R15: ffffffff82cdc6d4
-[    1.333404] FS:  0000000000000000(0000) GS:ffff88807d440000(0000) knlGS:0000000000000000
-[    1.333404] CS:  10000e030 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.333404] CR2: 0000000000000000 CR3: 000000000260a000 CR4: 0000000000050660
-[    1.333404] Call Trace:
-[    1.333404]  ? wakeup_sources_sysfs_init+0x30/0x30
-[    1.333404]  ? rdinit_setup+0x2b/0x2b
-[    1.333404]  early_resume_init+0x23/0xa4
-[    1.333404]  ? cn_proc_init+0x36/0x36
-[    1.333404]  do_one_initcall+0x3e/0x200
-[    1.333404]  kernel_init_freeable+0x232/0x28e
-[    1.333404]  ? rest_init+0xd0/0xd0
-[    1.333404]  kernel_init+0x16/0x120
-[    1.333404]  ret_from_fork+0x1f/0x30
+Fix ethtool_rxnfc_copy_to_user() to use the rxnfc pointer as passed
+to the function, instead of a pointer to it.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 8d152e7a5c7537 ("x86/rtc: Replace paravirt rtc check with platform legacy quirk")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20210903084937.19392-3-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+This fixes below call trace:
+[   15.533533] ------------[ cut here ]------------
+[   15.539007] Buffer overflow detected (8 < 192)!
+[   15.544110] WARNING: CPU: 3 PID: 1801 at include/linux/thread_info.h:200 copy_overflow+0x15/0x20
+[   15.549308] Modules linked in:
+[   15.551449] CPU: 3 PID: 1801 Comm: ethtool Not tainted 5.14.0-rc2+ #1058
+[   15.553919] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+[   15.558378] RIP: 0010:copy_overflow+0x15/0x20
+[   15.560648] Code: e9 7c ff ff ff b8 a1 ff ff ff eb c4 66 0f 1f 84 00 00 00 00 00 55 48 89 f2 89 fe 48 c7 c7 88 55 78 8a 48 89 e5 e8 06 5c 1e 00 <0f> 0b 5d c3 0f 1f 80 00 00 00 00 0f 1f 44 00 00 55 48 89 e5 41 55
+[   15.565114] RSP: 0018:ffffad49c0523bd0 EFLAGS: 00010286
+[   15.566231] RAX: 0000000000000000 RBX: 00000000000000c0 RCX: 0000000000000000
+[   15.567616] RDX: 0000000000000001 RSI: ffffffff8a7912e7 RDI: 00000000ffffffff
+[   15.569050] RBP: ffffad49c0523bd0 R08: ffffffff8ab2ae28 R09: 00000000ffffdfff
+[   15.570534] R10: ffffffff8aa4ae40 R11: ffffffff8aa4ae40 R12: 0000000000000000
+[   15.571899] R13: 00007ffd4cc2a230 R14: ffffad49c0523c00 R15: 0000000000000000
+[   15.573584] FS:  00007f538112f740(0000) GS:ffff96d5bdd80000(0000) knlGS:0000000000000000
+[   15.575639] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   15.577092] CR2: 00007f5381226d40 CR3: 0000000013542000 CR4: 00000000001506e0
+[   15.578929] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   15.580695] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   15.582441] Call Trace:
+[   15.582970]  ethtool_rxnfc_copy_to_user+0x30/0x46
+[   15.583815]  ethtool_get_rxnfc.cold+0x23/0x2b
+[   15.584584]  dev_ethtool+0x29c/0x25f0
+[   15.585286]  ? security_netlbl_sid_to_secattr+0x77/0xd0
+[   15.586728]  ? do_set_pte+0xc4/0x110
+[   15.587349]  ? _raw_spin_unlock+0x18/0x30
+[   15.588118]  ? __might_sleep+0x49/0x80
+[   15.588956]  dev_ioctl+0x2c1/0x490
+[   15.589616]  sock_ioctl+0x18e/0x330
+[   15.591143]  __x64_sys_ioctl+0x41c/0x990
+[   15.591823]  ? irqentry_exit_to_user_mode+0x9/0x20
+[   15.592657]  ? irqentry_exit+0x33/0x40
+[   15.593308]  ? exc_page_fault+0x32f/0x770
+[   15.593877]  ? exit_to_user_mode_prepare+0x3c/0x130
+[   15.594775]  do_syscall_64+0x35/0x80
+[   15.595397]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[   15.596037] RIP: 0033:0x7f5381226d4b
+[   15.596492] Code: 0f 1e fa 48 8b 05 3d b1 0c 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 0f 1f 44 00 00 f3 0f 1e fa b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 0d b1 0c 00 f7 d8 64 89 01 48
+[   15.598743] RSP: 002b:00007ffd4cc2a1f8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+[   15.599804] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f5381226d4b
+[   15.600795] RDX: 00007ffd4cc2a350 RSI: 0000000000008946 RDI: 0000000000000003
+[   15.601712] RBP: 00007ffd4cc2a340 R08: 00007ffd4cc2a350 R09: 0000000000000001
+[   15.602751] R10: 00007f538128a990 R11: 0000000000000246 R12: 0000000000000000
+[   15.603882] R13: 00007ffd4cc2a350 R14: 00007ffd4cc2a4b0 R15: 0000000000000000
+[   15.605042] ---[ end trace 325cf185e2795048 ]---
+
+Fixes: dd98d2895de6 ("ethtool: improve compat ioctl handling")
+Reported-by: Shannon Nelson <snelson@pensando.io>
+CC: Arnd Bergmann <arnd@arndb.de>
+CC: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Tested-by: Shannon Nelson <snelson@pensando.io>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/xen/enlighten_pv.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ net/ethtool/ioctl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1204,6 +1204,11 @@ static void __init xen_dom0_set_legacy_f
- 	x86_platform.legacy.rtc = 1;
- }
- 
-+static void __init xen_domu_set_legacy_features(void)
-+{
-+	x86_platform.legacy.rtc = 0;
-+}
-+
- /* First C function to be called on Xen boot */
- asmlinkage __visible void __init xen_start_kernel(void)
- {
-@@ -1356,6 +1361,8 @@ asmlinkage __visible void __init xen_sta
- 		add_preferred_console("xenboot", 0, NULL);
- 		if (pci_xen)
- 			x86_init.pci.arch_init = pci_xen_init;
-+		x86_platform.set_legacy_features =
-+				xen_domu_set_legacy_features;
+--- a/net/ethtool/ioctl.c
++++ b/net/ethtool/ioctl.c
+@@ -906,7 +906,7 @@ static int ethtool_rxnfc_copy_to_user(vo
+ 						   rule_buf);
+ 		useraddr += offsetof(struct compat_ethtool_rxnfc, rule_locs);
  	} else {
- 		const struct dom0_vga_console_info *info =
- 			(void *)((char *)xen_start_info +
+-		ret = copy_to_user(useraddr, &rxnfc, size);
++		ret = copy_to_user(useraddr, rxnfc, size);
+ 		useraddr += offsetof(struct ethtool_rxnfc, rule_locs);
+ 	}
+ 
 
 
