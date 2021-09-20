@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD426412333
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:21:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63C0741245C
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:33:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351959AbhITSWY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:22:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40370 "EHLO mail.kernel.org"
+        id S1346614AbhITSeD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:34:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1377667AbhITSUT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:20:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1288632AE;
-        Mon, 20 Sep 2021 17:23:23 +0000 (UTC)
+        id S1348410AbhITSa2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:30:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BFB966142A;
+        Mon, 20 Sep 2021 17:27:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158604;
-        bh=hjns1O5VBB1oEQxpCGhtIp+uuv+3hKCDt4L6L2WPSCw=;
+        s=korg; t=1632158839;
+        bh=yiG7g5vz8qMijZz7pcpW/M3mzvkR6hIj0Ee5agDPfB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yPS2mWs0XrirznLcLmz9hcsMXhV0657Fr0ho9Ii+BiQUs67NGvrm0Oojw3ypJRKLY
-         +vUW+y0ZaUgrHAvWdL4jGH4mkZf9N1GtLkp+t3XMsFPJzXUF4h8VPaSVDoVAdHDDkA
-         qdr8v+D2FB6pV23YDcIgrZkpFm+JWFLdB0rJ28Ek=
+        b=UvicEzjk4yodW9y8IFgKWBgdcqL7oHw5SYkzXhVQbTVjf+O7cuQgUONKMhBmLSYmt
+         s4KP0d4Y/tDluh63BLoplrFeuJ2DP+6PJjmcJFOycP8qODVkEIq3KOJJsnvVmc9fFv
+         BCumXpwJ1weKGPcydFX8Q3c0VEtJliv6gnJPkG0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Ryan J. Barnett" <ryan.barnett@collins.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 233/260] dt-bindings: mtd: gpmc: Fix the ECC bytes vs. OOB bytes equation
+        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 079/122] net: phylink: add suspend/resume support
 Date:   Mon, 20 Sep 2021 18:44:11 +0200
-Message-Id: <20210920163939.036554715@linuxfoundation.org>
+Message-Id: <20210920163918.373775935@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +41,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 778cb8e39f6ec252be50fc3850d66f3dcbd5dd5a ]
+[ Upstream commit f97493657c6372eeefe70faadd214bf31488c44e ]
 
-"PAGESIZE / 512" is the number of ECC chunks.
-"ECC_BYTES" is the number of bytes needed to store a single ECC code.
-"2" is the space reserved by the bad block marker.
+Joakim Zhang reports that Wake-on-Lan with the stmmac ethernet driver broke
+when moving the incorrect handling of mac link state out of mac_config().
+This reason this breaks is because the stmmac's WoL is handled by the MAC
+rather than the PHY, and phylink doesn't cater for that scenario.
 
-"2 + (PAGESIZE / 512) * ECC_BYTES" should of course be lower or equal
-than the total number of OOB bytes, otherwise it won't fit.
+This patch adds the necessary phylink code to handle suspend/resume events
+according to whether the MAC still needs a valid link or not. This is the
+barest minimum for this support.
 
-Fix the equation by substituting s/>=/<=/.
-
-Suggested-by: Ryan J. Barnett <ryan.barnett@collins.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/linux-mtd/20210610143945.3504781-1-miquel.raynal@bootlin.com
+Reported-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Tested-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/mtd/gpmc-nand.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/phylink.c | 82 +++++++++++++++++++++++++++++++++++++++
+ include/linux/phylink.h   |  3 ++
+ 2 files changed, 85 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-index 44919d48d241..c459f169a904 100644
---- a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-+++ b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-@@ -122,7 +122,7 @@ on various other factors also like;
- 	so the device should have enough free bytes available its OOB/Spare
- 	area to accommodate ECC for entire page. In general following expression
- 	helps in determining if given device can accommodate ECC syndrome:
--	"2 + (PAGESIZE / 512) * ECC_BYTES" >= OOBSIZE"
-+	"2 + (PAGESIZE / 512) * ECC_BYTES" <= OOBSIZE"
- 	where
- 		OOBSIZE		number of bytes in OOB/spare area
- 		PAGESIZE	number of bytes in main-area of device page
+diff --git a/drivers/net/phy/phylink.c b/drivers/net/phy/phylink.c
+index 6072e87ed6c3..42826ce0e0bf 100644
+--- a/drivers/net/phy/phylink.c
++++ b/drivers/net/phy/phylink.c
+@@ -32,6 +32,7 @@
+ enum {
+ 	PHYLINK_DISABLE_STOPPED,
+ 	PHYLINK_DISABLE_LINK,
++	PHYLINK_DISABLE_MAC_WOL,
+ };
+ 
+ /**
+@@ -1251,6 +1252,9 @@ EXPORT_SYMBOL_GPL(phylink_start);
+  * network device driver's &struct net_device_ops ndo_stop() method.  The
+  * network device's carrier state should not be changed prior to calling this
+  * function.
++ *
++ * This will synchronously bring down the link if the link is not already
++ * down (in other words, it will trigger a mac_link_down() method call.)
+  */
+ void phylink_stop(struct phylink *pl)
+ {
+@@ -1270,6 +1274,84 @@ void phylink_stop(struct phylink *pl)
+ }
+ EXPORT_SYMBOL_GPL(phylink_stop);
+ 
++/**
++ * phylink_suspend() - handle a network device suspend event
++ * @pl: a pointer to a &struct phylink returned from phylink_create()
++ * @mac_wol: true if the MAC needs to receive packets for Wake-on-Lan
++ *
++ * Handle a network device suspend event. There are several cases:
++ * - If Wake-on-Lan is not active, we can bring down the link between
++ *   the MAC and PHY by calling phylink_stop().
++ * - If Wake-on-Lan is active, and being handled only by the PHY, we
++ *   can also bring down the link between the MAC and PHY.
++ * - If Wake-on-Lan is active, but being handled by the MAC, the MAC
++ *   still needs to receive packets, so we can not bring the link down.
++ */
++void phylink_suspend(struct phylink *pl, bool mac_wol)
++{
++	ASSERT_RTNL();
++
++	if (mac_wol && (!pl->netdev || pl->netdev->wol_enabled)) {
++		/* Wake-on-Lan enabled, MAC handling */
++		mutex_lock(&pl->state_mutex);
++
++		/* Stop the resolver bringing the link up */
++		__set_bit(PHYLINK_DISABLE_MAC_WOL, &pl->phylink_disable_state);
++
++		/* Disable the carrier, to prevent transmit timeouts,
++		 * but one would hope all packets have been sent. This
++		 * also means phylink_resolve() will do nothing.
++		 */
++		netif_carrier_off(pl->netdev);
++
++		/* We do not call mac_link_down() here as we want the
++		 * link to remain up to receive the WoL packets.
++		 */
++		mutex_unlock(&pl->state_mutex);
++	} else {
++		phylink_stop(pl);
++	}
++}
++EXPORT_SYMBOL_GPL(phylink_suspend);
++
++/**
++ * phylink_resume() - handle a network device resume event
++ * @pl: a pointer to a &struct phylink returned from phylink_create()
++ *
++ * Undo the effects of phylink_suspend(), returning the link to an
++ * operational state.
++ */
++void phylink_resume(struct phylink *pl)
++{
++	ASSERT_RTNL();
++
++	if (test_bit(PHYLINK_DISABLE_MAC_WOL, &pl->phylink_disable_state)) {
++		/* Wake-on-Lan enabled, MAC handling */
++
++		/* Call mac_link_down() so we keep the overall state balanced.
++		 * Do this under the state_mutex lock for consistency. This
++		 * will cause a "Link Down" message to be printed during
++		 * resume, which is harmless - the true link state will be
++		 * printed when we run a resolve.
++		 */
++		mutex_lock(&pl->state_mutex);
++		phylink_link_down(pl);
++		mutex_unlock(&pl->state_mutex);
++
++		/* Re-apply the link parameters so that all the settings get
++		 * restored to the MAC.
++		 */
++		phylink_mac_initial_config(pl, true);
++
++		/* Re-enable and re-resolve the link parameters */
++		clear_bit(PHYLINK_DISABLE_MAC_WOL, &pl->phylink_disable_state);
++		phylink_run_resolve(pl);
++	} else {
++		phylink_start(pl);
++	}
++}
++EXPORT_SYMBOL_GPL(phylink_resume);
++
+ /**
+  * phylink_ethtool_get_wol() - get the wake on lan parameters for the PHY
+  * @pl: a pointer to a &struct phylink returned from phylink_create()
+diff --git a/include/linux/phylink.h b/include/linux/phylink.h
+index d81a714cfbbd..ff56e3e373f0 100644
+--- a/include/linux/phylink.h
++++ b/include/linux/phylink.h
+@@ -446,6 +446,9 @@ void phylink_mac_change(struct phylink *, bool up);
+ void phylink_start(struct phylink *);
+ void phylink_stop(struct phylink *);
+ 
++void phylink_suspend(struct phylink *pl, bool mac_wol);
++void phylink_resume(struct phylink *pl);
++
+ void phylink_ethtool_get_wol(struct phylink *, struct ethtool_wolinfo *);
+ int phylink_ethtool_set_wol(struct phylink *, struct ethtool_wolinfo *);
+ 
 -- 
 2.30.2
 
