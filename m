@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 169EA411E09
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:25:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCAF5412052
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:52:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345936AbhITR0o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:26:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56976 "EHLO mail.kernel.org"
+        id S1346687AbhITRx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:53:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349847AbhITRY5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:24:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C3BD61A8E;
-        Mon, 20 Sep 2021 17:02:10 +0000 (UTC)
+        id S1354678AbhITRvC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:51:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A0B861980;
+        Mon, 20 Sep 2021 17:12:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157331;
-        bh=TEDtftrilDPpXxhuvXoNcnLYstHwkOz/LbsLVhnJRQM=;
+        s=korg; t=1632157931;
+        bh=lgyJqY37wVR0fCdWeG71C/wMo90q90ZYZB5sq9RJS0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yXnhdtEEj6btY79h1Y3M3jT0WQoGN6IpMWY6sAht471gds99j2ObCMck334U/xlgC
-         Rf38CyA4fpA/weUiugt2gE+2M953iL7IV9843FPe7OICfeY3X50Zv15Vm3ZD3Atpud
-         l+fI6jl2PEtO+ZJws+zwPrwOnWhJ8nv4mYMRAp0w=
+        b=ED4MtoAyNGwTNWytjotLPldhC1MF5yLHjkLA9LUKiaBHNHltxhDYjMayimNOQ3a4u
+         BxYRMxhkDLIzyutpje+5O1gpGQHXE9+rigcMswtzdd8AeuDd4JPWS2qwgokGb1IxlA
+         86Jw44baUmJeO9Q+b7IbeeZD+KsDmVXDLjxhEpSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 159/217] ASoC: Intel: bytcr_rt5640: Move "Platform Clock" routes to the maps for the matching in-/output
+Subject: [PATCH 4.19 218/293] Bluetooth: Fix handling of LE Enhanced Connection Complete
 Date:   Mon, 20 Sep 2021 18:43:00 +0200
-Message-Id: <20210920163930.031657775@linuxfoundation.org>
+Message-Id: <20210920163940.838571714@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,79 +41,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit dccd1dfd0770bfd494b68d1135b4547b2c602c42 ]
+[ Upstream commit cafae4cd625502f65d1798659c1aa9b62d38cc56 ]
 
-Move the "Platform Clock" routes for the "Internal Mic" and "Speaker"
-routes to the intmic_*_map[] / *_spk_map[] arrays.
+LE Enhanced Connection Complete contains the Local RPA used in the
+connection which must be used when set otherwise there could problems
+when pairing since the address used by the remote stack could be the
+Local RPA:
 
-This ensures that these "Platform Clock" routes do not get added when the
-BYT_RT5640_NO_INTERNAL_MIC_MAP / BYT_RT5640_NO_SPEAKERS quirks are used.
+BLUETOOTH CORE SPECIFICATION Version 5.2 | Vol 4, Part E
+page 2396
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210802142501.991985-2-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  'Resolvable Private Address being used by the local device for this
+  connection. This is only valid when the Own_Address_Type (from the
+  HCI_LE_Create_Connection, HCI_LE_Set_Advertising_Parameters,
+  HCI_LE_Set_Extended_Advertising_Parameters, or
+  HCI_LE_Extended_Create_Connection commands) is set to 0x02 or
+  0x03, and the Controller generated a resolvable private address for the
+  local device using a non-zero local IRK. For other Own_Address_Type
+  values, the Controller shall return all zeros.'
+
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/bluetooth/hci_event.c | 93 ++++++++++++++++++++++++++-------------
+ 1 file changed, 62 insertions(+), 31 deletions(-)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index 4a76b099a508..e389ecf06e63 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -226,9 +226,6 @@ static const struct snd_soc_dapm_widget byt_rt5640_widgets[] = {
- static const struct snd_soc_dapm_route byt_rt5640_audio_map[] = {
- 	{"Headphone", NULL, "Platform Clock"},
- 	{"Headset Mic", NULL, "Platform Clock"},
--	{"Internal Mic", NULL, "Platform Clock"},
--	{"Speaker", NULL, "Platform Clock"},
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 714a45355610..937cada5595e 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -4801,9 +4801,64 @@ static void hci_disconn_phylink_complete_evt(struct hci_dev *hdev,
+ }
+ #endif
+ 
++static void le_conn_update_addr(struct hci_conn *conn, bdaddr_t *bdaddr,
++				u8 bdaddr_type, bdaddr_t *local_rpa)
++{
++	if (conn->out) {
++		conn->dst_type = bdaddr_type;
++		conn->resp_addr_type = bdaddr_type;
++		bacpy(&conn->resp_addr, bdaddr);
++
++		/* Check if the controller has set a Local RPA then it must be
++		 * used instead or hdev->rpa.
++		 */
++		if (local_rpa && bacmp(local_rpa, BDADDR_ANY)) {
++			conn->init_addr_type = ADDR_LE_DEV_RANDOM;
++			bacpy(&conn->init_addr, local_rpa);
++		} else if (hci_dev_test_flag(conn->hdev, HCI_PRIVACY)) {
++			conn->init_addr_type = ADDR_LE_DEV_RANDOM;
++			bacpy(&conn->init_addr, &conn->hdev->rpa);
++		} else {
++			hci_copy_identity_address(conn->hdev, &conn->init_addr,
++						  &conn->init_addr_type);
++		}
++	} else {
++		conn->resp_addr_type = conn->hdev->adv_addr_type;
++		/* Check if the controller has set a Local RPA then it must be
++		 * used instead or hdev->rpa.
++		 */
++		if (local_rpa && bacmp(local_rpa, BDADDR_ANY)) {
++			conn->resp_addr_type = ADDR_LE_DEV_RANDOM;
++			bacpy(&conn->resp_addr, local_rpa);
++		} else if (conn->hdev->adv_addr_type == ADDR_LE_DEV_RANDOM) {
++			/* In case of ext adv, resp_addr will be updated in
++			 * Adv Terminated event.
++			 */
++			if (!ext_adv_capable(conn->hdev))
++				bacpy(&conn->resp_addr,
++				      &conn->hdev->random_addr);
++		} else {
++			bacpy(&conn->resp_addr, &conn->hdev->bdaddr);
++		}
++
++		conn->init_addr_type = bdaddr_type;
++		bacpy(&conn->init_addr, bdaddr);
++
++		/* For incoming connections, set the default minimum
++		 * and maximum connection interval. They will be used
++		 * to check if the parameters are in range and if not
++		 * trigger the connection update procedure.
++		 */
++		conn->le_conn_min_interval = conn->hdev->le_conn_min_interval;
++		conn->le_conn_max_interval = conn->hdev->le_conn_max_interval;
++	}
++}
++
+ static void le_conn_complete_evt(struct hci_dev *hdev, u8 status,
+-			bdaddr_t *bdaddr, u8 bdaddr_type, u8 role, u16 handle,
+-			u16 interval, u16 latency, u16 supervision_timeout)
++				 bdaddr_t *bdaddr, u8 bdaddr_type,
++				 bdaddr_t *local_rpa, u8 role, u16 handle,
++				 u16 interval, u16 latency,
++				 u16 supervision_timeout)
+ {
+ 	struct hci_conn_params *params;
+ 	struct hci_conn *conn;
+@@ -4851,32 +4906,7 @@ static void le_conn_complete_evt(struct hci_dev *hdev, u8 status,
+ 		cancel_delayed_work(&conn->le_conn_timeout);
+ 	}
+ 
+-	if (!conn->out) {
+-		/* Set the responder (our side) address type based on
+-		 * the advertising address type.
+-		 */
+-		conn->resp_addr_type = hdev->adv_addr_type;
+-		if (hdev->adv_addr_type == ADDR_LE_DEV_RANDOM) {
+-			/* In case of ext adv, resp_addr will be updated in
+-			 * Adv Terminated event.
+-			 */
+-			if (!ext_adv_capable(hdev))
+-				bacpy(&conn->resp_addr, &hdev->random_addr);
+-		} else {
+-			bacpy(&conn->resp_addr, &hdev->bdaddr);
+-		}
 -
- 	{"Headset Mic", NULL, "MICBIAS1"},
- 	{"IN2P", NULL, "Headset Mic"},
- 	{"Headphone", NULL, "HPOL"},
-@@ -236,19 +233,23 @@ static const struct snd_soc_dapm_route byt_rt5640_audio_map[] = {
- };
+-		conn->init_addr_type = bdaddr_type;
+-		bacpy(&conn->init_addr, bdaddr);
+-
+-		/* For incoming connections, set the default minimum
+-		 * and maximum connection interval. They will be used
+-		 * to check if the parameters are in range and if not
+-		 * trigger the connection update procedure.
+-		 */
+-		conn->le_conn_min_interval = hdev->le_conn_min_interval;
+-		conn->le_conn_max_interval = hdev->le_conn_max_interval;
+-	}
++	le_conn_update_addr(conn, bdaddr, bdaddr_type, local_rpa);
  
- static const struct snd_soc_dapm_route byt_rt5640_intmic_dmic1_map[] = {
-+	{"Internal Mic", NULL, "Platform Clock"},
- 	{"DMIC1", NULL, "Internal Mic"},
- };
+ 	/* Lookup the identity address from the stored connection
+ 	 * address and address type.
+@@ -4974,7 +5004,7 @@ static void hci_le_conn_complete_evt(struct hci_dev *hdev, struct sk_buff *skb)
+ 	BT_DBG("%s status 0x%2.2x", hdev->name, ev->status);
  
- static const struct snd_soc_dapm_route byt_rt5640_intmic_dmic2_map[] = {
-+	{"Internal Mic", NULL, "Platform Clock"},
- 	{"DMIC2", NULL, "Internal Mic"},
- };
+ 	le_conn_complete_evt(hdev, ev->status, &ev->bdaddr, ev->bdaddr_type,
+-			     ev->role, le16_to_cpu(ev->handle),
++			     NULL, ev->role, le16_to_cpu(ev->handle),
+ 			     le16_to_cpu(ev->interval),
+ 			     le16_to_cpu(ev->latency),
+ 			     le16_to_cpu(ev->supervision_timeout));
+@@ -4988,7 +5018,7 @@ static void hci_le_enh_conn_complete_evt(struct hci_dev *hdev,
+ 	BT_DBG("%s status 0x%2.2x", hdev->name, ev->status);
  
- static const struct snd_soc_dapm_route byt_rt5640_intmic_in1_map[] = {
-+	{"Internal Mic", NULL, "Platform Clock"},
- 	{"Internal Mic", NULL, "MICBIAS1"},
- 	{"IN1P", NULL, "Internal Mic"},
- };
+ 	le_conn_complete_evt(hdev, ev->status, &ev->bdaddr, ev->bdaddr_type,
+-			     ev->role, le16_to_cpu(ev->handle),
++			     &ev->local_rpa, ev->role, le16_to_cpu(ev->handle),
+ 			     le16_to_cpu(ev->interval),
+ 			     le16_to_cpu(ev->latency),
+ 			     le16_to_cpu(ev->supervision_timeout));
+@@ -5019,7 +5049,8 @@ static void hci_le_ext_adv_term_evt(struct hci_dev *hdev, struct sk_buff *skb)
+ 	if (conn) {
+ 		struct adv_info *adv_instance;
  
- static const struct snd_soc_dapm_route byt_rt5640_intmic_in3_map[] = {
-+	{"Internal Mic", NULL, "Platform Clock"},
- 	{"Internal Mic", NULL, "MICBIAS1"},
- 	{"IN3P", NULL, "Internal Mic"},
- };
-@@ -290,6 +291,7 @@ static const struct snd_soc_dapm_route byt_rt5640_ssp0_aif2_map[] = {
- };
+-		if (hdev->adv_addr_type != ADDR_LE_DEV_RANDOM)
++		if (hdev->adv_addr_type != ADDR_LE_DEV_RANDOM ||
++		    bacmp(&conn->resp_addr, BDADDR_ANY))
+ 			return;
  
- static const struct snd_soc_dapm_route byt_rt5640_stereo_spk_map[] = {
-+	{"Speaker", NULL, "Platform Clock"},
- 	{"Speaker", NULL, "SPOLP"},
- 	{"Speaker", NULL, "SPOLN"},
- 	{"Speaker", NULL, "SPORP"},
-@@ -297,6 +299,7 @@ static const struct snd_soc_dapm_route byt_rt5640_stereo_spk_map[] = {
- };
- 
- static const struct snd_soc_dapm_route byt_rt5640_mono_spk_map[] = {
-+	{"Speaker", NULL, "Platform Clock"},
- 	{"Speaker", NULL, "SPOLP"},
- 	{"Speaker", NULL, "SPOLN"},
- };
+ 		if (!hdev->cur_adv_instance) {
 -- 
 2.30.2
 
