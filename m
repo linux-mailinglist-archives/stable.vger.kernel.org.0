@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8C274124E1
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:39:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8666A412233
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:12:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381618AbhITSiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:38:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53084 "EHLO mail.kernel.org"
+        id S1376614AbhITSNl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:13:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1380297AbhITSgY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:36:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5486761406;
-        Mon, 20 Sep 2021 17:29:23 +0000 (UTC)
+        id S1359639AbhITSKH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:10:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6862863274;
+        Mon, 20 Sep 2021 17:19:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158963;
-        bh=T7SIofURIVF3X4OIUNNKYwN8beYr8BiPk7L0p0U2Lig=;
+        s=korg; t=1632158390;
+        bh=KLmTTQAd45LNcwwzP1tGD7nUWALbuyAXRThSa/Pr//0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NzL82nYD4a0FzoF3L2rABXMQeyQXfd8D9F0XJ6ZM5M2tBPQfpeKZK1Zx6uUoNfHu0
-         T2LQg/tXK6X7Ps9Cb/hCMB41tqD3veo+4TMuTxtEwHqG2IVCoDEyEaocu6OLpE58Kw
-         5O97jG/fqmAHl/g8s+M4L5QvM7xkKIB4/F5AxQfw=
+        b=00usjr72Hom70OmykYjodAkBtucCb8G2dKPecYA0HBMgPMo9RWLy97Lr51OYSIVCO
+         Embwda1TaHnIlaDpg4zs5RpKP4nKe6a4gg6hn64L1hCeikZo24PNbXbdcAHLNUxFDB
+         ojq2SrUGugJbGUPAK11LX+Z3rHTAXVqi/0r8xi6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ernst=20Sj=C3=B6strand?= <ernstp@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.14 014/168] drm/amd/amdgpu: Increase HWIP_MAX_INSTANCE to 10
-Date:   Mon, 20 Sep 2021 18:42:32 +0200
-Message-Id: <20210920163922.119271099@linuxfoundation.org>
+        stable@vger.kernel.org, Raag Jadav <raagjadav@gmail.com>,
+        Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 135/260] arm64: dts: ls1046a: fix eeprom entries
+Date:   Mon, 20 Sep 2021 18:42:33 +0200
+Message-Id: <20210920163935.711295656@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ernst Sjöstrand <ernstp@gmail.com>
+From: Raag Jadav <raagjadav@gmail.com>
 
-commit 67a44e659888569a133a8f858c8230e9d7aad1d5 upstream.
+[ Upstream commit c1a6018d1839c9cb8f807dc863a50102a1a5c412 ]
 
-Seems like newer cards can have even more instances now.
-Found by UBSAN: array-index-out-of-bounds in
-drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c:318:29
-index 8 is out of range for type 'uint32_t *[8]'
+ls1046afrwy and ls1046ardb boards have CAT24C04[1] and CAT24C05[2]
+eeproms respectively. Both are 4Kb (512 bytes) in size,
+and compatible with AT24C04[3].
+Remove multi-address entries, as both the boards have a single chip each.
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1697
-Cc: stable@vger.kernel.org
-Signed-off-by: Ernst Sjöstrand <ernstp@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[1] https://www.onsemi.com/pdf/datasheet/cat24c01-d.pdf
+[2] https://www.onsemi.com/pdf/datasheet/cat24c03-d.pdf
+[3] https://ww1.microchip.com/downloads/en/DeviceDoc/doc0180.pdf
+
+Signed-off-by: Raag Jadav <raagjadav@gmail.com>
+Acked-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1046a-frwy.dts | 8 +-------
+ arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts  | 7 +------
+ 2 files changed, 2 insertions(+), 13 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-@@ -757,7 +757,7 @@ enum amd_hw_ip_block_type {
- 	MAX_HWIP
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-frwy.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-frwy.dts
+index 3595be0f2527..2d6c73d7d397 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-frwy.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-frwy.dts
+@@ -83,15 +83,9 @@ rtc@51 {
+ 			};
+ 
+ 			eeprom@52 {
+-				compatible = "atmel,24c512";
++				compatible = "onnn,cat24c04", "atmel,24c04";
+ 				reg = <0x52>;
+ 			};
+-
+-			eeprom@53 {
+-				compatible = "atmel,24c512";
+-				reg = <0x53>;
+-			};
+-
+ 		};
+ 	};
+ };
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
+index 274339759114..8858c1e92f23 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
+@@ -58,14 +58,9 @@ temp-sensor@4c {
+ 	};
+ 
+ 	eeprom@52 {
+-		compatible = "atmel,24c512";
++		compatible = "onnn,cat24c05", "atmel,24c04";
+ 		reg = <0x52>;
+ 	};
+-
+-	eeprom@53 {
+-		compatible = "atmel,24c512";
+-		reg = <0x53>;
+-	};
  };
  
--#define HWIP_MAX_INSTANCE	8
-+#define HWIP_MAX_INSTANCE	10
- 
- struct amd_powerplay {
- 	void *pp_handle;
+ &i2c3 {
+-- 
+2.30.2
+
 
 
