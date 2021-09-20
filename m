@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19373411C60
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:07:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADC6441203C
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:52:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345120AbhITRIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:08:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56392 "EHLO mail.kernel.org"
+        id S1353908AbhITRxd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:53:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345932AbhITRGr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:06:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FCAF61374;
-        Mon, 20 Sep 2021 16:55:15 +0000 (UTC)
+        id S1354252AbhITRtY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:49:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EAAA561353;
+        Mon, 20 Sep 2021 17:11:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156915;
-        bh=5DE08k53AFm6jaC5cL0oBCr2ZiaYYOFJ2ifxKjrUXew=;
+        s=korg; t=1632157892;
+        bh=IG4WzuU9ZzfY8NhFaGUxR7321fnYT+WG2xobM7X31RA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AZFwLdABzouSxFYkvShxYRJTNeS5/nuSUgIMYccwzrpRapRhJbG8+NCV/oVD5L2mj
-         vE8xKouF0fuimRQgj9wn9SoL9RwVi25tNAANBcG5gtEVAJtYE36T2td16dDzELheTi
-         OugZyKJ4MEAxMrcDRYEV235HBlUO1ozfl9wAh33g=
+        b=TiylCcFm9tHUMmMmUWKutZwJceEudXIsZVDxw9EsRhZSqseANCELdx6qNX7zA8ilF
+         x1ax/MpupOwwdSXOlOPWfLWmBiNfsmqSegrcZ8ftlqRRc+j/VUKrde0HhFGNL2en0k
+         6L+6KGnr6H0th68QwR7T4kuOEx4Sv+o3pj5BPP5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kelly Devilliv <kelly.devilliv@gmail.com>,
+        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Jordy Zomer <jordy@pwning.systems>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 112/175] usb: host: fotg210: fix the actual_length of an iso packet
+Subject: [PATCH 4.19 199/293] serial: 8250_pci: make setup_port() parameters explicitly unsigned
 Date:   Mon, 20 Sep 2021 18:42:41 +0200
-Message-Id: <20210920163921.733432058@linuxfoundation.org>
+Message-Id: <20210920163940.080044788@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,58 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kelly Devilliv <kelly.devilliv@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 091cb2f782f32ab68c6f5f326d7868683d3d4875 ]
+[ Upstream commit 3a96e97ab4e835078e6f27b7e1c0947814df3841 ]
 
-We should acquire the actual_length of an iso packet
-from the iTD directly using FOTG210_ITD_LENGTH() macro.
+The bar and offset parameters to setup_port() are used in pointer math,
+and while it would be very difficult to get them to wrap as a negative
+number, just be "safe" and make them unsigned so that static checkers do
+not trip over them unintentionally.
 
-Signed-off-by: Kelly Devilliv <kelly.devilliv@gmail.com>
-Link: https://lore.kernel.org/r/20210627125747.127646-4-kelly.devilliv@gmail.com
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Reported-by: Jordy Zomer <jordy@pwning.systems>
+Link: https://lore.kernel.org/r/20210726130717.2052096-1-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/fotg210-hcd.c | 5 ++---
- drivers/usb/host/fotg210.h     | 5 -----
- 2 files changed, 2 insertions(+), 8 deletions(-)
+ drivers/tty/serial/8250/8250_pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/fotg210-hcd.c b/drivers/usb/host/fotg210-hcd.c
-index 725abc08550e..f0ec538a8813 100644
---- a/drivers/usb/host/fotg210-hcd.c
-+++ b/drivers/usb/host/fotg210-hcd.c
-@@ -4488,13 +4488,12 @@ static bool itd_complete(struct fotg210_hcd *fotg210, struct fotg210_itd *itd)
+diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
+index 725e5842b8ac..f54c18e4ae90 100644
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -70,7 +70,7 @@ static void moan_device(const char *str, struct pci_dev *dev)
  
- 			/* HC need not update length with this error */
- 			if (!(t & FOTG210_ISOC_BABBLE)) {
--				desc->actual_length =
--					fotg210_itdlen(urb, desc, t);
-+				desc->actual_length = FOTG210_ITD_LENGTH(t);
- 				urb->actual_length += desc->actual_length;
- 			}
- 		} else if (likely((t & FOTG210_ISOC_ACTIVE) == 0)) {
- 			desc->status = 0;
--			desc->actual_length = fotg210_itdlen(urb, desc, t);
-+			desc->actual_length = FOTG210_ITD_LENGTH(t);
- 			urb->actual_length += desc->actual_length;
- 		} else {
- 			/* URB was too late */
-diff --git a/drivers/usb/host/fotg210.h b/drivers/usb/host/fotg210.h
-index b5cfa7aeb277..1a3f94123c88 100644
---- a/drivers/usb/host/fotg210.h
-+++ b/drivers/usb/host/fotg210.h
-@@ -682,11 +682,6 @@ static inline unsigned fotg210_read_frame_index(struct fotg210_hcd *fotg210)
- 	return fotg210_readl(fotg210, &fotg210->regs->frame_index);
- }
+ static int
+ setup_port(struct serial_private *priv, struct uart_8250_port *port,
+-	   int bar, int offset, int regshift)
++	   u8 bar, unsigned int offset, int regshift)
+ {
+ 	struct pci_dev *dev = priv->dev;
  
--#define fotg210_itdlen(urb, desc, t) ({			\
--	usb_pipein((urb)->pipe) ?				\
--	(desc)->length - FOTG210_ITD_LENGTH(t) :			\
--	FOTG210_ITD_LENGTH(t);					\
--})
- /*-------------------------------------------------------------------------*/
- 
- #endif /* __LINUX_FOTG210_H */
 -- 
 2.30.2
 
