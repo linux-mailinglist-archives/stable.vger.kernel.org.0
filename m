@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDD794123DB
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:26:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B18B412504
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351954AbhITS2X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:28:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44380 "EHLO mail.kernel.org"
+        id S1350522AbhITSlI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:41:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1378748AbhITS0V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:26:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AC7B61A8A;
-        Mon, 20 Sep 2021 17:25:27 +0000 (UTC)
+        id S1381652AbhITSjD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:39:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C33163329;
+        Mon, 20 Sep 2021 17:30:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158727;
-        bh=fd05H0LoQ65GaBSvp+7+RMZ8oDLy3WPipdEO/gkQnMk=;
+        s=korg; t=1632159024;
+        bh=cdIMnGOF4CkU42daacZN2R1isEuvbkTI+FGt9W79hLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ai0gdjwYU/SHXD3lemzmhVnpJ3Koxerd4UelO4qcUgHxxOSIaVmw0nGoH2lGJB09D
-         ZG+XHjiqN9e1ui61VNiIpxnX2IZAXHOIyo26iFS3TzK4FQHlMYhDrprZdhjp6RBOH7
-         2MxPAocqqWuBxwDpF5t1tmudyWNBmYHQdaV97G70=
+        b=z5TKCV4EGr7Bm6aFiLpcmKvBY+Ker1+JDgcSBRYX2li0BLCKkFiQxJtfHK6Trvoo0
+         C0JWt3ks/BfYiihezeE53Ssknp16aellRG7O9By5gxWHkqhBPVuHd0eRke7maqi4g+
+         ssl/TG9N0PbK5KkvrNuGJO2Gr1N9eurAN+0mWIsc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.10 008/122] PCI: Add AMD GPU multi-function power dependencies
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Richard Cochran <richard.cochran@omicron.at>,
+        John Stultz <john.stultz@linaro.org>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.14 042/168] ptp: dp83640: dont define PAGE0
 Date:   Mon, 20 Sep 2021 18:43:00 +0200
-Message-Id: <20210920163916.037383090@linuxfoundation.org>
+Message-Id: <20210920163923.030564510@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,63 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 60b78ed088ebe1a872ee1320b6c5ad6ee2c4bd9a upstream.
+commit 7366c23ff492ad260776a3ee1aaabba9fc773a8b upstream.
 
-Some AMD GPUs have built-in USB xHCI and USB Type-C UCSI controllers with
-power dependencies between the GPU and the other functions as in
-6d2e369f0d4c ("PCI: Add NVIDIA GPU multi-function power dependencies").
+Building dp83640.c on arch/parisc/ produces a build warning for
+PAGE0 being redefined. Since the macro is not used in the dp83640
+driver, just make it a comment for documentation purposes.
 
-Add device link support for the AMD integrated USB xHCI and USB Type-C UCSI
-controllers.
+In file included from ../drivers/net/phy/dp83640.c:23:
+../drivers/net/phy/dp83640_reg.h:8: warning: "PAGE0" redefined
+    8 | #define PAGE0                     0x0000
+                 from ../drivers/net/phy/dp83640.c:11:
+../arch/parisc/include/asm/page.h:187: note: this is the location of the previous definition
+  187 | #define PAGE0   ((struct zeropage *)__PAGE_OFFSET)
 
-Without this, runtime power management, including GPU resume and temp and
-fan sensors don't work correctly.
-
-Reported-at: https://gitlab.freedesktop.org/drm/amd/-/issues/1704
-Link: https://lore.kernel.org/r/20210903063311.3606226-1-evan.quan@amd.com
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org
+Fixes: cb646e2b02b2 ("ptp: Added a clock driver for the National Semiconductor PHYTER.")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Richard Cochran <richard.cochran@omicron.at>
+Cc: John Stultz <john.stultz@linaro.org>
+Cc: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20210913220605.19682-1-rdunlap@infradead.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/quirks.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/phy/dp83640_reg.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -5346,7 +5346,7 @@ DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR
- 			      PCI_CLASS_MULTIMEDIA_HD_AUDIO, 8, quirk_gpu_hda);
+--- a/drivers/net/phy/dp83640_reg.h
++++ b/drivers/net/phy/dp83640_reg.h
+@@ -5,7 +5,7 @@
+ #ifndef HAVE_DP83640_REGISTERS
+ #define HAVE_DP83640_REGISTERS
  
- /*
-- * Create device link for NVIDIA GPU with integrated USB xHCI Host
-+ * Create device link for GPUs with integrated USB xHCI Host
-  * controller to VGA.
-  */
- static void quirk_gpu_usb(struct pci_dev *usb)
-@@ -5355,9 +5355,11 @@ static void quirk_gpu_usb(struct pci_dev
- }
- DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
- 			      PCI_CLASS_SERIAL_USB, 8, quirk_gpu_usb);
-+DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_ATI, PCI_ANY_ID,
-+			      PCI_CLASS_SERIAL_USB, 8, quirk_gpu_usb);
+-#define PAGE0                     0x0000
++/* #define PAGE0                  0x0000 */
+ #define PHYCR2                    0x001c /* PHY Control Register 2 */
  
- /*
-- * Create device link for NVIDIA GPU with integrated Type-C UCSI controller
-+ * Create device link for GPUs with integrated Type-C UCSI controller
-  * to VGA. Currently there is no class code defined for UCSI device over PCI
-  * so using UNKNOWN class for now and it will be updated when UCSI
-  * over PCI gets a class code.
-@@ -5370,6 +5372,9 @@ static void quirk_gpu_usb_typec_ucsi(str
- DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
- 			      PCI_CLASS_SERIAL_UNKNOWN, 8,
- 			      quirk_gpu_usb_typec_ucsi);
-+DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_ATI, PCI_ANY_ID,
-+			      PCI_CLASS_SERIAL_UNKNOWN, 8,
-+			      quirk_gpu_usb_typec_ucsi);
- 
- /*
-  * Enable the NVIDIA GPU integrated HDA controller if the BIOS left it
+ #define PAGE4                     0x0004
 
 
