@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FFE74121F2
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:09:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9A48412231
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:12:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359329AbhITSLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:11:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35780 "EHLO mail.kernel.org"
+        id S1348493AbhITSNi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:13:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1359320AbhITSJ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:09:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0AAC613D1;
-        Mon, 20 Sep 2021 17:19:28 +0000 (UTC)
+        id S1359643AbhITSKI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:10:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FAAC61A4E;
+        Mon, 20 Sep 2021 17:19:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158369;
-        bh=uAbR59EJyY356MSmfgpeGTVaI69N2/xc0UlG7WwyYPs=;
+        s=korg; t=1632158393;
+        bh=jNfagrwBB6tBxwk5PwVadgQlBB9yK8VvqcvtDl0vPX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o0ZTMBaSoI6T3MRcib1YCDAm+F7lcyyHTr4aSAi8/nUwTTo0u9z9/dub0OOsDNNU2
-         6A1CqB9Eq2YcEJYjLHMobWQf7ucC044nCN4QlEXceTMUU0Ta/zXzLWa35KbUwG3/Je
-         QyPyiQff9fsBUlJ0qB54fiD7I58kHfQ8EUMbFppQ=
+        b=x/jJf9kh1Nql0VyWdaR8ulUh3NFLY025kumycmnBk6hLxBb4Jjf/m0ZjRiwkFJHKg
+         d6SwJZeWti0EXNhjDsUm/E8+gAUzhVKgiaUUIsODaspaPHp/wqEA3H0AUZKoBUxcyS
+         8zsDEd7xWYAuyhWIg0htOUrJc0oOBM4gynKHLZWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Umang Jain <umang.jain@ideasonboard.com>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Umang Jain <umang.jain@ideasonboard.com>,
-        Bingbu Cao <bingbu.cao@intel.com>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 117/260] media: imx258: Rectify mismatch of VTS value
-Date:   Mon, 20 Sep 2021 18:42:15 +0200
-Message-Id: <20210920163935.110418501@linuxfoundation.org>
+Subject: [PATCH 5.4 118/260] media: imx258: Limit the max analogue gain to 480
+Date:   Mon, 20 Sep 2021 18:42:16 +0200
+Message-Id: <20210920163935.142425118@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -44,37 +43,25 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Umang Jain <umang.jain@ideasonboard.com>
 
-[ Upstream commit 51f93add3669f1b1f540de1cf397815afbd4c756 ]
+[ Upstream commit f809665ee75fff3f4ea8907f406a66d380aeb184 ]
 
-The frame_length_lines (0x0340) registers are hard-coded as follows:
+The range for analog gain mentioned in the datasheet is [0, 480].
+The real gain formula mentioned in the datasheet is:
 
-- 4208x3118
-  frame_length_lines = 0x0c50
+	Gain = 512 / (512 – X)
 
-- 2104x1560
-  frame_length_lines = 0x0638
+Hence, values larger than 511 clearly makes no sense. The gain
+register field is also documented to be of 9-bits in the datasheet.
 
-- 1048x780
-  frame_length_lines = 0x034c
+Certainly, it is enough to infer that, the kernel driver currently
+advertises an arbitrary analog gain max. Fix it by rectifying the
+value as per the data sheet i.e. 480.
 
-The driver exposes the V4L2_CID_VBLANK control in read-only mode and
-sets its value to vts_def - height, where vts_def is a mode-dependent
-value coming from the supported_modes array. It is set using one of
-the following macros defined in the driver:
-
-  #define IMX258_VTS_30FPS                0x0c98
-  #define IMX258_VTS_30FPS_2K             0x0638
-  #define IMX258_VTS_30FPS_VGA            0x034c
-
-There's a clear mismatch in the value for the full resolution mode i.e.
-IMX258_VTS_30FPS. Fix it by rectifying the macro with the value set for
-the frame_length_lines register as stated above.
-
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Umang Jain <umang.jain@ideasonboard.com>
-Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
 Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
@@ -83,18 +70,18 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/media/i2c/imx258.c b/drivers/media/i2c/imx258.c
-index f86ae18bc104..5f5e50c01b12 100644
+index 5f5e50c01b12..ffaa4a91e571 100644
 --- a/drivers/media/i2c/imx258.c
 +++ b/drivers/media/i2c/imx258.c
-@@ -22,7 +22,7 @@
- #define IMX258_CHIP_ID			0x0258
+@@ -46,7 +46,7 @@
+ /* Analog gain control */
+ #define IMX258_REG_ANALOG_GAIN		0x0204
+ #define IMX258_ANA_GAIN_MIN		0
+-#define IMX258_ANA_GAIN_MAX		0x1fff
++#define IMX258_ANA_GAIN_MAX		480
+ #define IMX258_ANA_GAIN_STEP		1
+ #define IMX258_ANA_GAIN_DEFAULT		0x0
  
- /* V_TIMING internal */
--#define IMX258_VTS_30FPS		0x0c98
-+#define IMX258_VTS_30FPS		0x0c50
- #define IMX258_VTS_30FPS_2K		0x0638
- #define IMX258_VTS_30FPS_VGA		0x034c
- #define IMX258_VTS_MAX			0xffff
 -- 
 2.30.2
 
