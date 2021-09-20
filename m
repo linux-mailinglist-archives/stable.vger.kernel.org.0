@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9DDD411097
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 10:00:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E255841109A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 10:03:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231240AbhITIB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 04:01:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58820 "EHLO mail.kernel.org"
+        id S235255AbhITIDw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 04:03:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230503AbhITIB6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 04:01:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E70CC60FF2;
-        Mon, 20 Sep 2021 08:00:26 +0000 (UTC)
+        id S229667AbhITICw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 04:02:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95A3E60FC1;
+        Mon, 20 Sep 2021 08:01:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632124827;
-        bh=EQvGqS94czH4UugVkNVXYyZu+bK6qsqKuCvtEzkOaAg=;
+        s=korg; t=1632124882;
+        bh=ZvZvps83k5xjO+KhnmScvLj5jLhnvqy4QubL+doxG8k=;
         h=Subject:To:Cc:From:Date:From;
-        b=AXn+VBSG/P3/QUpMtyViVEiMC9kIT/Lq2tSg2xOrLAmUT2S3z5KUga62aEfU+5vHS
-         Yi1mAdjPjm+I1DFjNMKxDm9RjbkebdOs7plTH4j1eBj1kY2Oi5Uj6WMPHSH1FVsz4k
-         XnksirQnfbRADhh8KNTPD83zHeoNhJ83ONxrIDSQ=
-Subject: FAILED: patch "[PATCH] net/mlx5: Fix potential sleeping in atomic context" failed to apply to 4.14-stable tree
-To:     maorg@nvidia.com, dan.carpenter@oracle.com, saeedm@nvidia.com
+        b=KMkLiqe0yRJBzQNvQIKnHPy+WrApBXMvr8d2JzXfw+4IgpS9nThX6WuiFlJQgWYmU
+         4yXgrs2PUjR+IeMhdB/KBesFgbGqJWYRPi1wNaLmO0B32RTVGrAzzKoEFb+aSupgdv
+         aatoDRL2mCLV0ImyQrobXBTGfhULgza9MmyLP5Hg=
+Subject: FAILED: patch "[PATCH] net: stmmac: fix system hang caused by eee_ctrl_timer during" failed to apply to 5.10-stable tree
+To:     qiangqing.zhang@nxp.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Sep 2021 10:00:24 +0200
-Message-ID: <163212482474189@kroah.com>
+Date:   Mon, 20 Sep 2021 10:01:19 +0200
+Message-ID: <163212487923284@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,43 +45,148 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ee27e330a953595903979ffdb84926843595a9fe Mon Sep 17 00:00:00 2001
-From: Maor Gottlieb <maorg@nvidia.com>
-Date: Wed, 1 Sep 2021 11:48:13 +0300
-Subject: [PATCH] net/mlx5: Fix potential sleeping in atomic context
+From 276aae377206d60b9b7b7df4586cd9f2a813f5d0 Mon Sep 17 00:00:00 2001
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
+Date: Wed, 8 Sep 2021 15:43:35 +0800
+Subject: [PATCH] net: stmmac: fix system hang caused by eee_ctrl_timer during
+ suspend/resume
 
-Fixes the below flow of sleeping in atomic context by releasing
-the RCU lock before calling to free_match_list.
+commit 5f58591323bf ("net: stmmac: delete the eee_ctrl_timer after
+napi disabled"), this patch tries to fix system hang caused by eee_ctrl_timer,
+unfortunately, it only can resolve it for system reboot stress test. System
+hang also can be reproduced easily during system suspend/resume stess test
+when mount NFS on i.MX8MP EVK board.
 
-build_match_list() <- disables preempt
--> free_match_list()
-   -> tree_put_node()
-      -> down_write_ref_node() <- take write lock
+In stmmac driver, eee feature is combined to phylink framework. When do
+system suspend, phylink_stop() would queue delayed work, it invokes
+stmmac_mac_link_down(), where to deactivate eee_ctrl_timer synchronizly.
+In above commit, try to fix issue by deactivating eee_ctrl_timer obviously,
+but it is not enough. Looking into eee_ctrl_timer expire callback
+stmmac_eee_ctrl_timer(), it could enable hareware eee mode again. What is
+unexpected is that LPI interrupt (MAC_Interrupt_Enable.LPIEN bit) is always
+asserted. This interrupt has chance to be issued when LPI state entry/exit
+from the MAC, and at that time, clock could have been already disabled.
+The result is that system hang when driver try to touch register from
+interrupt handler.
 
-Fixes: 693c6883bbc4 ("net/mlx5: Add hash table for flow groups in flow table")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+The reason why above commit can fix system hang issue in stmmac_release()
+is that, deactivate eee_ctrl_timer not just after napi disabled, further
+after irq freed.
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-index 9fe8e3c204d6..fe501ba88bea 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-@@ -1682,14 +1682,13 @@ static int build_match_list(struct match_list *match_head,
+In conclusion, hardware would generate LPI interrupt when clock has been
+disabled during suspend or resume, since hardware is in eee mode and LPI
+interrupt enabled.
+
+Interrupts from MAC, MTL and DMA level are enabled and never been disabled
+when system suspend, so postpone clocks management from suspend stage to
+noirq suspend stage should be more safe.
+
+Fixes: 5f58591323bf ("net: stmmac: delete the eee_ctrl_timer after napi disabled")
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index ece02b35a6ce..246f84fedbc8 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -7118,7 +7118,6 @@ int stmmac_suspend(struct device *dev)
+ 	struct net_device *ndev = dev_get_drvdata(dev);
+ 	struct stmmac_priv *priv = netdev_priv(ndev);
+ 	u32 chan;
+-	int ret;
  
- 		curr_match = kmalloc(sizeof(*curr_match), GFP_ATOMIC);
- 		if (!curr_match) {
-+			rcu_read_unlock();
- 			free_match_list(match_head, ft_locked);
--			err = -ENOMEM;
--			goto out;
-+			return -ENOMEM;
- 		}
- 		curr_match->g = g;
- 		list_add_tail(&curr_match->list, &match_head->list);
+ 	if (!ndev || !netif_running(ndev))
+ 		return 0;
+@@ -7150,13 +7149,6 @@ int stmmac_suspend(struct device *dev)
+ 	} else {
+ 		stmmac_mac_set(priv, priv->ioaddr, false);
+ 		pinctrl_pm_select_sleep_state(priv->device);
+-		/* Disable clock in case of PWM is off */
+-		clk_disable_unprepare(priv->plat->clk_ptp_ref);
+-		ret = pm_runtime_force_suspend(dev);
+-		if (ret) {
+-			mutex_unlock(&priv->lock);
+-			return ret;
+-		}
  	}
--out:
- 	rcu_read_unlock();
- 	return err;
+ 
+ 	mutex_unlock(&priv->lock);
+@@ -7242,12 +7234,6 @@ int stmmac_resume(struct device *dev)
+ 		priv->irq_wake = 0;
+ 	} else {
+ 		pinctrl_pm_select_default_state(priv->device);
+-		/* enable the clk previously disabled */
+-		ret = pm_runtime_force_resume(dev);
+-		if (ret)
+-			return ret;
+-		if (priv->plat->clk_ptp_ref)
+-			clk_prepare_enable(priv->plat->clk_ptp_ref);
+ 		/* reset the phy so that it's ready */
+ 		if (priv->mii)
+ 			stmmac_mdio_reset(priv->mii);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+index 5ca710844cc1..4885f9ad1b1e 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+@@ -9,6 +9,7 @@
+ *******************************************************************************/
+ 
+ #include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
+ #include <linux/module.h>
+ #include <linux/io.h>
+ #include <linux/of.h>
+@@ -771,9 +772,52 @@ static int __maybe_unused stmmac_runtime_resume(struct device *dev)
+ 	return stmmac_bus_clks_config(priv, true);
  }
+ 
++static int stmmac_pltfr_noirq_suspend(struct device *dev)
++{
++	struct net_device *ndev = dev_get_drvdata(dev);
++	struct stmmac_priv *priv = netdev_priv(ndev);
++	int ret;
++
++	if (!netif_running(ndev))
++		return 0;
++
++	if (!device_may_wakeup(priv->device) || !priv->plat->pmt) {
++		/* Disable clock in case of PWM is off */
++		clk_disable_unprepare(priv->plat->clk_ptp_ref);
++
++		ret = pm_runtime_force_suspend(dev);
++		if (ret)
++			return ret;
++	}
++
++	return 0;
++}
++
++static int stmmac_pltfr_noirq_resume(struct device *dev)
++{
++	struct net_device *ndev = dev_get_drvdata(dev);
++	struct stmmac_priv *priv = netdev_priv(ndev);
++	int ret;
++
++	if (!netif_running(ndev))
++		return 0;
++
++	if (!device_may_wakeup(priv->device) || !priv->plat->pmt) {
++		/* enable the clk previously disabled */
++		ret = pm_runtime_force_resume(dev);
++		if (ret)
++			return ret;
++
++		clk_prepare_enable(priv->plat->clk_ptp_ref);
++	}
++
++	return 0;
++}
++
+ const struct dev_pm_ops stmmac_pltfr_pm_ops = {
+ 	SET_SYSTEM_SLEEP_PM_OPS(stmmac_pltfr_suspend, stmmac_pltfr_resume)
+ 	SET_RUNTIME_PM_OPS(stmmac_runtime_suspend, stmmac_runtime_resume, NULL)
++	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(stmmac_pltfr_noirq_suspend, stmmac_pltfr_noirq_resume)
+ };
+ EXPORT_SYMBOL_GPL(stmmac_pltfr_pm_ops);
+ 
 
