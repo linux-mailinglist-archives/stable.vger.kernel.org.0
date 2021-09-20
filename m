@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CC63411B38
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:55:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73CAB411D04
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:14:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241762AbhITQ4o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:56:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38900 "EHLO mail.kernel.org"
+        id S1345928AbhITRPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:15:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245612AbhITQyh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:54:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 683D16136F;
-        Mon, 20 Sep 2021 16:50:34 +0000 (UTC)
+        id S1344275AbhITRNq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:13:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CEC71619EB;
+        Mon, 20 Sep 2021 16:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156634;
-        bh=3XWE7H+VvY2kH/PyMqqldr/+KGLJ1e4ZO/1Wswgaz5Y=;
+        s=korg; t=1632157079;
+        bh=dfQULT2cZ6sVpSpjD1dVGD4rSCxzCafGOvflM4ZVMDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OFq4Zg3QPlJqP/nLh6EyA0hIdmvwYAan47oSd40m61/zl46PUd/cVtqby75QE30yH
-         IrarptXDbYTAL724+e03QrFKJJfU6BdJiafC/W1kfcaVeRIaAN46199DVA6XZ5eoBS
-         lGgnU7FKjXGUjDNyLA6zca0u1icjcSd9ccuPdJ+8=
+        b=gmMFAUAlXhrPMMjuaqsKabKc1wHqqxQXSaqfxHOULUdd0SVOEQ+9EPXO0o0dViKoh
+         vz5jM+vogq6b6k39r3uWXz/wAJc5N08BvU9Dvdv/zq5o/YXEcISAGrK6Om2wkKKsEO
+         oseOnJb61C/kPRQbdafgSlReYYy/9psw59Dm4PNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.9 016/175] igmp: Add ip_mc_list lock in ip_check_mc_rcu
+        stable@vger.kernel.org,
+        Stian Skjelstad <stian.skjelstad@gmail.com>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 044/217] udf_get_extendedattr() had no boundary checks.
 Date:   Mon, 20 Sep 2021 18:41:05 +0200
-Message-Id: <20210920163918.600206855@linuxfoundation.org>
+Message-Id: <20210920163926.119137088@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,75 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Jian <liujian56@huawei.com>
+From: Stian Skjelstad <stian.skjelstad@gmail.com>
 
-commit 23d2b94043ca8835bd1e67749020e839f396a1c2 upstream.
+[ Upstream commit 58bc6d1be2f3b0ceecb6027dfa17513ec6aa2abb ]
 
-I got below panic when doing fuzz test:
+When parsing the ExtendedAttr data, malicous or corrupt attribute length
+could cause kernel hangs and buffer overruns in some special cases.
 
-Kernel panic - not syncing: panic_on_warn set ...
-CPU: 0 PID: 4056 Comm: syz-executor.3 Tainted: G    B             5.14.0-rc1-00195-gcff5c4254439-dirty #2
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-Call Trace:
-dump_stack_lvl+0x7a/0x9b
-panic+0x2cd/0x5af
-end_report.cold+0x5a/0x5a
-kasan_report+0xec/0x110
-ip_check_mc_rcu+0x556/0x5d0
-__mkroute_output+0x895/0x1740
-ip_route_output_key_hash_rcu+0x2d0/0x1050
-ip_route_output_key_hash+0x182/0x2e0
-ip_route_output_flow+0x28/0x130
-udp_sendmsg+0x165d/0x2280
-udpv6_sendmsg+0x121e/0x24f0
-inet6_sendmsg+0xf7/0x140
-sock_sendmsg+0xe9/0x180
-____sys_sendmsg+0x2b8/0x7a0
-___sys_sendmsg+0xf0/0x160
-__sys_sendmmsg+0x17e/0x3c0
-__x64_sys_sendmmsg+0x9e/0x100
-do_syscall_64+0x3b/0x90
-entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x462eb9
-Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8
- 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48>
- 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f3df5af1c58 EFLAGS: 00000246 ORIG_RAX: 0000000000000133
-RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000462eb9
-RDX: 0000000000000312 RSI: 0000000020001700 RDI: 0000000000000007
-RBP: 0000000000000004 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007f3df5af26bc
-R13: 00000000004c372d R14: 0000000000700b10 R15: 00000000ffffffff
-
-It is one use-after-free in ip_check_mc_rcu.
-In ip_mc_del_src, the ip_sf_list of pmc has been freed under pmc->lock protection.
-But access to ip_sf_list in ip_check_mc_rcu is not protected by the lock.
-
-Signed-off-by: Liu Jian <liujian56@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210822093332.25234-1-stian.skjelstad@gmail.com
+Signed-off-by: Stian Skjelstad <stian.skjelstad@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/igmp.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/udf/misc.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -2685,6 +2685,7 @@ int ip_check_mc_rcu(struct in_device *in
- 		rv = 1;
- 	} else if (im) {
- 		if (src_addr) {
-+			spin_lock_bh(&im->lock);
- 			for (psf = im->sources; psf; psf = psf->sf_next) {
- 				if (psf->sf_inaddr == src_addr)
- 					break;
-@@ -2695,6 +2696,7 @@ int ip_check_mc_rcu(struct in_device *in
- 					im->sfcount[MCAST_EXCLUDE];
+diff --git a/fs/udf/misc.c b/fs/udf/misc.c
+index 3949c4bec3a3..e5f4dcde309f 100644
+--- a/fs/udf/misc.c
++++ b/fs/udf/misc.c
+@@ -173,13 +173,22 @@ struct genericFormat *udf_get_extendedattr(struct inode *inode, uint32_t type,
+ 		else
+ 			offset = le32_to_cpu(eahd->appAttrLocation);
+ 
+-		while (offset < iinfo->i_lenEAttr) {
++		while (offset + sizeof(*gaf) < iinfo->i_lenEAttr) {
++			uint32_t attrLength;
++
+ 			gaf = (struct genericFormat *)&ea[offset];
++			attrLength = le32_to_cpu(gaf->attrLength);
++
++			/* Detect undersized elements and buffer overflows */
++			if ((attrLength < sizeof(*gaf)) ||
++			    (attrLength > (iinfo->i_lenEAttr - offset)))
++				break;
++
+ 			if (le32_to_cpu(gaf->attrType) == type &&
+ 					gaf->attrSubtype == subtype)
+ 				return gaf;
  			else
- 				rv = im->sfcount[MCAST_EXCLUDE] != 0;
-+			spin_unlock_bh(&im->lock);
- 		} else
- 			rv = 1; /* unspecified source; tentatively allow */
+-				offset += le32_to_cpu(gaf->attrLength);
++				offset += attrLength;
+ 		}
  	}
+ 
+-- 
+2.30.2
+
 
 
