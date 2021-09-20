@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AA13411AF0
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:52:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D55741207B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:54:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245467AbhITQxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:53:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39624 "EHLO mail.kernel.org"
+        id S1347208AbhITRzs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:55:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243494AbhITQvu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:51:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89F5061268;
-        Mon, 20 Sep 2021 16:49:33 +0000 (UTC)
+        id S1355040AbhITRwh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:52:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3928F60F25;
+        Mon, 20 Sep 2021 17:12:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156574;
-        bh=vn5V48WHea7ZI1gUMJLNHFexHBmcof4BOoIcF9NdWyE=;
+        s=korg; t=1632157972;
+        bh=QRAfYCMlD1tydVAsQqC38dv/IQY/ZID3c6hiYrYC74A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KlIFUYNOawbFkRhlpUzWDP7enJQWr0CCTb5DI+JR88IjlCK/tgPIzxwcDdayBEZoU
-         DUCI6fFuGzuEnX9fa4pO+HWRS2uRnmnhJkVsPb0+cTX39DXYDm9Rb/RbycNNnbc7k0
-         iOYCmwraT6T9PW0T7RF1vnJUOQMt871rwyHI7jK8=
+        b=SjRJqxJbZvwTmXbgZBsTN5ohI6GDdtPEt3n3X3p1GE3Od/eAgV6QPQwPoUt3Y6yUN
+         JXlFg2WtoohML2oeVdqM7wibHPwssQh/4+dx7tT4JzZjy3Z+XFrZVSwLNqITuLtHpZ
+         usz0WEg9kXzJMd4Nb7wSz3i2hX3KjVe5daVMggxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Richard Cochran <richard.cochran@omicron.at>,
-        John Stultz <john.stultz@linaro.org>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 120/133] ptp: dp83640: dont define PAGE0
+        stable@vger.kernel.org,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 236/293] parport: remove non-zero check on count
 Date:   Mon, 20 Sep 2021 18:43:18 +0200
-Message-Id: <20210920163916.546337866@linuxfoundation.org>
+Message-Id: <20210920163941.476735677@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 7366c23ff492ad260776a3ee1aaabba9fc773a8b upstream.
+[ Upstream commit 0be883a0d795d9146f5325de582584147dd0dcdc ]
 
-Building dp83640.c on arch/parisc/ produces a build warning for
-PAGE0 being redefined. Since the macro is not used in the dp83640
-driver, just make it a comment for documentation purposes.
+The check for count appears to be incorrect since a non-zero count
+check occurs a couple of statements earlier. Currently the check is
+always false and the dev->port->irq != PARPORT_IRQ_NONE part of the
+check is never tested and the if statement is dead-code. Fix this
+by removing the check on count.
 
-In file included from ../drivers/net/phy/dp83640.c:23:
-../drivers/net/phy/dp83640_reg.h:8: warning: "PAGE0" redefined
-    8 | #define PAGE0                     0x0000
-                 from ../drivers/net/phy/dp83640.c:11:
-../arch/parisc/include/asm/page.h:187: note: this is the location of the previous definition
-  187 | #define PAGE0   ((struct zeropage *)__PAGE_OFFSET)
+Note that this code is pre-git history, so I can't find a sha for
+it.
 
-Fixes: cb646e2b02b2 ("ptp: Added a clock driver for the National Semiconductor PHYTER.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Richard Cochran <richard.cochran@omicron.at>
-Cc: John Stultz <john.stultz@linaro.org>
-Cc: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Russell King <linux@armlinux.org.uk>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20210913220605.19682-1-rdunlap@infradead.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Acked-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Addresses-Coverity: ("Logically dead code")
+Link: https://lore.kernel.org/r/20210730100710.27405-1-colin.king@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/dp83640_reg.h |    2 +-
+ drivers/parport/ieee1284_ops.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/phy/dp83640_reg.h
-+++ b/drivers/net/phy/dp83640_reg.h
-@@ -4,7 +4,7 @@
- #ifndef HAVE_DP83640_REGISTERS
- #define HAVE_DP83640_REGISTERS
+diff --git a/drivers/parport/ieee1284_ops.c b/drivers/parport/ieee1284_ops.c
+index 5d41dda6da4e..75daa16f38b7 100644
+--- a/drivers/parport/ieee1284_ops.c
++++ b/drivers/parport/ieee1284_ops.c
+@@ -535,7 +535,7 @@ size_t parport_ieee1284_ecp_read_data (struct parport *port,
+ 				goto out;
  
--#define PAGE0                     0x0000
-+/* #define PAGE0                  0x0000 */
- #define PHYCR2                    0x001c /* PHY Control Register 2 */
- 
- #define PAGE4                     0x0004
+ 			/* Yield the port for a while. */
+-			if (count && dev->port->irq != PARPORT_IRQ_NONE) {
++			if (dev->port->irq != PARPORT_IRQ_NONE) {
+ 				parport_release (dev);
+ 				schedule_timeout_interruptible(msecs_to_jiffies(40));
+ 				parport_claim_or_block (dev);
+-- 
+2.30.2
+
 
 
