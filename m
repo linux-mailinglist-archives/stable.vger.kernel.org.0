@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30C4D411BE3
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:02:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03DD0411FF7
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:46:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344945AbhITRDj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:03:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51846 "EHLO mail.kernel.org"
+        id S1346455AbhITRrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:47:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238242AbhITRBj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:01:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFA3461284;
-        Mon, 20 Sep 2021 16:53:13 +0000 (UTC)
+        id S1353535AbhITRpK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:45:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51DEC617E5;
+        Mon, 20 Sep 2021 17:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156794;
-        bh=a9BHVpOf8D4Sk97V+X88VGS5zk6502xRjpMfdaEHQPM=;
+        s=korg; t=1632157802;
+        bh=6tvwoOAlcjIycR11o2SvqXIqdGko0qu5Oi80GOJY9Os=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VTYWb4LrCoPIEKC0zllV3CdVbp692JVV7zsgAcF3SXv8V9zdy4tczdDl2RGFTwZwC
-         gwraj1iMMi34+l1+UmEBs875gh3elRt0NwaA2n+peO+/ujajeB8MfCUEsOQe7eHUvM
-         MPOGmhirA0gxRPJ8kPpn2RINPFY1oyOzqb+I8jew=
+        b=fuFlAe2y0Gy3QmFBaDWCxZ6Z/pG3z3M1PIiYDp/ZnikSd7OfO5PI/HJ2Of6FedbD/
+         iMiKJK8jS87bVOKNDvwUqphZy5Nmo9N/TweSf6zoKCdrLH6Qj+8gom2T5B5XjNYQWd
+         Z8hoE/PSq0uOJibaQKxne57nvhS+awM/V/oMle5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Nadezda Lutovinova <lutovinova@ispras.ru>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 071/175] usb: gadget: mv_u3d: request_irq() after initializing UDC
+Subject: [PATCH 4.19 158/293] RDMA/iwcm: Release resources if iw_cm module initialization fails
 Date:   Mon, 20 Sep 2021 18:42:00 +0200
-Message-Id: <20210920163920.379281560@linuxfoundation.org>
+Message-Id: <20210920163938.701165533@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,74 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadezda Lutovinova <lutovinova@ispras.ru>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit 2af0c5ffadaf9d13eca28409d4238b4e672942d3 ]
+[ Upstream commit e677b72a0647249370f2635862bf0241c86f66ad ]
 
-If IRQ occurs between calling  request_irq() and  mv_u3d_eps_init(),
-then null pointer dereference occurs since u3d->eps[] wasn't
-initialized yet but used in mv_u3d_nuke().
+The failure during iw_cm module initialization partially left the system
+with unreleased memory and other resources. Rewrite the module init/exit
+routines in such way that netlink commands will be opened only after
+successful initialization.
 
-The patch puts registration of the interrupt handler after
-initializing of neccesery data.
-
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Fixes: 90fccb529d24 ("usb: gadget: Gadget directory cleanup - group UDC drivers")
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
-Link: https://lore.kernel.org/r/20210818141247.4794-1-lutovinova@ispras.ru
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b493d91d333e ("iwcm: common code for port mapper")
+Link: https://lore.kernel.org/r/b01239f99cb1a3e6d2b0694c242d89e6410bcd93.1627048781.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/mv_u3d_core.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/infiniband/core/iwcm.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/mv_u3d_core.c b/drivers/usb/gadget/udc/mv_u3d_core.c
-index b9e19a591322..d75c6449616b 100644
---- a/drivers/usb/gadget/udc/mv_u3d_core.c
-+++ b/drivers/usb/gadget/udc/mv_u3d_core.c
-@@ -1912,14 +1912,6 @@ static int mv_u3d_probe(struct platform_device *dev)
- 		goto err_get_irq;
- 	}
- 	u3d->irq = r->start;
--	if (request_irq(u3d->irq, mv_u3d_irq,
--		IRQF_SHARED, driver_name, u3d)) {
--		u3d->irq = 0;
--		dev_err(&dev->dev, "Request irq %d for u3d failed\n",
--			u3d->irq);
--		retval = -ENODEV;
--		goto err_request_irq;
--	}
+diff --git a/drivers/infiniband/core/iwcm.c b/drivers/infiniband/core/iwcm.c
+index 99dd8452724d..57aec656ab7f 100644
+--- a/drivers/infiniband/core/iwcm.c
++++ b/drivers/infiniband/core/iwcm.c
+@@ -1173,29 +1173,34 @@ static int __init iw_cm_init(void)
  
- 	/* initialize gadget structure */
- 	u3d->gadget.ops = &mv_u3d_ops;	/* usb_gadget_ops */
-@@ -1932,6 +1924,15 @@ static int mv_u3d_probe(struct platform_device *dev)
- 
- 	mv_u3d_eps_init(u3d);
- 
-+	if (request_irq(u3d->irq, mv_u3d_irq,
-+		IRQF_SHARED, driver_name, u3d)) {
-+		u3d->irq = 0;
-+		dev_err(&dev->dev, "Request irq %d for u3d failed\n",
-+			u3d->irq);
-+		retval = -ENODEV;
-+		goto err_request_irq;
-+	}
+ 	ret = iwpm_init(RDMA_NL_IWCM);
+ 	if (ret)
+-		pr_err("iw_cm: couldn't init iwpm\n");
+-	else
+-		rdma_nl_register(RDMA_NL_IWCM, iwcm_nl_cb_table);
++		return ret;
 +
- 	/* external vbus detection */
- 	if (u3d->vbus) {
- 		u3d->clock_gating = 1;
-@@ -1955,8 +1956,8 @@ static int mv_u3d_probe(struct platform_device *dev)
+ 	iwcm_wq = alloc_ordered_workqueue("iw_cm_wq", 0);
+ 	if (!iwcm_wq)
+-		return -ENOMEM;
++		goto err_alloc;
  
- err_unregister:
- 	free_irq(u3d->irq, u3d);
--err_request_irq:
- err_get_irq:
-+err_request_irq:
- 	kfree(u3d->status_req);
- err_alloc_status_req:
- 	kfree(u3d->eps);
+ 	iwcm_ctl_table_hdr = register_net_sysctl(&init_net, "net/iw_cm",
+ 						 iwcm_ctl_table);
+ 	if (!iwcm_ctl_table_hdr) {
+ 		pr_err("iw_cm: couldn't register sysctl paths\n");
+-		destroy_workqueue(iwcm_wq);
+-		return -ENOMEM;
++		goto err_sysctl;
+ 	}
+ 
++	rdma_nl_register(RDMA_NL_IWCM, iwcm_nl_cb_table);
+ 	return 0;
++
++err_sysctl:
++	destroy_workqueue(iwcm_wq);
++err_alloc:
++	iwpm_exit(RDMA_NL_IWCM);
++	return -ENOMEM;
+ }
+ 
+ static void __exit iw_cm_cleanup(void)
+ {
++	rdma_nl_unregister(RDMA_NL_IWCM);
+ 	unregister_net_sysctl_table(iwcm_ctl_table_hdr);
+ 	destroy_workqueue(iwcm_wq);
+-	rdma_nl_unregister(RDMA_NL_IWCM);
+ 	iwpm_exit(RDMA_NL_IWCM);
+ }
+ 
 -- 
 2.30.2
 
