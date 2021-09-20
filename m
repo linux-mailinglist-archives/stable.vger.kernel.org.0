@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D308E411FBD
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:43:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EA92411BBC
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:00:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345431AbhITRpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:45:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48038 "EHLO mail.kernel.org"
+        id S1343626AbhITRBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:01:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353004AbhITRnS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:43:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 817ED61B70;
-        Mon, 20 Sep 2021 17:09:01 +0000 (UTC)
+        id S1345001AbhITQ7x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:59:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 53EFB6140F;
+        Mon, 20 Sep 2021 16:52:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157742;
-        bh=AdD4mtfYZw0C0iPaKI3nyNKRGSSddrfhFKaWWlQol4c=;
+        s=korg; t=1632156763;
+        bh=/e15gvj7qBjprY6aQymNkjhUTUd5HRUn2s6Stl57cDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J9u5P5TKpBMJgzlhyTN+wl9k6yWGp8pGBCFGezbz3kvZT3IVxNh4OthkXTt/WaGUI
-         S23w6UX6v7xln+80Un3nd9Q7G2Xt0P75ca6cVutfTcrHX3GqDov/GHjP2a3SXEYdiR
-         lG/xK2cgxia9me95kE9TXriHuCFvmQEtw5QujjE8=
+        b=SHPX4si0uuIdGclu5hGu874IPo2n2B473yknigVQqemAandQoi0yJck48NWAzefEK
+         P2oPMh2ogp1K4k6KQygttrzEdUMVJ8DhMkxKTEpPUyYUbcqJoLdRrvrheBtJ0kIXQE
+         4i6epcXPfLY8ZlMRyBVH/ur/rFbC46ZEHkW8Ezqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrey Ignatov <rdna@fb.com>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.19 130/293] bpf: Reject indirect var_off stack access in raw mode
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Fiona Trahe <fiona.trahe@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 043/175] crypto: qat - handle both source of interrupt in VF ISR
 Date:   Mon, 20 Sep 2021 18:41:32 +0200
-Message-Id: <20210920163937.714991565@linuxfoundation.org>
+Message-Id: <20210920163919.468718102@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Ignatov <rdna@fb.com>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-commit f2bcd05ec7b839ff826d2008506ad2d2dff46a59 upstream.
+[ Upstream commit 0a73c762e1eee33a5e5dc0e3488f1b7cd17249b3 ]
 
-It's hard to guarantee that whole memory is marked as initialized on
-helper return if uninitialized stack is accessed with variable offset
-since specific bounds are unknown to verifier. This may cause
-uninitialized stack leaking.
+The top half of the VF drivers handled only a source at the time.
+If an interrupt for PF2VF and bundle occurred at the same time, the ISR
+scheduled only the bottom half for PF2VF.
+This patch fixes the VF top half so that if both sources of interrupt
+trigger at the same time, both bottom halves are scheduled.
 
-Reject such an access in check_stack_boundary to prevent possible
-leaking.
+This patch is based on earlier work done by Conor McLoughlin.
 
-There are no known use-cases for indirect uninitialized stack access
-with variable offset so it shouldn't break anything.
-
-Fixes: 2011fccfb61b ("bpf: Support variable offset stack access from helpers")
-Reported-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Andrey Ignatov <rdna@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
+Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/crypto/qat/qat_common/adf_vf_isr.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -1811,6 +1811,15 @@ static int check_stack_boundary(struct b
- 		if (err)
- 			return err;
- 	} else {
-+		/* Only initialized buffer on stack is allowed to be accessed
-+		 * with variable offset. With uninitialized buffer it's hard to
-+		 * guarantee that whole memory is marked as initialized on
-+		 * helper return since specific bounds are unknown what may
-+		 * cause uninitialized stack leaking.
-+		 */
-+		if (meta && meta->raw_mode)
-+			meta = NULL;
-+
- 		min_off = reg->smin_value + reg->off;
- 		max_off = reg->umax_value + reg->off;
- 		err = __check_stack_boundary(env, regno, min_off, access_size,
+diff --git a/drivers/crypto/qat/qat_common/adf_vf_isr.c b/drivers/crypto/qat/qat_common/adf_vf_isr.c
+index 4c1217ba83ae..36db3c443e7e 100644
+--- a/drivers/crypto/qat/qat_common/adf_vf_isr.c
++++ b/drivers/crypto/qat/qat_common/adf_vf_isr.c
+@@ -203,6 +203,7 @@ static irqreturn_t adf_isr(int irq, void *privdata)
+ 	struct adf_bar *pmisc =
+ 			&GET_BARS(accel_dev)[hw_data->get_misc_bar_id(hw_data)];
+ 	void __iomem *pmisc_bar_addr = pmisc->virt_addr;
++	bool handled = false;
+ 	u32 v_int;
+ 
+ 	/* Read VF INT source CSR to determine the source of VF interrupt */
+@@ -215,7 +216,7 @@ static irqreturn_t adf_isr(int irq, void *privdata)
+ 
+ 		/* Schedule tasklet to handle interrupt BH */
+ 		tasklet_hi_schedule(&accel_dev->vf.pf2vf_bh_tasklet);
+-		return IRQ_HANDLED;
++		handled = true;
+ 	}
+ 
+ 	/* Check bundle interrupt */
+@@ -227,10 +228,10 @@ static irqreturn_t adf_isr(int irq, void *privdata)
+ 		WRITE_CSR_INT_FLAG_AND_COL(bank->csr_addr, bank->bank_number,
+ 					   0);
+ 		tasklet_hi_schedule(&bank->resp_handler);
+-		return IRQ_HANDLED;
++		handled = true;
+ 	}
+ 
+-	return IRQ_NONE;
++	return handled ? IRQ_HANDLED : IRQ_NONE;
+ }
+ 
+ static int adf_request_msi_irq(struct adf_accel_dev *accel_dev)
+-- 
+2.30.2
+
 
 
