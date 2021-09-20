@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 733AE411E57
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:29:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F2D1411CA3
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:10:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347477AbhITRaU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:30:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54874 "EHLO mail.kernel.org"
+        id S1347188AbhITRLh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:11:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346090AbhITR1J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:27:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FACB61AA4;
-        Mon, 20 Sep 2021 17:02:58 +0000 (UTC)
+        id S1346971AbhITRJf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:09:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DE84561355;
+        Mon, 20 Sep 2021 16:56:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157378;
-        bh=cJuvfYSyGsgXQlB4XaacXMJyw9FoYiKpfP6CmbpT0+o=;
+        s=korg; t=1632156987;
+        bh=JpbPBK8nIVHG+mB7ddxJFkNNZQ60kds76dQsgpu/pWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m6ya9jyT6rZCwNeHlVByLJL/fkFLu9MhXx8wKLD0Luc1fO0RU9LGr6J3qFWCFYL3d
-         K2KT5PHDKsrsPbG4oyMkfOZhFZ4tIakP0xGLRcRjWWMOjbBfatosi6JJTr07fwCHFm
-         7Vb6Dr5vp0hB32yuffCjCNabX8QkL9oK8lEXxocM=
+        b=XXlLSukPZO+XHfq347iV6nkEEKqJ+kf3cf8co/7UUds395mxCyKVMFidEmljAy6pK
+         M8CwXIgM3nkCAMRI/b2aQSUblczzgwM/bNd/Heqni/abTQj0d2VyPnoF5uEpMLr6aG
+         VFhd3s2vG4AE2eGEl8qGVnQks/Ul/81mfkUYDO+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadezda Lutovinova <lutovinova@ispras.ru>,
+        stable@vger.kernel.org, Abaci <abaci@linux.alibaba.com>,
+        Michael Wang <yun.wang@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 174/217] usb: musb: musb_dsps: request_irq() after initializing musb
+Subject: [PATCH 4.9 146/175] net: fix NULL pointer reference in cipso_v4_doi_free
 Date:   Mon, 20 Sep 2021 18:43:15 +0200
-Message-Id: <20210920163930.534120119@linuxfoundation.org>
+Message-Id: <20210920163922.845914092@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,61 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadezda Lutovinova <lutovinova@ispras.ru>
+From: 王贇 <yun.wang@linux.alibaba.com>
 
-[ Upstream commit 7c75bde329d7e2a93cf86a5c15c61f96f1446cdc ]
+[ Upstream commit 733c99ee8be9a1410287cdbb943887365e83b2d6 ]
 
-If IRQ occurs between calling  dsps_setup_optional_vbus_irq()
-and  dsps_create_musb_pdev(), then null pointer dereference occurs
-since glue->musb wasn't initialized yet.
+In netlbl_cipsov4_add_std() when 'doi_def->map.std' alloc
+failed, we sometime observe panic:
 
-The patch puts initializing of neccesery data before registration
-of the interrupt handler.
+  BUG: kernel NULL pointer dereference, address:
+  ...
+  RIP: 0010:cipso_v4_doi_free+0x3a/0x80
+  ...
+  Call Trace:
+   netlbl_cipsov4_add_std+0xf4/0x8c0
+   netlbl_cipsov4_add+0x13f/0x1b0
+   genl_family_rcv_msg_doit.isra.15+0x132/0x170
+   genl_rcv_msg+0x125/0x240
 
-Found by Linux Driver Verification project (linuxtesting.org).
+This is because in cipso_v4_doi_free() there is no check
+on 'doi_def->map.std' when 'doi_def->type' equal 1, which
+is possibe, since netlbl_cipsov4_add_std() haven't initialize
+it before alloc 'doi_def->map.std'.
 
-Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
-Link: https://lore.kernel.org/r/20210819163323.17714-1-lutovinova@ispras.ru
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch just add the check to prevent panic happen for similar
+cases.
+
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/musb/musb_dsps.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ net/netlabel/netlabel_cipso_v4.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/musb/musb_dsps.c b/drivers/usb/musb/musb_dsps.c
-index b7d460adaa61..a582c3847dc2 100644
---- a/drivers/usb/musb/musb_dsps.c
-+++ b/drivers/usb/musb/musb_dsps.c
-@@ -930,23 +930,22 @@ static int dsps_probe(struct platform_device *pdev)
- 	if (!glue->usbss_base)
- 		return -ENXIO;
+diff --git a/net/netlabel/netlabel_cipso_v4.c b/net/netlabel/netlabel_cipso_v4.c
+index d31cd4d509ca..422fac2a4a3c 100644
+--- a/net/netlabel/netlabel_cipso_v4.c
++++ b/net/netlabel/netlabel_cipso_v4.c
+@@ -163,8 +163,8 @@ static int netlbl_cipsov4_add_std(struct genl_info *info,
+ 		return -ENOMEM;
+ 	doi_def->map.std = kzalloc(sizeof(*doi_def->map.std), GFP_KERNEL);
+ 	if (doi_def->map.std == NULL) {
+-		ret_val = -ENOMEM;
+-		goto add_std_failure;
++		kfree(doi_def);
++		return -ENOMEM;
+ 	}
+ 	doi_def->type = CIPSO_V4_MAP_TRANS;
  
--	if (usb_get_dr_mode(&pdev->dev) == USB_DR_MODE_PERIPHERAL) {
--		ret = dsps_setup_optional_vbus_irq(pdev, glue);
--		if (ret)
--			goto err_iounmap;
--	}
--
- 	platform_set_drvdata(pdev, glue);
- 	pm_runtime_enable(&pdev->dev);
- 	ret = dsps_create_musb_pdev(glue, pdev);
- 	if (ret)
- 		goto err;
- 
-+	if (usb_get_dr_mode(&pdev->dev) == USB_DR_MODE_PERIPHERAL) {
-+		ret = dsps_setup_optional_vbus_irq(pdev, glue);
-+		if (ret)
-+			goto err;
-+	}
-+
- 	return 0;
- 
- err:
- 	pm_runtime_disable(&pdev->dev);
--err_iounmap:
- 	iounmap(glue->usbss_base);
- 	return ret;
- }
 -- 
 2.30.2
 
