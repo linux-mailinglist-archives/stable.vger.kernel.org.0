@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3262341231F
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:19:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 252E0412480
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:34:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377833AbhITSVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:21:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40406 "EHLO mail.kernel.org"
+        id S1352715AbhITSfg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:35:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1377314AbhITSSS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:18:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3EB161A58;
-        Mon, 20 Sep 2021 17:22:50 +0000 (UTC)
+        id S1380083AbhITSc1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:32:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59DB961AA5;
+        Mon, 20 Sep 2021 17:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158571;
-        bh=ZE+VVyjQKp9zx49qFnngDF1MT5JsCCwhR5VgDl3qXyo=;
+        s=korg; t=1632158873;
+        bh=CH9Nbf7n2DnQceiv7MVDEHrJ+jxKEoZBVIFIgkoLyzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wRY/PVnwAFBojkgYD059Hd06DtTjrYWirlv4Sm57u2ImGW/xufoOgT8p1m2f+z76i
-         iZx2IUkrMvG96Fewzv8gNd7IR4+WcS0JX/yaLIjR/+DZiOjAxn7/IyXptg5Ekr3D70
-         Z3mVyGPJ/c3THwIYfAn3AF181Y7KEQbndcoafvIs=
+        b=2u3Ti7cYDRqBbBDZQcjTfbxhFT44VZGYGbzIbpgKTzO7V4GAoF/9g9fh97FEoWAZk
+         LxQGgWQqVQGYquPMv8MAsr6Fac0vG7U3KNePaMvIJLQY8KV1w62nkX0mB3833kcQDI
+         xKTZJLnJzuh11RFxmkmJvtKgT9guaz6Q3Tom0diQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
-        Milian Wolff <milian.wolff@kdab.com>,
-        Jiri Olsa <jolsa@redhat.com>, Juri Lelli <jlelli@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 216/260] perf machine: Initialize srcline string member in add_location struct
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 062/122] mfd: Dont use irq_create_mapping() to resolve a mapping
 Date:   Mon, 20 Sep 2021 18:43:54 +0200
-Message-Id: <20210920163938.451074433@linuxfoundation.org>
+Message-Id: <20210920163917.812770983@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,132 +42,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Petlan <mpetlan@redhat.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 57f0ff059e3daa4e70a811cb1d31a49968262d20 upstream.
+[ Upstream commit 9ff80e2de36d0554e3a6da18a171719fe8663c17 ]
 
-It's later supposed to be either a correct address or NULL. Without the
-initialization, it may contain an undefined value which results in the
-following segmentation fault:
+Although irq_create_mapping() is able to deal with duplicate
+mappings, it really isn't supposed to be a substitute for
+irq_find_mapping(), and can result in allocations that take place
+in atomic context if the mapping didn't exist.
 
-  # perf top --sort comm -g --ignore-callees=do_idle
+Fix the handful of MFD drivers that use irq_create_mapping() in
+interrupt context by using irq_find_mapping() instead.
 
-terminates with:
-
-  #0  0x00007ffff56b7685 in __strlen_avx2 () from /lib64/libc.so.6
-  #1  0x00007ffff55e3802 in strdup () from /lib64/libc.so.6
-  #2  0x00005555558cb139 in hist_entry__init (callchain_size=<optimized out>, sample_self=true, template=0x7fffde7fb110, he=0x7fffd801c250) at util/hist.c:489
-  #3  hist_entry__new (template=template@entry=0x7fffde7fb110, sample_self=sample_self@entry=true) at util/hist.c:564
-  #4  0x00005555558cb4ba in hists__findnew_entry (hists=hists@entry=0x5555561d9e38, entry=entry@entry=0x7fffde7fb110, al=al@entry=0x7fffde7fb420,
-      sample_self=sample_self@entry=true) at util/hist.c:657
-  #5  0x00005555558cba1b in __hists__add_entry (hists=hists@entry=0x5555561d9e38, al=0x7fffde7fb420, sym_parent=<optimized out>, bi=bi@entry=0x0, mi=mi@entry=0x0,
-      sample=sample@entry=0x7fffde7fb4b0, sample_self=true, ops=0x0, block_info=0x0) at util/hist.c:288
-  #6  0x00005555558cbb70 in hists__add_entry (sample_self=true, sample=0x7fffde7fb4b0, mi=0x0, bi=0x0, sym_parent=<optimized out>, al=<optimized out>, hists=0x5555561d9e38)
-      at util/hist.c:1056
-  #7  iter_add_single_cumulative_entry (iter=0x7fffde7fb460, al=<optimized out>) at util/hist.c:1056
-  #8  0x00005555558cc8a4 in hist_entry_iter__add (iter=iter@entry=0x7fffde7fb460, al=al@entry=0x7fffde7fb420, max_stack_depth=<optimized out>, arg=arg@entry=0x7fffffff7db0)
-      at util/hist.c:1231
-  #9  0x00005555557cdc9a in perf_event__process_sample (machine=<optimized out>, sample=0x7fffde7fb4b0, evsel=<optimized out>, event=<optimized out>, tool=0x7fffffff7db0)
-      at builtin-top.c:842
-  #10 deliver_event (qe=<optimized out>, qevent=<optimized out>) at builtin-top.c:1202
-  #11 0x00005555558a9318 in do_flush (show_progress=false, oe=0x7fffffff80e0) at util/ordered-events.c:244
-  #12 __ordered_events__flush (oe=oe@entry=0x7fffffff80e0, how=how@entry=OE_FLUSH__TOP, timestamp=timestamp@entry=0) at util/ordered-events.c:323
-  #13 0x00005555558a9789 in __ordered_events__flush (timestamp=<optimized out>, how=<optimized out>, oe=<optimized out>) at util/ordered-events.c:339
-  #14 ordered_events__flush (how=OE_FLUSH__TOP, oe=0x7fffffff80e0) at util/ordered-events.c:341
-  #15 ordered_events__flush (oe=oe@entry=0x7fffffff80e0, how=how@entry=OE_FLUSH__TOP) at util/ordered-events.c:339
-  #16 0x00005555557cd631 in process_thread (arg=0x7fffffff7db0) at builtin-top.c:1114
-  #17 0x00007ffff7bb817a in start_thread () from /lib64/libpthread.so.0
-  #18 0x00007ffff5656dc3 in clone () from /lib64/libc.so.6
-
-If you look at the frame #2, the code is:
-
-488	 if (he->srcline) {
-489          he->srcline = strdup(he->srcline);
-490          if (he->srcline == NULL)
-491              goto err_rawdata;
-492	 }
-
-If he->srcline is not NULL (it is not NULL if it is uninitialized rubbish),
-it gets strdupped and strdupping a rubbish random string causes the problem.
-
-Also, if you look at the commit 1fb7d06a509e, it adds the srcline property
-into the struct, but not initializing it everywhere needed.
-
-Committer notes:
-
-Now I see, when using --ignore-callees=do_idle we end up here at line
-2189 in add_callchain_ip():
-
-2181         if (al.sym != NULL) {
-2182                 if (perf_hpp_list.parent && !*parent &&
-2183                     symbol__match_regex(al.sym, &parent_regex))
-2184                         *parent = al.sym;
-2185                 else if (have_ignore_callees && root_al &&
-2186                   symbol__match_regex(al.sym, &ignore_callees_regex)) {
-2187                         /* Treat this symbol as the root,
-2188                            forgetting its callees. */
-2189                         *root_al = al;
-2190                         callchain_cursor_reset(cursor);
-2191                 }
-2192         }
-
-And the al that doesn't have the ->srcline field initialized will be
-copied to the root_al, so then, back to:
-
-1211 int hist_entry_iter__add(struct hist_entry_iter *iter, struct addr_location *al,
-1212                          int max_stack_depth, void *arg)
-1213 {
-1214         int err, err2;
-1215         struct map *alm = NULL;
-1216
-1217         if (al)
-1218                 alm = map__get(al->map);
-1219
-1220         err = sample__resolve_callchain(iter->sample, &callchain_cursor, &iter->parent,
-1221                                         iter->evsel, al, max_stack_depth);
-1222         if (err) {
-1223                 map__put(alm);
-1224                 return err;
-1225         }
-1226
-1227         err = iter->ops->prepare_entry(iter, al);
-1228         if (err)
-1229                 goto out;
-1230
-1231         err = iter->ops->add_single_entry(iter, al);
-1232         if (err)
-1233                 goto out;
-1234
-
-That al at line 1221 is what hist_entry_iter__add() (called from
-sample__resolve_callchain()) saw as 'root_al', and then:
-
-        iter->ops->add_single_entry(iter, al);
-
-will go on with al->srcline with a bogus value, I'll add the above
-sequence to the cset and apply, thanks!
-
-Signed-off-by: Michael Petlan <mpetlan@redhat.com>
-CC: Milian Wolff <milian.wolff@kdab.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Fixes: 1fb7d06a509e ("perf report Use srcline from callchain for hist entries")
-Link: https //lore.kernel.org/r/20210719145332.29747-1-mpetlan@redhat.com
-Reported-by: Juri Lelli <jlelli@redhat.com>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Lee Jones <lee.jones@linaro.org>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/machine.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/mfd/ab8500-core.c | 2 +-
+ drivers/mfd/stmpe.c       | 4 ++--
+ drivers/mfd/tc3589x.c     | 2 +-
+ drivers/mfd/wm8994-irq.c  | 2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/tools/perf/util/machine.c
-+++ b/tools/perf/util/machine.c
-@@ -2020,6 +2020,7 @@ static int add_callchain_ip(struct threa
+diff --git a/drivers/mfd/ab8500-core.c b/drivers/mfd/ab8500-core.c
+index a3bac9da8cbb..4cea63a4cab7 100644
+--- a/drivers/mfd/ab8500-core.c
++++ b/drivers/mfd/ab8500-core.c
+@@ -493,7 +493,7 @@ static int ab8500_handle_hierarchical_line(struct ab8500 *ab8500,
+ 		if (line == AB8540_INT_GPIO43F || line == AB8540_INT_GPIO44F)
+ 			line += 1;
  
- 	al.filtered = 0;
- 	al.sym = NULL;
-+	al.srcline = NULL;
- 	if (!cpumode) {
- 		thread__find_cpumode_addr_location(thread, ip, &al);
- 	} else {
+-		handle_nested_irq(irq_create_mapping(ab8500->domain, line));
++		handle_nested_irq(irq_find_mapping(ab8500->domain, line));
+ 	}
+ 
+ 	return 0;
+diff --git a/drivers/mfd/stmpe.c b/drivers/mfd/stmpe.c
+index 1aee3b3253fc..508349399f8a 100644
+--- a/drivers/mfd/stmpe.c
++++ b/drivers/mfd/stmpe.c
+@@ -1091,7 +1091,7 @@ static irqreturn_t stmpe_irq(int irq, void *data)
+ 
+ 	if (variant->id_val == STMPE801_ID ||
+ 	    variant->id_val == STMPE1600_ID) {
+-		int base = irq_create_mapping(stmpe->domain, 0);
++		int base = irq_find_mapping(stmpe->domain, 0);
+ 
+ 		handle_nested_irq(base);
+ 		return IRQ_HANDLED;
+@@ -1119,7 +1119,7 @@ static irqreturn_t stmpe_irq(int irq, void *data)
+ 		while (status) {
+ 			int bit = __ffs(status);
+ 			int line = bank * 8 + bit;
+-			int nestedirq = irq_create_mapping(stmpe->domain, line);
++			int nestedirq = irq_find_mapping(stmpe->domain, line);
+ 
+ 			handle_nested_irq(nestedirq);
+ 			status &= ~(1 << bit);
+diff --git a/drivers/mfd/tc3589x.c b/drivers/mfd/tc3589x.c
+index 7882a37ffc35..5c2d5a6a6da9 100644
+--- a/drivers/mfd/tc3589x.c
++++ b/drivers/mfd/tc3589x.c
+@@ -187,7 +187,7 @@ again:
+ 
+ 	while (status) {
+ 		int bit = __ffs(status);
+-		int virq = irq_create_mapping(tc3589x->domain, bit);
++		int virq = irq_find_mapping(tc3589x->domain, bit);
+ 
+ 		handle_nested_irq(virq);
+ 		status &= ~(1 << bit);
+diff --git a/drivers/mfd/wm8994-irq.c b/drivers/mfd/wm8994-irq.c
+index 6c3a619e2628..651a028bc519 100644
+--- a/drivers/mfd/wm8994-irq.c
++++ b/drivers/mfd/wm8994-irq.c
+@@ -154,7 +154,7 @@ static irqreturn_t wm8994_edge_irq(int irq, void *data)
+ 	struct wm8994 *wm8994 = data;
+ 
+ 	while (gpio_get_value_cansleep(wm8994->pdata.irq_gpio))
+-		handle_nested_irq(irq_create_mapping(wm8994->edge_irq, 0));
++		handle_nested_irq(irq_find_mapping(wm8994->edge_irq, 0));
+ 
+ 	return IRQ_HANDLED;
+ }
+-- 
+2.30.2
+
 
 
