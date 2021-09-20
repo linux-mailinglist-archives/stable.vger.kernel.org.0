@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B51EA4123A6
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:25:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B054C41251D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352423AbhITS03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:26:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44480 "EHLO mail.kernel.org"
+        id S1353007AbhITSlc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:41:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1378351AbhITSY0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:24:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1306E632CB;
-        Mon, 20 Sep 2021 17:25:07 +0000 (UTC)
+        id S1381505AbhITSia (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:38:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 923BA63325;
+        Mon, 20 Sep 2021 17:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158708;
-        bh=mLj/+yzWOxkFMwfGyT0BP/0G+Nmcz7Ta+Cu40WIDkzA=;
+        s=korg; t=1632159014;
+        bh=uaLzsrKXU0y7gZmS6t7XQBLvcTt8U9l50H81dd7GlIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cP7aLxDNyBggG5I2DKdaOMXJqqDkAKrAdkevsjTHMaw5tgQP2Zsd3CGF8OSiUWHci
-         jW8Yf+X9gEOElOuE4GA2h9t+LyAMJk62rehiTeneyiBDWv2LOeMEHijOrCnLDi12CQ
-         tK779YmeQSTfH1o1wJW+Fl1qzkrPbsgrKjLqFvuw=
+        b=kl7T49Yj/bf61HGrRG24BYsb+bypHfeDXKddfto7Tw397w11MoR/MJaWsM2azUBaI
+         YJCV3Y3O4Xj+l0sr+3U+/68cUhMSlHLP704JJ/OzjgopI1aMCL8MYBwCvRpNegqJUw
+         R93OfFhNPEks6d89eZzDNT8BUkYMTYtExs9aGm5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Tsvetkov <alexander.tsvetkov@oracle.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 002/122] btrfs: fix upper limit for max_inline for page size 64K
-Date:   Mon, 20 Sep 2021 18:42:54 +0200
-Message-Id: <20210920163915.840707523@linuxfoundation.org>
+        syzbot+e6741b97d5552f97c24d@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.14 037/168] tipc: fix an use-after-free issue in tipc_recvmsg
+Date:   Mon, 20 Sep 2021 18:42:55 +0200
+Message-Id: <20210920163922.865479003@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,91 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 6f93e834fa7c5faa0372e46828b4b2a966ac61d7 upstream.
+commit cc19862ffe454a5b632ca202e5a51bfec9f89fd2 upstream.
 
-The mount option max_inline ranges from 0 to the sectorsize (which is
-now equal to page size). But we parse the mount options too early and
-before the actual sectorsize is read from the superblock. So the upper
-limit of max_inline is unaware of the actual sectorsize and is limited
-by the temporary sectorsize 4096, even on a system where the default
-sectorsize is 64K.
+syzbot reported an use-after-free crash:
 
-Fix this by reading the superblock sectorsize before the mount option
-parse.
+  BUG: KASAN: use-after-free in tipc_recvmsg+0xf77/0xf90 net/tipc/socket.c:1979
+  Call Trace:
+   tipc_recvmsg+0xf77/0xf90 net/tipc/socket.c:1979
+   sock_recvmsg_nosec net/socket.c:943 [inline]
+   sock_recvmsg net/socket.c:961 [inline]
+   sock_recvmsg+0xca/0x110 net/socket.c:957
+   tipc_conn_rcv_from_sock+0x162/0x2f0 net/tipc/topsrv.c:398
+   tipc_conn_recv_work+0xeb/0x190 net/tipc/topsrv.c:421
+   process_one_work+0x98d/0x1630 kernel/workqueue.c:2276
+   worker_thread+0x658/0x11f0 kernel/workqueue.c:2422
 
-Reported-by: Alexander Tsvetkov <alexander.tsvetkov@oracle.com>
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
+As Hoang pointed out, it was caused by skb_cb->bytes_read still accessed
+after calling tsk_advance_rx_queue() to free the skb in tipc_recvmsg().
+
+This patch is to fix it by accessing skb_cb->bytes_read earlier than
+calling tsk_advance_rx_queue().
+
+Fixes: f4919ff59c28 ("tipc: keep the skb in rcv queue until the whole data is read")
+Reported-by: syzbot+e6741b97d5552f97c24d@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/disk-io.c |   45 +++++++++++++++++++++++----------------------
- 1 file changed, 23 insertions(+), 22 deletions(-)
+ net/tipc/socket.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -3019,6 +3019,29 @@ int __cold open_ctree(struct super_block
- 	 */
- 	fs_info->compress_type = BTRFS_COMPRESS_ZLIB;
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -1979,10 +1979,12 @@ static int tipc_recvmsg(struct socket *s
+ 		tipc_node_distr_xmit(sock_net(sk), &xmitq);
+ 	}
  
-+	/*
-+	 * Flag our filesystem as having big metadata blocks if they are bigger
-+	 * than the page size
-+	 */
-+	if (btrfs_super_nodesize(disk_super) > PAGE_SIZE) {
-+		if (!(features & BTRFS_FEATURE_INCOMPAT_BIG_METADATA))
-+			btrfs_info(fs_info,
-+				"flagging fs with big metadata feature");
-+		features |= BTRFS_FEATURE_INCOMPAT_BIG_METADATA;
-+	}
+-	if (!skb_cb->bytes_read)
+-		tsk_advance_rx_queue(sk);
++	if (skb_cb->bytes_read)
++		goto exit;
 +
-+	/* Set up fs_info before parsing mount options */
-+	nodesize = btrfs_super_nodesize(disk_super);
-+	sectorsize = btrfs_super_sectorsize(disk_super);
-+	stripesize = sectorsize;
-+	fs_info->dirty_metadata_batch = nodesize * (1 + ilog2(nr_cpu_ids));
-+	fs_info->delalloc_batch = sectorsize * 512 * (1 + ilog2(nr_cpu_ids));
-+
-+	/* Cache block sizes */
-+	fs_info->nodesize = nodesize;
-+	fs_info->sectorsize = sectorsize;
-+	fs_info->stripesize = stripesize;
-+
- 	ret = btrfs_parse_options(fs_info, options, sb->s_flags);
- 	if (ret) {
- 		err = ret;
-@@ -3046,28 +3069,6 @@ int __cold open_ctree(struct super_block
- 		btrfs_info(fs_info, "has skinny extents");
++	tsk_advance_rx_queue(sk);
  
- 	/*
--	 * flag our filesystem as having big metadata blocks if
--	 * they are bigger than the page size
--	 */
--	if (btrfs_super_nodesize(disk_super) > PAGE_SIZE) {
--		if (!(features & BTRFS_FEATURE_INCOMPAT_BIG_METADATA))
--			btrfs_info(fs_info,
--				"flagging fs with big metadata feature");
--		features |= BTRFS_FEATURE_INCOMPAT_BIG_METADATA;
--	}
--
--	nodesize = btrfs_super_nodesize(disk_super);
--	sectorsize = btrfs_super_sectorsize(disk_super);
--	stripesize = sectorsize;
--	fs_info->dirty_metadata_batch = nodesize * (1 + ilog2(nr_cpu_ids));
--	fs_info->delalloc_batch = sectorsize * 512 * (1 + ilog2(nr_cpu_ids));
--
--	/* Cache block sizes */
--	fs_info->nodesize = nodesize;
--	fs_info->sectorsize = sectorsize;
--	fs_info->stripesize = stripesize;
--
--	/*
- 	 * mixed block groups end up with duplicate but slightly offset
- 	 * extent buffers for the same range.  It leads to corruptions
- 	 */
+-	if (likely(!connected) || skb_cb->bytes_read)
++	if (likely(!connected))
+ 		goto exit;
+ 
+ 	/* Send connection flow control advertisement when applicable */
 
 
