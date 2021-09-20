@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 785D0411FF8
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:46:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AF63411D81
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:20:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345382AbhITRrU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:47:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51348 "EHLO mail.kernel.org"
+        id S1348254AbhITRU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:20:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353532AbhITRpJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:45:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 263FA6187D;
-        Mon, 20 Sep 2021 17:10:00 +0000 (UTC)
+        id S1346756AbhITRTG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:19:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 421D961A38;
+        Mon, 20 Sep 2021 17:00:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157800;
-        bh=lsZ68qhhRhGkJwDdVYPaZdXrc3xqCYIPrfP8kZoODPY=;
+        s=korg; t=1632157202;
+        bh=T6xjQNMD3v/b2sjYw6zu3k/YVkukEjQsBA4yo3Ag8/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cDUJsTI6HlOOJx5kMJfrfw4wdDfopDozI9EhdDGvujBZ4rihcu+rED1ACOs1+jC8x
-         sLlNQ0GMONyOIfT4a+19KpFK1pBaBJ1MH1cOi/0tI4No/z99ZEGPLVwNne7uN9vpaH
-         nYv46MMEMQVfCIxbqdIzE0qvyf61620TUVsNVxh8=
+        b=q4HmUcEhzYe8FIwxw1RR9aPhoB7XJ+Uw8fhBLHQpWisAQ9Zd13gblPOHAC8n4z0q7
+         b6iKugHpjrmoAHyUQeN6Nuu1kt2sDiI+hrHVfT9+BON9pjVo6FdErJIIY9i89rlXg8
+         fIgM7v3Eke2KLUEiYvCkc4jf7uuyVS2W3hHieu5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kenneth Albanowski <kenalba@google.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 157/293] HID: input: do not report stylus battery state as "full"
-Date:   Mon, 20 Sep 2021 18:41:59 +0200
-Message-Id: <20210920163938.661995241@linuxfoundation.org>
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Aravind Ramesh <aravind.ramesh@wdc.com>,
+        Adam Manzanares <a.manzanares@samsung.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 099/217] blk-zoned: allow zone management send operations without CAP_SYS_ADMIN
+Date:   Mon, 20 Sep 2021 18:42:00 +0200
+Message-Id: <20210920163927.990433438@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-[ Upstream commit f4abaa9eebde334045ed6ac4e564d050f1df3013 ]
+commit ead3b768bb51259e3a5f2287ff5fc9041eb6f450 upstream.
 
-The power supply states of discharging, charging, full, etc, represent
-state of charging, not the capacity level of the battery (for which
-we have a separate property). Current HID usage tables to not allow
-for expressing charging state of the batteries found in generic
-styli, so we should simply assume that the battery is discharging
-even if current capacity is at 100% when battery strength reporting
-is done via HID interface. In fact, we were doing just that before
-commit 581c4484769e.
+Zone management send operations (BLKRESETZONE, BLKOPENZONE, BLKCLOSEZONE
+and BLKFINISHZONE) should be allowed under the same permissions as write().
+(write() does not require CAP_SYS_ADMIN).
 
-This change helps UIs to not mis-represent fully charged batteries in
-styli as being charging/topping-off.
+Additionally, other ioctls like BLKSECDISCARD and BLKZEROOUT only check if
+the fd was successfully opened with FMODE_WRITE.
+(They do not require CAP_SYS_ADMIN).
 
-Fixes: 581c4484769e ("HID: input: map digitizer battery usage")
-Reported-by: Kenneth Albanowski <kenalba@google.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Currently, zone management send operations require both CAP_SYS_ADMIN
+and that the fd was successfully opened with FMODE_WRITE.
+
+Remove the CAP_SYS_ADMIN requirement, so that zone management send
+operations match the access control requirement of write(), BLKSECDISCARD
+and BLKZEROOUT.
+
+Fixes: 3ed05a987e0f ("blk-zoned: implement ioctls")
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Reviewed-by: Aravind Ramesh <aravind.ramesh@wdc.com>
+Reviewed-by: Adam Manzanares <a.manzanares@samsung.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Cc: stable@vger.kernel.org # v4.10+
+Link: https://lore.kernel.org/r/20210811110505.29649-2-Niklas.Cassel@wdc.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-input.c | 2 --
- 1 file changed, 2 deletions(-)
+ block/blk-zoned.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 4dd151b2924e..d56ef395eb69 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -427,8 +427,6 @@ static int hidinput_get_battery_property(struct power_supply *psy,
+--- a/block/blk-zoned.c
++++ b/block/blk-zoned.c
+@@ -338,9 +338,6 @@ int blkdev_reset_zones_ioctl(struct bloc
+ 	if (!blk_queue_is_zoned(q))
+ 		return -ENOTTY;
  
- 		if (dev->battery_status == HID_BATTERY_UNKNOWN)
- 			val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
--		else if (dev->battery_capacity == 100)
--			val->intval = POWER_SUPPLY_STATUS_FULL;
- 		else
- 			val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
- 		break;
--- 
-2.30.2
-
+-	if (!capable(CAP_SYS_ADMIN))
+-		return -EACCES;
+-
+ 	if (!(mode & FMODE_WRITE))
+ 		return -EBADF;
+ 
 
 
