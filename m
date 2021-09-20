@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91A5B4123F3
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:27:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69A2A4122D8
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:17:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348753AbhITS27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:28:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45094 "EHLO mail.kernel.org"
+        id S1377343AbhITSSY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:18:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1378885AbhITS04 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:26:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A11C632EE;
-        Mon, 20 Sep 2021 17:26:04 +0000 (UTC)
+        id S1376430AbhITSQR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:16:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 43F5061A55;
+        Mon, 20 Sep 2021 17:22:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158764;
-        bh=yg4Ps3VUDzAa+n+FwBjZD7iXQmBjHkZuZ9/f/VvJoz8=;
+        s=korg; t=1632158529;
+        bh=MzHy2RxfiaBs1MVFQxvGZkOluiVwTMURU+s0HgqcKS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TMHbVti3iM9jTvM4Gr/LDV2Kd5kb33KjGFCgPkXd7iETlmj0H6kmHtT31lgUgr3Ib
-         FLVmVReOWk91C+uDfAefTrS+BdqAipZD3LIawzgxsS49ce3QGAv5LmkltzsaDH5+ry
-         g6jAiq7++cg0Ltq5A0lmmEVcIGbc33ymGgZ4RAGs=
+        b=STF+yYHjggXk84UXr/yOwcSiviGg7mtimscR034eU+2CcaKW1xoGY+qnmB2lnZs3e
+         AQT/l4H9ZW/z7BRpMH1uO1iLJI1x+MevuINYxOr1JWAncsZDWnNvirDNd79NkI6kTM
+         TAlMXg5n4xPrHhBOn6xr7y3KufA+zqlmH/oxBnjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 045/122] udp_tunnel: Fix udp_tunnel_nic work-queue type
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Michael Walle <michael@walle.cc>, Marek Vasut <marex@denx.de>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH 5.4 199/260] drm/etnaviv: return context from etnaviv_iommu_context_get
 Date:   Mon, 20 Sep 2021 18:43:37 +0200
-Message-Id: <20210920163917.269126860@linuxfoundation.org>
+Message-Id: <20210920163937.873148703@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +40,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-commit e50e711351bdc656a8e6ca1022b4293cae8dcd59 upstream.
+commit 78edefc05e41352099ffb8f06f8d9b2d091e29cd upstream.
 
-Turn udp_tunnel_nic work-queue to an ordered work-queue. This queue
-holds the UDP-tunnel configuration commands of the different netdevs.
-When the netdevs are functions of the same NIC the order of
-execution may be crucial.
+Being able to have the refcount manipulation in an assignment makes
+it much easier to parse the code.
 
-Problem example:
-NIC with 2 PFs, both PFs declare offload quota of up to 3 UDP-ports.
- $ifconfig eth2 1.1.1.1/16 up
-
- $ip link add eth2_19503 type vxlan id 5049 remote 1.1.1.2 dev eth2 dstport 19053
- $ip link set dev eth2_19503 up
-
- $ip link add eth2_19504 type vxlan id 5049 remote 1.1.1.3 dev eth2 dstport 19054
- $ip link set dev eth2_19504 up
-
- $ip link add eth2_19505 type vxlan id 5049 remote 1.1.1.4 dev eth2 dstport 19055
- $ip link set dev eth2_19505 up
-
- $ip link add eth2_19506 type vxlan id 5049 remote 1.1.1.5 dev eth2 dstport 19056
- $ip link set dev eth2_19506 up
-
-NIC RX port offload infrastructure offloads the first 3 UDP-ports (on
-all devices which sets NETIF_F_RX_UDP_TUNNEL_PORT feature) and not
-UDP-port 19056. So both PFs gets this offload configuration.
-
- $ip link set dev eth2_19504 down
-
-This triggers udp-tunnel-core to remove the UDP-port 19504 from
-offload-ports-list and offload UDP-port 19056 instead.
-
-In this scenario it is important that the UDP-port of 19504 will be
-removed from both PFs before trying to add UDP-port 19056. The NIC can
-stop offloading a UDP-port only when all references are removed.
-Otherwise the NIC may report exceeding of the offload quota.
-
-Fixes: cc4e3835eff4 ("udp_tunnel: add central NIC RX port offload infrastructure")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org # 5.4
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Tested-by: Michael Walle <michael@walle.cc>
+Tested-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/udp_tunnel_nic.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/etnaviv/etnaviv_buffer.c     |    3 +--
+ drivers/gpu/drm/etnaviv/etnaviv_gem.c        |    3 +--
+ drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c |    3 +--
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.c        |    6 ++----
+ drivers/gpu/drm/etnaviv/etnaviv_mmu.h        |    4 +++-
+ 5 files changed, 8 insertions(+), 11 deletions(-)
 
---- a/net/ipv4/udp_tunnel_nic.c
-+++ b/net/ipv4/udp_tunnel_nic.c
-@@ -935,7 +935,7 @@ static int __init udp_tunnel_nic_init_mo
+--- a/drivers/gpu/drm/etnaviv/etnaviv_buffer.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_buffer.c
+@@ -397,8 +397,7 @@ void etnaviv_buffer_queue(struct etnaviv
+ 		if (switch_mmu_context) {
+ 			struct etnaviv_iommu_context *old_context = gpu->mmu_context;
+ 
+-			etnaviv_iommu_context_get(mmu_context);
+-			gpu->mmu_context = mmu_context;
++			gpu->mmu_context = etnaviv_iommu_context_get(mmu_context);
+ 			etnaviv_iommu_context_put(old_context);
+ 		}
+ 
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
+@@ -304,8 +304,7 @@ struct etnaviv_vram_mapping *etnaviv_gem
+ 		list_del(&mapping->obj_node);
+ 	}
+ 
+-	etnaviv_iommu_context_get(mmu_context);
+-	mapping->context = mmu_context;
++	mapping->context = etnaviv_iommu_context_get(mmu_context);
+ 	mapping->use = 1;
+ 
+ 	ret = etnaviv_iommu_map_gem(mmu_context, etnaviv_obj,
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
+@@ -534,8 +534,7 @@ int etnaviv_ioctl_gem_submit(struct drm_
+ 		goto err_submit_objects;
+ 
+ 	submit->ctx = file->driver_priv;
+-	etnaviv_iommu_context_get(submit->ctx->mmu);
+-	submit->mmu_context = submit->ctx->mmu;
++	submit->mmu_context = etnaviv_iommu_context_get(submit->ctx->mmu);
+ 	submit->exec_state = args->exec_state;
+ 	submit->flags = args->flags;
+ 
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+@@ -1307,12 +1307,10 @@ struct dma_fence *etnaviv_gpu_submit(str
+ 	}
+ 
+ 	if (!gpu->mmu_context) {
+-		etnaviv_iommu_context_get(submit->mmu_context);
+-		gpu->mmu_context = submit->mmu_context;
++		gpu->mmu_context = etnaviv_iommu_context_get(submit->mmu_context);
+ 		etnaviv_gpu_start_fe_idleloop(gpu);
+ 	} else {
+-		etnaviv_iommu_context_get(gpu->mmu_context);
+-		submit->prev_mmu_context = gpu->mmu_context;
++		submit->prev_mmu_context = etnaviv_iommu_context_get(gpu->mmu_context);
+ 	}
+ 
+ 	if (submit->nr_pmrs) {
+--- a/drivers/gpu/drm/etnaviv/etnaviv_mmu.h
++++ b/drivers/gpu/drm/etnaviv/etnaviv_mmu.h
+@@ -105,9 +105,11 @@ void etnaviv_iommu_dump(struct etnaviv_i
+ struct etnaviv_iommu_context *
+ etnaviv_iommu_context_init(struct etnaviv_iommu_global *global,
+ 			   struct etnaviv_cmdbuf_suballoc *suballoc);
+-static inline void etnaviv_iommu_context_get(struct etnaviv_iommu_context *ctx)
++static inline struct etnaviv_iommu_context *
++etnaviv_iommu_context_get(struct etnaviv_iommu_context *ctx)
  {
- 	int err;
- 
--	udp_tunnel_nic_workqueue = alloc_workqueue("udp_tunnel_nic", 0, 0);
-+	udp_tunnel_nic_workqueue = alloc_ordered_workqueue("udp_tunnel_nic", 0);
- 	if (!udp_tunnel_nic_workqueue)
- 		return -ENOMEM;
- 
+ 	kref_get(&ctx->refcount);
++	return ctx;
+ }
+ void etnaviv_iommu_context_put(struct etnaviv_iommu_context *ctx);
+ void etnaviv_iommu_restore(struct etnaviv_gpu *gpu,
 
 
