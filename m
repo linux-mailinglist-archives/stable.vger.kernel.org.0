@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC48A412413
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:29:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16B5B412576
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:44:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345150AbhITSa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:30:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49238 "EHLO mail.kernel.org"
+        id S1353855AbhITSpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:45:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1379139AbhITS2Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:28:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2C7961A8B;
-        Mon, 20 Sep 2021 17:26:19 +0000 (UTC)
+        id S1382851AbhITSmb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:42:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1069961AEF;
+        Mon, 20 Sep 2021 17:32:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158780;
-        bh=iWxE1URXOV7xjnvFiP1MfgJhTOYUsINk8l9x01vbl9o=;
+        s=korg; t=1632159122;
+        bh=6IwJarFCdNzRwDXYJVptoxhyQs8prZ9bD91bftdHQCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EyPegNupiVLB0CGR6R+CxpV8XNP4Bs8FgKQPu/0cFyUXvGvnxf8Dt1NK9X5d1y/Dr
-         a4Yu5CuBe98v1KWOaLEqSpYzAmhsYqBFv10NHd4iH8eomM+d1P0HDu2ahMhC6ThDml
-         P5GeihX/M/5o+NIL4nImtbL0cl2KO1B7GD7IAXJw=
+        b=P4YOXej4uxS6Z+MRj9Otv5p1Xl1alSSo7JxMCA8QQG9lGegaVw71LfeDS929DPOdi
+         LU33Q4VyDIZIOokbZF1Qro7nJbUoXh9rf0iCKkCGqHKpvllscs24VAMsMNFLAPDP5U
+         22Tc7bZwlimV268UZe7uA9h/vLlJSFPH0WMeUm9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yufeng Mo <moyufeng@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 052/122] net: hns3: disable mac in flr process
+        stable@vger.kernel.org, Daniel Wagner <dwagner@suse.de>,
+        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 086/168] nvme: avoid race in shutdown namespace removal
 Date:   Mon, 20 Sep 2021 18:43:44 +0200
-Message-Id: <20210920163917.496164067@linuxfoundation.org>
+Message-Id: <20210920163924.463133132@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufeng Mo <moyufeng@huawei.com>
+From: Daniel Wagner <dwagner@suse.de>
 
-commit b81d8948746520f989e86d66292ff72b5056114a upstream.
+[ Upstream commit 9edceaf43050f5ba1dd7d0011bcf68a736a17743 ]
 
-The firmware will not disable mac in flr process. Therefore, the driver
-needs to proactively disable mac during flr, which is the same as the
-function reset.
+When we remove the siblings entry, we update ns->head->list, hence we
+can't separate the removal and test for being empty. They have to be
+in the same critical section to avoid a race.
 
-Fixes: 35d93a30040c ("net: hns3: adjust the process of PF reset")
-Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To avoid breaking the refcounting imbalance again, add a list empty
+check to nvme_find_ns_head.
+
+Fixes: 5396fdac56d8 ("nvme: fix refcounting imbalance when all paths are down")
+Signed-off-by: Daniel Wagner <dwagner@suse.de>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Tested-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/nvme/host/core.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -7005,11 +7005,12 @@ static void hclge_ae_stop(struct hnae3_h
- 	hclge_clear_arfs_rules(handle);
- 	spin_unlock_bh(&hdev->fd_rule_lock);
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 2f0cbaba12ac..84e7cb9f1968 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3496,7 +3496,9 @@ static struct nvme_ns_head *nvme_find_ns_head(struct nvme_subsystem *subsys,
+ 	lockdep_assert_held(&subsys->lock);
  
--	/* If it is not PF reset, the firmware will disable the MAC,
-+	/* If it is not PF reset or FLR, the firmware will disable the MAC,
- 	 * so it only need to stop phy here.
- 	 */
- 	if (test_bit(HCLGE_STATE_RST_HANDLING, &hdev->state) &&
--	    hdev->reset_type != HNAE3_FUNC_RESET) {
-+	    hdev->reset_type != HNAE3_FUNC_RESET &&
-+	    hdev->reset_type != HNAE3_FLR_RESET) {
- 		hclge_mac_stop_phy(hdev);
- 		hclge_update_link_status(hdev);
- 		return;
+ 	list_for_each_entry(h, &subsys->nsheads, entry) {
+-		if (h->ns_id == nsid && nvme_tryget_ns_head(h))
++		if (h->ns_id != nsid)
++			continue;
++		if (!list_empty(&h->list) && nvme_tryget_ns_head(h))
+ 			return h;
+ 	}
+ 
+@@ -3821,6 +3823,10 @@ static void nvme_ns_remove(struct nvme_ns *ns)
+ 
+ 	mutex_lock(&ns->ctrl->subsys->lock);
+ 	list_del_rcu(&ns->siblings);
++	if (list_empty(&ns->head->list)) {
++		list_del_init(&ns->head->entry);
++		last_path = true;
++	}
+ 	mutex_unlock(&ns->ctrl->subsys->lock);
+ 
+ 	synchronize_rcu(); /* guarantee not available in head->list */
+@@ -3840,13 +3846,6 @@ static void nvme_ns_remove(struct nvme_ns *ns)
+ 	list_del_init(&ns->list);
+ 	up_write(&ns->ctrl->namespaces_rwsem);
+ 
+-	/* Synchronize with nvme_init_ns_head() */
+-	mutex_lock(&ns->head->subsys->lock);
+-	if (list_empty(&ns->head->list)) {
+-		list_del_init(&ns->head->entry);
+-		last_path = true;
+-	}
+-	mutex_unlock(&ns->head->subsys->lock);
+ 	if (last_path)
+ 		nvme_mpath_shutdown_disk(ns->head);
+ 	nvme_put_ns(ns);
+-- 
+2.30.2
+
 
 
