@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4185411DDE
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:24:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3B83411A84
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:49:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347224AbhITRZc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:25:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49662 "EHLO mail.kernel.org"
+        id S236735AbhITQuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:50:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349048AbhITRXS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:23:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D908160F70;
-        Mon, 20 Sep 2021 17:01:35 +0000 (UTC)
+        id S242998AbhITQsh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:48:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 002A561213;
+        Mon, 20 Sep 2021 16:47:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157296;
-        bh=ehLdMPw+GPaf9EKjm+79dpUXrMkzSGpW6nCsdFJ2f8c=;
+        s=korg; t=1632156430;
+        bh=IAJzPJm6psF2GjI1dEIJkyQ59WOL9V751RVZDVdIXwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ly4qpCOyKqDhnR/gSLyR+2xk9uLNWuoKJxQLhTGvAuY3jvZrPHBAtsnyG6HcuEG4L
-         +VDQDqglutkqw2yKcOPQ9WJZWIqM88hw3MkRjrfjhxp453O697nmNHeEBL4oqCbeKv
-         10BYFOVDpjmwU087Uh6jNpWGvyP11ogdNpCMCj0M=
+        b=SyZpm8SLhTnaJB16ZUZ1xKXvK6pb/RU6iIO9Ctsr1hgTcvRulU9fRE8JdRZiabhml
+         nrz2COd4TjGhe2bdPl5Nh+t7c9rtzNIISSEDuzBgfudDfMG20Dfsz1nd3GglxwjXM0
+         INRQB0hmAgw7yF1NMAev4Hl/c3EGDtky1BMY5zhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Jorgen Hansen <jhansen@vmware.com>,
-        Wang Hai <wanghai38@huawei.com>
-Subject: [PATCH 4.14 111/217] VMCI: fix NULL pointer dereference when unmapping queue pair
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 054/133] usb: host: ohci-tmio: add IRQ check
 Date:   Mon, 20 Sep 2021 18:42:12 +0200
-Message-Id: <20210920163928.394383330@linuxfoundation.org>
+Message-Id: <20210920163914.415924888@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,79 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit a30dc6cf0dc51419021550152e435736aaef8799 upstream.
+[ Upstream commit 4ac5132e8a4300637a2da8f5d6bc7650db735b8a ]
 
-I got a NULL pointer dereference report when doing fuzz test:
+The driver neglects to check the  result of platform_get_irq()'s call and
+blithely passes the negative error codes to usb_add_hcd() (which takes
+*unsigned* IRQ #), causing request_irq() that it calls to fail with
+-EINVAL, overriding an original error code. Stop calling usb_add_hcd()
+with the invalid IRQ #s.
 
-Call Trace:
-  qp_release_pages+0xae/0x130
-  qp_host_unregister_user_memory.isra.25+0x2d/0x80
-  vmci_qp_broker_unmap+0x191/0x320
-  ? vmci_host_do_alloc_queuepair.isra.9+0x1c0/0x1c0
-  vmci_host_unlocked_ioctl+0x59f/0xd50
-  ? do_vfs_ioctl+0x14b/0xa10
-  ? tomoyo_file_ioctl+0x28/0x30
-  ? vmci_host_do_alloc_queuepair.isra.9+0x1c0/0x1c0
-  __x64_sys_ioctl+0xea/0x120
-  do_syscall_64+0x34/0xb0
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-When a queue pair is created by the following call, it will not
-register the user memory if the page_store is NULL, and the
-entry->state will be set to VMCIQPB_CREATED_NO_MEM.
-
-vmci_host_unlocked_ioctl
-  vmci_host_do_alloc_queuepair
-    vmci_qp_broker_alloc
-      qp_broker_alloc
-        qp_broker_create // set entry->state = VMCIQPB_CREATED_NO_MEM;
-
-When unmapping this queue pair, qp_host_unregister_user_memory() will
-be called to unregister the non-existent user memory, which will
-result in a null pointer reference. It will also change
-VMCIQPB_CREATED_NO_MEM to VMCIQPB_CREATED_MEM, which should not be
-present in this operation.
-
-Only when the qp broker has mem, it can unregister the user
-memory when unmapping the qp broker.
-
-Only when the qp broker has no mem, it can register the user
-memory when mapping the qp broker.
-
-Fixes: 06164d2b72aa ("VMCI: queue pairs implementation.")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Link: https://lore.kernel.org/r/20210818124845.488312-1-wanghai38@huawei.com
+Fixes: 78c73414f4f6 ("USB: ohci: add support for tmio-ohci cell")
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Link: https://lore.kernel.org/r/402e1a45-a0a4-0e08-566a-7ca1331506b1@omp.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/vmw_vmci/vmci_queue_pair.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/host/ohci-tmio.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
-+++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
-@@ -2338,7 +2338,8 @@ int vmci_qp_broker_map(struct vmci_handl
- 	is_local = entry->qp.flags & VMCI_QPFLAG_LOCAL;
- 	result = VMCI_SUCCESS;
+diff --git a/drivers/usb/host/ohci-tmio.c b/drivers/usb/host/ohci-tmio.c
+index cfcfadfc94fc..9c9e97294c18 100644
+--- a/drivers/usb/host/ohci-tmio.c
++++ b/drivers/usb/host/ohci-tmio.c
+@@ -202,6 +202,9 @@ static int ohci_hcd_tmio_drv_probe(struct platform_device *dev)
+ 	if (!cell)
+ 		return -EINVAL;
  
--	if (context_id != VMCI_HOST_CONTEXT_ID) {
-+	if (context_id != VMCI_HOST_CONTEXT_ID &&
-+	    !QPBROKERSTATE_HAS_MEM(entry)) {
- 		struct vmci_qp_page_store page_store;
- 
- 		page_store.pages = guest_mem;
-@@ -2448,7 +2449,8 @@ int vmci_qp_broker_unmap(struct vmci_han
- 
- 	is_local = entry->qp.flags & VMCI_QPFLAG_LOCAL;
- 
--	if (context_id != VMCI_HOST_CONTEXT_ID) {
-+	if (context_id != VMCI_HOST_CONTEXT_ID &&
-+	    QPBROKERSTATE_HAS_MEM(entry)) {
- 		qp_acquire_queue_mutex(entry->produce_q);
- 		result = qp_save_headers(entry);
- 		if (result < VMCI_SUCCESS)
++	if (irq < 0)
++		return irq;
++
+ 	hcd = usb_create_hcd(&ohci_tmio_hc_driver, &dev->dev, dev_name(&dev->dev));
+ 	if (!hcd) {
+ 		ret = -ENOMEM;
+-- 
+2.30.2
+
 
 
