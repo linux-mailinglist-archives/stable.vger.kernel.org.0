@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2F3C411BF0
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:03:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6532841202C
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:51:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229881AbhITRFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:05:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52168 "EHLO mail.kernel.org"
+        id S1349592AbhITRxA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:53:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345336AbhITRCI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:02:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8869561425;
-        Mon, 20 Sep 2021 16:53:35 +0000 (UTC)
+        id S1353933AbhITRsD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:48:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 635C561BA8;
+        Mon, 20 Sep 2021 17:11:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156816;
-        bh=6422gvoGjZpiBQCCiC3od+yQYZXTTNtnzmysoQhm/HE=;
+        s=korg; t=1632157861;
+        bh=YSGUJuDHSnZzOzXmBsKZOAT80LCOSLiqvtDEwYmOCJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tJsv9CnRT2i0On4pihXy+1zkU80qzb7oyaJW+TDpIyjgMdqRNZ7lweuuGxWdZTQS9
-         48SWXtG1EDzZH+jbF6aFLN7Z7SfRRCP1ypTNGQQ7DZ09lipAVx9Ddq59ymPx4EtLJW
-         T6D+FOLmptsbSs72yPlfvY6aqWQ62IA0FZgTUSEg=
+        b=qMNqxp7FY5JHsa+5Q30Oc6qie/bPVy2W5hDVC3+wJH0vueGrRBCKPdCAa/iBNyZTM
+         Xwe9yGVtaUrykZ4BZdbPaOHHEWoGCt3OsYSwTrz3NSxNye+/s/RfPWFv4cqa5wNGCf
+         J1Wo/vmYLd5m9TW6+1e+5vJBsmlDYY3aT5FUk9IQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>,
-        David Heidelberg <david@ixit.cz>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.9 098/175] ARM: 9105/1: atags_to_fdt: dont warn about stack size
-Date:   Mon, 20 Sep 2021 18:42:27 +0200
-Message-Id: <20210920163921.278407403@linuxfoundation.org>
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 186/293] tty: serial: jsm: hold port lock when reporting modem line changes
+Date:   Mon, 20 Sep 2021 18:42:28 +0200
+Message-Id: <20210920163939.631127529@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +39,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Heidelberg <david@ixit.cz>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit b30d0289de72c62516df03fdad8d53f552c69839 upstream.
+[ Upstream commit 240e126c28df084222f0b661321e8e3ecb0d232e ]
 
-The merge_fdt_bootargs() function by definition consumes more than 1024
-bytes of stack because it has a 1024 byte command line on the stack,
-meaning that we always get a warning when building this file:
+uart_handle_dcd_change() requires a port lock to be held and will emit a
+warning when lockdep is enabled.
 
-arch/arm/boot/compressed/atags_to_fdt.c: In function 'merge_fdt_bootargs':
-arch/arm/boot/compressed/atags_to_fdt.c:98:1: warning: the frame size of 1032 bytes is larger than 1024 bytes [-Wframe-larger-than=]
+Held corresponding lock to fix the following warnings.
 
-However, as this is the decompressor and we know that it has a very shallow
-call chain, and we do not actually risk overflowing the kernel stack
-at runtime here.
+[  132.528648] WARNING: CPU: 5 PID: 11600 at drivers/tty/serial/serial_core.c:3046 uart_handle_dcd_change+0xf4/0x120
+[  132.530482] Modules linked in:
+[  132.531050] CPU: 5 PID: 11600 Comm: jsm Not tainted 5.14.0-rc1-00003-g7fef2edf7cc7-dirty #31
+[  132.535268] RIP: 0010:uart_handle_dcd_change+0xf4/0x120
+[  132.557100] Call Trace:
+[  132.557562]  ? __free_pages+0x83/0xb0
+[  132.558213]  neo_parse_modem+0x156/0x220
+[  132.558897]  neo_param+0x399/0x840
+[  132.559495]  jsm_tty_open+0x12f/0x2d0
+[  132.560131]  uart_startup.part.18+0x153/0x340
+[  132.560888]  ? lock_is_held_type+0xe9/0x140
+[  132.561660]  uart_port_activate+0x7f/0xe0
+[  132.562351]  ? uart_startup.part.18+0x340/0x340
+[  132.563003]  tty_port_open+0x8d/0xf0
+[  132.563523]  ? uart_set_options+0x1e0/0x1e0
+[  132.564125]  uart_open+0x24/0x40
+[  132.564604]  tty_open+0x15c/0x630
 
-This just shuts up the warning by disabling the warning flag for this
-file.
-
-Tested on Nexus 7 2012 builds.
-
-Acked-by: Nicolas Pitre <nico@fluxnic.net>
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/1626242003-3809-1-git-send-email-zheyuma97@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/compressed/Makefile |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/serial/jsm/jsm_neo.c | 2 ++
+ drivers/tty/serial/jsm/jsm_tty.c | 3 +++
+ 2 files changed, 5 insertions(+)
 
---- a/arch/arm/boot/compressed/Makefile
-+++ b/arch/arm/boot/compressed/Makefile
-@@ -86,6 +86,8 @@ $(addprefix $(obj)/,$(libfdt_objs) atags
- 	$(addprefix $(obj)/,$(libfdt_hdrs))
+diff --git a/drivers/tty/serial/jsm/jsm_neo.c b/drivers/tty/serial/jsm/jsm_neo.c
+index bf0e2a4cb0ce..c6f927a76c3b 100644
+--- a/drivers/tty/serial/jsm/jsm_neo.c
++++ b/drivers/tty/serial/jsm/jsm_neo.c
+@@ -815,7 +815,9 @@ static void neo_parse_isr(struct jsm_board *brd, u32 port)
+ 		/* Parse any modem signal changes */
+ 		jsm_dbg(INTR, &ch->ch_bd->pci_dev,
+ 			"MOD_STAT: sending to parse_modem_sigs\n");
++		spin_lock_irqsave(&ch->uart_port.lock, lock_flags);
+ 		neo_parse_modem(ch, readb(&ch->ch_neo_uart->msr));
++		spin_unlock_irqrestore(&ch->uart_port.lock, lock_flags);
+ 	}
+ }
  
- ifeq ($(CONFIG_ARM_ATAG_DTB_COMPAT),y)
-+CFLAGS_REMOVE_atags_to_fdt.o += -Wframe-larger-than=${CONFIG_FRAME_WARN}
-+CFLAGS_atags_to_fdt.o += -Wframe-larger-than=1280
- OBJS	+= $(libfdt_objs) atags_to_fdt.o
- endif
+diff --git a/drivers/tty/serial/jsm/jsm_tty.c b/drivers/tty/serial/jsm/jsm_tty.c
+index 689774c073ca..8438454ca653 100644
+--- a/drivers/tty/serial/jsm/jsm_tty.c
++++ b/drivers/tty/serial/jsm/jsm_tty.c
+@@ -187,6 +187,7 @@ static void jsm_tty_break(struct uart_port *port, int break_state)
  
+ static int jsm_tty_open(struct uart_port *port)
+ {
++	unsigned long lock_flags;
+ 	struct jsm_board *brd;
+ 	struct jsm_channel *channel =
+ 		container_of(port, struct jsm_channel, uart_port);
+@@ -240,6 +241,7 @@ static int jsm_tty_open(struct uart_port *port)
+ 	channel->ch_cached_lsr = 0;
+ 	channel->ch_stops_sent = 0;
+ 
++	spin_lock_irqsave(&port->lock, lock_flags);
+ 	termios = &port->state->port.tty->termios;
+ 	channel->ch_c_cflag	= termios->c_cflag;
+ 	channel->ch_c_iflag	= termios->c_iflag;
+@@ -259,6 +261,7 @@ static int jsm_tty_open(struct uart_port *port)
+ 	jsm_carrier(channel);
+ 
+ 	channel->ch_open_count++;
++	spin_unlock_irqrestore(&port->lock, lock_flags);
+ 
+ 	jsm_dbg(OPEN, &channel->ch_bd->pci_dev, "finish\n");
+ 	return 0;
+-- 
+2.30.2
+
 
 
