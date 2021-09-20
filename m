@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9A48412231
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:12:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C16A41221E
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:11:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348493AbhITSNi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:13:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35778 "EHLO mail.kernel.org"
+        id S1345775AbhITSNG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:13:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36231 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1359643AbhITSKI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:10:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FAAC61A4E;
-        Mon, 20 Sep 2021 17:19:52 +0000 (UTC)
+        id S1350743AbhITSKr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:10:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69A4D63261;
+        Mon, 20 Sep 2021 17:20:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158393;
-        bh=jNfagrwBB6tBxwk5PwVadgQlBB9yK8VvqcvtDl0vPX8=;
+        s=korg; t=1632158416;
+        bh=6J6zPQmnNKWm5XTWmA6GFpBNcnAP7lr0aUlalCAMhh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/jJf9kh1Nql0VyWdaR8ulUh3NFLY025kumycmnBk6hLxBb4Jjf/m0ZjRiwkFJHKg
-         d6SwJZeWti0EXNhjDsUm/E8+gAUzhVKgiaUUIsODaspaPHp/wqEA3H0AUZKoBUxcyS
-         8zsDEd7xWYAuyhWIg0htOUrJc0oOBM4gynKHLZWU=
+        b=v6H5jRiFwVRdBb0gApRtO3WClf8UWjsReVgQ4aWVzRLbclCZq/8wS2uB2w8NMNNTV
+         IcpMnu3wBN/uYMui2L/290JgpeZNYFnxIRPB9fEXYxofVlTMAAioQWuO5RK+YYEjPt
+         YyJv0fNF3zJYWI0BreP7PnrC6slof/Ueqrm8fHeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Umang Jain <umang.jain@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        =?UTF-8?q?Krzysztof=20Ha=C5=82asa?= <khalasa@piap.pl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 118/260] media: imx258: Limit the max analogue gain to 480
-Date:   Mon, 20 Sep 2021 18:42:16 +0200
-Message-Id: <20210920163935.142425118@linuxfoundation.org>
+Subject: [PATCH 5.4 119/260] media: v4l2-dv-timings.c: fix wrong condition in two for-loops
+Date:   Mon, 20 Sep 2021 18:42:17 +0200
+Message-Id: <20210920163935.174136646@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -43,44 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Umang Jain <umang.jain@ideasonboard.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit f809665ee75fff3f4ea8907f406a66d380aeb184 ]
+[ Upstream commit 4108b3e6db31acc4c68133290bbcc87d4db905c9 ]
 
-The range for analog gain mentioned in the datasheet is [0, 480].
-The real gain formula mentioned in the datasheet is:
+These for-loops should test against v4l2_dv_timings_presets[i].bt.width,
+not if i < v4l2_dv_timings_presets[i].bt.width. Luckily nothing ever broke,
+since the smallest width is still a lot higher than the total number of
+presets, but it is wrong.
 
-	Gain = 512 / (512 – X)
+The last item in the presets array is all 0, so the for-loop must stop
+when it reaches that sentinel.
 
-Hence, values larger than 511 clearly makes no sense. The gain
-register field is also documented to be of 9-bits in the datasheet.
-
-Certainly, it is enough to infer that, the kernel driver currently
-advertises an arbitrary analog gain max. Fix it by rectifying the
-value as per the data sheet i.e. 480.
-
-Signed-off-by: Umang Jain <umang.jain@ideasonboard.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reported-by: Krzysztof Hałasa <khalasa@piap.pl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/imx258.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/v4l2-core/v4l2-dv-timings.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/imx258.c b/drivers/media/i2c/imx258.c
-index 5f5e50c01b12..ffaa4a91e571 100644
---- a/drivers/media/i2c/imx258.c
-+++ b/drivers/media/i2c/imx258.c
-@@ -46,7 +46,7 @@
- /* Analog gain control */
- #define IMX258_REG_ANALOG_GAIN		0x0204
- #define IMX258_ANA_GAIN_MIN		0
--#define IMX258_ANA_GAIN_MAX		0x1fff
-+#define IMX258_ANA_GAIN_MAX		480
- #define IMX258_ANA_GAIN_STEP		1
- #define IMX258_ANA_GAIN_DEFAULT		0x0
+diff --git a/drivers/media/v4l2-core/v4l2-dv-timings.c b/drivers/media/v4l2-core/v4l2-dv-timings.c
+index 4f23e939ead0..60454e1b727e 100644
+--- a/drivers/media/v4l2-core/v4l2-dv-timings.c
++++ b/drivers/media/v4l2-core/v4l2-dv-timings.c
+@@ -196,7 +196,7 @@ bool v4l2_find_dv_timings_cap(struct v4l2_dv_timings *t,
+ 	if (!v4l2_valid_dv_timings(t, cap, fnc, fnc_handle))
+ 		return false;
+ 
+-	for (i = 0; i < v4l2_dv_timings_presets[i].bt.width; i++) {
++	for (i = 0; v4l2_dv_timings_presets[i].bt.width; i++) {
+ 		if (v4l2_valid_dv_timings(v4l2_dv_timings_presets + i, cap,
+ 					  fnc, fnc_handle) &&
+ 		    v4l2_match_dv_timings(t, v4l2_dv_timings_presets + i,
+@@ -218,7 +218,7 @@ bool v4l2_find_dv_timings_cea861_vic(struct v4l2_dv_timings *t, u8 vic)
+ {
+ 	unsigned int i;
+ 
+-	for (i = 0; i < v4l2_dv_timings_presets[i].bt.width; i++) {
++	for (i = 0; v4l2_dv_timings_presets[i].bt.width; i++) {
+ 		const struct v4l2_bt_timings *bt =
+ 			&v4l2_dv_timings_presets[i].bt;
  
 -- 
 2.30.2
