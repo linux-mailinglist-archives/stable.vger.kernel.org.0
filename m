@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BE79411A72
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:48:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9065D41204B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:52:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243968AbhITQty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:49:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37284 "EHLO mail.kernel.org"
+        id S1349188AbhITRxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:53:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244167AbhITQtV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:49:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C8E561268;
-        Mon, 20 Sep 2021 16:47:51 +0000 (UTC)
+        id S1354598AbhITRuj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:50:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8065D61BD4;
+        Mon, 20 Sep 2021 17:12:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156471;
-        bh=U0ivsL+p/Bybv6MJJLx6mOVguINXSD7DdKyoaTp+NS0=;
+        s=korg; t=1632157925;
+        bh=OBwvfmU+YUPeKGm7hN88qns1V/N3GtJSGlUJqrIYda8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p7tK1s3q1PJIzPqxttxhrpMRkqGRPlGub8tytPPrw1iyx7jhdIbcPOTtnUwHAC4ff
-         2QuLgkPub86+0PfPKX9mhesYG4Yek+t1r/EDIBcBfWbo+b13Ex/FQDcphiU4F80Yom
-         hOg1JOmza+4QVyMft+0O6+qnAmTud7ngor4RHtXY=
+        b=oL0/Rw0QHP5ncJI95W1YMvCiwJyMnd9FsmXlukSY/JxhcjOCWbtuSgBjPv83kwtga
+         SOsnfZ67FMt7sHXb5Sp3CgaF7Le8pa2Gm9ZzhxWBc32K6FwKTLBwsbClA6AKod9pw6
+         axV7y7KS7y8FcXhClaOQ1dgHGTCHxK+a2sAHxl7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+be2baed593ea56c6a84c@syzkaller.appspotmail.com
-Subject: [PATCH 4.4 057/133] Bluetooth: add timeout sanity check to hci_inquiry
+        stable@vger.kernel.org, Sean Anderson <sean.anderson@seco.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 173/293] crypto: mxs-dcp - Use sg_mapping_iter to copy data
 Date:   Mon, 20 Sep 2021 18:42:15 +0200
-Message-Id: <20210920163914.519398792@linuxfoundation.org>
+Message-Id: <20210920163939.207337358@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +40,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Sean Anderson <sean.anderson@seco.com>
 
-[ Upstream commit f41a4b2b5eb7872109723dab8ae1603bdd9d9ec1 ]
+[ Upstream commit 2e6d793e1bf07fe5e20cfbbdcec9e1af7e5097eb ]
 
-Syzbot hit "task hung" bug in hci_req_sync(). The problem was in
-unreasonable huge inquiry timeout passed from userspace.
-Fix it by adding sanity check for timeout value to hci_inquiry().
+This uses the sg_pcopy_from_buffer to copy data, instead of doing it
+ourselves.
 
-Since hci_inquiry() is the only user of hci_req_sync() with user
-controlled timeout value, it makes sense to check timeout value in
-hci_inquiry() and don't touch hci_req_sync().
+In addition to reducing code size, this fixes the following oops
+resulting from failing to kmap the page:
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-and-tested-by: syzbot+be2baed593ea56c6a84c@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+[   68.896381] Unable to handle kernel NULL pointer dereference at virtual address 00000ab8
+[   68.904539] pgd = 3561adb3
+[   68.907475] [00000ab8] *pgd=00000000
+[   68.911153] Internal error: Oops: 805 [#1] ARM
+[   68.915618] Modules linked in: cfg80211 rfkill des_generic libdes arc4 libarc4 cbc ecb algif_skcipher sha256_generic libsha256 sha1_generic hmac aes_generic libaes cmac sha512_generic md5 md4 algif_hash af_alg i2c_imx i2c_core ci_hdrc_imx ci_hdrc mxs_dcp ulpi roles udc_core imx_sdma usbmisc_imx usb_common firmware_class virt_dma phy_mxs_usb nf_tables nfnetlink ip_tables x_tables ipv6 autofs4
+[   68.950741] CPU: 0 PID: 139 Comm: mxs_dcp_chan/ae Not tainted 5.10.34 #296
+[   68.958501] Hardware name: Freescale i.MX6 Ultralite (Device Tree)
+[   68.964710] PC is at memcpy+0xa8/0x330
+[   68.968479] LR is at 0xd7b2bc9d
+[   68.971638] pc : [<c053e7c8>]    lr : [<d7b2bc9d>]    psr: 000f0013
+[   68.977920] sp : c2cbbee4  ip : 00000010  fp : 00000010
+[   68.983159] r10: 00000000  r9 : c3283a40  r8 : 1a5a6f08
+[   68.988402] r7 : 4bfe0ecc  r6 : 76d8a220  r5 : c32f9050  r4 : 00000001
+[   68.994945] r3 : 00000ab8  r2 : fffffff0  r1 : c32f9050  r0 : 00000ab8
+[   69.001492] Flags: nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+[   69.008646] Control: 10c53c7d  Table: 83664059  DAC: 00000051
+[   69.014414] Process mxs_dcp_chan/ae (pid: 139, stack limit = 0x667b57ab)
+[   69.021133] Stack: (0xc2cbbee4 to 0xc2cbc000)
+[   69.025519] bee0:          c32f9050 c3235408 00000010 00000010 00000ab8 00000001 bf10406c
+[   69.033720] bf00: 00000000 00000000 00000010 00000000 c32355d0 832fb080 00000000 c13de2fc
+[   69.041921] bf20: c3628010 00000010 c33d5780 00000ab8 bf1067e8 00000002 c21e5010 c2cba000
+[   69.050125] bf40: c32f8040 00000000 bf106a40 c32f9040 c3283a80 00000001 bf105240 c3234040
+[   69.058327] bf60: ffffe000 c3204100 c2c69800 c2cba000 00000000 bf103b84 00000000 c2eddc54
+[   69.066530] bf80: c3204144 c0140d1c c2cba000 c2c69800 c0140be8 00000000 00000000 00000000
+[   69.074730] bfa0: 00000000 00000000 00000000 c0100114 00000000 00000000 00000000 00000000
+[   69.082932] bfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[   69.091131] bfe0: 00000000 00000000 00000000 00000000 00000013 00000000 00000000 00000000
+[   69.099364] [<c053e7c8>] (memcpy) from [<bf10406c>] (dcp_chan_thread_aes+0x4e8/0x840 [mxs_dcp])
+[   69.108117] [<bf10406c>] (dcp_chan_thread_aes [mxs_dcp]) from [<c0140d1c>] (kthread+0x134/0x160)
+[   69.116941] [<c0140d1c>] (kthread) from [<c0100114>] (ret_from_fork+0x14/0x20)
+[   69.124178] Exception stack(0xc2cbbfb0 to 0xc2cbbff8)
+[   69.129250] bfa0:                                     00000000 00000000 00000000 00000000
+[   69.137450] bfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[   69.145648] bfe0: 00000000 00000000 00000000 00000000 00000013 00000000
+[   69.152289] Code: e320f000 e4803004 e4804004 e4805004 (e4806004)
+
+Signed-off-by: Sean Anderson <sean.anderson@seco.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_core.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/crypto/mxs-dcp.c | 36 +++++++++---------------------------
+ 1 file changed, 9 insertions(+), 27 deletions(-)
 
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index bf69bfd0b475..eefaa10c74db 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -1357,6 +1357,12 @@ int hci_inquiry(void __user *arg)
- 		goto done;
+diff --git a/drivers/crypto/mxs-dcp.c b/drivers/crypto/mxs-dcp.c
+index d220e6a3f836..da834ae3586b 100644
+--- a/drivers/crypto/mxs-dcp.c
++++ b/drivers/crypto/mxs-dcp.c
+@@ -297,21 +297,20 @@ static int mxs_dcp_aes_block_crypt(struct crypto_async_request *arq)
+ 
+ 	struct scatterlist *dst = req->dst;
+ 	struct scatterlist *src = req->src;
+-	const int nents = sg_nents(req->src);
++	int dst_nents = sg_nents(dst);
+ 
+ 	const int out_off = DCP_BUF_SZ;
+ 	uint8_t *in_buf = sdcp->coh->aes_in_buf;
+ 	uint8_t *out_buf = sdcp->coh->aes_out_buf;
+ 
+-	uint8_t *out_tmp, *src_buf, *dst_buf = NULL;
+ 	uint32_t dst_off = 0;
++	uint8_t *src_buf = NULL;
+ 	uint32_t last_out_len = 0;
+ 
+ 	uint8_t *key = sdcp->coh->aes_key;
+ 
+ 	int ret = 0;
+-	int split = 0;
+-	unsigned int i, len, clen, rem = 0, tlen = 0;
++	unsigned int i, len, clen, tlen = 0;
+ 	int init = 0;
+ 	bool limit_hit = false;
+ 
+@@ -329,7 +328,7 @@ static int mxs_dcp_aes_block_crypt(struct crypto_async_request *arq)
+ 		memset(key + AES_KEYSIZE_128, 0, AES_KEYSIZE_128);
  	}
  
-+	/* Restrict maximum inquiry length to 60 seconds */
-+	if (ir.length > 60) {
-+		err = -EINVAL;
-+		goto done;
-+	}
-+
- 	hci_dev_lock(hdev);
- 	if (inquiry_cache_age(hdev) > INQUIRY_CACHE_AGE_MAX ||
- 	    inquiry_cache_empty(hdev) || ir.flags & IREQ_CACHE_FLUSH) {
+-	for_each_sg(req->src, src, nents, i) {
++	for_each_sg(req->src, src, sg_nents(src), i) {
+ 		src_buf = sg_virt(src);
+ 		len = sg_dma_len(src);
+ 		tlen += len;
+@@ -354,34 +353,17 @@ static int mxs_dcp_aes_block_crypt(struct crypto_async_request *arq)
+ 			 * submit the buffer.
+ 			 */
+ 			if (actx->fill == out_off || sg_is_last(src) ||
+-				limit_hit) {
++			    limit_hit) {
+ 				ret = mxs_dcp_run_aes(actx, req, init);
+ 				if (ret)
+ 					return ret;
+ 				init = 0;
+ 
+-				out_tmp = out_buf;
++				sg_pcopy_from_buffer(dst, dst_nents, out_buf,
++						     actx->fill, dst_off);
++				dst_off += actx->fill;
+ 				last_out_len = actx->fill;
+-				while (dst && actx->fill) {
+-					if (!split) {
+-						dst_buf = sg_virt(dst);
+-						dst_off = 0;
+-					}
+-					rem = min(sg_dma_len(dst) - dst_off,
+-						  actx->fill);
+-
+-					memcpy(dst_buf + dst_off, out_tmp, rem);
+-					out_tmp += rem;
+-					dst_off += rem;
+-					actx->fill -= rem;
+-
+-					if (dst_off == sg_dma_len(dst)) {
+-						dst = sg_next(dst);
+-						split = 0;
+-					} else {
+-						split = 1;
+-					}
+-				}
++				actx->fill = 0;
+ 			}
+ 		} while (len);
+ 
 -- 
 2.30.2
 
