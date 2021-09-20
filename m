@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ADA24121A8
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:06:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 373D241226E
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:14:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350807AbhITSHs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:07:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33074 "EHLO mail.kernel.org"
+        id S1351187AbhITSPl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:15:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358099AbhITSF0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1358097AbhITSF0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:05:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 318DE613CF;
-        Mon, 20 Sep 2021 17:17:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5989561A10;
+        Mon, 20 Sep 2021 17:17:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158260;
-        bh=gB9z9wL68N4zA6j+tsmo/QkfIMZQNo6VHD+mttTBms0=;
+        s=korg; t=1632158262;
+        bh=bi3TjSDWiT0RZTv8c5yzb0ywwNZSPHA3AvKsVfKHOk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jkugEbZhVR9AOhOzZQsPj1uRjUjM3tt6D0lezCJuhMaQjjdNWrmm1Y7JxRzpA02Ni
-         5k78Xiq3tJtSpmP6pIm81TvAJP5AbnEPoihxVgRIAG00rq76ehk2ihUQPI8jSHbT4s
-         9H58HUtJs1kiK3xBWzUFmkw7sGYzjYeWxBeJGcHw=
+        b=nWmyqHAtejNt3+CkYFkj3wVeQr6lW3qDs1lARvxpaRaYoKx/4hb7zH3cf3zqbIHKL
+         HnKIT3pIZf+QtQaOd/VK5hIwkW6/SRzxQdVj7ipRpSvTuXh7Ng87aTJsF3Tgcq/sri
+         8BBmaOI0DWC4mA4/b456cUk9C1NRnpAIeQG3sIHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Sean Anderson <sean.anderson@seco.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 074/260] media: dib8000: rewrite the init prbs logic
-Date:   Mon, 20 Sep 2021 18:41:32 +0200
-Message-Id: <20210920163933.645092660@linuxfoundation.org>
+Subject: [PATCH 5.4 075/260] crypto: mxs-dcp - Use sg_mapping_iter to copy data
+Date:   Mon, 20 Sep 2021 18:41:33 +0200
+Message-Id: <20210920163933.685827942@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -40,137 +40,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Sean Anderson <sean.anderson@seco.com>
 
-[ Upstream commit 8db11aebdb8f93f46a8513c22c9bd52fa23263aa ]
+[ Upstream commit 2e6d793e1bf07fe5e20cfbbdcec9e1af7e5097eb ]
 
-The logic at dib8000_get_init_prbs() has a few issues:
+This uses the sg_pcopy_from_buffer to copy data, instead of doing it
+ourselves.
 
-1. the tables used there has an extra unused value at the beginning;
-2. the dprintk() message doesn't write the right value when
-   transmission mode is not 8K;
-3. the array overflow validation is done by the callers.
+In addition to reducing code size, this fixes the following oops
+resulting from failing to kmap the page:
 
-Rewrite the code to fix such issues.
+[   68.896381] Unable to handle kernel NULL pointer dereference at virtual address 00000ab8
+[   68.904539] pgd = 3561adb3
+[   68.907475] [00000ab8] *pgd=00000000
+[   68.911153] Internal error: Oops: 805 [#1] ARM
+[   68.915618] Modules linked in: cfg80211 rfkill des_generic libdes arc4 libarc4 cbc ecb algif_skcipher sha256_generic libsha256 sha1_generic hmac aes_generic libaes cmac sha512_generic md5 md4 algif_hash af_alg i2c_imx i2c_core ci_hdrc_imx ci_hdrc mxs_dcp ulpi roles udc_core imx_sdma usbmisc_imx usb_common firmware_class virt_dma phy_mxs_usb nf_tables nfnetlink ip_tables x_tables ipv6 autofs4
+[   68.950741] CPU: 0 PID: 139 Comm: mxs_dcp_chan/ae Not tainted 5.10.34 #296
+[   68.958501] Hardware name: Freescale i.MX6 Ultralite (Device Tree)
+[   68.964710] PC is at memcpy+0xa8/0x330
+[   68.968479] LR is at 0xd7b2bc9d
+[   68.971638] pc : [<c053e7c8>]    lr : [<d7b2bc9d>]    psr: 000f0013
+[   68.977920] sp : c2cbbee4  ip : 00000010  fp : 00000010
+[   68.983159] r10: 00000000  r9 : c3283a40  r8 : 1a5a6f08
+[   68.988402] r7 : 4bfe0ecc  r6 : 76d8a220  r5 : c32f9050  r4 : 00000001
+[   68.994945] r3 : 00000ab8  r2 : fffffff0  r1 : c32f9050  r0 : 00000ab8
+[   69.001492] Flags: nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+[   69.008646] Control: 10c53c7d  Table: 83664059  DAC: 00000051
+[   69.014414] Process mxs_dcp_chan/ae (pid: 139, stack limit = 0x667b57ab)
+[   69.021133] Stack: (0xc2cbbee4 to 0xc2cbc000)
+[   69.025519] bee0:          c32f9050 c3235408 00000010 00000010 00000ab8 00000001 bf10406c
+[   69.033720] bf00: 00000000 00000000 00000010 00000000 c32355d0 832fb080 00000000 c13de2fc
+[   69.041921] bf20: c3628010 00000010 c33d5780 00000ab8 bf1067e8 00000002 c21e5010 c2cba000
+[   69.050125] bf40: c32f8040 00000000 bf106a40 c32f9040 c3283a80 00000001 bf105240 c3234040
+[   69.058327] bf60: ffffe000 c3204100 c2c69800 c2cba000 00000000 bf103b84 00000000 c2eddc54
+[   69.066530] bf80: c3204144 c0140d1c c2cba000 c2c69800 c0140be8 00000000 00000000 00000000
+[   69.074730] bfa0: 00000000 00000000 00000000 c0100114 00000000 00000000 00000000 00000000
+[   69.082932] bfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[   69.091131] bfe0: 00000000 00000000 00000000 00000000 00000013 00000000 00000000 00000000
+[   69.099364] [<c053e7c8>] (memcpy) from [<bf10406c>] (dcp_chan_thread_aes+0x4e8/0x840 [mxs_dcp])
+[   69.108117] [<bf10406c>] (dcp_chan_thread_aes [mxs_dcp]) from [<c0140d1c>] (kthread+0x134/0x160)
+[   69.116941] [<c0140d1c>] (kthread) from [<c0100114>] (ret_from_fork+0x14/0x20)
+[   69.124178] Exception stack(0xc2cbbfb0 to 0xc2cbbff8)
+[   69.129250] bfa0:                                     00000000 00000000 00000000 00000000
+[   69.137450] bfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[   69.145648] bfe0: 00000000 00000000 00000000 00000000 00000013 00000000
+[   69.152289] Code: e320f000 e4803004 e4804004 e4805004 (e4806004)
 
-This should also shut up those smatch warnings:
-
-	drivers/media/dvb-frontends/dib8000.c:2125 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_8k' 14 <= 14
-	drivers/media/dvb-frontends/dib8000.c:2129 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_2k' 14 <= 14
-	drivers/media/dvb-frontends/dib8000.c:2131 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_4k' 14 <= 14
-	drivers/media/dvb-frontends/dib8000.c:2134 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_8k' 14 <= 14
-
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sean Anderson <sean.anderson@seco.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/dib8000.c | 58 +++++++++++++++++++--------
- 1 file changed, 41 insertions(+), 17 deletions(-)
+ drivers/crypto/mxs-dcp.c | 36 +++++++++---------------------------
+ 1 file changed, 9 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/dib8000.c b/drivers/media/dvb-frontends/dib8000.c
-index 082796534b0a..bb02354a48b8 100644
---- a/drivers/media/dvb-frontends/dib8000.c
-+++ b/drivers/media/dvb-frontends/dib8000.c
-@@ -2107,32 +2107,55 @@ static void dib8000_load_ana_fe_coefs(struct dib8000_state *state, const s16 *an
- 			dib8000_write_word(state, 117 + mode, ana_fe[mode]);
- }
+diff --git a/drivers/crypto/mxs-dcp.c b/drivers/crypto/mxs-dcp.c
+index 66fa524b6261..547111079207 100644
+--- a/drivers/crypto/mxs-dcp.c
++++ b/drivers/crypto/mxs-dcp.c
+@@ -298,21 +298,20 @@ static int mxs_dcp_aes_block_crypt(struct crypto_async_request *arq)
  
--static const u16 lut_prbs_2k[14] = {
--	0, 0x423, 0x009, 0x5C7, 0x7A6, 0x3D8, 0x527, 0x7FF, 0x79B, 0x3D6, 0x3A2, 0x53B, 0x2F4, 0x213
-+static const u16 lut_prbs_2k[13] = {
-+	0x423, 0x009, 0x5C7,
-+	0x7A6, 0x3D8, 0x527,
-+	0x7FF, 0x79B, 0x3D6,
-+	0x3A2, 0x53B, 0x2F4,
-+	0x213
- };
--static const u16 lut_prbs_4k[14] = {
--	0, 0x208, 0x0C3, 0x7B9, 0x423, 0x5C7, 0x3D8, 0x7FF, 0x3D6, 0x53B, 0x213, 0x029, 0x0D0, 0x48E
-+
-+static const u16 lut_prbs_4k[13] = {
-+	0x208, 0x0C3, 0x7B9,
-+	0x423, 0x5C7, 0x3D8,
-+	0x7FF, 0x3D6, 0x53B,
-+	0x213, 0x029, 0x0D0,
-+	0x48E
- };
--static const u16 lut_prbs_8k[14] = {
--	0, 0x740, 0x069, 0x7DD, 0x208, 0x7B9, 0x5C7, 0x7FF, 0x53B, 0x029, 0x48E, 0x4C4, 0x367, 0x684
-+
-+static const u16 lut_prbs_8k[13] = {
-+	0x740, 0x069, 0x7DD,
-+	0x208, 0x7B9, 0x5C7,
-+	0x7FF, 0x53B, 0x029,
-+	0x48E, 0x4C4, 0x367,
-+	0x684
- };
+ 	struct scatterlist *dst = req->dst;
+ 	struct scatterlist *src = req->src;
+-	const int nents = sg_nents(req->src);
++	int dst_nents = sg_nents(dst);
  
- static u16 dib8000_get_init_prbs(struct dib8000_state *state, u16 subchannel)
- {
- 	int sub_channel_prbs_group = 0;
-+	int prbs_group;
+ 	const int out_off = DCP_BUF_SZ;
+ 	uint8_t *in_buf = sdcp->coh->aes_in_buf;
+ 	uint8_t *out_buf = sdcp->coh->aes_out_buf;
  
--	sub_channel_prbs_group = (subchannel / 3) + 1;
--	dprintk("sub_channel_prbs_group = %d , subchannel =%d prbs = 0x%04x\n", sub_channel_prbs_group, subchannel, lut_prbs_8k[sub_channel_prbs_group]);
-+	sub_channel_prbs_group = subchannel / 3;
-+	if (sub_channel_prbs_group >= ARRAY_SIZE(lut_prbs_2k))
-+		return 0;
+-	uint8_t *out_tmp, *src_buf, *dst_buf = NULL;
+ 	uint32_t dst_off = 0;
++	uint8_t *src_buf = NULL;
+ 	uint32_t last_out_len = 0;
  
- 	switch (state->fe[0]->dtv_property_cache.transmission_mode) {
- 	case TRANSMISSION_MODE_2K:
--			return lut_prbs_2k[sub_channel_prbs_group];
-+		prbs_group = lut_prbs_2k[sub_channel_prbs_group];
-+		break;
- 	case TRANSMISSION_MODE_4K:
--			return lut_prbs_4k[sub_channel_prbs_group];
-+		prbs_group =  lut_prbs_4k[sub_channel_prbs_group];
-+		break;
- 	default:
- 	case TRANSMISSION_MODE_8K:
--			return lut_prbs_8k[sub_channel_prbs_group];
-+		prbs_group = lut_prbs_8k[sub_channel_prbs_group];
+ 	uint8_t *key = sdcp->coh->aes_key;
+ 
+ 	int ret = 0;
+-	int split = 0;
+-	unsigned int i, len, clen, rem = 0, tlen = 0;
++	unsigned int i, len, clen, tlen = 0;
+ 	int init = 0;
+ 	bool limit_hit = false;
+ 
+@@ -330,7 +329,7 @@ static int mxs_dcp_aes_block_crypt(struct crypto_async_request *arq)
+ 		memset(key + AES_KEYSIZE_128, 0, AES_KEYSIZE_128);
  	}
-+
-+	dprintk("sub_channel_prbs_group = %d , subchannel =%d prbs = 0x%04x\n",
-+		sub_channel_prbs_group, subchannel, prbs_group);
-+
-+	return prbs_group;
- }
  
- static void dib8000_set_13seg_channel(struct dib8000_state *state)
-@@ -2409,10 +2432,8 @@ static void dib8000_set_isdbt_common_channel(struct dib8000_state *state, u8 seq
- 	/* TSB or ISDBT ? apply it now */
- 	if (c->isdbt_sb_mode) {
- 		dib8000_set_sb_channel(state);
--		if (c->isdbt_sb_subchannel < 14)
--			init_prbs = dib8000_get_init_prbs(state, c->isdbt_sb_subchannel);
--		else
--			init_prbs = 0;
-+		init_prbs = dib8000_get_init_prbs(state,
-+						  c->isdbt_sb_subchannel);
- 	} else {
- 		dib8000_set_13seg_channel(state);
- 		init_prbs = 0xfff;
-@@ -3004,6 +3025,7 @@ static int dib8000_tune(struct dvb_frontend *fe)
+-	for_each_sg(req->src, src, nents, i) {
++	for_each_sg(req->src, src, sg_nents(src), i) {
+ 		src_buf = sg_virt(src);
+ 		len = sg_dma_len(src);
+ 		tlen += len;
+@@ -355,34 +354,17 @@ static int mxs_dcp_aes_block_crypt(struct crypto_async_request *arq)
+ 			 * submit the buffer.
+ 			 */
+ 			if (actx->fill == out_off || sg_is_last(src) ||
+-				limit_hit) {
++			    limit_hit) {
+ 				ret = mxs_dcp_run_aes(actx, req, init);
+ 				if (ret)
+ 					return ret;
+ 				init = 0;
  
- 	unsigned long *timeout = &state->timeout;
- 	unsigned long now = jiffies;
-+	u16 init_prbs;
- #ifdef DIB8000_AGC_FREEZE
- 	u16 agc1, agc2;
- #endif
-@@ -3302,8 +3324,10 @@ static int dib8000_tune(struct dvb_frontend *fe)
- 		break;
+-				out_tmp = out_buf;
++				sg_pcopy_from_buffer(dst, dst_nents, out_buf,
++						     actx->fill, dst_off);
++				dst_off += actx->fill;
+ 				last_out_len = actx->fill;
+-				while (dst && actx->fill) {
+-					if (!split) {
+-						dst_buf = sg_virt(dst);
+-						dst_off = 0;
+-					}
+-					rem = min(sg_dma_len(dst) - dst_off,
+-						  actx->fill);
+-
+-					memcpy(dst_buf + dst_off, out_tmp, rem);
+-					out_tmp += rem;
+-					dst_off += rem;
+-					actx->fill -= rem;
+-
+-					if (dst_off == sg_dma_len(dst)) {
+-						dst = sg_next(dst);
+-						split = 0;
+-					} else {
+-						split = 1;
+-					}
+-				}
++				actx->fill = 0;
+ 			}
+ 		} while (len);
  
- 	case CT_DEMOD_STEP_11:  /* 41 : init prbs autosearch */
--		if (state->subchannel <= 41) {
--			dib8000_set_subchannel_prbs(state, dib8000_get_init_prbs(state, state->subchannel));
-+		init_prbs = dib8000_get_init_prbs(state, state->subchannel);
-+
-+		if (init_prbs) {
-+			dib8000_set_subchannel_prbs(state, init_prbs);
- 			*tune_state = CT_DEMOD_STEP_9;
- 		} else {
- 			*tune_state = CT_DEMOD_STOP;
 -- 
 2.30.2
 
