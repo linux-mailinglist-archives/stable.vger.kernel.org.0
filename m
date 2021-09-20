@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE1DC41250A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4385F4123AC
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:25:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353510AbhITSlM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:41:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53124 "EHLO mail.kernel.org"
+        id S1346698AbhITS0d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:26:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1381719AbhITSjN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:39:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E65D6127A;
-        Mon, 20 Sep 2021 17:30:33 +0000 (UTC)
+        id S1378271AbhITSYV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:24:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 766CC632B7;
+        Mon, 20 Sep 2021 17:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159033;
-        bh=leO96kbURlF2o9JVp1cR10FCQGvL+ciEs8fPANnyStg=;
+        s=korg; t=1632158688;
+        bh=vE2INCWV22/gVkyOdYeFrysmkn7Bb/vdTSS76qfAwEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IBK/dckzI2ZeHgXHXjoSDc9hEZpgs3Ch/czSt+EFOiOjEvDV0vx2tuRUq6vkqtGKu
-         VtuEaLB+hjSlxKDP5EggE737cQPjzowcg5bgaaoN543SjWybhSj4Fdwmk0lQJXg/6i
-         Z1jNGl4pDZ+xkitLqT/uXNCRHPF4IVKze6e1JATE=
+        b=lEsTUIw3jzCn/PuPn4xc3SeCbl3ode9U2hxQdFsdkJc5KumKnrRoliVL9BcQ5EkZC
+         n80slcwJ8vFUL2sYhkSEIc3ZRvur6hIzGhtzC7TwY/V9uJWiTV3Xnlo4VAZfL4/093
+         lzn43/RAAyKkS1Ud5PtI1woAV3FWApnI9+vmEjVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrius V <vezhlys@gmail.com>,
-        Darek Strugacz <darek.strugacz@op.pl>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 045/168] r6040: Restore MDIO clock frequency after MAC reset
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Michael Walle <michael@walle.cc>, Marek Vasut <marex@denx.de>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH 5.10 011/122] drm/etnaviv: put submit prev MMU context when it exists
 Date:   Mon, 20 Sep 2021 18:43:03 +0200
-Message-Id: <20210920163923.126693900@linuxfoundation.org>
+Message-Id: <20210920163916.140266469@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,73 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-commit e3f0cc1a945fcefec0c7c9d9dfd028a51daa1846 upstream.
+commit cda7532916f7bc860b36a1806cb8352e6f63dacb upstream.
 
-A number of users have reported that they were not able to get the PHY
-to successfully link up, especially after commit c36757eb9dee ("net:
-phy: consider AN_RESTART status when reading link status") where we
-stopped reading just BMSR, but we also read BMCR to determine the link
-status.
+The prev context is the MMU context at the time of the job
+queueing in hardware. As a job might be queued multiple times
+due to recovery after a GPU hang, we need to make sure to put
+the stale prev MMU context from a prior queuing, to avoid the
+reference and thus the MMU context leaking.
 
-Andrius at NetBSD did a wonderful job at debugging the problem
-and found out that the MDIO bus clock frequency would be incorrectly set
-back to its default value which would prevent the MDIO bus controller
-from reading PHY registers properly. Back when we only read BMSR, if we
-read all 1s, we could falsely indicate a link status, though in general
-there is a cable plugged in, so this went unnoticed. After a second read
-of BMCR was added, a wrong read will lead to the inability to determine
-a link UP condition which is when it started to be visibly broken, even
-if it was long before that.
-
-The fix consists in restoring the value of the MD_CSR register that was
-set prior to the MAC reset.
-
-Link: http://gnats.netbsd.org/cgi-bin/query-pr-single.pl?number=53494
-Fixes: 90f750a81a29 ("r6040: consolidate MAC reset to its own function")
-Reported-by: Andrius V <vezhlys@gmail.com>
-Reported-by: Darek Strugacz <darek.strugacz@op.pl>
-Tested-by: Darek Strugacz <darek.strugacz@op.pl>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org # 5.4
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Tested-by: Michael Walle <michael@walle.cc>
+Tested-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/rdc/r6040.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/rdc/r6040.c
-+++ b/drivers/net/ethernet/rdc/r6040.c
-@@ -119,6 +119,8 @@
- #define PHY_ST		0x8A	/* PHY status register */
- #define MAC_SM		0xAC	/* MAC status machine */
- #define  MAC_SM_RST	0x0002	/* MAC status machine reset */
-+#define MD_CSC		0xb6	/* MDC speed control register */
-+#define  MD_CSC_DEFAULT	0x0030
- #define MAC_ID		0xBE	/* Identifier register */
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+@@ -1356,6 +1356,8 @@ struct dma_fence *etnaviv_gpu_submit(str
+ 		gpu->mmu_context = etnaviv_iommu_context_get(submit->mmu_context);
+ 		etnaviv_gpu_start_fe_idleloop(gpu);
+ 	} else {
++		if (submit->prev_mmu_context)
++			etnaviv_iommu_context_put(submit->prev_mmu_context);
+ 		submit->prev_mmu_context = etnaviv_iommu_context_get(gpu->mmu_context);
+ 	}
  
- #define TX_DCNT		0x80	/* TX descriptor count */
-@@ -355,8 +357,9 @@ static void r6040_reset_mac(struct r6040
- {
- 	void __iomem *ioaddr = lp->base;
- 	int limit = MAC_DEF_TIMEOUT;
--	u16 cmd;
-+	u16 cmd, md_csc;
- 
-+	md_csc = ioread16(ioaddr + MD_CSC);
- 	iowrite16(MAC_RST, ioaddr + MCR1);
- 	while (limit--) {
- 		cmd = ioread16(ioaddr + MCR1);
-@@ -368,6 +371,10 @@ static void r6040_reset_mac(struct r6040
- 	iowrite16(MAC_SM_RST, ioaddr + MAC_SM);
- 	iowrite16(0, ioaddr + MAC_SM);
- 	mdelay(5);
-+
-+	/* Restore MDIO clock frequency */
-+	if (md_csc != MD_CSC_DEFAULT)
-+		iowrite16(md_csc, ioaddr + MD_CSC);
- }
- 
- static void r6040_init_mac_regs(struct net_device *dev)
 
 
