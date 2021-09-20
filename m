@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9603D41230B
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:19:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B645412543
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:41:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347975AbhITSUt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:20:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40564 "EHLO mail.kernel.org"
+        id S1343554AbhITSml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:42:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351130AbhITSSZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:18:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8AC6632A4;
-        Mon, 20 Sep 2021 17:23:01 +0000 (UTC)
+        id S1382497AbhITSka (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:40:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38E6261ADF;
+        Mon, 20 Sep 2021 17:31:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158582;
-        bh=8zDodHJLPgbqBeip+e9adDHm4bqMx8kaLgkABP1/fi4=;
+        s=korg; t=1632159085;
+        bh=3KmBWArWvSZPoI25NiEyxO+KKLFIDhsFSI3XCOiW6u4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=108iwMJ1EmRn4nAo7lyl17S6LVDBlVKnqdWrynekSWKIbDiQvGYOB2bHP2BLk6Tc/
-         axpMYLiZqh2LYki+KaPYqZI8sXQ03JWuyBsraaWU+D70qBmylT3g7XNvzPH/gTzDb4
-         jr92/XAXStJNsaoyurIEQ+gdgFsX486yd80hrk9U=
+        b=Z1sTHXHZN2zYBlC04Wdhjxlz1ytTtltL0qtQHfXCrqZjcec8iLZGEnbXJRtAGMtCJ
+         YG1TKtwDSAKcFg1DnVDnX+cGd5cIoaNB/WRrPHYwdPO8CcAWi2AthBQR9GNsybsp7V
+         H6pyrbPtFPJwVQXSkdDxcOtNJNf3dXJYiFCpgXFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        Rob Herring <robh@kernel.org>,
-        Chris Morgan <macromorgan@hotmail.com>,
-        Steven Price <steven.price@arm.com>
-Subject: [PATCH 5.4 190/260] drm/panfrost: Use u64 for size in lock_region
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.14 070/168] KVM: PPC: Book3S HV: Tolerate treclaim. in fake-suspend mode changing registers
 Date:   Mon, 20 Sep 2021 18:43:28 +0200
-Message-Id: <20210920163937.574266894@linuxfoundation.org>
+Message-Id: <20210920163923.946189367@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,85 +39,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit a77b58825d7221d4a45c47881c35a47ba003aa73 upstream.
+commit 267cdfa21385d78c794768233678756e32b39ead upstream.
 
-Mali virtual addresses are 48-bit. Use a u64 instead of size_t to ensure
-we can express the "lock everything" condition as ~0ULL without
-overflow. This code was silently broken on any platform where a size_t
-is less than 48-bits; in particular, it was broken on 32-bit armv7
-platforms which remain in use with panfrost. (Mainly RK3288)
+POWER9 DD2.2 and 2.3 hardware implements a "fake-suspend" mode where
+certain TM instructions executed in HV=0 mode cause softpatch interrupts
+so the hypervisor can emulate them and prevent problematic processor
+conditions. In this fake-suspend mode, the treclaim. instruction does
+not modify registers.
 
-Signed-off-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-Suggested-by: Rob Herring <robh@kernel.org>
-Tested-by: Chris Morgan <macromorgan@hotmail.com>
-Reviewed-by: Steven Price <steven.price@arm.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Fixes: f3ba91228e8e ("drm/panfrost: Add initial panfrost driver")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Steven Price <steven.price@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210824173028.7528-3-alyssa.rosenzweig@collabora.com
+Unfortunately the rfscv instruction executed by the guest do not
+generate softpatch interrupts, which can cause the hypervisor to lose
+track of the fake-suspend mode, and it can execute this treclaim. while
+not in fake-suspend mode. This modifies GPRs and crashes the hypervisor.
+
+It's not trivial to disable scv in the guest with HFSCR now, because
+they assume a POWER9 has scv available. So this fix saves and restores
+checkpointed registers across the treclaim.
+
+Fixes: 7854f7545bff ("KVM: PPC: Book3S: Rework TM save/restore code and make it C-callable")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210908101718.118522-2-npiggin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/panfrost/panfrost_mmu.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/powerpc/kvm/book3s_hv_rmhandlers.S |   36 ++++++++++++++++++++++++++++++--
+ 1 file changed, 34 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-@@ -52,7 +52,7 @@ static int write_cmd(struct panfrost_dev
- }
+--- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
++++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
+@@ -2578,7 +2578,7 @@ END_FTR_SECTION_IFCLR(CPU_FTR_P9_TM_HV_A
+ 	/* The following code handles the fake_suspend = 1 case */
+ 	mflr	r0
+ 	std	r0, PPC_LR_STKOFF(r1)
+-	stdu	r1, -PPC_MIN_STKFRM(r1)
++	stdu	r1, -TM_FRAME_SIZE(r1)
  
- static void lock_region(struct panfrost_device *pfdev, u32 as_nr,
--			u64 iova, size_t size)
-+			u64 iova, u64 size)
- {
- 	u8 region_width;
- 	u64 region = iova & PAGE_MASK;
-@@ -72,7 +72,7 @@ static void lock_region(struct panfrost_
+ 	/* Turn on TM. */
+ 	mfmsr	r8
+@@ -2593,10 +2593,42 @@ BEGIN_FTR_SECTION
+ END_FTR_SECTION_IFSET(CPU_FTR_P9_TM_XER_SO_BUG)
+ 	nop
  
++	/*
++	 * It's possible that treclaim. may modify registers, if we have lost
++	 * track of fake-suspend state in the guest due to it using rfscv.
++	 * Save and restore registers in case this occurs.
++	 */
++	mfspr	r3, SPRN_DSCR
++	mfspr	r4, SPRN_XER
++	mfspr	r5, SPRN_AMR
++	/* SPRN_TAR would need to be saved here if the kernel ever used it */
++	mfcr	r12
++	SAVE_NVGPRS(r1)
++	SAVE_GPR(2, r1)
++	SAVE_GPR(3, r1)
++	SAVE_GPR(4, r1)
++	SAVE_GPR(5, r1)
++	stw	r12, 8(r1)
++	std	r1, HSTATE_HOST_R1(r13)
++
+ 	/* We have to treclaim here because that's the only way to do S->N */
+ 	li	r3, TM_CAUSE_KVM_RESCHED
+ 	TRECLAIM(R3)
  
- static int mmu_hw_do_operation_locked(struct panfrost_device *pfdev, int as_nr,
--				      u64 iova, size_t size, u32 op)
-+				      u64 iova, u64 size, u32 op)
- {
- 	if (as_nr < 0)
- 		return 0;
-@@ -89,7 +89,7 @@ static int mmu_hw_do_operation_locked(st
++	GET_PACA(r13)
++	ld	r1, HSTATE_HOST_R1(r13)
++	REST_GPR(2, r1)
++	REST_GPR(3, r1)
++	REST_GPR(4, r1)
++	REST_GPR(5, r1)
++	lwz	r12, 8(r1)
++	REST_NVGPRS(r1)
++	mtspr	SPRN_DSCR, r3
++	mtspr	SPRN_XER, r4
++	mtspr	SPRN_AMR, r5
++	mtcr	r12
++	HMT_MEDIUM
++
+ 	/*
+ 	 * We were in fake suspend, so we are not going to save the
+ 	 * register state as the guest checkpointed state (since
+@@ -2624,7 +2656,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_P9_TM_XER_
+ 	std	r5, VCPU_TFHAR(r9)
+ 	std	r6, VCPU_TFIAR(r9)
  
- static int mmu_hw_do_operation(struct panfrost_device *pfdev,
- 			       struct panfrost_mmu *mmu,
--			       u64 iova, size_t size, u32 op)
-+			       u64 iova, u64 size, u32 op)
- {
- 	int ret;
- 
-@@ -106,7 +106,7 @@ static void panfrost_mmu_enable(struct p
- 	u64 transtab = cfg->arm_mali_lpae_cfg.transtab;
- 	u64 memattr = cfg->arm_mali_lpae_cfg.memattr;
- 
--	mmu_hw_do_operation_locked(pfdev, as_nr, 0, ~0UL, AS_COMMAND_FLUSH_MEM);
-+	mmu_hw_do_operation_locked(pfdev, as_nr, 0, ~0ULL, AS_COMMAND_FLUSH_MEM);
- 
- 	mmu_write(pfdev, AS_TRANSTAB_LO(as_nr), transtab & 0xffffffffUL);
- 	mmu_write(pfdev, AS_TRANSTAB_HI(as_nr), transtab >> 32);
-@@ -122,7 +122,7 @@ static void panfrost_mmu_enable(struct p
- 
- static void panfrost_mmu_disable(struct panfrost_device *pfdev, u32 as_nr)
- {
--	mmu_hw_do_operation_locked(pfdev, as_nr, 0, ~0UL, AS_COMMAND_FLUSH_MEM);
-+	mmu_hw_do_operation_locked(pfdev, as_nr, 0, ~0ULL, AS_COMMAND_FLUSH_MEM);
- 
- 	mmu_write(pfdev, AS_TRANSTAB_LO(as_nr), 0);
- 	mmu_write(pfdev, AS_TRANSTAB_HI(as_nr), 0);
-@@ -222,7 +222,7 @@ static size_t get_pgsize(u64 addr, size_
- 
- static void panfrost_mmu_flush_range(struct panfrost_device *pfdev,
- 				     struct panfrost_mmu *mmu,
--				     u64 iova, size_t size)
-+				     u64 iova, u64 size)
- {
- 	if (mmu->as < 0)
- 		return;
+-	addi	r1, r1, PPC_MIN_STKFRM
++	addi	r1, r1, TM_FRAME_SIZE
+ 	ld	r0, PPC_LR_STKOFF(r1)
+ 	mtlr	r0
+ 	blr
 
 
