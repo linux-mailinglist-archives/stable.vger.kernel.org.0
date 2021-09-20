@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10559411DF0
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:24:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A5E1411BC8
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:01:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345209AbhITR0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:26:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49382 "EHLO mail.kernel.org"
+        id S1343810AbhITRCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:02:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349368AbhITRW4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:22:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BF2661A78;
-        Mon, 20 Sep 2021 17:01:27 +0000 (UTC)
+        id S1345098AbhITRAH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:00:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 112A861407;
+        Mon, 20 Sep 2021 16:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157287;
-        bh=Bi6+0tvVMg2bvDTKx7eAnXNzqB6+GbCNe6ES9zLfERk=;
+        s=korg; t=1632156772;
+        bh=e3yvkwGqp2Vy9cKkHKiS14Ci8X3/ufrLWKBheCxYQeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UJtYH8hMQA+hLDYG4ta60KdDOpG2scuaj9DoPYpl/M0XMZkt8xE1dXxJE/PaGz2G7
-         O+ghAHSicLV/LmNIb3FhKw3rwzgDIRkjqDOm2njTz8ASToWQSX8e9Lh65Cu1kkKR0x
-         67HXYkMoY8QiuChdzl4r8/8FCTtGcQ55/R4vGfd0=
+        b=OtgiGAPbdjWG+KqKMvahj2HfUqvAKies/oDUY9sNlTOruLg4/iNS+NfMLOM1x4XSz
+         P0N/WJBmzQEFUs82zQIdF+etCt/unOmCRD8BPVy0L8P8Pto6A//Yy7fgdIRfzOXbqX
+         Y36NJ12Hsa3os6qNPZr+G80IhIHJ8xf5r1UkIfbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhenwei pi <pizhenwei@bytedance.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 4.14 107/217] crypto: public_key: fix overflow during implicit conversion
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Evgeny Novikov <novikov@ispras.ru>,
+        Kirill Shilimanov <kirill.shilimanov@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 079/175] usb: ehci-orion: Handle errors of clk_prepare_enable() in probe
 Date:   Mon, 20 Sep 2021 18:42:08 +0200
-Message-Id: <20210920163928.264579496@linuxfoundation.org>
+Message-Id: <20210920163920.646772609@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,70 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhenwei pi <pizhenwei@bytedance.com>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-commit f985911b7bc75d5c98ed24d8aaa8b94c590f7c6a upstream.
+[ Upstream commit 4720f1bf4ee4a784d9ece05420ba33c9222a3004 ]
 
-Hit kernel warning like this, it can be reproduced by verifying 256
-bytes datafile by keyctl command, run script:
-RAWDATA=rawdata
-SIGDATA=sigdata
+ehci_orion_drv_probe() did not account for possible errors of
+clk_prepare_enable() that in particular could cause invocation of
+clk_disable_unprepare() on clocks that were not prepared/enabled yet,
+e.g. in remove or on handling errors of usb_add_hcd() in probe. Though,
+there were several patches fixing different issues with clocks in this
+driver, they did not solve this problem.
 
-modprobe pkcs8_key_parser
+Add handling of errors of clk_prepare_enable() in ehci_orion_drv_probe()
+to avoid calls of clk_disable_unprepare() without previous successful
+invocation of clk_prepare_enable().
 
-rm -rf *.der *.pem *.pfx
-rm -rf $RAWDATA
-dd if=/dev/random of=$RAWDATA bs=256 count=1
+Found by Linux Driver Verification project (linuxtesting.org).
 
-openssl req -nodes -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem \
-  -subj "/C=CN/ST=GD/L=SZ/O=vihoo/OU=dev/CN=xx.com/emailAddress=yy@xx.com"
-
-KEY_ID=`openssl pkcs8 -in key.pem -topk8 -nocrypt -outform DER | keyctl \
-  padd asymmetric 123 @s`
-
-keyctl pkey_sign $KEY_ID 0 $RAWDATA enc=pkcs1 hash=sha1 > $SIGDATA
-keyctl pkey_verify $KEY_ID 0 $RAWDATA $SIGDATA enc=pkcs1 hash=sha1
-
-Then the kernel reports:
- WARNING: CPU: 5 PID: 344556 at crypto/rsa-pkcs1pad.c:540
-   pkcs1pad_verify+0x160/0x190
- ...
- Call Trace:
-  public_key_verify_signature+0x282/0x380
-  ? software_key_query+0x12d/0x180
-  ? keyctl_pkey_params_get+0xd6/0x130
-  asymmetric_key_verify_signature+0x66/0x80
-  keyctl_pkey_verify+0xa5/0x100
-  do_syscall_64+0x35/0xb0
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The reason of this issue, in function 'asymmetric_key_verify_signature':
-'.digest_size(u8) = params->in_len(u32)' leads overflow of an u8 value,
-so use u32 instead of u8 for digest_size field. And reorder struct
-public_key_signature, it saves 8 bytes on a 64-bit machine.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Fixes: 8c869edaee07 ("ARM: Orion: EHCI: Add support for enabling clocks")
+Co-developed-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Signed-off-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
+Link: https://lore.kernel.org/r/20210825170902.11234-1-novikov@ispras.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/crypto/public_key.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/host/ehci-orion.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/include/crypto/public_key.h
-+++ b/include/crypto/public_key.h
-@@ -35,9 +35,9 @@ extern void public_key_free(struct publi
- struct public_key_signature {
- 	struct asymmetric_key_id *auth_ids[2];
- 	u8 *s;			/* Signature */
--	u32 s_size;		/* Number of bytes in signature */
- 	u8 *digest;
--	u8 digest_size;		/* Number of bytes in digest */
-+	u32 s_size;		/* Number of bytes in signature */
-+	u32 digest_size;	/* Number of bytes in digest */
- 	const char *pkey_algo;
- 	const char *hash_algo;
- };
+diff --git a/drivers/usb/host/ehci-orion.c b/drivers/usb/host/ehci-orion.c
+index ee8d5faa0194..3eecf47d4e89 100644
+--- a/drivers/usb/host/ehci-orion.c
++++ b/drivers/usb/host/ehci-orion.c
+@@ -218,8 +218,11 @@ static int ehci_orion_drv_probe(struct platform_device *pdev)
+ 	 * the clock does not exists.
+ 	 */
+ 	priv->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (!IS_ERR(priv->clk))
+-		clk_prepare_enable(priv->clk);
++	if (!IS_ERR(priv->clk)) {
++		err = clk_prepare_enable(priv->clk);
++		if (err)
++			goto err_put_hcd;
++	}
+ 
+ 	priv->phy = devm_phy_optional_get(&pdev->dev, "usb");
+ 	if (IS_ERR(priv->phy)) {
+@@ -280,6 +283,7 @@ err_phy_init:
+ err_phy_get:
+ 	if (!IS_ERR(priv->clk))
+ 		clk_disable_unprepare(priv->clk);
++err_put_hcd:
+ 	usb_put_hcd(hcd);
+ err:
+ 	dev_err(&pdev->dev, "init %s fail, %d\n",
+-- 
+2.30.2
+
 
 
