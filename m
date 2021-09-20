@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E77C411B1D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:54:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71CB241207E
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:54:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232060AbhITQzv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:55:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39624 "EHLO mail.kernel.org"
+        id S1347245AbhITRzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:55:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234184AbhITQxv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:53:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FCE761354;
-        Mon, 20 Sep 2021 16:50:16 +0000 (UTC)
+        id S1349458AbhITRwu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:52:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A7546140A;
+        Mon, 20 Sep 2021 17:13:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156617;
-        bh=v2r22YBvxh0zpRCZOYUG91OOe0HyL2AOVDysnjfkIYw=;
+        s=korg; t=1632157985;
+        bh=rSes+fkgNcdnRhQdFfMj5NVACGIdVJzrMcuJwL51u4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i1yGcaAe9c2ExtsXHDcaDuobTUQqfrPYBknEXwYhTuMb9iwl/1t+sc0WsVfbTb8yx
-         Fi+93qbf0XKX+loPjZrtjtA0plY1iX0NNir5t9zzfds3Y5ZEUZ1pk14V0LEFdYYXDD
-         VjzYrnc3nLJ7mRHpiWtPiJUmvXGaZ9F5VrFxIeBU=
+        b=GEX98TFzjvXfrQZXe4AdZoR090FIilbElwIMjk2AK/phShRSe9uIN3SjO6t1/O9cX
+         15xJlXoqQxLeNHXq15uPj/ZX12UWttAiu7eZ7eqrmHZVYGQP95feI96jT6+lo2L+EF
+         kzRSnuQfxu4AEWBMgCK3yiN9lmuxgvz5jj3JpDMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 125/133] net/af_unix: fix a data-race in unix_dgram_poll
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.19 241/293] parisc: fix crash with signals and alloca
 Date:   Mon, 20 Sep 2021 18:43:23 +0200
-Message-Id: <20210920163916.716424386@linuxfoundation.org>
+Message-Id: <20210920163941.644286313@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,97 +39,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 04f08eb44b5011493d77b602fdec29ff0f5c6cd5 upstream.
+commit 030f653078316a9cc9ca6bd1b0234dcf858be35d upstream.
 
-syzbot reported another data-race in af_unix [1]
+I was debugging some crashes on parisc and I found out that there is a
+crash possibility if a function using alloca is interrupted by a signal.
+The reason for the crash is that the gcc alloca implementation leaves
+garbage in the upper 32 bits of the sp register. This normally doesn't
+matter (the upper bits are ignored because the PSW W-bit is clear),
+however the signal delivery routine in the kernel uses full 64 bits of sp
+and it fails with -EFAULT if the upper 32 bits are not zero.
 
-Lets change __skb_insert() to use WRITE_ONCE() when changing
-skb head qlen.
+I created this program that demonstrates the problem:
 
-Also, change unix_dgram_poll() to use lockless version
-of unix_recvq_full()
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <alloca.h>
 
-It is verry possible we can switch all/most unix_recvq_full()
-to the lockless version, this will be done in a future kernel version.
+static __attribute__((noinline,noclone)) void aa(int *size)
+{
+	void * volatile p = alloca(-*size);
+	while (1) ;
+}
 
-[1] HEAD commit: 8596e589b787732c8346f0482919e83cc9362db1
+static void handler(int sig)
+{
+	write(1, "signal delivered\n", 17);
+	_exit(0);
+}
 
-BUG: KCSAN: data-race in skb_queue_tail / unix_dgram_poll
+int main(void)
+{
+	int size = -0x100;
+	signal(SIGALRM, handler);
+	alarm(1);
+	aa(&size);
+}
 
-write to 0xffff88814eeb24e0 of 4 bytes by task 25815 on cpu 0:
- __skb_insert include/linux/skbuff.h:1938 [inline]
- __skb_queue_before include/linux/skbuff.h:2043 [inline]
- __skb_queue_tail include/linux/skbuff.h:2076 [inline]
- skb_queue_tail+0x80/0xa0 net/core/skbuff.c:3264
- unix_dgram_sendmsg+0xff2/0x1600 net/unix/af_unix.c:1850
- sock_sendmsg_nosec net/socket.c:703 [inline]
- sock_sendmsg net/socket.c:723 [inline]
- ____sys_sendmsg+0x360/0x4d0 net/socket.c:2392
- ___sys_sendmsg net/socket.c:2446 [inline]
- __sys_sendmmsg+0x315/0x4b0 net/socket.c:2532
- __do_sys_sendmmsg net/socket.c:2561 [inline]
- __se_sys_sendmmsg net/socket.c:2558 [inline]
- __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2558
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+If you compile it with optimizations, it will crash.
+The "aa" function has this disassembly:
 
-read to 0xffff88814eeb24e0 of 4 bytes by task 25834 on cpu 1:
- skb_queue_len include/linux/skbuff.h:1869 [inline]
- unix_recvq_full net/unix/af_unix.c:194 [inline]
- unix_dgram_poll+0x2bc/0x3e0 net/unix/af_unix.c:2777
- sock_poll+0x23e/0x260 net/socket.c:1288
- vfs_poll include/linux/poll.h:90 [inline]
- ep_item_poll fs/eventpoll.c:846 [inline]
- ep_send_events fs/eventpoll.c:1683 [inline]
- ep_poll fs/eventpoll.c:1798 [inline]
- do_epoll_wait+0x6ad/0xf00 fs/eventpoll.c:2226
- __do_sys_epoll_wait fs/eventpoll.c:2238 [inline]
- __se_sys_epoll_wait fs/eventpoll.c:2233 [inline]
- __x64_sys_epoll_wait+0xf6/0x120 fs/eventpoll.c:2233
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+000106a0 <aa>:
+   106a0:       08 03 02 41     copy r3,r1
+   106a4:       08 1e 02 43     copy sp,r3
+   106a8:       6f c1 00 80     stw,ma r1,40(sp)
+   106ac:       37 dc 3f c1     ldo -20(sp),ret0
+   106b0:       0c 7c 12 90     stw ret0,8(r3)
+   106b4:       0f 40 10 9c     ldw 0(r26),ret0		; ret0 = 0x00000000FFFFFF00
+   106b8:       97 9c 00 7e     subi 3f,ret0,ret0	; ret0 = 0xFFFFFFFF0000013F
+   106bc:       d7 80 1c 1a     depwi 0,31,6,ret0	; ret0 = 0xFFFFFFFF00000100
+   106c0:       0b 9e 0a 1e     add,l sp,ret0,sp	;   sp = 0xFFFFFFFFxxxxxxxx
+   106c4:       e8 1f 1f f7     b,l,n 106c4 <aa+0x24>,r0
 
-value changed: 0x0000001b -> 0x00000001
+This patch fixes the bug by truncating the "usp" variable to 32 bits.
 
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 25834 Comm: syz-executor.1 Tainted: G        W         5.14.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 86b18aaa2b5b ("skbuff: fix a data race in skb_queue_len()")
-Cc: Qian Cai <cai@lca.pw>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/skbuff.h |    2 +-
- net/unix/af_unix.c     |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/parisc/kernel/signal.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1502,7 +1502,7 @@ static inline void __skb_insert(struct s
- 	newsk->next = next;
- 	newsk->prev = prev;
- 	next->prev  = prev->next = newsk;
--	list->qlen++;
-+	WRITE_ONCE(list->qlen, list->qlen + 1);
- }
- 
- static inline void __skb_queue_splice(const struct sk_buff_head *list,
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -2700,7 +2700,7 @@ static unsigned int unix_dgram_poll(stru
- 
- 		other = unix_peer(sk);
- 		if (other && unix_peer(other) != sk &&
--		    unix_recvq_full(other) &&
-+		    unix_recvq_full_lockless(other) &&
- 		    unix_dgram_peer_wake_me(sk, other))
- 			writable = 0;
+--- a/arch/parisc/kernel/signal.c
++++ b/arch/parisc/kernel/signal.c
+@@ -239,6 +239,12 @@ setup_rt_frame(struct ksignal *ksig, sig
+ #endif
+ 	
+ 	usp = (regs->gr[30] & ~(0x01UL));
++#ifdef CONFIG_64BIT
++	if (is_compat_task()) {
++		/* The gcc alloca implementation leaves garbage in the upper 32 bits of sp */
++		usp = (compat_uint_t)usp;
++	}
++#endif
+ 	/*FIXME: frame_size parameter is unused, remove it. */
+ 	frame = get_sigframe(&ksig->ka, usp, sizeof(*frame));
  
 
 
