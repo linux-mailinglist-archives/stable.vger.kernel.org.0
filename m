@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CF7A411AD5
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:51:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B629411E43
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:28:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245199AbhITQwj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:52:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39012 "EHLO mail.kernel.org"
+        id S1350380AbhITR22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:28:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243457AbhITQut (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:50:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2724461350;
-        Mon, 20 Sep 2021 16:49:16 +0000 (UTC)
+        id S1350080AbhITR0I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:26:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 925D5613DA;
+        Mon, 20 Sep 2021 17:02:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156556;
-        bh=Glq6Gzw1sbpK499PuOXT0KvtqLdtmo5/ThyFSrBMhE4=;
+        s=korg; t=1632157357;
+        bh=nzco7+nN3UwAkaqyTAYo5UQxy7SiTvjLXdyDf5gg0BQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DzCqUeerpsw0ClUhbHs94YAwMf7mT6lvc3HEqj0NKuXWHKY77na/rGrXREFq99HK2
-         8fzZOvDGUpw2EF+5JFLE+yRVMqvO+dagLbybcr0h8G2gYSNzw0BFKoBSgfuDi8vNOs
-         z9bBsmDC4zReoKI30TNSQ+FTfGgyqh6CyTlTycG0=
+        b=CQ0+INyLtWt7icB8qDSvrexohg5bUh+1ljSc6TidY8KC1bWis+zPohW4tNEOXBqOj
+         MoRe9kDtyXlbMYsQgm/rvjNsk1AxxEC0kJgXNW42Kxmuf7xro9BTkB9MbQIdN6syQp
+         x407wtlfc2plYZSvjwyuafpihB+TYeAuj+13opMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 113/133] parport: remove non-zero check on count
+Subject: [PATCH 4.14 170/217] mmc: rtsx_pci: Fix long reads when clock is prescaled
 Date:   Mon, 20 Sep 2021 18:43:11 +0200
-Message-Id: <20210920163916.320175324@linuxfoundation.org>
+Message-Id: <20210920163930.391897290@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +40,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Thomas Hebb <tommyhebb@gmail.com>
 
-[ Upstream commit 0be883a0d795d9146f5325de582584147dd0dcdc ]
+[ Upstream commit 3ac5e45291f3f0d699a721357380d4593bc2dcb3 ]
 
-The check for count appears to be incorrect since a non-zero count
-check occurs a couple of statements earlier. Currently the check is
-always false and the dev->port->irq != PARPORT_IRQ_NONE part of the
-check is never tested and the if statement is dead-code. Fix this
-by removing the check on count.
+For unexplained reasons, the prescaler register for this device needs to
+be cleared (set to 1) while performing a data read or else the command
+will hang. This does not appear to affect the real clock rate sent out
+on the bus, so I assume it's purely to work around a hardware bug.
 
-Note that this code is pre-git history, so I can't find a sha for
-it.
+During normal operation, the prescaler is already set to 1, so nothing
+needs to be done. However, in "initial mode" (which is used for sub-MHz
+clock speeds, like the core sets while enumerating cards), it's set to
+128 and so we need to reset it during data reads. We currently fail to
+do this for long reads.
 
-Acked-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Addresses-Coverity: ("Logically dead code")
-Link: https://lore.kernel.org/r/20210730100710.27405-1-colin.king@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This has no functional affect on the driver's operation currently
+written, as the MMC core always sets a clock above 1MHz before
+attempting any long reads. However, the core could conceivably set any
+clock speed at any time and the driver should still work, so I think
+this fix is worthwhile.
+
+I personally encountered this issue while performing data recovery on an
+external chip. My connections had poor signal integrity, so I modified
+the core code to reduce the clock speed. Without this change, I saw the
+card enumerate but was unable to actually read any data.
+
+Writes don't seem to work in the situation described above even with
+this change (and even if the workaround is extended to encompass data
+write commands). I was not able to find a way to get them working.
+
+Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+Link: https://lore.kernel.org/r/2fef280d8409ab0100c26c6ac7050227defd098d.1627818365.git.tommyhebb@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/parport/ieee1284_ops.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/rtsx_pci_sdmmc.c | 36 ++++++++++++++++++++-----------
+ 1 file changed, 23 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/parport/ieee1284_ops.c b/drivers/parport/ieee1284_ops.c
-index 2e21af43d91e..b6d808037045 100644
---- a/drivers/parport/ieee1284_ops.c
-+++ b/drivers/parport/ieee1284_ops.c
-@@ -534,7 +534,7 @@ size_t parport_ieee1284_ecp_read_data (struct parport *port,
- 				goto out;
+diff --git a/drivers/mmc/host/rtsx_pci_sdmmc.c b/drivers/mmc/host/rtsx_pci_sdmmc.c
+index 41b57713b620..9de6a32f0c9f 100644
+--- a/drivers/mmc/host/rtsx_pci_sdmmc.c
++++ b/drivers/mmc/host/rtsx_pci_sdmmc.c
+@@ -551,9 +551,22 @@ static int sd_write_long_data(struct realtek_pci_sdmmc *host,
+ 	return 0;
+ }
  
- 			/* Yield the port for a while. */
--			if (count && dev->port->irq != PARPORT_IRQ_NONE) {
-+			if (dev->port->irq != PARPORT_IRQ_NONE) {
- 				parport_release (dev);
- 				schedule_timeout_interruptible(msecs_to_jiffies(40));
- 				parport_claim_or_block (dev);
++static inline void sd_enable_initial_mode(struct realtek_pci_sdmmc *host)
++{
++	rtsx_pci_write_register(host->pcr, SD_CFG1,
++			SD_CLK_DIVIDE_MASK, SD_CLK_DIVIDE_128);
++}
++
++static inline void sd_disable_initial_mode(struct realtek_pci_sdmmc *host)
++{
++	rtsx_pci_write_register(host->pcr, SD_CFG1,
++			SD_CLK_DIVIDE_MASK, SD_CLK_DIVIDE_0);
++}
++
+ static int sd_rw_multi(struct realtek_pci_sdmmc *host, struct mmc_request *mrq)
+ {
+ 	struct mmc_data *data = mrq->data;
++	int err;
+ 
+ 	if (host->sg_count < 0) {
+ 		data->error = host->sg_count;
+@@ -562,22 +575,19 @@ static int sd_rw_multi(struct realtek_pci_sdmmc *host, struct mmc_request *mrq)
+ 		return data->error;
+ 	}
+ 
+-	if (data->flags & MMC_DATA_READ)
+-		return sd_read_long_data(host, mrq);
++	if (data->flags & MMC_DATA_READ) {
++		if (host->initial_mode)
++			sd_disable_initial_mode(host);
+ 
+-	return sd_write_long_data(host, mrq);
+-}
++		err = sd_read_long_data(host, mrq);
+ 
+-static inline void sd_enable_initial_mode(struct realtek_pci_sdmmc *host)
+-{
+-	rtsx_pci_write_register(host->pcr, SD_CFG1,
+-			SD_CLK_DIVIDE_MASK, SD_CLK_DIVIDE_128);
+-}
++		if (host->initial_mode)
++			sd_enable_initial_mode(host);
+ 
+-static inline void sd_disable_initial_mode(struct realtek_pci_sdmmc *host)
+-{
+-	rtsx_pci_write_register(host->pcr, SD_CFG1,
+-			SD_CLK_DIVIDE_MASK, SD_CLK_DIVIDE_0);
++		return err;
++	}
++
++	return sd_write_long_data(host, mrq);
+ }
+ 
+ static void sd_normal_rw(struct realtek_pci_sdmmc *host,
 -- 
 2.30.2
 
