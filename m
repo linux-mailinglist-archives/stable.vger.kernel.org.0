@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A5AC412079
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:54:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7A04411E66
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:29:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347013AbhITRzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:55:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54552 "EHLO mail.kernel.org"
+        id S1347702AbhITRac (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:30:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354994AbhITRwe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:52:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA31361BF9;
-        Mon, 20 Sep 2021 17:12:47 +0000 (UTC)
+        id S244979AbhITR2Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:28:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D4EA61ABB;
+        Mon, 20 Sep 2021 17:03:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157968;
-        bh=AsS5IWO2I9ueUInU05sg4o6O+dRha59amT68ELM+6WQ=;
+        s=korg; t=1632157402;
+        bh=p4dfK9B501AN1rkSXoJzFgRNOq5iDuB7dytHk2Ts3qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TWEFxo9r4F5ulAe9KaOLe0+KweffIADKJheC34uCkB2tM7X+0w+FKYvTHGAARg/eL
-         hnuZwp9+2owlhE4w3zXFkcycQ69+i6UZHRi6rQ9JpmRaNJ6nmvdOHObALnsllg3FEj
-         HWfwbIVWrRfjK2ntkgIatBi1QuxCJIuoX8WtGwaI=
+        b=Xw2UQal4r0wsz5EayniEwKPD5TbmZ7JbmWc7gpwaHvQrXIdWZJVeBxzJF6eqDvqzC
+         BvQW9e5O/v7UhRsul78aCivCsn8ZVxAkPGIMwVpmU1fK3/jYuv2U0QTmcs/WP2hj0n
+         +qAeMj3fmwyerkoPox2w6KfUWzcmJp67h//AsR+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sugar Zhang <sugar.zhang@rock-chips.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Anirudh Rayabharam <mail@anirudhrb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 234/293] ASoC: rockchip: i2s: Fix regmap_ops hang
+Subject: [PATCH 4.14 175/217] usbip: give back URBs for unsent unlink requests during cleanup
 Date:   Mon, 20 Sep 2021 18:43:16 +0200
-Message-Id: <20210920163941.413287748@linuxfoundation.org>
+Message-Id: <20210920163930.567063590@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +42,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sugar Zhang <sugar.zhang@rock-chips.com>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-[ Upstream commit 53ca9b9777b95cdd689181d7c547e38dc79adad0 ]
+[ Upstream commit 258c81b341c8025d79073ce2d6ce19dcdc7d10d2 ]
 
-API 'set_fmt' maybe called when PD is off, in the situation,
-any register access will hang the system. so, enable PD
-before r/w register.
+In vhci_device_unlink_cleanup(), the URBs for unsent unlink requests are
+not given back. This sometimes causes usb_kill_urb to wait indefinitely
+for that urb to be given back. syzbot has reported a hung task issue [1]
+for this.
 
-Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
-Link: https://lore.kernel.org/r/1629950520-14190-4-git-send-email-sugar.zhang@rock-chips.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+To fix this, give back the urbs corresponding to unsent unlink requests
+(unlink_tx list) similar to how urbs corresponding to unanswered unlink
+requests (unlink_rx list) are given back.
+
+[1]: https://syzkaller.appspot.com/bug?id=08f12df95ae7da69814e64eb5515d5a85ed06b76
+
+Reported-by: syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com
+Tested-by: syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Link: https://lore.kernel.org/r/20210820190122.16379-2-mail@anirudhrb.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/rockchip/rockchip_i2s.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/usb/usbip/vhci_hcd.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
-index b86f76c3598c..cab381c9dea1 100644
---- a/sound/soc/rockchip/rockchip_i2s.c
-+++ b/sound/soc/rockchip/rockchip_i2s.c
-@@ -189,7 +189,9 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
- {
- 	struct rk_i2s_dev *i2s = to_info(cpu_dai);
- 	unsigned int mask = 0, val = 0;
-+	int ret = 0;
+diff --git a/drivers/usb/usbip/vhci_hcd.c b/drivers/usb/usbip/vhci_hcd.c
+index 9833f307d70e..709214df2c18 100644
+--- a/drivers/usb/usbip/vhci_hcd.c
++++ b/drivers/usb/usbip/vhci_hcd.c
+@@ -971,8 +971,32 @@ static void vhci_device_unlink_cleanup(struct vhci_device *vdev)
+ 	spin_lock(&vdev->priv_lock);
  
-+	pm_runtime_get_sync(cpu_dai->dev);
- 	mask = I2S_CKR_MSS_MASK;
- 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
- 	case SND_SOC_DAIFMT_CBS_CFS:
-@@ -202,7 +204,8 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
- 		i2s->is_master_mode = false;
- 		break;
- 	default:
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto err_pm_put;
- 	}
- 
- 	regmap_update_bits(i2s->regmap, I2S_CKR, mask, val);
-@@ -216,7 +219,8 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
- 		val = I2S_CKR_CKP_POS;
- 		break;
- 	default:
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto err_pm_put;
- 	}
- 
- 	regmap_update_bits(i2s->regmap, I2S_CKR, mask, val);
-@@ -239,7 +243,8 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
- 		val = I2S_TXCR_TFS_PCM | I2S_TXCR_PBM_MODE(1);
- 		break;
- 	default:
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto err_pm_put;
- 	}
- 
- 	regmap_update_bits(i2s->regmap, I2S_TXCR, mask, val);
-@@ -262,12 +267,16 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
- 		val = I2S_RXCR_TFS_PCM | I2S_RXCR_PBM_MODE(1);
- 		break;
- 	default:
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto err_pm_put;
- 	}
- 
- 	regmap_update_bits(i2s->regmap, I2S_RXCR, mask, val);
- 
--	return 0;
-+err_pm_put:
-+	pm_runtime_put(cpu_dai->dev);
+ 	list_for_each_entry_safe(unlink, tmp, &vdev->unlink_tx, list) {
++		struct urb *urb;
 +
-+	return ret;
- }
++		/* give back urb of unsent unlink request */
+ 		pr_info("unlink cleanup tx %lu\n", unlink->unlink_seqnum);
++
++		urb = pickup_urb_and_free_priv(vdev, unlink->unlink_seqnum);
++		if (!urb) {
++			list_del(&unlink->list);
++			kfree(unlink);
++			continue;
++		}
++
++		urb->status = -ENODEV;
++
++		usb_hcd_unlink_urb_from_ep(hcd, urb);
++
+ 		list_del(&unlink->list);
++
++		spin_unlock(&vdev->priv_lock);
++		spin_unlock_irqrestore(&vhci->lock, flags);
++
++		usb_hcd_giveback_urb(hcd, urb, urb->status);
++
++		spin_lock_irqsave(&vhci->lock, flags);
++		spin_lock(&vdev->priv_lock);
++
+ 		kfree(unlink);
+ 	}
  
- static int rockchip_i2s_hw_params(struct snd_pcm_substream *substream,
 -- 
 2.30.2
 
