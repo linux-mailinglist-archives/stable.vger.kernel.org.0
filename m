@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5A12411DD5
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:24:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D60DC411A74
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:48:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345605AbhITRZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:25:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48642 "EHLO mail.kernel.org"
+        id S244319AbhITQuF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:50:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349216AbhITRW0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:22:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6640B61A6F;
-        Mon, 20 Sep 2021 17:01:16 +0000 (UTC)
+        id S230322AbhITQtX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:49:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B433761213;
+        Mon, 20 Sep 2021 16:47:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157276;
-        bh=SY6y8U71EGd4aHjByJyQV570JiwGzg0mb0VxOk/josg=;
+        s=korg; t=1632156476;
+        bh=xf0YbatEnMmfTs+5VSBVKKe7pFah5K7ZriwPi85SFwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1rAET7Fmvu52cv2FoItJbBKMQPkQbI+pdLjggmLJsYkDNA8Fs1Y47PJ2V0l7An7PZ
-         utXQvjCOI9ITkLtyJ9/P8L3qfiXVYtXXH3c+BHgo61bIOyeOp6T591VWbxJ+H7mSTf
-         HgwWTZOy8nRICNV8qxns+/JxSyDfIPVyTJtCEeq0=
+        b=UPNYZtJmRu/6lvcoI/eXBZa9wir1CJpauq1umKEMhk9bm+/TdR4Kl5ETCI/2onfbk
+         +yS2HXAik5CctOn4JvhMhdpLgK9CTCQy/c7KnXYnEukdRBqouuUU+as9ofkmTDK2M4
+         7WTRMVxgb+J4iDrN1qTW/E2EwKGGYHb/yYWNaYjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        kernel test robot <lkp@intel.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 133/217] iio: dac: ad5624r: Fix incorrect handling of an optional regulator.
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Jorgen Hansen <jhansen@vmware.com>,
+        Wang Hai <wanghai38@huawei.com>
+Subject: [PATCH 4.4 076/133] VMCI: fix NULL pointer dereference when unmapping queue pair
 Date:   Mon, 20 Sep 2021 18:42:34 +0200
-Message-Id: <20210920163929.166140299@linuxfoundation.org>
+Message-Id: <20210920163915.132977555@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,68 +40,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 97683c851f9cdbd3ea55697cbe2dcb6af4287bbd ]
+commit a30dc6cf0dc51419021550152e435736aaef8799 upstream.
 
-The naming of the regulator is problematic.  VCC is usually a supply
-voltage whereas these devices have a separate VREF pin.
+I got a NULL pointer dereference report when doing fuzz test:
 
-Secondly, the regulator core might have provided a stub regulator if
-a real regulator wasn't provided. That would in turn have failed to
-provide a voltage when queried. So reality was that there was no way
-to use the internal reference.
+Call Trace:
+  qp_release_pages+0xae/0x130
+  qp_host_unregister_user_memory.isra.25+0x2d/0x80
+  vmci_qp_broker_unmap+0x191/0x320
+  ? vmci_host_do_alloc_queuepair.isra.9+0x1c0/0x1c0
+  vmci_host_unlocked_ioctl+0x59f/0xd50
+  ? do_vfs_ioctl+0x14b/0xa10
+  ? tomoyo_file_ioctl+0x28/0x30
+  ? vmci_host_do_alloc_queuepair.isra.9+0x1c0/0x1c0
+  __x64_sys_ioctl+0xea/0x120
+  do_syscall_64+0x34/0xb0
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-In order to avoid breaking any dts out in the wild, make sure to fallback
-to the original vcc naming if vref is not available.
+When a queue pair is created by the following call, it will not
+register the user memory if the page_store is NULL, and the
+entry->state will be set to VMCIQPB_CREATED_NO_MEM.
 
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Acked-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210627163244.1090296-9-jic23@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+vmci_host_unlocked_ioctl
+  vmci_host_do_alloc_queuepair
+    vmci_qp_broker_alloc
+      qp_broker_alloc
+        qp_broker_create // set entry->state = VMCIQPB_CREATED_NO_MEM;
+
+When unmapping this queue pair, qp_host_unregister_user_memory() will
+be called to unregister the non-existent user memory, which will
+result in a null pointer reference. It will also change
+VMCIQPB_CREATED_NO_MEM to VMCIQPB_CREATED_MEM, which should not be
+present in this operation.
+
+Only when the qp broker has mem, it can unregister the user
+memory when unmapping the qp broker.
+
+Only when the qp broker has no mem, it can register the user
+memory when mapping the qp broker.
+
+Fixes: 06164d2b72aa ("VMCI: queue pairs implementation.")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Link: https://lore.kernel.org/r/20210818124845.488312-1-wanghai38@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/dac/ad5624r_spi.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ drivers/misc/vmw_vmci/vmci_queue_pair.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/dac/ad5624r_spi.c b/drivers/iio/dac/ad5624r_spi.c
-index 5489ec43b95d..e5cefdb674f8 100644
---- a/drivers/iio/dac/ad5624r_spi.c
-+++ b/drivers/iio/dac/ad5624r_spi.c
-@@ -231,7 +231,7 @@ static int ad5624r_probe(struct spi_device *spi)
- 	if (!indio_dev)
- 		return -ENOMEM;
- 	st = iio_priv(indio_dev);
--	st->reg = devm_regulator_get(&spi->dev, "vcc");
-+	st->reg = devm_regulator_get_optional(&spi->dev, "vref");
- 	if (!IS_ERR(st->reg)) {
- 		ret = regulator_enable(st->reg);
- 		if (ret)
-@@ -242,6 +242,22 @@ static int ad5624r_probe(struct spi_device *spi)
- 			goto error_disable_reg;
+--- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
++++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+@@ -2344,7 +2344,8 @@ int vmci_qp_broker_map(struct vmci_handl
+ 	is_local = entry->qp.flags & VMCI_QPFLAG_LOCAL;
+ 	result = VMCI_SUCCESS;
  
- 		voltage_uv = ret;
-+	} else {
-+		if (PTR_ERR(st->reg) != -ENODEV)
-+			return PTR_ERR(st->reg);
-+		/* Backwards compatibility. This naming is not correct */
-+		st->reg = devm_regulator_get_optional(&spi->dev, "vcc");
-+		if (!IS_ERR(st->reg)) {
-+			ret = regulator_enable(st->reg);
-+			if (ret)
-+				return ret;
-+
-+			ret = regulator_get_voltage(st->reg);
-+			if (ret < 0)
-+				goto error_disable_reg;
-+
-+			voltage_uv = ret;
-+		}
- 	}
+-	if (context_id != VMCI_HOST_CONTEXT_ID) {
++	if (context_id != VMCI_HOST_CONTEXT_ID &&
++	    !QPBROKERSTATE_HAS_MEM(entry)) {
+ 		struct vmci_qp_page_store page_store;
  
- 	spi_set_drvdata(spi, indio_dev);
--- 
-2.30.2
-
+ 		page_store.pages = guest_mem;
+@@ -2454,7 +2455,8 @@ int vmci_qp_broker_unmap(struct vmci_han
+ 
+ 	is_local = entry->qp.flags & VMCI_QPFLAG_LOCAL;
+ 
+-	if (context_id != VMCI_HOST_CONTEXT_ID) {
++	if (context_id != VMCI_HOST_CONTEXT_ID &&
++	    QPBROKERSTATE_HAS_MEM(entry)) {
+ 		qp_acquire_queue_mutex(entry->produce_q);
+ 		result = qp_save_headers(entry);
+ 		if (result < VMCI_SUCCESS)
 
 
