@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 984EB411DBF
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:21:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49902411C22
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:04:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346008AbhITRXS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:23:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49652 "EHLO mail.kernel.org"
+        id S1344475AbhITRGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:06:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348999AbhITRVS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:21:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EED3613D5;
-        Mon, 20 Sep 2021 17:00:50 +0000 (UTC)
+        id S1345535AbhITRDk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:03:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6923561406;
+        Mon, 20 Sep 2021 16:53:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157250;
-        bh=3yneySGa0hqWH1l/UOQpDfbUPiTv6oRPYHHwbtTe4P0=;
+        s=korg; t=1632156839;
+        bh=YFSk/PRbPNJQVhTmldNC5pNCP0IcDx+QfuxJ2U5SAaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MLpKik8zyj5xU0DIQsm0Yuknj33dcPhNCAKA3Es6SHr3FQLaR/mJ975geNLxqFI6x
-         meKXp3rfp1SnGEY4YGE461h6Uq1mKAdmwb+9uH0SxRKx696nGyceCkG8Hijg2Rxzpt
-         GRJp0zN3IjCD9APezHDjwMgXYh1o1WoFtaY4rzu0=
+        b=Pokw1s6B30Acgj1zdJ3OH/sZU6fqy5O2oieFpKK5qwdtOzjFaV71PsSyM5CtV4gbd
+         e0ZBERf/f0/oVhDHQwK5Ns21u4Ak6g7QBw/82CE29kXJ1tiuVzhkxOLl09Q9nrpILw
+         efQaUIfgxdzgy1tnw/S2Q3ADRya/p47Pq8FBrwnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Harshvardhan Jha <harshvardhan.jha@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Dominique Martinet <asmadeus@codewreck.org>
-Subject: [PATCH 4.14 105/217] 9p/xen: Fix end of loop tests for list_for_each_entry
+        stable@vger.kernel.org, Len Baker <len.baker@gmx.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Jeff Layton <jlayton@kernel.org>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 077/175] CIFS: Fix a potencially linear read overflow
 Date:   Mon, 20 Sep 2021 18:42:06 +0200
-Message-Id: <20210920163928.197822302@linuxfoundation.org>
+Message-Id: <20210920163920.573476785@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshvardhan Jha <harshvardhan.jha@oracle.com>
+From: Len Baker <len.baker@gmx.com>
 
-commit 732b33d0dbf17e9483f0b50385bf606f724f50a2 upstream.
+[ Upstream commit f980d055a0f858d73d9467bb0b570721bbfcdfb8 ]
 
-This patch addresses the following problems:
- - priv can never be NULL, so this part of the check is useless
- - if the loop ran through the whole list, priv->client is invalid and
-it is more appropriate and sufficient to check for the end of
-list_for_each_entry loop condition.
+strlcpy() reads the entire source buffer first. This read may exceed the
+destination size limit. This is both inefficient and can lead to linear
+read overflows if a source string is not NUL-terminated.
 
-Link: http://lkml.kernel.org/r/20210727000709.225032-1-harshvardhan.jha@oracle.com
-Signed-off-by: Harshvardhan Jha <harshvardhan.jha@oracle.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Tested-by: Stefano Stabellini <sstabellini@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Also, the strnlen() call does not avoid the read overflow in the strlcpy
+function when a not NUL-terminated string is passed.
+
+So, replace this block by a call to kstrndup() that avoids this type of
+overflow and does the same.
+
+Fixes: 066ce6899484d ("cifs: rename cifs_strlcpy_to_host and make it use new functions")
+Signed-off-by: Len Baker <len.baker@gmx.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_xen.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/cifs/cifs_unicode.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
---- a/net/9p/trans_xen.c
-+++ b/net/9p/trans_xen.c
-@@ -139,7 +139,7 @@ static bool p9_xen_write_todo(struct xen
- 
- static int p9_xen_request(struct p9_client *client, struct p9_req_t *p9_req)
- {
--	struct xen_9pfs_front_priv *priv = NULL;
-+	struct xen_9pfs_front_priv *priv;
- 	RING_IDX cons, prod, masked_cons, masked_prod;
- 	unsigned long flags;
- 	u32 size = p9_req->tc->size;
-@@ -152,7 +152,7 @@ static int p9_xen_request(struct p9_clie
- 			break;
+diff --git a/fs/cifs/cifs_unicode.c b/fs/cifs/cifs_unicode.c
+index 942874257a09..e5e780145728 100644
+--- a/fs/cifs/cifs_unicode.c
++++ b/fs/cifs/cifs_unicode.c
+@@ -367,14 +367,9 @@ cifs_strndup_from_utf16(const char *src, const int maxlen,
+ 		if (!dst)
+ 			return NULL;
+ 		cifs_from_utf16(dst, (__le16 *) src, len, maxlen, codepage,
+-			       NO_MAP_UNI_RSVD);
++				NO_MAP_UNI_RSVD);
+ 	} else {
+-		len = strnlen(src, maxlen);
+-		len++;
+-		dst = kmalloc(len, GFP_KERNEL);
+-		if (!dst)
+-			return NULL;
+-		strlcpy(dst, src, len);
++		dst = kstrndup(src, maxlen, GFP_KERNEL);
  	}
- 	read_unlock(&xen_9pfs_lock);
--	if (!priv || priv->client != client)
-+	if (list_entry_is_head(priv, &xen_9pfs_devs, list))
- 		return -EINVAL;
  
- 	num = p9_req->tc->tag % priv->num_rings;
+ 	return dst;
+-- 
+2.30.2
+
 
 
