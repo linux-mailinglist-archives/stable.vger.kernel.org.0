@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B0FA41214C
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:05:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A9B6412187
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:06:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357363AbhITSEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:04:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57658 "EHLO mail.kernel.org"
+        id S1350627AbhITSGY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:06:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356867AbhITSB5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:01:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C18C6322B;
-        Mon, 20 Sep 2021 17:16:21 +0000 (UTC)
+        id S1356954AbhITSCd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:02:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38AEB6322D;
+        Mon, 20 Sep 2021 17:16:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158182;
-        bh=cTFoqijfA4mdZ7egcy4EjF2dExSh9K4WyYAk53ZwXQA=;
+        s=korg; t=1632158184;
+        bh=RVsQENPII5gI9SJod3iH8WlFbUt+eBnULnZfSW+HNqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kf1C84VqJHrpA6YSdcYr+RY7RyPSnGBScBUgb9SrOhK5GFUNy72LQQizXJb8vC2N5
-         5jF9CBiWufwJzP2bzsJcKIe0uhaqzH/qGtmlgK9QBFBRBOO5AFDtVZODQirD0UBqc3
-         advggaZ3uziqUrh7o2nmIeFHdcMpjMOc/n+8TJYc=
+        b=1kZH2yzaOIEB/+sVdtgZCDFS++HaJcRvgIc+gbX3gRYfBrKb95Gd4iZTzoK8PonjH
+         JFOK0PvYdJfqUFULoOEJX7Tlc6jgOabMmrOBKT3p2aFHpeH3sV7OnXoencEVGGgiMQ
+         4WjqFZyXMc/eH+Ymq+rhCO1f2K48d7WEoI4UuT5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@lst.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Josh Collier <josh.d.collier@intel.com>,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 038/260] scsi: bsg: Remove support for SCSI_IOCTL_SEND_COMMAND
-Date:   Mon, 20 Sep 2021 18:40:56 +0200
-Message-Id: <20210920163932.414215160@linuxfoundation.org>
+Subject: [PATCH 5.4 039/260] IB/hfi1: Adjust pkey entry in index 0
+Date:   Mon, 20 Sep 2021 18:40:57 +0200
+Message-Id: <20210920163932.447480767@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -41,44 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
 
-[ Upstream commit beec64d0c9749afedf51c3c10cf52de1d9a89cc0 ]
+[ Upstream commit 62004871e1fa7f9a60797595c03477af5b5ec36f ]
 
-SCSI_IOCTL_SEND_COMMAND has been deprecated longer than bsg exists and has
-been warning for just as long.  More importantly it harcodes SCSI CDBs and
-thus will do the wrong thing on non-SCSI bsg nodes.
+It is possible for the primary IPoIB network device associated with any
+RDMA device to fail to join certain multicast groups preventing IPv6
+neighbor discovery and possibly other network ULPs from working
+correctly. The IPv4 broadcast group is not affected as the IPoIB network
+device handles joining that multicast group directly.
 
-Link: https://lore.kernel.org/r/20210724072033.1284840-2-hch@lst.de
-Fixes: aa387cc89567 ("block: add bsg helper library")
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Acked-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This is because the primary IPoIB network device uses the pkey at ndex 0
+in the associated RDMA device's pkey table. Anytime the pkey value of
+index 0 changes, the primary IPoIB network device automatically modifies
+it's broadcast address (i.e. /sys/class/net/[ib0]/broadcast), since the
+broadcast address includes the pkey value, and then bounces carrier. This
+includes initial pkey assignment, such as when the pkey at index 0
+transitions from the opa default of invalid (0x0000) to some value such as
+the OPA default pkey for Virtual Fabric 0: 0x8001 or when the fabric
+manager is restarted with a configuration change causing the pkey at index
+0 to change. Many network ULPs are not sensitive to the carrier bounce and
+are not expecting the broadcast address to change including the linux IPv6
+stack.  This problem does not affect IPoIB child network devices as their
+pkey value is constant for all time.
+
+To mitigate this issue, change the default pkey in at index 0 to 0x8001 to
+cover the predominant case and avoid issues as ipoib comes up and the FM
+sweeps.
+
+At some point, ipoib multicast support should automatically fix
+non-broadcast addresses as it does with the primary broadcast address.
+
+Fixes: 7724105686e7 ("IB/hfi1: add driver files")
+Link: https://lore.kernel.org/r/20210715160445.142451.47651.stgit@awfm-01.cornelisnetworks.com
+Suggested-by: Josh Collier <josh.d.collier@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bsg.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/hfi1/init.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/block/bsg.c b/block/bsg.c
-index 0d012efef527..c8b9714e6923 100644
---- a/block/bsg.c
-+++ b/block/bsg.c
-@@ -371,10 +371,13 @@ static long bsg_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 	case SG_GET_RESERVED_SIZE:
- 	case SG_SET_RESERVED_SIZE:
- 	case SG_EMULATED_HOST:
--	case SCSI_IOCTL_SEND_COMMAND:
- 		return scsi_cmd_ioctl(bd->queue, NULL, file->f_mode, cmd, uarg);
- 	case SG_IO:
- 		return bsg_sg_io(bd->queue, file->f_mode, uarg);
-+	case SCSI_IOCTL_SEND_COMMAND:
-+		pr_warn_ratelimited("%s: calling unsupported SCSI_IOCTL_SEND_COMMAND\n",
-+				current->comm);
-+		return -EINVAL;
- 	default:
- 		return -ENOTTY;
- 	}
+diff --git a/drivers/infiniband/hw/hfi1/init.c b/drivers/infiniband/hw/hfi1/init.c
+index fbff6b2f00e7..1256dbd5b2ef 100644
+--- a/drivers/infiniband/hw/hfi1/init.c
++++ b/drivers/infiniband/hw/hfi1/init.c
+@@ -664,12 +664,7 @@ void hfi1_init_pportdata(struct pci_dev *pdev, struct hfi1_pportdata *ppd,
+ 
+ 	ppd->pkeys[default_pkey_idx] = DEFAULT_P_KEY;
+ 	ppd->part_enforce |= HFI1_PART_ENFORCE_IN;
+-
+-	if (loopback) {
+-		dd_dev_err(dd, "Faking data partition 0x8001 in idx %u\n",
+-			   !default_pkey_idx);
+-		ppd->pkeys[!default_pkey_idx] = 0x8001;
+-	}
++	ppd->pkeys[0] = 0x8001;
+ 
+ 	INIT_WORK(&ppd->link_vc_work, handle_verify_cap);
+ 	INIT_WORK(&ppd->link_up_work, handle_link_up);
 -- 
 2.30.2
 
