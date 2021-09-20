@@ -2,109 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 554C6411359
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 13:07:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5DA8411373
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 13:22:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232462AbhITLJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 07:09:07 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:56771 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232382AbhITLJG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 07:09:06 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id 076615C0048;
-        Mon, 20 Sep 2021 07:07:40 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Mon, 20 Sep 2021 07:07:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
-         h=from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=fm2; bh=1MCndy9cLnlMIcCifBnqzwJc/+
-        Zfm3QLxX/qfshnxIM=; b=giIS6sDgRzSwSn+8t9vSyp8FA8blvOcarGEp41GDea
-        XOLUI3hsP0s6mIRKJDlqB0f1Tt04RjEZ7UcHnQcT8p1HMTlzPKwnxUZCucXTZqj2
-        ILAt+LOBBUrD1xTngkTnmClXReSKinylePKK9GXOC0kFDqOWkkW097bMcY9XzBIo
-        XgvGqLzivMFGlZR860eDWb9r0AouLgeKKwCrPC/0uh6vbRKNW7aMwmjwW9Bx8Nbg
-        k3XfB6ndPAlqaXvEEPI4wjSEKZoP8B+YLvE9sicfreSmunDdyAQCGibos6YR1Onj
-        WvTAUbxpOxNP/+hd0QGwToIX63OzPmD5LMagxSBC9zWA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=1MCndy9cLnlMIcCif
-        BnqzwJc/+Zfm3QLxX/qfshnxIM=; b=NFpRM1F1ztT+Hv6+pKC4XEP2TEkhPdpqN
-        vBusmnHVP+qj2l9bb3cRZFspHcKxSeJRXDXnsPQM3BDKgyzCdedeVGpmZ0El0JGu
-        CXiVQG+5qkPN86wZ6SCOY8x4tyCPwWwEGNaIxXNe50vjltgAFrGLH3yFgZjqD6j/
-        nfxUSneRqfAhoHJyXXk1pV4QrRBOFRe/rLi1Sqalu3mqAbuuV3n8EkdhN1Tk2mcO
-        ItU1n29AwV9KVJP/aOYycHvx94nOXfCwFnZnUeUZzpec5lM6tmcg9S5M9NH+jAFv
-        HIt5chMAbQopMwLwoRfZdFk4OBC/6waP5cCDWM0FcT9fbSEnfJXAA==
-X-ME-Sender: <xms:e2tIYVvDmFINcuJiFK2d_MRyk0XC2Lx8iuxgSyfl7ZZ4A1iXch1CUw>
-    <xme:e2tIYecLabQswtpiWAoEUeRLX5qEy5QLRl2rTuJnNBqNl35czPzl-7-fkfnLGZ-0E
-    xZGXP6cf_e2wwcBj70>
-X-ME-Received: <xmr:e2tIYYzzv3OwSkch2C1p7gC-0CAUD2to6WsgJQI2fvVx37UdWwN2Fkx8j6CFPdxFbJrNtzGPxnHERfTyslyRG_wKRgFhZo5m09c-H0yrlw6InYwtcJ55>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudeivddgfeeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtre
-    dttdenucfhrhhomhepvfgrkhgrshhhihcuufgrkhgrmhhothhouceoohdqthgrkhgrshhh
-    ihesshgrkhgrmhhotggthhhirdhjpheqnecuggftrfgrthhtvghrnhepudejteelhfdttd
-    ekgfdtueeilefhgfetjeejheekgeevuddvveegieehueeukeejnecuvehluhhsthgvrhfu
-    ihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepohdqthgrkhgrshhhihesshgrkh
-    grmhhotggthhhirdhjph
-X-ME-Proxy: <xmx:e2tIYcPmfe_Bww4c149BsVcW6oDPm6Mb1MZnP8VUBFgAnpAZE5W-Nw>
-    <xmx:e2tIYV839ie9qBygWjakTWzEUgu90N9k40C65cFW1TNFbkny788zDg>
-    <xmx:e2tIYcWJDyi_YJAFMo2ccN5TQZjjjXqietw9jgw9aqG5tGJxj4TpYA>
-    <xmx:fGtIYXIxp9H9wO4Ldz6JEAjqXRTVDA5_7DDyCbsSLC0zHOJEgskEnA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 20 Sep 2021 07:07:37 -0400 (EDT)
-From:   Takashi Sakamoto <o-takashi@sakamocchi.jp>
-To:     tiwai@suse.de
-Cc:     clemens@ladisch.de, alsa-devel@alsa-project.org,
-        stable@vger.kernel.org
-Subject: [PATCH] ALSA: firewire-motu: fix truncated bytes in message tracepoints
-Date:   Mon, 20 Sep 2021 20:07:34 +0900
-Message-Id: <20210920110734.27161-1-o-takashi@sakamocchi.jp>
-X-Mailer: git-send-email 2.30.2
+        id S230165AbhITLYY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 07:24:24 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:29924 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229654AbhITLYX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 07:24:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1632136976;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=nzo29WVELwFXSzSZxET6WtnbnWMTHaqh76DxFA6qv/w=;
+        b=LSwSoBsXy7t/9X7Qy5jxUrUw2Gp9mCRYJ/mJVg+wxNpuMaeGwsFJLqY2IP5EDklA99LoyE
+        uH3SIrr3S5dfa+PZl88eoGKsDrHGy2PTQVm6lsN7iATSXR0EuChS6EhNLqPkempKpaZaco
+        5UZqHFH38M38OuvoXOKGwdrmPvQaiRQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-550-jEl9AW8xMPCoGJLkS7f4NQ-1; Mon, 20 Sep 2021 07:22:55 -0400
+X-MC-Unique: jEl9AW8xMPCoGJLkS7f4NQ-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E52B49126D;
+        Mon, 20 Sep 2021 11:22:53 +0000 (UTC)
+Received: from t480s.redhat.com (unknown [10.39.194.236])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 30D171001281;
+        Mon, 20 Sep 2021 11:22:47 +0000 (UTC)
+From:   David Hildenbrand <david@redhat.com>
+To:     stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        gregkh@linuxfoundation.org, David Hildenbrand <david@redhat.com>,
+        Pankaj Gupta <pankaj.gupta@ionos.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Oscar Salvador <osalvador@suse.de>
+Subject: [PATCH 4.14 STABLE] mm/memory_hotplug: use "unsigned long" for PFN in zone_for_pfn_range()
+Date:   Mon, 20 Sep 2021 13:22:46 +0200
+Message-Id: <20210920112246.7109-1-david@redhat.com>
+In-Reply-To: <1631796969176240@kroah.com>
+References: <1631796969176240@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In MOTU protocol v2/v3, first two data chunks across 2nd and 3rd data
-channels includes message bytes from device. The total size of message
-is 48 bits per data block.
+commit 7cf209ba8a86410939a24cb1aeb279479a7e0ca6 upstream.
 
-The 'data_block_message' tracepoints event produced by ALSA firewire-motu
-driver exposes the sequence of messages to userspace in 64 bit storage,
-however lower 32 bits are actually available since current implementation
-truncates 16 bits in upper of the message as a result of bit shift
-operation within 32 bit storage.
+Patch series "mm/memory_hotplug: preparatory patches for new online policy and memory"
 
-This commit fixes the bug by perform the bit shift in 64 bit storage.
+These are all cleanups and one fix previously sent as part of [1]:
+[PATCH v1 00/12] mm/memory_hotplug: "auto-movable" online policy and memory
+groups.
 
-Fixes: c6b0b9e65f09 ("ALSA: firewire-motu: add tracepoints for messages for unique protocol")
+These patches make sense even without the other series, therefore I pulled
+them out to make the other series easier to digest.
+
+[1] https://lkml.kernel.org/r/20210607195430.48228-1-david@redhat.com
+
+This patch (of 4):
+
+Checkpatch complained on a follow-up patch that we are using "unsigned"
+here, which defaults to "unsigned int" and checkpatch is correct.
+
+As we will search for a fitting zone using the wrong pfn, we might end
+up onlining memory to one of the special kernel zones, such as ZONE_DMA,
+which can end badly as the onlined memory does not satisfy properties of
+these zones.
+
+Use "unsigned long" instead, just as we do in other places when handling
+PFNs.  This can bite us once we have physical addresses in the range of
+multiple TB.
+
+Link: https://lkml.kernel.org/r/20210712124052.26491-2-david@redhat.com
+Fixes: e5e689302633 ("mm, memory_hotplug: display allowed zones in the preferred ordering")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Pankaj Gupta <pankaj.gupta@ionos.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: virtualization@lists.linux-foundation.org
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc: Anton Blanchard <anton@ozlabs.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jia He <justin.he@arm.com>
+Cc: Joe Perches <joe@perches.com>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Laurent Dufour <ldufour@linux.ibm.com>
+Cc: Michel Lespinasse <michel@lespinasse.org>
+Cc: Nathan Lynch <nathanl@linux.ibm.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Pierre Morel <pmorel@linux.ibm.com>
+Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Scott Cheloha <cheloha@linux.ibm.com>
+Cc: Sergei Trofimovich <slyfox@gentoo.org>
+Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- sound/firewire/motu/amdtp-motu.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ include/linux/memory_hotplug.h | 4 ++--
+ mm/memory_hotplug.c            | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/sound/firewire/motu/amdtp-motu.c b/sound/firewire/motu/amdtp-motu.c
-index 5388b85fb60e..a18c2c033e83 100644
---- a/sound/firewire/motu/amdtp-motu.c
-+++ b/sound/firewire/motu/amdtp-motu.c
-@@ -276,10 +276,11 @@ static void __maybe_unused copy_message(u64 *frames, __be32 *buffer,
- 
- 	/* This is just for v2/v3 protocol. */
- 	for (i = 0; i < data_blocks; ++i) {
--		*frames = (be32_to_cpu(buffer[1]) << 16) |
--			  (be32_to_cpu(buffer[2]) >> 16);
-+		*frames = be32_to_cpu(buffer[1]);
-+		*frames <<= 16;
-+		*frames |= be32_to_cpu(buffer[2]) >> 16;
-+		++frames;
- 		buffer += data_block_quadlets;
--		frames++;
- 	}
+diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+index d36a02935391..8c48d9e0ca22 100644
+--- a/include/linux/memory_hotplug.h
++++ b/include/linux/memory_hotplug.h
+@@ -332,6 +332,6 @@ extern struct page *sparse_decode_mem_map(unsigned long coded_mem_map,
+ 					  unsigned long pnum);
+ extern bool allow_online_pfn_range(int nid, unsigned long pfn, unsigned long nr_pages,
+ 		int online_type);
+-extern struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
+-		unsigned long nr_pages);
++extern struct zone *zone_for_pfn_range(int online_type, int nid,
++		unsigned long start_pfn, unsigned long nr_pages);
+ #endif /* __LINUX_MEMORY_HOTPLUG_H */
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 2d6626ab29d1..c2878d48b8b1 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -842,8 +842,8 @@ static inline struct zone *default_zone_for_pfn(int nid, unsigned long start_pfn
+ 	return movable_node_enabled ? movable_zone : kernel_zone;
  }
  
+-struct zone * zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
+-		unsigned long nr_pages)
++struct zone *zone_for_pfn_range(int online_type, int nid,
++		unsigned long start_pfn, unsigned long nr_pages)
+ {
+ 	if (online_type == MMOP_ONLINE_KERNEL)
+ 		return default_kernel_zone_for_pfn(nid, start_pfn, nr_pages);
 -- 
-2.30.2
+2.31.1
 
