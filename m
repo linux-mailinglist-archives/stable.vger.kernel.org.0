@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0642412531
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C99F41229F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382749AbhITSmT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:42:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56444 "EHLO mail.kernel.org"
+        id S1358819AbhITSQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:16:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1382296AbhITSkR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:40:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C909863337;
-        Mon, 20 Sep 2021 17:30:54 +0000 (UTC)
+        id S1376364AbhITSMG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:12:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 115EB6327A;
+        Mon, 20 Sep 2021 17:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159055;
-        bh=9A8ZX1RVAc+j25h7pZFOtT9Q7NIQTF4XHDRkB2r3/V4=;
+        s=korg; t=1632158425;
+        bh=KyrPSSFkkaFfgTa331w9So5Bp9nfhgXOj9h8Ox5YpWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oRMpxHI1pAMQaIO4pGnX7arc0ySGsiM8fTN1MwKd6qIzfktDniI0Z2/dTkBNLLsqE
-         irsZCErald77L9GxL1nm7P+lrW7eM+jbGF/8SNE3EAfWTW5yr3v2b75j93O9oVWtNl
-         8WtIH32Akhth7RmcqcOrErdIQTZ8N/mr5KlAiwkY=
+        b=yYA7rElWMCgFTYtDb5o9ZbQr9PupdgMgqudbpH+0dD9QSUCCzAheZ654rR3b4RFj6
+         KnWcBhKc9Iss286NM77Pmj7+Zn6QBTDYdJw8lTcm35Ffcj7fEqiGHTA+QLEbDkwbsR
+         k0s6gW+cAhcXw6m8DSoKa7/DVr/7rq3i1JjCL90o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Michael Walle <michael@walle.cc>, Marek Vasut <marex@denx.de>,
-        Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: [PATCH 5.14 028/168] drm/etnaviv: exec and MMU state is lost when resetting the GPU
-Date:   Mon, 20 Sep 2021 18:42:46 +0200
-Message-Id: <20210920163922.573728379@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Lukasz Majczak <lma@semihalf.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 149/260] ASoC: Intel: Skylake: Fix module configuration for KPB and MIXER
+Date:   Mon, 20 Sep 2021 18:42:47 +0200
+Message-Id: <20210920163936.174962344@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Cezary Rojewski <cezary.rojewski@intel.com>
 
-commit 725cbc7884c37f3b4f1777bc1aea6432cded8ca5 upstream.
+[ Upstream commit e4e0633bcadc950b4b4af06c7f1bb7f7e3e86321 ]
 
-When the GPU is reset both the current exec state, as well as all MMU
-state is lost. Move the driver side state tracking into the reset function
-to keep hardware and software state from diverging.
+KeyPhrasebuffer, Mixin and Mixout modules configuration is described by
+firmware's basic module configuration structure. There are no extended
+parameters required. Update functions taking part in building
+INIT_INSTANCE IPC payload to reflect that.
 
-Cc: stable@vger.kernel.org # 5.4
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Tested-by: Michael Walle <michael@walle.cc>
-Tested-by: Marek Vasut <marex@denx.de>
-Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Tested-by: Lukasz Majczak <lma@semihalf.com>
+Link: https://lore.kernel.org/r/20210818075742.1515155-6-cezary.rojewski@intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_gpu.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ sound/soc/intel/skylake/skl-messages.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-@@ -570,6 +570,8 @@ static int etnaviv_hw_reset(struct etnav
- 	etnaviv_gpu_update_clock(gpu);
+diff --git a/sound/soc/intel/skylake/skl-messages.c b/sound/soc/intel/skylake/skl-messages.c
+index 476ef1897961..79c6cf2c14bf 100644
+--- a/sound/soc/intel/skylake/skl-messages.c
++++ b/sound/soc/intel/skylake/skl-messages.c
+@@ -802,9 +802,12 @@ static u16 skl_get_module_param_size(struct skl_dev *skl,
  
- 	gpu->fe_running = false;
-+	gpu->exec_state = -1;
-+	gpu->mmu_context = NULL;
+ 	case SKL_MODULE_TYPE_BASE_OUTFMT:
+ 	case SKL_MODULE_TYPE_MIC_SELECT:
+-	case SKL_MODULE_TYPE_KPB:
+ 		return sizeof(struct skl_base_outfmt_cfg);
  
- 	return 0;
- }
-@@ -830,7 +832,6 @@ int etnaviv_gpu_init(struct etnaviv_gpu
- 	/* Now program the hardware */
- 	mutex_lock(&gpu->lock);
- 	etnaviv_gpu_hw_init(gpu);
--	gpu->exec_state = -1;
- 	mutex_unlock(&gpu->lock);
++	case SKL_MODULE_TYPE_MIXER:
++	case SKL_MODULE_TYPE_KPB:
++		return sizeof(struct skl_base_cfg);
++
+ 	default:
+ 		/*
+ 		 * return only base cfg when no specific module type is
+@@ -857,10 +860,14 @@ static int skl_set_module_format(struct skl_dev *skl,
  
- 	pm_runtime_mark_last_busy(gpu->dev);
-@@ -1055,8 +1056,6 @@ void etnaviv_gpu_recover_hang(struct etn
- 	spin_unlock(&gpu->event_spinlock);
+ 	case SKL_MODULE_TYPE_BASE_OUTFMT:
+ 	case SKL_MODULE_TYPE_MIC_SELECT:
+-	case SKL_MODULE_TYPE_KPB:
+ 		skl_set_base_outfmt_format(skl, module_config, *param_data);
+ 		break;
  
- 	etnaviv_gpu_hw_init(gpu);
--	gpu->exec_state = -1;
--	gpu->mmu_context = NULL;
- 
- 	mutex_unlock(&gpu->lock);
- 	pm_runtime_mark_last_busy(gpu->dev);
++	case SKL_MODULE_TYPE_MIXER:
++	case SKL_MODULE_TYPE_KPB:
++		skl_set_base_module_format(skl, module_config, *param_data);
++		break;
++
+ 	default:
+ 		skl_set_base_module_format(skl, module_config, *param_data);
+ 		break;
+-- 
+2.30.2
+
 
 
