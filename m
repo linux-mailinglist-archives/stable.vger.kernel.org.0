@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 500AE4122F0
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:17:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E30041240D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:29:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351773AbhITSTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:19:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39244 "EHLO mail.kernel.org"
+        id S1348446AbhITSaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:30:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351724AbhITSQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:16:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E14F161A60;
-        Mon, 20 Sep 2021 17:22:28 +0000 (UTC)
+        id S1379140AbhITS2Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:28:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F361C632E4;
+        Mon, 20 Sep 2021 17:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158549;
-        bh=rHM8pExSYGB04i59AgI0OSz9coKtLAGDTOw1Due3n4I=;
+        s=korg; t=1632158784;
+        bh=fdeGIza0h4zzNXPmxmc7NpDE+X+F51UmFNtjxFXlPdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nHEMkoysJiDkeAgs4FY59vM8UYoalB6pdQdLsLkK1fLMwEQPAKZoIvUiN4rde3BXz
-         Zzkga6ABVHO546vO7SHo8tc+IZb/OJt2AFOZDww51qxLvyxcaxFx+HhHx+5sPjCZ7k
-         NpampJp8KcO5vRffsxIEkqF0Acyu1PQv/bcniO7U=
+        b=MupNtavvOqy7geL8inXI5tVrUTdL5VWbtrXsFsf5ILLkjEDa7R8EPhTJ6/xMko7ed
+         MoDbSpRUYYZUPsS/31sZniIamDnBp/TwE8Sv8aUgGw1pP9A2M/Iipa3YvETQ1jlfBr
+         EZi5T2Kn7L49mfAlnost/CXJEUssJwY176bvmP10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.4 207/260] s390/sclp: fix Secure-IPL facility detection
+        stable@vger.kernel.org, Jiaran Zhang <zhangjiaran@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 053/122] net: hns3: fix the timing issue of VF clearing interrupt sources
 Date:   Mon, 20 Sep 2021 18:43:45 +0200
-Message-Id: <20210920163938.142246010@linuxfoundation.org>
+Message-Id: <20210920163917.527731397@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Egorenkov <egorenar@linux.ibm.com>
+From: Jiaran Zhang <zhangjiaran@huawei.com>
 
-commit d76b14f3971a0638b6cd0da289f8b48acee287d0 upstream.
+commit 427900d27d86b820c559037a984bd403f910860f upstream.
 
-Prevent out-of-range access if the returned SCLP SCCB response is smaller
-in size than the address of the Secure-IPL flag.
+Currently, the VF does not clear the interrupt source immediately after
+receiving the interrupt. As a result, if the second interrupt task is
+triggered when processing the first interrupt task, clearing the
+interrupt source before exiting will clear the interrupt sources of the
+two tasks at the same time. As a result, no interrupt is triggered for
+the second task. The VF detects the missed message only when the next
+interrupt is generated.
 
-Fixes: c9896acc7851 ("s390/ipl: Provide has_secure sysfs attribute")
-Cc: stable@vger.kernel.org # 5.2+
-Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Clearing it immediately after executing check_evt_cause ensures that:
+1. Even if two interrupt tasks are triggered at the same time, they can
+be processed.
+2. If the second task is triggered during the processing of the first
+task and the interrupt source is not cleared, the interrupt is reported
+after vector0 is enabled.
+
+Fixes: b90fcc5bd904 ("net: hns3: add reset handling for VF when doing Core/Global/IMP reset")
+Signed-off-by: Jiaran Zhang <zhangjiaran@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/char/sclp_early.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/s390/char/sclp_early.c
-+++ b/drivers/s390/char/sclp_early.c
-@@ -40,13 +40,14 @@ static void __init sclp_early_facilities
- 	sclp.has_gisaf = !!(sccb->fac118 & 0x08);
- 	sclp.has_hvs = !!(sccb->fac119 & 0x80);
- 	sclp.has_kss = !!(sccb->fac98 & 0x01);
--	sclp.has_sipl = !!(sccb->cbl & 0x4000);
- 	if (sccb->fac85 & 0x02)
- 		S390_lowcore.machine_flags |= MACHINE_FLAG_ESOP;
- 	if (sccb->fac91 & 0x40)
- 		S390_lowcore.machine_flags |= MACHINE_FLAG_TLB_GUEST;
- 	if (sccb->cpuoff > 134)
- 		sclp.has_diag318 = !!(sccb->byte_134 & 0x80);
-+	if (sccb->cpuoff > 137)
-+		sclp.has_sipl = !!(sccb->cbl & 0x4000);
- 	sclp.rnmax = sccb->rnmax ? sccb->rnmax : sccb->rnmax2;
- 	sclp.rzm = sccb->rnsize ? sccb->rnsize : sccb->rnsize2;
- 	sclp.rzm <<= 20;
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -2352,6 +2352,8 @@ static irqreturn_t hclgevf_misc_irq_hand
+ 
+ 	hclgevf_enable_vector(&hdev->misc_vector, false);
+ 	event_cause = hclgevf_check_evt_cause(hdev, &clearval);
++	if (event_cause != HCLGEVF_VECTOR0_EVENT_OTHER)
++		hclgevf_clear_event_cause(hdev, clearval);
+ 
+ 	switch (event_cause) {
+ 	case HCLGEVF_VECTOR0_EVENT_RST:
+@@ -2364,10 +2366,8 @@ static irqreturn_t hclgevf_misc_irq_hand
+ 		break;
+ 	}
+ 
+-	if (event_cause != HCLGEVF_VECTOR0_EVENT_OTHER) {
+-		hclgevf_clear_event_cause(hdev, clearval);
++	if (event_cause != HCLGEVF_VECTOR0_EVENT_OTHER)
+ 		hclgevf_enable_vector(&hdev->misc_vector, true);
+-	}
+ 
+ 	return IRQ_HANDLED;
+ }
 
 
