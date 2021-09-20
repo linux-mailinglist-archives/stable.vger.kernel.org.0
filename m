@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62361411E0A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:25:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92917412051
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:52:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345951AbhITR0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:26:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56978 "EHLO mail.kernel.org"
+        id S1349902AbhITRxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:53:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349846AbhITRY5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:24:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3A5B61284;
-        Mon, 20 Sep 2021 17:02:12 +0000 (UTC)
+        id S1354677AbhITRvC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:51:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 349A661BD1;
+        Mon, 20 Sep 2021 17:12:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157333;
-        bh=bE1/ceCmSk5TxgkKSMKH0vSutzfDglqzezrJJU+M4jA=;
+        s=korg; t=1632157933;
+        bh=ZuvKr4oSXYZbhtOJp+5D1ACBKk8Hr0/2JvC6f1JF8xE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A5dSsmI3BvJapc8ik5MyegbqbWbHcUcyGEK+RKcN1UwvrcXbyLJV+dLlICUUJrCX8
-         ynOs9RazM4YxYS4ukCXxJfX6PWvNQ6phEndOouIe0sVJHr21iH1tbk/mpqTE8SzPHA
-         yAyzo5/mIwruGuWjgHqAOCvc/FlfDFX5yrx5ZOhk=
+        b=2p048Uzd80esFRmoPRNVr+FWwPKiDbAOI+VE8m9PgOhS6G5KcJpC0JpZ2a/Pfc9Lp
+         Z7k151eysDqhaHRrRZ8rf3DB6x/eXI8CDerQ2d/tq090YPxqolZ4yUip0u9B3DSK59
+         vjduUW5lE7LOp89f26CQfymcB6CaCO5E3MCNoWSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        =?UTF-8?q?Krzysztof=20Ha=C5=82asa?= <khalasa@piap.pl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Ulrich Hecht <uli+renesas@fpond.eu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 160/217] media: v4l2-dv-timings.c: fix wrong condition in two for-loops
+Subject: [PATCH 4.19 219/293] serial: sh-sci: fix break handling for sysrq
 Date:   Mon, 20 Sep 2021 18:43:01 +0200
-Message-Id: <20210920163930.067954060@linuxfoundation.org>
+Message-Id: <20210920163940.871983711@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Ulrich Hecht <uli+renesas@fpond.eu>
 
-[ Upstream commit 4108b3e6db31acc4c68133290bbcc87d4db905c9 ]
+[ Upstream commit 87b8061bad9bd4b549b2daf36ffbaa57be2789a2 ]
 
-These for-loops should test against v4l2_dv_timings_presets[i].bt.width,
-not if i < v4l2_dv_timings_presets[i].bt.width. Luckily nothing ever broke,
-since the smallest width is still a lot higher than the total number of
-presets, but it is wrong.
+This fixes two issues that cause the sysrq sequence to be inadvertently
+aborted on SCIF serial consoles:
 
-The last item in the presets array is all 0, so the for-loop must stop
-when it reaches that sentinel.
+- a NUL character remains in the RX queue after a break has been detected,
+  which is then passed on to uart_handle_sysrq_char()
+- the break interrupt is handled twice on controllers with multiplexed ERI
+  and BRI interrupts
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reported-by: Krzysztof Hałasa <khalasa@piap.pl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Ulrich Hecht <uli+renesas@fpond.eu>
+Link: https://lore.kernel.org/r/20210816162201.28801-1-uli+renesas@fpond.eu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-dv-timings.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/sh-sci.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-dv-timings.c b/drivers/media/v4l2-core/v4l2-dv-timings.c
-index 5c8c49d240d1..bed6b7db43f5 100644
---- a/drivers/media/v4l2-core/v4l2-dv-timings.c
-+++ b/drivers/media/v4l2-core/v4l2-dv-timings.c
-@@ -207,7 +207,7 @@ bool v4l2_find_dv_timings_cap(struct v4l2_dv_timings *t,
- 	if (!v4l2_valid_dv_timings(t, cap, fnc, fnc_handle))
- 		return false;
+diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
+index db5b11879910..6f44c5f0ef3a 100644
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -1750,6 +1750,10 @@ static irqreturn_t sci_br_interrupt(int irq, void *ptr)
  
--	for (i = 0; i < v4l2_dv_timings_presets[i].bt.width; i++) {
-+	for (i = 0; v4l2_dv_timings_presets[i].bt.width; i++) {
- 		if (v4l2_valid_dv_timings(v4l2_dv_timings_presets + i, cap,
- 					  fnc, fnc_handle) &&
- 		    v4l2_match_dv_timings(t, v4l2_dv_timings_presets + i,
-@@ -229,7 +229,7 @@ bool v4l2_find_dv_timings_cea861_vic(struct v4l2_dv_timings *t, u8 vic)
- {
- 	unsigned int i;
+ 	/* Handle BREAKs */
+ 	sci_handle_breaks(port);
++
++	/* drop invalid character received before break was detected */
++	serial_port_in(port, SCxRDR);
++
+ 	sci_clear_SCxSR(port, SCxSR_BREAK_CLEAR(port));
  
--	for (i = 0; i < v4l2_dv_timings_presets[i].bt.width; i++) {
-+	for (i = 0; v4l2_dv_timings_presets[i].bt.width; i++) {
- 		const struct v4l2_bt_timings *bt =
- 			&v4l2_dv_timings_presets[i].bt;
+ 	return IRQ_HANDLED;
+@@ -1829,7 +1833,8 @@ static irqreturn_t sci_mpxed_interrupt(int irq, void *ptr)
+ 		ret = sci_er_interrupt(irq, ptr);
  
+ 	/* Break Interrupt */
+-	if ((ssr_status & SCxSR_BRK(port)) && err_enabled)
++	if (s->irqs[SCIx_ERI_IRQ] != s->irqs[SCIx_BRI_IRQ] &&
++	    (ssr_status & SCxSR_BRK(port)) && err_enabled)
+ 		ret = sci_br_interrupt(irq, ptr);
+ 
+ 	/* Overrun Interrupt */
 -- 
 2.30.2
 
