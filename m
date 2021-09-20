@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E90F7411DA3
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:21:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D308E411FBD
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:43:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345794AbhITRWP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:22:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48414 "EHLO mail.kernel.org"
+        id S1345431AbhITRpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:45:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343515AbhITRS2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:18:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A1F561A3C;
-        Mon, 20 Sep 2021 16:59:36 +0000 (UTC)
+        id S1353004AbhITRnS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:43:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 817ED61B70;
+        Mon, 20 Sep 2021 17:09:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157176;
-        bh=ub+BceLFGSo6XLgsBWRu4wj+f8MVjPhUkeDi0c9/EYg=;
+        s=korg; t=1632157742;
+        bh=AdD4mtfYZw0C0iPaKI3nyNKRGSSddrfhFKaWWlQol4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bPyBSGKm46t+ztmoJmn01EsUTYD2Z3+eAjdJdvq1Won3lTAjA0ZPiQffbpGpALbUl
-         yzEQBtp5aXT4Rguje8FHoLBp9V0dFLboCRJ275MhPXWzOB5/v+JNmGC4PtJjcxl5kp
-         kMIfzE9/Yr7x+958VYFBCj/FsAPZyB/4UjTe2rGw=
+        b=J9u5P5TKpBMJgzlhyTN+wl9k6yWGp8pGBCFGezbz3kvZT3IVxNh4OthkXTt/WaGUI
+         S23w6UX6v7xln+80Un3nd9Q7G2Xt0P75ca6cVutfTcrHX3GqDov/GHjP2a3SXEYdiR
+         lG/xK2cgxia9me95kE9TXriHuCFvmQEtw5QujjE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 071/217] usb: host: ohci-tmio: add IRQ check
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrey Ignatov <rdna@fb.com>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 130/293] bpf: Reject indirect var_off stack access in raw mode
 Date:   Mon, 20 Sep 2021 18:41:32 +0200
-Message-Id: <20210920163927.032938428@linuxfoundation.org>
+Message-Id: <20210920163937.714991565@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Andrey Ignatov <rdna@fb.com>
 
-[ Upstream commit 4ac5132e8a4300637a2da8f5d6bc7650db735b8a ]
+commit f2bcd05ec7b839ff826d2008506ad2d2dff46a59 upstream.
 
-The driver neglects to check the  result of platform_get_irq()'s call and
-blithely passes the negative error codes to usb_add_hcd() (which takes
-*unsigned* IRQ #), causing request_irq() that it calls to fail with
--EINVAL, overriding an original error code. Stop calling usb_add_hcd()
-with the invalid IRQ #s.
+It's hard to guarantee that whole memory is marked as initialized on
+helper return if uninitialized stack is accessed with variable offset
+since specific bounds are unknown to verifier. This may cause
+uninitialized stack leaking.
 
-Fixes: 78c73414f4f6 ("USB: ohci: add support for tmio-ohci cell")
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Link: https://lore.kernel.org/r/402e1a45-a0a4-0e08-566a-7ca1331506b1@omp.ru
+Reject such an access in check_stack_boundary to prevent possible
+leaking.
+
+There are no known use-cases for indirect uninitialized stack access
+with variable offset so it shouldn't break anything.
+
+Fixes: 2011fccfb61b ("bpf: Support variable offset stack access from helpers")
+Reported-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Andrey Ignatov <rdna@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ohci-tmio.c | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/bpf/verifier.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/usb/host/ohci-tmio.c b/drivers/usb/host/ohci-tmio.c
-index 16d081a093bb..0cf4b6dc8972 100644
---- a/drivers/usb/host/ohci-tmio.c
-+++ b/drivers/usb/host/ohci-tmio.c
-@@ -202,6 +202,9 @@ static int ohci_hcd_tmio_drv_probe(struct platform_device *dev)
- 	if (!cell)
- 		return -EINVAL;
- 
-+	if (irq < 0)
-+		return irq;
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -1811,6 +1811,15 @@ static int check_stack_boundary(struct b
+ 		if (err)
+ 			return err;
+ 	} else {
++		/* Only initialized buffer on stack is allowed to be accessed
++		 * with variable offset. With uninitialized buffer it's hard to
++		 * guarantee that whole memory is marked as initialized on
++		 * helper return since specific bounds are unknown what may
++		 * cause uninitialized stack leaking.
++		 */
++		if (meta && meta->raw_mode)
++			meta = NULL;
 +
- 	hcd = usb_create_hcd(&ohci_tmio_hc_driver, &dev->dev, dev_name(&dev->dev));
- 	if (!hcd) {
- 		ret = -ENOMEM;
--- 
-2.30.2
-
+ 		min_off = reg->smin_value + reg->off;
+ 		max_off = reg->umax_value + reg->off;
+ 		err = __check_stack_boundary(env, regno, min_off, access_size,
 
 
