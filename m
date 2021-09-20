@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E34E74124A1
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:35:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B37AA41263B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:55:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379734AbhITSgR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:36:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53060 "EHLO mail.kernel.org"
+        id S1386510AbhITS4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:56:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1380563AbhITSe2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:34:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2708863309;
-        Mon, 20 Sep 2021 17:28:29 +0000 (UTC)
+        id S1384621AbhITSsa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:48:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C72663376;
+        Mon, 20 Sep 2021 17:34:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158909;
-        bh=IBLKpr5bvv3nLHOKxEPI9htXDRz2JbuZiJEOsuYo0rA=;
+        s=korg; t=1632159250;
+        bh=68CSBNoOkQxtmzCjZxQEbBNMeVx3W16PkVILzt8smsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cmvj0zwAF3LvQytpti9Y1Qh+HBGkLQXs6FNl1ZucJV1dwIBKVHveE68SwR92YTUbG
-         x1aQmdGpLipPNaiFhtqQSE+5uMVqeofIwxNIoJPhYc/U3lAurh2fDWQTFEm9QC5AWw
-         5xcCGzN+xbKM+SiMFdEhzR0sUdvsxk0JDLTnzh44=
+        b=XIHGKDEvS0QSYCZu2ctUARvHz6mwQQVDJUIGcLlR+Cf0iCWCUnRshVgw466nmcZ5F
+         1j6Xz7x2ywSLKKzGumV6EgewZSqw5mgHKR4hZdW+AXVf1GNPpDzSABYqdF8Z8qgPpf
+         qpbqglpIP9m2sC7E5jjm4M3tNTh8ZdRj/a9WptTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 112/122] bnxt_en: fix stored FW_PSID version masks
+Subject: [PATCH 5.14 146/168] io_uring: retry in case of short read on block device
 Date:   Mon, 20 Sep 2021 18:44:44 +0200
-Message-Id: <20210920163919.488311124@linuxfoundation.org>
+Message-Id: <20210920163926.455947511@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edwin Peer <edwin.peer@broadcom.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 1656db67233e4259281d2ac35b25f712edbbc20b ]
+[ Upstream commit 7db304375e11741e5940f9bc549155035bfb4dc1 ]
 
-The FW_PSID version components are 8 bits wide, not 4.
+In case of buffered reading from block device, when short read happens,
+we should retry to read more, otherwise the IO will be completed
+partially, for example, the following fio expects to read 2MB, but it
+can only read 1M or less bytes:
 
-Fixes: db28b6c77f40 ("bnxt_en: Fix devlink info's stored fw.psid version format.")
-Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+    fio --name=onessd --filename=/dev/nvme0n1 --filesize=2M \
+	--rw=randread --bs=2M --direct=0 --overwrite=0 --numjobs=1 \
+	--iodepth=1 --time_based=0 --runtime=2 --ioengine=io_uring \
+	--registerfiles --fixedbufs --gtod_reduce=1 --group_reporting
+
+Fix the issue by allowing short read retry for block device, which sets
+FMODE_BUF_RASYNC really.
+
+Fixes: 9a173346bd9e ("io_uring: fix short read retries for non-reg files")
+Cc: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/20210821150751.1290434-1-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/io_uring.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
-index 8b0e916afe6b..2bd476a501bd 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
-@@ -474,8 +474,8 @@ static int bnxt_dl_info_get(struct devlink *dl, struct devlink_info_req *req,
- 	if (BNXT_PF(bp) && !bnxt_hwrm_get_nvm_cfg_ver(bp, &nvm_cfg_ver)) {
- 		u32 ver = nvm_cfg_ver.vu32;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 0361c48c9cb0..43aaa3566431 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -3286,6 +3286,12 @@ static inline int io_iter_do_read(struct io_kiocb *req, struct iov_iter *iter)
+ 		return -EINVAL;
+ }
  
--		sprintf(buf, "%d.%d.%d", (ver >> 16) & 0xf, (ver >> 8) & 0xf,
--			ver & 0xf);
-+		sprintf(buf, "%d.%d.%d", (ver >> 16) & 0xff, (ver >> 8) & 0xff,
-+			ver & 0xff);
- 		rc = bnxt_dl_info_put(bp, req, BNXT_VERSION_STORED,
- 				      DEVLINK_INFO_VERSION_GENERIC_FW_PSID,
- 				      buf);
++static bool need_read_all(struct io_kiocb *req)
++{
++	return req->flags & REQ_F_ISREG ||
++		S_ISBLK(file_inode(req->file)->i_mode);
++}
++
+ static int io_read(struct io_kiocb *req, unsigned int issue_flags)
+ {
+ 	struct iovec inline_vecs[UIO_FASTIOV], *iovec = inline_vecs;
+@@ -3340,7 +3346,7 @@ static int io_read(struct io_kiocb *req, unsigned int issue_flags)
+ 	} else if (ret == -EIOCBQUEUED) {
+ 		goto out_free;
+ 	} else if (ret <= 0 || ret == io_size || !force_nonblock ||
+-		   (req->flags & REQ_F_NOWAIT) || !(req->flags & REQ_F_ISREG)) {
++		   (req->flags & REQ_F_NOWAIT) || !need_read_all(req)) {
+ 		/* read all, failed, already did sync or don't want to retry */
+ 		goto done;
+ 	}
 -- 
 2.30.2
 
