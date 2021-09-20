@@ -2,111 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AACE41277E
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 22:49:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBD1841291D
+	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 00:57:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231582AbhITUug (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 16:50:36 -0400
-Received: from mga17.intel.com ([192.55.52.151]:30376 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232273AbhITUsg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 16:48:36 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10113"; a="203384420"
-X-IronPort-AV: E=Sophos;i="5.85,309,1624345200"; 
-   d="scan'208";a="203384420"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Sep 2021 13:47:07 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.85,309,1624345200"; 
-   d="scan'208";a="434894689"
-Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
-  by orsmga006.jf.intel.com with ESMTP; 20 Sep 2021 13:47:06 -0700
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2242.12; Mon, 20 Sep 2021 13:47:06 -0700
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2242.12; Mon, 20 Sep 2021 13:47:06 -0700
-Received: from orsmsx610.amr.corp.intel.com ([10.22.229.23]) by
- ORSMSX610.amr.corp.intel.com ([10.22.229.23]) with mapi id 15.01.2242.012;
- Mon, 20 Sep 2021 13:47:06 -0700
-From:   "Souza, Jose" <jose.souza@intel.com>
-To:     "Lee, Shawn C" <shawn.c.lee@intel.com>,
-        "lma@semihalf.com" <lma@semihalf.com>
-CC:     "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
-        "upstream@semihalf.com" <upstream@semihalf.com>
-Subject: Re: [PATCH v1] drm/i915/bdb: Fix version check
-Thread-Topic: [PATCH v1] drm/i915/bdb: Fix version check
-Thread-Index: AQHXrimO0gfIStxtp0mPj/fNNtEfLKut2+4A
-Date:   Mon, 20 Sep 2021 20:47:06 +0000
-Message-ID: <051f4a37e178d11c6dbcd05b5d6be28731cd7302.camel@intel.com>
-References: <20210920141101.194959-1-lma@semihalf.com>
-In-Reply-To: <20210920141101.194959-1-lma@semihalf.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.22.254.132]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <D5116FE95D2FFF4A81734BE9D6B4662C@intel.com>
-Content-Transfer-Encoding: base64
+        id S237996AbhITW6g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 18:58:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51472 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238897AbhITW4g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 18:56:36 -0400
+X-Greylist: delayed 3466 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 20 Sep 2021 10:40:03 PDT
+Received: from ns4.inleed.net (mailout4.inleed.net [IPv6:2a0b:dc80:cafe:104::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33A89C0E48DA
+        for <stable@vger.kernel.org>; Mon, 20 Sep 2021 10:40:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=diwic.se;
+        s=x; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:MIME-Version:Date:
+        Message-ID:From:References:Cc:To:Subject:Sender:Reply-To:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=yEv9NWBu3uZpQsNDkbdOJOgm0v68XHpSZXS3lb+TOUs=; b=R54V3ckeJXd61eLuED5tqhSloZ
+        yYSqr1i1x+37xVvJw459/m2nDfZtzwJXyf/B8v6HTnBXaRr41H9SbV69W9YUpNm8t3l/tWRGBDrB5
+        yZlAHfMuTWlqunJXhPeYKciThNuan7hGyU5jVg5792B/2ZWPTigN6MNM3uL6gkbQl06urwkzNey+j
+        rMf3Tcreb3RAHbiepLGkKB1HlNHxFgQxuEM3zPWXZgCRoz3ZtMhxvu/wmWJYrhnXuuPI1TfFM4L/g
+        9QAX0wrqxQ4A6tf91bA/tYyn25Bzt+008nFIpQ7GQI6rcOuvDrKT3wHtrqjbOcMAfkDWZvaE0tAFd
+        WsY4FEjQ==;
+Received: from c83-254-143-147.bredband.tele2.se ([83.254.143.147] helo=[192.168.5.6])
+        by ns4.inleed.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.94.2)
+        (envelope-from <coding@diwic.se>)
+        id 1mSMND-00DanS-QZ; Mon, 20 Sep 2021 18:42:31 +0200
+Subject: Re: [PATCH] ALSA: rawmidi: introduce
+ SNDRV_RAWMIDI_IOCTL_USER_PVERSION
+To:     Jaroslav Kysela <perex@perex.cz>,
+        ALSA development <alsa-devel@alsa-project.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, stable@vger.kernel.org
+References: <20210920083538.128008-1-perex@perex.cz>
+From:   David Henningsson <coding@diwic.se>
+Message-ID: <5f2b66ef-01f2-f371-e8af-afa236f10cc5@diwic.se>
+Date:   Mon, 20 Sep 2021 18:42:14 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
+In-Reply-To: <20210920083538.128008-1-perex@perex.cz>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Authenticated-Id: coding@diwic.se
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gTW9uLCAyMDIxLTA5LTIwIGF0IDE2OjExICswMjAwLCBMdWthc3ogTWFqY3phayB3cm90ZToN
-Cj4gV2l0aCBwYXRjaCAiZHJtL2k5MTUvdmJ0OiBGaXggYmFja2xpZ2h0IHBhcnNpbmcgZm9yIFZC
-VCAyMzQrIg0KPiB0aGUgc2l6ZSBvZiBiZGJfbGZwX2JhY2tsaWdodF9kYXRhIHN0cnVjdHVyZSBo
-YXMgYmVlbiBpbmNyZWFzZWQsDQo+IGNhdXNpbmcgaWYtc3RhdGVtZW50IGluIHRoZSBwYXJzZV9s
-ZnBfYmFja2xpZ2h0IGZ1bmN0aW9uDQo+IHRoYXQgY29tYXByZXMgdGhpcyBzdHJ1Y3R1cmUgc2l6
-ZSB0byB0aGUgb25lIHJldHJpZXZlZCBmcm9tIEJEQiwNCj4gYWx3YXlzIHRvIGZhaWwgZm9yIG9s
-ZGVyIHJldmlzaW9ucy4NCj4gVGhpcyBwYXRjaCBmaXhlcyBpdCBieSBjb21wYXJpbmcgYSB0b3Rh
-bCBzaXplIG9mIGFsbCBmaWxlZHMgZnJvbQ0KPiB0aGUgc3RydWN0dXJlIChwcmVzZW50IGJlZm9y
-ZSB0aGUgY2hhbmdlKSB3aXRoIHRoZSB2YWx1ZSBnYXRoZXJlZCBmcm9tIEJEQi4NCj4gVGVzdGVk
-IG9uIENocm9tZWJvb2sgUGl4ZWxib29rIChOb2N0dXJuZSkgKHJlcG9ydHMgYmRiLT52ZXJzaW9u
-ID0gMjIxKQ0KPiANCj4gQ2M6IDxzdGFibGVAdmdlci5rZXJuZWwub3JnPiAjIDUuNCsNCj4gVGVz
-dGVkLWJ5OiBMdWthc3ogTWFqY3phayA8bG1hQHNlbWloYWxmLmNvbT4NCj4gU2lnbmVkLW9mZi1i
-eTogTHVrYXN6IE1hamN6YWsgPGxtYUBzZW1paGFsZi5jb20+DQo+IC0tLQ0KPiAgZHJpdmVycy9n
-cHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF9iaW9zLmMgICAgIHwgNCArKystDQo+ICBkcml2ZXJz
-L2dwdS9kcm0vaTkxNS9kaXNwbGF5L2ludGVsX3ZidF9kZWZzLmggfCA1ICsrKysrDQo+ICAyIGZp
-bGVzIGNoYW5nZWQsIDggaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQ0KPiANCj4gZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfYmlvcy5jIGIvZHJpdmVy
-cy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF9iaW9zLmMNCj4gaW5kZXggM2MyNTkyNjA5MmRl
-Li4wNTJhMTliNDU1ZDEgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3Bs
-YXkvaW50ZWxfYmlvcy5jDQo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50
-ZWxfYmlvcy5jDQo+IEBAIC00NTIsNyArNDUyLDkgQEAgcGFyc2VfbGZwX2JhY2tsaWdodChzdHJ1
-Y3QgZHJtX2k5MTVfcHJpdmF0ZSAqaTkxNSwNCj4gIA0KPiAgCWk5MTUtPnZidC5iYWNrbGlnaHQu
-dHlwZSA9IElOVEVMX0JBQ0tMSUdIVF9ESVNQTEFZX0RESTsNCj4gIAlpZiAoYmRiLT52ZXJzaW9u
-ID49IDE5MSAmJg0KPiAtCSAgICBnZXRfYmxvY2tzaXplKGJhY2tsaWdodF9kYXRhKSA+PSBzaXpl
-b2YoKmJhY2tsaWdodF9kYXRhKSkgew0KPiArCSAgICBnZXRfYmxvY2tzaXplKGJhY2tsaWdodF9k
-YXRhKSA+PSAoc2l6ZW9mKGJhY2tsaWdodF9kYXRhLT5lbnRyeV9zaXplKSArDQo+ICsJCQkJCSAg
-ICAgIHNpemVvZihiYWNrbGlnaHRfZGF0YS0+ZGF0YSkgKw0KPiArCQkJCQkgICAgICBzaXplb2Yo
-YmFja2xpZ2h0X2RhdGEtPmxldmVsKSkpIHsNCg0KTWlzc2luZyBzaXplb2YoYmFja2xpZ2h0X2Rh
-dGEtPmJhY2tsaWdodF9jb250cm9sKSBidXQgdGhpcyBpcyBnZXR0aW5nIHZlcnkgdmVyYm9zZS4N
-CldvdWxkIGJlIGJldHRlciBoYXZlIGEgZXhwZWN0ZWQgc2l6ZSB2YXJpYWJsZSBzZXQgZWFjaCB2
-ZXJzaW9uIHNldCBpbiB0aGUgYmVnaW5uaW5nIG9mIHRoaXMgZnVuY3Rpb24uDQoNCnNvbWV0aGlu
-ZyBsaWtlOg0Kc3dpdGNoIChiZGItPnZlcnNpb24pIHsNCmNhc2UgMTkxOg0KCWV4cGVjdGVkX3Np
-emUgPSB4Ow0KCWJyZWFrOw0KY2FzZSAyMzQ6DQoJZXhwZWN0ZWRfc2l6ZSA9IHg7DQoJYnJlYWs7
-DQpjYXNlIDIzNjoNCmRlZmF1bHQ6DQoJZXhwZWN0ZWRfc2l6ZSA9IHg7DQp9DQoJDQoNCj4gIAkJ
-Y29uc3Qgc3RydWN0IGxmcF9iYWNrbGlnaHRfY29udHJvbF9tZXRob2QgKm1ldGhvZDsNCj4gIA0K
-PiAgCQltZXRob2QgPSAmYmFja2xpZ2h0X2RhdGEtPmJhY2tsaWdodF9jb250cm9sW3BhbmVsX3R5
-cGVdOw0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF92
-YnRfZGVmcy5oIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF92YnRfZGVmcy5o
-DQo+IGluZGV4IDMzMDA3N2MyZTU4OC4uZmZmNDU2YmY4NzgzIDEwMDY0NA0KPiAtLS0gYS9kcml2
-ZXJzL2dwdS9kcm0vaTkxNS9kaXNwbGF5L2ludGVsX3ZidF9kZWZzLmgNCj4gKysrIGIvZHJpdmVy
-cy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF92YnRfZGVmcy5oDQo+IEBAIC04MTQsNiArODE0
-LDExIEBAIHN0cnVjdCBsZnBfYnJpZ2h0bmVzc19sZXZlbCB7DQo+ICAJdTE2IHJlc2VydmVkOw0K
-PiAgfSBfX3BhY2tlZDsNCj4gIA0KPiArLyoNCj4gKyAqIENoYW5naW5nIHN0cnVjdCBiZGJfbGZw
-X2JhY2tsaWdodF9kYXRhIG1pZ2h0IGFmZmVjdCBpdHMNCj4gKyAqIHNpemUgY29tcGFyYXRpb24g
-dG8gdGhlIHZhbHVlIGhvbGQgaW4gQkRCLg0KPiArICogKGUuZy4gaW4gcGFyc2VfbGZwX2JhY2ts
-aWdodCgpKQ0KPiArICovDQoNClRoaXMgaXMgdHJ1ZSBmb3IgYWxsIHRoZSBibG9ja3Mgc28gSSBk
-b24ndCB0aGluayB3ZSBuZWVkIHRoaXMgY29tbWVudC4NCg0KPiAgc3RydWN0IGJkYl9sZnBfYmFj
-a2xpZ2h0X2RhdGEgew0KPiAgCXU4IGVudHJ5X3NpemU7DQo+ICAJc3RydWN0IGxmcF9iYWNrbGln
-aHRfZGF0YV9lbnRyeSBkYXRhWzE2XTsNCg0K
+
+On 2021-09-20 10:35, Jaroslav Kysela wrote:
+> The new framing mode causes the user space regression, because
+> the alsa-lib code does not initialize the reserved space in
+> the params structure when the device is opened.
+>
+> This change adds SNDRV_RAWMIDI_IOCTL_USER_PVERSION like we
+> do for the PCM interface for the protocol acknowledgment.
+>
+> Cc: David Henningsson <coding@diwic.se>
+> Cc: <stable@vger.kernel.org>
+> Fixes: 08fdced60ca0 ("ALSA: rawmidi: Add framing mode")
+> BugLink: https://github.com/alsa-project/alsa-lib/issues/178
+> Signed-off-by: Jaroslav Kysela <perex@perex.cz>
+> ---
+>   include/sound/rawmidi.h     | 1 +
+>   include/uapi/sound/asound.h | 1 +
+>   sound/core/rawmidi.c        | 9 +++++++++
+>   3 files changed, 11 insertions(+)
+>
+> diff --git a/include/sound/rawmidi.h b/include/sound/rawmidi.h
+> index 989e1517332d..7a08ed2acd60 100644
+> --- a/include/sound/rawmidi.h
+> +++ b/include/sound/rawmidi.h
+> @@ -98,6 +98,7 @@ struct snd_rawmidi_file {
+>   	struct snd_rawmidi *rmidi;
+>   	struct snd_rawmidi_substream *input;
+>   	struct snd_rawmidi_substream *output;
+> +	unsigned int user_pversion;	/* supported protocol version */
+>   };
+>   
+>   struct snd_rawmidi_str {
+> diff --git a/include/uapi/sound/asound.h b/include/uapi/sound/asound.h
+> index 1d84ec9db93b..f906e50a7919 100644
+> --- a/include/uapi/sound/asound.h
+> +++ b/include/uapi/sound/asound.h
+> @@ -784,6 +784,7 @@ struct snd_rawmidi_status {
+>   
+>   #define SNDRV_RAWMIDI_IOCTL_PVERSION	_IOR('W', 0x00, int)
+>   #define SNDRV_RAWMIDI_IOCTL_INFO	_IOR('W', 0x01, struct snd_rawmidi_info)
+> +#define SNDRV_RAWMIDI_IOCTL_USER_PVERSION _IOW('A', 0x02, int)
+
+How come it's not 'W' here but 'A' instead?
+
+Looks good otherwise, given a quick glance. It'll need a corresponding 
+alsa-lib patch to actually call SNDRV_RAWMIDI_IOCTL_USER_PVERSION.
+
+Thanks for helping to sort this out.
+
+// David
+
