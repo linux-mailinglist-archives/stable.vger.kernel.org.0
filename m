@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99FE341109B
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 10:03:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19C5641109D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 10:03:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235244AbhITIER (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 04:04:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58898 "EHLO mail.kernel.org"
+        id S229667AbhITIEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 04:04:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231350AbhITICw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 04:02:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FF1D60FF2;
-        Mon, 20 Sep 2021 08:01:24 +0000 (UTC)
+        id S235223AbhITICy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 04:02:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC2A361019;
+        Mon, 20 Sep 2021 08:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632124885;
-        bh=xVpzEuoK+Z5Tqqm4NwEcaAJuCgCQ0I4/IXy+b+6QxC0=;
+        s=korg; t=1632124888;
+        bh=TO+ApTGm4M5gsGU5F1nBNzZCVFM6QakPzGyysTiaAOs=;
         h=Subject:To:Cc:From:Date:From;
-        b=texJUHkc3S7mt0fP0tGPs2dydR4XQIbHgZQKmT5HaSGAGoPeWMbP3NvbP1bu9tVQV
-         tKwcoD7/K3MyHIvlygxe0Rgx8S7itQnUgtrW9py6oscccEiCRQAbXLp3xU6hT8/LfX
-         pvqZ1rJgV3LDLANjkq+cpl1EKToQWDmbUFhY7l64=
-Subject: FAILED: patch "[PATCH] net: stmmac: fix system hang caused by eee_ctrl_timer during" failed to apply to 5.4-stable tree
+        b=bgdPlfN0sBBrQ/bL/KhQlZpnYf1/3Ftpgq3Y0pLAPglwGt9Q1T+jStg0OnYKsM/Y9
+         m3NM7OtAKGUOAWEho9L3nI2R1B/UQv4bUeWVe5Ma1MBPBsAs4Z6Rp3bMAZt0pXWER9
+         5NEk9zI3/7vahSnFii2wMzy6s8g2emnhEZQ87PsU=
+Subject: FAILED: patch "[PATCH] net: stmmac: fix system hang caused by eee_ctrl_timer during" failed to apply to 4.19-stable tree
 To:     qiangqing.zhang@nxp.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Sep 2021 10:01:21 +0200
-Message-ID: <163212488122175@kroah.com>
+Date:   Mon, 20 Sep 2021 10:01:22 +0200
+Message-ID: <163212488215692@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
