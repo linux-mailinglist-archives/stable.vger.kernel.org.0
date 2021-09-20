@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 394EE4122A5
+	by mail.lfdr.de (Postfix) with ESMTP id 967F74122A6
 	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359852AbhITSQf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:16:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60802 "EHLO mail.kernel.org"
+        id S1377230AbhITSQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:16:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1357831AbhITSFI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1357830AbhITSFI (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:05:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71A4463243;
-        Mon, 20 Sep 2021 17:17:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A1DB863245;
+        Mon, 20 Sep 2021 17:17:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158249;
-        bh=awjrlATVvxDKw5OSTatdz44ttYi7mbnS9G2waDKIJlk=;
+        s=korg; t=1632158252;
+        bh=7mFka9LzrtqigieZU60zukE5rqmPUDqyqXjmuylp0YU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ccwUDtNThOoiJ58At+V+7wQHOOlnOP3zfoxQKziB7LDBhtbqBZx/+PA9j7vQ5zgow
-         ebWXWdYZw9oatx+1K3dc+x00R3Y7iHrCO4xl9uvZOOertzBHDpN3ChVJytF7R1gjv6
-         keEKVhCs19X+Pw/QuFO0XMLx+FgBy6ibfinX6HFQ=
+        b=Xg8ZcKOPaINsXZx+qcpeyOu995+cdbRNkYeS5rXXyCH85MxV0UcPlXmzYs4VWiyWB
+         TAT9rT5DIRP7O7Cx6JxR38NmwjoFUnLjr8jOQX+g2siRzB9R0Lj2qiJ7rnDQK6Ktf2
+         xLltULKXDL1ggF1litJOQCjZiGjGPpXk2Dk/SIgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 069/260] MIPS: Malta: fix alignment of the devicetree buffer
-Date:   Mon, 20 Sep 2021 18:41:27 +0200
-Message-Id: <20210920163933.471426720@linuxfoundation.org>
+Subject: [PATCH 5.4 070/260] kbuild: Fix no symbols warning when CONFIG_TRIM_UNUSD_KSYMS=y
+Date:   Mon, 20 Sep 2021 18:41:28 +0200
+Message-Id: <20210920163933.504199911@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -40,42 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit bea6a94a279bcbe6b2cde348782b28baf12255a5 ]
+[ Upstream commit 52d83df682c82055961531853c066f4f16e234ea ]
 
-Starting with following patch MIPS Malta is not able to boot:
-| commit 79edff12060fe7772af08607eff50c0e2486c5ba
-| Author: Rob Herring <robh@kernel.org>
-| scripts/dtc: Update to upstream version v1.6.0-51-g183df9e9c2b9
+When CONFIG_TRIM_UNUSED_KSYMS is enabled, I see some warnings like this:
 
-The reason is the alignment test added to the fdt_ro_probe_(). To fix
-this issue, we need to make sure that fdt_buf is aligned.
+  nm: arch/x86/entry/vdso/vdso32/note.o: no symbols
 
-Since the dtc patch was designed to uncover potential issue, I handle
-initial MIPS Malta patch as initial bug.
+$NM (both GNU nm and llvm-nm) warns when no symbol is found in the
+object. Suppress the stderr.
 
-Fixes: e81a8c7dabac ("MIPS: Malta: Setup RAM regions via DT")
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fangrui Song mentioned binutils>=2.37 `nm -q` can be used to suppress
+"no symbols" [1], and llvm-nm>=13.0.0 supports -q as well.
+
+We cannot use it for now, but note it as a TODO.
+
+[1]: https://sourceware.org/bugzilla/show_bug.cgi?id=27408
+
+Fixes: bbda5ec671d3 ("kbuild: simplify dependency generation for CONFIG_TRIM_UNUSED_KSYMS")
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/mti-malta/malta-dtshim.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/gen_ksymdeps.sh | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/mti-malta/malta-dtshim.c b/arch/mips/mti-malta/malta-dtshim.c
-index 98a063093b69..0be28adff557 100644
---- a/arch/mips/mti-malta/malta-dtshim.c
-+++ b/arch/mips/mti-malta/malta-dtshim.c
-@@ -22,7 +22,7 @@
- #define  ROCIT_CONFIG_GEN1_MEMMAP_SHIFT	8
- #define  ROCIT_CONFIG_GEN1_MEMMAP_MASK	(0xf << 8)
+diff --git a/scripts/gen_ksymdeps.sh b/scripts/gen_ksymdeps.sh
+index 1324986e1362..725e8c9c1b53 100755
+--- a/scripts/gen_ksymdeps.sh
++++ b/scripts/gen_ksymdeps.sh
+@@ -4,7 +4,13 @@
+ set -e
  
--static unsigned char fdt_buf[16 << 10] __initdata;
-+static unsigned char fdt_buf[16 << 10] __initdata __aligned(8);
+ # List of exported symbols
+-ksyms=$($NM $1 | sed -n 's/.*__ksym_marker_\(.*\)/\1/p' | tr A-Z a-z)
++#
++# If the object has no symbol, $NM warns 'no symbols'.
++# Suppress the stderr.
++# TODO:
++#   Use -q instead of 2>/dev/null when we upgrade the minimum version of
++#   binutils to 2.37, llvm to 13.0.0.
++ksyms=$($NM $1 2>/dev/null | sed -n 's/.*__ksym_marker_\(.*\)/\1/p' | tr A-Z a-z)
  
- /* determined physical memory size, not overridden by command line args	 */
- extern unsigned long physical_memsize;
+ if [ -z "$ksyms" ]; then
+ 	exit 0
 -- 
 2.30.2
 
