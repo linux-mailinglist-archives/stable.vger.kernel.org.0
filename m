@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61A6E411E8F
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:31:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEEB7411ADD
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:51:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345807AbhITRcP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:32:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35448 "EHLO mail.kernel.org"
+        id S229749AbhITQwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:52:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350872AbhITRaO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:30:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65DB661AE4;
-        Mon, 20 Sep 2021 17:04:10 +0000 (UTC)
+        id S243466AbhITQuw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:50:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC630611AE;
+        Mon, 20 Sep 2021 16:49:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157450;
-        bh=EjHkeJTNhc7GXrcFNyIGNtoE1UPt9Su+BC0wgx7onp8=;
+        s=korg; t=1632156563;
+        bh=rSes+fkgNcdnRhQdFfMj5NVACGIdVJzrMcuJwL51u4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rKX+Sbo5qVQ2/MNF9mNwiAj1iA6jnxe82zHQt+T/KYwCP6cdetq7e1PcCpYKxs/gC
-         vc/qtUjMd+W1+43k+c9+B9Upizol3ZMNIh67vXYCD+j7Spm2iqX9a+FnrUTijXGiOf
-         v+7vz2y9mXPoPIOnh+onn8vFzTWdQf5SOgxs0ZuQ=
+        b=cj0RhDU7tbFJuDBXm0DB0TCl3TQHLqPP5JEQnXUA7qeejzyWduDiN/qVTjJibpUry
+         SYk8uP0pygibMNLYnp81D6DyYLk8vJ0CbTHF/pvlHepPAXnYwPW8rDUIFcGGFlTxO1
+         NHQ4BrY2Ww/E13CNK7lDMd07oEHAuusa6MntVScs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 173/217] Revert "USB: xhci: fix U1/U2 handling for hardware with XHCI_INTEL_HOST quirk set"
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.4 116/133] parisc: fix crash with signals and alloca
 Date:   Mon, 20 Sep 2021 18:43:14 +0200
-Message-Id: <20210920163930.496882072@linuxfoundation.org>
+Message-Id: <20210920163916.419548729@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,95 +39,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 2847c46c61486fd8bca9136a6e27177212e78c69 ]
+commit 030f653078316a9cc9ca6bd1b0234dcf858be35d upstream.
 
-This reverts commit 5d5323a6f3625f101dbfa94ba3ef7706cce38760.
+I was debugging some crashes on parisc and I found out that there is a
+crash possibility if a function using alloca is interrupted by a signal.
+The reason for the crash is that the gcc alloca implementation leaves
+garbage in the upper 32 bits of the sp register. This normally doesn't
+matter (the upper bits are ignored because the PSW W-bit is clear),
+however the signal delivery routine in the kernel uses full 64 bits of sp
+and it fails with -EFAULT if the upper 32 bits are not zero.
 
-That commit effectively disabled Intel host initiated U1/U2 lpm for devices
-with periodic endpoints.
+I created this program that demonstrates the problem:
 
-Before that commit we disabled host initiated U1/U2 lpm if the exit latency
-was larger than any periodic endpoint service interval, this is according
-to xhci spec xhci 1.1 specification section 4.23.5.2
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <alloca.h>
 
-After that commit we incorrectly checked that service interval was smaller
-than U1/U2 inactivity timeout. This is not relevant, and can't happen for
-Intel hosts as previously set U1/U2 timeout = 105% * service interval.
+static __attribute__((noinline,noclone)) void aa(int *size)
+{
+	void * volatile p = alloca(-*size);
+	while (1) ;
+}
 
-Patch claimed it solved cases where devices can't be enumerated because of
-bandwidth issues. This might be true but it's a side effect of accidentally
-turning off lpm.
+static void handler(int sig)
+{
+	write(1, "signal delivered\n", 17);
+	_exit(0);
+}
 
-exit latency calculations have been revised since then
+int main(void)
+{
+	int size = -0x100;
+	signal(SIGALRM, handler);
+	alarm(1);
+	aa(&size);
+}
 
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210820123503.2605901-5-mathias.nyman@linux.intel.com
+If you compile it with optimizations, it will crash.
+The "aa" function has this disassembly:
+
+000106a0 <aa>:
+   106a0:       08 03 02 41     copy r3,r1
+   106a4:       08 1e 02 43     copy sp,r3
+   106a8:       6f c1 00 80     stw,ma r1,40(sp)
+   106ac:       37 dc 3f c1     ldo -20(sp),ret0
+   106b0:       0c 7c 12 90     stw ret0,8(r3)
+   106b4:       0f 40 10 9c     ldw 0(r26),ret0		; ret0 = 0x00000000FFFFFF00
+   106b8:       97 9c 00 7e     subi 3f,ret0,ret0	; ret0 = 0xFFFFFFFF0000013F
+   106bc:       d7 80 1c 1a     depwi 0,31,6,ret0	; ret0 = 0xFFFFFFFF00000100
+   106c0:       0b 9e 0a 1e     add,l sp,ret0,sp	;   sp = 0xFFFFFFFFxxxxxxxx
+   106c4:       e8 1f 1f f7     b,l,n 106c4 <aa+0x24>,r0
+
+This patch fixes the bug by truncating the "usp" variable to 32 bits.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ arch/parisc/kernel/signal.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 3cab64f2e861..e4a82da434c2 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -4400,19 +4400,19 @@ static u16 xhci_calculate_u1_timeout(struct xhci_hcd *xhci,
- {
- 	unsigned long long timeout_ns;
+--- a/arch/parisc/kernel/signal.c
++++ b/arch/parisc/kernel/signal.c
+@@ -239,6 +239,12 @@ setup_rt_frame(struct ksignal *ksig, sig
+ #endif
+ 	
+ 	usp = (regs->gr[30] & ~(0x01UL));
++#ifdef CONFIG_64BIT
++	if (is_compat_task()) {
++		/* The gcc alloca implementation leaves garbage in the upper 32 bits of sp */
++		usp = (compat_uint_t)usp;
++	}
++#endif
+ 	/*FIXME: frame_size parameter is unused, remove it. */
+ 	frame = get_sigframe(&ksig->ka, usp, sizeof(*frame));
  
--	if (xhci->quirks & XHCI_INTEL_HOST)
--		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
--	else
--		timeout_ns = udev->u1_params.sel;
--
- 	/* Prevent U1 if service interval is shorter than U1 exit latency */
- 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
--		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
-+		if (xhci_service_interval_to_ns(desc) <= udev->u1_params.mel) {
- 			dev_dbg(&udev->dev, "Disable U1, ESIT shorter than exit latency\n");
- 			return USB3_LPM_DISABLED;
- 		}
- 	}
- 
-+	if (xhci->quirks & XHCI_INTEL_HOST)
-+		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
-+	else
-+		timeout_ns = udev->u1_params.sel;
-+
- 	/* The U1 timeout is encoded in 1us intervals.
- 	 * Don't return a timeout of zero, because that's USB3_LPM_DISABLED.
- 	 */
-@@ -4464,19 +4464,19 @@ static u16 xhci_calculate_u2_timeout(struct xhci_hcd *xhci,
- {
- 	unsigned long long timeout_ns;
- 
--	if (xhci->quirks & XHCI_INTEL_HOST)
--		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
--	else
--		timeout_ns = udev->u2_params.sel;
--
- 	/* Prevent U2 if service interval is shorter than U2 exit latency */
- 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
--		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
-+		if (xhci_service_interval_to_ns(desc) <= udev->u2_params.mel) {
- 			dev_dbg(&udev->dev, "Disable U2, ESIT shorter than exit latency\n");
- 			return USB3_LPM_DISABLED;
- 		}
- 	}
- 
-+	if (xhci->quirks & XHCI_INTEL_HOST)
-+		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
-+	else
-+		timeout_ns = udev->u2_params.sel;
-+
- 	/* The U2 timeout is encoded in 256us intervals */
- 	timeout_ns = DIV_ROUND_UP_ULL(timeout_ns, 256 * 1000);
- 	/* If the necessary timeout value is bigger than what we can set in the
--- 
-2.30.2
-
 
 
