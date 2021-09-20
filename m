@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34CF8412532
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 003024122A7
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382759AbhITSmT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:42:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54226 "EHLO mail.kernel.org"
+        id S1351299AbhITSQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:16:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1382294AbhITSkR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:40:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3691F61502;
-        Mon, 20 Sep 2021 17:30:59 +0000 (UTC)
+        id S1376695AbhITSOP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:14:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9607E6328D;
+        Mon, 20 Sep 2021 17:21:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159059;
-        bh=WaatLd0W3bb6F9P9z+w9hXiMrtEsDr9qfqz2Pcx+5sg=;
+        s=korg; t=1632158482;
+        bh=HLzcz2TEmRep3BzxUNjExyMyIAWZcVxLf5FnBbgQjYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iXgC/QgddeBTzqeh7CyZpGjFL/g866ZvBiXp52HeuWiQbtgQHv6JGZghLJDFXNCW/
-         2ldHlAeysXjPxN2OE2oA3tquAgaNzOf/M7rIlxxsLs1nFnoMENe7P8UdYhAhPKvfy4
-         GO0nw1S6k6hHoY4dk7uPysZR5S6Evo2yjfNb+WJc=
+        b=Y2Q+foer2sSffsvoA6gdUnAERaFw8EDZ7jUQZb/Ma7+MjGBY4kLTIfsuI0Otv7Xi5
+         GErbW/tP1meGo7gXRTjvPo1t+USSuQYV00c1N8QNjCK1mI0jQKCrldM5YwROrgYX0r
+         e3dJErpZjM6m9wPZmaEQepPf4YjOQu+DxwUSXZ+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eirik Fuller <efuller@redhat.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.14 056/168] powerpc/64s: system call scv tabort fix for corrupt irq soft-mask state
+        stable@vger.kernel.org, Khalid Aziz <khalid@gonehiking.org>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 176/260] scsi: BusLogic: Fix missing pr_cont() use
 Date:   Mon, 20 Sep 2021 18:43:14 +0200
-Message-Id: <20210920163923.480010777@linuxfoundation.org>
+Message-Id: <20210920163937.065149941@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,163 +40,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit b871895b148256f1721bc565d803860242755a0b upstream.
+commit 44d01fc86d952f5a8b8b32bdb4841504d5833d95 upstream.
 
-If a system call is made with a transaction active, the kernel
-immediately aborts it and returns. scv system calls disable irqs even
-earlier in their interrupt handler, and tabort_syscall does not fix this
-up.
+Update BusLogic driver's messaging system to use pr_cont() for continuation
+lines, bringing messy output:
 
-This can result in irq soft-mask state being messed up on the next
-kernel entry, and crashing at BUG_ON(arch_irq_disabled_regs(regs)) in
-the kernel exit handlers, or possibly worse.
+pci 0000:00:13.0: PCI->APIC IRQ transform: INT A -> IRQ 17
+scsi: ***** BusLogic SCSI Driver Version 2.1.17 of 12 September 2013 *****
+scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
+scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
+scsi0:   Firmware Version: 5.07B, I/O Address: 0x7000, IRQ Channel: 17/Level
+scsi0:   PCI Bus: 0, Device: 19, Address:
+0xE0012000,
+Host Adapter SCSI ID: 7
+scsi0:   Parity Checking: Enabled, Extended Translation: Enabled
+scsi0:   Synchronous Negotiation: Ultra, Wide Negotiation: Enabled
+scsi0:   Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
+scsi0:   Scatter/Gather Limit: 128 of 8192 segments, Mailboxes: 211
+scsi0:   Driver Queue Depth: 211, Host Adapter Queue Depth: 192
+scsi0:   Tagged Queue Depth:
+Automatic
+, Untagged Queue Depth: 3
+scsi0:   SCSI Bus Termination: Both Enabled
+, SCAM: Disabled
 
-This can't easily be fixed in asm because at this point an async irq may
-have hit, which is soft-masked and marked pending. The pending interrupt
-has to be replayed before returning to userspace. The fix is to move the
-tabort_syscall code to C in the main syscall handler, and just skip the
-system call but otherwise return as usual, which will take care of the
-pending irqs. This also does a bunch of other things including possible
-signal delivery to the process, but the doomed transaction should still
-be aborted when it is eventually returned to.
+scsi0: *** BusLogic BT-958 Initialized Successfully ***
+scsi host0: BusLogic BT-958
 
-The sc system call path is changed to use the new C function as well to
-reduce code and path differences. This slows down how quickly system
-calls are aborted when called while a transaction is active, which could
-potentially impact TM performance. But making any system call is already
-bad for performance, and TM is on the way out, so go with simpler over
-faster.
+back to order:
 
-Fixes: 7fa95f9adaee7 ("powerpc/64s: system call support for scv/rfscv instructions")
-Reported-by: Eirik Fuller <efuller@redhat.com>
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-[mpe: Use #ifdef rather than IS_ENABLED() to fix build error on 32-bit]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210903125707.1601269-1-npiggin@gmail.com
+pci 0000:00:13.0: PCI->APIC IRQ transform: INT A -> IRQ 17
+scsi: ***** BusLogic SCSI Driver Version 2.1.17 of 12 September 2013 *****
+scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
+scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
+scsi0:   Firmware Version: 5.07B, I/O Address: 0x7000, IRQ Channel: 17/Level
+scsi0:   PCI Bus: 0, Device: 19, Address: 0xE0012000, Host Adapter SCSI ID: 7
+scsi0:   Parity Checking: Enabled, Extended Translation: Enabled
+scsi0:   Synchronous Negotiation: Ultra, Wide Negotiation: Enabled
+scsi0:   Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
+scsi0:   Scatter/Gather Limit: 128 of 8192 segments, Mailboxes: 211
+scsi0:   Driver Queue Depth: 211, Host Adapter Queue Depth: 192
+scsi0:   Tagged Queue Depth: Automatic, Untagged Queue Depth: 3
+scsi0:   SCSI Bus Termination: Both Enabled, SCAM: Disabled
+scsi0: *** BusLogic BT-958 Initialized Successfully ***
+scsi host0: BusLogic BT-958
+
+Also diagnostic output such as with the BusLogic=TraceConfiguration
+parameter is affected and becomes vertical and therefore hard to read.
+This has now been corrected, e.g.:
+
+pci 0000:00:13.0: PCI->APIC IRQ transform: INT A -> IRQ 17
+blogic_cmd(86) Status = 30:  4 ==>  4: FF 05 93 00
+blogic_cmd(95) Status = 28: (Modify I/O Address)
+blogic_cmd(91) Status = 30:  1 ==>  1: 01
+blogic_cmd(04) Status = 30:  4 ==>  4: 41 41 35 30
+blogic_cmd(8D) Status = 30: 14 ==> 14: 45 DC 00 20 00 00 00 00 00 40 30 37 42 1D
+scsi: ***** BusLogic SCSI Driver Version 2.1.17 of 12 September 2013 *****
+scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
+blogic_cmd(04) Status = 30:  4 ==>  4: 41 41 35 30
+blogic_cmd(0B) Status = 30:  3 ==>  3: 00 08 07
+blogic_cmd(0D) Status = 30: 34 ==> 34: 03 01 07 04 00 00 00 00 00 00 00 00 00 00 00 00 FF 42 44 46 FF 00 00 00 00 00 00 00 00 00 FF 00 FF 00
+blogic_cmd(8D) Status = 30: 14 ==> 14: 45 DC 00 20 00 00 00 00 00 40 30 37 42 1D
+blogic_cmd(84) Status = 30:  1 ==>  1: 37
+blogic_cmd(8B) Status = 30:  5 ==>  5: 39 35 38 20 20
+blogic_cmd(85) Status = 30:  1 ==>  1: 42
+blogic_cmd(86) Status = 30:  4 ==>  4: FF 05 93 00
+blogic_cmd(91) Status = 30: 64 ==> 64: 41 46 3E 20 39 35 38 20 20 00 C4 00 04 01 07 2F 07 04 35 FF FF FF FF FF FF FF FF FF FF 01 00 FE FF 08 FF FF 00 00 00 00 00 00 00 01 00 01 00 00 FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 FC
+scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
+
+etc.
+
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2104201940430.44318@angie.orcam.me.uk
+Fixes: 4bcc595ccd80 ("printk: reinstate KERN_CONT for printing continuation lines")
+Cc: stable@vger.kernel.org # v4.9+
+Acked-by: Khalid Aziz <khalid@gonehiking.org>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/interrupt.c    |   30 +++++++++++++++++++++++++++
- arch/powerpc/kernel/interrupt_64.S |   41 -------------------------------------
- 2 files changed, 30 insertions(+), 41 deletions(-)
+ drivers/scsi/BusLogic.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/kernel/interrupt.c
-+++ b/arch/powerpc/kernel/interrupt.c
-@@ -19,6 +19,7 @@
- #include <asm/switch_to.h>
- #include <asm/syscall.h>
- #include <asm/time.h>
-+#include <asm/tm.h>
- #include <asm/unistd.h>
- 
- #if defined(CONFIG_PPC_ADV_DEBUG_REGS) && defined(CONFIG_PPC32)
-@@ -138,6 +139,35 @@ notrace long system_call_exception(long
- 	 */
- 	irq_soft_mask_regs_set_state(regs, IRQS_ENABLED);
- 
-+	/*
-+	 * If the system call was made with a transaction active, doom it and
-+	 * return without performing the system call. Unless it was an
-+	 * unsupported scv vector, in which case it's treated like an illegal
-+	 * instruction.
-+	 */
-+#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
-+	if (unlikely(MSR_TM_TRANSACTIONAL(regs->msr)) &&
-+	    !trap_is_unsupported_scv(regs)) {
-+		/* Enable TM in the kernel, and disable EE (for scv) */
-+		hard_irq_disable();
-+		mtmsr(mfmsr() | MSR_TM);
-+
-+		/* tabort, this dooms the transaction, nothing else */
-+		asm volatile(".long 0x7c00071d | ((%0) << 16)"
-+				:: "r"(TM_CAUSE_SYSCALL|TM_CAUSE_PERSISTENT));
-+
-+		/*
-+		 * Userspace will never see the return value. Execution will
-+		 * resume after the tbegin. of the aborted transaction with the
-+		 * checkpointed register state. A context switch could occur
-+		 * or signal delivered to the process before resuming the
-+		 * doomed transaction context, but that should all be handled
-+		 * as expected.
-+		 */
-+		return -ENOSYS;
-+	}
-+#endif // CONFIG_PPC_TRANSACTIONAL_MEM
-+
- 	local_irq_enable();
- 
- 	if (unlikely(current_thread_info()->flags & _TIF_SYSCALL_DOTRACE)) {
---- a/arch/powerpc/kernel/interrupt_64.S
-+++ b/arch/powerpc/kernel/interrupt_64.S
-@@ -12,7 +12,6 @@
- #include <asm/mmu.h>
- #include <asm/ppc_asm.h>
- #include <asm/ptrace.h>
--#include <asm/tm.h>
- 
- 	.section	".toc","aw"
- SYS_CALL_TABLE:
-@@ -55,12 +54,6 @@ COMPAT_SYS_CALL_TABLE:
- 	.globl system_call_vectored_\name
- system_call_vectored_\name:
- _ASM_NOKPROBE_SYMBOL(system_call_vectored_\name)
--#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
--BEGIN_FTR_SECTION
--	extrdi.	r10, r12, 1, (63-MSR_TS_T_LG) /* transaction active? */
--	bne	tabort_syscall
--END_FTR_SECTION_IFSET(CPU_FTR_TM)
--#endif
- 	SCV_INTERRUPT_TO_KERNEL
- 	mr	r10,r1
- 	ld	r1,PACAKSAVE(r13)
-@@ -247,12 +240,6 @@ _ASM_NOKPROBE_SYMBOL(system_call_common_
- 	.globl system_call_common
- system_call_common:
- _ASM_NOKPROBE_SYMBOL(system_call_common)
--#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
--BEGIN_FTR_SECTION
--	extrdi.	r10, r12, 1, (63-MSR_TS_T_LG) /* transaction active? */
--	bne	tabort_syscall
--END_FTR_SECTION_IFSET(CPU_FTR_TM)
--#endif
- 	mr	r10,r1
- 	ld	r1,PACAKSAVE(r13)
- 	std	r10,0(r1)
-@@ -425,34 +412,6 @@ SOFT_MASK_TABLE(.Lsyscall_rst_start, 1b)
- RESTART_TABLE(.Lsyscall_rst_start, .Lsyscall_rst_end, syscall_restart)
- #endif
- 
--#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
--tabort_syscall:
--_ASM_NOKPROBE_SYMBOL(tabort_syscall)
--	/* Firstly we need to enable TM in the kernel */
--	mfmsr	r10
--	li	r9, 1
--	rldimi	r10, r9, MSR_TM_LG, 63-MSR_TM_LG
--	mtmsrd	r10, 0
--
--	/* tabort, this dooms the transaction, nothing else */
--	li	r9, (TM_CAUSE_SYSCALL|TM_CAUSE_PERSISTENT)
--	TABORT(R9)
--
--	/*
--	 * Return directly to userspace. We have corrupted user register state,
--	 * but userspace will never see that register state. Execution will
--	 * resume after the tbegin of the aborted transaction with the
--	 * checkpointed register state.
--	 */
--	li	r9, MSR_RI
--	andc	r10, r10, r9
--	mtmsrd	r10, 1
--	mtspr	SPRN_SRR0, r11
--	mtspr	SPRN_SRR1, r12
--	RFI_TO_USER
--	b	.	/* prevent speculative execution */
--#endif
--
- 	/*
- 	 * If MSR EE/RI was never enabled, IRQs not reconciled, NVGPRs not
- 	 * touched, no exit work created, then this can be used.
+--- a/drivers/scsi/BusLogic.c
++++ b/drivers/scsi/BusLogic.c
+@@ -3601,7 +3601,7 @@ static void blogic_msg(enum blogic_msgle
+ 			if (buf[0] != '\n' || len > 1)
+ 				printk("%sscsi%d: %s", blogic_msglevelmap[msglevel], adapter->host_no, buf);
+ 		} else
+-			printk("%s", buf);
++			pr_cont("%s", buf);
+ 	} else {
+ 		if (begin) {
+ 			if (adapter != NULL && adapter->adapter_initd)
+@@ -3609,7 +3609,7 @@ static void blogic_msg(enum blogic_msgle
+ 			else
+ 				printk("%s%s", blogic_msglevelmap[msglevel], buf);
+ 		} else
+-			printk("%s", buf);
++			pr_cont("%s", buf);
+ 	}
+ 	begin = (buf[len - 1] == '\n');
+ }
 
 
