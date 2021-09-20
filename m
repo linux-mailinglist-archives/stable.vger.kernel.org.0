@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80C50412388
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:24:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28CCB4124CE
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:39:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352526AbhITSZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:25:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43766 "EHLO mail.kernel.org"
+        id S1350186AbhITSiT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:38:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1378179AbhITSX1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:23:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED32461A7D;
-        Mon, 20 Sep 2021 17:24:41 +0000 (UTC)
+        id S1379309AbhITSgQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:36:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A98026331A;
+        Mon, 20 Sep 2021 17:29:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158682;
-        bh=axt4RgSMSFoQ1IYmeYZTr36aIoc0JBcAdtTEwp9SDqs=;
+        s=korg; t=1632158944;
+        bh=66xlvQD0Gb9FNYNhXTZe5EXDwOjLwO5ScT1YPxrSOsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bcdT5SSfc0KULKuVAvo1/zjebp34bBo1QaTLrIWkDqUXAbONwJdNLf1ePiEWksdOW
-         dXurFwJEDORGlJyXXdzxVnqZOm5rNWiFi0sp4XRX/I9YYo+bmyB8a1g5aRw1/xeV/i
-         o4YCbJkBwhNad23um9zA2ZJtwIF20A8xUIj1XxZM=
+        b=GwJxpV9R3oJz2N4eZZhSsueHuRcEW3iPu975jrCOfnKaybvZfQL00ZknSDqV7VeIu
+         fujsQdxgwhIKurcT9C/0XdixKx9RnjGsqiXuRaamD2Cr/Z5oDxb5umw+3pr1CIw0As
+         1BpiwmjmS61NS/ylef6AP7JjpFQn2kAWYLchdv5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 255/260] net: dsa: b53: Fix calculating number of switch ports
+Subject: [PATCH 5.10 101/122] gpio: mpc8xxx: Use devm_gpiochip_add_data() to simplify the code and avoid a leak
 Date:   Mon, 20 Sep 2021 18:44:33 +0200
-Message-Id: <20210920163939.776599103@linuxfoundation.org>
+Message-Id: <20210920163919.100326398@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit cdb067d31c0fe4cce98b9d15f1f2ef525acaa094 ]
+[ Upstream commit 889a1b3f35db6ba5ba6a0c23a3a55594570b6a17 ]
 
-It isn't true that CPU port is always the last one. Switches BCM5301x
-have 9 ports (port 6 being inactive) and they use port 5 as CPU by
-default (depending on design some other may be CPU ports too).
+If an error occurs after a 'gpiochip_add_data()' call it must be undone by
+a corresponding 'gpiochip_remove()' as already done in the remove function.
 
-A more reliable way of determining number of ports is to check for the
-last set bit in the "enabled_ports" bitfield.
+To simplify the code a fix a leak in the error handling path of the probe,
+use the managed version instead (i.e. 'devm_gpiochip_add_data()')
 
-This fixes b53 internal state, it will allow providing accurate info to
-the DSA and is required to fix BCM5301x support.
-
-Fixes: 967dd82ffc52 ("net: dsa: b53: Add support for Broadcom RoboSwitch")
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 698b8eeaed72 ("gpio/mpc8xxx: change irq handler from chained to normal")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/b53/b53_common.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpio/gpio-mpc8xxx.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/net/dsa/b53/b53_common.c b/drivers/net/dsa/b53/b53_common.c
-index e78b683f7305..825d840cdb8c 100644
---- a/drivers/net/dsa/b53/b53_common.c
-+++ b/drivers/net/dsa/b53/b53_common.c
-@@ -2353,9 +2353,8 @@ static int b53_switch_init(struct b53_device *dev)
- 			dev->cpu_port = 5;
+diff --git a/drivers/gpio/gpio-mpc8xxx.c b/drivers/gpio/gpio-mpc8xxx.c
+index a4983c5d1f16..023b99bf098d 100644
+--- a/drivers/gpio/gpio-mpc8xxx.c
++++ b/drivers/gpio/gpio-mpc8xxx.c
+@@ -374,7 +374,7 @@ static int mpc8xxx_probe(struct platform_device *pdev)
+ 	    of_device_is_compatible(np, "fsl,ls1088a-gpio"))
+ 		gc->write_reg(mpc8xxx_gc->regs + GPIO_IBE, 0xffffffff);
+ 
+-	ret = gpiochip_add_data(gc, mpc8xxx_gc);
++	ret = devm_gpiochip_add_data(&pdev->dev, gc, mpc8xxx_gc);
+ 	if (ret) {
+ 		pr_err("%pOF: GPIO chip registration failed with status %d\n",
+ 		       np, ret);
+@@ -419,8 +419,6 @@ static int mpc8xxx_remove(struct platform_device *pdev)
+ 		irq_domain_remove(mpc8xxx_gc->irq);
  	}
  
--	/* cpu port is always last */
--	dev->num_ports = dev->cpu_port + 1;
- 	dev->enabled_ports |= BIT(dev->cpu_port);
-+	dev->num_ports = fls(dev->enabled_ports);
+-	gpiochip_remove(&mpc8xxx_gc->gc);
+-
+ 	return 0;
+ }
  
- 	/* Include non standard CPU port built-in PHYs to be probed */
- 	if (is539x(dev) || is531x5(dev)) {
 -- 
 2.30.2
 
