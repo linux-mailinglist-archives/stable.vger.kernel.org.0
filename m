@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72588411F41
+	by mail.lfdr.de (Postfix) with ESMTP id E6098411F42
 	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:38:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348428AbhITRjv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:39:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40198 "EHLO mail.kernel.org"
+        id S1348444AbhITRjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:39:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352041AbhITRha (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1348712AbhITRha (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 13:37:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 390A761B2F;
-        Mon, 20 Sep 2021 17:06:53 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CABB61381;
+        Mon, 20 Sep 2021 17:06:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157613;
-        bh=oCgVy4C0ao2CcSv6Ia0kN4a6gXzVhiETyH7vLIdD6a4=;
+        s=korg; t=1632157615;
+        bh=GQ9lV9zBSX7ryX4LY8y0KL8mtGf2KgywVURBNcGLNkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zCHDfdis4/n5TsBGvsOcW+YdToH4KSVEcfVG/SOvma7rV/0nh1ASpdXeT+HZgDTk5
-         Ep7B2tEyIgnO8ypoROR2IA7X6XonofAuO0hSqzCIc3HG2awNlm35aGSrZ8FiR0KDi7
-         Sa5I2qSU22umgdWOlaB6Gy0sxjqOJNAuYI/WQvgU=
+        b=jE63iUahRbbU19FaF35MCjSTkddgg0grvM4r/DAzlnYCMFJyFx5x0NEwly0AdNiif
+         LyQ3Bt/YYcy84AaWon3PSB/mMdtdB2hNGXYwsjVHtKFWWj3rRp/CiM3Et3eaPZZlKj
+         TSAMNaQNbugD2Clq+2TozMEV+NSlKn7QJ/WoKdOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Colitti <lorenzo@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 039/293] hrtimer: Avoid double reprogramming in __hrtimer_start_range_ns()
-Date:   Mon, 20 Sep 2021 18:40:01 +0200
-Message-Id: <20210920163934.615753497@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+7fbfe5fed73ebb675748@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 040/293] udf: Check LVID earlier
+Date:   Mon, 20 Sep 2021 18:40:02 +0200
+Message-Id: <20210920163934.647035360@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
 References: <20210920163933.258815435@linuxfoundation.org>
@@ -40,137 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 627ef5ae2df8eeccb20d5af0e4cfa4df9e61ed28 ]
+[ Upstream commit 781d2a9a2fc7d0be53a072794dc03ef6de770f3d ]
 
-If __hrtimer_start_range_ns() is invoked with an already armed hrtimer then
-the timer has to be canceled first and then added back. If the timer is the
-first expiring timer then on removal the clockevent device is reprogrammed
-to the next expiring timer to avoid that the pending expiry fires needlessly.
+We were checking validity of LVID entries only when getting
+implementation use information from LVID in udf_sb_lvidiu(). However if
+the LVID is suitably corrupted, it can cause problems also to code such
+as udf_count_free() which doesn't use udf_sb_lvidiu(). So check validity
+of LVID already when loading it from the disk and just disable LVID
+altogether when it is not valid.
 
-If the new expiry time ends up to be the first expiry again then the clock
-event device has to reprogrammed again.
-
-Avoid this by checking whether the timer is the first to expire and in that
-case, keep the timer on the current CPU and delay the reprogramming up to
-the point where the timer has been enqueued again.
-
-Reported-by: Lorenzo Colitti <lorenzo@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20210713135157.873137732@linutronix.de
+Reported-by: syzbot+7fbfe5fed73ebb675748@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/hrtimer.c | 60 ++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 53 insertions(+), 7 deletions(-)
+ fs/udf/super.c | 25 ++++++++++++++++---------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
 
-diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
-index 0e04b24cec81..32ee24f5142a 100644
---- a/kernel/time/hrtimer.c
-+++ b/kernel/time/hrtimer.c
-@@ -1020,12 +1020,13 @@ static void __remove_hrtimer(struct hrtimer *timer,
-  * remove hrtimer, called with base lock held
-  */
- static inline int
--remove_hrtimer(struct hrtimer *timer, struct hrtimer_clock_base *base, bool restart)
-+remove_hrtimer(struct hrtimer *timer, struct hrtimer_clock_base *base,
-+	       bool restart, bool keep_local)
- {
- 	u8 state = timer->state;
- 
- 	if (state & HRTIMER_STATE_ENQUEUED) {
--		int reprogram;
-+		bool reprogram;
- 
- 		/*
- 		 * Remove the timer and force reprogramming when high
-@@ -1038,8 +1039,16 @@ remove_hrtimer(struct hrtimer *timer, struct hrtimer_clock_base *base, bool rest
- 		debug_deactivate(timer);
- 		reprogram = base->cpu_base == this_cpu_ptr(&hrtimer_bases);
- 
-+		/*
-+		 * If the timer is not restarted then reprogramming is
-+		 * required if the timer is local. If it is local and about
-+		 * to be restarted, avoid programming it twice (on removal
-+		 * and a moment later when it's requeued).
-+		 */
- 		if (!restart)
- 			state = HRTIMER_STATE_INACTIVE;
-+		else
-+			reprogram &= !keep_local;
- 
- 		__remove_hrtimer(timer, base, state, reprogram);
- 		return 1;
-@@ -1093,9 +1102,31 @@ static int __hrtimer_start_range_ns(struct hrtimer *timer, ktime_t tim,
- 				    struct hrtimer_clock_base *base)
- {
- 	struct hrtimer_clock_base *new_base;
-+	bool force_local, first;
- 
--	/* Remove an active timer from the queue: */
--	remove_hrtimer(timer, base, true);
-+	/*
-+	 * If the timer is on the local cpu base and is the first expiring
-+	 * timer then this might end up reprogramming the hardware twice
-+	 * (on removal and on enqueue). To avoid that by prevent the
-+	 * reprogram on removal, keep the timer local to the current CPU
-+	 * and enforce reprogramming after it is queued no matter whether
-+	 * it is the new first expiring timer again or not.
-+	 */
-+	force_local = base->cpu_base == this_cpu_ptr(&hrtimer_bases);
-+	force_local &= base->cpu_base->next_timer == timer;
-+
-+	/*
-+	 * Remove an active timer from the queue. In case it is not queued
-+	 * on the current CPU, make sure that remove_hrtimer() updates the
-+	 * remote data correctly.
-+	 *
-+	 * If it's on the current CPU and the first expiring timer, then
-+	 * skip reprogramming, keep the timer local and enforce
-+	 * reprogramming later if it was the first expiring timer.  This
-+	 * avoids programming the underlying clock event twice (once at
-+	 * removal and once after enqueue).
-+	 */
-+	remove_hrtimer(timer, base, true, force_local);
- 
- 	if (mode & HRTIMER_MODE_REL)
- 		tim = ktime_add_safe(tim, base->get_time());
-@@ -1105,9 +1136,24 @@ static int __hrtimer_start_range_ns(struct hrtimer *timer, ktime_t tim,
- 	hrtimer_set_expires_range_ns(timer, tim, delta_ns);
- 
- 	/* Switch the timer base, if necessary: */
--	new_base = switch_hrtimer_base(timer, base, mode & HRTIMER_MODE_PINNED);
-+	if (!force_local) {
-+		new_base = switch_hrtimer_base(timer, base,
-+					       mode & HRTIMER_MODE_PINNED);
-+	} else {
-+		new_base = base;
-+	}
-+
-+	first = enqueue_hrtimer(timer, new_base, mode);
-+	if (!force_local)
-+		return first;
- 
--	return enqueue_hrtimer(timer, new_base, mode);
-+	/*
-+	 * Timer was forced to stay on the current CPU to avoid
-+	 * reprogramming on removal and enqueue. Force reprogram the
-+	 * hardware by evaluating the new first expiring timer.
-+	 */
-+	hrtimer_force_reprogram(new_base->cpu_base, 1);
-+	return 0;
+diff --git a/fs/udf/super.c b/fs/udf/super.c
+index c7f6243f318b..9c71246e6d60 100644
+--- a/fs/udf/super.c
++++ b/fs/udf/super.c
+@@ -112,16 +112,10 @@ struct logicalVolIntegrityDescImpUse *udf_sb_lvidiu(struct super_block *sb)
+ 		return NULL;
+ 	lvid = (struct logicalVolIntegrityDesc *)UDF_SB(sb)->s_lvid_bh->b_data;
+ 	partnum = le32_to_cpu(lvid->numOfPartitions);
+-	if ((sb->s_blocksize - sizeof(struct logicalVolIntegrityDescImpUse) -
+-	     offsetof(struct logicalVolIntegrityDesc, impUse)) /
+-	     (2 * sizeof(uint32_t)) < partnum) {
+-		udf_err(sb, "Logical volume integrity descriptor corrupted "
+-			"(numOfPartitions = %u)!\n", partnum);
+-		return NULL;
+-	}
+ 	/* The offset is to skip freeSpaceTable and sizeTable arrays */
+ 	offset = partnum * 2 * sizeof(uint32_t);
+-	return (struct logicalVolIntegrityDescImpUse *)&(lvid->impUse[offset]);
++	return (struct logicalVolIntegrityDescImpUse *)
++					(((uint8_t *)(lvid + 1)) + offset);
  }
  
- /**
-@@ -1168,7 +1214,7 @@ int hrtimer_try_to_cancel(struct hrtimer *timer)
- 	base = lock_hrtimer_base(timer, &flags);
+ /* UDF filesystem type */
+@@ -1529,6 +1523,7 @@ static void udf_load_logicalvolint(struct super_block *sb, struct kernel_extent_
+ 	struct udf_sb_info *sbi = UDF_SB(sb);
+ 	struct logicalVolIntegrityDesc *lvid;
+ 	int indirections = 0;
++	u32 parts, impuselen;
  
- 	if (!hrtimer_callback_running(timer))
--		ret = remove_hrtimer(timer, base, false);
-+		ret = remove_hrtimer(timer, base, false, false);
+ 	while (++indirections <= UDF_MAX_LVID_NESTING) {
+ 		final_bh = NULL;
+@@ -1555,15 +1550,27 @@ static void udf_load_logicalvolint(struct super_block *sb, struct kernel_extent_
  
- 	unlock_hrtimer_base(timer, &flags);
+ 		lvid = (struct logicalVolIntegrityDesc *)final_bh->b_data;
+ 		if (lvid->nextIntegrityExt.extLength == 0)
+-			return;
++			goto check;
  
+ 		loc = leea_to_cpu(lvid->nextIntegrityExt);
+ 	}
+ 
+ 	udf_warn(sb, "Too many LVID indirections (max %u), ignoring.\n",
+ 		UDF_MAX_LVID_NESTING);
++out_err:
+ 	brelse(sbi->s_lvid_bh);
+ 	sbi->s_lvid_bh = NULL;
++	return;
++check:
++	parts = le32_to_cpu(lvid->numOfPartitions);
++	impuselen = le32_to_cpu(lvid->lengthOfImpUse);
++	if (parts >= sb->s_blocksize || impuselen >= sb->s_blocksize ||
++	    sizeof(struct logicalVolIntegrityDesc) + impuselen +
++	    2 * parts * sizeof(u32) > sb->s_blocksize) {
++		udf_warn(sb, "Corrupted LVID (parts=%u, impuselen=%u), "
++			 "ignoring.\n", parts, impuselen);
++		goto out_err;
++	}
+ }
+ 
+ /*
 -- 
 2.30.2
 
