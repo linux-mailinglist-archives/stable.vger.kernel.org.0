@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24BBB411E3E
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:28:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3A6D411C04
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:04:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350210AbhITR2T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:28:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56328 "EHLO mail.kernel.org"
+        id S237797AbhITRFb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:05:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345349AbhITR0Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:26:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 121356137F;
-        Mon, 20 Sep 2021 17:02:42 +0000 (UTC)
+        id S1345628AbhITRDx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:03:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 494AD6127A;
+        Mon, 20 Sep 2021 16:54:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157363;
+        s=korg; t=1632156850;
         bh=j7fEjZeqNGG1BVw4z7+o9ebWYMqAA1V0g2vnqTRhNPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ePqDlYUpqzQmRQndemgaeG7JkQroe2DVf0wuclwFc9tR8c+lu8O/O7SdxhokkSzpq
-         QFrdm2C7tA0KHsGByzIQMQ6p2ulAK2o8djmSRPzlakMTUUrh90NzU2XuwAsHQMLjTD
-         KdVSvbuabzp8EmtOI5TGR2pRL0NewqiMTHy0UVIU=
+        b=uqWTTzSrzyOGUFk5BIlWfoXbM/PmZ9N1EVlwKMzONWkxaLfoZCqRuq1YvikS5bjUY
+         Hjd3qtOV6oG8sEDxtax+Bp5+XpaTAJjSf7kHxpQWLxedrEPniCgldRN9YynflT5o25
+         OTND9oXLYnrJYMtAZf/gHEFmaisjYEoWbawxRiZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 142/217] staging: board: Fix uninitialized spinlock when attaching genpd
-Date:   Mon, 20 Sep 2021 18:42:43 +0200
-Message-Id: <20210920163929.457615945@linuxfoundation.org>
+Subject: [PATCH 4.9 115/175] staging: board: Fix uninitialized spinlock when attaching genpd
+Date:   Mon, 20 Sep 2021 18:42:44 +0200
+Message-Id: <20210920163921.834953937@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
