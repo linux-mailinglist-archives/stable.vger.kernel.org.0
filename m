@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52C8C411BB3
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:00:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D2F7411D77
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:19:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344818AbhITRBk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:01:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46900 "EHLO mail.kernel.org"
+        id S1346957AbhITRUf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:20:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344822AbhITQ7j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:59:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79A2061245;
-        Mon, 20 Sep 2021 16:52:32 +0000 (UTC)
+        id S1348313AbhITRSq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:18:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F86B61A56;
+        Mon, 20 Sep 2021 16:59:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156752;
-        bh=N/+2iF4axbVSXVamD5ZG5X5d7eKlirdq2taoRlq3zuA=;
+        s=korg; t=1632157194;
+        bh=2+69YOaFMQV3IeG+2xp7JYf6jg/oriN58muh/MO/R1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nt7cD8mLbbdb8j0zpWn72/2X2rTNzMfE8GAdWg7gNbZ+huwXDcO9FdHy41wCfNDPk
-         MxIGTK5rRzs7o5Z/XuYC6d3fbVKj/mutqltLzFJiDmTGRUhWas4UF9BtxbZCJdbBLD
-         K6ree8QUSjPEfyM/486mHx1OS9MqsnvoBzoSU8aQ=
+        b=zuWjJydHLAJmuJXAAm86qeMSZKpRY3A17YvA+IAs/nhp78FlXO0xT1Wt1eK9ofMoy
+         sE/9pqVF/JsZE6ee3gPRbLay3WbVhLlGLqYJ8NxTsfvOzzi6XvGZidS8CKT3OFS6g5
+         acEqm7k2Q1fRO7iQWidFjZ80cf+E9Xa1vsAYkgrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Subject: [PATCH 4.9 068/175] Bluetooth: Move shutdown callback before flushing tx and rx queue
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 4.14 096/217] clk: kirkwood: Fix a clocking boot regression
 Date:   Mon, 20 Sep 2021 18:41:57 +0200
-Message-Id: <20210920163920.282152107@linuxfoundation.org>
+Message-Id: <20210920163927.892559131@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,64 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 0ea53674d07fb6db2dd7a7ec2fdc85a12eb246c2 ]
+commit aaedb9e00e5400220a8871180d23a83e67f29f63 upstream.
 
-Commit 0ea9fd001a14 ("Bluetooth: Shutdown controller after workqueues
-are flushed or cancelled") introduced a regression that makes mtkbtsdio
-driver stops working:
-[   36.593956] Bluetooth: hci0: Firmware already downloaded
-[   46.814613] Bluetooth: hci0: Execution of wmt command timed out
-[   46.814619] Bluetooth: hci0: Failed to send wmt func ctrl (-110)
+Since a few kernel releases the Pogoplug 4 has crashed like this
+during boot:
 
-The shutdown callback depends on the result of hdev->rx_work, so we
-should call it before flushing rx_work:
--> btmtksdio_shutdown()
- -> mtk_hci_wmt_sync()
-  -> __hci_cmd_send()
-   -> wait for BTMTKSDIO_TX_WAIT_VND_EVT gets cleared
+Unable to handle kernel NULL pointer dereference at virtual address 00000002
+(...)
+[<c04116ec>] (strlen) from [<c00ead80>] (kstrdup+0x1c/0x4c)
+[<c00ead80>] (kstrdup) from [<c04591d8>] (__clk_register+0x44/0x37c)
+[<c04591d8>] (__clk_register) from [<c04595ec>] (clk_hw_register+0x20/0x44)
+[<c04595ec>] (clk_hw_register) from [<c045bfa8>] (__clk_hw_register_mux+0x198/0x1e4)
+[<c045bfa8>] (__clk_hw_register_mux) from [<c045c050>] (clk_register_mux_table+0x5c/0x6c)
+[<c045c050>] (clk_register_mux_table) from [<c0acf3e0>] (kirkwood_clk_muxing_setup.constprop.0+0x13c/0x1ac)
+[<c0acf3e0>] (kirkwood_clk_muxing_setup.constprop.0) from [<c0aceae0>] (of_clk_init+0x12c/0x214)
+[<c0aceae0>] (of_clk_init) from [<c0ab576c>] (time_init+0x20/0x2c)
+[<c0ab576c>] (time_init) from [<c0ab3d18>] (start_kernel+0x3dc/0x56c)
+[<c0ab3d18>] (start_kernel) from [<00000000>] (0x0)
+Code: e3130020 1afffffb e12fff1e c08a1078 (e5d03000)
 
--> btmtksdio_recv_event()
- -> hci_recv_frame()
-  -> queue_work(hdev->workqueue, &hdev->rx_work)
-   -> clears BTMTKSDIO_TX_WAIT_VND_EVT
+This is because the "powersave" mux clock 0 was provided in an unterminated
+array, which is required by the loop in the driver:
 
-So move the shutdown callback before flushing TX/RX queue to resolve the
-issue.
+        /* Count, allocate, and register clock muxes */
+        for (n = 0; desc[n].name;)
+                n++;
 
-Reported-and-tested-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Fixes: 0ea9fd001a14 ("Bluetooth: Shutdown controller after workqueues are flushed or cancelled")
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Here n will go out of bounds and then call clk_register_mux() on random
+memory contents after the mux clock.
+
+Fix this by terminating the array with a blank entry.
+
+Fixes: 105299381d87 ("cpufreq: kirkwood: use the powersave multiplexer")
+Cc: stable@vger.kernel.org
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
+Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210814235514.403426-1-linus.walleij@linaro.org
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_core.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/clk/mvebu/kirkwood.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index 8517da7f282e..b4875e6339c6 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -1546,6 +1546,14 @@ int hci_dev_do_close(struct hci_dev *hdev)
- 	hci_request_cancel_all(hdev);
- 	hci_req_sync_lock(hdev);
+--- a/drivers/clk/mvebu/kirkwood.c
++++ b/drivers/clk/mvebu/kirkwood.c
+@@ -254,6 +254,7 @@ static const char *powersave_parents[] =
+ static const struct clk_muxing_soc_desc kirkwood_mux_desc[] __initconst = {
+ 	{ "powersave", powersave_parents, ARRAY_SIZE(powersave_parents),
+ 		11, 1, 0 },
++	{ }
+ };
  
-+	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
-+	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
-+	    test_bit(HCI_UP, &hdev->flags)) {
-+		/* Execute vendor specific shutdown routine */
-+		if (hdev->shutdown)
-+			hdev->shutdown(hdev);
-+	}
-+
- 	if (!test_and_clear_bit(HCI_UP, &hdev->flags)) {
- 		cancel_delayed_work_sync(&hdev->cmd_timer);
- 		hci_req_sync_unlock(hdev);
--- 
-2.30.2
-
+ static struct clk *clk_muxing_get_src(
 
 
