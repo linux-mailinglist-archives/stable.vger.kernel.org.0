@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 006E24122DB
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:17:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D757541256C
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:44:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359612AbhITSSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:18:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40566 "EHLO mail.kernel.org"
+        id S1349958AbhITSpF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:45:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376914AbhITSQY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:16:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96CBD63294;
-        Mon, 20 Sep 2021 17:22:13 +0000 (UTC)
+        id S1382748AbhITSmT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:42:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AF6963341;
+        Mon, 20 Sep 2021 17:31:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158534;
-        bh=atZAGBDkX6ILrf9MLlVOJ86j5JEt248n9ugS8gApqKU=;
+        s=korg; t=1632159111;
+        bh=49JkvU8ayYHHtf+h6HGd2/0r7wwEaHv43nyKbV7q9B4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xsfujrRRI6ZpEJ1jmsl2KP/ttZ16y2IZ+C4gnB1DDwx49xWHMz5nSA5LyB1tIYkJL
-         TXHt9XeOoh0CRa31hRU1eVCx8MGSlvCbXPEwUYIJd2HUCZyRf7VAe8LCfrhtgJpWps
-         MOeHx4VKxcZFk+2DtDEnEEZqVyuqRGUBgLYHNZr4=
+        b=zqG91Mo6Hj9mnTVqd8sXy5kbFmehHLx2GMfSQWLN1vO0iGQPTZkKZupqVjpBWaSBs
+         Q/QnzaYn03FJ9Rj6GcpTlPJ+DjXw+qQuIpnFoRw7X93NQ73AeggG17A9CMjBdF+FkC
+         5cXKUsq6Hr0ZYA/krxdwUOW5DQbW0FAn0y5XsinY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Michael Walle <michael@walle.cc>, Marek Vasut <marex@denx.de>,
-        Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: [PATCH 5.4 201/260] drm/etnaviv: stop abusing mmu_context as FE running marker
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 081/168] net/mlx5e: Fix mutual exclusion between CQE compression and HW TS
 Date:   Mon, 20 Sep 2021 18:43:39 +0200
-Message-Id: <20210920163937.941401405@linuxfoundation.org>
+Message-Id: <20210920163924.302278254@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,82 +41,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Aya Levin <ayal@nvidia.com>
 
-commit 23e0f5a57d0ecec86e1fc82194acd94aede21a46 upstream.
+[ Upstream commit c91c1da72b47fc4c5e353cdd9099ba94ae07d2fa ]
 
-While the DMA frontend can only be active when the MMU context is set, the
-reverse isn't necessarily true, as the frontend can be stopped while the
-MMU state is kept. Stop treating mmu_context being set as a indication that
-the frontend is running and instead add a explicit property.
+Some profiles of the driver don't support a dedicated PTP-RQ, hence can't
+support HW TS and CQE compression simultaneously. When HW TS is enabled
+the COE compression is disabled, and should be restored when the HW TS
+is turned off. Add rx_filter as an input to modifying CQE compression to
+enforce this restriction.
 
-Cc: stable@vger.kernel.org # 5.4
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Tested-by: Michael Walle <michael@walle.cc>
-Tested-by: Marek Vasut <marex@denx.de>
-Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 256f79d13c1d ("net/mlx5e: Fix HW TS with CQE compression according to profile")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_gpu.c |   10 ++++++++--
- drivers/gpu/drm/etnaviv/etnaviv_gpu.h |    1 +
- 2 files changed, 9 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en.h         |  2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c | 11 ++++++-----
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c    |  4 ++--
+ 3 files changed, 9 insertions(+), 8 deletions(-)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-@@ -545,6 +545,8 @@ static int etnaviv_hw_reset(struct etnav
- 	/* We rely on the GPU running, so program the clock */
- 	etnaviv_gpu_update_clock(gpu);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
+index b1b51bbba054..3f67efbe12fc 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
+@@ -940,7 +940,7 @@ void mlx5e_set_rx_mode_work(struct work_struct *work);
  
-+	gpu->fe_running = false;
-+
- 	return 0;
+ int mlx5e_hwstamp_set(struct mlx5e_priv *priv, struct ifreq *ifr);
+ int mlx5e_hwstamp_get(struct mlx5e_priv *priv, struct ifreq *ifr);
+-int mlx5e_modify_rx_cqe_compression_locked(struct mlx5e_priv *priv, bool val);
++int mlx5e_modify_rx_cqe_compression_locked(struct mlx5e_priv *priv, bool val, bool rx_filter);
+ 
+ int mlx5e_vlan_rx_add_vid(struct net_device *dev, __always_unused __be16 proto,
+ 			  u16 vid);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+index bd72572e03d1..1cc279d389d6 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+@@ -1882,7 +1882,7 @@ static int set_pflag_rx_cqe_based_moder(struct net_device *netdev, bool enable)
+ 	return set_pflag_cqe_based_moder(netdev, enable, true);
  }
  
-@@ -607,6 +609,8 @@ void etnaviv_gpu_start_fe(struct etnaviv
- 			  VIVS_MMUv2_SEC_COMMAND_CONTROL_ENABLE |
- 			  VIVS_MMUv2_SEC_COMMAND_CONTROL_PREFETCH(prefetch));
- 	}
-+
-+	gpu->fe_running = true;
- }
- 
- static void etnaviv_gpu_start_fe_idleloop(struct etnaviv_gpu *gpu)
-@@ -1306,7 +1310,7 @@ struct dma_fence *etnaviv_gpu_submit(str
- 		goto out_unlock;
- 	}
- 
--	if (!gpu->mmu_context) {
-+	if (!gpu->fe_running) {
- 		gpu->mmu_context = etnaviv_iommu_context_get(submit->mmu_context);
- 		etnaviv_gpu_start_fe_idleloop(gpu);
- 	} else {
-@@ -1530,7 +1534,7 @@ int etnaviv_gpu_wait_idle(struct etnaviv
- 
- static int etnaviv_gpu_hw_suspend(struct etnaviv_gpu *gpu)
+-int mlx5e_modify_rx_cqe_compression_locked(struct mlx5e_priv *priv, bool new_val)
++int mlx5e_modify_rx_cqe_compression_locked(struct mlx5e_priv *priv, bool new_val, bool rx_filter)
  {
--	if (gpu->initialized && gpu->mmu_context) {
-+	if (gpu->initialized && gpu->fe_running) {
- 		/* Replace the last WAIT with END */
- 		mutex_lock(&gpu->lock);
- 		etnaviv_buffer_end(gpu);
-@@ -1545,6 +1549,8 @@ static int etnaviv_gpu_hw_suspend(struct
+ 	bool curr_val = MLX5E_GET_PFLAG(&priv->channels.params, MLX5E_PFLAG_RX_CQE_COMPRESS);
+ 	struct mlx5e_params new_params;
+@@ -1894,8 +1894,7 @@ int mlx5e_modify_rx_cqe_compression_locked(struct mlx5e_priv *priv, bool new_val
+ 	if (curr_val == new_val)
+ 		return 0;
  
- 		etnaviv_iommu_context_put(gpu->mmu_context);
- 		gpu->mmu_context = NULL;
-+
-+		gpu->fe_running = false;
- 	}
+-	if (new_val && !priv->profile->rx_ptp_support &&
+-	    priv->tstamp.rx_filter != HWTSTAMP_FILTER_NONE) {
++	if (new_val && !priv->profile->rx_ptp_support && rx_filter) {
+ 		netdev_err(priv->netdev,
+ 			   "Profile doesn't support enabling of CQE compression while hardware time-stamping is enabled.\n");
+ 		return -EINVAL;
+@@ -1903,7 +1902,7 @@ int mlx5e_modify_rx_cqe_compression_locked(struct mlx5e_priv *priv, bool new_val
  
- 	gpu->exec_state = -1;
---- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.h
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.h
-@@ -101,6 +101,7 @@ struct etnaviv_gpu {
- 	struct workqueue_struct *wq;
- 	struct drm_gpu_scheduler sched;
- 	bool initialized;
-+	bool fe_running;
+ 	new_params = priv->channels.params;
+ 	MLX5E_SET_PFLAG(&new_params, MLX5E_PFLAG_RX_CQE_COMPRESS, new_val);
+-	if (priv->tstamp.rx_filter != HWTSTAMP_FILTER_NONE)
++	if (rx_filter)
+ 		new_params.ptp_rx = new_val;
  
- 	/* 'ring'-buffer: */
- 	struct etnaviv_cmdbuf buffer;
+ 	if (new_params.ptp_rx == priv->channels.params.ptp_rx)
+@@ -1926,12 +1925,14 @@ static int set_pflag_rx_cqe_compress(struct net_device *netdev,
+ {
+ 	struct mlx5e_priv *priv = netdev_priv(netdev);
+ 	struct mlx5_core_dev *mdev = priv->mdev;
++	bool rx_filter;
+ 	int err;
+ 
+ 	if (!MLX5_CAP_GEN(mdev, cqe_compression))
+ 		return -EOPNOTSUPP;
+ 
+-	err = mlx5e_modify_rx_cqe_compression_locked(priv, enable);
++	rx_filter = priv->tstamp.rx_filter != HWTSTAMP_FILTER_NONE;
++	err = mlx5e_modify_rx_cqe_compression_locked(priv, enable, rx_filter);
+ 	if (err)
+ 		return err;
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 2d53eaf3b924..fa718e71db2d 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -4004,14 +4004,14 @@ static int mlx5e_hwstamp_config_no_ptp_rx(struct mlx5e_priv *priv, bool rx_filte
+ 
+ 	if (!rx_filter)
+ 		/* Reset CQE compression to Admin default */
+-		return mlx5e_modify_rx_cqe_compression_locked(priv, rx_cqe_compress_def);
++		return mlx5e_modify_rx_cqe_compression_locked(priv, rx_cqe_compress_def, false);
+ 
+ 	if (!MLX5E_GET_PFLAG(&priv->channels.params, MLX5E_PFLAG_RX_CQE_COMPRESS))
+ 		return 0;
+ 
+ 	/* Disable CQE compression */
+ 	netdev_warn(priv->netdev, "Disabling RX cqe compression\n");
+-	err = mlx5e_modify_rx_cqe_compression_locked(priv, false);
++	err = mlx5e_modify_rx_cqe_compression_locked(priv, false, true);
+ 	if (err)
+ 		netdev_err(priv->netdev, "Failed disabling cqe compression err=%d\n", err);
+ 
+-- 
+2.30.2
+
 
 
