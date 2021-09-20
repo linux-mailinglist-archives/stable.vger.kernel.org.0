@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F16F412417
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:29:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B8DA412571
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:44:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379787AbhITSaa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:30:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49304 "EHLO mail.kernel.org"
+        id S1353787AbhITSpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:45:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1379163AbhITS21 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:28:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 194E6600D4;
-        Mon, 20 Sep 2021 17:26:32 +0000 (UTC)
+        id S1382859AbhITSmb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:42:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25F036334B;
+        Mon, 20 Sep 2021 17:32:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158793;
-        bh=MuhdS2jgqTE5jQzLh/vAOVzxnJATyGT3PKBCBDedZx4=;
+        s=korg; t=1632159135;
+        bh=GnPecZJGuwV53OXbZHobSnBO4x7RYDRMd7dyX5YOZV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f/sb/9L1duI1T++ysRX8wPIwpQZjiOkrTlOwMDpPFsuEdRpnAhr5CgCVpCzlMQnlA
-         9iLgglYMf5hrQjsFvv+ZAB0yiZiueh9OrMISAVtUPvpterykcyJ9D+hmuqhfwpARg8
-         rarQS3i0Rbfbr8n27/TmKDG3zth5fJGUEyhiDRB4=
+        b=Y2/vMmmXCVzISpl5iDMzAh+/59o86+Vuz84C+5HzscVSNq5op8I0ck+WZQah8HCfF
+         AzAWeEDKgLA76VtLhXankP+DCtksLUzYdBy2r0TJA488Kn4ZAA73MFs/erqetSV04f
+         LHi34/ij0kWiH3KWu1nU0Vr0OxVUkD0/+PzuQy/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wasim Khan <wasim.khan@nxp.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Anibal Limon <anibal.limon@linaro.org>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 057/122] PCI: Add ACS quirks for NXP LX2xx0 and LX2xx2 platforms
+Subject: [PATCH 5.14 091/168] remoteproc: qcom: wcnss: Fix race with iris probe
 Date:   Mon, 20 Sep 2021 18:43:49 +0200
-Message-Id: <20210920163917.652965006@linuxfoundation.org>
+Message-Id: <20210920163924.625790337@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,146 +43,317 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wasim Khan <wasim.khan@nxp.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit d08c8b855140e9f5240b3ffd1b8b9d435675e281 ]
+[ Upstream commit 1fcef985c8bdd542c43da0d87bd9d51980c3859b ]
 
-Root Ports in NXP LX2xx0 and LX2xx2, where each Root Port is a Root Complex
-with unique segment numbers, do provide isolation features to disable peer
-transactions and validate bus numbers in requests, but do not provide an
-actual PCIe ACS capability.
+The remoteproc driver is split between the responsibilities of getting
+the SoC-internal ARM core up and running and the external RF (aka
+"Iris") part configured.
 
-Add ACS quirks for NXP LX2xx0 A/C/E/N and LX2xx2 A/C/E/N platforms.
+In order to satisfy the regulator framework's need of a struct device *
+to look up supplies this was implemented as two different drivers, using
+of_platform_populate() in the remoteproc part to probe the iris part.
 
-  LX2xx0A : without security features + CAN-FD
-    LX2160A (0x8d81) - 16 cores
-    LX2120A (0x8da1) - 12 cores
-    LX2080A (0x8d83) -  8 cores
+Unfortunately it's possible that the iris part probe defers on yet not
+available regulators and an attempt to start the remoteproc will have to
+be rejected, until this has been resolved. But there's no useful
+mechanism of knowing when this would be.
 
-  LX2xx0C : security features + CAN-FD
-    LX2160C (0x8d80) - 16 cores
-    LX2120C (0x8da0) - 12 cores
-    LX2080C (0x8d82) -  8 cores
+Instead replace the of_platform_populate() and the iris probe with a
+function that rolls its own struct device, with the relevant of_node
+associated that is enough to acquire regulators and clocks specified in
+the DT node and that may propagate the EPROBE_DEFER back to the wcnss
+device's probe.
 
-  LX2xx0E : security features + CAN
-    LX2160E (0x8d90) - 16 cores
-    LX2120E (0x8db0) - 12 cores
-    LX2080E (0x8d92) -  8 cores
-
-  LX2xx0N : without security features + CAN
-    LX2160N (0x8d91) - 16 cores
-    LX2120N (0x8db1) - 12 cores
-    LX2080N (0x8d93) -  8 cores
-
-  LX2xx2A : without security features + CAN-FD
-    LX2162A (0x8d89) - 16 cores
-    LX2122A (0x8da9) - 12 cores
-    LX2082A (0x8d8b) -  8 cores
-
-  LX2xx2C : security features + CAN-FD
-    LX2162C (0x8d88) - 16 cores
-    LX2122C (0x8da8) - 12 cores
-    LX2082C (0x8d8a) -  8 cores
-
-  LX2xx2E : security features + CAN
-    LX2162E (0x8d98) - 16 cores
-    LX2122E (0x8db8) - 12 cores
-    LX2082E (0x8d9a) -  8 cores
-
-  LX2xx2N : without security features + CAN
-    LX2162N (0x8d99) - 16 cores
-    LX2122N (0x8db9) - 12 cores
-    LX2082N (0x8d9b) -  8 cores
-
-[bhelgaas: put PCI_VENDOR_ID_NXP definition next to PCI_VENDOR_ID_FREESCALE
-as a clue that they share the same Device ID namespace]
-Link: https://lore.kernel.org/r/20210729121747.1823086-1-wasim.khan@oss.nxp.com
-Link: https://lore.kernel.org/r/20210803180021.3252886-1-wasim.khan@oss.nxp.com
-Signed-off-by: Wasim Khan <wasim.khan@nxp.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Reported-by: Anibal Limon <anibal.limon@linaro.org>
+Reported-by: Loic Poulain <loic.poulain@linaro.org>
+Tested-by: Anibal Limon <anibal.limon@linaro.org>
+Link: https://lore.kernel.org/r/20210312002251.3273013-1-bjorn.andersson@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c    | 45 +++++++++++++++++++++++++++++++++++++++++
- include/linux/pci_ids.h |  3 ++-
- 2 files changed, 47 insertions(+), 1 deletion(-)
+ drivers/remoteproc/qcom_wcnss.c      |  49 +++--------
+ drivers/remoteproc/qcom_wcnss.h      |   4 +-
+ drivers/remoteproc/qcom_wcnss_iris.c | 120 +++++++++++++++++----------
+ 3 files changed, 89 insertions(+), 84 deletions(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 8dac8dcc02c6..f2e95944f681 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -4626,6 +4626,18 @@ static int pci_quirk_qcom_rp_acs(struct pci_dev *dev, u16 acs_flags)
- 		PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
+diff --git a/drivers/remoteproc/qcom_wcnss.c b/drivers/remoteproc/qcom_wcnss.c
+index f1cbc6b2edbb..ebadc6c08e11 100644
+--- a/drivers/remoteproc/qcom_wcnss.c
++++ b/drivers/remoteproc/qcom_wcnss.c
+@@ -142,18 +142,6 @@ static const struct wcnss_data pronto_v2_data = {
+ 	.num_vregs = 1,
+ };
+ 
+-void qcom_wcnss_assign_iris(struct qcom_wcnss *wcnss,
+-			    struct qcom_iris *iris,
+-			    bool use_48mhz_xo)
+-{
+-	mutex_lock(&wcnss->iris_lock);
+-
+-	wcnss->iris = iris;
+-	wcnss->use_48mhz_xo = use_48mhz_xo;
+-
+-	mutex_unlock(&wcnss->iris_lock);
+-}
+-
+ static int wcnss_load(struct rproc *rproc, const struct firmware *fw)
+ {
+ 	struct qcom_wcnss *wcnss = (struct qcom_wcnss *)rproc->priv;
+@@ -639,12 +627,20 @@ static int wcnss_probe(struct platform_device *pdev)
+ 		goto detach_pds;
+ 	}
+ 
++	wcnss->iris = qcom_iris_probe(&pdev->dev, &wcnss->use_48mhz_xo);
++	if (IS_ERR(wcnss->iris)) {
++		ret = PTR_ERR(wcnss->iris);
++		goto detach_pds;
++	}
++
+ 	ret = rproc_add(rproc);
+ 	if (ret)
+-		goto detach_pds;
++		goto remove_iris;
+ 
+-	return of_platform_populate(pdev->dev.of_node, NULL, NULL, &pdev->dev);
++	return 0;
+ 
++remove_iris:
++	qcom_iris_remove(wcnss->iris);
+ detach_pds:
+ 	wcnss_release_pds(wcnss);
+ free_rproc:
+@@ -657,7 +653,7 @@ static int wcnss_remove(struct platform_device *pdev)
+ {
+ 	struct qcom_wcnss *wcnss = platform_get_drvdata(pdev);
+ 
+-	of_platform_depopulate(&pdev->dev);
++	qcom_iris_remove(wcnss->iris);
+ 
+ 	rproc_del(wcnss->rproc);
+ 
+@@ -686,28 +682,7 @@ static struct platform_driver wcnss_driver = {
+ 	},
+ };
+ 
+-static int __init wcnss_init(void)
+-{
+-	int ret;
+-
+-	ret = platform_driver_register(&wcnss_driver);
+-	if (ret)
+-		return ret;
+-
+-	ret = platform_driver_register(&qcom_iris_driver);
+-	if (ret)
+-		platform_driver_unregister(&wcnss_driver);
+-
+-	return ret;
+-}
+-module_init(wcnss_init);
+-
+-static void __exit wcnss_exit(void)
+-{
+-	platform_driver_unregister(&qcom_iris_driver);
+-	platform_driver_unregister(&wcnss_driver);
+-}
+-module_exit(wcnss_exit);
++module_platform_driver(wcnss_driver);
+ 
+ MODULE_DESCRIPTION("Qualcomm Peripheral Image Loader for Wireless Subsystem");
+ MODULE_LICENSE("GPL v2");
+diff --git a/drivers/remoteproc/qcom_wcnss.h b/drivers/remoteproc/qcom_wcnss.h
+index 62c8682d0a92..6d01ee6afa7f 100644
+--- a/drivers/remoteproc/qcom_wcnss.h
++++ b/drivers/remoteproc/qcom_wcnss.h
+@@ -17,9 +17,9 @@ struct wcnss_vreg_info {
+ 	bool super_turbo;
+ };
+ 
++struct qcom_iris *qcom_iris_probe(struct device *parent, bool *use_48mhz_xo);
++void qcom_iris_remove(struct qcom_iris *iris);
+ int qcom_iris_enable(struct qcom_iris *iris);
+ void qcom_iris_disable(struct qcom_iris *iris);
+ 
+-void qcom_wcnss_assign_iris(struct qcom_wcnss *wcnss, struct qcom_iris *iris, bool use_48mhz_xo);
+-
+ #endif
+diff --git a/drivers/remoteproc/qcom_wcnss_iris.c b/drivers/remoteproc/qcom_wcnss_iris.c
+index 169acd305ae3..09720ddddc85 100644
+--- a/drivers/remoteproc/qcom_wcnss_iris.c
++++ b/drivers/remoteproc/qcom_wcnss_iris.c
+@@ -17,7 +17,7 @@
+ #include "qcom_wcnss.h"
+ 
+ struct qcom_iris {
+-	struct device *dev;
++	struct device dev;
+ 
+ 	struct clk *xo_clk;
+ 
+@@ -75,7 +75,7 @@ int qcom_iris_enable(struct qcom_iris *iris)
+ 
+ 	ret = clk_prepare_enable(iris->xo_clk);
+ 	if (ret) {
+-		dev_err(iris->dev, "failed to enable xo clk\n");
++		dev_err(&iris->dev, "failed to enable xo clk\n");
+ 		goto disable_regulators;
+ 	}
+ 
+@@ -93,43 +93,90 @@ void qcom_iris_disable(struct qcom_iris *iris)
+ 	regulator_bulk_disable(iris->num_vregs, iris->vregs);
  }
  
-+/*
-+ * Each of these NXP Root Ports is in a Root Complex with a unique segment
-+ * number and does provide isolation features to disable peer transactions
-+ * and validate bus numbers in requests, but does not provide an ACS
-+ * capability.
-+ */
-+static int pci_quirk_nxp_rp_acs(struct pci_dev *dev, u16 acs_flags)
+-static int qcom_iris_probe(struct platform_device *pdev)
++static const struct of_device_id iris_of_match[] = {
++	{ .compatible = "qcom,wcn3620", .data = &wcn3620_data },
++	{ .compatible = "qcom,wcn3660", .data = &wcn3660_data },
++	{ .compatible = "qcom,wcn3660b", .data = &wcn3680_data },
++	{ .compatible = "qcom,wcn3680", .data = &wcn3680_data },
++	{}
++};
++
++static void qcom_iris_release(struct device *dev)
 +{
-+	return pci_acs_ctrl_enabled(acs_flags,
-+		PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
++	struct qcom_iris *iris = container_of(dev, struct qcom_iris, dev);
++
++	of_node_put(iris->dev.of_node);
++	kfree(iris);
 +}
 +
- static int pci_quirk_al_acs(struct pci_dev *dev, u16 acs_flags)
++struct qcom_iris *qcom_iris_probe(struct device *parent, bool *use_48mhz_xo)
  {
- 	if (pci_pcie_type(dev) != PCI_EXP_TYPE_ROOT_PORT)
-@@ -4872,6 +4884,39 @@ static const struct pci_dev_acs_enabled {
- 	{ PCI_VENDOR_ID_ZHAOXIN, 0x3038, pci_quirk_mf_endpoint_acs },
- 	{ PCI_VENDOR_ID_ZHAOXIN, 0x3104, pci_quirk_mf_endpoint_acs },
- 	{ PCI_VENDOR_ID_ZHAOXIN, 0x9083, pci_quirk_mf_endpoint_acs },
-+	/* NXP root ports, xx=16, 12, or 08 cores */
-+	/* LX2xx0A : without security features + CAN-FD */
-+	{ PCI_VENDOR_ID_NXP, 0x8d81, pci_quirk_nxp_rp_acs },
-+	{ PCI_VENDOR_ID_NXP, 0x8da1, pci_quirk_nxp_rp_acs },
-+	{ PCI_VENDOR_ID_NXP, 0x8d83, pci_quirk_nxp_rp_acs },
-+	/* LX2xx0C : security features + CAN-FD */
-+	{ PCI_VENDOR_ID_NXP, 0x8d80, pci_quirk_nxp_rp_acs },
-+	{ PCI_VENDOR_ID_NXP, 0x8da0, pci_quirk_nxp_rp_acs },
-+	{ PCI_VENDOR_ID_NXP, 0x8d82, pci_quirk_nxp_rp_acs },
-+	/* LX2xx0E : security features + CAN */
-+	{ PCI_VENDOR_ID_NXP, 0x8d90, pci_quirk_nxp_rp_acs },
-+	{ PCI_VENDOR_ID_NXP, 0x8db0, pci_quirk_nxp_rp_acs },
-+	{ PCI_VENDOR_ID_NXP, 0x8d92, pci_quirk_nxp_rp_acs },
-+	/* LX2xx0N : without security features + CAN */
-+	{ PCI_VENDOR_ID_NXP, 0x8d91, pci_quirk_nxp_rp_acs },
-+	{ PCI_VENDOR_ID_NXP, 0x8db1, pci_quirk_nxp_rp_acs },
-+	{ PCI_VENDOR_ID_NXP, 0x8d93, pci_quirk_nxp_rp_acs },
-+	/* LX2xx2A : without security features + CAN-FD */
-+	{ PCI_VENDOR_ID_NXP, 0x8d89, pci_quirk_nxp_rp_acs },
-+	{ PCI_VENDOR_ID_NXP, 0x8da9, pci_quirk_nxp_rp_acs },
-+	{ PCI_VENDOR_ID_NXP, 0x8d8b, pci_quirk_nxp_rp_acs },
-+	/* LX2xx2C : security features + CAN-FD */
-+	{ PCI_VENDOR_ID_NXP, 0x8d88, pci_quirk_nxp_rp_acs },
-+	{ PCI_VENDOR_ID_NXP, 0x8da8, pci_quirk_nxp_rp_acs },
-+	{ PCI_VENDOR_ID_NXP, 0x8d8a, pci_quirk_nxp_rp_acs },
-+	/* LX2xx2E : security features + CAN */
-+	{ PCI_VENDOR_ID_NXP, 0x8d98, pci_quirk_nxp_rp_acs },
-+	{ PCI_VENDOR_ID_NXP, 0x8db8, pci_quirk_nxp_rp_acs },
-+	{ PCI_VENDOR_ID_NXP, 0x8d9a, pci_quirk_nxp_rp_acs },
-+	/* LX2xx2N : without security features + CAN */
-+	{ PCI_VENDOR_ID_NXP, 0x8d99, pci_quirk_nxp_rp_acs },
-+	{ PCI_VENDOR_ID_NXP, 0x8db9, pci_quirk_nxp_rp_acs },
-+	{ PCI_VENDOR_ID_NXP, 0x8d9b, pci_quirk_nxp_rp_acs },
- 	/* Zhaoxin Root/Downstream Ports */
- 	{ PCI_VENDOR_ID_ZHAOXIN, PCI_ANY_ID, pci_quirk_zhaoxin_pcie_ports_acs },
- 	{ 0 }
-diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-index 1ab1e24bcbce..635a9243cce0 100644
---- a/include/linux/pci_ids.h
-+++ b/include/linux/pci_ids.h
-@@ -2476,7 +2476,8 @@
- #define PCI_VENDOR_ID_TDI               0x192E
- #define PCI_DEVICE_ID_TDI_EHCI          0x0101
++	const struct of_device_id *match;
+ 	const struct iris_data *data;
+-	struct qcom_wcnss *wcnss;
++	struct device_node *of_node;
+ 	struct qcom_iris *iris;
+ 	int ret;
+ 	int i;
  
--#define PCI_VENDOR_ID_FREESCALE		0x1957
-+#define PCI_VENDOR_ID_FREESCALE		0x1957	/* duplicate: NXP */
-+#define PCI_VENDOR_ID_NXP		0x1957	/* duplicate: FREESCALE */
- #define PCI_DEVICE_ID_MPC8308		0xc006
- #define PCI_DEVICE_ID_MPC8315E		0x00b4
- #define PCI_DEVICE_ID_MPC8315		0x00b5
+-	iris = devm_kzalloc(&pdev->dev, sizeof(struct qcom_iris), GFP_KERNEL);
+-	if (!iris)
+-		return -ENOMEM;
++	of_node = of_get_child_by_name(parent->of_node, "iris");
++	if (!of_node) {
++		dev_err(parent, "No child node \"iris\" found\n");
++		return ERR_PTR(-EINVAL);
++	}
++
++	iris = kzalloc(sizeof(*iris), GFP_KERNEL);
++	if (!iris) {
++		of_node_put(of_node);
++		return ERR_PTR(-ENOMEM);
++	}
++
++	device_initialize(&iris->dev);
++	iris->dev.parent = parent;
++	iris->dev.release = qcom_iris_release;
++	iris->dev.of_node = of_node;
++
++	dev_set_name(&iris->dev, "%s.iris", dev_name(parent));
++
++	ret = device_add(&iris->dev);
++	if (ret) {
++		put_device(&iris->dev);
++		return ERR_PTR(ret);
++	}
++
++	match = of_match_device(iris_of_match, &iris->dev);
++	if (!match) {
++		dev_err(&iris->dev, "no matching compatible for iris\n");
++		ret = -EINVAL;
++		goto err_device_del;
++	}
+ 
+-	data = of_device_get_match_data(&pdev->dev);
+-	wcnss = dev_get_drvdata(pdev->dev.parent);
++	data = match->data;
+ 
+-	iris->xo_clk = devm_clk_get(&pdev->dev, "xo");
++	iris->xo_clk = devm_clk_get(&iris->dev, "xo");
+ 	if (IS_ERR(iris->xo_clk)) {
+-		if (PTR_ERR(iris->xo_clk) != -EPROBE_DEFER)
+-			dev_err(&pdev->dev, "failed to acquire xo clk\n");
+-		return PTR_ERR(iris->xo_clk);
++		ret = PTR_ERR(iris->xo_clk);
++		if (ret != -EPROBE_DEFER)
++			dev_err(&iris->dev, "failed to acquire xo clk\n");
++		goto err_device_del;
+ 	}
+ 
+ 	iris->num_vregs = data->num_vregs;
+-	iris->vregs = devm_kcalloc(&pdev->dev,
++	iris->vregs = devm_kcalloc(&iris->dev,
+ 				   iris->num_vregs,
+ 				   sizeof(struct regulator_bulk_data),
+ 				   GFP_KERNEL);
+-	if (!iris->vregs)
+-		return -ENOMEM;
++	if (!iris->vregs) {
++		ret = -ENOMEM;
++		goto err_device_del;
++	}
+ 
+ 	for (i = 0; i < iris->num_vregs; i++)
+ 		iris->vregs[i].supply = data->vregs[i].name;
+ 
+-	ret = devm_regulator_bulk_get(&pdev->dev, iris->num_vregs, iris->vregs);
++	ret = devm_regulator_bulk_get(&iris->dev, iris->num_vregs, iris->vregs);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "failed to get regulators\n");
+-		return ret;
++		dev_err(&iris->dev, "failed to get regulators\n");
++		goto err_device_del;
+ 	}
+ 
+ 	for (i = 0; i < iris->num_vregs; i++) {
+@@ -143,34 +190,17 @@ static int qcom_iris_probe(struct platform_device *pdev)
+ 					   data->vregs[i].load_uA);
+ 	}
+ 
+-	qcom_wcnss_assign_iris(wcnss, iris, data->use_48mhz_xo);
+-
+-	return 0;
+-}
++	*use_48mhz_xo = data->use_48mhz_xo;
+ 
+-static int qcom_iris_remove(struct platform_device *pdev)
+-{
+-	struct qcom_wcnss *wcnss = dev_get_drvdata(pdev->dev.parent);
++	return iris;
+ 
+-	qcom_wcnss_assign_iris(wcnss, NULL, false);
++err_device_del:
++	device_del(&iris->dev);
+ 
+-	return 0;
++	return ERR_PTR(ret);
+ }
+ 
+-static const struct of_device_id iris_of_match[] = {
+-	{ .compatible = "qcom,wcn3620", .data = &wcn3620_data },
+-	{ .compatible = "qcom,wcn3660", .data = &wcn3660_data },
+-	{ .compatible = "qcom,wcn3660b", .data = &wcn3680_data },
+-	{ .compatible = "qcom,wcn3680", .data = &wcn3680_data },
+-	{}
+-};
+-MODULE_DEVICE_TABLE(of, iris_of_match);
+-
+-struct platform_driver qcom_iris_driver = {
+-	.probe = qcom_iris_probe,
+-	.remove = qcom_iris_remove,
+-	.driver = {
+-		.name = "qcom-iris",
+-		.of_match_table = iris_of_match,
+-	},
+-};
++void qcom_iris_remove(struct qcom_iris *iris)
++{
++	device_del(&iris->dev);
++}
 -- 
 2.30.2
 
