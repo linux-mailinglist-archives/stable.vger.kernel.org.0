@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F14D6411EA7
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:32:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F358A411EA9
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:32:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351336AbhITRdM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:33:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36662 "EHLO mail.kernel.org"
+        id S1350929AbhITRdP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:33:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347926AbhITRbK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:31:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EAD7B61AEF;
-        Mon, 20 Sep 2021 17:04:29 +0000 (UTC)
+        id S242229AbhITRbN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:31:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2127761501;
+        Mon, 20 Sep 2021 17:04:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157470;
-        bh=iuEAgtJWjNiRjmjpWK8roqpyw0cgIsXkutBYX89St98=;
+        s=korg; t=1632157472;
+        bh=uLgFZxX+cwiet4pUq59oiyiXdrCWvxBD5wFY6RaxJxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qb7PYBPO31Chb3BrFNC7TYUR+36gvI5S29UQBiIdNdIeALG6mAFqJIk17LKG4yyFc
-         Nn+zX24JiNoGM2EdtV8T1PXPttI3QZr0Xr6Y5LomJDsb+aAclxm9qhHnC58fZiIEsZ
-         hLaNPhTxOiMJKm3yxH8aAGhdV8tkkbm+RsEhND34=
+        b=fGMxxNpYStKmDxHxnOOciZujGz6TtAxKUmGHoIc1JepktrVf76vkS1wm7vBNfd6Nb
+         07XhA8zWSG/HNEqy6cUOK4jgHPCW4maV4QCiOsaU428+GyuQUo6jtb92wjZbJGlFfe
+         38CR36o6V1U+Zfuj11m4ZJHM/SdEgadAfvA0t5G8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Benjamin Hesmans <benjamin.hesmans@tessares.net>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 215/217] netfilter: socket: icmp6: fix use-after-scope
-Date:   Mon, 20 Sep 2021 18:43:56 +0200
-Message-Id: <20210920163931.906845324@linuxfoundation.org>
+Subject: [PATCH 4.14 216/217] qlcnic: Remove redundant unlock in qlcnic_pinit_from_rom
+Date:   Mon, 20 Sep 2021 18:43:57 +0200
+Message-Id: <20210920163931.939351696@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
 References: <20210920163924.591371269@linuxfoundation.org>
@@ -43,62 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Hesmans <benjamin.hesmans@tessares.net>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 730affed24bffcd1eebd5903171960f5ff9f1f22 ]
+[ Upstream commit 9ddbc2a00d7f63fa9748f4278643193dac985f2d ]
 
-Bug reported by KASAN:
+Previous commit 68233c583ab4 removes the qlcnic_rom_lock()
+in qlcnic_pinit_from_rom(), but remains its corresponding
+unlock function, which is odd. I'm not very sure whether the
+lock is missing, or the unlock is redundant. This bug is
+suggested by a static analysis tool, please advise.
 
-BUG: KASAN: use-after-scope in inet6_ehashfn (net/ipv6/inet6_hashtables.c:40)
-Call Trace:
-(...)
-inet6_ehashfn (net/ipv6/inet6_hashtables.c:40)
-(...)
-nf_sk_lookup_slow_v6 (net/ipv6/netfilter/nf_socket_ipv6.c:91
-net/ipv6/netfilter/nf_socket_ipv6.c:146)
-
-It seems that this bug has already been fixed by Eric Dumazet in the
-past in:
-commit 78296c97ca1f ("netfilter: xt_socket: fix a stack corruption bug")
-
-But a variant of the same issue has been introduced in
-commit d64d80a2cde9 ("netfilter: x_tables: don't extract flow keys on early demuxed sks in socket match")
-
-`daddr` and `saddr` potentially hold a reference to ipv6_var that is no
-longer in scope when the call to `nf_socket_get_sock_v6` is made.
-
-Fixes: d64d80a2cde9 ("netfilter: x_tables: don't extract flow keys on early demuxed sks in socket match")
-Acked-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Benjamin Hesmans <benjamin.hesmans@tessares.net>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 68233c583ab4 ("qlcnic: updated reset sequence")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/netfilter/nf_socket_ipv6.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_init.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/net/ipv6/netfilter/nf_socket_ipv6.c b/net/ipv6/netfilter/nf_socket_ipv6.c
-index f14de4b6d639..58e839e2ce1d 100644
---- a/net/ipv6/netfilter/nf_socket_ipv6.c
-+++ b/net/ipv6/netfilter/nf_socket_ipv6.c
-@@ -104,7 +104,7 @@ struct sock *nf_sk_lookup_slow_v6(struct net *net, const struct sk_buff *skb,
- {
- 	__be16 uninitialized_var(dport), uninitialized_var(sport);
- 	const struct in6_addr *daddr = NULL, *saddr = NULL;
--	struct ipv6hdr *iph = ipv6_hdr(skb);
-+	struct ipv6hdr *iph = ipv6_hdr(skb), ipv6_var;
- 	struct sk_buff *data_skb = NULL;
- 	int doff = 0;
- 	int thoff = 0, tproto;
-@@ -134,8 +134,6 @@ struct sock *nf_sk_lookup_slow_v6(struct net *net, const struct sk_buff *skb,
- 			thoff + sizeof(*hp);
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_init.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_init.c
+index c48a0e2d4d7e..6a009d51ec51 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_init.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_init.c
+@@ -440,7 +440,6 @@ int qlcnic_pinit_from_rom(struct qlcnic_adapter *adapter)
+ 	QLCWR32(adapter, QLCNIC_CRB_PEG_NET_4 + 0x3c, 1);
+ 	msleep(20);
  
- 	} else if (tproto == IPPROTO_ICMPV6) {
--		struct ipv6hdr ipv6_var;
--
- 		if (extract_icmp6_fields(skb, thoff, &tproto, &saddr, &daddr,
- 					 &sport, &dport, &ipv6_var))
- 			return NULL;
+-	qlcnic_rom_unlock(adapter);
+ 	/* big hammer don't reset CAM block on reset */
+ 	QLCWR32(adapter, QLCNIC_ROMUSB_GLB_SW_RESET, 0xfeffffff);
+ 
 -- 
 2.30.2
 
