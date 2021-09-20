@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEEB7411ADD
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:51:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E767941207A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:54:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229749AbhITQwu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:52:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39212 "EHLO mail.kernel.org"
+        id S1347182AbhITRzr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:55:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243466AbhITQuw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:50:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC630611AE;
-        Mon, 20 Sep 2021 16:49:22 +0000 (UTC)
+        id S1354996AbhITRwe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:52:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B367D61BF6;
+        Mon, 20 Sep 2021 17:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156563;
-        bh=rSes+fkgNcdnRhQdFfMj5NVACGIdVJzrMcuJwL51u4I=;
+        s=korg; t=1632157966;
+        bh=FngqzABBT8TusKp7m4MIHwTsRByJmIkVCnlVsYw/pL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cj0RhDU7tbFJuDBXm0DB0TCl3TQHLqPP5JEQnXUA7qeejzyWduDiN/qVTjJibpUry
-         SYk8uP0pygibMNLYnp81D6DyYLk8vJ0CbTHF/pvlHepPAXnYwPW8rDUIFcGGFlTxO1
-         NHQ4BrY2Ww/E13CNK7lDMd07oEHAuusa6MntVScs=
+        b=z2O46enNvWvrNJEl1cJ9Lh6d/3WY+CJK9sUFjW4pCG0+5j8qbS0On5V95vDmHK8d1
+         3YQi/Y4Y9gHsgaPbLVv+fT84GsQG2om9STr+ILY+PAOQN6o0vEfJabKLZ63tTXyscN
+         9N+2xYStTDPGfr8WSw98N52/Vc1oDu59SY+7th8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.4 116/133] parisc: fix crash with signals and alloca
-Date:   Mon, 20 Sep 2021 18:43:14 +0200
-Message-Id: <20210920163916.419548729@linuxfoundation.org>
+        stable@vger.kernel.org, Michael <msbroadf@gmail.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 233/293] usbip:vhci_hcd USB port can get stuck in the disabled state
+Date:   Mon, 20 Sep 2021 18:43:15 +0200
+Message-Id: <20210920163941.372934125@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,84 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-commit 030f653078316a9cc9ca6bd1b0234dcf858be35d upstream.
+[ Upstream commit 66cce9e73ec61967ed1f97f30cee79bd9a2bb7ee ]
 
-I was debugging some crashes on parisc and I found out that there is a
-crash possibility if a function using alloca is interrupted by a signal.
-The reason for the crash is that the gcc alloca implementation leaves
-garbage in the upper 32 bits of the sp register. This normally doesn't
-matter (the upper bits are ignored because the PSW W-bit is clear),
-however the signal delivery routine in the kernel uses full 64 bits of sp
-and it fails with -EFAULT if the upper 32 bits are not zero.
+When a remote usb device is attached to the local Virtual USB
+Host Controller Root Hub port, the bound device driver may send
+a port reset command.
 
-I created this program that demonstrates the problem:
+vhci_hcd accepts port resets only when the device doesn't have
+port address assigned to it. When reset happens device is in
+assigned/used state and vhci_hcd rejects it leaving the port in
+a stuck state.
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <signal.h>
-#include <alloca.h>
+This problem was found when a blue-tooth or xbox wireless dongle
+was passed through using usbip.
 
-static __attribute__((noinline,noclone)) void aa(int *size)
-{
-	void * volatile p = alloca(-*size);
-	while (1) ;
-}
+A few drivers reset the port during probe including mt76 driver
+specific to this bug report. Fix the problem with a change to
+honor reset requests when device is in used state (VDEV_ST_USED).
 
-static void handler(int sig)
-{
-	write(1, "signal delivered\n", 17);
-	_exit(0);
-}
-
-int main(void)
-{
-	int size = -0x100;
-	signal(SIGALRM, handler);
-	alarm(1);
-	aa(&size);
-}
-
-If you compile it with optimizations, it will crash.
-The "aa" function has this disassembly:
-
-000106a0 <aa>:
-   106a0:       08 03 02 41     copy r3,r1
-   106a4:       08 1e 02 43     copy sp,r3
-   106a8:       6f c1 00 80     stw,ma r1,40(sp)
-   106ac:       37 dc 3f c1     ldo -20(sp),ret0
-   106b0:       0c 7c 12 90     stw ret0,8(r3)
-   106b4:       0f 40 10 9c     ldw 0(r26),ret0		; ret0 = 0x00000000FFFFFF00
-   106b8:       97 9c 00 7e     subi 3f,ret0,ret0	; ret0 = 0xFFFFFFFF0000013F
-   106bc:       d7 80 1c 1a     depwi 0,31,6,ret0	; ret0 = 0xFFFFFFFF00000100
-   106c0:       0b 9e 0a 1e     add,l sp,ret0,sp	;   sp = 0xFFFFFFFFxxxxxxxx
-   106c4:       e8 1f 1f f7     b,l,n 106c4 <aa+0x24>,r0
-
-This patch fixes the bug by truncating the "usp" variable to 32 bits.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Helge Deller <deller@gmx.de>
+Reported-and-tested-by: Michael <msbroadf@gmail.com>
+Suggested-by: Michael <msbroadf@gmail.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210819225937.41037-1-skhan@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/signal.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/usbip/vhci_hcd.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/arch/parisc/kernel/signal.c
-+++ b/arch/parisc/kernel/signal.c
-@@ -239,6 +239,12 @@ setup_rt_frame(struct ksignal *ksig, sig
- #endif
- 	
- 	usp = (regs->gr[30] & ~(0x01UL));
-+#ifdef CONFIG_64BIT
-+	if (is_compat_task()) {
-+		/* The gcc alloca implementation leaves garbage in the upper 32 bits of sp */
-+		usp = (compat_uint_t)usp;
-+	}
-+#endif
- 	/*FIXME: frame_size parameter is unused, remove it. */
- 	frame = get_sigframe(&ksig->ka, usp, sizeof(*frame));
+diff --git a/drivers/usb/usbip/vhci_hcd.c b/drivers/usb/usbip/vhci_hcd.c
+index a4ead4099869..202dc76f7beb 100644
+--- a/drivers/usb/usbip/vhci_hcd.c
++++ b/drivers/usb/usbip/vhci_hcd.c
+@@ -455,8 +455,14 @@ static int vhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
+ 			vhci_hcd->port_status[rhport] &= ~(1 << USB_PORT_FEAT_RESET);
+ 			vhci_hcd->re_timeout = 0;
  
++			/*
++			 * A few drivers do usb reset during probe when
++			 * the device could be in VDEV_ST_USED state
++			 */
+ 			if (vhci_hcd->vdev[rhport].ud.status ==
+-			    VDEV_ST_NOTASSIGNED) {
++				VDEV_ST_NOTASSIGNED ||
++			    vhci_hcd->vdev[rhport].ud.status ==
++				VDEV_ST_USED) {
+ 				usbip_dbg_vhci_rh(
+ 					" enable rhport %d (status %u)\n",
+ 					rhport,
+-- 
+2.30.2
+
 
 
