@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60828411A51
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:47:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFD3B411BC0
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:00:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243644AbhITQtA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:49:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36634 "EHLO mail.kernel.org"
+        id S1345303AbhITRB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:01:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243657AbhITQsG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:48:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E0126124A;
-        Mon, 20 Sep 2021 16:46:39 +0000 (UTC)
+        id S1345069AbhITRAB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:00:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DDAC161409;
+        Mon, 20 Sep 2021 16:52:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156400;
-        bh=woNrVDUHc1yrFGagMHyYJ7X0GF+fZoINBr4/vMUjUYk=;
+        s=korg; t=1632156770;
+        bh=BEdHrqnaRumpSH1/KUdNA/axJLqGlsErWO+bLDxSrxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aM4f4aQJGhcL4ltMKzM2fOREdFMLOIIUpoy85Y6lbzZmDofumB+z2D9inUqIeJB8z
-         /mHz99KV9rQyePhZNQdF4k7fYrAamORPtvDxc1gn7QvzcjHLSqJYauJat3XyfOPVFx
-         5cXSmGrHUModj8scu/ToZbbbobSiec8oTaHpdkJU=
+        b=ZGGp2XsnzBAhVK6++bo3XB8dVs9dXoLV4soLBnfh9JakVnjao8BKo6JboFgSterH/
+         m0WjUkauiGsNwfh6vFvlzME0wY+pVXtysSVswfQ/PzySupp6vMm6g5M53uq5S3aM6E
+         qqWg6qztEFbc1jlJZ1vpPlW7SlPE31x8r1hqJKnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 041/133] Bluetooth: sco: prevent information leak in sco_conn_defer_accept()
+Subject: [PATCH 4.9 070/175] usb: phy: tahvo: add IRQ check
 Date:   Mon, 20 Sep 2021 18:41:59 +0200
-Message-Id: <20210920163913.996259744@linuxfoundation.org>
+Message-Id: <20210920163920.345636124@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit 59da0b38bc2ea570ede23a3332ecb3e7574ce6b2 ]
+[ Upstream commit 0d45a1373e669880b8beaecc8765f44cb0241e47 ]
 
-Smatch complains that some of these struct members are not initialized
-leading to a stack information disclosure:
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to request_threaded_irq() (which
+takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding an
+original error code.  Stop calling request_threaded_irq() with the invalid
+IRQ #s.
 
-    net/bluetooth/sco.c:778 sco_conn_defer_accept() warn:
-    check that 'cp.retrans_effort' doesn't leak information
-
-This seems like a valid warning.  I've added a default case to fix
-this issue.
-
-Fixes: 2f69a82acf6f ("Bluetooth: Use voice setting in deferred SCO connection request")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 9ba96ae5074c ("usb: omap1: Tahvo USB transceiver driver")
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Link: https://lore.kernel.org/r/8280d6a4-8e9a-7cfe-1aa9-db586dc9afdf@omp.ru
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/sco.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/phy/phy-tahvo.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-index 2209fd2ff2e3..cad0d2750735 100644
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -763,6 +763,11 @@ static void sco_conn_defer_accept(struct hci_conn *conn, u16 setting)
- 			cp.max_latency = cpu_to_le16(0xffff);
- 			cp.retrans_effort = 0xff;
- 			break;
-+		default:
-+			/* use CVSD settings as fallback */
-+			cp.max_latency = cpu_to_le16(0xffff);
-+			cp.retrans_effort = 0xff;
-+			break;
- 		}
+diff --git a/drivers/usb/phy/phy-tahvo.c b/drivers/usb/phy/phy-tahvo.c
+index 335a1ef35224..ec86eedd789b 100644
+--- a/drivers/usb/phy/phy-tahvo.c
++++ b/drivers/usb/phy/phy-tahvo.c
+@@ -404,7 +404,9 @@ static int tahvo_usb_probe(struct platform_device *pdev)
  
- 		hci_send_cmd(hdev, HCI_OP_ACCEPT_SYNC_CONN_REQ,
+ 	dev_set_drvdata(&pdev->dev, tu);
+ 
+-	tu->irq = platform_get_irq(pdev, 0);
++	tu->irq = ret = platform_get_irq(pdev, 0);
++	if (ret < 0)
++		return ret;
+ 	ret = request_threaded_irq(tu->irq, NULL, tahvo_usb_vbus_interrupt,
+ 				   IRQF_ONESHOT,
+ 				   "tahvo-vbus", tu);
 -- 
 2.30.2
 
