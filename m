@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F04334122B2
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B68E9412418
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:29:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358436AbhITSQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:16:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35786 "EHLO mail.kernel.org"
+        id S1379792AbhITSab (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:30:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376728AbhITSOW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:14:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B930D60EB2;
-        Mon, 20 Sep 2021 17:21:36 +0000 (UTC)
+        id S1379166AbhITS21 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:28:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D73C60EE7;
+        Mon, 20 Sep 2021 17:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158497;
-        bh=YcGaJkAlIlcC2i4SObD2N6Q3x/v2GSFf6fGkp3Z1bPQ=;
+        s=korg; t=1632158797;
+        bh=leO96kbURlF2o9JVp1cR10FCQGvL+ciEs8fPANnyStg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rjxZ0/mwRb0vgMHHkurcyiBZBZLmz5tk2tmzh0ejpyOTlonJmeKHDxTRbMUFB2JM9
-         23uR5pqhBIJPtGEDrg+npginaD/U5e9w447DR2eAahfc3thynZeYlMd7pYAM8J+1H1
-         7xUaz7/PaZkKcvJT8VcGnt3DVjwjc+o7g6ozjK8s=
+        b=UwQtRJTbklpsRwWroCIYoTyO5NSqdBL/J/WoWEmEffgpNtjUUiJkoaPbQIukXnq1L
+         odvr1Y01RR9PnwA9EWJzCjhQKlcNAhufiCA7/+jLxw4AuvuhjYJIu1CFC44S+eu9n8
+         7hsjouEi/QNGOhucJcH4q8I8ejxQR1vivnG/z5TE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rik van Riel <riel@surriel.com>,
-        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Chris Down <chris@chrisdown.name>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 182/260] mm,vmscan: fix divide by zero in get_scan_count
+        stable@vger.kernel.org, Andrius V <vezhlys@gmail.com>,
+        Darek Strugacz <darek.strugacz@op.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 028/122] r6040: Restore MDIO clock frequency after MAC reset
 Date:   Mon, 20 Sep 2021 18:43:20 +0200
-Message-Id: <20210920163937.302237520@linuxfoundation.org>
+Message-Id: <20210920163916.722191962@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +41,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rik van Riel <riel@surriel.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 32d4f4b782bb8f0ceb78c6b5dc46eb577ae25bf7 upstream.
+commit e3f0cc1a945fcefec0c7c9d9dfd028a51daa1846 upstream.
 
-Commit f56ce412a59d ("mm: memcontrol: fix occasional OOMs due to
-proportional memory.low reclaim") introduced a divide by zero corner
-case when oomd is being used in combination with cgroup memory.low
-protection.
+A number of users have reported that they were not able to get the PHY
+to successfully link up, especially after commit c36757eb9dee ("net:
+phy: consider AN_RESTART status when reading link status") where we
+stopped reading just BMSR, but we also read BMCR to determine the link
+status.
 
-When oomd decides to kill a cgroup, it will force the cgroup memory to
-be reclaimed after killing the tasks, by writing to the memory.max file
-for that cgroup, forcing the remaining page cache and reclaimable slab
-to be reclaimed down to zero.
+Andrius at NetBSD did a wonderful job at debugging the problem
+and found out that the MDIO bus clock frequency would be incorrectly set
+back to its default value which would prevent the MDIO bus controller
+from reading PHY registers properly. Back when we only read BMSR, if we
+read all 1s, we could falsely indicate a link status, though in general
+there is a cable plugged in, so this went unnoticed. After a second read
+of BMCR was added, a wrong read will lead to the inability to determine
+a link UP condition which is when it started to be visibly broken, even
+if it was long before that.
 
-Previously, on cgroups with some memory.low protection that would result
-in the memory being reclaimed down to the memory.low limit, or likely
-not at all, having the page cache reclaimed asynchronously later.
+The fix consists in restoring the value of the MD_CSR register that was
+set prior to the MAC reset.
 
-With f56ce412a59d the oomd write to memory.max tries to reclaim all the
-way down to zero, which may race with another reclaimer, to the point of
-ending up with the divide by zero below.
-
-This patch implements the obvious fix.
-
-Link: https://lkml.kernel.org/r/20210826220149.058089c6@imladris.surriel.com
-Fixes: f56ce412a59d ("mm: memcontrol: fix occasional OOMs due to proportional memory.low reclaim")
-Signed-off-by: Rik van Riel <riel@surriel.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Chris Down <chris@chrisdown.name>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: http://gnats.netbsd.org/cgi-bin/query-pr-single.pl?number=53494
+Fixes: 90f750a81a29 ("r6040: consolidate MAC reset to its own function")
+Reported-by: Andrius V <vezhlys@gmail.com>
+Reported-by: Darek Strugacz <darek.strugacz@op.pl>
+Tested-by: Darek Strugacz <darek.strugacz@op.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/vmscan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/rdc/r6040.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -2513,7 +2513,7 @@ out:
- 			cgroup_size = max(cgroup_size, protection);
+--- a/drivers/net/ethernet/rdc/r6040.c
++++ b/drivers/net/ethernet/rdc/r6040.c
+@@ -119,6 +119,8 @@
+ #define PHY_ST		0x8A	/* PHY status register */
+ #define MAC_SM		0xAC	/* MAC status machine */
+ #define  MAC_SM_RST	0x0002	/* MAC status machine reset */
++#define MD_CSC		0xb6	/* MDC speed control register */
++#define  MD_CSC_DEFAULT	0x0030
+ #define MAC_ID		0xBE	/* Identifier register */
  
- 			scan = lruvec_size - lruvec_size * protection /
--				cgroup_size;
-+				(cgroup_size + 1);
+ #define TX_DCNT		0x80	/* TX descriptor count */
+@@ -355,8 +357,9 @@ static void r6040_reset_mac(struct r6040
+ {
+ 	void __iomem *ioaddr = lp->base;
+ 	int limit = MAC_DEF_TIMEOUT;
+-	u16 cmd;
++	u16 cmd, md_csc;
  
- 			/*
- 			 * Minimally target SWAP_CLUSTER_MAX pages to keep
++	md_csc = ioread16(ioaddr + MD_CSC);
+ 	iowrite16(MAC_RST, ioaddr + MCR1);
+ 	while (limit--) {
+ 		cmd = ioread16(ioaddr + MCR1);
+@@ -368,6 +371,10 @@ static void r6040_reset_mac(struct r6040
+ 	iowrite16(MAC_SM_RST, ioaddr + MAC_SM);
+ 	iowrite16(0, ioaddr + MAC_SM);
+ 	mdelay(5);
++
++	/* Restore MDIO clock frequency */
++	if (md_csc != MD_CSC_DEFAULT)
++		iowrite16(md_csc, ioaddr + MD_CSC);
+ }
+ 
+ static void r6040_init_mac_regs(struct net_device *dev)
 
 
