@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14BAE412114
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 874B8411CE4
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:13:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355346AbhITSBo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:01:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57388 "EHLO mail.kernel.org"
+        id S243937AbhITRO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:14:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350191AbhITR7m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:59:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A98B76321D;
-        Mon, 20 Sep 2021 17:15:27 +0000 (UTC)
+        id S1345448AbhITRMz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:12:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 09F3561359;
+        Mon, 20 Sep 2021 16:57:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158128;
-        bh=mffSr3rdLXHCmAquyg9L1oP3D8nDGf8+Zyi1VCdmh70=;
+        s=korg; t=1632157050;
+        bh=4k3ueqBC6+FyS0/IPM9yYUQy0wgR+I6vFAKdUCTtQLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W9bguv2Og1hxpUo1H9LCFUgnXSTA9GZu4F0SLpo1P0+VeqhA1BlbHfBphwZRC9LC1
-         JfOVEwsrdnCFxHdoAzcsWMXyVHBzRHmSQgH1uLLukPSu+97L6sMyG2UVcjedZswgUI
-         Jsrx2tlXF9iEbhl6Sy9nZrBsK3Tj/nAquuowjid8=
+        b=n91/TbDyqWVFb7fSo4lkZv8l4ERXrT7zoD4oXgFPQdIUkU4FQl6qjX2aTkopj6peu
+         6nuxITlCNkqkC174snBJQRbanwXrsMBBOOaAQmDI+LtFAhvc00yxb78BNxASZjFIcZ
+         jAtSxZ6FhNU7ric4yrOZgbMBiJ5rRcbaBVXGwQoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Aravind Ramesh <aravind.ramesh@wdc.com>,
-        Adam Manzanares <a.manzanares@samsung.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 005/260] blk-zoned: allow BLKREPORTZONE without CAP_SYS_ADMIN
-Date:   Mon, 20 Sep 2021 18:40:23 +0200
-Message-Id: <20210920163931.312510017@linuxfoundation.org>
+        stable@vger.kernel.org, Prabhakar Kushwaha <pkushwaha@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        Shai Malin <smalin@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 003/217] qed: Fix the VF msix vectors flow
+Date:   Mon, 20 Sep 2021 18:40:24 +0200
+Message-Id: <20210920163924.714395765@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+From: Shai Malin <smalin@marvell.com>
 
-commit 4d643b66089591b4769bcdb6fd1bfeff2fe301b8 upstream.
+[ Upstream commit b0cd08537db8d2fbb227cdb2e5835209db295a24 ]
 
-A user space process should not need the CAP_SYS_ADMIN capability set
-in order to perform a BLKREPORTZONE ioctl.
+For VFs we should return with an error in case we didn't get the exact
+number of msix vectors as we requested.
+Not doing that will lead to a crash when starting queues for this VF.
 
-Getting the zone report is required in order to get the write pointer.
-Neither read() nor write() requires CAP_SYS_ADMIN, so it is reasonable
-that a user space process that can read/write from/to the device, also
-can get the write pointer. (Since e.g. writes have to be at the write
-pointer.)
-
-Fixes: 3ed05a987e0f ("blk-zoned: implement ioctls")
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Aravind Ramesh <aravind.ramesh@wdc.com>
-Reviewed-by: Adam Manzanares <a.manzanares@samsung.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Cc: stable@vger.kernel.org # v4.10+
-Link: https://lore.kernel.org/r/20210811110505.29649-3-Niklas.Cassel@wdc.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: Shai Malin <smalin@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-zoned.c |    3 ---
- 1 file changed, 3 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_main.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/block/blk-zoned.c
-+++ b/block/blk-zoned.c
-@@ -316,9 +316,6 @@ int blkdev_report_zones_ioctl(struct blo
- 	if (!blk_queue_is_zoned(q))
- 		return -ENOTTY;
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_main.c b/drivers/net/ethernet/qlogic/qed/qed_main.c
+index 52e747fd9c83..62d514b60e23 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_main.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_main.c
+@@ -437,7 +437,12 @@ static int qed_enable_msix(struct qed_dev *cdev,
+ 			rc = cnt;
+ 	}
  
--	if (!capable(CAP_SYS_ADMIN))
--		return -EACCES;
--
- 	if (copy_from_user(&rep, argp, sizeof(struct blk_zone_report)))
- 		return -EFAULT;
- 
+-	if (rc > 0) {
++	/* For VFs, we should return with an error in case we didn't get the
++	 * exact number of msix vectors as we requested.
++	 * Not doing that will lead to a crash when starting queues for
++	 * this VF.
++	 */
++	if ((IS_PF(cdev) && rc > 0) || (IS_VF(cdev) && rc == cnt)) {
+ 		/* MSI-x configuration was achieved */
+ 		int_params->out.int_mode = QED_INT_MODE_MSIX;
+ 		int_params->out.num_vectors = rc;
+-- 
+2.30.2
+
 
 
