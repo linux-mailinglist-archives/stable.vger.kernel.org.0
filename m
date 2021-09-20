@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C64C9411F73
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:39:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40E50411D59
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:17:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352704AbhITRlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:41:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46194 "EHLO mail.kernel.org"
+        id S1348324AbhITRSs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:18:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352362AbhITRjO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:39:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DCB3B6138B;
-        Mon, 20 Sep 2021 17:07:38 +0000 (UTC)
+        id S1348080AbhITRQp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:16:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D42E61A0D;
+        Mon, 20 Sep 2021 16:59:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157659;
-        bh=dLC7/2nxNSTWWLV+3lpYKwsSqm5LejDyBfS6eAdo/oY=;
+        s=korg; t=1632157150;
+        bh=zIpD2sEp3gLSnaBtXsmF4eRADvSaEpkklrRMwjc8L/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jRxuQZQvg6z756vkEnUSX97LEiioXTSHTXriR/GhKNM6BqjZzfQB1hXQxpJOrt/+n
-         82HluJKjbwVPKyPY0pwSpxfd+hmiBnqUx08FvFUfnGTCoDhSW/H7LTWBRGofUsfa0p
-         ODLOZx2czJgKpPaJRrhzZYaZtypB4BBKospr/6r0=
+        b=UEN3Lp196m6cwoeIqAEH0B/dAYZ5oIZeVPikwKYodUa0+P82zEA4a8/ct797R8SZc
+         yG/6VFGwIJvW9zoQTBuOl75VRpXCnu3HWKwNRaQaj4KA6sgxaqCcg4Ol5XSwT1U/IZ
+         h7xg/xv1vCTXJHerP50J+1oBJCbGfsjCuNThdM+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shawn Lin <shawn.lin@rock-chips.com>,
-        Jaehoon Chung <jh80.chung@samsung.com>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 092/293] mmc: dw_mmc: Fix issue with uninitialized dma_slave_config
-Date:   Mon, 20 Sep 2021 18:40:54 +0200
-Message-Id: <20210920163936.417097474@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 034/217] isofs: joliet: Fix iocharset=utf8 mount option
+Date:   Mon, 20 Sep 2021 18:40:55 +0200
+Message-Id: <20210920163925.787706874@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +40,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit c3ff0189d3bc9c03845fe37472c140f0fefd0c79 ]
+[ Upstream commit 28ce50f8d96ec9035f60c9348294ea26b94db944 ]
 
-Depending on the DMA driver being used, the struct dma_slave_config may
-need to be initialized to zero for the unused data.
+Currently iocharset=utf8 mount option is broken. To use UTF-8 as iocharset,
+it is required to use utf8 mount option.
 
-For example, we have three DMA drivers using src_port_window_size and
-dst_port_window_size. If these are left uninitialized, it can cause DMA
-failures.
+Fix iocharset=utf8 mount option to use be equivalent to the utf8 mount
+option.
 
-For dw_mmc, this is probably not currently an issue but is still good to
-fix though.
+If UTF-8 as iocharset is used then s_nls_iocharset is set to NULL. So
+simplify code around, remove s_utf8 field as to distinguish between UTF-8
+and non-UTF-8 it is needed just to check if s_nls_iocharset is set to NULL
+or not.
 
-Fixes: 3fc7eaef44db ("mmc: dw_mmc: Add external dma interface support")
-Cc: Shawn Lin <shawn.lin@rock-chips.com>
-Cc: Jaehoon Chung <jh80.chung@samsung.com>
-Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Cc: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210810081644.19353-2-tony@atomide.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20210808162453.1653-5-pali@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/dw_mmc.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/isofs/inode.c  | 27 +++++++++++++--------------
+ fs/isofs/isofs.h  |  1 -
+ fs/isofs/joliet.c |  4 +---
+ 3 files changed, 14 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/mmc/host/dw_mmc.c b/drivers/mmc/host/dw_mmc.c
-index 8e09586f880f..e3991df078ef 100644
---- a/drivers/mmc/host/dw_mmc.c
-+++ b/drivers/mmc/host/dw_mmc.c
-@@ -808,6 +808,7 @@ static int dw_mci_edmac_start_dma(struct dw_mci *host,
- 	int ret = 0;
+diff --git a/fs/isofs/inode.c b/fs/isofs/inode.c
+index a4994e25e19e..f1134752cea3 100644
+--- a/fs/isofs/inode.c
++++ b/fs/isofs/inode.c
+@@ -157,7 +157,6 @@ struct iso9660_options{
+ 	unsigned int overriderockperm:1;
+ 	unsigned int uid_set:1;
+ 	unsigned int gid_set:1;
+-	unsigned int utf8:1;
+ 	unsigned char map;
+ 	unsigned char check;
+ 	unsigned int blocksize;
+@@ -357,7 +356,6 @@ static int parse_options(char *options, struct iso9660_options *popt)
+ 	popt->gid = GLOBAL_ROOT_GID;
+ 	popt->uid = GLOBAL_ROOT_UID;
+ 	popt->iocharset = NULL;
+-	popt->utf8 = 0;
+ 	popt->overriderockperm = 0;
+ 	popt->session=-1;
+ 	popt->sbsector=-1;
+@@ -390,10 +388,13 @@ static int parse_options(char *options, struct iso9660_options *popt)
+ 		case Opt_cruft:
+ 			popt->cruft = 1;
+ 			break;
++#ifdef CONFIG_JOLIET
+ 		case Opt_utf8:
+-			popt->utf8 = 1;
++			kfree(popt->iocharset);
++			popt->iocharset = kstrdup("utf8", GFP_KERNEL);
++			if (!popt->iocharset)
++				return 0;
+ 			break;
+-#ifdef CONFIG_JOLIET
+ 		case Opt_iocharset:
+ 			kfree(popt->iocharset);
+ 			popt->iocharset = match_strdup(&args[0]);
+@@ -496,7 +497,6 @@ static int isofs_show_options(struct seq_file *m, struct dentry *root)
+ 	if (sbi->s_nocompress)		seq_puts(m, ",nocompress");
+ 	if (sbi->s_overriderockperm)	seq_puts(m, ",overriderockperm");
+ 	if (sbi->s_showassoc)		seq_puts(m, ",showassoc");
+-	if (sbi->s_utf8)		seq_puts(m, ",utf8");
  
- 	/* Set external dma config: burst size, burst width */
-+	memset(&cfg, 0, sizeof(cfg));
- 	cfg.dst_addr = host->phy_regs + fifo_offset;
- 	cfg.src_addr = cfg.dst_addr;
- 	cfg.dst_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
+ 	if (sbi->s_check)		seq_printf(m, ",check=%c", sbi->s_check);
+ 	if (sbi->s_mapping)		seq_printf(m, ",map=%c", sbi->s_mapping);
+@@ -519,9 +519,10 @@ static int isofs_show_options(struct seq_file *m, struct dentry *root)
+ 		seq_printf(m, ",fmode=%o", sbi->s_fmode);
+ 
+ #ifdef CONFIG_JOLIET
+-	if (sbi->s_nls_iocharset &&
+-	    strcmp(sbi->s_nls_iocharset->charset, CONFIG_NLS_DEFAULT) != 0)
++	if (sbi->s_nls_iocharset)
+ 		seq_printf(m, ",iocharset=%s", sbi->s_nls_iocharset->charset);
++	else
++		seq_puts(m, ",iocharset=utf8");
+ #endif
+ 	return 0;
+ }
+@@ -865,14 +866,13 @@ root_found:
+ 	sbi->s_nls_iocharset = NULL;
+ 
+ #ifdef CONFIG_JOLIET
+-	if (joliet_level && opt.utf8 == 0) {
++	if (joliet_level) {
+ 		char *p = opt.iocharset ? opt.iocharset : CONFIG_NLS_DEFAULT;
+-		sbi->s_nls_iocharset = load_nls(p);
+-		if (! sbi->s_nls_iocharset) {
+-			/* Fail only if explicit charset specified */
+-			if (opt.iocharset)
++		if (strcmp(p, "utf8") != 0) {
++			sbi->s_nls_iocharset = opt.iocharset ?
++				load_nls(opt.iocharset) : load_nls_default();
++			if (!sbi->s_nls_iocharset)
+ 				goto out_freesbi;
+-			sbi->s_nls_iocharset = load_nls_default();
+ 		}
+ 	}
+ #endif
+@@ -888,7 +888,6 @@ root_found:
+ 	sbi->s_gid = opt.gid;
+ 	sbi->s_uid_set = opt.uid_set;
+ 	sbi->s_gid_set = opt.gid_set;
+-	sbi->s_utf8 = opt.utf8;
+ 	sbi->s_nocompress = opt.nocompress;
+ 	sbi->s_overriderockperm = opt.overriderockperm;
+ 	/*
+diff --git a/fs/isofs/isofs.h b/fs/isofs/isofs.h
+index 8e42b4fbefdc..b4b9d4861c9d 100644
+--- a/fs/isofs/isofs.h
++++ b/fs/isofs/isofs.h
+@@ -44,7 +44,6 @@ struct isofs_sb_info {
+ 	unsigned char s_session;
+ 	unsigned int  s_high_sierra:1;
+ 	unsigned int  s_rock:2;
+-	unsigned int  s_utf8:1;
+ 	unsigned int  s_cruft:1; /* Broken disks with high byte of length
+ 				  * containing junk */
+ 	unsigned int  s_nocompress:1;
+diff --git a/fs/isofs/joliet.c b/fs/isofs/joliet.c
+index be8b6a9d0b92..c0f04a1e7f69 100644
+--- a/fs/isofs/joliet.c
++++ b/fs/isofs/joliet.c
+@@ -41,14 +41,12 @@ uni16_to_x8(unsigned char *ascii, __be16 *uni, int len, struct nls_table *nls)
+ int
+ get_joliet_filename(struct iso_directory_record * de, unsigned char *outname, struct inode * inode)
+ {
+-	unsigned char utf8;
+ 	struct nls_table *nls;
+ 	unsigned char len = 0;
+ 
+-	utf8 = ISOFS_SB(inode->i_sb)->s_utf8;
+ 	nls = ISOFS_SB(inode->i_sb)->s_nls_iocharset;
+ 
+-	if (utf8) {
++	if (!nls) {
+ 		len = utf16s_to_utf8s((const wchar_t *) de->name,
+ 				de->name_len[0] >> 1, UTF16_BIG_ENDIAN,
+ 				outname, PAGE_SIZE);
 -- 
 2.30.2
 
