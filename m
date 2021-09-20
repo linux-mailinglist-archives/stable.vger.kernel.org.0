@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB36B411BF7
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:03:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBCCF411FFC
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343665AbhITRFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:05:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54300 "EHLO mail.kernel.org"
+        id S1346103AbhITRrX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:47:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344095AbhITRDi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:03:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19EA961440;
-        Mon, 20 Sep 2021 16:53:54 +0000 (UTC)
+        id S1349178AbhITRpX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:45:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 077EE61355;
+        Mon, 20 Sep 2021 17:10:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156835;
-        bh=Q6vNTJ1K8C74ByiFgwhH/YMFugWO33c8Ms9B2BkYMEU=;
+        s=korg; t=1632157811;
+        bh=1WbPcJ5VlyzEjPfdYbJ/yD7UxrywBSz0W9k6KY7nMqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YmGPYyLW6AGz/P0sH8j8NFJ9kDVJux3yrcQy5fWM5l3sjBmlNSPuAOiUDPJeItfCp
-         szh5uJFMxb5ZzrrmC6GfS5dIhqO1M3qqKFOvKNkXRfJtgZa+QF0/g0ChCxQXHPFDND
-         YMedrVojY4aCe5YYFKVcMpKCY1EWCvMqRbNKY8zw=
+        b=gZc7g2ib8yoBSvch/8Kz6VI2lyZKmt6Zfy7yOzRfqwQfx7gM20IWWrYt91hPuQRIZ
+         z+BwAmxJ2ZcYRlsTS68ZmX8vdNLnDwN0MyImzZyBFKTn3MlmQo/fQvr4yUPLDArapZ
+         HyN9QO+LVooZ2vU4Xb6h6S2BnrtPlaKW4vbNn0fo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shawn Lin <shawn.lin@rock-chips.com>,
-        Jaehoon Chung <jh80.chung@samsung.com>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 075/175] mmc: dw_mmc: Fix issue with uninitialized dma_slave_config
+Subject: [PATCH 4.19 162/293] powerpc/stacktrace: Include linux/delay.h
 Date:   Mon, 20 Sep 2021 18:42:04 +0200
-Message-Id: <20210920163920.509491740@linuxfoundation.org>
+Message-Id: <20210920163938.832899072@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Michal Suchanek <msuchanek@suse.de>
 
-[ Upstream commit c3ff0189d3bc9c03845fe37472c140f0fefd0c79 ]
+[ Upstream commit a6cae77f1bc89368a4e2822afcddc45c3062d499 ]
 
-Depending on the DMA driver being used, the struct dma_slave_config may
-need to be initialized to zero for the unused data.
+commit 7c6986ade69e ("powerpc/stacktrace: Fix spurious "stale" traces in raise_backtrace_ipi()")
+introduces udelay() call without including the linux/delay.h header.
+This may happen to work on master but the header that declares the
+functionshould be included nonetheless.
 
-For example, we have three DMA drivers using src_port_window_size and
-dst_port_window_size. If these are left uninitialized, it can cause DMA
-failures.
-
-For dw_mmc, this is probably not currently an issue but is still good to
-fix though.
-
-Fixes: 3fc7eaef44db ("mmc: dw_mmc: Add external dma interface support")
-Cc: Shawn Lin <shawn.lin@rock-chips.com>
-Cc: Jaehoon Chung <jh80.chung@samsung.com>
-Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Cc: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210810081644.19353-2-tony@atomide.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 7c6986ade69e ("powerpc/stacktrace: Fix spurious "stale" traces in raise_backtrace_ipi()")
+Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210729180103.15578-1-msuchanek@suse.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/dw_mmc.c | 1 +
+ arch/powerpc/kernel/stacktrace.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mmc/host/dw_mmc.c b/drivers/mmc/host/dw_mmc.c
-index c6b91efaa956..209bdf0317b3 100644
---- a/drivers/mmc/host/dw_mmc.c
-+++ b/drivers/mmc/host/dw_mmc.c
-@@ -762,6 +762,7 @@ static int dw_mci_edmac_start_dma(struct dw_mci *host,
- 	int ret = 0;
+diff --git a/arch/powerpc/kernel/stacktrace.c b/arch/powerpc/kernel/stacktrace.c
+index 23b5f755e419..dadcc8bab336 100644
+--- a/arch/powerpc/kernel/stacktrace.c
++++ b/arch/powerpc/kernel/stacktrace.c
+@@ -8,6 +8,7 @@
+  * Copyright 2018 Nick Piggin, Michael Ellerman, IBM Corp.
+  */
  
- 	/* Set external dma config: burst size, burst width */
-+	memset(&cfg, 0, sizeof(cfg));
- 	cfg.dst_addr = host->phy_regs + fifo_offset;
- 	cfg.src_addr = cfg.dst_addr;
- 	cfg.dst_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
++#include <linux/delay.h>
+ #include <linux/export.h>
+ #include <linux/kallsyms.h>
+ #include <linux/module.h>
 -- 
 2.30.2
 
