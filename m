@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BF71411BDE
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:02:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE79411A72
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344078AbhITRD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:03:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53754 "EHLO mail.kernel.org"
+        id S243968AbhITQty (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:49:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243891AbhITRBS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:01:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 474EE6140B;
-        Mon, 20 Sep 2021 16:53:07 +0000 (UTC)
+        id S244167AbhITQtV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:49:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C8E561268;
+        Mon, 20 Sep 2021 16:47:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156787;
-        bh=2+69YOaFMQV3IeG+2xp7JYf6jg/oriN58muh/MO/R1w=;
+        s=korg; t=1632156471;
+        bh=U0ivsL+p/Bybv6MJJLx6mOVguINXSD7DdKyoaTp+NS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=17P7YVpc+qo93nWaDhF++a6CUEKfsJ9HPhyBpJaJGX0HYJxcKnbhMU0R5aLLcpdJA
-         LekXyNKzWyXvEJHhtSf9uxxSe1ILb4EZkrSGoUOoExV4UU5H9xagvCHj1GWO7j7jM1
-         dUJ5UeyFbRKqkxsy6/bfwnLYfMeSbEcHQZH4gYRI=
+        b=p7tK1s3q1PJIzPqxttxhrpMRkqGRPlGub8tytPPrw1iyx7jhdIbcPOTtnUwHAC4ff
+         2QuLgkPub86+0PfPKX9mhesYG4Yek+t1r/EDIBcBfWbo+b13Ex/FQDcphiU4F80Yom
+         hOg1JOmza+4QVyMft+0O6+qnAmTud7ngor4RHtXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 4.9 086/175] clk: kirkwood: Fix a clocking boot regression
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+be2baed593ea56c6a84c@syzkaller.appspotmail.com
+Subject: [PATCH 4.4 057/133] Bluetooth: add timeout sanity check to hci_inquiry
 Date:   Mon, 20 Sep 2021 18:42:15 +0200
-Message-Id: <20210920163920.888693102@linuxfoundation.org>
+Message-Id: <20210920163914.519398792@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit aaedb9e00e5400220a8871180d23a83e67f29f63 upstream.
+[ Upstream commit f41a4b2b5eb7872109723dab8ae1603bdd9d9ec1 ]
 
-Since a few kernel releases the Pogoplug 4 has crashed like this
-during boot:
+Syzbot hit "task hung" bug in hci_req_sync(). The problem was in
+unreasonable huge inquiry timeout passed from userspace.
+Fix it by adding sanity check for timeout value to hci_inquiry().
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000002
-(...)
-[<c04116ec>] (strlen) from [<c00ead80>] (kstrdup+0x1c/0x4c)
-[<c00ead80>] (kstrdup) from [<c04591d8>] (__clk_register+0x44/0x37c)
-[<c04591d8>] (__clk_register) from [<c04595ec>] (clk_hw_register+0x20/0x44)
-[<c04595ec>] (clk_hw_register) from [<c045bfa8>] (__clk_hw_register_mux+0x198/0x1e4)
-[<c045bfa8>] (__clk_hw_register_mux) from [<c045c050>] (clk_register_mux_table+0x5c/0x6c)
-[<c045c050>] (clk_register_mux_table) from [<c0acf3e0>] (kirkwood_clk_muxing_setup.constprop.0+0x13c/0x1ac)
-[<c0acf3e0>] (kirkwood_clk_muxing_setup.constprop.0) from [<c0aceae0>] (of_clk_init+0x12c/0x214)
-[<c0aceae0>] (of_clk_init) from [<c0ab576c>] (time_init+0x20/0x2c)
-[<c0ab576c>] (time_init) from [<c0ab3d18>] (start_kernel+0x3dc/0x56c)
-[<c0ab3d18>] (start_kernel) from [<00000000>] (0x0)
-Code: e3130020 1afffffb e12fff1e c08a1078 (e5d03000)
+Since hci_inquiry() is the only user of hci_req_sync() with user
+controlled timeout value, it makes sense to check timeout value in
+hci_inquiry() and don't touch hci_req_sync().
 
-This is because the "powersave" mux clock 0 was provided in an unterminated
-array, which is required by the loop in the driver:
-
-        /* Count, allocate, and register clock muxes */
-        for (n = 0; desc[n].name;)
-                n++;
-
-Here n will go out of bounds and then call clk_register_mux() on random
-memory contents after the mux clock.
-
-Fix this by terminating the array with a blank entry.
-
-Fixes: 105299381d87 ("cpufreq: kirkwood: use the powersave multiplexer")
-Cc: stable@vger.kernel.org
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
-Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210814235514.403426-1-linus.walleij@linaro.org
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-and-tested-by: syzbot+be2baed593ea56c6a84c@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mvebu/kirkwood.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/bluetooth/hci_core.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/clk/mvebu/kirkwood.c
-+++ b/drivers/clk/mvebu/kirkwood.c
-@@ -254,6 +254,7 @@ static const char *powersave_parents[] =
- static const struct clk_muxing_soc_desc kirkwood_mux_desc[] __initconst = {
- 	{ "powersave", powersave_parents, ARRAY_SIZE(powersave_parents),
- 		11, 1, 0 },
-+	{ }
- };
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index bf69bfd0b475..eefaa10c74db 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -1357,6 +1357,12 @@ int hci_inquiry(void __user *arg)
+ 		goto done;
+ 	}
  
- static struct clk *clk_muxing_get_src(
++	/* Restrict maximum inquiry length to 60 seconds */
++	if (ir.length > 60) {
++		err = -EINVAL;
++		goto done;
++	}
++
+ 	hci_dev_lock(hdev);
+ 	if (inquiry_cache_age(hdev) > INQUIRY_CACHE_AGE_MAX ||
+ 	    inquiry_cache_empty(hdev) || ir.flags & IREQ_CACHE_FLUSH) {
+-- 
+2.30.2
+
 
 
