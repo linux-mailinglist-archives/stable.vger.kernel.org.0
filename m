@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60721411FF3
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:45:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D483411D7A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:19:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347972AbhITRq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:46:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48038 "EHLO mail.kernel.org"
+        id S1347048AbhITRUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:20:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350999AbhITRox (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:44:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAEB861B61;
-        Mon, 20 Sep 2021 17:09:55 +0000 (UTC)
+        id S1348354AbhITRSu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:18:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BCB20613D1;
+        Mon, 20 Sep 2021 16:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157796;
-        bh=iHyxHR61XfOSJB5qDfJ1WV9b76hc0bzzgVfM6MERV9Q=;
+        s=korg; t=1632157196;
+        bh=K0a0OxK+BpIgYpUkTtJGCGeftmPam2ydRSt3zkLoLZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nQw6bpTkFD7T5ZCQp+FzuMRobJQ+SZdOxzF0kitBQUcB/lBKoiQLV2o3E8EIVXX0f
-         dYmZcugj3UFC7VagQAay1nrDBp6T+CDx/QiRjDozL0/qfF6noMJLOIR/78Nc58cfuj
-         PXoGkPHYm+mpozSogc7sInK1rEjySjIiL+F9qm34=
+        b=bN1nQ7chBobJQNLEpwqi7pRrv20wkYX0TWZWMctXMHIc0262BhWH8aTuUlnhpQHrc
+         qK0p5OqCbuUPBEeJRWM1veMjzA9Yp0EeF5quF21gmSHu3ofV66R9PxJfoUawn2xN1I
+         H05eT+Sb7xXS1YzQ8d522r/fkgGd7+eKlDD1HIzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 4.19 156/293] PCI: aardvark: Fix masking and unmasking legacy INTx interrupts
+        stable@vger.kernel.org,
+        syzbot <syzbot+04168c8063cfdde1db5e@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH 4.14 097/217] fbmem: dont allow too huge resolutions
 Date:   Mon, 20 Sep 2021 18:41:58 +0200
-Message-Id: <20210920163938.622396291@linuxfoundation.org>
+Message-Id: <20210920163927.924664877@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,72 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-commit d212dcee27c1f89517181047e5485fcbba4a25c2 upstream.
+commit 8c28051cdcbe9dfcec6bd0a4709d67a09df6edae upstream.
 
-irq_mask and irq_unmask callbacks need to be properly guarded by raw spin
-locks as masking/unmasking procedure needs atomic read-modify-write
-operation on hardware register.
+syzbot is reporting page fault at vga16fb_fillrect() [1], for
+vga16fb_check_var() is failing to detect multiplication overflow.
 
-Link: https://lore.kernel.org/r/20210820155020.3000-1-pali@kernel.org
-Reported-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
+  if (vxres * vyres > maxmem) {
+    vyres = maxmem / vxres;
+    if (vyres < yres)
+      return -ENOMEM;
+  }
+
+Since no module would accept too huge resolutions where multiplication
+overflow happens, let's reject in the common path.
+
+Link: https://syzkaller.appspot.com/bug?extid=04168c8063cfdde1db5e [1]
+Reported-by: syzbot <syzbot+04168c8063cfdde1db5e@syzkaller.appspotmail.com>
+Debugged-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/185175d6-227a-7b55-433d-b070929b262c@i-love.sakura.ne.jp
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/video/fbdev/core/fbmem.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -181,6 +181,7 @@ struct advk_pcie {
- 	struct list_head resources;
- 	struct irq_domain *irq_domain;
- 	struct irq_chip irq_chip;
-+	raw_spinlock_t irq_lock;
- 	struct irq_domain *msi_domain;
- 	struct irq_domain *msi_inner_domain;
- 	struct irq_chip msi_bottom_irq_chip;
-@@ -603,22 +604,28 @@ static void advk_pcie_irq_mask(struct ir
- {
- 	struct advk_pcie *pcie = d->domain->host_data;
- 	irq_hw_number_t hwirq = irqd_to_hwirq(d);
-+	unsigned long flags;
- 	u32 mask;
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -34,6 +34,7 @@
+ #include <linux/fb.h>
+ #include <linux/fbcon.h>
+ #include <linux/mem_encrypt.h>
++#include <linux/overflow.h>
  
-+	raw_spin_lock_irqsave(&pcie->irq_lock, flags);
- 	mask = advk_readl(pcie, PCIE_ISR1_MASK_REG);
- 	mask |= PCIE_ISR1_INTX_ASSERT(hwirq);
- 	advk_writel(pcie, mask, PCIE_ISR1_MASK_REG);
-+	raw_spin_unlock_irqrestore(&pcie->irq_lock, flags);
- }
+ #include <asm/fb.h>
  
- static void advk_pcie_irq_unmask(struct irq_data *d)
- {
- 	struct advk_pcie *pcie = d->domain->host_data;
- 	irq_hw_number_t hwirq = irqd_to_hwirq(d);
-+	unsigned long flags;
- 	u32 mask;
+@@ -983,6 +984,7 @@ fb_set_var(struct fb_info *info, struct
+ 	if ((var->activate & FB_ACTIVATE_FORCE) ||
+ 	    memcmp(&info->var, var, sizeof(struct fb_var_screeninfo))) {
+ 		u32 activate = var->activate;
++		u32 unused;
  
-+	raw_spin_lock_irqsave(&pcie->irq_lock, flags);
- 	mask = advk_readl(pcie, PCIE_ISR1_MASK_REG);
- 	mask &= ~PCIE_ISR1_INTX_ASSERT(hwirq);
- 	advk_writel(pcie, mask, PCIE_ISR1_MASK_REG);
-+	raw_spin_unlock_irqrestore(&pcie->irq_lock, flags);
- }
+ 		/* When using FOURCC mode, make sure the red, green, blue and
+ 		 * transp fields are set to 0.
+@@ -1007,6 +1009,11 @@ fb_set_var(struct fb_info *info, struct
+ 		if (var->xres < 8 || var->yres < 8)
+ 			return -EINVAL;
  
- static int advk_pcie_irq_map(struct irq_domain *h,
-@@ -701,6 +708,8 @@ static int advk_pcie_init_irq_domain(str
- 	struct device_node *pcie_intc_node;
- 	struct irq_chip *irq_chip;
- 
-+	raw_spin_lock_init(&pcie->irq_lock);
++		/* Too huge resolution causes multiplication overflow. */
++		if (check_mul_overflow(var->xres, var->yres, &unused) ||
++		    check_mul_overflow(var->xres_virtual, var->yres_virtual, &unused))
++			return -EINVAL;
 +
- 	pcie_intc_node =  of_get_next_child(node, NULL);
- 	if (!pcie_intc_node) {
- 		dev_err(dev, "No PCIe Intc node found\n");
+ 		ret = info->fbops->fb_check_var(var, info);
+ 
+ 		if (ret)
 
 
