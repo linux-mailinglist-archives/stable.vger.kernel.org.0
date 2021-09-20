@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24A5041204A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:52:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B0E1411A68
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:48:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349873AbhITRxn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:53:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52814 "EHLO mail.kernel.org"
+        id S234261AbhITQtm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:49:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354596AbhITRuj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:50:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58AFD61BE1;
-        Mon, 20 Sep 2021 17:12:02 +0000 (UTC)
+        id S236735AbhITQtG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:49:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C269F6124A;
+        Mon, 20 Sep 2021 16:47:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157922;
-        bh=c/iGqXfGVuVAd/ANNXRoXJi8xWZQTW5TGDgs0H7KCEo=;
+        s=korg; t=1632156452;
+        bh=EilGhHmjxJ4GkuYk2HAGE4cchxQ1H6wSlnwmazFEnDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YxbcRdal5f/rQu2MuiANXdAcYjG6IrpEG97T5LpvYbiD1Zhg/34zuNhDgx7hzmBoC
-         AkeXWlqdtTsDch2nLqgAfatpwCoS519Oa2YrKW/Lm4jjiY6has0+u339sUuu+p1rPb
-         9nV+wKw82ns6shWiKJO0hyvGTXCwBDyJI8ACpSp0=
+        b=yRO1d5ySnKvrnjZQ6kADyahSEijWDZwK+7/VLbOMi1sgQFe3fr4XVT6r1QTLSsJXL
+         ldxkNJibDDvEDlghp9JP/Q0oGI3IqIKz2QYSUgeOD3FF57ZCa5UFUhwefzFnw9/5+H
+         b5g/iw2KKWkctDS7Rp3AxviqNzjq4W6WAxZ2k1kg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kelly Devilliv <kelly.devilliv@gmail.com>,
+        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 182/293] usb: host: fotg210: fix the actual_length of an iso packet
+Subject: [PATCH 4.4 066/133] bcma: Fix memory leak for internally-handled cores
 Date:   Mon, 20 Sep 2021 18:42:24 +0200
-Message-Id: <20210920163939.500438291@linuxfoundation.org>
+Message-Id: <20210920163914.807839243@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,58 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kelly Devilliv <kelly.devilliv@gmail.com>
+From: Zenghui Yu <yuzenghui@huawei.com>
 
-[ Upstream commit 091cb2f782f32ab68c6f5f326d7868683d3d4875 ]
+[ Upstream commit b63aed3ff195130fef12e0af590f4838cf0201d8 ]
 
-We should acquire the actual_length of an iso packet
-from the iTD directly using FOTG210_ITD_LENGTH() macro.
+kmemleak reported that dev_name() of internally-handled cores were leaked
+on driver unbinding. Let's use device_initialize() to take refcounts for
+them and put_device() to properly free the related stuff.
 
-Signed-off-by: Kelly Devilliv <kelly.devilliv@gmail.com>
-Link: https://lore.kernel.org/r/20210627125747.127646-4-kelly.devilliv@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+While looking at it, there's another potential issue for those which should
+be *registered* into driver core. If device_register() failed, we put
+device once and freed bcma_device structures. In bcma_unregister_cores(),
+they're treated as unregistered and we hit both UAF and double-free. That
+smells not good and has also been fixed now.
+
+Fixes: ab54bc8460b5 ("bcma: fill core details for every device")
+Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210727025232.663-2-yuzenghui@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/fotg210-hcd.c | 5 ++---
- drivers/usb/host/fotg210.h     | 5 -----
- 2 files changed, 2 insertions(+), 8 deletions(-)
+ drivers/bcma/main.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/host/fotg210-hcd.c b/drivers/usb/host/fotg210-hcd.c
-index 4e98f7b492df..157742431961 100644
---- a/drivers/usb/host/fotg210-hcd.c
-+++ b/drivers/usb/host/fotg210-hcd.c
-@@ -4459,13 +4459,12 @@ static bool itd_complete(struct fotg210_hcd *fotg210, struct fotg210_itd *itd)
+diff --git a/drivers/bcma/main.c b/drivers/bcma/main.c
+index 327f9e374b44..30827ab3bb07 100644
+--- a/drivers/bcma/main.c
++++ b/drivers/bcma/main.c
+@@ -246,6 +246,7 @@ EXPORT_SYMBOL(bcma_core_irq);
  
- 			/* HC need not update length with this error */
- 			if (!(t & FOTG210_ISOC_BABBLE)) {
--				desc->actual_length =
--					fotg210_itdlen(urb, desc, t);
-+				desc->actual_length = FOTG210_ITD_LENGTH(t);
- 				urb->actual_length += desc->actual_length;
- 			}
- 		} else if (likely((t & FOTG210_ISOC_ACTIVE) == 0)) {
- 			desc->status = 0;
--			desc->actual_length = fotg210_itdlen(urb, desc, t);
-+			desc->actual_length = FOTG210_ITD_LENGTH(t);
- 			urb->actual_length += desc->actual_length;
- 		} else {
- 			/* URB was too late */
-diff --git a/drivers/usb/host/fotg210.h b/drivers/usb/host/fotg210.h
-index 7fcd785c7bc8..0f1da9503bc6 100644
---- a/drivers/usb/host/fotg210.h
-+++ b/drivers/usb/host/fotg210.h
-@@ -683,11 +683,6 @@ static inline unsigned fotg210_read_frame_index(struct fotg210_hcd *fotg210)
- 	return fotg210_readl(fotg210, &fotg210->regs->frame_index);
+ void bcma_prepare_core(struct bcma_bus *bus, struct bcma_device *core)
+ {
++	device_initialize(&core->dev);
+ 	core->dev.release = bcma_release_core_dev;
+ 	core->dev.bus = &bcma_bus_type;
+ 	dev_set_name(&core->dev, "bcma%d:%d", bus->num, core->core_index);
+@@ -309,11 +310,10 @@ static void bcma_register_core(struct bcma_bus *bus, struct bcma_device *core)
+ {
+ 	int err;
+ 
+-	err = device_register(&core->dev);
++	err = device_add(&core->dev);
+ 	if (err) {
+ 		bcma_err(bus, "Could not register dev for core 0x%03X\n",
+ 			 core->id.id);
+-		put_device(&core->dev);
+ 		return;
+ 	}
+ 	core->dev_registered = true;
+@@ -404,7 +404,7 @@ void bcma_unregister_cores(struct bcma_bus *bus)
+ 	/* Now noone uses internally-handled cores, we can free them */
+ 	list_for_each_entry_safe(core, tmp, &bus->cores, list) {
+ 		list_del(&core->list);
+-		kfree(core);
++		put_device(&core->dev);
+ 	}
  }
  
--#define fotg210_itdlen(urb, desc, t) ({			\
--	usb_pipein((urb)->pipe) ?				\
--	(desc)->length - FOTG210_ITD_LENGTH(t) :			\
--	FOTG210_ITD_LENGTH(t);					\
--})
- /*-------------------------------------------------------------------------*/
- 
- #endif /* __LINUX_FOTG210_H */
 -- 
 2.30.2
 
