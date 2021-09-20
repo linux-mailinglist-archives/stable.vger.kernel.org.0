@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A4454125DD
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:49:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91AA94125DB
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:49:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384766AbhITSsx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:48:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33246 "EHLO mail.kernel.org"
+        id S1354450AbhITSsw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:48:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353996AbhITSqU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1383999AbhITSqU (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:46:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46ED461AF9;
-        Mon, 20 Sep 2021 17:33:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7078963360;
+        Mon, 20 Sep 2021 17:33:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159198;
-        bh=BRlBHLG2kkzLdnte+FJn6bWorTzHZ6MCQoCvjzrkQ8o=;
+        s=korg; t=1632159200;
+        bh=6AOpt5nzNFC31BkTqC9tNzGbwV675RFYmdUiW4tChoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UgVUE+mZrHgmn21XHtOXF+VK6DrUVAxtv+6xdv4tqhsxlileD0wtahymIz95Wykhp
-         Jl8jcl61U/f2HdGHCdiVp+6P2OxoPEXlyNdFf0q+T4h4uVhTgSU3DVtyoWuhablrHY
-         Ou98EDsM5PbZzCQ+D+JHgX3mGc9JT3k0XC0+2yVY=
+        b=RI6YPIOyDy4KEtv8CV1LlGnF+0K0D6MCovP30/bVvvoiGQk3fq13mWCFbLuhjUehH
+         1y6EWxPWJlI6Lx77ZyirUV50BJW8ErmGJeEJm81XDH+1Ok7aTtiRHYnNd9FNwD9oLs
+         6VPoqrQxMigWA2LwnTW4qvfq/Vv+uumA4/yYn0rY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Chen-Yu Tsai <wens@csie.org>, Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, Clamshell <clamfly@163.com>
-Subject: [PATCH 5.14 121/168] mfd: axp20x: Update AXP288 volatile ranges
-Date:   Mon, 20 Sep 2021 18:44:19 +0200
-Message-Id: <20210920163925.635890957@linuxfoundation.org>
+        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        newbyte@disroot.org, Daniel Thompson <daniel.thompson@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 122/168] backlight: ktd253: Stabilize backlight
+Date:   Mon, 20 Sep 2021 18:44:20 +0200
+Message-Id: <20210920163925.671764275@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
 References: <20210920163921.633181900@linuxfoundation.org>
@@ -40,78 +42,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit f949a9ebce7a18005266b859a17f10c891bb13d7 ]
+[ Upstream commit daa37361518bf2d1f591bbdaa7c68b2a43d7af48 ]
 
-On Cherry Trail devices with an AXP288 PMIC the external SD-card slot
-used the AXP's DLDO2 as card-voltage and either DLDO3 or GPIO1LDO
-(GPIO1 pin in low noise LDO mode) as signal-voltage.
+Remove interrupt disablement during backlight setting. It is
+way to dangerous and makes platforms instable by having it
+miss vblank IRQs leading to the graphics derailing.
 
-These regulators are turned on/off and in case of the signal-voltage
-also have their output-voltage changed by the _PS0 and _PS3 power-
-management ACPI methods on the MMC-controllers ACPI fwnode as well as
-by the _DSM ACPI method for changing the signal voltage.
+The code is using ndelay() which is not available on
+platforms such as ARM and will result in 32 * udelay(1)
+which is substantial.
 
-The AML code implementing these methods is directly accessing the
-PMIC through ACPI I2C OpRegion accesses, instead of using the special
-PMIC OpRegion handled by drivers/acpi/pmic/intel_pmic_xpower.c .
+Add some code to detect if an interrupt occurs during the
+tight loop and in that case just redo it from the top.
 
-This means that the contents of the involved PMIC registers can change
-without the change being made through the regmap interface, so regmap
-should not cache the contents of these registers.
-
-Mark the regulator power on/off, the regulator voltage control and the
-GPIO1 control registers as volatile, to avoid regmap caching them.
-
-Specifically this fixes an issue on some models where the i915 driver
-toggles another LDO using the same on/off register on/off through
-MIPI sequences (through intel_soc_pmic_exec_mipi_pmic_seq_element())
-which then writes back a cached on/off register-value where the
-card-voltage is off causing the external sdcard slot to stop working
-when the screen goes blank, or comes back on again.
-
-The regulator register-range now marked volatile also includes the
-buck regulator control registers. This is done on purpose these are
-normally not touched by the AML code, but they are updated directly
-by the SoC's PUNIT which means that they may also change without going
-through regmap.
-
-Note the AXP288 PMIC is only used on Bay- and Cherry-Trail platforms,
-so even though this is an ACPI specific problem there is no need to
-make the new volatile ranges conditional since these platforms always
-use ACPI.
-
-Fixes: dc91c3b6fe66 ("mfd: axp20x: Mark AXP20X_VBUS_IPSOUT_MGMT as volatile")
-Fixes: cd53216625a0 ("mfd: axp20x: Fix axp288 volatile ranges")
-Reported-and-tested-by: Clamshell <clamfly@163.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Chen-Yu Tsai <wens@csie.org>
+Fixes: 5317f37e48b9 ("backlight: Add Kinetic KTD253 backlight driver")
+Cc: Stephan Gerhold <stephan@gerhold.net>
+Reported-by: newbyte@disroot.org
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/axp20x.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/video/backlight/ktd253-backlight.c | 75 ++++++++++++++++------
+ 1 file changed, 55 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
-index 4145a38b3890..d0ac019850d1 100644
---- a/drivers/mfd/axp20x.c
-+++ b/drivers/mfd/axp20x.c
-@@ -125,12 +125,13 @@ static const struct regmap_range axp288_writeable_ranges[] = {
+diff --git a/drivers/video/backlight/ktd253-backlight.c b/drivers/video/backlight/ktd253-backlight.c
+index a7df5bcca9da..37aa5a669530 100644
+--- a/drivers/video/backlight/ktd253-backlight.c
++++ b/drivers/video/backlight/ktd253-backlight.c
+@@ -25,6 +25,7 @@
  
- static const struct regmap_range axp288_volatile_ranges[] = {
- 	regmap_reg_range(AXP20X_PWR_INPUT_STATUS, AXP288_POWER_REASON),
-+	regmap_reg_range(AXP22X_PWR_OUT_CTRL1, AXP22X_ALDO3_V_OUT),
- 	regmap_reg_range(AXP288_BC_GLOBAL, AXP288_BC_GLOBAL),
- 	regmap_reg_range(AXP288_BC_DET_STAT, AXP20X_VBUS_IPSOUT_MGMT),
- 	regmap_reg_range(AXP20X_CHRG_BAK_CTRL, AXP20X_CHRG_BAK_CTRL),
- 	regmap_reg_range(AXP20X_IRQ1_EN, AXP20X_IPSOUT_V_HIGH_L),
- 	regmap_reg_range(AXP20X_TIMER_CTRL, AXP20X_TIMER_CTRL),
--	regmap_reg_range(AXP22X_GPIO_STATE, AXP22X_GPIO_STATE),
-+	regmap_reg_range(AXP20X_GPIO1_CTRL, AXP22X_GPIO_STATE),
- 	regmap_reg_range(AXP288_RT_BATT_V_H, AXP288_RT_BATT_V_L),
- 	regmap_reg_range(AXP20X_FG_RES, AXP288_FG_CC_CAP_REG),
+ #define KTD253_T_LOW_NS (200 + 10) /* Additional 10ns as safety factor */
+ #define KTD253_T_HIGH_NS (200 + 10) /* Additional 10ns as safety factor */
++#define KTD253_T_OFF_CRIT_NS 100000 /* 100 us, now it doesn't look good */
+ #define KTD253_T_OFF_MS 3
+ 
+ struct ktd253_backlight {
+@@ -34,13 +35,50 @@ struct ktd253_backlight {
+ 	u16 ratio;
  };
+ 
++static void ktd253_backlight_set_max_ratio(struct ktd253_backlight *ktd253)
++{
++	gpiod_set_value_cansleep(ktd253->gpiod, 1);
++	ndelay(KTD253_T_HIGH_NS);
++	/* We always fall back to this when we power on */
++}
++
++static int ktd253_backlight_stepdown(struct ktd253_backlight *ktd253)
++{
++	/*
++	 * These GPIO operations absolutely can NOT sleep so no _cansleep
++	 * suffixes, and no using GPIO expanders on slow buses for this!
++	 *
++	 * The maximum number of cycles of the loop is 32  so the time taken
++	 * should nominally be:
++	 * (T_LOW_NS + T_HIGH_NS + loop_time) * 32
++	 *
++	 * Architectures do not always support ndelay() and we will get a few us
++	 * instead. If we get to a critical time limit an interrupt has likely
++	 * occured in the low part of the loop and we need to restart from the
++	 * top so we have the backlight in a known state.
++	 */
++	u64 ns;
++
++	ns = ktime_get_ns();
++	gpiod_set_value(ktd253->gpiod, 0);
++	ndelay(KTD253_T_LOW_NS);
++	gpiod_set_value(ktd253->gpiod, 1);
++	ns = ktime_get_ns() - ns;
++	if (ns >= KTD253_T_OFF_CRIT_NS) {
++		dev_err(ktd253->dev, "PCM on backlight took too long (%llu ns)\n", ns);
++		return -EAGAIN;
++	}
++	ndelay(KTD253_T_HIGH_NS);
++	return 0;
++}
++
+ static int ktd253_backlight_update_status(struct backlight_device *bl)
+ {
+ 	struct ktd253_backlight *ktd253 = bl_get_data(bl);
+ 	int brightness = backlight_get_brightness(bl);
+ 	u16 target_ratio;
+ 	u16 current_ratio = ktd253->ratio;
+-	unsigned long flags;
++	int ret;
+ 
+ 	dev_dbg(ktd253->dev, "new brightness/ratio: %d/32\n", brightness);
+ 
+@@ -62,37 +100,34 @@ static int ktd253_backlight_update_status(struct backlight_device *bl)
+ 	}
+ 
+ 	if (current_ratio == 0) {
+-		gpiod_set_value_cansleep(ktd253->gpiod, 1);
+-		ndelay(KTD253_T_HIGH_NS);
+-		/* We always fall back to this when we power on */
++		ktd253_backlight_set_max_ratio(ktd253);
+ 		current_ratio = KTD253_MAX_RATIO;
+ 	}
+ 
+-	/*
+-	 * WARNING:
+-	 * The loop to set the correct current level is performed
+-	 * with interrupts disabled as it is timing critical.
+-	 * The maximum number of cycles of the loop is 32
+-	 * so the time taken will be (T_LOW_NS + T_HIGH_NS + loop_time) * 32,
+-	 */
+-	local_irq_save(flags);
+ 	while (current_ratio != target_ratio) {
+ 		/*
+ 		 * These GPIO operations absolutely can NOT sleep so no
+ 		 * _cansleep suffixes, and no using GPIO expanders on
+ 		 * slow buses for this!
+ 		 */
+-		gpiod_set_value(ktd253->gpiod, 0);
+-		ndelay(KTD253_T_LOW_NS);
+-		gpiod_set_value(ktd253->gpiod, 1);
+-		ndelay(KTD253_T_HIGH_NS);
+-		/* After 1/32 we loop back to 32/32 */
+-		if (current_ratio == KTD253_MIN_RATIO)
++		ret = ktd253_backlight_stepdown(ktd253);
++		if (ret == -EAGAIN) {
++			/*
++			 * Something disturbed the backlight setting code when
++			 * running so we need to bring the PWM back to a known
++			 * state. This shouldn't happen too much.
++			 */
++			gpiod_set_value_cansleep(ktd253->gpiod, 0);
++			msleep(KTD253_T_OFF_MS);
++			ktd253_backlight_set_max_ratio(ktd253);
++			current_ratio = KTD253_MAX_RATIO;
++		} else if (current_ratio == KTD253_MIN_RATIO) {
++			/* After 1/32 we loop back to 32/32 */
+ 			current_ratio = KTD253_MAX_RATIO;
+-		else
++		} else {
+ 			current_ratio--;
++		}
+ 	}
+-	local_irq_restore(flags);
+ 	ktd253->ratio = current_ratio;
+ 
+ 	dev_dbg(ktd253->dev, "new ratio set to %d/32\n", target_ratio);
 -- 
 2.30.2
 
