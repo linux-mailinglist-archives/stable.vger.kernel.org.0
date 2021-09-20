@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB93F4110AD
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 10:09:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28FAB4110D4
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 10:19:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235257AbhITIK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 04:10:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32842 "EHLO mail.kernel.org"
+        id S235637AbhITIU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 04:20:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235338AbhITIK2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 04:10:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00508610A3;
-        Mon, 20 Sep 2021 08:08:48 +0000 (UTC)
+        id S234184AbhITIUZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 04:20:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F25261056;
+        Mon, 20 Sep 2021 08:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632125329;
-        bh=LZr6Ps3fmHED/4PreAWOkmtWLjebbxdqi21P1uKw9DE=;
+        s=korg; t=1632125939;
+        bh=e4/8L9FauDZ0pvqRRN9dntcKPSF5HNY4fClhmDuIrx0=;
         h=Subject:To:Cc:From:Date:From;
-        b=ygeyaZSFAwK39z1R0gQUUGG8M7/3/I2em76PZxgkIF6SnXRxV1gwpkIRPs4Wjct6I
-         HAFcxNTSs2DWWhkJjC/ML3AskliqR4P2U3oD1ZUjeGetcoelk4K81+OYUQciOLGHGX
-         Aaamf5/kakPJTPaFM769LO7AkraRYYpMIT2JF4qA=
-Subject: FAILED: patch "[PATCH] io_uring: fix missing sigmask restore in io_cqring_wait()" failed to apply to 5.14-stable tree
-To:     xiaoguang.wang@linux.alibaba.com, axboe@kernel.dk
+        b=hR3tvyHhCn7Ka2XruCAal7W4/Xeu2Bhrx4LXK8hWs1GofbJPe52beNkha9rXaKWra
+         HYODXtuIIbe3T4G8Z0ZUdSJdExF6peO36d4mLqT0DXm2Hy/C2zNxz2KJrMTop4Ec8c
+         0iXYKjEDQSfNWXMcL5dH4xyl0VrXBxcG7DyvXnmA=
+Subject: FAILED: patch "[PATCH] powerpc/64s: system call scv tabort fix for corrupt irq" failed to apply to 5.10-stable tree
+To:     npiggin@gmail.com, efuller@redhat.com, mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Sep 2021 10:08:47 +0200
-Message-ID: <1632125327122192@kroah.com>
+Date:   Mon, 20 Sep 2021 10:18:56 +0200
+Message-ID: <163212593627246@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.14-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,52 +45,163 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 44df58d441a94de40d52fca67dc60790daee4266 Mon Sep 17 00:00:00 2001
-From: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-Date: Tue, 14 Sep 2021 22:38:52 +0800
-Subject: [PATCH] io_uring: fix missing sigmask restore in io_cqring_wait()
+From b871895b148256f1721bc565d803860242755a0b Mon Sep 17 00:00:00 2001
+From: Nicholas Piggin <npiggin@gmail.com>
+Date: Fri, 3 Sep 2021 22:57:06 +1000
+Subject: [PATCH] powerpc/64s: system call scv tabort fix for corrupt irq
+ soft-mask state
 
-Move get_timespec() section in io_cqring_wait() before the sigmask
-saving, otherwise we'll fail to restore sigmask once get_timespec()
-returns error.
+If a system call is made with a transaction active, the kernel
+immediately aborts it and returns. scv system calls disable irqs even
+earlier in their interrupt handler, and tabort_syscall does not fix this
+up.
 
-Fixes: c73ebb685fb6 ("io_uring: add timeout support for io_uring_enter()")
-Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20210914143852.9663-1-xiaoguang.wang@linux.alibaba.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This can result in irq soft-mask state being messed up on the next
+kernel entry, and crashing at BUG_ON(arch_irq_disabled_regs(regs)) in
+the kernel exit handlers, or possibly worse.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index a864a94364c6..94afd087e97b 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7518,6 +7518,14 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 			break;
- 	} while (1);
+This can't easily be fixed in asm because at this point an async irq may
+have hit, which is soft-masked and marked pending. The pending interrupt
+has to be replayed before returning to userspace. The fix is to move the
+tabort_syscall code to C in the main syscall handler, and just skip the
+system call but otherwise return as usual, which will take care of the
+pending irqs. This also does a bunch of other things including possible
+signal delivery to the process, but the doomed transaction should still
+be aborted when it is eventually returned to.
+
+The sc system call path is changed to use the new C function as well to
+reduce code and path differences. This slows down how quickly system
+calls are aborted when called while a transaction is active, which could
+potentially impact TM performance. But making any system call is already
+bad for performance, and TM is on the way out, so go with simpler over
+faster.
+
+Fixes: 7fa95f9adaee7 ("powerpc/64s: system call support for scv/rfscv instructions")
+Reported-by: Eirik Fuller <efuller@redhat.com>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+[mpe: Use #ifdef rather than IS_ENABLED() to fix build error on 32-bit]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210903125707.1601269-1-npiggin@gmail.com
+
+diff --git a/arch/powerpc/kernel/interrupt.c b/arch/powerpc/kernel/interrupt.c
+index a73f3f70a657..2ccc7ea5db00 100644
+--- a/arch/powerpc/kernel/interrupt.c
++++ b/arch/powerpc/kernel/interrupt.c
+@@ -18,6 +18,7 @@
+ #include <asm/switch_to.h>
+ #include <asm/syscall.h>
+ #include <asm/time.h>
++#include <asm/tm.h>
+ #include <asm/unistd.h>
  
-+	if (uts) {
-+		struct timespec64 ts;
+ #if defined(CONFIG_PPC_ADV_DEBUG_REGS) && defined(CONFIG_PPC32)
+@@ -136,6 +137,35 @@ notrace long system_call_exception(long r3, long r4, long r5,
+ 	 */
+ 	irq_soft_mask_regs_set_state(regs, IRQS_ENABLED);
+ 
++	/*
++	 * If the system call was made with a transaction active, doom it and
++	 * return without performing the system call. Unless it was an
++	 * unsupported scv vector, in which case it's treated like an illegal
++	 * instruction.
++	 */
++#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
++	if (unlikely(MSR_TM_TRANSACTIONAL(regs->msr)) &&
++	    !trap_is_unsupported_scv(regs)) {
++		/* Enable TM in the kernel, and disable EE (for scv) */
++		hard_irq_disable();
++		mtmsr(mfmsr() | MSR_TM);
 +
-+		if (get_timespec64(&ts, uts))
-+			return -EFAULT;
-+		timeout = timespec64_to_jiffies(&ts);
++		/* tabort, this dooms the transaction, nothing else */
++		asm volatile(".long 0x7c00071d | ((%0) << 16)"
++				:: "r"(TM_CAUSE_SYSCALL|TM_CAUSE_PERSISTENT));
++
++		/*
++		 * Userspace will never see the return value. Execution will
++		 * resume after the tbegin. of the aborted transaction with the
++		 * checkpointed register state. A context switch could occur
++		 * or signal delivered to the process before resuming the
++		 * doomed transaction context, but that should all be handled
++		 * as expected.
++		 */
++		return -ENOSYS;
 +	}
++#endif // CONFIG_PPC_TRANSACTIONAL_MEM
 +
- 	if (sig) {
- #ifdef CONFIG_COMPAT
- 		if (in_compat_syscall())
-@@ -7531,14 +7539,6 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 			return ret;
- 	}
+ 	local_irq_enable();
  
--	if (uts) {
--		struct timespec64 ts;
+ 	if (unlikely(current_thread_info()->flags & _TIF_SYSCALL_DOTRACE)) {
+diff --git a/arch/powerpc/kernel/interrupt_64.S b/arch/powerpc/kernel/interrupt_64.S
+index d4212d2ff0b5..ec950b08a8dc 100644
+--- a/arch/powerpc/kernel/interrupt_64.S
++++ b/arch/powerpc/kernel/interrupt_64.S
+@@ -12,7 +12,6 @@
+ #include <asm/mmu.h>
+ #include <asm/ppc_asm.h>
+ #include <asm/ptrace.h>
+-#include <asm/tm.h>
+ 
+ 	.section	".toc","aw"
+ SYS_CALL_TABLE:
+@@ -55,12 +54,6 @@ COMPAT_SYS_CALL_TABLE:
+ 	.globl system_call_vectored_\name
+ system_call_vectored_\name:
+ _ASM_NOKPROBE_SYMBOL(system_call_vectored_\name)
+-#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
+-BEGIN_FTR_SECTION
+-	extrdi.	r10, r12, 1, (63-MSR_TS_T_LG) /* transaction active? */
+-	bne	tabort_syscall
+-END_FTR_SECTION_IFSET(CPU_FTR_TM)
+-#endif
+ 	SCV_INTERRUPT_TO_KERNEL
+ 	mr	r10,r1
+ 	ld	r1,PACAKSAVE(r13)
+@@ -247,12 +240,6 @@ _ASM_NOKPROBE_SYMBOL(system_call_common_real)
+ 	.globl system_call_common
+ system_call_common:
+ _ASM_NOKPROBE_SYMBOL(system_call_common)
+-#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
+-BEGIN_FTR_SECTION
+-	extrdi.	r10, r12, 1, (63-MSR_TS_T_LG) /* transaction active? */
+-	bne	tabort_syscall
+-END_FTR_SECTION_IFSET(CPU_FTR_TM)
+-#endif
+ 	mr	r10,r1
+ 	ld	r1,PACAKSAVE(r13)
+ 	std	r10,0(r1)
+@@ -425,34 +412,6 @@ SOFT_MASK_TABLE(.Lsyscall_rst_start, 1b)
+ RESTART_TABLE(.Lsyscall_rst_start, .Lsyscall_rst_end, syscall_restart)
+ #endif
+ 
+-#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
+-tabort_syscall:
+-_ASM_NOKPROBE_SYMBOL(tabort_syscall)
+-	/* Firstly we need to enable TM in the kernel */
+-	mfmsr	r10
+-	li	r9, 1
+-	rldimi	r10, r9, MSR_TM_LG, 63-MSR_TM_LG
+-	mtmsrd	r10, 0
 -
--		if (get_timespec64(&ts, uts))
--			return -EFAULT;
--		timeout = timespec64_to_jiffies(&ts);
--	}
+-	/* tabort, this dooms the transaction, nothing else */
+-	li	r9, (TM_CAUSE_SYSCALL|TM_CAUSE_PERSISTENT)
+-	TABORT(R9)
 -
- 	init_waitqueue_func_entry(&iowq.wq, io_wake_function);
- 	iowq.wq.private = current;
- 	INIT_LIST_HEAD(&iowq.wq.entry);
+-	/*
+-	 * Return directly to userspace. We have corrupted user register state,
+-	 * but userspace will never see that register state. Execution will
+-	 * resume after the tbegin of the aborted transaction with the
+-	 * checkpointed register state.
+-	 */
+-	li	r9, MSR_RI
+-	andc	r10, r10, r9
+-	mtmsrd	r10, 1
+-	mtspr	SPRN_SRR0, r11
+-	mtspr	SPRN_SRR1, r12
+-	RFI_TO_USER
+-	b	.	/* prevent speculative execution */
+-#endif
+-
+ 	/*
+ 	 * If MSR EE/RI was never enabled, IRQs not reconciled, NVGPRs not
+ 	 * touched, no exit work created, then this can be used.
 
