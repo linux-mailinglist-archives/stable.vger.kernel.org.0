@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E032411162
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 10:52:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B9B9411168
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 10:54:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232221AbhITIyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 04:54:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47374 "EHLO mail.kernel.org"
+        id S236007AbhITI4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 04:56:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229844AbhITIyW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 04:54:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01664601FF;
-        Mon, 20 Sep 2021 08:52:55 +0000 (UTC)
+        id S234238AbhITI4R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 04:56:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5286160ED8;
+        Mon, 20 Sep 2021 08:54:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632127976;
-        bh=EDK37GqX0xoiUriuEmMuWyz7QBA3IcBixQQlXPKUfn8=;
+        s=korg; t=1632128090;
+        bh=Xul3/hiouDFlzC9rrnyMWyx0MlrDQOEUhOkwhE5dm3w=;
         h=Subject:To:Cc:From:Date:From;
-        b=kXNCJFkkW9/JXxcQt0uQeWMhb/UNMjUsR8ar/Nkw5hDIzxi+S9v8cpPiwi4bVvQUR
-         bwIiihYKcbVebN/5XawG6jRoDAiGPB6F00nJJg2uw9gwvyWxMxUimVYaD36iYzucFk
-         d2ShQoJ+LFg3nmG0DJ0HvZ+cCPVLydEXxzwSaVH8=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: Drop inline from" failed to apply to 5.10-stable tree
-To:     mdaenzer@redhat.com, alexander.deucher@amd.com, lyude@redhat.com
+        b=UiHtb7H+q8HAVzt+MBm5y9yf7UjmsB8x271WvcOWXbmqNf7iuvjFmRgjYj8dlyI1u
+         dRDS44sXB3vcZMq56O7f4fXPcTSu8Cv3bVKUGWz661kbg4QyDx++8Yc2KOyN/CWDc3
+         nq8wdl1GPzboMgCzd/L72rjIZmvAcmIokTmv9ODs=
+Subject: FAILED: patch "[PATCH] powerpc/64s: system call rfscv workaround for TM bugs" failed to apply to 5.10-stable tree
+To:     npiggin@gmail.com, efuller@redhat.com, mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Sep 2021 10:52:54 +0200
-Message-ID: <1632127974199214@kroah.com>
+Date:   Mon, 20 Sep 2021 10:54:48 +0200
+Message-ID: <16321280882488@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -45,62 +45,49 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 114518ff3b30a3f0611f384fb58e0a968fdf7f5e Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>
-Date: Thu, 9 Sep 2021 18:56:28 +0200
-Subject: [PATCH] drm/amdgpu: Drop inline from
- amdgpu_ras_eeprom_max_record_count
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From ae7aaecc3f2f78b76ab3a8d6178610f55aadfa56 Mon Sep 17 00:00:00 2001
+From: Nicholas Piggin <npiggin@gmail.com>
+Date: Wed, 8 Sep 2021 20:17:17 +1000
+Subject: [PATCH] powerpc/64s: system call rfscv workaround for TM bugs
 
-This was unusual; normally, inline functions are declared static as
-well, and defined in a header file if used by multiple compilation
-units. The latter would be more involved in this case, so just drop
-the inline declaration for now.
+The rfscv instruction does not work correctly with the fake-suspend mode
+in POWER9, which can end up with the hypervisor restoring an incorrect
+checkpoint.
 
-Fixes compile failure building for ppc64le on RHEL 8:
+Work around this by setting the _TIF_RESTOREALL flag if a system call
+returns to a transaction active state, causing rfid to be used instead
+of rfscv to return, which will do the right thing. The contents of the
+registers are irrelevant because they will be overwritten in this case
+anyway.
 
-In file included from ../drivers/gpu/drm/amd/amdgpu/amdgpu_ras.h:32,
-                 from ../drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c:33:
-../drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c: In function ‘amdgpu_ras_recovery_init’:
-../drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.h:90:17: error: inlining failed in call
- to ‘always_inline’ ‘amdgpu_ras_eeprom_max_record_count’: function body not available
-   90 | inline uint32_t amdgpu_ras_eeprom_max_record_count(void);
-      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c:1985:34: note: called from here
- 1985 |         max_eeprom_records_len = amdgpu_ras_eeprom_max_record_count();
-      |                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Fixes: 7fa95f9adaee7 ("powerpc/64s: system call support for scv/rfscv instructions")
+Reported-by: Eirik Fuller <efuller@redhat.com>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210908101718.118522-1-npiggin@gmail.com
 
-Fixes: c84d46707ebb "drm/amdgpu: validate bad page threshold in ras(v3)"
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Michel Dänzer <mdaenzer@redhat.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
-index dc44c946a244..98732518543e 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
-@@ -757,7 +757,7 @@ int amdgpu_ras_eeprom_read(struct amdgpu_ras_eeprom_control *control,
- 	return res;
- }
+diff --git a/arch/powerpc/kernel/interrupt.c b/arch/powerpc/kernel/interrupt.c
+index 2ccc7ea5db00..de10a2697258 100644
+--- a/arch/powerpc/kernel/interrupt.c
++++ b/arch/powerpc/kernel/interrupt.c
+@@ -137,6 +137,19 @@ notrace long system_call_exception(long r3, long r4, long r5,
+ 	 */
+ 	irq_soft_mask_regs_set_state(regs, IRQS_ENABLED);
  
--inline uint32_t amdgpu_ras_eeprom_max_record_count(void)
-+uint32_t amdgpu_ras_eeprom_max_record_count(void)
- {
- 	return RAS_MAX_RECORD_COUNT;
- }
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.h
-index f95fc61b3021..6bb00578bfbb 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.h
-@@ -120,7 +120,7 @@ int amdgpu_ras_eeprom_read(struct amdgpu_ras_eeprom_control *control,
- int amdgpu_ras_eeprom_append(struct amdgpu_ras_eeprom_control *control,
- 			     struct eeprom_table_record *records, const u32 num);
- 
--inline uint32_t amdgpu_ras_eeprom_max_record_count(void);
-+uint32_t amdgpu_ras_eeprom_max_record_count(void);
- 
- void amdgpu_ras_debugfs_set_ret_size(struct amdgpu_ras_eeprom_control *control);
- 
++	/*
++	 * If system call is called with TM active, set _TIF_RESTOREALL to
++	 * prevent RFSCV being used to return to userspace, because POWER9
++	 * TM implementation has problems with this instruction returning to
++	 * transactional state. Final register values are not relevant because
++	 * the transaction will be aborted upon return anyway. Or in the case
++	 * of unsupported_scv SIGILL fault, the return state does not much
++	 * matter because it's an edge case.
++	 */
++	if (IS_ENABLED(CONFIG_PPC_TRANSACTIONAL_MEM) &&
++			unlikely(MSR_TM_TRANSACTIONAL(regs->msr)))
++		current_thread_info()->flags |= _TIF_RESTOREALL;
++
+ 	/*
+ 	 * If the system call was made with a transaction active, doom it and
+ 	 * return without performing the system call. Unless it was an
 
