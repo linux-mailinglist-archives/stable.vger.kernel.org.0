@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A9B6412187
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:06:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8164412170
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:05:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350627AbhITSGY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:06:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58164 "EHLO mail.kernel.org"
+        id S1350191AbhITSFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:05:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356954AbhITSCd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:02:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38AEB6322D;
-        Mon, 20 Sep 2021 17:16:24 +0000 (UTC)
+        id S1350776AbhITSCe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:02:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6675763234;
+        Mon, 20 Sep 2021 17:16:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158184;
-        bh=RVsQENPII5gI9SJod3iH8WlFbUt+eBnULnZfSW+HNqk=;
+        s=korg; t=1632158186;
+        bh=QY6MBd25QKZiu36ewlOr0ps4BMJR4Qlho/OjIvbK2xw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1kZH2yzaOIEB/+sVdtgZCDFS++HaJcRvgIc+gbX3gRYfBrKb95Gd4iZTzoK8PonjH
-         JFOK0PvYdJfqUFULoOEJX7Tlc6jgOabMmrOBKT3p2aFHpeH3sV7OnXoencEVGGgiMQ
-         4WjqFZyXMc/eH+Ymq+rhCO1f2K48d7WEoI4UuT5Q=
+        b=BCDpppne3Y6y72p1Wmr/xPmu61BCHyntV1YxkwNzhdT7/0amCwrP4ltMmDTtDPPWJ
+         2TxnVuYt9kypyMJsFP1lwOa1UDRJTI4B7j/Kia2/A6Df6FIGzR6NxxgRf6q6ekzAwL
+         0Ry2tVoy1vjViAW3+6x/XSia07XZN130fGolEwWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Collier <josh.d.collier@intel.com>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 039/260] IB/hfi1: Adjust pkey entry in index 0
-Date:   Mon, 20 Sep 2021 18:40:57 +0200
-Message-Id: <20210920163932.447480767@linuxfoundation.org>
+Subject: [PATCH 5.4 040/260] RDMA/iwcm: Release resources if iw_cm module initialization fails
+Date:   Mon, 20 Sep 2021 18:40:58 +0200
+Message-Id: <20210920163932.483041728@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -42,66 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit 62004871e1fa7f9a60797595c03477af5b5ec36f ]
+[ Upstream commit e677b72a0647249370f2635862bf0241c86f66ad ]
 
-It is possible for the primary IPoIB network device associated with any
-RDMA device to fail to join certain multicast groups preventing IPv6
-neighbor discovery and possibly other network ULPs from working
-correctly. The IPv4 broadcast group is not affected as the IPoIB network
-device handles joining that multicast group directly.
+The failure during iw_cm module initialization partially left the system
+with unreleased memory and other resources. Rewrite the module init/exit
+routines in such way that netlink commands will be opened only after
+successful initialization.
 
-This is because the primary IPoIB network device uses the pkey at ndex 0
-in the associated RDMA device's pkey table. Anytime the pkey value of
-index 0 changes, the primary IPoIB network device automatically modifies
-it's broadcast address (i.e. /sys/class/net/[ib0]/broadcast), since the
-broadcast address includes the pkey value, and then bounces carrier. This
-includes initial pkey assignment, such as when the pkey at index 0
-transitions from the opa default of invalid (0x0000) to some value such as
-the OPA default pkey for Virtual Fabric 0: 0x8001 or when the fabric
-manager is restarted with a configuration change causing the pkey at index
-0 to change. Many network ULPs are not sensitive to the carrier bounce and
-are not expecting the broadcast address to change including the linux IPv6
-stack.  This problem does not affect IPoIB child network devices as their
-pkey value is constant for all time.
-
-To mitigate this issue, change the default pkey in at index 0 to 0x8001 to
-cover the predominant case and avoid issues as ipoib comes up and the FM
-sweeps.
-
-At some point, ipoib multicast support should automatically fix
-non-broadcast addresses as it does with the primary broadcast address.
-
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
-Link: https://lore.kernel.org/r/20210715160445.142451.47651.stgit@awfm-01.cornelisnetworks.com
-Suggested-by: Josh Collier <josh.d.collier@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Fixes: b493d91d333e ("iwcm: common code for port mapper")
+Link: https://lore.kernel.org/r/b01239f99cb1a3e6d2b0694c242d89e6410bcd93.1627048781.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/init.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/infiniband/core/iwcm.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/init.c b/drivers/infiniband/hw/hfi1/init.c
-index fbff6b2f00e7..1256dbd5b2ef 100644
---- a/drivers/infiniband/hw/hfi1/init.c
-+++ b/drivers/infiniband/hw/hfi1/init.c
-@@ -664,12 +664,7 @@ void hfi1_init_pportdata(struct pci_dev *pdev, struct hfi1_pportdata *ppd,
+diff --git a/drivers/infiniband/core/iwcm.c b/drivers/infiniband/core/iwcm.c
+index da8adadf4755..75b6da00065a 100644
+--- a/drivers/infiniband/core/iwcm.c
++++ b/drivers/infiniband/core/iwcm.c
+@@ -1187,29 +1187,34 @@ static int __init iw_cm_init(void)
  
- 	ppd->pkeys[default_pkey_idx] = DEFAULT_P_KEY;
- 	ppd->part_enforce |= HFI1_PART_ENFORCE_IN;
--
--	if (loopback) {
--		dd_dev_err(dd, "Faking data partition 0x8001 in idx %u\n",
--			   !default_pkey_idx);
--		ppd->pkeys[!default_pkey_idx] = 0x8001;
--	}
-+	ppd->pkeys[0] = 0x8001;
+ 	ret = iwpm_init(RDMA_NL_IWCM);
+ 	if (ret)
+-		pr_err("iw_cm: couldn't init iwpm\n");
+-	else
+-		rdma_nl_register(RDMA_NL_IWCM, iwcm_nl_cb_table);
++		return ret;
++
+ 	iwcm_wq = alloc_ordered_workqueue("iw_cm_wq", 0);
+ 	if (!iwcm_wq)
+-		return -ENOMEM;
++		goto err_alloc;
  
- 	INIT_WORK(&ppd->link_vc_work, handle_verify_cap);
- 	INIT_WORK(&ppd->link_up_work, handle_link_up);
+ 	iwcm_ctl_table_hdr = register_net_sysctl(&init_net, "net/iw_cm",
+ 						 iwcm_ctl_table);
+ 	if (!iwcm_ctl_table_hdr) {
+ 		pr_err("iw_cm: couldn't register sysctl paths\n");
+-		destroy_workqueue(iwcm_wq);
+-		return -ENOMEM;
++		goto err_sysctl;
+ 	}
+ 
++	rdma_nl_register(RDMA_NL_IWCM, iwcm_nl_cb_table);
+ 	return 0;
++
++err_sysctl:
++	destroy_workqueue(iwcm_wq);
++err_alloc:
++	iwpm_exit(RDMA_NL_IWCM);
++	return -ENOMEM;
+ }
+ 
+ static void __exit iw_cm_cleanup(void)
+ {
++	rdma_nl_unregister(RDMA_NL_IWCM);
+ 	unregister_net_sysctl_table(iwcm_ctl_table_hdr);
+ 	destroy_workqueue(iwcm_wq);
+-	rdma_nl_unregister(RDMA_NL_IWCM);
+ 	iwpm_exit(RDMA_NL_IWCM);
+ }
+ 
 -- 
 2.30.2
 
