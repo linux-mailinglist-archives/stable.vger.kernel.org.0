@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AF0A411F78
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:40:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5272411D4E
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:17:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347132AbhITRle (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:41:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42976 "EHLO mail.kernel.org"
+        id S1346681AbhITRSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:18:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352492AbhITRjd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:39:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F02B561390;
-        Mon, 20 Sep 2021 17:07:51 +0000 (UTC)
+        id S1348007AbhITRQc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:16:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DEA361A04;
+        Mon, 20 Sep 2021 16:58:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157672;
-        bh=of04vuyXKXuB0+13mWQ73QhKesKiQhMY8L72uUaNv0E=;
+        s=korg; t=1632157137;
+        bh=OoUqBVge1C9xES448Bjx3bhGyCuz5R+VhD+qKHAcN+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XEmBfJwZeNZERQCxewZ/L8bAQjbTkqR4O7bz6pu2QghLxCF6pLYkiPflauaxNzFRj
-         UKiCI7kbzNkx6GApP76t0HLaJKSIeGFNjhFf4erpJdCpqZqQ60BN6NeYDVb4vhICtL
-         e+I4zHHKZz7afjWq5/JoQFTJag0TdemBIVVHsosE=
+        b=aXE7UAtKIs5FXeSFwGjdgWFyy8RKAt86V84S3p0oQTeD8BMSbRwqFpe098y75MwQu
+         epnUah5SRUdV2UL4Gr24hVtdnkJ1pOPylvZQ/mj9tCXIj8w8qzZMSKc9QAiOiiEbSt
+         0RBI+gE/9UPe5hFczZium7D1UKQlCgpeuIJns6XM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Hannes Reinecke <hare@suse.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 097/293] usb: bdc: Fix an error handling path in bdc_probe() when no suitable DMA config is available
+Subject: [PATCH 4.14 038/217] libata: fix ata_host_start()
 Date:   Mon, 20 Sep 2021 18:40:59 +0200
-Message-Id: <20210920163936.583693379@linuxfoundation.org>
+Message-Id: <20210920163925.926226152@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-[ Upstream commit d2f42e09393c774ab79088d8e3afcc62b3328fc9 ]
+[ Upstream commit 355a8031dc174450ccad2a61c513ad7222d87a97 ]
 
-If no suitable DMA configuration is available, a previous 'bdc_phy_init()'
-call must be undone by a corresponding 'bdc_phy_exit()' call.
+The loop on entry of ata_host_start() may not initialize host->ops to a
+non NULL value. The test on the host_stop field of host->ops must then
+be preceded by a check that host->ops is not NULL.
 
-Branch to the existing error handling path instead of returning
-directly.
-
-Fixes: cc29d4f67757 ("usb: bdc: Add support for USB phy")
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/0c5910979f39225d5d8fe68c9ab1c147c68ddee1.1629314734.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Link: https://lore.kernel.org/r/20210816014456.2191776-3-damien.lemoal@wdc.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/bdc/bdc_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/ata/libata-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/bdc/bdc_core.c b/drivers/usb/gadget/udc/bdc/bdc_core.c
-index e174b1b889da..d04de117bf63 100644
---- a/drivers/usb/gadget/udc/bdc/bdc_core.c
-+++ b/drivers/usb/gadget/udc/bdc/bdc_core.c
-@@ -568,7 +568,8 @@ static int bdc_probe(struct platform_device *pdev)
- 		if (ret) {
- 			dev_err(dev,
- 				"No suitable DMA config available, abort\n");
--			return -ENOTSUPP;
-+			ret = -ENOTSUPP;
-+			goto phycleanup;
- 		}
- 		dev_dbg(dev, "Using 32-bit address\n");
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index c28b0ca24907..0f0ed04de886 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -6339,7 +6339,7 @@ int ata_host_start(struct ata_host *host)
+ 			have_stop = 1;
  	}
+ 
+-	if (host->ops->host_stop)
++	if (host->ops && host->ops->host_stop)
+ 		have_stop = 1;
+ 
+ 	if (have_stop) {
 -- 
 2.30.2
 
