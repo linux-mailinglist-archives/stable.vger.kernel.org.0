@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7A24412238
+	by mail.lfdr.de (Postfix) with ESMTP id 4D32B412236
 	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:12:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376637AbhITSNo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:13:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33278 "EHLO mail.kernel.org"
+        id S1359291AbhITSNn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:13:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1359602AbhITSKF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:10:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB5F06326E;
-        Mon, 20 Sep 2021 17:19:43 +0000 (UTC)
+        id S1359609AbhITSKG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:10:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1358261A52;
+        Mon, 20 Sep 2021 17:19:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158384;
-        bh=Jqb7XaWOx11p37FMvH/ReA+WJNCzFGBf3lqGQwH79gI=;
+        s=korg; t=1632158386;
+        bh=QkUSZWF79udlGYXr1PSAkxMxyJa+bYoV6bXDGcox3SE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Od+VOXeJekcVU2cNXcVzYDHerUGYgNNdtUmen/s0sInESkKWV1efmLCx6abU3EsrX
-         Xu33DE+cSs88QMxk/uUiXbvzqL/7Q8HtCE11NvixJ7LlROFzymSeJibkNXQXZ6U19X
-         4b5Vcz6+mkaNZ/byZbrRo1Ous9XnE2oirTc9jLs8=
+        b=2WNd+2++8hlPDL/C73c9qmrvu68T4Hzr/XtX0TLZgmTPquM89CmqEUQBE3ypCotfb
+         dmrLOqz2A/0U5RCLQpr+fziYq3O6b2s2C3dS+PxIafqjiSQMZkGVtfo2UQiV5zmhVY
+         UldRfBSWf/4HuJr/U34GV2rtwRIeYZgy3N8DkojI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        Andreas Obergschwandtner <andreas.obergschwandtner@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 132/260] mac80211: Fix monitor MTU limit so that A-MSDUs get through
-Date:   Mon, 20 Sep 2021 18:42:30 +0200
-Message-Id: <20210920163935.613621468@linuxfoundation.org>
+Subject: [PATCH 5.4 133/260] ARM: tegra: tamonten: Fix UART pad setting
+Date:   Mon, 20 Sep 2021 18:42:31 +0200
+Message-Id: <20210920163935.645392806@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -41,51 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+From: Andreas Obergschwandtner <andreas.obergschwandtner@gmail.com>
 
-[ Upstream commit 79f5962baea74ce1cd4e5949598944bff854b166 ]
+[ Upstream commit 2270ad2f4e123336af685ecedd1618701cb4ca1e ]
 
-The maximum MTU was set to 2304, which is the maximum MSDU size. While
-this is valid for normal WLAN interfaces, it is too low for monitor
-interfaces. A monitor interface may receive and inject MPDU frames, and
-the maximum MPDU frame size is larger than 2304. The MPDU may also
-contain an A-MSDU frame, in which case the size may be much larger than
-the MTU limit. Since the maximum size of an A-MSDU depends on the PHY
-mode of the transmitting STA, it is not possible to set an exact MTU
-limit for a monitor interface. Now the maximum MTU for a monitor
-interface is unrestricted.
+This patch fixes the tristate and pullup configuration for UART 1 to 3
+on the Tamonten SOM.
 
-Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
-Link: https://lore.kernel.org/r/20210628123246.2070558-1-johan.almbladh@anyfinetworks.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Andreas Obergschwandtner <andreas.obergschwandtner@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/iface.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/tegra20-tamonten.dtsi | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/net/mac80211/iface.c b/net/mac80211/iface.c
-index 6f576306a4d7..ddc001ad9055 100644
---- a/net/mac80211/iface.c
-+++ b/net/mac80211/iface.c
-@@ -1875,9 +1875,16 @@ int ieee80211_if_add(struct ieee80211_local *local, const char *name,
- 
- 		netdev_set_default_ethtool_ops(ndev, &ieee80211_ethtool_ops);
- 
--		/* MTU range: 256 - 2304 */
-+		/* MTU range is normally 256 - 2304, where the upper limit is
-+		 * the maximum MSDU size. Monitor interfaces send and receive
-+		 * MPDU and A-MSDU frames which may be much larger so we do
-+		 * not impose an upper limit in that case.
-+		 */
- 		ndev->min_mtu = 256;
--		ndev->max_mtu = local->hw.max_mtu;
-+		if (type == NL80211_IFTYPE_MONITOR)
-+			ndev->max_mtu = 0;
-+		else
-+			ndev->max_mtu = local->hw.max_mtu;
- 
- 		ret = register_netdevice(ndev);
- 		if (ret) {
+diff --git a/arch/arm/boot/dts/tegra20-tamonten.dtsi b/arch/arm/boot/dts/tegra20-tamonten.dtsi
+index 20137fc578b1..394a6b4dc69d 100644
+--- a/arch/arm/boot/dts/tegra20-tamonten.dtsi
++++ b/arch/arm/boot/dts/tegra20-tamonten.dtsi
+@@ -185,8 +185,9 @@ conf_ata {
+ 				nvidia,pins = "ata", "atb", "atc", "atd", "ate",
+ 					"cdev1", "cdev2", "dap1", "dtb", "gma",
+ 					"gmb", "gmc", "gmd", "gme", "gpu7",
+-					"gpv", "i2cp", "pta", "rm", "slxa",
+-					"slxk", "spia", "spib", "uac";
++					"gpv", "i2cp", "irrx", "irtx", "pta",
++					"rm", "slxa", "slxk", "spia", "spib",
++					"uac";
+ 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
+ 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
+ 			};
+@@ -211,7 +212,7 @@ conf_crtp {
+ 			conf_ddc {
+ 				nvidia,pins = "ddc", "dta", "dtd", "kbca",
+ 					"kbcb", "kbcc", "kbcd", "kbce", "kbcf",
+-					"sdc";
++					"sdc", "uad", "uca";
+ 				nvidia,pull = <TEGRA_PIN_PULL_UP>;
+ 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
+ 			};
+@@ -221,10 +222,9 @@ conf_hdint {
+ 					"lvp0", "owc", "sdb";
+ 				nvidia,tristate = <TEGRA_PIN_ENABLE>;
+ 			};
+-			conf_irrx {
+-				nvidia,pins = "irrx", "irtx", "sdd", "spic",
+-					"spie", "spih", "uaa", "uab", "uad",
+-					"uca", "ucb";
++			conf_sdd {
++				nvidia,pins = "sdd", "spic", "spie", "spih",
++					"uaa", "uab", "ucb";
+ 				nvidia,pull = <TEGRA_PIN_PULL_UP>;
+ 				nvidia,tristate = <TEGRA_PIN_ENABLE>;
+ 			};
 -- 
 2.30.2
 
