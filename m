@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6342A412019
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:47:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2C6C411DDD
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:24:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349647AbhITRsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:48:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52808 "EHLO mail.kernel.org"
+        id S1347216AbhITRZb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:25:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345997AbhITRqw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:46:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7225F61B64;
-        Mon, 20 Sep 2021 17:10:28 +0000 (UTC)
+        id S1347122AbhITRXS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:23:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3D0160EE2;
+        Mon, 20 Sep 2021 17:01:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157828;
-        bh=vCCoET0WdO5QElwbuafGH/cpV4DVSdm0ts81ooXYe04=;
+        s=korg; t=1632157294;
+        bh=LoB2cZlsvMGa/4mrkReg9115WjZ21ROhtAMeH0GVJFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WztIgrZn9HOgSrIpCIbLgr8bw8pbQ8uoOAwnn4eWqsrI6cegCd1i/RkaG4CAd8b5D
-         5Gea2GAl1OKumioDleWI/23Dwp9zGe94jrjC6GPKDS+8SRZr2rVqgl1G1D5HloaDZt
-         pA8swScTsbImO+dp7K38foEauqY67bhtYmm3D4yM=
+        b=dzSy+EZt9YqmGJnX52nuOnDm2adMEGsrI/1BwMnKh2fIW5uaH+HUOFf51AVDXpJ0e
+         V8vyttSHDaJnHvRqJ+CBqAZWqWD5J16E/8iAvzsjHnbTFEv3/3MtLtqHo2k+TLVxwk
+         +7e02JFK70eTEYWD8dQ61fcuTTpENojeLhQ+Uzcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 169/293] f2fs: fix to unmap pages from userspace process in punch_hole()
+        stable@vger.kernel.org, DJ Gregor <dj@corelight.com>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Arne Welzel <arne.welzel@corelight.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.14 110/217] dm crypt: Avoid percpu_counter spinlock contention in crypt_page_alloc()
 Date:   Mon, 20 Sep 2021 18:42:11 +0200
-Message-Id: <20210920163939.071285531@linuxfoundation.org>
+Message-Id: <20210920163928.362583332@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +41,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Arne Welzel <arne.welzel@corelight.com>
 
-[ Upstream commit c8dc3047c48540183744f959412d44b08c5435e1 ]
+commit 528b16bfc3ae5f11638e71b3b63a81f9999df727 upstream.
 
-We need to unmap pages from userspace process before removing pagecache
-in punch_hole() like we did in f2fs_setattr().
+On systems with many cores using dm-crypt, heavy spinlock contention in
+percpu_counter_compare() can be observed when the page allocation limit
+for a given device is reached or close to be reached. This is due
+to percpu_counter_compare() taking a spinlock to compute an exact
+result on potentially many CPUs at the same time.
 
-Similar change:
-commit 5e44f8c374dc ("ext4: hole-punch use truncate_pagecache_range")
+Switch to non-exact comparison of allocated and allowed pages by using
+the value returned by percpu_counter_read_positive() to avoid taking
+the percpu_counter spinlock.
 
-Fixes: fbfa2cc58d53 ("f2fs: add file operations")
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This may over/under estimate the actual number of allocated pages by at
+most (batch-1) * num_online_cpus().
+
+Currently, batch is bounded by 32. The system on which this issue was
+first observed has 256 CPUs and 512GB of RAM. With a 4k page size, this
+change may over/under estimate by 31MB. With ~10G (2%) allowed dm-crypt
+allocations, this seems an acceptable error. Certainly preferred over
+running into the spinlock contention.
+
+This behavior was reproduced on an EC2 c5.24xlarge instance with 96 CPUs
+and 192GB RAM as follows, but can be provoked on systems with less CPUs
+as well.
+
+ * Disable swap
+ * Tune vm settings to promote regular writeback
+     $ echo 50 > /proc/sys/vm/dirty_expire_centisecs
+     $ echo 25 > /proc/sys/vm/dirty_writeback_centisecs
+     $ echo $((128 * 1024 * 1024)) > /proc/sys/vm/dirty_background_bytes
+
+ * Create 8 dmcrypt devices based on files on a tmpfs
+ * Create and mount an ext4 filesystem on each crypt devices
+ * Run stress-ng --hdd 8 within one of above filesystems
+
+Total %system usage collected from sysstat goes to ~35%. Write throughput
+on the underlying loop device is ~2GB/s. perf profiling an individual
+kworker kcryptd thread shows the following profile, indicating spinlock
+contention in percpu_counter_compare():
+
+    99.98%     0.00%  kworker/u193:46  [kernel.kallsyms]  [k] ret_from_fork
+      |
+      --ret_from_fork
+        kthread
+        worker_thread
+        |
+         --99.92%--process_one_work
+            |
+            |--80.52%--kcryptd_crypt
+            |    |
+            |    |--62.58%--mempool_alloc
+            |    |  |
+            |    |   --62.24%--crypt_page_alloc
+            |    |     |
+            |    |      --61.51%--__percpu_counter_compare
+            |    |        |
+            |    |         --61.34%--__percpu_counter_sum
+            |    |           |
+            |    |           |--58.68%--_raw_spin_lock_irqsave
+            |    |           |  |
+            |    |           |   --58.30%--native_queued_spin_lock_slowpath
+            |    |           |
+            |    |            --0.69%--cpumask_next
+            |    |                |
+            |    |                 --0.51%--_find_next_bit
+            |    |
+            |    |--10.61%--crypt_convert
+            |    |          |
+            |    |          |--6.05%--xts_crypt
+            ...
+
+After applying this patch and running the same test, %system usage is
+lowered to ~7% and write throughput on the loop device increases
+to ~2.7GB/s. perf report shows mempool_alloc() as ~8% rather than ~62%
+in the profile and not hitting the percpu_counter() spinlock anymore.
+
+    |--8.15%--mempool_alloc
+    |    |
+    |    |--3.93%--crypt_page_alloc
+    |    |    |
+    |    |     --3.75%--__alloc_pages
+    |    |         |
+    |    |          --3.62%--get_page_from_freelist
+    |    |              |
+    |    |               --3.22%--rmqueue_bulk
+    |    |                   |
+    |    |                    --2.59%--_raw_spin_lock
+    |    |                      |
+    |    |                       --2.57%--native_queued_spin_lock_slowpath
+    |    |
+    |     --3.05%--_raw_spin_lock_irqsave
+    |               |
+    |                --2.49%--native_queued_spin_lock_slowpath
+
+Suggested-by: DJ Gregor <dj@corelight.com>
+Reviewed-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Arne Welzel <arne.welzel@corelight.com>
+Fixes: 5059353df86e ("dm crypt: limit the number of allocated pages")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/file.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/md/dm-crypt.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index 95330dfdbb1a..2a7249496c57 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -957,7 +957,6 @@ static int punch_hole(struct inode *inode, loff_t offset, loff_t len)
- 		}
+--- a/drivers/md/dm-crypt.c
++++ b/drivers/md/dm-crypt.c
+@@ -2188,7 +2188,12 @@ static void *crypt_page_alloc(gfp_t gfp_
+ 	struct crypt_config *cc = pool_data;
+ 	struct page *page;
  
- 		if (pg_start < pg_end) {
--			struct address_space *mapping = inode->i_mapping;
- 			loff_t blk_start, blk_end;
- 			struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+-	if (unlikely(percpu_counter_compare(&cc->n_allocated_pages, dm_crypt_pages_per_client) >= 0) &&
++	/*
++	 * Note, percpu_counter_read_positive() may over (and under) estimate
++	 * the current usage by at most (batch - 1) * num_online_cpus() pages,
++	 * but avoids potential spinlock contention of an exact result.
++	 */
++	if (unlikely(percpu_counter_read_positive(&cc->n_allocated_pages) >= dm_crypt_pages_per_client) &&
+ 	    likely(gfp_mask & __GFP_NORETRY))
+ 		return NULL;
  
-@@ -969,8 +968,7 @@ static int punch_hole(struct inode *inode, loff_t offset, loff_t len)
- 			down_write(&F2FS_I(inode)->i_gc_rwsem[WRITE]);
- 			down_write(&F2FS_I(inode)->i_mmap_sem);
- 
--			truncate_inode_pages_range(mapping, blk_start,
--					blk_end - 1);
-+			truncate_pagecache_range(inode, blk_start, blk_end - 1);
- 
- 			f2fs_lock_op(sbi);
- 			ret = f2fs_truncate_hole(inode, pg_start, pg_end);
--- 
-2.30.2
-
 
 
