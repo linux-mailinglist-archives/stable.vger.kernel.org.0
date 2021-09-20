@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDECF411EC9
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74DE2411ECC
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:33:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345453AbhITRfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:35:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36262 "EHLO mail.kernel.org"
+        id S1346413AbhITRfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:35:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346247AbhITRcr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:32:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C57D061AFA;
-        Mon, 20 Sep 2021 17:05:06 +0000 (UTC)
+        id S1351286AbhITRdD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:33:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBF3061AF9;
+        Mon, 20 Sep 2021 17:05:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157507;
-        bh=B5Yzeoee29PRAotFD0SAuZNvKzUzhZ9AqeuINJp0T8E=;
+        s=korg; t=1632157509;
+        bh=9Vr3ThcbVM0dk0v4KFhhjRI/xSxey7jDj5mexuCivpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jtLNsdx+Ry9Fwmd0ATjMdFlClP1QMvxdAoM9v68kpxw6VF0Xi6NNTPVtmxr0clePY
-         hh8br5s8C/PpqyLhAaEkNwQz33kq1oygmxZc9L3F7pvVJBQOzlDTHzYowKVZ2XHAyp
-         tFV6tZKrXv/4bfKISJgzqQGo1qDJVdrMZmd8ispw=
+        b=o9GlKJni/D4/6v6Bc1BwCmiGxIjI923VoTgBJbEsR7KW1a1l6LCjdQKL5UWwd5fAf
+         RUDK4/dqYhS+fi4BaWFJagPZZCOGIK1IVIU1o4KPT+TFWVMO4NQXXviifaRoaxfPvJ
+         SJ1fsMlSZ6xGZj48sCzfmTuqhZhBNTEnbIHZgQKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fangrui Song <maskray@google.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 022/293] powerpc/boot: Delete unneeded .globl _zimage_start
-Date:   Mon, 20 Sep 2021 18:39:44 +0200
-Message-Id: <20210920163934.024399359@linuxfoundation.org>
+        stable@vger.kernel.org, Esben Haabendal <esben@geanix.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 023/293] net: ll_temac: Remove left-over debug message
+Date:   Mon, 20 Sep 2021 18:39:45 +0200
+Message-Id: <20210920163934.057733767@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
 References: <20210920163933.258815435@linuxfoundation.org>
@@ -39,38 +39,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Esben Haabendal <esben@geanix.com>
 
-commit 968339fad422a58312f67718691b717dac45c399 upstream.
+commit ce03b94ba682a67e8233c9ee3066071656ded58f upstream.
 
-.globl sets the symbol binding to STB_GLOBAL while .weak sets the
-binding to STB_WEAK. GNU as let .weak override .globl since
-binutils-gdb 5ca547dc2399a0a5d9f20626d4bf5547c3ccfddd (1996). Clang
-integrated assembler let the last win but it may error in the future.
-
-Since it is a convention that only one binding directive is used, just
-delete .globl.
-
-Fixes: ee9d21b3b358 ("powerpc/boot: Ensure _zimage_start is a weak symbol")
-Signed-off-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200325164257.170229-1-maskray@google.com
+Fixes: f63963411942 ("net: ll_temac: Avoid ndo_start_xmit returning NETDEV_TX_BUSY")
+Signed-off-by: Esben Haabendal <esben@geanix.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/boot/crt0.S |    3 ---
- 1 file changed, 3 deletions(-)
+ drivers/net/ethernet/xilinx/ll_temac_main.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/arch/powerpc/boot/crt0.S
-+++ b/arch/powerpc/boot/crt0.S
-@@ -49,9 +49,6 @@ p_end:		.long	_end
- p_pstack:	.long	_platform_stack_top
- #endif
+--- a/drivers/net/ethernet/xilinx/ll_temac_main.c
++++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
+@@ -736,10 +736,8 @@ temac_start_xmit(struct sk_buff *skb, st
+ 	/* Kick off the transfer */
+ 	lp->dma_out(lp, TX_TAILDESC_PTR, tail_p); /* DMA start */
  
--	.globl	_zimage_start
--	/* Clang appears to require the .weak directive to be after the symbol
--	 * is defined. See https://bugs.llvm.org/show_bug.cgi?id=38921  */
- 	.weak	_zimage_start
- _zimage_start:
- 	.globl	_zimage_start_lib
+-	if (temac_check_tx_bd_space(lp, MAX_SKB_FRAGS + 1)) {
+-		netdev_info(ndev, "%s -> netif_stop_queue\n", __func__);
++	if (temac_check_tx_bd_space(lp, MAX_SKB_FRAGS + 1))
+ 		netif_stop_queue(ndev);
+-	}
+ 
+ 	return NETDEV_TX_OK;
+ }
 
 
