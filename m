@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BCA1412486
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:34:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BABE641249E
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:35:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352927AbhITSfl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:35:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49240 "EHLO mail.kernel.org"
+        id S1379142AbhITSgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:36:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1380078AbhITSc1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1380085AbhITSc1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:32:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48EB5632FB;
-        Mon, 20 Sep 2021 17:27:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7400461AA4;
+        Mon, 20 Sep 2021 17:27:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158860;
-        bh=iWpQz4tSFoRFavqd00yNJF85NFFxJrunEhC7CELaIIs=;
+        s=korg; t=1632158862;
+        bh=uJUTMTu1vO5waaucqVJrvfx6ghghdNY2kgLhBdfGwQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZqJJFJ8rxiBaYzHSq025cMZSMDSyfUasHTBdStZLJTlzmbKqNQR+feJ4TMETZ0xI2
-         vQVR3vLj/o0ZkIK8Eq6uhck6jxjwJOmfHn/Cr40ldeDlqxdNGxlLcYg2MO9W8wDeqo
-         qvX8h24ZLF71v0IVlh9l8Q1cETesxAogE3WCr1Oc=
+        b=Zrt+k51Gck+c3r0K892E0m1hsy9oBLX3aRspip/oishJd0e12i+am/r9wC2Flvzek
+         wXm4DgtHqOUNLz2Xxvbpdu8KPkO+WlknwcefK037jwLbGrE/CkPhC7SxHO9FehVh98
+         rzlyyPYNeiTGt1r6tWdUV2M99TBi1646yqRs+IvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        Andrew Lunn <andrew@lunn.ch>, Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 088/122] mfd: tqmx86: Clear GPIO IRQ resource when no IRQ is set
-Date:   Mon, 20 Sep 2021 18:44:20 +0200
-Message-Id: <20210920163918.671990840@linuxfoundation.org>
+Subject: [PATCH 5.10 089/122] tracing/boot: Fix a hist trigger dependency for boot time tracing
+Date:   Mon, 20 Sep 2021 18:44:21 +0200
+Message-Id: <20210920163918.710277100@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
 References: <20210920163915.757887582@linuxfoundation.org>
@@ -41,38 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit a946506c48f3bd09363c9d2b0a178e55733bcbb6 ]
+[ Upstream commit 6fe7c745f2acb73e4cc961d7f91125eef5a8861f ]
 
-The driver was registering IRQ 0 when no IRQ was set. This leads to
-warnings with newer kernels.
+Fixes a build error when CONFIG_HIST_TRIGGERS=n with boot-time
+tracing. Since the trigger_process_regex() is defined only
+when CONFIG_HIST_TRIGGERS=y, if it is disabled, the 'actions'
+event option also must be disabled.
 
-Clear the resource flags, so no resource is registered at all in this
-case.
+Link: https://lkml.kernel.org/r/162856123376.203126.582144262622247352.stgit@devnote2
 
-Fixes: 2f17dd34ffed ("mfd: tqmx86: IO controller with I2C, Wachdog and GPIO")
-Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fixes: 81a59555ff15 ("tracing/boot: Add per-event settings")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/tqmx86.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/trace/trace_boot.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/mfd/tqmx86.c b/drivers/mfd/tqmx86.c
-index ddddf08b6a4c..732013f40e4e 100644
---- a/drivers/mfd/tqmx86.c
-+++ b/drivers/mfd/tqmx86.c
-@@ -209,6 +209,8 @@ static int tqmx86_probe(struct platform_device *pdev)
- 
- 		/* Assumes the IRQ resource is first. */
- 		tqmx_gpio_resources[0].start = gpio_irq;
-+	} else {
-+		tqmx_gpio_resources[0].flags = 0;
+diff --git a/kernel/trace/trace_boot.c b/kernel/trace/trace_boot.c
+index a82f03f385f8..0996d59750ff 100644
+--- a/kernel/trace/trace_boot.c
++++ b/kernel/trace/trace_boot.c
+@@ -205,12 +205,15 @@ trace_boot_init_one_event(struct trace_array *tr, struct xbc_node *gnode,
+ 			pr_err("Failed to apply filter: %s\n", buf);
  	}
  
- 	ocores_platfom_data.clock_khz = tqmx86_board_id_to_clk_rate(board_id);
+-	xbc_node_for_each_array_value(enode, "actions", anode, p) {
+-		if (strlcpy(buf, p, ARRAY_SIZE(buf)) >= ARRAY_SIZE(buf))
+-			pr_err("action string is too long: %s\n", p);
+-		else if (trigger_process_regex(file, buf) < 0)
+-			pr_err("Failed to apply an action: %s\n", buf);
+-	}
++	if (IS_ENABLED(CONFIG_HIST_TRIGGERS)) {
++		xbc_node_for_each_array_value(enode, "actions", anode, p) {
++			if (strlcpy(buf, p, ARRAY_SIZE(buf)) >= ARRAY_SIZE(buf))
++				pr_err("action string is too long: %s\n", p);
++			else if (trigger_process_regex(file, buf) < 0)
++				pr_err("Failed to apply an action: %s\n", buf);
++		}
++	} else if (xbc_node_find_value(enode, "actions", NULL))
++		pr_err("Failed to apply event actions because CONFIG_HIST_TRIGGERS is not set.\n");
+ 
+ 	if (xbc_node_find_value(enode, "enable", NULL)) {
+ 		if (trace_event_enable_disable(file, 1, 0) < 0)
 -- 
 2.30.2
 
