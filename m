@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A83D64120C1
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:58:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B70A411E9D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:31:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350004AbhITR5z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:57:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56114 "EHLO mail.kernel.org"
+        id S1351243AbhITRcr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:32:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352222AbhITRzy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:55:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F188630EC;
-        Mon, 20 Sep 2021 17:14:04 +0000 (UTC)
+        id S1347195AbhITRao (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:30:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E42C6147F;
+        Mon, 20 Sep 2021 17:04:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158044;
-        bh=17ftx4uVgqG1NS8pk2ldyh0ajowusvB4X5b5hsFECRg=;
+        s=korg; t=1632157461;
+        bh=sdJVK+X5XjZb0i0H6Mm6JJin0CKms06FWXZ1pBiKe+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sn+G4BXvoxZlHyGrCWJw9wyaHgNa0OcgXF2K6YTSjqhuMzPBSrjXbgJRyT9ZIcvoO
-         NrlqBDCVsaoHiOlItZraxqw8t5j/IP8pegK3Ba/WKMOIwZkmAop4DMVGDDsETYZOJP
-         6Fv5gaSICMGrXo2BUb2/I3/BL7KdaqhLbt0d7ci4=
+        b=KdE0QSFdh+ELvGzWMx1ahjbWjyPEkeZ7YMHux3j5+De4zbpID/Is4qRDQk7MFMdkX
+         qozToOaUy1/9lLbRn5vFoOWaC7axHxvOnCjfRY2EViHI3fxOobkGqMZjSoL+CEF3oH
+         S0cinXC1luYIn4HS6+OskMMGMzMPSb6ze8RqbBng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhenggy <zhenggy@chinatelecom.cn>,
-        Eric Dumazet <edumazet@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 269/293] tcp: fix tp->undo_retrans accounting in tcp_sacktag_one()
-Date:   Mon, 20 Sep 2021 18:43:51 +0200
-Message-Id: <20210920163942.620045050@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 211/217] PCI: Sync __pci_register_driver() stub for CONFIG_PCI=n
+Date:   Mon, 20 Sep 2021 18:43:52 +0200
+Message-Id: <20210920163931.774298131@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhenggy <zhenggy@chinatelecom.cn>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 4f884f3962767877d7aabbc1ec124d2c307a4257 upstream.
+[ Upstream commit 817f9916a6e96ae43acdd4e75459ef4f92d96eb1 ]
 
-Commit 10d3be569243 ("tcp-tso: do not split TSO packets at retransmit
-time") may directly retrans a multiple segments TSO/GSO packet without
-split, Since this commit, we can no longer assume that a retransmitted
-packet is a single segment.
+The CONFIG_PCI=y case got a new parameter long time ago.  Sync the stub as
+well.
 
-This patch fixes the tp->undo_retrans accounting in tcp_sacktag_one()
-that use the actual segments(pcount) of the retransmitted packet.
-
-Before that commit (10d3be569243), the assumption underlying the
-tp->undo_retrans-- seems correct.
-
-Fixes: 10d3be569243 ("tcp-tso: do not split TSO packets at retransmit time")
-Signed-off-by: zhenggy <zhenggy@chinatelecom.cn>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Yuchung Cheng <ycheng@google.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[bhelgaas: add parameter names]
+Fixes: 725522b5453d ("PCI: add the sysfs driver name to all modules")
+Link: https://lore.kernel.org/r/20210813153619.89574-1-andriy.shevchenko@linux.intel.com
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_input.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/pci.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -1195,7 +1195,7 @@ static u8 tcp_sacktag_one(struct sock *s
- 	if (dup_sack && (sacked & TCPCB_RETRANS)) {
- 		if (tp->undo_marker && tp->undo_retrans > 0 &&
- 		    after(end_seq, tp->undo_marker))
--			tp->undo_retrans--;
-+			tp->undo_retrans = max_t(int, 0, tp->undo_retrans - pcount);
- 		if ((sacked & TCPCB_SACKED_ACKED) &&
- 		    before(start_seq, state->reord))
- 				state->reord = start_seq;
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 59f4d10568c6..66c0d5fad0cb 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -1633,8 +1633,9 @@ static inline int pci_enable_device(struct pci_dev *dev) { return -EIO; }
+ static inline void pci_disable_device(struct pci_dev *dev) { }
+ static inline int pci_assign_resource(struct pci_dev *dev, int i)
+ { return -EBUSY; }
+-static inline int __pci_register_driver(struct pci_driver *drv,
+-					struct module *owner)
++static inline int __must_check __pci_register_driver(struct pci_driver *drv,
++						     struct module *owner,
++						     const char *mod_name)
+ { return 0; }
+ static inline int pci_register_driver(struct pci_driver *drv)
+ { return 0; }
+-- 
+2.30.2
+
 
 
