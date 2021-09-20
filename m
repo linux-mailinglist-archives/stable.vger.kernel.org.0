@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4407F411CDE
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:13:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EF77412130
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:01:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347375AbhITRNu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:13:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39998 "EHLO mail.kernel.org"
+        id S1356681AbhITSDD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:03:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343726AbhITRLr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:11:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E926619E4;
-        Mon, 20 Sep 2021 16:57:19 +0000 (UTC)
+        id S1356676AbhITSBA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:01:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3405B6322A;
+        Mon, 20 Sep 2021 17:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157039;
-        bh=ebuzE1UCxEDOCi5+/oFZ6jUdKHF/h/xY3/MRIosohsI=;
+        s=korg; t=1632158158;
+        bh=TUEd5GgCPvHCqT4uiCo//+eCmN6z45ot8WQiTPkqidw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xQ6DaTVEI+vLCoNqmCuj4Qr9kWkN0mKEjua+9KMi0JAfirSt4nOclvykNPdHgETC7
-         /5A7DiYM7WD4AP+lA8n/gOONWb6LY9z3MrWWtVLbj741de3f6Y69gQpwiIyvKRcq+v
-         /z7fcFOod38qb5uGwOBQeQXZ+xD79ev8LCRi3DfI=
+        b=GNtd16xGavbfs1w5fqFOZLno3mrcbu8Pygve3Ki4dqEVUogLYW1hiz9YvKO1wS01R
+         idAhn0+GLFmW2KG5Zdfws23u9N6hFE7B8fEfPojUimyh3kO4X+rHT/RV2EbcaX2xi0
+         tO9vd2AghXNWbGfz8a2B62tDdtFBSw1C1zmRo/yQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Zygo Blaxell <ce3g8jdj@umail.furryterror.org>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 025/217] Revert "btrfs: compression: dont try to compress if we dont have enough pages"
+        stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>,
+        David Heidelberg <david@ixit.cz>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.4 028/260] ARM: 9105/1: atags_to_fdt: dont warn about stack size
 Date:   Mon, 20 Sep 2021 18:40:46 +0200
-Message-Id: <20210920163925.463411096@linuxfoundation.org>
+Message-Id: <20210920163932.079793660@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: David Heidelberg <david@ixit.cz>
 
-commit 4e9655763b82a91e4c341835bb504a2b1590f984 upstream.
+commit b30d0289de72c62516df03fdad8d53f552c69839 upstream.
 
-This reverts commit f2165627319ffd33a6217275e5690b1ab5c45763.
+The merge_fdt_bootargs() function by definition consumes more than 1024
+bytes of stack because it has a 1024 byte command line on the stack,
+meaning that we always get a warning when building this file:
 
-[BUG]
-It's no longer possible to create compressed inline extent after commit
-f2165627319f ("btrfs: compression: don't try to compress if we don't
-have enough pages").
+arch/arm/boot/compressed/atags_to_fdt.c: In function 'merge_fdt_bootargs':
+arch/arm/boot/compressed/atags_to_fdt.c:98:1: warning: the frame size of 1032 bytes is larger than 1024 bytes [-Wframe-larger-than=]
 
-[CAUSE]
-For compression code, there are several possible reasons we have a range
-that needs to be compressed while it's no more than one page.
+However, as this is the decompressor and we know that it has a very shallow
+call chain, and we do not actually risk overflowing the kernel stack
+at runtime here.
 
-- Compressed inline write
-  The data is always smaller than one sector and the test lacks the
-  condition to properly recognize a non-inline extent.
+This just shuts up the warning by disabling the warning flag for this
+file.
 
-- Compressed subpage write
-  For the incoming subpage compressed write support, we require page
-  alignment of the delalloc range.
-  And for 64K page size, we can compress just one page into smaller
-  sectors.
+Tested on Nexus 7 2012 builds.
 
-For those reasons, the requirement for the data to be more than one page
-is not correct, and is already causing regression for compressed inline
-data writeback.  The idea of skipping one page to avoid wasting CPU time
-could be revisited in the future.
-
-[FIX]
-Fix it by reverting the offending commit.
-
-Reported-by: Zygo Blaxell <ce3g8jdj@umail.furryterror.org>
-Link: https://lore.kernel.org/linux-btrfs/afa2742.c084f5d6.17b6b08dffc@tnonline.net
-Fixes: f2165627319f ("btrfs: compression: don't try to compress if we don't have enough pages")
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Acked-by: Nicolas Pitre <nico@fluxnic.net>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/inode.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/compressed/Makefile |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -540,7 +540,7 @@ again:
- 	 * inode has not been flagged as nocompress.  This flag can
- 	 * change at any time if we discover bad compression ratios.
- 	 */
--	if (nr_pages > 1 && inode_need_compress(inode, start, end)) {
-+	if (inode_need_compress(inode, start, end)) {
- 		WARN_ON(pages);
- 		pages = kcalloc(nr_pages, sizeof(struct page *), GFP_NOFS);
- 		if (!pages) {
+--- a/arch/arm/boot/compressed/Makefile
++++ b/arch/arm/boot/compressed/Makefile
+@@ -90,6 +90,8 @@ $(addprefix $(obj)/,$(libfdt_objs) atags
+ 	$(addprefix $(obj)/,$(libfdt_hdrs))
+ 
+ ifeq ($(CONFIG_ARM_ATAG_DTB_COMPAT),y)
++CFLAGS_REMOVE_atags_to_fdt.o += -Wframe-larger-than=${CONFIG_FRAME_WARN}
++CFLAGS_atags_to_fdt.o += -Wframe-larger-than=1280
+ OBJS	+= $(libfdt_objs) atags_to_fdt.o
+ endif
+ 
 
 
