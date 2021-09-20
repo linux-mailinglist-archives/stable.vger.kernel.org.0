@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0B3C4124BC
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:35:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F626412650
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:55:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353106AbhITShI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:37:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53128 "EHLO mail.kernel.org"
+        id S1387245AbhITS4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:56:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1380890AbhITSfB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:35:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BC956330E;
-        Mon, 20 Sep 2021 17:28:55 +0000 (UTC)
+        id S1384657AbhITSsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:48:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6F2363368;
+        Mon, 20 Sep 2021 17:34:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158935;
-        bh=AVCNB5sSVmhO8DO69mlWlj47HuOO9tuZqx2KnPT7AZc=;
+        s=korg; t=1632159257;
+        bh=Gxqs7vcnkyg6slCKZ4aPq89mbLPunvfhing9PV39mbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d6aJlXDZ85AhV6cWngp68xeKSlqIBw3qsEi5HZsg6XfRvUgg5R8YeeO3v9Nf2IwN6
-         M/T5x7oNerOFwhT/FUQbr3TrnUpZtEcn7mUAluB5XWsL+vx9ZOhs1ivD2Pqxu5oRIi
-         BZDnlgrZCYUdxTKK9kgdx5W9JXU51oFnaLnTEcJc=
+        b=Qi5Ndgk9OP5eMpg4KGIaDBjh35gRmzqkJDf1wgwVWQMixCF+srWGIlhiL6tvJ3HxQ
+         bncFvXIZbQKnuy1CGQfjEqxwzIW74P5LMn9hbWi5ODa1mPFRg4BIx+tZjwwSYh7QD6
+         Y2r6WW0mZLwXtiX8MfP5p+gAP3PJic1wyG2blZIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Huafei <lihuafei1@huawei.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        He Kuang <hekuang@huawei.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Zhang Jinhao <zhangjinhao2@huawei.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 097/122] perf unwind: Do not overwrite FEATURE_CHECK_LDFLAGS-libunwind-{x86,aarch64}
+Subject: [PATCH 5.14 131/168] mtd: mtdconcat: Judge callback existence based on the master
 Date:   Mon, 20 Sep 2021 18:44:29 +0200
-Message-Id: <20210920163918.971686835@linuxfoundation.org>
+Message-Id: <20210920163925.973187656@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,135 +40,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Huafei <lihuafei1@huawei.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit cdf32b44678c382a31dc183d9a767306915cda7b ]
+[ Upstream commit f9e109a209a8e01e16f37e1252304f1eb3908be4 ]
 
-When setting LIBUNWIND_DIR, we first set
+Since commit 46b5889cc2c5("mtd: implement proper partition handling")
+applied, mtd partition device won't hold some callback functions, such
+as _block_isbad, _block_markbad, etc. Besides, function mtd_block_isbad()
+will get mtd device's master mtd device, then invokes master mtd device's
+callback function. So, following process may result mtd_block_isbad()
+always return 0, even though mtd device has bad blocks:
 
- FEATURE_CHECK_LDFLAGS-libunwind-{aarch64,x86} = -L$(LIBUNWIND_DIR)/lib.
+1. Split a mtd device into 3 partitions: PA, PB, PC
+[ Each mtd partition device won't has callback function _block_isbad(). ]
+2. Concatenate PA and PB as a new mtd device PN
+[ mtd_concat_create() finds out each subdev has no callback function
+_block_isbad(), so PN won't be assigned callback function
+concat_block_isbad(). ]
+Then, mtd_block_isbad() checks "!master->_block_isbad" is true, will
+always return 0.
 
-<committer note>
-This happens a bit before, the overwritting, in:
+Reproducer:
+// reproduce.c
+static int __init init_diy_module(void)
+{
+	struct mtd_info *mtd[2];
+	struct mtd_info *mtd_combine = NULL;
 
-  libunwind_arch_set_flags = $(eval $(libunwind_arch_set_flags_code))
-  define libunwind_arch_set_flags_code
-    FEATURE_CHECK_CFLAGS-libunwind-$(1)  = -I$(LIBUNWIND_DIR)/include
-    FEATURE_CHECK_LDFLAGS-libunwind-$(1) = -L$(LIBUNWIND_DIR)/lib
-  endef
+	mtd[0] = get_mtd_device_nm("NAND simulator partition 0");
+	if (!mtd[0]) {
+		pr_err("cannot find mtd1\n");
+		return -EINVAL;
+	}
+	mtd[1] = get_mtd_device_nm("NAND simulator partition 1");
+	if (!mtd[1]) {
+		pr_err("cannot find mtd2\n");
+		return -EINVAL;
+	}
 
-  ifdef LIBUNWIND_DIR
-    LIBUNWIND_CFLAGS  = -I$(LIBUNWIND_DIR)/include
-    LIBUNWIND_LDFLAGS = -L$(LIBUNWIND_DIR)/lib
-    LIBUNWIND_ARCHS = x86 x86_64 arm aarch64 debug-frame-arm debug-frame-aarch64
-    $(foreach libunwind_arch,$(LIBUNWIND_ARCHS),$(call libunwind_arch_set_flags,$(libunwind_arch)))
-  endif
+	put_mtd_device(mtd[0]);
+	put_mtd_device(mtd[1]);
 
-Look at that 'foreach' on all the LIBUNWIND_ARCHS.
-</>
+	mtd_combine = mtd_concat_create(mtd, 2, "Combine mtd");
+	if (mtd_combine == NULL) {
+		pr_err("combine failed\n");
+		return -EINVAL;
+	}
 
-After commit 5c4d7c82c0dc ("perf unwind: Do not put libunwind-{x86,aarch64}
-in FEATURE_TESTS_BASIC"), FEATURE_CHECK_LDFLAGS-libunwind-{x86,aarch64} is
-overwritten. As a result, the remote libunwind libraries cannot be searched
-from $(LIBUNWIND_DIR)/lib directory during feature check tests. Fix it with
-variable appending.
+	mtd_device_register(mtd_combine, NULL, 0);
+	pr_info("Combine success\n");
 
-Before this patch:
+	return 0;
+}
 
-  perf$ make VF=1 LIBUNWIND_DIR=/opt/libunwind_aarch64
-   BUILD:   Doing 'make -j16' parallel build
-  <SNIP>
-  ...
-  ...                    libopencsd: [ OFF ]
-  ...                 libunwind-x86: [ OFF ]
-  ...              libunwind-x86_64: [ OFF ]
-  ...                 libunwind-arm: [ OFF ]
-  ...             libunwind-aarch64: [ OFF ]
-  ...         libunwind-debug-frame: [ OFF ]
-  ...     libunwind-debug-frame-arm: [ OFF ]
-  ... libunwind-debug-frame-aarch64: [ OFF ]
-  ...                           cxx: [ OFF ]
-  <SNIP>
+1. ID="0x20,0xac,0x00,0x15"
+2. modprobe nandsim id_bytes=$ID parts=50,100 badblocks=100
+3. insmod reproduce.ko
+4. flash_erase /dev/mtd3 0 0
+  libmtd: error!: MEMERASE64 ioctl failed for eraseblock 100 (mtd3)
+  error 5 (Input/output error)
+  // Should be "flash_erase: Skipping bad block at 00c80000"
 
-  perf$ cat ../build/feature/test-libunwind-aarch64.make.output
-  /usr/bin/ld: cannot find -lunwind-aarch64
-  /usr/bin/ld: cannot find -lunwind-aarch64
-  collect2: error: ld returned 1 exit status
-
-After this patch:
-
-  perf$ make VF=1 LIBUNWIND_DIR=/opt/libunwind_aarch64
-   BUILD:   Doing 'make -j16' parallel build
-  <SNIP>
-  ...                    libopencsd: [ OFF ]
-  ...                 libunwind-x86: [ OFF ]
-  ...              libunwind-x86_64: [ OFF ]
-  ...                 libunwind-arm: [ OFF ]
-  ...             libunwind-aarch64: [ on  ]
-  ...         libunwind-debug-frame: [ OFF ]
-  ...     libunwind-debug-frame-arm: [ OFF ]
-  ... libunwind-debug-frame-aarch64: [ OFF ]
-  ...                           cxx: [ OFF ]
-  <SNIP>
-
-  perf$ cat ../build/feature/test-libunwind-aarch64.make.output
-
-  perf$ ldd ./perf
-        linux-vdso.so.1 (0x00007ffdf07da000)
-        libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f30953dc000)
-        librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f30951d4000)
-        libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f3094e36000)
-        libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f3094c32000)
-        libelf.so.1 => /usr/lib/x86_64-linux-gnu/libelf.so.1 (0x00007f3094a18000)
-        libdw.so.1 => /usr/lib/x86_64-linux-gnu/libdw.so.1 (0x00007f30947cc000)
-        libunwind-x86_64.so.8 => /usr/lib/x86_64-linux-gnu/libunwind-x86_64.so.8 (0x00007f30945ad000)
-        libunwind.so.8 => /usr/lib/x86_64-linux-gnu/libunwind.so.8 (0x00007f3094392000)
-        liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007f309416c000)
-        libunwind-aarch64.so.8 => not found
-        libslang.so.2 => /lib/x86_64-linux-gnu/libslang.so.2 (0x00007f3093c8a000)
-        libpython2.7.so.1.0 => /usr/local/lib/libpython2.7.so.1.0 (0x00007f309386b000)
-        libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f309364e000)
-        libnuma.so.1 => /usr/lib/x86_64-linux-gnu/libnuma.so.1 (0x00007f3093443000)
-        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f3093052000)
-        /lib64/ld-linux-x86-64.so.2 (0x00007f3096097000)
-        libbz2.so.1.0 => /lib/x86_64-linux-gnu/libbz2.so.1.0 (0x00007f3092e42000)
-        libutil.so.1 => /lib/x86_64-linux-gnu/libutil.so.1 (0x00007f3092c3f000)
-
-Fixes: 5c4d7c82c0dceccf ("perf unwind: Do not put libunwind-{x86,aarch64} in FEATURE_TESTS_BASIC")
-Signed-off-by: Li Huafei <lihuafei1@huawei.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: He Kuang <hekuang@huawei.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Zhang Jinhao <zhangjinhao2@huawei.com>
-Link: http://lore.kernel.org/lkml/20210823134340.60955-1-lihuafei1@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 46b5889cc2c54bac ("mtd: implement proper partition handling")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20210817114857.2784825-2-chengzhihao1@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/Makefile.config | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/mtd/mtdconcat.c | 27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
-diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
-index 2abbd75fbf2e..014b959575ca 100644
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -127,10 +127,10 @@ FEATURE_CHECK_LDFLAGS-libunwind = $(LIBUNWIND_LDFLAGS) $(LIBUNWIND_LIBS)
- FEATURE_CHECK_CFLAGS-libunwind-debug-frame = $(LIBUNWIND_CFLAGS)
- FEATURE_CHECK_LDFLAGS-libunwind-debug-frame = $(LIBUNWIND_LDFLAGS) $(LIBUNWIND_LIBS)
+diff --git a/drivers/mtd/mtdconcat.c b/drivers/mtd/mtdconcat.c
+index 6e4d0017c0bd..af51eee6b5e8 100644
+--- a/drivers/mtd/mtdconcat.c
++++ b/drivers/mtd/mtdconcat.c
+@@ -641,6 +641,7 @@ struct mtd_info *mtd_concat_create(struct mtd_info *subdev[],	/* subdevices to c
+ 	int i;
+ 	size_t size;
+ 	struct mtd_concat *concat;
++	struct mtd_info *subdev_master = NULL;
+ 	uint32_t max_erasesize, curr_erasesize;
+ 	int num_erase_region;
+ 	int max_writebufsize = 0;
+@@ -679,17 +680,19 @@ struct mtd_info *mtd_concat_create(struct mtd_info *subdev[],	/* subdevices to c
+ 	concat->mtd.subpage_sft = subdev[0]->subpage_sft;
+ 	concat->mtd.oobsize = subdev[0]->oobsize;
+ 	concat->mtd.oobavail = subdev[0]->oobavail;
+-	if (subdev[0]->_writev)
++
++	subdev_master = mtd_get_master(subdev[0]);
++	if (subdev_master->_writev)
+ 		concat->mtd._writev = concat_writev;
+-	if (subdev[0]->_read_oob)
++	if (subdev_master->_read_oob)
+ 		concat->mtd._read_oob = concat_read_oob;
+-	if (subdev[0]->_write_oob)
++	if (subdev_master->_write_oob)
+ 		concat->mtd._write_oob = concat_write_oob;
+-	if (subdev[0]->_block_isbad)
++	if (subdev_master->_block_isbad)
+ 		concat->mtd._block_isbad = concat_block_isbad;
+-	if (subdev[0]->_block_markbad)
++	if (subdev_master->_block_markbad)
+ 		concat->mtd._block_markbad = concat_block_markbad;
+-	if (subdev[0]->_panic_write)
++	if (subdev_master->_panic_write)
+ 		concat->mtd._panic_write = concat_panic_write;
  
--FEATURE_CHECK_LDFLAGS-libunwind-arm = -lunwind -lunwind-arm
--FEATURE_CHECK_LDFLAGS-libunwind-aarch64 = -lunwind -lunwind-aarch64
--FEATURE_CHECK_LDFLAGS-libunwind-x86 = -lunwind -llzma -lunwind-x86
--FEATURE_CHECK_LDFLAGS-libunwind-x86_64 = -lunwind -llzma -lunwind-x86_64
-+FEATURE_CHECK_LDFLAGS-libunwind-arm += -lunwind -lunwind-arm
-+FEATURE_CHECK_LDFLAGS-libunwind-aarch64 += -lunwind -lunwind-aarch64
-+FEATURE_CHECK_LDFLAGS-libunwind-x86 += -lunwind -llzma -lunwind-x86
-+FEATURE_CHECK_LDFLAGS-libunwind-x86_64 += -lunwind -llzma -lunwind-x86_64
+ 	concat->mtd.ecc_stats.badblocks = subdev[0]->ecc_stats.badblocks;
+@@ -721,14 +724,22 @@ struct mtd_info *mtd_concat_create(struct mtd_info *subdev[],	/* subdevices to c
+ 				    subdev[i]->flags & MTD_WRITEABLE;
+ 		}
  
- FEATURE_CHECK_LDFLAGS-libcrypto = -lcrypto
- 
++		subdev_master = mtd_get_master(subdev[i]);
+ 		concat->mtd.size += subdev[i]->size;
+ 		concat->mtd.ecc_stats.badblocks +=
+ 			subdev[i]->ecc_stats.badblocks;
+ 		if (concat->mtd.writesize   !=  subdev[i]->writesize ||
+ 		    concat->mtd.subpage_sft != subdev[i]->subpage_sft ||
+ 		    concat->mtd.oobsize    !=  subdev[i]->oobsize ||
+-		    !concat->mtd._read_oob  != !subdev[i]->_read_oob ||
+-		    !concat->mtd._write_oob != !subdev[i]->_write_oob) {
++		    !concat->mtd._read_oob  != !subdev_master->_read_oob ||
++		    !concat->mtd._write_oob != !subdev_master->_write_oob) {
++			/*
++			 * Check against subdev[i] for data members, because
++			 * subdev's attributes may be different from master
++			 * mtd device. Check against subdev's master mtd
++			 * device for callbacks, because the existence of
++			 * subdev's callbacks is decided by master mtd device.
++			 */
+ 			kfree(concat);
+ 			printk("Incompatible OOB or ECC data on \"%s\"\n",
+ 			       subdev[i]->name);
 -- 
 2.30.2
 
