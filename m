@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B1F94125F2
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:49:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6550C412444
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:31:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385550AbhITSuh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:50:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59828 "EHLO mail.kernel.org"
+        id S1348760AbhITSdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:33:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1383896AbhITSqP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:46:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8DB86335D;
-        Mon, 20 Sep 2021 17:33:00 +0000 (UTC)
+        id S1379868AbhITSbA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:31:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2229361439;
+        Mon, 20 Sep 2021 17:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159181;
-        bh=Jw4U4ftzzDsPSsfXsuww/SwEe7hHyW068K7bPWkIikw=;
+        s=korg; t=1632158843;
+        bh=EEmGaJ5ungMBEXkvbcXKWJw49M4x0i3FnVbZiARRQgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ktGiPhbDdXa4t9j40kcGMXdzsZjH2hPunF38Yin9HAp3xllbLohG7Nh5LFTPdd4N8
-         1PPWnh3nSY4YRYXqRPv9iriJKpdwgNQumfQ+i+oUl6FB4RZAoHaHe0sR/8P7B+kzDC
-         jEkSotohQpfwqL2ItW/yF6iT6SsWpX8b67G3L3i0=
+        b=e2eg84SpKPQLrmtTjbP5xI1uD61nD8xTm5RTjL/7rPNYed2e+pTcCkwIZM/TqRYz4
+         gpKWGKG7MI0B8dEUABnYj4ZFjnQJOwgiWHsi4gpvUo+tC9Fa91FFClFVa0uIFhJTJr
+         j+cvZK/0yFqZnBRo8xpWMXexbC6jdjCb7LTtQ0uY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vishal Aslot <os.vaslot@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        newbyte@disroot.org, Daniel Thompson <daniel.thompson@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 114/168] PCI: ibmphp: Fix double unmap of io_mem
-Date:   Mon, 20 Sep 2021 18:44:12 +0200
-Message-Id: <20210920163925.385330820@linuxfoundation.org>
+Subject: [PATCH 5.10 081/122] backlight: ktd253: Stabilize backlight
+Date:   Mon, 20 Sep 2021 18:44:13 +0200
+Message-Id: <20210920163918.439257788@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,62 +42,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vishal Aslot <os.vaslot@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit faa2e05ad0dccf37f995bcfbb8d1980d66c02c11 ]
+[ Upstream commit daa37361518bf2d1f591bbdaa7c68b2a43d7af48 ]
 
-ebda_rsrc_controller() calls iounmap(io_mem) on the error path. Its caller,
-ibmphp_access_ebda(), also calls iounmap(io_mem) on good and error paths.
+Remove interrupt disablement during backlight setting. It is
+way to dangerous and makes platforms instable by having it
+miss vblank IRQs leading to the graphics derailing.
 
-Remove the iounmap(io_mem) invocation from ebda_rsrc_controller().
+The code is using ndelay() which is not available on
+platforms such as ARM and will result in 32 * udelay(1)
+which is substantial.
 
-[bhelgaas: remove item from TODO]
-Link: https://lore.kernel.org/r/20210818165751.591185-1-os.vaslot@gmail.com
-Signed-off-by: Vishal Aslot <os.vaslot@gmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Add some code to detect if an interrupt occurs during the
+tight loop and in that case just redo it from the top.
+
+Fixes: 5317f37e48b9 ("backlight: Add Kinetic KTD253 backlight driver")
+Cc: Stephan Gerhold <stephan@gerhold.net>
+Reported-by: newbyte@disroot.org
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/hotplug/TODO          | 3 ---
- drivers/pci/hotplug/ibmphp_ebda.c | 5 +----
- 2 files changed, 1 insertion(+), 7 deletions(-)
+ drivers/video/backlight/ktd253-backlight.c | 75 ++++++++++++++++------
+ 1 file changed, 55 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/pci/hotplug/TODO b/drivers/pci/hotplug/TODO
-index a32070be5adf..cc6194aa24c1 100644
---- a/drivers/pci/hotplug/TODO
-+++ b/drivers/pci/hotplug/TODO
-@@ -40,9 +40,6 @@ ibmphp:
+diff --git a/drivers/video/backlight/ktd253-backlight.c b/drivers/video/backlight/ktd253-backlight.c
+index e3fee3f1f582..9d355fd989d8 100644
+--- a/drivers/video/backlight/ktd253-backlight.c
++++ b/drivers/video/backlight/ktd253-backlight.c
+@@ -25,6 +25,7 @@
  
- * The return value of pci_hp_register() is not checked.
+ #define KTD253_T_LOW_NS (200 + 10) /* Additional 10ns as safety factor */
+ #define KTD253_T_HIGH_NS (200 + 10) /* Additional 10ns as safety factor */
++#define KTD253_T_OFF_CRIT_NS 100000 /* 100 us, now it doesn't look good */
+ #define KTD253_T_OFF_MS 3
  
--* iounmap(io_mem) is called in the error path of ebda_rsrc_controller()
--  and once more in the error path of its caller ibmphp_access_ebda().
--
- * The various slot data structures are difficult to follow and need to be
-   simplified.  A lot of functions are too large and too complex, they need
-   to be broken up into smaller, manageable pieces.  Negative examples are
-diff --git a/drivers/pci/hotplug/ibmphp_ebda.c b/drivers/pci/hotplug/ibmphp_ebda.c
-index 11a2661dc062..7fb75401ad8a 100644
---- a/drivers/pci/hotplug/ibmphp_ebda.c
-+++ b/drivers/pci/hotplug/ibmphp_ebda.c
-@@ -714,8 +714,7 @@ static int __init ebda_rsrc_controller(void)
- 		/* init hpc structure */
- 		hpc_ptr = alloc_ebda_hpc(slot_num, bus_num);
- 		if (!hpc_ptr) {
--			rc = -ENOMEM;
--			goto error_no_hpc;
-+			return -ENOMEM;
- 		}
- 		hpc_ptr->ctlr_id = ctlr_id;
- 		hpc_ptr->ctlr_relative_id = ctlr;
-@@ -910,8 +909,6 @@ error:
- 	kfree(tmp_slot);
- error_no_slot:
- 	free_ebda_hpc(hpc_ptr);
--error_no_hpc:
--	iounmap(io_mem);
- 	return rc;
- }
+ struct ktd253_backlight {
+@@ -34,13 +35,50 @@ struct ktd253_backlight {
+ 	u16 ratio;
+ };
  
++static void ktd253_backlight_set_max_ratio(struct ktd253_backlight *ktd253)
++{
++	gpiod_set_value_cansleep(ktd253->gpiod, 1);
++	ndelay(KTD253_T_HIGH_NS);
++	/* We always fall back to this when we power on */
++}
++
++static int ktd253_backlight_stepdown(struct ktd253_backlight *ktd253)
++{
++	/*
++	 * These GPIO operations absolutely can NOT sleep so no _cansleep
++	 * suffixes, and no using GPIO expanders on slow buses for this!
++	 *
++	 * The maximum number of cycles of the loop is 32  so the time taken
++	 * should nominally be:
++	 * (T_LOW_NS + T_HIGH_NS + loop_time) * 32
++	 *
++	 * Architectures do not always support ndelay() and we will get a few us
++	 * instead. If we get to a critical time limit an interrupt has likely
++	 * occured in the low part of the loop and we need to restart from the
++	 * top so we have the backlight in a known state.
++	 */
++	u64 ns;
++
++	ns = ktime_get_ns();
++	gpiod_set_value(ktd253->gpiod, 0);
++	ndelay(KTD253_T_LOW_NS);
++	gpiod_set_value(ktd253->gpiod, 1);
++	ns = ktime_get_ns() - ns;
++	if (ns >= KTD253_T_OFF_CRIT_NS) {
++		dev_err(ktd253->dev, "PCM on backlight took too long (%llu ns)\n", ns);
++		return -EAGAIN;
++	}
++	ndelay(KTD253_T_HIGH_NS);
++	return 0;
++}
++
+ static int ktd253_backlight_update_status(struct backlight_device *bl)
+ {
+ 	struct ktd253_backlight *ktd253 = bl_get_data(bl);
+ 	int brightness = backlight_get_brightness(bl);
+ 	u16 target_ratio;
+ 	u16 current_ratio = ktd253->ratio;
+-	unsigned long flags;
++	int ret;
+ 
+ 	dev_dbg(ktd253->dev, "new brightness/ratio: %d/32\n", brightness);
+ 
+@@ -62,37 +100,34 @@ static int ktd253_backlight_update_status(struct backlight_device *bl)
+ 	}
+ 
+ 	if (current_ratio == 0) {
+-		gpiod_set_value_cansleep(ktd253->gpiod, 1);
+-		ndelay(KTD253_T_HIGH_NS);
+-		/* We always fall back to this when we power on */
++		ktd253_backlight_set_max_ratio(ktd253);
+ 		current_ratio = KTD253_MAX_RATIO;
+ 	}
+ 
+-	/*
+-	 * WARNING:
+-	 * The loop to set the correct current level is performed
+-	 * with interrupts disabled as it is timing critical.
+-	 * The maximum number of cycles of the loop is 32
+-	 * so the time taken will be (T_LOW_NS + T_HIGH_NS + loop_time) * 32,
+-	 */
+-	local_irq_save(flags);
+ 	while (current_ratio != target_ratio) {
+ 		/*
+ 		 * These GPIO operations absolutely can NOT sleep so no
+ 		 * _cansleep suffixes, and no using GPIO expanders on
+ 		 * slow buses for this!
+ 		 */
+-		gpiod_set_value(ktd253->gpiod, 0);
+-		ndelay(KTD253_T_LOW_NS);
+-		gpiod_set_value(ktd253->gpiod, 1);
+-		ndelay(KTD253_T_HIGH_NS);
+-		/* After 1/32 we loop back to 32/32 */
+-		if (current_ratio == KTD253_MIN_RATIO)
++		ret = ktd253_backlight_stepdown(ktd253);
++		if (ret == -EAGAIN) {
++			/*
++			 * Something disturbed the backlight setting code when
++			 * running so we need to bring the PWM back to a known
++			 * state. This shouldn't happen too much.
++			 */
++			gpiod_set_value_cansleep(ktd253->gpiod, 0);
++			msleep(KTD253_T_OFF_MS);
++			ktd253_backlight_set_max_ratio(ktd253);
++			current_ratio = KTD253_MAX_RATIO;
++		} else if (current_ratio == KTD253_MIN_RATIO) {
++			/* After 1/32 we loop back to 32/32 */
+ 			current_ratio = KTD253_MAX_RATIO;
+-		else
++		} else {
+ 			current_ratio--;
++		}
+ 	}
+-	local_irq_restore(flags);
+ 	ktd253->ratio = current_ratio;
+ 
+ 	dev_dbg(ktd253->dev, "new ratio set to %d/32\n", target_ratio);
 -- 
 2.30.2
 
