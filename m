@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21C9D411E90
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:31:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2196411C72
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:08:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351120AbhITRcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:32:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35440 "EHLO mail.kernel.org"
+        id S242014AbhITRKA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:10:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350869AbhITRaN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:30:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B28C61AE2;
-        Mon, 20 Sep 2021 17:04:08 +0000 (UTC)
+        id S1346489AbhITRHb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:07:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 022F3615A4;
+        Mon, 20 Sep 2021 16:55:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157448;
-        bh=MPMcRJrVjbsYHasSZhk3QNA1PF7C4B/jNbrGzoPLMB8=;
+        s=korg; t=1632156937;
+        bh=zNx53Pndc5uYxRrspQeojEZ29SCm1rOpSGUmubDHff4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FenQdBs8twvNeWSElf0IeFjwbIhlzve3HvbnxTTeBLokOdpkY7USGOxkbVDSgmSpi
-         71H+Fq49KoHXo1YzN77PfxKiTldApMEukNtC1ULM6yGqjis0XFinZgOF6WdyaLXmur
-         pq0Tv3pvVrJ29X2LQ1kAcser5wOuh6e9kJwvkqtY=
+        b=pxZRtsdKWG/IKNN111mgq/mnzksqkTAunMHt5w31yw8dxymEJ8mx3QlyJqVnSKrjh
+         OiRrXJTPDutf0robdot1OzueqA+DUNNAf0Gi1sFgURpGltRRKK69OiX754EelJF4Cm
+         XsMw0X7GAmTjFlxesBSb/d/pjltTXCDGBL1ZFip8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci <abaci@linux.alibaba.com>,
-        Michael Wang <yun.wang@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 182/217] net: fix NULL pointer reference in cipso_v4_doi_free
-Date:   Mon, 20 Sep 2021 18:43:23 +0200
-Message-Id: <20210920163930.793978626@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 155/175] net-caif: avoid user-triggerable WARN_ON(1)
+Date:   Mon, 20 Sep 2021 18:43:24 +0200
+Message-Id: <20210920163923.142791617@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +39,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 王贇 <yun.wang@linux.alibaba.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 733c99ee8be9a1410287cdbb943887365e83b2d6 ]
+commit 550ac9c1aaaaf51fd42e20d461f0b1cdbd55b3d2 upstream.
 
-In netlbl_cipsov4_add_std() when 'doi_def->map.std' alloc
-failed, we sometime observe panic:
+syszbot triggers this warning, which looks something
+we can easily prevent.
 
-  BUG: kernel NULL pointer dereference, address:
-  ...
-  RIP: 0010:cipso_v4_doi_free+0x3a/0x80
-  ...
-  Call Trace:
-   netlbl_cipsov4_add_std+0xf4/0x8c0
-   netlbl_cipsov4_add+0x13f/0x1b0
-   genl_family_rcv_msg_doit.isra.15+0x132/0x170
-   genl_rcv_msg+0x125/0x240
+If we initialize priv->list_field in chnl_net_init(),
+then always use list_del_init(), we can remove robust_list_del()
+completely.
 
-This is because in cipso_v4_doi_free() there is no check
-on 'doi_def->map.std' when 'doi_def->type' equal 1, which
-is possibe, since netlbl_cipsov4_add_std() haven't initialize
-it before alloc 'doi_def->map.std'.
+WARNING: CPU: 0 PID: 3233 at net/caif/chnl_net.c:67 robust_list_del net/caif/chnl_net.c:67 [inline]
+WARNING: CPU: 0 PID: 3233 at net/caif/chnl_net.c:67 chnl_net_uninit+0xc9/0x2e0 net/caif/chnl_net.c:375
+Modules linked in:
+CPU: 0 PID: 3233 Comm: syz-executor.3 Not tainted 5.14.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:robust_list_del net/caif/chnl_net.c:67 [inline]
+RIP: 0010:chnl_net_uninit+0xc9/0x2e0 net/caif/chnl_net.c:375
+Code: 89 eb e8 3a a3 ba f8 48 89 d8 48 c1 e8 03 42 80 3c 28 00 0f 85 bf 01 00 00 48 81 fb 00 14 4e 8d 48 8b 2b 75 d0 e8 17 a3 ba f8 <0f> 0b 5b 5d 41 5c 41 5d e9 0a a3 ba f8 4c 89 e3 e8 02 a3 ba f8 4c
+RSP: 0018:ffffc90009067248 EFLAGS: 00010202
+RAX: 0000000000008780 RBX: ffffffff8d4e1400 RCX: ffffc9000fd34000
+RDX: 0000000000040000 RSI: ffffffff88bb6e49 RDI: 0000000000000003
+RBP: ffff88802cd9ee08 R08: 0000000000000000 R09: ffffffff8d0e6647
+R10: ffffffff88bb6dc2 R11: 0000000000000000 R12: ffff88803791ae08
+R13: dffffc0000000000 R14: 00000000e600ffce R15: ffff888073ed3480
+FS:  00007fed10fa0700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b2c322000 CR3: 00000000164a6000 CR4: 00000000001506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ register_netdevice+0xadf/0x1500 net/core/dev.c:10347
+ ipcaif_newlink+0x4c/0x260 net/caif/chnl_net.c:468
+ __rtnl_newlink+0x106d/0x1750 net/core/rtnetlink.c:3458
+ rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3506
+ rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5572
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2504
+ netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1340
+ netlink_sendmsg+0x86d/0xdb0 net/netlink/af_netlink.c:1929
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:724
+ __sys_sendto+0x21c/0x320 net/socket.c:2036
+ __do_sys_sendto net/socket.c:2048 [inline]
+ __se_sys_sendto net/socket.c:2044 [inline]
+ __x64_sys_sendto+0xdd/0x1b0 net/socket.c:2044
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-This patch just add the check to prevent panic happen for similar
-cases.
-
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
+Fixes: cc36a070b590 ("net-caif: add CAIF netdevice")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netlabel/netlabel_cipso_v4.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/caif/chnl_net.c |   19 +++----------------
+ 1 file changed, 3 insertions(+), 16 deletions(-)
 
-diff --git a/net/netlabel/netlabel_cipso_v4.c b/net/netlabel/netlabel_cipso_v4.c
-index 0559d442ad80..e252f62bb8c2 100644
---- a/net/netlabel/netlabel_cipso_v4.c
-+++ b/net/netlabel/netlabel_cipso_v4.c
-@@ -156,8 +156,8 @@ static int netlbl_cipsov4_add_std(struct genl_info *info,
- 		return -ENOMEM;
- 	doi_def->map.std = kzalloc(sizeof(*doi_def->map.std), GFP_KERNEL);
- 	if (doi_def->map.std == NULL) {
--		ret_val = -ENOMEM;
--		goto add_std_failure;
-+		kfree(doi_def);
-+		return -ENOMEM;
- 	}
- 	doi_def->type = CIPSO_V4_MAP_TRANS;
+--- a/net/caif/chnl_net.c
++++ b/net/caif/chnl_net.c
+@@ -55,20 +55,6 @@ struct chnl_net {
+ 	enum caif_states state;
+ };
  
--- 
-2.30.2
-
+-static void robust_list_del(struct list_head *delete_node)
+-{
+-	struct list_head *list_node;
+-	struct list_head *n;
+-	ASSERT_RTNL();
+-	list_for_each_safe(list_node, n, &chnl_net_list) {
+-		if (list_node == delete_node) {
+-			list_del(list_node);
+-			return;
+-		}
+-	}
+-	WARN_ON(1);
+-}
+-
+ static int chnl_recv_cb(struct cflayer *layr, struct cfpkt *pkt)
+ {
+ 	struct sk_buff *skb;
+@@ -370,6 +356,7 @@ static int chnl_net_init(struct net_devi
+ 	ASSERT_RTNL();
+ 	priv = netdev_priv(dev);
+ 	strncpy(priv->name, dev->name, sizeof(priv->name));
++	INIT_LIST_HEAD(&priv->list_field);
+ 	return 0;
+ }
+ 
+@@ -378,7 +365,7 @@ static void chnl_net_uninit(struct net_d
+ 	struct chnl_net *priv;
+ 	ASSERT_RTNL();
+ 	priv = netdev_priv(dev);
+-	robust_list_del(&priv->list_field);
++	list_del_init(&priv->list_field);
+ }
+ 
+ static const struct net_device_ops netdev_ops = {
+@@ -541,7 +528,7 @@ static void __exit chnl_exit_module(void
+ 	rtnl_lock();
+ 	list_for_each_safe(list_node, _tmp, &chnl_net_list) {
+ 		dev = list_entry(list_node, struct chnl_net, list_field);
+-		list_del(list_node);
++		list_del_init(list_node);
+ 		delete_device(dev);
+ 	}
+ 	rtnl_unlock();
 
 
