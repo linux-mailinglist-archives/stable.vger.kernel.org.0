@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BDA5411A7B
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:48:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABAD641205D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:54:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244183AbhITQuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:50:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36554 "EHLO mail.kernel.org"
+        id S1355112AbhITRyH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:54:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244233AbhITQt3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:49:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 331BE61211;
-        Mon, 20 Sep 2021 16:48:02 +0000 (UTC)
+        id S1354108AbhITRsy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:48:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27DA461BB2;
+        Mon, 20 Sep 2021 17:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156482;
-        bh=JkaER5FJjz+Dl0w0GNt3SgezWLKc4MmQDvlEhsU17i0=;
+        s=korg; t=1632157883;
+        bh=pPUTDhlbhoWxCecJxjTKaCYpbhlU/dyhrWccM8e4UF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xD3wR3MZbPXYAlLuTUBthd1tmJMYbVOzaExBAEY1QEZXkwQHH8zlzewMIrW3Nk6oZ
-         AGGZk1RLW1NT9QC9kC562sOcbb5fdihii3J0cdhEW14c1OPYA8+yeYz+UV45OXMO9M
-         EHtxnrqtgv8lJOKfRQauf97I5LUduoSYjpdrPez8=
+        b=q9iZ0CX2vmyEoxL4Dx2E9aEU1vKc2SdKnMrbmKSSoXpBxETiIofgQ0gxMVQFBAkFg
+         8iWUF9r6J/14yUtsp7+a4XHpk/PWNPFKGEO+K88YK220DhQocDEi0PMZf1lQVhgrI/
+         xK91mfPwZdYQnFxqeo//Aa0RpS5emz5N9OQw7TrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kate Hsuan <hpa@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.4 079/133] libata: add ATA_HORKAGE_NO_NCQ_TRIM for Samsung 860 and 870 SSDs
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 195/293] s390/jump_label: print real address in a case of a jump label bug
 Date:   Mon, 20 Sep 2021 18:42:37 +0200
-Message-Id: <20210920163915.230020798@linuxfoundation.org>
+Message-Id: <20210920163939.945703939@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-commit 8a6430ab9c9c87cb64c512e505e8690bbaee190b upstream.
+[ Upstream commit 5492886c14744d239e87f1b0b774b5a341e755cc ]
 
-Commit ca6bfcb2f6d9 ("libata: Enable queued TRIM for Samsung SSD 860")
-limited the existing ATA_HORKAGE_NO_NCQ_TRIM quirk from "Samsung SSD 8*",
-covering all Samsung 800 series SSDs, to only apply to "Samsung SSD 840*"
-and "Samsung SSD 850*" series based on information from Samsung.
+In case of a jump label print the real address of the piece of code
+where a mismatch was detected. This is right before the system panics,
+so there is nothing revealed.
 
-But there is a large number of users which is still reporting issues
-with the Samsung 860 and 870 SSDs combined with Intel, ASmedia or
-Marvell SATA controllers and all reporters also report these problems
-going away when disabling queued trims.
-
-Note that with AMD SATA controllers users are reporting even worse
-issues and only completely disabling NCQ helps there, this will be
-addressed in a separate patch.
-
-Fixes: ca6bfcb2f6d9 ("libata: Enable queued TRIM for Samsung SSD 860")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=203475
-Cc: stable@vger.kernel.org
-Cc: Kate Hsuan <hpa@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-Link: https://lore.kernel.org/r/20210823095220.30157-1-hdegoede@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-core.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/s390/kernel/jump_label.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -4269,6 +4269,10 @@ static const struct ata_blacklist_entry
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
- 	{ "Samsung SSD 850*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
-+	{ "Samsung SSD 860*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
-+						ATA_HORKAGE_ZERO_AFTER_TRIM, },
-+	{ "Samsung SSD 870*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
-+						ATA_HORKAGE_ZERO_AFTER_TRIM, },
- 	{ "FCCT*M500*",			NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+diff --git a/arch/s390/kernel/jump_label.c b/arch/s390/kernel/jump_label.c
+index 68f415e334a5..10009a0cdb37 100644
+--- a/arch/s390/kernel/jump_label.c
++++ b/arch/s390/kernel/jump_label.c
+@@ -41,7 +41,7 @@ static void jump_label_bug(struct jump_entry *entry, struct insn *expected,
+ 	unsigned char *ipe = (unsigned char *)expected;
+ 	unsigned char *ipn = (unsigned char *)new;
  
+-	pr_emerg("Jump label code mismatch at %pS [%p]\n", ipc, ipc);
++	pr_emerg("Jump label code mismatch at %pS [%px]\n", ipc, ipc);
+ 	pr_emerg("Found:    %6ph\n", ipc);
+ 	pr_emerg("Expected: %6ph\n", ipe);
+ 	pr_emerg("New:      %6ph\n", ipn);
+-- 
+2.30.2
+
 
 
