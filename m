@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DD46412296
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70E7D412522
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350976AbhITSQT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:16:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35774 "EHLO mail.kernel.org"
+        id S1353541AbhITSlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:41:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376370AbhITSMJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:12:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B65C96327C;
-        Mon, 20 Sep 2021 17:20:33 +0000 (UTC)
+        id S1381473AbhITSiR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:38:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 662FE61440;
+        Mon, 20 Sep 2021 17:29:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158434;
-        bh=IH2bqORCcfiRGXYybGqC3vEwO/2EBO1dREiMH6gGzv8=;
+        s=korg; t=1632158989;
+        bh=i4LcWwvR2rayH2yP62levZhOyXc56jezu34Fls1SmV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u63kA2Y+tni+DmSByjy4PTF07UV2IBW79m+/Gzx4xkxA7beD1mf6AVkBqz7NafOlv
-         vbu/lUDUkWfe3VO1vNQOowSIEj3fRaSKLPKR2DfPYSJ8o6619TPgGVI4xNOFfygLtF
-         cuYwB3W4QdwzkRCknnmkPmA948nbyAHNfh030XaA=
+        b=yyVhp8VsurQY3dGZQouQ9b9HG3kmxHiGlAWiN5P9Rc2NXK5/YL4VH4LFR9En2LTr5
+         Zfvdi/JfcT7bfIDA9Ab50CURlP89olRWTbDktskNO+PGCtN4I3iYmc3RZHpopsnvzj
+         b7Qu315iszZ1XIjVVzqfv9eOWEGUaDlDJVrLe9BM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 122/260] ARM: dts: imx53-ppd: Fix ACHC entry
-Date:   Mon, 20 Sep 2021 18:42:20 +0200
-Message-Id: <20210920163935.270826832@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Christoph Hellwig <hch@lst.de>, Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.14 003/168] swiotlb-xen: fix late init retry
+Date:   Mon, 20 Sep 2021 18:42:21 +0200
+Message-Id: <20210920163921.756646422@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit cd7cd5b716d594e27a933c12f026d4f2426d7bf4 ]
+commit 4c092c59015f7adf0f07685f869edb96d997a756 upstream.
 
-PPD has only one ACHC device, which effectively is a Kinetis
-microcontroller. It has one SPI interface used for normal
-communication. Additionally it's possible to flash the device
-firmware using NXP's EzPort protocol by correctly driving a
-second chip select pin and the device reset pin.
+The commit referenced below removed the assignment of "bytes" from
+xen_swiotlb_init() without - like done for xen_swiotlb_init_early() -
+adding an assignment on the retry path, thus leading to excessively
+sized allocations upon retries.
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Link: https://lore.kernel.org/r/20210802172309.164365-3-sebastian.reichel@collabora.com
+Fixes: 2d29960af0be ("swiotlb: dynamically allocate io_tlb_default_mem")
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
+Link: https://lore.kernel.org/r/778299d6-9cfd-1c13-026e-25ee5d14ecb3@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- arch/arm/boot/dts/imx53-ppd.dts | 23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+ drivers/xen/swiotlb-xen.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx53-ppd.dts b/arch/arm/boot/dts/imx53-ppd.dts
-index 5ff9a179c83c..c80d1700e094 100644
---- a/arch/arm/boot/dts/imx53-ppd.dts
-+++ b/arch/arm/boot/dts/imx53-ppd.dts
-@@ -70,6 +70,12 @@ cko2_11M: sgtl-clock-cko2 {
- 		clock-frequency = <11289600>;
- 	};
- 
-+	achc_24M: achc-clock {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <24000000>;
-+	};
-+
- 	sgtlsound: sound {
- 		compatible = "fsl,imx53-cpuvo-sgtl5000",
- 			     "fsl,imx-audio-sgtl5000";
-@@ -287,16 +293,13 @@ &gpio4 11 GPIO_ACTIVE_LOW
- 		    &gpio4 12 GPIO_ACTIVE_LOW>;
- 	status = "okay";
- 
--	spidev0: spi@0 {
--		compatible = "ge,achc";
--		reg = <0>;
--		spi-max-frequency = <1000000>;
--	};
--
--	spidev1: spi@1 {
--		compatible = "ge,achc";
--		reg = <1>;
--		spi-max-frequency = <1000000>;
-+	spidev0: spi@1 {
-+		compatible = "ge,achc", "nxp,kinetis-k20";
-+		reg = <1>, <0>;
-+		vdd-supply = <&reg_3v3>;
-+		vdda-supply = <&reg_3v3>;
-+		clocks = <&achc_24M>;
-+		reset-gpios = <&gpio3 6 GPIO_ACTIVE_LOW>;
- 	};
- 
- 	gpioxra0: gpio@2 {
--- 
-2.30.2
-
+--- a/drivers/xen/swiotlb-xen.c
++++ b/drivers/xen/swiotlb-xen.c
+@@ -211,8 +211,8 @@ error:
+ 	if (repeat--) {
+ 		/* Min is 2MB */
+ 		nslabs = max(1024UL, (nslabs >> 1));
+-		pr_info("Lowering to %luMB\n",
+-			(nslabs << IO_TLB_SHIFT) >> 20);
++		bytes = nslabs << IO_TLB_SHIFT;
++		pr_info("Lowering to %luMB\n", bytes >> 20);
+ 		goto retry;
+ 	}
+ 	pr_err("%s (rc:%d)\n", xen_swiotlb_error(m_ret), rc);
 
 
