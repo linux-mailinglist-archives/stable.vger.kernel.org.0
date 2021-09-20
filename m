@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD743411F36
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:38:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14BAE412114
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:00:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346731AbhITRi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:38:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43462 "EHLO mail.kernel.org"
+        id S1355346AbhITSBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:01:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348468AbhITRga (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:36:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 829C96136F;
-        Mon, 20 Sep 2021 17:06:31 +0000 (UTC)
+        id S1350191AbhITR7m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:59:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A98B76321D;
+        Mon, 20 Sep 2021 17:15:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157592;
-        bh=1vBuY/Mix2N6KkBaigQwQ3X+ulXE4j4QBpvGSMe505M=;
+        s=korg; t=1632158128;
+        bh=mffSr3rdLXHCmAquyg9L1oP3D8nDGf8+Zyi1VCdmh70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A8FktrAqBbfzXz3y2hfd1Arr21SIagfPiWvgyDOBgDJiMZJmE9rOolVmiJLg4aB/8
-         Mjz/OejTAlYbJClROxrn6aBxDhxPUBd/Wp8fQQe1WIJeQdRyxss3M1fVDzfiONqvWK
-         QMDfEiJhFfeuFKIzfHgK+ncPbCLVz/PlhEWRRpwA=
+        b=W9bguv2Og1hxpUo1H9LCFUgnXSTA9GZu4F0SLpo1P0+VeqhA1BlbHfBphwZRC9LC1
+         JfOVEwsrdnCFxHdoAzcsWMXyVHBzRHmSQgH1uLLukPSu+97L6sMyG2UVcjedZswgUI
+         Jsrx2tlXF9iEbhl6Sy9nZrBsK3Tj/nAquuowjid8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunyan Zhang <chunyan.zhang@unisoc.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 061/293] spi: sprd: Fix the wrong WDG_LOAD_VAL
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Aravind Ramesh <aravind.ramesh@wdc.com>,
+        Adam Manzanares <a.manzanares@samsung.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 005/260] blk-zoned: allow BLKREPORTZONE without CAP_SYS_ADMIN
 Date:   Mon, 20 Sep 2021 18:40:23 +0200
-Message-Id: <20210920163935.350748875@linuxfoundation.org>
+Message-Id: <20210920163931.312510017@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunyan Zhang <chunyan.zhang@unisoc.com>
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-[ Upstream commit 245ca2cc212bb2a078332ec99afbfbb202f44c2d ]
+commit 4d643b66089591b4769bcdb6fd1bfeff2fe301b8 upstream.
 
-Use 50ms as default timeout value and the time clock is 32768HZ.
-The original value of WDG_LOAD_VAL is not correct, so this patch
-fixes it.
+A user space process should not need the CAP_SYS_ADMIN capability set
+in order to perform a BLKREPORTZONE ioctl.
 
-Fixes: ac1775012058 ("spi: sprd: Add the support of restarting the system")
-Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
-Link: https://lore.kernel.org/r/20210826091549.2138125-2-zhang.lyra@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Getting the zone report is required in order to get the write pointer.
+Neither read() nor write() requires CAP_SYS_ADMIN, so it is reasonable
+that a user space process that can read/write from/to the device, also
+can get the write pointer. (Since e.g. writes have to be at the write
+pointer.)
+
+Fixes: 3ed05a987e0f ("blk-zoned: implement ioctls")
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Reviewed-by: Aravind Ramesh <aravind.ramesh@wdc.com>
+Reviewed-by: Adam Manzanares <a.manzanares@samsung.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Cc: stable@vger.kernel.org # v4.10+
+Link: https://lore.kernel.org/r/20210811110505.29649-3-Niklas.Cassel@wdc.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-sprd-adi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/blk-zoned.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/spi/spi-sprd-adi.c b/drivers/spi/spi-sprd-adi.c
-index e41976010dc4..97f44458ee7b 100644
---- a/drivers/spi/spi-sprd-adi.c
-+++ b/drivers/spi/spi-sprd-adi.c
-@@ -99,7 +99,7 @@
- #define HWRST_STATUS_SPRDISK		0xc0
+--- a/block/blk-zoned.c
++++ b/block/blk-zoned.c
+@@ -316,9 +316,6 @@ int blkdev_report_zones_ioctl(struct blo
+ 	if (!blk_queue_is_zoned(q))
+ 		return -ENOTTY;
  
- /* Use default timeout 50 ms that converts to watchdog values */
--#define WDG_LOAD_VAL			((50 * 1000) / 32768)
-+#define WDG_LOAD_VAL			((50 * 32768) / 1000)
- #define WDG_LOAD_MASK			GENMASK(15, 0)
- #define WDG_UNLOCK_KEY			0xe551
+-	if (!capable(CAP_SYS_ADMIN))
+-		return -EACCES;
+-
+ 	if (copy_from_user(&rep, argp, sizeof(struct blk_zone_report)))
+ 		return -EFAULT;
  
--- 
-2.30.2
-
 
 
