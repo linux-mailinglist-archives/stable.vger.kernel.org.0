@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46C204120F8
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:59:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 674F24120E1
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:59:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356122AbhITSAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:00:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58286 "EHLO mail.kernel.org"
+        id S1356275AbhITR7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:59:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356127AbhITR6n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:58:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86C4C63217;
-        Mon, 20 Sep 2021 17:15:12 +0000 (UTC)
+        id S1355894AbhITR5E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:57:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65E01619F6;
+        Mon, 20 Sep 2021 17:14:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158113;
-        bh=85ln7G8OG8wQeYQZEGI941FywbA3+XinGLsB5eyw+3k=;
+        s=korg; t=1632158079;
+        bh=2v6a9C3C0rZCgY7feWL1aqEai1BPQIroN+rAdK4iUFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UIUASUJ62rXTwcFKJsuiZfrxPReT5uVvB597IuQKZPOd9FSvcBQNSSP0/gUZ6RFNh
-         pgTkhvOr8+NuliHibjgPxwaENDXPrjod2o9p/17wf5uTWSlt/jmSwYU3sm03zXsRBW
-         wSusBPZ8jEvygJFoKtxhTR21PGhASY85bNe/82S8=
+        b=ld48aoNPG6OsFXdEsNTp+YEXNdjmnU0sldKEA5auSsePaigp7Bd2g7EHd4AiE5XLC
+         i4ln0lTQgG08Wue9DuMKnvvIhXxqv2msB61C7X+enBA7lEnYsj6AIbw56+y9l6bTG4
+         DiXi2KIf3tYhZGottrigmhh79RCvsl5HZs2/uZOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 285/293] PCI: Sync __pci_register_driver() stub for CONFIG_PCI=n
-Date:   Mon, 20 Sep 2021 18:44:07 +0200
-Message-Id: <20210920163943.185731971@linuxfoundation.org>
+Subject: [PATCH 4.19 286/293] mtd: rawnand: cafe: Fix a resource leak in the error handling path of cafe_nand_probe()
+Date:   Mon, 20 Sep 2021 18:44:08 +0200
+Message-Id: <20210920163943.218391163@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
 References: <20210920163933.258815435@linuxfoundation.org>
@@ -41,40 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 817f9916a6e96ae43acdd4e75459ef4f92d96eb1 ]
+[ Upstream commit 6b430c7595e4eb95fae8fb54adc3c3ce002e75ae ]
 
-The CONFIG_PCI=y case got a new parameter long time ago.  Sync the stub as
-well.
+A successful 'init_rs_non_canonical()' call should be balanced by a
+corresponding 'free_rs()' call in the error handling path of the probe, as
+already done in the remove function.
 
-[bhelgaas: add parameter names]
-Fixes: 725522b5453d ("PCI: add the sysfs driver name to all modules")
-Link: https://lore.kernel.org/r/20210813153619.89574-1-andriy.shevchenko@linux.intel.com
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Update the error handling path accordingly.
+
+Fixes: 8c61b7a7f4d4 ("[MTD] [NAND] Use rslib for CAFÉ ECC")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/fd313d3fb787458bcc73189e349f481133a2cdc9.1629532640.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/pci.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/mtd/nand/raw/cafe_nand.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 2fda9893962d..6f9ca2f278b3 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -1644,8 +1644,9 @@ static inline int pci_enable_device(struct pci_dev *dev) { return -EIO; }
- static inline void pci_disable_device(struct pci_dev *dev) { }
- static inline int pci_assign_resource(struct pci_dev *dev, int i)
- { return -EBUSY; }
--static inline int __pci_register_driver(struct pci_driver *drv,
--					struct module *owner)
-+static inline int __must_check __pci_register_driver(struct pci_driver *drv,
-+						     struct module *owner,
-+						     const char *mod_name)
- { return 0; }
- static inline int pci_register_driver(struct pci_driver *drv)
- { return 0; }
+diff --git a/drivers/mtd/nand/raw/cafe_nand.c b/drivers/mtd/nand/raw/cafe_nand.c
+index 3304594177c6..1fee298d5680 100644
+--- a/drivers/mtd/nand/raw/cafe_nand.c
++++ b/drivers/mtd/nand/raw/cafe_nand.c
+@@ -758,7 +758,7 @@ static int cafe_nand_probe(struct pci_dev *pdev,
+ 			  "CAFE NAND", mtd);
+ 	if (err) {
+ 		dev_warn(&pdev->dev, "Could not register IRQ %d\n", pdev->irq);
+-		goto out_ior;
++		goto out_free_rs;
+ 	}
+ 
+ 	/* Disable master reset, enable NAND clock */
+@@ -802,6 +802,8 @@ static int cafe_nand_probe(struct pci_dev *pdev,
+ 	/* Disable NAND IRQ in global IRQ mask register */
+ 	cafe_writel(cafe, ~1 & cafe_readl(cafe, GLOBAL_IRQ_MASK), GLOBAL_IRQ_MASK);
+ 	free_irq(pdev->irq, mtd);
++ out_free_rs:
++	free_rs(cafe->rs);
+  out_ior:
+ 	pci_iounmap(pdev, cafe->mmio);
+  out_free_mtd:
 -- 
 2.30.2
 
