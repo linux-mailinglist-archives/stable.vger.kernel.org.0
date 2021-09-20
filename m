@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4500412331
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:21:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EFC9412660
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:57:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377696AbhITSWV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:22:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41848 "EHLO mail.kernel.org"
+        id S1387275AbhITS5A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:57:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1377672AbhITSUR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:20:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00950632A7;
-        Mon, 20 Sep 2021 17:23:16 +0000 (UTC)
+        id S1384475AbhITSsQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:48:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DA9061361;
+        Mon, 20 Sep 2021 17:33:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158597;
-        bh=zc/V4mTUSYONcVf5ckmwjTjjPBP3eUHTCEbvYXSfPys=;
+        s=korg; t=1632159224;
+        bh=P2LzhxgiADc6JDLSjbcXwytINfBo65K4kTBrzXO9+A8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lnBQVr0Mc9HktU3gQUGRsUJob42U3DXyydvr7ezmvztjPmH9YXJ3kW6bR8tDO3fAA
-         bRtGd5olMOiJvZx1OfwgafwO4450h4KQxbd7HdUli2dwVe74IpJIBr26NC2i+6i1Z1
-         ZpzvvtEkGi8pb4kBRNYLPD5i2OGjcURVg2Lsf4oc=
+        b=H28BmjKDl+ShcowXix4QpvDyOjgY1/i6YvxfjAIoaDpWFx2itjrW9Z4m3yrVKY0Xs
+         rIKQ87r0EWvFYVe2YvWRU7kbodSw2q92lQos5YryaYXzZ5BoUVeGUiMw7eR79SFXki
+         WHnsKvjNvt26Rbg8zwU2Oh3OxuYgwsDczWgY/odk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 222/260] net: dsa: destroy the phylink instance on any error in dsa_slave_phy_setup
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 102/168] tracing/probes: Reject events which have the same name of existing one
 Date:   Mon, 20 Sep 2021 18:44:00 +0200
-Message-Id: <20210920163938.650479778@linuxfoundation.org>
+Message-Id: <20210920163924.992956769@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +40,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 6a52e73368038f47f6618623d75061dc263b26ae upstream.
+[ Upstream commit 8e242060c6a4947e8ae7d29794af6a581db08841 ]
 
-DSA supports connecting to a phy-handle, and has a fallback to a non-OF
-based method of connecting to an internal PHY on the switch's own MDIO
-bus, if no phy-handle and no fixed-link nodes were present.
+Since kprobe_events and uprobe_events only check whether the
+other same-type probe event has the same name or not, if the
+user gives the same name of the existing tracepoint event (or
+the other type of probe events), it silently fails to create
+the tracefs entry (but registered.) as below.
 
-The -ENODEV error code from the first attempt (phylink_of_phy_connect)
-is what triggers the second attempt (phylink_connect_phy).
+/sys/kernel/tracing # ls events/task/task_rename
+enable   filter   format   hist     id       trigger
+/sys/kernel/tracing # echo p:task/task_rename vfs_read >> kprobe_events
+[  113.048508] Could not create tracefs 'task_rename' directory
+/sys/kernel/tracing # cat kprobe_events
+p:task/task_rename vfs_read
 
-However, when the first attempt returns a different error code than
--ENODEV, this results in an unbalance of calls to phylink_create and
-phylink_destroy by the time we exit the function. The phylink instance
-has leaked.
+To fix this issue, check whether the existing events have the
+same name or not in trace_probe_register_event_call(). If exists,
+it rejects to register the new event.
 
-There are many other error codes that can be returned by
-phylink_of_phy_connect. For example, phylink_validate returns -EINVAL.
-So this is a practical issue too.
+Link: https://lkml.kernel.org/r/162936876189.187130.17558311387542061930.stgit@devnote2
 
-Fixes: aab9c4067d23 ("net: dsa: Plug in PHYLINK support")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Link: https://lore.kernel.org/r/20210914134331.2303380-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/slave.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ kernel/trace/trace_kprobe.c |  6 +++++-
+ kernel/trace/trace_probe.c  | 25 +++++++++++++++++++++++++
+ kernel/trace/trace_probe.h  |  1 +
+ kernel/trace/trace_uprobe.c |  6 +++++-
+ 4 files changed, 36 insertions(+), 2 deletions(-)
 
---- a/net/dsa/slave.c
-+++ b/net/dsa/slave.c
-@@ -1327,13 +1327,11 @@ static int dsa_slave_phy_setup(struct ne
- 		 * use the switch internal MDIO bus instead
- 		 */
- 		ret = dsa_slave_phy_connect(slave_dev, dp->index);
--		if (ret) {
--			netdev_err(slave_dev,
--				   "failed to connect to port %d: %d\n",
--				   dp->index, ret);
--			phylink_destroy(dp->pl);
--			return ret;
--		}
-+	}
-+	if (ret) {
-+		netdev_err(slave_dev, "failed to connect to PHY: %pe\n",
-+			   ERR_PTR(ret));
-+		phylink_destroy(dp->pl);
+diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
+index ea6178cb5e33..032191977e34 100644
+--- a/kernel/trace/trace_kprobe.c
++++ b/kernel/trace/trace_kprobe.c
+@@ -647,7 +647,11 @@ static int register_trace_kprobe(struct trace_kprobe *tk)
+ 	/* Register new event */
+ 	ret = register_kprobe_event(tk);
+ 	if (ret) {
+-		pr_warn("Failed to register probe event(%d)\n", ret);
++		if (ret == -EEXIST) {
++			trace_probe_log_set_index(0);
++			trace_probe_log_err(0, EVENT_EXIST);
++		} else
++			pr_warn("Failed to register probe event(%d)\n", ret);
+ 		goto end;
  	}
  
+diff --git a/kernel/trace/trace_probe.c b/kernel/trace/trace_probe.c
+index 15413ad7cef2..0e29bb14fc8b 100644
+--- a/kernel/trace/trace_probe.c
++++ b/kernel/trace/trace_probe.c
+@@ -1029,11 +1029,36 @@ error:
  	return ret;
+ }
+ 
++static struct trace_event_call *
++find_trace_event_call(const char *system, const char *event_name)
++{
++	struct trace_event_call *tp_event;
++	const char *name;
++
++	list_for_each_entry(tp_event, &ftrace_events, list) {
++		if (!tp_event->class->system ||
++		    strcmp(system, tp_event->class->system))
++			continue;
++		name = trace_event_name(tp_event);
++		if (!name || strcmp(event_name, name))
++			continue;
++		return tp_event;
++	}
++
++	return NULL;
++}
++
+ int trace_probe_register_event_call(struct trace_probe *tp)
+ {
+ 	struct trace_event_call *call = trace_probe_event_call(tp);
+ 	int ret;
+ 
++	lockdep_assert_held(&event_mutex);
++
++	if (find_trace_event_call(trace_probe_group_name(tp),
++				  trace_probe_name(tp)))
++		return -EEXIST;
++
+ 	ret = register_trace_event(&call->event);
+ 	if (!ret)
+ 		return -ENODEV;
+diff --git a/kernel/trace/trace_probe.h b/kernel/trace/trace_probe.h
+index 227d518e5ba5..9f14186d132e 100644
+--- a/kernel/trace/trace_probe.h
++++ b/kernel/trace/trace_probe.h
+@@ -399,6 +399,7 @@ extern int traceprobe_define_arg_fields(struct trace_event_call *event_call,
+ 	C(NO_EVENT_NAME,	"Event name is not specified"),		\
+ 	C(EVENT_TOO_LONG,	"Event name is too long"),		\
+ 	C(BAD_EVENT_NAME,	"Event name must follow the same rules as C identifiers"), \
++	C(EVENT_EXIST,		"Given group/event name is already used by another event"), \
+ 	C(RETVAL_ON_PROBE,	"$retval is not available on probe"),	\
+ 	C(BAD_STACK_NUM,	"Invalid stack number"),		\
+ 	C(BAD_ARG_NUM,		"Invalid argument number"),		\
+diff --git a/kernel/trace/trace_uprobe.c b/kernel/trace/trace_uprobe.c
+index 9b50869a5ddb..957244ee07c8 100644
+--- a/kernel/trace/trace_uprobe.c
++++ b/kernel/trace/trace_uprobe.c
+@@ -514,7 +514,11 @@ static int register_trace_uprobe(struct trace_uprobe *tu)
+ 
+ 	ret = register_uprobe_event(tu);
+ 	if (ret) {
+-		pr_warn("Failed to register probe event(%d)\n", ret);
++		if (ret == -EEXIST) {
++			trace_probe_log_set_index(0);
++			trace_probe_log_err(0, EVENT_EXIST);
++		} else
++			pr_warn("Failed to register probe event(%d)\n", ret);
+ 		goto end;
+ 	}
+ 
+-- 
+2.30.2
+
 
 
