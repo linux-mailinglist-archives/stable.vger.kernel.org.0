@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E72C411EA3
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:32:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D1434120C8
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:58:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351291AbhITRdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:33:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34744 "EHLO mail.kernel.org"
+        id S1349031AbhITR57 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:57:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347859AbhITRbI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:31:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9736E61507;
-        Mon, 20 Sep 2021 17:04:25 +0000 (UTC)
+        id S1354098AbhITRzy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:55:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 201AE61C32;
+        Mon, 20 Sep 2021 17:14:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157466;
-        bh=Unf8Uj1Wye11DRpjddwiE6ax0HVzALpL2RGe4Nk81VQ=;
+        s=korg; t=1632158053;
+        bh=MDXbSHNeFmO2QL8MktIbPU1VVV71M8hRf35mfMnmNXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ysE74YYK4LEVOqpe6/G5e5dbxinBJJqsKKnLOWhKExT6lO0GM9I9UI2fTcc5EBZBR
-         Xv+mixp9p+jYMbnv/NEyU1w27KPbSKSpimOkCRRBecCTgZtvWiKfOyJKmmgaBOwdQs
-         AFKZizmEzFdH0093CPIysfsU1scz9PulBUnVTp/k=
+        b=goPZxWoI3XBCzpAj158mdEDZ0Cn7gwgl0xuJYgOafQldlXkTSQOl5H1QVKcOpR/4W
+         BqGrJKQztv4U4G8UwYMNg5b2kNZKdS7Zrqw0NOrs+PBI9i65TGC3n3tsq1HiUwVZa7
+         lvcIewvaaMyrP07I/giyN0XLDg1lE47L6dN6gYcQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-snps-arc@lists.infradead.org,
-        Vineet Gupta <vgupta@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 213/217] ARC: export clear_user_page() for modules
+        stable@vger.kernel.org, Yufeng Mo <moyufeng@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 272/293] net: hns3: pad the short tunnel frame before sending to hardware
 Date:   Mon, 20 Sep 2021 18:43:54 +0200
-Message-Id: <20210920163931.842626391@linuxfoundation.org>
+Message-Id: <20210920163942.718769239@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Yufeng Mo <moyufeng@huawei.com>
 
-[ Upstream commit 6b5ff0405e4190f23780362ea324b250bc495683 ]
+commit d18e81183b1cb9c309266cbbce9acd3e0c528d04 upstream.
 
-0day bot reports a build error:
-  ERROR: modpost: "clear_user_page" [drivers/media/v4l2-core/videobuf-dma-sg.ko] undefined!
-so export it in arch/arc/ to fix the build error.
+The hardware cannot handle short tunnel frames below 65 bytes,
+and will cause vlan tag missing problem. So pads packet size to
+65 bytes for tunnel frames to fix this bug.
 
-In most ARCHes, clear_user_page() is a macro. OTOH, in a few
-ARCHes it is a function and needs to be exported.
-PowerPC exported it in 2004. It looks like nds32 and nios2
-still need to have it exported.
-
-Fixes: 4102b53392d63 ("ARC: [mm] Aliasing VIPT dcache support 2/4")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-snps-arc@lists.infradead.org
-Signed-off-by: Vineet Gupta <vgupta@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3db084d28dc0("net: hns3: Fix for vxlan tx checksum bug")
+Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arc/mm/cache.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arc/mm/cache.c b/arch/arc/mm/cache.c
-index d14499500106..bf02efbee5e1 100644
---- a/arch/arc/mm/cache.c
-+++ b/arch/arc/mm/cache.c
-@@ -1118,7 +1118,7 @@ void clear_user_page(void *to, unsigned long u_vaddr, struct page *page)
- 	clear_page(to);
- 	clear_bit(PG_dc_clean, &page->flags);
- }
--
-+EXPORT_SYMBOL(clear_user_page);
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -29,6 +29,8 @@ static const char hns3_driver_string[] =
+ static const char hns3_copyright[] = "Copyright (c) 2017 Huawei Corporation.";
+ static struct hnae3_client client;
  
- /**********************************************************************
-  * Explicit Cache flush request from user space via syscall
--- 
-2.30.2
-
++#define HNS3_MIN_TUN_PKT_LEN	65U
++
+ /* hns3_pci_tbl - PCI Device ID Table
+  *
+  * Last entry must be all 0s
+@@ -792,8 +794,11 @@ static int hns3_set_l3l4_type_csum(struc
+ 				HNS3_L4T_TCP);
+ 		break;
+ 	case IPPROTO_UDP:
+-		if (hns3_tunnel_csum_bug(skb))
+-			return skb_checksum_help(skb);
++		if (hns3_tunnel_csum_bug(skb)) {
++			int ret = skb_put_padto(skb, HNS3_MIN_TUN_PKT_LEN);
++
++			return ret ? ret : skb_checksum_help(skb);
++		}
+ 
+ 		hnae3_set_bit(*type_cs_vlan_tso, HNS3_TXD_L4CS_B, 1);
+ 		hnae3_set_field(*type_cs_vlan_tso,
 
 
