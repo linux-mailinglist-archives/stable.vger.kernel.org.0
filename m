@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA1D411C69
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:08:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39F2E411E87
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:31:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245228AbhITRJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:09:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33876 "EHLO mail.kernel.org"
+        id S1344166AbhITRb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:31:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346380AbhITRHF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:07:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C7456138B;
-        Mon, 20 Sep 2021 16:55:26 +0000 (UTC)
+        id S1350833AbhITRaJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:30:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8672D61ACE;
+        Mon, 20 Sep 2021 17:03:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156926;
-        bh=xDGgNywd7glMnTnArggWUDWAWZpoMurEgS3vcObOTDE=;
+        s=korg; t=1632157440;
+        bh=DVPcasjXqRCJ7pjR4tm+hxVvYjh0R8MRVB2pUj+6JXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sv/SNMbMW261QsmFB0zK29wiFMIUCiTxjeGLbsQOZInw1RvSuRN7YemDi02NxijSi
-         tZF6ZJ704xf7Xpwfq88noHR7Tj05/+CIDocG3+nQ8DEl1X978ssX5OLScQ6XXHYgyY
-         CoMqirOPSRY7X/zen6aQYhJ3COM3wh1aQCkpqjZo=
+        b=njapqFGeac5UufbOMaPwqqeryufphHFfbhLTD2bqnG4cKnpwjunlG6u1byed7i6Dd
+         46LHkQYX/FDs3Q1JLqxRV46AO/svKuTQHd1zd8Ahg9IZvBkkw3mER3hC4nMGOz5yVH
+         DpDUFk12eWPcvMUIkOkALRDrcnQOPPsjpb4qRLEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Zixian <liuzixian4@huawei.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 150/175] mm/hugetlb: initialize hugetlb_usage in mm_init
+        stable@vger.kernel.org, Xiaotan Luo <lxt@rock-chips.com>,
+        Sugar Zhang <sugar.zhang@rock-chips.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 178/217] ASoC: rockchip: i2s: Fixup config for DAIFMT_DSP_A/B
 Date:   Mon, 20 Sep 2021 18:43:19 +0200
-Message-Id: <20210920163922.976958827@linuxfoundation.org>
+Message-Id: <20210920163930.661292274@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,73 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Zixian <liuzixian4@huawei.com>
+From: Xiaotan Luo <lxt@rock-chips.com>
 
-commit 13db8c50477d83ad3e3b9b0ae247e5cd833a7ae4 upstream.
+[ Upstream commit 1bf56843e664eef2525bdbfae6a561e98910f676 ]
 
-After fork, the child process will get incorrect (2x) hugetlb_usage.  If
-a process uses 5 2MB hugetlb pages in an anonymous mapping,
+- DSP_A: PCM delay 1 bit mode, L data MSB after FRM LRC
+- DSP_B: PCM no delay mode, L data MSB during FRM LRC
 
-	HugetlbPages:	   10240 kB
-
-and then forks, the child will show,
-
-	HugetlbPages:	   20480 kB
-
-The reason for double the amount is because hugetlb_usage will be copied
-from the parent and then increased when we copy page tables from parent
-to child.  Child will have 2x actual usage.
-
-Fix this by adding hugetlb_count_init in mm_init.
-
-Link: https://lkml.kernel.org/r/20210826071742.877-1-liuzixian4@huawei.com
-Fixes: 5d317b2b6536 ("mm: hugetlb: proc: add HugetlbPages field to /proc/PID/status")
-Signed-off-by: Liu Zixian <liuzixian4@huawei.com>
-Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Xiaotan Luo <lxt@rock-chips.com>
+Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
+Link: https://lore.kernel.org/r/1629950562-14281-3-git-send-email-sugar.zhang@rock-chips.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/hugetlb.h |    9 +++++++++
- kernel/fork.c           |    1 +
- 2 files changed, 10 insertions(+)
+ sound/soc/rockchip/rockchip_i2s.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -482,6 +482,11 @@ static inline spinlock_t *huge_pte_lockp
- 
- void hugetlb_report_usage(struct seq_file *m, struct mm_struct *mm);
- 
-+static inline void hugetlb_count_init(struct mm_struct *mm)
-+{
-+	atomic_long_set(&mm->hugetlb_usage, 0);
-+}
-+
- static inline void hugetlb_count_add(long l, struct mm_struct *mm)
- {
- 	atomic_long_add(l, &mm->hugetlb_usage);
-@@ -527,6 +532,10 @@ static inline spinlock_t *huge_pte_lockp
- 	return &mm->page_table_lock;
- }
- 
-+static inline void hugetlb_count_init(struct mm_struct *mm)
-+{
-+}
-+
- static inline void hugetlb_report_usage(struct seq_file *f, struct mm_struct *m)
- {
- }
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -789,6 +789,7 @@ static struct mm_struct *mm_init(struct
- 	mm->pmd_huge_pte = NULL;
- #endif
- 	mm_init_uprobes_state(mm);
-+	hugetlb_count_init(mm);
- 
- 	if (current->mm) {
- 		mm->flags = current->mm->flags & MMF_INIT_MASK;
+diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
+index 93a4829f80cc..8d1a7114f6c2 100644
+--- a/sound/soc/rockchip/rockchip_i2s.c
++++ b/sound/soc/rockchip/rockchip_i2s.c
+@@ -235,12 +235,12 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
+ 	case SND_SOC_DAIFMT_I2S:
+ 		val = I2S_TXCR_IBM_NORMAL;
+ 		break;
+-	case SND_SOC_DAIFMT_DSP_A: /* PCM no delay mode */
+-		val = I2S_TXCR_TFS_PCM;
+-		break;
+-	case SND_SOC_DAIFMT_DSP_B: /* PCM delay 1 mode */
++	case SND_SOC_DAIFMT_DSP_A: /* PCM delay 1 bit mode */
+ 		val = I2S_TXCR_TFS_PCM | I2S_TXCR_PBM_MODE(1);
+ 		break;
++	case SND_SOC_DAIFMT_DSP_B: /* PCM no delay mode */
++		val = I2S_TXCR_TFS_PCM;
++		break;
+ 	default:
+ 		ret = -EINVAL;
+ 		goto err_pm_put;
+@@ -259,12 +259,12 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
+ 	case SND_SOC_DAIFMT_I2S:
+ 		val = I2S_RXCR_IBM_NORMAL;
+ 		break;
+-	case SND_SOC_DAIFMT_DSP_A: /* PCM no delay mode */
+-		val = I2S_RXCR_TFS_PCM;
+-		break;
+-	case SND_SOC_DAIFMT_DSP_B: /* PCM delay 1 mode */
++	case SND_SOC_DAIFMT_DSP_A: /* PCM delay 1 bit mode */
+ 		val = I2S_RXCR_TFS_PCM | I2S_RXCR_PBM_MODE(1);
+ 		break;
++	case SND_SOC_DAIFMT_DSP_B: /* PCM no delay mode */
++		val = I2S_RXCR_TFS_PCM;
++		break;
+ 	default:
+ 		ret = -EINVAL;
+ 		goto err_pm_put;
+-- 
+2.30.2
+
 
 
