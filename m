@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CDFA412517
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 894214122B7
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245415AbhITSlY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:41:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53124 "EHLO mail.kernel.org"
+        id S1356720AbhITSRC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:17:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1381965AbhITSjk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:39:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 323856333A;
-        Mon, 20 Sep 2021 17:30:46 +0000 (UTC)
+        id S1376679AbhITSOI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:14:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C965761401;
+        Mon, 20 Sep 2021 17:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159046;
-        bh=CXCzy7tiYTN6nZ2fvrhXM7SroQ9LCi5oAHSmqNIicIM=;
+        s=korg; t=1632158471;
+        bh=fE1o4jHCk4lA44B02vJseXJKWuRTeDMS3VaFxh/kDUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d0R/+S5xM8gv6Sq02mraBTHIkS891XrLmY9HG+SVOMVUOOJKY/9uz5UKl95G/QUzc
-         FHIES8Gnek4Mj8Ri/2tk0pXyrc6lLvT0MlOHPeJ7QDukmht/UGFp4ND5YmWuW3l86S
-         4OmamJMlHoS2nWPqE09Y+9lq+K6B+a4vEB3L6J0g=
+        b=zJuF+9OpongsywaW9F6g7YorwWOQFTd2RROBoBNUvM7K/UQ+FPqhVAP/ylAa63vJy
+         jf4jUJGQY2i6sSy3C+GS7YSqJxvSz52DUstGJBt0qHSiPjYiW9aKfBUzLAGMkuoXGr
+         /sCPasDFkjw0TYXoZWr9p+hjH9HXC2v8XpAR2sPM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Pavel Machek (CIP)" <pavel@denx.de>,
-        Saeed Mahameed <saeedm@nvidia.com>, Aya Levin <ayal@nvidia.com>
-Subject: [PATCH 5.14 051/168] net/mlx5: FWTrace, cancel work on alloc pd error flow
+        stable@vger.kernel.org, Abaci <abaci@linux.alibaba.com>,
+        Michael Wang <yun.wang@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 171/260] net: fix NULL pointer reference in cipso_v4_doi_free
 Date:   Mon, 20 Sep 2021 18:43:09 +0200
-Message-Id: <20210920163923.313557941@linuxfoundation.org>
+Message-Id: <20210920163936.892692782@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saeed Mahameed <saeedm@nvidia.com>
+From: 王贇 <yun.wang@linux.alibaba.com>
 
-commit dfe6fd72b5f1878b16aa2c8603e031bbcd66b96d upstream.
+[ Upstream commit 733c99ee8be9a1410287cdbb943887365e83b2d6 ]
 
-Handle error flow on mlx5_core_alloc_pd() failure,
-read_fw_strings_work must be canceled.
+In netlbl_cipsov4_add_std() when 'doi_def->map.std' alloc
+failed, we sometime observe panic:
 
-Fixes: c71ad41ccb0c ("net/mlx5: FW tracer, events handling")
-Reported-by: Pavel Machek (CIP) <pavel@denx.de>
-Suggested-by: Pavel Machek (CIP) <pavel@denx.de>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Reviewed-by: Aya Levin <ayal@nvidia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  BUG: kernel NULL pointer dereference, address:
+  ...
+  RIP: 0010:cipso_v4_doi_free+0x3a/0x80
+  ...
+  Call Trace:
+   netlbl_cipsov4_add_std+0xf4/0x8c0
+   netlbl_cipsov4_add+0x13f/0x1b0
+   genl_family_rcv_msg_doit.isra.15+0x132/0x170
+   genl_rcv_msg+0x125/0x240
+
+This is because in cipso_v4_doi_free() there is no check
+on 'doi_def->map.std' when 'doi_def->type' equal 1, which
+is possibe, since netlbl_cipsov4_add_std() haven't initialize
+it before alloc 'doi_def->map.std'.
+
+This patch just add the check to prevent panic happen for similar
+cases.
+
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/netlabel/netlabel_cipso_v4.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-@@ -1007,7 +1007,7 @@ int mlx5_fw_tracer_init(struct mlx5_fw_t
- 	err = mlx5_core_alloc_pd(dev, &tracer->buff.pdn);
- 	if (err) {
- 		mlx5_core_warn(dev, "FWTracer: Failed to allocate PD %d\n", err);
--		return err;
-+		goto err_cancel_work;
+diff --git a/net/netlabel/netlabel_cipso_v4.c b/net/netlabel/netlabel_cipso_v4.c
+index 8cd3daf0e3db..1778e4e8ce24 100644
+--- a/net/netlabel/netlabel_cipso_v4.c
++++ b/net/netlabel/netlabel_cipso_v4.c
+@@ -144,8 +144,8 @@ static int netlbl_cipsov4_add_std(struct genl_info *info,
+ 		return -ENOMEM;
+ 	doi_def->map.std = kzalloc(sizeof(*doi_def->map.std), GFP_KERNEL);
+ 	if (doi_def->map.std == NULL) {
+-		ret_val = -ENOMEM;
+-		goto add_std_failure;
++		kfree(doi_def);
++		return -ENOMEM;
  	}
+ 	doi_def->type = CIPSO_V4_MAP_TRANS;
  
- 	err = mlx5_fw_tracer_create_mkey(tracer);
-@@ -1031,6 +1031,7 @@ err_notifier_unregister:
- 	mlx5_core_destroy_mkey(dev, &tracer->buff.mkey);
- err_dealloc_pd:
- 	mlx5_core_dealloc_pd(dev, tracer->buff.pdn);
-+err_cancel_work:
- 	cancel_work_sync(&tracer->read_fw_strings_work);
- 	return err;
- }
+-- 
+2.30.2
+
 
 
