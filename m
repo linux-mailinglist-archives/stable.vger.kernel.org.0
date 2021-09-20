@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0415C412082
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:54:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C755411AFC
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:54:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349757AbhITRzv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:55:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54626 "EHLO mail.kernel.org"
+        id S244641AbhITQyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:54:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349362AbhITRwt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:52:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 21FDA610A0;
-        Mon, 20 Sep 2021 17:13:00 +0000 (UTC)
+        id S244480AbhITQwN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:52:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CD1B6126A;
+        Mon, 20 Sep 2021 16:49:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157981;
-        bh=MPMcRJrVjbsYHasSZhk3QNA1PF7C4B/jNbrGzoPLMB8=;
+        s=korg; t=1632156580;
+        bh=TH9Uqq0frq96kNIR/4jqQDsgvg16xDhg2iBSm7ZzbdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rD6OheWbRUi8iA4PUTic8pgwnJfW+9FAUAxGPAFcjF02Ta/O3IsotAXw7nJcLZcM+
-         L3ItH8Ar5EKOfZrRen0jJwbPLPHwpKJhu1n35YthRyCwe4K1r5WP28eFcz4OMLTuch
-         OcTjQPLru15clxVsugmd7RVSYHjao9CoCHLHmTc0=
+        b=L4vg2nzyUiDq+QvrLYIxFqesBG1wz78+w20uryqGjhMRqUHP6rjin7uQ9KQRcSY00
+         7cIBstOERfI2aLHM1Rv/q9INPKXf/URR43gI9WEHTf37zTatm/sQP4TR9JVcXvyznI
+         995p5njD9PsgytJWKp34ddW4MlNCGi2+17Z2m3Yo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci <abaci@linux.alibaba.com>,
-        Michael Wang <yun.wang@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 239/293] net: fix NULL pointer reference in cipso_v4_doi_free
+        stable@vger.kernel.org, Andrius V <vezhlys@gmail.com>,
+        Darek Strugacz <darek.strugacz@op.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 123/133] r6040: Restore MDIO clock frequency after MAC reset
 Date:   Mon, 20 Sep 2021 18:43:21 +0200
-Message-Id: <20210920163941.576383848@linuxfoundation.org>
+Message-Id: <20210920163916.651851656@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +41,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 王贇 <yun.wang@linux.alibaba.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 733c99ee8be9a1410287cdbb943887365e83b2d6 ]
+commit e3f0cc1a945fcefec0c7c9d9dfd028a51daa1846 upstream.
 
-In netlbl_cipsov4_add_std() when 'doi_def->map.std' alloc
-failed, we sometime observe panic:
+A number of users have reported that they were not able to get the PHY
+to successfully link up, especially after commit c36757eb9dee ("net:
+phy: consider AN_RESTART status when reading link status") where we
+stopped reading just BMSR, but we also read BMCR to determine the link
+status.
 
-  BUG: kernel NULL pointer dereference, address:
-  ...
-  RIP: 0010:cipso_v4_doi_free+0x3a/0x80
-  ...
-  Call Trace:
-   netlbl_cipsov4_add_std+0xf4/0x8c0
-   netlbl_cipsov4_add+0x13f/0x1b0
-   genl_family_rcv_msg_doit.isra.15+0x132/0x170
-   genl_rcv_msg+0x125/0x240
+Andrius at NetBSD did a wonderful job at debugging the problem
+and found out that the MDIO bus clock frequency would be incorrectly set
+back to its default value which would prevent the MDIO bus controller
+from reading PHY registers properly. Back when we only read BMSR, if we
+read all 1s, we could falsely indicate a link status, though in general
+there is a cable plugged in, so this went unnoticed. After a second read
+of BMCR was added, a wrong read will lead to the inability to determine
+a link UP condition which is when it started to be visibly broken, even
+if it was long before that.
 
-This is because in cipso_v4_doi_free() there is no check
-on 'doi_def->map.std' when 'doi_def->type' equal 1, which
-is possibe, since netlbl_cipsov4_add_std() haven't initialize
-it before alloc 'doi_def->map.std'.
+The fix consists in restoring the value of the MD_CSR register that was
+set prior to the MAC reset.
 
-This patch just add the check to prevent panic happen for similar
-cases.
-
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
+Link: http://gnats.netbsd.org/cgi-bin/query-pr-single.pl?number=53494
+Fixes: 90f750a81a29 ("r6040: consolidate MAC reset to its own function")
+Reported-by: Andrius V <vezhlys@gmail.com>
+Reported-by: Darek Strugacz <darek.strugacz@op.pl>
+Tested-by: Darek Strugacz <darek.strugacz@op.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netlabel/netlabel_cipso_v4.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/rdc/r6040.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/net/netlabel/netlabel_cipso_v4.c b/net/netlabel/netlabel_cipso_v4.c
-index 0559d442ad80..e252f62bb8c2 100644
---- a/net/netlabel/netlabel_cipso_v4.c
-+++ b/net/netlabel/netlabel_cipso_v4.c
-@@ -156,8 +156,8 @@ static int netlbl_cipsov4_add_std(struct genl_info *info,
- 		return -ENOMEM;
- 	doi_def->map.std = kzalloc(sizeof(*doi_def->map.std), GFP_KERNEL);
- 	if (doi_def->map.std == NULL) {
--		ret_val = -ENOMEM;
--		goto add_std_failure;
-+		kfree(doi_def);
-+		return -ENOMEM;
- 	}
- 	doi_def->type = CIPSO_V4_MAP_TRANS;
+--- a/drivers/net/ethernet/rdc/r6040.c
++++ b/drivers/net/ethernet/rdc/r6040.c
+@@ -133,6 +133,8 @@
+ #define PHY_ST		0x8A	/* PHY status register */
+ #define MAC_SM		0xAC	/* MAC status machine */
+ #define  MAC_SM_RST	0x0002	/* MAC status machine reset */
++#define MD_CSC		0xb6	/* MDC speed control register */
++#define  MD_CSC_DEFAULT	0x0030
+ #define MAC_ID		0xBE	/* Identifier register */
  
--- 
-2.30.2
-
+ #define TX_DCNT		0x80	/* TX descriptor count */
+@@ -369,8 +371,9 @@ static void r6040_reset_mac(struct r6040
+ {
+ 	void __iomem *ioaddr = lp->base;
+ 	int limit = MAC_DEF_TIMEOUT;
+-	u16 cmd;
++	u16 cmd, md_csc;
+ 
++	md_csc = ioread16(ioaddr + MD_CSC);
+ 	iowrite16(MAC_RST, ioaddr + MCR1);
+ 	while (limit--) {
+ 		cmd = ioread16(ioaddr + MCR1);
+@@ -382,6 +385,10 @@ static void r6040_reset_mac(struct r6040
+ 	iowrite16(MAC_SM_RST, ioaddr + MAC_SM);
+ 	iowrite16(0, ioaddr + MAC_SM);
+ 	mdelay(5);
++
++	/* Restore MDIO clock frequency */
++	if (md_csc != MD_CSC_DEFAULT)
++		iowrite16(md_csc, ioaddr + MD_CSC);
+ }
+ 
+ static void r6040_init_mac_regs(struct net_device *dev)
 
 
