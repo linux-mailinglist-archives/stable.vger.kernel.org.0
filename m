@@ -2,177 +2,232 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C951411395
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 13:32:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27BDA41139B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 13:33:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231279AbhITLeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 07:34:14 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:48832 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237039AbhITLeJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 07:34:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1632137562;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=cGRqZSBWeWmElZO5ctChgOjYsMPsk81AMTjXRXFXY3M=;
-        b=KyKLnkjfsj9/3dGBMwJT396qUkcS8i/WnxJA7NVVPad8QO4A7brzqoPeW0p3rFrfw3FJRb
-        cHspVGcnpYJe2+ThWg8a28DSq3Djdlow2UOLCgQEUklRMaGRyPUbshB5tvgWh084Kiv0BP
-        LMULxljSYATowSZ+mlD4lEe2RaQPSsc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-400-BkH3sNKTOraod2n23DbRuQ-1; Mon, 20 Sep 2021 07:32:41 -0400
-X-MC-Unique: BkH3sNKTOraod2n23DbRuQ-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S237065AbhITLeh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 07:34:37 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:34216 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237165AbhITLef (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 07:34:35 -0400
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2A434DF8A3;
-        Mon, 20 Sep 2021 11:32:40 +0000 (UTC)
-Received: from t480s.redhat.com (unknown [10.39.194.236])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2065F19724;
-        Mon, 20 Sep 2021 11:32:25 +0000 (UTC)
-From:   David Hildenbrand <david@redhat.com>
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        gregkh@linuxfoundation.org, David Hildenbrand <david@redhat.com>,
-        Pankaj Gupta <pankaj.gupta@ionos.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Oscar Salvador <osalvador@suse.de>
-Subject: [PATCH 4.19 STABLE] mm/memory_hotplug: use "unsigned long" for PFN in zone_for_pfn_range()
-Date:   Mon, 20 Sep 2021 13:32:24 +0200
-Message-Id: <20210920113224.7478-1-david@redhat.com>
-In-Reply-To: <163179697124554@kroah.com>
-References: <163179697124554@kroah.com>
+        by smtp-out1.suse.de (Postfix) with ESMTPS id EE2D62203C;
+        Mon, 20 Sep 2021 11:33:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1632137587; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=MirnV4XaCZRSzPuBlLYw5YJQD01O5bRFc0ZpCNmCdXI=;
+        b=lvhIfWCNEM3+PbsVB/qJWG3fDirJOOl1VXEe8v30J2/tOEp5zmOjdETV3wC8twFcUtIxJF
+        xEB29JHX4czWDOWbzkgRwFiF++afnPT8to0p1oa+yvwlFAOaU+y2P4lIudixiY2qbTqTHg
+        SOb3ZD1YVHVYb+QCF18JyEoZcTvqabc=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 9B09F13483;
+        Mon, 20 Sep 2021 11:33:07 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id KKfXI3NxSGGwDQAAMHmgww
+        (envelope-from <jgross@suse.com>); Mon, 20 Sep 2021 11:33:07 +0000
+Subject: Re: [tip: x86/urgent] x86/setup: Call early_reserve_memory() earlier
+To:     Mike Galbraith <efault@gmx.de>, Mike Rapoport <rppt@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, linux-tip-commits@vger.kernel.org,
+        marmarek@invisiblethingslab.com, Borislav Petkov <bp@suse.de>,
+        stable@vger.kernel.org, x86@kernel.org
+References: <20210914094108.22482-1-jgross@suse.com>
+ <163178944634.25758.17304720937855121489.tip-bot2@tip-bot2>
+ <4422257385dbee913eb5270bda5fded7fbb993ab.camel@gmx.de>
+ <YUdtm8hVH0ps18BK@linux.ibm.com>
+ <fc21617d65338078366e70704eb55789a810e45e.camel@gmx.de>
+ <YUhTwPhva5olB87d@linux.ibm.com>
+ <65a61ffdb4c8090320ec98fe5004e6f7808fa4b9.camel@gmx.de>
+From:   Juergen Gross <jgross@suse.com>
+Message-ID: <6499cba1-1f86-f793-a3a7-815a71296249@suse.com>
+Date:   Mon, 20 Sep 2021 13:33:06 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+In-Reply-To: <65a61ffdb4c8090320ec98fe5004e6f7808fa4b9.camel@gmx.de>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="HGOSxBhvvKD3CTR2nXApYeLmZXYMdCGmJ"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 7cf209ba8a86410939a24cb1aeb279479a7e0ca6 upstream.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--HGOSxBhvvKD3CTR2nXApYeLmZXYMdCGmJ
+Content-Type: multipart/mixed; boundary="sR76SZiWH70JVyavjhxL1zjS8lXQ29FZt";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: Mike Galbraith <efault@gmx.de>, Mike Rapoport <rppt@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-tip-commits@vger.kernel.org,
+ marmarek@invisiblethingslab.com, Borislav Petkov <bp@suse.de>,
+ stable@vger.kernel.org, x86@kernel.org
+Message-ID: <6499cba1-1f86-f793-a3a7-815a71296249@suse.com>
+Subject: Re: [tip: x86/urgent] x86/setup: Call early_reserve_memory() earlier
+References: <20210914094108.22482-1-jgross@suse.com>
+ <163178944634.25758.17304720937855121489.tip-bot2@tip-bot2>
+ <4422257385dbee913eb5270bda5fded7fbb993ab.camel@gmx.de>
+ <YUdtm8hVH0ps18BK@linux.ibm.com>
+ <fc21617d65338078366e70704eb55789a810e45e.camel@gmx.de>
+ <YUhTwPhva5olB87d@linux.ibm.com>
+ <65a61ffdb4c8090320ec98fe5004e6f7808fa4b9.camel@gmx.de>
+In-Reply-To: <65a61ffdb4c8090320ec98fe5004e6f7808fa4b9.camel@gmx.de>
 
-Patch series "mm/memory_hotplug: preparatory patches for new online policy and memory"
+--sR76SZiWH70JVyavjhxL1zjS8lXQ29FZt
+Content-Type: multipart/mixed;
+ boundary="------------27CF52266B77C1EE58768F16"
+Content-Language: en-US
 
-These are all cleanups and one fix previously sent as part of [1]:
-[PATCH v1 00/12] mm/memory_hotplug: "auto-movable" online policy and memory
-groups.
+This is a multi-part message in MIME format.
+--------------27CF52266B77C1EE58768F16
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 
-These patches make sense even without the other series, therefore I pulled
-them out to make the other series easier to digest.
+On 20.09.21 13:25, Mike Galbraith wrote:
+> On Mon, 2021-09-20 at 12:26 +0300, Mike Rapoport wrote:
+>>
+>> Can't say anything caught my eye, except the early microcode update.
+>> Just to rule that out, can you try booting without the early microcode=
 
-[1] https://lkml.kernel.org/r/20210607195430.48228-1-david@redhat.com
+>> update?
+>=20
+> Nogo.
+>=20
+>> And, to check Juergen's suggestion about failure in
+>> memblock_x86_reserve_range_setup_data(), can you try this patch on top=
+ of
+>> the failing tip:
+>=20
+> Yup, patchlet detoxified it for both boxen.
 
-This patch (of 4):
+Yay!
 
-Checkpatch complained on a follow-up patch that we are using "unsigned"
-here, which defaults to "unsigned int" and checkpatch is correct.
+Will respin my patch moving the call of early_reserve_memory() just
+before the call of e820__memory_setup().
 
-As we will search for a fitting zone using the wrong pfn, we might end
-up onlining memory to one of the special kernel zones, such as ZONE_DMA,
-which can end badly as the onlined memory does not satisfy properties of
-these zones.
+Thanks for reporting the issue and verifying my suspicion.
 
-Use "unsigned long" instead, just as we do in other places when handling
-PFNs.  This can bite us once we have physical addresses in the range of
-multiple TB.
 
-Link: https://lkml.kernel.org/r/20210712124052.26491-2-david@redhat.com
-Fixes: e5e689302633 ("mm, memory_hotplug: display allowed zones in the preferred ordering")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Pankaj Gupta <pankaj.gupta@ionos.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Len Brown <lenb@kernel.org>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: virtualization@lists.linux-foundation.org
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc: Anton Blanchard <anton@ozlabs.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jia He <justin.he@arm.com>
-Cc: Joe Perches <joe@perches.com>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Laurent Dufour <ldufour@linux.ibm.com>
-Cc: Michel Lespinasse <michel@lespinasse.org>
-Cc: Nathan Lynch <nathanl@linux.ibm.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Pierre Morel <pmorel@linux.ibm.com>
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Scott Cheloha <cheloha@linux.ibm.com>
-Cc: Sergei Trofimovich <slyfox@gentoo.org>
-Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- include/linux/memory_hotplug.h | 4 ++--
- mm/memory_hotplug.c            | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+Juergen
 
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index d17d45c41a0b..565317876822 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -344,6 +344,6 @@ extern struct page *sparse_decode_mem_map(unsigned long coded_mem_map,
- 					  unsigned long pnum);
- extern bool allow_online_pfn_range(int nid, unsigned long pfn, unsigned long nr_pages,
- 		int online_type);
--extern struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
--		unsigned long nr_pages);
-+extern struct zone *zone_for_pfn_range(int online_type, int nid,
-+		unsigned long start_pfn, unsigned long nr_pages);
- #endif /* __LINUX_MEMORY_HOTPLUG_H */
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index e60e28131f67..20f079c81b33 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -783,8 +783,8 @@ static inline struct zone *default_zone_for_pfn(int nid, unsigned long start_pfn
- 	return movable_node_enabled ? movable_zone : kernel_zone;
- }
- 
--struct zone * zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
--		unsigned long nr_pages)
-+struct zone *zone_for_pfn_range(int online_type, int nid,
-+		unsigned long start_pfn, unsigned long nr_pages)
- {
- 	if (online_type == MMOP_ONLINE_KERNEL)
- 		return default_kernel_zone_for_pfn(nid, start_pfn, nr_pages);
--- 
-2.31.1
+--------------27CF52266B77C1EE58768F16
+Content-Type: application/pgp-keys;
+ name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: OpenPGP public key
+Content-Disposition: attachment;
+ filename="OpenPGP_0xB0DE9DD628BF132F.asc"
 
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
+cWx
+w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
+f8Z
+d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
+9bf
+IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
+G7/
+377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
+3Jv
+c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
+QIe
+AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
+hpw
+dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
+MbD
+1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
+oPH
+Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
+5QL
++qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
+2Vu
+IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
+QoL
+BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
+Wf0
+teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
+/nu
+AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
+ITT
+d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
+XBK
+7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
+80h
+SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
+AcD
+AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
+FOX
+gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
+jnD
+kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
+N51
+N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
+otu
+fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
+tqS
+EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
+hsD
+BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
+g3O
+ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
+dM7
+wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
+D+j
+LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
+V2x
+AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
+Eaw
+QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
+nHI
+s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
+wgn
+BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
+bVF
+LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
+pEd
+IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
+QAB
+wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
+Tbe
+8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
+vJz
+Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
+VGi
+wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
+svi
+uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
+zXs
+ZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------27CF52266B77C1EE58768F16--
+
+--sR76SZiWH70JVyavjhxL1zjS8lXQ29FZt--
+
+--HGOSxBhvvKD3CTR2nXApYeLmZXYMdCGmJ
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmFIcXIFAwAAAAAACgkQsN6d1ii/Ey8Q
+EQf+L0ksCIwO2zF9MmuEv2TmEkAN7xW6UI50V3sPaow6v4E0wqOG6fP+dXHr6AiZSMlHXHVhWD+Y
+EiVCabtcp+drREf/sBMxpGk+V4W1NyFeWSfyompqOfPjgdCPG6bGPpKNwSzv8Ly+DFUk6tkkp6oj
+XeXC5prqUuUVGxxFMm5bRE8oxAjH3RPe1Od3Y6SVtnaVt52gG4A67AtwxBktAwJcz3xS7ht5gZ2Y
+Q12/bMg8YlbU3fd+s0AhXJJf+QxLA0wd2hRvKVjZS76eYMbV1dniiZtBvWWWYMoiS72bgI78xeoN
+zNDdrG+5AzavL/x9bik4pd++K0J88i4kkdXkMgGfFA==
+=xqsn
+-----END PGP SIGNATURE-----
+
+--HGOSxBhvvKD3CTR2nXApYeLmZXYMdCGmJ--
