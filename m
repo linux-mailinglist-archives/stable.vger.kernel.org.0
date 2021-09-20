@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 252E0412480
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:34:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 815BC41259D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:45:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352715AbhITSfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:35:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49244 "EHLO mail.kernel.org"
+        id S1354486AbhITSqf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:46:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1380083AbhITSc1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:32:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59DB961AA5;
-        Mon, 20 Sep 2021 17:27:53 +0000 (UTC)
+        id S1383335AbhITSoY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:44:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1468A61AEB;
+        Mon, 20 Sep 2021 17:32:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158873;
-        bh=CH9Nbf7n2DnQceiv7MVDEHrJ+jxKEoZBVIFIgkoLyzs=;
+        s=korg; t=1632159159;
+        bh=lbAZdGQWMdcvQ07c2MocX2Vj5WvDkupCf8fah3snmpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2u3Ti7cYDRqBbBDZQcjTfbxhFT44VZGYGbzIbpgKTzO7V4GAoF/9g9fh97FEoWAZk
-         LxQGgWQqVQGYquPMv8MAsr6Fac0vG7U3KNePaMvIJLQY8KV1w62nkX0mB3833kcQDI
-         xKTZJLnJzuh11RFxmkmJvtKgT9guaz6Q3Tom0diQ=
+        b=mhnHvNYrX/PYuRikALl7iuzXdO+HOGb8eT3tDhdgXJqA5NQe9isLj9ERu/zlXdCzk
+         CQMId04WtznCHsPazR8P8OMzPoAOU45Hz51W0pGN5/eMJ5RDQfBw+Z+ifyJIRY2Bjp
+         hU+F+cLF2Ri3Dop4L9Hh1Z3IgGYKHX8M1mzzBlKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 062/122] mfd: Dont use irq_create_mapping() to resolve a mapping
+        stable@vger.kernel.org, Om Prakash Singh <omp@nvidia.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Vidya Sagar <vidyas@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 096/168] PCI: tegra194: Fix MSI-X programming
 Date:   Mon, 20 Sep 2021 18:43:54 +0200
-Message-Id: <20210920163917.812770983@linuxfoundation.org>
+Message-Id: <20210920163924.785962341@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,93 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Om Prakash Singh <omp@nvidia.com>
 
-[ Upstream commit 9ff80e2de36d0554e3a6da18a171719fe8663c17 ]
+[ Upstream commit 43537cf7e351264a1f05ed42ad402942bfc9140e ]
 
-Although irq_create_mapping() is able to deal with duplicate
-mappings, it really isn't supposed to be a substitute for
-irq_find_mapping(), and can result in allocations that take place
-in atomic context if the mapping didn't exist.
+Lower order MSI-X address is programmed in MSIX_ADDR_MATCH_HIGH_OFF
+DBI register instead of higher order address. This patch fixes this
+programming mistake.
 
-Fix the handful of MFD drivers that use irq_create_mapping() in
-interrupt context by using irq_find_mapping() instead.
-
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20210623100525.19944-3-omp@nvidia.com
+Signed-off-by: Om Prakash Singh <omp@nvidia.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Vidya Sagar <vidyas@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/ab8500-core.c | 2 +-
- drivers/mfd/stmpe.c       | 4 ++--
- drivers/mfd/tc3589x.c     | 2 +-
- drivers/mfd/wm8994-irq.c  | 2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/pci/controller/dwc/pcie-tegra194.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/ab8500-core.c b/drivers/mfd/ab8500-core.c
-index a3bac9da8cbb..4cea63a4cab7 100644
---- a/drivers/mfd/ab8500-core.c
-+++ b/drivers/mfd/ab8500-core.c
-@@ -493,7 +493,7 @@ static int ab8500_handle_hierarchical_line(struct ab8500 *ab8500,
- 		if (line == AB8540_INT_GPIO43F || line == AB8540_INT_GPIO44F)
- 			line += 1;
+diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
+index fd14e2f45bba..55c8afb9a899 100644
+--- a/drivers/pci/controller/dwc/pcie-tegra194.c
++++ b/drivers/pci/controller/dwc/pcie-tegra194.c
+@@ -1763,7 +1763,7 @@ static void pex_ep_event_pex_rst_deassert(struct tegra_pcie_dw *pcie)
+ 	val = (ep->msi_mem_phys & MSIX_ADDR_MATCH_LOW_OFF_MASK);
+ 	val |= MSIX_ADDR_MATCH_LOW_OFF_EN;
+ 	dw_pcie_writel_dbi(pci, MSIX_ADDR_MATCH_LOW_OFF, val);
+-	val = (lower_32_bits(ep->msi_mem_phys) & MSIX_ADDR_MATCH_HIGH_OFF_MASK);
++	val = (upper_32_bits(ep->msi_mem_phys) & MSIX_ADDR_MATCH_HIGH_OFF_MASK);
+ 	dw_pcie_writel_dbi(pci, MSIX_ADDR_MATCH_HIGH_OFF, val);
  
--		handle_nested_irq(irq_create_mapping(ab8500->domain, line));
-+		handle_nested_irq(irq_find_mapping(ab8500->domain, line));
- 	}
- 
- 	return 0;
-diff --git a/drivers/mfd/stmpe.c b/drivers/mfd/stmpe.c
-index 1aee3b3253fc..508349399f8a 100644
---- a/drivers/mfd/stmpe.c
-+++ b/drivers/mfd/stmpe.c
-@@ -1091,7 +1091,7 @@ static irqreturn_t stmpe_irq(int irq, void *data)
- 
- 	if (variant->id_val == STMPE801_ID ||
- 	    variant->id_val == STMPE1600_ID) {
--		int base = irq_create_mapping(stmpe->domain, 0);
-+		int base = irq_find_mapping(stmpe->domain, 0);
- 
- 		handle_nested_irq(base);
- 		return IRQ_HANDLED;
-@@ -1119,7 +1119,7 @@ static irqreturn_t stmpe_irq(int irq, void *data)
- 		while (status) {
- 			int bit = __ffs(status);
- 			int line = bank * 8 + bit;
--			int nestedirq = irq_create_mapping(stmpe->domain, line);
-+			int nestedirq = irq_find_mapping(stmpe->domain, line);
- 
- 			handle_nested_irq(nestedirq);
- 			status &= ~(1 << bit);
-diff --git a/drivers/mfd/tc3589x.c b/drivers/mfd/tc3589x.c
-index 7882a37ffc35..5c2d5a6a6da9 100644
---- a/drivers/mfd/tc3589x.c
-+++ b/drivers/mfd/tc3589x.c
-@@ -187,7 +187,7 @@ again:
- 
- 	while (status) {
- 		int bit = __ffs(status);
--		int virq = irq_create_mapping(tc3589x->domain, bit);
-+		int virq = irq_find_mapping(tc3589x->domain, bit);
- 
- 		handle_nested_irq(virq);
- 		status &= ~(1 << bit);
-diff --git a/drivers/mfd/wm8994-irq.c b/drivers/mfd/wm8994-irq.c
-index 6c3a619e2628..651a028bc519 100644
---- a/drivers/mfd/wm8994-irq.c
-+++ b/drivers/mfd/wm8994-irq.c
-@@ -154,7 +154,7 @@ static irqreturn_t wm8994_edge_irq(int irq, void *data)
- 	struct wm8994 *wm8994 = data;
- 
- 	while (gpio_get_value_cansleep(wm8994->pdata.irq_gpio))
--		handle_nested_irq(irq_create_mapping(wm8994->edge_irq, 0));
-+		handle_nested_irq(irq_find_mapping(wm8994->edge_irq, 0));
- 
- 	return IRQ_HANDLED;
- }
+ 	ret = dw_pcie_ep_init_complete(ep);
 -- 
 2.30.2
 
