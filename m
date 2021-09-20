@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B446411FB5
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:43:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DEFD411D45
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:16:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353500AbhITRox (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:44:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49428 "EHLO mail.kernel.org"
+        id S245057AbhITRSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:18:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347005AbhITRmP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:42:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74C4761B5D;
-        Mon, 20 Sep 2021 17:08:48 +0000 (UTC)
+        id S1346280AbhITRQG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:16:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E87B61A02;
+        Mon, 20 Sep 2021 16:58:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157728;
-        bh=w19I8oZ9rhYp53yKQs341qULcXAwjcFJktO1aC5SfCE=;
+        s=korg; t=1632157129;
+        bh=XyBsipfhO+Ql6KmfvM3leT4O7kztWwxeptpq58KuB7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gMFF4/gt2PkJyu/zqpuNs9XTt5PzIf4Qnyx4BeU3rlkO43cVtkvoIwRQh2gtxu9BR
-         NibWXGQxJhgTTSYtNaZdRwu8wLEbPnIWfJWSC/a6g1hUo0V7iUprFUech4MYdiCFRf
-         dwlQX7+bE+f57n7/IsngIfmom/B4K1D7HaAv6kkQ=
+        b=PWPlQHPre62yPqfwxnFr0G3r61kanvqEqhrocieUMtc2KgROpY5QcO4Lj1lMySAzH
+         1+ZDs5LaHkzkGZKwxoNX/2IBEwMjxZOQwgOMz+O12tK3z+WRxIhFT1DwpbOGIp9eEs
+         2RNXU+pDbdftQtXrqck2u/J/KKOv1KVG3s5GSLx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 4.19 124/293] xen: fix setting of max_pfn in shared_info
+        stable@vger.kernel.org,
+        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 065/217] Bluetooth: fix repeated calls to sco_sock_kill
 Date:   Mon, 20 Sep 2021 18:41:26 +0200
-Message-Id: <20210920163937.506467719@linuxfoundation.org>
+Message-Id: <20210920163926.828709420@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +41,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-commit 4b511d5bfa74b1926daefd1694205c7f1bcf677f upstream.
+[ Upstream commit e1dee2c1de2b4dd00eb44004a4bda6326ed07b59 ]
 
-Xen PV guests are specifying the highest used PFN via the max_pfn
-field in shared_info. This value is used by the Xen tools when saving
-or migrating the guest.
+In commit 4e1a720d0312 ("Bluetooth: avoid killing an already killed
+socket"), a check was added to sco_sock_kill to skip killing a socket
+if the SOCK_DEAD flag was set.
 
-Unfortunately this field is misnamed, as in reality it is specifying
-the number of pages (including any memory holes) of the guest, so it
-is the highest used PFN + 1. Renaming isn't possible, as this is a
-public Xen hypervisor interface which needs to be kept stable.
+This was done after a trace for a use-after-free bug showed that the
+same sock pointer was being killed twice.
 
-The kernel will set the value correctly initially at boot time, but
-when adding more pages (e.g. due to memory hotplug or ballooning) a
-real PFN number is stored in max_pfn. This is done when expanding the
-p2m array, and the PFN stored there is even possibly wrong, as it
-should be the last possible PFN of the just added P2M frame, and not
-one which led to the P2M expansion.
+Unfortunately, this check prevents sco_sock_kill from running on any
+socket. sco_sock_kill kills a socket only if it's zapped and orphaned,
+however sock_orphan announces that the socket is dead before detaching
+it. i.e., orphaned sockets have the SOCK_DEAD flag set.
 
-Fix that by setting shared_info->max_pfn to the last possible PFN + 1.
+To fix this, we remove the check for SOCK_DEAD, and avoid repeated
+calls to sco_sock_kill by removing incorrect calls in:
 
-Fixes: 98dd166ea3a3c3 ("x86/xen/p2m: hint at the last populated P2M entry")
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Link: https://lore.kernel.org/r/20210730092622.9973-2-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+1. sco_sock_timeout. The socket should not be killed on timeout as
+further processing is expected to be done. For example,
+sco_sock_connect sets the timer then waits for the socket to be
+connected or for an error to be returned.
+
+2. sco_conn_del. This function should clean up resources for the
+connection, but the socket itself should be cleaned up in
+sco_sock_release.
+
+3. sco_sock_close. Calls to sco_sock_close in sco_sock_cleanup_listen
+and sco_sock_release are followed by sco_sock_kill. Hence the
+duplicated call should be removed.
+
+Fixes: 4e1a720d0312 ("Bluetooth: avoid killing an already killed socket")
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/p2m.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/bluetooth/sco.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/arch/x86/xen/p2m.c
-+++ b/arch/x86/xen/p2m.c
-@@ -613,8 +613,8 @@ int xen_alloc_p2m_entry(unsigned long pf
+diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
+index 930828ec2afb..f4b997fb33d6 100644
+--- a/net/bluetooth/sco.c
++++ b/net/bluetooth/sco.c
+@@ -84,7 +84,6 @@ static void sco_sock_timeout(unsigned long arg)
+ 	sk->sk_state_change(sk);
+ 	bh_unlock_sock(sk);
+ 
+-	sco_sock_kill(sk);
+ 	sock_put(sk);
+ }
+ 
+@@ -176,7 +175,6 @@ static void sco_conn_del(struct hci_conn *hcon, int err)
+ 		sco_sock_clear_timer(sk);
+ 		sco_chan_del(sk, err);
+ 		bh_unlock_sock(sk);
+-		sco_sock_kill(sk);
+ 		sock_put(sk);
  	}
  
- 	/* Expanded the p2m? */
--	if (pfn > xen_p2m_last_pfn) {
--		xen_p2m_last_pfn = pfn;
-+	if (pfn >= xen_p2m_last_pfn) {
-+		xen_p2m_last_pfn = ALIGN(pfn + 1, P2M_PER_PAGE);
- 		HYPERVISOR_shared_info->arch.max_pfn = xen_p2m_last_pfn;
- 	}
+@@ -393,8 +391,7 @@ static void sco_sock_cleanup_listen(struct sock *parent)
+  */
+ static void sco_sock_kill(struct sock *sk)
+ {
+-	if (!sock_flag(sk, SOCK_ZAPPED) || sk->sk_socket ||
+-	    sock_flag(sk, SOCK_DEAD))
++	if (!sock_flag(sk, SOCK_ZAPPED) || sk->sk_socket)
+ 		return;
  
+ 	BT_DBG("sk %p state %d", sk, sk->sk_state);
+@@ -446,7 +443,6 @@ static void sco_sock_close(struct sock *sk)
+ 	lock_sock(sk);
+ 	__sco_sock_close(sk);
+ 	release_sock(sk);
+-	sco_sock_kill(sk);
+ }
+ 
+ static void sco_sock_init(struct sock *sk, struct sock *parent)
+-- 
+2.30.2
+
 
 
