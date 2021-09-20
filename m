@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66F47411D6A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:18:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09C1141202A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:51:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244754AbhITRUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:20:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48050 "EHLO mail.kernel.org"
+        id S1349565AbhITRw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:52:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346267AbhITRSD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:18:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D5F9D61A3B;
-        Mon, 20 Sep 2021 16:59:31 +0000 (UTC)
+        id S1349188AbhITRrV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:47:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 33B3361BA9;
+        Mon, 20 Sep 2021 17:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157172;
-        bh=lpQGb2tZVtmJngg+97eEPxZo3xFcTgZfVOVnL7Gq/xw=;
+        s=korg; t=1632157848;
+        bh=hT/rhYBaEHAleBUYq9bC8rfhROFSvmZe5HHjoSa0uus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uAW/dCgWAoMXruitWwl2zyCa1vy//Gvp0IH7ONv8e/i0qzEujv1eodrhaZ8KDvjb1
-         +GkQthDMcTf2cmphdl8UTqDsGtfW6oWYVEPDLnm8Y1wy+vufX8Uz7STMlfMnXyCvN5
-         PZ13f31Mt+T+H5jpsKhGYUFmsENxnmxmNWWXl7qY=
+        b=DzoN+Dhn7JD090Yl/QyITJ3mhsmh5dc0d36rdu7V9SkQXNdODgKgf33X+kqQM0kAp
+         fdYDELBY6r+sLAwfTRO3Nm40wROV2C4s+gfLJFWykpPcP6rPESFGe2no5lJ632OZ66
+         qvkL+E56OrLZIG/U+o3GVKUUq6WOfuAF+WM5yuto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Keyu Man <kman001@ucr.edu>, Willy Tarreau <w@1wt.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        David Ahern <dsahern@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 087/217] ipv4: make exception cache less predictible
+        stable@vger.kernel.org, DJ Gregor <dj@corelight.com>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Arne Welzel <arne.welzel@corelight.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.19 146/293] dm crypt: Avoid percpu_counter spinlock contention in crypt_page_alloc()
 Date:   Mon, 20 Sep 2021 18:41:48 +0200
-Message-Id: <20210920163927.584824767@linuxfoundation.org>
+Message-Id: <20210920163938.277392203@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,127 +41,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Arne Welzel <arne.welzel@corelight.com>
 
-[ Upstream commit 67d6d681e15b578c1725bad8ad079e05d1c48a8e ]
+commit 528b16bfc3ae5f11638e71b3b63a81f9999df727 upstream.
 
-Even after commit 6457378fe796 ("ipv4: use siphash instead of Jenkins in
-fnhe_hashfun()"), an attacker can still use brute force to learn
-some secrets from a victim linux host.
+On systems with many cores using dm-crypt, heavy spinlock contention in
+percpu_counter_compare() can be observed when the page allocation limit
+for a given device is reached or close to be reached. This is due
+to percpu_counter_compare() taking a spinlock to compute an exact
+result on potentially many CPUs at the same time.
 
-One way to defeat these attacks is to make the max depth of the hash
-table bucket a random value.
+Switch to non-exact comparison of allocated and allowed pages by using
+the value returned by percpu_counter_read_positive() to avoid taking
+the percpu_counter spinlock.
 
-Before this patch, each bucket of the hash table used to store exceptions
-could contain 6 items under attack.
+This may over/under estimate the actual number of allocated pages by at
+most (batch-1) * num_online_cpus().
 
-After the patch, each bucket would contains a random number of items,
-between 6 and 10. The attacker can no longer infer secrets.
+Currently, batch is bounded by 32. The system on which this issue was
+first observed has 256 CPUs and 512GB of RAM. With a 4k page size, this
+change may over/under estimate by 31MB. With ~10G (2%) allowed dm-crypt
+allocations, this seems an acceptable error. Certainly preferred over
+running into the spinlock contention.
 
-This is slightly increasing memory size used by the hash table,
-by 50% in average, we do not expect this to be a problem.
+This behavior was reproduced on an EC2 c5.24xlarge instance with 96 CPUs
+and 192GB RAM as follows, but can be provoked on systems with less CPUs
+as well.
 
-This patch is more complex than the prior one (IPv6 equivalent),
-because IPv4 was reusing the oldest entry.
-Since we need to be able to evict more than one entry per
-update_or_create_fnhe() call, I had to replace
-fnhe_oldest() with fnhe_remove_oldest().
+ * Disable swap
+ * Tune vm settings to promote regular writeback
+     $ echo 50 > /proc/sys/vm/dirty_expire_centisecs
+     $ echo 25 > /proc/sys/vm/dirty_writeback_centisecs
+     $ echo $((128 * 1024 * 1024)) > /proc/sys/vm/dirty_background_bytes
 
-Also note that we will queue extra kfree_rcu() calls under stress,
-which hopefully wont be a too big issue.
+ * Create 8 dmcrypt devices based on files on a tmpfs
+ * Create and mount an ext4 filesystem on each crypt devices
+ * Run stress-ng --hdd 8 within one of above filesystems
 
-Fixes: 4895c771c7f0 ("ipv4: Add FIB nexthop exceptions.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Keyu Man <kman001@ucr.edu>
-Cc: Willy Tarreau <w@1wt.eu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Tested-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Total %system usage collected from sysstat goes to ~35%. Write throughput
+on the underlying loop device is ~2GB/s. perf profiling an individual
+kworker kcryptd thread shows the following profile, indicating spinlock
+contention in percpu_counter_compare():
+
+    99.98%     0.00%  kworker/u193:46  [kernel.kallsyms]  [k] ret_from_fork
+      |
+      --ret_from_fork
+        kthread
+        worker_thread
+        |
+         --99.92%--process_one_work
+            |
+            |--80.52%--kcryptd_crypt
+            |    |
+            |    |--62.58%--mempool_alloc
+            |    |  |
+            |    |   --62.24%--crypt_page_alloc
+            |    |     |
+            |    |      --61.51%--__percpu_counter_compare
+            |    |        |
+            |    |         --61.34%--__percpu_counter_sum
+            |    |           |
+            |    |           |--58.68%--_raw_spin_lock_irqsave
+            |    |           |  |
+            |    |           |   --58.30%--native_queued_spin_lock_slowpath
+            |    |           |
+            |    |            --0.69%--cpumask_next
+            |    |                |
+            |    |                 --0.51%--_find_next_bit
+            |    |
+            |    |--10.61%--crypt_convert
+            |    |          |
+            |    |          |--6.05%--xts_crypt
+            ...
+
+After applying this patch and running the same test, %system usage is
+lowered to ~7% and write throughput on the loop device increases
+to ~2.7GB/s. perf report shows mempool_alloc() as ~8% rather than ~62%
+in the profile and not hitting the percpu_counter() spinlock anymore.
+
+    |--8.15%--mempool_alloc
+    |    |
+    |    |--3.93%--crypt_page_alloc
+    |    |    |
+    |    |     --3.75%--__alloc_pages
+    |    |         |
+    |    |          --3.62%--get_page_from_freelist
+    |    |              |
+    |    |               --3.22%--rmqueue_bulk
+    |    |                   |
+    |    |                    --2.59%--_raw_spin_lock
+    |    |                      |
+    |    |                       --2.57%--native_queued_spin_lock_slowpath
+    |    |
+    |     --3.05%--_raw_spin_lock_irqsave
+    |               |
+    |                --2.49%--native_queued_spin_lock_slowpath
+
+Suggested-by: DJ Gregor <dj@corelight.com>
+Reviewed-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Arne Welzel <arne.welzel@corelight.com>
+Fixes: 5059353df86e ("dm crypt: limit the number of allocated pages")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/route.c | 46 ++++++++++++++++++++++++++++++----------------
- 1 file changed, 30 insertions(+), 16 deletions(-)
+ drivers/md/dm-crypt.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index 81901b052907..d67d424be919 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -619,18 +619,25 @@ static void fnhe_flush_routes(struct fib_nh_exception *fnhe)
- 	}
- }
+--- a/drivers/md/dm-crypt.c
++++ b/drivers/md/dm-crypt.c
+@@ -2181,7 +2181,12 @@ static void *crypt_page_alloc(gfp_t gfp_
+ 	struct crypt_config *cc = pool_data;
+ 	struct page *page;
  
--static struct fib_nh_exception *fnhe_oldest(struct fnhe_hash_bucket *hash)
-+static void fnhe_remove_oldest(struct fnhe_hash_bucket *hash)
- {
--	struct fib_nh_exception *fnhe, *oldest;
-+	struct fib_nh_exception __rcu **fnhe_p, **oldest_p;
-+	struct fib_nh_exception *fnhe, *oldest = NULL;
+-	if (unlikely(percpu_counter_compare(&cc->n_allocated_pages, dm_crypt_pages_per_client) >= 0) &&
++	/*
++	 * Note, percpu_counter_read_positive() may over (and under) estimate
++	 * the current usage by at most (batch - 1) * num_online_cpus() pages,
++	 * but avoids potential spinlock contention of an exact result.
++	 */
++	if (unlikely(percpu_counter_read_positive(&cc->n_allocated_pages) >= dm_crypt_pages_per_client) &&
+ 	    likely(gfp_mask & __GFP_NORETRY))
+ 		return NULL;
  
--	oldest = rcu_dereference(hash->chain);
--	for (fnhe = rcu_dereference(oldest->fnhe_next); fnhe;
--	     fnhe = rcu_dereference(fnhe->fnhe_next)) {
--		if (time_before(fnhe->fnhe_stamp, oldest->fnhe_stamp))
-+	for (fnhe_p = &hash->chain; ; fnhe_p = &fnhe->fnhe_next) {
-+		fnhe = rcu_dereference_protected(*fnhe_p,
-+						 lockdep_is_held(&fnhe_lock));
-+		if (!fnhe)
-+			break;
-+		if (!oldest ||
-+		    time_before(fnhe->fnhe_stamp, oldest->fnhe_stamp)) {
- 			oldest = fnhe;
-+			oldest_p = fnhe_p;
-+		}
- 	}
- 	fnhe_flush_routes(oldest);
--	return oldest;
-+	*oldest_p = oldest->fnhe_next;
-+	kfree_rcu(oldest, rcu);
- }
- 
- static inline u32 fnhe_hashfun(__be32 daddr)
-@@ -707,16 +714,21 @@ static void update_or_create_fnhe(struct fib_nh *nh, __be32 daddr, __be32 gw,
- 		if (rt)
- 			fill_route_from_fnhe(rt, fnhe);
- 	} else {
--		if (depth > FNHE_RECLAIM_DEPTH)
--			fnhe = fnhe_oldest(hash);
--		else {
--			fnhe = kzalloc(sizeof(*fnhe), GFP_ATOMIC);
--			if (!fnhe)
--				goto out_unlock;
--
--			fnhe->fnhe_next = hash->chain;
--			rcu_assign_pointer(hash->chain, fnhe);
-+		/* Randomize max depth to avoid some side channels attacks. */
-+		int max_depth = FNHE_RECLAIM_DEPTH +
-+				prandom_u32_max(FNHE_RECLAIM_DEPTH);
-+
-+		while (depth > max_depth) {
-+			fnhe_remove_oldest(hash);
-+			depth--;
- 		}
-+
-+		fnhe = kzalloc(sizeof(*fnhe), GFP_ATOMIC);
-+		if (!fnhe)
-+			goto out_unlock;
-+
-+		fnhe->fnhe_next = hash->chain;
-+
- 		fnhe->fnhe_genid = genid;
- 		fnhe->fnhe_daddr = daddr;
- 		fnhe->fnhe_gw = gw;
-@@ -724,6 +736,8 @@ static void update_or_create_fnhe(struct fib_nh *nh, __be32 daddr, __be32 gw,
- 		fnhe->fnhe_mtu_locked = lock;
- 		fnhe->fnhe_expires = max(1UL, expires);
- 
-+		rcu_assign_pointer(hash->chain, fnhe);
-+
- 		/* Exception created; mark the cached routes for the nexthop
- 		 * stale, so anyone caching it rechecks if this exception
- 		 * applies to them.
--- 
-2.30.2
-
 
 
