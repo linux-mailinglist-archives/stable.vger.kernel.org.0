@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 874B8411CE4
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:13:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2F09412117
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:00:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243937AbhITRO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:14:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41202 "EHLO mail.kernel.org"
+        id S1356836AbhITSBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:01:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345448AbhITRMz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:12:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 09F3561359;
-        Mon, 20 Sep 2021 16:57:29 +0000 (UTC)
+        id S1356400AbhITR7w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:59:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D44FD6321A;
+        Mon, 20 Sep 2021 17:15:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157050;
-        bh=4k3ueqBC6+FyS0/IPM9yYUQy0wgR+I6vFAKdUCTtQLM=;
+        s=korg; t=1632158130;
+        bh=LwQjO8XX9cG305iFtxVrIZ87BK8ecdMD62X2++UmegI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n91/TbDyqWVFb7fSo4lkZv8l4ERXrT7zoD4oXgFPQdIUkU4FQl6qjX2aTkopj6peu
-         6nuxITlCNkqkC174snBJQRbanwXrsMBBOOaAQmDI+LtFAhvc00yxb78BNxASZjFIcZ
-         jAtSxZ6FhNU7ric4yrOZgbMBiJ5rRcbaBVXGwQoo=
+        b=Zwhco9n6Ui8xofXgW0IEdScho65tLOJb+u8Ix4P5kywn9W09pghLQg7IsyFFdemcT
+         oieHfakBHM8XDDjcGg51zIwRNlELjLiL5ihSI1UqxqE0IZqbgCn3ghoeHIHyzK+F/0
+         8I1Xg4SHexBlwmA7Hb0+fLu43+qabcov53yPSuEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prabhakar Kushwaha <pkushwaha@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        Shai Malin <smalin@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 003/217] qed: Fix the VF msix vectors flow
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.4 006/260] PCI/MSI: Skip masking MSI-X on Xen PV
 Date:   Mon, 20 Sep 2021 18:40:24 +0200
-Message-Id: <20210920163924.714395765@linuxfoundation.org>
+Message-Id: <20210920163931.344981502@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shai Malin <smalin@marvell.com>
+From: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
 
-[ Upstream commit b0cd08537db8d2fbb227cdb2e5835209db295a24 ]
+commit 1a519dc7a73c977547d8b5108d98c6e769c89f4b upstream.
 
-For VFs we should return with an error in case we didn't get the exact
-number of msix vectors as we requested.
-Not doing that will lead to a crash when starting queues for this VF.
+When running as Xen PV guest, masking MSI-X is a responsibility of the
+hypervisor. The guest has no write access to the relevant BAR at all - when
+it tries to, it results in a crash like this:
 
-Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: Shai Malin <smalin@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+    BUG: unable to handle page fault for address: ffffc9004069100c
+    #PF: supervisor write access in kernel mode
+    #PF: error_code(0x0003) - permissions violation
+    RIP: e030:__pci_enable_msix_range.part.0+0x26b/0x5f0
+     e1000e_set_interrupt_capability+0xbf/0xd0 [e1000e]
+     e1000_probe+0x41f/0xdb0 [e1000e]
+     local_pci_probe+0x42/0x80
+    (...)
+
+The recently introduced function msix_mask_all() does not check the global
+variable pci_msi_ignore_mask which is set by XEN PV to bypass the masking
+of MSI[-X] interrupts.
+
+Add the check to make this function XEN PV compatible.
+
+Fixes: 7d5ec3d36123 ("PCI/MSI: Mask all unused MSI-X entries")
+Signed-off-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210826170342.135172-1-marmarek@invisiblethingslab.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_main.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/pci/msi.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_main.c b/drivers/net/ethernet/qlogic/qed/qed_main.c
-index 52e747fd9c83..62d514b60e23 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_main.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_main.c
-@@ -437,7 +437,12 @@ static int qed_enable_msix(struct qed_dev *cdev,
- 			rc = cnt;
- 	}
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -782,6 +782,9 @@ static void msix_mask_all(void __iomem *
+ 	u32 ctrl = PCI_MSIX_ENTRY_CTRL_MASKBIT;
+ 	int i;
  
--	if (rc > 0) {
-+	/* For VFs, we should return with an error in case we didn't get the
-+	 * exact number of msix vectors as we requested.
-+	 * Not doing that will lead to a crash when starting queues for
-+	 * this VF.
-+	 */
-+	if ((IS_PF(cdev) && rc > 0) || (IS_VF(cdev) && rc == cnt)) {
- 		/* MSI-x configuration was achieved */
- 		int_params->out.int_mode = QED_INT_MODE_MSIX;
- 		int_params->out.num_vectors = rc;
--- 
-2.30.2
-
++	if (pci_msi_ignore_mask)
++		return;
++
+ 	for (i = 0; i < tsize; i++, base += PCI_MSIX_ENTRY_SIZE)
+ 		writel(ctrl, base + PCI_MSIX_ENTRY_VECTOR_CTRL);
+ }
 
 
