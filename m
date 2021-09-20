@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1896A411C3E
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:06:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B40C411E1A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:26:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346461AbhITRHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:07:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58540 "EHLO mail.kernel.org"
+        id S1347886AbhITR1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:27:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245545AbhITRFU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:05:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9460A61528;
-        Mon, 20 Sep 2021 16:54:51 +0000 (UTC)
+        id S1349912AbhITRZJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:25:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E14656126A;
+        Mon, 20 Sep 2021 17:02:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156892;
-        bh=7rPPy9jsMIK4OkpCSNlE5O184vhskXR45nYeIa/uT1c=;
+        s=korg; t=1632157335;
+        bh=mJMmkxwxd9M8+jmz6WOQ+szENOwFVOrm9qIV68A5zwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LsobG8z7PBkB0ZSpKg0GqZpH4WqfN10BudD93vmDlQ5w8kfcYX5YpAD1oiy80K3Iy
-         JdhDN5wYpDjp33sPcMARWTun8nmrx5QDbzXOC07VbIAxyZ19WNwNf6/kNsujUeWgjT
-         4Gui7Vjzu425LyW6m0KtCB9OaUhFp3/eLpTqqjqk=
+        b=m687PDiRtRigsSQ7VcqNffERw/dGjqcqU9nJF8EJQSfip8G6vokn6zdf796LSELbx
+         ESULcQrieM4IZHYXe5hMiCe8WA6JNZJCI+50Lpa/usi1tI9MrZtHSQuEmz22FjZorA
+         t71nj1Ov8re541vvsbfdAnR4M2stvF9MImFHejJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 133/175] net: ethernet: stmmac: Do not use unreachable() in ipq806x_gmac_probe()
+Subject: [PATCH 4.14 161/217] arm64: dts: qcom: sdm660: use reg value for memory node
 Date:   Mon, 20 Sep 2021 18:43:02 +0200
-Message-Id: <20210920163922.427951735@linuxfoundation.org>
+Message-Id: <20210920163930.098618277@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,86 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit 4367355dd90942a71641c98c40c74589c9bddf90 ]
+[ Upstream commit c81210e38966cfa1c784364e4035081c3227cf5b ]
 
-When compiling with clang in certain configurations, an objtool warning
-appears:
+memory node like other node should be node@reg, which is missing in this
+case, so fix it up
 
-drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.o: warning: objtool:
-ipq806x_gmac_probe() falls through to next function phy_modes()
+arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 1073741824, 0, 536870912]]}
 
-This happens because the unreachable annotation in the third switch
-statement is not eliminated. The compiler should know that the first
-default case would prevent the second and third from being reached as
-the comment notes but sanitizer options can make it harder for the
-compiler to reason this out.
-
-Help the compiler out by eliminating the unreachable() annotation and
-unifying the default case error handling so that there is no objtool
-warning, the meaning of the code stays the same, and there is less
-duplication.
-
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Tested-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20210308060826.3074234-18-vkoul@kernel.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/stmicro/stmmac/dwmac-ipq806x.c    | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ arch/arm64/boot/dts/qcom/ipq8074-hk01.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-index f4ff43a1b5ba..d8c40b68bc96 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-@@ -300,10 +300,7 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
- 		val &= ~NSS_COMMON_GMAC_CTL_PHY_IFACE_SEL;
- 		break;
- 	default:
--		dev_err(&pdev->dev, "Unsupported PHY mode: \"%s\"\n",
--			phy_modes(gmac->phy_mode));
--		err = -EINVAL;
--		goto err_remove_config_dt;
-+		goto err_unsupported_phy;
- 	}
- 	regmap_write(gmac->nss_common, NSS_COMMON_GMAC_CTL(gmac->id), val);
+diff --git a/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts b/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
+index 6a838b5d321e..1ab7deeb2497 100644
+--- a/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
++++ b/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
+@@ -27,7 +27,7 @@ chosen {
+ 		stdout-path = "serial0";
+ 	};
  
-@@ -320,10 +317,7 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
- 			NSS_COMMON_CLK_SRC_CTRL_OFFSET(gmac->id);
- 		break;
- 	default:
--		dev_err(&pdev->dev, "Unsupported PHY mode: \"%s\"\n",
--			phy_modes(gmac->phy_mode));
--		err = -EINVAL;
--		goto err_remove_config_dt;
-+		goto err_unsupported_phy;
- 	}
- 	regmap_write(gmac->nss_common, NSS_COMMON_CLK_SRC_CTRL, val);
- 
-@@ -340,8 +334,7 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
- 				NSS_COMMON_CLK_GATE_GMII_TX_EN(gmac->id);
- 		break;
- 	default:
--		/* We don't get here; the switch above will have errored out */
--		unreachable();
-+		goto err_unsupported_phy;
- 	}
- 	regmap_write(gmac->nss_common, NSS_COMMON_CLK_GATE, val);
- 
-@@ -372,6 +365,11 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
-+err_unsupported_phy:
-+	dev_err(&pdev->dev, "Unsupported PHY mode: \"%s\"\n",
-+		phy_modes(gmac->phy_mode));
-+	err = -EINVAL;
-+
- err_remove_config_dt:
- 	stmmac_remove_config_dt(pdev, plat_dat);
- 
+-	memory {
++	memory@40000000 {
+ 		device_type = "memory";
+ 		reg = <0x0 0x40000000 0x0 0x20000000>;
+ 	};
 -- 
 2.30.2
 
