@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C88C412631
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:54:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DE954124B7
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:35:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354796AbhITS4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:56:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33188 "EHLO mail.kernel.org"
+        id S1381251AbhITShF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:37:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1385437AbhITSu0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:50:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 842646337E;
-        Mon, 20 Sep 2021 17:34:40 +0000 (UTC)
+        id S1380891AbhITSfB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:35:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 32B5E63310;
+        Mon, 20 Sep 2021 17:28:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159281;
-        bh=HzC4FEJyEmQTpbQRKNOD5mi7b2ZooCXj66Madr1v6Og=;
+        s=korg; t=1632158937;
+        bh=qQ7ssa6Xpm4dQiqcjOkijvkCiwWeXZmz+j/SQ5HIY6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iv6cjLnAzSml/bhAbTRnuYEb3pnbPvm1PG00MIy59Fo8XDVX7sOkklv8VPLR2W4ax
-         w8pkuHFE2R/QY/xb3b7Rvdrv9w/2E3wRoguRE3JCwtyKyf9MLlqExvStp29u1HpPQP
-         CoMvO6kFnpGYw1bTMKuAkBMZlhmoR5Xf+jj5xZYc=
+        b=Np8zzCDGOJUxgr5o60Qs6AXC5MnHK+t84P7JKMe/b118g9+y9YgEZYkkTV3ATMm79
+         HOPzxKYvZU9878Qb//tl727dMu2LuDTcgBa/35b0D7ZabISgMvdmOQqMZjHGG+qtql
+         vlu97cf2vQrhT5sZtOnyFvn49cMmavBCt1sn90+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 132/168] mtd: mtdconcat: Check _read, _write callbacks existence before assignment
+Subject: [PATCH 5.10 098/122] perf bench inject-buildid: Handle writen() errors
 Date:   Mon, 20 Sep 2021 18:44:30 +0200
-Message-Id: <20210920163926.005202402@linuxfoundation.org>
+Message-Id: <20210920163919.001822226@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +40,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit a89d69a44e282be95ae76125dddc79515541efeb ]
+[ Upstream commit edf7b4a2d85e37a1ee77156bddaed4aa6af9c5e1 ]
 
-Since 2431c4f5b46c3 ("mtd: Implement mtd_{read,write}() as wrappers
-around mtd_{read,write}_oob()") don't allow _write|_read and
-_write_oob|_read_oob existing at the same time, we should check the
-existence of callbacks "_read and _write" from subdev's master device
-(We can trust master device since it has been registered) before
-assigning, otherwise following warning occurs while making
-concatenated device:
+The build on fedora:35 and fedora:rawhide with clang is failing with:
 
-  WARNING: CPU: 2 PID: 6728 at drivers/mtd/mtdcore.c:595
-  add_mtd_device+0x7f/0x7b0
+  49    41.00 fedora:35                     : FAIL clang version 13.0.0 (Fedora 13.0.0~rc1-1.fc35)
+    bench/inject-buildid.c:351:6: error: variable 'len' set but not used [-Werror,-Wunused-but-set-variable]
+            u64 len = 0;
+                ^
+    1 error generated.
+    make[3]: *** [/git/perf-5.14.0-rc7/tools/build/Makefile.build:139: bench] Error 2
+  50    41.11 fedora:rawhide                : FAIL clang version 13.0.0 (Fedora 13.0.0~rc1-1.fc35)
+    bench/inject-buildid.c:351:6: error: variable 'len' set but not used [-Werror,-Wunused-but-set-variable]
+            u64 len = 0;
+                ^
+    1 error generated.
+    make[3]: *** [/git/perf-5.14.0-rc7/tools/build/Makefile.build:139: bench] Error 2
 
-Fixes: 2431c4f5b46c3 ("mtd: Implement mtd_{read,write}() around ...")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210817114857.2784825-3-chengzhihao1@huawei.com
+That 'len' variable is not used at all, so just make sure all the
+synthesize_RECORD() routines return ssize_t to propagate the writen()
+return, as it may fail, ditch the 'ret' var and bail out if those
+routines fail.
+
+Fixes: 0bf02a0d80427f26 ("perf bench: Add build-id injection benchmark")
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Link: http://lore.kernel.org/lkml/CAM9d7cgEZNSor+B+7Y2C+QYGme_v5aH0Zn0RLfxoQ+Fy83EHrg@mail.gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/mtdconcat.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ tools/perf/bench/inject-buildid.c | 52 ++++++++++++++++++-------------
+ 1 file changed, 30 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/mtd/mtdconcat.c b/drivers/mtd/mtdconcat.c
-index af51eee6b5e8..f685a581df48 100644
---- a/drivers/mtd/mtdconcat.c
-+++ b/drivers/mtd/mtdconcat.c
-@@ -694,6 +694,10 @@ struct mtd_info *mtd_concat_create(struct mtd_info *subdev[],	/* subdevices to c
- 		concat->mtd._block_markbad = concat_block_markbad;
- 	if (subdev_master->_panic_write)
- 		concat->mtd._panic_write = concat_panic_write;
-+	if (subdev_master->_read)
-+		concat->mtd._read = concat_read;
-+	if (subdev_master->_write)
-+		concat->mtd._write = concat_write;
+diff --git a/tools/perf/bench/inject-buildid.c b/tools/perf/bench/inject-buildid.c
+index 280227e3ffd7..f4ec01da8da6 100644
+--- a/tools/perf/bench/inject-buildid.c
++++ b/tools/perf/bench/inject-buildid.c
+@@ -133,7 +133,7 @@ static u64 dso_map_addr(struct bench_dso *dso)
+ 	return 0x400000ULL + dso->ino * 8192ULL;
+ }
  
- 	concat->mtd.ecc_stats.badblocks = subdev[0]->ecc_stats.badblocks;
+-static u32 synthesize_attr(struct bench_data *data)
++static ssize_t synthesize_attr(struct bench_data *data)
+ {
+ 	union perf_event event;
  
-@@ -755,8 +759,6 @@ struct mtd_info *mtd_concat_create(struct mtd_info *subdev[],	/* subdevices to c
- 	concat->mtd.name = name;
+@@ -151,7 +151,7 @@ static u32 synthesize_attr(struct bench_data *data)
+ 	return writen(data->input_pipe[1], &event, event.header.size);
+ }
  
- 	concat->mtd._erase = concat_erase;
--	concat->mtd._read = concat_read;
--	concat->mtd._write = concat_write;
- 	concat->mtd._sync = concat_sync;
- 	concat->mtd._lock = concat_lock;
- 	concat->mtd._unlock = concat_unlock;
+-static u32 synthesize_fork(struct bench_data *data)
++static ssize_t synthesize_fork(struct bench_data *data)
+ {
+ 	union perf_event event;
+ 
+@@ -169,8 +169,7 @@ static u32 synthesize_fork(struct bench_data *data)
+ 	return writen(data->input_pipe[1], &event, event.header.size);
+ }
+ 
+-static u32 synthesize_mmap(struct bench_data *data, struct bench_dso *dso,
+-			   u64 timestamp)
++static ssize_t synthesize_mmap(struct bench_data *data, struct bench_dso *dso, u64 timestamp)
+ {
+ 	union perf_event event;
+ 	size_t len = offsetof(struct perf_record_mmap2, filename);
+@@ -198,23 +197,25 @@ static u32 synthesize_mmap(struct bench_data *data, struct bench_dso *dso,
+ 
+ 	if (len > sizeof(event.mmap2)) {
+ 		/* write mmap2 event first */
+-		writen(data->input_pipe[1], &event, len - bench_id_hdr_size);
++		if (writen(data->input_pipe[1], &event, len - bench_id_hdr_size) < 0)
++			return -1;
+ 		/* zero-fill sample id header */
+ 		memset(id_hdr_ptr, 0, bench_id_hdr_size);
+ 		/* put timestamp in the right position */
+ 		ts_idx = (bench_id_hdr_size / sizeof(u64)) - 2;
+ 		id_hdr_ptr[ts_idx] = timestamp;
+-		writen(data->input_pipe[1], id_hdr_ptr, bench_id_hdr_size);
+-	} else {
+-		ts_idx = (len / sizeof(u64)) - 2;
+-		id_hdr_ptr[ts_idx] = timestamp;
+-		writen(data->input_pipe[1], &event, len);
++		if (writen(data->input_pipe[1], id_hdr_ptr, bench_id_hdr_size) < 0)
++			return -1;
++
++		return len;
+ 	}
+-	return len;
++
++	ts_idx = (len / sizeof(u64)) - 2;
++	id_hdr_ptr[ts_idx] = timestamp;
++	return writen(data->input_pipe[1], &event, len);
+ }
+ 
+-static u32 synthesize_sample(struct bench_data *data, struct bench_dso *dso,
+-			     u64 timestamp)
++static ssize_t synthesize_sample(struct bench_data *data, struct bench_dso *dso, u64 timestamp)
+ {
+ 	union perf_event event;
+ 	struct perf_sample sample = {
+@@ -233,7 +234,7 @@ static u32 synthesize_sample(struct bench_data *data, struct bench_dso *dso,
+ 	return writen(data->input_pipe[1], &event, event.header.size);
+ }
+ 
+-static u32 synthesize_flush(struct bench_data *data)
++static ssize_t synthesize_flush(struct bench_data *data)
+ {
+ 	struct perf_event_header header = {
+ 		.size = sizeof(header),
+@@ -348,14 +349,16 @@ static int inject_build_id(struct bench_data *data, u64 *max_rss)
+ 	int status;
+ 	unsigned int i, k;
+ 	struct rusage rusage;
+-	u64 len = 0;
+ 
+ 	/* this makes the child to run */
+ 	if (perf_header__write_pipe(data->input_pipe[1]) < 0)
+ 		return -1;
+ 
+-	len += synthesize_attr(data);
+-	len += synthesize_fork(data);
++	if (synthesize_attr(data) < 0)
++		return -1;
++
++	if (synthesize_fork(data) < 0)
++		return -1;
+ 
+ 	for (i = 0; i < nr_mmaps; i++) {
+ 		int idx = rand() % (nr_dsos - 1);
+@@ -363,13 +366,18 @@ static int inject_build_id(struct bench_data *data, u64 *max_rss)
+ 		u64 timestamp = rand() % 1000000;
+ 
+ 		pr_debug2("   [%d] injecting: %s\n", i+1, dso->name);
+-		len += synthesize_mmap(data, dso, timestamp);
++		if (synthesize_mmap(data, dso, timestamp) < 0)
++			return -1;
+ 
+-		for (k = 0; k < nr_samples; k++)
+-			len += synthesize_sample(data, dso, timestamp + k * 1000);
++		for (k = 0; k < nr_samples; k++) {
++			if (synthesize_sample(data, dso, timestamp + k * 1000) < 0)
++				return -1;
++		}
+ 
+-		if ((i + 1) % 10 == 0)
+-			len += synthesize_flush(data);
++		if ((i + 1) % 10 == 0) {
++			if (synthesize_flush(data) < 0)
++				return -1;
++		}
+ 	}
+ 
+ 	/* tihs makes the child to finish */
 -- 
 2.30.2
 
