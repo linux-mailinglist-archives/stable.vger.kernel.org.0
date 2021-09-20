@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ACF141248A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:34:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4500412331
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:21:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352957AbhITSfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:35:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52048 "EHLO mail.kernel.org"
+        id S1377696AbhITSWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:22:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1380113AbhITSce (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:32:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4554A632FF;
-        Mon, 20 Sep 2021 17:28:05 +0000 (UTC)
+        id S1377672AbhITSUR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:20:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00950632A7;
+        Mon, 20 Sep 2021 17:23:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158885;
-        bh=fkMFqX2Y8okYx4GsUhULMqkocPJE0oowUtWnfYSmQOM=;
+        s=korg; t=1632158597;
+        bh=zc/V4mTUSYONcVf5ckmwjTjjPBP3eUHTCEbvYXSfPys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ugQcjJAfY4a+Sc0AQd/oyhWZO7hdrPhNQr7ebKFCcVi4lhchGy/vt+Vs8vTMjBSXD
-         mPNpvTPIabRU/fx/NMRjMwT4cjjCp2rnMn+gL/sjwidXmkLBaocN5eUgneTGLtKo9h
-         Zcl2CIDGeSLvTqvnPm4Vd2lDrdxFkVnc88sGHKgQ=
+        b=lnBQVr0Mc9HktU3gQUGRsUJob42U3DXyydvr7ezmvztjPmH9YXJ3kW6bR8tDO3fAA
+         bRtGd5olMOiJvZx1OfwgafwO4450h4KQxbd7HdUli2dwVe74IpJIBr26NC2i+6i1Z1
+         ZpzvvtEkGi8pb4kBRNYLPD5i2OGjcURVg2Lsf4oc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 067/122] PCI: j721e: Add PCIe support for J7200
-Date:   Mon, 20 Sep 2021 18:43:59 +0200
-Message-Id: <20210920163917.972910768@linuxfoundation.org>
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 222/260] net: dsa: destroy the phylink instance on any error in dsa_slave_phy_setup
+Date:   Mon, 20 Sep 2021 18:44:00 +0200
+Message-Id: <20210920163938.650479778@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,150 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit f1de58802f0fff364cf49f5e47d1be744baa434f ]
+commit 6a52e73368038f47f6618623d75061dc263b26ae upstream.
 
-J7200 has the same PCIe IP as in J721E with minor changes in the
-wrapper. J7200 allows byte access of bridge configuration space
-registers and the register field for LINK_DOWN interrupt is different.
-J7200 also requires "quirk_detect_quiet_flag" to be set. Configure these
-changes as part of driver data applicable only to J7200.
+DSA supports connecting to a phy-handle, and has a fallback to a non-OF
+based method of connecting to an internal PHY on the switch's own MDIO
+bus, if no phy-handle and no fixed-link nodes were present.
 
-Link: https://lore.kernel.org/r/20210811123336.31357-4-kishon@ti.com
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The -ENODEV error code from the first attempt (phylink_of_phy_connect)
+is what triggers the second attempt (phylink_connect_phy).
+
+However, when the first attempt returns a different error code than
+-ENODEV, this results in an unbalance of calls to phylink_create and
+phylink_destroy by the time we exit the function. The phylink instance
+has leaked.
+
+There are many other error codes that can be returned by
+phylink_of_phy_connect. For example, phylink_validate returns -EINVAL.
+So this is a practical issue too.
+
+Fixes: aab9c4067d23 ("net: dsa: Plug in PHYLINK support")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/20210914134331.2303380-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/cadence/pci-j721e.c | 40 +++++++++++++++++++---
- 1 file changed, 36 insertions(+), 4 deletions(-)
+ net/dsa/slave.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/pci/controller/cadence/pci-j721e.c b/drivers/pci/controller/cadence/pci-j721e.c
-index 973b309ac9ba..2f5a49c77074 100644
---- a/drivers/pci/controller/cadence/pci-j721e.c
-+++ b/drivers/pci/controller/cadence/pci-j721e.c
-@@ -25,6 +25,7 @@
- #define STATUS_REG_SYS_2	0x508
- #define STATUS_CLR_REG_SYS_2	0x708
- #define LINK_DOWN		BIT(1)
-+#define J7200_LINK_DOWN		BIT(10)
+--- a/net/dsa/slave.c
++++ b/net/dsa/slave.c
+@@ -1327,13 +1327,11 @@ static int dsa_slave_phy_setup(struct ne
+ 		 * use the switch internal MDIO bus instead
+ 		 */
+ 		ret = dsa_slave_phy_connect(slave_dev, dp->index);
+-		if (ret) {
+-			netdev_err(slave_dev,
+-				   "failed to connect to port %d: %d\n",
+-				   dp->index, ret);
+-			phylink_destroy(dp->pl);
+-			return ret;
+-		}
++	}
++	if (ret) {
++		netdev_err(slave_dev, "failed to connect to PHY: %pe\n",
++			   ERR_PTR(ret));
++		phylink_destroy(dp->pl);
+ 	}
  
- #define J721E_PCIE_USER_CMD_STATUS	0x4
- #define LINK_TRAINING_ENABLE		BIT(0)
-@@ -54,6 +55,7 @@ struct j721e_pcie {
- 	struct cdns_pcie	*cdns_pcie;
- 	void __iomem		*user_cfg_base;
- 	void __iomem		*intd_cfg_base;
-+	u32			linkdown_irq_regfield;
- };
- 
- enum j721e_pcie_mode {
-@@ -64,6 +66,9 @@ enum j721e_pcie_mode {
- struct j721e_pcie_data {
- 	enum j721e_pcie_mode	mode;
- 	unsigned int		quirk_retrain_flag:1;
-+	unsigned int		quirk_detect_quiet_flag:1;
-+	u32			linkdown_irq_regfield;
-+	unsigned int		byte_access_allowed:1;
- };
- 
- static inline u32 j721e_pcie_user_readl(struct j721e_pcie *pcie, u32 offset)
-@@ -95,12 +100,12 @@ static irqreturn_t j721e_pcie_link_irq_handler(int irq, void *priv)
- 	u32 reg;
- 
- 	reg = j721e_pcie_intd_readl(pcie, STATUS_REG_SYS_2);
--	if (!(reg & LINK_DOWN))
-+	if (!(reg & pcie->linkdown_irq_regfield))
- 		return IRQ_NONE;
- 
- 	dev_err(dev, "LINK DOWN!\n");
- 
--	j721e_pcie_intd_writel(pcie, STATUS_CLR_REG_SYS_2, LINK_DOWN);
-+	j721e_pcie_intd_writel(pcie, STATUS_CLR_REG_SYS_2, pcie->linkdown_irq_regfield);
- 	return IRQ_HANDLED;
- }
- 
-@@ -109,7 +114,7 @@ static void j721e_pcie_config_link_irq(struct j721e_pcie *pcie)
- 	u32 reg;
- 
- 	reg = j721e_pcie_intd_readl(pcie, ENABLE_REG_SYS_2);
--	reg |= LINK_DOWN;
-+	reg |= pcie->linkdown_irq_regfield;
- 	j721e_pcie_intd_writel(pcie, ENABLE_REG_SYS_2, reg);
- }
- 
-@@ -272,10 +277,25 @@ static struct pci_ops cdns_ti_pcie_host_ops = {
- static const struct j721e_pcie_data j721e_pcie_rc_data = {
- 	.mode = PCI_MODE_RC,
- 	.quirk_retrain_flag = true,
-+	.byte_access_allowed = false,
-+	.linkdown_irq_regfield = LINK_DOWN,
- };
- 
- static const struct j721e_pcie_data j721e_pcie_ep_data = {
- 	.mode = PCI_MODE_EP,
-+	.linkdown_irq_regfield = LINK_DOWN,
-+};
-+
-+static const struct j721e_pcie_data j7200_pcie_rc_data = {
-+	.mode = PCI_MODE_RC,
-+	.quirk_detect_quiet_flag = true,
-+	.linkdown_irq_regfield = J7200_LINK_DOWN,
-+	.byte_access_allowed = true,
-+};
-+
-+static const struct j721e_pcie_data j7200_pcie_ep_data = {
-+	.mode = PCI_MODE_EP,
-+	.quirk_detect_quiet_flag = true,
- };
- 
- static const struct of_device_id of_j721e_pcie_match[] = {
-@@ -287,6 +307,14 @@ static const struct of_device_id of_j721e_pcie_match[] = {
- 		.compatible = "ti,j721e-pcie-ep",
- 		.data = &j721e_pcie_ep_data,
- 	},
-+	{
-+		.compatible = "ti,j7200-pcie-host",
-+		.data = &j7200_pcie_rc_data,
-+	},
-+	{
-+		.compatible = "ti,j7200-pcie-ep",
-+		.data = &j7200_pcie_ep_data,
-+	},
- 	{},
- };
- 
-@@ -319,6 +347,7 @@ static int j721e_pcie_probe(struct platform_device *pdev)
- 
- 	pcie->dev = dev;
- 	pcie->mode = mode;
-+	pcie->linkdown_irq_regfield = data->linkdown_irq_regfield;
- 
- 	base = devm_platform_ioremap_resource_byname(pdev, "intd_cfg");
- 	if (IS_ERR(base))
-@@ -378,9 +407,11 @@ static int j721e_pcie_probe(struct platform_device *pdev)
- 			goto err_get_sync;
- 		}
- 
--		bridge->ops = &cdns_ti_pcie_host_ops;
-+		if (!data->byte_access_allowed)
-+			bridge->ops = &cdns_ti_pcie_host_ops;
- 		rc = pci_host_bridge_priv(bridge);
- 		rc->quirk_retrain_flag = data->quirk_retrain_flag;
-+		rc->quirk_detect_quiet_flag = data->quirk_detect_quiet_flag;
- 
- 		cdns_pcie = &rc->pcie;
- 		cdns_pcie->dev = dev;
-@@ -430,6 +461,7 @@ static int j721e_pcie_probe(struct platform_device *pdev)
- 			ret = -ENOMEM;
- 			goto err_get_sync;
- 		}
-+		ep->quirk_detect_quiet_flag = data->quirk_detect_quiet_flag;
- 
- 		cdns_pcie = &ep->pcie;
- 		cdns_pcie->dev = dev;
--- 
-2.30.2
-
+ 	return ret;
 
 
