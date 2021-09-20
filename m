@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19B264122BA
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EF3D412597
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:45:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346331AbhITSRC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:17:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36234 "EHLO mail.kernel.org"
+        id S1383625AbhITSqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:46:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376853AbhITSOu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:14:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB022615A3;
-        Mon, 20 Sep 2021 17:21:40 +0000 (UTC)
+        id S1383236AbhITSoR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:44:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2C9B63356;
+        Mon, 20 Sep 2021 17:32:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158501;
-        bh=RWns6g8E6Y/E1cAWrM9I+Wvii0bF7IkXMDPWqTOjPBY=;
+        s=korg; t=1632159144;
+        bh=KgqqFPEDo4wF7is/0aM+fQH4uN8YsFXo/LPDc+m1Sb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l8CbCQM1azpyYDsU8pCN7nT19y4k3Hq+mSbBUHH0G7bCgMLB46/lJsca/ReQAog78
-         5n7s+51kiTi1EvPkliwL18ZY+y1qbx2XrnBi7FtjnXhQEnhsz3BlQqUPxGy/B+DQIY
-         fepuy0B2scFq4HDKuRGUH3epRHcjC+TjbxYt9i7U=
+        b=mDAWB2r/AIw+hjd7jyFUNVtJTXbq0yW1GAtMw16Eb4hoFCILdeLmB7x5MBVIcFWpf
+         xgWouXDGwqQDODcjADl1E2GYI3mFLHm4oPSzCJzDsdoJCJgYXxFRev7E5Te79csRjS
+         +BJ1xrnPk++zLUvNnyEmt7X175A2O/as32aTNrjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Patryk Duda <pdk@semihalf.com>,
-        Benson Leung <bleung@chromium.org>
-Subject: [PATCH 5.4 184/260] platform/chrome: cros_ec_proto: Send command again when timeout occurs
+        stable@vger.kernel.org, zhenggy <zhenggy@chinatelecom.cn>,
+        Eric Dumazet <edumazet@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.14 064/168] tcp: fix tp->undo_retrans accounting in tcp_sacktag_one()
 Date:   Mon, 20 Sep 2021 18:43:22 +0200
-Message-Id: <20210920163937.368093600@linuxfoundation.org>
+Message-Id: <20210920163923.740602769@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patryk Duda <pdk@semihalf.com>
+From: zhenggy <zhenggy@chinatelecom.cn>
 
-commit 3abc16af57c9939724df92fcbda296b25cc95168 upstream.
+commit 4f884f3962767877d7aabbc1ec124d2c307a4257 upstream.
 
-Sometimes kernel is trying to probe Fingerprint MCU (FPMCU) when it
-hasn't initialized SPI yet. This can happen because FPMCU is restarted
-during system boot and kernel can send message in short window
-eg. between sysjump to RW and SPI initialization.
+Commit 10d3be569243 ("tcp-tso: do not split TSO packets at retransmit
+time") may directly retrans a multiple segments TSO/GSO packet without
+split, Since this commit, we can no longer assume that a retransmitted
+packet is a single segment.
 
-Cc: <stable@vger.kernel.org> # 4.4+
-Signed-off-by: Patryk Duda <pdk@semihalf.com>
-Link: https://lore.kernel.org/r/20210518140758.29318-1-pdk@semihalf.com
-Signed-off-by: Benson Leung <bleung@chromium.org>
+This patch fixes the tp->undo_retrans accounting in tcp_sacktag_one()
+that use the actual segments(pcount) of the retransmitted packet.
+
+Before that commit (10d3be569243), the assumption underlying the
+tp->undo_retrans-- seems correct.
+
+Fixes: 10d3be569243 ("tcp-tso: do not split TSO packets at retransmit time")
+Signed-off-by: zhenggy <zhenggy@chinatelecom.cn>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Yuchung Cheng <ycheng@google.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/chrome/cros_ec_proto.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ net/ipv4/tcp_input.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/platform/chrome/cros_ec_proto.c
-+++ b/drivers/platform/chrome/cros_ec_proto.c
-@@ -213,6 +213,15 @@ static int cros_ec_host_command_proto_qu
- 	msg->insize = sizeof(struct ec_response_get_protocol_info);
- 
- 	ret = send_command(ec_dev, msg);
-+	/*
-+	 * Send command once again when timeout occurred.
-+	 * Fingerprint MCU (FPMCU) is restarted during system boot which
-+	 * introduces small window in which FPMCU won't respond for any
-+	 * messages sent by kernel. There is no need to wait before next
-+	 * attempt because we waited at least EC_MSG_DEADLINE_MS.
-+	 */
-+	if (ret == -ETIMEDOUT)
-+		ret = send_command(ec_dev, msg);
- 
- 	if (ret < 0) {
- 		dev_dbg(ec_dev->dev,
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -1314,7 +1314,7 @@ static u8 tcp_sacktag_one(struct sock *s
+ 	if (dup_sack && (sacked & TCPCB_RETRANS)) {
+ 		if (tp->undo_marker && tp->undo_retrans > 0 &&
+ 		    after(end_seq, tp->undo_marker))
+-			tp->undo_retrans--;
++			tp->undo_retrans = max_t(int, 0, tp->undo_retrans - pcount);
+ 		if ((sacked & TCPCB_SACKED_ACKED) &&
+ 		    before(start_seq, state->reord))
+ 				state->reord = start_seq;
 
 
