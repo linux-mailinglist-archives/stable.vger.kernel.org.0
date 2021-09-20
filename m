@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 551FB41259A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:45:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA43A412411
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:29:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384107AbhITSqe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:46:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56456 "EHLO mail.kernel.org"
+        id S1346858AbhITSa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:30:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1383269AbhITSoU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:44:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4B2D61AFB;
-        Mon, 20 Sep 2021 17:32:36 +0000 (UTC)
+        id S1379142AbhITS2Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:28:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9A15632D7;
+        Mon, 20 Sep 2021 17:26:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159157;
-        bh=kJ3W0/eZlIctqLUHyPrNqD80xBPS2iOUV4vkEAQbbKQ=;
+        s=korg; t=1632158782;
+        bh=nlLP1PcMFvreRz2bXlOXcM6f5l++eOJOjZaNDzVxO4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0AEmHy1ffYrXK+buOIlakscosaBKVz580LHcjP23+OgZSPvAiVMgsnVjnoQvkacAp
-         xZ755Ch/ETPga4/vFsXLsCrrK7ULFvqDP+Rs9wi5OQZUbD4I4lPMvtFgxOetRIYIhF
-         VxpSFK3UFZGkyPkjlltP+xw9ywzXrke55bPQliyc=
+        b=elDs99+3Ggw2nXxzfi7oRpVPIfkmRlKqRDoYEra+B7nwnPmVLScHGrRM+CFNQmLgu
+         h1Bo7XotX3gw79Py++AT6f2igDLm3aG2xkitrE9RK3WUU2w55hztNVyi50hewS9zx6
+         RSgOit2SAt0z/+zzuY7UVe56cBdUSdqnK0LcpXDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Zhenpeng Lin <zplin@psu.edu>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 060/168] vhost_net: fix OoB on sendmsg() failure.
+Subject: [PATCH 5.10 026/122] dccp: dont duplicate ccid when cloning dccp sock
 Date:   Mon, 20 Sep 2021 18:43:18 +0200
-Message-Id: <20210920163923.611496519@linuxfoundation.org>
+Message-Id: <20210920163916.658634364@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Lin, Zhenpeng <zplin@psu.edu>
 
-commit 3c4cea8fa7f71f00c5279547043a84bc2a4d8b8c upstream.
+commit d9ea761fdd197351890418acd462c51f241014a7 upstream.
 
-If the sendmsg() call in vhost_tx_batch() fails, both the 'batched_xdp'
-and 'done_idx' indexes are left unchanged. If such failure happens
-when batched_xdp == VHOST_NET_BATCH, the next call to
-vhost_net_build_xdp() will access and write memory outside the xdp
-buffers area.
+Commit 2677d2067731 ("dccp: don't free ccid2_hc_tx_sock ...") fixed
+a UAF but reintroduced CVE-2017-6074.
 
-Since sendmsg() can only error with EBADFD, this change addresses the
-issue explicitly freeing the XDP buffers batch on error.
+When the sock is cloned, two dccps_hc_tx_ccid will reference to the
+same ccid. So one can free the ccid object twice from two socks after
+cloning.
 
-Fixes: 0a0be13b8fe2 ("vhost_net: batch submitting XDP buffers to underlayer sockets")
-Suggested-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+This issue was found by "Hadar Manor" as well and assigned with
+CVE-2020-16119, which was fixed in Ubuntu's kernel. So here I port
+the patch from Ubuntu to fix it.
+
+The patch prevents cloned socks from referencing the same ccid.
+
+Fixes: 2677d2067731410 ("dccp: don't free ccid2_hc_tx_sock ...")
+Signed-off-by: Zhenpeng Lin <zplin@psu.edu>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vhost/net.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ net/dccp/minisocks.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -467,7 +467,7 @@ static void vhost_tx_batch(struct vhost_
- 		.num = nvq->batched_xdp,
- 		.ptr = nvq->xdp,
- 	};
--	int err;
-+	int i, err;
- 
- 	if (nvq->batched_xdp == 0)
- 		goto signal_used;
-@@ -476,6 +476,15 @@ static void vhost_tx_batch(struct vhost_
- 	err = sock->ops->sendmsg(sock, msghdr, 0);
- 	if (unlikely(err < 0)) {
- 		vq_err(&nvq->vq, "Fail to batch sending packets\n");
-+
-+		/* free pages owned by XDP; since this is an unlikely error path,
-+		 * keep it simple and avoid more complex bulk update for the
-+		 * used pages
-+		 */
-+		for (i = 0; i < nvq->batched_xdp; ++i)
-+			put_page(virt_to_head_page(nvq->xdp[i].data));
-+		nvq->batched_xdp = 0;
-+		nvq->done_idx = 0;
- 		return;
- 	}
- 
+--- a/net/dccp/minisocks.c
++++ b/net/dccp/minisocks.c
+@@ -94,6 +94,8 @@ struct sock *dccp_create_openreq_child(c
+ 		newdp->dccps_role	    = DCCP_ROLE_SERVER;
+ 		newdp->dccps_hc_rx_ackvec   = NULL;
+ 		newdp->dccps_service_list   = NULL;
++		newdp->dccps_hc_rx_ccid     = NULL;
++		newdp->dccps_hc_tx_ccid     = NULL;
+ 		newdp->dccps_service	    = dreq->dreq_service;
+ 		newdp->dccps_timestamp_echo = dreq->dreq_timestamp_echo;
+ 		newdp->dccps_timestamp_time = dreq->dreq_timestamp_time;
 
 
