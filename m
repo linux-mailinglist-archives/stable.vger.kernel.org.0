@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0C3A4122D7
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:16:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87B03412568
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:44:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377330AbhITSSV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:18:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40406 "EHLO mail.kernel.org"
+        id S1346805AbhITSpC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:45:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376453AbhITSQR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:16:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A00560F23;
-        Mon, 20 Sep 2021 17:22:06 +0000 (UTC)
+        id S1382713AbhITSmR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:42:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86EA463340;
+        Mon, 20 Sep 2021 17:31:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158527;
-        bh=dvEQaBtT3CrUmziPooU70WI/b4R7p17DHjSF1gv8UtM=;
+        s=korg; t=1632159103;
+        bh=Ev9Lx901S77ZulY1/mUH+PoCSSC9LLJeb+JQYTmvljM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SEKGi+T45/Wf/n/DjgYmiM9LuSy/zylW3n/V+D4Bxu5pjV4MPOtRDcU7+tZTapAOk
-         TDoQi9yOQP0qo83LGQDB1orbvHn5e9n/wjjx3Xno2xS06QIeoPNa6y9JmpEpqhdEjA
-         K9lTAXXnOWftD1Wf8BBHB5guFvINNgkl0A2hMjJ8=
+        b=tarP7GGJQ/T5m6DWBOP2ImJkSInAGUe96XrpN5uJEH0XmgKiXF1VodFHHQAzKHlc2
+         CVbNnWMV7h6YKv4HiDMwODmv5TLsK5ZJPcBXNE/b5WSpMHGmOmrvyJqBIUubY9P4MZ
+         inVkIKKe+jqt0FcLxpR/JsZL+zNpeF8bl5m+P9Eg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ernst=20Sj=C3=B6strand?= <ernstp@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 198/260] drm/amd/amdgpu: Increase HWIP_MAX_INSTANCE to 10
+        stable@vger.kernel.org, Jiaran Zhang <zhangjiaran@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.14 078/168] net: hns3: fix the timing issue of VF clearing interrupt sources
 Date:   Mon, 20 Sep 2021 18:43:36 +0200
-Message-Id: <20210920163937.838885574@linuxfoundation.org>
+Message-Id: <20210920163924.205981475@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ernst Sjöstrand <ernstp@gmail.com>
+From: Jiaran Zhang <zhangjiaran@huawei.com>
 
-commit 67a44e659888569a133a8f858c8230e9d7aad1d5 upstream.
+commit 427900d27d86b820c559037a984bd403f910860f upstream.
 
-Seems like newer cards can have even more instances now.
-Found by UBSAN: array-index-out-of-bounds in
-drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c:318:29
-index 8 is out of range for type 'uint32_t *[8]'
+Currently, the VF does not clear the interrupt source immediately after
+receiving the interrupt. As a result, if the second interrupt task is
+triggered when processing the first interrupt task, clearing the
+interrupt source before exiting will clear the interrupt sources of the
+two tasks at the same time. As a result, no interrupt is triggered for
+the second task. The VF detects the missed message only when the next
+interrupt is generated.
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1697
-Cc: stable@vger.kernel.org
-Signed-off-by: Ernst Sjöstrand <ernstp@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Clearing it immediately after executing check_evt_cause ensures that:
+1. Even if two interrupt tasks are triggered at the same time, they can
+be processed.
+2. If the second task is triggered during the processing of the first
+task and the interrupt source is not cleared, the interrupt is reported
+after vector0 is enabled.
+
+Fixes: b90fcc5bd904 ("net: hns3: add reset handling for VF when doing Core/Global/IMP reset")
+Signed-off-by: Jiaran Zhang <zhangjiaran@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-@@ -762,7 +762,7 @@ enum amd_hw_ip_block_type {
- 	MAX_HWIP
- };
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -2463,6 +2463,8 @@ static irqreturn_t hclgevf_misc_irq_hand
  
--#define HWIP_MAX_INSTANCE	8
-+#define HWIP_MAX_INSTANCE	10
+ 	hclgevf_enable_vector(&hdev->misc_vector, false);
+ 	event_cause = hclgevf_check_evt_cause(hdev, &clearval);
++	if (event_cause != HCLGEVF_VECTOR0_EVENT_OTHER)
++		hclgevf_clear_event_cause(hdev, clearval);
  
- struct amd_powerplay {
- 	void *pp_handle;
+ 	switch (event_cause) {
+ 	case HCLGEVF_VECTOR0_EVENT_RST:
+@@ -2475,10 +2477,8 @@ static irqreturn_t hclgevf_misc_irq_hand
+ 		break;
+ 	}
+ 
+-	if (event_cause != HCLGEVF_VECTOR0_EVENT_OTHER) {
+-		hclgevf_clear_event_cause(hdev, clearval);
++	if (event_cause != HCLGEVF_VECTOR0_EVENT_OTHER)
+ 		hclgevf_enable_vector(&hdev->misc_vector, true);
+-	}
+ 
+ 	return IRQ_HANDLED;
+ }
 
 
