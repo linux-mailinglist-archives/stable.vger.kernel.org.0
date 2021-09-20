@@ -2,33 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E30041240D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:29:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBEA1412415
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:29:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348446AbhITSaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:30:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49240 "EHLO mail.kernel.org"
+        id S1379160AbhITSaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:30:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1379140AbhITS2Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:28:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F361C632E4;
-        Mon, 20 Sep 2021 17:26:23 +0000 (UTC)
+        id S1379143AbhITS2Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:28:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05609632DF;
+        Mon, 20 Sep 2021 17:26:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158784;
-        bh=fdeGIza0h4zzNXPmxmc7NpDE+X+F51UmFNtjxFXlPdA=;
+        s=korg; t=1632158787;
+        bh=ftxornbp7ysvlGlzARJMZTYWT0McZORP/P3/CsBmJY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MupNtavvOqy7geL8inXI5tVrUTdL5VWbtrXsFsf5ILLkjEDa7R8EPhTJ6/xMko7ed
-         MoDbSpRUYYZUPsS/31sZniIamDnBp/TwE8Sv8aUgGw1pP9A2M/Iipa3YvETQ1jlfBr
-         EZi5T2Kn7L49mfAlnost/CXJEUssJwY176bvmP10=
+        b=GIP9xz9CRXIMFOyCxljitpdcD3x0MkJJYaICpftBX58mxJir4jZSOTbePbGUOPzIe
+         6PhfQPwqpCpj1bTnozddCFWmETFTyb5clCeqhVrQSEvYIIe9UEaYFujc5/3tTjdEk8
+         xbKx2TAJfCBcNkR0+ePKycEoLlvkey8qUCuDxpYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiaran Zhang <zhangjiaran@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 053/122] net: hns3: fix the timing issue of VF clearing interrupt sources
-Date:   Mon, 20 Sep 2021 18:43:45 +0200
-Message-Id: <20210920163917.527731397@linuxfoundation.org>
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Pankaj Gupta <pankaj.gupta@ionos.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+        Wei Yang <richard.weiyang@linux.alibaba.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        virtualization@lists.linux-foundation.org,
+        Andy Lutomirski <luto@kernel.org>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Anton Blanchard <anton@ozlabs.org>,
+        Ard Biesheuvel <ardb@kernel.org>, Baoquan He <bhe@redhat.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Dave Jiang <dave.jiang@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Jia He <justin.he@arm.com>, Joe Perches <joe@perches.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Laurent Dufour <ldufour@linux.ibm.com>,
+        Michel Lespinasse <michel@lespinasse.org>,
+        Nathan Lynch <nathanl@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Rich Felker <dalias@libc.org>,
+        Scott Cheloha <cheloha@linux.ibm.com>,
+        Sergei Trofimovich <slyfox@gentoo.org>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Will Deacon <will@kernel.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 054/122] mm/memory_hotplug: use "unsigned long" for PFN in zone_for_pfn_range()
+Date:   Mon, 20 Sep 2021 18:43:46 +0200
+Message-Id: <20210920163917.559777423@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
 References: <20210920163915.757887582@linuxfoundation.org>
@@ -40,56 +90,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiaran Zhang <zhangjiaran@huawei.com>
+From: David Hildenbrand <david@redhat.com>
 
-commit 427900d27d86b820c559037a984bd403f910860f upstream.
+commit 7cf209ba8a86410939a24cb1aeb279479a7e0ca6 upstream.
 
-Currently, the VF does not clear the interrupt source immediately after
-receiving the interrupt. As a result, if the second interrupt task is
-triggered when processing the first interrupt task, clearing the
-interrupt source before exiting will clear the interrupt sources of the
-two tasks at the same time. As a result, no interrupt is triggered for
-the second task. The VF detects the missed message only when the next
-interrupt is generated.
+Patch series "mm/memory_hotplug: preparatory patches for new online policy and memory"
 
-Clearing it immediately after executing check_evt_cause ensures that:
-1. Even if two interrupt tasks are triggered at the same time, they can
-be processed.
-2. If the second task is triggered during the processing of the first
-task and the interrupt source is not cleared, the interrupt is reported
-after vector0 is enabled.
+These are all cleanups and one fix previously sent as part of [1]:
+[PATCH v1 00/12] mm/memory_hotplug: "auto-movable" online policy and memory
+groups.
 
-Fixes: b90fcc5bd904 ("net: hns3: add reset handling for VF when doing Core/Global/IMP reset")
-Signed-off-by: Jiaran Zhang <zhangjiaran@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+These patches make sense even without the other series, therefore I pulled
+them out to make the other series easier to digest.
+
+[1] https://lkml.kernel.org/r/20210607195430.48228-1-david@redhat.com
+
+This patch (of 4):
+
+Checkpatch complained on a follow-up patch that we are using "unsigned"
+here, which defaults to "unsigned int" and checkpatch is correct.
+
+As we will search for a fitting zone using the wrong pfn, we might end
+up onlining memory to one of the special kernel zones, such as ZONE_DMA,
+which can end badly as the onlined memory does not satisfy properties of
+these zones.
+
+Use "unsigned long" instead, just as we do in other places when handling
+PFNs.  This can bite us once we have physical addresses in the range of
+multiple TB.
+
+Link: https://lkml.kernel.org/r/20210712124052.26491-2-david@redhat.com
+Fixes: e5e689302633 ("mm, memory_hotplug: display allowed zones in the preferred ordering")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Pankaj Gupta <pankaj.gupta@ionos.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: virtualization@lists.linux-foundation.org
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc: Anton Blanchard <anton@ozlabs.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jia He <justin.he@arm.com>
+Cc: Joe Perches <joe@perches.com>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Laurent Dufour <ldufour@linux.ibm.com>
+Cc: Michel Lespinasse <michel@lespinasse.org>
+Cc: Nathan Lynch <nathanl@linux.ibm.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Pierre Morel <pmorel@linux.ibm.com>
+Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Scott Cheloha <cheloha@linux.ibm.com>
+Cc: Sergei Trofimovich <slyfox@gentoo.org>
+Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/memory_hotplug.h |    4 ++--
+ mm/memory_hotplug.c            |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-@@ -2352,6 +2352,8 @@ static irqreturn_t hclgevf_misc_irq_hand
+--- a/include/linux/memory_hotplug.h
++++ b/include/linux/memory_hotplug.h
+@@ -359,8 +359,8 @@ extern void sparse_remove_section(struct
+ 		unsigned long map_offset, struct vmem_altmap *altmap);
+ extern struct page *sparse_decode_mem_map(unsigned long coded_mem_map,
+ 					  unsigned long pnum);
+-extern struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
+-		unsigned long nr_pages);
++extern struct zone *zone_for_pfn_range(int online_type, int nid,
++		unsigned long start_pfn, unsigned long nr_pages);
+ #endif /* CONFIG_MEMORY_HOTPLUG */
  
- 	hclgevf_enable_vector(&hdev->misc_vector, false);
- 	event_cause = hclgevf_check_evt_cause(hdev, &clearval);
-+	if (event_cause != HCLGEVF_VECTOR0_EVENT_OTHER)
-+		hclgevf_clear_event_cause(hdev, clearval);
- 
- 	switch (event_cause) {
- 	case HCLGEVF_VECTOR0_EVENT_RST:
-@@ -2364,10 +2366,8 @@ static irqreturn_t hclgevf_misc_irq_hand
- 		break;
- 	}
- 
--	if (event_cause != HCLGEVF_VECTOR0_EVENT_OTHER) {
--		hclgevf_clear_event_cause(hdev, clearval);
-+	if (event_cause != HCLGEVF_VECTOR0_EVENT_OTHER)
- 		hclgevf_enable_vector(&hdev->misc_vector, true);
--	}
- 
- 	return IRQ_HANDLED;
+ #endif /* __LINUX_MEMORY_HOTPLUG_H */
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -765,8 +765,8 @@ static inline struct zone *default_zone_
+ 	return movable_node_enabled ? movable_zone : kernel_zone;
  }
+ 
+-struct zone * zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
+-		unsigned long nr_pages)
++struct zone *zone_for_pfn_range(int online_type, int nid,
++		unsigned long start_pfn, unsigned long nr_pages)
+ {
+ 	if (online_type == MMOP_ONLINE_KERNEL)
+ 		return default_kernel_zone_for_pfn(nid, start_pfn, nr_pages);
 
 
