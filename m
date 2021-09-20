@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67098411CC4
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:12:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0990D411CC6
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:12:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345839AbhITRNH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:13:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33876 "EHLO mail.kernel.org"
+        id S1345870AbhITRNI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:13:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344052AbhITRLF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:11:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17F4361356;
-        Mon, 20 Sep 2021 16:56:52 +0000 (UTC)
+        id S1343489AbhITRLH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:11:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44C83613A3;
+        Mon, 20 Sep 2021 16:56:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157013;
-        bh=PZbCtAJmeIrW8WlWhTrHS10/diXLwx0G+VOXzeRS7t8=;
+        s=korg; t=1632157015;
+        bh=t9tEat3ZVKAChYi9xcQ3UhIPOgPUidcS1OFDZJhmYrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q5wRv7uf1/VWrzTxjQccBxLaFJ+Zw3dAvC05NQ6Q8WcfRwBDC1f+sjh4pJMDck67v
-         B3buuNTW/l/lpBJRwhgnX+cMIz603w8zyxhwFB3MpdVsCmkzO4TRa4TjAVtZcK9Htd
-         uURh8RAIEIkt3ExzpFJbDMOly154qVp9nhqdZ75o=
+        b=f8br9jw3hSpmfKsFMdNKBW13d7s5NeSlQErUvTfMqYVLhALCzjYYgSqB1y6Ho7msw
+         XJlxbmXOlQbD6yW3sZv+tun7m0Fud2cmB/MqtpBHKWeG3+DIX12hhhgoFV4qTRAD5e
+         okRfrSJ9JqOprpGt/aOamCOSy4O5Lif3DkeIJ/zM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 014/217] USB: serial: mos7720: improve OOM-handling in read_mos_reg()
-Date:   Mon, 20 Sep 2021 18:40:35 +0200
-Message-Id: <20210920163925.096226525@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 4.14 015/217] f2fs: fix potential overflow
+Date:   Mon, 20 Sep 2021 18:40:36 +0200
+Message-Id: <20210920163925.129646852@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
 References: <20210920163924.591371269@linuxfoundation.org>
@@ -39,51 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-commit 161a582bd1d8681095f158d11bc679a58f1d026b upstream.
+commit a9af3fdcc4258af406879eca63d82e9d6baa892e upstream.
 
-clang static analysis reports this problem
+In build_sit_entries(), if valid_blocks in SIT block is smaller than
+valid_blocks in journal, for below calculation:
 
-mos7720.c:352:2: warning: Undefined or garbage value returned to caller
-        return d;
-        ^~~~~~~~
+sbi->discard_blks += old_valid_blocks - se->valid_blocks;
 
-In the parport_mos7715_read_data()'s call to read_mos_reg(), 'd' is
-only set after the alloc block.
+There will be two times potential overflow:
+- old_valid_blocks - se->valid_blocks will overflow, and be a very
+large number.
+- sbi->discard_blks += result will overflow again, comes out a correct
+result accidently.
 
-	buf = kmalloc(1, GFP_KERNEL);
-	if (!buf)
-		return -ENOMEM;
+Anyway, it should be fixed.
 
-Although the problem is reported in parport_most7715_read_data(),
-none of the callee's of read_mos_reg() check the return status.
-
-Make sure to clear the return-value buffer also on allocation failures.
-
-Fixes: 0d130367abf5 ("USB: serial: mos7720: fix control-message error handling")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Link: https://lore.kernel.org/r/20210111220904.1035957-1-trix@redhat.com
-[ johan: only clear the buffer on errors, amend commit message ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: d600af236da5 ("f2fs: avoid unneeded loop in build_sit_entries")
+Fixes: 1f43e2ad7bff ("f2fs: introduce CP_TRIMMED_FLAG to avoid unneeded discard")
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/mos7720.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/f2fs/segment.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/mos7720.c
-+++ b/drivers/usb/serial/mos7720.c
-@@ -229,8 +229,10 @@ static int read_mos_reg(struct usb_seria
- 	int status;
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -3337,14 +3337,17 @@ static int build_sit_entries(struct f2fs
+ 			} else {
+ 				memcpy(se->discard_map, se->cur_valid_map,
+ 							SIT_VBLOCK_MAP_SIZE);
+-				sbi->discard_blks += old_valid_blocks -
+-							se->valid_blocks;
++				sbi->discard_blks += old_valid_blocks;
++				sbi->discard_blks -= se->valid_blocks;
+ 			}
+ 		}
  
- 	buf = kmalloc(1, GFP_KERNEL);
--	if (!buf)
-+	if (!buf) {
-+		*data = 0;
- 		return -ENOMEM;
-+	}
+-		if (sbi->segs_per_sec > 1)
++		if (sbi->segs_per_sec > 1) {
+ 			get_sec_entry(sbi, start)->valid_blocks +=
+-				se->valid_blocks - old_valid_blocks;
++							se->valid_blocks;
++			get_sec_entry(sbi, start)->valid_blocks -=
++							old_valid_blocks;
++		}
+ 	}
+ 	up_read(&curseg->journal_rwsem);
  
- 	status = usb_control_msg(usbdev, pipe, request, requesttype, value,
- 				     index, buf, 1, MOS_WDR_TIMEOUT);
 
 
