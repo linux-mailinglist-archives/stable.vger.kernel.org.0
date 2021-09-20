@@ -2,83 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 287B3412334
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:21:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD426412333
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:21:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378002AbhITSW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:22:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40406 "EHLO mail.kernel.org"
+        id S1351959AbhITSWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:22:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351790AbhITSUT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1377667AbhITSUT (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:20:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E25D632AD;
-        Mon, 20 Sep 2021 17:23:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1288632AE;
+        Mon, 20 Sep 2021 17:23:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158602;
-        bh=nuQbPvIJnG/GxAfofQKxleXzh0bTSyRcUo9U4UuHqEM=;
+        s=korg; t=1632158604;
+        bh=hjns1O5VBB1oEQxpCGhtIp+uuv+3hKCDt4L6L2WPSCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rGbV449dVIaLbQXCVdzOvpHhy1Z9fSyLlJPnl0G3kUkNOKgglcChqqdj3mzUUM296
-         dkFhjmTx99mOqGuAKTXwOTqjTSRarJ1bkRVYu8VvfLgtzGh6THFn3LHxprCZaWQrSU
-         T3mBrMUaFLv1x8f1GM1aL/HHj7eZ0CeyBxLaS++Q=
+        b=yPS2mWs0XrirznLcLmz9hcsMXhV0657Fr0ho9Ii+BiQUs67NGvrm0Oojw3ypJRKLY
+         +vUW+y0ZaUgrHAvWdL4jGH4mkZf9N1GtLkp+t3XMsFPJzXUF4h8VPaSVDoVAdHDDkA
+         qdr8v+D2FB6pV23YDcIgrZkpFm+JWFLdB0rJ28Ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Pankaj Gupta <pankaj.gupta@ionos.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
-        Wei Yang <richard.weiyang@linux.alibaba.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        virtualization@lists.linux-foundation.org,
-        Andy Lutomirski <luto@kernel.org>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Anton Blanchard <anton@ozlabs.org>,
-        Ard Biesheuvel <ardb@kernel.org>, Baoquan He <bhe@redhat.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Dave Jiang <dave.jiang@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Jia He <justin.he@arm.com>, Joe Perches <joe@perches.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Laurent Dufour <ldufour@linux.ibm.com>,
-        Michel Lespinasse <michel@lespinasse.org>,
-        Nathan Lynch <nathanl@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Rich Felker <dalias@libc.org>,
-        Scott Cheloha <cheloha@linux.ibm.com>,
-        Sergei Trofimovich <slyfox@gentoo.org>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Will Deacon <will@kernel.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 232/260] mm/memory_hotplug: use "unsigned long" for PFN in zone_for_pfn_range()
-Date:   Mon, 20 Sep 2021 18:44:10 +0200
-Message-Id: <20210920163939.002271336@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Ryan J. Barnett" <ryan.barnett@collins.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 233/260] dt-bindings: mtd: gpmc: Fix the ECC bytes vs. OOB bytes equation
+Date:   Mon, 20 Sep 2021 18:44:11 +0200
+Message-Id: <20210920163939.036554715@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -90,125 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 7cf209ba8a86410939a24cb1aeb279479a7e0ca6 upstream.
+[ Upstream commit 778cb8e39f6ec252be50fc3850d66f3dcbd5dd5a ]
 
-Patch series "mm/memory_hotplug: preparatory patches for new online policy and memory"
+"PAGESIZE / 512" is the number of ECC chunks.
+"ECC_BYTES" is the number of bytes needed to store a single ECC code.
+"2" is the space reserved by the bad block marker.
 
-These are all cleanups and one fix previously sent as part of [1]:
-[PATCH v1 00/12] mm/memory_hotplug: "auto-movable" online policy and memory
-groups.
+"2 + (PAGESIZE / 512) * ECC_BYTES" should of course be lower or equal
+than the total number of OOB bytes, otherwise it won't fit.
 
-These patches make sense even without the other series, therefore I pulled
-them out to make the other series easier to digest.
+Fix the equation by substituting s/>=/<=/.
 
-[1] https://lkml.kernel.org/r/20210607195430.48228-1-david@redhat.com
-
-This patch (of 4):
-
-Checkpatch complained on a follow-up patch that we are using "unsigned"
-here, which defaults to "unsigned int" and checkpatch is correct.
-
-As we will search for a fitting zone using the wrong pfn, we might end
-up onlining memory to one of the special kernel zones, such as ZONE_DMA,
-which can end badly as the onlined memory does not satisfy properties of
-these zones.
-
-Use "unsigned long" instead, just as we do in other places when handling
-PFNs.  This can bite us once we have physical addresses in the range of
-multiple TB.
-
-Link: https://lkml.kernel.org/r/20210712124052.26491-2-david@redhat.com
-Fixes: e5e689302633 ("mm, memory_hotplug: display allowed zones in the preferred ordering")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Pankaj Gupta <pankaj.gupta@ionos.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Len Brown <lenb@kernel.org>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: virtualization@lists.linux-foundation.org
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc: Anton Blanchard <anton@ozlabs.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jia He <justin.he@arm.com>
-Cc: Joe Perches <joe@perches.com>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Laurent Dufour <ldufour@linux.ibm.com>
-Cc: Michel Lespinasse <michel@lespinasse.org>
-Cc: Nathan Lynch <nathanl@linux.ibm.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Pierre Morel <pmorel@linux.ibm.com>
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Scott Cheloha <cheloha@linux.ibm.com>
-Cc: Sergei Trofimovich <slyfox@gentoo.org>
-Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Ryan J. Barnett <ryan.barnett@collins.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/linux-mtd/20210610143945.3504781-1-miquel.raynal@bootlin.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/memory_hotplug.h |    4 ++--
- mm/memory_hotplug.c            |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ Documentation/devicetree/bindings/mtd/gpmc-nand.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -358,6 +358,6 @@ extern struct page *sparse_decode_mem_ma
- 					  unsigned long pnum);
- extern bool allow_online_pfn_range(int nid, unsigned long pfn, unsigned long nr_pages,
- 		int online_type);
--extern struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
--		unsigned long nr_pages);
-+extern struct zone *zone_for_pfn_range(int online_type, int nid,
-+		unsigned long start_pfn, unsigned long nr_pages);
- #endif /* __LINUX_MEMORY_HOTPLUG_H */
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -775,8 +775,8 @@ static inline struct zone *default_zone_
- 	return movable_node_enabled ? movable_zone : kernel_zone;
- }
- 
--struct zone * zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
--		unsigned long nr_pages)
-+struct zone *zone_for_pfn_range(int online_type, int nid,
-+		unsigned long start_pfn, unsigned long nr_pages)
- {
- 	if (online_type == MMOP_ONLINE_KERNEL)
- 		return default_kernel_zone_for_pfn(nid, start_pfn, nr_pages);
+diff --git a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
+index 44919d48d241..c459f169a904 100644
+--- a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
++++ b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
+@@ -122,7 +122,7 @@ on various other factors also like;
+ 	so the device should have enough free bytes available its OOB/Spare
+ 	area to accommodate ECC for entire page. In general following expression
+ 	helps in determining if given device can accommodate ECC syndrome:
+-	"2 + (PAGESIZE / 512) * ECC_BYTES" >= OOBSIZE"
++	"2 + (PAGESIZE / 512) * ECC_BYTES" <= OOBSIZE"
+ 	where
+ 		OOBSIZE		number of bytes in OOB/spare area
+ 		PAGESIZE	number of bytes in main-area of device page
+-- 
+2.30.2
+
 
 
