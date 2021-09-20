@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7615C41239B
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:25:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7423E4124BA
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:35:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351810AbhITS0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:26:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43182 "EHLO mail.kernel.org"
+        id S1353101AbhITShI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:37:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351952AbhITSWV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:22:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 881CD632BB;
-        Mon, 20 Sep 2021 17:24:11 +0000 (UTC)
+        id S1380896AbhITSfB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:35:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58EA063311;
+        Mon, 20 Sep 2021 17:28:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158652;
-        bh=1Ba3KhtEOml4S43b/+tqGlRyZIVlN/+Kmc1slN5ZFSw=;
+        s=korg; t=1632158939;
+        bh=IXZIPmogRXfq9EqsOwfePQHSv7qJQzlfsXqwOOkqn7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FY5QgaYwQ80u0ueE8EqFFqbXWYT3OSV3lv0LOq6K5g3ZXFeZrEwuvSBaZFxpP7VKC
-         ciS0mSUxCbR/6lx2aHFn0WbjLBacMCq7L1gU7EOpfkW3P04ADg8UxozdEKXumbLSyx
-         kkFcI+DxMC6gUR4dV5P5rmanHUCFGTShzvx2gSRk=
+        b=Goy05qD2FGFsJmT3QLjRmS1k2yH56guKR8PHb7jR+rVtpXXT2ADwqtJTNIrcVilHt
+         x6EQEuhPyCjzny0R0eVHv4VTLTtNc1B4bseyEVi/e2OLRcg5qNaF96Z2VD/ylNIoV0
+         NerxDFJv9aA6sYltAnBnTFXdBKiReiwIn275zpUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-snps-arc@lists.infradead.org,
-        Vineet Gupta <vgupta@kernel.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 253/260] ARC: export clear_user_page() for modules
+Subject: [PATCH 5.10 099/122] gpio: mpc8xxx: Fix a resources leak in the error handling path of mpc8xxx_probe()
 Date:   Mon, 20 Sep 2021 18:44:31 +0200
-Message-Id: <20210920163939.702656454@linuxfoundation.org>
+Message-Id: <20210920163919.032848290@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 6b5ff0405e4190f23780362ea324b250bc495683 ]
+[ Upstream commit 555bda42b0c1a5ffb72d3227c043e8afde778f1f ]
 
-0day bot reports a build error:
-  ERROR: modpost: "clear_user_page" [drivers/media/v4l2-core/videobuf-dma-sg.ko] undefined!
-so export it in arch/arc/ to fix the build error.
+Commit 698b8eeaed72 ("gpio/mpc8xxx: change irq handler from chained to normal")
+has introduced a new 'goto err;' at the very end of the function, but has
+not updated the error handling path accordingly.
 
-In most ARCHes, clear_user_page() is a macro. OTOH, in a few
-ARCHes it is a function and needs to be exported.
-PowerPC exported it in 2004. It looks like nds32 and nios2
-still need to have it exported.
+Add the now missing 'irq_domain_remove()' call which balances a previous
+'irq_domain_create_linear() call.
 
-Fixes: 4102b53392d63 ("ARC: [mm] Aliasing VIPT dcache support 2/4")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-snps-arc@lists.infradead.org
-Signed-off-by: Vineet Gupta <vgupta@kernel.org>
+Fixes: 698b8eeaed72 ("gpio/mpc8xxx: change irq handler from chained to normal")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/mm/cache.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpio-mpc8xxx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arc/mm/cache.c b/arch/arc/mm/cache.c
-index a2fbea3ee07c..102418ac5ff4 100644
---- a/arch/arc/mm/cache.c
-+++ b/arch/arc/mm/cache.c
-@@ -1123,7 +1123,7 @@ void clear_user_page(void *to, unsigned long u_vaddr, struct page *page)
- 	clear_page(to);
- 	clear_bit(PG_dc_clean, &page->flags);
- }
--
-+EXPORT_SYMBOL(clear_user_page);
+diff --git a/drivers/gpio/gpio-mpc8xxx.c b/drivers/gpio/gpio-mpc8xxx.c
+index 3c2fa44d9279..5b2a919a6644 100644
+--- a/drivers/gpio/gpio-mpc8xxx.c
++++ b/drivers/gpio/gpio-mpc8xxx.c
+@@ -406,6 +406,8 @@ static int mpc8xxx_probe(struct platform_device *pdev)
  
- /**********************************************************************
-  * Explicit Cache flush request from user space via syscall
+ 	return 0;
+ err:
++	if (mpc8xxx_gc->irq)
++		irq_domain_remove(mpc8xxx_gc->irq);
+ 	iounmap(mpc8xxx_gc->regs);
+ 	return ret;
+ }
 -- 
 2.30.2
 
