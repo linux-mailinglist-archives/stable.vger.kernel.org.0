@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03725411BCA
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:02:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6342A412019
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:47:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345362AbhITRCK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:02:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52174 "EHLO mail.kernel.org"
+        id S1349647AbhITRsy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:48:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229849AbhITRAI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:00:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BC40613D5;
-        Mon, 20 Sep 2021 16:52:58 +0000 (UTC)
+        id S1345997AbhITRqw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:46:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7225F61B64;
+        Mon, 20 Sep 2021 17:10:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156779;
-        bh=uihfpJGoz/LDNYMXmxUG+7BoLFsm/2BCmk1CtOlY4OM=;
+        s=korg; t=1632157828;
+        bh=vCCoET0WdO5QElwbuafGH/cpV4DVSdm0ts81ooXYe04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FhO5qEa/BRTYMqzcl812/su462sFgHOL8Z8szND7z941JHO3jiCPokj+47p0/LWs4
-         RCdZ5GGqyIwF5irqBaeXkOK9PkZ/zTUvZFkVviFZDjnjH46jNJhCwG9suJNb4quzfF
-         bnc+zayQWitfPjIk5XnawFK0xiZ30wOYoxA4CcGI=
+        b=WztIgrZn9HOgSrIpCIbLgr8bw8pbQ8uoOAwnn4eWqsrI6cegCd1i/RkaG4CAd8b5D
+         5Gea2GAl1OKumioDleWI/23Dwp9zGe94jrjC6GPKDS+8SRZr2rVqgl1G1D5HloaDZt
+         pA8swScTsbImO+dp7K38foEauqY67bhtYmm3D4yM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Keyu Man <kman001@ucr.edu>, Willy Tarreau <w@1wt.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        David Ahern <dsahern@kernel.org>,
+        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 082/175] ipv4: make exception cache less predictible
+Subject: [PATCH 4.19 169/293] f2fs: fix to unmap pages from userspace process in punch_hole()
 Date:   Mon, 20 Sep 2021 18:42:11 +0200
-Message-Id: <20210920163920.750381901@linuxfoundation.org>
+Message-Id: <20210920163939.071285531@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,125 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit 67d6d681e15b578c1725bad8ad079e05d1c48a8e ]
+[ Upstream commit c8dc3047c48540183744f959412d44b08c5435e1 ]
 
-Even after commit 6457378fe796 ("ipv4: use siphash instead of Jenkins in
-fnhe_hashfun()"), an attacker can still use brute force to learn
-some secrets from a victim linux host.
+We need to unmap pages from userspace process before removing pagecache
+in punch_hole() like we did in f2fs_setattr().
 
-One way to defeat these attacks is to make the max depth of the hash
-table bucket a random value.
+Similar change:
+commit 5e44f8c374dc ("ext4: hole-punch use truncate_pagecache_range")
 
-Before this patch, each bucket of the hash table used to store exceptions
-could contain 6 items under attack.
-
-After the patch, each bucket would contains a random number of items,
-between 6 and 10. The attacker can no longer infer secrets.
-
-This is slightly increasing memory size used by the hash table,
-by 50% in average, we do not expect this to be a problem.
-
-This patch is more complex than the prior one (IPv6 equivalent),
-because IPv4 was reusing the oldest entry.
-Since we need to be able to evict more than one entry per
-update_or_create_fnhe() call, I had to replace
-fnhe_oldest() with fnhe_remove_oldest().
-
-Also note that we will queue extra kfree_rcu() calls under stress,
-which hopefully wont be a too big issue.
-
-Fixes: 4895c771c7f0 ("ipv4: Add FIB nexthop exceptions.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Keyu Man <kman001@ucr.edu>
-Cc: Willy Tarreau <w@1wt.eu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Tested-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: fbfa2cc58d53 ("f2fs: add file operations")
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/route.c | 46 ++++++++++++++++++++++++++++++----------------
- 1 file changed, 30 insertions(+), 16 deletions(-)
+ fs/f2fs/file.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index 5350e1b61c06..f05b8d63dba3 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -597,18 +597,25 @@ static void fnhe_flush_routes(struct fib_nh_exception *fnhe)
- 	}
- }
- 
--static struct fib_nh_exception *fnhe_oldest(struct fnhe_hash_bucket *hash)
-+static void fnhe_remove_oldest(struct fnhe_hash_bucket *hash)
- {
--	struct fib_nh_exception *fnhe, *oldest;
-+	struct fib_nh_exception __rcu **fnhe_p, **oldest_p;
-+	struct fib_nh_exception *fnhe, *oldest = NULL;
- 
--	oldest = rcu_dereference(hash->chain);
--	for (fnhe = rcu_dereference(oldest->fnhe_next); fnhe;
--	     fnhe = rcu_dereference(fnhe->fnhe_next)) {
--		if (time_before(fnhe->fnhe_stamp, oldest->fnhe_stamp))
-+	for (fnhe_p = &hash->chain; ; fnhe_p = &fnhe->fnhe_next) {
-+		fnhe = rcu_dereference_protected(*fnhe_p,
-+						 lockdep_is_held(&fnhe_lock));
-+		if (!fnhe)
-+			break;
-+		if (!oldest ||
-+		    time_before(fnhe->fnhe_stamp, oldest->fnhe_stamp)) {
- 			oldest = fnhe;
-+			oldest_p = fnhe_p;
-+		}
- 	}
- 	fnhe_flush_routes(oldest);
--	return oldest;
-+	*oldest_p = oldest->fnhe_next;
-+	kfree_rcu(oldest, rcu);
- }
- 
- static inline u32 fnhe_hashfun(__be32 daddr)
-@@ -685,16 +692,21 @@ static void update_or_create_fnhe(struct fib_nh *nh, __be32 daddr, __be32 gw,
- 		if (rt)
- 			fill_route_from_fnhe(rt, fnhe);
- 	} else {
--		if (depth > FNHE_RECLAIM_DEPTH)
--			fnhe = fnhe_oldest(hash);
--		else {
--			fnhe = kzalloc(sizeof(*fnhe), GFP_ATOMIC);
--			if (!fnhe)
--				goto out_unlock;
--
--			fnhe->fnhe_next = hash->chain;
--			rcu_assign_pointer(hash->chain, fnhe);
-+		/* Randomize max depth to avoid some side channels attacks. */
-+		int max_depth = FNHE_RECLAIM_DEPTH +
-+				prandom_u32_max(FNHE_RECLAIM_DEPTH);
-+
-+		while (depth > max_depth) {
-+			fnhe_remove_oldest(hash);
-+			depth--;
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index 95330dfdbb1a..2a7249496c57 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -957,7 +957,6 @@ static int punch_hole(struct inode *inode, loff_t offset, loff_t len)
  		}
-+
-+		fnhe = kzalloc(sizeof(*fnhe), GFP_ATOMIC);
-+		if (!fnhe)
-+			goto out_unlock;
-+
-+		fnhe->fnhe_next = hash->chain;
-+
- 		fnhe->fnhe_genid = genid;
- 		fnhe->fnhe_daddr = daddr;
- 		fnhe->fnhe_gw = gw;
-@@ -702,6 +714,8 @@ static void update_or_create_fnhe(struct fib_nh *nh, __be32 daddr, __be32 gw,
- 		fnhe->fnhe_mtu_locked = lock;
- 		fnhe->fnhe_expires = expires;
  
-+		rcu_assign_pointer(hash->chain, fnhe);
-+
- 		/* Exception created; mark the cached routes for the nexthop
- 		 * stale, so anyone caching it rechecks if this exception
- 		 * applies to them.
+ 		if (pg_start < pg_end) {
+-			struct address_space *mapping = inode->i_mapping;
+ 			loff_t blk_start, blk_end;
+ 			struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+ 
+@@ -969,8 +968,7 @@ static int punch_hole(struct inode *inode, loff_t offset, loff_t len)
+ 			down_write(&F2FS_I(inode)->i_gc_rwsem[WRITE]);
+ 			down_write(&F2FS_I(inode)->i_mmap_sem);
+ 
+-			truncate_inode_pages_range(mapping, blk_start,
+-					blk_end - 1);
++			truncate_pagecache_range(inode, blk_start, blk_end - 1);
+ 
+ 			f2fs_lock_op(sbi);
+ 			ret = f2fs_truncate_hole(inode, pg_start, pg_end);
 -- 
 2.30.2
 
