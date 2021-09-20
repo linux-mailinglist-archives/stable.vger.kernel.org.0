@@ -2,33 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 967F74122A6
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A334D4121A5
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:06:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377230AbhITSQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:16:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60800 "EHLO mail.kernel.org"
+        id S1358426AbhITSHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:07:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1357830AbhITSFI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:05:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A1DB863245;
-        Mon, 20 Sep 2021 17:17:31 +0000 (UTC)
+        id S1358005AbhITSFT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:05:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB2A56324E;
+        Mon, 20 Sep 2021 17:17:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158252;
-        bh=7mFka9LzrtqigieZU60zukE5rqmPUDqyqXjmuylp0YU=;
+        s=korg; t=1632158254;
+        bh=eSddgF1DPNBm4217aqC9hoSExfd74lACsyFo6XosSKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xg8ZcKOPaINsXZx+qcpeyOu995+cdbRNkYeS5rXXyCH85MxV0UcPlXmzYs4VWiyWB
-         TAT9rT5DIRP7O7Cx6JxR38NmwjoFUnLjr8jOQX+g2siRzB9R0Lj2qiJ7rnDQK6Ktf2
-         xLltULKXDL1ggF1litJOQCjZiGjGPpXk2Dk/SIgY=
+        b=pMRx6dgyvTeQ2sNuQoP8gLeU3s6LPwWQHZ4ZkH4T70if9+nc7GE3ijWLxzEYDX5Xr
+         lUFQd3w32tc6bRNmUCuryZZCNTmpFahP2R2HuHFvsN9A/gsfKwKkiJDKKSK2dGnwIP
+         fCJNwGX5LpZffHMidN6XhXGSljzCXxdT2IHqeieY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
+        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Peter Xu <peterx@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 070/260] kbuild: Fix no symbols warning when CONFIG_TRIM_UNUSD_KSYMS=y
-Date:   Mon, 20 Sep 2021 18:41:28 +0200
-Message-Id: <20210920163933.504199911@linuxfoundation.org>
+Subject: [PATCH 5.4 071/260] userfaultfd: prevent concurrent API initialization
+Date:   Mon, 20 Sep 2021 18:41:29 +0200
+Message-Id: <20210920163933.538524640@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -40,51 +47,224 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Nadav Amit <namit@vmware.com>
 
-[ Upstream commit 52d83df682c82055961531853c066f4f16e234ea ]
+[ Upstream commit 22e5fe2a2a279d9a6fcbdfb4dffe73821bef1c90 ]
 
-When CONFIG_TRIM_UNUSED_KSYMS is enabled, I see some warnings like this:
+userfaultfd assumes that the enabled features are set once and never
+changed after UFFDIO_API ioctl succeeded.
 
-  nm: arch/x86/entry/vdso/vdso32/note.o: no symbols
+However, currently, UFFDIO_API can be called concurrently from two
+different threads, succeed on both threads and leave userfaultfd's
+features in non-deterministic state.  Theoretically, other uffd operations
+(ioctl's and page-faults) can be dispatched while adversely affected by
+such changes of features.
 
-$NM (both GNU nm and llvm-nm) warns when no symbol is found in the
-object. Suppress the stderr.
+Moreover, the writes to ctx->state and ctx->features are not ordered,
+which can - theoretically, again - let userfaultfd_ioctl() think that
+userfaultfd API completed, while the features are still not initialized.
 
-Fangrui Song mentioned binutils>=2.37 `nm -q` can be used to suppress
-"no symbols" [1], and llvm-nm>=13.0.0 supports -q as well.
+To avoid races, it is arguably best to get rid of ctx->state.  Since there
+are only 2 states, record the API initialization in ctx->features as the
+uppermost bit and remove ctx->state.
 
-We cannot use it for now, but note it as a TODO.
-
-[1]: https://sourceware.org/bugzilla/show_bug.cgi?id=27408
-
-Fixes: bbda5ec671d3 ("kbuild: simplify dependency generation for CONFIG_TRIM_UNUSED_KSYMS")
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lkml.kernel.org/r/20210808020724.1022515-3-namit@vmware.com
+Fixes: 9cd75c3cd4c3d ("userfaultfd: non-cooperative: add ability to report non-PF events from uffd descriptor")
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Peter Xu <peterx@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/gen_ksymdeps.sh | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/userfaultfd.c | 93 +++++++++++++++++++++++-------------------------
+ 1 file changed, 45 insertions(+), 48 deletions(-)
 
-diff --git a/scripts/gen_ksymdeps.sh b/scripts/gen_ksymdeps.sh
-index 1324986e1362..725e8c9c1b53 100755
---- a/scripts/gen_ksymdeps.sh
-+++ b/scripts/gen_ksymdeps.sh
-@@ -4,7 +4,13 @@
- set -e
+diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
+index 2c807283115d..ec57bbb6bb05 100644
+--- a/fs/userfaultfd.c
++++ b/fs/userfaultfd.c
+@@ -32,11 +32,6 @@ int sysctl_unprivileged_userfaultfd __read_mostly = 1;
  
- # List of exported symbols
--ksyms=$($NM $1 | sed -n 's/.*__ksym_marker_\(.*\)/\1/p' | tr A-Z a-z)
-+#
-+# If the object has no symbol, $NM warns 'no symbols'.
-+# Suppress the stderr.
-+# TODO:
-+#   Use -q instead of 2>/dev/null when we upgrade the minimum version of
-+#   binutils to 2.37, llvm to 13.0.0.
-+ksyms=$($NM $1 2>/dev/null | sed -n 's/.*__ksym_marker_\(.*\)/\1/p' | tr A-Z a-z)
+ static struct kmem_cache *userfaultfd_ctx_cachep __read_mostly;
  
- if [ -z "$ksyms" ]; then
- 	exit 0
+-enum userfaultfd_state {
+-	UFFD_STATE_WAIT_API,
+-	UFFD_STATE_RUNNING,
+-};
+-
+ /*
+  * Start with fault_pending_wqh and fault_wqh so they're more likely
+  * to be in the same cacheline.
+@@ -68,8 +63,6 @@ struct userfaultfd_ctx {
+ 	unsigned int flags;
+ 	/* features requested from the userspace */
+ 	unsigned int features;
+-	/* state machine */
+-	enum userfaultfd_state state;
+ 	/* released */
+ 	bool released;
+ 	/* memory mappings are changing because of non-cooperative event */
+@@ -103,6 +96,14 @@ struct userfaultfd_wake_range {
+ 	unsigned long len;
+ };
+ 
++/* internal indication that UFFD_API ioctl was successfully executed */
++#define UFFD_FEATURE_INITIALIZED		(1u << 31)
++
++static bool userfaultfd_is_initialized(struct userfaultfd_ctx *ctx)
++{
++	return ctx->features & UFFD_FEATURE_INITIALIZED;
++}
++
+ static int userfaultfd_wake_function(wait_queue_entry_t *wq, unsigned mode,
+ 				     int wake_flags, void *key)
+ {
+@@ -699,7 +700,6 @@ int dup_userfaultfd(struct vm_area_struct *vma, struct list_head *fcs)
+ 
+ 		refcount_set(&ctx->refcount, 1);
+ 		ctx->flags = octx->flags;
+-		ctx->state = UFFD_STATE_RUNNING;
+ 		ctx->features = octx->features;
+ 		ctx->released = false;
+ 		ctx->mmap_changing = false;
+@@ -980,38 +980,33 @@ static __poll_t userfaultfd_poll(struct file *file, poll_table *wait)
+ 
+ 	poll_wait(file, &ctx->fd_wqh, wait);
+ 
+-	switch (ctx->state) {
+-	case UFFD_STATE_WAIT_API:
++	if (!userfaultfd_is_initialized(ctx))
+ 		return EPOLLERR;
+-	case UFFD_STATE_RUNNING:
+-		/*
+-		 * poll() never guarantees that read won't block.
+-		 * userfaults can be waken before they're read().
+-		 */
+-		if (unlikely(!(file->f_flags & O_NONBLOCK)))
+-			return EPOLLERR;
+-		/*
+-		 * lockless access to see if there are pending faults
+-		 * __pollwait last action is the add_wait_queue but
+-		 * the spin_unlock would allow the waitqueue_active to
+-		 * pass above the actual list_add inside
+-		 * add_wait_queue critical section. So use a full
+-		 * memory barrier to serialize the list_add write of
+-		 * add_wait_queue() with the waitqueue_active read
+-		 * below.
+-		 */
+-		ret = 0;
+-		smp_mb();
+-		if (waitqueue_active(&ctx->fault_pending_wqh))
+-			ret = EPOLLIN;
+-		else if (waitqueue_active(&ctx->event_wqh))
+-			ret = EPOLLIN;
+-
+-		return ret;
+-	default:
+-		WARN_ON_ONCE(1);
++
++	/*
++	 * poll() never guarantees that read won't block.
++	 * userfaults can be waken before they're read().
++	 */
++	if (unlikely(!(file->f_flags & O_NONBLOCK)))
+ 		return EPOLLERR;
+-	}
++	/*
++	 * lockless access to see if there are pending faults
++	 * __pollwait last action is the add_wait_queue but
++	 * the spin_unlock would allow the waitqueue_active to
++	 * pass above the actual list_add inside
++	 * add_wait_queue critical section. So use a full
++	 * memory barrier to serialize the list_add write of
++	 * add_wait_queue() with the waitqueue_active read
++	 * below.
++	 */
++	ret = 0;
++	smp_mb();
++	if (waitqueue_active(&ctx->fault_pending_wqh))
++		ret = EPOLLIN;
++	else if (waitqueue_active(&ctx->event_wqh))
++		ret = EPOLLIN;
++
++	return ret;
+ }
+ 
+ static const struct file_operations userfaultfd_fops;
+@@ -1205,7 +1200,7 @@ static ssize_t userfaultfd_read(struct file *file, char __user *buf,
+ 	struct uffd_msg msg;
+ 	int no_wait = file->f_flags & O_NONBLOCK;
+ 
+-	if (ctx->state == UFFD_STATE_WAIT_API)
++	if (!userfaultfd_is_initialized(ctx))
+ 		return -EINVAL;
+ 
+ 	for (;;) {
+@@ -1807,9 +1802,10 @@ static int userfaultfd_zeropage(struct userfaultfd_ctx *ctx,
+ static inline unsigned int uffd_ctx_features(__u64 user_features)
+ {
+ 	/*
+-	 * For the current set of features the bits just coincide
++	 * For the current set of features the bits just coincide. Set
++	 * UFFD_FEATURE_INITIALIZED to mark the features as enabled.
+ 	 */
+-	return (unsigned int)user_features;
++	return (unsigned int)user_features | UFFD_FEATURE_INITIALIZED;
+ }
+ 
+ /*
+@@ -1822,12 +1818,10 @@ static int userfaultfd_api(struct userfaultfd_ctx *ctx,
+ {
+ 	struct uffdio_api uffdio_api;
+ 	void __user *buf = (void __user *)arg;
++	unsigned int ctx_features;
+ 	int ret;
+ 	__u64 features;
+ 
+-	ret = -EINVAL;
+-	if (ctx->state != UFFD_STATE_WAIT_API)
+-		goto out;
+ 	ret = -EFAULT;
+ 	if (copy_from_user(&uffdio_api, buf, sizeof(uffdio_api)))
+ 		goto out;
+@@ -1844,9 +1838,13 @@ static int userfaultfd_api(struct userfaultfd_ctx *ctx,
+ 	ret = -EFAULT;
+ 	if (copy_to_user(buf, &uffdio_api, sizeof(uffdio_api)))
+ 		goto out;
+-	ctx->state = UFFD_STATE_RUNNING;
++
+ 	/* only enable the requested features for this uffd context */
+-	ctx->features = uffd_ctx_features(features);
++	ctx_features = uffd_ctx_features(features);
++	ret = -EINVAL;
++	if (cmpxchg(&ctx->features, 0, ctx_features) != 0)
++		goto err_out;
++
+ 	ret = 0;
+ out:
+ 	return ret;
+@@ -1863,7 +1861,7 @@ static long userfaultfd_ioctl(struct file *file, unsigned cmd,
+ 	int ret = -EINVAL;
+ 	struct userfaultfd_ctx *ctx = file->private_data;
+ 
+-	if (cmd != UFFDIO_API && ctx->state == UFFD_STATE_WAIT_API)
++	if (cmd != UFFDIO_API && !userfaultfd_is_initialized(ctx))
+ 		return -EINVAL;
+ 
+ 	switch(cmd) {
+@@ -1964,7 +1962,6 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
+ 	refcount_set(&ctx->refcount, 1);
+ 	ctx->flags = flags;
+ 	ctx->features = 0;
+-	ctx->state = UFFD_STATE_WAIT_API;
+ 	ctx->released = false;
+ 	ctx->mmap_changing = false;
+ 	ctx->mm = current->mm;
 -- 
 2.30.2
 
