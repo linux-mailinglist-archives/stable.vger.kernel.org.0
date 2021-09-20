@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FA3F4120DC
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:59:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77A21411B0D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:54:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356235AbhITR7A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:59:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54994 "EHLO mail.kernel.org"
+        id S238660AbhITQzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:55:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355882AbhITR47 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:56:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CDF56320D;
-        Mon, 20 Sep 2021 17:14:34 +0000 (UTC)
+        id S231450AbhITQwl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:52:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96BAD61283;
+        Mon, 20 Sep 2021 16:49:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158075;
-        bh=as9Ks3d+hMI0XKxd93OiXRcY7W40M/REjFiIk/2HxCM=;
+        s=korg; t=1632156600;
+        bh=45SKdGiHkmRp6wIZWsLXTn4XbutAhJ20hsO9+fLMeTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YFw8EG6BrHaWqR0lcQ3/uu/oKFutkrztRI7oocnT1Wb7TcaEWC1VCKg2Oq8odYAkn
-         4GjqNPGOGJFSzfw0Gpxsc9AiK8oRsF/YvsWf7ZzGzlfcCzRHLTsePdKLuw+3DYSS5P
-         yvTbw+m8w9T35iT8inKNMDpMo/DgtKyU4RR9JMuk=
+        b=HhQqJHq8VzXc3EtX0I8i9OmYU/VTHsP1S8I3cE2r9F4Tr36pP8TlDM3xr2cBZk7Io
+         GRJvyXtDAVB3qrb/e65QNggAcdcF2v206w7zwwIjbDQ/IZ1QhKhBr50V5QSRB1HkjF
+         YazHuZXxtvD9IFSO+bcsu0S6RVFigyYCTFE0bkGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, chenying <chenying.kernel@bytedance.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.19 242/293] ovl: fix BUG_ON() in may_delete() when called from ovl_cleanup()
+        stable@vger.kernel.org, Jiri Olsa <jolsa@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Borislav Petkov <bp@suse.de>,
+        David Hildenbrand <david@redhat.com>,
+        Dave Hansen <dave.hansen@intel.com>
+Subject: [PATCH 4.4 126/133] x86/mm: Fix kern_addr_valid() to cope with existing but not present entries
 Date:   Mon, 20 Sep 2021 18:43:24 +0200
-Message-Id: <20210920163941.678434833@linuxfoundation.org>
+Message-Id: <20210920163916.748703240@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +42,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: chenying <chenying.kernel@bytedance.com>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-commit 52d5a0c6bd8a89f460243ed937856354f8f253a3 upstream.
+commit 34b1999da935a33be6239226bfa6cd4f704c5c88 upstream.
 
-If function ovl_instantiate() returns an error, ovl_cleanup will be called
-and try to remove newdentry from wdir, but the newdentry has been moved to
-udir at this time.  This will causes BUG_ON(victim->d_parent->d_inode !=
-dir) in fs/namei.c:may_delete.
+Jiri Olsa reported a fault when running:
 
-Signed-off-by: chenying <chenying.kernel@bytedance.com>
-Fixes: 01b39dcc9568 ("ovl: use inode_insert5() to hash a newly created inode")
-Link: https://lore.kernel.org/linux-unionfs/e6496a94-a161-dc04-c38a-d2544633acb4@bytedance.com/
-Cc: <stable@vger.kernel.org> # v4.18
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+  # cat /proc/kallsyms | grep ksys_read
+  ffffffff8136d580 T ksys_read
+  # objdump -d --start-address=0xffffffff8136d580 --stop-address=0xffffffff8136d590 /proc/kcore
+
+  /proc/kcore:     file format elf64-x86-64
+
+  Segmentation fault
+
+  general protection fault, probably for non-canonical address 0xf887ffcbff000: 0000 [#1] SMP PTI
+  CPU: 12 PID: 1079 Comm: objdump Not tainted 5.14.0-rc5qemu+ #508
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-4.fc34 04/01/2014
+  RIP: 0010:kern_addr_valid
+  Call Trace:
+   read_kcore
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? trace_hardirqs_on
+   ? rcu_read_lock_sched_held
+   ? lock_acquire
+   ? lock_acquire
+   ? rcu_read_lock_sched_held
+   ? lock_acquire
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? lock_release
+   ? _raw_spin_unlock
+   ? __handle_mm_fault
+   ? rcu_read_lock_sched_held
+   ? lock_acquire
+   ? rcu_read_lock_sched_held
+   ? lock_release
+   proc_reg_read
+   ? vfs_read
+   vfs_read
+   ksys_read
+   do_syscall_64
+   entry_SYSCALL_64_after_hwframe
+
+The fault happens because kern_addr_valid() dereferences existent but not
+present PMD in the high kernel mappings.
+
+Such PMDs are created when free_kernel_image_pages() frees regions larger
+than 2Mb. In this case, a part of the freed memory is mapped with PMDs and
+the set_memory_np_noalias() -> ... -> __change_page_attr() sequence will
+mark the PMD as not present rather than wipe it completely.
+
+Have kern_addr_valid() check whether higher level page table entries are
+present before trying to dereference them to fix this issue and to avoid
+similar issues in the future.
+
+Stable backporting note:
+------------------------
+
+Note that the stable marking is for all active stable branches because
+there could be cases where pagetable entries exist but are not valid -
+see 9a14aefc1d28 ("x86: cpa, fix lookup_address"), for example. So make
+sure to be on the safe side here and use pXY_present() accessors rather
+than pXY_none() which could #GP when accessing pages in the direct map.
+
+Also see:
+
+  c40a56a7818c ("x86/mm/init: Remove freed kernel image areas from alias mapping")
+
+for more info.
+
+Reported-by: Jiri Olsa <jolsa@redhat.com>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Dave Hansen <dave.hansen@intel.com>
+Tested-by: Jiri Olsa <jolsa@redhat.com>
+Cc: <stable@vger.kernel.org>	# 4.4+
+Link: https://lkml.kernel.org/r/20210819132717.19358-1-rppt@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/overlayfs/dir.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/fs/overlayfs/dir.c
-+++ b/fs/overlayfs/dir.c
-@@ -517,8 +517,10 @@ static int ovl_create_over_whiteout(stru
- 			goto out_cleanup;
- 	}
- 	err = ovl_instantiate(dentry, inode, newdentry, hardlink);
--	if (err)
--		goto out_cleanup;
-+	if (err) {
-+		ovl_cleanup(udir, newdentry);
-+		dput(newdentry);
-+	}
- out_dput:
- 	dput(upper);
- out_unlock:
+---
+ arch/x86/mm/init_64.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -1182,21 +1182,21 @@ int kern_addr_valid(unsigned long addr)
+ 		return 0;
+ 
+ 	pud = pud_offset(pgd, addr);
+-	if (pud_none(*pud))
++	if (!pud_present(*pud))
+ 		return 0;
+ 
+ 	if (pud_large(*pud))
+ 		return pfn_valid(pud_pfn(*pud));
+ 
+ 	pmd = pmd_offset(pud, addr);
+-	if (pmd_none(*pmd))
++	if (!pmd_present(*pmd))
+ 		return 0;
+ 
+ 	if (pmd_large(*pmd))
+ 		return pfn_valid(pmd_pfn(*pmd));
+ 
+ 	pte = pte_offset_kernel(pmd, addr);
+-	if (pte_none(*pte))
++	if (!pte_present(*pte))
+ 		return 0;
+ 
+ 	return pfn_valid(pte_pfn(*pte));
 
 
