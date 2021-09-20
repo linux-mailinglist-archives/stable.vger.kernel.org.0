@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18DDF411E6B
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:29:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9079A412096
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:55:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347753AbhITRaj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:30:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34102 "EHLO mail.kernel.org"
+        id S1355721AbhITR4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:56:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347798AbhITR2i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:28:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ECEF861462;
-        Mon, 20 Sep 2021 17:03:32 +0000 (UTC)
+        id S1355250AbhITRyd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:54:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0954E61C15;
+        Mon, 20 Sep 2021 17:13:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157413;
-        bh=Mdf+Xl0GHfADmY1M5BhOFaJG7sBmJPf506QHXx1dJts=;
+        s=korg; t=1632158014;
+        bh=4WbXF1d8ub7pXmU8y7NF8/9PcTH5M8TNBAvrbVJH1Cs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DzRUM+g0IJvb4XBOwKA1r5e+gN+iF0PpWHxARFcx1pN6+7cF2UH5+nNdGbuW3fMwF
-         /x/9visMNTnT+KnFOg3FSkv0TAnLhrj0oAX3jEjNJdmtGSaUmbu/3s/iwQSK1b+mZQ
-         LaU4FkC45e3iTkKhh6/2rRHAxO/0YeIkc/ETviyI=
+        b=VLo8qmhrnSGOAQ5/dUP3TKlKTA6hGW+kbe5wp9gDQljifQMBXHWzSSavyLZb3sBZ5
+         YJMDZPp5gR7nSCH/t4DCWJgZHinL+Ue+VEauitCT5++lQwJrWyRx8vbbwv8jyczS57
+         XRujRSxEWspfXv7Q8MoNkPnESpl/EHye7Q3CCs5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenpeng Lin <zplin@psu.edu>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 197/217] dccp: dont duplicate ccid when cloning dccp sock
+        stable@vger.kernel.org, Jiri Olsa <jolsa@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Borislav Petkov <bp@suse.de>,
+        David Hildenbrand <david@redhat.com>,
+        Dave Hansen <dave.hansen@intel.com>
+Subject: [PATCH 4.19 256/293] x86/mm: Fix kern_addr_valid() to cope with existing but not present entries
 Date:   Mon, 20 Sep 2021 18:43:38 +0200
-Message-Id: <20210920163931.313601249@linuxfoundation.org>
+Message-Id: <20210920163942.154554746@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +42,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin, Zhenpeng <zplin@psu.edu>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-commit d9ea761fdd197351890418acd462c51f241014a7 upstream.
+commit 34b1999da935a33be6239226bfa6cd4f704c5c88 upstream.
 
-Commit 2677d2067731 ("dccp: don't free ccid2_hc_tx_sock ...") fixed
-a UAF but reintroduced CVE-2017-6074.
+Jiri Olsa reported a fault when running:
 
-When the sock is cloned, two dccps_hc_tx_ccid will reference to the
-same ccid. So one can free the ccid object twice from two socks after
-cloning.
+  # cat /proc/kallsyms | grep ksys_read
+  ffffffff8136d580 T ksys_read
+  # objdump -d --start-address=0xffffffff8136d580 --stop-address=0xffffffff8136d590 /proc/kcore
 
-This issue was found by "Hadar Manor" as well and assigned with
-CVE-2020-16119, which was fixed in Ubuntu's kernel. So here I port
-the patch from Ubuntu to fix it.
+  /proc/kcore:     file format elf64-x86-64
 
-The patch prevents cloned socks from referencing the same ccid.
+  Segmentation fault
 
-Fixes: 2677d2067731410 ("dccp: don't free ccid2_hc_tx_sock ...")
-Signed-off-by: Zhenpeng Lin <zplin@psu.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  general protection fault, probably for non-canonical address 0xf887ffcbff000: 0000 [#1] SMP PTI
+  CPU: 12 PID: 1079 Comm: objdump Not tainted 5.14.0-rc5qemu+ #508
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-4.fc34 04/01/2014
+  RIP: 0010:kern_addr_valid
+  Call Trace:
+   read_kcore
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? trace_hardirqs_on
+   ? rcu_read_lock_sched_held
+   ? lock_acquire
+   ? lock_acquire
+   ? rcu_read_lock_sched_held
+   ? lock_acquire
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? rcu_read_lock_sched_held
+   ? lock_release
+   ? _raw_spin_unlock
+   ? __handle_mm_fault
+   ? rcu_read_lock_sched_held
+   ? lock_acquire
+   ? rcu_read_lock_sched_held
+   ? lock_release
+   proc_reg_read
+   ? vfs_read
+   vfs_read
+   ksys_read
+   do_syscall_64
+   entry_SYSCALL_64_after_hwframe
+
+The fault happens because kern_addr_valid() dereferences existent but not
+present PMD in the high kernel mappings.
+
+Such PMDs are created when free_kernel_image_pages() frees regions larger
+than 2Mb. In this case, a part of the freed memory is mapped with PMDs and
+the set_memory_np_noalias() -> ... -> __change_page_attr() sequence will
+mark the PMD as not present rather than wipe it completely.
+
+Have kern_addr_valid() check whether higher level page table entries are
+present before trying to dereference them to fix this issue and to avoid
+similar issues in the future.
+
+Stable backporting note:
+------------------------
+
+Note that the stable marking is for all active stable branches because
+there could be cases where pagetable entries exist but are not valid -
+see 9a14aefc1d28 ("x86: cpa, fix lookup_address"), for example. So make
+sure to be on the safe side here and use pXY_present() accessors rather
+than pXY_none() which could #GP when accessing pages in the direct map.
+
+Also see:
+
+  c40a56a7818c ("x86/mm/init: Remove freed kernel image areas from alias mapping")
+
+for more info.
+
+Reported-by: Jiri Olsa <jolsa@redhat.com>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Dave Hansen <dave.hansen@intel.com>
+Tested-by: Jiri Olsa <jolsa@redhat.com>
+Cc: <stable@vger.kernel.org>	# 4.4+
+Link: https://lkml.kernel.org/r/20210819132717.19358-1-rppt@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dccp/minisocks.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/mm/init_64.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/dccp/minisocks.c
-+++ b/net/dccp/minisocks.c
-@@ -98,6 +98,8 @@ struct sock *dccp_create_openreq_child(c
- 		newdp->dccps_role	    = DCCP_ROLE_SERVER;
- 		newdp->dccps_hc_rx_ackvec   = NULL;
- 		newdp->dccps_service_list   = NULL;
-+		newdp->dccps_hc_rx_ccid     = NULL;
-+		newdp->dccps_hc_tx_ccid     = NULL;
- 		newdp->dccps_service	    = dreq->dreq_service;
- 		newdp->dccps_timestamp_echo = dreq->dreq_timestamp_echo;
- 		newdp->dccps_timestamp_time = dreq->dreq_timestamp_time;
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -1289,18 +1289,18 @@ int kern_addr_valid(unsigned long addr)
+ 		return 0;
+ 
+ 	p4d = p4d_offset(pgd, addr);
+-	if (p4d_none(*p4d))
++	if (!p4d_present(*p4d))
+ 		return 0;
+ 
+ 	pud = pud_offset(p4d, addr);
+-	if (pud_none(*pud))
++	if (!pud_present(*pud))
+ 		return 0;
+ 
+ 	if (pud_large(*pud))
+ 		return pfn_valid(pud_pfn(*pud));
+ 
+ 	pmd = pmd_offset(pud, addr);
+-	if (pmd_none(*pmd))
++	if (!pmd_present(*pmd))
+ 		return 0;
+ 
+ 	if (pmd_large(*pmd))
 
 
