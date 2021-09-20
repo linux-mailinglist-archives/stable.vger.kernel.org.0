@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63C0741245C
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:33:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D99A4125A1
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:45:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346614AbhITSeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:34:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49306 "EHLO mail.kernel.org"
+        id S1384125AbhITSqi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:46:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348410AbhITSa2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:30:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFB966142A;
-        Mon, 20 Sep 2021 17:27:18 +0000 (UTC)
+        id S1383439AbhITSoc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:44:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B09E36335B;
+        Mon, 20 Sep 2021 17:32:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158839;
-        bh=yiG7g5vz8qMijZz7pcpW/M3mzvkR6hIj0Ee5agDPfB4=;
+        s=korg; t=1632159179;
+        bh=/ylWhQgWilVG54d1ELp7na5y0xNTpbUxviz6hlHmaiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UvicEzjk4yodW9y8IFgKWBgdcqL7oHw5SYkzXhVQbTVjf+O7cuQgUONKMhBmLSYmt
-         s4KP0d4Y/tDluh63BLoplrFeuJ2DP+6PJjmcJFOycP8qODVkEIq3KOJJsnvVmc9fFv
-         BCumXpwJ1weKGPcydFX8Q3c0VEtJliv6gnJPkG0U=
+        b=kmSifqKx4IVZo4AOFDFeVkXOPE23RhJdgJo3Ce5ad9MFSCNjtny2RmxYcxZLRIi/h
+         YuD+6W4NNy2zoLInjfzdoMv7+iXKGh1WtTfl4bOrERtHKxpkRxG4NAHIKCqPruii/R
+         dJ0Gpo9DD9zvtHhxj7h52Fz+b0hazfFrNKRbqp+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 079/122] net: phylink: add suspend/resume support
+        stable@vger.kernel.org, Davide Zini <davidezini2@gmail.com>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 113/168] block, bfq: honor already-setup queue merges
 Date:   Mon, 20 Sep 2021 18:44:11 +0200
-Message-Id: <20210920163918.373775935@linuxfoundation.org>
+Message-Id: <20210920163925.352279771@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,150 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Paolo Valente <paolo.valente@linaro.org>
 
-[ Upstream commit f97493657c6372eeefe70faadd214bf31488c44e ]
+[ Upstream commit 2d52c58b9c9bdae0ca3df6a1eab5745ab3f7d80b ]
 
-Joakim Zhang reports that Wake-on-Lan with the stmmac ethernet driver broke
-when moving the incorrect handling of mac link state out of mac_config().
-This reason this breaks is because the stmmac's WoL is handled by the MAC
-rather than the PHY, and phylink doesn't cater for that scenario.
+The function bfq_setup_merge prepares the merging between two
+bfq_queues, say bfqq and new_bfqq. To this goal, it assigns
+bfqq->new_bfqq = new_bfqq. Then, each time some I/O for bfqq arrives,
+the process that generated that I/O is disassociated from bfqq and
+associated with new_bfqq (merging is actually a redirection). In this
+respect, bfq_setup_merge increases new_bfqq->ref in advance, adding
+the number of processes that are expected to be associated with
+new_bfqq.
 
-This patch adds the necessary phylink code to handle suspend/resume events
-according to whether the MAC still needs a valid link or not. This is the
-barest minimum for this support.
+Unfortunately, the stable-merging mechanism interferes with this
+setup. After bfqq->new_bfqq has been set by bfq_setup_merge, and
+before all the expected processes have been associated with
+bfqq->new_bfqq, bfqq may happen to be stably merged with a different
+queue than the current bfqq->new_bfqq. In this case, bfqq->new_bfqq
+gets changed. So, some of the processes that have been already
+accounted for in the ref counter of the previous new_bfqq will not be
+associated with that queue.  This creates an unbalance, because those
+references will never be decremented.
 
-Reported-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Tested-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This commit fixes this issue by reestablishing the previous, natural
+behaviour: once bfqq->new_bfqq has been set, it will not be changed
+until all expected redirections have occurred.
+
+Signed-off-by: Davide Zini <davidezini2@gmail.com>
+Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
+Link: https://lore.kernel.org/r/20210802141352.74353-2-paolo.valente@linaro.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phylink.c | 82 +++++++++++++++++++++++++++++++++++++++
- include/linux/phylink.h   |  3 ++
- 2 files changed, 85 insertions(+)
+ block/bfq-iosched.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/phy/phylink.c b/drivers/net/phy/phylink.c
-index 6072e87ed6c3..42826ce0e0bf 100644
---- a/drivers/net/phy/phylink.c
-+++ b/drivers/net/phy/phylink.c
-@@ -32,6 +32,7 @@
- enum {
- 	PHYLINK_DISABLE_STOPPED,
- 	PHYLINK_DISABLE_LINK,
-+	PHYLINK_DISABLE_MAC_WOL,
- };
- 
- /**
-@@ -1251,6 +1252,9 @@ EXPORT_SYMBOL_GPL(phylink_start);
-  * network device driver's &struct net_device_ops ndo_stop() method.  The
-  * network device's carrier state should not be changed prior to calling this
-  * function.
-+ *
-+ * This will synchronously bring down the link if the link is not already
-+ * down (in other words, it will trigger a mac_link_down() method call.)
-  */
- void phylink_stop(struct phylink *pl)
- {
-@@ -1270,6 +1274,84 @@ void phylink_stop(struct phylink *pl)
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index 9360c65169ff..3a1038b6eeb3 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -2662,6 +2662,15 @@ bfq_setup_merge(struct bfq_queue *bfqq, struct bfq_queue *new_bfqq)
+ 	 * are likely to increase the throughput.
+ 	 */
+ 	bfqq->new_bfqq = new_bfqq;
++	/*
++	 * The above assignment schedules the following redirections:
++	 * each time some I/O for bfqq arrives, the process that
++	 * generated that I/O is disassociated from bfqq and
++	 * associated with new_bfqq. Here we increases new_bfqq->ref
++	 * in advance, adding the number of processes that are
++	 * expected to be associated with new_bfqq as they happen to
++	 * issue I/O.
++	 */
+ 	new_bfqq->ref += process_refs;
+ 	return new_bfqq;
  }
- EXPORT_SYMBOL_GPL(phylink_stop);
+@@ -2724,6 +2733,10 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ {
+ 	struct bfq_queue *in_service_bfqq, *new_bfqq;
  
-+/**
-+ * phylink_suspend() - handle a network device suspend event
-+ * @pl: a pointer to a &struct phylink returned from phylink_create()
-+ * @mac_wol: true if the MAC needs to receive packets for Wake-on-Lan
-+ *
-+ * Handle a network device suspend event. There are several cases:
-+ * - If Wake-on-Lan is not active, we can bring down the link between
-+ *   the MAC and PHY by calling phylink_stop().
-+ * - If Wake-on-Lan is active, and being handled only by the PHY, we
-+ *   can also bring down the link between the MAC and PHY.
-+ * - If Wake-on-Lan is active, but being handled by the MAC, the MAC
-+ *   still needs to receive packets, so we can not bring the link down.
-+ */
-+void phylink_suspend(struct phylink *pl, bool mac_wol)
-+{
-+	ASSERT_RTNL();
++	/* if a merge has already been setup, then proceed with that first */
++	if (bfqq->new_bfqq)
++		return bfqq->new_bfqq;
 +
-+	if (mac_wol && (!pl->netdev || pl->netdev->wol_enabled)) {
-+		/* Wake-on-Lan enabled, MAC handling */
-+		mutex_lock(&pl->state_mutex);
-+
-+		/* Stop the resolver bringing the link up */
-+		__set_bit(PHYLINK_DISABLE_MAC_WOL, &pl->phylink_disable_state);
-+
-+		/* Disable the carrier, to prevent transmit timeouts,
-+		 * but one would hope all packets have been sent. This
-+		 * also means phylink_resolve() will do nothing.
-+		 */
-+		netif_carrier_off(pl->netdev);
-+
-+		/* We do not call mac_link_down() here as we want the
-+		 * link to remain up to receive the WoL packets.
-+		 */
-+		mutex_unlock(&pl->state_mutex);
-+	} else {
-+		phylink_stop(pl);
-+	}
-+}
-+EXPORT_SYMBOL_GPL(phylink_suspend);
-+
-+/**
-+ * phylink_resume() - handle a network device resume event
-+ * @pl: a pointer to a &struct phylink returned from phylink_create()
-+ *
-+ * Undo the effects of phylink_suspend(), returning the link to an
-+ * operational state.
-+ */
-+void phylink_resume(struct phylink *pl)
-+{
-+	ASSERT_RTNL();
-+
-+	if (test_bit(PHYLINK_DISABLE_MAC_WOL, &pl->phylink_disable_state)) {
-+		/* Wake-on-Lan enabled, MAC handling */
-+
-+		/* Call mac_link_down() so we keep the overall state balanced.
-+		 * Do this under the state_mutex lock for consistency. This
-+		 * will cause a "Link Down" message to be printed during
-+		 * resume, which is harmless - the true link state will be
-+		 * printed when we run a resolve.
-+		 */
-+		mutex_lock(&pl->state_mutex);
-+		phylink_link_down(pl);
-+		mutex_unlock(&pl->state_mutex);
-+
-+		/* Re-apply the link parameters so that all the settings get
-+		 * restored to the MAC.
-+		 */
-+		phylink_mac_initial_config(pl, true);
-+
-+		/* Re-enable and re-resolve the link parameters */
-+		clear_bit(PHYLINK_DISABLE_MAC_WOL, &pl->phylink_disable_state);
-+		phylink_run_resolve(pl);
-+	} else {
-+		phylink_start(pl);
-+	}
-+}
-+EXPORT_SYMBOL_GPL(phylink_resume);
-+
- /**
-  * phylink_ethtool_get_wol() - get the wake on lan parameters for the PHY
-  * @pl: a pointer to a &struct phylink returned from phylink_create()
-diff --git a/include/linux/phylink.h b/include/linux/phylink.h
-index d81a714cfbbd..ff56e3e373f0 100644
---- a/include/linux/phylink.h
-+++ b/include/linux/phylink.h
-@@ -446,6 +446,9 @@ void phylink_mac_change(struct phylink *, bool up);
- void phylink_start(struct phylink *);
- void phylink_stop(struct phylink *);
+ 	/*
+ 	 * Check delayed stable merge for rotational or non-queueing
+ 	 * devs. For this branch to be executed, bfqq must not be
+@@ -2825,9 +2838,6 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ 	if (bfq_too_late_for_merging(bfqq))
+ 		return NULL;
  
-+void phylink_suspend(struct phylink *pl, bool mac_wol);
-+void phylink_resume(struct phylink *pl);
-+
- void phylink_ethtool_get_wol(struct phylink *, struct ethtool_wolinfo *);
- int phylink_ethtool_set_wol(struct phylink *, struct ethtool_wolinfo *);
+-	if (bfqq->new_bfqq)
+-		return bfqq->new_bfqq;
+-
+ 	if (!io_struct || unlikely(bfqq == &bfqd->oom_bfqq))
+ 		return NULL;
  
 -- 
 2.30.2
