@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F7CB411DAD
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:21:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 038C3411BE5
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:02:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349281AbhITRWf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:22:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48844 "EHLO mail.kernel.org"
+        id S1345558AbhITRDp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:03:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346955AbhITRUf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:20:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A51F61A65;
-        Mon, 20 Sep 2021 17:00:37 +0000 (UTC)
+        id S239881AbhITRBj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:01:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 072D061244;
+        Mon, 20 Sep 2021 16:53:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157237;
-        bh=GXHmBsdc6S65PqFtoCkcvHIqyFyqePfjlNVLQAIJQk8=;
+        s=korg; t=1632156796;
+        bh=6CxgdGrVJ0MGEM/4hU0l4geVwAUiZnKv8uWB3SO70a0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T/auiVBMfcKk683cSSVyAEgH7eToD8aKc7r7cDLoh36hQ8fu4+g9EWLB7qQ3IqFhk
-         MBuEct7BfhTHHfa3LPdPAsNrLM028eow9PHMH2wVOkxzwS3RUJ8bVdu3D98YaPiPdo
-         wIyAv91oVCNQWj+A559PYAlloYJKQ8xDWqd8hpqs=
+        b=tiG+AAt2rJpiozyvivu/Qmy9qHejmpFQajapC6/E9AEFr6UX80U7FKcCgmVs2GjeG
+         RccSX5NoFi7AMuRxsn10GkAHAARbfxaEOp7WUHMQl9swxAIpEaSRXKUAqwyyu1Eplw
+         uRnvaAst4wJVgAWU6Z5iu4LA4nHKhqYa/aX7OH/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.14 117/217] PCI: Return ~0 data on pciconfig_read() CAP_SYS_ADMIN failure
+Subject: [PATCH 4.9 089/175] PCI/MSI: Skip masking MSI-X on Xen PV
 Date:   Mon, 20 Sep 2021 18:42:18 +0200
-Message-Id: <20210920163928.628708420@linuxfoundation.org>
+Message-Id: <20210920163920.990514478@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Wilczyński <kw@linux.com>
+From: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
 
-commit a8bd29bd49c4156ea0ec5a97812333e2aeef44e7 upstream.
+commit 1a519dc7a73c977547d8b5108d98c6e769c89f4b upstream.
 
-The pciconfig_read() syscall reads PCI configuration space using
-hardware-dependent config accessors.
+When running as Xen PV guest, masking MSI-X is a responsibility of the
+hypervisor. The guest has no write access to the relevant BAR at all - when
+it tries to, it results in a crash like this:
 
-If the read fails on PCI, most accessors don't return an error; they
-pretend the read was successful and got ~0 data from the device, so the
-syscall returns success with ~0 data in the buffer.
+    BUG: unable to handle page fault for address: ffffc9004069100c
+    #PF: supervisor write access in kernel mode
+    #PF: error_code(0x0003) - permissions violation
+    RIP: e030:__pci_enable_msix_range.part.0+0x26b/0x5f0
+     e1000e_set_interrupt_capability+0xbf/0xd0 [e1000e]
+     e1000_probe+0x41f/0xdb0 [e1000e]
+     local_pci_probe+0x42/0x80
+    (...)
 
-When the accessor does return an error, pciconfig_read() normally fills the
-user's buffer with ~0 and returns an error in errno.  But after
-e4585da22ad0 ("pci syscall.c: Switch to refcounting API"), we don't fill
-the buffer with ~0 for the EPERM "user lacks CAP_SYS_ADMIN" error.
+The recently introduced function msix_mask_all() does not check the global
+variable pci_msi_ignore_mask which is set by XEN PV to bypass the masking
+of MSI[-X] interrupts.
 
-Userspace may rely on the ~0 data to detect errors, but after e4585da22ad0,
-that would not detect CAP_SYS_ADMIN errors.
+Add the check to make this function XEN PV compatible.
 
-Restore the original behaviour of filling the buffer with ~0 when the
-CAP_SYS_ADMIN check fails.
-
-[bhelgaas: commit log, fold in Nathan's fix
-https://lore.kernel.org/r/20210803200836.500658-1-nathan@kernel.org]
-Fixes: e4585da22ad0 ("pci syscall.c: Switch to refcounting API")
-Link: https://lore.kernel.org/r/20210729233755.1509616-1-kw@linux.com
-Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Fixes: 7d5ec3d36123 ("PCI/MSI: Mask all unused MSI-X entries")
+Signed-off-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
 Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210826170342.135172-1-marmarek@invisiblethingslab.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/syscall.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/pci/msi.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/pci/syscall.c
-+++ b/drivers/pci/syscall.c
-@@ -24,8 +24,10 @@ SYSCALL_DEFINE5(pciconfig_read, unsigned
- 	long err;
- 	int cfg_ret;
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -777,6 +777,9 @@ static void msix_mask_all(void __iomem *
+ 	u32 ctrl = PCI_MSIX_ENTRY_CTRL_MASKBIT;
+ 	int i;
  
-+	err = -EPERM;
-+	dev = NULL;
- 	if (!capable(CAP_SYS_ADMIN))
--		return -EPERM;
-+		goto error;
- 
- 	err = -ENODEV;
- 	dev = pci_get_bus_and_slot(bus, dfn);
++	if (pci_msi_ignore_mask)
++		return;
++
+ 	for (i = 0; i < tsize; i++, base += PCI_MSIX_ENTRY_SIZE)
+ 		writel(ctrl, base + PCI_MSIX_ENTRY_VECTOR_CTRL);
+ }
 
 
