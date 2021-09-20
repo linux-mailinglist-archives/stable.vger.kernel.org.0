@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FE2A41251E
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E8A4122C0
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349149AbhITSld (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:41:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53086 "EHLO mail.kernel.org"
+        id S1351244AbhITSRI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:17:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353420AbhITSia (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:38:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 451A563324;
-        Mon, 20 Sep 2021 17:30:09 +0000 (UTC)
+        id S1376858AbhITSOu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:14:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F8DA613E8;
+        Mon, 20 Sep 2021 17:21:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159009;
-        bh=n3lpyUkHAm7OtwDbNT3bvlXmfR46S0xuBOUzjB3bx94=;
+        s=korg; t=1632158505;
+        bh=MNDJKkMWKeuUgMR/lKQ0034otoLWBNEIf4WXmOHLp1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jKmhEhc1Zr6T7CpuUdvVQT+NpU9uqCJmOwyKY3a8qXIQ01a59fUfBStyIREjJUvVB
-         l5c4cbv67ZpON6FrgX6wpBPQ/XWO5TpkBWb9rHWKfGwOANNplxHnj0EnQESh5JxLjs
-         6BHoJ/cl409vSRparChxSsQkvXTzs1RKMP4jfrgA=
+        b=BD4VITZgVGWDpKa38/uF7zSaJZccTEvmNRVZc622k0a7y90Z6q+ig4hTVhT2L9hQs
+         787jqA5wpV5oyh4iG/XlSegYtmNY6pQuFMZFshe2+nsQGZYaG4yeSR94QHBcxf20DO
+         FU8alwifutgfTX/umYenwGf5VYqd9/X/Ck66DCH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Olsa <jolsa@redhat.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Borislav Petkov <bp@suse.de>,
-        David Hildenbrand <david@redhat.com>,
-        Dave Hansen <dave.hansen@intel.com>
-Subject: [PATCH 5.14 035/168] x86/mm: Fix kern_addr_valid() to cope with existing but not present entries
+        stable@vger.kernel.org, Nishad Kamdar <nishadkamdar@gmail.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 155/260] mmc: core: Return correct emmc response in case of ioctl error
 Date:   Mon, 20 Sep 2021 18:42:53 +0200
-Message-Id: <20210920163922.802977727@linuxfoundation.org>
+Message-Id: <20210920163936.376708882@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,115 +41,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Nishad Kamdar <nishadkamdar@gmail.com>
 
-commit 34b1999da935a33be6239226bfa6cd4f704c5c88 upstream.
+[ Upstream commit e72a55f2e5ddcfb3dce0701caf925ce435b87682 ]
 
-Jiri Olsa reported a fault when running:
+When a read/write command is sent via ioctl to the kernel,
+and the command fails, the actual error response of the emmc
+is not sent to the user.
 
-  # cat /proc/kallsyms | grep ksys_read
-  ffffffff8136d580 T ksys_read
-  # objdump -d --start-address=0xffffffff8136d580 --stop-address=0xffffffff8136d590 /proc/kcore
+IOCTL read/write tests are carried out using commands
+17 (Single BLock Read), 24 (Single Block Write),
+18 (Multi Block Read), 25 (Multi Block Write)
 
-  /proc/kcore:     file format elf64-x86-64
+The tests are carried out on a 64Gb emmc device. All of these
+tests try to access an "out of range" sector address (0x09B2FFFF).
 
-  Segmentation fault
+It is seen that without the patch the response received by the user
+is not OUT_OF_RANGE error (R1 response 31st bit is not set) as per
+JEDEC specification. After applying the patch proper response is seen.
+This is because the function returns without copying the response to
+the user in case of failure. This patch fixes the issue.
 
-  general protection fault, probably for non-canonical address 0xf887ffcbff000: 0000 [#1] SMP PTI
-  CPU: 12 PID: 1079 Comm: objdump Not tainted 5.14.0-rc5qemu+ #508
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-4.fc34 04/01/2014
-  RIP: 0010:kern_addr_valid
-  Call Trace:
-   read_kcore
-   ? rcu_read_lock_sched_held
-   ? rcu_read_lock_sched_held
-   ? rcu_read_lock_sched_held
-   ? trace_hardirqs_on
-   ? rcu_read_lock_sched_held
-   ? lock_acquire
-   ? lock_acquire
-   ? rcu_read_lock_sched_held
-   ? lock_acquire
-   ? rcu_read_lock_sched_held
-   ? rcu_read_lock_sched_held
-   ? rcu_read_lock_sched_held
-   ? lock_release
-   ? _raw_spin_unlock
-   ? __handle_mm_fault
-   ? rcu_read_lock_sched_held
-   ? lock_acquire
-   ? rcu_read_lock_sched_held
-   ? lock_release
-   proc_reg_read
-   ? vfs_read
-   vfs_read
-   ksys_read
-   do_syscall_64
-   entry_SYSCALL_64_after_hwframe
+Hence, this memcpy is required whether we get an error response or not.
+Therefor it is moved up from the current position up to immediately
+after we have called mmc_wait_for_req().
 
-The fault happens because kern_addr_valid() dereferences existent but not
-present PMD in the high kernel mappings.
+The test code and the output of only the CMD17 is included in the
+commit to limit the message length.
 
-Such PMDs are created when free_kernel_image_pages() frees regions larger
-than 2Mb. In this case, a part of the freed memory is mapped with PMDs and
-the set_memory_np_noalias() -> ... -> __change_page_attr() sequence will
-mark the PMD as not present rather than wipe it completely.
+CMD17 (Test Code Snippet):
+==========================
+        printf("Forming CMD%d\n", opt_idx);
+        /*  single block read */
+        cmd.blksz = 512;
+        cmd.blocks = 1;
+        cmd.write_flag = 0;
+        cmd.opcode = 17;
+        //cmd.arg = atoi(argv[3]);
+        cmd.arg = 0x09B2FFFF;
+        /* Expecting response R1B */
+        cmd.flags = MMC_RSP_SPI_R1 | MMC_RSP_R1 | MMC_CMD_ADTC;
 
-Have kern_addr_valid() check whether higher level page table entries are
-present before trying to dereference them to fix this issue and to avoid
-similar issues in the future.
+        memset(data, 0, sizeof(__u8) * 512);
+        mmc_ioc_cmd_set_data(cmd, data);
 
-Stable backporting note:
-------------------------
+        printf("Sending CMD%d: ARG[0x%08x]\n", opt_idx, cmd.arg);
+        if(ioctl(fd, MMC_IOC_CMD, &cmd))
+                perror("Error");
 
-Note that the stable marking is for all active stable branches because
-there could be cases where pagetable entries exist but are not valid -
-see 9a14aefc1d28 ("x86: cpa, fix lookup_address"), for example. So make
-sure to be on the safe side here and use pXY_present() accessors rather
-than pXY_none() which could #GP when accessing pages in the direct map.
+        printf("\nResponse: %08x\n", cmd.response[0]);
 
-Also see:
+CMD17 (Output without patch):
+=============================
+test@test-LIVA-Z:~$ sudo ./mmc cmd_test /dev/mmcblk0 17
+Entering the do_mmc_commands:Device: /dev/mmcblk0 nargs:4
+Entering the do_mmc_commands:Device: /dev/mmcblk0 options[17, 0x09B2FFF]
+Forming CMD17
+Sending CMD17: ARG[0x09b2ffff]
+Error: Connection timed out
 
-  c40a56a7818c ("x86/mm/init: Remove freed kernel image areas from alias mapping")
+Response: 00000000
+(Incorrect response)
 
-for more info.
+CMD17 (Output with patch):
+==========================
+test@test-LIVA-Z:~$ sudo ./mmc cmd_test /dev/mmcblk0 17
+[sudo] password for test:
+Entering the do_mmc_commands:Device: /dev/mmcblk0 nargs:4
+Entering the do_mmc_commands:Device: /dev/mmcblk0 options[17, 09B2FFFF]
+Forming CMD17
+Sending CMD17: ARG[0x09b2ffff]
+Error: Connection timed out
 
-Reported-by: Jiri Olsa <jolsa@redhat.com>
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Dave Hansen <dave.hansen@intel.com>
-Tested-by: Jiri Olsa <jolsa@redhat.com>
-Cc: <stable@vger.kernel.org>	# 4.4+
-Link: https://lkml.kernel.org/r/20210819132717.19358-1-rppt@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Response: 80000900
+(Correct OUT_OF_ERROR response as per JEDEC specification)
+
+Signed-off-by: Nishad Kamdar <nishadkamdar@gmail.com>
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Link: https://lore.kernel.org/r/20210824191726.8296-1-nishadkamdar@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/init_64.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/mmc/core/block.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -1433,18 +1433,18 @@ int kern_addr_valid(unsigned long addr)
- 		return 0;
+diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
+index 8322d22a59c4..e92f9373e227 100644
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -591,6 +591,7 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
+ 	}
  
- 	p4d = p4d_offset(pgd, addr);
--	if (p4d_none(*p4d))
-+	if (!p4d_present(*p4d))
- 		return 0;
+ 	mmc_wait_for_req(card->host, &mrq);
++	memcpy(&idata->ic.response, cmd.resp, sizeof(cmd.resp));
  
- 	pud = pud_offset(p4d, addr);
--	if (pud_none(*pud))
-+	if (!pud_present(*pud))
- 		return 0;
+ 	if (cmd.error) {
+ 		dev_err(mmc_dev(card->host), "%s: cmd error %d\n",
+@@ -640,8 +641,6 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
+ 	if (idata->ic.postsleep_min_us)
+ 		usleep_range(idata->ic.postsleep_min_us, idata->ic.postsleep_max_us);
  
- 	if (pud_large(*pud))
- 		return pfn_valid(pud_pfn(*pud));
- 
- 	pmd = pmd_offset(pud, addr);
--	if (pmd_none(*pmd))
-+	if (!pmd_present(*pmd))
- 		return 0;
- 
- 	if (pmd_large(*pmd))
+-	memcpy(&(idata->ic.response), cmd.resp, sizeof(cmd.resp));
+-
+ 	if (idata->rpmb || (cmd.flags & MMC_RSP_R1B) == MMC_RSP_R1B) {
+ 		/*
+ 		 * Ensure RPMB/R1B command has completed by polling CMD13
+-- 
+2.30.2
+
 
 
