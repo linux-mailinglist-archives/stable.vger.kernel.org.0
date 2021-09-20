@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F358A411EA9
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:32:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A26E4120EF
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:59:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350929AbhITRdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:33:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34834 "EHLO mail.kernel.org"
+        id S1350036AbhITSAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:00:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242229AbhITRbN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:31:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2127761501;
-        Mon, 20 Sep 2021 17:04:31 +0000 (UTC)
+        id S1355737AbhITR4d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:56:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCF9B61CA7;
+        Mon, 20 Sep 2021 17:14:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157472;
-        bh=uLgFZxX+cwiet4pUq59oiyiXdrCWvxBD5wFY6RaxJxw=;
+        s=korg; t=1632158060;
+        bh=xESobgeIkbpJA62rLjpHEFlWrZqp6AXEsmRZp0ZSGiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fGMxxNpYStKmDxHxnOOciZujGz6TtAxKUmGHoIc1JepktrVf76vkS1wm7vBNfd6Nb
-         07XhA8zWSG/HNEqy6cUOK4jgHPCW4maV4QCiOsaU428+GyuQUo6jtb92wjZbJGlFfe
-         38CR36o6V1U+Zfuj11m4ZJHM/SdEgadAfvA0t5G8=
+        b=S9zePXkdiCyWF3egT3uBieR/bTTBEGR/cm22bIsZxtq+TqwT7xH5b4VKyGNlZRP1B
+         A7i/VwGo+psop34mOVdVaEylhvP0w+51vbf2yPiB0JjebhvdvGbUlh7e2s27xAJvoi
+         uUq6LesnYHycbhKcZDRFdji65T5lQA6tvnOiCjS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 216/217] qlcnic: Remove redundant unlock in qlcnic_pinit_from_rom
+        stable@vger.kernel.org,
+        "Ryan J. Barnett" <ryan.barnett@collins.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 275/293] dt-bindings: mtd: gpmc: Fix the ECC bytes vs. OOB bytes equation
 Date:   Mon, 20 Sep 2021 18:43:57 +0200
-Message-Id: <20210920163931.939351696@linuxfoundation.org>
+Message-Id: <20210920163942.831129095@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 9ddbc2a00d7f63fa9748f4278643193dac985f2d ]
+[ Upstream commit 778cb8e39f6ec252be50fc3850d66f3dcbd5dd5a ]
 
-Previous commit 68233c583ab4 removes the qlcnic_rom_lock()
-in qlcnic_pinit_from_rom(), but remains its corresponding
-unlock function, which is odd. I'm not very sure whether the
-lock is missing, or the unlock is redundant. This bug is
-suggested by a static analysis tool, please advise.
+"PAGESIZE / 512" is the number of ECC chunks.
+"ECC_BYTES" is the number of bytes needed to store a single ECC code.
+"2" is the space reserved by the bad block marker.
 
-Fixes: 68233c583ab4 ("qlcnic: updated reset sequence")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+"2 + (PAGESIZE / 512) * ECC_BYTES" should of course be lower or equal
+than the total number of OOB bytes, otherwise it won't fit.
+
+Fix the equation by substituting s/>=/<=/.
+
+Suggested-by: Ryan J. Barnett <ryan.barnett@collins.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/linux-mtd/20210610143945.3504781-1-miquel.raynal@bootlin.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_init.c | 1 -
- 1 file changed, 1 deletion(-)
+ Documentation/devicetree/bindings/mtd/gpmc-nand.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_init.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_init.c
-index c48a0e2d4d7e..6a009d51ec51 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_init.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_init.c
-@@ -440,7 +440,6 @@ int qlcnic_pinit_from_rom(struct qlcnic_adapter *adapter)
- 	QLCWR32(adapter, QLCNIC_CRB_PEG_NET_4 + 0x3c, 1);
- 	msleep(20);
- 
--	qlcnic_rom_unlock(adapter);
- 	/* big hammer don't reset CAM block on reset */
- 	QLCWR32(adapter, QLCNIC_ROMUSB_GLB_SW_RESET, 0xfeffffff);
- 
+diff --git a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
+index c059ab74ed88..a4a75fa79524 100644
+--- a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
++++ b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
+@@ -122,7 +122,7 @@ on various other factors also like;
+ 	so the device should have enough free bytes available its OOB/Spare
+ 	area to accommodate ECC for entire page. In general following expression
+ 	helps in determining if given device can accommodate ECC syndrome:
+-	"2 + (PAGESIZE / 512) * ECC_BYTES" >= OOBSIZE"
++	"2 + (PAGESIZE / 512) * ECC_BYTES" <= OOBSIZE"
+ 	where
+ 		OOBSIZE		number of bytes in OOB/spare area
+ 		PAGESIZE	number of bytes in main-area of device page
 -- 
 2.30.2
 
