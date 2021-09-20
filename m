@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 191DB412524
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2100B41220C
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:10:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353542AbhITSll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:41:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52158 "EHLO mail.kernel.org"
+        id S1376455AbhITSMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:12:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353092AbhITShD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:37:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D065563322;
-        Mon, 20 Sep 2021 17:29:42 +0000 (UTC)
+        id S1359801AbhITSKT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:10:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C37A163271;
+        Mon, 20 Sep 2021 17:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158983;
-        bh=MwLgoaxQ710nxayWGUIn6POkndliC9rSgcVdZwxI3l4=;
+        s=korg; t=1632158408;
+        bh=wT3iu+1KsIblfmC2Xxu1rpoOWJc5iroPFIXC6zv3PRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UZGmshzVJUS7XZVUieHV1pj8vq87Bg5bxJENJ8uPBjbI8T7k6gGgXs+LwsFeNJ7tx
-         T8NfoiHN/gB0VzuqxEneqJL+koPdKYANWNFKsySVeXUSZiWZSuNlHWEr4tgapQgY+g
-         zouwx2GM2k4Q/Kly3ITZOTdixaMvX9Y2kQqwsdj0=
+        b=gOf1SshME/MYJWgKyXCfHbdX6u25gmmxf0H50kDPu7W8JVUXrlq3KeakYxpOTB+Ab
+         FQPV6V76jf33cUjYKuwIYmrHhF/JoGp39ZgRAFxuB1OglYM8JG2BtPMkJHWDEZO6Wg
+         oGVwCcTAnjNN38Ukj0+QJ91NpkrsYkO6pPmfZzlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Dan Melnic <dmm@fb.com>
-Subject: [PATCH 5.14 022/168] io_uring: allow retry for O_NONBLOCK if async is supported
+        stable@vger.kernel.org, linux-staging@lists.linux.dev,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 142/260] staging: rts5208: Fix get_ms_information() heap buffer size
 Date:   Mon, 20 Sep 2021 18:42:40 +0200
-Message-Id: <20210920163922.377541288@linuxfoundation.org>
+Message-Id: <20210920163935.938853168@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,69 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Kees Cook <keescook@chromium.org>
 
-commit 5d329e1286b0a040264e239b80257c937f6e685f upstream.
+[ Upstream commit cbe34165cc1b7d1110b268ba8b9f30843c941639 ]
 
-A common complaint is that using O_NONBLOCK files with io_uring can be a
-bit of a pain. Be a bit nicer and allow normal retry IFF the file does
-support async behavior. This makes it possible to use io_uring more
-reliably with O_NONBLOCK files, for use cases where it either isn't
-possible or feasible to modify the file flags.
+Fix buf allocation size (it needs to be 2 bytes larger). Found when
+__alloc_size() annotations were added to kmalloc() interfaces.
 
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: Dan Melnic <dmm@fb.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+In file included from ./include/linux/string.h:253,
+                 from ./include/linux/bitmap.h:10,
+                 from ./include/linux/cpumask.h:12,
+                 from ./arch/x86/include/asm/paravirt.h:17,
+                 from ./arch/x86/include/asm/irqflags.h:63,
+                 from ./include/linux/irqflags.h:16,
+                 from ./include/linux/rcupdate.h:26,
+                 from ./include/linux/rculist.h:11,
+                 from ./include/linux/pid.h:5,
+                 from ./include/linux/sched.h:14,
+                 from ./include/linux/blkdev.h:5,
+                 from drivers/staging/rts5208/rtsx_scsi.c:12:
+In function 'get_ms_information',
+    inlined from 'ms_sp_cmnd' at drivers/staging/rts5208/rtsx_scsi.c:2877:12,
+    inlined from 'rtsx_scsi_handler' at drivers/staging/rts5208/rtsx_scsi.c:3247:12:
+./include/linux/fortify-string.h:54:29: warning: '__builtin_memcpy' forming offset [106, 107] is out
+ of the bounds [0, 106] [-Warray-bounds]
+   54 | #define __underlying_memcpy __builtin_memcpy
+      |                             ^
+./include/linux/fortify-string.h:417:2: note: in expansion of macro '__underlying_memcpy'
+  417 |  __underlying_##op(p, q, __fortify_size);   \
+      |  ^~~~~~~~~~~~~
+./include/linux/fortify-string.h:463:26: note: in expansion of macro '__fortify_memcpy_chk'
+  463 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,   \
+      |                          ^~~~~~~~~~~~~~~~~~~~
+drivers/staging/rts5208/rtsx_scsi.c:2851:3: note: in expansion of macro 'memcpy'
+ 2851 |   memcpy(buf + i, ms_card->raw_sys_info, 96);
+      |   ^~~~~~
+
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-staging@lists.linux.dev
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20210818044252.1533634-1-keescook@chromium.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/staging/rts5208/rtsx_scsi.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2683,7 +2683,8 @@ static bool io_file_supports_async(struc
- 	return __io_file_supports_async(req->file, rw);
- }
+diff --git a/drivers/staging/rts5208/rtsx_scsi.c b/drivers/staging/rts5208/rtsx_scsi.c
+index 1deb74112ad4..11d9d9155eef 100644
+--- a/drivers/staging/rts5208/rtsx_scsi.c
++++ b/drivers/staging/rts5208/rtsx_scsi.c
+@@ -2802,10 +2802,10 @@ static int get_ms_information(struct scsi_cmnd *srb, struct rtsx_chip *chip)
+ 	}
  
--static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
-+static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe,
-+		      int rw)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
- 	struct kiocb *kiocb = &req->rw.kiocb;
-@@ -2705,8 +2706,13 @@ static int io_prep_rw(struct io_kiocb *r
- 	if (unlikely(ret))
- 		return ret;
+ 	if (dev_info_id == 0x15) {
+-		buf_len = 0x3A;
++		buf_len = 0x3C;
+ 		data_len = 0x3A;
+ 	} else {
+-		buf_len = 0x6A;
++		buf_len = 0x6C;
+ 		data_len = 0x6A;
+ 	}
  
--	/* don't allow async punt for O_NONBLOCK or RWF_NOWAIT */
--	if ((kiocb->ki_flags & IOCB_NOWAIT) || (file->f_flags & O_NONBLOCK))
-+	/*
-+	 * If the file is marked O_NONBLOCK, still allow retry for it if it
-+	 * supports async. Otherwise it's impossible to use O_NONBLOCK files
-+	 * reliably. If not, or it IOCB_NOWAIT is set, don't retry.
-+	 */
-+	if ((kiocb->ki_flags & IOCB_NOWAIT) ||
-+	    ((file->f_flags & O_NONBLOCK) && !io_file_supports_async(req, rw)))
- 		req->flags |= REQ_F_NOWAIT;
+@@ -2855,11 +2855,7 @@ static int get_ms_information(struct scsi_cmnd *srb, struct rtsx_chip *chip)
+ 	}
  
- 	ioprio = READ_ONCE(sqe->ioprio);
-@@ -3193,7 +3199,7 @@ static int io_read_prep(struct io_kiocb
- {
- 	if (unlikely(!(req->file->f_mode & FMODE_READ)))
- 		return -EBADF;
--	return io_prep_rw(req, sqe);
-+	return io_prep_rw(req, sqe, READ);
- }
+ 	rtsx_stor_set_xfer_buf(buf, buf_len, srb);
+-
+-	if (dev_info_id == 0x15)
+-		scsi_set_resid(srb, scsi_bufflen(srb) - 0x3C);
+-	else
+-		scsi_set_resid(srb, scsi_bufflen(srb) - 0x6C);
++	scsi_set_resid(srb, scsi_bufflen(srb) - buf_len);
  
- /*
-@@ -3382,7 +3388,7 @@ static int io_write_prep(struct io_kiocb
- {
- 	if (unlikely(!(req->file->f_mode & FMODE_WRITE)))
- 		return -EBADF;
--	return io_prep_rw(req, sqe);
-+	return io_prep_rw(req, sqe, WRITE);
- }
- 
- static int io_write(struct io_kiocb *req, unsigned int issue_flags)
+ 	kfree(buf);
+ 	return STATUS_SUCCESS;
+-- 
+2.30.2
+
 
 
