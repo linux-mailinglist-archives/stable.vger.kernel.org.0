@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 894214122B7
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1302E4123A9
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:25:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356720AbhITSRC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:17:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37204 "EHLO mail.kernel.org"
+        id S1352131AbhITS0c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:26:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376679AbhITSOI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:14:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C965761401;
-        Mon, 20 Sep 2021 17:21:10 +0000 (UTC)
+        id S1378347AbhITSY0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:24:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CA9B613A2;
+        Mon, 20 Sep 2021 17:25:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158471;
-        bh=fE1o4jHCk4lA44B02vJseXJKWuRTeDMS3VaFxh/kDUU=;
+        s=korg; t=1632158702;
+        bh=uSCus/CvVsBhDvotbxmndFrZ31G696mSG8Rf+gOHDf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zJuF+9OpongsywaW9F6g7YorwWOQFTd2RROBoBNUvM7K/UQ+FPqhVAP/ylAa63vJy
-         jf4jUJGQY2i6sSy3C+GS7YSqJxvSz52DUstGJBt0qHSiPjYiW9aKfBUzLAGMkuoXGr
-         /sCPasDFkjw0TYXoZWr9p+hjH9HXC2v8XpAR2sPM=
+        b=vss0x/P/ffcPzrHY3+Tp5RXJwDKNo8btXhdyTP2Yyd/j4ZBswGXQBmaO/c9CBrxDd
+         adYAKLJUsiLC0WB74SAgNd3HMV4Y1sAUJNspCqCA+9r3yjD2wMEPT3T7GCdAl5N+k2
+         IzVZ7Q/Yzw14rSLsgadQHbKqsXl5fpjaiwamWEtQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci <abaci@linux.alibaba.com>,
-        Michael Wang <yun.wang@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 171/260] net: fix NULL pointer reference in cipso_v4_doi_free
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Michael Walle <michael@walle.cc>, Marek Vasut <marex@denx.de>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH 5.10 017/122] drm/etnaviv: add missing MMU context put when reaping MMU mapping
 Date:   Mon, 20 Sep 2021 18:43:09 +0200
-Message-Id: <20210920163936.892692782@linuxfoundation.org>
+Message-Id: <20210920163916.339109430@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 王贇 <yun.wang@linux.alibaba.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 733c99ee8be9a1410287cdbb943887365e83b2d6 ]
+commit f2faea8b64125852fa9acc6771c07fc0311a039b upstream.
 
-In netlbl_cipsov4_add_std() when 'doi_def->map.std' alloc
-failed, we sometime observe panic:
+When we forcefully evict a mapping from the the address space and thus the
+MMU context, the MMU context is leaked, as the mapping no longer points to
+it, so it doesn't get freed when the GEM object is destroyed. Add the
+mssing context put to fix the leak.
 
-  BUG: kernel NULL pointer dereference, address:
-  ...
-  RIP: 0010:cipso_v4_doi_free+0x3a/0x80
-  ...
-  Call Trace:
-   netlbl_cipsov4_add_std+0xf4/0x8c0
-   netlbl_cipsov4_add+0x13f/0x1b0
-   genl_family_rcv_msg_doit.isra.15+0x132/0x170
-   genl_rcv_msg+0x125/0x240
-
-This is because in cipso_v4_doi_free() there is no check
-on 'doi_def->map.std' when 'doi_def->type' equal 1, which
-is possibe, since netlbl_cipsov4_add_std() haven't initialize
-it before alloc 'doi_def->map.std'.
-
-This patch just add the check to prevent panic happen for similar
-cases.
-
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org # 5.4
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Tested-by: Michael Walle <michael@walle.cc>
+Tested-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netlabel/netlabel_cipso_v4.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/etnaviv/etnaviv_mmu.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/netlabel/netlabel_cipso_v4.c b/net/netlabel/netlabel_cipso_v4.c
-index 8cd3daf0e3db..1778e4e8ce24 100644
---- a/net/netlabel/netlabel_cipso_v4.c
-+++ b/net/netlabel/netlabel_cipso_v4.c
-@@ -144,8 +144,8 @@ static int netlbl_cipsov4_add_std(struct genl_info *info,
- 		return -ENOMEM;
- 	doi_def->map.std = kzalloc(sizeof(*doi_def->map.std), GFP_KERNEL);
- 	if (doi_def->map.std == NULL) {
--		ret_val = -ENOMEM;
--		goto add_std_failure;
-+		kfree(doi_def);
-+		return -ENOMEM;
- 	}
- 	doi_def->type = CIPSO_V4_MAP_TRANS;
- 
--- 
-2.30.2
-
+--- a/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
+@@ -197,6 +197,7 @@ static int etnaviv_iommu_find_iova(struc
+ 		 */
+ 		list_for_each_entry_safe(m, n, &list, scan_node) {
+ 			etnaviv_iommu_remove_mapping(context, m);
++			etnaviv_iommu_context_put(m->context);
+ 			m->context = NULL;
+ 			list_del_init(&m->mmu_node);
+ 			list_del_init(&m->scan_node);
 
 
