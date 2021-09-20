@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3999411E7F
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:30:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B43D4120B3
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:55:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350998AbhITRbc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:31:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57946 "EHLO mail.kernel.org"
+        id S1355845AbhITR5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:57:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350704AbhITR3e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:29:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F15F61526;
-        Mon, 20 Sep 2021 17:03:55 +0000 (UTC)
+        id S1355535AbhITRzA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:55:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B55FB62F90;
+        Mon, 20 Sep 2021 17:13:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157435;
-        bh=mdToDSP4iZ2cukpJ3ZT/GEREaE+0G5rXlJ0MG9HZdX0=;
+        s=korg; t=1632158036;
+        bh=eI8VmhPnkSe+TwC3dCeB32absXhSVDBX10ElBxrN6IQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gQxQkeIldC/qo94GgQhfQTeSxtpfOmqHO+JttEx1Xxn0oxIyPCOy3k6GwH8Kevwzl
-         Xy44P2hDiO0LIebzKIazAIRxfXoIoiMWMkkN4Xoc9KKqW1Wn6AjF+WMh3aMr6TzNLx
-         mnQPeE/6IPZ0TOWsERTGoRPb7+eXA6NtiDXC8oOE=
+        b=V7H1jhbjHkf+48fKi2hebwkJ2iM6fbqMNuW1388zk2k/f88V2web0858L8MiNbmG5
+         DpcJKtWDkBbDX6bCu48XFwyFjjc8vRgFyXMr9JvMybYMxKEYTWtz+VldvRfAxi5w+4
+         5RoUbufj0QlPRfV0+e9zmg3ZrghvdFqXZORWD+5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Ryan J. Barnett" <ryan.barnett@collins.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 206/217] dt-bindings: mtd: gpmc: Fix the ECC bytes vs. OOB bytes equation
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Maor Gottlieb <maorg@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 4.19 265/293] net/mlx5: Fix potential sleeping in atomic context
 Date:   Mon, 20 Sep 2021 18:43:47 +0200
-Message-Id: <20210920163931.609449882@linuxfoundation.org>
+Message-Id: <20210920163942.476055533@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Maor Gottlieb <maorg@nvidia.com>
 
-[ Upstream commit 778cb8e39f6ec252be50fc3850d66f3dcbd5dd5a ]
+commit ee27e330a953595903979ffdb84926843595a9fe upstream.
 
-"PAGESIZE / 512" is the number of ECC chunks.
-"ECC_BYTES" is the number of bytes needed to store a single ECC code.
-"2" is the space reserved by the bad block marker.
+Fixes the below flow of sleeping in atomic context by releasing
+the RCU lock before calling to free_match_list.
 
-"2 + (PAGESIZE / 512) * ECC_BYTES" should of course be lower or equal
-than the total number of OOB bytes, otherwise it won't fit.
+build_match_list() <- disables preempt
+-> free_match_list()
+   -> tree_put_node()
+      -> down_write_ref_node() <- take write lock
 
-Fix the equation by substituting s/>=/<=/.
-
-Suggested-by: Ryan J. Barnett <ryan.barnett@collins.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/linux-mtd/20210610143945.3504781-1-miquel.raynal@bootlin.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 693c6883bbc4 ("net/mlx5: Add hash table for flow groups in flow table")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/mtd/gpmc-nand.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/fs_core.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-index dd559045593d..d2d1bae63a36 100644
---- a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-+++ b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
-@@ -123,7 +123,7 @@ on various other factors also like;
- 	so the device should have enough free bytes available its OOB/Spare
- 	area to accommodate ECC for entire page. In general following expression
- 	helps in determining if given device can accommodate ECC syndrome:
--	"2 + (PAGESIZE / 512) * ECC_BYTES" >= OOBSIZE"
-+	"2 + (PAGESIZE / 512) * ECC_BYTES" <= OOBSIZE"
- 	where
- 		OOBSIZE		number of bytes in OOB/spare area
- 		PAGESIZE	number of bytes in main-area of device page
--- 
-2.30.2
-
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
+@@ -1558,9 +1558,9 @@ static int build_match_list(struct match
+ 
+ 		curr_match = kmalloc(sizeof(*curr_match), GFP_ATOMIC);
+ 		if (!curr_match) {
++			rcu_read_unlock();
+ 			free_match_list(match_head);
+-			err = -ENOMEM;
+-			goto out;
++			return -ENOMEM;
+ 		}
+ 		if (!tree_get_node(&g->node)) {
+ 			kfree(curr_match);
+@@ -1569,7 +1569,6 @@ static int build_match_list(struct match
+ 		curr_match->g = g;
+ 		list_add_tail(&curr_match->list, &match_head->list);
+ 	}
+-out:
+ 	rcu_read_unlock();
+ 	return err;
+ }
 
 
