@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EBF5412483
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:34:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A4454125DD
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:49:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348981AbhITSfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:35:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50466 "EHLO mail.kernel.org"
+        id S1384766AbhITSsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:48:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1380080AbhITSc1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:32:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E27B7632F6;
-        Mon, 20 Sep 2021 17:27:35 +0000 (UTC)
+        id S1353996AbhITSqU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:46:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46ED461AF9;
+        Mon, 20 Sep 2021 17:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158856;
-        bh=6dgPeGQpOP/EK4d94LMo37AvooaegR2+endVg9hne9M=;
+        s=korg; t=1632159198;
+        bh=BRlBHLG2kkzLdnte+FJn6bWorTzHZ6MCQoCvjzrkQ8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JLXFukd8/WEYyTbyBtqjqxH+ffB5N7IGT6CpDh6S630WMO3SrZDHGFD7P6/7Aw35t
-         1v1W2zs8hD3jvnVL08RRQr125SL10rURoRO83CFOP6b2487qo9t37jsZLtlKZGSyjN
-         8h9kYXqSwsPxXNJ5gO1hCU38TbPIEyiGB8Hv3k48=
+        b=UgVUE+mZrHgmn21XHtOXF+VK6DrUVAxtv+6xdv4tqhsxlileD0wtahymIz95Wykhp
+         Jl8jcl61U/f2HdGHCdiVp+6P2OxoPEXlyNdFf0q+T4h4uVhTgSU3DVtyoWuhablrHY
+         Ou98EDsM5PbZzCQ+D+JHgX3mGc9JT3k0XC0+2yVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 087/122] PCI: Fix pci_dev_str_match_path() alloc while atomic bug
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Chen-Yu Tsai <wens@csie.org>, Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, Clamshell <clamfly@163.com>
+Subject: [PATCH 5.14 121/168] mfd: axp20x: Update AXP288 volatile ranges
 Date:   Mon, 20 Sep 2021 18:44:19 +0200
-Message-Id: <20210920163918.639766985@linuxfoundation.org>
+Message-Id: <20210920163925.635890957@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 7eb6ea4148579b85540a41d57bcec315b8af8ff8 ]
+[ Upstream commit f949a9ebce7a18005266b859a17f10c891bb13d7 ]
 
-pci_dev_str_match_path() is often called with a spinlock held so the
-allocation has to be atomic.  The call tree is:
+On Cherry Trail devices with an AXP288 PMIC the external SD-card slot
+used the AXP's DLDO2 as card-voltage and either DLDO3 or GPIO1LDO
+(GPIO1 pin in low noise LDO mode) as signal-voltage.
 
-  pci_specified_resource_alignment() <-- takes spin_lock();
-    pci_dev_str_match()
-      pci_dev_str_match_path()
+These regulators are turned on/off and in case of the signal-voltage
+also have their output-voltage changed by the _PS0 and _PS3 power-
+management ACPI methods on the MMC-controllers ACPI fwnode as well as
+by the _DSM ACPI method for changing the signal voltage.
 
-Fixes: 45db33709ccc ("PCI: Allow specifying devices using a base bus and path of devfns")
-Link: https://lore.kernel.org/r/20210812070004.GC31863@kili
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+The AML code implementing these methods is directly accessing the
+PMIC through ACPI I2C OpRegion accesses, instead of using the special
+PMIC OpRegion handled by drivers/acpi/pmic/intel_pmic_xpower.c .
+
+This means that the contents of the involved PMIC registers can change
+without the change being made through the regmap interface, so regmap
+should not cache the contents of these registers.
+
+Mark the regulator power on/off, the regulator voltage control and the
+GPIO1 control registers as volatile, to avoid regmap caching them.
+
+Specifically this fixes an issue on some models where the i915 driver
+toggles another LDO using the same on/off register on/off through
+MIPI sequences (through intel_soc_pmic_exec_mipi_pmic_seq_element())
+which then writes back a cached on/off register-value where the
+card-voltage is off causing the external sdcard slot to stop working
+when the screen goes blank, or comes back on again.
+
+The regulator register-range now marked volatile also includes the
+buck regulator control registers. This is done on purpose these are
+normally not touched by the AML code, but they are updated directly
+by the SoC's PUNIT which means that they may also change without going
+through regmap.
+
+Note the AXP288 PMIC is only used on Bay- and Cherry-Trail platforms,
+so even though this is an ACPI specific problem there is no need to
+make the new volatile ranges conditional since these platforms always
+use ACPI.
+
+Fixes: dc91c3b6fe66 ("mfd: axp20x: Mark AXP20X_VBUS_IPSOUT_MGMT as volatile")
+Fixes: cd53216625a0 ("mfd: axp20x: Fix axp288 volatile ranges")
+Reported-and-tested-by: Clamshell <clamfly@163.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mfd/axp20x.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index eae6a9fdd33d..0d7109018a91 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -265,7 +265,7 @@ static int pci_dev_str_match_path(struct pci_dev *dev, const char *path,
+diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
+index 4145a38b3890..d0ac019850d1 100644
+--- a/drivers/mfd/axp20x.c
++++ b/drivers/mfd/axp20x.c
+@@ -125,12 +125,13 @@ static const struct regmap_range axp288_writeable_ranges[] = {
  
- 	*endptr = strchrnul(path, ';');
- 
--	wpath = kmemdup_nul(path, *endptr - path, GFP_KERNEL);
-+	wpath = kmemdup_nul(path, *endptr - path, GFP_ATOMIC);
- 	if (!wpath)
- 		return -ENOMEM;
- 
+ static const struct regmap_range axp288_volatile_ranges[] = {
+ 	regmap_reg_range(AXP20X_PWR_INPUT_STATUS, AXP288_POWER_REASON),
++	regmap_reg_range(AXP22X_PWR_OUT_CTRL1, AXP22X_ALDO3_V_OUT),
+ 	regmap_reg_range(AXP288_BC_GLOBAL, AXP288_BC_GLOBAL),
+ 	regmap_reg_range(AXP288_BC_DET_STAT, AXP20X_VBUS_IPSOUT_MGMT),
+ 	regmap_reg_range(AXP20X_CHRG_BAK_CTRL, AXP20X_CHRG_BAK_CTRL),
+ 	regmap_reg_range(AXP20X_IRQ1_EN, AXP20X_IPSOUT_V_HIGH_L),
+ 	regmap_reg_range(AXP20X_TIMER_CTRL, AXP20X_TIMER_CTRL),
+-	regmap_reg_range(AXP22X_GPIO_STATE, AXP22X_GPIO_STATE),
++	regmap_reg_range(AXP20X_GPIO1_CTRL, AXP22X_GPIO_STATE),
+ 	regmap_reg_range(AXP288_RT_BATT_V_H, AXP288_RT_BATT_V_L),
+ 	regmap_reg_range(AXP20X_FG_RES, AXP288_FG_CC_CAP_REG),
+ };
 -- 
 2.30.2
 
