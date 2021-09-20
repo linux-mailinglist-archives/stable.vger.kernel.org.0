@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4A804123E0
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:27:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 837FE41259B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:45:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348547AbhITS21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:28:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44429 "EHLO mail.kernel.org"
+        id S1384110AbhITSqe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:46:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1378767AbhITS0W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:26:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 870B5632D8;
-        Mon, 20 Sep 2021 17:25:40 +0000 (UTC)
+        id S1383268AbhITSoU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:44:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B054B63350;
+        Mon, 20 Sep 2021 17:32:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158741;
-        bh=D4VPni84wF61EId2NBulzn8VIIU1JAIKWC1+gu20/mI=;
+        s=korg; t=1632159155;
+        bh=nrNPpN0BpsIoPy+DSzCrXL6W0dKWqnRGJwtvstcOXu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KkKBX3gUX3vX20dTOpIAH8m0knAlw08MTRutkLLJf6PC5qrhczipdvdvil9jyUmJZ
-         dTtZc64kF6D8w1zi43WSEj+lZudRrz61PgbKWo+PoNxnwkK58/64Z1in5K6K+kJdd5
-         5OSMSldLDv2ygRh+Rww+s0Cx5iFu8gsa8micJUrw=
+        b=vftL+mBIdUgtYKCKsfxGBt65sHScj1m1uwrr3gyu7OJAkjjfPZ85eQPBW+te/DRxS
+         tyrpH0H2bFtP7hmYyXQ8F69rxSfgFeZ89kTE6zRfL/tqQUjiCgpD8FmZeHdZk5AVNs
+         bIyIRAVlFSYakNIctxt4+RtsYyoEL+kt9MhyJ5tA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Baptiste Lepers <baptiste.lepers@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.10 035/122] events: Reuse value read using READ_ONCE instead of re-reading it
+        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.14 069/168] ibmvnic: check failover_pending in login response
 Date:   Mon, 20 Sep 2021 18:43:27 +0200
-Message-Id: <20210920163916.946304990@linuxfoundation.org>
+Message-Id: <20210920163923.912216376@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baptiste Lepers <baptiste.lepers@gmail.com>
+From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
 
-commit b89a05b21f46150ac10a962aa50109250b56b03b upstream.
+commit 273c29e944bda9a20a30c26cfc34c9a3f363280b upstream.
 
-In perf_event_addr_filters_apply, the task associated with
-the event (event->ctx->task) is read using READ_ONCE at the beginning
-of the function, checked, and then re-read from event->ctx->task,
-voiding all guarantees of the checks. Reuse the value that was read by
-READ_ONCE to ensure the consistency of the task struct throughout the
-function.
+If a failover occurs before a login response is received, the login
+response buffer maybe undefined. Check that there was no failover
+before accessing the login response buffer.
 
-Fixes: 375637bc52495 ("perf/core: Introduce address range filtering")
-Signed-off-by: Baptiste Lepers <baptiste.lepers@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210906015310.12802-1-baptiste.lepers@gmail.com
+Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
+Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/ibm/ibmvnic.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -9973,7 +9973,7 @@ static void perf_event_addr_filters_appl
- 		return;
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -4700,6 +4700,14 @@ static int handle_login_rsp(union ibmvni
+ 		return 0;
+ 	}
  
- 	if (ifh->nr_file_filters) {
--		mm = get_task_mm(event->ctx->task);
-+		mm = get_task_mm(task);
- 		if (!mm)
- 			goto restart;
++	if (adapter->failover_pending) {
++		adapter->init_done_rc = -EAGAIN;
++		netdev_dbg(netdev, "Failover pending, ignoring login response\n");
++		complete(&adapter->init_done);
++		/* login response buffer will be released on reset */
++		return 0;
++	}
++
+ 	netdev->mtu = adapter->req_mtu - ETH_HLEN;
  
+ 	netdev_dbg(adapter->netdev, "Login Response Buffer:\n");
 
 
