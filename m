@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8E8A4122C0
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 615A441251C
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351244AbhITSRI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:17:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39244 "EHLO mail.kernel.org"
+        id S1381417AbhITSlc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:41:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376858AbhITSOu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:14:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F8DA613E8;
-        Mon, 20 Sep 2021 17:21:45 +0000 (UTC)
+        id S1381508AbhITSia (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:38:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EAA963323;
+        Mon, 20 Sep 2021 17:30:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158505;
-        bh=MNDJKkMWKeuUgMR/lKQ0034otoLWBNEIf4WXmOHLp1o=;
+        s=korg; t=1632159011;
+        bh=RuQbcAWp8KjO8TDel+qgvI82nX4UgHWdCfW8M5Fi32Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BD4VITZgVGWDpKa38/uF7zSaJZccTEvmNRVZc622k0a7y90Z6q+ig4hTVhT2L9hQs
-         787jqA5wpV5oyh4iG/XlSegYtmNY6pQuFMZFshe2+nsQGZYaG4yeSR94QHBcxf20DO
-         FU8alwifutgfTX/umYenwGf5VYqd9/X/Ck66DCH8=
+        b=N/3nQf4gL//OtLwrjd2enqloRqJvrgrPN9vIzdUPTz5ck7iAO66VEt2HgbcG4x4xq
+         tu1PwnMBLmPaowjyWcWkkzhq1/w1XdzLDeSZ29kcgeaUY3powLg8xanzUcsTjVYHo3
+         cFRTUeEVHthV6VMC4BFblD7NjLbfQXI27wvlf30w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nishad Kamdar <nishadkamdar@gmail.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 155/260] mmc: core: Return correct emmc response in case of ioctl error
-Date:   Mon, 20 Sep 2021 18:42:53 +0200
-Message-Id: <20210920163936.376708882@linuxfoundation.org>
+        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.14 036/168] x86/mce: Avoid infinite loop for copy from user recovery
+Date:   Mon, 20 Sep 2021 18:42:54 +0200
+Message-Id: <20210920163922.834660648@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,113 +39,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nishad Kamdar <nishadkamdar@gmail.com>
+From: Tony Luck <tony.luck@intel.com>
 
-[ Upstream commit e72a55f2e5ddcfb3dce0701caf925ce435b87682 ]
+commit 81065b35e2486c024c7aa86caed452e1f01a59d4 upstream.
 
-When a read/write command is sent via ioctl to the kernel,
-and the command fails, the actual error response of the emmc
-is not sent to the user.
+There are two cases for machine check recovery:
 
-IOCTL read/write tests are carried out using commands
-17 (Single BLock Read), 24 (Single Block Write),
-18 (Multi Block Read), 25 (Multi Block Write)
+1) The machine check was triggered by ring3 (application) code.
+   This is the simpler case. The machine check handler simply queues
+   work to be executed on return to user. That code unmaps the page
+   from all users and arranges to send a SIGBUS to the task that
+   triggered the poison.
 
-The tests are carried out on a 64Gb emmc device. All of these
-tests try to access an "out of range" sector address (0x09B2FFFF).
+2) The machine check was triggered in kernel code that is covered by
+   an exception table entry. In this case the machine check handler
+   still queues a work entry to unmap the page, etc. but this will
+   not be called right away because the #MC handler returns to the
+   fix up code address in the exception table entry.
 
-It is seen that without the patch the response received by the user
-is not OUT_OF_RANGE error (R1 response 31st bit is not set) as per
-JEDEC specification. After applying the patch proper response is seen.
-This is because the function returns without copying the response to
-the user in case of failure. This patch fixes the issue.
+Problems occur if the kernel triggers another machine check before the
+return to user processes the first queued work item.
 
-Hence, this memcpy is required whether we get an error response or not.
-Therefor it is moved up from the current position up to immediately
-after we have called mmc_wait_for_req().
+Specifically, the work is queued using the ->mce_kill_me callback
+structure in the task struct for the current thread. Attempting to queue
+a second work item using this same callback results in a loop in the
+linked list of work functions to call. So when the kernel does return to
+user, it enters an infinite loop processing the same entry for ever.
 
-The test code and the output of only the CMD17 is included in the
-commit to limit the message length.
+There are some legitimate scenarios where the kernel may take a second
+machine check before returning to the user.
 
-CMD17 (Test Code Snippet):
-==========================
-        printf("Forming CMD%d\n", opt_idx);
-        /*  single block read */
-        cmd.blksz = 512;
-        cmd.blocks = 1;
-        cmd.write_flag = 0;
-        cmd.opcode = 17;
-        //cmd.arg = atoi(argv[3]);
-        cmd.arg = 0x09B2FFFF;
-        /* Expecting response R1B */
-        cmd.flags = MMC_RSP_SPI_R1 | MMC_RSP_R1 | MMC_CMD_ADTC;
+1) Some code (e.g. futex) first tries a get_user() with page faults
+   disabled. If this fails, the code retries with page faults enabled
+   expecting that this will resolve the page fault.
 
-        memset(data, 0, sizeof(__u8) * 512);
-        mmc_ioc_cmd_set_data(cmd, data);
+2) Copy from user code retries a copy in byte-at-time mode to check
+   whether any additional bytes can be copied.
 
-        printf("Sending CMD%d: ARG[0x%08x]\n", opt_idx, cmd.arg);
-        if(ioctl(fd, MMC_IOC_CMD, &cmd))
-                perror("Error");
+On the other side of the fence are some bad drivers that do not check
+the return value from individual get_user() calls and may access
+multiple user addresses without noticing that some/all calls have
+failed.
 
-        printf("\nResponse: %08x\n", cmd.response[0]);
+Fix by adding a counter (current->mce_count) to keep track of repeated
+machine checks before task_work() is called. First machine check saves
+the address information and calls task_work_add(). Subsequent machine
+checks before that task_work call back is executed check that the address
+is in the same page as the first machine check (since the callback will
+offline exactly one page).
 
-CMD17 (Output without patch):
-=============================
-test@test-LIVA-Z:~$ sudo ./mmc cmd_test /dev/mmcblk0 17
-Entering the do_mmc_commands:Device: /dev/mmcblk0 nargs:4
-Entering the do_mmc_commands:Device: /dev/mmcblk0 options[17, 0x09B2FFF]
-Forming CMD17
-Sending CMD17: ARG[0x09b2ffff]
-Error: Connection timed out
+Expected worst case is four machine checks before moving on (e.g. one
+user access with page faults disabled, then a repeat to the same address
+with page faults enabled ... repeat in copy tail bytes). Just in case
+there is some code that loops forever enforce a limit of 10.
 
-Response: 00000000
-(Incorrect response)
+ [ bp: Massage commit message, drop noinstr, fix typo, extend panic
+   messages. ]
 
-CMD17 (Output with patch):
-==========================
-test@test-LIVA-Z:~$ sudo ./mmc cmd_test /dev/mmcblk0 17
-[sudo] password for test:
-Entering the do_mmc_commands:Device: /dev/mmcblk0 nargs:4
-Entering the do_mmc_commands:Device: /dev/mmcblk0 options[17, 09B2FFFF]
-Forming CMD17
-Sending CMD17: ARG[0x09b2ffff]
-Error: Connection timed out
-
-Response: 80000900
-(Correct OUT_OF_ERROR response as per JEDEC specification)
-
-Signed-off-by: Nishad Kamdar <nishadkamdar@gmail.com>
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Link: https://lore.kernel.org/r/20210824191726.8296-1-nishadkamdar@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5567d11c21a1 ("x86/mce: Send #MC singal from task work")
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/YT/IJ9ziLqmtqEPu@agluck-desk2.amr.corp.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/block.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/x86/kernel/cpu/mce/core.c |   45 ++++++++++++++++++++++++++++++-----------
+ include/linux/sched.h          |    1 
+ 2 files changed, 34 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
-index 8322d22a59c4..e92f9373e227 100644
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -591,6 +591,7 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -1253,6 +1253,9 @@ static void __mc_scan_banks(struct mce *
+ 
+ static void kill_me_now(struct callback_head *ch)
+ {
++	struct task_struct *p = container_of(ch, struct task_struct, mce_kill_me);
++
++	p->mce_count = 0;
+ 	force_sig(SIGBUS);
+ }
+ 
+@@ -1262,6 +1265,7 @@ static void kill_me_maybe(struct callbac
+ 	int flags = MF_ACTION_REQUIRED;
+ 	int ret;
+ 
++	p->mce_count = 0;
+ 	pr_err("Uncorrected hardware memory error in user-access at %llx", p->mce_addr);
+ 
+ 	if (!p->mce_ripv)
+@@ -1290,17 +1294,34 @@ static void kill_me_maybe(struct callbac
  	}
+ }
  
- 	mmc_wait_for_req(card->host, &mrq);
-+	memcpy(&idata->ic.response, cmd.resp, sizeof(cmd.resp));
- 
- 	if (cmd.error) {
- 		dev_err(mmc_dev(card->host), "%s: cmd error %d\n",
-@@ -640,8 +641,6 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
- 	if (idata->ic.postsleep_min_us)
- 		usleep_range(idata->ic.postsleep_min_us, idata->ic.postsleep_max_us);
- 
--	memcpy(&(idata->ic.response), cmd.resp, sizeof(cmd.resp));
+-static void queue_task_work(struct mce *m, int kill_current_task)
++static void queue_task_work(struct mce *m, char *msg, int kill_current_task)
+ {
+-	current->mce_addr = m->addr;
+-	current->mce_kflags = m->kflags;
+-	current->mce_ripv = !!(m->mcgstatus & MCG_STATUS_RIPV);
+-	current->mce_whole_page = whole_page(m);
 -
- 	if (idata->rpmb || (cmd.flags & MMC_RSP_R1B) == MMC_RSP_R1B) {
+-	if (kill_current_task)
+-		current->mce_kill_me.func = kill_me_now;
+-	else
+-		current->mce_kill_me.func = kill_me_maybe;
++	int count = ++current->mce_count;
++
++	/* First call, save all the details */
++	if (count == 1) {
++		current->mce_addr = m->addr;
++		current->mce_kflags = m->kflags;
++		current->mce_ripv = !!(m->mcgstatus & MCG_STATUS_RIPV);
++		current->mce_whole_page = whole_page(m);
++
++		if (kill_current_task)
++			current->mce_kill_me.func = kill_me_now;
++		else
++			current->mce_kill_me.func = kill_me_maybe;
++	}
++
++	/* Ten is likely overkill. Don't expect more than two faults before task_work() */
++	if (count > 10)
++		mce_panic("Too many consecutive machine checks while accessing user data", m, msg);
++
++	/* Second or later call, make sure page address matches the one from first call */
++	if (count > 1 && (current->mce_addr >> PAGE_SHIFT) != (m->addr >> PAGE_SHIFT))
++		mce_panic("Consecutive machine checks to different user pages", m, msg);
++
++	/* Do not call task_work_add() more than once */
++	if (count > 1)
++		return;
+ 
+ 	task_work_add(current, &current->mce_kill_me, TWA_RESUME);
+ }
+@@ -1438,7 +1459,7 @@ noinstr void do_machine_check(struct pt_
+ 		/* If this triggers there is no way to recover. Die hard. */
+ 		BUG_ON(!on_thread_stack() || !user_mode(regs));
+ 
+-		queue_task_work(&m, kill_current_task);
++		queue_task_work(&m, msg, kill_current_task);
+ 
+ 	} else {
  		/*
- 		 * Ensure RPMB/R1B command has completed by polling CMD13
--- 
-2.30.2
-
+@@ -1456,7 +1477,7 @@ noinstr void do_machine_check(struct pt_
+ 		}
+ 
+ 		if (m.kflags & MCE_IN_KERNEL_COPYIN)
+-			queue_task_work(&m, kill_current_task);
++			queue_task_work(&m, msg, kill_current_task);
+ 	}
+ out:
+ 	mce_wrmsrl(MSR_IA32_MCG_STATUS, 0);
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1394,6 +1394,7 @@ struct task_struct {
+ 					mce_whole_page : 1,
+ 					__mce_reserved : 62;
+ 	struct callback_head		mce_kill_me;
++	int				mce_count;
+ #endif
+ 
+ #ifdef CONFIG_KRETPROBES
 
 
