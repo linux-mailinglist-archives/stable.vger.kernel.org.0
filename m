@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06970412195
+	by mail.lfdr.de (Postfix) with ESMTP id 9CB68412197
 	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:06:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350673AbhITSGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:06:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60428 "EHLO mail.kernel.org"
+        id S1358454AbhITSGn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:06:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1357546AbhITSE2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:04:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F262F61A0C;
-        Mon, 20 Sep 2021 17:17:09 +0000 (UTC)
+        id S1357564AbhITSE3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:04:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 29096613C8;
+        Mon, 20 Sep 2021 17:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158230;
-        bh=R9JQuiIlJuivjJyJyANSudwopOIu8IKodiVITn+yIZE=;
+        s=korg; t=1632158232;
+        bh=153GbFQv+1XpPTX46Dm/XvVwqoIpE+VaTFAgiRIMeCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eIbN2w+Nedf0eewYYVigIHfMr0+HvRhiElan0Z7JbnErw68OvdtjQ6dZumDWskIDw
-         TBwNSQf9nPmdPehGvn/VCcGhQwmn+FRVND6nXCioSArYU0z+RekIBLUE42M7pp0XKi
-         H9vzYYnwcj67oWL1XMy/wLpiFIMLcyL3wxbGlnzM=
+        b=tcfhdMMRMDASii+NfA7jUO/BV8PbNzY4IE4pMMyNLvtkJJV4ukH/IJPEJ9TcyVGjJ
+         iA5DeBAW56Wtvcl08szjBbZQjpvof+Abi4Hm8fzUz0XC1wr1QXynk9xleu8/xZZfmq
+         VfNegpXHoqahhRCk9URLnLvkmB0+oEPlxuEK2AqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Jeff Layton <jlayton@redhat.com>, linux-cachefs@redhat.com,
+        stable@vger.kernel.org,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 061/260] fscache: Fix cookie key hashing
-Date:   Mon, 20 Sep 2021 18:41:19 +0200
-Message-Id: <20210920163933.195806914@linuxfoundation.org>
+Subject: [PATCH 5.4 062/260] clk: at91: sam9x60: Dont use audio PLL
+Date:   Mon, 20 Sep 2021 18:41:20 +0200
+Message-Id: <20210920163933.236813392@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -40,133 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 
-[ Upstream commit 35b72573e977ed6b18b094136a4fa3e0ffb13603 ]
+[ Upstream commit 5bf7f4a249387a6062b9a14c8a77e7ba2fd6a53b ]
 
-The current hash algorithm used for hashing cookie keys is really bad,
-producing almost no dispersion (after a test kernel build, ~30000 files
-were split over just 18 out of the 32768 hash buckets).
+On sam9x60, there is not audio PLL and so I2S and classD have to use one
+of the best matching parents for their generated clock.
 
-Borrow the full_name_hash() hash function into fscache to do the hashing
-for cookie keys and, in the future, volume keys.
-
-I don't want to use full_name_hash() as-is because I want the hash value to
-be consistent across arches and over time as the hash value produced may
-get used on disk.
-
-I can also optimise parts of it away as the key will always be a padded
-array of aligned 32-bit words.
-
-Fixes: ec0328e46d6e ("fscache: Maintain a catalogue of allocated cookies")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@redhat.com>
-cc: linux-cachefs@redhat.com
-Link: https://lore.kernel.org/r/162431201844.2908479.8293647220901514696.stgit@warthog.procyon.org.uk/
+Fixes: 01e2113de9a5 ("clk: at91: add sam9x60 pmc driver")
+Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Link: https://lkml.kernel.org/r/20200131115816.12483-1-codrin.ciubotariu@microchip.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fscache/cookie.c   | 14 +-------------
- fs/fscache/internal.h |  2 ++
- fs/fscache/main.c     | 39 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 42 insertions(+), 13 deletions(-)
+ drivers/clk/at91/sam9x60.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/fs/fscache/cookie.c b/fs/fscache/cookie.c
-index 0ce39658a620..44a426c8ea01 100644
---- a/fs/fscache/cookie.c
-+++ b/fs/fscache/cookie.c
-@@ -74,10 +74,8 @@ void fscache_free_cookie(struct fscache_cookie *cookie)
- static int fscache_set_key(struct fscache_cookie *cookie,
- 			   const void *index_key, size_t index_key_len)
- {
--	unsigned long long h;
- 	u32 *buf;
- 	int bufs;
--	int i;
- 
- 	bufs = DIV_ROUND_UP(index_key_len, sizeof(*buf));
- 
-@@ -91,17 +89,7 @@ static int fscache_set_key(struct fscache_cookie *cookie,
- 	}
- 
- 	memcpy(buf, index_key, index_key_len);
--
--	/* Calculate a hash and combine this with the length in the first word
--	 * or first half word
--	 */
--	h = (unsigned long)cookie->parent;
--	h += index_key_len + cookie->type;
--
--	for (i = 0; i < bufs; i++)
--		h += buf[i];
--
--	cookie->key_hash = h ^ (h >> 32);
-+	cookie->key_hash = fscache_hash(0, buf, bufs);
- 	return 0;
- }
- 
-diff --git a/fs/fscache/internal.h b/fs/fscache/internal.h
-index 9616af3768e1..d09d4e69c818 100644
---- a/fs/fscache/internal.h
-+++ b/fs/fscache/internal.h
-@@ -97,6 +97,8 @@ extern struct workqueue_struct *fscache_object_wq;
- extern struct workqueue_struct *fscache_op_wq;
- DECLARE_PER_CPU(wait_queue_head_t, fscache_object_cong_wait);
- 
-+extern unsigned int fscache_hash(unsigned int salt, unsigned int *data, unsigned int n);
-+
- static inline bool fscache_object_congested(void)
- {
- 	return workqueue_congested(WORK_CPU_UNBOUND, fscache_object_wq);
-diff --git a/fs/fscache/main.c b/fs/fscache/main.c
-index 59c2494efda3..3aa3756c7176 100644
---- a/fs/fscache/main.c
-+++ b/fs/fscache/main.c
-@@ -94,6 +94,45 @@ static struct ctl_table fscache_sysctls_root[] = {
+diff --git a/drivers/clk/at91/sam9x60.c b/drivers/clk/at91/sam9x60.c
+index e3f4c8f20223..bee1120e7041 100644
+--- a/drivers/clk/at91/sam9x60.c
++++ b/drivers/clk/at91/sam9x60.c
+@@ -124,7 +124,6 @@ static const struct {
+ 	char *n;
+ 	u8 id;
+ 	struct clk_range r;
+-	bool pll;
+ } sam9x60_gck[] = {
+ 	{ .n = "flex0_gclk",  .id = 5, },
+ 	{ .n = "flex1_gclk",  .id = 6, },
+@@ -144,11 +143,9 @@ static const struct {
+ 	{ .n = "sdmmc1_gclk", .id = 26, .r = { .min = 0, .max = 105000000 }, },
+ 	{ .n = "flex11_gclk", .id = 32, },
+ 	{ .n = "flex12_gclk", .id = 33, },
+-	{ .n = "i2s_gclk",    .id = 34, .r = { .min = 0, .max = 105000000 },
+-		.pll = true, },
++	{ .n = "i2s_gclk",    .id = 34, .r = { .min = 0, .max = 105000000 }, },
+ 	{ .n = "pit64b_gclk", .id = 37, },
+-	{ .n = "classd_gclk", .id = 42, .r = { .min = 0, .max = 100000000 },
+-		.pll = true, },
++	{ .n = "classd_gclk", .id = 42, .r = { .min = 0, .max = 100000000 }, },
+ 	{ .n = "tcb1_gclk",   .id = 45, },
+ 	{ .n = "dbgu_gclk",   .id = 47, },
  };
- #endif
- 
-+/*
-+ * Mixing scores (in bits) for (7,20):
-+ * Input delta: 1-bit      2-bit
-+ * 1 round:     330.3     9201.6
-+ * 2 rounds:   1246.4    25475.4
-+ * 3 rounds:   1907.1    31295.1
-+ * 4 rounds:   2042.3    31718.6
-+ * Perfect:    2048      31744
-+ *            (32*64)   (32*31/2 * 64)
-+ */
-+#define HASH_MIX(x, y, a)	\
-+	(	x ^= (a),	\
-+	y ^= x,	x = rol32(x, 7),\
-+	x += y,	y = rol32(y,20),\
-+	y *= 9			)
-+
-+static inline unsigned int fold_hash(unsigned long x, unsigned long y)
-+{
-+	/* Use arch-optimized multiply if one exists */
-+	return __hash_32(y ^ __hash_32(x));
-+}
-+
-+/*
-+ * Generate a hash.  This is derived from full_name_hash(), but we want to be
-+ * sure it is arch independent and that it doesn't change as bits of the
-+ * computed hash value might appear on disk.  The caller also guarantees that
-+ * the hashed data will be a series of aligned 32-bit words.
-+ */
-+unsigned int fscache_hash(unsigned int salt, unsigned int *data, unsigned int n)
-+{
-+	unsigned int a, x = 0, y = salt;
-+
-+	for (; n; n--) {
-+		a = *data++;
-+		HASH_MIX(x, y, a);
-+	}
-+	return fold_hash(x, y);
-+}
-+
- /*
-  * initialise the fs caching module
-  */
+@@ -285,7 +282,7 @@ static void __init sam9x60_pmc_setup(struct device_node *np)
+ 						 sam9x60_gck[i].n,
+ 						 parent_names, 6,
+ 						 sam9x60_gck[i].id,
+-						 sam9x60_gck[i].pll,
++						 false,
+ 						 &sam9x60_gck[i].r);
+ 		if (IS_ERR(hw))
+ 			goto err_free;
 -- 
 2.30.2
 
