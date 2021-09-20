@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C0CA411B7D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:57:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 591C5411F72
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:39:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242222AbhITQ7B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:59:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47970 "EHLO mail.kernel.org"
+        id S1348692AbhITRlW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:41:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343660AbhITQ4m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:56:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 403D66140A;
-        Mon, 20 Sep 2021 16:51:24 +0000 (UTC)
+        id S1352365AbhITRjO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:39:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AB146137A;
+        Mon, 20 Sep 2021 17:07:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156684;
-        bh=2Al9GFe4zbq1xl+aTUEqa0bEu9TyAH1lghEvc1tB8Sc=;
+        s=korg; t=1632157661;
+        bh=eDf+Y2pKgCWX3tDOUyAt5Id4kBZZh9MhoiHT6Dkrezk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bqX0AWWRkaIJVtwWZVdF3q6/GnhwwcpNgdQloXxMkq36fUmhRy2dtjo0vkgd87DH1
-         gA3pkfUAISeJDn2v+y6pe5ehzhyiYzFvRl1ryEiBv8DhByA1BSnU5YY+ul/25i45RR
-         hbmkTMAyMcD41rp43pFaZfT0R8jPAzUJRRX587sA=
+        b=z60J3Anw9oy3E1+sVXzgB6oTtqj7bpSalc30eY4tqilgLxupfuVTiJ/vGIBQWW9aX
+         J3cz8TRPvaWgqKJb9skqGH47uqz0I6FX43oTqOSukgjlx4FksVcUqAi9C7PPv2yS2r
+         P3p0QvX/lQgOw6XiPvHVsbcyzZyhOrGJiSMPHRIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 006/175] perf/x86/amd/ibs: Work around erratum #1197
+        stable@vger.kernel.org, Jonas Jensen <jonas.jensen@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 093/293] mmc: moxart: Fix issue with uninitialized dma_slave_config
 Date:   Mon, 20 Sep 2021 18:40:55 +0200
-Message-Id: <20210920163918.277880383@linuxfoundation.org>
+Message-Id: <20210920163936.448279337@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,62 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 26db2e0c51fe83e1dd852c1321407835b481806e ]
+[ Upstream commit ee5165354d498e5bceb0b386e480ac84c5f8c28c ]
 
-Erratum #1197 "IBS (Instruction Based Sampling) Register State May be
-Incorrect After Restore From CC6" is published in a document:
+Depending on the DMA driver being used, the struct dma_slave_config may
+need to be initialized to zero for the unused data.
 
-  "Revision Guide for AMD Family 19h Models 00h-0Fh Processors" 56683 Rev. 1.04 July 2021
+For example, we have three DMA drivers using src_port_window_size and
+dst_port_window_size. If these are left uninitialized, it can cause DMA
+failures.
 
-  https://bugzilla.kernel.org/show_bug.cgi?id=206537
+For moxart, this is probably not currently an issue but is still good to
+fix though.
 
-Implement the erratum's suggested workaround and ignore IBS samples if
-MSRC001_1031 == 0.
-
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20210817221048.88063-3-kim.phillips@amd.com
+Fixes: 1b66e94e6b99 ("mmc: moxart: Add MOXA ART SD/MMC driver")
+Cc: Jonas Jensen <jonas.jensen@gmail.com>
+Cc: Vinod Koul <vkoul@kernel.org>
+Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20210810081644.19353-3-tony@atomide.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/amd/ibs.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/mmc/host/moxart-mmc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
-index f6e57bebbc6b..5c6aad14cdd9 100644
---- a/arch/x86/events/amd/ibs.c
-+++ b/arch/x86/events/amd/ibs.c
-@@ -89,6 +89,7 @@ struct perf_ibs {
- 	unsigned long			offset_mask[1];
- 	int				offset_max;
- 	unsigned int			fetch_count_reset_broken : 1;
-+	unsigned int			fetch_ignore_if_zero_rip : 1;
- 	struct cpu_perf_ibs __percpu	*pcpu;
+diff --git a/drivers/mmc/host/moxart-mmc.c b/drivers/mmc/host/moxart-mmc.c
+index a0670e9cd012..5553a5643f40 100644
+--- a/drivers/mmc/host/moxart-mmc.c
++++ b/drivers/mmc/host/moxart-mmc.c
+@@ -631,6 +631,7 @@ static int moxart_probe(struct platform_device *pdev)
+ 			 host->dma_chan_tx, host->dma_chan_rx);
+ 		host->have_dma = true;
  
- 	struct attribute		**format_attrs;
-@@ -673,6 +674,10 @@ fail:
- 	if (check_rip && (ibs_data.regs[2] & IBS_RIP_INVALID)) {
- 		regs.flags &= ~PERF_EFLAGS_EXACT;
- 	} else {
-+		/* Workaround for erratum #1197 */
-+		if (perf_ibs->fetch_ignore_if_zero_rip && !(ibs_data.regs[1]))
-+			goto out;
-+
- 		set_linear_ip(&regs, ibs_data.regs[1]);
- 		regs.flags |= PERF_EFLAGS_EXACT;
- 	}
-@@ -766,6 +771,9 @@ static __init void perf_event_ibs_init(void)
- 	if (boot_cpu_data.x86 >= 0x16 && boot_cpu_data.x86 <= 0x18)
- 		perf_ibs_fetch.fetch_count_reset_broken = 1;
++		memset(&cfg, 0, sizeof(cfg));
+ 		cfg.src_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
+ 		cfg.dst_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
  
-+	if (boot_cpu_data.x86 == 0x19 && boot_cpu_data.x86_model < 0x10)
-+		perf_ibs_fetch.fetch_ignore_if_zero_rip = 1;
-+
- 	perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
- 
- 	if (ibs_caps & IBS_CAPS_OPCNT) {
 -- 
 2.30.2
 
