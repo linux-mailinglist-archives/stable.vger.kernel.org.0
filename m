@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3AE7412632
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:54:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5F07412600
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:51:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354842AbhITS4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:56:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35736 "EHLO mail.kernel.org"
+        id S1353786AbhITSwa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:52:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1385434AbhITSu0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1385436AbhITSu0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:50:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6119763384;
-        Mon, 20 Sep 2021 17:34:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD3C261371;
+        Mon, 20 Sep 2021 17:34:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159278;
-        bh=eP7jEqB4S3rVHetyAJFcQ8BNFU7NTT24eYg6fwPEhcw=;
+        s=korg; t=1632159283;
+        bh=m3/X0nqi7M3hpujLanY9ZYmazN/XQXQIXcCIK34Dzao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K5KF2gKFRDId4RCnApyhu5yLb2w9Xxg9/XNboFS20HNZZ+91RMYMvjQ+TNCm8gw3r
-         j4fxjBUY7cr5RpdU2QwVb9wwIDtnvIr4hidK443fxq63gXFbky0iI963kRYzjH5owO
-         tWXvjIyj/mgfPaePb0QrBnjzuQgSwViiP20X6SeI=
+        b=Vau+EKmzs73bin6FSlJjlvKWhk2gFotRivGD5kOANqeAQ4obFOq/CfU1lBTn4zMJk
+         8+lHHsdTBa4OiQPjTrd+Y/kYiUcPtB0rKkWkhUqqczzqscrJ2HwqKtnX1McPHPoE3x
+         JDJcLW9JlV3nTVrFBu0xTkUvrM5dQBvtJ1LQG8ic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dror Moshe <drorx.moshe@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Luca Coelho <luca@coelho.fi>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 158/168] iwlwifi: move get pnvm file name to a separate function
-Date:   Mon, 20 Sep 2021 18:44:56 +0200
-Message-Id: <20210920163926.861763258@linuxfoundation.org>
+Subject: [PATCH 5.14 159/168] iwlwifi: pnvm: Fix a memory leak in iwl_pnvm_get_from_fs()
+Date:   Mon, 20 Sep 2021 18:44:57 +0200
+Message-Id: <20210920163926.894504439@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
 References: <20210920163921.633181900@linuxfoundation.org>
@@ -40,81 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dror Moshe <drorx.moshe@intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit b05c1d14a177eaffe3aa7fa18b39df3a3e1f3a47 ]
+[ Upstream commit 45010c080e6e7434fcae73212b0087a03590049f ]
 
-Move code that generates the pnvm file name to a separate function,
-so that it can be reused.
+A firmware is requested but never released in this function. This leads to
+a memory leak in the normal execution path.
 
-Signed-off-by: Dror Moshe <drorx.moshe@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210826224715.7d2dd18c75a2.I3652584755b9ab44909ddcd09ff4d80c6690a1ad@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Add the missing 'release_firmware()' call.
+Also introduce a temp variable (new_len) in order to keep the value of
+'pnvm->size' after the firmware has been released.
+
+Fixes: cdda18fbbefa ("iwlwifi: pnvm: move file loading code to a separate function")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Luca Coelho <luca@coelho.fi>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1b5d80f54c1dbf85710fd285243932943b498fe7.1630614969.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/fw/pnvm.c | 13 ++-----------
- drivers/net/wireless/intel/iwlwifi/fw/pnvm.h | 20 ++++++++++++++++++++
- 2 files changed, 22 insertions(+), 11 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/fw/pnvm.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/wireless/intel/iwlwifi/fw/pnvm.c b/drivers/net/wireless/intel/iwlwifi/fw/pnvm.c
-index b4b1f75b9c2a..830257e94126 100644
+index 830257e94126..513f9e538729 100644
 --- a/drivers/net/wireless/intel/iwlwifi/fw/pnvm.c
 +++ b/drivers/net/wireless/intel/iwlwifi/fw/pnvm.c
-@@ -230,19 +230,10 @@ static int iwl_pnvm_parse(struct iwl_trans *trans, const u8 *data,
- static int iwl_pnvm_get_from_fs(struct iwl_trans *trans, u8 **data, size_t *len)
+@@ -231,6 +231,7 @@ static int iwl_pnvm_get_from_fs(struct iwl_trans *trans, u8 **data, size_t *len)
  {
  	const struct firmware *pnvm;
--	char pnvm_name[64];
-+	char pnvm_name[MAX_PNVM_NAME];
+ 	char pnvm_name[MAX_PNVM_NAME];
++	size_t new_len;
  	int ret;
  
--	/*
--	 * The prefix unfortunately includes a hyphen at the end, so
--	 * don't add the dot here...
--	 */
--	snprintf(pnvm_name, sizeof(pnvm_name), "%spnvm",
--		 trans->cfg->fw_name_pre);
--
--	/* ...but replace the hyphen with the dot here. */
--	if (strlen(trans->cfg->fw_name_pre) < sizeof(pnvm_name))
--		pnvm_name[strlen(trans->cfg->fw_name_pre) - 1] = '.';
-+	iwl_pnvm_get_fs_name(trans, pnvm_name, sizeof(pnvm_name));
+ 	iwl_pnvm_get_fs_name(trans, pnvm_name, sizeof(pnvm_name));
+@@ -242,11 +243,14 @@ static int iwl_pnvm_get_from_fs(struct iwl_trans *trans, u8 **data, size_t *len)
+ 		return ret;
+ 	}
  
- 	ret = firmware_request_nowarn(&pnvm, pnvm_name, trans->dev);
- 	if (ret) {
-diff --git a/drivers/net/wireless/intel/iwlwifi/fw/pnvm.h b/drivers/net/wireless/intel/iwlwifi/fw/pnvm.h
-index 61d3d4e0b7d9..203c367dd4de 100644
---- a/drivers/net/wireless/intel/iwlwifi/fw/pnvm.h
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/pnvm.h
-@@ -12,7 +12,27 @@
++	new_len = pnvm->size;
+ 	*data = kmemdup(pnvm->data, pnvm->size, GFP_KERNEL);
++	release_firmware(pnvm);
++
+ 	if (!*data)
+ 		return -ENOMEM;
  
- #define MVM_UCODE_PNVM_TIMEOUT	(HZ / 4)
+-	*len = pnvm->size;
++	*len = new_len;
  
-+#define MAX_PNVM_NAME  64
-+
- int iwl_pnvm_load(struct iwl_trans *trans,
- 		  struct iwl_notif_wait_data *notif_wait);
- 
-+static inline
-+void iwl_pnvm_get_fs_name(struct iwl_trans *trans,
-+			  u8 *pnvm_name, size_t max_len)
-+{
-+	int pre_len;
-+
-+	/*
-+	 * The prefix unfortunately includes a hyphen at the end, so
-+	 * don't add the dot here...
-+	 */
-+	snprintf(pnvm_name, max_len, "%spnvm", trans->cfg->fw_name_pre);
-+
-+	/* ...but replace the hyphen with the dot here. */
-+	pre_len = strlen(trans->cfg->fw_name_pre);
-+	if (pre_len < max_len && pre_len > 0)
-+		pnvm_name[pre_len - 1] = '.';
-+}
-+
- #endif /* __IWL_PNVM_H__ */
+ 	return 0;
+ }
 -- 
 2.30.2
 
