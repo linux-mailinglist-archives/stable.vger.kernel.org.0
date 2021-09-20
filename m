@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B68E9412418
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:29:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5248B41256B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:44:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379792AbhITSab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:30:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47618 "EHLO mail.kernel.org"
+        id S1349460AbhITSpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:45:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1379166AbhITS21 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:28:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D73C60EE7;
-        Mon, 20 Sep 2021 17:26:37 +0000 (UTC)
+        id S1382710AbhITSmR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:42:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB6996333B;
+        Mon, 20 Sep 2021 17:31:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158797;
-        bh=leO96kbURlF2o9JVp1cR10FCQGvL+ciEs8fPANnyStg=;
+        s=korg; t=1632159107;
+        bh=25VZmXlBoEsaxOHHIKUAQV+S0QZHAPZdnMv/5iJxgwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UwQtRJTbklpsRwWroCIYoTyO5NSqdBL/J/WoWEmEffgpNtjUUiJkoaPbQIukXnq1L
-         odvr1Y01RR9PnwA9EWJzCjhQKlcNAhufiCA7/+jLxw4AuvuhjYJIu1CFC44S+eu9n8
-         7hsjouEi/QNGOhucJcH4q8I8ejxQR1vivnG/z5TE=
+        b=kh6M0CsNMBlOyySBbYSAdOQDE/2E1cBJYDXQgSvXYBA04SjGb2uhnWE0xfkzGbOU+
+         +0dPobgFQUnpkU+wWYkdf4ddCVsEZqTrTApJdzGb64HB2VQOrg29TVLecaC18z8v8E
+         8/PvCl5CigECHUKfdEtVCdrD5+0l4PTpFsw0HnHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrius V <vezhlys@gmail.com>,
-        Darek Strugacz <darek.strugacz@op.pl>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 028/122] r6040: Restore MDIO clock frequency after MAC reset
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.14 062/168] net: dsa: destroy the phylink instance on any error in dsa_slave_phy_setup
 Date:   Mon, 20 Sep 2021 18:43:20 +0200
-Message-Id: <20210920163916.722191962@linuxfoundation.org>
+Message-Id: <20210920163923.675441643@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,73 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit e3f0cc1a945fcefec0c7c9d9dfd028a51daa1846 upstream.
+commit 6a52e73368038f47f6618623d75061dc263b26ae upstream.
 
-A number of users have reported that they were not able to get the PHY
-to successfully link up, especially after commit c36757eb9dee ("net:
-phy: consider AN_RESTART status when reading link status") where we
-stopped reading just BMSR, but we also read BMCR to determine the link
-status.
+DSA supports connecting to a phy-handle, and has a fallback to a non-OF
+based method of connecting to an internal PHY on the switch's own MDIO
+bus, if no phy-handle and no fixed-link nodes were present.
 
-Andrius at NetBSD did a wonderful job at debugging the problem
-and found out that the MDIO bus clock frequency would be incorrectly set
-back to its default value which would prevent the MDIO bus controller
-from reading PHY registers properly. Back when we only read BMSR, if we
-read all 1s, we could falsely indicate a link status, though in general
-there is a cable plugged in, so this went unnoticed. After a second read
-of BMCR was added, a wrong read will lead to the inability to determine
-a link UP condition which is when it started to be visibly broken, even
-if it was long before that.
+The -ENODEV error code from the first attempt (phylink_of_phy_connect)
+is what triggers the second attempt (phylink_connect_phy).
 
-The fix consists in restoring the value of the MD_CSR register that was
-set prior to the MAC reset.
+However, when the first attempt returns a different error code than
+-ENODEV, this results in an unbalance of calls to phylink_create and
+phylink_destroy by the time we exit the function. The phylink instance
+has leaked.
 
-Link: http://gnats.netbsd.org/cgi-bin/query-pr-single.pl?number=53494
-Fixes: 90f750a81a29 ("r6040: consolidate MAC reset to its own function")
-Reported-by: Andrius V <vezhlys@gmail.com>
-Reported-by: Darek Strugacz <darek.strugacz@op.pl>
-Tested-by: Darek Strugacz <darek.strugacz@op.pl>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+There are many other error codes that can be returned by
+phylink_of_phy_connect. For example, phylink_validate returns -EINVAL.
+So this is a practical issue too.
+
+Fixes: aab9c4067d23 ("net: dsa: Plug in PHYLINK support")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/20210914134331.2303380-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/rdc/r6040.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ net/dsa/slave.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/rdc/r6040.c
-+++ b/drivers/net/ethernet/rdc/r6040.c
-@@ -119,6 +119,8 @@
- #define PHY_ST		0x8A	/* PHY status register */
- #define MAC_SM		0xAC	/* MAC status machine */
- #define  MAC_SM_RST	0x0002	/* MAC status machine reset */
-+#define MD_CSC		0xb6	/* MDC speed control register */
-+#define  MD_CSC_DEFAULT	0x0030
- #define MAC_ID		0xBE	/* Identifier register */
+--- a/net/dsa/slave.c
++++ b/net/dsa/slave.c
+@@ -1784,13 +1784,11 @@ static int dsa_slave_phy_setup(struct ne
+ 		 * use the switch internal MDIO bus instead
+ 		 */
+ 		ret = dsa_slave_phy_connect(slave_dev, dp->index, phy_flags);
+-		if (ret) {
+-			netdev_err(slave_dev,
+-				   "failed to connect to port %d: %d\n",
+-				   dp->index, ret);
+-			phylink_destroy(dp->pl);
+-			return ret;
+-		}
++	}
++	if (ret) {
++		netdev_err(slave_dev, "failed to connect to PHY: %pe\n",
++			   ERR_PTR(ret));
++		phylink_destroy(dp->pl);
+ 	}
  
- #define TX_DCNT		0x80	/* TX descriptor count */
-@@ -355,8 +357,9 @@ static void r6040_reset_mac(struct r6040
- {
- 	void __iomem *ioaddr = lp->base;
- 	int limit = MAC_DEF_TIMEOUT;
--	u16 cmd;
-+	u16 cmd, md_csc;
- 
-+	md_csc = ioread16(ioaddr + MD_CSC);
- 	iowrite16(MAC_RST, ioaddr + MCR1);
- 	while (limit--) {
- 		cmd = ioread16(ioaddr + MCR1);
-@@ -368,6 +371,10 @@ static void r6040_reset_mac(struct r6040
- 	iowrite16(MAC_SM_RST, ioaddr + MAC_SM);
- 	iowrite16(0, ioaddr + MAC_SM);
- 	mdelay(5);
-+
-+	/* Restore MDIO clock frequency */
-+	if (md_csc != MD_CSC_DEFAULT)
-+		iowrite16(md_csc, ioaddr + MD_CSC);
- }
- 
- static void r6040_init_mac_regs(struct net_device *dev)
+ 	return ret;
 
 
