@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8075B412533
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D1D94123C1
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:26:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349264AbhITSmU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:42:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55446 "EHLO mail.kernel.org"
+        id S1378915AbhITS1D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:27:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1382289AbhITSkR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:40:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DAE361AE3;
-        Mon, 20 Sep 2021 17:30:56 +0000 (UTC)
+        id S1378560AbhITSYy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:24:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C0DE632CF;
+        Mon, 20 Sep 2021 17:25:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159057;
-        bh=GQ9Hjf8jdHUQKaUZs0FQHaJeQIsI/aTAi3HlkZztRWw=;
+        s=korg; t=1632158712;
+        bh=sgaDquabHhXipN7bYiM9tlfCbyGN7BiCnwsUd6JWe1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wGEaNQ+onQQ4l75I8WNoFaOScRYJGrGamgO7k/O6fpQFtjx9GBDafldIj+MQDPc3L
-         UEUSm/WvNsCMw/i+vK5hXsi0aqmVQqMv6QX+HrcCe/MAGlfBFlvtV5G7Sc9KKCJQeU
-         aa1Mchl0s6q9eJCEEe0+BsBsk1xqVim3jjN7e0Gc=
+        b=ZBorFSnm3oSYQ6+DfE6AdjZbrDB03r73kbAz7V9+B4wrK8nR7UljAjMcz7uLEao1Y
+         BySOuYaE03T5JDd3u0akuqLPVOVpioH24l5yS6VHvcGx2YMgTuswb6jWyWe6xF24fQ
+         NrznOTaUS57ojffFRqhvvYucnhfdQG74Kdfp88gw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Jones <sjones@kalrayinc.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.14 055/168] nvme-tcp: fix io_work priority inversion
+        stable@vger.kernel.org,
+        syzbot+e6741b97d5552f97c24d@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 021/122] tipc: fix an use-after-free issue in tipc_recvmsg
 Date:   Mon, 20 Sep 2021 18:43:13 +0200
-Message-Id: <20210920163923.447961491@linuxfoundation.org>
+Message-Id: <20210920163916.472003750@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,81 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 70f437fb4395ad4d1d16fab9a1ad9fbc9fc0579b upstream.
+commit cc19862ffe454a5b632ca202e5a51bfec9f89fd2 upstream.
 
-Dispatching requests inline with the .queue_rq() call may block while
-holding the send_mutex. If the tcp io_work also happens to schedule, it
-may see the req_list is non-empty, leaving "pending" true and remaining
-in TASK_RUNNING. Since io_work is of higher scheduling priority, the
-.queue_rq task may not get a chance to run, blocking forward progress
-and leading to io timeouts.
+syzbot reported an use-after-free crash:
 
-Instead of checking for pending requests within io_work, let the queueing
-restart io_work outside the send_mutex lock if there is more work to be
-done.
+  BUG: KASAN: use-after-free in tipc_recvmsg+0xf77/0xf90 net/tipc/socket.c:1979
+  Call Trace:
+   tipc_recvmsg+0xf77/0xf90 net/tipc/socket.c:1979
+   sock_recvmsg_nosec net/socket.c:943 [inline]
+   sock_recvmsg net/socket.c:961 [inline]
+   sock_recvmsg+0xca/0x110 net/socket.c:957
+   tipc_conn_rcv_from_sock+0x162/0x2f0 net/tipc/topsrv.c:398
+   tipc_conn_recv_work+0xeb/0x190 net/tipc/topsrv.c:421
+   process_one_work+0x98d/0x1630 kernel/workqueue.c:2276
+   worker_thread+0x658/0x11f0 kernel/workqueue.c:2422
 
-Fixes: a0fdd1418007f ("nvme-tcp: rerun io_work if req_list is not empty")
-Reported-by: Samuel Jones <sjones@kalrayinc.com>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+As Hoang pointed out, it was caused by skb_cb->bytes_read still accessed
+after calling tsk_advance_rx_queue() to free the skb in tipc_recvmsg().
+
+This patch is to fix it by accessing skb_cb->bytes_read earlier than
+calling tsk_advance_rx_queue().
+
+Fixes: f4919ff59c28 ("tipc: keep the skb in rcv queue until the whole data is read")
+Reported-by: syzbot+e6741b97d5552f97c24d@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/tcp.c |   20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ net/tipc/socket.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -273,6 +273,12 @@ static inline void nvme_tcp_send_all(str
- 	} while (ret > 0);
- }
- 
-+static inline bool nvme_tcp_queue_more(struct nvme_tcp_queue *queue)
-+{
-+	return !list_empty(&queue->send_list) ||
-+		!llist_empty(&queue->req_list) || queue->more_requests;
-+}
-+
- static inline void nvme_tcp_queue_request(struct nvme_tcp_request *req,
- 		bool sync, bool last)
- {
-@@ -293,9 +299,10 @@ static inline void nvme_tcp_queue_reques
- 		nvme_tcp_send_all(queue);
- 		queue->more_requests = false;
- 		mutex_unlock(&queue->send_mutex);
--	} else if (last) {
--		queue_work_on(queue->io_cpu, nvme_tcp_wq, &queue->io_work);
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -1980,10 +1980,12 @@ static int tipc_recvmsg(struct socket *s
+ 		tipc_node_distr_xmit(sock_net(sk), &xmitq);
  	}
+ 
+-	if (!skb_cb->bytes_read)
+-		tsk_advance_rx_queue(sk);
++	if (skb_cb->bytes_read)
++		goto exit;
 +
-+	if (last && nvme_tcp_queue_more(queue))
-+		queue_work_on(queue->io_cpu, nvme_tcp_wq, &queue->io_work);
- }
++	tsk_advance_rx_queue(sk);
  
- static void nvme_tcp_process_req_list(struct nvme_tcp_queue *queue)
-@@ -893,12 +900,6 @@ done:
- 	read_unlock_bh(&sk->sk_callback_lock);
- }
+-	if (likely(!connected) || skb_cb->bytes_read)
++	if (likely(!connected))
+ 		goto exit;
  
--static inline bool nvme_tcp_queue_more(struct nvme_tcp_queue *queue)
--{
--	return !list_empty(&queue->send_list) ||
--		!llist_empty(&queue->req_list) || queue->more_requests;
--}
--
- static inline void nvme_tcp_done_send_req(struct nvme_tcp_queue *queue)
- {
- 	queue->request = NULL;
-@@ -1132,8 +1133,7 @@ static void nvme_tcp_io_work(struct work
- 				pending = true;
- 			else if (unlikely(result < 0))
- 				break;
--		} else
--			pending = !llist_empty(&queue->req_list);
-+		}
- 
- 		result = nvme_tcp_try_recv(queue);
- 		if (result > 0)
+ 	/* Send connection flow control advertisement when applicable */
 
 
