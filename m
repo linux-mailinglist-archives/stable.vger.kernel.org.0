@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85EE94122B3
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4F08412519
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244411AbhITSQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:16:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35778 "EHLO mail.kernel.org"
+        id S1353644AbhITSl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:41:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376692AbhITSOP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:14:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F17936328B;
-        Mon, 20 Sep 2021 17:21:12 +0000 (UTC)
+        id S1382094AbhITSj5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:39:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58ADA61AE2;
+        Mon, 20 Sep 2021 17:30:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158473;
-        bh=wnKwA/60iuYLeWzRlkpXSybYhrzrUEEMFGcIe5dL5PY=;
+        s=korg; t=1632159048;
+        bh=apE6AM+TnTjolPcH5nTELBboWRG2RCmWabYE60Kdojw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n6awdn+PC2adp7qhwqF1ICebSujYNqPhCQM8tJvkMgZ3CvSIsL+141zlNAjiIJmgX
-         aOxQxL6QQKa+BcW7xNE+k8JvxtK/p7Fd4y7w4sG14U2M/+69j55FpK9zIUYsNu8qXN
-         NH3xIAlmx8nGo+FM+WwszlMZxa2gJyDjqm3Qvx7o=
+        b=QY2K/fbkXRvWfEZWxILqbM9iheqOXjEmiQEnCxAXgL9SP9pOKWcUaQvwPvAwl2ID+
+         +vvsvvBDhKFGFKnpyfZinMTioTildez1azwrqWsB4DqbKatCF8X5F1AgMbJJsY8X5u
+         eCQryW9YiTB2MtSsDLNlOprXKK4WgQS/cRFgal1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+2b3e5fb6c7ef285a94f6@syzkaller.appspotmail.com,
-        Haimin Zhang <tcs_kernel@tencent.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 172/260] fix array-index-out-of-bounds in taprio_change
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Maor Gottlieb <maorg@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.14 052/168] net/mlx5: Fix potential sleeping in atomic context
 Date:   Mon, 20 Sep 2021 18:43:10 +0200
-Message-Id: <20210920163936.929306054@linuxfoundation.org>
+Message-Id: <20210920163923.345892196@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haimin Zhang <tcs_kernel@tencent.com>
+From: Maor Gottlieb <maorg@nvidia.com>
 
-[ Upstream commit efe487fce3061d94222c6501d7be3aa549b3dc78 ]
+commit ee27e330a953595903979ffdb84926843595a9fe upstream.
 
-syzbot report an array-index-out-of-bounds in taprio_change
-index 16 is out of range for type '__u16 [16]'
-that's because mqprio->num_tc is lager than TC_MAX_QUEUE,so we check
-the return value of netdev_set_num_tc.
+Fixes the below flow of sleeping in atomic context by releasing
+the RCU lock before calling to free_match_list.
 
-Reported-by: syzbot+2b3e5fb6c7ef285a94f6@syzkaller.appspotmail.com
-Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+build_match_list() <- disables preempt
+-> free_match_list()
+   -> tree_put_node()
+      -> down_write_ref_node() <- take write lock
+
+Fixes: 693c6883bbc4 ("net/mlx5: Add hash table for flow groups in flow table")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_taprio.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/fs_core.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index a4de4853c79d..da9ed0613eb7 100644
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -1503,7 +1503,9 @@ static int taprio_change(struct Qdisc *sch, struct nlattr *opt,
- 	taprio_set_picos_per_byte(dev, q);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
+@@ -1682,14 +1682,13 @@ static int build_match_list(struct match
  
- 	if (mqprio) {
--		netdev_set_num_tc(dev, mqprio->num_tc);
-+		err = netdev_set_num_tc(dev, mqprio->num_tc);
-+		if (err)
-+			goto free_sched;
- 		for (i = 0; i < mqprio->num_tc; i++)
- 			netdev_set_tc_queue(dev, i,
- 					    mqprio->count[i],
--- 
-2.30.2
-
+ 		curr_match = kmalloc(sizeof(*curr_match), GFP_ATOMIC);
+ 		if (!curr_match) {
++			rcu_read_unlock();
+ 			free_match_list(match_head, ft_locked);
+-			err = -ENOMEM;
+-			goto out;
++			return -ENOMEM;
+ 		}
+ 		curr_match->g = g;
+ 		list_add_tail(&curr_match->list, &match_head->list);
+ 	}
+-out:
+ 	rcu_read_unlock();
+ 	return err;
+ }
 
 
