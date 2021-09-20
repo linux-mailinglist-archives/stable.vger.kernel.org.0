@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CC0C411E62
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:29:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15EBA4120DA
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:59:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347639AbhITRaa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:30:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56130 "EHLO mail.kernel.org"
+        id S1355478AbhITR66 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:58:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350321AbhITR2J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:28:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD7E261AAC;
-        Mon, 20 Sep 2021 17:03:17 +0000 (UTC)
+        id S1355873AbhITR44 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:56:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D7CB4630ED;
+        Mon, 20 Sep 2021 17:14:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157398;
-        bh=R6JsaxzHS3n+4oKo8hy8SgXPN/CtAdobzGO7SI6r+Ek=;
+        s=korg; t=1632158073;
+        bh=WSlDzbY6xVhM13c9UregOA5y4AqgT0j98Px8f7HUZgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=klE94abTzzFXkDPBqec/IQXmMtUgglnhclGh+yRtPl2p4XDlEC3aNsp3uPiLti77H
-         uTI2DH8gebpdRRUCFVr+ToeybFV+NOECR0bYuRNfrryJuNvsRZkM4ZVax5rdAJbuLM
-         2YZb7nPwrIYbWnBdF0sgAfMPpFlR5/co4aQIjcIQ=
+        b=CyMQMPmyEkUAvGxO4FY4WhhZ9ymHiNV8+rj2Xd/w3uWvaeyWtMBJZoH1B4wMQ6X1l
+         m/L03gTlC/Z0Ay0cip7/LBg6AcPdrpU8N5SnWq8/CSKmb1ca1WbTLvH95SAKuKGuqv
+         LGHu3KBkBhMMCNzh5/E7kqzkU8bf51Akoiw/murg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
         Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 4.14 191/217] xen: reset legacy rtc flag for PV domU
-Date:   Mon, 20 Sep 2021 18:43:32 +0200
-Message-Id: <20210920163931.107421685@linuxfoundation.org>
+Subject: [PATCH 4.19 251/293] xen: reset legacy rtc flag for PV domU
+Date:   Mon, 20 Sep 2021 18:43:33 +0200
+Message-Id: <20210920163941.982628153@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -84,7 +84,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/x86/xen/enlighten_pv.c
 +++ b/arch/x86/xen/enlighten_pv.c
-@@ -1214,6 +1214,11 @@ static void __init xen_dom0_set_legacy_f
+@@ -1187,6 +1187,11 @@ static void __init xen_dom0_set_legacy_f
  	x86_platform.legacy.rtc = 1;
  }
  
@@ -96,8 +96,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /* First C function to be called on Xen boot */
  asmlinkage __visible void __init xen_start_kernel(void)
  {
-@@ -1375,6 +1380,8 @@ asmlinkage __visible void __init xen_sta
- 		add_preferred_console("hvc", 0, NULL);
+@@ -1354,6 +1359,8 @@ asmlinkage __visible void __init xen_sta
+ 		add_preferred_console("xenboot", 0, NULL);
  		if (pci_xen)
  			x86_init.pci.arch_init = pci_xen_init;
 +		x86_platform.set_legacy_features =
