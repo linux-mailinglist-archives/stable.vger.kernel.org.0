@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2100B41220C
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:10:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA2E2412503
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376455AbhITSMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:12:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35806 "EHLO mail.kernel.org"
+        id S1349170AbhITSlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:41:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1359801AbhITSKT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:10:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C37A163271;
-        Mon, 20 Sep 2021 17:20:07 +0000 (UTC)
+        id S1346748AbhITShT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:37:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EE376141B;
+        Mon, 20 Sep 2021 17:29:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158408;
-        bh=wT3iu+1KsIblfmC2Xxu1rpoOWJc5iroPFIXC6zv3PRM=;
+        s=korg; t=1632158985;
+        bh=Dl4mxtMwzlTqQKa07pgktE0TjFGpjOgMFhdd7xXD0VQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gOf1SshME/MYJWgKyXCfHbdX6u25gmmxf0H50kDPu7W8JVUXrlq3KeakYxpOTB+Ab
-         FQPV6V76jf33cUjYKuwIYmrHhF/JoGp39ZgRAFxuB1OglYM8JG2BtPMkJHWDEZO6Wg
-         oGVwCcTAnjNN38Ukj0+QJ91NpkrsYkO6pPmfZzlc=
+        b=s6GHbgcCgQPd2i55wPC1LwXHqYyZOYc7AUpWJEGJ+x1leMDvzRjOQkujUMmE/djoe
+         9yMOl/C5Ia1/CYYMGwAK+9QRuinrZd2yKIaQb16ThJMjo9ynsupsbPDOEXH5+OycJV
+         T6iR5oi6+Sb0BzQ+NAIy8jHv0WBe53XSYHiwe6CY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-staging@lists.linux.dev,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 142/260] staging: rts5208: Fix get_ms_information() heap buffer size
-Date:   Mon, 20 Sep 2021 18:42:40 +0200
-Message-Id: <20210920163935.938853168@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.14 023/168] drm/i915/dp: Use max params for panels < eDP 1.4
+Date:   Mon, 20 Sep 2021 18:42:41 +0200
+Message-Id: <20210920163922.409845362@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,84 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit cbe34165cc1b7d1110b268ba8b9f30843c941639 ]
+commit c8dead5751b81dfa6b10449b740ed1062ff670c5 upstream.
 
-Fix buf allocation size (it needs to be 2 bytes larger). Found when
-__alloc_size() annotations were added to kmalloc() interfaces.
+Users reported that after commit 2bbd6dba84d4 ("drm/i915: Try to use
+fast+narrow link on eDP again and fall back to the old max strategy on
+failure"), the screen starts to have wobbly effect.
 
-In file included from ./include/linux/string.h:253,
-                 from ./include/linux/bitmap.h:10,
-                 from ./include/linux/cpumask.h:12,
-                 from ./arch/x86/include/asm/paravirt.h:17,
-                 from ./arch/x86/include/asm/irqflags.h:63,
-                 from ./include/linux/irqflags.h:16,
-                 from ./include/linux/rcupdate.h:26,
-                 from ./include/linux/rculist.h:11,
-                 from ./include/linux/pid.h:5,
-                 from ./include/linux/sched.h:14,
-                 from ./include/linux/blkdev.h:5,
-                 from drivers/staging/rts5208/rtsx_scsi.c:12:
-In function 'get_ms_information',
-    inlined from 'ms_sp_cmnd' at drivers/staging/rts5208/rtsx_scsi.c:2877:12,
-    inlined from 'rtsx_scsi_handler' at drivers/staging/rts5208/rtsx_scsi.c:3247:12:
-./include/linux/fortify-string.h:54:29: warning: '__builtin_memcpy' forming offset [106, 107] is out
- of the bounds [0, 106] [-Warray-bounds]
-   54 | #define __underlying_memcpy __builtin_memcpy
-      |                             ^
-./include/linux/fortify-string.h:417:2: note: in expansion of macro '__underlying_memcpy'
-  417 |  __underlying_##op(p, q, __fortify_size);   \
-      |  ^~~~~~~~~~~~~
-./include/linux/fortify-string.h:463:26: note: in expansion of macro '__fortify_memcpy_chk'
-  463 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,   \
-      |                          ^~~~~~~~~~~~~~~~~~~~
-drivers/staging/rts5208/rtsx_scsi.c:2851:3: note: in expansion of macro 'memcpy'
- 2851 |   memcpy(buf + i, ms_card->raw_sys_info, 96);
-      |   ^~~~~~
+Commit a5c936add6a2 ("drm/i915/dp: Use slow and wide link training for
+everything") doesn't help either, that means the affected eDP 1.2 panels
+only work with max params.
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-staging@lists.linux.dev
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210818044252.1533634-1-keescook@chromium.org
+So use max params for panels < eDP 1.4 as Windows does to solve the
+issue.
+
+v3:
+ - Do the eDP rev check in intel_edp_init_dpcd()
+
+v2:
+ - Check eDP 1.4 instead of DPCD 1.1 to apply max params
+
+Cc: stable@vger.kernel.org
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/3714
+Fixes: 2bbd6dba84d4 ("drm/i915: Try to use fast+narrow link on eDP again and fall back to the old max strategy on failure")
+Fixes: a5c936add6a2 ("drm/i915/dp: Use slow and wide link training for everything")
+Suggested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210820075301.693099-1-kai.heng.feng@canonical.com
+(cherry picked from commit d7f213c131adf0bec8b731553eb82990cdac265d)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rts5208/rtsx_scsi.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/i915/display/intel_dp.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/rts5208/rtsx_scsi.c b/drivers/staging/rts5208/rtsx_scsi.c
-index 1deb74112ad4..11d9d9155eef 100644
---- a/drivers/staging/rts5208/rtsx_scsi.c
-+++ b/drivers/staging/rts5208/rtsx_scsi.c
-@@ -2802,10 +2802,10 @@ static int get_ms_information(struct scsi_cmnd *srb, struct rtsx_chip *chip)
- 	}
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -2453,11 +2453,14 @@ intel_edp_init_dpcd(struct intel_dp *int
+ 	 */
+ 	if (drm_dp_dpcd_read(&intel_dp->aux, DP_EDP_DPCD_REV,
+ 			     intel_dp->edp_dpcd, sizeof(intel_dp->edp_dpcd)) ==
+-			     sizeof(intel_dp->edp_dpcd))
++			     sizeof(intel_dp->edp_dpcd)) {
+ 		drm_dbg_kms(&dev_priv->drm, "eDP DPCD: %*ph\n",
+ 			    (int)sizeof(intel_dp->edp_dpcd),
+ 			    intel_dp->edp_dpcd);
  
- 	if (dev_info_id == 0x15) {
--		buf_len = 0x3A;
-+		buf_len = 0x3C;
- 		data_len = 0x3A;
- 	} else {
--		buf_len = 0x6A;
-+		buf_len = 0x6C;
- 		data_len = 0x6A;
- 	}
- 
-@@ -2855,11 +2855,7 @@ static int get_ms_information(struct scsi_cmnd *srb, struct rtsx_chip *chip)
- 	}
- 
- 	rtsx_stor_set_xfer_buf(buf, buf_len, srb);
--
--	if (dev_info_id == 0x15)
--		scsi_set_resid(srb, scsi_bufflen(srb) - 0x3C);
--	else
--		scsi_set_resid(srb, scsi_bufflen(srb) - 0x6C);
-+	scsi_set_resid(srb, scsi_bufflen(srb) - buf_len);
- 
- 	kfree(buf);
- 	return STATUS_SUCCESS;
--- 
-2.30.2
-
++		intel_dp->use_max_params = intel_dp->edp_dpcd[0] < DP_EDP_14;
++	}
++
+ 	/*
+ 	 * This has to be called after intel_dp->edp_dpcd is filled, PSR checks
+ 	 * for SET_POWER_CAPABLE bit in intel_dp->edp_dpcd[1]
 
 
