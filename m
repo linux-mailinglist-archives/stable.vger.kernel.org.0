@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A222A4122AC
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32545412530
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376782AbhITSQk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:16:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35776 "EHLO mail.kernel.org"
+        id S1349277AbhITSmS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:42:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376691AbhITSOP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:14:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB1E66328E;
-        Mon, 20 Sep 2021 17:21:25 +0000 (UTC)
+        id S1382301AbhITSkR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:40:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8664C63331;
+        Mon, 20 Sep 2021 17:31:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158486;
-        bh=nu0s5dASp8qcXUjMbB27DDRnp2MJTZrmA/MCpOI7KyI=;
+        s=korg; t=1632159064;
+        bh=aU5jjJkB3VmCgVUlzT1/mI1oGjuuEmcURWIZ7K3uIXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A0P156ALvbNaMG0OBT+vlyB7Ma2St97ZYg7NHcR7SPmURItSnVwn5awglylmS15ZF
-         2a0okVyEevxfF6YxVY0TSAyH6dSLe16Bw+WPaGewZKCrM0vwH14B2VYkdcq9b98916
-         Fj34wkkMoLua7Jys6rtBGnt8/c0Mgvsdn3Du5a1U=
+        b=YMSXFpJCFUtIsI8/2tMDZdWO8ODqISSpU9YOdEYZeovecwpOSS7CsjDVGoJVX9Fv0
+         Ed9W2WB/mFLMUNti0PnJmgB/IGu1NKTjU5zwrqOExp0FLKL4xfsKZiRhCbWnnFYOZf
+         vz/u14aQjSXbFDfhZg/M3r7gHKM2XudLPJeVONEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 178/260] scsi: qla2xxx: Sync queue idx with queue_pair_map idx
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.14 058/168] net: ipa: initialize all filter table slots
 Date:   Mon, 20 Sep 2021 18:43:16 +0200
-Message-Id: <20210920163937.137895379@linuxfoundation.org>
+Message-Id: <20210920163923.548389478@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,98 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurav Kashyap <skashyap@marvell.com>
+From: Alex Elder <elder@linaro.org>
 
-commit c8fadf019964d0eb1da410ba8b629494d3339db9 upstream.
+commit b5c102238cea985d8126b173d06b9e1de88037ee upstream.
 
-The first invocation of function find_first_zero_bit will return 0 and
-queue_id gets set to 0.
+There is an off-by-one problem in ipa_table_init_add(), when
+initializing filter tables.
 
-An index of queue_pair_map also gets set to 0.
+In that function, the number of filter table entries is determined
+based on the number of set bits in the filter map.  However that
+count does *not* include the extra "slot" in the filter table that
+holds the filter map itself.  Meanwhile, ipa_table_addr() *does*
+include the filter map in the memory it returns, but because the
+count it's provided doesn't include it, it includes one too few
+table entries.
 
-	qpair_id = find_first_zero_bit(ha->qpair_qid_map, ha->max_qpairs);
+Fix this by including the extra slot for the filter map in the count
+computed in ipa_table_init_add().
 
-        set_bit(qpair_id, ha->qpair_qid_map);
-        ha->queue_pair_map[qpair_id] = qpair;
+Note: ipa_filter_reset_table() does not have this problem; it resets
+filter table entries one by one, but does not overwrite the filter
+bitmap.
 
-In the alloc_queue callback driver checks the map, if queue is already
-allocated:
-
-	ha->queue_pair_map[qidx]
-
-This works fine as long as max_qpairs is greater than nvme_max_hw_queues(8)
-since the size of the queue_pair_map is equal to max_qpair. In case nr_cpus
-is less than 8, max_qpairs is less than 8. This creates wrong value
-returned as qpair.
-
-[ 1572.353669] qla2xxx [0000:24:00.3]-2121:6: Returning existing qpair of 4e00000000000000 for idx=2
-[ 1572.354458] general protection fault: 0000 [#1] SMP PTI
-[ 1572.354461] CPU: 1 PID: 44 Comm: kworker/1:1H Kdump: loaded Tainted: G          IOE    --------- -  - 4.18.0-304.el8.x86_64 #1
-[ 1572.354462] Hardware name: HP ProLiant DL380p Gen8, BIOS P70 03/01/2013
-[ 1572.354467] Workqueue: kblockd blk_mq_run_work_fn
-[ 1572.354485] RIP: 0010:qla_nvme_post_cmd+0x92/0x760 [qla2xxx]
-[ 1572.354486] Code: 84 24 5c 01 00 00 00 00 b8 0a 74 1e 66 83 79 48 00 0f 85 a8 03 00 00 48 8b 44 24 08 48 89 ee 4c 89 e7 8b 50 24 e8 5e 8e 00 00 <f0> 41 ff 47 04 0f ae f0 41 f6 47 24 04 74 19 f0 41 ff 4f 04 b8 f0
-[ 1572.354487] RSP: 0018:ffff9c81c645fc90 EFLAGS: 00010246
-[ 1572.354489] RAX: 0000000000000001 RBX: ffff8ea3e5070138 RCX: 0000000000000001
-[ 1572.354490] RDX: 0000000000000001 RSI: 0000000000000001 RDI: ffff8ea4c866b800
-[ 1572.354491] RBP: ffff8ea4c866b800 R08: 0000000000005010 R09: ffff8ea4c866b800
-[ 1572.354492] R10: 0000000000000001 R11: 000000069d1ca3ff R12: ffff8ea4bc460000
-[ 1572.354493] R13: ffff8ea3e50702b0 R14: ffff8ea4c4c16a58 R15: 4e00000000000000
-[ 1572.354494] FS:  0000000000000000(0000) GS:ffff8ea4dfd00000(0000) knlGS:0000000000000000
-[ 1572.354495] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 1572.354496] CR2: 000055884504fa58 CR3: 00000005a1410001 CR4: 00000000000606e0
-[ 1572.354497] Call Trace:
-[ 1572.354503]  ? check_preempt_curr+0x62/0x90
-[ 1572.354506]  ? dma_direct_map_sg+0x72/0x1f0
-[ 1572.354509]  ? nvme_fc_start_fcp_op.part.32+0x175/0x460 [nvme_fc]
-[ 1572.354511]  ? blk_mq_dispatch_rq_list+0x11c/0x730
-[ 1572.354515]  ? __switch_to_asm+0x35/0x70
-[ 1572.354516]  ? __switch_to_asm+0x41/0x70
-[ 1572.354518]  ? __switch_to_asm+0x35/0x70
-[ 1572.354519]  ? __switch_to_asm+0x41/0x70
-[ 1572.354521]  ? __switch_to_asm+0x35/0x70
-[ 1572.354522]  ? __switch_to_asm+0x41/0x70
-[ 1572.354523]  ? __switch_to_asm+0x35/0x70
-[ 1572.354525]  ? entry_SYSCALL_64_after_hwframe+0xb9/0xca
-[ 1572.354527]  ? __switch_to_asm+0x41/0x70
-[ 1572.354529]  ? __blk_mq_sched_dispatch_requests+0xc6/0x170
-[ 1572.354531]  ? blk_mq_sched_dispatch_requests+0x30/0x60
-[ 1572.354532]  ? __blk_mq_run_hw_queue+0x51/0xd0
-[ 1572.354535]  ? process_one_work+0x1a7/0x360
-[ 1572.354537]  ? create_worker+0x1a0/0x1a0
-[ 1572.354538]  ? worker_thread+0x30/0x390
-[ 1572.354540]  ? create_worker+0x1a0/0x1a0
-[ 1572.354541]  ? kthread+0x116/0x130
-[ 1572.354543]  ? kthread_flush_work_fn+0x10/0x10
-[ 1572.354545]  ? ret_from_fork+0x35/0x40
-
-Fix is to use index 0 for admin and first IO queue.
-
-Link: https://lore.kernel.org/r/20210810043720.1137-14-njavali@marvell.com
-Fixes: e84067d74301 ("scsi: qla2xxx: Add FC-NVMe F/W initialization and transport registration")
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 2b9feef2b6c2 ("soc: qcom: ipa: filter and routing tables")
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_nvme.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ipa/ipa_table.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/qla2xxx/qla_nvme.c
-+++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -84,8 +84,9 @@ static int qla_nvme_alloc_queue(struct n
- 	struct qla_hw_data *ha;
- 	struct qla_qpair *qpair;
- 
--	if (!qidx)
--		qidx++;
-+	/* Map admin queue and 1st IO queue to index 0 */
-+	if (qidx)
-+		qidx--;
- 
- 	vha = (struct scsi_qla_host *)lport->private;
- 	ha = vha->hw;
+--- a/drivers/net/ipa/ipa_table.c
++++ b/drivers/net/ipa/ipa_table.c
+@@ -430,7 +430,8 @@ static void ipa_table_init_add(struct gs
+ 	 * table region determines the number of entries it has.
+ 	 */
+ 	if (filter) {
+-		count = hweight32(ipa->filter_map);
++		/* Include one extra "slot" to hold the filter map itself */
++		count = 1 + hweight32(ipa->filter_map);
+ 		hash_count = hash_mem->size ? count : 0;
+ 	} else {
+ 		count = mem->size / sizeof(__le64);
 
 
