@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9448F4120D6
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:58:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A478D411B19
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:54:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356136AbhITR6o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:58:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56862 "EHLO mail.kernel.org"
+        id S244812AbhITQzf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:55:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355814AbhITR4m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:56:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D3E463213;
-        Mon, 20 Sep 2021 17:14:28 +0000 (UTC)
+        id S245229AbhITQxi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:53:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8B9C6127A;
+        Mon, 20 Sep 2021 16:50:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158069;
-        bh=OMpf2Tq8oqeZg1jpXlPCZQeyvBrPcPMumc5M0Ak/rXc=;
+        s=korg; t=1632156615;
+        bh=zd0DkbpuQcpBmHy18xkWnu4PKH7ypTbTfRWtx7Uo9sY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C4Z6KgMQeUWxSDwtmVBNtHQ3FV6z684vmmD02qKLN0pi9rNrmh7rMa67DJyPbnrgm
-         SoZG2Ez3GG2YcjZdS8mW1jHRS2Q856pm2a/pkDlREHJJv50IG2FdudL8TOEWrjFEt5
-         7xarBQYrb79jkS42lWc/lU2UYiXE6jw0k+CYD/gs=
+        b=JXUOvaktPeO1Xfyn5n8gE7bpnfKjYlP3T+IFB1/MsujCQZzl/Dy1wE+IG1CpugqCV
+         /PYvYzufY66O/MIL96/G7PHa6Q9FGAiQOY7pGRM9R/AeXz2Kgu5dxsh+uQ6FTfmZ/9
+         I5Y3Y9utASMZ9ZuyBo8PJXjW6IjJjy2bNOgVZuwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
-Subject: [PATCH 4.19 249/293] drm/amdgpu: Fix BUG_ON assert
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 133/133] net: renesas: sh_eth: Fix freeing wrong tx descriptor
 Date:   Mon, 20 Sep 2021 18:43:31 +0200
-Message-Id: <20210920163941.917793075@linuxfoundation.org>
+Message-Id: <20210920163916.971064473@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,32 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-commit ea7acd7c5967542353430947f3faf699e70602e5 upstream.
+[ Upstream commit 0341d5e3d1ee2a36dd5a49b5bef2ce4ad1cfa6b4 ]
 
-With added CPU domain to placement you can have
-now 3 placemnts at once.
+The cur_tx counter must be incremented after TACT bit of
+txdesc->status was set. However, a CPU is possible to reorder
+instructions and/or memory accesses between cur_tx and
+txdesc->status. And then, if TX interrupt happened at such a
+timing, the sh_eth_tx_free() may free the descriptor wrongly.
+So, add wmb() before cur_tx++.
+Otherwise NETDEV WATCHDOG timeout is possible to happen.
 
-CC: stable@kernel.org
-Signed-off-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210622162339.761651-5-andrey.grodzovsky@amd.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 86a74ff21a7a ("net: sh_eth: add support for Renesas SuperH Ethernet")
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_object.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/renesas/sh_eth.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
-@@ -216,7 +216,7 @@ void amdgpu_bo_placement_from_domain(str
- 		c++;
- 	}
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index 1942264b621b..73fc8e9683b7 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -2426,6 +2426,7 @@ static int sh_eth_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 	else
+ 		txdesc->status |= cpu_to_edmac(mdp, TD_TACT);
  
--	BUG_ON(c >= AMDGPU_BO_MAX_PLACEMENTS);
-+	BUG_ON(c > AMDGPU_BO_MAX_PLACEMENTS);
++	wmb(); /* cur_tx must be incremented after TACT bit was set */
+ 	mdp->cur_tx++;
  
- 	placement->num_placement = c;
- 	placement->placement = places;
+ 	if (!(sh_eth_read(ndev, EDTRR) & sh_eth_get_edtrr_trns(mdp)))
+-- 
+2.30.2
+
 
 
