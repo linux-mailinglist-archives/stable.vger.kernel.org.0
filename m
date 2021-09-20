@@ -2,86 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 108C7411E7D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:30:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97EB64120B2
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:55:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350977AbhITRb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:31:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34904 "EHLO mail.kernel.org"
+        id S229605AbhITR5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:57:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350617AbhITR3Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:29:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66D9561465;
-        Mon, 20 Sep 2021 17:03:52 +0000 (UTC)
+        id S1355519AbhITRy6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:54:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D00361D7C;
+        Mon, 20 Sep 2021 17:13:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157433;
-        bh=aNmxIUWnscFY0869jidlbuTiph7GCF+LusdX8pgQ3uY=;
+        s=korg; t=1632158034;
+        bh=4R1L67LfxjJDJn+J1ic2X9V7Y9C4vbAYyK8LFeOdbuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aZBaOE40S6fcD+y79Nu6uJ2XDZsOVz61Sz6rMe7hVoR62yBnURehtdlNzhsN8EC/n
-         BtjhNb8Ily7j0oaBKPc5Gy45E1KMlMxqeM+pEXM1ZZFJhUMpo7YCO4CjF1r+n6+WfT
-         pOAhBMQ8QFjICUgrivlgTjB1XjFvDovidwu7O2GE=
+        b=DTKWchFouq3HYC28jmexDouywo0O7Ul4vqQA2J/kalqiJsiU6SoJzarnyEcnMnnP/
+         e7eBPOIlgAud4agUtDN+3QADSxQdhl4ugBf/GAj87uN9sOElDDyzuV+s1Iq64kVZpn
+         m+Ilf8Oo9RETpQrYGd4ce+teTGRDwzhICk/x4IDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Pankaj Gupta <pankaj.gupta@ionos.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
-        Wei Yang <richard.weiyang@linux.alibaba.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        virtualization@lists.linux-foundation.org,
-        Andy Lutomirski <luto@kernel.org>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Anton Blanchard <anton@ozlabs.org>,
-        Ard Biesheuvel <ardb@kernel.org>, Baoquan He <bhe@redhat.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Dave Jiang <dave.jiang@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Jia He <justin.he@arm.com>, Joe Perches <joe@perches.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Laurent Dufour <ldufour@linux.ibm.com>,
-        Michel Lespinasse <michel@lespinasse.org>,
-        Nathan Lynch <nathanl@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Rich Felker <dalias@libc.org>,
-        Scott Cheloha <cheloha@linux.ibm.com>,
-        Sergei Trofimovich <slyfox@gentoo.org>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Will Deacon <will@kernel.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 205/217] mm/memory_hotplug: use "unsigned long" for PFN in zone_for_pfn_range()
+        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
+        Milian Wolff <milian.wolff@kdab.com>,
+        Jiri Olsa <jolsa@redhat.com>, Juri Lelli <jlelli@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.19 264/293] perf machine: Initialize srcline string member in add_location struct
 Date:   Mon, 20 Sep 2021 18:43:46 +0200
-Message-Id: <20210920163931.572775601@linuxfoundation.org>
+Message-Id: <20210920163942.434713828@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -90,125 +41,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Michael Petlan <mpetlan@redhat.com>
 
-commit 7cf209ba8a86410939a24cb1aeb279479a7e0ca6 upstream.
+commit 57f0ff059e3daa4e70a811cb1d31a49968262d20 upstream.
 
-Patch series "mm/memory_hotplug: preparatory patches for new online policy and memory"
+It's later supposed to be either a correct address or NULL. Without the
+initialization, it may contain an undefined value which results in the
+following segmentation fault:
 
-These are all cleanups and one fix previously sent as part of [1]:
-[PATCH v1 00/12] mm/memory_hotplug: "auto-movable" online policy and memory
-groups.
+  # perf top --sort comm -g --ignore-callees=do_idle
 
-These patches make sense even without the other series, therefore I pulled
-them out to make the other series easier to digest.
+terminates with:
 
-[1] https://lkml.kernel.org/r/20210607195430.48228-1-david@redhat.com
+  #0  0x00007ffff56b7685 in __strlen_avx2 () from /lib64/libc.so.6
+  #1  0x00007ffff55e3802 in strdup () from /lib64/libc.so.6
+  #2  0x00005555558cb139 in hist_entry__init (callchain_size=<optimized out>, sample_self=true, template=0x7fffde7fb110, he=0x7fffd801c250) at util/hist.c:489
+  #3  hist_entry__new (template=template@entry=0x7fffde7fb110, sample_self=sample_self@entry=true) at util/hist.c:564
+  #4  0x00005555558cb4ba in hists__findnew_entry (hists=hists@entry=0x5555561d9e38, entry=entry@entry=0x7fffde7fb110, al=al@entry=0x7fffde7fb420,
+      sample_self=sample_self@entry=true) at util/hist.c:657
+  #5  0x00005555558cba1b in __hists__add_entry (hists=hists@entry=0x5555561d9e38, al=0x7fffde7fb420, sym_parent=<optimized out>, bi=bi@entry=0x0, mi=mi@entry=0x0,
+      sample=sample@entry=0x7fffde7fb4b0, sample_self=true, ops=0x0, block_info=0x0) at util/hist.c:288
+  #6  0x00005555558cbb70 in hists__add_entry (sample_self=true, sample=0x7fffde7fb4b0, mi=0x0, bi=0x0, sym_parent=<optimized out>, al=<optimized out>, hists=0x5555561d9e38)
+      at util/hist.c:1056
+  #7  iter_add_single_cumulative_entry (iter=0x7fffde7fb460, al=<optimized out>) at util/hist.c:1056
+  #8  0x00005555558cc8a4 in hist_entry_iter__add (iter=iter@entry=0x7fffde7fb460, al=al@entry=0x7fffde7fb420, max_stack_depth=<optimized out>, arg=arg@entry=0x7fffffff7db0)
+      at util/hist.c:1231
+  #9  0x00005555557cdc9a in perf_event__process_sample (machine=<optimized out>, sample=0x7fffde7fb4b0, evsel=<optimized out>, event=<optimized out>, tool=0x7fffffff7db0)
+      at builtin-top.c:842
+  #10 deliver_event (qe=<optimized out>, qevent=<optimized out>) at builtin-top.c:1202
+  #11 0x00005555558a9318 in do_flush (show_progress=false, oe=0x7fffffff80e0) at util/ordered-events.c:244
+  #12 __ordered_events__flush (oe=oe@entry=0x7fffffff80e0, how=how@entry=OE_FLUSH__TOP, timestamp=timestamp@entry=0) at util/ordered-events.c:323
+  #13 0x00005555558a9789 in __ordered_events__flush (timestamp=<optimized out>, how=<optimized out>, oe=<optimized out>) at util/ordered-events.c:339
+  #14 ordered_events__flush (how=OE_FLUSH__TOP, oe=0x7fffffff80e0) at util/ordered-events.c:341
+  #15 ordered_events__flush (oe=oe@entry=0x7fffffff80e0, how=how@entry=OE_FLUSH__TOP) at util/ordered-events.c:339
+  #16 0x00005555557cd631 in process_thread (arg=0x7fffffff7db0) at builtin-top.c:1114
+  #17 0x00007ffff7bb817a in start_thread () from /lib64/libpthread.so.0
+  #18 0x00007ffff5656dc3 in clone () from /lib64/libc.so.6
 
-This patch (of 4):
+If you look at the frame #2, the code is:
 
-Checkpatch complained on a follow-up patch that we are using "unsigned"
-here, which defaults to "unsigned int" and checkpatch is correct.
+488	 if (he->srcline) {
+489          he->srcline = strdup(he->srcline);
+490          if (he->srcline == NULL)
+491              goto err_rawdata;
+492	 }
 
-As we will search for a fitting zone using the wrong pfn, we might end
-up onlining memory to one of the special kernel zones, such as ZONE_DMA,
-which can end badly as the onlined memory does not satisfy properties of
-these zones.
+If he->srcline is not NULL (it is not NULL if it is uninitialized rubbish),
+it gets strdupped and strdupping a rubbish random string causes the problem.
 
-Use "unsigned long" instead, just as we do in other places when handling
-PFNs.  This can bite us once we have physical addresses in the range of
-multiple TB.
+Also, if you look at the commit 1fb7d06a509e, it adds the srcline property
+into the struct, but not initializing it everywhere needed.
 
-Link: https://lkml.kernel.org/r/20210712124052.26491-2-david@redhat.com
-Fixes: e5e689302633 ("mm, memory_hotplug: display allowed zones in the preferred ordering")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Pankaj Gupta <pankaj.gupta@ionos.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Len Brown <lenb@kernel.org>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: virtualization@lists.linux-foundation.org
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc: Anton Blanchard <anton@ozlabs.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jia He <justin.he@arm.com>
-Cc: Joe Perches <joe@perches.com>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Laurent Dufour <ldufour@linux.ibm.com>
-Cc: Michel Lespinasse <michel@lespinasse.org>
-Cc: Nathan Lynch <nathanl@linux.ibm.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Pierre Morel <pmorel@linux.ibm.com>
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Scott Cheloha <cheloha@linux.ibm.com>
-Cc: Sergei Trofimovich <slyfox@gentoo.org>
-Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Committer notes:
+
+Now I see, when using --ignore-callees=do_idle we end up here at line
+2189 in add_callchain_ip():
+
+2181         if (al.sym != NULL) {
+2182                 if (perf_hpp_list.parent && !*parent &&
+2183                     symbol__match_regex(al.sym, &parent_regex))
+2184                         *parent = al.sym;
+2185                 else if (have_ignore_callees && root_al &&
+2186                   symbol__match_regex(al.sym, &ignore_callees_regex)) {
+2187                         /* Treat this symbol as the root,
+2188                            forgetting its callees. */
+2189                         *root_al = al;
+2190                         callchain_cursor_reset(cursor);
+2191                 }
+2192         }
+
+And the al that doesn't have the ->srcline field initialized will be
+copied to the root_al, so then, back to:
+
+1211 int hist_entry_iter__add(struct hist_entry_iter *iter, struct addr_location *al,
+1212                          int max_stack_depth, void *arg)
+1213 {
+1214         int err, err2;
+1215         struct map *alm = NULL;
+1216
+1217         if (al)
+1218                 alm = map__get(al->map);
+1219
+1220         err = sample__resolve_callchain(iter->sample, &callchain_cursor, &iter->parent,
+1221                                         iter->evsel, al, max_stack_depth);
+1222         if (err) {
+1223                 map__put(alm);
+1224                 return err;
+1225         }
+1226
+1227         err = iter->ops->prepare_entry(iter, al);
+1228         if (err)
+1229                 goto out;
+1230
+1231         err = iter->ops->add_single_entry(iter, al);
+1232         if (err)
+1233                 goto out;
+1234
+
+That al at line 1221 is what hist_entry_iter__add() (called from
+sample__resolve_callchain()) saw as 'root_al', and then:
+
+        iter->ops->add_single_entry(iter, al);
+
+will go on with al->srcline with a bogus value, I'll add the above
+sequence to the cset and apply, thanks!
+
+Signed-off-by: Michael Petlan <mpetlan@redhat.com>
+CC: Milian Wolff <milian.wolff@kdab.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Fixes: 1fb7d06a509e ("perf report Use srcline from callchain for hist entries")
+Link: https //lore.kernel.org/r/20210719145332.29747-1-mpetlan@redhat.com
+Reported-by: Juri Lelli <jlelli@redhat.com>
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/memory_hotplug.h |    4 ++--
- mm/memory_hotplug.c            |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ tools/perf/util/machine.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -332,6 +332,6 @@ extern struct page *sparse_decode_mem_ma
- 					  unsigned long pnum);
- extern bool allow_online_pfn_range(int nid, unsigned long pfn, unsigned long nr_pages,
- 		int online_type);
--extern struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
--		unsigned long nr_pages);
-+extern struct zone *zone_for_pfn_range(int online_type, int nid,
-+		unsigned long start_pfn, unsigned long nr_pages);
- #endif /* __LINUX_MEMORY_HOTPLUG_H */
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -842,8 +842,8 @@ static inline struct zone *default_zone_
- 	return movable_node_enabled ? movable_zone : kernel_zone;
- }
+--- a/tools/perf/util/machine.c
++++ b/tools/perf/util/machine.c
+@@ -1893,6 +1893,7 @@ static int add_callchain_ip(struct threa
  
--struct zone * zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
--		unsigned long nr_pages)
-+struct zone *zone_for_pfn_range(int online_type, int nid,
-+		unsigned long start_pfn, unsigned long nr_pages)
- {
- 	if (online_type == MMOP_ONLINE_KERNEL)
- 		return default_kernel_zone_for_pfn(nid, start_pfn, nr_pages);
+ 	al.filtered = 0;
+ 	al.sym = NULL;
++	al.srcline = NULL;
+ 	if (!cpumode) {
+ 		thread__find_cpumode_addr_location(thread, ip, &al);
+ 	} else {
 
 
