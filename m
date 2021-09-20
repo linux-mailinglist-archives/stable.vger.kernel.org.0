@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 468CC411A29
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69D48411D3C
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:16:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242972AbhITQro (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:47:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35714 "EHLO mail.kernel.org"
+        id S1347052AbhITRRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:17:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242991AbhITQrZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:47:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52882611ED;
-        Mon, 20 Sep 2021 16:45:58 +0000 (UTC)
+        id S1345840AbhITRPf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:15:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA482613B3;
+        Mon, 20 Sep 2021 16:58:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156358;
-        bh=iXpu1rZYqTQ8qW3DgHWk59bPPAIlagU1NrgtNKQ30MY=;
+        s=korg; t=1632157120;
+        bh=BLj3GZcIkNnuaVMECh7rOuTP0dIwv6QQNrOzkFYmVik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0N/4GPCAIvDEDR68L7swJuPm944x7vQKy8UG+ucfaetX2eEIeYUx2KruZgcRrasAI
-         9tj25wivO0dFx5qWfilcTlF9SBKiy4cGwPbOdjTH9SbzBa6GMcLRTbiYWZh17rMG6e
-         I5itNWa/MCEtDtuNkEnoE9rZ+6OJkwOG9WGN7i7c=
+        b=dX89HFczNER+nWbjopdM50wY6vUtVfXCtNVXPjiqypyDAqaPzuK0lbLKbtkva3UR2
+         P7HjuISmYlGdmlfLytxkWjgryAj2ZyRv99lJBzSh0QnIV1V6uuRKpWam8jDiaBlk9w
+         nGwlGXBBMIP8816HPl6cYoo4vY+9QDXkPknCd4gk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 005/133] cryptoloop: add a deprecation warning
+        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 062/217] soc: qcom: smsm: Fix missed interrupts if state changes while masked
 Date:   Mon, 20 Sep 2021 18:41:23 +0200
-Message-Id: <20210920163912.781899310@linuxfoundation.org>
+Message-Id: <20210920163926.726787504@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +40,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 222013f9ac30b9cec44301daa8dbd0aae38abffb ]
+[ Upstream commit e3d4571955050736bbf3eda0a9538a09d9fcfce8 ]
 
-Support for cryptoloop has been officially marked broken and deprecated
-in favor of dm-crypt (which supports the same broken algorithms if
-needed) in Linux 2.6.4 (released in March 2004), and support for it has
-been entirely removed from losetup in util-linux 2.23 (released in April
-2013).  Add a warning and a deprecation schedule.
+The SMSM driver detects interrupt edges by tracking the last state
+it has seen (and has triggered the interrupt handler for). This works
+fine, but only if the interrupt does not change state while masked.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20210827163250.255325-1-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+For example, if an interrupt is unmasked while the state is HIGH,
+the stored last_value for that interrupt might still be LOW. Then,
+when the remote processor triggers smsm_intr() we assume that nothing
+has changed, even though the state might have changed from HIGH to LOW.
+
+Attempt to fix this by checking the current remote state before
+unmasking an IRQ. Use atomic operations to avoid the interrupt handler
+from interfering with the unmask function.
+
+This fixes modem crashes in some edge cases with the BAM-DMUX driver.
+Specifically, the BAM-DMUX interrupt handler is not called for the
+HIGH -> LOW smsm state transition if the BAM-DMUX driver is loaded
+(and therefore unmasks the interrupt) after the modem was already started:
+
+qcom-q6v5-mss 4080000.remoteproc: fatal error received: a2_task.c:3188:
+  Assert FALSE failed: A2 DL PER deadlock timer expired waiting for Apps ACK
+
+Fixes: c97c4090ff72 ("soc: qcom: smsm: Add driver for Qualcomm SMSM")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20210712135703.324748-2-stephan@gerhold.net
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/Kconfig      | 4 ++--
- drivers/block/cryptoloop.c | 2 ++
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/soc/qcom/smsm.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
-index c794e215ea3d..324abc8d53fa 100644
---- a/drivers/block/Kconfig
-+++ b/drivers/block/Kconfig
-@@ -267,7 +267,7 @@ config BLK_DEV_LOOP_MIN_COUNT
- 	  dynamically allocated with the /dev/loop-control interface.
+diff --git a/drivers/soc/qcom/smsm.c b/drivers/soc/qcom/smsm.c
+index 50214b620865..2b49d2c212da 100644
+--- a/drivers/soc/qcom/smsm.c
++++ b/drivers/soc/qcom/smsm.c
+@@ -117,7 +117,7 @@ struct smsm_entry {
+ 	DECLARE_BITMAP(irq_enabled, 32);
+ 	DECLARE_BITMAP(irq_rising, 32);
+ 	DECLARE_BITMAP(irq_falling, 32);
+-	u32 last_value;
++	unsigned long last_value;
  
- config BLK_DEV_CRYPTOLOOP
--	tristate "Cryptoloop Support"
-+	tristate "Cryptoloop Support (DEPRECATED)"
- 	select CRYPTO
- 	select CRYPTO_CBC
- 	depends on BLK_DEV_LOOP
-@@ -279,7 +279,7 @@ config BLK_DEV_CRYPTOLOOP
- 	  WARNING: This device is not safe for journaled file systems like
- 	  ext3 or Reiserfs. Please use the Device Mapper crypto module
- 	  instead, which can be configured to be on-disk compatible with the
--	  cryptoloop device.
-+	  cryptoloop device.  cryptoloop support will be removed in Linux 5.16.
+ 	u32 *remote_state;
+ 	u32 *subscription;
+@@ -212,8 +212,7 @@ static irqreturn_t smsm_intr(int irq, void *data)
+ 	u32 val;
  
- source "drivers/block/drbd/Kconfig"
+ 	val = readl(entry->remote_state);
+-	changed = val ^ entry->last_value;
+-	entry->last_value = val;
++	changed = val ^ xchg(&entry->last_value, val);
  
-diff --git a/drivers/block/cryptoloop.c b/drivers/block/cryptoloop.c
-index 99e773cb70d0..d3d1f24ca7a3 100644
---- a/drivers/block/cryptoloop.c
-+++ b/drivers/block/cryptoloop.c
-@@ -201,6 +201,8 @@ init_cryptoloop(void)
+ 	for_each_set_bit(i, entry->irq_enabled, 32) {
+ 		if (!(changed & BIT(i)))
+@@ -274,6 +273,12 @@ static void smsm_unmask_irq(struct irq_data *irqd)
+ 	struct qcom_smsm *smsm = entry->smsm;
+ 	u32 val;
  
- 	if (rc)
- 		printk(KERN_ERR "cryptoloop: loop_register_transfer failed\n");
++	/* Make sure our last cached state is up-to-date */
++	if (readl(entry->remote_state) & BIT(irq))
++		set_bit(irq, &entry->last_value);
 +	else
-+		pr_warn("the cryptoloop driver has been deprecated and will be removed in in Linux 5.16\n");
- 	return rc;
- }
++		clear_bit(irq, &entry->last_value);
++
+ 	set_bit(irq, entry->irq_enabled);
  
+ 	if (entry->subscription) {
 -- 
 2.30.2
 
