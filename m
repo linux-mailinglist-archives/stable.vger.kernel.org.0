@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29E69411B8F
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:59:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B34D411D61
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:17:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243797AbhITRA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:00:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47062 "EHLO mail.kernel.org"
+        id S1346762AbhITRTG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:19:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245548AbhITQ6G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:58:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A5975613AB;
-        Mon, 20 Sep 2021 16:51:52 +0000 (UTC)
+        id S1348122AbhITRRG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:17:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC4CB613CF;
+        Mon, 20 Sep 2021 16:59:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156713;
-        bh=6u6Q4wSBZEdAEKGrPyCj/vcDVN5MmOsabMa/Rb3uEYA=;
+        s=korg; t=1632157157;
+        bh=NabYh7x3+QPX3JYtMXpqmDMct38vpFNc2vD4IRFmfnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jnNz+IyrZ1Pfyx2xvHMTzKC2uXkFsUURkZhTnGkakNwd+k6RsacpKjdxTQEx+VQO7
-         hEG1RNOV6ZeHNVfe/ayT650QVyAhfmRl6lElb+I22ZO8fvbxXUFeDGyUTj3dpx3ZDG
-         pke06gdCWa+i0QRYfJWmEsmvGRQtZsVIk1CrXE3I=
+        b=ZaQeygTswvonjFGnqEVY+WXwcVw7S3VxHKM0ttN8gqT5rX4//xMUNgziPxYes3WCc
+         CqaysuDeyiq+dCXseTLfiwcRMmWm/ToWFursfWGYBdA2mwsIX64v9lQ2mj6ZhBsdjS
+         /rngr0S3rlKxeYz9/4A1M2IgjGAxO6PmQa/nNxkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Len Baker <len.baker@gmx.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Jeff Layton <jlayton@kernel.org>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 052/175] media: dvb-usb: fix uninit-value in dvb_usb_adapter_dvb_init
+Subject: [PATCH 4.14 080/217] CIFS: Fix a potencially linear read overflow
 Date:   Mon, 20 Sep 2021 18:41:41 +0200
-Message-Id: <20210920163919.760797645@linuxfoundation.org>
+Message-Id: <20210920163927.339032763@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Len Baker <len.baker@gmx.com>
 
-[ Upstream commit c5453769f77ce19a5b03f1f49946fd3f8a374009 ]
+[ Upstream commit f980d055a0f858d73d9467bb0b570721bbfcdfb8 ]
 
-If dibusb_read_eeprom_byte fails, the mac address is not initialized.
-And nova_t_read_mac_address does not handle this failure, which leads to
-the uninit-value in dvb_usb_adapter_dvb_init.
+strlcpy() reads the entire source buffer first. This read may exceed the
+destination size limit. This is both inefficient and can lead to linear
+read overflows if a source string is not NUL-terminated.
 
-Fix this by handling the failure of dibusb_read_eeprom_byte.
+Also, the strnlen() call does not avoid the read overflow in the strlcpy
+function when a not NUL-terminated string is passed.
 
-Reported-by: syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com
-Fixes: 786baecfe78f ("[media] dvb-usb: move it to drivers/media/usb/dvb-usb")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+So, replace this block by a call to kstrndup() that avoids this type of
+overflow and does the same.
+
+Fixes: 066ce6899484d ("cifs: rename cifs_strlcpy_to_host and make it use new functions")
+Signed-off-by: Len Baker <len.baker@gmx.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/nova-t-usb2.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/cifs/cifs_unicode.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/media/usb/dvb-usb/nova-t-usb2.c b/drivers/media/usb/dvb-usb/nova-t-usb2.c
-index 1babd3341910..016a6d1ad279 100644
---- a/drivers/media/usb/dvb-usb/nova-t-usb2.c
-+++ b/drivers/media/usb/dvb-usb/nova-t-usb2.c
-@@ -133,7 +133,7 @@ ret:
- 
- static int nova_t_read_mac_address (struct dvb_usb_device *d, u8 mac[6])
- {
--	int i;
-+	int i, ret;
- 	u8 b;
- 
- 	mac[0] = 0x00;
-@@ -142,7 +142,9 @@ static int nova_t_read_mac_address (struct dvb_usb_device *d, u8 mac[6])
- 
- 	/* this is a complete guess, but works for my box */
- 	for (i = 136; i < 139; i++) {
--		dibusb_read_eeprom_byte(d,i, &b);
-+		ret = dibusb_read_eeprom_byte(d, i, &b);
-+		if (ret)
-+			return ret;
- 
- 		mac[5 - (i - 136)] = b;
+diff --git a/fs/cifs/cifs_unicode.c b/fs/cifs/cifs_unicode.c
+index 9986817532b1..7932e20555d2 100644
+--- a/fs/cifs/cifs_unicode.c
++++ b/fs/cifs/cifs_unicode.c
+@@ -371,14 +371,9 @@ cifs_strndup_from_utf16(const char *src, const int maxlen,
+ 		if (!dst)
+ 			return NULL;
+ 		cifs_from_utf16(dst, (__le16 *) src, len, maxlen, codepage,
+-			       NO_MAP_UNI_RSVD);
++				NO_MAP_UNI_RSVD);
+ 	} else {
+-		len = strnlen(src, maxlen);
+-		len++;
+-		dst = kmalloc(len, GFP_KERNEL);
+-		if (!dst)
+-			return NULL;
+-		strlcpy(dst, src, len);
++		dst = kstrndup(src, maxlen, GFP_KERNEL);
  	}
+ 
+ 	return dst;
 -- 
 2.30.2
 
