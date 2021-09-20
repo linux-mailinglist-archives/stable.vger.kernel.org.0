@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 360DC41248E
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:34:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A59F412432
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:30:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353013AbhITSfw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:35:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49714 "EHLO mail.kernel.org"
+        id S1346835AbhITSb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:31:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1380244AbhITSdA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:33:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 754A261AA9;
-        Mon, 20 Sep 2021 17:28:07 +0000 (UTC)
+        id S1379519AbhITS32 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:29:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 879526137F;
+        Mon, 20 Sep 2021 17:26:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158887;
-        bh=f51RfyND1n5AOWohNmVh519ztoFsZG6geBRYA01Fg6g=;
+        s=korg; t=1632158811;
+        bh=O12ORUh350U1nDoSDlnv7lBP/4Stol3K7FbNOpeVNss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mJFq9bOgSl2feHf4WMwkLFgLKsx4h9R3MdNO9N8kakeFBYE240K440Hcz2D8h7Nya
-         ID8KdQA6SxRKM62JbaWKTEVNYTSqiTTwOQLpG6ldac8k4AsueFAmCx6joGBpHjGLcx
-         6uc2hXT2FAe2gtm+euJcUwdzW19hloRaOjor7oMc=
+        b=YufAmoD/Tk/LaFkdVzL/KSfCytcFbCj2bbwuF/P/qHZh3rZkVPvTbUztT6eJzdVW2
+         bbZjjKD+IBPaB3EmFH1f5Ie2JreV1VUMfJmezEVtb0acD15Z6u/6m4KF7jnU71VS8A
+         vLfn0Dgcdd2ZwH7H5MvDxecIIjMZCmPgDz3qE60U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, lijiazi <lijiazi@xiaomi.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
+        stable@vger.kernel.org, Om Prakash Singh <omp@nvidia.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Vidya Sagar <vidyas@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 058/122] fuse: fix use after free in fuse_read_interrupt()
-Date:   Mon, 20 Sep 2021 18:43:50 +0200
-Message-Id: <20210920163917.684052361@linuxfoundation.org>
+Subject: [PATCH 5.10 059/122] PCI: tegra194: Fix handling BME_CHGED event
+Date:   Mon, 20 Sep 2021 18:43:51 +0200
+Message-Id: <20210920163917.716160036@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
 References: <20210920163915.757887582@linuxfoundation.org>
@@ -40,59 +42,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Om Prakash Singh <omp@nvidia.com>
 
-[ Upstream commit e1e71c168813564be0f6ea3d6740a059ca42d177 ]
+[ Upstream commit ceb1412c1c8ca5b28c4252bdb15f2f1f17b4a1b0 ]
 
-There is a potential race between fuse_read_interrupt() and
-fuse_request_end().
+In tegra_pcie_ep_hard_irq(), APPL_INTR_STATUS_L0 is stored in val and again
+APPL_INTR_STATUS_L1_0_0 is also stored in val. So when execution reaches
+"if (val & APPL_INTR_STATUS_L0_PCI_CMD_EN_INT)", val is not correct.
 
-TASK1
-  in fuse_read_interrupt(): delete req->intr_entry (while holding
-  fiq->lock)
-
-TASK2
-  in fuse_request_end(): req->intr_entry is empty -> skip fiq->lock
-  wake up TASK3
-
-TASK3
-  request is freed
-
-TASK1
-  in fuse_read_interrupt(): dereference req->in.h.unique ***BAM***
-
-Fix by always grabbing fiq->lock if the request was ever interrupted
-(FR_INTERRUPTED set) thereby serializing with concurrent
-fuse_read_interrupt() calls.
-
-FR_INTERRUPTED is set before the request is queued on fiq->interrupts.
-Dequeing the request is done with list_del_init() but FR_INTERRUPTED is not
-cleared in this case.
-
-Reported-by: lijiazi <lijiazi@xiaomi.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Link: https://lore.kernel.org/r/20210623100525.19944-2-omp@nvidia.com
+Signed-off-by: Om Prakash Singh <omp@nvidia.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Vidya Sagar <vidyas@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/dev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/controller/dwc/pcie-tegra194.c | 30 +++++++++++-----------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
 
-diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
-index 4140d5c3ab5a..f943eea9fe4e 100644
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -288,10 +288,10 @@ void fuse_request_end(struct fuse_req *req)
+diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
+index 506f6a294eac..c2827a8d208f 100644
+--- a/drivers/pci/controller/dwc/pcie-tegra194.c
++++ b/drivers/pci/controller/dwc/pcie-tegra194.c
+@@ -515,19 +515,19 @@ static irqreturn_t tegra_pcie_ep_hard_irq(int irq, void *arg)
+ 	struct tegra_pcie_dw *pcie = arg;
+ 	struct dw_pcie_ep *ep = &pcie->pci.ep;
+ 	int spurious = 1;
+-	u32 val, tmp;
++	u32 status_l0, status_l1, link_status;
  
- 	/*
- 	 * test_and_set_bit() implies smp_mb() between bit
--	 * changing and below intr_entry check. Pairs with
-+	 * changing and below FR_INTERRUPTED check. Pairs with
- 	 * smp_mb() from queue_interrupt().
- 	 */
--	if (!list_empty(&req->intr_entry)) {
-+	if (test_bit(FR_INTERRUPTED, &req->flags)) {
- 		spin_lock(&fiq->lock);
- 		list_del_init(&req->intr_entry);
- 		spin_unlock(&fiq->lock);
+-	val = appl_readl(pcie, APPL_INTR_STATUS_L0);
+-	if (val & APPL_INTR_STATUS_L0_LINK_STATE_INT) {
+-		val = appl_readl(pcie, APPL_INTR_STATUS_L1_0_0);
+-		appl_writel(pcie, val, APPL_INTR_STATUS_L1_0_0);
++	status_l0 = appl_readl(pcie, APPL_INTR_STATUS_L0);
++	if (status_l0 & APPL_INTR_STATUS_L0_LINK_STATE_INT) {
++		status_l1 = appl_readl(pcie, APPL_INTR_STATUS_L1_0_0);
++		appl_writel(pcie, status_l1, APPL_INTR_STATUS_L1_0_0);
+ 
+-		if (val & APPL_INTR_STATUS_L1_0_0_HOT_RESET_DONE)
++		if (status_l1 & APPL_INTR_STATUS_L1_0_0_HOT_RESET_DONE)
+ 			pex_ep_event_hot_rst_done(pcie);
+ 
+-		if (val & APPL_INTR_STATUS_L1_0_0_RDLH_LINK_UP_CHGED) {
+-			tmp = appl_readl(pcie, APPL_LINK_STATUS);
+-			if (tmp & APPL_LINK_STATUS_RDLH_LINK_UP) {
++		if (status_l1 & APPL_INTR_STATUS_L1_0_0_RDLH_LINK_UP_CHGED) {
++			link_status = appl_readl(pcie, APPL_LINK_STATUS);
++			if (link_status & APPL_LINK_STATUS_RDLH_LINK_UP) {
+ 				dev_dbg(pcie->dev, "Link is up with Host\n");
+ 				dw_pcie_ep_linkup(ep);
+ 			}
+@@ -536,11 +536,11 @@ static irqreturn_t tegra_pcie_ep_hard_irq(int irq, void *arg)
+ 		spurious = 0;
+ 	}
+ 
+-	if (val & APPL_INTR_STATUS_L0_PCI_CMD_EN_INT) {
+-		val = appl_readl(pcie, APPL_INTR_STATUS_L1_15);
+-		appl_writel(pcie, val, APPL_INTR_STATUS_L1_15);
++	if (status_l0 & APPL_INTR_STATUS_L0_PCI_CMD_EN_INT) {
++		status_l1 = appl_readl(pcie, APPL_INTR_STATUS_L1_15);
++		appl_writel(pcie, status_l1, APPL_INTR_STATUS_L1_15);
+ 
+-		if (val & APPL_INTR_STATUS_L1_15_CFG_BME_CHGED)
++		if (status_l1 & APPL_INTR_STATUS_L1_15_CFG_BME_CHGED)
+ 			return IRQ_WAKE_THREAD;
+ 
+ 		spurious = 0;
+@@ -548,8 +548,8 @@ static irqreturn_t tegra_pcie_ep_hard_irq(int irq, void *arg)
+ 
+ 	if (spurious) {
+ 		dev_warn(pcie->dev, "Random interrupt (STATUS = 0x%08X)\n",
+-			 val);
+-		appl_writel(pcie, val, APPL_INTR_STATUS_L0);
++			 status_l0);
++		appl_writel(pcie, status_l0, APPL_INTR_STATUS_L0);
+ 	}
+ 
+ 	return IRQ_HANDLED;
 -- 
 2.30.2
 
