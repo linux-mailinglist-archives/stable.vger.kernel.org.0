@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8547F4120AB
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:55:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99EA5411C98
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:09:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345348AbhITR4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:56:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54624 "EHLO mail.kernel.org"
+        id S1346706AbhITRLT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:11:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355338AbhITRyj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:54:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B3EA6124C;
-        Mon, 20 Sep 2021 17:13:40 +0000 (UTC)
+        id S1346857AbhITRJS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:09:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B7D16187A;
+        Mon, 20 Sep 2021 16:56:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158021;
-        bh=cdIMnGOF4CkU42daacZN2R1isEuvbkTI+FGt9W79hLE=;
+        s=korg; t=1632156978;
+        bh=RQmmok5RPzgcUTiR4Kq/iPGPH2IKCdUv2OgGwi4djgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jdx9UdFkHr8gh0Iy4wtZWR4PMt29kEnx609hREw+8/w6S3uticG9Dblfk5O5p/Sod
-         EpsjVebkRiYSs0V+NhQKH0afaxY71hEsHHEl4C3DW95H/hqDnbqC0Ke+PDRuSFUFFl
-         toERFwUd6pbNsrTnyAC9Kss/M/oBE6zaDol1pDYk=
+        b=cwA3um9EVCR3+rOvjelSow4a+M2Negou4pArgJ48NuyuswIUQKO9kK6l5RzFUCmSm
+         zIvDiHi0mU89yX7u9V1ka9aTj1hrLZKdufJiFeyif+bLdOmfersBYs2kmVoTN+mnKD
+         dUtIXLjPvdTFEAVsVVu9s/c4+f1prKWNVDxg7kSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Richard Cochran <richard.cochran@omicron.at>,
-        John Stultz <john.stultz@linaro.org>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 259/293] ptp: dp83640: dont define PAGE0
+        kernel test robot <lkp@intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-snps-arc@lists.infradead.org,
+        Vineet Gupta <vgupta@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 172/175] ARC: export clear_user_page() for modules
 Date:   Mon, 20 Sep 2021 18:43:41 +0200
-Message-Id: <20210920163942.262477526@linuxfoundation.org>
+Message-Id: <20210920163923.695535591@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,44 +45,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 7366c23ff492ad260776a3ee1aaabba9fc773a8b upstream.
+[ Upstream commit 6b5ff0405e4190f23780362ea324b250bc495683 ]
 
-Building dp83640.c on arch/parisc/ produces a build warning for
-PAGE0 being redefined. Since the macro is not used in the dp83640
-driver, just make it a comment for documentation purposes.
+0day bot reports a build error:
+  ERROR: modpost: "clear_user_page" [drivers/media/v4l2-core/videobuf-dma-sg.ko] undefined!
+so export it in arch/arc/ to fix the build error.
 
-In file included from ../drivers/net/phy/dp83640.c:23:
-../drivers/net/phy/dp83640_reg.h:8: warning: "PAGE0" redefined
-    8 | #define PAGE0                     0x0000
-                 from ../drivers/net/phy/dp83640.c:11:
-../arch/parisc/include/asm/page.h:187: note: this is the location of the previous definition
-  187 | #define PAGE0   ((struct zeropage *)__PAGE_OFFSET)
+In most ARCHes, clear_user_page() is a macro. OTOH, in a few
+ARCHes it is a function and needs to be exported.
+PowerPC exported it in 2004. It looks like nds32 and nios2
+still need to have it exported.
 
-Fixes: cb646e2b02b2 ("ptp: Added a clock driver for the National Semiconductor PHYTER.")
+Fixes: 4102b53392d63 ("ARC: [mm] Aliasing VIPT dcache support 2/4")
 Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Richard Cochran <richard.cochran@omicron.at>
-Cc: John Stultz <john.stultz@linaro.org>
-Cc: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Russell King <linux@armlinux.org.uk>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20210913220605.19682-1-rdunlap@infradead.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-snps-arc@lists.infradead.org
+Signed-off-by: Vineet Gupta <vgupta@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/dp83640_reg.h |    2 +-
+ arch/arc/mm/cache.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/phy/dp83640_reg.h
-+++ b/drivers/net/phy/dp83640_reg.h
-@@ -5,7 +5,7 @@
- #ifndef HAVE_DP83640_REGISTERS
- #define HAVE_DP83640_REGISTERS
+diff --git a/arch/arc/mm/cache.c b/arch/arc/mm/cache.c
+index fefe357c3d31..076b5e8c8562 100644
+--- a/arch/arc/mm/cache.c
++++ b/arch/arc/mm/cache.c
+@@ -923,7 +923,7 @@ void clear_user_page(void *to, unsigned long u_vaddr, struct page *page)
+ 	clear_page(to);
+ 	clear_bit(PG_dc_clean, &page->flags);
+ }
+-
++EXPORT_SYMBOL(clear_user_page);
  
--#define PAGE0                     0x0000
-+/* #define PAGE0                  0x0000 */
- #define PHYCR2                    0x001c /* PHY Control Register 2 */
- 
- #define PAGE4                     0x0004
+ /**********************************************************************
+  * Explicit Cache flush request from user space via syscall
+-- 
+2.30.2
+
 
 
