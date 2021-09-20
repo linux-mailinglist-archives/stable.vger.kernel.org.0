@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9328B412026
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:51:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38AB7411D67
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:18:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355100AbhITRwo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:52:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51348 "EHLO mail.kernel.org"
+        id S1346788AbhITRUI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:20:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353796AbhITRrK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:47:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06D9B61BA2;
-        Mon, 20 Sep 2021 17:10:45 +0000 (UTC)
+        id S1344921AbhITRRg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:17:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE2EB61A3A;
+        Mon, 20 Sep 2021 16:59:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157846;
-        bh=rrVp7Iewfcp/5F7sFERnaaZZGjTiu3GaDuurNOLr644=;
+        s=korg; t=1632157170;
+        bh=+IRgp8iJ9xtJxrBbNWlDkuTlgYynfQ71jkcBitNje1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0GTvKniGMPqZd5e+JxHQZ170xGj/OjJR0LUulbPet7yBlPO0Z5GQqB+2VTJyUUClQ
-         leAziDLQ1X7hxZ2dhDdcb0KiS9XS6wIolQCMLY4h8HPRL4KBhJavPXtfFkTfomLBOa
-         uxJkyh+78RxBpzxoVx0MrjT0h2omXTMo6twVo3Js=
+        b=fBFs70lXzDPoSgZRs/1dj+WqLQzcjQGM4SbseH9IhqltXs0SmN1KgBnTSbAeAk7Ob
+         ze5S+3XkueBolkuHQdpIvGRLRfVYvtLbUL93EJ1+V30lflHSxPxvD1bnGYyuY3pZVf
+         Mco7buzZY8S5wCdo/G/ZIXknXUKasRNhPygBO0nk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 4.19 145/293] power: supply: max17042: handle fails of reading status register
+        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 086/217] bcma: Fix memory leak for internally-handled cores
 Date:   Mon, 20 Sep 2021 18:41:47 +0200
-Message-Id: <20210920163938.243532700@linuxfoundation.org>
+Message-Id: <20210920163927.551359062@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Zenghui Yu <yuzenghui@huawei.com>
 
-commit 54784ffa5b267f57161eb8fbb811499f22a0a0bf upstream.
+[ Upstream commit b63aed3ff195130fef12e0af590f4838cf0201d8 ]
 
-Reading status register can fail in the interrupt handler.  In such
-case, the regmap_read() will not store anything useful under passed
-'val' variable and random stack value will be used to determine type of
-interrupt.
+kmemleak reported that dev_name() of internally-handled cores were leaked
+on driver unbinding. Let's use device_initialize() to take refcounts for
+them and put_device() to properly free the related stuff.
 
-Handle the regmap_read() failure to avoid handling interrupt type and
-triggering changed power supply event based on random stack value.
+While looking at it, there's another potential issue for those which should
+be *registered* into driver core. If device_register() failed, we put
+device once and freed bcma_device structures. In bcma_unregister_cores(),
+they're treated as unregistered and we hit both UAF and double-free. That
+smells not good and has also been fixed now.
 
-Fixes: 39e7213edc4f ("max17042_battery: Support regmap to access device's registers")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ab54bc8460b5 ("bcma: fill core details for every device")
+Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210727025232.663-2-yuzenghui@huawei.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/max17042_battery.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/bcma/main.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/power/supply/max17042_battery.c
-+++ b/drivers/power/supply/max17042_battery.c
-@@ -856,8 +856,12 @@ static irqreturn_t max17042_thread_handl
- {
- 	struct max17042_chip *chip = dev;
- 	u32 val;
-+	int ret;
-+
-+	ret = regmap_read(chip->regmap, MAX17042_STATUS, &val);
-+	if (ret)
-+		return IRQ_HANDLED;
+diff --git a/drivers/bcma/main.c b/drivers/bcma/main.c
+index e6986c7608f1..b1783f5b5cb5 100644
+--- a/drivers/bcma/main.c
++++ b/drivers/bcma/main.c
+@@ -236,6 +236,7 @@ EXPORT_SYMBOL(bcma_core_irq);
  
--	regmap_read(chip->regmap, MAX17042_STATUS, &val);
- 	if ((val & STATUS_INTR_SOCMIN_BIT) ||
- 		(val & STATUS_INTR_SOCMAX_BIT)) {
- 		dev_info(&chip->client->dev, "SOC threshold INTR\n");
+ void bcma_prepare_core(struct bcma_bus *bus, struct bcma_device *core)
+ {
++	device_initialize(&core->dev);
+ 	core->dev.release = bcma_release_core_dev;
+ 	core->dev.bus = &bcma_bus_type;
+ 	dev_set_name(&core->dev, "bcma%d:%d", bus->num, core->core_index);
+@@ -299,11 +300,10 @@ static void bcma_register_core(struct bcma_bus *bus, struct bcma_device *core)
+ {
+ 	int err;
+ 
+-	err = device_register(&core->dev);
++	err = device_add(&core->dev);
+ 	if (err) {
+ 		bcma_err(bus, "Could not register dev for core 0x%03X\n",
+ 			 core->id.id);
+-		put_device(&core->dev);
+ 		return;
+ 	}
+ 	core->dev_registered = true;
+@@ -394,7 +394,7 @@ void bcma_unregister_cores(struct bcma_bus *bus)
+ 	/* Now noone uses internally-handled cores, we can free them */
+ 	list_for_each_entry_safe(core, tmp, &bus->cores, list) {
+ 		list_del(&core->list);
+-		kfree(core);
++		put_device(&core->dev);
+ 	}
+ }
+ 
+-- 
+2.30.2
+
 
 
