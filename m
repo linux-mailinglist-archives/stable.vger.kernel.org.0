@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6F1D411E7A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:29:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06AEF4120A9
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:55:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350933AbhITRbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:31:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57188 "EHLO mail.kernel.org"
+        id S1345233AbhITR4q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:56:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350556AbhITR3O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:29:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3C0661411;
-        Mon, 20 Sep 2021 17:03:43 +0000 (UTC)
+        id S1355346AbhITRyk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:54:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB9B661C48;
+        Mon, 20 Sep 2021 17:13:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157424;
-        bh=5gcOa1njQXhpMxGS3B8xQB8e1Re8NRgOJzM8nE7xcbI=;
+        s=korg; t=1632158025;
+        bh=qSPVq1QYb/17JQhpAL26QqVNXC4IyuIV763pmjtzeQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qp0h1Tl/F9ed9FYk69DRntCRqpoEM7MWrOK5WK0Eeb9GMuBSDGaP1HfNkiajeeOzK
-         ecM75byJuej7wycajNvpMCa9XB7fr/maFxTFIRZchihjLBeTiYI9UeNAP5QPqfa628
-         peHx1JLjUjuAzIox2QN+x2fzMlViAjblb6QNuDHY=
+        b=c+wwj8R3yB+9E6YBnh/Ez8jmmCkppb2ei1sFo7Sk9gYTkq2n/Z9OuCaRSOgwUgwY5
+         dM0KtWKVuwI7zcY1hVuhO8johUhyssJouZ1Ik6yj0GZFeW+csqpi5gNr7zELI/xdwK
+         csfjvkNN6zk98eMD3bax89UbCd7Pg7c5GJ/+D9LA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 202/217] net/af_unix: fix a data-race in unix_dgram_poll
+Subject: [PATCH 4.19 261/293] net/l2tp: Fix reference count leak in l2tp_udp_recv_core
 Date:   Mon, 20 Sep 2021 18:43:43 +0200
-Message-Id: <20210920163931.473586525@linuxfoundation.org>
+Message-Id: <20210920163942.327638881@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,97 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-commit 04f08eb44b5011493d77b602fdec29ff0f5c6cd5 upstream.
+commit 9b6ff7eb666415e1558f1ba8a742f5db6a9954de upstream.
 
-syzbot reported another data-race in af_unix [1]
+The reference count leak issue may take place in an error handling
+path. If both conditions of tunnel->version == L2TP_HDR_VER_3 and the
+return value of l2tp_v3_ensure_opt_in_linear is nonzero, the function
+would directly jump to label invalid, without decrementing the reference
+count of the l2tp_session object session increased earlier by
+l2tp_tunnel_get_session(). This may result in refcount leaks.
 
-Lets change __skb_insert() to use WRITE_ONCE() when changing
-skb head qlen.
+Fix this issue by decrease the reference count before jumping to the
+label invalid.
 
-Also, change unix_dgram_poll() to use lockless version
-of unix_recvq_full()
-
-It is verry possible we can switch all/most unix_recvq_full()
-to the lockless version, this will be done in a future kernel version.
-
-[1] HEAD commit: 8596e589b787732c8346f0482919e83cc9362db1
-
-BUG: KCSAN: data-race in skb_queue_tail / unix_dgram_poll
-
-write to 0xffff88814eeb24e0 of 4 bytes by task 25815 on cpu 0:
- __skb_insert include/linux/skbuff.h:1938 [inline]
- __skb_queue_before include/linux/skbuff.h:2043 [inline]
- __skb_queue_tail include/linux/skbuff.h:2076 [inline]
- skb_queue_tail+0x80/0xa0 net/core/skbuff.c:3264
- unix_dgram_sendmsg+0xff2/0x1600 net/unix/af_unix.c:1850
- sock_sendmsg_nosec net/socket.c:703 [inline]
- sock_sendmsg net/socket.c:723 [inline]
- ____sys_sendmsg+0x360/0x4d0 net/socket.c:2392
- ___sys_sendmsg net/socket.c:2446 [inline]
- __sys_sendmmsg+0x315/0x4b0 net/socket.c:2532
- __do_sys_sendmmsg net/socket.c:2561 [inline]
- __se_sys_sendmmsg net/socket.c:2558 [inline]
- __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2558
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-read to 0xffff88814eeb24e0 of 4 bytes by task 25834 on cpu 1:
- skb_queue_len include/linux/skbuff.h:1869 [inline]
- unix_recvq_full net/unix/af_unix.c:194 [inline]
- unix_dgram_poll+0x2bc/0x3e0 net/unix/af_unix.c:2777
- sock_poll+0x23e/0x260 net/socket.c:1288
- vfs_poll include/linux/poll.h:90 [inline]
- ep_item_poll fs/eventpoll.c:846 [inline]
- ep_send_events fs/eventpoll.c:1683 [inline]
- ep_poll fs/eventpoll.c:1798 [inline]
- do_epoll_wait+0x6ad/0xf00 fs/eventpoll.c:2226
- __do_sys_epoll_wait fs/eventpoll.c:2238 [inline]
- __se_sys_epoll_wait fs/eventpoll.c:2233 [inline]
- __x64_sys_epoll_wait+0xf6/0x120 fs/eventpoll.c:2233
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-value changed: 0x0000001b -> 0x00000001
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 25834 Comm: syz-executor.1 Tainted: G        W         5.14.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 86b18aaa2b5b ("skbuff: fix a data race in skb_queue_len()")
-Cc: Qian Cai <cai@lca.pw>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
+Fixes: 4522a70db7aa ("l2tp: fix reading optional fields of L2TPv3")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/skbuff.h |    2 +-
- net/unix/af_unix.c     |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/l2tp/l2tp_core.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1758,7 +1758,7 @@ static inline void __skb_insert(struct s
- 	WRITE_ONCE(newsk->prev, prev);
- 	WRITE_ONCE(next->prev, newsk);
- 	WRITE_ONCE(prev->next, newsk);
--	list->qlen++;
-+	WRITE_ONCE(list->qlen, list->qlen + 1);
- }
+--- a/net/l2tp/l2tp_core.c
++++ b/net/l2tp/l2tp_core.c
+@@ -889,8 +889,10 @@ static int l2tp_udp_recv_core(struct l2t
+ 	}
  
- static inline void __skb_queue_splice(const struct sk_buff_head *list,
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -2742,7 +2742,7 @@ static unsigned int unix_dgram_poll(stru
+ 	if (tunnel->version == L2TP_HDR_VER_3 &&
+-	    l2tp_v3_ensure_opt_in_linear(session, skb, &ptr, &optr))
++	    l2tp_v3_ensure_opt_in_linear(session, skb, &ptr, &optr)) {
++		l2tp_session_dec_refcount(session);
+ 		goto error;
++	}
  
- 		other = unix_peer(sk);
- 		if (other && unix_peer(other) != sk &&
--		    unix_recvq_full(other) &&
-+		    unix_recvq_full_lockless(other) &&
- 		    unix_dgram_peer_wake_me(sk, other))
- 			writable = 0;
- 
+ 	l2tp_recv_common(session, skb, ptr, optr, hdrflags, length);
+ 	l2tp_session_dec_refcount(session);
 
 
