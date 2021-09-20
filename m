@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E8F9412143
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:05:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A11B41213D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:05:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356620AbhITSDf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:03:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58224 "EHLO mail.kernel.org"
+        id S1357173AbhITSDK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:03:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356565AbhITSAg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:00:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 53C34613AC;
-        Mon, 20 Sep 2021 17:15:47 +0000 (UTC)
+        id S1356703AbhITSBG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:01:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 838CE63229;
+        Mon, 20 Sep 2021 17:16:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158147;
-        bh=HpVp3S4HOO5gKSY+KXYdh8KxFkfU7BKtfyGASknGA+A=;
+        s=korg; t=1632158163;
+        bh=llqVRZepbp//01/uit09MPR+SKYoDSxTzpVAjo+o9ak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0w1HWksjE/Fmi63FQ1DgfQUQI43sB6hje1CS9LZ+XI48cDbIC5IQ4trVU1dqAdtbX
-         i0iXFTm1t2OB+7sVPIP5yTQLgacZkjmuKTvUIpcR4cdGvZ2u3pBrVmHg1GMz4CbFP/
-         c+s2NLunjHyAMSbl+dtac3jh3hP9d3Qtwx42obUA=
+        b=obVHflFmBd+/CbpUZ0OhUAao5Hg1vzL9a+ULx+FtnAm2TCy0EByrWYlisaLAYB0w+
+         8igR7wwWSbg4punjRQRFOwf/8EsEi1pxjqAHSRePNIeF4ROXGLcurB3gGrKR0I4BhW
+         v8p/UALpS+p2q4Xe4Al/RcGhaWp8+EAd1BAg5zEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 023/260] media: uvc: dont do DMA on stack
-Date:   Mon, 20 Sep 2021 18:40:41 +0200
-Message-Id: <20210920163931.919227389@linuxfoundation.org>
+        =?UTF-8?q?R=C3=B6tti?= 
+        <espressobinboardarmbiantempmailaddress@posteo.de>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Subject: [PATCH 5.4 030/260] PCI: Restrict ASMedia ASM1062 SATA Max Payload Size Supported
+Date:   Mon, 20 Sep 2021 18:40:48 +0200
+Message-Id: <20210920163932.145817688@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -40,96 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Marek Behún <kabel@kernel.org>
 
-commit 1a10d7fdb6d0e235e9d230916244cc2769d3f170 upstream.
+commit b12d93e9958e028856cbcb061b6e64728ca07755 upstream.
 
-As warned by smatch:
-	drivers/media/usb/uvc/uvc_v4l2.c:911 uvc_ioctl_g_input() error: doing dma on the stack (&i)
-	drivers/media/usb/uvc/uvc_v4l2.c:943 uvc_ioctl_s_input() error: doing dma on the stack (&i)
+The ASMedia ASM1062 SATA controller advertises Max_Payload_Size_Supported
+of 512, but in fact it cannot handle incoming TLPs with payload size of
+512.
 
-those two functions call uvc_query_ctrl passing a pointer to
-a data at the DMA stack. those are used to send URBs via
-usb_control_msg(). Using DMA stack is not supported and should
-not work anymore on modern Linux versions.
+We discovered this issue on PCIe controllers capable of MPS = 512 (Aardvark
+and DesignWare), where the issue presents itself as an External Abort.
+Bjorn Helgaas says:
 
-So, use a kmalloc'ed buffer.
+  Probably ASM1062 reports a Malformed TLP error when it receives a data
+  payload of 512 bytes, and Aardvark, DesignWare, etc convert this to an
+  arm64 External Abort. [1]
 
-Cc: stable@vger.kernel.org	# Kernel 4.9 and upper
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+To avoid this problem, limit the ASM1062 Max Payload Size Supported to 256
+bytes, so we set the Max Payload Size of devices that may send TLPs to the
+ASM1062 to 256 or less.
+
+[1] https://lore.kernel.org/linux-pci/20210601170907.GA1949035@bjorn-Precision-5520/
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212695
+Link: https://lore.kernel.org/r/20210624171418.27194-2-kabel@kernel.org
+Reported-by: Rötti <espressobinboardarmbiantempmailaddress@posteo.de>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Krzysztof Wilczyński <kw@linux.com>
+Reviewed-by: Pali Rohár <pali@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/uvc/uvc_v4l2.c |   34 +++++++++++++++++++++++-----------
- 1 file changed, 23 insertions(+), 11 deletions(-)
+ drivers/pci/quirks.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/media/usb/uvc/uvc_v4l2.c
-+++ b/drivers/media/usb/uvc/uvc_v4l2.c
-@@ -894,8 +894,8 @@ static int uvc_ioctl_g_input(struct file
- {
- 	struct uvc_fh *handle = fh;
- 	struct uvc_video_chain *chain = handle->chain;
-+	u8 *buf;
- 	int ret;
--	u8 i;
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -3252,6 +3252,7 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SO
+ 			PCI_DEVICE_ID_SOLARFLARE_SFC4000A_1, fixup_mpss_256);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
+ 			PCI_DEVICE_ID_SOLARFLARE_SFC4000B, fixup_mpss_256);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_ASMEDIA, 0x0612, fixup_mpss_256);
  
- 	if (chain->selector == NULL ||
- 	    (chain->dev->quirks & UVC_QUIRK_IGNORE_SELECTOR_UNIT)) {
-@@ -903,22 +903,27 @@ static int uvc_ioctl_g_input(struct file
- 		return 0;
- 	}
- 
-+	buf = kmalloc(1, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
- 	ret = uvc_query_ctrl(chain->dev, UVC_GET_CUR, chain->selector->id,
- 			     chain->dev->intfnum,  UVC_SU_INPUT_SELECT_CONTROL,
--			     &i, 1);
--	if (ret < 0)
--		return ret;
-+			     buf, 1);
-+	if (!ret)
-+		*input = *buf - 1;
- 
--	*input = i - 1;
--	return 0;
-+	kfree(buf);
-+
-+	return ret;
- }
- 
- static int uvc_ioctl_s_input(struct file *file, void *fh, unsigned int input)
- {
- 	struct uvc_fh *handle = fh;
- 	struct uvc_video_chain *chain = handle->chain;
-+	u8 *buf;
- 	int ret;
--	u32 i;
- 
- 	ret = uvc_acquire_privileges(handle);
- 	if (ret < 0)
-@@ -934,10 +939,17 @@ static int uvc_ioctl_s_input(struct file
- 	if (input >= chain->selector->bNrInPins)
- 		return -EINVAL;
- 
--	i = input + 1;
--	return uvc_query_ctrl(chain->dev, UVC_SET_CUR, chain->selector->id,
--			      chain->dev->intfnum, UVC_SU_INPUT_SELECT_CONTROL,
--			      &i, 1);
-+	buf = kmalloc(1, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	*buf = input + 1;
-+	ret = uvc_query_ctrl(chain->dev, UVC_SET_CUR, chain->selector->id,
-+			     chain->dev->intfnum, UVC_SU_INPUT_SELECT_CONTROL,
-+			     buf, 1);
-+	kfree(buf);
-+
-+	return ret;
- }
- 
- static int uvc_ioctl_queryctrl(struct file *file, void *fh,
+ /*
+  * Intel 5000 and 5100 Memory controllers have an erratum with read completion
 
 
