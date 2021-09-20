@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A578A411A48
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:47:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6817411FF0
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:45:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243857AbhITQsg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:48:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36476 "EHLO mail.kernel.org"
+        id S1346033AbhITRqz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:46:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243500AbhITQr6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:47:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB5E261213;
-        Mon, 20 Sep 2021 16:46:30 +0000 (UTC)
+        id S1353497AbhITRow (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:44:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7762561B74;
+        Mon, 20 Sep 2021 17:09:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156391;
-        bh=FRJN1kVuMA+DU2b6XUb3iI4PPD27xsc9yWkNzhhfxjY=;
+        s=korg; t=1632157791;
+        bh=YsaRDIljW9ZOcQdCQWLW2YQ1Zu48oIUNl46E6yRH4Pg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K9O6pbkdYk+9vuzZPtC5ZGvS/ARlPwnaU0i9q1X9nMIIHjE5ByWfrtDvR+BODlteE
-         nqRUObk3IOW9JgRXBRUNuaMBpnEky4y/IruAKe+qONu+ANHKXGe9cHXwP6888g9gvT
-         tM7puwMCY7+nK9T3hM/LxAhmEHlrOQ9zniOu6XoY=
+        b=YC/AK/vScTn88YWTPOcXfVr2Iy5PrXZWHt3yoa9b1Wt7thquaOmu+wQT+S3sWmgL/
+         /tnYOl1sAS/VQRz1HdbfrQTEPKWHlI/3+IHsrPN7VuDe0hxhLQ3qm+yz1RpRxrtbHT
+         M7pNNUFR44XOcTAsfhsAerkIJa6IWo5ozcqCh6WE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 038/133] media: dvb-usb: fix uninit-value in dvb_usb_adapter_dvb_init
+        stable@vger.kernel.org, Hyun Kwon <hyun.kwon@xilinx.com>,
+        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 4.19 154/293] PCI: xilinx-nwl: Enable the clock through CCF
 Date:   Mon, 20 Sep 2021 18:41:56 +0200
-Message-Id: <20210920163913.887114722@linuxfoundation.org>
+Message-Id: <20210920163938.551623329@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Hyun Kwon <hyun.kwon@xilinx.com>
 
-[ Upstream commit c5453769f77ce19a5b03f1f49946fd3f8a374009 ]
+commit de0a01f5296651d3a539f2d23d0db8f359483696 upstream.
 
-If dibusb_read_eeprom_byte fails, the mac address is not initialized.
-And nova_t_read_mac_address does not handle this failure, which leads to
-the uninit-value in dvb_usb_adapter_dvb_init.
+Enable PCIe reference clock. There is no remove function that's why
+this should be enough for simple operation.
+Normally this clock is enabled by default by firmware but there are
+usecases where this clock should be enabled by driver itself.
+It is also good that PCIe clock is recorded in a clock framework.
 
-Fix this by handling the failure of dibusb_read_eeprom_byte.
-
-Reported-by: syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com
-Fixes: 786baecfe78f ("[media] dvb-usb: move it to drivers/media/usb/dvb-usb")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/ee6997a08fab582b1c6de05f8be184f3fe8d5357.1624618100.git.michal.simek@xilinx.com
+Fixes: ab597d35ef11 ("PCI: xilinx-nwl: Add support for Xilinx NWL PCIe Host Controller")
+Signed-off-by: Hyun Kwon <hyun.kwon@xilinx.com>
+Signed-off-by: Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/dvb-usb/nova-t-usb2.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/pci/controller/pcie-xilinx-nwl.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/media/usb/dvb-usb/nova-t-usb2.c b/drivers/media/usb/dvb-usb/nova-t-usb2.c
-index 6c55384e2fca..c570c4af64f3 100644
---- a/drivers/media/usb/dvb-usb/nova-t-usb2.c
-+++ b/drivers/media/usb/dvb-usb/nova-t-usb2.c
-@@ -122,7 +122,7 @@ static int nova_t_rc_query(struct dvb_usb_device *d, u32 *event, int *state)
+--- a/drivers/pci/controller/pcie-xilinx-nwl.c
++++ b/drivers/pci/controller/pcie-xilinx-nwl.c
+@@ -6,6 +6,7 @@
+  * (C) Copyright 2014 - 2015, Xilinx, Inc.
+  */
  
- static int nova_t_read_mac_address (struct dvb_usb_device *d, u8 mac[6])
- {
--	int i;
-+	int i, ret;
- 	u8 b;
++#include <linux/clk.h>
+ #include <linux/delay.h>
+ #include <linux/interrupt.h>
+ #include <linux/irq.h>
+@@ -169,6 +170,7 @@ struct nwl_pcie {
+ 	u8 root_busno;
+ 	struct nwl_msi msi;
+ 	struct irq_domain *legacy_irq_domain;
++	struct clk *clk;
+ 	raw_spinlock_t leg_mask_lock;
+ };
  
- 	mac[0] = 0x00;
-@@ -131,7 +131,9 @@ static int nova_t_read_mac_address (struct dvb_usb_device *d, u8 mac[6])
- 
- 	/* this is a complete guess, but works for my box */
- 	for (i = 136; i < 139; i++) {
--		dibusb_read_eeprom_byte(d,i, &b);
-+		ret = dibusb_read_eeprom_byte(d, i, &b);
-+		if (ret)
-+			return ret;
- 
- 		mac[5 - (i - 136)] = b;
+@@ -849,6 +851,16 @@ static int nwl_pcie_probe(struct platfor
+ 		return err;
  	}
--- 
-2.30.2
-
+ 
++	pcie->clk = devm_clk_get(dev, NULL);
++	if (IS_ERR(pcie->clk))
++		return PTR_ERR(pcie->clk);
++
++	err = clk_prepare_enable(pcie->clk);
++	if (err) {
++		dev_err(dev, "can't enable PCIe ref clock\n");
++		return err;
++	}
++
+ 	err = nwl_pcie_bridge_init(pcie);
+ 	if (err) {
+ 		dev_err(dev, "HW Initialization failed\n");
 
 
