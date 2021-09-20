@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D0E8410FD9
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 09:08:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 311A1410FDA
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 09:08:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233599AbhITHKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 03:10:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47780 "EHLO mail.kernel.org"
+        id S233646AbhITHKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 03:10:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230151AbhITHKN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 03:10:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 559FD60FBF;
-        Mon, 20 Sep 2021 07:08:46 +0000 (UTC)
+        id S230151AbhITHKU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 03:10:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0F8260F0F;
+        Mon, 20 Sep 2021 07:08:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632121726;
-        bh=ztloDpH1erp7UXRFobGQhveQEl4AU4S3xc+Ke/WySrQ=;
+        s=korg; t=1632121734;
+        bh=vKh3pirimwcdEeYM7deSviJlc+qs8OLB4173N1uKGCI=;
         h=Subject:To:Cc:From:Date:From;
-        b=DgRt4kOjenOSk0JBEKUeFszQcDnQOrzuCkLATclccIF7ZoxenExOpMDIKO2VKq+ds
-         j1+VaXo08xH1jXEZ8m6GON+pp8912vzAA3YN9ziTpkC9ZpaMMgT+U6DMTwdW9FgxAK
-         lrBG/veSg81RH948ayZfa6VfjH6H3GRd1wBnvc6w=
-Subject: FAILED: patch "[PATCH] x86/mm: Fix kern_addr_valid() to cope with existing but not" failed to apply to 4.9-stable tree
-To:     rppt@linux.ibm.com, bp@suse.de, dave.hansen@intel.com,
-        david@redhat.com, jolsa@redhat.com, stable@vger.kernel.org
+        b=EPo6YJMR4o1A90so+eHo0372iTqYS9k5baX/RoY1l+ziCawA0khMitw/qmxtAoDaj
+         uD/q3WNMaJK75Ii/alKOu95iRoM2vHLjsgW8UKnjhlnQA4UURZ5Y8kQEP4ayK4TLVI
+         L/kIlP7hX5zctN6LpvtdDpddHsWraKdejMiR6p/w=
+Subject: FAILED: patch "[PATCH] x86/mce: Avoid infinite loop for copy from user recovery" failed to apply to 5.10-stable tree
+To:     tony.luck@intel.com, bp@suse.de, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Sep 2021 09:08:36 +0200
-Message-ID: <1632121716149175@kroah.com>
+Date:   Mon, 20 Sep 2021 09:08:52 +0200
+Message-ID: <163212173281150@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -46,114 +45,164 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 34b1999da935a33be6239226bfa6cd4f704c5c88 Mon Sep 17 00:00:00 2001
-From: Mike Rapoport <rppt@linux.ibm.com>
-Date: Thu, 19 Aug 2021 16:27:17 +0300
-Subject: [PATCH] x86/mm: Fix kern_addr_valid() to cope with existing but not
- present entries
+From 81065b35e2486c024c7aa86caed452e1f01a59d4 Mon Sep 17 00:00:00 2001
+From: Tony Luck <tony.luck@intel.com>
+Date: Mon, 13 Sep 2021 14:52:39 -0700
+Subject: [PATCH] x86/mce: Avoid infinite loop for copy from user recovery
 
-Jiri Olsa reported a fault when running:
+There are two cases for machine check recovery:
 
-  # cat /proc/kallsyms | grep ksys_read
-  ffffffff8136d580 T ksys_read
-  # objdump -d --start-address=0xffffffff8136d580 --stop-address=0xffffffff8136d590 /proc/kcore
+1) The machine check was triggered by ring3 (application) code.
+   This is the simpler case. The machine check handler simply queues
+   work to be executed on return to user. That code unmaps the page
+   from all users and arranges to send a SIGBUS to the task that
+   triggered the poison.
 
-  /proc/kcore:     file format elf64-x86-64
+2) The machine check was triggered in kernel code that is covered by
+   an exception table entry. In this case the machine check handler
+   still queues a work entry to unmap the page, etc. but this will
+   not be called right away because the #MC handler returns to the
+   fix up code address in the exception table entry.
 
-  Segmentation fault
+Problems occur if the kernel triggers another machine check before the
+return to user processes the first queued work item.
 
-  general protection fault, probably for non-canonical address 0xf887ffcbff000: 0000 [#1] SMP PTI
-  CPU: 12 PID: 1079 Comm: objdump Not tainted 5.14.0-rc5qemu+ #508
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-4.fc34 04/01/2014
-  RIP: 0010:kern_addr_valid
-  Call Trace:
-   read_kcore
-   ? rcu_read_lock_sched_held
-   ? rcu_read_lock_sched_held
-   ? rcu_read_lock_sched_held
-   ? trace_hardirqs_on
-   ? rcu_read_lock_sched_held
-   ? lock_acquire
-   ? lock_acquire
-   ? rcu_read_lock_sched_held
-   ? lock_acquire
-   ? rcu_read_lock_sched_held
-   ? rcu_read_lock_sched_held
-   ? rcu_read_lock_sched_held
-   ? lock_release
-   ? _raw_spin_unlock
-   ? __handle_mm_fault
-   ? rcu_read_lock_sched_held
-   ? lock_acquire
-   ? rcu_read_lock_sched_held
-   ? lock_release
-   proc_reg_read
-   ? vfs_read
-   vfs_read
-   ksys_read
-   do_syscall_64
-   entry_SYSCALL_64_after_hwframe
+Specifically, the work is queued using the ->mce_kill_me callback
+structure in the task struct for the current thread. Attempting to queue
+a second work item using this same callback results in a loop in the
+linked list of work functions to call. So when the kernel does return to
+user, it enters an infinite loop processing the same entry for ever.
 
-The fault happens because kern_addr_valid() dereferences existent but not
-present PMD in the high kernel mappings.
+There are some legitimate scenarios where the kernel may take a second
+machine check before returning to the user.
 
-Such PMDs are created when free_kernel_image_pages() frees regions larger
-than 2Mb. In this case, a part of the freed memory is mapped with PMDs and
-the set_memory_np_noalias() -> ... -> __change_page_attr() sequence will
-mark the PMD as not present rather than wipe it completely.
+1) Some code (e.g. futex) first tries a get_user() with page faults
+   disabled. If this fails, the code retries with page faults enabled
+   expecting that this will resolve the page fault.
 
-Have kern_addr_valid() check whether higher level page table entries are
-present before trying to dereference them to fix this issue and to avoid
-similar issues in the future.
+2) Copy from user code retries a copy in byte-at-time mode to check
+   whether any additional bytes can be copied.
 
-Stable backporting note:
-------------------------
+On the other side of the fence are some bad drivers that do not check
+the return value from individual get_user() calls and may access
+multiple user addresses without noticing that some/all calls have
+failed.
 
-Note that the stable marking is for all active stable branches because
-there could be cases where pagetable entries exist but are not valid -
-see 9a14aefc1d28 ("x86: cpa, fix lookup_address"), for example. So make
-sure to be on the safe side here and use pXY_present() accessors rather
-than pXY_none() which could #GP when accessing pages in the direct map.
+Fix by adding a counter (current->mce_count) to keep track of repeated
+machine checks before task_work() is called. First machine check saves
+the address information and calls task_work_add(). Subsequent machine
+checks before that task_work call back is executed check that the address
+is in the same page as the first machine check (since the callback will
+offline exactly one page).
 
-Also see:
+Expected worst case is four machine checks before moving on (e.g. one
+user access with page faults disabled, then a repeat to the same address
+with page faults enabled ... repeat in copy tail bytes). Just in case
+there is some code that loops forever enforce a limit of 10.
 
-  c40a56a7818c ("x86/mm/init: Remove freed kernel image areas from alias mapping")
+ [ bp: Massage commit message, drop noinstr, fix typo, extend panic
+   messages. ]
 
-for more info.
-
-Reported-by: Jiri Olsa <jolsa@redhat.com>
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Fixes: 5567d11c21a1 ("x86/mce: Send #MC singal from task work")
+Signed-off-by: Tony Luck <tony.luck@intel.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Dave Hansen <dave.hansen@intel.com>
-Tested-by: Jiri Olsa <jolsa@redhat.com>
-Cc: <stable@vger.kernel.org>	# 4.4+
-Link: https://lkml.kernel.org/r/20210819132717.19358-1-rppt@kernel.org
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/YT/IJ9ziLqmtqEPu@agluck-desk2.amr.corp.intel.com
 
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index ddeaba947eb3..879886c6cc53 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -1433,18 +1433,18 @@ int kern_addr_valid(unsigned long addr)
- 		return 0;
+diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
+index 8cb7816d03b4..193204aee880 100644
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -1253,6 +1253,9 @@ static void __mc_scan_banks(struct mce *m, struct pt_regs *regs, struct mce *fin
  
- 	p4d = p4d_offset(pgd, addr);
--	if (p4d_none(*p4d))
-+	if (!p4d_present(*p4d))
- 		return 0;
+ static void kill_me_now(struct callback_head *ch)
+ {
++	struct task_struct *p = container_of(ch, struct task_struct, mce_kill_me);
++
++	p->mce_count = 0;
+ 	force_sig(SIGBUS);
+ }
  
- 	pud = pud_offset(p4d, addr);
--	if (pud_none(*pud))
-+	if (!pud_present(*pud))
- 		return 0;
+@@ -1262,6 +1265,7 @@ static void kill_me_maybe(struct callback_head *cb)
+ 	int flags = MF_ACTION_REQUIRED;
+ 	int ret;
  
- 	if (pud_large(*pud))
- 		return pfn_valid(pud_pfn(*pud));
++	p->mce_count = 0;
+ 	pr_err("Uncorrected hardware memory error in user-access at %llx", p->mce_addr);
  
- 	pmd = pmd_offset(pud, addr);
--	if (pmd_none(*pmd))
-+	if (!pmd_present(*pmd))
- 		return 0;
+ 	if (!p->mce_ripv)
+@@ -1290,17 +1294,34 @@ static void kill_me_maybe(struct callback_head *cb)
+ 	}
+ }
  
- 	if (pmd_large(*pmd))
+-static void queue_task_work(struct mce *m, int kill_current_task)
++static void queue_task_work(struct mce *m, char *msg, int kill_current_task)
+ {
+-	current->mce_addr = m->addr;
+-	current->mce_kflags = m->kflags;
+-	current->mce_ripv = !!(m->mcgstatus & MCG_STATUS_RIPV);
+-	current->mce_whole_page = whole_page(m);
++	int count = ++current->mce_count;
+ 
+-	if (kill_current_task)
+-		current->mce_kill_me.func = kill_me_now;
+-	else
+-		current->mce_kill_me.func = kill_me_maybe;
++	/* First call, save all the details */
++	if (count == 1) {
++		current->mce_addr = m->addr;
++		current->mce_kflags = m->kflags;
++		current->mce_ripv = !!(m->mcgstatus & MCG_STATUS_RIPV);
++		current->mce_whole_page = whole_page(m);
++
++		if (kill_current_task)
++			current->mce_kill_me.func = kill_me_now;
++		else
++			current->mce_kill_me.func = kill_me_maybe;
++	}
++
++	/* Ten is likely overkill. Don't expect more than two faults before task_work() */
++	if (count > 10)
++		mce_panic("Too many consecutive machine checks while accessing user data", m, msg);
++
++	/* Second or later call, make sure page address matches the one from first call */
++	if (count > 1 && (current->mce_addr >> PAGE_SHIFT) != (m->addr >> PAGE_SHIFT))
++		mce_panic("Consecutive machine checks to different user pages", m, msg);
++
++	/* Do not call task_work_add() more than once */
++	if (count > 1)
++		return;
+ 
+ 	task_work_add(current, &current->mce_kill_me, TWA_RESUME);
+ }
+@@ -1438,7 +1459,7 @@ noinstr void do_machine_check(struct pt_regs *regs)
+ 		/* If this triggers there is no way to recover. Die hard. */
+ 		BUG_ON(!on_thread_stack() || !user_mode(regs));
+ 
+-		queue_task_work(&m, kill_current_task);
++		queue_task_work(&m, msg, kill_current_task);
+ 
+ 	} else {
+ 		/*
+@@ -1456,7 +1477,7 @@ noinstr void do_machine_check(struct pt_regs *regs)
+ 		}
+ 
+ 		if (m.kflags & MCE_IN_KERNEL_COPYIN)
+-			queue_task_work(&m, kill_current_task);
++			queue_task_work(&m, msg, kill_current_task);
+ 	}
+ out:
+ 	mce_wrmsrl(MSR_IA32_MCG_STATUS, 0);
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 1780260f237b..361c7bc72cbb 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1468,6 +1468,7 @@ struct task_struct {
+ 					mce_whole_page : 1,
+ 					__mce_reserved : 62;
+ 	struct callback_head		mce_kill_me;
++	int				mce_count;
+ #endif
+ 
+ #ifdef CONFIG_KRETPROBES
 
