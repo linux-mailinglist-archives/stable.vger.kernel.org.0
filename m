@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E26D4411AE0
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:51:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17920411AE6
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:51:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236549AbhITQw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:52:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36554 "EHLO mail.kernel.org"
+        id S244675AbhITQxX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:53:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244594AbhITQu4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:50:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D668E6124C;
-        Mon, 20 Sep 2021 16:49:24 +0000 (UTC)
+        id S244181AbhITQvI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:51:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0734461213;
+        Mon, 20 Sep 2021 16:49:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156565;
-        bh=6oOBJ1qGDe0ntOruCDolaOWVwqicF3bNkq2aqk+9SZc=;
+        s=korg; t=1632156567;
+        bh=Yj1TZDy2FUjXAXfIjbZskgaCeCbx9tYsqXQSQSi/SP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CV9q+7w2/FisUzWY3S/pGiQ9fQT3ZQYaCYtKUjXoxgIpFThq20JEMx0tkEwTj/O2b
-         TPOq40l7aLwR9O6wMYq7rTnsJLjG4SAd4wgdwwxc9eNrisqvwOpQ9lpkNQzqj/J9MI
-         abKxyunEJSv58wM2vEoI3OeL3iME2DL+SquVxFrk=
+        b=umsLqCeQSP4SDv17meNL98mFRXoFYDHktvpG8a9YYkCJWsZW1YhptBxZcHGRFq++a
+         IkGz/uDWdCr6gMND1hD3P7GsvMnJda7uVi+h8IMdrO9sEvG4Hp7QyvCjSSVVKLn4Mv
+         LnVonLjzB1zaWGc8k4LhBKc1v+CIB5FPX8DjZChU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Patryk Duda <pdk@semihalf.com>,
-        Benson Leung <bleung@chromium.org>
-Subject: [PATCH 4.4 117/133] platform/chrome: cros_ec_proto: Send command again when timeout occurs
-Date:   Mon, 20 Sep 2021 18:43:15 +0200
-Message-Id: <20210920163916.451142469@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Bunk <bunk@kernel.org>,
+        YunQiang Su <wzssyqa@gmail.com>,
+        Shai Malin <smalin@marvell.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.4 118/133] bnx2x: Fix enabling network interfaces without VFs
+Date:   Mon, 20 Sep 2021 18:43:16 +0200
+Message-Id: <20210920163916.484032500@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
 References: <20210920163912.603434365@linuxfoundation.org>
@@ -39,41 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patryk Duda <pdk@semihalf.com>
+From: Adrian Bunk <bunk@kernel.org>
 
-commit 3abc16af57c9939724df92fcbda296b25cc95168 upstream.
+commit 52ce14c134a003fee03d8fc57442c05a55b53715 upstream.
 
-Sometimes kernel is trying to probe Fingerprint MCU (FPMCU) when it
-hasn't initialized SPI yet. This can happen because FPMCU is restarted
-during system boot and kernel can send message in short window
-eg. between sysjump to RW and SPI initialization.
+This function is called to enable SR-IOV when available,
+not enabling interfaces without VFs was a regression.
 
-Cc: <stable@vger.kernel.org> # 4.4+
-Signed-off-by: Patryk Duda <pdk@semihalf.com>
-Link: https://lore.kernel.org/r/20210518140758.29318-1-pdk@semihalf.com
-Signed-off-by: Benson Leung <bleung@chromium.org>
+Fixes: 65161c35554f ("bnx2x: Fix missing error code in bnx2x_iov_init_one()")
+Signed-off-by: Adrian Bunk <bunk@kernel.org>
+Reported-by: YunQiang Su <wzssyqa@gmail.com>
+Tested-by: YunQiang Su <wzssyqa@gmail.com>
+Cc: stable@vger.kernel.org
+Acked-by: Shai Malin <smalin@marvell.com>
+Link: https://lore.kernel.org/r/20210912190523.27991-1-bunk@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/chrome/cros_ec_proto.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/platform/chrome/cros_ec_proto.c
-+++ b/drivers/platform/chrome/cros_ec_proto.c
-@@ -182,6 +182,15 @@ static int cros_ec_host_command_proto_qu
- 	msg->insize = sizeof(struct ec_response_get_protocol_info);
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
+@@ -1246,7 +1246,7 @@ int bnx2x_iov_init_one(struct bnx2x *bp,
  
- 	ret = send_command(ec_dev, msg);
-+	/*
-+	 * Send command once again when timeout occurred.
-+	 * Fingerprint MCU (FPMCU) is restarted during system boot which
-+	 * introduces small window in which FPMCU won't respond for any
-+	 * messages sent by kernel. There is no need to wait before next
-+	 * attempt because we waited at least EC_MSG_DEADLINE_MS.
-+	 */
-+	if (ret == -ETIMEDOUT)
-+		ret = send_command(ec_dev, msg);
+ 	/* SR-IOV capability was enabled but there are no VFs*/
+ 	if (iov->total == 0) {
+-		err = -EINVAL;
++		err = 0;
+ 		goto failed;
+ 	}
  
- 	if (ret < 0) {
- 		dev_dbg(ec_dev->dev,
 
 
