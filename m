@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EF77412130
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:01:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED042411F56
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:38:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356681AbhITSDD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:03:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58466 "EHLO mail.kernel.org"
+        id S1348706AbhITRkM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:40:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356676AbhITSBA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:01:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3405B6322A;
-        Mon, 20 Sep 2021 17:15:58 +0000 (UTC)
+        id S1352183AbhITRip (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:38:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5664B61B3E;
+        Mon, 20 Sep 2021 17:07:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158158;
-        bh=TUEd5GgCPvHCqT4uiCo//+eCmN6z45ot8WQiTPkqidw=;
+        s=korg; t=1632157639;
+        bh=ZzlKbSgCAszKv1p2eH/it/mRQPTS/q9e8hCAAba2LDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GNtd16xGavbfs1w5fqFOZLno3mrcbu8Pygve3Ki4dqEVUogLYW1hiz9YvKO1wS01R
-         idAhn0+GLFmW2KG5Zdfws23u9N6hFE7B8fEfPojUimyh3kO4X+rHT/RV2EbcaX2xi0
-         tO9vd2AghXNWbGfz8a2B62tDdtFBSw1C1zmRo/yQ=
+        b=wTenxQUf7MbzxPcUD2MfycKCISxAPjR4532IvVTpEXSfuq44kVqt3QeJbrYDPLEu8
+         l27CWgU8Wf4HgXTvezKCeBRQeserrWwa9jLEnJ+zNDnpbqZmzZSIcJNgJM6PS1qO24
+         shVoHcNIZ6d3tDZ5bHsFg9JjdXo9oRp972h6xpvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>,
-        David Heidelberg <david@ixit.cz>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.4 028/260] ARM: 9105/1: atags_to_fdt: dont warn about stack size
+        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Mattijs Korpershoek <mkorpershoek@baylibre.com>
+Subject: [PATCH 4.19 084/293] Bluetooth: Move shutdown callback before flushing tx and rx queue
 Date:   Mon, 20 Sep 2021 18:40:46 +0200
-Message-Id: <20210920163932.079793660@linuxfoundation.org>
+Message-Id: <20210920163936.142096944@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Heidelberg <david@ixit.cz>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit b30d0289de72c62516df03fdad8d53f552c69839 upstream.
+[ Upstream commit 0ea53674d07fb6db2dd7a7ec2fdc85a12eb246c2 ]
 
-The merge_fdt_bootargs() function by definition consumes more than 1024
-bytes of stack because it has a 1024 byte command line on the stack,
-meaning that we always get a warning when building this file:
+Commit 0ea9fd001a14 ("Bluetooth: Shutdown controller after workqueues
+are flushed or cancelled") introduced a regression that makes mtkbtsdio
+driver stops working:
+[   36.593956] Bluetooth: hci0: Firmware already downloaded
+[   46.814613] Bluetooth: hci0: Execution of wmt command timed out
+[   46.814619] Bluetooth: hci0: Failed to send wmt func ctrl (-110)
 
-arch/arm/boot/compressed/atags_to_fdt.c: In function 'merge_fdt_bootargs':
-arch/arm/boot/compressed/atags_to_fdt.c:98:1: warning: the frame size of 1032 bytes is larger than 1024 bytes [-Wframe-larger-than=]
+The shutdown callback depends on the result of hdev->rx_work, so we
+should call it before flushing rx_work:
+-> btmtksdio_shutdown()
+ -> mtk_hci_wmt_sync()
+  -> __hci_cmd_send()
+   -> wait for BTMTKSDIO_TX_WAIT_VND_EVT gets cleared
 
-However, as this is the decompressor and we know that it has a very shallow
-call chain, and we do not actually risk overflowing the kernel stack
-at runtime here.
+-> btmtksdio_recv_event()
+ -> hci_recv_frame()
+  -> queue_work(hdev->workqueue, &hdev->rx_work)
+   -> clears BTMTKSDIO_TX_WAIT_VND_EVT
 
-This just shuts up the warning by disabling the warning flag for this
-file.
+So move the shutdown callback before flushing TX/RX queue to resolve the
+issue.
 
-Tested on Nexus 7 2012 builds.
-
-Acked-by: Nicolas Pitre <nico@fluxnic.net>
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-and-tested-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
+Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Fixes: 0ea9fd001a14 ("Bluetooth: Shutdown controller after workqueues are flushed or cancelled")
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/compressed/Makefile |    2 ++
- 1 file changed, 2 insertions(+)
+ net/bluetooth/hci_core.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/arch/arm/boot/compressed/Makefile
-+++ b/arch/arm/boot/compressed/Makefile
-@@ -90,6 +90,8 @@ $(addprefix $(obj)/,$(libfdt_objs) atags
- 	$(addprefix $(obj)/,$(libfdt_hdrs))
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index 7a85f215da45..ec6150564f59 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -1622,6 +1622,14 @@ int hci_dev_do_close(struct hci_dev *hdev)
+ 	hci_request_cancel_all(hdev);
+ 	hci_req_sync_lock(hdev);
  
- ifeq ($(CONFIG_ARM_ATAG_DTB_COMPAT),y)
-+CFLAGS_REMOVE_atags_to_fdt.o += -Wframe-larger-than=${CONFIG_FRAME_WARN}
-+CFLAGS_atags_to_fdt.o += -Wframe-larger-than=1280
- OBJS	+= $(libfdt_objs) atags_to_fdt.o
- endif
- 
++	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
++	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
++	    test_bit(HCI_UP, &hdev->flags)) {
++		/* Execute vendor specific shutdown routine */
++		if (hdev->shutdown)
++			hdev->shutdown(hdev);
++	}
++
+ 	if (!test_and_clear_bit(HCI_UP, &hdev->flags)) {
+ 		cancel_delayed_work_sync(&hdev->cmd_timer);
+ 		hci_req_sync_unlock(hdev);
+-- 
+2.30.2
+
 
 
