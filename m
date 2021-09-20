@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45252411A5D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:47:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D71041200A
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:47:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244113AbhITQtL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:49:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37068 "EHLO mail.kernel.org"
+        id S1353939AbhITRsD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:48:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243283AbhITQsZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:48:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC9EB61283;
-        Mon, 20 Sep 2021 16:46:56 +0000 (UTC)
+        id S1349299AbhITRqD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:46:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D0A161351;
+        Mon, 20 Sep 2021 17:10:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156417;
-        bh=IaFdkkG7QvRgyFW3Tit9ebtaDeSUrj35HUvwlTcdsP8=;
+        s=korg; t=1632157818;
+        bh=mAhMm/WuB3DXx3pILyFdCxG6w/ejDLp/FNjRZhPNX2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ItekIsntg9Fl/xusW+5TqbAxTt3ifgJbzwmrR88rd2o1yazgjTRtz2SfluHkgCI5T
-         ivKg0yK9pcLbhSVkD8Oaz8ekBsWBifqDbnlI7Uac1nurObzNecDVPgXgMraSRhOOxk
-         M5Gf1NzBwuFzZ6TobqpXCvB5tNoiGJq97VnGjxfI=
+        b=stWISsdlQUucl2dd1xsJ0gtBla2CP14dQOXkpvQt0loN1Wn2Y2b6P4Ax+Zxm/xD+V
+         Zehctv5qTUE4ZoUUUub0nC2aGSCt6Yi0Cj25v8MCa540+8pCP3A3IP8Q8WV++PSJJs
+         W3xgykDp01DY/iXSiSyZCGEJ1y6LCdH2GrNeDYsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 049/133] drm/msm/dsi: Fix some reference counted resource leaks
+Subject: [PATCH 4.19 165/293] scsi: qedi: Fix error codes in qedi_alloc_global_queues()
 Date:   Mon, 20 Sep 2021 18:42:07 +0200
-Message-Id: <20210920163914.249233914@linuxfoundation.org>
+Message-Id: <20210920163938.930942898@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +41,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 6977cc89c87506ff17e6c05f0e37f46752256e82 ]
+[ Upstream commit 4dbe57d46d54a847875fa33e7d05877bb341585e ]
 
-'of_find_device_by_node()' takes a reference that must be released when
-not needed anymore.
-This is expected to be done in 'dsi_destroy()'.
+This function had some left over code that returned 1 on error instead
+negative error codes.  Convert everything to use negative error codes.  The
+caller treats all non-zero returns the same so this does not affect run
+time.
 
-However, there are 2 issues in 'dsi_get_phy()'.
+A couple places set "rc" instead of "status" so those error paths ended up
+returning success by mistake.  Get rid of the "rc" variable and use
+"status" everywhere.
 
-First, if 'of_find_device_by_node()' succeeds but 'platform_get_drvdata()'
-returns NULL, 'msm_dsi->phy_dev' will still be NULL, and the reference
-won't be released in 'dsi_destroy()'.
+Remove the bogus "status = 0" initialization, as a future proofing measure
+so the compiler will warn about uninitialized error codes.
 
-Secondly, as 'of_find_device_by_node()' already takes a reference, there is
-no need for an additional 'get_device()'.
-
-Move the assignment to 'msm_dsi->phy_dev' a few lines above and remove the
-unneeded 'get_device()' to solve both issues.
-
-Fixes: ec31abf6684e ("drm/msm/dsi: Separate PHY to another platform device")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/f15bc57648a00e7c99f943903468a04639d50596.1628241097.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Link: https://lore.kernel.org/r/20210810084753.GD23810@kili
+Fixes: ace7f46ba5fd ("scsi: qedi: Add QLogic FastLinQ offload iSCSI driver framework.")
+Acked-by: Manish Rangankar <mrangankar@marvell.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/scsi/qedi/qedi_main.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi.c b/drivers/gpu/drm/msm/dsi/dsi.c
-index 6edcd6f57e70..817661462676 100644
---- a/drivers/gpu/drm/msm/dsi/dsi.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi.c
-@@ -36,8 +36,10 @@ static int dsi_get_phy(struct msm_dsi *msm_dsi)
+diff --git a/drivers/scsi/qedi/qedi_main.c b/drivers/scsi/qedi/qedi_main.c
+index 7665fd641886..ab66e1f0fdfa 100644
+--- a/drivers/scsi/qedi/qedi_main.c
++++ b/drivers/scsi/qedi/qedi_main.c
+@@ -1507,7 +1507,7 @@ static int qedi_alloc_global_queues(struct qedi_ctx *qedi)
+ {
+ 	u32 *list;
+ 	int i;
+-	int status = 0, rc;
++	int status;
+ 	u32 *pbl;
+ 	dma_addr_t page;
+ 	int num_pages;
+@@ -1518,14 +1518,14 @@ static int qedi_alloc_global_queues(struct qedi_ctx *qedi)
+ 	 */
+ 	if (!qedi->num_queues) {
+ 		QEDI_ERR(&qedi->dbg_ctx, "No MSI-X vectors available!\n");
+-		return 1;
++		return -ENOMEM;
  	}
  
- 	phy_pdev = of_find_device_by_node(phy_node);
--	if (phy_pdev)
-+	if (phy_pdev) {
- 		msm_dsi->phy = platform_get_drvdata(phy_pdev);
-+		msm_dsi->phy_dev = &phy_pdev->dev;
-+	}
- 
- 	of_node_put(phy_node);
- 
-@@ -46,8 +48,6 @@ static int dsi_get_phy(struct msm_dsi *msm_dsi)
- 		return -EPROBE_DEFER;
+ 	/* Make sure we allocated the PBL that will contain the physical
+ 	 * addresses of our queues
+ 	 */
+ 	if (!qedi->p_cpuq) {
+-		status = 1;
++		status = -EINVAL;
+ 		goto mem_alloc_failure;
  	}
  
--	msm_dsi->phy_dev = get_device(&phy_pdev->dev);
--
- 	return 0;
- }
+@@ -1540,13 +1540,13 @@ static int qedi_alloc_global_queues(struct qedi_ctx *qedi)
+ 		  "qedi->global_queues=%p.\n", qedi->global_queues);
  
+ 	/* Allocate DMA coherent buffers for BDQ */
+-	rc = qedi_alloc_bdq(qedi);
+-	if (rc)
++	status = qedi_alloc_bdq(qedi);
++	if (status)
+ 		goto mem_alloc_failure;
+ 
+ 	/* Allocate DMA coherent buffers for NVM_ISCSI_CFG */
+-	rc = qedi_alloc_nvm_iscsi_cfg(qedi);
+-	if (rc)
++	status = qedi_alloc_nvm_iscsi_cfg(qedi);
++	if (status)
+ 		goto mem_alloc_failure;
+ 
+ 	/* Allocate a CQ and an associated PBL for each MSI-X
 -- 
 2.30.2
 
