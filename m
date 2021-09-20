@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA25041250F
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90F2A412202
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:10:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353594AbhITSlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:41:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53058 "EHLO mail.kernel.org"
+        id S1358577AbhITSLz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:11:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348416AbhITSiX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:38:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FD1E63319;
-        Mon, 20 Sep 2021 17:30:00 +0000 (UTC)
+        id S1359489AbhITSJx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:09:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 596B16326B;
+        Mon, 20 Sep 2021 17:19:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159000;
-        bh=XK4wX9LJSIljoTAwtcTaJD3bviCjOBnfqboBhbiu5R0=;
+        s=korg; t=1632158377;
+        bh=TAK3zWuiiK3K2bVBG95XemzgVJ/xddGw6AnGraNwrmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DTXDMxuLtbnhMPGYXy5ZAwiYLQHXMPLBD8fyRYuRbaE92i/C10+glqsrgJzUoZreo
-         7tR84QP8L5tIjyx2c0JOXvKNW+JcYKA0zW6YWlWaIVoaav0Qj2/9hAwVWjaklsX4pu
-         jLZvBYA1AHY3sp5HgH5l+dnbkJDMMkTa1WD1szYw=
+        b=BTqNVckZKqtvJ1OOeK2LBt3aUBWZup+o41XitQEVyZRVqvqTTSXXlrswcC0+8P3Rs
+         Z16YjFMoQa3S62BXh2Z9LtTws9c3eGZ04Onm+CzFEepjXzczCzR8Qz8cndRrD2yFfT
+         N5Ltf/GN0krOoUHiue20rHrmoybUKdDdTub9G6pY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: [PATCH 5.14 008/168] PM: base: power: dont try to use non-existing RTC for storing data
-Date:   Mon, 20 Sep 2021 18:42:26 +0200
-Message-Id: <20210920163921.930745720@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Eran Ben Elisha <eranbe@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 129/260] net/mlx5: Fix variable type to match 64bit
+Date:   Mon, 20 Sep 2021 18:42:27 +0200
+Message-Id: <20210920163935.507739352@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Eran Ben Elisha <eranbe@nvidia.com>
 
-commit 0560204b360a332c321124dbc5cdfd3364533a74 upstream.
+[ Upstream commit 979aa51967add26b37f9d77e01729d44a2da8e5f ]
 
-If there is no legacy RTC device, don't try to use it for storing trace
-data across suspend/resume.
+Fix the following smatch warning:
+wait_func_handle_exec_timeout() warn: should '1 << ent->idx' be a 64 bit type?
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Rafael J. Wysocki <rafael@kernel.org>
-Link: https://lore.kernel.org/r/20210903084937.19392-2-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Use 1ULL, to have a 64 bit type variable.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Eran Ben Elisha <eranbe@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/power/trace.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/base/power/trace.c
-+++ b/drivers/base/power/trace.c
-@@ -13,6 +13,7 @@
- #include <linux/export.h>
- #include <linux/rtc.h>
- #include <linux/suspend.h>
-+#include <linux/init.h>
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+index 76547d35cd0e..bf091a6c0cd2 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+@@ -865,7 +865,7 @@ static void cb_timeout_handler(struct work_struct *work)
+ 	ent->ret = -ETIMEDOUT;
+ 	mlx5_core_warn(dev, "cmd[%d]: %s(0x%x) Async, timeout. Will cause a leak of a command resource\n",
+ 		       ent->idx, mlx5_command_str(msg_to_opcode(ent->in)), msg_to_opcode(ent->in));
+-	mlx5_cmd_comp_handler(dev, 1UL << ent->idx, true);
++	mlx5_cmd_comp_handler(dev, 1ULL << ent->idx, true);
  
- #include <linux/mc146818rtc.h>
+ out:
+ 	cmd_ent_put(ent); /* for the cmd_ent_get() took on schedule delayed work */
+@@ -977,7 +977,7 @@ static void cmd_work_handler(struct work_struct *work)
+ 		MLX5_SET(mbox_out, ent->out, status, status);
+ 		MLX5_SET(mbox_out, ent->out, syndrome, drv_synd);
  
-@@ -165,6 +166,9 @@ void generate_pm_trace(const void *trace
- 	const char *file = *(const char **)(tracedata + 2);
- 	unsigned int user_hash_value, file_hash_value;
+-		mlx5_cmd_comp_handler(dev, 1UL << ent->idx, true);
++		mlx5_cmd_comp_handler(dev, 1ULL << ent->idx, true);
+ 		return;
+ 	}
  
-+	if (!x86_platform.legacy.rtc)
-+		return;
-+
- 	user_hash_value = user % USERHASH;
- 	file_hash_value = hash_string(lineno, file, FILEHASH);
- 	set_magic_time(user_hash_value, file_hash_value, dev_hash_value);
-@@ -267,6 +271,9 @@ static struct notifier_block pm_trace_nb
+@@ -991,7 +991,7 @@ static void cmd_work_handler(struct work_struct *work)
+ 		poll_timeout(ent);
+ 		/* make sure we read the descriptor after ownership is SW */
+ 		rmb();
+-		mlx5_cmd_comp_handler(dev, 1UL << ent->idx, (ent->ret == -ETIMEDOUT));
++		mlx5_cmd_comp_handler(dev, 1ULL << ent->idx, (ent->ret == -ETIMEDOUT));
+ 	}
+ }
  
- static int __init early_resume_init(void)
- {
-+	if (!x86_platform.legacy.rtc)
-+		return 0;
-+
- 	hash_value_early_read = read_magic_time();
- 	register_pm_notifier(&pm_trace_nb);
- 	return 0;
-@@ -277,6 +284,9 @@ static int __init late_resume_init(void)
- 	unsigned int val = hash_value_early_read;
- 	unsigned int user, file, dev;
+@@ -1051,7 +1051,7 @@ static void wait_func_handle_exec_timeout(struct mlx5_core_dev *dev,
+ 		       mlx5_command_str(msg_to_opcode(ent->in)), msg_to_opcode(ent->in));
  
-+	if (!x86_platform.legacy.rtc)
-+		return 0;
-+
- 	user = val % USERHASH;
- 	val = val / USERHASH;
- 	file = val % FILEHASH;
+ 	ent->ret = -ETIMEDOUT;
+-	mlx5_cmd_comp_handler(dev, 1UL << ent->idx, true);
++	mlx5_cmd_comp_handler(dev, 1ULL << ent->idx, true);
+ }
+ 
+ static int wait_func(struct mlx5_core_dev *dev, struct mlx5_cmd_work_ent *ent)
+-- 
+2.30.2
+
 
 
