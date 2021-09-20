@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7E44411C3A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:05:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 883DF411B0B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:54:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346426AbhITRHM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:07:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58130 "EHLO mail.kernel.org"
+        id S238232AbhITQzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:55:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346126AbhITRFC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:05:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CD5961371;
-        Mon, 20 Sep 2021 16:54:38 +0000 (UTC)
+        id S245176AbhITQwh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:52:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E7B261362;
+        Mon, 20 Sep 2021 16:49:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156878;
-        bh=3nBlNC0oa4+ec5C6EVkNiBlmrpmCOdwiQ3UX1CZGy/c=;
+        s=korg; t=1632156595;
+        bh=P2dWfA3+6h1FBHe0VI/ugsM4VtXffXqmR7Mk0eeENhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=guODSutVvLN58rgPF5x92HqdHfCz9DEMIn+3i5SWWpdgZ3lvK6TP1VlpLE0mKSRPC
-         NNWuOhDpN7Yms7tOLFBPkahSrJN/kyOSSu8d/M2d9KN72G0Vl/khEicUUpAm9hUGFp
-         NQwn+mrJRdzPhGipMv7Iew2fys3LKUrRZcMkiOHE=
+        b=PZL7UyTLJJin28gfhYTzfvLF7I3qzcnsMh9LrHLcKAMrefUbXm18ExQb0iWs33B6t
+         +aHFmWRScCz4NfIQUN6hs+m92PbkF5o/eBtIzZRk1g7Q958Ri39Zl/67SqZb2wBExE
+         CAm2tLWqfQEJIlxze7NbMPd40Rd2Vy/Ch8mEnU8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        Jiri Slaby <jslaby@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 127/175] hvsi: dont panic on tty_register_driver failure
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 098/133] video: fbdev: riva: Error out if pixclock equals zero
 Date:   Mon, 20 Sep 2021 18:42:56 +0200
-Message-Id: <20210920163922.233640691@linuxfoundation.org>
+Message-Id: <20210920163915.837437047@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,71 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 7ccbdcc4d08a6d7041e4849219bbb12ffa45db4c ]
+[ Upstream commit f92763cb0feba247e0939ed137b495601fd072a5 ]
 
-The alloc_tty_driver failure is handled gracefully in hvsi_init. But
-tty_register_driver is not. panic is called if that one fails.
+The userspace program could pass any values to the driver through
+ioctl() interface. If the driver doesn't check the value of 'pixclock',
+it may cause divide error.
 
-So handle the failure of tty_register_driver gracefully too. This will
-keep at least the console functional as it was enabled earlier by
-console_initcall in hvsi_console_init. Instead of shooting down the
-whole system.
+Fix this by checking whether 'pixclock' is zero first.
 
-This means, we disable interrupts and restore hvsi_wait back to
-poll_for_state().
+The following log reveals it:
 
-Cc: linuxppc-dev@lists.ozlabs.org
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20210723074317.32690-3-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[   33.396850] divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+[   33.396864] CPU: 5 PID: 11754 Comm: i740 Not tainted 5.14.0-rc2-00513-gac532c9bbcfb-dirty #222
+[   33.396883] RIP: 0010:riva_load_video_mode+0x417/0xf70
+[   33.396969] Call Trace:
+[   33.396973]  ? debug_smp_processor_id+0x1c/0x20
+[   33.396984]  ? tick_nohz_tick_stopped+0x1a/0x90
+[   33.396996]  ? rivafb_copyarea+0x3c0/0x3c0
+[   33.397003]  ? wake_up_klogd.part.0+0x99/0xd0
+[   33.397014]  ? vprintk_emit+0x110/0x4b0
+[   33.397024]  ? vprintk_default+0x26/0x30
+[   33.397033]  ? vprintk+0x9c/0x1f0
+[   33.397041]  ? printk+0xba/0xed
+[   33.397054]  ? record_print_text.cold+0x16/0x16
+[   33.397063]  ? __kasan_check_read+0x11/0x20
+[   33.397074]  ? profile_tick+0xc0/0x100
+[   33.397084]  ? __sanitizer_cov_trace_const_cmp4+0x24/0x80
+[   33.397094]  ? riva_set_rop_solid+0x2a0/0x2a0
+[   33.397102]  rivafb_set_par+0xbe/0x610
+[   33.397111]  ? riva_set_rop_solid+0x2a0/0x2a0
+[   33.397119]  fb_set_var+0x5bf/0xeb0
+[   33.397127]  ? fb_blank+0x1a0/0x1a0
+[   33.397134]  ? lock_acquire+0x1ef/0x530
+[   33.397143]  ? lock_release+0x810/0x810
+[   33.397151]  ? lock_is_held_type+0x100/0x140
+[   33.397159]  ? ___might_sleep+0x1ee/0x2d0
+[   33.397170]  ? __mutex_lock+0x620/0x1190
+[   33.397180]  ? trace_hardirqs_on+0x6a/0x1c0
+[   33.397190]  do_fb_ioctl+0x31e/0x700
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1627293835-17441-4-git-send-email-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/hvc/hvsi.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ drivers/video/fbdev/riva/fbdev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/tty/hvc/hvsi.c b/drivers/tty/hvc/hvsi.c
-index 96ce6bd1cc6f..4b6f93067ae4 100644
---- a/drivers/tty/hvc/hvsi.c
-+++ b/drivers/tty/hvc/hvsi.c
-@@ -1051,7 +1051,7 @@ static const struct tty_operations hvsi_ops = {
- 
- static int __init hvsi_init(void)
- {
--	int i;
-+	int i, ret;
- 
- 	hvsi_driver = alloc_tty_driver(hvsi_count);
- 	if (!hvsi_driver)
-@@ -1082,12 +1082,25 @@ static int __init hvsi_init(void)
- 	}
- 	hvsi_wait = wait_for_state; /* irqs active now */
- 
--	if (tty_register_driver(hvsi_driver))
--		panic("Couldn't register hvsi console driver\n");
-+	ret = tty_register_driver(hvsi_driver);
-+	if (ret) {
-+		pr_err("Couldn't register hvsi console driver\n");
-+		goto err_free_irq;
-+	}
- 
- 	printk(KERN_DEBUG "HVSI: registered %i devices\n", hvsi_count);
- 
- 	return 0;
-+err_free_irq:
-+	hvsi_wait = poll_for_state;
-+	for (i = 0; i < hvsi_count; i++) {
-+		struct hvsi_struct *hp = &hvsi_ports[i];
+diff --git a/drivers/video/fbdev/riva/fbdev.c b/drivers/video/fbdev/riva/fbdev.c
+index f1ad2747064b..6e5e29fe13db 100644
+--- a/drivers/video/fbdev/riva/fbdev.c
++++ b/drivers/video/fbdev/riva/fbdev.c
+@@ -1088,6 +1088,9 @@ static int rivafb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
+ 	int mode_valid = 0;
+ 	
+ 	NVTRACE_ENTER();
++	if (!var->pixclock)
++		return -EINVAL;
 +
-+		free_irq(hp->virq, hp);
-+	}
-+	tty_driver_kref_put(hvsi_driver);
-+
-+	return ret;
- }
- device_initcall(hvsi_init);
- 
+ 	switch (var->bits_per_pixel) {
+ 	case 1 ... 8:
+ 		var->red.offset = var->green.offset = var->blue.offset = 0;
 -- 
 2.30.2
 
