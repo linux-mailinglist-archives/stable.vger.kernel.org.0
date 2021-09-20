@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 199A541214A
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:05:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B4AB41214F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:05:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350465AbhITSEA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:04:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57650 "EHLO mail.kernel.org"
+        id S1357372AbhITSEE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:04:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356861AbhITSB4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1356859AbhITSB4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:01:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84C666322F;
-        Mon, 20 Sep 2021 17:16:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B137A61A07;
+        Mon, 20 Sep 2021 17:16:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158176;
-        bh=uAgDrDaQvuwlGbDQmjOOVb1AG5MD5EJZLfmWEmvOr2w=;
+        s=korg; t=1632158178;
+        bh=JRiiM4LJf/6TJe3fmvCI3TN7kYgTzeuyYGTQlFXtBho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EYkfodtnLRI79ojhuxpXJ4QJRMMBoce1qEeo3G/J6PV48YfWfpELT0p3EPTclsHLy
-         g0vBtWS1xeVlF7DdPuiAq4PyqwlVGh2Vnu2+hYcXt+zM5/NrKnMBG2iarn+pAozoG3
-         3A31qvE+yXkve/Lr1d17LMYN23Sy5csmNSOQGbr4=
+        b=bVpktNbwXo2gdnHzjBKD0Ii52T5wlf9O70vUQOSuNh9g1Vu0shphzdI9+GPRYd3Jw
+         LZ5NJzGHoNDgVtZjtbkkcvkUeJ/QUU7e/BwH7dl8bh61pgjuXRdfbqmuNXMVQAXeqe
+         9kXiuS1N00JqczZTXg38WPjCgBSpdmk7OnABUTwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.4 035/260] PCI: aardvark: Fix masking and unmasking legacy INTx interrupts
-Date:   Mon, 20 Sep 2021 18:40:53 +0200
-Message-Id: <20210920163932.316505502@linuxfoundation.org>
+        stable@vger.kernel.org, Kenneth Albanowski <kenalba@google.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 036/260] HID: input: do not report stylus battery state as "full"
+Date:   Mon, 20 Sep 2021 18:40:54 +0200
+Message-Id: <20210920163932.350787341@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -40,72 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit d212dcee27c1f89517181047e5485fcbba4a25c2 upstream.
+[ Upstream commit f4abaa9eebde334045ed6ac4e564d050f1df3013 ]
 
-irq_mask and irq_unmask callbacks need to be properly guarded by raw spin
-locks as masking/unmasking procedure needs atomic read-modify-write
-operation on hardware register.
+The power supply states of discharging, charging, full, etc, represent
+state of charging, not the capacity level of the battery (for which
+we have a separate property). Current HID usage tables to not allow
+for expressing charging state of the batteries found in generic
+styli, so we should simply assume that the battery is discharging
+even if current capacity is at 100% when battery strength reporting
+is done via HID interface. In fact, we were doing just that before
+commit 581c4484769e.
 
-Link: https://lore.kernel.org/r/20210820155020.3000-1-pali@kernel.org
-Reported-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This change helps UIs to not mis-represent fully charged batteries in
+styli as being charging/topping-off.
+
+Fixes: 581c4484769e ("HID: input: map digitizer battery usage")
+Reported-by: Kenneth Albanowski <kenalba@google.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/hid/hid-input.c | 2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -194,6 +194,7 @@ struct advk_pcie {
- 	struct list_head resources;
- 	struct irq_domain *irq_domain;
- 	struct irq_chip irq_chip;
-+	raw_spinlock_t irq_lock;
- 	struct irq_domain *msi_domain;
- 	struct irq_domain *msi_inner_domain;
- 	struct irq_chip msi_bottom_irq_chip;
-@@ -812,22 +813,28 @@ static void advk_pcie_irq_mask(struct ir
- {
- 	struct advk_pcie *pcie = d->domain->host_data;
- 	irq_hw_number_t hwirq = irqd_to_hwirq(d);
-+	unsigned long flags;
- 	u32 mask;
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 6d551ae251c0..ea4c97f5b073 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -415,8 +415,6 @@ static int hidinput_get_battery_property(struct power_supply *psy,
  
-+	raw_spin_lock_irqsave(&pcie->irq_lock, flags);
- 	mask = advk_readl(pcie, PCIE_ISR1_MASK_REG);
- 	mask |= PCIE_ISR1_INTX_ASSERT(hwirq);
- 	advk_writel(pcie, mask, PCIE_ISR1_MASK_REG);
-+	raw_spin_unlock_irqrestore(&pcie->irq_lock, flags);
- }
- 
- static void advk_pcie_irq_unmask(struct irq_data *d)
- {
- 	struct advk_pcie *pcie = d->domain->host_data;
- 	irq_hw_number_t hwirq = irqd_to_hwirq(d);
-+	unsigned long flags;
- 	u32 mask;
- 
-+	raw_spin_lock_irqsave(&pcie->irq_lock, flags);
- 	mask = advk_readl(pcie, PCIE_ISR1_MASK_REG);
- 	mask &= ~PCIE_ISR1_INTX_ASSERT(hwirq);
- 	advk_writel(pcie, mask, PCIE_ISR1_MASK_REG);
-+	raw_spin_unlock_irqrestore(&pcie->irq_lock, flags);
- }
- 
- static int advk_pcie_irq_map(struct irq_domain *h,
-@@ -911,6 +918,8 @@ static int advk_pcie_init_irq_domain(str
- 	struct irq_chip *irq_chip;
- 	int ret = 0;
- 
-+	raw_spin_lock_init(&pcie->irq_lock);
-+
- 	pcie_intc_node =  of_get_next_child(node, NULL);
- 	if (!pcie_intc_node) {
- 		dev_err(dev, "No PCIe Intc node found\n");
+ 		if (dev->battery_status == HID_BATTERY_UNKNOWN)
+ 			val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
+-		else if (dev->battery_capacity == 100)
+-			val->intval = POWER_SUPPLY_STATUS_FULL;
+ 		else
+ 			val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
+ 		break;
+-- 
+2.30.2
+
 
 
