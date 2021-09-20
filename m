@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADC6441203C
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:52:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FFA3411A90
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:49:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353908AbhITRxd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:53:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53072 "EHLO mail.kernel.org"
+        id S240660AbhITQuk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:50:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354252AbhITRtY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:49:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EAAA561353;
-        Mon, 20 Sep 2021 17:11:31 +0000 (UTC)
+        id S236965AbhITQti (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:49:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D90186128A;
+        Mon, 20 Sep 2021 16:48:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157892;
-        bh=IG4WzuU9ZzfY8NhFaGUxR7321fnYT+WG2xobM7X31RA=;
+        s=korg; t=1632156491;
+        bh=4M6l8XnkxZIOgOak0YlBiTwRChEPn0n+I4psvZFEQy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TiylCcFm9tHUMmMmUWKutZwJceEudXIsZVDxw9EsRhZSqseANCELdx6qNX7zA8ilF
-         x1ax/MpupOwwdSXOlOPWfLWmBiNfsmqSegrcZ8ftlqRRc+j/VUKrde0HhFGNL2en0k
-         6L+6KGnr6H0th68QwR7T4kuOEx4Sv+o3pj5BPP5I=
+        b=zmuQ4OdxurwOhtoDZl7fo7A2EMzWCEIJz1Fv34gjcmS9JJ36vKHi9AqL2rmq3EBmQ
+         qYgn6BOd/tQH0SKI/KFTXr6AmnaBWdMzxhGTCdwPUK5wbmld/T/bezTgFyOUg6XZlI
+         /L727vm53WiNdVU/9eRsPtC8JdWByJ89MQoKQX2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Jordy Zomer <jordy@pwning.systems>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 199/293] serial: 8250_pci: make setup_port() parameters explicitly unsigned
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Stafford Horne <shorne@gmail.com>,
+        openrisc@lists.librecores.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 083/133] openrisc: dont printk() unconditionally
 Date:   Mon, 20 Sep 2021 18:42:41 +0200
-Message-Id: <20210920163940.080044788@linuxfoundation.org>
+Message-Id: <20210920163915.357380022@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 3a96e97ab4e835078e6f27b7e1c0947814df3841 ]
+[ Upstream commit 946e1052cdcc7e585ee5d1e72528ca49fb295243 ]
 
-The bar and offset parameters to setup_port() are used in pointer math,
-and while it would be very difficult to get them to wrap as a negative
-number, just be "safe" and make them unsigned so that static checkers do
-not trip over them unintentionally.
+Don't call printk() when CONFIG_PRINTK is not set.
+Fixes the following build errors:
 
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Reported-by: Jordy Zomer <jordy@pwning.systems>
-Link: https://lore.kernel.org/r/20210726130717.2052096-1-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+or1k-linux-ld: arch/openrisc/kernel/entry.o: in function `_external_irq_handler':
+(.text+0x804): undefined reference to `printk'
+(.text+0x804): relocation truncated to fit: R_OR1K_INSN_REL_26 against undefined symbol `printk'
+
+Fixes: 9d02a4283e9c ("OpenRISC: Boot code")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Cc: Stafford Horne <shorne@gmail.com>
+Cc: openrisc@lists.librecores.org
+Signed-off-by: Stafford Horne <shorne@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_pci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/openrisc/kernel/entry.S | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
-index 725e5842b8ac..f54c18e4ae90 100644
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -70,7 +70,7 @@ static void moan_device(const char *str, struct pci_dev *dev)
+diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
+index 3fbe420f49c4..92cdc1e56b60 100644
+--- a/arch/openrisc/kernel/entry.S
++++ b/arch/openrisc/kernel/entry.S
+@@ -491,6 +491,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
+ 	l.bnf	1f			// ext irq enabled, all ok.
+ 	l.nop
  
- static int
- setup_port(struct serial_private *priv, struct uart_8250_port *port,
--	   int bar, int offset, int regshift)
-+	   u8 bar, unsigned int offset, int regshift)
- {
- 	struct pci_dev *dev = priv->dev;
++#ifdef CONFIG_PRINTK
+ 	l.addi  r1,r1,-0x8
+ 	l.movhi r3,hi(42f)
+ 	l.ori	r3,r3,lo(42f)
+@@ -504,6 +505,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
+ 		.string "\n\rESR interrupt bug: in _external_irq_handler (ESR %x)\n\r"
+ 		.align 4
+ 	.previous
++#endif
  
+ 	l.ori	r4,r4,SPR_SR_IEE	// fix the bug
+ //	l.sw	PT_SR(r1),r4
 -- 
 2.30.2
 
