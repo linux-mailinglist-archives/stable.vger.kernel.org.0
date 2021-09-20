@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC807411DFA
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:24:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06A64411C33
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:05:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347589AbhITR0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:26:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56310 "EHLO mail.kernel.org"
+        id S1344881AbhITRG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:06:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349687AbhITRYP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:24:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 884B061A82;
-        Mon, 20 Sep 2021 17:01:57 +0000 (UTC)
+        id S1346055AbhITRE4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:04:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FD9461506;
+        Mon, 20 Sep 2021 16:54:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157318;
-        bh=PPM/jXHmTtR/M9ZsSaVnvwKdTCr9Kp3n0mIOVTS9KFA=;
+        s=korg; t=1632156876;
+        bh=t8ZnbBj7hWd4lpfOQWWMUX01tSelLteX9l46eqMCDvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NUydI+aMCBuhmT0G4epRHyQ8fnGL9N5d0oaTfVxZkLUDNLE2PGu9XMKHHRt7cTPdG
-         ESh+cw6AHFpiDb5pVJkpJHAhAligiSQZ0BIgm1LUHrT7IK9bctlx0mLsiUKrcDfsDZ
-         VA9+29Ipsb9LAgW/ca6RXvKJqu4jTzyzWYoMrmNs=
+        b=siPQ417nVD7Srm2nY2tiiM41zLkThLiZjN3bs6tMg4AJM1v+/5OvURfqllMk1xZqv
+         nOXSy1XNcF4WPe9OwRv1T5n8o4j7uY7gwevO6IiS7EoWIUQ6DaKrd01Kuvx8DsRAD5
+         qBep3DFZMKljVqJ7ZJx+JhEUg7JX5CyEBYsWmbM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        Jiri Slaby <jslaby@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 154/217] hvsi: dont panic on tty_register_driver failure
+        stable@vger.kernel.org, Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        linux-xtensa@linux-xtensa.org, Jiri Slaby <jslaby@suse.cz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 126/175] xtensa: ISS: dont panic in rs_init
 Date:   Mon, 20 Sep 2021 18:42:55 +0200
-Message-Id: <20210920163929.856299777@linuxfoundation.org>
+Message-Id: <20210920163922.200744750@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +43,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit 7ccbdcc4d08a6d7041e4849219bbb12ffa45db4c ]
+[ Upstream commit 23411c720052ad860b3e579ee4873511e367130a ]
 
-The alloc_tty_driver failure is handled gracefully in hvsi_init. But
-tty_register_driver is not. panic is called if that one fails.
+While alloc_tty_driver failure in rs_init would mean we have much bigger
+problem, there is no reason to panic when tty_register_driver fails
+there. It can fail for various reasons.
 
-So handle the failure of tty_register_driver gracefully too. This will
-keep at least the console functional as it was enabled earlier by
-console_initcall in hvsi_console_init. Instead of shooting down the
+So handle the failure gracefully. Actually handle them both while at it.
+This will make at least the console functional as it was enabled earlier
+by console_initcall in iss_console_init. Instead of shooting down the
 whole system.
 
-This means, we disable interrupts and restore hvsi_wait back to
-poll_for_state().
+We move tty_port_init() after alloc_tty_driver(), so that we don't need
+to destroy the port in case the latter function fails.
 
-Cc: linuxppc-dev@lists.ozlabs.org
+Cc: Chris Zankel <chris@zankel.net>
+Cc: Max Filippov <jcmvbkbc@gmail.com>
+Cc: linux-xtensa@linux-xtensa.org
+Acked-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20210723074317.32690-3-jslaby@suse.cz
+Link: https://lore.kernel.org/r/20210723074317.32690-2-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/hvc/hvsi.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ arch/xtensa/platforms/iss/console.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/hvc/hvsi.c b/drivers/tty/hvc/hvsi.c
-index 2e578d6433af..7d7fdfc578a9 100644
---- a/drivers/tty/hvc/hvsi.c
-+++ b/drivers/tty/hvc/hvsi.c
-@@ -1051,7 +1051,7 @@ static const struct tty_operations hvsi_ops = {
+diff --git a/arch/xtensa/platforms/iss/console.c b/arch/xtensa/platforms/iss/console.c
+index c68f1e6158aa..a2d93a7c7ff2 100644
+--- a/arch/xtensa/platforms/iss/console.c
++++ b/arch/xtensa/platforms/iss/console.c
+@@ -182,9 +182,13 @@ static const struct tty_operations serial_ops = {
  
- static int __init hvsi_init(void)
+ int __init rs_init(void)
  {
--	int i;
-+	int i, ret;
+-	tty_port_init(&serial_port);
++	int ret;
  
- 	hvsi_driver = alloc_tty_driver(hvsi_count);
- 	if (!hvsi_driver)
-@@ -1082,12 +1082,25 @@ static int __init hvsi_init(void)
- 	}
- 	hvsi_wait = wait_for_state; /* irqs active now */
+ 	serial_driver = alloc_tty_driver(SERIAL_MAX_NUM_LINES);
++	if (!serial_driver)
++		return -ENOMEM;
++
++	tty_port_init(&serial_port);
  
--	if (tty_register_driver(hvsi_driver))
--		panic("Couldn't register hvsi console driver\n");
-+	ret = tty_register_driver(hvsi_driver);
+ 	printk ("%s %s\n", serial_name, serial_version);
+ 
+@@ -204,8 +208,15 @@ int __init rs_init(void)
+ 	tty_set_operations(serial_driver, &serial_ops);
+ 	tty_port_link_device(&serial_port, serial_driver, 0);
+ 
+-	if (tty_register_driver(serial_driver))
+-		panic("Couldn't register serial driver\n");
++	ret = tty_register_driver(serial_driver);
 +	if (ret) {
-+		pr_err("Couldn't register hvsi console driver\n");
-+		goto err_free_irq;
++		pr_err("Couldn't register serial driver\n");
++		tty_driver_kref_put(serial_driver);
++		tty_port_destroy(&serial_port);
++
++		return ret;
 +	}
- 
- 	printk(KERN_DEBUG "HVSI: registered %i devices\n", hvsi_count);
- 
++
  	return 0;
-+err_free_irq:
-+	hvsi_wait = poll_for_state;
-+	for (i = 0; i < hvsi_count; i++) {
-+		struct hvsi_struct *hp = &hvsi_ports[i];
-+
-+		free_irq(hp->virq, hp);
-+	}
-+	tty_driver_kref_put(hvsi_driver);
-+
-+	return ret;
  }
- device_initcall(hvsi_init);
  
 -- 
 2.30.2
