@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49770411F49
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:38:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61BF0411EF9
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:35:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343674AbhITRj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:39:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42456 "EHLO mail.kernel.org"
+        id S1347060AbhITRga (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:36:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352054AbhITRhf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:37:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3C8C61B40;
-        Mon, 20 Sep 2021 17:06:59 +0000 (UTC)
+        id S1351602AbhITRec (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:34:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9A5D61503;
+        Mon, 20 Sep 2021 17:05:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157620;
-        bh=dGLfehhFTy0eJ6fGMxY1QVBpciXrFxL5nfABSAi8V0Y=;
+        s=korg; t=1632157546;
+        bh=11eeffGwG4uOSbQyfPb2wgUQ9gANrFEgY1LntyJbrkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RNrPvGKSIrtxPBSWTNflRJa109CRnLBCwhFFrgSArDe0xBCjDdoSGf+hqMn4wzmzC
-         jM+Gw48ob5K38L7Oq/CGm0lhqRVs2KfOQDiR+TvWxKT9XL3zb6T3TPdGByKrzpolnF
-         oya/i8qRtmKRDUL7MElmHrria8hLhTStN6+EUs6o=
+        b=pQZRKnmoESUGtqhgVzIJVZOG6g4A00C68YmuoLoUO+wLB0yDUj99vCq8P8/mYe6px
+         gQXB8SHBIYWM95W0D98aPeSKvn+iigb9quyYqO3/U1Jb+YrMoYY4n46LQk4Wy+Ko9p
+         WbET8xstnfua37Ssz+ovd/+aJepPhPTKGmUsdrf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yanfei Xu <yanfei.xu@windriver.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Waiman Long <longman@redhat.com>,
+        stable@vger.kernel.org, Jeongtae Park <jeongtae.park@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 032/293] locking/mutex: Fix HANDOFF condition
-Date:   Mon, 20 Sep 2021 18:39:54 +0200
-Message-Id: <20210920163934.366112555@linuxfoundation.org>
+Subject: [PATCH 4.19 033/293] regmap: fix the offset of register error log
+Date:   Mon, 20 Sep 2021 18:39:55 +0200
+Message-Id: <20210920163934.405196107@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
 References: <20210920163933.258815435@linuxfoundation.org>
@@ -41,71 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Jeongtae Park <jeongtae.park@gmail.com>
 
-[ Upstream commit 048661a1f963e9517630f080687d48af79ed784c ]
+[ Upstream commit 1852f5ed358147095297a09cc3c6f160208a676d ]
 
-Yanfei reported that setting HANDOFF should not depend on recomputing
-@first, only on @first state. Which would then give:
+This patch fixes the offset of register error log
+by using regmap_get_offset().
 
-  if (ww_ctx || !first)
-    first = __mutex_waiter_is_first(lock, &waiter);
-  if (first)
-    __mutex_set_flag(lock, MUTEX_FLAG_HANDOFF);
-
-But because 'ww_ctx || !first' is basically 'always' and the test for
-first is relatively cheap, omit that first branch entirely.
-
-Reported-by: Yanfei Xu <yanfei.xu@windriver.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Waiman Long <longman@redhat.com>
-Reviewed-by: Yanfei Xu <yanfei.xu@windriver.com>
-Link: https://lore.kernel.org/r/20210630154114.896786297@infradead.org
+Signed-off-by: Jeongtae Park <jeongtae.park@gmail.com>
+Link: https://lore.kernel.org/r/20210701142630.44936-1-jeongtae.park@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/mutex.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ drivers/base/regmap/regmap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/locking/mutex.c b/kernel/locking/mutex.c
-index 354151fef06a..fbc62d360419 100644
---- a/kernel/locking/mutex.c
-+++ b/kernel/locking/mutex.c
-@@ -911,7 +911,6 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
- 		    struct ww_acquire_ctx *ww_ctx, const bool use_ww_ctx)
- {
- 	struct mutex_waiter waiter;
--	bool first = false;
- 	struct ww_mutex *ww;
- 	int ret;
- 
-@@ -986,6 +985,8 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
- 
- 	set_current_state(state);
- 	for (;;) {
-+		bool first;
-+
- 		/*
- 		 * Once we hold wait_lock, we're serialized against
- 		 * mutex_unlock() handing the lock off to us, do a trylock
-@@ -1014,15 +1015,9 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
- 		spin_unlock(&lock->wait_lock);
- 		schedule_preempt_disabled();
- 
--		/*
--		 * ww_mutex needs to always recheck its position since its waiter
--		 * list is not FIFO ordered.
--		 */
--		if (ww_ctx || !first) {
--			first = __mutex_waiter_is_first(lock, &waiter);
--			if (first)
--				__mutex_set_flag(lock, MUTEX_FLAG_HANDOFF);
--		}
-+		first = __mutex_waiter_is_first(lock, &waiter);
-+		if (first)
-+			__mutex_set_flag(lock, MUTEX_FLAG_HANDOFF);
- 
- 		set_current_state(state);
- 		/*
+diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
+index e8b3353c18eb..330ab9c85d1b 100644
+--- a/drivers/base/regmap/regmap.c
++++ b/drivers/base/regmap/regmap.c
+@@ -1479,7 +1479,7 @@ static int _regmap_raw_write_impl(struct regmap *map, unsigned int reg,
+ 			if (ret) {
+ 				dev_err(map->dev,
+ 					"Error in caching of register: %x ret: %d\n",
+-					reg + i, ret);
++					reg + regmap_get_offset(map, i), ret);
+ 				return ret;
+ 			}
+ 		}
 -- 
 2.30.2
 
