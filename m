@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 480C0411458
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 14:26:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBD1B41145E
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 14:28:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234622AbhITM1l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 08:27:41 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:55009 "EHLO
+        id S238009AbhITM3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 08:29:25 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:23757 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237890AbhITM1k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 08:27:40 -0400
+        by vger.kernel.org with ESMTP id S238181AbhITM3Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 08:29:24 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1632140773;
+        s=mimecast20190719; t=1632140877;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=fb0MsThNn9Bd3Dwshjn9xX7AVuFnww4UExFyiMUScPg=;
-        b=ZJuAR5UkQB46Dis+CjDTBRtKCppkgyscqO4jiSKHmYHisPiT3dNbD4NY6sK6DUZo7K6mpk
-        S2ZeTKWJfY7ocur1nLftP+fHUrQFhZsp0Lpb9ULId+e7F6BnCN3KDpFKHBK8k6uAGjhI5E
-        jsAhuoDIRgu8URIZPIccKygHi+zAHNA=
+        bh=ogpkesyQIobk7UfMIDXUwt8PLrLq3ty2TaxR9317jpk=;
+        b=KI9dsCl/3daDHo52a/wwBQcsRkIyD8h9U1apDMQ6JoFkIE/3ONrXRHt04rdF8XOY5V2LbL
+        SEVnmzBTNURbQZ7ADBldAPJf0ZY87J6LIlCO2pUzYco3nZV6lzKyZL+mCVj8Q7Comp2r2/
+        S3fp+fwK5lzJ4aVJ+GbB1yZhOOiWjOk=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-253-shqn2YXyPtKcIKy0-P78ZA-1; Mon, 20 Sep 2021 08:26:10 -0400
-X-MC-Unique: shqn2YXyPtKcIKy0-P78ZA-1
+ us-mta-557-sa8WFbHpNIK09g5mi75w8Q-1; Mon, 20 Sep 2021 08:27:56 -0400
+X-MC-Unique: sa8WFbHpNIK09g5mi75w8Q-1
 Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DFA228145FB;
-        Mon, 20 Sep 2021 12:26:08 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B93B2802928;
+        Mon, 20 Sep 2021 12:27:54 +0000 (UTC)
 Received: from t480s.redhat.com (unknown [10.39.194.236])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 771315D9DC;
-        Mon, 20 Sep 2021 12:26:06 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D69215D9D5;
+        Mon, 20 Sep 2021 12:27:28 +0000 (UTC)
 From:   David Hildenbrand <david@redhat.com>
 To:     stable@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
@@ -40,11 +40,11 @@ Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
         Pankaj Gupta <pankaj.gupta@ionos.com>,
         Muchun Song <songmuchun@bytedance.com>,
         Oscar Salvador <osalvador@suse.de>
-Subject: [PATCH 5.4 STABLE] mm/memory_hotplug: use "unsigned long" for PFN in zone_for_pfn_range()
-Date:   Mon, 20 Sep 2021 14:26:05 +0200
-Message-Id: <20210920122605.8061-1-david@redhat.com>
-In-Reply-To: <16317969739550@kroah.com>
-References: <16317969739550@kroah.com>
+Subject: [PATCH 5.10 STABLE] mm/memory_hotplug: use "unsigned long" for PFN in zone_for_pfn_range()
+Date:   Mon, 20 Sep 2021 14:27:28 +0200
+Message-Id: <20210920122728.8241-1-david@redhat.com>
+In-Reply-To: <163179697512923@kroah.com>
+References: <163179697512923@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
@@ -146,23 +146,25 @@ Signed-off-by: David Hildenbrand <david@redhat.com>
  2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index 451efd4499cc..961e35c68e41 100644
+index 551093b74596..1dafc7c7f5cf 100644
 --- a/include/linux/memory_hotplug.h
 +++ b/include/linux/memory_hotplug.h
-@@ -358,6 +358,6 @@ extern struct page *sparse_decode_mem_map(unsigned long coded_mem_map,
+@@ -359,8 +359,8 @@ extern void sparse_remove_section(struct mem_section *ms,
+ 		unsigned long map_offset, struct vmem_altmap *altmap);
+ extern struct page *sparse_decode_mem_map(unsigned long coded_mem_map,
  					  unsigned long pnum);
- extern bool allow_online_pfn_range(int nid, unsigned long pfn, unsigned long nr_pages,
- 		int online_type);
 -extern struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
 -		unsigned long nr_pages);
 +extern struct zone *zone_for_pfn_range(int online_type, int nid,
 +		unsigned long start_pfn, unsigned long nr_pages);
+ #endif /* CONFIG_MEMORY_HOTPLUG */
+ 
  #endif /* __LINUX_MEMORY_HOTPLUG_H */
 diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 308beca3ffeb..bcc2686bd0a1 100644
+index b9de2df5b835..6275b1c05f11 100644
 --- a/mm/memory_hotplug.c
 +++ b/mm/memory_hotplug.c
-@@ -775,8 +775,8 @@ static inline struct zone *default_zone_for_pfn(int nid, unsigned long start_pfn
+@@ -765,8 +765,8 @@ static inline struct zone *default_zone_for_pfn(int nid, unsigned long start_pfn
  	return movable_node_enabled ? movable_zone : kernel_zone;
  }
  
