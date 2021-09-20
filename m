@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69D48411D3C
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:16:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ABA6411B6F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:57:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347052AbhITRRf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:17:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42490 "EHLO mail.kernel.org"
+        id S245660AbhITQ6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:58:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345840AbhITRPf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:15:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA482613B3;
-        Mon, 20 Sep 2021 16:58:39 +0000 (UTC)
+        id S241958AbhITQ4h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:56:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B440D61242;
+        Mon, 20 Sep 2021 16:51:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157120;
-        bh=BLj3GZcIkNnuaVMECh7rOuTP0dIwv6QQNrOzkFYmVik=;
+        s=korg; t=1632156678;
+        bh=7S7TV+4fh1G+GEn4kC3KzTkyaRuZU3TmOAvgbJxXe/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dX89HFczNER+nWbjopdM50wY6vUtVfXCtNVXPjiqypyDAqaPzuK0lbLKbtkva3UR2
-         P7HjuISmYlGdmlfLytxkWjgryAj2ZyRv99lJBzSh0QnIV1V6uuRKpWam8jDiaBlk9w
-         nGwlGXBBMIP8816HPl6cYoo4vY+9QDXkPknCd4gk=
+        b=R92EXsWEaL4o/02wtV8g8rcXGO3eSmcaoZq+yPrG1XGoirlUm5L2OFdHUKNfNIrDP
+         PI7J4noQeIA1lkcZDxpmBJMp+Gz5xpQ7g8bWWS+I3kNECwMerR8VpFo/rU5hWNYQ4B
+         DPIHOchYXNeNecv70aa0Vdo2v2nRmasPkbmuVQH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 062/217] soc: qcom: smsm: Fix missed interrupts if state changes while masked
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.9 034/175] PCI: Call Max Payload Size-related fixup quirks early
 Date:   Mon, 20 Sep 2021 18:41:23 +0200
-Message-Id: <20210920163926.726787504@linuxfoundation.org>
+Message-Id: <20210920163919.177532743@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,78 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit e3d4571955050736bbf3eda0a9538a09d9fcfce8 ]
+commit b8da302e2955fe4d41eb9d48199242674d77dbe0 upstream.
 
-The SMSM driver detects interrupt edges by tracking the last state
-it has seen (and has triggered the interrupt handler for). This works
-fine, but only if the interrupt does not change state while masked.
+pci_device_add() calls HEADER fixups after pci_configure_device(), which
+configures Max Payload Size.
 
-For example, if an interrupt is unmasked while the state is HIGH,
-the stored last_value for that interrupt might still be LOW. Then,
-when the remote processor triggers smsm_intr() we assume that nothing
-has changed, even though the state might have changed from HIGH to LOW.
+Convert MPS-related fixups to EARLY fixups so pci_configure_mps() takes
+them into account.
 
-Attempt to fix this by checking the current remote state before
-unmasking an IRQ. Use atomic operations to avoid the interrupt handler
-from interfering with the unmask function.
-
-This fixes modem crashes in some edge cases with the BAM-DMUX driver.
-Specifically, the BAM-DMUX interrupt handler is not called for the
-HIGH -> LOW smsm state transition if the BAM-DMUX driver is loaded
-(and therefore unmasks the interrupt) after the modem was already started:
-
-qcom-q6v5-mss 4080000.remoteproc: fatal error received: a2_task.c:3188:
-  Assert FALSE failed: A2 DL PER deadlock timer expired waiting for Apps ACK
-
-Fixes: c97c4090ff72 ("soc: qcom: smsm: Add driver for Qualcomm SMSM")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Link: https://lore.kernel.org/r/20210712135703.324748-2-stephan@gerhold.net
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 27d868b5e6cfa ("PCI: Set MPS to match upstream bridge")
+Link: https://lore.kernel.org/r/20210624171418.27194-1-kabel@kernel.org
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/qcom/smsm.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/pci/quirks.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/soc/qcom/smsm.c b/drivers/soc/qcom/smsm.c
-index 50214b620865..2b49d2c212da 100644
---- a/drivers/soc/qcom/smsm.c
-+++ b/drivers/soc/qcom/smsm.c
-@@ -117,7 +117,7 @@ struct smsm_entry {
- 	DECLARE_BITMAP(irq_enabled, 32);
- 	DECLARE_BITMAP(irq_rising, 32);
- 	DECLARE_BITMAP(irq_falling, 32);
--	u32 last_value;
-+	unsigned long last_value;
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -2994,12 +2994,12 @@ static void fixup_mpss_256(struct pci_de
+ {
+ 	dev->pcie_mpss = 1; /* 256 bytes */
+ }
+-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
+-			 PCI_DEVICE_ID_SOLARFLARE_SFC4000A_0, fixup_mpss_256);
+-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
+-			 PCI_DEVICE_ID_SOLARFLARE_SFC4000A_1, fixup_mpss_256);
+-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
+-			 PCI_DEVICE_ID_SOLARFLARE_SFC4000B, fixup_mpss_256);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
++			PCI_DEVICE_ID_SOLARFLARE_SFC4000A_0, fixup_mpss_256);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
++			PCI_DEVICE_ID_SOLARFLARE_SFC4000A_1, fixup_mpss_256);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
++			PCI_DEVICE_ID_SOLARFLARE_SFC4000B, fixup_mpss_256);
  
- 	u32 *remote_state;
- 	u32 *subscription;
-@@ -212,8 +212,7 @@ static irqreturn_t smsm_intr(int irq, void *data)
- 	u32 val;
- 
- 	val = readl(entry->remote_state);
--	changed = val ^ entry->last_value;
--	entry->last_value = val;
-+	changed = val ^ xchg(&entry->last_value, val);
- 
- 	for_each_set_bit(i, entry->irq_enabled, 32) {
- 		if (!(changed & BIT(i)))
-@@ -274,6 +273,12 @@ static void smsm_unmask_irq(struct irq_data *irqd)
- 	struct qcom_smsm *smsm = entry->smsm;
- 	u32 val;
- 
-+	/* Make sure our last cached state is up-to-date */
-+	if (readl(entry->remote_state) & BIT(irq))
-+		set_bit(irq, &entry->last_value);
-+	else
-+		clear_bit(irq, &entry->last_value);
-+
- 	set_bit(irq, entry->irq_enabled);
- 
- 	if (entry->subscription) {
--- 
-2.30.2
-
+ /* Intel 5000 and 5100 Memory controllers have an errata with read completion
+  * coalescing (which is enabled by default on some BIOSes) and MPS of 256B.
 
 
