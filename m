@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AC7D41253C
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:41:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E0FF4122AD
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382863AbhITSmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:42:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56474 "EHLO mail.kernel.org"
+        id S1377248AbhITSQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:16:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1382498AbhITSka (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:40:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B018261504;
-        Mon, 20 Sep 2021 17:31:18 +0000 (UTC)
+        id S1376725AbhITSOW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:14:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FE4061407;
+        Mon, 20 Sep 2021 17:21:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159079;
-        bh=BoLplh6bBEsyA6OP7XqisN8yxIN+vNcJcvH1zW8/lns=;
+        s=korg; t=1632158492;
+        bh=ZWep0WPF1IjUAje+ZQ5KO+fruCBz/AcdChbTVOFIS7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dyjH4lGBSRpzKUaaVHdhWEuD2CVvN2wEZQXRjaeaeytc167SYD/MiYvsQ4Msigga6
-         bpcV607MW+12J1YzFvqxqc9qAw2/eRF3cj7epKbJyyGm92LdkgajUDAWWGtf/NyHK7
-         uIJIozdXzmiH9jiTZ5HR6dvJoxpxZb4bxHt7IKnM=
+        b=WPE6ohseqQ67hKsr6QRj8FlolXeMVETbCGK7R9Zj0IVJ4EDbfcKgp6Gf1eYhx8vgi
+         gIjExvORSGmr/m4kz1cTrhV+6bx4M9tVMCh3qn2kUbTbP6I0txyoL/7h26ymHONDuq
+         B4/zk5sYytBjhJPnBRdQ1VhM5JoSWeZEDIaH+3wQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Moyer <jmoyer@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        David Hildenbrand <david@redhat.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.14 034/168] x86/pat: Pass valid address to sanitize_phys()
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Li Zhijian <lizhijian@cn.fujitsu.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 154/260] selftests/bpf: Enlarge select() timeout for test_maps
 Date:   Mon, 20 Sep 2021 18:42:52 +0200
-Message-Id: <20210920163922.771618656@linuxfoundation.org>
+Message-Id: <20210920163936.345183620@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Moyer <jmoyer@redhat.com>
+From: Li Zhijian <lizhijian@cn.fujitsu.com>
 
-commit aeef8b5089b76852bd84889f2809e69a7cfb414e upstream.
+[ Upstream commit 2d82d73da35b72b53fe0d96350a2b8d929d07e42 ]
 
-The end address passed to memtype_reserve() is handed directly to
-sanitize_phys().  However, end is exclusive and sanitize_phys() expects
-an inclusive address.  If end falls at the end of the physical address
-space, sanitize_phys() will return 0.  This can result in drivers
-failing to load, and the following warning:
+0Day robot observed that it's easily timeout on a heavy load host.
+-------------------
+ # selftests: bpf: test_maps
+ # Fork 1024 tasks to 'test_update_delete'
+ # Fork 1024 tasks to 'test_update_delete'
+ # Fork 100 tasks to 'test_hashmap'
+ # Fork 100 tasks to 'test_hashmap_percpu'
+ # Fork 100 tasks to 'test_hashmap_sizes'
+ # Fork 100 tasks to 'test_hashmap_walk'
+ # Fork 100 tasks to 'test_arraymap'
+ # Fork 100 tasks to 'test_arraymap_percpu'
+ # Failed sockmap unexpected timeout
+ not ok 3 selftests: bpf: test_maps # exit=1
+ # selftests: bpf: test_lru_map
+ # nr_cpus:8
+-------------------
+Since this test will be scheduled by 0Day to a random host that could have
+only a few cpus(2-8), enlarge the timeout to avoid a false NG report.
 
- WARNING: CPU: 26 PID: 749 at arch/x86/mm/pat.c:354 reserve_memtype+0x262/0x450
- reserve_memtype failed: [mem 0x3ffffff00000-0xffffffffffffffff], req uncached-minus
- Call Trace:
-  [<ffffffffa427b1f2>] reserve_memtype+0x262/0x450
-  [<ffffffffa42764aa>] ioremap_nocache+0x1a/0x20
-  [<ffffffffc04620a1>] mpt3sas_base_map_resources+0x151/0xa60 [mpt3sas]
-  [<ffffffffc0465555>] mpt3sas_base_attach+0xf5/0xa50 [mpt3sas]
- ---[ end trace 6d6eea4438db89ef ]---
- ioremap reserve_memtype failed -22
- mpt3sas_cm0: unable to map adapter memory! or resource not found
- mpt3sas_cm0: failure at drivers/scsi/mpt3sas/mpt3sas_scsih.c:10597/_scsih_probe()!
+In practice, i tried to pin it to only one cpu by 'taskset 0x01 ./test_maps',
+and knew 10S is likely enough, but i still perfer to a larger value 30.
 
-Fix this by passing the inclusive end address to sanitize_phys().
-
-Fixes: 510ee090abc3 ("x86/mm/pat: Prepare {reserve, free}_memtype() for "decoy" addresses")
-Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/x49o8a3pu5i.fsf@segfault.boston.devel.redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Li Zhijian <lizhijian@cn.fujitsu.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20210820015556.23276-2-lizhijian@cn.fujitsu.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/pat/memtype.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ tools/testing/selftests/bpf/test_maps.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/mm/pat/memtype.c
-+++ b/arch/x86/mm/pat/memtype.c
-@@ -583,7 +583,12 @@ int memtype_reserve(u64 start, u64 end,
- 	int err = 0;
+diff --git a/tools/testing/selftests/bpf/test_maps.c b/tools/testing/selftests/bpf/test_maps.c
+index 1c4219ceced2..45c7a55f0b8b 100644
+--- a/tools/testing/selftests/bpf/test_maps.c
++++ b/tools/testing/selftests/bpf/test_maps.c
+@@ -972,7 +972,7 @@ static void test_sockmap(unsigned int tasks, void *data)
  
- 	start = sanitize_phys(start);
--	end = sanitize_phys(end);
-+
-+	/*
-+	 * The end address passed into this function is exclusive, but
-+	 * sanitize_phys() expects an inclusive address.
-+	 */
-+	end = sanitize_phys(end - 1) + 1;
- 	if (start >= end) {
- 		WARN(1, "%s failed: [mem %#010Lx-%#010Lx], req %s\n", __func__,
- 				start, end - 1, cattr_name(req_type));
+ 		FD_ZERO(&w);
+ 		FD_SET(sfd[3], &w);
+-		to.tv_sec = 1;
++		to.tv_sec = 30;
+ 		to.tv_usec = 0;
+ 		s = select(sfd[3] + 1, &w, NULL, NULL, &to);
+ 		if (s == -1) {
+-- 
+2.30.2
+
 
 
