@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4316411C7C
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:08:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9448F4120D6
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:58:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245641AbhITRKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:10:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59370 "EHLO mail.kernel.org"
+        id S1356136AbhITR6o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:58:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346596AbhITRH4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:07:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56BE2615E5;
-        Mon, 20 Sep 2021 16:55:54 +0000 (UTC)
+        id S1355814AbhITR4m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:56:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D3E463213;
+        Mon, 20 Sep 2021 17:14:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156954;
-        bh=3clXjqGAg+sUlkXOAOs9RbofABH1DDkj5ChFpuI80K8=;
+        s=korg; t=1632158069;
+        bh=OMpf2Tq8oqeZg1jpXlPCZQeyvBrPcPMumc5M0Ak/rXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s/MHmJIRKWUoJZAGwWuN8wTrNhxFwdkKwTpD/GFTBSsFIzhD6dC+GAJOjBY1kmj1q
-         b/4WBkXoCJGQrtP1xdH4duie2Ljt7g4JLHWY7x7Ci5yaWamGfj1kdIiefYi9/gKsZD
-         5/NGeDmbijsGm1dHMHvmc+Tz4PMrLhiCC/EkAFVE=
+        b=C4Z6KgMQeUWxSDwtmVBNtHQ3FV6z684vmmD02qKLN0pi9rNrmh7rMa67DJyPbnrgm
+         SoZG2Ez3GG2YcjZdS8mW1jHRS2Q856pm2a/pkDlREHJJv50IG2FdudL8TOEWrjFEt5
+         7xarBQYrb79jkS42lWc/lU2UYiXE6jw0k+CYD/gs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 162/175] net/af_unix: fix a data-race in unix_dgram_poll
+        stable@vger.kernel.org, stable@kernel.org,
+        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Subject: [PATCH 4.19 249/293] drm/amdgpu: Fix BUG_ON assert
 Date:   Mon, 20 Sep 2021 18:43:31 +0200
-Message-Id: <20210920163923.365326697@linuxfoundation.org>
+Message-Id: <20210920163941.917793075@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
-References: <20210920163918.068823680@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,97 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
 
-commit 04f08eb44b5011493d77b602fdec29ff0f5c6cd5 upstream.
+commit ea7acd7c5967542353430947f3faf699e70602e5 upstream.
 
-syzbot reported another data-race in af_unix [1]
+With added CPU domain to placement you can have
+now 3 placemnts at once.
 
-Lets change __skb_insert() to use WRITE_ONCE() when changing
-skb head qlen.
-
-Also, change unix_dgram_poll() to use lockless version
-of unix_recvq_full()
-
-It is verry possible we can switch all/most unix_recvq_full()
-to the lockless version, this will be done in a future kernel version.
-
-[1] HEAD commit: 8596e589b787732c8346f0482919e83cc9362db1
-
-BUG: KCSAN: data-race in skb_queue_tail / unix_dgram_poll
-
-write to 0xffff88814eeb24e0 of 4 bytes by task 25815 on cpu 0:
- __skb_insert include/linux/skbuff.h:1938 [inline]
- __skb_queue_before include/linux/skbuff.h:2043 [inline]
- __skb_queue_tail include/linux/skbuff.h:2076 [inline]
- skb_queue_tail+0x80/0xa0 net/core/skbuff.c:3264
- unix_dgram_sendmsg+0xff2/0x1600 net/unix/af_unix.c:1850
- sock_sendmsg_nosec net/socket.c:703 [inline]
- sock_sendmsg net/socket.c:723 [inline]
- ____sys_sendmsg+0x360/0x4d0 net/socket.c:2392
- ___sys_sendmsg net/socket.c:2446 [inline]
- __sys_sendmmsg+0x315/0x4b0 net/socket.c:2532
- __do_sys_sendmmsg net/socket.c:2561 [inline]
- __se_sys_sendmmsg net/socket.c:2558 [inline]
- __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2558
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-read to 0xffff88814eeb24e0 of 4 bytes by task 25834 on cpu 1:
- skb_queue_len include/linux/skbuff.h:1869 [inline]
- unix_recvq_full net/unix/af_unix.c:194 [inline]
- unix_dgram_poll+0x2bc/0x3e0 net/unix/af_unix.c:2777
- sock_poll+0x23e/0x260 net/socket.c:1288
- vfs_poll include/linux/poll.h:90 [inline]
- ep_item_poll fs/eventpoll.c:846 [inline]
- ep_send_events fs/eventpoll.c:1683 [inline]
- ep_poll fs/eventpoll.c:1798 [inline]
- do_epoll_wait+0x6ad/0xf00 fs/eventpoll.c:2226
- __do_sys_epoll_wait fs/eventpoll.c:2238 [inline]
- __se_sys_epoll_wait fs/eventpoll.c:2233 [inline]
- __x64_sys_epoll_wait+0xf6/0x120 fs/eventpoll.c:2233
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-value changed: 0x0000001b -> 0x00000001
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 25834 Comm: syz-executor.1 Tainted: G        W         5.14.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 86b18aaa2b5b ("skbuff: fix a data race in skb_queue_len()")
-Cc: Qian Cai <cai@lca.pw>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+CC: stable@kernel.org
+Signed-off-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210622162339.761651-5-andrey.grodzovsky@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/skbuff.h |    2 +-
- net/unix/af_unix.c     |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_object.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1613,7 +1613,7 @@ static inline void __skb_insert(struct s
- 	newsk->next = next;
- 	newsk->prev = prev;
- 	next->prev  = prev->next = newsk;
--	list->qlen++;
-+	WRITE_ONCE(list->qlen, list->qlen + 1);
- }
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+@@ -216,7 +216,7 @@ void amdgpu_bo_placement_from_domain(str
+ 		c++;
+ 	}
  
- static inline void __skb_queue_splice(const struct sk_buff_head *list,
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -2694,7 +2694,7 @@ static unsigned int unix_dgram_poll(stru
+-	BUG_ON(c >= AMDGPU_BO_MAX_PLACEMENTS);
++	BUG_ON(c > AMDGPU_BO_MAX_PLACEMENTS);
  
- 		other = unix_peer(sk);
- 		if (other && unix_peer(other) != sk &&
--		    unix_recvq_full(other) &&
-+		    unix_recvq_full_lockless(other) &&
- 		    unix_dgram_peer_wake_me(sk, other))
- 			writable = 0;
- 
+ 	placement->num_placement = c;
+ 	placement->placement = places;
 
 
