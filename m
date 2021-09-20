@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3C1A411CBE
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:12:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01EF1411F77
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:40:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345515AbhITRM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:12:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33538 "EHLO mail.kernel.org"
+        id S1346904AbhITRld (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:41:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345831AbhITRK7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:10:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CC2E61353;
-        Mon, 20 Sep 2021 16:56:44 +0000 (UTC)
+        id S1352482AbhITRjc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:39:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2E3761B48;
+        Mon, 20 Sep 2021 17:07:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157004;
-        bh=aN2cU1wklIRNpnUj5osZUpNdfq0GB0ZZ7CVsvd9fctA=;
+        s=korg; t=1632157670;
+        bh=bVY+hQhJCNipJnM5nmraGGdtxsMn/xqSgATVjH+WMF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rIIzT9BqiwHJmKV5n6uLeFAlgwqUEjyeGEa4yYVl5mXEldee//r0wexfodpWr0/QW
-         WFuu/SST5cp0KAobOujMTMxNmIDcRUELrUfAfPjZpzfINXmS/+ZpjvECDlh+HR5ONS
-         UFPyN9qHM0ME3syq16gHGaVTmyf/+ZuILkHQjblY=
+        b=b4osaOhFDpzSBYjIQ/tmyIfuaFfXxBYxUVKImDejdJ6XsOCHOaL0OO5XkXDz0MBRd
+         wDEsjcLu+l9ksDj3/IXezJzySY33v9vvSVMvNGmZj4WkIv38XwRFSOajbtd+TObTH7
+         juIO3djqqHZ804idWQ1MwWtdIkmquxN162f8SDDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zubin Mithra <zsm@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 010/217] ALSA: pcm: fix divide error in snd_pcm_lib_ioctl
-Date:   Mon, 20 Sep 2021 18:40:31 +0200
-Message-Id: <20210920163924.967717721@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 070/293] i2c: highlander: add IRQ check
+Date:   Mon, 20 Sep 2021 18:40:32 +0200
+Message-Id: <20210920163935.654214560@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zubin Mithra <zsm@chromium.org>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit f3eef46f0518a2b32ca1244015820c35a22cfe4a upstream.
+[ Upstream commit f16a3bb69aa6baabf8f0aca982c8cf21e2a4f6bc ]
 
-Syzkaller reported a divide error in snd_pcm_lib_ioctl. fifo_size
-is of type snd_pcm_uframes_t(unsigned long). If frame_size
-is 0x100000000, the error occurs.
+The driver is written as if platform_get_irq() returns 0 on errors (while
+actually it returns a negative error code), blithely passing these error
+codes to request_irq() (which takes *unsigned* IRQ #) -- which fails with
+-EINVAL. Add the necessary error check to the pre-existing *if* statement
+forcing the driver into the polling mode...
 
-Fixes: a9960e6a293e ("ALSA: pcm: fix fifo_size frame calculation")
-Signed-off-by: Zubin Mithra <zsm@chromium.org>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210827153735.789452-1-zsm@chromium.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4ad48e6ab18c ("i2c: Renesas Highlander FPGA SMBus support")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/pcm_lib.c |    2 +-
+ drivers/i2c/busses/i2c-highlander.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/core/pcm_lib.c
-+++ b/sound/core/pcm_lib.c
-@@ -1757,7 +1757,7 @@ static int snd_pcm_lib_ioctl_fifo_size(s
- 		channels = params_channels(params);
- 		frame_size = snd_pcm_format_size(format, channels);
- 		if (frame_size > 0)
--			params->fifo_size /= (unsigned)frame_size;
-+			params->fifo_size /= frame_size;
- 	}
- 	return 0;
- }
+diff --git a/drivers/i2c/busses/i2c-highlander.c b/drivers/i2c/busses/i2c-highlander.c
+index ff340d7ae2e5..6a880c262380 100644
+--- a/drivers/i2c/busses/i2c-highlander.c
++++ b/drivers/i2c/busses/i2c-highlander.c
+@@ -379,7 +379,7 @@ static int highlander_i2c_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, dev);
+ 
+ 	dev->irq = platform_get_irq(pdev, 0);
+-	if (iic_force_poll)
++	if (dev->irq < 0 || iic_force_poll)
+ 		dev->irq = 0;
+ 
+ 	if (dev->irq) {
+-- 
+2.30.2
+
 
 
