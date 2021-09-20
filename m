@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF0A5412523
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B418412299
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:15:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381671AbhITSlk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:41:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53068 "EHLO mail.kernel.org"
+        id S1376785AbhITSQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:16:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1381472AbhITSiR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:38:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CB0A61ABE;
-        Mon, 20 Sep 2021 17:29:51 +0000 (UTC)
+        id S1376369AbhITSMJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:12:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47944613CE;
+        Mon, 20 Sep 2021 17:20:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158992;
-        bh=geIhxnlDMNExVNqhRAGBupyL0IMQjiX5t5dE0dXsZpw=;
+        s=korg; t=1632158440;
+        bh=6sB9V2TH2YXKggSm4ORmhaVpFYlE+jF8nGZ2tX7oayk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dzTiI6bqYAS1SwrTq4jetHVNWCx56p3Q4+n/Gx7AwdKsazHttXDfwDGMxhKeIYfvO
-         PyVKAJgzW6wp7eASQ09179olZz+W9y8wwlTjy2SviisRomimFnP2CgpWR37+iV0ekE
-         iyZtTWIPelBfAwH9HZBdi4af/7fqn41Ssoc8rgVE=
+        b=s6N3dzBjNXWUnezjKkq8SPJL9HauV0FXM+tCvoBfntxh9SOVPh7Y1EQCBb06tyjQz
+         PfY/kp3QZ2b22+kloXnn+Y9tlG4yrzAlPBAjCHrm+re+WSHqHsQqKmxy0U3va/kTio
+         pjYPIOXRtbEmJEgci+5Yv+K219rSxL7K8PtLJsM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 5.14 004/168] xen: reset legacy rtc flag for PV domU
-Date:   Mon, 20 Sep 2021 18:42:22 +0200
-Message-Id: <20210920163921.788481310@linuxfoundation.org>
+        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 125/260] drm/msm: mdp4: drop vblank get/put from prepare/complete_commit
+Date:   Mon, 20 Sep 2021 18:42:23 +0200
+Message-Id: <20210920163935.364789918@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,71 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: David Heidelberg <david@ixit.cz>
 
-commit f68aa100d815b5b4467fd1c3abbe3b99d65fd028 upstream.
+[ Upstream commit 56bd931ae506730c9ab1e4cc4bfefa43fc2d18fa ]
 
-A Xen PV guest doesn't have a legacy RTC device, so reset the legacy
-RTC flag. Otherwise the following WARN splat will occur at boot:
+msm_atomic is doing vblank get/put's already,
+currently there no need to duplicate the effort in MDP4
 
-[    1.333404] WARNING: CPU: 1 PID: 1 at /home/gross/linux/head/drivers/rtc/rtc-mc146818-lib.c:25 mc146818_get_time+0x1be/0x210
-[    1.333404] Modules linked in:
-[    1.333404] CPU: 1 PID: 1 Comm: swapper/0 Tainted: G        W         5.14.0-rc7-default+ #282
-[    1.333404] RIP: e030:mc146818_get_time+0x1be/0x210
-[    1.333404] Code: c0 64 01 c5 83 fd 45 89 6b 14 7f 06 83 c5 64 89 6b 14 41 83 ec 01 b8 02 00 00 00 44 89 63 10 5b 5d 41 5c 41 5d 41 5e 41 5f c3 <0f> 0b 48 c7 c7 30 0e ef 82 4c 89 e6 e8 71 2a 24 00 48 c7 c0 ff ff
-[    1.333404] RSP: e02b:ffffc90040093df8 EFLAGS: 00010002
-[    1.333404] RAX: 00000000000000ff RBX: ffffc90040093e34 RCX: 0000000000000000
-[    1.333404] RDX: 0000000000000001 RSI: 0000000000000000 RDI: 000000000000000d
-[    1.333404] RBP: ffffffff82ef0e30 R08: ffff888005013e60 R09: 0000000000000000
-[    1.333404] R10: ffffffff82373e9b R11: 0000000000033080 R12: 0000000000000200
-[    1.333404] R13: 0000000000000000 R14: 0000000000000002 R15: ffffffff82cdc6d4
-[    1.333404] FS:  0000000000000000(0000) GS:ffff88807d440000(0000) knlGS:0000000000000000
-[    1.333404] CS:  10000e030 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.333404] CR2: 0000000000000000 CR3: 000000000260a000 CR4: 0000000000050660
-[    1.333404] Call Trace:
-[    1.333404]  ? wakeup_sources_sysfs_init+0x30/0x30
-[    1.333404]  ? rdinit_setup+0x2b/0x2b
-[    1.333404]  early_resume_init+0x23/0xa4
-[    1.333404]  ? cn_proc_init+0x36/0x36
-[    1.333404]  do_one_initcall+0x3e/0x200
-[    1.333404]  kernel_init_freeable+0x232/0x28e
-[    1.333404]  ? rest_init+0xd0/0xd0
-[    1.333404]  kernel_init+0x16/0x120
-[    1.333404]  ret_from_fork+0x1f/0x30
+Fix warning:
+...
+WARNING: CPU: 3 PID: 79 at drivers/gpu/drm/drm_vblank.c:1194 drm_vblank_put+0x1cc/0x1d4
+...
+and multiple vblank time-outs:
+...
+msm 5100000.mdp: vblank time out, crtc=1
+...
 
-Cc: <stable@vger.kernel.org>
-Fixes: 8d152e7a5c7537 ("x86/rtc: Replace paravirt rtc check with platform legacy quirk")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20210903084937.19392-3-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested on Nexus 7 2013 (deb), LTS 5.10.50.
+
+Introduced by: 119ecb7fd3b5 ("drm/msm/mdp4: request vblank during modeset")
+
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Link: https://lore.kernel.org/r/20210715060925.7880-1-david@ixit.cz
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/enlighten_pv.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c | 13 -------------
+ 1 file changed, 13 deletions(-)
 
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1215,6 +1215,11 @@ static void __init xen_dom0_set_legacy_f
- 	x86_platform.legacy.rtc = 1;
+diff --git a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
+index 20194d86d033..5d50e93efe36 100644
+--- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
++++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
+@@ -108,13 +108,6 @@ static void mdp4_disable_commit(struct msm_kms *kms)
+ 
+ static void mdp4_prepare_commit(struct msm_kms *kms, struct drm_atomic_state *state)
+ {
+-	int i;
+-	struct drm_crtc *crtc;
+-	struct drm_crtc_state *crtc_state;
+-
+-	/* see 119ecb7fd */
+-	for_each_new_crtc_in_state(state, crtc, crtc_state, i)
+-		drm_crtc_vblank_get(crtc);
  }
  
-+static void __init xen_domu_set_legacy_features(void)
-+{
-+	x86_platform.legacy.rtc = 0;
-+}
-+
- /* First C function to be called on Xen boot */
- asmlinkage __visible void __init xen_start_kernel(void)
+ static void mdp4_flush_commit(struct msm_kms *kms, unsigned crtc_mask)
+@@ -133,12 +126,6 @@ static void mdp4_wait_flush(struct msm_kms *kms, unsigned crtc_mask)
+ 
+ static void mdp4_complete_commit(struct msm_kms *kms, unsigned crtc_mask)
  {
-@@ -1367,6 +1372,8 @@ asmlinkage __visible void __init xen_sta
- 		add_preferred_console("xenboot", 0, NULL);
- 		if (pci_xen)
- 			x86_init.pci.arch_init = pci_xen_init;
-+		x86_platform.set_legacy_features =
-+				xen_domu_set_legacy_features;
- 	} else {
- 		const struct dom0_vga_console_info *info =
- 			(void *)((char *)xen_start_info +
+-	struct mdp4_kms *mdp4_kms = to_mdp4_kms(to_mdp_kms(kms));
+-	struct drm_crtc *crtc;
+-
+-	/* see 119ecb7fd */
+-	for_each_crtc_mask(mdp4_kms->dev, crtc, crtc_mask)
+-		drm_crtc_vblank_put(crtc);
+ }
+ 
+ static long mdp4_round_pixclk(struct msm_kms *kms, unsigned long rate,
+-- 
+2.30.2
+
 
 
