@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56A9C412220
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:11:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C53941251F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345689AbhITSNG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:13:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35522 "EHLO mail.kernel.org"
+        id S1352839AbhITSle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:41:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345178AbhITSKr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:10:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E10063273;
-        Mon, 20 Sep 2021 17:20:11 +0000 (UTC)
+        id S1353268AbhITSiR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:38:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E05261411;
+        Mon, 20 Sep 2021 17:29:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158412;
-        bh=K/PGg6kLoihHZ8O6+cHlmGT+jLvgPdnTCFTMk7Bxex0=;
+        s=korg; t=1632158987;
+        bh=EY4CsRbvm70G4HuhNf4gaYtW7p9yA2mLcifBqqEej3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y2ZYwmgsOJO/y7nfZqft4BQSRelVBhuMy4EshTqqhoKLGjZzdQkilw1LQ5x9nvRHX
-         Qf+lA3sAsV8xrdjxbNk+kWPk7Je7S9UDBiinjGLB7naAK/bRSPetl7YiEtmqsPdF6M
-         mu1Ix7GCwd34R2w9p+NEvOiiKAm4PuJjilFfQY4U=
+        b=jMgkKwAVrLHb+Uty3zpX37N2UArCew801boZSDEuOiP/tkmpWm7gdokzpdowYl66I
+         0zxYFRT7LopbN14Mw1AJL7aDI57YQVMXwACQmymzTZDX+lA4RT3yylE3+M1y12yCoW
+         N0Nc+/zGRGi2726HXljrumoFzsj/3dzicU+/5Xhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhipeng Wang <zhipeng.wang_1@nxp.com>,
-        Li Jun <jun.li@nxp.com>, Peter Chen <peter.chen@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 144/260] usb: chipidea: host: fix port index underflow and UBSAN complains
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Michael Walle <michael@walle.cc>, Marek Vasut <marex@denx.de>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH 5.14 024/168] drm/etnaviv: return context from etnaviv_iommu_context_get
 Date:   Mon, 20 Sep 2021 18:42:42 +0200
-Message-Id: <20210920163936.011358747@linuxfoundation.org>
+Message-Id: <20210920163922.440358140@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,68 +40,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit e5d6a7c6cfae9e714a0e8ff64facd1ac68a784c6 ]
+commit 78edefc05e41352099ffb8f06f8d9b2d091e29cd upstream.
 
-If wIndex is 0 (and it often is), these calculations underflow and
-UBSAN complains, here resolve this by not decrementing the index when
-it is equal to 0, this copies the solution from commit 85e3990bea49
-("USB: EHCI: avoid undefined pointer arithmetic and placate UBSAN")
+Being able to have the refcount manipulation in an assignment makes
+it much easier to parse the code.
 
-Reported-by: Zhipeng Wang <zhipeng.wang_1@nxp.com>
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Link: https://lore.kernel.org/r/1624004938-2399-1-git-send-email-jun.li@nxp.com
-Signed-off-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org # 5.4
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Tested-by: Michael Walle <michael@walle.cc>
+Tested-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/chipidea/host.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/etnaviv/etnaviv_buffer.c     |    3 +--
+ drivers/gpu/drm/etnaviv/etnaviv_gem.c        |    3 +--
+ drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c |    3 +--
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.c        |    6 ++----
+ drivers/gpu/drm/etnaviv/etnaviv_mmu.h        |    4 +++-
+ 5 files changed, 8 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/usb/chipidea/host.c b/drivers/usb/chipidea/host.c
-index 48e4a5ca1835..f5f56ee07729 100644
---- a/drivers/usb/chipidea/host.c
-+++ b/drivers/usb/chipidea/host.c
-@@ -233,18 +233,26 @@ static int ci_ehci_hub_control(
- )
- {
- 	struct ehci_hcd	*ehci = hcd_to_ehci(hcd);
-+	unsigned int	ports = HCS_N_PORTS(ehci->hcs_params);
- 	u32 __iomem	*status_reg;
--	u32		temp;
-+	u32		temp, port_index;
- 	unsigned long	flags;
- 	int		retval = 0;
- 	struct device *dev = hcd->self.controller;
- 	struct ci_hdrc *ci = dev_get_drvdata(dev);
+--- a/drivers/gpu/drm/etnaviv/etnaviv_buffer.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_buffer.c
+@@ -397,8 +397,7 @@ void etnaviv_buffer_queue(struct etnaviv
+ 		if (switch_mmu_context) {
+ 			struct etnaviv_iommu_context *old_context = gpu->mmu_context;
  
--	status_reg = &ehci->regs->port_status[(wIndex & 0xff) - 1];
-+	port_index = wIndex & 0xff;
-+	port_index -= (port_index > 0);
-+	status_reg = &ehci->regs->port_status[port_index];
- 
- 	spin_lock_irqsave(&ehci->lock, flags);
- 
- 	if (typeReq == SetPortFeature && wValue == USB_PORT_FEAT_SUSPEND) {
-+		if (!wIndex || wIndex > ports) {
-+			retval = -EPIPE;
-+			goto done;
-+		}
-+
- 		temp = ehci_readl(ehci, status_reg);
- 		if ((temp & PORT_PE) == 0 || (temp & PORT_RESET) != 0) {
- 			retval = -EPIPE;
-@@ -273,7 +281,7 @@ static int ci_ehci_hub_control(
- 			ehci_writel(ehci, temp, status_reg);
+-			etnaviv_iommu_context_get(mmu_context);
+-			gpu->mmu_context = mmu_context;
++			gpu->mmu_context = etnaviv_iommu_context_get(mmu_context);
+ 			etnaviv_iommu_context_put(old_context);
  		}
  
--		set_bit((wIndex & 0xff) - 1, &ehci->suspended_ports);
-+		set_bit(port_index, &ehci->suspended_ports);
- 		goto done;
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
+@@ -303,8 +303,7 @@ struct etnaviv_vram_mapping *etnaviv_gem
+ 		list_del(&mapping->obj_node);
  	}
  
--- 
-2.30.2
-
+-	etnaviv_iommu_context_get(mmu_context);
+-	mapping->context = mmu_context;
++	mapping->context = etnaviv_iommu_context_get(mmu_context);
+ 	mapping->use = 1;
+ 
+ 	ret = etnaviv_iommu_map_gem(mmu_context, etnaviv_obj,
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
+@@ -532,8 +532,7 @@ int etnaviv_ioctl_gem_submit(struct drm_
+ 		goto err_submit_objects;
+ 
+ 	submit->ctx = file->driver_priv;
+-	etnaviv_iommu_context_get(submit->ctx->mmu);
+-	submit->mmu_context = submit->ctx->mmu;
++	submit->mmu_context = etnaviv_iommu_context_get(submit->ctx->mmu);
+ 	submit->exec_state = args->exec_state;
+ 	submit->flags = args->flags;
+ 
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+@@ -1365,12 +1365,10 @@ struct dma_fence *etnaviv_gpu_submit(str
+ 	}
+ 
+ 	if (!gpu->mmu_context) {
+-		etnaviv_iommu_context_get(submit->mmu_context);
+-		gpu->mmu_context = submit->mmu_context;
++		gpu->mmu_context = etnaviv_iommu_context_get(submit->mmu_context);
+ 		etnaviv_gpu_start_fe_idleloop(gpu);
+ 	} else {
+-		etnaviv_iommu_context_get(gpu->mmu_context);
+-		submit->prev_mmu_context = gpu->mmu_context;
++		submit->prev_mmu_context = etnaviv_iommu_context_get(gpu->mmu_context);
+ 	}
+ 
+ 	if (submit->nr_pmrs) {
+--- a/drivers/gpu/drm/etnaviv/etnaviv_mmu.h
++++ b/drivers/gpu/drm/etnaviv/etnaviv_mmu.h
+@@ -105,9 +105,11 @@ void etnaviv_iommu_dump(struct etnaviv_i
+ struct etnaviv_iommu_context *
+ etnaviv_iommu_context_init(struct etnaviv_iommu_global *global,
+ 			   struct etnaviv_cmdbuf_suballoc *suballoc);
+-static inline void etnaviv_iommu_context_get(struct etnaviv_iommu_context *ctx)
++static inline struct etnaviv_iommu_context *
++etnaviv_iommu_context_get(struct etnaviv_iommu_context *ctx)
+ {
+ 	kref_get(&ctx->refcount);
++	return ctx;
+ }
+ void etnaviv_iommu_context_put(struct etnaviv_iommu_context *ctx);
+ void etnaviv_iommu_restore(struct etnaviv_gpu *gpu,
 
 
