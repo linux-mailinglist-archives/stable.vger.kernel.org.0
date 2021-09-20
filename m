@@ -2,103 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D6B7412AEC
-	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 04:02:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2B71412AED
+	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 04:02:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241862AbhIUCD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 22:03:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34160 "EHLO
+        id S229611AbhIUCDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 22:03:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237795AbhIUB4q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 21:56:46 -0400
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CAFEC03540A
-        for <stable@vger.kernel.org>; Mon, 20 Sep 2021 16:48:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=T1RFrzW21kzIZQqFZGBJPCEJ/CKQj6Iu6zOBR9y+v5E=; b=THjIGHzjDrIzSm/bUtJUWEeEdr
-        MNq5lx3y2edGfzaG3NE0heLwtT/BfV98nK3DfAkMbPYN0tFtl/jgSoFUW95GbPb/F/YkuKM/enXip
-        hLZDKrkRi3xy6Ed7bpnmIR8R03tkwOikzWoy/GkDVKbOCTXVy1kOwolEVX1ftvlLo9eUtvuEi+O4h
-        PG8C9Vd6LHOthQDruKxeBbBcS+SD7LXWIPIlZbXvMGx8f+4TRI95SAVZ+zyIyXzTw07VNnP1Cf6QF
-        fqoUa3AihZ/QNZlajuqwR3akH3yov+yKBhqYuDiAYyPva17OTFHGG8R2sLjhY9Epxf+tyA2VAI7RS
-        uJjLM18w==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:54692)
-        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1mST1N-000286-Vy; Tue, 21 Sep 2021 00:48:26 +0100
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1mST1N-0002ib-CW; Tue, 21 Sep 2021 00:48:25 +0100
-Date:   Tue, 21 Sep 2021 00:48:25 +0100
-From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
-To:     Fabio Estevam <festevam@gmail.com>
-Cc:     shawnguo@kernel.org, linux-arm-kernel@lists.infradead.org,
-        m.felsch@pengutronix.de, tharvey@gateworks.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] Revert "ARM: imx6q: drop of_platform_default_populate()
- from init_machine"
-Message-ID: <YUkdybUJZY+/5UO2@shell.armlinux.org.uk>
-References: <20210920234311.682163-1-festevam@gmail.com>
+        with ESMTP id S237997AbhIUB45 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 21:56:57 -0400
+Received: from mail-oi1-x22a.google.com (mail-oi1-x22a.google.com [IPv6:2607:f8b0:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E422C06127E
+        for <stable@vger.kernel.org>; Mon, 20 Sep 2021 16:59:11 -0700 (PDT)
+Received: by mail-oi1-x22a.google.com with SMTP id 24so6071582oix.0
+        for <stable@vger.kernel.org>; Mon, 20 Sep 2021 16:59:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxtx.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=LsAcbqCOznCCesA5M1HtjmmF5lDx1DBcGXXZJMNbi5M=;
+        b=FnrIBlAqcU9RQN1qWIrzAEpI+nxH5Pvyckbh6KpZsRLiMwdmDRJyGQ9epFg6bAtj+3
+         9V1W0A6laHnsvLQL5KTMzqnmJgVr/ZS/A5wOUMs1RUjqpHofLEqyDKHWYe3uY+kpb2ak
+         7EbE2l2bPmgVLhORAFis+RMdEvKMbfqRNYdc0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=LsAcbqCOznCCesA5M1HtjmmF5lDx1DBcGXXZJMNbi5M=;
+        b=I3w7Xx0xkicQiKlpD5NFcASBcb+kJaBGozpi/dIv89MBy2HjbohPK9YVtLLmwxW20b
+         nXNGje51CPaWUMaFUYt6mw5vIKXGNI23tpqbHCKb9kxlw/r4BqxdFIlyIXjBFShBUn7S
+         DTfUCnGDbtrWSeGU8qubXC7YBcQWmKVSXDn+YkIMjaowLeuDY3TEy6Wl6ii9IYTdrGnY
+         4iuzfjLrTzX+G/Hgo3qvgRi1Q/7Zp/Llh902mIuJHu4cUgHklR/Y0m1qJUZZVwcO/m2F
+         MNsbXkgVt8+kqduWIiOuQBTFbvg7r8g5SMhluflAZ2NTzNvUpa+bAxTrStr/zs/tefpb
+         CHgw==
+X-Gm-Message-State: AOAM531rl7CFRsM3rUVKHbkqZ/3DBqZ3l1Fc+fFQhZqRC2q49jZo/0Le
+        mdLbnSHhf4Hm71dGYkH801kpSQ==
+X-Google-Smtp-Source: ABdhPJxbNH/DkXzFL8muMgudxy5/Ej/ewPN6YEU26m6d3M6V788VafXJlr03Fx4xe9/EfHr+KaoA2w==
+X-Received: by 2002:a05:6808:e89:: with SMTP id k9mr1290672oil.169.1632182350663;
+        Mon, 20 Sep 2021 16:59:10 -0700 (PDT)
+Received: from fedora64.linuxtx.org (104-189-158-32.lightspeed.rcsntx.sbcglobal.net. [104.189.158.32])
+        by smtp.gmail.com with ESMTPSA id h12sm441479oof.7.2021.09.20.16.59.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Sep 2021 16:59:10 -0700 (PDT)
+Date:   Mon, 20 Sep 2021 18:59:08 -0500
+From:   Justin Forbes <jmforbes@linuxtx.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.14 000/168] 5.14.7-rc1 review
+Message-ID: <YUkgTMRoCGo+VDR4@fedora64.linuxtx.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210920234311.682163-1-festevam@gmail.com>
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 20, 2021 at 08:43:11PM -0300, Fabio Estevam wrote:
-> This reverts commit cc8870bf4c3ab0af385538460500a9d342ed945f.
->  
-> Since commit cc8870bf4c3a ("ARM: imx6q: drop of_platform_default_populate()
-> from init_machine") the following errors are seen on boot:
+On Mon, Sep 20, 2021 at 06:42:18PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.14.7 release.
+> There are 168 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> [    0.123372] imx6q_suspend_init: failed to find ocram device!
-> [    0.123537] imx6_pm_common_init: No DDR LPM support with suspend -19! 
+> Responses should be made by Wed, 22 Sep 2021 16:38:49 +0000.
+> Anything received after that time might be too late.
 > 
-> , which break suspend/resume on imx6q/dl.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.7-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
+> and the diffstat can be found below.
 > 
-> Revert the offeding commit to avoid the regression.
+> thanks,
 > 
-> Thanks to Tim Harvey for bisecting this problem.
-> 
-> Cc: stable@vger.kernel.org
-
-Thanks Fabio.
-
-Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-
-> Fixes: cc8870bf4c3a ("ARM: imx6q: drop of_platform_default_populate() from  init_machine")
-> Signed-off-by: Fabio Estevam <festevam@gmail.com>
-> ---
->  arch/arm/mach-imx/mach-imx6q.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/arch/arm/mach-imx/mach-imx6q.c b/arch/arm/mach-imx/mach-imx6q.c
-> index 11dcc369ec14..c9d7c29d95e1 100644
-> --- a/arch/arm/mach-imx/mach-imx6q.c
-> +++ b/arch/arm/mach-imx/mach-imx6q.c
-> @@ -172,6 +172,9 @@ static void __init imx6q_init_machine(void)
->  				imx_get_soc_revision());
->  
->  	imx6q_enet_phy_init();
-> +
-> +	of_platform_default_populate(NULL, NULL, NULL);
-> +
->  	imx_anatop_init();
->  	cpu_is_imx6q() ?  imx6q_pm_init() : imx6dl_pm_init();
->  	imx6q_1588_init();
-> -- 
-> 2.25.1
-> 
+> greg k-h
 > 
 
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
+
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
