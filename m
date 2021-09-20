@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC0F64120D0
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:58:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F14D6411EA7
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:32:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244500AbhITR6c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:58:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54558 "EHLO mail.kernel.org"
+        id S1351336AbhITRdM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:33:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355715AbhITR4a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:56:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B59116320E;
-        Mon, 20 Sep 2021 17:14:17 +0000 (UTC)
+        id S1347926AbhITRbK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:31:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EAD7B61AEF;
+        Mon, 20 Sep 2021 17:04:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158058;
-        bh=jygjKuYSAr1zC+kR0YLyJRZABPLOTjAS8JXvQEALrwY=;
+        s=korg; t=1632157470;
+        bh=iuEAgtJWjNiRjmjpWK8roqpyw0cgIsXkutBYX89St98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mC8W+lOfF8bIYSG2w0NLqGZwuoFkOtmEqaxs1ae3o5qfjt7gstfHq/DVfgCytPAWb
-         /pD7IbXlaZt5HvOa5FLXh5XnbtzTLb1s64OaD7QHF/3jQklepP/sohhc0tRBdkrGF7
-         CcHhnZ+ke05tUyQn+7aDKoVODc6xz3VAIbdGxf1w=
+        b=qb7PYBPO31Chb3BrFNC7TYUR+36gvI5S29UQBiIdNdIeALG6mAFqJIk17LKG4yyFc
+         Nn+zX24JiNoGM2EdtV8T1PXPttI3QZr0Xr6Y5LomJDsb+aAclxm9qhHnC58fZiIEsZ
+         hLaNPhTxOiMJKm3yxH8aAGhdV8tkkbm+RsEhND34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        =?UTF-8?q?Christian=20Borntr=C3=A4ger?= <borntraeger@de.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [PATCH 4.19 274/293] KVM: s390: index kvm->arch.idle_mask by vcpu_idx
+        stable@vger.kernel.org,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Benjamin Hesmans <benjamin.hesmans@tessares.net>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 215/217] netfilter: socket: icmp6: fix use-after-scope
 Date:   Mon, 20 Sep 2021 18:43:56 +0200
-Message-Id: <20210920163942.795516656@linuxfoundation.org>
+Message-Id: <20210920163931.906845324@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,75 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Benjamin Hesmans <benjamin.hesmans@tessares.net>
 
-commit a3e03bc1368c1bc16e19b001fc96dc7430573cc8 upstream.
+[ Upstream commit 730affed24bffcd1eebd5903171960f5ff9f1f22 ]
 
-While in practice vcpu->vcpu_idx ==  vcpu->vcp_id is often true, it may
-not always be, and we must not rely on this. Reason is that KVM decides
-the vcpu_idx, userspace decides the vcpu_id, thus the two might not
-match.
+Bug reported by KASAN:
 
-Currently kvm->arch.idle_mask is indexed by vcpu_id, which implies
-that code like
-for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
-                vcpu = kvm_get_vcpu(kvm, vcpu_id);
-		do_stuff(vcpu);
-}
-is not legit. Reason is that kvm_get_vcpu expects an vcpu_idx, not an
-vcpu_id.  The trouble is, we do actually use kvm->arch.idle_mask like
-this. To fix this problem we have two options. Either use
-kvm_get_vcpu_by_id(vcpu_id), which would loop to find the right vcpu_id,
-or switch to indexing via vcpu_idx. The latter is preferable for obvious
-reasons.
+BUG: KASAN: use-after-scope in inet6_ehashfn (net/ipv6/inet6_hashtables.c:40)
+Call Trace:
+(...)
+inet6_ehashfn (net/ipv6/inet6_hashtables.c:40)
+(...)
+nf_sk_lookup_slow_v6 (net/ipv6/netfilter/nf_socket_ipv6.c:91
+net/ipv6/netfilter/nf_socket_ipv6.c:146)
 
-Let us make switch from indexing kvm->arch.idle_mask by vcpu_id to
-indexing it by vcpu_idx.  To keep gisa_int.kicked_mask indexed by the
-same index as idle_mask lets make the same change for it as well.
+It seems that this bug has already been fixed by Eric Dumazet in the
+past in:
+commit 78296c97ca1f ("netfilter: xt_socket: fix a stack corruption bug")
 
-Fixes: 1ee0bc559dc3 ("KVM: s390: get rid of local_int array")
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Christian Bornträger <borntraeger@de.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: <stable@vger.kernel.org> # 3.15+
-Link: https://lore.kernel.org/r/20210827125429.1912577-1-pasic@linux.ibm.com
-[borntraeger@de.ibm.com]: change  idle mask, remove kicked_mask 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+But a variant of the same issue has been introduced in
+commit d64d80a2cde9 ("netfilter: x_tables: don't extract flow keys on early demuxed sks in socket match")
 
+`daddr` and `saddr` potentially hold a reference to ipv6_var that is no
+longer in scope when the call to `nf_socket_get_sock_v6` is made.
+
+Fixes: d64d80a2cde9 ("netfilter: x_tables: don't extract flow keys on early demuxed sks in socket match")
+Acked-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Benjamin Hesmans <benjamin.hesmans@tessares.net>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/interrupt.c |    4 ++--
- arch/s390/kvm/kvm-s390.h  |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ net/ipv6/netfilter/nf_socket_ipv6.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -318,13 +318,13 @@ static unsigned long deliverable_irqs(st
- static void __set_cpu_idle(struct kvm_vcpu *vcpu)
+diff --git a/net/ipv6/netfilter/nf_socket_ipv6.c b/net/ipv6/netfilter/nf_socket_ipv6.c
+index f14de4b6d639..58e839e2ce1d 100644
+--- a/net/ipv6/netfilter/nf_socket_ipv6.c
++++ b/net/ipv6/netfilter/nf_socket_ipv6.c
+@@ -104,7 +104,7 @@ struct sock *nf_sk_lookup_slow_v6(struct net *net, const struct sk_buff *skb,
  {
- 	kvm_s390_set_cpuflags(vcpu, CPUSTAT_WAIT);
--	set_bit(vcpu->vcpu_id, vcpu->kvm->arch.float_int.idle_mask);
-+	set_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.float_int.idle_mask);
- }
+ 	__be16 uninitialized_var(dport), uninitialized_var(sport);
+ 	const struct in6_addr *daddr = NULL, *saddr = NULL;
+-	struct ipv6hdr *iph = ipv6_hdr(skb);
++	struct ipv6hdr *iph = ipv6_hdr(skb), ipv6_var;
+ 	struct sk_buff *data_skb = NULL;
+ 	int doff = 0;
+ 	int thoff = 0, tproto;
+@@ -134,8 +134,6 @@ struct sock *nf_sk_lookup_slow_v6(struct net *net, const struct sk_buff *skb,
+ 			thoff + sizeof(*hp);
  
- static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
- {
- 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
--	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.float_int.idle_mask);
-+	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.float_int.idle_mask);
- }
- 
- static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -67,7 +67,7 @@ static inline int is_vcpu_stopped(struct
- 
- static inline int is_vcpu_idle(struct kvm_vcpu *vcpu)
- {
--	return test_bit(vcpu->vcpu_id, vcpu->kvm->arch.float_int.idle_mask);
-+	return test_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.float_int.idle_mask);
- }
- 
- static inline int kvm_is_ucontrol(struct kvm *kvm)
+ 	} else if (tproto == IPPROTO_ICMPV6) {
+-		struct ipv6hdr ipv6_var;
+-
+ 		if (extract_icmp6_fields(skb, thoff, &tproto, &saddr, &daddr,
+ 					 &sport, &dport, &ipv6_var))
+ 			return NULL;
+-- 
+2.30.2
+
 
 
