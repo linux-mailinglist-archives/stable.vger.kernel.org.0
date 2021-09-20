@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE9CE41251B
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:40:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC3EE412221
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:11:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380717AbhITSl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:41:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55616 "EHLO mail.kernel.org"
+        id S1351121AbhITSNH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:13:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1381515AbhITSia (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:38:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E77961526;
-        Mon, 20 Sep 2021 17:30:06 +0000 (UTC)
+        id S1356359AbhITSKr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:10:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BB5663276;
+        Mon, 20 Sep 2021 17:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632159007;
-        bh=zyxRADBY8AibZMZCvqLlk+7TZnMjJWiKSInp8UYynvY=;
+        s=korg; t=1632158419;
+        bh=QOZ5zytWglQA3/+3KXYARHhWSKqxTsAXNpce4qfrPMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QYa7TyXH7Yq/T9ihjTQ4QqvC9PL18CDYMlRjnEIl/VWbQXLLHpeCQEnglkQYoqLSM
-         TOKrq6fMkxON+xwqsP59E58OsquoRB8/vS3mrsTyaBEjOxYjoBU1KimlCxI7yNoMVE
-         e0OxHbUpQmFq1DeqTmzqmL8+REwQDP49fKTZinio=
+        b=Wj2+vZu22i4hBQ/0kYB6WaWlfuZYXMAkosFsbBxMZXrZ1vaIh3/+RdDDAtGhhwSHY
+         NuwrgpKIi5bFW/Q5lkroTS0/havJl9dLVGBA4I/JRopM2iriDH4BZBLkBVWg3QIDaZ
+         s3W1CsVsnyHGxpDHUc23DYlrXEYoah1tS+LullGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Michael Walle <michael@walle.cc>, Marek Vasut <marex@denx.de>,
-        Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: [PATCH 5.14 026/168] drm/etnaviv: stop abusing mmu_context as FE running marker
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Inki Dae <inki.dae@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 146/260] drm/exynos: Always initialize mapping in exynos_drm_register_dma()
 Date:   Mon, 20 Sep 2021 18:42:44 +0200
-Message-Id: <20210920163922.507844848@linuxfoundation.org>
+Message-Id: <20210920163936.077569484@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
-References: <20210920163921.633181900@linuxfoundation.org>
+In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
+References: <20210920163931.123590023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,82 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 23e0f5a57d0ecec86e1fc82194acd94aede21a46 upstream.
+[ Upstream commit c626f3864bbbb28bbe06476b0b497c1330aa4463 ]
 
-While the DMA frontend can only be active when the MMU context is set, the
-reverse isn't necessarily true, as the frontend can be stopped while the
-MMU state is kept. Stop treating mmu_context being set as a indication that
-the frontend is running and instead add a explicit property.
+In certain randconfigs, clang warns:
 
-Cc: stable@vger.kernel.org # 5.4
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Tested-by: Michael Walle <michael@walle.cc>
-Tested-by: Marek Vasut <marex@denx.de>
-Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+drivers/gpu/drm/exynos/exynos_drm_dma.c:121:19: warning: variable
+'mapping' is uninitialized when used here [-Wuninitialized]
+                priv->mapping = mapping;
+                                ^~~~~~~
+drivers/gpu/drm/exynos/exynos_drm_dma.c:111:16: note: initialize the
+variable 'mapping' to silence this warning
+                void *mapping;
+                             ^
+                              = NULL
+1 warning generated.
+
+This occurs when CONFIG_EXYNOS_IOMMU is enabled and both
+CONFIG_ARM_DMA_USE_IOMMU and CONFIG_IOMMU_DMA are disabled, which makes
+the code look like
+
+  void *mapping;
+
+  if (0)
+    mapping = arm_iommu_create_mapping()
+  else if (0)
+    mapping = iommu_get_domain_for_dev()
+
+  ...
+  priv->mapping = mapping;
+
+Add an else branch that initializes mapping to the -ENODEV error pointer
+so that there is no more warning and the driver does not change during
+runtime.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Inki Dae <inki.dae@samsung.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_gpu.c |   10 ++++++++--
- drivers/gpu/drm/etnaviv/etnaviv_gpu.h |    1 +
- 2 files changed, 9 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/exynos/exynos_drm_dma.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-@@ -569,6 +569,8 @@ static int etnaviv_hw_reset(struct etnav
- 	/* We rely on the GPU running, so program the clock */
- 	etnaviv_gpu_update_clock(gpu);
+diff --git a/drivers/gpu/drm/exynos/exynos_drm_dma.c b/drivers/gpu/drm/exynos/exynos_drm_dma.c
+index 58b89ec11b0e..a3c9d8b9e1a1 100644
+--- a/drivers/gpu/drm/exynos/exynos_drm_dma.c
++++ b/drivers/gpu/drm/exynos/exynos_drm_dma.c
+@@ -140,6 +140,8 @@ int exynos_drm_register_dma(struct drm_device *drm, struct device *dev,
+ 				EXYNOS_DEV_ADDR_START, EXYNOS_DEV_ADDR_SIZE);
+ 		else if (IS_ENABLED(CONFIG_IOMMU_DMA))
+ 			mapping = iommu_get_domain_for_dev(priv->dma_dev);
++		else
++			mapping = ERR_PTR(-ENODEV);
  
-+	gpu->fe_running = false;
-+
- 	return 0;
- }
- 
-@@ -631,6 +633,8 @@ void etnaviv_gpu_start_fe(struct etnaviv
- 			  VIVS_MMUv2_SEC_COMMAND_CONTROL_ENABLE |
- 			  VIVS_MMUv2_SEC_COMMAND_CONTROL_PREFETCH(prefetch));
- 	}
-+
-+	gpu->fe_running = true;
- }
- 
- static void etnaviv_gpu_start_fe_idleloop(struct etnaviv_gpu *gpu)
-@@ -1364,7 +1368,7 @@ struct dma_fence *etnaviv_gpu_submit(str
- 		goto out_unlock;
- 	}
- 
--	if (!gpu->mmu_context) {
-+	if (!gpu->fe_running) {
- 		gpu->mmu_context = etnaviv_iommu_context_get(submit->mmu_context);
- 		etnaviv_gpu_start_fe_idleloop(gpu);
- 	} else {
-@@ -1573,7 +1577,7 @@ int etnaviv_gpu_wait_idle(struct etnaviv
- 
- static int etnaviv_gpu_hw_suspend(struct etnaviv_gpu *gpu)
- {
--	if (gpu->initialized && gpu->mmu_context) {
-+	if (gpu->initialized && gpu->fe_running) {
- 		/* Replace the last WAIT with END */
- 		mutex_lock(&gpu->lock);
- 		etnaviv_buffer_end(gpu);
-@@ -1588,6 +1592,8 @@ static int etnaviv_gpu_hw_suspend(struct
- 
- 		etnaviv_iommu_context_put(gpu->mmu_context);
- 		gpu->mmu_context = NULL;
-+
-+		gpu->fe_running = false;
- 	}
- 
- 	gpu->exec_state = -1;
---- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.h
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.h
-@@ -101,6 +101,7 @@ struct etnaviv_gpu {
- 	struct workqueue_struct *wq;
- 	struct drm_gpu_scheduler sched;
- 	bool initialized;
-+	bool fe_running;
- 
- 	/* 'ring'-buffer: */
- 	struct etnaviv_cmdbuf buffer;
+ 		if (IS_ERR(mapping))
+ 			return PTR_ERR(mapping);
+-- 
+2.30.2
+
 
 
