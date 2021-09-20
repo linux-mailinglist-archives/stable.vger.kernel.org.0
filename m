@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CBBF412312
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:19:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D1514123E3
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:27:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346459AbhITSU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:20:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40992 "EHLO mail.kernel.org"
+        id S1379192AbhITS2a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:28:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351317AbhITSS5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:18:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F7CB632A5;
-        Mon, 20 Sep 2021 17:23:08 +0000 (UTC)
+        id S1352073AbhITS00 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:26:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 34F1C632D4;
+        Mon, 20 Sep 2021 17:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158588;
-        bh=Fg6iF0i5GmFWqlnF1RGJmWdpfCQ6uMgT4VsN2iWPVes=;
+        s=korg; t=1632158749;
+        bh=OOiEn7Bt1AS7qARfbgULgOErx8F4ZiCkpfWGyHUgS4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HJUFu0lU/plXJ3boog2GL+yPR4Iof2hnpadU0ZFUePjmU7tTGYl7c/4vIbmfc+j2c
-         Np6CQLE+vS1lkVO1tmdPePr14wv/3BVrnffm8I5gyNm9us7hsc5UGLyZeprbbM7SjV
-         hjgzrLH3i5HANcmOOMI34zHjXqWzzNtoIvCUDCMo=
+        b=yf9p4/7ZTzxFVqg7Q7r95K6VoJmNOapvMcPrzvmDpRcV/mkxwGosAv2VhH+bi3rXC
+         QtQEZFHU1ifYYI8Ys6BVB5UGU8p6RCvGhWu5QWFQzy5G7vWF9nGrLJXNJY7fZ20w0w
+         c829TRT1cFFaplv7MBTY/uNJZobUBnzphEfM3Dfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 5.4 193/260] xen: reset legacy rtc flag for PV domU
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 039/122] net/af_unix: fix a data-race in unix_dgram_poll
 Date:   Mon, 20 Sep 2021 18:43:31 +0200
-Message-Id: <20210920163937.672022402@linuxfoundation.org>
+Message-Id: <20210920163917.073976512@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,71 +40,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit f68aa100d815b5b4467fd1c3abbe3b99d65fd028 upstream.
+commit 04f08eb44b5011493d77b602fdec29ff0f5c6cd5 upstream.
 
-A Xen PV guest doesn't have a legacy RTC device, so reset the legacy
-RTC flag. Otherwise the following WARN splat will occur at boot:
+syzbot reported another data-race in af_unix [1]
 
-[    1.333404] WARNING: CPU: 1 PID: 1 at /home/gross/linux/head/drivers/rtc/rtc-mc146818-lib.c:25 mc146818_get_time+0x1be/0x210
-[    1.333404] Modules linked in:
-[    1.333404] CPU: 1 PID: 1 Comm: swapper/0 Tainted: G        W         5.14.0-rc7-default+ #282
-[    1.333404] RIP: e030:mc146818_get_time+0x1be/0x210
-[    1.333404] Code: c0 64 01 c5 83 fd 45 89 6b 14 7f 06 83 c5 64 89 6b 14 41 83 ec 01 b8 02 00 00 00 44 89 63 10 5b 5d 41 5c 41 5d 41 5e 41 5f c3 <0f> 0b 48 c7 c7 30 0e ef 82 4c 89 e6 e8 71 2a 24 00 48 c7 c0 ff ff
-[    1.333404] RSP: e02b:ffffc90040093df8 EFLAGS: 00010002
-[    1.333404] RAX: 00000000000000ff RBX: ffffc90040093e34 RCX: 0000000000000000
-[    1.333404] RDX: 0000000000000001 RSI: 0000000000000000 RDI: 000000000000000d
-[    1.333404] RBP: ffffffff82ef0e30 R08: ffff888005013e60 R09: 0000000000000000
-[    1.333404] R10: ffffffff82373e9b R11: 0000000000033080 R12: 0000000000000200
-[    1.333404] R13: 0000000000000000 R14: 0000000000000002 R15: ffffffff82cdc6d4
-[    1.333404] FS:  0000000000000000(0000) GS:ffff88807d440000(0000) knlGS:0000000000000000
-[    1.333404] CS:  10000e030 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.333404] CR2: 0000000000000000 CR3: 000000000260a000 CR4: 0000000000050660
-[    1.333404] Call Trace:
-[    1.333404]  ? wakeup_sources_sysfs_init+0x30/0x30
-[    1.333404]  ? rdinit_setup+0x2b/0x2b
-[    1.333404]  early_resume_init+0x23/0xa4
-[    1.333404]  ? cn_proc_init+0x36/0x36
-[    1.333404]  do_one_initcall+0x3e/0x200
-[    1.333404]  kernel_init_freeable+0x232/0x28e
-[    1.333404]  ? rest_init+0xd0/0xd0
-[    1.333404]  kernel_init+0x16/0x120
-[    1.333404]  ret_from_fork+0x1f/0x30
+Lets change __skb_insert() to use WRITE_ONCE() when changing
+skb head qlen.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 8d152e7a5c7537 ("x86/rtc: Replace paravirt rtc check with platform legacy quirk")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20210903084937.19392-3-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Also, change unix_dgram_poll() to use lockless version
+of unix_recvq_full()
+
+It is verry possible we can switch all/most unix_recvq_full()
+to the lockless version, this will be done in a future kernel version.
+
+[1] HEAD commit: 8596e589b787732c8346f0482919e83cc9362db1
+
+BUG: KCSAN: data-race in skb_queue_tail / unix_dgram_poll
+
+write to 0xffff88814eeb24e0 of 4 bytes by task 25815 on cpu 0:
+ __skb_insert include/linux/skbuff.h:1938 [inline]
+ __skb_queue_before include/linux/skbuff.h:2043 [inline]
+ __skb_queue_tail include/linux/skbuff.h:2076 [inline]
+ skb_queue_tail+0x80/0xa0 net/core/skbuff.c:3264
+ unix_dgram_sendmsg+0xff2/0x1600 net/unix/af_unix.c:1850
+ sock_sendmsg_nosec net/socket.c:703 [inline]
+ sock_sendmsg net/socket.c:723 [inline]
+ ____sys_sendmsg+0x360/0x4d0 net/socket.c:2392
+ ___sys_sendmsg net/socket.c:2446 [inline]
+ __sys_sendmmsg+0x315/0x4b0 net/socket.c:2532
+ __do_sys_sendmmsg net/socket.c:2561 [inline]
+ __se_sys_sendmmsg net/socket.c:2558 [inline]
+ __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2558
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+read to 0xffff88814eeb24e0 of 4 bytes by task 25834 on cpu 1:
+ skb_queue_len include/linux/skbuff.h:1869 [inline]
+ unix_recvq_full net/unix/af_unix.c:194 [inline]
+ unix_dgram_poll+0x2bc/0x3e0 net/unix/af_unix.c:2777
+ sock_poll+0x23e/0x260 net/socket.c:1288
+ vfs_poll include/linux/poll.h:90 [inline]
+ ep_item_poll fs/eventpoll.c:846 [inline]
+ ep_send_events fs/eventpoll.c:1683 [inline]
+ ep_poll fs/eventpoll.c:1798 [inline]
+ do_epoll_wait+0x6ad/0xf00 fs/eventpoll.c:2226
+ __do_sys_epoll_wait fs/eventpoll.c:2238 [inline]
+ __se_sys_epoll_wait fs/eventpoll.c:2233 [inline]
+ __x64_sys_epoll_wait+0xf6/0x120 fs/eventpoll.c:2233
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0x0000001b -> 0x00000001
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 25834 Comm: syz-executor.1 Tainted: G        W         5.14.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 86b18aaa2b5b ("skbuff: fix a data race in skb_queue_len()")
+Cc: Qian Cai <cai@lca.pw>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/xen/enlighten_pv.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ include/linux/skbuff.h |    2 +-
+ net/unix/af_unix.c     |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1183,6 +1183,11 @@ static void __init xen_dom0_set_legacy_f
- 	x86_platform.legacy.rtc = 1;
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -1908,7 +1908,7 @@ static inline void __skb_insert(struct s
+ 	WRITE_ONCE(newsk->prev, prev);
+ 	WRITE_ONCE(next->prev, newsk);
+ 	WRITE_ONCE(prev->next, newsk);
+-	list->qlen++;
++	WRITE_ONCE(list->qlen, list->qlen + 1);
  }
  
-+static void __init xen_domu_set_legacy_features(void)
-+{
-+	x86_platform.legacy.rtc = 0;
-+}
-+
- /* First C function to be called on Xen boot */
- asmlinkage __visible void __init xen_start_kernel(void)
- {
-@@ -1353,6 +1358,8 @@ asmlinkage __visible void __init xen_sta
- 		add_preferred_console("xenboot", 0, NULL);
- 		if (pci_xen)
- 			x86_init.pci.arch_init = pci_xen_init;
-+		x86_platform.set_legacy_features =
-+				xen_domu_set_legacy_features;
- 	} else {
- 		const struct dom0_vga_console_info *info =
- 			(void *)((char *)xen_start_info +
+ static inline void __skb_queue_splice(const struct sk_buff_head *list,
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -2769,7 +2769,7 @@ static __poll_t unix_dgram_poll(struct f
+ 
+ 		other = unix_peer(sk);
+ 		if (other && unix_peer(other) != sk &&
+-		    unix_recvq_full(other) &&
++		    unix_recvq_full_lockless(other) &&
+ 		    unix_dgram_peer_wake_me(sk, other))
+ 			writable = 0;
+ 
 
 
