@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D1434120C8
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:58:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA01E411EA6
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:32:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349031AbhITR57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:57:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54556 "EHLO mail.kernel.org"
+        id S242660AbhITRdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:33:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354098AbhITRzy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:55:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 201AE61C32;
-        Mon, 20 Sep 2021 17:14:12 +0000 (UTC)
+        id S1347917AbhITRbK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:31:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C15E561354;
+        Mon, 20 Sep 2021 17:04:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158053;
-        bh=MDXbSHNeFmO2QL8MktIbPU1VVV71M8hRf35mfMnmNXI=;
+        s=korg; t=1632157468;
+        bh=ecmi35bxILaHy9AuAQzTQ28jfOPwEE6Hq14CBlST40E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=goPZxWoI3XBCzpAj158mdEDZ0Cn7gwgl0xuJYgOafQldlXkTSQOl5H1QVKcOpR/4W
-         BqGrJKQztv4U4G8UwYMNg5b2kNZKdS7Zrqw0NOrs+PBI9i65TGC3n3tsq1HiUwVZa7
-         lvcIewvaaMyrP07I/giyN0XLDg1lE47L6dN6gYcQ=
+        b=BOvh/CAZYc3t0I2u+Qg6XVJ9ZyOl2k5MibvRShu8TPP2NIlT1/A6coAPThIMtZIJ6
+         bes1JuH7z+Gupule6e75miU0gpPsJMTerFEDofCc3bSxUR2t8TdQouPEGpS7uCTkhq
+         WlH3N+tuiCEl+XeeZpaHUSnd95zjfEKFP5NIn3qA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yufeng Mo <moyufeng@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 272/293] net: hns3: pad the short tunnel frame before sending to hardware
-Date:   Mon, 20 Sep 2021 18:43:54 +0200
-Message-Id: <20210920163942.718769239@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 214/217] net: dsa: b53: Fix calculating number of switch ports
+Date:   Mon, 20 Sep 2021 18:43:55 +0200
+Message-Id: <20210920163931.875096365@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufeng Mo <moyufeng@huawei.com>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-commit d18e81183b1cb9c309266cbbce9acd3e0c528d04 upstream.
+[ Upstream commit cdb067d31c0fe4cce98b9d15f1f2ef525acaa094 ]
 
-The hardware cannot handle short tunnel frames below 65 bytes,
-and will cause vlan tag missing problem. So pads packet size to
-65 bytes for tunnel frames to fix this bug.
+It isn't true that CPU port is always the last one. Switches BCM5301x
+have 9 ports (port 6 being inactive) and they use port 5 as CPU by
+default (depending on design some other may be CPU ports too).
 
-Fixes: 3db084d28dc0("net: hns3: Fix for vxlan tx checksum bug")
-Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+A more reliable way of determining number of ports is to check for the
+last set bit in the "enabled_ports" bitfield.
+
+This fixes b53 internal state, it will allow providing accurate info to
+the DSA and is required to fix BCM5301x support.
+
+Fixes: 967dd82ffc52 ("net: dsa: b53: Add support for Broadcom RoboSwitch")
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/dsa/b53/b53_common.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -29,6 +29,8 @@ static const char hns3_driver_string[] =
- static const char hns3_copyright[] = "Copyright (c) 2017 Huawei Corporation.";
- static struct hnae3_client client;
+diff --git a/drivers/net/dsa/b53/b53_common.c b/drivers/net/dsa/b53/b53_common.c
+index 820aed3e2352..9fff49229435 100644
+--- a/drivers/net/dsa/b53/b53_common.c
++++ b/drivers/net/dsa/b53/b53_common.c
+@@ -1843,9 +1843,8 @@ static int b53_switch_init(struct b53_device *dev)
+ 			dev->cpu_port = 5;
+ 	}
  
-+#define HNS3_MIN_TUN_PKT_LEN	65U
-+
- /* hns3_pci_tbl - PCI Device ID Table
-  *
-  * Last entry must be all 0s
-@@ -792,8 +794,11 @@ static int hns3_set_l3l4_type_csum(struc
- 				HNS3_L4T_TCP);
- 		break;
- 	case IPPROTO_UDP:
--		if (hns3_tunnel_csum_bug(skb))
--			return skb_checksum_help(skb);
-+		if (hns3_tunnel_csum_bug(skb)) {
-+			int ret = skb_put_padto(skb, HNS3_MIN_TUN_PKT_LEN);
-+
-+			return ret ? ret : skb_checksum_help(skb);
-+		}
+-	/* cpu port is always last */
+-	dev->num_ports = dev->cpu_port + 1;
+ 	dev->enabled_ports |= BIT(dev->cpu_port);
++	dev->num_ports = fls(dev->enabled_ports);
  
- 		hnae3_set_bit(*type_cs_vlan_tso, HNS3_TXD_L4CS_B, 1);
- 		hnae3_set_field(*type_cs_vlan_tso,
+ 	dev->ports = devm_kzalloc(dev->dev,
+ 				  sizeof(struct b53_port) * dev->num_ports,
+-- 
+2.30.2
+
 
 
