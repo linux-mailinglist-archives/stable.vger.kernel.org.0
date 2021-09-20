@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19112411FB7
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:43:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49D25411D4B
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:17:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345278AbhITRo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:44:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47394 "EHLO mail.kernel.org"
+        id S1344379AbhITRS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:18:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348934AbhITRmf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:42:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C91E161B67;
-        Mon, 20 Sep 2021 17:08:52 +0000 (UTC)
+        id S1346043AbhITRQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:16:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF45D619FA;
+        Mon, 20 Sep 2021 16:58:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157733;
-        bh=aQ3ss94Ysz8Z2rgJ7EBicK34Av2AyGubTaj1Y/1YGx4=;
+        s=korg; t=1632157133;
+        bh=RfbUyVdgSWGh8UzBjgpM78qUWJju/apyLKq6voc5Q9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jTxl1rDcpTVT9d2ifPXn9z6X+S+BXEytGyj5m7LRXjtTDi+0ssvcjwCS0S9eTCEiM
-         NQvyGgzXYdfJ7u7XB0PXvIBoP2tX4T6nwJzRCNPppr7/QOa0rO4mInLZWiqOgxrymu
-         3rxSY8fFj7H1at62+p6XbJjfj9QqHAYF9X4TwVzQ=
+        b=V2wm3Cd1xltpGdXaVF6YKC+owEPOmA3oy5N1HeeJ2IqA0CuYgaHU4mOboSap698eW
+         XeQEAV13LqZUOyAwhQaiQjRaAvk8XI59Bi2FnH6ozJNFB0Id+NaNt6I5CRKxWbeoeb
+         0GfAfjhlbeapcEmB7LPtWa0N2mjHEZXnzctv0vmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Harshvardhan Jha <harshvardhan.jha@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Dominique Martinet <asmadeus@codewreck.org>
-Subject: [PATCH 4.19 126/293] 9p/xen: Fix end of loop tests for list_for_each_entry
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 067/217] usb: gadget: udc: at91: add IRQ check
 Date:   Mon, 20 Sep 2021 18:41:28 +0200
-Message-Id: <20210920163937.570612652@linuxfoundation.org>
+Message-Id: <20210920163926.893022230@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshvardhan Jha <harshvardhan.jha@oracle.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit 732b33d0dbf17e9483f0b50385bf606f724f50a2 upstream.
+[ Upstream commit 50855c31573b02963f0aa2aacfd4ea41c31ae0e0 ]
 
-This patch addresses the following problems:
- - priv can never be NULL, so this part of the check is useless
- - if the loop ran through the whole list, priv->client is invalid and
-it is more appropriate and sufficient to check for the end of
-list_for_each_entry loop condition.
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to devm_request_irq() (which takes
+*unsigned* IRQ #), causing it to fail with -EINVAL, overriding an original
+error code. Stop calling devm_request_irq() with the invalid IRQ #s.
 
-Link: http://lkml.kernel.org/r/20210727000709.225032-1-harshvardhan.jha@oracle.com
-Signed-off-by: Harshvardhan Jha <harshvardhan.jha@oracle.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Tested-by: Stefano Stabellini <sstabellini@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Fixes: 8b2e76687b39 ("USB: AT91 UDC updates, mostly power management")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Link: https://lore.kernel.org/r/6654a224-739a-1a80-12f0-76d920f87b6c@omp.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_xen.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/udc/at91_udc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/9p/trans_xen.c
-+++ b/net/9p/trans_xen.c
-@@ -138,7 +138,7 @@ static bool p9_xen_write_todo(struct xen
+diff --git a/drivers/usb/gadget/udc/at91_udc.c b/drivers/usb/gadget/udc/at91_udc.c
+index 8bc78418d40e..cd92cda03d71 100644
+--- a/drivers/usb/gadget/udc/at91_udc.c
++++ b/drivers/usb/gadget/udc/at91_udc.c
+@@ -1895,7 +1895,9 @@ static int at91udc_probe(struct platform_device *pdev)
+ 	clk_disable(udc->iclk);
  
- static int p9_xen_request(struct p9_client *client, struct p9_req_t *p9_req)
- {
--	struct xen_9pfs_front_priv *priv = NULL;
-+	struct xen_9pfs_front_priv *priv;
- 	RING_IDX cons, prod, masked_cons, masked_prod;
- 	unsigned long flags;
- 	u32 size = p9_req->tc.size;
-@@ -151,7 +151,7 @@ static int p9_xen_request(struct p9_clie
- 			break;
- 	}
- 	read_unlock(&xen_9pfs_lock);
--	if (!priv || priv->client != client)
-+	if (list_entry_is_head(priv, &xen_9pfs_devs, list))
- 		return -EINVAL;
- 
- 	num = p9_req->tc.tag % priv->num_rings;
+ 	/* request UDC and maybe VBUS irqs */
+-	udc->udp_irq = platform_get_irq(pdev, 0);
++	udc->udp_irq = retval = platform_get_irq(pdev, 0);
++	if (retval < 0)
++		goto err_unprepare_iclk;
+ 	retval = devm_request_irq(dev, udc->udp_irq, at91_udc_irq, 0,
+ 				  driver_name, udc);
+ 	if (retval) {
+-- 
+2.30.2
+
 
 
