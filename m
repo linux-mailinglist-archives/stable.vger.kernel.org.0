@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81217411CDC
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:13:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD5F6411F4F
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:38:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347359AbhITRNs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:13:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35192 "EHLO mail.kernel.org"
+        id S1348604AbhITRkC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:40:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347055AbhITRLp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:11:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05F1E613A7;
-        Mon, 20 Sep 2021 16:57:16 +0000 (UTC)
+        id S1348446AbhITRic (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:38:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C4CD61B42;
+        Mon, 20 Sep 2021 17:07:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157037;
-        bh=NTQ83EFty604hCldqQNP0e/n2sg8GWQ0+5vJ10v/K0o=;
+        s=korg; t=1632157637;
+        bh=s21Gqzn3SpMIJqHSOPjkIuGzU0rms9xC53o8jFzRMfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ILsd0q79CAQj/YKx4VoSMzNBZ851hAfxX9a14nzrcZB+qIw/NTqVbuHCn1oIEoSVM
-         itMpqC2K54Gx5b3w+l2CieNGeyoXVkfM+WEpZ8ADCN0IOJBmL0AXmRpUnl+vewg9vE
-         dmvU0HaRd20upEXZ0l1zsQrC0UbTBBX7LiMoT6t4=
+        b=N2cHEn1vU4uxhZv96C0h3smjsgTBoyui1D3eWcv0e/0wS3Pw+FrQhyID9Sh+vBUJ5
+         OhEbJursQM8GiJwB7Nszdqwfo5JXVSV8O6p/zrfeTkoIY+fs88aTODTkUQmqby6yj3
+         /oO0oYxLXbsVoyQjsUSdoQGlIwKsI0AUyOAJNSvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Oscar Salvador <osalvador@suse.de>,
-        David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 024/217] mm/page_alloc: speed up the iteration of max_order
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 083/293] usb: phy: twl6030: add IRQ checks
 Date:   Mon, 20 Sep 2021 18:40:45 +0200
-Message-Id: <20210920163925.431064713@linuxfoundation.org>
+Message-Id: <20210920163936.103586686@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,73 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit 7ad69832f37e3cea8557db6df7c793905f1135e8 upstream.
+[ Upstream commit 0881e22c06e66af0b64773c91c8868ead3d01aa1 ]
 
-When we free a page whose order is very close to MAX_ORDER and greater
-than pageblock_order, it wastes some CPU cycles to increase max_order to
-MAX_ORDER one by one and check the pageblock migratetype of that page
-repeatedly especially when MAX_ORDER is much larger than pageblock_order.
+The driver neglects to check the result of platform_get_irq()'s calls and
+blithely passes the negative error codes to request_threaded_irq() (which
+takes *unsigned* IRQ #), causing them both to fail with -EINVAL, overriding
+an original error code.  Stop calling request_threaded_irq() with the
+invalid IRQ #s.
 
-We also should not be checking migratetype of buddy when "order ==
-MAX_ORDER - 1" as the buddy pfn may be invalid, so adjust the condition.
-With the new check, we don't need the max_order check anymore, so we
-replace it.
-
-Also adjust max_order initialization so that it's lower by one than
-previously, which makes the code hopefully more clear.
-
-Link: https://lkml.kernel.org/r/20201204155109.55451-1-songmuchun@bytedance.com
-Fixes: d9dddbf55667 ("mm/page_alloc: prevent merging between isolated and other pageblocks")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: c33fad0c3748 ("usb: otg: Adding twl6030-usb transceiver driver for OMAP4430")
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Link: https://lore.kernel.org/r/9507f50b-50f1-6dc4-f57c-3ed4e53a1c25@omp.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/phy/phy-twl6030-usb.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -815,7 +815,7 @@ static inline void __free_one_page(struc
- 	struct page *buddy;
- 	unsigned int max_order;
+diff --git a/drivers/usb/phy/phy-twl6030-usb.c b/drivers/usb/phy/phy-twl6030-usb.c
+index dade34d70419..859af6113b45 100644
+--- a/drivers/usb/phy/phy-twl6030-usb.c
++++ b/drivers/usb/phy/phy-twl6030-usb.c
+@@ -342,6 +342,11 @@ static int twl6030_usb_probe(struct platform_device *pdev)
+ 	twl->irq2		= platform_get_irq(pdev, 1);
+ 	twl->linkstat		= MUSB_UNKNOWN;
  
--	max_order = min_t(unsigned int, MAX_ORDER, pageblock_order + 1);
-+	max_order = min_t(unsigned int, MAX_ORDER - 1, pageblock_order);
++	if (twl->irq1 < 0)
++		return twl->irq1;
++	if (twl->irq2 < 0)
++		return twl->irq2;
++
+ 	twl->comparator.set_vbus	= twl6030_set_vbus;
+ 	twl->comparator.start_srp	= twl6030_start_srp;
  
- 	VM_BUG_ON(!zone_is_initialized(zone));
- 	VM_BUG_ON_PAGE(page->flags & PAGE_FLAGS_CHECK_AT_PREP, page);
-@@ -828,7 +828,7 @@ static inline void __free_one_page(struc
- 	VM_BUG_ON_PAGE(bad_range(zone, page), page);
- 
- continue_merging:
--	while (order < max_order - 1) {
-+	while (order < max_order) {
- 		buddy_pfn = __find_buddy_pfn(pfn, order);
- 		buddy = page + (buddy_pfn - pfn);
- 
-@@ -852,7 +852,7 @@ continue_merging:
- 		pfn = combined_pfn;
- 		order++;
- 	}
--	if (max_order < MAX_ORDER) {
-+	if (order < MAX_ORDER - 1) {
- 		/* If we are here, it means order is >= pageblock_order.
- 		 * We want to prevent merge between freepages on isolate
- 		 * pageblock and normal pageblock. Without this, pageblock
-@@ -873,7 +873,7 @@ continue_merging:
- 						is_migrate_isolate(buddy_mt)))
- 				goto done_merging;
- 		}
--		max_order++;
-+		max_order = order + 1;
- 		goto continue_merging;
- 	}
- 
+-- 
+2.30.2
+
 
 
