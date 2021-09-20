@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 564814122E9
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:17:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB1004123CE
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:26:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351683AbhITSS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:18:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40362 "EHLO mail.kernel.org"
+        id S1378973AbhITS12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:27:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1359451AbhITSQR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:16:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FB0861A6D;
-        Mon, 20 Sep 2021 17:21:56 +0000 (UTC)
+        id S1348137AbhITSZ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:25:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25F5D632D0;
+        Mon, 20 Sep 2021 17:25:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158516;
-        bh=Pq+FWwKvLvXcJmC6zHClG84ExKNJqUV4WG9CYNPkQvA=;
+        s=korg; t=1632158723;
+        bh=Rzk16eFGZCHkcQPmr+mLyNt0vij5JEP7qj3OXPPf9mQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HGtWDwNlj63ueRvwlXlQbWMkkkSe9VRfgQsG0GxRMyfA2XqISPYYTvpHozh8qzzG2
-         bvZH1O7Z7NLxgw7IbotnnhMrNXwcJv1GoBCjeuCGNdYQcbRcz6tcSw5xMqUeH61qip
-         v14c/ymbaiEsgMGjJns3Kl2+XaQV1O9FokSGON3Y=
+        b=ChnCeAT5dTQbw0u8rW4gq5XR/FIxBsaD+r4VD4WuWxErWyTUb4Yp0dC8Pvl2pCtID
+         Y96oiIkKM2jwBVnqQRl9E0OOyZW+x09puCyF1xIEicbWBBNX5ri07daw9igjqcoS0N
+         BhSTz8lvs4kPg5vSQWJivAMowDxlr4eWk3zwRE5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael <msbroadf@gmail.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 160/260] usbip:vhci_hcd USB port can get stuck in the disabled state
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.10 006/122] arm64/sve: Use correct size when reinitialising SVE state
 Date:   Mon, 20 Sep 2021 18:42:58 +0200
-Message-Id: <20210920163936.539774623@linuxfoundation.org>
+Message-Id: <20210920163915.970625637@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 66cce9e73ec61967ed1f97f30cee79bd9a2bb7ee ]
+commit e35ac9d0b56e9efefaeeb84b635ea26c2839ea86 upstream.
 
-When a remote usb device is attached to the local Virtual USB
-Host Controller Root Hub port, the bound device driver may send
-a port reset command.
+When we need a buffer for SVE register state we call sve_alloc() to make
+sure that one is there. In order to avoid repeated allocations and frees
+we keep the buffer around unless we change vector length and just memset()
+it to ensure a clean register state. The function that deals with this
+takes the task to operate on as an argument, however in the case where we
+do a memset() we initialise using the SVE state size for the current task
+rather than the task passed as an argument.
 
-vhci_hcd accepts port resets only when the device doesn't have
-port address assigned to it. When reset happens device is in
-assigned/used state and vhci_hcd rejects it leaving the port in
-a stuck state.
+This is only an issue in the case where we are setting the register state
+for a task via ptrace and the task being configured has a different vector
+length to the task tracing it. In the case where the buffer is larger in
+the traced process we will leak old state from the traced process to
+itself, in the case where the buffer is smaller in the traced process we
+will overflow the buffer and corrupt memory.
 
-This problem was found when a blue-tooth or xbox wireless dongle
-was passed through using usbip.
-
-A few drivers reset the port during probe including mt76 driver
-specific to this bug report. Fix the problem with a change to
-honor reset requests when device is in used state (VDEV_ST_USED).
-
-Reported-and-tested-by: Michael <msbroadf@gmail.com>
-Suggested-by: Michael <msbroadf@gmail.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20210819225937.41037-1-skhan@linuxfoundation.org
+Fixes: bc0ee4760364 ("arm64/sve: Core task context handling")
+Cc: <stable@vger.kernel.org> # 4.15.x
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210909165356.10675-1-broonie@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usbip/vhci_hcd.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/fpsimd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/usbip/vhci_hcd.c b/drivers/usb/usbip/vhci_hcd.c
-index 46a46cde2070..170abb06a8a4 100644
---- a/drivers/usb/usbip/vhci_hcd.c
-+++ b/drivers/usb/usbip/vhci_hcd.c
-@@ -455,8 +455,14 @@ static int vhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
- 			vhci_hcd->port_status[rhport] &= ~(1 << USB_PORT_FEAT_RESET);
- 			vhci_hcd->re_timeout = 0;
+--- a/arch/arm64/kernel/fpsimd.c
++++ b/arch/arm64/kernel/fpsimd.c
+@@ -510,7 +510,7 @@ size_t sve_state_size(struct task_struct
+ void sve_alloc(struct task_struct *task)
+ {
+ 	if (task->thread.sve_state) {
+-		memset(task->thread.sve_state, 0, sve_state_size(current));
++		memset(task->thread.sve_state, 0, sve_state_size(task));
+ 		return;
+ 	}
  
-+			/*
-+			 * A few drivers do usb reset during probe when
-+			 * the device could be in VDEV_ST_USED state
-+			 */
- 			if (vhci_hcd->vdev[rhport].ud.status ==
--			    VDEV_ST_NOTASSIGNED) {
-+				VDEV_ST_NOTASSIGNED ||
-+			    vhci_hcd->vdev[rhport].ud.status ==
-+				VDEV_ST_USED) {
- 				usbip_dbg_vhci_rh(
- 					" enable rhport %d (status %u)\n",
- 					rhport,
--- 
-2.30.2
-
 
 
