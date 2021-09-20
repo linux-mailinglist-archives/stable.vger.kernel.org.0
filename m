@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63A874123DF
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:27:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 556A64125AC
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:45:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379161AbhITS21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:28:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44428 "EHLO mail.kernel.org"
+        id S1354520AbhITSqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:46:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1378761AbhITS0W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:26:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59D4C632DD;
-        Mon, 20 Sep 2021 17:25:38 +0000 (UTC)
+        id S1383261AbhITSoT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:44:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 84FF56137C;
+        Mon, 20 Sep 2021 17:32:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158738;
-        bh=bWFyB2GCQjZchfq8B6SsuD9LGSGlwgPReH0hiIu473g=;
+        s=korg; t=1632159153;
+        bh=2aUFvNwSxY7pwqroa4y5YaZd+XWGcKLSJTkujQSxd7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gXXkIoa619v9m9UrtkSO4IrE+2PmPXfS/nu+EEEsvyXb998zbDAceLYtfpx0cPTPB
-         UmknDSr1TKn6v3IPsq3JifrS9bieHd/5UnwiguIW+m0wAyLkLHfnczyBpF/JgIAicR
-         gQW921aHHgVIwgOAG9YSmDnpuVCMBPw5uQ5QK2hM=
+        b=oQ9St3Uq/XLCZI3iBholyhaDBc94EnMLSv4mdu/NtahiBjnraLWtn4rgTDgkSvIM5
+         AuD7E75/rmlqrOpTSyBrWaJtKfXQYoWUKvLJDgRYQps1iMClxi4fMz7QMccs8YZgrm
+         Pj6uUOIvEikitFcUrKDt5DkB1Vn3281t/FwFwF/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Jones <sjones@kalrayinc.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.10 034/122] nvme-tcp: fix io_work priority inversion
+        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.14 068/168] dt-bindings: arm: Fix Toradex compatible typo
 Date:   Mon, 20 Sep 2021 18:43:26 +0200
-Message-Id: <20210920163916.915224696@linuxfoundation.org>
+Message-Id: <20210920163923.881012073@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
-References: <20210920163915.757887582@linuxfoundation.org>
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,81 +39,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: David Heidelberg <david@ixit.cz>
 
-commit 70f437fb4395ad4d1d16fab9a1ad9fbc9fc0579b upstream.
+commit 55c21d57eafb7b379bb7b3e93baf9ca2695895b0 upstream.
 
-Dispatching requests inline with the .queue_rq() call may block while
-holding the send_mutex. If the tcp io_work also happens to schedule, it
-may see the req_list is non-empty, leaving "pending" true and remaining
-in TASK_RUNNING. Since io_work is of higher scheduling priority, the
-.queue_rq task may not get a chance to run, blocking forward progress
-and leading to io timeouts.
+Fix board compatible typo reported by dtbs_check.
 
-Instead of checking for pending requests within io_work, let the queueing
-restart io_work outside the send_mutex lock if there is more work to be
-done.
-
-Fixes: a0fdd1418007f ("nvme-tcp: rerun io_work if req_list is not empty")
-Reported-by: Samuel Jones <sjones@kalrayinc.com>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: f4d1577e9bc6 ("dt-bindings: arm: Convert Tegra board/soc bindings to json-schema")
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Link: https://lore.kernel.org/r/20210912165120.188490-1-david@ixit.cz
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/tcp.c |   20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ Documentation/devicetree/bindings/arm/tegra.yaml |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -273,6 +273,12 @@ static inline void nvme_tcp_send_all(str
- 	} while (ret > 0);
- }
- 
-+static inline bool nvme_tcp_queue_more(struct nvme_tcp_queue *queue)
-+{
-+	return !list_empty(&queue->send_list) ||
-+		!llist_empty(&queue->req_list) || queue->more_requests;
-+}
-+
- static inline void nvme_tcp_queue_request(struct nvme_tcp_request *req,
- 		bool sync, bool last)
- {
-@@ -293,9 +299,10 @@ static inline void nvme_tcp_queue_reques
- 		nvme_tcp_send_all(queue);
- 		queue->more_requests = false;
- 		mutex_unlock(&queue->send_mutex);
--	} else if (last) {
--		queue_work_on(queue->io_cpu, nvme_tcp_wq, &queue->io_work);
- 	}
-+
-+	if (last && nvme_tcp_queue_more(queue))
-+		queue_work_on(queue->io_cpu, nvme_tcp_wq, &queue->io_work);
- }
- 
- static void nvme_tcp_process_req_list(struct nvme_tcp_queue *queue)
-@@ -890,12 +897,6 @@ done:
- 	read_unlock_bh(&sk->sk_callback_lock);
- }
- 
--static inline bool nvme_tcp_queue_more(struct nvme_tcp_queue *queue)
--{
--	return !list_empty(&queue->send_list) ||
--		!llist_empty(&queue->req_list) || queue->more_requests;
--}
--
- static inline void nvme_tcp_done_send_req(struct nvme_tcp_queue *queue)
- {
- 	queue->request = NULL;
-@@ -1132,8 +1133,7 @@ static void nvme_tcp_io_work(struct work
- 				pending = true;
- 			else if (unlikely(result < 0))
- 				break;
--		} else
--			pending = !llist_empty(&queue->req_list);
-+		}
- 
- 		result = nvme_tcp_try_recv(queue);
- 		if (result > 0)
+--- a/Documentation/devicetree/bindings/arm/tegra.yaml
++++ b/Documentation/devicetree/bindings/arm/tegra.yaml
+@@ -54,7 +54,7 @@ properties:
+           - const: toradex,apalis_t30
+           - const: nvidia,tegra30
+       - items:
+-          - const: toradex,apalis_t30-eval-v1.1
++          - const: toradex,apalis_t30-v1.1-eval
+           - const: toradex,apalis_t30-eval
+           - const: toradex,apalis_t30-v1.1
+           - const: toradex,apalis_t30
 
 
