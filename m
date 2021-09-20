@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D83A412084
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:55:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D67F4411AAA
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:49:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349820AbhITRzw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:55:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54536 "EHLO mail.kernel.org"
+        id S244648AbhITQvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:51:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354017AbhITRxe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:53:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2729061882;
-        Mon, 20 Sep 2021 17:13:14 +0000 (UTC)
+        id S243997AbhITQuK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:50:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C8B561211;
+        Mon, 20 Sep 2021 16:48:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157994;
-        bh=HRzcYRG8yXntcrKngGpYaYkhsst6hEcgM5ODRVlgVgY=;
+        s=korg; t=1632156523;
+        bh=tF7XShmEXVyqw801Ua9nLMrlcjNtlhy6P0KmDLFdzOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yt2TfpQdEmfnAQSfCOuB/TbQjcTRx2TeGl+nD4d7ddLywDgxGbzZkyBPGd+ZEh+xq
-         uJsOajdR2ZwZDJ0IceWywdCz9teBv2as1t0YQmd/L7XABQO/IvBl79vWtvyM2uhGsJ
-         0V4tGqHxyadlD7yzoNvtcHbaMovOo+k+1TQe+qP8=
+        b=NId6IO7W3hYen4bKYC7oBKxAPaH6hVlzMKvNF0UiH+M6jLj3rH2YNJToRGVK8tG5y
+         YerbGqoyn59Dw2QR3WGmEuJ14sMf0LZUJ7uvRWZqxqg4LtfEOTp+jYP46wKbZrg0sf
+         UwEUY9ZQfG+b+UToJNnY2VSqVq7h6jiN1r9PKM8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+2f6d7c28bb4bf7e82060@syzkaller.appspotmail.com,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 214/293] Bluetooth: schedule SCO timeouts with delayed_work
-Date:   Mon, 20 Sep 2021 18:42:56 +0200
-Message-Id: <20210920163940.703069964@linuxfoundation.org>
+Subject: [PATCH 4.4 099/133] ipv4: ip_output.c: Fix out-of-bounds warning in ip_copy_addrs()
+Date:   Mon, 20 Sep 2021 18:42:57 +0200
+Message-Id: <20210920163915.868699351@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
+References: <20210920163912.603434365@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,147 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-[ Upstream commit ba316be1b6a00db7126ed9a39f9bee434a508043 ]
+[ Upstream commit 6321c7acb82872ef6576c520b0e178eaad3a25c0 ]
 
-struct sock.sk_timer should be used as a sock cleanup timer. However,
-SCO uses it to implement sock timeouts.
+Fix the following out-of-bounds warning:
 
-This causes issues because struct sock.sk_timer's callback is run in
-an IRQ context, and the timer callback function sco_sock_timeout takes
-a spin lock on the socket. However, other functions such as
-sco_conn_del and sco_conn_ready take the spin lock with interrupts
-enabled.
+    In function 'ip_copy_addrs',
+        inlined from '__ip_queue_xmit' at net/ipv4/ip_output.c:517:2:
+net/ipv4/ip_output.c:449:2: warning: 'memcpy' offset [40, 43] from the object at 'fl' is out of the bounds of referenced subobject 'saddr' with type 'unsigned int' at offset 36 [-Warray-bounds]
+      449 |  memcpy(&iph->saddr, &fl4->saddr,
+          |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      450 |         sizeof(fl4->saddr) + sizeof(fl4->daddr));
+          |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} lock usage could
-lead to deadlocks as reported by Syzbot [1]:
-       CPU0
-       ----
-  lock(slock-AF_BLUETOOTH-BTPROTO_SCO);
-  <Interrupt>
-    lock(slock-AF_BLUETOOTH-BTPROTO_SCO);
+The problem is that the original code is trying to copy data into a
+couple of struct members adjacent to each other in a single call to
+memcpy(). This causes a legitimate compiler warning because memcpy()
+overruns the length of &iph->saddr and &fl4->saddr. As these are just
+a couple of struct members, fix this by using direct assignments,
+instead of memcpy().
 
-To fix this, we use delayed work to implement SCO sock timouts
-instead. This allows us to avoid taking the spin lock on the socket in
-an IRQ context, and corrects the misuse of struct sock.sk_timer.
+This helps with the ongoing efforts to globally enable -Warray-bounds
+and get us closer to being able to tighten the FORTIFY_SOURCE routines
+on memcpy().
 
-As a note, cancel_delayed_work is used instead of
-cancel_delayed_work_sync in sco_sock_set_timer and
-sco_sock_clear_timer to avoid a deadlock. In the future, the call to
-bh_lock_sock inside sco_sock_timeout should be changed to lock_sock to
-synchronize with other functions using lock_sock. However, since
-sco_sock_set_timer and sco_sock_clear_timer are sometimes called under
-the locked socket (in sco_connect and __sco_sock_close),
-cancel_delayed_work_sync might cause them to sleep until an
-sco_sock_timeout that has started finishes running. But
-sco_sock_timeout would also sleep until it can grab the lock_sock.
-
-Using cancel_delayed_work is fine because sco_sock_timeout does not
-change from run to run, hence there is no functional difference
-between:
-1. waiting for a timeout to finish running before scheduling another
-timeout
-2. scheduling another timeout while a timeout is running.
-
-Link: https://syzkaller.appspot.com/bug?id=9089d89de0502e120f234ca0fc8a703f7368b31e [1]
-Reported-by: syzbot+2f6d7c28bb4bf7e82060@syzkaller.appspotmail.com
-Tested-by: syzbot+2f6d7c28bb4bf7e82060@syzkaller.appspotmail.com
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Link: https://github.com/KSPP/linux/issues/109
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/d5ae2e65-1f18-2577-246f-bada7eee6ccd@intel.com/
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/sco.c | 35 +++++++++++++++++++++++++++++------
- 1 file changed, 29 insertions(+), 6 deletions(-)
+ net/ipv4/ip_output.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-index 2fbea653540b..3b3d3ef52ac2 100644
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -48,6 +48,8 @@ struct sco_conn {
- 	spinlock_t	lock;
- 	struct sock	*sk;
- 
-+	struct delayed_work	timeout_work;
-+
- 	unsigned int    mtu;
- };
- 
-@@ -73,9 +75,20 @@ struct sco_pinfo {
- #define SCO_CONN_TIMEOUT	(HZ * 40)
- #define SCO_DISCONN_TIMEOUT	(HZ * 2)
- 
--static void sco_sock_timeout(struct timer_list *t)
-+static void sco_sock_timeout(struct work_struct *work)
+diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+index e808227c58d6..477540b3d320 100644
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -376,8 +376,9 @@ static void ip_copy_addrs(struct iphdr *iph, const struct flowi4 *fl4)
  {
--	struct sock *sk = from_timer(sk, t, sk_timer);
-+	struct sco_conn *conn = container_of(work, struct sco_conn,
-+					     timeout_work.work);
-+	struct sock *sk;
+ 	BUILD_BUG_ON(offsetof(typeof(*fl4), daddr) !=
+ 		     offsetof(typeof(*fl4), saddr) + sizeof(fl4->saddr));
+-	memcpy(&iph->saddr, &fl4->saddr,
+-	       sizeof(fl4->saddr) + sizeof(fl4->daddr));
 +
-+	sco_conn_lock(conn);
-+	sk = conn->sk;
-+	if (sk)
-+		sock_hold(sk);
-+	sco_conn_unlock(conn);
-+
-+	if (!sk)
-+		return;
- 
- 	BT_DBG("sock %p state %d", sk, sk->sk_state);
- 
-@@ -89,14 +102,21 @@ static void sco_sock_timeout(struct timer_list *t)
- 
- static void sco_sock_set_timer(struct sock *sk, long timeout)
- {
-+	if (!sco_pi(sk)->conn)
-+		return;
-+
- 	BT_DBG("sock %p state %d timeout %ld", sk, sk->sk_state, timeout);
--	sk_reset_timer(sk, &sk->sk_timer, jiffies + timeout);
-+	cancel_delayed_work(&sco_pi(sk)->conn->timeout_work);
-+	schedule_delayed_work(&sco_pi(sk)->conn->timeout_work, timeout);
++	iph->saddr = fl4->saddr;
++	iph->daddr = fl4->daddr;
  }
  
- static void sco_sock_clear_timer(struct sock *sk)
- {
-+	if (!sco_pi(sk)->conn)
-+		return;
-+
- 	BT_DBG("sock %p state %d", sk, sk->sk_state);
--	sk_stop_timer(sk, &sk->sk_timer);
-+	cancel_delayed_work(&sco_pi(sk)->conn->timeout_work);
- }
- 
- /* ---- SCO connections ---- */
-@@ -176,6 +196,9 @@ static void sco_conn_del(struct hci_conn *hcon, int err)
- 		sco_chan_del(sk, err);
- 		bh_unlock_sock(sk);
- 		sock_put(sk);
-+
-+		/* Ensure no more work items will run before freeing conn. */
-+		cancel_delayed_work_sync(&conn->timeout_work);
- 	}
- 
- 	hcon->sco_data = NULL;
-@@ -190,6 +213,8 @@ static void __sco_chan_add(struct sco_conn *conn, struct sock *sk,
- 	sco_pi(sk)->conn = conn;
- 	conn->sk = sk;
- 
-+	INIT_DELAYED_WORK(&conn->timeout_work, sco_sock_timeout);
-+
- 	if (parent)
- 		bt_accept_enqueue(parent, sk, true);
- }
-@@ -484,8 +509,6 @@ static struct sock *sco_sock_alloc(struct net *net, struct socket *sock,
- 
- 	sco_pi(sk)->setting = BT_VOICE_CVSD_16BIT;
- 
--	timer_setup(&sk->sk_timer, sco_sock_timeout, 0);
--
- 	bt_sock_link(&sco_sk_list, sk);
- 	return sk;
- }
+ /* Note: skb->sk can be different from sk, in case of tunnels */
 -- 
 2.30.2
 
