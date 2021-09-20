@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C90141236B
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:23:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8EF84124C0
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:35:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351052AbhITSZH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:25:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44434 "EHLO mail.kernel.org"
+        id S1381068AbhITShV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:37:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1377972AbhITSWV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 14:22:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 916B2632BC;
-        Mon, 20 Sep 2021 17:24:13 +0000 (UTC)
+        id S1381067AbhITSfT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 14:35:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FDB261AAC;
+        Mon, 20 Sep 2021 17:29:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158654;
-        bh=xKGyVLOlE+RnBiowuQgwg1FE1BkCcuhEkcim+VJv6mg=;
+        s=korg; t=1632158942;
+        bh=6I/5+lZTxVowLex+9DEtwKrtO2w5YLB5jsD+GBWlSsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XUoolweD/Us0SC2gJCrcnMk+q2/lLjfZqelMoBCqQIUUvYv1K8crQJP3sitf0JSFP
-         yVKWq9m8Xp8WO2LzMklV/tScthUIMkmcoDVrd9lFeHFvrfdmx5JOMao8W4sXqM8uuJ
-         eqw2is98dQGtMHZH5Og0ZFiCcwRVAxYYNd1vpnnc=
+        b=Tnl+aFC0ttYVetQTolsakzGV9GC3f3iJtWpH/bTXFd6FHL8FCAPZyF18yzST1q/uj
+         zQM/m4qnplOKc8rkgU/UVwfqDXdh7xZMAcG1iHcY/EZt3nmHjPyKQlawDciFsb+xgi
+         YiFhGzyrgGYsWD4p/FutncM+z+hz6R7VE26SmTq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Huafei <lihuafei1@huawei.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        He Kuang <hekuang@huawei.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Zhang Jinhao <zhangjinhao2@huawei.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 254/260] perf unwind: Do not overwrite FEATURE_CHECK_LDFLAGS-libunwind-{x86,aarch64}
+Subject: [PATCH 5.10 100/122] gpio: mpc8xxx: Fix a potential double iounmap call in mpc8xxx_probe()
 Date:   Mon, 20 Sep 2021 18:44:32 +0200
-Message-Id: <20210920163939.742550042@linuxfoundation.org>
+Message-Id: <20210920163919.067590477@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
-References: <20210920163931.123590023@linuxfoundation.org>
+In-Reply-To: <20210920163915.757887582@linuxfoundation.org>
+References: <20210920163915.757887582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,135 +41,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Huafei <lihuafei1@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit cdf32b44678c382a31dc183d9a767306915cda7b ]
+[ Upstream commit 7d6588931ccd4c09e70a08175cf2e0cf7fc3b869 ]
 
-When setting LIBUNWIND_DIR, we first set
+Commit 76c47d1449fc ("gpio: mpc8xxx: Add ACPI support") has switched to a
+managed version when dealing with 'mpc8xxx_gc->regs'. So the corresponding
+'iounmap()' call in the error handling path and in the remove should be
+removed to avoid a double unmap.
 
- FEATURE_CHECK_LDFLAGS-libunwind-{aarch64,x86} = -L$(LIBUNWIND_DIR)/lib.
+This also allows some simplification in the probe. All the error handling
+paths related to managed resources can be direct returns and a NULL check
+in what remains in the error handling path can be removed.
 
-<committer note>
-This happens a bit before, the overwritting, in:
-
-  libunwind_arch_set_flags = $(eval $(libunwind_arch_set_flags_code))
-  define libunwind_arch_set_flags_code
-    FEATURE_CHECK_CFLAGS-libunwind-$(1)  = -I$(LIBUNWIND_DIR)/include
-    FEATURE_CHECK_LDFLAGS-libunwind-$(1) = -L$(LIBUNWIND_DIR)/lib
-  endef
-
-  ifdef LIBUNWIND_DIR
-    LIBUNWIND_CFLAGS  = -I$(LIBUNWIND_DIR)/include
-    LIBUNWIND_LDFLAGS = -L$(LIBUNWIND_DIR)/lib
-    LIBUNWIND_ARCHS = x86 x86_64 arm aarch64 debug-frame-arm debug-frame-aarch64
-    $(foreach libunwind_arch,$(LIBUNWIND_ARCHS),$(call libunwind_arch_set_flags,$(libunwind_arch)))
-  endif
-
-Look at that 'foreach' on all the LIBUNWIND_ARCHS.
-</>
-
-After commit 5c4d7c82c0dc ("perf unwind: Do not put libunwind-{x86,aarch64}
-in FEATURE_TESTS_BASIC"), FEATURE_CHECK_LDFLAGS-libunwind-{x86,aarch64} is
-overwritten. As a result, the remote libunwind libraries cannot be searched
-from $(LIBUNWIND_DIR)/lib directory during feature check tests. Fix it with
-variable appending.
-
-Before this patch:
-
-  perf$ make VF=1 LIBUNWIND_DIR=/opt/libunwind_aarch64
-   BUILD:   Doing 'make -j16' parallel build
-  <SNIP>
-  ...
-  ...                    libopencsd: [ OFF ]
-  ...                 libunwind-x86: [ OFF ]
-  ...              libunwind-x86_64: [ OFF ]
-  ...                 libunwind-arm: [ OFF ]
-  ...             libunwind-aarch64: [ OFF ]
-  ...         libunwind-debug-frame: [ OFF ]
-  ...     libunwind-debug-frame-arm: [ OFF ]
-  ... libunwind-debug-frame-aarch64: [ OFF ]
-  ...                           cxx: [ OFF ]
-  <SNIP>
-
-  perf$ cat ../build/feature/test-libunwind-aarch64.make.output
-  /usr/bin/ld: cannot find -lunwind-aarch64
-  /usr/bin/ld: cannot find -lunwind-aarch64
-  collect2: error: ld returned 1 exit status
-
-After this patch:
-
-  perf$ make VF=1 LIBUNWIND_DIR=/opt/libunwind_aarch64
-   BUILD:   Doing 'make -j16' parallel build
-  <SNIP>
-  ...                    libopencsd: [ OFF ]
-  ...                 libunwind-x86: [ OFF ]
-  ...              libunwind-x86_64: [ OFF ]
-  ...                 libunwind-arm: [ OFF ]
-  ...             libunwind-aarch64: [ on  ]
-  ...         libunwind-debug-frame: [ OFF ]
-  ...     libunwind-debug-frame-arm: [ OFF ]
-  ... libunwind-debug-frame-aarch64: [ OFF ]
-  ...                           cxx: [ OFF ]
-  <SNIP>
-
-  perf$ cat ../build/feature/test-libunwind-aarch64.make.output
-
-  perf$ ldd ./perf
-        linux-vdso.so.1 (0x00007ffdf07da000)
-        libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f30953dc000)
-        librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f30951d4000)
-        libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f3094e36000)
-        libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f3094c32000)
-        libelf.so.1 => /usr/lib/x86_64-linux-gnu/libelf.so.1 (0x00007f3094a18000)
-        libdw.so.1 => /usr/lib/x86_64-linux-gnu/libdw.so.1 (0x00007f30947cc000)
-        libunwind-x86_64.so.8 => /usr/lib/x86_64-linux-gnu/libunwind-x86_64.so.8 (0x00007f30945ad000)
-        libunwind.so.8 => /usr/lib/x86_64-linux-gnu/libunwind.so.8 (0x00007f3094392000)
-        liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007f309416c000)
-        libunwind-aarch64.so.8 => not found
-        libslang.so.2 => /lib/x86_64-linux-gnu/libslang.so.2 (0x00007f3093c8a000)
-        libpython2.7.so.1.0 => /usr/local/lib/libpython2.7.so.1.0 (0x00007f309386b000)
-        libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f309364e000)
-        libnuma.so.1 => /usr/lib/x86_64-linux-gnu/libnuma.so.1 (0x00007f3093443000)
-        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f3093052000)
-        /lib64/ld-linux-x86-64.so.2 (0x00007f3096097000)
-        libbz2.so.1.0 => /lib/x86_64-linux-gnu/libbz2.so.1.0 (0x00007f3092e42000)
-        libutil.so.1 => /lib/x86_64-linux-gnu/libutil.so.1 (0x00007f3092c3f000)
-
-Fixes: 5c4d7c82c0dceccf ("perf unwind: Do not put libunwind-{x86,aarch64} in FEATURE_TESTS_BASIC")
-Signed-off-by: Li Huafei <lihuafei1@huawei.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: He Kuang <hekuang@huawei.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Zhang Jinhao <zhangjinhao2@huawei.com>
-Link: http://lore.kernel.org/lkml/20210823134340.60955-1-lihuafei1@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 76c47d1449fc ("gpio: mpc8xxx: Add ACPI support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/Makefile.config | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpio/gpio-mpc8xxx.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
-index 9832affd5d54..c75c9b03d6e7 100644
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -118,10 +118,10 @@ FEATURE_CHECK_LDFLAGS-libunwind = $(LIBUNWIND_LDFLAGS) $(LIBUNWIND_LIBS)
- FEATURE_CHECK_CFLAGS-libunwind-debug-frame = $(LIBUNWIND_CFLAGS)
- FEATURE_CHECK_LDFLAGS-libunwind-debug-frame = $(LIBUNWIND_LDFLAGS) $(LIBUNWIND_LIBS)
+diff --git a/drivers/gpio/gpio-mpc8xxx.c b/drivers/gpio/gpio-mpc8xxx.c
+index 5b2a919a6644..a4983c5d1f16 100644
+--- a/drivers/gpio/gpio-mpc8xxx.c
++++ b/drivers/gpio/gpio-mpc8xxx.c
+@@ -329,7 +329,7 @@ static int mpc8xxx_probe(struct platform_device *pdev)
+ 				 mpc8xxx_gc->regs + GPIO_DIR, NULL,
+ 				 BGPIOF_BIG_ENDIAN);
+ 		if (ret)
+-			goto err;
++			return ret;
+ 		dev_dbg(&pdev->dev, "GPIO registers are LITTLE endian\n");
+ 	} else {
+ 		ret = bgpio_init(gc, &pdev->dev, 4,
+@@ -339,7 +339,7 @@ static int mpc8xxx_probe(struct platform_device *pdev)
+ 				 BGPIOF_BIG_ENDIAN
+ 				 | BGPIOF_BIG_ENDIAN_BYTE_ORDER);
+ 		if (ret)
+-			goto err;
++			return ret;
+ 		dev_dbg(&pdev->dev, "GPIO registers are BIG endian\n");
+ 	}
  
--FEATURE_CHECK_LDFLAGS-libunwind-arm = -lunwind -lunwind-arm
--FEATURE_CHECK_LDFLAGS-libunwind-aarch64 = -lunwind -lunwind-aarch64
--FEATURE_CHECK_LDFLAGS-libunwind-x86 = -lunwind -llzma -lunwind-x86
--FEATURE_CHECK_LDFLAGS-libunwind-x86_64 = -lunwind -llzma -lunwind-x86_64
-+FEATURE_CHECK_LDFLAGS-libunwind-arm += -lunwind -lunwind-arm
-+FEATURE_CHECK_LDFLAGS-libunwind-aarch64 += -lunwind -lunwind-aarch64
-+FEATURE_CHECK_LDFLAGS-libunwind-x86 += -lunwind -llzma -lunwind-x86
-+FEATURE_CHECK_LDFLAGS-libunwind-x86_64 += -lunwind -llzma -lunwind-x86_64
+@@ -378,7 +378,7 @@ static int mpc8xxx_probe(struct platform_device *pdev)
+ 	if (ret) {
+ 		pr_err("%pOF: GPIO chip registration failed with status %d\n",
+ 		       np, ret);
+-		goto err;
++		return ret;
+ 	}
  
- FEATURE_CHECK_LDFLAGS-libcrypto = -lcrypto
+ 	mpc8xxx_gc->irqn = irq_of_parse_and_map(np, 0);
+@@ -406,9 +406,7 @@ static int mpc8xxx_probe(struct platform_device *pdev)
  
+ 	return 0;
+ err:
+-	if (mpc8xxx_gc->irq)
+-		irq_domain_remove(mpc8xxx_gc->irq);
+-	iounmap(mpc8xxx_gc->regs);
++	irq_domain_remove(mpc8xxx_gc->irq);
+ 	return ret;
+ }
+ 
+@@ -422,7 +420,6 @@ static int mpc8xxx_remove(struct platform_device *pdev)
+ 	}
+ 
+ 	gpiochip_remove(&mpc8xxx_gc->gc);
+-	iounmap(mpc8xxx_gc->regs);
+ 
+ 	return 0;
+ }
 -- 
 2.30.2
 
