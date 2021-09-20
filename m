@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E24D4121BD
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:09:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 349A04121BC
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 20:09:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358910AbhITSIv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 14:08:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60506 "EHLO mail.kernel.org"
+        id S1357157AbhITSIq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 14:08:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358464AbhITSGp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1358465AbhITSGp (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 20 Sep 2021 14:06:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A378D61A0B;
-        Mon, 20 Sep 2021 17:17:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CEB4F61A2E;
+        Mon, 20 Sep 2021 17:18:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632158280;
-        bh=7jspRymjruWv8ZVQQoIyyjjJyKqgfsOq/RILWjA1krM=;
+        s=korg; t=1632158282;
+        bh=yuQK2qNJKWmN4dbeOc055QGSwYjfqNRklBCpm3A7tP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LOkSGxU76kx/sOdP5peqG/azaiCMs3ihCBI+wlhjkdUQuOtodKVDbIsqmROkqLx1n
-         lO4g3B5UwmU5Th2Y5UfMVqJpP2UCT1ipQZN7GH/3Mm+YuQr4U5/EpN1KWf+2GGEixK
-         FDfrHc3ah6bRo+dItnDFKqR9CFhD9Zs4sjzJN/l4=
+        b=UrjeO6Sm2JtTt7FYM3zaAvyM3050sYhSZ/K7Y6HUsKk9i2oDO7AUjQecymhtaBnNr
+         UvjMxien5pIte9aowWYngBWcJiOOWLdh/7XxunMoy5TawrUfKPU3MTFCI/YrGjhur+
+         L9PPIr/WzZf2rTy2SVAY6daVDIHxz+aSAWsOPU+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Li <liwei391@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 051/260] scsi: fdomain: Fix error return code in fdomain_probe()
-Date:   Mon, 20 Sep 2021 18:41:09 +0200
-Message-Id: <20210920163932.842490887@linuxfoundation.org>
+Subject: [PATCH 5.4 052/260] pinctrl: single: Fix error return code in pcs_parse_bits_in_pinctrl_entry()
+Date:   Mon, 20 Sep 2021 18:41:10 +0200
+Message-Id: <20210920163932.877027305@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163931.123590023@linuxfoundation.org>
 References: <20210920163931.123590023@linuxfoundation.org>
@@ -41,39 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Li <liwei391@huawei.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 632c4ae6da1d629eddf9da1e692d7617c568c256 ]
+[ Upstream commit d789a490d32fdf0465275e3607f8a3bc87d3f3ba ]
 
-If request_region() fails the return value is not set. Return -EBUSY on
-error.
+Fix to return -ENOTSUPP instead of 0 when PCS_HAS_PINCONF is true, which
+is the same as that returned in pcs_parse_pinconf().
 
-Link: https://lore.kernel.org/r/20210715032625.1395495-1-liwei391@huawei.com
-Fixes: 8674a8aa2c39 ("scsi: fdomain: Add PCMCIA support")
+Fixes: 4e7e8017a80e ("pinctrl: pinctrl-single: enhance to configure multiple pins of different modules")
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Li <liwei391@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210722033930.4034-2-thunder.leizhen@huawei.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pcmcia/fdomain_cs.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/pinctrl/pinctrl-single.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/pcmcia/fdomain_cs.c b/drivers/scsi/pcmcia/fdomain_cs.c
-index e42acf314d06..33df6a9ba9b5 100644
---- a/drivers/scsi/pcmcia/fdomain_cs.c
-+++ b/drivers/scsi/pcmcia/fdomain_cs.c
-@@ -45,8 +45,10 @@ static int fdomain_probe(struct pcmcia_device *link)
- 		goto fail_disable;
+diff --git a/drivers/pinctrl/pinctrl-single.c b/drivers/pinctrl/pinctrl-single.c
+index a9d511982780..fb1c8965cb99 100644
+--- a/drivers/pinctrl/pinctrl-single.c
++++ b/drivers/pinctrl/pinctrl-single.c
+@@ -1201,6 +1201,7 @@ static int pcs_parse_bits_in_pinctrl_entry(struct pcs_device *pcs,
  
- 	if (!request_region(link->resource[0]->start, FDOMAIN_REGION_SIZE,
--			    "fdomain_cs"))
-+			    "fdomain_cs")) {
-+		ret = -EBUSY;
- 		goto fail_disable;
-+	}
+ 	if (PCS_HAS_PINCONF) {
+ 		dev_err(pcs->dev, "pinconf not supported\n");
++		res = -ENOTSUPP;
+ 		goto free_pingroups;
+ 	}
  
- 	sh = fdomain_create(link->resource[0]->start, link->irq, 7, &link->dev);
- 	if (!sh) {
 -- 
 2.30.2
 
