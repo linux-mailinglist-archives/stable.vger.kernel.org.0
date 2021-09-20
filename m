@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC81B411F09
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:35:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21DD2411F0C
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:36:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348118AbhITRg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:36:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40966 "EHLO mail.kernel.org"
+        id S1346463AbhITRhI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:37:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351764AbhITRev (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:34:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08B6C61529;
-        Mon, 20 Sep 2021 17:06:00 +0000 (UTC)
+        id S1351804AbhITRe4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:34:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3195861B21;
+        Mon, 20 Sep 2021 17:06:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157561;
-        bh=Hsm9mGM0x9JEMYCfLLTPajKcPJITFrpKcTBZMtoxeFE=;
+        s=korg; t=1632157563;
+        bh=3Mmiju3sdqsKuvmqlxTn/k9pgMEyNG4h1nHPX3kcYFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RRzpAw+IuFJaWOfs9l9rtg82EMvoQAuWsladq6DI9CwJtUW1B7Q1t5iot2sBy02Df
-         F/bEieu2UhPeZ/8OuGXuuklZ91qs8M+iVweXfjyeuFOck6J4mE0ZY+V9m5LpgAIcrn
-         zB9021aplm2C96kVnkOqmfsGU283mc0ys0wOOu+M=
+        b=pFatM0CrFqQZUv5iSB/qgA6ocPAIwwKfZGMRBqaNPiIw0ivIC6KRYTukYrHRZYIgn
+         XUYuvzTObbPKtfKxS2scZiz2jycPb/DpdaT4asmg1whfFSUVPbW2HyH48B07xRcPh0
+         aMiPmLXFWIMdq7tfDOM3htGBMWwomfFb6a7W4uhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
         Marco Chiappero <marco.chiappero@intel.com>,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
         Fiona Trahe <fiona.trahe@intel.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 048/293] crypto: qat - handle both source of interrupt in VF ISR
-Date:   Mon, 20 Sep 2021 18:40:10 +0200
-Message-Id: <20210920163934.909397828@linuxfoundation.org>
+Subject: [PATCH 4.19 049/293] crypto: qat - fix reuse of completion variable
+Date:   Mon, 20 Sep 2021 18:40:11 +0200
+Message-Id: <20210920163934.940827939@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
 References: <20210920163933.258815435@linuxfoundation.org>
@@ -43,61 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Marco Chiappero <marco.chiappero@intel.com>
 
-[ Upstream commit 0a73c762e1eee33a5e5dc0e3488f1b7cd17249b3 ]
+[ Upstream commit 3d655732b0199562267a05c7ff69ecdd11632939 ]
 
-The top half of the VF drivers handled only a source at the time.
-If an interrupt for PF2VF and bundle occurred at the same time, the ISR
-scheduled only the bottom half for PF2VF.
-This patch fixes the VF top half so that if both sources of interrupt
-trigger at the same time, both bottom halves are scheduled.
+Use reinit_completion() to set to a clean state a completion variable,
+used to coordinate the VF to PF request-response flow, before every
+new VF request.
 
-This patch is based on earlier work done by Conor McLoughlin.
-
+Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
+Co-developed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
 Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_vf_isr.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/crypto/qat/qat_common/adf_pf2vf_msg.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_vf_isr.c b/drivers/crypto/qat/qat_common/adf_vf_isr.c
-index df9a1f35b832..ef90902c8200 100644
---- a/drivers/crypto/qat/qat_common/adf_vf_isr.c
-+++ b/drivers/crypto/qat/qat_common/adf_vf_isr.c
-@@ -203,6 +203,7 @@ static irqreturn_t adf_isr(int irq, void *privdata)
- 	struct adf_bar *pmisc =
- 			&GET_BARS(accel_dev)[hw_data->get_misc_bar_id(hw_data)];
- 	void __iomem *pmisc_bar_addr = pmisc->virt_addr;
-+	bool handled = false;
- 	u32 v_int;
+diff --git a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
+index b3875fdf6cd7..9dab2cc11fdf 100644
+--- a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
++++ b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
+@@ -361,6 +361,8 @@ static int adf_vf2pf_request_version(struct adf_accel_dev *accel_dev)
+ 	msg |= ADF_PFVF_COMPATIBILITY_VERSION << ADF_VF2PF_COMPAT_VER_REQ_SHIFT;
+ 	BUILD_BUG_ON(ADF_PFVF_COMPATIBILITY_VERSION > 255);
  
- 	/* Read VF INT source CSR to determine the source of VF interrupt */
-@@ -215,7 +216,7 @@ static irqreturn_t adf_isr(int irq, void *privdata)
- 
- 		/* Schedule tasklet to handle interrupt BH */
- 		tasklet_hi_schedule(&accel_dev->vf.pf2vf_bh_tasklet);
--		return IRQ_HANDLED;
-+		handled = true;
- 	}
- 
- 	/* Check bundle interrupt */
-@@ -227,10 +228,10 @@ static irqreturn_t adf_isr(int irq, void *privdata)
- 		WRITE_CSR_INT_FLAG_AND_COL(bank->csr_addr, bank->bank_number,
- 					   0);
- 		tasklet_hi_schedule(&bank->resp_handler);
--		return IRQ_HANDLED;
-+		handled = true;
- 	}
- 
--	return IRQ_NONE;
-+	return handled ? IRQ_HANDLED : IRQ_NONE;
- }
- 
- static int adf_request_msi_irq(struct adf_accel_dev *accel_dev)
++	reinit_completion(&accel_dev->vf.iov_msg_completion);
++
+ 	/* Send request from VF to PF */
+ 	ret = adf_iov_putmsg(accel_dev, msg, 0);
+ 	if (ret) {
 -- 
 2.30.2
 
