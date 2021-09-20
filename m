@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A24C1411F7D
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:40:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BC48411B2D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:54:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352791AbhITRlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:41:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43458 "EHLO mail.kernel.org"
+        id S242177AbhITQ4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 12:56:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352584AbhITRjq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:39:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7012361B4C;
-        Mon, 20 Sep 2021 17:07:58 +0000 (UTC)
+        id S245516AbhITQy0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 12:54:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D852161373;
+        Mon, 20 Sep 2021 16:50:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157678;
-        bh=FFUsspiYs88C6p/qsPcnn+xo9UiSD8aEX64jRqIeohQ=;
+        s=korg; t=1632156628;
+        bh=1Mzq7GtmPOJs714ldYG4glrDb6q62kmt8paZjPd0OvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FBlDrTQp4Oa/XBEd7JiwcULZCEj5dJEFpZWt9yCt6YTEd2unO4zXF8z1W1kiRHNyA
-         y3pUdF65jCn81rUKey20EXQNNbhq6hNdEAlVt+PtVxPn0Bfjflw0Q7+LpTQmAws1Ti
-         bDK5XITJHvc0zLddXCHgsWPfiN/Xk9+wUszeEEO0=
+        b=1Uc6mCN3rXcupY1LJtO6uJ3F+Ft2G251jCuThL01ZbT72LCuWp3uxEiQet/4ie9m1
+         PJcbyjBvK8joAhFF73w+2ZDOFAqlWth2N7nSiybqMZYYhCOrjc7QtIe6RExrkiGvtr
+         03u5Yp+e/w6FIPAhFjt0za0tiock8Zn05cQRmJ90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 100/293] bcma: Fix memory leak for internally-handled cores
+        stable@vger.kernel.org, Jouni Malinen <jouni@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.9 013/175] ath: Modify ath_key_delete() to not need full key entry
 Date:   Mon, 20 Sep 2021 18:41:02 +0200
-Message-Id: <20210920163936.686690497@linuxfoundation.org>
+Message-Id: <20210920163918.502776595@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
-References: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <20210920163918.068823680@linuxfoundation.org>
+References: <20210920163918.068823680@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,65 +39,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zenghui Yu <yuzenghui@huawei.com>
+From: Jouni Malinen <jouni@codeaurora.org>
 
-[ Upstream commit b63aed3ff195130fef12e0af590f4838cf0201d8 ]
+commit 144cd24dbc36650a51f7fe3bf1424a1432f1f480 upstream.
 
-kmemleak reported that dev_name() of internally-handled cores were leaked
-on driver unbinding. Let's use device_initialize() to take refcounts for
-them and put_device() to properly free the related stuff.
+tkip_keymap can be used internally to avoid the reference to key->cipher
+and with this, only the key index value itself is needed. This allows
+ath_key_delete() call to be postponed to be handled after the upper
+layer STA and key entry have already been removed. This is needed to
+make ath9k key cache management safer.
 
-While looking at it, there's another potential issue for those which should
-be *registered* into driver core. If device_register() failed, we put
-device once and freed bcma_device structures. In bcma_unregister_cores(),
-they're treated as unregistered and we hit both UAF and double-free. That
-smells not good and has also been fixed now.
-
-Fixes: ab54bc8460b5 ("bcma: fill core details for every device")
-Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210727025232.663-2-yuzenghui@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20201214172118.18100-5-jouni@codeaurora.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bcma/main.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath.h                |    2 -
+ drivers/net/wireless/ath/ath5k/mac80211-ops.c |    2 -
+ drivers/net/wireless/ath/ath9k/htc_drv_main.c |    2 -
+ drivers/net/wireless/ath/ath9k/main.c         |    5 +--
+ drivers/net/wireless/ath/key.c                |   34 +++++++++++++-------------
+ 5 files changed, 22 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/bcma/main.c b/drivers/bcma/main.c
-index fc1f4acdd189..c0f203deaf0b 100644
---- a/drivers/bcma/main.c
-+++ b/drivers/bcma/main.c
-@@ -236,6 +236,7 @@ EXPORT_SYMBOL(bcma_core_irq);
+--- a/drivers/net/wireless/ath/ath.h
++++ b/drivers/net/wireless/ath/ath.h
+@@ -199,7 +199,7 @@ struct sk_buff *ath_rxbuf_alloc(struct a
+ bool ath_is_mybeacon(struct ath_common *common, struct ieee80211_hdr *hdr);
  
- void bcma_prepare_core(struct bcma_bus *bus, struct bcma_device *core)
+ void ath_hw_setbssidmask(struct ath_common *common);
+-void ath_key_delete(struct ath_common *common, struct ieee80211_key_conf *key);
++void ath_key_delete(struct ath_common *common, u8 hw_key_idx);
+ int ath_key_config(struct ath_common *common,
+ 			  struct ieee80211_vif *vif,
+ 			  struct ieee80211_sta *sta,
+--- a/drivers/net/wireless/ath/ath5k/mac80211-ops.c
++++ b/drivers/net/wireless/ath/ath5k/mac80211-ops.c
+@@ -522,7 +522,7 @@ ath5k_set_key(struct ieee80211_hw *hw, e
+ 		}
+ 		break;
+ 	case DISABLE_KEY:
+-		ath_key_delete(common, key);
++		ath_key_delete(common, key->hw_key_idx);
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_main.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_main.c
+@@ -1460,7 +1460,7 @@ static int ath9k_htc_set_key(struct ieee
+ 		}
+ 		break;
+ 	case DISABLE_KEY:
+-		ath_key_delete(common, key);
++		ath_key_delete(common, key->hw_key_idx);
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
+--- a/drivers/net/wireless/ath/ath9k/main.c
++++ b/drivers/net/wireless/ath/ath9k/main.c
+@@ -1544,12 +1544,11 @@ static void ath9k_del_ps_key(struct ath_
  {
-+	device_initialize(&core->dev);
- 	core->dev.release = bcma_release_core_dev;
- 	core->dev.bus = &bcma_bus_type;
- 	dev_set_name(&core->dev, "bcma%d:%d", bus->num, core->core_index);
-@@ -299,11 +300,10 @@ static void bcma_register_core(struct bcma_bus *bus, struct bcma_device *core)
- {
- 	int err;
+ 	struct ath_common *common = ath9k_hw_common(sc->sc_ah);
+ 	struct ath_node *an = (struct ath_node *) sta->drv_priv;
+-	struct ieee80211_key_conf ps_key = { .hw_key_idx = an->ps_key };
  
--	err = device_register(&core->dev);
-+	err = device_add(&core->dev);
- 	if (err) {
- 		bcma_err(bus, "Could not register dev for core 0x%03X\n",
- 			 core->id.id);
--		put_device(&core->dev);
+ 	if (!an->ps_key)
+ 	    return;
+ 
+-	ath_key_delete(common, &ps_key);
++	ath_key_delete(common, an->ps_key);
+ 	an->ps_key = 0;
+ 	an->key_idx[0] = 0;
+ }
+@@ -1740,7 +1739,7 @@ static int ath9k_set_key(struct ieee8021
+ 		}
+ 		break;
+ 	case DISABLE_KEY:
+-		ath_key_delete(common, key);
++		ath_key_delete(common, key->hw_key_idx);
+ 		if (an) {
+ 			for (i = 0; i < ARRAY_SIZE(an->key_idx); i++) {
+ 				if (an->key_idx[i] != key->hw_key_idx)
+--- a/drivers/net/wireless/ath/key.c
++++ b/drivers/net/wireless/ath/key.c
+@@ -581,38 +581,38 @@ EXPORT_SYMBOL(ath_key_config);
+ /*
+  * Delete Key.
+  */
+-void ath_key_delete(struct ath_common *common, struct ieee80211_key_conf *key)
++void ath_key_delete(struct ath_common *common, u8 hw_key_idx)
+ {
+ 	/* Leave CCMP and TKIP (main key) configured to avoid disabling
+ 	 * encryption for potentially pending frames already in a TXQ with the
+ 	 * keyix pointing to this key entry. Instead, only clear the MAC address
+ 	 * to prevent RX processing from using this key cache entry.
+ 	 */
+-	if (test_bit(key->hw_key_idx, common->ccmp_keymap) ||
+-	    test_bit(key->hw_key_idx, common->tkip_keymap))
+-		ath_hw_keysetmac(common, key->hw_key_idx, NULL);
++	if (test_bit(hw_key_idx, common->ccmp_keymap) ||
++	    test_bit(hw_key_idx, common->tkip_keymap))
++		ath_hw_keysetmac(common, hw_key_idx, NULL);
+ 	else
+-		ath_hw_keyreset(common, key->hw_key_idx);
+-	if (key->hw_key_idx < IEEE80211_WEP_NKID)
++		ath_hw_keyreset(common, hw_key_idx);
++	if (hw_key_idx < IEEE80211_WEP_NKID)
  		return;
- 	}
- 	core->dev_registered = true;
-@@ -394,7 +394,7 @@ void bcma_unregister_cores(struct bcma_bus *bus)
- 	/* Now noone uses internally-handled cores, we can free them */
- 	list_for_each_entry_safe(core, tmp, &bus->cores, list) {
- 		list_del(&core->list);
--		kfree(core);
-+		put_device(&core->dev);
+ 
+-	clear_bit(key->hw_key_idx, common->keymap);
+-	clear_bit(key->hw_key_idx, common->ccmp_keymap);
+-	if (key->cipher != WLAN_CIPHER_SUITE_TKIP)
++	clear_bit(hw_key_idx, common->keymap);
++	clear_bit(hw_key_idx, common->ccmp_keymap);
++	if (!test_bit(hw_key_idx, common->tkip_keymap))
+ 		return;
+ 
+-	clear_bit(key->hw_key_idx + 64, common->keymap);
++	clear_bit(hw_key_idx + 64, common->keymap);
+ 
+-	clear_bit(key->hw_key_idx, common->tkip_keymap);
+-	clear_bit(key->hw_key_idx + 64, common->tkip_keymap);
++	clear_bit(hw_key_idx, common->tkip_keymap);
++	clear_bit(hw_key_idx + 64, common->tkip_keymap);
+ 
+ 	if (!(common->crypt_caps & ATH_CRYPT_CAP_MIC_COMBINED)) {
+-		ath_hw_keyreset(common, key->hw_key_idx + 32);
+-		clear_bit(key->hw_key_idx + 32, common->keymap);
+-		clear_bit(key->hw_key_idx + 64 + 32, common->keymap);
++		ath_hw_keyreset(common, hw_key_idx + 32);
++		clear_bit(hw_key_idx + 32, common->keymap);
++		clear_bit(hw_key_idx + 64 + 32, common->keymap);
+ 
+-		clear_bit(key->hw_key_idx + 32, common->tkip_keymap);
+-		clear_bit(key->hw_key_idx + 64 + 32, common->tkip_keymap);
++		clear_bit(hw_key_idx + 32, common->tkip_keymap);
++		clear_bit(hw_key_idx + 64 + 32, common->tkip_keymap);
  	}
  }
- 
--- 
-2.30.2
-
+ EXPORT_SYMBOL(ath_key_delete);
 
 
