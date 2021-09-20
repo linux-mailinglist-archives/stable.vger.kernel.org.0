@@ -2,201 +2,216 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F0EF411893
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 17:45:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74131411891
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 17:44:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242019AbhITPqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 11:46:32 -0400
-Received: from mga07.intel.com ([134.134.136.100]:27749 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238233AbhITPqb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 11:46:31 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10113"; a="286836136"
-X-IronPort-AV: E=Sophos;i="5.85,308,1624345200"; 
-   d="scan'208";a="286836136"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Sep 2021 08:40:51 -0700
-X-IronPort-AV: E=Sophos;i="5.85,308,1624345200"; 
-   d="scan'208";a="548836396"
-Received: from agluck-desk2.sc.intel.com (HELO agluck-desk2.amr.corp.intel.com) ([10.3.52.146])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Sep 2021 08:40:51 -0700
-Date:   Mon, 20 Sep 2021 08:40:50 -0700
-From:   "Luck, Tony" <tony.luck@intel.com>
+        id S234398AbhITPqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 11:46:18 -0400
+Received: from mail-wr1-f45.google.com ([209.85.221.45]:39465 "EHLO
+        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241973AbhITPqR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Sep 2021 11:46:17 -0400
+Received: by mail-wr1-f45.google.com with SMTP id u15so31007281wru.6
+        for <stable@vger.kernel.org>; Mon, 20 Sep 2021 08:44:50 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=YGsOk2OEhsovLA7k2C5YxUeFl0p36FmotCF7AE5mcM4=;
+        b=vqt0EqYA6kBKKE0Uezio8T0oMRZQsLMfSIEUXiROT8qHCKZdJSCSXkOnChfNFUKnZv
+         TNitClMgRlVvm0rzc/EjGD3ZkdPjiXWG9j/nGQ0TE32kFrvvS/MiWC6x1twYTc5B+FOT
+         CuiKNBdw991Th7UIkTMZyihzv2mWQscP2dY+F/plcRpa/2JbnL45Vg/wChUnENxH99dp
+         dQSHGOnQsAMfReiK2tfnBXPf5zbfdQW949UnwLc9Zdn9kFAxRgRLMzbQlt9qBBQykDS0
+         0lu/gD7khGSIIo6BxLsHPtGfbN3sN4m+3yysCnS9vF3K/B7zYXYjdKZok51g92/sCiUP
+         0sKw==
+X-Gm-Message-State: AOAM532umYfoIK/5rqWC//TGJonMBnuMLmOPRFjQai7GnNISEycdjahy
+        sG417gQpU6lnO7a/PV95RjQ=
+X-Google-Smtp-Source: ABdhPJyPQ/tQ1Pp7zV9Edejy9WmqRix/6mslm2u9MTOhCtaqWHVkDSRV0Nvwz3f+4/G/LnOa1gjyUg==
+X-Received: by 2002:a05:600c:40c4:: with SMTP id m4mr29660873wmh.100.1632152690018;
+        Mon, 20 Sep 2021 08:44:50 -0700 (PDT)
+Received: from liuwe-devbox-debian-v2 ([51.145.34.42])
+        by smtp.gmail.com with ESMTPSA id i2sm15893045wrq.78.2021.09.20.08.44.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Sep 2021 08:44:49 -0700 (PDT)
+Date:   Mon, 20 Sep 2021 15:44:47 +0000
+From:   Wei Liu <wei.liu@kernel.org>
 To:     gregkh@linuxfoundation.org
-Cc:     bp@suse.de, stable@vger.kernel.org, tony.luck@intel.com
-Subject: [PATCH v5.10.67] x86/mce: Avoid infinite loop for copy from user
- recovery
-Message-ID: <YUirguJmYnlxQ63R@agluck-desk2.amr.corp.intel.com>
-References: <163212173281150@kroah.com>
+Cc:     wei.liu@kernel.org, mikelley@microsoft.com,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] x86/hyperv: remove on-stack cpumask from"
+ failed to apply to 5.14-stable tree
+Message-ID: <20210920154447.gess7eb3qho6s2ax@liuwe-devbox-debian-v2>
+References: <1632128215208163@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <163212173281150@kroah.com>
+In-Reply-To: <1632128215208163@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Upstream commit 81065b35e2486c024c7aa86caed452e1f01a59d4
+Hi Greg,
 
-There are two cases for machine check recovery:
+On Mon, Sep 20, 2021 at 10:56:55AM +0200, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.14-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-1) The machine check was triggered by ring3 (application) code.
-   This is the simpler case. The machine check handler simply queues
-   work to be executed on return to user. That code unmaps the page
-   from all users and arranges to send a SIGBUS to the task that
-   triggered the poison.
+There is one prerequisite patch for this patch.  I can backport both to
+all relevant stable branches, but I would like to know how you would
+like to receive backport patches. Several git bundles to stable@?
+Several two-patch series to stable@? I can also give you several tags /
+branches to pull from if you like.
 
-2) The machine check was triggered in kernel code that is covered by
-   an exception table entry. In this case the machine check handler
-   still queues a work entry to unmap the page, etc. but this will
-   not be called right away because the #MC handler returns to the
-   fix up code address in the exception table entry.
+Thanks,
+Wei.
 
-Problems occur if the kernel triggers another machine check before the
-return to user processes the first queued work item.
-
-Specifically, the work is queued using the ->mce_kill_me callback
-structure in the task struct for the current thread. Attempting to queue
-a second work item using this same callback results in a loop in the
-linked list of work functions to call. So when the kernel does return to
-user, it enters an infinite loop processing the same entry for ever.
-
-There are some legitimate scenarios where the kernel may take a second
-machine check before returning to the user.
-
-1) Some code (e.g. futex) first tries a get_user() with page faults
-   disabled. If this fails, the code retries with page faults enabled
-   expecting that this will resolve the page fault.
-
-2) Copy from user code retries a copy in byte-at-time mode to check
-   whether any additional bytes can be copied.
-
-On the other side of the fence are some bad drivers that do not check
-the return value from individual get_user() calls and may access
-multiple user addresses without noticing that some/all calls have
-failed.
-
-Fix by adding a counter (current->mce_count) to keep track of repeated
-machine checks before task_work() is called. First machine check saves
-the address information and calls task_work_add(). Subsequent machine
-checks before that task_work call back is executed check that the address
-is in the same page as the first machine check (since the callback will
-offline exactly one page).
-
-Expected worst case is four machine checks before moving on (e.g. one
-user access with page faults disabled, then a repeat to the same address
-with page faults enabled ... repeat in copy tail bytes). Just in case
-there is some code that loops forever enforce a limit of 10.
-
- [ bp: Massage commit message, drop noinstr, fix typo, extend panic
-   messages. ]
-
-Fixes: 5567d11c21a1 ("x86/mce: Send #MC singal from task work")
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/YT/IJ9ziLqmtqEPu@agluck-desk2.amr.corp.intel.com
----
- arch/x86/kernel/cpu/mce/core.c | 43 +++++++++++++++++++++++++---------
- include/linux/sched.h          |  1 +
- 2 files changed, 33 insertions(+), 11 deletions(-)
-
-diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index 056d0367864e..14b34963eb1f 100644
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -1241,6 +1241,9 @@ static void __mc_scan_banks(struct mce *m, struct pt_regs *regs, struct mce *fin
- 
- static void kill_me_now(struct callback_head *ch)
- {
-+	struct task_struct *p = container_of(ch, struct task_struct, mce_kill_me);
-+
-+	p->mce_count = 0;
- 	force_sig(SIGBUS);
- }
- 
-@@ -1249,6 +1252,7 @@ static void kill_me_maybe(struct callback_head *cb)
- 	struct task_struct *p = container_of(cb, struct task_struct, mce_kill_me);
- 	int flags = MF_ACTION_REQUIRED;
- 
-+	p->mce_count = 0;
- 	pr_err("Uncorrected hardware memory error in user-access at %llx", p->mce_addr);
- 
- 	if (!p->mce_ripv)
-@@ -1269,17 +1273,34 @@ static void kill_me_maybe(struct callback_head *cb)
- 	}
- }
- 
--static void queue_task_work(struct mce *m, int kill_it)
-+static void queue_task_work(struct mce *m, char *msg, int kill_current_task)
- {
--	current->mce_addr = m->addr;
--	current->mce_kflags = m->kflags;
--	current->mce_ripv = !!(m->mcgstatus & MCG_STATUS_RIPV);
--	current->mce_whole_page = whole_page(m);
-+	int count = ++current->mce_count;
- 
--	if (kill_it)
--		current->mce_kill_me.func = kill_me_now;
--	else
--		current->mce_kill_me.func = kill_me_maybe;
-+	/* First call, save all the details */
-+	if (count == 1) {
-+		current->mce_addr = m->addr;
-+		current->mce_kflags = m->kflags;
-+		current->mce_ripv = !!(m->mcgstatus & MCG_STATUS_RIPV);
-+		current->mce_whole_page = whole_page(m);
-+
-+		if (kill_current_task)
-+			current->mce_kill_me.func = kill_me_now;
-+		else
-+			current->mce_kill_me.func = kill_me_maybe;
-+	}
-+
-+	/* Ten is likely overkill. Don't expect more than two faults before task_work() */
-+	if (count > 10)
-+		mce_panic("Too many consecutive machine checks while accessing user data", m, msg);
-+
-+	/* Second or later call, make sure page address matches the one from first call */
-+	if (count > 1 && (current->mce_addr >> PAGE_SHIFT) != (m->addr >> PAGE_SHIFT))
-+		mce_panic("Consecutive machine checks to different user pages", m, msg);
-+
-+	/* Do not call task_work_add() more than once */
-+	if (count > 1)
-+		return;
- 
- 	task_work_add(current, &current->mce_kill_me, TWA_RESUME);
- }
-@@ -1427,7 +1448,7 @@ noinstr void do_machine_check(struct pt_regs *regs)
- 		/* If this triggers there is no way to recover. Die hard. */
- 		BUG_ON(!on_thread_stack() || !user_mode(regs));
- 
--		queue_task_work(&m, kill_it);
-+		queue_task_work(&m, msg, kill_it);
- 
- 	} else {
- 		/*
-@@ -1445,7 +1466,7 @@ noinstr void do_machine_check(struct pt_regs *regs)
- 		}
- 
- 		if (m.kflags & MCE_IN_KERNEL_COPYIN)
--			queue_task_work(&m, kill_it);
-+			queue_task_work(&m, msg, kill_it);
- 	}
- out:
- 	mce_wrmsrl(MSR_IA32_MCG_STATUS, 0);
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 2660ee4b08ad..29c7ccd5ae42 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1354,6 +1354,7 @@ struct task_struct {
- 					mce_whole_page : 1,
- 					__mce_reserved : 62;
- 	struct callback_head		mce_kill_me;
-+	int				mce_count;
- #endif
- 
- 	/*
--- 
-2.31.1
-
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From dfb5c1e12c28e35e4d4e5bc8022b0e9d585b89a7 Mon Sep 17 00:00:00 2001
+> From: Wei Liu <wei.liu@kernel.org>
+> Date: Fri, 10 Sep 2021 18:57:14 +0000
+> Subject: [PATCH] x86/hyperv: remove on-stack cpumask from
+>  hv_send_ipi_mask_allbutself
+> 
+> It is not a good practice to allocate a cpumask on stack, given it may
+> consume up to 1 kilobytes of stack space if the kernel is configured to
+> have 8192 cpus.
+> 
+> The internal helper functions __send_ipi_mask{,_ex} need to loop over
+> the provided mask anyway, so it is not too difficult to skip `self'
+> there. We can thus do away with the on-stack cpumask in
+> hv_send_ipi_mask_allbutself.
+> 
+> Adjust call sites of __send_ipi_mask as needed.
+> 
+> Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+> Suggested-by: Michael Kelley <mikelley@microsoft.com>
+> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+> Fixes: 68bb7bfb7985d ("X86/Hyper-V: Enable IPI enlightenments")
+> Signed-off-by: Wei Liu <wei.liu@kernel.org>
+> Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+> Link: https://lore.kernel.org/r/20210910185714.299411-3-wei.liu@kernel.org
+> 
+> diff --git a/arch/x86/hyperv/hv_apic.c b/arch/x86/hyperv/hv_apic.c
+> index 90e682a92820..32a1ad356c18 100644
+> --- a/arch/x86/hyperv/hv_apic.c
+> +++ b/arch/x86/hyperv/hv_apic.c
+> @@ -99,7 +99,8 @@ static void hv_apic_eoi_write(u32 reg, u32 val)
+>  /*
+>   * IPI implementation on Hyper-V.
+>   */
+> -static bool __send_ipi_mask_ex(const struct cpumask *mask, int vector)
+> +static bool __send_ipi_mask_ex(const struct cpumask *mask, int vector,
+> +		bool exclude_self)
+>  {
+>  	struct hv_send_ipi_ex **arg;
+>  	struct hv_send_ipi_ex *ipi_arg;
+> @@ -123,7 +124,10 @@ static bool __send_ipi_mask_ex(const struct cpumask *mask, int vector)
+>  
+>  	if (!cpumask_equal(mask, cpu_present_mask)) {
+>  		ipi_arg->vp_set.format = HV_GENERIC_SET_SPARSE_4K;
+> -		nr_bank = cpumask_to_vpset(&(ipi_arg->vp_set), mask);
+> +		if (exclude_self)
+> +			nr_bank = cpumask_to_vpset_noself(&(ipi_arg->vp_set), mask);
+> +		else
+> +			nr_bank = cpumask_to_vpset(&(ipi_arg->vp_set), mask);
+>  	}
+>  	if (nr_bank < 0)
+>  		goto ipi_mask_ex_done;
+> @@ -138,15 +142,25 @@ static bool __send_ipi_mask_ex(const struct cpumask *mask, int vector)
+>  	return hv_result_success(status);
+>  }
+>  
+> -static bool __send_ipi_mask(const struct cpumask *mask, int vector)
+> +static bool __send_ipi_mask(const struct cpumask *mask, int vector,
+> +		bool exclude_self)
+>  {
+> -	int cur_cpu, vcpu;
+> +	int cur_cpu, vcpu, this_cpu = smp_processor_id();
+>  	struct hv_send_ipi ipi_arg;
+>  	u64 status;
+> +	unsigned int weight;
+>  
+>  	trace_hyperv_send_ipi_mask(mask, vector);
+>  
+> -	if (cpumask_empty(mask))
+> +	weight = cpumask_weight(mask);
+> +
+> +	/*
+> +	 * Do nothing if
+> +	 *   1. the mask is empty
+> +	 *   2. the mask only contains self when exclude_self is true
+> +	 */
+> +	if (weight == 0 ||
+> +	    (exclude_self && weight == 1 && cpumask_test_cpu(this_cpu, mask)))
+>  		return true;
+>  
+>  	if (!hv_hypercall_pg)
+> @@ -172,6 +186,8 @@ static bool __send_ipi_mask(const struct cpumask *mask, int vector)
+>  	ipi_arg.cpu_mask = 0;
+>  
+>  	for_each_cpu(cur_cpu, mask) {
+> +		if (exclude_self && cur_cpu == this_cpu)
+> +			continue;
+>  		vcpu = hv_cpu_number_to_vp_number(cur_cpu);
+>  		if (vcpu == VP_INVAL)
+>  			return false;
+> @@ -191,7 +207,7 @@ static bool __send_ipi_mask(const struct cpumask *mask, int vector)
+>  	return hv_result_success(status);
+>  
+>  do_ex_hypercall:
+> -	return __send_ipi_mask_ex(mask, vector);
+> +	return __send_ipi_mask_ex(mask, vector, exclude_self);
+>  }
+>  
+>  static bool __send_ipi_one(int cpu, int vector)
+> @@ -208,7 +224,7 @@ static bool __send_ipi_one(int cpu, int vector)
+>  		return false;
+>  
+>  	if (vp >= 64)
+> -		return __send_ipi_mask_ex(cpumask_of(cpu), vector);
+> +		return __send_ipi_mask_ex(cpumask_of(cpu), vector, false);
+>  
+>  	status = hv_do_fast_hypercall16(HVCALL_SEND_IPI, vector, BIT_ULL(vp));
+>  	return hv_result_success(status);
+> @@ -222,20 +238,13 @@ static void hv_send_ipi(int cpu, int vector)
+>  
+>  static void hv_send_ipi_mask(const struct cpumask *mask, int vector)
+>  {
+> -	if (!__send_ipi_mask(mask, vector))
+> +	if (!__send_ipi_mask(mask, vector, false))
+>  		orig_apic.send_IPI_mask(mask, vector);
+>  }
+>  
+>  static void hv_send_ipi_mask_allbutself(const struct cpumask *mask, int vector)
+>  {
+> -	unsigned int this_cpu = smp_processor_id();
+> -	struct cpumask new_mask;
+> -	const struct cpumask *local_mask;
+> -
+> -	cpumask_copy(&new_mask, mask);
+> -	cpumask_clear_cpu(this_cpu, &new_mask);
+> -	local_mask = &new_mask;
+> -	if (!__send_ipi_mask(local_mask, vector))
+> +	if (!__send_ipi_mask(mask, vector, true))
+>  		orig_apic.send_IPI_mask_allbutself(mask, vector);
+>  }
+>  
+> @@ -246,7 +255,7 @@ static void hv_send_ipi_allbutself(int vector)
+>  
+>  static void hv_send_ipi_all(int vector)
+>  {
+> -	if (!__send_ipi_mask(cpu_online_mask, vector))
+> +	if (!__send_ipi_mask(cpu_online_mask, vector, false))
+>  		orig_apic.send_IPI_all(vector);
+>  }
+>  
+> 
