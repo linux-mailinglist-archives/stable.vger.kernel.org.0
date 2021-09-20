@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E369411A69
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 18:48:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FF35411DC2
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:22:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243849AbhITQtm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 12:49:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36916 "EHLO mail.kernel.org"
+        id S1346479AbhITRXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:23:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243741AbhITQtJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 12:49:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02ADE611C2;
-        Mon, 20 Sep 2021 16:47:33 +0000 (UTC)
+        id S244026AbhITRVT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:21:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2BBE61A6D;
+        Mon, 20 Sep 2021 17:00:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632156454;
-        bh=U2G66wHkSnzos6TmSUlb2QhEacu1eOLCfYlAOvpLa5Q=;
+        s=korg; t=1632157255;
+        bh=/CH5hELmIiQCwKwl5pZQmslrEAjTwhFPt2Wics4rPtk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qrm37yhaifgBparslzG1fefZrM+zWmFNgN/5KnPdDoKygbsJe+uW0JIkF+uCP54U/
-         kOP+6kCEdjamPyGvLpuvM5Jfbamc4zMUbOc3TtPKde146olZJlmtcai+rp5tYuXywB
-         hXP0DQMLQT9m3PdFByAXrWo7O61h76uTOJWBuuQw=
+        b=KOwsmjd2djGOQozcNgom/OtFZIaaS57NU1Qb19R3CrAVy9TPKoJMgPFrqdw4uypgl
+         GtcMxZiGNBoYdkUiF2rLAez94OxWAAWoovGCirHTLGjK39a1LzOVlQ7c1HwyL46oWq
+         A9/0Ps+fl9UH2G+co5cWpmfkYuGYQfBvKhmTOvv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Keyu Man <kman001@ucr.edu>, Willy Tarreau <w@1wt.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        David Ahern <dsahern@kernel.org>,
+        stable@vger.kernel.org, Jaehyoung Choi <jkkkkk.choi@samsung.com>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 067/133] ipv4: make exception cache less predictible
+Subject: [PATCH 4.14 124/217] pinctrl: samsung: Fix pinctrl bank pin count
 Date:   Mon, 20 Sep 2021 18:42:25 +0200
-Message-Id: <20210920163914.839570252@linuxfoundation.org>
+Message-Id: <20210920163928.859959445@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
-References: <20210920163912.603434365@linuxfoundation.org>
+In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
+References: <20210920163924.591371269@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,125 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jaehyoung Choi <jkkkkk.choi@samsung.com>
 
-[ Upstream commit 67d6d681e15b578c1725bad8ad079e05d1c48a8e ]
+[ Upstream commit 70115558ab02fe8d28a6634350b3491a542aaa02 ]
 
-Even after commit 6457378fe796 ("ipv4: use siphash instead of Jenkins in
-fnhe_hashfun()"), an attacker can still use brute force to learn
-some secrets from a victim linux host.
+Commit 1abd18d1a51a ("pinctrl: samsung: Register pinctrl before GPIO")
+changes the order of GPIO and pinctrl registration: now pinctrl is
+registered before GPIO. That means gpio_chip->ngpio is not set when
+samsung_pinctrl_register() called, and one cannot rely on that value
+anymore. Use `pin_bank->nr_pins' instead of `pin_bank->gpio_chip.ngpio'
+to fix mentioned inconsistency.
 
-One way to defeat these attacks is to make the max depth of the hash
-table bucket a random value.
-
-Before this patch, each bucket of the hash table used to store exceptions
-could contain 6 items under attack.
-
-After the patch, each bucket would contains a random number of items,
-between 6 and 10. The attacker can no longer infer secrets.
-
-This is slightly increasing memory size used by the hash table,
-by 50% in average, we do not expect this to be a problem.
-
-This patch is more complex than the prior one (IPv6 equivalent),
-because IPv4 was reusing the oldest entry.
-Since we need to be able to evict more than one entry per
-update_or_create_fnhe() call, I had to replace
-fnhe_oldest() with fnhe_remove_oldest().
-
-Also note that we will queue extra kfree_rcu() calls under stress,
-which hopefully wont be a too big issue.
-
-Fixes: 4895c771c7f0 ("ipv4: Add FIB nexthop exceptions.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Keyu Man <kman001@ucr.edu>
-Cc: Willy Tarreau <w@1wt.eu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Tested-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1abd18d1a51a ("pinctrl: samsung: Register pinctrl before GPIO")
+Signed-off-by: Jaehyoung Choi <jkkkkk.choi@samsung.com>
+Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
+Link: https://lore.kernel.org/r/20210730192905.7173-1-semen.protsenko@linaro.org
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/route.c | 46 ++++++++++++++++++++++++++++++----------------
- 1 file changed, 30 insertions(+), 16 deletions(-)
+ drivers/pinctrl/samsung/pinctrl-samsung.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index 2ab2289d97a0..ed6483181676 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -597,18 +597,25 @@ static void fnhe_flush_routes(struct fib_nh_exception *fnhe)
+diff --git a/drivers/pinctrl/samsung/pinctrl-samsung.c b/drivers/pinctrl/samsung/pinctrl-samsung.c
+index 7c0f5d4e89f3..ab04d4c4941d 100644
+--- a/drivers/pinctrl/samsung/pinctrl-samsung.c
++++ b/drivers/pinctrl/samsung/pinctrl-samsung.c
+@@ -891,7 +891,7 @@ static int samsung_pinctrl_register(struct platform_device *pdev,
+ 		pin_bank->grange.pin_base = drvdata->pin_base
+ 						+ pin_bank->pin_base;
+ 		pin_bank->grange.base = pin_bank->grange.pin_base;
+-		pin_bank->grange.npins = pin_bank->gpio_chip.ngpio;
++		pin_bank->grange.npins = pin_bank->nr_pins;
+ 		pin_bank->grange.gc = &pin_bank->gpio_chip;
+ 		pinctrl_add_gpio_range(drvdata->pctl_dev, &pin_bank->grange);
  	}
- }
- 
--static struct fib_nh_exception *fnhe_oldest(struct fnhe_hash_bucket *hash)
-+static void fnhe_remove_oldest(struct fnhe_hash_bucket *hash)
- {
--	struct fib_nh_exception *fnhe, *oldest;
-+	struct fib_nh_exception __rcu **fnhe_p, **oldest_p;
-+	struct fib_nh_exception *fnhe, *oldest = NULL;
- 
--	oldest = rcu_dereference(hash->chain);
--	for (fnhe = rcu_dereference(oldest->fnhe_next); fnhe;
--	     fnhe = rcu_dereference(fnhe->fnhe_next)) {
--		if (time_before(fnhe->fnhe_stamp, oldest->fnhe_stamp))
-+	for (fnhe_p = &hash->chain; ; fnhe_p = &fnhe->fnhe_next) {
-+		fnhe = rcu_dereference_protected(*fnhe_p,
-+						 lockdep_is_held(&fnhe_lock));
-+		if (!fnhe)
-+			break;
-+		if (!oldest ||
-+		    time_before(fnhe->fnhe_stamp, oldest->fnhe_stamp)) {
- 			oldest = fnhe;
-+			oldest_p = fnhe_p;
-+		}
- 	}
- 	fnhe_flush_routes(oldest);
--	return oldest;
-+	*oldest_p = oldest->fnhe_next;
-+	kfree_rcu(oldest, rcu);
- }
- 
- static inline u32 fnhe_hashfun(__be32 daddr)
-@@ -685,16 +692,21 @@ static void update_or_create_fnhe(struct fib_nh *nh, __be32 daddr, __be32 gw,
- 		if (rt)
- 			fill_route_from_fnhe(rt, fnhe);
- 	} else {
--		if (depth > FNHE_RECLAIM_DEPTH)
--			fnhe = fnhe_oldest(hash);
--		else {
--			fnhe = kzalloc(sizeof(*fnhe), GFP_ATOMIC);
--			if (!fnhe)
--				goto out_unlock;
--
--			fnhe->fnhe_next = hash->chain;
--			rcu_assign_pointer(hash->chain, fnhe);
-+		/* Randomize max depth to avoid some side channels attacks. */
-+		int max_depth = FNHE_RECLAIM_DEPTH +
-+				prandom_u32_max(FNHE_RECLAIM_DEPTH);
-+
-+		while (depth > max_depth) {
-+			fnhe_remove_oldest(hash);
-+			depth--;
- 		}
-+
-+		fnhe = kzalloc(sizeof(*fnhe), GFP_ATOMIC);
-+		if (!fnhe)
-+			goto out_unlock;
-+
-+		fnhe->fnhe_next = hash->chain;
-+
- 		fnhe->fnhe_genid = genid;
- 		fnhe->fnhe_daddr = daddr;
- 		fnhe->fnhe_gw = gw;
-@@ -702,6 +714,8 @@ static void update_or_create_fnhe(struct fib_nh *nh, __be32 daddr, __be32 gw,
- 		fnhe->fnhe_mtu_locked = lock;
- 		fnhe->fnhe_expires = expires;
- 
-+		rcu_assign_pointer(hash->chain, fnhe);
-+
- 		/* Exception created; mark the cached routes for the nexthop
- 		 * stale, so anyone caching it rechecks if this exception
- 		 * applies to them.
 -- 
 2.30.2
 
