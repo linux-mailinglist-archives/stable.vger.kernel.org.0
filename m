@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 650D3411DCF
-	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:24:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70D5141202D
+	for <lists+stable@lfdr.de>; Mon, 20 Sep 2021 19:51:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349574AbhITRYE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Sep 2021 13:24:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48414 "EHLO mail.kernel.org"
+        id S1349603AbhITRxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Sep 2021 13:53:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345476AbhITRWB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Sep 2021 13:22:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7387161A59;
-        Mon, 20 Sep 2021 17:01:03 +0000 (UTC)
+        id S1353948AbhITRsF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Sep 2021 13:48:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BB2561BB5;
+        Mon, 20 Sep 2021 17:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632157263;
-        bh=hbPF9z9g7KBwEFiD0MRSFjX49YnFS/qcEV6sajvksiM=;
+        s=korg; t=1632157864;
+        bh=yTgHWtZaV0lUstlamuCARVjNKYKB1Z6SFV1Ia5FoRRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dgfSgoJjcR7P3h6K8qH+MRyvWwxLmch66di1D33YcgGM5Jx6vCjLon9MhEorgDLoz
-         cEa0rwxn1vh1IyZEv1925sXGtRVwrsfUJX9fr/EN9j7jxOyk9JG6TZDA8kZFH32Dxp
-         QfQ7xvl4rWcrEgCJ3jHqPJEGr2kUXWHYqbVs/Kxs=
+        b=DL1fOzPGwaFotvgC+e8ioSGRRg91UwQVhN+friN51Tcobwlpg7TIqyRDJW0vJnRRy
+         zSx7RzqZ8sSXi6Vk9KH9oiqfdBUNRNDBWx5mLP+32TbsLT+a7XjE6w88vYqR3mYqDT
+         7swC3Jqa2UI2TnUAvUvhYk83CHYWK0vmzAmC0uNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Anson Jacob <Anson.Jacob@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 128/217] scsi: qedi: Fix error codes in qedi_alloc_global_queues()
+Subject: [PATCH 4.19 187/293] drm/amd/amdgpu: Update debugfs link_settings output link_rate field in hex
 Date:   Mon, 20 Sep 2021 18:42:29 +0200
-Message-Id: <20210920163928.992328389@linuxfoundation.org>
+Message-Id: <20210920163939.672171626@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,80 +41,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Anson Jacob <Anson.Jacob@amd.com>
 
-[ Upstream commit 4dbe57d46d54a847875fa33e7d05877bb341585e ]
+[ Upstream commit 1a394b3c3de2577f200cb623c52a5c2b82805cec ]
 
-This function had some left over code that returned 1 on error instead
-negative error codes.  Convert everything to use negative error codes.  The
-caller treats all non-zero returns the same so this does not affect run
-time.
+link_rate is updated via debugfs using hex values, set it to output
+in hex as well.
 
-A couple places set "rc" instead of "status" so those error paths ended up
-returning success by mistake.  Get rid of the "rc" variable and use
-"status" everywhere.
+eg: Resolution: 1920x1080@144Hz
+cat /sys/kernel/debug/dri/0/DP-1/link_settings
+Current:  4  0x14  0  Verified:  4  0x1e  0  Reported:  4  0x1e  16  Preferred:  0  0x0  0
 
-Remove the bogus "status = 0" initialization, as a future proofing measure
-so the compiler will warn about uninitialized error codes.
+echo "4 0x1e" > /sys/kernel/debug/dri/0/DP-1/link_settings
 
-Link: https://lore.kernel.org/r/20210810084753.GD23810@kili
-Fixes: ace7f46ba5fd ("scsi: qedi: Add QLogic FastLinQ offload iSCSI driver framework.")
-Acked-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+cat /sys/kernel/debug/dri/0/DP-1/link_settings
+Current:  4  0x1e  0  Verified:  4  0x1e  0  Reported:  4  0x1e  16  Preferred:  4  0x1e  0
+
+Signed-off-by: Anson Jacob <Anson.Jacob@amd.com>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_main.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ .../amd/display/amdgpu_dm/amdgpu_dm_debugfs.c    | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/scsi/qedi/qedi_main.c b/drivers/scsi/qedi/qedi_main.c
-index 06958a192a5b..09f57ef35990 100644
---- a/drivers/scsi/qedi/qedi_main.c
-+++ b/drivers/scsi/qedi/qedi_main.c
-@@ -1302,7 +1302,7 @@ static int qedi_alloc_global_queues(struct qedi_ctx *qedi)
- {
- 	u32 *list;
- 	int i;
--	int status = 0, rc;
-+	int status;
- 	u32 *pbl;
- 	dma_addr_t page;
- 	int num_pages;
-@@ -1313,14 +1313,14 @@ static int qedi_alloc_global_queues(struct qedi_ctx *qedi)
- 	 */
- 	if (!qedi->num_queues) {
- 		QEDI_ERR(&qedi->dbg_ctx, "No MSI-X vectors available!\n");
--		return 1;
-+		return -ENOMEM;
- 	}
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
+index 0d9e410ca01e..dbfe5623997d 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
+@@ -92,29 +92,29 @@ static ssize_t dp_link_settings_read(struct file *f, char __user *buf,
  
- 	/* Make sure we allocated the PBL that will contain the physical
- 	 * addresses of our queues
- 	 */
- 	if (!qedi->p_cpuq) {
--		status = 1;
-+		status = -EINVAL;
- 		goto mem_alloc_failure;
- 	}
+ 	rd_buf_ptr = rd_buf;
  
-@@ -1335,13 +1335,13 @@ static int qedi_alloc_global_queues(struct qedi_ctx *qedi)
- 		  "qedi->global_queues=%p.\n", qedi->global_queues);
+-	str_len = strlen("Current:  %d  %d  %d  ");
+-	snprintf(rd_buf_ptr, str_len, "Current:  %d  %d  %d  ",
++	str_len = strlen("Current:  %d  0x%x  %d  ");
++	snprintf(rd_buf_ptr, str_len, "Current:  %d  0x%x  %d  ",
+ 			link->cur_link_settings.lane_count,
+ 			link->cur_link_settings.link_rate,
+ 			link->cur_link_settings.link_spread);
+ 	rd_buf_ptr += str_len;
  
- 	/* Allocate DMA coherent buffers for BDQ */
--	rc = qedi_alloc_bdq(qedi);
--	if (rc)
-+	status = qedi_alloc_bdq(qedi);
-+	if (status)
- 		goto mem_alloc_failure;
+-	str_len = strlen("Verified:  %d  %d  %d  ");
+-	snprintf(rd_buf_ptr, str_len, "Verified:  %d  %d  %d  ",
++	str_len = strlen("Verified:  %d  0x%x  %d  ");
++	snprintf(rd_buf_ptr, str_len, "Verified:  %d  0x%x  %d  ",
+ 			link->verified_link_cap.lane_count,
+ 			link->verified_link_cap.link_rate,
+ 			link->verified_link_cap.link_spread);
+ 	rd_buf_ptr += str_len;
  
- 	/* Allocate DMA coherent buffers for NVM_ISCSI_CFG */
--	rc = qedi_alloc_nvm_iscsi_cfg(qedi);
--	if (rc)
-+	status = qedi_alloc_nvm_iscsi_cfg(qedi);
-+	if (status)
- 		goto mem_alloc_failure;
+-	str_len = strlen("Reported:  %d  %d  %d  ");
+-	snprintf(rd_buf_ptr, str_len, "Reported:  %d  %d  %d  ",
++	str_len = strlen("Reported:  %d  0x%x  %d  ");
++	snprintf(rd_buf_ptr, str_len, "Reported:  %d  0x%x  %d  ",
+ 			link->reported_link_cap.lane_count,
+ 			link->reported_link_cap.link_rate,
+ 			link->reported_link_cap.link_spread);
+ 	rd_buf_ptr += str_len;
  
- 	/* Allocate a CQ and an associated PBL for each MSI-X
+-	str_len = strlen("Preferred:  %d  %d  %d  ");
+-	snprintf(rd_buf_ptr, str_len, "Preferred:  %d  %d  %d\n",
++	str_len = strlen("Preferred:  %d  0x%x  %d  ");
++	snprintf(rd_buf_ptr, str_len, "Preferred:  %d  0x%x  %d\n",
+ 			link->preferred_link_setting.lane_count,
+ 			link->preferred_link_setting.link_rate,
+ 			link->preferred_link_setting.link_spread);
 -- 
 2.30.2
 
