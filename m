@@ -2,96 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BBD5413A7F
-	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 21:05:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8160413AA3
+	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 21:20:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234063AbhIUTHS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Sep 2021 15:07:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44678 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232081AbhIUTHS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Sep 2021 15:07:18 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39579C061574;
-        Tue, 21 Sep 2021 12:05:49 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id d6so42050277wrc.11;
-        Tue, 21 Sep 2021 12:05:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=64fr42rRlj4ybtHs591h1vo2dWJufqwPjl8GwuWC/N8=;
-        b=FlhuH+N5bqAndS4e+VTPBSc7kdXaTk79EE0dQAfARW3KdHZC903kU4a9eAR6rcKmKy
-         RoEOwEOujDEzU81TI/P9vS0YcKYz7eoLxStVzpEY84qGM6HqqSJX7C798+wYs5OZc75F
-         DQLBKlt4L03XCiTTTw2zdGIfc3L/wjNMxCvYUXkP518gVplb0iJvL/mgolf4Wv7uU/hF
-         9xXiP1TcSCA8Pf4tEU1Y3Fn7qSnkIfX4mVHE8RHsFgiPeyDKFg3139kwo/dXJfuxInx/
-         ht+BbMb0b8/iiLP7nwix6iQc8g1lW6ncyNhpA9HGZSf7CKpXOaP703Ct8oSiecq6Us+6
-         mnpQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=64fr42rRlj4ybtHs591h1vo2dWJufqwPjl8GwuWC/N8=;
-        b=HePC18+9I7jHfjeHD/nx5cziWfaMkJmZQoc7bC6sH77rPzwFOHJLdyi30wjLOocVP3
-         yEzGYeI+oz5S3p1EQDCFQY+xfwXhR06ZNMgFfdvJhWrAPpJam2ZljaH3Oz1vqjdCeoEu
-         dO8xCuagmZO5RnYM0MJ3QLLkjy0Xddr7zjKl+8ZaLGQOvc3+m4wtxBSnlFM2Ze3H/xIk
-         WbrC7OsWLJEy1tSmqgU4rV3FJvp2qvh1UDQog7BBgSU+wG9X4l2ff9gcQB1XFoKE0/X3
-         wMW/r6bhHGI/eD0C7D7CbhM+Jd/9cXZ+vj2ygMzwbTZ9K/fjnC0Ra3mPaoJ5BVr5togU
-         RJVg==
-X-Gm-Message-State: AOAM530DCYNeLVdAN6ZjFeL/Q/Brho83jTeVEPrYoCasXh3EOHwGhOaE
-        SQYpmNPXRLfKAgiAR/nNEVA=
-X-Google-Smtp-Source: ABdhPJxs9pTj/cc3dczcSPm5RKjKJ20FgtLHfolgWy8NQpOW5j1MDKYmZaj2riZ7C+t9opMIfdUgJA==
-X-Received: by 2002:adf:e74b:: with SMTP id c11mr37645980wrn.101.1632251147855;
-        Tue, 21 Sep 2021 12:05:47 -0700 (PDT)
-Received: from debian (host-2-99-153-109.as13285.net. [2.99.153.109])
-        by smtp.gmail.com with ESMTPSA id 10sm3490472wmi.1.2021.09.21.12.05.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Sep 2021 12:05:47 -0700 (PDT)
-Date:   Tue, 21 Sep 2021 20:05:45 +0100
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+        id S234401AbhIUTWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Sep 2021 15:22:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39850 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230497AbhIUTWI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Sep 2021 15:22:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4A3A61166;
+        Tue, 21 Sep 2021 19:20:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1632252040;
+        bh=q7cife23GK/op9HiZn/PW1l3DptbjfCu7Z7qN8lqqmI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=DlnU/SggKF1xUzGIMk7bj2Ha0jbqJKQwafZx7/EGhtrsqWJJkjJvhzx1O7LgIqWBM
+         OeOxE7TkpO74osd09pC8Vn/Bv5AkMHIwIRN7g3NgZ/GCi2Ne/szw8elZVp4Al69Hqt
+         3iMJjb3WgXxKEQ0KoKQl9i7ipeRQ0zpBLLt6Pmrh4DMFVsidrrt205rwyjCcPCTnvS
+         pTbs9THHF2dtrTsLgprETdbQehtvkMTlXWpG6oVJBzzhXeO68Lpvm0kUECUSI+OXzl
+         OqbuqEYPWZ65/HaZjq6o9tSVTU3y1tMGFE2YR+hWTTZlgkcO8eYk79Vy8R2T69nwIA
+         QRrR8c5txiQSQ==
+Date:   Tue, 21 Sep 2021 15:20:38 -0400
+From:   Sasha Levin <sashal@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 000/293] 4.19.207-rc1 review
-Message-ID: <YUotCVz8sjwnO32J@debian>
-References: <20210920163933.258815435@linuxfoundation.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Lukas Hannen <lukas.hannen@opensource.tttech-industrial.com>
+Subject: Re: [PATCH 5.14 298/334] time: Handle negative seconds correctly in
+ timespec64_to_ns()
+Message-ID: <YUowhlVfLiLWE8K/@sashalap>
+References: <20210913131113.390368911@linuxfoundation.org>
+ <20210913131123.500712780@linuxfoundation.org>
+ <CAK8P3a0z5jE=Z3Ps5bFTCFT7CHZR1JQ8VhdntDJAfsUxSPCcEw@mail.gmail.com>
+ <874kak9moe.ffs@tglx>
+ <YURQ4ZFDJ8E9MJZM@kroah.com>
+ <87sfy38p1o.ffs@tglx>
+ <YUSyKQwdpfSTbQ4H@kroah.com>
+ <87ee9n80gz.ffs@tglx>
+ <YUYJ8WeOzPVwj16y@kroah.com>
+ <YUibLGZAVgqiyCUq@sashalap>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+In-Reply-To: <YUibLGZAVgqiyCUq@sashalap>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On Mon, Sep 20, 2021 at 10:31:08AM -0400, Sasha Levin wrote:
+>On Sat, Sep 18, 2021 at 05:46:57PM +0200, Greg Kroah-Hartman wrote:
+>>On Fri, Sep 17, 2021 at 09:29:32PM +0200, Thomas Gleixner wrote:
+>>>Greg,
+>>>
+>>>On Fri, Sep 17 2021 at 17:20, Greg Kroah-Hartman wrote:
+>>>> On Fri, Sep 17, 2021 at 12:38:43PM +0200, Thomas Gleixner wrote:
+>>>>> Nah. I try to pay more attention. I'm not against AUTOSEL per se, but
+>>>>> could we change the rules slightly?
+>>>>>
+>>>>> Any change which is selected by AUTOSEL and lacks a Cc: stable@... is
+>>>>> put on hold until acked by the maintainer unless it is a prerequisite
+>>>>> for applying a stable tagged fix?
+>>>>>
+>>>>> This can be default off and made effective on maintainer request.
+>>>>>
+>>>>> Hmm?
+>>>>
+>>>> The whole point of the AUTOSEL patches are for the huge numbers of
+>>>> subsystems where maintainers and developers do not care about the stable
+>>>> trees at all, and so they do not mark patches to be backported.  So
+>>>> requireing an opt-in like this would defeat the purpose.
+>>>>
+>>>> We do allow the ability to take files/subsystems out of the AUTOSEL
+>>>> process as there are many maintainers that do do this right and get
+>>>> annoyed when patches are picked that they feel shouldn't have.  That's
+>>>> the best thing we can do for stuff like this.
+>>>
+>>>I guess I was not able to express myself correctly. What I wanted to say
+>>>is:
+>>>
+>>>  1) Default is AUTOSEL
+>>>
+>>>  2) Maintainer can take files/subsystems out of AUTOSEL completely
+>>>
+>>>     Exists today
+>>>
+>>>  3) Maintainer allows AUTOSEL, but anything picked from files/subsystems
+>>>     without a stable tag requires an explicit ACK from the maintainer
+>>>     for the backport.
+>>>
+>>>     Is new and I would be the first to opt-in :)
+>>>
+>>>My rationale for #3 is that even when being careful about stable tags,
+>>>it happens that one is missing. Occasionaly AUTOSEL finds one of those
+>>>in my subsystems which I appreciate.
+>>>
+>>>Does that make more sense now?
+>>
+>>Ah, yes, that makes much more sense, sorry for the confusion.
+>>
+>>Sasha, what do you think?  You are the one that scripts all of this, not
+>>me :)
+>
+>I could give it a go. It adds some complexity here but is probably worth
+>it to avoid issues.
+>
+>Let me think about the best way to go about it.
 
-On Mon, Sep 20, 2021 at 06:39:22PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.207 release.
-> There are 293 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 22 Sep 2021 16:38:49 +0000.
-> Anything received after that time might be too late.
+So I'm thinking of yet another patch series that would go out, but
+instead of AUTOSEL it'll be tagged with "MANUALSEL". It would work the
+exact same way as AUTOSEL, without the final step of queueing up the
+commits into the stable trees.
 
-Build test:
-mips (gcc version 11.2.1 20210911): 63 configs -> no failure
-arm (gcc version 11.2.1 20210911): 116 configs -> no new failure
-arm64 (gcc version 11.2.1 20210911): 2 configs -> no failure
-x86_64 (gcc version 10.2.1 20210110): 4 configs -> no failure
+Thomas, do you want to give it a go? Want to describe how I filter for
+commits you'd be taking care of? In the past I'd grep a combo of paths
+and committers (i.e. net/ && davem@), but you have your hands in too
+many things :)
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
-
-[1]. https://openqa.qa.codethink.co.uk/tests/163
-
-
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-
---
-Regards
-Sudip
-
+-- 
+Thanks,
+Sasha
