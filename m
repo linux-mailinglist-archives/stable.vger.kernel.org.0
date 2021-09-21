@@ -2,126 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B78D9413B53
-	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 22:27:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D415413B5F
+	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 22:30:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233860AbhIUU3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Sep 2021 16:29:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34972 "EHLO
+        id S234882AbhIUUc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Sep 2021 16:32:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229912AbhIUU3O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Sep 2021 16:29:14 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FDCCC061574;
-        Tue, 21 Sep 2021 13:27:46 -0700 (PDT)
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1632256064;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=jUZoMfwEcfPfeLuGk2EFaP58Bnu+SHtciLXgKuOk21Q=;
-        b=JRAsG3P2GwfdINWMv4KcitfGWdpHMW/RioiI7K5/scm6W3Vcm1l0rzkNsGw/42Eh8xMhCA
-        one7Bv1o0Dta06VF6LXAe8YUX6dlxDBG2F7YEzLR/WJhdxuaLQfghcnpGMHNk5lu9nGVYk
-        o6bOyG9FlAwXwGWQUDswHSXN6j1okgVaoVAibqwu3KEgkhvYEslplwV7VPBVnnG4YytUYM
-        FpOrY7g7pNyR67a/eNQ7KXsd5+4Fd+mEldezq69Z8YanJ33vLYkj52qChnBqtVM0v2ROLu
-        1fMXZ8HzZLTyLOqsyS2D4Rowbk2Vc1Sfkgqj3QDdTfaDfReeec1pYqpbgjNA0A==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1632256064;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=jUZoMfwEcfPfeLuGk2EFaP58Bnu+SHtciLXgKuOk21Q=;
-        b=pzl2WCj1z5sHljOygoGKUl9QwW7hVFcX2kl/hNhzAsCMgG5D85Qx9rgZvligzs5D9IbFiK
-        RtiMlKL1zOdwcGAQ==
-To:     Sasha Levin <sashal@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Arnd Bergmann <arnd@kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Lukas Hannen <lukas.hannen@opensource.tttech-industrial.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH 5.14 298/334] time: Handle negative seconds correctly in
- timespec64_to_ns()
-In-Reply-To: <YUowhlVfLiLWE8K/@sashalap>
-References: <20210913131113.390368911@linuxfoundation.org>
- <20210913131123.500712780@linuxfoundation.org>
- <CAK8P3a0z5jE=Z3Ps5bFTCFT7CHZR1JQ8VhdntDJAfsUxSPCcEw@mail.gmail.com>
- <874kak9moe.ffs@tglx> <YURQ4ZFDJ8E9MJZM@kroah.com> <87sfy38p1o.ffs@tglx>
- <YUSyKQwdpfSTbQ4H@kroah.com> <87ee9n80gz.ffs@tglx>
- <YUYJ8WeOzPVwj16y@kroah.com> <YUibLGZAVgqiyCUq@sashalap>
- <YUowhlVfLiLWE8K/@sashalap>
-Date:   Tue, 21 Sep 2021 22:27:44 +0200
-Message-ID: <87sfxx65dr.ffs@tglx>
+        with ESMTP id S234881AbhIUUcZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Sep 2021 16:32:25 -0400
+Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C01B0C061574;
+        Tue, 21 Sep 2021 13:30:56 -0700 (PDT)
+Received: by mail-ot1-x329.google.com with SMTP id h9-20020a9d2f09000000b005453f95356cso196166otb.11;
+        Tue, 21 Sep 2021 13:30:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=EOMsRLdmoMaeDR6S/ee7HhNCT9A3nkqMSet3H6BfwIU=;
+        b=gNRJKr1QUvsEYEKpR2zpKskgLATjVWdeOjqi89bi88YNfrI+t4vmk6WZ0qO45aTPZZ
+         YjfQRblHduJAlEq+AZwek97gqoE6N+GrcEebAPj7KmQLi5R/H85IqzUWQ62jZd3k3uUq
+         QF6cn/SyNCEIoabCW+SGa7VbvR4lbSuVhqJ4P3cDFpGgrDwosA9onYz5VfWXveFLbCsn
+         qypweYRuqydc/2ye2cf9az9hkRLZIbjYoEl9H6Wqodb+SJ76qL92MUPT93hq6vZlGBxF
+         M15jYwJDwpKsSHLCZQ91FEbEl5dRLFZ3eK/8CwahwrN8KIX1voWAjf1ogM2xETaqbYyN
+         I05g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=EOMsRLdmoMaeDR6S/ee7HhNCT9A3nkqMSet3H6BfwIU=;
+        b=TsobN8rivbfhzn0LbnHJSQyqIae37EPF2M+aRzBYthm/MFKryWChJPY/Dc9YVnOK75
+         V1hqIBdggrr96RFGvz2mJFxkS7qPYCwxta0DLMVDklicbPOGexO+qVftebsFal05hNCu
+         cd1nLL5oezB8hBKQUVUz+i980ckjSoX/j/4QisjBsR5VKZNIYhWIW7oPYMfEUteftcar
+         2cMsnZxh+3b/ZMWGcn9wTBEDYdTwDPUpNk2W9EgWiuPTsO4OvoQdFZWoug2Hqm1d+UOc
+         NVOmTmKgASh+qziaLyYBXVRi2BBKwwoR5J58XKDJwtOyImNRZyWa8nsdl6O78A+0rJmf
+         i2DA==
+X-Gm-Message-State: AOAM532xjrmg2oZ21EluzrcRgeMOiUdo3x2sPbP7Cnh2XfjSUxZZqSlb
+        z0jrIXWrYT6AehoPIEDzMjA=
+X-Google-Smtp-Source: ABdhPJzOxVAWomQrvj1TDL0o+voxYCA31gPVeUog9fx3mJniULGwDWmaCpNua0N1FSTeX5QCr6Z+pQ==
+X-Received: by 2002:a05:6830:359:: with SMTP id h25mr6412899ote.48.1632256256181;
+        Tue, 21 Sep 2021 13:30:56 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id d21sm22406ooh.43.2021.09.21.13.30.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Sep 2021 13:30:55 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 21 Sep 2021 13:30:54 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 000/133] 4.4.284-rc1 review
+Message-ID: <20210921203054.GA2363301@roeck-us.net>
+References: <20210920163912.603434365@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210920163912.603434365@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 21 2021 at 15:20, Sasha Levin wrote:
-> On Mon, Sep 20, 2021 at 10:31:08AM -0400, Sasha Levin wrote:
->>On Sat, Sep 18, 2021 at 05:46:57PM +0200, Greg Kroah-Hartman wrote:
->>>On Fri, Sep 17, 2021 at 09:29:32PM +0200, Thomas Gleixner wrote:
->>>>
->>>>I guess I was not able to express myself correctly. What I wanted to say
->>>>is:
->>>>
->>>>  1) Default is AUTOSEL
->>>>
->>>>  2) Maintainer can take files/subsystems out of AUTOSEL completely
->>>>
->>>>     Exists today
->>>>
->>>>  3) Maintainer allows AUTOSEL, but anything picked from files/subsystems
->>>>     without a stable tag requires an explicit ACK from the maintainer
->>>>     for the backport.
->>>>
->>>>     Is new and I would be the first to opt-in :)
->>>>
->>>>My rationale for #3 is that even when being careful about stable tags,
->>>>it happens that one is missing. Occasionaly AUTOSEL finds one of those
->>>>in my subsystems which I appreciate.
->>>>
->>>>Does that make more sense now?
->>>
->>>Ah, yes, that makes much more sense, sorry for the confusion.
->>>
->>>Sasha, what do you think?  You are the one that scripts all of this, not
->>>me :)
->>
->>I could give it a go. It adds some complexity here but is probably worth
->>it to avoid issues.
->>
->>Let me think about the best way to go about it.
->
-> So I'm thinking of yet another patch series that would go out, but
-> instead of AUTOSEL it'll be tagged with "MANUALSEL". It would work the
-> exact same way as AUTOSEL, without the final step of queueing up the
-> commits into the stable trees.
->
-> Thomas, do you want to give it a go? Want to describe how I filter for
-> commits you'd be taking care of? In the past I'd grep a combo of paths
-> and committers (i.e. net/ && davem@), but you have your hands in too
-> many things :)
+On Mon, Sep 20, 2021 at 06:41:18PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.284 release.
+> There are 133 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 22 Sep 2021 16:38:49 +0000.
+> Anything received after that time might be too late.
+> 
 
-Indeed. :(
+Build results:
+	total: 160 pass: 160 fail: 0
+Qemu test results:
+	total: 339 pass: 339 fail: 0
 
-So pretty much all what matches in MAINTAINERS entries where my name
-happened to end up for some reasons. That would be a good start.
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-Might be a bit overbroad as it also includes x86/kvm, x86/xen, x86/pci
-which I'm not that involved with, but to make it simple for you, I just
-volunteered the relevant maintainers (CCed) to participate in that
-experiment. :)
-
-Thanks,
-
-        tglx
-
-
-
-
-
-
+Guenter
