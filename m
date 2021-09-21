@@ -2,163 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 275B3413B39
-	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 22:22:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B78D9413B53
+	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 22:27:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233020AbhIUUYW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Sep 2021 16:24:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33810 "EHLO
+        id S233860AbhIUU3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Sep 2021 16:29:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230348AbhIUUYW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Sep 2021 16:24:22 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFAC8C061574
-        for <stable@vger.kernel.org>; Tue, 21 Sep 2021 13:22:53 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id n2so187309plk.12
-        for <stable@vger.kernel.org>; Tue, 21 Sep 2021 13:22:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=haNGvfFv+xkufjzPxABBFaB4Xxw7eKQMKO76DCOL+wI=;
-        b=4QQjB+Fp2+k2F3AcYo1fmCAN5izkZdES5u/ALz+NpH2B5KwJPJQye1Ht56OI+aBl6O
-         UPncXdGy7CJiR/4BzwX83zzWQnpEMFmLZbz6cZBLP1Jd7H6CoGZdsEXQ/t6sUqk3A1/z
-         PUcpqwmP3A6LFETG6QAIt6/ZFdukm2Ar9V3KyouL8V1dGTKQd2IRhQT7ImTKHpl5MwP0
-         Du5T1TDnsVfzTXIJMeDF6pRG8J57PVW80uH6L5opvIvjI8GJmXj77Gn+t9Y3BA8LHgto
-         zQTPeFr55sXHvEbvE+byVa31SU0+/zBAgCQha1sTyeEK3pWp1ijMwDLvHeabt5bPgxaO
-         G2Ug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=haNGvfFv+xkufjzPxABBFaB4Xxw7eKQMKO76DCOL+wI=;
-        b=FW/jYFg5mEPAYung7eyAW611xiUaYAuBz5TBqohqhP6hCqP5S+vj6GsjPMLN8DveNe
-         3nsq8SGIkMQ5SW7juu5d3ej1ttTwcbukiWq8sHF1UwF6yFvXV0dvV2O2SUo3Ot8cJemV
-         VILVnFxUhZJNinjNg2YimarHA0v27jVBi5ETQUU1d/ZYwxzJNPYYCCwiFwYhbDFr/6Uy
-         xPogkyqxo7o9D6cUof6sWKFVRvBCmn2VtqdlvEGXMBg2Z1xlO+nNH8I5a/jWeCgbHOXd
-         Cp76D5i/gp6Xd7uvAwf/kGJWBSxOoBzQ9cpzPatewqfsIo0/OU22kQfFRS5yUDSBEhTA
-         5e2A==
-X-Gm-Message-State: AOAM5335XxCZ4XF4b8/o2jWLmtDdu9E2fQUUq9EG42jA9+V/1ulg7hrz
-        6IPX3NNchbKRGb4NpJXtj3oG3TFxeIaQ8JZP
-X-Google-Smtp-Source: ABdhPJzg1xrMJr8UWU+bYYM8yNn4c5Gk7ZWgshvJLcQUmYEpWIoAJlsHUTZFo14I6R9CCLP1us5pBg==
-X-Received: by 2002:a17:90b:4a88:: with SMTP id lp8mr7167426pjb.159.1632255772988;
-        Tue, 21 Sep 2021 13:22:52 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d19sm37137pfn.102.2021.09.21.13.22.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Sep 2021 13:22:52 -0700 (PDT)
-Message-ID: <614a3f1c.1c69fb81.286f.03c8@mx.google.com>
-Date:   Tue, 21 Sep 2021 13:22:52 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229912AbhIUU3O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Sep 2021 16:29:14 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FDCCC061574;
+        Tue, 21 Sep 2021 13:27:46 -0700 (PDT)
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1632256064;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=jUZoMfwEcfPfeLuGk2EFaP58Bnu+SHtciLXgKuOk21Q=;
+        b=JRAsG3P2GwfdINWMv4KcitfGWdpHMW/RioiI7K5/scm6W3Vcm1l0rzkNsGw/42Eh8xMhCA
+        one7Bv1o0Dta06VF6LXAe8YUX6dlxDBG2F7YEzLR/WJhdxuaLQfghcnpGMHNk5lu9nGVYk
+        o6bOyG9FlAwXwGWQUDswHSXN6j1okgVaoVAibqwu3KEgkhvYEslplwV7VPBVnnG4YytUYM
+        FpOrY7g7pNyR67a/eNQ7KXsd5+4Fd+mEldezq69Z8YanJ33vLYkj52qChnBqtVM0v2ROLu
+        1fMXZ8HzZLTyLOqsyS2D4Rowbk2Vc1Sfkgqj3QDdTfaDfReeec1pYqpbgjNA0A==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1632256064;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=jUZoMfwEcfPfeLuGk2EFaP58Bnu+SHtciLXgKuOk21Q=;
+        b=pzl2WCj1z5sHljOygoGKUl9QwW7hVFcX2kl/hNhzAsCMgG5D85Qx9rgZvligzs5D9IbFiK
+        RtiMlKL1zOdwcGAQ==
+To:     Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Arnd Bergmann <arnd@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Lukas Hannen <lukas.hannen@opensource.tttech-industrial.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH 5.14 298/334] time: Handle negative seconds correctly in
+ timespec64_to_ns()
+In-Reply-To: <YUowhlVfLiLWE8K/@sashalap>
+References: <20210913131113.390368911@linuxfoundation.org>
+ <20210913131123.500712780@linuxfoundation.org>
+ <CAK8P3a0z5jE=Z3Ps5bFTCFT7CHZR1JQ8VhdntDJAfsUxSPCcEw@mail.gmail.com>
+ <874kak9moe.ffs@tglx> <YURQ4ZFDJ8E9MJZM@kroah.com> <87sfy38p1o.ffs@tglx>
+ <YUSyKQwdpfSTbQ4H@kroah.com> <87ee9n80gz.ffs@tglx>
+ <YUYJ8WeOzPVwj16y@kroah.com> <YUibLGZAVgqiyCUq@sashalap>
+ <YUowhlVfLiLWE8K/@sashalap>
+Date:   Tue, 21 Sep 2021 22:27:44 +0200
+Message-ID: <87sfxx65dr.ffs@tglx>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.14.6-170-gb1e5cb6b8905
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.14
-Subject: stable-rc/queue/5.14 baseline: 142 runs,
- 2 regressions (v5.14.6-170-gb1e5cb6b8905)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.14 baseline: 142 runs, 2 regressions (v5.14.6-170-gb1e5cb=
-6b8905)
+On Tue, Sep 21 2021 at 15:20, Sasha Levin wrote:
+> On Mon, Sep 20, 2021 at 10:31:08AM -0400, Sasha Levin wrote:
+>>On Sat, Sep 18, 2021 at 05:46:57PM +0200, Greg Kroah-Hartman wrote:
+>>>On Fri, Sep 17, 2021 at 09:29:32PM +0200, Thomas Gleixner wrote:
+>>>>
+>>>>I guess I was not able to express myself correctly. What I wanted to say
+>>>>is:
+>>>>
+>>>>  1) Default is AUTOSEL
+>>>>
+>>>>  2) Maintainer can take files/subsystems out of AUTOSEL completely
+>>>>
+>>>>     Exists today
+>>>>
+>>>>  3) Maintainer allows AUTOSEL, but anything picked from files/subsystems
+>>>>     without a stable tag requires an explicit ACK from the maintainer
+>>>>     for the backport.
+>>>>
+>>>>     Is new and I would be the first to opt-in :)
+>>>>
+>>>>My rationale for #3 is that even when being careful about stable tags,
+>>>>it happens that one is missing. Occasionaly AUTOSEL finds one of those
+>>>>in my subsystems which I appreciate.
+>>>>
+>>>>Does that make more sense now?
+>>>
+>>>Ah, yes, that makes much more sense, sorry for the confusion.
+>>>
+>>>Sasha, what do you think?  You are the one that scripts all of this, not
+>>>me :)
+>>
+>>I could give it a go. It adds some complexity here but is probably worth
+>>it to avoid issues.
+>>
+>>Let me think about the best way to go about it.
+>
+> So I'm thinking of yet another patch series that would go out, but
+> instead of AUTOSEL it'll be tagged with "MANUALSEL". It would work the
+> exact same way as AUTOSEL, without the final step of queueing up the
+> commits into the stable trees.
+>
+> Thomas, do you want to give it a go? Want to describe how I filter for
+> commits you'd be taking care of? In the past I'd grep a combo of paths
+> and committers (i.e. net/ && davem@), but you have your hands in too
+> many things :)
 
-Regressions Summary
--------------------
+Indeed. :(
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig  | 1       =
-   =
+So pretty much all what matches in MAINTAINERS entries where my name
+happened to end up for some reasons. That would be a good start.
 
-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1       =
-   =
+Might be a bit overbroad as it also includes x86/kvm, x86/xen, x86/pci
+which I'm not that involved with, but to make it simple for you, I just
+volunteered the relevant maintainers (CCed) to participate in that
+experiment. :)
 
+Thanks,
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
-nel/v5.14.6-170-gb1e5cb6b8905/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.14
-  Describe: v5.14.6-170-gb1e5cb6b8905
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b1e5cb6b8905356eb971128ae5fc39b35af51554 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig  | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/614a0a2fd80dd1bed699a308
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.6-1=
-70-gb1e5cb6b8905/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.6-1=
-70-gb1e5cb6b8905/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/614a0a2fd80dd1bed699a=
-309
-        new failure (last pass: v5.14.4-395-ga49a6c3da2c6) =
-
- =
+        tglx
 
 
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/614a09c89cca3d55f399a2e6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.6-1=
-70-gb1e5cb6b8905/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle=
--xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.6-1=
-70-gb1e5cb6b8905/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle=
--xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/614a09c89cca3d55f399a=
-2e7
-        failing since 5 days (last pass: v5.14.4-24-g6da4ee8977f4, first fa=
-il: v5.14.4-73-gc291807495af) =
-
- =20
