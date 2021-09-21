@@ -2,134 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC03D41378A
-	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 18:27:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D26174137A9
+	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 18:35:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229918AbhIUQ2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Sep 2021 12:28:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34078 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229465AbhIUQ2y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 Sep 2021 12:28:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DF2261002;
-        Tue, 21 Sep 2021 16:27:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632241645;
-        bh=XfmNiDtkhhVUBaEm0dMJS79+3iNKgza/zJYYb85zifw=;
-        h=Subject:To:From:Date:From;
-        b=Cx6ROjE7aCNVpMMk10QWwZh9WXWQFxfTvpHAR28VDLxkfLLKa5LNWJYhO+t55tkKc
-         pZMSplKYiP5c8B0w3dmNBoezVWKM2lAzMBZsDtuIyEJMso86zhEaTK4WS61jOJmckX
-         m7raJ/9jnyFcWlmoJWwFjSWk6ZraCGmUj0sqidpY=
-Subject: patch "driver core: fw_devlink: Improve handling of cyclic dependencies" added to driver-core-linus
-To:     saravanak@google.com, gregkh@linuxfoundation.org,
-        m.szyprowski@samsung.com, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 21 Sep 2021 18:27:23 +0200
-Message-ID: <1632241643248116@kroah.com>
+        id S229456AbhIUQgl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Sep 2021 12:36:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37774 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229448AbhIUQgk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Sep 2021 12:36:40 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6C5BC061574;
+        Tue, 21 Sep 2021 09:35:11 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id me1so6121690pjb.4;
+        Tue, 21 Sep 2021 09:35:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=1mHqMJ7iQuPIKVNp8+6cAbDcnUVExMYOvuByo+J8zZI=;
+        b=MSt+pbgnh57VWFeON0e149mtBVh7CVfzrOAM1tac4N09bHVgIX4bOo+Zm2SmReIjlm
+         TJYk5O9tvwo+iE/gk6Tps3qRCcJx3vz6b5jwYHVX+ncoDid6K11M64vqmJ7HIGkiy0rj
+         +W6kiM1LG5JlKg39K8hfTyGlO/oCl/XorhjoGq6c3GNLKaOQo8eZd4g0N3qg8hBul+Nq
+         C8sHPiHmG3zURcjoYTYZXQJzzue51VtvqF/MOQUucpEv2pyT+kRJQbUuGDOpK9BoXVaV
+         2QkaPf7kFFGaDrEAi03XyP8hGuco8x9jV6kfCol8APtVvapB7qNHjJ005mNPv83HF7sf
+         hYhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=1mHqMJ7iQuPIKVNp8+6cAbDcnUVExMYOvuByo+J8zZI=;
+        b=tEUuzl3WncppW14rTWv3ePsrIOAMZ3eLPHiRz7OK85IuzvUKkTJK8FqIw7GeLnH0mf
+         H+N+fZXRC6/utQK29hVjjrHe7gVboQUhJWKUunbHaw05H98g/CmAEIA266722KiC/p7a
+         CTJ1PffigRqvlUIw97OXoz099ByatYPryZxDvpb9DUO5bdy5XXb5GfdNvF8BJrNs9QK0
+         0gXs5BklleRYSGLlAeKyUoghcmZtNyU/1AOSyTT5NYR66K9WI7AFLlixWh4ln6wAZUUF
+         Jta2KLz0Oc1+mpzPH2Okg4KcJjti97gpslpIuWO9V5apOxH/FGLVMQHf97jWo7KhOvc6
+         XHPA==
+X-Gm-Message-State: AOAM532meyImsBVRtO9HFBiDtM5TBampMkKmzq7PTCJv859qByULtHHt
+        JuDrPZxXWFEFdMsY4fglQIu7U56rCZQ=
+X-Google-Smtp-Source: ABdhPJzp4hHIKqE8OYBiSeIddV39YaIiO+aEeDajaunWJajaQPKSaR9QGhGDWWIH8Whw+RpnaacyOw==
+X-Received: by 2002:a17:90b:30b:: with SMTP id ay11mr6266144pjb.192.1632242110478;
+        Tue, 21 Sep 2021 09:35:10 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id y7sm3102432pjt.40.2021.09.21.09.35.08
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 21 Sep 2021 09:35:09 -0700 (PDT)
+Subject: Re: [PATCH 5.10 000/122] 5.10.68-rc1 review
+From:   Florian Fainelli <f.fainelli@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210920163915.757887582@linuxfoundation.org>
+ <87001227-a271-e9bb-38bc-059279caaf3b@gmail.com>
+ <513b55c6-0f1f-4a84-65b7-fd05e99c0bcb@gmail.com>
+Message-ID: <5949f5ac-b6ac-d538-28ab-e0a2499957cb@gmail.com>
+Date:   Tue, 21 Sep 2021 09:35:08 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <513b55c6-0f1f-4a84-65b7-fd05e99c0bcb@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 9/20/21 12:00 PM, Florian Fainelli wrote:
+> On 9/20/21 11:39 AM, Florian Fainelli wrote:
+>> On 9/20/21 9:42 AM, Greg Kroah-Hartman wrote:
+>>> This is the start of the stable review cycle for the 5.10.68 release.
+>>> There are 122 patches in this series, all will be posted as a response
+>>> to this one.  If anyone has any issues with these being applied, please
+>>> let me know.
+>>>
+>>> Responses should be made by Wed, 22 Sep 2021 16:38:49 +0000.
+>>> Anything received after that time might be too late.
+>>>
+>>> The whole patch series can be found in one patch at:
+>>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.68-rc1.gz
+>>> or in the git tree and branch at:
+>>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+>>> and the diffstat can be found below.
+>>>
+>>> thanks,
+>>>
+>>> greg k-h
+>>
+>> On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
+>>
+>> Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+>>
+> 
+> Sorry taking that back, the merge did not really happen so I was not
+> testing 5.10.68 but 5.10.67, see my other comment about one of the
+> patches causing a regression, thanks!
 
-This is a note to let you know that I've just added the patch titled
+With the updated v5.10.68-rc1 tag at:
 
-    driver core: fw_devlink: Improve handling of cyclic dependencies
+commit bb6d31464809e017d8cfd65963f6e802d7d1c66b
+(linux-stable-rc/linux-5.10.y)
+Author: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date:   Tue Sep 21 08:59:30 2021 +0200
 
-to my driver-core git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
-in the driver-core-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
+    Linux 5.10.68-rc1
 
 
-From 2de9d8e0d2fe3a1eb632def2245529067cb35db5 Mon Sep 17 00:00:00 2001
-From: Saravana Kannan <saravanak@google.com>
-Date: Wed, 15 Sep 2021 10:09:37 -0700
-Subject: driver core: fw_devlink: Improve handling of cyclic dependencies
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 
-When we have a dependency of the form:
-
-Device-A -> Device-C
-	Device-B
-
-Device-C -> Device-B
-
-Where,
-* Indentation denotes "child of" parent in previous line.
-* X -> Y denotes X is consumer of Y based on firmware (Eg: DT).
-
-We have cyclic dependency: device-A -> device-C -> device-B -> device-A
-
-fw_devlink current treats device-C -> device-B dependency as an invalid
-dependency and doesn't enforce it but leaves the rest of the
-dependencies as is.
-
-While the current behavior is necessary, it is not sufficient if the
-false dependency in this example is actually device-A -> device-C. When
-this is the case, device-C will correctly probe defer waiting for
-device-B to be added, but device-A will be incorrectly probe deferred by
-fw_devlink waiting on device-C to probe successfully. Due to this, none
-of the devices in the cycle will end up probing.
-
-To fix this, we need to go relax all the dependencies in the cycle like
-we already do in the other instances where fw_devlink detects cycles.
-A real world example of this was reported[1] and analyzed[2].
-
-[1] - https://lore.kernel.org/lkml/0a2c4106-7f48-2bb5-048e-8c001a7c3fda@samsung.com/
-[2] - https://lore.kernel.org/lkml/CAGETcx8peaew90SWiux=TyvuGgvTQOmO4BFALz7aj0Za5QdNFQ@mail.gmail.com/
-
-Fixes: f9aa460672c9 ("driver core: Refactor fw_devlink feature")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Saravana Kannan <saravanak@google.com>
-Link: https://lore.kernel.org/r/20210915170940.617415-2-saravanak@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/base/core.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index e65dd803a453..316df6027093 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -1772,14 +1772,21 @@ static int fw_devlink_create_devlink(struct device *con,
- 	 * be broken by applying logic. Check for these types of cycles and
- 	 * break them so that devices in the cycle probe properly.
- 	 *
--	 * If the supplier's parent is dependent on the consumer, then
--	 * the consumer-supplier dependency is a false dependency. So,
--	 * treat it as an invalid link.
-+	 * If the supplier's parent is dependent on the consumer, then the
-+	 * consumer and supplier have a cyclic dependency. Since fw_devlink
-+	 * can't tell which of the inferred dependencies are incorrect, don't
-+	 * enforce probe ordering between any of the devices in this cyclic
-+	 * dependency. Do this by relaxing all the fw_devlink device links in
-+	 * this cycle and by treating the fwnode link between the consumer and
-+	 * the supplier as an invalid dependency.
- 	 */
- 	sup_dev = fwnode_get_next_parent_dev(sup_handle);
- 	if (sup_dev && device_is_dependent(con, sup_dev)) {
--		dev_dbg(con, "Not linking to %pfwP - False link\n",
--			sup_handle);
-+		dev_info(con, "Fixing up cyclic dependency with %pfwP (%s)\n",
-+			 sup_handle, dev_name(sup_dev));
-+		device_links_write_lock();
-+		fw_devlink_relax_cycle(con, sup_dev);
-+		device_links_write_unlock();
- 		ret = -EINVAL;
- 	} else {
- 		/*
+Thanks Greg!
 -- 
-2.33.0
-
-
+Florian
