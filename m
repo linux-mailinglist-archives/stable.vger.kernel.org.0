@@ -2,88 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78ADF41320B
-	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 12:59:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81D0341323D
+	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 13:03:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231956AbhIULB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Sep 2021 07:01:26 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:39370 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232276AbhIULB0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Sep 2021 07:01:26 -0400
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id DB4472210B;
-        Tue, 21 Sep 2021 10:59:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1632221996; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=8Dgb4dMSO/ZPMje1n5AU7MFOcooNI9E1W94iQ8KrDZ0=;
-        b=ravFfU/S/tBIzibtKj4QZ4F7gmd7EznlZLFhUdqTeyP5BuwZPBG73WpZmjbG2jVd8Z2XA1
-        FJd/w5kD9h+FKqVpAU/dSXvLcHzhIIHw8sV51LgG5ei5nZI3PHrYS4+8aoEvUDW04VZ2h1
-        Kao/pJOVDlDA40DvW+pBZcJL+OgfAVs=
-Received: from suse.cz (unknown [10.100.201.86])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id A998DA3B9A;
-        Tue, 21 Sep 2021 10:59:56 +0000 (UTC)
-Date:   Tue, 21 Sep 2021 12:59:56 +0200
-From:   Michal Hocko <mhocko@suse.com>
-To:     Vishnu Rangayyan <vishnu.rangayyan@apple.com>
-Cc:     Al Viro <viro@zeniv.linux.org.uk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fs: fix for core dumping of a process getting oom-killed
-Message-ID: <YUm7LLqwrXygzKll@dhcp22.suse.cz>
-References: <9aec4002-754c-ca6d-7caf-9de6e8c31dd7@apple.com>
+        id S232192AbhIULFK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Sep 2021 07:05:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45324 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232174AbhIULFB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Sep 2021 07:05:01 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6036C061574
+        for <stable@vger.kernel.org>; Tue, 21 Sep 2021 04:03:33 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id q23so17008979pfs.9
+        for <stable@vger.kernel.org>; Tue, 21 Sep 2021 04:03:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=VkBEjbXII7qVchV1/rEZ/mvIrfEOgY8t+WUJSWgK9hc=;
+        b=OwS3ar+Qjr6ZbSRtv7umyay9dSakH422B5+bfUyxEdiCrosqlfOtI0wbkJGeBR1Jhg
+         HHEFc5oRmWoFUnF3MgZkY1QgxNuAqkWA0LDZWiaMb2D3QiFRF9HDOqyKMXrOgIFU8Ia+
+         2nJFN4vxGWSrNUVT+aGcTJnwuugeWa5bmuGtIIQbfuCJUVGFNDgGY0lbPSEmglpdQrz3
+         SUDjBw0tYtMMA0eazGGF1hIkKhY7kkstyNhopk008jhF6BuxtyxbcrYwV4jOaAooidRp
+         VpXMfddZQSRMdhyXWtkm9XNUJvLx3EDEAsn6Ab5b+g/5QzZkWZ63Grwe33bqwmGqWkFZ
+         4nSA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=VkBEjbXII7qVchV1/rEZ/mvIrfEOgY8t+WUJSWgK9hc=;
+        b=3kP8TWdJ05Tcfwt5EsYBrFqQ/Ub5OSe4Em1S++UAj6n3qbKFltHzde4n0efdz4Hs5J
+         g4TES7IQ4eIGZLydK7DYV/sPMKau58rnMrBRLu9Z7YmEtM7BGn1FqIXnY8Hz+wuhTh2w
+         ByQ3Tif3Db4ZNiDzc04yV8yTgaa9VlHRUXLji6IzJU8sHeElJWQZGpZffGohvuOqjrSu
+         CyrgLoesYbfo+SxUXZFtPxMSp3mmGNU8yOPArhiGehVCtRMuVFhItoX4BNYcPZ8gdLVK
+         fU1fy4QS1XSGeuv8Fa7i5+mmUdD/OPzj9y1kYF5kpGwwEQFHr+BBejDJZrwp4un8xLY5
+         EfXA==
+X-Gm-Message-State: AOAM5328mbzFmvHgQN8pYK9gijQDoEBf51FVo2yHo4K3JPgYuiXVSvjA
+        XOrOKncNLzKkWor+f+cQnefW0ACcJyx/E5V7
+X-Google-Smtp-Source: ABdhPJzHqEm6MDYHooVG0sNmJSUo7iO7kB/8PEMAtDIOiP/RK0UlLhn23VVzLfpcs5rdgqEgZZBqXg==
+X-Received: by 2002:a63:d34f:: with SMTP id u15mr27795148pgi.200.1632222212913;
+        Tue, 21 Sep 2021 04:03:32 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y9sm1957918pfm.129.2021.09.21.04.03.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Sep 2021 04:03:32 -0700 (PDT)
+Message-ID: <6149bc04.1c69fb81.c23d4.4c94@mx.google.com>
+Date:   Tue, 21 Sep 2021 04:03:32 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9aec4002-754c-ca6d-7caf-9de6e8c31dd7@apple.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.67
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.10.y
+Subject: stable/linux-5.10.y baseline: 166 runs, 4 regressions (v5.10.67)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon 20-09-21 23:38:40, Vishnu Rangayyan wrote:
-> 
-> Processes inside a memcg that get core dumped when there is less memory
-> available in the memcg can have the core dumping interrupted by the
-> oom-killer.
-> We saw this with qemu processes inside a memcg, as in this trace below.
-> The memcg was not out of memory when the core dump was triggered.
+stable/linux-5.10.y baseline: 166 runs, 4 regressions (v5.10.67)
 
-Why is it important to mention that the the memcg was not oom when the
-dump was triggered?
+Regressions Summary
+-------------------
 
-> [201169.028782] qemu-kata-syste invoked oom-killer: gfp_mask=0x101c4a(GFP_NOFS|__GFP_HIGHMEM|__GFP_HARDWALL|__GFP_MOVABLE|__GFP_WRITE),
-> order=0, oom_score_adj=-100
-[...]
-> [201169.028863] memory: usage 12218368kB, limit 12218368kB, failcnt 1728013
+platform          | arch  | lab           | compiler | defconfig          |=
+ regressions
+------------------+-------+---------------+----------+--------------------+=
+------------
+meson-gxbb-p200   | arm64 | lab-baylibre  | gcc-8    | defconfig          |=
+ 1          =
 
-it obviously is for the particular allocation from the core dumping
-code.
+rk3288-veyron-jaq | arm   | lab-collabora | gcc-8    | multi_v7_defconfig |=
+ 3          =
 
-> [201169.028864] memory+swap: usage 12218368kB, limit 9007199254740988kB, failcnt 0
-> [201169.028864] kmem: usage 154424kB, limit 9007199254740988kB, failcnt 0
-> [201169.028880] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=podacfa3d53-2068-4b61-a754-fa21968b4201,mems_allowed=0-1,oom_memcg=/kubepods/burstable/podacfa3d53-2068-4b61-a754-fa21968b4201,task_memcg=/kubepods/burstable/podacfa3d53-2068-4b61-a754-fa21968b4201,task=qemu-kata-syste,pid=1887079,uid=0
-> [201169.028888] Memory cgroup out of memory: Killed process 1887079
-> (qemu-kata-syste) total-vm:13598556kB, anon-rss:39836kB, file-rss:8712kB, shmem-rss:12017992kB, UID:0 pgtables:24204kB oom_score_adj:-100
-> [201169.045201] oom_reaper: reaped process 1887079 (qemu-kata-syste), now anon-rss:0kB, file-rss:28kB, shmem-rss:12018016kB
-> 
-> This change adds an fsync only for regular file core dumps based on a
-> configurable limit core_sync_bytes placed alongside other core dump params
-> and defaults the limit to (an arbitrary value) of 128KB.
-> Setting core_sync_bytes to zero disables the sync.
 
-This doesn't really explain neither the problem nor the solution. Why
-is fsync helping at all? Why do we need a new sysctl to address the
-problem and how does it help to prevent the memcg OOM. Also why is this
-a problem in the first place.
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
+/v5.10.67/plan/baseline/
 
-Have a look at the oom report. It says that only 8MB of the 11GB limit
-is consumed by the file backed memory. The absolute majority (98%) is
-sitting in the shmem and fsync will not help a wee bit there.
--- 
-Michal Hocko
-SUSE Labs
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.10.y
+  Describe: v5.10.67
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      faf816b0f8d0fa8ea24f579fb6a51e5ed3efd750 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch  | lab           | compiler | defconfig          |=
+ regressions
+------------------+-------+---------------+----------+--------------------+=
+------------
+meson-gxbb-p200   | arm64 | lab-baylibre  | gcc-8    | defconfig          |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61498690e25d836ed399a30a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.67/a=
+rm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.67/a=
+rm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61498690e25d836ed399a=
+30b
+        new failure (last pass: v5.10.64) =
+
+ =
+
+
+
+platform          | arch  | lab           | compiler | defconfig          |=
+ regressions
+------------------+-------+---------------+----------+--------------------+=
+------------
+rk3288-veyron-jaq | arm   | lab-collabora | gcc-8    | multi_v7_defconfig |=
+ 3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/614985ada6290bc33399a2e4
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.67/a=
+rm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.67/a=
+rm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/614985ada6290bc33399a2f8
+        failing since 96 days (last pass: v5.10.43, first fail: v5.10.44)
+
+    2021-09-21T07:11:13.484713  /lava-4547514/1/../bin/lava-test-case
+    2021-09-21T07:11:13.501590  <8>[   13.786864] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/614985ada6290bc33399a310
+        failing since 96 days (last pass: v5.10.43, first fail: v5.10.44)
+
+    2021-09-21T07:11:12.060688  /lava-4547514/1/../bin/lava-test-case
+    2021-09-21T07:11:12.079170  <8>[   12.363640] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>
+    2021-09-21T07:11:12.079591  /lava-4547514/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/614985ada6290bc33399a311
+        failing since 96 days (last pass: v5.10.43, first fail: v5.10.44)
+
+    2021-09-21T07:11:11.042642  /lava-4547514/1/../bin/lava-test-case
+    2021-09-21T07:11:11.047862  <8>[   11.344173] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =20
