@@ -2,125 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8160413AA3
-	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 21:20:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B535413AA7
+	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 21:21:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234401AbhIUTWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Sep 2021 15:22:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39850 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230497AbhIUTWI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 Sep 2021 15:22:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B4A3A61166;
-        Tue, 21 Sep 2021 19:20:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632252040;
-        bh=q7cife23GK/op9HiZn/PW1l3DptbjfCu7Z7qN8lqqmI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=DlnU/SggKF1xUzGIMk7bj2Ha0jbqJKQwafZx7/EGhtrsqWJJkjJvhzx1O7LgIqWBM
-         OeOxE7TkpO74osd09pC8Vn/Bv5AkMHIwIRN7g3NgZ/GCi2Ne/szw8elZVp4Al69Hqt
-         3iMJjb3WgXxKEQ0KoKQl9i7ipeRQ0zpBLLt6Pmrh4DMFVsidrrt205rwyjCcPCTnvS
-         pTbs9THHF2dtrTsLgprETdbQehtvkMTlXWpG6oVJBzzhXeO68Lpvm0kUECUSI+OXzl
-         OqbuqEYPWZ65/HaZjq6o9tSVTU3y1tMGFE2YR+hWTTZlgkcO8eYk79Vy8R2T69nwIA
-         QRrR8c5txiQSQ==
-Date:   Tue, 21 Sep 2021 15:20:38 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Arnd Bergmann <arnd@kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Lukas Hannen <lukas.hannen@opensource.tttech-industrial.com>
-Subject: Re: [PATCH 5.14 298/334] time: Handle negative seconds correctly in
- timespec64_to_ns()
-Message-ID: <YUowhlVfLiLWE8K/@sashalap>
-References: <20210913131113.390368911@linuxfoundation.org>
- <20210913131123.500712780@linuxfoundation.org>
- <CAK8P3a0z5jE=Z3Ps5bFTCFT7CHZR1JQ8VhdntDJAfsUxSPCcEw@mail.gmail.com>
- <874kak9moe.ffs@tglx>
- <YURQ4ZFDJ8E9MJZM@kroah.com>
- <87sfy38p1o.ffs@tglx>
- <YUSyKQwdpfSTbQ4H@kroah.com>
- <87ee9n80gz.ffs@tglx>
- <YUYJ8WeOzPVwj16y@kroah.com>
- <YUibLGZAVgqiyCUq@sashalap>
+        id S231166AbhIUTXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Sep 2021 15:23:08 -0400
+Received: from smtp-relay-internal-1.canonical.com ([185.125.188.123]:60538
+        "EHLO smtp-relay-internal-1.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229915AbhIUTXH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Sep 2021 15:23:07 -0400
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com [209.85.166.69])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id CE5B93F226
+        for <stable@vger.kernel.org>; Tue, 21 Sep 2021 19:21:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1632252097;
+        bh=qmARoOxotWCp+s1/u/VWZI2RoTZae8SIB5BQKHCc438=;
+        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
+        b=iNjk71EvMLotZIuVD5FVDy3nybgiwG1jgIkv8LSQIAtpWZ3riRp7jOuRMTU0oI8L9
+         jKIE/ivmlC6Nkvc31FS3pkklYDnRoEi8CoDxNljbPji2VHpbeFPzQHqqLb4NmR/W4P
+         Tg5DB4M38G9pLaJQ/rhY9fQ6tc1WI8Kv4NSQ3eNpb65/IPD/xNtnMgTEc6KipUKMK2
+         UGzdpUvSheJCBKjYXnmoQnHAqzI2rf0tT+XeutAB4fW+c9JndInSMPcz5x/mBgQ86o
+         rgprcxHdAmMZO7mxH5S3BnrGB7ucSrNJ06tF+KUOSxvjr9wrnktd9Bwj3RQ4BysIe5
+         z2tYBZxhugqzg==
+Received: by mail-io1-f69.google.com with SMTP id s12-20020a056602168c00b005d611510e15so189071iow.1
+        for <stable@vger.kernel.org>; Tue, 21 Sep 2021 12:21:37 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=qmARoOxotWCp+s1/u/VWZI2RoTZae8SIB5BQKHCc438=;
+        b=VOaUhTB+ksJx8/rxjJI8FshYaPobxuhB2XHzUaw/bEcSnxAUmqjJAt0guMLA/Am9/i
+         oz7SU2z9mPptMU4dLBLDeZ+9Ixffmr2sHh5oZ+Rjye5OP3tq+XWcLBfY4gz1j2AekQZe
+         C0b3H0Dq0336WrxALfwvqeqgRt5A4WZQj4wCkKPpvK/29xM0nSyxQC9JyoZj59o7mIcX
+         cpOIERYx0jKONkUqpoW1UCbyOcNs1c3Egr9J/pUygkkNsKQra8cQE085zYZryXtfyG0U
+         XwhcCKAqq5n7vr4Zoge2C8n0h4uRsgTDtApdw8r3RnBlCLszEy4yC80K3TKM5Md9H7Wd
+         STJA==
+X-Gm-Message-State: AOAM530xjoGK+mHbw3A/gKiTNOo3052QVQPF85uVv89OouD46P0RCDVL
+        UgK8qJkOoLKELdpDkCtr1Tz5tbCN6Ur12Tj1n75PDNgRgjXdXvjETIqhXdwo1fmYCfxT1L5r0Im
+        M05amBHpCXZ62qVXmtZI6+3bTPZhzuK3y+w==
+X-Received: by 2002:a92:650c:: with SMTP id z12mr23441180ilb.87.1632252096059;
+        Tue, 21 Sep 2021 12:21:36 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyYY9Pdd8xLbmRlz9tMlODYXAZfgIchv3uU411Zb7nCNWH9oVo8GKJD/Fj9iaz3U2Zuuo2eBA==
+X-Received: by 2002:a92:650c:: with SMTP id z12mr23441168ilb.87.1632252095794;
+        Tue, 21 Sep 2021 12:21:35 -0700 (PDT)
+Received: from localhost (c-71-56-235-36.hsd1.co.comcast.net. [71.56.235.36])
+        by smtp.gmail.com with ESMTPSA id o1sm1024850ilj.41.2021.09.21.12.21.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Sep 2021 12:21:34 -0700 (PDT)
+From:   dann frazier <dann.frazier@canonical.com>
+To:     stable@vger.kernel.org
+Cc:     Tuan Phan <tuanphan@os.amperecomputing.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.4] PCI/ACPI: Add Ampere Altra SOC MCFG quirk
+Date:   Tue, 21 Sep 2021 13:20:38 -0600
+Message-Id: <20210921192038.3024844-1-dann.frazier@canonical.com>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <YUibLGZAVgqiyCUq@sashalap>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 20, 2021 at 10:31:08AM -0400, Sasha Levin wrote:
->On Sat, Sep 18, 2021 at 05:46:57PM +0200, Greg Kroah-Hartman wrote:
->>On Fri, Sep 17, 2021 at 09:29:32PM +0200, Thomas Gleixner wrote:
->>>Greg,
->>>
->>>On Fri, Sep 17 2021 at 17:20, Greg Kroah-Hartman wrote:
->>>> On Fri, Sep 17, 2021 at 12:38:43PM +0200, Thomas Gleixner wrote:
->>>>> Nah. I try to pay more attention. I'm not against AUTOSEL per se, but
->>>>> could we change the rules slightly?
->>>>>
->>>>> Any change which is selected by AUTOSEL and lacks a Cc: stable@... is
->>>>> put on hold until acked by the maintainer unless it is a prerequisite
->>>>> for applying a stable tagged fix?
->>>>>
->>>>> This can be default off and made effective on maintainer request.
->>>>>
->>>>> Hmm?
->>>>
->>>> The whole point of the AUTOSEL patches are for the huge numbers of
->>>> subsystems where maintainers and developers do not care about the stable
->>>> trees at all, and so they do not mark patches to be backported.  So
->>>> requireing an opt-in like this would defeat the purpose.
->>>>
->>>> We do allow the ability to take files/subsystems out of the AUTOSEL
->>>> process as there are many maintainers that do do this right and get
->>>> annoyed when patches are picked that they feel shouldn't have.  That's
->>>> the best thing we can do for stuff like this.
->>>
->>>I guess I was not able to express myself correctly. What I wanted to say
->>>is:
->>>
->>>  1) Default is AUTOSEL
->>>
->>>  2) Maintainer can take files/subsystems out of AUTOSEL completely
->>>
->>>     Exists today
->>>
->>>  3) Maintainer allows AUTOSEL, but anything picked from files/subsystems
->>>     without a stable tag requires an explicit ACK from the maintainer
->>>     for the backport.
->>>
->>>     Is new and I would be the first to opt-in :)
->>>
->>>My rationale for #3 is that even when being careful about stable tags,
->>>it happens that one is missing. Occasionaly AUTOSEL finds one of those
->>>in my subsystems which I appreciate.
->>>
->>>Does that make more sense now?
->>
->>Ah, yes, that makes much more sense, sorry for the confusion.
->>
->>Sasha, what do you think?  You are the one that scripts all of this, not
->>me :)
->
->I could give it a go. It adds some complexity here but is probably worth
->it to avoid issues.
->
->Let me think about the best way to go about it.
+From: Tuan Phan <tuanphan@os.amperecomputing.com>
 
-So I'm thinking of yet another patch series that would go out, but
-instead of AUTOSEL it'll be tagged with "MANUALSEL". It would work the
-exact same way as AUTOSEL, without the final step of queueing up the
-commits into the stable trees.
+commit 877c1a5f79c6984bbe3f2924234c08e2f4f1acd5 upstream.
 
-Thomas, do you want to give it a go? Want to describe how I filter for
-commits you'd be taking care of? In the past I'd grep a combo of paths
-and committers (i.e. net/ && davem@), but you have your hands in too
-many things :)
+Ampere Altra SOC supports only 32-bit ECAM reads.  Add an MCFG quirk for
+the platform.
 
+Link: https://lore.kernel.org/r/1596751055-12316-1-git-send-email-tuanphan@os.amperecomputing.com
+Signed-off-by: Tuan Phan <tuanphan@os.amperecomputing.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+[ dannf: backport drops const qualifier from pci_32b_read_ops for
+  consistency with the other quirks that weren't yet constified in v5.4 ]
+Signed-off-by: dann frazier <dann.frazier@canonical.com>
+---
+ drivers/acpi/pci_mcfg.c  | 20 ++++++++++++++++++++
+ drivers/pci/ecam.c       | 10 ++++++++++
+ include/linux/pci-ecam.h |  1 +
+ 3 files changed, 31 insertions(+)
+
+diff --git a/drivers/acpi/pci_mcfg.c b/drivers/acpi/pci_mcfg.c
+index 6b347d9920cc..47e43c949825 100644
+--- a/drivers/acpi/pci_mcfg.c
++++ b/drivers/acpi/pci_mcfg.c
+@@ -142,6 +142,26 @@ static struct mcfg_fixup mcfg_quirks[] = {
+ 	XGENE_V2_ECAM_MCFG(4, 0),
+ 	XGENE_V2_ECAM_MCFG(4, 1),
+ 	XGENE_V2_ECAM_MCFG(4, 2),
++
++#define ALTRA_ECAM_QUIRK(rev, seg) \
++	{ "Ampere", "Altra   ", rev, seg, MCFG_BUS_ANY, &pci_32b_read_ops }
++
++	ALTRA_ECAM_QUIRK(1, 0),
++	ALTRA_ECAM_QUIRK(1, 1),
++	ALTRA_ECAM_QUIRK(1, 2),
++	ALTRA_ECAM_QUIRK(1, 3),
++	ALTRA_ECAM_QUIRK(1, 4),
++	ALTRA_ECAM_QUIRK(1, 5),
++	ALTRA_ECAM_QUIRK(1, 6),
++	ALTRA_ECAM_QUIRK(1, 7),
++	ALTRA_ECAM_QUIRK(1, 8),
++	ALTRA_ECAM_QUIRK(1, 9),
++	ALTRA_ECAM_QUIRK(1, 10),
++	ALTRA_ECAM_QUIRK(1, 11),
++	ALTRA_ECAM_QUIRK(1, 12),
++	ALTRA_ECAM_QUIRK(1, 13),
++	ALTRA_ECAM_QUIRK(1, 14),
++	ALTRA_ECAM_QUIRK(1, 15),
+ };
+ 
+ static char mcfg_oem_id[ACPI_OEM_ID_SIZE];
+diff --git a/drivers/pci/ecam.c b/drivers/pci/ecam.c
+index 1a81af0ba961..9765d2eb79d2 100644
+--- a/drivers/pci/ecam.c
++++ b/drivers/pci/ecam.c
+@@ -164,4 +164,14 @@ struct pci_ecam_ops pci_32b_ops = {
+ 		.write		= pci_generic_config_write32,
+ 	}
+ };
++
++/* ECAM ops for 32-bit read only (non-compliant) */
++struct pci_ecam_ops pci_32b_read_ops = {
++	.bus_shift	= 20,
++	.pci_ops	= {
++		.map_bus	= pci_ecam_map_bus,
++		.read		= pci_generic_config_read32,
++		.write		= pci_generic_config_write,
++	}
++};
+ #endif
+diff --git a/include/linux/pci-ecam.h b/include/linux/pci-ecam.h
+index a73164c85e78..75456a66024a 100644
+--- a/include/linux/pci-ecam.h
++++ b/include/linux/pci-ecam.h
+@@ -51,6 +51,7 @@ extern struct pci_ecam_ops pci_generic_ecam_ops;
+ 
+ #if defined(CONFIG_ACPI) && defined(CONFIG_PCI_QUIRKS)
+ extern struct pci_ecam_ops pci_32b_ops;		/* 32-bit accesses only */
++extern struct pci_ecam_ops pci_32b_read_ops; /* 32-bit read only */
+ extern struct pci_ecam_ops hisi_pcie_ops;	/* HiSilicon */
+ extern struct pci_ecam_ops thunder_pem_ecam_ops; /* Cavium ThunderX 1.x & 2.x */
+ extern struct pci_ecam_ops pci_thunder_ecam_ops; /* Cavium ThunderX 1.x */
 -- 
-Thanks,
-Sasha
+2.25.1
+
