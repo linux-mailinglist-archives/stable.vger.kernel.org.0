@@ -2,162 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45E034134CE
-	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 15:48:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 280FE4134FA
+	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 16:04:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233404AbhIUNt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Sep 2021 09:49:57 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:65530 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S233428AbhIUNtx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Sep 2021 09:49:53 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18LDRCw5016875;
-        Tue, 21 Sep 2021 09:48:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-type :
- content-transfer-encoding; s=pp1;
- bh=SqvjPubLHu3KNaK7W4fiBVIRY7dIc0KmJSzZMlI/9XQ=;
- b=BJSR3o0ywsskBTD7pqQfXHnpni8POe/BnWxV3TtfXZJmSsv8fZVm8DvWm5TAwuE4x0HA
- ncTkwjKnpudnohp5b3iMhDMHHUDYjKHQh0Os2H4LpsBKgyn4hr/WsSkwvrEdVtFB1kPc
- aJp/GdD5Ex8M/UqJ1nh1jNEFl2/5QL+VNgVbYQPn4V+h30z4WxQF59htjnWDMc4oJVsj
- bTS/pLlfZ/oIbjUJTEoV9Oj1TswX0KMN7HJVWwHiRiiqX/ywick2EIeIbKhIy7IckupF
- ThRgE2wQU2k7+f9qU013Wpk/9BBJTEulQFO40IzgVXesO7pRyefW5I92HkPpf9743cv/ Tw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3b7b7u15ka-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Sep 2021 09:48:24 -0400
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18LDWtef030148;
-        Tue, 21 Sep 2021 09:48:24 -0400
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3b7b7u15jn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Sep 2021 09:48:24 -0400
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18LDhGFC029879;
-        Tue, 21 Sep 2021 13:48:22 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma02fra.de.ibm.com with ESMTP id 3b57r9cn27-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Sep 2021 13:48:22 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18LDmGKs56557870
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 21 Sep 2021 13:48:16 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 80C5511C058;
-        Tue, 21 Sep 2021 13:48:16 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7656F11C06C;
-        Tue, 21 Sep 2021 13:48:16 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Tue, 21 Sep 2021 13:48:16 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
-        id 11939E07EE; Tue, 21 Sep 2021 15:48:16 +0200 (CEST)
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, KVM <kvm@vger.kernel.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH] [backport for 4.19/5.4 stable] KVM: remember position in kvm->vcpus array
-Date:   Tue, 21 Sep 2021 15:48:15 +0200
-Message-Id: <20210921134815.17615-1-borntraeger@de.ibm.com>
-X-Mailer: git-send-email 2.31.1
+        id S231781AbhIUOFv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Sep 2021 10:05:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58912 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233469AbhIUOFu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Sep 2021 10:05:50 -0400
+Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28AF1C061574
+        for <stable@vger.kernel.org>; Tue, 21 Sep 2021 07:04:22 -0700 (PDT)
+Received: by mail-il1-x134.google.com with SMTP id x2so8291637ilm.2
+        for <stable@vger.kernel.org>; Tue, 21 Sep 2021 07:04:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=JBfmWO8YuHksDLM0tZii9fOthBDpexUuMKCylGu88Cw=;
+        b=EHWeL1VMJ/v0SHwQlZV/FP0kMr9RauCFK81LrN190g6hbeMK6qEq8f4CFTfRv6uJuy
+         bg2snEvcsMYDVnI+39v3QOajGPsWX1kxzQifuLHuxYZs1D9zX7pl7gwEd26xSthGts9j
+         dut0xFNloWL2FBrHQBmz0H/W8+ltBxHV8SmXU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=JBfmWO8YuHksDLM0tZii9fOthBDpexUuMKCylGu88Cw=;
+        b=NyF4oGts/1osuYOhmOagBHz5Ccc1UFfPpyN/FbVWdMJEmSn9VKO2j20qbC7IV2B1bi
+         xq0cYeGGXaEXdbVAkb/EcYYkn1UxtppoLXHZmrqIgaRl5iIztNG6fhM72EYKiqnR3F2J
+         0IjDSBWTlR62A+6Ifg+SwzeqphkMenJOpt0RMVwZKo+gn+/MVsfarAh0C8ckElbuwmXP
+         DVim2HQdx0XXW3Ab91g0Sb6GIqph5be9fhrORX2Us405YhpAjas5Gvf9GRUf6VXLT6Qr
+         63hiAT2OUrPCsxQ3lTND0v5bsv+Sl1L6cFaC5IQD96ZMn0YN8Lotg6DO8vCLOCpGwB60
+         b3Ag==
+X-Gm-Message-State: AOAM532FqYJbkBRohFZx+eciTSHugjf6qxIwZ7a7omwr9WHrnQ+qrrZZ
+        eJfm8INk8KQFX4gU4RauxeJxHw==
+X-Google-Smtp-Source: ABdhPJwDZOKXXkc2LfAl7W3Xs7JKt3pUECGqbtWXsGxtUfr/lL+S3U5ITF72sGHxthGSciZ7S5ztoA==
+X-Received: by 2002:a92:c888:: with SMTP id w8mr21524545ilo.188.1632233060550;
+        Tue, 21 Sep 2021 07:04:20 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id w1sm10581557ilj.55.2021.09.21.07.04.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 21 Sep 2021 07:04:20 -0700 (PDT)
+Subject: Re: [PATCH 5.14 000/168] 5.14.7-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20210920163921.633181900@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <29059709-73e2-ac7f-7045-fc1e922b3632@linuxfoundation.org>
+Date:   Tue, 21 Sep 2021 08:04:19 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: -3tHm8Y9-2rczQ5iTOgfj_3orM6YaSxR
-X-Proofpoint-ORIG-GUID: TPsZ7XBaaKlxAjJfmxJqnu_jZzmh6rV8
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-09-21_01,2021-09-20_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=430
- lowpriorityscore=0 malwarescore=0 clxscore=1015 bulkscore=0
- priorityscore=1501 spamscore=0 impostorscore=0 adultscore=0 phishscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109030001 definitions=main-2109210083
+In-Reply-To: <20210920163921.633181900@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Radim Krčmář <rkrcmar@redhat.com>
+On 9/20/21 10:42 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.14.7 release.
+> There are 168 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 22 Sep 2021 16:38:49 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.7-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Fetching an index for any vcpu in kvm->vcpus array by traversing
-the entire array everytime is costly.
-This patch remembers the position of each vcpu in kvm->vcpus array
-by storing it in vcpus_idx under kvm_vcpu structure.
+Compiled and booted on my test system. No dmesg regressions.
 
-Signed-off-by: Radim Krčmář <rkrcmar@redhat.com>
-Signed-off-by: Nitesh Narayan Lal <nitesh@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[borntraeger@de.ibm.com]: backport to 4.19 (also fits for 5.4)
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- include/linux/kvm_host.h | 11 +++--------
- virt/kvm/kvm_main.c      |  5 +++--
- 2 files changed, 6 insertions(+), 10 deletions(-)
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 8dd4ebb58e97..827f70ce0b49 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -248,7 +248,8 @@ struct kvm_vcpu {
- 	struct preempt_notifier preempt_notifier;
- #endif
- 	int cpu;
--	int vcpu_id;
-+	int vcpu_id; /* id given by userspace at creation */
-+	int vcpu_idx; /* index in kvm->vcpus array */
- 	int srcu_idx;
- 	int mode;
- 	u64 requests;
-@@ -551,13 +552,7 @@ static inline struct kvm_vcpu *kvm_get_vcpu_by_id(struct kvm *kvm, int id)
- 
- static inline int kvm_vcpu_get_idx(struct kvm_vcpu *vcpu)
- {
--	struct kvm_vcpu *tmp;
--	int idx;
--
--	kvm_for_each_vcpu(idx, tmp, vcpu->kvm)
--		if (tmp == vcpu)
--			return idx;
--	BUG();
-+	return vcpu->vcpu_idx;
- }
- 
- #define kvm_for_each_memslot(memslot, slots)	\
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index a3d82113ae1c..86ef740763b5 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2751,7 +2751,8 @@ static int kvm_vm_ioctl_create_vcpu(struct kvm *kvm, u32 id)
- 		goto unlock_vcpu_destroy;
- 	}
- 
--	BUG_ON(kvm->vcpus[atomic_read(&kvm->online_vcpus)]);
-+	vcpu->vcpu_idx = atomic_read(&kvm->online_vcpus);
-+	BUG_ON(kvm->vcpus[vcpu->vcpu_idx]);
- 
- 	/* Now it's all set up, let userspace reach it */
- 	kvm_get_kvm(kvm);
-@@ -2761,7 +2762,7 @@ static int kvm_vm_ioctl_create_vcpu(struct kvm *kvm, u32 id)
- 		goto unlock_vcpu_destroy;
- 	}
- 
--	kvm->vcpus[atomic_read(&kvm->online_vcpus)] = vcpu;
-+	kvm->vcpus[vcpu->vcpu_idx] = vcpu;
- 
- 	/*
- 	 * Pairs with smp_rmb() in kvm_get_vcpu.  Write kvm->vcpus
--- 
-2.31.1
+thanks,
+-- Shuah
 
