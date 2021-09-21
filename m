@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A9F04130B4
-	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 11:22:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 729684130C2
+	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 11:28:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231426AbhIUJX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Sep 2021 05:23:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50376 "EHLO
+        id S231351AbhIUJ3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Sep 2021 05:29:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231425AbhIUJX0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Sep 2021 05:23:26 -0400
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AAD8C061574
-        for <stable@vger.kernel.org>; Tue, 21 Sep 2021 02:21:58 -0700 (PDT)
-Received: by mail-pg1-x52d.google.com with SMTP id r2so20132519pgl.10
-        for <stable@vger.kernel.org>; Tue, 21 Sep 2021 02:21:58 -0700 (PDT)
+        with ESMTP id S231301AbhIUJ3f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Sep 2021 05:29:35 -0400
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 337B0C061574
+        for <stable@vger.kernel.org>; Tue, 21 Sep 2021 02:28:07 -0700 (PDT)
+Received: by mail-pf1-x42e.google.com with SMTP id w14so8389461pfu.2
+        for <stable@vger.kernel.org>; Tue, 21 Sep 2021 02:28:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=SnQIKpMSlY2irBiY3VWFWHJA6ZP+UhnQ4W7F66YYTy8=;
-        b=RtNaQi4kmc4ABFf2OcgS5z/rPTjo+yEGKyqaAeh3dukmC7VUFQ/9hd7EevETKtm45R
-         wNHAmEf08LpGqFimqHpKLiuVpMNA4tF3JGx3a5t7weagtj4iMlYCb8kpvugMK/D8Y+yF
-         GGwLz0RzLxotnW+aixPxw7YVFwmZzYh09MmyGN115KvD9G2f2lk/htSxjqqTJZdRKDyW
-         x8rZ5tl3qFllPJjAyxrDnAdBArUzjUutQt8Js1eZmS/ymvdIpv/07BwmCbLzeaz51zp1
-         1el0GOw94+lcF7dHEpNPwZBVy+qAbyQcdL1ei0/yRfn5aiOIPOEDDFvhWaVf0rGzjx4E
-         a72Q==
+        bh=xD4ZsuK97/NdWK7aTlKRDsGpIZfLbS7pnR9d2YsS/rI=;
+        b=cD/t0WzeZolYwVdayZQfKdKOGELjw68fj3L/GZbdx+Ar8cQN2rDWeWggb/NzwlnD92
+         X6vjy0i3E0vADKNMIDJO/bV0h519pEAABpWpN5YEvjCeWycI92roF5wytwVm4Tmq7V1u
+         /VYJJaQt58aOnycF/0zvQuwR3/Y22AS2O9Pl1TWaASBHC/GHGsIgQqAnHat3+KkKFYhc
+         8VG4iAuNT/rR+/Y2ZuRyLy7deQ0bHadsozO6pWC8HY3WS59C7LJ3mheBXUTXxZeLp9g+
+         4LwH5lz00w7Ocoks5ABaJNs9WRTZV2vyP1581pZi2dG2b1iDVcSq1JsNqkJjvQlGbslE
+         lniA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=SnQIKpMSlY2irBiY3VWFWHJA6ZP+UhnQ4W7F66YYTy8=;
-        b=g+4mRzdBVjsl++7zBpFO4Ne6a26fIJRpbVZ3FiUVszXzDh+zlLchrQLfnqAXzI+jbj
-         BJD5jGRCCUnLh+nRmE13b3QBmayg4zg5s603LQ2SLaI9DEw8qq0e21GizlRDxULHFxom
-         HjwdoT3pZ413ogmgwAQaqg1YHjzgAN/b/TuK722KOKab9GWn2sUOtIfRejfKXGgXpGCR
-         woSdFYyP/ULNjaD7agyYbN8Bay+2i4HEXufmCGVyHcsJ+IQNu77RJJASL4XM0zPOXcrN
-         l3LyvVe4tSxaqgY6mH48UzMlsOYwYbvJ765ybvDaW0E8GLaIX/TxLCaMwOWlB4GiMfim
-         p6sg==
-X-Gm-Message-State: AOAM530w2xRC4DGu0BWjDkf3as6k0g6HBhbYCSlEqiASk9b8mUEYbLui
-        /xDoazwbC4EFuge4WM2hOA4o9F4s7qQrb30L
-X-Google-Smtp-Source: ABdhPJwF/gYyNFZwNptHhyNmppZlu2H/tEQe2o4K3zComYErwzWZjax695utbuuX4Ie65nExFkwZmQ==
-X-Received: by 2002:a63:33cb:: with SMTP id z194mr27585337pgz.380.1632216116948;
-        Tue, 21 Sep 2021 02:21:56 -0700 (PDT)
+        bh=xD4ZsuK97/NdWK7aTlKRDsGpIZfLbS7pnR9d2YsS/rI=;
+        b=Ec29iX+0n3rfFPq9oaUf225m1quSQC6qu9tOpLY1WftNvah/sq0+lHklqGxeowPO4z
+         mNwKJGtO9QRutz2K6uOFf8Ir8yLlxWHXujwLMF8IG6IK0ALYaTHZ+rHVefWmAThMOSEI
+         VGhMX3HsEqrIFraa8G5XliWDhsJJF8jOv8fIKgZ+EeQy5bunEbXjlXHc5VdIhOlGuuiw
+         4q3aE0N05AHyEwzYy9iGKvQRZ589zIbstaT2QYR+Q6CQhjote36bPSCUnXHx8cGMgHke
+         9bwyyZjW/9Co3tR6ZDs1D+M73pNSNJsnBrNC1ejI1w+2nNginSKJNpNs345FI7fo7UOu
+         vNmw==
+X-Gm-Message-State: AOAM532RD0P6CpEdx7k5KVblz8ECMlq+lO5HCFJucmnXhKjiOoBHKhjR
+        VUVWgQ7+/aXlhPAptcZdYormwZWOpDG/ht5o
+X-Google-Smtp-Source: ABdhPJy4Cn4jm6arUkjwAzqBCxufOpjkBFTb2v3T6Hj3qGrhOdItt9hSLwQWRVMBpX3+jklqUFPM7A==
+X-Received: by 2002:a62:55c2:0:b0:3ec:c066:495c with SMTP id j185-20020a6255c2000000b003ecc066495cmr29833168pfb.38.1632216485649;
+        Tue, 21 Sep 2021 02:28:05 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y3sm18526809pge.44.2021.09.21.02.21.56
+        by smtp.gmail.com with ESMTPSA id mt17sm1929385pjb.38.2021.09.21.02.28.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Sep 2021 02:21:56 -0700 (PDT)
-Message-ID: <6149a434.1c69fb81.234fb.747a@mx.google.com>
-Date:   Tue, 21 Sep 2021 02:21:56 -0700 (PDT)
+        Tue, 21 Sep 2021 02:28:05 -0700 (PDT)
+Message-ID: <6149a5a5.1c69fb81.aabf9.673b@mx.google.com>
+Date:   Tue, 21 Sep 2021 02:28:05 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.147-261-g9f540728b6a3
+X-Kernelci-Kernel: v4.19.206-294-g9a707376d65f
 X-Kernelci-Report-Type: build
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.4.y
-Subject: stable-rc/linux-5.4.y build: 186 builds: 0 failed, 186 passed,
- 10 warnings (v5.4.147-261-g9f540728b6a3)
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y build: 192 builds: 0 failed, 192 passed,
+ 4 warnings (v4.19.206-294-g9a707376d65f)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,68 +65,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y build: 186 builds: 0 failed, 186 passed, 10 warnings =
-(v5.4.147-261-g9f540728b6a3)
+stable-rc/linux-4.19.y build: 192 builds: 0 failed, 192 passed, 4 warnings =
+(v4.19.206-294-g9a707376d65f)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.147-261-g9f540728b6a3/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.206-294-g9a707376d65f/
 
 Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.147-261-g9f540728b6a3
-Git Commit: 9f540728b6a345a2a70420f891d351c4397d3849
+Branch: linux-4.19.y
+Git Describe: v4.19.206-294-g9a707376d65f
+Git Commit: 9a707376d65f32dd46cc29db2659bd600c431b5f
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 7 unique architectures
+Built: 6 unique architectures
 
 Warnings Detected:
 
 arc:
 
 arm64:
-    defconfig (gcc-8): 2 warnings
 
 arm:
-    assabet_defconfig (gcc-8): 1 warning
-    collie_defconfig (gcc-8): 1 warning
-    h3600_defconfig (gcc-8): 1 warning
-    neponset_defconfig (gcc-8): 1 warning
-    shannon_defconfig (gcc-8): 1 warning
 
 i386:
 
 mips:
-
-riscv:
-    defconfig (gcc-8): 3 warnings
+    lemote2f_defconfig (gcc-8): 1 warning
+    loongson3_defconfig (gcc-8): 1 warning
+    malta_qemu_32r6_defconfig (gcc-8): 1 warning
+    nlm_xlp_defconfig (gcc-8): 1 warning
 
 x86_64:
 
 
 Warnings summary:
 
-    5    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_=
-min_dma_period=E2=80=99 defined but not used [-Wunused-function]
-    2    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer=
- to integer of different size [-Wpointer-to-int-cast]
-    1    include/linux/of_clk.h:13:31: warning: =E2=80=98struct of_device_i=
-d=E2=80=99 declared inside parameter list will not be visible outside of th=
-is definition or declaration
-    1    include/linux/of_clk.h:12:43: warning: =E2=80=98struct device_node=
-=E2=80=99 declared inside parameter list will not be visible outside of thi=
-s definition or declaration
-    1    include/linux/of_clk.h:11:45: warning: =E2=80=98struct device_node=
-=E2=80=99 declared inside parameter list will not be visible outside of thi=
-s definition or declaration
-
-Section mismatches summary:
-
-    1    WARNING: vmlinux.o(.text.unlikely+0x3458): Section mismatch in ref=
-erence from the function pmax_setup_memory_region() to the function .init.t=
-ext:add_memory_region()
-    1    WARNING: vmlinux.o(.text.unlikely+0x30f4): Section mismatch in ref=
-erence from the function pmax_setup_memory_region() to the function .init.t=
-ext:add_memory_region()
+    3    net/core/rtnetlink.c:3191:1: warning: the frame size of 1312 bytes=
+ is larger than 1024 bytes [-Wframe-larger-than=3D]
+    1    {standard input}:131: Warning: macro instruction expanded into mul=
+tiple instructions
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -139,6 +116,16 @@ Detailed per-defconfig build reports:
 -----
 32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -177,12 +164,8 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
-ma_period=E2=80=99 defined but not used [-Wunused-function]
+assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -296,12 +279,8 @@ colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
 
 ---------------------------------------------------------------------------=
 -----
-collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
-ma_period=E2=80=99 defined but not used [-Wunused-function]
+collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -320,55 +299,13 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-decstation_64_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
 decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
-Section mismatches:
-    WARNING: vmlinux.o(.text.unlikely+0x3458): Section mismatch in referenc=
-e from the function pmax_setup_memory_region() to the function .init.text:a=
-dd_memory_region()
-
 ---------------------------------------------------------------------------=
 -----
-decstation_r4k_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
-Section mismatches:
-    WARNING: vmlinux.o(.text.unlikely+0x30f4): Section mismatch in referenc=
-e from the function pmax_setup_memory_region() to the function .init.text:a=
-dd_memory_region()
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section mi=
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
-
-Warnings:
-    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
-nteger of different size [-Wpointer-to-int-cast]
-    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
-nteger of different size [-Wpointer-to-int-cast]
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section mi=
-smatches
-
-Warnings:
-    include/linux/of_clk.h:11:45: warning: =E2=80=98struct device_node=E2=
-=80=99 declared inside parameter list will not be visible outside of this d=
-efinition or declaration
-    include/linux/of_clk.h:12:43: warning: =E2=80=98struct device_node=E2=
-=80=99 declared inside parameter list will not be visible outside of this d=
-efinition or declaration
-    include/linux/of_clk.h:13:31: warning: =E2=80=98struct of_device_id=E2=
-=80=99 declared inside parameter list will not be visible outside of this d=
-efinition or declaration
 
 ---------------------------------------------------------------------------=
 -----
@@ -442,12 +379,8 @@ gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
-ma_period=E2=80=99 defined but not used [-Wunused-function]
+h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -506,7 +439,17 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
+iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
 iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
 ---------------------------------------------------------------------------=
@@ -546,6 +489,11 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
 lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
@@ -556,8 +504,12 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    net/core/rtnetlink.c:3191:1: warning: the frame size of 1312 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -571,8 +523,12 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    net/core/rtnetlink.c:3191:1: warning: the frame size of 1312 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -621,8 +577,12 @@ s, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
+
+Warnings:
+    {standard input}:131: Warning: macro instruction expanded into multiple=
+ instructions
 
 ---------------------------------------------------------------------------=
 -----
@@ -653,11 +613,6 @@ maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 -----
 markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
----------------------------------------------------------------------------=
------
-milbeaut_m10v_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -731,12 +686,8 @@ mismatches
 
 ---------------------------------------------------------------------------=
 -----
-neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
-ma_period=E2=80=99 defined but not used [-Wunused-function]
+neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -745,13 +696,22 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
+netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
 nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    net/core/rtnetlink.c:3191:1: warning: the frame size of 1312 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -777,6 +737,21 @@ section mismatches
 -----
 nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
 , 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -875,6 +850,11 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
 rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
@@ -930,12 +910,8 @@ sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
 
 ---------------------------------------------------------------------------=
 -----
-shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
-ma_period=E2=80=99 defined but not used [-Wunused-function]
+shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
