@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 235C9413580
-	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 16:38:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD683413581
+	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 16:38:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233621AbhIUOkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Sep 2021 10:40:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34686 "EHLO mail.kernel.org"
+        id S233668AbhIUOkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Sep 2021 10:40:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233606AbhIUOkJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 Sep 2021 10:40:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BB9B60F6E;
-        Tue, 21 Sep 2021 14:38:40 +0000 (UTC)
+        id S233606AbhIUOkL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Sep 2021 10:40:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55603611C5;
+        Tue, 21 Sep 2021 14:38:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632235120;
-        bh=YwsPvQ3KNTQpV14OdD5UQKybu2xIpUABeibO5Pemy5Y=;
+        s=korg; t=1632235122;
+        bh=e7Xq/jOzv23dVN0G+Hl60gtN8vZshw2BkdC0q7EkcoI=;
         h=Subject:To:From:Date:From;
-        b=voKZHCY74taRWxrMhFNlSJWCjONVqfkED+/uHMeIpX0FSfh4Jv+334spaPzbXEU9D
-         cttQbuqjur5P47DbhsjoMZfNiJeL29mhvNY94tgsUHCZ323nmGQakX4RzoCPFDoF+7
-         GuXl833uIdoTzaz5jBSodqnERzebapfzAQCvZCeM=
-Subject: patch "usb-storage: Add quirk for ScanLogic SL11R-IDE older than 2.6c" added to usb-linus
-To:     linux@zary.sk, gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        stern@rowland.harvard.edu
+        b=HN1rhEB0FfBMPXFPTFuN9fs3u3ENlak303pbkT9BubzeO8HuKaCup5ZqPj8LUpX0N
+         aWIgrbQuCg9v0NMj7uT9VwthIXKkl1pm671mQud9QcoS+RgiMWDwzD4FZ+sYBzlm1l
+         9s2UJuvTSgeVXj5Ub5FsJH8fL/Uy6eUkV4OXsakk=
+Subject: patch "usb: musb: tusb6010: uninitialized data in" added to usb-linus
+To:     dan.carpenter@oracle.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 21 Sep 2021 16:38:30 +0200
-Message-ID: <1632235110699@kroah.com>
+Date:   Tue, 21 Sep 2021 16:38:31 +0200
+Message-ID: <1632235111146244@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb-storage: Add quirk for ScanLogic SL11R-IDE older than 2.6c
+    usb: musb: tusb6010: uninitialized data in
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,63 +51,37 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From b55d37ef6b7db3eda9b4495a8d9b0a944ee8c67d Mon Sep 17 00:00:00 2001
-From: Ondrej Zary <linux@zary.sk>
-Date: Mon, 13 Sep 2021 23:01:06 +0200
-Subject: usb-storage: Add quirk for ScanLogic SL11R-IDE older than 2.6c
+From 517c7bf99bad3d6b9360558414aae634b7472d80 Mon Sep 17 00:00:00 2001
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Date: Thu, 16 Sep 2021 16:57:37 +0300
+Subject: usb: musb: tusb6010: uninitialized data in
+ tusb_fifo_write_unaligned()
 
-ScanLogic SL11R-IDE with firmware older than 2.6c (the latest one) has
-broken tag handling, preventing the device from working at all:
-usb 1-1: new full-speed USB device number 2 using uhci_hcd
-usb 1-1: New USB device found, idVendor=04ce, idProduct=0002, bcdDevice= 2.60
-usb 1-1: New USB device strings: Mfr=1, Product=1, SerialNumber=0
-usb 1-1: Product: USB Device
-usb 1-1: Manufacturer: USB Device
-usb-storage 1-1:1.0: USB Mass Storage device detected
-scsi host2: usb-storage 1-1:1.0
-usbcore: registered new interface driver usb-storage
-usb 1-1: reset full-speed USB device number 2 using uhci_hcd
-usb 1-1: reset full-speed USB device number 2 using uhci_hcd
-usb 1-1: reset full-speed USB device number 2 using uhci_hcd
-usb 1-1: reset full-speed USB device number 2 using uhci_hcd
+This is writing to the first 1 - 3 bytes of "val" and then writing all
+four bytes to musb_writel().  The last byte is always going to be
+garbage.  Zero out the last bytes instead.
 
-Add US_FL_BULK_IGNORE_TAG to fix it. Also update my e-mail address.
-
-2.6c is the only firmware that claims Linux compatibility.
-The firmware can be upgraded using ezotgdbg utility:
-https://github.com/asciilifeform/ezotgdbg
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Ondrej Zary <linux@zary.sk>
+Fixes: 550a7375fe72 ("USB: Add MUSB and TUSB support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210913210106.12717-1-linux@zary.sk
+Link: https://lore.kernel.org/r/20210916135737.GI25094@kili
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/unusual_devs.h | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/usb/musb/tusb6010.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
-index efa972be2ee3..c6b3fcf90180 100644
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -416,9 +416,16 @@ UNUSUAL_DEV(  0x04cb, 0x0100, 0x0000, 0x2210,
- 		USB_SC_UFI, USB_PR_DEVICE, NULL, US_FL_FIX_INQUIRY | US_FL_SINGLE_LUN),
- 
- /*
-- * Reported by Ondrej Zary <linux@rainbow-software.org>
-+ * Reported by Ondrej Zary <linux@zary.sk>
-  * The device reports one sector more and breaks when that sector is accessed
-+ * Firmwares older than 2.6c (the latest one and the only that claims Linux
-+ * support) have also broken tag handling
-  */
-+UNUSUAL_DEV(  0x04ce, 0x0002, 0x0000, 0x026b,
-+		"ScanLogic",
-+		"SL11R-IDE",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_FIX_CAPACITY | US_FL_BULK_IGNORE_TAG),
- UNUSUAL_DEV(  0x04ce, 0x0002, 0x026c, 0x026c,
- 		"ScanLogic",
- 		"SL11R-IDE",
+diff --git a/drivers/usb/musb/tusb6010.c b/drivers/usb/musb/tusb6010.c
+index c42937692207..c968ecda42aa 100644
+--- a/drivers/usb/musb/tusb6010.c
++++ b/drivers/usb/musb/tusb6010.c
+@@ -190,6 +190,7 @@ tusb_fifo_write_unaligned(void __iomem *fifo, const u8 *buf, u16 len)
+ 	}
+ 	if (len > 0) {
+ 		/* Write the rest 1 - 3 bytes to FIFO */
++		val = 0;
+ 		memcpy(&val, buf, len);
+ 		musb_writel(fifo, 0, val);
+ 	}
 -- 
 2.33.0
 
