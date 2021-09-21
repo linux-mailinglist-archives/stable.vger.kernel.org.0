@@ -2,82 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19AB8412E48
-	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 07:44:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3AA9412E67
+	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 07:55:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229441AbhIUFp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Sep 2021 01:45:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57722 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229614AbhIUFp5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Sep 2021 01:45:57 -0400
-Received: from mail-qk1-x733.google.com (mail-qk1-x733.google.com [IPv6:2607:f8b0:4864:20::733])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37E0AC061574
-        for <stable@vger.kernel.org>; Mon, 20 Sep 2021 22:44:29 -0700 (PDT)
-Received: by mail-qk1-x733.google.com with SMTP id f22so50936977qkm.5
-        for <stable@vger.kernel.org>; Mon, 20 Sep 2021 22:44:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=ToeVEaF4dIxG1PPx5vxcAC4e8iNoEI7+D3eTjQ2prRM=;
-        b=iXDkhrdsYKu0ifTWTyUEOv9MM74hzgZOoo9XsTm+y0vUvYXMG32NS9HDfgMfK4U23c
-         t8I0CQJnVpi2DGWWWLAxKQdNeyaNi2oBZJRrRwE+11jNu9WUBEjjhyAUsJtKREEA+Dz8
-         HjFZPkVH1+s3avyfwT85uRPrOI+XOrBt84eZGhwh/0XIkkjGMVu+9//ThNZ2A4cDux4M
-         ZDUlQJ0jN7VQC5+aiDqNUcxzLazJYlWgx9lt9QZq/qlyMurJQwgZ2ue0j1m7BZtK8TqQ
-         H1AATGvhCMmXCPwNpFqV/MRHPcPU1TUBZN3LDB60IrZE6axwgDqOhwMiTGnDpj0SaQdq
-         soHA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=ToeVEaF4dIxG1PPx5vxcAC4e8iNoEI7+D3eTjQ2prRM=;
-        b=qPT9ejw66XGGbq3jZhfdKhLGHGwLN2n5YSSAVCF+BudCE+sLv3CcZmiH7/xrwglY4b
-         n6kb8iNJsBAvYSorL3I8dPlZqyKbbLQ4KKAbvuxk4m6wSh8cpo/YJM+asxfo56SoQBNQ
-         I163iyWfD6GlemXJ+7iR8d/hvU2LWRSqB5py3oXw14Wv+ymL3W1Z7slS7F1vpC1uihKW
-         x3QpY8rn08bDkGoh70z5McMU3lvZ8bqABrFpKj390UzWQL+KlsWVGtyNBrnWH4RpsHoR
-         HyWQJtfB4g7uOSwjxUnxa9zt8nj1QMZPKn4cGvSSIdhhvZvedg36WW+fFHbG6DGfNBFC
-         MXBQ==
-X-Gm-Message-State: AOAM533aYw5gPKWkdau1+1ugNjzy7Crv7YeIhHBtsEGEgmeefcvf551y
-        oASphQhcMOCd+a92wR5ZFN9asAtQ9DyMfN4LSIk=
-X-Google-Smtp-Source: ABdhPJxMCsRDPDzVCWvOfpzMHvg0RLwtWqCVBLYWo2EjGl5BGxpjGe8YsNxmbMqsxsAWHjFWGufgzp7w3j4APl0pa5I=
-X-Received: by 2002:a25:ea51:: with SMTP id o17mr33914241ybe.192.1632203068348;
- Mon, 20 Sep 2021 22:44:28 -0700 (PDT)
+        id S229619AbhIUF5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Sep 2021 01:57:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33074 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229441AbhIUF5H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Sep 2021 01:57:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0E8F61090;
+        Tue, 21 Sep 2021 05:55:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1632203739;
+        bh=80vjryW1wC+XSN92QuzCTRcS2JNVNDR4NBHlhByCMyQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=wcJSrcve5TJHB+Fa3QLfb+hDPIsSHgaZmfn3PoPElEven3uzuUP63DnFyCjmbETV6
+         6jWU0vZH6GevMTPodGXr+/ojyGOKlsLhR+TH3XDX4+0/3EiTzvjqCdiQaUapzCzqb1
+         TUbpLsDUWjJFKXWdO2et9KV9bvMj5gZ4FaLvZPD8=
+Date:   Tue, 21 Sep 2021 07:55:12 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Vishnu Rangayyan <vishnu.rangayyan@apple.com>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fs: fix for core dumping of a process getting oom-killed
+Message-ID: <YUlzwDt3IWFzOSCU@kroah.com>
+References: <9aec4002-754c-ca6d-7caf-9de6e8c31dd7@apple.com>
 MIME-Version: 1.0
-Received: by 2002:a05:7110:32f2:b0:f7:4b5e:2da3 with HTTP; Mon, 20 Sep 2021
- 22:44:28 -0700 (PDT)
-Reply-To: sigmawide@gmail.com
-From:   Sigma Group <akmart2001@gmail.com>
-Date:   Mon, 20 Sep 2021 22:44:28 -0700
-Message-ID: <CA+e0NaLTpH9gy2S68gm5O89DWdc5VTTbgCEynexetwygThDqRg@mail.gmail.com>
-Subject: Jetzt Finanzhilfe beantragen.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9aec4002-754c-ca6d-7caf-9de6e8c31dd7@apple.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Wir bieten Darlehen zu einem Zinssatz von 5% an, unsere
-Dienstleistungen umfassen Folgendes:
-* Business-Darlehen.
-* Privat Darlehen.
-* Projektfinanzierung.
+On Mon, Sep 20, 2021 at 11:38:40PM -0500, Vishnu Rangayyan wrote:
+> diff --git a/fs/coredump.c b/fs/coredump.c
+> index 3224dee44d30..187813704533 100644
+> --- a/fs/coredump.c
+> +++ b/fs/coredump.c
+> @@ -54,6 +54,7 @@
+> 
+>  int core_uses_pid;
+>  unsigned int core_pipe_limit;
+> +unsigned int core_sync_bytes = 131072; /* sync core file every so many
+> bytes */
+>  char core_pattern[CORENAME_MAX_SIZE] = "core";
+>  static int core_name_size = CORENAME_MAX_SIZE;
 
-Bitte leiten Sie Ihre Daten an diese E-Mail-Adresse weiter:
-sigmawide@gmail.com oder   info@sigmafingrp.com
+Hi,
 
-Ihr vollst=C3=A4ndiger Name: _______
-Kontakt Anschrift: __________
-Land des Wohnsitzes: ______
-Erforderlicher Betrag: _________
-Dauer: _____
-Geschlecht: _______
-Beruf: ________
-Monatliches Einkommen: _______
-Geburtsdatum: ________
-Telefonnummer: __________
+This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
+a patch that has triggered this response.  He used to manually respond
+to these common problems, but in order to save his sanity (he kept
+writing the same thing over and over, yet to different people), I was
+created.  Hopefully you will not take offence and will fix the problem
+in your patch and resubmit it so that it can be accepted into the Linux
+kernel tree.
 
-Gr=C3=BC=C3=9Fe,
-Management.
+You are receiving this message because of the following common error(s)
+as indicated below:
+
+- Your patch is malformed (tabs converted to spaces, linewrapped, etc.)
+  and can not be applied.  Please read the file,
+  Documentation/email-clients.txt in order to fix this.
+
+If you wish to discuss this problem further, or you have questions about
+how to resolve this issue, please feel free to respond to this email and
+Greg will reply once he has dug out from the pending patches received
+from other developers.
+
+thanks,
+
+greg k-h's patch email bot
