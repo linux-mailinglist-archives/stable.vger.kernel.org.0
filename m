@@ -2,135 +2,194 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 527F5413443
-	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 15:33:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 752E1413485
+	for <lists+stable@lfdr.de>; Tue, 21 Sep 2021 15:40:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232227AbhIUNez (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Sep 2021 09:34:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51356 "EHLO
+        id S233114AbhIUNmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Sep 2021 09:42:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233089AbhIUNex (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Sep 2021 09:34:53 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95EE0C061574
-        for <stable@vger.kernel.org>; Tue, 21 Sep 2021 06:33:24 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id u15so39236227wru.6
-        for <stable@vger.kernel.org>; Tue, 21 Sep 2021 06:33:24 -0700 (PDT)
+        with ESMTP id S232953AbhIUNmA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Sep 2021 09:42:00 -0400
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5CD7C061575
+        for <stable@vger.kernel.org>; Tue, 21 Sep 2021 06:40:32 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id 5so13376978plo.5
+        for <stable@vger.kernel.org>; Tue, 21 Sep 2021 06:40:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=A31aJO/5YcdUocsEcyn0bhc0bNHd+7HvWCL+8pVGDDU=;
-        b=XXnHlbsVJeiz43Y3LESLsOdS/m8OXgkzBDvNRuXaOhzIFk9XPGFB8+4fzF+fhcPttK
-         FvPwPmNgxuEnz6VX/pugMXfkccU1NnwbfTphH095zmWsunddDBDkNpBwv0V6s+OvfSzw
-         oHQOgUsamKJGEUduN/kILiR81SKXt0x7/e7DUk55aAFS+TH1KIz3NoJsw1cXsVNhgXL7
-         RUkPzrz2CYT8e+24iQOzYwtNzVSKtcauNmzjGdxTocSiSIJ9HlrP9Ke2CSkTPRxCPCUK
-         o9AyIB91PX/qD/ilB+5C7p1rcqcTBgGtp8O3JY68Tf3s61h1FgmkmmUG1rxJe5oz4d0U
-         Xs3g==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=UQbXdli0pZIb7ZIZ+7Q8AzB6BXryXnLnQL8YgbK9UhA=;
+        b=HpnufTUjYJ+eiTb89zGkU7KINSRzFHAkXEhLPXffuaWyDbB0LGp2QsnjaaYj0tbkOC
+         YohXGyfs992N7n0A9+ZpDE4fIKr3C1P49J5FuIJ/PSO+Ot16AfjvO8qh1R8aDxnq9zyo
+         +PbZnwwRt20q0x+vHLvTeGZntLwjsTFryWt2Uc9Wykl328KWS9Gtkp/0MAu6I2Qo+/w8
+         Er9mqGhInCPSWuDelIOdV2/wAeKZLQNphYVmSb7++1ALm+ZuJ3X0M8+6PQFn59SfuAD8
+         /K42sOmgARfGzj1lW7uRwqei+APRGiLd/hIlodCjhvIitjLeX73eeE2CDWJSPDlpGuPA
+         THtA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=A31aJO/5YcdUocsEcyn0bhc0bNHd+7HvWCL+8pVGDDU=;
-        b=ZPN8UfPg+is3Mixj1JxQUIgvFd0MW50BptxxDho25sbz25gvMhTeGzmBdbyH8bgA/2
-         taPP0QQjv8qF9x19qINoJ2/OCAiM/frhP5a9Mn6+MOp9N4rRfCmdKX5vJz89XLDgE4eK
-         5VqnMYqTIbXxgiXl1zvVRC9ejW4DybChUvG1btqZvlQvZwVEmPC/7KMOfsEI6yTUQXnn
-         WUnGT6HwZ8pMd/gZeK3H+A3+ClQJTSEH7SRmyiqtYO6FS3ENVvfo0XWE37gko2/D21t9
-         gTO8dnb31oKGhcOGEUWHcUYm5/QqfdXnb3oGAbecK+FKiCoRNHvr0AfBfJSvZL7nBu+2
-         JR0A==
-X-Gm-Message-State: AOAM533OlL0BRGROZroKJ6HBuwtFIrgkBUDh473NwacmK4nN6jWwflvF
-        uIK7SOwzuKl2ZMvdHq2hKc9zvA==
-X-Google-Smtp-Source: ABdhPJxs/pQcAS2zvnJ16CTjs9g477Rs5JMYYC8B5kkiiA0dn7lD3oQ/W7AtqrHOuibodbiz+oZI3Q==
-X-Received: by 2002:a1c:2351:: with SMTP id j78mr4690686wmj.40.1632231203097;
-        Tue, 21 Sep 2021 06:33:23 -0700 (PDT)
-Received: from google.com ([95.148.6.233])
-        by smtp.gmail.com with ESMTPSA id g1sm4434940wmk.2.2021.09.21.06.33.21
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=UQbXdli0pZIb7ZIZ+7Q8AzB6BXryXnLnQL8YgbK9UhA=;
+        b=Hfk3ei8xCSC8XqLu6novvjVNWZ2wHylBF9GMbX3EAUovpFoOya2RMzeZ0zFLQjEgdt
+         fiZa2F44MvrR3sDJr5d1z2kSMsyaFCuJ3Ddn/JgSBckB7lmgHYCdwR5T3IXdJ062OMtl
+         FJ88z694YwVJvVkDUh+csLKWv8buufQfyk3wE58y0meALI9usG/TUp5SRb5eynl+9M7z
+         mTqHHU+NMmgPt/kU1FUeNgr0usDBzFho8QixcnAHaXW3FI/BH5Dp+FSi5+5LoMfhUflV
+         9lPh3OIfkoV+vqugSPNoNVnm704kGfX8a3IW9pkLYPagG1tAFtQEmH97umx+QsXD4frd
+         osWw==
+X-Gm-Message-State: AOAM531xS7fQ/868sfX+UftJJR+sT8S+HaXiQUJ1JPEmGSy8KIAlpCDZ
+        R6BH1+5ccZYT0pm9b2h+56t6mPiUAEhIUVxL
+X-Google-Smtp-Source: ABdhPJyMIyRkY0GevHayOJ4JLVDI43LmBMcaqEtirhRgGSGa6pQjZWpVPXB5qS8efmQe8g0lxMvqow==
+X-Received: by 2002:a17:90a:4a03:: with SMTP id e3mr3879050pjh.198.1632231631945;
+        Tue, 21 Sep 2021 06:40:31 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a10sm17309051pfn.48.2021.09.21.06.40.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Sep 2021 06:33:22 -0700 (PDT)
-Date:   Tue, 21 Sep 2021 14:33:20 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Marek Vasut <marex@denx.de>
-Cc:     dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
-        Noralf =?iso-8859-1?Q?Tr=F8nnes?= <noralf@tronnes.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        stable@vger.kernel.org,
-        Meghana Madhyastha <meghana.madhyastha@gmail.com>,
-        Sean Paul <seanpaul@chromium.org>,
-        Thierry Reding <treding@nvidia.com>,
-        Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH V2] video: backlight: Drop maximum brightness override
- for brightness zero
-Message-ID: <YUnfIFllpOMnie4l@google.com>
-References: <20210713191633.121317-1-marex@denx.de>
- <072e01b7-8554-de4f-046a-da11af3958d6@denx.de>
+        Tue, 21 Sep 2021 06:40:31 -0700 (PDT)
+Message-ID: <6149e0cf.1c69fb81.50c2c.0de5@mx.google.com>
+Date:   Tue, 21 Sep 2021 06:40:31 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <072e01b7-8554-de4f-046a-da11af3958d6@denx.de>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.67-125-gbb6d31464809
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.10.y
+Subject: stable-rc/linux-5.10.y baseline: 169 runs,
+ 4 regressions (v5.10.67-125-gbb6d31464809)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 11 Sep 2021, Marek Vasut wrote:
+stable-rc/linux-5.10.y baseline: 169 runs, 4 regressions (v5.10.67-125-gbb6=
+d31464809)
 
-> On 7/13/21 9:16 PM, Marek Vasut wrote:
-> > The note in c2adda27d202f ("video: backlight: Add of_find_backlight helper
-> > in backlight.c") says that gpio-backlight uses brightness as power state.
-> > This has been fixed since in ec665b756e6f7 ("backlight: gpio-backlight:
-> > Correct initial power state handling") and other backlight drivers do not
-> > require this workaround. Drop the workaround.
-> > 
-> > This fixes the case where e.g. pwm-backlight can perfectly well be set to
-> > brightness 0 on boot in DT, which without this patch leads to the display
-> > brightness to be max instead of off.
-> > 
-> > Fixes: c2adda27d202f ("video: backlight: Add of_find_backlight helper in backlight.c")
-> > Acked-by: Noralf Trønnes <noralf@tronnes.org>
-> > Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
-> > Cc: <stable@vger.kernel.org> # 5.4+
-> > Cc: <stable@vger.kernel.org> # 4.19.x: ec665b756e6f7: backlight: gpio-backlight: Correct initial power state handling
-> > Signed-off-by: Marek Vasut <marex@denx.de>
-> > Cc: Daniel Thompson <daniel.thompson@linaro.org>
-> > Cc: Meghana Madhyastha <meghana.madhyastha@gmail.com>
-> > Cc: Noralf Trønnes <noralf@tronnes.org>
-> > Cc: Sean Paul <seanpaul@chromium.org>
-> > Cc: Thierry Reding <treding@nvidia.com>
-> > ---
-> > V2: Add AB/RB, CC stable
-> > ---
-> >   drivers/video/backlight/backlight.c | 6 ------
-> >   1 file changed, 6 deletions(-)
-> > 
-> > diff --git a/drivers/video/backlight/backlight.c b/drivers/video/backlight/backlight.c
-> > index 537fe1b376ad7..fc990e576340b 100644
-> > --- a/drivers/video/backlight/backlight.c
-> > +++ b/drivers/video/backlight/backlight.c
-> > @@ -688,12 +688,6 @@ static struct backlight_device *of_find_backlight(struct device *dev)
-> >   			of_node_put(np);
-> >   			if (!bd)
-> >   				return ERR_PTR(-EPROBE_DEFER);
-> > -			/*
-> > -			 * Note: gpio_backlight uses brightness as
-> > -			 * power state during probe
-> > -			 */
-> > -			if (!bd->props.brightness)
-> > -				bd->props.brightness = bd->props.max_brightness;
-> >   		}
-> >   	}
-> > 
-> 
-> Any news on this ?
-> 
-> Expanding CC list.
+Regressions Summary
+-------------------
 
-Looks like I was left off of the original submission.
+platform          | arch  | lab           | compiler | defconfig          |=
+ regressions
+------------------+-------+---------------+----------+--------------------+=
+------------
+hip07-d05         | arm64 | lab-collabora | gcc-8    | defconfig          |=
+ 1          =
 
-I can't apply a quoted patch.  Please re-submit.
+rk3288-veyron-jaq | arm   | lab-collabora | gcc-8    | multi_v7_defconfig |=
+ 3          =
 
--- 
-Lee Jones [李琼斯]
-Senior Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.67-125-gbb6d31464809/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.67-125-gbb6d31464809
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      bb6d31464809e017d8cfd65963f6e802d7d1c66b =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch  | lab           | compiler | defconfig          |=
+ regressions
+------------------+-------+---------------+----------+--------------------+=
+------------
+hip07-d05         | arm64 | lab-collabora | gcc-8    | defconfig          |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6149aaf92079d3758e99a2e7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.6=
+7-125-gbb6d31464809/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.6=
+7-125-gbb6d31464809/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6149aaf92079d3758e99a=
+2e8
+        failing since 81 days (last pass: v5.10.46-101-ga41d5119dc1e, first=
+ fail: v5.10.47) =
+
+ =
+
+
+
+platform          | arch  | lab           | compiler | defconfig          |=
+ regressions
+------------------+-------+---------------+----------+--------------------+=
+------------
+rk3288-veyron-jaq | arm   | lab-collabora | gcc-8    | multi_v7_defconfig |=
+ 3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6149bf411769dcc0f299a2f6
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.6=
+7-125-gbb6d31464809/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3=
+288-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.6=
+7-125-gbb6d31464809/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3=
+288-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/6149bf411769dcc0f299a30a
+        failing since 98 days (last pass: v5.10.43, first fail: v5.10.43-13=
+1-g3f05ff8b3370)
+
+    2021-09-21T11:16:54.364322  /lava-4549262/1/../bin/lava-test-case<8>[  =
+ 13.974406] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-iodomain-grf-prob=
+ed RESULT=3Dfail>
+    2021-09-21T11:16:54.364753  =
+
+    2021-09-21T11:16:54.364948  /lava-4549262/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/6149bf411769dcc0f299a322
+        failing since 98 days (last pass: v5.10.43, first fail: v5.10.43-13=
+1-g3f05ff8b3370)
+
+    2021-09-21T11:16:52.940475  /lava-4549262/1/../bin/lava-test-case<8>[  =
+ 12.550018] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdio0-probe=
+d RESULT=3Dfail>
+    2021-09-21T11:16:52.940858  =
+
+    2021-09-21T11:16:52.941053  /lava-4549262/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/6149bf411769dcc0f299a323
+        failing since 98 days (last pass: v5.10.43, first fail: v5.10.43-13=
+1-g3f05ff8b3370)
+
+    2021-09-21T11:16:51.903249  /lava-4549262/1/../bin/lava-test-case
+    2021-09-21T11:16:51.908427  <8>[   11.530563] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =20
