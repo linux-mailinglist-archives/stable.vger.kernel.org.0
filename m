@@ -2,90 +2,222 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C08FB414F92
-	for <lists+stable@lfdr.de>; Wed, 22 Sep 2021 20:05:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B11C414FB6
+	for <lists+stable@lfdr.de>; Wed, 22 Sep 2021 20:17:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236837AbhIVSH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 14:07:26 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:44121 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236996AbhIVSHZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Sep 2021 14:07:25 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id 8863F5C00AC;
-        Wed, 22 Sep 2021 14:05:55 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Wed, 22 Sep 2021 14:05:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=tGbWm4Xw1D8aSEwSQLZaY465Fk3
-        YPbrFVRZybdsF96k=; b=tmOgGq8OvqH6C1LZmoHr5l2CM4y0H8oatiGSl6dil7W
-        DE9S/21RIXCtj7eE5h517h1fgDOFJBldwsAmep5C7gx3/cLW+L3HHT7FoRe3Lmwd
-        DuQNJPnoikTOwQBvJGmUyAonjbgXJSwH5HrkEuIFEDQOlPoDZ1UTr9O+SeFwY6ui
-        pE5L7tvMyKijsMZl5ZKAjX+xgNLsLiSLM2piMnyIYtOS9CiQHQ0cVHm9isORuODh
-        Egz8T1Eo4MgGyvcExxaacwMGVs1j/vD0+PxH/nhai8ClZGj5l47hgQkSiB8A1v23
-        Z5NMR8fsvgTyXGVRDeUHCUM3xqj3yoWl4RYWEvmDlsA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=tGbWm4
-        Xw1D8aSEwSQLZaY465Fk3YPbrFVRZybdsF96k=; b=pVTLVfxSKrSQfQJq1xzY+B
-        +x+J4jEFhlcpk8rCMH7Y0WnTENOwOsP59Lbqp7850nSQN5c5SANMMNR5CJI/ZM9w
-        ZaGurfhJ4AmBftBTXUMWGSO5l2rPfOY6RShWw6kKyXjmpdxh+84x3NrQjPwoXYR7
-        XOOus57FLH+A1shWlUgHPqIfOgHUDqKYNPePiVK62WvZGzj9FlZtfvm+zV4LQ26y
-        DLNPPWiUZmWF3Ph4RDCpDZUkW/xFkyQrBceqgYSe40fdTjMx8nHXbGj6Bn9On+uT
-        pqI2+8G6vYBZLzDGvvgweJFq3f9zb+hGlYedkRomWAKUc/EWo17IRpwGgcyChJHA
-        ==
-X-ME-Sender: <xms:g3BLYfwPYKqetRrmERPRy8JdOqg34uSbddRSmedwjNdKwDSqu_X0xA>
-    <xme:g3BLYXRSiWWdeGLbl2qN9Xasf9WQRt-OAaC6TOcARxcqf2U_q5M9mgAzeDxfbkfRs
-    lgYmOEPmVJeYg>
-X-ME-Received: <xmr:g3BLYZWr3C25TknY8it3hqf3NEurbkvDuOH4ch5AAk5Kr4tE6WiQGMuK8te6uN8BAiEzYoPVNmhHHMjk9N7PTtWMJEioL7Mg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudeijedguddvtdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujgesthdtrodttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepuddtie
-    dvjeegudffgfdvhfdtjeeugffhhedvjeehgffgleduuefgfeekgedvlefhnecuffhomhgr
-    ihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
-    epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:g3BLYZhYXHGEQkA9KPUdw9Z6pMdUrlSwqUd9nqE22Vsnj1yLpmMuiw>
-    <xmx:g3BLYRANTvTIwZ-gyZ2SlGTRJTk5asXAXkM3bK6rotqbpHJrdmabRw>
-    <xmx:g3BLYSKMnpB1NMZxl2g8ET7evvX-hYZdeIiy8prmkDANcsuPT0T_ng>
-    <xmx:g3BLYT1sIWxWVMS_mesJaM_nR6Jgmimks6eWaTety6Ha1mwBps75aQ>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 22 Sep 2021 14:05:54 -0400 (EDT)
-Date:   Wed, 22 Sep 2021 20:05:52 +0200
-From:   Greg KH <greg@kroah.com>
-To:     dann frazier <dann.frazier@canonical.com>
-Cc:     stable@vger.kernel.org,
-        Tuan Phan <tuanphan@os.amperecomputing.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: Re: [PATCH 5.4] PCI/ACPI: Add Ampere Altra SOC MCFG quirk
-Message-ID: <YUtwgDwgQtOaaXVh@kroah.com>
-References: <20210921192038.3024844-1-dann.frazier@canonical.com>
+        id S237005AbhIVSSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 14:18:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54062 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236988AbhIVSSd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Sep 2021 14:18:33 -0400
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E451C061574
+        for <stable@vger.kernel.org>; Wed, 22 Sep 2021 11:17:03 -0700 (PDT)
+Received: by mail-pl1-x635.google.com with SMTP id t4so2384608plo.0
+        for <stable@vger.kernel.org>; Wed, 22 Sep 2021 11:17:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=xREKtRqnGUrn40r/bC0EdYOyJe2jO+fxJ9K2zvUT+ZY=;
+        b=reqp00H7Mlb7LwOVnyOhaAnXP9ey8Jl8RRNmgrX4R58bKsCrmkeMyCC97HMLnqCvkK
+         D3pHII/5luksp+rP0Sx9U730huiBU6Y4wkTop6Xawz9iHGlhLOzfQgYtGq6uIIqxS2VF
+         lr+5vbKxB9G8jw2cPkOcDxp3JuVgdOV4SOP4JlmeG+MaqzYso4OMrR+jomVtyFlSBoAO
+         qoL1QCJv97ZHWZAsiOWpzQ2RnAenlrGGw7rSPTLI9djuGeAK34VV9urdFUNGZUYtgaGO
+         QgJlI8r4w1qpC57QpaewZ4kI5Nyr2bO6tUUoDklehPj48aJNRkNzPcYU5bUf5CADdrnL
+         H+kQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=xREKtRqnGUrn40r/bC0EdYOyJe2jO+fxJ9K2zvUT+ZY=;
+        b=ep9OvvzohhtjeC1ZylMyFOu6tIxSmtdCNSFv5RXexzY53RDbrAqUYC6TBzlAwYekKV
+         TOkbJt8m6JiAtIXaTtBWUY5VXsP+TJU1CgWCV0FPuspSB+zm9z8t7bTCGNgnVjLcHgA4
+         MarBr7gUvb2U9dSkZbe/49V+lurjFsKjr/sIp7EAtxjwYyCDFHkDeHxaTxY/OS6KTTUv
+         P6vW4zr05vx1a1grQ7x/qZIRumUo2Qp+A4dprmBjMMf+5ixgAWwjS9iITT7utJLrR8vO
+         P5qF/Dw0Qliq9m1PNNfuOUsubVTTVfwFHws/YgTV1mpMLqhbKooyAJCcxOEsCmWS5Q6e
+         p/TQ==
+X-Gm-Message-State: AOAM530SHCnyFPmvOPHhk2d1Vf6n6540o6hjdzfeHZ8RVFyS9ps/A3U4
+        L5RNLG+RTD4uTWUbXFp+vzNBMZGoWxApeXzr
+X-Google-Smtp-Source: ABdhPJzscc98dUZ6aciNZrCr0kUag4eb1fbGUb5FChLacEaUwLj7EYt77w63IAzz1TOmFFy1kCi/7A==
+X-Received: by 2002:a17:90b:3805:: with SMTP id mq5mr12752019pjb.143.1632334622865;
+        Wed, 22 Sep 2021 11:17:02 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m9sm3350745pfh.94.2021.09.22.11.17.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Sep 2021 11:17:02 -0700 (PDT)
+Message-ID: <614b731e.1c69fb81.e2ad7.96cf@mx.google.com>
+Date:   Wed, 22 Sep 2021 11:17:02 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210921192038.3024844-1-dann.frazier@canonical.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.148
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable/linux-5.4.y baseline: 125 runs, 4 regressions (v5.4.148)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 21, 2021 at 01:20:38PM -0600, dann frazier wrote:
-> From: Tuan Phan <tuanphan@os.amperecomputing.com>
-> 
-> commit 877c1a5f79c6984bbe3f2924234c08e2f4f1acd5 upstream.
-> 
-> Ampere Altra SOC supports only 32-bit ECAM reads.  Add an MCFG quirk for
-> the platform.
-> 
-> Link: https://lore.kernel.org/r/1596751055-12316-1-git-send-email-tuanphan@os.amperecomputing.com
-> Signed-off-by: Tuan Phan <tuanphan@os.amperecomputing.com>
-> Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-> [ dannf: backport drops const qualifier from pci_32b_read_ops for
->   consistency with the other quirks that weren't yet constified in v5.4 ]
-> Signed-off-by: dann frazier <dann.frazier@canonical.com>
+stable/linux-5.4.y baseline: 125 runs, 4 regressions (v5.4.148)
 
-Now queued up, thanks.
+Regressions Summary
+-------------------
 
-greg k-h
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+hifive-unleashed-a00 | riscv | lab-baylibre  | gcc-8    | defconfig        =
+   | 1          =
+
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.4.y/kernel/=
+v5.4.148/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.4.y
+  Describe: v5.4.148
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      07e5f23d3fa6ca98457d1a2177a735fcc65923c2 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+hifive-unleashed-a00 | riscv | lab-baylibre  | gcc-8    | defconfig        =
+   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/614b3c9d8352d4fcbd99a301
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.148/ri=
+scv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-a00.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.148/ri=
+scv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/riscv/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/614b3c9d8352d4fcbd99a=
+302
+        failing since 40 days (last pass: v5.4.139, first fail: v5.4.140) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/614b3a5dbb747fd47299a342
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.148/ar=
+m/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.148/ar=
+m/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/614b3a5dbb747fd47299a=
+343
+        failing since 307 days (last pass: v5.4.77, first fail: v5.4.78) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/614b3a62c6b275b37b99a2da
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.148/ar=
+m/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.148/ar=
+m/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/614b3a62c6b275b37b99a=
+2db
+        failing since 307 days (last pass: v5.4.77, first fail: v5.4.78) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/614b3a227823b1a60299a2dd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.148/ar=
+m/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.148/ar=
+m/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/614b3a227823b1a60299a=
+2de
+        failing since 307 days (last pass: v5.4.77, first fail: v5.4.78) =
+
+ =20
