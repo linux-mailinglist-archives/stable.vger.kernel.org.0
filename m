@@ -2,195 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E220414EE4
-	for <lists+stable@lfdr.de>; Wed, 22 Sep 2021 19:16:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED9F6414EEA
+	for <lists+stable@lfdr.de>; Wed, 22 Sep 2021 19:19:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236705AbhIVRS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 13:18:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40248 "EHLO
+        id S236744AbhIVRUa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 13:20:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236701AbhIVRSS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Sep 2021 13:18:18 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D48AFC061574
-        for <stable@vger.kernel.org>; Wed, 22 Sep 2021 10:16:48 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id k23so2583210pji.0
-        for <stable@vger.kernel.org>; Wed, 22 Sep 2021 10:16:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=KoNij1v1HKJwwiRAVhyUN/KIPsTUutS+xgwiB1eoJME=;
-        b=OPDQdeRlmSMC8db5qgNCeo7C9feRg5E59nnf5Q2u7Hj9IQB7PQEd3AiXglB0FKbirH
-         LDjLUsy1kOMFuWcUDtVag7s8XA3EdMA/G9vz4nHmCb09xprpMdQFKy81IRQxsTiI+gxQ
-         RCc6huvOV4Thqk1ywkNtT8Daiel+rYSvKAFOVYhmRcDt/zcv6z8vgwDYqmZS8J7Jq0Ip
-         o4h6HeMpJgbq5GUw9IBmJylGQFkNQWbGNVPRCiJPKJMODCJ+Pn1GozkJlVyiY2qNUrLB
-         YdT++7v72T5Plhc9phCKipVxixYb8ulMQmWoCyDFftT9WyxIA/sl+D1fiGV2bDOp3d0Y
-         WkBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=KoNij1v1HKJwwiRAVhyUN/KIPsTUutS+xgwiB1eoJME=;
-        b=xWvHPbKW1U+RfidsLj0OXtUMgu1/YxAlaVl7x1S8vdIrDonNz299wAgUSBa8WPq2XU
-         20Al22K+acX8SkdurnUl3JT6G849eT4R8DQY2+lp9ZiTDKOeobkCH1/guG7i8t0AOcWQ
-         EPBMaJCkciuVFnEWH4PR39WAGtbj08B11qpT02LhWXfA/6cZ/5QRK4WMrf/6sgi+6EFl
-         IxijBu8nfwwsxdWFSl8/0rO8ryV8Sp3PMs8qCh7TA/ETRoF7wgCaL5aV+BzrflcDAsps
-         cEHXuPVPjwh+5I39z+XYl6oFOZ+a8It4fo9lJhVDLEiUYnDJg4t5EmtQxfm7rqfgcF93
-         tRgQ==
-X-Gm-Message-State: AOAM530ne8PKaZrmTlEfD0QFNYiCr4q1//lad87YIcDmVF1Ot87KHv7k
-        nltGUUcyGrjNjc/wyPoMtaBTqu5saksTq5w6
-X-Google-Smtp-Source: ABdhPJzsLAMKWFd9811l3wuTMtoqRSNhRfDXGU5UAJ1p4Fz/AOMQUmq9qbgRYVjavtXkAzuofjLfWQ==
-X-Received: by 2002:a17:902:7488:b0:13c:9740:3c13 with SMTP id h8-20020a170902748800b0013c97403c13mr482734pll.76.1632331008275;
-        Wed, 22 Sep 2021 10:16:48 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m12sm2964907pjv.29.2021.09.22.10.16.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Sep 2021 10:16:48 -0700 (PDT)
-Message-ID: <614b6500.1c69fb81.4d803.7e55@mx.google.com>
-Date:   Wed, 22 Sep 2021 10:16:48 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S236701AbhIVRU3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Sep 2021 13:20:29 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1D47C061574;
+        Wed, 22 Sep 2021 10:18:59 -0700 (PDT)
+Date:   Wed, 22 Sep 2021 17:18:56 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1632331137;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=zqj7IcfjJOmv/J61U6IgvJMO0Ih8YuG/LFZTvW7FxmY=;
+        b=vVdz8med9+wY4IZRf4lqE6Vqb8jkcygNfBzhp+VDUn5dszX1EJzbHAJodGDogCEUjmj/n9
+        S24WgFZ080Xp9K7SV9pTkUytNfKjs/h6Ztu0AK8QEBBr3oqW9hE9eTSk3/HW0jmFFO1v4y
+        GdaSjlUzoNsJoPIFC5xQdFeHkgvXvz0rqQM6nXnZVRqP456A0WWAE4saQ78PiucJ2v9B+/
+        rZSLWdUTCX7zx05MkSRwRQdRDNFJyYHRn+hwCaBSnsOXM2EjPenmtEMb7Yf6G+efCx6Xqq
+        GKnE7nMmhY9jyxiFEwFVX5Gazbbboj91fWyx/QRfECk1IvH6VcYp8CKNhV6uXg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1632331137;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=zqj7IcfjJOmv/J61U6IgvJMO0Ih8YuG/LFZTvW7FxmY=;
+        b=LK/61yZrDt+zJ9CFP0v6C2I4/LDNPoAOO/oLZb73mr6W4UZKAVGYG4/hFZexeWeP1lNnoA
+        upBecXMB18RTu/BQ==
+From:   "tip-bot2 for Juergen Gross" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/setup: Call early_reserve_memory() earlier
+Cc:     marmarek@invisiblethingslab.com, Juergen Gross <jgross@suse.com>,
+        Borislav Petkov <bp@suse.de>,
+        Nathan Chancellor <nathan@kernel.org>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20210920120421.29276-1-jgross@suse.com>
+References: <20210920120421.29276-1-jgross@suse.com>
 MIME-Version: 1.0
+Message-ID: <163233113662.25758.10031107028271701591.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.247
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable/linux-4.14.y baseline: 89 runs, 3 regressions (v4.14.247)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y baseline: 89 runs, 3 regressions (v4.14.247)
+The following commit has been merged into the x86/urgent branch of tip:
 
-Regressions Summary
--------------------
+Commit-ID:     8aa83e6395ce047a506f0b16edca45f36c1ae7f8
+Gitweb:        https://git.kernel.org/tip/8aa83e6395ce047a506f0b16edca45f36c1=
+ae7f8
+Author:        Juergen Gross <jgross@suse.com>
+AuthorDate:    Mon, 20 Sep 2021 14:04:21 +02:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Tue, 21 Sep 2021 09:52:08 +02:00
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
+x86/setup: Call early_reserve_memory() earlier
 
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
+Commit in Fixes introduced early_reserve_memory() to do all needed
+initial memblock_reserve() calls in one function. Unfortunately, the call
+of early_reserve_memory() is done too late for Xen dom0, as in some
+cases a Xen hook called by e820__memory_setup() will need those memory
+reservations to have happened already.
 
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
+Move the call of early_reserve_memory() before the call of
+e820__memory_setup() in order to avoid such problems.
 
+Fixes: a799c2bd29d1 ("x86/setup: Consolidate early memory reservations")
+Reported-by: Marek Marczykowski-G=C3=B3recki <marmarek@invisiblethingslab.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Marek Marczykowski-G=C3=B3recki <marmarek@invisiblethingslab.com>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20210920120421.29276-1-jgross@suse.com
+---
+ arch/x86/kernel/setup.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
-/v4.14.247/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.14.y
-  Describe: v4.14.247
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      8ea4f73cfa7e0555dc03aedde52db54a6587ab43 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/614b29dd6972e6b57999a2e5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.247/=
-arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.247/=
-arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/614b29dd6972e6b57999a=
-2e6
-        failing since 307 days (last pass: v4.14.206, first fail: v4.14.207=
-) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/614b2dfb7a0589c5c699a358
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.247/=
-arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.247/=
-arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/614b2dfb7a0589c5c699a=
-359
-        failing since 307 days (last pass: v4.14.206, first fail: v4.14.207=
-) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/614b2ad0a463838da099a2de
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.247/=
-arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.247/=
-arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/614b2ad0a463838da099a=
-2df
-        failing since 307 days (last pass: v4.14.206, first fail: v4.14.207=
-) =
-
- =20
+diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
+index 79f1641..40ed44e 100644
+--- a/arch/x86/kernel/setup.c
++++ b/arch/x86/kernel/setup.c
+@@ -830,6 +830,20 @@ void __init setup_arch(char **cmdline_p)
+=20
+ 	x86_init.oem.arch_setup();
+=20
++	/*
++	 * Do some memory reservations *before* memory is added to memblock, so
++	 * memblock allocations won't overwrite it.
++	 *
++	 * After this point, everything still needed from the boot loader or
++	 * firmware or kernel text should be early reserved or marked not RAM in
++	 * e820. All other memory is free game.
++	 *
++	 * This call needs to happen before e820__memory_setup() which calls the
++	 * xen_memory_setup() on Xen dom0 which relies on the fact that those
++	 * early reservations have happened already.
++	 */
++	early_reserve_memory();
++
+ 	iomem_resource.end =3D (1ULL << boot_cpu_data.x86_phys_bits) - 1;
+ 	e820__memory_setup();
+ 	parse_setup_data();
+@@ -876,18 +890,6 @@ void __init setup_arch(char **cmdline_p)
+=20
+ 	parse_early_param();
+=20
+-	/*
+-	 * Do some memory reservations *before* memory is added to
+-	 * memblock, so memblock allocations won't overwrite it.
+-	 * Do it after early param, so we could get (unlikely) panic from
+-	 * serial.
+-	 *
+-	 * After this point everything still needed from the boot loader or
+-	 * firmware or kernel text should be early reserved or marked not
+-	 * RAM in e820. All other memory is free game.
+-	 */
+-	early_reserve_memory();
+-
+ #ifdef CONFIG_MEMORY_HOTPLUG
+ 	/*
+ 	 * Memory used by the kernel cannot be hot-removed because Linux
