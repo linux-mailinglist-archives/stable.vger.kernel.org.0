@@ -2,116 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4A6E4147B0
-	for <lists+stable@lfdr.de>; Wed, 22 Sep 2021 13:19:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C66C84147CE
+	for <lists+stable@lfdr.de>; Wed, 22 Sep 2021 13:31:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235545AbhIVLV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 07:21:27 -0400
-Received: from mga01.intel.com ([192.55.52.88]:14308 "EHLO mga01.intel.com"
+        id S235671AbhIVLcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 07:32:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230171AbhIVLV0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Sep 2021 07:21:26 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10114"; a="246009773"
-X-IronPort-AV: E=Sophos;i="5.85,313,1624345200"; 
-   d="scan'208";a="246009773"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Sep 2021 04:19:51 -0700
-X-IronPort-AV: E=Sophos;i="5.85,313,1624345200"; 
-   d="scan'208";a="653237297"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Sep 2021 04:19:46 -0700
-Received: from andy by smile with local (Exim 4.95-RC2)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1mT0Hv-004AOf-HS;
-        Wed, 22 Sep 2021 14:19:43 +0300
-Date:   Wed, 22 Sep 2021 14:19:43 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Jonas =?iso-8859-1?Q?Dre=DFler?= <verdre@v0yd.nl>
-Cc:     Amitkumar Karwar <amitkarwar@gmail.com>,
-        Ganapathi Bhat <ganapathi017@gmail.com>,
-        Xinming Hu <huxinming820@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Tsuchiya Yuto <kitakar@gmail.com>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Brian Norris <briannorris@chromium.org>, stable@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] mwifiex: Try waking the firmware until we get an
- interrupt
-Message-ID: <YUsRT1rmtITJiJRh@smile.fi.intel.com>
-References: <20210914114813.15404-1-verdre@v0yd.nl>
- <20210914114813.15404-3-verdre@v0yd.nl>
+        id S235670AbhIVLcz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Sep 2021 07:32:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C2316112F;
+        Wed, 22 Sep 2021 11:31:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1632310283;
+        bh=STovjvU0XZDi7L8+lk7SbiglleEYhHaEwfszEHGGvJk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ntTLmyc0odssmC4DKR2AIWYEH8LzrTYEKih/C7jGJmfS/+4RhBNl/dUYe4C5IhWp6
+         1w+85uMNHCml5oTSHocesfF7CGa1e8eReKvh6SsoD7lyjX5pAfPlMk7W7p51oJ3CXa
+         day4oA3quJpv7LHc9G+Ur0tuZyG1U3lo1Qyj+WiiQis1+IatufCLc7nVUsaH6C/tOC
+         SBlbnWMJx7WfUQ3xXbmedMzNAWnHaRn7YW4CO+PA/sbH3BCIdjndDE3eodm4IrLuF1
+         UnOmPfgnCKr3HJtaF5T2OPUxCW33EQt99vvk2sevg984sZ1+DTGqTZYt+ysoY2bD/e
+         h52M2ylwY1XQA==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1mT0TC-0005Rx-NC; Wed, 22 Sep 2021 13:31:22 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     Malte Di Donato <malte@neo-soft.org>, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH 1/2] USB: serial: cp210x: fix dropped characters with CP2102
+Date:   Wed, 22 Sep 2021 13:30:59 +0200
+Message-Id: <20210922113100.20888-1-johan@kernel.org>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <YUsTYFOdMH/kQEyE@hovoldconsulting.com>
+References: <YUsTYFOdMH/kQEyE@hovoldconsulting.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210914114813.15404-3-verdre@v0yd.nl>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 14, 2021 at 01:48:13PM +0200, Jonas Dreßler wrote:
-> It seems that the firmware of the 88W8897 card sometimes ignores or
-> misses when we try to wake it up by writing to the firmware status
-> register. This leads to the firmware wakeup timeout expiring and the
-> driver resetting the card because we assume the firmware has hung up or
-> crashed (unfortunately that's not unlikely with this card).
-> 
-> Turns out that most of the time the firmware actually didn't hang up,
-> but simply "missed" our wakeup request and didn't send us an AWAKE
-> event.
-> 
-> Trying again to read the firmware status register after a short timeout
-> usually makes the firmware wake up as expected, so add a small retry
-> loop to mwifiex_pm_wakeup_card() that looks at the interrupt status to
-> check whether the card woke up.
-> 
-> The number of tries and timeout lengths for this were determined
-> experimentally: The firmware usually takes about 500 us to wake up
-> after we attempt to read the status register. In some cases where the
-> firmware is very busy (for example while doing a bluetooth scan) it
-> might even miss our requests for multiple milliseconds, which is why
-> after 15 tries the waiting time gets increased to 10 ms. The maximum
-> number of tries it took to wake the firmware when testing this was
-> around 20, so a maximum number of 50 tries should give us plenty of
-> safety margin.
-> 
-> A good reproducer for this issue is letting the firmware sleep and wake
-> up in very short intervals, for example by pinging a device on the
-> network every 0.1 seconds.
+Some CP2102 do not support event-insertion mode but return no error when
+attempting to enable it.
 
-...
+This means that any event escape characters in the input stream will not
+be escaped by the device and consequently regular data may be
+interpreted as escape sequences and be removed from the stream by the
+driver.
 
-> +	do {
-> +		if (mwifiex_write_reg(adapter, reg->fw_status, FIRMWARE_READY_PCIE)) {
-> +			mwifiex_dbg(adapter, ERROR,
-> +				    "Writing fw_status register failed\n");
-> +			return -EIO;
-> +		}
-> +
-> +		n_tries++;
-> +
-> +		if (n_tries <= N_WAKEUP_TRIES_SHORT_INTERVAL)
-> +			usleep_range(400, 700);
-> +		else
-> +			msleep(10);
-> +	} while (n_tries <= N_WAKEUP_TRIES_SHORT_INTERVAL + N_WAKEUP_TRIES_LONG_INTERVAL &&
-> +		 READ_ONCE(adapter->int_status) == 0);
+The reporter's device has batch number DCL00X etched into it and as
+discovered by the SHA2017 Badge team, counterfeit devices with that
+marking can be detected by sending malformed vendor requests. [1][2]
 
-Can't you use read_poll_timeout() twice instead of this custom approach?
+Tests confirm that the possibly counterfeit CP2102 returns a single byte
+in response to a malformed two-byte part-number request, while an
+original CP2102 returns two bytes. Assume that every CP2102 that behaves
+this way also does not support event-insertion mode (e.g. cannot report
+parity errors).
 
-> +	mwifiex_dbg(adapter, EVENT,
-> +		    "event: Tried %d times until firmware woke up\n", n_tries);
+[1] https://mobile.twitter.com/sha2017badge/status/1167902087289532418
+[2] https://hackaday.com/2017/08/14/hands-on-with-the-shacamp-2017-badge/#comment-3903376
 
+Reported-by: Malte Di Donato <malte@neo-soft.org>
+Fixes: a7207e9835a4 ("USB: serial: cp210x: add support for line-status events")
+Cc: stable@vger.kernel.org	# 5.9
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/usb/serial/cp210x.c | 35 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
+
+diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
+index 66a6ac50a4cd..b98454fe08ea 100644
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -258,6 +258,7 @@ struct cp210x_serial_private {
+ 	speed_t			max_speed;
+ 	bool			use_actual_rate;
+ 	bool			no_flow_control;
++	bool			no_event_mode;
+ };
+ 
+ enum cp210x_event_state {
+@@ -1113,12 +1114,16 @@ static void cp210x_change_speed(struct tty_struct *tty,
+ 
+ static void cp210x_enable_event_mode(struct usb_serial_port *port)
+ {
++	struct cp210x_serial_private *priv = usb_get_serial_data(port->serial);
+ 	struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
+ 	int ret;
+ 
+ 	if (port_priv->event_mode)
+ 		return;
+ 
++	if (priv->no_event_mode)
++		return;
++
+ 	port_priv->event_state = ES_DATA;
+ 	port_priv->event_mode = true;
+ 
+@@ -2074,6 +2079,33 @@ static void cp210x_init_max_speed(struct usb_serial *serial)
+ 	priv->use_actual_rate = use_actual_rate;
+ }
+ 
++static void cp2102_determine_quirks(struct usb_serial *serial)
++{
++	struct cp210x_serial_private *priv = usb_get_serial_data(serial);
++	u8 *buf;
++	int ret;
++
++	buf = kmalloc(2, GFP_KERNEL);
++	if (!buf)
++		return;
++	/*
++	 * Some (possibly counterfeit) CP2102 do not support event-insertion
++	 * mode and respond differently to malformed vendor requests.
++	 * Specifically, they return one instead of two bytes when sent a
++	 * two-byte part-number request.
++	 */
++	ret = usb_control_msg(serial->dev, usb_rcvctrlpipe(serial->dev, 0),
++			CP210X_VENDOR_SPECIFIC, REQTYPE_DEVICE_TO_HOST,
++			CP210X_GET_PARTNUM, 0, buf, 2, USB_CTRL_GET_TIMEOUT);
++	if (ret == 1) {
++		dev_dbg(&serial->interface->dev,
++				"device does not support event-insertion mode\n");
++		priv->no_event_mode = true;
++	}
++
++	kfree(buf);
++}
++
+ static int cp210x_get_fw_version(struct usb_serial *serial, u16 value)
+ {
+ 	struct cp210x_serial_private *priv = usb_get_serial_data(serial);
+@@ -2109,6 +2141,9 @@ static void cp210x_determine_type(struct usb_serial *serial)
+ 	}
+ 
+ 	switch (priv->partnum) {
++	case CP210X_PARTNUM_CP2102:
++		cp2102_determine_quirks(serial);
++		break;
+ 	case CP210X_PARTNUM_CP2105:
+ 	case CP210X_PARTNUM_CP2108:
+ 		cp210x_get_fw_version(serial, CP210X_GET_FW_VER);
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.32.0
 
