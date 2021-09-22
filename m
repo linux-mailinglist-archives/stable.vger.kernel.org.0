@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 292BD414EAE
-	for <lists+stable@lfdr.de>; Wed, 22 Sep 2021 19:03:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62C24414EB2
+	for <lists+stable@lfdr.de>; Wed, 22 Sep 2021 19:03:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236881AbhIVRE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 13:04:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36960 "EHLO
+        id S236966AbhIVREf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 13:04:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236904AbhIVREX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Sep 2021 13:04:23 -0400
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B180C061762;
-        Wed, 22 Sep 2021 10:02:53 -0700 (PDT)
-Received: by mail-pg1-x533.google.com with SMTP id r2so3346178pgl.10;
-        Wed, 22 Sep 2021 10:02:53 -0700 (PDT)
+        with ESMTP id S236907AbhIVREY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Sep 2021 13:04:24 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EBE8C061756;
+        Wed, 22 Sep 2021 10:02:54 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id n13-20020a17090a4e0d00b0017946980d8dso4938759pjh.5;
+        Wed, 22 Sep 2021 10:02:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=fkhLdmrHmkgMMt1LbOtoU8XmiMwNfTKIfISAPG6mWV4=;
-        b=AWLGCnuYxvuHY/eWdFDPkxcQLv7jJZh8vwJ7d8A6cIa3eww6dqaGbOnRFMNnTO0R/V
-         RF3kvi571krgpjhGf29g5i9m8OOQsee1GkHzR9MgjeeQL8LvOnlLqpqAqUoAq5qjnCtl
-         AoqY9UKJJpuevK+UaFl2RVLNMBzbw2zxeDuLK7YIwbW5t9+N+w01gl0LLO5IeLj9JALm
-         OFOLia3GjbBJUoSvomNY8TnzS+0Gytyt/s8KiqqHJWNYfeqczxqK+7UyrlkzgZ42Xsl4
-         mtOLrscUz/uzg6Sgw8ckqzGlcoinHeon8chJZ0I1Y2wY7lialFu5bo/kPWvn45y1+yd7
-         iCRw==
+        bh=Fx3CrEPWbTBsdv7Fz/Y72SC7soyMpdM/flXeUOHk7Co=;
+        b=TwM+747v2LFKhy4Rih8uHUePT0+8XwD2hHYYfx8p/1TRUtVOdLjRFtSHbpWXfx89Xn
+         LY1MVnSNQNWs4pu3Qkkr+CBP4K9iaKM8D8Tdo3LYpozMDK+l168Q39O2fAa3j2XD4/3m
+         W0RSrLW5ss8TFa/9TLLTAzN9zhlrIlt27bxOGT3KjPgQasSohY7ZJfqqnwtzMcEr25TB
+         +I9SLXezgpvOyVZD6F0QxvkcUSM8XmtQN+UUFCWnDuqfNrrOXbhUnjeqzC8bKd8TW19m
+         XOpRw5KJ7CePkuleCbITw0lvBCytwaChfyT0waL0NQof73QFkm0jlTaJI8ZJdD+TvqmN
+         DQhA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=fkhLdmrHmkgMMt1LbOtoU8XmiMwNfTKIfISAPG6mWV4=;
-        b=7ZGPSynq5ihe0GAu0wGenr3qYKxv2Yvnnqscv/N43gwy87u+XQR+TtohaVChsUeI1F
-         mndHj8DpSOte1YDqnYaonU1BDdqiwtFefi+ryQPLaBtPJQ89I6hxIAG6ThwabtSV2974
-         9YkF1p5mIFMUedsUYYi5LKDp58l8Ps0cAsUseUYfKf2xYDy2zQCuXI7DwrTp5bHOvDRr
-         uqnXaG+8KJZu3xU6V5E5UldqGRp3Sn9YzoFsbTeLEddXnsMVA1BuLsrVASEpq11zZBMu
-         FR/UQeeecVrCY8o/jTfiZ3tiTpOixD8m4xCUF21GG1kgETOG6lWoBEFlojZg7xzTWutg
-         1E4w==
-X-Gm-Message-State: AOAM530xiw10+Vc9/TPCBi9lOShhkH9Y/Hlz4pdZPR4jlTbajiB9osPG
-        W2CSzDWZRgrFUWSjqV/Kk+zoE1Zf8u8=
-X-Google-Smtp-Source: ABdhPJyq1J1vpE3mVxEq0jyvGL3dsAj/ovf2W3NVRIDnonFLCptD7fJ0s4Opf9VFyO8EYgfQ7iV0OA==
-X-Received: by 2002:a05:6a00:1ad0:b0:448:3f3a:5ad with SMTP id f16-20020a056a001ad000b004483f3a05admr161170pfv.63.1632330172243;
-        Wed, 22 Sep 2021 10:02:52 -0700 (PDT)
+        bh=Fx3CrEPWbTBsdv7Fz/Y72SC7soyMpdM/flXeUOHk7Co=;
+        b=lGuhglKMbmwf2lP4SVq36gNVEZmuTv3foqLwOoqYWfhipWyhSnj8H+muX1LWY1eQ5u
+         tWuazcRHLECBhsSlFYF7C9troWs9vpFMmv83QJul2Pnn+4cvGQAujvBrNVk7PJK/kpou
+         lcqnD2AuCwyggCapZlpPBZPp+TyEW/OSVtiL22x1KEGvUG+cAnaX6VHxi3k0UWZuuu6F
+         DZsaNaRlNuT2Kn49zQmDvVnniEn49ok2VmeBnNus1SDjgrbMY7pju8zEvG9GJk+KbUdC
+         dKvv+jWFhrQtuHTHjQIWSeWsTZmnfrUWH7OMeEWFEf8InCZZibQEWNK3gPG1/fQzrA6P
+         QtEw==
+X-Gm-Message-State: AOAM5321Gw1QggpTEUYaKuT6mhw2LXSLBsgqxi1s27/qvTgjUHFR/H6Q
+        gjCWTWaEcb0E+DxVW7JuFTlFTpOPY4U=
+X-Google-Smtp-Source: ABdhPJy8qdF3eNVCEKfipaUk/X14L4qjdseCSvBzodl54NLLOhw/4VV6bGK8Sc2UhF3hT1Wi2yGVEA==
+X-Received: by 2002:a17:90a:4d4e:: with SMTP id l14mr88932pjh.4.1632330173664;
+        Wed, 22 Sep 2021 10:02:53 -0700 (PDT)
 Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id x128sm3061885pfd.203.2021.09.22.10.02.50
+        by smtp.gmail.com with ESMTPSA id x128sm3061885pfd.203.2021.09.22.10.02.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Sep 2021 10:02:51 -0700 (PDT)
+        Wed, 22 Sep 2021 10:02:53 -0700 (PDT)
 From:   Florian Fainelli <f.fainelli@gmail.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     stable@vger.kernel.org,
@@ -59,9 +59,9 @@ Cc:     stable@vger.kernel.org,
         Ingo Molnar <mingo@redhat.com>,
         Russell King <linux@armlinux.org.uk>,
         linux-arm-kernel@lists.infradead.org (moderated list:ARM PORT)
-Subject: [PATCH stable 4.9 v2 1/4] ARM: 9077/1: PLT: Move struct plt_entries definition to header
-Date:   Wed, 22 Sep 2021 10:02:43 -0700
-Message-Id: <20210922170246.190499-2-f.fainelli@gmail.com>
+Subject: [PATCH stable 4.9 v2 2/4] ARM: 9078/1: Add warn suppress parameter to arm_gen_branch_link()
+Date:   Wed, 22 Sep 2021 10:02:44 -0700
+Message-Id: <20210922170246.190499-3-f.fainelli@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210922170246.190499-1-f.fainelli@gmail.com>
 References: <20210922170246.190499-1-f.fainelli@gmail.com>
@@ -73,65 +73,118 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alex Sverdlin <alexander.sverdlin@nokia.com>
 
-commit 4e271701c17dee70c6e1351c4d7d42e70405c6a9 upstream
+commit 890cb057a46d323fd8c77ebecb6485476614cd21 upstream
 
-No functional change, later it will be re-used in several files.
+Will be used in the following patch. No functional change.
 
 Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- arch/arm/include/asm/module.h | 9 +++++++++
- arch/arm/kernel/module-plts.c | 9 ---------
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ arch/arm/include/asm/insn.h |  8 ++++----
+ arch/arm/kernel/ftrace.c    |  2 +-
+ arch/arm/kernel/insn.c      | 19 ++++++++++---------
+ 3 files changed, 15 insertions(+), 14 deletions(-)
 
-diff --git a/arch/arm/include/asm/module.h b/arch/arm/include/asm/module.h
-index ed2319663a1e..2e9872a22359 100644
---- a/arch/arm/include/asm/module.h
-+++ b/arch/arm/include/asm/module.h
-@@ -18,6 +18,15 @@ enum {
- };
- #endif
+diff --git a/arch/arm/include/asm/insn.h b/arch/arm/include/asm/insn.h
+index e96065da4dae..0043bf609f27 100644
+--- a/arch/arm/include/asm/insn.h
++++ b/arch/arm/include/asm/insn.h
+@@ -12,18 +12,18 @@ arm_gen_nop(void)
+ }
  
-+#define PLT_ENT_STRIDE		L1_CACHE_BYTES
-+#define PLT_ENT_COUNT		(PLT_ENT_STRIDE / sizeof(u32))
-+#define PLT_ENT_SIZE		(sizeof(struct plt_entries) / PLT_ENT_COUNT)
-+
-+struct plt_entries {
-+	u32	ldr[PLT_ENT_COUNT];
-+	u32	lit[PLT_ENT_COUNT];
-+};
-+
- struct mod_plt_sec {
- 	struct elf32_shdr	*plt;
- 	int			plt_count;
-diff --git a/arch/arm/kernel/module-plts.c b/arch/arm/kernel/module-plts.c
-index 3d0c2e4dda1d..f272711c411f 100644
---- a/arch/arm/kernel/module-plts.c
-+++ b/arch/arm/kernel/module-plts.c
-@@ -14,10 +14,6 @@
- #include <asm/cache.h>
+ unsigned long
+-__arm_gen_branch(unsigned long pc, unsigned long addr, bool link);
++__arm_gen_branch(unsigned long pc, unsigned long addr, bool link, bool warn);
+ 
+ static inline unsigned long
+ arm_gen_branch(unsigned long pc, unsigned long addr)
+ {
+-	return __arm_gen_branch(pc, addr, false);
++	return __arm_gen_branch(pc, addr, false, true);
+ }
+ 
+ static inline unsigned long
+-arm_gen_branch_link(unsigned long pc, unsigned long addr)
++arm_gen_branch_link(unsigned long pc, unsigned long addr, bool warn)
+ {
+-	return __arm_gen_branch(pc, addr, true);
++	return __arm_gen_branch(pc, addr, true, warn);
+ }
+ 
+ #endif
+diff --git a/arch/arm/kernel/ftrace.c b/arch/arm/kernel/ftrace.c
+index 414e60ed0257..a95bc0a02fd8 100644
+--- a/arch/arm/kernel/ftrace.c
++++ b/arch/arm/kernel/ftrace.c
+@@ -97,7 +97,7 @@ int ftrace_arch_code_modify_post_process(void)
+ 
+ static unsigned long ftrace_call_replace(unsigned long pc, unsigned long addr)
+ {
+-	return arm_gen_branch_link(pc, addr);
++	return arm_gen_branch_link(pc, addr, true);
+ }
+ 
+ static int ftrace_modify_code(unsigned long pc, unsigned long old,
+diff --git a/arch/arm/kernel/insn.c b/arch/arm/kernel/insn.c
+index b760340b7014..eaded01b7edf 100644
+--- a/arch/arm/kernel/insn.c
++++ b/arch/arm/kernel/insn.c
+@@ -2,8 +2,9 @@
+ #include <linux/kernel.h>
  #include <asm/opcodes.h>
  
--#define PLT_ENT_STRIDE		L1_CACHE_BYTES
--#define PLT_ENT_COUNT		(PLT_ENT_STRIDE / sizeof(u32))
--#define PLT_ENT_SIZE		(sizeof(struct plt_entries) / PLT_ENT_COUNT)
--
- #ifdef CONFIG_THUMB2_KERNEL
- #define PLT_ENT_LDR		__opcode_to_mem_thumb32(0xf8dff000 | \
- 							(PLT_ENT_STRIDE - 4))
-@@ -26,11 +22,6 @@
- 						    (PLT_ENT_STRIDE - 8))
- #endif
- 
--struct plt_entries {
--	u32	ldr[PLT_ENT_COUNT];
--	u32	lit[PLT_ENT_COUNT];
--};
--
- static bool in_init(const struct module *mod, unsigned long loc)
+-static unsigned long
+-__arm_gen_branch_thumb2(unsigned long pc, unsigned long addr, bool link)
++static unsigned long __arm_gen_branch_thumb2(unsigned long pc,
++					     unsigned long addr, bool link,
++					     bool warn)
  {
- 	return loc - (u32)mod->init_layout.base < mod->init_layout.size;
+ 	unsigned long s, j1, j2, i1, i2, imm10, imm11;
+ 	unsigned long first, second;
+@@ -11,7 +12,7 @@ __arm_gen_branch_thumb2(unsigned long pc, unsigned long addr, bool link)
+ 
+ 	offset = (long)addr - (long)(pc + 4);
+ 	if (offset < -16777216 || offset > 16777214) {
+-		WARN_ON_ONCE(1);
++		WARN_ON_ONCE(warn);
+ 		return 0;
+ 	}
+ 
+@@ -32,8 +33,8 @@ __arm_gen_branch_thumb2(unsigned long pc, unsigned long addr, bool link)
+ 	return __opcode_thumb32_compose(first, second);
+ }
+ 
+-static unsigned long
+-__arm_gen_branch_arm(unsigned long pc, unsigned long addr, bool link)
++static unsigned long __arm_gen_branch_arm(unsigned long pc, unsigned long addr,
++					  bool link, bool warn)
+ {
+ 	unsigned long opcode = 0xea000000;
+ 	long offset;
+@@ -43,7 +44,7 @@ __arm_gen_branch_arm(unsigned long pc, unsigned long addr, bool link)
+ 
+ 	offset = (long)addr - (long)(pc + 8);
+ 	if (unlikely(offset < -33554432 || offset > 33554428)) {
+-		WARN_ON_ONCE(1);
++		WARN_ON_ONCE(warn);
+ 		return 0;
+ 	}
+ 
+@@ -53,10 +54,10 @@ __arm_gen_branch_arm(unsigned long pc, unsigned long addr, bool link)
+ }
+ 
+ unsigned long
+-__arm_gen_branch(unsigned long pc, unsigned long addr, bool link)
++__arm_gen_branch(unsigned long pc, unsigned long addr, bool link, bool warn)
+ {
+ 	if (IS_ENABLED(CONFIG_THUMB2_KERNEL))
+-		return __arm_gen_branch_thumb2(pc, addr, link);
++		return __arm_gen_branch_thumb2(pc, addr, link, warn);
+ 	else
+-		return __arm_gen_branch_arm(pc, addr, link);
++		return __arm_gen_branch_arm(pc, addr, link, warn);
+ }
 -- 
 2.25.1
 
