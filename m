@@ -2,174 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7D0A414462
-	for <lists+stable@lfdr.de>; Wed, 22 Sep 2021 11:01:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A7E9414465
+	for <lists+stable@lfdr.de>; Wed, 22 Sep 2021 11:02:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233969AbhIVJCr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 05:02:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39704 "EHLO mail.kernel.org"
+        id S233959AbhIVJDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 05:03:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233792AbhIVJCq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Sep 2021 05:02:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E464861368;
-        Wed, 22 Sep 2021 09:01:15 +0000 (UTC)
+        id S233792AbhIVJDa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Sep 2021 05:03:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AE0561168;
+        Wed, 22 Sep 2021 09:01:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632301276;
-        bh=/FE1FpcrzYtcLLXiaDU/x0krUfZQg35qkyKAzCzIZAg=;
-        h=Subject:To:Cc:From:Date:From;
-        b=UwNtmQW5C81HHFfYjr2jxj6OHVCpX8uH1KIkBlQ8YNLmuqrClSROsVW7fI7t9XkcJ
-         hcOkb0icESMqA8qHvWbQCvmizRTMzOEeTc3MmNPiqbbRVzG2qKpnx52FY2begbenFm
-         yJyqayBEwpfsvdXnhQMA117Vv9vBf66z5U3caLKI=
-Subject: FAILED: patch "[PATCH] net: stmmac: fix MAC not working when system resume back with" failed to apply to 5.10-stable tree
-To:     qiangqing.zhang@nxp.com, davem@davemloft.net
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 22 Sep 2021 11:01:13 +0200
-Message-ID: <1632301273232242@kroah.com>
+        s=korg; t=1632301320;
+        bh=wABkdmLWjJei1aa8B81WXoyTF6MgRd6Kw3Q8IFkIP+A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=S420VcfTPSm7ixnGU/wvwas+3ZF3wFholHEcnMzG0V9EhmvDWaVK6OTPzrnPSEgeZ
+         MhmNVeMC8i3HZwMwhlukT7KudLyPultuxhsa5Uq3+jRrODGdTT8nF3ZwGe2mXFqz/e
+         Zdl9gNGnAt8q7jdyR63pHXNdDXEGdzVQPJg/wd9g=
+Date:   Wed, 22 Sep 2021 11:01:58 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     "Russell King (Oracle)" <linux@armlinux.org.uk>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 079/122] net: phylink: add suspend/resume support
+Message-ID: <YUrxBtx6e8qdR6Cl@kroah.com>
+References: <20210920163915.757887582@linuxfoundation.org>
+ <20210920163918.373775935@linuxfoundation.org>
+ <20210921212837.GA29170@duo.ucw.cz>
+ <YUpPmRPczcLveKj4@shell.armlinux.org.uk>
+ <20210921214528.GA30221@duo.ucw.cz>
+ <YUrwGs6H0eNmaJTE@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YUrwGs6H0eNmaJTE@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Sep 22, 2021 at 10:58:02AM +0200, Greg Kroah-Hartman wrote:
+> On Tue, Sep 21, 2021 at 11:45:28PM +0200, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > > > Joakim Zhang reports that Wake-on-Lan with the stmmac ethernet driver broke
+> > > > > when moving the incorrect handling of mac link state out of mac_config().
+> > > > > This reason this breaks is because the stmmac's WoL is handled by the MAC
+> > > > > rather than the PHY, and phylink doesn't cater for that scenario.
+> > > > > 
+> > > > > This patch adds the necessary phylink code to handle suspend/resume events
+> > > > > according to whether the MAC still needs a valid link or not. This is the
+> > > > > barest minimum for this support.
+> > > > 
+> > > > This adds functions that end up being unused in 5.10. AFAICT we do not
+> > > > need this in 5.10.
+> > > 
+> > > It needs to be backported to any kernel that also has
+> > > "net: stmmac: fix MAC not working when system resume back with WoL active"
+> > > backported to. From what I can tell, the fixes line in that commit
+> > > refers to a commit (46f69ded988d) in v5.7-rc1.
+> > > 
+> > > If "net: stmmac: fix MAC not working when system resume back with WoL
+> > > active" is not being backported to 5.10, then there is no need to
+> > > backport this patch.
+> > 
+> > Agreed.
+> > 
+> > > As I'm not being copied on the stmmac commit, I've no idea which kernels
+> > > this patch should be backported to.
+> > 
+> > AFAICT "net: stmmac: fix MAC not working when..." is not queued for
+> > 5.10.68-rc1 or 5.14.7-rc1.
+> 
+> I can easily do that, thanks!
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Only applied to 5.14, so I'll drop this patch from the 5.10 queue.
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 90702dcd19c093621b422ba16fcfd870afe2552f Mon Sep 17 00:00:00 2001
-From: Joakim Zhang <qiangqing.zhang@nxp.com>
-Date: Tue, 7 Sep 2021 18:56:47 +0800
-Subject: [PATCH] net: stmmac: fix MAC not working when system resume back with
- WoL active
-
-We can reproduce this issue with below steps:
-1) enable WoL on the host
-2) host system suspended
-3) remote client send out wakeup packets
-We can see that host system resume back, but can't work, such as ping failed.
-
-After a bit digging, this issue is introduced by the commit 46f69ded988d
-("net: stmmac: Use resolved link config in mac_link_up()"), which use
-the finalised link parameters in mac_link_up() rather than the
-parameters in mac_config().
-
-There are two scenarios for MAC suspend/resume in STMMAC driver:
-
-1) MAC suspend with WoL inactive, stmmac_suspend() call
-phylink_mac_change() to notify phylink machine that a change in MAC
-state, then .mac_link_down callback would be invoked. Further, it will
-call phylink_stop() to stop the phylink instance. When MAC resume back,
-firstly phylink_start() is called to start the phylink instance, then
-call phylink_mac_change() which will finally trigger phylink machine to
-invoke .mac_config and .mac_link_up callback. All is fine since
-configuration in these two callbacks will be initialized, that means MAC
-can restore the state.
-
-2) MAC suspend with WoL active, phylink_mac_change() will put link
-down, but there is no phylink_stop() to stop the phylink instance, so it
-will link up again, that means .mac_config and .mac_link_up would be
-invoked before system suspended. After system resume back, it will do
-DMA initialization and SW reset which let MAC lost the hardware setting
-(i.e MAC_Configuration register(offset 0x0) is reset). Since link is up
-before system suspended, so .mac_link_up would not be invoked after
-system resume back, lead to there is no chance to initialize the
-configuration in .mac_link_up callback, as a result, MAC can't work any
-longer.
-
-After discussed with Russell King [1], we confirm that phylink framework
-have not take WoL into consideration yet. This patch calls
-phylink_suspend()/phylink_resume() functions which is newly introduced
-by Russell King to fix this issue.
-
-[1] https://lore.kernel.org/netdev/20210901090228.11308-1-qiangqing.zhang@nxp.com/
-
-Fixes: 46f69ded988d ("net: stmmac: Use resolved link config in mac_link_up()")
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 97238359e101..ece02b35a6ce 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -7123,8 +7123,6 @@ int stmmac_suspend(struct device *dev)
- 	if (!ndev || !netif_running(ndev))
- 		return 0;
- 
--	phylink_mac_change(priv->phylink, false);
--
- 	mutex_lock(&priv->lock);
- 
- 	netif_device_detach(ndev);
-@@ -7150,14 +7148,6 @@ int stmmac_suspend(struct device *dev)
- 		stmmac_pmt(priv, priv->hw, priv->wolopts);
- 		priv->irq_wake = 1;
- 	} else {
--		mutex_unlock(&priv->lock);
--		rtnl_lock();
--		if (device_may_wakeup(priv->device))
--			phylink_speed_down(priv->phylink, false);
--		phylink_stop(priv->phylink);
--		rtnl_unlock();
--		mutex_lock(&priv->lock);
--
- 		stmmac_mac_set(priv, priv->ioaddr, false);
- 		pinctrl_pm_select_sleep_state(priv->device);
- 		/* Disable clock in case of PWM is off */
-@@ -7171,6 +7161,16 @@ int stmmac_suspend(struct device *dev)
- 
- 	mutex_unlock(&priv->lock);
- 
-+	rtnl_lock();
-+	if (device_may_wakeup(priv->device) && priv->plat->pmt) {
-+		phylink_suspend(priv->phylink, true);
-+	} else {
-+		if (device_may_wakeup(priv->device))
-+			phylink_speed_down(priv->phylink, false);
-+		phylink_suspend(priv->phylink, false);
-+	}
-+	rtnl_unlock();
-+
- 	if (priv->dma_cap.fpesel) {
- 		/* Disable FPE */
- 		stmmac_fpe_configure(priv, priv->ioaddr,
-@@ -7261,13 +7261,15 @@ int stmmac_resume(struct device *dev)
- 			return ret;
- 	}
- 
--	if (!device_may_wakeup(priv->device) || !priv->plat->pmt) {
--		rtnl_lock();
--		phylink_start(priv->phylink);
--		/* We may have called phylink_speed_down before */
--		phylink_speed_up(priv->phylink);
--		rtnl_unlock();
-+	rtnl_lock();
-+	if (device_may_wakeup(priv->device) && priv->plat->pmt) {
-+		phylink_resume(priv->phylink);
-+	} else {
-+		phylink_resume(priv->phylink);
-+		if (device_may_wakeup(priv->device))
-+			phylink_speed_up(priv->phylink);
- 	}
-+	rtnl_unlock();
- 
- 	rtnl_lock();
- 	mutex_lock(&priv->lock);
-@@ -7288,8 +7290,6 @@ int stmmac_resume(struct device *dev)
- 	mutex_unlock(&priv->lock);
- 	rtnl_unlock();
- 
--	phylink_mac_change(priv->phylink, true);
--
- 	netif_device_attach(ndev);
- 
- 	return 0;
-
