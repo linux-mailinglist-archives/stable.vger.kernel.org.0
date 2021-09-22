@@ -2,150 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C05EB414D8A
-	for <lists+stable@lfdr.de>; Wed, 22 Sep 2021 17:55:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A93EA414DD5
+	for <lists+stable@lfdr.de>; Wed, 22 Sep 2021 18:12:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233129AbhIVP5K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 11:57:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49624 "EHLO
+        id S232357AbhIVQN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 12:13:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230480AbhIVP5J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Sep 2021 11:57:09 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ED15C061574
-        for <stable@vger.kernel.org>; Wed, 22 Sep 2021 08:55:39 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id z14-20020a17090a8b8e00b0019cc29ceef1so4823224pjn.1
-        for <stable@vger.kernel.org>; Wed, 22 Sep 2021 08:55:39 -0700 (PDT)
+        with ESMTP id S236506AbhIVQN4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Sep 2021 12:13:56 -0400
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 726F7C061574;
+        Wed, 22 Sep 2021 09:12:26 -0700 (PDT)
+Received: by mail-pj1-x102f.google.com with SMTP id mv7-20020a17090b198700b0019c843e7233so2680425pjb.4;
+        Wed, 22 Sep 2021 09:12:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=8EjP5gCpriu1iZ5gtdeEVLv6c7FGocdrmSFmdS4EBS8=;
-        b=2LomjjpzRW7zgw9WNhhOKBWCGwDHRa8C7co7ZBoV2M94xr3OMGjtVT/WplYlZNVLTD
-         6c51VCBD4l1FndMfmVMNUOLWfWkkN9xFp18uHNOGAMiEISvsVO1IzQwdq9UslfdZvA8q
-         l8rFYChMN4cYKhpPgVs1tr1HKFTenPe9Bz+Qh4nlyzcf6CMqHEV0fpaYimA1zHT5Krtz
-         8qbB1+Qx6IQ9P0tPAVj/IcvgFwaxXQQLBNCSaYq9Q6hXcDvACYGs77jLF2LjuPwyYIxC
-         vh7p5FvbnR3uGG2RSfeiGe+dPhIB4B5gOMe/+5r1x9d7uxwQWVHLUrqm60/aZam/VfdV
-         Y2ZQ==
+        d=gmail.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=ZINFEPPh5tg9DcuNidDp1iGsjEhXUfCCil0bzDOEJ+A=;
+        b=Bsql6hS/N+ovN75mrNVkPa428mUsRoN6xdFG3tmvlK2WZPnGno+Bbg5Whs6NzJZbq8
+         L03Xh1/RJMaWg7ulP4XR5GToMa1z8gaWh9KdjVncLaF11zzGgIG0mzZpDqlaqfpvw819
+         2gnLm8weaKGzwoBJat1IiRb9KDbB+P+/IPjRcWW64NoCl0otFek4BVHPCj3rsLcXIwU4
+         FJMxRyX2W7/v0ActDNgd00u/sRWYREEN7taJQ4rMIIiFrazFQzA6NAkvkhzOcxYqeTyF
+         CHsRPxPI220ZJKkpI2+FlVOixD2mjGKQWpv1gq7dggYCKhRiw7zoGD73IwTfe1PXaYGh
+         YwAA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=8EjP5gCpriu1iZ5gtdeEVLv6c7FGocdrmSFmdS4EBS8=;
-        b=nk9uNRlFVXoSgY/CHPV26pjyMeIAfvRfhUJ6woqhPwJFta8+c+nYwL9ZuC7OoTFyia
-         87xCCZ3RhAKeV8wBSfmLTSnnwBhKKH4/QXrR2CxWnIx+xmJMRR94YHvNtQVtTZpLDN3+
-         8QQf2oQB3oai+ezbng7grsPBu7wtrVA5BYezLfWVvOLRjVnfKqZ9fcwNmeIosON/uyxq
-         h8BZOfRcw5PZKszPBcqY2+jXNjKWxZdz8ieA/fxGqDWmG4evlvflGmEqOlQ/OcPQeeUQ
-         CtUK8RehBbJiiCz2szqMyh06VPPNIqx0lNRxcv43bexRO+P6bvY5QNCIu+Tu9Sa6lqZh
-         IaYA==
-X-Gm-Message-State: AOAM530QGJop/tfiQLe/542bTm59qACo/3ZhHT/xTS7brD1p8ohx8UYU
-        duHiypPi8V3iwjS82D5luPKlVDtrsDOE+u9V
-X-Google-Smtp-Source: ABdhPJwkmUqToEEBpA/FLEjlt5bX/KodzoHYOqjRC0WszNuoQ8a7beAMzctg+QYGDt89yBqR+52d8Q==
-X-Received: by 2002:a17:902:780f:b0:13a:3a88:f4cb with SMTP id p15-20020a170902780f00b0013a3a88f4cbmr311028pll.68.1632326139011;
-        Wed, 22 Sep 2021 08:55:39 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d14sm3039207pfq.61.2021.09.22.08.55.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Sep 2021 08:55:38 -0700 (PDT)
-Message-ID: <614b51fa.1c69fb81.b24c6.7f0c@mx.google.com>
-Date:   Wed, 22 Sep 2021 08:55:38 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ZINFEPPh5tg9DcuNidDp1iGsjEhXUfCCil0bzDOEJ+A=;
+        b=QZVGFJ3cpPoKLbrBlB0ZNtHO7LGKTf952UxBHpKywibjLfHl+ZmIYk4isjadu4aws6
+         MLGpjdeU7dp+OSP1/JzoKa+G6lUNWM+TEXdnBc4SBsncEFsnWqoBP9le+/ir/KNzN6B7
+         7NWcKDzugidb7lI9ANOx4IP3Bj4xG1G71RRZ1UHdt5zmXXbUieXL5NlK/qLuQ63f35N3
+         nA9whAUcw+uekCloWX4/EZ4ts2aPpGs0FPyXPxzbgzxIKBxfi3LjKtlbP/QgO81MoMb7
+         hwwcoYmS5fW8DhC5KGsCFzfPQ6oA0bLrLxmsvihMLVllBHFLl00O2hmdPxwUu+G11AEK
+         b/8g==
+X-Gm-Message-State: AOAM5307/T3yLZ/ZVlDLbR8W+PnWEcOM2TDpeaJNo5delYeikA8DzQAl
+        A6LGK/phO45RrGQy7dt+4R0=
+X-Google-Smtp-Source: ABdhPJzDmGgeDok7iSg/MA/CENANSQczlBxbqQwxO576Ge3GXyi9Mc/pOxPVv3DEGTmZWfiyvSNQhg==
+X-Received: by 2002:a17:902:8ec5:b0:13a:2789:cbb0 with SMTP id x5-20020a1709028ec500b0013a2789cbb0mr80225plo.60.1632327145920;
+        Wed, 22 Sep 2021 09:12:25 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id l11sm6188421pjg.22.2021.09.22.09.12.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 22 Sep 2021 09:12:25 -0700 (PDT)
+Subject: Re: [PATCH stable 5.10 3/3] ARM: 9079/1: ftrace: Add MODULE_PLTS
+ support
+To:     Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>
+References: <20210922023947.59636-1-f.fainelli@gmail.com>
+ <20210922023947.59636-4-f.fainelli@gmail.com>
+ <d374a9ae-2dd0-3b11-d5f8-211ef3a6f991@nokia.com>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <8acd5f74-7dcb-d563-310d-01e1bd066065@gmail.com>
+Date:   Wed, 22 Sep 2021 09:12:23 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.67-125-gcad917b556de
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 baseline: 93 runs,
- 2 regressions (v5.10.67-125-gcad917b556de)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <d374a9ae-2dd0-3b11-d5f8-211ef3a6f991@nokia.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 93 runs, 2 regressions (v5.10.67-125-gcad917=
-b556de)
+Hi Alex,
 
-Regressions Summary
--------------------
+On 9/21/21 11:53 PM, Alexander Sverdlin wrote:
+> Hello Florian,
+> 
+> On 22/09/2021 04:39, Florian Fainelli wrote:
+>> From: Alex Sverdlin <alexander.sverdlin@nokia.com>
+>>
+>> commit 79f32b221b18c15a98507b101ef4beb52444cc6f upstream
+>>
+>> Teach ftrace_make_call() and ftrace_make_nop() about PLTs.
+>> Teach PLT code about FTRACE and all its callbacks.
+> 
+> sorry for inconvenience, but I'd propose to add 6fa630bf473827ae
+> "ARM: 9098/1: ftrace: MODULE_PLT: Fix build problem without DYNAMIC_FTRACE"
+> to all series on this topic, because of the below chunk which might
+> lead to build issues on some exotic configurations.
+> 
+> Link: https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org/thread/ZUVCQBHDMFVR7CCB7JPESLJEWERZDJ3T/
 
-platform   | arch  | lab           | compiler | defconfig | regressions
------------+-------+---------------+----------+-----------+------------
-hip07-d05  | arm64 | lab-collabora | gcc-8    | defconfig | 1          =
-
-imx8mp-evk | arm64 | lab-nxp       | gcc-8    | defconfig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.67-125-gcad917b556de/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.67-125-gcad917b556de
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      cad917b556de0aaf8c58ff95498519101f455d98 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch  | lab           | compiler | defconfig | regressions
------------+-------+---------------+----------+-----------+------------
-hip07-d05  | arm64 | lab-collabora | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/614b17b8da0993333d99a301
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.67-=
-125-gcad917b556de/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.67-=
-125-gcad917b556de/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/614b17b8da0993333d99a=
-302
-        failing since 82 days (last pass: v5.10.46-100-gce5b41f85637, first=
- fail: v5.10.46-100-g3b96099161c8b) =
-
- =
-
-
-
-platform   | arch  | lab           | compiler | defconfig | regressions
------------+-------+---------------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp       | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/614b18a301c01e259b99a41e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.67-=
-125-gcad917b556de/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.67-=
-125-gcad917b556de/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/614b18a301c01e259b99a=
-41f
-        new failure (last pass: v5.10.67-124-gd409bad9aec2) =
-
- =20
+Good point, missed that one, I will add it to the stable submission and
+resend, thanks!
+-- 
+Florian
