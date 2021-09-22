@@ -2,108 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76519414EAA
-	for <lists+stable@lfdr.de>; Wed, 22 Sep 2021 19:03:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF0B2414EAD
+	for <lists+stable@lfdr.de>; Wed, 22 Sep 2021 19:03:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236892AbhIVREW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 13:04:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36950 "EHLO
+        id S236887AbhIVREZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 13:04:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236897AbhIVREQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Sep 2021 13:04:16 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CE07C061760;
-        Wed, 22 Sep 2021 10:02:46 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id g13-20020a17090a3c8d00b00196286963b9so4944117pjc.3;
-        Wed, 22 Sep 2021 10:02:46 -0700 (PDT)
+        with ESMTP id S236888AbhIVREV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Sep 2021 13:04:21 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF6D6C0613C1;
+        Wed, 22 Sep 2021 10:02:51 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id il14-20020a17090b164e00b0019c7a7c362dso4215085pjb.0;
+        Wed, 22 Sep 2021 10:02:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=ETleUGqj8okouLW+8qnjHS0760cK4CL53iB0k0eC4GY=;
-        b=k2wtHK3USFd9j4g6rhZDiqO8gQxIgorBlD6/bRU6yTRL/jAxxNnA4z5voyxvUtB7+0
-         7VJw4sBzWPf0Ic4gdwN3hILmfIX3H61qBSZhta653zIlzV/jPV1rmFHLDuhWl/cD7Yq4
-         MWk/5U50UsybP8loaTjsTrS3/WVRUi5uAB/wXhnY0AFrpuUHel/Pjbv4Q5M3VHZ/tqqs
-         2H2/5EHDWEXCFMWF8LtoKbU2ocjDTu3hnYDn8mxd48/mORotIHSeVlQa5jt32oPl9AfO
-         ahz8Si2apdOArcELPV++FwUwRJMenhrydI0He8wzXxBbrMTjYNDknLpHyel+ldTBkzeP
-         XZnA==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Rvl8tmfvf2C7R5Ue8yrks7dkuzK6wpg/W2fngVsGu6A=;
+        b=p/OTnKhZXnU9w6ExB7IXQytxV0x7S7LWzuZk0CMovUx8RcfhVCN4VV0HT1og9MTTTl
+         SA1Z22EZAzo9eqFb2XxLxjFKPzEL9zjGcll1EQebbxaVoFsJ8NqKvlU/kgL+9O5qwaA2
+         eQC5RQ7esOXCW1tziyGWDKXc9Y+CzQ0sSYVS4Tmag6RSMYD4gTtv6CkVYN01k4EYRmQo
+         QnjFGOoTeKJl5F3XeF0Xm7dcoZ5rAKGEH61NrbNODJDgbkqk9XPCJQ6EauYhAC0kfl/Y
+         iA9dYNL8YypHv8q2VgOesWzki1c5jVPVdss+b+NWWuCdSmmuMldnKIWkWFByEZfc1Nic
+         6TRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=ETleUGqj8okouLW+8qnjHS0760cK4CL53iB0k0eC4GY=;
-        b=QHdDUoFfRepCP8W+o/dwgAnIFIGbOhWlDSNzCJZF41OJ1/2VshwW2gE3tqYPU6K3Tp
-         9srdpeZ32wVBGVg7NyItmhSYooLSJ6IWnz70VHz5sgoPW/4brHr/P2NZXV02mnXiXLZP
-         8XZi6qcbNptGXRYI3CmHhyg9wzFG/csvu4JkEnHMLhWoZDMARIWaFSJAHI3ijvrOaTuZ
-         V7g4r7U+6jhorFzn+kY582hUCiJVZFaxJ3/YS+oBwIWV+asdLwEiAwW7xu5CTlzHXqxy
-         i3/VdYz7Zmgq3YrwvMQ0N/HgPTzh6tcaKIXOHM/Ab2rOZgd0J93PwUt1MORWsasDLDQb
-         bWow==
-X-Gm-Message-State: AOAM5331Z0zIgqSfLsrlRg1g+NAO+xLDbzhzD/+HvT7LvPGpFR6ySwNZ
-        h/kvaFAHH+Szu/g6iJG2LJno/CRSZGw=
-X-Google-Smtp-Source: ABdhPJyRB4L0oBIj+6x2v+HY/YmVxCvJdwS4UxJ0hRbjx4wcyGszvCvifJkNhxvd63eCMnbsxWZFSw==
-X-Received: by 2002:a17:90b:20b:: with SMTP id fy11mr4951994pjb.214.1632330165605;
-        Wed, 22 Sep 2021 10:02:45 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Rvl8tmfvf2C7R5Ue8yrks7dkuzK6wpg/W2fngVsGu6A=;
+        b=4IegDddDDFONfrTv/lUSbKYSo/NVCEjqK4D030cWkUfGVKqpicts74AuU5GOnDcppK
+         f8NvXHmend9eGa2qaSnMAHCEEu3DjcC0/A0jHpOzUGsEkVpmaBUnP6Y0byUnTLfTG9+z
+         t+3zfWfq86Ey6yEtxmpbd2jlGg/Y/frOtn4w2HMWFkvFBotTPeuEKvzT/UXrPyoE+ead
+         dMgD7XVGdDCuVBNkrihEZFglCBf61dJJOuek/AoGFwTgWiwgSp+/gl5mrAI3O8gkPiAu
+         fKPBxaJhTGqGeYbxi5RpBb5kFIngd1p+mKEFsMpEGGGJimXQUK5zQRjfjvHM7g5T5Zbm
+         LLFA==
+X-Gm-Message-State: AOAM532NWOh61fYx6wCDkbeg+xA/7+ow7zHSO2urLoLxEOzJflUhJFS1
+        LMmDS1BmdZX1TXbv2PwgHyCgBSQtJDw=
+X-Google-Smtp-Source: ABdhPJyLuBmoKI65hA710VcifTWmqWSOfB37toRSLw5mdPrpZqTnTEBL6kxY2mZ9Dj551bdg63bGXw==
+X-Received: by 2002:a17:902:c205:b0:13c:a76c:4904 with SMTP id 5-20020a170902c20500b0013ca76c4904mr469264pll.85.1632330170725;
+        Wed, 22 Sep 2021 10:02:50 -0700 (PDT)
 Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id r76sm2796579pfc.2.2021.09.22.10.02.40
+        by smtp.gmail.com with ESMTPSA id x128sm3061885pfd.203.2021.09.22.10.02.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Sep 2021 10:02:45 -0700 (PDT)
+        Wed, 22 Sep 2021 10:02:50 -0700 (PDT)
 From:   Florian Fainelli <f.fainelli@gmail.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     stable@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>,
-        Alex Sverdlin <alexander.sverdlin@nokia.com>,
-        kernel test robot <lkp@intel.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Steven Rostedt <rostedt@goodmis.org>,
         Ingo Molnar <mingo@redhat.com>,
         Russell King <linux@armlinux.org.uk>,
+        Alex Sverdlin <alexander.sverdlin@nokia.com>,
         linux-arm-kernel@lists.infradead.org (moderated list:ARM PORT)
-Subject: [PATCH stable 4.14 v2 4/4] ARM: 9098/1: ftrace: MODULE_PLT: Fix build problem without DYNAMIC_FTRACE
-Date:   Wed, 22 Sep 2021 10:02:10 -0700
-Message-Id: <20210922170210.190410-5-f.fainelli@gmail.com>
+Subject: [PATCH stable 4.9 v2 0/4] ARM: ftrace MODULE_PLTS warning
+Date:   Wed, 22 Sep 2021 10:02:42 -0700
+Message-Id: <20210922170246.190499-1-f.fainelli@gmail.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210922170210.190410-1-f.fainelli@gmail.com>
-References: <20210922170210.190410-1-f.fainelli@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Sverdlin <alexander.sverdlin@nokia.com>
+This patch series is present in v5.14 and fixes warnings seen at insmod
+with FTRACE and MODULE_PLTS enabled on ARM/Linux.
 
-commit 6fa630bf473827aee48cbf0efbbdf6f03134e890 upstream
+Changes in v2:
 
-FTRACE_ADDR is only defined when CONFIG_DYNAMIC_FTRACE is defined, the
-latter is even stronger requirement than CONFIG_FUNCTION_TRACER (which is
-enough for MCOUNT_ADDR).
+- included build fix without DYNAMIC_FTRACE
+- preserved Author's original name in 4.9 submission
 
-Link: https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org/thread/ZUVCQBHDMFVR7CCB7JPESLJEWERZDJ3T/
+Alex Sverdlin (4):
+  ARM: 9077/1: PLT: Move struct plt_entries definition to header
+  ARM: 9078/1: Add warn suppress parameter to arm_gen_branch_link()
+  ARM: 9079/1: ftrace: Add MODULE_PLTS support
+  ARM: 9098/1: ftrace: MODULE_PLT: Fix build problem without
+    DYNAMIC_FTRACE
 
-Fixes: 1f12fb25c5c5d22f ("ARM: 9079/1: ftrace: Add MODULE_PLTS support")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
----
- arch/arm/kernel/module-plts.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/include/asm/ftrace.h |  3 +++
+ arch/arm/include/asm/insn.h   |  8 +++---
+ arch/arm/include/asm/module.h | 10 +++++++
+ arch/arm/kernel/ftrace.c      | 45 +++++++++++++++++++++++++++-----
+ arch/arm/kernel/insn.c        | 19 +++++++-------
+ arch/arm/kernel/module-plts.c | 49 +++++++++++++++++++++++++++--------
+ 6 files changed, 103 insertions(+), 31 deletions(-)
 
-diff --git a/arch/arm/kernel/module-plts.c b/arch/arm/kernel/module-plts.c
-index 6804a145be11..ed0e09cc735f 100644
---- a/arch/arm/kernel/module-plts.c
-+++ b/arch/arm/kernel/module-plts.c
-@@ -24,7 +24,7 @@
- #endif
- 
- static const u32 fixed_plts[] = {
--#ifdef CONFIG_FUNCTION_TRACER
-+#ifdef CONFIG_DYNAMIC_FTRACE
- 	FTRACE_ADDR,
- 	MCOUNT_ADDR,
- #endif
 -- 
 2.25.1
 
