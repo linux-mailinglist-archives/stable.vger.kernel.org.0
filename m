@@ -2,91 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6352D414204
-	for <lists+stable@lfdr.de>; Wed, 22 Sep 2021 08:40:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E279414229
+	for <lists+stable@lfdr.de>; Wed, 22 Sep 2021 08:49:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232710AbhIVGlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 02:41:44 -0400
-Received: from szxga08-in.huawei.com ([45.249.212.255]:16227 "EHLO
-        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232630AbhIVGlo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Sep 2021 02:41:44 -0400
-Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.57])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4HDpY14vCLz1DH9y;
-        Wed, 22 Sep 2021 14:39:01 +0800 (CST)
-Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
- dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Wed, 22 Sep 2021 14:40:10 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Wed, 22 Sep 2021 14:40:09 +0800
-Subject: Re: [PATCH 4.14 000/216] 4.14.247-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210921124904.823196756@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <815974ef-bc22-50e1-fedb-e828ec9aa1f3@huawei.com>
-Date:   Wed, 22 Sep 2021 14:40:08 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S232799AbhIVGvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 02:51:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58176 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232710AbhIVGvB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Sep 2021 02:51:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03F736112F;
+        Wed, 22 Sep 2021 06:49:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1632293371;
+        bh=lfaOSkxBNB/O8psqxYEKBfWo321nH0cgbTyMQKAZ3DU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=g64E1eqfSj9wqnmKW46+J/WaFbTenDs6bPgGeMPEJjxARq98v7w36mCSsWU5PX2Rv
+         /2XJfzWKa7i2Kq8vPuua9olFVoW1YLqCmwtRxe115XofbHbg4gSBQZm4htrsmmmTrj
+         ZvnF4jF0iA2lowPpcq2jZ6OssvJvs+DmWAa336Q0=
+Date:   Wed, 22 Sep 2021 08:49:28 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jack Pham <jackp@codeaurora.org>
+Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>,
+        linux-usb@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 2/4] xhci: Improve detection of device initiated wake
+ signal.
+Message-ID: <YUrR+CyEVWktMqQ7@kroah.com>
+References: <20210311115353.2137560-1-mathias.nyman@linux.intel.com>
+ <20210311115353.2137560-3-mathias.nyman@linux.intel.com>
+ <20210922011643.GD3515@jackp-linux.qualcomm.com>
 MIME-Version: 1.0
-In-Reply-To: <20210921124904.823196756@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- kwepemm600013.china.huawei.com (7.193.23.68)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210922011643.GD3515@jackp-linux.qualcomm.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2021/9/21 20:49, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.247 release.
-> There are 216 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, Sep 21, 2021 at 06:16:43PM -0700, Jack Pham wrote:
+> Hi Mathias,
 > 
-> Responses should be made by Thu, 23 Sep 2021 12:48:34 +0000.
-> Anything received after that time might be too late.
+> On Thu, Mar 11, 2021 at 01:53:51PM +0200, Mathias Nyman wrote:
+> > A xHC USB 3 port might miss the first wake signal from a USB 3 device
+> > if the port LFPS reveiver isn't enabled fast enough after xHC resume.
+> > 
+> > xHC host will anyway be resumed by a PME# signal, but will go back to
+> > suspend if no port activity is seen.
+> > The device resends the U3 LFPS wake signal after a 100ms delay, but
+> > by then host is already suspended, starting all over from the
+> > beginning of this issue.
+> > 
+> > USB 3 specs say U3 wake LFPS signal is sent for max 10ms, then device
+> > needs to delay 100ms before resending the wake.
+> > 
+> > Don't suspend immediately if port activity isn't detected in resume.
+> > Instead add a retry. If there is no port activity then delay for 120ms,
+> > and re-check for port activity.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.247-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-> and the diffstat can be found below.
+> We have a use case with which this change is causing unnecessary delay.
+> Consider a USB2* device is attached and host is initiating the resume.
+> Since this is not a device initiated wakeup there wouldn't be any
+> pending event seen on the PORTSC registers, yet this adds an additional
+> 120ms delay to re-check the PORTSC before returning and allowing the USB
+> core to perform resume signaling.
 > 
-> thanks,
-> 
-> greg k-h
-> 
+> Is there a way to avoid this delay in that case?  Perhaps could we
+> distinguish whether we arrive here at xhci_resume() due to a
+> host-initiated resume vs. a device remote wakeup?
 
-Tested on x86 for 4.14.247-rc2,
+Do you have a proposed patch that would do such a thing?  Given that you
+are seeing the problem it should be easy for you to test :)
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-4.14.y
-Version: 4.14.247-rc2
-Commit: 21da330aa6db14f0db6c57090f438542d6ff023f
-Compiler: gcc version 7.3.0 (GCC)
+> * I think it should be similar for attached USB3 devices as well, since
+> the host-initiated exit from U3 wouldn't happen until usb_port_resume().
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8837
-passed: 8837
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+Can you reliably detect "attached" devices?
 
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+thanks,
+
+greg k-h
