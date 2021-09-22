@@ -2,97 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AD6A41534F
-	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 00:21:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A6C341538B
+	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 00:40:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238296AbhIVWXM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 18:23:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54096 "EHLO
+        id S238293AbhIVWmE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 18:42:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238293AbhIVWXK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Sep 2021 18:23:10 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7B33C061574;
-        Wed, 22 Sep 2021 15:21:39 -0700 (PDT)
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1632349298;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=0A6qByAjupG5ZLznnStIKLY1X8Qel1/Sug5VuQBE2dA=;
-        b=FAC6stJzb16S5VN9VA4cYLEPKiuJ7YST9bvrH7P/nTQyc1a945nwPe5w0JdcdIimC42aAx
-        na5h3WSbyuqP2qXbOiZexv6sd6CDjXaykK6U6TaZ2Tggf00yp/tXXxO31SVTXfJgnGslMP
-        UskPRaNQaiyzxPsCNlNiBgKvQ3CrhyzPnhmYSdPuaf2f9ANa1S+vtLnrZX2GcY7AWZJMEo
-        Wckz0X+XHumePRBRTI40zq2Zf4PKCWqUgvoGuMyK5sYd8ohbTWf2ilcv+uIwrqAYxMxwKh
-        r1teJ5+OVdurfHwV9YEIzs2tKWRXhTCfk8IMBfmarnONrxMHzWj9Rrs3tQtpMw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1632349298;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=0A6qByAjupG5ZLznnStIKLY1X8Qel1/Sug5VuQBE2dA=;
-        b=qTQwlYwfvHFWjde9GzRO44+mLYwFzGtg/y8pgV0QMduMbpkKkr7I/iGZA00lCEzfWPEFJg
-        EAJLfoO6zE/c6JDw==
-To:     "Rafael J. Wysocki" <rafael@kernel.org>
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Bjorn Helgaas <helgaas@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        jose.souza@intel.com, "H. Peter Anvin" <hpa@zytor.com>,
-        Borislav Petkov <bp@alien8.de>, Ingo Molnar <mingo@redhat.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Linux PCI <linux-pci@vger.kernel.org>, rudolph@fb.com,
-        xapienz@fb.com, bmilton@fb.com, Stable <stable@vger.kernel.org>,
-        Arjan van de Ven <arjan@linux.intel.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "rafael@kernel.org" <rafael@kernel.org>
-Subject: Re: [PATCH] x86/intel: Disable HPET on another Intel Coffee Lake
- platform
-In-Reply-To: <CAJZ5v0iFoz=mjkMmtM3knUAVsbAnAb1RSr4WQ1jLHXSJa4R2Nw@mail.gmail.com>
-References: <20210916131739.1260552-1-kuba@kernel.org>
- <20210916150707.GA1611532@bjorn-Precision-5520>
- <YURb1bzc3L4gNI9Q@hirez.programming.kicks-ass.net>
- <YURhL33YyXRMkdC6@hirez.programming.kicks-ass.net> <87v92x775x.ffs@tglx>
- <82c1b753-586d-dadf-54de-6509e70a00ea@intel.com> <87y27p65tz.ffs@tglx>
- <CAJZ5v0iFoz=mjkMmtM3knUAVsbAnAb1RSr4WQ1jLHXSJa4R2Nw@mail.gmail.com>
-Date:   Thu, 23 Sep 2021 00:21:37 +0200
-Message-ID: <87sfxwgsjy.ffs@tglx>
+        with ESMTP id S229506AbhIVWmD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Sep 2021 18:42:03 -0400
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D1BDC061574
+        for <stable@vger.kernel.org>; Wed, 22 Sep 2021 15:40:33 -0700 (PDT)
+Received: by mail-pf1-x42e.google.com with SMTP id e16so3983559pfc.6
+        for <stable@vger.kernel.org>; Wed, 22 Sep 2021 15:40:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=U8XN3+C8nyJriD0dTHPeChd4irhBM2M8UTdsDdCY8zs=;
+        b=qwZhAKsZ78xpXRYGWBLtPlgahd7Mu9CfqofbOZP4ZZXVtd3pKHt3ujxoY0ZZClCBMc
+         xLRXsv1oWeDrpC0v77dplNejdBP5n7w1OHRO+nXxUxmcw8Kzk2IepGqbdJdk+60JBVE3
+         hiuC4Iczb71DRwXNJ4/NaKxuCxDHX/a+JsHuYhya4ZopIcKtLeP/Y3WJF9sn1CkmIupA
+         OOxVDEgHKpAVz6dqr7OZ0ziNKZwsoDqayRWuLHodJGvXozf20xm60ASlRlh/LluUW3OJ
+         2HJnSGMHHk7fugG9hStAWrhWZcc8hnpFR+wL/JOty10qOxsAjXruzFPVJtvlcBZAW6XL
+         4isQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=U8XN3+C8nyJriD0dTHPeChd4irhBM2M8UTdsDdCY8zs=;
+        b=3Qr/tgcY7/EKXjo2Cjr9VL7W6nTIdPKIRniLDP6oZjlcjtABCaO5yZxWfkp5omU3He
+         99OXOOKVKEeKF9whFDPpmeEa+U3+1FCdVpVgNE2zIAhsSEf1vWVM5gXOpEkYbFHH0eO0
+         NOZYyhTtJWwuLb3v1AV7nRz8WjKjAOxypih3zqwDFz767m2ZiyLcjmkEGZ0nKBpIjMsI
+         8fWVzxGSD9LkFhRVtyryPnCE0/r06nOtIukPk3oKuBEVZQcwUKp2bn3AySjbseVEjkgi
+         cNAlBV9rLed8wG30XSWx2DBMCIzh1/yDsHR53AKTZ5tw309w+x/ZifduWejwXkuLFcb3
+         BMMw==
+X-Gm-Message-State: AOAM533jetnMHVKE9c3dINXxEnNCFZ66SCDmqCbcvD4SoEciINWsS1I0
+        CiRPopAUU5DbIs99mDKiBwjbSVFSr0DIolQM
+X-Google-Smtp-Source: ABdhPJwe/dxIGyk7aafkW6ZGyrFs+cgyqF001tFNV1mPZw7WI1sxGMPQeHzJ08PfcXZ5hqfsp6mv4Q==
+X-Received: by 2002:a63:b252:: with SMTP id t18mr1237307pgo.14.1632350432670;
+        Wed, 22 Sep 2021 15:40:32 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e14sm3803072pga.23.2021.09.22.15.40.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Sep 2021 15:40:32 -0700 (PDT)
+Message-ID: <614bb0e0.1c69fb81.fa308.b2c2@mx.google.com>
+Date:   Wed, 22 Sep 2021 15:40:32 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.282-177-g6b230604d6e1
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 76 runs,
+ 3 regressions (v4.9.282-177-g6b230604d6e1)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 22 2021 at 22:27, Rafael J. Wysocki wrote:
-> On Tue, Sep 21, 2021 at 10:18 PM Thomas Gleixner <tglx@linutronix.de> wrote:
->>
->> On Tue, Sep 21 2021 at 20:05, Rafael J. Wysocki wrote:
->> > On 9/19/2021 2:14 AM, Thomas Gleixner wrote:
->> >> What's the proper way to figure out whether PC10 is supported?
->> >
->> > I can't say without research.  I think it'd be sufficient to check if
->> > C10 is supported, because asking for it is the only way to get PC10.
->>
->> Do we have a common function for that or do I need to implement the
->> gazillionst CPUID query for that?
->
-> intel_idle has intel_idle_verify_cstate() that works on MWAIT
-> substates from CPUID.  It looks like this could be reused.
+stable-rc/queue/4.9 baseline: 76 runs, 3 regressions (v4.9.282-177-g6b23060=
+4d6e1)
 
-Not to me. That's some cpuidle/intel_idle specific check which depends
-on cpuidle_state_table being set up which is not available during early
-boot.
+Regressions Summary
+-------------------
 
-The question I was asking whether we have a central place where we can
-retrieve such information w/o invoking CPUID over and over again and
-applying voodoo checks on it.
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Obviously we don't, which sucks.
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Thanks,
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
 
-        tglx
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.282-177-g6b230604d6e1/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.282-177-g6b230604d6e1
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6b230604d6e1cb8c60d8f4b053bf9b89d8aff294 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/614b8b11b083cd3d0399a2ea
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-1=
+77-g6b230604d6e1/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-1=
+77-g6b230604d6e1/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/614b8b11b083cd3d0399a=
+2eb
+        failing since 312 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/614b78804b03e0db6d99a2ed
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-1=
+77-g6b230604d6e1/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
+rsatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-1=
+77-g6b230604d6e1/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
+rsatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/614b78804b03e0db6d99a=
+2ee
+        failing since 312 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/614b786d84e28d57d799a2da
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-1=
+77-g6b230604d6e1/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-1=
+77-g6b230604d6e1/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/614b786d84e28d57d799a=
+2db
+        failing since 312 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =20
