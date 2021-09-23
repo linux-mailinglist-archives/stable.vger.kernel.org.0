@@ -2,54 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D791B4159BF
-	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 10:05:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0F7E4159C1
+	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 10:06:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239758AbhIWIGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Sep 2021 04:06:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47242 "EHLO mail.kernel.org"
+        id S237451AbhIWIH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Sep 2021 04:07:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237451AbhIWIGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Sep 2021 04:06:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 753936109E;
-        Thu, 23 Sep 2021 08:05:02 +0000 (UTC)
+        id S235983AbhIWIH6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Sep 2021 04:07:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1385611C6;
+        Thu, 23 Sep 2021 08:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632384303;
-        bh=+MUcDaRauyoZr0zXBCwHzF9N6GWx8r0/z+wnSzjd1nY=;
+        s=korg; t=1632384387;
+        bh=WmBmb6i0i7239EXCGN+BOz5nInIBrgdqOjVqXfYBJyQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=gYNos9wn7K206ij9GbNi5JAKjJ9HsM9x4OcuLbORT3a4AQicvliAxs+/LJGYc8t7s
-         3hcnS7Bekw6jFIpI3CUnujf0hTzy91pHcqxlu6A4c2KjVDo+SU1/sJl8cN8YspLbI2
-         Ri22mCDUnBR81Jdnnagi6zkGi7KJtC/829dpbWMI=
-Date:   Thu, 23 Sep 2021 10:05:00 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Cheng Chao <cs.os.kernel@gmail.com>
-Cc:     labbott@redhat.com, Sumit Semwal <sumit.semwal@linaro.org>,
-        arve@android.com, riandrews@android.com,
-        devel@driverdev.osuosl.org, stable@vger.kernel.org
-Subject: Re: [PATCH] [PATCH 4.9] staging: android: ion: fix page is NULL
-Message-ID: <YUw1LFGXYUcZIlJZ@kroah.com>
-References: <20210911112115.47202-1-cs.os.kernel@gmail.com>
- <YTyY6ZALBhCm47T6@kroah.com>
- <CA+1SViD_my-MPyqXcQ2T=zxF8014u6N-n2Fqcbi9BJPfo3KaTA@mail.gmail.com>
- <CA+1SViA9PN_uoykBtjukYGd-09=peWFCB147iSNnUMwtoT7b0w@mail.gmail.com>
- <CA+1SViDzyAsbQu7S+qKgLR7vS3wmA+MbQWZhV2rzdbLiFnxvsg@mail.gmail.com>
+        b=GLiDPZs1LHeivfhM9LAWCRMtpap2mbhfhTwfBJ2cEU3ReN0qGytmZ+X9Gl/a+pUFt
+         7QMv2N3Ge8xC0oQfTHoQi8YChR4h+gT5gkyixHFmAds9cSRv0GgquieQIGA1c2LmbY
+         onWEyQ2JCRPdsrTUwdczIqvAVQIr8ihFieHXOEJk=
+Date:   Thu, 23 Sep 2021 10:06:25 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Florian Fainelli <f.fainelli@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        stable@vger.kernel.org,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Mike Rapoport <rppt@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH stable 5.10] ARM: Qualify enabling of swiotlb_init()
+Message-ID: <YUw1gSB2vo8XMUon@kroah.com>
+References: <20210923001425.414046-1-f.fainelli@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CA+1SViDzyAsbQu7S+qKgLR7vS3wmA+MbQWZhV2rzdbLiFnxvsg@mail.gmail.com>
+In-Reply-To: <20210923001425.414046-1-f.fainelli@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 22, 2021 at 08:17:15PM +0800, Cheng Chao wrote:
-> I notice that v4.9.283 has released, but this patch is not merged.
-> It's exactly a bug.
+On Wed, Sep 22, 2021 at 05:14:24PM -0700, Florian Fainelli wrote:
+> commit fcf044891c84e38fc90eb736b818781bccf94e38 upstream
+> 
+> We do not need a SWIOTLB unless we have DRAM that is addressable beyond
+> the arm_dma_limit. Compare max_pfn with arm_dma_pfn_limit to determine
+> whether we do need a SWIOTLB to be initialized.
+> 
+> Fixes: ad3c7b18c5b3 ("arm: use swiotlb for bounce buffering on LPAE configs")
+> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+> Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+> ---
+>  arch/arm/mm/init.c | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
+> index d54d69cf1732..75f3ab531bdf 100644
+> --- a/arch/arm/mm/init.c
+> +++ b/arch/arm/mm/init.c
+> @@ -378,7 +378,11 @@ static void __init free_highpages(void)
+>  void __init mem_init(void)
+>  {
+>  #ifdef CONFIG_ARM_LPAE
+> -	swiotlb_init(1);
+> +	if (swiotlb_force == SWIOTLB_FORCE ||
+> +	    max_pfn > arm_dma_pfn_limit)
+> +		swiotlb_init(1);
+> +	else
+> +		swiotlb_force = SWIOTLB_NO_FORCE;
+>  #endif
+>  
+>  	set_max_mapnr(pfn_to_page(max_pfn) - mem_map);
+> -- 
+> 2.25.1
+> 
 
-Can you please resend this and include all of the information in this
-thread in the changelog comment explaining why this is only needed for
-this one branch?  Trying to piece it all together on my own doesn't work
-well :)
-
-thanks,
+Both now queued up, thanks.
 
 greg k-h
