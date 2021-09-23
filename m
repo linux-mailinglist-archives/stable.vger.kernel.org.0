@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B386A415653
-	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 05:39:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E7A1415656
+	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 05:39:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239180AbhIWDky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 23:40:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41464 "EHLO mail.kernel.org"
+        id S239424AbhIWDk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 23:40:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239306AbhIWDka (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Sep 2021 23:40:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDC376103D;
-        Thu, 23 Sep 2021 03:38:57 +0000 (UTC)
+        id S239312AbhIWDkc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Sep 2021 23:40:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65D7A61019;
+        Thu, 23 Sep 2021 03:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632368339;
-        bh=Go90koTFIfl28FCkJNBHHncrunWx6izAP059BwSriGo=;
+        s=k20201202; t=1632368341;
+        bh=W0v8gwIZn31acl7VWkNAkPdBl0168zpwbLNmBjhylMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hmGK67fY639DOCpVKfb2Y2QzF0PfKDEYFJQNa77q+0YVPEZ4O0GJTI2zxLozPjn6/
-         paGVGRQoeACjLFKhC0lSDyWjMlpSXrTf894ESCS9wVaIKUewWkRR+S8IHy0aFoKeex
-         G4BJMDojRf4Yeqgs84VA27Pce5ekvfzPcCQdjo/QX4ZLnJO1N0Kb/YK7Pkt1uldy8E
-         QxtBy+bDmjP10LH4QCLWBk7x/j9B2CHfnv4sEz1inhFx3LSR3rxP7rktsiNh9cMxsT
-         5eAL9iqHlufTxh3e1jKooAPIRT3xU14rgK/hdSg2/E4gZUzkfEb430wCC1ZP48ehyH
-         HLI4ru8ZBKjhw==
+        b=J11DG8a2aY/iT+5FRtGSLgdVO+q7BaWefwfxsEc48Ul04DmnEY/FY2gOonzca7pht
+         i6geukyIxROi/CXBjfuzGuEL6OJjpN3A8ZucSUidSEhfVqQIx2jb7h5X1vtD1NKZsR
+         fVUIBybJey085dBFbq97ZVT5wixjz47sI3nYcO2kMgEKnD3V8PZiYdt4w/sXpZYkOm
+         uBbuIYDgAaB3NV34AKfowahU8Ev4R6jCT9JUvqpfQjXswKHU3nN3UlnaGXXdUHRbzj
+         DzWUtBrGfXjk35i1p+bkE+2mMovZhDxbSlXYv5xmeAim0w3B30vRbojwCZzplu3mpR
+         iCa9WKVHYuyiQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jesper Nilsson <jesper.nilsson@axis.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, peppe.cavallaro@st.com,
-        alexandre.torgue@foss.st.com, joabreu@synopsys.com,
-        kuba@kernel.org, mcoquelin.stm32@gmail.com, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 03/19] net: stmmac: allow CSR clock of 300MHz
-Date:   Wed, 22 Sep 2021 23:38:37 -0400
-Message-Id: <20210923033853.1421193-3-sashal@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-m68k@lists.linux-m68k.org
+Subject: [PATCH AUTOSEL 5.4 04/19] m68k: Double cast io functions to unsigned long
+Date:   Wed, 22 Sep 2021 23:38:38 -0400
+Message-Id: <20210923033853.1421193-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210923033853.1421193-1-sashal@kernel.org>
 References: <20210923033853.1421193-1-sashal@kernel.org>
@@ -46,57 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesper Nilsson <jesper.nilsson@axis.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 08dad2f4d541fcfe5e7bfda72cc6314bbfd2802f ]
+[ Upstream commit b1a89856fbf63fffde6a4771d8f1ac21df549e50 ]
 
-The Synopsys Ethernet IP uses the CSR clock as a base clock for MDC.
-The divisor used is set in the MAC_MDIO_Address register field CR
-(Clock Rate)
+m68k builds fail widely with errors such as
 
-The divisor is there to change the CSR clock into a clock that falls
-below the IEEE 802.3 specified max frequency of 2.5MHz.
+arch/m68k/include/asm/raw_io.h:20:19: error:
+	cast to pointer from integer of different size
+arch/m68k/include/asm/raw_io.h:30:32: error:
+	cast to pointer from integer of different size [-Werror=int-to-p
 
-If the CSR clock is 300MHz, the code falls back to using the reset
-value in the MAC_MDIO_Address register, as described in the comment
-above this code.
+On m68k, io functions are defined as macros. The problem is seen if the
+macro parameter variable size differs from the size of a pointer. Cast
+the parameter of all io macros to unsigned long before casting it to
+a pointer to fix the problem.
 
-However, 300MHz is actually an allowed value and the proper divider
-can be estimated quite easily (it's just 1Hz difference!)
-
-A CSR frequency of 300MHz with the maximum clock rate value of 0x5
-(STMMAC_CSR_250_300M, a divisor of 124) gives somewhere around
-~2.42MHz which is below the IEEE 802.3 specified maximum.
-
-For the ARTPEC-8 SoC, the CSR clock is this problematic 300MHz,
-and unfortunately, the reset-value of the MAC_MDIO_Address CR field
-is 0x0.
-
-This leads to a clock rate of zero and a divisor of 42, and gives an
-MDC frequency of ~7.14MHz.
-
-Allow CSR clock of 300MHz by making the comparison inclusive.
-
-Signed-off-by: Jesper Nilsson <jesper.nilsson@axis.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20210907060729.2391992-1-linux@roeck-us.net
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/m68k/include/asm/raw_io.h | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 10d28be73f45..09725903bdbd 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -225,7 +225,7 @@ static void stmmac_clk_csr_set(struct stmmac_priv *priv)
- 			priv->clk_csr = STMMAC_CSR_100_150M;
- 		else if ((clk_rate >= CSR_F_150M) && (clk_rate < CSR_F_250M))
- 			priv->clk_csr = STMMAC_CSR_150_250M;
--		else if ((clk_rate >= CSR_F_250M) && (clk_rate < CSR_F_300M))
-+		else if ((clk_rate >= CSR_F_250M) && (clk_rate <= CSR_F_300M))
- 			priv->clk_csr = STMMAC_CSR_250_300M;
- 	}
+diff --git a/arch/m68k/include/asm/raw_io.h b/arch/m68k/include/asm/raw_io.h
+index 8a6dc6e5a279..8ab3c350bd53 100644
+--- a/arch/m68k/include/asm/raw_io.h
++++ b/arch/m68k/include/asm/raw_io.h
+@@ -17,21 +17,21 @@
+  * two accesses to memory, which may be undesirable for some devices.
+  */
+ #define in_8(addr) \
+-    ({ u8 __v = (*(__force volatile u8 *) (addr)); __v; })
++    ({ u8 __v = (*(__force volatile u8 *) (unsigned long)(addr)); __v; })
+ #define in_be16(addr) \
+-    ({ u16 __v = (*(__force volatile u16 *) (addr)); __v; })
++    ({ u16 __v = (*(__force volatile u16 *) (unsigned long)(addr)); __v; })
+ #define in_be32(addr) \
+-    ({ u32 __v = (*(__force volatile u32 *) (addr)); __v; })
++    ({ u32 __v = (*(__force volatile u32 *) (unsigned long)(addr)); __v; })
+ #define in_le16(addr) \
+-    ({ u16 __v = le16_to_cpu(*(__force volatile __le16 *) (addr)); __v; })
++    ({ u16 __v = le16_to_cpu(*(__force volatile __le16 *) (unsigned long)(addr)); __v; })
+ #define in_le32(addr) \
+-    ({ u32 __v = le32_to_cpu(*(__force volatile __le32 *) (addr)); __v; })
++    ({ u32 __v = le32_to_cpu(*(__force volatile __le32 *) (unsigned long)(addr)); __v; })
  
+-#define out_8(addr,b) (void)((*(__force volatile u8 *) (addr)) = (b))
+-#define out_be16(addr,w) (void)((*(__force volatile u16 *) (addr)) = (w))
+-#define out_be32(addr,l) (void)((*(__force volatile u32 *) (addr)) = (l))
+-#define out_le16(addr,w) (void)((*(__force volatile __le16 *) (addr)) = cpu_to_le16(w))
+-#define out_le32(addr,l) (void)((*(__force volatile __le32 *) (addr)) = cpu_to_le32(l))
++#define out_8(addr,b) (void)((*(__force volatile u8 *) (unsigned long)(addr)) = (b))
++#define out_be16(addr,w) (void)((*(__force volatile u16 *) (unsigned long)(addr)) = (w))
++#define out_be32(addr,l) (void)((*(__force volatile u32 *) (unsigned long)(addr)) = (l))
++#define out_le16(addr,w) (void)((*(__force volatile __le16 *) (unsigned long)(addr)) = cpu_to_le16(w))
++#define out_le32(addr,l) (void)((*(__force volatile __le32 *) (unsigned long)(addr)) = cpu_to_le32(l))
+ 
+ #define raw_inb in_8
+ #define raw_inw in_be16
 -- 
 2.30.2
 
