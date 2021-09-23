@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D03D41564F
-	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 05:39:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DC1D41564A
+	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 05:39:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239204AbhIWDkk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 23:40:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41006 "EHLO mail.kernel.org"
+        id S239346AbhIWDkh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 23:40:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239126AbhIWDkR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Sep 2021 23:40:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7507261038;
-        Thu, 23 Sep 2021 03:38:45 +0000 (UTC)
+        id S239208AbhIWDkS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Sep 2021 23:40:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E28361278;
+        Thu, 23 Sep 2021 03:38:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632368326;
-        bh=1VzKd4lDYzDCQBnSL+/uC9/qu21edJfqtQJgQ/w2+VU=;
+        s=k20201202; t=1632368328;
+        bh=kwltjd6Xp+NqrQ8Oqpy7rVtLByFXYR+mtU/nQ8sibgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V9GGcmHVan5mPxoUJISOjy8bTNSDWPADr6WXpDUnOjGCF3vG/6y9PE2Tqn44XrsE5
-         MVV+ss5rY8h6hCeHFTg+rjK2kCljZod5zYiiF/RkuN5gKRe8L0FDyB5Dmzp83cJK0F
-         UXSCe7oXm6kb2fUXjL6SfCCgo8o9txaPjfl96xZqyEtQnz9LQ0rwZVFQ8lY6dlSctI
-         neXZP/SMV4c1DyogaFhTE/7JaKNn5Fju0IHrs18GejnQ7Gjd7egi9s5OJ+lZTDj1Ue
-         OM7IFj16hmy3Ny8GPBwfeVOvmDg1o/+GGOiIGCoajfXYdEaoM8p6jJuv17aGo45xJU
-         QX6IGPF25qghA==
+        b=UdB66p4/3QmUFtIY/LracH6IqZ5m6EN0XUJntMsDH21CvHhDA/TzRBo6mQdqR8JZf
+         Z5GJdH7jyvxqK9ghUwnogkxnSayH494GpPxvKeWDCJY0eSISdeudmg7uQ/XrGA1US8
+         EEkqABeiXwmRwUTBV/w77G2xv5Td46JME7Jjg7brxER0xyGRoJh+QcfXvpm+RePNTm
+         9O2M288nxw6S+w++RdpD34XP4BbSOiJm0uRvjd59JfIfoEkXOzewiktHRpOza7DYCq
+         i4fW4bEH1+yw7LyrFZz6CJC39Xgl1jiSKvcTMYJpyIcZ1nSbNj//nBVS56ZIlN2IFN
+         rT1gWewzGKzkg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jesper Nilsson <jesper.nilsson@axis.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, peppe.cavallaro@st.com,
-        alexandre.torgue@foss.st.com, joabreu@synopsys.com,
-        kuba@kernel.org, mcoquelin.stm32@gmail.com, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 04/26] net: stmmac: allow CSR clock of 300MHz
-Date:   Wed, 22 Sep 2021 23:38:17 -0400
-Message-Id: <20210923033839.1421034-4-sashal@kernel.org>
+Cc:     Ming Lei <ming.lei@redhat.com>, linux-scsi@vger.kernel.org,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        luojiaxing <luojiaxing@huawei.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 05/26] blk-mq: avoid to iterate over stale request
+Date:   Wed, 22 Sep 2021 23:38:18 -0400
+Message-Id: <20210923033839.1421034-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210923033839.1421034-1-sashal@kernel.org>
 References: <20210923033839.1421034-1-sashal@kernel.org>
@@ -46,57 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesper Nilsson <jesper.nilsson@axis.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 08dad2f4d541fcfe5e7bfda72cc6314bbfd2802f ]
+[ Upstream commit 67f3b2f822b7e71cfc9b42dbd9f3144fa2933e0b ]
 
-The Synopsys Ethernet IP uses the CSR clock as a base clock for MDC.
-The divisor used is set in the MAC_MDIO_Address register field CR
-(Clock Rate)
+blk-mq can't run allocating driver tag and updating ->rqs[tag]
+atomically, meantime blk-mq doesn't clear ->rqs[tag] after the driver
+tag is released.
 
-The divisor is there to change the CSR clock into a clock that falls
-below the IEEE 802.3 specified max frequency of 2.5MHz.
+So there is chance to iterating over one stale request just after the
+tag is allocated and before updating ->rqs[tag].
 
-If the CSR clock is 300MHz, the code falls back to using the reset
-value in the MAC_MDIO_Address register, as described in the comment
-above this code.
+scsi_host_busy_iter() calls scsi_host_check_in_flight() to count scsi
+in-flight requests after scsi host is blocked, so no new scsi command can
+be marked as SCMD_STATE_INFLIGHT. However, driver tag allocation still can
+be run by blk-mq core. One request is marked as SCMD_STATE_INFLIGHT,
+but this request may have been kept in another slot of ->rqs[], meantime
+the slot can be allocated out but ->rqs[] isn't updated yet. Then this
+in-flight request is counted twice as SCMD_STATE_INFLIGHT. This way causes
+trouble in handling scsi error.
 
-However, 300MHz is actually an allowed value and the proper divider
-can be estimated quite easily (it's just 1Hz difference!)
+Fixes the issue by not iterating over stale request.
 
-A CSR frequency of 300MHz with the maximum clock rate value of 0x5
-(STMMAC_CSR_250_300M, a divisor of 124) gives somewhere around
-~2.42MHz which is below the IEEE 802.3 specified maximum.
-
-For the ARTPEC-8 SoC, the CSR clock is this problematic 300MHz,
-and unfortunately, the reset-value of the MAC_MDIO_Address CR field
-is 0x0.
-
-This leads to a clock rate of zero and a divisor of 42, and gives an
-MDC frequency of ~7.14MHz.
-
-Allow CSR clock of 300MHz by making the comparison inclusive.
-
-Signed-off-by: Jesper Nilsson <jesper.nilsson@axis.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: linux-scsi@vger.kernel.org
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Reported-by: luojiaxing <luojiaxing@huawei.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20210906065003.439019-1-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 2 +-
+ block/blk-mq-tag.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 3134f7e669f8..6133b2fe8a78 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -226,7 +226,7 @@ static void stmmac_clk_csr_set(struct stmmac_priv *priv)
- 			priv->clk_csr = STMMAC_CSR_100_150M;
- 		else if ((clk_rate >= CSR_F_150M) && (clk_rate < CSR_F_250M))
- 			priv->clk_csr = STMMAC_CSR_150_250M;
--		else if ((clk_rate >= CSR_F_250M) && (clk_rate < CSR_F_300M))
-+		else if ((clk_rate >= CSR_F_250M) && (clk_rate <= CSR_F_300M))
- 			priv->clk_csr = STMMAC_CSR_250_300M;
- 	}
+diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
+index c4f2f6c123ae..16ad9e656610 100644
+--- a/block/blk-mq-tag.c
++++ b/block/blk-mq-tag.c
+@@ -207,7 +207,7 @@ static struct request *blk_mq_find_and_get_req(struct blk_mq_tags *tags,
  
+ 	spin_lock_irqsave(&tags->lock, flags);
+ 	rq = tags->rqs[bitnr];
+-	if (!rq || !refcount_inc_not_zero(&rq->ref))
++	if (!rq || rq->tag != bitnr || !refcount_inc_not_zero(&rq->ref))
+ 		rq = NULL;
+ 	spin_unlock_irqrestore(&tags->lock, flags);
+ 	return rq;
 -- 
 2.30.2
 
