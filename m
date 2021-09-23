@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BFCD4156BC
-	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 05:41:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38EB04156BF
+	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 05:42:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239898AbhIWDnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 23:43:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41968 "EHLO mail.kernel.org"
+        id S239371AbhIWDnf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 23:43:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239345AbhIWDlf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Sep 2021 23:41:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2348B61269;
-        Thu, 23 Sep 2021 03:39:54 +0000 (UTC)
+        id S239217AbhIWDl6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Sep 2021 23:41:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C791F6127B;
+        Thu, 23 Sep 2021 03:39:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632368395;
-        bh=6OpNLIh5qoUJSgqMjgmB+ylCYdLOhWxi8d4xb6iEfDw=;
+        s=k20201202; t=1632368396;
+        bh=zCHqyRM/65Hegl52IheaNefuc3Is9JTlb17eflAq3fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OMOX9GcefXkMiiWRTPVPoXWpe7hw2crV0R+BDvPySc+qxqpQkaMg1abtov8GIWxka
-         LMu8xWIcX7b11DzOmz8g1pTljqoZEdBRoFLboUuJgR/h28v5S9W07/Gn6aR+rBXCDo
-         umyO/pKXffIQb4s75FBEhIxrGB7zOQuUuSJQeg3/APn6fMS9xH3Vp1r+00eqOnEXcC
-         nGXAJYfKLLCIBEgQ1U9tOhCJCJGh23N5fRxq1bntWJM5hSyM2YnXaJhYE58O/y6Yxv
-         t950vhs+7z8yolHgmgjRmcoiYtka5oOKx0+C1qZjngxRWi3qOnXQGdx+zh94sB06/o
-         /oQQb21pNAvFg==
+        b=u6WWM2NuC/FFdpokxOVdAK4NXvEOU52kfwpG8tcbYyV6lOHWpgfoZGHKXDXoHCUUp
+         QAJoHnkTfRzKgQqKSRJzos4Cd7pYs3Uent8sWzX5JQcZI9X6yjeS8nMh1ZqOIu7XzB
+         cX8ibK9PsEfNkfz+5XSi+LDAwFjF/ukd/WGw8pRZpNZsZcAyuspUdSPYUBh9f+AMTf
+         wyFeR/7VGpOtTqLMdUlaDsvkKuVTQgFXwm24tuFyb4RUmmRWoTsrq3gFLsE4JIp7IM
+         EIY/Ew0AB5Try51ahhMwbcQRiqUdZ99Ihu+gfQI5zdjtlF2aQd98204Qy3knmWtpVl
+         dqf1U0qfqT8MA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>,
+Cc:     Guenter Roeck <linux@roeck-us.net>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, rth@twiddle.net,
-        ink@jurassic.park.msu.ru, mattst88@gmail.com,
-        akpm@linux-foundation.org, geert@linux-m68k.org, david@redhat.com,
-        linux-alpha@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 13/15] alpha: Declare virt_to_phys and virt_to_bus parameter as pointer to volatile
-Date:   Wed, 22 Sep 2021 23:39:27 -0400
-Message-Id: <20210923033929.1421446-13-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, ajk@comnets.uni-bremen.de,
+        davem@davemloft.net, kuba@kernel.org, linux-hams@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 14/15] net: 6pack: Fix tx timeout and slot time
+Date:   Wed, 22 Sep 2021 23:39:28 -0400
+Message-Id: <20210923033929.1421446-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210923033929.1421446-1-sashal@kernel.org>
 References: <20210923033929.1421446-1-sashal@kernel.org>
@@ -47,64 +46,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 35a3f4ef0ab543daa1725b0c963eb8c05e3376f8 ]
+[ Upstream commit 3c0d2a46c0141913dc6fd126c57d0615677d946e ]
 
-Some drivers pass a pointer to volatile data to virt_to_bus() and
-virt_to_phys(), and that works fine.  One exception is alpha.  This
-results in a number of compile errors such as
+tx timeout and slot time are currently specified in units of HZ.  On
+Alpha, HZ is defined as 1024.  When building alpha:allmodconfig, this
+results in the following error message.
 
-  drivers/net/wan/lmc/lmc_main.c: In function 'lmc_softreset':
-  drivers/net/wan/lmc/lmc_main.c:1782:50: error:
-	passing argument 1 of 'virt_to_bus' discards 'volatile'
-	qualifier from pointer target type
+  drivers/net/hamradio/6pack.c: In function 'sixpack_open':
+  drivers/net/hamradio/6pack.c:71:41: error:
+  	unsigned conversion from 'int' to 'unsigned char'
+  	changes value from '256' to '0'
 
-  drivers/atm/ambassador.c: In function 'do_loader_command':
-  drivers/atm/ambassador.c:1747:58: error:
-	passing argument 1 of 'virt_to_bus' discards 'volatile'
-	qualifier from pointer target type
+In the 6PACK protocol, tx timeout is specified in units of 10 ms and
+transmitted over the wire:
 
-Declare the parameter of virt_to_phys and virt_to_bus as pointer to
-volatile to fix the problem.
+    https://www.linux-ax25.org/wiki/6PACK
+
+Defining a value dependent on HZ doesn't really make sense, and
+presumably comes from the (very historical) situation where HZ was
+originally 100.
+
+Note that the SIXP_SLOTTIME use explicitly is about 10ms granularity:
+
+        mod_timer(&sp->tx_t, jiffies + ((when + 1) * HZ) / 100);
+
+and the SIXP_TXDELAY walue is sent as a byte over the wire.
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/include/asm/io.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/hamradio/6pack.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
-index 0bba9e991189..d4eab4f20249 100644
---- a/arch/alpha/include/asm/io.h
-+++ b/arch/alpha/include/asm/io.h
-@@ -61,7 +61,7 @@ extern inline void set_hae(unsigned long new_hae)
-  * Change virtual addresses to physical addresses and vv.
-  */
- #ifdef USE_48_BIT_KSEG
--static inline unsigned long virt_to_phys(void *address)
-+static inline unsigned long virt_to_phys(volatile void *address)
- {
- 	return (unsigned long)address - IDENT_ADDR;
- }
-@@ -71,7 +71,7 @@ static inline void * phys_to_virt(unsigned long address)
- 	return (void *) (address + IDENT_ADDR);
- }
- #else
--static inline unsigned long virt_to_phys(void *address)
-+static inline unsigned long virt_to_phys(volatile void *address)
- {
-         unsigned long phys = (unsigned long)address;
+diff --git a/drivers/net/hamradio/6pack.c b/drivers/net/hamradio/6pack.c
+index 1001e9a2edd4..af776d7be780 100644
+--- a/drivers/net/hamradio/6pack.c
++++ b/drivers/net/hamradio/6pack.c
+@@ -68,9 +68,9 @@
+ #define SIXP_DAMA_OFF		0
  
-@@ -112,7 +112,7 @@ static inline dma_addr_t __deprecated isa_page_to_bus(struct page *page)
- extern unsigned long __direct_map_base;
- extern unsigned long __direct_map_size;
+ /* default level 2 parameters */
+-#define SIXP_TXDELAY			(HZ/4)	/* in 1 s */
++#define SIXP_TXDELAY			25	/* 250 ms */
+ #define SIXP_PERSIST			50	/* in 256ths */
+-#define SIXP_SLOTTIME			(HZ/10)	/* in 1 s */
++#define SIXP_SLOTTIME			10	/* 100 ms */
+ #define SIXP_INIT_RESYNC_TIMEOUT	(3*HZ/2) /* in 1 s */
+ #define SIXP_RESYNC_TIMEOUT		5*HZ	/* in 1 s */
  
--static inline unsigned long __deprecated virt_to_bus(void *address)
-+static inline unsigned long __deprecated virt_to_bus(volatile void *address)
- {
- 	unsigned long phys = virt_to_phys(address);
- 	unsigned long bus = phys + __direct_map_base;
 -- 
 2.30.2
 
