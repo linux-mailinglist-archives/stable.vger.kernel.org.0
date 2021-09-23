@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4163B4156F3
-	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 05:45:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B00CD4156FA
+	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 05:45:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239370AbhIWDpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 23:45:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43398 "EHLO mail.kernel.org"
+        id S239544AbhIWDpP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 23:45:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239884AbhIWDnC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Sep 2021 23:43:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6E0961263;
-        Thu, 23 Sep 2021 03:40:36 +0000 (UTC)
+        id S239555AbhIWDnP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Sep 2021 23:43:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C35FA6128E;
+        Thu, 23 Sep 2021 03:40:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632368437;
-        bh=IdEcxKlqrg2cR74Um15fzJELuPq7pW0NGWIePThekts=;
+        s=k20201202; t=1632368440;
+        bh=Bz+E8LNs8ytPWUjTlv/NsRHobPvyXzz1g8nxTX45R58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jog9SUzqrQjKNfHVODdoOBSlnoBGp+Aqy6n7tGVc7hkUS/4Z5RrSK2sqcn/rcept8
-         O6rhKhwZr6Ijug0W1dgBMVdHG1HWEm2yuenN/9CKwmriEj8POEkALS13JIKNjKoW0+
-         yir8U48vx/xFPvDoKILBz7eLlTijRU27Y+3EocMkCunn0GnXTHqGemYD4JyHBLnGC1
-         rC0xO6puxsEvLuDGm0x4H6K4tMwfXPAV6WeqZ64dp5UYibKFdRKGdffeeWWR1wIKnl
-         lPht7tICxwv5iLimlAhYPFYzcC5bYFV9B5UXOYlRvNnDhDjTs3ggzbTu9VU/0iNk6v
-         XFTliMhIBehyw==
+        b=VZk+zHOV2T0FfKhg2zEHT6sh7varw7LvcTRHpI5IcKffAAsyyc4eWxeI87A3u1tvU
+         RaSNs2xn2NRdwJi/Pbw8I+i85MGBBHLbtfUP6OgEn7aHEjA4XuWyklunOlDuS6d5lc
+         KvTAucPiFh69TfwD9dVkmN6q+AQHK0RJR3b+woQinWgp+CqdKxpifEqef0KhFqFD9V
+         /gZxehVdRvYNWPxh1T/SYCLHlKePR1X8Vj8qrWHkE1MHr5Lt43WdKAr0fq9TpqCkqz
+         e0XZl4LIxviJc9Dul0a0Hd0fWa2XeCCE6hCYqUw0KDiMGy3fIcA55TqIHv+CR65AEI
+         bDPoGARM3rwjw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        kuba@kernel.org, arnd@arndb.de, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 04/11] net: i825xx: Use absolute_pointer for memcpy from fixed memory location
-Date:   Wed, 22 Sep 2021 23:40:20 -0400
-Message-Id: <20210923034028.1421876-4-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, sparclinux@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 05/11] sparc: avoid stringop-overread errors
+Date:   Wed, 22 Sep 2021 23:40:21 -0400
+Message-Id: <20210923034028.1421876-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210923034028.1421876-1-sashal@kernel.org>
 References: <20210923034028.1421876-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,40 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit dff2d13114f0beec448da9b3716204eb34b0cf41 ]
+[ Upstream commit fc7c028dcdbfe981bca75d2a7b95f363eb691ef3 ]
 
-gcc 11.x reports the following compiler warning/error.
+The sparc mdesc code does pointer games with 'struct mdesc_hdr', but
+didn't describe to the compiler how that header is then followed by the
+data that the header describes.
 
-  drivers/net/ethernet/i825xx/82596.c: In function 'i82596_probe':
-  arch/m68k/include/asm/string.h:72:25: error:
-	'__builtin_memcpy' reading 6 bytes from a region of size 0 [-Werror=stringop-overread]
+As a result, gcc is now unhappy since it does stricter pointer range
+tracking, and doesn't understand about how these things work.  This
+results in various errors like:
 
-Use absolute_pointer() to work around the problem.
+    arch/sparc/kernel/mdesc.c: In function ‘mdesc_node_by_name’:
+    arch/sparc/kernel/mdesc.c:647:22: error: ‘strcmp’ reading 1 or more bytes from a region of size 0 [-Werror=stringop-overread]
+      647 |                 if (!strcmp(names + ep[ret].name_offset, name))
+          |                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+which are easily avoided by just describing 'struct mdesc_hdr' better,
+and making the node_block() helper function look into that unsized
+data[] that follows the header.
+
+This makes the sparc64 build happy again at least for my cross-compiler
+version (gcc version 11.2.1).
+
+Link: https://lore.kernel.org/lkml/CAHk-=wi4NW3NC0xWykkw=6LnjQD6D_rtRtxY9g8gQAJXtQMi8A@mail.gmail.com/
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: David S. Miller <davem@davemloft.net>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/i825xx/82596.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/sparc/kernel/mdesc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/i825xx/82596.c b/drivers/net/ethernet/i825xx/82596.c
-index ce235b776793..299628931bdb 100644
---- a/drivers/net/ethernet/i825xx/82596.c
-+++ b/drivers/net/ethernet/i825xx/82596.c
-@@ -1155,7 +1155,7 @@ struct net_device * __init i82596_probe(int unit)
- 			err = -ENODEV;
- 			goto out;
- 		}
--		memcpy(eth_addr, (void *) 0xfffc1f2c, ETH_ALEN);	/* YUCK! Get addr from NOVRAM */
-+		memcpy(eth_addr, absolute_pointer(0xfffc1f2c), ETH_ALEN); /* YUCK! Get addr from NOVRAM */
- 		dev->base_addr = MVME_I596_BASE;
- 		dev->irq = (unsigned) MVME16x_IRQ_I596;
- 		goto found;
+diff --git a/arch/sparc/kernel/mdesc.c b/arch/sparc/kernel/mdesc.c
+index 8a6982dfd733..5aa33bf7139e 100644
+--- a/arch/sparc/kernel/mdesc.c
++++ b/arch/sparc/kernel/mdesc.c
+@@ -37,6 +37,7 @@ struct mdesc_hdr {
+ 	u32	node_sz; /* node block size */
+ 	u32	name_sz; /* name block size */
+ 	u32	data_sz; /* data block size */
++	char	data[];
+ } __attribute__((aligned(16)));
+ 
+ struct mdesc_elem {
+@@ -369,7 +370,7 @@ void mdesc_update(void)
+ 
+ static struct mdesc_elem *node_block(struct mdesc_hdr *mdesc)
+ {
+-	return (struct mdesc_elem *) (mdesc + 1);
++	return (struct mdesc_elem *) mdesc->data;
+ }
+ 
+ static void *name_block(struct mdesc_hdr *mdesc)
 -- 
 2.30.2
 
