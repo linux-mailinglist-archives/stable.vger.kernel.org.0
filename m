@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4BF74156D7
-	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 05:44:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6A3A4156A3
+	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 05:41:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239504AbhIWDoO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 23:44:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42636 "EHLO mail.kernel.org"
+        id S239749AbhIWDmW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 23:42:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239488AbhIWDlK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Sep 2021 23:41:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDCEA61211;
-        Thu, 23 Sep 2021 03:39:38 +0000 (UTC)
+        id S239500AbhIWDlM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Sep 2021 23:41:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D0336124F;
+        Thu, 23 Sep 2021 03:39:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632368379;
-        bh=GkCK4i7uspIGLeLdrME7n9hpFHZVNM9Kkct98bRiwgw=;
+        s=k20201202; t=1632368381;
+        bh=rhV09odn3N6lzn4H/XhQcSW3wW6sHFdFsL9736YOl2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dyjESnI77pARAFcFBF0a0+8LSsLe9f7/QYcBF4INvpdTe57kHD7tYUYbHEsEVCBB8
-         dpUDuxprVRo5JeTJxPDaDTlil3kGbSw9Ck/8tXHcoUliF/IwChzKMNbL57jR2DyB+X
-         lAEmSOoheyK6qKK1ox2ARdX96LX+JsPYHcoV9999r98BuTEMB01bKDogBlPTLbwQmt
-         dr/eZzvSeIonxMz4MDU/S90LAYDpkvTWLpAj777woHbq9z9FGYTuH04fDDFS2yUfp6
-         lE7EvPL5Te+evZwqm8cSAIC/blY72fPW2gH93Vo+4utBUKjEmbM3kqDulPmFefsWcX
-         B2167AVn9Ym2Q==
+        b=kQtfCtoAnCig0wZfaxBdlkG+b925kwhNU7u4kyjUU8fGIWLMgyFHL6wdx8RWOrY8L
+         7ah7v9PAcZcBfsXrjW4GwM9X/NqFC1y8yvqQdrOfsryeIF0Ijs9LP8bA8dIhr+WHhf
+         mdMTJXyU51r3Aol6n/DOXuiHsmOJ5wQQ0H+uDp+6CZq1vOveNC+iigKawQmzbbWMzN
+         RwB101b4zfEpvyTR3UASdU05F6YlYM1+2neCMBb6i8KsHmRgOKi0q3TltVzbeY97WC
+         W5w6caZe1a5PTAPJTPfU5e6tc85w0GH3GqJc1utNYBfPbYeT7Yr9uyUDGI7G9MpC9v
+         LHrmN7+QC6fKQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anton Eidelman <anton.eidelman@gmail.com>,
-        Anton Eidelman <anton@lightbitslabs.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
-        axboe@fb.com, Christoph@vger.kernel.org,
-        linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 06/15] nvme-multipath: fix ANA state updates when a namespace is not present
-Date:   Wed, 22 Sep 2021 23:39:20 -0400
-Message-Id: <20210923033929.1421446-6-sashal@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>, luc.vanoostenryck@gmail.com,
+        linux-sparse@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 07/15] compiler.h: Introduce absolute_pointer macro
+Date:   Wed, 22 Sep 2021 23:39:21 -0400
+Message-Id: <20210923033929.1421446-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210923033929.1421446-1-sashal@kernel.org>
 References: <20210923033929.1421446-1-sashal@kernel.org>
@@ -46,59 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Eidelman <anton.eidelman@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 79f528afa93918519574773ea49a444c104bc1bd ]
+[ Upstream commit f6b5f1a56987de837f8e25cd560847106b8632a8 ]
 
-nvme_update_ana_state() has a deficiency that results in a failure to
-properly update the ana state for a namespace in the following case:
+absolute_pointer() disassociates a pointer from its originating symbol
+type and context. Use it to prevent compiler warnings/errors such as
 
-  NSIDs in ctrl->namespaces:	1, 3,    4
-  NSIDs in desc->nsids:		1, 2, 3, 4
+  drivers/net/ethernet/i825xx/82596.c: In function 'i82596_probe':
+  arch/m68k/include/asm/string.h:72:25: error:
+	'__builtin_memcpy' reading 6 bytes from a region of size 0 [-Werror=stringop-overread]
 
-Loop iteration 0:
-    ns index = 0, n = 0, ns->head->ns_id = 1, nsid = 1, MATCH.
-Loop iteration 1:
-    ns index = 1, n = 1, ns->head->ns_id = 3, nsid = 2, NO MATCH.
-Loop iteration 2:
-    ns index = 2, n = 2, ns->head->ns_id = 4, nsid = 4, MATCH.
+Such warnings may be reported by gcc 11.x for string and memory
+operations on fixed addresses.
 
-Where the update to the ANA state of NSID 3 is missed.  To fix this
-increment n and retry the update with the same ns when ns->head->ns_id is
-higher than nsid,
-
-Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/multipath.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ include/linux/compiler.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index 64f699a1afd7..022e03643dac 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -398,14 +398,17 @@ static int nvme_update_ana_state(struct nvme_ctrl *ctrl,
+diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+index 6a53300cbd1e..ab9dfb14f486 100644
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -228,6 +228,8 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
+     (typeof(ptr)) (__ptr + (off)); })
+ #endif
  
- 	down_read(&ctrl->namespaces_rwsem);
- 	list_for_each_entry(ns, &ctrl->namespaces, list) {
--		unsigned nsid = le32_to_cpu(desc->nsids[n]);
--
-+		unsigned nsid;
-+again:
-+		nsid = le32_to_cpu(desc->nsids[n]);
- 		if (ns->head->ns_id < nsid)
- 			continue;
- 		if (ns->head->ns_id == nsid)
- 			nvme_update_ns_ana_state(desc, ns);
- 		if (++n == nr_nsids)
- 			break;
-+		if (ns->head->ns_id > nsid)
-+			goto again;
- 	}
- 	up_read(&ctrl->namespaces_rwsem);
- 	return 0;
++#define absolute_pointer(val)	RELOC_HIDE((void *)(val), 0)
++
+ #ifndef OPTIMIZER_HIDE_VAR
+ /* Make the optimizer believe the variable can be manipulated arbitrarily. */
+ #define OPTIMIZER_HIDE_VAR(var)						\
 -- 
 2.30.2
 
