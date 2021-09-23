@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 292B4415703
-	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 05:45:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACD2B415709
+	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 05:45:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239406AbhIWDpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 23:45:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42160 "EHLO mail.kernel.org"
+        id S239447AbhIWDp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 23:45:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239600AbhIWDng (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239610AbhIWDng (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 22 Sep 2021 23:43:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE36661211;
-        Thu, 23 Sep 2021 03:40:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DA576128A;
+        Thu, 23 Sep 2021 03:40:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632368451;
-        bh=7+NKFhM/0NHgXoyM4v241ur8GF3QZ6DTmRPsWH30Xw4=;
+        s=k20201202; t=1632368453;
+        bh=uyIjuT+4JR6/En6HSFZak4qsxmwjzchBwls2cvImhoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BvteIZOapjMSBI5S4vxgWoyg3GTx8FVC5ldd2snjx+X0nquGKSEVf7QHknK8tyvfE
-         d+09feP3jhJ7snBo4E65YiOmhHXUikjG4tR1xa+td4YofIClQ86GaTwYzGbXtkFH9c
-         32DC9q+tse3qX8paTXEmxPVHWMS5vlfkjgrhUKpkLvYm3vfH6y3r2x3ektieoC8tQu
-         dYiAv7/sHnW7XJuJz+d1msDt37M5SEkw6N5yqPAJOuW7/1J99LE/hMmlU68iJ+2+8V
-         mxBFJ6ljEG99kNBvms/PtqNi+VHGL4xj1FYh3gX1OS2gmO0y3PDDAfYcyCheC9OIo5
-         aVU8ysW1TzZjA==
+        b=p/B4hWPn1AHD3qOgI0uPXxAVWqzuPLjlYLzTSMBX+SA3cqYi/rGPDeCVAJ3/+xJ2Z
+         r++bk2UZmK6OEnXekZhdn5dc26x1Ve7zfuqY9HZFQxwM6tuCtrdRwJ6L0NiOAnLm/q
+         qv2uYWdKEx0H2rvaKNGdAh20mm7QSkKlCdvQfnM5WxXX9leJwq7gX1NthiobSszMfq
+         9MHDrrlX36pyHHI2JmEMs1iEXUo1ECyq7FOh7Bej5l3LP8/onEf5I4UuDKOfTOYXnW
+         +YwtAN5dqLPSt3hgzdW8aScjCELx1URSnL9FX9pd2oaTrSK6fInNo8mr/Tr3bEjxUn
+         JcjX7uS2iga0A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, ajk@comnets.uni-bremen.de,
-        davem@davemloft.net, kuba@kernel.org, linux-hams@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 10/11] net: 6pack: Fix tx timeout and slot time
-Date:   Wed, 22 Sep 2021 23:40:26 -0400
-Message-Id: <20210923034028.1421876-10-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, ldewangan@nvidia.com,
+        broonie@kernel.org, thierry.reding@gmail.com, jonathanh@nvidia.com,
+        linux-spi@vger.kernel.org, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 11/11] spi: Fix tegra20 build with CONFIG_PM=n
+Date:   Wed, 22 Sep 2021 23:40:27 -0400
+Message-Id: <20210923034028.1421876-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210923034028.1421876-1-sashal@kernel.org>
 References: <20210923034028.1421876-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,57 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 3c0d2a46c0141913dc6fd126c57d0615677d946e ]
+[ Upstream commit efafec27c5658ed987e720130772f8933c685e87 ]
 
-tx timeout and slot time are currently specified in units of HZ.  On
-Alpha, HZ is defined as 1024.  When building alpha:allmodconfig, this
-results in the following error message.
+Without CONFIG_PM enabled, the SET_RUNTIME_PM_OPS() macro ends up being
+empty, and the only use of tegra_slink_runtime_{resume,suspend} goes
+away, resulting in
 
-  drivers/net/hamradio/6pack.c: In function 'sixpack_open':
-  drivers/net/hamradio/6pack.c:71:41: error:
-  	unsigned conversion from 'int' to 'unsigned char'
-  	changes value from '256' to '0'
+  drivers/spi/spi-tegra20-slink.c:1200:12: error: ‘tegra_slink_runtime_resume’ defined but not used [-Werror=unused-function]
+   1200 | static int tegra_slink_runtime_resume(struct device *dev)
+        |            ^~~~~~~~~~~~~~~~~~~~~~~~~~
+  drivers/spi/spi-tegra20-slink.c:1188:12: error: ‘tegra_slink_runtime_suspend’ defined but not used [-Werror=unused-function]
+   1188 | static int tegra_slink_runtime_suspend(struct device *dev)
+        |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In the 6PACK protocol, tx timeout is specified in units of 10 ms and
-transmitted over the wire:
+mark the functions __maybe_unused to make the build happy.
 
-    https://www.linux-ax25.org/wiki/6PACK
+This hits the alpha allmodconfig build (and others).
 
-Defining a value dependent on HZ doesn't really make sense, and
-presumably comes from the (very historical) situation where HZ was
-originally 100.
-
-Note that the SIXP_SLOTTIME use explicitly is about 10ms granularity:
-
-        mod_timer(&sp->tx_t, jiffies + ((when + 1) * HZ) / 100);
-
-and the SIXP_TXDELAY walue is sent as a byte over the wire.
-
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hamradio/6pack.c | 4 ++--
+ drivers/spi/spi-tegra20-slink.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/hamradio/6pack.c b/drivers/net/hamradio/6pack.c
-index e510dbda77e5..96fb2a2a59f0 100644
---- a/drivers/net/hamradio/6pack.c
-+++ b/drivers/net/hamradio/6pack.c
-@@ -68,9 +68,9 @@
- #define SIXP_DAMA_OFF		0
+diff --git a/drivers/spi/spi-tegra20-slink.c b/drivers/spi/spi-tegra20-slink.c
+index 9f14560686b6..88bfe7682a9e 100644
+--- a/drivers/spi/spi-tegra20-slink.c
++++ b/drivers/spi/spi-tegra20-slink.c
+@@ -1210,7 +1210,7 @@ static int tegra_slink_resume(struct device *dev)
+ }
+ #endif
  
- /* default level 2 parameters */
--#define SIXP_TXDELAY			(HZ/4)	/* in 1 s */
-+#define SIXP_TXDELAY			25	/* 250 ms */
- #define SIXP_PERSIST			50	/* in 256ths */
--#define SIXP_SLOTTIME			(HZ/10)	/* in 1 s */
-+#define SIXP_SLOTTIME			10	/* 100 ms */
- #define SIXP_INIT_RESYNC_TIMEOUT	(3*HZ/2) /* in 1 s */
- #define SIXP_RESYNC_TIMEOUT		5*HZ	/* in 1 s */
+-static int tegra_slink_runtime_suspend(struct device *dev)
++static int __maybe_unused tegra_slink_runtime_suspend(struct device *dev)
+ {
+ 	struct spi_master *master = dev_get_drvdata(dev);
+ 	struct tegra_slink_data *tspi = spi_master_get_devdata(master);
+@@ -1222,7 +1222,7 @@ static int tegra_slink_runtime_suspend(struct device *dev)
+ 	return 0;
+ }
  
+-static int tegra_slink_runtime_resume(struct device *dev)
++static int __maybe_unused tegra_slink_runtime_resume(struct device *dev)
+ {
+ 	struct spi_master *master = dev_get_drvdata(dev);
+ 	struct tegra_slink_data *tspi = spi_master_get_devdata(master);
 -- 
 2.30.2
 
