@@ -2,200 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DFB34166C5
-	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 22:34:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2281F416701
+	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 22:58:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243065AbhIWUfa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Sep 2021 16:35:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48202 "EHLO
+        id S243192AbhIWU7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Sep 2021 16:59:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242529AbhIWUfa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Sep 2021 16:35:30 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77129C061574
-        for <stable@vger.kernel.org>; Thu, 23 Sep 2021 13:33:58 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id nn5-20020a17090b38c500b0019af1c4b31fso5723002pjb.3
-        for <stable@vger.kernel.org>; Thu, 23 Sep 2021 13:33:58 -0700 (PDT)
+        with ESMTP id S229609AbhIWU7g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Sep 2021 16:59:36 -0400
+Received: from mail-qk1-x729.google.com (mail-qk1-x729.google.com [IPv6:2607:f8b0:4864:20::729])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35D87C061574
+        for <stable@vger.kernel.org>; Thu, 23 Sep 2021 13:58:04 -0700 (PDT)
+Received: by mail-qk1-x729.google.com with SMTP id c7so25818040qka.2
+        for <stable@vger.kernel.org>; Thu, 23 Sep 2021 13:58:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=WMbZVag0mu7eTMrDEuhOnNX2mX3H8Gj+zvB2p+IY5ao=;
-        b=ooheeVRRU9I0/NfDGc3liXkrzqJwA1vThZmzT7aQiUSzjwDgqufjgrLfoVDnrH4lsY
-         CX7Oyxt48DxS4Zpb086IeLIbtTzTC8YhCPW3risruY0+WNqeXT/tUDBo3X+/yO4aowYK
-         xh0/xnQ3c9VrTC5DReskUqyjvdXmUS0/2OADoMb6cnCjKBdlQvUd/VH+QQ16brI5sGfX
-         qm9e8Ur14iYSV2q6qdsCMBV5fnJh1fikrrPniuZ+gNS48lrAMnJZuBsUUNZBMmJczTI4
-         eQoJ6UXO7qSZHu7quma83wptCE5a3MKvDvvv7ZA7IpNcfWAGpvQZAboj3WQJ3nlDWiCQ
-         J3GA==
+        d=gmail.com; s=20210112;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=iTGoqFM8qijEpuvk9WwIalanNU02ORS6d7bs4+cIQLs=;
+        b=du9W0kWj2EvAbA7H9kW/UE8BeePbIgAB0o4JAdPMfax+PxngFR0exg3qtjMr8nhUwq
+         BOrhDVRwDuu6Xmbs63xhTBhVNWyc2HuOeU0zZG2Qg2Bbvg4kD4I/mzoj19wG90nw2Emw
+         keRBfneT52SPBC1ELh+qfm++7vXY67ppBAtRSz3nSqouwGH5zrPgfubA4CIAfu73qh/F
+         2LWn0hsMPbvl6DQIJcLhHYdk+qAkEuouiDKCjEHZOKt/HY7wVrelz8oDS9uGFyq2YOnD
+         1TffJ1WFJuZvSWaWQ3jssVcia3xdkklhUPgIJ1W2Hghwc42JFKerdLbjp9eHmVUwuWog
+         jldA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=WMbZVag0mu7eTMrDEuhOnNX2mX3H8Gj+zvB2p+IY5ao=;
-        b=mNUNrmuulFEMUSwcb5xsDunKSg28sl9gvm/frYSeM+GtiVQnT07MqEphA6+V5kYYdq
-         /M6abt4sTL3E4b8oxFrGIFEk+KGK7uI6IvNkqODoADIuRR3fUwE8WiZXUwWf7FBgi+Ps
-         eT467XdVJlGGoIDWj2JqsRSS9IYEp9wROJwLwQMafmICzuq0y3yqWH6AACEWYsdE7olb
-         jAyVoZD7qoCw6QHH2KVq+mfQHy32cIpxeP6/n7evaT77w4Liql1mpWWnfeCqLncWFe2C
-         zko+paViLM9Nu1WwDmVbB2TA6JjD4p7Wm9u1AalY4OyTJ62sx2yXIbR+pUEkR8mXiGmw
-         9QWg==
-X-Gm-Message-State: AOAM533qEOfeDbPp9v2rGWlU87/Bphp6+ZHnHFQd63OrqF9X8vbv4iqE
-        L9p6ezpSqlyQv3YTGe/+2wtvrE41sACpaueI
-X-Google-Smtp-Source: ABdhPJzMuhpBgd6A4cRvMIC5cOuFsLbBEnv5fn+v/AAzCKJiYOOV0lB8UNX+JUovoxFquc+7mAAS1g==
-X-Received: by 2002:a17:90b:2015:: with SMTP id hs21mr7607914pjb.200.1632429237884;
-        Thu, 23 Sep 2021 13:33:57 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x8sm6512223pfq.131.2021.09.23.13.33.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Sep 2021 13:33:57 -0700 (PDT)
-Message-ID: <614ce4b5.1c69fb81.da36d.3f76@mx.google.com>
-Date:   Thu, 23 Sep 2021 13:33:57 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=iTGoqFM8qijEpuvk9WwIalanNU02ORS6d7bs4+cIQLs=;
+        b=tAxtJltnqJ4h70Q80qYckjSoHSw90AUAA+4qnkc941hhG1guonvfdXff/ts2iRs1HN
+         nu4B62LRIzBF4fkt3JHGUnzjQ6NlzUViKFPtEjJQpyR162cgiNFOCMuujRtErEyUaONY
+         0bl0Zy471pEGOuFN20+aBTRKR21ixM3lahbbP1mRWR1abFFru33LeM88MvwyogcqR5Nw
+         /qNDG9F/LUeqDtMQ7ZZqmjK42UC/yQ0T53yOHJyuE6QbMh9ObD9dkJJJUypEi4yneluJ
+         4JWm41SY6CX85wRCLtZdwrU6cTI7jp5dXrfHxrbLL7Fger1ANtWWt9udXqKNM1EeIgqr
+         vOBA==
+X-Gm-Message-State: AOAM531WsLlPJ8Quo1FxDsffb+bU2aBcnlMR/gTL7c+P8yTbbcrC2LOm
+        /d7UvT4InGN8P6cye6maaVdSgeQ8+HKhkim8GBQ=
+X-Google-Smtp-Source: ABdhPJyS5RKmO1dwPmOuJXQyql23Nvq6/tOOij0yiATvKPbK5vgzhb/SvOjNOKXXAd35SbptDXobqw4glW3EtShzQGk=
+X-Received: by 2002:a37:2c05:: with SMTP id s5mr7055085qkh.174.1632430683423;
+ Thu, 23 Sep 2021 13:58:03 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.283-8-g5d0e7eac2915
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-Subject: stable-rc/queue/4.9 baseline: 70 runs,
- 3 regressions (v4.9.283-8-g5d0e7eac2915)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Received: by 2002:a05:620a:4d1:0:0:0:0 with HTTP; Thu, 23 Sep 2021 13:58:03
+ -0700 (PDT)
+From:   SUSAN WONG <susan22wg@gmail.com>
+Date:   Thu, 23 Sep 2021 13:58:03 -0700
+Message-ID: <CAGL+yozkY+NcrDPgHfLac00PGuWbejCpg15FL5aa=4e=1VJQmw@mail.gmail.com>
+Subject: Dear Beloved,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 70 runs, 3 regressions (v4.9.283-8-g5d0e7eac2=
-915)
+Dear Beloved,
 
-Regressions Summary
--------------------
+I am writing this mail to you with heavy tears in my eyes and great
+sorrow in my heart. I am Mrs. Susan Wong. A widow to late Mr. Hamson
+Wong; I am 63 years old, suffering from long time Cancer of the
+breast.
 
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
- | 1          =
+From all indications my condition is really deteriorating and it's
+quite obvious that I won't live more than 2 months according to my
+doctors. I have some funds I inherited from my late loving husband Mr.
+Hamson, the sum of (4,500,000.00 Million Dollars) which he deposited
+in a bank here and I need honest, truthful and God fearing person that
+can use these funds for Charity work, helping the less privileges, and
+30% of this money will be for your time and effort, while 70% goes to
+charities.
 
-qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
- | 1          =
+1) For the sick, less-privileged
+2) For the Widows and the motherless babies
+3) Orphanages or Charity Home.
 
-qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
- | 1          =
+I look forward to your prompt reply from you for more details.
 
+I will like you to write me on my Email address;
+sosanwong123@gmail.com , to enable us discuss in details. I hope
+hearing from you soonest. Thanks for your understanding.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.283-8-g5d0e7eac2915/plan/baseline/
+Yours sincerely
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.283-8-g5d0e7eac2915
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      5d0e7eac2915c35a66b52de769a3a2bc2b663b3a =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/614cae8373fd2620c999a2e0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.283-8=
--g5d0e7eac2915/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.283-8=
--g5d0e7eac2915/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/614cae8373fd2620c999a=
-2e1
-        failing since 313 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/614ce124cdadec9c1499a32e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.283-8=
--g5d0e7eac2915/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.283-8=
--g5d0e7eac2915/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/614ce124cdadec9c1499a=
-32f
-        failing since 313 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/614cac92a3927119ef99a30a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.283-8=
--g5d0e7eac2915/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vers=
-atilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.283-8=
--g5d0e7eac2915/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vers=
-atilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/614cac92a3927119ef99a=
-30b
-        failing since 313 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =20
+Mrs. Susan Wong
