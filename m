@@ -2,92 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1540F41592C
-	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 09:36:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECDFE415990
+	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 09:49:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239619AbhIWHh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Sep 2021 03:37:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36422 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234261AbhIWHh6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Sep 2021 03:37:58 -0400
-Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26076C061574
-        for <stable@vger.kernel.org>; Thu, 23 Sep 2021 00:36:27 -0700 (PDT)
-Received: by mail-wr1-x442.google.com with SMTP id d6so14287306wrc.11
-        for <stable@vger.kernel.org>; Thu, 23 Sep 2021 00:36:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=FW+ItsCz4qn+6MJB1OJC3su5xMg6f9HyR1WBhDmmQ/M=;
-        b=WecjC3ZnjX16VspdjzgdWnt0VJbnWI1JjRwL2nc3xTeY/+mYVOGZVYmxwvOEuNSgYh
-         cge18/THuzCtjYVLKVRU9+F3ujRjWLLTHV3vfePRuhGaLHkvpL1dG0vHNyBaIa+GXXCr
-         AQCh8VQe1ytSWM6iX3miCvH0wHGjltAcdDp14qUjHsUxxadu2g3z/bbRtG+LhgLbXK1T
-         UlNCc2JwULhS40s8TlRgRCLtuckm4Wo8FphsJ10xEuAZjwl0rsS+yo+LyoFulILbDrZz
-         drbnX1g9O8mwa6mHgqBXbeNe0GEFz5Bxbms6RKSUa7HOYehXx0649mZJWURk0rRqhjss
-         WNRg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=FW+ItsCz4qn+6MJB1OJC3su5xMg6f9HyR1WBhDmmQ/M=;
-        b=c050VTNU1/s5+FJlkRUqBLW9SWG2YDpfJW7QXwZkic0R53vNBYu+BiPTKtgYa/gJ7S
-         gU/FB6AoTygVHqIxIqEB5gEZZ1+EqrMNhmGL/89OpgHDtxKEKl4WDJrMu7Xm/ZAgrDiF
-         gqf2gY9Mdtm+hQkpWQZM7eKjvZC20KeNTs5m/29UK2NVecxUiI4GpVn6nFqfx2YxKL8c
-         ZyRFFo0u+6qL5FfY/KkZaz+/nMqw0WN54MQk9PQ/Skp+0DQ4qL+W2Btu9KmaX/59tJ03
-         JP2qO2+MtqhhwzYP4D1/QnuBZnC1OlJIueK5j1H9yRMvNK5Qoh+EeEEs5kxKI1LLNlF9
-         XFbA==
-X-Gm-Message-State: AOAM531DtT6kaqt0KbllTa/K1YXK0GHByiSe8mX9UtdDCv4/oWU6kMCi
-        Np/sbWOPaXQE13XYptth1/RT8a73jE0RxlpVxxA=
-X-Google-Smtp-Source: ABdhPJy3FwJY1KlL78i0u5BnFAjUrRJKkbnApGBiDISEakuKxT8C2g9c4Iq7AEk0VZC4VGD2hsr5l1cn3npBHXTBV00=
-X-Received: by 2002:a7b:c414:: with SMTP id k20mr2893525wmi.146.1632382585508;
- Thu, 23 Sep 2021 00:36:25 -0700 (PDT)
+        id S239958AbhIWHup (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Sep 2021 03:50:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42230 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S239768AbhIWHuj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Sep 2021 03:50:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DEE6B61038;
+        Thu, 23 Sep 2021 07:49:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1632383348;
+        bh=vusf6qDWIT9w5MVhvAPN9FdsgE7iRc+kxkjVuubI6a0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=myc4dZMrnDAH63RkhdaKX84wRaAP+bmhetfc6GrRTI8r+jMQddrO0UMJL6BEZuUMa
+         VNUD7wMltNUYFjVX02oGoFJhN6TdTG8vrIOER957wtYsmnWY3TWE7s45f5nYooDfh7
+         cFlN5Vm1TK3hWnCT7KskIMDnubYR2a6G8Lqge1j4=
+Date:   Thu, 23 Sep 2021 09:49:05 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        stable@vger.kernel.org, KVM <kvm@vger.kernel.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [PATCH] [backport for 4.19/5.4 stable] KVM: remember position in
+ kvm->vcpus array
+Message-ID: <YUwxccuAgVki2wol@kroah.com>
+References: <20210921134815.17615-1-borntraeger@de.ibm.com>
+ <280d7fb4-a02a-f8db-8af0-b567699cea80@redhat.com>
 MIME-Version: 1.0
-Received: by 2002:a05:600c:4fcd:0:0:0:0 with HTTP; Thu, 23 Sep 2021 00:36:25
- -0700 (PDT)
-Reply-To: daniekafando001@gmail.com
-From:   "Mr.Daniel kafando" <kafandoanu@gmail.com>
-Date:   Thu, 23 Sep 2021 07:36:25 +0000
-Message-ID: <CAEUsoMfywu6xLwJQkAUk8pHfAJUpTxr9vYzBku-VJwzEmr7egA@mail.gmail.com>
-Subject: Re:Good day
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <280d7fb4-a02a-f8db-8af0-b567699cea80@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Dear,
+On Tue, Sep 21, 2021 at 04:31:03PM +0200, Paolo Bonzini wrote:
+> On 21/09/21 15:48, Christian Borntraeger wrote:
+> > From: Radim Krčmář <rkrcmar@redhat.com>
+> > 
+> > Fetching an index for any vcpu in kvm->vcpus array by traversing
+> > the entire array everytime is costly.
+> > This patch remembers the position of each vcpu in kvm->vcpus array
+> > by storing it in vcpus_idx under kvm_vcpu structure.
+> > 
+> > Signed-off-by: Radim Krčmář <rkrcmar@redhat.com>
+> > Signed-off-by: Nitesh Narayan Lal <nitesh@redhat.com>
+> > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> > [borntraeger@de.ibm.com]: backport to 4.19 (also fits for 5.4)
+> > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> > ---
+> >   include/linux/kvm_host.h | 11 +++--------
+> >   virt/kvm/kvm_main.c      |  5 +++--
+> >   2 files changed, 6 insertions(+), 10 deletions(-)
+> > 
+> > diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+> > index 8dd4ebb58e97..827f70ce0b49 100644
+> > --- a/include/linux/kvm_host.h
+> > +++ b/include/linux/kvm_host.h
+> > @@ -248,7 +248,8 @@ struct kvm_vcpu {
+> >   	struct preempt_notifier preempt_notifier;
+> >   #endif
+> >   	int cpu;
+> > -	int vcpu_id;
+> > +	int vcpu_id; /* id given by userspace at creation */
+> > +	int vcpu_idx; /* index in kvm->vcpus array */
+> >   	int srcu_idx;
+> >   	int mode;
+> >   	u64 requests;
+> > @@ -551,13 +552,7 @@ static inline struct kvm_vcpu *kvm_get_vcpu_by_id(struct kvm *kvm, int id)
+> >   static inline int kvm_vcpu_get_idx(struct kvm_vcpu *vcpu)
+> >   {
+> > -	struct kvm_vcpu *tmp;
+> > -	int idx;
+> > -
+> > -	kvm_for_each_vcpu(idx, tmp, vcpu->kvm)
+> > -		if (tmp == vcpu)
+> > -			return idx;
+> > -	BUG();
+> > +	return vcpu->vcpu_idx;
+> >   }
+> >   #define kvm_for_each_memslot(memslot, slots)	\
+> > diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+> > index a3d82113ae1c..86ef740763b5 100644
+> > --- a/virt/kvm/kvm_main.c
+> > +++ b/virt/kvm/kvm_main.c
+> > @@ -2751,7 +2751,8 @@ static int kvm_vm_ioctl_create_vcpu(struct kvm *kvm, u32 id)
+> >   		goto unlock_vcpu_destroy;
+> >   	}
+> > -	BUG_ON(kvm->vcpus[atomic_read(&kvm->online_vcpus)]);
+> > +	vcpu->vcpu_idx = atomic_read(&kvm->online_vcpus);
+> > +	BUG_ON(kvm->vcpus[vcpu->vcpu_idx]);
+> >   	/* Now it's all set up, let userspace reach it */
+> >   	kvm_get_kvm(kvm);
+> > @@ -2761,7 +2762,7 @@ static int kvm_vm_ioctl_create_vcpu(struct kvm *kvm, u32 id)
+> >   		goto unlock_vcpu_destroy;
+> >   	}
+> > -	kvm->vcpus[atomic_read(&kvm->online_vcpus)] = vcpu;
+> > +	kvm->vcpus[vcpu->vcpu_idx] = vcpu;
+> >   	/*
+> >   	 * Pairs with smp_rmb() in kvm_get_vcpu.  Write kvm->vcpus
+> > 
+> 
+> Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+> 
+> The backport makes sense given the code in the stable branch now calls
+> kvm_vcpu_get_idx more than it used to.
 
-I am Mr.Daniel kafando. and I work with UNITED BANK OF AFRICA. Please
-Can you use ATM Visa card to withdraw money at ATM cash machine in
-your country? I want to transfer money to you from my country; it=E2=80=99s
-part of money taken by some old politician that was forced out of
-power.
+Now queued up, thanks.
 
-I will change the account details to yours, and apply for a visa card
-with your details in our bank, they will send the visa card to you and
-you will be withdrawing money with it and always send my own
-percentage of the money, and the money we are talking about is
-$10.5Million us dollars.
-
-Whatever amount you withdraw daily, you will send 50% to me and you
-will take 50%, the visa card and the bank account will be on your
-name, I will be waiting for your information as soon as possible.
-
-Your name..........................
-
-Age...........................
-
-Sex...........................
-
-Country.......................
-
-Occupation....................
-
-Phone number........................
-
-
-Best Regards.
-Mr.Daniel kafando.
+greg k-h
