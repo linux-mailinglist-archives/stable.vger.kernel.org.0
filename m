@@ -2,112 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EE9F41549A
-	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 02:26:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 156424154BF
+	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 02:39:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238612AbhIWA1j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 20:27:39 -0400
-Received: from mo-csw1115.securemx.jp ([210.130.202.157]:59352 "EHLO
+        id S238728AbhIWAlT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 20:41:19 -0400
+Received: from mo-csw1515.securemx.jp ([210.130.202.154]:46704 "EHLO
         mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234042AbhIWA1i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Sep 2021 20:27:38 -0400
-Received: by mo-csw.securemx.jp (mx-mo-csw1115) id 18N0PpUW002175; Thu, 23 Sep 2021 09:25:51 +0900
-X-Iguazu-Qid: 2wHHK91O7mjF8JETEe
-X-Iguazu-QSIG: v=2; s=0; t=1632356751; q=2wHHK91O7mjF8JETEe; m=iRswzK/Nl7gBakB/oOZjnsstwolVtQjNNyEDFghsLX0=
-Received: from imx12-a.toshiba.co.jp (imx12-a.toshiba.co.jp [61.202.160.135])
-        by relay.securemx.jp (mx-mr1113) id 18N0PnPo019498
+        with ESMTP id S238709AbhIWAlS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Sep 2021 20:41:18 -0400
+Received: by mo-csw.securemx.jp (mx-mo-csw1515) id 18N0cOp8021009; Thu, 23 Sep 2021 09:38:24 +0900
+X-Iguazu-Qid: 34trpS1as3D6kN5JwW
+X-Iguazu-QSIG: v=2; s=0; t=1632357504; q=34trpS1as3D6kN5JwW; m=2Qg8Y8ZLIZDUjzusAcKEvFVb7XFD+a0C5pESEGmiZs0=
+Received: from imx2-a.toshiba.co.jp (imx2-a.toshiba.co.jp [106.186.93.35])
+        by relay.securemx.jp (mx-mr1513) id 18N0cMom036928
         (version=TLSv1.2 cipher=AES128-GCM-SHA256 bits=128 verify=NOT);
-        Thu, 23 Sep 2021 09:25:50 +0900
-Received: from enc02.toshiba.co.jp (enc02.toshiba.co.jp [61.202.160.51])
+        Thu, 23 Sep 2021 09:38:23 +0900
+Received: from enc01.toshiba.co.jp (enc01.toshiba.co.jp [106.186.93.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by imx12-a.toshiba.co.jp (Postfix) with ESMTPS id B171F1000ED;
-        Thu, 23 Sep 2021 09:25:33 +0900 (JST)
-Received: from hop101.toshiba.co.jp ([133.199.85.107])
-        by enc02.toshiba.co.jp  with ESMTP id 18N0PX6u023220;
-        Thu, 23 Sep 2021 09:25:33 +0900
+        by imx2-a.toshiba.co.jp (Postfix) with ESMTPS id A6CBC100133;
+        Thu, 23 Sep 2021 09:38:22 +0900 (JST)
+Received: from hop001.toshiba.co.jp ([133.199.164.63])
+        by enc01.toshiba.co.jp  with ESMTP id 18N0cMaD016061;
+        Thu, 23 Sep 2021 09:38:22 +0900
 From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 To:     stable@vger.kernel.org
 Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
-        Tony Lindgren <tony@atomide.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH for 4.4 and 4.9] PM / wakeirq: Fix unbalanced IRQ enable for wakeirq
-Date:   Thu, 23 Sep 2021 09:25:22 +0900
+Subject: [PATCH for 4.9, 4.14, 4.19] crypto: talitos - fix max key size for sha384 and sha512
+Date:   Thu, 23 Sep 2021 09:38:19 +0900
 X-TSB-HOP: ON
-Message-Id: <20210923002522.29648-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+Message-Id: <20210923003819.29736-1-nobuhiro1.iwamatsu@toshiba.co.jp>
 X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 69728051f5bf15efaf6edfbcfe1b5a49a2437918 upstream
+commit 192125ed5ce62afba24312d8e7a0314577565b4a upstream.
 
-If a device is runtime PM suspended when we enter suspend and has
-a dedicated wake IRQ, we can get the following warning:
+Below commit came with a typo in the CONFIG_ symbol, leading
+to a permanently reduced max key size regarless of the driver
+capabilities.
 
-WARNING: CPU: 0 PID: 108 at kernel/irq/manage.c:526 enable_irq+0x40/0x94
-[  102.087860] Unbalanced enable for IRQ 147
-...
-(enable_irq) from [<c06117a8>] (dev_pm_arm_wake_irq+0x4c/0x60)
-(dev_pm_arm_wake_irq) from [<c0618360>]
- (device_wakeup_arm_wake_irqs+0x58/0x9c)
-(device_wakeup_arm_wake_irqs) from [<c0615948>]
-(dpm_suspend_noirq+0x10/0x48)
-(dpm_suspend_noirq) from [<c01ac7ac>]
-(suspend_devices_and_enter+0x30c/0xf14)
-(suspend_devices_and_enter) from [<c01adf20>]
-(enter_state+0xad4/0xbd8)
-(enter_state) from [<c01ad3ec>] (pm_suspend+0x38/0x98)
-(pm_suspend) from [<c01ab3e8>] (state_store+0x68/0xc8)
-
-This is because the dedicated wake IRQ for the device may have been
-already enabled earlier by dev_pm_enable_wake_irq_check().  Fix the
-issue by checking for runtime PM suspended status.
-
-This issue can be easily reproduced by setting serial console log level
-to zero, letting the serial console idle, and suspend the system from
-an ssh terminal.  On resume, dmesg will have the warning above.
-
-The reason why I have not run into this issue earlier has been that I
-typically run my PM test cases from on a serial console instead over ssh.
-
-Fixes: c84345597558 (PM / wakeirq: Enable dedicated wakeirq for suspend)
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: Horia Geantă <horia.geanta@nxp.com>
+Fixes: b8fbdc2bc4e7 ("crypto: talitos - reduce max key size for SEC1")
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
 ---
- drivers/base/power/wakeirq.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/crypto/talitos.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/base/power/wakeirq.c b/drivers/base/power/wakeirq.c
-index ee63ccaea8d57a..8c05e7a5e777b5 100644
---- a/drivers/base/power/wakeirq.c
-+++ b/drivers/base/power/wakeirq.c
-@@ -320,7 +320,8 @@ void dev_pm_arm_wake_irq(struct wake_irq *wirq)
- 		return;
- 
- 	if (device_may_wakeup(wirq->dev)) {
--		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED)
-+		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED &&
-+		    !pm_runtime_status_suspended(wirq->dev))
- 			enable_irq(wirq->irq);
- 
- 		enable_irq_wake(wirq->irq);
-@@ -342,7 +343,8 @@ void dev_pm_disarm_wake_irq(struct wake_irq *wirq)
- 	if (device_may_wakeup(wirq->dev)) {
- 		disable_irq_wake(wirq->irq);
- 
--		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED)
-+		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED &&
-+		    !pm_runtime_status_suspended(wirq->dev))
- 			disable_irq_nosync(wirq->irq);
- 	}
- }
+diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
+index 07e1a286ee4313..78b4f0f172ae59 100644
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -853,7 +853,7 @@ static void talitos_unregister_rng(struct device *dev)
+  * HMAC_SNOOP_NO_AFEA (HSNA) instead of type IPSEC_ESP
+  */
+ #define TALITOS_CRA_PRIORITY_AEAD_HSNA	(TALITOS_CRA_PRIORITY - 1)
+-#ifdef CONFIG_CRYPTO_DEV_TALITOS_SEC2
++#ifdef CONFIG_CRYPTO_DEV_TALITOS2
+ #define TALITOS_MAX_KEY_SIZE		(AES_MAX_KEY_SIZE + SHA512_BLOCK_SIZE)
+ #else
+ #define TALITOS_MAX_KEY_SIZE		(AES_MAX_KEY_SIZE + SHA256_BLOCK_SIZE)
 -- 
 2.33.0
 
