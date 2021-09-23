@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82F50415662
-	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 05:39:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 814E241565E
+	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 05:39:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239334AbhIWDlF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 23:41:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41596 "EHLO mail.kernel.org"
+        id S239175AbhIWDlE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 23:41:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239331AbhIWDke (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Sep 2021 23:40:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6EB96113E;
-        Thu, 23 Sep 2021 03:39:02 +0000 (UTC)
+        id S239339AbhIWDkg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Sep 2021 23:40:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D76661038;
+        Thu, 23 Sep 2021 03:39:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632368344;
-        bh=e0KvK0LHn2MpqDG7+v7pq8V26y/44bSO2X5nywi2CUM=;
+        s=k20201202; t=1632368345;
+        bh=h2ALf3eQQBmDwmQHsBGzHUpUw0tJVsZIOA7VWESL6G4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UQNGEp5z17AN88cM+fZeaOOUenBw8akhf4nEG6qgatkAmRpNyzAP1FaIBPA7XUfRl
-         deisbUiLQp9SA7hYFqcwFboG+eRJ2UyegaKrY9uWYc8kB4EyesmYTQoxj6ktCAso2A
-         kyLvGYEzUuM7st9MhKHZE6VdJvedO1A2I37PSlMLboyRTPcYYvKZ0u4u9HaWXz+AKk
-         aiv36cT1KW6mMuSyaf0NsOKJzbPItL57dVN5/TyfVFrhjJzrghI851QD/akc3Lv/Yf
-         37oa37inhgu7FHM88u7H89+RXEe+vPnnbMwJPfMsNbfKkAlqInuv243Po8kNix0fQ6
-         RTxfLB8+R0K4Q==
+        b=uxCRnGLtrpwI+P2QqmPQxzjVoJx7sjLA51zAdHw09QeDSDKBhdx5fXZoGJXs3na5a
+         KVGBYBfgCLOqhpk0LVB6YjT3jpA4PVZjJTtCRMCBTmkfNqp2qkSsHz8nedMUDWBdL+
+         jV2K9O9Fie0/jJgia1RPPpfBIs4tVDTBnvjB2RGQXbZtT5G4r9yEwkY50iE3pft1vx
+         6ZmMlfyHtnWIaRu4Q3C0sgLP6GlZugUqraUSlGAy4Ni6OQxVqqRuMyfxjw+5XgE1X2
+         MujFmPAL6jrHgmFeBZ4UlYjaCdTupy9ycBIFVGaeKpIEO/njIeDA8fT4KzUvVHGIn4
+         rKlVfQmiCajJg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bixuan Cui <cuibixuan@huawei.com>,
-        syzbot+f3e749d4c662818ae439@syzkaller.appspotmail.com,
-        Alexei Starovoitov <ast@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>,
-        daniel@iogearbox.net, andrii@kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 06/19] bpf: Add oversize check before call kvcalloc()
-Date:   Wed, 22 Sep 2021 23:38:40 -0400
-Message-Id: <20210923033853.1421193-6-sashal@kernel.org>
+Cc:     Juergen Gross <jgross@suse.com>, Jan Beulich <jbeulich@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 5.4 07/19] xen/balloon: use a kernel thread instead a workqueue
+Date:   Wed, 22 Sep 2021 23:38:41 -0400
+Message-Id: <20210923033853.1421193-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210923033853.1421193-1-sashal@kernel.org>
 References: <20210923033853.1421193-1-sashal@kernel.org>
@@ -45,58 +42,193 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@huawei.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 0e6491b559704da720f6da09dd0a52c4df44c514 ]
+[ Upstream commit 8480ed9c2bbd56fc86524998e5f2e3e22f5038f6 ]
 
-Commit 7661809d493b ("mm: don't allow oversized kvmalloc() calls") add the
-oversize check. When the allocation is larger than what kmalloc() supports,
-the following warning triggered:
+Today the Xen ballooning is done via delayed work in a workqueue. This
+might result in workqueue hangups being reported in case of large
+amounts of memory are being ballooned in one go (here 16GB):
 
-WARNING: CPU: 0 PID: 8408 at mm/util.c:597 kvmalloc_node+0x108/0x110 mm/util.c:597
-Modules linked in:
-CPU: 0 PID: 8408 Comm: syz-executor221 Not tainted 5.14.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:kvmalloc_node+0x108/0x110 mm/util.c:597
-Call Trace:
- kvmalloc include/linux/mm.h:806 [inline]
- kvmalloc_array include/linux/mm.h:824 [inline]
- kvcalloc include/linux/mm.h:829 [inline]
- check_btf_line kernel/bpf/verifier.c:9925 [inline]
- check_btf_info kernel/bpf/verifier.c:10049 [inline]
- bpf_check+0xd634/0x150d0 kernel/bpf/verifier.c:13759
- bpf_prog_load kernel/bpf/syscall.c:2301 [inline]
- __sys_bpf+0x11181/0x126e0 kernel/bpf/syscall.c:4587
- __do_sys_bpf kernel/bpf/syscall.c:4691 [inline]
- __se_sys_bpf kernel/bpf/syscall.c:4689 [inline]
- __x64_sys_bpf+0x78/0x90 kernel/bpf/syscall.c:4689
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+BUG: workqueue lockup - pool cpus=6 node=0 flags=0x0 nice=0 stuck for 64s!
+Showing busy workqueues and worker pools:
+workqueue events: flags=0x0
+  pwq 12: cpus=6 node=0 flags=0x0 nice=0 active=2/256 refcnt=3
+    in-flight: 229:balloon_process
+    pending: cache_reap
+workqueue events_freezable_power_: flags=0x84
+  pwq 12: cpus=6 node=0 flags=0x0 nice=0 active=1/256 refcnt=2
+    pending: disk_events_workfn
+workqueue mm_percpu_wq: flags=0x8
+  pwq 12: cpus=6 node=0 flags=0x0 nice=0 active=1/256 refcnt=2
+    pending: vmstat_update
+pool 12: cpus=6 node=0 flags=0x0 nice=0 hung=64s workers=3 idle: 2222 43
 
-Reported-by: syzbot+f3e749d4c662818ae439@syzkaller.appspotmail.com
-Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20210911005557.45518-1-cuibixuan@huawei.com
+This can easily be avoided by using a dedicated kernel thread for doing
+the ballooning work.
+
+Reported-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20210827123206.15429-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/xen/balloon.c | 62 +++++++++++++++++++++++++++++++------------
+ 1 file changed, 45 insertions(+), 17 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 60383b28549b..9c5fa5c52903 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -6839,6 +6839,8 @@ static int check_btf_line(struct bpf_verifier_env *env,
- 	nr_linfo = attr->line_info_cnt;
- 	if (!nr_linfo)
- 		return 0;
-+	if (nr_linfo > INT_MAX / sizeof(struct bpf_line_info))
-+		return -EINVAL;
+diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
+index ebb05517b6aa..2762d246991b 100644
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -43,6 +43,8 @@
+ #include <linux/sched.h>
+ #include <linux/cred.h>
+ #include <linux/errno.h>
++#include <linux/freezer.h>
++#include <linux/kthread.h>
+ #include <linux/mm.h>
+ #include <linux/memblock.h>
+ #include <linux/pagemap.h>
+@@ -117,7 +119,7 @@ static struct ctl_table xen_root[] = {
+ #define EXTENT_ORDER (fls(XEN_PFN_PER_PAGE) - 1)
  
- 	rec_size = attr->line_info_rec_size;
- 	if (rec_size < MIN_BPF_LINEINFO_SIZE ||
+ /*
+- * balloon_process() state:
++ * balloon_thread() state:
+  *
+  * BP_DONE: done or nothing to do,
+  * BP_WAIT: wait to be rescheduled,
+@@ -132,6 +134,8 @@ enum bp_state {
+ 	BP_ECANCELED
+ };
+ 
++/* Main waiting point for xen-balloon thread. */
++static DECLARE_WAIT_QUEUE_HEAD(balloon_thread_wq);
+ 
+ static DEFINE_MUTEX(balloon_mutex);
+ 
+@@ -146,10 +150,6 @@ static xen_pfn_t frame_list[PAGE_SIZE / sizeof(xen_pfn_t)];
+ static LIST_HEAD(ballooned_pages);
+ static DECLARE_WAIT_QUEUE_HEAD(balloon_wq);
+ 
+-/* Main work function, always executed in process context. */
+-static void balloon_process(struct work_struct *work);
+-static DECLARE_DELAYED_WORK(balloon_worker, balloon_process);
+-
+ /* When ballooning out (allocating memory to return to Xen) we don't really
+    want the kernel to try too hard since that can trigger the oom killer. */
+ #define GFP_BALLOON \
+@@ -383,7 +383,7 @@ static void xen_online_page(struct page *page, unsigned int order)
+ static int xen_memory_notifier(struct notifier_block *nb, unsigned long val, void *v)
+ {
+ 	if (val == MEM_ONLINE)
+-		schedule_delayed_work(&balloon_worker, 0);
++		wake_up(&balloon_thread_wq);
+ 
+ 	return NOTIFY_OK;
+ }
+@@ -508,18 +508,43 @@ static enum bp_state decrease_reservation(unsigned long nr_pages, gfp_t gfp)
+ }
+ 
+ /*
+- * As this is a work item it is guaranteed to run as a single instance only.
++ * Stop waiting if either state is not BP_EAGAIN and ballooning action is
++ * needed, or if the credit has changed while state is BP_EAGAIN.
++ */
++static bool balloon_thread_cond(enum bp_state state, long credit)
++{
++	if (state != BP_EAGAIN)
++		credit = 0;
++
++	return current_credit() != credit || kthread_should_stop();
++}
++
++/*
++ * As this is a kthread it is guaranteed to run as a single instance only.
+  * We may of course race updates of the target counts (which are protected
+  * by the balloon lock), or with changes to the Xen hard limit, but we will
+  * recover from these in time.
+  */
+-static void balloon_process(struct work_struct *work)
++static int balloon_thread(void *unused)
+ {
+ 	enum bp_state state = BP_DONE;
+ 	long credit;
++	unsigned long timeout;
++
++	set_freezable();
++	for (;;) {
++		if (state == BP_EAGAIN)
++			timeout = balloon_stats.schedule_delay * HZ;
++		else
++			timeout = 3600 * HZ;
++		credit = current_credit();
+ 
++		wait_event_interruptible_timeout(balloon_thread_wq,
++				 balloon_thread_cond(state, credit), timeout);
++
++		if (kthread_should_stop())
++			return 0;
+ 
+-	do {
+ 		mutex_lock(&balloon_mutex);
+ 
+ 		credit = current_credit();
+@@ -546,12 +571,7 @@ static void balloon_process(struct work_struct *work)
+ 		mutex_unlock(&balloon_mutex);
+ 
+ 		cond_resched();
+-
+-	} while (credit && state == BP_DONE);
+-
+-	/* Schedule more work if there is some still to be done. */
+-	if (state == BP_EAGAIN)
+-		schedule_delayed_work(&balloon_worker, balloon_stats.schedule_delay * HZ);
++	}
+ }
+ 
+ /* Resets the Xen limit, sets new target, and kicks off processing. */
+@@ -559,7 +579,7 @@ void balloon_set_new_target(unsigned long target)
+ {
+ 	/* No need for lock. Not read-modify-write updates. */
+ 	balloon_stats.target_pages = target;
+-	schedule_delayed_work(&balloon_worker, 0);
++	wake_up(&balloon_thread_wq);
+ }
+ EXPORT_SYMBOL_GPL(balloon_set_new_target);
+ 
+@@ -664,7 +684,7 @@ void free_xenballooned_pages(int nr_pages, struct page **pages)
+ 
+ 	/* The balloon may be too large now. Shrink it if needed. */
+ 	if (current_credit())
+-		schedule_delayed_work(&balloon_worker, 0);
++		wake_up(&balloon_thread_wq);
+ 
+ 	mutex_unlock(&balloon_mutex);
+ }
+@@ -696,6 +716,8 @@ static void __init balloon_add_region(unsigned long start_pfn,
+ 
+ static int __init balloon_init(void)
+ {
++	struct task_struct *task;
++
+ 	if (!xen_domain())
+ 		return -ENODEV;
+ 
+@@ -739,6 +761,12 @@ static int __init balloon_init(void)
+ 	}
+ #endif
+ 
++	task = kthread_run(balloon_thread, NULL, "xen-balloon");
++	if (IS_ERR(task)) {
++		pr_err("xen-balloon thread could not be started, ballooning will not work!\n");
++		return PTR_ERR(task);
++	}
++
+ 	/* Init the xen-balloon driver. */
+ 	xen_balloon_init();
+ 
 -- 
 2.30.2
 
