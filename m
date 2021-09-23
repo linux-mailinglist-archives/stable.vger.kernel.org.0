@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 798FA4156C7
-	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 05:42:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 104484156C3
+	for <lists+stable@lfdr.de>; Thu, 23 Sep 2021 05:42:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239363AbhIWDng (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Sep 2021 23:43:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41464 "EHLO mail.kernel.org"
+        id S239176AbhIWDnf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Sep 2021 23:43:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239296AbhIWDl6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239408AbhIWDl6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 22 Sep 2021 23:41:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B37A6134F;
-        Thu, 23 Sep 2021 03:39:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AEB06127A;
+        Thu, 23 Sep 2021 03:40:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632368398;
-        bh=9AtloOx4nKpyDowAK6RtfaHu26eLyUL/U/Nx60hTpaA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pL9qv8jsYFxM35HgytIhVHfJLC1QcXKaB4dAoktorRJ0B6gfsB0W7+YfEkFN73JsF
-         l3m19dvz5/IHgnpjXkktSVt/NGyKOwHnVEZ99ic0nNGNqwe6r13VeuB2SToDB8FLpH
-         w4GVp5WUOEA8TI/fiY2lXJqWNPh2iKxOvr3xNgtFH3wYCpurEJpNFZr/PlRtNDEQZG
-         SERFLc4fJGQhIbqY2waipY1080CmfA9BLItnFwAEa6EmHp4nzBzKylnZfOOSwR1xMV
-         pWsXU+ekMJW2mD09rJ1UtpV/5XOQgUHZrnV2W81pbzrvvVTj55J3wqpJ4hctrykoQ7
-         gHWeP8tb4Kb/g==
+        s=k20201202; t=1632368401;
+        bh=QCdupz/p0xeBKAVQUxU1xuzFKfxYn0azqyj/TQx2t4A=;
+        h=From:To:Cc:Subject:Date:From;
+        b=kowqR6ugbHeHYO+gw+TSR/pG4p8tnHiYh7zLeNoTf5dYuy1zMLVOR388CdQovTyj3
+         fx2U64lGFGV+3Kqbyp8e3gIPX8jw+eWziKj0MzSKKBklq3Yg3nOyoLEiuUGABtQqYq
+         sE0LuyIp3P/25o/Exd2Nt1zIogDA9RuEEc8ib5wnJ4b/8gW10QsA2AZrZQo1ut6KZh
+         oFBrwsUada2D0P/8XXVkPnuWs1drP94q8Pg6q4pFUiXEBjWECpO8SMFd4vrNZIxmQE
+         i/0DwcdKgoQZpZg6aodnguUzLbk2e6nbN9mBICGFlNwx9On3dBFwaoqYw2Rpnb0e3f
+         +Nk/O6I6uxgKw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, ldewangan@nvidia.com,
-        broonie@kernel.org, thierry.reding@gmail.com, jonathanh@nvidia.com,
-        linux-spi@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 15/15] spi: Fix tegra20 build with CONFIG_PM=n
-Date:   Wed, 22 Sep 2021 23:39:29 -0400
-Message-Id: <20210923033929.1421446-15-sashal@kernel.org>
+Cc:     Tong Zhang <ztong0001@gmail.com>,
+        Nicolas Ferre <Nicolas.Ferre@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, claudiu.beznea@microchip.com,
+        kuba@kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 01/13] net: macb: fix use after free on rmmod
+Date:   Wed, 22 Sep 2021 23:39:47 -0400
+Message-Id: <20210923033959.1421662-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210923033929.1421446-1-sashal@kernel.org>
-References: <20210923033929.1421446-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,54 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit efafec27c5658ed987e720130772f8933c685e87 ]
+[ Upstream commit d82d5303c4c539db86588ffb5dc5b26c3f1513e8 ]
 
-Without CONFIG_PM enabled, the SET_RUNTIME_PM_OPS() macro ends up being
-empty, and the only use of tegra_slink_runtime_{resume,suspend} goes
-away, resulting in
+plat_dev->dev->platform_data is released by platform_device_unregister(),
+use of pclk and hclk is a use-after-free. Since device unregister won't
+need a clk device we adjust the function call sequence to fix this issue.
 
-  drivers/spi/spi-tegra20-slink.c:1200:12: error: ‘tegra_slink_runtime_resume’ defined but not used [-Werror=unused-function]
-   1200 | static int tegra_slink_runtime_resume(struct device *dev)
-        |            ^~~~~~~~~~~~~~~~~~~~~~~~~~
-  drivers/spi/spi-tegra20-slink.c:1188:12: error: ‘tegra_slink_runtime_suspend’ defined but not used [-Werror=unused-function]
-   1188 | static int tegra_slink_runtime_suspend(struct device *dev)
-        |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+[   31.261225] BUG: KASAN: use-after-free in macb_remove+0x77/0xc6 [macb_pci]
+[   31.275563] Freed by task 306:
+[   30.276782]  platform_device_release+0x25/0x80
 
-mark the functions __maybe_unused to make the build happy.
-
-This hits the alpha allmodconfig build (and others).
-
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Suggested-by: Nicolas Ferre <Nicolas.Ferre@microchip.com>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-tegra20-slink.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/cadence/macb_pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-tegra20-slink.c b/drivers/spi/spi-tegra20-slink.c
-index c6b80a60951b..bc3097e5cc26 100644
---- a/drivers/spi/spi-tegra20-slink.c
-+++ b/drivers/spi/spi-tegra20-slink.c
-@@ -1210,7 +1210,7 @@ static int tegra_slink_resume(struct device *dev)
- }
- #endif
+diff --git a/drivers/net/ethernet/cadence/macb_pci.c b/drivers/net/ethernet/cadence/macb_pci.c
+index 248a8fc45069..f06fddf9919b 100644
+--- a/drivers/net/ethernet/cadence/macb_pci.c
++++ b/drivers/net/ethernet/cadence/macb_pci.c
+@@ -123,9 +123,9 @@ static void macb_remove(struct pci_dev *pdev)
+ 	struct platform_device *plat_dev = pci_get_drvdata(pdev);
+ 	struct macb_platform_data *plat_data = dev_get_platdata(&plat_dev->dev);
  
--static int tegra_slink_runtime_suspend(struct device *dev)
-+static int __maybe_unused tegra_slink_runtime_suspend(struct device *dev)
- {
- 	struct spi_master *master = dev_get_drvdata(dev);
- 	struct tegra_slink_data *tspi = spi_master_get_devdata(master);
-@@ -1222,7 +1222,7 @@ static int tegra_slink_runtime_suspend(struct device *dev)
- 	return 0;
+-	platform_device_unregister(plat_dev);
+ 	clk_unregister(plat_data->pclk);
+ 	clk_unregister(plat_data->hclk);
++	platform_device_unregister(plat_dev);
  }
  
--static int tegra_slink_runtime_resume(struct device *dev)
-+static int __maybe_unused tegra_slink_runtime_resume(struct device *dev)
- {
- 	struct spi_master *master = dev_get_drvdata(dev);
- 	struct tegra_slink_data *tspi = spi_master_get_devdata(master);
+ static const struct pci_device_id dev_id_table[] = {
 -- 
 2.30.2
 
