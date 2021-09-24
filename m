@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A75E14174B9
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:09:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75BCF417453
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345888AbhIXNKB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:10:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37286 "EHLO mail.kernel.org"
+        id S1345488AbhIXNEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:04:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346705AbhIXNHy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:07:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A992A6138D;
-        Fri, 24 Sep 2021 12:56:55 +0000 (UTC)
+        id S1345928AbhIXNCk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:02:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB07261373;
+        Fri, 24 Sep 2021 12:54:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488216;
-        bh=q5hqOymr05/raBBH3Mx9NsL9SzHNfEeKrfQU33vXWDI=;
+        s=korg; t=1632488086;
+        bh=8ZNp6MGPQigt7g8BT9DEDP1WpaZvvDlQLZKFV3SqiQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YvY4MuIsQ+z/gMKQD8FbB0I+HyMR5QNYrDPkLFAIalwclEdzEQbuts8Da4uc5waSo
-         qFEG6ALUk1Z5fQl9mJsfbICf83an2jNtd6LfVU8C7wnHUL4teI3pHPFhn5W1wZww5K
-         fGd51oVryOK5OPacrDn0yP9sOpGHC/Dq0zI74i80=
+        b=ZGvBTKh70k89a+fqOzQWsx2QdvoE9B9+CWsvWHZvlrr5ZveHyB3PvhDIUB80E1JSE
+         cf14s//JHQslxaWxSTjnhCH2pvb4mtUDRRPn6RD+7LLZUWyLVdKDWTr8MOJnWYD6UM
+         59VfQ/KBLHVWBmZ7AAVEW3DDAoLDTPldAgogw7sI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        stable@vger.kernel.org, Tomer Tayar <ttayar@habana.ai>,
+        Oded Gabbay <ogabbay@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 28/63] platform/chrome: sensorhub: Add trace events for sample
+Subject: [PATCH 5.14 079/100] habanalabs: fix nullifying of destroyed mmu pgt pool
 Date:   Fri, 24 Sep 2021 14:44:28 +0200
-Message-Id: <20210924124335.234451931@linuxfoundation.org>
+Message-Id: <20210924124344.105159108@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
-References: <20210924124334.228235870@linuxfoundation.org>
+In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
+References: <20210924124341.214446495@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,206 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gwendal Grignou <gwendal@chromium.org>
+From: Tomer Tayar <ttayar@habana.ai>
 
-[ Upstream commit d453ceb6549af8798913de6a20444cb7200fdb69 ]
+[ Upstream commit 89aad770d692e4d2d9a604c1674e9dfa69421430 ]
 
-Add trace event to report samples and their timestamp coming from the
-EC. It allows to check if the timestamps are correct and the filter is
-working correctly without introducing too much latency.
+In case of host-resident MMU, when the page tables pool is destroyed,
+its pointer is not nullified correctly.
+As a result, on a device fini which happens after a failing reset, the
+already destroyed pool is accessed, which leads to a kernel panic.
+The patch fixes the setting of the pool pointer to NULL.
 
-To enable these events:
-
-cd /sys/kernel/debug/tracing/
-echo 1 > events/cros_ec/enable
-echo 0 > events/cros_ec/cros_ec_request_start/enable
-echo 0 > events/cros_ec/cros_ec_request_done/enable
-echo 1 > tracing_on
-cat trace_pipe
-Observe event flowing:
-irq/105-chromeo-95      [000] ....   613.659758: cros_ec_sensorhub_timestamp: ...
-irq/105-chromeo-95      [000] ....   613.665219: cros_ec_sensorhub_filter: dx: ...
-
-Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Tomer Tayar <ttayar@habana.ai>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/Makefile              |  2 +-
- .../platform/chrome/cros_ec_sensorhub_ring.c  | 14 +++
- drivers/platform/chrome/cros_ec_trace.h       | 94 +++++++++++++++++++
- 3 files changed, 109 insertions(+), 1 deletion(-)
+ drivers/misc/habanalabs/common/mmu/mmu_v1.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/platform/chrome/Makefile b/drivers/platform/chrome/Makefile
-index 41baccba033f..f901d2e43166 100644
---- a/drivers/platform/chrome/Makefile
-+++ b/drivers/platform/chrome/Makefile
-@@ -20,7 +20,7 @@ obj-$(CONFIG_CROS_EC_CHARDEV)		+= cros_ec_chardev.o
- obj-$(CONFIG_CROS_EC_LIGHTBAR)		+= cros_ec_lightbar.o
- obj-$(CONFIG_CROS_EC_VBC)		+= cros_ec_vbc.o
- obj-$(CONFIG_CROS_EC_DEBUGFS)		+= cros_ec_debugfs.o
--cros-ec-sensorhub-objs			:= cros_ec_sensorhub.o cros_ec_sensorhub_ring.o
-+cros-ec-sensorhub-objs			:= cros_ec_sensorhub.o cros_ec_sensorhub_ring.o cros_ec_trace.o
- obj-$(CONFIG_CROS_EC_SENSORHUB)		+= cros-ec-sensorhub.o
- obj-$(CONFIG_CROS_EC_SYSFS)		+= cros_ec_sysfs.o
- obj-$(CONFIG_CROS_USBPD_LOGGER)		+= cros_usbpd_logger.o
-diff --git a/drivers/platform/chrome/cros_ec_sensorhub_ring.c b/drivers/platform/chrome/cros_ec_sensorhub_ring.c
-index 8921f24e83ba..98e37080f760 100644
---- a/drivers/platform/chrome/cros_ec_sensorhub_ring.c
-+++ b/drivers/platform/chrome/cros_ec_sensorhub_ring.c
-@@ -17,6 +17,8 @@
- #include <linux/sort.h>
- #include <linux/slab.h>
+diff --git a/drivers/misc/habanalabs/common/mmu/mmu_v1.c b/drivers/misc/habanalabs/common/mmu/mmu_v1.c
+index c5e93ff32586..0f536f79dd9c 100644
+--- a/drivers/misc/habanalabs/common/mmu/mmu_v1.c
++++ b/drivers/misc/habanalabs/common/mmu/mmu_v1.c
+@@ -470,13 +470,13 @@ static void hl_mmu_v1_fini(struct hl_device *hdev)
+ 	if (!ZERO_OR_NULL_PTR(hdev->mmu_priv.hr.mmu_shadow_hop0)) {
+ 		kvfree(hdev->mmu_priv.dr.mmu_shadow_hop0);
+ 		gen_pool_destroy(hdev->mmu_priv.dr.mmu_pgt_pool);
+-	}
  
-+#include "cros_ec_trace.h"
-+
- /* Precision of fixed point for the m values from the filter */
- #define M_PRECISION BIT(23)
- 
-@@ -291,6 +293,7 @@ cros_ec_sensor_ring_ts_filter_update(struct cros_ec_sensors_ts_filter_state
- 		state->median_m = 0;
- 		state->median_error = 0;
- 	}
-+	trace_cros_ec_sensorhub_filter(state, dx, dy);
+-	/* Make sure that if we arrive here again without init was called we
+-	 * won't cause kernel panic. This can happen for example if we fail
+-	 * during hard reset code at certain points
+-	 */
+-	hdev->mmu_priv.dr.mmu_shadow_hop0 = NULL;
++		/* Make sure that if we arrive here again without init was
++		 * called we won't cause kernel panic. This can happen for
++		 * example if we fail during hard reset code at certain points
++		 */
++		hdev->mmu_priv.dr.mmu_shadow_hop0 = NULL;
++	}
  }
  
  /**
-@@ -427,6 +430,11 @@ cros_ec_sensor_ring_process_event(struct cros_ec_sensorhub *sensorhub,
- 			if (new_timestamp - *current_timestamp > 0)
- 				*current_timestamp = new_timestamp;
- 		}
-+		trace_cros_ec_sensorhub_timestamp(in->timestamp,
-+						  fifo_info->timestamp,
-+						  fifo_timestamp,
-+						  *current_timestamp,
-+						  now);
- 	}
- 
- 	if (in->flags & MOTIONSENSE_SENSOR_FLAG_ODR) {
-@@ -460,6 +468,12 @@ cros_ec_sensor_ring_process_event(struct cros_ec_sensorhub *sensorhub,
- 
- 	/* Regular sample */
- 	out->sensor_id = in->sensor_num;
-+	trace_cros_ec_sensorhub_data(in->sensor_num,
-+				     fifo_info->timestamp,
-+				     fifo_timestamp,
-+				     *current_timestamp,
-+				     now);
-+
- 	if (*current_timestamp - now > 0) {
- 		/*
- 		 * This fix is needed to overcome the timestamp filter putting
-diff --git a/drivers/platform/chrome/cros_ec_trace.h b/drivers/platform/chrome/cros_ec_trace.h
-index f744b21bc655..f50b9f9b8610 100644
---- a/drivers/platform/chrome/cros_ec_trace.h
-+++ b/drivers/platform/chrome/cros_ec_trace.h
-@@ -15,6 +15,7 @@
- #include <linux/types.h>
- #include <linux/platform_data/cros_ec_commands.h>
- #include <linux/platform_data/cros_ec_proto.h>
-+#include <linux/platform_data/cros_ec_sensorhub.h>
- 
- #include <linux/tracepoint.h>
- 
-@@ -70,6 +71,99 @@ TRACE_EVENT(cros_ec_request_done,
- 		  __entry->retval)
- );
- 
-+TRACE_EVENT(cros_ec_sensorhub_timestamp,
-+	    TP_PROTO(u32 ec_sample_timestamp, u32 ec_fifo_timestamp, s64 fifo_timestamp,
-+		     s64 current_timestamp, s64 current_time),
-+	TP_ARGS(ec_sample_timestamp, ec_fifo_timestamp, fifo_timestamp, current_timestamp,
-+		current_time),
-+	TP_STRUCT__entry(
-+		__field(u32, ec_sample_timestamp)
-+		__field(u32, ec_fifo_timestamp)
-+		__field(s64, fifo_timestamp)
-+		__field(s64, current_timestamp)
-+		__field(s64, current_time)
-+		__field(s64, delta)
-+	),
-+	TP_fast_assign(
-+		__entry->ec_sample_timestamp = ec_sample_timestamp;
-+		__entry->ec_fifo_timestamp = ec_fifo_timestamp;
-+		__entry->fifo_timestamp = fifo_timestamp;
-+		__entry->current_timestamp = current_timestamp;
-+		__entry->current_time = current_time;
-+		__entry->delta = current_timestamp - current_time;
-+	),
-+	TP_printk("ec_ts: %12lld, ec_fifo_ts: %12lld, fifo_ts: %12lld, curr_ts: %12lld, curr_time: %12lld, delta %12lld",
-+		  __entry->ec_sample_timestamp,
-+		__entry->ec_fifo_timestamp,
-+		__entry->fifo_timestamp,
-+		__entry->current_timestamp,
-+		__entry->current_time,
-+		__entry->delta
-+	)
-+);
-+
-+TRACE_EVENT(cros_ec_sensorhub_data,
-+	    TP_PROTO(u32 ec_sensor_num, u32 ec_fifo_timestamp, s64 fifo_timestamp,
-+		     s64 current_timestamp, s64 current_time),
-+	TP_ARGS(ec_sensor_num, ec_fifo_timestamp, fifo_timestamp, current_timestamp, current_time),
-+	TP_STRUCT__entry(
-+		__field(u32, ec_sensor_num)
-+		__field(u32, ec_fifo_timestamp)
-+		__field(s64, fifo_timestamp)
-+		__field(s64, current_timestamp)
-+		__field(s64, current_time)
-+		__field(s64, delta)
-+	),
-+	TP_fast_assign(
-+		__entry->ec_sensor_num = ec_sensor_num;
-+		__entry->ec_fifo_timestamp = ec_fifo_timestamp;
-+		__entry->fifo_timestamp = fifo_timestamp;
-+		__entry->current_timestamp = current_timestamp;
-+		__entry->current_time = current_time;
-+		__entry->delta = current_timestamp - current_time;
-+	),
-+	TP_printk("ec_num: %4d, ec_fifo_ts: %12lld, fifo_ts: %12lld, curr_ts: %12lld, curr_time: %12lld, delta %12lld",
-+		  __entry->ec_sensor_num,
-+		__entry->ec_fifo_timestamp,
-+		__entry->fifo_timestamp,
-+		__entry->current_timestamp,
-+		__entry->current_time,
-+		__entry->delta
-+	)
-+);
-+
-+TRACE_EVENT(cros_ec_sensorhub_filter,
-+	    TP_PROTO(struct cros_ec_sensors_ts_filter_state *state, s64 dx, s64 dy),
-+	TP_ARGS(state, dx, dy),
-+	TP_STRUCT__entry(
-+		__field(s64, dx)
-+		__field(s64, dy)
-+		__field(s64, median_m)
-+		__field(s64, median_error)
-+		__field(s64, history_len)
-+		__field(s64, x)
-+		__field(s64, y)
-+	),
-+	TP_fast_assign(
-+		__entry->dx = dx;
-+		__entry->dy = dy;
-+		__entry->median_m = state->median_m;
-+		__entry->median_error = state->median_error;
-+		__entry->history_len = state->history_len;
-+		__entry->x = state->x_offset;
-+		__entry->y = state->y_offset;
-+	),
-+	TP_printk("dx: %12lld. dy: %12lld median_m: %12lld median_error: %12lld len: %d x: %12lld y: %12lld",
-+		  __entry->dx,
-+		__entry->dy,
-+		__entry->median_m,
-+		__entry->median_error,
-+		__entry->history_len,
-+		__entry->x,
-+		__entry->y
-+	)
-+);
-+
- 
- #endif /* _CROS_EC_TRACE_H_ */
- 
 -- 
 2.33.0
 
