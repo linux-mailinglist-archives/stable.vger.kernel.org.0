@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B10304173E8
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:02:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1C794173EC
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:02:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345099AbhIXNAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:00:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54754 "EHLO mail.kernel.org"
+        id S1345157AbhIXNAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:00:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345740AbhIXM66 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:58:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63867613AD;
-        Fri, 24 Sep 2021 12:53:04 +0000 (UTC)
+        id S1345766AbhIXM7B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:59:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E222C613B5;
+        Fri, 24 Sep 2021 12:53:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487984;
-        bh=BVrxyoIWLerfsADKDOwLAvQ/JSj6zi0IMSjtdI+6jBI=;
+        s=korg; t=1632487987;
+        bh=asz7dV+O7xCkncg+U15FeU0iCWKQP6LqWTxECWg+gMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LJI/FvLvTRfo3Xhn9p4Xo6JZwLQO5oVTpHQnXOVvpIuxw1gyjcnDs9NgMXD8nwwqT
-         PXcQAFcW5j9x5DdCt4Ei0uu2Ls5SixDIt2bVYxDsPQKNr5wRGguHePsx2Nr6Sr57tJ
-         EuOXPZQBf9DYFdYxgXZ9rMICU7WJAvjUugu2LiQY=
+        b=MKMLA/SQgmVvJOkGwIwWwxgbXiyzWRbB/CvKcLjr6sCQoloADSSq+treNNvOBz+wV
+         XyvSJF95FJnHc2IMPUb8kCWUyhB2+ZOpol8SrxL9NURJCxCWHiHRXu79o5FoNiCEnp
+         LTA7OhzKYX8i5kOdjQFMtF6Pt/jitiss8d8LDFvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.14 007/100] um: virtio_uml: fix memory leak on init failures
-Date:   Fri, 24 Sep 2021 14:43:16 +0200
-Message-Id: <20210924124341.712073214@linuxfoundation.org>
+        stable@vger.kernel.org, Yixing Liu <liuyixing1@huawei.com>,
+        Wenpeng Liang <liangwenpeng@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.14 008/100] RDMA/hns: Enable stash feature of HIP09
+Date:   Fri, 24 Sep 2021 14:43:17 +0200
+Message-Id: <20210924124341.741821219@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
 References: <20210924124341.214446495@linuxfoundation.org>
@@ -40,41 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Yixing Liu <liuyixing1@huawei.com>
 
-commit 7ad28e0df7ee9dbcb793bb88dd81d4d22bb9a10e upstream.
+commit 260f64a40198309008026447f7fda277a73ed8c3 upstream.
 
-If initialization fails, e.g. because the connection failed,
-we leak the 'vu_dev'. Fix that. Reported by smatch.
+The stash feature is enabled by default on HIP09.
 
-Fixes: 5d38f324993f ("um: drivers: Add virtio vhost-user driver")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: f93c39bc9547 ("RDMA/hns: Add support for QP stash")
+Fixes: bfefae9f108d ("RDMA/hns: Add support for CQ stash")
+Link: https://lore.kernel.org/r/1629539607-33217-3-git-send-email-liangwenpeng@huawei.com
+Signed-off-by: Yixing Liu <liuyixing1@huawei.com>
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/drivers/virtio_uml.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/um/drivers/virtio_uml.c
-+++ b/arch/um/drivers/virtio_uml.c
-@@ -1139,7 +1139,7 @@ static int virtio_uml_probe(struct platf
- 		rc = os_connect_socket(pdata->socket_path);
- 	} while (rc == -EINTR);
- 	if (rc < 0)
--		return rc;
-+		goto error_free;
- 	vu_dev->sock = rc;
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -2004,6 +2004,7 @@ static void set_default_caps(struct hns_
+ 	caps->gid_table_len[0] = HNS_ROCE_V2_GID_INDEX_NUM;
  
- 	spin_lock_init(&vu_dev->sock_lock);
-@@ -1160,6 +1160,8 @@ static int virtio_uml_probe(struct platf
- 
- error_init:
- 	os_close_file(vu_dev->sock);
-+error_free:
-+	kfree(vu_dev);
- 	return rc;
- }
- 
+ 	if (hr_dev->pci_dev->revision >= PCI_REVISION_ID_HIP09) {
++		caps->flags |= HNS_ROCE_CAP_FLAG_STASH;
+ 		caps->max_sq_inline = HNS_ROCE_V3_MAX_SQ_INLINE;
+ 	} else {
+ 		caps->max_sq_inline = HNS_ROCE_V2_MAX_SQ_INLINE;
 
 
