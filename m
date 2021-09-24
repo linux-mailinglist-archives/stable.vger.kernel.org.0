@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 902154172E4
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:51:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92CE541728C
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:48:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344504AbhIXMwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:52:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45816 "EHLO mail.kernel.org"
+        id S1344159AbhIXMtM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:49:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344085AbhIXMu6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:50:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 851AB61353;
-        Fri, 24 Sep 2021 12:48:35 +0000 (UTC)
+        id S1344204AbhIXMs3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:48:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39C866124D;
+        Fri, 24 Sep 2021 12:46:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487716;
-        bh=N5MwUvgWxQdrJCN28OEATBP4uZ5gUFM9nNCmBfCt9Qg=;
+        s=korg; t=1632487616;
+        bh=98OmaOsqsiaPG8nAK0MzoQ4ZPDrTNDgUGygrcvZICrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g4MMJZzJa8K7kvZzPzd4mrs+mH0ASvA/qlFn9pTz1JBA5NBHSnygj5FFc3D6s4+WK
-         tmf7Kwk0BsaBNRuU75ocXzY4f3PAsK5tQBMdu0Ke903HmhMbqIbaST6zkYRA0dUZql
-         lcQUCTSMRm10l1LVdvv9J1eHtZvIul6BVegsj9D4=
+        b=danjC8iQl6zJ2U6h9Pzfdz5BbvPGG4GOv0pU6BowlHzcCPBr/g+/BWLkZsqmkUQ4N
+         Rx1W3/rQ3xuR8CZDLfMlhFHFSoquPr87O3KhSX2XaHhKZgY9uPthengHRtCz4iNH+G
+         yEPtMTgozHOa2sMCQiygMLLwOz6SdHKsBoM3+HgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        Nitesh Narayan Lal <nitesh@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 4.19 02/34] KVM: remember position in kvm->vcpus array
+        stable@vger.kernel.org, Neeraj Upadhyay <neeraju@codeaurora.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        David Chen <david.chen@nutanix.com>
+Subject: [PATCH 4.14 02/27] rcu: Fix missed wakeup of exp_wq waiters
 Date:   Fri, 24 Sep 2021 14:43:56 +0200
-Message-Id: <20210924124330.046505137@linuxfoundation.org>
+Message-Id: <20210924124329.259394431@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
-References: <20210924124329.965218583@linuxfoundation.org>
+In-Reply-To: <20210924124329.173674820@linuxfoundation.org>
+References: <20210924124329.173674820@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,74 +40,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Radim Krčmář <rkrcmar@redhat.com>
+From: Neeraj Upadhyay <neeraju@codeaurora.org>
 
-commit 8750e72a79dda2f665ce17b62049f4d62130d991 upstream.
+commit fd6bc19d7676a060a171d1cf3dcbf6fd797eb05f upstream.
 
-Fetching an index for any vcpu in kvm->vcpus array by traversing
-the entire array everytime is costly.
-This patch remembers the position of each vcpu in kvm->vcpus array
-by storing it in vcpus_idx under kvm_vcpu structure.
+Tasks waiting within exp_funnel_lock() for an expedited grace period to
+elapse can be starved due to the following sequence of events:
 
-Signed-off-by: Radim Krčmář <rkrcmar@redhat.com>
-Signed-off-by: Nitesh Narayan Lal <nitesh@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[borntraeger@de.ibm.com]: backport to 4.19 (also fits for 5.4)
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+1.	Tasks A and B both attempt to start an expedited grace
+	period at about the same time.	This grace period will have
+	completed when the lower four bits of the rcu_state structure's
+	->expedited_sequence field are 0b'0100', for example, when the
+	initial value of this counter is zero.	Task A wins, and thus
+	does the actual work of starting the grace period, including
+	acquiring the rcu_state structure's .exp_mutex and sets the
+	counter to 0b'0001'.
+
+2.	Because task B lost the race to start the grace period, it
+	waits on ->expedited_sequence to reach 0b'0100' inside of
+	exp_funnel_lock(). This task therefore blocks on the rcu_node
+	structure's ->exp_wq[1] field, keeping in mind that the
+	end-of-grace-period value of ->expedited_sequence (0b'0100')
+	is shifted down two bits before indexing the ->exp_wq[] field.
+
+3.	Task C attempts to start another expedited grace period,
+	but blocks on ->exp_mutex, which is still held by Task A.
+
+4.	The aforementioned expedited grace period completes, so that
+	->expedited_sequence now has the value 0b'0100'.  A kworker task
+	therefore acquires the rcu_state structure's ->exp_wake_mutex
+	and starts awakening any tasks waiting for this grace period.
+
+5.	One of the first tasks awakened happens to be Task A.  Task A
+	therefore releases the rcu_state structure's ->exp_mutex,
+	which allows Task C to start the next expedited grace period,
+	which causes the lower four bits of the rcu_state structure's
+	->expedited_sequence field to become 0b'0101'.
+
+6.	Task C's expedited grace period completes, so that the lower four
+	bits of the rcu_state structure's ->expedited_sequence field now
+	become 0b'1000'.
+
+7.	The kworker task from step 4 above continues its wakeups.
+	Unfortunately, the wake_up_all() refetches the rcu_state
+	structure's .expedited_sequence field:
+
+	wake_up_all(&rnp->exp_wq[rcu_seq_ctr(rcu_state.expedited_sequence) & 0x3]);
+
+	This results in the wakeup being applied to the rcu_node
+	structure's ->exp_wq[2] field, which is unfortunate given that
+	Task B is instead waiting on ->exp_wq[1].
+
+On a busy system, no harm is done (or at least no permanent harm is done).
+Some later expedited grace period will redo the wakeup.  But on a quiet
+system, such as many embedded systems, it might be a good long time before
+there was another expedited grace period.  On such embedded systems,
+this situation could therefore result in a system hang.
+
+This issue manifested as DPM device timeout during suspend (which
+usually qualifies as a quiet time) due to a SCSI device being stuck in
+_synchronize_rcu_expedited(), with the following stack trace:
+
+	schedule()
+	synchronize_rcu_expedited()
+	synchronize_rcu()
+	scsi_device_quiesce()
+	scsi_bus_suspend()
+	dpm_run_callback()
+	__device_suspend()
+
+This commit therefore prevents such delays, timeouts, and hangs by
+making rcu_exp_wait_wake() use its "s" argument consistently instead of
+refetching from rcu_state.expedited_sequence.
+
+Fixes: 3b5f668e715b ("rcu: Overlap wakeups with next expedited grace period")
+Signed-off-by: Neeraj Upadhyay <neeraju@codeaurora.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: David Chen <david.chen@nutanix.com>
+Acked-by: Neeraj Upadhyay <neeraju@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/kvm_host.h |   11 +++--------
- virt/kvm/kvm_main.c      |    5 +++--
- 2 files changed, 6 insertions(+), 10 deletions(-)
+ kernel/rcu/tree_exp.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -248,7 +248,8 @@ struct kvm_vcpu {
- 	struct preempt_notifier preempt_notifier;
- #endif
- 	int cpu;
--	int vcpu_id;
-+	int vcpu_id; /* id given by userspace at creation */
-+	int vcpu_idx; /* index in kvm->vcpus array */
- 	int srcu_idx;
- 	int mode;
- 	u64 requests;
-@@ -551,13 +552,7 @@ static inline struct kvm_vcpu *kvm_get_v
- 
- static inline int kvm_vcpu_get_idx(struct kvm_vcpu *vcpu)
- {
--	struct kvm_vcpu *tmp;
--	int idx;
--
--	kvm_for_each_vcpu(idx, tmp, vcpu->kvm)
--		if (tmp == vcpu)
--			return idx;
--	BUG();
-+	return vcpu->vcpu_idx;
- }
- 
- #define kvm_for_each_memslot(memslot, slots)	\
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2751,7 +2751,8 @@ static int kvm_vm_ioctl_create_vcpu(stru
- 		goto unlock_vcpu_destroy;
+--- a/kernel/rcu/tree_exp.h
++++ b/kernel/rcu/tree_exp.h
+@@ -534,7 +534,7 @@ static void rcu_exp_wait_wake(struct rcu
+ 			spin_unlock(&rnp->exp_lock);
+ 		}
+ 		smp_mb(); /* All above changes before wakeup. */
+-		wake_up_all(&rnp->exp_wq[rcu_seq_ctr(rsp->expedited_sequence) & 0x3]);
++		wake_up_all(&rnp->exp_wq[rcu_seq_ctr(s) & 0x3]);
  	}
- 
--	BUG_ON(kvm->vcpus[atomic_read(&kvm->online_vcpus)]);
-+	vcpu->vcpu_idx = atomic_read(&kvm->online_vcpus);
-+	BUG_ON(kvm->vcpus[vcpu->vcpu_idx]);
- 
- 	/* Now it's all set up, let userspace reach it */
- 	kvm_get_kvm(kvm);
-@@ -2761,7 +2762,7 @@ static int kvm_vm_ioctl_create_vcpu(stru
- 		goto unlock_vcpu_destroy;
- 	}
- 
--	kvm->vcpus[atomic_read(&kvm->online_vcpus)] = vcpu;
-+	kvm->vcpus[vcpu->vcpu_idx] = vcpu;
- 
- 	/*
- 	 * Pairs with smp_rmb() in kvm_get_vcpu.  Write kvm->vcpus
+ 	trace_rcu_exp_grace_period(rsp->name, s, TPS("endwake"));
+ 	mutex_unlock(&rsp->exp_wake_mutex);
 
 
