@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EED384173AC
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D31C64173AE
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345809AbhIXM71 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:59:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53950 "EHLO mail.kernel.org"
+        id S1344804AbhIXM72 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:59:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345249AbhIXM5r (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345251AbhIXM5r (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 24 Sep 2021 08:57:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59B6A613A2;
-        Fri, 24 Sep 2021 12:52:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C8288613A4;
+        Fri, 24 Sep 2021 12:52:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487924;
-        bh=TbiP7MDWr1dYJ3oEy78muZkYFlS4VnAsNanY1WHxLgc=;
+        s=korg; t=1632487927;
+        bh=aEpPoO4xr58C0zDlTmsnK/zzzAOmFJ8YN4chsWJa2bQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fg0tjXwGYeQrVPje7GSpidFxttfXrX/jRt8Hjh/L7t8QFrQfstrXzf9wwroWP9Gib
-         en4h5AqTNcDbGeAvPCwSKVufUuZyGXGDO98zUHnXHONdjJeGCREPmIZ1QDzhR4unP0
-         5Z8gjEgJ24eCdniQxzRoiLfphAE7Txd2jI3RHKHA=
+        b=QyZgXR7wYDeDo9++JgHdphr0Ey/yajiG+9lDWqPA9gGuc5UM35XP0PcyG/CR5dU12
+         UUwj3Cq4ibysQ9I4XOGwP79F0PGpuK8qQPmIwZOQ00m3Tu8rXDfU1qzSZ6tPiQBQga
+         kZ4Szh+ybbwKT0iQhZCUstAKLD8SdBFseX7Zwz6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.14 015/100] n64cart: fix return value check in n64cart_probe()
-Date:   Fri, 24 Sep 2021 14:43:24 +0200
-Message-Id: <20210924124341.955825378@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 5.14 016/100] thermal/drivers/exynos: Fix an error code in exynos_tmu_probe()
+Date:   Fri, 24 Sep 2021 14:43:25 +0200
+Message-Id: <20210924124341.988026074@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
 References: <20210924124341.214446495@linuxfoundation.org>
@@ -41,37 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 221e8360834c59f0c9952630fa5904a94ebd2bb8 upstream.
+commit 02d438f62c05f0d055ceeedf12a2f8796b258c08 upstream.
 
-In case of error, the function devm_platform_ioremap_resource()
-returns ERR_PTR() and never returns NULL. The NULL test in the
-return value check should be replaced with IS_ERR().
+This error path return success but it should propagate the negative
+error code from devm_clk_get().
 
-Fixes: d9b2a2bbbb4d ("block: Add n64 cart driver")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Link: https://lore.kernel.org/r/20210909090608.2989716-1-yangyingliang@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 6c247393cfdd ("thermal: exynos: Add TMU support for Exynos7 SoC")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210810084413.GA23810@kili
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/n64cart.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/thermal/samsung/exynos_tmu.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/block/n64cart.c
-+++ b/drivers/block/n64cart.c
-@@ -129,8 +129,8 @@ static int __init n64cart_probe(struct p
- 	}
- 
- 	reg_base = devm_platform_ioremap_resource(pdev, 0);
--	if (!reg_base)
--		return -EINVAL;
-+	if (IS_ERR(reg_base))
-+		return PTR_ERR(reg_base);
- 
- 	disk = blk_alloc_disk(NUMA_NO_NODE);
- 	if (!disk)
+--- a/drivers/thermal/samsung/exynos_tmu.c
++++ b/drivers/thermal/samsung/exynos_tmu.c
+@@ -1073,6 +1073,7 @@ static int exynos_tmu_probe(struct platf
+ 		data->sclk = devm_clk_get(&pdev->dev, "tmu_sclk");
+ 		if (IS_ERR(data->sclk)) {
+ 			dev_err(&pdev->dev, "Failed to get sclk\n");
++			ret = PTR_ERR(data->sclk);
+ 			goto err_clk;
+ 		} else {
+ 			ret = clk_prepare_enable(data->sclk);
 
 
