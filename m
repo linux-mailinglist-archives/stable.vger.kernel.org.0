@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99A994174C3
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:09:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F5B44172C8
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:50:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346395AbhIXNKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:10:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38882 "EHLO mail.kernel.org"
+        id S1344425AbhIXMvO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:51:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346879AbhIXNIP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:08:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D838561526;
-        Fri, 24 Sep 2021 12:57:16 +0000 (UTC)
+        id S1344434AbhIXMtp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:49:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EDD961288;
+        Fri, 24 Sep 2021 12:48:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488237;
-        bh=TSqSsrMkMbdLrEEz5dOB9BJmLY/8BtTV45TdyGfhYbE=;
+        s=korg; t=1632487683;
+        bh=l1gzoSs4ajRaNO/iXl96GbK9WlpuKTQmAaQln8y91Ig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iSnZJUNE3rvd2Gh9NCBhgyJaSnhWDurbGomyuFIaaFdaR5F3d9Xqumi6/Akjov6Rm
-         CvMgxpWEZpgffq4LwSiIfKFd02mp2MU2gLp23qImdO+JoTfoCBaMMk7HViHBwRmzCw
-         fQvpLc1CmggqExh8Btks0MR/rdTq84dK68j7tpkE=
+        b=X7jjDs4FB5DN9uTCXDAwKOBPO/gUVpbbg6zWnel8Go/bxrEWZACEBz/eudls5o0lO
+         RkEGsN/BkoNGiA4+G+jK5CALRzeEiCTKK1V1zKxec3XXuDCBzzE/vwXlQnGPF4l//F
+         9f/NpalIsZ1EeD5XMHhFoGAVHk2d+IYqCl/Obeq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 5.10 06/63] ARM: 9077/1: PLT: Move struct plt_entries definition to header
-Date:   Fri, 24 Sep 2021 14:44:06 +0200
-Message-Id: <20210924124334.455264798@linuxfoundation.org>
+        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>
+Subject: [PATCH 4.14 13/27] pwm: mxs: Dont modify HW state in .probe() after the PWM chip was registered
+Date:   Fri, 24 Sep 2021 14:44:07 +0200
+Message-Id: <20210924124329.614067239@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
-References: <20210924124334.228235870@linuxfoundation.org>
+In-Reply-To: <20210924124329.173674820@linuxfoundation.org>
+References: <20210924124329.173674820@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,63 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Sverdlin <alexander.sverdlin@nokia.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-commit 4e271701c17dee70c6e1351c4d7d42e70405c6a9 upstream upstream
+commit 020162d6f49f2963062229814a56a89c86cbeaa8 upstream.
 
-No functional change, later it will be re-used in several files.
+This fixes a race condition: After pwmchip_add() is called there might
+already be a consumer and then modifying the hardware behind the
+consumer's back is bad. So reset before calling pwmchip_add().
 
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Note that reseting the hardware isn't the right thing to do if the PWM
+is already running as it might e.g. disable (or even enable) a backlight
+that is supposed to be on (or off).
+
+Fixes: 4dce82c1e840 ("pwm: add pwm-mxs support")
+Cc: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/include/asm/module.h |    9 +++++++++
- arch/arm/kernel/module-plts.c |    9 ---------
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/pwm/pwm-mxs.c |   13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
---- a/arch/arm/include/asm/module.h
-+++ b/arch/arm/include/asm/module.h
-@@ -19,6 +19,15 @@ enum {
- };
- #endif
+--- a/drivers/pwm/pwm-mxs.c
++++ b/drivers/pwm/pwm-mxs.c
+@@ -158,6 +158,11 @@ static int mxs_pwm_probe(struct platform
+ 		return ret;
+ 	}
  
-+#define PLT_ENT_STRIDE		L1_CACHE_BYTES
-+#define PLT_ENT_COUNT		(PLT_ENT_STRIDE / sizeof(u32))
-+#define PLT_ENT_SIZE		(sizeof(struct plt_entries) / PLT_ENT_COUNT)
++	/* FIXME: Only do this if the PWM isn't already running */
++	ret = stmp_reset_block(mxs->base);
++	if (ret)
++		return dev_err_probe(&pdev->dev, ret, "failed to reset PWM\n");
 +
-+struct plt_entries {
-+	u32	ldr[PLT_ENT_COUNT];
-+	u32	lit[PLT_ENT_COUNT];
-+};
-+
- struct mod_plt_sec {
- 	struct elf32_shdr	*plt;
- 	int			plt_count;
---- a/arch/arm/kernel/module-plts.c
-+++ b/arch/arm/kernel/module-plts.c
-@@ -12,10 +12,6 @@
- #include <asm/cache.h>
- #include <asm/opcodes.h>
+ 	ret = pwmchip_add(&mxs->chip);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to add pwm chip %d\n", ret);
+@@ -166,15 +171,7 @@ static int mxs_pwm_probe(struct platform
  
--#define PLT_ENT_STRIDE		L1_CACHE_BYTES
--#define PLT_ENT_COUNT		(PLT_ENT_STRIDE / sizeof(u32))
--#define PLT_ENT_SIZE		(sizeof(struct plt_entries) / PLT_ENT_COUNT)
--
- #ifdef CONFIG_THUMB2_KERNEL
- #define PLT_ENT_LDR		__opcode_to_mem_thumb32(0xf8dff000 | \
- 							(PLT_ENT_STRIDE - 4))
-@@ -24,11 +20,6 @@
- 						    (PLT_ENT_STRIDE - 8))
- #endif
+ 	platform_set_drvdata(pdev, mxs);
  
--struct plt_entries {
--	u32	ldr[PLT_ENT_COUNT];
--	u32	lit[PLT_ENT_COUNT];
--};
+-	ret = stmp_reset_block(mxs->base);
+-	if (ret)
+-		goto pwm_remove;
 -
- static bool in_init(const struct module *mod, unsigned long loc)
- {
- 	return loc - (u32)mod->init_layout.base < mod->init_layout.size;
+ 	return 0;
+-
+-pwm_remove:
+-	pwmchip_remove(&mxs->chip);
+-	return ret;
+ }
+ 
+ static int mxs_pwm_remove(struct platform_device *pdev)
 
 
