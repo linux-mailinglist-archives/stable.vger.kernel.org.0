@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DE6D417449
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:03:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C51454174A0
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345929AbhIXNE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:04:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34548 "EHLO mail.kernel.org"
+        id S1345941AbhIXNIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:08:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345785AbhIXNC0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:02:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 132686142A;
-        Fri, 24 Sep 2021 12:54:40 +0000 (UTC)
+        id S1345477AbhIXNGl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:06:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CFC36136F;
+        Fri, 24 Sep 2021 12:56:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488081;
-        bh=UTDKRVgKuanRtaw5q20xDtq6o9aNkbWBOl8U+tQzKj4=;
+        s=korg; t=1632488187;
+        bh=i50Q+2odLvoFw3UCo6bLvVHGv28CMrkLdVV9jE1sgjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rMQU+u043lS1STIdDqa41pljngcZQfUqOhUM72HREVZw3a4NZoUUqwiiRB/0GrObc
-         mtcPNyBOkR07bSga/4KeB07tJNLWFGbJAgi7Nz/60DaRuM+ymTk9arq4FtKNXS/Dtx
-         34KNp34z5eqW1lW5azTtyETDgvNz5tDObDCNEdBU=
+        b=qnzA4vKfPvCr0wH2L92RCHdSG50qGFsI2/6RSpIBXnl1qqdV9QkuksyLaCeGssZWu
+         Hd5iC2IGSi2/I85IknuY44ZORp/V0JYKpXPHBEVUR1+ICB4D2M22+BEQqvSpARpe9a
+         MTU+548laqa9AXHCqHJJjIcpNNB2VSLKd9yE+CIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 069/100] btrfs: update the bdev time directly when closing
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.10 18/63] perf tools: Allow build-id with trailing zeros
 Date:   Fri, 24 Sep 2021 14:44:18 +0200
-Message-Id: <20210924124343.749996744@linuxfoundation.org>
+Message-Id: <20210924124334.879177912@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
-References: <20210924124341.214446495@linuxfoundation.org>
+In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
+References: <20210924124334.228235870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,187 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Namhyung Kim <namhyung@kernel.org>
 
-[ Upstream commit 8f96a5bfa1503e0a5f3c78d51e993a1794d4aff1 ]
+commit 4a86d41404005a3c7e7b6065e8169ac6202887a9 upstream.
 
-We update the ctime/mtime of a block device when we remove it so that
-blkid knows the device changed.  However we do this by re-opening the
-block device and calling filp_update_time.  This is more correct because
-it'll call the inode->i_op->update_time if it exists, but the block dev
-inodes do not do this.  Instead call generic_update_time() on the
-bd_inode in order to avoid the blkdev_open path and get rid of the
-following lockdep splat:
+Currently perf saves a build-id with size but old versions assumes the
+size of 20.  In case the build-id is less than 20 (like for MD5), it'd
+fill the rest with 0s.
 
-======================================================
-WARNING: possible circular locking dependency detected
-5.14.0-rc2+ #406 Not tainted
-------------------------------------------------------
-losetup/11596 is trying to acquire lock:
-ffff939640d2f538 ((wq_completion)loop0){+.+.}-{0:0}, at: flush_workqueue+0x67/0x5e0
+I saw a problem when old version of perf record saved a binary in the
+build-id cache and new version of perf reads the data.  The symbols
+should be read from the build-id cache (as the path no longer has the
+same binary) but it failed due to mismatch in the build-id.
 
-but task is already holding lock:
-ffff939655510c68 (&lo->lo_mutex){+.+.}-{3:3}, at: __loop_clr_fd+0x41/0x660 [loop]
+  symsrc__init: build id mismatch for /home/namhyung/.debug/.build-id/53/e4c2f42a4c61a2d632d92a72afa08f00000000/elf.
 
-which lock already depends on the new lock.
+The build-id event in the data has 20 byte build-ids, but it saw a
+different size (16) when it reads the build-id of the elf file in the
+build-id cache.
 
-the existing dependency chain (in reverse order) is:
+  $ readelf -n ~/.debug/.build-id/53/e4c2f42a4c61a2d632d92a72afa08f00000000/elf
 
--> #4 (&lo->lo_mutex){+.+.}-{3:3}:
-       __mutex_lock+0x7d/0x750
-       lo_open+0x28/0x60 [loop]
-       blkdev_get_whole+0x25/0xf0
-       blkdev_get_by_dev.part.0+0x168/0x3c0
-       blkdev_open+0xd2/0xe0
-       do_dentry_open+0x161/0x390
-       path_openat+0x3cc/0xa20
-       do_filp_open+0x96/0x120
-       do_sys_openat2+0x7b/0x130
-       __x64_sys_openat+0x46/0x70
-       do_syscall_64+0x38/0x90
-       entry_SYSCALL_64_after_hwframe+0x44/0xae
+  Displaying notes found in: .note.gnu.build-id
+    Owner                Data size 	Description
+    GNU                  0x00000010	NT_GNU_BUILD_ID (unique build ID bitstring)
+      Build ID: 53e4c2f42a4c61a2d632d92a72afa08f
 
--> #3 (&disk->open_mutex){+.+.}-{3:3}:
-       __mutex_lock+0x7d/0x750
-       blkdev_get_by_dev.part.0+0x56/0x3c0
-       blkdev_open+0xd2/0xe0
-       do_dentry_open+0x161/0x390
-       path_openat+0x3cc/0xa20
-       do_filp_open+0x96/0x120
-       file_open_name+0xc7/0x170
-       filp_open+0x2c/0x50
-       btrfs_scratch_superblocks.part.0+0x10f/0x170
-       btrfs_rm_device.cold+0xe8/0xed
-       btrfs_ioctl+0x2a31/0x2e70
-       __x64_sys_ioctl+0x80/0xb0
-       do_syscall_64+0x38/0x90
-       entry_SYSCALL_64_after_hwframe+0x44/0xae
+Let's fix this by allowing trailing zeros if the size is different.
 
--> #2 (sb_writers#12){.+.+}-{0:0}:
-       lo_write_bvec+0xc2/0x240 [loop]
-       loop_process_work+0x238/0xd00 [loop]
-       process_one_work+0x26b/0x560
-       worker_thread+0x55/0x3c0
-       kthread+0x140/0x160
-       ret_from_fork+0x1f/0x30
-
--> #1 ((work_completion)(&lo->rootcg_work)){+.+.}-{0:0}:
-       process_one_work+0x245/0x560
-       worker_thread+0x55/0x3c0
-       kthread+0x140/0x160
-       ret_from_fork+0x1f/0x30
-
--> #0 ((wq_completion)loop0){+.+.}-{0:0}:
-       __lock_acquire+0x10ea/0x1d90
-       lock_acquire+0xb5/0x2b0
-       flush_workqueue+0x91/0x5e0
-       drain_workqueue+0xa0/0x110
-       destroy_workqueue+0x36/0x250
-       __loop_clr_fd+0x9a/0x660 [loop]
-       block_ioctl+0x3f/0x50
-       __x64_sys_ioctl+0x80/0xb0
-       do_syscall_64+0x38/0x90
-       entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-other info that might help us debug this:
-
-Chain exists of:
-  (wq_completion)loop0 --> &disk->open_mutex --> &lo->lo_mutex
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(&lo->lo_mutex);
-                               lock(&disk->open_mutex);
-                               lock(&lo->lo_mutex);
-  lock((wq_completion)loop0);
-
- *** DEADLOCK ***
-
-1 lock held by losetup/11596:
- #0: ffff939655510c68 (&lo->lo_mutex){+.+.}-{3:3}, at: __loop_clr_fd+0x41/0x660 [loop]
-
-stack backtrace:
-CPU: 1 PID: 11596 Comm: losetup Not tainted 5.14.0-rc2+ #406
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-Call Trace:
- dump_stack_lvl+0x57/0x72
- check_noncircular+0xcf/0xf0
- ? stack_trace_save+0x3b/0x50
- __lock_acquire+0x10ea/0x1d90
- lock_acquire+0xb5/0x2b0
- ? flush_workqueue+0x67/0x5e0
- ? lockdep_init_map_type+0x47/0x220
- flush_workqueue+0x91/0x5e0
- ? flush_workqueue+0x67/0x5e0
- ? verify_cpu+0xf0/0x100
- drain_workqueue+0xa0/0x110
- destroy_workqueue+0x36/0x250
- __loop_clr_fd+0x9a/0x660 [loop]
- ? blkdev_ioctl+0x8d/0x2a0
- block_ioctl+0x3f/0x50
- __x64_sys_ioctl+0x80/0xb0
- do_syscall_64+0x38/0x90
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 39be8d0115b321ed ("perf tools: Pass build_id object to dso__build_id_equal()")
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20210910224630.1084877-1-namhyung@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/volumes.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ tools/perf/util/dso.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 10dd2d210b0f..d4e0c4aa6d4d 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -1928,15 +1928,17 @@ out:
-  * Function to update ctime/mtime for a given device path.
-  * Mainly used for ctime/mtime based probe like libblkid.
-  */
--static void update_dev_time(const char *path_name)
-+static void update_dev_time(struct block_device *bdev)
+--- a/tools/perf/util/dso.c
++++ b/tools/perf/util/dso.c
+@@ -1336,6 +1336,16 @@ void dso__set_build_id(struct dso *dso,
+ 
+ bool dso__build_id_equal(const struct dso *dso, struct build_id *bid)
  {
--	struct file *filp;
-+	struct inode *inode = bdev->bd_inode;
-+	struct timespec64 now;
- 
--	filp = filp_open(path_name, O_RDWR, 0);
--	if (IS_ERR(filp))
-+	/* Shouldn't happen but just in case. */
-+	if (!inode)
- 		return;
--	file_update_time(filp);
--	filp_close(filp, NULL);
++	if (dso->bid.size > bid->size && dso->bid.size == BUILD_ID_SIZE) {
++		/*
++		 * For the backward compatibility, it allows a build-id has
++		 * trailing zeros.
++		 */
++		return !memcmp(dso->bid.data, bid->data, bid->size) &&
++			!memchr_inv(&dso->bid.data[bid->size], 0,
++				    dso->bid.size - bid->size);
++	}
 +
-+	now = current_time(inode);
-+	generic_update_time(inode, &now, S_MTIME | S_CTIME);
+ 	return dso->bid.size == bid->size &&
+ 	       memcmp(dso->bid.data, bid->data, dso->bid.size) == 0;
  }
- 
- static int btrfs_rm_dev_item(struct btrfs_device *device)
-@@ -2116,7 +2118,7 @@ void btrfs_scratch_superblocks(struct btrfs_fs_info *fs_info,
- 	btrfs_kobject_uevent(bdev, KOBJ_CHANGE);
- 
- 	/* Update ctime/mtime for device path for libblkid */
--	update_dev_time(device_path);
-+	update_dev_time(bdev);
- }
- 
- int btrfs_rm_device(struct btrfs_fs_info *fs_info, const char *device_path,
-@@ -2769,7 +2771,7 @@ int btrfs_init_new_device(struct btrfs_fs_info *fs_info, const char *device_path
- 	btrfs_forget_devices(device_path);
- 
- 	/* Update ctime/mtime for blkid or udev */
--	update_dev_time(device_path);
-+	update_dev_time(bdev);
- 
- 	return ret;
- 
--- 
-2.33.0
-
 
 
