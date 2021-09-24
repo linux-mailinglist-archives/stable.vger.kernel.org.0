@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75BCF417453
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBBE54172FE
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:51:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345488AbhIXNEx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:04:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34644 "EHLO mail.kernel.org"
+        id S1344524AbhIXMxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:53:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345928AbhIXNCk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:02:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB07261373;
-        Fri, 24 Sep 2021 12:54:45 +0000 (UTC)
+        id S1344149AbhIXMvo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:51:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A0B861357;
+        Fri, 24 Sep 2021 12:49:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488086;
-        bh=8ZNp6MGPQigt7g8BT9DEDP1WpaZvvDlQLZKFV3SqiQw=;
+        s=korg; t=1632487752;
+        bh=ckDzZx/F0M8XMpGOU1duiUOy/wn6eUR0XqvN7lA37a4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZGvBTKh70k89a+fqOzQWsx2QdvoE9B9+CWsvWHZvlrr5ZveHyB3PvhDIUB80E1JSE
-         cf14s//JHQslxaWxSTjnhCH2pvb4mtUDRRPn6RD+7LLZUWyLVdKDWTr8MOJnWYD6UM
-         59VfQ/KBLHVWBmZ7AAVEW3DDAoLDTPldAgogw7sI=
+        b=RVyFiuo4Ae4GJzeSONhXK2RzJmTi/TvlnElgNZ3WmWUzuNCJt7QKkj76NCiKCIM8N
+         Qmnj0kdP7UV7dVdROg2ZNs8KPwC3Ov24dN+OJ5lNRgBCzlsWgOxTlOyD503LRQa5R0
+         KvQSGT9hMZ8ea7NzEoNnzNZVPxbjpeYSsfz2DTIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomer Tayar <ttayar@habana.ai>,
-        Oded Gabbay <ogabbay@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 079/100] habanalabs: fix nullifying of destroyed mmu pgt pool
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 34/34] drm/nouveau/nvkm: Replace -ENOSYS with -ENODEV
 Date:   Fri, 24 Sep 2021 14:44:28 +0200
-Message-Id: <20210924124344.105159108@linuxfoundation.org>
+Message-Id: <20210924124331.088873366@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
-References: <20210924124341.214446495@linuxfoundation.org>
+In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
+References: <20210924124329.965218583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomer Tayar <ttayar@habana.ai>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 89aad770d692e4d2d9a604c1674e9dfa69421430 ]
+commit e8f71f89236ef82d449991bfbc237e3cb6ea584f upstream.
 
-In case of host-resident MMU, when the page tables pool is destroyed,
-its pointer is not nullified correctly.
-As a result, on a device fini which happens after a failing reset, the
-already destroyed pool is accessed, which leads to a kernel panic.
-The patch fixes the setting of the pool pointer to NULL.
+nvkm test builds fail with the following error.
 
-Signed-off-by: Tomer Tayar <ttayar@habana.ai>
-Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c: In function 'nvkm_control_mthd_pstate_info':
+  drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c:60:35: error: overflow in conversion from 'int' to '__s8' {aka 'signed char'} changes value from '-251' to '5'
+
+The code builds on most architectures, but fails on parisc where ENOSYS
+is defined as 251.
+
+Replace the error code with -ENODEV (-19).  The actual error code does
+not really matter and is not passed to userspace - it just has to be
+negative.
+
+Fixes: 7238eca4cf18 ("drm/nouveau: expose pstate selection per-power source in sysfs")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/habanalabs/common/mmu/mmu_v1.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/misc/habanalabs/common/mmu/mmu_v1.c b/drivers/misc/habanalabs/common/mmu/mmu_v1.c
-index c5e93ff32586..0f536f79dd9c 100644
---- a/drivers/misc/habanalabs/common/mmu/mmu_v1.c
-+++ b/drivers/misc/habanalabs/common/mmu/mmu_v1.c
-@@ -470,13 +470,13 @@ static void hl_mmu_v1_fini(struct hl_device *hdev)
- 	if (!ZERO_OR_NULL_PTR(hdev->mmu_priv.hr.mmu_shadow_hop0)) {
- 		kvfree(hdev->mmu_priv.dr.mmu_shadow_hop0);
- 		gen_pool_destroy(hdev->mmu_priv.dr.mmu_pgt_pool);
--	}
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c
+@@ -57,7 +57,7 @@ nvkm_control_mthd_pstate_info(struct nvk
+ 		args->v0.count = 0;
+ 		args->v0.ustate_ac = NVIF_CONTROL_PSTATE_INFO_V0_USTATE_DISABLE;
+ 		args->v0.ustate_dc = NVIF_CONTROL_PSTATE_INFO_V0_USTATE_DISABLE;
+-		args->v0.pwrsrc = -ENOSYS;
++		args->v0.pwrsrc = -ENODEV;
+ 		args->v0.pstate = NVIF_CONTROL_PSTATE_INFO_V0_PSTATE_UNKNOWN;
+ 	}
  
--	/* Make sure that if we arrive here again without init was called we
--	 * won't cause kernel panic. This can happen for example if we fail
--	 * during hard reset code at certain points
--	 */
--	hdev->mmu_priv.dr.mmu_shadow_hop0 = NULL;
-+		/* Make sure that if we arrive here again without init was
-+		 * called we won't cause kernel panic. This can happen for
-+		 * example if we fail during hard reset code at certain points
-+		 */
-+		hdev->mmu_priv.dr.mmu_shadow_hop0 = NULL;
-+	}
- }
- 
- /**
--- 
-2.33.0
-
 
 
