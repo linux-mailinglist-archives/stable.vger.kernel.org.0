@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4933A41750C
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:13:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8580417465
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346683AbhIXNOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:14:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40830 "EHLO mail.kernel.org"
+        id S1345782AbhIXNFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:05:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345513AbhIXNLG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:11:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95C55613A7;
-        Fri, 24 Sep 2021 12:58:28 +0000 (UTC)
+        id S1344740AbhIXNDe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:03:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D7E461354;
+        Fri, 24 Sep 2021 12:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488309;
-        bh=StOf3lEvnsQOOCh9H403OBa8x/t16Iky64plNO3R4o4=;
+        s=korg; t=1632488105;
+        bh=kwa2jfCqOoKbuuYs9rnYeJBV4EoiYzPzJ+ohGP7H+BQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pe8Fte6E87cODd+kPFATbcC62VWn4hfqniGLz8EY47VkLyZLc+j34M90KRljcWylI
-         vhDJLGJ5zSOMdxPzaf8oCRQy0QpEQbbW+w97GTUt4I1uS5Umznc5FxHPzAFoYRFlv8
-         dX4/lcPKL2Y2/swj+2z9qdA/XR2vvT/6mEZB8qF0=
+        b=TcPHUdGRZD+6vCuOvhJB4ZOF3GbZV+MywsbGLFZQ/GSJMJEu1fuJO/4FVlXObumh6
+         xQz2MlE66aTjPJpuYVhObOsipvnlZp6XgifW84/X7oypY9NI4wKPrrLsoyb/AmcsZA
+         5NFlxm5CHucR0nJC7dmlk2J5M0Ir5bmPBhal61Y8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        farah kassabri <fkassabri@habana.ai>,
+        Oded Gabbay <ogabbay@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 36/63] drivers: base: cacheinfo: Get rid of DEFINE_SMP_CALL_CACHE_FUNCTION()
+Subject: [PATCH 5.14 087/100] habanalabs: cannot sleep while holding spinlock
 Date:   Fri, 24 Sep 2021 14:44:36 +0200
-Message-Id: <20210924124335.516951348@linuxfoundation.org>
+Message-Id: <20210924124344.383259129@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
-References: <20210924124334.228235870@linuxfoundation.org>
+In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
+References: <20210924124341.214446495@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,185 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: farah kassabri <fkassabri@habana.ai>
 
-[ Upstream commit 4b92d4add5f6dcf21275185c997d6ecb800054cd ]
+[ Upstream commit 607b1468c2263e082d74c1a3e71399a9026b41ce ]
 
-DEFINE_SMP_CALL_CACHE_FUNCTION() was usefel before the CPU hotplug rework
-to ensure that the cache related functions are called on the upcoming CPU
-because the notifier itself could run on any online CPU.
+Fix 2 areas in the code where it's possible the code will
+go to sleep while holding a spinlock.
 
-The hotplug state machine guarantees that the callbacks are invoked on the
-upcoming CPU. So there is no need to have this SMP function call
-obfuscation. That indirection was missed when the hotplug notifiers were
-converted.
-
-This also solves the problem of ARM64 init_cache_level() invoking ACPI
-functions which take a semaphore in that context. That's invalid as SMP
-function calls run with interrupts disabled. Running it just from the
-callback in context of the CPU hotplug thread solves this.
-
-Fixes: 8571890e1513 ("arm64: Add support for ACPI based firmware tables")
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Will Deacon <will@kernel.org>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/871r69ersb.ffs@tglx
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: farah kassabri <fkassabri@habana.ai>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cacheinfo.c   |  7 ++-----
- arch/mips/kernel/cacheinfo.c    |  7 ++-----
- arch/riscv/kernel/cacheinfo.c   |  7 ++-----
- arch/x86/kernel/cpu/cacheinfo.c |  7 ++-----
- include/linux/cacheinfo.h       | 18 ------------------
- 5 files changed, 8 insertions(+), 38 deletions(-)
+ drivers/misc/habanalabs/common/command_buffer.c | 2 --
+ drivers/misc/habanalabs/common/memory.c         | 2 +-
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/arm64/kernel/cacheinfo.c b/arch/arm64/kernel/cacheinfo.c
-index 7fa6828bb488..587543c6c51c 100644
---- a/arch/arm64/kernel/cacheinfo.c
-+++ b/arch/arm64/kernel/cacheinfo.c
-@@ -43,7 +43,7 @@ static void ci_leaf_init(struct cacheinfo *this_leaf,
- 	this_leaf->type = type;
- }
+diff --git a/drivers/misc/habanalabs/common/command_buffer.c b/drivers/misc/habanalabs/common/command_buffer.c
+index 719168c980a4..402ac2395fc8 100644
+--- a/drivers/misc/habanalabs/common/command_buffer.c
++++ b/drivers/misc/habanalabs/common/command_buffer.c
+@@ -314,8 +314,6 @@ int hl_cb_create(struct hl_device *hdev, struct hl_cb_mgr *mgr,
  
--static int __init_cache_level(unsigned int cpu)
-+int init_cache_level(unsigned int cpu)
- {
- 	unsigned int ctype, level, leaves, fw_level;
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
-@@ -78,7 +78,7 @@ static int __init_cache_level(unsigned int cpu)
- 	return 0;
- }
+ 	spin_lock(&mgr->cb_lock);
+ 	rc = idr_alloc(&mgr->cb_handles, cb, 1, 0, GFP_ATOMIC);
+-	if (rc < 0)
+-		rc = idr_alloc(&mgr->cb_handles, cb, 1, 0, GFP_KERNEL);
+ 	spin_unlock(&mgr->cb_lock);
  
--static int __populate_cache_leaves(unsigned int cpu)
-+int populate_cache_leaves(unsigned int cpu)
- {
- 	unsigned int level, idx;
- 	enum cache_type type;
-@@ -97,6 +97,3 @@ static int __populate_cache_leaves(unsigned int cpu)
- 	}
- 	return 0;
- }
--
--DEFINE_SMP_CALL_CACHE_FUNCTION(init_cache_level)
--DEFINE_SMP_CALL_CACHE_FUNCTION(populate_cache_leaves)
-diff --git a/arch/mips/kernel/cacheinfo.c b/arch/mips/kernel/cacheinfo.c
-index 47312c529410..529dab855aac 100644
---- a/arch/mips/kernel/cacheinfo.c
-+++ b/arch/mips/kernel/cacheinfo.c
-@@ -17,7 +17,7 @@ do {								\
- 	leaf++;							\
- } while (0)
+ 	if (rc < 0) {
+diff --git a/drivers/misc/habanalabs/common/memory.c b/drivers/misc/habanalabs/common/memory.c
+index af339ce1ab4f..fcadde594a58 100644
+--- a/drivers/misc/habanalabs/common/memory.c
++++ b/drivers/misc/habanalabs/common/memory.c
+@@ -124,7 +124,7 @@ static int alloc_device_memory(struct hl_ctx *ctx, struct hl_mem_in *args,
  
--static int __init_cache_level(unsigned int cpu)
-+int init_cache_level(unsigned int cpu)
- {
- 	struct cpuinfo_mips *c = &current_cpu_data;
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
-@@ -69,7 +69,7 @@ static void fill_cpumask_cluster(int cpu, cpumask_t *cpu_map)
- 			cpumask_set_cpu(cpu1, cpu_map);
- }
+ 	spin_lock(&vm->idr_lock);
+ 	handle = idr_alloc(&vm->phys_pg_pack_handles, phys_pg_pack, 1, 0,
+-				GFP_KERNEL);
++				GFP_ATOMIC);
+ 	spin_unlock(&vm->idr_lock);
  
--static int __populate_cache_leaves(unsigned int cpu)
-+int populate_cache_leaves(unsigned int cpu)
- {
- 	struct cpuinfo_mips *c = &current_cpu_data;
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
-@@ -98,6 +98,3 @@ static int __populate_cache_leaves(unsigned int cpu)
- 
- 	return 0;
- }
--
--DEFINE_SMP_CALL_CACHE_FUNCTION(init_cache_level)
--DEFINE_SMP_CALL_CACHE_FUNCTION(populate_cache_leaves)
-diff --git a/arch/riscv/kernel/cacheinfo.c b/arch/riscv/kernel/cacheinfo.c
-index d86781357044..90deabfe63ea 100644
---- a/arch/riscv/kernel/cacheinfo.c
-+++ b/arch/riscv/kernel/cacheinfo.c
-@@ -113,7 +113,7 @@ static void fill_cacheinfo(struct cacheinfo **this_leaf,
- 	}
- }
- 
--static int __init_cache_level(unsigned int cpu)
-+int init_cache_level(unsigned int cpu)
- {
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
- 	struct device_node *np = of_cpu_device_node_get(cpu);
-@@ -155,7 +155,7 @@ static int __init_cache_level(unsigned int cpu)
- 	return 0;
- }
- 
--static int __populate_cache_leaves(unsigned int cpu)
-+int populate_cache_leaves(unsigned int cpu)
- {
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
- 	struct cacheinfo *this_leaf = this_cpu_ci->info_list;
-@@ -187,6 +187,3 @@ static int __populate_cache_leaves(unsigned int cpu)
- 
- 	return 0;
- }
--
--DEFINE_SMP_CALL_CACHE_FUNCTION(init_cache_level)
--DEFINE_SMP_CALL_CACHE_FUNCTION(populate_cache_leaves)
-diff --git a/arch/x86/kernel/cpu/cacheinfo.c b/arch/x86/kernel/cpu/cacheinfo.c
-index f9ac682e75e7..b458b0fd98bf 100644
---- a/arch/x86/kernel/cpu/cacheinfo.c
-+++ b/arch/x86/kernel/cpu/cacheinfo.c
-@@ -985,7 +985,7 @@ static void ci_leaf_init(struct cacheinfo *this_leaf,
- 	this_leaf->priv = base->nb;
- }
- 
--static int __init_cache_level(unsigned int cpu)
-+int init_cache_level(unsigned int cpu)
- {
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
- 
-@@ -1014,7 +1014,7 @@ static void get_cache_id(int cpu, struct _cpuid4_info_regs *id4_regs)
- 	id4_regs->id = c->apicid >> index_msb;
- }
- 
--static int __populate_cache_leaves(unsigned int cpu)
-+int populate_cache_leaves(unsigned int cpu)
- {
- 	unsigned int idx, ret;
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
-@@ -1033,6 +1033,3 @@ static int __populate_cache_leaves(unsigned int cpu)
- 
- 	return 0;
- }
--
--DEFINE_SMP_CALL_CACHE_FUNCTION(init_cache_level)
--DEFINE_SMP_CALL_CACHE_FUNCTION(populate_cache_leaves)
-diff --git a/include/linux/cacheinfo.h b/include/linux/cacheinfo.h
-index 4f72b47973c3..2f909ed084c6 100644
---- a/include/linux/cacheinfo.h
-+++ b/include/linux/cacheinfo.h
-@@ -79,24 +79,6 @@ struct cpu_cacheinfo {
- 	bool cpu_map_populated;
- };
- 
--/*
-- * Helpers to make sure "func" is executed on the cpu whose cache
-- * attributes are being detected
-- */
--#define DEFINE_SMP_CALL_CACHE_FUNCTION(func)			\
--static inline void _##func(void *ret)				\
--{								\
--	int cpu = smp_processor_id();				\
--	*(int *)ret = __##func(cpu);				\
--}								\
--								\
--int func(unsigned int cpu)					\
--{								\
--	int ret;						\
--	smp_call_function_single(cpu, _##func, &ret, true);	\
--	return ret;						\
--}
--
- struct cpu_cacheinfo *get_cpu_cacheinfo(unsigned int cpu);
- int init_cache_level(unsigned int cpu);
- int populate_cache_leaves(unsigned int cpu);
+ 	if (handle < 0) {
 -- 
 2.33.0
 
