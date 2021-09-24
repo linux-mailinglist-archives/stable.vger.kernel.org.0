@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE81841743F
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:03:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5014B417333
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:53:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345572AbhIXNEP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:04:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57182 "EHLO mail.kernel.org"
+        id S1344688AbhIXMzP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:55:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345398AbhIXNAy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:00:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24709613D5;
-        Fri, 24 Sep 2021 12:53:58 +0000 (UTC)
+        id S1344779AbhIXMxZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:53:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD3C661374;
+        Fri, 24 Sep 2021 12:50:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488039;
-        bh=vKEEgufm7QeKPANfE20vzHTAaG0bOzMAaYV95zeTr7s=;
+        s=korg; t=1632487804;
+        bh=CCyhTQtobcN7EKoDmnU3O1vyCCjGnk1CJNHGd1xgJic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/+w9Hdxh/lb3W4yKsys81mhW1By0HGt+94p0FFUZIRxGjineu+D8DwGMcIBsFFwP
-         wYgEfWgxncnyUFNDR/3IaNsH6NJHzm+zAl0noJOdT3C4CaAPTa8N42kxAXbi41rY3s
-         v3BYahxboyseTIcRocBWisH0hSKDEC5IkM/bAqAI=
+        b=zvnGHYwchrD3LA4OP63JfNbhBn3yVu/x3o56019zJXp8yy0ogOSUAObTHxUQ33jXD
+         aMcKGHNGswGZfDz3FsNqS8x+Dn+ECqahhmkwBAVM7mPLF1pPEPc8crDQFbJLjB/77s
+         nBONWi79zjtJwp0NnuCf7bNFrv0E7Npd4yDL0+70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 059/100] dmaengine: ioat: depends on !UML
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.4 19/50] dmaengine: acpi: Avoid comparison GSI with Linux vIRQ
 Date:   Fri, 24 Sep 2021 14:44:08 +0200
-Message-Id: <20210924124343.401057035@linuxfoundation.org>
+Message-Id: <20210924124332.883061158@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
-References: <20210924124341.214446495@linuxfoundation.org>
+In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
+References: <20210924124332.229289734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit bbac7a92a46f0876e588722ebe552ddfe6fd790f ]
+commit 67db87dc8284070adb15b3c02c1c31d5cf51c5d6 upstream.
 
-Now that UML has PCI support, this driver must depend also on
-!UML since it pokes at X86_64 architecture internals that don't
-exist on ARCH=um.
+Currently the CRST parsing relies on the fact that on most of x86 devices
+the IRQ mapping is 1:1 with Linux vIRQ. However, it may be not true for
+some. Fix this by converting GSI to Linux vIRQ before checking it.
 
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Acked-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/20210809112409.a3a0974874d2.I2ffe3d11ed37f735da2f39884a74c953b258b995@changeid
+Fixes: ee8209fd026b ("dma: acpi-dma: parse CSRT to extract additional resources")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210730202715.24375-1-andriy.shevchenko@linux.intel.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/acpi-dma.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma/Kconfig b/drivers/dma/Kconfig
-index f450e4231db7..4f70cf57471a 100644
---- a/drivers/dma/Kconfig
-+++ b/drivers/dma/Kconfig
-@@ -315,7 +315,7 @@ config INTEL_IDXD_PERFMON
+--- a/drivers/dma/acpi-dma.c
++++ b/drivers/dma/acpi-dma.c
+@@ -70,10 +70,14 @@ static int acpi_dma_parse_resource_group
  
- config INTEL_IOATDMA
- 	tristate "Intel I/OAT DMA support"
--	depends on PCI && X86_64
-+	depends on PCI && X86_64 && !UML
- 	select DMA_ENGINE
- 	select DMA_ENGINE_RAID
- 	select DCA
--- 
-2.33.0
-
+ 	si = (const struct acpi_csrt_shared_info *)&grp[1];
+ 
+-	/* Match device by MMIO and IRQ */
++	/* Match device by MMIO */
+ 	if (si->mmio_base_low != lower_32_bits(mem) ||
+-	    si->mmio_base_high != upper_32_bits(mem) ||
+-	    si->gsi_interrupt != irq)
++	    si->mmio_base_high != upper_32_bits(mem))
++		return 0;
++
++	/* Match device by Linux vIRQ */
++	ret = acpi_register_gsi(NULL, si->gsi_interrupt, si->interrupt_mode, si->interrupt_polarity);
++	if (ret != irq)
+ 		return 0;
+ 
+ 	dev_dbg(&adev->dev, "matches with %.4s%04X (rev %u)\n",
 
 
