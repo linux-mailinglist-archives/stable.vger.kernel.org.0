@@ -2,82 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F040A4175F3
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:35:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AC3241763B
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:50:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346607AbhIXNgc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:36:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53008 "EHLO
+        id S1346185AbhIXNwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:52:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346184AbhIXNg3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Sep 2021 09:36:29 -0400
-Received: from mail-qt1-x829.google.com (mail-qt1-x829.google.com [IPv6:2607:f8b0:4864:20::829])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 778C3C06129E
-        for <stable@vger.kernel.org>; Fri, 24 Sep 2021 06:33:23 -0700 (PDT)
-Received: by mail-qt1-x829.google.com with SMTP id d8so9381182qtd.5
-        for <stable@vger.kernel.org>; Fri, 24 Sep 2021 06:33:23 -0700 (PDT)
+        with ESMTP id S1346466AbhIXNv7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Sep 2021 09:51:59 -0400
+Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AEBEC061613
+        for <stable@vger.kernel.org>; Fri, 24 Sep 2021 06:50:24 -0700 (PDT)
+Received: by mail-ot1-x336.google.com with SMTP id l7-20020a0568302b0700b0051c0181deebso13138726otv.12
+        for <stable@vger.kernel.org>; Fri, 24 Sep 2021 06:50:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=f7PJQ49f2XQNsVpC/1cTituVVFDqoofyOlji1lyJ65Y=;
-        b=MPJHXJSK62fiV7bY72s9psPD0qwrmH4+DSCY4SIpcq1V/qq7c2BkdfsmcaxbnZE5i3
-         /DvF7FLnGlJFR6hfvLptQEy4IBMwpL963K/d7znelDInDKeXM0ZsyLxMQZHM7JZs5Ip0
-         QynG3Y2Jovo34yHzcQ+gjUZ5rgopklx4kDUOC5yH5h4IbzUe6HYE4oTChIK1TS04Y5NT
-         05EQCx9I1GD+unY3XX8rWaoIWbDoqEkxUd6D+SCxH47Tkt5pmURs2/PItpfgV9dwkNrl
-         HYwRyR7RVlx5RtzLQAja7xmQJ5bm/9tbwJEXxjUi5kS/Fr4IkllyvWCWlP3oDNzBjA/6
-         0qnQ==
+        d=linaro.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=sV48vw6IGcklWlbZIMl7FtX9z0T8teXN1HpyIu8i14Y=;
+        b=hVazJjBI2vd2tVbUtrb1neOgJi7sHqSNkXAjm7bkHX+s+3kAY0M5kOw7ImmU0cSLfX
+         IK7ZaGcKhrDOsv8Wtbp+We/x0ahwJM13jLfihrDG0Vs9gySlONjrDHeUqBt91VgjAGZM
+         zvwnswrSkRH3btYmKzZqM2/1/243IgtM6q6DJOJTRGcvEcnhbJwKleqolYT8+NHgEQQm
+         kYdA1LtAlGvutfm1K+5ulg35zL55C+ZDN/x8e8PtLjg5W6Zj7ZR3ElR02b9tv6g+hVrr
+         sJv0GNu7VSVvTcq3g6j6gG9MnmozAgpi5hFxHx7B+lhTOnFe2DOb32PJjH+eZq826BW1
+         SvPw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=f7PJQ49f2XQNsVpC/1cTituVVFDqoofyOlji1lyJ65Y=;
-        b=E4NHbs39yez7sfHN1AeRAWBQXuQrEwbI8LnX2384czaqgwi1psEsEQK89KaGmGwHz9
-         BilPG8xSEa1yR5P2XeElGD4wGwkc+N3KTSO6CNl+ORHLF42qF+E32Qa8aRPos9RKx36v
-         hNOdmq/H3OA+zAqwVQK5jhWxrfwJ5PC7YZn9/rx505WUoPBUtJ0F9Sb1RC/gvj6HYqWl
-         O5M2Fnhkq0fw8zsKXti8vm5+r07sgb90k9CuEd9WaUzw1bWLte0auN16IlshK00na3d/
-         eUs+9yD7I29+He8JX6vIxnE4L8Ol2kwH6OyixVM+Gj6dnQseR4WbzafjyrWgCowstDUZ
-         qM2A==
-X-Gm-Message-State: AOAM532I0Nv4Y6MzcZ6yfU1mKTI2XojEM0b7ctd88FmTkK+8VuGqkN2X
-        VcDfO2ffDId7By5ecv+bsiEJIw==
-X-Google-Smtp-Source: ABdhPJzGALBkia0iPtmjNoAr7JPtYRFEawKuGcqgeqOKn7YKM4EhxGhO7qWobDM3jezsg5ZghKh7lA==
-X-Received: by 2002:ac8:687:: with SMTP id f7mr4255449qth.165.1632490402674;
-        Fri, 24 Sep 2021 06:33:22 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-162-113-129.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.129])
-        by smtp.gmail.com with ESMTPSA id d11sm862534qtb.39.2021.09.24.06.33.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Sep 2021 06:33:21 -0700 (PDT)
-Received: from jgg by mlx with local (Exim 4.94)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1mTlKL-005A7W-6H; Fri, 24 Sep 2021 10:33:21 -0300
-Date:   Fri, 24 Sep 2021 10:33:21 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Cc:     Jarkko Sakkinen <jarkko@kernel.org>, peterhuewe@gmx.de,
-        p.rosenberger@kunbus.com, linux-integrity@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] tpm: fix potential NULL pointer access in
- tpm_del_char_device()
-Message-ID: <20210924133321.GX3544071@ziepe.ca>
-References: <20210910180451.19314-1-LinoSanfilippo@gmx.de>
- <204a438b6db54060d03689389d6663b0d4ca815d.camel@kernel.org>
- <trinity-27f56ffd-504a-4c34-9cda-0953ccc459a3-1631566430623@3c-app-gmx-bs69>
- <c22d2878f9816000c33f5349e7256cadae22b400.camel@kernel.org>
- <50bd6224-0f01-ca50-af0e-f79b933e7998@gmx.de>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=sV48vw6IGcklWlbZIMl7FtX9z0T8teXN1HpyIu8i14Y=;
+        b=UuXBPEx8D1tsM8vzOijHkp6zQeVfM2Ysl53oK3inLazQXBiRhli4QPRAnHB8MSJp5e
+         eg+9FDip8ibuw04Gwykkhz9iHXqYDSuO6TJGudYhUEeARJSMWdyG8wxBzLWqqfqTsACS
+         lMh6Uc3sU4oi6bgCsPqGOYWhC7FrrfSkyw7Lqiy/A37EKZ+SM0T7RlawrbnuwSeFee9s
+         487wbU+JbiBFjyGPzh/MtFJOzhUEPozt34WoupllmxFdCd2iLZOTPbArbl/5s60dOsWL
+         eoagIk9Ud3uPgCbKT5wWLnaz7ellOetAiOoKlokvdRA2P2Pa7gZJ3uZ0IBI7sNFKNM6T
+         W/JA==
+X-Gm-Message-State: AOAM533YN0iXhlBLzY3BIdoJ53uON1wSdoGAWiclx+LwmfDymm//QftN
+        XV95EzKCG40I+0Bj2kCFEPvPEnvWQzE5Dmr58mM=
+X-Google-Smtp-Source: ABdhPJxCYVrRHdxpr631i085QY22e+9JoSprHypM05PMHQ86XTbakTpALxVLafCEWh03nqxr9XyKVg==
+X-Received: by 2002:a9d:6a95:: with SMTP id l21mr4114113otq.330.1632491423185;
+        Fri, 24 Sep 2021 06:50:23 -0700 (PDT)
+Received: from [192.168.17.16] ([189.219.73.83])
+        by smtp.gmail.com with ESMTPSA id 9sm2084286oir.10.2021.09.24.06.50.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 24 Sep 2021 06:50:22 -0700 (PDT)
+Subject: Re: [PATCH 4.4 00/23] 4.4.285-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+References: <20210924124327.816210800@linuxfoundation.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+Message-ID: <eab2f99b-8be2-2ca3-27de-d98cb36b327c@linaro.org>
+Date:   Fri, 24 Sep 2021 08:50:21 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <50bd6224-0f01-ca50-af0e-f79b933e7998@gmx.de>
+In-Reply-To: <20210924124327.816210800@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 24, 2021 at 03:29:46PM +0200, Lino Sanfilippo wrote:
+Hello!
 
-> So this bug is triggered when the bcm2835 drivers shutdown() function is called since this
-> driver does something quite unusual: it unregisters the spi controller in its shutdown()
-> handler.
+On 9/24/21 7:43 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.285 release.
+> There are 23 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 26 Sep 2021 12:43:20 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.285-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-This seems wrong
+Regressions detected.
 
-Jason
+While building mxs_defconfig for arm, the following error was encountered:
+
+   /builds/linux/arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate 'const' declaration specifier [-Wduplicate-decl-specifier]
+     285 | static const struct gpio const tx28_gpios[] __initconst = {
+         |                          ^~~~~
+   /builds/linux/drivers/pwm/pwm-mxs.c: In function 'mxs_pwm_probe':
+   /builds/linux/drivers/pwm/pwm-mxs.c:164:24: error: implicit declaration of function 'dev_err_probe'; did you mean 'device_reprobe'? [-Werror=implicit-function-declaration]
+     164 |                 return dev_err_probe(&pdev->dev, ret, "failed to reset PWM\n");
+         |                        ^~~~~~~~~~~~~
+         |                        device_reprobe
+   cc1: some warnings being treated as errors
+   make[3]: *** [/builds/linux/scripts/Makefile.build:280: drivers/pwm/pwm-mxs.o] Error 1
+
+This is also seen in other branches (from 4.4 to 5.4). To reproduce this build locally:
+
+   tuxmake \
+     --target-arch=arm \
+     --kconfig=mxs_defconfig \
+     --toolchain=gcc-11 \
+     --runtime=podman \
+     config default kernel xipkernel modules dtbs dtbs-legacy debugkernel headers
+
+Greetings!
+
+Daniel Díaz
+daniel.diaz@linaro.org
