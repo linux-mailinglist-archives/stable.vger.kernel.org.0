@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB370417428
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:02:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DFDD4172E2
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:51:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344871AbhIXNDT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:03:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33458 "EHLO mail.kernel.org"
+        id S1344328AbhIXMwM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:52:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345559AbhIXNB1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:01:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DAAA613D3;
-        Fri, 24 Sep 2021 12:54:14 +0000 (UTC)
+        id S1344331AbhIXMur (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:50:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4514361354;
+        Fri, 24 Sep 2021 12:48:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488054;
-        bh=X96bRYIxw77buI3zQeVzwxE2EOopD+hiC35xqrOPDpk=;
+        s=korg; t=1632487713;
+        bh=S872JLxohVYX86C4xhkD+vyIQ1AzBNYLEWhyLMtAVuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ipNXe0E3rVbJ6uIJMr7KUFqulCoxCMV+HtwaIUcVz/gDBAqBRXKFrsEUxwQ6VRBzx
-         taro0RNHiRioQrEo11MPagFXUr71PkxHdoxNxBd609eV7tiLnsucVA5e5OK2mwGQBg
-         xy0fmNqYsPbQbAVSe/ukNH3Xn+n3g7hw/3GCxQRA=
+        b=z8l65swgXY7ClLg+mHheIdvmjs2E9qzd/mF4CJzxdW6lSl/Qk0E6q/GidednvD5/z
+         PmtqFXjE3pDuAFv7A0Lh2qlT+zLPnyN9tUQFgjE8lreYcCTQdR52O/PaEHZEzXrHNK
+         /FrfU6u1tMeEzA57zCfrBcjb1/r27e53CxqrrmME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 064/100] ceph: fix memory leak on decode error in ceph_handle_caps
+Subject: [PATCH 4.19 19/34] parisc: Move pci_dev_is_behind_card_dino to where it is used
 Date:   Fri, 24 Sep 2021 14:44:13 +0200
-Message-Id: <20210924124343.568443191@linuxfoundation.org>
+Message-Id: <20210924124330.591614478@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
-References: <20210924124341.214446495@linuxfoundation.org>
+In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
+References: <20210924124329.965218583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 2ad32cf09bd28a21e6ad1595355a023ed631b529 ]
+[ Upstream commit 907872baa9f1538eed02ec737b8e89eba6c6e4b9 ]
 
-If we hit a decoding error late in the frame, then we might exit the
-function without putting the pool_ns string. Ensure that we always put
-that reference on the way out of the function.
+parisc build test images fail to compile with the following error.
 
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+drivers/parisc/dino.c:160:12: error:
+	'pci_dev_is_behind_card_dino' defined but not used
+
+Move the function just ahead of its only caller to avoid the error.
+
+Fixes: 5fa1659105fa ("parisc: Disable HP HSC-PCI Cards to prevent kernel crash")
+Cc: Helge Deller <deller@gmx.de>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/caps.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/parisc/dino.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index ba562efdf07b..1f3d67133958 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -4137,8 +4137,9 @@ void ceph_handle_caps(struct ceph_mds_session *session,
- done:
- 	mutex_unlock(&session->s_mutex);
- done_unlocked:
--	ceph_put_string(extra_info.pool_ns);
- 	iput(inode);
-+out:
-+	ceph_put_string(extra_info.pool_ns);
- 	return;
+diff --git a/drivers/parisc/dino.c b/drivers/parisc/dino.c
+index 29df6ab29e95..2b60535a9c7b 100644
+--- a/drivers/parisc/dino.c
++++ b/drivers/parisc/dino.c
+@@ -160,15 +160,6 @@ struct dino_device
+ 	(struct dino_device *)__pdata; })
  
- flush_cap_releases:
-@@ -4153,7 +4154,7 @@ flush_cap_releases:
- bad:
- 	pr_err("ceph_handle_caps: corrupt message\n");
- 	ceph_msg_dump(msg);
--	return;
-+	goto out;
- }
  
+-/* Check if PCI device is behind a Card-mode Dino. */
+-static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
+-{
+-	struct dino_device *dino_dev;
+-
+-	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
+-	return is_card_dino(&dino_dev->hba.dev->id);
+-}
+-
  /*
+  * Dino Configuration Space Accessor Functions
+  */
+@@ -452,6 +443,15 @@ static void quirk_cirrus_cardbus(struct pci_dev *dev)
+ DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_CIRRUS, PCI_DEVICE_ID_CIRRUS_6832, quirk_cirrus_cardbus );
+ 
+ #ifdef CONFIG_TULIP
++/* Check if PCI device is behind a Card-mode Dino. */
++static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
++{
++	struct dino_device *dino_dev;
++
++	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
++	return is_card_dino(&dino_dev->hba.dev->id);
++}
++
+ static void pci_fixup_tulip(struct pci_dev *dev)
+ {
+ 	if (!pci_dev_is_behind_card_dino(dev))
 -- 
 2.33.0
 
