@@ -2,102 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C45834176B4
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 16:18:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27C2A4176B9
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 16:20:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345170AbhIXOTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 10:19:32 -0400
-Received: from mout.gmx.net ([212.227.17.20]:39995 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344675AbhIXOTb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 10:19:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.net;
-        s=badeba3b8450; t=1632493072;
-        bh=pr0RZOMzxXrMHFBdCZaR3+l8sas8VDW0nrMQnd+FOgM=;
-        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
-        b=dzR2B3PvydKfjx4kez0+Shf+7KWXKBoI85+xrYcqvfoXDa0xDrdbwgWDk1ZHmIwY5
-         XXWayzjA9LBRtIMuUQbGdLckIoNEM+Zx+v9Vn8lKbw0VnXSY8zy9rSXopAF+hfNlmi
-         Gv0ltwrNM8zRwqGnvwmLPpamOWIEvrR+V0IdfxEc=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.178.51] ([46.223.119.124]) by mail.gmx.net (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MEm27-1mf3V52q67-00GJ9w; Fri, 24
- Sep 2021 16:17:52 +0200
-Subject: Re: [PATCH] tpm: fix potential NULL pointer access in
- tpm_del_char_device()
-To:     Jason Gunthorpe <jgg@ziepe.ca>
+        id S1346691AbhIXOWH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 10:22:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36138 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346629AbhIXOWH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Sep 2021 10:22:07 -0400
+Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FBEDC061613
+        for <stable@vger.kernel.org>; Fri, 24 Sep 2021 07:20:34 -0700 (PDT)
+Received: by mail-qk1-x735.google.com with SMTP id q125so13567158qkd.12
+        for <stable@vger.kernel.org>; Fri, 24 Sep 2021 07:20:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=7cWc4yzdb0VnFfnu4UMB5K2rNfvo1h4uviMaG/9Luy8=;
+        b=jUq7bdAP6GfaQzVHqsEAN1yhZxpZXIpCQX6jGOig1ZIcsJ16N5sRYGiVzSBsnsrAQF
+         +Q80Vj1jInTt6ZbMMlSOTBWvZykFl6FWvPtSP1LUG2/LkzZ8kE5Os1NmxLaXE4V3EOik
+         X4TQbe6kou6y73WNqR4j5gIhSIuvW6ThKo4o2nA0DX6LcOa63bN4ad0XkoP1B8nAcnVe
+         pNI5vwGwzYcMVcEGk0VictQerdTKB20vJVowJCn21NzV+VienIlUX6NPY52Ziy8SE4Ef
+         phvB07TanfmqYer6svKLlkxX1/VR927Lxk8YbXE40sT3O/ts9yJ1ORRwbTyitYbfTLGB
+         7edw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=7cWc4yzdb0VnFfnu4UMB5K2rNfvo1h4uviMaG/9Luy8=;
+        b=7uDBlovSfZPw62dir1E78VFRsfUr4IQojX4rtpEmcbm0BXXoloDBNaGclPq+3ZuiAd
+         Rng/1dmlw62ibg0L0DEZDqRsGqz9TT+rWpkHlbbl2pmDhbaDLCZjHhItX9nfVXT5h0mn
+         p6FpnhCPoKLKbzOoswn85FvfvH2Flwf5+yMB54rOU84rjZaWxgjBmc/lU2NaPW/FLTOm
+         6Q1KupbBUlXeEQ4TMuKAgUEMC0tb/8srom2AC/avhYR37qcPXd0K1xEpkrGaraEyJjPg
+         uP8WFUJ3/km5uwpO2xCfKIlRl1nDlk3pDRZoe5OLHOPdBIqy38oTB/KmZdid8Y6dIW11
+         6kIA==
+X-Gm-Message-State: AOAM533HvcB3sCRNGvkihhK0Ku0xRKmpLkYbJlbXmonHvQrqypUoyfUj
+        tni5br4vLxWYzTe7BZ0ZE6d/oQ==
+X-Google-Smtp-Source: ABdhPJw0YEb7syFNucm0QZguZSbj1llvgZ897+2/7RW+V9bkpAcfpW1rJ64+ZabX7Iv75/M/bWZjrw==
+X-Received: by 2002:a05:620a:238:: with SMTP id u24mr10627934qkm.404.1632493233224;
+        Fri, 24 Sep 2021 07:20:33 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-162-113-129.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.129])
+        by smtp.gmail.com with ESMTPSA id c16sm5531221qkk.113.2021.09.24.07.20.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Sep 2021 07:20:32 -0700 (PDT)
+Received: from jgg by mlx with local (Exim 4.94)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1mTm40-005CHZ-8x; Fri, 24 Sep 2021 11:20:32 -0300
+Date:   Fri, 24 Sep 2021 11:20:32 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Lino Sanfilippo <LinoSanfilippo@gmx.de>
 Cc:     Jarkko Sakkinen <jarkko@kernel.org>, peterhuewe@gmx.de,
         p.rosenberger@kunbus.com, linux-integrity@vger.kernel.org,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] tpm: fix potential NULL pointer access in
+ tpm_del_char_device()
+Message-ID: <20210924142032.GY3544071@ziepe.ca>
 References: <20210910180451.19314-1-LinoSanfilippo@gmx.de>
  <204a438b6db54060d03689389d6663b0d4ca815d.camel@kernel.org>
  <trinity-27f56ffd-504a-4c34-9cda-0953ccc459a3-1631566430623@3c-app-gmx-bs69>
  <c22d2878f9816000c33f5349e7256cadae22b400.camel@kernel.org>
  <50bd6224-0f01-ca50-af0e-f79b933e7998@gmx.de>
  <20210924133321.GX3544071@ziepe.ca>
-From:   Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Message-ID: <b49f4b52-44c4-8cb8-a102-689e9f788177@gmx.de>
-Date:   Fri, 24 Sep 2021 16:17:52 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ <b49f4b52-44c4-8cb8-a102-689e9f788177@gmx.de>
 MIME-Version: 1.0
-In-Reply-To: <20210924133321.GX3544071@ziepe.ca>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:oWjlOrtiKQPng30WZ0cwBATS5seyB+BK20TFO6LvBOAyir8R5v0
- 83Q0Zh73oZzZHgMBZIG+V+Y6zSE8TqfzIwG12mo++4SYVd2P0bRprVMnUPHrGb7KnpdkaOE
- aMTMeQJB9zucxFSLJVR+/UTWa3I/yLvOb9SN54sS2wV6/NpadaXABr2andOHvzFxCVgodLQ
- oaeWXGfHRQpLvCVaALcBg==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:np5Jp9L7dRg=:tAasIpqrbfKwrh1T4UY/mT
- o2J2BaBJKO197LSAo6f9u9dtC/fhmmIibqKTKe+08EhWtWpoAZ2WjlYAqOmk7CtcrIE+QtlVq
- DQ65i4aF/eWrnIim+tlMP50KS0tZKvGXRQ9H+295hnRKBvWZMvld2g/Vio0jBpr9/6f1pmLW8
- rFrH8o3DW9kMROp+eId5DtVW+pr5dEr3d70Uvloi5Le+TUfly1OEWexf4jrzx5BO4CDdMyJZx
- 7PuBEY9iDo7heUtuuINqgscc28FkDc7lomQDU6mQoC/+EYY767ClpfSh77GKQgITb0je2iR11
- fxRcKWizG8damtp7fJ92iLtIcXldnsQpzB3X04avNhN2rrnLnnz1r9dOWTr8xA/ogBRDPfDCv
- W6jE7nK0EkPOp6wF/K9tAJJMQODjKpythWP4d81Dw8rFbdbxZe7LGRYuKUhBSs5K5tYmZ9D1+
- UB4OO7JzNkr7SHt3+ghiAiFUnsuSvHkHAdqOVkiMnfprhm95X135QjUycbc0BMfefpbD0oWa4
- pTEEos+nF0hyfteV8hvDkmqT+ROII82Mlkra+0h7Ehar3M/AXSP1eUs4bHgX45sEt3WNtO2AV
- 3auDMEGMoBWLLdzoJRDLCPtXGWJCHd3rp7WUNuftHSsjjOwofNOdEoOj1oXj2/8Ti+nCBjb6p
- p/6YNzQP/C6gvDqrp62HpPT7fhAdQQRdw4ozlbvsxazi0hmGGwo6EY+dQPp5lLPG/CXWpAZnM
- O/Z6PnNK9ASXvuxr6LroVMYQo0SemrL+R/qFv6u2/Av15Gdwb8vYF5AG1uwey2naFBlX2yxZS
- PICnZRiF/omlDvkYlQbFKJHwJtIUvCAn+xjP5EMPDyUSsAlkTXMxZxnBMfHySdRK2vIBHN9gF
- Q6J0QPe7xgk8PgdrCNjPZ2T4LpoY0zWq9oA13X4jtH1hI5oe+kHZUwn3xM86tHtEa3EalqF9S
- ODkoUcWm6PbPNu4f0JvKzQ6DbiU+XUkdMywCLRreo6BDhAKvLDnXHfHO8K+SF08ABcYnWA6o0
- eF0Q29K1vA4lhMoY3SRGUMRKpfd90LcA0flXGmKs0ECMTHWRW5Y2IpVq/wYRBFuNi+KDyIZU8
- rsTchXeancK3ZI=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b49f4b52-44c4-8cb8-a102-689e9f788177@gmx.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 24.09.21 at 15:33, Jason Gunthorpe wrote:
-> On Fri, Sep 24, 2021 at 03:29:46PM +0200, Lino Sanfilippo wrote:
->
->> So this bug is triggered when the bcm2835 drivers shutdown() function i=
-s called since this
->> driver does something quite unusual: it unregisters the spi controller =
-in its shutdown()
->> handler.
->
-> This seems wrong
->
-> Jason
->
+On Fri, Sep 24, 2021 at 04:17:52PM +0200, Lino Sanfilippo wrote:
+> On 24.09.21 at 15:33, Jason Gunthorpe wrote:
+> > On Fri, Sep 24, 2021 at 03:29:46PM +0200, Lino Sanfilippo wrote:
+> >
+> >> So this bug is triggered when the bcm2835 drivers shutdown() function is called since this
+> >> driver does something quite unusual: it unregisters the spi controller in its shutdown()
+> >> handler.
+> >
+> > This seems wrong
+> >
+> > Jason
+> >
+> 
+> 
+> Unregistering the SPI controller during shutdown is only a side-effect of calling
+> bcm2835_spi_remove() in the shutdown handler:
+> 
+> static void bcm2835_spi_shutdown(struct platform_device *pdev)
+> {
+> 	int ret;
+> 
+> 	ret = bcm2835_spi_remove(pdev);
+> 	if (ret)
+> 		dev_err(&pdev->dev, "failed to shutdown\n");
+> }
 
+That's wrong, the shutdown handler is only supposed to make the HW
+stop doing DMA and interrupts so we can have a clean transition to
+kexec/etc
 
-Unregistering the SPI controller during shutdown is only a side-effect of =
-calling
-bcm2835_spi_remove() in the shutdown handler:
+It should not be manipulating other state.
 
-static void bcm2835_spi_shutdown(struct platform_device *pdev)
-{
-	int ret;
-
-	ret =3D bcm2835_spi_remove(pdev);
-	if (ret)
-		dev_err(&pdev->dev, "failed to shutdown\n");
-}
-
-
-Regards,
-Lino
+Jason
