@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 899D34172A9
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:50:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF95741749B
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343904AbhIXMuO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:50:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45232 "EHLO mail.kernel.org"
+        id S1345817AbhIXNIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:08:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344045AbhIXMs5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:48:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C12D61268;
-        Fri, 24 Sep 2021 12:47:23 +0000 (UTC)
+        id S1346223AbhIXNGV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:06:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1959261241;
+        Fri, 24 Sep 2021 12:56:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487644;
-        bh=Tc0qgXQDV1joMKbWIUK2H191+x1ht29LejlaixOcPSQ=;
+        s=korg; t=1632488176;
+        bh=7zNtomcHqy43NEHXfaSG6YR1AYxyRSJZFjLKEt1qjlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C4vmtxm6zV7WW3xrOXhZydSgnHwlAFp4ZJDVUeQrn1Wko/0HjADAOlpmLkAr6+Pqb
-         xqjUIORjJMor5i8y1Y8pyMbEVM8C/a6FN8WezZvMVJwhPDdncLERm6KIg1vDMedXkw
-         2OyLAYLI3HuTE0Am0u6/zItoBmaa/m5LsP43GELY=
+        b=vZNybrZ8uDHZLRMq4DBe6A1i8WM9O/UHkUqbTzN7iIWOCVJhc8DIbT8DheYdb5FSN
+         yHojuGEz5RahuIXPYWJXlJf0prtbcJepMb0rZypx7V0mteVRftvirlMqzKuHTB2okp
+         vDFXGkI4bI8oo0WO6+QA4UGOWxxON0fA0PsiWO+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nanyong Sun <sunnanyong@huawei.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        stable@vger.kernel.org, QiuXi <qiuxi1@huawei.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Jann Horn <jannh@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 20/27] nilfs2: fix NULL pointer in nilfs_##name##_attr_release
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 14/63] coredump: fix memleak in dump_vma_snapshot()
 Date:   Fri, 24 Sep 2021 14:44:14 +0200
-Message-Id: <20210924124329.845303550@linuxfoundation.org>
+Message-Id: <20210924124334.737620736@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124329.173674820@linuxfoundation.org>
-References: <20210924124329.173674820@linuxfoundation.org>
+In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
+References: <20210924124334.228235870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nanyong Sun <sunnanyong@huawei.com>
+From: QiuXi <qiuxi1@huawei.com>
 
-[ Upstream commit dbc6e7d44a514f231a64d9d5676e001b660b6448 ]
+commit 6fcac87e1f9e5b27805a2a404f4849194bb51de8 upstream.
 
-In nilfs_##name##_attr_release, kobj->parent should not be referenced
-because it is a NULL pointer.  The release() method of kobject is always
-called in kobject_put(kobj), in the implementation of kobject_put(), the
-kobj->parent will be assigned as NULL before call the release() method.
-So just use kobj to get the subgroups, which is more efficient and can fix
-a NULL pointer reference problem.
+dump_vma_snapshot() allocs memory for *vma_meta, when dump_vma_snapshot()
+returns -EFAULT, the memory will be leaked, so we free it correctly.
 
-Link: https://lkml.kernel.org/r/20210629022556.3985106-3-sunnanyong@huawei.com
-Link: https://lkml.kernel.org/r/1625651306-10829-3-git-send-email-konishi.ryusuke@gmail.com
-Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Link: https://lkml.kernel.org/r/20210810020441.62806-1-qiuxi1@huawei.com
+Fixes: a07279c9a8cd7 ("binfmt_elf, binfmt_elf_fdpic: use a VMA list snapshot")
+Signed-off-by: QiuXi <qiuxi1@huawei.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Jann Horn <jannh@google.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/sysfs.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ fs/coredump.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
-index a35978bf8395..027a50bc0765 100644
---- a/fs/nilfs2/sysfs.c
-+++ b/fs/nilfs2/sysfs.c
-@@ -73,11 +73,9 @@ static const struct sysfs_ops nilfs_##name##_attr_ops = { \
- #define NILFS_DEV_INT_GROUP_TYPE(name, parent_name) \
- static void nilfs_##name##_attr_release(struct kobject *kobj) \
- { \
--	struct nilfs_sysfs_##parent_name##_subgroups *subgroups; \
--	struct the_nilfs *nilfs = container_of(kobj->parent, \
--						struct the_nilfs, \
--						ns_##parent_name##_kobj); \
--	subgroups = nilfs->ns_##parent_name##_subgroups; \
-+	struct nilfs_sysfs_##parent_name##_subgroups *subgroups = container_of(kobj, \
-+						struct nilfs_sysfs_##parent_name##_subgroups, \
-+						sg_##name##_kobj); \
- 	complete(&subgroups->sg_##name##_kobj_unregister); \
- } \
- static struct kobj_type nilfs_##name##_ktype = { \
--- 
-2.33.0
-
+--- a/fs/coredump.c
++++ b/fs/coredump.c
+@@ -1111,8 +1111,10 @@ int dump_vma_snapshot(struct coredump_pa
+ 
+ 	mmap_write_unlock(mm);
+ 
+-	if (WARN_ON(i != *vma_count))
++	if (WARN_ON(i != *vma_count)) {
++		kvfree(*vma_meta);
+ 		return -EFAULT;
++	}
+ 
+ 	*vma_data_size_ptr = vma_data_size;
+ 	return 0;
 
 
