@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF787416ECF
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 11:22:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A18A1416ED5
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 11:26:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244807AbhIXJYP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 05:24:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40490 "EHLO mail.kernel.org"
+        id S244998AbhIXJ1t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 05:27:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244547AbhIXJYP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 05:24:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A1ADC60FDC;
-        Fri, 24 Sep 2021 09:22:41 +0000 (UTC)
+        id S237056AbhIXJ1s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 05:27:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF3F860FC1;
+        Fri, 24 Sep 2021 09:26:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632475362;
-        bh=M8k35huH9cuh9vxkjeOj4RBk0Xv73LZFASaXIBx+e28=;
+        s=korg; t=1632475575;
+        bh=BitJXa8KvTlKZz44NaaQz8BNlAADcNXTmb5msr51694=;
         h=Subject:To:Cc:From:Date:From;
-        b=wWzeI5oSmgXzbYb6llWN1aeFchRmuYfGRMZ8BhH/mvgCvL+vesWcNkHJUBJuZ+y7T
-         6m6f54k23wejFrbdbHpBA/PQVQQXfGd4Jg3rCbQm910Tsi5YWqb2vlLHxyoqW+4Wlf
-         WCtZTNKQfhHKXtfRiKCc7O4KpRq2SK2iK8mxeXuE=
-Subject: FAILED: patch "[PATCH] ceph: cancel delayed work instead of flushing on mdsc" failed to apply to 5.10-stable tree
-To:     jlayton@kernel.org, idryomov@gmail.com, xiubli@redhat.com
+        b=zv721leUdT45ZgUtow9K/EYL4Bq/h/jEZ/u3G58UUTgZk+dFv86k9PqhuCp0bIC2k
+         D48TdES3uFQ0/i6F6nVwsN8F4XVSl7TpFSilWMxtejnpLV8LrinHip/D2aulp8A0WI
+         LZwrF4jbCmKYx+gkVFRi8H9jfJxajANqrwvsgVSk=
+Subject: FAILED: patch "[PATCH] scsi: target: Fix sense key for invalid EXTENDED COPY request" failed to apply to 5.10-stable tree
+To:     s.samoylenko@yadro.com, ddiss@suse.de, k.shelekhin@yadro.com,
+        martin.petersen@oracle.com, r.bolshakov@yadro.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 24 Sep 2021 11:22:39 +0200
-Message-ID: <16324753594142@kroah.com>
+Date:   Fri, 24 Sep 2021 11:25:57 +0200
+Message-ID: <16324755571140@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -45,64 +46,82 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b4002173b7989588b6feaefc42edaf011b596782 Mon Sep 17 00:00:00 2001
-From: Jeff Layton <jlayton@kernel.org>
-Date: Tue, 27 Jul 2021 15:47:12 -0400
-Subject: [PATCH] ceph: cancel delayed work instead of flushing on mdsc
- teardown
+From 0394b5048efd73b04276979d014a67f30c0ad699 Mon Sep 17 00:00:00 2001
+From: Sergey Samoylenko <s.samoylenko@yadro.com>
+Date: Tue, 3 Aug 2021 17:54:10 +0300
+Subject: [PATCH] scsi: target: Fix sense key for invalid EXTENDED COPY request
 
-The first thing metric_delayed_work does is check mdsc->stopping,
-and then return immediately if it's set. That's good since we would
-have already torn down the metric structures at this point, otherwise,
-but there is no locking around mdsc->stopping.
+TCM fails to pass the following tests in libiscsi:
 
-It's possible that the ceph_metric_destroy call could race with the
-delayed_work, in which case we could end up with the delayed_work
-accessing destroyed percpu variables.
+  SCSI.ExtendedCopy.DescrType
+  SCSI.ExtendedCopy.DescrLimits
+  SCSI.ExtendedCopy.ParamHdr
+  SCSI.ExtendedCopy.ValidSegDescr
+  SCSI.ExtendedCopy.ValidTgtDescr
 
-At this point in the mdsc teardown, the "stopping" flag has already been
-set, so there's no benefit to flushing the work. Move the work
-cancellation in ceph_metric_destroy ahead of the percpu variable
-destruction, and eliminate the flush_delayed_work call in
-ceph_mdsc_destroy.
+The xcopy code always returns the same NOT READY sense key for all detected
+errors. Change the sense key for invalid requests to ILLEGAL REQUEST, and
+for aborted transfers to COPY ABORTED.
 
-Fixes: 18f473b384a6 ("ceph: periodically send perf metrics to MDSes")
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Xiubo Li <xiubli@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Link: https://lore.kernel.org/r/20210803145410.80147-3-s.samoylenko@yadro.com
+Fixes: d877d7275be3 ("target: Fix a deadlock between the XCOPY code and iSCSI session shutdown")
+Reviewed-by: David Disseldorp <ddiss@suse.de>
+Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Reviewed-by: Konstantin Shelekhin <k.shelekhin@yadro.com>
+Signed-off-by: Sergey Samoylenko <s.samoylenko@yadro.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
-index d98a3eda0d4c..85934091e024 100644
---- a/fs/ceph/mds_client.c
-+++ b/fs/ceph/mds_client.c
-@@ -4954,7 +4954,6 @@ void ceph_mdsc_destroy(struct ceph_fs_client *fsc)
+diff --git a/drivers/target/target_core_xcopy.c b/drivers/target/target_core_xcopy.c
+index 0f1319336f3e..d4fe7cb2bd00 100644
+--- a/drivers/target/target_core_xcopy.c
++++ b/drivers/target/target_core_xcopy.c
+@@ -674,12 +674,16 @@ static void target_xcopy_do_work(struct work_struct *work)
+ 	unsigned int max_sectors;
+ 	int rc = 0;
+ 	unsigned short nolb, max_nolb, copied_nolb = 0;
++	sense_reason_t sense_rc;
  
- 	ceph_metric_destroy(&mdsc->metric);
+-	if (target_parse_xcopy_cmd(xop) != TCM_NO_SENSE)
++	sense_rc = target_parse_xcopy_cmd(xop);
++	if (sense_rc != TCM_NO_SENSE)
+ 		goto err_free;
  
--	flush_delayed_work(&mdsc->metric.delayed_work);
- 	fsc->mdsc = NULL;
- 	kfree(mdsc);
- 	dout("mdsc_destroy %p done\n", mdsc);
-diff --git a/fs/ceph/metric.c b/fs/ceph/metric.c
-index 5ac151eb0d49..04d5df29bbbf 100644
---- a/fs/ceph/metric.c
-+++ b/fs/ceph/metric.c
-@@ -302,6 +302,8 @@ void ceph_metric_destroy(struct ceph_client_metric *m)
- 	if (!m)
- 		return;
+-	if (WARN_ON_ONCE(!xop->src_dev) || WARN_ON_ONCE(!xop->dst_dev))
++	if (WARN_ON_ONCE(!xop->src_dev) || WARN_ON_ONCE(!xop->dst_dev)) {
++		sense_rc = TCM_INVALID_PARAMETER_LIST;
+ 		goto err_free;
++	}
  
-+	cancel_delayed_work_sync(&m->delayed_work);
-+
- 	percpu_counter_destroy(&m->total_inodes);
- 	percpu_counter_destroy(&m->opened_inodes);
- 	percpu_counter_destroy(&m->i_caps_mis);
-@@ -309,8 +311,6 @@ void ceph_metric_destroy(struct ceph_client_metric *m)
- 	percpu_counter_destroy(&m->d_lease_mis);
- 	percpu_counter_destroy(&m->d_lease_hit);
+ 	src_dev = xop->src_dev;
+ 	dst_dev = xop->dst_dev;
+@@ -762,20 +766,20 @@ static void target_xcopy_do_work(struct work_struct *work)
+ 	return;
  
--	cancel_delayed_work_sync(&m->delayed_work);
--
- 	ceph_put_mds_session(m->session);
+ out:
++	/*
++	 * The XCOPY command was aborted after some data was transferred.
++	 * Terminate command with CHECK CONDITION status, with the sense key
++	 * set to COPY ABORTED.
++	 */
++	sense_rc = TCM_COPY_TARGET_DEVICE_NOT_REACHABLE;
+ 	xcopy_pt_undepend_remotedev(xop);
+ 	target_free_sgl(xop->xop_data_sg, xop->xop_data_nents);
+ 
+ err_free:
+ 	kfree(xop);
+-	/*
+-	 * Don't override an error scsi status if it has already been set
+-	 */
+-	if (ec_cmd->scsi_status == SAM_STAT_GOOD) {
+-		pr_warn_ratelimited("target_xcopy_do_work: rc: %d, Setting X-COPY"
+-			" CHECK_CONDITION -> sending response\n", rc);
+-		ec_cmd->scsi_status = SAM_STAT_CHECK_CONDITION;
+-	}
+-	target_complete_cmd(ec_cmd, ec_cmd->scsi_status);
++	pr_warn_ratelimited("target_xcopy_do_work: rc: %d, sense: %u, XCOPY operation failed\n",
++			   rc, sense_rc);
++	target_complete_cmd_with_sense(ec_cmd, SAM_STAT_CHECK_CONDITION, sense_rc);
  }
  
+ /*
 
