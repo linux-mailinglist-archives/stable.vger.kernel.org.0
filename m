@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10B3F41721C
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:44:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F4A641735B
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:57:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343708AbhIXMpw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:45:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41030 "EHLO mail.kernel.org"
+        id S1344763AbhIXMzd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:55:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343686AbhIXMpu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:45:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79A0461242;
-        Fri, 24 Sep 2021 12:44:16 +0000 (UTC)
+        id S1344348AbhIXMxk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:53:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB98C6125F;
+        Fri, 24 Sep 2021 12:50:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487457;
-        bh=JytDFP4yoVK//MQDstyOVDYYYqTYz85sSGPhO4rFoCw=;
+        s=korg; t=1632487807;
+        bh=FTSieDLIx4pWhtpyFigIceGSIy9UU14W5h8qi8fPuus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X3xl+EsWd5J00huq+ag64xCE8Ug7R2Myja3ujSzh6q0Lwxqhw0hZ2AXrOjCP6HxLN
-         FuQOdToje/JOJiEfveb3YQn+c5EeprTr4YUf+ny5xaQNRdhFTQtrQ4FLOkc2T8ZTS2
-         VPOvJVOPQO3NOJqW4zC0yF4aTOobv4Gz01B3WpFc=
+        b=XU0+FGJGAB73DQSv+TVwDdIHeLd2FI9db0KwBMEsXLZCOCNxotT2aliqkBampXvQF
+         5ibZinHTtVYMTAr39Rci6Hqr22l34h+U/xqNHJWuPNXz1U0oCTwYjhJJCdyFFkX6j4
+         1IgC6aqg9gFjTAgoOYP3EGeALxjwink3V3rTRAIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Vinod Koul <vinod.koul@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 10/23] dmaengine: acpi-dma: check for 64-bit MMIO address
+        stable@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.4 02/50] PCI: aardvark: Indicate error in val when config read fails
 Date:   Fri, 24 Sep 2021 14:43:51 +0200
-Message-Id: <20210924124328.156321496@linuxfoundation.org>
+Message-Id: <20210924124332.311007753@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124327.816210800@linuxfoundation.org>
-References: <20210924124327.816210800@linuxfoundation.org>
+In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
+References: <20210924124332.229289734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit f94cf9f4c54a72ccbd2078bb0cedd3691a71c431 ]
+commit b1bd5714472cc72e14409f5659b154c765a76c65 upstream.
 
-Currently the match DMA controller is done only for lower 32 bits of
-address which might be not true on 64-bit platform. Check upper portion
-as well.
+Most callers of config read do not check for return value. But most of the
+ones that do, checks for error indication in 'val' variable.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Vinod Koul <vinod.koul@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch updates error handling in advk_pcie_rd_conf() function. If PIO
+transfer fails then 'val' variable is set to 0xffffffff which indicates
+failture.
+
+Link: https://lore.kernel.org/r/20200528162604.GA323482@bjorn-Precision-5520
+Link: https://lore.kernel.org/r/20200601130315.18895-1-pali@kernel.org
+Reported-by: Bjorn Helgaas <helgaas@kernel.org>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/acpi-dma.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/pci/controller/pci-aardvark.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/acpi-dma.c b/drivers/dma/acpi-dma.c
-index 16d0daa058a5..eed6bda01790 100644
---- a/drivers/dma/acpi-dma.c
-+++ b/drivers/dma/acpi-dma.c
-@@ -15,6 +15,7 @@
- #include <linux/device.h>
- #include <linux/err.h>
- #include <linux/module.h>
-+#include <linux/kernel.h>
- #include <linux/list.h>
- #include <linux/mutex.h>
- #include <linux/slab.h>
-@@ -72,7 +73,9 @@ static int acpi_dma_parse_resource_group(const struct acpi_csrt_group *grp,
- 	si = (const struct acpi_csrt_shared_info *)&grp[1];
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -664,8 +664,10 @@ static int advk_pcie_rd_conf(struct pci_
+ 	advk_writel(pcie, 1, PIO_START);
  
- 	/* Match device by MMIO and IRQ */
--	if (si->mmio_base_low != mem || si->gsi_interrupt != irq)
-+	if (si->mmio_base_low != lower_32_bits(mem) ||
-+	    si->mmio_base_high != upper_32_bits(mem) ||
-+	    si->gsi_interrupt != irq)
- 		return 0;
+ 	ret = advk_pcie_wait_pio(pcie);
+-	if (ret < 0)
++	if (ret < 0) {
++		*val = 0xffffffff;
+ 		return PCIBIOS_SET_FAILED;
++	}
  
- 	dev_dbg(&adev->dev, "matches with %.4s%04X (rev %u)\n",
--- 
-2.33.0
-
+ 	/* Check PIO status and get the read result */
+ 	ret = advk_pcie_check_pio_status(pcie, val);
 
 
