@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E074241727C
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:48:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94E6B41722B
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:44:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344104AbhIXMsx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:48:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44056 "EHLO mail.kernel.org"
+        id S1343792AbhIXMqK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:46:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344159AbhIXMsG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:48:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF13561267;
-        Fri, 24 Sep 2021 12:46:32 +0000 (UTC)
+        id S1343669AbhIXMqF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:46:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17D1E61107;
+        Fri, 24 Sep 2021 12:44:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487593;
-        bh=tp9Rs2YYa8tGFsE1HQguKml2q//FxLuvQGATZiMcmYk=;
+        s=korg; t=1632487472;
+        bh=zn8WpHVepoirdltvJ7tBqjLNDNUS/wCrFRIIdFm/37I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dBXGB8swvubcR9ram0w2vWdk/xbUXLO7t3JOhwQdbKIl5bjpF5qI4W6dJY1j+Hiv3
-         3207JeQM0D2nMB99+IjUmF4BYzWk7sOMcxQd+gFq+e2LYFqrwelZ+0lCvUUphUQOxj
-         7IzGsxkAzQ7e9L5vs07BJVM+UrxK5zWJiY/KrMHk=
+        b=KG+usEMY0/pmUYWjCmVD6eh5z0d0Q2RYx4F+3fl3yqcMZ8D2DmqHuGl4d+W2/GPza
+         3X6I1/FrP9Owcq3y7SK/UMh4EBjwoStPEBuDGi6Xy4oox2goMnPnEgbldT/7yCdJ9q
+         9lQHrfc7E2mTgP/0RaRLhCXK2rgu4T06eQ62MMBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        Dominique Martinet <asmadeus@codewreck.org>
-Subject: [PATCH 4.9 09/26] 9p/trans_virtio: Remove sysfs file on probe failure
+        stable@vger.kernel.org, Nanyong Sun <sunnanyong@huawei.com>,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 16/23] nilfs2: fix NULL pointer in nilfs_##name##_attr_release
 Date:   Fri, 24 Sep 2021 14:43:57 +0200
-Message-Id: <20210924124328.647144081@linuxfoundation.org>
+Message-Id: <20210924124328.352000483@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124328.336953942@linuxfoundation.org>
-References: <20210924124328.336953942@linuxfoundation.org>
+In-Reply-To: <20210924124327.816210800@linuxfoundation.org>
+References: <20210924124327.816210800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Nanyong Sun <sunnanyong@huawei.com>
 
-commit f997ea3b7afc108eb9761f321b57de2d089c7c48 upstream.
+[ Upstream commit dbc6e7d44a514f231a64d9d5676e001b660b6448 ]
 
-This ensures we don't leak the sysfs file if we failed to
-allocate chan->vc_wq during probe.
+In nilfs_##name##_attr_release, kobj->parent should not be referenced
+because it is a NULL pointer.  The release() method of kobject is always
+called in kobject_put(kobj), in the implementation of kobject_put(), the
+kobj->parent will be assigned as NULL before call the release() method.
+So just use kobj to get the subgroups, which is more efficient and can fix
+a NULL pointer reference problem.
 
-Link: http://lkml.kernel.org/r/20210517083557.172-1-xieyongji@bytedance.com
-Fixes: 86c8437383ac ("net/9p: Add sysfs mount_tag file for virtio 9P device")
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20210629022556.3985106-3-sunnanyong@huawei.com
+Link: https://lkml.kernel.org/r/1625651306-10829-3-git-send-email-konishi.ryusuke@gmail.com
+Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_virtio.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/nilfs2/sysfs.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/net/9p/trans_virtio.c
-+++ b/net/9p/trans_virtio.c
-@@ -602,7 +602,7 @@ static int p9_virtio_probe(struct virtio
- 	chan->vc_wq = kmalloc(sizeof(wait_queue_head_t), GFP_KERNEL);
- 	if (!chan->vc_wq) {
- 		err = -ENOMEM;
--		goto out_free_tag;
-+		goto out_remove_file;
- 	}
- 	init_waitqueue_head(chan->vc_wq);
- 	chan->ring_bufs_avail = 1;
-@@ -620,6 +620,8 @@ static int p9_virtio_probe(struct virtio
- 
- 	return 0;
- 
-+out_remove_file:
-+	sysfs_remove_file(&vdev->dev.kobj, &dev_attr_mount_tag.attr);
- out_free_tag:
- 	kfree(tag);
- out_free_vq:
+diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
+index 69a8f302170e..d7d6791c408e 100644
+--- a/fs/nilfs2/sysfs.c
++++ b/fs/nilfs2/sysfs.c
+@@ -73,11 +73,9 @@ static const struct sysfs_ops nilfs_##name##_attr_ops = { \
+ #define NILFS_DEV_INT_GROUP_TYPE(name, parent_name) \
+ static void nilfs_##name##_attr_release(struct kobject *kobj) \
+ { \
+-	struct nilfs_sysfs_##parent_name##_subgroups *subgroups; \
+-	struct the_nilfs *nilfs = container_of(kobj->parent, \
+-						struct the_nilfs, \
+-						ns_##parent_name##_kobj); \
+-	subgroups = nilfs->ns_##parent_name##_subgroups; \
++	struct nilfs_sysfs_##parent_name##_subgroups *subgroups = container_of(kobj, \
++						struct nilfs_sysfs_##parent_name##_subgroups, \
++						sg_##name##_kobj); \
+ 	complete(&subgroups->sg_##name##_kobj_unregister); \
+ } \
+ static struct kobj_type nilfs_##name##_ktype = { \
+-- 
+2.33.0
+
 
 
