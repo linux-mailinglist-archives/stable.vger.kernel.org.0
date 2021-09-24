@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D41E4172E7
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:51:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C773D417386
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:57:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343796AbhIXMwY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:52:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45988 "EHLO mail.kernel.org"
+        id S1344796AbhIXM5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:57:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344610AbhIXMvB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:51:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15C8361268;
-        Fri, 24 Sep 2021 12:48:42 +0000 (UTC)
+        id S1344697AbhIXMzc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:55:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6025B6135F;
+        Fri, 24 Sep 2021 12:50:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487723;
-        bh=JY6hxvivT5MrWbBnVusMY3Nk4zVUu3MPkPJBaDZVmTA=;
+        s=korg; t=1632487860;
+        bh=iFOvE+dZ2rCrVC59YwVG92qx2Vt9z/gVTWKV75wIq0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w1FQXDXY/hOWF9nW6kqi1zSVPC2o5IFF6YkV59oaXLkcCUYgLSHi2frYGB2K+lqk+
-         EZkXouvjhBrGM+9ZbASGLw9pkKCHbe9eJZ377tTfTSiSqjSeYsqSFPMKJXv7Tjzcow
-         iLr+lbe975Msaip+p77wwi3gA+KrU1GfMFdZN89w=
+        b=Tf2MPlvI+pp8LGsq4PGUsMpuMg8GP74YP7wflqdeoh0y2sjGeil5SOA9mY9co9SVz
+         1SWNgDpood/4c2DdVmxny/UTkJyodT899ojHXC+XgcRsGMug272luSFle2GythIa3f
+         Hg7BUBjUT5QQikFZzRh7Yxna2uz9p8HFOWH9Pt/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neeraj Upadhyay <neeraju@codeaurora.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        David Chen <david.chen@nutanix.com>
-Subject: [PATCH 4.19 03/34] rcu: Fix missed wakeup of exp_wq waiters
+        stable@vger.kernel.org, Niklas Schnelle <schnelle@linux.ibm.com>,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        David Hildenbrand <david@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.4 08/50] s390/pci_mmio: fully validate the VMA before calling follow_pte()
 Date:   Fri, 24 Sep 2021 14:43:57 +0200
-Message-Id: <20210924124330.079218750@linuxfoundation.org>
+Message-Id: <20210924124332.514704761@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
-References: <20210924124329.965218583@linuxfoundation.org>
+In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
+References: <20210924124332.229289734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,99 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neeraj Upadhyay <neeraju@codeaurora.org>
+From: David Hildenbrand <david@redhat.com>
 
-commit fd6bc19d7676a060a171d1cf3dcbf6fd797eb05f upstream.
+commit a8b92b8c1eac8d655a97b1e90f4d83c25d9b9a18 upstream.
 
-Tasks waiting within exp_funnel_lock() for an expedited grace period to
-elapse can be starved due to the following sequence of events:
+We should not walk/touch page tables outside of VMA boundaries when
+holding only the mmap sem in read mode. Evil user space can modify the
+VMA layout just before this function runs and e.g., trigger races with
+page table removal code since commit dd2283f2605e ("mm: mmap: zap pages
+with read mmap_sem in munmap").
 
-1.	Tasks A and B both attempt to start an expedited grace
-	period at about the same time.	This grace period will have
-	completed when the lower four bits of the rcu_state structure's
-	->expedited_sequence field are 0b'0100', for example, when the
-	initial value of this counter is zero.	Task A wins, and thus
-	does the actual work of starting the grace period, including
-	acquiring the rcu_state structure's .exp_mutex and sets the
-	counter to 0b'0001'.
+find_vma() does not check if the address is >= the VMA start address;
+use vma_lookup() instead.
 
-2.	Because task B lost the race to start the grace period, it
-	waits on ->expedited_sequence to reach 0b'0100' inside of
-	exp_funnel_lock(). This task therefore blocks on the rcu_node
-	structure's ->exp_wq[1] field, keeping in mind that the
-	end-of-grace-period value of ->expedited_sequence (0b'0100')
-	is shifted down two bits before indexing the ->exp_wq[] field.
-
-3.	Task C attempts to start another expedited grace period,
-	but blocks on ->exp_mutex, which is still held by Task A.
-
-4.	The aforementioned expedited grace period completes, so that
-	->expedited_sequence now has the value 0b'0100'.  A kworker task
-	therefore acquires the rcu_state structure's ->exp_wake_mutex
-	and starts awakening any tasks waiting for this grace period.
-
-5.	One of the first tasks awakened happens to be Task A.  Task A
-	therefore releases the rcu_state structure's ->exp_mutex,
-	which allows Task C to start the next expedited grace period,
-	which causes the lower four bits of the rcu_state structure's
-	->expedited_sequence field to become 0b'0101'.
-
-6.	Task C's expedited grace period completes, so that the lower four
-	bits of the rcu_state structure's ->expedited_sequence field now
-	become 0b'1000'.
-
-7.	The kworker task from step 4 above continues its wakeups.
-	Unfortunately, the wake_up_all() refetches the rcu_state
-	structure's .expedited_sequence field:
-
-	wake_up_all(&rnp->exp_wq[rcu_seq_ctr(rcu_state.expedited_sequence) & 0x3]);
-
-	This results in the wakeup being applied to the rcu_node
-	structure's ->exp_wq[2] field, which is unfortunate given that
-	Task B is instead waiting on ->exp_wq[1].
-
-On a busy system, no harm is done (or at least no permanent harm is done).
-Some later expedited grace period will redo the wakeup.  But on a quiet
-system, such as many embedded systems, it might be a good long time before
-there was another expedited grace period.  On such embedded systems,
-this situation could therefore result in a system hang.
-
-This issue manifested as DPM device timeout during suspend (which
-usually qualifies as a quiet time) due to a SCSI device being stuck in
-_synchronize_rcu_expedited(), with the following stack trace:
-
-	schedule()
-	synchronize_rcu_expedited()
-	synchronize_rcu()
-	scsi_device_quiesce()
-	scsi_bus_suspend()
-	dpm_run_callback()
-	__device_suspend()
-
-This commit therefore prevents such delays, timeouts, and hangs by
-making rcu_exp_wait_wake() use its "s" argument consistently instead of
-refetching from rcu_state.expedited_sequence.
-
-Fixes: 3b5f668e715b ("rcu: Overlap wakeups with next expedited grace period")
-Signed-off-by: Neeraj Upadhyay <neeraju@codeaurora.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: David Chen <david.chen@nutanix.com>
-Acked-by: Neeraj Upadhyay <neeraju@codeaurora.org>
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Reviewed-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Fixes: dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in munmap")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/rcu/tree_exp.h |    2 +-
+ arch/s390/pci/pci_mmio.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/rcu/tree_exp.h
-+++ b/kernel/rcu/tree_exp.h
-@@ -613,7 +613,7 @@ static void rcu_exp_wait_wake(struct rcu
- 			spin_unlock(&rnp->exp_lock);
- 		}
- 		smp_mb(); /* All above changes before wakeup. */
--		wake_up_all(&rnp->exp_wq[rcu_seq_ctr(rsp->expedited_sequence) & 0x3]);
-+		wake_up_all(&rnp->exp_wq[rcu_seq_ctr(s) & 0x3]);
- 	}
- 	trace_rcu_exp_grace_period(rsp->name, s, TPS("endwake"));
- 	mutex_unlock(&rsp->exp_wake_mutex);
+--- a/arch/s390/pci/pci_mmio.c
++++ b/arch/s390/pci/pci_mmio.c
+@@ -128,7 +128,7 @@ static long get_pfn(unsigned long user_a
+ 	down_read(&current->mm->mmap_sem);
+ 	ret = -EINVAL;
+ 	vma = find_vma(current->mm, user_addr);
+-	if (!vma)
++	if (!vma || user_addr < vma->vm_start)
+ 		goto out;
+ 	ret = -EACCES;
+ 	if (!(vma->vm_flags & access))
 
 
