@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74C05417236
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:45:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03FBE4173F4
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:02:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343844AbhIXMqi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:46:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41774 "EHLO mail.kernel.org"
+        id S1345629AbhIXNBR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:01:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343851AbhIXMqQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:46:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A10861107;
-        Fri, 24 Sep 2021 12:44:42 +0000 (UTC)
+        id S1345126AbhIXM7M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:59:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DA4D613B1;
+        Fri, 24 Sep 2021 12:53:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487483;
-        bh=Gm4mnpqtSfSrpcgs5FIvvr6IzR8B0B2lMAJ2GrXMP5c=;
+        s=korg; t=1632487995;
+        bh=lrbHMYERLXU/qGcXpigoRnBLMmFoyGeV50UkXrU+G4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HzKBivgoCnNQ6klJV13ewM2mFMQbaaPaaPNVwNBV4wZS5Enqt6Woxdb9ALdYsno/G
-         +PpRI+/V7UijXGZbiNBxL3ID4t4aip7WSJa5eC+J8gx3r4jN/uxbKnKNoTRKTM5KOS
-         gpAdj74p66eRzv+yaEUhvIfEhVvsI8MrRalB5sEA=
+        b=2G3ZqP7PGgx0Y+GJ/4yh0r0BdGhCjiZVR5kocy42/CYf5KnZEZObkMmfv6c3PnO+W
+         56sTR5T/4KwBhglQLT4ZsWhLRvwBOQ6ELbuOBNpr3yArOtwXw6R0SQLBuv7Pw7sl39
+         d2wR3rZ8xA3iM7zDrPksWz5Tkq7Rz2LXoscxPBcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 03/23] sctp: validate chunk size in __rcv_asconf_lookup
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Mel Gorman <mgorman@suse.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Mike Javorski <mike.javorski@gmail.com>,
+        Lothar Paltins <lopa@mailbox.org>
+Subject: [PATCH 5.14 035/100] SUNRPC: dont pause on incomplete allocation
 Date:   Fri, 24 Sep 2021 14:43:44 +0200
-Message-Id: <20210924124327.939657668@linuxfoundation.org>
+Message-Id: <20210924124342.639456329@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124327.816210800@linuxfoundation.org>
-References: <20210924124327.816210800@linuxfoundation.org>
+In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
+References: <20210924124341.214446495@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+From: NeilBrown <neilb@suse.de>
 
-commit b6ffe7671b24689c09faa5675dd58f93758a97ae upstream.
+[ Upstream commit e38b3f20059426a0adbde014ff71071739ab5226 ]
 
-In one of the fallbacks that SCTP has for identifying an association for an
-incoming packet, it looks for AddIp chunk (from ASCONF) and take a peek.
-Thing is, at this stage nothing was validating that the chunk actually had
-enough content for that, allowing the peek to happen over uninitialized
-memory.
+alloc_pages_bulk_array() attempts to allocate at least one page based on
+the provided pages, and then opportunistically allocates more if that
+can be done without dropping the spinlock.
 
-Similar check already exists in actual asconf handling in
-sctp_verify_asconf().
+So if it returns fewer than requested, that could just mean that it
+needed to drop the lock.  In that case, try again immediately.
 
-Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Only pause for a time if no progress could be made.
+
+Reported-and-tested-by: Mike Javorski <mike.javorski@gmail.com>
+Reported-and-tested-by: Lothar Paltins <lopa@mailbox.org>
+Fixes: f6e70aab9dfe ("SUNRPC: refresh rq_pages using a bulk page allocator")
+Signed-off-by: NeilBrown <neilb@suse.de>
+Acked-by: Mel Gorman <mgorman@suse.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/input.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/sunrpc/svc_xprt.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/net/sctp/input.c
-+++ b/net/sctp/input.c
-@@ -1008,6 +1008,9 @@ static struct sctp_association *__sctp_r
- 	union sctp_addr_param *param;
- 	union sctp_addr paddr;
+diff --git a/net/sunrpc/svc_xprt.c b/net/sunrpc/svc_xprt.c
+index dbb41821b1b8..cd5a2b186f0d 100644
+--- a/net/sunrpc/svc_xprt.c
++++ b/net/sunrpc/svc_xprt.c
+@@ -662,7 +662,7 @@ static int svc_alloc_arg(struct svc_rqst *rqstp)
+ {
+ 	struct svc_serv *serv = rqstp->rq_server;
+ 	struct xdr_buf *arg = &rqstp->rq_arg;
+-	unsigned long pages, filled;
++	unsigned long pages, filled, ret;
  
-+	if (ntohs(ch->length) < sizeof(*asconf) + sizeof(struct sctp_paramhdr))
-+		return NULL;
-+
- 	/* Skip over the ADDIP header and find the Address parameter */
- 	param = (union sctp_addr_param *)(asconf + 1);
+ 	pages = (serv->sv_max_mesg + 2 * PAGE_SIZE) >> PAGE_SHIFT;
+ 	if (pages > RPCSVC_MAXPAGES) {
+@@ -672,11 +672,12 @@ static int svc_alloc_arg(struct svc_rqst *rqstp)
+ 		pages = RPCSVC_MAXPAGES;
+ 	}
  
+-	for (;;) {
+-		filled = alloc_pages_bulk_array(GFP_KERNEL, pages,
+-						rqstp->rq_pages);
+-		if (filled == pages)
+-			break;
++	for (filled = 0; filled < pages; filled = ret) {
++		ret = alloc_pages_bulk_array(GFP_KERNEL, pages,
++					     rqstp->rq_pages);
++		if (ret > filled)
++			/* Made progress, don't sleep yet */
++			continue;
+ 
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		if (signalled() || kthread_should_stop()) {
+-- 
+2.33.0
+
 
 
