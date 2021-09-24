@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB7AB417398
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F159D4174AF
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:09:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343708AbhIXM7L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:59:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50038 "EHLO mail.kernel.org"
+        id S1346065AbhIXNJa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:09:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344747AbhIXM4V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:56:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4128161381;
-        Fri, 24 Sep 2021 12:51:27 +0000 (UTC)
+        id S1346583AbhIXNHe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:07:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB7726138B;
+        Fri, 24 Sep 2021 12:56:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487887;
-        bh=iYtaZrHMOA692pAIYm5R8nCLBsm+x1iBYGYXu+nxCds=;
+        s=korg; t=1632488208;
+        bh=0GvFKGbZkmXWcXob+UxUW1n1/KXjvJoMo3LCwMHfQQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l2uV4bsesSBVqweAJ1fy9cgAoWirC/QDrsyKEFO/HVHt7a4mkfa5j7bl4bIkOF9Q7
-         KovxnWExYT0UqTgHU7P/tX/ny5SmRlr+GZe/zWquiUGXerxA8yroS+W7HZfw/PAtZS
-         op/Y5FBkhP/TknljnBeSYY43Zv3Ho3+fjZHuo/ck=
+        b=cAwbyjWUVnWZ5UUyDj0igc9As1E5yER2PZSyKfOFSirWtmCjSR9ihi5fzRQi9ffN0
+         zqVdKG6Ya+3OJ0gSQeL2XwtsBcVZKEde9EgfIoSOQrp8eH5Z3ZT/pslrBqj2Haqt8l
+         Ebq6gf7eag4WjZ+ol/tgZIOquZRkQ/VDSYYP7hmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jozef=20Kov=C3=A1=C4=8D?= <kovac@firma.zoznam.sk>,
-        Jeff Layton <jlayton@kernel.org>, Xiubo Li <xiubli@redhat.com>,
-        Luis Henriques <lhenriques@suse.de>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 36/50] ceph: request Fw caps before updating the mtime in ceph_write_iter
+        stable@vger.kernel.org, Sylvain Lemieux <slemieux@tycoint.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>
+Subject: [PATCH 5.10 25/63] pwm: lpc32xx: Dont modify HW state in .probe() after the PWM chip was registered
 Date:   Fri, 24 Sep 2021 14:44:25 +0200
-Message-Id: <20210924124333.467695071@linuxfoundation.org>
+Message-Id: <20210924124335.128342669@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
-References: <20210924124332.229289734@linuxfoundation.org>
+In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
+References: <20210924124334.228235870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,105 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit b11ed50346683a749632ea664959b28d524d7395 ]
+commit 3d2813fb17e5fd0d73c1d1442ca0192bde4af10e upstream.
 
-The current code will update the mtime and then try to get caps to
-handle the write. If we end up having to request caps from the MDS, then
-the mtime in the cap grant will clobber the updated mtime and it'll be
-lost.
+This fixes a race condition: After pwmchip_add() is called there might
+already be a consumer and then modifying the hardware behind the
+consumer's back is bad. So set the default before.
 
-This is most noticable when two clients are alternately writing to the
-same file. Fw caps are continually being granted and revoked, and the
-mtime ends up stuck because the updated mtimes are always being
-overwritten with the old one.
+(Side-note: I don't know what this register setting actually does, if
+this modifies the polarity there is an inconsistency because the
+inversed polarity isn't considered if the PWM is already running during
+.probe().)
 
-Fix this by changing the order of operations in ceph_write_iter to get
-the caps before updating the times. Also, make sure we check the pool
-full conditions before even getting any caps or uninlining.
-
-URL: https://tracker.ceph.com/issues/46574
-Reported-by: Jozef Kováč <kovac@firma.zoznam.sk>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Luis Henriques <lhenriques@suse.de>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: acfd92fdfb93 ("pwm: lpc32xx: Set PWM_PIN_LEVEL bit to default value")
+Cc: Sylvain Lemieux <slemieux@tycoint.com>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/file.c | 32 +++++++++++++++++---------------
- 1 file changed, 17 insertions(+), 15 deletions(-)
+ drivers/pwm/pwm-lpc32xx.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/fs/ceph/file.c b/fs/ceph/file.c
-index a10711a6337a..34785a203461 100644
---- a/fs/ceph/file.c
-+++ b/fs/ceph/file.c
-@@ -1469,32 +1469,26 @@ retry_snap:
- 		goto out;
- 	}
+--- a/drivers/pwm/pwm-lpc32xx.c
++++ b/drivers/pwm/pwm-lpc32xx.c
+@@ -120,17 +120,17 @@ static int lpc32xx_pwm_probe(struct plat
+ 	lpc32xx->chip.npwm = 1;
+ 	lpc32xx->chip.base = -1;
  
--	err = file_remove_privs(file);
--	if (err)
-+	down_read(&osdc->lock);
-+	map_flags = osdc->osdmap->flags;
-+	pool_flags = ceph_pg_pool_flags(osdc->osdmap, ci->i_layout.pool_id);
-+	up_read(&osdc->lock);
-+	if ((map_flags & CEPH_OSDMAP_FULL) ||
-+	    (pool_flags & CEPH_POOL_FLAG_FULL)) {
-+		err = -ENOSPC;
- 		goto out;
-+	}
- 
--	err = file_update_time(file);
-+	err = file_remove_privs(file);
- 	if (err)
- 		goto out;
- 
--	inode_inc_iversion_raw(inode);
--
- 	if (ci->i_inline_version != CEPH_INLINE_NONE) {
- 		err = ceph_uninline_data(file, NULL);
- 		if (err < 0)
- 			goto out;
- 	}
- 
--	down_read(&osdc->lock);
--	map_flags = osdc->osdmap->flags;
--	pool_flags = ceph_pg_pool_flags(osdc->osdmap, ci->i_layout.pool_id);
--	up_read(&osdc->lock);
--	if ((map_flags & CEPH_OSDMAP_FULL) ||
--	    (pool_flags & CEPH_POOL_FLAG_FULL)) {
--		err = -ENOSPC;
--		goto out;
--	}
--
- 	dout("aio_write %p %llx.%llx %llu~%zd getting caps. i_size %llu\n",
- 	     inode, ceph_vinop(inode), pos, count, i_size_read(inode));
- 	if (fi->fmode & CEPH_FILE_MODE_LAZY)
-@@ -1507,6 +1501,12 @@ retry_snap:
- 	if (err < 0)
- 		goto out;
- 
-+	err = file_update_time(file);
-+	if (err)
-+		goto out_caps;
++	/* If PWM is disabled, configure the output to the default value */
++	val = readl(lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
++	val &= ~PWM_PIN_LEVEL;
++	writel(val, lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
 +
-+	inode_inc_iversion_raw(inode);
-+
- 	dout("aio_write %p %llx.%llx %llu~%zd got cap refs on %s\n",
- 	     inode, ceph_vinop(inode), pos, count, ceph_cap_string(got));
- 
-@@ -1590,6 +1590,8 @@ retry_snap:
+ 	ret = pwmchip_add(&lpc32xx->chip);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to add PWM chip, error %d\n", ret);
+ 		return ret;
  	}
  
- 	goto out_unlocked;
-+out_caps:
-+	ceph_put_cap_refs(ci, got);
- out:
- 	if (direct_lock)
- 		ceph_end_io_direct(inode);
--- 
-2.33.0
-
+-	/* When PWM is disable, configure the output to the default value */
+-	val = readl(lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
+-	val &= ~PWM_PIN_LEVEL;
+-	writel(val, lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
+-
+ 	platform_set_drvdata(pdev, lpc32xx);
+ 
+ 	return 0;
 
 
