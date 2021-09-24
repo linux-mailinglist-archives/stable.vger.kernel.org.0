@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58119417423
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:02:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E53054174C9
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:09:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343906AbhIXNDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:03:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54754 "EHLO mail.kernel.org"
+        id S1346732AbhIXNKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:10:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345078AbhIXNAo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:00:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6979613DB;
-        Fri, 24 Sep 2021 12:53:56 +0000 (UTC)
+        id S1346911AbhIXNIT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:08:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 912EC613A1;
+        Fri, 24 Sep 2021 12:57:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488037;
-        bh=XUVhVo4A4eEuM7B5tin370iO4K7v/2vjryGHJCGTxFA=;
+        s=korg; t=1632488240;
+        bh=9o10XxgUpxVyGoxJmv83SD2N9YKJAa+SJ0iAAXf1MD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VeecC/lBRmBq0eA6bX1nxy+qQZlrCrGDBwKDSWbp4UAhzhEcKGdbnS0ycvIhgAxo/
-         qOjr/LkBXEUrLFHKfo+CCmhneMoFcnV6XslnjmkrG6uONAs2ck5WAXPmIaHXbtIh6N
-         S7mm0gS48ArNC0Hz4ZsE2azHUIAXwO08wgFhUDkM=
+        b=cEaiTumyl15fOsGmZpPEx07M1zdM6rjvbKcl2hHne1baGeHnijBa75LvhFLJFLO6d
+         luQtBV52DBazR1mWYkHkLx/imCcbEbOYp5Pb3D6TeITuDo1I7JKQ5R1MOryF2IzxIs
+         IGKuoti5pRlRYlXqbCgCYVXEmHPIhOik1XM5scgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Widawsky <ben.widawsky@intel.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 058/100] cxl/pci: Introduce cdevm_file_operations
+        stable@vger.kernel.org,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 5.10 07/63] ARM: 9078/1: Add warn suppress parameter to arm_gen_branch_link()
 Date:   Fri, 24 Sep 2021 14:44:07 +0200
-Message-Id: <20210924124343.370217419@linuxfoundation.org>
+Message-Id: <20210924124334.492226652@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
-References: <20210924124341.214446495@linuxfoundation.org>
+In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
+References: <20210924124334.228235870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,197 +41,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Alex Sverdlin <alexander.sverdlin@nokia.com>
 
-[ Upstream commit 9cc238c7a526dba9ee8c210fa2828886fc65db66 ]
+commit 890cb057a46d323fd8c77ebecb6485476614cd21 upstream
 
-In preparation for moving cxl_memdev allocation to the core, introduce
-cdevm_file_operations to coordinate file operations shutdown relative to
-driver data release.
+Will be used in the following patch. No functional change.
 
-The motivation for moving cxl_memdev allocation to the core (beyond
-better file organization of sysfs attributes in core/ and drivers in
-cxl/), is that device lifetime is longer than module lifetime. The cxl_pci
-module should be free to come and go without needing to coordinate with
-devices that need the text associated with cxl_memdev_release() to stay
-resident. The move will fix a use after free bug when looping driver
-load / unload with CONFIG_DEBUG_KOBJECT_RELEASE=y.
-
-Another motivation for passing in file_operations to the core cxl_memdev
-creation flow is to allow for alternate drivers, like unit test code, to
-define their own ioctl backends.
-
-Signed-off-by: Ben Widawsky <ben.widawsky@intel.com>
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Link: https://lore.kernel.org/r/162792539962.368511.2962268954245340288.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cxl/cxlmem.h | 15 ++++++++++
- drivers/cxl/pci.c    | 65 ++++++++++++++++++++++++++------------------
- 2 files changed, 53 insertions(+), 27 deletions(-)
+ arch/arm/include/asm/insn.h |    8 ++++----
+ arch/arm/kernel/ftrace.c    |    2 +-
+ arch/arm/kernel/insn.c      |   19 ++++++++++---------
+ 3 files changed, 15 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/cxl/cxlmem.h b/drivers/cxl/cxlmem.h
-index 8f02d02b26b4..0cd463de1342 100644
---- a/drivers/cxl/cxlmem.h
-+++ b/drivers/cxl/cxlmem.h
-@@ -34,6 +34,21 @@
-  */
- #define CXL_MEM_MAX_DEVS 65536
- 
-+/**
-+ * struct cdevm_file_operations - devm coordinated cdev file operations
-+ * @fops: file operations that are synchronized against @shutdown
-+ * @shutdown: disconnect driver data
-+ *
-+ * @shutdown is invoked in the devres release path to disconnect any
-+ * driver instance data from @dev. It assumes synchronization with any
-+ * fops operation that requires driver data. After @shutdown an
-+ * operation may only reference @device data.
-+ */
-+struct cdevm_file_operations {
-+	struct file_operations fops;
-+	void (*shutdown)(struct device *dev);
-+};
-+
- /**
-  * struct cxl_memdev - CXL bus object representing a Type-3 Memory Device
-  * @dev: driver core device object
-diff --git a/drivers/cxl/pci.c b/drivers/cxl/pci.c
-index e7ee148ad7ee..e809596049b6 100644
---- a/drivers/cxl/pci.c
-+++ b/drivers/cxl/pci.c
-@@ -806,13 +806,30 @@ static int cxl_memdev_release_file(struct inode *inode, struct file *file)
- 	return 0;
+--- a/arch/arm/include/asm/insn.h
++++ b/arch/arm/include/asm/insn.h
+@@ -13,18 +13,18 @@ arm_gen_nop(void)
  }
  
--static const struct file_operations cxl_memdev_fops = {
--	.owner = THIS_MODULE,
--	.unlocked_ioctl = cxl_memdev_ioctl,
--	.open = cxl_memdev_open,
--	.release = cxl_memdev_release_file,
--	.compat_ioctl = compat_ptr_ioctl,
--	.llseek = noop_llseek,
-+static struct cxl_memdev *to_cxl_memdev(struct device *dev)
-+{
-+	return container_of(dev, struct cxl_memdev, dev);
-+}
-+
-+static void cxl_memdev_shutdown(struct device *dev)
-+{
-+	struct cxl_memdev *cxlmd = to_cxl_memdev(dev);
-+
-+	down_write(&cxl_memdev_rwsem);
-+	cxlmd->cxlm = NULL;
-+	up_write(&cxl_memdev_rwsem);
-+}
-+
-+static const struct cdevm_file_operations cxl_memdev_fops = {
-+	.fops = {
-+		.owner = THIS_MODULE,
-+		.unlocked_ioctl = cxl_memdev_ioctl,
-+		.open = cxl_memdev_open,
-+		.release = cxl_memdev_release_file,
-+		.compat_ioctl = compat_ptr_ioctl,
-+		.llseek = noop_llseek,
-+	},
-+	.shutdown = cxl_memdev_shutdown,
- };
+ unsigned long
+-__arm_gen_branch(unsigned long pc, unsigned long addr, bool link);
++__arm_gen_branch(unsigned long pc, unsigned long addr, bool link, bool warn);
  
- static inline struct cxl_mem_command *cxl_mem_find_command(u16 opcode)
-@@ -1161,11 +1178,6 @@ free_maps:
- 	return ret;
- }
- 
--static struct cxl_memdev *to_cxl_memdev(struct device *dev)
--{
--	return container_of(dev, struct cxl_memdev, dev);
--}
--
- static void cxl_memdev_release(struct device *dev)
+ static inline unsigned long
+ arm_gen_branch(unsigned long pc, unsigned long addr)
  {
- 	struct cxl_memdev *cxlmd = to_cxl_memdev(dev);
-@@ -1281,24 +1293,22 @@ static const struct device_type cxl_memdev_type = {
- 	.groups = cxl_memdev_attribute_groups,
- };
- 
--static void cxl_memdev_shutdown(struct cxl_memdev *cxlmd)
--{
--	down_write(&cxl_memdev_rwsem);
--	cxlmd->cxlm = NULL;
--	up_write(&cxl_memdev_rwsem);
--}
--
- static void cxl_memdev_unregister(void *_cxlmd)
- {
- 	struct cxl_memdev *cxlmd = _cxlmd;
- 	struct device *dev = &cxlmd->dev;
-+	struct cdev *cdev = &cxlmd->cdev;
-+	const struct cdevm_file_operations *cdevm_fops;
-+
-+	cdevm_fops = container_of(cdev->ops, typeof(*cdevm_fops), fops);
-+	cdevm_fops->shutdown(dev);
- 
- 	cdev_device_del(&cxlmd->cdev, dev);
--	cxl_memdev_shutdown(cxlmd);
- 	put_device(dev);
+-	return __arm_gen_branch(pc, addr, false);
++	return __arm_gen_branch(pc, addr, false, true);
  }
  
--static struct cxl_memdev *cxl_memdev_alloc(struct cxl_mem *cxlm)
-+static struct cxl_memdev *cxl_memdev_alloc(struct cxl_mem *cxlm,
-+					   const struct file_operations *fops)
+ static inline unsigned long
+-arm_gen_branch_link(unsigned long pc, unsigned long addr)
++arm_gen_branch_link(unsigned long pc, unsigned long addr, bool warn)
  {
- 	struct pci_dev *pdev = cxlm->pdev;
- 	struct cxl_memdev *cxlmd;
-@@ -1324,7 +1334,7 @@ static struct cxl_memdev *cxl_memdev_alloc(struct cxl_mem *cxlm)
- 	device_set_pm_not_required(dev);
- 
- 	cdev = &cxlmd->cdev;
--	cdev_init(cdev, &cxl_memdev_fops);
-+	cdev_init(cdev, fops);
- 	return cxlmd;
- 
- err:
-@@ -1332,15 +1342,16 @@ err:
- 	return ERR_PTR(rc);
+-	return __arm_gen_branch(pc, addr, true);
++	return __arm_gen_branch(pc, addr, true, warn);
  }
  
--static struct cxl_memdev *devm_cxl_add_memdev(struct device *host,
--					      struct cxl_mem *cxlm)
-+static struct cxl_memdev *
-+devm_cxl_add_memdev(struct device *host, struct cxl_mem *cxlm,
-+		    const struct cdevm_file_operations *cdevm_fops)
+ #endif
+--- a/arch/arm/kernel/ftrace.c
++++ b/arch/arm/kernel/ftrace.c
+@@ -70,7 +70,7 @@ int ftrace_arch_code_modify_post_process
+ 
+ static unsigned long ftrace_call_replace(unsigned long pc, unsigned long addr)
  {
- 	struct cxl_memdev *cxlmd;
- 	struct device *dev;
- 	struct cdev *cdev;
- 	int rc;
- 
--	cxlmd = cxl_memdev_alloc(cxlm);
-+	cxlmd = cxl_memdev_alloc(cxlm, &cdevm_fops->fops);
- 	if (IS_ERR(cxlmd))
- 		return cxlmd;
- 
-@@ -1370,7 +1381,7 @@ err:
- 	 * The cdev was briefly live, shutdown any ioctl operations that
- 	 * saw that state.
- 	 */
--	cxl_memdev_shutdown(cxlmd);
-+	cdevm_fops->shutdown(dev);
- 	put_device(dev);
- 	return ERR_PTR(rc);
+-	return arm_gen_branch_link(pc, addr);
++	return arm_gen_branch_link(pc, addr, true);
  }
-@@ -1611,7 +1622,7 @@ static int cxl_mem_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	if (rc)
- 		return rc;
  
--	cxlmd = devm_cxl_add_memdev(&pdev->dev, cxlm);
-+	cxlmd = devm_cxl_add_memdev(&pdev->dev, cxlm, &cxl_memdev_fops);
- 	if (IS_ERR(cxlmd))
- 		return PTR_ERR(cxlmd);
+ static int ftrace_modify_code(unsigned long pc, unsigned long old,
+--- a/arch/arm/kernel/insn.c
++++ b/arch/arm/kernel/insn.c
+@@ -3,8 +3,9 @@
+ #include <linux/kernel.h>
+ #include <asm/opcodes.h>
  
--- 
-2.33.0
-
+-static unsigned long
+-__arm_gen_branch_thumb2(unsigned long pc, unsigned long addr, bool link)
++static unsigned long __arm_gen_branch_thumb2(unsigned long pc,
++					     unsigned long addr, bool link,
++					     bool warn)
+ {
+ 	unsigned long s, j1, j2, i1, i2, imm10, imm11;
+ 	unsigned long first, second;
+@@ -12,7 +13,7 @@ __arm_gen_branch_thumb2(unsigned long pc
+ 
+ 	offset = (long)addr - (long)(pc + 4);
+ 	if (offset < -16777216 || offset > 16777214) {
+-		WARN_ON_ONCE(1);
++		WARN_ON_ONCE(warn);
+ 		return 0;
+ 	}
+ 
+@@ -33,8 +34,8 @@ __arm_gen_branch_thumb2(unsigned long pc
+ 	return __opcode_thumb32_compose(first, second);
+ }
+ 
+-static unsigned long
+-__arm_gen_branch_arm(unsigned long pc, unsigned long addr, bool link)
++static unsigned long __arm_gen_branch_arm(unsigned long pc, unsigned long addr,
++					  bool link, bool warn)
+ {
+ 	unsigned long opcode = 0xea000000;
+ 	long offset;
+@@ -44,7 +45,7 @@ __arm_gen_branch_arm(unsigned long pc, u
+ 
+ 	offset = (long)addr - (long)(pc + 8);
+ 	if (unlikely(offset < -33554432 || offset > 33554428)) {
+-		WARN_ON_ONCE(1);
++		WARN_ON_ONCE(warn);
+ 		return 0;
+ 	}
+ 
+@@ -54,10 +55,10 @@ __arm_gen_branch_arm(unsigned long pc, u
+ }
+ 
+ unsigned long
+-__arm_gen_branch(unsigned long pc, unsigned long addr, bool link)
++__arm_gen_branch(unsigned long pc, unsigned long addr, bool link, bool warn)
+ {
+ 	if (IS_ENABLED(CONFIG_THUMB2_KERNEL))
+-		return __arm_gen_branch_thumb2(pc, addr, link);
++		return __arm_gen_branch_thumb2(pc, addr, link, warn);
+ 	else
+-		return __arm_gen_branch_arm(pc, addr, link);
++		return __arm_gen_branch_arm(pc, addr, link, warn);
+ }
 
 
