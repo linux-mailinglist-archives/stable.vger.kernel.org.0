@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 620FA417364
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:57:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A595D4172EC
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:51:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344961AbhIXMzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:55:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45816 "EHLO mail.kernel.org"
+        id S1344633AbhIXMwt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:52:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344334AbhIXMxx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:53:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28ED66127C;
-        Fri, 24 Sep 2021 12:50:21 +0000 (UTC)
+        id S1344606AbhIXMvA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:51:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECA8C61260;
+        Fri, 24 Sep 2021 12:48:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487823;
-        bh=0GvFKGbZkmXWcXob+UxUW1n1/KXjvJoMo3LCwMHfQQc=;
+        s=korg; t=1632487718;
+        bh=OFTyZiwxhjOwkWAhCaChcnKPiPlqBDqJt0iNUf6+S4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZsKbPh+sP4EGRQ+Yp2kHHFmOrj1dmHE/pHHRie6U7eHg6cCF/KfKJRPQ0eccOUGE2
-         Iwp3s0pWGI9CnRxfjbPONgJhK3PYx929s0HV90x9slz76mD+iQzD5kmjLvL5iX+bAt
-         NEDYHCYcZrF476WuIKf5PIsAQ/MaA0tD8Kb50ElM=
+        b=mHhXnfK1tIZExDzJd12yWZRp0yBnGfL4gfpgq0fMNnoVOg1suuqYDfs0NdpTFKPge
+         wzJh1q2DNVFsFb8P+ncOjZy1kJsdZGd5sj4o+D3b74F2wSF0JyLAWKFMM5UKE8qA2y
+         DltRC1LuyxMzHixN0p3Ick0/zrzrPDxa3+mPsGR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sylvain Lemieux <slemieux@tycoint.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH 5.4 25/50] pwm: lpc32xx: Dont modify HW state in .probe() after the PWM chip was registered
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        Baolin Wang <baolin.wang7@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 20/34] dmaengine: sprd: Add missing MODULE_DEVICE_TABLE
 Date:   Fri, 24 Sep 2021 14:44:14 +0200
-Message-Id: <20210924124333.097260369@linuxfoundation.org>
+Message-Id: <20210924124330.623539788@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
-References: <20210924124332.229289734@linuxfoundation.org>
+In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
+References: <20210924124329.965218583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Zou Wei <zou_wei@huawei.com>
 
-commit 3d2813fb17e5fd0d73c1d1442ca0192bde4af10e upstream.
+[ Upstream commit 4faee8b65ec32346f8096e64c5fa1d5a73121742 ]
 
-This fixes a race condition: After pwmchip_add() is called there might
-already be a consumer and then modifying the hardware behind the
-consumer's back is bad. So set the default before.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-(Side-note: I don't know what this register setting actually does, if
-this modifies the polarity there is an inconsistency because the
-inversed polarity isn't considered if the PWM is already running during
-.probe().)
-
-Fixes: acfd92fdfb93 ("pwm: lpc32xx: Set PWM_PIN_LEVEL bit to default value")
-Cc: Sylvain Lemieux <slemieux@tycoint.com>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Reviewed-by: Baolin Wang <baolin.wang7@gmail.com>
+Link: https://lore.kernel.org/r/1620094977-70146-1-git-send-email-zou_wei@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-lpc32xx.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/dma/sprd-dma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/pwm/pwm-lpc32xx.c
-+++ b/drivers/pwm/pwm-lpc32xx.c
-@@ -120,17 +120,17 @@ static int lpc32xx_pwm_probe(struct plat
- 	lpc32xx->chip.npwm = 1;
- 	lpc32xx->chip.base = -1;
+diff --git a/drivers/dma/sprd-dma.c b/drivers/dma/sprd-dma.c
+index 9e8ce56a83d8..0fadf6a08494 100644
+--- a/drivers/dma/sprd-dma.c
++++ b/drivers/dma/sprd-dma.c
+@@ -1016,6 +1016,7 @@ static const struct of_device_id sprd_dma_match[] = {
+ 	{ .compatible = "sprd,sc9860-dma", },
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, sprd_dma_match);
  
-+	/* If PWM is disabled, configure the output to the default value */
-+	val = readl(lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
-+	val &= ~PWM_PIN_LEVEL;
-+	writel(val, lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
-+
- 	ret = pwmchip_add(&lpc32xx->chip);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "failed to add PWM chip, error %d\n", ret);
- 		return ret;
- 	}
- 
--	/* When PWM is disable, configure the output to the default value */
--	val = readl(lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
--	val &= ~PWM_PIN_LEVEL;
--	writel(val, lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
--
- 	platform_set_drvdata(pdev, lpc32xx);
- 
- 	return 0;
+ static int __maybe_unused sprd_dma_runtime_suspend(struct device *dev)
+ {
+-- 
+2.33.0
+
 
 
