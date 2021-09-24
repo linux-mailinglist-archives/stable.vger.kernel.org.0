@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62177417224
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:44:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0F3A41728A
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:48:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343796AbhIXMqE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:46:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41372 "EHLO mail.kernel.org"
+        id S1343839AbhIXMtL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:49:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343758AbhIXMqA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:46:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0798C61107;
-        Fri, 24 Sep 2021 12:44:26 +0000 (UTC)
+        id S1344202AbhIXMs1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:48:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A501661265;
+        Fri, 24 Sep 2021 12:46:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487467;
-        bh=a6AuxuqVS/i0JKQgCn3ufI/cMB/h6dwJ29aI3hvIt24=;
+        s=korg; t=1632487614;
+        bh=Tw8L4eNK+wEDD2yEgfOy+r9A0710sZt+eZjAbK7IZ5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YPXFOgnWevM1pqWli8cVsXgmj/Nj1FL9nTm/G/bCiHAN8hIjHmN0fio8Pn1ZviRcM
-         rpthcRfASSzsiEr4Ii4pjv+kH5CXxhz8JIsbwzi9bStugMBV31ps5mzLAVgpRIONKB
-         cRCsTvuQmboniRpjeqm5iJuX9KcpwWNGYq1GF0w0=
+        b=KqLgtgpVhSbA+QRnyrny707xQCYIvNJOAKOYInnN45PiQGl290/YbYKIKvjTkEK+I
+         muKKjF6JiaSDqqOygWLRiiOt+Tw+wpb4ifEDZjUJ5oUssx4xF73XXR/gTO+hXzrRzu
+         ST7L5WsHGUlb3sLDTX2KH12HrxNIiEWrSgSK6Keo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 14/23] ceph: lockdep annotations for try_nonblocking_invalidate
+        stable@vger.kernel.org,
+        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.14 01/27] s390/bpf: Fix optimizing out zero-extensions
 Date:   Fri, 24 Sep 2021 14:43:55 +0200
-Message-Id: <20210924124328.280807956@linuxfoundation.org>
+Message-Id: <20210924124329.226243340@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124327.816210800@linuxfoundation.org>
-References: <20210924124327.816210800@linuxfoundation.org>
+In-Reply-To: <20210924124329.173674820@linuxfoundation.org>
+References: <20210924124329.173674820@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,33 +44,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit 3eaf5aa1cfa8c97c72f5824e2e9263d6cc977b03 ]
+commit db7bee653859ef7179be933e7d1384644f795f26 upstream.
 
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Currently the JIT completely removes things like `reg32 += 0`,
+however, the BPF_ALU semantics requires the target register to be
+zero-extended in such cases.
+
+Fix by optimizing out only the arithmetic operation, but not the
+subsequent zero-extension.
+
+Reported-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/ceph/caps.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/s390/net/bpf_jit_comp.c |   50 ++++++++++++++++++++++---------------------
+ 1 file changed, 26 insertions(+), 24 deletions(-)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index 9d74cd37b395..154c47282a34 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -1545,6 +1545,8 @@ static int __mark_caps_flushing(struct inode *inode,
-  * try to invalidate mapping pages without blocking.
-  */
- static int try_nonblocking_invalidate(struct inode *inode)
-+	__releases(ci->i_ceph_lock)
-+	__acquires(ci->i_ceph_lock)
- {
- 	struct ceph_inode_info *ci = ceph_inode(inode);
- 	u32 invalidating_gen = ci->i_rdcache_gen;
--- 
-2.33.0
-
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -592,10 +592,10 @@ static noinline int bpf_jit_insn(struct
+ 		EMIT4(0xb9080000, dst_reg, src_reg);
+ 		break;
+ 	case BPF_ALU | BPF_ADD | BPF_K: /* dst = (u32) dst + (u32) imm */
+-		if (!imm)
+-			break;
+-		/* alfi %dst,imm */
+-		EMIT6_IMM(0xc20b0000, dst_reg, imm);
++		if (imm != 0) {
++			/* alfi %dst,imm */
++			EMIT6_IMM(0xc20b0000, dst_reg, imm);
++		}
+ 		EMIT_ZERO(dst_reg);
+ 		break;
+ 	case BPF_ALU64 | BPF_ADD | BPF_K: /* dst = dst + imm */
+@@ -617,10 +617,10 @@ static noinline int bpf_jit_insn(struct
+ 		EMIT4(0xb9090000, dst_reg, src_reg);
+ 		break;
+ 	case BPF_ALU | BPF_SUB | BPF_K: /* dst = (u32) dst - (u32) imm */
+-		if (!imm)
+-			break;
+-		/* alfi %dst,-imm */
+-		EMIT6_IMM(0xc20b0000, dst_reg, -imm);
++		if (imm != 0) {
++			/* alfi %dst,-imm */
++			EMIT6_IMM(0xc20b0000, dst_reg, -imm);
++		}
+ 		EMIT_ZERO(dst_reg);
+ 		break;
+ 	case BPF_ALU64 | BPF_SUB | BPF_K: /* dst = dst - imm */
+@@ -647,10 +647,10 @@ static noinline int bpf_jit_insn(struct
+ 		EMIT4(0xb90c0000, dst_reg, src_reg);
+ 		break;
+ 	case BPF_ALU | BPF_MUL | BPF_K: /* dst = (u32) dst * (u32) imm */
+-		if (imm == 1)
+-			break;
+-		/* msfi %r5,imm */
+-		EMIT6_IMM(0xc2010000, dst_reg, imm);
++		if (imm != 1) {
++			/* msfi %r5,imm */
++			EMIT6_IMM(0xc2010000, dst_reg, imm);
++		}
+ 		EMIT_ZERO(dst_reg);
+ 		break;
+ 	case BPF_ALU64 | BPF_MUL | BPF_K: /* dst = dst * imm */
+@@ -711,6 +711,8 @@ static noinline int bpf_jit_insn(struct
+ 			if (BPF_OP(insn->code) == BPF_MOD)
+ 				/* lhgi %dst,0 */
+ 				EMIT4_IMM(0xa7090000, dst_reg, 0);
++			else
++				EMIT_ZERO(dst_reg);
+ 			break;
+ 		}
+ 		/* lhi %w0,0 */
+@@ -803,10 +805,10 @@ static noinline int bpf_jit_insn(struct
+ 		EMIT4(0xb9820000, dst_reg, src_reg);
+ 		break;
+ 	case BPF_ALU | BPF_XOR | BPF_K: /* dst = (u32) dst ^ (u32) imm */
+-		if (!imm)
+-			break;
+-		/* xilf %dst,imm */
+-		EMIT6_IMM(0xc0070000, dst_reg, imm);
++		if (imm != 0) {
++			/* xilf %dst,imm */
++			EMIT6_IMM(0xc0070000, dst_reg, imm);
++		}
+ 		EMIT_ZERO(dst_reg);
+ 		break;
+ 	case BPF_ALU64 | BPF_XOR | BPF_K: /* dst = dst ^ imm */
+@@ -827,10 +829,10 @@ static noinline int bpf_jit_insn(struct
+ 		EMIT6_DISP_LH(0xeb000000, 0x000d, dst_reg, dst_reg, src_reg, 0);
+ 		break;
+ 	case BPF_ALU | BPF_LSH | BPF_K: /* dst = (u32) dst << (u32) imm */
+-		if (imm == 0)
+-			break;
+-		/* sll %dst,imm(%r0) */
+-		EMIT4_DISP(0x89000000, dst_reg, REG_0, imm);
++		if (imm != 0) {
++			/* sll %dst,imm(%r0) */
++			EMIT4_DISP(0x89000000, dst_reg, REG_0, imm);
++		}
+ 		EMIT_ZERO(dst_reg);
+ 		break;
+ 	case BPF_ALU64 | BPF_LSH | BPF_K: /* dst = dst << imm */
+@@ -852,10 +854,10 @@ static noinline int bpf_jit_insn(struct
+ 		EMIT6_DISP_LH(0xeb000000, 0x000c, dst_reg, dst_reg, src_reg, 0);
+ 		break;
+ 	case BPF_ALU | BPF_RSH | BPF_K: /* dst = (u32) dst >> (u32) imm */
+-		if (imm == 0)
+-			break;
+-		/* srl %dst,imm(%r0) */
+-		EMIT4_DISP(0x88000000, dst_reg, REG_0, imm);
++		if (imm != 0) {
++			/* srl %dst,imm(%r0) */
++			EMIT4_DISP(0x88000000, dst_reg, REG_0, imm);
++		}
+ 		EMIT_ZERO(dst_reg);
+ 		break;
+ 	case BPF_ALU64 | BPF_RSH | BPF_K: /* dst = dst >> imm */
 
 
