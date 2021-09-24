@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DCB7417269
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:48:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D710417248
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:48:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343843AbhIXMsX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:48:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43376 "EHLO mail.kernel.org"
+        id S1343834AbhIXMr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:47:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343812AbhIXMrh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:47:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40ED261107;
-        Fri, 24 Sep 2021 12:46:04 +0000 (UTC)
+        id S1343913AbhIXMqe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:46:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A69A61263;
+        Fri, 24 Sep 2021 12:45:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487564;
-        bh=l1gzoSs4ajRaNO/iXl96GbK9WlpuKTQmAaQln8y91Ig=;
+        s=korg; t=1632487501;
+        bh=vZWHKSv42FCaUR+GqF5uloDitBwgn08r9izr/hJ+XqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l1ZA2QyUix8QeEibw0LTqAhmaAezr64mUOKaEp+FlBnz1cI6Hz+L14+X6bNziFFPR
-         GhBbMoXvnQFt0RwKKMTmaq3+pqET4K+Yv7FciyRlw5QmvHsJZRtvabKHRcuEOUbisU
-         oa+Vr0Zfz/D1k/u9Rj1MJTAggFr1dagbPE0EQ//M=
+        b=goyfwgfj3NB7Eehau/sW9GXHGPtDQIz077YBbIDWjObB1JivJut83i1j52cMeCwUa
+         lj503uPtC/Q+Zd7p4sZW/D3RQc5ZtEOwJPO/95dUW2R1kXEQfg6YXliRGGTCohYOie
+         26aSk5QxOqtXELPmraKQJacfIraMLyW+cWmMya6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH 4.9 13/26] pwm: mxs: Dont modify HW state in .probe() after the PWM chip was registered
+        stable@vger.kernel.org, Nanyong Sun <sunnanyong@huawei.com>,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 20/23] nilfs2: fix memory leak in nilfs_sysfs_delete_snapshot_group
 Date:   Fri, 24 Sep 2021 14:44:01 +0200
-Message-Id: <20210924124328.779240637@linuxfoundation.org>
+Message-Id: <20210924124328.478548409@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124328.336953942@linuxfoundation.org>
-References: <20210924124328.336953942@linuxfoundation.org>
+In-Reply-To: <20210924124327.816210800@linuxfoundation.org>
+References: <20210924124327.816210800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Nanyong Sun <sunnanyong@huawei.com>
 
-commit 020162d6f49f2963062229814a56a89c86cbeaa8 upstream.
+[ Upstream commit 17243e1c3072b8417a5ebfc53065d0a87af7ca77 ]
 
-This fixes a race condition: After pwmchip_add() is called there might
-already be a consumer and then modifying the hardware behind the
-consumer's back is bad. So reset before calling pwmchip_add().
+kobject_put() should be used to cleanup the memory associated with the
+kobject instead of kobject_del().  See the section "Kobject removal" of
+"Documentation/core-api/kobject.rst".
 
-Note that reseting the hardware isn't the right thing to do if the PWM
-is already running as it might e.g. disable (or even enable) a backlight
-that is supposed to be on (or off).
-
-Fixes: 4dce82c1e840 ("pwm: add pwm-mxs support")
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20210629022556.3985106-7-sunnanyong@huawei.com
+Link: https://lkml.kernel.org/r/1625651306-10829-7-git-send-email-konishi.ryusuke@gmail.com
+Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-mxs.c |   13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ fs/nilfs2/sysfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pwm/pwm-mxs.c
-+++ b/drivers/pwm/pwm-mxs.c
-@@ -158,6 +158,11 @@ static int mxs_pwm_probe(struct platform
- 		return ret;
- 	}
+diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
+index 73d872a24a21..49a148ebbcda 100644
+--- a/fs/nilfs2/sysfs.c
++++ b/fs/nilfs2/sysfs.c
+@@ -224,7 +224,7 @@ int nilfs_sysfs_create_snapshot_group(struct nilfs_root *root)
  
-+	/* FIXME: Only do this if the PWM isn't already running */
-+	ret = stmp_reset_block(mxs->base);
-+	if (ret)
-+		return dev_err_probe(&pdev->dev, ret, "failed to reset PWM\n");
-+
- 	ret = pwmchip_add(&mxs->chip);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "failed to add pwm chip %d\n", ret);
-@@ -166,15 +171,7 @@ static int mxs_pwm_probe(struct platform
- 
- 	platform_set_drvdata(pdev, mxs);
- 
--	ret = stmp_reset_block(mxs->base);
--	if (ret)
--		goto pwm_remove;
--
- 	return 0;
--
--pwm_remove:
--	pwmchip_remove(&mxs->chip);
--	return ret;
+ void nilfs_sysfs_delete_snapshot_group(struct nilfs_root *root)
+ {
+-	kobject_del(&root->snapshot_kobj);
++	kobject_put(&root->snapshot_kobj);
  }
  
- static int mxs_pwm_remove(struct platform_device *pdev)
+ /************************************************************************
+-- 
+2.33.0
+
 
 
