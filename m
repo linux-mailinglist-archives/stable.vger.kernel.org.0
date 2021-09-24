@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 501104173A3
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D32E417459
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345205AbhIXM7S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:59:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50730 "EHLO mail.kernel.org"
+        id S1346279AbhIXNFD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:05:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345199AbhIXM5C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:57:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3247460F39;
-        Fri, 24 Sep 2021 12:51:45 +0000 (UTC)
+        id S1346177AbhIXNDB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:03:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDD8161378;
+        Fri, 24 Sep 2021 12:54:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487905;
-        bh=wuMnN238CAYwXN0qwKHd5Or0KpuSkE7Av/lZb/7bzdM=;
+        s=korg; t=1632488096;
+        bh=jVCPuOo7/RvvFyuQRc2h4nEhQuGVZQvPPxT5ZpCDdQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xNU9wjWud5UDtSHyDdTBxpNdxOh+vwgkV0xNOZyRPlF1tBN9who3A230L+CrVTMJm
-         ihDGA69ZXkM0BoLFcJtwTH1uQDSE43OPv7HQLkWHAdB3ikWtMZOgtdlrNICm2acgM4
-         2mj50VjasBZASNzvrPf8e4n+faBgo6B27cgV9T5g=
+        b=IL1DebVpppv3EsA4N0clJGnYKPCGXQPHHHjHZJV0QjiMOOQR1qmdXwai56P7glF+r
+         tkcrTLzhZMh8yOG6iWbjSpT9n9HSNNq2vV14CQg4Zxm45jf08ncG9pUnNScss6CgQv
+         tQq1HVcFmyDau4+bEOEpScEA+rj4+JCUQGBQ15Lo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nanyong Sun <sunnanyong@huawei.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Philip Yang <Philip.Yang@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 43/50] nilfs2: fix memory leak in nilfs_sysfs_create_snapshot_group
+Subject: [PATCH 5.14 083/100] drm/amdgpu: fix fdinfo race with process exit
 Date:   Fri, 24 Sep 2021 14:44:32 +0200
-Message-Id: <20210924124333.700675527@linuxfoundation.org>
+Message-Id: <20210924124344.247941751@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
-References: <20210924124332.229289734@linuxfoundation.org>
+In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
+References: <20210924124341.214446495@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nanyong Sun <sunnanyong@huawei.com>
+From: Philip Yang <Philip.Yang@amd.com>
 
-[ Upstream commit b2fe39c248f3fa4bbb2a20759b4fdd83504190f7 ]
+[ Upstream commit d7eff46c214c036606dd3cd305bd5a128aecfe8c ]
 
-If kobject_init_and_add returns with error, kobject_put() is needed here
-to avoid memory leak, because kobject_init_and_add may return error
-without freeing the memory associated with the kobject it allocated.
+Get process vm root BO ref in case process is exiting and root BO is
+freed, to avoid NULL pointer dereference backtrace:
 
-Link: https://lkml.kernel.org/r/20210629022556.3985106-6-sunnanyong@huawei.com
-Link: https://lkml.kernel.org/r/1625651306-10829-6-git-send-email-konishi.ryusuke@gmail.com
-Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+BUG: unable to handle kernel NULL pointer dereference at
+0000000000000000
+Call Trace:
+amdgpu_show_fdinfo+0xfe/0x2a0 [amdgpu]
+seq_show+0x12c/0x180
+seq_read+0x153/0x410
+vfs_read+0x91/0x140[ 3427.206183]  ksys_read+0x4f/0xb0
+do_syscall_64+0x5b/0x1a0
+entry_SYSCALL_64_after_hwframe+0x65/0xca
+
+Signed-off-by: Philip Yang <Philip.Yang@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/sysfs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fdinfo.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
-index 195f42192a15..6c92ac314b06 100644
---- a/fs/nilfs2/sysfs.c
-+++ b/fs/nilfs2/sysfs.c
-@@ -208,9 +208,9 @@ int nilfs_sysfs_create_snapshot_group(struct nilfs_root *root)
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fdinfo.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fdinfo.c
+index d94c5419ec25..5a6857c44bb6 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fdinfo.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fdinfo.c
+@@ -59,6 +59,7 @@ void amdgpu_show_fdinfo(struct seq_file *m, struct file *f)
+ 	uint64_t vram_mem = 0, gtt_mem = 0, cpu_mem = 0;
+ 	struct drm_file *file = f->private_data;
+ 	struct amdgpu_device *adev = drm_to_adev(file->minor->dev);
++	struct amdgpu_bo *root;
+ 	int ret;
+ 
+ 	ret = amdgpu_file_to_fpriv(f, &fpriv);
+@@ -69,13 +70,19 @@ void amdgpu_show_fdinfo(struct seq_file *m, struct file *f)
+ 	dev = PCI_SLOT(adev->pdev->devfn);
+ 	fn = PCI_FUNC(adev->pdev->devfn);
+ 
+-	ret = amdgpu_bo_reserve(fpriv->vm.root.bo, false);
++	root = amdgpu_bo_ref(fpriv->vm.root.bo);
++	if (!root)
++		return;
++
++	ret = amdgpu_bo_reserve(root, false);
+ 	if (ret) {
+ 		DRM_ERROR("Fail to reserve bo\n");
+ 		return;
  	}
- 
- 	if (err)
--		return err;
-+		kobject_put(&root->snapshot_kobj);
- 
--	return 0;
-+	return err;
- }
- 
- void nilfs_sysfs_delete_snapshot_group(struct nilfs_root *root)
+ 	amdgpu_vm_get_memory(&fpriv->vm, &vram_mem, &gtt_mem, &cpu_mem);
+-	amdgpu_bo_unreserve(fpriv->vm.root.bo);
++	amdgpu_bo_unreserve(root);
++	amdgpu_bo_unref(&root);
++
+ 	seq_printf(m, "pdev:\t%04x:%02x:%02x.%d\npasid:\t%u\n", domain, bus,
+ 			dev, fn, fpriv->vm.pasid);
+ 	seq_printf(m, "vram mem:\t%llu kB\n", vram_mem/1024UL);
 -- 
 2.33.0
 
