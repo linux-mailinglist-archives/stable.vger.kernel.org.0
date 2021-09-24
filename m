@@ -2,73 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64F0A416E9A
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 11:10:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97B1A416EB8
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 11:17:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244811AbhIXJL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 05:11:57 -0400
-Received: from mailgw01.mediatek.com ([60.244.123.138]:51958 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S244764AbhIXJL5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Sep 2021 05:11:57 -0400
-X-UUID: bfe5af9379c04e3b88048a443c2c8f27-20210924
-X-UUID: bfe5af9379c04e3b88048a443c2c8f27-20210924
-Received: from mtkmbs10n1.mediatek.inc [(172.21.101.34)] by mailgw01.mediatek.com
-        (envelope-from <macpaul.lin@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 454771349; Fri, 24 Sep 2021 17:10:21 +0800
-Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.792.3;
- Fri, 24 Sep 2021 17:10:20 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by MTKCAS06.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Fri, 24 Sep 2021 17:10:20 +0800
-From:   Macpaul Lin <macpaul.lin@mediatek.com>
-To:     Petr Oros <poros@redhat.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        "Jose Abreu" <joabreu@synopsys.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        <netdev@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Miles Chen <miles.chen@mediatek.com>,
-        Bear Wang <bear.wang@mediatek.com>,
-        Pablo Sun <pablo.sun@mediatek.com>,
-        Fabien Parent <fparent@baylibre.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>,
-        Macpaul Lin <macpaul@gmail.com>,
-        <linux-mediatek@lists.infradead.org>
-Subject: backport commit ("e96bd2d3b1f8 phy: avoid unnecessary link-up delay in polling mode") to linux-5.4-stable
-Date:   Fri, 24 Sep 2021 17:10:20 +0800
-Message-ID: <20210924091020.32695-1-macpaul.lin@mediatek.com>
-X-Mailer: git-send-email 2.18.0
+        id S244480AbhIXJSh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 05:18:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39100 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S244462AbhIXJSg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 05:18:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55C4660F43;
+        Fri, 24 Sep 2021 09:17:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1632475023;
+        bh=aqNp7+v0/m/n2MaTzbldZvfQGqJjvPmZ6cZ0Xl9+kgc=;
+        h=Subject:To:Cc:From:Date:From;
+        b=A6H1rejXpFLc6xqa6K1tyCKJCBSzcouslpo2+7cqMgLaAprIex1znU0vFJGiQ1Qyc
+         Q+CzVLsuC/bfry9c9s9+luBuOaU7B7+iOlW/bJGL7N8V/KdtzXw2zdOevs8sactXF4
+         PX/fnvboRtMPLNtnPdU/G4YsBQv6/9rDtjgYfhU4=
+Subject: FAILED: patch "[PATCH] scsi: target: Fix sense key for invalid EXTENDED COPY request" failed to apply to 4.19-stable tree
+To:     s.samoylenko@yadro.com, ddiss@suse.de, k.shelekhin@yadro.com,
+        martin.petersen@oracle.com, r.bolshakov@yadro.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 24 Sep 2021 11:17:01 +0200
+Message-ID: <163247502164112@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-MTK:  N
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi reviewers,
 
-I suggest to backport 
-commit "e96bd2d3b1f8 phy: avoid unnecessary link-up delay in polling mode"
-to linux-5.4 stable tree.
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-This patch reports a solution to an incorrect phy link detection issue.
-"With this solution we don't miss a link-down event in polling mode and
-link-up is faster."
+thanks,
 
-commit: e96bd2d3b1f83170d1d5c1a99e439b39a22a5b58
-subject: phy: avoid unnecessary link-up delay in polling mode
-kernel version to apply to: Linux-5.4
+greg k-h
 
-Thanks.
-Macpaul Lin
+------------------ original commit in Linus's tree ------------------
+
+From 0394b5048efd73b04276979d014a67f30c0ad699 Mon Sep 17 00:00:00 2001
+From: Sergey Samoylenko <s.samoylenko@yadro.com>
+Date: Tue, 3 Aug 2021 17:54:10 +0300
+Subject: [PATCH] scsi: target: Fix sense key for invalid EXTENDED COPY request
+
+TCM fails to pass the following tests in libiscsi:
+
+  SCSI.ExtendedCopy.DescrType
+  SCSI.ExtendedCopy.DescrLimits
+  SCSI.ExtendedCopy.ParamHdr
+  SCSI.ExtendedCopy.ValidSegDescr
+  SCSI.ExtendedCopy.ValidTgtDescr
+
+The xcopy code always returns the same NOT READY sense key for all detected
+errors. Change the sense key for invalid requests to ILLEGAL REQUEST, and
+for aborted transfers to COPY ABORTED.
+
+Link: https://lore.kernel.org/r/20210803145410.80147-3-s.samoylenko@yadro.com
+Fixes: d877d7275be3 ("target: Fix a deadlock between the XCOPY code and iSCSI session shutdown")
+Reviewed-by: David Disseldorp <ddiss@suse.de>
+Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Reviewed-by: Konstantin Shelekhin <k.shelekhin@yadro.com>
+Signed-off-by: Sergey Samoylenko <s.samoylenko@yadro.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+
+diff --git a/drivers/target/target_core_xcopy.c b/drivers/target/target_core_xcopy.c
+index 0f1319336f3e..d4fe7cb2bd00 100644
+--- a/drivers/target/target_core_xcopy.c
++++ b/drivers/target/target_core_xcopy.c
+@@ -674,12 +674,16 @@ static void target_xcopy_do_work(struct work_struct *work)
+ 	unsigned int max_sectors;
+ 	int rc = 0;
+ 	unsigned short nolb, max_nolb, copied_nolb = 0;
++	sense_reason_t sense_rc;
+ 
+-	if (target_parse_xcopy_cmd(xop) != TCM_NO_SENSE)
++	sense_rc = target_parse_xcopy_cmd(xop);
++	if (sense_rc != TCM_NO_SENSE)
+ 		goto err_free;
+ 
+-	if (WARN_ON_ONCE(!xop->src_dev) || WARN_ON_ONCE(!xop->dst_dev))
++	if (WARN_ON_ONCE(!xop->src_dev) || WARN_ON_ONCE(!xop->dst_dev)) {
++		sense_rc = TCM_INVALID_PARAMETER_LIST;
+ 		goto err_free;
++	}
+ 
+ 	src_dev = xop->src_dev;
+ 	dst_dev = xop->dst_dev;
+@@ -762,20 +766,20 @@ static void target_xcopy_do_work(struct work_struct *work)
+ 	return;
+ 
+ out:
++	/*
++	 * The XCOPY command was aborted after some data was transferred.
++	 * Terminate command with CHECK CONDITION status, with the sense key
++	 * set to COPY ABORTED.
++	 */
++	sense_rc = TCM_COPY_TARGET_DEVICE_NOT_REACHABLE;
+ 	xcopy_pt_undepend_remotedev(xop);
+ 	target_free_sgl(xop->xop_data_sg, xop->xop_data_nents);
+ 
+ err_free:
+ 	kfree(xop);
+-	/*
+-	 * Don't override an error scsi status if it has already been set
+-	 */
+-	if (ec_cmd->scsi_status == SAM_STAT_GOOD) {
+-		pr_warn_ratelimited("target_xcopy_do_work: rc: %d, Setting X-COPY"
+-			" CHECK_CONDITION -> sending response\n", rc);
+-		ec_cmd->scsi_status = SAM_STAT_CHECK_CONDITION;
+-	}
+-	target_complete_cmd(ec_cmd, ec_cmd->scsi_status);
++	pr_warn_ratelimited("target_xcopy_do_work: rc: %d, sense: %u, XCOPY operation failed\n",
++			   rc, sense_rc);
++	target_complete_cmd_with_sense(ec_cmd, SAM_STAT_CHECK_CONDITION, sense_rc);
+ }
+ 
+ /*
+
