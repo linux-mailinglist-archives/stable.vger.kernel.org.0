@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97B1A416EB8
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 11:17:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0839C416EBB
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 11:17:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244480AbhIXJSh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 05:18:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39100 "EHLO mail.kernel.org"
+        id S244892AbhIXJSp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 05:18:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244462AbhIXJSg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 05:18:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55C4660F43;
-        Fri, 24 Sep 2021 09:17:03 +0000 (UTC)
+        id S244462AbhIXJSp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 05:18:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F133B603E9;
+        Fri, 24 Sep 2021 09:17:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632475023;
-        bh=aqNp7+v0/m/n2MaTzbldZvfQGqJjvPmZ6cZ0Xl9+kgc=;
+        s=korg; t=1632475032;
+        bh=tZiFwcLLALcy0Z5F5rf2ZIML52CggYnTAR9MhKqEguk=;
         h=Subject:To:Cc:From:Date:From;
-        b=A6H1rejXpFLc6xqa6K1tyCKJCBSzcouslpo2+7cqMgLaAprIex1znU0vFJGiQ1Qyc
-         Q+CzVLsuC/bfry9c9s9+luBuOaU7B7+iOlW/bJGL7N8V/KdtzXw2zdOevs8sactXF4
-         PX/fnvboRtMPLNtnPdU/G4YsBQv6/9rDtjgYfhU4=
-Subject: FAILED: patch "[PATCH] scsi: target: Fix sense key for invalid EXTENDED COPY request" failed to apply to 4.19-stable tree
+        b=2hSblBwlo28piTUHot8Z2DsvwdJU9NTBMzXHT2zk9AmKTD4nNpANbaMB3eK9UCsIe
+         RL9RqzC5J1QaKxAqBUgihGpI0f0+jKrpvnN7kHMRuSJlxGU5OudLhnYH1GVUlBJRib
+         MHCs61yfflIJT5Lj5FcEEM16N4717Fwg9ScjNuCA=
+Subject: FAILED: patch "[PATCH] scsi: target: Fix sense key for invalid EXTENDED COPY request" failed to apply to 4.14-stable tree
 To:     s.samoylenko@yadro.com, ddiss@suse.de, k.shelekhin@yadro.com,
         martin.petersen@oracle.com, r.bolshakov@yadro.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 24 Sep 2021 11:17:01 +0200
-Message-ID: <163247502164112@kroah.com>
+Date:   Fri, 24 Sep 2021 11:17:02 +0200
+Message-ID: <1632475022145100@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
