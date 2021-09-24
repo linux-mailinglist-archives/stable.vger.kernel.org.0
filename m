@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EAA3417488
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB74B41730F
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:52:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346538AbhIXNHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:07:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36618 "EHLO mail.kernel.org"
+        id S1343965AbhIXMxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:53:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345394AbhIXNFG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:05:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E1C861351;
-        Fri, 24 Sep 2021 12:55:50 +0000 (UTC)
+        id S1344586AbhIXMwU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:52:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A81D610CF;
+        Fri, 24 Sep 2021 12:49:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488150;
-        bh=M1R63G4M69kFpgbpHDE7Nj4esQjUBQ+NSiD+WIqraP4=;
+        s=korg; t=1632487770;
+        bh=lrw5VuysEtvhvv3KIILgqW21209M0KZA9cRbMYnP3Lg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TZt35eej+EvIgn7MOV3nSrHkERl0gYnGmI3cC/KuL1ZcjG45zfKcKze4jEePX4eCO
-         1Dx5JIJ8oqK0sIS1xBVloL0p+w7lBkeXqjCZprb/jObrj45MowVKhlvqRrU50wYTDt
-         p9AbGiRXcXo5ne7mPCHO0TOmkDYW5sXuBnOapEXc=
+        b=bo/9YrlNByAomp+GaQOdTfjdg7i7z9HmXA2xW1YovJVDUELteI+QzgpPBIzozRIoA
+         qLXw8jOaV8U1KZAXl+LnlQqsZCtgDV+w/EXPR3Zvw/WpRRCpw1QIGgV3XT7yjwrdCe
+         6bLwdEr7EL7MrMorsiSmgJahc+f9y/Xxs7uwFzrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nanyong Sun <sunnanyong@huawei.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 074/100] nilfs2: fix memory leak in nilfs_sysfs_create_##name##_group
-Date:   Fri, 24 Sep 2021 14:44:23 +0200
-Message-Id: <20210924124343.921590109@linuxfoundation.org>
+Subject: [PATCH 4.19 30/34] pwm: img: Dont modify HW state in .remove() callback
+Date:   Fri, 24 Sep 2021 14:44:24 +0200
+Message-Id: <20210924124330.952649700@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
-References: <20210924124341.214446495@linuxfoundation.org>
+In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
+References: <20210924124329.965218583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nanyong Sun <sunnanyong@huawei.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 24f8cb1ed057c840728167dab33b32e44147c86f ]
+[ Upstream commit c68eb29c8e9067c08175dd0414f6984f236f719d ]
 
-If kobject_init_and_add return with error, kobject_put() is needed here to
-avoid memory leak, because kobject_init_and_add may return error without
-freeing the memory associated with the kobject it allocated.
+A consumer is expected to disable a PWM before calling pwm_put(). And if
+they didn't there is hopefully a good reason (or the consumer needs
+fixing). Also if disabling an enabled PWM was the right thing to do,
+this should better be done in the framework instead of in each low level
+driver.
 
-Link: https://lkml.kernel.org/r/20210629022556.3985106-4-sunnanyong@huawei.com
-Link: https://lkml.kernel.org/r/1625651306-10829-4-git-send-email-konishi.ryusuke@gmail.com
-Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/sysfs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pwm/pwm-img.c | 16 ----------------
+ 1 file changed, 16 deletions(-)
 
-diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
-index ec85ac53720d..6305e4ef7e39 100644
---- a/fs/nilfs2/sysfs.c
-+++ b/fs/nilfs2/sysfs.c
-@@ -79,8 +79,8 @@ static int nilfs_sysfs_create_##name##_group(struct the_nilfs *nilfs) \
- 	err = kobject_init_and_add(kobj, &nilfs_##name##_ktype, parent, \
- 				    #name); \
- 	if (err) \
--		return err; \
--	return 0; \
-+		kobject_put(kobj); \
-+	return err; \
- } \
- static void nilfs_sysfs_delete_##name##_group(struct the_nilfs *nilfs) \
- { \
+diff --git a/drivers/pwm/pwm-img.c b/drivers/pwm/pwm-img.c
+index 3b0a097ce2ab..6111e8848b07 100644
+--- a/drivers/pwm/pwm-img.c
++++ b/drivers/pwm/pwm-img.c
+@@ -332,23 +332,7 @@ err_pm_disable:
+ static int img_pwm_remove(struct platform_device *pdev)
+ {
+ 	struct img_pwm_chip *pwm_chip = platform_get_drvdata(pdev);
+-	u32 val;
+-	unsigned int i;
+-	int ret;
+-
+-	ret = pm_runtime_get_sync(&pdev->dev);
+-	if (ret < 0) {
+-		pm_runtime_put(&pdev->dev);
+-		return ret;
+-	}
+-
+-	for (i = 0; i < pwm_chip->chip.npwm; i++) {
+-		val = img_pwm_readl(pwm_chip, PWM_CTRL_CFG);
+-		val &= ~BIT(i);
+-		img_pwm_writel(pwm_chip, PWM_CTRL_CFG, val);
+-	}
+ 
+-	pm_runtime_put(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 	if (!pm_runtime_status_suspended(&pdev->dev))
+ 		img_pwm_runtime_suspend(&pdev->dev);
 -- 
 2.33.0
 
