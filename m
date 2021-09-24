@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9E8D4172A2
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:50:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52E2A4172DA
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344259AbhIXMuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:50:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43882 "EHLO mail.kernel.org"
+        id S1344712AbhIXMvz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:51:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344260AbhIXMsq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:48:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B1E061242;
-        Fri, 24 Sep 2021 12:47:13 +0000 (UTC)
+        id S1344566AbhIXMu3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:50:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A3546128A;
+        Fri, 24 Sep 2021 12:48:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487633;
-        bh=30IJfO6+UIZhILYz2IQY3jWueeAoFeeQXNBJwfTQe5o=;
+        s=korg; t=1632487705;
+        bh=VD6fSfNA7spBicbIVz8xxrBQDuTPphwK3kHX3ZUXDcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=muXf2lhLWJ+rT5mfun13/Lt1R+mvnTkHkrvcuK2ees8ffKcY0UEmotsrbiv9hPQC4
-         KhpFeaq5DWligHwMaMbgPpk5wignVlWlMqxjG1EQw8zS1dbjjisyVIRHurvMwPQrMQ
-         8sctwQ+Apwr9mUZbhijk4PsSC2DlgBL80jlVCjRs=
+        b=jUzSTd5tVwIJQr6SA40ggWzT5u7ZRy9WdCoPBmp4NoL6oSWQFO5MDc5u/Rclcaxvj
+         j8ELj6QhOaTUn2a3I3nD0kY7PGZ3+4bDYI+HnYC4uTrc2h2KyKY/br9OtrO5shUr9Y
+         WYjeFzK8TKuyREq6R8ABBR4RZNthu5gp/iztYcio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 16/27] dmaengine: ioat: depends on !UML
+        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>
+Subject: [PATCH 4.19 16/34] pwm: mxs: Dont modify HW state in .probe() after the PWM chip was registered
 Date:   Fri, 24 Sep 2021 14:44:10 +0200
-Message-Id: <20210924124329.715858395@linuxfoundation.org>
+Message-Id: <20210924124330.492622344@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124329.173674820@linuxfoundation.org>
-References: <20210924124329.173674820@linuxfoundation.org>
+In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
+References: <20210924124329.965218583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit bbac7a92a46f0876e588722ebe552ddfe6fd790f ]
+commit 020162d6f49f2963062229814a56a89c86cbeaa8 upstream.
 
-Now that UML has PCI support, this driver must depend also on
-!UML since it pokes at X86_64 architecture internals that don't
-exist on ARCH=um.
+This fixes a race condition: After pwmchip_add() is called there might
+already be a consumer and then modifying the hardware behind the
+consumer's back is bad. So reset before calling pwmchip_add().
 
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Acked-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/20210809112409.a3a0974874d2.I2ffe3d11ed37f735da2f39884a74c953b258b995@changeid
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note that reseting the hardware isn't the right thing to do if the PWM
+is already running as it might e.g. disable (or even enable) a backlight
+that is supposed to be on (or off).
+
+Fixes: 4dce82c1e840 ("pwm: add pwm-mxs support")
+Cc: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pwm/pwm-mxs.c |   13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/dma/Kconfig b/drivers/dma/Kconfig
-index ff69feefc1c6..5ea37d133f24 100644
---- a/drivers/dma/Kconfig
-+++ b/drivers/dma/Kconfig
-@@ -262,7 +262,7 @@ config INTEL_IDMA64
+--- a/drivers/pwm/pwm-mxs.c
++++ b/drivers/pwm/pwm-mxs.c
+@@ -152,6 +152,11 @@ static int mxs_pwm_probe(struct platform
+ 		return ret;
+ 	}
  
- config INTEL_IOATDMA
- 	tristate "Intel I/OAT DMA support"
--	depends on PCI && X86_64
-+	depends on PCI && X86_64 && !UML
- 	select DMA_ENGINE
- 	select DMA_ENGINE_RAID
- 	select DCA
--- 
-2.33.0
-
++	/* FIXME: Only do this if the PWM isn't already running */
++	ret = stmp_reset_block(mxs->base);
++	if (ret)
++		return dev_err_probe(&pdev->dev, ret, "failed to reset PWM\n");
++
+ 	ret = pwmchip_add(&mxs->chip);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to add pwm chip %d\n", ret);
+@@ -160,15 +165,7 @@ static int mxs_pwm_probe(struct platform
+ 
+ 	platform_set_drvdata(pdev, mxs);
+ 
+-	ret = stmp_reset_block(mxs->base);
+-	if (ret)
+-		goto pwm_remove;
+-
+ 	return 0;
+-
+-pwm_remove:
+-	pwmchip_remove(&mxs->chip);
+-	return ret;
+ }
+ 
+ static int mxs_pwm_remove(struct platform_device *pdev)
 
 
