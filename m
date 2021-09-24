@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D36604174A3
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A83A3417306
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:52:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345455AbhIXNIn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:08:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37990 "EHLO mail.kernel.org"
+        id S1344937AbhIXMxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:53:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346471AbhIXNGx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:06:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C5786137E;
-        Fri, 24 Sep 2021 12:56:28 +0000 (UTC)
+        id S1344557AbhIXMvy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:51:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C4E86124D;
+        Fri, 24 Sep 2021 12:49:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488189;
-        bh=aEpPoO4xr58C0zDlTmsnK/zzzAOmFJ8YN4chsWJa2bQ=;
+        s=korg; t=1632487757;
+        bh=vvMHbaGr6fiwNtWWcVDXG+eal44ko7TI9VqLB8pA98g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G9ZpNfLdGa92XGc3QXtJJsK8QBXWvtAxjtJtZHtI80PN1huuv8kXE2V9D/clgZQLQ
-         DSRq1DA64CaKi9sI1g6Ym5l1XqlNcOvxF066rY6kejzy7WQMq8Nr9VUqlsIlpzxKGg
-         aHmrzLB582ebZSqZ/mEjU5n3Z6OM18FnHvBSGoq8=
+        b=AhWVyojIhv8EiDli/gICqQynXdlCDXEaOjQ9diPFzA+HoVHgwtpNP740vNgx6tEa9
+         ji2y2E1xUq1zBhsL5TzYjHXtkVEQeTH2K6fQiacbmKWSffjrqKNFjt/Rg5aXEuVNUU
+         JeJabiWkyO+ySbzfsFohwEXbKiL419d6dgh3tnq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [PATCH 5.10 19/63] thermal/drivers/exynos: Fix an error code in exynos_tmu_probe()
+        stable@vger.kernel.org, Nanyong Sun <sunnanyong@huawei.com>,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 25/34] nilfs2: fix NULL pointer in nilfs_##name##_attr_release
 Date:   Fri, 24 Sep 2021 14:44:19 +0200
-Message-Id: <20210924124334.913198435@linuxfoundation.org>
+Message-Id: <20210924124330.783018296@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
-References: <20210924124334.228235870@linuxfoundation.org>
+In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
+References: <20210924124329.965218583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,32 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Nanyong Sun <sunnanyong@huawei.com>
 
-commit 02d438f62c05f0d055ceeedf12a2f8796b258c08 upstream.
+[ Upstream commit dbc6e7d44a514f231a64d9d5676e001b660b6448 ]
 
-This error path return success but it should propagate the negative
-error code from devm_clk_get().
+In nilfs_##name##_attr_release, kobj->parent should not be referenced
+because it is a NULL pointer.  The release() method of kobject is always
+called in kobject_put(kobj), in the implementation of kobject_put(), the
+kobj->parent will be assigned as NULL before call the release() method.
+So just use kobj to get the subgroups, which is more efficient and can fix
+a NULL pointer reference problem.
 
-Fixes: 6c247393cfdd ("thermal: exynos: Add TMU support for Exynos7 SoC")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210810084413.GA23810@kili
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20210629022556.3985106-3-sunnanyong@huawei.com
+Link: https://lkml.kernel.org/r/1625651306-10829-3-git-send-email-konishi.ryusuke@gmail.com
+Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/samsung/exynos_tmu.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/nilfs2/sysfs.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/drivers/thermal/samsung/exynos_tmu.c
-+++ b/drivers/thermal/samsung/exynos_tmu.c
-@@ -1073,6 +1073,7 @@ static int exynos_tmu_probe(struct platf
- 		data->sclk = devm_clk_get(&pdev->dev, "tmu_sclk");
- 		if (IS_ERR(data->sclk)) {
- 			dev_err(&pdev->dev, "Failed to get sclk\n");
-+			ret = PTR_ERR(data->sclk);
- 			goto err_clk;
- 		} else {
- 			ret = clk_prepare_enable(data->sclk);
+diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
+index cbfc132206e8..ca720d958315 100644
+--- a/fs/nilfs2/sysfs.c
++++ b/fs/nilfs2/sysfs.c
+@@ -64,11 +64,9 @@ static const struct sysfs_ops nilfs_##name##_attr_ops = { \
+ #define NILFS_DEV_INT_GROUP_TYPE(name, parent_name) \
+ static void nilfs_##name##_attr_release(struct kobject *kobj) \
+ { \
+-	struct nilfs_sysfs_##parent_name##_subgroups *subgroups; \
+-	struct the_nilfs *nilfs = container_of(kobj->parent, \
+-						struct the_nilfs, \
+-						ns_##parent_name##_kobj); \
+-	subgroups = nilfs->ns_##parent_name##_subgroups; \
++	struct nilfs_sysfs_##parent_name##_subgroups *subgroups = container_of(kobj, \
++						struct nilfs_sysfs_##parent_name##_subgroups, \
++						sg_##name##_kobj); \
+ 	complete(&subgroups->sg_##name##_kobj_unregister); \
+ } \
+ static struct kobj_type nilfs_##name##_ktype = { \
+-- 
+2.33.0
+
 
 
