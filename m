@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E065D4174B7
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:09:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A75E14174B9
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:09:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345827AbhIXNKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:10:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37276 "EHLO mail.kernel.org"
+        id S1345888AbhIXNKB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:10:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346698AbhIXNHy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346705AbhIXNHy (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 24 Sep 2021 09:07:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E3FBA60EE7;
-        Fri, 24 Sep 2021 12:56:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A992A6138D;
+        Fri, 24 Sep 2021 12:56:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488213;
-        bh=QiuKuW73Wh8feZh+0sz1O5hDzl5n8fQfeSkHMrFLOUM=;
+        s=korg; t=1632488216;
+        bh=q5hqOymr05/raBBH3Mx9NsL9SzHNfEeKrfQU33vXWDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=McxPPWeFbAVJopGwkO1aQasZ6ZSfLCSdbcmYgnZzPaopZpVETqntWDc/87UIxt6Wv
-         Py5LjkPGeouB1U8/GmIg5KMdm4EjboW5x9pJCKeiijo+1mC/pEMGKmfqnC2HA8F0Xg
-         J/SyRy6sH8NpdX9VZdU0OliGGq1nrsnqJHP1ogI4=
+        b=YvY4MuIsQ+z/gMKQD8FbB0I+HyMR5QNYrDPkLFAIalwclEdzEQbuts8Da4uc5waSo
+         qFEG6ALUk1Z5fQl9mJsfbICf83an2jNtd6LfVU8C7wnHUL4teI3pHPFhn5W1wZww5K
+         fGd51oVryOK5OPacrDn0yP9sOpGHC/Dq0zI74i80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 27/63] dmaengine: idxd: fix wq slot allocation index check
-Date:   Fri, 24 Sep 2021 14:44:27 +0200
-Message-Id: <20210924124335.194549760@linuxfoundation.org>
+        stable@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 28/63] platform/chrome: sensorhub: Add trace events for sample
+Date:   Fri, 24 Sep 2021 14:44:28 +0200
+Message-Id: <20210924124335.234451931@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
 References: <20210924124334.228235870@linuxfoundation.org>
@@ -39,36 +40,206 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Gwendal Grignou <gwendal@chromium.org>
 
-[ Upstream commit 673d812d30be67942762bb9e8548abb26a3ba4a7 ]
+[ Upstream commit d453ceb6549af8798913de6a20444cb7200fdb69 ]
 
-The sbitmap wait and allocate routine checks the index that is returned
-from sbitmap_queue_get(). It should be idxd >= 0 as 0 is also a valid
-index. This fixes issue where submission path hangs when WQ size is 1.
+Add trace event to report samples and their timestamp coming from the
+EC. It allows to check if the timestamps are correct and the filter is
+working correctly without introducing too much latency.
 
-Fixes: 0705107fcc80 ("dmaengine: idxd: move submission to sbitmap_queue")
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/162697645067.3478714.506720687816951762.stgit@djiang5-desk3.ch.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+To enable these events:
+
+cd /sys/kernel/debug/tracing/
+echo 1 > events/cros_ec/enable
+echo 0 > events/cros_ec/cros_ec_request_start/enable
+echo 0 > events/cros_ec/cros_ec_request_done/enable
+echo 1 > tracing_on
+cat trace_pipe
+Observe event flowing:
+irq/105-chromeo-95      [000] ....   613.659758: cros_ec_sensorhub_timestamp: ...
+irq/105-chromeo-95      [000] ....   613.665219: cros_ec_sensorhub_filter: dx: ...
+
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/submit.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/chrome/Makefile              |  2 +-
+ .../platform/chrome/cros_ec_sensorhub_ring.c  | 14 +++
+ drivers/platform/chrome/cros_ec_trace.h       | 94 +++++++++++++++++++
+ 3 files changed, 109 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/idxd/submit.c b/drivers/dma/idxd/submit.c
-index 417048e3c42a..0368c5490788 100644
---- a/drivers/dma/idxd/submit.c
-+++ b/drivers/dma/idxd/submit.c
-@@ -45,7 +45,7 @@ struct idxd_desc *idxd_alloc_desc(struct idxd_wq *wq, enum idxd_op_type optype)
- 		if (signal_pending_state(TASK_INTERRUPTIBLE, current))
- 			break;
- 		idx = sbitmap_queue_get(sbq, &cpu);
--		if (idx > 0)
-+		if (idx >= 0)
- 			break;
- 		schedule();
+diff --git a/drivers/platform/chrome/Makefile b/drivers/platform/chrome/Makefile
+index 41baccba033f..f901d2e43166 100644
+--- a/drivers/platform/chrome/Makefile
++++ b/drivers/platform/chrome/Makefile
+@@ -20,7 +20,7 @@ obj-$(CONFIG_CROS_EC_CHARDEV)		+= cros_ec_chardev.o
+ obj-$(CONFIG_CROS_EC_LIGHTBAR)		+= cros_ec_lightbar.o
+ obj-$(CONFIG_CROS_EC_VBC)		+= cros_ec_vbc.o
+ obj-$(CONFIG_CROS_EC_DEBUGFS)		+= cros_ec_debugfs.o
+-cros-ec-sensorhub-objs			:= cros_ec_sensorhub.o cros_ec_sensorhub_ring.o
++cros-ec-sensorhub-objs			:= cros_ec_sensorhub.o cros_ec_sensorhub_ring.o cros_ec_trace.o
+ obj-$(CONFIG_CROS_EC_SENSORHUB)		+= cros-ec-sensorhub.o
+ obj-$(CONFIG_CROS_EC_SYSFS)		+= cros_ec_sysfs.o
+ obj-$(CONFIG_CROS_USBPD_LOGGER)		+= cros_usbpd_logger.o
+diff --git a/drivers/platform/chrome/cros_ec_sensorhub_ring.c b/drivers/platform/chrome/cros_ec_sensorhub_ring.c
+index 8921f24e83ba..98e37080f760 100644
+--- a/drivers/platform/chrome/cros_ec_sensorhub_ring.c
++++ b/drivers/platform/chrome/cros_ec_sensorhub_ring.c
+@@ -17,6 +17,8 @@
+ #include <linux/sort.h>
+ #include <linux/slab.h>
+ 
++#include "cros_ec_trace.h"
++
+ /* Precision of fixed point for the m values from the filter */
+ #define M_PRECISION BIT(23)
+ 
+@@ -291,6 +293,7 @@ cros_ec_sensor_ring_ts_filter_update(struct cros_ec_sensors_ts_filter_state
+ 		state->median_m = 0;
+ 		state->median_error = 0;
  	}
++	trace_cros_ec_sensorhub_filter(state, dx, dy);
+ }
+ 
+ /**
+@@ -427,6 +430,11 @@ cros_ec_sensor_ring_process_event(struct cros_ec_sensorhub *sensorhub,
+ 			if (new_timestamp - *current_timestamp > 0)
+ 				*current_timestamp = new_timestamp;
+ 		}
++		trace_cros_ec_sensorhub_timestamp(in->timestamp,
++						  fifo_info->timestamp,
++						  fifo_timestamp,
++						  *current_timestamp,
++						  now);
+ 	}
+ 
+ 	if (in->flags & MOTIONSENSE_SENSOR_FLAG_ODR) {
+@@ -460,6 +468,12 @@ cros_ec_sensor_ring_process_event(struct cros_ec_sensorhub *sensorhub,
+ 
+ 	/* Regular sample */
+ 	out->sensor_id = in->sensor_num;
++	trace_cros_ec_sensorhub_data(in->sensor_num,
++				     fifo_info->timestamp,
++				     fifo_timestamp,
++				     *current_timestamp,
++				     now);
++
+ 	if (*current_timestamp - now > 0) {
+ 		/*
+ 		 * This fix is needed to overcome the timestamp filter putting
+diff --git a/drivers/platform/chrome/cros_ec_trace.h b/drivers/platform/chrome/cros_ec_trace.h
+index f744b21bc655..f50b9f9b8610 100644
+--- a/drivers/platform/chrome/cros_ec_trace.h
++++ b/drivers/platform/chrome/cros_ec_trace.h
+@@ -15,6 +15,7 @@
+ #include <linux/types.h>
+ #include <linux/platform_data/cros_ec_commands.h>
+ #include <linux/platform_data/cros_ec_proto.h>
++#include <linux/platform_data/cros_ec_sensorhub.h>
+ 
+ #include <linux/tracepoint.h>
+ 
+@@ -70,6 +71,99 @@ TRACE_EVENT(cros_ec_request_done,
+ 		  __entry->retval)
+ );
+ 
++TRACE_EVENT(cros_ec_sensorhub_timestamp,
++	    TP_PROTO(u32 ec_sample_timestamp, u32 ec_fifo_timestamp, s64 fifo_timestamp,
++		     s64 current_timestamp, s64 current_time),
++	TP_ARGS(ec_sample_timestamp, ec_fifo_timestamp, fifo_timestamp, current_timestamp,
++		current_time),
++	TP_STRUCT__entry(
++		__field(u32, ec_sample_timestamp)
++		__field(u32, ec_fifo_timestamp)
++		__field(s64, fifo_timestamp)
++		__field(s64, current_timestamp)
++		__field(s64, current_time)
++		__field(s64, delta)
++	),
++	TP_fast_assign(
++		__entry->ec_sample_timestamp = ec_sample_timestamp;
++		__entry->ec_fifo_timestamp = ec_fifo_timestamp;
++		__entry->fifo_timestamp = fifo_timestamp;
++		__entry->current_timestamp = current_timestamp;
++		__entry->current_time = current_time;
++		__entry->delta = current_timestamp - current_time;
++	),
++	TP_printk("ec_ts: %12lld, ec_fifo_ts: %12lld, fifo_ts: %12lld, curr_ts: %12lld, curr_time: %12lld, delta %12lld",
++		  __entry->ec_sample_timestamp,
++		__entry->ec_fifo_timestamp,
++		__entry->fifo_timestamp,
++		__entry->current_timestamp,
++		__entry->current_time,
++		__entry->delta
++	)
++);
++
++TRACE_EVENT(cros_ec_sensorhub_data,
++	    TP_PROTO(u32 ec_sensor_num, u32 ec_fifo_timestamp, s64 fifo_timestamp,
++		     s64 current_timestamp, s64 current_time),
++	TP_ARGS(ec_sensor_num, ec_fifo_timestamp, fifo_timestamp, current_timestamp, current_time),
++	TP_STRUCT__entry(
++		__field(u32, ec_sensor_num)
++		__field(u32, ec_fifo_timestamp)
++		__field(s64, fifo_timestamp)
++		__field(s64, current_timestamp)
++		__field(s64, current_time)
++		__field(s64, delta)
++	),
++	TP_fast_assign(
++		__entry->ec_sensor_num = ec_sensor_num;
++		__entry->ec_fifo_timestamp = ec_fifo_timestamp;
++		__entry->fifo_timestamp = fifo_timestamp;
++		__entry->current_timestamp = current_timestamp;
++		__entry->current_time = current_time;
++		__entry->delta = current_timestamp - current_time;
++	),
++	TP_printk("ec_num: %4d, ec_fifo_ts: %12lld, fifo_ts: %12lld, curr_ts: %12lld, curr_time: %12lld, delta %12lld",
++		  __entry->ec_sensor_num,
++		__entry->ec_fifo_timestamp,
++		__entry->fifo_timestamp,
++		__entry->current_timestamp,
++		__entry->current_time,
++		__entry->delta
++	)
++);
++
++TRACE_EVENT(cros_ec_sensorhub_filter,
++	    TP_PROTO(struct cros_ec_sensors_ts_filter_state *state, s64 dx, s64 dy),
++	TP_ARGS(state, dx, dy),
++	TP_STRUCT__entry(
++		__field(s64, dx)
++		__field(s64, dy)
++		__field(s64, median_m)
++		__field(s64, median_error)
++		__field(s64, history_len)
++		__field(s64, x)
++		__field(s64, y)
++	),
++	TP_fast_assign(
++		__entry->dx = dx;
++		__entry->dy = dy;
++		__entry->median_m = state->median_m;
++		__entry->median_error = state->median_error;
++		__entry->history_len = state->history_len;
++		__entry->x = state->x_offset;
++		__entry->y = state->y_offset;
++	),
++	TP_printk("dx: %12lld. dy: %12lld median_m: %12lld median_error: %12lld len: %d x: %12lld y: %12lld",
++		  __entry->dx,
++		__entry->dy,
++		__entry->median_m,
++		__entry->median_error,
++		__entry->history_len,
++		__entry->x,
++		__entry->y
++	)
++);
++
+ 
+ #endif /* _CROS_EC_TRACE_H_ */
+ 
 -- 
 2.33.0
 
