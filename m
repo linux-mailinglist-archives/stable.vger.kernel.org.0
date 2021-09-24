@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3568B4174F1
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:12:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EECB9417483
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346826AbhIXNL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:11:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37286 "EHLO mail.kernel.org"
+        id S1345430AbhIXNHC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:07:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344878AbhIXNJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:09:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B12F5613A4;
-        Fri, 24 Sep 2021 12:57:48 +0000 (UTC)
+        id S1345018AbhIXNFB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:05:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C009661107;
+        Fri, 24 Sep 2021 12:55:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488269;
-        bh=zcLVKtHfl+HNekCVI7FoiBZzy7epYedJzAoamNzdPQU=;
+        s=korg; t=1632488143;
+        bh=ckDzZx/F0M8XMpGOU1duiUOy/wn6eUR0XqvN7lA37a4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mGkimOrBHMo5MwNQ8djciJ4JcVGtGm1wsqkTfyyuIgIZ2uR436JLFDJ90vIyp+bOo
-         QfHQjhpXSuEstFStSl1yiupwEXKaCP9jqA9N6Gj7kaa7kyYoAPRDsDmgziE+CFeTUG
-         KND7Vsl90mLNQWgwFSr0wwJpHmBfFennJKjSa18A=
+        b=Z46xfuN1gDqg0koTjLAZsYmGXX8+EYOUY7j0YmGkaiCQlOhgH+N8c5zAWEHfC+Ppf
+         zviajPmckQzImPNhxBAHJZNz9+j+4gGZdL1EIPxdcR3iao/15huev+cfU32sWMonyS
+         EIjya8eh5FtroS/Dm6Ier4kfCNbxHqAPXxEx91Xg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Nanyong Sun <sunnanyong@huawei.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 49/63] nilfs2: fix memory leak in nilfs_sysfs_create_device_group
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.14 100/100] drm/nouveau/nvkm: Replace -ENOSYS with -ENODEV
 Date:   Fri, 24 Sep 2021 14:44:49 +0200
-Message-Id: <20210924124335.960305360@linuxfoundation.org>
+Message-Id: <20210924124344.847773688@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
-References: <20210924124334.228235870@linuxfoundation.org>
+In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
+References: <20210924124341.214446495@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,97 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nanyong Sun <sunnanyong@huawei.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 5f5dec07aca7067216ed4c1342e464e7307a9197 ]
+commit e8f71f89236ef82d449991bfbc237e3cb6ea584f upstream.
 
-Patch series "nilfs2: fix incorrect usage of kobject".
+nvkm test builds fail with the following error.
 
-This patchset from Nanyong Sun fixes memory leak issues and a NULL
-pointer dereference issue caused by incorrect usage of kboject in nilfs2
-sysfs implementation.
+  drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c: In function 'nvkm_control_mthd_pstate_info':
+  drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c:60:35: error: overflow in conversion from 'int' to '__s8' {aka 'signed char'} changes value from '-251' to '5'
 
-This patch (of 6):
+The code builds on most architectures, but fails on parisc where ENOSYS
+is defined as 251.
 
-Reported by syzkaller:
+Replace the error code with -ENODEV (-19).  The actual error code does
+not really matter and is not passed to userspace - it just has to be
+negative.
 
-  BUG: memory leak
-  unreferenced object 0xffff888100ca8988 (size 8):
-  comm "syz-executor.1", pid 1930, jiffies 4294745569 (age 18.052s)
-  hex dump (first 8 bytes):
-  6c 6f 6f 70 31 00 ff ff loop1...
-  backtrace:
-    kstrdup+0x36/0x70 mm/util.c:60
-    kstrdup_const+0x35/0x60 mm/util.c:83
-    kvasprintf_const+0xf1/0x180 lib/kasprintf.c:48
-    kobject_set_name_vargs+0x56/0x150 lib/kobject.c:289
-    kobject_add_varg lib/kobject.c:384 [inline]
-    kobject_init_and_add+0xc9/0x150 lib/kobject.c:473
-    nilfs_sysfs_create_device_group+0x150/0x7d0 fs/nilfs2/sysfs.c:986
-    init_nilfs+0xa21/0xea0 fs/nilfs2/the_nilfs.c:637
-    nilfs_fill_super fs/nilfs2/super.c:1046 [inline]
-    nilfs_mount+0x7b4/0xe80 fs/nilfs2/super.c:1316
-    legacy_get_tree+0x105/0x210 fs/fs_context.c:592
-    vfs_get_tree+0x8e/0x2d0 fs/super.c:1498
-    do_new_mount fs/namespace.c:2905 [inline]
-    path_mount+0xf9b/0x1990 fs/namespace.c:3235
-    do_mount+0xea/0x100 fs/namespace.c:3248
-    __do_sys_mount fs/namespace.c:3456 [inline]
-    __se_sys_mount fs/namespace.c:3433 [inline]
-    __x64_sys_mount+0x14b/0x1f0 fs/namespace.c:3433
-    do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    do_syscall_64+0x3b/0x90 arch/x86/entry/common.c:80
-    entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-If kobject_init_and_add return with error, then the cleanup of kobject
-is needed because memory may be allocated in kobject_init_and_add
-without freeing.
-
-And the place of cleanup_dev_kobject should use kobject_put to free the
-memory associated with the kobject.  As the section "Kobject removal" of
-"Documentation/core-api/kobject.rst" says, kobject_del() just makes the
-kobject "invisible", but it is not cleaned up.  And no more cleanup will
-do after cleanup_dev_kobject, so kobject_put is needed here.
-
-Link: https://lkml.kernel.org/r/1625651306-10829-1-git-send-email-konishi.ryusuke@gmail.com
-Link: https://lkml.kernel.org/r/1625651306-10829-2-git-send-email-konishi.ryusuke@gmail.com
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Link: https://lkml.kernel.org/r/20210629022556.3985106-2-sunnanyong@huawei.com
-Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 7238eca4cf18 ("drm/nouveau: expose pstate selection per-power source in sysfs")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/sysfs.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
-index 9c6c0e2e5880..b6a48492fed2 100644
---- a/fs/nilfs2/sysfs.c
-+++ b/fs/nilfs2/sysfs.c
-@@ -999,7 +999,7 @@ int nilfs_sysfs_create_device_group(struct super_block *sb)
- 	err = kobject_init_and_add(&nilfs->ns_dev_kobj, &nilfs_dev_ktype, NULL,
- 				    "%s", sb->s_id);
- 	if (err)
--		goto free_dev_subgroups;
-+		goto cleanup_dev_kobject;
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c
+@@ -57,7 +57,7 @@ nvkm_control_mthd_pstate_info(struct nvk
+ 		args->v0.count = 0;
+ 		args->v0.ustate_ac = NVIF_CONTROL_PSTATE_INFO_V0_USTATE_DISABLE;
+ 		args->v0.ustate_dc = NVIF_CONTROL_PSTATE_INFO_V0_USTATE_DISABLE;
+-		args->v0.pwrsrc = -ENOSYS;
++		args->v0.pwrsrc = -ENODEV;
+ 		args->v0.pstate = NVIF_CONTROL_PSTATE_INFO_V0_PSTATE_UNKNOWN;
+ 	}
  
- 	err = nilfs_sysfs_create_mounted_snapshots_group(nilfs);
- 	if (err)
-@@ -1036,9 +1036,7 @@ delete_mounted_snapshots_group:
- 	nilfs_sysfs_delete_mounted_snapshots_group(nilfs);
- 
- cleanup_dev_kobject:
--	kobject_del(&nilfs->ns_dev_kobj);
--
--free_dev_subgroups:
-+	kobject_put(&nilfs->ns_dev_kobj);
- 	kfree(nilfs->ns_dev_subgroups);
- 
- failed_create_device_group:
--- 
-2.33.0
-
 
 
