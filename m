@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1E8841726D
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:48:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DB3541724F
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:48:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343590AbhIXMsa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:48:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43512 "EHLO mail.kernel.org"
+        id S1343857AbhIXMrd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:47:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343965AbhIXMrm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:47:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 334D96127A;
-        Fri, 24 Sep 2021 12:46:09 +0000 (UTC)
+        id S1343685AbhIXMqk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:46:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B82D61353;
+        Fri, 24 Sep 2021 12:45:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487569;
-        bh=Z6Ujq7sp7GYLn+d4h4DJCUe2L/oGXECweW/7zKdY00I=;
+        s=korg; t=1632487507;
+        bh=k1YL3iUxc0S3dwTVwjX8vuxWYUoQ/EzsFAdD2A2VUZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gakaw+47G1xRY9OR7ahPbNmkXeHaS4+qibx8ZEE4wSOzuWxhi1DXDcgQGFd/lwPQv
-         1SPekauPhOlwb+/jivIuDv5xcs16J6EBt0ZoI0qHJLUTODrR1pGsRnf7opcDdJojG5
-         qCeQrhZMTIhoIk4TmAPNHdI4pJi852qzncFa0t6M=
+        b=XhtKf7PNtlpM0sEM7nLy4xq2NjRJxbM4UBpnK6CMtqou8SokQcycH/WvYVeeDSMgU
+         eeTMxsRqoEK7qqIvUsVs8JmAN2S/xn92xwokTS5GKjSbbc0jfBU9TAhPkHsRnvaTGA
+         u5B7CFXvRMTEMKJdxLivNiaGiwJR86Hnek8DdqV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 15/26] dmaengine: ioat: depends on !UML
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 22/23] drm/nouveau/nvkm: Replace -ENOSYS with -ENODEV
 Date:   Fri, 24 Sep 2021 14:44:03 +0200
-Message-Id: <20210924124328.847594264@linuxfoundation.org>
+Message-Id: <20210924124328.540974789@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124328.336953942@linuxfoundation.org>
-References: <20210924124328.336953942@linuxfoundation.org>
+In-Reply-To: <20210924124327.816210800@linuxfoundation.org>
+References: <20210924124327.816210800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit bbac7a92a46f0876e588722ebe552ddfe6fd790f ]
+commit e8f71f89236ef82d449991bfbc237e3cb6ea584f upstream.
 
-Now that UML has PCI support, this driver must depend also on
-!UML since it pokes at X86_64 architecture internals that don't
-exist on ARCH=um.
+nvkm test builds fail with the following error.
 
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Acked-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/20210809112409.a3a0974874d2.I2ffe3d11ed37f735da2f39884a74c953b258b995@changeid
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c: In function 'nvkm_control_mthd_pstate_info':
+  drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c:60:35: error: overflow in conversion from 'int' to '__s8' {aka 'signed char'} changes value from '-251' to '5'
+
+The code builds on most architectures, but fails on parisc where ENOSYS
+is defined as 251.
+
+Replace the error code with -ENODEV (-19).  The actual error code does
+not really matter and is not passed to userspace - it just has to be
+negative.
+
+Fixes: 7238eca4cf18 ("drm/nouveau: expose pstate selection per-power source in sysfs")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/Kconfig | 2 +-
+ drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/Kconfig b/drivers/dma/Kconfig
-index b0f798244a89..9a6da9b2dad3 100644
---- a/drivers/dma/Kconfig
-+++ b/drivers/dma/Kconfig
-@@ -238,7 +238,7 @@ config INTEL_IDMA64
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c
+@@ -56,7 +56,7 @@ nvkm_control_mthd_pstate_info(struct nvk
+ 		args->v0.count = 0;
+ 		args->v0.ustate_ac = NVIF_CONTROL_PSTATE_INFO_V0_USTATE_DISABLE;
+ 		args->v0.ustate_dc = NVIF_CONTROL_PSTATE_INFO_V0_USTATE_DISABLE;
+-		args->v0.pwrsrc = -ENOSYS;
++		args->v0.pwrsrc = -ENODEV;
+ 		args->v0.pstate = NVIF_CONTROL_PSTATE_INFO_V0_PSTATE_UNKNOWN;
+ 	}
  
- config INTEL_IOATDMA
- 	tristate "Intel I/OAT DMA support"
--	depends on PCI && X86_64
-+	depends on PCI && X86_64 && !UML
- 	select DMA_ENGINE
- 	select DMA_ENGINE_RAID
- 	select DCA
--- 
-2.33.0
-
 
 
