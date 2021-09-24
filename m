@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F2B4417475
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD3F94174D5
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:09:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346421AbhIXNGX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:06:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34410 "EHLO mail.kernel.org"
+        id S1346737AbhIXNLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:11:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345876AbhIXNEV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:04:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A554613A3;
-        Fri, 24 Sep 2021 12:55:25 +0000 (UTC)
+        id S1346228AbhIXNJH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:09:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58D6761350;
+        Fri, 24 Sep 2021 12:57:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488125;
-        bh=qUcAv7iZCKhir8GZ76zbVEeKqI2EIBF0DfdVs4mZRF4=;
+        s=korg; t=1632488255;
+        bh=gzcqBSFN+eZMaHrm0Et8PvmZbQS0NLE1LL8rfd6sWtE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ks8tAPrAAEhU3RUK9V1IJxa0j/maoxFTDubSe5SJo5vo33C/SpuHC5VKRVLWgayzZ
-         7XwYyBeNObei1cVI9qDPK7BKLJsk/0fZuZBxn+Ifh5p93D5IZrpuAU3ijV5hleU0tZ
-         aOQk+YSdhKGjirGyI8RpWUugzeo30mMiCgGkMdMQ=
+        b=lB9yQ9y1Y8H/1JHmzS7xOZu5ZG118NTeBA6c5yZomZK+jWO24h10UW9/MxHW6CYeS
+         ei8haO+HeGHaLejRF5yNfqRnAbBdN2iCEuWJgD525G0Woljnwr219ra+z147M3itCk
+         8NEknQjdPxn5WFdthoN65yPVFh6iZNdsLirUFEvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcin Wanat <marcin.wanat@gmail.com>,
-        Song Liu <songliubraving@fb.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jozef=20Kov=C3=A1=C4=8D?= <kovac@firma.zoznam.sk>,
+        Jeff Layton <jlayton@kernel.org>, Xiubo Li <xiubli@redhat.com>,
+        Luis Henriques <lhenriques@suse.de>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 094/100] blk-mq: allow 4x BLK_MAX_REQUEST_COUNT at blk_plug for multiple_queues
-Date:   Fri, 24 Sep 2021 14:44:43 +0200
-Message-Id: <20210924124344.622501693@linuxfoundation.org>
+Subject: [PATCH 5.10 44/63] ceph: request Fw caps before updating the mtime in ceph_write_iter
+Date:   Fri, 24 Sep 2021 14:44:44 +0200
+Message-Id: <20210924124335.791792008@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
-References: <20210924124341.214446495@linuxfoundation.org>
+In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
+References: <20210924124334.228235870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +43,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit 7f2a6a69f7ced6db8220298e0497cf60482a9d4b ]
+[ Upstream commit b11ed50346683a749632ea664959b28d524d7395 ]
 
-Limiting number of request to BLK_MAX_REQUEST_COUNT at blk_plug hurts
-performance for large md arrays. [1] shows resync speed of md array drops
-for md array with more than 16 HDDs.
+The current code will update the mtime and then try to get caps to
+handle the write. If we end up having to request caps from the MDS, then
+the mtime in the cap grant will clobber the updated mtime and it'll be
+lost.
 
-Fix this by allowing more request at plug queue. The multiple_queue flag
-is used to only apply higher limit to multiple queue cases.
+This is most noticable when two clients are alternately writing to the
+same file. Fw caps are continually being granted and revoked, and the
+mtime ends up stuck because the updated mtimes are always being
+overwritten with the old one.
 
-[1] https://lore.kernel.org/linux-raid/CAFDAVznS71BXW8Jxv6k9dXc2iR3ysX3iZRBww_rzA8WifBFxGg@mail.gmail.com/
-Tested-by: Marcin Wanat <marcin.wanat@gmail.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fix this by changing the order of operations in ceph_write_iter to get
+the caps before updating the times. Also, make sure we check the pool
+full conditions before even getting any caps or uninlining.
+
+URL: https://tracker.ceph.com/issues/46574
+Reported-by: Jozef Kováč <kovac@firma.zoznam.sk>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Luis Henriques <lhenriques@suse.de>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ fs/ceph/file.c | 32 +++++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 9d4fdc2be88a..9c64f0025a56 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -2135,6 +2135,18 @@ static void blk_add_rq_to_plug(struct blk_plug *plug, struct request *rq)
+diff --git a/fs/ceph/file.c b/fs/ceph/file.c
+index 3d2e3dd4ee01..f1895f78ab45 100644
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -1723,32 +1723,26 @@ retry_snap:
+ 		goto out;
  	}
- }
  
-+/*
-+ * Allow 4x BLK_MAX_REQUEST_COUNT requests on plug queue for multiple
-+ * queues. This is important for md arrays to benefit from merging
-+ * requests.
-+ */
-+static inline unsigned short blk_plug_max_rq_count(struct blk_plug *plug)
-+{
-+	if (plug->multiple_queues)
-+		return BLK_MAX_REQUEST_COUNT * 4;
-+	return BLK_MAX_REQUEST_COUNT;
-+}
+-	err = file_remove_privs(file);
+-	if (err)
++	down_read(&osdc->lock);
++	map_flags = osdc->osdmap->flags;
++	pool_flags = ceph_pg_pool_flags(osdc->osdmap, ci->i_layout.pool_id);
++	up_read(&osdc->lock);
++	if ((map_flags & CEPH_OSDMAP_FULL) ||
++	    (pool_flags & CEPH_POOL_FLAG_FULL)) {
++		err = -ENOSPC;
+ 		goto out;
++	}
+ 
+-	err = file_update_time(file);
++	err = file_remove_privs(file);
+ 	if (err)
+ 		goto out;
+ 
+-	inode_inc_iversion_raw(inode);
+-
+ 	if (ci->i_inline_version != CEPH_INLINE_NONE) {
+ 		err = ceph_uninline_data(file, NULL);
+ 		if (err < 0)
+ 			goto out;
+ 	}
+ 
+-	down_read(&osdc->lock);
+-	map_flags = osdc->osdmap->flags;
+-	pool_flags = ceph_pg_pool_flags(osdc->osdmap, ci->i_layout.pool_id);
+-	up_read(&osdc->lock);
+-	if ((map_flags & CEPH_OSDMAP_FULL) ||
+-	    (pool_flags & CEPH_POOL_FLAG_FULL)) {
+-		err = -ENOSPC;
+-		goto out;
+-	}
+-
+ 	dout("aio_write %p %llx.%llx %llu~%zd getting caps. i_size %llu\n",
+ 	     inode, ceph_vinop(inode), pos, count, i_size_read(inode));
+ 	if (fi->fmode & CEPH_FILE_MODE_LAZY)
+@@ -1761,6 +1755,12 @@ retry_snap:
+ 	if (err < 0)
+ 		goto out;
+ 
++	err = file_update_time(file);
++	if (err)
++		goto out_caps;
 +
- /**
-  * blk_mq_submit_bio - Create and send a request to block device.
-  * @bio: Bio pointer.
-@@ -2231,7 +2243,7 @@ blk_qc_t blk_mq_submit_bio(struct bio *bio)
- 		else
- 			last = list_entry_rq(plug->mq_list.prev);
++	inode_inc_iversion_raw(inode);
++
+ 	dout("aio_write %p %llx.%llx %llu~%zd got cap refs on %s\n",
+ 	     inode, ceph_vinop(inode), pos, count, ceph_cap_string(got));
  
--		if (request_count >= BLK_MAX_REQUEST_COUNT || (last &&
-+		if (request_count >= blk_plug_max_rq_count(plug) || (last &&
- 		    blk_rq_bytes(last) >= BLK_PLUG_FLUSH_SIZE)) {
- 			blk_flush_plug_list(plug, false);
- 			trace_block_plug(q);
+@@ -1844,6 +1844,8 @@ retry_snap:
+ 	}
+ 
+ 	goto out_unlocked;
++out_caps:
++	ceph_put_cap_refs(ci, got);
+ out:
+ 	if (direct_lock)
+ 		ceph_end_io_direct(inode);
 -- 
 2.33.0
 
