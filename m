@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D6504172AD
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:50:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30CDC41749E
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344537AbhIXMuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:50:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45400 "EHLO mail.kernel.org"
+        id S1345749AbhIXNIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:08:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344169AbhIXMtC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:49:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFF5961241;
-        Fri, 24 Sep 2021 12:47:28 +0000 (UTC)
+        id S1345876AbhIXNG0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:06:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AE2E61356;
+        Fri, 24 Sep 2021 12:56:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487649;
-        bh=fAtWr3YnQewUqGl7Wpx+8AbgCl1EMOkpmYVR4cR5bho=;
+        s=korg; t=1632488181;
+        bh=CCyhTQtobcN7EKoDmnU3O1vyCCjGnk1CJNHGd1xgJic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZcDvq+JAWvk81iGDFTMbs1eN86MuA1orvclA3fxxLUaYOseifPHeFQTGi+f26KvnN
-         +eypc4ZKCbYJtfUwkGRlvQUic7UYOsBYvvuJTTBLj4sDyUOZs09oFsgiMlBLuXZ+eF
-         sQVa86kYAx7uTJL/HMe/ViLnoWb2aCzK0kN2KQCQ=
+        b=ZkovgoCR/LrVbC6Q7w3MRtg3cDz+VpNUIUESmhZJUWVY4Zpp/oKROI+1oibW+kRR/
+         erNcrbEuVriPAUuTu7OTa8IsK+2CKzVnnNrLwvqMVBkh5kiLPn1p05xQMGlMRqWrzp
+         /R3peYyXBtvK3dLZM9Hr1Ogp6XhqYZGjzsLb/kSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nanyong Sun <sunnanyong@huawei.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 22/27] nilfs2: fix memory leak in nilfs_sysfs_delete_##name##_group
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.10 16/63] dmaengine: acpi: Avoid comparison GSI with Linux vIRQ
 Date:   Fri, 24 Sep 2021 14:44:16 +0200
-Message-Id: <20210924124329.917485508@linuxfoundation.org>
+Message-Id: <20210924124334.811372633@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124329.173674820@linuxfoundation.org>
-References: <20210924124329.173674820@linuxfoundation.org>
+In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
+References: <20210924124334.228235870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nanyong Sun <sunnanyong@huawei.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit a3e181259ddd61fd378390977a1e4e2316853afa ]
+commit 67db87dc8284070adb15b3c02c1c31d5cf51c5d6 upstream.
 
-The kobject_put() should be used to cleanup the memory associated with the
-kobject instead of kobject_del.  See the section "Kobject removal" of
-"Documentation/core-api/kobject.rst".
+Currently the CRST parsing relies on the fact that on most of x86 devices
+the IRQ mapping is 1:1 with Linux vIRQ. However, it may be not true for
+some. Fix this by converting GSI to Linux vIRQ before checking it.
 
-Link: https://lkml.kernel.org/r/20210629022556.3985106-5-sunnanyong@huawei.com
-Link: https://lkml.kernel.org/r/1625651306-10829-5-git-send-email-konishi.ryusuke@gmail.com
-Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ee8209fd026b ("dma: acpi-dma: parse CSRT to extract additional resources")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210730202715.24375-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/sysfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/acpi-dma.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
-index eab7bd68da12..31eed118d0ce 100644
---- a/fs/nilfs2/sysfs.c
-+++ b/fs/nilfs2/sysfs.c
-@@ -106,7 +106,7 @@ static int nilfs_sysfs_create_##name##_group(struct the_nilfs *nilfs) \
- } \
- static void nilfs_sysfs_delete_##name##_group(struct the_nilfs *nilfs) \
- { \
--	kobject_del(&nilfs->ns_##parent_name##_subgroups->sg_##name##_kobj); \
-+	kobject_put(&nilfs->ns_##parent_name##_subgroups->sg_##name##_kobj); \
- }
+--- a/drivers/dma/acpi-dma.c
++++ b/drivers/dma/acpi-dma.c
+@@ -70,10 +70,14 @@ static int acpi_dma_parse_resource_group
  
- /************************************************************************
--- 
-2.33.0
-
+ 	si = (const struct acpi_csrt_shared_info *)&grp[1];
+ 
+-	/* Match device by MMIO and IRQ */
++	/* Match device by MMIO */
+ 	if (si->mmio_base_low != lower_32_bits(mem) ||
+-	    si->mmio_base_high != upper_32_bits(mem) ||
+-	    si->gsi_interrupt != irq)
++	    si->mmio_base_high != upper_32_bits(mem))
++		return 0;
++
++	/* Match device by Linux vIRQ */
++	ret = acpi_register_gsi(NULL, si->gsi_interrupt, si->interrupt_mode, si->interrupt_polarity);
++	if (ret != irq)
+ 		return 0;
+ 
+ 	dev_dbg(&adev->dev, "matches with %.4s%04X (rev %u)\n",
 
 
