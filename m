@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02552416EC4
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 11:20:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6AB8416EC5
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 11:20:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244390AbhIXJV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 05:21:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39838 "EHLO mail.kernel.org"
+        id S244727AbhIXJWH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 05:22:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244460AbhIXJV5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 05:21:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3966360F43;
-        Fri, 24 Sep 2021 09:20:24 +0000 (UTC)
+        id S244460AbhIXJWG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 05:22:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 168E4603E9;
+        Fri, 24 Sep 2021 09:20:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632475224;
-        bh=8QiNpuNKn5Z0rgsRIZFN0FILZMZ3MuWPJa1WeWxOsCs=;
+        s=korg; t=1632475233;
+        bh=6f1sTX+v76Q2KTafs19unNlGV4kl89rWVTaNrmht+/k=;
         h=Subject:To:Cc:From:Date:From;
-        b=pU0NPH4W65rZ26VGgBNpK75QKPQryC6ROeQw4dj1+K4v2PMK5hYrEmj2BDFhwgBf6
-         D57ontA+R24aF03yF1WfkxomkAzt/UcciNwwsiHdVeMdNdtIiVrZFe3M4hFK5eDqV5
-         B9sgM9HHxkt02pIN7LYQiBwMT7avf26z6p/kY3ZY=
-Subject: FAILED: patch "[PATCH] nilfs2: use refcount_dec_and_lock() to fix potential UAF" failed to apply to 4.4-stable tree
+        b=YVSnnPqnvFBko6feAo0FsloW9hbDTaK+Eflag0VphWhIvf3hJNnZ+mVEyG+TJ9Svr
+         PDUZ8+hIVqYns7cmEjorA48/BdcZFVsVvC/qLT9E9nCCMgyqHBYKZllRGRp1SefgJG
+         P4J1r/lXiTSmdb/CvsIJUC/vIInkkQk+u5NSu5gs=
+Subject: FAILED: patch "[PATCH] nilfs2: use refcount_dec_and_lock() to fix potential UAF" failed to apply to 4.9-stable tree
 To:     thunder.leizhen@huawei.com, akpm@linux-foundation.org,
         konishi.ryusuke@gmail.com, torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 24 Sep 2021 11:20:22 +0200
-Message-ID: <163247522288100@kroah.com>
+Date:   Fri, 24 Sep 2021 11:20:23 +0200
+Message-ID: <163247522323613@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
