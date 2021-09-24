@@ -2,125 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 541AB41692F
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 03:01:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F01B4169F1
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 04:19:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243679AbhIXBD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Sep 2021 21:03:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52256 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243678AbhIXBD0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Sep 2021 21:03:26 -0400
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8D85C061756
-        for <stable@vger.kernel.org>; Thu, 23 Sep 2021 18:01:53 -0700 (PDT)
-Received: by mail-pg1-x52c.google.com with SMTP id s11so8125540pgr.11
-        for <stable@vger.kernel.org>; Thu, 23 Sep 2021 18:01:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=R0TVEFcTo2DWYNC/Ty6kIV1DRidb4aV2ukSxlWruSY0=;
-        b=Cc6bMFq/ABedDQ1YzC/XdDZv/spMWPp/hh2aQu0AWPUtdFU+pDQ2RfUJcArNTuc3L9
-         YpvOF13QFoVaXT/zT7J7wQkyQYbwvtRMnut5ixcpE36ZNymppWEwd2zsKT3GYU3t8vL7
-         NY+q/rhK2I15ufekXaQLQpuxl65puFdTvPnwA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=R0TVEFcTo2DWYNC/Ty6kIV1DRidb4aV2ukSxlWruSY0=;
-        b=LwDtz0Eual2G/OYn29TjAhF9S1VG0U+F7EGhaWdwbEzLGPzxn2dXwoBXDFSViT39/A
-         hOf8yy60970kghOKqYO4m4ml2/uyLE31Kofcf/cA8Pu6AqAet00PyKyYb2Cp9ydDAqm6
-         O/VyXBLP93QnXie9W5hNIrKDpMHKO1vgXnHumf/A1KNiwkMSJyRFnnCh6IMUXTcA8OIS
-         u6dTeNCNyL1AFy79dyBJg8vcI8XUTwTD1oXdoW+VqQ7eAb6q4OV1MIDikm24mtrOcB7r
-         Dhgau22diMOeIzIuXvc5Y6gR4JSQF+q/P4pMB/Xmc8hPVVgJwrZ1YDupcG+W7J3HB4D/
-         +1VA==
-X-Gm-Message-State: AOAM533RjYCHz9Tx2l84e3/F/B4/oobgPqN8Z7JpZrh6bKZpBNK/J+ky
-        9FrybIaapcjbygoZz2QoOvY2Vg==
-X-Google-Smtp-Source: ABdhPJwMFns0SIvz1MLq43HUOigRve27DNoneF2kjwjje+necuiiSQxwV3fefmt7ZBxJihxs7+TLEQ==
-X-Received: by 2002:a62:4dc5:0:b0:438:8133:fcef with SMTP id a188-20020a624dc5000000b004388133fcefmr7089386pfb.44.1632445313339;
-        Thu, 23 Sep 2021 18:01:53 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id g12sm10204673pja.28.2021.09.23.18.01.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Sep 2021 18:01:52 -0700 (PDT)
-Date:   Thu, 23 Sep 2021 18:01:51 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Helge Deller <deller@gmx.de>
-Cc:     kernel test robot <oliver.sang@intel.com>,
-        0day robot <lkp@intel.com>,
-        LKML <linux-kernel@vger.kernel.org>, lkp@lists.01.org,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-fsdevel@vger.kernel.org, linux-hardening@vger.kernel.org,
-        Jann Horn <jannh@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Vito Caputo <vcaputo@pengaru.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>, stable@vger.kernel.org
-Subject: /proc/$pid/chan kernel address exposures (was Re: [proc/wchan]
- 30a3a19273:
- leaking-addresses.proc.wchan./proc/bus/input/devices:B:KEY=1000000000007ff980000000007fffebeffdfffeffffffffffffffffffffe)
-Message-ID: <202109231746.7B4C306CEC@keescook>
-References: <20210103142726.GC30643@xsang-OptiPlex-9020>
- <d15378c8-8702-47ba-65b7-450f728793ed@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d15378c8-8702-47ba-65b7-450f728793ed@gmx.de>
+        id S243873AbhIXCV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Sep 2021 22:21:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47472 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S243863AbhIXCV1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Sep 2021 22:21:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA60C61039;
+        Fri, 24 Sep 2021 02:19:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1632449995;
+        bh=P4DFQiq303G1aONpTAkM+AmBbanoTbukwuAkgf+Z+oU=;
+        h=Date:From:To:Subject:From;
+        b=ltX8yyfmgmVQ1Ba9AIn4bS8umDB6dT8DnIYbXGTA6FvaqaROQNOBa/oXWEJk14tyY
+         b4snrzxbRFTrrIFzS002wlLvbsP3mCW+T7P2PKDKzu3HphVsdzVC5viV0AAoWfwRt0
+         YVEKZMjj3HRdU/lPGmZM+Rjmlzq+O7KkVzlHJraY=
+Date:   Thu, 23 Sep 2021 19:19:54 -0700
+From:   akpm@linux-foundation.org
+To:     aarcange@redhat.com, axelrasmussen@google.com, liwan@redhat.com,
+        mm-commits@vger.kernel.org, nadav.amit@gmail.com,
+        peterx@redhat.com, stable@vger.kernel.org
+Subject:  +
+ mm-userfaultfd-selftests-fix-memory-corruption-with-thp-enabled.patch added
+ to -mm tree
+Message-ID: <20210924021954.LeF2zWXJJ%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 03, 2021 at 07:25:36PM +0100, Helge Deller wrote:
-> On 1/3/21 3:27 PM, kernel test robot wrote:
-> > FYI, we noticed the following commit (built with gcc-9):
-> >
-> > commit: 30a3a192730a997bc4afff5765254175b6fb64f3 ("[PATCH] proc/wchan: Use printk format instead of lookup_symbol_name()")
-> > url: https://github.com/0day-ci/linux/commits/Helge-Deller/proc-wchan-Use-printk-format-instead-of-lookup_symbol_name/20201218-010048
-> > base: https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git 09162bc32c880a791c6c0668ce0745cf7958f576
-> >
-> > in testcase: leaking-addresses
-> > version: leaking-addresses-x86_64-4f19048-1_20201111
-> > [...]
-> > caused below changes (please refer to attached dmesg/kmsg for entire log/backtrace):
-> 
-> I don't see anything wrong with the wchan patch (30a3a192730a997bc4afff5765254175b6fb64f3),
-> or that it could have leaked anything.
-> 
-> Maybe the kernel test robot picked up the wchan patch by mistake ?
->
-> > [...]
-> > [2 wchan] 0xffffc9000000003c
-       ^^^^^
 
-As the root cause of a kernel address exposure, Jann pointed out[2]
-commit 152c432b128c, which I've tracked to here, only to discover this
-regression was, indeed, reported. :(
+The patch titled
+     Subject: mm/userfaultfd: selftests: fix memory corruption with thp enabled
+has been added to the -mm tree.  Its filename is
+     mm-userfaultfd-selftests-fix-memory-corruption-with-thp-enabled.patch
 
-So, we have a few things:
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-userfaultfd-selftests-fix-memory-corruption-with-thp-enabled.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-userfaultfd-selftests-fix-memory-corruption-with-thp-enabled.patch
 
-1) wchan has been reporting "0" in the default x86 config (ORC unwinder)
-   for 4 years now.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-2) non-x86 or non-ORC, wchan has been leaking raw kernel addresses since
-   commit 152c432b128c (v5.12).
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-3) the output of scripts/leaking_addresses.pl is hard to read. :)
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-We can fix 1 and 2 with:
-   https://lore.kernel.org/lkml/20210923233105.4045080-1-keescook@chromium.org/
-(though that will need a Cc: stable now...)
+------------------------------------------------------
+From: Peter Xu <peterx@redhat.com>
+Subject: mm/userfaultfd: selftests: fix memory corruption with thp enabled
 
-If we don't do that, we still need to revert 152c432b128c in v5.12 and
-later.
+In RHEL's gating selftests we've encountered memory corruption in the uffd
+event test even with upstream kernel:
 
-We should likely make leaking_addresses.pl a little more readable while
-we're at it.
+        # ./userfaultfd anon 128 4
+        nr_pages: 32768, nr_pages_per_cpu: 32768
+        bounces: 3, mode: rnd racing read, userfaults: 6240 missing (6240) 14729 wp (14729)
+        bounces: 2, mode: racing read, userfaults: 1444 missing (1444) 28877 wp (28877)
+        bounces: 1, mode: rnd read, userfaults: 6055 missing (6055) 14699 wp (14699)
+        bounces: 0, mode: read, userfaults: 82 missing (82) 25196 wp (25196)
+        testing uffd-wp with pagemap (pgsize=4096): done
+        testing uffd-wp with pagemap (pgsize=2097152): done
+        testing events (fork, remap, remove): ERROR: nr 32427 memory corruption 0 1 (errno=0, line=963)
+        ERROR: faulting process failed (errno=0, line=1117)
 
--Kees
+It can be easily reproduced when global thp enabled, which is the default for
+RHEL.
 
-[1] https://lore.kernel.org/lkml/20210921193249.el476vlhg5k6lfcq@shells.gnugeneration.com/
-[2] https://lore.kernel.org/lkml/CAG48ez2zC=+PuNgezH53HBPZ8CXU5H=vkWx7nJs60G8RXt3w0Q@mail.gmail.com/
+It's also known as a side effect of commit 0db282ba2c12 ("selftest: use
+mmap instead of posix_memalign to allocate memory", 2021-07-23), which is
+imho right itself on using mmap() to make sure the addresses will be
+untagged even on arm.
 
--- 
-Kees Cook
+The problem is, for each test we allocate buffers using two
+allocate_area() calls.  We assumed these two buffers won't affect each
+other, however they could, because mmap() could have found that the two
+buffers are near each other and having the same VMA flags, so they got
+merged into one VMA.
+
+It won't be a big problem if thp is not enabled, but when thp is
+agressively enabled it means when initializing the src buffer it could
+accidentally setup part of the dest buffer too when there's a shared THP
+that overlaps the two regions.  Then some of the dest buffer won't be able
+to be trapped by userfaultfd missing mode, then it'll cause memory
+corruption as described.
+
+To fix it, do release_pages() after initializing the src buffer.
+
+Since the previous two release_pages() calls are after
+uffd_test_ctx_clear() which will unmap all the buffers anyway (which is
+stronger than release pages; as unmap() also tear town pgtables), drop
+them as they shouldn't really be anything useful.
+
+We can mark the Fixes tag upon 0db282ba2c12 as it's reported to only
+happen there, however the real "Fixes" IMHO should be 8ba6e8640844, as
+before that commit we'll always do explicit release_pages() before
+registration of uffd, and 8ba6e8640844 changed that logic by adding extra
+unmap/map and we didn't release the pages at the right place.  Meanwhile I
+don't have a solid glue anyway on whether posix_memalign() could always
+avoid triggering this bug, hence it's safer to attach this fix to commit
+8ba6e8640844.
+
+Link: https://lkml.kernel.org/r/20210923232512.210092-1-peterx@redhat.com
+Fixes: 8ba6e8640844 ("userfaultfd/selftests: reinitialize test context in each test")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Reported-by: Li Wang <liwan@redhat.com>
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1994931
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ tools/testing/selftests/vm/userfaultfd.c |   23 ++++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
+
+--- a/tools/testing/selftests/vm/userfaultfd.c~mm-userfaultfd-selftests-fix-memory-corruption-with-thp-enabled
++++ a/tools/testing/selftests/vm/userfaultfd.c
+@@ -414,9 +414,6 @@ static void uffd_test_ctx_init_ext(uint6
+ 	uffd_test_ops->allocate_area((void **)&area_src);
+ 	uffd_test_ops->allocate_area((void **)&area_dst);
+ 
+-	uffd_test_ops->release_pages(area_src);
+-	uffd_test_ops->release_pages(area_dst);
+-
+ 	userfaultfd_open(features);
+ 
+ 	count_verify = malloc(nr_pages * sizeof(unsigned long long));
+@@ -437,6 +434,26 @@ static void uffd_test_ctx_init_ext(uint6
+ 		*(area_count(area_src, nr) + 1) = 1;
+ 	}
+ 
++	/*
++	 * After initialization of area_src, we must explicitly release pages
++	 * for area_dst to make sure it's fully empty.  Otherwise we could have
++	 * some area_dst pages be errornously initialized with zero pages,
++	 * hence we could hit memory corruption later in the test.
++	 *
++	 * One example is when THP is globally enabled, above allocate_area()
++	 * calls could have the two areas merged into a single VMA (as they
++	 * will have the same VMA flags so they're mergeable).  When we
++	 * initialize the area_src above, it's possible that some part of
++	 * area_dst could have been faulted in via one huge THP that will be
++	 * shared between area_src and area_dst.  It could cause some of the
++	 * area_dst won't be trapped by missing userfaults.
++	 *
++	 * This release_pages() will guarantee even if that happened, we'll
++	 * proactively split the thp and drop any accidentally initialized
++	 * pages within area_dst.
++	 */
++	uffd_test_ops->release_pages(area_dst);
++
+ 	pipefd = malloc(sizeof(int) * nr_cpus * 2);
+ 	if (!pipefd)
+ 		err("pipefd");
+_
+
+Patches currently in -mm which might be from peterx@redhat.com are
+
+mm-userfaultfd-selftests-fix-memory-corruption-with-thp-enabled.patch
+mm-smaps-fix-shmem-pte-hole-swap-calculation.patch
+mm-smaps-use-vma-vm_pgoff-directly-when-counting-partial-swap.patch
+mm-smaps-simplify-shmem-handling-of-pte-holes.patch
+mm-memcg-drop-swp_entry_t-in-mc_handle_file_pte.patch
+mm-shmem-unconditionally-set-pte-dirty-in-mfill_atomic_install_pte.patch
+mm-clear-vmf-pte-after-pte_unmap_same-returns.patch
+mm-drop-first_index-last_index-in-zap_details.patch
+mm-add-zap_skip_check_mapping-helper.patch
+mm-hugetlb-drop-__unmap_hugepage_range-definition-from-hugetlbh.patch
+
