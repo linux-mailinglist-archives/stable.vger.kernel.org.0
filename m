@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA4D34172BF
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:50:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DCB7417269
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:48:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343804AbhIXMvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:51:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45856 "EHLO mail.kernel.org"
+        id S1343843AbhIXMsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:48:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344343AbhIXMtU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:49:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C76F061251;
-        Fri, 24 Sep 2021 12:47:46 +0000 (UTC)
+        id S1343812AbhIXMrh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:47:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 40ED261107;
+        Fri, 24 Sep 2021 12:46:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487667;
-        bh=qJCZf8z0SKfO4BYhVd4fDfO5qs/mt0fSlBiITh6dTkU=;
+        s=korg; t=1632487564;
+        bh=l1gzoSs4ajRaNO/iXl96GbK9WlpuKTQmAaQln8y91Ig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2fU2s2DiLAFb5KEZI0t6rnu2/kSh5w5UCxD1KC1JhKHIn2sfbV1A8nI4G0WZOn8Hu
-         uOFCkDElZb3PRDfhEoNxdnSrk6a9alwoxepSCbw4t6RoDiSgnZT6SZUiEnL5n/Wl5F
-         FpGfj6kZTlKWIYmYP1DYRk5TOe2Se2V+CeCV00Sc=
+        b=l1ZA2QyUix8QeEibw0LTqAhmaAezr64mUOKaEp+FlBnz1cI6Hz+L14+X6bNziFFPR
+         GhBbMoXvnQFt0RwKKMTmaq3+pqET4K+Yv7FciyRlw5QmvHsJZRtvabKHRcuEOUbisU
+         oa+Vr0Zfz/D1k/u9Rj1MJTAggFr1dagbPE0EQ//M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 4.14 07/27] dmaengine: acpi: Avoid comparison GSI with Linux vIRQ
+        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>
+Subject: [PATCH 4.9 13/26] pwm: mxs: Dont modify HW state in .probe() after the PWM chip was registered
 Date:   Fri, 24 Sep 2021 14:44:01 +0200
-Message-Id: <20210924124329.418770180@linuxfoundation.org>
+Message-Id: <20210924124328.779240637@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124329.173674820@linuxfoundation.org>
-References: <20210924124329.173674820@linuxfoundation.org>
+In-Reply-To: <20210924124328.336953942@linuxfoundation.org>
+References: <20210924124328.336953942@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-commit 67db87dc8284070adb15b3c02c1c31d5cf51c5d6 upstream.
+commit 020162d6f49f2963062229814a56a89c86cbeaa8 upstream.
 
-Currently the CRST parsing relies on the fact that on most of x86 devices
-the IRQ mapping is 1:1 with Linux vIRQ. However, it may be not true for
-some. Fix this by converting GSI to Linux vIRQ before checking it.
+This fixes a race condition: After pwmchip_add() is called there might
+already be a consumer and then modifying the hardware behind the
+consumer's back is bad. So reset before calling pwmchip_add().
 
-Fixes: ee8209fd026b ("dma: acpi-dma: parse CSRT to extract additional resources")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210730202715.24375-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Note that reseting the hardware isn't the right thing to do if the PWM
+is already running as it might e.g. disable (or even enable) a backlight
+that is supposed to be on (or off).
+
+Fixes: 4dce82c1e840 ("pwm: add pwm-mxs support")
+Cc: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/acpi-dma.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/pwm/pwm-mxs.c |   13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
---- a/drivers/dma/acpi-dma.c
-+++ b/drivers/dma/acpi-dma.c
-@@ -72,10 +72,14 @@ static int acpi_dma_parse_resource_group
+--- a/drivers/pwm/pwm-mxs.c
++++ b/drivers/pwm/pwm-mxs.c
+@@ -158,6 +158,11 @@ static int mxs_pwm_probe(struct platform
+ 		return ret;
+ 	}
  
- 	si = (const struct acpi_csrt_shared_info *)&grp[1];
- 
--	/* Match device by MMIO and IRQ */
-+	/* Match device by MMIO */
- 	if (si->mmio_base_low != lower_32_bits(mem) ||
--	    si->mmio_base_high != upper_32_bits(mem) ||
--	    si->gsi_interrupt != irq)
-+	    si->mmio_base_high != upper_32_bits(mem))
-+		return 0;
++	/* FIXME: Only do this if the PWM isn't already running */
++	ret = stmp_reset_block(mxs->base);
++	if (ret)
++		return dev_err_probe(&pdev->dev, ret, "failed to reset PWM\n");
 +
-+	/* Match device by Linux vIRQ */
-+	ret = acpi_register_gsi(NULL, si->gsi_interrupt, si->interrupt_mode, si->interrupt_polarity);
-+	if (ret != irq)
- 		return 0;
+ 	ret = pwmchip_add(&mxs->chip);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to add pwm chip %d\n", ret);
+@@ -166,15 +171,7 @@ static int mxs_pwm_probe(struct platform
  
- 	dev_dbg(&adev->dev, "matches with %.4s%04X (rev %u)\n",
+ 	platform_set_drvdata(pdev, mxs);
+ 
+-	ret = stmp_reset_block(mxs->base);
+-	if (ret)
+-		goto pwm_remove;
+-
+ 	return 0;
+-
+-pwm_remove:
+-	pwmchip_remove(&mxs->chip);
+-	return ret;
+ }
+ 
+ static int mxs_pwm_remove(struct platform_device *pdev)
 
 
