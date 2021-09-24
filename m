@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAFE34172D3
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:50:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2FD141732F
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:53:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344019AbhIXMvm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:51:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44098 "EHLO mail.kernel.org"
+        id S1344118AbhIXMzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:55:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344519AbhIXMuP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:50:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D51261269;
-        Fri, 24 Sep 2021 12:48:17 +0000 (UTC)
+        id S1344195AbhIXMxN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:53:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DE4661368;
+        Fri, 24 Sep 2021 12:50:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487698;
-        bh=NNo86zli0Ni0K4VtLcvHdGW7IMx+1jIwUw4zq+mrWsU=;
+        s=korg; t=1632487802;
+        bh=pxc+We+YD5GuoLQIZECSW/U46cRzeH1dG8DF32lVsfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KxTycC+1sXVUXMqvyZojVpv1Z1cQJNi/HZ6Kao3B7X43CUVL0/Av6dXrUJEtKwISB
-         AnUJOhj5rc7n5HPBXZMpV3+NGmnprSJSUgSfwOpqah7Vkm+qg33yNFVy0mfVPh7lY2
-         2+knkoOUgT73OVCHs/9GBQ/U+l48fBcSnFeBpxAw=
+        b=0iaTrBtKa3rgYtdAg0azKCKZ99xhuZMlPYRGJo1DvOUmQWu0Dwuf4c6ec2kGyDtlQ
+         wLHD9tfv5d8rLvc1kXmaWh7tzrrkt5AXSe9HvLcp7eOIfSHBF2le7x0AIAIbsmErpz
+         CBIc6greV3dAKHwqhL5kbm2+V3unM43op6CmTLiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 13/34] nilfs2: use refcount_dec_and_lock() to fix potential UAF
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.4 18/50] um: virtio_uml: fix memory leak on init failures
 Date:   Fri, 24 Sep 2021 14:44:07 +0200
-Message-Id: <20210924124330.398744232@linuxfoundation.org>
+Message-Id: <20210924124332.851446386@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
-References: <20210924124329.965218583@linuxfoundation.org>
+In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
+References: <20210924124332.229289734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,98 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 98e2e409e76ef7781d8511f997359e9c504a95c1 upstream.
+commit 7ad28e0df7ee9dbcb793bb88dd81d4d22bb9a10e upstream.
 
-When the refcount is decreased to 0, the resource reclamation branch is
-entered.  Before CPU0 reaches the race point (1), CPU1 may obtain the
-spinlock and traverse the rbtree to find 'root', see
-nilfs_lookup_root().
+If initialization fails, e.g. because the connection failed,
+we leak the 'vu_dev'. Fix that. Reported by smatch.
 
-Although CPU1 will call refcount_inc() to increase the refcount, it is
-obviously too late.  CPU0 will release 'root' directly, CPU1 then
-accesses 'root' and triggers UAF.
-
-Use refcount_dec_and_lock() to ensure that both the operations of
-decrease refcount to 0 and link deletion are lock protected eliminates
-this risk.
-
-	     CPU0                      CPU1
-	nilfs_put_root():
-		    <-------- (1)
-				spin_lock(&nilfs->ns_cptree_lock);
-				rb_erase(&root->rb_node, &nilfs->ns_cptree);
-				spin_unlock(&nilfs->ns_cptree_lock);
-
-	kfree(root);
-		    <-------- use-after-free
-
-  refcount_t: underflow; use-after-free.
-  WARNING: CPU: 2 PID: 9476 at lib/refcount.c:28 \
-  refcount_warn_saturate+0x1cf/0x210 lib/refcount.c:28
-  Modules linked in:
-  CPU: 2 PID: 9476 Comm: syz-executor.0 Not tainted 5.10.45-rc1+ #3
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), ...
-  RIP: 0010:refcount_warn_saturate+0x1cf/0x210 lib/refcount.c:28
-  ... ...
-  Call Trace:
-     __refcount_sub_and_test include/linux/refcount.h:283 [inline]
-     __refcount_dec_and_test include/linux/refcount.h:315 [inline]
-     refcount_dec_and_test include/linux/refcount.h:333 [inline]
-     nilfs_put_root+0xc1/0xd0 fs/nilfs2/the_nilfs.c:795
-     nilfs_segctor_destroy fs/nilfs2/segment.c:2749 [inline]
-     nilfs_detach_log_writer+0x3fa/0x570 fs/nilfs2/segment.c:2812
-     nilfs_put_super+0x2f/0xf0 fs/nilfs2/super.c:467
-     generic_shutdown_super+0xcd/0x1f0 fs/super.c:464
-     kill_block_super+0x4a/0x90 fs/super.c:1446
-     deactivate_locked_super+0x6a/0xb0 fs/super.c:335
-     deactivate_super+0x85/0x90 fs/super.c:366
-     cleanup_mnt+0x277/0x2e0 fs/namespace.c:1118
-     __cleanup_mnt+0x15/0x20 fs/namespace.c:1125
-     task_work_run+0x8e/0x110 kernel/task_work.c:151
-     tracehook_notify_resume include/linux/tracehook.h:188 [inline]
-     exit_to_user_mode_loop kernel/entry/common.c:164 [inline]
-     exit_to_user_mode_prepare+0x13c/0x170 kernel/entry/common.c:191
-     syscall_exit_to_user_mode+0x16/0x30 kernel/entry/common.c:266
-     do_syscall_64+0x45/0x80 arch/x86/entry/common.c:56
-     entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-There is no reproduction program, and the above is only theoretical
-analysis.
-
-Link: https://lkml.kernel.org/r/1629859428-5906-1-git-send-email-konishi.ryusuke@gmail.com
-Fixes: ba65ae4729bf ("nilfs2: add checkpoint tree to nilfs object")
-Link: https://lkml.kernel.org/r/20210723012317.4146-1-thunder.leizhen@huawei.com
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 5d38f324993f ("um: drivers: Add virtio vhost-user driver")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/the_nilfs.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ arch/um/drivers/virtio_uml.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/nilfs2/the_nilfs.c
-+++ b/fs/nilfs2/the_nilfs.c
-@@ -797,14 +797,13 @@ nilfs_find_or_create_root(struct the_nil
+--- a/arch/um/drivers/virtio_uml.c
++++ b/arch/um/drivers/virtio_uml.c
+@@ -994,7 +994,7 @@ static int virtio_uml_probe(struct platf
+ 		rc = os_connect_socket(pdata->socket_path);
+ 	} while (rc == -EINTR);
+ 	if (rc < 0)
+-		return rc;
++		goto error_free;
+ 	vu_dev->sock = rc;
  
- void nilfs_put_root(struct nilfs_root *root)
- {
--	if (refcount_dec_and_test(&root->count)) {
--		struct the_nilfs *nilfs = root->nilfs;
-+	struct the_nilfs *nilfs = root->nilfs;
+ 	rc = vhost_user_init(vu_dev);
+@@ -1010,6 +1010,8 @@ static int virtio_uml_probe(struct platf
  
--		nilfs_sysfs_delete_snapshot_group(root);
--
--		spin_lock(&nilfs->ns_cptree_lock);
-+	if (refcount_dec_and_lock(&root->count, &nilfs->ns_cptree_lock)) {
- 		rb_erase(&root->rb_node, &nilfs->ns_cptree);
- 		spin_unlock(&nilfs->ns_cptree_lock);
-+
-+		nilfs_sysfs_delete_snapshot_group(root);
- 		iput(root->ifile);
+ error_init:
+ 	os_close_file(vu_dev->sock);
++error_free:
++	kfree(vu_dev);
+ 	return rc;
+ }
  
- 		kfree(root);
 
 
