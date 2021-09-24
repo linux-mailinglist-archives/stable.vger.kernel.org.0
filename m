@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7EF6417290
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:48:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15867417405
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:02:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344346AbhIXMtX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:49:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42730 "EHLO mail.kernel.org"
+        id S1345748AbhIXNBy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:01:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344223AbhIXMsh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:48:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFD316124C;
-        Fri, 24 Sep 2021 12:47:03 +0000 (UTC)
+        id S1345873AbhIXM7v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:59:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E49C2613B3;
+        Fri, 24 Sep 2021 12:53:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487624;
-        bh=SzRhX6bMighsIpJi2KT6RB9G710ii7c0AsCpSyB7/us=;
+        s=korg; t=1632488013;
+        bh=FOmoSz92b510kDvBvOC+BOpveMVp2GSYEVGd4Z96iAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JVxeJ2Q6JzSdOrb5KTfaPndi8Karxn8egGIe3hxfixyimj3lgXSs6GhpHORdC8UiB
-         9YL5U296Y8JrE6GcKaw7o2fuNtn1en2Cp6VWLlfpHV6Iu6wQEQL23ujjll8qE4CUPV
-         EEDfEBisKUlA4K2ss11ndTQxTVYKKuMoy45EE6lY=
+        b=Im6SZrsQXmuOh2mRYN+iPaSiTkxCPkbz8N0X07X+HiAO6y4BKamrG0gAetTWBEQEG
+         8cN9qBo5lh8xcqSN9K/BMRucNPoLRnl//pDaiWpglsWiNFwb/SJk9T0GbdOCj/xC92
+         qsQUjfb5Aa5rT14L/9CFEAzYQX09bMx7CxNjWPnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 05/27] sctp: validate chunk size in __rcv_asconf_lookup
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 050/100] arm64: mm: limit linear region to 51 bits for KVM in nVHE mode
 Date:   Fri, 24 Sep 2021 14:43:59 +0200
-Message-Id: <20210924124329.355681505@linuxfoundation.org>
+Message-Id: <20210924124343.119361789@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124329.173674820@linuxfoundation.org>
-References: <20210924124329.173674820@linuxfoundation.org>
+In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
+References: <20210924124341.214446495@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit b6ffe7671b24689c09faa5675dd58f93758a97ae upstream.
+[ Upstream commit 88053ec8cb1b91df566353cd3116470193797e00 ]
 
-In one of the fallbacks that SCTP has for identifying an association for an
-incoming packet, it looks for AddIp chunk (from ASCONF) and take a peek.
-Thing is, at this stage nothing was validating that the chunk actually had
-enough content for that, allowing the peek to happen over uninitialized
-memory.
+KVM in nVHE mode divides up its VA space into two equal halves, and
+picks the half that does not conflict with the HYP ID map to map its
+linear region. This worked fine when the kernel's linear map itself was
+guaranteed to cover precisely as many bits of VA space, but this was
+changed by commit f4693c2716b35d08 ("arm64: mm: extend linear region for
+52-bit VA configurations").
 
-Similar check already exists in actual asconf handling in
-sctp_verify_asconf().
+The result is that, depending on the placement of the ID map, kernel-VA
+to hyp-VA translations may produce addresses that either conflict with
+other HYP mappings (including the ID map itself) or generate addresses
+outside of the 52-bit addressable range, neither of which is likely to
+lead to anything useful.
 
-Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Given that 52-bit capable cores are guaranteed to implement VHE, this
+only affects configurations such as pKVM where we opt into non-VHE mode
+even if the hardware is VHE capable. So just for these configurations,
+let's limit the kernel linear map to 51 bits and work around the
+problem.
+
+Fixes: f4693c2716b3 ("arm64: mm: extend linear region for 52-bit VA configurations")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Link: https://lore.kernel.org/r/20210826165613.60774-1-ardb@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/input.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/mm/init.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
---- a/net/sctp/input.c
-+++ b/net/sctp/input.c
-@@ -1118,6 +1118,9 @@ static struct sctp_association *__sctp_r
- 	union sctp_addr_param *param;
- 	union sctp_addr paddr;
+diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+index 1fdb7bb7c198..0ad4afc9359b 100644
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -319,7 +319,21 @@ static void __init fdt_enforce_memory_region(void)
  
-+	if (ntohs(ch->length) < sizeof(*asconf) + sizeof(struct sctp_paramhdr))
-+		return NULL;
+ void __init arm64_memblock_init(void)
+ {
+-	const s64 linear_region_size = PAGE_END - _PAGE_OFFSET(vabits_actual);
++	s64 linear_region_size = PAGE_END - _PAGE_OFFSET(vabits_actual);
 +
- 	/* Skip over the ADDIP header and find the Address parameter */
- 	param = (union sctp_addr_param *)(asconf + 1);
++	/*
++	 * Corner case: 52-bit VA capable systems running KVM in nVHE mode may
++	 * be limited in their ability to support a linear map that exceeds 51
++	 * bits of VA space, depending on the placement of the ID map. Given
++	 * that the placement of the ID map may be randomized, let's simply
++	 * limit the kernel's linear map to 51 bits as well if we detect this
++	 * configuration.
++	 */
++	if (IS_ENABLED(CONFIG_KVM) && vabits_actual == 52 &&
++	    is_hyp_mode_available() && !is_kernel_in_hyp_mode()) {
++		pr_info("Capping linear region to 51 bits for KVM in nVHE mode on LVA capable hardware.\n");
++		linear_region_size = min_t(u64, linear_region_size, BIT(51));
++	}
  
+ 	/* Handle linux,usable-memory-range property */
+ 	fdt_enforce_memory_region();
+-- 
+2.33.0
+
 
 
