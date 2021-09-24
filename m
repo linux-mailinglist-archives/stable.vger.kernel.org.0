@@ -2,170 +2,285 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5B1D417253
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:48:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DE2F417385
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:57:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343842AbhIXMrf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:47:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42542 "EHLO mail.kernel.org"
+        id S1344779AbhIXM5N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:57:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343877AbhIXMqr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:46:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54D9F61265;
-        Fri, 24 Sep 2021 12:45:14 +0000 (UTC)
+        id S1344810AbhIXMzd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:55:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E9C661351;
+        Fri, 24 Sep 2021 12:51:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487514;
-        bh=O65/TwJwL6G9qlsCEOSRgte/7eQWnvnSBC8Pkrn/7uA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WAQpQ35KOoBwWPwyfbNCabXFKPtMiPanNFOQ8WoXU9mfGM0s+pqaEQ9rIZCePDE1p
-         w9ueNVZhs2G59lLGFxhvugDlOeSXgykfBCxLzqVXm976ufj7Xq70BICyqYAU1Y75ym
-         Skjrch9TZdhTRJMtNo2nzLjkDDSlA3ir53BPBj7w=
+        s=korg; t=1632487864;
+        bh=x09bA/RdVHB8WdDYaiGd7H1inQyVRPDkCENondkoyVo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=QTn0mQUm0P8cBUZQp9nlt/h78JZ+Pa1gVE0fQHtH4M999Pk3LXjZSfHVZIefsq8YJ
+         zZXqxujyfB0UEWixoiltJmHY5POX1AI22VukzapovHgI5+b+JacVBklhxQFsI7NXue
+         bDehpSUMqo77KMKVW1xlWH7bNrV7w3s91zFzFNow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.9 01/26] s390/bpf: Fix optimizing out zero-extensions
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.4 00/50] 5.4.149-rc1 review
 Date:   Fri, 24 Sep 2021 14:43:49 +0200
-Message-Id: <20210924124328.389145834@linuxfoundation.org>
+Message-Id: <20210924124332.229289734@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124328.336953942@linuxfoundation.org>
-References: <20210924124328.336953942@linuxfoundation.org>
+MIME-Version: 1.0
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-MIME-Version: 1.0
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.149-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.149-rc1
+X-KernelTest-Deadline: 2021-09-26T12:43+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+This is the start of the stable review cycle for the 5.4.149 release.
+There are 50 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit db7bee653859ef7179be933e7d1384644f795f26 upstream.
+Responses should be made by Sun, 26 Sep 2021 12:43:20 +0000.
+Anything received after that time might be too late.
 
-Currently the JIT completely removes things like `reg32 += 0`,
-however, the BPF_ALU semantics requires the target register to be
-zero-extended in such cases.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.149-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-Fix by optimizing out only the arithmetic operation, but not the
-subsequent zero-extension.
+thanks,
 
-Reported-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
-Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+greg k-h
 
----
- arch/s390/net/bpf_jit_comp.c |   50 ++++++++++++++++++++++---------------------
- 1 file changed, 26 insertions(+), 24 deletions(-)
+-------------
+Pseudo-Shortlog of commits:
 
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -591,10 +591,10 @@ static noinline int bpf_jit_insn(struct
- 		EMIT4(0xb9080000, dst_reg, src_reg);
- 		break;
- 	case BPF_ALU | BPF_ADD | BPF_K: /* dst = (u32) dst + (u32) imm */
--		if (!imm)
--			break;
--		/* alfi %dst,imm */
--		EMIT6_IMM(0xc20b0000, dst_reg, imm);
-+		if (imm != 0) {
-+			/* alfi %dst,imm */
-+			EMIT6_IMM(0xc20b0000, dst_reg, imm);
-+		}
- 		EMIT_ZERO(dst_reg);
- 		break;
- 	case BPF_ALU64 | BPF_ADD | BPF_K: /* dst = dst + imm */
-@@ -616,10 +616,10 @@ static noinline int bpf_jit_insn(struct
- 		EMIT4(0xb9090000, dst_reg, src_reg);
- 		break;
- 	case BPF_ALU | BPF_SUB | BPF_K: /* dst = (u32) dst - (u32) imm */
--		if (!imm)
--			break;
--		/* alfi %dst,-imm */
--		EMIT6_IMM(0xc20b0000, dst_reg, -imm);
-+		if (imm != 0) {
-+			/* alfi %dst,-imm */
-+			EMIT6_IMM(0xc20b0000, dst_reg, -imm);
-+		}
- 		EMIT_ZERO(dst_reg);
- 		break;
- 	case BPF_ALU64 | BPF_SUB | BPF_K: /* dst = dst - imm */
-@@ -646,10 +646,10 @@ static noinline int bpf_jit_insn(struct
- 		EMIT4(0xb90c0000, dst_reg, src_reg);
- 		break;
- 	case BPF_ALU | BPF_MUL | BPF_K: /* dst = (u32) dst * (u32) imm */
--		if (imm == 1)
--			break;
--		/* msfi %r5,imm */
--		EMIT6_IMM(0xc2010000, dst_reg, imm);
-+		if (imm != 1) {
-+			/* msfi %r5,imm */
-+			EMIT6_IMM(0xc2010000, dst_reg, imm);
-+		}
- 		EMIT_ZERO(dst_reg);
- 		break;
- 	case BPF_ALU64 | BPF_MUL | BPF_K: /* dst = dst * imm */
-@@ -710,6 +710,8 @@ static noinline int bpf_jit_insn(struct
- 			if (BPF_OP(insn->code) == BPF_MOD)
- 				/* lhgi %dst,0 */
- 				EMIT4_IMM(0xa7090000, dst_reg, 0);
-+			else
-+				EMIT_ZERO(dst_reg);
- 			break;
- 		}
- 		/* lhi %w0,0 */
-@@ -802,10 +804,10 @@ static noinline int bpf_jit_insn(struct
- 		EMIT4(0xb9820000, dst_reg, src_reg);
- 		break;
- 	case BPF_ALU | BPF_XOR | BPF_K: /* dst = (u32) dst ^ (u32) imm */
--		if (!imm)
--			break;
--		/* xilf %dst,imm */
--		EMIT6_IMM(0xc0070000, dst_reg, imm);
-+		if (imm != 0) {
-+			/* xilf %dst,imm */
-+			EMIT6_IMM(0xc0070000, dst_reg, imm);
-+		}
- 		EMIT_ZERO(dst_reg);
- 		break;
- 	case BPF_ALU64 | BPF_XOR | BPF_K: /* dst = dst ^ imm */
-@@ -826,10 +828,10 @@ static noinline int bpf_jit_insn(struct
- 		EMIT6_DISP_LH(0xeb000000, 0x000d, dst_reg, dst_reg, src_reg, 0);
- 		break;
- 	case BPF_ALU | BPF_LSH | BPF_K: /* dst = (u32) dst << (u32) imm */
--		if (imm == 0)
--			break;
--		/* sll %dst,imm(%r0) */
--		EMIT4_DISP(0x89000000, dst_reg, REG_0, imm);
-+		if (imm != 0) {
-+			/* sll %dst,imm(%r0) */
-+			EMIT4_DISP(0x89000000, dst_reg, REG_0, imm);
-+		}
- 		EMIT_ZERO(dst_reg);
- 		break;
- 	case BPF_ALU64 | BPF_LSH | BPF_K: /* dst = dst << imm */
-@@ -851,10 +853,10 @@ static noinline int bpf_jit_insn(struct
- 		EMIT6_DISP_LH(0xeb000000, 0x000c, dst_reg, dst_reg, src_reg, 0);
- 		break;
- 	case BPF_ALU | BPF_RSH | BPF_K: /* dst = (u32) dst >> (u32) imm */
--		if (imm == 0)
--			break;
--		/* srl %dst,imm(%r0) */
--		EMIT4_DISP(0x88000000, dst_reg, REG_0, imm);
-+		if (imm != 0) {
-+			/* srl %dst,imm(%r0) */
-+			EMIT4_DISP(0x88000000, dst_reg, REG_0, imm);
-+		}
- 		EMIT_ZERO(dst_reg);
- 		break;
- 	case BPF_ALU64 | BPF_RSH | BPF_K: /* dst = dst >> imm */
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.149-rc1
+
+Guenter Roeck <linux@roeck-us.net>
+    drm/nouveau/nvkm: Replace -ENOSYS with -ENODEV
+
+Yu-Tung Chang <mtwget@gmail.com>
+    rtc: rx8010: select REGMAP_I2C
+
+Li Jinlin <lijinlin3@huawei.com>
+    blk-throttle: fix UAF by deleteing timer in blk_throtl_exit()
+
+Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+    pwm: stm32-lp: Don't modify HW state in .remove() callback
+
+Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+    pwm: rockchip: Don't modify HW state in .remove() callback
+
+Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+    pwm: img: Don't modify HW state in .remove() callback
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix memory leak in nilfs_sysfs_delete_snapshot_group
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix memory leak in nilfs_sysfs_create_snapshot_group
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix memory leak in nilfs_sysfs_delete_##name##_group
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix memory leak in nilfs_sysfs_create_##name##_group
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix NULL pointer in nilfs_##name##_attr_release
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix memory leak in nilfs_sysfs_create_device_group
+
+Anand Jain <anand.jain@oracle.com>
+    btrfs: fix lockdep warning while mounting sprout fs
+
+Jeff Layton <jlayton@kernel.org>
+    ceph: lockdep annotations for try_nonblocking_invalidate
+
+Jeff Layton <jlayton@kernel.org>
+    ceph: request Fw caps before updating the mtime in ceph_write_iter
+
+Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+    dmaengine: xilinx_dma: Set DMA mask for coherent APIs
+
+Johannes Berg <johannes.berg@intel.com>
+    dmaengine: ioat: depends on !UML
+
+Zou Wei <zou_wei@huawei.com>
+    dmaengine: sprd: Add missing MODULE_DEVICE_TABLE
+
+Guenter Roeck <linux@roeck-us.net>
+    parisc: Move pci_dev_is_behind_card_dino to where it is used
+
+Thomas Gleixner <tglx@linutronix.de>
+    drivers: base: cacheinfo: Get rid of DEFINE_SMP_CALL_CACHE_FUNCTION()
+
+Arnd Bergmann <arnd@arndb.de>
+    thermal/core: Fix thermal_cooling_device_register() prototype
+
+Lukas Bulwahn <lukas.bulwahn@gmail.com>
+    Kconfig.debug: drop selecting non-existing HARDLOCKUP_DETECTOR_ARCH
+
+Jongsung Kim <neidhard.kim@lge.com>
+    net: stmmac: reset Tx desc base address before restarting Tx
+
+Petr Oros <poros@redhat.com>
+    phy: avoid unnecessary link-up delay in polling mode
+
+Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+    pwm: mxs: Don't modify HW state in .probe() after the PWM chip was registered
+
+Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+    pwm: lpc32xx: Don't modify HW state in .probe() after the PWM chip was registered
+
+Pavel Skripkin <paskripkin@gmail.com>
+    profiling: fix shift-out-of-bounds bugs
+
+Zhen Lei <thunder.leizhen@huawei.com>
+    nilfs2: use refcount_dec_and_lock() to fix potential UAF
+
+Cyrill Gorcunov <gorcunov@gmail.com>
+    prctl: allow to setup brk for et_dyn executables
+
+Xie Yongji <xieyongji@bytedance.com>
+    9p/trans_virtio: Remove sysfs file on probe failure
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    thermal/drivers/exynos: Fix an error code in exynos_tmu_probe()
+
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+    dmaengine: acpi: Avoid comparison GSI with Linux vIRQ
+
+Johannes Berg <johannes.berg@intel.com>
+    um: virtio_uml: fix memory leak on init failures
+
+Nathan Chancellor <nathan@kernel.org>
+    staging: rtl8192u: Fix bitwise vs logical operator in TranslateRxSignalStuff819xUsb()
+
+Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+    sctp: add param size validation for SCTP_PARAM_SET_PRIMARY
+
+Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+    sctp: validate chunk size in __rcv_asconf_lookup
+
+Alex Sverdlin <alexander.sverdlin@nokia.com>
+    ARM: 9098/1: ftrace: MODULE_PLT: Fix build problem without DYNAMIC_FTRACE
+
+Alex Sverdlin <alexander.sverdlin@nokia.com>
+    ARM: 9079/1: ftrace: Add MODULE_PLTS support
+
+Alex Sverdlin <alexander.sverdlin@nokia.com>
+    ARM: 9078/1: Add warn suppress parameter to arm_gen_branch_link()
+
+Alex Sverdlin <alexander.sverdlin@nokia.com>
+    ARM: 9077/1: PLT: Move struct plt_entries definition to header
+
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+    apparmor: remove duplicate macro list_entry_is_head()
+
+Florian Fainelli <f.fainelli@gmail.com>
+    ARM: Qualify enabling of swiotlb_init()
+
+David Hildenbrand <david@redhat.com>
+    s390/pci_mmio: fully validate the VMA before calling follow_pte()
+
+nick black <dankamongmen@gmail.com>
+    console: consume APC, DM, DCS
+
+Radim Krčmář <rkrcmar@redhat.com>
+    KVM: remember position in kvm->vcpus array
+
+Tuan Phan <tuanphan@os.amperecomputing.com>
+    PCI/ACPI: Add Ampere Altra SOC MCFG quirk
+
+Pali Rohár <pali@kernel.org>
+    PCI: aardvark: Fix reporting CRS value
+
+Pali Rohár <pali@kernel.org>
+    PCI: pci-bridge-emul: Add PCIe Root Capabilities Register
+
+Pali Rohár <pali@kernel.org>
+    PCI: aardvark: Indicate error in 'val' when config read fails
+
+Grzegorz Jaszczyk <jaz@semihalf.com>
+    PCI: pci-bridge-emul: Fix big-endian support
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                          |  4 +-
+ arch/arm/include/asm/ftrace.h                     |  3 +
+ arch/arm/include/asm/insn.h                       |  8 +--
+ arch/arm/include/asm/module.h                     | 10 +++
+ arch/arm/kernel/ftrace.c                          | 46 ++++++++++---
+ arch/arm/kernel/insn.c                            | 19 +++---
+ arch/arm/kernel/module-plts.c                     | 49 ++++++++++----
+ arch/arm/mm/init.c                                |  6 +-
+ arch/arm64/kernel/cacheinfo.c                     |  7 +-
+ arch/mips/kernel/cacheinfo.c                      |  7 +-
+ arch/riscv/kernel/cacheinfo.c                     |  7 +-
+ arch/s390/pci/pci_mmio.c                          |  2 +-
+ arch/um/drivers/virtio_uml.c                      |  4 +-
+ arch/x86/kernel/cpu/cacheinfo.c                   |  7 +-
+ block/blk-throttle.c                              |  1 +
+ drivers/acpi/pci_mcfg.c                           | 20 ++++++
+ drivers/dma/Kconfig                               |  2 +-
+ drivers/dma/acpi-dma.c                            | 10 ++-
+ drivers/dma/sprd-dma.c                            |  1 +
+ drivers/dma/xilinx/xilinx_dma.c                   |  2 +-
+ drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c |  2 +-
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |  2 +
+ drivers/net/phy/phy-c45.c                         |  5 +-
+ drivers/net/phy/phy_device.c                      |  5 +-
+ drivers/parisc/dino.c                             | 18 +++---
+ drivers/pci/controller/pci-aardvark.c             | 71 +++++++++++++++++++--
+ drivers/pci/ecam.c                                | 10 +++
+ drivers/pci/pci-bridge-emul.c                     | 25 ++++----
+ drivers/pci/pci-bridge-emul.h                     | 78 +++++++++++------------
+ drivers/pwm/pwm-img.c                             | 16 -----
+ drivers/pwm/pwm-lpc32xx.c                         | 10 +--
+ drivers/pwm/pwm-mxs.c                             | 13 ++--
+ drivers/pwm/pwm-rockchip.c                        | 14 ----
+ drivers/pwm/pwm-stm32-lp.c                        |  2 -
+ drivers/rtc/Kconfig                               |  1 +
+ drivers/staging/rtl8192u/r8192U_core.c            |  2 +-
+ drivers/thermal/samsung/exynos_tmu.c              |  1 +
+ drivers/tty/vt/vt.c                               | 31 +++++++--
+ fs/btrfs/volumes.c                                |  7 +-
+ fs/ceph/caps.c                                    |  2 +
+ fs/ceph/file.c                                    | 32 +++++-----
+ fs/nilfs2/sysfs.c                                 | 26 ++++----
+ fs/nilfs2/the_nilfs.c                             |  9 ++-
+ include/linux/cacheinfo.h                         | 18 ------
+ include/linux/kvm_host.h                          | 11 +---
+ include/linux/pci-ecam.h                          |  1 +
+ include/linux/thermal.h                           |  5 +-
+ kernel/profile.c                                  | 21 +++---
+ kernel/sys.c                                      |  7 --
+ lib/Kconfig.debug                                 |  1 -
+ net/9p/trans_virtio.c                             |  4 +-
+ net/sctp/input.c                                  |  3 +
+ net/sctp/sm_make_chunk.c                          | 13 +++-
+ security/apparmor/apparmorfs.c                    |  3 -
+ virt/kvm/kvm_main.c                               |  5 +-
+ 55 files changed, 414 insertions(+), 275 deletions(-)
 
 
