@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A35C3417393
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92BA241751A
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:13:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344934AbhIXM7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:59:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54138 "EHLO mail.kernel.org"
+        id S1346897AbhIXNO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:14:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345109AbhIXMzv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:55:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 43B7861279;
-        Fri, 24 Sep 2021 12:51:22 +0000 (UTC)
+        id S1346721AbhIXNLf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:11:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 558486159A;
+        Fri, 24 Sep 2021 12:58:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487882;
-        bh=CewhgAOQU3TLW7dQH2xLO3ml27LzGUt5NdRUp7H6K0Q=;
+        s=korg; t=1632488316;
+        bh=BGaO2d5KMqAdaiWzfa1+0RVyVlGMslFN3ltylz4C+zY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aBTyBJNYhekIKQRxg09zMv442BAiBCOxtWaE2uvqz5F+XnzFcCMQNvfJ8vYvwgIvH
-         CLUTTjbWc2QfTzKAZ0vuvTCV5PAGiDDGIf9vOY0nocvKDTVjhEwHS78VB4rkBdjXwB
-         J4EFY/pNYJf5iNL4ABURUH/JbhV3C80r8Api1U64=
+        b=ThWu/gbuA71u+vTbWMEaj8div5REetcUbmKzy19K2uuY/Bzt2p3+PjsUgZgoHAWik
+         fuau8bHeSjrk83J7/AAGRbhYe4B3X0XoLa2BOckrZuDbDtkjW5eYQ6tNbnuAfvIKCj
+         KKa4p4cTa8ZPWrD+Z45kK21ipVruyvHwN4etl7SE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu-Tung Chang <mtwget@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 49/50] rtc: rx8010: select REGMAP_I2C
+Subject: [PATCH 5.10 38/63] parisc: Move pci_dev_is_behind_card_dino to where it is used
 Date:   Fri, 24 Sep 2021 14:44:38 +0200
-Message-Id: <20210924124333.902689505@linuxfoundation.org>
+Message-Id: <20210924124335.582488723@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
-References: <20210924124332.229289734@linuxfoundation.org>
+In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
+References: <20210924124334.228235870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu-Tung Chang <mtwget@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 0c45d3e24ef3d3d87c5e0077b8f38d1372af7176 ]
+[ Upstream commit 907872baa9f1538eed02ec737b8e89eba6c6e4b9 ]
 
-The rtc-rx8010 uses the I2C regmap but doesn't select it in Kconfig so
-depending on the configuration the build may fail. Fix it.
+parisc build test images fail to compile with the following error.
 
-Signed-off-by: Yu-Tung Chang <mtwget@gmail.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210830052532.40356-1-mtwget@gmail.com
+drivers/parisc/dino.c:160:12: error:
+	'pci_dev_is_behind_card_dino' defined but not used
+
+Move the function just ahead of its only caller to avoid the error.
+
+Fixes: 5fa1659105fa ("parisc: Disable HP HSC-PCI Cards to prevent kernel crash")
+Cc: Helge Deller <deller@gmx.de>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/parisc/dino.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 9ae7ce3f5069..0ad8d84aeb33 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -625,6 +625,7 @@ config RTC_DRV_FM3130
+diff --git a/drivers/parisc/dino.c b/drivers/parisc/dino.c
+index 889d7ce282eb..952a92504df6 100644
+--- a/drivers/parisc/dino.c
++++ b/drivers/parisc/dino.c
+@@ -156,15 +156,6 @@ static inline struct dino_device *DINO_DEV(struct pci_hba_data *hba)
+ 	return container_of(hba, struct dino_device, hba);
+ }
  
- config RTC_DRV_RX8010
- 	tristate "Epson RX8010SJ"
-+	select REGMAP_I2C
- 	help
- 	  If you say yes here you get support for the Epson RX8010SJ RTC
- 	  chip.
+-/* Check if PCI device is behind a Card-mode Dino. */
+-static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
+-{
+-	struct dino_device *dino_dev;
+-
+-	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
+-	return is_card_dino(&dino_dev->hba.dev->id);
+-}
+-
+ /*
+  * Dino Configuration Space Accessor Functions
+  */
+@@ -447,6 +438,15 @@ static void quirk_cirrus_cardbus(struct pci_dev *dev)
+ DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_CIRRUS, PCI_DEVICE_ID_CIRRUS_6832, quirk_cirrus_cardbus );
+ 
+ #ifdef CONFIG_TULIP
++/* Check if PCI device is behind a Card-mode Dino. */
++static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
++{
++	struct dino_device *dino_dev;
++
++	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
++	return is_card_dino(&dino_dev->hba.dev->id);
++}
++
+ static void pci_fixup_tulip(struct pci_dev *dev)
+ {
+ 	if (!pci_dev_is_behind_card_dino(dev))
 -- 
 2.33.0
 
