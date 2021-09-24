@@ -2,73 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF2B5416F14
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 11:37:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8C17416F7E
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 11:49:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245183AbhIXJi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 05:38:59 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:57172 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S245054AbhIXJi7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Sep 2021 05:38:59 -0400
-X-UUID: 255e452eb7124b5c950a461d92c7af71-20210924
-X-UUID: 255e452eb7124b5c950a461d92c7af71-20210924
-Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw02.mediatek.com
-        (envelope-from <macpaul.lin@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 97156409; Fri, 24 Sep 2021 17:37:21 +0800
-Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Fri, 24 Sep 2021 17:37:19 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas10.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Fri, 24 Sep 2021 17:37:19 +0800
-From:   Macpaul Lin <macpaul.lin@mediatek.com>
-To:     Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+        id S245351AbhIXJvT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 05:51:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52548 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S245340AbhIXJvR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 05:51:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F047461076;
+        Fri, 24 Sep 2021 09:49:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1632476984;
+        bh=q3ICXikkwH5UtUHIuBaYtEaF6KNhkxjPlvfIZGiRwA8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=cgH+5Q7PyPTUuMVaLzy7qMzzJGLDRCEHN356hOwH/tQ1nlMVTG6fdN9KLCnWYx2Ks
+         9wyvcf2JZFPvkPsAVYM9dW0fxcV1nLQdNsRpN9XCmEcCkX3cy8aYcVauvXkoPlSKTN
+         CZ78TJw4um1DP+kM6L8mj9/fxQs/3TlRdiaWDchE=
+Date:   Fri, 24 Sep 2021 11:49:42 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Macpaul Lin <macpaul.lin@mediatek.com>
+Cc:     Giuseppe Cavallaro <peppe.cavallaro@st.com>,
         Alexandre Torgue <alexandre.torgue@st.com>,
         Jose Abreu <joabreu@synopsys.com>,
         "David S. Miller" <davem@davemloft.net>,
         Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        <netdev@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Miles Chen <miles.chen@mediatek.com>,
+        netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+        stable@vger.kernel.org, Miles Chen <miles.chen@mediatek.com>,
         Bear Wang <bear.wang@mediatek.com>,
         Pablo Sun <pablo.sun@mediatek.com>,
         Fabien Parent <fparent@baylibre.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>,
-        Macpaul Lin <macpaul@gmail.com>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>
-Subject: backport commit ("f421031e3ff0 net: stmmac: reset Tx desc base address before restarting") to linux-5.4-stable
-Date:   Fri, 24 Sep 2021 17:37:19 +0800
-Message-ID: <20210924093719.16510-1-macpaul.lin@mediatek.com>
-X-Mailer: git-send-email 2.18.0
+        Macpaul Lin <macpaul@gmail.com>, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: Re: backport commit ("f421031e3ff0 net: stmmac: reset Tx desc base
+ address before restarting") to linux-5.4-stable
+Message-ID: <YU2fNiQh5or41pzT@kroah.com>
+References: <20210924093719.16510-1-macpaul.lin@mediatek.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-MTK:  N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210924093719.16510-1-macpaul.lin@mediatek.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi reviewers,
+On Fri, Sep 24, 2021 at 05:37:19PM +0800, Macpaul Lin wrote:
+> Hi reviewers,
+> 
+> I suggest to backport 
+> commit "f421031e3ff0 net: stmmac: reset Tx desc base address before
+> restarting"
+> to linux-5.4 stable tree.
+> 
+> This patch reports a register usage correction for an address
+> inconsistency issue.
+> "If this register is not changed when the ST bit is set to 0, then
+> the DMA takes the descriptor address where it was stopped earlier."
+> 
+> commit: f421031e3ff0dd288a6e1bbde9aa41a25bb814e6
+> subject: net: stmmac: reset Tx desc base address before restarting
+> kernel version to apply to: Linux-5.4
 
-I suggest to backport 
-commit "f421031e3ff0 net: stmmac: reset Tx desc base address before
-restarting"
-to linux-5.4 stable tree.
+Now queued up, thanks.
 
-This patch reports a register usage correction for an address
-inconsistency issue.
-"If this register is not changed when the ST bit is set to 0, then
-the DMA takes the descriptor address where it was stopped earlier."
-
-commit: f421031e3ff0dd288a6e1bbde9aa41a25bb814e6
-subject: net: stmmac: reset Tx desc base address before restarting
-kernel version to apply to: Linux-5.4
-
-Thanks.
-Macpaul Lin
+greg k-h
