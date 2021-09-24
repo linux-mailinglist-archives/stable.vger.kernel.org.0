@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92CE541728C
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:48:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0E194173FF
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:02:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344159AbhIXMtM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:49:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
+        id S1345699AbhIXNBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:01:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344204AbhIXMs3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:48:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39C866124D;
-        Fri, 24 Sep 2021 12:46:56 +0000 (UTC)
+        id S1344849AbhIXM7d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:59:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E58961283;
+        Fri, 24 Sep 2021 12:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487616;
-        bh=98OmaOsqsiaPG8nAK0MzoQ4ZPDrTNDgUGygrcvZICrQ=;
+        s=korg; t=1632488005;
+        bh=pNEvi4tY0qEvOUmY2GRGxyqS8i4BY84ocPzDov3hEI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=danjC8iQl6zJ2U6h9Pzfdz5BbvPGG4GOv0pU6BowlHzcCPBr/g+/BWLkZsqmkUQ4N
-         Rx1W3/rQ3xuR8CZDLfMlhFHFSoquPr87O3KhSX2XaHhKZgY9uPthengHRtCz4iNH+G
-         yEPtMTgozHOa2sMCQiygMLLwOz6SdHKsBoM3+HgY=
+        b=BohiU9jZM2uXgvIu1HpLN+K4sMq5eWparBFDMHDsWSSuLXPZRzfkgIobDH4iktTOy
+         7SlFMkh7+rgH4LPXhFZucin1P8HSR/XmOlLSOpldm1C2pv5BSdCdMq0IbKNGUIrBuo
+         znTXG1+Uw2eaUnkV/kqP9FGl7gXcV35usce5Tipg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neeraj Upadhyay <neeraju@codeaurora.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        David Chen <david.chen@nutanix.com>
-Subject: [PATCH 4.14 02/27] rcu: Fix missed wakeup of exp_wq waiters
+        stable@vger.kernel.org, Wei Huang <wei.huang2@amd.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 047/100] iommu/amd: Relocate GAMSup check to early_enable_iommus
 Date:   Fri, 24 Sep 2021 14:43:56 +0200
-Message-Id: <20210924124329.259394431@linuxfoundation.org>
+Message-Id: <20210924124343.022637791@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124329.173674820@linuxfoundation.org>
-References: <20210924124329.173674820@linuxfoundation.org>
+In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
+References: <20210924124341.214446495@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,99 +40,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neeraj Upadhyay <neeraju@codeaurora.org>
+From: Wei Huang <wei.huang2@amd.com>
 
-commit fd6bc19d7676a060a171d1cf3dcbf6fd797eb05f upstream.
+[ Upstream commit c3811a50addd23b9bb5a36278609ee1638debcf6 ]
 
-Tasks waiting within exp_funnel_lock() for an expedited grace period to
-elapse can be starved due to the following sequence of events:
+Currently, iommu_init_ga() checks and disables IOMMU VAPIC support
+(i.e. AMD AVIC support in IOMMU) when GAMSup feature bit is not set.
+However it forgets to clear IRQ_POSTING_CAP from the previously set
+amd_iommu_irq_ops.capability.
 
-1.	Tasks A and B both attempt to start an expedited grace
-	period at about the same time.	This grace period will have
-	completed when the lower four bits of the rcu_state structure's
-	->expedited_sequence field are 0b'0100', for example, when the
-	initial value of this counter is zero.	Task A wins, and thus
-	does the actual work of starting the grace period, including
-	acquiring the rcu_state structure's .exp_mutex and sets the
-	counter to 0b'0001'.
+This triggers an invalid page fault bug during guest VM warm reboot
+if AVIC is enabled since the irq_remapping_cap(IRQ_POSTING_CAP) is
+incorrectly set, and crash the system with the following kernel trace.
 
-2.	Because task B lost the race to start the grace period, it
-	waits on ->expedited_sequence to reach 0b'0100' inside of
-	exp_funnel_lock(). This task therefore blocks on the rcu_node
-	structure's ->exp_wq[1] field, keeping in mind that the
-	end-of-grace-period value of ->expedited_sequence (0b'0100')
-	is shifted down two bits before indexing the ->exp_wq[] field.
+    BUG: unable to handle page fault for address: 0000000000400dd8
+    RIP: 0010:amd_iommu_deactivate_guest_mode+0x19/0xbc
+    Call Trace:
+     svm_set_pi_irte_mode+0x8a/0xc0 [kvm_amd]
+     ? kvm_make_all_cpus_request_except+0x50/0x70 [kvm]
+     kvm_request_apicv_update+0x10c/0x150 [kvm]
+     svm_toggle_avic_for_irq_window+0x52/0x90 [kvm_amd]
+     svm_enable_irq_window+0x26/0xa0 [kvm_amd]
+     vcpu_enter_guest+0xbbe/0x1560 [kvm]
+     ? avic_vcpu_load+0xd5/0x120 [kvm_amd]
+     ? kvm_arch_vcpu_load+0x76/0x240 [kvm]
+     ? svm_get_segment_base+0xa/0x10 [kvm_amd]
+     kvm_arch_vcpu_ioctl_run+0x103/0x590 [kvm]
+     kvm_vcpu_ioctl+0x22a/0x5d0 [kvm]
+     __x64_sys_ioctl+0x84/0xc0
+     do_syscall_64+0x33/0x40
+     entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-3.	Task C attempts to start another expedited grace period,
-	but blocks on ->exp_mutex, which is still held by Task A.
+Fixes by moving the initializing of AMD IOMMU interrupt remapping mode
+(amd_iommu_guest_ir) earlier before setting up the
+amd_iommu_irq_ops.capability with appropriate IRQ_POSTING_CAP flag.
 
-4.	The aforementioned expedited grace period completes, so that
-	->expedited_sequence now has the value 0b'0100'.  A kworker task
-	therefore acquires the rcu_state structure's ->exp_wake_mutex
-	and starts awakening any tasks waiting for this grace period.
+[joro:	Squashed the two patches and limited
+	check_features_on_all_iommus() to CONFIG_IRQ_REMAP
+	to fix a compile warning.]
 
-5.	One of the first tasks awakened happens to be Task A.  Task A
-	therefore releases the rcu_state structure's ->exp_mutex,
-	which allows Task C to start the next expedited grace period,
-	which causes the lower four bits of the rcu_state structure's
-	->expedited_sequence field to become 0b'0101'.
-
-6.	Task C's expedited grace period completes, so that the lower four
-	bits of the rcu_state structure's ->expedited_sequence field now
-	become 0b'1000'.
-
-7.	The kworker task from step 4 above continues its wakeups.
-	Unfortunately, the wake_up_all() refetches the rcu_state
-	structure's .expedited_sequence field:
-
-	wake_up_all(&rnp->exp_wq[rcu_seq_ctr(rcu_state.expedited_sequence) & 0x3]);
-
-	This results in the wakeup being applied to the rcu_node
-	structure's ->exp_wq[2] field, which is unfortunate given that
-	Task B is instead waiting on ->exp_wq[1].
-
-On a busy system, no harm is done (or at least no permanent harm is done).
-Some later expedited grace period will redo the wakeup.  But on a quiet
-system, such as many embedded systems, it might be a good long time before
-there was another expedited grace period.  On such embedded systems,
-this situation could therefore result in a system hang.
-
-This issue manifested as DPM device timeout during suspend (which
-usually qualifies as a quiet time) due to a SCSI device being stuck in
-_synchronize_rcu_expedited(), with the following stack trace:
-
-	schedule()
-	synchronize_rcu_expedited()
-	synchronize_rcu()
-	scsi_device_quiesce()
-	scsi_bus_suspend()
-	dpm_run_callback()
-	__device_suspend()
-
-This commit therefore prevents such delays, timeouts, and hangs by
-making rcu_exp_wait_wake() use its "s" argument consistently instead of
-refetching from rcu_state.expedited_sequence.
-
-Fixes: 3b5f668e715b ("rcu: Overlap wakeups with next expedited grace period")
-Signed-off-by: Neeraj Upadhyay <neeraju@codeaurora.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: David Chen <david.chen@nutanix.com>
-Acked-by: Neeraj Upadhyay <neeraju@codeaurora.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wei Huang <wei.huang2@amd.com>
+Co-developed-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Link: https://lore.kernel.org/r/20210820202957.187572-2-suravee.suthikulpanit@amd.com
+Link: https://lore.kernel.org/r/20210820202957.187572-3-suravee.suthikulpanit@amd.com
+Fixes: 8bda0cfbdc1a ("iommu/amd: Detect and initialize guest vAPIC log")
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_exp.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/amd/init.c | 31 ++++++++++++++++++++++++-------
+ 1 file changed, 24 insertions(+), 7 deletions(-)
 
---- a/kernel/rcu/tree_exp.h
-+++ b/kernel/rcu/tree_exp.h
-@@ -534,7 +534,7 @@ static void rcu_exp_wait_wake(struct rcu
- 			spin_unlock(&rnp->exp_lock);
- 		}
- 		smp_mb(); /* All above changes before wakeup. */
--		wake_up_all(&rnp->exp_wq[rcu_seq_ctr(rsp->expedited_sequence) & 0x3]);
-+		wake_up_all(&rnp->exp_wq[rcu_seq_ctr(s) & 0x3]);
+diff --git a/drivers/iommu/amd/init.c b/drivers/iommu/amd/init.c
+index 46280e6e1535..5c21f1ee5098 100644
+--- a/drivers/iommu/amd/init.c
++++ b/drivers/iommu/amd/init.c
+@@ -298,6 +298,22 @@ int amd_iommu_get_num_iommus(void)
+ 	return amd_iommus_present;
+ }
+ 
++#ifdef CONFIG_IRQ_REMAP
++static bool check_feature_on_all_iommus(u64 mask)
++{
++	bool ret = false;
++	struct amd_iommu *iommu;
++
++	for_each_iommu(iommu) {
++		ret = iommu_feature(iommu, mask);
++		if (!ret)
++			return false;
++	}
++
++	return true;
++}
++#endif
++
+ /*
+  * For IVHD type 0x11/0x40, EFR is also available via IVHD.
+  * Default to IVHD EFR since it is available sooner
+@@ -854,13 +870,6 @@ static int iommu_init_ga(struct amd_iommu *iommu)
+ 	int ret = 0;
+ 
+ #ifdef CONFIG_IRQ_REMAP
+-	/* Note: We have already checked GASup from IVRS table.
+-	 *       Now, we need to make sure that GAMSup is set.
+-	 */
+-	if (AMD_IOMMU_GUEST_IR_VAPIC(amd_iommu_guest_ir) &&
+-	    !iommu_feature(iommu, FEATURE_GAM_VAPIC))
+-		amd_iommu_guest_ir = AMD_IOMMU_GUEST_IR_LEGACY_GA;
+-
+ 	ret = iommu_init_ga_log(iommu);
+ #endif /* CONFIG_IRQ_REMAP */
+ 
+@@ -2477,6 +2486,14 @@ static void early_enable_iommus(void)
  	}
- 	trace_rcu_exp_grace_period(rsp->name, s, TPS("endwake"));
- 	mutex_unlock(&rsp->exp_wake_mutex);
+ 
+ #ifdef CONFIG_IRQ_REMAP
++	/*
++	 * Note: We have already checked GASup from IVRS table.
++	 *       Now, we need to make sure that GAMSup is set.
++	 */
++	if (AMD_IOMMU_GUEST_IR_VAPIC(amd_iommu_guest_ir) &&
++	    !check_feature_on_all_iommus(FEATURE_GAM_VAPIC))
++		amd_iommu_guest_ir = AMD_IOMMU_GUEST_IR_LEGACY_GA;
++
+ 	if (AMD_IOMMU_GUEST_IR_VAPIC(amd_iommu_guest_ir))
+ 		amd_iommu_irq_ops.capability |= (1 << IRQ_POSTING_CAP);
+ #endif
+-- 
+2.33.0
+
 
 
