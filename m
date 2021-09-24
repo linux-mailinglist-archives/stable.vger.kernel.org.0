@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63860417517
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:13:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78282417477
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346883AbhIXNOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:14:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41658 "EHLO mail.kernel.org"
+        id S1346423AbhIXNGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:06:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346492AbhIXNL5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:11:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F4CB615A2;
-        Fri, 24 Sep 2021 12:58:44 +0000 (UTC)
+        id S1345878AbhIXNEV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:04:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8C2B61267;
+        Fri, 24 Sep 2021 12:55:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488325;
-        bh=Fe0u47UtFxmHHLPrc9Z6tjunTngUMbu/DcOtnGOPw1Y=;
+        s=korg; t=1632488123;
+        bh=6gWTIyH01od1pmnPif+s0H7J6YjdBAYJrikc3Fv4oEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2WW+eFvPuwYz9aJ+4shKmKV8evEWiySu4RVAEwsNfHVt7+xZHhtUJBdXPzdnx66Be
-         9u/BscgbY1O6dsi1m/2m9kTJb75OhstbqBgJ9z2/eEixjAEv2LcvXhow87rSViD8+Q
-         8e7g2+HzeeXurwNI0nhkQMposKGrFyPvvNE1fyFs=
+        b=2QD1I8ajNazwEWbaZ90iWvJxe5Gq5Q21K9ve789J/PsvNZnTR2DkBK9G0gPd5bzF7
+         B8ycIEXv6TAQ0D4nj5wfWIuS+7lP46JBqKs6xaysuY4Hn/hNxfbsyQE4cZxEGfxL9P
+         JpPU8Jt12YComCHRhusM2gVaQ9h3K9KHR8m9Bro0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>,
-        Baolin Wang <baolin.wang7@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 41/63] dmaengine: sprd: Add missing MODULE_DEVICE_TABLE
-Date:   Fri, 24 Sep 2021 14:44:41 +0200
-Message-Id: <20210924124335.685755646@linuxfoundation.org>
+        stable@vger.kernel.org, Li Jinlin <lijinlin3@huawei.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 093/100] blk-throttle: fix UAF by deleteing timer in blk_throtl_exit()
+Date:   Fri, 24 Sep 2021 14:44:42 +0200
+Message-Id: <20210924124344.593118957@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
-References: <20210924124334.228235870@linuxfoundation.org>
+In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
+References: <20210924124341.214446495@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Li Jinlin <lijinlin3@huawei.com>
 
-[ Upstream commit 4faee8b65ec32346f8096e64c5fa1d5a73121742 ]
+[ Upstream commit 884f0e84f1e3195b801319c8ec3d5774e9bf2710 ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+The pending timer has been set up in blk_throtl_init(). However, the
+timer is not deleted in blk_throtl_exit(). This means that the timer
+handler may still be running after freeing the timer, which would
+result in a use-after-free.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Reviewed-by: Baolin Wang <baolin.wang7@gmail.com>
-Link: https://lore.kernel.org/r/1620094977-70146-1-git-send-email-zou_wei@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fix by calling del_timer_sync() to delete the timer in blk_throtl_exit().
+
+Signed-off-by: Li Jinlin <lijinlin3@huawei.com>
+Link: https://lore.kernel.org/r/20210907121242.2885564-1-lijinlin3@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sprd-dma.c | 1 +
+ block/blk-throttle.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/sprd-dma.c b/drivers/dma/sprd-dma.c
-index 0ef5ca81ba4d..4357d2395e6b 100644
---- a/drivers/dma/sprd-dma.c
-+++ b/drivers/dma/sprd-dma.c
-@@ -1265,6 +1265,7 @@ static const struct of_device_id sprd_dma_match[] = {
- 	{ .compatible = "sprd,sc9860-dma", },
- 	{},
- };
-+MODULE_DEVICE_TABLE(of, sprd_dma_match);
- 
- static int __maybe_unused sprd_dma_runtime_suspend(struct device *dev)
+diff --git a/block/blk-throttle.c b/block/blk-throttle.c
+index 55c49015e533..7c4e7993ba97 100644
+--- a/block/blk-throttle.c
++++ b/block/blk-throttle.c
+@@ -2458,6 +2458,7 @@ int blk_throtl_init(struct request_queue *q)
+ void blk_throtl_exit(struct request_queue *q)
  {
+ 	BUG_ON(!q->td);
++	del_timer_sync(&q->td->service_queue.pending_timer);
+ 	throtl_shutdown_wq(q);
+ 	blkcg_deactivate_policy(q, &blkcg_policy_throtl);
+ 	free_percpu(q->td->latency_buckets[READ]);
 -- 
 2.33.0
 
