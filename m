@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6D2E4174C6
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:09:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E48D54174C4
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:09:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346397AbhIXNKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1346123AbhIXNKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 24 Sep 2021 09:10:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38838 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346845AbhIXNIM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346844AbhIXNIM (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 24 Sep 2021 09:08:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A514260E8B;
-        Fri, 24 Sep 2021 12:57:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A0E460F39;
+        Fri, 24 Sep 2021 12:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488224;
-        bh=KpzRXMMsCQNA6qb0p+e5qdjuYKUNlRmHo44BN4oz6zc=;
+        s=korg; t=1632488226;
+        bh=lx1LhdKj95FfU9ceJD3dWpyV9B7g4S1HDUpYyQ475KI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VqXkgiMa//ZAwC1U9rMLJ1CaKXhxAgv94kQa8PVHgARocX5WbZg0iTD39efQQPL7w
-         lFsWGKvsP2fWF4VGH8txIjmZqE4L1Aqglgf5R9GL8X6O09YZlAMxcvRtkgjjAwspGg
-         +m7UadsTJBAmI3OQkvTXHJqwWC+HsVR0SmxN816Q=
+        b=t9uKMnI2Io81hMqXOXsRpRzXDfFhXLzxAj/P6yCH/e/VworbE2RYk8n9kIOhoPMyP
+         qiabrJFkwBwHcNF2w4iSNiGRA3DWLPOI2vVhpm2IpzGGolHB+CxaUEhB2izwKpHYFQ
+         4h798r5SOurIVIfPKATH1gFhtr31z1WdyBO42V8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        Luis Henriques <lhenriques@suse.de>,
+        Xiubo Li <xiubli@redhat.com>,
         Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 30/63] ceph: allow ceph_put_mds_session to take NULL or ERR_PTR
-Date:   Fri, 24 Sep 2021 14:44:30 +0200
-Message-Id: <20210924124335.307657262@linuxfoundation.org>
+Subject: [PATCH 5.10 31/63] ceph: cancel delayed work instead of flushing on mdsc teardown
+Date:   Fri, 24 Sep 2021 14:44:31 +0200
+Message-Id: <20210924124335.340513745@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
 References: <20210924124334.228235870@linuxfoundation.org>
@@ -43,97 +43,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit 7e65624d32b6e0429b1d3559e5585657f34f74a1 ]
+[ Upstream commit b4002173b7989588b6feaefc42edaf011b596782 ]
 
-...to simplify some error paths.
+The first thing metric_delayed_work does is check mdsc->stopping,
+and then return immediately if it's set. That's good since we would
+have already torn down the metric structures at this point, otherwise,
+but there is no locking around mdsc->stopping.
 
+It's possible that the ceph_metric_destroy call could race with the
+delayed_work, in which case we could end up with the delayed_work
+accessing destroyed percpu variables.
+
+At this point in the mdsc teardown, the "stopping" flag has already been
+set, so there's no benefit to flushing the work. Move the work
+cancellation in ceph_metric_destroy ahead of the percpu variable
+destruction, and eliminate the flush_delayed_work call in
+ceph_mdsc_destroy.
+
+Fixes: 18f473b384a6 ("ceph: periodically send perf metrics to MDSes")
 Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Luis Henriques <lhenriques@suse.de>
+Reviewed-by: Xiubo Li <xiubli@redhat.com>
 Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/dir.c        | 3 +--
- fs/ceph/inode.c      | 6 ++----
- fs/ceph/mds_client.c | 6 ++++--
- fs/ceph/metric.c     | 3 +--
- 4 files changed, 8 insertions(+), 10 deletions(-)
+ fs/ceph/mds_client.c | 1 -
+ fs/ceph/metric.c     | 4 ++--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ceph/dir.c b/fs/ceph/dir.c
-index a4d48370b2b3..f63c1a090139 100644
---- a/fs/ceph/dir.c
-+++ b/fs/ceph/dir.c
-@@ -1797,8 +1797,7 @@ static void ceph_d_release(struct dentry *dentry)
- 	dentry->d_fsdata = NULL;
- 	spin_unlock(&dentry->d_lock);
- 
--	if (di->lease_session)
--		ceph_put_mds_session(di->lease_session);
-+	ceph_put_mds_session(di->lease_session);
- 	kmem_cache_free(ceph_dentry_cachep, di);
- }
- 
-diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
-index 57cd78e942c0..63e781e4f7e4 100644
---- a/fs/ceph/inode.c
-+++ b/fs/ceph/inode.c
-@@ -1121,8 +1121,7 @@ static inline void update_dentry_lease(struct inode *dir, struct dentry *dentry,
- 	__update_dentry_lease(dir, dentry, lease, session, from_time,
- 			      &old_lease_session);
- 	spin_unlock(&dentry->d_lock);
--	if (old_lease_session)
--		ceph_put_mds_session(old_lease_session);
-+	ceph_put_mds_session(old_lease_session);
- }
- 
- /*
-@@ -1167,8 +1166,7 @@ static void update_dentry_lease_careful(struct dentry *dentry,
- 			      from_time, &old_lease_session);
- out_unlock:
- 	spin_unlock(&dentry->d_lock);
--	if (old_lease_session)
--		ceph_put_mds_session(old_lease_session);
-+	ceph_put_mds_session(old_lease_session);
- }
- 
- /*
 diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
-index 816cea497537..8cbbb611e0ca 100644
+index 8cbbb611e0ca..46606fb5b886 100644
 --- a/fs/ceph/mds_client.c
 +++ b/fs/ceph/mds_client.c
-@@ -661,6 +661,9 @@ struct ceph_mds_session *ceph_get_mds_session(struct ceph_mds_session *s)
+@@ -4859,7 +4859,6 @@ void ceph_mdsc_destroy(struct ceph_fs_client *fsc)
  
- void ceph_put_mds_session(struct ceph_mds_session *s)
- {
-+	if (IS_ERR_OR_NULL(s))
-+		return;
-+
- 	dout("mdsc put_session %p %d -> %d\n", s,
- 	     refcount_read(&s->s_ref), refcount_read(&s->s_ref)-1);
- 	if (refcount_dec_and_test(&s->s_ref)) {
-@@ -1435,8 +1438,7 @@ static void __open_export_target_sessions(struct ceph_mds_client *mdsc,
+ 	ceph_metric_destroy(&mdsc->metric);
  
- 	for (i = 0; i < mi->num_export_targets; i++) {
- 		ts = __open_export_target_session(mdsc, mi->export_targets[i]);
--		if (!IS_ERR(ts))
--			ceph_put_mds_session(ts);
-+		ceph_put_mds_session(ts);
- 	}
- }
- 
+-	flush_delayed_work(&mdsc->metric.delayed_work);
+ 	fsc->mdsc = NULL;
+ 	kfree(mdsc);
+ 	dout("mdsc_destroy %p done\n", mdsc);
 diff --git a/fs/ceph/metric.c b/fs/ceph/metric.c
-index fee4c4778313..3b2ef8ee544e 100644
+index 3b2ef8ee544e..9e0a0e26294e 100644
 --- a/fs/ceph/metric.c
 +++ b/fs/ceph/metric.c
-@@ -233,8 +233,7 @@ void ceph_metric_destroy(struct ceph_client_metric *m)
+@@ -224,6 +224,8 @@ void ceph_metric_destroy(struct ceph_client_metric *m)
+ 	if (!m)
+ 		return;
  
- 	cancel_delayed_work_sync(&m->delayed_work);
++	cancel_delayed_work_sync(&m->delayed_work);
++
+ 	percpu_counter_destroy(&m->total_inodes);
+ 	percpu_counter_destroy(&m->opened_inodes);
+ 	percpu_counter_destroy(&m->i_caps_mis);
+@@ -231,8 +233,6 @@ void ceph_metric_destroy(struct ceph_client_metric *m)
+ 	percpu_counter_destroy(&m->d_lease_mis);
+ 	percpu_counter_destroy(&m->d_lease_hit);
  
--	if (m->session)
--		ceph_put_mds_session(m->session);
-+	ceph_put_mds_session(m->session);
+-	cancel_delayed_work_sync(&m->delayed_work);
+-
+ 	ceph_put_mds_session(m->session);
  }
  
- static inline void __update_latency(ktime_t *totalp, ktime_t *lsump,
 -- 
 2.33.0
 
