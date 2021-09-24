@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2049417221
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:44:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D73DE417277
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:48:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343768AbhIXMqB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:46:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41212 "EHLO mail.kernel.org"
+        id S1344205AbhIXMsu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:48:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343692AbhIXMpz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:45:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ADCA461242;
-        Fri, 24 Sep 2021 12:44:21 +0000 (UTC)
+        id S1344138AbhIXMr6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:47:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0E336124B;
+        Fri, 24 Sep 2021 12:46:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487462;
-        bh=BBQzvr0CF+EU1CigrB1XZqcW0PxRlQ6USzD2y9V6puA=;
+        s=korg; t=1632487585;
+        bh=FMO3oLYtRxQ6cAkIhT+2cRiJYTR5Ur5HVQPUjaYr3H0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uuqz5lfdO2G3sziygPHSpwwShnqH5lnuv34m3HdiKrGM/hOLTf2/6kDJjkG0oDRpt
-         /XQE0pR17OfHtGOlqatLhHuE+Ukm4FrGfJvLSPzEAp1uy8A8rqCA/BHa2OzI5jBr1Z
-         Rbny6eyoTlAyUMXXrrRJ5LZTkHVCTiUF1xr9AVBM=
+        b=BEB8iLwmhb2CdNmH8Lsat4M2ZsthbGK5lSzI65hiu3cwqTrwB+I207ctXPXa98i8a
+         X4AKVa2vwTX7E/Vws6t1oJQA+UrTuLFVcpfQWQ+iCRRpC71PbR6rOUtuyOzaomN5Q0
+         0VlCNMAO6ue6lPPRS+oXEQH3zfuE5D3XP1QJeq9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 12/23] parisc: Move pci_dev_is_behind_card_dino to where it is used
-Date:   Fri, 24 Sep 2021 14:43:53 +0200
-Message-Id: <20210924124328.218378107@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 06/26] sctp: add param size validation for SCTP_PARAM_SET_PRIMARY
+Date:   Fri, 24 Sep 2021 14:43:54 +0200
+Message-Id: <20210924124328.556217209@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124327.816210800@linuxfoundation.org>
-References: <20210924124327.816210800@linuxfoundation.org>
+In-Reply-To: <20210924124328.336953942@linuxfoundation.org>
+References: <20210924124328.336953942@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 
-[ Upstream commit 907872baa9f1538eed02ec737b8e89eba6c6e4b9 ]
+commit ef6c8d6ccf0c1dccdda092ebe8782777cd7803c9 upstream.
 
-parisc build test images fail to compile with the following error.
+When SCTP handles an INIT chunk, it calls for example:
+sctp_sf_do_5_1B_init
+  sctp_verify_init
+    sctp_verify_param
+  sctp_process_init
+    sctp_process_param
+      handling of SCTP_PARAM_SET_PRIMARY
 
-drivers/parisc/dino.c:160:12: error:
-	'pci_dev_is_behind_card_dino' defined but not used
+sctp_verify_init() wasn't doing proper size validation and neither the
+later handling, allowing it to work over the chunk itself, possibly being
+uninitialized memory.
 
-Move the function just ahead of its only caller to avoid the error.
-
-Fixes: 5fa1659105fa ("parisc: Disable HP HSC-PCI Cards to prevent kernel crash")
-Cc: Helge Deller <deller@gmx.de>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/parisc/dino.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ net/sctp/sm_make_chunk.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/parisc/dino.c b/drivers/parisc/dino.c
-index 8524faf28acb..88e760c88aba 100644
---- a/drivers/parisc/dino.c
-+++ b/drivers/parisc/dino.c
-@@ -160,15 +160,6 @@ struct dino_device
- 	(struct dino_device *)__pdata; })
+--- a/net/sctp/sm_make_chunk.c
++++ b/net/sctp/sm_make_chunk.c
+@@ -2155,9 +2155,16 @@ static sctp_ierror_t sctp_verify_param(s
+ 		break;
  
- 
--/* Check if PCI device is behind a Card-mode Dino. */
--static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
--{
--	struct dino_device *dino_dev;
--
--	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
--	return is_card_dino(&dino_dev->hba.dev->id);
--}
--
- /*
-  * Dino Configuration Space Accessor Functions
-  */
-@@ -452,6 +443,15 @@ static void quirk_cirrus_cardbus(struct pci_dev *dev)
- DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_CIRRUS, PCI_DEVICE_ID_CIRRUS_6832, quirk_cirrus_cardbus );
- 
- #ifdef CONFIG_TULIP
-+/* Check if PCI device is behind a Card-mode Dino. */
-+static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
-+{
-+	struct dino_device *dino_dev;
+ 	case SCTP_PARAM_SET_PRIMARY:
+-		if (net->sctp.addip_enable)
+-			break;
+-		goto fallthrough;
++		if (!net->sctp.addip_enable)
++			goto fallthrough;
 +
-+	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
-+	return is_card_dino(&dino_dev->hba.dev->id);
-+}
-+
- static void pci_fixup_tulip(struct pci_dev *dev)
- {
- 	if (!pci_dev_is_behind_card_dino(dev))
--- 
-2.33.0
-
++		if (ntohs(param.p->length) < sizeof(struct sctp_addip_param) +
++					     sizeof(struct sctp_paramhdr)) {
++			sctp_process_inv_paramlength(asoc, param.p,
++						     chunk, err_chunk);
++			retval = SCTP_IERROR_ABORT;
++		}
++		break;
+ 
+ 	case SCTP_PARAM_HOST_NAME_ADDRESS:
+ 		/* Tell the peer, we won't support this param.  */
 
 
