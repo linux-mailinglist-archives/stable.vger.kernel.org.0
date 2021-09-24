@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 320964173C7
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 207E44173CC
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344488AbhIXM7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:59:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51298 "EHLO mail.kernel.org"
+        id S1345902AbhIXNAI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:00:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345584AbhIXM6e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:58:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F73B613AC;
-        Fri, 24 Sep 2021 12:52:41 +0000 (UTC)
+        id S1345608AbhIXM6g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:58:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AB77613A8;
+        Fri, 24 Sep 2021 12:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487961;
-        bh=eRwTP9+CfOkFr1m7yfu12YeSXoLiGgtFZ0l1brQ+nso=;
+        s=korg; t=1632487966;
+        bh=ngNmUlPR/Xp+NHz9Lz/zcKOjOcW4Q5roAf+5dY4S0/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NMp/bf/Epc04reqaM5TUgxWu3IDd88Me8KhRQxC9b62FphPWugL0bDaO3jK7w2KTu
-         13ZPAk9PuZltBYE5jIQq7f1NCwnymXxmQCMm8H8BwgPGmE/nqmMLdRmyTIY04gPCE6
-         a3ipe8tygz+GE9FfV+9EMTMKVDOpYqLcIWeOYKJI=
+        b=VOx2/LHcFsCSrUQMJ00dtJTl1DKNDVqBtQhy6r2xC6EddDOL7M9AsrOUppxzWhczP
+         mvXekEuFpTvPx3RuSCQfDmZV9oSjbTljYCQf/QnezSKmOq7H//0k1O8fsBs9dVM6VT
+         fNnCOAznUkfTfFGrOgvSelMTAeaJsAPbU9kIfQuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Dave Jiang <dave.jiang@intel.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 029/100] dmaengine: idxd: fix wq slot allocation index check
-Date:   Fri, 24 Sep 2021 14:43:38 +0200
-Message-Id: <20210924124342.430077478@linuxfoundation.org>
+Subject: [PATCH 5.14 030/100] dmaengine: idxd: fix abort status check
+Date:   Fri, 24 Sep 2021 14:43:39 +0200
+Message-Id: <20210924124342.462199245@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
 References: <20210924124341.214446495@linuxfoundation.org>
@@ -41,34 +42,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit 673d812d30be67942762bb9e8548abb26a3ba4a7 ]
+[ Upstream commit b60bb6e2bfc192091b8f792781b83b5e0f9324f6 ]
 
-The sbitmap wait and allocate routine checks the index that is returned
-from sbitmap_queue_get(). It should be idxd >= 0 as 0 is also a valid
-index. This fixes issue where submission path hangs when WQ size is 1.
+Coverity static analysis of linux-next found issue.
 
-Fixes: 0705107fcc80 ("dmaengine: idxd: move submission to sbitmap_queue")
+The check (status == IDXD_COMP_DESC_ABORT) is always false since status
+was previously masked with 0x7f and IDXD_COMP_DESC_ABORT is 0xff.
+
+Fixes: 6b4b87f2c31a ("dmaengine: idxd: fix submission race window")
+Reported-by: Colin Ian King <colin.king@canonical.com>
 Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/162697645067.3478714.506720687816951762.stgit@djiang5-desk3.ch.intel.com
+Link: https://lore.kernel.org/r/162698465160.3560828.18173186265683415384.stgit@djiang5-desk3.ch.intel.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/submit.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/idxd/irq.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/idxd/submit.c b/drivers/dma/idxd/submit.c
-index 36c9c1a89b7e..196d6cf11965 100644
---- a/drivers/dma/idxd/submit.c
-+++ b/drivers/dma/idxd/submit.c
-@@ -67,7 +67,7 @@ struct idxd_desc *idxd_alloc_desc(struct idxd_wq *wq, enum idxd_op_type optype)
- 		if (signal_pending_state(TASK_INTERRUPTIBLE, current))
- 			break;
- 		idx = sbitmap_queue_get(sbq, &cpu);
--		if (idx > 0)
-+		if (idx >= 0)
- 			break;
- 		schedule();
- 	}
+diff --git a/drivers/dma/idxd/irq.c b/drivers/dma/idxd/irq.c
+index 2924819ca8f3..ba839d3569cd 100644
+--- a/drivers/dma/idxd/irq.c
++++ b/drivers/dma/idxd/irq.c
+@@ -269,7 +269,11 @@ static int irq_process_pending_llist(struct idxd_irq_entry *irq_entry,
+ 		u8 status = desc->completion->status & DSA_COMP_STATUS_MASK;
+ 
+ 		if (status) {
+-			if (unlikely(status == IDXD_COMP_DESC_ABORT)) {
++			/*
++			 * Check against the original status as ABORT is software defined
++			 * and 0xff, which DSA_COMP_STATUS_MASK can mask out.
++			 */
++			if (unlikely(desc->completion->status == IDXD_COMP_DESC_ABORT)) {
+ 				complete_desc(desc, IDXD_COMPLETE_ABORT);
+ 				(*processed)++;
+ 				continue;
+@@ -333,7 +337,11 @@ static int irq_process_work_list(struct idxd_irq_entry *irq_entry,
+ 	list_for_each_entry(desc, &flist, list) {
+ 		u8 status = desc->completion->status & DSA_COMP_STATUS_MASK;
+ 
+-		if (unlikely(status == IDXD_COMP_DESC_ABORT)) {
++		/*
++		 * Check against the original status as ABORT is software defined
++		 * and 0xff, which DSA_COMP_STATUS_MASK can mask out.
++		 */
++		if (unlikely(desc->completion->status == IDXD_COMP_DESC_ABORT)) {
+ 			complete_desc(desc, IDXD_COMPLETE_ABORT);
+ 			continue;
+ 		}
 -- 
 2.33.0
 
