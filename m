@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ECAC4173A7
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EA984173B3
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345290AbhIXM7U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:59:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51298 "EHLO mail.kernel.org"
+        id S1345148AbhIXM7b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:59:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344603AbhIXM5N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:57:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 415EF61391;
-        Fri, 24 Sep 2021 12:51:50 +0000 (UTC)
+        id S1345361AbhIXM6R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:58:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26ED56135A;
+        Fri, 24 Sep 2021 12:52:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487910;
-        bh=JwazT0upXtaVCAO3l47ZXkhH6LyNxROHxQpNEN8phiA=;
+        s=korg; t=1632487937;
+        bh=An0SjgMd8Bzkyl821RfxcVbXOlWt7a+NRWa77G4tq1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qx3a/oUbRGhlJV3iXjcytBAmTXnutTo1E9SAAcWyEzHD64GvLR8kDKaxlw0DMGhXV
-         Qudv+HZobcZOYwnIuz8v4kdaHbXX1m+VDMWA2hKc3rd/ObNscnqXV1LQclTpbeBwxo
-         Fe5fHX0GvyDcU3WTIt/2YWDKlGusrqBbcfahR2VA=
+        b=vCOe9fUo1CaXC+BwG5phCXhkH6JYr5ZbMLnOn5c1iffE+IY6sULfS8PKCtkYrfSJv
+         YE7TcfkVgDO88Ba1v5G5+NUtlfdz+kkTpmTA7mah92UvsS81Em4iQY8cMYWO6tCREu
+         mthILtegm8dQA+/cytoiRQtcAdkY0OAcQrBVZCxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 5.14 001/100] PCI: pci-bridge-emul: Add PCIe Root Capabilities Register
-Date:   Fri, 24 Sep 2021 14:43:10 +0200
-Message-Id: <20210924124341.364221646@linuxfoundation.org>
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.14 002/100] PCI: aardvark: Fix reporting CRS value
+Date:   Fri, 24 Sep 2021 14:43:11 +0200
+Message-Id: <20210924124341.453155991@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
 References: <20210924124341.214446495@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,30 +42,172 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-commit e902bb7c24a7099d0eb0eb4cba06f2d91e9299f3 upstream.
+commit 43f5c77bcbd27cce70bf33c2b86d6726ce95dd66 upstream.
 
-The 16-bit Root Capabilities register is at offset 0x1e in the PCIe
-Capability. Rename current 'rsvd' struct member to 'rootcap'.
+Set CRSVIS flag in emulated root PCI bridge to indicate support for
+Completion Retry Status.
 
-Link: https://lore.kernel.org/r/20210722144041.12661-4-pali@kernel.org
+Add check for CRSSVE flag from root PCI brige when issuing Configuration
+Read Request via PIO to correctly returns fabricated CRS value as it is
+required by PCIe spec.
+
+Link: https://lore.kernel.org/r/20210722144041.12661-5-pali@kernel.org
+Fixes: 8a3ebd8de328 ("PCI: aardvark: Implement emulated root PCI bridge config space")
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org # e0d9d30b7354 ("PCI: pci-bridge-emul: Fix big-endian support")
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/pci-bridge-emul.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/pci-aardvark.c |   67 +++++++++++++++++++++++++++++++---
+ 1 file changed, 63 insertions(+), 4 deletions(-)
 
---- a/drivers/pci/pci-bridge-emul.h
-+++ b/drivers/pci/pci-bridge-emul.h
-@@ -54,7 +54,7 @@ struct pci_bridge_emul_pcie_conf {
- 	__le16 slotctl;
- 	__le16 slotsta;
- 	__le16 rootctl;
--	__le16 rsvd;
-+	__le16 rootcap;
- 	__le32 rootsta;
- 	__le32 devcap2;
- 	__le16 devctl2;
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -218,6 +218,8 @@
+ 
+ #define MSI_IRQ_NUM			32
+ 
++#define CFG_RD_CRS_VAL			0xffff0001
++
+ struct advk_pcie {
+ 	struct platform_device *pdev;
+ 	void __iomem *base;
+@@ -587,7 +589,7 @@ static void advk_pcie_setup_hw(struct ad
+ 	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
+ }
+ 
+-static int advk_pcie_check_pio_status(struct advk_pcie *pcie, u32 *val)
++static int advk_pcie_check_pio_status(struct advk_pcie *pcie, bool allow_crs, u32 *val)
+ {
+ 	struct device *dev = &pcie->pdev->dev;
+ 	u32 reg;
+@@ -629,9 +631,30 @@ static int advk_pcie_check_pio_status(st
+ 		strcomp_status = "UR";
+ 		break;
+ 	case PIO_COMPLETION_STATUS_CRS:
++		if (allow_crs && val) {
++			/* PCIe r4.0, sec 2.3.2, says:
++			 * If CRS Software Visibility is enabled:
++			 * For a Configuration Read Request that includes both
++			 * bytes of the Vendor ID field of a device Function's
++			 * Configuration Space Header, the Root Complex must
++			 * complete the Request to the host by returning a
++			 * read-data value of 0001h for the Vendor ID field and
++			 * all '1's for any additional bytes included in the
++			 * request.
++			 *
++			 * So CRS in this case is not an error status.
++			 */
++			*val = CFG_RD_CRS_VAL;
++			strcomp_status = NULL;
++			break;
++		}
+ 		/* PCIe r4.0, sec 2.3.2, says:
+ 		 * If CRS Software Visibility is not enabled, the Root Complex
+ 		 * must re-issue the Configuration Request as a new Request.
++		 * If CRS Software Visibility is enabled: For a Configuration
++		 * Write Request or for any other Configuration Read Request,
++		 * the Root Complex must re-issue the Configuration Request as
++		 * a new Request.
+ 		 * A Root Complex implementation may choose to limit the number
+ 		 * of Configuration Request/CRS Completion Status loops before
+ 		 * determining that something is wrong with the target of the
+@@ -700,6 +723,7 @@ advk_pci_bridge_emul_pcie_conf_read(stru
+ 	case PCI_EXP_RTCTL: {
+ 		u32 val = advk_readl(pcie, PCIE_ISR0_MASK_REG);
+ 		*value = (val & PCIE_MSG_PM_PME_MASK) ? 0 : PCI_EXP_RTCTL_PMEIE;
++		*value |= PCI_EXP_RTCAP_CRSVIS << 16;
+ 		return PCI_BRIDGE_EMUL_HANDLED;
+ 	}
+ 
+@@ -781,6 +805,7 @@ static struct pci_bridge_emul_ops advk_p
+ static int advk_sw_pci_bridge_init(struct advk_pcie *pcie)
+ {
+ 	struct pci_bridge_emul *bridge = &pcie->bridge;
++	int ret;
+ 
+ 	bridge->conf.vendor =
+ 		cpu_to_le16(advk_readl(pcie, PCIE_CORE_DEV_ID_REG) & 0xffff);
+@@ -804,7 +829,15 @@ static int advk_sw_pci_bridge_init(struc
+ 	bridge->data = pcie;
+ 	bridge->ops = &advk_pci_bridge_emul_ops;
+ 
+-	return pci_bridge_emul_init(bridge, 0);
++	/* PCIe config space can be initialized after pci_bridge_emul_init() */
++	ret = pci_bridge_emul_init(bridge, 0);
++	if (ret < 0)
++		return ret;
++
++	/* Indicates supports for Completion Retry Status */
++	bridge->pcie_conf.rootcap = cpu_to_le16(PCI_EXP_RTCAP_CRSVIS);
++
++	return 0;
+ }
+ 
+ static bool advk_pcie_valid_device(struct advk_pcie *pcie, struct pci_bus *bus,
+@@ -856,6 +889,7 @@ static int advk_pcie_rd_conf(struct pci_
+ 			     int where, int size, u32 *val)
+ {
+ 	struct advk_pcie *pcie = bus->sysdata;
++	bool allow_crs;
+ 	u32 reg;
+ 	int ret;
+ 
+@@ -868,7 +902,24 @@ static int advk_pcie_rd_conf(struct pci_
+ 		return pci_bridge_emul_conf_read(&pcie->bridge, where,
+ 						 size, val);
+ 
++	/*
++	 * Completion Retry Status is possible to return only when reading all
++	 * 4 bytes from PCI_VENDOR_ID and PCI_DEVICE_ID registers at once and
++	 * CRSSVE flag on Root Bridge is enabled.
++	 */
++	allow_crs = (where == PCI_VENDOR_ID) && (size == 4) &&
++		    (le16_to_cpu(pcie->bridge.pcie_conf.rootctl) &
++		     PCI_EXP_RTCTL_CRSSVE);
++
+ 	if (advk_pcie_pio_is_running(pcie)) {
++		/*
++		 * If it is possible return Completion Retry Status so caller
++		 * tries to issue the request again instead of failing.
++		 */
++		if (allow_crs) {
++			*val = CFG_RD_CRS_VAL;
++			return PCIBIOS_SUCCESSFUL;
++		}
+ 		*val = 0xffffffff;
+ 		return PCIBIOS_SET_FAILED;
+ 	}
+@@ -896,12 +947,20 @@ static int advk_pcie_rd_conf(struct pci_
+ 
+ 	ret = advk_pcie_wait_pio(pcie);
+ 	if (ret < 0) {
++		/*
++		 * If it is possible return Completion Retry Status so caller
++		 * tries to issue the request again instead of failing.
++		 */
++		if (allow_crs) {
++			*val = CFG_RD_CRS_VAL;
++			return PCIBIOS_SUCCESSFUL;
++		}
+ 		*val = 0xffffffff;
+ 		return PCIBIOS_SET_FAILED;
+ 	}
+ 
+ 	/* Check PIO status and get the read result */
+-	ret = advk_pcie_check_pio_status(pcie, val);
++	ret = advk_pcie_check_pio_status(pcie, allow_crs, val);
+ 	if (ret < 0) {
+ 		*val = 0xffffffff;
+ 		return PCIBIOS_SET_FAILED;
+@@ -970,7 +1029,7 @@ static int advk_pcie_wr_conf(struct pci_
+ 	if (ret < 0)
+ 		return PCIBIOS_SET_FAILED;
+ 
+-	ret = advk_pcie_check_pio_status(pcie, NULL);
++	ret = advk_pcie_check_pio_status(pcie, false, NULL);
+ 	if (ret < 0)
+ 		return PCIBIOS_SET_FAILED;
+ 
 
 
