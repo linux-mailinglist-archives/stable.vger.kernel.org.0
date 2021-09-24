@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAE274172BB
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:50:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BD824172F0
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:51:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344214AbhIXMvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:51:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45988 "EHLO mail.kernel.org"
+        id S1344231AbhIXMw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:52:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344349AbhIXMtZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:49:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E4F66124B;
-        Fri, 24 Sep 2021 12:47:52 +0000 (UTC)
+        id S1344476AbhIXMvd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:51:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35AA161279;
+        Fri, 24 Sep 2021 12:48:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487672;
-        bh=tp9Rs2YYa8tGFsE1HQguKml2q//FxLuvQGATZiMcmYk=;
+        s=korg; t=1632487739;
+        bh=qJCZf8z0SKfO4BYhVd4fDfO5qs/mt0fSlBiITh6dTkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yRMJpqdW9SXx7BRWWp7OPaMfq63zeeuCe4iwtbvitFVZOurxXBaj/Utd3koZGUPEC
-         A1xo4wztYytIVrSDPfyiUbkCBQqO/AB0vpr7/amFGgXwmPtzrHvjBdfB9BHp8S4ZOx
-         +vTroO4i4kdIxMZErSdVedRehvBys3Hc/KfrZS3s=
+        b=zJpEC+kPBQ1f4UzgtMU8aGVm/TU3DP3wRfOdj4rV7/LIR/aluIeP1astEYwEU06uR
+         WHuD2+Bqsqd2ivV1cMS2EXSpxJiQShokdDZ3tFL/Q5AHszPdbz68Kjq3kdcezKU7gd
+         sDJRKFMR7k/s8gNLMGdPcvg4thEKYigiZu2agSdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        Dominique Martinet <asmadeus@codewreck.org>
-Subject: [PATCH 4.14 09/27] 9p/trans_virtio: Remove sysfs file on probe failure
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 4.19 09/34] dmaengine: acpi: Avoid comparison GSI with Linux vIRQ
 Date:   Fri, 24 Sep 2021 14:44:03 +0200
-Message-Id: <20210924124329.487898660@linuxfoundation.org>
+Message-Id: <20210924124330.270739357@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124329.173674820@linuxfoundation.org>
-References: <20210924124329.173674820@linuxfoundation.org>
+In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
+References: <20210924124329.965218583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit f997ea3b7afc108eb9761f321b57de2d089c7c48 upstream.
+commit 67db87dc8284070adb15b3c02c1c31d5cf51c5d6 upstream.
 
-This ensures we don't leak the sysfs file if we failed to
-allocate chan->vc_wq during probe.
+Currently the CRST parsing relies on the fact that on most of x86 devices
+the IRQ mapping is 1:1 with Linux vIRQ. However, it may be not true for
+some. Fix this by converting GSI to Linux vIRQ before checking it.
 
-Link: http://lkml.kernel.org/r/20210517083557.172-1-xieyongji@bytedance.com
-Fixes: 86c8437383ac ("net/9p: Add sysfs mount_tag file for virtio 9P device")
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Fixes: ee8209fd026b ("dma: acpi-dma: parse CSRT to extract additional resources")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210730202715.24375-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/9p/trans_virtio.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/dma/acpi-dma.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/net/9p/trans_virtio.c
-+++ b/net/9p/trans_virtio.c
-@@ -602,7 +602,7 @@ static int p9_virtio_probe(struct virtio
- 	chan->vc_wq = kmalloc(sizeof(wait_queue_head_t), GFP_KERNEL);
- 	if (!chan->vc_wq) {
- 		err = -ENOMEM;
--		goto out_free_tag;
-+		goto out_remove_file;
- 	}
- 	init_waitqueue_head(chan->vc_wq);
- 	chan->ring_bufs_avail = 1;
-@@ -620,6 +620,8 @@ static int p9_virtio_probe(struct virtio
+--- a/drivers/dma/acpi-dma.c
++++ b/drivers/dma/acpi-dma.c
+@@ -72,10 +72,14 @@ static int acpi_dma_parse_resource_group
  
- 	return 0;
+ 	si = (const struct acpi_csrt_shared_info *)&grp[1];
  
-+out_remove_file:
-+	sysfs_remove_file(&vdev->dev.kobj, &dev_attr_mount_tag.attr);
- out_free_tag:
- 	kfree(tag);
- out_free_vq:
+-	/* Match device by MMIO and IRQ */
++	/* Match device by MMIO */
+ 	if (si->mmio_base_low != lower_32_bits(mem) ||
+-	    si->mmio_base_high != upper_32_bits(mem) ||
+-	    si->gsi_interrupt != irq)
++	    si->mmio_base_high != upper_32_bits(mem))
++		return 0;
++
++	/* Match device by Linux vIRQ */
++	ret = acpi_register_gsi(NULL, si->gsi_interrupt, si->interrupt_mode, si->interrupt_polarity);
++	if (ret != irq)
+ 		return 0;
+ 
+ 	dev_dbg(&adev->dev, "matches with %.4s%04X (rev %u)\n",
 
 
