@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EA984173B3
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6E3A4173C8
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345148AbhIXM7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:59:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57182 "EHLO mail.kernel.org"
+        id S1344696AbhIXM7y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:59:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345361AbhIXM6R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:58:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26ED56135A;
-        Fri, 24 Sep 2021 12:52:16 +0000 (UTC)
+        id S1345586AbhIXM6e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:58:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E046B6124D;
+        Fri, 24 Sep 2021 12:52:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487937;
-        bh=An0SjgMd8Bzkyl821RfxcVbXOlWt7a+NRWa77G4tq1o=;
+        s=korg; t=1632487964;
+        bh=7NKa+wJHjcjPaevDS+RDI6aWbI+jte68G+2MpAdIIz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vCOe9fUo1CaXC+BwG5phCXhkH6JYr5ZbMLnOn5c1iffE+IY6sULfS8PKCtkYrfSJv
-         YE7TcfkVgDO88Ba1v5G5+NUtlfdz+kkTpmTA7mah92UvsS81Em4iQY8cMYWO6tCREu
-         mthILtegm8dQA+/cytoiRQtcAdkY0OAcQrBVZCxg=
+        b=yIaqQQlZ5RRJzxHkSxei3MQ3bOSbrHCGULlrLH6VcCWlmR9Ijeqy67I8xcrHTuj8L
+         ZJOhZ9WaZeoUV51SYufEGBJ51VwHl41+xC+JL/PwqY6Ok1aSds6I7m/VTOHlbNdYpa
+         2xTfSFmDUqBxMTonsm8SUmSgFnes4Z4BgRDcAS/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.14 002/100] PCI: aardvark: Fix reporting CRS value
-Date:   Fri, 24 Sep 2021 14:43:11 +0200
-Message-Id: <20210924124341.453155991@linuxfoundation.org>
+        stable@vger.kernel.org, nick black <dankamongmen@gmail.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.14 003/100] console: consume APC, DM, DCS
+Date:   Fri, 24 Sep 2021 14:43:12 +0200
+Message-Id: <20210924124341.561128849@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
 References: <20210924124341.214446495@linuxfoundation.org>
@@ -40,174 +42,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: nick black <dankamongmen@gmail.com>
 
-commit 43f5c77bcbd27cce70bf33c2b86d6726ce95dd66 upstream.
+commit 3a2b2eb55681158d3e3ef464fbf47574cf0c517c upstream.
 
-Set CRSVIS flag in emulated root PCI bridge to indicate support for
-Completion Retry Status.
+The Linux console's VT102 implementation already consumes OSC
+("Operating System Command") sequences, probably because that's how
+palette changes are transmitted.
 
-Add check for CRSSVE flag from root PCI brige when issuing Configuration
-Read Request via PIO to correctly returns fabricated CRS value as it is
-required by PCIe spec.
+In addition to OSC, there are three other major clases of ANSI control
+strings: APC ("Application Program Command"), PM ("Privacy Message"),
+and DCS ("Device Control String").  They are handled similarly to OSC in
+terms of termination.
 
-Link: https://lore.kernel.org/r/20210722144041.12661-5-pali@kernel.org
-Fixes: 8a3ebd8de328 ("PCI: aardvark: Implement emulated root PCI bridge config space")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org # e0d9d30b7354 ("PCI: pci-bridge-emul: Fix big-endian support")
+Source: vt100.net
+
+Add three new enumerated states, one for each of these types.  All three
+are handled the same way right now--they simply consume input until
+terminated.  I hope to expand upon this firmament in the future.  Add
+new predicate ansi_control_string(), returning true for any of these
+states.  Replace explicit checks against ESosc with calls to this
+function.  Transition to these states appropriately from the escape
+initiation (ESesc) state.
+
+This was motivated by the following Notcurses bugs:
+
+ https://github.com/dankamongmen/notcurses/issues/2050
+ https://github.com/dankamongmen/notcurses/issues/1828
+ https://github.com/dankamongmen/notcurses/issues/2069
+
+where standard VT sequences are not consumed by the Linux console.  It's
+not necessary that the Linux console *support* these sequences, but it
+ought *consume* these well-specified classes of sequences.
+
+Tested by sending a variety of escape sequences to the console, and
+verifying that they still worked, or were now properly consumed.
+Verified that the escapes were properly terminated at a generic level.
+Verified that the Notcurses tools continued to show expected output on
+the Linux console, except now without escape bleedthrough.
+
+Link: https://lore.kernel.org/lkml/YSydL0q8iaUfkphg@schwarzgerat.orthanc/
+Signed-off-by: nick black <dankamongmen@gmail.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |   67 +++++++++++++++++++++++++++++++---
- 1 file changed, 63 insertions(+), 4 deletions(-)
+ drivers/tty/vt/vt.c |   31 +++++++++++++++++++++++++++----
+ 1 file changed, 27 insertions(+), 4 deletions(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -218,6 +218,8 @@
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -2059,7 +2059,7 @@ static void restore_cur(struct vc_data *
  
- #define MSI_IRQ_NUM			32
+ enum { ESnormal, ESesc, ESsquare, ESgetpars, ESfunckey,
+ 	EShash, ESsetG0, ESsetG1, ESpercent, EScsiignore, ESnonstd,
+-	ESpalette, ESosc };
++	ESpalette, ESosc, ESapc, ESpm, ESdcs };
  
-+#define CFG_RD_CRS_VAL			0xffff0001
-+
- struct advk_pcie {
- 	struct platform_device *pdev;
- 	void __iomem *base;
-@@ -587,7 +589,7 @@ static void advk_pcie_setup_hw(struct ad
- 	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
+ /* console_lock is held (except via vc_init()) */
+ static void reset_terminal(struct vc_data *vc, int do_clear)
+@@ -2133,20 +2133,28 @@ static void vc_setGx(struct vc_data *vc,
+ 		vc->vc_translate = set_translate(*charset, vc);
  }
  
--static int advk_pcie_check_pio_status(struct advk_pcie *pcie, u32 *val)
-+static int advk_pcie_check_pio_status(struct advk_pcie *pcie, bool allow_crs, u32 *val)
- {
- 	struct device *dev = &pcie->pdev->dev;
- 	u32 reg;
-@@ -629,9 +631,30 @@ static int advk_pcie_check_pio_status(st
- 		strcomp_status = "UR";
- 		break;
- 	case PIO_COMPLETION_STATUS_CRS:
-+		if (allow_crs && val) {
-+			/* PCIe r4.0, sec 2.3.2, says:
-+			 * If CRS Software Visibility is enabled:
-+			 * For a Configuration Read Request that includes both
-+			 * bytes of the Vendor ID field of a device Function's
-+			 * Configuration Space Header, the Root Complex must
-+			 * complete the Request to the host by returning a
-+			 * read-data value of 0001h for the Vendor ID field and
-+			 * all '1's for any additional bytes included in the
-+			 * request.
-+			 *
-+			 * So CRS in this case is not an error status.
-+			 */
-+			*val = CFG_RD_CRS_VAL;
-+			strcomp_status = NULL;
-+			break;
-+		}
- 		/* PCIe r4.0, sec 2.3.2, says:
- 		 * If CRS Software Visibility is not enabled, the Root Complex
- 		 * must re-issue the Configuration Request as a new Request.
-+		 * If CRS Software Visibility is enabled: For a Configuration
-+		 * Write Request or for any other Configuration Read Request,
-+		 * the Root Complex must re-issue the Configuration Request as
-+		 * a new Request.
- 		 * A Root Complex implementation may choose to limit the number
- 		 * of Configuration Request/CRS Completion Status loops before
- 		 * determining that something is wrong with the target of the
-@@ -700,6 +723,7 @@ advk_pci_bridge_emul_pcie_conf_read(stru
- 	case PCI_EXP_RTCTL: {
- 		u32 val = advk_readl(pcie, PCIE_ISR0_MASK_REG);
- 		*value = (val & PCIE_MSG_PM_PME_MASK) ? 0 : PCI_EXP_RTCTL_PMEIE;
-+		*value |= PCI_EXP_RTCAP_CRSVIS << 16;
- 		return PCI_BRIDGE_EMUL_HANDLED;
- 	}
- 
-@@ -781,6 +805,7 @@ static struct pci_bridge_emul_ops advk_p
- static int advk_sw_pci_bridge_init(struct advk_pcie *pcie)
- {
- 	struct pci_bridge_emul *bridge = &pcie->bridge;
-+	int ret;
- 
- 	bridge->conf.vendor =
- 		cpu_to_le16(advk_readl(pcie, PCIE_CORE_DEV_ID_REG) & 0xffff);
-@@ -804,7 +829,15 @@ static int advk_sw_pci_bridge_init(struc
- 	bridge->data = pcie;
- 	bridge->ops = &advk_pci_bridge_emul_ops;
- 
--	return pci_bridge_emul_init(bridge, 0);
-+	/* PCIe config space can be initialized after pci_bridge_emul_init() */
-+	ret = pci_bridge_emul_init(bridge, 0);
-+	if (ret < 0)
-+		return ret;
++/* is this state an ANSI control string? */
++static bool ansi_control_string(unsigned int state)
++{
++	if (state == ESosc || state == ESapc || state == ESpm || state == ESdcs)
++		return true;
++	return false;
++}
 +
-+	/* Indicates supports for Completion Retry Status */
-+	bridge->pcie_conf.rootcap = cpu_to_le16(PCI_EXP_RTCAP_CRSVIS);
-+
-+	return 0;
- }
- 
- static bool advk_pcie_valid_device(struct advk_pcie *pcie, struct pci_bus *bus,
-@@ -856,6 +889,7 @@ static int advk_pcie_rd_conf(struct pci_
- 			     int where, int size, u32 *val)
+ /* console_lock is held */
+ static void do_con_trol(struct tty_struct *tty, struct vc_data *vc, int c)
  {
- 	struct advk_pcie *pcie = bus->sysdata;
-+	bool allow_crs;
- 	u32 reg;
- 	int ret;
- 
-@@ -868,7 +902,24 @@ static int advk_pcie_rd_conf(struct pci_
- 		return pci_bridge_emul_conf_read(&pcie->bridge, where,
- 						 size, val);
- 
-+	/*
-+	 * Completion Retry Status is possible to return only when reading all
-+	 * 4 bytes from PCI_VENDOR_ID and PCI_DEVICE_ID registers at once and
-+	 * CRSSVE flag on Root Bridge is enabled.
-+	 */
-+	allow_crs = (where == PCI_VENDOR_ID) && (size == 4) &&
-+		    (le16_to_cpu(pcie->bridge.pcie_conf.rootctl) &
-+		     PCI_EXP_RTCTL_CRSSVE);
-+
- 	if (advk_pcie_pio_is_running(pcie)) {
-+		/*
-+		 * If it is possible return Completion Retry Status so caller
-+		 * tries to issue the request again instead of failing.
-+		 */
-+		if (allow_crs) {
-+			*val = CFG_RD_CRS_VAL;
-+			return PCIBIOS_SUCCESSFUL;
-+		}
- 		*val = 0xffffffff;
- 		return PCIBIOS_SET_FAILED;
+ 	/*
+ 	 *  Control characters can be used in the _middle_
+-	 *  of an escape sequence.
++	 *  of an escape sequence, aside from ANSI control strings.
+ 	 */
+-	if (vc->vc_state == ESosc && c>=8 && c<=13) /* ... except for OSC */
++	if (ansi_control_string(vc->vc_state) && c >= 8 && c <= 13)
+ 		return;
+ 	switch (c) {
+ 	case 0:
+ 		return;
+ 	case 7:
+-		if (vc->vc_state == ESosc)
++		if (ansi_control_string(vc->vc_state))
+ 			vc->vc_state = ESnormal;
+ 		else if (vc->vc_bell_duration)
+ 			kd_mksound(vc->vc_bell_pitch, vc->vc_bell_duration);
+@@ -2207,6 +2215,12 @@ static void do_con_trol(struct tty_struc
+ 		case ']':
+ 			vc->vc_state = ESnonstd;
+ 			return;
++		case '_':
++			vc->vc_state = ESapc;
++			return;
++		case '^':
++			vc->vc_state = ESpm;
++			return;
+ 		case '%':
+ 			vc->vc_state = ESpercent;
+ 			return;
+@@ -2224,6 +2238,9 @@ static void do_con_trol(struct tty_struc
+ 			if (vc->state.x < VC_TABSTOPS_COUNT)
+ 				set_bit(vc->state.x, vc->vc_tab_stop);
+ 			return;
++		case 'P':
++			vc->vc_state = ESdcs;
++			return;
+ 		case 'Z':
+ 			respond_ID(tty);
+ 			return;
+@@ -2520,8 +2537,14 @@ static void do_con_trol(struct tty_struc
+ 		vc_setGx(vc, 1, c);
+ 		vc->vc_state = ESnormal;
+ 		return;
++	case ESapc:
++		return;
+ 	case ESosc:
+ 		return;
++	case ESpm:
++		return;
++	case ESdcs:
++		return;
+ 	default:
+ 		vc->vc_state = ESnormal;
  	}
-@@ -896,12 +947,20 @@ static int advk_pcie_rd_conf(struct pci_
- 
- 	ret = advk_pcie_wait_pio(pcie);
- 	if (ret < 0) {
-+		/*
-+		 * If it is possible return Completion Retry Status so caller
-+		 * tries to issue the request again instead of failing.
-+		 */
-+		if (allow_crs) {
-+			*val = CFG_RD_CRS_VAL;
-+			return PCIBIOS_SUCCESSFUL;
-+		}
- 		*val = 0xffffffff;
- 		return PCIBIOS_SET_FAILED;
- 	}
- 
- 	/* Check PIO status and get the read result */
--	ret = advk_pcie_check_pio_status(pcie, val);
-+	ret = advk_pcie_check_pio_status(pcie, allow_crs, val);
- 	if (ret < 0) {
- 		*val = 0xffffffff;
- 		return PCIBIOS_SET_FAILED;
-@@ -970,7 +1029,7 @@ static int advk_pcie_wr_conf(struct pci_
- 	if (ret < 0)
- 		return PCIBIOS_SET_FAILED;
- 
--	ret = advk_pcie_check_pio_status(pcie, NULL);
-+	ret = advk_pcie_check_pio_status(pcie, false, NULL);
- 	if (ret < 0)
- 		return PCIBIOS_SET_FAILED;
- 
 
 
