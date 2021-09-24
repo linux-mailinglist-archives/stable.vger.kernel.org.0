@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F4A641735B
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:57:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AD3B417446
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:03:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344763AbhIXMzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:55:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51296 "EHLO mail.kernel.org"
+        id S1345686AbhIXNEX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:04:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344348AbhIXMxk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:53:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB98C6125F;
-        Fri, 24 Sep 2021 12:50:06 +0000 (UTC)
+        id S1345541AbhIXNCT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:02:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A187C61352;
+        Fri, 24 Sep 2021 12:54:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487807;
-        bh=FTSieDLIx4pWhtpyFigIceGSIy9UU14W5h8qi8fPuus=;
+        s=korg; t=1632488074;
+        bh=aw21F+vjyy1SDTiIDq7VKyW9+Nry6XCrgij3JaFPgjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XU0+FGJGAB73DQSv+TVwDdIHeLd2FI9db0KwBMEsXLZCOCNxotT2aliqkBampXvQF
-         5ibZinHTtVYMTAr39Rci6Hqr22l34h+U/xqNHJWuPNXz1U0oCTwYjhJJCdyFFkX6j4
-         1IgC6aqg9gFjTAgoOYP3EGeALxjwink3V3rTRAIk=
+        b=bQUzTUSxyuftAn2tQP+lfIUKu+E/Ydb5f5nvOLc5plNMskqxAD2PTza6BTCC9KKgq
+         3nCV4r2WZICbu94TNzwcPf07AGFqfJpayDw6g3A/2em0rs3odpkPZ4MJGTV5QbuNRn
+         FsDJG6Tykyy/We/eiVAH09IKDxGUFdKItSip+lBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.4 02/50] PCI: aardvark: Indicate error in val when config read fails
+        stable@vger.kernel.org, Koba Ko <koba.ko@canonical.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 042/100] drm/amdgpu: Disable PCIE_DPM on Intel RKL Platform
 Date:   Fri, 24 Sep 2021 14:43:51 +0200
-Message-Id: <20210924124332.311007753@linuxfoundation.org>
+Message-Id: <20210924124342.864270479@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
-References: <20210924124332.229289734@linuxfoundation.org>
+In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
+References: <20210924124341.214446495@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Koba Ko <koba.ko@canonical.com>
 
-commit b1bd5714472cc72e14409f5659b154c765a76c65 upstream.
+[ Upstream commit b3dc549986eb7b38eba4a144e979dc93f386751f ]
 
-Most callers of config read do not check for return value. But most of the
-ones that do, checks for error indication in 'val' variable.
+Due to high latency in PCIE clock switching on RKL platforms,
+switching the PCIE clock dynamically at runtime can lead to HDMI/DP
+audio problems. On newer asics this is handled in the SMU firmware.
+For SMU7-based asics, disable PCIE clock switching to avoid the issue.
 
-This patch updates error handling in advk_pcie_rd_conf() function. If PIO
-transfer fails then 'val' variable is set to 0xffffffff which indicates
-failture.
+AMD provide a parameter to disable PICE_DPM.
 
-Link: https://lore.kernel.org/r/20200528162604.GA323482@bjorn-Precision-5520
-Link: https://lore.kernel.org/r/20200601130315.18895-1-pali@kernel.org
-Reported-by: Bjorn Helgaas <helgaas@kernel.org>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+modprobe amdgpu ppfeaturemask=0xfff7bffb
+
+It's better to contorl PCIE_DPM in amd gpu driver,
+switch PCI_DPM by determining intel RKL platform for SMU7-based asics.
+
+Fixes: 1a31474cdb48 ("drm/amd/pm: workaround for audio noise issue")
+Ref: https://lists.freedesktop.org/archives/amd-gfx/2021-August/067413.html
+Signed-off-by: Koba Ko <koba.ko@canonical.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -664,8 +664,10 @@ static int advk_pcie_rd_conf(struct pci_
- 	advk_writel(pcie, 1, PIO_START);
+diff --git a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c
+index 0541bfc81c1b..1d76cf7cd85d 100644
+--- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c
++++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c
+@@ -27,6 +27,9 @@
+ #include <linux/pci.h>
+ #include <linux/slab.h>
+ #include <asm/div64.h>
++#if IS_ENABLED(CONFIG_X86_64)
++#include <asm/intel-family.h>
++#endif
+ #include <drm/amdgpu_drm.h>
+ #include "ppatomctrl.h"
+ #include "atombios.h"
+@@ -1733,6 +1736,17 @@ static int smu7_disable_dpm_tasks(struct pp_hwmgr *hwmgr)
+ 	return result;
+ }
  
- 	ret = advk_pcie_wait_pio(pcie);
--	if (ret < 0)
-+	if (ret < 0) {
-+		*val = 0xffffffff;
- 		return PCIBIOS_SET_FAILED;
-+	}
++static bool intel_core_rkl_chk(void)
++{
++#if IS_ENABLED(CONFIG_X86_64)
++	struct cpuinfo_x86 *c = &cpu_data(0);
++
++	return (c->x86 == 6 && c->x86_model == INTEL_FAM6_ROCKETLAKE);
++#else
++	return false;
++#endif
++}
++
+ static void smu7_init_dpm_defaults(struct pp_hwmgr *hwmgr)
+ {
+ 	struct smu7_hwmgr *data = (struct smu7_hwmgr *)(hwmgr->backend);
+@@ -1758,7 +1772,8 @@ static void smu7_init_dpm_defaults(struct pp_hwmgr *hwmgr)
  
- 	/* Check PIO status and get the read result */
- 	ret = advk_pcie_check_pio_status(pcie, val);
+ 	data->mclk_dpm_key_disabled = hwmgr->feature_mask & PP_MCLK_DPM_MASK ? false : true;
+ 	data->sclk_dpm_key_disabled = hwmgr->feature_mask & PP_SCLK_DPM_MASK ? false : true;
+-	data->pcie_dpm_key_disabled = hwmgr->feature_mask & PP_PCIE_DPM_MASK ? false : true;
++	data->pcie_dpm_key_disabled =
++		intel_core_rkl_chk() || !(hwmgr->feature_mask & PP_PCIE_DPM_MASK);
+ 	/* need to set voltage control types before EVV patching */
+ 	data->voltage_control = SMU7_VOLTAGE_CONTROL_NONE;
+ 	data->vddci_control = SMU7_VOLTAGE_CONTROL_NONE;
+-- 
+2.33.0
+
 
 
