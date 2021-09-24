@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD9CA417365
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:57:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A55C4172E6
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:51:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344739AbhIXMzr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:55:47 -0400
+        id S1344601AbhIXMwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:52:20 -0400
 Received: from mail.kernel.org ([198.145.29.99]:45884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344646AbhIXMxx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:53:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DBB16128B;
-        Fri, 24 Sep 2021 12:50:25 +0000 (UTC)
+        id S1344605AbhIXMvA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:51:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FD9B61267;
+        Fri, 24 Sep 2021 12:48:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487825;
-        bh=WGWcnbaQhFewKcVM+VdaOaUW3s/0jsgWftTmZfAMxF0=;
+        s=korg; t=1632487721;
+        bh=LAf6IzOOzjxdsLPg39cVEW/B3C6fNmMHAn+wXXxCdX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WON6H/eBBr+4gGWiacfiBLar3w06SZPSz70fc+PG7CPDqd+dxzXJWNhNu92BeUTO5
-         lWhfVEy+eceNOcSpplZ6zp9nzwLGbTNL22RAKr+JG9QPquWyC7ZziXJtPqzGzZdsGM
-         Rs/dLGyDyvN5TK17vBO6MSEnoGcH8tkVnqh3HKuE=
+        b=mWnMKIn2TvtjXj3WRqGtUjTlxBCZu1eC7Tbp4nqwpVaJVorKP8kwaNkqh7AlGM5Qo
+         vpH9dhuJh9rC0s9oOrfjrp75bsEebhY9v/OvcZ05SC/MscIF/oeo04qeqJ4muDoMqp
+         69qilPwVHgs20HO1zVRrux8YV8/hs1a1f9xwNEqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH 5.4 26/50] pwm: mxs: Dont modify HW state in .probe() after the PWM chip was registered
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 21/34] dmaengine: ioat: depends on !UML
 Date:   Fri, 24 Sep 2021 14:44:15 +0200
-Message-Id: <20210924124333.128621963@linuxfoundation.org>
+Message-Id: <20210924124330.655265659@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
-References: <20210924124332.229289734@linuxfoundation.org>
+In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
+References: <20210924124329.965218583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 020162d6f49f2963062229814a56a89c86cbeaa8 upstream.
+[ Upstream commit bbac7a92a46f0876e588722ebe552ddfe6fd790f ]
 
-This fixes a race condition: After pwmchip_add() is called there might
-already be a consumer and then modifying the hardware behind the
-consumer's back is bad. So reset before calling pwmchip_add().
+Now that UML has PCI support, this driver must depend also on
+!UML since it pokes at X86_64 architecture internals that don't
+exist on ARCH=um.
 
-Note that reseting the hardware isn't the right thing to do if the PWM
-is already running as it might e.g. disable (or even enable) a backlight
-that is supposed to be on (or off).
-
-Fixes: 4dce82c1e840 ("pwm: add pwm-mxs support")
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Acked-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/20210809112409.a3a0974874d2.I2ffe3d11ed37f735da2f39884a74c953b258b995@changeid
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-mxs.c |   13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ drivers/dma/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pwm/pwm-mxs.c
-+++ b/drivers/pwm/pwm-mxs.c
-@@ -150,6 +150,11 @@ static int mxs_pwm_probe(struct platform
- 		return ret;
- 	}
+diff --git a/drivers/dma/Kconfig b/drivers/dma/Kconfig
+index 52dd4bd7c209..e5f31af65aab 100644
+--- a/drivers/dma/Kconfig
++++ b/drivers/dma/Kconfig
+@@ -266,7 +266,7 @@ config INTEL_IDMA64
  
-+	/* FIXME: Only do this if the PWM isn't already running */
-+	ret = stmp_reset_block(mxs->base);
-+	if (ret)
-+		return dev_err_probe(&pdev->dev, ret, "failed to reset PWM\n");
-+
- 	ret = pwmchip_add(&mxs->chip);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "failed to add pwm chip %d\n", ret);
-@@ -158,15 +163,7 @@ static int mxs_pwm_probe(struct platform
- 
- 	platform_set_drvdata(pdev, mxs);
- 
--	ret = stmp_reset_block(mxs->base);
--	if (ret)
--		goto pwm_remove;
--
- 	return 0;
--
--pwm_remove:
--	pwmchip_remove(&mxs->chip);
--	return ret;
- }
- 
- static int mxs_pwm_remove(struct platform_device *pdev)
+ config INTEL_IOATDMA
+ 	tristate "Intel I/OAT DMA support"
+-	depends on PCI && X86_64
++	depends on PCI && X86_64 && !UML
+ 	select DMA_ENGINE
+ 	select DMA_ENGINE_RAID
+ 	select DCA
+-- 
+2.33.0
+
 
 
