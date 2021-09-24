@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94E6B41722B
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:44:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06F7A417384
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:57:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343792AbhIXMqK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:46:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41486 "EHLO mail.kernel.org"
+        id S1344744AbhIXM5N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:57:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343669AbhIXMqF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:46:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17D1E61107;
-        Fri, 24 Sep 2021 12:44:31 +0000 (UTC)
+        id S1344800AbhIXMzc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:55:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 099E461107;
+        Fri, 24 Sep 2021 12:51:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487472;
-        bh=zn8WpHVepoirdltvJ7tBqjLNDNUS/wCrFRIIdFm/37I=;
+        s=korg; t=1632487862;
+        bh=1E3rpQWxKiZTxXGpPvptV8BtqPwPaouT2/KeUgxNOto=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KG+usEMY0/pmUYWjCmVD6eh5z0d0Q2RYx4F+3fl3yqcMZ8D2DmqHuGl4d+W2/GPza
-         3X6I1/FrP9Owcq3y7SK/UMh4EBjwoStPEBuDGi6Xy4oox2goMnPnEgbldT/7yCdJ9q
-         9lQHrfc7E2mTgP/0RaRLhCXK2rgu4T06eQ62MMBk=
+        b=xNouj73WXEdUn4U+y8tLKdy1s6p/V5uI33dWP8yDkBWgNpq4r7lKCkvehugxHHXrd
+         T7Q6i3xJ2IKPKoreuTehRaMZV8p0S7D7LdGp13B9tklmJ4mqR6Z2ey9xBQv1e5cxua
+         VWI5A2TGcmgd49E1zt2Auiy116gfMSr4Llt71pV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nanyong Sun <sunnanyong@huawei.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 16/23] nilfs2: fix NULL pointer in nilfs_##name##_attr_release
-Date:   Fri, 24 Sep 2021 14:43:57 +0200
-Message-Id: <20210924124328.352000483@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: [PATCH 5.4 09/50] ARM: Qualify enabling of swiotlb_init()
+Date:   Fri, 24 Sep 2021 14:43:58 +0200
+Message-Id: <20210924124332.547892561@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124327.816210800@linuxfoundation.org>
-References: <20210924124327.816210800@linuxfoundation.org>
+In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
+References: <20210924124332.229289734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nanyong Sun <sunnanyong@huawei.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit dbc6e7d44a514f231a64d9d5676e001b660b6448 ]
+commit fcf044891c84e38fc90eb736b818781bccf94e38 upstream.
 
-In nilfs_##name##_attr_release, kobj->parent should not be referenced
-because it is a NULL pointer.  The release() method of kobject is always
-called in kobject_put(kobj), in the implementation of kobject_put(), the
-kobj->parent will be assigned as NULL before call the release() method.
-So just use kobj to get the subgroups, which is more efficient and can fix
-a NULL pointer reference problem.
+We do not need a SWIOTLB unless we have DRAM that is addressable beyond
+the arm_dma_limit. Compare max_pfn with arm_dma_pfn_limit to determine
+whether we do need a SWIOTLB to be initialized.
 
-Link: https://lkml.kernel.org/r/20210629022556.3985106-3-sunnanyong@huawei.com
-Link: https://lkml.kernel.org/r/1625651306-10829-3-git-send-email-konishi.ryusuke@gmail.com
-Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ad3c7b18c5b3 ("arm: use swiotlb for bounce buffering on LPAE configs")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/sysfs.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ arch/arm/mm/init.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
-index 69a8f302170e..d7d6791c408e 100644
---- a/fs/nilfs2/sysfs.c
-+++ b/fs/nilfs2/sysfs.c
-@@ -73,11 +73,9 @@ static const struct sysfs_ops nilfs_##name##_attr_ops = { \
- #define NILFS_DEV_INT_GROUP_TYPE(name, parent_name) \
- static void nilfs_##name##_attr_release(struct kobject *kobj) \
- { \
--	struct nilfs_sysfs_##parent_name##_subgroups *subgroups; \
--	struct the_nilfs *nilfs = container_of(kobj->parent, \
--						struct the_nilfs, \
--						ns_##parent_name##_kobj); \
--	subgroups = nilfs->ns_##parent_name##_subgroups; \
-+	struct nilfs_sysfs_##parent_name##_subgroups *subgroups = container_of(kobj, \
-+						struct nilfs_sysfs_##parent_name##_subgroups, \
-+						sg_##name##_kobj); \
- 	complete(&subgroups->sg_##name##_kobj_unregister); \
- } \
- static struct kobj_type nilfs_##name##_ktype = { \
--- 
-2.33.0
-
+--- a/arch/arm/mm/init.c
++++ b/arch/arm/mm/init.c
+@@ -469,7 +469,11 @@ static void __init free_highpages(void)
+ void __init mem_init(void)
+ {
+ #ifdef CONFIG_ARM_LPAE
+-	swiotlb_init(1);
++	if (swiotlb_force == SWIOTLB_FORCE ||
++	    max_pfn > arm_dma_pfn_limit)
++		swiotlb_init(1);
++	else
++		swiotlb_force = SWIOTLB_NO_FORCE;
+ #endif
+ 
+ 	set_max_mapnr(pfn_to_page(max_pfn) - mem_map);
 
 
