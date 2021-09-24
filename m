@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D47754172D0
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:50:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99A994174C3
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:09:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344131AbhIXMvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:51:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45232 "EHLO mail.kernel.org"
+        id S1346395AbhIXNKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:10:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343757AbhIXMuN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:50:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79D4F61278;
-        Fri, 24 Sep 2021 12:48:15 +0000 (UTC)
+        id S1346879AbhIXNIP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:08:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D838561526;
+        Fri, 24 Sep 2021 12:57:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487696;
-        bh=RiH5aUM0FXMA342fAyBhQhYAmjfHfwpOr7j/9drsde8=;
+        s=korg; t=1632488237;
+        bh=TSqSsrMkMbdLrEEz5dOB9BJmLY/8BtTV45TdyGfhYbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2FACEM3mmvZWA/b/Wuc7X5EvBNEE1+k5EUWJTzzam5FdKasC7QRMLsVpjuTbaQJVk
-         p3zdFww8GMshM1W1oqJQBcD1KH7oGldjIaQN9ab/NRZSyi5zHUKrp8Sls/sjWY5Tb2
-         eOx62XqE2DUlF5yn4FQhc+2QItS+FOmrNPDlwAVM=
+        b=iSnZJUNE3rvd2Gh9NCBhgyJaSnhWDurbGomyuFIaaFdaR5F3d9Xqumi6/Akjov6Rm
+         CvMgxpWEZpgffq4LwSiIfKFd02mp2MU2gLp23qImdO+JoTfoCBaMMk7HViHBwRmzCw
+         fQvpLc1CmggqExh8Btks0MR/rdTq84dK68j7tpkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cyrill Gorcunov <gorcunov@gmail.com>,
-        Keno Fischer <keno@juliacomputing.com>,
-        Andrey Vagin <avagin@gmail.com>,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
-        Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 12/34] prctl: allow to setup brk for et_dyn executables
+        stable@vger.kernel.org,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 5.10 06/63] ARM: 9077/1: PLT: Move struct plt_entries definition to header
 Date:   Fri, 24 Sep 2021 14:44:06 +0200
-Message-Id: <20210924124330.365493782@linuxfoundation.org>
+Message-Id: <20210924124334.455264798@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
-References: <20210924124329.965218583@linuxfoundation.org>
+In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
+References: <20210924124334.228235870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,80 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cyrill Gorcunov <gorcunov@gmail.com>
+From: Alex Sverdlin <alexander.sverdlin@nokia.com>
 
-commit e1fbbd073137a9d63279f6bf363151a938347640 upstream.
+commit 4e271701c17dee70c6e1351c4d7d42e70405c6a9 upstream upstream
 
-Keno Fischer reported that when a binray loaded via ld-linux-x the
-prctl(PR_SET_MM_MAP) doesn't allow to setup brk value because it lays
-before mm:end_data.
+No functional change, later it will be re-used in several files.
 
-For example a test program shows
-
- | # ~/t
- |
- | start_code      401000
- | end_code        401a15
- | start_stack     7ffce4577dd0
- | start_data	   403e10
- | end_data        40408c
- | start_brk	   b5b000
- | sbrk(0)         b5b000
-
-and when executed via ld-linux
-
- | # /lib64/ld-linux-x86-64.so.2 ~/t
- |
- | start_code      7fc25b0a4000
- | end_code        7fc25b0c4524
- | start_stack     7fffcc6b2400
- | start_data	   7fc25b0ce4c0
- | end_data        7fc25b0cff98
- | start_brk	   55555710c000
- | sbrk(0)         55555710c000
-
-This of course prevent criu from restoring such programs.  Looking into
-how kernel operates with brk/start_brk inside brk() syscall I don't see
-any problem if we allow to setup brk/start_brk without checking for
-end_data.  Even if someone pass some weird address here on a purpose then
-the worst possible result will be an unexpected unmapping of existing vma
-(own vma, since prctl works with the callers memory) but test for
-RLIMIT_DATA is still valid and a user won't be able to gain more memory in
-case of expanding VMAs via new values shipped with prctl call.
-
-Link: https://lkml.kernel.org/r/20210121221207.GB2174@grain
-Fixes: bbdc6076d2e5 ("binfmt_elf: move brk out of mmap when doing direct loader exec")
-Signed-off-by: Cyrill Gorcunov <gorcunov@gmail.com>
-Reported-by: Keno Fischer <keno@juliacomputing.com>
-Acked-by: Andrey Vagin <avagin@gmail.com>
-Tested-by: Andrey Vagin <avagin@gmail.com>
-Cc: Dmitry Safonov <0x7f454c46@gmail.com>
-Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-Cc: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sys.c |    7 -------
- 1 file changed, 7 deletions(-)
+ arch/arm/include/asm/module.h |    9 +++++++++
+ arch/arm/kernel/module-plts.c |    9 ---------
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -1932,13 +1932,6 @@ static int validate_prctl_map(struct prc
- 	error = -EINVAL;
+--- a/arch/arm/include/asm/module.h
++++ b/arch/arm/include/asm/module.h
+@@ -19,6 +19,15 @@ enum {
+ };
+ #endif
  
- 	/*
--	 * @brk should be after @end_data in traditional maps.
--	 */
--	if (prctl_map->start_brk <= prctl_map->end_data ||
--	    prctl_map->brk <= prctl_map->end_data)
--		goto out;
++#define PLT_ENT_STRIDE		L1_CACHE_BYTES
++#define PLT_ENT_COUNT		(PLT_ENT_STRIDE / sizeof(u32))
++#define PLT_ENT_SIZE		(sizeof(struct plt_entries) / PLT_ENT_COUNT)
++
++struct plt_entries {
++	u32	ldr[PLT_ENT_COUNT];
++	u32	lit[PLT_ENT_COUNT];
++};
++
+ struct mod_plt_sec {
+ 	struct elf32_shdr	*plt;
+ 	int			plt_count;
+--- a/arch/arm/kernel/module-plts.c
++++ b/arch/arm/kernel/module-plts.c
+@@ -12,10 +12,6 @@
+ #include <asm/cache.h>
+ #include <asm/opcodes.h>
+ 
+-#define PLT_ENT_STRIDE		L1_CACHE_BYTES
+-#define PLT_ENT_COUNT		(PLT_ENT_STRIDE / sizeof(u32))
+-#define PLT_ENT_SIZE		(sizeof(struct plt_entries) / PLT_ENT_COUNT)
 -
--	/*
- 	 * Neither we should allow to override limits if they set.
- 	 */
- 	if (check_data_rlimit(rlimit(RLIMIT_DATA), prctl_map->brk,
+ #ifdef CONFIG_THUMB2_KERNEL
+ #define PLT_ENT_LDR		__opcode_to_mem_thumb32(0xf8dff000 | \
+ 							(PLT_ENT_STRIDE - 4))
+@@ -24,11 +20,6 @@
+ 						    (PLT_ENT_STRIDE - 8))
+ #endif
+ 
+-struct plt_entries {
+-	u32	ldr[PLT_ENT_COUNT];
+-	u32	lit[PLT_ENT_COUNT];
+-};
+-
+ static bool in_init(const struct module *mod, unsigned long loc)
+ {
+ 	return loc - (u32)mod->init_layout.base < mod->init_layout.size;
 
 
