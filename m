@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87F6D4172C1
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:50:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC170417417
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:02:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344221AbhIXMvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:51:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46134 "EHLO mail.kernel.org"
+        id S1344901AbhIXNC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:02:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343934AbhIXMtb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:49:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58D976124C;
-        Fri, 24 Sep 2021 12:47:57 +0000 (UTC)
+        id S1345168AbhIXNA0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:00:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72A38613D2;
+        Fri, 24 Sep 2021 12:53:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487677;
-        bh=1Yee01YOa6CqWiZK9ouQScFRToVKWvCJRIJUdRJVjAs=;
+        s=korg; t=1632488032;
+        bh=Fe0u47UtFxmHHLPrc9Z6tjunTngUMbu/DcOtnGOPw1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=boGHbZIVq4hoXQdRQCE9MPnVsL/XQi/nNIkw7sj9MaT3GMWjTlo5p6g3D6m+/vQ4u
-         v/qL6qAuuPbzOV7W4ugectxEQz5vFn8zXx9RG0Fc/cgCJc5+EcAWFUI4O5XaOXOksy
-         1V6KKZJRQaniRBVtm+1UPtpn3VcGmoXIniLXgq/k=
+        b=MrkBvva/k02A2E46bOQjRdHTwu81OldGZWaEopMOKKju7nAHC88uSEn42NCvI9Cej
+         /Zr9ijP6Ekjc7iHlgb+i+roslzdOSpZQSUdQ832pDTrmVqdqlATreTIt4JU8TUc12J
+         usYxKySCorcdwVvvnB/sTwY8rrsEW+JkB/f0j9eM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        syzbot+e68c89a9510c159d9684@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 11/27] profiling: fix shift-out-of-bounds bugs
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        Baolin Wang <baolin.wang7@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 056/100] dmaengine: sprd: Add missing MODULE_DEVICE_TABLE
 Date:   Fri, 24 Sep 2021 14:44:05 +0200
-Message-Id: <20210924124329.550326470@linuxfoundation.org>
+Message-Id: <20210924124343.308012761@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124329.173674820@linuxfoundation.org>
-References: <20210924124329.173674820@linuxfoundation.org>
+In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
+References: <20210924124341.214446495@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,98 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-commit 2d186afd04d669fe9c48b994c41a7405a3c9f16d upstream.
+[ Upstream commit 4faee8b65ec32346f8096e64c5fa1d5a73121742 ]
 
-Syzbot reported shift-out-of-bounds bug in profile_init().
-The problem was in incorrect prof_shift. Since prof_shift value comes from
-userspace we need to clamp this value into [0, BITS_PER_LONG -1]
-boundaries.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Second possible shiht-out-of-bounds was found by Tetsuo:
-sample_step local variable in read_profile() had "unsigned int" type,
-but prof_shift allows to make a BITS_PER_LONG shift. So, to prevent
-possible shiht-out-of-bounds sample_step type was changed to
-"unsigned long".
-
-Also, "unsigned short int" will be sufficient for storing
-[0, BITS_PER_LONG] value, that's why there is no need for
-"unsigned long" prof_shift.
-
-Link: https://lkml.kernel.org/r/20210813140022.5011-1-paskripkin@gmail.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-and-tested-by: syzbot+e68c89a9510c159d9684@syzkaller.appspotmail.com
-Suggested-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Reviewed-by: Baolin Wang <baolin.wang7@gmail.com>
+Link: https://lore.kernel.org/r/1620094977-70146-1-git-send-email-zou_wei@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/profile.c |   21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+ drivers/dma/sprd-dma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/profile.c
-+++ b/kernel/profile.c
-@@ -40,7 +40,8 @@ struct profile_hit {
- #define NR_PROFILE_GRP		(NR_PROFILE_HIT/PROFILE_GRPSZ)
+diff --git a/drivers/dma/sprd-dma.c b/drivers/dma/sprd-dma.c
+index 0ef5ca81ba4d..4357d2395e6b 100644
+--- a/drivers/dma/sprd-dma.c
++++ b/drivers/dma/sprd-dma.c
+@@ -1265,6 +1265,7 @@ static const struct of_device_id sprd_dma_match[] = {
+ 	{ .compatible = "sprd,sc9860-dma", },
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, sprd_dma_match);
  
- static atomic_t *prof_buffer;
--static unsigned long prof_len, prof_shift;
-+static unsigned long prof_len;
-+static unsigned short int prof_shift;
- 
- int prof_on __read_mostly;
- EXPORT_SYMBOL_GPL(prof_on);
-@@ -66,8 +67,8 @@ int profile_setup(char *str)
- 		if (str[strlen(sleepstr)] == ',')
- 			str += strlen(sleepstr) + 1;
- 		if (get_option(&str, &par))
--			prof_shift = par;
--		pr_info("kernel sleep profiling enabled (shift: %ld)\n",
-+			prof_shift = clamp(par, 0, BITS_PER_LONG - 1);
-+		pr_info("kernel sleep profiling enabled (shift: %u)\n",
- 			prof_shift);
- #else
- 		pr_warn("kernel sleep profiling requires CONFIG_SCHEDSTATS\n");
-@@ -77,21 +78,21 @@ int profile_setup(char *str)
- 		if (str[strlen(schedstr)] == ',')
- 			str += strlen(schedstr) + 1;
- 		if (get_option(&str, &par))
--			prof_shift = par;
--		pr_info("kernel schedule profiling enabled (shift: %ld)\n",
-+			prof_shift = clamp(par, 0, BITS_PER_LONG - 1);
-+		pr_info("kernel schedule profiling enabled (shift: %u)\n",
- 			prof_shift);
- 	} else if (!strncmp(str, kvmstr, strlen(kvmstr))) {
- 		prof_on = KVM_PROFILING;
- 		if (str[strlen(kvmstr)] == ',')
- 			str += strlen(kvmstr) + 1;
- 		if (get_option(&str, &par))
--			prof_shift = par;
--		pr_info("kernel KVM profiling enabled (shift: %ld)\n",
-+			prof_shift = clamp(par, 0, BITS_PER_LONG - 1);
-+		pr_info("kernel KVM profiling enabled (shift: %u)\n",
- 			prof_shift);
- 	} else if (get_option(&str, &par)) {
--		prof_shift = par;
-+		prof_shift = clamp(par, 0, BITS_PER_LONG - 1);
- 		prof_on = CPU_PROFILING;
--		pr_info("kernel profiling enabled (shift: %ld)\n",
-+		pr_info("kernel profiling enabled (shift: %u)\n",
- 			prof_shift);
- 	}
- 	return 1;
-@@ -467,7 +468,7 @@ read_profile(struct file *file, char __u
- 	unsigned long p = *ppos;
- 	ssize_t read;
- 	char *pnt;
--	unsigned int sample_step = 1 << prof_shift;
-+	unsigned long sample_step = 1UL << prof_shift;
- 
- 	profile_flip_buffers();
- 	if (p >= (prof_len+1)*sizeof(unsigned int))
+ static int __maybe_unused sprd_dma_runtime_suspend(struct device *dev)
+ {
+-- 
+2.33.0
+
 
 
