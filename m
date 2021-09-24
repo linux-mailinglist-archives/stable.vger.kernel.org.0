@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AB3A416E89
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 11:08:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B40A3416E8A
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 11:09:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244460AbhIXJK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 05:10:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35170 "EHLO mail.kernel.org"
+        id S244402AbhIXJKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 05:10:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244396AbhIXJK3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 05:10:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E209F6103B;
-        Fri, 24 Sep 2021 09:08:55 +0000 (UTC)
+        id S244396AbhIXJKb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 05:10:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 517F960F39;
+        Fri, 24 Sep 2021 09:08:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632474536;
-        bh=cDVO3J4/1S2zMWBQK5UFoDTUP0e6Hlmf2FE+ZPKQvNY=;
+        s=korg; t=1632474538;
+        bh=Dlr35G//MFY9qIJea2+4IpWN5RKWscOwI/Xr0Mfdz3U=;
         h=Subject:To:Cc:From:Date:From;
-        b=p3eTm+2VpUJdAgHbW/wUrxu6Dwp1MxvMqkTXsrEDGiEH+RcmzD0xh/umcW+LepPm0
-         nm/ZKRPLQHUiEd2Ej54I+Lwih7242ecP2cmqalqBdj2UXdgaFfLpGJbn7/RznInqah
-         MtSbzUQ3kqJQrsFfYnP2fp/QH/6i8b9eScPvJTJw=
-Subject: FAILED: patch "[PATCH] Bluetooth: defer cleanup of resources in hci_unregister_dev()" failed to apply to 5.4-stable tree
+        b=mXkgMwV6t8JNfZxmZVVe46C8/JsKcyawj1Mr1mnTl1YHuy0a7zHjrcD6VgZ7fCzFs
+         R9HSn3zw7aNn592Tety3aAbLk58crAjuGm+isnV7mUkzBdHYmbTiwe6iqQ6xq9luJk
+         Ok4jsb6FSBH+s31JoUCpgVgknGZZsPnIpx00Gi7s=
+Subject: FAILED: patch "[PATCH] Bluetooth: defer cleanup of resources in hci_unregister_dev()" failed to apply to 4.19-stable tree
 To:     penguin-kernel@I-love.SAKURA.ne.jp, luiz.von.dentz@intel.com,
         syzbot+a5df189917e79d5e59c9@syzkaller.appspotmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 24 Sep 2021 11:08:50 +0200
-Message-ID: <163247453017842@kroah.com>
+Date:   Fri, 24 Sep 2021 11:08:51 +0200
+Message-ID: <163247453120048@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
