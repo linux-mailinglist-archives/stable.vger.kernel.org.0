@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D895F41723C
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:45:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BD80417436
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:03:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343966AbhIXMqu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:46:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41988 "EHLO mail.kernel.org"
+        id S1345440AbhIXNDz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:03:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343723AbhIXMq0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:46:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25CC261164;
-        Fri, 24 Sep 2021 12:44:53 +0000 (UTC)
+        id S1345745AbhIXNBw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:01:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CDA36140F;
+        Fri, 24 Sep 2021 12:54:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487493;
-        bh=K/MHxVjz3gOqMQyd2AGiJFitdA8BkTxuQse7yV5UCwg=;
+        s=korg; t=1632488066;
+        bh=YN4sg+A4COQS9FIG8U7VhzOngajLK+jzTcdur6B65n0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rb4g1KsnumHmhC5vitPKKb71/nxS9k0wIXMn5CrvLRQotDDbw89PfESCb+M6v/NnA
-         JcJWyysZWS6dyLFRy7Nn2SSDXdQYE84Y7nr+gAuHFWpZoMbtuMW4lx+D6AtQ9gnNje
-         SwsejB62tqRiaRkVByfM5/BFt9PLSLBLhQLR4/E4=
+        b=hrQ7uXY9y1Qvm2wknaHaxYqmGX49MpDnIpy0f8f+CObsZ5Tx9VQjdBt4qU/bKaXtu
+         pbZXRYWwDgrkuXC73fnECblbvtdjz9W4vpSRcoQo6uBa8kUer+t7C/jaSKtuwYOdMg
+         HDsSatmmDgwdhv6RNZEMtuY0OyOUZYyI0xFJqV5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cyrill Gorcunov <gorcunov@gmail.com>,
-        Keno Fischer <keno@juliacomputing.com>,
-        Andrey Vagin <avagin@gmail.com>,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
-        Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 07/23] prctl: allow to setup brk for et_dyn executables
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 039/100] tools/bootconfig: Fix tracing_on option checking in ftrace2bconf.sh
 Date:   Fri, 24 Sep 2021 14:43:48 +0200
-Message-Id: <20210924124328.062183905@linuxfoundation.org>
+Message-Id: <20210924124342.767754659@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124327.816210800@linuxfoundation.org>
-References: <20210924124327.816210800@linuxfoundation.org>
+In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
+References: <20210924124341.214446495@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,80 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cyrill Gorcunov <gorcunov@gmail.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit e1fbbd073137a9d63279f6bf363151a938347640 upstream.
+[ Upstream commit 32ba9f0fb027cc43074e3ea26fcf831adeee8e03 ]
 
-Keno Fischer reported that when a binray loaded via ld-linux-x the
-prctl(PR_SET_MM_MAP) doesn't allow to setup brk value because it lays
-before mm:end_data.
+Since tracing_on indicates only "1" (default) or "0", ftrace2bconf.sh
+only need to check the value is "0".
 
-For example a test program shows
+Link: https://lkml.kernel.org/r/163077087144.222577.6888011847727968737.stgit@devnote2
 
- | # ~/t
- |
- | start_code      401000
- | end_code        401a15
- | start_stack     7ffce4577dd0
- | start_data	   403e10
- | end_data        40408c
- | start_brk	   b5b000
- | sbrk(0)         b5b000
-
-and when executed via ld-linux
-
- | # /lib64/ld-linux-x86-64.so.2 ~/t
- |
- | start_code      7fc25b0a4000
- | end_code        7fc25b0c4524
- | start_stack     7fffcc6b2400
- | start_data	   7fc25b0ce4c0
- | end_data        7fc25b0cff98
- | start_brk	   55555710c000
- | sbrk(0)         55555710c000
-
-This of course prevent criu from restoring such programs.  Looking into
-how kernel operates with brk/start_brk inside brk() syscall I don't see
-any problem if we allow to setup brk/start_brk without checking for
-end_data.  Even if someone pass some weird address here on a purpose then
-the worst possible result will be an unexpected unmapping of existing vma
-(own vma, since prctl works with the callers memory) but test for
-RLIMIT_DATA is still valid and a user won't be able to gain more memory in
-case of expanding VMAs via new values shipped with prctl call.
-
-Link: https://lkml.kernel.org/r/20210121221207.GB2174@grain
-Fixes: bbdc6076d2e5 ("binfmt_elf: move brk out of mmap when doing direct loader exec")
-Signed-off-by: Cyrill Gorcunov <gorcunov@gmail.com>
-Reported-by: Keno Fischer <keno@juliacomputing.com>
-Acked-by: Andrey Vagin <avagin@gmail.com>
-Tested-by: Andrey Vagin <avagin@gmail.com>
-Cc: Dmitry Safonov <0x7f454c46@gmail.com>
-Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-Cc: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 55ed4560774d ("tools/bootconfig: Add tracing_on support to helper scripts")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sys.c |    7 -------
- 1 file changed, 7 deletions(-)
+ tools/bootconfig/scripts/ftrace2bconf.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -1775,13 +1775,6 @@ static int validate_prctl_map(struct prc
- 	error = -EINVAL;
+diff --git a/tools/bootconfig/scripts/ftrace2bconf.sh b/tools/bootconfig/scripts/ftrace2bconf.sh
+index a0c3bcc6da4f..fb201d5afe2c 100755
+--- a/tools/bootconfig/scripts/ftrace2bconf.sh
++++ b/tools/bootconfig/scripts/ftrace2bconf.sh
+@@ -222,8 +222,8 @@ instance_options() { # [instance-name]
+ 		emit_kv $PREFIX.cpumask = $val
+ 	fi
+ 	val=`cat $INSTANCE/tracing_on`
+-	if [ `echo $val | sed -e s/f//g`x != x ]; then
+-		emit_kv $PREFIX.tracing_on = $val
++	if [ "$val" = "0" ]; then
++		emit_kv $PREFIX.tracing_on = 0
+ 	fi
  
- 	/*
--	 * @brk should be after @end_data in traditional maps.
--	 */
--	if (prctl_map->start_brk <= prctl_map->end_data ||
--	    prctl_map->brk <= prctl_map->end_data)
--		goto out;
--
--	/*
- 	 * Neither we should allow to override limits if they set.
- 	 */
- 	if (check_data_rlimit(rlimit(RLIMIT_DATA), prctl_map->brk,
+ 	val=
+-- 
+2.33.0
+
 
 
