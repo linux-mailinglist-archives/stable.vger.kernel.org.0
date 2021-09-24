@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D6EF417374
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:57:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7149741747F
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345035AbhIXM4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:56:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52586 "EHLO mail.kernel.org"
+        id S1345520AbhIXNGn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:06:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344894AbhIXMyl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:54:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 972CC61354;
-        Fri, 24 Sep 2021 12:50:41 +0000 (UTC)
+        id S1344273AbhIXNEl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:04:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CD8561462;
+        Fri, 24 Sep 2021 12:55:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487842;
-        bh=xgssIGzVbmbITLwftznMDai9S3IVYp4wJt4M4ihSDvE=;
+        s=korg; t=1632488136;
+        bh=u3eAg3WdSspCnwhW5vTgK/BWOPqXhAJAKPcRNGAOLGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b8RGaJZxl2C5ZnBkQNM3BTgk54G+uRLFP0Lhjjc0A7DKMHHIA6wQspFvUKF5j3/y0
-         mfY6GGWXJPdIw0x8gTerTF0eX/98CJ112+iUKwdsZIU7MhTjQa+NqYZjq5FpMBUCOi
-         7ia3r+6IKVesw45EcK+YLXb2/uBeSN43Cd7eqsiI=
+        b=I2tyuy6zrFkYf4JY/IRmqalX5WnYJ7+tmgu1Rd5KJ8eDrISdlpECCuh1rc+S639vl
+         7ht/rvgBO9zSDcqWdVH29oUqpaJKZwdDzpagAtaX+lmQZ03OmnysLebh6U6jtugInj
+         8dNsr2Dy+QSifcMwqACDrpXplc8KCqexyyfVSwCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
+        stable@vger.kernel.org, Su Yue <l@damenly.su>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 31/50] drivers: base: cacheinfo: Get rid of DEFINE_SMP_CALL_CACHE_FUNCTION()
+Subject: [PATCH 5.14 071/100] btrfs: fix lockdep warning while mounting sprout fs
 Date:   Fri, 24 Sep 2021 14:44:20 +0200
-Message-Id: <20210924124333.293065324@linuxfoundation.org>
+Message-Id: <20210924124343.818961014@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
-References: <20210924124332.229289734@linuxfoundation.org>
+In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
+References: <20210924124341.214446495@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,185 +41,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Anand Jain <anand.jain@oracle.com>
 
-[ Upstream commit 4b92d4add5f6dcf21275185c997d6ecb800054cd ]
+[ Upstream commit c124706900c20dee70f921bb3a90492431561a0a ]
 
-DEFINE_SMP_CALL_CACHE_FUNCTION() was usefel before the CPU hotplug rework
-to ensure that the cache related functions are called on the upcoming CPU
-because the notifier itself could run on any online CPU.
+Following test case reproduces lockdep warning.
 
-The hotplug state machine guarantees that the callbacks are invoked on the
-upcoming CPU. So there is no need to have this SMP function call
-obfuscation. That indirection was missed when the hotplug notifiers were
-converted.
+  Test case:
 
-This also solves the problem of ARM64 init_cache_level() invoking ACPI
-functions which take a semaphore in that context. That's invalid as SMP
-function calls run with interrupts disabled. Running it just from the
-callback in context of the CPU hotplug thread solves this.
+  $ mkfs.btrfs -f <dev1>
+  $ btrfstune -S 1 <dev1>
+  $ mount <dev1> <mnt>
+  $ btrfs device add <dev2> <mnt> -f
+  $ umount <mnt>
+  $ mount <dev2> <mnt>
+  $ umount <mnt>
 
-Fixes: 8571890e1513 ("arm64: Add support for ACPI based firmware tables")
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Will Deacon <will@kernel.org>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/871r69ersb.ffs@tglx
+The warning claims a possible ABBA deadlock between the threads
+initiated by [#1] btrfs device add and [#0] the mount.
+
+  [ 540.743122] WARNING: possible circular locking dependency detected
+  [ 540.743129] 5.11.0-rc7+ #5 Not tainted
+  [ 540.743135] ------------------------------------------------------
+  [ 540.743142] mount/2515 is trying to acquire lock:
+  [ 540.743149] ffffa0c5544c2ce0 (&fs_devs->device_list_mutex){+.+.}-{4:4}, at: clone_fs_devices+0x6d/0x210 [btrfs]
+  [ 540.743458] but task is already holding lock:
+  [ 540.743461] ffffa0c54a7932b8 (btrfs-chunk-00){++++}-{4:4}, at: __btrfs_tree_read_lock+0x32/0x200 [btrfs]
+  [ 540.743541] which lock already depends on the new lock.
+  [ 540.743543] the existing dependency chain (in reverse order) is:
+
+  [ 540.743546] -> #1 (btrfs-chunk-00){++++}-{4:4}:
+  [ 540.743566] down_read_nested+0x48/0x2b0
+  [ 540.743585] __btrfs_tree_read_lock+0x32/0x200 [btrfs]
+  [ 540.743650] btrfs_read_lock_root_node+0x70/0x200 [btrfs]
+  [ 540.743733] btrfs_search_slot+0x6c6/0xe00 [btrfs]
+  [ 540.743785] btrfs_update_device+0x83/0x260 [btrfs]
+  [ 540.743849] btrfs_finish_chunk_alloc+0x13f/0x660 [btrfs] <--- device_list_mutex
+  [ 540.743911] btrfs_create_pending_block_groups+0x18d/0x3f0 [btrfs]
+  [ 540.743982] btrfs_commit_transaction+0x86/0x1260 [btrfs]
+  [ 540.744037] btrfs_init_new_device+0x1600/0x1dd0 [btrfs]
+  [ 540.744101] btrfs_ioctl+0x1c77/0x24c0 [btrfs]
+  [ 540.744166] __x64_sys_ioctl+0xe4/0x140
+  [ 540.744170] do_syscall_64+0x4b/0x80
+  [ 540.744174] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  [ 540.744180] -> #0 (&fs_devs->device_list_mutex){+.+.}-{4:4}:
+  [ 540.744184] __lock_acquire+0x155f/0x2360
+  [ 540.744188] lock_acquire+0x10b/0x5c0
+  [ 540.744190] __mutex_lock+0xb1/0xf80
+  [ 540.744193] mutex_lock_nested+0x27/0x30
+  [ 540.744196] clone_fs_devices+0x6d/0x210 [btrfs]
+  [ 540.744270] btrfs_read_chunk_tree+0x3c7/0xbb0 [btrfs]
+  [ 540.744336] open_ctree+0xf6e/0x2074 [btrfs]
+  [ 540.744406] btrfs_mount_root.cold.72+0x16/0x127 [btrfs]
+  [ 540.744472] legacy_get_tree+0x38/0x90
+  [ 540.744475] vfs_get_tree+0x30/0x140
+  [ 540.744478] fc_mount+0x16/0x60
+  [ 540.744482] vfs_kern_mount+0x91/0x100
+  [ 540.744484] btrfs_mount+0x1e6/0x670 [btrfs]
+  [ 540.744536] legacy_get_tree+0x38/0x90
+  [ 540.744537] vfs_get_tree+0x30/0x140
+  [ 540.744539] path_mount+0x8d8/0x1070
+  [ 540.744541] do_mount+0x8d/0xc0
+  [ 540.744543] __x64_sys_mount+0x125/0x160
+  [ 540.744545] do_syscall_64+0x4b/0x80
+  [ 540.744547] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  [ 540.744551] other info that might help us debug this:
+  [ 540.744552] Possible unsafe locking scenario:
+
+  [ 540.744553] CPU0 				CPU1
+  [ 540.744554] ---- 				----
+  [ 540.744555] lock(btrfs-chunk-00);
+  [ 540.744557] 					lock(&fs_devs->device_list_mutex);
+  [ 540.744560] 					lock(btrfs-chunk-00);
+  [ 540.744562] lock(&fs_devs->device_list_mutex);
+  [ 540.744564]
+   *** DEADLOCK ***
+
+  [ 540.744565] 3 locks held by mount/2515:
+  [ 540.744567] #0: ffffa0c56bf7a0e0 (&type->s_umount_key#42/1){+.+.}-{4:4}, at: alloc_super.isra.16+0xdf/0x450
+  [ 540.744574] #1: ffffffffc05a9628 (uuid_mutex){+.+.}-{4:4}, at: btrfs_read_chunk_tree+0x63/0xbb0 [btrfs]
+  [ 540.744640] #2: ffffa0c54a7932b8 (btrfs-chunk-00){++++}-{4:4}, at: __btrfs_tree_read_lock+0x32/0x200 [btrfs]
+  [ 540.744708]
+   stack backtrace:
+  [ 540.744712] CPU: 2 PID: 2515 Comm: mount Not tainted 5.11.0-rc7+ #5
+
+But the device_list_mutex in clone_fs_devices() is redundant, as
+explained below.  Two threads [1]  and [2] (below) could lead to
+clone_fs_device().
+
+  [1]
+  open_ctree <== mount sprout fs
+   btrfs_read_chunk_tree()
+    mutex_lock(&uuid_mutex) <== global lock
+    read_one_dev()
+     open_seed_devices()
+      clone_fs_devices() <== seed fs_devices
+       mutex_lock(&orig->device_list_mutex) <== seed fs_devices
+
+  [2]
+  btrfs_init_new_device() <== sprouting
+   mutex_lock(&uuid_mutex); <== global lock
+   btrfs_prepare_sprout()
+     lockdep_assert_held(&uuid_mutex)
+     clone_fs_devices(seed_fs_device) <== seed fs_devices
+
+Both of these threads hold uuid_mutex which is sufficient to protect
+getting the seed device(s) freed while we are trying to clone it for
+sprouting [2] or mounting a sprout [1] (as above). A mounted seed device
+can not free/write/replace because it is read-only. An unmounted seed
+device can be freed by btrfs_free_stale_devices(), but it needs
+uuid_mutex.  So this patch removes the unnecessary device_list_mutex in
+clone_fs_devices().  And adds a lockdep_assert_held(&uuid_mutex) in
+clone_fs_devices().
+
+Reported-by: Su Yue <l@damenly.su>
+Tested-by: Su Yue <l@damenly.su>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cacheinfo.c   |  7 ++-----
- arch/mips/kernel/cacheinfo.c    |  7 ++-----
- arch/riscv/kernel/cacheinfo.c   |  7 ++-----
- arch/x86/kernel/cpu/cacheinfo.c |  7 ++-----
- include/linux/cacheinfo.h       | 18 ------------------
- 5 files changed, 8 insertions(+), 38 deletions(-)
+ fs/btrfs/volumes.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/kernel/cacheinfo.c b/arch/arm64/kernel/cacheinfo.c
-index 7fa6828bb488..587543c6c51c 100644
---- a/arch/arm64/kernel/cacheinfo.c
-+++ b/arch/arm64/kernel/cacheinfo.c
-@@ -43,7 +43,7 @@ static void ci_leaf_init(struct cacheinfo *this_leaf,
- 	this_leaf->type = type;
- }
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index d6ffb38a0869..682416d4edef 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -570,6 +570,8 @@ static int btrfs_free_stale_devices(const char *path,
+ 	struct btrfs_device *device, *tmp_device;
+ 	int ret = 0;
  
--static int __init_cache_level(unsigned int cpu)
-+int init_cache_level(unsigned int cpu)
- {
- 	unsigned int ctype, level, leaves, fw_level;
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
-@@ -78,7 +78,7 @@ static int __init_cache_level(unsigned int cpu)
- 	return 0;
- }
++	lockdep_assert_held(&uuid_mutex);
++
+ 	if (path)
+ 		ret = -ENOENT;
  
--static int __populate_cache_leaves(unsigned int cpu)
-+int populate_cache_leaves(unsigned int cpu)
- {
- 	unsigned int level, idx;
- 	enum cache_type type;
-@@ -97,6 +97,3 @@ static int __populate_cache_leaves(unsigned int cpu)
+@@ -1000,11 +1002,12 @@ static struct btrfs_fs_devices *clone_fs_devices(struct btrfs_fs_devices *orig)
+ 	struct btrfs_device *orig_dev;
+ 	int ret = 0;
+ 
++	lockdep_assert_held(&uuid_mutex);
++
+ 	fs_devices = alloc_fs_devices(orig->fsid, NULL);
+ 	if (IS_ERR(fs_devices))
+ 		return fs_devices;
+ 
+-	mutex_lock(&orig->device_list_mutex);
+ 	fs_devices->total_devices = orig->total_devices;
+ 
+ 	list_for_each_entry(orig_dev, &orig->devices, dev_list) {
+@@ -1036,10 +1039,8 @@ static struct btrfs_fs_devices *clone_fs_devices(struct btrfs_fs_devices *orig)
+ 		device->fs_devices = fs_devices;
+ 		fs_devices->num_devices++;
  	}
- 	return 0;
+-	mutex_unlock(&orig->device_list_mutex);
+ 	return fs_devices;
+ error:
+-	mutex_unlock(&orig->device_list_mutex);
+ 	free_fs_devices(fs_devices);
+ 	return ERR_PTR(ret);
  }
--
--DEFINE_SMP_CALL_CACHE_FUNCTION(init_cache_level)
--DEFINE_SMP_CALL_CACHE_FUNCTION(populate_cache_leaves)
-diff --git a/arch/mips/kernel/cacheinfo.c b/arch/mips/kernel/cacheinfo.c
-index 47312c529410..529dab855aac 100644
---- a/arch/mips/kernel/cacheinfo.c
-+++ b/arch/mips/kernel/cacheinfo.c
-@@ -17,7 +17,7 @@ do {								\
- 	leaf++;							\
- } while (0)
- 
--static int __init_cache_level(unsigned int cpu)
-+int init_cache_level(unsigned int cpu)
- {
- 	struct cpuinfo_mips *c = &current_cpu_data;
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
-@@ -69,7 +69,7 @@ static void fill_cpumask_cluster(int cpu, cpumask_t *cpu_map)
- 			cpumask_set_cpu(cpu1, cpu_map);
- }
- 
--static int __populate_cache_leaves(unsigned int cpu)
-+int populate_cache_leaves(unsigned int cpu)
- {
- 	struct cpuinfo_mips *c = &current_cpu_data;
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
-@@ -98,6 +98,3 @@ static int __populate_cache_leaves(unsigned int cpu)
- 
- 	return 0;
- }
--
--DEFINE_SMP_CALL_CACHE_FUNCTION(init_cache_level)
--DEFINE_SMP_CALL_CACHE_FUNCTION(populate_cache_leaves)
-diff --git a/arch/riscv/kernel/cacheinfo.c b/arch/riscv/kernel/cacheinfo.c
-index 4c90c07d8c39..d930bd073b7b 100644
---- a/arch/riscv/kernel/cacheinfo.c
-+++ b/arch/riscv/kernel/cacheinfo.c
-@@ -16,7 +16,7 @@ static void ci_leaf_init(struct cacheinfo *this_leaf,
- 	this_leaf->type = type;
- }
- 
--static int __init_cache_level(unsigned int cpu)
-+int init_cache_level(unsigned int cpu)
- {
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
- 	struct device_node *np = of_cpu_device_node_get(cpu);
-@@ -58,7 +58,7 @@ static int __init_cache_level(unsigned int cpu)
- 	return 0;
- }
- 
--static int __populate_cache_leaves(unsigned int cpu)
-+int populate_cache_leaves(unsigned int cpu)
- {
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
- 	struct cacheinfo *this_leaf = this_cpu_ci->info_list;
-@@ -95,6 +95,3 @@ static int __populate_cache_leaves(unsigned int cpu)
- 
- 	return 0;
- }
--
--DEFINE_SMP_CALL_CACHE_FUNCTION(init_cache_level)
--DEFINE_SMP_CALL_CACHE_FUNCTION(populate_cache_leaves)
-diff --git a/arch/x86/kernel/cpu/cacheinfo.c b/arch/x86/kernel/cpu/cacheinfo.c
-index 30f33b75209a..cae566567e15 100644
---- a/arch/x86/kernel/cpu/cacheinfo.c
-+++ b/arch/x86/kernel/cpu/cacheinfo.c
-@@ -985,7 +985,7 @@ static void ci_leaf_init(struct cacheinfo *this_leaf,
- 	this_leaf->priv = base->nb;
- }
- 
--static int __init_cache_level(unsigned int cpu)
-+int init_cache_level(unsigned int cpu)
- {
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
- 
-@@ -1014,7 +1014,7 @@ static void get_cache_id(int cpu, struct _cpuid4_info_regs *id4_regs)
- 	id4_regs->id = c->apicid >> index_msb;
- }
- 
--static int __populate_cache_leaves(unsigned int cpu)
-+int populate_cache_leaves(unsigned int cpu)
- {
- 	unsigned int idx, ret;
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
-@@ -1033,6 +1033,3 @@ static int __populate_cache_leaves(unsigned int cpu)
- 
- 	return 0;
- }
--
--DEFINE_SMP_CALL_CACHE_FUNCTION(init_cache_level)
--DEFINE_SMP_CALL_CACHE_FUNCTION(populate_cache_leaves)
-diff --git a/include/linux/cacheinfo.h b/include/linux/cacheinfo.h
-index 46b92cd61d0c..c8c71eea237d 100644
---- a/include/linux/cacheinfo.h
-+++ b/include/linux/cacheinfo.h
-@@ -78,24 +78,6 @@ struct cpu_cacheinfo {
- 	bool cpu_map_populated;
- };
- 
--/*
-- * Helpers to make sure "func" is executed on the cpu whose cache
-- * attributes are being detected
-- */
--#define DEFINE_SMP_CALL_CACHE_FUNCTION(func)			\
--static inline void _##func(void *ret)				\
--{								\
--	int cpu = smp_processor_id();				\
--	*(int *)ret = __##func(cpu);				\
--}								\
--								\
--int func(unsigned int cpu)					\
--{								\
--	int ret;						\
--	smp_call_function_single(cpu, _##func, &ret, true);	\
--	return ret;						\
--}
--
- struct cpu_cacheinfo *get_cpu_cacheinfo(unsigned int cpu);
- int init_cache_level(unsigned int cpu);
- int populate_cache_leaves(unsigned int cpu);
 -- 
 2.33.0
 
