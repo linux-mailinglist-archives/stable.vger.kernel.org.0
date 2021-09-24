@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6AE6417447
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:03:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8C7E417242
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:45:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345671AbhIXNEY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:04:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34394 "EHLO mail.kernel.org"
+        id S1344036AbhIXMrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:47:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345491AbhIXNCS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:02:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12B1961452;
-        Fri, 24 Sep 2021 12:54:30 +0000 (UTC)
+        id S1343744AbhIXMqc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:46:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8977F61251;
+        Fri, 24 Sep 2021 12:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488071;
-        bh=m1Kujgook1PbYh+KRb/Tnz6OmjVPOuTODtLuTsMfw3I=;
+        s=korg; t=1632487499;
+        bh=l1gzoSs4ajRaNO/iXl96GbK9WlpuKTQmAaQln8y91Ig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nLkEwL4Ofvt1i+yA15/yDiNfjj0EsWfHI349TP2L2FsoE9d85ANQ06ivy5v66y+1E
-         Ckm1p5ls0W+K0OTmJYfPB612+Zrt4uGF12KWCxfHaAgiveCHeXM2O+cSejfaCSLCU+
-         BGKsolbUtnbosCTdVe3j0oSMNoFkTXwj4JWN59p8=
+        b=t0fSK7132f1XVDt8PTqhAkSdCS3f+xHSX3TDNFGKwKQjwkDCF9uFrqJpPdjB3+xWA
+         1BMVR7i2/YU2h7nQGPVq6A7/F1JyJv+mN4nB3VpyzYQhNb3pO5uKpZX+wbDoz2V6N1
+         dI7bZTFyRGjK4I3iKToyumIUsT84Zo2YyackOmfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Jean-Francois Dagenais <jeff.dagenais@gmail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 041/100] thermal/core: Fix thermal_cooling_device_register() prototype
+        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>
+Subject: [PATCH 4.4 09/23] pwm: mxs: Dont modify HW state in .probe() after the PWM chip was registered
 Date:   Fri, 24 Sep 2021 14:43:50 +0200
-Message-Id: <20210924124342.832465960@linuxfoundation.org>
+Message-Id: <20210924124328.125888005@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
-References: <20210924124341.214446495@linuxfoundation.org>
+In-Reply-To: <20210924124327.816210800@linuxfoundation.org>
+References: <20210924124327.816210800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,58 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit fb83610762dd5927212aa62a468dd3b756b57a88 ]
+commit 020162d6f49f2963062229814a56a89c86cbeaa8 upstream.
 
-There are two pairs of declarations for thermal_cooling_device_register()
-and thermal_of_cooling_device_register(), and only one set was changed
-in a recent patch, so the other one now causes a compile-time warning:
+This fixes a race condition: After pwmchip_add() is called there might
+already be a consumer and then modifying the hardware behind the
+consumer's back is bad. So reset before calling pwmchip_add().
 
-drivers/net/wireless/mediatek/mt76/mt7915/init.c: In function 'mt7915_thermal_init':
-drivers/net/wireless/mediatek/mt76/mt7915/init.c:134:48: error: passing argument 1 of 'thermal_cooling_device_register' discards 'const' qualifier from pointer target type [-Werror=discarded-qualifiers]
-  134 |         cdev = thermal_cooling_device_register(wiphy_name(wiphy), phy,
-      |                                                ^~~~~~~~~~~~~~~~~
-In file included from drivers/net/wireless/mediatek/mt76/mt7915/init.c:7:
-include/linux/thermal.h:407:39: note: expected 'char *' but argument is of type 'const char *'
-  407 | thermal_cooling_device_register(char *type, void *devdata,
-      |                                 ~~~~~~^~~~
+Note that reseting the hardware isn't the right thing to do if the PWM
+is already running as it might e.g. disable (or even enable) a backlight
+that is supposed to be on (or off).
 
-Change the dummy helper functions to have the same arguments as the
-normal version.
-
-Fixes: f991de53a8ab ("thermal: make device_register's type argument const")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Jean-Francois Dagenais <jeff.dagenais@gmail.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210722090717.1116748-1-arnd@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4dce82c1e840 ("pwm: add pwm-mxs support")
+Cc: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/thermal.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/pwm/pwm-mxs.c |   13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/include/linux/thermal.h b/include/linux/thermal.h
-index d296f3b88fb9..8050d929a5b4 100644
---- a/include/linux/thermal.h
-+++ b/include/linux/thermal.h
-@@ -404,12 +404,13 @@ static inline void thermal_zone_device_unregister(
- 	struct thermal_zone_device *tz)
- { }
- static inline struct thermal_cooling_device *
--thermal_cooling_device_register(char *type, void *devdata,
-+thermal_cooling_device_register(const char *type, void *devdata,
- 	const struct thermal_cooling_device_ops *ops)
- { return ERR_PTR(-ENODEV); }
- static inline struct thermal_cooling_device *
- thermal_of_cooling_device_register(struct device_node *np,
--	char *type, void *devdata, const struct thermal_cooling_device_ops *ops)
-+	const char *type, void *devdata,
-+	const struct thermal_cooling_device_ops *ops)
- { return ERR_PTR(-ENODEV); }
- static inline struct thermal_cooling_device *
- devm_thermal_of_cooling_device_register(struct device *dev,
--- 
-2.33.0
-
+--- a/drivers/pwm/pwm-mxs.c
++++ b/drivers/pwm/pwm-mxs.c
+@@ -158,6 +158,11 @@ static int mxs_pwm_probe(struct platform
+ 		return ret;
+ 	}
+ 
++	/* FIXME: Only do this if the PWM isn't already running */
++	ret = stmp_reset_block(mxs->base);
++	if (ret)
++		return dev_err_probe(&pdev->dev, ret, "failed to reset PWM\n");
++
+ 	ret = pwmchip_add(&mxs->chip);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to add pwm chip %d\n", ret);
+@@ -166,15 +171,7 @@ static int mxs_pwm_probe(struct platform
+ 
+ 	platform_set_drvdata(pdev, mxs);
+ 
+-	ret = stmp_reset_block(mxs->base);
+-	if (ret)
+-		goto pwm_remove;
+-
+ 	return 0;
+-
+-pwm_remove:
+-	pwmchip_remove(&mxs->chip);
+-	return ret;
+ }
+ 
+ static int mxs_pwm_remove(struct platform_device *pdev)
 
 
