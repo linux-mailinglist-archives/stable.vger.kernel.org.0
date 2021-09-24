@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A103E417369
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:57:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AF3D41749F
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344321AbhIXMzv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:55:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46062 "EHLO mail.kernel.org"
+        id S1345765AbhIXNIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:08:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344329AbhIXMxz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:53:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 207B66135E;
-        Fri, 24 Sep 2021 12:50:29 +0000 (UTC)
+        id S1345090AbhIXNG3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:06:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8ACF61279;
+        Fri, 24 Sep 2021 12:56:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487830;
-        bh=f5djH18sAfJGfX1xLADVRV1uMnIQz+uabTcfLgsWY6A=;
+        s=korg; t=1632488184;
+        bh=DqXmrRMaoIYcaJ2Nbf388CElWueiJ7eJx1jmUDgUVK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vN1ClE/avcdLHyq4cc35oD70bsD6z8iw7b5wZRUgzgM06X31Fxf1+4J0nVK8S1CdO
-         OeeAb5s7UkEQmlARhRyGJikxoIh9RZzvBXo513S5m+JtUwuztiX7GMVvrMvg+LJghV
-         +a+pv03/0UYM12i0m5h+5Mwi9Ul2UgZnueGLpilQ=
+        b=c+YnMHEjBWE4kPaGVHrOdqU4lSgOae+7UT0b1Y7qXrBdV5l1sl+uKe7kZQ5ERiR93
+         w/v60Bj7SgJAQnifLIvN338QB//dZA+6OmXV77sx0hAayBdBIV4Qr0rxYJwYjHcwLZ
+         5PODhp2seOTUFrl1wzdYdPQZmZua9OX4zvs1CZUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jongsung Kim <neidhard.kim@lge.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Macpaul Lin <macpaul.lin@mediatek.com>
-Subject: [PATCH 5.4 28/50] net: stmmac: reset Tx desc base address before restarting Tx
+        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.10 17/63] perf test: Fix bpf test sample mismatch reporting
 Date:   Fri, 24 Sep 2021 14:44:17 +0200
-Message-Id: <20210924124333.192785639@linuxfoundation.org>
+Message-Id: <20210924124334.843247311@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
-References: <20210924124332.229289734@linuxfoundation.org>
+In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
+References: <20210924124334.228235870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jongsung Kim <neidhard.kim@lge.com>
+From: Michael Petlan <mpetlan@redhat.com>
 
-commit f421031e3ff0dd288a6e1bbde9aa41a25bb814e6 upstream.
+commit 3e11300cdfd5f1bc13a05dfc6dccf69aca5dd1dc upstream.
 
-Refer to the databook of DesignWare Cores Ethernet MAC Universal:
+When the expected sample count in the condition changed, the message
+needs to be changed too, otherwise we'll get:
 
-6.2.1.5 Register 4 (Transmit Descriptor List Address Register
+  0x1001f2091d8: mmap mask[0]:
+  BPF filter result incorrect, expected 56, got 56 samples
 
-If this register is not changed when the ST bit is set to 0, then
-the DMA takes the descriptor address where it was stopped earlier.
-
-The stmmac_tx_err() does zero indices to Tx descriptors, but does
-not reset HW current Tx descriptor address. To fix inconsistency,
-the base address of the Tx descriptors should be rewritten before
-restarting Tx.
-
-Signed-off-by: Jongsung Kim <neidhard.kim@lge.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Macpaul Lin <macpaul.lin@mediatek.com>
+Fixes: 4b04e0decd2518e5 ("perf test: Fix basic bpf filtering test")
+Signed-off-by: Michael Petlan <mpetlan@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Link: https //lore.kernel.org/r/20210805160611.5542-1-mpetlan@redhat.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    2 ++
- 1 file changed, 2 insertions(+)
+ tools/perf/tests/bpf.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -1987,6 +1987,8 @@ static void stmmac_tx_err(struct stmmac_
- 	tx_q->cur_tx = 0;
- 	tx_q->mss = 0;
- 	netdev_tx_reset_queue(netdev_get_tx_queue(priv->dev, chan));
-+	stmmac_init_tx_chan(priv, priv->ioaddr, priv->plat->dma_cfg,
-+			    tx_q->dma_tx_phy, chan);
- 	stmmac_start_tx_dma(priv, chan);
+--- a/tools/perf/tests/bpf.c
++++ b/tools/perf/tests/bpf.c
+@@ -199,7 +199,7 @@ static int do_test(struct bpf_object *ob
+ 	}
  
- 	priv->dev->stats.tx_errors++;
+ 	if (count != expect * evlist->core.nr_entries) {
+-		pr_debug("BPF filter result incorrect, expected %d, got %d samples\n", expect, count);
++		pr_debug("BPF filter result incorrect, expected %d, got %d samples\n", expect * evlist->core.nr_entries, count);
+ 		goto out_delete_evlist;
+ 	}
+ 
 
 
