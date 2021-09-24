@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D31241748D
+	by mail.lfdr.de (Postfix) with ESMTP id 9816641748E
 	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345637AbhIXNHY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:07:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32810 "EHLO mail.kernel.org"
+        id S1345865AbhIXNH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:07:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346137AbhIXNEs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346141AbhIXNEs (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 24 Sep 2021 09:04:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8F6F61284;
-        Fri, 24 Sep 2021 12:55:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7120C6147F;
+        Fri, 24 Sep 2021 12:55:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488138;
-        bh=i+cUsvLJoLGE8egXUnWTs2itfyiLQ62oGumjwG8Vp84=;
+        s=korg; t=1632488141;
+        bh=cIXcfOR/+TOXHdp4afKzggIE4Kwl4Z3ap5N5DS2DPoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c1U9zS2PytDnk8051ua/vz9eK+tFCcHLWzJw2nbngfF1X5XEypSlo5Y3wUnmFeml4
-         OM63HJhmDvxqEH0kUzSgOtm8enaoWPPvLI9bpe10ViQ4s/uIxnrpB+sHVyEKSjkKnn
-         kyKlHww06BRVzD85xFRQT2Mov9lrGGVk9NGsVWqQ=
+        b=mkCEleZ+BOLoP0l7TLuQeT5hx6yPwclrzEMrzx73vTBCRoNy/Ymcse/s8ESB1iCP+
+         0G6Jt1h1RMuVZ0/cufo3rzSxObKxVu/x366qMFfeLDt5dxV+ZJfuoxDWsZ5qA41paK
+         /xsDYuJ0Puuuo2y49A9My9okRsC3sS8skadufbHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hao Xu <haoxu@linux.alibaba.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 098/100] io_uring: fix off-by-one in BUILD_BUG_ON check of __REQ_F_LAST_BIT
-Date:   Fri, 24 Sep 2021 14:44:47 +0200
-Message-Id: <20210924124344.770856736@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.14 099/100] selinux,smack: fix subjective/objective credential use mixups
+Date:   Fri, 24 Sep 2021 14:44:48 +0200
+Message-Id: <20210924124344.807935067@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
 References: <20210924124341.214446495@linuxfoundation.org>
@@ -39,37 +41,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Xu <haoxu@linux.alibaba.com>
+From: Paul Moore <paul@paul-moore.com>
 
-[ Upstream commit 32c2d33e0b7c4ea53284d5d9435dd022b582c8cf ]
+commit a3727a8bac0a9e77c70820655fd8715523ba3db7 upstream.
 
-Build check of __REQ_F_LAST_BIT should be larger than, not equal or larger
-than. It's perfectly valid to have __REQ_F_LAST_BIT be 32, as that means
-that the last valid bit is 31 which does fit in the type.
+Jann Horn reported a problem with commit eb1231f73c4d ("selinux:
+clarify task subjective and objective credentials") where some LSM
+hooks were attempting to access the subjective credentials of a task
+other than the current task.  Generally speaking, it is not safe to
+access another task's subjective credentials and doing so can cause
+a number of problems.
 
-Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20210907032243.114190-1-haoxu@linux.alibaba.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Further, while looking into the problem, I realized that Smack was
+suffering from a similar problem brought about by a similar commit
+1fb057dcde11 ("smack: differentiate between subjective and objective
+task credentials").
+
+This patch addresses this problem by restoring the use of the task's
+objective credentials in those cases where the task is other than the
+current executing task.  Not only does this resolve the problem
+reported by Jann, it is arguably the correct thing to do in these
+cases.
+
+Cc: stable@vger.kernel.org
+Fixes: eb1231f73c4d ("selinux: clarify task subjective and objective credentials")
+Fixes: 1fb057dcde11 ("smack: differentiate between subjective and objective task credentials")
+Reported-by: Jann Horn <jannh@google.com>
+Acked-by: Eric W. Biederman <ebiederm@xmission.com>
+Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/selinux/hooks.c   |    4 ++--
+ security/smack/smack_lsm.c |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 43aaa3566431..754d59f734d8 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -10335,7 +10335,7 @@ static int __init io_uring_init(void)
- 	BUILD_BUG_ON(SQE_VALID_FLAGS >= (1 << 8));
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2155,7 +2155,7 @@ static int selinux_ptrace_access_check(s
+ static int selinux_ptrace_traceme(struct task_struct *parent)
+ {
+ 	return avc_has_perm(&selinux_state,
+-			    task_sid_subj(parent), task_sid_obj(current),
++			    task_sid_obj(parent), task_sid_obj(current),
+ 			    SECCLASS_PROCESS, PROCESS__PTRACE, NULL);
+ }
  
- 	BUILD_BUG_ON(ARRAY_SIZE(io_op_defs) != IORING_OP_LAST);
--	BUILD_BUG_ON(__REQ_F_LAST_BIT >= 8 * sizeof(int));
-+	BUILD_BUG_ON(__REQ_F_LAST_BIT > 8 * sizeof(int));
+@@ -6218,7 +6218,7 @@ static int selinux_msg_queue_msgrcv(stru
+ 	struct ipc_security_struct *isec;
+ 	struct msg_security_struct *msec;
+ 	struct common_audit_data ad;
+-	u32 sid = task_sid_subj(target);
++	u32 sid = task_sid_obj(target);
+ 	int rc;
  
- 	req_cachep = KMEM_CACHE(io_kiocb, SLAB_HWCACHE_ALIGN | SLAB_PANIC |
- 				SLAB_ACCOUNT);
--- 
-2.33.0
-
+ 	isec = selinux_ipc(msq);
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -2016,7 +2016,7 @@ static int smk_curacc_on_task(struct tas
+ 				const char *caller)
+ {
+ 	struct smk_audit_info ad;
+-	struct smack_known *skp = smk_of_task_struct_subj(p);
++	struct smack_known *skp = smk_of_task_struct_obj(p);
+ 	int rc;
+ 
+ 	smk_ad_init(&ad, caller, LSM_AUDIT_DATA_TASK);
+@@ -3480,7 +3480,7 @@ static void smack_d_instantiate(struct d
+  */
+ static int smack_getprocattr(struct task_struct *p, char *name, char **value)
+ {
+-	struct smack_known *skp = smk_of_task_struct_subj(p);
++	struct smack_known *skp = smk_of_task_struct_obj(p);
+ 	char *cp;
+ 	int slen;
+ 
 
 
