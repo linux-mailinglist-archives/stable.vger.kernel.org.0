@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D31C64173AE
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27E444173AF
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344804AbhIXM72 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:59:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53954 "EHLO mail.kernel.org"
+        id S1345373AbhIXM73 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:59:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345251AbhIXM5r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:57:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8288613A4;
-        Fri, 24 Sep 2021 12:52:06 +0000 (UTC)
+        id S1345275AbhIXM5v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:57:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D49960F41;
+        Fri, 24 Sep 2021 12:52:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487927;
-        bh=aEpPoO4xr58C0zDlTmsnK/zzzAOmFJ8YN4chsWJa2bQ=;
+        s=korg; t=1632487929;
+        bh=Pw1pP/ucPrMERqkM6+XuvmI8irrEj4I7N8c8YjZ4iOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QyZgXR7wYDeDo9++JgHdphr0Ey/yajiG+9lDWqPA9gGuc5UM35XP0PcyG/CR5dU12
-         UUwj3Cq4ibysQ9I4XOGwP79F0PGpuK8qQPmIwZOQ00m3Tu8rXDfU1qzSZ6tPiQBQga
-         kZ4Szh+ybbwKT0iQhZCUstAKLD8SdBFseX7Zwz6w=
+        b=v4GGODgh+Aqz7OhZ4jhhkTdd4aWPlHvJd0MALiP4zOInuRWWHqixE7B46/HZjMmlM
+         zexw4SQX84DtkKU1ItarW+vsqxd6ltgpwLEwLnagV206RvrYctkJO93+FUnkEWg4rj
+         UddkH8vUBtqZ5HEYpAZsmHqHfsDkragVF7JRjKHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [PATCH 5.14 016/100] thermal/drivers/exynos: Fix an error code in exynos_tmu_probe()
-Date:   Fri, 24 Sep 2021 14:43:25 +0200
-Message-Id: <20210924124341.988026074@linuxfoundation.org>
+        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 5.14 017/100] 9p/trans_virtio: Remove sysfs file on probe failure
+Date:   Fri, 24 Sep 2021 14:43:26 +0200
+Message-Id: <20210924124342.019027579@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
 References: <20210924124341.214446495@linuxfoundation.org>
@@ -40,32 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-commit 02d438f62c05f0d055ceeedf12a2f8796b258c08 upstream.
+commit f997ea3b7afc108eb9761f321b57de2d089c7c48 upstream.
 
-This error path return success but it should propagate the negative
-error code from devm_clk_get().
+This ensures we don't leak the sysfs file if we failed to
+allocate chan->vc_wq during probe.
 
-Fixes: 6c247393cfdd ("thermal: exynos: Add TMU support for Exynos7 SoC")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210810084413.GA23810@kili
+Link: http://lkml.kernel.org/r/20210517083557.172-1-xieyongji@bytedance.com
+Fixes: 86c8437383ac ("net/9p: Add sysfs mount_tag file for virtio 9P device")
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thermal/samsung/exynos_tmu.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/9p/trans_virtio.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/thermal/samsung/exynos_tmu.c
-+++ b/drivers/thermal/samsung/exynos_tmu.c
-@@ -1073,6 +1073,7 @@ static int exynos_tmu_probe(struct platf
- 		data->sclk = devm_clk_get(&pdev->dev, "tmu_sclk");
- 		if (IS_ERR(data->sclk)) {
- 			dev_err(&pdev->dev, "Failed to get sclk\n");
-+			ret = PTR_ERR(data->sclk);
- 			goto err_clk;
- 		} else {
- 			ret = clk_prepare_enable(data->sclk);
+--- a/net/9p/trans_virtio.c
++++ b/net/9p/trans_virtio.c
+@@ -610,7 +610,7 @@ static int p9_virtio_probe(struct virtio
+ 	chan->vc_wq = kmalloc(sizeof(wait_queue_head_t), GFP_KERNEL);
+ 	if (!chan->vc_wq) {
+ 		err = -ENOMEM;
+-		goto out_free_tag;
++		goto out_remove_file;
+ 	}
+ 	init_waitqueue_head(chan->vc_wq);
+ 	chan->ring_bufs_avail = 1;
+@@ -628,6 +628,8 @@ static int p9_virtio_probe(struct virtio
+ 
+ 	return 0;
+ 
++out_remove_file:
++	sysfs_remove_file(&vdev->dev.kobj, &dev_attr_mount_tag.attr);
+ out_free_tag:
+ 	kfree(tag);
+ out_free_vq:
 
 
