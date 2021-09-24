@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A29C41723A
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:45:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5271A417434
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:03:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343708AbhIXMqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:46:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41936 "EHLO mail.kernel.org"
+        id S1345487AbhIXNDy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:03:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343887AbhIXMqY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:46:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C94E6124F;
-        Fri, 24 Sep 2021 12:44:50 +0000 (UTC)
+        id S1344881AbhIXNBw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:01:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB4F06135E;
+        Fri, 24 Sep 2021 12:54:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487491;
-        bh=gENb3+P6z9ffyMx/K5k7xzOvlZBidAjaC3mlcw3bPgI=;
+        s=korg; t=1632488064;
+        bh=kxa/JptvJRkidEReZ9sOEiJz4p1Q28AxheWeYqPh6RE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lt6ti7Ti9wCGQlgzb4TUnkph31Xy38BQz9la0RSTIhXYT4Hu/BKW1VkbEIisVSTnd
-         H4MbQYYxE22JUUxR8p9WrMyOEwdYUVOhJ56r+jQD8M1LgcLrGRalYnJCLhUquVm7Ul
-         6i9k/paJKouJ5gWVeTJ9iv3By3HUexeO0O+dCdyk=
+        b=10h65PZ9ghoW5Km3pPI7oqGK3zTcToKEnOidGq7znxuKtVE4NQj0SdoYmUzMmcDP3
+         Wye9Hm7eu8pB5P5XsiX/dqR8SqmC1aClcbJekZ9UHx4NN1QLcRGzRdbmp5PeOEFGr1
+         ZGPB/1mePtUM4GSz5Yv6uDTv0+dyh5zBxCqpMW2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        Dominique Martinet <asmadeus@codewreck.org>
-Subject: [PATCH 4.4 06/23] 9p/trans_virtio: Remove sysfs file on probe failure
+        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Babu Moger <babu.moger@oracle.com>,
+        Don Zickus <dzickus@redhat.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 038/100] Kconfig.debug: drop selecting non-existing HARDLOCKUP_DETECTOR_ARCH
 Date:   Fri, 24 Sep 2021 14:43:47 +0200
-Message-Id: <20210924124328.032349290@linuxfoundation.org>
+Message-Id: <20210924124342.735248505@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124327.816210800@linuxfoundation.org>
-References: <20210924124327.816210800@linuxfoundation.org>
+In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
+References: <20210924124341.214446495@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 
-commit f997ea3b7afc108eb9761f321b57de2d089c7c48 upstream.
+[ Upstream commit 6fe26259b4884b657cbc233fb9cdade9d704976e ]
 
-This ensures we don't leak the sysfs file if we failed to
-allocate chan->vc_wq during probe.
+Commit 05a4a9527931 ("kernel/watchdog: split up config options") adds a
+new config HARDLOCKUP_DETECTOR, which selects the non-existing config
+HARDLOCKUP_DETECTOR_ARCH.
 
-Link: http://lkml.kernel.org/r/20210517083557.172-1-xieyongji@bytedance.com
-Fixes: 86c8437383ac ("net/9p: Add sysfs mount_tag file for virtio 9P device")
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Hence, ./scripts/checkkconfigsymbols.py warns:
+
+HARDLOCKUP_DETECTOR_ARCH Referencing files: lib/Kconfig.debug
+
+Simply drop selecting the non-existing HARDLOCKUP_DETECTOR_ARCH.
+
+Link: https://lkml.kernel.org/r/20210806115618.22088-1-lukas.bulwahn@gmail.com
+Fixes: 05a4a9527931 ("kernel/watchdog: split up config options")
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Babu Moger <babu.moger@oracle.com>
+Cc: Don Zickus <dzickus@redhat.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_virtio.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ lib/Kconfig.debug | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/net/9p/trans_virtio.c
-+++ b/net/9p/trans_virtio.c
-@@ -605,7 +605,7 @@ static int p9_virtio_probe(struct virtio
- 	chan->vc_wq = kmalloc(sizeof(wait_queue_head_t), GFP_KERNEL);
- 	if (!chan->vc_wq) {
- 		err = -ENOMEM;
--		goto out_free_tag;
-+		goto out_remove_file;
- 	}
- 	init_waitqueue_head(chan->vc_wq);
- 	chan->ring_bufs_avail = 1;
-@@ -623,6 +623,8 @@ static int p9_virtio_probe(struct virtio
- 
- 	return 0;
- 
-+out_remove_file:
-+	sysfs_remove_file(&vdev->dev.kobj, &dev_attr_mount_tag.attr);
- out_free_tag:
- 	kfree(tag);
- out_free_vq:
+diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
+index 021bc9cd43da..ffd22e499997 100644
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -1062,7 +1062,6 @@ config HARDLOCKUP_DETECTOR
+ 	depends on HAVE_HARDLOCKUP_DETECTOR_PERF || HAVE_HARDLOCKUP_DETECTOR_ARCH
+ 	select LOCKUP_DETECTOR
+ 	select HARDLOCKUP_DETECTOR_PERF if HAVE_HARDLOCKUP_DETECTOR_PERF
+-	select HARDLOCKUP_DETECTOR_ARCH if HAVE_HARDLOCKUP_DETECTOR_ARCH
+ 	help
+ 	  Say Y here to enable the kernel to act as a watchdog to detect
+ 	  hard lockups.
+-- 
+2.33.0
+
 
 
