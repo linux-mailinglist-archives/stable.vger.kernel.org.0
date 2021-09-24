@@ -2,34 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D744041732C
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:53:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D47754172D0
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:50:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344466AbhIXMzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:55:00 -0400
+        id S1344131AbhIXMvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:51:40 -0400
 Received: from mail.kernel.org ([198.145.29.99]:45232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344475AbhIXMxI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:53:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FEFF6128E;
-        Fri, 24 Sep 2021 12:49:59 +0000 (UTC)
+        id S1343757AbhIXMuN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:50:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79D4F61278;
+        Fri, 24 Sep 2021 12:48:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487799;
-        bh=mKfsmYJDVFHXTssQsW04blfAX39gx9z39FFrUU1exhE=;
+        s=korg; t=1632487696;
+        bh=RiH5aUM0FXMA342fAyBhQhYAmjfHfwpOr7j/9drsde8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PGX71aN1C8as/j59vRFJMjSz1qAwq+HJjeZkYG6k8v4FwVt/x+LQkcHdZRv/P13VC
-         ykBaTGSM0w1rUrs4QVBW0sD2aDXJpgAJo+oaJ2JWbip81QrE5sN2/fcprMXMh+wvyb
-         S954AjVw+YWLmuzPY7AmvCkEH9IlcU03W5bnzLhY=
+        b=2FACEM3mmvZWA/b/Wuc7X5EvBNEE1+k5EUWJTzzam5FdKasC7QRMLsVpjuTbaQJVk
+         p3zdFww8GMshM1W1oqJQBcD1KH7oGldjIaQN9ab/NRZSyi5zHUKrp8Sls/sjWY5Tb2
+         eOx62XqE2DUlF5yn4FQhc+2QItS+FOmrNPDlwAVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.4 17/50] staging: rtl8192u: Fix bitwise vs logical operator in TranslateRxSignalStuff819xUsb()
+        stable@vger.kernel.org, Cyrill Gorcunov <gorcunov@gmail.com>,
+        Keno Fischer <keno@juliacomputing.com>,
+        Andrey Vagin <avagin@gmail.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
+        Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 12/34] prctl: allow to setup brk for et_dyn executables
 Date:   Fri, 24 Sep 2021 14:44:06 +0200
-Message-Id: <20210924124332.819834306@linuxfoundation.org>
+Message-Id: <20210924124330.365493782@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
-References: <20210924124332.229289734@linuxfoundation.org>
+In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
+References: <20210924124329.965218583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,40 +47,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Cyrill Gorcunov <gorcunov@gmail.com>
 
-commit 099ec97ac92911abfb102bb5c68ed270fc12e0dd upstream.
+commit e1fbbd073137a9d63279f6bf363151a938347640 upstream.
 
-clang warns:
+Keno Fischer reported that when a binray loaded via ld-linux-x the
+prctl(PR_SET_MM_MAP) doesn't allow to setup brk value because it lays
+before mm:end_data.
 
-drivers/staging/rtl8192u/r8192U_core.c:4268:20: warning: bitwise and of
-boolean expressions; did you mean logical and? [-Wbool-operation-and]
-        bpacket_toself =  bpacket_match_bssid &
-                          ^~~~~~~~~~~~~~~~~~~~~
-                                              &&
-1 warning generated.
+For example a test program shows
 
-Replace the bitwise AND with a logical one to clear up the warning, as
-that is clearly what was intended.
+ | # ~/t
+ |
+ | start_code      401000
+ | end_code        401a15
+ | start_stack     7ffce4577dd0
+ | start_data	   403e10
+ | end_data        40408c
+ | start_brk	   b5b000
+ | sbrk(0)         b5b000
 
-Fixes: 8fc8598e61f6 ("Staging: Added Realtek rtl8192u driver to staging")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20210814235625.1780033-1-nathan@kernel.org
+and when executed via ld-linux
+
+ | # /lib64/ld-linux-x86-64.so.2 ~/t
+ |
+ | start_code      7fc25b0a4000
+ | end_code        7fc25b0c4524
+ | start_stack     7fffcc6b2400
+ | start_data	   7fc25b0ce4c0
+ | end_data        7fc25b0cff98
+ | start_brk	   55555710c000
+ | sbrk(0)         55555710c000
+
+This of course prevent criu from restoring such programs.  Looking into
+how kernel operates with brk/start_brk inside brk() syscall I don't see
+any problem if we allow to setup brk/start_brk without checking for
+end_data.  Even if someone pass some weird address here on a purpose then
+the worst possible result will be an unexpected unmapping of existing vma
+(own vma, since prctl works with the callers memory) but test for
+RLIMIT_DATA is still valid and a user won't be able to gain more memory in
+case of expanding VMAs via new values shipped with prctl call.
+
+Link: https://lkml.kernel.org/r/20210121221207.GB2174@grain
+Fixes: bbdc6076d2e5 ("binfmt_elf: move brk out of mmap when doing direct loader exec")
+Signed-off-by: Cyrill Gorcunov <gorcunov@gmail.com>
+Reported-by: Keno Fischer <keno@juliacomputing.com>
+Acked-by: Andrey Vagin <avagin@gmail.com>
+Tested-by: Andrey Vagin <avagin@gmail.com>
+Cc: Dmitry Safonov <0x7f454c46@gmail.com>
+Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Cc: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+Cc: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8192u/r8192U_core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sys.c |    7 -------
+ 1 file changed, 7 deletions(-)
 
---- a/drivers/staging/rtl8192u/r8192U_core.c
-+++ b/drivers/staging/rtl8192u/r8192U_core.c
-@@ -4338,7 +4338,7 @@ static void TranslateRxSignalStuff819xUs
- 	bpacket_match_bssid = (type != IEEE80211_FTYPE_CTL) &&
- 			       (ether_addr_equal(priv->ieee80211->current_network.bssid,  (fc & IEEE80211_FCTL_TODS) ? hdr->addr1 : (fc & IEEE80211_FCTL_FROMDS) ? hdr->addr2 : hdr->addr3))
- 			       && (!pstats->bHwError) && (!pstats->bCRC) && (!pstats->bICV);
--	bpacket_toself =  bpacket_match_bssid &
-+	bpacket_toself =  bpacket_match_bssid &&
- 			  (ether_addr_equal(praddr, priv->ieee80211->dev->dev_addr));
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -1932,13 +1932,6 @@ static int validate_prctl_map(struct prc
+ 	error = -EINVAL;
  
- 	if (WLAN_FC_GET_FRAMETYPE(fc) == IEEE80211_STYPE_BEACON)
+ 	/*
+-	 * @brk should be after @end_data in traditional maps.
+-	 */
+-	if (prctl_map->start_brk <= prctl_map->end_data ||
+-	    prctl_map->brk <= prctl_map->end_data)
+-		goto out;
+-
+-	/*
+ 	 * Neither we should allow to override limits if they set.
+ 	 */
+ 	if (check_data_rlimit(rlimit(RLIMIT_DATA), prctl_map->brk,
 
 
