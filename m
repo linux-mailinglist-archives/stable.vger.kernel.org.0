@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5477B4172C6
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:50:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D744041732C
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:53:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344671AbhIXMvL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:51:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42988 "EHLO mail.kernel.org"
+        id S1344466AbhIXMzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:55:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344412AbhIXMtk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:49:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E19D561283;
-        Fri, 24 Sep 2021 12:47:59 +0000 (UTC)
+        id S1344475AbhIXMxI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:53:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FEFF6128E;
+        Fri, 24 Sep 2021 12:49:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487680;
-        bh=Z4McYNiEwNXxv/YA7HLEkflslNkWA+CMHTq3Ka3jd28=;
+        s=korg; t=1632487799;
+        bh=mKfsmYJDVFHXTssQsW04blfAX39gx9z39FFrUU1exhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ca20TL78qKOFI0RADhqj2BwLb6ZwDj5n42LE0hstTyUsj1fdUAqnRoNXK06zyt3Kx
-         u9v8JGnsJ3qC8tcdNYmIivSBgOtAyDW5XtggPKJd5rMn5IOj+2TOhXsbHTCl02sQRX
-         1+034t+A1fTbp0vE2dlAtXXNQtdz/HhZ8MlrK/QM=
+        b=PGX71aN1C8as/j59vRFJMjSz1qAwq+HJjeZkYG6k8v4FwVt/x+LQkcHdZRv/P13VC
+         ykBaTGSM0w1rUrs4QVBW0sD2aDXJpgAJo+oaJ2JWbip81QrE5sN2/fcprMXMh+wvyb
+         S954AjVw+YWLmuzPY7AmvCkEH9IlcU03W5bnzLhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sylvain Lemieux <slemieux@tycoint.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH 4.14 12/27] pwm: lpc32xx: Dont modify HW state in .probe() after the PWM chip was registered
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.4 17/50] staging: rtl8192u: Fix bitwise vs logical operator in TranslateRxSignalStuff819xUsb()
 Date:   Fri, 24 Sep 2021 14:44:06 +0200
-Message-Id: <20210924124329.583402422@linuxfoundation.org>
+Message-Id: <20210924124332.819834306@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124329.173674820@linuxfoundation.org>
-References: <20210924124329.173674820@linuxfoundation.org>
+In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
+References: <20210924124332.229289734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +38,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 3d2813fb17e5fd0d73c1d1442ca0192bde4af10e upstream.
+commit 099ec97ac92911abfb102bb5c68ed270fc12e0dd upstream.
 
-This fixes a race condition: After pwmchip_add() is called there might
-already be a consumer and then modifying the hardware behind the
-consumer's back is bad. So set the default before.
+clang warns:
 
-(Side-note: I don't know what this register setting actually does, if
-this modifies the polarity there is an inconsistency because the
-inversed polarity isn't considered if the PWM is already running during
-.probe().)
+drivers/staging/rtl8192u/r8192U_core.c:4268:20: warning: bitwise and of
+boolean expressions; did you mean logical and? [-Wbool-operation-and]
+        bpacket_toself =  bpacket_match_bssid &
+                          ^~~~~~~~~~~~~~~~~~~~~
+                                              &&
+1 warning generated.
 
-Fixes: acfd92fdfb93 ("pwm: lpc32xx: Set PWM_PIN_LEVEL bit to default value")
-Cc: Sylvain Lemieux <slemieux@tycoint.com>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Replace the bitwise AND with a logical one to clear up the warning, as
+that is clearly what was intended.
+
+Fixes: 8fc8598e61f6 ("Staging: Added Realtek rtl8192u driver to staging")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lore.kernel.org/r/20210814235625.1780033-1-nathan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pwm/pwm-lpc32xx.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/staging/rtl8192u/r8192U_core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pwm/pwm-lpc32xx.c
-+++ b/drivers/pwm/pwm-lpc32xx.c
-@@ -124,17 +124,17 @@ static int lpc32xx_pwm_probe(struct plat
- 	lpc32xx->chip.npwm = 1;
- 	lpc32xx->chip.base = -1;
+--- a/drivers/staging/rtl8192u/r8192U_core.c
++++ b/drivers/staging/rtl8192u/r8192U_core.c
+@@ -4338,7 +4338,7 @@ static void TranslateRxSignalStuff819xUs
+ 	bpacket_match_bssid = (type != IEEE80211_FTYPE_CTL) &&
+ 			       (ether_addr_equal(priv->ieee80211->current_network.bssid,  (fc & IEEE80211_FCTL_TODS) ? hdr->addr1 : (fc & IEEE80211_FCTL_FROMDS) ? hdr->addr2 : hdr->addr3))
+ 			       && (!pstats->bHwError) && (!pstats->bCRC) && (!pstats->bICV);
+-	bpacket_toself =  bpacket_match_bssid &
++	bpacket_toself =  bpacket_match_bssid &&
+ 			  (ether_addr_equal(praddr, priv->ieee80211->dev->dev_addr));
  
-+	/* If PWM is disabled, configure the output to the default value */
-+	val = readl(lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
-+	val &= ~PWM_PIN_LEVEL;
-+	writel(val, lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
-+
- 	ret = pwmchip_add(&lpc32xx->chip);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "failed to add PWM chip, error %d\n", ret);
- 		return ret;
- 	}
- 
--	/* When PWM is disable, configure the output to the default value */
--	val = readl(lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
--	val &= ~PWM_PIN_LEVEL;
--	writel(val, lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
--
- 	platform_set_drvdata(pdev, lpc32xx);
- 
- 	return 0;
+ 	if (WLAN_FC_GET_FRAMETYPE(fc) == IEEE80211_STYPE_BEACON)
 
 
