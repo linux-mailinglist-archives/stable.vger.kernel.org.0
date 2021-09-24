@@ -2,75 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FB7B4173D7
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD96741721A
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:44:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345269AbhIXNAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:00:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53882 "EHLO mail.kernel.org"
+        id S1343682AbhIXMpt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:45:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345658AbhIXM6v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:58:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD876613CE;
-        Fri, 24 Sep 2021 12:52:48 +0000 (UTC)
+        id S1343661AbhIXMpr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:45:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4AE161107;
+        Fri, 24 Sep 2021 12:44:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487969;
-        bh=LHv4t25BtC8Hg2SbNsM2UH7UqJaChNUnXkEzrH6BM4M=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ep86/tI8WNTRH66P4hX+TSibXwLGHx0Arfa+ktRZw153JFQnYig+Vy0XMxtPDnZxi
-         ZC7l463ga3dDTJ16/5jo/9DtHJlD/M/esR9cgcznJZl7P+ZhkAwrlnNxMcunAB5eQ1
-         qxmS+BZ6XXgEK5kR3gQrqMQFMenLReiKWpS2lFs0=
+        s=korg; t=1632487454;
+        bh=m/DweFj7xw9IszJESBcRWtQcDUHgR9v0DQwejSfpQ6I=;
+        h=From:To:Cc:Subject:Date:From;
+        b=vGxkmnhRSvgHV4V2xwMUlf8ldKUsVx4W+WTq+vClD9mz621Ne6cP17igK+/WUpe/k
+         j9f3FxbN8G/zx7OIkBp8jnSxtJ0M02a674bTedT2u4oxpDtWnwAw1fbRXzlHUR6cBs
+         6c3HVKa4ihXfIc4s8V+No0GY1ZryNuz0ij6g/iQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 031/100] dmaengine: idxd: clear block on fault flag when clear wq
-Date:   Fri, 24 Sep 2021 14:43:40 +0200
-Message-Id: <20210924124342.496899043@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.4 00/23] 4.4.285-rc1 review
+Date:   Fri, 24 Sep 2021 14:43:41 +0200
+Message-Id: <20210924124327.816210800@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
-References: <20210924124341.214446495@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.285-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.285-rc1
+X-KernelTest-Deadline: 2021-09-26T12:43+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+This is the start of the stable review cycle for the 4.4.285 release.
+There are 23 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit bd2f4ae5e019efcfadd6b491204fd60adf14f4a3 ]
+Responses should be made by Sun, 26 Sep 2021 12:43:20 +0000.
+Anything received after that time might be too late.
 
-The block on fault flag is not cleared when we disable or reset wq. This
-causes it to remain set if the user does not clear it on the next
-configuration load. Add clear of flag in dxd_wq_disable_cleanup()
-routine.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.285-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
 
-Fixes: da32b28c95a7 ("dmaengine: idxd: cleanup workqueue config after disabling")
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/162803023553.3086015.8158952172068868803.stgit@djiang5-desk3.ch.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/dma/idxd/device.c | 1 +
- 1 file changed, 1 insertion(+)
+thanks,
 
-diff --git a/drivers/dma/idxd/device.c b/drivers/dma/idxd/device.c
-index c8cf1de72176..9c6760ae5aef 100644
---- a/drivers/dma/idxd/device.c
-+++ b/drivers/dma/idxd/device.c
-@@ -401,6 +401,7 @@ static void idxd_wq_disable_cleanup(struct idxd_wq *wq)
- 	wq->priority = 0;
- 	wq->ats_dis = 0;
- 	clear_bit(WQ_FLAG_DEDICATED, &wq->flags);
-+	clear_bit(WQ_FLAG_BLOCK_ON_FAULT, &wq->flags);
- 	memset(wq->name, 0, WQ_NAME_SIZE);
- }
- 
--- 
-2.33.0
+greg k-h
 
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.285-rc1
+
+Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+    sctp: validate from_addr_param return
+
+Guenter Roeck <linux@roeck-us.net>
+    drm/nouveau/nvkm: Replace -ENOSYS with -ENODEV
+
+Li Jinlin <lijinlin3@huawei.com>
+    blk-throttle: fix UAF by deleteing timer in blk_throtl_exit()
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix memory leak in nilfs_sysfs_delete_snapshot_group
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix memory leak in nilfs_sysfs_create_snapshot_group
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix memory leak in nilfs_sysfs_delete_##name##_group
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix memory leak in nilfs_sysfs_create_##name##_group
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix NULL pointer in nilfs_##name##_attr_release
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix memory leak in nilfs_sysfs_create_device_group
+
+Jeff Layton <jlayton@kernel.org>
+    ceph: lockdep annotations for try_nonblocking_invalidate
+
+Johannes Berg <johannes.berg@intel.com>
+    dmaengine: ioat: depends on !UML
+
+Guenter Roeck <linux@roeck-us.net>
+    parisc: Move pci_dev_is_behind_card_dino to where it is used
+
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+    dmaengine: acpi: Avoid comparison GSI with Linux vIRQ
+
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+    dmaengine: acpi-dma: check for 64-bit MMIO address
+
+Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+    pwm: mxs: Don't modify HW state in .probe() after the PWM chip was registered
+
+Pavel Skripkin <paskripkin@gmail.com>
+    profiling: fix shift-out-of-bounds bugs
+
+Cyrill Gorcunov <gorcunov@gmail.com>
+    prctl: allow to setup brk for et_dyn executables
+
+Xie Yongji <xieyongji@bytedance.com>
+    9p/trans_virtio: Remove sysfs file on probe failure
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    thermal/drivers/exynos: Fix an error code in exynos_tmu_probe()
+
+Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+    sctp: add param size validation for SCTP_PARAM_SET_PRIMARY
+
+Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+    sctp: validate chunk size in __rcv_asconf_lookup
+
+Tony Lindgren <tony@atomide.com>
+    PM / wakeirq: Fix unbalanced IRQ enable for wakeirq
+
+Ilya Leoshkevich <iii@linux.ibm.com>
+    s390/bpf: Fix optimizing out zero-extensions
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                          |  4 +-
+ arch/s390/net/bpf_jit_comp.c                      | 50 ++++++++++++-----------
+ block/blk-throttle.c                              |  1 +
+ drivers/base/power/wakeirq.c                      |  6 ++-
+ drivers/dma/Kconfig                               |  2 +-
+ drivers/dma/acpi-dma.c                            | 11 ++++-
+ drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c |  2 +-
+ drivers/parisc/dino.c                             | 18 ++++----
+ drivers/pwm/pwm-mxs.c                             | 13 +++---
+ drivers/thermal/samsung/exynos_tmu.c              |  1 +
+ fs/ceph/caps.c                                    |  2 +
+ fs/nilfs2/sysfs.c                                 | 26 +++++-------
+ include/net/sctp/structs.h                        |  2 +-
+ kernel/profile.c                                  | 21 +++++-----
+ kernel/sys.c                                      |  7 ----
+ net/9p/trans_virtio.c                             |  4 +-
+ net/sctp/bind_addr.c                              | 20 +++++----
+ net/sctp/input.c                                  |  9 +++-
+ net/sctp/ipv6.c                                   |  7 +++-
+ net/sctp/protocol.c                               |  7 +++-
+ net/sctp/sm_make_chunk.c                          | 42 +++++++++++--------
+ 21 files changed, 143 insertions(+), 112 deletions(-)
 
 
