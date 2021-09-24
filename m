@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BD55417252
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:48:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B317241731F
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:53:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343926AbhIXMrf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:47:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42502 "EHLO mail.kernel.org"
+        id S1344801AbhIXMy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:54:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343957AbhIXMqp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:46:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A842361261;
-        Fri, 24 Sep 2021 12:45:11 +0000 (UTC)
+        id S1344812AbhIXMwl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:52:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2433361361;
+        Fri, 24 Sep 2021 12:49:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487512;
-        bh=PqBRiUrbyEfIf3oF/krJJNDiNRGkn3OSftdlgjLQkdE=;
+        s=korg; t=1632487783;
+        bh=JXBG8xFx+oo3q+A46aB9H4hENCdOtsgsFMLCKa5almQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TB8RnoFEbh6ojeGB5FuY1vx9D587Gugo79oYTBu3wUGSpg6LUzoPSlrb46FOzEtJW
-         oiSX3MkkKIOIJ+X4NYXo9tuKSMJYEFL8jU1uECGH878W9PTtgX3MHwA/z513vd9DvB
-         xnPPUXhRJqXfot9Mq9k3Oa8zOFOLu6ZDsC0+gomk=
+        b=d71mXJ5MPBdazPNjTGu8uh1NtdpDK95S+s/ih/Z9VSZ8ii61OUYd1KdIkZLkUQOIN
+         ukGAHMXLkY5bPJB1c6gP95+IMN0ujkPZQQ8r6UJSrDZNj60xZRgjnS8asmI6OAcjJ8
+         ZFHdUjiPIspaceVp/wC9JVWIHPu2K9MDL0QAuqyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nanyong Sun <sunnanyong@huawei.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 19/23] nilfs2: fix memory leak in nilfs_sysfs_create_snapshot_group
+        stable@vger.kernel.org,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 5.4 11/50] ARM: 9077/1: PLT: Move struct plt_entries definition to header
 Date:   Fri, 24 Sep 2021 14:44:00 +0200
-Message-Id: <20210924124328.446532530@linuxfoundation.org>
+Message-Id: <20210924124332.619958480@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124327.816210800@linuxfoundation.org>
-References: <20210924124327.816210800@linuxfoundation.org>
+In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
+References: <20210924124332.229289734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nanyong Sun <sunnanyong@huawei.com>
+From: Alex Sverdlin <alexander.sverdlin@nokia.com>
 
-[ Upstream commit b2fe39c248f3fa4bbb2a20759b4fdd83504190f7 ]
+commit 4e271701c17dee70c6e1351c4d7d42e70405c6a9 upstream
 
-If kobject_init_and_add returns with error, kobject_put() is needed here
-to avoid memory leak, because kobject_init_and_add may return error
-without freeing the memory associated with the kobject it allocated.
+No functional change, later it will be re-used in several files.
 
-Link: https://lkml.kernel.org/r/20210629022556.3985106-6-sunnanyong@huawei.com
-Link: https://lkml.kernel.org/r/1625651306-10829-6-git-send-email-konishi.ryusuke@gmail.com
-Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/sysfs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/include/asm/module.h |    9 +++++++++
+ arch/arm/kernel/module-plts.c |    9 ---------
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
-index 8a0af1e378c1..73d872a24a21 100644
---- a/fs/nilfs2/sysfs.c
-+++ b/fs/nilfs2/sysfs.c
-@@ -217,9 +217,9 @@ int nilfs_sysfs_create_snapshot_group(struct nilfs_root *root)
- 	}
+--- a/arch/arm/include/asm/module.h
++++ b/arch/arm/include/asm/module.h
+@@ -19,6 +19,15 @@ enum {
+ };
+ #endif
  
- 	if (err)
--		return err;
-+		kobject_put(&root->snapshot_kobj);
++#define PLT_ENT_STRIDE		L1_CACHE_BYTES
++#define PLT_ENT_COUNT		(PLT_ENT_STRIDE / sizeof(u32))
++#define PLT_ENT_SIZE		(sizeof(struct plt_entries) / PLT_ENT_COUNT)
++
++struct plt_entries {
++	u32	ldr[PLT_ENT_COUNT];
++	u32	lit[PLT_ENT_COUNT];
++};
++
+ struct mod_plt_sec {
+ 	struct elf32_shdr	*plt;
+ 	int			plt_count;
+--- a/arch/arm/kernel/module-plts.c
++++ b/arch/arm/kernel/module-plts.c
+@@ -11,10 +11,6 @@
+ #include <asm/cache.h>
+ #include <asm/opcodes.h>
  
--	return 0;
-+	return err;
- }
+-#define PLT_ENT_STRIDE		L1_CACHE_BYTES
+-#define PLT_ENT_COUNT		(PLT_ENT_STRIDE / sizeof(u32))
+-#define PLT_ENT_SIZE		(sizeof(struct plt_entries) / PLT_ENT_COUNT)
+-
+ #ifdef CONFIG_THUMB2_KERNEL
+ #define PLT_ENT_LDR		__opcode_to_mem_thumb32(0xf8dff000 | \
+ 							(PLT_ENT_STRIDE - 4))
+@@ -23,11 +19,6 @@
+ 						    (PLT_ENT_STRIDE - 8))
+ #endif
  
- void nilfs_sysfs_delete_snapshot_group(struct nilfs_root *root)
--- 
-2.33.0
-
+-struct plt_entries {
+-	u32	ldr[PLT_ENT_COUNT];
+-	u32	lit[PLT_ENT_COUNT];
+-};
+-
+ static bool in_init(const struct module *mod, unsigned long loc)
+ {
+ 	return loc - (u32)mod->init_layout.base < mod->init_layout.size;
 
 
