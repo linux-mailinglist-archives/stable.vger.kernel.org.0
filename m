@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A55C4172E6
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:51:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D6504172AD
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:50:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344601AbhIXMwU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:52:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45884 "EHLO mail.kernel.org"
+        id S1344537AbhIXMuY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:50:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344605AbhIXMvA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:51:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FD9B61267;
-        Fri, 24 Sep 2021 12:48:40 +0000 (UTC)
+        id S1344169AbhIXMtC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:49:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFF5961241;
+        Fri, 24 Sep 2021 12:47:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487721;
-        bh=LAf6IzOOzjxdsLPg39cVEW/B3C6fNmMHAn+wXXxCdX4=;
+        s=korg; t=1632487649;
+        bh=fAtWr3YnQewUqGl7Wpx+8AbgCl1EMOkpmYVR4cR5bho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mWnMKIn2TvtjXj3WRqGtUjTlxBCZu1eC7Tbp4nqwpVaJVorKP8kwaNkqh7AlGM5Qo
-         vpH9dhuJh9rC0s9oOrfjrp75bsEebhY9v/OvcZ05SC/MscIF/oeo04qeqJ4muDoMqp
-         69qilPwVHgs20HO1zVRrux8YV8/hs1a1f9xwNEqk=
+        b=ZcDvq+JAWvk81iGDFTMbs1eN86MuA1orvclA3fxxLUaYOseifPHeFQTGi+f26KvnN
+         +eypc4ZKCbYJtfUwkGRlvQUic7UYOsBYvvuJTTBLj4sDyUOZs09oFsgiMlBLuXZ+eF
+         sQVa86kYAx7uTJL/HMe/ViLnoWb2aCzK0kN2KQCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 21/34] dmaengine: ioat: depends on !UML
-Date:   Fri, 24 Sep 2021 14:44:15 +0200
-Message-Id: <20210924124330.655265659@linuxfoundation.org>
+        stable@vger.kernel.org, Nanyong Sun <sunnanyong@huawei.com>,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 22/27] nilfs2: fix memory leak in nilfs_sysfs_delete_##name##_group
+Date:   Fri, 24 Sep 2021 14:44:16 +0200
+Message-Id: <20210924124329.917485508@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
-References: <20210924124329.965218583@linuxfoundation.org>
+In-Reply-To: <20210924124329.173674820@linuxfoundation.org>
+References: <20210924124329.173674820@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Nanyong Sun <sunnanyong@huawei.com>
 
-[ Upstream commit bbac7a92a46f0876e588722ebe552ddfe6fd790f ]
+[ Upstream commit a3e181259ddd61fd378390977a1e4e2316853afa ]
 
-Now that UML has PCI support, this driver must depend also on
-!UML since it pokes at X86_64 architecture internals that don't
-exist on ARCH=um.
+The kobject_put() should be used to cleanup the memory associated with the
+kobject instead of kobject_del.  See the section "Kobject removal" of
+"Documentation/core-api/kobject.rst".
 
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Acked-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/20210809112409.a3a0974874d2.I2ffe3d11ed37f735da2f39884a74c953b258b995@changeid
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lkml.kernel.org/r/20210629022556.3985106-5-sunnanyong@huawei.com
+Link: https://lkml.kernel.org/r/1625651306-10829-5-git-send-email-konishi.ryusuke@gmail.com
+Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/Kconfig | 2 +-
+ fs/nilfs2/sysfs.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/Kconfig b/drivers/dma/Kconfig
-index 52dd4bd7c209..e5f31af65aab 100644
---- a/drivers/dma/Kconfig
-+++ b/drivers/dma/Kconfig
-@@ -266,7 +266,7 @@ config INTEL_IDMA64
+diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
+index eab7bd68da12..31eed118d0ce 100644
+--- a/fs/nilfs2/sysfs.c
++++ b/fs/nilfs2/sysfs.c
+@@ -106,7 +106,7 @@ static int nilfs_sysfs_create_##name##_group(struct the_nilfs *nilfs) \
+ } \
+ static void nilfs_sysfs_delete_##name##_group(struct the_nilfs *nilfs) \
+ { \
+-	kobject_del(&nilfs->ns_##parent_name##_subgroups->sg_##name##_kobj); \
++	kobject_put(&nilfs->ns_##parent_name##_subgroups->sg_##name##_kobj); \
+ }
  
- config INTEL_IOATDMA
- 	tristate "Intel I/OAT DMA support"
--	depends on PCI && X86_64
-+	depends on PCI && X86_64 && !UML
- 	select DMA_ENGINE
- 	select DMA_ENGINE_RAID
- 	select DCA
+ /************************************************************************
 -- 
 2.33.0
 
