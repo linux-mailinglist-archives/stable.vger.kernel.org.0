@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF1CF41743A
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:03:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6420F41725A
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:48:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345851AbhIXNEN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:04:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59752 "EHLO mail.kernel.org"
+        id S1344059AbhIXMro (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:47:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344174AbhIXNCJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:02:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CED9A61439;
-        Fri, 24 Sep 2021 12:54:28 +0000 (UTC)
+        id S1343984AbhIXMqz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:46:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 438F96124B;
+        Fri, 24 Sep 2021 12:45:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488069;
-        bh=EblabyhP/ZG2Glv8/a6oYU1j3ijpHPJR3hduOs2nGkM=;
+        s=korg; t=1632487522;
+        bh=VG+frtPWR7Hugbx58zvTwHatZg/pksRVcznDr+TupUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JE+EGKBBAo9lc92bDK/FXQgUfFgPDaXgyLENu2xvtyN7Jz23NTRkAyGSLFcDocKks
-         b6L46An6Cccgl5rKfZv5T2tzxSW/Po0ifGPhB5KGpQ5wF9bTxR7xSr1skt3A4XrfhE
-         XcMZYdO2NVzxKmR/dDrgbA7hvUgST8qFfht/dlFg=
+        b=U4sR+070Qzs4lze3TX+jptruSkPS6moEed3OZKlssDq7fxEnAN3zxXcUC9Uom9LjF
+         RS+2iW4ypNtgV6r9wJHr7+MzdmNGFnCCOH+D8Sq7l/BQfwVnyu0jVYOslQR4gUe9vs
+         ZL4Ak7wANv3rPkmiOFdX+I0XyQHhWr/OihXEXqoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 040/100] tracing/boot: Fix to loop on only subkeys
-Date:   Fri, 24 Sep 2021 14:43:49 +0200
-Message-Id: <20210924124342.799797187@linuxfoundation.org>
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.9 02/26] PM / wakeirq: Fix unbalanced IRQ enable for wakeirq
+Date:   Fri, 24 Sep 2021 14:43:50 +0200
+Message-Id: <20210924124328.421778398@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
-References: <20210924124341.214446495@linuxfoundation.org>
+In-Reply-To: <20210924124328.336953942@linuxfoundation.org>
+References: <20210924124328.336953942@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,60 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit cfd799837dbc48499abb05d1891b3d9992354d3a ]
+commit 69728051f5bf15efaf6edfbcfe1b5a49a2437918 upstream.
 
-Since the commit e5efaeb8a8f5 ("bootconfig: Support mixing
-a value and subkeys under a key") allows to co-exist a value
-node and key nodes under a node, xbc_node_for_each_child()
-is not only returning key node but also a value node.
-In the boot-time tracing using xbc_node_for_each_child() to
-iterate the events, groups and instances, but those must be
-key nodes. Thus it must use xbc_node_for_each_subkey().
+If a device is runtime PM suspended when we enter suspend and has
+a dedicated wake IRQ, we can get the following warning:
 
-Link: https://lkml.kernel.org/r/163112988361.74896.2267026262061819145.stgit@devnote2
+WARNING: CPU: 0 PID: 108 at kernel/irq/manage.c:526 enable_irq+0x40/0x94
+[  102.087860] Unbalanced enable for IRQ 147
+...
+(enable_irq) from [<c06117a8>] (dev_pm_arm_wake_irq+0x4c/0x60)
+(dev_pm_arm_wake_irq) from [<c0618360>]
+ (device_wakeup_arm_wake_irqs+0x58/0x9c)
+(device_wakeup_arm_wake_irqs) from [<c0615948>]
+(dpm_suspend_noirq+0x10/0x48)
+(dpm_suspend_noirq) from [<c01ac7ac>]
+(suspend_devices_and_enter+0x30c/0xf14)
+(suspend_devices_and_enter) from [<c01adf20>]
+(enter_state+0xad4/0xbd8)
+(enter_state) from [<c01ad3ec>] (pm_suspend+0x38/0x98)
+(pm_suspend) from [<c01ab3e8>] (state_store+0x68/0xc8)
 
-Fixes: e5efaeb8a8f5 ("bootconfig: Support mixing a value and subkeys under a key")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is because the dedicated wake IRQ for the device may have been
+already enabled earlier by dev_pm_enable_wake_irq_check().  Fix the
+issue by checking for runtime PM suspended status.
+
+This issue can be easily reproduced by setting serial console log level
+to zero, letting the serial console idle, and suspend the system from
+an ssh terminal.  On resume, dmesg will have the warning above.
+
+The reason why I have not run into this issue earlier has been that I
+typically run my PM test cases from on a serial console instead over ssh.
+
+Fixes: c84345597558 (PM / wakeirq: Enable dedicated wakeirq for suspend)
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_boot.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/base/power/wakeirq.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace_boot.c b/kernel/trace/trace_boot.c
-index d713714cba67..4bd8f94a56c6 100644
---- a/kernel/trace/trace_boot.c
-+++ b/kernel/trace/trace_boot.c
-@@ -235,14 +235,14 @@ trace_boot_init_events(struct trace_array *tr, struct xbc_node *node)
- 	if (!node)
- 		return;
- 	/* per-event key starts with "event.GROUP.EVENT" */
--	xbc_node_for_each_child(node, gnode) {
-+	xbc_node_for_each_subkey(node, gnode) {
- 		data = xbc_node_get_data(gnode);
- 		if (!strcmp(data, "enable")) {
- 			enable_all = true;
- 			continue;
- 		}
- 		enable = false;
--		xbc_node_for_each_child(gnode, enode) {
-+		xbc_node_for_each_subkey(gnode, enode) {
- 			data = xbc_node_get_data(enode);
- 			if (!strcmp(data, "enable")) {
- 				enable = true;
-@@ -338,7 +338,7 @@ trace_boot_init_instances(struct xbc_node *node)
- 	if (!node)
+--- a/drivers/base/power/wakeirq.c
++++ b/drivers/base/power/wakeirq.c
+@@ -320,7 +320,8 @@ void dev_pm_arm_wake_irq(struct wake_irq
  		return;
  
--	xbc_node_for_each_child(node, inode) {
-+	xbc_node_for_each_subkey(node, inode) {
- 		p = xbc_node_get_data(inode);
- 		if (!p || *p == '\0')
- 			continue;
--- 
-2.33.0
-
+ 	if (device_may_wakeup(wirq->dev)) {
+-		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED)
++		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED &&
++		    !pm_runtime_status_suspended(wirq->dev))
+ 			enable_irq(wirq->irq);
+ 
+ 		enable_irq_wake(wirq->irq);
+@@ -342,7 +343,8 @@ void dev_pm_disarm_wake_irq(struct wake_
+ 	if (device_may_wakeup(wirq->dev)) {
+ 		disable_irq_wake(wirq->irq);
+ 
+-		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED)
++		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED &&
++		    !pm_runtime_status_suspended(wirq->dev))
+ 			disable_irq_nosync(wirq->irq);
+ 	}
+ }
 
 
