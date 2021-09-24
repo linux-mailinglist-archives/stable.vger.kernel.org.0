@@ -2,67 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A98D141765E
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:58:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2262417681
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 16:03:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346452AbhIXN7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:59:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58920 "EHLO
+        id S1346547AbhIXOFS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 10:05:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231510AbhIXN7d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Sep 2021 09:59:33 -0400
-Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com [IPv6:2607:f8b0:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A4B8C061613
-        for <stable@vger.kernel.org>; Fri, 24 Sep 2021 06:58:00 -0700 (PDT)
-Received: by mail-ot1-x330.google.com with SMTP id l7-20020a0568302b0700b0051c0181deebso13168751otv.12
-        for <stable@vger.kernel.org>; Fri, 24 Sep 2021 06:58:00 -0700 (PDT)
+        with ESMTP id S1346601AbhIXOFP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Sep 2021 10:05:15 -0400
+Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63906C061613
+        for <stable@vger.kernel.org>; Fri, 24 Sep 2021 07:03:42 -0700 (PDT)
+Received: by mail-ot1-x32a.google.com with SMTP id c6-20020a9d2786000000b005471981d559so13246870otb.5
+        for <stable@vger.kernel.org>; Fri, 24 Sep 2021 07:03:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=1RcBO3ZwhRNQkUwWNcFC7SDhJcoyZAxAM430ZrG87ms=;
-        b=rrBBzseRPWIWqPREa3EHzm4fUrYBTti+FuqgMmysyOmazXKbAdX+iIHoUEw3fSpck/
-         ksSYrOSbX2/X/3GQ2YtFfvok5xwlURxtQEXrtD+dpSny+4oubqqucb9Fe4kTSOfbORXE
-         RfVMYL2USHgwlwMn8Nsy62wWaNVZpj14yQAV+EkzjpsGj1pXLcbCllcKJFdG9y8iGY+P
-         ZSDatBymPS+HFv6lMxNoxCJHlNUhcZuDjKdMDk5EFeYlSjudcsMG4bKEHf/SWPnDmNZS
-         JTvncV5uC/xkauDY9pplhvtNw5DXhZ3AB9Pdcm9IPWncXgXWmNifUZ6x0OuWtKtWhbG1
-         U28w==
+        bh=aUgpOTiDZvmTt76rxn5uAHPl/PYL5YtAG3nPL4v6R4I=;
+        b=pYEOV8rBhKHTrn2MMLLjEa1mvTL6aPzOps1NySmMq39iqqPyu0iyNK9HskM2Jw8Wat
+         8ertCtRqg2RgJ+3wjve09MzNtyowqpmugvA+RJujmA55T27GH+vXJBEBi+LoF68rlqaN
+         0pHxrzSaysBCHnLQ6nLU+0LRb40RYXLH/HpVozRAaRUMXmqJ3HQSNHqDcsKbgW+UNVMM
+         OAdD5CIMA85JyHOa7eJ4SMw6VbyYwnYhX14ihVeLD2HtwCeVd+2yMAobZOmlTBNjtavQ
+         YKCBYMQspZJe44IxaACoL9b7A9nMip+768RAFjakji0TDlnDidNxL/cFrLPUFQ9vgiBF
+         1ozQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=1RcBO3ZwhRNQkUwWNcFC7SDhJcoyZAxAM430ZrG87ms=;
-        b=prFNUpwVqi01pg1/5RCNyNsCTsgL0uafwBG9W/+19PwtXMzxYF6Z39GDaSfxN2v+fn
-         m7eW6oHcSEsvztKSM0d0dzQ3qH86L8vuvL4cmnx67IykO8Cqsv5BJHAn6hUSFnEXz+ia
-         RVlomPFGMbQpyn8E/GfiXS4oshNqT4sy9q8PKmhicp43Ka+VUAukl0aJNFxdo4Kg5SLx
-         UWctNRxghn+Z+LX8E4CmK/9Emb89UnjR464+MqXCyXu6A8TAAucIfs58VagUZtMzLYPS
-         CaYApeGZkQAZlCJF7vj4eCJVXgFnBTsGkCYgztGhEhWjy+3TU7AnM4O0oLfYhpv3OZdJ
-         PGsg==
-X-Gm-Message-State: AOAM530t2Bhevbf9CLkMBS7o3mMM3EoOD4n08jhE5XWWx6vOqsAOy2/S
-        40xyJeXXivOkFbLT1/+hd/5jZDYBWO9UNC90HmI=
-X-Google-Smtp-Source: ABdhPJydKy3JnZHwlx58C/M9tbjbC9mXQ2MOWBPDY3sQOikfhnSRVyfkCcgPDg+2eB6jFPeg9MJKRA==
-X-Received: by 2002:a05:6830:1557:: with SMTP id l23mr2778759otp.154.1632491879751;
-        Fri, 24 Sep 2021 06:57:59 -0700 (PDT)
+        bh=aUgpOTiDZvmTt76rxn5uAHPl/PYL5YtAG3nPL4v6R4I=;
+        b=QAWCoPn1EPKasWKiOjuTps4cUblDM3S1buhTdHi3dC9JlG5o4jSuc4h+8DgGq7z/JU
+         xW364ivo/dVVTiY11K39mwMxFSsQbd+Q0VccblDyfzr0m0okkQ/w3EDJNfX/HUP0WaRz
+         tDxp3uwWECsEx1Z3/f2BMl3IQfqbiieQa2q+iz047Ebk7SYJWV4kfVmRNbzGn3ZDMkk8
+         K5JYvn4KeMTWCUrz8Lxv2S+OPcXcQNgg/HEiMdcmRCnZYep+xzDsl/x+GrgUOSOF2XVr
+         HIOc5Bf+vGnFTHyQM9WvNSFK2kJvhrhXLo9tz4oV3cxrWgJ4cOi/uwtw2nRFJbhdr96B
+         bMuA==
+X-Gm-Message-State: AOAM531LuK9oycUrIYyUMkbI4aaxODsO2TRUlgBi36aN4Ooe7PvMpWMH
+        rQ71JHrAzkLaqD7eWrY5Jlwb5g==
+X-Google-Smtp-Source: ABdhPJxihmj/baI1dfiWXKGYqaj6BKzU44/ljSROQw3S0is+k7ZP74uyRvek26GLN3jSfPvcvRa3bg==
+X-Received: by 2002:a9d:7dca:: with SMTP id k10mr4171342otn.54.1632492221584;
+        Fri, 24 Sep 2021 07:03:41 -0700 (PDT)
 Received: from [192.168.17.16] ([189.219.73.83])
-        by smtp.gmail.com with ESMTPSA id d23sm2146304ook.47.2021.09.24.06.57.58
+        by smtp.gmail.com with ESMTPSA id i4sm2058617otj.9.2021.09.24.07.03.39
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 24 Sep 2021 06:57:59 -0700 (PDT)
-Subject: Re: [PATCH 4.19 00/34] 4.19.208-rc1 review
+        Fri, 24 Sep 2021 07:03:40 -0700 (PDT)
+Subject: Re: [PATCH 5.4 00/50] 5.4.149-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-References: <20210924124329.965218583@linuxfoundation.org>
+Cc:     shuah@kernel.org, f.fainelli@gmail.com, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net
+References: <20210924124332.229289734@linuxfoundation.org>
 From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
-Message-ID: <05f5f22f-f83d-cce1-3d40-a8bdb030472b@linaro.org>
-Date:   Fri, 24 Sep 2021 08:57:57 -0500
+Message-ID: <e23f6b4d-1ddb-d9bf-8ee7-16fe40532330@linaro.org>
+Date:   Fri, 24 Sep 2021 09:03:39 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.13.0
 MIME-Version: 1.0
-In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
+In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
@@ -73,8 +73,8 @@ X-Mailing-List: stable@vger.kernel.org
 Hello!
 
 On 9/24/21 7:43 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.208 release.
-> There are 34 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.4.149 release.
+> There are 50 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -82,9 +82,9 @@ On 9/24/21 7:43 AM, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.208-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.149-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
 > and the diffstat can be found below.
 > 
 > thanks,
@@ -106,12 +106,33 @@ While building mxs_defconfig for arm with GCC 8, 9, 10 and 11, the following err
    cc1: some warnings being treated as errors
    make[3]: *** [/builds/linux/scripts/Makefile.build:280: drivers/pwm/pwm-mxs.o] Error 1
 
+The same problem is seen withs Clang 10, 11, 12, 13 and nightly:
+
+   /builds/linux/drivers/pwm/pwm-mxs.c:156:10: error: implicit declaration of function 'dev_err_probe' [-Werror,-Wimplicit-function-declaration]
+                   return dev_err_probe(&pdev->dev, ret, "failed to reset PWM\n");
+                          ^
+   /builds/linux/drivers/pwm/pwm-mxs.c:156:10: note: did you mean 'device_reprobe'?
+   /builds/linux/include/linux/device.h:1565:25: note: 'device_reprobe' declared here
+   extern int __must_check device_reprobe(struct device *dev);
+                           ^
+   1 error generated.
+   make[3]: *** [/builds/linux/scripts/Makefile.build:262: drivers/pwm/pwm-mxs.o] Error 1
+
 This is also seen in other branches (from 4.4 to 5.4). To reproduce this build locally:
 
    tuxmake \
      --target-arch=arm \
      --kconfig=mxs_defconfig \
      --toolchain=gcc-11 \
+     --runtime=podman \
+     config default kernel xipkernel modules dtbs dtbs-legacy debugkernel headers
+
+or:
+
+   tuxmake \
+     --target-arch=arm \
+     --kconfig=mxs_defconfig \
+     --toolchain=clang-13 \
      --runtime=podman \
      config default kernel xipkernel modules dtbs dtbs-legacy debugkernel headers
 
