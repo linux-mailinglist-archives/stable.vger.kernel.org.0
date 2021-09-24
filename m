@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3188A417513
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:13:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 235284174FB
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:12:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346857AbhIXNOV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:14:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38882 "EHLO mail.kernel.org"
+        id S1346694AbhIXNMU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:12:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346696AbhIXNKP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:10:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 13B3061529;
-        Fri, 24 Sep 2021 12:58:09 +0000 (UTC)
+        id S1346161AbhIXNKT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:10:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC2CF615A7;
+        Fri, 24 Sep 2021 12:58:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488290;
-        bh=cHB/GLRWYlEG6alymObPpp6whcfSEBCn3AdLU1CnI5E=;
+        s=korg; t=1632488293;
+        bh=s+6M7smfVbonIUXmdU6r9y3qwUuASd6HErQYJRWCFBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R3lacFNgyb85rtLDXkwyBbZrS5lfUvzVMon69/qn+ElH2cQHnGcR4CKF9OchY7f1O
-         39He9+cuU9zuT0I/eWyIeX9MibZeqOpT8o1V8IDQXEa9HYNXP2l4ztEcn9RCS/trle
-         svy3n2Zq+klMWhSm0cJzl2QcqwIcXBelbKKcPzvU=
+        b=2jqwhGOKaDzFHdkV/q9xDzp+RDCpb66facLCQ0aK562Pp9EdzlqTes9KBH27HJq4f
+         E5MjsSylSn8Sys61bIwRCBeppaT9+Q+BlsVObCnLaPvathnJF/6d6S2R2RatutfKuk
+         I0JIyRDCwnGCz1XkZVV4kFXaveaxNAbtgB6j+mcs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,9 +28,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <u.kleine-koenig@pengutronix.de>,
         Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 56/63] pwm: img: Dont modify HW state in .remove() callback
-Date:   Fri, 24 Sep 2021 14:44:56 +0200
-Message-Id: <20210924124336.193591111@linuxfoundation.org>
+Subject: [PATCH 5.10 57/63] pwm: rockchip: Dont modify HW state in .remove() callback
+Date:   Fri, 24 Sep 2021 14:44:57 +0200
+Message-Id: <20210924124336.230659223@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
 References: <20210924124334.228235870@linuxfoundation.org>
@@ -44,7 +44,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit c68eb29c8e9067c08175dd0414f6984f236f719d ]
+[ Upstream commit 9d768cd7fd42bb0be16f36aec48548fca5260759 ]
 
 A consumer is expected to disable a PWM before calling pwm_put(). And if
 they didn't there is hopefully a good reason (or the consumer needs
@@ -56,37 +56,34 @@ Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-img.c | 16 ----------------
- 1 file changed, 16 deletions(-)
+ drivers/pwm/pwm-rockchip.c | 14 --------------
+ 1 file changed, 14 deletions(-)
 
-diff --git a/drivers/pwm/pwm-img.c b/drivers/pwm/pwm-img.c
-index 22c002e685b3..37f9b688661d 100644
---- a/drivers/pwm/pwm-img.c
-+++ b/drivers/pwm/pwm-img.c
-@@ -329,23 +329,7 @@ err_pm_disable:
- static int img_pwm_remove(struct platform_device *pdev)
+diff --git a/drivers/pwm/pwm-rockchip.c b/drivers/pwm/pwm-rockchip.c
+index 3b8da7b0091b..1f3079562b38 100644
+--- a/drivers/pwm/pwm-rockchip.c
++++ b/drivers/pwm/pwm-rockchip.c
+@@ -382,20 +382,6 @@ static int rockchip_pwm_remove(struct platform_device *pdev)
  {
- 	struct img_pwm_chip *pwm_chip = platform_get_drvdata(pdev);
--	u32 val;
--	unsigned int i;
--	int ret;
--
--	ret = pm_runtime_get_sync(&pdev->dev);
--	if (ret < 0) {
--		pm_runtime_put(&pdev->dev);
--		return ret;
--	}
--
--	for (i = 0; i < pwm_chip->chip.npwm; i++) {
--		val = img_pwm_readl(pwm_chip, PWM_CTRL_CFG);
--		val &= ~BIT(i);
--		img_pwm_writel(pwm_chip, PWM_CTRL_CFG, val);
--	}
+ 	struct rockchip_pwm_chip *pc = platform_get_drvdata(pdev);
  
--	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 	if (!pm_runtime_status_suspended(&pdev->dev))
- 		img_pwm_runtime_suspend(&pdev->dev);
+-	/*
+-	 * Disable the PWM clk before unpreparing it if the PWM device is still
+-	 * running. This should only happen when the last PWM user left it
+-	 * enabled, or when nobody requested a PWM that was previously enabled
+-	 * by the bootloader.
+-	 *
+-	 * FIXME: Maybe the core should disable all PWM devices in
+-	 * pwmchip_remove(). In this case we'd only have to call
+-	 * clk_unprepare() after pwmchip_remove().
+-	 *
+-	 */
+-	if (pwm_is_enabled(pc->chip.pwms))
+-		clk_disable(pc->clk);
+-
+ 	clk_unprepare(pc->pclk);
+ 	clk_unprepare(pc->clk);
+ 
 -- 
 2.33.0
 
