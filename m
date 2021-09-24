@@ -2,170 +2,246 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD96741721A
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:44:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9F554173DD
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:02:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343682AbhIXMpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:45:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40984 "EHLO mail.kernel.org"
+        id S1345284AbhIXNAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:00:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343661AbhIXMpr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:45:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4AE161107;
-        Fri, 24 Sep 2021 12:44:13 +0000 (UTC)
+        id S1345663AbhIXM6v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:58:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93E99613AB;
+        Fri, 24 Sep 2021 12:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487454;
-        bh=m/DweFj7xw9IszJESBcRWtQcDUHgR9v0DQwejSfpQ6I=;
-        h=From:To:Cc:Subject:Date:From;
-        b=vGxkmnhRSvgHV4V2xwMUlf8ldKUsVx4W+WTq+vClD9mz621Ne6cP17igK+/WUpe/k
-         j9f3FxbN8G/zx7OIkBp8jnSxtJ0M02a674bTedT2u4oxpDtWnwAw1fbRXzlHUR6cBs
-         6c3HVKa4ihXfIc4s8V+No0GY1ZryNuz0ij6g/iQA=
+        s=korg; t=1632487972;
+        bh=q5hqOymr05/raBBH3Mx9NsL9SzHNfEeKrfQU33vXWDI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=wZyrZoAKi0JRdY0KuF7wWWXv9xFCI7M02G/XyK8RzxEUKkwfLFfO0GrFKADc/X0oS
+         U7/B2V7hOonU/wKYiSSkoqu3T+N4qDlbWz/SEkudmhTOobdoTSS3HlPr8+CO+AUOBF
+         X4aKN7xVCnnztPfXK8520bKmgtXIsRn0sgkrWLqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.4 00/23] 4.4.285-rc1 review
+        stable@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 032/100] platform/chrome: sensorhub: Add trace events for sample
 Date:   Fri, 24 Sep 2021 14:43:41 +0200
-Message-Id: <20210924124327.816210800@linuxfoundation.org>
+Message-Id: <20210924124342.531214764@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-MIME-Version: 1.0
+In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
+References: <20210924124341.214446495@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.285-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.4.285-rc1
-X-KernelTest-Deadline: 2021-09-26T12:43+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.4.285 release.
-There are 23 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Gwendal Grignou <gwendal@chromium.org>
 
-Responses should be made by Sun, 26 Sep 2021 12:43:20 +0000.
-Anything received after that time might be too late.
+[ Upstream commit d453ceb6549af8798913de6a20444cb7200fdb69 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.285-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-and the diffstat can be found below.
+Add trace event to report samples and their timestamp coming from the
+EC. It allows to check if the timestamps are correct and the filter is
+working correctly without introducing too much latency.
 
-thanks,
+To enable these events:
 
-greg k-h
+cd /sys/kernel/debug/tracing/
+echo 1 > events/cros_ec/enable
+echo 0 > events/cros_ec/cros_ec_request_start/enable
+echo 0 > events/cros_ec/cros_ec_request_done/enable
+echo 1 > tracing_on
+cat trace_pipe
+Observe event flowing:
+irq/105-chromeo-95      [000] ....   613.659758: cros_ec_sensorhub_timestamp: ...
+irq/105-chromeo-95      [000] ....   613.665219: cros_ec_sensorhub_filter: dx: ...
 
--------------
-Pseudo-Shortlog of commits:
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/platform/chrome/Makefile              |  2 +-
+ .../platform/chrome/cros_ec_sensorhub_ring.c  | 14 +++
+ drivers/platform/chrome/cros_ec_trace.h       | 94 +++++++++++++++++++
+ 3 files changed, 109 insertions(+), 1 deletion(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.4.285-rc1
+diff --git a/drivers/platform/chrome/Makefile b/drivers/platform/chrome/Makefile
+index 41baccba033f..f901d2e43166 100644
+--- a/drivers/platform/chrome/Makefile
++++ b/drivers/platform/chrome/Makefile
+@@ -20,7 +20,7 @@ obj-$(CONFIG_CROS_EC_CHARDEV)		+= cros_ec_chardev.o
+ obj-$(CONFIG_CROS_EC_LIGHTBAR)		+= cros_ec_lightbar.o
+ obj-$(CONFIG_CROS_EC_VBC)		+= cros_ec_vbc.o
+ obj-$(CONFIG_CROS_EC_DEBUGFS)		+= cros_ec_debugfs.o
+-cros-ec-sensorhub-objs			:= cros_ec_sensorhub.o cros_ec_sensorhub_ring.o
++cros-ec-sensorhub-objs			:= cros_ec_sensorhub.o cros_ec_sensorhub_ring.o cros_ec_trace.o
+ obj-$(CONFIG_CROS_EC_SENSORHUB)		+= cros-ec-sensorhub.o
+ obj-$(CONFIG_CROS_EC_SYSFS)		+= cros_ec_sysfs.o
+ obj-$(CONFIG_CROS_USBPD_LOGGER)		+= cros_usbpd_logger.o
+diff --git a/drivers/platform/chrome/cros_ec_sensorhub_ring.c b/drivers/platform/chrome/cros_ec_sensorhub_ring.c
+index 8921f24e83ba..98e37080f760 100644
+--- a/drivers/platform/chrome/cros_ec_sensorhub_ring.c
++++ b/drivers/platform/chrome/cros_ec_sensorhub_ring.c
+@@ -17,6 +17,8 @@
+ #include <linux/sort.h>
+ #include <linux/slab.h>
+ 
++#include "cros_ec_trace.h"
++
+ /* Precision of fixed point for the m values from the filter */
+ #define M_PRECISION BIT(23)
+ 
+@@ -291,6 +293,7 @@ cros_ec_sensor_ring_ts_filter_update(struct cros_ec_sensors_ts_filter_state
+ 		state->median_m = 0;
+ 		state->median_error = 0;
+ 	}
++	trace_cros_ec_sensorhub_filter(state, dx, dy);
+ }
+ 
+ /**
+@@ -427,6 +430,11 @@ cros_ec_sensor_ring_process_event(struct cros_ec_sensorhub *sensorhub,
+ 			if (new_timestamp - *current_timestamp > 0)
+ 				*current_timestamp = new_timestamp;
+ 		}
++		trace_cros_ec_sensorhub_timestamp(in->timestamp,
++						  fifo_info->timestamp,
++						  fifo_timestamp,
++						  *current_timestamp,
++						  now);
+ 	}
+ 
+ 	if (in->flags & MOTIONSENSE_SENSOR_FLAG_ODR) {
+@@ -460,6 +468,12 @@ cros_ec_sensor_ring_process_event(struct cros_ec_sensorhub *sensorhub,
+ 
+ 	/* Regular sample */
+ 	out->sensor_id = in->sensor_num;
++	trace_cros_ec_sensorhub_data(in->sensor_num,
++				     fifo_info->timestamp,
++				     fifo_timestamp,
++				     *current_timestamp,
++				     now);
++
+ 	if (*current_timestamp - now > 0) {
+ 		/*
+ 		 * This fix is needed to overcome the timestamp filter putting
+diff --git a/drivers/platform/chrome/cros_ec_trace.h b/drivers/platform/chrome/cros_ec_trace.h
+index f744b21bc655..f50b9f9b8610 100644
+--- a/drivers/platform/chrome/cros_ec_trace.h
++++ b/drivers/platform/chrome/cros_ec_trace.h
+@@ -15,6 +15,7 @@
+ #include <linux/types.h>
+ #include <linux/platform_data/cros_ec_commands.h>
+ #include <linux/platform_data/cros_ec_proto.h>
++#include <linux/platform_data/cros_ec_sensorhub.h>
+ 
+ #include <linux/tracepoint.h>
+ 
+@@ -70,6 +71,99 @@ TRACE_EVENT(cros_ec_request_done,
+ 		  __entry->retval)
+ );
+ 
++TRACE_EVENT(cros_ec_sensorhub_timestamp,
++	    TP_PROTO(u32 ec_sample_timestamp, u32 ec_fifo_timestamp, s64 fifo_timestamp,
++		     s64 current_timestamp, s64 current_time),
++	TP_ARGS(ec_sample_timestamp, ec_fifo_timestamp, fifo_timestamp, current_timestamp,
++		current_time),
++	TP_STRUCT__entry(
++		__field(u32, ec_sample_timestamp)
++		__field(u32, ec_fifo_timestamp)
++		__field(s64, fifo_timestamp)
++		__field(s64, current_timestamp)
++		__field(s64, current_time)
++		__field(s64, delta)
++	),
++	TP_fast_assign(
++		__entry->ec_sample_timestamp = ec_sample_timestamp;
++		__entry->ec_fifo_timestamp = ec_fifo_timestamp;
++		__entry->fifo_timestamp = fifo_timestamp;
++		__entry->current_timestamp = current_timestamp;
++		__entry->current_time = current_time;
++		__entry->delta = current_timestamp - current_time;
++	),
++	TP_printk("ec_ts: %12lld, ec_fifo_ts: %12lld, fifo_ts: %12lld, curr_ts: %12lld, curr_time: %12lld, delta %12lld",
++		  __entry->ec_sample_timestamp,
++		__entry->ec_fifo_timestamp,
++		__entry->fifo_timestamp,
++		__entry->current_timestamp,
++		__entry->current_time,
++		__entry->delta
++	)
++);
++
++TRACE_EVENT(cros_ec_sensorhub_data,
++	    TP_PROTO(u32 ec_sensor_num, u32 ec_fifo_timestamp, s64 fifo_timestamp,
++		     s64 current_timestamp, s64 current_time),
++	TP_ARGS(ec_sensor_num, ec_fifo_timestamp, fifo_timestamp, current_timestamp, current_time),
++	TP_STRUCT__entry(
++		__field(u32, ec_sensor_num)
++		__field(u32, ec_fifo_timestamp)
++		__field(s64, fifo_timestamp)
++		__field(s64, current_timestamp)
++		__field(s64, current_time)
++		__field(s64, delta)
++	),
++	TP_fast_assign(
++		__entry->ec_sensor_num = ec_sensor_num;
++		__entry->ec_fifo_timestamp = ec_fifo_timestamp;
++		__entry->fifo_timestamp = fifo_timestamp;
++		__entry->current_timestamp = current_timestamp;
++		__entry->current_time = current_time;
++		__entry->delta = current_timestamp - current_time;
++	),
++	TP_printk("ec_num: %4d, ec_fifo_ts: %12lld, fifo_ts: %12lld, curr_ts: %12lld, curr_time: %12lld, delta %12lld",
++		  __entry->ec_sensor_num,
++		__entry->ec_fifo_timestamp,
++		__entry->fifo_timestamp,
++		__entry->current_timestamp,
++		__entry->current_time,
++		__entry->delta
++	)
++);
++
++TRACE_EVENT(cros_ec_sensorhub_filter,
++	    TP_PROTO(struct cros_ec_sensors_ts_filter_state *state, s64 dx, s64 dy),
++	TP_ARGS(state, dx, dy),
++	TP_STRUCT__entry(
++		__field(s64, dx)
++		__field(s64, dy)
++		__field(s64, median_m)
++		__field(s64, median_error)
++		__field(s64, history_len)
++		__field(s64, x)
++		__field(s64, y)
++	),
++	TP_fast_assign(
++		__entry->dx = dx;
++		__entry->dy = dy;
++		__entry->median_m = state->median_m;
++		__entry->median_error = state->median_error;
++		__entry->history_len = state->history_len;
++		__entry->x = state->x_offset;
++		__entry->y = state->y_offset;
++	),
++	TP_printk("dx: %12lld. dy: %12lld median_m: %12lld median_error: %12lld len: %d x: %12lld y: %12lld",
++		  __entry->dx,
++		__entry->dy,
++		__entry->median_m,
++		__entry->median_error,
++		__entry->history_len,
++		__entry->x,
++		__entry->y
++	)
++);
++
+ 
+ #endif /* _CROS_EC_TRACE_H_ */
+ 
+-- 
+2.33.0
 
-Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-    sctp: validate from_addr_param return
-
-Guenter Roeck <linux@roeck-us.net>
-    drm/nouveau/nvkm: Replace -ENOSYS with -ENODEV
-
-Li Jinlin <lijinlin3@huawei.com>
-    blk-throttle: fix UAF by deleteing timer in blk_throtl_exit()
-
-Nanyong Sun <sunnanyong@huawei.com>
-    nilfs2: fix memory leak in nilfs_sysfs_delete_snapshot_group
-
-Nanyong Sun <sunnanyong@huawei.com>
-    nilfs2: fix memory leak in nilfs_sysfs_create_snapshot_group
-
-Nanyong Sun <sunnanyong@huawei.com>
-    nilfs2: fix memory leak in nilfs_sysfs_delete_##name##_group
-
-Nanyong Sun <sunnanyong@huawei.com>
-    nilfs2: fix memory leak in nilfs_sysfs_create_##name##_group
-
-Nanyong Sun <sunnanyong@huawei.com>
-    nilfs2: fix NULL pointer in nilfs_##name##_attr_release
-
-Nanyong Sun <sunnanyong@huawei.com>
-    nilfs2: fix memory leak in nilfs_sysfs_create_device_group
-
-Jeff Layton <jlayton@kernel.org>
-    ceph: lockdep annotations for try_nonblocking_invalidate
-
-Johannes Berg <johannes.berg@intel.com>
-    dmaengine: ioat: depends on !UML
-
-Guenter Roeck <linux@roeck-us.net>
-    parisc: Move pci_dev_is_behind_card_dino to where it is used
-
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-    dmaengine: acpi: Avoid comparison GSI with Linux vIRQ
-
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-    dmaengine: acpi-dma: check for 64-bit MMIO address
-
-Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-    pwm: mxs: Don't modify HW state in .probe() after the PWM chip was registered
-
-Pavel Skripkin <paskripkin@gmail.com>
-    profiling: fix shift-out-of-bounds bugs
-
-Cyrill Gorcunov <gorcunov@gmail.com>
-    prctl: allow to setup brk for et_dyn executables
-
-Xie Yongji <xieyongji@bytedance.com>
-    9p/trans_virtio: Remove sysfs file on probe failure
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    thermal/drivers/exynos: Fix an error code in exynos_tmu_probe()
-
-Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-    sctp: add param size validation for SCTP_PARAM_SET_PRIMARY
-
-Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-    sctp: validate chunk size in __rcv_asconf_lookup
-
-Tony Lindgren <tony@atomide.com>
-    PM / wakeirq: Fix unbalanced IRQ enable for wakeirq
-
-Ilya Leoshkevich <iii@linux.ibm.com>
-    s390/bpf: Fix optimizing out zero-extensions
-
-
--------------
-
-Diffstat:
-
- Makefile                                          |  4 +-
- arch/s390/net/bpf_jit_comp.c                      | 50 ++++++++++++-----------
- block/blk-throttle.c                              |  1 +
- drivers/base/power/wakeirq.c                      |  6 ++-
- drivers/dma/Kconfig                               |  2 +-
- drivers/dma/acpi-dma.c                            | 11 ++++-
- drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c |  2 +-
- drivers/parisc/dino.c                             | 18 ++++----
- drivers/pwm/pwm-mxs.c                             | 13 +++---
- drivers/thermal/samsung/exynos_tmu.c              |  1 +
- fs/ceph/caps.c                                    |  2 +
- fs/nilfs2/sysfs.c                                 | 26 +++++-------
- include/net/sctp/structs.h                        |  2 +-
- kernel/profile.c                                  | 21 +++++-----
- kernel/sys.c                                      |  7 ----
- net/9p/trans_virtio.c                             |  4 +-
- net/sctp/bind_addr.c                              | 20 +++++----
- net/sctp/input.c                                  |  9 +++-
- net/sctp/ipv6.c                                   |  7 +++-
- net/sctp/protocol.c                               |  7 +++-
- net/sctp/sm_make_chunk.c                          | 42 +++++++++++--------
- 21 files changed, 143 insertions(+), 112 deletions(-)
 
 
