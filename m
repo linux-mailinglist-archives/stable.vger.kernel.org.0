@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F66B41722F
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:44:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4FE14172CA
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:50:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343876AbhIXMqS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:46:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41548 "EHLO mail.kernel.org"
+        id S1344108AbhIXMvc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:51:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343810AbhIXMqI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:46:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D31F26124B;
-        Fri, 24 Sep 2021 12:44:34 +0000 (UTC)
+        id S1343995AbhIXMuD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:50:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2516A6128E;
+        Fri, 24 Sep 2021 12:48:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487475;
-        bh=nVvIbY3IOyoMH581Afmu+44iYE0L2gN3H5W2W9bGVbo=;
+        s=korg; t=1632487685;
+        bh=+os6h3+603k8KxKhCv8nCdcFOo2nH+zYn1AAiuUodKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SYhERdUP690U0M9/tlEqVdL8b9/judkABI7ppE7YgYzABJmuakvY3xnowt6gJWxmO
-         maVhqxnwb1x6njfksjKnh6akYaM/wNVt+RtfGc9ZDii0+nQrly3BBhx9LUm5JLu8Rs
-         9zBIdX93Lv0eonHl6so4CKXC19lKDVf1yzxSs220=
+        b=i6E1cdG6PsACiKbPd11a4RSyB99ZEsElQPqBP/lQO4dV9SkiYAXerIvFIZRxrtvwu
+         qBbl4HMfwPEE5VpYPA3V1klv/Zl+kZtx5dnqknl/xqdNieaPjkHGrvGAQLgoZBvaN6
+         87qRGvI8ywnCM3vbG7Zs3GhgGOWCcV7UTklCzN5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nanyong Sun <sunnanyong@huawei.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 17/23] nilfs2: fix memory leak in nilfs_sysfs_create_##name##_group
+        stable@vger.kernel.org,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.14 04/27] crypto: talitos - fix max key size for sha384 and sha512
 Date:   Fri, 24 Sep 2021 14:43:58 +0200
-Message-Id: <20210924124328.382986788@linuxfoundation.org>
+Message-Id: <20210924124329.323456478@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124327.816210800@linuxfoundation.org>
-References: <20210924124327.816210800@linuxfoundation.org>
+In-Reply-To: <20210924124329.173674820@linuxfoundation.org>
+References: <20210924124329.173674820@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nanyong Sun <sunnanyong@huawei.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit 24f8cb1ed057c840728167dab33b32e44147c86f ]
+commit 192125ed5ce62afba24312d8e7a0314577565b4a upstream.
 
-If kobject_init_and_add return with error, kobject_put() is needed here to
-avoid memory leak, because kobject_init_and_add may return error without
-freeing the memory associated with the kobject it allocated.
+Below commit came with a typo in the CONFIG_ symbol, leading
+to a permanently reduced max key size regarless of the driver
+capabilities.
 
-Link: https://lkml.kernel.org/r/20210629022556.3985106-4-sunnanyong@huawei.com
-Link: https://lkml.kernel.org/r/1625651306-10829-4-git-send-email-konishi.ryusuke@gmail.com
-Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Horia Geantă <horia.geanta@nxp.com>
+Fixes: b8fbdc2bc4e7 ("crypto: talitos - reduce max key size for SEC1")
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/sysfs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/talitos.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
-index d7d6791c408e..e8d4828287c3 100644
---- a/fs/nilfs2/sysfs.c
-+++ b/fs/nilfs2/sysfs.c
-@@ -101,8 +101,8 @@ static int nilfs_sysfs_create_##name##_group(struct the_nilfs *nilfs) \
- 	err = kobject_init_and_add(kobj, &nilfs_##name##_ktype, parent, \
- 				    #name); \
- 	if (err) \
--		return err; \
--	return 0; \
-+		kobject_put(kobj); \
-+	return err; \
- } \
- static void nilfs_sysfs_delete_##name##_group(struct the_nilfs *nilfs) \
- { \
--- 
-2.33.0
-
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -816,7 +816,7 @@ static void talitos_unregister_rng(struc
+  * HMAC_SNOOP_NO_AFEA (HSNA) instead of type IPSEC_ESP
+  */
+ #define TALITOS_CRA_PRIORITY_AEAD_HSNA	(TALITOS_CRA_PRIORITY - 1)
+-#ifdef CONFIG_CRYPTO_DEV_TALITOS_SEC2
++#ifdef CONFIG_CRYPTO_DEV_TALITOS2
+ #define TALITOS_MAX_KEY_SIZE		(AES_MAX_KEY_SIZE + SHA512_BLOCK_SIZE)
+ #else
+ #define TALITOS_MAX_KEY_SIZE		(AES_MAX_KEY_SIZE + SHA256_BLOCK_SIZE)
 
 
