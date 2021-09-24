@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DE144174B3
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:09:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 342BA417399
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346269AbhIXNJf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:09:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38620 "EHLO mail.kernel.org"
+        id S1345012AbhIXM7M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:59:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346602AbhIXNHg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:07:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31AB660F12;
-        Fri, 24 Sep 2021 12:56:50 +0000 (UTC)
+        id S1344788AbhIXM4X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:56:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C8D446138B;
+        Fri, 24 Sep 2021 12:51:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488210;
-        bh=ZPWi4hgYe8sqtvM+gTvsAZfwV9aFgp9mscJaM8tvPQc=;
+        s=korg; t=1632487890;
+        bh=dTSZ1GSvL2VCXDfHrK1x4xeU9uhucsyjzcXzZv+PTr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ERCpyI/e4QSf4RNWYOdnhISHbcWs8gGr1PN3QcO/q0/VYXDRJS0+rCN/i4wW9Kwjb
-         tYujrTZHwHWvk8rWNVAOtgC1PYKk8YQfwucdivCB/vnbpzE+jfJTdM0qAaAscyuWLY
-         KJ7nolqzbeNP0YcZlieb9sbD8SsT0L8s186lkFCE=
+        b=twOqgdA8K+SiIByXSFolnrSZOBhVzmSjpL5RkJj02gjYsa+jA0s3cq67UrWm5Yhqo
+         wk81VXTkjqwbHLQXNVBPm4H9YUbPeuazErFwmu3ssp9XB6z2L0zBZtuyfY4rf9LKJW
+         lFEsYUV/wEG/h0wxb/0Bp5/DfKkmJHdN04eLcok8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH 5.10 26/63] pwm: mxs: Dont modify HW state in .probe() after the PWM chip was registered
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 37/50] ceph: lockdep annotations for try_nonblocking_invalidate
 Date:   Fri, 24 Sep 2021 14:44:26 +0200
-Message-Id: <20210924124335.159803832@linuxfoundation.org>
+Message-Id: <20210924124333.503932249@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
-References: <20210924124334.228235870@linuxfoundation.org>
+In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
+References: <20210924124332.229289734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit 020162d6f49f2963062229814a56a89c86cbeaa8 upstream.
+[ Upstream commit 3eaf5aa1cfa8c97c72f5824e2e9263d6cc977b03 ]
 
-This fixes a race condition: After pwmchip_add() is called there might
-already be a consumer and then modifying the hardware behind the
-consumer's back is bad. So reset before calling pwmchip_add().
-
-Note that reseting the hardware isn't the right thing to do if the PWM
-is already running as it might e.g. disable (or even enable) a backlight
-that is supposed to be on (or off).
-
-Fixes: 4dce82c1e840 ("pwm: add pwm-mxs support")
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-mxs.c |   13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ fs/ceph/caps.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/pwm/pwm-mxs.c
-+++ b/drivers/pwm/pwm-mxs.c
-@@ -148,6 +148,11 @@ static int mxs_pwm_probe(struct platform
- 		return ret;
- 	}
- 
-+	/* FIXME: Only do this if the PWM isn't already running */
-+	ret = stmp_reset_block(mxs->base);
-+	if (ret)
-+		return dev_err_probe(&pdev->dev, ret, "failed to reset PWM\n");
-+
- 	ret = pwmchip_add(&mxs->chip);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "failed to add pwm chip %d\n", ret);
-@@ -156,15 +161,7 @@ static int mxs_pwm_probe(struct platform
- 
- 	platform_set_drvdata(pdev, mxs);
- 
--	ret = stmp_reset_block(mxs->base);
--	if (ret)
--		goto pwm_remove;
--
- 	return 0;
--
--pwm_remove:
--	pwmchip_remove(&mxs->chip);
--	return ret;
- }
- 
- static int mxs_pwm_remove(struct platform_device *pdev)
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index a49bf1fbaea8..0fad044a5752 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -1775,6 +1775,8 @@ static u64 __mark_caps_flushing(struct inode *inode,
+  * try to invalidate mapping pages without blocking.
+  */
+ static int try_nonblocking_invalidate(struct inode *inode)
++	__releases(ci->i_ceph_lock)
++	__acquires(ci->i_ceph_lock)
+ {
+ 	struct ceph_inode_info *ci = ceph_inode(inode);
+ 	u32 invalidating_gen = ci->i_rdcache_gen;
+-- 
+2.33.0
+
 
 
