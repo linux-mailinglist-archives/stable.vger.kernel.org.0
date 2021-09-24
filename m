@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C51454174A0
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15D0C417304
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:52:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345941AbhIXNIk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:08:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34644 "EHLO mail.kernel.org"
+        id S1344933AbhIXMxk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:53:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345477AbhIXNGl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:06:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CFC36136F;
-        Fri, 24 Sep 2021 12:56:26 +0000 (UTC)
+        id S1344556AbhIXMvy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:51:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0BC461164;
+        Fri, 24 Sep 2021 12:49:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488187;
-        bh=i50Q+2odLvoFw3UCo6bLvVHGv28CMrkLdVV9jE1sgjc=;
+        s=korg; t=1632487755;
+        bh=9xxKj07VJ3NcTqH4N2AcdLhFPEswJJDaSl788+AEd3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qnzA4vKfPvCr0wH2L92RCHdSG50qGFsI2/6RSpIBXnl1qqdV9QkuksyLaCeGssZWu
-         Hd5iC2IGSi2/I85IknuY44ZORp/V0JYKpXPHBEVUR1+ICB4D2M22+BEQqvSpARpe9a
-         MTU+548laqa9AXHCqHJJjIcpNNB2VSLKd9yE+CIQ=
+        b=zBM13VZHArNBD13EjrM+jg6ROlDSBpPVgZl+OrL6le5o1XgR1172jdgr9odbTSgri
+         ee/XPbY5QNTR9KOak6n94a2SUXnr6jdi1Bq9iNNpeHOej35hvjFmHB9ZOZehrCnqq+
+         a8hiWKSpl8fub6Jb2vSjPYgS/mJ2W0r4xE4BJ6zY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
-        Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.10 18/63] perf tools: Allow build-id with trailing zeros
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Nanyong Sun <sunnanyong@huawei.com>,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 24/34] nilfs2: fix memory leak in nilfs_sysfs_create_device_group
 Date:   Fri, 24 Sep 2021 14:44:18 +0200
-Message-Id: <20210924124334.879177912@linuxfoundation.org>
+Message-Id: <20210924124330.752253998@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
-References: <20210924124334.228235870@linuxfoundation.org>
+In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
+References: <20210924124329.965218583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +43,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Nanyong Sun <sunnanyong@huawei.com>
 
-commit 4a86d41404005a3c7e7b6065e8169ac6202887a9 upstream.
+[ Upstream commit 5f5dec07aca7067216ed4c1342e464e7307a9197 ]
 
-Currently perf saves a build-id with size but old versions assumes the
-size of 20.  In case the build-id is less than 20 (like for MD5), it'd
-fill the rest with 0s.
+Patch series "nilfs2: fix incorrect usage of kobject".
 
-I saw a problem when old version of perf record saved a binary in the
-build-id cache and new version of perf reads the data.  The symbols
-should be read from the build-id cache (as the path no longer has the
-same binary) but it failed due to mismatch in the build-id.
+This patchset from Nanyong Sun fixes memory leak issues and a NULL
+pointer dereference issue caused by incorrect usage of kboject in nilfs2
+sysfs implementation.
 
-  symsrc__init: build id mismatch for /home/namhyung/.debug/.build-id/53/e4c2f42a4c61a2d632d92a72afa08f00000000/elf.
+This patch (of 6):
 
-The build-id event in the data has 20 byte build-ids, but it saw a
-different size (16) when it reads the build-id of the elf file in the
-build-id cache.
+Reported by syzkaller:
 
-  $ readelf -n ~/.debug/.build-id/53/e4c2f42a4c61a2d632d92a72afa08f00000000/elf
+  BUG: memory leak
+  unreferenced object 0xffff888100ca8988 (size 8):
+  comm "syz-executor.1", pid 1930, jiffies 4294745569 (age 18.052s)
+  hex dump (first 8 bytes):
+  6c 6f 6f 70 31 00 ff ff loop1...
+  backtrace:
+    kstrdup+0x36/0x70 mm/util.c:60
+    kstrdup_const+0x35/0x60 mm/util.c:83
+    kvasprintf_const+0xf1/0x180 lib/kasprintf.c:48
+    kobject_set_name_vargs+0x56/0x150 lib/kobject.c:289
+    kobject_add_varg lib/kobject.c:384 [inline]
+    kobject_init_and_add+0xc9/0x150 lib/kobject.c:473
+    nilfs_sysfs_create_device_group+0x150/0x7d0 fs/nilfs2/sysfs.c:986
+    init_nilfs+0xa21/0xea0 fs/nilfs2/the_nilfs.c:637
+    nilfs_fill_super fs/nilfs2/super.c:1046 [inline]
+    nilfs_mount+0x7b4/0xe80 fs/nilfs2/super.c:1316
+    legacy_get_tree+0x105/0x210 fs/fs_context.c:592
+    vfs_get_tree+0x8e/0x2d0 fs/super.c:1498
+    do_new_mount fs/namespace.c:2905 [inline]
+    path_mount+0xf9b/0x1990 fs/namespace.c:3235
+    do_mount+0xea/0x100 fs/namespace.c:3248
+    __do_sys_mount fs/namespace.c:3456 [inline]
+    __se_sys_mount fs/namespace.c:3433 [inline]
+    __x64_sys_mount+0x14b/0x1f0 fs/namespace.c:3433
+    do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    do_syscall_64+0x3b/0x90 arch/x86/entry/common.c:80
+    entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-  Displaying notes found in: .note.gnu.build-id
-    Owner                Data size 	Description
-    GNU                  0x00000010	NT_GNU_BUILD_ID (unique build ID bitstring)
-      Build ID: 53e4c2f42a4c61a2d632d92a72afa08f
+If kobject_init_and_add return with error, then the cleanup of kobject
+is needed because memory may be allocated in kobject_init_and_add
+without freeing.
 
-Let's fix this by allowing trailing zeros if the size is different.
+And the place of cleanup_dev_kobject should use kobject_put to free the
+memory associated with the kobject.  As the section "Kobject removal" of
+"Documentation/core-api/kobject.rst" says, kobject_del() just makes the
+kobject "invisible", but it is not cleaned up.  And no more cleanup will
+do after cleanup_dev_kobject, so kobject_put is needed here.
 
-Fixes: 39be8d0115b321ed ("perf tools: Pass build_id object to dso__build_id_equal()")
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20210910224630.1084877-1-namhyung@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/1625651306-10829-1-git-send-email-konishi.ryusuke@gmail.com
+Link: https://lkml.kernel.org/r/1625651306-10829-2-git-send-email-konishi.ryusuke@gmail.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Link: https://lkml.kernel.org/r/20210629022556.3985106-2-sunnanyong@huawei.com
+Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/dso.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/nilfs2/sysfs.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/tools/perf/util/dso.c
-+++ b/tools/perf/util/dso.c
-@@ -1336,6 +1336,16 @@ void dso__set_build_id(struct dso *dso,
+diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
+index c6c8a33c81d5..cbfc132206e8 100644
+--- a/fs/nilfs2/sysfs.c
++++ b/fs/nilfs2/sysfs.c
+@@ -1000,7 +1000,7 @@ int nilfs_sysfs_create_device_group(struct super_block *sb)
+ 	err = kobject_init_and_add(&nilfs->ns_dev_kobj, &nilfs_dev_ktype, NULL,
+ 				    "%s", sb->s_id);
+ 	if (err)
+-		goto free_dev_subgroups;
++		goto cleanup_dev_kobject;
  
- bool dso__build_id_equal(const struct dso *dso, struct build_id *bid)
- {
-+	if (dso->bid.size > bid->size && dso->bid.size == BUILD_ID_SIZE) {
-+		/*
-+		 * For the backward compatibility, it allows a build-id has
-+		 * trailing zeros.
-+		 */
-+		return !memcmp(dso->bid.data, bid->data, bid->size) &&
-+			!memchr_inv(&dso->bid.data[bid->size], 0,
-+				    dso->bid.size - bid->size);
-+	}
-+
- 	return dso->bid.size == bid->size &&
- 	       memcmp(dso->bid.data, bid->data, dso->bid.size) == 0;
- }
+ 	err = nilfs_sysfs_create_mounted_snapshots_group(nilfs);
+ 	if (err)
+@@ -1037,9 +1037,7 @@ delete_mounted_snapshots_group:
+ 	nilfs_sysfs_delete_mounted_snapshots_group(nilfs);
+ 
+ cleanup_dev_kobject:
+-	kobject_del(&nilfs->ns_dev_kobj);
+-
+-free_dev_subgroups:
++	kobject_put(&nilfs->ns_dev_kobj);
+ 	kfree(nilfs->ns_dev_subgroups);
+ 
+ failed_create_device_group:
+-- 
+2.33.0
+
 
 
