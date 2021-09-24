@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B35F241729C
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:48:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA3914172D9
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:50:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343887AbhIXMtq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:49:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44906 "EHLO mail.kernel.org"
+        id S1344710AbhIXMvz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:51:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344098AbhIXMsn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:48:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59E2061278;
-        Fri, 24 Sep 2021 12:47:10 +0000 (UTC)
+        id S1344567AbhIXMu3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:50:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBABD61351;
+        Fri, 24 Sep 2021 12:48:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487630;
-        bh=IoU9t2HsCnVcrqarEjYyykrlTBr7BBMfj3jiU4ZGOp4=;
+        s=korg; t=1632487703;
+        bh=Z4McYNiEwNXxv/YA7HLEkflslNkWA+CMHTq3Ka3jd28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZgVjdUq6XjhhLIeyK+Kn6yHft2WAiFMAUJpkQgS9x8dj8qW0MYMFm8VTXEDxGR6e5
-         1hF3y26irYqYAmwFQjeFUjQYy9S/0obWC3kpQmuE9y4Fs/Jr9L4JPKdJHSwN4Duirb
-         02ocnvAEylI7U4SaKEGRJyhXA+dWw+moXx4KJEro=
+        b=GVeJSGfDukwGoMSHW6amVGdtOUTH98qnBIYWGzilJJVK0kfDiu/zUNO6BSwlFBNid
+         k3KQojmnwWPSFrmQ1VOtA9r92DsW6uo4tpMhhKyzLwAVUnxHGWVUs61xfNLZ+XJGDe
+         2RbGpRroZ6ZfTkcK6u+EGm4ltE/JmfepBPhTNGyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 15/27] parisc: Move pci_dev_is_behind_card_dino to where it is used
+        stable@vger.kernel.org, Sylvain Lemieux <slemieux@tycoint.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>
+Subject: [PATCH 4.19 15/34] pwm: lpc32xx: Dont modify HW state in .probe() after the PWM chip was registered
 Date:   Fri, 24 Sep 2021 14:44:09 +0200
-Message-Id: <20210924124329.677795679@linuxfoundation.org>
+Message-Id: <20210924124330.461535778@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124329.173674820@linuxfoundation.org>
-References: <20210924124329.173674820@linuxfoundation.org>
+In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
+References: <20210924124329.965218583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 907872baa9f1538eed02ec737b8e89eba6c6e4b9 ]
+commit 3d2813fb17e5fd0d73c1d1442ca0192bde4af10e upstream.
 
-parisc build test images fail to compile with the following error.
+This fixes a race condition: After pwmchip_add() is called there might
+already be a consumer and then modifying the hardware behind the
+consumer's back is bad. So set the default before.
 
-drivers/parisc/dino.c:160:12: error:
-	'pci_dev_is_behind_card_dino' defined but not used
+(Side-note: I don't know what this register setting actually does, if
+this modifies the polarity there is an inconsistency because the
+inversed polarity isn't considered if the PWM is already running during
+.probe().)
 
-Move the function just ahead of its only caller to avoid the error.
-
-Fixes: 5fa1659105fa ("parisc: Disable HP HSC-PCI Cards to prevent kernel crash")
-Cc: Helge Deller <deller@gmx.de>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: acfd92fdfb93 ("pwm: lpc32xx: Set PWM_PIN_LEVEL bit to default value")
+Cc: Sylvain Lemieux <slemieux@tycoint.com>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/parisc/dino.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/pwm/pwm-lpc32xx.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/parisc/dino.c b/drivers/parisc/dino.c
-index 8bed46630857..c11515bdac83 100644
---- a/drivers/parisc/dino.c
-+++ b/drivers/parisc/dino.c
-@@ -160,15 +160,6 @@ struct dino_device
- 	(struct dino_device *)__pdata; })
+--- a/drivers/pwm/pwm-lpc32xx.c
++++ b/drivers/pwm/pwm-lpc32xx.c
+@@ -124,17 +124,17 @@ static int lpc32xx_pwm_probe(struct plat
+ 	lpc32xx->chip.npwm = 1;
+ 	lpc32xx->chip.base = -1;
  
- 
--/* Check if PCI device is behind a Card-mode Dino. */
--static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
--{
--	struct dino_device *dino_dev;
--
--	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
--	return is_card_dino(&dino_dev->hba.dev->id);
--}
--
- /*
-  * Dino Configuration Space Accessor Functions
-  */
-@@ -452,6 +443,15 @@ static void quirk_cirrus_cardbus(struct pci_dev *dev)
- DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_CIRRUS, PCI_DEVICE_ID_CIRRUS_6832, quirk_cirrus_cardbus );
- 
- #ifdef CONFIG_TULIP
-+/* Check if PCI device is behind a Card-mode Dino. */
-+static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
-+{
-+	struct dino_device *dino_dev;
++	/* If PWM is disabled, configure the output to the default value */
++	val = readl(lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
++	val &= ~PWM_PIN_LEVEL;
++	writel(val, lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
 +
-+	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
-+	return is_card_dino(&dino_dev->hba.dev->id);
-+}
-+
- static void pci_fixup_tulip(struct pci_dev *dev)
- {
- 	if (!pci_dev_is_behind_card_dino(dev))
--- 
-2.33.0
-
+ 	ret = pwmchip_add(&lpc32xx->chip);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to add PWM chip, error %d\n", ret);
+ 		return ret;
+ 	}
+ 
+-	/* When PWM is disable, configure the output to the default value */
+-	val = readl(lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
+-	val &= ~PWM_PIN_LEVEL;
+-	writel(val, lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
+-
+ 	platform_set_drvdata(pdev, lpc32xx);
+ 
+ 	return 0;
 
 
