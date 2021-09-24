@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7149741747F
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 754714174B0
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:09:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345520AbhIXNGn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:06:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34644 "EHLO mail.kernel.org"
+        id S1346062AbhIXNJa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:09:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344273AbhIXNEl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:04:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CD8561462;
-        Fri, 24 Sep 2021 12:55:35 +0000 (UTC)
+        id S1346500AbhIXNHC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:07:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5608360F4C;
+        Fri, 24 Sep 2021 12:56:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488136;
-        bh=u3eAg3WdSspCnwhW5vTgK/BWOPqXhAJAKPcRNGAOLGE=;
+        s=korg; t=1632488194;
+        bh=gENb3+P6z9ffyMx/K5k7xzOvlZBidAjaC3mlcw3bPgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I2tyuy6zrFkYf4JY/IRmqalX5WnYJ7+tmgu1Rd5KJ8eDrISdlpECCuh1rc+S639vl
-         7ht/rvgBO9zSDcqWdVH29oUqpaJKZwdDzpagAtaX+lmQZ03OmnysLebh6U6jtugInj
-         8dNsr2Dy+QSifcMwqACDrpXplc8KCqexyyfVSwCs=
+        b=s62e2T8fRACQMy1cNHuX1eGCi6IltohKL0b+FffpSdhSQ8/4MbSUFsfiEyEEKTcBz
+         HI31TxB01XGMnh0bxktCD5J7m++beyLMp5WG8sqPrDBvFBlgWZee+UBmsaAiFRwroa
+         GIhogOpE5aMrUI71/LgXf6YMshjThEPneFds+niY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Su Yue <l@damenly.su>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 071/100] btrfs: fix lockdep warning while mounting sprout fs
+        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 5.10 20/63] 9p/trans_virtio: Remove sysfs file on probe failure
 Date:   Fri, 24 Sep 2021 14:44:20 +0200
-Message-Id: <20210924124343.818961014@linuxfoundation.org>
+Message-Id: <20210924124334.946203467@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
-References: <20210924124341.214446495@linuxfoundation.org>
+In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
+References: <20210924124334.228235870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,170 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit c124706900c20dee70f921bb3a90492431561a0a ]
+commit f997ea3b7afc108eb9761f321b57de2d089c7c48 upstream.
 
-Following test case reproduces lockdep warning.
+This ensures we don't leak the sysfs file if we failed to
+allocate chan->vc_wq during probe.
 
-  Test case:
-
-  $ mkfs.btrfs -f <dev1>
-  $ btrfstune -S 1 <dev1>
-  $ mount <dev1> <mnt>
-  $ btrfs device add <dev2> <mnt> -f
-  $ umount <mnt>
-  $ mount <dev2> <mnt>
-  $ umount <mnt>
-
-The warning claims a possible ABBA deadlock between the threads
-initiated by [#1] btrfs device add and [#0] the mount.
-
-  [ 540.743122] WARNING: possible circular locking dependency detected
-  [ 540.743129] 5.11.0-rc7+ #5 Not tainted
-  [ 540.743135] ------------------------------------------------------
-  [ 540.743142] mount/2515 is trying to acquire lock:
-  [ 540.743149] ffffa0c5544c2ce0 (&fs_devs->device_list_mutex){+.+.}-{4:4}, at: clone_fs_devices+0x6d/0x210 [btrfs]
-  [ 540.743458] but task is already holding lock:
-  [ 540.743461] ffffa0c54a7932b8 (btrfs-chunk-00){++++}-{4:4}, at: __btrfs_tree_read_lock+0x32/0x200 [btrfs]
-  [ 540.743541] which lock already depends on the new lock.
-  [ 540.743543] the existing dependency chain (in reverse order) is:
-
-  [ 540.743546] -> #1 (btrfs-chunk-00){++++}-{4:4}:
-  [ 540.743566] down_read_nested+0x48/0x2b0
-  [ 540.743585] __btrfs_tree_read_lock+0x32/0x200 [btrfs]
-  [ 540.743650] btrfs_read_lock_root_node+0x70/0x200 [btrfs]
-  [ 540.743733] btrfs_search_slot+0x6c6/0xe00 [btrfs]
-  [ 540.743785] btrfs_update_device+0x83/0x260 [btrfs]
-  [ 540.743849] btrfs_finish_chunk_alloc+0x13f/0x660 [btrfs] <--- device_list_mutex
-  [ 540.743911] btrfs_create_pending_block_groups+0x18d/0x3f0 [btrfs]
-  [ 540.743982] btrfs_commit_transaction+0x86/0x1260 [btrfs]
-  [ 540.744037] btrfs_init_new_device+0x1600/0x1dd0 [btrfs]
-  [ 540.744101] btrfs_ioctl+0x1c77/0x24c0 [btrfs]
-  [ 540.744166] __x64_sys_ioctl+0xe4/0x140
-  [ 540.744170] do_syscall_64+0x4b/0x80
-  [ 540.744174] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  [ 540.744180] -> #0 (&fs_devs->device_list_mutex){+.+.}-{4:4}:
-  [ 540.744184] __lock_acquire+0x155f/0x2360
-  [ 540.744188] lock_acquire+0x10b/0x5c0
-  [ 540.744190] __mutex_lock+0xb1/0xf80
-  [ 540.744193] mutex_lock_nested+0x27/0x30
-  [ 540.744196] clone_fs_devices+0x6d/0x210 [btrfs]
-  [ 540.744270] btrfs_read_chunk_tree+0x3c7/0xbb0 [btrfs]
-  [ 540.744336] open_ctree+0xf6e/0x2074 [btrfs]
-  [ 540.744406] btrfs_mount_root.cold.72+0x16/0x127 [btrfs]
-  [ 540.744472] legacy_get_tree+0x38/0x90
-  [ 540.744475] vfs_get_tree+0x30/0x140
-  [ 540.744478] fc_mount+0x16/0x60
-  [ 540.744482] vfs_kern_mount+0x91/0x100
-  [ 540.744484] btrfs_mount+0x1e6/0x670 [btrfs]
-  [ 540.744536] legacy_get_tree+0x38/0x90
-  [ 540.744537] vfs_get_tree+0x30/0x140
-  [ 540.744539] path_mount+0x8d8/0x1070
-  [ 540.744541] do_mount+0x8d/0xc0
-  [ 540.744543] __x64_sys_mount+0x125/0x160
-  [ 540.744545] do_syscall_64+0x4b/0x80
-  [ 540.744547] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  [ 540.744551] other info that might help us debug this:
-  [ 540.744552] Possible unsafe locking scenario:
-
-  [ 540.744553] CPU0 				CPU1
-  [ 540.744554] ---- 				----
-  [ 540.744555] lock(btrfs-chunk-00);
-  [ 540.744557] 					lock(&fs_devs->device_list_mutex);
-  [ 540.744560] 					lock(btrfs-chunk-00);
-  [ 540.744562] lock(&fs_devs->device_list_mutex);
-  [ 540.744564]
-   *** DEADLOCK ***
-
-  [ 540.744565] 3 locks held by mount/2515:
-  [ 540.744567] #0: ffffa0c56bf7a0e0 (&type->s_umount_key#42/1){+.+.}-{4:4}, at: alloc_super.isra.16+0xdf/0x450
-  [ 540.744574] #1: ffffffffc05a9628 (uuid_mutex){+.+.}-{4:4}, at: btrfs_read_chunk_tree+0x63/0xbb0 [btrfs]
-  [ 540.744640] #2: ffffa0c54a7932b8 (btrfs-chunk-00){++++}-{4:4}, at: __btrfs_tree_read_lock+0x32/0x200 [btrfs]
-  [ 540.744708]
-   stack backtrace:
-  [ 540.744712] CPU: 2 PID: 2515 Comm: mount Not tainted 5.11.0-rc7+ #5
-
-But the device_list_mutex in clone_fs_devices() is redundant, as
-explained below.  Two threads [1]  and [2] (below) could lead to
-clone_fs_device().
-
-  [1]
-  open_ctree <== mount sprout fs
-   btrfs_read_chunk_tree()
-    mutex_lock(&uuid_mutex) <== global lock
-    read_one_dev()
-     open_seed_devices()
-      clone_fs_devices() <== seed fs_devices
-       mutex_lock(&orig->device_list_mutex) <== seed fs_devices
-
-  [2]
-  btrfs_init_new_device() <== sprouting
-   mutex_lock(&uuid_mutex); <== global lock
-   btrfs_prepare_sprout()
-     lockdep_assert_held(&uuid_mutex)
-     clone_fs_devices(seed_fs_device) <== seed fs_devices
-
-Both of these threads hold uuid_mutex which is sufficient to protect
-getting the seed device(s) freed while we are trying to clone it for
-sprouting [2] or mounting a sprout [1] (as above). A mounted seed device
-can not free/write/replace because it is read-only. An unmounted seed
-device can be freed by btrfs_free_stale_devices(), but it needs
-uuid_mutex.  So this patch removes the unnecessary device_list_mutex in
-clone_fs_devices().  And adds a lockdep_assert_held(&uuid_mutex) in
-clone_fs_devices().
-
-Reported-by: Su Yue <l@damenly.su>
-Tested-by: Su Yue <l@damenly.su>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: http://lkml.kernel.org/r/20210517083557.172-1-xieyongji@bytedance.com
+Fixes: 86c8437383ac ("net/9p: Add sysfs mount_tag file for virtio 9P device")
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/volumes.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ net/9p/trans_virtio.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index d6ffb38a0869..682416d4edef 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -570,6 +570,8 @@ static int btrfs_free_stale_devices(const char *path,
- 	struct btrfs_device *device, *tmp_device;
- 	int ret = 0;
- 
-+	lockdep_assert_held(&uuid_mutex);
-+
- 	if (path)
- 		ret = -ENOENT;
- 
-@@ -1000,11 +1002,12 @@ static struct btrfs_fs_devices *clone_fs_devices(struct btrfs_fs_devices *orig)
- 	struct btrfs_device *orig_dev;
- 	int ret = 0;
- 
-+	lockdep_assert_held(&uuid_mutex);
-+
- 	fs_devices = alloc_fs_devices(orig->fsid, NULL);
- 	if (IS_ERR(fs_devices))
- 		return fs_devices;
- 
--	mutex_lock(&orig->device_list_mutex);
- 	fs_devices->total_devices = orig->total_devices;
- 
- 	list_for_each_entry(orig_dev, &orig->devices, dev_list) {
-@@ -1036,10 +1039,8 @@ static struct btrfs_fs_devices *clone_fs_devices(struct btrfs_fs_devices *orig)
- 		device->fs_devices = fs_devices;
- 		fs_devices->num_devices++;
+--- a/net/9p/trans_virtio.c
++++ b/net/9p/trans_virtio.c
+@@ -605,7 +605,7 @@ static int p9_virtio_probe(struct virtio
+ 	chan->vc_wq = kmalloc(sizeof(wait_queue_head_t), GFP_KERNEL);
+ 	if (!chan->vc_wq) {
+ 		err = -ENOMEM;
+-		goto out_free_tag;
++		goto out_remove_file;
  	}
--	mutex_unlock(&orig->device_list_mutex);
- 	return fs_devices;
- error:
--	mutex_unlock(&orig->device_list_mutex);
- 	free_fs_devices(fs_devices);
- 	return ERR_PTR(ret);
- }
--- 
-2.33.0
-
+ 	init_waitqueue_head(chan->vc_wq);
+ 	chan->ring_bufs_avail = 1;
+@@ -623,6 +623,8 @@ static int p9_virtio_probe(struct virtio
+ 
+ 	return 0;
+ 
++out_remove_file:
++	sysfs_remove_file(&vdev->dev.kobj, &dev_attr_mount_tag.attr);
+ out_free_tag:
+ 	kfree(tag);
+ out_free_vq:
 
 
