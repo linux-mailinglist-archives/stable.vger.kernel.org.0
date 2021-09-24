@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8924C4174A2
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:07:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C67AA417324
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345209AbhIXNIm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:08:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36370 "EHLO mail.kernel.org"
+        id S1344898AbhIXMyl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:54:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346480AbhIXNGx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:06:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98AA661502;
-        Fri, 24 Sep 2021 12:56:31 +0000 (UTC)
+        id S1344902AbhIXMws (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:52:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 73C4A61288;
+        Fri, 24 Sep 2021 12:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488192;
-        bh=PYlJAmQUve/6uaoPMP/ru2AOdMQ5O8wp0DmtY41dbPg=;
+        s=korg; t=1632487789;
+        bh=0EpAvJYQ9RRlgupNxLsb7ewC3+i1g7DlhwCKkGxz+h8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fXaejzhPg7VwYdidr6iGy2oBpkHnk56gdIheZaFV0i8weYfEwt+KRpmL3Kcgq0QuF
-         V5Fz9ML+Q08j0rvb/XwC48wbqaXNjx8Rmxe250wCc2LiD2GmZdBAqR4f2b4tf/LmGV
-         ORwUe1hwup2NkNmH71TnvI7IOslEv7f9YzdC/iYA=
+        b=cpdVgWQGbZqf35iOQ571N8rKZgNSRBwIBSxANTBz3k7+VHPiuPtaZO0W9fo8My+yB
+         1tFq518QMUU158wHtsRDfS5xuQ4Jb7owp1kWB82Aubp+CSs8dTqM5eev+Qjk5pG6XH
+         J5YhmoxEfTKhuIeIwfJmdPCW90ISVYGjLrsOjPwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.10 02/63] PCI: aardvark: Fix reporting CRS value
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 5.4 13/50] ARM: 9079/1: ftrace: Add MODULE_PLTS support
 Date:   Fri, 24 Sep 2021 14:44:02 +0200
-Message-Id: <20210924124334.309550482@linuxfoundation.org>
+Message-Id: <20210924124332.685167478@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
-References: <20210924124334.228235870@linuxfoundation.org>
+In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
+References: <20210924124332.229289734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,174 +41,271 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Alex Sverdlin <alexander.sverdlin@nokia.com>
 
-commit 43f5c77bcbd27cce70bf33c2b86d6726ce95dd66 upstream.
+commit 79f32b221b18c15a98507b101ef4beb52444cc6f upstream
 
-Set CRSVIS flag in emulated root PCI bridge to indicate support for
-Completion Retry Status.
+Teach ftrace_make_call() and ftrace_make_nop() about PLTs.
+Teach PLT code about FTRACE and all its callbacks.
+Otherwise the following might happen:
 
-Add check for CRSSVE flag from root PCI brige when issuing Configuration
-Read Request via PIO to correctly returns fabricated CRS value as it is
-required by PCIe spec.
+------------[ cut here ]------------
+WARNING: CPU: 14 PID: 2265 at .../arch/arm/kernel/insn.c:14 __arm_gen_branch+0x83/0x8c()
+...
+Hardware name: LSI Axxia AXM55XX
+[<c0314a49>] (unwind_backtrace) from [<c03115e9>] (show_stack+0x11/0x14)
+[<c03115e9>] (show_stack) from [<c0519f51>] (dump_stack+0x81/0xa8)
+[<c0519f51>] (dump_stack) from [<c032185d>] (warn_slowpath_common+0x69/0x90)
+[<c032185d>] (warn_slowpath_common) from [<c03218f3>] (warn_slowpath_null+0x17/0x1c)
+[<c03218f3>] (warn_slowpath_null) from [<c03143cf>] (__arm_gen_branch+0x83/0x8c)
+[<c03143cf>] (__arm_gen_branch) from [<c0314337>] (ftrace_make_nop+0xf/0x24)
+[<c0314337>] (ftrace_make_nop) from [<c038ebcb>] (ftrace_process_locs+0x27b/0x3e8)
+[<c038ebcb>] (ftrace_process_locs) from [<c0378d79>] (load_module+0x11e9/0x1a44)
+[<c0378d79>] (load_module) from [<c037974d>] (SyS_finit_module+0x59/0x84)
+[<c037974d>] (SyS_finit_module) from [<c030e981>] (ret_fast_syscall+0x1/0x18)
+---[ end trace e1b64ced7a89adcc ]---
+------------[ cut here ]------------
+WARNING: CPU: 14 PID: 2265 at .../kernel/trace/ftrace.c:1979 ftrace_bug+0x1b1/0x234()
+...
+Hardware name: LSI Axxia AXM55XX
+[<c0314a49>] (unwind_backtrace) from [<c03115e9>] (show_stack+0x11/0x14)
+[<c03115e9>] (show_stack) from [<c0519f51>] (dump_stack+0x81/0xa8)
+[<c0519f51>] (dump_stack) from [<c032185d>] (warn_slowpath_common+0x69/0x90)
+[<c032185d>] (warn_slowpath_common) from [<c03218f3>] (warn_slowpath_null+0x17/0x1c)
+[<c03218f3>] (warn_slowpath_null) from [<c038e87d>] (ftrace_bug+0x1b1/0x234)
+[<c038e87d>] (ftrace_bug) from [<c038ebd5>] (ftrace_process_locs+0x285/0x3e8)
+[<c038ebd5>] (ftrace_process_locs) from [<c0378d79>] (load_module+0x11e9/0x1a44)
+[<c0378d79>] (load_module) from [<c037974d>] (SyS_finit_module+0x59/0x84)
+[<c037974d>] (SyS_finit_module) from [<c030e981>] (ret_fast_syscall+0x1/0x18)
+---[ end trace e1b64ced7a89adcd ]---
+ftrace failed to modify [<e9ef7006>] 0xe9ef7006
+actual: 02:f0:3b:fa
+ftrace record flags: 0
+(0) expected tramp: c0314265
 
-Link: https://lore.kernel.org/r/20210722144041.12661-5-pali@kernel.org
-Fixes: 8a3ebd8de328 ("PCI: aardvark: Implement emulated root PCI bridge config space")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org # e0d9d30b7354 ("PCI: pci-bridge-emul: Fix big-endian support")
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |   67 +++++++++++++++++++++++++++++++---
- 1 file changed, 63 insertions(+), 4 deletions(-)
+ arch/arm/include/asm/ftrace.h |    3 ++
+ arch/arm/include/asm/module.h |    1 
+ arch/arm/kernel/ftrace.c      |   46 ++++++++++++++++++++++++++++++++++--------
+ arch/arm/kernel/module-plts.c |   44 ++++++++++++++++++++++++++++++++++++----
+ 4 files changed, 82 insertions(+), 12 deletions(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -225,6 +225,8 @@
+--- a/arch/arm/include/asm/ftrace.h
++++ b/arch/arm/include/asm/ftrace.h
+@@ -16,6 +16,9 @@ extern void __gnu_mcount_nc(void);
  
- #define MSI_IRQ_NUM			32
+ #ifdef CONFIG_DYNAMIC_FTRACE
+ struct dyn_arch_ftrace {
++#ifdef CONFIG_ARM_MODULE_PLTS
++	struct module *mod;
++#endif
+ };
  
-+#define CFG_RD_CRS_VAL			0xffff0001
-+
- struct advk_pcie {
- 	struct platform_device *pdev;
- 	void __iomem *base;
-@@ -587,7 +589,7 @@ static void advk_pcie_setup_hw(struct ad
- 	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
+ static inline unsigned long ftrace_call_adjust(unsigned long addr)
+--- a/arch/arm/include/asm/module.h
++++ b/arch/arm/include/asm/module.h
+@@ -30,6 +30,7 @@ struct plt_entries {
+ 
+ struct mod_plt_sec {
+ 	struct elf32_shdr	*plt;
++	struct plt_entries	*plt_ent;
+ 	int			plt_count;
+ };
+ 
+--- a/arch/arm/kernel/ftrace.c
++++ b/arch/arm/kernel/ftrace.c
+@@ -71,9 +71,10 @@ int ftrace_arch_code_modify_post_process
+ 	return 0;
  }
  
--static int advk_pcie_check_pio_status(struct advk_pcie *pcie, u32 *val)
-+static int advk_pcie_check_pio_status(struct advk_pcie *pcie, bool allow_crs, u32 *val)
+-static unsigned long ftrace_call_replace(unsigned long pc, unsigned long addr)
++static unsigned long ftrace_call_replace(unsigned long pc, unsigned long addr,
++					 bool warn)
  {
- 	struct device *dev = &pcie->pdev->dev;
- 	u32 reg;
-@@ -629,9 +631,30 @@ static int advk_pcie_check_pio_status(st
- 		strcomp_status = "UR";
- 		break;
- 	case PIO_COMPLETION_STATUS_CRS:
-+		if (allow_crs && val) {
-+			/* PCIe r4.0, sec 2.3.2, says:
-+			 * If CRS Software Visibility is enabled:
-+			 * For a Configuration Read Request that includes both
-+			 * bytes of the Vendor ID field of a device Function's
-+			 * Configuration Space Header, the Root Complex must
-+			 * complete the Request to the host by returning a
-+			 * read-data value of 0001h for the Vendor ID field and
-+			 * all '1's for any additional bytes included in the
-+			 * request.
-+			 *
-+			 * So CRS in this case is not an error status.
-+			 */
-+			*val = CFG_RD_CRS_VAL;
-+			strcomp_status = NULL;
-+			break;
-+		}
- 		/* PCIe r4.0, sec 2.3.2, says:
- 		 * If CRS Software Visibility is not enabled, the Root Complex
- 		 * must re-issue the Configuration Request as a new Request.
-+		 * If CRS Software Visibility is enabled: For a Configuration
-+		 * Write Request or for any other Configuration Read Request,
-+		 * the Root Complex must re-issue the Configuration Request as
-+		 * a new Request.
- 		 * A Root Complex implementation may choose to limit the number
- 		 * of Configuration Request/CRS Completion Status loops before
- 		 * determining that something is wrong with the target of the
-@@ -700,6 +723,7 @@ advk_pci_bridge_emul_pcie_conf_read(stru
- 	case PCI_EXP_RTCTL: {
- 		u32 val = advk_readl(pcie, PCIE_ISR0_MASK_REG);
- 		*value = (val & PCIE_MSG_PM_PME_MASK) ? 0 : PCI_EXP_RTCTL_PMEIE;
-+		*value |= PCI_EXP_RTCAP_CRSVIS << 16;
- 		return PCI_BRIDGE_EMUL_HANDLED;
- 	}
- 
-@@ -781,6 +805,7 @@ static struct pci_bridge_emul_ops advk_p
- static int advk_sw_pci_bridge_init(struct advk_pcie *pcie)
- {
- 	struct pci_bridge_emul *bridge = &pcie->bridge;
-+	int ret;
- 
- 	bridge->conf.vendor =
- 		cpu_to_le16(advk_readl(pcie, PCIE_CORE_DEV_ID_REG) & 0xffff);
-@@ -804,7 +829,15 @@ static int advk_sw_pci_bridge_init(struc
- 	bridge->data = pcie;
- 	bridge->ops = &advk_pci_bridge_emul_ops;
- 
--	return pci_bridge_emul_init(bridge, 0);
-+	/* PCIe config space can be initialized after pci_bridge_emul_init() */
-+	ret = pci_bridge_emul_init(bridge, 0);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Indicates supports for Completion Retry Status */
-+	bridge->pcie_conf.rootcap = cpu_to_le16(PCI_EXP_RTCAP_CRSVIS);
-+
-+	return 0;
+-	return arm_gen_branch_link(pc, addr, true);
++	return arm_gen_branch_link(pc, addr, warn);
  }
  
- static bool advk_pcie_valid_device(struct advk_pcie *pcie, struct pci_bus *bus,
-@@ -856,6 +889,7 @@ static int advk_pcie_rd_conf(struct pci_
- 			     int where, int size, u32 *val)
- {
- 	struct advk_pcie *pcie = bus->sysdata;
-+	bool allow_crs;
- 	u32 reg;
+ static int ftrace_modify_code(unsigned long pc, unsigned long old,
+@@ -112,14 +113,14 @@ int ftrace_update_ftrace_func(ftrace_fun
  	int ret;
  
-@@ -868,7 +902,24 @@ static int advk_pcie_rd_conf(struct pci_
- 		return pci_bridge_emul_conf_read(&pcie->bridge, where,
- 						 size, val);
+ 	pc = (unsigned long)&ftrace_call;
+-	new = ftrace_call_replace(pc, (unsigned long)func);
++	new = ftrace_call_replace(pc, (unsigned long)func, true);
  
-+	/*
-+	 * Completion Retry Status is possible to return only when reading all
-+	 * 4 bytes from PCI_VENDOR_ID and PCI_DEVICE_ID registers at once and
-+	 * CRSSVE flag on Root Bridge is enabled.
-+	 */
-+	allow_crs = (where == PCI_VENDOR_ID) && (size == 4) &&
-+		    (le16_to_cpu(pcie->bridge.pcie_conf.rootctl) &
-+		     PCI_EXP_RTCTL_CRSSVE);
+ 	ret = ftrace_modify_code(pc, 0, new, false);
+ 
+ #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+ 	if (!ret) {
+ 		pc = (unsigned long)&ftrace_regs_call;
+-		new = ftrace_call_replace(pc, (unsigned long)func);
++		new = ftrace_call_replace(pc, (unsigned long)func, true);
+ 
+ 		ret = ftrace_modify_code(pc, 0, new, false);
+ 	}
+@@ -132,10 +133,22 @@ int ftrace_make_call(struct dyn_ftrace *
+ {
+ 	unsigned long new, old;
+ 	unsigned long ip = rec->ip;
++	unsigned long aaddr = adjust_address(rec, addr);
++	struct module *mod = NULL;
 +
- 	if (advk_pcie_pio_is_running(pcie)) {
-+		/*
-+		 * If it is possible return Completion Retry Status so caller
-+		 * tries to issue the request again instead of failing.
-+		 */
-+		if (allow_crs) {
-+			*val = CFG_RD_CRS_VAL;
-+			return PCIBIOS_SUCCESSFUL;
-+		}
- 		*val = 0xffffffff;
- 		return PCIBIOS_SET_FAILED;
- 	}
-@@ -896,12 +947,20 @@ static int advk_pcie_rd_conf(struct pci_
++#ifdef CONFIG_ARM_MODULE_PLTS
++	mod = rec->arch.mod;
++#endif
  
- 	ret = advk_pcie_wait_pio(pcie);
- 	if (ret < 0) {
-+		/*
-+		 * If it is possible return Completion Retry Status so caller
-+		 * tries to issue the request again instead of failing.
-+		 */
-+		if (allow_crs) {
-+			*val = CFG_RD_CRS_VAL;
-+			return PCIBIOS_SUCCESSFUL;
-+		}
- 		*val = 0xffffffff;
- 		return PCIBIOS_SET_FAILED;
- 	}
+ 	old = ftrace_nop_replace(rec);
  
- 	/* Check PIO status and get the read result */
--	ret = advk_pcie_check_pio_status(pcie, val);
-+	ret = advk_pcie_check_pio_status(pcie, allow_crs, val);
- 	if (ret < 0) {
- 		*val = 0xffffffff;
- 		return PCIBIOS_SET_FAILED;
-@@ -970,7 +1029,7 @@ static int advk_pcie_wr_conf(struct pci_
- 	if (ret < 0)
- 		return PCIBIOS_SET_FAILED;
+-	new = ftrace_call_replace(ip, adjust_address(rec, addr));
++	new = ftrace_call_replace(ip, aaddr, !mod);
++#ifdef CONFIG_ARM_MODULE_PLTS
++	if (!new && mod) {
++		aaddr = get_module_plt(mod, ip, aaddr);
++		new = ftrace_call_replace(ip, aaddr, true);
++	}
++#endif
  
--	ret = advk_pcie_check_pio_status(pcie, NULL);
-+	ret = advk_pcie_check_pio_status(pcie, false, NULL);
- 	if (ret < 0)
- 		return PCIBIOS_SET_FAILED;
+ 	return ftrace_modify_code(rec->ip, old, new, true);
+ }
+@@ -148,9 +161,9 @@ int ftrace_modify_call(struct dyn_ftrace
+ 	unsigned long new, old;
+ 	unsigned long ip = rec->ip;
  
+-	old = ftrace_call_replace(ip, adjust_address(rec, old_addr));
++	old = ftrace_call_replace(ip, adjust_address(rec, old_addr), true);
+ 
+-	new = ftrace_call_replace(ip, adjust_address(rec, addr));
++	new = ftrace_call_replace(ip, adjust_address(rec, addr), true);
+ 
+ 	return ftrace_modify_code(rec->ip, old, new, true);
+ }
+@@ -160,12 +173,29 @@ int ftrace_modify_call(struct dyn_ftrace
+ int ftrace_make_nop(struct module *mod,
+ 		    struct dyn_ftrace *rec, unsigned long addr)
+ {
++	unsigned long aaddr = adjust_address(rec, addr);
+ 	unsigned long ip = rec->ip;
+ 	unsigned long old;
+ 	unsigned long new;
+ 	int ret;
+ 
+-	old = ftrace_call_replace(ip, adjust_address(rec, addr));
++#ifdef CONFIG_ARM_MODULE_PLTS
++	/* mod is only supplied during module loading */
++	if (!mod)
++		mod = rec->arch.mod;
++	else
++		rec->arch.mod = mod;
++#endif
++
++	old = ftrace_call_replace(ip, aaddr,
++				  !IS_ENABLED(CONFIG_ARM_MODULE_PLTS) || !mod);
++#ifdef CONFIG_ARM_MODULE_PLTS
++	if (!old && mod) {
++		aaddr = get_module_plt(mod, ip, aaddr);
++		old = ftrace_call_replace(ip, aaddr, true);
++	}
++#endif
++
+ 	new = ftrace_nop_replace(rec);
+ 	ret = ftrace_modify_code(ip, old, new, true);
+ 
+--- a/arch/arm/kernel/module-plts.c
++++ b/arch/arm/kernel/module-plts.c
+@@ -4,6 +4,7 @@
+  */
+ 
+ #include <linux/elf.h>
++#include <linux/ftrace.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/sort.h>
+@@ -19,19 +20,52 @@
+ 						    (PLT_ENT_STRIDE - 8))
+ #endif
+ 
++static const u32 fixed_plts[] = {
++#ifdef CONFIG_FUNCTION_TRACER
++	FTRACE_ADDR,
++	MCOUNT_ADDR,
++#endif
++};
++
+ static bool in_init(const struct module *mod, unsigned long loc)
+ {
+ 	return loc - (u32)mod->init_layout.base < mod->init_layout.size;
+ }
+ 
++static void prealloc_fixed(struct mod_plt_sec *pltsec, struct plt_entries *plt)
++{
++	int i;
++
++	if (!ARRAY_SIZE(fixed_plts) || pltsec->plt_count)
++		return;
++	pltsec->plt_count = ARRAY_SIZE(fixed_plts);
++
++	for (i = 0; i < ARRAY_SIZE(plt->ldr); ++i)
++		plt->ldr[i] = PLT_ENT_LDR;
++
++	BUILD_BUG_ON(sizeof(fixed_plts) > sizeof(plt->lit));
++	memcpy(plt->lit, fixed_plts, sizeof(fixed_plts));
++}
++
+ u32 get_module_plt(struct module *mod, unsigned long loc, Elf32_Addr val)
+ {
+ 	struct mod_plt_sec *pltsec = !in_init(mod, loc) ? &mod->arch.core :
+ 							  &mod->arch.init;
++	struct plt_entries *plt;
++	int idx;
++
++	/* cache the address, ELF header is available only during module load */
++	if (!pltsec->plt_ent)
++		pltsec->plt_ent = (struct plt_entries *)pltsec->plt->sh_addr;
++	plt = pltsec->plt_ent;
+ 
+-	struct plt_entries *plt = (struct plt_entries *)pltsec->plt->sh_addr;
+-	int idx = 0;
++	prealloc_fixed(pltsec, plt);
++
++	for (idx = 0; idx < ARRAY_SIZE(fixed_plts); ++idx)
++		if (plt->lit[idx] == val)
++			return (u32)&plt->ldr[idx];
+ 
++	idx = 0;
+ 	/*
+ 	 * Look for an existing entry pointing to 'val'. Given that the
+ 	 * relocations are sorted, this will be the last entry we allocated.
+@@ -179,8 +213,8 @@ static unsigned int count_plts(const Elf
+ int module_frob_arch_sections(Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
+ 			      char *secstrings, struct module *mod)
+ {
+-	unsigned long core_plts = 0;
+-	unsigned long init_plts = 0;
++	unsigned long core_plts = ARRAY_SIZE(fixed_plts);
++	unsigned long init_plts = ARRAY_SIZE(fixed_plts);
+ 	Elf32_Shdr *s, *sechdrs_end = sechdrs + ehdr->e_shnum;
+ 	Elf32_Sym *syms = NULL;
+ 
+@@ -235,6 +269,7 @@ int module_frob_arch_sections(Elf_Ehdr *
+ 	mod->arch.core.plt->sh_size = round_up(core_plts * PLT_ENT_SIZE,
+ 					       sizeof(struct plt_entries));
+ 	mod->arch.core.plt_count = 0;
++	mod->arch.core.plt_ent = NULL;
+ 
+ 	mod->arch.init.plt->sh_type = SHT_NOBITS;
+ 	mod->arch.init.plt->sh_flags = SHF_EXECINSTR | SHF_ALLOC;
+@@ -242,6 +277,7 @@ int module_frob_arch_sections(Elf_Ehdr *
+ 	mod->arch.init.plt->sh_size = round_up(init_plts * PLT_ENT_SIZE,
+ 					       sizeof(struct plt_entries));
+ 	mod->arch.init.plt_count = 0;
++	mod->arch.init.plt_ent = NULL;
+ 
+ 	pr_debug("%s: plt=%x, init.plt=%x\n", __func__,
+ 		 mod->arch.core.plt->sh_size, mod->arch.init.plt->sh_size);
 
 
