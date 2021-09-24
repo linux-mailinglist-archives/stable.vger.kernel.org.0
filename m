@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4F2B417234
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:45:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74C05417236
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:45:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343804AbhIXMqg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:46:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41740 "EHLO mail.kernel.org"
+        id S1343844AbhIXMqi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:46:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343841AbhIXMqN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:46:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 148D66124D;
-        Fri, 24 Sep 2021 12:44:39 +0000 (UTC)
+        id S1343851AbhIXMqQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:46:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A10861107;
+        Fri, 24 Sep 2021 12:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487480;
-        bh=VG+frtPWR7Hugbx58zvTwHatZg/pksRVcznDr+TupUc=;
+        s=korg; t=1632487483;
+        bh=Gm4mnpqtSfSrpcgs5FIvvr6IzR8B0B2lMAJ2GrXMP5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L2SHg4gJw7RZfZlJTb96Hw3hr6f5N4aFJsLncsEXrLwSCM0v4WOrgX3GMITA/YtqN
-         5j6FEoPkCLeo6NlREuSqb5dVUzU0Y2q50fv8ANADX4cKg0KuUSnObdQXdbtWNEUwQM
-         5pARwEuT6LGWN9D7CzlzsKqIrbCyt4UqDB0CZdfU=
+        b=HzKBivgoCnNQ6klJV13ewM2mFMQbaaPaaPNVwNBV4wZS5Enqt6Woxdb9ALdYsno/G
+         +PpRI+/V7UijXGZbiNBxL3ID4t4aip7WSJa5eC+J8gx3r4jN/uxbKnKNoTRKTM5KOS
+         gpAdj74p66eRzv+yaEUhvIfEhVvsI8MrRalB5sEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.4 02/23] PM / wakeirq: Fix unbalanced IRQ enable for wakeirq
-Date:   Fri, 24 Sep 2021 14:43:43 +0200
-Message-Id: <20210924124327.901559315@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 03/23] sctp: validate chunk size in __rcv_asconf_lookup
+Date:   Fri, 24 Sep 2021 14:43:44 +0200
+Message-Id: <20210924124327.939657668@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210924124327.816210800@linuxfoundation.org>
 References: <20210924124327.816210800@linuxfoundation.org>
@@ -40,69 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 
-commit 69728051f5bf15efaf6edfbcfe1b5a49a2437918 upstream.
+commit b6ffe7671b24689c09faa5675dd58f93758a97ae upstream.
 
-If a device is runtime PM suspended when we enter suspend and has
-a dedicated wake IRQ, we can get the following warning:
+In one of the fallbacks that SCTP has for identifying an association for an
+incoming packet, it looks for AddIp chunk (from ASCONF) and take a peek.
+Thing is, at this stage nothing was validating that the chunk actually had
+enough content for that, allowing the peek to happen over uninitialized
+memory.
 
-WARNING: CPU: 0 PID: 108 at kernel/irq/manage.c:526 enable_irq+0x40/0x94
-[  102.087860] Unbalanced enable for IRQ 147
-...
-(enable_irq) from [<c06117a8>] (dev_pm_arm_wake_irq+0x4c/0x60)
-(dev_pm_arm_wake_irq) from [<c0618360>]
- (device_wakeup_arm_wake_irqs+0x58/0x9c)
-(device_wakeup_arm_wake_irqs) from [<c0615948>]
-(dpm_suspend_noirq+0x10/0x48)
-(dpm_suspend_noirq) from [<c01ac7ac>]
-(suspend_devices_and_enter+0x30c/0xf14)
-(suspend_devices_and_enter) from [<c01adf20>]
-(enter_state+0xad4/0xbd8)
-(enter_state) from [<c01ad3ec>] (pm_suspend+0x38/0x98)
-(pm_suspend) from [<c01ab3e8>] (state_store+0x68/0xc8)
+Similar check already exists in actual asconf handling in
+sctp_verify_asconf().
 
-This is because the dedicated wake IRQ for the device may have been
-already enabled earlier by dev_pm_enable_wake_irq_check().  Fix the
-issue by checking for runtime PM suspended status.
-
-This issue can be easily reproduced by setting serial console log level
-to zero, letting the serial console idle, and suspend the system from
-an ssh terminal.  On resume, dmesg will have the warning above.
-
-The reason why I have not run into this issue earlier has been that I
-typically run my PM test cases from on a serial console instead over ssh.
-
-Fixes: c84345597558 (PM / wakeirq: Enable dedicated wakeirq for suspend)
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/power/wakeirq.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/sctp/input.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/base/power/wakeirq.c
-+++ b/drivers/base/power/wakeirq.c
-@@ -320,7 +320,8 @@ void dev_pm_arm_wake_irq(struct wake_irq
- 		return;
+--- a/net/sctp/input.c
++++ b/net/sctp/input.c
+@@ -1008,6 +1008,9 @@ static struct sctp_association *__sctp_r
+ 	union sctp_addr_param *param;
+ 	union sctp_addr paddr;
  
- 	if (device_may_wakeup(wirq->dev)) {
--		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED)
-+		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED &&
-+		    !pm_runtime_status_suspended(wirq->dev))
- 			enable_irq(wirq->irq);
++	if (ntohs(ch->length) < sizeof(*asconf) + sizeof(struct sctp_paramhdr))
++		return NULL;
++
+ 	/* Skip over the ADDIP header and find the Address parameter */
+ 	param = (union sctp_addr_param *)(asconf + 1);
  
- 		enable_irq_wake(wirq->irq);
-@@ -342,7 +343,8 @@ void dev_pm_disarm_wake_irq(struct wake_
- 	if (device_may_wakeup(wirq->dev)) {
- 		disable_irq_wake(wirq->irq);
- 
--		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED)
-+		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED &&
-+		    !pm_runtime_status_suspended(wirq->dev))
- 			disable_irq_nosync(wirq->irq);
- 	}
- }
 
 
