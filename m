@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61DBB41732B
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:53:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4B06417272
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:48:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344460AbhIXMzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:55:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50586 "EHLO mail.kernel.org"
+        id S1344111AbhIXMso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:48:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344255AbhIXMxH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:53:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FA386136A;
-        Fri, 24 Sep 2021 12:49:56 +0000 (UTC)
+        id S1344125AbhIXMru (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:47:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C7CB26125F;
+        Fri, 24 Sep 2021 12:46:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487797;
-        bh=9Tjl5pIDXbuD3BS0mcH6n5L0iDvGnSrGRJWzIUHOpjk=;
+        s=korg; t=1632487577;
+        bh=1LkJdJNZu5ZBUMq3ZvPWn3ZEdNkjx31hNF3BgyXLDNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L50wMfvbFugImVpHJrOY3a9de7ubWdfanjNyDgvbkNidTKdRtbiacaChslxmo9UCd
-         oNPr6c50yNea1gH3z5DdR1zjVSo9cXmXBMLwJ10XfeoGRnPSQC1ZKOVmo39/HVT127
-         TeU/vMYsVMZtvsQjmMGJX/1dAB162o0omT8mxOl0=
+        b=RbIIgRZiKsBbJ+uz4p5X/6mnW8Cqi2jNlyn9vqtdck67fMD4BDP+P4rdWRBBfIkBq
+         wSfpxppK+YwpAIWqEUF6QEuQFN0KvD1svT/b9iayybz+PrgOGxORV+1Qp5bpnZKQkE
+         dT6Sd6920UgT+rWzPw26NoY5GRhwatpLT0uxp8qY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 16/50] sctp: add param size validation for SCTP_PARAM_SET_PRIMARY
-Date:   Fri, 24 Sep 2021 14:44:05 +0200
-Message-Id: <20210924124332.785068696@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Nanyong Sun <sunnanyong@huawei.com>,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 18/26] nilfs2: fix memory leak in nilfs_sysfs_create_device_group
+Date:   Fri, 24 Sep 2021 14:44:06 +0200
+Message-Id: <20210924124328.951502115@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
-References: <20210924124332.229289734@linuxfoundation.org>
+In-Reply-To: <20210924124328.336953942@linuxfoundation.org>
+References: <20210924124328.336953942@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +43,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+From: Nanyong Sun <sunnanyong@huawei.com>
 
-commit ef6c8d6ccf0c1dccdda092ebe8782777cd7803c9 upstream.
+[ Upstream commit 5f5dec07aca7067216ed4c1342e464e7307a9197 ]
 
-When SCTP handles an INIT chunk, it calls for example:
-sctp_sf_do_5_1B_init
-  sctp_verify_init
-    sctp_verify_param
-  sctp_process_init
-    sctp_process_param
-      handling of SCTP_PARAM_SET_PRIMARY
+Patch series "nilfs2: fix incorrect usage of kobject".
 
-sctp_verify_init() wasn't doing proper size validation and neither the
-later handling, allowing it to work over the chunk itself, possibly being
-uninitialized memory.
+This patchset from Nanyong Sun fixes memory leak issues and a NULL
+pointer dereference issue caused by incorrect usage of kboject in nilfs2
+sysfs implementation.
 
-Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch (of 6):
+
+Reported by syzkaller:
+
+  BUG: memory leak
+  unreferenced object 0xffff888100ca8988 (size 8):
+  comm "syz-executor.1", pid 1930, jiffies 4294745569 (age 18.052s)
+  hex dump (first 8 bytes):
+  6c 6f 6f 70 31 00 ff ff loop1...
+  backtrace:
+    kstrdup+0x36/0x70 mm/util.c:60
+    kstrdup_const+0x35/0x60 mm/util.c:83
+    kvasprintf_const+0xf1/0x180 lib/kasprintf.c:48
+    kobject_set_name_vargs+0x56/0x150 lib/kobject.c:289
+    kobject_add_varg lib/kobject.c:384 [inline]
+    kobject_init_and_add+0xc9/0x150 lib/kobject.c:473
+    nilfs_sysfs_create_device_group+0x150/0x7d0 fs/nilfs2/sysfs.c:986
+    init_nilfs+0xa21/0xea0 fs/nilfs2/the_nilfs.c:637
+    nilfs_fill_super fs/nilfs2/super.c:1046 [inline]
+    nilfs_mount+0x7b4/0xe80 fs/nilfs2/super.c:1316
+    legacy_get_tree+0x105/0x210 fs/fs_context.c:592
+    vfs_get_tree+0x8e/0x2d0 fs/super.c:1498
+    do_new_mount fs/namespace.c:2905 [inline]
+    path_mount+0xf9b/0x1990 fs/namespace.c:3235
+    do_mount+0xea/0x100 fs/namespace.c:3248
+    __do_sys_mount fs/namespace.c:3456 [inline]
+    __se_sys_mount fs/namespace.c:3433 [inline]
+    __x64_sys_mount+0x14b/0x1f0 fs/namespace.c:3433
+    do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    do_syscall_64+0x3b/0x90 arch/x86/entry/common.c:80
+    entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+If kobject_init_and_add return with error, then the cleanup of kobject
+is needed because memory may be allocated in kobject_init_and_add
+without freeing.
+
+And the place of cleanup_dev_kobject should use kobject_put to free the
+memory associated with the kobject.  As the section "Kobject removal" of
+"Documentation/core-api/kobject.rst" says, kobject_del() just makes the
+kobject "invisible", but it is not cleaned up.  And no more cleanup will
+do after cleanup_dev_kobject, so kobject_put is needed here.
+
+Link: https://lkml.kernel.org/r/1625651306-10829-1-git-send-email-konishi.ryusuke@gmail.com
+Link: https://lkml.kernel.org/r/1625651306-10829-2-git-send-email-konishi.ryusuke@gmail.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Link: https://lkml.kernel.org/r/20210629022556.3985106-2-sunnanyong@huawei.com
+Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_make_chunk.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ fs/nilfs2/sysfs.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/net/sctp/sm_make_chunk.c
-+++ b/net/sctp/sm_make_chunk.c
-@@ -2157,9 +2157,16 @@ static enum sctp_ierror sctp_verify_para
- 		break;
+diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
+index e9903bceb2bf..a35978bf8395 100644
+--- a/fs/nilfs2/sysfs.c
++++ b/fs/nilfs2/sysfs.c
+@@ -1010,7 +1010,7 @@ int nilfs_sysfs_create_device_group(struct super_block *sb)
+ 	err = kobject_init_and_add(&nilfs->ns_dev_kobj, &nilfs_dev_ktype, NULL,
+ 				    "%s", sb->s_id);
+ 	if (err)
+-		goto free_dev_subgroups;
++		goto cleanup_dev_kobject;
  
- 	case SCTP_PARAM_SET_PRIMARY:
--		if (ep->asconf_enable)
--			break;
--		goto unhandled;
-+		if (!ep->asconf_enable)
-+			goto unhandled;
-+
-+		if (ntohs(param.p->length) < sizeof(struct sctp_addip_param) +
-+					     sizeof(struct sctp_paramhdr)) {
-+			sctp_process_inv_paramlength(asoc, param.p,
-+						     chunk, err_chunk);
-+			retval = SCTP_IERROR_ABORT;
-+		}
-+		break;
+ 	err = nilfs_sysfs_create_mounted_snapshots_group(nilfs);
+ 	if (err)
+@@ -1047,9 +1047,7 @@ delete_mounted_snapshots_group:
+ 	nilfs_sysfs_delete_mounted_snapshots_group(nilfs);
  
- 	case SCTP_PARAM_HOST_NAME_ADDRESS:
- 		/* Tell the peer, we won't support this param.  */
+ cleanup_dev_kobject:
+-	kobject_del(&nilfs->ns_dev_kobj);
+-
+-free_dev_subgroups:
++	kobject_put(&nilfs->ns_dev_kobj);
+ 	kfree(nilfs->ns_dev_subgroups);
+ 
+ failed_create_device_group:
+-- 
+2.33.0
+
 
 
