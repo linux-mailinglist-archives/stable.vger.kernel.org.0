@@ -2,82 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E75B417DE3
-	for <lists+stable@lfdr.de>; Sat, 25 Sep 2021 00:43:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0D52417DE4
+	for <lists+stable@lfdr.de>; Sat, 25 Sep 2021 00:44:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345445AbhIXWp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 18:45:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44156 "EHLO mail.kernel.org"
+        id S1345416AbhIXWpm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 18:45:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345228AbhIXWpZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 18:45:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC50D6125F;
-        Fri, 24 Sep 2021 22:43:50 +0000 (UTC)
+        id S1345479AbhIXWpk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 18:45:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC446610F7;
+        Fri, 24 Sep 2021 22:44:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1632523431;
-        bh=HCu43QJN8fFUzH4pAk1RQ0of9jxD2g34gKG0VdTvrhM=;
+        s=korg; t=1632523447;
+        bh=/iXEJ0jhmXSVEgOcGxdKj/PT1MNs6Ql1OWiMFfWihQk=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=iYum7Ix/m2ny1WTeBnle6o3J3a4o0vmG1Q35VZplyKSwWuDwYWODHxebIaxSyPMzM
-         hEhRiXILvtiIbJ0l3IvyfeA/RNkoE20UC918snJLXIyeaDqrewlsyzi9FlVGS7KQO4
-         5dduA5axwqbfr3qCXm2lWQfb65mcJwXNdrOoxoIs=
-Date:   Fri, 24 Sep 2021 15:43:50 -0700
+        b=NYEcmriNinudufntzBrS4A2F5VPtudqbFdhwYlpi10T5eVfS3WojrM3pvohf1YLio
+         Ue4hsXA26jcOAlO1LDmkA5eSNIa95vrGQOfipeQYR4Lhguia3a9dauDcVP84XZaGDZ
+         ON/w9FimaHNFFG3yWV9sWh1dee+cppypZatCoN8w=
+Date:   Fri, 24 Sep 2021 15:44:06 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, almasrymina@google.com,
-        dave.hansen@linux.intel.com, jhubbard@nvidia.com,
-        khandual@linux.vnet.ibm.com, linux-mm@kvack.org, mhocko@suse.com,
-        minchan@kernel.org, mm-commits@vger.kernel.org,
-        o451686892@gmail.com, osalvador@suse.de, pasha.tatashin@soleen.com,
+To:     akpm@linux-foundation.org, chenjun102@huawei.com,
+        feng.tang@intel.com, linux-mm@kvack.org, mhocko@suse.com,
+        mm-commits@vger.kernel.org, rui.xiang@huawei.com,
         stable@vger.kernel.org, torvalds@linux-foundation.org,
-        weixugc@google.com, willy@infradead.org,
-        yang.shi@linux.alibaba.com, ying.huang@intel.com, ziy@nvidia.com
-Subject:  [patch 11/16] mm/debug: sync up MR_CONTIG_RANGE and
- MR_LONGTERM_PIN
-Message-ID: <20210924224350.E8gKVdmtm%akpm@linux-foundation.org>
+        wangkefeng.wang@huawei.com
+Subject:  [patch 16/16] mm: fix uninitialized use in
+ overcommit_policy_handler
+Message-ID: <20210924224406.83XR7wX9V%akpm@linux-foundation.org>
 In-Reply-To: <20210924154257.1dbf6699ab8d88c0460f924f@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weizhao Ouyang <o451686892@gmail.com>
-Subject: mm/debug: sync up MR_CONTIG_RANGE and MR_LONGTERM_PIN
+From: Chen Jun <chenjun102@huawei.com>
+Subject: mm: fix uninitialized use in overcommit_policy_handler
 
-Sync up MR_CONTIG_RANGE and MR_LONGTERM_PIN to migrate_reason_names.
+We get an unexpected value of /proc/sys/vm/overcommit_memory after running
+the following program:
 
-Link: https://lkml.kernel.org/r/20210921064553.293905-2-o451686892@gmail.com
-Fixes: 310253514bbf ("mm/migrate: rename migration reason MR_CMA to MR_CONTIG_RANGE")
-Fixes: d1e153fea2a8 ("mm/gup: migrate pinned pages out of movable zone")
-Signed-off-by: Weizhao Ouyang <o451686892@gmail.com>
-Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Cc: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Yang Shi <yang.shi@linux.alibaba.com>
-Cc: Zi Yan <ziy@nvidia.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Mina Almasry <almasrymina@google.com>
-Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Wei Xu <weixugc@google.com>
+int main()
+{
+    int fd = open("/proc/sys/vm/overcommit_memory", O_RDWR);
+    write(fd, "1", 1);
+    write(fd, "2", 1);
+    close(fd);
+}
+
+write(fd, "2", 1) will pass *ppos = 1 to proc_dointvec_minmax. 
+proc_dointvec_minmax will return 0 without setting new_policy.
+
+t.data = &new_policy;
+ret = proc_dointvec_minmax(&t, write, buffer, lenp, ppos)
+      -->do_proc_dointvec
+         -->__do_proc_dointvec
+              if (write) {
+                if (proc_first_pos_non_zero_ignore(ppos, table))
+                  goto out;
+
+sysctl_overcommit_memory = new_policy;
+
+so sysctl_overcommit_memory will be set to an uninitialized value.
+
+Check whether new_policy has been changed by proc_dointvec_minmax.
+
+Link: https://lkml.kernel.org/r/20210923020524.13289-1-chenjun102@huawei.com
+Fixes: 56f3547bfa4d ("mm: adjust vm_committed_as_batch according to vm overcommit policy")
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Feng Tang <feng.tang@intel.com>
+Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Rui Xiang <rui.xiang@huawei.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/debug.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/util.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/mm/debug.c~mm-debug-sync-up-mr_contig_range-and-mr_longterm_pin
-+++ a/mm/debug.c
-@@ -24,7 +24,8 @@ const char *migrate_reason_names[MR_TYPE
- 	"syscall_or_cpuset",
- 	"mempolicy_mbind",
- 	"numa_misplaced",
--	"cma",
-+	"contig_range",
-+	"longterm_pin",
- };
+--- a/mm/util.c~mm-fix-the-uninitialized-use-in-overcommit_policy_handler
++++ a/mm/util.c
+@@ -787,7 +787,7 @@ int overcommit_policy_handler(struct ctl
+ 		size_t *lenp, loff_t *ppos)
+ {
+ 	struct ctl_table t;
+-	int new_policy;
++	int new_policy = -1;
+ 	int ret;
  
- const struct trace_print_flags pageflag_names[] = {
+ 	/*
+@@ -805,7 +805,7 @@ int overcommit_policy_handler(struct ctl
+ 		t = *table;
+ 		t.data = &new_policy;
+ 		ret = proc_dointvec_minmax(&t, write, buffer, lenp, ppos);
+-		if (ret)
++		if (ret || new_policy == -1)
+ 			return ret;
+ 
+ 		mm_compute_batch(new_policy);
 _
