@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84B97417437
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:03:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 344DC417310
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:52:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345458AbhIXND4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:03:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56170 "EHLO mail.kernel.org"
+        id S1344598AbhIXMxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:53:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345658AbhIXNBw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:01:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 73F2561409;
-        Fri, 24 Sep 2021 12:54:21 +0000 (UTC)
+        id S1344508AbhIXMwU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:52:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2868261360;
+        Fri, 24 Sep 2021 12:49:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488062;
-        bh=LvdMkAyf+qOvWB98GNR36MD2RLgacGuOKBJBG0s48SY=;
+        s=korg; t=1632487775;
+        bh=uK3yMZkrVLJhINN9NK6S27MY/nRQBPh7hssHF+vF86s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EtbiiEjf3HGMoNI44JdtaZMIkHhASE6MVH7tmBDDntaEDE3KEBQLrZ/K1rEaT5QvZ
-         7uW1f3bqX9Ya6/uW8NfFGc/58b69Ypjzu/aCtZDg3DW4izLiVdJ8AyartVy/Lwf1B7
-         a34qQqV5WlBQxHsTKdBhBK46CrEqk7so+zT0rzN8=
+        b=dlEYrLwEIVuU5ackmBFmjRPZ8scYMhVCA0f4qF85Rdxovkrz7Blg0OUKSZ8Qp/2wc
+         ghq7/9JFzWMZRHu0xWUakWaj80fO3LNf8DMISkF8nngsDjdRfgJetF7qYzRBVHnbrS
+         lP4244Y7k7G86M+fQPMRQV2B5NPmVfmOpozoaLXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 067/100] ceph: lockdep annotations for try_nonblocking_invalidate
+        stable@vger.kernel.org,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Harini Katakam <harini.katakam@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 22/34] dmaengine: xilinx_dma: Set DMA mask for coherent APIs
 Date:   Fri, 24 Sep 2021 14:44:16 +0200
-Message-Id: <20210924124343.681293593@linuxfoundation.org>
+Message-Id: <20210924124330.687548345@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
-References: <20210924124341.214446495@linuxfoundation.org>
+In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
+References: <20210924124329.965218583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,31 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
 
-[ Upstream commit 3eaf5aa1cfa8c97c72f5824e2e9263d6cc977b03 ]
+[ Upstream commit aac6c0f90799d66b8989be1e056408f33fd99fe6 ]
 
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+The xilinx dma driver uses the consistent allocations, so for correct
+operation also set the DMA mask for coherent APIs. It fixes the below
+kernel crash with dmatest client when DMA IP is configured with 64-bit
+address width and linux is booted from high (>4GB) memory.
+
+Call trace:
+[  489.531257]  dma_alloc_from_pool+0x8c/0x1c0
+[  489.535431]  dma_direct_alloc+0x284/0x330
+[  489.539432]  dma_alloc_attrs+0x80/0xf0
+[  489.543174]  dma_pool_alloc+0x160/0x2c0
+[  489.547003]  xilinx_cdma_prep_memcpy+0xa4/0x180
+[  489.551524]  dmatest_func+0x3cc/0x114c
+[  489.555266]  kthread+0x124/0x130
+[  489.558486]  ret_from_fork+0x10/0x3c
+[  489.562051] ---[ end trace 248625b2d596a90a ]---
+
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Reviewed-by: Harini Katakam <harini.katakam@xilinx.com>
+Link: https://lore.kernel.org/r/1629363528-30347-1-git-send-email-radhey.shyam.pandey@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/caps.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/dma/xilinx/xilinx_dma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index c619a926dc18..3296a93be907 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -1859,6 +1859,8 @@ static u64 __mark_caps_flushing(struct inode *inode,
-  * try to invalidate mapping pages without blocking.
-  */
- static int try_nonblocking_invalidate(struct inode *inode)
-+	__releases(ci->i_ceph_lock)
-+	__acquires(ci->i_ceph_lock)
- {
- 	struct ceph_inode_info *ci = ceph_inode(inode);
- 	u32 invalidating_gen = ci->i_rdcache_gen;
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index d891ec05bc48..3f38df6b51f2 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -2674,7 +2674,7 @@ static int xilinx_dma_probe(struct platform_device *pdev)
+ 		xdev->ext_addr = false;
+ 
+ 	/* Set the dma mask bits */
+-	dma_set_mask(xdev->dev, DMA_BIT_MASK(addr_width));
++	dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
+ 
+ 	/* Initialize the DMA engine */
+ 	xdev->common.dev = &pdev->dev;
 -- 
 2.33.0
 
