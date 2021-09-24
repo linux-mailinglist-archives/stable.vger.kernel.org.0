@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0F434174CC
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:09:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B35F241729C
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:48:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345073AbhIXNK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:10:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36370 "EHLO mail.kernel.org"
+        id S1343887AbhIXMtq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:49:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346968AbhIXNI0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:08:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8562613A0;
-        Fri, 24 Sep 2021 12:57:24 +0000 (UTC)
+        id S1344098AbhIXMsn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:48:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59E2061278;
+        Fri, 24 Sep 2021 12:47:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488245;
-        bh=Q3Vo6pTXuVHVwb706DthbkAooh7AzXwUWh5eDPwGPUE=;
+        s=korg; t=1632487630;
+        bh=IoU9t2HsCnVcrqarEjYyykrlTBr7BBMfj3jiU4ZGOp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gMhHv1PCIiB6McUQR+NmRq93RDzVURE+eBevdIlBzVen5qYzL/FFfrVMUiiplF6eZ
-         GNLvgF5XNJbn2fwPdR5jnoqdWVOXBA+6e1/07ndBSe9bip81zy1jlpk6Qa3m3kIIJx
-         TqSYrqW37GUHdtL22ciesY695nWu7Ffm4MyKFxsU=
+        b=ZgVjdUq6XjhhLIeyK+Kn6yHft2WAiFMAUJpkQgS9x8dj8qW0MYMFm8VTXEDxGR6e5
+         1hF3y26irYqYAmwFQjeFUjQYy9S/0obWC3kpQmuE9y4Fs/Jr9L4JPKdJHSwN4Duirb
+         02ocnvAEylI7U4SaKEGRJyhXA+dWw+moXx4KJEro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 5.10 09/63] ARM: 9098/1: ftrace: MODULE_PLT: Fix build problem without DYNAMIC_FTRACE
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 15/27] parisc: Move pci_dev_is_behind_card_dino to where it is used
 Date:   Fri, 24 Sep 2021 14:44:09 +0200
-Message-Id: <20210924124334.565414522@linuxfoundation.org>
+Message-Id: <20210924124329.677795679@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
-References: <20210924124334.228235870@linuxfoundation.org>
+In-Reply-To: <20210924124329.173674820@linuxfoundation.org>
+References: <20210924124329.173674820@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Sverdlin <alexander.sverdlin@nokia.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 6fa630bf473827aee48cbf0efbbdf6f03134e890 upstream
+[ Upstream commit 907872baa9f1538eed02ec737b8e89eba6c6e4b9 ]
 
-FTRACE_ADDR is only defined when CONFIG_DYNAMIC_FTRACE is defined, the
-latter is even stronger requirement than CONFIG_FUNCTION_TRACER (which is
-enough for MCOUNT_ADDR).
+parisc build test images fail to compile with the following error.
 
-Link: https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org/thread/ZUVCQBHDMFVR7CCB7JPESLJEWERZDJ3T/
+drivers/parisc/dino.c:160:12: error:
+	'pci_dev_is_behind_card_dino' defined but not used
 
-Fixes: 1f12fb25c5c5d22f ("ARM: 9079/1: ftrace: Add MODULE_PLTS support")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Move the function just ahead of its only caller to avoid the error.
+
+Fixes: 5fa1659105fa ("parisc: Disable HP HSC-PCI Cards to prevent kernel crash")
+Cc: Helge Deller <deller@gmx.de>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/module-plts.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/parisc/dino.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/arch/arm/kernel/module-plts.c
-+++ b/arch/arm/kernel/module-plts.c
-@@ -22,7 +22,7 @@
- #endif
+diff --git a/drivers/parisc/dino.c b/drivers/parisc/dino.c
+index 8bed46630857..c11515bdac83 100644
+--- a/drivers/parisc/dino.c
++++ b/drivers/parisc/dino.c
+@@ -160,15 +160,6 @@ struct dino_device
+ 	(struct dino_device *)__pdata; })
  
- static const u32 fixed_plts[] = {
--#ifdef CONFIG_FUNCTION_TRACER
-+#ifdef CONFIG_DYNAMIC_FTRACE
- 	FTRACE_ADDR,
- 	MCOUNT_ADDR,
- #endif
+ 
+-/* Check if PCI device is behind a Card-mode Dino. */
+-static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
+-{
+-	struct dino_device *dino_dev;
+-
+-	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
+-	return is_card_dino(&dino_dev->hba.dev->id);
+-}
+-
+ /*
+  * Dino Configuration Space Accessor Functions
+  */
+@@ -452,6 +443,15 @@ static void quirk_cirrus_cardbus(struct pci_dev *dev)
+ DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_CIRRUS, PCI_DEVICE_ID_CIRRUS_6832, quirk_cirrus_cardbus );
+ 
+ #ifdef CONFIG_TULIP
++/* Check if PCI device is behind a Card-mode Dino. */
++static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
++{
++	struct dino_device *dino_dev;
++
++	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
++	return is_card_dino(&dino_dev->hba.dev->id);
++}
++
+ static void pci_fixup_tulip(struct pci_dev *dev)
+ {
+ 	if (!pci_dev_is_behind_card_dino(dev))
+-- 
+2.33.0
+
 
 
