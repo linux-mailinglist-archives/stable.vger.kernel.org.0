@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AC9C41721D
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:44:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F1B5417443
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:03:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343731AbhIXMpx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:45:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41152 "EHLO mail.kernel.org"
+        id S1345776AbhIXNEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 09:04:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343718AbhIXMpw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:45:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 251516124F;
-        Fri, 24 Sep 2021 12:44:18 +0000 (UTC)
+        id S1345778AbhIXNCT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:02:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0481C6140A;
+        Fri, 24 Sep 2021 12:54:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487459;
-        bh=LdG3QwlH+N8KPXwroljVNkV6+mhEm51yYKuNsULB7tw=;
+        s=korg; t=1632488076;
+        bh=sqTcy2seHEKG6QAJiouvlqUKC11aL+xP7CYmMHZOD6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qnB73ckuqnfmNgXCuchCnSHwpdP2xWeziaIF0yhmQZddAkGfJh9YuJqBqpZ6++rOK
-         4u2A3zfghRIbfwNUzniZ0vyPUcGr1VCxWaiKcOaArazU55CdAHISb4caQBtKXyIiU1
-         LJUVc86/6DYLh3nWcTbEUJREyAVLNcTEW5SezC8A=
+        b=RG2rG63/vjryqZbSHGvw39WEMeBWpd1ywzxPsgvCGNg7Vswlzn88m0gwGJuGsNgxX
+         ZtgTFm0Yarg4/Cc5FA5HiJCcM98aMBaKe4ObtcRQQzTrLdF+m85jcS6AG0PzyLrQlz
+         H46Cn+g1vZ4A61oOUVGG1QQ0DPEGKUfLfmVZJifI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 11/23] dmaengine: acpi: Avoid comparison GSI with Linux vIRQ
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 043/100] drivers: base: cacheinfo: Get rid of DEFINE_SMP_CALL_CACHE_FUNCTION()
 Date:   Fri, 24 Sep 2021 14:43:52 +0200
-Message-Id: <20210924124328.185763932@linuxfoundation.org>
+Message-Id: <20210924124342.896449215@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124327.816210800@linuxfoundation.org>
-References: <20210924124327.816210800@linuxfoundation.org>
+In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
+References: <20210924124341.214446495@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +42,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 67db87dc8284070adb15b3c02c1c31d5cf51c5d6 ]
+[ Upstream commit 4b92d4add5f6dcf21275185c997d6ecb800054cd ]
 
-Currently the CRST parsing relies on the fact that on most of x86 devices
-the IRQ mapping is 1:1 with Linux vIRQ. However, it may be not true for
-some. Fix this by converting GSI to Linux vIRQ before checking it.
+DEFINE_SMP_CALL_CACHE_FUNCTION() was usefel before the CPU hotplug rework
+to ensure that the cache related functions are called on the upcoming CPU
+because the notifier itself could run on any online CPU.
 
-Fixes: ee8209fd026b ("dma: acpi-dma: parse CSRT to extract additional resources")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210730202715.24375-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+The hotplug state machine guarantees that the callbacks are invoked on the
+upcoming CPU. So there is no need to have this SMP function call
+obfuscation. That indirection was missed when the hotplug notifiers were
+converted.
+
+This also solves the problem of ARM64 init_cache_level() invoking ACPI
+functions which take a semaphore in that context. That's invalid as SMP
+function calls run with interrupts disabled. Running it just from the
+callback in context of the CPU hotplug thread solves this.
+
+Fixes: 8571890e1513 ("arm64: Add support for ACPI based firmware tables")
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Will Deacon <will@kernel.org>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/871r69ersb.ffs@tglx
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/acpi-dma.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ arch/arm64/kernel/cacheinfo.c   |  7 ++-----
+ arch/mips/kernel/cacheinfo.c    |  7 ++-----
+ arch/riscv/kernel/cacheinfo.c   |  7 ++-----
+ arch/x86/kernel/cpu/cacheinfo.c |  7 ++-----
+ include/linux/cacheinfo.h       | 18 ------------------
+ 5 files changed, 8 insertions(+), 38 deletions(-)
 
-diff --git a/drivers/dma/acpi-dma.c b/drivers/dma/acpi-dma.c
-index eed6bda01790..eef1b93828c2 100644
---- a/drivers/dma/acpi-dma.c
-+++ b/drivers/dma/acpi-dma.c
-@@ -72,10 +72,14 @@ static int acpi_dma_parse_resource_group(const struct acpi_csrt_group *grp,
+diff --git a/arch/arm64/kernel/cacheinfo.c b/arch/arm64/kernel/cacheinfo.c
+index 7fa6828bb488..587543c6c51c 100644
+--- a/arch/arm64/kernel/cacheinfo.c
++++ b/arch/arm64/kernel/cacheinfo.c
+@@ -43,7 +43,7 @@ static void ci_leaf_init(struct cacheinfo *this_leaf,
+ 	this_leaf->type = type;
+ }
  
- 	si = (const struct acpi_csrt_shared_info *)&grp[1];
+-static int __init_cache_level(unsigned int cpu)
++int init_cache_level(unsigned int cpu)
+ {
+ 	unsigned int ctype, level, leaves, fw_level;
+ 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
+@@ -78,7 +78,7 @@ static int __init_cache_level(unsigned int cpu)
+ 	return 0;
+ }
  
--	/* Match device by MMIO and IRQ */
-+	/* Match device by MMIO */
- 	if (si->mmio_base_low != lower_32_bits(mem) ||
--	    si->mmio_base_high != upper_32_bits(mem) ||
--	    si->gsi_interrupt != irq)
-+	    si->mmio_base_high != upper_32_bits(mem))
-+		return 0;
-+
-+	/* Match device by Linux vIRQ */
-+	ret = acpi_register_gsi(NULL, si->gsi_interrupt, si->interrupt_mode, si->interrupt_polarity);
-+	if (ret != irq)
- 		return 0;
+-static int __populate_cache_leaves(unsigned int cpu)
++int populate_cache_leaves(unsigned int cpu)
+ {
+ 	unsigned int level, idx;
+ 	enum cache_type type;
+@@ -97,6 +97,3 @@ static int __populate_cache_leaves(unsigned int cpu)
+ 	}
+ 	return 0;
+ }
+-
+-DEFINE_SMP_CALL_CACHE_FUNCTION(init_cache_level)
+-DEFINE_SMP_CALL_CACHE_FUNCTION(populate_cache_leaves)
+diff --git a/arch/mips/kernel/cacheinfo.c b/arch/mips/kernel/cacheinfo.c
+index 53d8ea7d36e6..495dd058231d 100644
+--- a/arch/mips/kernel/cacheinfo.c
++++ b/arch/mips/kernel/cacheinfo.c
+@@ -17,7 +17,7 @@ do {								\
+ 	leaf++;							\
+ } while (0)
  
- 	dev_dbg(&adev->dev, "matches with %.4s%04X (rev %u)\n",
+-static int __init_cache_level(unsigned int cpu)
++int init_cache_level(unsigned int cpu)
+ {
+ 	struct cpuinfo_mips *c = &current_cpu_data;
+ 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
+@@ -74,7 +74,7 @@ static void fill_cpumask_cluster(int cpu, cpumask_t *cpu_map)
+ 			cpumask_set_cpu(cpu1, cpu_map);
+ }
+ 
+-static int __populate_cache_leaves(unsigned int cpu)
++int populate_cache_leaves(unsigned int cpu)
+ {
+ 	struct cpuinfo_mips *c = &current_cpu_data;
+ 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
+@@ -114,6 +114,3 @@ static int __populate_cache_leaves(unsigned int cpu)
+ 
+ 	return 0;
+ }
+-
+-DEFINE_SMP_CALL_CACHE_FUNCTION(init_cache_level)
+-DEFINE_SMP_CALL_CACHE_FUNCTION(populate_cache_leaves)
+diff --git a/arch/riscv/kernel/cacheinfo.c b/arch/riscv/kernel/cacheinfo.c
+index d86781357044..90deabfe63ea 100644
+--- a/arch/riscv/kernel/cacheinfo.c
++++ b/arch/riscv/kernel/cacheinfo.c
+@@ -113,7 +113,7 @@ static void fill_cacheinfo(struct cacheinfo **this_leaf,
+ 	}
+ }
+ 
+-static int __init_cache_level(unsigned int cpu)
++int init_cache_level(unsigned int cpu)
+ {
+ 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
+ 	struct device_node *np = of_cpu_device_node_get(cpu);
+@@ -155,7 +155,7 @@ static int __init_cache_level(unsigned int cpu)
+ 	return 0;
+ }
+ 
+-static int __populate_cache_leaves(unsigned int cpu)
++int populate_cache_leaves(unsigned int cpu)
+ {
+ 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
+ 	struct cacheinfo *this_leaf = this_cpu_ci->info_list;
+@@ -187,6 +187,3 @@ static int __populate_cache_leaves(unsigned int cpu)
+ 
+ 	return 0;
+ }
+-
+-DEFINE_SMP_CALL_CACHE_FUNCTION(init_cache_level)
+-DEFINE_SMP_CALL_CACHE_FUNCTION(populate_cache_leaves)
+diff --git a/arch/x86/kernel/cpu/cacheinfo.c b/arch/x86/kernel/cpu/cacheinfo.c
+index d66af2950e06..b5e36bd0425b 100644
+--- a/arch/x86/kernel/cpu/cacheinfo.c
++++ b/arch/x86/kernel/cpu/cacheinfo.c
+@@ -985,7 +985,7 @@ static void ci_leaf_init(struct cacheinfo *this_leaf,
+ 	this_leaf->priv = base->nb;
+ }
+ 
+-static int __init_cache_level(unsigned int cpu)
++int init_cache_level(unsigned int cpu)
+ {
+ 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
+ 
+@@ -1014,7 +1014,7 @@ static void get_cache_id(int cpu, struct _cpuid4_info_regs *id4_regs)
+ 	id4_regs->id = c->apicid >> index_msb;
+ }
+ 
+-static int __populate_cache_leaves(unsigned int cpu)
++int populate_cache_leaves(unsigned int cpu)
+ {
+ 	unsigned int idx, ret;
+ 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
+@@ -1033,6 +1033,3 @@ static int __populate_cache_leaves(unsigned int cpu)
+ 
+ 	return 0;
+ }
+-
+-DEFINE_SMP_CALL_CACHE_FUNCTION(init_cache_level)
+-DEFINE_SMP_CALL_CACHE_FUNCTION(populate_cache_leaves)
+diff --git a/include/linux/cacheinfo.h b/include/linux/cacheinfo.h
+index 4f72b47973c3..2f909ed084c6 100644
+--- a/include/linux/cacheinfo.h
++++ b/include/linux/cacheinfo.h
+@@ -79,24 +79,6 @@ struct cpu_cacheinfo {
+ 	bool cpu_map_populated;
+ };
+ 
+-/*
+- * Helpers to make sure "func" is executed on the cpu whose cache
+- * attributes are being detected
+- */
+-#define DEFINE_SMP_CALL_CACHE_FUNCTION(func)			\
+-static inline void _##func(void *ret)				\
+-{								\
+-	int cpu = smp_processor_id();				\
+-	*(int *)ret = __##func(cpu);				\
+-}								\
+-								\
+-int func(unsigned int cpu)					\
+-{								\
+-	int ret;						\
+-	smp_call_function_single(cpu, _##func, &ret, true);	\
+-	return ret;						\
+-}
+-
+ struct cpu_cacheinfo *get_cpu_cacheinfo(unsigned int cpu);
+ int init_cache_level(unsigned int cpu);
+ int populate_cache_leaves(unsigned int cpu);
 -- 
 2.33.0
 
