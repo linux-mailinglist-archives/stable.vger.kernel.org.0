@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E14F4173B8
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C30FE4173BA
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344862AbhIXM7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:59:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52818 "EHLO mail.kernel.org"
+        id S1345843AbhIXM7e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:59:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345487AbhIXM61 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:58:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A50A7610CF;
-        Fri, 24 Sep 2021 12:52:26 +0000 (UTC)
+        id S1345502AbhIXM62 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:58:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F70161359;
+        Fri, 24 Sep 2021 12:52:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487947;
-        bh=17tC2RO3Hgl7tXLde7DcsuqTn8ERBowRwjH+oeOf1As=;
+        s=korg; t=1632487949;
+        bh=meQaol9N4At2p4QAx5S9vy6GohX72d19BCZa0U+/tqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GD/GKuAmLoUraTg+MA1iOkIEAsoqy00PjBIre7iDFIMjoazxufLmcBtJvc2zxEJ1p
-         0Zx7a7JqateN6RCi/uocvpUOVN85YooWtUjVFo47DRWx+zs/n5aN5eqMqFJrJCkB94
-         fe3JO3RE0OTNY+5qVdnapHRmkYaspEXlV40DKCv8=
+        b=xrLmIogdNYbxvXd+W6HQq9ucv+4C5AE5iMVFwDgMv9wP6VQuTU0zcoTowOBAdvOb3
+         baOrpJL/PabuzUEzQsKWCcrfZwiC2CqtAqQRPynXTg+H4vX7JiYmk/Wer6BTRbKro6
+         U0fqzt2CnVGyWO46zaBTS8yzYwLnxP9zMw56WCYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [PATCH 5.14 023/100] thermal/drivers/qcom/spmi-adc-tm5: Dont abort probing if a sensor is not used
-Date:   Fri, 24 Sep 2021 14:43:32 +0200
-Message-Id: <20210924124342.217331621@linuxfoundation.org>
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        Xiubo Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.14 024/100] ceph: cancel delayed work instead of flushing on mdsc teardown
+Date:   Fri, 24 Sep 2021 14:43:33 +0200
+Message-Id: <20210924124342.251566373@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
 References: <20210924124341.214446495@linuxfoundation.org>
@@ -41,46 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Kaehlcke <mka@chromium.org>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit 70ee251ded6ba24c15537f4abb8a318e233d0d1a upstream.
+commit b4002173b7989588b6feaefc42edaf011b596782 upstream.
 
-adc_tm5_register_tzd() registers the thermal zone sensors for all
-channels of the thermal monitor. If the registration of one channel
-fails the function skips the processing of the remaining channels
-and returns an error, which results in _probe() being aborted.
+The first thing metric_delayed_work does is check mdsc->stopping,
+and then return immediately if it's set. That's good since we would
+have already torn down the metric structures at this point, otherwise,
+but there is no locking around mdsc->stopping.
 
-One of the reasons the registration could fail is that none of the
-thermal zones is using the channel/sensor, which hardly is a critical
-error (if it is an error at all). If this case is detected emit a
-warning and continue with processing the remaining channels.
+It's possible that the ceph_metric_destroy call could race with the
+delayed_work, in which case we could end up with the delayed_work
+accessing destroyed percpu variables.
 
-Fixes: ca66dca5eda6 ("thermal: qcom: add support for adc-tm5 PMIC thermal monitor")
-Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-Reported-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210823134726.1.I1dd23ddf77e5b3568625d80d6827653af071ce19@changeid
+At this point in the mdsc teardown, the "stopping" flag has already been
+set, so there's no benefit to flushing the work. Move the work
+cancellation in ceph_metric_destroy ahead of the percpu variable
+destruction, and eliminate the flush_delayed_work call in
+ceph_mdsc_destroy.
+
+Fixes: 18f473b384a6 ("ceph: periodically send perf metrics to MDSes")
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Xiubo Li <xiubli@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thermal/qcom/qcom-spmi-adc-tm5.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/ceph/mds_client.c |    1 -
+ fs/ceph/metric.c     |    4 ++--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/thermal/qcom/qcom-spmi-adc-tm5.c
-+++ b/drivers/thermal/qcom/qcom-spmi-adc-tm5.c
-@@ -359,6 +359,12 @@ static int adc_tm5_register_tzd(struct a
- 							   &adc_tm->channels[i],
- 							   &adc_tm5_ops);
- 		if (IS_ERR(tzd)) {
-+			if (PTR_ERR(tzd) == -ENODEV) {
-+				dev_warn(adc_tm->dev, "thermal sensor on channel %d is not used\n",
-+					 adc_tm->channels[i].channel);
-+				continue;
-+			}
+--- a/fs/ceph/mds_client.c
++++ b/fs/ceph/mds_client.c
+@@ -4912,7 +4912,6 @@ void ceph_mdsc_destroy(struct ceph_fs_cl
+ 
+ 	ceph_metric_destroy(&mdsc->metric);
+ 
+-	flush_delayed_work(&mdsc->metric.delayed_work);
+ 	fsc->mdsc = NULL;
+ 	kfree(mdsc);
+ 	dout("mdsc_destroy %p done\n", mdsc);
+--- a/fs/ceph/metric.c
++++ b/fs/ceph/metric.c
+@@ -302,6 +302,8 @@ void ceph_metric_destroy(struct ceph_cli
+ 	if (!m)
+ 		return;
+ 
++	cancel_delayed_work_sync(&m->delayed_work);
 +
- 			dev_err(adc_tm->dev, "Error registering TZ zone for channel %d: %ld\n",
- 				adc_tm->channels[i].channel, PTR_ERR(tzd));
- 			return PTR_ERR(tzd);
+ 	percpu_counter_destroy(&m->total_inodes);
+ 	percpu_counter_destroy(&m->opened_inodes);
+ 	percpu_counter_destroy(&m->i_caps_mis);
+@@ -309,8 +311,6 @@ void ceph_metric_destroy(struct ceph_cli
+ 	percpu_counter_destroy(&m->d_lease_mis);
+ 	percpu_counter_destroy(&m->d_lease_hit);
+ 
+-	cancel_delayed_work_sync(&m->delayed_work);
+-
+ 	ceph_put_mds_session(m->session);
+ }
+ 
 
 
