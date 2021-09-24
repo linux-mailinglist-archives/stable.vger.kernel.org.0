@@ -2,128 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B78041787D
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 18:27:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFC894178FB
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 18:41:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245078AbhIXQ3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 12:29:21 -0400
-Received: from mga18.intel.com ([134.134.136.126]:50903 "EHLO mga18.intel.com"
+        id S234026AbhIXQnb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 12:43:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244892AbhIXQ3V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 12:29:21 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10116"; a="211186172"
-X-IronPort-AV: E=Sophos;i="5.85,320,1624345200"; 
-   d="scan'208";a="211186172"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Sep 2021 09:27:48 -0700
-X-IronPort-AV: E=Sophos;i="5.85,320,1624345200"; 
-   d="scan'208";a="519387659"
-Received: from wchriste-mobl1.amr.corp.intel.com ([10.251.2.203])
-  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Sep 2021 09:27:48 -0700
-Message-ID: <46d6d30201e11422f57bd79691133dc0491bd4c5.camel@linux.intel.com>
-Subject: Re: [PATCH v2 1/2] thermal: int340x: do not set a wrong tcc offset
- on resume
-From:   Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-To:     Antoine Tenart <atenart@kernel.org>, rui.zhang@intel.com,
-        daniel.lezcano@linaro.org, amitk@kernel.org
-Cc:     linux-pm@vger.kernel.org, stable@vger.kernel.org
-Date:   Fri, 24 Sep 2021 09:27:47 -0700
-In-Reply-To: <20210909085613.5577-2-atenart@kernel.org>
-References: <20210909085613.5577-1-atenart@kernel.org>
-         <20210909085613.5577-2-atenart@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.40.0-1 
+        id S233969AbhIXQnb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 12:43:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E7C9260EE7;
+        Fri, 24 Sep 2021 16:41:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1632501718;
+        bh=H423tEhL4STBIrStMHc+PhfbtwH8UWS0A41glaA+Nl4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=AD1A1IDaA7kbGa5je+K+I6q33oR96VpWsUQJmPi4SDadXyUKmTxvCX4wkaXt4Ww0s
+         zcdzOXuqCsfEDdbjhiefCfK6MTXQ49HZyBWn9xERTLwIKUG9nQ+UinMez/YEy4j25j
+         395etTNWCWl7s3X0+L2NOYf1LaOq1vROR6q7WyafXG9D0k5V6prMgR2mgUHBuqI+N6
+         sIXFlHulGnT11e3O7BtsIZjyjuS1FdBA8XRWK1VhAl60ER8SKwqfAefbcG7S9J2rh+
+         VZxpGPgJ1oNDiTiOJWbUUeEduvJ80v4DQ3RVZVuOrIJZl0ron98N8sylPrXCNecj6U
+         8FBuwO8BD5pJw==
+Date:   Fri, 24 Sep 2021 12:41:56 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Florian Fainelli <f.fainelli@gmail.com>
+Cc:     Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH stable 4.9 v2 0/4] ARM: ftrace MODULE_PLTS warning
+Message-ID: <YU3/1I7BfyINCb9W@sashalap>
+References: <20210922170246.190499-1-f.fainelli@gmail.com>
+ <YUxYV/m36iPuxdoe@kroah.com>
+ <YU2769mOr3lb8jFi@sashalap>
+ <bb9fde7d-3644-6d30-c238-73427ab200e6@nokia.com>
+ <34ae79e3-f109-bc4b-341a-f05d95cf15e3@gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <34ae79e3-f109-bc4b-341a-f05d95cf15e3@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Daniel,
+On Fri, Sep 24, 2021 at 09:11:18AM -0700, Florian Fainelli wrote:
+>On 9/24/21 8:27 AM, Alexander Sverdlin wrote:
+>> Hi Sasha,
+>>
+>> On 24/09/2021 13:52, Sasha Levin wrote:
+>>>>> This patch series is present in v5.14 and fixes warnings seen at insmod
+>>>>> with FTRACE and MODULE_PLTS enabled on ARM/Linux.
+>>>>
+>>>> All now queued up, thanks.
+>>>
+>>> Looks like 4.19 and older break the build:
+>>>
+>>> arch/arm/kernel/ftrace.c: In function 'ftrace_update_ftrace_func':
+>>> arch/arm/kernel/ftrace.c:157:9: error: too few arguments to function 'ftrace_call_replace'
+>>>   157 |   new = ftrace_call_replace(pc, (unsigned long)func);
+>>>       |         ^~~~~~~~~~~~~~~~~~~
+>>
+>> in principle you can add ", true" as a third argument in all these ftrace_call_replace()
+>> call-sites which still have two args.
+>
+>Sasha, what configuration failed to build? I build tested with
+>mutli_v7_defconfig which does enable FTRACE by default and then ensured
+>that CONFIG_ARM_MODULE_PLTS was enabled. From there I will re-submit,
+>sorry about that.
 
-This patch is important. Can we send for 5.15 rc release?
+allmodconfig seemed to have hit that.
 
-I see the previous version of this patch is applied to linux-next.
-But this series is better as it splits into two patches. The first one
-can be easily backported and will fix the problem. The second one is an
-improvement.
-
+-- 
 Thanks,
-Srinivas
-
-On Thu, 2021-09-09 at 10:56 +0200, Antoine Tenart wrote:
-> After upgrading to Linux 5.13.3 I noticed my laptop would shutdown
-> due
-> to overheat (when it should not). It turned out this was due to
-> commit
-> fe6a6de6692e ("thermal/drivers/int340x/processor_thermal: Fix tcc
-> setting").
-> 
-> What happens is this drivers uses a global variable to keep track of
-> the
-> tcc offset (tcc_offset_save) and uses it on resume. The issue is this
-> variable is initialized to 0, but is only set in
-> tcc_offset_degree_celsius_store, i.e. when the tcc offset is
-> explicitly
-> set by userspace. If that does not happen, the resume path will set
-> the
-> offset to 0 (in my case the h/w default being 3, the offset would
-> become
-> too low after a suspend/resume cycle).
-> 
-> The issue did not arise before commit fe6a6de6692e, as the function
-> setting the offset would return if the offset was 0. This is no
-> longer
-> the case (rightfully).
-> 
-> Fix this by not applying the offset if it wasn't saved before,
-> reverting
-> back to the old logic. A better approach will come later, but this
-> will
-> be easier to apply to stable kernels.
-> 
-> The logic to restore the offset after a resume was there long before
-> commit fe6a6de6692e, but as a value of 0 was considered invalid I'm
-> referencing the commit that made the issue possible in the Fixes tag
-> instead.
-> 
-> Fixes: fe6a6de6692e ("thermal/drivers/int340x/processor_thermal: Fix
-> tcc setting")
-> Cc: stable@vger.kernel.org
-> Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-> Signed-off-by: Antoine Tenart <atenart@kernel.org>
-> ---
-> Â .../thermal/intel/int340x_thermal/processor_thermal_device.c | 5
-> +++--
-> Â 1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git
-> a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
-> b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
-> index 0f0038af2ad4..fb64acfd5e07 100644
-> ---
-> a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
-> +++
-> b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
-> @@ -107,7 +107,7 @@ static int tcc_offset_update(unsigned int tcc)
-> Â Â Â Â Â Â Â Â return 0;
-> Â }
-> Â 
-> -static unsigned int tcc_offset_save;
-> +static int tcc_offset_save = -1;
-> Â 
-> Â static ssize_t tcc_offset_degree_celsius_store(struct device *dev,
-> Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â struct device_attribute *attr, const
-> char *buf,
-> @@ -352,7 +352,8 @@ int proc_thermal_resume(struct device *dev)
-> Â Â Â Â Â Â Â Â proc_dev = dev_get_drvdata(dev);
-> Â Â Â Â Â Â Â Â proc_thermal_read_ppcc(proc_dev);
-> Â 
-> -Â Â Â Â Â Â Â tcc_offset_update(tcc_offset_save);
-> +Â Â Â Â Â Â Â if (tcc_offset_save >= 0)
-> +Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â tcc_offset_update(tcc_offset_save);
-> Â 
-> Â Â Â Â Â Â Â Â return 0;
-> Â }
-
-
+Sasha
