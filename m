@@ -2,95 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB892417DD8
-	for <lists+stable@lfdr.de>; Sat, 25 Sep 2021 00:43:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E75B417DE3
+	for <lists+stable@lfdr.de>; Sat, 25 Sep 2021 00:43:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243493AbhIXWpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 18:45:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43520 "EHLO mail.kernel.org"
+        id S1345445AbhIXWp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 18:45:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239842AbhIXWpL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 18:45:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B4E85610C7;
-        Fri, 24 Sep 2021 22:43:35 +0000 (UTC)
+        id S1345228AbhIXWpZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 18:45:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC50D6125F;
+        Fri, 24 Sep 2021 22:43:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1632523416;
-        bh=rA37PYHONDIG3MvsoHAzveB2Egr+eik4Izw0/KSpGnE=;
+        s=korg; t=1632523431;
+        bh=HCu43QJN8fFUzH4pAk1RQ0of9jxD2g34gKG0VdTvrhM=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=AkZeVTDSqx95emlo020iXkENsJudK1Ke/nbogy/fmcyrtgUHV7GVrx7i2BKWnyHD/
-         +h7lr/VHy3zEdtcc4+K1l/8GkkGf22jOVySWJVZtwOy110KBvdLEZ1n8TPf4vq/ahk
-         BUTbK6005fWp2+fLwpsqBaSSpZ8nyiBqByzQS3VU=
-Date:   Fri, 24 Sep 2021 15:43:35 -0700
+        b=iYum7Ix/m2ny1WTeBnle6o3J3a4o0vmG1Q35VZplyKSwWuDwYWODHxebIaxSyPMzM
+         hEhRiXILvtiIbJ0l3IvyfeA/RNkoE20UC918snJLXIyeaDqrewlsyzi9FlVGS7KQO4
+         5dduA5axwqbfr3qCXm2lWQfb65mcJwXNdrOoxoIs=
+Date:   Fri, 24 Sep 2021 15:43:50 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, gechangwei@live.cn, ghe@suse.com,
-        jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
-        junxiao.bi@oracle.com, linux-mm@kvack.org, mark@fasheh.com,
-        mm-commits@vger.kernel.org, piaojun@huawei.com,
+To:     akpm@linux-foundation.org, almasrymina@google.com,
+        dave.hansen@linux.intel.com, jhubbard@nvidia.com,
+        khandual@linux.vnet.ibm.com, linux-mm@kvack.org, mhocko@suse.com,
+        minchan@kernel.org, mm-commits@vger.kernel.org,
+        o451686892@gmail.com, osalvador@suse.de, pasha.tatashin@soleen.com,
         stable@vger.kernel.org, torvalds@linux-foundation.org,
-        wen.gang.wang@oracle.com
-Subject:  [patch 06/16] ocfs2: drop acl cache for directories too
-Message-ID: <20210924224335.qEoBbK0p3%akpm@linux-foundation.org>
+        weixugc@google.com, willy@infradead.org,
+        yang.shi@linux.alibaba.com, ying.huang@intel.com, ziy@nvidia.com
+Subject:  [patch 11/16] mm/debug: sync up MR_CONTIG_RANGE and
+ MR_LONGTERM_PIN
+Message-ID: <20210924224350.E8gKVdmtm%akpm@linux-foundation.org>
 In-Reply-To: <20210924154257.1dbf6699ab8d88c0460f924f@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wengang Wang <wen.gang.wang@oracle.com>
-Subject: ocfs2: drop acl cache for directories too
+From: Weizhao Ouyang <o451686892@gmail.com>
+Subject: mm/debug: sync up MR_CONTIG_RANGE and MR_LONGTERM_PIN
 
-ocfs2_data_convert_worker() is currently dropping any cached acl info for
-FILE before down-converting meta lock.  It should also drop for DIRECTORY.
-Otherwise the second acl lookup returns the cached one (from VFS layer)
-which could be already stale.
+Sync up MR_CONTIG_RANGE and MR_LONGTERM_PIN to migrate_reason_names.
 
-The problem we are seeing is that the acl changes on one node doesn't get
-refreshed on other nodes in the following case:
-
-  Node 1                    Node 2
---------------            ----------------
-getfacl dir1
-
-			  getfacl dir1    <-- this is OK
-
-setfacl -m u:user1:rwX dir1
-getfacl dir1   <-- see the change for user1
-
-			  getfacl dir1    <-- can't see change for user1
-
-Link: https://lkml.kernel.org/r/20210903012631.6099-1-wen.gang.wang@oracle.com
-Signed-off-by: Wengang Wang <wen.gang.wang@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
+Link: https://lkml.kernel.org/r/20210921064553.293905-2-o451686892@gmail.com
+Fixes: 310253514bbf ("mm/migrate: rename migration reason MR_CMA to MR_CONTIG_RANGE")
+Fixes: d1e153fea2a8 ("mm/gup: migrate pinned pages out of movable zone")
+Signed-off-by: Weizhao Ouyang <o451686892@gmail.com>
+Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Cc: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Yang Shi <yang.shi@linux.alibaba.com>
+Cc: Zi Yan <ziy@nvidia.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Mina Almasry <almasrymina@google.com>
+Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Wei Xu <weixugc@google.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/ocfs2/dlmglue.c |    3 ++-
+ mm/debug.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ocfs2/dlmglue.c~ocfs2-drop-acl-cache-for-directories-too
-+++ a/fs/ocfs2/dlmglue.c
-@@ -3951,7 +3951,7 @@ static int ocfs2_data_convert_worker(str
- 		oi = OCFS2_I(inode);
- 		oi->ip_dir_lock_gen++;
- 		mlog(0, "generation: %u\n", oi->ip_dir_lock_gen);
--		goto out;
-+		goto out_forget;
- 	}
+--- a/mm/debug.c~mm-debug-sync-up-mr_contig_range-and-mr_longterm_pin
++++ a/mm/debug.c
+@@ -24,7 +24,8 @@ const char *migrate_reason_names[MR_TYPE
+ 	"syscall_or_cpuset",
+ 	"mempolicy_mbind",
+ 	"numa_misplaced",
+-	"cma",
++	"contig_range",
++	"longterm_pin",
+ };
  
- 	if (!S_ISREG(inode->i_mode))
-@@ -3982,6 +3982,7 @@ static int ocfs2_data_convert_worker(str
- 		filemap_fdatawait(mapping);
- 	}
- 
-+out_forget:
- 	forget_all_cached_acls(inode);
- 
- out:
+ const struct trace_print_flags pageflag_names[] = {
 _
