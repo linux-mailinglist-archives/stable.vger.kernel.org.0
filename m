@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA3914172D9
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:50:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AE6C41735D
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:57:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344710AbhIXMvz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 08:51:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42502 "EHLO mail.kernel.org"
+        id S1344893AbhIXMze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:55:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344567AbhIXMu3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:50:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBABD61351;
-        Fri, 24 Sep 2021 12:48:22 +0000 (UTC)
+        id S1344934AbhIXMxk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:53:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 29ADE6134F;
+        Fri, 24 Sep 2021 12:50:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487703;
-        bh=Z4McYNiEwNXxv/YA7HLEkflslNkWA+CMHTq3Ka3jd28=;
+        s=korg; t=1632487812;
+        bh=gENb3+P6z9ffyMx/K5k7xzOvlZBidAjaC3mlcw3bPgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GVeJSGfDukwGoMSHW6amVGdtOUTH98qnBIYWGzilJJVK0kfDiu/zUNO6BSwlFBNid
-         k3KQojmnwWPSFrmQ1VOtA9r92DsW6uo4tpMhhKyzLwAVUnxHGWVUs61xfNLZ+XJGDe
-         2RbGpRroZ6ZfTkcK6u+EGm4ltE/JmfepBPhTNGyg=
+        b=qliYmNE1Q8FX+nQLdpFF2t9AdNwTOjqNaRKkylBDVPAqciKQlhNqO6NbZ251ApPFL
+         +Yq5pvwNQoanllph6YbhCH8seY52Aj82b15KsF8Njgykpy+whErImAKJUmQlP+AIDm
+         UJbsoq+Iq7pXv+gbQ+vWMCHX35/7iTdY5WAqOx5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sylvain Lemieux <slemieux@tycoint.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH 4.19 15/34] pwm: lpc32xx: Dont modify HW state in .probe() after the PWM chip was registered
-Date:   Fri, 24 Sep 2021 14:44:09 +0200
-Message-Id: <20210924124330.461535778@linuxfoundation.org>
+        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 5.4 21/50] 9p/trans_virtio: Remove sysfs file on probe failure
+Date:   Fri, 24 Sep 2021 14:44:10 +0200
+Message-Id: <20210924124332.949638167@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124329.965218583@linuxfoundation.org>
-References: <20210924124329.965218583@linuxfoundation.org>
+In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
+References: <20210924124332.229289734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-commit 3d2813fb17e5fd0d73c1d1442ca0192bde4af10e upstream.
+commit f997ea3b7afc108eb9761f321b57de2d089c7c48 upstream.
 
-This fixes a race condition: After pwmchip_add() is called there might
-already be a consumer and then modifying the hardware behind the
-consumer's back is bad. So set the default before.
+This ensures we don't leak the sysfs file if we failed to
+allocate chan->vc_wq during probe.
 
-(Side-note: I don't know what this register setting actually does, if
-this modifies the polarity there is an inconsistency because the
-inversed polarity isn't considered if the PWM is already running during
-.probe().)
-
-Fixes: acfd92fdfb93 ("pwm: lpc32xx: Set PWM_PIN_LEVEL bit to default value")
-Cc: Sylvain Lemieux <slemieux@tycoint.com>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Link: http://lkml.kernel.org/r/20210517083557.172-1-xieyongji@bytedance.com
+Fixes: 86c8437383ac ("net/9p: Add sysfs mount_tag file for virtio 9P device")
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pwm/pwm-lpc32xx.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ net/9p/trans_virtio.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/pwm/pwm-lpc32xx.c
-+++ b/drivers/pwm/pwm-lpc32xx.c
-@@ -124,17 +124,17 @@ static int lpc32xx_pwm_probe(struct plat
- 	lpc32xx->chip.npwm = 1;
- 	lpc32xx->chip.base = -1;
- 
-+	/* If PWM is disabled, configure the output to the default value */
-+	val = readl(lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
-+	val &= ~PWM_PIN_LEVEL;
-+	writel(val, lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
-+
- 	ret = pwmchip_add(&lpc32xx->chip);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "failed to add PWM chip, error %d\n", ret);
- 		return ret;
+--- a/net/9p/trans_virtio.c
++++ b/net/9p/trans_virtio.c
+@@ -605,7 +605,7 @@ static int p9_virtio_probe(struct virtio
+ 	chan->vc_wq = kmalloc(sizeof(wait_queue_head_t), GFP_KERNEL);
+ 	if (!chan->vc_wq) {
+ 		err = -ENOMEM;
+-		goto out_free_tag;
++		goto out_remove_file;
  	}
- 
--	/* When PWM is disable, configure the output to the default value */
--	val = readl(lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
--	val &= ~PWM_PIN_LEVEL;
--	writel(val, lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
--
- 	platform_set_drvdata(pdev, lpc32xx);
+ 	init_waitqueue_head(chan->vc_wq);
+ 	chan->ring_bufs_avail = 1;
+@@ -623,6 +623,8 @@ static int p9_virtio_probe(struct virtio
  
  	return 0;
+ 
++out_remove_file:
++	sysfs_remove_file(&vdev->dev.kobj, &dev_attr_mount_tag.attr);
+ out_free_tag:
+ 	kfree(tag);
+ out_free_vq:
 
 
