@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03FBE4173F4
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:02:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C03D7417239
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:45:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345629AbhIXNBR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:01:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52618 "EHLO mail.kernel.org"
+        id S1343879AbhIXMqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:46:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345126AbhIXM7M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 08:59:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DA4D613B1;
-        Fri, 24 Sep 2021 12:53:14 +0000 (UTC)
+        id S1343870AbhIXMqV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:46:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 173626124B;
+        Fri, 24 Sep 2021 12:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632487995;
-        bh=lrbHMYERLXU/qGcXpigoRnBLMmFoyGeV50UkXrU+G4U=;
+        s=korg; t=1632487485;
+        bh=Fbs9rsW28ruZ0FP5pxfKM4yTJS6HqChffdIet39EvNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2G3ZqP7PGgx0Y+GJ/4yh0r0BdGhCjiZVR5kocy42/CYf5KnZEZObkMmfv6c3PnO+W
-         56sTR5T/4KwBhglQLT4ZsWhLRvwBOQ6ELbuOBNpr3yArOtwXw6R0SQLBuv7Pw7sl39
-         d2wR3rZ8xA3iM7zDrPksWz5Tkq7Rz2LXoscxPBcM=
+        b=BQVXE8O2ZlLHXrXCrYQX/EttoL9xoZXhzygHUTpr8E30G7fCq0C9gjrEqRFxc/H9+
+         MaOBZO9NgbNXXxGpkovfeNz08DJtraCyq1l9tZdxH4L0Cj1E2ws9nmtbWBf1Q7HSwa
+         uKPpCs44XyjOpxblL8GehEqQlxBlL9PvAiBjs+h4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        Mel Gorman <mgorman@suse.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Mike Javorski <mike.javorski@gmail.com>,
-        Lothar Paltins <lopa@mailbox.org>
-Subject: [PATCH 5.14 035/100] SUNRPC: dont pause on incomplete allocation
-Date:   Fri, 24 Sep 2021 14:43:44 +0200
-Message-Id: <20210924124342.639456329@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 04/23] sctp: add param size validation for SCTP_PARAM_SET_PRIMARY
+Date:   Fri, 24 Sep 2021 14:43:45 +0200
+Message-Id: <20210924124327.971988965@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124341.214446495@linuxfoundation.org>
-References: <20210924124341.214446495@linuxfoundation.org>
+In-Reply-To: <20210924124327.816210800@linuxfoundation.org>
+References: <20210924124327.816210800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 
-[ Upstream commit e38b3f20059426a0adbde014ff71071739ab5226 ]
+commit ef6c8d6ccf0c1dccdda092ebe8782777cd7803c9 upstream.
 
-alloc_pages_bulk_array() attempts to allocate at least one page based on
-the provided pages, and then opportunistically allocates more if that
-can be done without dropping the spinlock.
+When SCTP handles an INIT chunk, it calls for example:
+sctp_sf_do_5_1B_init
+  sctp_verify_init
+    sctp_verify_param
+  sctp_process_init
+    sctp_process_param
+      handling of SCTP_PARAM_SET_PRIMARY
 
-So if it returns fewer than requested, that could just mean that it
-needed to drop the lock.  In that case, try again immediately.
+sctp_verify_init() wasn't doing proper size validation and neither the
+later handling, allowing it to work over the chunk itself, possibly being
+uninitialized memory.
 
-Only pause for a time if no progress could be made.
-
-Reported-and-tested-by: Mike Javorski <mike.javorski@gmail.com>
-Reported-and-tested-by: Lothar Paltins <lopa@mailbox.org>
-Fixes: f6e70aab9dfe ("SUNRPC: refresh rq_pages using a bulk page allocator")
-Signed-off-by: NeilBrown <neilb@suse.de>
-Acked-by: Mel Gorman <mgorman@suse.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/svc_xprt.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ net/sctp/sm_make_chunk.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/net/sunrpc/svc_xprt.c b/net/sunrpc/svc_xprt.c
-index dbb41821b1b8..cd5a2b186f0d 100644
---- a/net/sunrpc/svc_xprt.c
-+++ b/net/sunrpc/svc_xprt.c
-@@ -662,7 +662,7 @@ static int svc_alloc_arg(struct svc_rqst *rqstp)
- {
- 	struct svc_serv *serv = rqstp->rq_server;
- 	struct xdr_buf *arg = &rqstp->rq_arg;
--	unsigned long pages, filled;
-+	unsigned long pages, filled, ret;
+--- a/net/sctp/sm_make_chunk.c
++++ b/net/sctp/sm_make_chunk.c
+@@ -2146,9 +2146,16 @@ static sctp_ierror_t sctp_verify_param(s
+ 		break;
  
- 	pages = (serv->sv_max_mesg + 2 * PAGE_SIZE) >> PAGE_SHIFT;
- 	if (pages > RPCSVC_MAXPAGES) {
-@@ -672,11 +672,12 @@ static int svc_alloc_arg(struct svc_rqst *rqstp)
- 		pages = RPCSVC_MAXPAGES;
- 	}
- 
--	for (;;) {
--		filled = alloc_pages_bulk_array(GFP_KERNEL, pages,
--						rqstp->rq_pages);
--		if (filled == pages)
+ 	case SCTP_PARAM_SET_PRIMARY:
+-		if (net->sctp.addip_enable)
 -			break;
-+	for (filled = 0; filled < pages; filled = ret) {
-+		ret = alloc_pages_bulk_array(GFP_KERNEL, pages,
-+					     rqstp->rq_pages);
-+		if (ret > filled)
-+			/* Made progress, don't sleep yet */
-+			continue;
+-		goto fallthrough;
++		if (!net->sctp.addip_enable)
++			goto fallthrough;
++
++		if (ntohs(param.p->length) < sizeof(struct sctp_addip_param) +
++					     sizeof(struct sctp_paramhdr)) {
++			sctp_process_inv_paramlength(asoc, param.p,
++						     chunk, err_chunk);
++			retval = SCTP_IERROR_ABORT;
++		}
++		break;
  
- 		set_current_state(TASK_INTERRUPTIBLE);
- 		if (signalled() || kthread_should_stop()) {
--- 
-2.33.0
-
+ 	case SCTP_PARAM_HOST_NAME_ADDRESS:
+ 		/* Tell the peer, we won't support this param.  */
 
 
