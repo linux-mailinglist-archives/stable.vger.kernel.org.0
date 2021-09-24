@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92BA241751A
-	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 15:13:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB255417396
+	for <lists+stable@lfdr.de>; Fri, 24 Sep 2021 14:58:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346897AbhIXNO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Sep 2021 09:14:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38620 "EHLO mail.kernel.org"
+        id S1345022AbhIXM7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Sep 2021 08:59:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346721AbhIXNLf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:11:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 558486159A;
-        Fri, 24 Sep 2021 12:58:36 +0000 (UTC)
+        id S1344401AbhIXM4Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Sep 2021 08:56:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB16D61260;
+        Fri, 24 Sep 2021 12:51:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632488316;
-        bh=BGaO2d5KMqAdaiWzfa1+0RVyVlGMslFN3ltylz4C+zY=;
+        s=korg; t=1632487885;
+        bh=ckDzZx/F0M8XMpGOU1duiUOy/wn6eUR0XqvN7lA37a4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ThWu/gbuA71u+vTbWMEaj8div5REetcUbmKzy19K2uuY/Bzt2p3+PjsUgZgoHAWik
-         fuau8bHeSjrk83J7/AAGRbhYe4B3X0XoLa2BOckrZuDbDtkjW5eYQ6tNbnuAfvIKCj
-         KKa4p4cTa8ZPWrD+Z45kK21ipVruyvHwN4etl7SE=
+        b=ZG8TxQNwHN8g70DuULg3fTjssw3nvJb3X4xzJPt2Z2rdgDxRrp6LyDc8Ck/Rzd4bU
+         avsJPLvW4DbDXwn8rC/RRnWiQ3o4fD+iKrnL81w+E9EQ7KijBI+xkz52wkHamPYmeS
+         fZDjOAhKspwmBuZU9LcbXiTFKiHEWiDHJPeMiS8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 38/63] parisc: Move pci_dev_is_behind_card_dino to where it is used
-Date:   Fri, 24 Sep 2021 14:44:38 +0200
-Message-Id: <20210924124335.582488723@linuxfoundation.org>
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 50/50] drm/nouveau/nvkm: Replace -ENOSYS with -ENODEV
+Date:   Fri, 24 Sep 2021 14:44:39 +0200
+Message-Id: <20210924124333.933167705@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924124334.228235870@linuxfoundation.org>
-References: <20210924124334.228235870@linuxfoundation.org>
+In-Reply-To: <20210924124332.229289734@linuxfoundation.org>
+References: <20210924124332.229289734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,62 +44,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 907872baa9f1538eed02ec737b8e89eba6c6e4b9 ]
+commit e8f71f89236ef82d449991bfbc237e3cb6ea584f upstream.
 
-parisc build test images fail to compile with the following error.
+nvkm test builds fail with the following error.
 
-drivers/parisc/dino.c:160:12: error:
-	'pci_dev_is_behind_card_dino' defined but not used
+  drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c: In function 'nvkm_control_mthd_pstate_info':
+  drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c:60:35: error: overflow in conversion from 'int' to '__s8' {aka 'signed char'} changes value from '-251' to '5'
 
-Move the function just ahead of its only caller to avoid the error.
+The code builds on most architectures, but fails on parisc where ENOSYS
+is defined as 251.
 
-Fixes: 5fa1659105fa ("parisc: Disable HP HSC-PCI Cards to prevent kernel crash")
-Cc: Helge Deller <deller@gmx.de>
+Replace the error code with -ENODEV (-19).  The actual error code does
+not really matter and is not passed to userspace - it just has to be
+negative.
+
+Fixes: 7238eca4cf18 ("drm/nouveau: expose pstate selection per-power source in sysfs")
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/parisc/dino.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/parisc/dino.c b/drivers/parisc/dino.c
-index 889d7ce282eb..952a92504df6 100644
---- a/drivers/parisc/dino.c
-+++ b/drivers/parisc/dino.c
-@@ -156,15 +156,6 @@ static inline struct dino_device *DINO_DEV(struct pci_hba_data *hba)
- 	return container_of(hba, struct dino_device, hba);
- }
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c
+@@ -57,7 +57,7 @@ nvkm_control_mthd_pstate_info(struct nvk
+ 		args->v0.count = 0;
+ 		args->v0.ustate_ac = NVIF_CONTROL_PSTATE_INFO_V0_USTATE_DISABLE;
+ 		args->v0.ustate_dc = NVIF_CONTROL_PSTATE_INFO_V0_USTATE_DISABLE;
+-		args->v0.pwrsrc = -ENOSYS;
++		args->v0.pwrsrc = -ENODEV;
+ 		args->v0.pstate = NVIF_CONTROL_PSTATE_INFO_V0_PSTATE_UNKNOWN;
+ 	}
  
--/* Check if PCI device is behind a Card-mode Dino. */
--static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
--{
--	struct dino_device *dino_dev;
--
--	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
--	return is_card_dino(&dino_dev->hba.dev->id);
--}
--
- /*
-  * Dino Configuration Space Accessor Functions
-  */
-@@ -447,6 +438,15 @@ static void quirk_cirrus_cardbus(struct pci_dev *dev)
- DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_CIRRUS, PCI_DEVICE_ID_CIRRUS_6832, quirk_cirrus_cardbus );
- 
- #ifdef CONFIG_TULIP
-+/* Check if PCI device is behind a Card-mode Dino. */
-+static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
-+{
-+	struct dino_device *dino_dev;
-+
-+	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
-+	return is_card_dino(&dino_dev->hba.dev->id);
-+}
-+
- static void pci_fixup_tulip(struct pci_dev *dev)
- {
- 	if (!pci_dev_is_behind_card_dino(dev))
--- 
-2.33.0
-
 
 
