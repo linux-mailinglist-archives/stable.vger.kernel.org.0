@@ -2,127 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0C1C41805F
-	for <lists+stable@lfdr.de>; Sat, 25 Sep 2021 10:38:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04AE84180D2
+	for <lists+stable@lfdr.de>; Sat, 25 Sep 2021 11:35:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232496AbhIYIkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Sep 2021 04:40:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54274 "EHLO
+        id S235512AbhIYJgd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Sep 2021 05:36:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230265AbhIYIkL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Sep 2021 04:40:11 -0400
-Received: from mail-oi1-x22a.google.com (mail-oi1-x22a.google.com [IPv6:2607:f8b0:4864:20::22a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ACFCC061570
-        for <stable@vger.kernel.org>; Sat, 25 Sep 2021 01:38:37 -0700 (PDT)
-Received: by mail-oi1-x22a.google.com with SMTP id w19so18016218oik.10
-        for <stable@vger.kernel.org>; Sat, 25 Sep 2021 01:38:37 -0700 (PDT)
+        with ESMTP id S229870AbhIYJgc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Sep 2021 05:36:32 -0400
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 191C6C061570
+        for <stable@vger.kernel.org>; Sat, 25 Sep 2021 02:34:58 -0700 (PDT)
+Received: by mail-wr1-x434.google.com with SMTP id t18so34885716wrb.0
+        for <stable@vger.kernel.org>; Sat, 25 Sep 2021 02:34:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=mRGe+pvzuWoAW67DIm8u0JSxMrKeXGkdBx/teR9AfS4=;
-        b=YB2NzfoJ9CtcWYeAzU9mihL1UJe2gmEJVAGgbdnPJkcbCJXCTgKL1s7uenaqnmaL3z
-         AFKe0PYbjqiVLH6fFA81WBNU65HwBQpT2HBZMBnReqigAZjjzswIS66Cz65SVzYHZXbX
-         eywtzzxM1MsJFkGmWjJ1IGQmAFZsuWjoihRRpgzSG2YfUO4wXkg6gBJsyFBEPzeUCraV
-         9r2nXMdvK4UGnvV5qfKBCpiTzDvYQEixhV4U4yukUpCMi3/lNHQlztVAUUssTAA/d6zI
-         Hw8AaX3GcPAiWiZ4x1UF8XVMUSiIYO1E+cfNP6tZotBy+VhrOiTrra3fma21I76FvHe1
-         yMmw==
+        d=linaro.org; s=google;
+        h=mime-version:content-transfer-encoding:date:message-id:cc:subject
+         :from:to:references:in-reply-to;
+        bh=E9VZvuypCKKa0kVD0aiDreJfpoj+4GgRIXr6zNF5NkQ=;
+        b=n5/1zVQkaV/URwP7/3ff5DNA0qyZK62ih69BYgtxEte3vQ2IiEx7S4MNsB4k7SKjAv
+         gTBxLRG/4RojDEzRg/aAjvpGC8cUJMC5oeKZcnnGYTVGmnn+r0xJ7cJdLgZMxchsOWvi
+         khe4rt8yBt7PB5ZuILPnWFJD+96wfomeiYva6CtdxkIDHxuyeGZdqU03I0tFbxb+2ysp
+         dAlDfEpI+zGZAz5luSWTNvI6/cXIDC1QPEQFzLu6LCC3Fjt74n8945JcJTIJM/78S5LV
+         Mm3budv38CFFZ+ujSiBcMWdsaNPIixQy+31EKGiThtyZD0lNfDeRKgbISV2afvtqfvzB
+         vdTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=mRGe+pvzuWoAW67DIm8u0JSxMrKeXGkdBx/teR9AfS4=;
-        b=FJmYgiMBQR1cWLPDgW6FS5CzpIGNVTt5zJ96TaXQxiQ+OJGJloJ+RekHuR5j9YFV/z
-         yrrctzGhKpHLHkv7En9oHU5+Cfrmjg8nu+ehFIUeaSqg4wkB6ebLf2Dql3ymgC5CfZ5E
-         hngfhuXHfxMU/Oa5bwfQe4CpmSGDeIkdbi0i63SNHd2pzyhL2j7V9AFLvA+1mH301Uzr
-         SRqRLtIbs7O/Xy7BESKfQcTy+xYwcLPpGeajGn4yLSVkGScBgJHGTx0I8sBLZ3f+yRab
-         hWHV6JUVQrWyAh5XXmQzpyMQxqGAi9oycpsOFy/BQAtNjQDSoYQZ/F5F4jydLCsQnI5l
-         5uWA==
-X-Gm-Message-State: AOAM530g0z/ipqzroinvzvsRxzJAqucPWCi63Uimdksdn17D7IkRIdtN
-        lLxI3/Gh+9/890ageI2mprBcjCNQt7qztA6A
-X-Google-Smtp-Source: ABdhPJyjVWYkljNDXVutYRp9S9XjMqXkXpYW3Qs2YEOrobbcpVIHrxcfF3JalB8HqPwzODYobwwEYA==
-X-Received: by 2002:a17:90b:46c4:: with SMTP id jx4mr1347866pjb.218.1632557330073;
-        Sat, 25 Sep 2021 01:08:50 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id v26sm11385872pfm.175.2021.09.25.01.08.49
+        h=x-gm-message-state:mime-version:content-transfer-encoding:date
+         :message-id:cc:subject:from:to:references:in-reply-to;
+        bh=E9VZvuypCKKa0kVD0aiDreJfpoj+4GgRIXr6zNF5NkQ=;
+        b=rdLJ0pNU9+EHks0bWnTMVtQ9wdevh44rvU2mQjkkajm1iA/09GZeODGvmnpliiCQsW
+         llEu4jXtZDdNuDKsvf4WWZI9ftY3xV/bJtYAq4+JdTduermrlqm807A+9kxQ7gUmUDD0
+         t35N2LJq3o8KMaZ3O32Icaq3VqmKbnPzn9P2T1SvyvpoJWtWtRfN1vIq9/+hg4K4VBgr
+         E4fR5jy1qSrIwf2psZIFUeCNy2J1dv4EILminznRQ5XoLZ/cH2xRskK2eizunzCOFsmk
+         xCk9HoVjnoL8bbf/HXy7BE3azqFPreOvHwloRw6Uz8sNdi4mU7Mm+znqDFneR8D0F86T
+         U5rA==
+X-Gm-Message-State: AOAM531lr2uZCs+ClW/xMfx+Bk6SAoQC9dXikiwiRS3IpBcYCWlh6+II
+        OjITHD0AsSO+um/ORS0fXwcWuA==
+X-Google-Smtp-Source: ABdhPJwRESZEF7H5Amvn2IEzk7c0W3RmQQsX79PW/DmDad5B7N4J+wIH7WwHNeMUGcMf3CZx0qy35Q==
+X-Received: by 2002:a05:6000:18ab:: with SMTP id b11mr16629557wri.131.1632562496638;
+        Sat, 25 Sep 2021 02:34:56 -0700 (PDT)
+Received: from localhost (a109-49-46-234.cpe.netcabo.pt. [109.49.46.234])
+        by smtp.gmail.com with ESMTPSA id 5sm11128597wmb.37.2021.09.25.02.34.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 25 Sep 2021 01:08:49 -0700 (PDT)
-Message-ID: <614ed911.1c69fb81.8436d.3dfd@mx.google.com>
-Date:   Sat, 25 Sep 2021 01:08:49 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+        Sat, 25 Sep 2021 02:34:56 -0700 (PDT)
+Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.283-26-gc89f18a8a381
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-Subject: stable-rc/queue/4.9 baseline: 78 runs,
- 1 regressions (v4.9.283-26-gc89f18a8a381)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Date:   Sat, 25 Sep 2021 10:34:55 +0100
+Message-Id: <CEIV3SMWQ4Z7.1V01734EC2SA0@arch-thunder>
+Cc:     <stable@vger.kernel.org>
+Subject: Re: [PATCH 2/3] usb: isp1760: do not sleep in field register poll
+From:   "Rui Miguel Silva" <rui.silva@linaro.org>
+To:     "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
+References: <20210727100516.4190681-1-rui.silva@linaro.org>
+ <20210727100516.4190681-3-rui.silva@linaro.org>
+ <CEI85GUCGPFO.2GIJLZMWZCXBJ@arch-thunder> <YU32aMGCGY9GZKlx@kroah.com>
+In-Reply-To: <YU32aMGCGY9GZKlx@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 78 runs, 1 regressions (v4.9.283-26-gc89f18a8=
-a381)
+Hey Greg,
+On Fri Sep 24, 2021 at 5:01 PM WEST, Greg Kroah-Hartman wrote:
 
-Regressions Summary
--------------------
+> On Fri, Sep 24, 2021 at 04:35:40PM +0100, Rui Miguel Silva wrote:
+> > Hi Greg,
+> > forgot to ask you, can you please merge this one to stable #5.14.y?
+> > At the time I was not sure if it was getting in final 5.14 or not.
+> >=20
+> > It applies clean on top of 5.14.7.
+> > And without it, it triggers BUG sleep in atomic checks.
+> >=20
+> > upstream commit:
+> > 41f673183862a1 usb: isp1760: do not sleep in field register poll
+> > https://lore.kernel.org/r/20210727100516.4190681-3-rui.silva@linaro.org
+> >=20
+> > fixes tag:
+> > Fixes: 1da9e1c06873 ("usb: isp1760: move to regmap for register access"=
+)
+>
+> Sure, will queue it up after this next round of stable kernels are
+> released in a few days.
 
-platform  | arch | lab          | compiler | defconfig          | regressio=
-ns
-----------+------+--------------+----------+--------------------+----------=
---
-beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1        =
-  =
+Thanks a lot.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.283-26-gc89f18a8a381/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.283-26-gc89f18a8a381
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c89f18a8a38169017dfed0c73e80f46c04eed74e =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig          | regressio=
-ns
-----------+------+--------------+----------+--------------------+----------=
---
-beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1        =
-  =
-
-
-  Details:     https://kernelci.org/test/plan/id/614ea338e350735ae699a2e5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.283-2=
-6-gc89f18a8a381/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-x=
-m.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.283-2=
-6-gc89f18a8a381/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-x=
-m.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/614ea338e350735ae699a=
-2e6
-        new failure (last pass: v4.9.283-17-g8597a4a2fe64) =
-
- =20
+------
+Cheers,
+     Rui
