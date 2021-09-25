@@ -2,70 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B19554181C2
-	for <lists+stable@lfdr.de>; Sat, 25 Sep 2021 13:53:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33C744181D1
+	for <lists+stable@lfdr.de>; Sat, 25 Sep 2021 14:13:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237275AbhIYLzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Sep 2021 07:55:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38608 "EHLO mail.kernel.org"
+        id S237275AbhIYMPD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Sep 2021 08:15:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232363AbhIYLzI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 25 Sep 2021 07:55:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F28D61279;
-        Sat, 25 Sep 2021 11:53:33 +0000 (UTC)
+        id S236977AbhIYMPC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 25 Sep 2021 08:15:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C35A361279;
+        Sat, 25 Sep 2021 12:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632570814;
-        bh=8PPCNSEHwg0GRnU7I42SpHXomGQuXEXur5VrtiBLaW0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=klAbZMFwR6d1xTrNFigEaYAh76A22T4sXZIukGtTTJnpu15DAC4KSMxyoP/JLf/bK
-         qBXTDyQzCHD7MP9F+9E+0CJeSNpanfLyDuPZ/6Mn5m+PcFXHjbhknXMMQlab5NCfCp
-         +G6PsYLzIrqqohVleUqR+h/DFi2FgATY9ZdsSG2Y=
-Date:   Sat, 25 Sep 2021 13:53:31 +0200
+        s=korg; t=1632572008;
+        bh=/xwGSXEPVz5AfkVoVulMB1CBxNY0tJhy4GfNiqDaT+s=;
+        h=From:To:Cc:Subject:Date:From;
+        b=MBDewj/gRannmEpS3AS1EaVymhMqs5WySs35MZ1ZMYEryPDweUwBfbCoF1kPGvCqq
+         3QEtP5vvU97BbEQG2uMaXhsiouk0p1gufHTod/FgAUJYD/havfUUhEBxXX31MUfpNe
+         HyMUY833c58A7Ex8SgDA7HOkaXHxXWXjt+U0fhQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Koby Elbaz <kelbaz@habana.ai>,
-        Oded Gabbay <ogabbay@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.14 080/100] habanalabs: fix race between soft reset and
- heartbeat
-Message-ID: <YU8Nu4UPvbZbAwm7@kroah.com>
-References: <20210924124341.214446495@linuxfoundation.org>
- <20210924124344.145361365@linuxfoundation.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.4 00/22] 4.4.285-rc2 review
+Date:   Sat, 25 Sep 2021 14:13:25 +0200
+Message-Id: <20210925120743.574120997@linuxfoundation.org>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210924124344.145361365@linuxfoundation.org>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.285-rc2.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.285-rc2
+X-KernelTest-Deadline: 2021-09-27T12:07+00:00
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 24, 2021 at 02:44:29PM +0200, Greg Kroah-Hartman wrote:
-> From: Koby Elbaz <kelbaz@habana.ai>
-> 
-> [ Upstream commit 8bb8b505761238be0d6a83dc41188867d65e5d4c ]
-> 
-> There is a scenario where an ongoing soft reset would race with an
-> ongoing heartbeat routine, eventually causing heartbeat to fail and
-> thus to escalate into a hard reset.
-> 
-> With this fix, soft-reset procedure will disable heartbeat CPU messages
-> and flush the (ongoing) current one before continuing with reset code.
-> 
-> Signed-off-by: Koby Elbaz <kelbaz@habana.ai>
-> Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
-> Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/misc/habanalabs/common/device.c      | 53 +++++++++++++++-----
->  drivers/misc/habanalabs/common/firmware_if.c | 18 +++++--
->  drivers/misc/habanalabs/common/habanalabs.h  |  4 +-
->  drivers/misc/habanalabs/common/hw_queue.c    | 30 ++++-------
->  4 files changed, 67 insertions(+), 38 deletions(-)
-> 
+This is the start of the stable review cycle for the 4.4.285 release.
+There are 22 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-This change adds a build warning so I'm going to drop it from the tree
-for now.
+Responses should be made by Mon, 27 Sep 2021 12:07:36 +0000.
+Anything received after that time might be too late.
+
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.285-rc2.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
 
 thanks,
 
 greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.285-rc2
+
+Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+    sctp: validate from_addr_param return
+
+Guenter Roeck <linux@roeck-us.net>
+    drm/nouveau/nvkm: Replace -ENOSYS with -ENODEV
+
+Li Jinlin <lijinlin3@huawei.com>
+    blk-throttle: fix UAF by deleteing timer in blk_throtl_exit()
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix memory leak in nilfs_sysfs_delete_snapshot_group
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix memory leak in nilfs_sysfs_create_snapshot_group
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix memory leak in nilfs_sysfs_delete_##name##_group
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix memory leak in nilfs_sysfs_create_##name##_group
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix NULL pointer in nilfs_##name##_attr_release
+
+Nanyong Sun <sunnanyong@huawei.com>
+    nilfs2: fix memory leak in nilfs_sysfs_create_device_group
+
+Jeff Layton <jlayton@kernel.org>
+    ceph: lockdep annotations for try_nonblocking_invalidate
+
+Johannes Berg <johannes.berg@intel.com>
+    dmaengine: ioat: depends on !UML
+
+Guenter Roeck <linux@roeck-us.net>
+    parisc: Move pci_dev_is_behind_card_dino to where it is used
+
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+    dmaengine: acpi: Avoid comparison GSI with Linux vIRQ
+
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+    dmaengine: acpi-dma: check for 64-bit MMIO address
+
+Pavel Skripkin <paskripkin@gmail.com>
+    profiling: fix shift-out-of-bounds bugs
+
+Cyrill Gorcunov <gorcunov@gmail.com>
+    prctl: allow to setup brk for et_dyn executables
+
+Xie Yongji <xieyongji@bytedance.com>
+    9p/trans_virtio: Remove sysfs file on probe failure
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    thermal/drivers/exynos: Fix an error code in exynos_tmu_probe()
+
+Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+    sctp: add param size validation for SCTP_PARAM_SET_PRIMARY
+
+Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+    sctp: validate chunk size in __rcv_asconf_lookup
+
+Tony Lindgren <tony@atomide.com>
+    PM / wakeirq: Fix unbalanced IRQ enable for wakeirq
+
+Ilya Leoshkevich <iii@linux.ibm.com>
+    s390/bpf: Fix optimizing out zero-extensions
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                          |  4 +-
+ arch/s390/net/bpf_jit_comp.c                      | 50 ++++++++++++-----------
+ block/blk-throttle.c                              |  1 +
+ drivers/base/power/wakeirq.c                      |  6 ++-
+ drivers/dma/Kconfig                               |  2 +-
+ drivers/dma/acpi-dma.c                            | 11 ++++-
+ drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c |  2 +-
+ drivers/parisc/dino.c                             | 18 ++++----
+ drivers/thermal/samsung/exynos_tmu.c              |  1 +
+ fs/ceph/caps.c                                    |  2 +
+ fs/nilfs2/sysfs.c                                 | 26 +++++-------
+ include/net/sctp/structs.h                        |  2 +-
+ kernel/profile.c                                  | 21 +++++-----
+ kernel/sys.c                                      |  7 ----
+ net/9p/trans_virtio.c                             |  4 +-
+ net/sctp/bind_addr.c                              | 20 +++++----
+ net/sctp/input.c                                  |  9 +++-
+ net/sctp/ipv6.c                                   |  7 +++-
+ net/sctp/protocol.c                               |  7 +++-
+ net/sctp/sm_make_chunk.c                          | 42 +++++++++++--------
+ 20 files changed, 138 insertions(+), 104 deletions(-)
+
+
