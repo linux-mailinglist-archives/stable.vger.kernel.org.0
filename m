@@ -2,92 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04AE84180D2
-	for <lists+stable@lfdr.de>; Sat, 25 Sep 2021 11:35:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DF1D4180F3
+	for <lists+stable@lfdr.de>; Sat, 25 Sep 2021 12:09:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235512AbhIYJgd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Sep 2021 05:36:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38468 "EHLO
+        id S234958AbhIYKKj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Sep 2021 06:10:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229870AbhIYJgc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Sep 2021 05:36:32 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 191C6C061570
-        for <stable@vger.kernel.org>; Sat, 25 Sep 2021 02:34:58 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id t18so34885716wrb.0
-        for <stable@vger.kernel.org>; Sat, 25 Sep 2021 02:34:58 -0700 (PDT)
+        with ESMTP id S234659AbhIYKKi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Sep 2021 06:10:38 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D87DDC061570
+        for <stable@vger.kernel.org>; Sat, 25 Sep 2021 03:09:03 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id d6so34839079wrc.11
+        for <stable@vger.kernel.org>; Sat, 25 Sep 2021 03:09:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:content-transfer-encoding:date:message-id:cc:subject
-         :from:to:references:in-reply-to;
-        bh=E9VZvuypCKKa0kVD0aiDreJfpoj+4GgRIXr6zNF5NkQ=;
-        b=n5/1zVQkaV/URwP7/3ff5DNA0qyZK62ih69BYgtxEte3vQ2IiEx7S4MNsB4k7SKjAv
-         gTBxLRG/4RojDEzRg/aAjvpGC8cUJMC5oeKZcnnGYTVGmnn+r0xJ7cJdLgZMxchsOWvi
-         khe4rt8yBt7PB5ZuILPnWFJD+96wfomeiYva6CtdxkIDHxuyeGZdqU03I0tFbxb+2ysp
-         dAlDfEpI+zGZAz5luSWTNvI6/cXIDC1QPEQFzLu6LCC3Fjt74n8945JcJTIJM/78S5LV
-         Mm3budv38CFFZ+ujSiBcMWdsaNPIixQy+31EKGiThtyZD0lNfDeRKgbISV2afvtqfvzB
-         vdTQ==
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=+MJNtwmLFhP4i6uQRJcnmr55nfgiszVIIhpwBLnr0dU=;
+        b=ICGqxmJ1V38v5jDrLRcB3/xJJ0klKSD6OzdBaPnFu1aTZOVODb8VJJErclBOfd4T6f
+         EVYHP8ZjmLF7y3U9KOFjzCopw/cMqDV5RH0OG/KpDgOJ4kWfrd3XRcWGC0QfDaNyiwLS
+         x42n7Yc4FMDI596+Tk0Ce/DQ5zJKLQAZTHw/Jwl3bNFky6kLUXC/as457ZuVnwot2hG/
+         a4YLKaBBjfmnKJ5f68GbhZAwKrm0gz1Mr32grMN65Mf7GvfsKDTPVTmVnHnl8k1Jg8Nu
+         C/o2sKvlTyAYdjrliwSMyECX5JiaUFDPR7/5escKdm32okA5yNLeuAjbgYIRzxICPkIS
+         MNtQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:content-transfer-encoding:date
-         :message-id:cc:subject:from:to:references:in-reply-to;
-        bh=E9VZvuypCKKa0kVD0aiDreJfpoj+4GgRIXr6zNF5NkQ=;
-        b=rdLJ0pNU9+EHks0bWnTMVtQ9wdevh44rvU2mQjkkajm1iA/09GZeODGvmnpliiCQsW
-         llEu4jXtZDdNuDKsvf4WWZI9ftY3xV/bJtYAq4+JdTduermrlqm807A+9kxQ7gUmUDD0
-         t35N2LJq3o8KMaZ3O32Icaq3VqmKbnPzn9P2T1SvyvpoJWtWtRfN1vIq9/+hg4K4VBgr
-         E4fR5jy1qSrIwf2psZIFUeCNy2J1dv4EILminznRQ5XoLZ/cH2xRskK2eizunzCOFsmk
-         xCk9HoVjnoL8bbf/HXy7BE3azqFPreOvHwloRw6Uz8sNdi4mU7Mm+znqDFneR8D0F86T
-         U5rA==
-X-Gm-Message-State: AOAM531lr2uZCs+ClW/xMfx+Bk6SAoQC9dXikiwiRS3IpBcYCWlh6+II
-        OjITHD0AsSO+um/ORS0fXwcWuA==
-X-Google-Smtp-Source: ABdhPJwRESZEF7H5Amvn2IEzk7c0W3RmQQsX79PW/DmDad5B7N4J+wIH7WwHNeMUGcMf3CZx0qy35Q==
-X-Received: by 2002:a05:6000:18ab:: with SMTP id b11mr16629557wri.131.1632562496638;
-        Sat, 25 Sep 2021 02:34:56 -0700 (PDT)
-Received: from localhost (a109-49-46-234.cpe.netcabo.pt. [109.49.46.234])
-        by smtp.gmail.com with ESMTPSA id 5sm11128597wmb.37.2021.09.25.02.34.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 25 Sep 2021 02:34:56 -0700 (PDT)
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date:   Sat, 25 Sep 2021 10:34:55 +0100
-Message-Id: <CEIV3SMWQ4Z7.1V01734EC2SA0@arch-thunder>
-Cc:     <stable@vger.kernel.org>
-Subject: Re: [PATCH 2/3] usb: isp1760: do not sleep in field register poll
-From:   "Rui Miguel Silva" <rui.silva@linaro.org>
-To:     "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-References: <20210727100516.4190681-1-rui.silva@linaro.org>
- <20210727100516.4190681-3-rui.silva@linaro.org>
- <CEI85GUCGPFO.2GIJLZMWZCXBJ@arch-thunder> <YU32aMGCGY9GZKlx@kroah.com>
-In-Reply-To: <YU32aMGCGY9GZKlx@kroah.com>
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=+MJNtwmLFhP4i6uQRJcnmr55nfgiszVIIhpwBLnr0dU=;
+        b=fo7EJBrFBvBKyXKb1+TTVXd0BwhazONqA5KN08zQmWUQqVJVfMBsuxbVAAMatuKnKP
+         Al8QvVKKa6aseahaffD0CmmozLjYKc3XKZo+k4UGSLnJHYj3BD23LBg++a2wC8sWI4eV
+         favoMMlb+a/a4b4/Ah3H+vI0jqBM/1frIagYjsfnd6N/9ycfYA3BQJEks6BiNP7U1+gY
+         DDv5w+Cfd6qXjuCZFLLIgorgtwYTpt5C5bq9tZs4JM77zsrYvkJ5I8g0p2NW7RBghrlx
+         Er6j4l5piX0x5d7WNUudqmIKQFJ5OutdqUfJWW7twt/MSy1utZc+/111lSfQI4D0fohz
+         7BsQ==
+X-Gm-Message-State: AOAM532sDJgr2Vz5kIjUgI/ddM3z5UXUfxh6WSYWup6kSnjoB+fu3Nv6
+        Qd/fmtDjsjYqFN7IQp/qimZOY4vyWHudfGYpSMs=
+X-Google-Smtp-Source: ABdhPJwy4oQDaPR/7TQIiXpksTHanOKpq4OUKGp7mNgBElosyTDMhKIbx+jxFVKyeky3iC0i62C/Ybv417VKsneFz+k=
+X-Received: by 2002:a5d:6dce:: with SMTP id d14mr16931578wrz.363.1632564542310;
+ Sat, 25 Sep 2021 03:09:02 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:adf:80d0:0:0:0:0:0 with HTTP; Sat, 25 Sep 2021 03:09:01
+ -0700 (PDT)
+Reply-To: mussaomra2017@gmail.com
+From:   Omra Musa <kabore.mustafer01@gmail.com>
+Date:   Sat, 25 Sep 2021 10:09:01 +0000
+Message-ID: <CAKxFkV2Lc6T20c0QgCo9=_v07RAv5vBzKSacTg=pHv0MzfvbTQ@mail.gmail.com>
+Subject: I NEED YOUR URGENT RESPOND.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hey Greg,
-On Fri Sep 24, 2021 at 5:01 PM WEST, Greg Kroah-Hartman wrote:
+ From Mr Omra Musa
+Bank Of Africa (B.O.A)
+Burkina Faso Ouagadougou
 
-> On Fri, Sep 24, 2021 at 04:35:40PM +0100, Rui Miguel Silva wrote:
-> > Hi Greg,
-> > forgot to ask you, can you please merge this one to stable #5.14.y?
-> > At the time I was not sure if it was getting in final 5.14 or not.
-> >=20
-> > It applies clean on top of 5.14.7.
-> > And without it, it triggers BUG sleep in atomic checks.
-> >=20
-> > upstream commit:
-> > 41f673183862a1 usb: isp1760: do not sleep in field register poll
-> > https://lore.kernel.org/r/20210727100516.4190681-3-rui.silva@linaro.org
-> >=20
-> > fixes tag:
-> > Fixes: 1da9e1c06873 ("usb: isp1760: move to regmap for register access"=
-)
->
-> Sure, will queue it up after this next round of stable kernels are
-> released in a few days.
+My Dear Friend,
 
-Thanks a lot.
+Please I want you to read this letter very carefully and I must
+apologize for barging this message into your mail box without any
+formal introduction due to the urgency and confidential of this issue
+and I know that this message will come to you as a surprise. Please
+this is not a joke and I will not like you to joke with it.
 
-------
-Cheers,
-     Rui
+I am Mr Omra Musa Manager in Bank Of Africa (B.O.A) Ouagadougou,
+Burkina Faso. I Hoped that you will not expose or betray this trust
+and confident that I am about to establish with you for the mutual
+benefit of you and I. This fund was deposited in our bank by Mr.
+Kattan Azmal from Jordan who died in a plane crash in 2000 Tbm 700
+aircraft on 31st July with his wife and the whole crew on board.
+
+I need your urgent assistance in transferring the sum of ($15) million
+USD into your account within 14 working banking days. This money has
+been deposited for years in our Bank without claim due to the owner of
+this fund died along with his entire family in an air crash since July
+31st 2000.
+
+The reason why i contacted you is that after the bank audit in 24th of
+November, we found out that this fund has remained unclaimed since the
+death of the deceased costumer.
+
+I want our bank to release this fund to you as the nearest person to
+our deceased customer while i come over to your country to share this
+fund with you as soon as you confirm this fund into your account and
+ask me to come over. I don't want the money to go into our Bank
+treasure as an abandoned fund. So this is the reason why i contacted
+you so that our bank will release this money to you as the next of kin
+to the deceased customer. Please I would like you to keep this
+proposal as a top secret and delete it if you are not interesting.
+
+Upon the receipt of your reply and indication of your capability, i
+will give you full details on how the business will be executed and
+also note that you will have 50% of the above mentioned sum if you
+agree to handle this business with me while 50% be for me, Because i
+don't want anyone here in our bank to know my involvement until you
+confirm this fund into your account and ask me to come over for the
+sharing as I indicated.
+
+I am looking forward to hear from you immediately for further information
+
+THE REQUESTED INFORMATIONS BELOW
+==================================
+1. FULL NAME..............
+2. TELEPHONE NUMBERS/MOBILE/FAX.......
+3. YOUR AGE......
+4. YOUR SEX.........
+5. YOUR OCCUPATION........
+6. YOUR COUNTRY AND CITY......
+7. YOUR HOME ADDRESS........
+8. MARITAL STATUS............
+
+Sincerely,
+Mr Omra Musa
+
+You can reply to my private email address at momrra2021@gmail.com
