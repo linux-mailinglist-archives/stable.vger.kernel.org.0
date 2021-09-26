@@ -2,125 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A1C24187E8
-	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 11:30:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DE4541881E
+	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 12:33:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229848AbhIZJbi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Sep 2021 05:31:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58910 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229584AbhIZJbi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 26 Sep 2021 05:31:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C4C3600CC;
-        Sun, 26 Sep 2021 09:30:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632648601;
-        bh=pPudxk3CsgGXPqe6PiLOqvYkDNYOXngQaJfkKoq8SEc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HgHRn/t9XvYwEP1PZhtjN85StzUNw2GkxQTHSLlqY6CzSMFRMILstlio5qNfs/591
-         HWBi/5QElaimM++2tZP/gwfNjMLf8fomcU8sFAUWCKVyrzcUWN9BGvDaUe30AC8p6j
-         +wlrghgIsDDOyUmiUY3S09RquXVpfNiDKHQzkI9o=
-Date:   Sun, 26 Sep 2021 11:29:59 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Salvatore Bonaccorso <carnil@debian.org>
-Cc:     Jari Ruusu <jariruusu@protonmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Aurelien Jarno <aurelien@aurel32.net>
-Subject: Re: glibc VETO for kernel version SUBLEVEL >= 255
-Message-ID: <YVA9l9svFyDgLPJy@kroah.com>
-References: <qscod31lyVG7t-CW63o_pnsara-v9Wf6qXz9eSfUZnxtHk2AkeJ73yvER1XYO_311Wxo2wC8L2JuTdLJm8vgvhVVaGa5fdumXx5iHWarqwA=@protonmail.com>
- <YVAhOlTsb0NK0BVi@kroah.com>
- <YVArDZSq9oaTFakz@eldamar.lan>
+        id S230128AbhIZKfH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Sep 2021 06:35:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54066 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230085AbhIZKfF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Sep 2021 06:35:05 -0400
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB048C061570;
+        Sun, 26 Sep 2021 03:33:28 -0700 (PDT)
+Received: by mail-wr1-x430.google.com with SMTP id d6so42163620wrc.11;
+        Sun, 26 Sep 2021 03:33:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=OrqH5IhJDnI7HeFnItr1cUdMgxdvHJZQ3QI6ktAUmKE=;
+        b=ifGObEysSyJTZSEsULqqwgB4rD87Xw5T/9K4kiIjpBZSyNUOAEs2Rs+T3r8TxaYD8R
+         zDH9ZPKYWBPH/AIn31iMkbDfn/sR2sBkmnM4OZGEi7avHCnqeCn4c7h1ANM2KprHKMx4
+         HcmAMOLkCc9y5MR69adER5Ic0uAy/nnAqfQvCGrCZygzOaD2YsH4wemih2h9nsc3Im1s
+         T4m+SxcX80Oanv/7CEiBOwWmyeFn25mCE+tM3DryEYd18DyHM2Wzcp7+AjC//H35j3jM
+         Z0ziA29YHt1CTxR2W2cBLR1CqwEJeYE5UIQ//n6UqZFOHQ0Topg9IRaNleLop+UptHNd
+         MnuA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=OrqH5IhJDnI7HeFnItr1cUdMgxdvHJZQ3QI6ktAUmKE=;
+        b=J8dfmLFZtLcJ0GLIi2dtDSzCq2VrFeJ06Y4EYevlaMdlnCYCWT9BBaBrKJhqTai+5t
+         eq+6CWbq+WnS41APum3Q8zvP+wIggHKziKyJYvdFq2mD1hwuPOgaNjf8lVOSzleRsAlE
+         qJslecT6VELsUdhZ9tdc1GUIbo4nwbN9kXkNRHJGcecnQw1pjKlqL3pRgrmT35KJGlY/
+         ifSSoQvyBmweTkiOgt+F3n3Quv4XfxmwAEK2RmbLYKw2/n+AIHRc1lPs1HKJ/gSksLg3
+         ueIQW7sMFqYtDWyfkTolGVC2eh2kqP7q3tOoPMwgRQ0lUXgFPX0m4WsMN8b6NBMu6NzD
+         W0ow==
+X-Gm-Message-State: AOAM5306gwKHsvWVXA8Nli8wOzLclC+14jLWVDSAzO4hmYffEueAolwq
+        AUHFghu/ORpRUAgG4lUolSE9k+lmEDTm6zdZ
+X-Google-Smtp-Source: ABdhPJwIdselwj9HIuzXQEFEgXbDxRWdk+K+a84cQGuRi6rTyVbJlk6kSYrKMGD9F/1TJtzuou/LIw==
+X-Received: by 2002:a5d:6392:: with SMTP id p18mr21123616wru.372.1632652407192;
+        Sun, 26 Sep 2021 03:33:27 -0700 (PDT)
+Received: from mkuron-mbp-m1.home.kuron-germany.de (i5DB53509.pool.tripleplugandplay.com. [93.181.53.9])
+        by smtp.gmail.com with ESMTPSA id i27sm18007690wmb.40.2021.09.26.03.33.26
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 26 Sep 2021 03:33:26 -0700 (PDT)
+From:   Michael Kuron <michael.kuron@gmail.com>
+To:     linux-media@vger.kernel.org
+Cc:     Michael Kuron <michael.kuron@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] media: dib0700: fix undefined behavior in tuner shutdown
+Date:   Sun, 26 Sep 2021 12:31:04 +0200
+Message-Id: <20210926103104.1792-1-michael.kuron@gmail.com>
+X-Mailer: git-send-email 2.30.1 (Apple Git-130)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YVArDZSq9oaTFakz@eldamar.lan>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Sep 26, 2021 at 10:10:53AM +0200, Salvatore Bonaccorso wrote:
-> Hi,
-> 
-> On Sun, Sep 26, 2021 at 09:28:58AM +0200, Greg Kroah-Hartman wrote:
-> > On Sun, Sep 26, 2021 at 07:23:33AM +0000, Jari Ruusu wrote:
-> > > Earlier this year there was some discussion about kernel version numbers
-> > > after 4.9.255 and 4.4.255. Problem was 8-bit limitation for SUBLEVEL
-> > > number in stable kernel versions. The fix was to freeze LINUX_VERSION_CODE
-> > > number at x.x.255 and to continue incrementing SUBLEVEL number. Seems
-> > > there are more more fallout from that decision. At least some versions of
-> > > glibc do not play well with larger SUBLEVEL numbers.
-> > > 
-> > > 
-> > > # uname -s -r -m
-> > > Linux 4.9.283-QEMU armv6l
-> > > # apt upgrade
-> > > Reading package lists... Done
-> > > Building dependency tree
-> > > Reading state information... Done
-> > > Calculating upgrade... Done
-> > > The following packages will be upgraded:
-> > >  [SNIP]
-> > > Fetched 145 MB in 1min 57s (1244 kB/s)
-> > > Reading changelogs... Done
-> > > Preconfiguring packages ...
-> > > (Reading database ... 39028 files and directories currently installed.)
-> > > Preparing to unpack .../libc6-dbg_2.28-10+rpt2+rpi1_armhf.deb ...
-> > > Unpacking libc6-dbg:armhf (2.28-10+rpt2+rpi1) over (2.28-10+rpi1) ...
-> > > Preparing to unpack .../libc6-dev_2.28-10+rpt2+rpi1_armhf.deb ...
-> > > Unpacking libc6-dev:armhf (2.28-10+rpt2+rpi1) over (2.28-10+rpi1) ...
-> > > Preparing to unpack .../libc-dev-bin_2.28-10+rpt2+rpi1_armhf.deb ...
-> > > Unpacking libc-dev-bin (2.28-10+rpt2+rpi1) over (2.28-10+rpi1) ...
-> > > Preparing to unpack .../linux-libc-dev_1%3a1.20210831-3~buster_armhf.deb ...
-> > > Unpacking linux-libc-dev:armhf (1:1.20210831-3~buster) over (1:1.20210527-1) ...
-> > > Preparing to unpack .../libc6_2.28-10+rpt2+rpi1_armhf.deb ...
-> > > ERROR: Your kernel version indicates a revision number
-> > > of 255 or greater.  Glibc has a number of built in
-> > > assumptions that this revision number is less than 255.
-> > > If you\'ve built your own kernel, please make sure that any
-> > > custom version numbers are appended to the upstream
-> > > kernel number with a dash or some other delimiter.
-> > > 
-> > > dpkg: error processing archive /var/cache/apt/archives/libc6_2.28-10+rpt2+rpi1_armhf.deb (--unpack):
-> > >  new libc6:armhf package pre-installation script subprocess returned error exit status 1
-> > > Errors were encountered while processing:
-> > >  /var/cache/apt/archives/libc6_2.28-10+rpt2+rpi1_armhf.deb
-> > > E: Sub-process /usr/bin/dpkg returned an error code (1)
-> > > 
-> > > 
-> > > 
-> > > Above upgrade works normally if I edit top level Linux source Makefile to
-> > > say "SUBLEVEL = 0" and re-compile new kernel.
-> > > 
-> > > I am not pointing any fingers here, but it seems that either glibc code or
-> > > stable kernel versioning is messed up.
-> > 
-> > Are you sure this isn't just a warning coming from a script that apt is
-> > running when trying to install glibc?  Or is this from the glibc package
-> > itself?
-> > 
-> > And what exactly is it testing?  We fixed the build time detection of
-> > the kernel version here, so you should be able to build glibc properly.
-> > 
-> > This is the first time we've seen this reported, are people using the
-> > newer kernels on systems that are not using glibc?
-> 
-> They are probably not using a problematic combination or a
-> distribution kernel on those systems. Looking from the mentioned
-> versions above this looks like a version derived from Debian buster.
-> 
-> Recently prompted due to https://bugs.debian.org/987266 the check was
-> removed in the postinst script of libc in Debian:
-> https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=987266 .
+This fixes a problem where closing the tuner would leave it in a state
+where it would not tune to any channel when reopened. This problem was
+discovered as part of https://github.com/hselasky/webcamd/issues/16.
 
-Wonderful, thanks for pointing this out!
+Since adap->id is 0 or 1, this bit-shift overflows, which is undefined
+behavior. The driver still worked in practice as the overflow would in
+most environments result in 0, which rendered the line a no-op. When
+running the driver as part of webcamd however, the overflow could lead to
+0xff due to optimizations by the compiler, which would, in the end,
+improperly shut down the tuner.
 
-Jari, try asking whatever distro you are getting these rebuilt packages
-from to update their scripts and all should be good.
+The bug is a regression introduced in the commit referenced below. The
+present patch causes identical behavior to before that commit for adap->id
+equal to 0 or 1. The driver does not contain support for dib0700 devices
+with more adapters, assuming such even exist.
 
-thanks,
+Tests have been performed with the Xbox One Digital TV Tuner on amd64. Not
+all dib0700 devices are expected to be affected by the regression; this
+code path is only taken by those with incorrect endpoint numbers.
 
-greg k-h
+Cc: stable@vger.kernel.org
+Fixes: 7757ddda6f4f ("[media] DiB0700: add function to change I2C-speed")
+Signed-off-by: Michael Kuron <michael.kuron@gmail.com>
+---
+ drivers/media/usb/dvb-usb/dib0700_core.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/media/usb/dvb-usb/dib0700_core.c b/drivers/media/usb/dvb-usb/dib0700_core.c
+index 70219b3e8566..7ea8f68b0f45 100644
+--- a/drivers/media/usb/dvb-usb/dib0700_core.c
++++ b/drivers/media/usb/dvb-usb/dib0700_core.c
+@@ -618,8 +618,6 @@ int dib0700_streaming_ctrl(struct dvb_usb_adapter *adap, int onoff)
+ 		deb_info("the endpoint number (%i) is not correct, use the adapter id instead", adap->fe_adap[0].stream.props.endpoint);
+ 		if (onoff)
+ 			st->channel_state |=	1 << (adap->id);
+-		else
+-			st->channel_state |=	1 << ~(adap->id);
+ 	} else {
+ 		if (onoff)
+ 			st->channel_state |=	1 << (adap->fe_adap[0].stream.props.endpoint-2);
+-- 
+2.30.1 (Apple Git-130)
+
