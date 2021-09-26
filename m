@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 699F14188A6
-	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 14:36:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 070524188A7
+	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 14:36:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231403AbhIZMhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Sep 2021 08:37:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41424 "EHLO mail.kernel.org"
+        id S231407AbhIZMht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Sep 2021 08:37:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230160AbhIZMhk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 26 Sep 2021 08:37:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 225C461019;
-        Sun, 26 Sep 2021 12:36:03 +0000 (UTC)
+        id S230160AbhIZMht (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 26 Sep 2021 08:37:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB0A36103B;
+        Sun, 26 Sep 2021 12:36:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632659764;
-        bh=8VpK0bhzsbgRsqnyWjVxJz7Rp3oFS3HWtYYHJZiMwqk=;
+        s=korg; t=1632659773;
+        bh=m+ngff4AD4+tSkIRL/QcCEudImXQw/j3sAmDScoa5CQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=nONmLSDXqkmaeU0qNlR1eYRIBuqpfiXgRBja/4F1p25qVt8f6JW9c2zKaZVLAx6GJ
-         WvTu8k2TqrV2Es3B4bQBv1FbmjTlK6vrkXrVT21NnXy2F6EjdkjWQdE88IvMsKm7Gc
-         gDB8gWifCUOpV/N0cKt/9DbLYx/8zWp86tIYUxyY=
-Subject: FAILED: patch "[PATCH] USB: serial: cp210x: fix dropped characters with CP2102" failed to apply to 5.14-stable tree
+        b=oLpHPRbW1JLXvMjHNDuKliASHqQPGOuHAjinVPiKqRAUvi0oP4aWj8FPVP6eSFxdU
+         +jtsHwFO9ooC1XbIhj5ixaZwR+55j+y1KWi95a3y9iaghD/ZNKu87lAl21IKsArSNE
+         iRXD62w/THhsqJvtOmsVc7F4zENOMAUeZ04fVReE=
+Subject: FAILED: patch "[PATCH] USB: serial: cp210x: fix dropped characters with CP2102" failed to apply to 5.10-stable tree
 To:     johan@kernel.org, malte@neo-soft.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 26 Sep 2021 14:36:01 +0200
-Message-ID: <1632659761259@kroah.com>
+Date:   Sun, 26 Sep 2021 14:36:02 +0200
+Message-ID: <163265976250117@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.14-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
