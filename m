@@ -2,127 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 110444188B6
-	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 14:48:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CD354188B9
+	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 14:49:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231455AbhIZMuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Sep 2021 08:50:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49858 "EHLO mail.kernel.org"
+        id S231481AbhIZMvN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Sep 2021 08:51:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230160AbhIZMuF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 26 Sep 2021 08:50:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C4E160F93;
-        Sun, 26 Sep 2021 12:48:28 +0000 (UTC)
+        id S231469AbhIZMvN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 26 Sep 2021 08:51:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9691A60F6D;
+        Sun, 26 Sep 2021 12:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632660509;
-        bh=NIpztGt19NCrQUXnHLyPlhhyVDxpIxXeE136Y+JWR7Q=;
-        h=Subject:To:Cc:From:Date:From;
-        b=dkDlacgqtbvjEPOEMKSOGyO7vfvLpatSJkUPv/g9FCShcP1Tp/Xi9TH6iFQ5DANqw
-         9BmJrdolo/lvxC3v8iq6seJtYwqtOZHAVLn0VcjEu2yOAsZvopbM5Mgnhmfu2NPbP3
-         jUhTVXIekVjzzY8EhtQV1ttHBo6x2zTP5FO25yTE=
-Subject: FAILED: patch "[PATCH] software node: balance refcount for managed software nodes" failed to apply to 5.14-stable tree
-To:     laurentiu.tudor@nxp.com, heikki.krogerus@linux.intel.com,
-        jon@solid-run.com, rafael.j.wysocki@intel.com,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 26 Sep 2021 14:48:26 +0200
-Message-ID: <1632660506144131@kroah.com>
+        s=korg; t=1632660577;
+        bh=fdTguQ0s8aFkEqvA84sLuRe9n421hOEESNXVc2xoDok=;
+        h=From:To:Cc:Subject:Date:From;
+        b=XKqPVFLqGIuUTJLekbl5VxrJOXCs1YvtETHsiQR0ZmHmpu8ZWuQaHsXj+wTshdRNB
+         R6Lk+z+M7LxwdIfJsjioCAL4a83Q1t1Kz0+RcObBkhBM86ueGta+Ij/9GaCubaycTP
+         VT9L+a3CKk5iJ5Ll/dOukBcMfztE9dzVQc0+RVK4=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.4.285
+Date:   Sun, 26 Sep 2021 14:49:33 +0200
+Message-Id: <1632660573182224@kroah.com>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+I'm announcing the release of the 4.4.285 kernel.
 
-The patch below does not apply to the 5.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+All users of the 4.4 kernel series must upgrade.
+
+The updated 4.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
 thanks,
 
 greg k-h
 
------------------- original commit in Linus's tree ------------------
+------------
 
-From 5aeb05b27f81269a2bf2e15eab9fc0f9a400d3a8 Mon Sep 17 00:00:00 2001
-From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-Date: Wed, 15 Sep 2021 11:09:39 +0300
-Subject: [PATCH] software node: balance refcount for managed software nodes
+ Makefile                                          |    2 
+ arch/s390/net/bpf_jit_comp.c                      |   50 +++++++++++-----------
+ block/blk-throttle.c                              |    1 
+ drivers/base/power/wakeirq.c                      |    6 +-
+ drivers/dma/Kconfig                               |    2 
+ drivers/dma/acpi-dma.c                            |   11 +++-
+ drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c |    2 
+ drivers/parisc/dino.c                             |   18 +++----
+ drivers/thermal/samsung/exynos_tmu.c              |    1 
+ fs/ceph/caps.c                                    |    2 
+ fs/nilfs2/sysfs.c                                 |   26 ++++-------
+ include/net/sctp/structs.h                        |    2 
+ kernel/profile.c                                  |   21 ++++-----
+ kernel/sys.c                                      |    7 ---
+ net/9p/trans_virtio.c                             |    4 +
+ net/sctp/bind_addr.c                              |   20 ++++----
+ net/sctp/input.c                                  |    9 +++
+ net/sctp/ipv6.c                                   |    7 ++-
+ net/sctp/protocol.c                               |    7 ++-
+ net/sctp/sm_make_chunk.c                          |   42 +++++++++++-------
+ 20 files changed, 137 insertions(+), 103 deletions(-)
 
-software_node_notify(), on KOBJ_REMOVE drops the refcount twice on managed
-software nodes, thus leading to underflow errors. Balance the refcount by
-bumping it in the device_create_managed_software_node() function.
+Andy Shevchenko (2):
+      dmaengine: acpi-dma: check for 64-bit MMIO address
+      dmaengine: acpi: Avoid comparison GSI with Linux vIRQ
 
-The error [1] was encountered after adding a .shutdown() op to our
-fsl-mc-bus driver.
+Cyrill Gorcunov (1):
+      prctl: allow to setup brk for et_dyn executables
 
-[1]
-pc : refcount_warn_saturate+0xf8/0x150
-lr : refcount_warn_saturate+0xf8/0x150
-sp : ffff80001009b920
-x29: ffff80001009b920 x28: ffff1a2420318000 x27: 0000000000000000
-x26: ffffccac15e7a038 x25: 0000000000000008 x24: ffffccac168e0030
-x23: ffff1a2428a82000 x22: 0000000000080000 x21: ffff1a24287b5000
-x20: 0000000000000001 x19: ffff1a24261f4400 x18: ffffffffffffffff
-x17: 6f72645f726f7272 x16: 0000000000000000 x15: ffff80009009b607
-x14: 0000000000000000 x13: ffffccac16602670 x12: 0000000000000a17
-x11: 000000000000035d x10: ffffccac16602670 x9 : ffffccac16602670
-x8 : 00000000ffffefff x7 : ffffccac1665a670 x6 : ffffccac1665a670
-x5 : 0000000000000000 x4 : 0000000000000000 x3 : 00000000ffffffff
-x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff1a2420318000
-Call trace:
- refcount_warn_saturate+0xf8/0x150
- kobject_put+0x10c/0x120
- software_node_notify+0xd8/0x140
- device_platform_notify+0x4c/0xb4
- device_del+0x188/0x424
- fsl_mc_device_remove+0x2c/0x4c
- rebofind sp.c__fsl_mc_device_remove+0x14/0x2c
- device_for_each_child+0x5c/0xac
- dprc_remove+0x9c/0xc0
- fsl_mc_driver_remove+0x28/0x64
- __device_release_driver+0x188/0x22c
- device_release_driver+0x30/0x50
- bus_remove_device+0x128/0x134
- device_del+0x16c/0x424
- fsl_mc_bus_remove+0x8c/0x114
- fsl_mc_bus_shutdown+0x14/0x20
- platform_shutdown+0x28/0x40
- device_shutdown+0x15c/0x330
- __do_sys_reboot+0x218/0x2a0
- __arm64_sys_reboot+0x28/0x34
- invoke_syscall+0x48/0x114
- el0_svc_common+0x40/0xdc
- do_el0_svc+0x2c/0x94
- el0_svc+0x2c/0x54
- el0t_64_sync_handler+0xa8/0x12c
- el0t_64_sync+0x198/0x19c
----[ end trace 32eb1c71c7d86821 ]---
+Dan Carpenter (1):
+      thermal/drivers/exynos: Fix an error code in exynos_tmu_probe()
 
-Fixes: 151f6ff78cdf ("software node: Provide replacement for device_add_properties()")
-Reported-by: Jon Nettleton <jon@solid-run.com>
-Suggested-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-Cc: 5.12+ <stable@vger.kernel.org> # 5.12+
-[ rjw: Fix up the software_node_notify() invocation ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Greg Kroah-Hartman (1):
+      Linux 4.4.285
 
-diff --git a/drivers/base/swnode.c b/drivers/base/swnode.c
-index 7bd0f3cfb7eb..c46f6a8e14d2 100644
---- a/drivers/base/swnode.c
-+++ b/drivers/base/swnode.c
-@@ -1116,6 +1116,9 @@ int device_create_managed_software_node(struct device *dev,
- 	to_swnode(fwnode)->managed = true;
- 	set_secondary_fwnode(dev, fwnode);
- 
-+	if (device_is_registered(dev))
-+		software_node_notify(dev);
-+
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(device_create_managed_software_node);
+Guenter Roeck (2):
+      parisc: Move pci_dev_is_behind_card_dino to where it is used
+      drm/nouveau/nvkm: Replace -ENOSYS with -ENODEV
+
+Ilya Leoshkevich (1):
+      s390/bpf: Fix optimizing out zero-extensions
+
+Jeff Layton (1):
+      ceph: lockdep annotations for try_nonblocking_invalidate
+
+Johannes Berg (1):
+      dmaengine: ioat: depends on !UML
+
+Li Jinlin (1):
+      blk-throttle: fix UAF by deleteing timer in blk_throtl_exit()
+
+Marcelo Ricardo Leitner (3):
+      sctp: validate chunk size in __rcv_asconf_lookup
+      sctp: add param size validation for SCTP_PARAM_SET_PRIMARY
+      sctp: validate from_addr_param return
+
+Nanyong Sun (6):
+      nilfs2: fix memory leak in nilfs_sysfs_create_device_group
+      nilfs2: fix NULL pointer in nilfs_##name##_attr_release
+      nilfs2: fix memory leak in nilfs_sysfs_create_##name##_group
+      nilfs2: fix memory leak in nilfs_sysfs_delete_##name##_group
+      nilfs2: fix memory leak in nilfs_sysfs_create_snapshot_group
+      nilfs2: fix memory leak in nilfs_sysfs_delete_snapshot_group
+
+Pavel Skripkin (1):
+      profiling: fix shift-out-of-bounds bugs
+
+Tony Lindgren (1):
+      PM / wakeirq: Fix unbalanced IRQ enable for wakeirq
+
+Xie Yongji (1):
+      9p/trans_virtio: Remove sysfs file on probe failure
 
