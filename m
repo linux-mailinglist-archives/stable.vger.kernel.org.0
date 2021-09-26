@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BE10418906
-	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 15:25:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3D2D418907
+	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 15:25:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231732AbhIZN0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Sep 2021 09:26:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43754 "EHLO mail.kernel.org"
+        id S231735AbhIZN0z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Sep 2021 09:26:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231723AbhIZN0r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 26 Sep 2021 09:26:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10C8561019
-        for <stable@vger.kernel.org>; Sun, 26 Sep 2021 13:25:11 +0000 (UTC)
+        id S231723AbhIZN0z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 26 Sep 2021 09:26:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B01261038
+        for <stable@vger.kernel.org>; Sun, 26 Sep 2021 13:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632662711;
-        bh=JoBnth7Kifxi2TvHv1qIy1jgD/aP7R32AW2sAYPbJ5g=;
-        h=From:To:Subject:Date:From;
-        b=P2PznYS89howqMf42ptuncnd697KBT//Snku2o6cjvplqlgJNRxEkNx/eom5ZdVaJ
-         0bB5SsIUXgowsHgS/JGGRRKMAvKRIF3cY37zvOHXxwFsOS/clpDYDFBaog+605ujaq
-         ov8dkZyUY1HKiSQtXJhVUJ31d/Nhue7D23t3cHXIzEjCyW1T9Q1eV7PYEPtsLno/RZ
-         NMNiFGw2BVZC8oaA1E8soiifDgZnbeRcnwSSw5Mw2QTDBsbzuM+735NtBB0mdg9VfV
-         0qbEBfn7+JZ5KDskYdjDhZ3TGK/co/cscHj7l3koOWemkbo5hb18Wx3Pao/rK358yU
-         WlAfcHDDmFF/g==
+        s=k20201202; t=1632662719;
+        bh=ElexqrPpYGbeH7tN5hn4/D4TlgAeUZutCFNJAO2dG+o=;
+        h=From:To:Subject:Date:In-Reply-To:References:From;
+        b=fGwRSQBDajL8RRZYjUhxuew00DCJmvFXEs7wVM5Q478iNkuu3AFYl1LlFRmk1fZRI
+         Bx/BLlxdcDT05aX6j4kuvHsha/NziUGHGpdbYLBwYGQL8bE0KeSD3P0famuzum41dF
+         Gjq+FnpIqmpBqGSTF/nEBFFi+XS66aYcrlpwD23C4pEG615aX0wHTps62OVUWc+p4g
+         lca9XJouf2Y55PNP5oqrDriT+MBkNsTvrk9RhaakMvTSt8XpkJUfY/sIGI/QF18y+j
+         3+47OSLwK90NYVIsauP4Yk2H0+qvnVhmkiLX6y/nM3O3rvi9jNJuCFhflkB1/jQoJ2
+         5ODJU4WiSGoDA==
 Received: by pali.im (Postfix)
-        id C257660D; Sun, 26 Sep 2021 15:25:08 +0200 (CEST)
+        id 8E66560D; Sun, 26 Sep 2021 15:25:17 +0200 (CEST)
 From:   =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH stable-5.4] arm64: dts: marvell: armada-37xx: Extend PCIe MEM space
-Date:   Sun, 26 Sep 2021 15:24:57 +0200
-Message-Id: <20210926132458.27422-1-pali@kernel.org>
+Subject: [PATCH stable-4.19 and older] arm64: dts: marvell: armada-37xx: Extend PCIe MEM space
+Date:   Sun, 26 Sep 2021 15:24:58 +0200
+Message-Id: <20210926132458.27422-2-pali@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20210926132458.27422-1-pali@kernel.org>
+References: <20210926132458.27422-1-pali@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -74,45 +76,16 @@ for MEM.
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Fixes: 76f6386b25cc ("arm64: dts: marvell: Add Aardvark PCIe support for Armada 3700")
 Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-[pali: Backported to 5.4 version]
+[pali: Backported to 4.19 and older versions]
 ---
- .../boot/dts/marvell/armada-3720-turris-mox.dts | 17 +++++++++++++++++
- arch/arm64/boot/dts/marvell/armada-37xx.dtsi    | 11 +++++++++--
- 2 files changed, 26 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/marvell/armada-37xx.dtsi | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-index 025e02d23da9..de0eabff2935 100644
---- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-@@ -138,6 +138,23 @@
- 	max-link-speed = <2>;
- 	reset-gpios = <&gpiosb 3 GPIO_ACTIVE_LOW>;
- 	phys = <&comphy1 0>;
-+	/*
-+	 * U-Boot port for Turris Mox has a bug which always expects that "ranges" DT property
-+	 * contains exactly 2 ranges with 3 (child) address cells, 2 (parent) address cells and
-+	 * 2 size cells and also expects that the second range starts at 16 MB offset. If these
-+	 * conditions are not met then U-Boot crashes during loading kernel DTB file. PCIe address
-+	 * space is 128 MB long, so the best split between MEM and IO is to use fixed 16 MB window
-+	 * for IO and the rest 112 MB (64+32+16) for MEM, despite that maximal IO size is just 64 kB.
-+	 * This bug is not present in U-Boot ports for other Armada 3700 devices and is fixed in
-+	 * U-Boot version 2021.07. See relevant U-Boot commits (the last one contains fix):
-+	 * https://source.denx.de/u-boot/u-boot/-/commit/cb2ddb291ee6fcbddd6d8f4ff49089dfe580f5d7
-+	 * https://source.denx.de/u-boot/u-boot/-/commit/c64ac3b3185aeb3846297ad7391fc6df8ecd73bf
-+	 * https://source.denx.de/u-boot/u-boot/-/commit/4a82fca8e330157081fc132a591ebd99ba02ee33
-+	 */
-+	#address-cells = <3>;
-+	#size-cells = <2>;
-+	ranges = <0x81000000 0 0xe8000000   0 0xe8000000   0 0x01000000   /* Port 0 IO */
-+		  0x82000000 0 0xe9000000   0 0xe9000000   0 0x07000000>; /* Port 0 MEM */
- 
- 	/* enabled by U-Boot if PCIe module is present */
- 	status = "disabled";
 diff --git a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-index 52767037e049..c28611c1c251 100644
+index 1844fb8605f0..fca78eb334b1 100644
 --- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
 +++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-@@ -487,8 +487,15 @@
+@@ -376,8 +376,15 @@
  			#interrupt-cells = <1>;
  			msi-parent = <&pcie0>;
  			msi-controller;
