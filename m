@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B4F8418968
-	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 16:22:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2480241896B
+	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 16:24:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231831AbhIZOYA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Sep 2021 10:24:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42148 "EHLO mail.kernel.org"
+        id S231834AbhIZO0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Sep 2021 10:26:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231743AbhIZOYA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 26 Sep 2021 10:24:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A439760FDC
-        for <stable@vger.kernel.org>; Sun, 26 Sep 2021 14:22:23 +0000 (UTC)
+        id S231743AbhIZO0c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 26 Sep 2021 10:26:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0BE460FDC
+        for <stable@vger.kernel.org>; Sun, 26 Sep 2021 14:24:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632666143;
-        bh=PF6fOMrxktnrEbRhgHhNd6zikgmbhIc/PZxTLkl9dVE=;
-        h=From:To:Subject:Date:In-Reply-To:References:From;
-        b=KEFUlSJ9sEYTDwzQAAHHSyWcZRIR6xMBCN14Fv9UCY4NcEkYNBYnmmVcLEPAzo3f+
-         JG8PgYKe7uAheJVvvH1FIMNnr/1VHcpSULH20QwthjP+xFukjhjBfMNbyze5mElrHK
-         /sCUgwSdIc1o8Jlg6yOvuK8GwBHw+gEfTPV0+Gpm6wr1Yv4juLnBbmYy6ZGMlF6ijz
-         VJABtC/N0dlwtVa/s5n5dH+NJF16mEZNONlOe6y2RE0k6nHk0ukJlr9QhAmIyUGhlj
-         YcZCV5m+4KWG0YXBw1cT+n/pd/5IMKBXtXIWJAJIt62kA6TsxZCsMrr4xVOpEybJ3K
-         7xDBYoKLPRoIQ==
+        s=k20201202; t=1632666296;
+        bh=ShZqT8qBrNofXGZyidFJLBkVMJ2+6aK4u+LOzu2qnCk=;
+        h=From:To:Subject:Date:From;
+        b=QaUeXknL8qK9FHWRnmufheaUQ4rXqciji2M3R9COVOo65QdJ5BbuMuFsulhX8qu0r
+         Eoi4NjtZmQGGuAZWjxnLhtCId6sEAmWiYdWkdLB/DvowqzzhYFMNPTBJ2X7W9cu2iX
+         rWZR6MpbvqPoKqc18HnBo6lCEDYrSSVF3XjFCvncoNnh5TQpbFoMk5Laxr0XEGdOZe
+         8PQELBayUxkLVeTpL+2OoPyAHsB/niIhSymzUK891kRkNvVHYyiq/Vq62C1Hh+yzKf
+         /oieNgG7kZjVj5UaD+OK/686uNOeZtOvyJsfQb2S8+sMVAjbJnW7IzUcRhFyqS92e2
+         6DgixGTSgGIhA==
 Received: by pali.im (Postfix)
-        id F3D1760D; Sun, 26 Sep 2021 16:22:21 +0200 (CEST)
+        id B06A860D; Sun, 26 Sep 2021 16:24:53 +0200 (CEST)
 From:   =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH stable-4.14] PCI: aardvark: Fix checking for PIO status
-Date:   Sun, 26 Sep 2021 16:22:12 +0200
-Message-Id: <20210926142212.1701-2-pali@kernel.org>
+Subject: [PATCH stable-4.19] PCI: aardvark: Fix checking for PIO status
+Date:   Sun, 26 Sep 2021 16:24:24 +0200
+Message-Id: <20210926142424.1936-1-pali@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20210926142212.1701-1-pali@kernel.org>
-References: <20210926142212.1701-1-pali@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -70,16 +68,15 @@ Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Reviewed-by: Victor Gu <xigu@marvell.com>
 Reviewed-by: Marek Behún <kabel@kernel.org>
 Cc: stable@vger.kernel.org # b1bd5714472c ("PCI: aardvark: Indicate error in 'val' when config read fails")
-[pali: Backported to 4.14 version]
 ---
- drivers/pci/host/pci-aardvark.c | 62 ++++++++++++++++++++++++++++-----
+ drivers/pci/controller/pci-aardvark.c | 62 +++++++++++++++++++++++----
  1 file changed, 54 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/pci/host/pci-aardvark.c b/drivers/pci/host/pci-aardvark.c
-index 149d7bddb2a4..4214f66d405b 100644
---- a/drivers/pci/host/pci-aardvark.c
-+++ b/drivers/pci/host/pci-aardvark.c
-@@ -56,6 +56,7 @@
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index a9669b28c2a6..68afd4fa7ec9 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -55,6 +55,7 @@
  #define   PIO_COMPLETION_STATUS_CRS		2
  #define   PIO_COMPLETION_STATUS_CA		4
  #define   PIO_NON_POSTED_REQ			BIT(10)
@@ -87,7 +84,7 @@ index 149d7bddb2a4..4214f66d405b 100644
  #define PIO_ADDR_LS				(PIO_BASE_ADDR + 0x8)
  #define PIO_ADDR_MS				(PIO_BASE_ADDR + 0xc)
  #define PIO_WR_DATA				(PIO_BASE_ADDR + 0x10)
-@@ -374,7 +375,7 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
+@@ -330,7 +331,7 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
  	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
  }
  
@@ -96,7 +93,7 @@ index 149d7bddb2a4..4214f66d405b 100644
  {
  	struct device *dev = &pcie->pdev->dev;
  	u32 reg;
-@@ -385,14 +386,49 @@ static void advk_pcie_check_pio_status(struct advk_pcie *pcie)
+@@ -341,14 +342,49 @@ static void advk_pcie_check_pio_status(struct advk_pcie *pcie)
  	status = (reg & PIO_COMPLETION_STATUS_MASK) >>
  		PIO_COMPLETION_STATUS_SHIFT;
  
@@ -149,7 +146,7 @@ index 149d7bddb2a4..4214f66d405b 100644
  		strcomp_status = "CRS";
  		break;
  	case PIO_COMPLETION_STATUS_CA:
-@@ -403,6 +439,9 @@ static void advk_pcie_check_pio_status(struct advk_pcie *pcie)
+@@ -359,6 +395,9 @@ static void advk_pcie_check_pio_status(struct advk_pcie *pcie)
  		break;
  	}
  
@@ -159,7 +156,7 @@ index 149d7bddb2a4..4214f66d405b 100644
  	if (reg & PIO_NON_POSTED_REQ)
  		str_posted = "Non-posted";
  	else
-@@ -410,6 +449,8 @@ static void advk_pcie_check_pio_status(struct advk_pcie *pcie)
+@@ -366,6 +405,8 @@ static void advk_pcie_check_pio_status(struct advk_pcie *pcie)
  
  	dev_err(dev, "%s PIO Response Status: %s, %#x @ %#x\n",
  		str_posted, strcomp_status, reg, advk_readl(pcie, PIO_ADDR_LS));
@@ -168,7 +165,7 @@ index 149d7bddb2a4..4214f66d405b 100644
  }
  
  static int advk_pcie_wait_pio(struct advk_pcie *pcie)
-@@ -502,10 +543,13 @@ static int advk_pcie_rd_conf(struct pci_bus *bus, u32 devfn,
+@@ -467,10 +508,13 @@ static int advk_pcie_rd_conf(struct pci_bus *bus, u32 devfn,
  	if (ret < 0)
  		return PCIBIOS_SET_FAILED;
  
@@ -185,7 +182,7 @@ index 149d7bddb2a4..4214f66d405b 100644
  	if (size == 1)
  		*val = (*val >> (8 * (where & 3))) & 0xff;
  	else if (size == 2)
-@@ -565,7 +609,9 @@ static int advk_pcie_wr_conf(struct pci_bus *bus, u32 devfn,
+@@ -530,7 +574,9 @@ static int advk_pcie_wr_conf(struct pci_bus *bus, u32 devfn,
  	if (ret < 0)
  		return PCIBIOS_SET_FAILED;
  
