@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B98F418967
-	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 16:22:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B4F8418968
+	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 16:22:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231829AbhIZOX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Sep 2021 10:23:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42080 "EHLO mail.kernel.org"
+        id S231831AbhIZOYA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Sep 2021 10:24:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231743AbhIZOX4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 26 Sep 2021 10:23:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2CF360FDC
-        for <stable@vger.kernel.org>; Sun, 26 Sep 2021 14:22:19 +0000 (UTC)
+        id S231743AbhIZOYA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 26 Sep 2021 10:24:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A439760FDC
+        for <stable@vger.kernel.org>; Sun, 26 Sep 2021 14:22:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632666139;
-        bh=JZiOmeMEne0+ieeZRx/tw5/jDice06r2mrsqT8Ypo6c=;
-        h=From:To:Subject:Date:From;
-        b=enDXDKHyu+1XLdR5+a0d2qH9Cpb+Y9Zj+dI0Nu7+MdtigukB4yZdlg8+A0HOVwU14
-         KHdl+olEaK8Hf0orV4Av9RGzcxlx67I293qgefMDYJjui0iK4tkzK6hZ/mT3E8FD3W
-         DhEP7keNyKrKEDQ3QQh01YdDUwlF7Y2kxiAOCmu6DoTm2pLax7Noe2P1rFT2zwwltk
-         BxBqmmkEwZFmCboCm5kSy5Br6NkFK5n6b33lHAilxvdj4kei80E8/Iuc3c1VUOyNwV
-         Vfy9+z3wDYCydbmjOC+x1y3jLqmFRT4S0uX/Tq7xAASdxAiH04bCoytKGoXmt6jSjm
-         ZW1BMe+AxtiMg==
+        s=k20201202; t=1632666143;
+        bh=PF6fOMrxktnrEbRhgHhNd6zikgmbhIc/PZxTLkl9dVE=;
+        h=From:To:Subject:Date:In-Reply-To:References:From;
+        b=KEFUlSJ9sEYTDwzQAAHHSyWcZRIR6xMBCN14Fv9UCY4NcEkYNBYnmmVcLEPAzo3f+
+         JG8PgYKe7uAheJVvvH1FIMNnr/1VHcpSULH20QwthjP+xFukjhjBfMNbyze5mElrHK
+         /sCUgwSdIc1o8Jlg6yOvuK8GwBHw+gEfTPV0+Gpm6wr1Yv4juLnBbmYy6ZGMlF6ijz
+         VJABtC/N0dlwtVa/s5n5dH+NJF16mEZNONlOe6y2RE0k6nHk0ukJlr9QhAmIyUGhlj
+         YcZCV5m+4KWG0YXBw1cT+n/pd/5IMKBXtXIWJAJIt62kA6TsxZCsMrr4xVOpEybJ3K
+         7xDBYoKLPRoIQ==
 Received: by pali.im (Postfix)
-        id 89F1A60D; Sun, 26 Sep 2021 16:22:17 +0200 (CEST)
+        id F3D1760D; Sun, 26 Sep 2021 16:22:21 +0200 (CEST)
 From:   =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH stable-4.14] PCI: aardvark: Fix checking for PIO Non-posted Request
-Date:   Sun, 26 Sep 2021 16:22:11 +0200
-Message-Id: <20210926142212.1701-1-pali@kernel.org>
+Subject: [PATCH stable-4.14] PCI: aardvark: Fix checking for PIO status
+Date:   Sun, 26 Sep 2021 16:22:12 +0200
+Message-Id: <20210926142212.1701-2-pali@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20210926142212.1701-1-pali@kernel.org>
+References: <20210926142212.1701-1-pali@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -38,34 +40,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 8ceeac307a79f68c0d0c72d6e48b82fa424204ec upstream.
+From: Evan Wang <xswang@marvell.com>
 
-PIO_NON_POSTED_REQ for PIO_STAT register is incorrectly defined. Bit 10 in
-register PIO_STAT indicates the response is to a non-posted request.
+commit fcb461e2bc8b83b7eaca20cb2221e8b940f2189c upstream.
 
-Link: https://lore.kernel.org/r/20210624213345.3617-2-pali@kernel.org
+There is an issue that when PCIe switch is connected to an Armada 3700
+board, there will be lots of warnings about PIO errors when reading the
+config space. According to Aardvark PIO read and write sequence in HW
+specification, the current way to check PIO status has the following
+issues:
+
+1) For PIO read operation, it reports the error message, which should be
+   avoided according to HW specification.
+
+2) For PIO read and write operations, it only checks PIO operation complete
+   status, which is not enough, and error status should also be checked.
+
+This patch aligns the code with Aardvark PIO read and write sequence in HW
+specification on PIO status check and fix the warnings when reading config
+space.
+
+[pali: Fix CRS handling when CRSSVE is not enabled]
+
+Link: https://lore.kernel.org/r/20210722144041.12661-2-pali@kernel.org
+Tested-by: Victor Gu <xigu@marvell.com>
+Signed-off-by: Evan Wang <xswang@marvell.com>
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Victor Gu <xigu@marvell.com>
 Reviewed-by: Marek Behún <kabel@kernel.org>
-Cc: stable@vger.kernel.org
+Cc: stable@vger.kernel.org # b1bd5714472c ("PCI: aardvark: Indicate error in 'val' when config read fails")
 [pali: Backported to 4.14 version]
 ---
- drivers/pci/host/pci-aardvark.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/host/pci-aardvark.c | 62 ++++++++++++++++++++++++++++-----
+ 1 file changed, 54 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/pci/host/pci-aardvark.c b/drivers/pci/host/pci-aardvark.c
-index f84166f99517..149d7bddb2a4 100644
+index 149d7bddb2a4..4214f66d405b 100644
 --- a/drivers/pci/host/pci-aardvark.c
 +++ b/drivers/pci/host/pci-aardvark.c
-@@ -55,7 +55,7 @@
- #define   PIO_COMPLETION_STATUS_UR		1
+@@ -56,6 +56,7 @@
  #define   PIO_COMPLETION_STATUS_CRS		2
  #define   PIO_COMPLETION_STATUS_CA		4
--#define   PIO_NON_POSTED_REQ			BIT(0)
-+#define   PIO_NON_POSTED_REQ			BIT(10)
+ #define   PIO_NON_POSTED_REQ			BIT(10)
++#define   PIO_ERR_STATUS			BIT(11)
  #define PIO_ADDR_LS				(PIO_BASE_ADDR + 0x8)
  #define PIO_ADDR_MS				(PIO_BASE_ADDR + 0xc)
  #define PIO_WR_DATA				(PIO_BASE_ADDR + 0x10)
+@@ -374,7 +375,7 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
+ 	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
+ }
+ 
+-static void advk_pcie_check_pio_status(struct advk_pcie *pcie)
++static int advk_pcie_check_pio_status(struct advk_pcie *pcie, u32 *val)
+ {
+ 	struct device *dev = &pcie->pdev->dev;
+ 	u32 reg;
+@@ -385,14 +386,49 @@ static void advk_pcie_check_pio_status(struct advk_pcie *pcie)
+ 	status = (reg & PIO_COMPLETION_STATUS_MASK) >>
+ 		PIO_COMPLETION_STATUS_SHIFT;
+ 
+-	if (!status)
+-		return;
+-
++	/*
++	 * According to HW spec, the PIO status check sequence as below:
++	 * 1) even if COMPLETION_STATUS(bit9:7) indicates successful,
++	 *    it still needs to check Error Status(bit11), only when this bit
++	 *    indicates no error happen, the operation is successful.
++	 * 2) value Unsupported Request(1) of COMPLETION_STATUS(bit9:7) only
++	 *    means a PIO write error, and for PIO read it is successful with
++	 *    a read value of 0xFFFFFFFF.
++	 * 3) value Completion Retry Status(CRS) of COMPLETION_STATUS(bit9:7)
++	 *    only means a PIO write error, and for PIO read it is successful
++	 *    with a read value of 0xFFFF0001.
++	 * 4) value Completer Abort (CA) of COMPLETION_STATUS(bit9:7) means
++	 *    error for both PIO read and PIO write operation.
++	 * 5) other errors are indicated as 'unknown'.
++	 */
+ 	switch (status) {
++	case PIO_COMPLETION_STATUS_OK:
++		if (reg & PIO_ERR_STATUS) {
++			strcomp_status = "COMP_ERR";
++			break;
++		}
++		/* Get the read result */
++		if (val)
++			*val = advk_readl(pcie, PIO_RD_DATA);
++		/* No error */
++		strcomp_status = NULL;
++		break;
+ 	case PIO_COMPLETION_STATUS_UR:
+ 		strcomp_status = "UR";
+ 		break;
+ 	case PIO_COMPLETION_STATUS_CRS:
++		/* PCIe r4.0, sec 2.3.2, says:
++		 * If CRS Software Visibility is not enabled, the Root Complex
++		 * must re-issue the Configuration Request as a new Request.
++		 * A Root Complex implementation may choose to limit the number
++		 * of Configuration Request/CRS Completion Status loops before
++		 * determining that something is wrong with the target of the
++		 * Request and taking appropriate action, e.g., complete the
++		 * Request to the host as a failed transaction.
++		 *
++		 * To simplify implementation do not re-issue the Configuration
++		 * Request and complete the Request as a failed transaction.
++		 */
+ 		strcomp_status = "CRS";
+ 		break;
+ 	case PIO_COMPLETION_STATUS_CA:
+@@ -403,6 +439,9 @@ static void advk_pcie_check_pio_status(struct advk_pcie *pcie)
+ 		break;
+ 	}
+ 
++	if (!strcomp_status)
++		return 0;
++
+ 	if (reg & PIO_NON_POSTED_REQ)
+ 		str_posted = "Non-posted";
+ 	else
+@@ -410,6 +449,8 @@ static void advk_pcie_check_pio_status(struct advk_pcie *pcie)
+ 
+ 	dev_err(dev, "%s PIO Response Status: %s, %#x @ %#x\n",
+ 		str_posted, strcomp_status, reg, advk_readl(pcie, PIO_ADDR_LS));
++
++	return -EFAULT;
+ }
+ 
+ static int advk_pcie_wait_pio(struct advk_pcie *pcie)
+@@ -502,10 +543,13 @@ static int advk_pcie_rd_conf(struct pci_bus *bus, u32 devfn,
+ 	if (ret < 0)
+ 		return PCIBIOS_SET_FAILED;
+ 
+-	advk_pcie_check_pio_status(pcie);
++	/* Check PIO status and get the read result */
++	ret = advk_pcie_check_pio_status(pcie, val);
++	if (ret < 0) {
++		*val = 0xffffffff;
++		return PCIBIOS_SET_FAILED;
++	}
+ 
+-	/* Get the read result */
+-	*val = advk_readl(pcie, PIO_RD_DATA);
+ 	if (size == 1)
+ 		*val = (*val >> (8 * (where & 3))) & 0xff;
+ 	else if (size == 2)
+@@ -565,7 +609,9 @@ static int advk_pcie_wr_conf(struct pci_bus *bus, u32 devfn,
+ 	if (ret < 0)
+ 		return PCIBIOS_SET_FAILED;
+ 
+-	advk_pcie_check_pio_status(pcie);
++	ret = advk_pcie_check_pio_status(pcie, NULL);
++	if (ret < 0)
++		return PCIBIOS_SET_FAILED;
+ 
+ 	return PCIBIOS_SUCCESSFUL;
+ }
 -- 
 2.20.1
 
