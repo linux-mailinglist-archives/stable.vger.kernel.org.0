@@ -2,120 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F5F74188FF
-	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 15:11:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BE10418906
+	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 15:25:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231684AbhIZNNW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Sep 2021 09:13:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37430 "EHLO mail.kernel.org"
+        id S231732AbhIZN0t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Sep 2021 09:26:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231673AbhIZNNW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 26 Sep 2021 09:13:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A89160FC1;
-        Sun, 26 Sep 2021 13:11:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632661906;
-        bh=k+Ibi4/G/5nXwDtz5mruATwLpRqC4HS0rmQkuPSgCHg=;
-        h=Subject:To:Cc:From:Date:From;
-        b=MxRlOD5dFYwMEweTd6BBU6qNEa6A6xizCWDHt4MMthZiAwvM1Xe/dVQ+bFZq5mQ91
-         OthY8tN7win6xTt++kwYMHgHYw0u9Hb4Y2rTaI9IRjOeYf6+v1lDqxFihbtxvFvAOP
-         Se8M+jxP1yedxPbHPunNEelfTcQyLl6Y8wWFpIMQ=
-Subject: FAILED: patch "[PATCH] arm64: add MTE supported check to thread switching and" failed to apply to 5.14-stable tree
-To:     pcc@google.com, catalin.marinas@arm.com, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 26 Sep 2021 15:11:43 +0200
-Message-ID: <163266190311422@kroah.com>
+        id S231723AbhIZN0r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 26 Sep 2021 09:26:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10C8561019
+        for <stable@vger.kernel.org>; Sun, 26 Sep 2021 13:25:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1632662711;
+        bh=JoBnth7Kifxi2TvHv1qIy1jgD/aP7R32AW2sAYPbJ5g=;
+        h=From:To:Subject:Date:From;
+        b=P2PznYS89howqMf42ptuncnd697KBT//Snku2o6cjvplqlgJNRxEkNx/eom5ZdVaJ
+         0bB5SsIUXgowsHgS/JGGRRKMAvKRIF3cY37zvOHXxwFsOS/clpDYDFBaog+605ujaq
+         ov8dkZyUY1HKiSQtXJhVUJ31d/Nhue7D23t3cHXIzEjCyW1T9Q1eV7PYEPtsLno/RZ
+         NMNiFGw2BVZC8oaA1E8soiifDgZnbeRcnwSSw5Mw2QTDBsbzuM+735NtBB0mdg9VfV
+         0qbEBfn7+JZ5KDskYdjDhZ3TGK/co/cscHj7l3koOWemkbo5hb18Wx3Pao/rK358yU
+         WlAfcHDDmFF/g==
+Received: by pali.im (Postfix)
+        id C257660D; Sun, 26 Sep 2021 15:25:08 +0200 (CEST)
+From:   =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+To:     stable@vger.kernel.org
+Subject: [PATCH stable-5.4] arm64: dts: marvell: armada-37xx: Extend PCIe MEM space
+Date:   Sun, 26 Sep 2021 15:24:57 +0200
+Message-Id: <20210926132458.27422-1-pali@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit 514ef1e62d6521c2199d192b1c71b79d2aa21d5a upstream.
 
-The patch below does not apply to the 5.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Current PCIe MEM space of size 16 MB is not enough for some combination
+of PCIe cards (e.g. NVMe disk together with ath11k wifi card). ARM Trusted
+Firmware for Armada 3700 platform already assigns 128 MB for PCIe window,
+so extend PCIe MEM space to the end of 128 MB PCIe window which allows to
+allocate more PCIe BARs for more PCIe cards.
 
-thanks,
+Without this change some combination of PCIe cards cannot be used and
+kernel show error messages in dmesg during initialization:
 
-greg k-h
+    pci 0000:00:00.0: BAR 8: no space for [mem size 0x01800000]
+    pci 0000:00:00.0: BAR 8: failed to assign [mem size 0x01800000]
+    pci 0000:00:00.0: BAR 6: assigned [mem 0xe8000000-0xe80007ff pref]
+    pci 0000:01:00.0: BAR 8: no space for [mem size 0x01800000]
+    pci 0000:01:00.0: BAR 8: failed to assign [mem size 0x01800000]
+    pci 0000:02:03.0: BAR 8: no space for [mem size 0x01000000]
+    pci 0000:02:03.0: BAR 8: failed to assign [mem size 0x01000000]
+    pci 0000:02:07.0: BAR 8: no space for [mem size 0x00100000]
+    pci 0000:02:07.0: BAR 8: failed to assign [mem size 0x00100000]
+    pci 0000:03:00.0: BAR 0: no space for [mem size 0x01000000 64bit]
+    pci 0000:03:00.0: BAR 0: failed to assign [mem size 0x01000000 64bit]
 
------------------- original commit in Linus's tree ------------------
+Due to bugs in U-Boot port for Turris Mox, the second range in Turris Mox
+kernel DTS file for PCIe must start at 16 MB offset. Otherwise U-Boot
+crashes during loading of kernel DTB file. This bug is present only in
+U-Boot code for Turris Mox and therefore other Armada 3700 devices are not
+affected by this bug. Bug is fixed in U-Boot version 2021.07.
 
-From 8c8a3b5bd960cd88f7655b5251dc28741e11f139 Mon Sep 17 00:00:00 2001
-From: Peter Collingbourne <pcc@google.com>
-Date: Wed, 15 Sep 2021 12:03:35 -0700
-Subject: [PATCH] arm64: add MTE supported check to thread switching and
- syscall entry/exit
+To not break booting new kernels on existing versions of U-Boot on Turris
+Mox, use first 16 MB range for IO and second range with rest of PCIe window
+for MEM.
 
-This lets us avoid doing unnecessary work on hardware that does not
-support MTE, and will allow us to freely use MTE instructions in the
-code called by mte_thread_switch().
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: 76f6386b25cc ("arm64: dts: marvell: Add Aardvark PCIe support for Armada 3700")
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+[pali: Backported to 5.4 version]
+---
+ .../boot/dts/marvell/armada-3720-turris-mox.dts | 17 +++++++++++++++++
+ arch/arm64/boot/dts/marvell/armada-37xx.dtsi    | 11 +++++++++--
+ 2 files changed, 26 insertions(+), 2 deletions(-)
 
-Since this would mean that we do a redundant check in
-mte_check_tfsr_el1(), remove it and add two checks now required in its
-callers. This also avoids an unnecessary DSB+ISB sequence on the syscall
-exit path for hardware not supporting MTE.
-
-Fixes: 65812c6921cc ("arm64: mte: Enable async tag check fault")
-Cc: <stable@vger.kernel.org> # 5.13.x
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Link: https://linux-review.googlesource.com/id/I02fd000d1ef2c86c7d2952a7f099b254ec227a5d
-Link: https://lore.kernel.org/r/20210915190336.398390-1-pcc@google.com
-[catalin.marinas@arm.com: adjust the commit log slightly]
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-
-diff --git a/arch/arm64/include/asm/mte.h b/arch/arm64/include/asm/mte.h
-index 3f93b9e0b339..02511650cffe 100644
---- a/arch/arm64/include/asm/mte.h
-+++ b/arch/arm64/include/asm/mte.h
-@@ -99,11 +99,17 @@ void mte_check_tfsr_el1(void);
+diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+index 025e02d23da9..de0eabff2935 100644
+--- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
++++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+@@ -138,6 +138,23 @@
+ 	max-link-speed = <2>;
+ 	reset-gpios = <&gpiosb 3 GPIO_ACTIVE_LOW>;
+ 	phys = <&comphy1 0>;
++	/*
++	 * U-Boot port for Turris Mox has a bug which always expects that "ranges" DT property
++	 * contains exactly 2 ranges with 3 (child) address cells, 2 (parent) address cells and
++	 * 2 size cells and also expects that the second range starts at 16 MB offset. If these
++	 * conditions are not met then U-Boot crashes during loading kernel DTB file. PCIe address
++	 * space is 128 MB long, so the best split between MEM and IO is to use fixed 16 MB window
++	 * for IO and the rest 112 MB (64+32+16) for MEM, despite that maximal IO size is just 64 kB.
++	 * This bug is not present in U-Boot ports for other Armada 3700 devices and is fixed in
++	 * U-Boot version 2021.07. See relevant U-Boot commits (the last one contains fix):
++	 * https://source.denx.de/u-boot/u-boot/-/commit/cb2ddb291ee6fcbddd6d8f4ff49089dfe580f5d7
++	 * https://source.denx.de/u-boot/u-boot/-/commit/c64ac3b3185aeb3846297ad7391fc6df8ecd73bf
++	 * https://source.denx.de/u-boot/u-boot/-/commit/4a82fca8e330157081fc132a591ebd99ba02ee33
++	 */
++	#address-cells = <3>;
++	#size-cells = <2>;
++	ranges = <0x81000000 0 0xe8000000   0 0xe8000000   0 0x01000000   /* Port 0 IO */
++		  0x82000000 0 0xe9000000   0 0xe9000000   0 0x07000000>; /* Port 0 MEM */
  
- static inline void mte_check_tfsr_entry(void)
- {
-+	if (!system_supports_mte())
-+		return;
-+
- 	mte_check_tfsr_el1();
- }
- 
- static inline void mte_check_tfsr_exit(void)
- {
-+	if (!system_supports_mte())
-+		return;
-+
- 	/*
- 	 * The asynchronous faults are sync'ed automatically with
- 	 * TFSR_EL1 on kernel entry but for exit an explicit dsb()
-diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
-index 9d314a3bad3b..e5e801bc5312 100644
---- a/arch/arm64/kernel/mte.c
-+++ b/arch/arm64/kernel/mte.c
-@@ -142,12 +142,7 @@ void mte_enable_kernel_async(void)
- #ifdef CONFIG_KASAN_HW_TAGS
- void mte_check_tfsr_el1(void)
- {
--	u64 tfsr_el1;
--
--	if (!system_supports_mte())
--		return;
--
--	tfsr_el1 = read_sysreg_s(SYS_TFSR_EL1);
-+	u64 tfsr_el1 = read_sysreg_s(SYS_TFSR_EL1);
- 
- 	if (unlikely(tfsr_el1 & SYS_TFSR_EL1_TF1)) {
- 		/*
-@@ -199,6 +194,9 @@ void mte_thread_init_user(void)
- 
- void mte_thread_switch(struct task_struct *next)
- {
-+	if (!system_supports_mte())
-+		return;
-+
- 	mte_update_sctlr_user(next);
- 
- 	/*
+ 	/* enabled by U-Boot if PCIe module is present */
+ 	status = "disabled";
+diff --git a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+index 52767037e049..c28611c1c251 100644
+--- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+@@ -487,8 +487,15 @@
+ 			#interrupt-cells = <1>;
+ 			msi-parent = <&pcie0>;
+ 			msi-controller;
+-			ranges = <0x82000000 0 0xe8000000   0 0xe8000000 0 0x1000000 /* Port 0 MEM */
+-				  0x81000000 0 0xe9000000   0 0xe9000000 0 0x10000>; /* Port 0 IO*/
++			/*
++			 * The 128 MiB address range [0xe8000000-0xf0000000] is
++			 * dedicated for PCIe and can be assigned to 8 windows
++			 * with size a power of two. Use one 64 KiB window for
++			 * IO at the end and the remaining seven windows
++			 * (totaling 127 MiB) for MEM.
++			 */
++			ranges = <0x82000000 0 0xe8000000   0 0xe8000000   0 0x07f00000   /* Port 0 MEM */
++				  0x81000000 0 0xefff0000   0 0xefff0000   0 0x00010000>; /* Port 0 IO */
+ 			interrupt-map-mask = <0 0 0 7>;
+ 			interrupt-map = <0 0 0 1 &pcie_intc 0>,
+ 					<0 0 0 2 &pcie_intc 1>,
+-- 
+2.20.1
 
