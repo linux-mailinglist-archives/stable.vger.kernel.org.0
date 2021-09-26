@@ -2,83 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD67E41894E
-	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 16:07:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B98F418967
+	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 16:22:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231801AbhIZOJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Sep 2021 10:09:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35954 "EHLO mail.kernel.org"
+        id S231829AbhIZOX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Sep 2021 10:23:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231777AbhIZOJ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 26 Sep 2021 10:09:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9898A60724;
-        Sun, 26 Sep 2021 14:07:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632665273;
-        bh=4IBu1m7e7JjzFAOvgRNXdWtVOzKx7KMb0GoK7jytxr0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=P2qWdBgHXZVA0h1FHQquoBgfEjSJQhkgfeR9PgmNPPnkt9YON8ECwhgRMpDYEISlv
-         Wu2u34+CtErotcRLUfDfK1DPU+mrB9Nz4e9UdXJ/4ioEYlm0szt2rwPyQlRYLWYThq
-         EPh6Y/1OoT/6YIvQ08y7XVTYc9v/8Fgh01SXRkTU=
-Date:   Sun, 26 Sep 2021 16:07:50 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>
-Cc:     kabel@kernel.org, lorenzo.pieralisi@arm.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] PCI: aardvark: Increase polling delay to
- 1.5s while waiting" failed to apply to 5.10-stable tree
-Message-ID: <YVB+tgg0Dzx/U+Gy@kroah.com>
-References: <16317166872028@kroah.com>
- <20210915165243.xaviyv4pwdmk6vhi@pali>
- <20210925214639.3fnbfc5eovd5bzqg@pali>
- <YVBlSNYjASqDizPG@kroah.com>
- <20210926135536.a6g2vxbnporfevvc@pali>
+        id S231743AbhIZOX4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 26 Sep 2021 10:23:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2CF360FDC
+        for <stable@vger.kernel.org>; Sun, 26 Sep 2021 14:22:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1632666139;
+        bh=JZiOmeMEne0+ieeZRx/tw5/jDice06r2mrsqT8Ypo6c=;
+        h=From:To:Subject:Date:From;
+        b=enDXDKHyu+1XLdR5+a0d2qH9Cpb+Y9Zj+dI0Nu7+MdtigukB4yZdlg8+A0HOVwU14
+         KHdl+olEaK8Hf0orV4Av9RGzcxlx67I293qgefMDYJjui0iK4tkzK6hZ/mT3E8FD3W
+         DhEP7keNyKrKEDQ3QQh01YdDUwlF7Y2kxiAOCmu6DoTm2pLax7Noe2P1rFT2zwwltk
+         BxBqmmkEwZFmCboCm5kSy5Br6NkFK5n6b33lHAilxvdj4kei80E8/Iuc3c1VUOyNwV
+         Vfy9+z3wDYCydbmjOC+x1y3jLqmFRT4S0uX/Tq7xAASdxAiH04bCoytKGoXmt6jSjm
+         ZW1BMe+AxtiMg==
+Received: by pali.im (Postfix)
+        id 89F1A60D; Sun, 26 Sep 2021 16:22:17 +0200 (CEST)
+From:   =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+To:     stable@vger.kernel.org
+Subject: [PATCH stable-4.14] PCI: aardvark: Fix checking for PIO Non-posted Request
+Date:   Sun, 26 Sep 2021 16:22:11 +0200
+Message-Id: <20210926142212.1701-1-pali@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210926135536.a6g2vxbnporfevvc@pali>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Sep 26, 2021 at 03:55:36PM +0200, Pali Roh·r wrote:
-> On Sunday 26 September 2021 14:19:20 Greg KH wrote:
-> > On Sat, Sep 25, 2021 at 11:46:39PM +0200, Pali Roh·r wrote:
-> > > On Wednesday 15 September 2021 18:52:43 Pali Roh·r wrote:
-> > > > On Wednesday 15 September 2021 16:38:07 gregkh@linuxfoundation.org wrote:
-> > > > > The patch below does not apply to the 5.10-stable tree.
-> > > > > If someone wants it applied there, or to any other stable or longterm
-> > > > > tree, then please email the backport, including the original git commit
-> > > > > id to <stable@vger.kernel.org>.
-> > > > 
-> > > > Hello! Below is backport for 5.10 (and probably it should apply also for
-> > > > older versions):
-> > > 
-> > > Hello Greg! Have you looked at this backport for 5.10?
-> > 
-> > Ick, I somehow missed this for 5.10.y, thanks for catching it.  I'll go
-> > queue it up now.
-> 
-> Ok!
-> 
-> Now I'm checking other aardvark patches and I found out that following
-> commits marked with Cc: stable tags are not included in 4.14 tree yet:
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=8ceeac307a79f68c0d0c72d6e48b82fa424204ec
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=fcb461e2bc8b83b7eaca20cb2221e8b940f2189c
-> 
-> And this in 4.19 stable tree:
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=fcb461e2bc8b83b7eaca20cb2221e8b940f2189c
-> 
-> With merge.renamelimit = 24506 these commits applies cleanly for 4.14 /
-> 4.19 stable trees. Could you look at it, why there are missing?
+commit 8ceeac307a79f68c0d0c72d6e48b82fa424204ec upstream.
 
-They are missing because I do not use renames when applying patches like
-this (we use quilt for the patch queue).
+PIO_NON_POSTED_REQ for PIO_STAT register is incorrectly defined. Bit 10 in
+register PIO_STAT indicates the response is to a non-posted request.
 
-If you can send the updated patches, I will be glad to queue them up.
+Link: https://lore.kernel.org/r/20210624213345.3617-2-pali@kernel.org
+Signed-off-by: Pali Roh√°r <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Beh√∫n <kabel@kernel.org>
+Cc: stable@vger.kernel.org
+[pali: Backported to 4.14 version]
+---
+ drivers/pci/host/pci-aardvark.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-thanks,
+diff --git a/drivers/pci/host/pci-aardvark.c b/drivers/pci/host/pci-aardvark.c
+index f84166f99517..149d7bddb2a4 100644
+--- a/drivers/pci/host/pci-aardvark.c
++++ b/drivers/pci/host/pci-aardvark.c
+@@ -55,7 +55,7 @@
+ #define   PIO_COMPLETION_STATUS_UR		1
+ #define   PIO_COMPLETION_STATUS_CRS		2
+ #define   PIO_COMPLETION_STATUS_CA		4
+-#define   PIO_NON_POSTED_REQ			BIT(0)
++#define   PIO_NON_POSTED_REQ			BIT(10)
+ #define PIO_ADDR_LS				(PIO_BASE_ADDR + 0x8)
+ #define PIO_ADDR_MS				(PIO_BASE_ADDR + 0xc)
+ #define PIO_WR_DATA				(PIO_BASE_ADDR + 0x10)
+-- 
+2.20.1
 
-greg k-h
