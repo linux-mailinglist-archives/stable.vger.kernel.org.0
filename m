@@ -2,712 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 856E64188BB
-	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 14:49:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E56B4188BC
+	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 14:49:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231504AbhIZMvU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Sep 2021 08:51:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50896 "EHLO mail.kernel.org"
+        id S231514AbhIZMvV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Sep 2021 08:51:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231499AbhIZMvS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 26 Sep 2021 08:51:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4449C60F6D;
-        Sun, 26 Sep 2021 12:49:41 +0000 (UTC)
+        id S231510AbhIZMvU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 26 Sep 2021 08:51:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D29560F6D;
+        Sun, 26 Sep 2021 12:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632660582;
-        bh=FU+9cO1xGCTnHgFNHIwDC7HMYVcqSWt9kypQerrOidE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yRZM2fD2b6PaXi6ib0ie/qn6qK9RV0iBerhFXS0Ti5FDAm55xMvY2+QH7AcgyzA+4
-         q+bNAscFoaHWDvRYCi2xhwiN4XQ0lN+nyG0/mcDXMXmIntefUBXqXH9YmtY4LkdOXz
-         hJqhVvIpa58CW14CHLbR+f+JNhsg2cqEKviuSlls=
+        s=korg; t=1632660584;
+        bh=Tb6D7pzj/bIl5vPFdgkybq7fabW/UVCycfeiBOakoJg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=WB1eSiy+zbgahD8dV94Sxp1uKQTOekjvugoJzNvF2lsdWSYB4SbypOUNfBMV4DW8p
+         6ZKuCsYfQR5X2OOkDXW0yxisZzYyPt8O/DeIQEyGKT4b1EwAlLvN95WsNB74oQDsLn
+         f94V4BuAbFDLXJQSW8rHQyhdldIWFaKWrZR/nKZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.4.285
-Date:   Sun, 26 Sep 2021 14:49:34 +0200
-Message-Id: <1632660573109160@kroah.com>
+Subject: Linux 4.9.284
+Date:   Sun, 26 Sep 2021 14:49:38 +0200
+Message-Id: <1632660578288@kroah.com>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <1632660573182224@kroah.com>
-References: <1632660573182224@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 05fe3ae4e67a..96cb7da46504 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,6 +1,6 @@
- VERSION = 4
- PATCHLEVEL = 4
--SUBLEVEL = 284
-+SUBLEVEL = 285
- EXTRAVERSION =
- NAME = Blurry Fish Butt
- 
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index 8b73ef59a8de..03ad0455931d 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -596,10 +596,10 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
- 		EMIT4(0xb9080000, dst_reg, src_reg);
- 		break;
- 	case BPF_ALU | BPF_ADD | BPF_K: /* dst = (u32) dst + (u32) imm */
--		if (!imm)
--			break;
--		/* alfi %dst,imm */
--		EMIT6_IMM(0xc20b0000, dst_reg, imm);
-+		if (imm != 0) {
-+			/* alfi %dst,imm */
-+			EMIT6_IMM(0xc20b0000, dst_reg, imm);
-+		}
- 		EMIT_ZERO(dst_reg);
- 		break;
- 	case BPF_ALU64 | BPF_ADD | BPF_K: /* dst = dst + imm */
-@@ -621,10 +621,10 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
- 		EMIT4(0xb9090000, dst_reg, src_reg);
- 		break;
- 	case BPF_ALU | BPF_SUB | BPF_K: /* dst = (u32) dst - (u32) imm */
--		if (!imm)
--			break;
--		/* alfi %dst,-imm */
--		EMIT6_IMM(0xc20b0000, dst_reg, -imm);
-+		if (imm != 0) {
-+			/* alfi %dst,-imm */
-+			EMIT6_IMM(0xc20b0000, dst_reg, -imm);
-+		}
- 		EMIT_ZERO(dst_reg);
- 		break;
- 	case BPF_ALU64 | BPF_SUB | BPF_K: /* dst = dst - imm */
-@@ -651,10 +651,10 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
- 		EMIT4(0xb90c0000, dst_reg, src_reg);
- 		break;
- 	case BPF_ALU | BPF_MUL | BPF_K: /* dst = (u32) dst * (u32) imm */
--		if (imm == 1)
--			break;
--		/* msfi %r5,imm */
--		EMIT6_IMM(0xc2010000, dst_reg, imm);
-+		if (imm != 1) {
-+			/* msfi %r5,imm */
-+			EMIT6_IMM(0xc2010000, dst_reg, imm);
-+		}
- 		EMIT_ZERO(dst_reg);
- 		break;
- 	case BPF_ALU64 | BPF_MUL | BPF_K: /* dst = dst * imm */
-@@ -715,6 +715,8 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
- 			if (BPF_OP(insn->code) == BPF_MOD)
- 				/* lhgi %dst,0 */
- 				EMIT4_IMM(0xa7090000, dst_reg, 0);
-+			else
-+				EMIT_ZERO(dst_reg);
- 			break;
- 		}
- 		/* lhi %w0,0 */
-@@ -807,10 +809,10 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
- 		EMIT4(0xb9820000, dst_reg, src_reg);
- 		break;
- 	case BPF_ALU | BPF_XOR | BPF_K: /* dst = (u32) dst ^ (u32) imm */
--		if (!imm)
--			break;
--		/* xilf %dst,imm */
--		EMIT6_IMM(0xc0070000, dst_reg, imm);
-+		if (imm != 0) {
-+			/* xilf %dst,imm */
-+			EMIT6_IMM(0xc0070000, dst_reg, imm);
-+		}
- 		EMIT_ZERO(dst_reg);
- 		break;
- 	case BPF_ALU64 | BPF_XOR | BPF_K: /* dst = dst ^ imm */
-@@ -831,10 +833,10 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
- 		EMIT6_DISP_LH(0xeb000000, 0x000d, dst_reg, dst_reg, src_reg, 0);
- 		break;
- 	case BPF_ALU | BPF_LSH | BPF_K: /* dst = (u32) dst << (u32) imm */
--		if (imm == 0)
--			break;
--		/* sll %dst,imm(%r0) */
--		EMIT4_DISP(0x89000000, dst_reg, REG_0, imm);
-+		if (imm != 0) {
-+			/* sll %dst,imm(%r0) */
-+			EMIT4_DISP(0x89000000, dst_reg, REG_0, imm);
-+		}
- 		EMIT_ZERO(dst_reg);
- 		break;
- 	case BPF_ALU64 | BPF_LSH | BPF_K: /* dst = dst << imm */
-@@ -856,10 +858,10 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
- 		EMIT6_DISP_LH(0xeb000000, 0x000c, dst_reg, dst_reg, src_reg, 0);
- 		break;
- 	case BPF_ALU | BPF_RSH | BPF_K: /* dst = (u32) dst >> (u32) imm */
--		if (imm == 0)
--			break;
--		/* srl %dst,imm(%r0) */
--		EMIT4_DISP(0x88000000, dst_reg, REG_0, imm);
-+		if (imm != 0) {
-+			/* srl %dst,imm(%r0) */
-+			EMIT4_DISP(0x88000000, dst_reg, REG_0, imm);
-+		}
- 		EMIT_ZERO(dst_reg);
- 		break;
- 	case BPF_ALU64 | BPF_RSH | BPF_K: /* dst = dst >> imm */
-diff --git a/block/blk-throttle.c b/block/blk-throttle.c
-index 17bdd6b55beb..fbd08c4569ce 100644
---- a/block/blk-throttle.c
-+++ b/block/blk-throttle.c
-@@ -1588,6 +1588,7 @@ int blk_throtl_init(struct request_queue *q)
- void blk_throtl_exit(struct request_queue *q)
- {
- 	BUG_ON(!q->td);
-+	del_timer_sync(&q->td->service_queue.pending_timer);
- 	throtl_shutdown_wq(q);
- 	blkcg_deactivate_policy(q, &blkcg_policy_throtl);
- 	kfree(q->td);
-diff --git a/drivers/base/power/wakeirq.c b/drivers/base/power/wakeirq.c
-index ee63ccaea8d5..8c05e7a5e777 100644
---- a/drivers/base/power/wakeirq.c
-+++ b/drivers/base/power/wakeirq.c
-@@ -320,7 +320,8 @@ void dev_pm_arm_wake_irq(struct wake_irq *wirq)
- 		return;
- 
- 	if (device_may_wakeup(wirq->dev)) {
--		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED)
-+		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED &&
-+		    !pm_runtime_status_suspended(wirq->dev))
- 			enable_irq(wirq->irq);
- 
- 		enable_irq_wake(wirq->irq);
-@@ -342,7 +343,8 @@ void dev_pm_disarm_wake_irq(struct wake_irq *wirq)
- 	if (device_may_wakeup(wirq->dev)) {
- 		disable_irq_wake(wirq->irq);
- 
--		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED)
-+		if (wirq->status & WAKE_IRQ_DEDICATED_ALLOCATED &&
-+		    !pm_runtime_status_suspended(wirq->dev))
- 			disable_irq_nosync(wirq->irq);
- 	}
- }
-diff --git a/drivers/dma/Kconfig b/drivers/dma/Kconfig
-index e6cd1a32025a..f450f3d8f63a 100644
---- a/drivers/dma/Kconfig
-+++ b/drivers/dma/Kconfig
-@@ -239,7 +239,7 @@ config INTEL_IDMA64
- 
- config INTEL_IOATDMA
- 	tristate "Intel I/OAT DMA support"
--	depends on PCI && X86_64
-+	depends on PCI && X86_64 && !UML
- 	select DMA_ENGINE
- 	select DMA_ENGINE_RAID
- 	select DCA
-diff --git a/drivers/dma/acpi-dma.c b/drivers/dma/acpi-dma.c
-index 16d0daa058a5..eef1b93828c2 100644
---- a/drivers/dma/acpi-dma.c
-+++ b/drivers/dma/acpi-dma.c
-@@ -15,6 +15,7 @@
- #include <linux/device.h>
- #include <linux/err.h>
- #include <linux/module.h>
-+#include <linux/kernel.h>
- #include <linux/list.h>
- #include <linux/mutex.h>
- #include <linux/slab.h>
-@@ -71,8 +72,14 @@ static int acpi_dma_parse_resource_group(const struct acpi_csrt_group *grp,
- 
- 	si = (const struct acpi_csrt_shared_info *)&grp[1];
- 
--	/* Match device by MMIO and IRQ */
--	if (si->mmio_base_low != mem || si->gsi_interrupt != irq)
-+	/* Match device by MMIO */
-+	if (si->mmio_base_low != lower_32_bits(mem) ||
-+	    si->mmio_base_high != upper_32_bits(mem))
-+		return 0;
-+
-+	/* Match device by Linux vIRQ */
-+	ret = acpi_register_gsi(NULL, si->gsi_interrupt, si->interrupt_mode, si->interrupt_polarity);
-+	if (ret != irq)
- 		return 0;
- 
- 	dev_dbg(&adev->dev, "matches with %.4s%04X (rev %u)\n",
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c b/drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c
-index cf8bc068e9b7..381c59279d7f 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c
-@@ -56,7 +56,7 @@ nvkm_control_mthd_pstate_info(struct nvkm_control *ctrl, void *data, u32 size)
- 		args->v0.count = 0;
- 		args->v0.ustate_ac = NVIF_CONTROL_PSTATE_INFO_V0_USTATE_DISABLE;
- 		args->v0.ustate_dc = NVIF_CONTROL_PSTATE_INFO_V0_USTATE_DISABLE;
--		args->v0.pwrsrc = -ENOSYS;
-+		args->v0.pwrsrc = -ENODEV;
- 		args->v0.pstate = NVIF_CONTROL_PSTATE_INFO_V0_PSTATE_UNKNOWN;
- 	}
- 
-diff --git a/drivers/parisc/dino.c b/drivers/parisc/dino.c
-index 8524faf28acb..88e760c88aba 100644
---- a/drivers/parisc/dino.c
-+++ b/drivers/parisc/dino.c
-@@ -160,15 +160,6 @@ struct dino_device
- 	(struct dino_device *)__pdata; })
- 
- 
--/* Check if PCI device is behind a Card-mode Dino. */
--static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
--{
--	struct dino_device *dino_dev;
--
--	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
--	return is_card_dino(&dino_dev->hba.dev->id);
--}
--
- /*
-  * Dino Configuration Space Accessor Functions
-  */
-@@ -452,6 +443,15 @@ static void quirk_cirrus_cardbus(struct pci_dev *dev)
- DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_CIRRUS, PCI_DEVICE_ID_CIRRUS_6832, quirk_cirrus_cardbus );
- 
- #ifdef CONFIG_TULIP
-+/* Check if PCI device is behind a Card-mode Dino. */
-+static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
-+{
-+	struct dino_device *dino_dev;
-+
-+	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
-+	return is_card_dino(&dino_dev->hba.dev->id);
-+}
-+
- static void pci_fixup_tulip(struct pci_dev *dev)
- {
- 	if (!pci_dev_is_behind_card_dino(dev))
-diff --git a/drivers/thermal/samsung/exynos_tmu.c b/drivers/thermal/samsung/exynos_tmu.c
-index 16d45a25284f..a4c0542f6141 100644
---- a/drivers/thermal/samsung/exynos_tmu.c
-+++ b/drivers/thermal/samsung/exynos_tmu.c
-@@ -1347,6 +1347,7 @@ static int exynos_tmu_probe(struct platform_device *pdev)
- 		data->sclk = devm_clk_get(&pdev->dev, "tmu_sclk");
- 		if (IS_ERR(data->sclk)) {
- 			dev_err(&pdev->dev, "Failed to get sclk\n");
-+			ret = PTR_ERR(data->sclk);
- 			goto err_clk;
- 		} else {
- 			ret = clk_prepare_enable(data->sclk);
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index 9d74cd37b395..154c47282a34 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -1545,6 +1545,8 @@ static int __mark_caps_flushing(struct inode *inode,
-  * try to invalidate mapping pages without blocking.
-  */
- static int try_nonblocking_invalidate(struct inode *inode)
-+	__releases(ci->i_ceph_lock)
-+	__acquires(ci->i_ceph_lock)
- {
- 	struct ceph_inode_info *ci = ceph_inode(inode);
- 	u32 invalidating_gen = ci->i_rdcache_gen;
-diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
-index c3b629eec294..49a148ebbcda 100644
---- a/fs/nilfs2/sysfs.c
-+++ b/fs/nilfs2/sysfs.c
-@@ -73,11 +73,9 @@ static const struct sysfs_ops nilfs_##name##_attr_ops = { \
- #define NILFS_DEV_INT_GROUP_TYPE(name, parent_name) \
- static void nilfs_##name##_attr_release(struct kobject *kobj) \
- { \
--	struct nilfs_sysfs_##parent_name##_subgroups *subgroups; \
--	struct the_nilfs *nilfs = container_of(kobj->parent, \
--						struct the_nilfs, \
--						ns_##parent_name##_kobj); \
--	subgroups = nilfs->ns_##parent_name##_subgroups; \
-+	struct nilfs_sysfs_##parent_name##_subgroups *subgroups = container_of(kobj, \
-+						struct nilfs_sysfs_##parent_name##_subgroups, \
-+						sg_##name##_kobj); \
- 	complete(&subgroups->sg_##name##_kobj_unregister); \
- } \
- static struct kobj_type nilfs_##name##_ktype = { \
-@@ -103,12 +101,12 @@ static int nilfs_sysfs_create_##name##_group(struct the_nilfs *nilfs) \
- 	err = kobject_init_and_add(kobj, &nilfs_##name##_ktype, parent, \
- 				    #name); \
- 	if (err) \
--		return err; \
--	return 0; \
-+		kobject_put(kobj); \
-+	return err; \
- } \
- static void nilfs_sysfs_delete_##name##_group(struct the_nilfs *nilfs) \
- { \
--	kobject_del(&nilfs->ns_##parent_name##_subgroups->sg_##name##_kobj); \
-+	kobject_put(&nilfs->ns_##parent_name##_subgroups->sg_##name##_kobj); \
- }
- 
- /************************************************************************
-@@ -219,14 +217,14 @@ int nilfs_sysfs_create_snapshot_group(struct nilfs_root *root)
- 	}
- 
- 	if (err)
--		return err;
-+		kobject_put(&root->snapshot_kobj);
- 
--	return 0;
-+	return err;
- }
- 
- void nilfs_sysfs_delete_snapshot_group(struct nilfs_root *root)
- {
--	kobject_del(&root->snapshot_kobj);
-+	kobject_put(&root->snapshot_kobj);
- }
- 
- /************************************************************************
-@@ -1008,7 +1006,7 @@ int nilfs_sysfs_create_device_group(struct super_block *sb)
- 	err = kobject_init_and_add(&nilfs->ns_dev_kobj, &nilfs_dev_ktype, NULL,
- 				    "%s", sb->s_id);
- 	if (err)
--		goto free_dev_subgroups;
-+		goto cleanup_dev_kobject;
- 
- 	err = nilfs_sysfs_create_mounted_snapshots_group(nilfs);
- 	if (err)
-@@ -1045,9 +1043,7 @@ delete_mounted_snapshots_group:
- 	nilfs_sysfs_delete_mounted_snapshots_group(nilfs);
- 
- cleanup_dev_kobject:
--	kobject_del(&nilfs->ns_dev_kobj);
--
--free_dev_subgroups:
-+	kobject_put(&nilfs->ns_dev_kobj);
- 	kfree(nilfs->ns_dev_subgroups);
- 
- failed_create_device_group:
-diff --git a/include/net/sctp/structs.h b/include/net/sctp/structs.h
-index eea9bdeecba2..1d24da658f43 100644
---- a/include/net/sctp/structs.h
-+++ b/include/net/sctp/structs.h
-@@ -469,7 +469,7 @@ struct sctp_af {
- 					 int saddr);
- 	void		(*from_sk)	(union sctp_addr *,
- 					 struct sock *sk);
--	void		(*from_addr_param) (union sctp_addr *,
-+	bool		(*from_addr_param) (union sctp_addr *,
- 					    union sctp_addr_param *,
- 					    __be16 port, int iif);
- 	int		(*to_addr_param) (const union sctp_addr *,
-diff --git a/kernel/profile.c b/kernel/profile.c
-index 9cd8e18e6f18..927a0345e259 100644
---- a/kernel/profile.c
-+++ b/kernel/profile.c
-@@ -38,7 +38,8 @@ struct profile_hit {
- #define NR_PROFILE_GRP		(NR_PROFILE_HIT/PROFILE_GRPSZ)
- 
- static atomic_t *prof_buffer;
--static unsigned long prof_len, prof_shift;
-+static unsigned long prof_len;
-+static unsigned short int prof_shift;
- 
- int prof_on __read_mostly;
- EXPORT_SYMBOL_GPL(prof_on);
-@@ -63,8 +64,8 @@ int profile_setup(char *str)
- 		if (str[strlen(sleepstr)] == ',')
- 			str += strlen(sleepstr) + 1;
- 		if (get_option(&str, &par))
--			prof_shift = par;
--		pr_info("kernel sleep profiling enabled (shift: %ld)\n",
-+			prof_shift = clamp(par, 0, BITS_PER_LONG - 1);
-+		pr_info("kernel sleep profiling enabled (shift: %u)\n",
- 			prof_shift);
- #else
- 		pr_warn("kernel sleep profiling requires CONFIG_SCHEDSTATS\n");
-@@ -74,21 +75,21 @@ int profile_setup(char *str)
- 		if (str[strlen(schedstr)] == ',')
- 			str += strlen(schedstr) + 1;
- 		if (get_option(&str, &par))
--			prof_shift = par;
--		pr_info("kernel schedule profiling enabled (shift: %ld)\n",
-+			prof_shift = clamp(par, 0, BITS_PER_LONG - 1);
-+		pr_info("kernel schedule profiling enabled (shift: %u)\n",
- 			prof_shift);
- 	} else if (!strncmp(str, kvmstr, strlen(kvmstr))) {
- 		prof_on = KVM_PROFILING;
- 		if (str[strlen(kvmstr)] == ',')
- 			str += strlen(kvmstr) + 1;
- 		if (get_option(&str, &par))
--			prof_shift = par;
--		pr_info("kernel KVM profiling enabled (shift: %ld)\n",
-+			prof_shift = clamp(par, 0, BITS_PER_LONG - 1);
-+		pr_info("kernel KVM profiling enabled (shift: %u)\n",
- 			prof_shift);
- 	} else if (get_option(&str, &par)) {
--		prof_shift = par;
-+		prof_shift = clamp(par, 0, BITS_PER_LONG - 1);
- 		prof_on = CPU_PROFILING;
--		pr_info("kernel profiling enabled (shift: %ld)\n",
-+		pr_info("kernel profiling enabled (shift: %u)\n",
- 			prof_shift);
- 	}
- 	return 1;
-@@ -475,7 +476,7 @@ read_profile(struct file *file, char __user *buf, size_t count, loff_t *ppos)
- 	unsigned long p = *ppos;
- 	ssize_t read;
- 	char *pnt;
--	unsigned int sample_step = 1 << prof_shift;
-+	unsigned long sample_step = 1UL << prof_shift;
- 
- 	profile_flip_buffers();
- 	if (p >= (prof_len+1)*sizeof(unsigned int))
-diff --git a/kernel/sys.c b/kernel/sys.c
-index e98664039cb2..ee8d83885367 100644
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -1774,13 +1774,6 @@ static int validate_prctl_map(struct prctl_mm_map *prctl_map)
- 
- 	error = -EINVAL;
- 
--	/*
--	 * @brk should be after @end_data in traditional maps.
--	 */
--	if (prctl_map->start_brk <= prctl_map->end_data ||
--	    prctl_map->brk <= prctl_map->end_data)
--		goto out;
--
- 	/*
- 	 * Neither we should allow to override limits if they set.
- 	 */
-diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
-index 5892bd1457d4..252a4c22898e 100644
---- a/net/9p/trans_virtio.c
-+++ b/net/9p/trans_virtio.c
-@@ -605,7 +605,7 @@ static int p9_virtio_probe(struct virtio_device *vdev)
- 	chan->vc_wq = kmalloc(sizeof(wait_queue_head_t), GFP_KERNEL);
- 	if (!chan->vc_wq) {
- 		err = -ENOMEM;
--		goto out_free_tag;
-+		goto out_remove_file;
- 	}
- 	init_waitqueue_head(chan->vc_wq);
- 	chan->ring_bufs_avail = 1;
-@@ -623,6 +623,8 @@ static int p9_virtio_probe(struct virtio_device *vdev)
- 
- 	return 0;
- 
-+out_remove_file:
-+	sysfs_remove_file(&vdev->dev.kobj, &dev_attr_mount_tag.attr);
- out_free_tag:
- 	kfree(tag);
- out_free_vq:
-diff --git a/net/sctp/bind_addr.c b/net/sctp/bind_addr.c
-index 664215448d09..40fd399a1035 100644
---- a/net/sctp/bind_addr.c
-+++ b/net/sctp/bind_addr.c
-@@ -284,19 +284,15 @@ int sctp_raw_to_bind_addrs(struct sctp_bind_addr *bp, __u8 *raw_addr_list,
- 		rawaddr = (union sctp_addr_param *)raw_addr_list;
- 
- 		af = sctp_get_af_specific(param_type2af(param->type));
--		if (unlikely(!af)) {
-+		if (unlikely(!af) ||
-+		    !af->from_addr_param(&addr, rawaddr, htons(port), 0)) {
- 			retval = -EINVAL;
--			sctp_bind_addr_clean(bp);
--			break;
-+			goto out_err;
- 		}
- 
--		af->from_addr_param(&addr, rawaddr, htons(port), 0);
- 		retval = sctp_add_bind_addr(bp, &addr, SCTP_ADDR_SRC, gfp);
--		if (retval) {
--			/* Can't finish building the list, clean up. */
--			sctp_bind_addr_clean(bp);
--			break;
--		}
-+		if (retval)
-+			goto out_err;
- 
- 		len = ntohs(param->length);
- 		addrs_len -= len;
-@@ -304,6 +300,12 @@ int sctp_raw_to_bind_addrs(struct sctp_bind_addr *bp, __u8 *raw_addr_list,
- 	}
- 
- 	return retval;
-+
-+out_err:
-+	if (retval)
-+		sctp_bind_addr_clean(bp);
-+
-+	return retval;
- }
- 
- /********************************************************************
-diff --git a/net/sctp/input.c b/net/sctp/input.c
-index 9dcc18db9918..3f0b8aafc21a 100644
---- a/net/sctp/input.c
-+++ b/net/sctp/input.c
-@@ -972,7 +972,8 @@ static struct sctp_association *__sctp_rcv_init_lookup(struct net *net,
- 		if (!af)
- 			continue;
- 
--		af->from_addr_param(paddr, params.addr, sh->source, 0);
-+		if (!af->from_addr_param(paddr, params.addr, sh->source, 0))
-+			continue;
- 
- 		asoc = __sctp_lookup_association(net, laddr, paddr, &transport);
- 		if (asoc)
-@@ -1008,6 +1009,9 @@ static struct sctp_association *__sctp_rcv_asconf_lookup(
- 	union sctp_addr_param *param;
- 	union sctp_addr paddr;
- 
-+	if (ntohs(ch->length) < sizeof(*asconf) + sizeof(struct sctp_paramhdr))
-+		return NULL;
-+
- 	/* Skip over the ADDIP header and find the Address parameter */
- 	param = (union sctp_addr_param *)(asconf + 1);
- 
-@@ -1015,7 +1019,8 @@ static struct sctp_association *__sctp_rcv_asconf_lookup(
- 	if (unlikely(!af))
- 		return NULL;
- 
--	af->from_addr_param(&paddr, param, peer_port, 0);
-+	if (af->from_addr_param(&paddr, param, peer_port, 0))
-+		return NULL;
- 
- 	return __sctp_lookup_association(net, laddr, &paddr, transportp);
- }
-diff --git a/net/sctp/ipv6.c b/net/sctp/ipv6.c
-index 1a6849add0e3..62c729402a04 100644
---- a/net/sctp/ipv6.c
-+++ b/net/sctp/ipv6.c
-@@ -488,15 +488,20 @@ static void sctp_v6_to_sk_daddr(union sctp_addr *addr, struct sock *sk)
- }
- 
- /* Initialize a sctp_addr from an address parameter. */
--static void sctp_v6_from_addr_param(union sctp_addr *addr,
-+static bool sctp_v6_from_addr_param(union sctp_addr *addr,
- 				    union sctp_addr_param *param,
- 				    __be16 port, int iif)
- {
-+	if (ntohs(param->v6.param_hdr.length) < sizeof(struct sctp_ipv6addr_param))
-+		return false;
-+
- 	addr->v6.sin6_family = AF_INET6;
- 	addr->v6.sin6_port = port;
- 	addr->v6.sin6_flowinfo = 0; /* BUG */
- 	addr->v6.sin6_addr = param->v6.addr;
- 	addr->v6.sin6_scope_id = iif;
-+
-+	return true;
- }
- 
- /* Initialize an address parameter from a sctp_addr and return the length
-diff --git a/net/sctp/protocol.c b/net/sctp/protocol.c
-index 8c62792658b6..510b805aab2d 100644
---- a/net/sctp/protocol.c
-+++ b/net/sctp/protocol.c
-@@ -272,14 +272,19 @@ static void sctp_v4_to_sk_daddr(union sctp_addr *addr, struct sock *sk)
- }
- 
- /* Initialize a sctp_addr from an address parameter. */
--static void sctp_v4_from_addr_param(union sctp_addr *addr,
-+static bool sctp_v4_from_addr_param(union sctp_addr *addr,
- 				    union sctp_addr_param *param,
- 				    __be16 port, int iif)
- {
-+	if (ntohs(param->v4.param_hdr.length) < sizeof(struct sctp_ipv4addr_param))
-+		return false;
-+
- 	addr->v4.sin_family = AF_INET;
- 	addr->v4.sin_port = port;
- 	addr->v4.sin_addr.s_addr = param->v4.addr.s_addr;
- 	memset(addr->v4.sin_zero, 0, sizeof(addr->v4.sin_zero));
-+
-+	return true;
- }
- 
- /* Initialize an address parameter from a sctp_addr and return the length
-diff --git a/net/sctp/sm_make_chunk.c b/net/sctp/sm_make_chunk.c
-index 9de03d2e5da9..d31e0d6c641b 100644
---- a/net/sctp/sm_make_chunk.c
-+++ b/net/sctp/sm_make_chunk.c
-@@ -2146,9 +2146,16 @@ static sctp_ierror_t sctp_verify_param(struct net *net,
- 		break;
- 
- 	case SCTP_PARAM_SET_PRIMARY:
--		if (net->sctp.addip_enable)
--			break;
--		goto fallthrough;
-+		if (!net->sctp.addip_enable)
-+			goto fallthrough;
-+
-+		if (ntohs(param.p->length) < sizeof(struct sctp_addip_param) +
-+					     sizeof(struct sctp_paramhdr)) {
-+			sctp_process_inv_paramlength(asoc, param.p,
-+						     chunk, err_chunk);
-+			retval = SCTP_IERROR_ABORT;
-+		}
-+		break;
- 
- 	case SCTP_PARAM_HOST_NAME_ADDRESS:
- 		/* Tell the peer, we won't support this param.  */
-@@ -2326,11 +2333,13 @@ int sctp_process_init(struct sctp_association *asoc, struct sctp_chunk *chunk,
- 
- 	/* Process the initialization parameters.  */
- 	sctp_walk_params(param, peer_init, init_hdr.params) {
--		if (!src_match && (param.p->type == SCTP_PARAM_IPV4_ADDRESS ||
--		    param.p->type == SCTP_PARAM_IPV6_ADDRESS)) {
-+		if (!src_match &&
-+		    (param.p->type == SCTP_PARAM_IPV4_ADDRESS ||
-+		     param.p->type == SCTP_PARAM_IPV6_ADDRESS)) {
- 			af = sctp_get_af_specific(param_type2af(param.p->type));
--			af->from_addr_param(&addr, param.addr,
--					    chunk->sctp_hdr->source, 0);
-+			if (!af->from_addr_param(&addr, param.addr,
-+						 chunk->sctp_hdr->source, 0))
-+				continue;
- 			if (sctp_cmp_addr_exact(sctp_source(chunk), &addr))
- 				src_match = 1;
- 		}
-@@ -2524,7 +2533,8 @@ static int sctp_process_param(struct sctp_association *asoc,
- 			break;
- do_addr_param:
- 		af = sctp_get_af_specific(param_type2af(param.p->type));
--		af->from_addr_param(&addr, param.addr, htons(asoc->peer.port), 0);
-+		if (!af->from_addr_param(&addr, param.addr, htons(asoc->peer.port), 0))
-+			break;
- 		scope = sctp_scope(peer_addr);
- 		if (sctp_in_scope(net, &addr, scope))
- 			if (!sctp_assoc_add_peer(asoc, &addr, gfp, SCTP_UNCONFIRMED))
-@@ -2617,15 +2627,13 @@ do_addr_param:
- 		addr_param = param.v + sizeof(sctp_addip_param_t);
- 
- 		af = sctp_get_af_specific(param_type2af(addr_param->p.type));
--		if (af == NULL)
-+		if (!af)
- 			break;
- 
--		af->from_addr_param(&addr, addr_param,
--				    htons(asoc->peer.port), 0);
-+		if (!af->from_addr_param(&addr, addr_param,
-+					 htons(asoc->peer.port), 0))
-+			break;
- 
--		/* if the address is invalid, we can't process it.
--		 * XXX: see spec for what to do.
--		 */
- 		if (!af->addr_valid(&addr, NULL, NULL))
- 			break;
- 
-@@ -3035,7 +3043,8 @@ static __be16 sctp_process_asconf_param(struct sctp_association *asoc,
- 	if (unlikely(!af))
- 		return SCTP_ERROR_DNS_FAILED;
- 
--	af->from_addr_param(&addr, addr_param, htons(asoc->peer.port), 0);
-+	if (!af->from_addr_param(&addr, addr_param, htons(asoc->peer.port), 0))
-+		return SCTP_ERROR_DNS_FAILED;
- 
- 	/* ADDIP 4.2.1  This parameter MUST NOT contain a broadcast
- 	 * or multicast address.
-@@ -3301,7 +3310,8 @@ static void sctp_asconf_param_success(struct sctp_association *asoc,
- 
- 	/* We have checked the packet before, so we do not check again.	*/
- 	af = sctp_get_af_specific(param_type2af(addr_param->p.type));
--	af->from_addr_param(&addr, addr_param, htons(bp->port), 0);
-+	if (!af->from_addr_param(&addr, addr_param, htons(bp->port), 0))
-+		return;
- 
- 	switch (asconf_param->param_hdr.type) {
- 	case SCTP_PARAM_ADD_IP:
+I'm announcing the release of the 4.9.284 kernel.
+
+All users of the 4.9 kernel series must upgrade.
+
+The updated 4.9.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                          |    2 
+ arch/s390/net/bpf_jit_comp.c                      |   50 +++++++++++-----------
+ block/blk-throttle.c                              |    1 
+ drivers/base/power/wakeirq.c                      |    6 +-
+ drivers/crypto/talitos.c                          |    2 
+ drivers/dma/Kconfig                               |    2 
+ drivers/dma/acpi-dma.c                            |   10 +++-
+ drivers/dma/xilinx/xilinx_dma.c                   |    2 
+ drivers/gpu/drm/nouveau/nvkm/engine/device/ctrl.c |    2 
+ drivers/parisc/dino.c                             |   18 +++----
+ drivers/pwm/pwm-lpc32xx.c                         |   10 ++--
+ drivers/staging/android/ion/ion_system_heap.c     |    2 
+ drivers/thermal/samsung/exynos_tmu.c              |    1 
+ fs/ceph/caps.c                                    |    2 
+ fs/nilfs2/sysfs.c                                 |   26 ++++-------
+ include/net/sctp/structs.h                        |    2 
+ kernel/profile.c                                  |   21 ++++-----
+ kernel/sys.c                                      |    7 ---
+ net/9p/trans_virtio.c                             |    4 +
+ net/sctp/bind_addr.c                              |   20 ++++----
+ net/sctp/input.c                                  |    9 +++
+ net/sctp/ipv6.c                                   |    7 ++-
+ net/sctp/protocol.c                               |    7 ++-
+ net/sctp/sm_make_chunk.c                          |   42 +++++++++++-------
+ 24 files changed, 143 insertions(+), 112 deletions(-)
+
+Andy Shevchenko (1):
+      dmaengine: acpi: Avoid comparison GSI with Linux vIRQ
+
+Cheng Chao (1):
+      staging: android: ion: fix page is NULL
+
+Christophe Leroy (1):
+      crypto: talitos - fix max key size for sha384 and sha512
+
+Cyrill Gorcunov (1):
+      prctl: allow to setup brk for et_dyn executables
+
+Dan Carpenter (1):
+      thermal/drivers/exynos: Fix an error code in exynos_tmu_probe()
+
+Greg Kroah-Hartman (1):
+      Linux 4.9.284
+
+Guenter Roeck (2):
+      parisc: Move pci_dev_is_behind_card_dino to where it is used
+      drm/nouveau/nvkm: Replace -ENOSYS with -ENODEV
+
+Ilya Leoshkevich (1):
+      s390/bpf: Fix optimizing out zero-extensions
+
+Jeff Layton (1):
+      ceph: lockdep annotations for try_nonblocking_invalidate
+
+Johannes Berg (1):
+      dmaengine: ioat: depends on !UML
+
+Li Jinlin (1):
+      blk-throttle: fix UAF by deleteing timer in blk_throtl_exit()
+
+Marcelo Ricardo Leitner (3):
+      sctp: validate chunk size in __rcv_asconf_lookup
+      sctp: add param size validation for SCTP_PARAM_SET_PRIMARY
+      sctp: validate from_addr_param return
+
+Nanyong Sun (6):
+      nilfs2: fix memory leak in nilfs_sysfs_create_device_group
+      nilfs2: fix NULL pointer in nilfs_##name##_attr_release
+      nilfs2: fix memory leak in nilfs_sysfs_create_##name##_group
+      nilfs2: fix memory leak in nilfs_sysfs_delete_##name##_group
+      nilfs2: fix memory leak in nilfs_sysfs_create_snapshot_group
+      nilfs2: fix memory leak in nilfs_sysfs_delete_snapshot_group
+
+Pavel Skripkin (1):
+      profiling: fix shift-out-of-bounds bugs
+
+Radhey Shyam Pandey (1):
+      dmaengine: xilinx_dma: Set DMA mask for coherent APIs
+
+Tony Lindgren (1):
+      PM / wakeirq: Fix unbalanced IRQ enable for wakeirq
+
+Uwe Kleine-König (1):
+      pwm: lpc32xx: Don't modify HW state in .probe() after the PWM chip was registered
+
+Xie Yongji (1):
+      9p/trans_virtio: Remove sysfs file on probe failure
+
