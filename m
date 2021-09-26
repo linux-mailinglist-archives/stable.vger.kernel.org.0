@@ -2,66 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C204A418860
-	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 13:39:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 691B8418871
+	for <lists+stable@lfdr.de>; Sun, 26 Sep 2021 13:56:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230309AbhIZLlM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Sep 2021 07:41:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37312 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230200AbhIZLlM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 26 Sep 2021 07:41:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A32361038;
-        Sun, 26 Sep 2021 11:39:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632656376;
-        bh=yXCtLx7Fu34z0Ajr2RdaJF2XJr65hF634x6wb/qoKH0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ELdMAutrwqX0USx69XeLJYFnNqyCITvjXYHKLR74jE8ULOlUUcC2zHQHsUDz3ZMue
-         klWgGgrtdxh5n8hGaChka8cUrAENAovp/Dxwr7ajiXAvgqj8OI0FpIZOCyq8Kz9+ky
-         5Z1hCthcrXEaaUuKr4fUdXCs7Ap8d5Rb41wNVjqk=
-Date:   Sun, 26 Sep 2021 13:39:33 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jari Ruusu <jariruusu@protonmail.com>
-Cc:     Salvatore Bonaccorso <carnil@debian.org>,
-        Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Aurelien Jarno <aurelien@aurel32.net>
-Subject: Re: glibc VETO for kernel version SUBLEVEL >= 255
-Message-ID: <YVBb9ZoDGgV4cbXb@kroah.com>
-References: <qscod31lyVG7t-CW63o_pnsara-v9Wf6qXz9eSfUZnxtHk2AkeJ73yvER1XYO_311Wxo2wC8L2JuTdLJm8vgvhVVaGa5fdumXx5iHWarqwA=@protonmail.com>
- <YVAhOlTsb0NK0BVi@kroah.com>
- <YVArDZSq9oaTFakz@eldamar.lan>
- <YVA9l9svFyDgLPJy@kroah.com>
- <xxvm9EznCQoQ_-YYhxhEknGTxHEnVW584ypJShT__L09eV-JOfFtr-K4M33xRa3VTL5tNgOGvJSUqWthW-El4IwTi6Vt4B_XZA-xMB6vOEY=@protonmail.com>
- <YVBYfQY94j7K39qc@kroah.com>
- <gjSfoj7RAJMOeVL1pzzsZl5SjMGR_BXqigZqgkJe4G_8PPfm3EhxRlrRi-I7-Z0guYL0DAFOWeSWmrt_R8RcgzNq6Bcnk7BlQ9g3_G9aT2w=@protonmail.com>
+        id S231160AbhIZL5i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Sep 2021 07:57:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43748 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230200AbhIZL5i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Sep 2021 07:57:38 -0400
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50E45C061570
+        for <stable@vger.kernel.org>; Sun, 26 Sep 2021 04:56:02 -0700 (PDT)
+Received: by mail-pl1-x636.google.com with SMTP id x8so6942170plv.8
+        for <stable@vger.kernel.org>; Sun, 26 Sep 2021 04:56:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=Cgr0NudsllIuU4pYJfPAFPG4b+vxrvwuUcJfymOmGQ8=;
+        b=O+TpjHM4yHZN5MmEwy2AlyyuxGrt4hdKgVjpQ6Sp/6X2gml0598xHLArHszKEKeOHu
+         OJksj7/wIJh5fYWYmkqLiGTQWkXSAMnTBX6aV03nmI2M9dQzYUr7ACpEI1b1y+4Ub828
+         kgq+vdGoUeirK80JKlxgV6Ssxf1+WMZEO+3damvo/puAMRLTYswGHNBGf+2qj6x/yIxe
+         Ft7CesW0Mh88lvAuaNOojsvRN6a6FTilTYfVFsxxFfDOHTSkvH2TangiyngHDH3dk0Bc
+         xyzU1odmZFcSGU6UnSTbeGhEjSzYBiIRU4P0bu8crG5vYBRy3xDT+8W6Uv+lqgInV5/I
+         fGdw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=Cgr0NudsllIuU4pYJfPAFPG4b+vxrvwuUcJfymOmGQ8=;
+        b=QkW2yhAC7u7CYf9cXBhQ6MtSEPxQher2eUu+rg6bC2m3bbbe/lOBPE5mqGeAQ7/a3X
+         JriJjvY5SiZcefzYvq650TSEPUhJrzNGpZQUbKtAMpAkRulHSFLN1uvF3OzksY8XgiWO
+         ry3cm088jXthluq8eNXf0IfxTuJzp+vsl573vfuj2Psn9cilyk32yYKOAXPNbx4yR9dO
+         wUyS2fE2clBsc5XRauDCvruGLeZhtXz5tIV9ofFYPzzQ3g+GZVO0RfA0soZl8LmGRYMb
+         Tvtn37aoASfWq52Fl9HGnY1n8TE1dBZgvKAYIgv3q3wqs0IfkFCSFlpmhpwGcUCRtRwe
+         P4sA==
+X-Gm-Message-State: AOAM530r86/trxOJz9GRxdQ9w9RLc+4azb5aiKwBC/oL6Lh5iEEcSLkL
+        OGBexENYUyj6GPG5FpFkKdQ6ab8i/oVqaEtOpsI=
+X-Google-Smtp-Source: ABdhPJxLOTcPATSbvshN4QovKuYZwYzWYgW/otvDUhZS9lKjeCDdYCKegjYYapG+uEBSHligMOBUQtCgy//yrN7wYD0=
+X-Received: by 2002:a17:902:8ec5:b0:13a:2789:cbb0 with SMTP id
+ x5-20020a1709028ec500b0013a2789cbb0mr17994000plo.60.1632657361919; Sun, 26
+ Sep 2021 04:56:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <gjSfoj7RAJMOeVL1pzzsZl5SjMGR_BXqigZqgkJe4G_8PPfm3EhxRlrRi-I7-Z0guYL0DAFOWeSWmrt_R8RcgzNq6Bcnk7BlQ9g3_G9aT2w=@protonmail.com>
+Received: by 2002:a05:6a10:2d09:0:0:0:0 with HTTP; Sun, 26 Sep 2021 04:56:01
+ -0700 (PDT)
+Reply-To: abdwabbomaddah91@gmail.com
+From:   Abdwabbo Maddah <mr.kenneth1brown@gmail.com>
+Date:   Sun, 26 Sep 2021 12:56:01 +0100
+Message-ID: <CAEx6N_zBj-3fYdRUo658fwvs5Dfrhw8MnR9=CJfXwdWBOkbHAA@mail.gmail.com>
+Subject: DID YOU RECEIVE MY MAIL?
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Sep 26, 2021 at 11:31:20AM +0000, Jari Ruusu wrote:
-> On Sunday, September 26th, 2021 at 14:24, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> > Why use an older kernel tree on this device? Rasbian seems to be on
-> > 4.19.y at the least right now, is there something in those older kernel
-> > trees that you need?
-> 
-> Due to circumstances, I need "smallest possible" kernel with all extra
-> stripped out. 4.9.y kernels are smaller than newer ones.
+-- 
+Dear,
+I had sent you a mail but i don't think you received it that's why am
+writing you again.It is important you get back to me as soon as you
+can.
 
-Smaller by how much, and what portion grew?  Are we building things into
-the kernel that previously was able to be compiled out?  Or is there
-something new added after 4.9 that adds a huge memory increase?
-
-Figuring that out would be good as you only have 1 more year for 4.9.y
-to be alive, that's not going to last for forever...
-
-thanks,
-
-greg k-h
+Abd-Wabbo Maddah
