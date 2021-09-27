@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 024DF419B0D
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20202419AEB
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236426AbhI0RPT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:15:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47672 "EHLO mail.kernel.org"
+        id S236061AbhI0ROj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:14:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236193AbhI0RLv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:11:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 576B0611BD;
-        Mon, 27 Sep 2021 17:08:29 +0000 (UTC)
+        id S236605AbhI0RMS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:12:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98B9E61371;
+        Mon, 27 Sep 2021 17:08:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762509;
-        bh=s2gvYAGUeUFVb0I+PD05eGtyCBHnBNV4dJP1XU7yK/8=;
+        s=korg; t=1632762525;
+        bh=qpgKfRSy0WRL//yUVgg/fqWsO5jm6cAXesAzEz4hoBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DB0cCyX3LNIDXXLrxo7HZZEq16DPN0ARZ4Idwfyrhn7fsgMSVlSvH3SwEyJCWxxYw
-         1vykHG26WJEn2Uebn6p02PQhG3V1Xe8YqXOysKZGc4rGzwEfAgEc9sjLstUiTuoG14
-         t2RffftbYNejU02T1JJbZCq/fFVJBsne2455267g=
+        b=G8frSzlT0/vg5NJoLNTgiMmEQdYlp/FHqGwup0DMcYEvU2A5wx3h/9ZWu65i+bSmt
+         yY7Y7Boaehb3jMCDLlmZvJIqG4bTQ1bKLwbtDZ+PFC/ArKr4x/wYYoNdypIjwB8lNk
+         UiAGMpZ5Dka+r3sGNgwlsH3cpzQX1pJ5jzD48tUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Johannes Thumshirn <jth@kernel.org>
-Subject: [PATCH 5.10 023/103] mcb: fix error handling in mcb_alloc_bus()
-Date:   Mon, 27 Sep 2021 19:01:55 +0200
-Message-Id: <20210927170226.520810369@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [PATCH 5.10 024/103] erofs: fix up erofs_lookup tracepoint
+Date:   Mon, 27 Sep 2021 19:01:56 +0200
+Message-Id: <20210927170226.561667456@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
 References: <20210927170225.702078779@linuxfoundation.org>
@@ -39,58 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-commit 25a1433216489de4abc889910f744e952cb6dbae upstream.
+commit 93368aab0efc87288cac65e99c9ed2e0ffc9e7d0 upstream.
 
-There are two bugs:
-1) If ida_simple_get() fails then this code calls put_device(carrier)
-   but we haven't yet called get_device(carrier) and probably that
-   leads to a use after free.
-2) After device_initialize() then we need to use put_device() to
-   release the bus.  This will free the internal resources tied to the
-   device and call mcb_free_bus() which will free the rest.
+Fix up a misuse that the filename pointer isn't always valid in
+the ring buffer, and we should copy the content instead.
 
-Fixes: 5d9e2ab9fea4 ("mcb: Implement bus->dev.release callback")
-Fixes: 18d288198099 ("mcb: Correctly initialize the bus's device")
-Cc: stable@vger.kernel.org
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Johannes Thumshirn <jth@kernel.org>
-Link: https://lore.kernel.org/r/32e160cf6864ce77f9d62948338e24db9fd8ead9.1630931319.git.johannes.thumshirn@wdc.com
+Link: https://lore.kernel.org/r/20210921143531.81356-1-hsiangkao@linux.alibaba.com
+Fixes: 13f06f48f7bf ("staging: erofs: support tracepoint")
+Cc: stable@vger.kernel.org # 4.19+
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mcb/mcb-core.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ include/trace/events/erofs.h |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/mcb/mcb-core.c
-+++ b/drivers/mcb/mcb-core.c
-@@ -277,8 +277,8 @@ struct mcb_bus *mcb_alloc_bus(struct dev
+--- a/include/trace/events/erofs.h
++++ b/include/trace/events/erofs.h
+@@ -35,20 +35,20 @@ TRACE_EVENT(erofs_lookup,
+ 	TP_STRUCT__entry(
+ 		__field(dev_t,		dev	)
+ 		__field(erofs_nid_t,	nid	)
+-		__field(const char *,	name	)
++		__string(name,		dentry->d_name.name	)
+ 		__field(unsigned int,	flags	)
+ 	),
  
- 	bus_nr = ida_simple_get(&mcb_ida, 0, 0, GFP_KERNEL);
- 	if (bus_nr < 0) {
--		rc = bus_nr;
--		goto err_free;
-+		kfree(bus);
-+		return ERR_PTR(bus_nr);
- 	}
+ 	TP_fast_assign(
+ 		__entry->dev	= dir->i_sb->s_dev;
+ 		__entry->nid	= EROFS_I(dir)->nid;
+-		__entry->name	= dentry->d_name.name;
++		__assign_str(name, dentry->d_name.name);
+ 		__entry->flags	= flags;
+ 	),
  
- 	bus->bus_nr = bus_nr;
-@@ -293,12 +293,12 @@ struct mcb_bus *mcb_alloc_bus(struct dev
- 	dev_set_name(&bus->dev, "mcb:%d", bus_nr);
- 	rc = device_add(&bus->dev);
- 	if (rc)
--		goto err_free;
-+		goto err_put;
+ 	TP_printk("dev = (%d,%d), pnid = %llu, name:%s, flags:%x",
+ 		show_dev_nid(__entry),
+-		__entry->name,
++		__get_str(name),
+ 		__entry->flags)
+ );
  
- 	return bus;
--err_free:
--	put_device(carrier);
--	kfree(bus);
-+
-+err_put:
-+	put_device(&bus->dev);
- 	return ERR_PTR(rc);
- }
- EXPORT_SYMBOL_NS_GPL(mcb_alloc_bus, MCB);
 
 
