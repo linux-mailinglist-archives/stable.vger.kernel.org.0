@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27994419A82
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:08:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B845D419BF9
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236164AbhI0RJv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:09:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46362 "EHLO mail.kernel.org"
+        id S236864AbhI0RYg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:24:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236374AbhI0RI2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:08:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D9E4611C5;
-        Mon, 27 Sep 2021 17:06:43 +0000 (UTC)
+        id S235898AbhI0RWO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:22:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BFDA1613A8;
+        Mon, 27 Sep 2021 17:14:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762404;
-        bh=FuBLvPZOaNDqtLiQ6Jkd1Gd1oxqwHc0IZGNzQGqzgOw=;
+        s=korg; t=1632762847;
+        bh=A4ahRCMAKn0v+DioCp9jJOd8r99Q792ns3PteJVLp0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kjYRqm2GJhcQRczlqiuXrN0Oyps7hs7evpsi6tFuHMLtFiHAFRX98J67CUAmqajcn
-         kOUAhnDIrltFJVoeMab+ixxyYm7hNA3QxjSqDN7L6SbtpfAeJ/EKZ0DpnD6bj6CKeF
-         WMWVPOZfJYWvAgVRJxtmo4fSlS4aKvQOzdTvvod4=
+        b=ok3lBXxNjY0LYgupTxOdN19yiUYiPeRsvBXnHdiAUcFPs5jX6VLXLU0lP6yJdQcLD
+         0xJmjKWTsp1kVCNpKkFuNNAnaMumwuQk7E/HjKAAiC7sHQaFDTwKrH5gvXqByW+xfs
+         0ZqgRGHLCg8UtpUBLq/ylAcJvnNdg2ZSCEdfurnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Ondrej Zary <linux@zary.sk>
-Subject: [PATCH 5.10 010/103] usb-storage: Add quirk for ScanLogic SL11R-IDE older than 2.6c
+        stable@vger.kernel.org, Claudiu Manoil <claudiu.manoil@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 056/162] enetc: Fix illegal access when reading affinity_hint
 Date:   Mon, 27 Sep 2021 19:01:42 +0200
-Message-Id: <20210927170226.072673764@linuxfoundation.org>
+Message-Id: <20210927170235.427711689@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,59 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Zary <linux@zary.sk>
+From: Claudiu Manoil <claudiu.manoil@nxp.com>
 
-commit b55d37ef6b7db3eda9b4495a8d9b0a944ee8c67d upstream.
+[ Upstream commit 7237a494decfa17d0b9d0076e6cee3235719de90 ]
 
-ScanLogic SL11R-IDE with firmware older than 2.6c (the latest one) has
-broken tag handling, preventing the device from working at all:
-usb 1-1: new full-speed USB device number 2 using uhci_hcd
-usb 1-1: New USB device found, idVendor=04ce, idProduct=0002, bcdDevice= 2.60
-usb 1-1: New USB device strings: Mfr=1, Product=1, SerialNumber=0
-usb 1-1: Product: USB Device
-usb 1-1: Manufacturer: USB Device
-usb-storage 1-1:1.0: USB Mass Storage device detected
-scsi host2: usb-storage 1-1:1.0
-usbcore: registered new interface driver usb-storage
-usb 1-1: reset full-speed USB device number 2 using uhci_hcd
-usb 1-1: reset full-speed USB device number 2 using uhci_hcd
-usb 1-1: reset full-speed USB device number 2 using uhci_hcd
-usb 1-1: reset full-speed USB device number 2 using uhci_hcd
+irq_set_affinity_hit() stores a reference to the cpumask_t
+parameter in the irq descriptor, and that reference can be
+accessed later from irq_affinity_hint_proc_show(). Since
+the cpu_mask parameter passed to irq_set_affinity_hit() has
+only temporary storage (it's on the stack memory), later
+accesses to it are illegal. Thus reads from the corresponding
+procfs affinity_hint file can result in paging request oops.
 
-Add US_FL_BULK_IGNORE_TAG to fix it. Also update my e-mail address.
+The issue is fixed by the get_cpu_mask() helper, which provides
+a permanent storage for the cpumask_t parameter.
 
-2.6c is the only firmware that claims Linux compatibility.
-The firmware can be upgraded using ezotgdbg utility:
-https://github.com/asciilifeform/ezotgdbg
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Ondrej Zary <linux@zary.sk>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210913210106.12717-1-linux@zary.sk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d4fd0404c1c9 ("enetc: Introduce basic PF and VF ENETC ethernet drivers")
+Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_devs.h |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/enetc/enetc.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -416,9 +416,16 @@ UNUSUAL_DEV(  0x04cb, 0x0100, 0x0000, 0x
- 		USB_SC_UFI, USB_PR_DEVICE, NULL, US_FL_FIX_INQUIRY | US_FL_SINGLE_LUN),
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
+index 3ca93adb9662..7f90c27c0e79 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc.c
+@@ -1879,7 +1879,6 @@ static void enetc_clear_bdrs(struct enetc_ndev_priv *priv)
+ static int enetc_setup_irqs(struct enetc_ndev_priv *priv)
+ {
+ 	struct pci_dev *pdev = priv->si->pdev;
+-	cpumask_t cpu_mask;
+ 	int i, j, err;
  
- /*
-- * Reported by Ondrej Zary <linux@rainbow-software.org>
-+ * Reported by Ondrej Zary <linux@zary.sk>
-  * The device reports one sector more and breaks when that sector is accessed
-+ * Firmwares older than 2.6c (the latest one and the only that claims Linux
-+ * support) have also broken tag handling
-  */
-+UNUSUAL_DEV(  0x04ce, 0x0002, 0x0000, 0x026b,
-+		"ScanLogic",
-+		"SL11R-IDE",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_FIX_CAPACITY | US_FL_BULK_IGNORE_TAG),
- UNUSUAL_DEV(  0x04ce, 0x0002, 0x026c, 0x026c,
- 		"ScanLogic",
- 		"SL11R-IDE",
+ 	for (i = 0; i < priv->bdr_int_num; i++) {
+@@ -1908,9 +1907,7 @@ static int enetc_setup_irqs(struct enetc_ndev_priv *priv)
+ 
+ 			enetc_wr(hw, ENETC_SIMSITRV(idx), entry);
+ 		}
+-		cpumask_clear(&cpu_mask);
+-		cpumask_set_cpu(i % num_online_cpus(), &cpu_mask);
+-		irq_set_affinity_hint(irq, &cpu_mask);
++		irq_set_affinity_hint(irq, get_cpu_mask(i % num_online_cpus()));
+ 	}
+ 
+ 	return 0;
+-- 
+2.33.0
+
 
 
