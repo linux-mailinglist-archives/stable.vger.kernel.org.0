@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9AB9419756
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 17:09:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73937419758
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 17:09:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234832AbhI0PKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 11:10:37 -0400
-Received: from mail-40131.protonmail.ch ([185.70.40.131]:59729 "EHLO
-        mail-40131.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234816AbhI0PKh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 11:10:37 -0400
-Date:   Mon, 27 Sep 2021 15:08:44 +0000
+        id S234816AbhI0PLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 11:11:06 -0400
+Received: from mail-40134.protonmail.ch ([185.70.40.134]:20201 "EHLO
+        mail-40134.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235002AbhI0PLF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 11:11:05 -0400
+Date:   Mon, 27 Sep 2021 15:09:20 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=emersion.fr;
-        s=protonmail; t=1632755333;
-        bh=LfVEJw8buJFUVGC6WlCq3Ogw2Xoapxa28fb0vc8GTN8=;
-        h=Date:To:From:Cc:Reply-To:Subject:From;
-        b=sN9CdwhzKjfyPG8jLaIff69v2njJjw7MZPTznlc6n/LBZo+K1IHYu62HNC4KShWgs
-         Tw1MUrB7fM9M0Z2Hy/G6ggYLUi6Jfd8xBZMHbZDfQJAUmmQhY1ETVnoUaQ8x1zFpCr
-         i+aSBw5Tn3vTr1g+rq1IFKid3fNNgA3gAbQ5xKn4nedk7SyP51m+psrwR3sATur4gG
-         VRQ5SkgfvtnmxmEQ4G2midrLjUD0+wJEvmps+/g4Ass5436eLLo0TjMeYSA5CNIowY
-         dekiavWOdLSWIKGEJvI511VOn2uOJ164ByygJYd1+BCP/Qdg425AL1SlGoFw0jasra
-         AhiSWAMStjXUA==
-To:     amd-gfx@lists.freedesktop.org
+        s=protonmail; t=1632755361;
+        bh=fXzawrdPhcEiRRS7QLhl1QHyY5X/UCeVEnskCKUH7bU=;
+        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
+        b=N3q8nlM1tBnSCynyg5Uipm+hGannC+rmUqXsWgyYW6EdS5xByFDPiY/BkJd7noAW3
+         MfQ/X46GcWe4lWMMX7OOMxA92SxXM10jeXgKIepZSKCNoQ9MvU8HCSIRXnwyg8v3ss
+         G18wCz2ELqZKr9sEk14h2vdhSVE/bv1CpdqtMqeXRSF9vf7ETKbzXDnNSLMz4ouVKR
+         M5N6eIM88+D+CgsgdDVPGL5jS7CXUzrm92+UjfqjMSksfMYq4Iv7o49MgA0gPFPvAQ
+         uhpyGwXovoiryR3oixdkWBkYQG39SHXZIl0U5NSOrnN+l82t7YAkuj9Kkud38cB1wR
+         i2wfYUmEZLHhQ==
+To:     Alex Deucher <alexdeucher@gmail.com>
 From:   Simon Ser <contact@emersion.fr>
-Cc:     stable@vger.kernel.org,
-        =?utf-8?Q?Michel_D=C3=A4nzer?= <mdaenzer@redhat.com>,
+Cc:     amd-gfx list <amd-gfx@lists.freedesktop.org>,
+        "for 3.8" <stable@vger.kernel.org>,
         Alex Deucher <alexander.deucher@amd.com>,
         Harry Wentland <hwentlan@amd.com>,
         Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        =?utf-8?Q?Michel_D=C3=A4nzer?= <michel@daenzer.net>,
         Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
 Reply-To: Simon Ser <contact@emersion.fr>
-Subject: [PATCH v2] amdgpu: check tiling flags when creating FB on GFX8-
-Message-ID: <20210927150821.389427-1-contact@emersion.fr>
+Subject: Re: [PATCH] amdgpu: check tiling flags when creating FB on GFX8-
+Message-ID: <KvsBEjUfaluHmhGTchZazzOZHeVQEtdicj_znZpVB1gdwU3qaZr1bObQPplEh_EVcG2I_xsIUNuIEgFXCQ81VaLaiIgtKhfXE1q2NP718xs=@emersion.fr>
+In-Reply-To: <CADnq5_PFMLUfadfA83bH7i4wAQdEtLWsKf7L7iLT_YjEhXDGug@mail.gmail.com>
+References: <20210920103133.3573-1-contact@emersion.fr> <Kmwa-gfuqYfkMsvvUXAaujfROLLXX4PuTRBRQ5efixoEvM3arNB_yT5eure3D1iqmnFB54wnbB87S1zBLL-79Ci7fhqoKx-M-ciPVs5fcSU=@emersion.fr> <CADnq5_PFMLUfadfA83bH7i4wAQdEtLWsKf7L7iLT_YjEhXDGug@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
@@ -45,96 +48,9 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On GFX9+, format modifiers are always enabled and ensure the
-frame-buffers can be scanned out at ADDFB2 time.
+On Monday, September 27th, 2021 at 16:57, Alex Deucher <alexdeucher@gmail.c=
+om> wrote:
 
-On GFX8-, format modifiers are not supported and no other check
-is performed. This means ADDFB2 IOCTLs will succeed even if the
-tiling isn't supported for scan-out, and will result in garbage
-displayed on screen [1].
+> No objections from me with the WARN_ONCE change suggested by Michel.
 
-Fix this by adding a check for tiling flags for GFX8 and older.
-The check is taken from radeonsi in Mesa (see how is_displayable
-is populated in gfx6_compute_surface).
-
-Changes in v2: use drm_WARN_ONCE instead of drm_WARN (Michel)
-
-[1]: https://github.com/swaywm/wlroots/issues/3185
-
-Signed-off-by: Simon Ser <contact@emersion.fr>
-Cc: stable@vger.kernel.org
-Acked-by: Michel D=C3=A4nzer <mdaenzer@redhat.com>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: Harry Wentland <hwentlan@amd.com>
-Cc: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Cc: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
----
- drivers/gpu/drm/amd/amdgpu/amdgpu_display.c | 31 +++++++++++++++++++++
- 1 file changed, 31 insertions(+)
-
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/=
-amd/amdgpu/amdgpu_display.c
-index 58bfc7f00d76..5faf3ef28080 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-@@ -837,6 +837,28 @@ static int convert_tiling_flags_to_modifier(struct amd=
-gpu_framebuffer *afb)
- =09return 0;
- }
-=20
-+/* Mirrors the is_displayable check in radeonsi's gfx6_compute_surface */
-+static int check_tiling_flags_gfx6(struct amdgpu_framebuffer *afb)
-+{
-+=09u64 micro_tile_mode;
-+
-+=09/* Zero swizzle mode means linear */
-+=09if (AMDGPU_TILING_GET(afb->tiling_flags, SWIZZLE_MODE) =3D=3D 0)
-+=09=09return 0;
-+
-+=09micro_tile_mode =3D AMDGPU_TILING_GET(afb->tiling_flags, MICRO_TILE_MOD=
-E);
-+=09switch (micro_tile_mode) {
-+=09case 0: /* DISPLAY */
-+=09case 3: /* RENDER */
-+=09=09return 0;
-+=09default:
-+=09=09drm_dbg_kms(afb->base.dev,
-+=09=09=09    "Micro tile mode %llu not supported for scanout\n",
-+=09=09=09    micro_tile_mode);
-+=09=09return -EINVAL;
-+=09}
-+}
-+
- static void get_block_dimensions(unsigned int block_log2, unsigned int cpp=
-,
- =09=09=09=09 unsigned int *width, unsigned int *height)
- {
-@@ -1103,6 +1125,7 @@ int amdgpu_display_framebuffer_init(struct drm_device=
- *dev,
- =09=09=09=09    const struct drm_mode_fb_cmd2 *mode_cmd,
- =09=09=09=09    struct drm_gem_object *obj)
- {
-+=09struct amdgpu_device *adev =3D drm_to_adev(dev);
- =09int ret, i;
-=20
- =09/*
-@@ -1122,6 +1145,14 @@ int amdgpu_display_framebuffer_init(struct drm_devic=
-e *dev,
- =09if (ret)
- =09=09return ret;
-=20
-+=09if (!dev->mode_config.allow_fb_modifiers) {
-+=09=09drm_WARN_ONCE(dev, adev->family >=3D AMDGPU_FAMILY_AI,
-+=09=09=09      "GFX9+ requires FB check based on format modifier\n");
-+=09=09ret =3D check_tiling_flags_gfx6(rfb);
-+=09=09if (ret)
-+=09=09=09return ret;
-+=09}
-+
- =09if (dev->mode_config.allow_fb_modifiers &&
- =09    !(rfb->base.flags & DRM_MODE_FB_MODIFIERS)) {
- =09=09ret =3D convert_tiling_flags_to_modifier(rfb);
---=20
-2.33.0
-
-
+Cool, just sent v2 with Michel's comment fixed.
