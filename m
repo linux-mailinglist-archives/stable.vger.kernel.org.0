@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C02C4199EF
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:03:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8A7E419C16
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235768AbhI0RFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:05:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44034 "EHLO mail.kernel.org"
+        id S237748AbhI0RZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:25:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235746AbhI0RFY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:05:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 964086101A;
-        Mon, 27 Sep 2021 17:03:45 +0000 (UTC)
+        id S235622AbhI0RWm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:22:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E48746135F;
+        Mon, 27 Sep 2021 17:14:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762226;
-        bh=kyXHDwLZ4D72H0wXL5gVuj9akRR4SZlbm4N8dhuKz9Q=;
+        s=korg; t=1632762865;
+        bh=kgD1e4RoCpFEZjZSZkXNK08KIkUZIuli5LgochcfZEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uzM6/XTMEDE2NLhKnjUTguL55pdM0K0JhcoZDCN12Nc6b87xhVQXwSfwGyMp7dj57
-         EQK8bxabg9IrbPks7XZtYzITPFuo44dYH7C8Z8O2r//EDYeGvE9zz20t132GBC8KYs
-         jsRO3fF8I+KlIdkMUVUKQaZfjjGujANJ0H8wzIqA=
+        b=s12tMjP61SlER5qDVREA2Uv7C2MBEOHWx8kRuBT26repI2OmVPMZquUivddThJYBf
+         s95xwZz9OGaReejMS//fn+chdWr9IMUCpm6dqjpHODmy8OgDP8AUqNO1HR6ETTeKZT
+         rlZg2jensO3GYDWKwZTV//BM3OXgMQY4J1uNajTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaejoong Kim <climbbb.kim@gmail.com>,
-        Oliver Neukum <oneukum@suse.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 10/68] USB: cdc-acm: fix minor-number release
+        stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 080/162] gpiolib: acpi: Make set-debounce-timeout failures non fatal
 Date:   Mon, 27 Sep 2021 19:02:06 +0200
-Message-Id: <20210927170220.279752073@linuxfoundation.org>
+Message-Id: <20210927170236.222207460@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
-References: <20210927170219.901812470@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 91fac0741d4817945c6ee0a17591421e7f5ecb86 upstream.
+[ Upstream commit cef0d022f55364d69017daeb9443bd31510ad6a2 ]
 
-If the driver runs out of minor numbers it would release minor 0 and
-allow another device to claim the minor while still in use.
+Commit 8dcb7a15a585 ("gpiolib: acpi: Take into account debounce settings")
+made the gpiolib-acpi code call gpio_set_debounce_timeout() when requesting
+GPIOs.
 
-Fortunately, registering the tty class device of the second device would
-fail (with a stack dump) due to the sysfs name collision so no memory is
-leaked.
+This in itself is fine, but it also made gpio_set_debounce_timeout()
+errors fatal, causing the requesting of the GPIO to fail. This is causing
+regressions. E.g. on a HP ElitePad 1000 G2 various _AEI specified GPIO
+ACPI event sources specify a debouncy timeout of 20 ms, but the
+pinctrl-baytrail.c only supports certain fixed values, the closest
+ones being 12 or 24 ms and pinctrl-baytrail.c responds with -EINVAL
+when specified a value which is not one of the fixed values.
 
-Fixes: cae2bc768d17 ("usb: cdc-acm: Decrement tty port's refcount if probe() fail")
-Cc: stable@vger.kernel.org      # 4.19
-Cc: Jaejoong Kim <climbbb.kim@gmail.com>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210907082318.7757-1-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is causing the acpi_request_own_gpiod() call to fail for 3
+ACPI event sources on the HP ElitePad 1000 G2, which in turn is causing
+e.g. the battery charging vs discharging status to never get updated,
+even though a charger has been plugged-in or unplugged.
+
+Make gpio_set_debounce_timeout() errors non fatal, warning about the
+failure instead, to fix this regression.
+
+Note we should probably also fix various pinctrl drivers to just
+pick the first bigger discrete value rather then returning -EINVAL but
+this will need to be done on a per driver basis, where as this fix
+at least gets us back to where things were before and thus restores
+functionality on devices where this was lost due to
+gpio_set_debounce_timeout() errors.
+
+Fixes: 8dcb7a15a585 ("gpiolib: acpi: Take into account debounce settings")
+Depends-on: 2e2b496cebef ("gpiolib: acpi: Extract acpi_request_own_gpiod() helper")
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-acm.c |    7 +++++--
- drivers/usb/class/cdc-acm.h |    2 ++
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpio/gpiolib-acpi.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -725,7 +725,8 @@ static void acm_port_destruct(struct tty
- {
- 	struct acm *acm = container_of(port, struct acm, port);
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index 411525ac4cc4..47712b6903b5 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -313,9 +313,11 @@ static struct gpio_desc *acpi_request_own_gpiod(struct gpio_chip *chip,
  
--	acm_release_minor(acm);
-+	if (acm->minor != ACM_MINOR_INVALID)
-+		acm_release_minor(acm);
- 	usb_put_intf(acm->control);
- 	kfree(acm->country_codes);
- 	kfree(acm);
-@@ -1356,8 +1357,10 @@ made_compressed_probe:
- 	usb_get_intf(acm->control); /* undone in destruct() */
+ 	ret = gpio_set_debounce_timeout(desc, agpio->debounce_timeout);
+ 	if (ret)
+-		gpiochip_free_own_desc(desc);
++		dev_warn(chip->parent,
++			 "Failed to set debounce-timeout for pin 0x%04X, err %d\n",
++			 pin, ret);
  
- 	minor = acm_alloc_minor(acm);
--	if (minor < 0)
-+	if (minor < 0) {
-+		acm->minor = ACM_MINOR_INVALID;
- 		goto alloc_fail1;
-+	}
+-	return ret ? ERR_PTR(ret) : desc;
++	return desc;
+ }
  
- 	acm->minor = minor;
- 	acm->dev = usb_dev;
---- a/drivers/usb/class/cdc-acm.h
-+++ b/drivers/usb/class/cdc-acm.h
-@@ -22,6 +22,8 @@
- #define ACM_TTY_MAJOR		166
- #define ACM_TTY_MINORS		256
- 
-+#define ACM_MINOR_INVALID	ACM_TTY_MINORS
-+
- /*
-  * Requests.
-  */
+ static bool acpi_gpio_in_ignore_list(const char *controller_in, int pin_in)
+-- 
+2.33.0
+
 
 
