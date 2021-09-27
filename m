@@ -2,199 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFB224191D2
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 11:51:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC9724191E5
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 11:58:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233749AbhI0JxL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 05:53:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49342 "EHLO
+        id S233715AbhI0KAW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 06:00:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233755AbhI0JxJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 05:53:09 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7255AC061575
-        for <stable@vger.kernel.org>; Mon, 27 Sep 2021 02:51:27 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id g14so15352346pfm.1
-        for <stable@vger.kernel.org>; Mon, 27 Sep 2021 02:51:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=VnQLaAr/EHmsgSmLePhSTRYb1wvwg5YW92vE9rGTUPI=;
-        b=tPgFn/1SEa0P7e8mMKROPEa7cDDgRouKCG/bGJ7aQ8bQ+fulGTbA7kkM9LsF/Tj0h2
-         AtxDzpYcD2nyHg92XYCiKZhGOIRTv2JIeQUVdkyaT6tN9uB9HCvS0t/JZdNHMt/8IKuZ
-         dAXIrNQ1/0I/gQ9VGCwXx8FP4wl08HL2d48sB/NgCqnGpfHCihD1vYO/CPUX090BWFeM
-         9FJkjQfNgN/icFmvscuYYv+ZbkDmm40u4Dpa+bDSTfjqxNIjMdmvfgC6PjFKqgPSW5n3
-         k0pmbVxT5Cn1XFw/y0c+9KnDou4sNJ7gituB77u3afYgQ3hf61+RSyI/r2lDUiLqC+Lm
-         eYjQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=VnQLaAr/EHmsgSmLePhSTRYb1wvwg5YW92vE9rGTUPI=;
-        b=8AvKPOmQ/gAy5CCM/w4wBsYWmkPmk358GCLI8g1gbuJeaeT/YZYV3lWU6CR7RSwvqg
-         YCZP87yvvEfYjcn8wvubnxwvAynaRizo4DBbDfnI6tDPdQ4LSTvD52kEfXGpvJFgyM2s
-         kN2+CAaG4SJjOCVd7Qy3tyk8Meox/Rz63d0MocrkMYoVfpWDLBMeYgbPpAzC8F5A+gKm
-         bU0HSJTZuFbA/TDvJhrZkD+8PP6mZsru6yeSFbPxeVDaOCjgq1fBTeOJ21jTC7RSqQph
-         mhmwlw3rV/bc9nDwjMfUQC8nJrUPekslEa3Q5pCpSXk9gP3oJBafd43gBfnL6aIbyQvI
-         Swyg==
-X-Gm-Message-State: AOAM531CZVJ8yQkjkHdV0uSGCWoa9BVq9wchoptD1RLLzkLYiFAEXRLl
-        83d7rtKxa5eX4gQc3hsbbzyi5emIoYFgF5SN
-X-Google-Smtp-Source: ABdhPJwBs0bB88v9PFGn1bwUfFTprHgD5hWF8YqV7aDTs8rABsZY56Fh+VM7egZDuoNJIv0kqloT/A==
-X-Received: by 2002:a62:8306:0:b0:44b:9184:e47f with SMTP id h6-20020a628306000000b0044b9184e47fmr2409826pfe.32.1632736286777;
-        Mon, 27 Sep 2021 02:51:26 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e5sm16780715pfj.181.2021.09.27.02.51.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Sep 2021 02:51:26 -0700 (PDT)
-Message-ID: <6151941e.1c69fb81.7048f.669e@mx.google.com>
-Date:   Mon, 27 Sep 2021 02:51:26 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S233703AbhI0KAV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 06:00:21 -0400
+Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8605AC061575;
+        Mon, 27 Sep 2021 02:58:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
+        Message-Id:Date:Subject:Cc:To:From:Content-Type:Sender:Reply-To:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-To:Resent-Cc:
+        Resent-Message-ID:In-Reply-To:References;
+        bh=/lx1hyTvCxGj53rEQ9WPNWOBGzLKtKut8eOy9Qi9d3k=; t=1632736723; x=1633946323; 
+        b=phN9WPCrQvmQ2P+MIIh3Q39uC3X2GLPjff5CF0x00qoc4yJoqER9N8cXV6gZnHaXpITCnNi/VXg
+        VynmMvY+3LcD+o99GTLtxSyA4BS3Qvd6xE6gPjfOw6IjDObvgvNSngBwGcJrPgpQ4cCiQ702XAZ/L
+        HBppL3DOZmrG/nKT7NFNjNwS0J+m5UOpkaSMFH6I552tes7ue/+1yJzkAyqC5xRZuiWpNFOleeWWU
+        VW51/zHq/vdw2RoweInOeR71tq5Exeyl85lwfDc7K+L6tAc6Z7H7HcknBSOwsjHSE+4sW9FgAxk+I
+        qRhQDeG/v7ypfDRpfZffl5URSaPHXUiSXeyg==;
+Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+        (Exim 4.95-RC2)
+        (envelope-from <johannes@sipsolutions.net>)
+        id 1mUnPF-00CN3q-FX;
+        Mon, 27 Sep 2021 11:58:41 +0200
+From:   Johannes Berg <johannes@sipsolutions.net>
+To:     linux-wireless@vger.kernel.org
+Cc:     Johannes Berg <johannes.berg@intel.com>, stable@vger.kernel.org
+Subject: [PATCH] mac80211: fix use-after-free in CCMP/GCMP RX
+Date:   Mon, 27 Sep 2021 11:58:39 +0200
+Message-Id: <20210927115838.12b9ac6bb233.I1d066acd5408a662c3b6e828122cd314fcb28cdb@changeid>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.284-46-g51be31f74d03
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.4
-Subject: stable-rc/queue/4.4 baseline: 40 runs,
- 3 regressions (v4.4.284-46-g51be31f74d03)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 40 runs, 3 regressions (v4.4.284-46-g51be31f7=
-4d03)
+From: Johannes Berg <johannes.berg@intel.com>
 
-Regressions Summary
--------------------
+When PN checking is done in mac80211, for fragmentation we need
+to copy the PN to the RX struct so we can later use it to do a
+comparison, since commit bf30ca922a0c ("mac80211: check defrag
+PN against current frame").
 
-platform    | arch   | lab          | compiler | defconfig           | regr=
-essions
-------------+--------+--------------+----------+---------------------+-----=
--------
-beagle-xm   | arm    | lab-baylibre | gcc-8    | omap2plus_defconfig | 2   =
-       =
+Unfortunately, in that commit I used the 'hdr' variable without
+it being necessarily valid, so use-after-free could occur if it
+was necessary to reallocate (parts of) the frame.
 
-qemu_x86_64 | x86_64 | lab-broonie  | gcc-8    | x86_64_defconfig    | 1   =
-       =
+Fix this by reloading the variable after the code that results
+in the reallocations, if any.
 
+This fixes https://bugzilla.kernel.org/show_bug.cgi?id=214401.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.284-46-g51be31f74d03/plan/baseline/
+Cc: stable@vger.kernel.org
+Fixes: bf30ca922a0c ("mac80211: check defrag PN against current frame")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+---
+ net/mac80211/wpa.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.284-46-g51be31f74d03
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      51be31f74d031c6a6d168c045dc4bf9b93d3ab94 =
+diff --git a/net/mac80211/wpa.c b/net/mac80211/wpa.c
+index bca47fad5a16..4eed23e27610 100644
+--- a/net/mac80211/wpa.c
++++ b/net/mac80211/wpa.c
+@@ -520,6 +520,9 @@ ieee80211_crypto_ccmp_decrypt(struct ieee80211_rx_data *rx,
+ 			return RX_DROP_UNUSABLE;
+ 	}
+ 
++	/* reload hdr - skb might have been reallocated */
++	hdr = (void *)rx->skb->data;
++
+ 	data_len = skb->len - hdrlen - IEEE80211_CCMP_HDR_LEN - mic_len;
+ 	if (!rx->sta || data_len < 0)
+ 		return RX_DROP_UNUSABLE;
+@@ -749,6 +752,9 @@ ieee80211_crypto_gcmp_decrypt(struct ieee80211_rx_data *rx)
+ 			return RX_DROP_UNUSABLE;
+ 	}
+ 
++	/* reload hdr - skb might have been reallocated */
++	hdr = (void *)rx->skb->data;
++
+ 	data_len = skb->len - hdrlen - IEEE80211_GCMP_HDR_LEN - mic_len;
+ 	if (!rx->sta || data_len < 0)
+ 		return RX_DROP_UNUSABLE;
+-- 
+2.31.1
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform    | arch   | lab          | compiler | defconfig           | regr=
-essions
-------------+--------+--------------+----------+---------------------+-----=
--------
-beagle-xm   | arm    | lab-baylibre | gcc-8    | omap2plus_defconfig | 2   =
-       =
-
-
-  Details:     https://kernelci.org/test/plan/id/61517a6a254300990699a306
-
-  Results:     3 PASS, 2 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.284-4=
-6-g51be31f74d03/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.284-4=
-6-g51be31f74d03/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/61517a6a25430099=
-0699a30c
-        new failure (last pass: v4.4.284-22-gc303bfe4d32c)
-        1 lines
-
-    2021-09-27T08:01:27.704758  / # #
-    2021-09-27T08:01:27.705766  =
-
-    2021-09-27T08:01:27.809877  / # #
-    2021-09-27T08:01:27.810492  =
-
-    2021-09-27T08:01:27.911857  / # #export SHELL=3D/bin/sh
-    2021-09-27T08:01:27.912328  =
-
-    2021-09-27T08:01:28.013472  / # export SHELL=3D/bin/sh. /lava-889375/en=
-vironment
-    2021-09-27T08:01:28.013972  =
-
-    2021-09-27T08:01:28.115151  / # . /lava-889375/environment/lava-889375/=
-bin/lava-test-runner /lava-889375/0
-    2021-09-27T08:01:28.116412   =
-
-    ... (10 line(s) more)  =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61517a6a2543009=
-90699a30e
-        new failure (last pass: v4.4.284-22-gc303bfe4d32c)
-        28 lines
-
-    2021-09-27T08:01:28.579024  [   50.047485] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-09-27T08:01:28.630825  kern  :emerg : Internal error: Oops - BUG: =
-0 [#1] SMP ARM
-    2021-09-27T08:01:28.636663  kern  :emerg : Process udevd (pid: 108, sta=
-ck limit =3D 0xcb93c218)
-    2021-09-27T08:01:28.641182  kern  :emerg : Stack: (0xcb93dd10 to 0xcb93=
-e000)
-    2021-09-27T08:01:28.649333  kern  :emerg : dd00:                       =
-              bf02b83c bf010b84 cba64810 bf02b8c8   =
-
- =
-
-
-
-platform    | arch   | lab          | compiler | defconfig           | regr=
-essions
-------------+--------+--------------+----------+---------------------+-----=
--------
-qemu_x86_64 | x86_64 | lab-broonie  | gcc-8    | x86_64_defconfig    | 1   =
-       =
-
-
-  Details:     https://kernelci.org/test/plan/id/61515c6a81906cc11c99a308
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.284-4=
-6-g51be31f74d03/x86_64/x86_64_defconfig/gcc-8/lab-broonie/baseline-qemu_x86=
-_64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.284-4=
-6-g51be31f74d03/x86_64/x86_64_defconfig/gcc-8/lab-broonie/baseline-qemu_x86=
-_64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61515c6a81906cc11c99a=
-309
-        new failure (last pass: v4.4.284-33-gbd4cf2734324) =
-
- =20
