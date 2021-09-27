@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6680A419BD0
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:21:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94189419BCE
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:21:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237084AbhI0RWf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:22:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38056 "EHLO mail.kernel.org"
+        id S236599AbhI0RWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:22:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237085AbhI0RUb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237081AbhI0RUb (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 27 Sep 2021 13:20:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B14CA61352;
-        Mon, 27 Sep 2021 17:13:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58701611F0;
+        Mon, 27 Sep 2021 17:13:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762801;
-        bh=7eUByvsj/1mdEFb3Hz3uRC21VtGbqzQdNjbxs1bahFE=;
+        s=korg; t=1632762803;
+        bh=69Uxtxgyff81kJqEEoa933+6XTWO0/G3EDLXaWooPU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gNGgvwliIwyUwfrQi7MsdvfdjuoSXBFuvQXloIo2E7hr/c+Jm9mM092Nnyow/OBzB
-         6/w2zFH4NfQxqnIL8PC1YO5C2NKZdtmpMPJ2DIWQkD7h4KB8vBSJ/IXtKX10h61Lix
-         IKQei+3TZuVDUjGi0n2BaBTy27jD7iU2u4rA14xo=
+        b=1lJoiimZn/l/ILQOBm8NREmOVTitjWEUlximdDrHC4rzzZ6GAe0bh4hmP3BI70z/9
+         5XGfMXkPVBrtFNkGUUchhzdDR4Brdn/UwO5m1JSxGdKAsGNu4wIK9KNUefIwxeuTxw
+         eH07eTOT5BUBiZz8QOzIigJmzfbo11ozfIMHqcgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "faqiang.zhu" <faqiang.zhu@nxp.com>,
-        Felipe Balbi <balbi@kernel.org>, Li Jun <jun.li@nxp.com>,
-        John Stultz <john.stultz@linaro.org>
-Subject: [PATCH 5.14 023/162] usb: dwc3: core: balance phy init and exit
-Date:   Mon, 27 Sep 2021 19:01:09 +0200
-Message-Id: <20210927170234.262917900@linuxfoundation.org>
+        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
+        Pawel Laszczak <pawell@cadence.com>
+Subject: [PATCH 5.14 024/162] usb: cdns3: fix race condition before setting doorbell
+Date:   Mon, 27 Sep 2021 19:01:10 +0200
+Message-Id: <20210927170234.300838423@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
 References: <20210927170233.453060397@linuxfoundation.org>
@@ -40,85 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Pawel Laszczak <pawell@cadence.com>
 
-commit 8cfac9a6744fcb143cb3e94ce002f09fd17fadbb upstream.
+commit b69ec50b3e55c4b2a85c8bc46763eaf330605847 upstream.
 
-After we start to do core soft reset while usb role switch,
-the phy init is invoked at every switch to device mode, but
-its counter part de-init is missing, this causes the actual
-phy init can not be done when we really want to re-init phy
-like system resume, because the counter maintained by phy
-core is not 0. considering phy init is actually redundant for
-role switch, so move out the phy init from core soft reset to
-dwc3 core init where is the only place required.
+For DEV_VER_V3 version there exist race condition between clearing
+ep_sts.EP_STS_TRBERR and setting ep_cmd.EP_CMD_DRDY bit.
+Setting EP_CMD_DRDY will be ignored by controller when
+EP_STS_TRBERR is set. So, between these two instructions we have
+a small time gap in which the EP_STSS_TRBERR can be set. In such case
+the transfer will not start after setting doorbell.
 
-Fixes: f88359e1588b ("usb: dwc3: core: Do core softreset when switch mode")
-Cc: <stable@vger.kernel.org>
-Tested-by: faqiang.zhu <faqiang.zhu@nxp.com>
-Tested-by: John Stultz <john.stultz@linaro.org> #HiKey960
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Link: https://lore.kernel.org/r/1631068099-13559-1-git-send-email-jun.li@nxp.com
+Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+cc: <stable@vger.kernel.org> # 5.12.x
+Tested-by: Aswath Govindraju <a-govindraju@ti.com>
+Reviewed-by: Aswath Govindraju <a-govindraju@ti.com>
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20210907062619.34622-1-pawell@gli-login.cadence.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/core.c |   30 +++++++++++++-----------------
- 1 file changed, 13 insertions(+), 17 deletions(-)
+ drivers/usb/cdns3/cdns3-gadget.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -264,19 +264,6 @@ static int dwc3_core_soft_reset(struct d
- {
- 	u32		reg;
- 	int		retries = 1000;
--	int		ret;
--
--	usb_phy_init(dwc->usb2_phy);
--	usb_phy_init(dwc->usb3_phy);
--	ret = phy_init(dwc->usb2_generic_phy);
--	if (ret < 0)
--		return ret;
--
--	ret = phy_init(dwc->usb3_generic_phy);
--	if (ret < 0) {
--		phy_exit(dwc->usb2_generic_phy);
--		return ret;
--	}
+--- a/drivers/usb/cdns3/cdns3-gadget.c
++++ b/drivers/usb/cdns3/cdns3-gadget.c
+@@ -1100,6 +1100,19 @@ static int cdns3_ep_run_stream_transfer(
+ 	return 0;
+ }
  
- 	/*
- 	 * We're resetting only the device side because, if we're in host mode,
-@@ -310,9 +297,6 @@ static int dwc3_core_soft_reset(struct d
- 			udelay(1);
- 	} while (--retries);
- 
--	phy_exit(dwc->usb3_generic_phy);
--	phy_exit(dwc->usb2_generic_phy);
--
- 	return -ETIMEDOUT;
- 
- done:
-@@ -982,9 +966,21 @@ static int dwc3_core_init(struct dwc3 *d
- 		dwc->phys_ready = true;
- 	}
- 
-+	usb_phy_init(dwc->usb2_phy);
-+	usb_phy_init(dwc->usb3_phy);
-+	ret = phy_init(dwc->usb2_generic_phy);
-+	if (ret < 0)
-+		goto err0a;
++static void cdns3_rearm_drdy_if_needed(struct cdns3_endpoint *priv_ep)
++{
++	struct cdns3_device *priv_dev = priv_ep->cdns3_dev;
 +
-+	ret = phy_init(dwc->usb3_generic_phy);
-+	if (ret < 0) {
-+		phy_exit(dwc->usb2_generic_phy);
-+		goto err0a;
++	if (priv_dev->dev_ver < DEV_VER_V3)
++		return;
++
++	if (readl(&priv_dev->regs->ep_sts) & EP_STS_TRBERR) {
++		writel(EP_STS_TRBERR, &priv_dev->regs->ep_sts);
++		writel(EP_CMD_DRDY, &priv_dev->regs->ep_cmd);
 +	}
++}
 +
- 	ret = dwc3_core_soft_reset(dwc);
- 	if (ret)
--		goto err0a;
-+		goto err1;
- 
- 	if (hw_mode == DWC3_GHWPARAMS0_MODE_DRD &&
- 	    !DWC3_VER_IS_WITHIN(DWC3, ANY, 194A)) {
+ /**
+  * cdns3_ep_run_transfer - start transfer on no-default endpoint hardware
+  * @priv_ep: endpoint object
+@@ -1351,6 +1364,7 @@ static int cdns3_ep_run_transfer(struct
+ 		/*clearing TRBERR and EP_STS_DESCMIS before seting DRDY*/
+ 		writel(EP_STS_TRBERR | EP_STS_DESCMIS, &priv_dev->regs->ep_sts);
+ 		writel(EP_CMD_DRDY, &priv_dev->regs->ep_cmd);
++		cdns3_rearm_drdy_if_needed(priv_ep);
+ 		trace_cdns3_doorbell_epx(priv_ep->name,
+ 					 readl(&priv_dev->regs->ep_traddr));
+ 	}
 
 
