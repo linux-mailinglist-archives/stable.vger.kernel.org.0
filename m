@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D01C419C38
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:24:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F595419A09
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:04:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236771AbhI0R0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:26:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41016 "EHLO mail.kernel.org"
+        id S235687AbhI0RGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:06:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238063AbhI0RYP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:24:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F153D61406;
-        Mon, 27 Sep 2021 17:15:40 +0000 (UTC)
+        id S235770AbhI0RFz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:05:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60D5A6109F;
+        Mon, 27 Sep 2021 17:04:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762941;
-        bh=V8QBZXTM6IlzafIwE8mDu6or0szhcE8lQfbwd5h45vk=;
+        s=korg; t=1632762257;
+        bh=Ym3Vf9ttUlHucIgpHbJ2AKZ57nr98JcZFbq3K6pg2Nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GycGqs7QVAyjz1TYjrnOuuAlgXhROXT2JeT6oe7RqlYiWrIEJYm7KcqgpTl8SrgZ2
-         531dKVhnFfEEDCXHNjEx63vdeVTmPsrktbsB0qZLBgmoC4nBeo3usxZ/U9bi+YPJs7
-         Z1W3AW/LZgBOeJ85MgWF36csuWgzbpXgijCTY6QE=
+        b=kaG9reToesE2yxeb8MZupED5VTvSkK0lqaopywd2zZDfxNSkFm+QT7iiV7HVgCAOD
+         CKSkaC1sy1Z25Poj3/kOitid6zOAGuyVnyQgkUxO1nwQXYa31e/KWlITT4xD4fLBTi
+         f24sZfV7+E6Rb+4AzAgym1EJ1tg+Qt/x5G4SGDc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 091/162] drm/amdkfd: fix dma mapping leaking warning
+        stable@vger.kernel.org, Eli V <eliventer@gmail.com>,
+        Anand Jain <anand.jain@oracle.com>, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 21/68] btrfs: prevent __btrfs_dump_space_info() to underflow its free space
 Date:   Mon, 27 Sep 2021 19:02:17 +0200
-Message-Id: <20210927170236.588991777@linuxfoundation.org>
+Message-Id: <20210927170220.686912121@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,92 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit f63251184a81039ebc805306505838c2a073e51a ]
+commit 0619b7901473c380abc05d45cf9c70bee0707db3 upstream.
 
-For xnack off, restore work dma unmap previous system memory page, and
-dma map the updated system memory page to update GPU mapping, this is
-not dma mapping leaking, remove the WARN_ONCE for dma mapping leaking.
+It's not uncommon where __btrfs_dump_space_info() gets called
+under over-commit situations.
 
-prange->dma_addr store the VRAM page pfn after the range migrated to
-VRAM, should not dma unmap VRAM page when updating GPU mapping or
-remove prange. Add helper svm_is_valid_dma_mapping_addr to check VRAM
-page and error cases.
+In that case free space would underflow as total allocated space is not
+enough to handle all the over-committed space.
 
-Mask out SVM_RANGE_VRAM_DOMAIN flag in dma_addr before calling amdgpu vm
-update to avoid BUG_ON(*addr & 0xFFFF00000000003FULL), and set it again
-immediately after. This flag is used to know the type of page later to
-dma unmapping system memory page.
+Such underflow values can sometimes cause confusion for users enabled
+enospc_debug mount option, and takes some seconds for developers to
+convert the underflow value to signed result.
 
-Fixes: 1d5dbfe6c06a ("drm/amdkfd: classify and map mixed svm range pages in GPU")
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Just output the free space as s64 to avoid such problem.
+
+Reported-by: Eli V <eliventer@gmail.com>
+Link: https://lore.kernel.org/linux-btrfs/CAJtFHUSy4zgyhf-4d9T+KdJp9w=UgzC2A0V=VtmaeEpcGgm1-Q@mail.gmail.com/
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_svm.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ fs/btrfs/space-info.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-index ddac10b5bd3a..e85035fd1ccb 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-@@ -118,6 +118,13 @@ static void svm_range_remove_notifier(struct svm_range *prange)
- 		mmu_interval_notifier_remove(&prange->notifier);
- }
+--- a/fs/btrfs/space-info.c
++++ b/fs/btrfs/space-info.c
+@@ -262,9 +262,10 @@ static void __btrfs_dump_space_info(stru
+ {
+ 	lockdep_assert_held(&info->lock);
  
-+static bool
-+svm_is_valid_dma_mapping_addr(struct device *dev, dma_addr_t dma_addr)
-+{
-+	return dma_addr && !dma_mapping_error(dev, dma_addr) &&
-+	       !(dma_addr & SVM_RANGE_VRAM_DOMAIN);
-+}
-+
- static int
- svm_range_dma_map_dev(struct amdgpu_device *adev, struct svm_range *prange,
- 		      unsigned long offset, unsigned long npages,
-@@ -139,8 +146,7 @@ svm_range_dma_map_dev(struct amdgpu_device *adev, struct svm_range *prange,
- 
- 	addr += offset;
- 	for (i = 0; i < npages; i++) {
--		if (WARN_ONCE(addr[i] && !dma_mapping_error(dev, addr[i]),
--			      "leaking dma mapping\n"))
-+		if (svm_is_valid_dma_mapping_addr(dev, addr[i]))
- 			dma_unmap_page(dev, addr[i], PAGE_SIZE, dir);
- 
- 		page = hmm_pfn_to_page(hmm_pfns[i]);
-@@ -209,7 +215,7 @@ void svm_range_dma_unmap(struct device *dev, dma_addr_t *dma_addr,
- 		return;
- 
- 	for (i = offset; i < offset + npages; i++) {
--		if (!dma_addr[i] || dma_mapping_error(dev, dma_addr[i]))
-+		if (!svm_is_valid_dma_mapping_addr(dev, dma_addr[i]))
- 			continue;
- 		pr_debug("dma unmapping 0x%llx\n", dma_addr[i] >> PAGE_SHIFT);
- 		dma_unmap_page(dev, dma_addr[i], PAGE_SIZE, dir);
-@@ -1165,7 +1171,7 @@ svm_range_map_to_gpu(struct amdgpu_device *adev, struct amdgpu_vm *vm,
- 	unsigned long last_start;
- 	int last_domain;
- 	int r = 0;
--	int64_t i;
-+	int64_t i, j;
- 
- 	last_start = prange->start + offset;
- 
-@@ -1201,6 +1207,10 @@ svm_range_map_to_gpu(struct amdgpu_device *adev, struct amdgpu_vm *vm,
- 						NULL, dma_addr,
- 						&vm->last_update,
- 						&table_freed);
-+
-+		for (j = last_start - prange->start; j <= i; j++)
-+			dma_addr[j] |= last_domain;
-+
- 		if (r) {
- 			pr_debug("failed %d to map to gpu 0x%lx\n", r, prange->start);
- 			goto out;
--- 
-2.33.0
-
+-	btrfs_info(fs_info, "space_info %llu has %llu free, is %sfull",
++	/* The free space could be negative in case of overcommit */
++	btrfs_info(fs_info, "space_info %llu has %lld free, is %sfull",
+ 		   info->flags,
+-		   info->total_bytes - btrfs_space_info_used(info, true),
++		   (s64)(info->total_bytes - btrfs_space_info_used(info, true)),
+ 		   info->full ? "" : "not ");
+ 	btrfs_info(fs_info,
+ 		"space_info total=%llu, used=%llu, pinned=%llu, reserved=%llu, may_use=%llu, readonly=%llu",
 
 
