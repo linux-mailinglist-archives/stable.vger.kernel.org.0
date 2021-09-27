@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0A4C419C91
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFC8E419B05
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237757AbhI0RaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:30:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45914 "EHLO mail.kernel.org"
+        id S236606AbhI0RO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:14:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237704AbhI0R2I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:28:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC0A861425;
-        Mon, 27 Sep 2021 17:17:12 +0000 (UTC)
+        id S237149AbhI0RN7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:13:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 092AD6120D;
+        Mon, 27 Sep 2021 17:09:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632763033;
-        bh=O6rUdXp+SDzdPU5Z6ILATNLFRA9M7jDZ/3MxNrpFo0Y=;
+        s=korg; t=1632762585;
+        bh=ZQYohQ45qjgN9TtJnU2VAstagpsYqmT6TLxYt6fdU7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZb6MOOdpL5W2VmnCajLpK7AM1nqIzzoFaLE8+0lKXt8H7TGB1kRzR4K1kbI0mPFU
-         0LSg+uVjSm8V8zNFudUzndiNpFQ5xDeal1UXS7v06D9HdWEc4tU1RhSblowpPRBK9X
-         uiW1eTONgd1+bx1UfgIZeVfiQ69Bn1nKwQx2AXkk=
+        b=BeNMniDMpw91FJA/Xd545V78JN4I16kTpxK/JS9UPo8fcL2XE1DVBRLfHGSxDqxao
+         DFbqi0WtIXw/faRutNWgjCadIFgQN3M/O05CrSJWhoJuf5qQxO56NdN4iAqC0D5S24
+         4n5j7pzGZCkMny12G/QOeEa4LDPEJUB28AtsEzv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f3e749d4c662818ae439@syzkaller.appspotmail.com,
-        Bixuan Cui <cuibixuan@huawei.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 125/162] bpf: Add oversize check before call kvcalloc()
+        stable@vger.kernel.org, "Rafael J. Wysocki" <rafael@kernel.org>,
+        Doug Smythies <dsmythies@telus.net>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 079/103] cpufreq: intel_pstate: Override parameters if HWP forced by BIOS
 Date:   Mon, 27 Sep 2021 19:02:51 +0200
-Message-Id: <20210927170237.765496277@linuxfoundation.org>
+Message-Id: <20210927170228.498079640@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+References: <20210927170225.702078779@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,58 +41,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@huawei.com>
+From: Doug Smythies <doug.smythies@gmail.com>
 
-[ Upstream commit 0e6491b559704da720f6da09dd0a52c4df44c514 ]
+[ Upstream commit d9a7e9df731670acdc69e81748941ad338f47fab ]
 
-Commit 7661809d493b ("mm: don't allow oversized kvmalloc() calls") add the
-oversize check. When the allocation is larger than what kmalloc() supports,
-the following warning triggered:
+If HWP has been already been enabled by BIOS, it may be
+necessary to override some kernel command line parameters.
+Once it has been enabled it requires a reset to be disabled.
 
-WARNING: CPU: 0 PID: 8408 at mm/util.c:597 kvmalloc_node+0x108/0x110 mm/util.c:597
-Modules linked in:
-CPU: 0 PID: 8408 Comm: syz-executor221 Not tainted 5.14.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:kvmalloc_node+0x108/0x110 mm/util.c:597
-Call Trace:
- kvmalloc include/linux/mm.h:806 [inline]
- kvmalloc_array include/linux/mm.h:824 [inline]
- kvcalloc include/linux/mm.h:829 [inline]
- check_btf_line kernel/bpf/verifier.c:9925 [inline]
- check_btf_info kernel/bpf/verifier.c:10049 [inline]
- bpf_check+0xd634/0x150d0 kernel/bpf/verifier.c:13759
- bpf_prog_load kernel/bpf/syscall.c:2301 [inline]
- __sys_bpf+0x11181/0x126e0 kernel/bpf/syscall.c:4587
- __do_sys_bpf kernel/bpf/syscall.c:4691 [inline]
- __se_sys_bpf kernel/bpf/syscall.c:4689 [inline]
- __x64_sys_bpf+0x78/0x90 kernel/bpf/syscall.c:4689
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Reported-by: syzbot+f3e749d4c662818ae439@syzkaller.appspotmail.com
-Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20210911005557.45518-1-cuibixuan@huawei.com
+Suggested-by: Rafael J. Wysocki <rafael@kernel.org>
+Signed-off-by: Doug Smythies <dsmythies@telus.net>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/cpufreq/intel_pstate.c | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 9d94ac6ff50c..592b9b68cbd9 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -9641,6 +9641,8 @@ static int check_btf_line(struct bpf_verifier_env *env,
- 	nr_linfo = attr->line_info_cnt;
- 	if (!nr_linfo)
- 		return 0;
-+	if (nr_linfo > INT_MAX / sizeof(struct bpf_line_info))
-+		return -EINVAL;
+diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
+index 44a5d15a7572..1686705bee7b 100644
+--- a/drivers/cpufreq/intel_pstate.c
++++ b/drivers/cpufreq/intel_pstate.c
+@@ -3035,11 +3035,15 @@ static int __init intel_pstate_init(void)
+ 	if (boot_cpu_data.x86_vendor != X86_VENDOR_INTEL)
+ 		return -ENODEV;
  
- 	rec_size = attr->line_info_rec_size;
- 	if (rec_size < MIN_BPF_LINEINFO_SIZE ||
+-	if (no_load)
+-		return -ENODEV;
+-
+ 	id = x86_match_cpu(hwp_support_ids);
+ 	if (id) {
++		bool hwp_forced = intel_pstate_hwp_is_enabled();
++
++		if (hwp_forced)
++			pr_info("HWP enabled by BIOS\n");
++		else if (no_load)
++			return -ENODEV;
++
+ 		copy_cpu_funcs(&core_funcs);
+ 		/*
+ 		 * Avoid enabling HWP for processors without EPP support,
+@@ -3049,8 +3053,7 @@ static int __init intel_pstate_init(void)
+ 		 * If HWP is enabled already, though, there is no choice but to
+ 		 * deal with it.
+ 		 */
+-		if ((!no_hwp && boot_cpu_has(X86_FEATURE_HWP_EPP)) ||
+-		    intel_pstate_hwp_is_enabled()) {
++		if ((!no_hwp && boot_cpu_has(X86_FEATURE_HWP_EPP)) || hwp_forced) {
+ 			hwp_active++;
+ 			hwp_mode_bdw = id->driver_data;
+ 			intel_pstate.attr = hwp_cpufreq_attrs;
+@@ -3061,7 +3064,11 @@ static int __init intel_pstate_init(void)
+ 
+ 			goto hwp_cpu_matched;
+ 		}
++		pr_info("HWP not enabled\n");
+ 	} else {
++		if (no_load)
++			return -ENODEV;
++
+ 		id = x86_match_cpu(intel_pstate_cpu_ids);
+ 		if (!id) {
+ 			pr_info("CPU model not supported\n");
+@@ -3138,10 +3145,9 @@ static int __init intel_pstate_setup(char *str)
+ 	else if (!strcmp(str, "passive"))
+ 		default_driver = &intel_cpufreq;
+ 
+-	if (!strcmp(str, "no_hwp")) {
+-		pr_info("HWP disabled\n");
++	if (!strcmp(str, "no_hwp"))
+ 		no_hwp = 1;
+-	}
++
+ 	if (!strcmp(str, "force"))
+ 		force_load = 1;
+ 	if (!strcmp(str, "hwp_only"))
 -- 
 2.33.0
 
