@@ -2,90 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00F23419856
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 17:59:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44EB04198AF
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 18:14:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235119AbhI0QBL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 12:01:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50580 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235316AbhI0QBL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 12:01:11 -0400
-Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FC39C061604
-        for <stable@vger.kernel.org>; Mon, 27 Sep 2021 08:59:33 -0700 (PDT)
-Received: by mail-yb1-xb34.google.com with SMTP id m132so5004650ybf.8
-        for <stable@vger.kernel.org>; Mon, 27 Sep 2021 08:59:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=wK1r8RNUmywo/CzsJDPFR0uhQku/tsUZYiSjsFtag8s=;
-        b=RNglSjQmd58dJXxp04+l17sWyenLwDrCDy5GPfGDUL1lWnf+n9PJWU09v1ubluE48C
-         fuZPNRa70hZ0DhvLoDBAFHm+6kGukyc5NGlNA3jePKd1///lMT5fIfxqZZs85jdwQgyt
-         cQ1biRWQ2bkj5CqgcQ3g623D8en5amV66oCx5HtnCrKdyot7NDQEL1C1gMydwjS8jbKX
-         R6TNDFck+vf8M5vz1Zv7/8Gn+++lSFNkh6P8ufjqQHoL/ZaX2Dp7hXjT49B1CPEMKqo4
-         izW+vPAdo3HmhT+hjWc4sf9dZOCYpqxW8oiqRPcusckkrl+m0+5R1fzxWIWzW68ETg07
-         gNgQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=wK1r8RNUmywo/CzsJDPFR0uhQku/tsUZYiSjsFtag8s=;
-        b=NbBbZXSI83Ar7NBmarpHBD3jiNaQ6JstMSL8rHd/o0uvRJ/RB21Lm9Z+Q8HAi0de91
-         B3on/5Dsz5LMkS93EFVoqcU4JsuCAXQEd9GVYwNE8zzJ6jwfBAYcDT142dnjXh5PebdD
-         dImEYG/7G15ubVw3VF4Pwzc/sTlo6RKRxoC5J4qXZbRRSHCpIG8B1UmLSe8lbb5VAk37
-         +MT8HRjo6inJWJCpCKXY7nmuaJdSA8Y7lRCNbM6RVyVysiZ1Y9mONDcREXRMHLZESwC1
-         DxcfLxiT1JTU6CVumEbjOkJHUgyTNZgURdcOf1DCEr2GPFqNIBHqxsARiCqrXxSzFc+/
-         seRQ==
-X-Gm-Message-State: AOAM532LTLv2iT2CPftJDb0CmcYAeqqcDdbb4L76dYIK2cOmUqr5/NQe
-        oPmu+JyU8+1EX02TiPfzjMJKOOK+qtSUU1vV8co=
-X-Google-Smtp-Source: ABdhPJzHlLh1SYVrRMxlV7V30p3KNtOc3PO5pILOb2OKbDvt0FDwYzEeZH2lQpNJNjLfUWpGlXO/3i00mRpkpMsdnvk=
-X-Received: by 2002:a25:1b05:: with SMTP id b5mr633826ybb.343.1632758371948;
- Mon, 27 Sep 2021 08:59:31 -0700 (PDT)
+        id S235202AbhI0QQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 12:16:10 -0400
+Received: from m43-7.mailgun.net ([69.72.43.7]:29487 "EHLO m43-7.mailgun.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235315AbhI0QQI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 12:16:08 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1632759270; h=Content-Transfer-Encoding: MIME-Version:
+ Message-Id: Date: Subject: Cc: To: From: Sender;
+ bh=6YTmKUwFqR+9Nk+RNyu4Wg+QL+GPDNenVjMrbE8By7k=; b=kwQn2tF3EbOVvYzdOlVmnczMT6DGWyWAAEg8YKvKniM/fbNvKSf4oO7z6PQ4fgsIG7fVZPzW
+ 400kPqtamJeUw7RxR8pzlDnPalzV3JZOPfqtk8xacBgNbFvtRUtbdOmFFbFUFTqjYB9/pY50
+ EMzmBbXPANO2sUgTOAwJeGylGsw=
+X-Mailgun-Sending-Ip: 69.72.43.7
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n03.prod.us-west-2.postgun.com with SMTP id
+ 6151edae3cc3a01f266572f0 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 27 Sep 2021 16:13:34
+ GMT
+Sender: jackp=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 942A9C4360D; Mon, 27 Sep 2021 16:13:34 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
+        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+Received: from jackp-linux.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: jackp)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id DFC93C4338F;
+        Mon, 27 Sep 2021 16:13:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 smtp.codeaurora.org DFC93C4338F
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=codeaurora.org
+From:   Jack Pham <jackp@codeaurora.org>
+To:     stable@vger.kernel.org
+Cc:     Jack Pham <jackp@codeaurora.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH stable-5.14 1/2] usb: gadget: f_uac2: Add missing companion descriptor for feedback EP
+Date:   Mon, 27 Sep 2021 09:12:52 -0700
+Message-Id: <20210927161253.10977-1-jackp@codeaurora.org>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-Received: by 2002:a05:7010:6a92:b0:145:d855:c60b with HTTP; Mon, 27 Sep 2021
- 08:59:31 -0700 (PDT)
-From:   Alice Greg <adamssmith1455@gmail.com>
-Date:   Mon, 27 Sep 2021 15:59:31 +0000
-Message-ID: <CAG0WSCf39wOBm8ogU5Sbji+L-G78bEVc2M_9uqRGFGxse8wJ6g@mail.gmail.com>
-Subject: Ich bin Miss Vera Wilfred
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Hallo,
+commit 595091a1426a3b2625dad322f69fe569dc9d8943 upstream.
 
-Ich bin Miss Vera Wilfred aus Abidjan Cote D'Ivoire (Elfenbeink=C3=BCste)
-Ich bin 22 Jahre alt, M=C3=A4dchen, Waise, habe keine Eltern,
+The f_uac2 function fails to enumerate when connected in SuperSpeed
+due to the feedback endpoint missing the companion descriptor.
+Add a new ss_epin_fback_desc_comp descriptor and append it behind the
+ss_epin_fback_desc both in the static definition of the ss_audio_desc
+structure as well as its dynamic construction in setup_headers().
 
-Ich habe ungef=C3=A4hr ($10.500.000,00) Zehn Millionen, f=C3=BCnfhunderttau=
-send
-US-Dollar, die ich von meinem verstorbenen Vater geerbt habe. Er hat
-das Geld auf ein Fest-/Trennkonto bei einer der besten Banken hier in
-Abidjan eingezahlt.
+Fixes: 24f779dac8f3 ("usb: gadget: f_uac2/u_audio: add feedback endpoint support")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Link: https://lore.kernel.org/r/20210909174811.12534-2-jackp@codeaurora.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[jackp: Backport to 5.14 with minor conflict resolution]
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+---
+ drivers/usb/gadget/function/f_uac2.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-Mein Vater benutzte meinen Namen als seine einzige Tochter und als
-einziges Kind f=C3=BCr die n=C3=A4chsten Angeh=C3=B6rigen des Fonds.
+diff --git a/drivers/usb/gadget/function/f_uac2.c b/drivers/usb/gadget/function/f_uac2.c
+index ae29ff2b2b68..0bc3e68cae31 100644
+--- a/drivers/usb/gadget/function/f_uac2.c
++++ b/drivers/usb/gadget/function/f_uac2.c
+@@ -348,6 +348,14 @@ static struct usb_endpoint_descriptor ss_epin_fback_desc = {
+ 	.bInterval = 4,
+ };
+ 
++static struct usb_ss_ep_comp_descriptor ss_epin_fback_desc_comp = {
++	.bLength		= sizeof(ss_epin_fback_desc_comp),
++	.bDescriptorType	= USB_DT_SS_ENDPOINT_COMP,
++	.bMaxBurst		= 0,
++	.bmAttributes		= 0,
++	.wBytesPerInterval	= cpu_to_le16(4),
++};
++
+ 
+ /* Audio Streaming IN Interface - Alt0 */
+ static struct usb_interface_descriptor std_as_in_if0_desc = {
+@@ -527,6 +535,7 @@ static struct usb_descriptor_header *ss_audio_desc[] = {
+ 	(struct usb_descriptor_header *)&ss_epout_desc_comp,
+ 	(struct usb_descriptor_header *)&as_iso_out_desc,
+ 	(struct usb_descriptor_header *)&ss_epin_fback_desc,
++	(struct usb_descriptor_header *)&ss_epin_fback_desc_comp,
+ 
+ 	(struct usb_descriptor_header *)&std_as_in_if0_desc,
+ 	(struct usb_descriptor_header *)&std_as_in_if1_desc,
+@@ -604,6 +613,7 @@ static void setup_headers(struct f_uac2_opts *opts,
+ {
+ 	struct usb_ss_ep_comp_descriptor *epout_desc_comp = NULL;
+ 	struct usb_ss_ep_comp_descriptor *epin_desc_comp = NULL;
++	struct usb_ss_ep_comp_descriptor *epin_fback_desc_comp = NULL;
+ 	struct usb_endpoint_descriptor *epout_desc;
+ 	struct usb_endpoint_descriptor *epin_desc;
+ 	struct usb_endpoint_descriptor *epin_fback_desc;
+@@ -626,6 +636,7 @@ static void setup_headers(struct f_uac2_opts *opts,
+ 		epout_desc_comp = &ss_epout_desc_comp;
+ 		epin_desc_comp = &ss_epin_desc_comp;
+ 		epin_fback_desc = &ss_epin_fback_desc;
++		epin_fback_desc_comp = &ss_epin_fback_desc_comp;
+ 	}
+ 
+ 	i = 0;
+@@ -654,8 +665,11 @@ static void setup_headers(struct f_uac2_opts *opts,
+ 
+ 		headers[i++] = USBDHDR(&as_iso_out_desc);
+ 
+-		if (EPOUT_FBACK_IN_EN(opts))
++		if (EPOUT_FBACK_IN_EN(opts)) {
+ 			headers[i++] = USBDHDR(epin_fback_desc);
++			if (epin_fback_desc_comp)
++				headers[i++] = USBDHDR(epin_fback_desc_comp);
++		}
+ 	}
+ 	if (EPIN_EN(opts)) {
+ 		headers[i++] = USBDHDR(&std_as_in_if0_desc);
+-- 
+2.24.0
 
-Zweitens, mit Ihrer vollen Zustimmung, mit mir zu diesem Zweck
-zusammenzuarbeiten, bekunden Sie bitte Ihr Interesse, indem Sie mir
-antworten, damit ich Ihnen die notwendigen Informationen und die
-Details zum weiteren Vorgehen zukommen lassen werde. Ich werde Ihnen
-20% des Geldes f=C3=BCr Ihre Hilfe anbieten.
-
-M=C3=B6ge Gott Sie f=C3=BCr Ihre schnelle Aufmerksamkeit segnen. Meine best=
-en
-und liebensw=C3=BCrdigen Gr=C3=BC=C3=9Fe an Sie und Ihre ganze Familie, wen=
-n Sie mich
-f=C3=BCr weitere Details kontaktieren.
-
-Ich brauche Ihre Assistentin, um mir zu helfen, diesen Fonds in Ihrem
-Land zu investieren. Kontaktieren Sie mich jetzt f=C3=BCr weitere Details.
-Vielen Dank
-
-Vera Wilfred.
