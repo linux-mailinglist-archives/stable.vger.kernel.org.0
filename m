@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DC53419BB3
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:20:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 326B8419BB5
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:20:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237122AbhI0RV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:21:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34152 "EHLO mail.kernel.org"
+        id S237127AbhI0RV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:21:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236839AbhI0RTj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236847AbhI0RTj (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 27 Sep 2021 13:19:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C5B261351;
-        Mon, 27 Sep 2021 17:12:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3D73611EF;
+        Mon, 27 Sep 2021 17:12:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762769;
-        bh=+GhK0bDX6LvkCyLXmdoqKui7v2KvZh5h9Ot+wuqJovQ=;
+        s=korg; t=1632762771;
+        bh=2xoO9EbBO3BATnGBf8H6ObRb99Rb93yV4/QlF5JSOhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gXUWf7m19fJb7TyNPmaKokH4pn+7gF8NTmSo5qUgGAyoZsHFl7Z8rFfF3LkRZFeCJ
-         BKmab+psULBkTVL+J71qR5GJsdTzs0MCp28PoA1Zj67/cH6bb2xqwTBpp8shHnizsa
-         kXQXfD/puA7KM3xhJHSBlatG9iG8TlHmD7qUEKc8=
+        b=C19xmNlyzyhYGtLQ/2n20RDqJJvQfLiK1qIkv4jhmPoZRbEh0ldi7SWcBWS1fPs6T
+         n8UhOspduLrfJwcijM9tvRaRi9za+5ddrnZ+tnDEFRF1rbM+PJb4JizoTHBmft1kNh
+         vWay7OXl7cT4IKXpowb6Vcd2eloxVu8iaxgBBMGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, dann frazier <dann.frazier@canonical.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mark Brown <broonie@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        stable@vger.kernel.org,
+        Branislav Rankov <branislav.rankov@arm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
         Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.14 044/162] arm64: Restore forced disabling of KPTI on ThunderX
-Date:   Mon, 27 Sep 2021 19:01:30 +0200
-Message-Id: <20210927170235.029974872@linuxfoundation.org>
+Subject: [PATCH 5.14 045/162] arm64: Mitigate MTE issues with str{n}cmp()
+Date:   Mon, 27 Sep 2021 19:01:31 +0200
+Message-Id: <20210927170235.061650896@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
 References: <20210927170233.453060397@linuxfoundation.org>
@@ -41,54 +42,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: dann frazier <dann.frazier@canonical.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-commit 22b70e6f2da0a4c8b1421b00cfc3016bc9d4d9d4 upstream.
+commit 59a68d4138086c015ab8241c3267eec5550fbd44 upstream.
 
-A noted side-effect of commit 0c6c2d3615ef ("arm64: Generate cpucaps.h")
-is that cpucaps are now sorted, changing the enumeration order. This
-assumed no dependencies between cpucaps, which turned out not to be true
-in one case. UNMAP_KERNEL_AT_EL0 currently needs to be processed after
-WORKAROUND_CAVIUM_27456. ThunderX systems are incompatible with KPTI, so
-unmap_kernel_at_el0() bails if WORKAROUND_CAVIUM_27456 is set. But because
-of the sorting, WORKAROUND_CAVIUM_27456 will not yet have been considered
-when unmap_kernel_at_el0() checks for it, so the kernel tries to
-run w/ KPTI - and quickly falls over.
+As with strlen(), the patches importing the updated str{n}cmp()
+implementations were originally developed and tested before the
+advent of CONFIG_KASAN_HW_TAGS, and have subsequently revealed
+not to be MTE-safe. Since in-kernel MTE is still a rather niche
+case, let it temporarily fall back to the generic C versions for
+correctness until we can figure out the best fix.
 
-Because all ThunderX implementations have homogeneous CPUs, we can remove
-this dependency by just checking the current CPU for the erratum.
-
-Fixes: 0c6c2d3615ef ("arm64: Generate cpucaps.h")
-Cc: <stable@vger.kernel.org> # 5.13.x
-Signed-off-by: dann frazier <dann.frazier@canonical.com>
-Suggested-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Reviewed-by: Mark Brown <broonie@kernel.org>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210923145002.3394558-1-dann.frazier@canonical.com
+Fixes: 758602c04409 ("arm64: Import latest version of Cortex Strings' strcmp")
+Fixes: 020b199bc70d ("arm64: Import latest version of Cortex Strings' strncmp")
+Cc: <stable@vger.kernel.org> # 5.14.x
+Reported-by: Branislav Rankov <branislav.rankov@arm.com>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/r/34dc4d12eec0adae49b0ac927df642ed10089d40.1631890770.git.robin.murphy@arm.com
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/cpufeature.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/assembler.h |    5 +++++
+ arch/arm64/include/asm/string.h    |    2 ++
+ arch/arm64/lib/strcmp.S            |    2 +-
+ arch/arm64/lib/strncmp.S           |    2 +-
+ 4 files changed, 9 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -1500,9 +1500,13 @@ static bool unmap_kernel_at_el0(const st
+--- a/arch/arm64/include/asm/assembler.h
++++ b/arch/arm64/include/asm/assembler.h
+@@ -525,6 +525,11 @@ alternative_endif
+ #define EXPORT_SYMBOL_NOKASAN(name)	EXPORT_SYMBOL(name)
+ #endif
+ 
++#ifdef CONFIG_KASAN_HW_TAGS
++#define EXPORT_SYMBOL_NOHWKASAN(name)
++#else
++#define EXPORT_SYMBOL_NOHWKASAN(name)	EXPORT_SYMBOL_NOKASAN(name)
++#endif
  	/*
- 	 * For reasons that aren't entirely clear, enabling KPTI on Cavium
- 	 * ThunderX leads to apparent I-cache corruption of kernel text, which
--	 * ends as well as you might imagine. Don't even try.
-+	 * ends as well as you might imagine. Don't even try. We cannot rely
-+	 * on the cpus_have_*cap() helpers here to detect the CPU erratum
-+	 * because cpucap detection order may change. However, since we know
-+	 * affected CPUs are always in a homogeneous configuration, it is
-+	 * safe to rely on this_cpu_has_cap() here.
- 	 */
--	if (cpus_have_const_cap(ARM64_WORKAROUND_CAVIUM_27456)) {
-+	if (this_cpu_has_cap(ARM64_WORKAROUND_CAVIUM_27456)) {
- 		str = "ARM64_WORKAROUND_CAVIUM_27456";
- 		__kpti_forced = -1;
- 	}
+ 	 * Emit a 64-bit absolute little endian symbol reference in a way that
+ 	 * ensures that it will be resolved at build time, even when building a
+--- a/arch/arm64/include/asm/string.h
++++ b/arch/arm64/include/asm/string.h
+@@ -12,11 +12,13 @@ extern char *strrchr(const char *, int c
+ #define __HAVE_ARCH_STRCHR
+ extern char *strchr(const char *, int c);
+ 
++#ifndef CONFIG_KASAN_HW_TAGS
+ #define __HAVE_ARCH_STRCMP
+ extern int strcmp(const char *, const char *);
+ 
+ #define __HAVE_ARCH_STRNCMP
+ extern int strncmp(const char *, const char *, __kernel_size_t);
++#endif
+ 
+ #define __HAVE_ARCH_STRLEN
+ extern __kernel_size_t strlen(const char *);
+--- a/arch/arm64/lib/strcmp.S
++++ b/arch/arm64/lib/strcmp.S
+@@ -173,4 +173,4 @@ L(done):
+ 	ret
+ 
+ SYM_FUNC_END_PI(strcmp)
+-EXPORT_SYMBOL_NOKASAN(strcmp)
++EXPORT_SYMBOL_NOHWKASAN(strcmp)
+--- a/arch/arm64/lib/strncmp.S
++++ b/arch/arm64/lib/strncmp.S
+@@ -258,4 +258,4 @@ L(ret0):
+ 	ret
+ 
+ SYM_FUNC_END_PI(strncmp)
+-EXPORT_SYMBOL_NOKASAN(strncmp)
++EXPORT_SYMBOL_NOHWKASAN(strncmp)
 
 
