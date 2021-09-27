@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44F3C419B4A
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:15:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D9BD419CA0
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236669AbhI0RRC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:17:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55986 "EHLO mail.kernel.org"
+        id S236845AbhI0Rad (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:30:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235979AbhI0RPS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:15:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 273B061378;
-        Mon, 27 Sep 2021 17:10:50 +0000 (UTC)
+        id S237610AbhI0R2F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:28:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 488DD6140D;
+        Mon, 27 Sep 2021 17:17:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762651;
-        bh=VAraTJOGdDuFgCeCxg6ePmu6f9ezVwc5hq6kx/0oXnI=;
+        s=korg; t=1632763022;
+        bh=ceLFWJYvOhi8dCEejg6v8z+ts/Q4ucI+vKVQ7GWZ0cY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nxSPqKpQUTO7x/ViUs6C27KJanH7YWJY8V6U36S7tngzWDoomY2USF3RYmhYtNn2X
-         sRwF1GW2rPmevx3GkvlUl5kAfoMCWdwX1Pl8GICbPS+oi7hTTdXbNv/KSDRDF4PqCV
-         ECxQceUSrqLSzCtVrIc6q2bogHEPVDYlWnDWGARQ=
+        b=mTPzEye9XrQeD1mTjkkR3ONGoN2w07fF+DlELdx8gD+MQGn1m846L3Y4d2bjJaNV6
+         K2FQVWnw7EbF3dMEVZ2PUX3QYO5iS1TgVviOjN2ypjZFxoXOkQ3iozc3ZF7xbX+mcV
+         k54HVmCojuI19ijSWNoFYO+Q/133bJoOBP5uKE3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.10 093/103] parisc: Use absolute_pointer() to define PAGE0
+Subject: [PATCH 5.14 139/162] parisc: Use absolute_pointer() to define PAGE0
 Date:   Mon, 27 Sep 2021 19:03:05 +0200
-Message-Id: <20210927170228.985561555@linuxfoundation.org>
+Message-Id: <20210927170238.237416711@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,7 +59,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/parisc/include/asm/page.h b/arch/parisc/include/asm/page.h
-index 6b3f6740a6a6..8802ce651a3a 100644
+index d00313d1274e..0561568f7b48 100644
 --- a/arch/parisc/include/asm/page.h
 +++ b/arch/parisc/include/asm/page.h
 @@ -184,7 +184,7 @@ extern int npmem_ranges;
