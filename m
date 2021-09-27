@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67A31419C28
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:24:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E51D8419A18
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:05:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237820AbhI0RZn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:25:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38056 "EHLO mail.kernel.org"
+        id S235907AbhI0RGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:06:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237812AbhI0RXj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:23:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2562D613BD;
-        Mon, 27 Sep 2021 17:15:13 +0000 (UTC)
+        id S235993AbhI0RGQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:06:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2B1A610E8;
+        Mon, 27 Sep 2021 17:04:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762914;
-        bh=Mki/4vEkW7gdDuoJCnORrTBgAy84cclSLUpQDFCo/tU=;
+        s=korg; t=1632762278;
+        bh=GNIlfP3d2JHCkz2BqfOk+aNMXJf7TAQzElxBLBizsus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lTuGOtr6Mry/rKQjHWjOWvPyW72r4oK08SY28prSCylYNekcyfO65KGzD/QhUIyle
-         Hx94Sg2+wIGZqmAeHws4W+qNuNC8hVP8V1yNYyWtEUb7WLvp17ioIsb56A/d8y1aP3
-         o0rUOtF4I1yWFf+574Ho+bb/AqaR2Z4+S5Ev0kHQ=
+        b=xqbp2Vbb9Wtwycnk2qQpmxJfgt40pV9/ne7o2ITss8+zFo7oFrsX8Yng2tpoM2quP
+         mQobG+ltMwvf7ZG1z6PTxyLI+Gm1SazOkOoQ9kWIA3oR0CbP2z/V7BT4u378rcV0OQ
+         uCK3wV6784fmna4k+HD3hfqPJc+5601CSIdvZRp0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Eidelman <anton.eidelman@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 099/162] nvme: keep ctrl->namespaces ordered
+Subject: [PATCH 5.4 29/68] net/smc: add missing error check in smc_clc_prfx_set()
 Date:   Mon, 27 Sep 2021 19:02:25 +0200
-Message-Id: <20210927170236.870374988@linuxfoundation.org>
+Message-Id: <20210927170220.977286169@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,99 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Karsten Graul <kgraul@linux.ibm.com>
 
-[ Upstream commit 298ba0e3d4af539cc37f982d4c011a0f07fca48c ]
+[ Upstream commit 6c90731980655280ea07ce4b21eb97457bf86286 ]
 
-Various places in the nvme code that rely on ctrl->namespace to be
-ordered.  Ensure that the namespae is inserted into the list at the
-right position from the start instead of sorting it after the fact.
+Coverity stumbled over a missing error check in smc_clc_prfx_set():
 
-Fixes: 540c801c65eb ("NVMe: Implement namespace list scanning")
-Reported-by: Anton Eidelman <anton.eidelman@gmail.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+*** CID 1475954:  Error handling issues  (CHECKED_RETURN)
+/net/smc/smc_clc.c: 233 in smc_clc_prfx_set()
+>>>     CID 1475954:  Error handling issues  (CHECKED_RETURN)
+>>>     Calling "kernel_getsockname" without checking return value (as is done elsewhere 8 out of 10 times).
+233     	kernel_getsockname(clcsock, (struct sockaddr *)&addrs);
+
+Add the return code check in smc_clc_prfx_set().
+
+Fixes: c246d942eabc ("net/smc: restructure netinfo for CLC proposal msgs")
+Reported-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 33 +++++++++++++++++----------------
- 1 file changed, 17 insertions(+), 16 deletions(-)
+ net/smc/smc_clc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 84e7cb9f1968..e2374319df61 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -13,7 +13,6 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/backing-dev.h>
--#include <linux/list_sort.h>
- #include <linux/slab.h>
- #include <linux/types.h>
- #include <linux/pr.h>
-@@ -3688,15 +3687,6 @@ out_unlock:
- 	return ret;
- }
- 
--static int ns_cmp(void *priv, const struct list_head *a,
--		const struct list_head *b)
--{
--	struct nvme_ns *nsa = container_of(a, struct nvme_ns, list);
--	struct nvme_ns *nsb = container_of(b, struct nvme_ns, list);
--
--	return nsa->head->ns_id - nsb->head->ns_id;
--}
--
- struct nvme_ns *nvme_find_get_ns(struct nvme_ctrl *ctrl, unsigned nsid)
- {
- 	struct nvme_ns *ns, *ret = NULL;
-@@ -3717,6 +3707,22 @@ struct nvme_ns *nvme_find_get_ns(struct nvme_ctrl *ctrl, unsigned nsid)
- }
- EXPORT_SYMBOL_NS_GPL(nvme_find_get_ns, NVME_TARGET_PASSTHRU);
- 
-+/*
-+ * Add the namespace to the controller list while keeping the list ordered.
-+ */
-+static void nvme_ns_add_to_ctrl_list(struct nvme_ns *ns)
-+{
-+	struct nvme_ns *tmp;
-+
-+	list_for_each_entry_reverse(tmp, &ns->ctrl->namespaces, list) {
-+		if (tmp->head->ns_id < ns->head->ns_id) {
-+			list_add(&ns->list, &tmp->list);
-+			return;
-+		}
-+	}
-+	list_add(&ns->list, &ns->ctrl->namespaces);
-+}
-+
- static void nvme_alloc_ns(struct nvme_ctrl *ctrl, unsigned nsid,
- 		struct nvme_ns_ids *ids)
- {
-@@ -3778,9 +3784,8 @@ static void nvme_alloc_ns(struct nvme_ctrl *ctrl, unsigned nsid,
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index aee9ccfa99c2..ade1232699bb 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -164,7 +164,8 @@ static int smc_clc_prfx_set(struct socket *clcsock,
+ 		goto out_rel;
  	}
- 
- 	down_write(&ctrl->namespaces_rwsem);
--	list_add_tail(&ns->list, &ctrl->namespaces);
-+	nvme_ns_add_to_ctrl_list(ns);
- 	up_write(&ctrl->namespaces_rwsem);
--
- 	nvme_get_ctrl(ctrl);
- 
- 	device_add_disk(ctrl->device, ns->disk, nvme_ns_id_attr_groups);
-@@ -4059,10 +4064,6 @@ static void nvme_scan_work(struct work_struct *work)
- 	if (nvme_scan_ns_list(ctrl) != 0)
- 		nvme_scan_ns_sequential(ctrl);
- 	mutex_unlock(&ctrl->scan_lock);
--
--	down_write(&ctrl->namespaces_rwsem);
--	list_sort(NULL, &ctrl->namespaces, ns_cmp);
--	up_write(&ctrl->namespaces_rwsem);
- }
- 
- /*
+ 	/* get address to which the internal TCP socket is bound */
+-	kernel_getsockname(clcsock, (struct sockaddr *)&addrs);
++	if (kernel_getsockname(clcsock, (struct sockaddr *)&addrs) < 0)
++		goto out_rel;
+ 	/* analyze IP specific data of net_device belonging to TCP socket */
+ 	addr6 = (struct sockaddr_in6 *)&addrs;
+ 	rcu_read_lock();
 -- 
 2.33.0
 
