@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F4BA419A83
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:08:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C81A3419C1A
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236207AbhI0RJv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:09:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47672 "EHLO mail.kernel.org"
+        id S236484AbhI0RZX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:25:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236075AbhI0RId (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:08:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 561F861205;
-        Mon, 27 Sep 2021 17:06:46 +0000 (UTC)
+        id S237366AbhI0RXJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:23:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B8009613A6;
+        Mon, 27 Sep 2021 17:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762406;
-        bh=mzdbePaieiHmIvDiCquG0lPil8zrri334tBIs2xTySk=;
+        s=korg; t=1632762876;
+        bh=75ArG7m6E2Rh9NiQgdj3xRp3nhgs2JPiKzG8onYYs+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ikY18oT0BzSUtFgo1IPhhpjIS6vsQyGXUHreaMFHvKK2Bw4ni7JUhM4VEab/V1CMb
-         Inr9WHW0JwPFHV/N7+dbHUCLFfhTFl1u50i7MhhtmjedAT/Wjsr6utp4/xUlDiEg2u
-         N/SFscRs2v9b4dhroswNr+jWiyvjrXH7s9hnpi68=
+        b=nnV4rh/9sz/x5eXq1+ccdCC6m/rW2ebzQ0up1TupqMYFr1v0N18upSSo80XQie1UF
+         0OWB19/VBz1RZhNuQVxZDNw2jTQ6IhARpxwbr5IiNn7jVpRN3wka6TJsNJRBBcKCjF
+         H4QSypHujrDmPDWY8kzElbvnGXvgzwBwYtJwBEO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Uwe Brandt <uwe.brandt@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 011/103] USB: serial: cp210x: add ID for GW Instek GDM-834x Digital Multimeter
+        stable@vger.kernel.org, Claudiu Manoil <claudiu.manoil@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 057/162] enetc: Fix uninitialized struct dim_sample field usage
 Date:   Mon, 27 Sep 2021 19:01:43 +0200
-Message-Id: <20210927170226.103518576@linuxfoundation.org>
+Message-Id: <20210927170235.460660782@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,30 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Brandt <uwe.brandt@gmail.com>
+From: Claudiu Manoil <claudiu.manoil@nxp.com>
 
-commit 3bd18ba7d859eb1fbef3beb1e80c24f6f7d7596c upstream.
+[ Upstream commit 9f7afa05c9522b086327929ae622facab0f0f72b ]
 
-Add the USB serial device ID for the GW Instek GDM-834x Digital Multimeter.
+The only struct dim_sample member that does not get
+initialized by dim_update_sample() is comp_ctr. (There
+is special API to initialize comp_ctr:
+dim_update_sample_with_comps(), and it is currently used
+only for RDMA.) comp_ctr is used to compute curr_stats->cmps
+and curr_stats->cpe_ratio (see dim_calc_stats()) which in
+turn are consumed by the rdma_dim_*() API.  Therefore,
+functionally, the net_dim*() API consumers are not affected.
+Nevertheless, fix the computation of statistics based
+on an uninitialized variable, even if the mentioned statistics
+are not used at the moment.
 
-Signed-off-by: Uwe Brandt <uwe.brandt@gmail.com>
-Link: https://lore.kernel.org/r/YUxFl3YUCPGJZd8Y@hovoldconsulting.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ae0e6a5d1627 ("enetc: Add adaptive interrupt coalescing")
+Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/freescale/enetc/enetc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -237,6 +237,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x1FB9, 0x0602) }, /* Lake Shore Model 648 Magnet Power Supply */
- 	{ USB_DEVICE(0x1FB9, 0x0700) }, /* Lake Shore Model 737 VSM Controller */
- 	{ USB_DEVICE(0x1FB9, 0x0701) }, /* Lake Shore Model 776 Hall Matrix */
-+	{ USB_DEVICE(0x2184, 0x0030) }, /* GW Instek GDM-834x Digital Multimeter */
- 	{ USB_DEVICE(0x2626, 0xEA60) }, /* Aruba Networks 7xxx USB Serial Console */
- 	{ USB_DEVICE(0x3195, 0xF190) }, /* Link Instruments MSO-19 */
- 	{ USB_DEVICE(0x3195, 0xF280) }, /* Link Instruments MSO-28 */
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
+index 7f90c27c0e79..042327b9981f 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc.c
+@@ -419,7 +419,7 @@ static void enetc_rx_dim_work(struct work_struct *w)
+ 
+ static void enetc_rx_net_dim(struct enetc_int_vector *v)
+ {
+-	struct dim_sample dim_sample;
++	struct dim_sample dim_sample = {};
+ 
+ 	v->comp_cnt++;
+ 
+-- 
+2.33.0
+
 
 
