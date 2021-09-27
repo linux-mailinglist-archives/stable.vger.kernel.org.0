@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ADF0418EA7
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 07:26:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC5EA418EAA
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 07:29:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232931AbhI0F2T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 01:28:19 -0400
-Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:49000 "EHLO
-        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232910AbhI0F2T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 01:28:19 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0UpgsXJ5_1632720392;
-Received: from e18g09479.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0UpgsXJ5_1632720392)
+        id S232911AbhI0Fbf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 01:31:35 -0400
+Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:51114 "EHLO
+        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232910AbhI0Fbf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 01:31:35 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0Uphdb8W_1632720596;
+Received: from e18g09479.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Uphdb8W_1632720596)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 27 Sep 2021 13:26:40 +0800
+          Mon, 27 Sep 2021 13:29:56 +0800
 From:   Gao Xiang <hsiangkao@linux.alibaba.com>
 To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
 Cc:     linux-erofs@lists.ozlabs.org,
         Gao Xiang <hsiangkao@linux.alibaba.com>,
         Chao Yu <chao@kernel.org>
-Subject: [PATCH 4.19.y] erofs: fix up erofs_lookup tracepoint
-Date:   Mon, 27 Sep 2021 13:26:31 +0800
-Message-Id: <20210927052631.134077-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 4.19.y RESEND] erofs: fix up erofs_lookup tracepoint
+Date:   Mon, 27 Sep 2021 13:29:54 +0800
+Message-Id: <20210927052954.136280-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
 In-Reply-To: <163266167710981@kroah.com>
 References: <163266167710981@kroah.com>
@@ -31,6 +31,8 @@ Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
+
+commit 93368aab0efc87288cac65e99c9ed2e0ffc9e7d0 upstream.
 
 Fix up a misuse that the filename pointer isn't always valid in
 the ring buffer, and we should copy the content instead.
@@ -42,6 +44,8 @@ Reviewed-by: Chao Yu <chao@kernel.org>
 [ Gao Xiang: resolve trivial conflicts for 4.19.y. ]
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
+add missing upstream commit id...
+
  drivers/staging/erofs/include/trace/events/erofs.h | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
