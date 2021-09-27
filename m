@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A31E6419A94
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:08:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE3A2419BDD
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:21:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236083AbhI0RKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:10:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48178 "EHLO mail.kernel.org"
+        id S236591AbhI0RXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:23:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236432AbhI0RIx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:08:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F86961074;
-        Mon, 27 Sep 2021 17:07:02 +0000 (UTC)
+        id S237095AbhI0RVT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:21:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69C1261360;
+        Mon, 27 Sep 2021 17:13:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762423;
-        bh=td7VkpO+evvs5a2Xf1GU8oEzIHSB+lZ2IlxxWrYq9vM=;
+        s=korg; t=1632762820;
+        bh=Pujct7ko0Dbu3tjBEaxnoSsjTsZPCfKQx4GmTGagKM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WzozN96DpSuT4+5Zj7xXCMGXTBQYyyplHn33ouAwMXjlqteDdgAtg30Vi9Vza5DjX
-         6q8a31XmSXUgqNUguB8euS4mPAGrQrSxizHbuG3GnmJUmdsdLXTKo5bLpgWNTFK/vx
-         CgoYn10RTMf6h4dspfcZGXFEZJscz7DQPTSCrBZI=
+        b=MR0syKkzZbno9ot8XOQhH3BJIRUtmfP2JENWyFbTi+v74pk++uB3+CaiD9Kg4/MOp
+         Y2/+7MHOX+Sw8kB64QwdFOvAFQkaml0D0Jx2v9RFCNCWAYQskkpcmQdEvnZoPl+eoo
+         Wuce24r0QLGjJuAYIuW4QSC9tQwydNS7PxQMwVqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "faqiang.zhu" <faqiang.zhu@nxp.com>,
-        Felipe Balbi <balbi@kernel.org>, Li Jun <jun.li@nxp.com>,
-        John Stultz <john.stultz@linaro.org>
-Subject: [PATCH 5.10 017/103] usb: dwc3: core: balance phy init and exit
-Date:   Mon, 27 Sep 2021 19:01:49 +0200
-Message-Id: <20210927170226.314437378@linuxfoundation.org>
+        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 064/162] net: hns3: fix inconsistent vf id print
+Date:   Mon, 27 Sep 2021 19:01:50 +0200
+Message-Id: <20210927170235.684113640@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Jian Shen <shenjian15@huawei.com>
 
-commit 8cfac9a6744fcb143cb3e94ce002f09fd17fadbb upstream.
+[ Upstream commit 91bc0d5272d3a4dc3d4fd2a74387c7e7361bbe96 ]
 
-After we start to do core soft reset while usb role switch,
-the phy init is invoked at every switch to device mode, but
-its counter part de-init is missing, this causes the actual
-phy init can not be done when we really want to re-init phy
-like system resume, because the counter maintained by phy
-core is not 0. considering phy init is actually redundant for
-role switch, so move out the phy init from core soft reset to
-dwc3 core init where is the only place required.
+The vf id from ethtool is added 1 before configured to driver.
+So it's necessary to minus 1 when printing it, in order to
+keep consistent with user's configuration.
 
-Fixes: f88359e1588b ("usb: dwc3: core: Do core softreset when switch mode")
-Cc: <stable@vger.kernel.org>
-Tested-by: faqiang.zhu <faqiang.zhu@nxp.com>
-Tested-by: John Stultz <john.stultz@linaro.org> #HiKey960
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Link: https://lore.kernel.org/r/1631068099-13559-1-git-send-email-jun.li@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: dd74f815dd41 ("net: hns3: Add support for rule add/delete for flow director")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/core.c |   30 +++++++++++++-----------------
- 1 file changed, 13 insertions(+), 17 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -264,19 +264,6 @@ static int dwc3_core_soft_reset(struct d
- {
- 	u32		reg;
- 	int		retries = 1000;
--	int		ret;
--
--	usb_phy_init(dwc->usb2_phy);
--	usb_phy_init(dwc->usb3_phy);
--	ret = phy_init(dwc->usb2_generic_phy);
--	if (ret < 0)
--		return ret;
--
--	ret = phy_init(dwc->usb3_generic_phy);
--	if (ret < 0) {
--		phy_exit(dwc->usb2_generic_phy);
--		return ret;
--	}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 40c4949eed4d..45faf924bc36 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -6635,10 +6635,13 @@ static int hclge_fd_parse_ring_cookie(struct hclge_dev *hdev, u64 ring_cookie,
+ 		u8 vf = ethtool_get_flow_spec_ring_vf(ring_cookie);
+ 		u16 tqps;
  
- 	/*
- 	 * We're resetting only the device side because, if we're in host mode,
-@@ -310,9 +297,6 @@ static int dwc3_core_soft_reset(struct d
- 			udelay(1);
- 	} while (--retries);
++		/* To keep consistent with user's configuration, minus 1 when
++		 * printing 'vf', because vf id from ethtool is added 1 for vf.
++		 */
+ 		if (vf > hdev->num_req_vfs) {
+ 			dev_err(&hdev->pdev->dev,
+-				"Error: vf id (%u) > max vf num (%u)\n",
+-				vf, hdev->num_req_vfs);
++				"Error: vf id (%u) should be less than %u\n",
++				vf - 1, hdev->num_req_vfs);
+ 			return -EINVAL;
+ 		}
  
--	phy_exit(dwc->usb3_generic_phy);
--	phy_exit(dwc->usb2_generic_phy);
--
- 	return -ETIMEDOUT;
- 
- done:
-@@ -979,9 +963,21 @@ static int dwc3_core_init(struct dwc3 *d
- 		dwc->phys_ready = true;
- 	}
- 
-+	usb_phy_init(dwc->usb2_phy);
-+	usb_phy_init(dwc->usb3_phy);
-+	ret = phy_init(dwc->usb2_generic_phy);
-+	if (ret < 0)
-+		goto err0a;
-+
-+	ret = phy_init(dwc->usb3_generic_phy);
-+	if (ret < 0) {
-+		phy_exit(dwc->usb2_generic_phy);
-+		goto err0a;
-+	}
-+
- 	ret = dwc3_core_soft_reset(dwc);
- 	if (ret)
--		goto err0a;
-+		goto err1;
- 
- 	if (hw_mode == DWC3_GHWPARAMS0_MODE_DRD &&
- 	    !DWC3_VER_IS_WITHIN(DWC3, ANY, 194A)) {
+-- 
+2.33.0
+
 
 
