@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ED53419A58
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:06:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D263419CCE
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:30:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236201AbhI0RI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:08:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46362 "EHLO mail.kernel.org"
+        id S236435AbhI0Rc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:32:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236206AbhI0RHa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:07:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED70960F70;
-        Mon, 27 Sep 2021 17:05:51 +0000 (UTC)
+        id S238699AbhI0RaF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:30:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23A0160F3A;
+        Mon, 27 Sep 2021 17:18:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762352;
-        bh=2x/8C7RGicmM784+vbWKsqQcHRNQFf3C1wuczzZL2ss=;
+        s=korg; t=1632763081;
+        bh=Ixvjd/g6Oa1T/tgj7QZQCeD2Fi27lJOPX8R02O1CA+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pMIl64iFp+7fJp1I8qfsVBIGeTDnHA7E0GzD6wPYa3UA/QmN7k0ESCg9B4U3REmnO
-         JePbXheSBwgYc56NNZTATwFu8z6SITLAyd0tlztAMO/M4NTck6oy6QIuQIgXKFF9Zk
-         c+1DFdBeECCTb9KD4IW3CKrdyiiQmNg9a/GGVH9o=
+        b=iFR4xMFlzsqWfc3WWMWXfCbqVLs7hHXvp4zObLMP8iTNihTUKRj3o1HFMr8YoY9h+
+         TOFyL062osMGEKntiOYMcg/D5GJAS2g6qi51mkZGK2824P5Z0NfvXEELVnFl1fMNfZ
+         c0BK13ZDMyh2XxDif7XCNFwhbXtWJNP2z9XT3wu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 58/68] qnx4: avoid stringop-overread errors
+        stable@vger.kernel.org, Ruozhu Li <liruozhu@huawei.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 128/162] nvme-rdma: destroy cm id before destroy qp to avoid use after free
 Date:   Mon, 27 Sep 2021 19:02:54 +0200
-Message-Id: <20210927170221.973392903@linuxfoundation.org>
+Message-Id: <20210927170237.862703782@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
-References: <20210927170219.901812470@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,129 +40,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Ruozhu Li <liruozhu@huawei.com>
 
-[ Upstream commit b7213ffa0e585feb1aee3e7173e965e66ee0abaa ]
+[ Upstream commit 9817d763dbe15327b9b3ff4404fa6f27f927e744 ]
 
-The qnx4 directory entries are 64-byte blocks that have different
-contents depending on the a status byte that is in the last byte of the
-block.
+We should always destroy cm_id before destroy qp to avoid to get cma
+event after qp was destroyed, which may lead to use after free.
+In RDMA connection establishment error flow, don't destroy qp in cm
+event handler.Just report cm_error to upper level, qp will be destroy
+in nvme_rdma_alloc_queue() after destroy cm id.
 
-In particular, a directory entry can be either a "link info" entry with
-a 48-byte name and pointers to the real inode information, or an "inode
-entry" with a smaller 16-byte name and the full inode information.
-
-But the code was written to always just treat the directory name as if
-it was part of that "inode entry", and just extend the name to the
-longer case if the status byte said it was a link entry.
-
-That work just fine and gives the right results, but now that gcc is
-tracking data structure accesses much more, the code can trigger a
-compiler error about using up to 48 bytes (the long name) in a structure
-that only has that shorter name in it:
-
-   fs/qnx4/dir.c: In function ‘qnx4_readdir’:
-   fs/qnx4/dir.c:51:32: error: ‘strnlen’ specified bound 48 exceeds source size 16 [-Werror=stringop-overread]
-      51 |                         size = strnlen(de->di_fname, size);
-         |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~
-   In file included from fs/qnx4/qnx4.h:3,
-                    from fs/qnx4/dir.c:16:
-   include/uapi/linux/qnx4_fs.h:45:25: note: source object declared here
-      45 |         char            di_fname[QNX4_SHORT_NAME_MAX];
-         |                         ^~~~~~~~
-
-which is because the source code doesn't really make this whole "one of
-two different types" explicit.
-
-Fix this by introducing a very explicit union of the two types, and
-basically explaining to the compiler what is really going on.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Ruozhu Li <liruozhu@huawei.com>
+Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/qnx4/dir.c | 51 ++++++++++++++++++++++++++++++++++-----------------
- 1 file changed, 34 insertions(+), 17 deletions(-)
+ drivers/nvme/host/rdma.c | 16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
-diff --git a/fs/qnx4/dir.c b/fs/qnx4/dir.c
-index a6ee23aadd28..2a66844b7ff8 100644
---- a/fs/qnx4/dir.c
-+++ b/fs/qnx4/dir.c
-@@ -15,13 +15,27 @@
- #include <linux/buffer_head.h>
- #include "qnx4.h"
+diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
+index a68704e39084..042c594bc57e 100644
+--- a/drivers/nvme/host/rdma.c
++++ b/drivers/nvme/host/rdma.c
+@@ -656,8 +656,8 @@ static void nvme_rdma_free_queue(struct nvme_rdma_queue *queue)
+ 	if (!test_and_clear_bit(NVME_RDMA_Q_ALLOCATED, &queue->flags))
+ 		return;
  
-+/*
-+ * A qnx4 directory entry is an inode entry or link info
-+ * depending on the status field in the last byte. The
-+ * first byte is where the name start either way, and a
-+ * zero means it's empty.
-+ */
-+union qnx4_directory_entry {
-+	struct {
-+		char de_name;
-+		char de_pad[62];
-+		char de_status;
-+	};
-+	struct qnx4_inode_entry inode;
-+	struct qnx4_link_info link;
-+};
-+
- static int qnx4_readdir(struct file *file, struct dir_context *ctx)
- {
- 	struct inode *inode = file_inode(file);
- 	unsigned int offset;
- 	struct buffer_head *bh;
--	struct qnx4_inode_entry *de;
--	struct qnx4_link_info *le;
- 	unsigned long blknum;
- 	int ix, ino;
- 	int size;
-@@ -38,27 +52,30 @@ static int qnx4_readdir(struct file *file, struct dir_context *ctx)
- 		}
- 		ix = (ctx->pos >> QNX4_DIR_ENTRY_SIZE_BITS) % QNX4_INODES_PER_BLOCK;
- 		for (; ix < QNX4_INODES_PER_BLOCK; ix++, ctx->pos += QNX4_DIR_ENTRY_SIZE) {
-+			union qnx4_directory_entry *de;
-+			const char *name;
-+
- 			offset = ix * QNX4_DIR_ENTRY_SIZE;
--			de = (struct qnx4_inode_entry *) (bh->b_data + offset);
--			if (!de->di_fname[0])
-+			de = (union qnx4_directory_entry *) (bh->b_data + offset);
-+
-+			if (!de->de_name)
- 				continue;
--			if (!(de->di_status & (QNX4_FILE_USED|QNX4_FILE_LINK)))
-+			if (!(de->de_status & (QNX4_FILE_USED|QNX4_FILE_LINK)))
- 				continue;
--			if (!(de->di_status & QNX4_FILE_LINK))
--				size = QNX4_SHORT_NAME_MAX;
--			else
--				size = QNX4_NAME_MAX;
--			size = strnlen(de->di_fname, size);
--			QNX4DEBUG((KERN_INFO "qnx4_readdir:%.*s\n", size, de->di_fname));
--			if (!(de->di_status & QNX4_FILE_LINK))
-+			if (!(de->de_status & QNX4_FILE_LINK)) {
-+				size = sizeof(de->inode.di_fname);
-+				name = de->inode.di_fname;
- 				ino = blknum * QNX4_INODES_PER_BLOCK + ix - 1;
--			else {
--				le  = (struct qnx4_link_info*)de;
--				ino = ( le32_to_cpu(le->dl_inode_blk) - 1 ) *
-+			} else {
-+				size = sizeof(de->link.dl_fname);
-+				name = de->link.dl_fname;
-+				ino = ( le32_to_cpu(de->link.dl_inode_blk) - 1 ) *
- 					QNX4_INODES_PER_BLOCK +
--					le->dl_inode_ndx;
-+					de->link.dl_inode_ndx;
- 			}
--			if (!dir_emit(ctx, de->di_fname, size, ino, DT_UNKNOWN)) {
-+			size = strnlen(name, size);
-+			QNX4DEBUG((KERN_INFO "qnx4_readdir:%.*s\n", size, name));
-+			if (!dir_emit(ctx, name, size, ino, DT_UNKNOWN)) {
- 				brelse(bh);
- 				return 0;
- 			}
+-	nvme_rdma_destroy_queue_ib(queue);
+ 	rdma_destroy_id(queue->cm_id);
++	nvme_rdma_destroy_queue_ib(queue);
+ 	mutex_destroy(&queue->queue_lock);
+ }
+ 
+@@ -1815,14 +1815,10 @@ static int nvme_rdma_conn_established(struct nvme_rdma_queue *queue)
+ 	for (i = 0; i < queue->queue_size; i++) {
+ 		ret = nvme_rdma_post_recv(queue, &queue->rsp_ring[i]);
+ 		if (ret)
+-			goto out_destroy_queue_ib;
++			return ret;
+ 	}
+ 
+ 	return 0;
+-
+-out_destroy_queue_ib:
+-	nvme_rdma_destroy_queue_ib(queue);
+-	return ret;
+ }
+ 
+ static int nvme_rdma_conn_rejected(struct nvme_rdma_queue *queue,
+@@ -1916,14 +1912,10 @@ static int nvme_rdma_route_resolved(struct nvme_rdma_queue *queue)
+ 	if (ret) {
+ 		dev_err(ctrl->ctrl.device,
+ 			"rdma_connect_locked failed (%d).\n", ret);
+-		goto out_destroy_queue_ib;
++		return ret;
+ 	}
+ 
+ 	return 0;
+-
+-out_destroy_queue_ib:
+-	nvme_rdma_destroy_queue_ib(queue);
+-	return ret;
+ }
+ 
+ static int nvme_rdma_cm_handler(struct rdma_cm_id *cm_id,
+@@ -1954,8 +1946,6 @@ static int nvme_rdma_cm_handler(struct rdma_cm_id *cm_id,
+ 	case RDMA_CM_EVENT_ROUTE_ERROR:
+ 	case RDMA_CM_EVENT_CONNECT_ERROR:
+ 	case RDMA_CM_EVENT_UNREACHABLE:
+-		nvme_rdma_destroy_queue_ib(queue);
+-		fallthrough;
+ 	case RDMA_CM_EVENT_ADDR_ERROR:
+ 		dev_dbg(queue->ctrl->ctrl.device,
+ 			"CM error event %d\n", ev->event);
 -- 
 2.33.0
 
