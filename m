@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2288B419B7D
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:18:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D110D419B85
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:18:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236292AbhI0RTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:19:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34004 "EHLO mail.kernel.org"
+        id S236799AbhI0RTy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:19:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236657AbhI0RRc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:17:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE06C61262;
-        Mon, 27 Sep 2021 17:11:51 +0000 (UTC)
+        id S236791AbhI0RRf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:17:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BFB7361260;
+        Mon, 27 Sep 2021 17:11:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762712;
-        bh=yCOytb4p6EJdWyPLzgmAVZur+tgZdKI/qDaNrYIzcqc=;
+        s=korg; t=1632762715;
+        bh=93Hh6ibWsXSldPNCAhMKgvpyIb4yq5wWd0g+7SliDRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=reZoMTaLmMYNpZhQVTVOPwbTy3L9u0zaXjcTJCvdaJT/hdRrEuO6r7yKhtQCHDuNg
-         ydJllLG1y1K4zYzdap8nv0ka2vd7tuUpQViD9Gti+c8NF6imxv+sGoU0GQ5LHeRepN
-         JEu7FsXH4EW6RIp3+EWsJcQim5fLM1HvUi5TXRuQ=
+        b=roz5Va/oWszkpV01lg2fAgCp0gGwzdE/ULomDyi4FqNJzckWs893B4qAaQ4718F1K
+         fKRsgMMKz0ZEh5dBokKf/vEIbZK/Fkqsa0n/586lx2kaNc0SHBzwJoMqG9uvyl79cF
+         sOTr4d+8pwqQeDPpvVS/4Yzck8YypJLHKcmmzjZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Subject: [PATCH 5.14 008/162] usb: dwc2: gadget: Fix ISOC transfer complete handling for DDMA
-Date:   Mon, 27 Sep 2021 19:00:54 +0200
-Message-Id: <20210927170233.741414401@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 5.14 009/162] usb: musb: tusb6010: uninitialized data in tusb_fifo_write_unaligned()
+Date:   Mon, 27 Sep 2021 19:00:55 +0200
+Message-Id: <20210927170233.772506410@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
 References: <20210927170233.453060397@linuxfoundation.org>
@@ -39,39 +38,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit dbe2518b2d8eabffa74dbf7d9fdd7dacddab7fc0 upstream.
+commit 517c7bf99bad3d6b9360558414aae634b7472d80 upstream.
 
-When last descriptor in a descriptor list completed with XferComplete
-interrupt, core switching to handle next descriptor and assert BNA
-interrupt. Both these interrupts are set while dwc2_hsotg_epint()
-handler called. Each interrupt should be handled separately: first
-XferComplete interrupt then BNA interrupt, otherwise last completed
-transfer will not be giveback to function driver as completed
-request.
+This is writing to the first 1 - 3 bytes of "val" and then writing all
+four bytes to musb_writel().  The last byte is always going to be
+garbage.  Zero out the last bytes instead.
 
-Fixes: 729cac693eec ("usb: dwc2: Change ISOC DDMA flow")
+Fixes: 550a7375fe72 ("USB: Add MUSB and TUSB support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Link: https://lore.kernel.org/r/a36981accc26cd674c5d8f8da6164344b94ec1fe.1631386531.git.Minas.Harutyunyan@synopsys.com
+Link: https://lore.kernel.org/r/20210916135737.GI25094@kili
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/gadget.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/usb/musb/tusb6010.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -3066,9 +3066,7 @@ static void dwc2_hsotg_epint(struct dwc2
- 
- 		/* In DDMA handle isochronous requests separately */
- 		if (using_desc_dma(hsotg) && hs_ep->isochronous) {
--			/* XferCompl set along with BNA */
--			if (!(ints & DXEPINT_BNAINTR))
--				dwc2_gadget_complete_isoc_request_ddma(hs_ep);
-+			dwc2_gadget_complete_isoc_request_ddma(hs_ep);
- 		} else if (dir_in) {
- 			/*
- 			 * We get OutDone from the FIFO, so we only
+--- a/drivers/usb/musb/tusb6010.c
++++ b/drivers/usb/musb/tusb6010.c
+@@ -190,6 +190,7 @@ tusb_fifo_write_unaligned(void __iomem *
+ 	}
+ 	if (len > 0) {
+ 		/* Write the rest 1 - 3 bytes to FIFO */
++		val = 0;
+ 		memcpy(&val, buf, len);
+ 		musb_writel(fifo, 0, val);
+ 	}
 
 
