@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3E59419AE7
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8858419A14
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:04:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235767AbhI0ROh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:14:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54388 "EHLO mail.kernel.org"
+        id S235958AbhI0RGb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:06:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236364AbhI0RME (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:12:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C793161264;
-        Mon, 27 Sep 2021 17:08:31 +0000 (UTC)
+        id S235960AbhI0RGI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:06:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D0646108E;
+        Mon, 27 Sep 2021 17:04:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762512;
-        bh=RSZkiJ2yqzaRdXX9rL57ZA7zNS/yRoj+t1rLaJ5pFUc=;
+        s=korg; t=1632762270;
+        bh=uMhIigTTpdlHdXHKAgk7baWV3AbzBHSNoJEnvFK9MKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S75hrmmoYl1I9DVH1h5fbt/mxFRvsSAtvRRbqfEbQi4z8+WO1CTMm01WG8Y0aqqVn
-         p48a25rSaVS0haV+lhaHnDTkINITv5x3olrw77OLpyRf/THZ3h9htp8eK5ixWzyQ/G
-         QxrskE0C6CGEa5CWQa94f/DRdcAgLhp7IANge4fs=
+        b=zCgStM1YbJNXsuTP3iH4J5WhtKhxCG2ajxR3/GOhppoSdz5S/fsnGa9MqlkuI1cws
+         xL/DZCKmgQRmKK4983K6ql2m9h1+DusnleZm4FvYl9e8P7Zw4rQwSTfPco8GRkRj0D
+         wYGSbZhPm4T787MGNEGUW697sBI8K2OUqpn8EYcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Kalderon <mkalderon@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        Shai Malin <smalin@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 050/103] qed: rdma - dont wait for resources under hw error recovery flow
+Subject: [PATCH 5.4 26/68] platform/x86/intel: punit_ipc: Drop wrong use of ACPI_PTR()
 Date:   Mon, 27 Sep 2021 19:02:22 +0200
-Message-Id: <20210927170227.485895652@linuxfoundation.org>
+Message-Id: <20210927170220.864269436@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,63 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shai Malin <smalin@marvell.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 1ea7812326004afd2803cc968a4776ae5120a597 ]
+[ Upstream commit 349bff48ae0f5f8aa2075d0bdc2091a30bd634f6 ]
 
-If the HW device is during recovery, the HW resources will never return,
-hence we shouldn't wait for the CID (HW context ID) bitmaps to clear.
-This fix speeds up the error recovery flow.
+ACPI_PTR() is more harmful than helpful. For example, in this case
+if CONFIG_ACPI=n, the ID table left unused which is not what we want.
 
-Fixes: 64515dc899df ("qed: Add infrastructure for error detection and recovery")
-Signed-off-by: Michal Kalderon <mkalderon@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: Shai Malin <smalin@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Instead of adding ifdeffery here and there, drop ACPI_PTR()
+and unused acpi.h.
+
+Fixes: fdca4f16f57d ("platform:x86: add Intel P-Unit mailbox IPC driver")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210827145310.76239-1-andriy.shevchenko@linux.intel.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_iwarp.c | 8 ++++++++
- drivers/net/ethernet/qlogic/qed/qed_roce.c  | 8 ++++++++
- 2 files changed, 16 insertions(+)
+ drivers/platform/x86/intel_punit_ipc.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
-index a99861124630..68fbe536a1f3 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
-@@ -1297,6 +1297,14 @@ qed_iwarp_wait_cid_map_cleared(struct qed_hwfn *p_hwfn, struct qed_bmap *bmap)
- 	prev_weight = weight;
+diff --git a/drivers/platform/x86/intel_punit_ipc.c b/drivers/platform/x86/intel_punit_ipc.c
+index ccb44f2eb240..af3a28623e86 100644
+--- a/drivers/platform/x86/intel_punit_ipc.c
++++ b/drivers/platform/x86/intel_punit_ipc.c
+@@ -8,7 +8,6 @@
+  * which provide mailbox interface for power management usage.
+  */
  
- 	while (weight) {
-+		/* If the HW device is during recovery, all resources are
-+		 * immediately reset without receiving a per-cid indication
-+		 * from HW. In this case we don't expect the cid_map to be
-+		 * cleared.
-+		 */
-+		if (p_hwfn->cdev->recov_in_prog)
-+			return 0;
-+
- 		msleep(QED_IWARP_MAX_CID_CLEAN_TIME);
+-#include <linux/acpi.h>
+ #include <linux/bitops.h>
+ #include <linux/delay.h>
+ #include <linux/device.h>
+@@ -335,7 +334,7 @@ static struct platform_driver intel_punit_ipc_driver = {
+ 	.remove = intel_punit_ipc_remove,
+ 	.driver = {
+ 		.name = "intel_punit_ipc",
+-		.acpi_match_table = ACPI_PTR(punit_ipc_acpi_ids),
++		.acpi_match_table = punit_ipc_acpi_ids,
+ 	},
+ };
  
- 		weight = bitmap_weight(bmap->bitmap, bmap->max_count);
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_roce.c b/drivers/net/ethernet/qlogic/qed/qed_roce.c
-index f16a157bb95a..cf5baa5e59bc 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_roce.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_roce.c
-@@ -77,6 +77,14 @@ void qed_roce_stop(struct qed_hwfn *p_hwfn)
- 	 * Beyond the added delay we clear the bitmap anyway.
- 	 */
- 	while (bitmap_weight(rcid_map->bitmap, rcid_map->max_count)) {
-+		/* If the HW device is during recovery, all resources are
-+		 * immediately reset without receiving a per-cid indication
-+		 * from HW. In this case we don't expect the cid bitmap to be
-+		 * cleared.
-+		 */
-+		if (p_hwfn->cdev->recov_in_prog)
-+			return;
-+
- 		msleep(100);
- 		if (wait_count++ > 20) {
- 			DP_NOTICE(p_hwfn, "cid bitmap wait timed out\n");
 -- 
 2.33.0
 
