@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CEFD419AA5
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:09:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90C80419BC6
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:20:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235951AbhI0RKw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:10:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46024 "EHLO mail.kernel.org"
+        id S235739AbhI0RWH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:22:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236506AbhI0RJN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:09:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B51D610E8;
-        Mon, 27 Sep 2021 17:07:15 +0000 (UTC)
+        id S236326AbhI0RUF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:20:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C66E613A1;
+        Mon, 27 Sep 2021 17:13:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762436;
-        bh=Ba75qXYPZPQCLgO4W/Xt5wNbmeQ98XfUQ4dURcrPfDY=;
+        s=korg; t=1632762790;
+        bh=V1XRCNnsokINEUhpOK8ajzGyWuEa2f0wXZ5FZ178hug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e6aMVBGdpRRmsYglXh7snkFHbnczaj1LmAXyvn/WGtyYcUv3IBUohIsvKTTnZt4/a
-         t+wLDXOTMWCLJt67Rcndiypmse72cj1rklMjjSatoCE+8JSpicf99rGGDq564dh8+S
-         eHk/9GeHfC7GkesXdxQUHwFDfykhdzRTKNSpVY/s=
+        b=xsR+phKAYtAhJ/NBEAeP/8nT3YmZVAq1E5udvLGe+MQNiVoFyoOg8bmk1lCIu9f/O
+         7iiI7f+EhcesZzMjJHHUhAwkENRVSw1Ul0ulrZkH3la1CNDxm6F+XF5rc6pzVLMEMg
+         4LaywavzQl90GUNykPUu0i71zGLE4TmkogZBVXJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.10 004/103] usb: gadget: r8a66597: fix a loop in set_feature()
-Date:   Mon, 27 Sep 2021 19:01:36 +0200
-Message-Id: <20210927170225.859528030@linuxfoundation.org>
+        stable@vger.kernel.org, Markus Suvanto <markus.suvanto@gmail.com>,
+        David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        linux-afs@lists.infradead.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 051/162] afs: Fix updating of i_blocks on file/dir extension
+Date:   Mon, 27 Sep 2021 19:01:37 +0200
+Message-Id: <20210927170235.260421911@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +41,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: David Howells <dhowells@redhat.com>
 
-commit 17956b53ebff6a490baf580a836cbd3eae94892b upstream.
+[ Upstream commit 9d37e1cab2a9d2cee2737973fa455e6f89eee46a ]
 
-This loop is supposed to loop until if reads something other than
-CS_IDST or until it times out after 30,000 attempts.  But because of
-the || vs && bug, it will never time out and instead it will loop a
-minimum of 30,000 times.
+When an afs file or directory is modified locally such that the total file
+size is extended, i_blocks needs to be recalculated too.
 
-This bug is quite old but the code is only used in USB_DEVICE_TEST_MODE
-so it probably doesn't affect regular usage.
+Fix this by making afs_write_end() and afs_edit_dir_add() call
+afs_set_i_size() rather than setting inode->i_size directly as that also
+recalculates inode->i_blocks.
 
-Fixes: 96fe53ef5498 ("usb: gadget: r8a66597-udc: add support for TEST_MODE")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20210906094221.GA10957@kili
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This can be tested by creating and writing into directories and files and
+then examining them with du.  Without this change, directories show a 4
+blocks (they start out at 2048 bytes) and files show 0 blocks; with this
+change, they should show a number of blocks proportional to the file size
+rounded up to 1024.
+
+Fixes: 31143d5d515e ("AFS: implement basic file write support")
+Fixes: 63a4681ff39c ("afs: Locally edit directory data for mkdir/create/unlink/...")
+Reported-by: Markus Suvanto <markus.suvanto@gmail.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+Tested-by: Markus Suvanto <markus.suvanto@gmail.com>
+cc: linux-afs@lists.infradead.org
+Link: https://lore.kernel.org/r/163113612442.352844.11162345591911691150.stgit@warthog.procyon.org.uk/
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/r8a66597-udc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/afs/dir_edit.c |  4 ++--
+ fs/afs/inode.c    | 10 ----------
+ fs/afs/internal.h | 10 ++++++++++
+ fs/afs/write.c    |  2 +-
+ 4 files changed, 13 insertions(+), 13 deletions(-)
 
---- a/drivers/usb/gadget/udc/r8a66597-udc.c
-+++ b/drivers/usb/gadget/udc/r8a66597-udc.c
-@@ -1250,7 +1250,7 @@ static void set_feature(struct r8a66597
- 			do {
- 				tmp = r8a66597_read(r8a66597, INTSTS0) & CTSQ;
- 				udelay(1);
--			} while (tmp != CS_IDST || timeout-- > 0);
-+			} while (tmp != CS_IDST && timeout-- > 0);
+diff --git a/fs/afs/dir_edit.c b/fs/afs/dir_edit.c
+index f4600c1353ad..540b9fc96824 100644
+--- a/fs/afs/dir_edit.c
++++ b/fs/afs/dir_edit.c
+@@ -263,7 +263,7 @@ void afs_edit_dir_add(struct afs_vnode *vnode,
+ 		if (b == nr_blocks) {
+ 			_debug("init %u", b);
+ 			afs_edit_init_block(meta, block, b);
+-			i_size_write(&vnode->vfs_inode, (b + 1) * AFS_DIR_BLOCK_SIZE);
++			afs_set_i_size(vnode, (b + 1) * AFS_DIR_BLOCK_SIZE);
+ 		}
  
- 			if (tmp == CS_IDST)
- 				r8a66597_bset(r8a66597,
+ 		/* Only lower dir pages have a counter in the header. */
+@@ -296,7 +296,7 @@ void afs_edit_dir_add(struct afs_vnode *vnode,
+ new_directory:
+ 	afs_edit_init_block(meta, meta, 0);
+ 	i_size = AFS_DIR_BLOCK_SIZE;
+-	i_size_write(&vnode->vfs_inode, i_size);
++	afs_set_i_size(vnode, i_size);
+ 	slot = AFS_DIR_RESV_BLOCKS0;
+ 	page = page0;
+ 	block = meta;
+diff --git a/fs/afs/inode.c b/fs/afs/inode.c
+index 80b6c8d967d5..c18cbc69fa58 100644
+--- a/fs/afs/inode.c
++++ b/fs/afs/inode.c
+@@ -53,16 +53,6 @@ static noinline void dump_vnode(struct afs_vnode *vnode, struct afs_vnode *paren
+ 		dump_stack();
+ }
+ 
+-/*
+- * Set the file size and block count.  Estimate the number of 512 bytes blocks
+- * used, rounded up to nearest 1K for consistency with other AFS clients.
+- */
+-static void afs_set_i_size(struct afs_vnode *vnode, u64 size)
+-{
+-	i_size_write(&vnode->vfs_inode, size);
+-	vnode->vfs_inode.i_blocks = ((size + 1023) >> 10) << 1;
+-}
+-
+ /*
+  * Initialise an inode from the vnode status.
+  */
+diff --git a/fs/afs/internal.h b/fs/afs/internal.h
+index 928408888054..345494881f65 100644
+--- a/fs/afs/internal.h
++++ b/fs/afs/internal.h
+@@ -1586,6 +1586,16 @@ static inline void afs_update_dentry_version(struct afs_operation *op,
+ 			(void *)(unsigned long)dir_vp->scb.status.data_version;
+ }
+ 
++/*
++ * Set the file size and block count.  Estimate the number of 512 bytes blocks
++ * used, rounded up to nearest 1K for consistency with other AFS clients.
++ */
++static inline void afs_set_i_size(struct afs_vnode *vnode, u64 size)
++{
++	i_size_write(&vnode->vfs_inode, size);
++	vnode->vfs_inode.i_blocks = ((size + 1023) >> 10) << 1;
++}
++
+ /*
+  * Check for a conflicting operation on a directory that we just unlinked from.
+  * If someone managed to sneak a link or an unlink in on the file we just
+diff --git a/fs/afs/write.c b/fs/afs/write.c
+index 66b235266893..e86f5a245514 100644
+--- a/fs/afs/write.c
++++ b/fs/afs/write.c
+@@ -137,7 +137,7 @@ int afs_write_end(struct file *file, struct address_space *mapping,
+ 		write_seqlock(&vnode->cb_lock);
+ 		i_size = i_size_read(&vnode->vfs_inode);
+ 		if (maybe_i_size > i_size)
+-			i_size_write(&vnode->vfs_inode, maybe_i_size);
++			afs_set_i_size(vnode, maybe_i_size);
+ 		write_sequnlock(&vnode->cb_lock);
+ 	}
+ 
+-- 
+2.33.0
+
 
 
