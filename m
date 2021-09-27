@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E443419B19
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C81C419A62
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:07:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236738AbhI0RP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:15:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55992 "EHLO mail.kernel.org"
+        id S236241AbhI0RIq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:08:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237219AbhI0ROT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:14:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB73F6121E;
-        Mon, 27 Sep 2021 17:09:58 +0000 (UTC)
+        id S235834AbhI0RHk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:07:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28937611ED;
+        Mon, 27 Sep 2021 17:06:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762599;
-        bh=0zYJAE45lLThOEfIxFaR/OUCkonU2nQgap5RVqfRKwk=;
+        s=korg; t=1632762362;
+        bh=Cp4UBU9kOyXrpeKFY3oxOdbnOFW5kD6qZOsU4UVDfIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LZQ1ocUJpd+0FuIss5k/jBdtVSI7+nZZZZERpPJACDTxhcan1S0zLq1gOVfhQdNqI
-         Ul66zO5Yy9ivn8Kzlf62Z/61e9vtQUxkhQvnfDZg0s5IsKPFw1BsZlD/SvVFNKCli3
-         3uWEdhXnqNkkd6eAP/FPyAf+t/tKNmEu2NvQ1aWE=
+        b=vetkYTyK0rMZ2goJaAjS07j3n6VpbHK1XsZZ0kvqzr0jvDtDAlKMHoA4mpAuk7aJa
+         9RcQlpuURZiFftWfuxHx2jWfNJ0xPgNJ6/Vga8JgyRLF27PZqbgbNYOghPfJWnjIwS
+         2uLVaGgE0lI+IhYrduGIDxClp74KLn3KDdc5q8rE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 084/103] sparc32: page align size in arch_dma_alloc
-Date:   Mon, 27 Sep 2021 19:02:56 +0200
-Message-Id: <20210927170228.671358178@linuxfoundation.org>
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 61/68] alpha: Declare virt_to_phys and virt_to_bus parameter as pointer to volatile
+Date:   Mon, 27 Sep 2021 19:02:57 +0200
+Message-Id: <20210927170222.083185003@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Larsson <andreas@gaisler.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 59583f747664046aaae5588d56d5954fab66cce8 ]
+[ Upstream commit 35a3f4ef0ab543daa1725b0c963eb8c05e3376f8 ]
 
-Commit 53b7670e5735 ("sparc: factor the dma coherent mapping into
-helper") lost the page align for the calls to dma_make_coherent and
-srmmu_unmapiorange. The latter cannot handle a non page aligned len
-argument.
+Some drivers pass a pointer to volatile data to virt_to_bus() and
+virt_to_phys(), and that works fine.  One exception is alpha.  This
+results in a number of compile errors such as
 
-Signed-off-by: Andreas Larsson <andreas@gaisler.com>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+  drivers/net/wan/lmc/lmc_main.c: In function 'lmc_softreset':
+  drivers/net/wan/lmc/lmc_main.c:1782:50: error:
+	passing argument 1 of 'virt_to_bus' discards 'volatile'
+	qualifier from pointer target type
+
+  drivers/atm/ambassador.c: In function 'do_loader_command':
+  drivers/atm/ambassador.c:1747:58: error:
+	passing argument 1 of 'virt_to_bus' discards 'volatile'
+	qualifier from pointer target type
+
+Declare the parameter of virt_to_phys and virt_to_bus as pointer to
+volatile to fix the problem.
+
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/kernel/ioport.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/alpha/include/asm/io.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/sparc/kernel/ioport.c b/arch/sparc/kernel/ioport.c
-index 8e1d72a16759..7ceae24b0ca9 100644
---- a/arch/sparc/kernel/ioport.c
-+++ b/arch/sparc/kernel/ioport.c
-@@ -356,7 +356,9 @@ err_nomem:
- void arch_dma_free(struct device *dev, size_t size, void *cpu_addr,
- 		dma_addr_t dma_addr, unsigned long attrs)
+diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
+index 103270d5a9fc..66a384a4ddba 100644
+--- a/arch/alpha/include/asm/io.h
++++ b/arch/alpha/include/asm/io.h
+@@ -61,7 +61,7 @@ extern inline void set_hae(unsigned long new_hae)
+  * Change virtual addresses to physical addresses and vv.
+  */
+ #ifdef USE_48_BIT_KSEG
+-static inline unsigned long virt_to_phys(void *address)
++static inline unsigned long virt_to_phys(volatile void *address)
  {
--	if (!sparc_dma_free_resource(cpu_addr, PAGE_ALIGN(size)))
-+	size = PAGE_ALIGN(size);
-+
-+	if (!sparc_dma_free_resource(cpu_addr, size))
- 		return;
+ 	return (unsigned long)address - IDENT_ADDR;
+ }
+@@ -71,7 +71,7 @@ static inline void * phys_to_virt(unsigned long address)
+ 	return (void *) (address + IDENT_ADDR);
+ }
+ #else
+-static inline unsigned long virt_to_phys(void *address)
++static inline unsigned long virt_to_phys(volatile void *address)
+ {
+         unsigned long phys = (unsigned long)address;
  
- 	dma_make_coherent(dma_addr, size);
+@@ -107,7 +107,7 @@ static inline void * phys_to_virt(unsigned long address)
+ extern unsigned long __direct_map_base;
+ extern unsigned long __direct_map_size;
+ 
+-static inline unsigned long __deprecated virt_to_bus(void *address)
++static inline unsigned long __deprecated virt_to_bus(volatile void *address)
+ {
+ 	unsigned long phys = virt_to_phys(address);
+ 	unsigned long bus = phys + __direct_map_base;
 -- 
 2.33.0
 
