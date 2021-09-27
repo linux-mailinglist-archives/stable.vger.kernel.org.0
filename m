@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C973419C18
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0FD54199F6
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:04:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236618AbhI0RZW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:25:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36852 "EHLO mail.kernel.org"
+        id S235831AbhI0RFv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:05:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237367AbhI0RXJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:23:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8956A613AD;
-        Mon, 27 Sep 2021 17:14:38 +0000 (UTC)
+        id S235793AbhI0RFf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:05:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3C1661074;
+        Mon, 27 Sep 2021 17:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762879;
-        bh=yxTCZbKVWBfVNB0QLGILPj25o5bLdsGVy+pP44dlteY=;
+        s=korg; t=1632762237;
+        bh=7T2S4/MgXsbn+Dhnc/dhT4PRLyQOID0DAPUKR35yatI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ThtxOn1ozlhz/h6pYMKAWosW9YH1f2/nkOC3VE4mFjYscuh3lnMC9zyKNOjKM9wlV
-         8u256nat6bHsDPbrYkvjeSlOA8Akd31nhRbzVP2bTLnyRfdonFzQh9+0GVlgCm6tRq
-         nhiIMquX+/B0pyGjlhHqvYSz97zgxMb5vHYNxVuw=
+        b=bGfD5bJiF4WiBBwJVfRcaEbhtEc/b65LniQTLJBvioB41ZxcAp1vOMm8gx2sPd3kJ
+         yBz15XV4RVLy0tCJYixK/3hZkbGVFtBLyuGhpS57xS0lcPVCbQruFe81oQ3JY12KM9
+         o0CG+pw5+NtC/V4a2p/dyQCnUOTgFCpyaLT7rKJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
-        Petr Machata <petrm@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 084/162] nexthop: Fix memory leaks in nexthop notification chain listeners
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Chris Chiu <chris.chiu@canonical.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Kishon Vijay Abraham I <kishon@ti.com>
+Subject: [PATCH 5.4 14/68] usb: core: hcd: Add support for deferring roothub registration
 Date:   Mon, 27 Sep 2021 19:02:10 +0200
-Message-Id: <20210927170236.345165650@linuxfoundation.org>
+Message-Id: <20210927170220.427644244@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,163 +42,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-[ Upstream commit 3106a0847525befe3e22fc723909d1b21eb0d520 ]
+commit 58877b0824da15698bd85a0a9dbfa8c354e6ecb7 upstream.
 
-syzkaller discovered memory leaks [1] that can be reduced to the
-following commands:
+It has been observed with certain PCIe USB cards (like Inateck connected
+to AM64 EVM or J7200 EVM) that as soon as the primary roothub is
+registered, port status change is handled even before xHC is running
+leading to cold plug USB devices not detected. For such cases, registering
+both the root hubs along with the second HCD is required. Add support for
+deferring roothub registration in usb_add_hcd(), so that both primary and
+secondary roothubs are registered along with the second HCD.
 
- # ip nexthop add id 1 blackhole
- # devlink dev reload pci/0000:06:00.0
-
-As part of the reload flow, mlxsw will unregister its netdevs and then
-unregister from the nexthop notification chain. Before unregistering
-from the notification chain, mlxsw will receive delete notifications for
-nexthop objects using netdevs registered by mlxsw or their uppers. mlxsw
-will not receive notifications for nexthops using netdevs that are not
-dismantled as part of the reload flow. For example, the blackhole
-nexthop above that internally uses the loopback netdev as its nexthop
-device.
-
-One way to fix this problem is to have listeners flush their nexthop
-tables after unregistering from the notification chain. This is
-error-prone as evident by this patch and also not symmetric with the
-registration path where a listener receives a dump of all the existing
-nexthops.
-
-Therefore, fix this problem by replaying delete notifications for the
-listener being unregistered. This is symmetric to the registration path
-and also consistent with the netdev notification chain.
-
-The above means that unregister_nexthop_notifier(), like
-register_nexthop_notifier(), will have to take RTNL in order to iterate
-over the existing nexthops and that any callers of the function cannot
-hold RTNL. This is true for mlxsw and netdevsim, but not for the VXLAN
-driver. To avoid a deadlock, change the latter to unregister its nexthop
-listener without holding RTNL, making it symmetric to the registration
-path.
-
-[1]
-unreferenced object 0xffff88806173d600 (size 512):
-  comm "syz-executor.0", pid 1290, jiffies 4295583142 (age 143.507s)
-  hex dump (first 32 bytes):
-    41 9d 1e 60 80 88 ff ff 08 d6 73 61 80 88 ff ff  A..`......sa....
-    08 d6 73 61 80 88 ff ff 01 00 00 00 00 00 00 00  ..sa............
-  backtrace:
-    [<ffffffff81a6b576>] kmemleak_alloc_recursive include/linux/kmemleak.h:43 [inline]
-    [<ffffffff81a6b576>] slab_post_alloc_hook+0x96/0x490 mm/slab.h:522
-    [<ffffffff81a716d3>] slab_alloc_node mm/slub.c:3206 [inline]
-    [<ffffffff81a716d3>] slab_alloc mm/slub.c:3214 [inline]
-    [<ffffffff81a716d3>] kmem_cache_alloc_trace+0x163/0x370 mm/slub.c:3231
-    [<ffffffff82e8681a>] kmalloc include/linux/slab.h:591 [inline]
-    [<ffffffff82e8681a>] kzalloc include/linux/slab.h:721 [inline]
-    [<ffffffff82e8681a>] mlxsw_sp_nexthop_obj_group_create drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:4918 [inline]
-    [<ffffffff82e8681a>] mlxsw_sp_nexthop_obj_new drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:5054 [inline]
-    [<ffffffff82e8681a>] mlxsw_sp_nexthop_obj_event+0x59a/0x2910 drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:5239
-    [<ffffffff813ef67d>] notifier_call_chain+0xbd/0x210 kernel/notifier.c:83
-    [<ffffffff813f0662>] blocking_notifier_call_chain kernel/notifier.c:318 [inline]
-    [<ffffffff813f0662>] blocking_notifier_call_chain+0x72/0xa0 kernel/notifier.c:306
-    [<ffffffff8384b9c6>] call_nexthop_notifiers+0x156/0x310 net/ipv4/nexthop.c:244
-    [<ffffffff83852bd8>] insert_nexthop net/ipv4/nexthop.c:2336 [inline]
-    [<ffffffff83852bd8>] nexthop_add net/ipv4/nexthop.c:2644 [inline]
-    [<ffffffff83852bd8>] rtm_new_nexthop+0x14e8/0x4d10 net/ipv4/nexthop.c:2913
-    [<ffffffff833e9a78>] rtnetlink_rcv_msg+0x448/0xbf0 net/core/rtnetlink.c:5572
-    [<ffffffff83608703>] netlink_rcv_skb+0x173/0x480 net/netlink/af_netlink.c:2504
-    [<ffffffff833de032>] rtnetlink_rcv+0x22/0x30 net/core/rtnetlink.c:5590
-    [<ffffffff836069de>] netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
-    [<ffffffff836069de>] netlink_unicast+0x5ae/0x7f0 net/netlink/af_netlink.c:1340
-    [<ffffffff83607501>] netlink_sendmsg+0x8e1/0xe30 net/netlink/af_netlink.c:1929
-    [<ffffffff832fde84>] sock_sendmsg_nosec net/socket.c:704 [inline]
-    [<ffffffff832fde84>] sock_sendmsg net/socket.c:724 [inline]
-    [<ffffffff832fde84>] ____sys_sendmsg+0x874/0x9f0 net/socket.c:2409
-    [<ffffffff83304a44>] ___sys_sendmsg+0x104/0x170 net/socket.c:2463
-    [<ffffffff83304c01>] __sys_sendmsg+0x111/0x1f0 net/socket.c:2492
-    [<ffffffff83304d5d>] __do_sys_sendmsg net/socket.c:2501 [inline]
-    [<ffffffff83304d5d>] __se_sys_sendmsg net/socket.c:2499 [inline]
-    [<ffffffff83304d5d>] __x64_sys_sendmsg+0x7d/0xc0 net/socket.c:2499
-
-Fixes: 2a014b200bbd ("mlxsw: spectrum_router: Add support for nexthop objects")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org # 5.4+
+Suggested-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Tested-by: Chris Chiu <chris.chiu@canonical.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Link: https://lore.kernel.org/r/20210909064200.16216-2-kishon@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/vxlan.c |  2 +-
- net/ipv4/nexthop.c  | 19 ++++++++++++++-----
- 2 files changed, 15 insertions(+), 6 deletions(-)
+ drivers/usb/core/hcd.c  |   29 +++++++++++++++++++++++------
+ include/linux/usb/hcd.h |    2 ++
+ 2 files changed, 25 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index 5a8df5a195cb..141635a35c28 100644
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -4756,12 +4756,12 @@ static void __net_exit vxlan_exit_batch_net(struct list_head *net_list)
- 	LIST_HEAD(list);
- 	unsigned int h;
- 
--	rtnl_lock();
- 	list_for_each_entry(net, net_list, exit_list) {
- 		struct vxlan_net *vn = net_generic(net, vxlan_net_id);
- 
- 		unregister_nexthop_notifier(net, &vn->nexthop_notifier_block);
- 	}
-+	rtnl_lock();
- 	list_for_each_entry(net, net_list, exit_list)
- 		vxlan_destroy_tunnels(net, &list);
- 
-diff --git a/net/ipv4/nexthop.c b/net/ipv4/nexthop.c
-index 0e75fd3e57b4..9e8100728d46 100644
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -3567,6 +3567,7 @@ static struct notifier_block nh_netdev_notifier = {
- };
- 
- static int nexthops_dump(struct net *net, struct notifier_block *nb,
-+			 enum nexthop_event_type event_type,
- 			 struct netlink_ext_ack *extack)
+--- a/drivers/usb/core/hcd.c
++++ b/drivers/usb/core/hcd.c
+@@ -2636,6 +2636,7 @@ int usb_add_hcd(struct usb_hcd *hcd,
  {
- 	struct rb_root *root = &net->nexthop.rb_root;
-@@ -3577,8 +3578,7 @@ static int nexthops_dump(struct net *net, struct notifier_block *nb,
- 		struct nexthop *nh;
+ 	int retval;
+ 	struct usb_device *rhdev;
++	struct usb_hcd *shared_hcd;
  
- 		nh = rb_entry(node, struct nexthop, rb_node);
--		err = call_nexthop_notifier(nb, net, NEXTHOP_EVENT_REPLACE, nh,
--					    extack);
-+		err = call_nexthop_notifier(nb, net, event_type, nh, extack);
- 		if (err)
- 			break;
+ 	if (!hcd->skip_phy_initialization && usb_hcd_is_primary_hcd(hcd)) {
+ 		hcd->phy_roothub = usb_phy_roothub_alloc(hcd->self.sysdev);
+@@ -2792,13 +2793,26 @@ int usb_add_hcd(struct usb_hcd *hcd,
+ 		goto err_hcd_driver_start;
  	}
-@@ -3592,7 +3592,7 @@ int register_nexthop_notifier(struct net *net, struct notifier_block *nb,
- 	int err;
  
- 	rtnl_lock();
--	err = nexthops_dump(net, nb, extack);
-+	err = nexthops_dump(net, nb, NEXTHOP_EVENT_REPLACE, extack);
- 	if (err)
- 		goto unlock;
- 	err = blocking_notifier_chain_register(&net->nexthop.notifier_chain,
-@@ -3605,8 +3605,17 @@ EXPORT_SYMBOL(register_nexthop_notifier);
- 
- int unregister_nexthop_notifier(struct net *net, struct notifier_block *nb)
- {
--	return blocking_notifier_chain_unregister(&net->nexthop.notifier_chain,
--						  nb);
-+	int err;
++	/* starting here, usbcore will pay attention to the shared HCD roothub */
++	shared_hcd = hcd->shared_hcd;
++	if (!usb_hcd_is_primary_hcd(hcd) && shared_hcd && HCD_DEFER_RH_REGISTER(shared_hcd)) {
++		retval = register_root_hub(shared_hcd);
++		if (retval != 0)
++			goto err_register_root_hub;
 +
-+	rtnl_lock();
-+	err = blocking_notifier_chain_unregister(&net->nexthop.notifier_chain,
-+						 nb);
-+	if (err)
-+		goto unlock;
-+	nexthops_dump(net, nb, NEXTHOP_EVENT_DEL, NULL);
-+unlock:
-+	rtnl_unlock();
-+	return err;
- }
- EXPORT_SYMBOL(unregister_nexthop_notifier);
++		if (shared_hcd->uses_new_polling && HCD_POLL_RH(shared_hcd))
++			usb_hcd_poll_rh_status(shared_hcd);
++	}
++
+ 	/* starting here, usbcore will pay attention to this root hub */
+-	retval = register_root_hub(hcd);
+-	if (retval != 0)
+-		goto err_register_root_hub;
++	if (!HCD_DEFER_RH_REGISTER(hcd)) {
++		retval = register_root_hub(hcd);
++		if (retval != 0)
++			goto err_register_root_hub;
  
--- 
-2.33.0
-
+-	if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
+-		usb_hcd_poll_rh_status(hcd);
++		if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
++			usb_hcd_poll_rh_status(hcd);
++	}
+ 
+ 	return retval;
+ 
+@@ -2841,6 +2855,7 @@ EXPORT_SYMBOL_GPL(usb_add_hcd);
+ void usb_remove_hcd(struct usb_hcd *hcd)
+ {
+ 	struct usb_device *rhdev = hcd->self.root_hub;
++	bool rh_registered;
+ 
+ 	dev_info(hcd->self.controller, "remove, state %x\n", hcd->state);
+ 
+@@ -2851,6 +2866,7 @@ void usb_remove_hcd(struct usb_hcd *hcd)
+ 
+ 	dev_dbg(hcd->self.controller, "roothub graceful disconnect\n");
+ 	spin_lock_irq (&hcd_root_hub_lock);
++	rh_registered = hcd->rh_registered;
+ 	hcd->rh_registered = 0;
+ 	spin_unlock_irq (&hcd_root_hub_lock);
+ 
+@@ -2860,7 +2876,8 @@ void usb_remove_hcd(struct usb_hcd *hcd)
+ 	cancel_work_sync(&hcd->died_work);
+ 
+ 	mutex_lock(&usb_bus_idr_lock);
+-	usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
++	if (rh_registered)
++		usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
+ 	mutex_unlock(&usb_bus_idr_lock);
+ 
+ 	/*
+--- a/include/linux/usb/hcd.h
++++ b/include/linux/usb/hcd.h
+@@ -124,6 +124,7 @@ struct usb_hcd {
+ #define HCD_FLAG_RH_RUNNING		5	/* root hub is running? */
+ #define HCD_FLAG_DEAD			6	/* controller has died? */
+ #define HCD_FLAG_INTF_AUTHORIZED	7	/* authorize interfaces? */
++#define HCD_FLAG_DEFER_RH_REGISTER	8	/* Defer roothub registration */
+ 
+ 	/* The flags can be tested using these macros; they are likely to
+ 	 * be slightly faster than test_bit().
+@@ -134,6 +135,7 @@ struct usb_hcd {
+ #define HCD_WAKEUP_PENDING(hcd)	((hcd)->flags & (1U << HCD_FLAG_WAKEUP_PENDING))
+ #define HCD_RH_RUNNING(hcd)	((hcd)->flags & (1U << HCD_FLAG_RH_RUNNING))
+ #define HCD_DEAD(hcd)		((hcd)->flags & (1U << HCD_FLAG_DEAD))
++#define HCD_DEFER_RH_REGISTER(hcd) ((hcd)->flags & (1U << HCD_FLAG_DEFER_RH_REGISTER))
+ 
+ 	/*
+ 	 * Specifies if interfaces are authorized by default
 
 
