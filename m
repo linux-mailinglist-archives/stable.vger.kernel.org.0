@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39C5E419B83
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:18:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 262CE419B9C
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:19:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236598AbhI0RTx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:19:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56208 "EHLO mail.kernel.org"
+        id S235978AbhI0RUe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:20:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236472AbhI0RRh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:17:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1950660F70;
-        Mon, 27 Sep 2021 17:11:59 +0000 (UTC)
+        id S237416AbhI0RS2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:18:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E24A6109F;
+        Mon, 27 Sep 2021 17:12:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762720;
-        bh=AO3+DeDbC2yaqh56iwd5N1QDJkQbF0es4tKDhXfyEkI=;
+        s=korg; t=1632762749;
+        bh=HepcGExfzO9xHUUHU3nFG+8wOL1hfP8WA54LsRsilhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YMRaNrX50zIbdKKv3zUH1OMUVW94rOtdKLwq+32QY9R4F+1HswpKcxBZN5KDxIfqv
-         9/6gY+ktbS/8XN3lzEYgaanmVVqCcABAP7MsAT8Zuf7esYRTE5xCPLQIKMhl/UfsYv
-         pnA3DijQYfbwbQgp87U2eRcQ1T6ZO1I5Ltq2+C0c=
+        b=rTXMDFVUfvDqRdy6zQfU6gzHE0I4MrkBKC6233EJbrl3pCp2tJS2wxMf74JC5xohj
+         CajXIvvSRoGOtoDNjK5yafneBEPLOSofCgUX1I8MUMmZYgMtZ28erOvwzGQ82Vp19w
+         kRBC7UDvF8fJCvYl/wh/WAu2ILNYOF+yDVEwgWm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>,
-        Li Li <dualli@google.com>
-Subject: [PATCH 5.14 019/162] binder: fix freeze race
-Date:   Mon, 27 Sep 2021 19:01:05 +0200
-Message-Id: <20210927170234.120773212@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.14 020/162] staging: greybus: uart: fix tty use after free
+Date:   Mon, 27 Sep 2021 19:01:06 +0200
+Message-Id: <20210927170234.152508085@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
 References: <20210927170233.453060397@linuxfoundation.org>
@@ -39,175 +39,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Li <dualli@google.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit b564171ade70570b7f335fa8ed17adb28409e3ac upstream.
+commit 92dc0b1f46e12cfabd28d709bb34f7a39431b44f upstream.
 
-Currently cgroup freezer is used to freeze the application threads, and
-BINDER_FREEZE is used to freeze the corresponding binder interface.
-There's already a mechanism in ioctl(BINDER_FREEZE) to wait for any
-existing transactions to drain out before actually freezing the binder
-interface.
+User space can hold a tty open indefinitely and tty drivers must not
+release the underlying structures until the last user is gone.
 
-But freezing an app requires 2 steps, freezing the binder interface with
-ioctl(BINDER_FREEZE) and then freezing the application main threads with
-cgroupfs. This is not an atomic operation. The following race issue
-might happen.
+Switch to using the tty-port reference counter to manage the life time
+of the greybus tty state to avoid use after free after a disconnect.
 
-1) Binder interface is frozen by ioctl(BINDER_FREEZE);
-2) Main thread A initiates a new sync binder transaction to process B;
-3) Main thread A is frozen by "echo 1 > cgroup.freeze";
-4) The response from process B reaches the frozen thread, which will
-unexpectedly fail.
-
-This patch provides a mechanism to check if there's any new pending
-transaction happening between ioctl(BINDER_FREEZE) and freezing the
-main thread. If there's any, the main thread freezing operation can
-be rolled back to finish the pending transaction.
-
-Furthermore, the response might reach the binder driver before the
-rollback actually happens. That will still cause failed transaction.
-
-As the other process doesn't wait for another response of the response,
-the response transaction failure can be fixed by treating the response
-transaction like an oneway/async one, allowing it to reach the frozen
-thread. And it will be consumed when the thread gets unfrozen later.
-
-NOTE: This patch reuses the existing definition of struct
-binder_frozen_status_info but expands the bit assignments of __u32
-member sync_recv.
-
-To ensure backward compatibility, bit 0 of sync_recv still indicates
-there's an outstanding sync binder transaction. This patch adds new
-information to bit 1 of sync_recv, indicating the binder transaction
-happens exactly when there's a race.
-
-If an existing userspace app runs on a new kernel, a sync binder call
-will set bit 0 of sync_recv so ioctl(BINDER_GET_FROZEN_INFO) still
-return the expected value (true). The app just doesn't check bit 1
-intentionally so it doesn't have the ability to tell if there's a race.
-This behavior is aligned with what happens on an old kernel which
-doesn't set bit 1 at all.
-
-A new userspace app can 1) check bit 0 to know if there's a sync binder
-transaction happened when being frozen - same as before; and 2) check
-bit 1 to know if that sync binder transaction happened exactly when
-there's a race - a new information for rollback decision.
-
-the same time, confirmed the pending transactions succeeded.
-
-Fixes: 432ff1e91694 ("binder: BINDER_FREEZE ioctl")
-Acked-by: Todd Kjos <tkjos@google.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Li Li <dualli@google.com>
-Test: stress test with apps being frozen and initiating binder calls at
-Link: https://lore.kernel.org/r/20210910164210.2282716-2-dualli@chromium.org
+Fixes: a18e15175708 ("greybus: more uart work")
+Cc: stable@vger.kernel.org      # 4.9
+Reviewed-by: Alex Elder <elder@linaro.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210906124538.22358-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/android/binder.c            |   35 +++++++++++++++++++++++++++++------
- drivers/android/binder_internal.h   |    2 ++
- include/uapi/linux/android/binder.h |    7 +++++++
- 3 files changed, 38 insertions(+), 6 deletions(-)
+ drivers/staging/greybus/uart.c |   62 +++++++++++++++++++++--------------------
+ 1 file changed, 32 insertions(+), 30 deletions(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -3047,9 +3047,8 @@ static void binder_transaction(struct bi
- 	if (reply) {
- 		binder_enqueue_thread_work(thread, tcomplete);
- 		binder_inner_proc_lock(target_proc);
--		if (target_thread->is_dead || target_proc->is_frozen) {
--			return_error = target_thread->is_dead ?
--				BR_DEAD_REPLY : BR_FROZEN_REPLY;
-+		if (target_thread->is_dead) {
-+			return_error = BR_DEAD_REPLY;
- 			binder_inner_proc_unlock(target_proc);
- 			goto err_dead_proc_or_thread;
- 		}
-@@ -4659,6 +4658,22 @@ static int binder_ioctl_get_node_debug_i
- 	return 0;
+--- a/drivers/staging/greybus/uart.c
++++ b/drivers/staging/greybus/uart.c
+@@ -761,6 +761,17 @@ out:
+ 	gbphy_runtime_put_autosuspend(gb_tty->gbphy_dev);
  }
  
-+static bool binder_txns_pending_ilocked(struct binder_proc *proc)
++static void gb_tty_port_destruct(struct tty_port *port)
 +{
-+	struct rb_node *n;
-+	struct binder_thread *thread;
++	struct gb_tty *gb_tty = container_of(port, struct gb_tty, port);
 +
-+	if (proc->outstanding_txns > 0)
-+		return true;
-+
-+	for (n = rb_first(&proc->threads); n; n = rb_next(n)) {
-+		thread = rb_entry(n, struct binder_thread, rb_node);
-+		if (thread->transaction_stack)
-+			return true;
-+	}
-+	return false;
++	if (gb_tty->minor != GB_NUM_MINORS)
++		release_minor(gb_tty);
++	kfifo_free(&gb_tty->write_fifo);
++	kfree(gb_tty->buffer);
++	kfree(gb_tty);
 +}
 +
- static int binder_ioctl_freeze(struct binder_freeze_info *info,
- 			       struct binder_proc *target_proc)
- {
-@@ -4690,8 +4705,13 @@ static int binder_ioctl_freeze(struct bi
- 			(!target_proc->outstanding_txns),
- 			msecs_to_jiffies(info->timeout_ms));
- 
--	if (!ret && target_proc->outstanding_txns)
--		ret = -EAGAIN;
-+	/* Check pending transactions that wait for reply */
-+	if (ret >= 0) {
-+		binder_inner_proc_lock(target_proc);
-+		if (binder_txns_pending_ilocked(target_proc))
-+			ret = -EAGAIN;
-+		binder_inner_proc_unlock(target_proc);
-+	}
- 
- 	if (ret < 0) {
- 		binder_inner_proc_lock(target_proc);
-@@ -4707,6 +4727,7 @@ static int binder_ioctl_get_freezer_info
- {
- 	struct binder_proc *target_proc;
- 	bool found = false;
-+	__u32 txns_pending;
- 
- 	info->sync_recv = 0;
- 	info->async_recv = 0;
-@@ -4716,7 +4737,9 @@ static int binder_ioctl_get_freezer_info
- 		if (target_proc->pid == info->pid) {
- 			found = true;
- 			binder_inner_proc_lock(target_proc);
--			info->sync_recv |= target_proc->sync_recv;
-+			txns_pending = binder_txns_pending_ilocked(target_proc);
-+			info->sync_recv |= target_proc->sync_recv |
-+					(txns_pending << 1);
- 			info->async_recv |= target_proc->async_recv;
- 			binder_inner_proc_unlock(target_proc);
- 		}
---- a/drivers/android/binder_internal.h
-+++ b/drivers/android/binder_internal.h
-@@ -378,6 +378,8 @@ struct binder_ref {
-  *                        binder transactions
-  *                        (protected by @inner_lock)
-  * @sync_recv:            process received sync transactions since last frozen
-+ *                        bit 0: received sync transaction after being frozen
-+ *                        bit 1: new pending sync transaction during freezing
-  *                        (protected by @inner_lock)
-  * @async_recv:           process received async transactions since last frozen
-  *                        (protected by @inner_lock)
---- a/include/uapi/linux/android/binder.h
-+++ b/include/uapi/linux/android/binder.h
-@@ -225,7 +225,14 @@ struct binder_freeze_info {
- 
- struct binder_frozen_status_info {
- 	__u32            pid;
-+
-+	/* process received sync transactions since last frozen
-+	 * bit 0: received sync transaction after being frozen
-+	 * bit 1: new pending sync transaction during freezing
-+	 */
- 	__u32            sync_recv;
-+
-+	/* process received async transactions since last frozen */
- 	__u32            async_recv;
+ static const struct tty_operations gb_ops = {
+ 	.install =		gb_tty_install,
+ 	.open =			gb_tty_open,
+@@ -786,6 +797,7 @@ static const struct tty_port_operations
+ 	.dtr_rts =		gb_tty_dtr_rts,
+ 	.activate =		gb_tty_port_activate,
+ 	.shutdown =		gb_tty_port_shutdown,
++	.destruct =		gb_tty_port_destruct,
  };
  
+ static int gb_uart_probe(struct gbphy_device *gbphy_dev,
+@@ -798,17 +810,11 @@ static int gb_uart_probe(struct gbphy_de
+ 	int retval;
+ 	int minor;
+ 
+-	gb_tty = kzalloc(sizeof(*gb_tty), GFP_KERNEL);
+-	if (!gb_tty)
+-		return -ENOMEM;
+-
+ 	connection = gb_connection_create(gbphy_dev->bundle,
+ 					  le16_to_cpu(gbphy_dev->cport_desc->id),
+ 					  gb_uart_request_handler);
+-	if (IS_ERR(connection)) {
+-		retval = PTR_ERR(connection);
+-		goto exit_tty_free;
+-	}
++	if (IS_ERR(connection))
++		return PTR_ERR(connection);
+ 
+ 	max_payload = gb_operation_get_payload_size_max(connection);
+ 	if (max_payload < sizeof(struct gb_uart_send_data_request)) {
+@@ -816,13 +822,23 @@ static int gb_uart_probe(struct gbphy_de
+ 		goto exit_connection_destroy;
+ 	}
+ 
++	gb_tty = kzalloc(sizeof(*gb_tty), GFP_KERNEL);
++	if (!gb_tty) {
++		retval = -ENOMEM;
++		goto exit_connection_destroy;
++	}
++
++	tty_port_init(&gb_tty->port);
++	gb_tty->port.ops = &gb_port_ops;
++	gb_tty->minor = GB_NUM_MINORS;
++
+ 	gb_tty->buffer_payload_max = max_payload -
+ 			sizeof(struct gb_uart_send_data_request);
+ 
+ 	gb_tty->buffer = kzalloc(gb_tty->buffer_payload_max, GFP_KERNEL);
+ 	if (!gb_tty->buffer) {
+ 		retval = -ENOMEM;
+-		goto exit_connection_destroy;
++		goto exit_put_port;
+ 	}
+ 
+ 	INIT_WORK(&gb_tty->tx_work, gb_uart_tx_write_work);
+@@ -830,7 +846,7 @@ static int gb_uart_probe(struct gbphy_de
+ 	retval = kfifo_alloc(&gb_tty->write_fifo, GB_UART_WRITE_FIFO_SIZE,
+ 			     GFP_KERNEL);
+ 	if (retval)
+-		goto exit_buf_free;
++		goto exit_put_port;
+ 
+ 	gb_tty->credits = GB_UART_FIRMWARE_CREDITS;
+ 	init_completion(&gb_tty->credits_complete);
+@@ -844,7 +860,7 @@ static int gb_uart_probe(struct gbphy_de
+ 		} else {
+ 			retval = minor;
+ 		}
+-		goto exit_kfifo_free;
++		goto exit_put_port;
+ 	}
+ 
+ 	gb_tty->minor = minor;
+@@ -853,9 +869,6 @@ static int gb_uart_probe(struct gbphy_de
+ 	init_waitqueue_head(&gb_tty->wioctl);
+ 	mutex_init(&gb_tty->mutex);
+ 
+-	tty_port_init(&gb_tty->port);
+-	gb_tty->port.ops = &gb_port_ops;
+-
+ 	gb_tty->connection = connection;
+ 	gb_tty->gbphy_dev = gbphy_dev;
+ 	gb_connection_set_data(connection, gb_tty);
+@@ -863,7 +876,7 @@ static int gb_uart_probe(struct gbphy_de
+ 
+ 	retval = gb_connection_enable_tx(connection);
+ 	if (retval)
+-		goto exit_release_minor;
++		goto exit_put_port;
+ 
+ 	send_control(gb_tty, gb_tty->ctrlout);
+ 
+@@ -890,16 +903,10 @@ static int gb_uart_probe(struct gbphy_de
+ 
+ exit_connection_disable:
+ 	gb_connection_disable(connection);
+-exit_release_minor:
+-	release_minor(gb_tty);
+-exit_kfifo_free:
+-	kfifo_free(&gb_tty->write_fifo);
+-exit_buf_free:
+-	kfree(gb_tty->buffer);
++exit_put_port:
++	tty_port_put(&gb_tty->port);
+ exit_connection_destroy:
+ 	gb_connection_destroy(connection);
+-exit_tty_free:
+-	kfree(gb_tty);
+ 
+ 	return retval;
+ }
+@@ -930,15 +937,10 @@ static void gb_uart_remove(struct gbphy_
+ 	gb_connection_disable_rx(connection);
+ 	tty_unregister_device(gb_tty_driver, gb_tty->minor);
+ 
+-	/* FIXME - free transmit / receive buffers */
+-
+ 	gb_connection_disable(connection);
+-	tty_port_destroy(&gb_tty->port);
+ 	gb_connection_destroy(connection);
+-	release_minor(gb_tty);
+-	kfifo_free(&gb_tty->write_fifo);
+-	kfree(gb_tty->buffer);
+-	kfree(gb_tty);
++
++	tty_port_put(&gb_tty->port);
+ }
+ 
+ static int gb_tty_init(void)
 
 
