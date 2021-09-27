@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FBB0419ACE
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:10:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C973419C18
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236156AbhI0RMe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:12:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44696 "EHLO mail.kernel.org"
+        id S236618AbhI0RZW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:25:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236428AbhI0RKa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:10:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 871996124B;
-        Mon, 27 Sep 2021 17:07:56 +0000 (UTC)
+        id S237367AbhI0RXJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:23:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8956A613AD;
+        Mon, 27 Sep 2021 17:14:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762477;
-        bh=O4Vj9G28sfBGq6oCww1lLllkkX3WmK24PgaHwPsA7cs=;
+        s=korg; t=1632762879;
+        bh=yxTCZbKVWBfVNB0QLGILPj25o5bLdsGVy+pP44dlteY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXCZ7Hyif+74q31Bxg+y154DjWEJamBQI6KrDk/VWsFnf5gGPy9fsg/6hXUqGcVCI
-         mku9NJ9K3KV0LsNm9+2UN8kO36kUJD+H28K3hZZEfwg/X0zzHqC4Koff4dTqAjkJNg
-         CZVO2JywktRT8PLrOzpDelmpNJARj2+dPYsYaaow=
+        b=ThtxOn1ozlhz/h6pYMKAWosW9YH1f2/nkOC3VE4mFjYscuh3lnMC9zyKNOjKM9wlV
+         8u256nat6bHsDPbrYkvjeSlOA8Akd31nhRbzVP2bTLnyRfdonFzQh9+0GVlgCm6tRq
+         nhiIMquX+/B0pyGjlhHqvYSz97zgxMb5vHYNxVuw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Michael Chan <michael.chan@broadocm.com>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 038/103] bnxt_en: Fix TX timeout when TX ring size is set to the smallest
+Subject: [PATCH 5.14 084/162] nexthop: Fix memory leaks in nexthop notification chain listeners
 Date:   Mon, 27 Sep 2021 19:02:10 +0200
-Message-Id: <20210927170227.062240891@linuxfoundation.org>
+Message-Id: <20210927170236.345165650@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,103 +41,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 5bed8b0704c9ecccc8f4a2c377d7c8e21090a82e ]
+[ Upstream commit 3106a0847525befe3e22fc723909d1b21eb0d520 ]
 
-The smallest TX ring size we support must fit a TX SKB with MAX_SKB_FRAGS
-+ 1.  Because the first TX BD for a packet is always a long TX BD, we
-need an extra TX BD to fit this packet.  Define BNXT_MIN_TX_DESC_CNT with
-this value to make this more clear.  The current code uses a minimum
-that is off by 1.  Fix it using this constant.
+syzkaller discovered memory leaks [1] that can be reduced to the
+following commands:
 
-The tx_wake_thresh to determine when to wake up the TX queue is half the
-ring size but we must have at least BNXT_MIN_TX_DESC_CNT for the next
-packet which may have maximum fragments.  So the comparison of the
-available TX BDs with tx_wake_thresh should be >= instead of > in the
-current code.  Otherwise, at the smallest ring size, we will never wake
-up the TX queue and will cause TX timeout.
+ # ip nexthop add id 1 blackhole
+ # devlink dev reload pci/0000:06:00.0
 
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadocm.com>
+As part of the reload flow, mlxsw will unregister its netdevs and then
+unregister from the nexthop notification chain. Before unregistering
+from the notification chain, mlxsw will receive delete notifications for
+nexthop objects using netdevs registered by mlxsw or their uppers. mlxsw
+will not receive notifications for nexthops using netdevs that are not
+dismantled as part of the reload flow. For example, the blackhole
+nexthop above that internally uses the loopback netdev as its nexthop
+device.
+
+One way to fix this problem is to have listeners flush their nexthop
+tables after unregistering from the notification chain. This is
+error-prone as evident by this patch and also not symmetric with the
+registration path where a listener receives a dump of all the existing
+nexthops.
+
+Therefore, fix this problem by replaying delete notifications for the
+listener being unregistered. This is symmetric to the registration path
+and also consistent with the netdev notification chain.
+
+The above means that unregister_nexthop_notifier(), like
+register_nexthop_notifier(), will have to take RTNL in order to iterate
+over the existing nexthops and that any callers of the function cannot
+hold RTNL. This is true for mlxsw and netdevsim, but not for the VXLAN
+driver. To avoid a deadlock, change the latter to unregister its nexthop
+listener without holding RTNL, making it symmetric to the registration
+path.
+
+[1]
+unreferenced object 0xffff88806173d600 (size 512):
+  comm "syz-executor.0", pid 1290, jiffies 4295583142 (age 143.507s)
+  hex dump (first 32 bytes):
+    41 9d 1e 60 80 88 ff ff 08 d6 73 61 80 88 ff ff  A..`......sa....
+    08 d6 73 61 80 88 ff ff 01 00 00 00 00 00 00 00  ..sa............
+  backtrace:
+    [<ffffffff81a6b576>] kmemleak_alloc_recursive include/linux/kmemleak.h:43 [inline]
+    [<ffffffff81a6b576>] slab_post_alloc_hook+0x96/0x490 mm/slab.h:522
+    [<ffffffff81a716d3>] slab_alloc_node mm/slub.c:3206 [inline]
+    [<ffffffff81a716d3>] slab_alloc mm/slub.c:3214 [inline]
+    [<ffffffff81a716d3>] kmem_cache_alloc_trace+0x163/0x370 mm/slub.c:3231
+    [<ffffffff82e8681a>] kmalloc include/linux/slab.h:591 [inline]
+    [<ffffffff82e8681a>] kzalloc include/linux/slab.h:721 [inline]
+    [<ffffffff82e8681a>] mlxsw_sp_nexthop_obj_group_create drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:4918 [inline]
+    [<ffffffff82e8681a>] mlxsw_sp_nexthop_obj_new drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:5054 [inline]
+    [<ffffffff82e8681a>] mlxsw_sp_nexthop_obj_event+0x59a/0x2910 drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:5239
+    [<ffffffff813ef67d>] notifier_call_chain+0xbd/0x210 kernel/notifier.c:83
+    [<ffffffff813f0662>] blocking_notifier_call_chain kernel/notifier.c:318 [inline]
+    [<ffffffff813f0662>] blocking_notifier_call_chain+0x72/0xa0 kernel/notifier.c:306
+    [<ffffffff8384b9c6>] call_nexthop_notifiers+0x156/0x310 net/ipv4/nexthop.c:244
+    [<ffffffff83852bd8>] insert_nexthop net/ipv4/nexthop.c:2336 [inline]
+    [<ffffffff83852bd8>] nexthop_add net/ipv4/nexthop.c:2644 [inline]
+    [<ffffffff83852bd8>] rtm_new_nexthop+0x14e8/0x4d10 net/ipv4/nexthop.c:2913
+    [<ffffffff833e9a78>] rtnetlink_rcv_msg+0x448/0xbf0 net/core/rtnetlink.c:5572
+    [<ffffffff83608703>] netlink_rcv_skb+0x173/0x480 net/netlink/af_netlink.c:2504
+    [<ffffffff833de032>] rtnetlink_rcv+0x22/0x30 net/core/rtnetlink.c:5590
+    [<ffffffff836069de>] netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+    [<ffffffff836069de>] netlink_unicast+0x5ae/0x7f0 net/netlink/af_netlink.c:1340
+    [<ffffffff83607501>] netlink_sendmsg+0x8e1/0xe30 net/netlink/af_netlink.c:1929
+    [<ffffffff832fde84>] sock_sendmsg_nosec net/socket.c:704 [inline]
+    [<ffffffff832fde84>] sock_sendmsg net/socket.c:724 [inline]
+    [<ffffffff832fde84>] ____sys_sendmsg+0x874/0x9f0 net/socket.c:2409
+    [<ffffffff83304a44>] ___sys_sendmsg+0x104/0x170 net/socket.c:2463
+    [<ffffffff83304c01>] __sys_sendmsg+0x111/0x1f0 net/socket.c:2492
+    [<ffffffff83304d5d>] __do_sys_sendmsg net/socket.c:2501 [inline]
+    [<ffffffff83304d5d>] __se_sys_sendmsg net/socket.c:2499 [inline]
+    [<ffffffff83304d5d>] __x64_sys_sendmsg+0x7d/0xc0 net/socket.c:2499
+
+Fixes: 2a014b200bbd ("mlxsw: spectrum_router: Add support for nexthop objects")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c         | 8 ++++----
- drivers/net/ethernet/broadcom/bnxt/bnxt.h         | 5 +++++
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 2 +-
- 3 files changed, 10 insertions(+), 5 deletions(-)
+ drivers/net/vxlan.c |  2 +-
+ net/ipv4/nexthop.c  | 19 ++++++++++++++-----
+ 2 files changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 26179e437bbf..cb0c270418a4 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -381,7 +381,7 @@ static bool bnxt_txr_netif_try_stop_queue(struct bnxt *bp,
- 	 * netif_tx_queue_stopped().
- 	 */
- 	smp_mb();
--	if (bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh) {
-+	if (bnxt_tx_avail(bp, txr) >= bp->tx_wake_thresh) {
- 		netif_tx_wake_queue(txq);
- 		return false;
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index 5a8df5a195cb..141635a35c28 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -4756,12 +4756,12 @@ static void __net_exit vxlan_exit_batch_net(struct list_head *net_list)
+ 	LIST_HEAD(list);
+ 	unsigned int h;
+ 
+-	rtnl_lock();
+ 	list_for_each_entry(net, net_list, exit_list) {
+ 		struct vxlan_net *vn = net_generic(net, vxlan_net_id);
+ 
+ 		unregister_nexthop_notifier(net, &vn->nexthop_notifier_block);
  	}
-@@ -717,7 +717,7 @@ static void bnxt_tx_int(struct bnxt *bp, struct bnxt_napi *bnapi, int nr_pkts)
- 	smp_mb();
++	rtnl_lock();
+ 	list_for_each_entry(net, net_list, exit_list)
+ 		vxlan_destroy_tunnels(net, &list);
  
- 	if (unlikely(netif_tx_queue_stopped(txq)) &&
--	    bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh &&
-+	    bnxt_tx_avail(bp, txr) >= bp->tx_wake_thresh &&
- 	    READ_ONCE(txr->dev_state) != BNXT_DEV_STATE_CLOSING)
- 		netif_tx_wake_queue(txq);
- }
-@@ -2300,7 +2300,7 @@ static int __bnxt_poll_work(struct bnxt *bp, struct bnxt_cp_ring_info *cpr,
- 		if (TX_CMP_TYPE(txcmp) == CMP_TYPE_TX_L2_CMP) {
- 			tx_pkts++;
- 			/* return full budget so NAPI will complete. */
--			if (unlikely(tx_pkts > bp->tx_wake_thresh)) {
-+			if (unlikely(tx_pkts >= bp->tx_wake_thresh)) {
- 				rx_pkts = budget;
- 				raw_cons = NEXT_RAW_CMP(raw_cons);
- 				if (budget)
-@@ -3431,7 +3431,7 @@ static int bnxt_init_tx_rings(struct bnxt *bp)
- 	u16 i;
+diff --git a/net/ipv4/nexthop.c b/net/ipv4/nexthop.c
+index 0e75fd3e57b4..9e8100728d46 100644
+--- a/net/ipv4/nexthop.c
++++ b/net/ipv4/nexthop.c
+@@ -3567,6 +3567,7 @@ static struct notifier_block nh_netdev_notifier = {
+ };
  
- 	bp->tx_wake_thresh = max_t(int, bp->tx_ring_size / 2,
--				   MAX_SKB_FRAGS + 1);
-+				   BNXT_MIN_TX_DESC_CNT);
+ static int nexthops_dump(struct net *net, struct notifier_block *nb,
++			 enum nexthop_event_type event_type,
+ 			 struct netlink_ext_ack *extack)
+ {
+ 	struct rb_root *root = &net->nexthop.rb_root;
+@@ -3577,8 +3578,7 @@ static int nexthops_dump(struct net *net, struct notifier_block *nb,
+ 		struct nexthop *nh;
  
- 	for (i = 0; i < bp->tx_nr_rings; i++) {
- 		struct bnxt_tx_ring_info *txr = &bp->tx_ring[i];
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.h b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-index 95d10e7bbb04..92f9f7f5240b 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -611,6 +611,11 @@ struct nqe_cn {
- #define BNXT_MAX_RX_JUM_DESC_CNT	(RX_DESC_CNT * MAX_RX_AGG_PAGES - 1)
- #define BNXT_MAX_TX_DESC_CNT		(TX_DESC_CNT * MAX_TX_PAGES - 1)
+ 		nh = rb_entry(node, struct nexthop, rb_node);
+-		err = call_nexthop_notifier(nb, net, NEXTHOP_EVENT_REPLACE, nh,
+-					    extack);
++		err = call_nexthop_notifier(nb, net, event_type, nh, extack);
+ 		if (err)
+ 			break;
+ 	}
+@@ -3592,7 +3592,7 @@ int register_nexthop_notifier(struct net *net, struct notifier_block *nb,
+ 	int err;
  
-+/* Minimum TX BDs for a TX packet with MAX_SKB_FRAGS + 1.  We need one extra
-+ * BD because the first TX BD is always a long BD.
-+ */
-+#define BNXT_MIN_TX_DESC_CNT		(MAX_SKB_FRAGS + 2)
+ 	rtnl_lock();
+-	err = nexthops_dump(net, nb, extack);
++	err = nexthops_dump(net, nb, NEXTHOP_EVENT_REPLACE, extack);
+ 	if (err)
+ 		goto unlock;
+ 	err = blocking_notifier_chain_register(&net->nexthop.notifier_chain,
+@@ -3605,8 +3605,17 @@ EXPORT_SYMBOL(register_nexthop_notifier);
+ 
+ int unregister_nexthop_notifier(struct net *net, struct notifier_block *nb)
+ {
+-	return blocking_notifier_chain_unregister(&net->nexthop.notifier_chain,
+-						  nb);
++	int err;
 +
- #define RX_RING(x)	(((x) & ~(RX_DESC_CNT - 1)) >> (BNXT_PAGE_SHIFT - 4))
- #define RX_IDX(x)	((x) & (RX_DESC_CNT - 1))
++	rtnl_lock();
++	err = blocking_notifier_chain_unregister(&net->nexthop.notifier_chain,
++						 nb);
++	if (err)
++		goto unlock;
++	nexthops_dump(net, nb, NEXTHOP_EVENT_DEL, NULL);
++unlock:
++	rtnl_unlock();
++	return err;
+ }
+ EXPORT_SYMBOL(unregister_nexthop_notifier);
  
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-index 1471c9a36238..6f9196ff2ac4 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -780,7 +780,7 @@ static int bnxt_set_ringparam(struct net_device *dev,
- 
- 	if ((ering->rx_pending > BNXT_MAX_RX_DESC_CNT) ||
- 	    (ering->tx_pending > BNXT_MAX_TX_DESC_CNT) ||
--	    (ering->tx_pending <= MAX_SKB_FRAGS))
-+	    (ering->tx_pending < BNXT_MIN_TX_DESC_CNT))
- 		return -EINVAL;
- 
- 	if (netif_running(dev))
 -- 
 2.33.0
 
