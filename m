@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99A41419A37
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:06:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB95E419C4D
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:25:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235916AbhI0RHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:07:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45786 "EHLO mail.kernel.org"
+        id S236462AbhI0R1S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:27:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235699AbhI0RGw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:06:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EFAA610FC;
-        Mon, 27 Sep 2021 17:05:14 +0000 (UTC)
+        id S237171AbhI0RZU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:25:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FBA6613D0;
+        Mon, 27 Sep 2021 17:15:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762314;
-        bh=04M0whayBrAXA+E6N2PDycm6IWgfAwHek77OWAjpciY=;
+        s=korg; t=1632762957;
+        bh=fcZUzwczjOEb9zt0FSjMbUg0DNYaPwq9AHHaVxyGV8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gUmW/KF/Nh4ZFi8+eYPUtfFG50PTznYjCWTwMFQ9srMexvzVnzZJfMretf70anGV+
-         y4r9+q+7fqYDM0Jd2C4vVzZIBbZ9BCOVr9fTgQcJfbYUN+JNGjyeLTc4naKWjj2BgD
-         S+dEL86ERuMQHfBfdeWnl0itRYt1N1o7U/ZfECLM=
+        b=UO31P3kCXNQ14TPHZ+nwuKHIM7YooqkDbk4RIcLmSWPJ79gspu/AAE44LrUaDPY5Y
+         2/vtfPbFRkfy8SBJ0Zi1sOZ7W8l5iRTquFaCYW6vUZK+lOixdHAMVkmEUCkz22JApt
+         ksifswSFEVxXp8Y5p8tFv8xKCNg0K20WXIU26KKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+fadc0aaf497e6a493b9f@syzkaller.appspotmail.com,
-        Christoph Hellwig <hch@lst.de>, NeilBrown <neilb@suse.de>,
-        Song Liu <songliubraving@fb.com>,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 44/68] md: fix a lock order reversal in md_alloc
+Subject: [PATCH 5.14 114/162] io_uring: put provided buffer meta data under memcg accounting
 Date:   Mon, 27 Sep 2021 19:02:40 +0200
-Message-Id: <20210927170221.483713105@linuxfoundation.org>
+Message-Id: <20210927170237.393889051@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
-References: <20210927170219.901812470@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,59 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 7df835a32a8bedf7ce88efcfa7c9b245b52ff139 ]
+[ Upstream commit 9990da93d2bf9892c2c14c958bef050d4e461a1a ]
 
-Commit b0140891a8cea3 ("md: Fix race when creating a new md device.")
-not only moved assigning mddev->gendisk before calling add_disk, which
-fixes the races described in the commit log, but also added a
-mddev->open_mutex critical section over add_disk and creation of the
-md kobj.  Adding a kobject after add_disk is racy vs deleting the gendisk
-right after adding it, but md already prevents against that by holding
-a mddev->active reference.
+For each provided buffer, we allocate a struct io_buffer to hold the
+data associated with it. As a large number of buffers can be provided,
+account that data with memcg.
 
-On the other hand taking this lock added a lock order reversal with what
-is not disk->open_mutex (used to be bdev->bd_mutex when the commit was
-added) for partition devices, which need that lock for the internal open
-for the partition scan, and a recent commit also takes it for
-non-partitioned devices, leading to further lockdep splatter.
-
-Fixes: b0140891a8ce ("md: Fix race when creating a new md device.")
-Fixes: d62633873590 ("block: support delayed holder registration")
-Reported-by: syzbot+fadc0aaf497e6a493b9f@syzkaller.appspotmail.com
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Tested-by: syzbot+fadc0aaf497e6a493b9f@syzkaller.appspotmail.com
-Reviewed-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Fixes: ddf0322db79c ("io_uring: add IORING_OP_PROVIDE_BUFFERS")
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 5 -----
- 1 file changed, 5 deletions(-)
+ fs/io_uring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 761d43829b2b..c178b2f406de 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -5535,10 +5535,6 @@ static int md_alloc(dev_t dev, char *name)
- 	 */
- 	disk->flags |= GENHD_FL_EXT_DEVT;
- 	mddev->gendisk = disk;
--	/* As soon as we call add_disk(), another thread could get
--	 * through to md_open, so make sure it doesn't get too far
--	 */
--	mutex_lock(&mddev->open_mutex);
- 	add_disk(disk);
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 739e58ccc982..187eb1907bde 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4043,7 +4043,7 @@ static int io_add_buffers(struct io_provide_buf *pbuf, struct io_buffer **head)
+ 	int i, bid = pbuf->bid;
  
- 	error = kobject_add(&mddev->kobj, &disk_to_dev(disk)->kobj, "%s", "md");
-@@ -5553,7 +5549,6 @@ static int md_alloc(dev_t dev, char *name)
- 	if (mddev->kobj.sd &&
- 	    sysfs_create_group(&mddev->kobj, &md_bitmap_group))
- 		pr_debug("pointless warning\n");
--	mutex_unlock(&mddev->open_mutex);
-  abort:
- 	mutex_unlock(&disks_mutex);
- 	if (!error && mddev->kobj.sd) {
+ 	for (i = 0; i < pbuf->nbufs; i++) {
+-		buf = kmalloc(sizeof(*buf), GFP_KERNEL);
++		buf = kmalloc(sizeof(*buf), GFP_KERNEL_ACCOUNT);
+ 		if (!buf)
+ 			break;
+ 
 -- 
 2.33.0
 
