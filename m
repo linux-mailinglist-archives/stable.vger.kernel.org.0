@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67B2F419AC3
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:10:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 731A0419C12
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236425AbhI0RMF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:12:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44560 "EHLO mail.kernel.org"
+        id S237194AbhI0RZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:25:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236130AbhI0RKE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:10:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 53F4C61356;
-        Mon, 27 Sep 2021 17:07:41 +0000 (UTC)
+        id S237216AbhI0RWb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:22:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4DA861356;
+        Mon, 27 Sep 2021 17:14:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762461;
-        bh=Bmn8bSktzQgWEoEGlaZkLZhVLVDbLwW0y7quV/rv3ZM=;
+        s=korg; t=1632762860;
+        bh=wrxX2eap+yMjhNiAV493M40hjD0C94S0mhDnQ1OmbMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LkYMAGLfBIYS8bsgR1zA3BjRiyWASsWodrm4M7VPzIxSQK/RO/BSCqo0Pe/SLz7Ds
-         jpEt0R4RFWIkHL1Rf4VUwVzc76ByrMsDxv0ijsNzhZuFD7e3ooDbdTgxzfw+5jAdoQ
-         883ixK0ekqmyXWfEGfcgZcLrKygZcwKbbBrnMMWE=
+        b=b3ozN5fA+S4FH+lBWfuLsUGfQGJ28hI3dtPqtDtAHINOy/EytIVe0nrq3gq7AACBj
+         BI7b6tSxvoJjXiUxL7d4e979rt1vWEuO0EQSPEkUZmNVXJyCZ/39GiXNHpYGT6fTaK
+         EgTZipeh1BNNlnpsp3+GPQ6x7CVmAuwa6ZLZ4CMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        linux-staging@lists.linux.dev, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 5.10 032/103] comedi: Fix memory leak in compat_insnlist()
+        stable@vger.kernel.org, Stefan Raspl <raspl@linux.ibm.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.14 078/162] s390/qeth: fix NULL deref in qeth_clear_working_pool_list()
 Date:   Mon, 27 Sep 2021 19:02:04 +0200
-Message-Id: <20210927170226.851357259@linuxfoundation.org>
+Message-Id: <20210927170236.156926418@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-commit bb509a6ffed2c8b0950f637ab5779aa818ed1596 upstream.
+[ Upstream commit 248f064af222a1f97ee02c84a98013dfbccad386 ]
 
-`compat_insnlist()` handles the 32-bit version of the `COMEDI_INSNLIST`
-ioctl (whenwhen `CONFIG_COMPAT` is enabled).  It allocates memory to
-temporarily hold an array of `struct comedi_insn` converted from the
-32-bit version in user space.  This memory is only being freed if there
-is a fault while filling the array, otherwise it is leaked.
+When qeth_set_online() calls qeth_clear_working_pool_list() to roll
+back after an error exit from qeth_hardsetup_card(), we are at risk of
+accessing card->qdio.in_q before it was allocated by
+qeth_alloc_qdio_queues() via qeth_mpc_initialize().
 
-Add a call to `kfree()` to fix the leak.
+qeth_clear_working_pool_list() then dereferences NULL, and by writing to
+queue->bufs[i].pool_entry scribbles all over the CPU's lowcore.
+Resulting in a crash when those lowcore areas are used next (eg. on
+the next machine-check interrupt).
 
-Fixes: b8d47d881305 ("comedi: get rid of compat_alloc_user_space() mess in COMEDI_INSNLIST compat")
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-staging@lists.linux.dev
-Cc: <stable@vger.kernel.org> # 5.13+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20210916145023.157479-1-abbotti@mev.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Such a scenario would typically happen when the device is first set
+online and its queues aren't allocated yet. An early IO error or certain
+misconfigs (eg. mismatched transport mode, bad portno) then cause us to
+error out from qeth_hardsetup_card() with card->qdio.in_q still being
+NULL.
+
+Fix it by checking the pointer for NULL before accessing it.
+
+Note that we also have (rare) paths inside qeth_mpc_initialize() where
+a configuration change can cause us to free the existing queues,
+expecting that subsequent code will allocate them again. If we then
+error out before that re-allocation happens, the same bug occurs.
+
+Fixes: eff73e16ee11 ("s390/qeth: tolerate pre-filled RX buffer")
+Reported-by: Stefan Raspl <raspl@linux.ibm.com>
+Root-caused-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/comedi/comedi_fops.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/s390/net/qeth_core_main.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/staging/comedi/comedi_fops.c
-+++ b/drivers/staging/comedi/comedi_fops.c
-@@ -3090,6 +3090,7 @@ static int compat_insnlist(struct file *
- 	mutex_lock(&dev->mutex);
- 	rc = do_insnlist_ioctl(dev, insns, insnlist32.n_insns, file);
- 	mutex_unlock(&dev->mutex);
-+	kfree(insns);
- 	return rc;
- }
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 62f88ccbd03f..51f7f4e680c3 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -207,6 +207,9 @@ static void qeth_clear_working_pool_list(struct qeth_card *card)
+ 				 &card->qdio.in_buf_pool.entry_list, list)
+ 		list_del(&pool_entry->list);
  
++	if (!queue)
++		return;
++
+ 	for (i = 0; i < ARRAY_SIZE(queue->bufs); i++)
+ 		queue->bufs[i].pool_entry = NULL;
+ }
+-- 
+2.33.0
+
 
 
