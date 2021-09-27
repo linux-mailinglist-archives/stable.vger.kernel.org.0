@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DD84419B20
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03510419CC3
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:30:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236806AbhI0RPb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:15:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53906 "EHLO mail.kernel.org"
+        id S238317AbhI0RcN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:32:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237281AbhI0RO3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:14:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7D786135A;
-        Mon, 27 Sep 2021 17:10:06 +0000 (UTC)
+        id S237110AbhI0RaJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:30:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31948611C0;
+        Mon, 27 Sep 2021 17:18:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762607;
+        s=korg; t=1632763091;
         bh=cWf6s3w5KufPS3NvTgxGdIoyfoTRIo+gHNVhlZgTZa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FptXh/JLZBP40TxzEfHUvhWOrlLAy46kHLp6C+vzoVco/dKY77N/YS30BYnE7u34U
-         gPPrME3jUzlYR3/ALCkx3JvtZ+pvuaVCiY5QrLiofnOhFK5g9bKfs2ZBZGvfqyz88x
-         PfBcGxdoXY5dWQ/NA7s6J5g5wGzh+fyUiRl/oLo4=
+        b=OasreuGj+Hg43jDtjqem3u0qJKPFhOe+xl+M/ZvXb0nry+Q+aX41YVIQosW8ViEQj
+         LKwcSwq4KBSorWJZZAig8gMSZA77lHZTPpAbFrrqbm0aspDlmXOt8HkAZV6ZtxGzst
+         //kiOB+x8inKeki1wlBt95TgO5dLenrLKE/u3A+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Christoph Hellwig <hch@lst.de>,
         Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 086/103] block: check if a profile is actually registered in blk_integrity_unregister
+Subject: [PATCH 5.14 132/162] block: check if a profile is actually registered in blk_integrity_unregister
 Date:   Mon, 27 Sep 2021 19:02:58 +0200
-Message-Id: <20210927170228.744860402@linuxfoundation.org>
+Message-Id: <20210927170238.000521907@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
