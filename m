@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA294419A05
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:04:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70F53419B11
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235947AbhI0RGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:06:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44696 "EHLO mail.kernel.org"
+        id S236629AbhI0RPU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:15:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235826AbhI0RFu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:05:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C15B610FC;
-        Mon, 27 Sep 2021 17:04:12 +0000 (UTC)
+        id S236250AbhI0RMi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:12:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 253436128A;
+        Mon, 27 Sep 2021 17:08:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762252;
-        bh=Ba75qXYPZPQCLgO4W/Xt5wNbmeQ98XfUQ4dURcrPfDY=;
+        s=korg; t=1632762530;
+        bh=MbkHdspzcPTIe80Wb9E9CW+bEsiWvthVlZ37+Yg7yt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hYpiTc7PhtyFy8OusB3YSINhlTnFpNxN5wZwBKtpq8iMe6fFbdpe9p7yPhATPq2F3
-         7sQmdJMX6hT3ABIuD4bsjRho8rPnzLMat8cYy+5IkkaTJaPYK8eYHXsDrjVY6qNhoR
-         Se+Itv11rnDOBvc64XLIjB6ttDghgoOQ2NzvaNaM=
+        b=aryy3jzlaM9WzX485oAFzX2EiFugHwd25juELA1795FpMPSfSHjh/RrSWAGvF95wp
+         jyjOCTK7vPQYY8gzEt3sF9wsa4b/0k26C6zFv6L80k3ZUxz6uPuG5qa5UsEZQ6ykn8
+         4wPWK4AG2g/xBvmTMOSuq/JAFHmMGu7h+eDV8LwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.4 02/68] usb: gadget: r8a66597: fix a loop in set_feature()
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Chris Chiu <chris.chiu@canonical.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>
+Subject: [PATCH 5.10 026/103] xhci: Set HCD flag to defer primary roothub registration
 Date:   Mon, 27 Sep 2021 19:01:58 +0200
-Message-Id: <20210927170219.984041931@linuxfoundation.org>
+Message-Id: <20210927170226.635557357@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
-References: <20210927170219.901812470@linuxfoundation.org>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+References: <20210927170225.702078779@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-commit 17956b53ebff6a490baf580a836cbd3eae94892b upstream.
+commit b7a0a792f864583207c593b50fd1b752ed89f4c1 upstream.
 
-This loop is supposed to loop until if reads something other than
-CS_IDST or until it times out after 30,000 attempts.  But because of
-the || vs && bug, it will never time out and instead it will loop a
-minimum of 30,000 times.
+Set "HCD_FLAG_DEFER_RH_REGISTER" to hcd->flags in xhci_run() to defer
+registering primary roothub in usb_add_hcd(). This will make sure both
+primary roothub and secondary roothub will be registered along with the
+second HCD. This is required for cold plugged USB devices to be detected
+in certain PCIe USB cards (like Inateck USB card connected to AM64 EVM
+or J7200 EVM).
 
-This bug is quite old but the code is only used in USB_DEVICE_TEST_MODE
-so it probably doesn't affect regular usage.
-
-Fixes: 96fe53ef5498 ("usb: gadget: r8a66597-udc: add support for TEST_MODE")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20210906094221.GA10957@kili
+CC: stable@vger.kernel.org # 5.4+
+Suggested-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Tested-by: Chris Chiu <chris.chiu@canonical.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Link: https://lore.kernel.org/r/20210909064200.16216-3-kishon@ti.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/r8a66597-udc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/gadget/udc/r8a66597-udc.c
-+++ b/drivers/usb/gadget/udc/r8a66597-udc.c
-@@ -1250,7 +1250,7 @@ static void set_feature(struct r8a66597
- 			do {
- 				tmp = r8a66597_read(r8a66597, INTSTS0) & CTSQ;
- 				udelay(1);
--			} while (tmp != CS_IDST || timeout-- > 0);
-+			} while (tmp != CS_IDST && timeout-- > 0);
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -693,6 +693,7 @@ int xhci_run(struct usb_hcd *hcd)
+ 		if (ret)
+ 			xhci_free_command(xhci, command);
+ 	}
++	set_bit(HCD_FLAG_DEFER_RH_REGISTER, &hcd->flags);
+ 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
+ 			"Finished xhci_run for USB2 roothub");
  
- 			if (tmp == CS_IDST)
- 				r8a66597_bset(r8a66597,
 
 
