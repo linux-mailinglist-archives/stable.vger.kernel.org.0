@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A210419CB2
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:29:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C774419CB6
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:30:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237738AbhI0RbT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:31:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46556 "EHLO mail.kernel.org"
+        id S237591AbhI0RbW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:31:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238626AbhI0R3T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:29:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27E5B61502;
-        Mon, 27 Sep 2021 17:17:47 +0000 (UTC)
+        id S235746AbhI0R3W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:29:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9D1061205;
+        Mon, 27 Sep 2021 17:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632763068;
-        bh=X8iF+tJ2hl1S2xvDLGUFSfPhNmzlcxy+rfmzsjAJNqM=;
+        s=korg; t=1632763071;
+        bh=tdN4BjEqwC41rKsMl6MwbASAUgaulohMUSFjj23maag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JXLMV/ygbn7iIs2u2fQGyXKy3jJL+QFFQeZa18Gixk9pYn7il39tIfLyD1qDJkB/R
-         IXpWqSRnAxoFFP9x6vMXNdCuFDUdXydC/o/OFn7VIwLPv0LrJmAzvHBUc3JDKjkw9g
-         vvRD/HEtTvt2UJtB/dtqFhBVI09da06JMMuBahDY=
+        b=LWKz9pLCh02Z/Syqauz/W6myuS1klR0q9Oedc0/8o7HlWTsuPAc+meXZui/Ur5aru
+         iuDf4q59Vfr+FnF4vIIX7JURtJ41McUJXaRUv6ZzEnNQGhPdmNx3Hwu7QA41f3ffOV
+         jAXae3NRSAgqr2tcVNxhwkx4OR3QA441JhDrlAyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Steffen Trumtrar <s.trumtrar@pengutronix.de>,
-        Marc Zyngier <maz@kernel.org>,
-        Valentin Schneider <valentin.schneider@arm.com>
-Subject: [PATCH 5.14 154/162] irqchip/armada-370-xp: Fix ack/eoi breakage
-Date:   Mon, 27 Sep 2021 19:03:20 +0200
-Message-Id: <20210927170238.760864204@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.14 155/162] arm64: add MTE supported check to thread switching and syscall entry/exit
+Date:   Mon, 27 Sep 2021 19:03:21 +0200
+Message-Id: <20210927170238.792817997@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
 References: <20210927170233.453060397@linuxfoundation.org>
@@ -41,49 +39,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Peter Collingbourne <pcc@google.com>
 
-commit 2a7313dc81e88adc7bb09d0f056985fa8afc2b89 upstream.
+commit 8c8a3b5bd960cd88f7655b5251dc28741e11f139 upstream.
 
-When converting the driver to using handle_percpu_devid_irq,
-we forgot to repaint the irq_eoi() callback into irq_ack(),
-as handle_percpu_devid_fasteoi_ipi() was actually using EOI
-really early in the handling. Yes this was a stupid idea.
+This lets us avoid doing unnecessary work on hardware that does not
+support MTE, and will allow us to freely use MTE instructions in the
+code called by mte_thread_switch().
 
-Fix this by using the HW ack method as irq_ack().
+Since this would mean that we do a redundant check in
+mte_check_tfsr_el1(), remove it and add two checks now required in its
+callers. This also avoids an unnecessary DSB+ISB sequence on the syscall
+exit path for hardware not supporting MTE.
 
-Fixes: e52e73b7e9f7 ("irqchip/armada-370-xp: Make IPIs use handle_percpu_devid_irq()")
-Reported-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-Tested-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: Valentin Schneider <valentin.schneider@arm.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87tuiexq5f.fsf@pengutronix.de
+Fixes: 65812c6921cc ("arm64: mte: Enable async tag check fault")
+Cc: <stable@vger.kernel.org> # 5.13.x
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Link: https://linux-review.googlesource.com/id/I02fd000d1ef2c86c7d2952a7f099b254ec227a5d
+Link: https://lore.kernel.org/r/20210915190336.398390-1-pcc@google.com
+[catalin.marinas@arm.com: adjust the commit log slightly]
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/irqchip/irq-armada-370-xp.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/mte.h |    6 ++++++
+ arch/arm64/kernel/mte.c      |   10 ++++------
+ 2 files changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/irqchip/irq-armada-370-xp.c
-+++ b/drivers/irqchip/irq-armada-370-xp.c
-@@ -359,16 +359,16 @@ static void armada_370_xp_ipi_send_mask(
- 		ARMADA_370_XP_SW_TRIG_INT_OFFS);
- }
+--- a/arch/arm64/include/asm/mte.h
++++ b/arch/arm64/include/asm/mte.h
+@@ -105,11 +105,17 @@ void mte_check_tfsr_el1(void);
  
--static void armada_370_xp_ipi_eoi(struct irq_data *d)
-+static void armada_370_xp_ipi_ack(struct irq_data *d)
+ static inline void mte_check_tfsr_entry(void)
  {
- 	writel(~BIT(d->hwirq), per_cpu_int_base + ARMADA_370_XP_IN_DRBEL_CAUSE_OFFS);
++	if (!system_supports_mte())
++		return;
++
+ 	mte_check_tfsr_el1();
  }
  
- static struct irq_chip ipi_irqchip = {
- 	.name		= "IPI",
-+	.irq_ack	= armada_370_xp_ipi_ack,
- 	.irq_mask	= armada_370_xp_ipi_mask,
- 	.irq_unmask	= armada_370_xp_ipi_unmask,
--	.irq_eoi	= armada_370_xp_ipi_eoi,
- 	.ipi_send_mask	= armada_370_xp_ipi_send_mask,
- };
+ static inline void mte_check_tfsr_exit(void)
+ {
++	if (!system_supports_mte())
++		return;
++
+ 	/*
+ 	 * The asynchronous faults are sync'ed automatically with
+ 	 * TFSR_EL1 on kernel entry but for exit an explicit dsb()
+--- a/arch/arm64/kernel/mte.c
++++ b/arch/arm64/kernel/mte.c
+@@ -173,12 +173,7 @@ bool mte_report_once(void)
+ #ifdef CONFIG_KASAN_HW_TAGS
+ void mte_check_tfsr_el1(void)
+ {
+-	u64 tfsr_el1;
+-
+-	if (!system_supports_mte())
+-		return;
+-
+-	tfsr_el1 = read_sysreg_s(SYS_TFSR_EL1);
++	u64 tfsr_el1 = read_sysreg_s(SYS_TFSR_EL1);
  
+ 	if (unlikely(tfsr_el1 & SYS_TFSR_EL1_TF1)) {
+ 		/*
+@@ -221,6 +216,9 @@ void mte_thread_init_user(void)
+ 
+ void mte_thread_switch(struct task_struct *next)
+ {
++	if (!system_supports_mte())
++		return;
++
+ 	/*
+ 	 * Check if an async tag exception occurred at EL1.
+ 	 *
 
 
