@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B03E6419A00
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:04:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89840419C03
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235921AbhI0RGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:06:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44532 "EHLO mail.kernel.org"
+        id S237239AbhI0RYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:24:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235852AbhI0RFn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:05:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F9D5610E8;
-        Mon, 27 Sep 2021 17:04:04 +0000 (UTC)
+        id S237516AbhI0RXU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:23:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A87C613B1;
+        Mon, 27 Sep 2021 17:14:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762244;
-        bh=f91TnhFd8ef1ubRJrXJUlfDGZkPjpb5piUcuIZ7W6ho=;
+        s=korg; t=1632762889;
+        bh=c1UXrsTfvXPaERQzoG80wPUfRE1qIWimaNwTOei/cbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mga4Xu/3LEy4pS7kZvi741lEVyHxqdmj5Ri5j+kzEVpRZuHLJnp03LjbWUVGom5oZ
-         YnxFw0/0iNTFDZTXNiGytPJJMVmwLO2SBTYuOveU30s2vdqEG/pMyLmlzyqW3DFklE
-         ZvhWUwvKLkBVAVnd1siViX1GO7eII1G+0OUV2jeA=
+        b=VsYZANLGPfIgAlw6SjVUpoN/TWspK7g0gwujLBvY2PI+v59Kba40D9tAZ8DL/DrxC
+         mi6mhyo8Pz9gAfJn9obnDORg+oLon1A2BHd++CVHQyth7RGCYUexKXEOQ6OpZQkv66
+         3fLn5pf7GiorI/Ni9+Icome9nBf/xcKFihNz/QQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 17/68] USB: serial: option: remove duplicate USB device ID
-Date:   Mon, 27 Sep 2021 19:02:13 +0200
-Message-Id: <20210927170220.545339858@linuxfoundation.org>
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 088/162] net/mlx4_en: Dont allow aRFS for encapsulated packets
+Date:   Mon, 27 Sep 2021 19:02:14 +0200
+Message-Id: <20210927170236.477467571@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
-References: <20210927170219.901812470@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,30 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Aya Levin <ayal@nvidia.com>
 
-commit 1ca200a8c6f079950a04ea3c3380fe8cf78e95a2 upstream.
+[ Upstream commit fdbccea419dc782079ce5881d2705cc9e3881480 ]
 
-The device ZTE 0x0094 is already on the list.
+Driver doesn't support aRFS for encapsulated packets, return early error
+in such a case.
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Fixes: b9e44fe5ecda ("USB: option: cleanup zte 3g-dongle's pid in option.c")
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1eb8c695bda9 ("net/mlx4_en: Add accelerated RFS support")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx4/en_netdev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1658,7 +1658,6 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0060, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0070, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0073, 0xff, 0xff, 0xff) },
--	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0094, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0130, 0xff, 0xff, 0xff),
- 	  .driver_info = RSVD(1) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0133, 0xff, 0xff, 0xff),
+diff --git a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+index c3171b5f6431..a6878e5f922a 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+@@ -372,6 +372,9 @@ mlx4_en_filter_rfs(struct net_device *net_dev, const struct sk_buff *skb,
+ 	int nhoff = skb_network_offset(skb);
+ 	int ret = 0;
+ 
++	if (skb->encapsulation)
++		return -EPROTONOSUPPORT;
++
+ 	if (skb->protocol != htons(ETH_P_IP))
+ 		return -EPROTONOSUPPORT;
+ 
+-- 
+2.33.0
+
 
 
