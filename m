@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E10B419A3E
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:06:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77CE0419C56
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:26:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235887AbhI0RHw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:07:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44696 "EHLO mail.kernel.org"
+        id S237025AbhI0R1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:27:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236125AbhI0RHA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:07:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A18BE6113D;
-        Mon, 27 Sep 2021 17:05:21 +0000 (UTC)
+        id S237847AbhI0RZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:25:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22B866137F;
+        Mon, 27 Sep 2021 17:16:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762322;
-        bh=91tkeF1TBEBXT5hC66b9JpV7J9SXbiRfIF/ZZlWtu3c=;
+        s=korg; t=1632762968;
+        bh=atkeb7J4zvUIsuuYsrjCKZO88BK8YXljdIke2vnlUQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KhFmoxKFJJFKTPnaA6nJy2b5+UifaVQvpV7DBirxlt7uQBVLbxDlJ8nchqGSNzjzl
-         J3ztL59sItBJSOhupJIWNVeXjaPDchGg4OvryD9FJ0TC0eeSPY+01mft4Bve7gcXQe
-         DipHEJlNlBtEDPjHgfTXrcLf+SWz9lgxhoQe3KeM=
+        b=nFv8gGRNiKh15nFVHXxDpM2MmtrGZnWStoq4bYyKMqm48EIocKTLlj73yd4b0cp4c
+         NM55GuHS+hyGXaO80eY+400mG7pxf+rfzgAgNKvKJ1Y+HiygNHPSHBIi4nqKBIwQr5
+         NQLj8+AuME6x6HvWgTcGSLJOwam/XyuWPkacQ2vg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jesper Nilsson <jesper.nilsson@axis.com>,
+        stable@vger.kernel.org,
+        Nicolas Ferre <Nicolas.Ferre@microchip.com>,
+        Tong Zhang <ztong0001@gmail.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 47/68] net: stmmac: allow CSR clock of 300MHz
-Date:   Mon, 27 Sep 2021 19:02:43 +0200
-Message-Id: <20210927170221.590131744@linuxfoundation.org>
+Subject: [PATCH 5.14 118/162] net: macb: fix use after free on rmmod
+Date:   Mon, 27 Sep 2021 19:02:44 +0200
+Message-Id: <20210927170237.530763174@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
-References: <20210927170219.901812470@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesper Nilsson <jesper.nilsson@axis.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 08dad2f4d541fcfe5e7bfda72cc6314bbfd2802f ]
+[ Upstream commit d82d5303c4c539db86588ffb5dc5b26c3f1513e8 ]
 
-The Synopsys Ethernet IP uses the CSR clock as a base clock for MDC.
-The divisor used is set in the MAC_MDIO_Address register field CR
-(Clock Rate)
+plat_dev->dev->platform_data is released by platform_device_unregister(),
+use of pclk and hclk is a use-after-free. Since device unregister won't
+need a clk device we adjust the function call sequence to fix this issue.
 
-The divisor is there to change the CSR clock into a clock that falls
-below the IEEE 802.3 specified max frequency of 2.5MHz.
+[   31.261225] BUG: KASAN: use-after-free in macb_remove+0x77/0xc6 [macb_pci]
+[   31.275563] Freed by task 306:
+[   30.276782]  platform_device_release+0x25/0x80
 
-If the CSR clock is 300MHz, the code falls back to using the reset
-value in the MAC_MDIO_Address register, as described in the comment
-above this code.
-
-However, 300MHz is actually an allowed value and the proper divider
-can be estimated quite easily (it's just 1Hz difference!)
-
-A CSR frequency of 300MHz with the maximum clock rate value of 0x5
-(STMMAC_CSR_250_300M, a divisor of 124) gives somewhere around
-~2.42MHz which is below the IEEE 802.3 specified maximum.
-
-For the ARTPEC-8 SoC, the CSR clock is this problematic 300MHz,
-and unfortunately, the reset-value of the MAC_MDIO_Address CR field
-is 0x0.
-
-This leads to a clock rate of zero and a divisor of 42, and gives an
-MDC frequency of ~7.14MHz.
-
-Allow CSR clock of 300MHz by making the comparison inclusive.
-
-Signed-off-by: Jesper Nilsson <jesper.nilsson@axis.com>
+Suggested-by: Nicolas Ferre <Nicolas.Ferre@microchip.com>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 2 +-
+ drivers/net/ethernet/cadence/macb_pci.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 4e7cfd3bfcd2..e09851c7da9b 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -225,7 +225,7 @@ static void stmmac_clk_csr_set(struct stmmac_priv *priv)
- 			priv->clk_csr = STMMAC_CSR_100_150M;
- 		else if ((clk_rate >= CSR_F_150M) && (clk_rate < CSR_F_250M))
- 			priv->clk_csr = STMMAC_CSR_150_250M;
--		else if ((clk_rate >= CSR_F_250M) && (clk_rate < CSR_F_300M))
-+		else if ((clk_rate >= CSR_F_250M) && (clk_rate <= CSR_F_300M))
- 			priv->clk_csr = STMMAC_CSR_250_300M;
- 	}
+diff --git a/drivers/net/ethernet/cadence/macb_pci.c b/drivers/net/ethernet/cadence/macb_pci.c
+index 8b7b59908a1a..f66d22de5168 100644
+--- a/drivers/net/ethernet/cadence/macb_pci.c
++++ b/drivers/net/ethernet/cadence/macb_pci.c
+@@ -111,9 +111,9 @@ static void macb_remove(struct pci_dev *pdev)
+ 	struct platform_device *plat_dev = pci_get_drvdata(pdev);
+ 	struct macb_platform_data *plat_data = dev_get_platdata(&plat_dev->dev);
  
+-	platform_device_unregister(plat_dev);
+ 	clk_unregister(plat_data->pclk);
+ 	clk_unregister(plat_data->hclk);
++	platform_device_unregister(plat_dev);
+ }
+ 
+ static const struct pci_device_id dev_id_table[] = {
 -- 
 2.33.0
 
