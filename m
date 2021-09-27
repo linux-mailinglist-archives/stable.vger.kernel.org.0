@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 731A0419C12
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C563C419A27
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:05:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237194AbhI0RZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:25:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38056 "EHLO mail.kernel.org"
+        id S236046AbhI0RHH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:07:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237216AbhI0RWb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:22:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4DA861356;
-        Mon, 27 Sep 2021 17:14:19 +0000 (UTC)
+        id S236051AbhI0RGf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:06:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 707A0611CE;
+        Mon, 27 Sep 2021 17:04:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762860;
-        bh=wrxX2eap+yMjhNiAV493M40hjD0C94S0mhDnQ1OmbMo=;
+        s=korg; t=1632762295;
+        bh=FuBLvPZOaNDqtLiQ6Jkd1Gd1oxqwHc0IZGNzQGqzgOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b3ozN5fA+S4FH+lBWfuLsUGfQGJ28hI3dtPqtDtAHINOy/EytIVe0nrq3gq7AACBj
-         BI7b6tSxvoJjXiUxL7d4e979rt1vWEuO0EQSPEkUZmNVXJyCZ/39GiXNHpYGT6fTaK
-         EgTZipeh1BNNlnpsp3+GPQ6x7CVmAuwa6ZLZ4CMk=
+        b=xGhwoXyDJIsdl/iDPO/vBAMl/m9aJAlMYYvW60kDUNkD86ySO+wW4szMgJWR6s7ab
+         UpvIdoQLSXzKIS1DilyZqsqI5lqUuwquVmD+d1RAJExroozOxjAz74m6POv5fk/pWS
+         huFrzcKYTOjnMElWcrPemkh4pabS0iXpNpDcakSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Raspl <raspl@linux.ibm.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.14 078/162] s390/qeth: fix NULL deref in qeth_clear_working_pool_list()
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Ondrej Zary <linux@zary.sk>
+Subject: [PATCH 5.4 08/68] usb-storage: Add quirk for ScanLogic SL11R-IDE older than 2.6c
 Date:   Mon, 27 Sep 2021 19:02:04 +0200
-Message-Id: <20210927170236.156926418@linuxfoundation.org>
+Message-Id: <20210927170220.201199071@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +39,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Ondrej Zary <linux@zary.sk>
 
-[ Upstream commit 248f064af222a1f97ee02c84a98013dfbccad386 ]
+commit b55d37ef6b7db3eda9b4495a8d9b0a944ee8c67d upstream.
 
-When qeth_set_online() calls qeth_clear_working_pool_list() to roll
-back after an error exit from qeth_hardsetup_card(), we are at risk of
-accessing card->qdio.in_q before it was allocated by
-qeth_alloc_qdio_queues() via qeth_mpc_initialize().
+ScanLogic SL11R-IDE with firmware older than 2.6c (the latest one) has
+broken tag handling, preventing the device from working at all:
+usb 1-1: new full-speed USB device number 2 using uhci_hcd
+usb 1-1: New USB device found, idVendor=04ce, idProduct=0002, bcdDevice= 2.60
+usb 1-1: New USB device strings: Mfr=1, Product=1, SerialNumber=0
+usb 1-1: Product: USB Device
+usb 1-1: Manufacturer: USB Device
+usb-storage 1-1:1.0: USB Mass Storage device detected
+scsi host2: usb-storage 1-1:1.0
+usbcore: registered new interface driver usb-storage
+usb 1-1: reset full-speed USB device number 2 using uhci_hcd
+usb 1-1: reset full-speed USB device number 2 using uhci_hcd
+usb 1-1: reset full-speed USB device number 2 using uhci_hcd
+usb 1-1: reset full-speed USB device number 2 using uhci_hcd
 
-qeth_clear_working_pool_list() then dereferences NULL, and by writing to
-queue->bufs[i].pool_entry scribbles all over the CPU's lowcore.
-Resulting in a crash when those lowcore areas are used next (eg. on
-the next machine-check interrupt).
+Add US_FL_BULK_IGNORE_TAG to fix it. Also update my e-mail address.
 
-Such a scenario would typically happen when the device is first set
-online and its queues aren't allocated yet. An early IO error or certain
-misconfigs (eg. mismatched transport mode, bad portno) then cause us to
-error out from qeth_hardsetup_card() with card->qdio.in_q still being
-NULL.
+2.6c is the only firmware that claims Linux compatibility.
+The firmware can be upgraded using ezotgdbg utility:
+https://github.com/asciilifeform/ezotgdbg
 
-Fix it by checking the pointer for NULL before accessing it.
-
-Note that we also have (rare) paths inside qeth_mpc_initialize() where
-a configuration change can cause us to free the existing queues,
-expecting that subsequent code will allocate them again. If we then
-error out before that re-allocation happens, the same bug occurs.
-
-Fixes: eff73e16ee11 ("s390/qeth: tolerate pre-filled RX buffer")
-Reported-by: Stefan Raspl <raspl@linux.ibm.com>
-Root-caused-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Ondrej Zary <linux@zary.sk>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210913210106.12717-1-linux@zary.sk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/net/qeth_core_main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/storage/unusual_devs.h |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 62f88ccbd03f..51f7f4e680c3 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -207,6 +207,9 @@ static void qeth_clear_working_pool_list(struct qeth_card *card)
- 				 &card->qdio.in_buf_pool.entry_list, list)
- 		list_del(&pool_entry->list);
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -416,9 +416,16 @@ UNUSUAL_DEV(  0x04cb, 0x0100, 0x0000, 0x
+ 		USB_SC_UFI, USB_PR_DEVICE, NULL, US_FL_FIX_INQUIRY | US_FL_SINGLE_LUN),
  
-+	if (!queue)
-+		return;
-+
- 	for (i = 0; i < ARRAY_SIZE(queue->bufs); i++)
- 		queue->bufs[i].pool_entry = NULL;
- }
--- 
-2.33.0
-
+ /*
+- * Reported by Ondrej Zary <linux@rainbow-software.org>
++ * Reported by Ondrej Zary <linux@zary.sk>
+  * The device reports one sector more and breaks when that sector is accessed
++ * Firmwares older than 2.6c (the latest one and the only that claims Linux
++ * support) have also broken tag handling
+  */
++UNUSUAL_DEV(  0x04ce, 0x0002, 0x0000, 0x026b,
++		"ScanLogic",
++		"SL11R-IDE",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_FIX_CAPACITY | US_FL_BULK_IGNORE_TAG),
+ UNUSUAL_DEV(  0x04ce, 0x0002, 0x026c, 0x026c,
+ 		"ScanLogic",
+ 		"SL11R-IDE",
 
 
