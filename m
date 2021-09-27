@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 541B6419C7F
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6767A419A4F
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:06:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236617AbhI0R3n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:29:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44582 "EHLO mail.kernel.org"
+        id S235541AbhI0RIS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:08:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237039AbhI0R0r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:26:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BA0F610FC;
-        Mon, 27 Sep 2021 17:16:43 +0000 (UTC)
+        id S235759AbhI0RHT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:07:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E99A611BD;
+        Mon, 27 Sep 2021 17:05:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632763003;
-        bh=PW16eeWz8Y5WLarwGuS7EiITTB7r/2mGChyddayo/E4=;
+        s=korg; t=1632762341;
+        bh=k7IId21MeQHPfV/UP4ELCYF4FUGnjeiJGDFnFubPMDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VafAmwMA0COwzlK8vz2XNWDz9CTBGaGR5+iOMWwOVD7hK9o3Yv7x21INi6NpDwh81
-         +Rev5eStgMMcR0IY4BXwORrWFLBg2hkQEp/5EuoE1SbOIN1pkrU/EARzoKxAaF6DSb
-         Ykv783EwpcazLRSrzS/hYAmTV3UlQ/fV1/RJ/Fpg=
+        b=Fk62ltUlOVEdlaeWB4T4WUDkOzDPW/Rr+//YzeqgVdFBXR66o56EVqHIXclByNWSW
+         AWf4bd/GgBFtey2NISIzDTDAivrBRK5px1JHerAo17q9zdQUFhOb60r7YlYp6qUHMP
+         XKOIigK29Ou0WsO3XuqF7wsy6PAfTruQsL3WjdXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Rafael J. Wysocki" <rafael@kernel.org>,
-        Doug Smythies <dsmythies@telus.net>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Li Jinlin <lijinlin3@huawei.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 124/162] cpufreq: intel_pstate: Override parameters if HWP forced by BIOS
+Subject: [PATCH 5.4 54/68] blk-cgroup: fix UAF by grabbing blkcg lock before destroying blkg pd
 Date:   Mon, 27 Sep 2021 19:02:50 +0200
-Message-Id: <20210927170237.731357262@linuxfoundation.org>
+Message-Id: <20210927170221.821262648@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,80 +40,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Smythies <doug.smythies@gmail.com>
+From: Li Jinlin <lijinlin3@huawei.com>
 
-[ Upstream commit d9a7e9df731670acdc69e81748941ad338f47fab ]
+[ Upstream commit 858560b27645e7e97aca37ee8f232cccd658fbd2 ]
 
-If HWP has been already been enabled by BIOS, it may be
-necessary to override some kernel command line parameters.
-Once it has been enabled it requires a reset to be disabled.
+KASAN reports a use-after-free report when doing fuzz test:
 
-Suggested-by: Rafael J. Wysocki <rafael@kernel.org>
-Signed-off-by: Doug Smythies <dsmythies@telus.net>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+[693354.104835] ==================================================================
+[693354.105094] BUG: KASAN: use-after-free in bfq_io_set_weight_legacy+0xd3/0x160
+[693354.105336] Read of size 4 at addr ffff888be0a35664 by task sh/1453338
+
+[693354.105607] CPU: 41 PID: 1453338 Comm: sh Kdump: loaded Not tainted 4.18.0-147
+[693354.105610] Hardware name: Huawei 2288H V5/BC11SPSCB0, BIOS 0.81 07/02/2018
+[693354.105612] Call Trace:
+[693354.105621]  dump_stack+0xf1/0x19b
+[693354.105626]  ? show_regs_print_info+0x5/0x5
+[693354.105634]  ? printk+0x9c/0xc3
+[693354.105638]  ? cpumask_weight+0x1f/0x1f
+[693354.105648]  print_address_description+0x70/0x360
+[693354.105654]  kasan_report+0x1b2/0x330
+[693354.105659]  ? bfq_io_set_weight_legacy+0xd3/0x160
+[693354.105665]  ? bfq_io_set_weight_legacy+0xd3/0x160
+[693354.105670]  bfq_io_set_weight_legacy+0xd3/0x160
+[693354.105675]  ? bfq_cpd_init+0x20/0x20
+[693354.105683]  cgroup_file_write+0x3aa/0x510
+[693354.105693]  ? ___slab_alloc+0x507/0x540
+[693354.105698]  ? cgroup_file_poll+0x60/0x60
+[693354.105702]  ? 0xffffffff89600000
+[693354.105708]  ? usercopy_abort+0x90/0x90
+[693354.105716]  ? mutex_lock+0xef/0x180
+[693354.105726]  kernfs_fop_write+0x1ab/0x280
+[693354.105732]  ? cgroup_file_poll+0x60/0x60
+[693354.105738]  vfs_write+0xe7/0x230
+[693354.105744]  ksys_write+0xb0/0x140
+[693354.105749]  ? __ia32_sys_read+0x50/0x50
+[693354.105760]  do_syscall_64+0x112/0x370
+[693354.105766]  ? syscall_return_slowpath+0x260/0x260
+[693354.105772]  ? do_page_fault+0x9b/0x270
+[693354.105779]  ? prepare_exit_to_usermode+0xf9/0x1a0
+[693354.105784]  ? enter_from_user_mode+0x30/0x30
+[693354.105793]  entry_SYSCALL_64_after_hwframe+0x65/0xca
+
+[693354.105875] Allocated by task 1453337:
+[693354.106001]  kasan_kmalloc+0xa0/0xd0
+[693354.106006]  kmem_cache_alloc_node_trace+0x108/0x220
+[693354.106010]  bfq_pd_alloc+0x96/0x120
+[693354.106015]  blkcg_activate_policy+0x1b7/0x2b0
+[693354.106020]  bfq_create_group_hierarchy+0x1e/0x80
+[693354.106026]  bfq_init_queue+0x678/0x8c0
+[693354.106031]  blk_mq_init_sched+0x1f8/0x460
+[693354.106037]  elevator_switch_mq+0xe1/0x240
+[693354.106041]  elevator_switch+0x25/0x40
+[693354.106045]  elv_iosched_store+0x1a1/0x230
+[693354.106049]  queue_attr_store+0x78/0xb0
+[693354.106053]  kernfs_fop_write+0x1ab/0x280
+[693354.106056]  vfs_write+0xe7/0x230
+[693354.106060]  ksys_write+0xb0/0x140
+[693354.106064]  do_syscall_64+0x112/0x370
+[693354.106069]  entry_SYSCALL_64_after_hwframe+0x65/0xca
+
+[693354.106114] Freed by task 1453336:
+[693354.106225]  __kasan_slab_free+0x130/0x180
+[693354.106229]  kfree+0x90/0x1b0
+[693354.106233]  blkcg_deactivate_policy+0x12c/0x220
+[693354.106238]  bfq_exit_queue+0xf5/0x110
+[693354.106241]  blk_mq_exit_sched+0x104/0x130
+[693354.106245]  __elevator_exit+0x45/0x60
+[693354.106249]  elevator_switch_mq+0xd6/0x240
+[693354.106253]  elevator_switch+0x25/0x40
+[693354.106257]  elv_iosched_store+0x1a1/0x230
+[693354.106261]  queue_attr_store+0x78/0xb0
+[693354.106264]  kernfs_fop_write+0x1ab/0x280
+[693354.106268]  vfs_write+0xe7/0x230
+[693354.106271]  ksys_write+0xb0/0x140
+[693354.106275]  do_syscall_64+0x112/0x370
+[693354.106280]  entry_SYSCALL_64_after_hwframe+0x65/0xca
+
+[693354.106329] The buggy address belongs to the object at ffff888be0a35580
+                 which belongs to the cache kmalloc-1k of size 1024
+[693354.106736] The buggy address is located 228 bytes inside of
+                 1024-byte region [ffff888be0a35580, ffff888be0a35980)
+[693354.107114] The buggy address belongs to the page:
+[693354.107273] page:ffffea002f828c00 count:1 mapcount:0 mapping:ffff888107c17080 index:0x0 compound_mapcount: 0
+[693354.107606] flags: 0x17ffffc0008100(slab|head)
+[693354.107760] raw: 0017ffffc0008100 ffffea002fcbc808 ffffea0030bd3a08 ffff888107c17080
+[693354.108020] raw: 0000000000000000 00000000001c001c 00000001ffffffff 0000000000000000
+[693354.108278] page dumped because: kasan: bad access detected
+
+[693354.108511] Memory state around the buggy address:
+[693354.108671]  ffff888be0a35500: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[693354.116396]  ffff888be0a35580: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[693354.124473] >ffff888be0a35600: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[693354.132421]                                                        ^
+[693354.140284]  ffff888be0a35680: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[693354.147912]  ffff888be0a35700: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[693354.155281] ==================================================================
+
+blkgs are protected by both queue and blkcg locks and holding
+either should stabilize them. However, the path of destroying
+blkg policy data is only protected by queue lock in
+blkcg_activate_policy()/blkcg_deactivate_policy(). Other tasks
+can get the blkg policy data before the blkg policy data is
+destroyed, and use it after destroyed, which will result in a
+use-after-free.
+
+CPU0                             CPU1
+blkcg_deactivate_policy
+  spin_lock_irq(&q->queue_lock)
+                                 bfq_io_set_weight_legacy
+                                   spin_lock_irq(&blkcg->lock)
+                                   blkg_to_bfqg(blkg)
+                                     pd_to_bfqg(blkg->pd[pol->plid])
+                                     ^^^^^^blkg->pd[pol->plid] != NULL
+                                           bfqg != NULL
+  pol->pd_free_fn(blkg->pd[pol->plid])
+    pd_to_bfqg(blkg->pd[pol->plid])
+    bfqg_put(bfqg)
+      kfree(bfqg)
+  blkg->pd[pol->plid] = NULL
+  spin_unlock_irq(q->queue_lock);
+                                   bfq_group_set_weight(bfqg, val, 0)
+                                     bfqg->entity.new_weight
+                                     ^^^^^^trigger uaf here
+                                   spin_unlock_irq(&blkcg->lock);
+
+Fix by grabbing the matching blkcg lock before trying to
+destroy blkg policy data.
+
+Suggested-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Li Jinlin <lijinlin3@huawei.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/r/20210914042605.3260596-1-lijinlin3@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/intel_pstate.c | 22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ block/blk-cgroup.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-index bb4549959b11..e7cd3882bda4 100644
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -3251,11 +3251,15 @@ static int __init intel_pstate_init(void)
- 	if (boot_cpu_data.x86_vendor != X86_VENDOR_INTEL)
- 		return -ENODEV;
- 
--	if (no_load)
--		return -ENODEV;
--
- 	id = x86_match_cpu(hwp_support_ids);
- 	if (id) {
-+		bool hwp_forced = intel_pstate_hwp_is_enabled();
+diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
+index cb3d44d20005..dde8d0acfb34 100644
+--- a/block/blk-cgroup.c
++++ b/block/blk-cgroup.c
+@@ -1462,10 +1462,14 @@ enomem:
+ 	/* alloc failed, nothing's initialized yet, free everything */
+ 	spin_lock_irq(&q->queue_lock);
+ 	list_for_each_entry(blkg, &q->blkg_list, q_node) {
++		struct blkcg *blkcg = blkg->blkcg;
 +
-+		if (hwp_forced)
-+			pr_info("HWP enabled by BIOS\n");
-+		else if (no_load)
-+			return -ENODEV;
-+
- 		copy_cpu_funcs(&core_funcs);
- 		/*
- 		 * Avoid enabling HWP for processors without EPP support,
-@@ -3265,8 +3269,7 @@ static int __init intel_pstate_init(void)
- 		 * If HWP is enabled already, though, there is no choice but to
- 		 * deal with it.
- 		 */
--		if ((!no_hwp && boot_cpu_has(X86_FEATURE_HWP_EPP)) ||
--		    intel_pstate_hwp_is_enabled()) {
-+		if ((!no_hwp && boot_cpu_has(X86_FEATURE_HWP_EPP)) || hwp_forced) {
- 			hwp_active++;
- 			hwp_mode_bdw = id->driver_data;
- 			intel_pstate.attr = hwp_cpufreq_attrs;
-@@ -3278,7 +3281,11 @@ static int __init intel_pstate_init(void)
- 
- 			goto hwp_cpu_matched;
++		spin_lock(&blkcg->lock);
+ 		if (blkg->pd[pol->plid]) {
+ 			pol->pd_free_fn(blkg->pd[pol->plid]);
+ 			blkg->pd[pol->plid] = NULL;
  		}
-+		pr_info("HWP not enabled\n");
- 	} else {
-+		if (no_load)
-+			return -ENODEV;
-+
- 		id = x86_match_cpu(intel_pstate_cpu_ids);
- 		if (!id) {
- 			pr_info("CPU model not supported\n");
-@@ -3357,10 +3364,9 @@ static int __init intel_pstate_setup(char *str)
- 	else if (!strcmp(str, "passive"))
- 		default_driver = &intel_cpufreq;
++		spin_unlock(&blkcg->lock);
+ 	}
+ 	spin_unlock_irq(&q->queue_lock);
+ 	ret = -ENOMEM;
+@@ -1497,12 +1501,16 @@ void blkcg_deactivate_policy(struct request_queue *q,
+ 	__clear_bit(pol->plid, q->blkcg_pols);
  
--	if (!strcmp(str, "no_hwp")) {
--		pr_info("HWP disabled\n");
-+	if (!strcmp(str, "no_hwp"))
- 		no_hwp = 1;
--	}
+ 	list_for_each_entry(blkg, &q->blkg_list, q_node) {
++		struct blkcg *blkcg = blkg->blkcg;
 +
- 	if (!strcmp(str, "force"))
- 		force_load = 1;
- 	if (!strcmp(str, "hwp_only"))
++		spin_lock(&blkcg->lock);
+ 		if (blkg->pd[pol->plid]) {
+ 			if (pol->pd_offline_fn)
+ 				pol->pd_offline_fn(blkg->pd[pol->plid]);
+ 			pol->pd_free_fn(blkg->pd[pol->plid]);
+ 			blkg->pd[pol->plid] = NULL;
+ 		}
++		spin_unlock(&blkcg->lock);
+ 	}
+ 
+ 	spin_unlock_irq(&q->queue_lock);
 -- 
 2.33.0
 
