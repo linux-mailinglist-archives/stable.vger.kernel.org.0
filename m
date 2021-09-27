@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F21F6419C71
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 646BE419B23
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:14:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237971AbhI0R30 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:29:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41120 "EHLO mail.kernel.org"
+        id S236855AbhI0RPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:15:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236523AbhI0R1H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:27:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A45826101A;
-        Mon, 27 Sep 2021 17:16:48 +0000 (UTC)
+        id S237297AbhI0ROa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:14:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E8876113D;
+        Mon, 27 Sep 2021 17:10:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632763009;
-        bh=WiL7NcMoxCkCtLD63hJ3mPcRdaPM/6wFXc41MpNl9KQ=;
+        s=korg; t=1632762612;
+        bh=fAsVe4YYyxlnEVlKx3OOT98nSUIv0NtgAYdhOA5NrXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=flr8Bf+KlLvWMlSWhprCiZpNKEQdfxsLzquZ19l9e7vYoNVfrJelsjnVqhrrF2SEg
-         lbIMTmDUg90gmLKUejsy6mnTJg3TXCFJYZ5yU21uH6P9iqVt1oMqmKPQSUGRxpTJrk
-         gwBEsFcrATDP7DfkET9KEYI6oqIiG9VBKw4vNBg0=
+        b=xLorRQwZolMosfgRARQHiCECWjKBe/VAQ1zBIhqQp5Q66QAVhYnLKygk9+GiSVG9R
+         CmqfeQZ64LbcRqp/446pucHjyflQ8dNLblSK2sQrkQT2XFAgHVAqxOj9c6jvbqZls7
+         MP0uGzNz/P+ZrGpHfPcuDJw2IWt8S9LBNkB9KwYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
         Li Jinlin <lijinlin3@huawei.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 134/162] blk-cgroup: fix UAF by grabbing blkcg lock before destroying blkg pd
+Subject: [PATCH 5.10 088/103] blk-cgroup: fix UAF by grabbing blkcg lock before destroying blkg pd
 Date:   Mon, 27 Sep 2021 19:03:00 +0200
-Message-Id: <20210927170238.066047598@linuxfoundation.org>
+Message-Id: <20210927170228.815737468@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+References: <20210927170225.702078779@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -178,10 +178,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 8 insertions(+)
 
 diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
-index 26446f97deee..28e11decbac5 100644
+index f13688c4b931..5b19665bc486 100644
 --- a/block/blk-cgroup.c
 +++ b/block/blk-cgroup.c
-@@ -1385,10 +1385,14 @@ enomem:
+@@ -1387,10 +1387,14 @@ enomem:
  	/* alloc failed, nothing's initialized yet, free everything */
  	spin_lock_irq(&q->queue_lock);
  	list_for_each_entry(blkg, &q->blkg_list, q_node) {
@@ -196,7 +196,7 @@ index 26446f97deee..28e11decbac5 100644
  	}
  	spin_unlock_irq(&q->queue_lock);
  	ret = -ENOMEM;
-@@ -1420,12 +1424,16 @@ void blkcg_deactivate_policy(struct request_queue *q,
+@@ -1422,12 +1426,16 @@ void blkcg_deactivate_policy(struct request_queue *q,
  	__clear_bit(pol->plid, q->blkcg_pols);
  
  	list_for_each_entry(blkg, &q->blkg_list, q_node) {
