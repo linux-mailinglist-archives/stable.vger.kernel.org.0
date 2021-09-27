@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9845D419B97
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:18:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57649419B9A
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:19:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236832AbhI0RUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:20:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35282 "EHLO mail.kernel.org"
+        id S235666AbhI0RUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:20:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237354AbhI0RSX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:18:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC43C61279;
-        Mon, 27 Sep 2021 17:12:23 +0000 (UTC)
+        id S237400AbhI0RS1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:18:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E377D6128C;
+        Mon, 27 Sep 2021 17:12:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762744;
-        bh=vI5hGr6oxnMKKQwLNx99GwcxGhUWSQtXED7E11c5wcA=;
+        s=korg; t=1632762747;
+        bh=by1ip3jYucQI0cqCROHvv+vTOYFCdkGMSrWXk+kcxMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IBICJiMMpbg67FJJa92miarsAnRIMSbm4HIHRNrm0T56bbxOTTo4W5tfC6CqNa+am
-         HCrZMWvOjLa2XuumUBVKDLl9PlA/7S2CQnfHaXdDlRRo8Gt5+XziLX6W7I9f4eA4dn
-         VjHAJwFpxoof8FVw1LvUHXBSe+/moyFO7iMIAUnY=
+        b=Cxf97rW0hVcBraxY0QWkOYkuKjPkhmB523ARcFy8zcWOdd9qPLIowRqCDOcn4mSRq
+         NWPoGyoLYq59F74r83nKrUCRF+MkmBeyl0XxdOkXLsejVauHSxqDIqpEGIQaXF5rWl
+         Ke3HHvE+h5d6mBfrjnj0OfgRfDi0dtN+1fMsOJ08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eli V <eliventer@gmail.com>,
-        Anand Jain <anand.jain@oracle.com>, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.14 036/162] btrfs: prevent __btrfs_dump_space_info() to underflow its free space
-Date:   Mon, 27 Sep 2021 19:01:22 +0200
-Message-Id: <20210927170234.733557846@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Chris Chiu <chris.chiu@canonical.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>
+Subject: [PATCH 5.14 037/162] xhci: Set HCD flag to defer primary roothub registration
+Date:   Mon, 27 Sep 2021 19:01:23 +0200
+Message-Id: <20210927170234.767260874@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
 References: <20210927170233.453060397@linuxfoundation.org>
@@ -40,48 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-commit 0619b7901473c380abc05d45cf9c70bee0707db3 upstream.
+commit b7a0a792f864583207c593b50fd1b752ed89f4c1 upstream.
 
-It's not uncommon where __btrfs_dump_space_info() gets called
-under over-commit situations.
+Set "HCD_FLAG_DEFER_RH_REGISTER" to hcd->flags in xhci_run() to defer
+registering primary roothub in usb_add_hcd(). This will make sure both
+primary roothub and secondary roothub will be registered along with the
+second HCD. This is required for cold plugged USB devices to be detected
+in certain PCIe USB cards (like Inateck USB card connected to AM64 EVM
+or J7200 EVM).
 
-In that case free space would underflow as total allocated space is not
-enough to handle all the over-committed space.
-
-Such underflow values can sometimes cause confusion for users enabled
-enospc_debug mount option, and takes some seconds for developers to
-convert the underflow value to signed result.
-
-Just output the free space as s64 to avoid such problem.
-
-Reported-by: Eli V <eliventer@gmail.com>
-Link: https://lore.kernel.org/linux-btrfs/CAJtFHUSy4zgyhf-4d9T+KdJp9w=UgzC2A0V=VtmaeEpcGgm1-Q@mail.gmail.com/
 CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Suggested-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Tested-by: Chris Chiu <chris.chiu@canonical.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Link: https://lore.kernel.org/r/20210909064200.16216-3-kishon@ti.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/space-info.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/btrfs/space-info.c
-+++ b/fs/btrfs/space-info.c
-@@ -414,9 +414,10 @@ static void __btrfs_dump_space_info(stru
- {
- 	lockdep_assert_held(&info->lock);
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -692,6 +692,7 @@ int xhci_run(struct usb_hcd *hcd)
+ 		if (ret)
+ 			xhci_free_command(xhci, command);
+ 	}
++	set_bit(HCD_FLAG_DEFER_RH_REGISTER, &hcd->flags);
+ 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
+ 			"Finished xhci_run for USB2 roothub");
  
--	btrfs_info(fs_info, "space_info %llu has %llu free, is %sfull",
-+	/* The free space could be negative in case of overcommit */
-+	btrfs_info(fs_info, "space_info %llu has %lld free, is %sfull",
- 		   info->flags,
--		   info->total_bytes - btrfs_space_info_used(info, true),
-+		   (s64)(info->total_bytes - btrfs_space_info_used(info, true)),
- 		   info->full ? "" : "not ");
- 	btrfs_info(fs_info,
- 		"space_info total=%llu, used=%llu, pinned=%llu, reserved=%llu, may_use=%llu, readonly=%llu zone_unusable=%llu",
 
 
