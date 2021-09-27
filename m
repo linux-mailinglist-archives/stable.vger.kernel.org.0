@@ -2,32 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77D58419B9E
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:19:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EA04419BA2
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:19:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236256AbhI0RUq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:20:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35626 "EHLO mail.kernel.org"
+        id S236801AbhI0RVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:21:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237592AbhI0RSl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:18:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B00F8613A2;
-        Mon, 27 Sep 2021 17:12:34 +0000 (UTC)
+        id S237663AbhI0RTC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:19:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7629061288;
+        Mon, 27 Sep 2021 17:12:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762755;
-        bh=0dN88o96YP0pNo+/81dDK60JmrHL0hbAZ9I6xHd91zI=;
+        s=korg; t=1632762758;
+        bh=rgGC/9Gq+574w1jl5yUnIwXFS6gj6iay2b1K2pqlZ3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iO0j4/ga+cvsYZM/aV1MSuTHBfhq2WBLP54Cf/6zs4Bksl0JH+AsQi99MvmEZjFIO
-         oHa12/7zJmB3vX4g4ZHgDkIWpf1s9/Qs+F37Wv4vGzt3A8rS1Yf7DvTyDSc9stwWTa
-         oQLtTfrYH2YMuad5MGGmWLVfTquywxGqgmT0T52c=
+        b=2bcy7+vkyWkw6K00Yj7CrKBkE2Arg0dRck/O7IkbhP1MAvFm4+x62+bC6F7CR95Bh
+         V06UEWx0ATT3aAUwLlYYB8lMn9vIhDWxi2B8q+0akqtDpYS/BSejBJm5ePq8Js5IeL
+         Fmshfq9Q6ZLKoJ96RNZjnY5HU6JV9LC3Fuhz5iEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Subject: [PATCH 5.14 039/162] serial: mvebu-uart: fix drivers tx_empty callback
-Date:   Mon, 27 Sep 2021 19:01:25 +0200
-Message-Id: <20210927170234.846828387@linuxfoundation.org>
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.14 040/162] scsi: sd_zbc: Ensure buffer size is aligned to SECTOR_SIZE
+Date:   Mon, 27 Sep 2021 19:01:26 +0200
+Message-Id: <20210927170234.885541432@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
 References: <20210927170233.453060397@linuxfoundation.org>
@@ -39,41 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-commit 74e1eb3b4a1ef2e564b4bdeb6e92afe844e900de upstream.
+commit 7215e909814fed7cda33c954943a4050d8348204 upstream.
 
-Driver's tx_empty callback should signal when the transmit shift register
-is empty. So when the last character has been sent.
+Reporting zones on a SCSI device sometimes fail with the following error:
 
-STAT_TX_FIFO_EMP bit signals only that HW transmit FIFO is empty, which
-happens when the last byte is loaded into transmit shift register.
+[76248.516390] ata16.00: invalid transfer count 131328
+[76248.523618] sd 15:0:0:0: [sda] REPORT ZONES start lba 536870912 failed
 
-STAT_TX_EMP bit signals when the both HW transmit FIFO and transmit shift
-register are empty.
+The error (from drivers/ata/libata-scsi.c:ata_scsi_zbc_in_xlat()) indicates
+that buffer size is not aligned to SECTOR_SIZE.
 
-So replace STAT_TX_FIFO_EMP check by STAT_TX_EMP in mvebu_uart_tx_empty()
-callback function.
+This happens when the __vmalloc() failed. Consider we are reporting 4096
+zones, then we will have "bufsize = roundup((4096 + 1) * 64,
+SECTOR_SIZE)" = (513 * 512) = 262656. Then, __vmalloc() failure halves
+the bufsize to 131328, which is no longer aligned to SECTOR_SIZE.
 
-Fixes: 30530791a7a0 ("serial: mvebu-uart: initial support for Armada-3700 serial port")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20210911132017.25505-1-pali@kernel.org
+Use rounddown() to ensure the size is always aligned to SECTOR_SIZE and fix
+the comment as well.
+
+Link: https://lore.kernel.org/r/20210906140642.2267569-1-naohiro.aota@wdc.com
+Fixes: 23a50861adda ("scsi: sd_zbc: Cleanup sd_zbc_alloc_report_buffer()")
+Cc: stable@vger.kernel.org # 5.5+
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/mvebu-uart.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/sd_zbc.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/tty/serial/mvebu-uart.c
-+++ b/drivers/tty/serial/mvebu-uart.c
-@@ -163,7 +163,7 @@ static unsigned int mvebu_uart_tx_empty(
- 	st = readl(port->membase + UART_STAT);
- 	spin_unlock_irqrestore(&port->lock, flags);
+--- a/drivers/scsi/sd_zbc.c
++++ b/drivers/scsi/sd_zbc.c
+@@ -154,8 +154,8 @@ static void *sd_zbc_alloc_report_buffer(
  
--	return (st & STAT_TX_FIFO_EMP) ? TIOCSER_TEMT : 0;
-+	return (st & STAT_TX_EMP) ? TIOCSER_TEMT : 0;
- }
+ 	/*
+ 	 * Report zone buffer size should be at most 64B times the number of
+-	 * zones requested plus the 64B reply header, but should be at least
+-	 * SECTOR_SIZE for ATA devices.
++	 * zones requested plus the 64B reply header, but should be aligned
++	 * to SECTOR_SIZE for ATA devices.
+ 	 * Make sure that this size does not exceed the hardware capabilities.
+ 	 * Furthermore, since the report zone command cannot be split, make
+ 	 * sure that the allocated buffer can always be mapped by limiting the
+@@ -174,7 +174,7 @@ static void *sd_zbc_alloc_report_buffer(
+ 			*buflen = bufsize;
+ 			return buf;
+ 		}
+-		bufsize >>= 1;
++		bufsize = rounddown(bufsize >> 1, SECTOR_SIZE);
+ 	}
  
- static unsigned int mvebu_uart_get_mctrl(struct uart_port *port)
+ 	return NULL;
 
 
