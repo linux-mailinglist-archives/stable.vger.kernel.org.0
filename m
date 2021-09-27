@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF1BE419B6F
+	by mail.lfdr.de (Postfix) with ESMTP id A54A4419B6E
 	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:17:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235770AbhI0RTR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:19:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55294 "EHLO mail.kernel.org"
+        id S235959AbhI0RTS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:19:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236952AbhI0RQc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:16:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E21FA6138E;
-        Mon, 27 Sep 2021 17:11:29 +0000 (UTC)
+        id S237030AbhI0RQk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:16:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D81561391;
+        Mon, 27 Sep 2021 17:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762690;
-        bh=mCZ+hO2oWQPt1NIfAsuI1W4R77HGIhUOMWqaIkpzGp4=;
+        s=korg; t=1632762693;
+        bh=xjg8zAQ/CJkYG2lqXOjkXxr42zbWEVMf1dL6QD4ZLEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rpQmYbQduTdZ6alc440lqqpAgxjKj/Wsrl3FTL0PtmBL9Lqm19Hrxh2YWnfru2DAX
-         voVYikIpD5NOfXyeL0pgFodV1rKZec1XmknN4CQBJWw2keRFjlO5p5dXexmxo0VnOS
-         01m4m767SngdRWGkewPHp2qbo25zOwVaO+N8rEK0=
+        b=CqrLc44wXr+0J7nc8koeo1r/U3gHYl5D8oROgLyIunpXMrpuVx1TnDFgnmpKggNmi
+         hNiW4ktaagMmkMjpqDTfzgmxQkqskBqwv6MRZmeuf3L5CBLlrj6XyseS91DoMqxGEd
+         ceRzPqVDcut1nO/1sljI90KzUyotQtToKCAjPgPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaejoong Kim <climbbb.kim@gmail.com>,
-        Oliver Neukum <oneukum@suse.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.14 016/162] USB: cdc-acm: fix minor-number release
-Date:   Mon, 27 Sep 2021 19:01:02 +0200
-Message-Id: <20210927170234.010342427@linuxfoundation.org>
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>
+Subject: [PATCH 5.14 017/162] Revert "USB: bcma: Add a check for devm_gpiod_get"
+Date:   Mon, 27 Sep 2021 19:01:03 +0200
+Message-Id: <20210927170234.044214613@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
 References: <20210927170233.453060397@linuxfoundation.org>
@@ -40,63 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-commit 91fac0741d4817945c6ee0a17591421e7f5ecb86 upstream.
+commit d91adc5322ab53df4b6d1989242bfb6c63163eb2 upstream.
 
-If the driver runs out of minor numbers it would release minor 0 and
-allow another device to claim the minor while still in use.
+This reverts commit f3de5d857bb2362b00e2a8d4bc886cd49dcb66db.
 
-Fortunately, registering the tty class device of the second device would
-fail (with a stack dump) due to the sysfs name collision so no memory is
-leaked.
+That commit broke USB on all routers that have USB always powered on and
+don't require toggling any GPIO. It's a majority of devices actually.
 
-Fixes: cae2bc768d17 ("usb: cdc-acm: Decrement tty port's refcount if probe() fail")
-Cc: stable@vger.kernel.org      # 4.19
-Cc: Jaejoong Kim <climbbb.kim@gmail.com>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210907082318.7757-1-johan@kernel.org
+The original code worked and seemed safe: vcc GPIO is optional and
+bcma_hci_platform_power_gpio() takes care of checking the pointer before
+using it.
+
+This revert fixes:
+[   10.801127] bcma_hcd: probe of bcma0:11 failed with error -2
+
+Fixes: f3de5d857bb2 ("USB: bcma: Add a check for devm_gpiod_get")
+Cc: stable <stable@vger.kernel.org>
+Cc: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Link: https://lore.kernel.org/r/20210831065419.18371-1-zajec5@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/cdc-acm.c |    7 +++++--
- drivers/usb/class/cdc-acm.h |    2 ++
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ drivers/usb/host/bcma-hcd.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -726,7 +726,8 @@ static void acm_port_destruct(struct tty
- {
- 	struct acm *acm = container_of(port, struct acm, port);
+--- a/drivers/usb/host/bcma-hcd.c
++++ b/drivers/usb/host/bcma-hcd.c
+@@ -406,12 +406,9 @@ static int bcma_hcd_probe(struct bcma_de
+ 		return -ENOMEM;
+ 	usb_dev->core = core;
  
--	acm_release_minor(acm);
-+	if (acm->minor != ACM_MINOR_INVALID)
-+		acm_release_minor(acm);
- 	usb_put_intf(acm->control);
- 	kfree(acm->country_codes);
- 	kfree(acm);
-@@ -1323,8 +1324,10 @@ made_compressed_probe:
- 	usb_get_intf(acm->control); /* undone in destruct() */
+-	if (core->dev.of_node) {
++	if (core->dev.of_node)
+ 		usb_dev->gpio_desc = devm_gpiod_get(&core->dev, "vcc",
+ 						    GPIOD_OUT_HIGH);
+-		if (IS_ERR(usb_dev->gpio_desc))
+-			return PTR_ERR(usb_dev->gpio_desc);
+-	}
  
- 	minor = acm_alloc_minor(acm);
--	if (minor < 0)
-+	if (minor < 0) {
-+		acm->minor = ACM_MINOR_INVALID;
- 		goto err_put_port;
-+	}
- 
- 	acm->minor = minor;
- 	acm->dev = usb_dev;
---- a/drivers/usb/class/cdc-acm.h
-+++ b/drivers/usb/class/cdc-acm.h
-@@ -22,6 +22,8 @@
- #define ACM_TTY_MAJOR		166
- #define ACM_TTY_MINORS		256
- 
-+#define ACM_MINOR_INVALID	ACM_TTY_MINORS
-+
- /*
-  * Requests.
-  */
+ 	switch (core->id.id) {
+ 	case BCMA_CORE_USB20_HOST:
 
 
