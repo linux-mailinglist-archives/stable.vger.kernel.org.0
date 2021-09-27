@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8833B4199FD
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:04:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E657419C02
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235784AbhI0RF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:05:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44448 "EHLO mail.kernel.org"
+        id S236858AbhI0RYr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:24:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235847AbhI0RFk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:05:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0C7F60F3A;
-        Mon, 27 Sep 2021 17:04:01 +0000 (UTC)
+        id S237233AbhI0RXM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:23:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF5A4613AB;
+        Mon, 27 Sep 2021 17:14:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762242;
-        bh=rULxsDEW11GuTvf5HgE3jNRIhroxB1TVyIjSsfkzDJM=;
+        s=korg; t=1632762884;
+        bh=S0p4WUS4LJtWaHWvAul1QZYw3FimA81j09LhNdskdug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qx79PBLOPaLClHx/PCmP3K3o7CoB44DhVvlp2RLYBmj11qLsrxalTGVx492aSQVxY
-         jfBND8i5+yePFzuXY6pwJZU8a/31lY0mEtA4LQ0R3LFCNYmvAON4SMCF11A/GsQVDO
-         rCWryMikuMDLlEoTxj0uJ1C/XR/InqiZ39YD1148=
+        b=l/yZ28ul5GCy2hZdFoWOg3ZhU/s1J5OY7ikYsfDTIiy9VGNjzh4k+1bFPF2jxzK6I
+         OFVEIKhYkB8YoDS0oMVNR/FyMwQNwbUZ4nXJElcr5Xv+kZ76cpS460z+6IWN27flMX
+         SmXNowoF0XhBqb2V5NmqRtXFQGk0eCDYJ84ZuWUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carlo Lobrano <c.lobrano@gmail.com>,
-        Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 16/68] USB: serial: option: add Telit LN920 compositions
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 086/162] net: ethernet: mtk_eth_soc: avoid creating duplicate offload entries
 Date:   Mon, 27 Sep 2021 19:02:12 +0200
-Message-Id: <20210927170220.507057669@linuxfoundation.org>
+Message-Id: <20210927170236.415458361@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
-References: <20210927170219.901812470@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlo Lobrano <c.lobrano@gmail.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit 7bb057134d609b9c038a00b6876cf0d37d0118ce upstream.
+[ Upstream commit e68daf61ed13832aef8892200a874139700ca754 ]
 
-This patch adds the following Telit LN920 compositions:
+Sometimes multiple CLS_REPLACE calls are issued for the same connection.
+rhashtable_insert_fast does not check for these duplicates, so multiple
+hardware flow entries can be created.
+Fix this by checking for an existing entry early
 
-0x1060: tty, adb, rmnet, tty, tty, tty, tty
-0x1061: tty, adb, mbim, tty, tty, tty, tty
-0x1062: rndis, tty, adb, tty, tty, tty, tty
-0x1063: tty, adb, ecm, tty, tty, tty, tty
-
-Signed-off-by: Carlo Lobrano <c.lobrano@gmail.com>
-Link: https://lore.kernel.org/r/20210903123913.1086513-1-c.lobrano@gmail.com
-Reviewed-by: Daniele Palmas <dnlplm@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 502e84e2382d ("net: ethernet: mtk_eth_soc: add flow offloading support")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/ethernet/mediatek/mtk_ppe_offload.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1205,6 +1205,14 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(0) | RSVD(1) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1056, 0xff),	/* Telit FD980 */
- 	  .driver_info = NCTRL(2) | RSVD(3) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1060, 0xff),	/* Telit LN920 (rmnet) */
-+	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1061, 0xff),	/* Telit LN920 (MBIM) */
-+	  .driver_info = NCTRL(0) | RSVD(1) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1062, 0xff),	/* Telit LN920 (RNDIS) */
-+	  .driver_info = NCTRL(2) | RSVD(3) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1063, 0xff),	/* Telit LN920 (ECM) */
-+	  .driver_info = NCTRL(0) | RSVD(1) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
+diff --git a/drivers/net/ethernet/mediatek/mtk_ppe_offload.c b/drivers/net/ethernet/mediatek/mtk_ppe_offload.c
+index b5f68f66d42a..7bb1f20002b5 100644
+--- a/drivers/net/ethernet/mediatek/mtk_ppe_offload.c
++++ b/drivers/net/ethernet/mediatek/mtk_ppe_offload.c
+@@ -186,6 +186,9 @@ mtk_flow_offload_replace(struct mtk_eth *eth, struct flow_cls_offload *f)
+ 	int hash;
+ 	int i;
+ 
++	if (rhashtable_lookup(&eth->flow_table, &f->cookie, mtk_flow_ht_params))
++		return -EEXIST;
++
+ 	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_META)) {
+ 		struct flow_match_meta match;
+ 
+-- 
+2.33.0
+
 
 
