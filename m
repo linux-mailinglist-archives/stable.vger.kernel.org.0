@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ECF0419C97
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9EB9419B41
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:15:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235977AbhI0RaT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:30:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43984 "EHLO mail.kernel.org"
+        id S237031AbhI0RQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:16:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237443AbhI0R2R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:28:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DDFF614C8;
-        Mon, 27 Sep 2021 17:17:29 +0000 (UTC)
+        id S236604AbhI0RPB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:15:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9485161178;
+        Mon, 27 Sep 2021 17:10:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632763049;
-        bh=tlQKoSm30eJvBELmrJ3KXL9ImvthwZJO5//gPTEolfI=;
+        s=korg; t=1632762644;
+        bh=eJQXPnNG74y+9NZ6TFaJhgpavFc0wb/46GG4b/cUM3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uU5mNFzFtiesv19Hco2voq8sDJY7utU/2F3+V90HPp8l9OLuL2xGDOThR5ux48iXy
-         r1oafqGEtc5aT7i7q54LeWuN2by2fd/eHVtEP2AY5GhrHX8blhiyGvPLGVK9yJBhl3
-         IQOK0CfJRgiUhZLr5zBjeJaToMC3ni240WtXg8is=
+        b=03M/i3NAOcInecyVVPm0HdPG9u1VHFF0q36fTgjre7rRrn9cKD/jzP0dc8H++pcLP
+         yYRQBBixAfvWOilJ6uKDIT48yw8rNh3OCqoKUEXIX1IdEol5X+N9OUDF/+0/kP+W68
+         ymiBEu01cP+FI0vAjDwsSTGTh3RAuUvSPdB010Gk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 148/162] libperf evsel: Make use of FD robust.
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 5.10 102/103] xen/balloon: fix balloon kthread freezing
 Date:   Mon, 27 Sep 2021 19:03:14 +0200
-Message-Id: <20210927170238.557814106@linuxfoundation.org>
+Message-Id: <20210927170229.298743010@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+References: <20210927170225.702078779@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,241 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit aba5daeb645181ee5a046bc00c231fd045882aaa ]
+commit 96f5bd03e1be606987644b71899ea56a8d05f825 upstream.
 
-FD uses xyarray__entry that may return NULL if an index is out of
-bounds. If NULL is returned then a segv happens as FD unconditionally
-dereferences the pointer. This was happening in a case of with perf
-iostat as shown below. The fix is to make FD an "int*" rather than an
-int and handle the NULL case as either invalid input or a closed fd.
+Commit 8480ed9c2bbd56 ("xen/balloon: use a kernel thread instead a
+workqueue") switched the Xen balloon driver to use a kernel thread.
+Unfortunately the patch omitted to call try_to_freeze() or to use
+wait_event_freezable_timeout(), causing a system suspend to fail.
 
-  $ sudo gdb --args perf stat --iostat  list
-  ...
-  Breakpoint 1, perf_evsel__alloc_fd (evsel=0x5555560951a0, ncpus=1, nthreads=1) at evsel.c:50
-  50      {
-  (gdb) bt
-   #0  perf_evsel__alloc_fd (evsel=0x5555560951a0, ncpus=1, nthreads=1) at evsel.c:50
-   #1  0x000055555585c188 in evsel__open_cpu (evsel=0x5555560951a0, cpus=0x555556093410,
-      threads=0x555556086fb0, start_cpu=0, end_cpu=1) at util/evsel.c:1792
-   #2  0x000055555585cfb2 in evsel__open (evsel=0x5555560951a0, cpus=0x0, threads=0x555556086fb0)
-      at util/evsel.c:2045
-   #3  0x000055555585d0db in evsel__open_per_thread (evsel=0x5555560951a0, threads=0x555556086fb0)
-      at util/evsel.c:2065
-   #4  0x00005555558ece64 in create_perf_stat_counter (evsel=0x5555560951a0,
-      config=0x555555c34700 <stat_config>, target=0x555555c2f1c0 <target>, cpu=0) at util/stat.c:590
-   #5  0x000055555578e927 in __run_perf_stat (argc=1, argv=0x7fffffffe4a0, run_idx=0)
-      at builtin-stat.c:833
-   #6  0x000055555578f3c6 in run_perf_stat (argc=1, argv=0x7fffffffe4a0, run_idx=0)
-      at builtin-stat.c:1048
-   #7  0x0000555555792ee5 in cmd_stat (argc=1, argv=0x7fffffffe4a0) at builtin-stat.c:2534
-   #8  0x0000555555835ed3 in run_builtin (p=0x555555c3f540 <commands+288>, argc=3,
-      argv=0x7fffffffe4a0) at perf.c:313
-   #9  0x0000555555836154 in handle_internal_command (argc=3, argv=0x7fffffffe4a0) at perf.c:365
-   #10 0x000055555583629f in run_argv (argcp=0x7fffffffe2ec, argv=0x7fffffffe2e0) at perf.c:409
-   #11 0x0000555555836692 in main (argc=3, argv=0x7fffffffe4a0) at perf.c:539
-  ...
-  (gdb) c
-  Continuing.
-  Error:
-  The sys_perf_event_open() syscall returned with 22 (Invalid argument) for event (uncore_iio_0/event=0x83,umask=0x04,ch_mask=0xF,fc_mask=0x07/).
-  /bin/dmesg | grep -i perf may provide additional information.
-
-  Program received signal SIGSEGV, Segmentation fault.
-  0x00005555559b03ea in perf_evsel__close_fd_cpu (evsel=0x5555560951a0, cpu=1) at evsel.c:166
-  166                     if (FD(evsel, cpu, thread) >= 0)
-
-v3. fixes a bug in perf_evsel__run_ioctl where the sense of a branch was
-    backward.
-
-Signed-off-by: Ian Rogers <irogers@google.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lore.kernel.org/lkml/20210918054440.2350466-1-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8480ed9c2bbd56 ("xen/balloon: use a kernel thread instead a workqueue")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20210920100345.21939-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/lib/perf/evsel.c | 64 +++++++++++++++++++++++++++---------------
- 1 file changed, 41 insertions(+), 23 deletions(-)
+ drivers/xen/balloon.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/lib/perf/evsel.c b/tools/lib/perf/evsel.c
-index d8886720e83d..8441e3e1aaac 100644
---- a/tools/lib/perf/evsel.c
-+++ b/tools/lib/perf/evsel.c
-@@ -43,7 +43,7 @@ void perf_evsel__delete(struct perf_evsel *evsel)
- 	free(evsel);
- }
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -522,8 +522,8 @@ static int balloon_thread(void *unused)
+ 			timeout = 3600 * HZ;
+ 		credit = current_credit();
  
--#define FD(e, x, y) (*(int *) xyarray__entry(e->fd, x, y))
-+#define FD(e, x, y) ((int *) xyarray__entry(e->fd, x, y))
- #define MMAP(e, x, y) (e->mmap ? ((struct perf_mmap *) xyarray__entry(e->mmap, x, y)) : NULL)
+-		wait_event_interruptible_timeout(balloon_thread_wq,
+-				 balloon_thread_cond(state, credit), timeout);
++		wait_event_freezable_timeout(balloon_thread_wq,
++			balloon_thread_cond(state, credit), timeout);
  
- int perf_evsel__alloc_fd(struct perf_evsel *evsel, int ncpus, int nthreads)
-@@ -54,7 +54,10 @@ int perf_evsel__alloc_fd(struct perf_evsel *evsel, int ncpus, int nthreads)
- 		int cpu, thread;
- 		for (cpu = 0; cpu < ncpus; cpu++) {
- 			for (thread = 0; thread < nthreads; thread++) {
--				FD(evsel, cpu, thread) = -1;
-+				int *fd = FD(evsel, cpu, thread);
-+
-+				if (fd)
-+					*fd = -1;
- 			}
- 		}
- 	}
-@@ -80,7 +83,7 @@ sys_perf_event_open(struct perf_event_attr *attr,
- static int get_group_fd(struct perf_evsel *evsel, int cpu, int thread, int *group_fd)
- {
- 	struct perf_evsel *leader = evsel->leader;
--	int fd;
-+	int *fd;
- 
- 	if (evsel == leader) {
- 		*group_fd = -1;
-@@ -95,10 +98,10 @@ static int get_group_fd(struct perf_evsel *evsel, int cpu, int thread, int *grou
- 		return -ENOTCONN;
- 
- 	fd = FD(leader, cpu, thread);
--	if (fd == -1)
-+	if (fd == NULL || *fd == -1)
- 		return -EBADF;
- 
--	*group_fd = fd;
-+	*group_fd = *fd;
- 
- 	return 0;
- }
-@@ -138,7 +141,11 @@ int perf_evsel__open(struct perf_evsel *evsel, struct perf_cpu_map *cpus,
- 
- 	for (cpu = 0; cpu < cpus->nr; cpu++) {
- 		for (thread = 0; thread < threads->nr; thread++) {
--			int fd, group_fd;
-+			int fd, group_fd, *evsel_fd;
-+
-+			evsel_fd = FD(evsel, cpu, thread);
-+			if (evsel_fd == NULL)
-+				return -EINVAL;
- 
- 			err = get_group_fd(evsel, cpu, thread, &group_fd);
- 			if (err < 0)
-@@ -151,7 +158,7 @@ int perf_evsel__open(struct perf_evsel *evsel, struct perf_cpu_map *cpus,
- 			if (fd < 0)
- 				return -errno;
- 
--			FD(evsel, cpu, thread) = fd;
-+			*evsel_fd = fd;
- 		}
- 	}
- 
-@@ -163,9 +170,12 @@ static void perf_evsel__close_fd_cpu(struct perf_evsel *evsel, int cpu)
- 	int thread;
- 
- 	for (thread = 0; thread < xyarray__max_y(evsel->fd); ++thread) {
--		if (FD(evsel, cpu, thread) >= 0)
--			close(FD(evsel, cpu, thread));
--		FD(evsel, cpu, thread) = -1;
-+		int *fd = FD(evsel, cpu, thread);
-+
-+		if (fd && *fd >= 0) {
-+			close(*fd);
-+			*fd = -1;
-+		}
- 	}
- }
- 
-@@ -209,13 +219,12 @@ void perf_evsel__munmap(struct perf_evsel *evsel)
- 
- 	for (cpu = 0; cpu < xyarray__max_x(evsel->fd); cpu++) {
- 		for (thread = 0; thread < xyarray__max_y(evsel->fd); thread++) {
--			int fd = FD(evsel, cpu, thread);
--			struct perf_mmap *map = MMAP(evsel, cpu, thread);
-+			int *fd = FD(evsel, cpu, thread);
- 
--			if (fd < 0)
-+			if (fd == NULL || *fd < 0)
- 				continue;
- 
--			perf_mmap__munmap(map);
-+			perf_mmap__munmap(MMAP(evsel, cpu, thread));
- 		}
- 	}
- 
-@@ -239,15 +248,16 @@ int perf_evsel__mmap(struct perf_evsel *evsel, int pages)
- 
- 	for (cpu = 0; cpu < xyarray__max_x(evsel->fd); cpu++) {
- 		for (thread = 0; thread < xyarray__max_y(evsel->fd); thread++) {
--			int fd = FD(evsel, cpu, thread);
--			struct perf_mmap *map = MMAP(evsel, cpu, thread);
-+			int *fd = FD(evsel, cpu, thread);
-+			struct perf_mmap *map;
- 
--			if (fd < 0)
-+			if (fd == NULL || *fd < 0)
- 				continue;
- 
-+			map = MMAP(evsel, cpu, thread);
- 			perf_mmap__init(map, NULL, false, NULL);
- 
--			ret = perf_mmap__mmap(map, &mp, fd, cpu);
-+			ret = perf_mmap__mmap(map, &mp, *fd, cpu);
- 			if (ret) {
- 				perf_evsel__munmap(evsel);
- 				return ret;
-@@ -260,7 +270,9 @@ int perf_evsel__mmap(struct perf_evsel *evsel, int pages)
- 
- void *perf_evsel__mmap_base(struct perf_evsel *evsel, int cpu, int thread)
- {
--	if (FD(evsel, cpu, thread) < 0 || MMAP(evsel, cpu, thread) == NULL)
-+	int *fd = FD(evsel, cpu, thread);
-+
-+	if (fd == NULL || *fd < 0 || MMAP(evsel, cpu, thread) == NULL)
- 		return NULL;
- 
- 	return MMAP(evsel, cpu, thread)->base;
-@@ -295,17 +307,18 @@ int perf_evsel__read(struct perf_evsel *evsel, int cpu, int thread,
- 		     struct perf_counts_values *count)
- {
- 	size_t size = perf_evsel__read_size(evsel);
-+	int *fd = FD(evsel, cpu, thread);
- 
- 	memset(count, 0, sizeof(*count));
- 
--	if (FD(evsel, cpu, thread) < 0)
-+	if (fd == NULL || *fd < 0)
- 		return -EINVAL;
- 
- 	if (MMAP(evsel, cpu, thread) &&
- 	    !perf_mmap__read_self(MMAP(evsel, cpu, thread), count))
- 		return 0;
- 
--	if (readn(FD(evsel, cpu, thread), count->values, size) <= 0)
-+	if (readn(*fd, count->values, size) <= 0)
- 		return -errno;
- 
- 	return 0;
-@@ -318,8 +331,13 @@ static int perf_evsel__run_ioctl(struct perf_evsel *evsel,
- 	int thread;
- 
- 	for (thread = 0; thread < xyarray__max_y(evsel->fd); thread++) {
--		int fd = FD(evsel, cpu, thread),
--		    err = ioctl(fd, ioc, arg);
-+		int err;
-+		int *fd = FD(evsel, cpu, thread);
-+
-+		if (fd == NULL || *fd < 0)
-+			return -1;
-+
-+		err = ioctl(*fd, ioc, arg);
- 
- 		if (err)
- 			return err;
--- 
-2.33.0
-
+ 		if (kthread_should_stop())
+ 			return 0;
 
 
