@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77CE0419C56
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:26:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9673419AFA
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237025AbhI0R1l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:27:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43266 "EHLO mail.kernel.org"
+        id S236409AbhI0ROp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:14:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237847AbhI0RZk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:25:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22B866137F;
-        Mon, 27 Sep 2021 17:16:07 +0000 (UTC)
+        id S236998AbhI0RNa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:13:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3B0061355;
+        Mon, 27 Sep 2021 17:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762968;
-        bh=atkeb7J4zvUIsuuYsrjCKZO88BK8YXljdIke2vnlUQA=;
+        s=korg; t=1632762564;
+        bh=t2tqLgoZvdT9jejSsLrnROND2E82MIow2rxULr6fum8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nFv8gGRNiKh15nFVHXxDpM2MmtrGZnWStoq4bYyKMqm48EIocKTLlj73yd4b0cp4c
-         NM55GuHS+hyGXaO80eY+400mG7pxf+rfzgAgNKvKJ1Y+HiygNHPSHBIi4nqKBIwQr5
-         NQLj8+AuME6x6HvWgTcGSLJOwam/XyuWPkacQ2vg=
+        b=2NRmga386fok7fTbKgLpTRNXKk0EqdNY89iNe2f2sD+NE/+VqA2v15O2bnU3Ln+Vg
+         UB+KD5UzhrUY6cEQfDpQJy/YQc/IfXwJ2/JDnmSnaqgV/wGCPcixPY0KrLt5Ub/+ss
+         CKs9lf36tcAKSBAOGFQuJZxkGODmdS6lmOvRzN/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Ferre <Nicolas.Ferre@microchip.com>,
-        Tong Zhang <ztong0001@gmail.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 118/162] net: macb: fix use after free on rmmod
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 072/103] blktrace: Fix uaf in blk_trace access after removing by sysfs
 Date:   Mon, 27 Sep 2021 19:02:44 +0200
-Message-Id: <20210927170237.530763174@linuxfoundation.org>
+Message-Id: <20210927170228.257233498@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+References: <20210927170225.702078779@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +39,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit d82d5303c4c539db86588ffb5dc5b26c3f1513e8 ]
+[ Upstream commit 5afedf670caf30a2b5a52da96eb7eac7dee6a9c9 ]
 
-plat_dev->dev->platform_data is released by platform_device_unregister(),
-use of pclk and hclk is a use-after-free. Since device unregister won't
-need a clk device we adjust the function call sequence to fix this issue.
+There is an use-after-free problem triggered by following process:
 
-[   31.261225] BUG: KASAN: use-after-free in macb_remove+0x77/0xc6 [macb_pci]
-[   31.275563] Freed by task 306:
-[   30.276782]  platform_device_release+0x25/0x80
+      P1(sda)				P2(sdb)
+			echo 0 > /sys/block/sdb/trace/enable
+			  blk_trace_remove_queue
+			    synchronize_rcu
+			    blk_trace_free
+			      relay_close
+rcu_read_lock
+__blk_add_trace
+  trace_note_tsk
+  (Iterate running_trace_list)
+			        relay_close_buf
+				  relay_destroy_buf
+				    kfree(buf)
+    trace_note(sdb's bt)
+      relay_reserve
+        buf->offset <- nullptr deference (use-after-free) !!!
+rcu_read_unlock
 
-Suggested-by: Nicolas Ferre <Nicolas.Ferre@microchip.com>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[  502.714379] BUG: kernel NULL pointer dereference, address:
+0000000000000010
+[  502.715260] #PF: supervisor read access in kernel mode
+[  502.715903] #PF: error_code(0x0000) - not-present page
+[  502.716546] PGD 103984067 P4D 103984067 PUD 17592b067 PMD 0
+[  502.717252] Oops: 0000 [#1] SMP
+[  502.720308] RIP: 0010:trace_note.isra.0+0x86/0x360
+[  502.732872] Call Trace:
+[  502.733193]  __blk_add_trace.cold+0x137/0x1a3
+[  502.733734]  blk_add_trace_rq+0x7b/0xd0
+[  502.734207]  blk_add_trace_rq_issue+0x54/0xa0
+[  502.734755]  blk_mq_start_request+0xde/0x1b0
+[  502.735287]  scsi_queue_rq+0x528/0x1140
+...
+[  502.742704]  sg_new_write.isra.0+0x16e/0x3e0
+[  502.747501]  sg_ioctl+0x466/0x1100
+
+Reproduce method:
+  ioctl(/dev/sda, BLKTRACESETUP, blk_user_trace_setup[buf_size=127])
+  ioctl(/dev/sda, BLKTRACESTART)
+  ioctl(/dev/sdb, BLKTRACESETUP, blk_user_trace_setup[buf_size=127])
+  ioctl(/dev/sdb, BLKTRACESTART)
+
+  echo 0 > /sys/block/sdb/trace/enable &
+  // Add delay(mdelay/msleep) before kernel enters blk_trace_free()
+
+  ioctl$SG_IO(/dev/sda, SG_IO, ...)
+  // Enters trace_note_tsk() after blk_trace_free() returned
+  // Use mdelay in rcu region rather than msleep(which may schedule out)
+
+Remove blk_trace from running_list before calling blk_trace_free() by
+sysfs if blk_trace is at Blktrace_running state.
+
+Fixes: c71a896154119f ("blktrace: add ftrace plugin")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Link: https://lore.kernel.org/r/20210923134921.109194-1-chengzhihao1@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb_pci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/blktrace.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/ethernet/cadence/macb_pci.c b/drivers/net/ethernet/cadence/macb_pci.c
-index 8b7b59908a1a..f66d22de5168 100644
---- a/drivers/net/ethernet/cadence/macb_pci.c
-+++ b/drivers/net/ethernet/cadence/macb_pci.c
-@@ -111,9 +111,9 @@ static void macb_remove(struct pci_dev *pdev)
- 	struct platform_device *plat_dev = pci_get_drvdata(pdev);
- 	struct macb_platform_data *plat_data = dev_get_platdata(&plat_dev->dev);
+diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
+index f1022945e346..b89ff188a618 100644
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -1670,6 +1670,14 @@ static int blk_trace_remove_queue(struct request_queue *q)
+ 	if (bt == NULL)
+ 		return -EINVAL;
  
--	platform_device_unregister(plat_dev);
- 	clk_unregister(plat_data->pclk);
- 	clk_unregister(plat_data->hclk);
-+	platform_device_unregister(plat_dev);
- }
- 
- static const struct pci_device_id dev_id_table[] = {
++	if (bt->trace_state == Blktrace_running) {
++		bt->trace_state = Blktrace_stopped;
++		spin_lock_irq(&running_trace_lock);
++		list_del_init(&bt->running_list);
++		spin_unlock_irq(&running_trace_lock);
++		relay_flush(bt->rchan);
++	}
++
+ 	put_probe_ref();
+ 	synchronize_rcu();
+ 	blk_trace_free(bt);
 -- 
 2.33.0
 
