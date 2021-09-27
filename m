@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF46F419AF1
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1C70419A20
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:05:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236347AbhI0ROk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:14:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55390 "EHLO mail.kernel.org"
+        id S236027AbhI0RGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:06:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236565AbhI0RMu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:12:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75E9161279;
-        Mon, 27 Sep 2021 17:08:55 +0000 (UTC)
+        id S235841AbhI0RG0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:06:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63C346113D;
+        Mon, 27 Sep 2021 17:04:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762536;
-        bh=ddjRpM4FxVyZt5Ae/yxSo/QEoLsCMBmjqDKiTYP+zK4=;
+        s=korg; t=1632762288;
+        bh=93Hh6ibWsXSldPNCAhMKgvpyIb4yq5wWd0g+7SliDRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B1fLZ4A0WVSIaYNm793PvufGqChji3k5KZ/JHwWB7ZtVIK0NBRTUKw3vv275Dy143
-         GC/v5kwMt5xNGnzxYOb3AGAX0XIROPTtUbV/W7GIstjqG134YEaoYOQOutB9I7/gcu
-         uLDMla+pjL8scXi74T2FApkdMHb3hXtnJyZqPybk=
+        b=ar+vnqV10HQFJiq5sbITqiK5gxjRbYOydkq0m6PWUxcahaoGUmA5gDrxQzgUbjuOG
+         hl2yaV6q97sIFNpECYbcjVB3ogEKruCDgqxSDEzX3MAm8WKPJfk6dj6P36g7cvR81L
+         fCFlkvO+9U6VqjbcKJf2jKwHgI5Z0dBZfVGGQkJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Subject: [PATCH 5.10 028/103] serial: mvebu-uart: fix drivers tx_empty callback
-Date:   Mon, 27 Sep 2021 19:02:00 +0200
-Message-Id: <20210927170226.715243770@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 5.4 05/68] usb: musb: tusb6010: uninitialized data in tusb_fifo_write_unaligned()
+Date:   Mon, 27 Sep 2021 19:02:01 +0200
+Message-Id: <20210927170220.091091984@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +38,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 74e1eb3b4a1ef2e564b4bdeb6e92afe844e900de upstream.
+commit 517c7bf99bad3d6b9360558414aae634b7472d80 upstream.
 
-Driver's tx_empty callback should signal when the transmit shift register
-is empty. So when the last character has been sent.
+This is writing to the first 1 - 3 bytes of "val" and then writing all
+four bytes to musb_writel().  The last byte is always going to be
+garbage.  Zero out the last bytes instead.
 
-STAT_TX_FIFO_EMP bit signals only that HW transmit FIFO is empty, which
-happens when the last byte is loaded into transmit shift register.
-
-STAT_TX_EMP bit signals when the both HW transmit FIFO and transmit shift
-register are empty.
-
-So replace STAT_TX_FIFO_EMP check by STAT_TX_EMP in mvebu_uart_tx_empty()
-callback function.
-
-Fixes: 30530791a7a0 ("serial: mvebu-uart: initial support for Armada-3700 serial port")
+Fixes: 550a7375fe72 ("USB: Add MUSB and TUSB support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20210911132017.25505-1-pali@kernel.org
+Link: https://lore.kernel.org/r/20210916135737.GI25094@kili
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/mvebu-uart.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/musb/tusb6010.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/serial/mvebu-uart.c
-+++ b/drivers/tty/serial/mvebu-uart.c
-@@ -164,7 +164,7 @@ static unsigned int mvebu_uart_tx_empty(
- 	st = readl(port->membase + UART_STAT);
- 	spin_unlock_irqrestore(&port->lock, flags);
- 
--	return (st & STAT_TX_FIFO_EMP) ? TIOCSER_TEMT : 0;
-+	return (st & STAT_TX_EMP) ? TIOCSER_TEMT : 0;
- }
- 
- static unsigned int mvebu_uart_get_mctrl(struct uart_port *port)
+--- a/drivers/usb/musb/tusb6010.c
++++ b/drivers/usb/musb/tusb6010.c
+@@ -190,6 +190,7 @@ tusb_fifo_write_unaligned(void __iomem *
+ 	}
+ 	if (len > 0) {
+ 		/* Write the rest 1 - 3 bytes to FIFO */
++		val = 0;
+ 		memcpy(&val, buf, len);
+ 		musb_writel(fifo, 0, val);
+ 	}
 
 
