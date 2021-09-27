@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0D4F419C68
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:27:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 084EA419A03
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:04:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236459AbhI0R3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:29:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44158 "EHLO mail.kernel.org"
+        id S235822AbhI0RGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:06:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237428AbhI0R0Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:26:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6518D60240;
-        Mon, 27 Sep 2021 17:16:40 +0000 (UTC)
+        id S235819AbhI0RFs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:05:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D666C6108E;
+        Mon, 27 Sep 2021 17:04:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632763000;
-        bh=BYDeXjV6I4HBqvAXeJgqRcmSfKvidx5YI/DXAoxBqt0=;
+        s=korg; t=1632762250;
+        bh=HE337sP3/0yJ052M2YgQGw+axEVVTAXC+bLq9fAyAdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QhQJvYxZPhhpFYBiG9uiQ4fmfF9qRHpW6yBHKcshd/ZVU4uQirPrj3Lf6SaarMoQT
-         qC1anfJv7IPXbOCm0IpiV61esVh6hqb6c/cWLWMgWHPqFfSbKS4h8tIVK4GxKra7oh
-         FkwVRBYRLK2Z2QRFZianFz1BxCbd55uke1HndnjE=
+        b=naWwLr37R1+NYXD8qBnpyCb7kOEWeoFVWeNQRcqdaDuw89A7XCNoLsdVNWZIsbue5
+         bmMk1xyfTodsBI8dTsMjoEbWEwB9s9kf3CH97jtrCdBrLBCPEULPgbnVMb3fzHi7IU
+         uxFWx7ZGsf5YHJu+wL7ep6Hr9ABWU4DJWH9huQB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 089/162] atlantic: Fix issue in the pm resume flow.
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Johannes Thumshirn <jth@kernel.org>
+Subject: [PATCH 5.4 19/68] mcb: fix error handling in mcb_alloc_bus()
 Date:   Mon, 27 Sep 2021 19:02:15 +0200
-Message-Id: <20210927170236.509873039@linuxfoundation.org>
+Message-Id: <20210927170220.616077145@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,47 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 4d88c339c423eefe2fd48215016cb0c75fcb4c4d ]
+commit 25a1433216489de4abc889910f744e952cb6dbae upstream.
 
-After fixing hibernation resume flow, another usecase was found which
-should be explicitly handled - resume when device is in "down" state.
-Invoke aq_nic_init jointly with aq_nic_start only if ndev was already
-up during suspend/hibernate. We still need to perform nic_deinit() if
-caller requests for it, to handle the freeze/resume scenarios.
+There are two bugs:
+1) If ida_simple_get() fails then this code calls put_device(carrier)
+   but we haven't yet called get_device(carrier) and probably that
+   leads to a use after free.
+2) After device_initialize() then we need to use put_device() to
+   release the bus.  This will free the internal resources tied to the
+   device and call mcb_free_bus() which will free the rest.
 
-Fixes: 57f780f1c433 ("atlantic: Fix driver resume flow.")
-Signed-off-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5d9e2ab9fea4 ("mcb: Implement bus->dev.release callback")
+Fixes: 18d288198099 ("mcb: Correctly initialize the bus's device")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Johannes Thumshirn <jth@kernel.org>
+Link: https://lore.kernel.org/r/32e160cf6864ce77f9d62948338e24db9fd8ead9.1630931319.git.johannes.thumshirn@wdc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mcb/mcb-core.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-index f26d03735619..5b996330f228 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-@@ -419,13 +419,13 @@ static int atl_resume_common(struct device *dev, bool deep)
- 	if (deep) {
- 		/* Reinitialize Nic/Vecs objects */
- 		aq_nic_deinit(nic, !nic->aq_hw->aq_nic_cfg->wol);
-+	}
+--- a/drivers/mcb/mcb-core.c
++++ b/drivers/mcb/mcb-core.c
+@@ -277,8 +277,8 @@ struct mcb_bus *mcb_alloc_bus(struct dev
  
-+	if (netif_running(nic->ndev)) {
- 		ret = aq_nic_init(nic);
- 		if (ret)
- 			goto err_exit;
--	}
+ 	bus_nr = ida_simple_get(&mcb_ida, 0, 0, GFP_KERNEL);
+ 	if (bus_nr < 0) {
+-		rc = bus_nr;
+-		goto err_free;
++		kfree(bus);
++		return ERR_PTR(bus_nr);
+ 	}
  
--	if (netif_running(nic->ndev)) {
- 		ret = aq_nic_start(nic);
- 		if (ret)
- 			goto err_exit;
--- 
-2.33.0
-
+ 	bus->bus_nr = bus_nr;
+@@ -293,12 +293,12 @@ struct mcb_bus *mcb_alloc_bus(struct dev
+ 	dev_set_name(&bus->dev, "mcb:%d", bus_nr);
+ 	rc = device_add(&bus->dev);
+ 	if (rc)
+-		goto err_free;
++		goto err_put;
+ 
+ 	return bus;
+-err_free:
+-	put_device(carrier);
+-	kfree(bus);
++
++err_put:
++	put_device(&bus->dev);
+ 	return ERR_PTR(rc);
+ }
+ EXPORT_SYMBOL_GPL(mcb_alloc_bus);
 
 
