@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5727C419B0B
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A04F9419C26
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:24:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236035AbhI0RPR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:15:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46130 "EHLO mail.kernel.org"
+        id S237792AbhI0RZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:25:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235766AbhI0RLU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:11:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F25A4611C2;
-        Mon, 27 Sep 2021 17:08:13 +0000 (UTC)
+        id S237810AbhI0RXj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:23:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FD6B61374;
+        Mon, 27 Sep 2021 17:15:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762494;
-        bh=HiR7uajrARarixycHTx6stbc43l2Q8NQ8R/iJV3Ij2g=;
+        s=korg; t=1632762912;
+        bh=6p6fGolCNcbm6UmrZBeDgwUVyBbMVwvgftYsFvKNW74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sFzJCKjc6SOkVT2F9UdXMY0Rx3nzjuSF7L/3EmgMhQbVponguVXVN/Wt4g9zswW66
-         5uwOdws4qlW3zfWl4w4P3wKnXGox5K0c1usM7fhVAno5gmEkKYozPT+QovHGOF3dwX
-         +lJ6IoWsV+FUlwpOxI7Yhou7xdnM8wI6UkO2C+Tg=
+        b=dvYAlyc3sjbdocUqrxXb2VV85E2FIlJPYetW0NUjVApUJPQWRRtyYV6XbWVjjwA1G
+         ne+PQuKRwnVH0/f/YFGfrkdmXOsfb1t7j3gFbcdLgPxX5ZB8jyswueHKmT3e+/WsLx
+         cnf7mjVP7Gj5fhWyR4NZmPMHjhANPT7RhBS5ieJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lino Sanfilippo <LinoSanfilippo@gmx.de>,
-        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Philip Yang <Philip.Yang@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 044/103] net: dsa: realtek: register the MDIO bus under devres
+Subject: [PATCH 5.14 090/162] drm/amdkfd: map SVM range with correct access permission
 Date:   Mon, 27 Sep 2021 19:02:16 +0200
-Message-Id: <20210927170227.272823378@linuxfoundation.org>
+Message-Id: <20210927170236.547830372@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,108 +41,260 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Philip Yang <Philip.Yang@amd.com>
 
-[ Upstream commit 74b6d7d13307b016f4b5bba8198297824c0ee6df ]
+[ Upstream commit 2f617f4df8dfef68f175160d533f5820a368023e ]
 
-The Linux device model permits both the ->shutdown and ->remove driver
-methods to get called during a shutdown procedure. Example: a DSA switch
-which sits on an SPI bus, and the SPI bus driver calls this on its
-->shutdown method:
+Restore retry fault or prefetch range, or restore svm range after
+eviction to map range to GPU with correct read or write access
+permission.
 
-spi_unregister_controller
--> device_for_each_child(&ctlr->dev, NULL, __unregister);
-   -> spi_unregister_device(to_spi_device(dev));
-      -> device_del(&spi->dev);
+Range may includes multiple VMAs, update GPU page table with offset of
+prange, number of pages for each VMA according VMA access permission.
 
-So this is a simple pattern which can theoretically appear on any bus,
-although the only other buses on which I've been able to find it are
-I2C:
-
-i2c_del_adapter
--> device_for_each_child(&adap->dev, NULL, __unregister_client);
-   -> i2c_unregister_device(client);
-      -> device_unregister(&client->dev);
-
-The implication of this pattern is that devices on these buses can be
-unregistered after having been shut down. The drivers for these devices
-might choose to return early either from ->remove or ->shutdown if the
-other callback has already run once, and they might choose that the
-->shutdown method should only perform a subset of the teardown done by
-->remove (to avoid unnecessary delays when rebooting).
-
-So in other words, the device driver may choose on ->remove to not
-do anything (therefore to not unregister an MDIO bus it has registered
-on ->probe), because this ->remove is actually triggered by the
-device_shutdown path, and its ->shutdown method has already run and done
-the minimally required cleanup.
-
-This used to be fine until the blamed commit, but now, the following
-BUG_ON triggers:
-
-void mdiobus_free(struct mii_bus *bus)
-{
-	/* For compatibility with error handling in drivers. */
-	if (bus->state == MDIOBUS_ALLOCATED) {
-		kfree(bus);
-		return;
-	}
-
-	BUG_ON(bus->state != MDIOBUS_UNREGISTERED);
-	bus->state = MDIOBUS_RELEASED;
-
-	put_device(&bus->dev);
-}
-
-In other words, there is an attempt to free an MDIO bus which was not
-unregistered. The attempt to free it comes from the devres release
-callbacks of the SPI device, which are executed after the device is
-unregistered.
-
-I'm not saying that the fact that MDIO buses allocated using devres
-would automatically get unregistered wasn't strange. I'm just saying
-that the commit didn't care about auditing existing call paths in the
-kernel, and now, the following code sequences are potentially buggy:
-
-(a) devm_mdiobus_alloc followed by plain mdiobus_register, for a device
-    located on a bus that unregisters its children on shutdown. After
-    the blamed patch, either both the alloc and the register should use
-    devres, or none should.
-
-(b) devm_mdiobus_alloc followed by plain mdiobus_register, and then no
-    mdiobus_unregister at all in the remove path. After the blamed
-    patch, nobody unregisters the MDIO bus anymore, so this is even more
-    buggy than the previous case which needs a specific bus
-    configuration to be seen, this one is an unconditional bug.
-
-In this case, the Realtek drivers fall under category (b). To solve it,
-we can register the MDIO bus under devres too, which restores the
-previous behavior.
-
-Fixes: ac3a68d56651 ("net: phy: don't abuse devres in devm_mdiobus_register()")
-Reported-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Reported-by: Alvin Šipraga <alsi@bang-olufsen.dk>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Philip Yang <Philip.Yang@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/realtek-smi-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_svm.c | 134 +++++++++++++++++----------
+ 1 file changed, 86 insertions(+), 48 deletions(-)
 
-diff --git a/drivers/net/dsa/realtek-smi-core.c b/drivers/net/dsa/realtek-smi-core.c
-index 8e49d4f85d48..6bf46d76c028 100644
---- a/drivers/net/dsa/realtek-smi-core.c
-+++ b/drivers/net/dsa/realtek-smi-core.c
-@@ -368,7 +368,7 @@ int realtek_smi_setup_mdio(struct realtek_smi *smi)
- 	smi->slave_mii_bus->parent = smi->dev;
- 	smi->ds->slave_mii_bus = smi->slave_mii_bus;
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
+index 0f7f1e5621ea..ddac10b5bd3a 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
+@@ -120,6 +120,7 @@ static void svm_range_remove_notifier(struct svm_range *prange)
  
--	ret = of_mdiobus_register(smi->slave_mii_bus, mdio_np);
-+	ret = devm_of_mdiobus_register(smi->dev, smi->slave_mii_bus, mdio_np);
- 	if (ret) {
- 		dev_err(smi->dev, "unable to register MDIO bus %s\n",
- 			smi->slave_mii_bus->id);
+ static int
+ svm_range_dma_map_dev(struct amdgpu_device *adev, struct svm_range *prange,
++		      unsigned long offset, unsigned long npages,
+ 		      unsigned long *hmm_pfns, uint32_t gpuidx)
+ {
+ 	enum dma_data_direction dir = DMA_BIDIRECTIONAL;
+@@ -136,7 +137,8 @@ svm_range_dma_map_dev(struct amdgpu_device *adev, struct svm_range *prange,
+ 		prange->dma_addr[gpuidx] = addr;
+ 	}
+ 
+-	for (i = 0; i < prange->npages; i++) {
++	addr += offset;
++	for (i = 0; i < npages; i++) {
+ 		if (WARN_ONCE(addr[i] && !dma_mapping_error(dev, addr[i]),
+ 			      "leaking dma mapping\n"))
+ 			dma_unmap_page(dev, addr[i], PAGE_SIZE, dir);
+@@ -167,6 +169,7 @@ svm_range_dma_map_dev(struct amdgpu_device *adev, struct svm_range *prange,
+ 
+ static int
+ svm_range_dma_map(struct svm_range *prange, unsigned long *bitmap,
++		  unsigned long offset, unsigned long npages,
+ 		  unsigned long *hmm_pfns)
+ {
+ 	struct kfd_process *p;
+@@ -187,7 +190,8 @@ svm_range_dma_map(struct svm_range *prange, unsigned long *bitmap,
+ 		}
+ 		adev = (struct amdgpu_device *)pdd->dev->kgd;
+ 
+-		r = svm_range_dma_map_dev(adev, prange, hmm_pfns, gpuidx);
++		r = svm_range_dma_map_dev(adev, prange, offset, npages,
++					  hmm_pfns, gpuidx);
+ 		if (r)
+ 			break;
+ 	}
+@@ -1088,11 +1092,6 @@ svm_range_get_pte_flags(struct amdgpu_device *adev, struct svm_range *prange,
+ 	pte_flags |= snoop ? AMDGPU_PTE_SNOOPED : 0;
+ 
+ 	pte_flags |= amdgpu_gem_va_map_flags(adev, mapping_flags);
+-
+-	pr_debug("svms 0x%p [0x%lx 0x%lx] vram %d PTE 0x%llx mapping 0x%x\n",
+-		 prange->svms, prange->start, prange->last,
+-		 (domain == SVM_RANGE_VRAM_DOMAIN) ? 1:0, pte_flags, mapping_flags);
+-
+ 	return pte_flags;
+ }
+ 
+@@ -1156,7 +1155,8 @@ svm_range_unmap_from_gpus(struct svm_range *prange, unsigned long start,
+ 
+ static int
+ svm_range_map_to_gpu(struct amdgpu_device *adev, struct amdgpu_vm *vm,
+-		     struct svm_range *prange, dma_addr_t *dma_addr,
++		     struct svm_range *prange, unsigned long offset,
++		     unsigned long npages, bool readonly, dma_addr_t *dma_addr,
+ 		     struct amdgpu_device *bo_adev, struct dma_fence **fence)
+ {
+ 	struct amdgpu_bo_va bo_va;
+@@ -1167,14 +1167,15 @@ svm_range_map_to_gpu(struct amdgpu_device *adev, struct amdgpu_vm *vm,
+ 	int r = 0;
+ 	int64_t i;
+ 
+-	pr_debug("svms 0x%p [0x%lx 0x%lx]\n", prange->svms, prange->start,
+-		 prange->last);
++	last_start = prange->start + offset;
++
++	pr_debug("svms 0x%p [0x%lx 0x%lx] readonly %d\n", prange->svms,
++		 last_start, last_start + npages - 1, readonly);
+ 
+ 	if (prange->svm_bo && prange->ttm_res)
+ 		bo_va.is_xgmi = amdgpu_xgmi_same_hive(adev, bo_adev);
+ 
+-	last_start = prange->start;
+-	for (i = 0; i < prange->npages; i++) {
++	for (i = offset; i < offset + npages; i++) {
+ 		last_domain = dma_addr[i] & SVM_RANGE_VRAM_DOMAIN;
+ 		dma_addr[i] &= ~SVM_RANGE_VRAM_DOMAIN;
+ 		if ((prange->start + i) < prange->last &&
+@@ -1183,13 +1184,21 @@ svm_range_map_to_gpu(struct amdgpu_device *adev, struct amdgpu_vm *vm,
+ 
+ 		pr_debug("Mapping range [0x%lx 0x%llx] on domain: %s\n",
+ 			 last_start, prange->start + i, last_domain ? "GPU" : "CPU");
++
+ 		pte_flags = svm_range_get_pte_flags(adev, prange, last_domain);
+-		r = amdgpu_vm_bo_update_mapping(adev, bo_adev, vm, false, false, NULL,
+-						last_start,
++		if (readonly)
++			pte_flags &= ~AMDGPU_PTE_WRITEABLE;
++
++		pr_debug("svms 0x%p map [0x%lx 0x%llx] vram %d PTE 0x%llx\n",
++			 prange->svms, last_start, prange->start + i,
++			 (last_domain == SVM_RANGE_VRAM_DOMAIN) ? 1 : 0,
++			 pte_flags);
++
++		r = amdgpu_vm_bo_update_mapping(adev, bo_adev, vm, false, false,
++						NULL, last_start,
+ 						prange->start + i, pte_flags,
+ 						last_start - prange->start,
+-						NULL,
+-						dma_addr,
++						NULL, dma_addr,
+ 						&vm->last_update,
+ 						&table_freed);
+ 		if (r) {
+@@ -1220,8 +1229,10 @@ svm_range_map_to_gpu(struct amdgpu_device *adev, struct amdgpu_vm *vm,
+ 	return r;
+ }
+ 
+-static int svm_range_map_to_gpus(struct svm_range *prange,
+-				 unsigned long *bitmap, bool wait)
++static int
++svm_range_map_to_gpus(struct svm_range *prange, unsigned long offset,
++		      unsigned long npages, bool readonly,
++		      unsigned long *bitmap, bool wait)
+ {
+ 	struct kfd_process_device *pdd;
+ 	struct amdgpu_device *bo_adev;
+@@ -1257,7 +1268,8 @@ static int svm_range_map_to_gpus(struct svm_range *prange,
+ 		}
+ 
+ 		r = svm_range_map_to_gpu(adev, drm_priv_to_vm(pdd->drm_priv),
+-					 prange, prange->dma_addr[gpuidx],
++					 prange, offset, npages, readonly,
++					 prange->dma_addr[gpuidx],
+ 					 bo_adev, wait ? &fence : NULL);
+ 		if (r)
+ 			break;
+@@ -1390,7 +1402,7 @@ static int svm_range_validate_and_map(struct mm_struct *mm,
+ 				      int32_t gpuidx, bool intr, bool wait)
+ {
+ 	struct svm_validate_context ctx;
+-	struct hmm_range *hmm_range;
++	unsigned long start, end, addr;
+ 	struct kfd_process *p;
+ 	void *owner;
+ 	int32_t idx;
+@@ -1448,40 +1460,66 @@ static int svm_range_validate_and_map(struct mm_struct *mm,
+ 			break;
+ 		}
+ 	}
+-	r = amdgpu_hmm_range_get_pages(&prange->notifier, mm, NULL,
+-				       prange->start << PAGE_SHIFT,
+-				       prange->npages, &hmm_range,
+-				       false, true, owner);
+-	if (r) {
+-		pr_debug("failed %d to get svm range pages\n", r);
+-		goto unreserve_out;
+-	}
+ 
+-	r = svm_range_dma_map(prange, ctx.bitmap,
+-			      hmm_range->hmm_pfns);
+-	if (r) {
+-		pr_debug("failed %d to dma map range\n", r);
+-		goto unreserve_out;
+-	}
++	start = prange->start << PAGE_SHIFT;
++	end = (prange->last + 1) << PAGE_SHIFT;
++	for (addr = start; addr < end && !r; ) {
++		struct hmm_range *hmm_range;
++		struct vm_area_struct *vma;
++		unsigned long next;
++		unsigned long offset;
++		unsigned long npages;
++		bool readonly;
+ 
+-	prange->validated_once = true;
++		vma = find_vma(mm, addr);
++		if (!vma || addr < vma->vm_start) {
++			r = -EFAULT;
++			goto unreserve_out;
++		}
++		readonly = !(vma->vm_flags & VM_WRITE);
+ 
+-	svm_range_lock(prange);
+-	if (amdgpu_hmm_range_get_pages_done(hmm_range)) {
+-		pr_debug("hmm update the range, need validate again\n");
+-		r = -EAGAIN;
+-		goto unlock_out;
+-	}
+-	if (!list_empty(&prange->child_list)) {
+-		pr_debug("range split by unmap in parallel, validate again\n");
+-		r = -EAGAIN;
+-		goto unlock_out;
+-	}
++		next = min(vma->vm_end, end);
++		npages = (next - addr) >> PAGE_SHIFT;
++		r = amdgpu_hmm_range_get_pages(&prange->notifier, mm, NULL,
++					       addr, npages, &hmm_range,
++					       readonly, true, owner);
++		if (r) {
++			pr_debug("failed %d to get svm range pages\n", r);
++			goto unreserve_out;
++		}
+ 
+-	r = svm_range_map_to_gpus(prange, ctx.bitmap, wait);
++		offset = (addr - start) >> PAGE_SHIFT;
++		r = svm_range_dma_map(prange, ctx.bitmap, offset, npages,
++				      hmm_range->hmm_pfns);
++		if (r) {
++			pr_debug("failed %d to dma map range\n", r);
++			goto unreserve_out;
++		}
++
++		svm_range_lock(prange);
++		if (amdgpu_hmm_range_get_pages_done(hmm_range)) {
++			pr_debug("hmm update the range, need validate again\n");
++			r = -EAGAIN;
++			goto unlock_out;
++		}
++		if (!list_empty(&prange->child_list)) {
++			pr_debug("range split by unmap in parallel, validate again\n");
++			r = -EAGAIN;
++			goto unlock_out;
++		}
++
++		r = svm_range_map_to_gpus(prange, offset, npages, readonly,
++					  ctx.bitmap, wait);
+ 
+ unlock_out:
+-	svm_range_unlock(prange);
++		svm_range_unlock(prange);
++
++		addr = next;
++	}
++
++	if (addr == end)
++		prange->validated_once = true;
++
+ unreserve_out:
+ 	svm_range_unreserve_bos(&ctx);
+ 
 -- 
 2.33.0
 
