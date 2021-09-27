@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01890419B58
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:16:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B4F5419C92
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236761AbhI0RRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:17:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56176 "EHLO mail.kernel.org"
+        id S236197AbhI0RaM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:30:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236844AbhI0RPf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:15:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0E3D6137E;
-        Mon, 27 Sep 2021 17:11:03 +0000 (UTC)
+        id S237720AbhI0R2J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:28:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 276F261452;
+        Mon, 27 Sep 2021 17:17:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762664;
-        bh=oEZUQg/xVn0SgdN7rNqBHSguMu2bwqsXX/umi3xsmsY=;
+        s=korg; t=1632763039;
+        bh=XegQGG9ZyGt+uAqrWDY+lVQGoahIuijtmmNkCIEoCps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nqw0kAHov6f1FO60SPvxi1WN+DhByY/Fsud0L7TJn8kRJeuB6b+ejK/A6OksxUBfm
-         VeTG4x0Mm0CjtfsGzwSXMhY0MNvEfgLuKxy3TjNTQW+/qwtvV+/cUA3e/3lgurd3hJ
-         CtzKK5lyC8FID2PcIyeEfuxN8G1i9vZ5hu5D8Fmo=
+        b=ed9530naxf+mHyQRO+erGknfa2azynlPVAyvWVshLI4CrJSMpXqS56P3XB7wpwgy/
+         bg7TxTN+6SG5k7Eglh3bwOOpsY0aSYhs0XGbZwYqKj+oNlAgOu/dqAAXHHWTFRogic
+         +cwUYEUqq9vwizvuHBRbjS7sW6Hy0OzAuJfUpL2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>,
-        Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.10 098/103] EDAC/synopsys: Fix wrong value type assignment for edac_mode
+        stable@vger.kernel.org, Dan Li <ashimida@linux.alibaba.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 144/162] arm64: Mark __stack_chk_guard as __ro_after_init
 Date:   Mon, 27 Sep 2021 19:03:10 +0200
-Message-Id: <20210927170229.156614462@linuxfoundation.org>
+Message-Id: <20210927170238.424364305@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
+From: Dan Li <ashimida@linux.alibaba.com>
 
-commit 5297cfa6bdf93e3889f78f9b482e2a595a376083 upstream.
+[ Upstream commit 9fcb2e93f41c07a400885325e7dbdfceba6efaec ]
 
-dimm->edac_mode contains values of type enum edac_type - not the
-corresponding capability flags. Fix that.
+__stack_chk_guard is setup once while init stage and never changed
+after that.
 
-Issue caught by Coverity check "enumerated type mixed with another
-type."
+Although the modification of this variable at runtime will usually
+cause the kernel to crash (so does the attacker), it should be marked
+as __ro_after_init, and it should not affect performance if it is
+placed in the ro_after_init section.
 
- [ bp: Rewrite commit message, add tags. ]
-
-Fixes: ae9b56e3996d ("EDAC, synps: Add EDAC support for zynq ddr ecc controller")
-Signed-off-by: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
-Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20210818072315.15149-1-shubhrajyoti.datta@xilinx.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Dan Li <ashimida@linux.alibaba.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/r/1631612642-102881-1-git-send-email-ashimida@linux.alibaba.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/synopsys_edac.c |    2 +-
+ arch/arm64/kernel/process.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/edac/synopsys_edac.c
-+++ b/drivers/edac/synopsys_edac.c
-@@ -782,7 +782,7 @@ static void init_csrows(struct mem_ctl_i
+diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
+index c8989b999250..c858b857c1ec 100644
+--- a/arch/arm64/kernel/process.c
++++ b/arch/arm64/kernel/process.c
+@@ -60,7 +60,7 @@
  
- 		for (j = 0; j < csi->nr_channels; j++) {
- 			dimm		= csi->channels[j]->dimm;
--			dimm->edac_mode	= EDAC_FLAG_SECDED;
-+			dimm->edac_mode	= EDAC_SECDED;
- 			dimm->mtype	= p_data->get_mtype(priv->baseaddr);
- 			dimm->nr_pages	= (size >> PAGE_SHIFT) / csi->nr_channels;
- 			dimm->grain	= SYNPS_EDAC_ERR_GRAIN;
+ #if defined(CONFIG_STACKPROTECTOR) && !defined(CONFIG_STACKPROTECTOR_PER_TASK)
+ #include <linux/stackprotector.h>
+-unsigned long __stack_chk_guard __read_mostly;
++unsigned long __stack_chk_guard __ro_after_init;
+ EXPORT_SYMBOL(__stack_chk_guard);
+ #endif
+ 
+-- 
+2.33.0
+
 
 
