@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C46F54192AC
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 13:01:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1C334192AD
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 13:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233958AbhI0LCo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 07:02:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53242 "EHLO mail.kernel.org"
+        id S233902AbhI0LCq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 07:02:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233900AbhI0LCe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 07:02:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7138F60F3A;
-        Mon, 27 Sep 2021 11:00:55 +0000 (UTC)
+        id S233949AbhI0LCl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 07:02:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98A5360F46;
+        Mon, 27 Sep 2021 11:01:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632740455;
-        bh=ARhMCGkjNarQ3TvQ7tEXrozrOZ37V/jFJTJgnJ4/gG8=;
+        s=korg; t=1632740464;
+        bh=g87mjQ7y3sxQKc/hptVgmmD6AN5P7zdqLD6w1Yl0x4E=;
         h=Subject:To:Cc:From:Date:From;
-        b=V2yYVzfEP05jyHq69Jy0uc57sXkxiOuY7fP/wvGRc/n0btacdXSdr15IUDDEN7ZuK
-         Zbu6nhYjjxn1KVNd5spnABQu1D2vyZPc7jKgAQyRh24JeY54Lr4wWdQ7TED35WLpHF
-         MJ2MsVkBXXDU7d8vbpXDLc2PZwotMfhsdTB2SJW8=
-Subject: FAILED: patch "[PATCH] EDAC/synopsys: Fix wrong value type assignment for edac_mode" failed to apply to 4.19-stable tree
+        b=nslhhO50mkP4HX+Na9eqBVbubtha8wnPudecNbOSdg7q4J3Jje6y52FI8tk5bfRpm
+         OnzMjHl9a8yr5jzGF8yo0P6+J6prbSEAza5wJh2T7ZVkeMe8EU+hDWlIXXna5KtlEN
+         DtuTXs/tDOqnbCvXFHKuZ5PRp0Zs0Td+0c62kOnk=
+Subject: FAILED: patch "[PATCH] EDAC/synopsys: Fix wrong value type assignment for edac_mode" failed to apply to 4.4-stable tree
 To:     lakshmi.sai.krishna.potthuri@xilinx.com, bp@suse.de,
         shubhrajyoti.datta@xilinx.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 27 Sep 2021 13:00:53 +0200
-Message-ID: <163274045325350@kroah.com>
+Message-ID: <163274045396125@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
