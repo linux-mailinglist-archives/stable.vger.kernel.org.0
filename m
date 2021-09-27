@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3487B419B45
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:15:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44F3C419B4A
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:15:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236405AbhI0RQr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:16:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55534 "EHLO mail.kernel.org"
+        id S236669AbhI0RRC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:17:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236686AbhI0RPQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:15:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EA9161374;
-        Mon, 27 Sep 2021 17:10:48 +0000 (UTC)
+        id S235979AbhI0RPS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:15:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 273B061378;
+        Mon, 27 Sep 2021 17:10:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762648;
-        bh=2x/8C7RGicmM784+vbWKsqQcHRNQFf3C1wuczzZL2ss=;
+        s=korg; t=1632762651;
+        bh=VAraTJOGdDuFgCeCxg6ePmu6f9ezVwc5hq6kx/0oXnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=twNCCZZZr99L0i6zgf3+Mk4UN3zCgf1htMuNo7Bz1sb69qbjn2Aq+kBFkGiAJrxJh
-         4G8s6e5f7R7yriP/wiKnehKANpHjcZwtcdrBLVV1R3IuD2r292Sv1MTJ3KqNxf+M7K
-         i8Wu047HS7VR5zB9xHrhYxL8HqiK7zgUOC7g3Ie8=
+        b=nxSPqKpQUTO7x/ViUs6C27KJanH7YWJY8V6U36S7tngzWDoomY2USF3RYmhYtNn2X
+         sRwF1GW2rPmevx3GkvlUl5kAfoMCWdwX1Pl8GICbPS+oi7hTTdXbNv/KSDRDF4PqCV
+         ECxQceUSrqLSzCtVrIc6q2bogHEPVDYlWnDWGARQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 092/103] qnx4: avoid stringop-overread errors
-Date:   Mon, 27 Sep 2021 19:03:04 +0200
-Message-Id: <20210927170228.953995670@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.10 093/103] parisc: Use absolute_pointer() to define PAGE0
+Date:   Mon, 27 Sep 2021 19:03:05 +0200
+Message-Id: <20210927170228.985561555@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
 References: <20210927170225.702078779@linuxfoundation.org>
@@ -40,129 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit b7213ffa0e585feb1aee3e7173e965e66ee0abaa ]
+[ Upstream commit 90cc7bed1ed19f869ae7221a6b41887fe762a6a3 ]
 
-The qnx4 directory entries are 64-byte blocks that have different
-contents depending on the a status byte that is in the last byte of the
-block.
+Use absolute_pointer() wrapper for PAGE0 to avoid this compiler warning:
 
-In particular, a directory entry can be either a "link info" entry with
-a 48-byte name and pointers to the real inode information, or an "inode
-entry" with a smaller 16-byte name and the full inode information.
+  arch/parisc/kernel/setup.c: In function 'start_parisc':
+  error: '__builtin_memcmp_eq' specified bound 8 exceeds source size 0
 
-But the code was written to always just treat the directory name as if
-it was part of that "inode entry", and just extend the name to the
-longer case if the status byte said it was a link entry.
-
-That work just fine and gives the right results, but now that gcc is
-tracking data structure accesses much more, the code can trigger a
-compiler error about using up to 48 bytes (the long name) in a structure
-that only has that shorter name in it:
-
-   fs/qnx4/dir.c: In function ‘qnx4_readdir’:
-   fs/qnx4/dir.c:51:32: error: ‘strnlen’ specified bound 48 exceeds source size 16 [-Werror=stringop-overread]
-      51 |                         size = strnlen(de->di_fname, size);
-         |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~
-   In file included from fs/qnx4/qnx4.h:3,
-                    from fs/qnx4/dir.c:16:
-   include/uapi/linux/qnx4_fs.h:45:25: note: source object declared here
-      45 |         char            di_fname[QNX4_SHORT_NAME_MAX];
-         |                         ^~~~~~~~
-
-which is because the source code doesn't really make this whole "one of
-two different types" explicit.
-
-Fix this by introducing a very explicit union of the two types, and
-basically explaining to the compiler what is really going on.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Co-Developed-by: Guenter Roeck <linux@roeck-us.net>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/qnx4/dir.c | 51 ++++++++++++++++++++++++++++++++++-----------------
- 1 file changed, 34 insertions(+), 17 deletions(-)
+ arch/parisc/include/asm/page.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/qnx4/dir.c b/fs/qnx4/dir.c
-index a6ee23aadd28..2a66844b7ff8 100644
---- a/fs/qnx4/dir.c
-+++ b/fs/qnx4/dir.c
-@@ -15,13 +15,27 @@
- #include <linux/buffer_head.h>
- #include "qnx4.h"
+diff --git a/arch/parisc/include/asm/page.h b/arch/parisc/include/asm/page.h
+index 6b3f6740a6a6..8802ce651a3a 100644
+--- a/arch/parisc/include/asm/page.h
++++ b/arch/parisc/include/asm/page.h
+@@ -184,7 +184,7 @@ extern int npmem_ranges;
+ #include <asm-generic/getorder.h>
+ #include <asm/pdc.h>
  
-+/*
-+ * A qnx4 directory entry is an inode entry or link info
-+ * depending on the status field in the last byte. The
-+ * first byte is where the name start either way, and a
-+ * zero means it's empty.
-+ */
-+union qnx4_directory_entry {
-+	struct {
-+		char de_name;
-+		char de_pad[62];
-+		char de_status;
-+	};
-+	struct qnx4_inode_entry inode;
-+	struct qnx4_link_info link;
-+};
-+
- static int qnx4_readdir(struct file *file, struct dir_context *ctx)
- {
- 	struct inode *inode = file_inode(file);
- 	unsigned int offset;
- 	struct buffer_head *bh;
--	struct qnx4_inode_entry *de;
--	struct qnx4_link_info *le;
- 	unsigned long blknum;
- 	int ix, ino;
- 	int size;
-@@ -38,27 +52,30 @@ static int qnx4_readdir(struct file *file, struct dir_context *ctx)
- 		}
- 		ix = (ctx->pos >> QNX4_DIR_ENTRY_SIZE_BITS) % QNX4_INODES_PER_BLOCK;
- 		for (; ix < QNX4_INODES_PER_BLOCK; ix++, ctx->pos += QNX4_DIR_ENTRY_SIZE) {
-+			union qnx4_directory_entry *de;
-+			const char *name;
-+
- 			offset = ix * QNX4_DIR_ENTRY_SIZE;
--			de = (struct qnx4_inode_entry *) (bh->b_data + offset);
--			if (!de->di_fname[0])
-+			de = (union qnx4_directory_entry *) (bh->b_data + offset);
-+
-+			if (!de->de_name)
- 				continue;
--			if (!(de->di_status & (QNX4_FILE_USED|QNX4_FILE_LINK)))
-+			if (!(de->de_status & (QNX4_FILE_USED|QNX4_FILE_LINK)))
- 				continue;
--			if (!(de->di_status & QNX4_FILE_LINK))
--				size = QNX4_SHORT_NAME_MAX;
--			else
--				size = QNX4_NAME_MAX;
--			size = strnlen(de->di_fname, size);
--			QNX4DEBUG((KERN_INFO "qnx4_readdir:%.*s\n", size, de->di_fname));
--			if (!(de->di_status & QNX4_FILE_LINK))
-+			if (!(de->de_status & QNX4_FILE_LINK)) {
-+				size = sizeof(de->inode.di_fname);
-+				name = de->inode.di_fname;
- 				ino = blknum * QNX4_INODES_PER_BLOCK + ix - 1;
--			else {
--				le  = (struct qnx4_link_info*)de;
--				ino = ( le32_to_cpu(le->dl_inode_blk) - 1 ) *
-+			} else {
-+				size = sizeof(de->link.dl_fname);
-+				name = de->link.dl_fname;
-+				ino = ( le32_to_cpu(de->link.dl_inode_blk) - 1 ) *
- 					QNX4_INODES_PER_BLOCK +
--					le->dl_inode_ndx;
-+					de->link.dl_inode_ndx;
- 			}
--			if (!dir_emit(ctx, de->di_fname, size, ino, DT_UNKNOWN)) {
-+			size = strnlen(name, size);
-+			QNX4DEBUG((KERN_INFO "qnx4_readdir:%.*s\n", size, name));
-+			if (!dir_emit(ctx, name, size, ino, DT_UNKNOWN)) {
- 				brelse(bh);
- 				return 0;
- 			}
+-#define PAGE0   ((struct zeropage *)__PAGE_OFFSET)
++#define PAGE0   ((struct zeropage *)absolute_pointer(__PAGE_OFFSET))
+ 
+ /* DEFINITION OF THE ZERO-PAGE (PAG0) */
+ /* based on work by Jason Eckhardt (jason@equator.com) */
 -- 
 2.33.0
 
