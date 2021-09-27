@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93670419B0E
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBAB4419AE6
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236504AbhI0RPS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:15:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53906 "EHLO mail.kernel.org"
+        id S236200AbhI0ROh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:14:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236324AbhI0RLn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:11:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA6BA61205;
-        Mon, 27 Sep 2021 17:08:21 +0000 (UTC)
+        id S235903AbhI0RLq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:11:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8454D61260;
+        Mon, 27 Sep 2021 17:08:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762502;
-        bh=+IVlsfsqQGtAQEzOZrYN1MEkm3qMZKeYc6Xdqh4kBhw=;
+        s=korg; t=1632762505;
+        bh=gbg0rutphFkZs8yPTvbw04awPgPi4s4f/mRCFXZpLXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LgEs04bOX7zJHXDHAML617sW5jFaHlHKuKDczrLfgo0WVWn/UYYZAI6e7ZzwI/7qg
-         PFVgBvWkD8rXOG9HUDF1RqAb+8Df4iQeheMtAUlCU/X9oGaKNyoJ7tpjoh4eq70uKN
-         K4UQl5OeTBRqd2pdEhVUvWKUfTelHbIoFHBsfZag=
+        b=DqntMWexF5Bu8WpCq5Xx+XhwIxjJzgcR3YQnVasEsv/AntCPEsh1AWp5YGn+jn2Sj
+         pRpNZxySLG3gQf247scIWTPFvit2wtYcU1MaIZcXvivq506MKOj5meWesNSnvdQibO
+         qPlyzfFORDP4f9omLqNkMOkvTfM0XfYSghV2amJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Raspl <raspl@linux.ibm.com>,
+        stable@vger.kernel.org, Alexandra Winter <wintera@linux.ibm.com>,
         Julian Wiedmann <jwi@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.10 047/103] s390/qeth: fix NULL deref in qeth_clear_working_pool_list()
-Date:   Mon, 27 Sep 2021 19:02:19 +0200
-Message-Id: <20210927170227.382896885@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 048/103] s390/qeth: fix deadlock during failing recovery
+Date:   Mon, 27 Sep 2021 19:02:20 +0200
+Message-Id: <20210927170227.414776158@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
 References: <20210927170225.702078779@linuxfoundation.org>
@@ -43,58 +41,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Alexandra Winter <wintera@linux.ibm.com>
 
-[ Upstream commit 248f064af222a1f97ee02c84a98013dfbccad386 ]
+[ Upstream commit d2b59bd4b06d84a4eadb520b0f71c62fe8ec0a62 ]
 
-When qeth_set_online() calls qeth_clear_working_pool_list() to roll
-back after an error exit from qeth_hardsetup_card(), we are at risk of
-accessing card->qdio.in_q before it was allocated by
-qeth_alloc_qdio_queues() via qeth_mpc_initialize().
+Commit 0b9902c1fcc5 ("s390/qeth: fix deadlock during recovery") removed
+taking discipline_mutex inside qeth_do_reset(), fixing potential
+deadlocks. An error path was missed though, that still takes
+discipline_mutex and thus has the original deadlock potential.
 
-qeth_clear_working_pool_list() then dereferences NULL, and by writing to
-queue->bufs[i].pool_entry scribbles all over the CPU's lowcore.
-Resulting in a crash when those lowcore areas are used next (eg. on
-the next machine-check interrupt).
+Intermittent deadlocks were seen when a qeth channel path is configured
+offline, causing a race between qeth_do_reset and ccwgroup_remove.
+Call qeth_set_offline() directly in the qeth_do_reset() error case and
+then a new variant of ccwgroup_set_offline(), without taking
+discipline_mutex.
 
-Such a scenario would typically happen when the device is first set
-online and its queues aren't allocated yet. An early IO error or certain
-misconfigs (eg. mismatched transport mode, bad portno) then cause us to
-error out from qeth_hardsetup_card() with card->qdio.in_q still being
-NULL.
-
-Fix it by checking the pointer for NULL before accessing it.
-
-Note that we also have (rare) paths inside qeth_mpc_initialize() where
-a configuration change can cause us to free the existing queues,
-expecting that subsequent code will allocate them again. If we then
-error out before that re-allocation happens, the same bug occurs.
-
-Fixes: eff73e16ee11 ("s390/qeth: tolerate pre-filled RX buffer")
-Reported-by: Stefan Raspl <raspl@linux.ibm.com>
-Root-caused-by: Heiko Carstens <hca@linux.ibm.com>
+Fixes: b41b554c1ee7 ("s390/qeth: fix locking for discipline setup / removal")
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core_main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/s390/include/asm/ccwgroup.h  |  2 +-
+ drivers/s390/cio/ccwgroup.c       | 10 ++++++++--
+ drivers/s390/net/qeth_core_main.c |  3 ++-
+ 3 files changed, 11 insertions(+), 4 deletions(-)
 
+diff --git a/arch/s390/include/asm/ccwgroup.h b/arch/s390/include/asm/ccwgroup.h
+index ad3acb1e882b..8a22da9a735a 100644
+--- a/arch/s390/include/asm/ccwgroup.h
++++ b/arch/s390/include/asm/ccwgroup.h
+@@ -58,7 +58,7 @@ struct ccwgroup_device *get_ccwgroupdev_by_busid(struct ccwgroup_driver *gdrv,
+ 						 char *bus_id);
+ 
+ extern int ccwgroup_set_online(struct ccwgroup_device *gdev);
+-extern int ccwgroup_set_offline(struct ccwgroup_device *gdev);
++int ccwgroup_set_offline(struct ccwgroup_device *gdev, bool call_gdrv);
+ 
+ extern int ccwgroup_probe_ccwdev(struct ccw_device *cdev);
+ extern void ccwgroup_remove_ccwdev(struct ccw_device *cdev);
+diff --git a/drivers/s390/cio/ccwgroup.c b/drivers/s390/cio/ccwgroup.c
+index 483a9ecfcbb1..cfdc1c7825d0 100644
+--- a/drivers/s390/cio/ccwgroup.c
++++ b/drivers/s390/cio/ccwgroup.c
+@@ -98,12 +98,13 @@ EXPORT_SYMBOL(ccwgroup_set_online);
+ /**
+  * ccwgroup_set_offline() - disable a ccwgroup device
+  * @gdev: target ccwgroup device
++ * @call_gdrv: Call the registered gdrv set_offline function
+  *
+  * This function attempts to put the ccwgroup device into the offline state.
+  * Returns:
+  *  %0 on success and a negative error value on failure.
+  */
+-int ccwgroup_set_offline(struct ccwgroup_device *gdev)
++int ccwgroup_set_offline(struct ccwgroup_device *gdev, bool call_gdrv)
+ {
+ 	struct ccwgroup_driver *gdrv = to_ccwgroupdrv(gdev->dev.driver);
+ 	int ret = -EINVAL;
+@@ -112,11 +113,16 @@ int ccwgroup_set_offline(struct ccwgroup_device *gdev)
+ 		return -EAGAIN;
+ 	if (gdev->state == CCWGROUP_OFFLINE)
+ 		goto out;
++	if (!call_gdrv) {
++		ret = 0;
++		goto offline;
++	}
+ 	if (gdrv->set_offline)
+ 		ret = gdrv->set_offline(gdev);
+ 	if (ret)
+ 		goto out;
+ 
++offline:
+ 	gdev->state = CCWGROUP_OFFLINE;
+ out:
+ 	atomic_set(&gdev->onoff, 0);
+@@ -145,7 +151,7 @@ static ssize_t ccwgroup_online_store(struct device *dev,
+ 	if (value == 1)
+ 		ret = ccwgroup_set_online(gdev);
+ 	else if (value == 0)
+-		ret = ccwgroup_set_offline(gdev);
++		ret = ccwgroup_set_offline(gdev, true);
+ 	else
+ 		ret = -EINVAL;
+ out:
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 4d51c4ace8ea..7b0155b0e99e 100644
+index 7b0155b0e99e..15477bfb5bd8 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -210,6 +210,9 @@ static void qeth_clear_working_pool_list(struct qeth_card *card)
- 				 &card->qdio.in_buf_pool.entry_list, list)
- 		list_del(&pool_entry->list);
- 
-+	if (!queue)
-+		return;
-+
- 	for (i = 0; i < ARRAY_SIZE(queue->bufs); i++)
- 		queue->bufs[i].pool_entry = NULL;
- }
+@@ -5406,7 +5406,8 @@ static int qeth_do_reset(void *data)
+ 		dev_info(&card->gdev->dev,
+ 			 "Device successfully recovered!\n");
+ 	} else {
+-		ccwgroup_set_offline(card->gdev);
++		qeth_set_offline(card, disc, true);
++		ccwgroup_set_offline(card->gdev, false);
+ 		dev_warn(&card->gdev->dev,
+ 			 "The qeth device driver failed to recover an error on the device\n");
+ 	}
 -- 
 2.33.0
 
