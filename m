@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81878419A68
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:07:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE6D0419B24
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:14:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236436AbhI0RIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:08:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48178 "EHLO mail.kernel.org"
+        id S236894AbhI0RPi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:15:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236086AbhI0RHs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:07:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31B4D611EF;
-        Mon, 27 Sep 2021 17:06:09 +0000 (UTC)
+        id S237321AbhI0ROc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:14:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D904760F46;
+        Mon, 27 Sep 2021 17:10:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762370;
-        bh=oEZUQg/xVn0SgdN7rNqBHSguMu2bwqsXX/umi3xsmsY=;
+        s=korg; t=1632762615;
+        bh=+2A9l2PodW0DlnBZBEe5EemzvXiXyRd2LEasJ/KHmoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MmBEuuduX5+O+TgIXhMi3XsDeKE0W0y6U81uKc8hkswylWTrTyvYFnEgCWQg7+7WV
-         O7nXTyO7tYx9tiT10LCuWZq24M8/k4BWPw8G7FEa48eeBKDFrDUiflJTx9rqJFCW4M
-         XirSzFdETp392bNm9Nzj7MEiKb86z7NxowX3e7Ig=
+        b=bu1SLaPO90wzDZ6fLLq8hrS7zXKwHoVi0uB8eoCl1k4uocVXcZdjH+DuSsIta57W3
+         z2kQ9Rk4tFAyF02/wRziOqYGeagPkuV7OtaDyoZY+NS65ErUNvl4CM/Yi1U/F2u5An
+         Xl72iVqD6idsrxhGOXfT9CabudCk4lYGhqxvYNGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>,
-        Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.4 64/68] EDAC/synopsys: Fix wrong value type assignment for edac_mode
-Date:   Mon, 27 Sep 2021 19:03:00 +0200
-Message-Id: <20210927170222.186780015@linuxfoundation.org>
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 089/103] compiler.h: Introduce absolute_pointer macro
+Date:   Mon, 27 Sep 2021 19:03:01 +0200
+Message-Id: <20210927170228.847386413@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
-References: <20210927170219.901812470@linuxfoundation.org>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+References: <20210927170225.702078779@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 5297cfa6bdf93e3889f78f9b482e2a595a376083 upstream.
+[ Upstream commit f6b5f1a56987de837f8e25cd560847106b8632a8 ]
 
-dimm->edac_mode contains values of type enum edac_type - not the
-corresponding capability flags. Fix that.
+absolute_pointer() disassociates a pointer from its originating symbol
+type and context. Use it to prevent compiler warnings/errors such as
 
-Issue caught by Coverity check "enumerated type mixed with another
-type."
+  drivers/net/ethernet/i825xx/82596.c: In function 'i82596_probe':
+  arch/m68k/include/asm/string.h:72:25: error:
+	'__builtin_memcpy' reading 6 bytes from a region of size 0 [-Werror=stringop-overread]
 
- [ bp: Rewrite commit message, add tags. ]
+Such warnings may be reported by gcc 11.x for string and memory
+operations on fixed addresses.
 
-Fixes: ae9b56e3996d ("EDAC, synps: Add EDAC support for zynq ddr ecc controller")
-Signed-off-by: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
-Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20210818072315.15149-1-shubhrajyoti.datta@xilinx.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/synopsys_edac.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/compiler.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/edac/synopsys_edac.c
-+++ b/drivers/edac/synopsys_edac.c
-@@ -782,7 +782,7 @@ static void init_csrows(struct mem_ctl_i
+diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+index b8fe0c23cfff..475d0a3ce059 100644
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -180,6 +180,8 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
+     (typeof(ptr)) (__ptr + (off)); })
+ #endif
  
- 		for (j = 0; j < csi->nr_channels; j++) {
- 			dimm		= csi->channels[j]->dimm;
--			dimm->edac_mode	= EDAC_FLAG_SECDED;
-+			dimm->edac_mode	= EDAC_SECDED;
- 			dimm->mtype	= p_data->get_mtype(priv->baseaddr);
- 			dimm->nr_pages	= (size >> PAGE_SHIFT) / csi->nr_channels;
- 			dimm->grain	= SYNPS_EDAC_ERR_GRAIN;
++#define absolute_pointer(val)	RELOC_HIDE((void *)(val), 0)
++
+ #ifndef OPTIMIZER_HIDE_VAR
+ /* Make the optimizer believe the variable can be manipulated arbitrarily. */
+ #define OPTIMIZER_HIDE_VAR(var)						\
+-- 
+2.33.0
+
 
 
