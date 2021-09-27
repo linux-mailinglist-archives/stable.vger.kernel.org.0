@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E657419C02
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87031419C1C
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236858AbhI0RYr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:24:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40938 "EHLO mail.kernel.org"
+        id S236319AbhI0RZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:25:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237233AbhI0RXM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:23:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF5A4613AB;
-        Mon, 27 Sep 2021 17:14:43 +0000 (UTC)
+        id S237515AbhI0RXU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:23:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96CD56139E;
+        Mon, 27 Sep 2021 17:14:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762884;
-        bh=S0p4WUS4LJtWaHWvAul1QZYw3FimA81j09LhNdskdug=;
+        s=korg; t=1632762887;
+        bh=zmlKPEvCPy4VDKcUyOH5io7XNhDQByhPPa7mxy69/sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l/yZ28ul5GCy2hZdFoWOg3ZhU/s1J5OY7ikYsfDTIiy9VGNjzh4k+1bFPF2jxzK6I
-         OFVEIKhYkB8YoDS0oMVNR/FyMwQNwbUZ4nXJElcr5Xv+kZ76cpS460z+6IWN27flMX
-         SmXNowoF0XhBqb2V5NmqRtXFQGk0eCDYJ84ZuWUE=
+        b=ZM7AoKswApZ11SHhLsNmuHaB6BkJQcOYhTGSDKjyHW1qUIqkg3qqejx5qBlE5EHmy
+         56p5ISnKrlVx9KDHlMzlAe1VRFjg66wzqj/XzU/7tR89omg08l4QRtyzvoMGrVK38O
+         L2LCQ/vtUO+Zss9bjotQsGlYOp/G+WMauZeMRjYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        stable@vger.kernel.org,
+        Colin Foster <colin.foster@in-advantage.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 086/162] net: ethernet: mtk_eth_soc: avoid creating duplicate offload entries
-Date:   Mon, 27 Sep 2021 19:02:12 +0200
-Message-Id: <20210927170236.415458361@linuxfoundation.org>
+Subject: [PATCH 5.14 087/162] net: mscc: ocelot: fix forwarding from BLOCKING ports remaining enabled
+Date:   Mon, 27 Sep 2021 19:02:13 +0200
+Message-Id: <20210927170236.445780907@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
 References: <20210927170233.453060397@linuxfoundation.org>
@@ -41,38 +42,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit e68daf61ed13832aef8892200a874139700ca754 ]
+[ Upstream commit acc64f52afac15e9e44d9b5253271346841786e0 ]
 
-Sometimes multiple CLS_REPLACE calls are issued for the same connection.
-rhashtable_insert_fast does not check for these duplicates, so multiple
-hardware flow entries can be created.
-Fix this by checking for an existing entry early
+The blamed commit made the fatally incorrect assumption that ports which
+aren't in the FORWARDING STP state should not have packets forwarded
+towards them, and that is all that needs to be done.
 
-Fixes: 502e84e2382d ("net: ethernet: mtk_eth_soc: add flow offloading support")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+However, that logic alone permits BLOCKING ports to forward to
+FORWARDING ports, which of course allows packet storms to occur when
+there is an L2 loop.
+
+The ocelot_get_bridge_fwd_mask should not only ask "what can the bridge
+do for you", but "what can you do for the bridge". This way, only
+FORWARDING ports forward to the other FORWARDING ports from the same
+bridging domain, and we are still compatible with the idea of multiple
+bridges.
+
+Fixes: df291e54ccca ("net: ocelot: support multiple bridges")
+Suggested-by: Colin Foster <colin.foster@in-advantage.com>
+Reported-by: Colin Foster <colin.foster@in-advantage.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: Colin Foster <colin.foster@in-advantage.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mediatek/mtk_ppe_offload.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/mscc/ocelot.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_ppe_offload.c b/drivers/net/ethernet/mediatek/mtk_ppe_offload.c
-index b5f68f66d42a..7bb1f20002b5 100644
---- a/drivers/net/ethernet/mediatek/mtk_ppe_offload.c
-+++ b/drivers/net/ethernet/mediatek/mtk_ppe_offload.c
-@@ -186,6 +186,9 @@ mtk_flow_offload_replace(struct mtk_eth *eth, struct flow_cls_offload *f)
- 	int hash;
- 	int i;
+diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
+index 2948d731a1c1..512dff955166 100644
+--- a/drivers/net/ethernet/mscc/ocelot.c
++++ b/drivers/net/ethernet/mscc/ocelot.c
+@@ -1260,14 +1260,19 @@ static u32 ocelot_get_bond_mask(struct ocelot *ocelot, struct net_device *bond,
+ 	return mask;
+ }
  
-+	if (rhashtable_lookup(&eth->flow_table, &f->cookie, mtk_flow_ht_params))
-+		return -EEXIST;
+-static u32 ocelot_get_bridge_fwd_mask(struct ocelot *ocelot,
++static u32 ocelot_get_bridge_fwd_mask(struct ocelot *ocelot, int src_port,
+ 				      struct net_device *bridge)
+ {
++	struct ocelot_port *ocelot_port = ocelot->ports[src_port];
+ 	u32 mask = 0;
+ 	int port;
+ 
++	if (!ocelot_port || ocelot_port->bridge != bridge ||
++	    ocelot_port->stp_state != BR_STATE_FORWARDING)
++		return 0;
 +
- 	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_META)) {
- 		struct flow_match_meta match;
+ 	for (port = 0; port < ocelot->num_phys_ports; port++) {
+-		struct ocelot_port *ocelot_port = ocelot->ports[port];
++		ocelot_port = ocelot->ports[port];
  
+ 		if (!ocelot_port)
+ 			continue;
+@@ -1333,7 +1338,7 @@ void ocelot_apply_bridge_fwd_mask(struct ocelot *ocelot)
+ 			struct net_device *bridge = ocelot_port->bridge;
+ 			struct net_device *bond = ocelot_port->bond;
+ 
+-			mask = ocelot_get_bridge_fwd_mask(ocelot, bridge);
++			mask = ocelot_get_bridge_fwd_mask(ocelot, port, bridge);
+ 			mask |= cpu_fwd_mask;
+ 			mask &= ~BIT(port);
+ 			if (bond) {
 -- 
 2.33.0
 
