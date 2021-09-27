@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53728419C05
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D38E419A8E
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:08:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237274AbhI0RYu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:24:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37458 "EHLO mail.kernel.org"
+        id S235927AbhI0RKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:10:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237599AbhI0RXX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:23:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C613611C3;
-        Mon, 27 Sep 2021 17:14:54 +0000 (UTC)
+        id S236220AbhI0RIo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:08:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CFA860F3A;
+        Mon, 27 Sep 2021 17:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762895;
-        bh=gTn+OdMj1t7lMnNlNRLXgNZSfj1H3QHBcQa3e3G5STs=;
+        s=korg; t=1632762412;
+        bh=xjg8zAQ/CJkYG2lqXOjkXxr42zbWEVMf1dL6QD4ZLEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G9ah4GuGOgW1/6k/gtPxaGVZoBTybKZqR092PfXix8pRfukrUQU5KIsdDS0jQpzYU
-         y5Thsi1Ip1JkNDHqR5kEjiLCTTsZyDl32WlVmk9ugB3OFh+K9JZUB5J4FjNQtWkHIH
-         YzT3+MOcrYYNWgSwmIUtPVJzmwQrDbOLB2sXZVZ0=
+        b=os7unRBm5VSLW0Z1ONXFAayZ8kmYumHrF14ygWi9+eUcvGSJBMzrIrcqH9X5+sosc
+         A6yGUDKdW6+37t/F8PAPM16ygIpa5qw7yeh+Ovs5FOfcuVi6Mojt3TLDNm3QDWzF6c
+         jdSC5DhJei5KaxlCHsLm1wnLyrtrkrrbUUNv0QgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 059/162] net: dsa: tear down devlink port regions when tearing down the devlink port on error
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>
+Subject: [PATCH 5.10 013/103] Revert "USB: bcma: Add a check for devm_gpiod_get"
 Date:   Mon, 27 Sep 2021 19:01:45 +0200
-Message-Id: <20210927170235.524212740@linuxfoundation.org>
+Message-Id: <20210927170226.167638088@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+References: <20210927170225.702078779@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,388 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit fd292c189a979838622d5e03e15fa688c81dd50b ]
+commit d91adc5322ab53df4b6d1989242bfb6c63163eb2 upstream.
 
-Commit 86f8b1c01a0a ("net: dsa: Do not make user port errors fatal")
-decided it was fine to ignore errors on certain ports that fail to
-probe, and go on with the ports that do probe fine.
+This reverts commit f3de5d857bb2362b00e2a8d4bc886cd49dcb66db.
 
-Commit fb6ec87f7229 ("net: dsa: Fix type was not set for devlink port")
-noticed that devlink_port_type_eth_set(dlp, dp->slave); does not get
-called, and devlink notices after a timeout of 3600 seconds and prints a
-WARN_ON. So it went ahead to unregister the devlink port. And because
-there exists an UNUSED port flavour, we actually re-register the devlink
-port as UNUSED.
+That commit broke USB on all routers that have USB always powered on and
+don't require toggling any GPIO. It's a majority of devices actually.
 
-Commit 08156ba430b4 ("net: dsa: Add devlink port regions support to
-DSA") added devlink port regions, which are set up by the driver and not
-by DSA.
+The original code worked and seemed safe: vcc GPIO is optional and
+bcma_hci_platform_power_gpio() takes care of checking the pointer before
+using it.
 
-When we trigger the devlink port deregistration and reregistration as
-unused, devlink now prints another WARN_ON, from here:
+This revert fixes:
+[   10.801127] bcma_hcd: probe of bcma0:11 failed with error -2
 
-devlink_port_unregister:
-	WARN_ON(!list_empty(&devlink_port->region_list));
-
-So the port still has regions, which makes sense, because they were set
-up by the driver, and the driver doesn't know we're unregistering the
-devlink port.
-
-Somebody needs to tear them down, and optionally (actually it would be
-nice, to be consistent) set them up again for the new devlink port.
-
-But DSA's layering stays in our way quite badly here.
-
-The options I've considered are:
-
-1. Introduce a function in devlink to just change a port's type and
-   flavour. No dice, devlink keeps a lot of state, it really wants the
-   port to not be registered when you set its parameters, so changing
-   anything can only be done by destroying what we currently have and
-   recreating it.
-
-2. Make DSA cache the parameters passed to dsa_devlink_port_region_create,
-   and the region returned, keep those in a list, then when the devlink
-   port unregister needs to take place, the existing devlink regions are
-   destroyed by DSA, and we replay the creation of new regions using the
-   cached parameters. Problem: mv88e6xxx keeps the region pointers in
-   chip->ports[port].region, and these will remain stale after DSA frees
-   them. There are many things DSA can do, but updating mv88e6xxx's
-   private pointers is not one of them.
-
-3. Just let the driver do it (i.e. introduce a very specific method
-   called ds->ops->port_reinit_as_unused, which unregisters its devlink
-   port devlink regions, then the old devlink port, then registers the
-   new one, then the devlink port regions for it). While it does work,
-   as opposed to the others, it's pretty horrible from an API
-   perspective and we can do better.
-
-4. Introduce a new pair of methods, ->port_setup and ->port_teardown,
-   which in the case of mv88e6xxx must register and unregister the
-   devlink port regions. Call these 2 methods when the port must be
-   reinitialized as unused.
-
-Naturally, I went for the 4th approach.
-
-Fixes: 08156ba430b4 ("net: dsa: Add devlink port regions support to DSA")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: f3de5d857bb2 ("USB: bcma: Add a check for devm_gpiod_get")
+Cc: stable <stable@vger.kernel.org>
+Cc: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Link: https://lore.kernel.org/r/20210831065419.18371-1-zajec5@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c    | 16 ++++++-
- drivers/net/dsa/mv88e6xxx/devlink.c | 73 ++++-------------------------
- drivers/net/dsa/mv88e6xxx/devlink.h |  6 ++-
- include/net/dsa.h                   |  8 ++++
- net/dsa/dsa2.c                      | 51 ++++++++++++++++++--
- 5 files changed, 81 insertions(+), 73 deletions(-)
+ drivers/usb/host/bcma-hcd.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 111a6d5985da..1c122a1f2f97 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -3012,7 +3012,7 @@ static void mv88e6xxx_teardown(struct dsa_switch *ds)
- {
- 	mv88e6xxx_teardown_devlink_params(ds);
- 	dsa_devlink_resources_unregister(ds);
--	mv88e6xxx_teardown_devlink_regions(ds);
-+	mv88e6xxx_teardown_devlink_regions_global(ds);
- }
+--- a/drivers/usb/host/bcma-hcd.c
++++ b/drivers/usb/host/bcma-hcd.c
+@@ -406,12 +406,9 @@ static int bcma_hcd_probe(struct bcma_de
+ 		return -ENOMEM;
+ 	usb_dev->core = core;
  
- static int mv88e6xxx_setup(struct dsa_switch *ds)
-@@ -3147,7 +3147,7 @@ static int mv88e6xxx_setup(struct dsa_switch *ds)
- 	if (err)
- 		goto out_resources;
- 
--	err = mv88e6xxx_setup_devlink_regions(ds);
-+	err = mv88e6xxx_setup_devlink_regions_global(ds);
- 	if (err)
- 		goto out_params;
- 
-@@ -3161,6 +3161,16 @@ static int mv88e6xxx_setup(struct dsa_switch *ds)
- 	return err;
- }
- 
-+static int mv88e6xxx_port_setup(struct dsa_switch *ds, int port)
-+{
-+	return mv88e6xxx_setup_devlink_regions_port(ds, port);
-+}
-+
-+static void mv88e6xxx_port_teardown(struct dsa_switch *ds, int port)
-+{
-+	mv88e6xxx_teardown_devlink_regions_port(ds, port);
-+}
-+
- /* prod_id for switch families which do not have a PHY model number */
- static const u16 family_prod_id_table[] = {
- 	[MV88E6XXX_FAMILY_6341] = MV88E6XXX_PORT_SWITCH_ID_PROD_6341,
-@@ -6055,6 +6065,8 @@ static const struct dsa_switch_ops mv88e6xxx_switch_ops = {
- 	.change_tag_protocol	= mv88e6xxx_change_tag_protocol,
- 	.setup			= mv88e6xxx_setup,
- 	.teardown		= mv88e6xxx_teardown,
-+	.port_setup		= mv88e6xxx_port_setup,
-+	.port_teardown		= mv88e6xxx_port_teardown,
- 	.phylink_validate	= mv88e6xxx_validate,
- 	.phylink_mac_link_state	= mv88e6xxx_serdes_pcs_get_state,
- 	.phylink_mac_config	= mv88e6xxx_mac_config,
-diff --git a/drivers/net/dsa/mv88e6xxx/devlink.c b/drivers/net/dsa/mv88e6xxx/devlink.c
-index 0c0f5ea6680c..381068395c63 100644
---- a/drivers/net/dsa/mv88e6xxx/devlink.c
-+++ b/drivers/net/dsa/mv88e6xxx/devlink.c
-@@ -647,26 +647,25 @@ static struct mv88e6xxx_region mv88e6xxx_regions[] = {
- 	},
- };
- 
--static void
--mv88e6xxx_teardown_devlink_regions_global(struct mv88e6xxx_chip *chip)
-+void mv88e6xxx_teardown_devlink_regions_global(struct dsa_switch *ds)
- {
-+	struct mv88e6xxx_chip *chip = ds->priv;
- 	int i;
- 
- 	for (i = 0; i < ARRAY_SIZE(mv88e6xxx_regions); i++)
- 		dsa_devlink_region_destroy(chip->regions[i]);
- }
- 
--static void
--mv88e6xxx_teardown_devlink_regions_port(struct mv88e6xxx_chip *chip,
--					int port)
-+void mv88e6xxx_teardown_devlink_regions_port(struct dsa_switch *ds, int port)
- {
-+	struct mv88e6xxx_chip *chip = ds->priv;
-+
- 	dsa_devlink_region_destroy(chip->ports[port].region);
- }
- 
--static int mv88e6xxx_setup_devlink_regions_port(struct dsa_switch *ds,
--						struct mv88e6xxx_chip *chip,
--						int port)
-+int mv88e6xxx_setup_devlink_regions_port(struct dsa_switch *ds, int port)
- {
-+	struct mv88e6xxx_chip *chip = ds->priv;
- 	struct devlink_region *region;
- 
- 	region = dsa_devlink_port_region_create(ds,
-@@ -681,40 +680,10 @@ static int mv88e6xxx_setup_devlink_regions_port(struct dsa_switch *ds,
- 	return 0;
- }
- 
--static void
--mv88e6xxx_teardown_devlink_regions_ports(struct mv88e6xxx_chip *chip)
--{
--	int port;
--
--	for (port = 0; port < mv88e6xxx_num_ports(chip); port++)
--		mv88e6xxx_teardown_devlink_regions_port(chip, port);
--}
--
--static int mv88e6xxx_setup_devlink_regions_ports(struct dsa_switch *ds,
--						 struct mv88e6xxx_chip *chip)
--{
--	int port;
--	int err;
--
--	for (port = 0; port < mv88e6xxx_num_ports(chip); port++) {
--		err = mv88e6xxx_setup_devlink_regions_port(ds, chip, port);
--		if (err)
--			goto out;
+-	if (core->dev.of_node) {
++	if (core->dev.of_node)
+ 		usb_dev->gpio_desc = devm_gpiod_get(&core->dev, "vcc",
+ 						    GPIOD_OUT_HIGH);
+-		if (IS_ERR(usb_dev->gpio_desc))
+-			return PTR_ERR(usb_dev->gpio_desc);
 -	}
--
--	return 0;
--
--out:
--	while (port-- > 0)
--		mv88e6xxx_teardown_devlink_regions_port(chip, port);
--
--	return err;
--}
--
--static int mv88e6xxx_setup_devlink_regions_global(struct dsa_switch *ds,
--						  struct mv88e6xxx_chip *chip)
-+int mv88e6xxx_setup_devlink_regions_global(struct dsa_switch *ds)
- {
- 	bool (*cond)(struct mv88e6xxx_chip *chip);
-+	struct mv88e6xxx_chip *chip = ds->priv;
- 	struct devlink_region_ops *ops;
- 	struct devlink_region *region;
- 	u64 size;
-@@ -753,30 +722,6 @@ static int mv88e6xxx_setup_devlink_regions_global(struct dsa_switch *ds,
- 	return PTR_ERR(region);
- }
  
--int mv88e6xxx_setup_devlink_regions(struct dsa_switch *ds)
--{
--	struct mv88e6xxx_chip *chip = ds->priv;
--	int err;
--
--	err = mv88e6xxx_setup_devlink_regions_global(ds, chip);
--	if (err)
--		return err;
--
--	err = mv88e6xxx_setup_devlink_regions_ports(ds, chip);
--	if (err)
--		mv88e6xxx_teardown_devlink_regions_global(chip);
--
--	return err;
--}
--
--void mv88e6xxx_teardown_devlink_regions(struct dsa_switch *ds)
--{
--	struct mv88e6xxx_chip *chip = ds->priv;
--
--	mv88e6xxx_teardown_devlink_regions_ports(chip);
--	mv88e6xxx_teardown_devlink_regions_global(chip);
--}
--
- int mv88e6xxx_devlink_info_get(struct dsa_switch *ds,
- 			       struct devlink_info_req *req,
- 			       struct netlink_ext_ack *extack)
-diff --git a/drivers/net/dsa/mv88e6xxx/devlink.h b/drivers/net/dsa/mv88e6xxx/devlink.h
-index 3d72db3dcf95..65ce6a6858b9 100644
---- a/drivers/net/dsa/mv88e6xxx/devlink.h
-+++ b/drivers/net/dsa/mv88e6xxx/devlink.h
-@@ -12,8 +12,10 @@ int mv88e6xxx_devlink_param_get(struct dsa_switch *ds, u32 id,
- 				struct devlink_param_gset_ctx *ctx);
- int mv88e6xxx_devlink_param_set(struct dsa_switch *ds, u32 id,
- 				struct devlink_param_gset_ctx *ctx);
--int mv88e6xxx_setup_devlink_regions(struct dsa_switch *ds);
--void mv88e6xxx_teardown_devlink_regions(struct dsa_switch *ds);
-+int mv88e6xxx_setup_devlink_regions_global(struct dsa_switch *ds);
-+void mv88e6xxx_teardown_devlink_regions_global(struct dsa_switch *ds);
-+int mv88e6xxx_setup_devlink_regions_port(struct dsa_switch *ds, int port);
-+void mv88e6xxx_teardown_devlink_regions_port(struct dsa_switch *ds, int port);
- 
- int mv88e6xxx_devlink_info_get(struct dsa_switch *ds,
- 			       struct devlink_info_req *req,
-diff --git a/include/net/dsa.h b/include/net/dsa.h
-index d833f717e802..004514a21e30 100644
---- a/include/net/dsa.h
-+++ b/include/net/dsa.h
-@@ -575,8 +575,16 @@ struct dsa_switch_ops {
- 	int	(*change_tag_protocol)(struct dsa_switch *ds, int port,
- 				       enum dsa_tag_protocol proto);
- 
-+	/* Optional switch-wide initialization and destruction methods */
- 	int	(*setup)(struct dsa_switch *ds);
- 	void	(*teardown)(struct dsa_switch *ds);
-+
-+	/* Per-port initialization and destruction methods. Mandatory if the
-+	 * driver registers devlink port regions, optional otherwise.
-+	 */
-+	int	(*port_setup)(struct dsa_switch *ds, int port);
-+	void	(*port_teardown)(struct dsa_switch *ds, int port);
-+
- 	u32	(*get_phy_flags)(struct dsa_switch *ds, int port);
- 
- 	/*
-diff --git a/net/dsa/dsa2.c b/net/dsa/dsa2.c
-index 79267b00af68..3a8136d5915d 100644
---- a/net/dsa/dsa2.c
-+++ b/net/dsa/dsa2.c
-@@ -342,6 +342,7 @@ static int dsa_port_setup(struct dsa_port *dp)
- {
- 	struct devlink_port *dlp = &dp->devlink_port;
- 	bool dsa_port_link_registered = false;
-+	struct dsa_switch *ds = dp->ds;
- 	bool dsa_port_enabled = false;
- 	int err = 0;
- 
-@@ -351,6 +352,12 @@ static int dsa_port_setup(struct dsa_port *dp)
- 	INIT_LIST_HEAD(&dp->fdbs);
- 	INIT_LIST_HEAD(&dp->mdbs);
- 
-+	if (ds->ops->port_setup) {
-+		err = ds->ops->port_setup(ds, dp->index);
-+		if (err)
-+			return err;
-+	}
-+
- 	switch (dp->type) {
- 	case DSA_PORT_TYPE_UNUSED:
- 		dsa_port_disable(dp);
-@@ -393,8 +400,11 @@ static int dsa_port_setup(struct dsa_port *dp)
- 		dsa_port_disable(dp);
- 	if (err && dsa_port_link_registered)
- 		dsa_port_link_unregister_of(dp);
--	if (err)
-+	if (err) {
-+		if (ds->ops->port_teardown)
-+			ds->ops->port_teardown(ds, dp->index);
- 		return err;
-+	}
- 
- 	dp->setup = true;
- 
-@@ -446,11 +456,15 @@ static int dsa_port_devlink_setup(struct dsa_port *dp)
- static void dsa_port_teardown(struct dsa_port *dp)
- {
- 	struct devlink_port *dlp = &dp->devlink_port;
-+	struct dsa_switch *ds = dp->ds;
- 	struct dsa_mac_addr *a, *tmp;
- 
- 	if (!dp->setup)
- 		return;
- 
-+	if (ds->ops->port_teardown)
-+		ds->ops->port_teardown(ds, dp->index);
-+
- 	devlink_port_type_clear(dlp);
- 
- 	switch (dp->type) {
-@@ -494,6 +508,36 @@ static void dsa_port_devlink_teardown(struct dsa_port *dp)
- 	dp->devlink_port_setup = false;
- }
- 
-+/* Destroy the current devlink port, and create a new one which has the UNUSED
-+ * flavour. At this point, any call to ds->ops->port_setup has been already
-+ * balanced out by a call to ds->ops->port_teardown, so we know that any
-+ * devlink port regions the driver had are now unregistered. We then call its
-+ * ds->ops->port_setup again, in order for the driver to re-create them on the
-+ * new devlink port.
-+ */
-+static int dsa_port_reinit_as_unused(struct dsa_port *dp)
-+{
-+	struct dsa_switch *ds = dp->ds;
-+	int err;
-+
-+	dsa_port_devlink_teardown(dp);
-+	dp->type = DSA_PORT_TYPE_UNUSED;
-+	err = dsa_port_devlink_setup(dp);
-+	if (err)
-+		return err;
-+
-+	if (ds->ops->port_setup) {
-+		/* On error, leave the devlink port registered,
-+		 * dsa_switch_teardown will clean it up later.
-+		 */
-+		err = ds->ops->port_setup(ds, dp->index);
-+		if (err)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+
- static int dsa_devlink_info_get(struct devlink *dl,
- 				struct devlink_info_req *req,
- 				struct netlink_ext_ack *extack)
-@@ -850,12 +894,9 @@ static int dsa_tree_setup_switches(struct dsa_switch_tree *dst)
- 	list_for_each_entry(dp, &dst->ports, list) {
- 		err = dsa_port_setup(dp);
- 		if (err) {
--			dsa_port_devlink_teardown(dp);
--			dp->type = DSA_PORT_TYPE_UNUSED;
--			err = dsa_port_devlink_setup(dp);
-+			err = dsa_port_reinit_as_unused(dp);
- 			if (err)
- 				goto teardown;
--			continue;
- 		}
- 	}
- 
--- 
-2.33.0
-
+ 	switch (core->id.id) {
+ 	case BCMA_CORE_USB20_HOST:
 
 
