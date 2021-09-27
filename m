@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DAB9419BF6
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46B00419A19
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:05:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236978AbhI0RYb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:24:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37458 "EHLO mail.kernel.org"
+        id S235980AbhI0RGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:06:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237163AbhI0RWD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:22:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55C196113D;
-        Mon, 27 Sep 2021 17:14:01 +0000 (UTC)
+        id S236007AbhI0RGS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:06:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21D29611C3;
+        Mon, 27 Sep 2021 17:04:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762841;
-        bh=VBMXl2HKuhmt9NC/nuRofxYnHDkRShkifbNE1Tp4fAo=;
+        s=korg; t=1632762280;
+        bh=fTqrMztZg0fHlYlgafgD1gVUVoD4FdxzF/Yoz/WirWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fmc2s1CJ9e2OBylCo8I2S0PPxy69rbaH1bwHKduDK4AzLJFDnSfklVLb25YS9VVW+
-         v3i55ZRhGMangC4Vejapu1lCV5tWbCnDXMbPOkkBQjds8wkeWIJUhR46B2CXI5savQ
-         NjNIPz0IaEUkAJgwWRXV0u3o7ffDOk4fB5Wktmug=
+        b=Fy0bBeCZC9TCeucRADRRea1R5i+Bz6UCnFHBGkO3T3rYVCsMVvtONGBAojARC8lVk
+         BoDZpXY57+Y5jjMTp0VzosMlkcf9/RBFlC1JY1awfaCRDDsN3FRjYsPFo/UmoODQOU
+         E/1v3Ux1fEQlM83HTtKxXb2vEOdJJoMyRoyUpbNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lino Sanfilippo <LinoSanfilippo@gmx.de>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 072/162] net: dsa: dont allocate the slave_mii_bus using devres
-Date:   Mon, 27 Sep 2021 19:01:58 +0200
-Message-Id: <20210927170235.946627159@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Subject: [PATCH 5.4 03/68] usb: dwc2: gadget: Fix ISOC flow for BDMA and Slave
+Date:   Mon, 27 Sep 2021 19:01:59 +0200
+Message-Id: <20210927170220.022626278@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,167 +39,406 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
 
-[ Upstream commit 5135e96a3dd2f4555ae6981c3155a62bcf3227f6 ]
+commit 91bb163e1e4f88092f50dfaa5a816b658753e4b2 upstream.
 
-The Linux device model permits both the ->shutdown and ->remove driver
-methods to get called during a shutdown procedure. Example: a DSA switch
-which sits on an SPI bus, and the SPI bus driver calls this on its
-->shutdown method:
+According USB spec each ISOC transaction should be performed in a
+designated for that transaction interval. On bus errors or delays
+in operating system scheduling of client software can result in no
+packet being transferred for a (micro)frame. An error indication
+should be returned as status to the client software in such a case.
 
-spi_unregister_controller
--> device_for_each_child(&ctlr->dev, NULL, __unregister);
-   -> spi_unregister_device(to_spi_device(dev));
-      -> device_del(&spi->dev);
+Current implementation in case of missed/dropped interval send same
+data in next possible interval instead of reporting missed isoc.
 
-So this is a simple pattern which can theoretically appear on any bus,
-although the only other buses on which I've been able to find it are
-I2C:
+This fix complete requests with -ENODATA if interval elapsed.
 
-i2c_del_adapter
--> device_for_each_child(&adap->dev, NULL, __unregister_client);
-   -> i2c_unregister_device(client);
-      -> device_unregister(&client->dev);
+HSOTG core in BDMA and Slave modes haven't HW support for
+(micro)frames tracking, this is why SW should care about tracking
+of (micro)frames. Because of that method and consider operating
+system scheduling delays, added few additional checking's of elapsed
+target (micro)frame:
+1. Immediately before enabling EP to start transfer.
+2. With any transfer completion interrupt.
+3. With incomplete isoc in/out interrupt.
+4. With EP disabled interrupt because of incomplete transfer.
+5. With OUT token received while EP disabled interrupt (for OUT
+transfers).
+6. With NAK replied to IN token interrupt (for IN transfers).
 
-The implication of this pattern is that devices on these buses can be
-unregistered after having been shut down. The drivers for these devices
-might choose to return early either from ->remove or ->shutdown if the
-other callback has already run once, and they might choose that the
-->shutdown method should only perform a subset of the teardown done by
-->remove (to avoid unnecessary delays when rebooting).
+As part of ISOC flow, additionally fixed 'current' and 'target' frame
+calculation functions. In HS mode SOF limits provided by DSTS register
+is 0x3fff, but in non HS mode this limit is 0x7ff.
 
-So in other words, the device driver may choose on ->remove to not
-do anything (therefore to not unregister an MDIO bus it has registered
-on ->probe), because this ->remove is actually triggered by the
-device_shutdown path, and its ->shutdown method has already run and done
-the minimally required cleanup.
+Tested by internal tool which also using for dwc3 testing.
 
-This used to be fine until the blamed commit, but now, the following
-BUG_ON triggers:
-
-void mdiobus_free(struct mii_bus *bus)
-{
-	/* For compatibility with error handling in drivers. */
-	if (bus->state == MDIOBUS_ALLOCATED) {
-		kfree(bus);
-		return;
-	}
-
-	BUG_ON(bus->state != MDIOBUS_UNREGISTERED);
-	bus->state = MDIOBUS_RELEASED;
-
-	put_device(&bus->dev);
-}
-
-In other words, there is an attempt to free an MDIO bus which was not
-unregistered. The attempt to free it comes from the devres release
-callbacks of the SPI device, which are executed after the device is
-unregistered.
-
-I'm not saying that the fact that MDIO buses allocated using devres
-would automatically get unregistered wasn't strange. I'm just saying
-that the commit didn't care about auditing existing call paths in the
-kernel, and now, the following code sequences are potentially buggy:
-
-(a) devm_mdiobus_alloc followed by plain mdiobus_register, for a device
-    located on a bus that unregisters its children on shutdown. After
-    the blamed patch, either both the alloc and the register should use
-    devres, or none should.
-
-(b) devm_mdiobus_alloc followed by plain mdiobus_register, and then no
-    mdiobus_unregister at all in the remove path. After the blamed
-    patch, nobody unregisters the MDIO bus anymore, so this is even more
-    buggy than the previous case which needs a specific bus
-    configuration to be seen, this one is an unconditional bug.
-
-In this case, DSA falls into category (a), it tries to be helpful and
-registers an MDIO bus on behalf of the switch, which might be on such a
-bus. I've no idea why it does it under devres.
-
-It does this on probe:
-
-	if (!ds->slave_mii_bus && ds->ops->phy_read)
-		alloc and register mdio bus
-
-and this on remove:
-
-	if (ds->slave_mii_bus && ds->ops->phy_read)
-		unregister mdio bus
-
-I _could_ imagine using devres because the condition used on remove is
-different than the condition used on probe. So strictly speaking, DSA
-cannot determine whether the ds->slave_mii_bus it sees on remove is the
-ds->slave_mii_bus that _it_ has allocated on probe. Using devres would
-have solved that problem. But nonetheless, the existing code already
-proceeds to unregister the MDIO bus, even though it might be
-unregistering an MDIO bus it has never registered. So I can only guess
-that no driver that implements ds->ops->phy_read also allocates and
-registers ds->slave_mii_bus itself.
-
-So in that case, if unregistering is fine, freeing must be fine too.
-
-Stop using devres and free the MDIO bus manually. This will make devres
-stop attempting to free a still registered MDIO bus on ->shutdown.
-
-Fixes: ac3a68d56651 ("net: phy: don't abuse devres in devm_mdiobus_register()")
-Reported-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Tested-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/95d1423adf4b0f68187c9894820c4b7e964a3f7f.1631175721.git.Minas.Harutyunyan@synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dsa/dsa2.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/usb/dwc2/gadget.c |  189 +++++++++++++++++++++++++---------------------
+ 1 file changed, 106 insertions(+), 83 deletions(-)
 
-diff --git a/net/dsa/dsa2.c b/net/dsa/dsa2.c
-index 383fdc0565c7..76ed5ef0e36a 100644
---- a/net/dsa/dsa2.c
-+++ b/net/dsa/dsa2.c
-@@ -792,7 +792,7 @@ static int dsa_switch_setup(struct dsa_switch *ds)
- 	devlink_params_publish(ds->devlink);
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -115,10 +115,16 @@ static inline bool using_desc_dma(struct
+  */
+ static inline void dwc2_gadget_incr_frame_num(struct dwc2_hsotg_ep *hs_ep)
+ {
++	struct dwc2_hsotg *hsotg = hs_ep->parent;
++	u16 limit = DSTS_SOFFN_LIMIT;
++
++	if (hsotg->gadget.speed != USB_SPEED_HIGH)
++		limit >>= 3;
++
+ 	hs_ep->target_frame += hs_ep->interval;
+-	if (hs_ep->target_frame > DSTS_SOFFN_LIMIT) {
++	if (hs_ep->target_frame > limit) {
+ 		hs_ep->frame_overrun = true;
+-		hs_ep->target_frame &= DSTS_SOFFN_LIMIT;
++		hs_ep->target_frame &= limit;
+ 	} else {
+ 		hs_ep->frame_overrun = false;
+ 	}
+@@ -136,10 +142,16 @@ static inline void dwc2_gadget_incr_fram
+  */
+ static inline void dwc2_gadget_dec_frame_num_by_one(struct dwc2_hsotg_ep *hs_ep)
+ {
++	struct dwc2_hsotg *hsotg = hs_ep->parent;
++	u16 limit = DSTS_SOFFN_LIMIT;
++
++	if (hsotg->gadget.speed != USB_SPEED_HIGH)
++		limit >>= 3;
++
+ 	if (hs_ep->target_frame)
+ 		hs_ep->target_frame -= 1;
+ 	else
+-		hs_ep->target_frame = DSTS_SOFFN_LIMIT;
++		hs_ep->target_frame = limit;
+ }
  
- 	if (!ds->slave_mii_bus && ds->ops->phy_read) {
--		ds->slave_mii_bus = devm_mdiobus_alloc(ds->dev);
-+		ds->slave_mii_bus = mdiobus_alloc();
- 		if (!ds->slave_mii_bus) {
- 			err = -ENOMEM;
- 			goto teardown;
-@@ -802,13 +802,16 @@ static int dsa_switch_setup(struct dsa_switch *ds)
+ /**
+@@ -1018,6 +1030,12 @@ static void dwc2_gadget_start_isoc_ddma(
+ 	dwc2_writel(hsotg, ctrl, depctl);
+ }
  
- 		err = mdiobus_register(ds->slave_mii_bus);
- 		if (err < 0)
--			goto teardown;
-+			goto free_slave_mii_bus;
++static bool dwc2_gadget_target_frame_elapsed(struct dwc2_hsotg_ep *hs_ep);
++static void dwc2_hsotg_complete_request(struct dwc2_hsotg *hsotg,
++					struct dwc2_hsotg_ep *hs_ep,
++				       struct dwc2_hsotg_req *hs_req,
++				       int result);
++
+ /**
+  * dwc2_hsotg_start_req - start a USB request from an endpoint's queue
+  * @hsotg: The controller state.
+@@ -1170,14 +1188,19 @@ static void dwc2_hsotg_start_req(struct
+ 		}
  	}
  
- 	ds->setup = true;
+-	if (hs_ep->isochronous && hs_ep->interval == 1) {
+-		hs_ep->target_frame = dwc2_hsotg_read_frameno(hsotg);
+-		dwc2_gadget_incr_frame_num(hs_ep);
+-
+-		if (hs_ep->target_frame & 0x1)
+-			ctrl |= DXEPCTL_SETODDFR;
+-		else
+-			ctrl |= DXEPCTL_SETEVENFR;
++	if (hs_ep->isochronous) {
++		if (!dwc2_gadget_target_frame_elapsed(hs_ep)) {
++			if (hs_ep->interval == 1) {
++				if (hs_ep->target_frame & 0x1)
++					ctrl |= DXEPCTL_SETODDFR;
++				else
++					ctrl |= DXEPCTL_SETEVENFR;
++			}
++			ctrl |= DXEPCTL_CNAK;
++		} else {
++			dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req, -ENODATA);
++			return;
++		}
+ 	}
  
- 	return 0;
+ 	ctrl |= DXEPCTL_EPENA;	/* ensure ep enabled */
+@@ -1325,12 +1348,16 @@ static bool dwc2_gadget_target_frame_ela
+ 	u32 target_frame = hs_ep->target_frame;
+ 	u32 current_frame = hsotg->frame_number;
+ 	bool frame_overrun = hs_ep->frame_overrun;
++	u16 limit = DSTS_SOFFN_LIMIT;
++
++	if (hsotg->gadget.speed != USB_SPEED_HIGH)
++		limit >>= 3;
  
-+free_slave_mii_bus:
-+	if (ds->slave_mii_bus && ds->ops->phy_read)
-+		mdiobus_free(ds->slave_mii_bus);
- teardown:
- 	if (ds->ops->teardown)
- 		ds->ops->teardown(ds);
-@@ -833,8 +836,11 @@ static void dsa_switch_teardown(struct dsa_switch *ds)
- 	if (!ds->setup)
- 		return;
+ 	if (!frame_overrun && current_frame >= target_frame)
+ 		return true;
  
--	if (ds->slave_mii_bus && ds->ops->phy_read)
-+	if (ds->slave_mii_bus && ds->ops->phy_read) {
- 		mdiobus_unregister(ds->slave_mii_bus);
-+		mdiobus_free(ds->slave_mii_bus);
-+		ds->slave_mii_bus = NULL;
+ 	if (frame_overrun && current_frame >= target_frame &&
+-	    ((current_frame - target_frame) < DSTS_SOFFN_LIMIT / 2))
++	    ((current_frame - target_frame) < limit / 2))
+ 		return true;
+ 
+ 	return false;
+@@ -1712,11 +1739,9 @@ static struct dwc2_hsotg_req *get_ep_hea
+  */
+ static void dwc2_gadget_start_next_request(struct dwc2_hsotg_ep *hs_ep)
+ {
+-	u32 mask;
+ 	struct dwc2_hsotg *hsotg = hs_ep->parent;
+ 	int dir_in = hs_ep->dir_in;
+ 	struct dwc2_hsotg_req *hs_req;
+-	u32 epmsk_reg = dir_in ? DIEPMSK : DOEPMSK;
+ 
+ 	if (!list_empty(&hs_ep->queue)) {
+ 		hs_req = get_ep_head(hs_ep);
+@@ -1732,9 +1757,6 @@ static void dwc2_gadget_start_next_reque
+ 	} else {
+ 		dev_dbg(hsotg->dev, "%s: No more ISOC-OUT requests\n",
+ 			__func__);
+-		mask = dwc2_readl(hsotg, epmsk_reg);
+-		mask |= DOEPMSK_OUTTKNEPDISMSK;
+-		dwc2_writel(hsotg, mask, epmsk_reg);
+ 	}
+ }
+ 
+@@ -2304,19 +2326,6 @@ static void dwc2_hsotg_ep0_zlp(struct dw
+ 	dwc2_hsotg_program_zlp(hsotg, hsotg->eps_out[0]);
+ }
+ 
+-static void dwc2_hsotg_change_ep_iso_parity(struct dwc2_hsotg *hsotg,
+-					    u32 epctl_reg)
+-{
+-	u32 ctrl;
+-
+-	ctrl = dwc2_readl(hsotg, epctl_reg);
+-	if (ctrl & DXEPCTL_EOFRNUM)
+-		ctrl |= DXEPCTL_SETEVENFR;
+-	else
+-		ctrl |= DXEPCTL_SETODDFR;
+-	dwc2_writel(hsotg, ctrl, epctl_reg);
+-}
+-
+ /*
+  * dwc2_gadget_get_xfersize_ddma - get transferred bytes amount from desc
+  * @hs_ep - The endpoint on which transfer went
+@@ -2437,20 +2446,11 @@ static void dwc2_hsotg_handle_outdone(st
+ 			dwc2_hsotg_ep0_zlp(hsotg, true);
+ 	}
+ 
+-	/*
+-	 * Slave mode OUT transfers do not go through XferComplete so
+-	 * adjust the ISOC parity here.
+-	 */
+-	if (!using_dma(hsotg)) {
+-		if (hs_ep->isochronous && hs_ep->interval == 1)
+-			dwc2_hsotg_change_ep_iso_parity(hsotg, DOEPCTL(epnum));
+-		else if (hs_ep->isochronous && hs_ep->interval > 1)
+-			dwc2_gadget_incr_frame_num(hs_ep);
+-	}
+-
+ 	/* Set actual frame number for completed transfers */
+-	if (!using_desc_dma(hsotg) && hs_ep->isochronous)
+-		req->frame_number = hsotg->frame_number;
++	if (!using_desc_dma(hsotg) && hs_ep->isochronous) {
++		req->frame_number = hs_ep->target_frame;
++		dwc2_gadget_incr_frame_num(hs_ep);
 +	}
  
- 	dsa_switch_unregister_notifier(ds);
+ 	dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req, result);
+ }
+@@ -2764,6 +2764,12 @@ static void dwc2_hsotg_complete_in(struc
+ 		return;
+ 	}
  
--- 
-2.33.0
-
++	/* Set actual frame number for completed transfers */
++	if (!using_desc_dma(hsotg) && hs_ep->isochronous) {
++		hs_req->req.frame_number = hs_ep->target_frame;
++		dwc2_gadget_incr_frame_num(hs_ep);
++	}
++
+ 	dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req, 0);
+ }
+ 
+@@ -2824,23 +2830,18 @@ static void dwc2_gadget_handle_ep_disabl
+ 
+ 		dwc2_hsotg_txfifo_flush(hsotg, hs_ep->fifo_index);
+ 
+-		if (hs_ep->isochronous) {
+-			dwc2_hsotg_complete_in(hsotg, hs_ep);
+-			return;
+-		}
+-
+ 		if ((epctl & DXEPCTL_STALL) && (epctl & DXEPCTL_EPTYPE_BULK)) {
+ 			int dctl = dwc2_readl(hsotg, DCTL);
+ 
+ 			dctl |= DCTL_CGNPINNAK;
+ 			dwc2_writel(hsotg, dctl, DCTL);
+ 		}
+-		return;
+-	}
++	} else {
+ 
+-	if (dctl & DCTL_GOUTNAKSTS) {
+-		dctl |= DCTL_CGOUTNAK;
+-		dwc2_writel(hsotg, dctl, DCTL);
++		if (dctl & DCTL_GOUTNAKSTS) {
++			dctl |= DCTL_CGOUTNAK;
++			dwc2_writel(hsotg, dctl, DCTL);
++		}
+ 	}
+ 
+ 	if (!hs_ep->isochronous)
+@@ -2861,8 +2862,6 @@ static void dwc2_gadget_handle_ep_disabl
+ 		/* Update current frame number value. */
+ 		hsotg->frame_number = dwc2_hsotg_read_frameno(hsotg);
+ 	} while (dwc2_gadget_target_frame_elapsed(hs_ep));
+-
+-	dwc2_gadget_start_next_request(hs_ep);
+ }
+ 
+ /**
+@@ -2879,8 +2878,8 @@ static void dwc2_gadget_handle_ep_disabl
+ static void dwc2_gadget_handle_out_token_ep_disabled(struct dwc2_hsotg_ep *ep)
+ {
+ 	struct dwc2_hsotg *hsotg = ep->parent;
++	struct dwc2_hsotg_req *hs_req;
+ 	int dir_in = ep->dir_in;
+-	u32 doepmsk;
+ 
+ 	if (dir_in || !ep->isochronous)
+ 		return;
+@@ -2894,28 +2893,39 @@ static void dwc2_gadget_handle_out_token
+ 		return;
+ 	}
+ 
+-	if (ep->interval > 1 &&
+-	    ep->target_frame == TARGET_FRAME_INITIAL) {
++	if (ep->target_frame == TARGET_FRAME_INITIAL) {
+ 		u32 ctrl;
+ 
+ 		ep->target_frame = hsotg->frame_number;
+-		dwc2_gadget_incr_frame_num(ep);
++		if (ep->interval > 1) {
++			ctrl = dwc2_readl(hsotg, DOEPCTL(ep->index));
++			if (ep->target_frame & 0x1)
++				ctrl |= DXEPCTL_SETODDFR;
++			else
++				ctrl |= DXEPCTL_SETEVENFR;
+ 
+-		ctrl = dwc2_readl(hsotg, DOEPCTL(ep->index));
+-		if (ep->target_frame & 0x1)
+-			ctrl |= DXEPCTL_SETODDFR;
+-		else
+-			ctrl |= DXEPCTL_SETEVENFR;
++			dwc2_writel(hsotg, ctrl, DOEPCTL(ep->index));
++		}
++	}
++
++	while (dwc2_gadget_target_frame_elapsed(ep)) {
++		hs_req = get_ep_head(ep);
++		if (hs_req)
++			dwc2_hsotg_complete_request(hsotg, ep, hs_req, -ENODATA);
+ 
+-		dwc2_writel(hsotg, ctrl, DOEPCTL(ep->index));
++		dwc2_gadget_incr_frame_num(ep);
++		/* Update current frame number value. */
++		hsotg->frame_number = dwc2_hsotg_read_frameno(hsotg);
+ 	}
+ 
+-	dwc2_gadget_start_next_request(ep);
+-	doepmsk = dwc2_readl(hsotg, DOEPMSK);
+-	doepmsk &= ~DOEPMSK_OUTTKNEPDISMSK;
+-	dwc2_writel(hsotg, doepmsk, DOEPMSK);
++	if (!ep->req)
++		dwc2_gadget_start_next_request(ep);
++
+ }
+ 
++static void dwc2_hsotg_ep_stop_xfr(struct dwc2_hsotg *hsotg,
++				   struct dwc2_hsotg_ep *hs_ep);
++
+ /**
+  * dwc2_gadget_handle_nak - handle NAK interrupt
+  * @hs_ep: The endpoint on which interrupt is asserted.
+@@ -2933,7 +2943,9 @@ static void dwc2_gadget_handle_out_token
+ static void dwc2_gadget_handle_nak(struct dwc2_hsotg_ep *hs_ep)
+ {
+ 	struct dwc2_hsotg *hsotg = hs_ep->parent;
++	struct dwc2_hsotg_req *hs_req;
+ 	int dir_in = hs_ep->dir_in;
++	u32 ctrl;
+ 
+ 	if (!dir_in || !hs_ep->isochronous)
+ 		return;
+@@ -2975,13 +2987,29 @@ static void dwc2_gadget_handle_nak(struc
+ 
+ 			dwc2_writel(hsotg, ctrl, DIEPCTL(hs_ep->index));
+ 		}
+-
+-		dwc2_hsotg_complete_request(hsotg, hs_ep,
+-					    get_ep_head(hs_ep), 0);
+ 	}
+ 
+-	if (!using_desc_dma(hsotg))
++	if (using_desc_dma(hsotg))
++		return;
++
++	ctrl = dwc2_readl(hsotg, DIEPCTL(hs_ep->index));
++	if (ctrl & DXEPCTL_EPENA)
++		dwc2_hsotg_ep_stop_xfr(hsotg, hs_ep);
++	else
++		dwc2_hsotg_txfifo_flush(hsotg, hs_ep->fifo_index);
++
++	while (dwc2_gadget_target_frame_elapsed(hs_ep)) {
++		hs_req = get_ep_head(hs_ep);
++		if (hs_req)
++			dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req, -ENODATA);
++
+ 		dwc2_gadget_incr_frame_num(hs_ep);
++		/* Update current frame number value. */
++		hsotg->frame_number = dwc2_hsotg_read_frameno(hsotg);
++	}
++
++	if (!hs_ep->req)
++		dwc2_gadget_start_next_request(hs_ep);
+ }
+ 
+ /**
+@@ -3048,12 +3076,8 @@ static void dwc2_hsotg_epint(struct dwc2
+ 			 * need to look at completing IN requests here
+ 			 * if operating slave mode
+ 			 */
+-			if (hs_ep->isochronous && hs_ep->interval > 1)
+-				dwc2_gadget_incr_frame_num(hs_ep);
+-
+-			dwc2_hsotg_complete_in(hsotg, hs_ep);
+-			if (ints & DXEPINT_NAKINTRPT)
+-				ints &= ~DXEPINT_NAKINTRPT;
++			if (!hs_ep->isochronous || !(ints & DXEPINT_NAKINTRPT))
++				dwc2_hsotg_complete_in(hsotg, hs_ep);
+ 
+ 			if (idx == 0 && !hs_ep->req)
+ 				dwc2_hsotg_enqueue_setup(hsotg);
+@@ -3062,10 +3086,8 @@ static void dwc2_hsotg_epint(struct dwc2
+ 			 * We're using DMA, we need to fire an OutDone here
+ 			 * as we ignore the RXFIFO.
+ 			 */
+-			if (hs_ep->isochronous && hs_ep->interval > 1)
+-				dwc2_gadget_incr_frame_num(hs_ep);
+-
+-			dwc2_hsotg_handle_outdone(hsotg, idx);
++			if (!hs_ep->isochronous || !(ints & DXEPINT_OUTTKNEPDIS))
++				dwc2_hsotg_handle_outdone(hsotg, idx);
+ 		}
+ 	}
+ 
+@@ -4055,6 +4077,7 @@ static int dwc2_hsotg_ep_enable(struct u
+ 			mask |= DIEPMSK_NAKMSK;
+ 			dwc2_writel(hsotg, mask, DIEPMSK);
+ 		} else {
++			epctrl |= DXEPCTL_SNAK;
+ 			mask = dwc2_readl(hsotg, DOEPMSK);
+ 			mask |= DOEPMSK_OUTTKNEPDISMSK;
+ 			dwc2_writel(hsotg, mask, DOEPMSK);
 
 
