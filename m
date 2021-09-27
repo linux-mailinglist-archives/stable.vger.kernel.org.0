@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33EAD419C45
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:25:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EE57419A31
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:05:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236847AbhI0R0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:26:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37458 "EHLO mail.kernel.org"
+        id S236183AbhI0RHY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:07:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237227AbhI0RYr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:24:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F949613E6;
-        Mon, 27 Sep 2021 17:15:48 +0000 (UTC)
+        id S235915AbhI0RGo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:06:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A88160F3A;
+        Mon, 27 Sep 2021 17:05:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762949;
-        bh=toEXuD3DkAOe0xVPXl8rapK3oRk2eBv0iGd4qQNivug=;
+        s=korg; t=1632762306;
+        bh=9AA1UDfGkgHVTGHZkvG70DXeyssfkk/7ic8wzBPZXQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bnWwIOETgRKRrB1/f/5KPDwQ8fADQBRhbpYJCJVCeKLwKRfL8QHH+32C9Vlmp+KoN
-         41hNt3rUT+rPliDE0S+eC1/aovQOKnlrIFq+JsKjJmuj/f2eDggyv3QanteER7NFYN
-         hPnqWFw9euclS9KYNmHkSFfUIIpCimZLnVGHEv8U=
+        b=d51rNsVedm3piWrq8okx7nbhAbpu7BEY0znxMra9ofyeGzVLX8Smns+kbbf5KbJBy
+         01LLOIxsRNS7APG4sQxaDbw0Yz9pwQPI/YZEmttGgW6UQDy3Rg49uwbMFmhFMWid4a
+         Jc3SMQF/4Z/AlgBuQaqL5g0jRzWaVTwrRAV3i89A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Kees Cook <keescook@chromium.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 111/162] x86/asm: Fix SETZ size enqcmds() build failure
+        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 41/68] scsi: lpfc: Use correct scnprintf() limit
 Date:   Mon, 27 Sep 2021 19:02:37 +0200
-Message-Id: <20210927170237.290623887@linuxfoundation.org>
+Message-Id: <20210927170221.387437612@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit d81ff5fe14a950f53e2833cfa196e7bb3fd5d4e3 ]
+[ Upstream commit 6dacc371b77f473770ec646e220303a84fe96c11 ]
 
-When building under GCC 4.9 and 5.5:
+The limit should be "PAGE_SIZE - len" instead of "PAGE_SIZE".  We're not
+going to hit the limit so this fix will not affect runtime.
 
-  arch/x86/include/asm/special_insns.h: Assembler messages:
-  arch/x86/include/asm/special_insns.h:286: Error: operand size mismatch for `setz'
-
-Change the type to "bool" for condition code arguments, as documented.
-
-Fixes: 7f5933f81bd8 ("x86/asm: Add an enqcmds() wrapper for the ENQCMDS instruction")
-Co-developed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20210910223332.3224851-1-keescook@chromium.org
+Link: https://lore.kernel.org/r/20210916132331.GE25094@kili
+Fixes: 5b9e70b22cc5 ("scsi: lpfc: raise sg count for nvme to use available sg resources")
+Reviewed-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/special_insns.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_attr.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/special_insns.h b/arch/x86/include/asm/special_insns.h
-index f3fbb84ff8a7..68c257a3de0d 100644
---- a/arch/x86/include/asm/special_insns.h
-+++ b/arch/x86/include/asm/special_insns.h
-@@ -275,7 +275,7 @@ static inline int enqcmds(void __iomem *dst, const void *src)
- {
- 	const struct { char _[64]; } *__src = src;
- 	struct { char _[64]; } __iomem *__dst = dst;
--	int zf;
-+	bool zf;
+diff --git a/drivers/scsi/lpfc/lpfc_attr.c b/drivers/scsi/lpfc/lpfc_attr.c
+index 45db19e31b34..f0ecfe565660 100644
+--- a/drivers/scsi/lpfc/lpfc_attr.c
++++ b/drivers/scsi/lpfc/lpfc_attr.c
+@@ -5881,7 +5881,8 @@ lpfc_sg_seg_cnt_show(struct device *dev, struct device_attribute *attr,
+ 	len = scnprintf(buf, PAGE_SIZE, "SGL sz: %d  total SGEs: %d\n",
+ 		       phba->cfg_sg_dma_buf_size, phba->cfg_total_seg_cnt);
  
- 	/*
- 	 * ENQCMDS %(rdx), rax
+-	len += scnprintf(buf + len, PAGE_SIZE, "Cfg: %d  SCSI: %d  NVME: %d\n",
++	len += scnprintf(buf + len, PAGE_SIZE - len,
++			"Cfg: %d  SCSI: %d  NVME: %d\n",
+ 			phba->cfg_sg_seg_cnt, phba->cfg_scsi_seg_cnt,
+ 			phba->cfg_nvme_seg_cnt);
+ 	return len;
 -- 
 2.33.0
 
