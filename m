@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE770419BFC
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EB994199F3
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:04:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237192AbhI0RYp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:24:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36614 "EHLO mail.kernel.org"
+        id S235855AbhI0RFp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:05:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237273AbhI0RWv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:22:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68FEB61362;
-        Mon, 27 Sep 2021 17:14:30 +0000 (UTC)
+        id S235804AbhI0RF3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:05:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E44CB6108E;
+        Mon, 27 Sep 2021 17:03:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762871;
-        bh=RSZkiJ2yqzaRdXX9rL57ZA7zNS/yRoj+t1rLaJ5pFUc=;
+        s=korg; t=1632762231;
+        bh=IxJk3uBT02QfLwxXVpThNpn4hTwHNadWtRT3O8KxaFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=08cu1aWLfNAWcQL+7iQ5YhqIgWXw62ADbmV72PGCwWqqm3qq6y40EK694vvNk1vXw
-         LzddOPepyAlWqnN2iie0bovxlAuOssQd0ULz6XaEoJ+hkj+igTVHQ1CWJS++c79CBX
-         UGQ+b25YZcKJJdpjCYgE2G4Zjat6Bmd/XIGkLGv8=
+        b=Rv2RTc2FsRzMenqaoWbnpoLLxjwoTQqEXowUbVJXvobxsWFpWYP/AxYVPBcgonfvF
+         cloisJTFM+nHAGIKQeXXYvDSBJmjzVDDD3w5bpmXDfIhFoDUO1hANczLZXkygyQrvV
+         gH2/pqsWPUww7me92NBqY0IwibbbY8I+L1rLqfr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Kalderon <mkalderon@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        Shai Malin <smalin@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 082/162] qed: rdma - dont wait for resources under hw error recovery flow
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 12/68] staging: greybus: uart: fix tty use after free
 Date:   Mon, 27 Sep 2021 19:02:08 +0200
-Message-Id: <20210927170236.283512377@linuxfoundation.org>
+Message-Id: <20210927170220.363647220@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +39,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shai Malin <smalin@marvell.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 1ea7812326004afd2803cc968a4776ae5120a597 ]
+commit 92dc0b1f46e12cfabd28d709bb34f7a39431b44f upstream.
 
-If the HW device is during recovery, the HW resources will never return,
-hence we shouldn't wait for the CID (HW context ID) bitmaps to clear.
-This fix speeds up the error recovery flow.
+User space can hold a tty open indefinitely and tty drivers must not
+release the underlying structures until the last user is gone.
 
-Fixes: 64515dc899df ("qed: Add infrastructure for error detection and recovery")
-Signed-off-by: Michal Kalderon <mkalderon@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: Shai Malin <smalin@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Switch to using the tty-port reference counter to manage the life time
+of the greybus tty state to avoid use after free after a disconnect.
+
+Fixes: a18e15175708 ("greybus: more uart work")
+Cc: stable@vger.kernel.org      # 4.9
+Reviewed-by: Alex Elder <elder@linaro.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210906124538.22358-1-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_iwarp.c | 8 ++++++++
- drivers/net/ethernet/qlogic/qed/qed_roce.c  | 8 ++++++++
- 2 files changed, 16 insertions(+)
+ drivers/staging/greybus/uart.c |   62 +++++++++++++++++++++--------------------
+ 1 file changed, 32 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
-index a99861124630..68fbe536a1f3 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
-@@ -1297,6 +1297,14 @@ qed_iwarp_wait_cid_map_cleared(struct qed_hwfn *p_hwfn, struct qed_bmap *bmap)
- 	prev_weight = weight;
+--- a/drivers/staging/greybus/uart.c
++++ b/drivers/staging/greybus/uart.c
+@@ -789,6 +789,17 @@ out:
+ 	gbphy_runtime_put_autosuspend(gb_tty->gbphy_dev);
+ }
  
- 	while (weight) {
-+		/* If the HW device is during recovery, all resources are
-+		 * immediately reset without receiving a per-cid indication
-+		 * from HW. In this case we don't expect the cid_map to be
-+		 * cleared.
-+		 */
-+		if (p_hwfn->cdev->recov_in_prog)
-+			return 0;
++static void gb_tty_port_destruct(struct tty_port *port)
++{
++	struct gb_tty *gb_tty = container_of(port, struct gb_tty, port);
 +
- 		msleep(QED_IWARP_MAX_CID_CLEAN_TIME);
++	if (gb_tty->minor != GB_NUM_MINORS)
++		release_minor(gb_tty);
++	kfifo_free(&gb_tty->write_fifo);
++	kfree(gb_tty->buffer);
++	kfree(gb_tty);
++}
++
+ static const struct tty_operations gb_ops = {
+ 	.install =		gb_tty_install,
+ 	.open =			gb_tty_open,
+@@ -814,6 +825,7 @@ static const struct tty_port_operations
+ 	.dtr_rts =		gb_tty_dtr_rts,
+ 	.activate =		gb_tty_port_activate,
+ 	.shutdown =		gb_tty_port_shutdown,
++	.destruct =		gb_tty_port_destruct,
+ };
  
- 		weight = bitmap_weight(bmap->bitmap, bmap->max_count);
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_roce.c b/drivers/net/ethernet/qlogic/qed/qed_roce.c
-index f16a157bb95a..cf5baa5e59bc 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_roce.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_roce.c
-@@ -77,6 +77,14 @@ void qed_roce_stop(struct qed_hwfn *p_hwfn)
- 	 * Beyond the added delay we clear the bitmap anyway.
- 	 */
- 	while (bitmap_weight(rcid_map->bitmap, rcid_map->max_count)) {
-+		/* If the HW device is during recovery, all resources are
-+		 * immediately reset without receiving a per-cid indication
-+		 * from HW. In this case we don't expect the cid bitmap to be
-+		 * cleared.
-+		 */
-+		if (p_hwfn->cdev->recov_in_prog)
-+			return;
+ static int gb_uart_probe(struct gbphy_device *gbphy_dev,
+@@ -826,17 +838,11 @@ static int gb_uart_probe(struct gbphy_de
+ 	int retval;
+ 	int minor;
+ 
+-	gb_tty = kzalloc(sizeof(*gb_tty), GFP_KERNEL);
+-	if (!gb_tty)
+-		return -ENOMEM;
+-
+ 	connection = gb_connection_create(gbphy_dev->bundle,
+ 					  le16_to_cpu(gbphy_dev->cport_desc->id),
+ 					  gb_uart_request_handler);
+-	if (IS_ERR(connection)) {
+-		retval = PTR_ERR(connection);
+-		goto exit_tty_free;
+-	}
++	if (IS_ERR(connection))
++		return PTR_ERR(connection);
+ 
+ 	max_payload = gb_operation_get_payload_size_max(connection);
+ 	if (max_payload < sizeof(struct gb_uart_send_data_request)) {
+@@ -844,13 +850,23 @@ static int gb_uart_probe(struct gbphy_de
+ 		goto exit_connection_destroy;
+ 	}
+ 
++	gb_tty = kzalloc(sizeof(*gb_tty), GFP_KERNEL);
++	if (!gb_tty) {
++		retval = -ENOMEM;
++		goto exit_connection_destroy;
++	}
 +
- 		msleep(100);
- 		if (wait_count++ > 20) {
- 			DP_NOTICE(p_hwfn, "cid bitmap wait timed out\n");
--- 
-2.33.0
-
++	tty_port_init(&gb_tty->port);
++	gb_tty->port.ops = &gb_port_ops;
++	gb_tty->minor = GB_NUM_MINORS;
++
+ 	gb_tty->buffer_payload_max = max_payload -
+ 			sizeof(struct gb_uart_send_data_request);
+ 
+ 	gb_tty->buffer = kzalloc(gb_tty->buffer_payload_max, GFP_KERNEL);
+ 	if (!gb_tty->buffer) {
+ 		retval = -ENOMEM;
+-		goto exit_connection_destroy;
++		goto exit_put_port;
+ 	}
+ 
+ 	INIT_WORK(&gb_tty->tx_work, gb_uart_tx_write_work);
+@@ -858,7 +874,7 @@ static int gb_uart_probe(struct gbphy_de
+ 	retval = kfifo_alloc(&gb_tty->write_fifo, GB_UART_WRITE_FIFO_SIZE,
+ 			     GFP_KERNEL);
+ 	if (retval)
+-		goto exit_buf_free;
++		goto exit_put_port;
+ 
+ 	gb_tty->credits = GB_UART_FIRMWARE_CREDITS;
+ 	init_completion(&gb_tty->credits_complete);
+@@ -872,7 +888,7 @@ static int gb_uart_probe(struct gbphy_de
+ 		} else {
+ 			retval = minor;
+ 		}
+-		goto exit_kfifo_free;
++		goto exit_put_port;
+ 	}
+ 
+ 	gb_tty->minor = minor;
+@@ -881,9 +897,6 @@ static int gb_uart_probe(struct gbphy_de
+ 	init_waitqueue_head(&gb_tty->wioctl);
+ 	mutex_init(&gb_tty->mutex);
+ 
+-	tty_port_init(&gb_tty->port);
+-	gb_tty->port.ops = &gb_port_ops;
+-
+ 	gb_tty->connection = connection;
+ 	gb_tty->gbphy_dev = gbphy_dev;
+ 	gb_connection_set_data(connection, gb_tty);
+@@ -891,7 +904,7 @@ static int gb_uart_probe(struct gbphy_de
+ 
+ 	retval = gb_connection_enable_tx(connection);
+ 	if (retval)
+-		goto exit_release_minor;
++		goto exit_put_port;
+ 
+ 	send_control(gb_tty, gb_tty->ctrlout);
+ 
+@@ -918,16 +931,10 @@ static int gb_uart_probe(struct gbphy_de
+ 
+ exit_connection_disable:
+ 	gb_connection_disable(connection);
+-exit_release_minor:
+-	release_minor(gb_tty);
+-exit_kfifo_free:
+-	kfifo_free(&gb_tty->write_fifo);
+-exit_buf_free:
+-	kfree(gb_tty->buffer);
++exit_put_port:
++	tty_port_put(&gb_tty->port);
+ exit_connection_destroy:
+ 	gb_connection_destroy(connection);
+-exit_tty_free:
+-	kfree(gb_tty);
+ 
+ 	return retval;
+ }
+@@ -958,15 +965,10 @@ static void gb_uart_remove(struct gbphy_
+ 	gb_connection_disable_rx(connection);
+ 	tty_unregister_device(gb_tty_driver, gb_tty->minor);
+ 
+-	/* FIXME - free transmit / receive buffers */
+-
+ 	gb_connection_disable(connection);
+-	tty_port_destroy(&gb_tty->port);
+ 	gb_connection_destroy(connection);
+-	release_minor(gb_tty);
+-	kfifo_free(&gb_tty->write_fifo);
+-	kfree(gb_tty->buffer);
+-	kfree(gb_tty);
++
++	tty_port_put(&gb_tty->port);
+ }
+ 
+ static int gb_tty_init(void)
 
 
