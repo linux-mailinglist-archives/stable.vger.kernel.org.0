@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43445419ABC
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:10:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BF3C419A26
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:05:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236456AbhI0RLw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:11:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47672 "EHLO mail.kernel.org"
+        id S235952AbhI0RHF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:07:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236348AbhI0RJv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:09:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C414A61251;
-        Mon, 27 Sep 2021 17:07:38 +0000 (UTC)
+        id S236045AbhI0RGb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:06:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA72C60F46;
+        Mon, 27 Sep 2021 17:04:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762459;
-        bh=B8RYZ8b3CUrbdju2a7VI1DqzjM5fNQVa0lAXuCtGlhY=;
+        s=korg; t=1632762293;
+        bh=0bfjiDnLESLQVkxYvEfjNJpXlKTuywxREWJMFkHMcLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e0GnH/ojFMqw5ADDoCAm57EzIS3g9m3k0kyWWFdpp91PFHclEvWFXsdI8E8xahBmr
-         I5FNbx4Mv+5tNX6jSqRnS10eQw3RD6DKwk6PFOVeYEXBMggogFxehvsk4+F+VRrFYL
-         AzKPKl/Ci1sV6Sqv6ag2rKBPVJG8UxOpZi8T8K/c=
+        b=fv19cLGPJNoFWvLRwlTu8xrLDc7S2lNDF+oPncgYrZXtPJOIYPR0DJVtB1PJulzpc
+         a1EKOViYcrhGLVPAUkCkRKaAwYb4IV2W9fldyXjzfW1XI2v/4Bfjv/BmuaMV6GHhns
+         7lOajqhWFVO8OSi9Yl/QYukE/F3Wm9/1aGZGI1es=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 031/103] net: hso: fix muxed tty registration
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.4 07/68] xen/x86: fix PV trap handling on secondary processors
 Date:   Mon, 27 Sep 2021 19:02:03 +0200
-Message-Id: <20210927170226.817952169@linuxfoundation.org>
+Message-Id: <20210927170220.159930827@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,59 +40,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jan Beulich <jbeulich@suse.com>
 
-commit e8f69b16ee776da88589b5271e3f46020efc8f6c upstream.
+commit 0594c58161b6e0f3da8efa9c6e3d4ba52b652717 upstream.
 
-If resource allocation and registration fail for a muxed tty device
-(e.g. if there are no more minor numbers) the driver should not try to
-deregister the never-registered (or already-deregistered) tty.
+The initial observation was that in PV mode under Xen 32-bit user space
+didn't work anymore. Attempts of system calls ended in #GP(0x402). All
+of the sudden the vector 0x80 handler was not in place anymore. As it
+turns out up to 5.13 redundant initialization did occur: Once from
+cpu_initialize_context() (through its VCPUOP_initialise hypercall) and a
+2nd time while each CPU was brought fully up. This 2nd initialization is
+now gone, uncovering that the 1st one was flawed: Unlike for the
+set_trap_table hypercall, a full virtual IDT needs to be specified here;
+the "vector" fields of the individual entries are of no interest. With
+many (kernel) IDT entries still(?) (i.e. at that point at least) empty,
+the syscall vector 0x80 ended up in slot 0x20 of the virtual IDT, thus
+becoming the domain's handler for vector 0x20.
 
-Fix up the error handling to avoid dereferencing a NULL pointer when
-attempting to remove the character device.
+Make xen_convert_trap_info() fit for either purpose, leveraging the fact
+that on the xen_copy_trap_info() path the table starts out zero-filled.
+This includes moving out the writing of the sentinel, which would also
+have lead to a buffer overrun in the xen_copy_trap_info() case if all
+(kernel) IDT entries were populated. Convert the writing of the sentinel
+to clearing of the entire table entry rather than just the address
+field.
 
-Fixes: 72dc1c096c70 ("HSO: add option hso driver")
-Cc: stable@vger.kernel.org	# 2.6.27
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+(I didn't bother trying to identify the commit which uncovered the issue
+in 5.14; the commit named below is the one which actually introduced the
+bad code.)
+
+Fixes: f87e4cac4f4e ("xen: SMP guest support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/7a266932-092e-b68f-f2bb-1473b61adc6e@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/hso.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ arch/x86/xen/enlighten_pv.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -2721,14 +2721,14 @@ struct hso_device *hso_create_mux_serial
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -727,8 +727,8 @@ static void xen_write_idt_entry(gate_des
+ 	preempt_enable();
+ }
  
- 	serial = kzalloc(sizeof(*serial), GFP_KERNEL);
- 	if (!serial)
--		goto exit;
-+		goto err_free_dev;
+-static void xen_convert_trap_info(const struct desc_ptr *desc,
+-				  struct trap_info *traps)
++static unsigned xen_convert_trap_info(const struct desc_ptr *desc,
++				      struct trap_info *traps, bool full)
+ {
+ 	unsigned in, out, count;
  
- 	hso_dev->port_data.dev_serial = serial;
- 	serial->parent = hso_dev;
+@@ -738,17 +738,18 @@ static void xen_convert_trap_info(const
+ 	for (in = out = 0; in < count; in++) {
+ 		gate_desc *entry = (gate_desc *)(desc->address) + in;
  
- 	if (hso_serial_common_create
- 	    (serial, 1, CTRL_URB_RX_SIZE, CTRL_URB_TX_SIZE))
--		goto exit;
-+		goto err_free_serial;
+-		if (cvt_gate_to_trap(in, entry, &traps[out]))
++		if (cvt_gate_to_trap(in, entry, &traps[out]) || full)
+ 			out++;
+ 	}
+-	traps[out].address = 0;
++
++	return out;
+ }
  
- 	serial->tx_data_length--;
- 	serial->write_data = hso_mux_serial_write_data;
-@@ -2744,11 +2744,9 @@ struct hso_device *hso_create_mux_serial
- 	/* done, return it */
- 	return hso_dev;
+ void xen_copy_trap_info(struct trap_info *traps)
+ {
+ 	const struct desc_ptr *desc = this_cpu_ptr(&idt_desc);
  
--exit:
--	if (serial) {
--		tty_unregister_device(tty_drv, serial->minor);
--		kfree(serial);
--	}
-+err_free_serial:
-+	kfree(serial);
-+err_free_dev:
- 	kfree(hso_dev);
- 	return NULL;
+-	xen_convert_trap_info(desc, traps);
++	xen_convert_trap_info(desc, traps, true);
+ }
  
+ /* Load a new IDT into Xen.  In principle this can be per-CPU, so we
+@@ -758,6 +759,7 @@ static void xen_load_idt(const struct de
+ {
+ 	static DEFINE_SPINLOCK(lock);
+ 	static struct trap_info traps[257];
++	unsigned out;
+ 
+ 	trace_xen_cpu_load_idt(desc);
+ 
+@@ -765,7 +767,8 @@ static void xen_load_idt(const struct de
+ 
+ 	memcpy(this_cpu_ptr(&idt_desc), desc, sizeof(idt_desc));
+ 
+-	xen_convert_trap_info(desc, traps);
++	out = xen_convert_trap_info(desc, traps, false);
++	memset(&traps[out], 0, sizeof(traps[0]));
+ 
+ 	xen_mc_flush();
+ 	if (HYPERVISOR_set_trap_table(traps))
 
 
