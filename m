@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE6D0419B24
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:14:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74D8D419C82
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236894AbhI0RPi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:15:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56208 "EHLO mail.kernel.org"
+        id S237815AbhI0R3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:29:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237321AbhI0ROc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:14:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D904760F46;
-        Mon, 27 Sep 2021 17:10:14 +0000 (UTC)
+        id S236237AbhI0R1R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:27:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66C3861252;
+        Mon, 27 Sep 2021 17:16:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762615;
-        bh=+2A9l2PodW0DlnBZBEe5EemzvXiXyRd2LEasJ/KHmoA=;
+        s=korg; t=1632763012;
+        bh=FmbXMo8+EuFBs50mH4feTIcSVV2JB4nHMNs6ihHAOto=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bu1SLaPO90wzDZ6fLLq8hrS7zXKwHoVi0uB8eoCl1k4uocVXcZdjH+DuSsIta57W3
-         z2kQ9Rk4tFAyF02/wRziOqYGeagPkuV7OtaDyoZY+NS65ErUNvl4CM/Yi1U/F2u5An
-         Xl72iVqD6idsrxhGOXfT9CabudCk4lYGhqxvYNGw=
+        b=Lmg/eqBK0EJZtjTtklyWiVT7J/+Hw1ykSP8M50FJb9+HHnSePCHIK6b6DLkQ78KMP
+         HoColUPi5CanfmHMLthCEHhk+s57w91C4u5olOWIn7SPanyrnEJfEb3ME6mMd51QjM
+         XHXuLjqvLUpVSQxK+cNcv5rcGDUsjE5TBp/mk2lY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 089/103] compiler.h: Introduce absolute_pointer macro
+Subject: [PATCH 5.14 135/162] compiler.h: Introduce absolute_pointer macro
 Date:   Mon, 27 Sep 2021 19:03:01 +0200
-Message-Id: <20210927170228.847386413@linuxfoundation.org>
+Message-Id: <20210927170238.099106861@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,10 +66,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/include/linux/compiler.h b/include/linux/compiler.h
-index b8fe0c23cfff..475d0a3ce059 100644
+index b67261a1e3e9..3d5af56337bd 100644
 --- a/include/linux/compiler.h
 +++ b/include/linux/compiler.h
-@@ -180,6 +180,8 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
+@@ -188,6 +188,8 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
      (typeof(ptr)) (__ptr + (off)); })
  #endif
  
