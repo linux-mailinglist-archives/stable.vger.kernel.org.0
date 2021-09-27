@@ -2,79 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0058419CCF
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:30:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E157419C73
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237775AbhI0Rc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:32:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44158 "EHLO mail.kernel.org"
+        id S238063AbhI0R32 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:29:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237253AbhI0Ra1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:30:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 57FF261528;
-        Mon, 27 Sep 2021 17:18:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632763103;
-        bh=vQpOftK58HFrEMtqhS+vExiv6bC/EGA3MzKuenv2YGE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mMOKjG2EgwwLCVVcqnJHSK3wJidoq8n35Biq6OdOp13gefU62DBN6XhSlmTNu8T9y
-         HIkvxMTU3RRBtdgmB/hAEVaDrOJwmiOaST9chV01iLxsWfwsf7C2Vh+IzkeyJwLqOF
-         9mRmVwVQpPCMDMLs5Sd9G3SaXaH6KSoUa2n3k9PU=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Pham <jackp@codeaurora.org>
-Subject: [PATCH 5.14 162/162] usb: gadget: f_uac2: Populate SS descriptors wBytesPerInterval
-Date:   Mon, 27 Sep 2021 19:03:28 +0200
-Message-Id: <20210927170239.028165153@linuxfoundation.org>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+        id S236779AbhI0R1c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:27:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31A7F6140B;
+        Mon, 27 Sep 2021 17:16:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1632763013;
+        bh=f/BEVjLTb49Z6TVWWDAkvRhydk7RaDnxPLSTajgJNYc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=sIlsM4lK4EkXw3AcZ+N6ayBYbjJvte7NeC3D2nnuHIMwY49LwN5+5zBwwT2mf6ecT
+         xA8MnpKcZkKOrMs3gCAvIFe5JiTHQgMUmsaDC44ZigYnP20i/UMwkSzItRxQd6Shr2
+         cgF58c+n0tzaRaEmm03//ltDP/U21LjZflSv/00snbCevfqVf5W1716noRXKvtNNj3
+         EZMGIPIQq7vxYnv6seq7QQ6EsDZH/hCPFWMYZHcrDoqRRaBI009FW/owgwB/V0awV8
+         MWHLGtb4B/wuvcaG7uUoW0iwy9IAW01w6yNt/K/A6Ooasyjf4lWy+ZqQInxt/pwhtd
+         i0vR2cZITu/+w==
+Date:   Mon, 27 Sep 2021 18:16:02 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.14 075/162] kselftest/arm64: signal: Add SVE to the set
+ of features we can check for
+Message-ID: <20210927171602.GG4199@sirena.org.uk>
 References: <20210927170233.453060397@linuxfoundation.org>
-User-Agent: quilt/0.66
+ <20210927170236.052759270@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="vJguvTgX93MxBIIe"
+Content-Disposition: inline
+In-Reply-To: <20210927170236.052759270@linuxfoundation.org>
+X-Cookie: 98% lean.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Pham <jackp@codeaurora.org>
 
-commit f0e8a206a2a53a919e1709c654cb65d519f7befb upstream.
+--vJguvTgX93MxBIIe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-For Isochronous endpoints, the SS companion descriptor's
-wBytesPerInterval field is required to reserve bus time in order
-to transmit the required payload during the service interval.
-If left at 0, the UAC2 function is unable to transact data on its
-playback or capture endpoints in SuperSpeed mode.
+On Mon, Sep 27, 2021 at 07:02:01PM +0200, Greg Kroah-Hartman wrote:
+> From: Mark Brown <broonie@kernel.org>
+>=20
+> [ Upstream commit d4e4dc4fab686c5f3f185272a19b83930664bef5 ]
+>=20
+> Allow testcases for SVE signal handling to flag the dependency and be
+> skipped on systems without SVE support.
 
-Since f_uac2 currently does not support any bursting this value can
-be exactly equal to the calculated wMaxPacketSize.
+Unless you're backporting some test that makes use of this I'm not sure
+why this is stable material?
 
-Tested with Windows 10 as a host.
+--vJguvTgX93MxBIIe
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Fixes: f8cb3d556be3 ("usb: f_uac2: adds support for SS and SSP")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
-Link: https://lore.kernel.org/r/20210909174811.12534-3-jackp@codeaurora.org
-[jackp: Backport to 5.14 with minor conflict resolution]
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/gadget/function/f_uac2.c |    3 +++
- 1 file changed, 3 insertions(+)
+-----BEGIN PGP SIGNATURE-----
 
---- a/drivers/usb/gadget/function/f_uac2.c
-+++ b/drivers/usb/gadget/function/f_uac2.c
-@@ -951,6 +951,9 @@ afunc_bind(struct usb_configuration *cfg
- 	agdev->out_ep_maxpsize = max_t(u16, agdev->out_ep_maxpsize,
- 				le16_to_cpu(ss_epout_desc.wMaxPacketSize));
- 
-+	ss_epin_desc_comp.wBytesPerInterval = ss_epin_desc.wMaxPacketSize;
-+	ss_epout_desc_comp.wBytesPerInterval = ss_epout_desc.wMaxPacketSize;
-+
- 	hs_epout_desc.bEndpointAddress = fs_epout_desc.bEndpointAddress;
- 	hs_epin_fback_desc.bEndpointAddress = fs_epin_fback_desc.bEndpointAddress;
- 	hs_epin_desc.bEndpointAddress = fs_epin_desc.bEndpointAddress;
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmFR/FIACgkQJNaLcl1U
+h9Be4Qf/RiMUSdDNsQDz597c+r5WftWviZyAJ+TdXKwLV4E68sxcJ/LywwZL8w9e
+qinCapGHMk5z0EsBkxzTxqFskoBP0Rm0Uub5LfHPO1Kj8pDrro8LI7UZIwYIystn
+h3wpj0cvT2RJEimnKTGxPG0+73iND8CipK62v8c6AAPrnWJ6ZRvi4n/EK7N4BWmo
+veheNhL/aV46cig+dzLHfih7oZGYHAdOTGrTHwFtY6dONI92GBofSrJ6OgAbju29
+n9ZeUB2kfwhT1qEWaIohadXi+oKCzx6rRxXZ6I0tcLnLWrZ1EQWysx/7gtVvbCoa
+IiwZpH14A3AkfQHi/5VmfIFP4ar5Tg==
+=Zrou
+-----END PGP SIGNATURE-----
 
-
+--vJguvTgX93MxBIIe--
