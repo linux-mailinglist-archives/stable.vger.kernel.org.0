@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 102CF419C34
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:24:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AE70419A6E
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:07:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236981AbhI0R0L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:26:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36852 "EHLO mail.kernel.org"
+        id S236489AbhI0RJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:09:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238012AbhI0RYL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:24:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E88656137B;
-        Mon, 27 Sep 2021 17:15:29 +0000 (UTC)
+        id S236275AbhI0RHy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:07:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 665FB6113D;
+        Mon, 27 Sep 2021 17:06:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762930;
-        bh=KzbuxniTZU/Xpf8v/BqtXJsvj4hDDoghvisbVdmQzKw=;
+        s=korg; t=1632762375;
+        bh=MxjSr1vMRiZVKsZz/XvzRWrPCIor/RBH3ffTOoS2GQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hHOktnbXcE8WmTojynCfMFcFPKfDoWCgOZPRQMLl9CVBK9txUixVQf9R3AZb9tAI4
-         hthgyW/FWdAk96y04sBGuDpsv5h96F6e0WsIEiM/rvIxpJCCub/IYke0NZBeZuvRV6
-         CaGAD5yDMQauRfKy2xY9GpYMoymqW5HDAEFqMeWY=
+        b=siNZOLmOG0L5uJlzbe6A6y0+MTtSP65R4Eb4vv0lWtxU581Zn38DKj9+rZ/m/JNHt
+         fBBN61I1e2K7Ws4zLHX5E9xOboixFRSBTEWp8di+koohMKgWAn5VLzS54vF+3/se/l
+         YRLgvXLCUl3u8Enzaup70iNKwT4WvoPf0UbDH6+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Can Guo <cang@codeaurora.org>,
-        Avri Altman <avri.altman@wdc.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Paul Fulghum <paulkf@microgate.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 105/162] scsi: ufs: core: Unbreak the reset handler
+Subject: [PATCH 5.4 35/68] tty: synclink_gt: rename a conflicting function name
 Date:   Mon, 27 Sep 2021 19:02:31 +0200
-Message-Id: <20210927170237.072785112@linuxfoundation.org>
+Message-Id: <20210927170221.193539377@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +41,230 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit d04a968c33684b15d1206e23fc1119ce0f0587fb ]
+[ Upstream commit 06e49073dfba24df4b1073a068631b13a0039c34 ]
 
-A command tag is passed as the second argument of the
-__ufshcd_transfer_req_compl() call in ufshcd_eh_device_reset_handler()
-instead of a bitmask. Fix this by passing a bitmask as argument instead of
-a command tag.
+'set_signals()' in synclink_gt.c conflicts with an exported symbol
+in arch/um/, so change set_signals() to set_gtsignals(). Keep
+the function names similar by also changing get_signals() to
+get_gtsignals().
 
-Link: https://lore.kernel.org/r/20210916175408.2260084-1-bvanassche@acm.org
-Fixes: a45f937110fa ("scsi: ufs: Optimize host lock on transfer requests send/compl paths")
-Cc: Can Guo <cang@codeaurora.org>
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+../drivers/tty/synclink_gt.c:442:13: error: conflicting types for ‘set_signals’
+ static void set_signals(struct slgt_info *info);
+             ^~~~~~~~~~~
+In file included from ../include/linux/irqflags.h:16:0,
+                 from ../include/linux/spinlock.h:58,
+                 from ../include/linux/mm_types.h:9,
+                 from ../include/linux/buildid.h:5,
+                 from ../include/linux/module.h:14,
+                 from ../drivers/tty/synclink_gt.c:46:
+../arch/um/include/asm/irqflags.h:6:5: note: previous declaration of ‘set_signals’ was here
+ int set_signals(int enable);
+     ^~~~~~~~~~~
+
+Fixes: 705b6c7b34f2 ("[PATCH] new driver synclink_gt")
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Cc: Paul Fulghum <paulkf@microgate.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20210902003806.17054-1-rdunlap@infradead.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/synclink_gt.c | 44 +++++++++++++++++++--------------------
+ 1 file changed, 22 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index a858e7d998a6..3a204324151a 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -6858,7 +6858,7 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
- 			err = ufshcd_clear_cmd(hba, pos);
- 			if (err)
- 				break;
--			__ufshcd_transfer_req_compl(hba, pos, /*retry_requests=*/true);
-+			__ufshcd_transfer_req_compl(hba, 1U << pos, false);
- 		}
+diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
+index 4ef84ed54ea5..ff345a8e0fcc 100644
+--- a/drivers/tty/synclink_gt.c
++++ b/drivers/tty/synclink_gt.c
+@@ -438,8 +438,8 @@ static void reset_tbufs(struct slgt_info *info);
+ static void tdma_reset(struct slgt_info *info);
+ static bool tx_load(struct slgt_info *info, const char *buf, unsigned int count);
+ 
+-static void get_signals(struct slgt_info *info);
+-static void set_signals(struct slgt_info *info);
++static void get_gtsignals(struct slgt_info *info);
++static void set_gtsignals(struct slgt_info *info);
+ static void set_rate(struct slgt_info *info, u32 data_rate);
+ 
+ static void bh_transmit(struct slgt_info *info);
+@@ -721,7 +721,7 @@ static void set_termios(struct tty_struct *tty, struct ktermios *old_termios)
+ 	if ((old_termios->c_cflag & CBAUD) && !C_BAUD(tty)) {
+ 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+ 		spin_lock_irqsave(&info->lock,flags);
+-		set_signals(info);
++		set_gtsignals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
  	}
  
+@@ -731,7 +731,7 @@ static void set_termios(struct tty_struct *tty, struct ktermios *old_termios)
+ 		if (!C_CRTSCTS(tty) || !tty_throttled(tty))
+ 			info->signals |= SerialSignal_RTS;
+ 		spin_lock_irqsave(&info->lock,flags);
+-	 	set_signals(info);
++	 	set_gtsignals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
+ 	}
+ 
+@@ -1182,7 +1182,7 @@ static inline void line_info(struct seq_file *m, struct slgt_info *info)
+ 
+ 	/* output current serial signal states */
+ 	spin_lock_irqsave(&info->lock,flags);
+-	get_signals(info);
++	get_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 
+ 	stat_buf[0] = 0;
+@@ -1282,7 +1282,7 @@ static void throttle(struct tty_struct * tty)
+ 	if (C_CRTSCTS(tty)) {
+ 		spin_lock_irqsave(&info->lock,flags);
+ 		info->signals &= ~SerialSignal_RTS;
+-		set_signals(info);
++		set_gtsignals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
+ 	}
+ }
+@@ -1307,7 +1307,7 @@ static void unthrottle(struct tty_struct * tty)
+ 	if (C_CRTSCTS(tty)) {
+ 		spin_lock_irqsave(&info->lock,flags);
+ 		info->signals |= SerialSignal_RTS;
+-		set_signals(info);
++		set_gtsignals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
+ 	}
+ }
+@@ -1479,7 +1479,7 @@ static int hdlcdev_open(struct net_device *dev)
+ 
+ 	/* inform generic HDLC layer of current DCD status */
+ 	spin_lock_irqsave(&info->lock, flags);
+-	get_signals(info);
++	get_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock, flags);
+ 	if (info->signals & SerialSignal_DCD)
+ 		netif_carrier_on(dev);
+@@ -2235,7 +2235,7 @@ static void isr_txeom(struct slgt_info *info, unsigned short status)
+ 		if (info->params.mode != MGSL_MODE_ASYNC && info->drop_rts_on_tx_done) {
+ 			info->signals &= ~SerialSignal_RTS;
+ 			info->drop_rts_on_tx_done = false;
+-			set_signals(info);
++			set_gtsignals(info);
+ 		}
+ 
+ #if SYNCLINK_GENERIC_HDLC
+@@ -2400,7 +2400,7 @@ static void shutdown(struct slgt_info *info)
+ 
+  	if (!info->port.tty || info->port.tty->termios.c_cflag & HUPCL) {
+ 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+-		set_signals(info);
++		set_gtsignals(info);
+ 	}
+ 
+ 	flush_cond_wait(&info->gpio_wait_q);
+@@ -2428,7 +2428,7 @@ static void program_hw(struct slgt_info *info)
+ 	else
+ 		async_mode(info);
+ 
+-	set_signals(info);
++	set_gtsignals(info);
+ 
+ 	info->dcd_chkcount = 0;
+ 	info->cts_chkcount = 0;
+@@ -2436,7 +2436,7 @@ static void program_hw(struct slgt_info *info)
+ 	info->dsr_chkcount = 0;
+ 
+ 	slgt_irq_on(info, IRQ_DCD | IRQ_CTS | IRQ_DSR | IRQ_RI);
+-	get_signals(info);
++	get_gtsignals(info);
+ 
+ 	if (info->netcount ||
+ 	    (info->port.tty && info->port.tty->termios.c_cflag & CREAD))
+@@ -2680,7 +2680,7 @@ static int wait_mgsl_event(struct slgt_info *info, int __user *mask_ptr)
+ 	spin_lock_irqsave(&info->lock,flags);
+ 
+ 	/* return immediately if state matches requested events */
+-	get_signals(info);
++	get_gtsignals(info);
+ 	s = info->signals;
+ 
+ 	events = mask &
+@@ -3098,7 +3098,7 @@ static int tiocmget(struct tty_struct *tty)
+  	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&info->lock,flags);
+- 	get_signals(info);
++ 	get_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 
+ 	result = ((info->signals & SerialSignal_RTS) ? TIOCM_RTS:0) +
+@@ -3137,7 +3137,7 @@ static int tiocmset(struct tty_struct *tty,
+ 		info->signals &= ~SerialSignal_DTR;
+ 
+ 	spin_lock_irqsave(&info->lock,flags);
+-	set_signals(info);
++	set_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 	return 0;
+ }
+@@ -3148,7 +3148,7 @@ static int carrier_raised(struct tty_port *port)
+ 	struct slgt_info *info = container_of(port, struct slgt_info, port);
+ 
+ 	spin_lock_irqsave(&info->lock,flags);
+-	get_signals(info);
++	get_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 	return (info->signals & SerialSignal_DCD) ? 1 : 0;
+ }
+@@ -3163,7 +3163,7 @@ static void dtr_rts(struct tty_port *port, int on)
+ 		info->signals |= SerialSignal_RTS | SerialSignal_DTR;
+ 	else
+ 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+-	set_signals(info);
++	set_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ }
+ 
+@@ -3962,10 +3962,10 @@ static void tx_start(struct slgt_info *info)
+ 
+ 		if (info->params.mode != MGSL_MODE_ASYNC) {
+ 			if (info->params.flags & HDLC_FLAG_AUTO_RTS) {
+-				get_signals(info);
++				get_gtsignals(info);
+ 				if (!(info->signals & SerialSignal_RTS)) {
+ 					info->signals |= SerialSignal_RTS;
+-					set_signals(info);
++					set_gtsignals(info);
+ 					info->drop_rts_on_tx_done = true;
+ 				}
+ 			}
+@@ -4019,7 +4019,7 @@ static void reset_port(struct slgt_info *info)
+ 	rx_stop(info);
+ 
+ 	info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+-	set_signals(info);
++	set_gtsignals(info);
+ 
+ 	slgt_irq_off(info, IRQ_ALL | IRQ_MASTER);
+ }
+@@ -4441,7 +4441,7 @@ static void tx_set_idle(struct slgt_info *info)
+ /*
+  * get state of V24 status (input) signals
+  */
+-static void get_signals(struct slgt_info *info)
++static void get_gtsignals(struct slgt_info *info)
+ {
+ 	unsigned short status = rd_reg16(info, SSR);
+ 
+@@ -4503,7 +4503,7 @@ static void msc_set_vcr(struct slgt_info *info)
+ /*
+  * set state of V24 control (output) signals
+  */
+-static void set_signals(struct slgt_info *info)
++static void set_gtsignals(struct slgt_info *info)
+ {
+ 	unsigned char val = rd_reg8(info, VCR);
+ 	if (info->signals & SerialSignal_DTR)
 -- 
 2.33.0
 
