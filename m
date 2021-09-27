@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3991E419A3C
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:06:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DFEF419B18
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236094AbhI0RHp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:07:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46700 "EHLO mail.kernel.org"
+        id S236659AbhI0RPX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:15:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236103AbhI0RG5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:06:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 320C3611EF;
-        Mon, 27 Sep 2021 17:05:18 +0000 (UTC)
+        id S236956AbhI0RN0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:13:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19C9A61350;
+        Mon, 27 Sep 2021 17:09:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762319;
-        bh=UqXo4oazMsP4mAr6vlIQFUKowq05QtjXrFAguRo+IBQ=;
+        s=korg; t=1632762561;
+        bh=5PpxMosUvbaHxWTsZ4bA+bjUF2Cj80aRhhZh5tYbYn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O5JG8L9dplEsBhcvTBRuKxLegg4WaWa860pADjH8Ocq086aEihHcrCB0OiVuNb8Hj
-         PeJWmkp/fU+8mHf9QAryP6tgNRBcqn8uYMJxyZfX83vR4iKVtF817+9FmEL8ffa1uG
-         CstAF3OP7L5qotcdMDk71kSTn+g5QUM9eJWFvSjs=
+        b=q6+wRRsApZkqpPa6CTH6pRShzd7jai8+bk8LHMjV76cONoHYvUzIVYljyGFNYrOsv
+         ImH9Y2utXrvqqhhqKiMmjcYfjrZCkFjfkIB8NJe8g80cH8AGA0c3TnLCoArWxwSr1A
+         EsxfwTmx3A/8/MB9v/oQ4KiRnGkr4ZPz/NbBBJqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Ferre <Nicolas.Ferre@microchip.com>,
-        Tong Zhang <ztong0001@gmail.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 46/68] net: macb: fix use after free on rmmod
-Date:   Mon, 27 Sep 2021 19:02:42 +0200
-Message-Id: <20210927170221.558476170@linuxfoundation.org>
+Subject: [PATCH 5.10 071/103] io_uring: put provided buffer meta data under memcg accounting
+Date:   Mon, 27 Sep 2021 19:02:43 +0200
+Message-Id: <20210927170228.223387332@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
-References: <20210927170219.901812470@linuxfoundation.org>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+References: <20210927170225.702078779@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit d82d5303c4c539db86588ffb5dc5b26c3f1513e8 ]
+[ Upstream commit 9990da93d2bf9892c2c14c958bef050d4e461a1a ]
 
-plat_dev->dev->platform_data is released by platform_device_unregister(),
-use of pclk and hclk is a use-after-free. Since device unregister won't
-need a clk device we adjust the function call sequence to fix this issue.
+For each provided buffer, we allocate a struct io_buffer to hold the
+data associated with it. As a large number of buffers can be provided,
+account that data with memcg.
 
-[   31.261225] BUG: KASAN: use-after-free in macb_remove+0x77/0xc6 [macb_pci]
-[   31.275563] Freed by task 306:
-[   30.276782]  platform_device_release+0x25/0x80
-
-Suggested-by: Nicolas Ferre <Nicolas.Ferre@microchip.com>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ddf0322db79c ("io_uring: add IORING_OP_PROVIDE_BUFFERS")
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb_pci.c | 2 +-
+ fs/io_uring.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/cadence/macb_pci.c b/drivers/net/ethernet/cadence/macb_pci.c
-index 617b3b728dd0..94f3babfad30 100644
---- a/drivers/net/ethernet/cadence/macb_pci.c
-+++ b/drivers/net/ethernet/cadence/macb_pci.c
-@@ -112,9 +112,9 @@ static void macb_remove(struct pci_dev *pdev)
- 	struct platform_device *plat_dev = pci_get_drvdata(pdev);
- 	struct macb_platform_data *plat_data = dev_get_platdata(&plat_dev->dev);
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index a8d07273ddc0..26753d0cb431 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4041,7 +4041,7 @@ static int io_add_buffers(struct io_provide_buf *pbuf, struct io_buffer **head)
+ 	int i, bid = pbuf->bid;
  
--	platform_device_unregister(plat_dev);
- 	clk_unregister(plat_data->pclk);
- 	clk_unregister(plat_data->hclk);
-+	platform_device_unregister(plat_dev);
- }
+ 	for (i = 0; i < pbuf->nbufs; i++) {
+-		buf = kmalloc(sizeof(*buf), GFP_KERNEL);
++		buf = kmalloc(sizeof(*buf), GFP_KERNEL_ACCOUNT);
+ 		if (!buf)
+ 			break;
  
- static const struct pci_device_id dev_id_table[] = {
 -- 
 2.33.0
 
