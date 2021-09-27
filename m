@@ -2,170 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB1F1419EFC
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 21:17:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE569419F00
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 21:18:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236352AbhI0TTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 15:19:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41120 "EHLO
+        id S236411AbhI0TTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 15:19:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235964AbhI0TTI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 15:19:08 -0400
-Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B86FCC061575
-        for <stable@vger.kernel.org>; Mon, 27 Sep 2021 12:17:30 -0700 (PDT)
-Received: by mail-oi1-x229.google.com with SMTP id n64so7651124oih.2
-        for <stable@vger.kernel.org>; Mon, 27 Sep 2021 12:17:30 -0700 (PDT)
+        with ESMTP id S236381AbhI0TTr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 15:19:47 -0400
+Received: from mail-vs1-xe2f.google.com (mail-vs1-xe2f.google.com [IPv6:2607:f8b0:4864:20::e2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19B2CC061575;
+        Mon, 27 Sep 2021 12:18:09 -0700 (PDT)
+Received: by mail-vs1-xe2f.google.com with SMTP id u8so19400719vsp.1;
+        Mon, 27 Sep 2021 12:18:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=h+G678zxTRNy+ObotE/FKbBlfNAHM072vsCplvAPsEQ=;
-        b=UIjLNr3EL8hr7Po9/wuhxK0n4v+MySBr55Of6fye6DPmi5EZhTkmawfs/ciuznqD+p
-         sqya0bpZBR1lxQBHel3BJSXpJ3v6g4YtPKEn/lrtwj+vsFhkFgcCtTlFI6bIoN6P9IXL
-         mlSY4c73VTS+Jgrurk5YO0vbFvkysMdrerVHpBjqEmhTwgEA7m/c1WXeClr5XeC0aMdw
-         WeN8bNgZ6LMjU/kU7NkBNqD7TKjjZheMoqXer/6SYCrWFCxZd9TlqrOfZslrugPYgjMo
-         txSenfDrEj3fvvNqWY5s8HgfUDCDUE6m6TbquiBpZ3Zp39sZw6NAQzOI8OPrPA3jCQdq
-         aQzg==
+        bh=5Jsv32VfU5hBBVE/3KBDNXL1joUgiLLTxTYv11HZBOw=;
+        b=hKLSuiRjl5puCUN7GmUGuprTq2dlTRXFw9ors+IsTcufm2RiSe+htT5nuUtE57JMYi
+         YvydtcHyipu6ObND9WDIo/pgGcB4pWbgXKYH/3U4RwDLmGvI1iL8wLuSZksxe8U0x7kF
+         sER3zy1z2RkzTd8LMHvPhJEOpJICuO6badaqm3Do5ZX5l+R4qIwC4iyt3BdRIC/AHF/e
+         lmCNBPwB/Mg/oS1aUULs+w2yByruCwmuFRx2+xkJvO7ENUw6OIlU9Zs82AuNFydjhTs9
+         3PeY++el/5NhZW181tnTCMdgkV+VFGzKGmmx8QWWlq0hCSxqurdRTUv+1f/OyLpiQw0z
+         46Fw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=h+G678zxTRNy+ObotE/FKbBlfNAHM072vsCplvAPsEQ=;
-        b=GaU7y7XTIL5HBh6FooWK0CTV+nkxKIqjEqVpe127tN4tSao5cEt0/B1UmOSh4lvA8B
-         N3FxtYbQPYBbQNJDucKb6vT39U7yebiL6LGPxBeUjAo7aTbLuwKqYi6Le3s+fag9TzbU
-         arCr7ckNbYFBCHH33jpQW1V03WOBKUr5bs2BV2McoBH6GX/Wj6q0XjMalKO+6jwZXIB8
-         AH7ZwqBw1PIiyNJ5CDsvdISEYHV4aKBlnmM6tvwtkEHJPLCcKRcevBxdG32s7jrtili7
-         +54/VMlEACg5Ei8eoRg8sgBHtDaeKcovdCykqoSiIPRje6JGrsHco5Fa7S4uf9Pg6Oiu
-         Dw1A==
-X-Gm-Message-State: AOAM530qhREKmYTlWQsBgobFp4KXuUrQVWS1fOnUE/SqYgfzEgwJcw9p
-        QE2E6LHFoHA/luW6TQeQG62gZaXj3E5hKnjpxQc=
-X-Google-Smtp-Source: ABdhPJzo0+qvBUpeSqQwZQadzMHzvW+MA+7T1FSaw9yy6sRIGTge8vuiHqKw63qiqTKhME6H7Djgjgws76L1YVnJBdg=
-X-Received: by 2002:aca:ab4d:: with SMTP id u74mr561061oie.120.1632770249962;
- Mon, 27 Sep 2021 12:17:29 -0700 (PDT)
+        bh=5Jsv32VfU5hBBVE/3KBDNXL1joUgiLLTxTYv11HZBOw=;
+        b=InczocvYZEXK86UHDD5fHKt09lUtD/TjY26yxHR8lKwcDNN3GQoqkmdkp3dSexfS2m
+         VjXoTLm+cihW76LAVXJdJkESji7jLj2Erlc4GS4uk4IgF6Uv9Y2LakBWaGUgaCJN8vrZ
+         OWO8VLxalDdEGhJPl13pfXEGfF266nUrm7PRE1Ypt9atoYkV7ttDfbptyJso7OFD5ZBX
+         OmBYeqXCNDRFX/pEWf7+9vAhXO1el5DwwlNVwr7mQfzXvNjgvzHgsnzBO1UOMb78VCrX
+         7ZtkvmXTGWxgBrsSopuhZ8n5KVSxsrorje6N0hiQxSoffLGeFSTFBLf+TcBLpllslkI4
+         8A9A==
+X-Gm-Message-State: AOAM532RMlKLfXi7aD0tALQh5iX8NLYMpqMUUxc28+kfpQVP02KUxJaC
+        HV2EdfFD0KnNVO6fr9BllXGzV5a+ri7E/RfH9Zs=
+X-Google-Smtp-Source: ABdhPJyIdI5dIgMfDZhLLkDgOk/YLsWKuK6ti6v6hc2gXUdp2QXsIkfUi1gy49q80Ng2nFf1JZ0wd1/tOp+ynYphDN4=
+X-Received: by 2002:a67:ab04:: with SMTP id u4mr1667828vse.12.1632770288152;
+ Mon, 27 Sep 2021 12:18:08 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210927150821.389427-1-contact@emersion.fr>
-In-Reply-To: <20210927150821.389427-1-contact@emersion.fr>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Mon, 27 Sep 2021 15:17:19 -0400
-Message-ID: <CADnq5_MBVmec4MP5YizegcdQZe2XKBwsVdqSCWizo73n4x1Z=w@mail.gmail.com>
-Subject: Re: [PATCH v2] amdgpu: check tiling flags when creating FB on GFX8-
-To:     Simon Ser <contact@emersion.fr>
-Cc:     amd-gfx list <amd-gfx@lists.freedesktop.org>,
-        "for 3.8" <stable@vger.kernel.org>,
-        =?UTF-8?Q?Michel_D=C3=A4nzer?= <mdaenzer@redhat.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Harry Wentland <hwentlan@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+References: <20210927175944.3381314-1-briannorris@chromium.org> <20210927105928.v2.1.Ic2904d37f30013a7f3d8476203ad3733c186827e@changeid>
+In-Reply-To: <20210927105928.v2.1.Ic2904d37f30013a7f3d8476203ad3733c186827e@changeid>
+From:   Tom Hebb <tommyhebb@gmail.com>
+Date:   Mon, 27 Sep 2021 12:17:57 -0700
+Message-ID: <CAMcCCgS_r17Lj_qPX9TdH3=7D_tiXu9OzL=dDNS+9MZyOUv-+Q@mail.gmail.com>
+Subject: Re: [PATCH v2 1/3] drm/rockchip: dsi: Hold pm-runtime across bind/unbind
+To:     Brian Norris <briannorris@chromium.org>
+Cc:     =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>,
+        dri-devel@lists.freedesktop.org, Chen-Yu Tsai <wenst@chromium.org>,
+        linux-rockchip@lists.infradead.org,
+        Sandy Huang <hjc@rock-chips.com>, linux-kernel@vger.kernel.org,
+        aleksandr.o.makarov@gmail.com, stable@vger.kernel.org,
+        =?UTF-8?B?TsOtY29sYXMgRiAuIFIgLiBBIC4gUHJhZG8=?= 
+        <nfraprado@collabora.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 27, 2021 at 11:09 AM Simon Ser <contact@emersion.fr> wrote:
->
-> On GFX9+, format modifiers are always enabled and ensure the
-> frame-buffers can be scanned out at ADDFB2 time.
->
-> On GFX8-, format modifiers are not supported and no other check
-> is performed. This means ADDFB2 IOCTLs will succeed even if the
-> tiling isn't supported for scan-out, and will result in garbage
-> displayed on screen [1].
->
-> Fix this by adding a check for tiling flags for GFX8 and older.
-> The check is taken from radeonsi in Mesa (see how is_displayable
-> is populated in gfx6_compute_surface).
->
-> Changes in v2: use drm_WARN_ONCE instead of drm_WARN (Michel)
->
-> [1]: https://github.com/swaywm/wlroots/issues/3185
->
-> Signed-off-by: Simon Ser <contact@emersion.fr>
-> Cc: stable@vger.kernel.org
-> Acked-by: Michel D=C3=A4nzer <mdaenzer@redhat.com>
-> Cc: Alex Deucher <alexander.deucher@amd.com>
-> Cc: Harry Wentland <hwentlan@amd.com>
-> Cc: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-> Cc: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+Reviewed-by: Thomas Hebb <tommyhebb@gmail.com>
 
-Applied.  Thanks.
+Thank you for catching this, and sorry that my original fix broke things.
+There had actually been a report of this breakage from my patch, but I
+missed that email until it had already been merged and then didn't have
+time to follow up on it. Totally my bad.
 
-Alex
+[Resending because my last reply was HTML.]
 
+On Mon, Sep 27, 2021 at 11:00 AM Brian Norris <briannorris@chromium.org> wr=
+ote:
+>
+> In commit 43c2de1002d2, we moved most HW configuration to bind(), but we
+> didn't move the runtime PM management. Therefore, depending on initial
+> boot state, runtime-PM workqueue delays, and other timing factors, we
+> may disable our power domain in between the hardware configuration
+> (bind()) and when we enable the display. This can cause us to lose
+> hardware state and fail to configure our display. For example:
+>
+>   dw-mipi-dsi-rockchip ff968000.mipi: failed to write command FIFO
+>   panel-innolux-p079zca ff960000.mipi.0: failed to write command 0
+>
+> or:
+>
+>   dw-mipi-dsi-rockchip ff968000.mipi: failed to write command FIFO
+>   panel-kingdisplay-kd097d04 ff960000.mipi.0: failed write init cmds: -11=
+0
+>
+> We should match the runtime PM to the lifetime of the bind()/unbind()
+> cycle.
+>
+> Tested on Acer Chrometab 10 (RK3399 Gru-Scarlet), with panel drivers
+> built either as modules or built-in.
+>
+> Side notes: it seems one is more likely to see this problem when the
+> panel driver is built into the kernel. I've also seen this problem
+> bisect down to commits that simply changed Kconfig dependencies, because
+> it changed the order in which driver init functions were compiled into
+> the kernel, and therefore the ordering and timing of built-in device
+> probe.
+>
+> Fixes: 43c2de1002d2 ("drm/rockchip: dsi: move all lane config except LCDC=
+ mux to bind()")
+> Link: https://lore.kernel.org/linux-rockchip/9aedfb528600ecf871885f7293ca=
+4207c84d16c1.camel@gmail.com/
+> Reported-by: <aleksandr.o.makarov@gmail.com>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Brian Norris <briannorris@chromium.org>
+> Tested-by: N=C3=ADcolas F. R. A. Prado <nfraprado@collabora.com>
 > ---
->  drivers/gpu/drm/amd/amdgpu/amdgpu_display.c | 31 +++++++++++++++++++++
->  1 file changed, 31 insertions(+)
 >
-> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/dr=
-m/amd/amdgpu/amdgpu_display.c
-> index 58bfc7f00d76..5faf3ef28080 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-> @@ -837,6 +837,28 @@ static int convert_tiling_flags_to_modifier(struct a=
-mdgpu_framebuffer *afb)
->         return 0;
+> Changes in v2:
+> - Clean up pm-runtime state in error cases.
+> - Correct git hash for Fixes.
+>
+>  .../gpu/drm/rockchip/dw-mipi-dsi-rockchip.c   | 37 ++++++++++---------
+>  1 file changed, 19 insertions(+), 18 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c b/drivers/gp=
+u/drm/rockchip/dw-mipi-dsi-rockchip.c
+> index a2262bee5aa4..45676b23c019 100644
+> --- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
+> +++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
+> @@ -773,10 +773,6 @@ static void dw_mipi_dsi_encoder_enable(struct drm_en=
+coder *encoder)
+>         if (mux < 0)
+>                 return;
+>
+> -       pm_runtime_get_sync(dsi->dev);
+> -       if (dsi->slave)
+> -               pm_runtime_get_sync(dsi->slave->dev);
+> -
+>         /*
+>          * For the RK3399, the clk of grf must be enabled before writing =
+grf
+>          * register. And for RK3288 or other soc, this grf_clk must be NU=
+LL,
+> @@ -795,20 +791,10 @@ static void dw_mipi_dsi_encoder_enable(struct drm_e=
+ncoder *encoder)
+>         clk_disable_unprepare(dsi->grf_clk);
 >  }
 >
-> +/* Mirrors the is_displayable check in radeonsi's gfx6_compute_surface *=
-/
-> +static int check_tiling_flags_gfx6(struct amdgpu_framebuffer *afb)
-> +{
-> +       u64 micro_tile_mode;
+> -static void dw_mipi_dsi_encoder_disable(struct drm_encoder *encoder)
+> -{
+> -       struct dw_mipi_dsi_rockchip *dsi =3D to_dsi(encoder);
+> -
+> -       if (dsi->slave)
+> -               pm_runtime_put(dsi->slave->dev);
+> -       pm_runtime_put(dsi->dev);
+> -}
+> -
+>  static const struct drm_encoder_helper_funcs
+>  dw_mipi_dsi_encoder_helper_funcs =3D {
+>         .atomic_check =3D dw_mipi_dsi_encoder_atomic_check,
+>         .enable =3D dw_mipi_dsi_encoder_enable,
+> -       .disable =3D dw_mipi_dsi_encoder_disable,
+>  };
+>
+>  static int rockchip_dsi_drm_create_encoder(struct dw_mipi_dsi_rockchip *=
+dsi,
+> @@ -938,10 +924,14 @@ static int dw_mipi_dsi_rockchip_bind(struct device =
+*dev,
+>                 put_device(second);
+>         }
+>
+> +       pm_runtime_get_sync(dsi->dev);
+> +       if (dsi->slave)
+> +               pm_runtime_get_sync(dsi->slave->dev);
 > +
-> +       /* Zero swizzle mode means linear */
-> +       if (AMDGPU_TILING_GET(afb->tiling_flags, SWIZZLE_MODE) =3D=3D 0)
-> +               return 0;
-> +
-> +       micro_tile_mode =3D AMDGPU_TILING_GET(afb->tiling_flags, MICRO_TI=
-LE_MODE);
-> +       switch (micro_tile_mode) {
-> +       case 0: /* DISPLAY */
-> +       case 3: /* RENDER */
-> +               return 0;
-> +       default:
-> +               drm_dbg_kms(afb->base.dev,
-> +                           "Micro tile mode %llu not supported for scano=
-ut\n",
-> +                           micro_tile_mode);
-> +               return -EINVAL;
-> +       }
-> +}
-> +
->  static void get_block_dimensions(unsigned int block_log2, unsigned int c=
-pp,
->                                  unsigned int *width, unsigned int *heigh=
-t)
->  {
-> @@ -1103,6 +1125,7 @@ int amdgpu_display_framebuffer_init(struct drm_devi=
-ce *dev,
->                                     const struct drm_mode_fb_cmd2 *mode_c=
-md,
->                                     struct drm_gem_object *obj)
->  {
-> +       struct amdgpu_device *adev =3D drm_to_adev(dev);
->         int ret, i;
+>         ret =3D clk_prepare_enable(dsi->pllref_clk);
+>         if (ret) {
+>                 DRM_DEV_ERROR(dev, "Failed to enable pllref_clk: %d\n", r=
+et);
+> -               return ret;
+> +               goto out_pm_runtime;
+>         }
 >
 >         /*
-> @@ -1122,6 +1145,14 @@ int amdgpu_display_framebuffer_init(struct drm_dev=
-ice *dev,
->         if (ret)
->                 return ret;
+> @@ -953,7 +943,7 @@ static int dw_mipi_dsi_rockchip_bind(struct device *d=
+ev,
+>         ret =3D clk_prepare_enable(dsi->grf_clk);
+>         if (ret) {
+>                 DRM_DEV_ERROR(dsi->dev, "Failed to enable grf_clk: %d\n",=
+ ret);
+> -               return ret;
+> +               goto out_pm_runtime;
+>         }
 >
-> +       if (!dev->mode_config.allow_fb_modifiers) {
-> +               drm_WARN_ONCE(dev, adev->family >=3D AMDGPU_FAMILY_AI,
-> +                             "GFX9+ requires FB check based on format mo=
-difier\n");
-> +               ret =3D check_tiling_flags_gfx6(rfb);
-> +               if (ret)
-> +                       return ret;
-> +       }
+>         dw_mipi_dsi_rockchip_config(dsi);
+> @@ -965,16 +955,23 @@ static int dw_mipi_dsi_rockchip_bind(struct device =
+*dev,
+>         ret =3D rockchip_dsi_drm_create_encoder(dsi, drm_dev);
+>         if (ret) {
+>                 DRM_DEV_ERROR(dev, "Failed to create drm encoder\n");
+> -               return ret;
+> +               goto out_pm_runtime;
+>         }
+>
+>         ret =3D dw_mipi_dsi_bind(dsi->dmd, &dsi->encoder);
+>         if (ret) {
+>                 DRM_DEV_ERROR(dev, "Failed to bind: %d\n", ret);
+> -               return ret;
+> +               goto out_pm_runtime;
+>         }
+>
+>         return 0;
 > +
->         if (dev->mode_config.allow_fb_modifiers &&
->             !(rfb->base.flags & DRM_MODE_FB_MODIFIERS)) {
->                 ret =3D convert_tiling_flags_to_modifier(rfb);
-> --
-> 2.33.0
+> +out_pm_runtime:
+> +       pm_runtime_put(dsi->dev);
+> +       if (dsi->slave)
+> +               pm_runtime_put(dsi->slave->dev);
+> +
+> +       return ret;
+>  }
 >
+>  static void dw_mipi_dsi_rockchip_unbind(struct device *dev,
+> @@ -989,6 +986,10 @@ static void dw_mipi_dsi_rockchip_unbind(struct devic=
+e *dev,
+>         dw_mipi_dsi_unbind(dsi->dmd);
+>
+>         clk_disable_unprepare(dsi->pllref_clk);
+> +
+> +       pm_runtime_put(dsi->dev);
+> +       if (dsi->slave)
+> +               pm_runtime_put(dsi->slave->dev);
+>  }
+>
+>  static const struct component_ops dw_mipi_dsi_rockchip_ops =3D {
+> --
+> 2.33.0.685.g46640cef36-goog
 >
