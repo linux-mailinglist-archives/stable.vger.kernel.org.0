@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90C80419BC6
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:20:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 988F4419AA8
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:09:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235739AbhI0RWH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:22:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37506 "EHLO mail.kernel.org"
+        id S236620AbhI0RKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:10:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236326AbhI0RUF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:20:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C66E613A1;
-        Mon, 27 Sep 2021 17:13:10 +0000 (UTC)
+        id S236270AbhI0RJV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:09:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 623F4611F0;
+        Mon, 27 Sep 2021 17:07:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762790;
-        bh=V1XRCNnsokINEUhpOK8ajzGyWuEa2f0wXZ5FZ178hug=;
+        s=korg; t=1632762438;
+        bh=9CQbwo8U+EzsFck0AJEP6nbR8lzR7EjU4KbTQhXBmyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xsR+phKAYtAhJ/NBEAeP/8nT3YmZVAq1E5udvLGe+MQNiVoFyoOg8bmk1lCIu9f/O
-         7iiI7f+EhcesZzMjJHHUhAwkENRVSw1Ul0ulrZkH3la1CNDxm6F+XF5rc6pzVLMEMg
-         4LaywavzQl90GUNykPUu0i71zGLE4TmkogZBVXJQ=
+        b=KltKyU0znlp1/+BcciKqAKyxpejxDur3EXcij7Xec1rtuVm0rHDOMLT7dzPjHorlT
+         ltqt0K+trpA6WZuEXmvzOdkA8cM46+47ygDT73BvyL2ftAskiPurNKwkWY4lH4p1Q7
+         YcsasVSw3pyQATFBc/JmSmeRGRojBaO91aL+60Xo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Markus Suvanto <markus.suvanto@gmail.com>,
-        David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 051/162] afs: Fix updating of i_blocks on file/dir extension
+        stable@vger.kernel.org,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Subject: [PATCH 5.10 005/103] usb: dwc2: gadget: Fix ISOC flow for BDMA and Slave
 Date:   Mon, 27 Sep 2021 19:01:37 +0200
-Message-Id: <20210927170235.260421911@linuxfoundation.org>
+Message-Id: <20210927170225.896956287@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+References: <20210927170225.702078779@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,118 +39,406 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
 
-[ Upstream commit 9d37e1cab2a9d2cee2737973fa455e6f89eee46a ]
+commit 91bb163e1e4f88092f50dfaa5a816b658753e4b2 upstream.
 
-When an afs file or directory is modified locally such that the total file
-size is extended, i_blocks needs to be recalculated too.
+According USB spec each ISOC transaction should be performed in a
+designated for that transaction interval. On bus errors or delays
+in operating system scheduling of client software can result in no
+packet being transferred for a (micro)frame. An error indication
+should be returned as status to the client software in such a case.
 
-Fix this by making afs_write_end() and afs_edit_dir_add() call
-afs_set_i_size() rather than setting inode->i_size directly as that also
-recalculates inode->i_blocks.
+Current implementation in case of missed/dropped interval send same
+data in next possible interval instead of reporting missed isoc.
 
-This can be tested by creating and writing into directories and files and
-then examining them with du.  Without this change, directories show a 4
-blocks (they start out at 2048 bytes) and files show 0 blocks; with this
-change, they should show a number of blocks proportional to the file size
-rounded up to 1024.
+This fix complete requests with -ENODATA if interval elapsed.
 
-Fixes: 31143d5d515e ("AFS: implement basic file write support")
-Fixes: 63a4681ff39c ("afs: Locally edit directory data for mkdir/create/unlink/...")
-Reported-by: Markus Suvanto <markus.suvanto@gmail.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-Tested-by: Markus Suvanto <markus.suvanto@gmail.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/r/163113612442.352844.11162345591911691150.stgit@warthog.procyon.org.uk/
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+HSOTG core in BDMA and Slave modes haven't HW support for
+(micro)frames tracking, this is why SW should care about tracking
+of (micro)frames. Because of that method and consider operating
+system scheduling delays, added few additional checking's of elapsed
+target (micro)frame:
+1. Immediately before enabling EP to start transfer.
+2. With any transfer completion interrupt.
+3. With incomplete isoc in/out interrupt.
+4. With EP disabled interrupt because of incomplete transfer.
+5. With OUT token received while EP disabled interrupt (for OUT
+transfers).
+6. With NAK replied to IN token interrupt (for IN transfers).
+
+As part of ISOC flow, additionally fixed 'current' and 'target' frame
+calculation functions. In HS mode SOF limits provided by DSTS register
+is 0x3fff, but in non HS mode this limit is 0x7ff.
+
+Tested by internal tool which also using for dwc3 testing.
+
+Signed-off-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/95d1423adf4b0f68187c9894820c4b7e964a3f7f.1631175721.git.Minas.Harutyunyan@synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/afs/dir_edit.c |  4 ++--
- fs/afs/inode.c    | 10 ----------
- fs/afs/internal.h | 10 ++++++++++
- fs/afs/write.c    |  2 +-
- 4 files changed, 13 insertions(+), 13 deletions(-)
+ drivers/usb/dwc2/gadget.c |  189 +++++++++++++++++++++++++---------------------
+ 1 file changed, 106 insertions(+), 83 deletions(-)
 
-diff --git a/fs/afs/dir_edit.c b/fs/afs/dir_edit.c
-index f4600c1353ad..540b9fc96824 100644
---- a/fs/afs/dir_edit.c
-+++ b/fs/afs/dir_edit.c
-@@ -263,7 +263,7 @@ void afs_edit_dir_add(struct afs_vnode *vnode,
- 		if (b == nr_blocks) {
- 			_debug("init %u", b);
- 			afs_edit_init_block(meta, block, b);
--			i_size_write(&vnode->vfs_inode, (b + 1) * AFS_DIR_BLOCK_SIZE);
-+			afs_set_i_size(vnode, (b + 1) * AFS_DIR_BLOCK_SIZE);
- 		}
- 
- 		/* Only lower dir pages have a counter in the header. */
-@@ -296,7 +296,7 @@ void afs_edit_dir_add(struct afs_vnode *vnode,
- new_directory:
- 	afs_edit_init_block(meta, meta, 0);
- 	i_size = AFS_DIR_BLOCK_SIZE;
--	i_size_write(&vnode->vfs_inode, i_size);
-+	afs_set_i_size(vnode, i_size);
- 	slot = AFS_DIR_RESV_BLOCKS0;
- 	page = page0;
- 	block = meta;
-diff --git a/fs/afs/inode.c b/fs/afs/inode.c
-index 80b6c8d967d5..c18cbc69fa58 100644
---- a/fs/afs/inode.c
-+++ b/fs/afs/inode.c
-@@ -53,16 +53,6 @@ static noinline void dump_vnode(struct afs_vnode *vnode, struct afs_vnode *paren
- 		dump_stack();
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -115,10 +115,16 @@ static inline bool using_desc_dma(struct
+  */
+ static inline void dwc2_gadget_incr_frame_num(struct dwc2_hsotg_ep *hs_ep)
+ {
++	struct dwc2_hsotg *hsotg = hs_ep->parent;
++	u16 limit = DSTS_SOFFN_LIMIT;
++
++	if (hsotg->gadget.speed != USB_SPEED_HIGH)
++		limit >>= 3;
++
+ 	hs_ep->target_frame += hs_ep->interval;
+-	if (hs_ep->target_frame > DSTS_SOFFN_LIMIT) {
++	if (hs_ep->target_frame > limit) {
+ 		hs_ep->frame_overrun = true;
+-		hs_ep->target_frame &= DSTS_SOFFN_LIMIT;
++		hs_ep->target_frame &= limit;
+ 	} else {
+ 		hs_ep->frame_overrun = false;
+ 	}
+@@ -136,10 +142,16 @@ static inline void dwc2_gadget_incr_fram
+  */
+ static inline void dwc2_gadget_dec_frame_num_by_one(struct dwc2_hsotg_ep *hs_ep)
+ {
++	struct dwc2_hsotg *hsotg = hs_ep->parent;
++	u16 limit = DSTS_SOFFN_LIMIT;
++
++	if (hsotg->gadget.speed != USB_SPEED_HIGH)
++		limit >>= 3;
++
+ 	if (hs_ep->target_frame)
+ 		hs_ep->target_frame -= 1;
+ 	else
+-		hs_ep->target_frame = DSTS_SOFFN_LIMIT;
++		hs_ep->target_frame = limit;
  }
  
--/*
-- * Set the file size and block count.  Estimate the number of 512 bytes blocks
-- * used, rounded up to nearest 1K for consistency with other AFS clients.
-- */
--static void afs_set_i_size(struct afs_vnode *vnode, u64 size)
+ /**
+@@ -1018,6 +1030,12 @@ static void dwc2_gadget_start_isoc_ddma(
+ 	dwc2_writel(hsotg, ctrl, depctl);
+ }
+ 
++static bool dwc2_gadget_target_frame_elapsed(struct dwc2_hsotg_ep *hs_ep);
++static void dwc2_hsotg_complete_request(struct dwc2_hsotg *hsotg,
++					struct dwc2_hsotg_ep *hs_ep,
++				       struct dwc2_hsotg_req *hs_req,
++				       int result);
++
+ /**
+  * dwc2_hsotg_start_req - start a USB request from an endpoint's queue
+  * @hsotg: The controller state.
+@@ -1170,14 +1188,19 @@ static void dwc2_hsotg_start_req(struct
+ 		}
+ 	}
+ 
+-	if (hs_ep->isochronous && hs_ep->interval == 1) {
+-		hs_ep->target_frame = dwc2_hsotg_read_frameno(hsotg);
+-		dwc2_gadget_incr_frame_num(hs_ep);
+-
+-		if (hs_ep->target_frame & 0x1)
+-			ctrl |= DXEPCTL_SETODDFR;
+-		else
+-			ctrl |= DXEPCTL_SETEVENFR;
++	if (hs_ep->isochronous) {
++		if (!dwc2_gadget_target_frame_elapsed(hs_ep)) {
++			if (hs_ep->interval == 1) {
++				if (hs_ep->target_frame & 0x1)
++					ctrl |= DXEPCTL_SETODDFR;
++				else
++					ctrl |= DXEPCTL_SETEVENFR;
++			}
++			ctrl |= DXEPCTL_CNAK;
++		} else {
++			dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req, -ENODATA);
++			return;
++		}
+ 	}
+ 
+ 	ctrl |= DXEPCTL_EPENA;	/* ensure ep enabled */
+@@ -1325,12 +1348,16 @@ static bool dwc2_gadget_target_frame_ela
+ 	u32 target_frame = hs_ep->target_frame;
+ 	u32 current_frame = hsotg->frame_number;
+ 	bool frame_overrun = hs_ep->frame_overrun;
++	u16 limit = DSTS_SOFFN_LIMIT;
++
++	if (hsotg->gadget.speed != USB_SPEED_HIGH)
++		limit >>= 3;
+ 
+ 	if (!frame_overrun && current_frame >= target_frame)
+ 		return true;
+ 
+ 	if (frame_overrun && current_frame >= target_frame &&
+-	    ((current_frame - target_frame) < DSTS_SOFFN_LIMIT / 2))
++	    ((current_frame - target_frame) < limit / 2))
+ 		return true;
+ 
+ 	return false;
+@@ -1713,11 +1740,9 @@ static struct dwc2_hsotg_req *get_ep_hea
+  */
+ static void dwc2_gadget_start_next_request(struct dwc2_hsotg_ep *hs_ep)
+ {
+-	u32 mask;
+ 	struct dwc2_hsotg *hsotg = hs_ep->parent;
+ 	int dir_in = hs_ep->dir_in;
+ 	struct dwc2_hsotg_req *hs_req;
+-	u32 epmsk_reg = dir_in ? DIEPMSK : DOEPMSK;
+ 
+ 	if (!list_empty(&hs_ep->queue)) {
+ 		hs_req = get_ep_head(hs_ep);
+@@ -1733,9 +1758,6 @@ static void dwc2_gadget_start_next_reque
+ 	} else {
+ 		dev_dbg(hsotg->dev, "%s: No more ISOC-OUT requests\n",
+ 			__func__);
+-		mask = dwc2_readl(hsotg, epmsk_reg);
+-		mask |= DOEPMSK_OUTTKNEPDISMSK;
+-		dwc2_writel(hsotg, mask, epmsk_reg);
+ 	}
+ }
+ 
+@@ -2305,19 +2327,6 @@ static void dwc2_hsotg_ep0_zlp(struct dw
+ 	dwc2_hsotg_program_zlp(hsotg, hsotg->eps_out[0]);
+ }
+ 
+-static void dwc2_hsotg_change_ep_iso_parity(struct dwc2_hsotg *hsotg,
+-					    u32 epctl_reg)
 -{
--	i_size_write(&vnode->vfs_inode, size);
--	vnode->vfs_inode.i_blocks = ((size + 1023) >> 10) << 1;
+-	u32 ctrl;
+-
+-	ctrl = dwc2_readl(hsotg, epctl_reg);
+-	if (ctrl & DXEPCTL_EOFRNUM)
+-		ctrl |= DXEPCTL_SETEVENFR;
+-	else
+-		ctrl |= DXEPCTL_SETODDFR;
+-	dwc2_writel(hsotg, ctrl, epctl_reg);
 -}
 -
  /*
-  * Initialise an inode from the vnode status.
-  */
-diff --git a/fs/afs/internal.h b/fs/afs/internal.h
-index 928408888054..345494881f65 100644
---- a/fs/afs/internal.h
-+++ b/fs/afs/internal.h
-@@ -1586,6 +1586,16 @@ static inline void afs_update_dentry_version(struct afs_operation *op,
- 			(void *)(unsigned long)dir_vp->scb.status.data_version;
- }
- 
-+/*
-+ * Set the file size and block count.  Estimate the number of 512 bytes blocks
-+ * used, rounded up to nearest 1K for consistency with other AFS clients.
-+ */
-+static inline void afs_set_i_size(struct afs_vnode *vnode, u64 size)
-+{
-+	i_size_write(&vnode->vfs_inode, size);
-+	vnode->vfs_inode.i_blocks = ((size + 1023) >> 10) << 1;
-+}
-+
- /*
-  * Check for a conflicting operation on a directory that we just unlinked from.
-  * If someone managed to sneak a link or an unlink in on the file we just
-diff --git a/fs/afs/write.c b/fs/afs/write.c
-index 66b235266893..e86f5a245514 100644
---- a/fs/afs/write.c
-+++ b/fs/afs/write.c
-@@ -137,7 +137,7 @@ int afs_write_end(struct file *file, struct address_space *mapping,
- 		write_seqlock(&vnode->cb_lock);
- 		i_size = i_size_read(&vnode->vfs_inode);
- 		if (maybe_i_size > i_size)
--			i_size_write(&vnode->vfs_inode, maybe_i_size);
-+			afs_set_i_size(vnode, maybe_i_size);
- 		write_sequnlock(&vnode->cb_lock);
+  * dwc2_gadget_get_xfersize_ddma - get transferred bytes amount from desc
+  * @hs_ep - The endpoint on which transfer went
+@@ -2438,20 +2447,11 @@ static void dwc2_hsotg_handle_outdone(st
+ 			dwc2_hsotg_ep0_zlp(hsotg, true);
  	}
  
--- 
-2.33.0
-
+-	/*
+-	 * Slave mode OUT transfers do not go through XferComplete so
+-	 * adjust the ISOC parity here.
+-	 */
+-	if (!using_dma(hsotg)) {
+-		if (hs_ep->isochronous && hs_ep->interval == 1)
+-			dwc2_hsotg_change_ep_iso_parity(hsotg, DOEPCTL(epnum));
+-		else if (hs_ep->isochronous && hs_ep->interval > 1)
+-			dwc2_gadget_incr_frame_num(hs_ep);
+-	}
+-
+ 	/* Set actual frame number for completed transfers */
+-	if (!using_desc_dma(hsotg) && hs_ep->isochronous)
+-		req->frame_number = hsotg->frame_number;
++	if (!using_desc_dma(hsotg) && hs_ep->isochronous) {
++		req->frame_number = hs_ep->target_frame;
++		dwc2_gadget_incr_frame_num(hs_ep);
++	}
+ 
+ 	dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req, result);
+ }
+@@ -2765,6 +2765,12 @@ static void dwc2_hsotg_complete_in(struc
+ 		return;
+ 	}
+ 
++	/* Set actual frame number for completed transfers */
++	if (!using_desc_dma(hsotg) && hs_ep->isochronous) {
++		hs_req->req.frame_number = hs_ep->target_frame;
++		dwc2_gadget_incr_frame_num(hs_ep);
++	}
++
+ 	dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req, 0);
+ }
+ 
+@@ -2825,23 +2831,18 @@ static void dwc2_gadget_handle_ep_disabl
+ 
+ 		dwc2_hsotg_txfifo_flush(hsotg, hs_ep->fifo_index);
+ 
+-		if (hs_ep->isochronous) {
+-			dwc2_hsotg_complete_in(hsotg, hs_ep);
+-			return;
+-		}
+-
+ 		if ((epctl & DXEPCTL_STALL) && (epctl & DXEPCTL_EPTYPE_BULK)) {
+ 			int dctl = dwc2_readl(hsotg, DCTL);
+ 
+ 			dctl |= DCTL_CGNPINNAK;
+ 			dwc2_writel(hsotg, dctl, DCTL);
+ 		}
+-		return;
+-	}
++	} else {
+ 
+-	if (dctl & DCTL_GOUTNAKSTS) {
+-		dctl |= DCTL_CGOUTNAK;
+-		dwc2_writel(hsotg, dctl, DCTL);
++		if (dctl & DCTL_GOUTNAKSTS) {
++			dctl |= DCTL_CGOUTNAK;
++			dwc2_writel(hsotg, dctl, DCTL);
++		}
+ 	}
+ 
+ 	if (!hs_ep->isochronous)
+@@ -2862,8 +2863,6 @@ static void dwc2_gadget_handle_ep_disabl
+ 		/* Update current frame number value. */
+ 		hsotg->frame_number = dwc2_hsotg_read_frameno(hsotg);
+ 	} while (dwc2_gadget_target_frame_elapsed(hs_ep));
+-
+-	dwc2_gadget_start_next_request(hs_ep);
+ }
+ 
+ /**
+@@ -2880,8 +2879,8 @@ static void dwc2_gadget_handle_ep_disabl
+ static void dwc2_gadget_handle_out_token_ep_disabled(struct dwc2_hsotg_ep *ep)
+ {
+ 	struct dwc2_hsotg *hsotg = ep->parent;
++	struct dwc2_hsotg_req *hs_req;
+ 	int dir_in = ep->dir_in;
+-	u32 doepmsk;
+ 
+ 	if (dir_in || !ep->isochronous)
+ 		return;
+@@ -2895,28 +2894,39 @@ static void dwc2_gadget_handle_out_token
+ 		return;
+ 	}
+ 
+-	if (ep->interval > 1 &&
+-	    ep->target_frame == TARGET_FRAME_INITIAL) {
++	if (ep->target_frame == TARGET_FRAME_INITIAL) {
+ 		u32 ctrl;
+ 
+ 		ep->target_frame = hsotg->frame_number;
+-		dwc2_gadget_incr_frame_num(ep);
++		if (ep->interval > 1) {
++			ctrl = dwc2_readl(hsotg, DOEPCTL(ep->index));
++			if (ep->target_frame & 0x1)
++				ctrl |= DXEPCTL_SETODDFR;
++			else
++				ctrl |= DXEPCTL_SETEVENFR;
+ 
+-		ctrl = dwc2_readl(hsotg, DOEPCTL(ep->index));
+-		if (ep->target_frame & 0x1)
+-			ctrl |= DXEPCTL_SETODDFR;
+-		else
+-			ctrl |= DXEPCTL_SETEVENFR;
++			dwc2_writel(hsotg, ctrl, DOEPCTL(ep->index));
++		}
++	}
++
++	while (dwc2_gadget_target_frame_elapsed(ep)) {
++		hs_req = get_ep_head(ep);
++		if (hs_req)
++			dwc2_hsotg_complete_request(hsotg, ep, hs_req, -ENODATA);
+ 
+-		dwc2_writel(hsotg, ctrl, DOEPCTL(ep->index));
++		dwc2_gadget_incr_frame_num(ep);
++		/* Update current frame number value. */
++		hsotg->frame_number = dwc2_hsotg_read_frameno(hsotg);
+ 	}
+ 
+-	dwc2_gadget_start_next_request(ep);
+-	doepmsk = dwc2_readl(hsotg, DOEPMSK);
+-	doepmsk &= ~DOEPMSK_OUTTKNEPDISMSK;
+-	dwc2_writel(hsotg, doepmsk, DOEPMSK);
++	if (!ep->req)
++		dwc2_gadget_start_next_request(ep);
++
+ }
+ 
++static void dwc2_hsotg_ep_stop_xfr(struct dwc2_hsotg *hsotg,
++				   struct dwc2_hsotg_ep *hs_ep);
++
+ /**
+  * dwc2_gadget_handle_nak - handle NAK interrupt
+  * @hs_ep: The endpoint on which interrupt is asserted.
+@@ -2934,7 +2944,9 @@ static void dwc2_gadget_handle_out_token
+ static void dwc2_gadget_handle_nak(struct dwc2_hsotg_ep *hs_ep)
+ {
+ 	struct dwc2_hsotg *hsotg = hs_ep->parent;
++	struct dwc2_hsotg_req *hs_req;
+ 	int dir_in = hs_ep->dir_in;
++	u32 ctrl;
+ 
+ 	if (!dir_in || !hs_ep->isochronous)
+ 		return;
+@@ -2976,13 +2988,29 @@ static void dwc2_gadget_handle_nak(struc
+ 
+ 			dwc2_writel(hsotg, ctrl, DIEPCTL(hs_ep->index));
+ 		}
+-
+-		dwc2_hsotg_complete_request(hsotg, hs_ep,
+-					    get_ep_head(hs_ep), 0);
+ 	}
+ 
+-	if (!using_desc_dma(hsotg))
++	if (using_desc_dma(hsotg))
++		return;
++
++	ctrl = dwc2_readl(hsotg, DIEPCTL(hs_ep->index));
++	if (ctrl & DXEPCTL_EPENA)
++		dwc2_hsotg_ep_stop_xfr(hsotg, hs_ep);
++	else
++		dwc2_hsotg_txfifo_flush(hsotg, hs_ep->fifo_index);
++
++	while (dwc2_gadget_target_frame_elapsed(hs_ep)) {
++		hs_req = get_ep_head(hs_ep);
++		if (hs_req)
++			dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req, -ENODATA);
++
+ 		dwc2_gadget_incr_frame_num(hs_ep);
++		/* Update current frame number value. */
++		hsotg->frame_number = dwc2_hsotg_read_frameno(hsotg);
++	}
++
++	if (!hs_ep->req)
++		dwc2_gadget_start_next_request(hs_ep);
+ }
+ 
+ /**
+@@ -3047,12 +3075,8 @@ static void dwc2_hsotg_epint(struct dwc2
+ 			 * need to look at completing IN requests here
+ 			 * if operating slave mode
+ 			 */
+-			if (hs_ep->isochronous && hs_ep->interval > 1)
+-				dwc2_gadget_incr_frame_num(hs_ep);
+-
+-			dwc2_hsotg_complete_in(hsotg, hs_ep);
+-			if (ints & DXEPINT_NAKINTRPT)
+-				ints &= ~DXEPINT_NAKINTRPT;
++			if (!hs_ep->isochronous || !(ints & DXEPINT_NAKINTRPT))
++				dwc2_hsotg_complete_in(hsotg, hs_ep);
+ 
+ 			if (idx == 0 && !hs_ep->req)
+ 				dwc2_hsotg_enqueue_setup(hsotg);
+@@ -3061,10 +3085,8 @@ static void dwc2_hsotg_epint(struct dwc2
+ 			 * We're using DMA, we need to fire an OutDone here
+ 			 * as we ignore the RXFIFO.
+ 			 */
+-			if (hs_ep->isochronous && hs_ep->interval > 1)
+-				dwc2_gadget_incr_frame_num(hs_ep);
+-
+-			dwc2_hsotg_handle_outdone(hsotg, idx);
++			if (!hs_ep->isochronous || !(ints & DXEPINT_OUTTKNEPDIS))
++				dwc2_hsotg_handle_outdone(hsotg, idx);
+ 		}
+ 	}
+ 
+@@ -4083,6 +4105,7 @@ static int dwc2_hsotg_ep_enable(struct u
+ 			mask |= DIEPMSK_NAKMSK;
+ 			dwc2_writel(hsotg, mask, DIEPMSK);
+ 		} else {
++			epctrl |= DXEPCTL_SNAK;
+ 			mask = dwc2_readl(hsotg, DOEPMSK);
+ 			mask |= DOEPMSK_OUTTKNEPDISMSK;
+ 			dwc2_writel(hsotg, mask, DOEPMSK);
 
 
