@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE57419A31
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:05:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32126419AF5
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236183AbhI0RHY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:07:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45506 "EHLO mail.kernel.org"
+        id S236359AbhI0ROn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:14:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235915AbhI0RGo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:06:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A88160F3A;
-        Mon, 27 Sep 2021 17:05:06 +0000 (UTC)
+        id S236794AbhI0RNO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:13:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C6D76128B;
+        Mon, 27 Sep 2021 17:09:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762306;
-        bh=9AA1UDfGkgHVTGHZkvG70DXeyssfkk/7ic8wzBPZXQc=;
+        s=korg; t=1632762546;
+        bh=XZgCO0DMojag3ZFXwfmZqZRgfTlRuQ9uywSc944xQpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d51rNsVedm3piWrq8okx7nbhAbpu7BEY0znxMra9ofyeGzVLX8Smns+kbbf5KbJBy
-         01LLOIxsRNS7APG4sQxaDbw0Yz9pwQPI/YZEmttGgW6UQDy3Rg49uwbMFmhFMWid4a
-         Jc3SMQF/4Z/AlgBuQaqL5g0jRzWaVTwrRAV3i89A=
+        b=lxfaGk/JTMbdwE/yXH1JRFzYyt9bUMVB3Fumm3MCHP2XZbT/9+cNnftdz2UVLhNNC
+         ypHfO785sWMkVO4L7BOOps6z1q5PfMP/ZbIpthc5a93egl07ot0QA3fx81v3QJBnWP
+         b8loEfMZzjF3SsYGOlhjggMcgFWnddgutT0ZYrkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Dan Carpenter <dan.carpenter@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 41/68] scsi: lpfc: Use correct scnprintf() limit
+Subject: [PATCH 5.10 065/103] scsi: lpfc: Use correct scnprintf() limit
 Date:   Mon, 27 Sep 2021 19:02:37 +0200
-Message-Id: <20210927170221.387437612@linuxfoundation.org>
+Message-Id: <20210927170228.032608560@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
-References: <20210927170219.901812470@linuxfoundation.org>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+References: <20210927170225.702078779@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,10 +59,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/scsi/lpfc/lpfc_attr.c b/drivers/scsi/lpfc/lpfc_attr.c
-index 45db19e31b34..f0ecfe565660 100644
+index bdea2867516c..2c59a5bf3539 100644
 --- a/drivers/scsi/lpfc/lpfc_attr.c
 +++ b/drivers/scsi/lpfc/lpfc_attr.c
-@@ -5881,7 +5881,8 @@ lpfc_sg_seg_cnt_show(struct device *dev, struct device_attribute *attr,
+@@ -6005,7 +6005,8 @@ lpfc_sg_seg_cnt_show(struct device *dev, struct device_attribute *attr,
  	len = scnprintf(buf, PAGE_SIZE, "SGL sz: %d  total SGEs: %d\n",
  		       phba->cfg_sg_dma_buf_size, phba->cfg_total_seg_cnt);
  
