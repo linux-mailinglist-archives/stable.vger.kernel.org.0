@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AADC419C75
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 188A3419A7B
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:08:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236167AbhI0R3d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:29:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41190 "EHLO mail.kernel.org"
+        id S235970AbhI0RJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:09:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236619AbhI0R1k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:27:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 103E7611C5;
-        Mon, 27 Sep 2021 17:16:56 +0000 (UTC)
+        id S236161AbhI0RIT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:08:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA986611CE;
+        Mon, 27 Sep 2021 17:06:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632763017;
-        bh=Ygtg/+XzXhDufM+0SYgjdXnmsWYJkslIlLUbEy1s+Hg=;
+        s=korg; t=1632762396;
+        bh=04kIWPn05Hq1DT9FgELgq24nOOVbuN6zG7jDb7g0c10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iHdUalrJuCuhuNvIgLowSNp68S9thp4pOjZkgb39QA1UBjB9z2/2jCoZyWra2stmt
-         LSdYYwbXxsPsGa2L6QXwJyfbete2Lo9rcBD7uwPtkXhrCd1u72imEHq7rUVZv9JbsH
-         /5tawbyreHYmg+8/DlygKjXbIi6DFSD1AYzSkq2I=
+        b=keU/sqqUh6+hkzYarQATnS+O8GVAf0eXksEiPxI6q3VdhrNZ5jQXCsab3R8WMBz4T
+         dwJt+tng3FSCNRg1DpDjH/q1Qr4vGuEUffcLWL9AGtYt6VCJlNsFyK6kX84QgvNJKW
+         0X34V3wLcCqMXxMxITrSXihjnrDpj1r2z5q/GQqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 137/162] sparc: avoid stringop-overread errors
-Date:   Mon, 27 Sep 2021 19:03:03 +0200
-Message-Id: <20210927170238.170587311@linuxfoundation.org>
+        Arnd Bergmann <arnd@kernel.org>
+Subject: [PATCH 5.4 68/68] qnx4: work around gcc false positive warning bug
+Date:   Mon, 27 Sep 2021 19:03:04 +0200
+Message-Id: <20210927170222.317207591@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +42,118 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit fc7c028dcdbfe981bca75d2a7b95f363eb691ef3 ]
+commit d5f6545934c47e97c0b48a645418e877b452a992 upstream.
 
-The sparc mdesc code does pointer games with 'struct mdesc_hdr', but
-didn't describe to the compiler how that header is then followed by the
-data that the header describes.
+In commit b7213ffa0e58 ("qnx4: avoid stringop-overread errors") I tried
+to teach gcc about how the directory entry structure can be two
+different things depending on a status flag.  It made the code clearer,
+and it seemed to make gcc happy.
 
-As a result, gcc is now unhappy since it does stricter pointer range
-tracking, and doesn't understand about how these things work.  This
-results in various errors like:
+However, Arnd points to a gcc bug, where despite using two different
+members of a union, gcc then gets confused, and uses the size of one of
+the members to decide if a string overrun happens.  And not necessarily
+the rigth one.
 
-    arch/sparc/kernel/mdesc.c: In function ‘mdesc_node_by_name’:
-    arch/sparc/kernel/mdesc.c:647:22: error: ‘strcmp’ reading 1 or more bytes from a region of size 0 [-Werror=stringop-overread]
-      647 |                 if (!strcmp(names + ep[ret].name_offset, name))
-          |                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+End result: with some configurations, gcc-11 will still complain about
+the source buffer size being overread:
 
-which are easily avoided by just describing 'struct mdesc_hdr' better,
-and making the node_block() helper function look into that unsized
-data[] that follows the header.
+  fs/qnx4/dir.c: In function 'qnx4_readdir':
+  fs/qnx4/dir.c:76:32: error: 'strnlen' specified bound [16, 48] exceeds source size 1 [-Werror=stringop-overread]
+     76 |                         size = strnlen(name, size);
+        |                                ^~~~~~~~~~~~~~~~~~~
+  fs/qnx4/dir.c:26:22: note: source object declared here
+     26 |                 char de_name;
+        |                      ^~~~~~~
 
-This makes the sparc64 build happy again at least for my cross-compiler
-version (gcc version 11.2.1).
+because gcc will get confused about which union member entry is actually
+getting accessed, even when the source code is very clear about it.  Gcc
+internally will have combined two "redundant" pointers (pointing to
+different union elements that are at the same offset), and takes the
+size checking from one or the other - not necessarily the right one.
 
-Link: https://lore.kernel.org/lkml/CAHk-=wi4NW3NC0xWykkw=6LnjQD6D_rtRtxY9g8gQAJXtQMi8A@mail.gmail.com/
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: David S. Miller <davem@davemloft.net>
+This is clearly a gcc bug, but we can work around it fairly easily.  The
+biggest thing here is the big honking comment about why we do what we
+do.
+
+Link: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=99578#c6
+Reported-and-tested-by: Arnd Bergmann <arnd@kernel.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/sparc/kernel/mdesc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/qnx4/dir.c |   36 +++++++++++++++++++++++++++---------
+ 1 file changed, 27 insertions(+), 9 deletions(-)
 
-diff --git a/arch/sparc/kernel/mdesc.c b/arch/sparc/kernel/mdesc.c
-index 8e645ddac58e..30f171b7b00c 100644
---- a/arch/sparc/kernel/mdesc.c
-+++ b/arch/sparc/kernel/mdesc.c
-@@ -39,6 +39,7 @@ struct mdesc_hdr {
- 	u32	node_sz; /* node block size */
- 	u32	name_sz; /* name block size */
- 	u32	data_sz; /* data block size */
-+	char	data[];
- } __attribute__((aligned(16)));
+--- a/fs/qnx4/dir.c
++++ b/fs/qnx4/dir.c
+@@ -20,12 +20,33 @@
+  * depending on the status field in the last byte. The
+  * first byte is where the name start either way, and a
+  * zero means it's empty.
++ *
++ * Also, due to a bug in gcc, we don't want to use the
++ * real (differently sized) name arrays in the inode and
++ * link entries, but always the 'de_name[]' one in the
++ * fake struct entry.
++ *
++ * See
++ *
++ *   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=99578#c6
++ *
++ * for details, but basically gcc will take the size of the
++ * 'name' array from one of the used union entries randomly.
++ *
++ * This use of 'de_name[]' (48 bytes) avoids the false positive
++ * warnings that would happen if gcc decides to use 'inode.di_name'
++ * (16 bytes) even when the pointer and size were to come from
++ * 'link.dl_name' (48 bytes).
++ *
++ * In all cases the actual name pointer itself is the same, it's
++ * only the gcc internal 'what is the size of this field' logic
++ * that can get confused.
+  */
+ union qnx4_directory_entry {
+ 	struct {
+-		char de_name;
+-		char de_pad[62];
+-		char de_status;
++		const char de_name[48];
++		u8 de_pad[15];
++		u8 de_status;
+ 	};
+ 	struct qnx4_inode_entry inode;
+ 	struct qnx4_link_info link;
+@@ -53,29 +74,26 @@ static int qnx4_readdir(struct file *fil
+ 		ix = (ctx->pos >> QNX4_DIR_ENTRY_SIZE_BITS) % QNX4_INODES_PER_BLOCK;
+ 		for (; ix < QNX4_INODES_PER_BLOCK; ix++, ctx->pos += QNX4_DIR_ENTRY_SIZE) {
+ 			union qnx4_directory_entry *de;
+-			const char *name;
  
- struct mdesc_elem {
-@@ -612,7 +613,7 @@ EXPORT_SYMBOL(mdesc_get_node_info);
+ 			offset = ix * QNX4_DIR_ENTRY_SIZE;
+ 			de = (union qnx4_directory_entry *) (bh->b_data + offset);
  
- static struct mdesc_elem *node_block(struct mdesc_hdr *mdesc)
- {
--	return (struct mdesc_elem *) (mdesc + 1);
-+	return (struct mdesc_elem *) mdesc->data;
- }
- 
- static void *name_block(struct mdesc_hdr *mdesc)
--- 
-2.33.0
-
+-			if (!de->de_name)
++			if (!de->de_name[0])
+ 				continue;
+ 			if (!(de->de_status & (QNX4_FILE_USED|QNX4_FILE_LINK)))
+ 				continue;
+ 			if (!(de->de_status & QNX4_FILE_LINK)) {
+ 				size = sizeof(de->inode.di_fname);
+-				name = de->inode.di_fname;
+ 				ino = blknum * QNX4_INODES_PER_BLOCK + ix - 1;
+ 			} else {
+ 				size = sizeof(de->link.dl_fname);
+-				name = de->link.dl_fname;
+ 				ino = ( le32_to_cpu(de->link.dl_inode_blk) - 1 ) *
+ 					QNX4_INODES_PER_BLOCK +
+ 					de->link.dl_inode_ndx;
+ 			}
+-			size = strnlen(name, size);
++			size = strnlen(de->de_name, size);
+ 			QNX4DEBUG((KERN_INFO "qnx4_readdir:%.*s\n", size, name));
+-			if (!dir_emit(ctx, name, size, ino, DT_UNKNOWN)) {
++			if (!dir_emit(ctx, de->de_name, size, ino, DT_UNKNOWN)) {
+ 				brelse(bh);
+ 				return 0;
+ 			}
 
 
