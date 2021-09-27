@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EDF3419C7B
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B69D3419A10
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:04:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237870AbhI0R3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:29:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40804 "EHLO mail.kernel.org"
+        id S235858AbhI0RGY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:06:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237427AbhI0R0I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:26:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66C4E61206;
-        Mon, 27 Sep 2021 17:16:27 +0000 (UTC)
+        id S235804AbhI0RGD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:06:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB7666113D;
+        Mon, 27 Sep 2021 17:04:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762988;
-        bh=B48P/sPxW9NjwsFSkLfkNOm8f7MVUR9FPhIKEmz7z2k=;
+        s=korg; t=1632762265;
+        bh=P05baZsuVmGrScDKFghEoeFNrTjuLwQh/67Nmgt0fSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S8NDHJWyIy3Ho5LwXpgAYey9ksQ0gEbu9Oo5kEvtyXHxK3c3G1pKKqXLSIG8na6R2
-         1386/ELUiT0pvoOYnnU19gcqWv17yaKJB84Y+HxFyX/Q9aJbZQ8ezrTCmcjMwSclmE
-         +DC/f6T8opaCEy6Vv/HZeTTpkwOHSR/D3IXAE73U=
+        b=I2rNSXxXLnYklm9hLdturQQq2j2xB3zhDKuSuB1LzSUsgr4xxkyev/gBU6blGBkeX
+         F8wFyMWDeL4+bLS8uxEpPQ1LQcOKoASuO7VC1rRHkqhu91tywZiJap7w9sjow5o0+E
+         LKn0vs1OFZnyDTb0E5J+fvfyhgmW46tM1Y79RY7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Paul Fulghum <paulkf@microgate.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 094/162] tty: synclink_gt: rename a conflicting function name
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 24/68] net: hso: fix muxed tty registration
 Date:   Mon, 27 Sep 2021 19:02:20 +0200
-Message-Id: <20210927170236.686619248@linuxfoundation.org>
+Message-Id: <20210927170220.791697034@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,232 +39,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 06e49073dfba24df4b1073a068631b13a0039c34 ]
+commit e8f69b16ee776da88589b5271e3f46020efc8f6c upstream.
 
-'set_signals()' in synclink_gt.c conflicts with an exported symbol
-in arch/um/, so change set_signals() to set_gtsignals(). Keep
-the function names similar by also changing get_signals() to
-get_gtsignals().
+If resource allocation and registration fail for a muxed tty device
+(e.g. if there are no more minor numbers) the driver should not try to
+deregister the never-registered (or already-deregistered) tty.
 
-../drivers/tty/synclink_gt.c:442:13: error: conflicting types for ‘set_signals’
- static void set_signals(struct slgt_info *info);
-             ^~~~~~~~~~~
-In file included from ../include/linux/irqflags.h:16:0,
-                 from ../include/linux/spinlock.h:58,
-                 from ../include/linux/mm_types.h:9,
-                 from ../include/linux/buildid.h:5,
-                 from ../include/linux/module.h:14,
-                 from ../drivers/tty/synclink_gt.c:46:
-../arch/um/include/asm/irqflags.h:6:5: note: previous declaration of ‘set_signals’ was here
- int set_signals(int enable);
-     ^~~~~~~~~~~
+Fix up the error handling to avoid dereferencing a NULL pointer when
+attempting to remove the character device.
 
-Fixes: 705b6c7b34f2 ("[PATCH] new driver synclink_gt")
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Cc: Paul Fulghum <paulkf@microgate.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Link: https://lore.kernel.org/r/20210902003806.17054-1-rdunlap@infradead.org
+Fixes: 72dc1c096c70 ("HSO: add option hso driver")
+Cc: stable@vger.kernel.org	# 2.6.27
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/synclink_gt.c | 44 +++++++++++++++++++--------------------
- 1 file changed, 22 insertions(+), 22 deletions(-)
+ drivers/net/usb/hso.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
-index 5bb928b7873e..2f5fbd7db7ca 100644
---- a/drivers/tty/synclink_gt.c
-+++ b/drivers/tty/synclink_gt.c
-@@ -438,8 +438,8 @@ static void reset_tbufs(struct slgt_info *info);
- static void tdma_reset(struct slgt_info *info);
- static bool tx_load(struct slgt_info *info, const char *buf, unsigned int count);
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -2704,14 +2704,14 @@ struct hso_device *hso_create_mux_serial
  
--static void get_signals(struct slgt_info *info);
--static void set_signals(struct slgt_info *info);
-+static void get_gtsignals(struct slgt_info *info);
-+static void set_gtsignals(struct slgt_info *info);
- static void set_rate(struct slgt_info *info, u32 data_rate);
+ 	serial = kzalloc(sizeof(*serial), GFP_KERNEL);
+ 	if (!serial)
+-		goto exit;
++		goto err_free_dev;
  
- static void bh_transmit(struct slgt_info *info);
-@@ -720,7 +720,7 @@ static void set_termios(struct tty_struct *tty, struct ktermios *old_termios)
- 	if ((old_termios->c_cflag & CBAUD) && !C_BAUD(tty)) {
- 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
- 		spin_lock_irqsave(&info->lock,flags);
--		set_signals(info);
-+		set_gtsignals(info);
- 		spin_unlock_irqrestore(&info->lock,flags);
- 	}
+ 	hso_dev->port_data.dev_serial = serial;
+ 	serial->parent = hso_dev;
  
-@@ -730,7 +730,7 @@ static void set_termios(struct tty_struct *tty, struct ktermios *old_termios)
- 		if (!C_CRTSCTS(tty) || !tty_throttled(tty))
- 			info->signals |= SerialSignal_RTS;
- 		spin_lock_irqsave(&info->lock,flags);
--	 	set_signals(info);
-+	 	set_gtsignals(info);
- 		spin_unlock_irqrestore(&info->lock,flags);
- 	}
+ 	if (hso_serial_common_create
+ 	    (serial, 1, CTRL_URB_RX_SIZE, CTRL_URB_TX_SIZE))
+-		goto exit;
++		goto err_free_serial;
  
-@@ -1181,7 +1181,7 @@ static inline void line_info(struct seq_file *m, struct slgt_info *info)
+ 	serial->tx_data_length--;
+ 	serial->write_data = hso_mux_serial_write_data;
+@@ -2727,11 +2727,9 @@ struct hso_device *hso_create_mux_serial
+ 	/* done, return it */
+ 	return hso_dev;
  
- 	/* output current serial signal states */
- 	spin_lock_irqsave(&info->lock,flags);
--	get_signals(info);
-+	get_gtsignals(info);
- 	spin_unlock_irqrestore(&info->lock,flags);
+-exit:
+-	if (serial) {
+-		tty_unregister_device(tty_drv, serial->minor);
+-		kfree(serial);
+-	}
++err_free_serial:
++	kfree(serial);
++err_free_dev:
+ 	kfree(hso_dev);
+ 	return NULL;
  
- 	stat_buf[0] = 0;
-@@ -1281,7 +1281,7 @@ static void throttle(struct tty_struct * tty)
- 	if (C_CRTSCTS(tty)) {
- 		spin_lock_irqsave(&info->lock,flags);
- 		info->signals &= ~SerialSignal_RTS;
--		set_signals(info);
-+		set_gtsignals(info);
- 		spin_unlock_irqrestore(&info->lock,flags);
- 	}
- }
-@@ -1306,7 +1306,7 @@ static void unthrottle(struct tty_struct * tty)
- 	if (C_CRTSCTS(tty)) {
- 		spin_lock_irqsave(&info->lock,flags);
- 		info->signals |= SerialSignal_RTS;
--		set_signals(info);
-+		set_gtsignals(info);
- 		spin_unlock_irqrestore(&info->lock,flags);
- 	}
- }
-@@ -1477,7 +1477,7 @@ static int hdlcdev_open(struct net_device *dev)
- 
- 	/* inform generic HDLC layer of current DCD status */
- 	spin_lock_irqsave(&info->lock, flags);
--	get_signals(info);
-+	get_gtsignals(info);
- 	spin_unlock_irqrestore(&info->lock, flags);
- 	if (info->signals & SerialSignal_DCD)
- 		netif_carrier_on(dev);
-@@ -2232,7 +2232,7 @@ static void isr_txeom(struct slgt_info *info, unsigned short status)
- 		if (info->params.mode != MGSL_MODE_ASYNC && info->drop_rts_on_tx_done) {
- 			info->signals &= ~SerialSignal_RTS;
- 			info->drop_rts_on_tx_done = false;
--			set_signals(info);
-+			set_gtsignals(info);
- 		}
- 
- #if SYNCLINK_GENERIC_HDLC
-@@ -2397,7 +2397,7 @@ static void shutdown(struct slgt_info *info)
- 
-  	if (!info->port.tty || info->port.tty->termios.c_cflag & HUPCL) {
- 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
--		set_signals(info);
-+		set_gtsignals(info);
- 	}
- 
- 	flush_cond_wait(&info->gpio_wait_q);
-@@ -2425,7 +2425,7 @@ static void program_hw(struct slgt_info *info)
- 	else
- 		async_mode(info);
- 
--	set_signals(info);
-+	set_gtsignals(info);
- 
- 	info->dcd_chkcount = 0;
- 	info->cts_chkcount = 0;
-@@ -2433,7 +2433,7 @@ static void program_hw(struct slgt_info *info)
- 	info->dsr_chkcount = 0;
- 
- 	slgt_irq_on(info, IRQ_DCD | IRQ_CTS | IRQ_DSR | IRQ_RI);
--	get_signals(info);
-+	get_gtsignals(info);
- 
- 	if (info->netcount ||
- 	    (info->port.tty && info->port.tty->termios.c_cflag & CREAD))
-@@ -2670,7 +2670,7 @@ static int wait_mgsl_event(struct slgt_info *info, int __user *mask_ptr)
- 	spin_lock_irqsave(&info->lock,flags);
- 
- 	/* return immediately if state matches requested events */
--	get_signals(info);
-+	get_gtsignals(info);
- 	s = info->signals;
- 
- 	events = mask &
-@@ -3088,7 +3088,7 @@ static int tiocmget(struct tty_struct *tty)
-  	unsigned long flags;
- 
- 	spin_lock_irqsave(&info->lock,flags);
-- 	get_signals(info);
-+ 	get_gtsignals(info);
- 	spin_unlock_irqrestore(&info->lock,flags);
- 
- 	result = ((info->signals & SerialSignal_RTS) ? TIOCM_RTS:0) +
-@@ -3127,7 +3127,7 @@ static int tiocmset(struct tty_struct *tty,
- 		info->signals &= ~SerialSignal_DTR;
- 
- 	spin_lock_irqsave(&info->lock,flags);
--	set_signals(info);
-+	set_gtsignals(info);
- 	spin_unlock_irqrestore(&info->lock,flags);
- 	return 0;
- }
-@@ -3138,7 +3138,7 @@ static int carrier_raised(struct tty_port *port)
- 	struct slgt_info *info = container_of(port, struct slgt_info, port);
- 
- 	spin_lock_irqsave(&info->lock,flags);
--	get_signals(info);
-+	get_gtsignals(info);
- 	spin_unlock_irqrestore(&info->lock,flags);
- 	return (info->signals & SerialSignal_DCD) ? 1 : 0;
- }
-@@ -3153,7 +3153,7 @@ static void dtr_rts(struct tty_port *port, int on)
- 		info->signals |= SerialSignal_RTS | SerialSignal_DTR;
- 	else
- 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
--	set_signals(info);
-+	set_gtsignals(info);
- 	spin_unlock_irqrestore(&info->lock,flags);
- }
- 
-@@ -3951,10 +3951,10 @@ static void tx_start(struct slgt_info *info)
- 
- 		if (info->params.mode != MGSL_MODE_ASYNC) {
- 			if (info->params.flags & HDLC_FLAG_AUTO_RTS) {
--				get_signals(info);
-+				get_gtsignals(info);
- 				if (!(info->signals & SerialSignal_RTS)) {
- 					info->signals |= SerialSignal_RTS;
--					set_signals(info);
-+					set_gtsignals(info);
- 					info->drop_rts_on_tx_done = true;
- 				}
- 			}
-@@ -4008,7 +4008,7 @@ static void reset_port(struct slgt_info *info)
- 	rx_stop(info);
- 
- 	info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
--	set_signals(info);
-+	set_gtsignals(info);
- 
- 	slgt_irq_off(info, IRQ_ALL | IRQ_MASTER);
- }
-@@ -4430,7 +4430,7 @@ static void tx_set_idle(struct slgt_info *info)
- /*
-  * get state of V24 status (input) signals
-  */
--static void get_signals(struct slgt_info *info)
-+static void get_gtsignals(struct slgt_info *info)
- {
- 	unsigned short status = rd_reg16(info, SSR);
- 
-@@ -4492,7 +4492,7 @@ static void msc_set_vcr(struct slgt_info *info)
- /*
-  * set state of V24 control (output) signals
-  */
--static void set_signals(struct slgt_info *info)
-+static void set_gtsignals(struct slgt_info *info)
- {
- 	unsigned char val = rd_reg8(info, VCR);
- 	if (info->signals & SerialSignal_DTR)
--- 
-2.33.0
-
 
 
