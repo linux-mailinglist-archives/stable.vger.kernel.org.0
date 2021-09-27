@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02798419C69
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:27:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 467D9419AE8
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237227AbhI0R3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:29:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40938 "EHLO mail.kernel.org"
+        id S236030AbhI0ROh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:14:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237939AbhI0R0M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:26:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C254461381;
-        Mon, 27 Sep 2021 17:16:32 +0000 (UTC)
+        id S236730AbhI0RML (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:12:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F8CE60F3A;
+        Mon, 27 Sep 2021 17:08:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762993;
-        bh=6arZk5bDlsZ3qKgGv9/B4dfMRJkJRRp+HuLTnWuC5rw=;
+        s=korg; t=1632762515;
+        bh=9hHHiGvMPXCrtVKoR3Bpj+phxErEmOi4tiFKHXRbF4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jgq/55Wl+ap3J2A6divMsBSAbtZo1avxaacweJtLra7M4sUtUwfce9yI1lNX0xD53
-         z99fmTNDC9sxGLWm5D5ckHke1bRdlJff7Q54GnVXgA78dm8ZCBOA9EJaahVQas6fPD
-         QIWpxbry1YNIxSq/gInhZXU3yX0vMHLsE6S4u3AA=
+        b=uqRH1TmO6jR4B5q7Mnmz1+7+/HRjV6681PdM8VxD2bxsRLyvj9FqHaIkrijAEviJV
+         0cXt9VEBvaYhkpa1nRGEsjp/vkTm3c0brT/5N7bn1/wWY3TiE4P8s6ve6pcKUmNERq
+         hfmyUv2h5ZjDszbdM8DxtIcV5vlNpAyruYTs7GPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Moritz Fischer <mdf@kernel.org>,
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 096/162] fpga: machxo2-spi: Fix missing error code in machxo2_write_complete()
-Date:   Mon, 27 Sep 2021 19:02:22 +0200
-Message-Id: <20210927170236.765181439@linuxfoundation.org>
+Subject: [PATCH 5.10 051/103] net/mlx4_en: Dont allow aRFS for encapsulated packets
+Date:   Mon, 27 Sep 2021 19:02:23 +0200
+Message-Id: <20210927170227.517554246@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+References: <20210927170225.702078779@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Aya Levin <ayal@nvidia.com>
 
-[ Upstream commit a1e4470823d99e75b596748086e120dea169ed3c ]
+[ Upstream commit fdbccea419dc782079ce5881d2705cc9e3881480 ]
 
-The error code is missing in this code scenario, add the error code
-'-EINVAL' to the return value 'ret'.
+Driver doesn't support aRFS for encapsulated packets, return early error
+in such a case.
 
-Eliminate the follow smatch warning:
-
-drivers/fpga/machxo2-spi.c:341 machxo2_write_complete()
-  warn: missing error code 'ret'.
-
-[mdf@kernel.org: Reworded commit message]
-Fixes: 88fb3a002330 ("fpga: lattice machxo2: Add Lattice MachXO2 support")
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Signed-off-by: Moritz Fischer <mdf@kernel.org>
+Fixes: 1eb8c695bda9 ("net/mlx4_en: Add accelerated RFS support")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fpga/machxo2-spi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlx4/en_netdev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/fpga/machxo2-spi.c b/drivers/fpga/machxo2-spi.c
-index b4a530a31302..ea2ec3c6815c 100644
---- a/drivers/fpga/machxo2-spi.c
-+++ b/drivers/fpga/machxo2-spi.c
-@@ -338,6 +338,7 @@ static int machxo2_write_complete(struct fpga_manager *mgr,
- 			break;
- 		if (++refreshloop == MACHXO2_MAX_REFRESH_LOOP) {
- 			machxo2_cleanup(mgr);
-+			ret = -EINVAL;
- 			goto fail;
- 		}
- 	} while (1);
+diff --git a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+index 49a11406b6ab..00fe2e2893cd 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+@@ -372,6 +372,9 @@ mlx4_en_filter_rfs(struct net_device *net_dev, const struct sk_buff *skb,
+ 	int nhoff = skb_network_offset(skb);
+ 	int ret = 0;
+ 
++	if (skb->encapsulation)
++		return -EPROTONOSUPPORT;
++
+ 	if (skb->protocol != htons(ETH_P_IP))
+ 		return -EPROTONOSUPPORT;
+ 
 -- 
 2.33.0
 
