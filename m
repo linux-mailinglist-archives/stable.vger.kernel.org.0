@@ -2,138 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C065419F25
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 21:28:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2048A419F2E
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 21:31:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236410AbhI0Tac (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 15:30:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43750 "EHLO
+        id S229590AbhI0Tc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 15:32:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236395AbhI0Tab (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 15:30:31 -0400
-Received: from mail-qv1-xf49.google.com (mail-qv1-xf49.google.com [IPv6:2607:f8b0:4864:20::f49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C836C061575
-        for <stable@vger.kernel.org>; Mon, 27 Sep 2021 12:28:53 -0700 (PDT)
-Received: by mail-qv1-xf49.google.com with SMTP id cu18-20020a05621417d200b003822ed8f245so45025385qvb.8
-        for <stable@vger.kernel.org>; Mon, 27 Sep 2021 12:28:53 -0700 (PDT)
+        with ESMTP id S229503AbhI0Tc6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 15:32:58 -0400
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91DFEC061575
+        for <stable@vger.kernel.org>; Mon, 27 Sep 2021 12:31:20 -0700 (PDT)
+Received: by mail-pg1-x530.google.com with SMTP id x191so11806967pgd.9
+        for <stable@vger.kernel.org>; Mon, 27 Sep 2021 12:31:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
-        h=reply-to:date:message-id:mime-version:subject:from:to:cc;
-        bh=rxCiDFrfA5bXOV+pULGeWj1OAyCxc4GhOwgKIj0DBzQ=;
-        b=XLImSIYiZWFdaPU4sCd5EyuFNauDEaClmHA9vTbc+sRjfxdyzXFc4J3kwN+8WPTOam
-         3zHbtlL85FiGxXEmMZ8jm/CAaZxM8QqsTHI0ATRSQu1OHJMY4U7nrqCSznuzwY4iE7iz
-         XDEIQpuu9ZJLidxD09nNwKEfDaut5GnsTmKKE6uWt06kQgFmVxCCoufuIiJBpCA7sidv
-         klUyqNUBcj/9nx0jGyyDXzDSsNFz262dW/cMCeQgL2KHLsvwK3QvhVdzValzxaKe2t6H
-         uQezeVx3X2VRdjLcSu2HDudKv88JG0cjrDIOhrL+wbf5Dvc0kDm19u4Je7dvlJWvfNQb
-         JMlg==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=3zxyKK6GFj9MDblq5TRwW3b2ka+tg7Fz4b/WqwBWElk=;
+        b=rXNo6MfupXb2z2wrdwLR9xKO++AAOMSMmEFmrLyGIL4u8eDeeFys5ZhbuWnuzJvSi9
+         m8UNdgHUqHYJ73pZeEd4P3W1wxTJWhgN/NLhBqqEOBk/ns6h2dtN1h9fnLLrRrhPr8/q
+         GtFkD7CZMs3K3K7IlvAvaXYRwrP+9V+r+d/AM+WGdyNLA3y1ljbA5f/TTqL2cagDtLfc
+         HP9ejfRM5WgIjhuLtq6c7Bk7nn2GGFjglysdZ1gXGGssaw1BrEklXVJGnV3Clm1LZSRI
+         6xO8DSVpApLvNXEa41DuZAO/+CbUnjtXPWxwdUp6yD27t7oLob9IDdjrFF7o38+WZySp
+         AcKg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:reply-to:date:message-id:mime-version:subject
-         :from:to:cc;
-        bh=rxCiDFrfA5bXOV+pULGeWj1OAyCxc4GhOwgKIj0DBzQ=;
-        b=ql5xpP7VwV+51D69exI0yB5hPnLmZLJApQAjqj5RBo+gzFL4x0WA3hGiwcVYRYmNx4
-         IemJrfi+Fu/4YU8qG35M6RRIN99zr/RQhsGcB4xt5k64U552LTDq4OFQwtAwxHUkKgZE
-         fzvHhcI3p5tIJguw4LVhxhZ1PhXzxPb4DOvuirWO8njEqXmpnqrGDG8RoIohKeMchJiR
-         YR6jmGPxPpGiaJsLx6vhJsPGAbMoowFP11CqMJlftj+hV0GhvIbs6KgobKTn1BvzOct8
-         NkFgj7CmX+xUk/JO+orF7QMzsNYxZZ7uTqqlbwJpWg5lRJB7DljTRzWSkRIBa/R+RN15
-         t7Zw==
-X-Gm-Message-State: AOAM530MokRIt0QlFYf/z7XD0skRP7LWq5t5GMH4uqKfZZoC/k8gPNAr
-        cL591Cy5/0GoYiZcWrZlSZHmcX+5voA=
-X-Google-Smtp-Source: ABdhPJzXhwrJwyco2YTJp9dJEFpzKHV34jonQOtxUGz5IeMwQWyVdg9JJab+CrGRpp2MxVwpZD/GHawXnVQ=
-X-Received: from seanjc798194.pdx.corp.google.com ([2620:15c:90:200:9819:77b0:abed:c10c])
- (user=seanjc job=sendgmr) by 2002:a0c:f20b:: with SMTP id h11mr1594443qvk.66.1632770932719;
- Mon, 27 Sep 2021 12:28:52 -0700 (PDT)
-Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Mon, 27 Sep 2021 12:28:46 -0700
-Message-Id: <20210927192846.1533905-1-seanjc@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.33.0.685.g46640cef36-goog
-Subject: [PATCH 5.10] KVM: rseq: Update rseq when processing NOTIFY_RESUME on
- xfer to KVM guest
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=3zxyKK6GFj9MDblq5TRwW3b2ka+tg7Fz4b/WqwBWElk=;
+        b=C229yEn21+CfCFjkEo7ZSbFlTWywguuRJ3JO255j2w0jhwQV/PBeni9yvu//rNs5Fl
+         PdsxfQdBWjn0wER9nkqHGg9GWulaoIUiC9rYoVVT3QDA3ikol8WVraZDZ3vzvMQV3b0/
+         eQCFPDpwNzVfSFxGIuxtv82StryjyV47EC1TRmn6YKdyDq5Seyd4opgN4NOTkDFwRyoe
+         VDo1j77dG/z6908CcJTpjav7FVQ+PgsosNt+mgJtmOD68KGXXwZMt0U5GRSTO0xYdfaM
+         qnggo6q2NwijbRGxFKVIqajd4SggpyQqUCL8z0qSNK4Aui43MaFiQDD8DtvUSOXbt9vI
+         a9cw==
+X-Gm-Message-State: AOAM532vbt6oAnK+jWfRUqWbrmzW0prjo9BFIuI5onW/W58NSJCXxpCq
+        YyUzAkoh9caCkJGfH6QXpieYHA==
+X-Google-Smtp-Source: ABdhPJy6VAzUdMHjmM9Bjj76EdaHRGQ3Fcq/somFxW7PYveDUIo2Nfd4WNv1zbQJP4D8zyGmnHeZwQ==
+X-Received: by 2002:a63:3d8c:: with SMTP id k134mr1126408pga.394.1632771079890;
+        Mon, 27 Sep 2021 12:31:19 -0700 (PDT)
+Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
+        by smtp.gmail.com with ESMTPSA id p13sm17829313pff.73.2021.09.27.12.31.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Sep 2021 12:31:19 -0700 (PDT)
+Date:   Mon, 27 Sep 2021 19:31:15 +0000
 From:   Sean Christopherson <seanjc@google.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, Peter Foley <pefoley@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+To:     gregkh@linuxfoundation.org
+Cc:     dje@google.com, mathieu.desnoyers@efficios.com,
+        pbonzini@redhat.com, pefoley@google.com, shakeelb@google.com,
+        tglx@linutronix.de, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] KVM: rseq: Update rseq when processing
+ NOTIFY_RESUME on xfer" failed to apply to 5.10-stable tree
+Message-ID: <YVIcAy/nf+0bBdqG@google.com>
+References: <1632660262120183@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1632660262120183@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 8646e53633f314e4d746a988240d3b951a92f94a upstream.
+On Sun, Sep 26, 2021, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.10-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-Invoke rseq's NOTIFY_RESUME handler when processing the flag prior to
-transferring to a KVM guest, which is roughly equivalent to an exit to
-userspace and processes many of the same pending actions.  While the task
-cannot be in an rseq critical section as the KVM path is reachable only
-by via ioctl(KVM_RUN), the side effects that apply to rseq outside of a
-critical section still apply, e.g. the current CPU needs to be updated if
-the task is migrated.
-
-Clearing TIF_NOTIFY_RESUME without informing rseq can lead to segfaults
-and other badness in userspace VMMs that use rseq in combination with KVM,
-e.g. due to the CPU ID being stale after task migration.
-
-Fixes: 72c3c0fe54a3 ("x86/kvm: Use generic xfer to guest work function")
-Reported-by: Peter Foley <pefoley@google.com>
-Bisected-by: Doug Evans <dje@google.com>
-Acked-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210901203030.1292304-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[sean: Resolve benign conflict due to unrelated access_ok() check in 5.10]
-Signed-off-by: Sean Christopherson <seanjc@google.com>
----
- kernel/entry/kvm.c |  4 +++-
- kernel/rseq.c      | 13 ++++++++++---
- 2 files changed, 13 insertions(+), 4 deletions(-)
-
-diff --git a/kernel/entry/kvm.c b/kernel/entry/kvm.c
-index b6678a5e3cf6..2a3139dab109 100644
---- a/kernel/entry/kvm.c
-+++ b/kernel/entry/kvm.c
-@@ -16,8 +16,10 @@ static int xfer_to_guest_mode_work(struct kvm_vcpu *vcpu, unsigned long ti_work)
- 		if (ti_work & _TIF_NEED_RESCHED)
- 			schedule();
- 
--		if (ti_work & _TIF_NOTIFY_RESUME)
-+		if (ti_work & _TIF_NOTIFY_RESUME) {
- 			tracehook_notify_resume(NULL);
-+			rseq_handle_notify_resume(NULL, NULL);
-+		}
- 
- 		ret = arch_xfer_to_guest_mode_handle_work(vcpu, ti_work);
- 		if (ret)
-diff --git a/kernel/rseq.c b/kernel/rseq.c
-index a4f86a9d6937..0077713bf240 100644
---- a/kernel/rseq.c
-+++ b/kernel/rseq.c
-@@ -268,9 +268,16 @@ void __rseq_handle_notify_resume(struct ksignal *ksig, struct pt_regs *regs)
- 		return;
- 	if (unlikely(!access_ok(t->rseq, sizeof(*t->rseq))))
- 		goto error;
--	ret = rseq_ip_fixup(regs);
--	if (unlikely(ret < 0))
--		goto error;
-+	/*
-+	 * regs is NULL if and only if the caller is in a syscall path.  Skip
-+	 * fixup and leave rseq_cs as is so that rseq_sycall() will detect and
-+	 * kill a misbehaving userspace on debug kernels.
-+	 */
-+	if (regs) {
-+		ret = rseq_ip_fixup(regs);
-+		if (unlikely(ret < 0))
-+			goto error;
-+	}
- 	if (unlikely(rseq_update_cpu_id(t)))
- 		goto error;
- 	return;
--- 
-2.33.0.685.g46640cef36-goog
-
+5.10 backport sent: https://lkml.kernel.org/r/20210927192846.1533905-1-seanjc@google.comb
