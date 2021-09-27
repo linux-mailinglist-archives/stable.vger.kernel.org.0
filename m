@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 727C7419C77
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3487B419B45
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:15:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236926AbhI0R3e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:29:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43266 "EHLO mail.kernel.org"
+        id S236405AbhI0RQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:16:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236741AbhI0R1l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:27:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9906061391;
-        Mon, 27 Sep 2021 17:16:59 +0000 (UTC)
+        id S236686AbhI0RPQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:15:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EA9161374;
+        Mon, 27 Sep 2021 17:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632763020;
+        s=korg; t=1632762648;
         bh=2x/8C7RGicmM784+vbWKsqQcHRNQFf3C1wuczzZL2ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ek3myY1dDFrFzGVvDJT2XvMluxUqbq7wZqbguuZImyzh//5GwRGSiaLN3xiH7FOy0
-         HJ8+Th7UZ8YaEz6K9KFHc5ph9bdK4LPGD3a4Qi1wbEioY/QSNqv2B6I6OhZZgKy9n+
-         pnnbu4ABaLpg/xmRe76FWz+YvvLEPSuRxHFrYbpw=
+        b=twNCCZZZr99L0i6zgf3+Mk4UN3zCgf1htMuNo7Bz1sb69qbjn2Aq+kBFkGiAJrxJh
+         4G8s6e5f7R7yriP/wiKnehKANpHjcZwtcdrBLVV1R3IuD2r292Sv1MTJ3KqNxf+M7K
+         i8Wu047HS7VR5zB9xHrhYxL8HqiK7zgUOC7g3Ie8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 138/162] qnx4: avoid stringop-overread errors
+Subject: [PATCH 5.10 092/103] qnx4: avoid stringop-overread errors
 Date:   Mon, 27 Sep 2021 19:03:04 +0200
-Message-Id: <20210927170238.202093428@linuxfoundation.org>
+Message-Id: <20210927170228.953995670@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+References: <20210927170225.702078779@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
