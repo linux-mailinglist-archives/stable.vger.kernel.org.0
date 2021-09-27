@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 889D6419C7D
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3E59419AE7
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237961AbhI0R3l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:29:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43764 "EHLO mail.kernel.org"
+        id S235767AbhI0ROh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:14:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238131AbhI0R0J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:26:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0519761409;
-        Mon, 27 Sep 2021 17:16:29 +0000 (UTC)
+        id S236364AbhI0RME (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:12:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C793161264;
+        Mon, 27 Sep 2021 17:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762990;
-        bh=d562OUswW0z2026vweVc+AW1B7RLlr4Q+DoF1PV8M78=;
+        s=korg; t=1632762512;
+        bh=RSZkiJ2yqzaRdXX9rL57ZA7zNS/yRoj+t1rLaJ5pFUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w9n1s9iWUd1yHx532IbOj+oMObkmahcSGOpA3y8mYeKtvN2Ui/H0Rb8FAKhJAeCU1
-         FqDaOzwKdJgU5gPhICn3pn5zfCRrnTDSBUANY6A8JwOaLE4wNVFJDoNGylLzt+Kw4n
-         2KsZ141dGA0n/AOU770HywWqs3Qi4i7I4BkB/bws=
+        b=S75hrmmoYl1I9DVH1h5fbt/mxFRvsSAtvRRbqfEbQi4z8+WO1CTMm01WG8Y0aqqVn
+         p48a25rSaVS0haV+lhaHnDTkINITv5x3olrw77OLpyRf/THZ3h9htp8eK5ixWzyQ/G
+         QxrskE0C6CGEa5CWQa94f/DRdcAgLhp7IANge4fs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>,
+        stable@vger.kernel.org, Michal Kalderon <mkalderon@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        Shai Malin <smalin@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 095/162] fpga: machxo2-spi: Return an error on failure
-Date:   Mon, 27 Sep 2021 19:02:21 +0200
-Message-Id: <20210927170236.724539210@linuxfoundation.org>
+Subject: [PATCH 5.10 050/103] qed: rdma - dont wait for resources under hw error recovery flow
+Date:   Mon, 27 Sep 2021 19:02:22 +0200
+Message-Id: <20210927170227.485895652@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+References: <20210927170225.702078779@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Shai Malin <smalin@marvell.com>
 
-[ Upstream commit 34331739e19fd6a293d488add28832ad49c9fc54 ]
+[ Upstream commit 1ea7812326004afd2803cc968a4776ae5120a597 ]
 
-Earlier successes leave 'ret' in a non error state, so these errors are
-not reported. Set ret to -EINVAL before going to the error handler.
+If the HW device is during recovery, the HW resources will never return,
+hence we shouldn't wait for the CID (HW context ID) bitmaps to clear.
+This fix speeds up the error recovery flow.
 
-This addresses two issues reported by smatch:
-drivers/fpga/machxo2-spi.c:229 machxo2_write_init()
-  warn: missing error code 'ret'
-
-drivers/fpga/machxo2-spi.c:316 machxo2_write_complete()
-  warn: missing error code 'ret'
-
-[mdf@kernel.org: Reworded commit message]
-Fixes: 88fb3a002330 ("fpga: lattice machxo2: Add Lattice MachXO2 support")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Moritz Fischer <mdf@kernel.org>
+Fixes: 64515dc899df ("qed: Add infrastructure for error detection and recovery")
+Signed-off-by: Michal Kalderon <mkalderon@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: Shai Malin <smalin@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fpga/machxo2-spi.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qed/qed_iwarp.c | 8 ++++++++
+ drivers/net/ethernet/qlogic/qed/qed_roce.c  | 8 ++++++++
+ 2 files changed, 16 insertions(+)
 
-diff --git a/drivers/fpga/machxo2-spi.c b/drivers/fpga/machxo2-spi.c
-index 1afb41aa20d7..b4a530a31302 100644
---- a/drivers/fpga/machxo2-spi.c
-+++ b/drivers/fpga/machxo2-spi.c
-@@ -225,8 +225,10 @@ static int machxo2_write_init(struct fpga_manager *mgr,
- 		goto fail;
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
+index a99861124630..68fbe536a1f3 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
+@@ -1297,6 +1297,14 @@ qed_iwarp_wait_cid_map_cleared(struct qed_hwfn *p_hwfn, struct qed_bmap *bmap)
+ 	prev_weight = weight;
  
- 	get_status(spi, &status);
--	if (test_bit(FAIL, &status))
-+	if (test_bit(FAIL, &status)) {
-+		ret = -EINVAL;
- 		goto fail;
-+	}
- 	dump_status_reg(&status);
+ 	while (weight) {
++		/* If the HW device is during recovery, all resources are
++		 * immediately reset without receiving a per-cid indication
++		 * from HW. In this case we don't expect the cid_map to be
++		 * cleared.
++		 */
++		if (p_hwfn->cdev->recov_in_prog)
++			return 0;
++
+ 		msleep(QED_IWARP_MAX_CID_CLEAN_TIME);
  
- 	spi_message_init(&msg);
-@@ -313,6 +315,7 @@ static int machxo2_write_complete(struct fpga_manager *mgr,
- 	dump_status_reg(&status);
- 	if (!test_bit(DONE, &status)) {
- 		machxo2_cleanup(mgr);
-+		ret = -EINVAL;
- 		goto fail;
- 	}
- 
+ 		weight = bitmap_weight(bmap->bitmap, bmap->max_count);
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_roce.c b/drivers/net/ethernet/qlogic/qed/qed_roce.c
+index f16a157bb95a..cf5baa5e59bc 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_roce.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_roce.c
+@@ -77,6 +77,14 @@ void qed_roce_stop(struct qed_hwfn *p_hwfn)
+ 	 * Beyond the added delay we clear the bitmap anyway.
+ 	 */
+ 	while (bitmap_weight(rcid_map->bitmap, rcid_map->max_count)) {
++		/* If the HW device is during recovery, all resources are
++		 * immediately reset without receiving a per-cid indication
++		 * from HW. In this case we don't expect the cid bitmap to be
++		 * cleared.
++		 */
++		if (p_hwfn->cdev->recov_in_prog)
++			return;
++
+ 		msleep(100);
+ 		if (wait_count++ > 20) {
+ 			DP_NOTICE(p_hwfn, "cid bitmap wait timed out\n");
 -- 
 2.33.0
 
