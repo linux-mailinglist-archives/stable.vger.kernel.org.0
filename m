@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C9C5419A8F
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:08:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B891419C0D
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236003AbhI0RKR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:10:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47912 "EHLO mail.kernel.org"
+        id S237728AbhI0RZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:25:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236232AbhI0RIq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:08:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A25BD611C0;
-        Mon, 27 Sep 2021 17:06:54 +0000 (UTC)
+        id S237727AbhI0RXc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:23:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6E1A613A9;
+        Mon, 27 Sep 2021 17:14:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762415;
-        bh=yiU3V10sL6s+tJFwFK47L0eCG6b2WvQGVdeBLXpLV5I=;
+        s=korg; t=1632762900;
+        bh=Igm8WezuYTaPVJN2HKZsN9aGg/fdxmXqyqVhZAEXnbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dbpiuPDPtF2dTo8eHjFO6H4L65iowyYPOQL8WtnZtnnrPMwYC/L/p5QUj/anDvl2w
-         CZEk6qnFAawnBYNoY/OxXuZ/BTh93S1l16EUffp7wjt21PJKMANva/ZIfg3tLXBhTZ
-         V5oIRoQuP8fYXQ18nVq592b9sAZrwiHEa4WK6qkI=
+        b=IbM5V6XS27ez+U4zbKJLD4gf7GqSvEcn0DXx96WXxyLrgvFj73dm2WIJqQmMfMwVC
+         NvtIkvckdoVgeEHic5i25mp8p2R9csepSZD6AbLYQ/iK9AjWclFe9csa+s8XwimBkl
+         8SZlkJO1+ZAdAyGS8mz8dv5huUW6b3CyRwar1Gqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martijn Coenen <maco@android.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Todd Kjos <tkjos@google.com>
-Subject: [PATCH 5.10 014/103] binder: make sure fd closes complete
-Date:   Mon, 27 Sep 2021 19:01:46 +0200
-Message-Id: <20210927170226.207536534@linuxfoundation.org>
+        stable@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 061/162] napi: fix race inside napi_enable
+Date:   Mon, 27 Sep 2021 19:01:47 +0200
+Message-Id: <20210927170235.589030577@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,104 +41,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Todd Kjos <tkjos@google.com>
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-commit 5fdb55c1ac9585eb23bb2541d5819224429e103d upstream.
+[ Upstream commit 3765996e4f0b8a755cab215a08df744490c76052 ]
 
-During BC_FREE_BUFFER processing, the BINDER_TYPE_FDA object
-cleanup may close 1 or more fds. The close operations are
-completed using the task work mechanism -- which means the thread
-needs to return to userspace or the file object may never be
-dereferenced -- which can lead to hung processes.
+The process will cause napi.state to contain NAPI_STATE_SCHED and
+not in the poll_list, which will cause napi_disable() to get stuck.
 
-Force the binder thread back to userspace if an fd is closed during
-BC_FREE_BUFFER handling.
+The prefix "NAPI_STATE_" is removed in the figure below, and
+NAPI_STATE_HASHED is ignored in napi.state.
 
-Fixes: 80cd795630d6 ("binder: fix use-after-free due to ksys_close() during fdget()")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Martijn Coenen <maco@android.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Link: https://lore.kernel.org/r/20210830195146.587206-1-tkjos@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+                      CPU0       |                   CPU1       | napi.state
+===============================================================================
+napi_disable()                   |                              | SCHED | NPSVC
+napi_enable()                    |                              |
+{                                |                              |
+    smp_mb__before_atomic();     |                              |
+    clear_bit(SCHED, &n->state); |                              | NPSVC
+                                 | napi_schedule_prep()         | SCHED | NPSVC
+                                 | napi_poll()                  |
+                                 |   napi_complete_done()       |
+                                 |   {                          |
+                                 |      if (n->state & (NPSVC | | (1)
+                                 |               _BUSY_POLL)))  |
+                                 |           return false;      |
+                                 |     ................         |
+                                 |   }                          | SCHED | NPSVC
+                                 |                              |
+    clear_bit(NPSVC, &n->state); |                              | SCHED
+}                                |                              |
+                                 |                              |
+napi_schedule_prep()             |                              | SCHED | MISSED (2)
+
+(1) Here return direct. Because of NAPI_STATE_NPSVC exists.
+(2) NAPI_STATE_SCHED exists. So not add napi.poll_list to sd->poll_list
+
+Since NAPI_STATE_SCHED already exists and napi is not in the
+sd->poll_list queue, NAPI_STATE_SCHED cannot be cleared and will always
+exist.
+
+1. This will cause this queue to no longer receive packets.
+2. If you encounter napi_disable under the protection of rtnl_lock, it
+   will cause the entire rtnl_lock to be locked, affecting the overall
+   system.
+
+This patch uses cmpxchg to implement napi_enable(), which ensures that
+there will be no race due to the separation of clear two bits.
+
+Fixes: 2d8bff12699abc ("netpoll: Close race condition between poll_one_napi and napi_disable")
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/android/binder.c |   23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ net/core/dev.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2236,6 +2236,7 @@ static void binder_deferred_fd_close(int
- }
- 
- static void binder_transaction_buffer_release(struct binder_proc *proc,
-+					      struct binder_thread *thread,
- 					      struct binder_buffer *buffer,
- 					      binder_size_t failed_at,
- 					      bool is_failure)
-@@ -2395,8 +2396,16 @@ static void binder_transaction_buffer_re
- 						&proc->alloc, &fd, buffer,
- 						offset, sizeof(fd));
- 				WARN_ON(err);
--				if (!err)
-+				if (!err) {
- 					binder_deferred_fd_close(fd);
-+					/*
-+					 * Need to make sure the thread goes
-+					 * back to userspace to complete the
-+					 * deferred close
-+					 */
-+					if (thread)
-+						thread->looper_need_return = true;
-+				}
- 			}
- 		} break;
- 		default:
-@@ -3465,7 +3474,7 @@ err_bad_parent:
- err_copy_data_failed:
- 	binder_free_txn_fixups(t);
- 	trace_binder_transaction_failed_buffer_release(t->buffer);
--	binder_transaction_buffer_release(target_proc, t->buffer,
-+	binder_transaction_buffer_release(target_proc, NULL, t->buffer,
- 					  buffer_offset, true);
- 	if (target_node)
- 		binder_dec_node_tmpref(target_node);
-@@ -3542,7 +3551,9 @@ err_invalid_target_handle:
-  * Cleanup buffer and free it.
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 8f1a47ad6781..693f15a05630 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -6988,12 +6988,16 @@ EXPORT_SYMBOL(napi_disable);
   */
- static void
--binder_free_buf(struct binder_proc *proc, struct binder_buffer *buffer)
-+binder_free_buf(struct binder_proc *proc,
-+		struct binder_thread *thread,
-+		struct binder_buffer *buffer)
+ void napi_enable(struct napi_struct *n)
  {
- 	binder_inner_proc_lock(proc);
- 	if (buffer->transaction) {
-@@ -3570,7 +3581,7 @@ binder_free_buf(struct binder_proc *proc
- 		binder_node_inner_unlock(buf_node);
- 	}
- 	trace_binder_transaction_buffer_release(buffer);
--	binder_transaction_buffer_release(proc, buffer, 0, false);
-+	binder_transaction_buffer_release(proc, thread, buffer, 0, false);
- 	binder_alloc_free_buf(&proc->alloc, buffer);
+-	BUG_ON(!test_bit(NAPI_STATE_SCHED, &n->state));
+-	smp_mb__before_atomic();
+-	clear_bit(NAPI_STATE_SCHED, &n->state);
+-	clear_bit(NAPI_STATE_NPSVC, &n->state);
+-	if (n->dev->threaded && n->thread)
+-		set_bit(NAPI_STATE_THREADED, &n->state);
++	unsigned long val, new;
++
++	do {
++		val = READ_ONCE(n->state);
++		BUG_ON(!test_bit(NAPI_STATE_SCHED, &val));
++
++		new = val & ~(NAPIF_STATE_SCHED | NAPIF_STATE_NPSVC);
++		if (n->dev->threaded && n->thread)
++			new |= NAPIF_STATE_THREADED;
++	} while (cmpxchg(&n->state, val, new) != val);
  }
+ EXPORT_SYMBOL(napi_enable);
  
-@@ -3771,7 +3782,7 @@ static int binder_thread_write(struct bi
- 				     proc->pid, thread->pid, (u64)data_ptr,
- 				     buffer->debug_id,
- 				     buffer->transaction ? "active" : "finished");
--			binder_free_buf(proc, buffer);
-+			binder_free_buf(proc, thread, buffer);
- 			break;
- 		}
- 
-@@ -4459,7 +4470,7 @@ retry:
- 			buffer->transaction = NULL;
- 			binder_cleanup_transaction(t, "fd fixups failed",
- 						   BR_FAILED_REPLY);
--			binder_free_buf(proc, buffer);
-+			binder_free_buf(proc, thread, buffer);
- 			binder_debug(BINDER_DEBUG_FAILED_TRANSACTION,
- 				     "%d:%d %stransaction %d fd fixups failed %d/%d, line %d\n",
- 				     proc->pid, thread->pid,
+-- 
+2.33.0
+
 
 
