@@ -2,70 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B805541A333
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 00:40:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04B9741A348
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 00:47:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237643AbhI0Wls (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 18:41:48 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:57262 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237501AbhI0Wls (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 18:41:48 -0400
+        id S237899AbhI0WtM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 18:49:12 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:38204 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237780AbhI0WtI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 18:49:08 -0400
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 30B57201AD;
-        Mon, 27 Sep 2021 22:40:09 +0000 (UTC)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 533A4222BD;
+        Mon, 27 Sep 2021 22:47:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1632782409; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1632782846; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=Z2ol5hvoM/Ibrz7Ae9mG+OylsflXe0q4zwPr7cusV3E=;
-        b=fkH7YWXKTvM+TqywoJ/SGUvGKJ85kAQor3GfcDecdrDGZl/aOc2xNtoX8RPvib2WxyfO01
-        a1cXz3q/01QAZgYpTgGQgdZHD3rQJKdCSDZmSqGRdOiytORzwUSG3jnHnAIEzE+fWCOfQZ
-        ix2gRsKrhU9WKi6g/xs6ApxvpS2obhs=
+        bh=iADyd+/R8lOlaRjqOChrVXgBbFNbm2/nOJqS4Lndc0I=;
+        b=luanuEw2AWB9Gsi58JygldeLuz9i32OLGH0WjYnEHvHtqxSeNOw1eH/cwrtvXUYeazmh8m
+        SH7n0xfs8MA/fl2/ssLC+9S53jO9lvnQxi7hhHMx+324dsrHnQ5Hzhi6Omgf0ivN4f5Lvi
+        gxZBjUhZtVtV1XtP9S1EjgQV07tP2bg=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1632782409;
+        s=susede2_ed25519; t=1632782846;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=Z2ol5hvoM/Ibrz7Ae9mG+OylsflXe0q4zwPr7cusV3E=;
-        b=Q8v5C/RzTSAdm8tyXlC4kR4bkmm8rJTnN3ledA9FBFR934lH/DpHkklizYPcrioSyQBtox
-        3CAsb7XFXKTLP0BA==
+        bh=iADyd+/R8lOlaRjqOChrVXgBbFNbm2/nOJqS4Lndc0I=;
+        b=voiAOE7/7oopyWvvK6WT1oOYQ9SDe3qlGJYug3uVnnCquyS0dyIHLTOR9y67pK/Sz4h+D2
+        hfqV85ktF1r2hBDQ==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 1EABD132D4;
-        Mon, 27 Sep 2021 22:40:09 +0000 (UTC)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 41D57132D4;
+        Mon, 27 Sep 2021 22:47:26 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
         by imap2.suse-dmz.suse.de with ESMTPSA
-        id Az9RB0lIUmGKDAAAMHmgww
-        (envelope-from <bp@suse.de>); Mon, 27 Sep 2021 22:40:09 +0000
-Date:   Tue, 28 Sep 2021 00:40:02 +0200
+        id 8+c2D/5JUmEEDwAAMHmgww
+        (envelope-from <bp@suse.de>); Mon, 27 Sep 2021 22:47:26 +0000
+Date:   Tue, 28 Sep 2021 00:47:25 +0200
 From:   Borislav Petkov <bp@suse.de>
 To:     gregkh@linuxfoundation.org
 Cc:     lakshmi.sai.krishna.potthuri@xilinx.com,
         shubhrajyoti.datta@xilinx.com, stable@vger.kernel.org
 Subject: Re: FAILED: patch "[PATCH] EDAC/synopsys: Fix wrong value type
- assignment for edac_mode" failed to apply to 4.4-stable tree
-Message-ID: <YVJIQhTmbz7Yv+ia@zn.tnic>
-References: <163274045396125@kroah.com>
+ assignment for edac_mode" failed to apply to 4.19-stable tree
+Message-ID: <YVJJ/Zif2OzHB/z8@zn.tnic>
+References: <163274045325350@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <163274045396125@kroah.com>
+In-Reply-To: <163274045325350@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On Mon, Sep 27, 2021 at 01:00:53PM +0200, gregkh@linuxfoundation.org wrote:
 > 
-> The patch below does not apply to the 4.4-stable tree.
+> The patch below does not apply to the 4.19-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
@@ -96,7 +96,7 @@ Link: https://lkml.kernel.org/r/20210818072315.15149-1-shubhrajyoti.datta@xilinx
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/edac/synopsys_edac.c b/drivers/edac/synopsys_edac.c
-index fc153aea2f6c..091f03852dca 100644
+index 0c9c59e2b5a3..ba9de54a701e 100644
 --- a/drivers/edac/synopsys_edac.c
 +++ b/drivers/edac/synopsys_edac.c
 @@ -371,7 +371,7 @@ static int synps_edac_init_csrows(struct mem_ctl_info *mci)
