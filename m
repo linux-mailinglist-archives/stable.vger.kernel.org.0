@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BF3C419A26
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:05:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05D2C419C15
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235952AbhI0RHF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:07:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45282 "EHLO mail.kernel.org"
+        id S236019AbhI0RZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:25:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236045AbhI0RGb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:06:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA72C60F46;
-        Mon, 27 Sep 2021 17:04:52 +0000 (UTC)
+        id S237205AbhI0RWb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:22:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3531E613DB;
+        Mon, 27 Sep 2021 17:14:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762293;
-        bh=0bfjiDnLESLQVkxYvEfjNJpXlKTuywxREWJMFkHMcLw=;
+        s=korg; t=1632762857;
+        bh=zt4hvOLZHDrFGgDXcjKuZKFvqo4FFHPtNctULI1Ifko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fv19cLGPJNoFWvLRwlTu8xrLDc7S2lNDF+oPncgYrZXtPJOIYPR0DJVtB1PJulzpc
-         a1EKOViYcrhGLVPAUkCkRKaAwYb4IV2W9fldyXjzfW1XI2v/4Bfjv/BmuaMV6GHhns
-         7lOajqhWFVO8OSi9Yl/QYukE/F3Wm9/1aGZGI1es=
+        b=Cup//lAff67sdI+gFpxsc9iyCXrZRANcpI/5UNUFN8XOUhNG1XBp1LPjMDGoFLS9d
+         z+1lPOzUV+4M/0Vv2jLKvL9Z2F6RCR8ySVHhZ9UWhMR26ZFjOpaW4MJXX236ugAkTa
+         nlOdozuL9r5KjGZCqdMeZh4vGTIMwrBib2Z1S3Ro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.4 07/68] xen/x86: fix PV trap handling on secondary processors
+        stable@vger.kernel.org,
+        "Russell King (Oracle)" <linux@armlinux.org.uk>,
+        Mark Brown <broonie@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Andreas Schwab <schwab@suse.de>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 077/162] spi: Revert modalias changes
 Date:   Mon, 27 Sep 2021 19:02:03 +0200
-Message-Id: <20210927170220.159930827@linuxfoundation.org>
+Message-Id: <20210927170236.125714829@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
-References: <20210927170219.901812470@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,98 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit 0594c58161b6e0f3da8efa9c6e3d4ba52b652717 upstream.
+[ Upstream commit 96c8395e2166efa86082f3b71567ffd84936439b ]
 
-The initial observation was that in PV mode under Xen 32-bit user space
-didn't work anymore. Attempts of system calls ended in #GP(0x402). All
-of the sudden the vector 0x80 handler was not in place anymore. As it
-turns out up to 5.13 redundant initialization did occur: Once from
-cpu_initialize_context() (through its VCPUOP_initialise hypercall) and a
-2nd time while each CPU was brought fully up. This 2nd initialization is
-now gone, uncovering that the 1st one was flawed: Unlike for the
-set_trap_table hypercall, a full virtual IDT needs to be specified here;
-the "vector" fields of the individual entries are of no interest. With
-many (kernel) IDT entries still(?) (i.e. at that point at least) empty,
-the syscall vector 0x80 ended up in slot 0x20 of the virtual IDT, thus
-becoming the domain's handler for vector 0x20.
+During the v5.13 cycle we updated the SPI subsystem to generate OF style
+modaliases for SPI devices, replacing the old Linux style modalises we
+used to generate based on spi_device_id which are the DT style name with
+the vendor removed.  Unfortunately this means that we start only
+reporting OF style modalises and not the old ones and there is nothing
+that ensures that drivers list every possible OF compatible string in
+their OF ID table.  The result is that there are systems which have been
+relying on loading modules based on the old style that are now broken,
+as found by Russell King with spi-nor on Macchiatobin.
 
-Make xen_convert_trap_info() fit for either purpose, leveraging the fact
-that on the xen_copy_trap_info() path the table starts out zero-filled.
-This includes moving out the writing of the sentinel, which would also
-have lead to a buffer overrun in the xen_copy_trap_info() case if all
-(kernel) IDT entries were populated. Convert the writing of the sentinel
-to clearing of the entire table entry rather than just the address
-field.
+spi-nor is a particularly problematic case for this, it only lists a
+single generic DT compatible jedec,spi-nor in the driver but supports a
+huge raft of device specific compatibles, with a large set of part
+numbers many of which are offered by multiple vendors.  Russell's
+searches of upstream device trees has turned up examples with vendor
+names written in non-standard ways too.  To make matters worse up until
+8ff16cf77ce3 ("Documentation: devicetree: m25p80: add "nor-jedec"
+binding") the generic compatible was not part of the binding so there
+are device trees out there written to that binding version which don't
+list it all.  The sheer number of parts supported together with our
+previous approach of ignoring the vendor ID makes robustly fixing this
+by adding compatibles to the spi-nor driver seem problematic, the
+current DT binding document does not list all the parts supported by the
+driver at the minute (further patches will fix this).
 
-(I didn't bother trying to identify the commit which uncovered the issue
-in 5.14; the commit named below is the one which actually introduced the
-bad code.)
+I've also investigated supporting both formats of modalias
+simultaneously but that doesn't seem possible, especially without
+breaking our userspace ABI which is obviously not viable.
 
-Fixes: f87e4cac4f4e ("xen: SMP guest support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/7a266932-092e-b68f-f2bb-1473b61adc6e@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Instead revert the relevant changes for now:
+
+e09f2ab8eecc ("spi: update modalias_show after of_device_uevent_modalias support")
+3ce6c9e2617e ("spi: add of_device_uevent_modalias support")
+
+This will unfortunately mean that any system which had started having
+modules autoload based on the OF compatibles for drivers that list
+things there but not in the spi_device_ids will now not have those
+modules load which is itself a regression.  Since it affects a narrower
+time window and the particularly problematic spi-nor driver may be
+critical to system boot on smaller systems this seems the best of a
+series of bad options.  I will start an audit of SPI drivers to identify
+and fix cases where things won't autoload using spi_device_id, this is
+not great but seems to be the best way forward that anyone has been able
+to identify.
+
+Thanks to Russell for both his report and the additional diagnostic and
+analysis work he has done here, the detailed research above was his
+work.
+
+Fixes: e09f2ab8eecc ("spi: update modalias_show after of_device_uevent_modalias support")
+Fixes: 3ce6c9e2617e ("spi: add of_device_uevent_modalias support")
+Reported-by: Russell King (Oracle) <linux@armlinux.org.uk>
+Suggested-by: Russell King (Oracle) <linux@armlinux.org.uk>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Tested-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Cc: Andreas Schwab <schwab@suse.de>
+Cc: Marco Felsch <m.felsch@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/enlighten_pv.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/spi/spi.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -727,8 +727,8 @@ static void xen_write_idt_entry(gate_des
- 	preempt_enable();
- }
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index e4dc593b1f32..f95f7666cb5b 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -58,10 +58,6 @@ modalias_show(struct device *dev, struct device_attribute *a, char *buf)
+ 	const struct spi_device	*spi = to_spi_device(dev);
+ 	int len;
  
--static void xen_convert_trap_info(const struct desc_ptr *desc,
--				  struct trap_info *traps)
-+static unsigned xen_convert_trap_info(const struct desc_ptr *desc,
-+				      struct trap_info *traps, bool full)
- {
- 	unsigned in, out, count;
+-	len = of_device_modalias(dev, buf, PAGE_SIZE);
+-	if (len != -ENODEV)
+-		return len;
+-
+ 	len = acpi_device_modalias(dev, buf, PAGE_SIZE - 1);
+ 	if (len != -ENODEV)
+ 		return len;
+@@ -367,10 +363,6 @@ static int spi_uevent(struct device *dev, struct kobj_uevent_env *env)
+ 	const struct spi_device		*spi = to_spi_device(dev);
+ 	int rc;
  
-@@ -738,17 +738,18 @@ static void xen_convert_trap_info(const
- 	for (in = out = 0; in < count; in++) {
- 		gate_desc *entry = (gate_desc *)(desc->address) + in;
- 
--		if (cvt_gate_to_trap(in, entry, &traps[out]))
-+		if (cvt_gate_to_trap(in, entry, &traps[out]) || full)
- 			out++;
- 	}
--	traps[out].address = 0;
-+
-+	return out;
- }
- 
- void xen_copy_trap_info(struct trap_info *traps)
- {
- 	const struct desc_ptr *desc = this_cpu_ptr(&idt_desc);
- 
--	xen_convert_trap_info(desc, traps);
-+	xen_convert_trap_info(desc, traps, true);
- }
- 
- /* Load a new IDT into Xen.  In principle this can be per-CPU, so we
-@@ -758,6 +759,7 @@ static void xen_load_idt(const struct de
- {
- 	static DEFINE_SPINLOCK(lock);
- 	static struct trap_info traps[257];
-+	unsigned out;
- 
- 	trace_xen_cpu_load_idt(desc);
- 
-@@ -765,7 +767,8 @@ static void xen_load_idt(const struct de
- 
- 	memcpy(this_cpu_ptr(&idt_desc), desc, sizeof(idt_desc));
- 
--	xen_convert_trap_info(desc, traps);
-+	out = xen_convert_trap_info(desc, traps, false);
-+	memset(&traps[out], 0, sizeof(traps[0]));
- 
- 	xen_mc_flush();
- 	if (HYPERVISOR_set_trap_table(traps))
+-	rc = of_device_uevent_modalias(dev, env);
+-	if (rc != -ENODEV)
+-		return rc;
+-
+ 	rc = acpi_device_uevent_modalias(dev, env);
+ 	if (rc != -ENODEV)
+ 		return rc;
+-- 
+2.33.0
+
 
 
