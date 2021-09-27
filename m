@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7176F419B51
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:15:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BE26419C9C
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237073AbhI0RRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:17:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56098 "EHLO mail.kernel.org"
+        id S237289AbhI0Ra3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:30:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236754AbhI0RP2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:15:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 972116124B;
-        Mon, 27 Sep 2021 17:10:56 +0000 (UTC)
+        id S237635AbhI0R2F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:28:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D79C6141B;
+        Mon, 27 Sep 2021 17:17:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762657;
-        bh=myyxd2V9y0Dfcs0g7zwvpgghRb1GZxgWn80eyErC/go=;
+        s=korg; t=1632763030;
+        bh=YMhWQq6D4WKHyk8ymfH2x+FucXjzzqzFYBFwV6QThUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n0BmIb10rOj/cMDU2ZKXbc9qcoAl85bsrOdcpoa8bfaf2mmxaONhFKNh1dW+0ttf6
-         TRm5t1aawsJ4WqxcVge7zIkmY9o1r9Ft1WulhrVwBDD2Qvk5SSSGAzEh0ofwqHvDC6
-         g57dQ8oAHsmd8nIz94p7bp6gGxxcDVIht3PYd+Po=
+        b=vL/TSM4n0UAys2HMwHhpi0Lx0RWhvDk/DxFxla6od0PW0I5NhFtSYT/Fr8VUiXKyY
+         lxdBXkiPvoF8Y3YQEVISmbWAUjfA7R/zA6TR+WjGPg4E/zIA28GWtDckrRZCIm8s7V
+         iDdlfRS5QR47PTQTuT4kYGT/HGjWYErs01pshiHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Jimmy Kizito <Jimmy.Kizito@amd.com>,
+        Mikita Lipski <mikita.lipski@amd.com>,
+        Meenakshikumar Somasundaram <meenakshikumar.somasundaram@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 095/103] alpha: Declare virt_to_phys and virt_to_bus parameter as pointer to volatile
-Date:   Mon, 27 Sep 2021 19:03:07 +0200
-Message-Id: <20210927170229.049222382@linuxfoundation.org>
+Subject: [PATCH 5.14 142/162] drm/amd/display: Link training retry fix for abort case
+Date:   Mon, 27 Sep 2021 19:03:08 +0200
+Message-Id: <20210927170238.344869351@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Meenakshikumar Somasundaram <meenakshikumar.somasundaram@amd.com>
 
-[ Upstream commit 35a3f4ef0ab543daa1725b0c963eb8c05e3376f8 ]
+[ Upstream commit 71ae30997a8f1791835167d3ceb8d1fab32407db ]
 
-Some drivers pass a pointer to volatile data to virt_to_bus() and
-virt_to_phys(), and that works fine.  One exception is alpha.  This
-results in a number of compile errors such as
+[Why]
+If link training is aborted, it shall be retried if sink is present.
 
-  drivers/net/wan/lmc/lmc_main.c: In function 'lmc_softreset':
-  drivers/net/wan/lmc/lmc_main.c:1782:50: error:
-	passing argument 1 of 'virt_to_bus' discards 'volatile'
-	qualifier from pointer target type
+[How]
+Check hpd status to find out whether sink is present or not. If sink is
+present, then link training shall be tried again with same settings.
+Otherwise, link training shall be aborted.
 
-  drivers/atm/ambassador.c: In function 'do_loader_command':
-  drivers/atm/ambassador.c:1747:58: error:
-	passing argument 1 of 'virt_to_bus' discards 'volatile'
-	qualifier from pointer target type
-
-Declare the parameter of virt_to_phys and virt_to_bus as pointer to
-volatile to fix the problem.
-
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reviewed-by: Jimmy Kizito <Jimmy.Kizito@amd.com>
+Acked-by: Mikita Lipski <mikita.lipski@amd.com>
+Signed-off-by: Meenakshikumar Somasundaram <meenakshikumar.somasundaram@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/include/asm/io.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
-index 1f6a909d1fa5..7bc2f444a89a 100644
---- a/arch/alpha/include/asm/io.h
-+++ b/arch/alpha/include/asm/io.h
-@@ -60,7 +60,7 @@ extern inline void set_hae(unsigned long new_hae)
-  * Change virtual addresses to physical addresses and vv.
-  */
- #ifdef USE_48_BIT_KSEG
--static inline unsigned long virt_to_phys(void *address)
-+static inline unsigned long virt_to_phys(volatile void *address)
- {
- 	return (unsigned long)address - IDENT_ADDR;
- }
-@@ -70,7 +70,7 @@ static inline void * phys_to_virt(unsigned long address)
- 	return (void *) (address + IDENT_ADDR);
- }
- #else
--static inline unsigned long virt_to_phys(void *address)
-+static inline unsigned long virt_to_phys(volatile void *address)
- {
-         unsigned long phys = (unsigned long)address;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+index a6d0fd24fd02..83ef72a3ebf4 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+@@ -1849,9 +1849,13 @@ bool perform_link_training_with_retries(
+ 		dp_disable_link_phy(link, signal);
  
-@@ -106,7 +106,7 @@ static inline void * phys_to_virt(unsigned long address)
- extern unsigned long __direct_map_base;
- extern unsigned long __direct_map_size;
- 
--static inline unsigned long __deprecated virt_to_bus(void *address)
-+static inline unsigned long __deprecated virt_to_bus(volatile void *address)
- {
- 	unsigned long phys = virt_to_phys(address);
- 	unsigned long bus = phys + __direct_map_base;
+ 		/* Abort link training if failure due to sink being unplugged. */
+-		if (status == LINK_TRAINING_ABORT)
+-			break;
+-		else if (do_fallback) {
++		if (status == LINK_TRAINING_ABORT) {
++			enum dc_connection_type type = dc_connection_none;
++
++			dc_link_detect_sink(link, &type);
++			if (type == dc_connection_none)
++				break;
++		} else if (do_fallback) {
+ 			decide_fallback_link_setting(*link_setting, &current_setting, status);
+ 			/* Fail link training if reduced link bandwidth no longer meets
+ 			 * stream requirements.
 -- 
 2.33.0
 
