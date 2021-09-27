@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F8F419ACA
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:10:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91C84419BFE
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236049AbhI0RMT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:12:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48178 "EHLO mail.kernel.org"
+        id S237198AbhI0RYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:24:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236237AbhI0RKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:10:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B371611C3;
-        Mon, 27 Sep 2021 17:07:53 +0000 (UTC)
+        id S236615AbhI0RXG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:23:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E20C461373;
+        Mon, 27 Sep 2021 17:14:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762474;
-        bh=u5hZJU/JVpiUgVVDRqOJzkqDord0GSfEfYc0az6Wsww=;
+        s=korg; t=1632762873;
+        bh=LEeUosuIGKsPIE+lIorr/cJoJZp1bIdZxzZbWtVSXq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1aPOdl9/2ltNW0Cn4iC4zS6xPM2E4lBRV9X0QY2DIqIMbLFgzPSykDA2dTnxgWNO9
-         kiQHdoIAHXI6pCIxfvN1PnFXJYfjkP6SParBeOaXo88Ks3FshGPnsU3crsVYW44oZa
-         4VdTVWEY/nsbiHpsJp8Mto0a+7zZ3vmXN7MwxOlo=
+        b=bCjcbInNioTKthP82SwWAKUf4kZ2S70ZLvXxlLZeawk4limoTYp5h5pR6WqMoQHT9
+         8IWGHaDFuQZzpxXDC4CQ94eAIp2OCsJQ/J061wpXfA0YZWHerLhYUklQY7U7XAP7iQ
+         wJ8px8s/JJis1xt2ebbnhje4EMfWdIABYf0cA1DQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claudiu Manoil <claudiu.manoil@nxp.com>,
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 037/103] enetc: Fix uninitialized struct dim_sample field usage
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+263a248eec3e875baa7b@syzkaller.appspotmail.com
+Subject: [PATCH 5.14 083/162] mptcp: ensure tx skbs always have the MPTCP ext
 Date:   Mon, 27 Sep 2021 19:02:09 +0200
-Message-Id: <20210927170227.029475056@linuxfoundation.org>
+Message-Id: <20210927170236.314196629@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +41,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Manoil <claudiu.manoil@nxp.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 9f7afa05c9522b086327929ae622facab0f0f72b ]
+[ Upstream commit 977d293e23b48a1129830d7968605f61c4af71a0 ]
 
-The only struct dim_sample member that does not get
-initialized by dim_update_sample() is comp_ctr. (There
-is special API to initialize comp_ctr:
-dim_update_sample_with_comps(), and it is currently used
-only for RDMA.) comp_ctr is used to compute curr_stats->cmps
-and curr_stats->cpe_ratio (see dim_calc_stats()) which in
-turn are consumed by the rdma_dim_*() API.  Therefore,
-functionally, the net_dim*() API consumers are not affected.
-Nevertheless, fix the computation of statistics based
-on an uninitialized variable, even if the mentioned statistics
-are not used at the moment.
+Due to signed/unsigned comparison, the expression:
 
-Fixes: ae0e6a5d1627 ("enetc: Add adaptive interrupt coalescing")
-Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+	info->size_goal - skb->len > 0
+
+evaluates to true when the size goal is smaller than the
+skb size. That results in lack of tx cache refill, so that
+the skb allocated by the core TCP code lacks the required
+MPTCP skb extensions.
+
+Due to the above, syzbot is able to trigger the following WARN_ON():
+
+WARNING: CPU: 1 PID: 810 at net/mptcp/protocol.c:1366 mptcp_sendmsg_frag+0x1362/0x1bc0 net/mptcp/protocol.c:1366
+Modules linked in:
+CPU: 1 PID: 810 Comm: syz-executor.4 Not tainted 5.14.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:mptcp_sendmsg_frag+0x1362/0x1bc0 net/mptcp/protocol.c:1366
+Code: ff 4c 8b 74 24 50 48 8b 5c 24 58 e9 0f fb ff ff e8 13 44 8b f8 4c 89 e7 45 31 ed e8 98 57 2e fe e9 81 f4 ff ff e8 fe 43 8b f8 <0f> 0b 41 bd ea ff ff ff e9 6f f4 ff ff 4c 89 e7 e8 b9 8e d2 f8 e9
+RSP: 0018:ffffc9000531f6a0 EFLAGS: 00010216
+RAX: 000000000000697f RBX: 0000000000000000 RCX: ffffc90012107000
+RDX: 0000000000040000 RSI: ffffffff88eac9e2 RDI: 0000000000000003
+RBP: ffff888078b15780 R08: 0000000000000000 R09: 0000000000000000
+R10: ffffffff88eac017 R11: 0000000000000000 R12: ffff88801de0a280
+R13: 0000000000006b58 R14: ffff888066278280 R15: ffff88803c2fe9c0
+FS:  00007fd9f866e700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007faebcb2f718 CR3: 00000000267cb000 CR4: 00000000001506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ __mptcp_push_pending+0x1fb/0x6b0 net/mptcp/protocol.c:1547
+ mptcp_release_cb+0xfe/0x210 net/mptcp/protocol.c:3003
+ release_sock+0xb4/0x1b0 net/core/sock.c:3206
+ sk_stream_wait_memory+0x604/0xed0 net/core/stream.c:145
+ mptcp_sendmsg+0xc39/0x1bc0 net/mptcp/protocol.c:1749
+ inet6_sendmsg+0x99/0xe0 net/ipv6/af_inet6.c:643
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:724
+ sock_write_iter+0x2a0/0x3e0 net/socket.c:1057
+ call_write_iter include/linux/fs.h:2163 [inline]
+ new_sync_write+0x40b/0x640 fs/read_write.c:507
+ vfs_write+0x7cf/0xae0 fs/read_write.c:594
+ ksys_write+0x1ee/0x250 fs/read_write.c:647
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x4665f9
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007fd9f866e188 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 000000000056c038 RCX: 00000000004665f9
+RDX: 00000000000e7b78 RSI: 0000000020000000 RDI: 0000000000000003
+RBP: 00000000004bfcc4 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 000000000056c038
+R13: 0000000000a9fb1f R14: 00007fd9f866e300 R15: 0000000000022000
+
+Fix the issue rewriting the relevant expression to avoid
+sign-related problems - note: size_goal is always >= 0.
+
+Additionally, ensure that the skb in the tx cache always carries
+the relevant extension.
+
+Reported-and-tested-by: syzbot+263a248eec3e875baa7b@syzkaller.appspotmail.com
+Fixes: 1094c6fe7280 ("mptcp: fix possible divide by zero")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mptcp/protocol.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
-index 6877f8e2047b..15aa3b3c0089 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.c
-@@ -299,7 +299,7 @@ static void enetc_rx_dim_work(struct work_struct *w)
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index acbead7cf50f..4d2abdd3cd3b 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -1291,7 +1291,7 @@ static int mptcp_sendmsg_frag(struct sock *sk, struct sock *ssk,
+ 			goto alloc_skb;
+ 		}
  
- static void enetc_rx_net_dim(struct enetc_int_vector *v)
- {
--	struct dim_sample dim_sample;
-+	struct dim_sample dim_sample = {};
+-		must_collapse = (info->size_goal - skb->len > 0) &&
++		must_collapse = (info->size_goal > skb->len) &&
+ 				(skb_shinfo(skb)->nr_frags < sysctl_max_skb_frags);
+ 		if (must_collapse) {
+ 			size_bias = skb->len;
+@@ -1300,7 +1300,7 @@ static int mptcp_sendmsg_frag(struct sock *sk, struct sock *ssk,
+ 	}
  
- 	v->comp_cnt++;
+ alloc_skb:
+-	if (!must_collapse && !ssk->sk_tx_skb_cache &&
++	if (!must_collapse &&
+ 	    !mptcp_alloc_tx_skb(sk, ssk, info->data_lock_held))
+ 		return 0;
  
 -- 
 2.33.0
