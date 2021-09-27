@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B465E419BFA
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AC8A419ABA
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:10:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237183AbhI0RYn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:24:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35430 "EHLO mail.kernel.org"
+        id S235839AbhI0RLt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:11:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237202AbhI0RWb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:22:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88A5B61361;
-        Mon, 27 Sep 2021 17:14:14 +0000 (UTC)
+        id S236198AbhI0RJu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:09:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 02E4660F46;
+        Mon, 27 Sep 2021 17:07:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762855;
-        bh=+jZ7aSyNV6UgR5/ROl9hSbhKi7LWNlFWkovG3mIiCZM=;
+        s=korg; t=1632762456;
+        bh=xfECexUdKNbdFGlTds2HVqNsA8qj7QcE2q8SsBxctLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ovh34zJLMJflJgCof8dKvBNmrMyOV1L+tGxVZ726xoEPpSbO7A50FM8H7iqWvWjvA
-         OvWoeY325uflIoOKCCvGz9xFs6uJQt9l8Bpr1KU6ehf+o7qBQ/3i1S/G5Z1qTDF8Lu
-         520j25PQMwC0zFvEbTJijQsE7JYj3kvhYTqDo5VI=
+        b=jP9ERfoOm8g76kA0QSKGFnkywdURkwXFneY2SS7iFh43GNSnO9/+3/a/BxE/UH3D8
+         l3bOPx0lXOjALFesSEN50xhthCt/Y7ClrxU0y42fdqeJVG8w/UdDSMb0YODJLBtGlu
+         irjsjd3iyfrQr8F8MGJxEu+iB/KPbnF3FSXhFdSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Mark Brown <broonie@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 076/162] kselftest/arm64: signal: Skip tests if required features are missing
+        stable@vger.kernel.org, Lijo Lazar <lijo.lazar@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 030/103] drm/amd/pm: Update intermediate power state for SI
 Date:   Mon, 27 Sep 2021 19:02:02 +0200
-Message-Id: <20210927170236.092184261@linuxfoundation.org>
+Message-Id: <20210927170226.785342122@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+References: <20210927170225.702078779@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Lijo Lazar <lijo.lazar@amd.com>
 
-[ Upstream commit 0e3dbf765fe22060acbcb8eb8c4d256e655a1247 ]
+commit ab39d3cef526ba09c4c6923b4cd7e6ec1c5d4faa upstream.
 
-During initialization of a signal testcase, features declared as required
-are properly checked against the running system but no action is then taken
-to effectively skip such a testcase.
+Update the current state as boot state during dpm initialization.
+During the subsequent initialization, set_power_state gets called to
+transition to the final power state. set_power_state refers to values
+from the current state and without current state populated, it could
+result in NULL pointer dereference.
 
-Fix core signals test logic to abort initialization and report such a
-testcase as skipped to the KSelfTest framework.
+For ex: on platforms where PCI speed change is supported through ACPI
+ATCS method, the link speed of current state needs to be queried before
+deciding on changing to final power state's link speed. The logic to query
+ATCS-support was broken on certain platforms. The issue became visible
+when broken ATCS-support logic got fixed with commit
+f9b7f3703ff9 ("drm/amdgpu/acpi: make ATPX/ATCS structures global (v2)").
 
-Fixes: f96bf4340316 ("kselftest: arm64: mangle_pstate_invalid_compat_toggle and common utils")
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Reviewed-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210920121228.35368-1-cristian.marussi@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1698
+
+Signed-off-by: Lijo Lazar <lijo.lazar@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/arm64/signal/test_signals_utils.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/pm/powerplay/si_dpm.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/arm64/signal/test_signals_utils.c b/tools/testing/selftests/arm64/signal/test_signals_utils.c
-index 6836510a522f..22722abc9dfa 100644
---- a/tools/testing/selftests/arm64/signal/test_signals_utils.c
-+++ b/tools/testing/selftests/arm64/signal/test_signals_utils.c
-@@ -266,16 +266,19 @@ int test_init(struct tdescr *td)
- 			td->feats_supported |= FEAT_SSBS;
- 		if (getauxval(AT_HWCAP) & HWCAP_SVE)
- 			td->feats_supported |= FEAT_SVE;
--		if (feats_ok(td))
-+		if (feats_ok(td)) {
- 			fprintf(stderr,
- 				"Required Features: [%s] supported\n",
- 				feats_to_string(td->feats_required &
- 						td->feats_supported));
--		else
-+		} else {
- 			fprintf(stderr,
- 				"Required Features: [%s] NOT supported\n",
- 				feats_to_string(td->feats_required &
- 						~td->feats_supported));
-+			td->result = KSFT_SKIP;
-+			return 0;
-+		}
- 	}
+--- a/drivers/gpu/drm/amd/pm/powerplay/si_dpm.c
++++ b/drivers/gpu/drm/amd/pm/powerplay/si_dpm.c
+@@ -6870,6 +6870,8 @@ static int si_dpm_enable(struct amdgpu_d
+ 	si_enable_auto_throttle_source(adev, AMDGPU_DPM_AUTO_THROTTLE_SRC_THERMAL, true);
+ 	si_thermal_start_thermal_controller(adev);
  
- 	/* Perform test specific additional initialization */
--- 
-2.33.0
-
++	ni_update_current_ps(adev, boot_ps);
++
+ 	return 0;
+ }
+ 
 
 
