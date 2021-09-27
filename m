@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DA77419C70
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC65D419AFB
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237967AbhI0R3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:29:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43620 "EHLO mail.kernel.org"
+        id S235934AbhI0ROs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:14:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238103AbhI0R0E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:26:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D7C06137E;
-        Mon, 27 Sep 2021 17:16:13 +0000 (UTC)
+        id S237051AbhI0RNe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:13:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 85E4761352;
+        Mon, 27 Sep 2021 17:09:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762973;
-        bh=sCNdgnn2lHGPitKk5CGjkivxHEtk7HRPTksGzUE3IY0=;
+        s=korg; t=1632762567;
+        bh=nFrudeAt+LMiUk+f0kMB0bLd3J1yHNHQTkGU0Gw2CU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uG/hmhBZTNkbbI0hZ6QfZ4/eWIDPI8ylu5O4dYP3/1cBw/OZXc6b6wjB75VOgxPK4
-         lACArYUV+uCWmrdyQg7H+UEnDk2ElyOVA6K6cO5XXzmUpMEdWxgUBskesKx720fjUQ
-         CT1BhAzAfPWooqKKQzlXyokg6yMtmG9CwlMBFcIU=
+        b=io8X/lr767kheWHnl76ntv2ZlUz4w8/3AtW8euk1w9n58Q1vSRkSIJDab8N9wlBds
+         mEUUm34ikROriFratQwt0ep3bS4xFaCzmxQSB7000RS7YWYfXrNZuDVlWNRZxJC+jS
+         MTvcsCWMFBSzT7+A//fqZSFTmTyNDRhGn3qnLWps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jesper Nilsson <jesper.nilsson@axis.com>,
+        stable@vger.kernel.org, Nathan Rossi <nathan.rossi@digi.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 119/162] net: stmmac: allow CSR clock of 300MHz
+Subject: [PATCH 5.10 073/103] net: phylink: Update SFP selected interface on advertising changes
 Date:   Mon, 27 Sep 2021 19:02:45 +0200
-Message-Id: <20210927170237.561331067@linuxfoundation.org>
+Message-Id: <20210927170228.289181570@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+References: <20210927170225.702078779@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesper Nilsson <jesper.nilsson@axis.com>
+From: Nathan Rossi <nathan.rossi@digi.com>
 
-[ Upstream commit 08dad2f4d541fcfe5e7bfda72cc6314bbfd2802f ]
+[ Upstream commit ea269a6f720782ed94171fb962b14ce07c372138 ]
 
-The Synopsys Ethernet IP uses the CSR clock as a base clock for MDC.
-The divisor used is set in the MAC_MDIO_Address register field CR
-(Clock Rate)
+Currently changes to the advertising state via ethtool do not cause any
+reselection of the configured interface mode after the SFP is already
+inserted and initially configured.
 
-The divisor is there to change the CSR clock into a clock that falls
-below the IEEE 802.3 specified max frequency of 2.5MHz.
+While it is not typical to change the advertised link modes for an
+interface using an SFP in certain use cases it is desirable. In the case
+of a SFP port that is capable of handling both SFP and SFP+ modules it
+will automatically select between 1G and 10G modes depending on the
+supported mode of the SFP. However if the SFP module is capable of
+working in multiple modes (e.g. a SFP+ DAC that can operate at 1G or
+10G), one end of the cable may be attached to a SFP 1000base-x port thus
+the SFP+ end must be manually configured to the 1000base-x mode in order
+for the link to be established.
 
-If the CSR clock is 300MHz, the code falls back to using the reset
-value in the MAC_MDIO_Address register, as described in the comment
-above this code.
+This change causes the ethtool setting of advertised mode changes to
+reselect the interface mode so that the link can be established.
+Additionally when a module is inserted the advertising mode is reset to
+match the supported modes of the module.
 
-However, 300MHz is actually an allowed value and the proper divider
-can be estimated quite easily (it's just 1Hz difference!)
-
-A CSR frequency of 300MHz with the maximum clock rate value of 0x5
-(STMMAC_CSR_250_300M, a divisor of 124) gives somewhere around
-~2.42MHz which is below the IEEE 802.3 specified maximum.
-
-For the ARTPEC-8 SoC, the CSR clock is this problematic 300MHz,
-and unfortunately, the reset-value of the MAC_MDIO_Address CR field
-is 0x0.
-
-This leads to a clock rate of zero and a divisor of 42, and gives an
-MDC frequency of ~7.14MHz.
-
-Allow CSR clock of 300MHz by making the comparison inclusive.
-
-Signed-off-by: Jesper Nilsson <jesper.nilsson@axis.com>
+Signed-off-by: Nathan Rossi <nathan.rossi@digi.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/phylink.c | 30 +++++++++++++++++++++++++++++-
+ 1 file changed, 29 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 0dbd189c2721..2218bc3a624b 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -309,7 +309,7 @@ static void stmmac_clk_csr_set(struct stmmac_priv *priv)
- 			priv->clk_csr = STMMAC_CSR_100_150M;
- 		else if ((clk_rate >= CSR_F_150M) && (clk_rate < CSR_F_250M))
- 			priv->clk_csr = STMMAC_CSR_150_250M;
--		else if ((clk_rate >= CSR_F_250M) && (clk_rate < CSR_F_300M))
-+		else if ((clk_rate >= CSR_F_250M) && (clk_rate <= CSR_F_300M))
- 			priv->clk_csr = STMMAC_CSR_250_300M;
- 	}
+diff --git a/drivers/net/phy/phylink.c b/drivers/net/phy/phylink.c
+index 6072e87ed6c3..025c3246f339 100644
+--- a/drivers/net/phy/phylink.c
++++ b/drivers/net/phy/phylink.c
+@@ -1493,6 +1493,32 @@ int phylink_ethtool_ksettings_set(struct phylink *pl,
+ 	if (config.an_enabled && phylink_is_empty_linkmode(config.advertising))
+ 		return -EINVAL;
  
++	/* If this link is with an SFP, ensure that changes to advertised modes
++	 * also cause the associated interface to be selected such that the
++	 * link can be configured correctly.
++	 */
++	if (pl->sfp_port && pl->sfp_bus) {
++		config.interface = sfp_select_interface(pl->sfp_bus,
++							config.advertising);
++		if (config.interface == PHY_INTERFACE_MODE_NA) {
++			phylink_err(pl,
++				    "selection of interface failed, advertisement %*pb\n",
++				    __ETHTOOL_LINK_MODE_MASK_NBITS,
++				    config.advertising);
++			return -EINVAL;
++		}
++
++		/* Revalidate with the selected interface */
++		linkmode_copy(support, pl->supported);
++		if (phylink_validate(pl, support, &config)) {
++			phylink_err(pl, "validation of %s/%s with support %*pb failed\n",
++				    phylink_an_mode_str(pl->cur_link_an_mode),
++				    phy_modes(config.interface),
++				    __ETHTOOL_LINK_MODE_MASK_NBITS, support);
++			return -EINVAL;
++		}
++	}
++
+ 	mutex_lock(&pl->state_mutex);
+ 	pl->link_config.speed = config.speed;
+ 	pl->link_config.duplex = config.duplex;
+@@ -2072,7 +2098,9 @@ static int phylink_sfp_config(struct phylink *pl, u8 mode,
+ 	if (phy_interface_mode_is_8023z(iface) && pl->phydev)
+ 		return -EINVAL;
+ 
+-	changed = !linkmode_equal(pl->supported, support);
++	changed = !linkmode_equal(pl->supported, support) ||
++		  !linkmode_equal(pl->link_config.advertising,
++				  config.advertising);
+ 	if (changed) {
+ 		linkmode_copy(pl->supported, support);
+ 		linkmode_copy(pl->link_config.advertising, config.advertising);
 -- 
 2.33.0
 
