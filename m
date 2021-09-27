@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A067F419C1B
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91BAB419C22
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:24:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235871AbhI0RZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:25:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41158 "EHLO mail.kernel.org"
+        id S236140AbhI0RZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:25:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237757AbhI0RXf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:23:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62C44613D5;
-        Mon, 27 Sep 2021 17:15:02 +0000 (UTC)
+        id S237779AbhI0RXh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:23:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 905E961178;
+        Mon, 27 Sep 2021 17:15:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762902;
-        bh=NQpf1jAFFlPTvQ/GKDG0rzFYPGAJBnSg0eB4flhK2Fo=;
+        s=korg; t=1632762906;
+        bh=Ngtfc/ZT5UQBoTe3PuwKULQ/RYpuQzVTbWrXG14zjjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qS/eresoAqmLMzdMKDqtJTeAEQkFOjcFSZtzWak7JpcZB4elwuc/DJGGvjPXh11Yx
-         T78Mj0DZ/UYVL9LRTVzv9wbbot+6BszOwpDRqZUVx1GF82j3l/HYwVPPBg8z+b4TXQ
-         Qis8u10tDPT4OTxx74L6rtn7GM/Byj6jmKtxcsnk=
+        b=qSot7gg9pHc9ajXJDk0Jqfw6g8P9qT2n02W6gFjNts5lMEzjfQTE6PvUhofln8jHX
+         o36jVBUI68w9zvGXJUejQ+3FF1wa9laxEAf0R+I0AMrgFBc5Hu1JRaM86BOuwgLBmN
+         NcEBFr0Ku9b2x+Fl36/3yipX436t23GwnqlChosg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Michael Chan <michael.chan@broadocm.com>,
+        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 062/162] bnxt_en: Fix TX timeout when TX ring size is set to the smallest
-Date:   Mon, 27 Sep 2021 19:01:48 +0200
-Message-Id: <20210927170235.619155065@linuxfoundation.org>
+Subject: [PATCH 5.14 063/162] net: hns3: fix change RSS hfunc ineffective issue
+Date:   Mon, 27 Sep 2021 19:01:49 +0200
+Message-Id: <20210927170235.650772669@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
 References: <20210927170233.453060397@linuxfoundation.org>
@@ -41,103 +41,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Jian Shen <shenjian15@huawei.com>
 
-[ Upstream commit 5bed8b0704c9ecccc8f4a2c377d7c8e21090a82e ]
+[ Upstream commit e184cec5e29d8eb3c3435b12a9074b75e2d69e4a ]
 
-The smallest TX ring size we support must fit a TX SKB with MAX_SKB_FRAGS
-+ 1.  Because the first TX BD for a packet is always a long TX BD, we
-need an extra TX BD to fit this packet.  Define BNXT_MIN_TX_DESC_CNT with
-this value to make this more clear.  The current code uses a minimum
-that is off by 1.  Fix it using this constant.
+When user change rss 'hfunc' without set rss 'hkey' by ethtool
+-X command, the driver will ignore the 'hfunc' for the hkey is
+NULL. It's unreasonable. So fix it.
 
-The tx_wake_thresh to determine when to wake up the TX queue is half the
-ring size but we must have at least BNXT_MIN_TX_DESC_CNT for the next
-packet which may have maximum fragments.  So the comparison of the
-available TX BDs with tx_wake_thresh should be >= instead of > in the
-current code.  Otherwise, at the smallest ring size, we will never wake
-up the TX queue and will cause TX timeout.
-
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadocm.com>
+Fixes: 46a3df9f9718 ("net: hns3: Add HNS3 Acceleration Engine & Compatibility Layer Support")
+Fixes: 374ad291762a ("net: hns3: Add RSS general configuration support for VF")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c         | 8 ++++----
- drivers/net/ethernet/broadcom/bnxt/bnxt.h         | 5 +++++
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 2 +-
- 3 files changed, 10 insertions(+), 5 deletions(-)
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 45 ++++++++++------
+ .../hisilicon/hns3/hns3vf/hclgevf_main.c      | 52 ++++++++++++-------
+ 2 files changed, 64 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index fdbf47446a99..f20b57b8cd70 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -385,7 +385,7 @@ static bool bnxt_txr_netif_try_stop_queue(struct bnxt *bp,
- 	 * netif_tx_queue_stopped().
- 	 */
- 	smp_mb();
--	if (bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh) {
-+	if (bnxt_tx_avail(bp, txr) >= bp->tx_wake_thresh) {
- 		netif_tx_wake_queue(txq);
- 		return false;
- 	}
-@@ -758,7 +758,7 @@ static void bnxt_tx_int(struct bnxt *bp, struct bnxt_napi *bnapi, int nr_pkts)
- 	smp_mb();
- 
- 	if (unlikely(netif_tx_queue_stopped(txq)) &&
--	    bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh &&
-+	    bnxt_tx_avail(bp, txr) >= bp->tx_wake_thresh &&
- 	    READ_ONCE(txr->dev_state) != BNXT_DEV_STATE_CLOSING)
- 		netif_tx_wake_queue(txq);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 72d55c028ac4..40c4949eed4d 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -4734,6 +4734,24 @@ static int hclge_get_rss(struct hnae3_handle *handle, u32 *indir,
+ 	return 0;
  }
-@@ -2375,7 +2375,7 @@ static int __bnxt_poll_work(struct bnxt *bp, struct bnxt_cp_ring_info *cpr,
- 		if (TX_CMP_TYPE(txcmp) == CMP_TYPE_TX_L2_CMP) {
- 			tx_pkts++;
- 			/* return full budget so NAPI will complete. */
--			if (unlikely(tx_pkts > bp->tx_wake_thresh)) {
-+			if (unlikely(tx_pkts >= bp->tx_wake_thresh)) {
- 				rx_pkts = budget;
- 				raw_cons = NEXT_RAW_CMP(raw_cons);
- 				if (budget)
-@@ -3531,7 +3531,7 @@ static int bnxt_init_tx_rings(struct bnxt *bp)
- 	u16 i;
  
- 	bp->tx_wake_thresh = max_t(int, bp->tx_ring_size / 2,
--				   MAX_SKB_FRAGS + 1);
-+				   BNXT_MIN_TX_DESC_CNT);
- 
- 	for (i = 0; i < bp->tx_nr_rings; i++) {
- 		struct bnxt_tx_ring_info *txr = &bp->tx_ring[i];
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.h b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-index ba4e0fc38520..d4dca4508d26 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -615,6 +615,11 @@ struct nqe_cn {
- #define BNXT_MAX_RX_JUM_DESC_CNT	(RX_DESC_CNT * MAX_RX_AGG_PAGES - 1)
- #define BNXT_MAX_TX_DESC_CNT		(TX_DESC_CNT * MAX_TX_PAGES - 1)
- 
-+/* Minimum TX BDs for a TX packet with MAX_SKB_FRAGS + 1.  We need one extra
-+ * BD because the first TX BD is always a long BD.
-+ */
-+#define BNXT_MIN_TX_DESC_CNT		(MAX_SKB_FRAGS + 2)
++static int hclge_parse_rss_hfunc(struct hclge_vport *vport, const u8 hfunc,
++				 u8 *hash_algo)
++{
++	switch (hfunc) {
++	case ETH_RSS_HASH_TOP:
++		*hash_algo = HCLGE_RSS_HASH_ALGO_TOEPLITZ;
++		return 0;
++	case ETH_RSS_HASH_XOR:
++		*hash_algo = HCLGE_RSS_HASH_ALGO_SIMPLE;
++		return 0;
++	case ETH_RSS_HASH_NO_CHANGE:
++		*hash_algo = vport->rss_algo;
++		return 0;
++	default:
++		return -EINVAL;
++	}
++}
 +
- #define RX_RING(x)	(((x) & ~(RX_DESC_CNT - 1)) >> (BNXT_PAGE_SHIFT - 4))
- #define RX_IDX(x)	((x) & (RX_DESC_CNT - 1))
+ static int hclge_set_rss(struct hnae3_handle *handle, const u32 *indir,
+ 			 const  u8 *key, const  u8 hfunc)
+ {
+@@ -4743,30 +4761,27 @@ static int hclge_set_rss(struct hnae3_handle *handle, const u32 *indir,
+ 	u8 hash_algo;
+ 	int ret, i;
  
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-index 786ca51e669b..3a8c28463592 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -784,7 +784,7 @@ static int bnxt_set_ringparam(struct net_device *dev,
++	ret = hclge_parse_rss_hfunc(vport, hfunc, &hash_algo);
++	if (ret) {
++		dev_err(&hdev->pdev->dev, "invalid hfunc type %u\n", hfunc);
++		return ret;
++	}
++
+ 	/* Set the RSS Hash Key if specififed by the user */
+ 	if (key) {
+-		switch (hfunc) {
+-		case ETH_RSS_HASH_TOP:
+-			hash_algo = HCLGE_RSS_HASH_ALGO_TOEPLITZ;
+-			break;
+-		case ETH_RSS_HASH_XOR:
+-			hash_algo = HCLGE_RSS_HASH_ALGO_SIMPLE;
+-			break;
+-		case ETH_RSS_HASH_NO_CHANGE:
+-			hash_algo = vport->rss_algo;
+-			break;
+-		default:
+-			return -EINVAL;
+-		}
+-
+ 		ret = hclge_set_rss_algo_key(hdev, hash_algo, key);
+ 		if (ret)
+ 			return ret;
  
- 	if ((ering->rx_pending > BNXT_MAX_RX_DESC_CNT) ||
- 	    (ering->tx_pending > BNXT_MAX_TX_DESC_CNT) ||
--	    (ering->tx_pending <= MAX_SKB_FRAGS))
-+	    (ering->tx_pending < BNXT_MIN_TX_DESC_CNT))
- 		return -EINVAL;
+ 		/* Update the shadow RSS key with user specified qids */
+ 		memcpy(vport->rss_hash_key, key, HCLGE_RSS_KEY_SIZE);
+-		vport->rss_algo = hash_algo;
++	} else {
++		ret = hclge_set_rss_algo_key(hdev, hash_algo,
++					     vport->rss_hash_key);
++		if (ret)
++			return ret;
+ 	}
++	vport->rss_algo = hash_algo;
  
- 	if (netif_running(dev))
+ 	/* Update the shadow RSS table with user specified qids */
+ 	for (i = 0; i < ae_dev->dev_specs.rss_ind_tbl_size; i++)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index be3ea7023ed8..22cf66004dfa 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -814,40 +814,56 @@ static int hclgevf_get_rss(struct hnae3_handle *handle, u32 *indir, u8 *key,
+ 	return 0;
+ }
+ 
++static int hclgevf_parse_rss_hfunc(struct hclgevf_dev *hdev, const u8 hfunc,
++				   u8 *hash_algo)
++{
++	switch (hfunc) {
++	case ETH_RSS_HASH_TOP:
++		*hash_algo = HCLGEVF_RSS_HASH_ALGO_TOEPLITZ;
++		return 0;
++	case ETH_RSS_HASH_XOR:
++		*hash_algo = HCLGEVF_RSS_HASH_ALGO_SIMPLE;
++		return 0;
++	case ETH_RSS_HASH_NO_CHANGE:
++		*hash_algo = hdev->rss_cfg.hash_algo;
++		return 0;
++	default:
++		return -EINVAL;
++	}
++}
++
+ static int hclgevf_set_rss(struct hnae3_handle *handle, const u32 *indir,
+ 			   const u8 *key, const u8 hfunc)
+ {
+ 	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
+ 	struct hclgevf_rss_cfg *rss_cfg = &hdev->rss_cfg;
++	u8 hash_algo;
+ 	int ret, i;
+ 
+ 	if (hdev->ae_dev->dev_version >= HNAE3_DEVICE_VERSION_V2) {
++		ret = hclgevf_parse_rss_hfunc(hdev, hfunc, &hash_algo);
++		if (ret)
++			return ret;
++
+ 		/* Set the RSS Hash Key if specififed by the user */
+ 		if (key) {
+-			switch (hfunc) {
+-			case ETH_RSS_HASH_TOP:
+-				rss_cfg->hash_algo =
+-					HCLGEVF_RSS_HASH_ALGO_TOEPLITZ;
+-				break;
+-			case ETH_RSS_HASH_XOR:
+-				rss_cfg->hash_algo =
+-					HCLGEVF_RSS_HASH_ALGO_SIMPLE;
+-				break;
+-			case ETH_RSS_HASH_NO_CHANGE:
+-				break;
+-			default:
+-				return -EINVAL;
+-			}
+-
+-			ret = hclgevf_set_rss_algo_key(hdev, rss_cfg->hash_algo,
+-						       key);
+-			if (ret)
++			ret = hclgevf_set_rss_algo_key(hdev, hash_algo, key);
++			if (ret) {
++				dev_err(&hdev->pdev->dev,
++					"invalid hfunc type %u\n", hfunc);
+ 				return ret;
++			}
+ 
+ 			/* Update the shadow RSS key with user specified qids */
+ 			memcpy(rss_cfg->rss_hash_key, key,
+ 			       HCLGEVF_RSS_KEY_SIZE);
++		} else {
++			ret = hclgevf_set_rss_algo_key(hdev, hash_algo,
++						       rss_cfg->rss_hash_key);
++			if (ret)
++				return ret;
+ 		}
++		rss_cfg->hash_algo = hash_algo;
+ 	}
+ 
+ 	/* update the shadow RSS table with user specified qids */
 -- 
 2.33.0
 
