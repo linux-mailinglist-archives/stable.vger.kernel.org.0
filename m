@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A04F9419C26
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:24:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72E18419A07
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:04:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237792AbhI0RZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:25:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41190 "EHLO mail.kernel.org"
+        id S235876AbhI0RGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:06:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237810AbhI0RXj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:23:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FD6B61374;
-        Mon, 27 Sep 2021 17:15:11 +0000 (UTC)
+        id S235880AbhI0RFx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:05:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3BCB61074;
+        Mon, 27 Sep 2021 17:04:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762912;
-        bh=6p6fGolCNcbm6UmrZBeDgwUVyBbMVwvgftYsFvKNW74=;
+        s=korg; t=1632762255;
+        bh=qpgKfRSy0WRL//yUVgg/fqWsO5jm6cAXesAzEz4hoBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dvYAlyc3sjbdocUqrxXb2VV85E2FIlJPYetW0NUjVApUJPQWRRtyYV6XbWVjjwA1G
-         ne+PQuKRwnVH0/f/YFGfrkdmXOsfb1t7j3gFbcdLgPxX5ZB8jyswueHKmT3e+/WsLx
-         cnf7mjVP7Gj5fhWyR4NZmPMHjhANPT7RhBS5ieJA=
+        b=oOUyCfhNLmwn0LAY5s980Nn8ChI8Vr6g4LdjVtIVAqSliRPgiqgsMVd9mhBs5jsoh
+         kVJwUPP5LC0iDk4VxjFwpm5m7rIzNeBmByNXzRAIvzEZc8mkxZjqfcyhKJsM1fqzfl
+         VGbJjZhwsAOJIPsjfs3rQlHhosnSNpXQjvvD23Xw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 090/162] drm/amdkfd: map SVM range with correct access permission
+        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [PATCH 5.4 20/68] erofs: fix up erofs_lookup tracepoint
 Date:   Mon, 27 Sep 2021 19:02:16 +0200
-Message-Id: <20210927170236.547830372@linuxfoundation.org>
+Message-Id: <20210927170220.647524522@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,262 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-[ Upstream commit 2f617f4df8dfef68f175160d533f5820a368023e ]
+commit 93368aab0efc87288cac65e99c9ed2e0ffc9e7d0 upstream.
 
-Restore retry fault or prefetch range, or restore svm range after
-eviction to map range to GPU with correct read or write access
-permission.
+Fix up a misuse that the filename pointer isn't always valid in
+the ring buffer, and we should copy the content instead.
 
-Range may includes multiple VMAs, update GPU page table with offset of
-prange, number of pages for each VMA according VMA access permission.
-
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20210921143531.81356-1-hsiangkao@linux.alibaba.com
+Fixes: 13f06f48f7bf ("staging: erofs: support tracepoint")
+Cc: stable@vger.kernel.org # 4.19+
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_svm.c | 134 +++++++++++++++++----------
- 1 file changed, 86 insertions(+), 48 deletions(-)
+ include/trace/events/erofs.h |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-index 0f7f1e5621ea..ddac10b5bd3a 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-@@ -120,6 +120,7 @@ static void svm_range_remove_notifier(struct svm_range *prange)
+--- a/include/trace/events/erofs.h
++++ b/include/trace/events/erofs.h
+@@ -35,20 +35,20 @@ TRACE_EVENT(erofs_lookup,
+ 	TP_STRUCT__entry(
+ 		__field(dev_t,		dev	)
+ 		__field(erofs_nid_t,	nid	)
+-		__field(const char *,	name	)
++		__string(name,		dentry->d_name.name	)
+ 		__field(unsigned int,	flags	)
+ 	),
  
- static int
- svm_range_dma_map_dev(struct amdgpu_device *adev, struct svm_range *prange,
-+		      unsigned long offset, unsigned long npages,
- 		      unsigned long *hmm_pfns, uint32_t gpuidx)
- {
- 	enum dma_data_direction dir = DMA_BIDIRECTIONAL;
-@@ -136,7 +137,8 @@ svm_range_dma_map_dev(struct amdgpu_device *adev, struct svm_range *prange,
- 		prange->dma_addr[gpuidx] = addr;
- 	}
+ 	TP_fast_assign(
+ 		__entry->dev	= dir->i_sb->s_dev;
+ 		__entry->nid	= EROFS_I(dir)->nid;
+-		__entry->name	= dentry->d_name.name;
++		__assign_str(name, dentry->d_name.name);
+ 		__entry->flags	= flags;
+ 	),
  
--	for (i = 0; i < prange->npages; i++) {
-+	addr += offset;
-+	for (i = 0; i < npages; i++) {
- 		if (WARN_ONCE(addr[i] && !dma_mapping_error(dev, addr[i]),
- 			      "leaking dma mapping\n"))
- 			dma_unmap_page(dev, addr[i], PAGE_SIZE, dir);
-@@ -167,6 +169,7 @@ svm_range_dma_map_dev(struct amdgpu_device *adev, struct svm_range *prange,
+ 	TP_printk("dev = (%d,%d), pnid = %llu, name:%s, flags:%x",
+ 		show_dev_nid(__entry),
+-		__entry->name,
++		__get_str(name),
+ 		__entry->flags)
+ );
  
- static int
- svm_range_dma_map(struct svm_range *prange, unsigned long *bitmap,
-+		  unsigned long offset, unsigned long npages,
- 		  unsigned long *hmm_pfns)
- {
- 	struct kfd_process *p;
-@@ -187,7 +190,8 @@ svm_range_dma_map(struct svm_range *prange, unsigned long *bitmap,
- 		}
- 		adev = (struct amdgpu_device *)pdd->dev->kgd;
- 
--		r = svm_range_dma_map_dev(adev, prange, hmm_pfns, gpuidx);
-+		r = svm_range_dma_map_dev(adev, prange, offset, npages,
-+					  hmm_pfns, gpuidx);
- 		if (r)
- 			break;
- 	}
-@@ -1088,11 +1092,6 @@ svm_range_get_pte_flags(struct amdgpu_device *adev, struct svm_range *prange,
- 	pte_flags |= snoop ? AMDGPU_PTE_SNOOPED : 0;
- 
- 	pte_flags |= amdgpu_gem_va_map_flags(adev, mapping_flags);
--
--	pr_debug("svms 0x%p [0x%lx 0x%lx] vram %d PTE 0x%llx mapping 0x%x\n",
--		 prange->svms, prange->start, prange->last,
--		 (domain == SVM_RANGE_VRAM_DOMAIN) ? 1:0, pte_flags, mapping_flags);
--
- 	return pte_flags;
- }
- 
-@@ -1156,7 +1155,8 @@ svm_range_unmap_from_gpus(struct svm_range *prange, unsigned long start,
- 
- static int
- svm_range_map_to_gpu(struct amdgpu_device *adev, struct amdgpu_vm *vm,
--		     struct svm_range *prange, dma_addr_t *dma_addr,
-+		     struct svm_range *prange, unsigned long offset,
-+		     unsigned long npages, bool readonly, dma_addr_t *dma_addr,
- 		     struct amdgpu_device *bo_adev, struct dma_fence **fence)
- {
- 	struct amdgpu_bo_va bo_va;
-@@ -1167,14 +1167,15 @@ svm_range_map_to_gpu(struct amdgpu_device *adev, struct amdgpu_vm *vm,
- 	int r = 0;
- 	int64_t i;
- 
--	pr_debug("svms 0x%p [0x%lx 0x%lx]\n", prange->svms, prange->start,
--		 prange->last);
-+	last_start = prange->start + offset;
-+
-+	pr_debug("svms 0x%p [0x%lx 0x%lx] readonly %d\n", prange->svms,
-+		 last_start, last_start + npages - 1, readonly);
- 
- 	if (prange->svm_bo && prange->ttm_res)
- 		bo_va.is_xgmi = amdgpu_xgmi_same_hive(adev, bo_adev);
- 
--	last_start = prange->start;
--	for (i = 0; i < prange->npages; i++) {
-+	for (i = offset; i < offset + npages; i++) {
- 		last_domain = dma_addr[i] & SVM_RANGE_VRAM_DOMAIN;
- 		dma_addr[i] &= ~SVM_RANGE_VRAM_DOMAIN;
- 		if ((prange->start + i) < prange->last &&
-@@ -1183,13 +1184,21 @@ svm_range_map_to_gpu(struct amdgpu_device *adev, struct amdgpu_vm *vm,
- 
- 		pr_debug("Mapping range [0x%lx 0x%llx] on domain: %s\n",
- 			 last_start, prange->start + i, last_domain ? "GPU" : "CPU");
-+
- 		pte_flags = svm_range_get_pte_flags(adev, prange, last_domain);
--		r = amdgpu_vm_bo_update_mapping(adev, bo_adev, vm, false, false, NULL,
--						last_start,
-+		if (readonly)
-+			pte_flags &= ~AMDGPU_PTE_WRITEABLE;
-+
-+		pr_debug("svms 0x%p map [0x%lx 0x%llx] vram %d PTE 0x%llx\n",
-+			 prange->svms, last_start, prange->start + i,
-+			 (last_domain == SVM_RANGE_VRAM_DOMAIN) ? 1 : 0,
-+			 pte_flags);
-+
-+		r = amdgpu_vm_bo_update_mapping(adev, bo_adev, vm, false, false,
-+						NULL, last_start,
- 						prange->start + i, pte_flags,
- 						last_start - prange->start,
--						NULL,
--						dma_addr,
-+						NULL, dma_addr,
- 						&vm->last_update,
- 						&table_freed);
- 		if (r) {
-@@ -1220,8 +1229,10 @@ svm_range_map_to_gpu(struct amdgpu_device *adev, struct amdgpu_vm *vm,
- 	return r;
- }
- 
--static int svm_range_map_to_gpus(struct svm_range *prange,
--				 unsigned long *bitmap, bool wait)
-+static int
-+svm_range_map_to_gpus(struct svm_range *prange, unsigned long offset,
-+		      unsigned long npages, bool readonly,
-+		      unsigned long *bitmap, bool wait)
- {
- 	struct kfd_process_device *pdd;
- 	struct amdgpu_device *bo_adev;
-@@ -1257,7 +1268,8 @@ static int svm_range_map_to_gpus(struct svm_range *prange,
- 		}
- 
- 		r = svm_range_map_to_gpu(adev, drm_priv_to_vm(pdd->drm_priv),
--					 prange, prange->dma_addr[gpuidx],
-+					 prange, offset, npages, readonly,
-+					 prange->dma_addr[gpuidx],
- 					 bo_adev, wait ? &fence : NULL);
- 		if (r)
- 			break;
-@@ -1390,7 +1402,7 @@ static int svm_range_validate_and_map(struct mm_struct *mm,
- 				      int32_t gpuidx, bool intr, bool wait)
- {
- 	struct svm_validate_context ctx;
--	struct hmm_range *hmm_range;
-+	unsigned long start, end, addr;
- 	struct kfd_process *p;
- 	void *owner;
- 	int32_t idx;
-@@ -1448,40 +1460,66 @@ static int svm_range_validate_and_map(struct mm_struct *mm,
- 			break;
- 		}
- 	}
--	r = amdgpu_hmm_range_get_pages(&prange->notifier, mm, NULL,
--				       prange->start << PAGE_SHIFT,
--				       prange->npages, &hmm_range,
--				       false, true, owner);
--	if (r) {
--		pr_debug("failed %d to get svm range pages\n", r);
--		goto unreserve_out;
--	}
- 
--	r = svm_range_dma_map(prange, ctx.bitmap,
--			      hmm_range->hmm_pfns);
--	if (r) {
--		pr_debug("failed %d to dma map range\n", r);
--		goto unreserve_out;
--	}
-+	start = prange->start << PAGE_SHIFT;
-+	end = (prange->last + 1) << PAGE_SHIFT;
-+	for (addr = start; addr < end && !r; ) {
-+		struct hmm_range *hmm_range;
-+		struct vm_area_struct *vma;
-+		unsigned long next;
-+		unsigned long offset;
-+		unsigned long npages;
-+		bool readonly;
- 
--	prange->validated_once = true;
-+		vma = find_vma(mm, addr);
-+		if (!vma || addr < vma->vm_start) {
-+			r = -EFAULT;
-+			goto unreserve_out;
-+		}
-+		readonly = !(vma->vm_flags & VM_WRITE);
- 
--	svm_range_lock(prange);
--	if (amdgpu_hmm_range_get_pages_done(hmm_range)) {
--		pr_debug("hmm update the range, need validate again\n");
--		r = -EAGAIN;
--		goto unlock_out;
--	}
--	if (!list_empty(&prange->child_list)) {
--		pr_debug("range split by unmap in parallel, validate again\n");
--		r = -EAGAIN;
--		goto unlock_out;
--	}
-+		next = min(vma->vm_end, end);
-+		npages = (next - addr) >> PAGE_SHIFT;
-+		r = amdgpu_hmm_range_get_pages(&prange->notifier, mm, NULL,
-+					       addr, npages, &hmm_range,
-+					       readonly, true, owner);
-+		if (r) {
-+			pr_debug("failed %d to get svm range pages\n", r);
-+			goto unreserve_out;
-+		}
- 
--	r = svm_range_map_to_gpus(prange, ctx.bitmap, wait);
-+		offset = (addr - start) >> PAGE_SHIFT;
-+		r = svm_range_dma_map(prange, ctx.bitmap, offset, npages,
-+				      hmm_range->hmm_pfns);
-+		if (r) {
-+			pr_debug("failed %d to dma map range\n", r);
-+			goto unreserve_out;
-+		}
-+
-+		svm_range_lock(prange);
-+		if (amdgpu_hmm_range_get_pages_done(hmm_range)) {
-+			pr_debug("hmm update the range, need validate again\n");
-+			r = -EAGAIN;
-+			goto unlock_out;
-+		}
-+		if (!list_empty(&prange->child_list)) {
-+			pr_debug("range split by unmap in parallel, validate again\n");
-+			r = -EAGAIN;
-+			goto unlock_out;
-+		}
-+
-+		r = svm_range_map_to_gpus(prange, offset, npages, readonly,
-+					  ctx.bitmap, wait);
- 
- unlock_out:
--	svm_range_unlock(prange);
-+		svm_range_unlock(prange);
-+
-+		addr = next;
-+	}
-+
-+	if (addr == end)
-+		prange->validated_once = true;
-+
- unreserve_out:
- 	svm_range_unreserve_bos(&ctx);
- 
--- 
-2.33.0
-
 
 
