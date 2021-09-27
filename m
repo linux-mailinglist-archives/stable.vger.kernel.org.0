@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DD61419C78
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54D4D419A4B
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:06:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236796AbhI0R3f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:29:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43628 "EHLO mail.kernel.org"
+        id S235673AbhI0RIM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:08:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238108AbhI0R0E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:26:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EDC2B61407;
-        Mon, 27 Sep 2021 17:16:18 +0000 (UTC)
+        id S236056AbhI0RHP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:07:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 711B5611C5;
+        Mon, 27 Sep 2021 17:05:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762979;
-        bh=xlPz1IA3S/nhGlMQlYiIETy34Q3qfe1/0sG8U+HFN5E=;
+        s=korg; t=1632762337;
+        bh=i4iaWoQ1Sgn/qBlgsSBs9HIavAn/HhwJWpFMBgsledo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2KWPJOgedVZKmRKVLFSluDoSQpVcd17Zp3wnrPBY6/1ucjy7CIWg+Uy6xPwSKJ3if
-         M9Yv2xuNwtf6W6Ac2Z4ZuvrtDfQPaoARPqMlM8lhgOCe+akVW55zkcucJxOgEVkfZH
-         vxBhmQLtO3hiWOzK6yvDQjAkubEE6TvqX+XQvVNE=
+        b=YVKCmu26NWNbrKVl+VumLFu4EEJR7ZUDExNnnBRE/27w3LXGh+stTkeVCD6JCb9Pd
+         szAXj5SVKLjOr7Y+LrhlmRpKpXylwstj4gjbSXcjQTT+qCNwDXwFBThDSErAfnc1pi
+         XWL/HDYlSTHyv82LHG5ai5yENqdfdrkBw5qHOZ7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 121/162] m68k: Double cast io functions to unsigned long
-Date:   Mon, 27 Sep 2021 19:02:47 +0200
-Message-Id: <20210927170237.633783421@linuxfoundation.org>
+Subject: [PATCH 5.4 52/68] nvme-multipath: fix ANA state updates when a namespace is not present
+Date:   Mon, 27 Sep 2021 19:02:48 +0200
+Message-Id: <20210927170221.754953512@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Anton Eidelman <anton.eidelman@gmail.com>
 
-[ Upstream commit b1a89856fbf63fffde6a4771d8f1ac21df549e50 ]
+[ Upstream commit 79f528afa93918519574773ea49a444c104bc1bd ]
 
-m68k builds fail widely with errors such as
+nvme_update_ana_state() has a deficiency that results in a failure to
+properly update the ana state for a namespace in the following case:
 
-arch/m68k/include/asm/raw_io.h:20:19: error:
-	cast to pointer from integer of different size
-arch/m68k/include/asm/raw_io.h:30:32: error:
-	cast to pointer from integer of different size [-Werror=int-to-p
+  NSIDs in ctrl->namespaces:	1, 3,    4
+  NSIDs in desc->nsids:		1, 2, 3, 4
 
-On m68k, io functions are defined as macros. The problem is seen if the
-macro parameter variable size differs from the size of a pointer. Cast
-the parameter of all io macros to unsigned long before casting it to
-a pointer to fix the problem.
+Loop iteration 0:
+    ns index = 0, n = 0, ns->head->ns_id = 1, nsid = 1, MATCH.
+Loop iteration 1:
+    ns index = 1, n = 1, ns->head->ns_id = 3, nsid = 2, NO MATCH.
+Loop iteration 2:
+    ns index = 2, n = 2, ns->head->ns_id = 4, nsid = 4, MATCH.
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20210907060729.2391992-1-linux@roeck-us.net
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Where the update to the ANA state of NSID 3 is missed.  To fix this
+increment n and retry the update with the same ns when ns->head->ns_id is
+higher than nsid,
+
+Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/include/asm/raw_io.h | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/nvme/host/multipath.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/m68k/include/asm/raw_io.h b/arch/m68k/include/asm/raw_io.h
-index 911826ea83ce..80eb2396d01e 100644
---- a/arch/m68k/include/asm/raw_io.h
-+++ b/arch/m68k/include/asm/raw_io.h
-@@ -17,21 +17,21 @@
-  * two accesses to memory, which may be undesirable for some devices.
-  */
- #define in_8(addr) \
--    ({ u8 __v = (*(__force volatile u8 *) (addr)); __v; })
-+    ({ u8 __v = (*(__force volatile u8 *) (unsigned long)(addr)); __v; })
- #define in_be16(addr) \
--    ({ u16 __v = (*(__force volatile u16 *) (addr)); __v; })
-+    ({ u16 __v = (*(__force volatile u16 *) (unsigned long)(addr)); __v; })
- #define in_be32(addr) \
--    ({ u32 __v = (*(__force volatile u32 *) (addr)); __v; })
-+    ({ u32 __v = (*(__force volatile u32 *) (unsigned long)(addr)); __v; })
- #define in_le16(addr) \
--    ({ u16 __v = le16_to_cpu(*(__force volatile __le16 *) (addr)); __v; })
-+    ({ u16 __v = le16_to_cpu(*(__force volatile __le16 *) (unsigned long)(addr)); __v; })
- #define in_le32(addr) \
--    ({ u32 __v = le32_to_cpu(*(__force volatile __le32 *) (addr)); __v; })
-+    ({ u32 __v = le32_to_cpu(*(__force volatile __le32 *) (unsigned long)(addr)); __v; })
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index 590b040e90a3..016a67fd4198 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -522,14 +522,17 @@ static int nvme_update_ana_state(struct nvme_ctrl *ctrl,
  
--#define out_8(addr,b) (void)((*(__force volatile u8 *) (addr)) = (b))
--#define out_be16(addr,w) (void)((*(__force volatile u16 *) (addr)) = (w))
--#define out_be32(addr,l) (void)((*(__force volatile u32 *) (addr)) = (l))
--#define out_le16(addr,w) (void)((*(__force volatile __le16 *) (addr)) = cpu_to_le16(w))
--#define out_le32(addr,l) (void)((*(__force volatile __le32 *) (addr)) = cpu_to_le32(l))
-+#define out_8(addr,b) (void)((*(__force volatile u8 *) (unsigned long)(addr)) = (b))
-+#define out_be16(addr,w) (void)((*(__force volatile u16 *) (unsigned long)(addr)) = (w))
-+#define out_be32(addr,l) (void)((*(__force volatile u32 *) (unsigned long)(addr)) = (l))
-+#define out_le16(addr,w) (void)((*(__force volatile __le16 *) (unsigned long)(addr)) = cpu_to_le16(w))
-+#define out_le32(addr,l) (void)((*(__force volatile __le32 *) (unsigned long)(addr)) = cpu_to_le32(l))
- 
- #define raw_inb in_8
- #define raw_inw in_be16
+ 	down_read(&ctrl->namespaces_rwsem);
+ 	list_for_each_entry(ns, &ctrl->namespaces, list) {
+-		unsigned nsid = le32_to_cpu(desc->nsids[n]);
+-
++		unsigned nsid;
++again:
++		nsid = le32_to_cpu(desc->nsids[n]);
+ 		if (ns->head->ns_id < nsid)
+ 			continue;
+ 		if (ns->head->ns_id == nsid)
+ 			nvme_update_ns_ana_state(desc, ns);
+ 		if (++n == nr_nsids)
+ 			break;
++		if (ns->head->ns_id > nsid)
++			goto again;
+ 	}
+ 	up_read(&ctrl->namespaces_rwsem);
+ 	return 0;
 -- 
 2.33.0
 
