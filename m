@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70137419AC6
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:10:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C02C4199EF
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:03:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236597AbhI0RMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:12:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47912 "EHLO mail.kernel.org"
+        id S235768AbhI0RFY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:05:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236603AbhI0RKN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:10:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2E4F61222;
-        Mon, 27 Sep 2021 17:07:46 +0000 (UTC)
+        id S235746AbhI0RFY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:05:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 964086101A;
+        Mon, 27 Sep 2021 17:03:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762467;
-        bh=tB+TSLVCyg2lo4gJi80zk2pIoN619vd5g6K3Qfp2PCA=;
+        s=korg; t=1632762226;
+        bh=kyXHDwLZ4D72H0wXL5gVuj9akRR4SZlbm4N8dhuKz9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x53OFlCgZRmYZHGjKnk12/qMKOWT794IeXikbAz93vDSt4coW0EkA1O7GrBGTqRCj
-         7j4rmSilkeqa7RJrwAZExl1RWc9Fns4wgGJDYx+gzHt5b8Kx0FzPXYpmju0jOGnCdI
-         FUZCTCSjEoncjwyUP1l13DaLPa57fcFyBdXMyb+8=
+        b=uzM6/XTMEDE2NLhKnjUTguL55pdM0K0JhcoZDCN12Nc6b87xhVQXwSfwGyMp7dj57
+         EQK8bxabg9IrbPks7XZtYzITPFuo44dYH7C8Z8O2r//EDYeGvE9zz20t132GBC8KYs
+         jsRO3fF8I+KlIdkMUVUKQaZfjjGujANJ0H8wzIqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Markus Suvanto <markus.suvanto@gmail.com>,
-        David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 034/103] afs: Fix updating of i_blocks on file/dir extension
+        stable@vger.kernel.org, Jaejoong Kim <climbbb.kim@gmail.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 10/68] USB: cdc-acm: fix minor-number release
 Date:   Mon, 27 Sep 2021 19:02:06 +0200
-Message-Id: <20210927170226.924474536@linuxfoundation.org>
+Message-Id: <20210927170220.279752073@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,118 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 9d37e1cab2a9d2cee2737973fa455e6f89eee46a ]
+commit 91fac0741d4817945c6ee0a17591421e7f5ecb86 upstream.
 
-When an afs file or directory is modified locally such that the total file
-size is extended, i_blocks needs to be recalculated too.
+If the driver runs out of minor numbers it would release minor 0 and
+allow another device to claim the minor while still in use.
 
-Fix this by making afs_write_end() and afs_edit_dir_add() call
-afs_set_i_size() rather than setting inode->i_size directly as that also
-recalculates inode->i_blocks.
+Fortunately, registering the tty class device of the second device would
+fail (with a stack dump) due to the sysfs name collision so no memory is
+leaked.
 
-This can be tested by creating and writing into directories and files and
-then examining them with du.  Without this change, directories show a 4
-blocks (they start out at 2048 bytes) and files show 0 blocks; with this
-change, they should show a number of blocks proportional to the file size
-rounded up to 1024.
-
-Fixes: 31143d5d515e ("AFS: implement basic file write support")
-Fixes: 63a4681ff39c ("afs: Locally edit directory data for mkdir/create/unlink/...")
-Reported-by: Markus Suvanto <markus.suvanto@gmail.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-Tested-by: Markus Suvanto <markus.suvanto@gmail.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/r/163113612442.352844.11162345591911691150.stgit@warthog.procyon.org.uk/
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: cae2bc768d17 ("usb: cdc-acm: Decrement tty port's refcount if probe() fail")
+Cc: stable@vger.kernel.org      # 4.19
+Cc: Jaejoong Kim <climbbb.kim@gmail.com>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210907082318.7757-1-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/afs/dir_edit.c |  4 ++--
- fs/afs/inode.c    | 10 ----------
- fs/afs/internal.h | 10 ++++++++++
- fs/afs/write.c    |  2 +-
- 4 files changed, 13 insertions(+), 13 deletions(-)
+ drivers/usb/class/cdc-acm.c |    7 +++++--
+ drivers/usb/class/cdc-acm.h |    2 ++
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/fs/afs/dir_edit.c b/fs/afs/dir_edit.c
-index 2ffe09abae7f..3a9cffc081b9 100644
---- a/fs/afs/dir_edit.c
-+++ b/fs/afs/dir_edit.c
-@@ -264,7 +264,7 @@ void afs_edit_dir_add(struct afs_vnode *vnode,
- 		if (b == nr_blocks) {
- 			_debug("init %u", b);
- 			afs_edit_init_block(meta, block, b);
--			i_size_write(&vnode->vfs_inode, (b + 1) * AFS_DIR_BLOCK_SIZE);
-+			afs_set_i_size(vnode, (b + 1) * AFS_DIR_BLOCK_SIZE);
- 		}
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -725,7 +725,8 @@ static void acm_port_destruct(struct tty
+ {
+ 	struct acm *acm = container_of(port, struct acm, port);
  
- 		/* Only lower dir pages have a counter in the header. */
-@@ -297,7 +297,7 @@ void afs_edit_dir_add(struct afs_vnode *vnode,
- new_directory:
- 	afs_edit_init_block(meta, meta, 0);
- 	i_size = AFS_DIR_BLOCK_SIZE;
--	i_size_write(&vnode->vfs_inode, i_size);
-+	afs_set_i_size(vnode, i_size);
- 	slot = AFS_DIR_RESV_BLOCKS0;
- 	page = page0;
- 	block = meta;
-diff --git a/fs/afs/inode.c b/fs/afs/inode.c
-index ae3016a9fb23..f81a972bdd29 100644
---- a/fs/afs/inode.c
-+++ b/fs/afs/inode.c
-@@ -53,16 +53,6 @@ static noinline void dump_vnode(struct afs_vnode *vnode, struct afs_vnode *paren
- 		dump_stack();
- }
+-	acm_release_minor(acm);
++	if (acm->minor != ACM_MINOR_INVALID)
++		acm_release_minor(acm);
+ 	usb_put_intf(acm->control);
+ 	kfree(acm->country_codes);
+ 	kfree(acm);
+@@ -1356,8 +1357,10 @@ made_compressed_probe:
+ 	usb_get_intf(acm->control); /* undone in destruct() */
  
--/*
-- * Set the file size and block count.  Estimate the number of 512 bytes blocks
-- * used, rounded up to nearest 1K for consistency with other AFS clients.
-- */
--static void afs_set_i_size(struct afs_vnode *vnode, u64 size)
--{
--	i_size_write(&vnode->vfs_inode, size);
--	vnode->vfs_inode.i_blocks = ((size + 1023) >> 10) << 1;
--}
--
- /*
-  * Initialise an inode from the vnode status.
-  */
-diff --git a/fs/afs/internal.h b/fs/afs/internal.h
-index ffe318ad2e02..dc08a3d9b3a8 100644
---- a/fs/afs/internal.h
-+++ b/fs/afs/internal.h
-@@ -1573,6 +1573,16 @@ static inline void afs_update_dentry_version(struct afs_operation *op,
- 			(void *)(unsigned long)dir_vp->scb.status.data_version;
- }
+ 	minor = acm_alloc_minor(acm);
+-	if (minor < 0)
++	if (minor < 0) {
++		acm->minor = ACM_MINOR_INVALID;
+ 		goto alloc_fail1;
++	}
  
-+/*
-+ * Set the file size and block count.  Estimate the number of 512 bytes blocks
-+ * used, rounded up to nearest 1K for consistency with other AFS clients.
-+ */
-+static inline void afs_set_i_size(struct afs_vnode *vnode, u64 size)
-+{
-+	i_size_write(&vnode->vfs_inode, size);
-+	vnode->vfs_inode.i_blocks = ((size + 1023) >> 10) << 1;
-+}
+ 	acm->minor = minor;
+ 	acm->dev = usb_dev;
+--- a/drivers/usb/class/cdc-acm.h
++++ b/drivers/usb/class/cdc-acm.h
+@@ -22,6 +22,8 @@
+ #define ACM_TTY_MAJOR		166
+ #define ACM_TTY_MINORS		256
+ 
++#define ACM_MINOR_INVALID	ACM_TTY_MINORS
 +
  /*
-  * Check for a conflicting operation on a directory that we just unlinked from.
-  * If someone managed to sneak a link or an unlink in on the file we just
-diff --git a/fs/afs/write.c b/fs/afs/write.c
-index d37b5cfcf28f..be60cf110382 100644
---- a/fs/afs/write.c
-+++ b/fs/afs/write.c
-@@ -184,7 +184,7 @@ int afs_write_end(struct file *file, struct address_space *mapping,
- 		write_seqlock(&vnode->cb_lock);
- 		i_size = i_size_read(&vnode->vfs_inode);
- 		if (maybe_i_size > i_size)
--			i_size_write(&vnode->vfs_inode, maybe_i_size);
-+			afs_set_i_size(vnode, maybe_i_size);
- 		write_sequnlock(&vnode->cb_lock);
- 	}
- 
--- 
-2.33.0
-
+  * Requests.
+  */
 
 
