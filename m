@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEDE5419AFE
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA19A419A45
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:06:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236515AbhI0ROv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:14:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56362 "EHLO mail.kernel.org"
+        id S236145AbhI0RH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:07:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237063AbhI0RNf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:13:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 955416135D;
-        Mon, 27 Sep 2021 17:09:31 +0000 (UTC)
+        id S235767AbhI0RHK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:07:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA8BF611C3;
+        Mon, 27 Sep 2021 17:05:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762572;
-        bh=gSz0yTjE+ewpU95IFOTpLpew02WoggiBF2lOB4DLaGs=;
+        s=korg; t=1632762332;
+        bh=Ggi/RScAeUiqnurO0rUF3EmhoLIQp835ecdVLOA9LpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fWGJ3Ae3zO5F88TusrTB/S+awO3V7O2lABPn28EdugZWGzoXqJddrRRN4d0oCE23p
-         pQy1lckPzzmkg/kFGYiNtHYZ1m/q6d54LDFYDM9GhCR+8Wsk0vx6/Bg/+2NOa7vDZd
-         ADet1eH8UpUbMIaL53rD5ulxwa0sFrxxP+F7LuoU=
+        b=fLVhY2I5FREUjVp+KIglZ1TGkuARHwm1n45DxnIcdbLlQvGn/grZONPxCnEZfCcJy
+         tNhmRNDgsL7ESS+8/a4wAMMw3b3jGdzmqWSQWdXUOFDn6CspapYp4jRGrW4rj8ZM05
+         EXgw6KFzH63E4rZHfD6afXlrte5gEEZc7ajhwNoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>,
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        Baokun Li <libaokun1@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 057/103] fpga: machxo2-spi: Return an error on failure
+Subject: [PATCH 5.4 33/68] scsi: iscsi: Adjust iface sysfs attr detection
 Date:   Mon, 27 Sep 2021 19:02:29 +0200
-Message-Id: <20210927170227.733780085@linuxfoundation.org>
+Message-Id: <20210927170221.112090159@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-[ Upstream commit 34331739e19fd6a293d488add28832ad49c9fc54 ]
+[ Upstream commit 4e28550829258f7dab97383acaa477bd724c0ff4 ]
 
-Earlier successes leave 'ret' in a non error state, so these errors are
-not reported. Set ret to -EINVAL before going to the error handler.
+ISCSI_NET_PARAM_IFACE_ENABLE belongs to enum iscsi_net_param instead of
+iscsi_iface_param so move it to ISCSI_NET_PARAM. Otherwise, when we call
+into the driver, we might not match and return that we don't want attr
+visible in sysfs. Found in code review.
 
-This addresses two issues reported by smatch:
-drivers/fpga/machxo2-spi.c:229 machxo2_write_init()
-  warn: missing error code 'ret'
-
-drivers/fpga/machxo2-spi.c:316 machxo2_write_complete()
-  warn: missing error code 'ret'
-
-[mdf@kernel.org: Reworded commit message]
-Fixes: 88fb3a002330 ("fpga: lattice machxo2: Add Lattice MachXO2 support")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Moritz Fischer <mdf@kernel.org>
+Link: https://lore.kernel.org/r/20210901085336.2264295-1-libaokun1@huawei.com
+Fixes: e746f3451ec7 ("scsi: iscsi: Fix iface sysfs attr detection")
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fpga/machxo2-spi.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/scsi/scsi_transport_iscsi.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/fpga/machxo2-spi.c b/drivers/fpga/machxo2-spi.c
-index b316369156fe..7688ff3b31e4 100644
---- a/drivers/fpga/machxo2-spi.c
-+++ b/drivers/fpga/machxo2-spi.c
-@@ -225,8 +225,10 @@ static int machxo2_write_init(struct fpga_manager *mgr,
- 		goto fail;
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index 77bba91b5714..6f21cb75d95f 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -434,9 +434,7 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
+ 	struct iscsi_transport *t = iface->transport;
+ 	int param = -1;
  
- 	get_status(spi, &status);
--	if (test_bit(FAIL, &status))
-+	if (test_bit(FAIL, &status)) {
-+		ret = -EINVAL;
- 		goto fail;
-+	}
- 	dump_status_reg(&status);
+-	if (attr == &dev_attr_iface_enabled.attr)
+-		param = ISCSI_NET_PARAM_IFACE_ENABLE;
+-	else if (attr == &dev_attr_iface_def_taskmgmt_tmo.attr)
++	if (attr == &dev_attr_iface_def_taskmgmt_tmo.attr)
+ 		param = ISCSI_IFACE_PARAM_DEF_TASKMGMT_TMO;
+ 	else if (attr == &dev_attr_iface_header_digest.attr)
+ 		param = ISCSI_IFACE_PARAM_HDRDGST_EN;
+@@ -476,7 +474,9 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
+ 	if (param != -1)
+ 		return t->attr_is_visible(ISCSI_IFACE_PARAM, param);
  
- 	spi_message_init(&msg);
-@@ -313,6 +315,7 @@ static int machxo2_write_complete(struct fpga_manager *mgr,
- 	dump_status_reg(&status);
- 	if (!test_bit(DONE, &status)) {
- 		machxo2_cleanup(mgr);
-+		ret = -EINVAL;
- 		goto fail;
- 	}
- 
+-	if (attr == &dev_attr_iface_vlan_id.attr)
++	if (attr == &dev_attr_iface_enabled.attr)
++		param = ISCSI_NET_PARAM_IFACE_ENABLE;
++	else if (attr == &dev_attr_iface_vlan_id.attr)
+ 		param = ISCSI_NET_PARAM_VLAN_ID;
+ 	else if (attr == &dev_attr_iface_vlan_priority.attr)
+ 		param = ISCSI_NET_PARAM_VLAN_PRIORITY;
 -- 
 2.33.0
 
