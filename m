@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B4F5419C92
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50E82419B59
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:16:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236197AbhI0RaM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:30:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40804 "EHLO mail.kernel.org"
+        id S236674AbhI0RRi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:17:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237720AbhI0R2J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:28:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 276F261452;
-        Mon, 27 Sep 2021 17:17:17 +0000 (UTC)
+        id S236850AbhI0RPg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:15:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D0D2611CE;
+        Mon, 27 Sep 2021 17:11:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632763039;
-        bh=XegQGG9ZyGt+uAqrWDY+lVQGoahIuijtmmNkCIEoCps=;
+        s=korg; t=1632762666;
+        bh=ZE3DqIiRVFnILrPLDrv/NgYtp8zDJdR9RR9LZV5uYlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ed9530naxf+mHyQRO+erGknfa2azynlPVAyvWVshLI4CrJSMpXqS56P3XB7wpwgy/
-         bg7TxTN+6SG5k7Eglh3bwOOpsY0aSYhs0XGbZwYqKj+oNlAgOu/dqAAXHHWTFRogic
-         +cwUYEUqq9vwizvuHBRbjS7sW6Hy0OzAuJfUpL2I=
+        b=G/IYhUqw8W6cva0xP2kP5EEpj3TMVMwCxYRJN2ofKdc5F4dY9/pmhev6PQns9ALgr
+         UG+ZdIigIbOCpSi2ElgNT8u+zC3wOLqFJZFm3vJaRhDZIHiGpuqUt18fu6ZZiTEued
+         LHtLNzCgW4t7CBGsHou1z88MRCLXmspKYUC88PVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Li <ashimida@linux.alibaba.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 144/162] arm64: Mark __stack_chk_guard as __ro_after_init
-Date:   Mon, 27 Sep 2021 19:03:10 +0200
-Message-Id: <20210927170238.424364305@linuxfoundation.org>
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.10 099/103] EDAC/dmc520: Assign the proper type to dimm->edac_mode
+Date:   Mon, 27 Sep 2021 19:03:11 +0200
+Message-Id: <20210927170229.191547859@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+References: <20210927170225.702078779@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +38,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Li <ashimida@linux.alibaba.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 9fcb2e93f41c07a400885325e7dbdfceba6efaec ]
+commit 54607282fae6148641a08d81a6e0953b541249c7 upstream.
 
-__stack_chk_guard is setup once while init stage and never changed
-after that.
+dimm->edac_mode contains values of type enum edac_type - not the
+corresponding capability flags. Fix that.
 
-Although the modification of this variable at runtime will usually
-cause the kernel to crash (so does the attacker), it should be marked
-as __ro_after_init, and it should not affect performance if it is
-placed in the ro_after_init section.
-
-Signed-off-by: Dan Li <ashimida@linux.alibaba.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Link: https://lore.kernel.org/r/1631612642-102881-1-git-send-email-ashimida@linux.alibaba.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1088750d7839 ("EDAC: Add EDAC driver for DMC520")
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20210916085258.7544-1-bp@alien8.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/process.c | 2 +-
+ drivers/edac/dmc520_edac.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-index c8989b999250..c858b857c1ec 100644
---- a/arch/arm64/kernel/process.c
-+++ b/arch/arm64/kernel/process.c
-@@ -60,7 +60,7 @@
- 
- #if defined(CONFIG_STACKPROTECTOR) && !defined(CONFIG_STACKPROTECTOR_PER_TASK)
- #include <linux/stackprotector.h>
--unsigned long __stack_chk_guard __read_mostly;
-+unsigned long __stack_chk_guard __ro_after_init;
- EXPORT_SYMBOL(__stack_chk_guard);
- #endif
- 
--- 
-2.33.0
-
+--- a/drivers/edac/dmc520_edac.c
++++ b/drivers/edac/dmc520_edac.c
+@@ -464,7 +464,7 @@ static void dmc520_init_csrow(struct mem
+ 			dimm->grain	= pvt->mem_width_in_bytes;
+ 			dimm->dtype	= dt;
+ 			dimm->mtype	= mt;
+-			dimm->edac_mode	= EDAC_FLAG_SECDED;
++			dimm->edac_mode	= EDAC_SECDED;
+ 			dimm->nr_pages	= pages_per_rank / csi->nr_channels;
+ 		}
+ 	}
 
 
