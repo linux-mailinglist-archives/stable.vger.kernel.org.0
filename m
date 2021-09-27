@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE5234199F9
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:04:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D003419C00
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235883AbhI0RFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:05:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44402 "EHLO mail.kernel.org"
+        id S237209AbhI0RYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:24:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235838AbhI0RFi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:05:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 632C36109F;
-        Mon, 27 Sep 2021 17:03:59 +0000 (UTC)
+        id S237112AbhI0RXK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:23:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CC296108E;
+        Mon, 27 Sep 2021 17:14:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762239;
-        bh=J2lFQRkZ3VNG8KWYoO99vskLL4IvJPJ40iwrcC1nPF4=;
+        s=korg; t=1632762881;
+        bh=S5HE0XjUMBtW5wljJ8wi+/kxUx/2wg/1d1IAK8AAWiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tzDOwPyIeHvmOkIZNz9JY39nGuXA6oHbnnSeEqTbaIFYfXCnBXBiQgG596+hF6D9T
-         kWNcJMwcx6fGGzmjv9x7++8OmUsnFKEYl+EAHs5cuZFAa+lO7eDjM8a6znXfH/eux2
-         Z9W2GSNwmTvwsixQDu+CfpaBxOXUVFRcG+jB0p5w=
+        b=rBH01gNIxRX/yPu8rStqeP051d4iUIFQ7El6xeYxgtL8FljjioHEdamRkZ4oSWITJ
+         G0ct9vyJE8WZhRAAn+NPcElfKZzzmFN+B6BazyRbRyvTxlI6P1uYhGMiM4FGX2My3Y
+         sspQrDRc6v2HF8sBaMoBL52B4eSdMTZCF1m6wkdk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 15/68] USB: serial: mos7840: remove duplicated 0xac24 device ID
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 085/162] nfc: st-nci: Add SPI ID matching DT compatible
 Date:   Mon, 27 Sep 2021 19:02:11 +0200
-Message-Id: <20210927170220.469852390@linuxfoundation.org>
+Message-Id: <20210927170236.378470281@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
-References: <20210927170219.901812470@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit 211f323768a25b30c106fd38f15a0f62c7c2b5f4 upstream.
+[ Upstream commit 31339440b2d0a4987030aac026adbaba44e22490 ]
 
-0xac24 device ID is already defined and used via
-BANDB_DEVICE_ID_USO9ML2_4.  Remove the duplicate from the list.
+Currently autoloading for SPI devices does not use the DT ID table, it uses
+SPI modalises. Supporting OF modalises is going to be difficult if not
+impractical, an attempt was made but has been reverted, so ensure that
+module autoloading works for this driver by adding the part name used in
+the compatible to the list of SPI IDs.
 
-Fixes: 27f1281d5f72 ("USB: serial: Extra device/vendor ID for mos7840 driver")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 96c8395e2166 ("spi: Revert modalias changes")
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/mos7840.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/nfc/st-nci/spi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/mos7840.c
-+++ b/drivers/usb/serial/mos7840.c
-@@ -114,7 +114,6 @@
- #define BANDB_DEVICE_ID_USOPTL4_2P       0xBC02
- #define BANDB_DEVICE_ID_USOPTL4_4        0xAC44
- #define BANDB_DEVICE_ID_USOPTL4_4P       0xBC03
--#define BANDB_DEVICE_ID_USOPTL2_4        0xAC24
+diff --git a/drivers/nfc/st-nci/spi.c b/drivers/nfc/st-nci/spi.c
+index 250d56f204c3..e62b1a0916d8 100644
+--- a/drivers/nfc/st-nci/spi.c
++++ b/drivers/nfc/st-nci/spi.c
+@@ -278,6 +278,7 @@ static int st_nci_spi_remove(struct spi_device *dev)
  
- /* This driver also supports
-  * ATEN UC2324 device using Moschip MCS7840
-@@ -196,7 +195,6 @@ static const struct usb_device_id id_tab
- 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_2P)},
- 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_4)},
- 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_4P)},
--	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL2_4)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2324)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2322)},
- 	{USB_DEVICE(USB_VENDOR_ID_MOXA, MOXA_DEVICE_ID_2210)},
+ static struct spi_device_id st_nci_spi_id_table[] = {
+ 	{ST_NCI_SPI_DRIVER_NAME, 0},
++	{"st21nfcb-spi", 0},
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(spi, st_nci_spi_id_table);
+-- 
+2.33.0
+
 
 
