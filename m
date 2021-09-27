@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFFF1419A16
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:05:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8B56419CDD
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:34:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235881AbhI0RGn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:06:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45426 "EHLO mail.kernel.org"
+        id S236323AbhI0RdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:33:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235840AbhI0RGN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:06:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2ADB66109F;
-        Mon, 27 Sep 2021 17:04:34 +0000 (UTC)
+        id S237943AbhI0Raz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:30:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CBA76113D;
+        Mon, 27 Sep 2021 17:23:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762275;
-        bh=oNru/bH/1dCW+AG5A+5aD/d2zhmb9nl5a3kOZRQVMBI=;
+        s=korg; t=1632763387;
+        bh=FyIoA/F2sgzljwJzCSywgfeR1zCGkXO2Y7KRzjjcGko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U4Vpt5R2Z4zYz0lrJCsncuT6O5YJVr5BJhxMnbPMYcrvY8z28ga1T4x7nMfTgVZ0/
-         VQd0smdNrr/atRqZBotlQuGpht0cdYAaXC35J9UXIZYMJXYiJv+osnGnH4mfC0cntJ
-         24dIESxn45zE+361qkBC8j+Cf/2jeIXEPRqIp7pA=
+        b=WRxEHycxt+KiBoUxBeDfhdayiaPXHol1BYx9+OGQhxKRBhRtliDy2zyfyj63KjTpH
+         Vx5IgBSa0wIdtyTy06Hq6JfIqwlrg52fklw/gSRdGRQXDeqjwD12B6xW3I2sPF8xsa
+         c2/E+BsswQJmbzlSEEcNvpTkwqG+gJcikNkkcA9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Michael Chan <michael.chan@broadocm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 28/68] bnxt_en: Fix TX timeout when TX ring size is set to the smallest
+        stable@vger.kernel.org, "Nowak, Lukasz" <Lukasz.Nowak@Dell.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 098/162] nvme-tcp: fix incorrect h2cdata pdu offset accounting
 Date:   Mon, 27 Sep 2021 19:02:24 +0200
-Message-Id: <20210927170220.937831819@linuxfoundation.org>
+Message-Id: <20210927170236.838116698@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
-References: <20210927170219.901812470@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,103 +41,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 5bed8b0704c9ecccc8f4a2c377d7c8e21090a82e ]
+[ Upstream commit e371af033c560b9dd1e861f8f0b503142bf0a06c ]
 
-The smallest TX ring size we support must fit a TX SKB with MAX_SKB_FRAGS
-+ 1.  Because the first TX BD for a packet is always a long TX BD, we
-need an extra TX BD to fit this packet.  Define BNXT_MIN_TX_DESC_CNT with
-this value to make this more clear.  The current code uses a minimum
-that is off by 1.  Fix it using this constant.
+When the controller sends us multiple r2t PDUs in a single
+request we need to account for it correctly as our send/recv
+context run concurrently (i.e. we get a new r2t with r2t_offset
+before we updated our iterator and req->data_sent marker). This
+can cause wrong offsets to be sent to the controller.
 
-The tx_wake_thresh to determine when to wake up the TX queue is half the
-ring size but we must have at least BNXT_MIN_TX_DESC_CNT for the next
-packet which may have maximum fragments.  So the comparison of the
-available TX BDs with tx_wake_thresh should be >= instead of > in the
-current code.  Otherwise, at the smallest ring size, we will never wake
-up the TX queue and will cause TX timeout.
+To fix that, we will first know that this may happen only in
+the send sequence of the last page, hence we will take
+the r2t_offset to the h2c PDU data_offset, and in
+nvme_tcp_try_send_data loop, we make sure to increment
+the request markers also when we completed a PDU but
+we are expecting more r2t PDUs as we still did not send
+the entire data of the request.
 
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadocm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 825619b09ad3 ("nvme-tcp: fix possible use-after-completion")
+Reported-by: Nowak, Lukasz <Lukasz.Nowak@Dell.com>
+Tested-by: Nowak, Lukasz <Lukasz.Nowak@Dell.com>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c         | 8 ++++----
- drivers/net/ethernet/broadcom/bnxt/bnxt.h         | 5 +++++
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 2 +-
- 3 files changed, 10 insertions(+), 5 deletions(-)
+ drivers/nvme/host/tcp.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index e67f07faca78..7f590a9e3af7 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -372,7 +372,7 @@ static bool bnxt_txr_netif_try_stop_queue(struct bnxt *bp,
- 	 * netif_tx_queue_stopped().
- 	 */
- 	smp_mb();
--	if (bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh) {
-+	if (bnxt_tx_avail(bp, txr) >= bp->tx_wake_thresh) {
- 		netif_tx_wake_queue(txq);
- 		return false;
- 	}
-@@ -701,7 +701,7 @@ static void bnxt_tx_int(struct bnxt *bp, struct bnxt_napi *bnapi, int nr_pkts)
- 	smp_mb();
- 
- 	if (unlikely(netif_tx_queue_stopped(txq)) &&
--	    bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh &&
-+	    bnxt_tx_avail(bp, txr) >= bp->tx_wake_thresh &&
- 	    READ_ONCE(txr->dev_state) != BNXT_DEV_STATE_CLOSING)
- 		netif_tx_wake_queue(txq);
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 19a711395cdc..fd28a23d45ed 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -614,7 +614,7 @@ static int nvme_tcp_setup_h2c_data_pdu(struct nvme_tcp_request *req,
+ 		cpu_to_le32(data->hdr.hlen + hdgst + req->pdu_len + ddgst);
+ 	data->ttag = pdu->ttag;
+ 	data->command_id = nvme_cid(rq);
+-	data->data_offset = cpu_to_le32(req->data_sent);
++	data->data_offset = pdu->r2t_offset;
+ 	data->data_length = cpu_to_le32(req->pdu_len);
+ 	return 0;
  }
-@@ -2206,7 +2206,7 @@ static int __bnxt_poll_work(struct bnxt *bp, struct bnxt_cp_ring_info *cpr,
- 		if (TX_CMP_TYPE(txcmp) == CMP_TYPE_TX_L2_CMP) {
- 			tx_pkts++;
- 			/* return full budget so NAPI will complete. */
--			if (unlikely(tx_pkts > bp->tx_wake_thresh)) {
-+			if (unlikely(tx_pkts >= bp->tx_wake_thresh)) {
- 				rx_pkts = budget;
- 				raw_cons = NEXT_RAW_CMP(raw_cons);
- 				if (budget)
-@@ -3329,7 +3329,7 @@ static int bnxt_init_tx_rings(struct bnxt *bp)
- 	u16 i;
+@@ -940,7 +940,15 @@ static int nvme_tcp_try_send_data(struct nvme_tcp_request *req)
+ 			nvme_tcp_ddgst_update(queue->snd_hash, page,
+ 					offset, ret);
  
- 	bp->tx_wake_thresh = max_t(int, bp->tx_ring_size / 2,
--				   MAX_SKB_FRAGS + 1);
-+				   BNXT_MIN_TX_DESC_CNT);
- 
- 	for (i = 0; i < bp->tx_nr_rings; i++) {
- 		struct bnxt_tx_ring_info *txr = &bp->tx_ring[i];
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.h b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-index 510ff01bdad8..8ba369c0100b 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -601,6 +601,11 @@ struct nqe_cn {
- #define BNXT_MAX_RX_JUM_DESC_CNT	(RX_DESC_CNT * MAX_RX_AGG_PAGES - 1)
- #define BNXT_MAX_TX_DESC_CNT		(TX_DESC_CNT * MAX_TX_PAGES - 1)
- 
-+/* Minimum TX BDs for a TX packet with MAX_SKB_FRAGS + 1.  We need one extra
-+ * BD because the first TX BD is always a long BD.
-+ */
-+#define BNXT_MIN_TX_DESC_CNT		(MAX_SKB_FRAGS + 2)
+-		/* fully successful last write*/
++		/*
++		 * update the request iterator except for the last payload send
++		 * in the request where we don't want to modify it as we may
++		 * compete with the RX path completing the request.
++		 */
++		if (req->data_sent + ret < req->data_len)
++			nvme_tcp_advance_req(req, ret);
 +
- #define RX_RING(x)	(((x) & ~(RX_DESC_CNT - 1)) >> (BNXT_PAGE_SHIFT - 4))
- #define RX_IDX(x)	((x) & (RX_DESC_CNT - 1))
- 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-index 211852378224..97aff84fd1d1 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -744,7 +744,7 @@ static int bnxt_set_ringparam(struct net_device *dev,
- 
- 	if ((ering->rx_pending > BNXT_MAX_RX_DESC_CNT) ||
- 	    (ering->tx_pending > BNXT_MAX_TX_DESC_CNT) ||
--	    (ering->tx_pending <= MAX_SKB_FRAGS))
-+	    (ering->tx_pending < BNXT_MIN_TX_DESC_CNT))
- 		return -EINVAL;
- 
- 	if (netif_running(dev))
++		/* fully successful last send in current PDU */
+ 		if (last && ret == len) {
+ 			if (queue->data_digest) {
+ 				nvme_tcp_ddgst_final(queue->snd_hash,
+@@ -952,7 +960,6 @@ static int nvme_tcp_try_send_data(struct nvme_tcp_request *req)
+ 			}
+ 			return 1;
+ 		}
+-		nvme_tcp_advance_req(req, ret);
+ 	}
+ 	return -EAGAIN;
+ }
 -- 
 2.33.0
 
