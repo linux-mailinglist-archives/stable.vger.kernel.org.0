@@ -2,98 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04AE4419294
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 12:54:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C46F54192AC
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 13:01:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233899AbhI0K4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 06:56:15 -0400
-Received: from new1-smtp.messagingengine.com ([66.111.4.221]:52623 "EHLO
-        new1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233862AbhI0K4O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 06:56:14 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailnew.nyi.internal (Postfix) with ESMTP id B7603580A9C;
-        Mon, 27 Sep 2021 06:54:36 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Mon, 27 Sep 2021 06:54:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=F1yC9e6f4L4P4vLBZgU6EcwSh7h
-        BL4qthNhSxMuXr+E=; b=tjIGNlvj4WxYghk/RnCVES1C3O5C1YjvH7RI01Kn/Ak
-        8x0UnJ+PZ7nOIJVzh18TyOtJQ/Dm0zoYX0vnW3qFh1txbCtSdVwNOEppYkn2L4vQ
-        32iRuDgq4Kut90dlYjDkCQd7wNKvq+Hao5vmYn3erYOpSGPTJ5wpwWj0wgQgljXv
-        3Vf6DX/pUM8b2ND/K4DVLe2vqs71nPdjVNCxZpW7H9wvF6twa6tfUEPkf1hKKWCg
-        ZzFMhtzojXmyN2HEL7szgPbSJ0KobvZopVb+9nb5FOnjuEd7t3Q+Sb75fPt895UK
-        QGN5YD+WDzkq73r1p8CCerYCiFRIV0ZnaFRWAOJalLw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=F1yC9e
-        6f4L4P4vLBZgU6EcwSh7hBL4qthNhSxMuXr+E=; b=GqquaonZPY58341bDIoXOU
-        oly2aOQsN6qNmROlqpIGUu91KB4AT+8Azg87t+iJTG4QXPLvumhQRNNhL88B2aF4
-        ekH8gw7qjgpeRgddVtfJbC2cXKThwb1wDJFxMEYmxr+9eChUISdTB05pjxsI5lHF
-        7UOANZq1Vs+LqzDqL25oIdy3f84etwTesOgrYBqQ6WvmOQXHtQsIMrtNFydtTCza
-        SKLZGjQVmbgrr0f7M4jFuH3IbulNgDwaR9JSRKRXpV+SZ/VU45zqIU+jDNjMoMIx
-        oSeq19UIZ6i7xbmmDqu/ImfLtfX7hj7ZvZNfyx8pItbzy7cTAs42Uq1sjsJYmApA
-        ==
-X-ME-Sender: <xms:66JRYXAzI3VN-ScFJUiuYAnbHR-nhPxDWXzaOFkIDwdxUH4ZLswHJQ>
-    <xme:66JRYdiiaVONsg6JxjIyEnJxtiJR2UdyWp6w8v80ioCJkyd3JD-URPJ9jV-rRmHJB
-    AZE0Alm2i52KQ>
-X-ME-Received: <xmr:66JRYSm-yNKnS4R-4-z_auq2CjNCMk6t1pxmB_MW1Nmb-X4l2ejKqfyy9fW7yT56uPt82Ry_S-f4oON8Pjpu0x_F8ubLjqFe>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudejkedgfeefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:66JRYZw5ATvnX-5qAnN7jQV19yLyuIhzwgUCNVCWZcE9xdOT7dZ1cQ>
-    <xmx:66JRYcRzW9lnO6_IyBb_plXtgBbwppUAtWHPIwOxw2bMu3ZCRunq6Q>
-    <xmx:66JRYcb-iOcKW_a7R-NgVdvZkY80BmTCbZ2i_lFihXy85REXBqhl6g>
-    <xmx:7KJRYczSDkgyMmKtad1MyJU7eMbQqiUVFEkkJbqPZWejNWoxrAx_2A>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 27 Sep 2021 06:54:34 -0400 (EDT)
-Date:   Mon, 27 Sep 2021 12:54:31 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Macpaul Lin <macpaul.lin@mediatek.com>
-Cc:     Leon Yu <leoyu@nvidia.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Jose Abreu <joabreu@synopsys.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Miles Chen <miles.chen@mediatek.com>,
-        Bear Wang <bear.wang@mediatek.com>,
-        Pablo Sun <pablo.sun@mediatek.com>,
-        Fabien Parent <fparent@baylibre.com>,
-        Macpaul Lin <macpaul@gmail.com>,
-        linux-mediatek@lists.infradead.org, stable@vger.kernel.org
-Subject: Re: backport commit ("c739b17a715c net: stmmac: don't attach
- interface until resume finishes") to linux-5.4-stable
-Message-ID: <YVGi5yuhExKhLNry@kroah.com>
-References: <20210927104500.1505-1-macpaul.lin@mediatek.com>
+        id S233958AbhI0LCo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 07:02:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53242 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233900AbhI0LCe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 07:02:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7138F60F3A;
+        Mon, 27 Sep 2021 11:00:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1632740455;
+        bh=ARhMCGkjNarQ3TvQ7tEXrozrOZ37V/jFJTJgnJ4/gG8=;
+        h=Subject:To:Cc:From:Date:From;
+        b=V2yYVzfEP05jyHq69Jy0uc57sXkxiOuY7fP/wvGRc/n0btacdXSdr15IUDDEN7ZuK
+         Zbu6nhYjjxn1KVNd5spnABQu1D2vyZPc7jKgAQyRh24JeY54Lr4wWdQ7TED35WLpHF
+         MJ2MsVkBXXDU7d8vbpXDLc2PZwotMfhsdTB2SJW8=
+Subject: FAILED: patch "[PATCH] EDAC/synopsys: Fix wrong value type assignment for edac_mode" failed to apply to 4.19-stable tree
+To:     lakshmi.sai.krishna.potthuri@xilinx.com, bp@suse.de,
+        shubhrajyoti.datta@xilinx.com, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 27 Sep 2021 13:00:53 +0200
+Message-ID: <163274045325350@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210927104500.1505-1-macpaul.lin@mediatek.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 27, 2021 at 06:45:00PM +0800, Macpaul Lin wrote:
-> Hi reviewers,
-> 
-> I suggest to backport 
-> commit "c739b17a715c net: stmmac: don't attach interface until resume finishes"
-> to linux-5.4 stable tree.
 
-I see no such commit id in Linus's kernel tree.
-
-Are you sure you got the correct id?
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 5297cfa6bdf93e3889f78f9b482e2a595a376083 Mon Sep 17 00:00:00 2001
+From: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
+Date: Wed, 18 Aug 2021 12:53:14 +0530
+Subject: [PATCH] EDAC/synopsys: Fix wrong value type assignment for edac_mode
+
+dimm->edac_mode contains values of type enum edac_type - not the
+corresponding capability flags. Fix that.
+
+Issue caught by Coverity check "enumerated type mixed with another
+type."
+
+ [ bp: Rewrite commit message, add tags. ]
+
+Fixes: ae9b56e3996d ("EDAC, synps: Add EDAC support for zynq ddr ecc controller")
+Signed-off-by: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
+Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20210818072315.15149-1-shubhrajyoti.datta@xilinx.com
+
+diff --git a/drivers/edac/synopsys_edac.c b/drivers/edac/synopsys_edac.c
+index 7e7146b22c16..7d08627e738b 100644
+--- a/drivers/edac/synopsys_edac.c
++++ b/drivers/edac/synopsys_edac.c
+@@ -782,7 +782,7 @@ static void init_csrows(struct mem_ctl_info *mci)
+ 
+ 		for (j = 0; j < csi->nr_channels; j++) {
+ 			dimm		= csi->channels[j]->dimm;
+-			dimm->edac_mode	= EDAC_FLAG_SECDED;
++			dimm->edac_mode	= EDAC_SECDED;
+ 			dimm->mtype	= p_data->get_mtype(priv->baseaddr);
+ 			dimm->nr_pages	= (size >> PAGE_SHIFT) / csi->nr_channels;
+ 			dimm->grain	= SYNPS_EDAC_ERR_GRAIN;
+
