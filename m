@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55B2A419A9F
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:09:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 195F1419AF2
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235857AbhI0RKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:10:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46862 "EHLO mail.kernel.org"
+        id S236161AbhI0ROl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:14:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236110AbhI0RJG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:09:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6C9C61207;
-        Mon, 27 Sep 2021 17:07:07 +0000 (UTC)
+        id S236616AbhI0RMy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:12:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8650F6128C;
+        Mon, 27 Sep 2021 17:09:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762428;
-        bh=EwOkFeRVsm/RSWC/OnztfNUCLwaIDmXxHprLnHdgM/E=;
+        s=korg; t=1632762541;
+        bh=rULxsDEW11GuTvf5HgE3jNRIhroxB1TVyIjSsfkzDJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gWKL+/WAai+Pt81GNFPuewNlBI+Ow3OYYc059zpHX+j/2U687LSCeJlsVFcN1jaxb
-         0A+IA6CBBOjDMrJYBGVYVyq/ZvbPNJiMdKqW3+j4D1NOf37CkJFRLCJQnB8JeCJXXF
-         EX7rY4Nh5nNWQPzmBDxk77kmdr6E3GJkD6BhmHwE=
+        b=XTullnkU2T4a/t7roJQ4ii9KpyOllNG355zi1NbahEgDN3gLkSLGsXEDSQWfBSwqC
+         WJge/ZILIl6Ia0rr4ZMWjGZ9bFTu/VVHqopHLc7GAczp9tigcVMQp3kGX2WGzw0XtV
+         TBTqISKkhw90pK3EHml1Ymh7JUQJAEKrBFLD6znA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, Carlo Lobrano <c.lobrano@gmail.com>,
+        Daniele Palmas <dnlplm@gmail.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 019/103] USB: serial: mos7840: remove duplicated 0xac24 device ID
-Date:   Mon, 27 Sep 2021 19:01:51 +0200
-Message-Id: <20210927170226.384393462@linuxfoundation.org>
+Subject: [PATCH 5.10 020/103] USB: serial: option: add Telit LN920 compositions
+Date:   Mon, 27 Sep 2021 19:01:52 +0200
+Message-Id: <20210927170226.416036337@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
 References: <20210927170225.702078779@linuxfoundation.org>
@@ -40,39 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Carlo Lobrano <c.lobrano@gmail.com>
 
-commit 211f323768a25b30c106fd38f15a0f62c7c2b5f4 upstream.
+commit 7bb057134d609b9c038a00b6876cf0d37d0118ce upstream.
 
-0xac24 device ID is already defined and used via
-BANDB_DEVICE_ID_USO9ML2_4.  Remove the duplicate from the list.
+This patch adds the following Telit LN920 compositions:
 
-Fixes: 27f1281d5f72 ("USB: serial: Extra device/vendor ID for mos7840 driver")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+0x1060: tty, adb, rmnet, tty, tty, tty, tty
+0x1061: tty, adb, mbim, tty, tty, tty, tty
+0x1062: rndis, tty, adb, tty, tty, tty, tty
+0x1063: tty, adb, ecm, tty, tty, tty, tty
+
+Signed-off-by: Carlo Lobrano <c.lobrano@gmail.com>
+Link: https://lore.kernel.org/r/20210903123913.1086513-1-c.lobrano@gmail.com
+Reviewed-by: Daniele Palmas <dnlplm@gmail.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/mos7840.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/usb/serial/option.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/usb/serial/mos7840.c
-+++ b/drivers/usb/serial/mos7840.c
-@@ -107,7 +107,6 @@
- #define BANDB_DEVICE_ID_USOPTL4_2P       0xBC02
- #define BANDB_DEVICE_ID_USOPTL4_4        0xAC44
- #define BANDB_DEVICE_ID_USOPTL4_4P       0xBC03
--#define BANDB_DEVICE_ID_USOPTL2_4        0xAC24
- 
- /* Interrupt Routine Defines    */
- 
-@@ -186,7 +185,6 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_2P) },
- 	{ USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_4) },
- 	{ USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_4P) },
--	{ USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL2_4) },
- 	{}			/* terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, id_table);
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1205,6 +1205,14 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1056, 0xff),	/* Telit FD980 */
+ 	  .driver_info = NCTRL(2) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1060, 0xff),	/* Telit LN920 (rmnet) */
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1061, 0xff),	/* Telit LN920 (MBIM) */
++	  .driver_info = NCTRL(0) | RSVD(1) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1062, 0xff),	/* Telit LN920 (RNDIS) */
++	  .driver_info = NCTRL(2) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1063, 0xff),	/* Telit LN920 (ECM) */
++	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
 
 
