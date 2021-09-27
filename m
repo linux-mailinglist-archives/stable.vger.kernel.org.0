@@ -2,95 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48687419DCB
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 20:05:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE871419E17
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 20:23:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235833AbhI0SHM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 14:07:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52002 "EHLO
+        id S236087AbhI0SZc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 14:25:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235815AbhI0SHA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 14:07:00 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56326C061604;
-        Mon, 27 Sep 2021 11:05:22 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id on12-20020a17090b1d0c00b001997c60aa29so416244pjb.1;
-        Mon, 27 Sep 2021 11:05:22 -0700 (PDT)
+        with ESMTP id S236085AbhI0SZc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 14:25:32 -0400
+Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com [IPv6:2607:f8b0:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B86EC061604
+        for <stable@vger.kernel.org>; Mon, 27 Sep 2021 11:23:54 -0700 (PDT)
+Received: by mail-oi1-x22f.google.com with SMTP id x124so26723002oix.9
+        for <stable@vger.kernel.org>; Mon, 27 Sep 2021 11:23:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=aCe9cQlxizWPqPrStonYM1I4buyo4DZsOUx0n5WkBks=;
-        b=fcug6hPK6mHISnLsphdASOBK/A/VVxD/648c8Rvcg7D9LzDUSgF1JXxcSD5INXC1PR
-         INF/i2BByIpHOOLO2AqVFq6RXXmi9FlvhxffwwdQ5kjn+E4uXEoWbdiRRHveNX12qv34
-         6CtrNmjWYSoc2kl5kWBiVhwkJyY4ZEzbeGTFy1QJ2mETV1LKaH7mAU3EgZC4Mq1HFd3d
-         d/+fEhsaJ7TOqhfVs5s+mmBSJtzSOLt+1T+fGd4cD0gKFwRyUgSV7T4tKRYVcWE+o7ik
-         Mj01GFKWO9GO8k6K0JDd6bSh0ps2Rfgz4luHqWUloDWD1q3PD9y7kpYofyxDJo/wMr98
-         fclA==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=d9SFeoPXyI6hu/c5IGhRfKrUUOLxP3FUmK8Fq79Nf0I=;
+        b=lVnzpjbnLvfxG1uAr8yJXhdJgK/8kFsYIRlffQCMufdJ2GmPXd20iA+VcJ8pS/7naK
+         sC5TfspQXlla9R70TDDW0Ag528oS4gjIv5jQG7ZLCRHynlokbBrzkhpoUSFqZ0HbUrko
+         B9uIka1vy4rGotTdb15OklE5JORtTI2XNeZnCvUAVNV6R8V2G5IdSKbVQtt/F1zlPt1+
+         ZJXfhz4j0Cw9AWUBxsByTjum3x4j2IVRROUSY7ynWIErN0qvWsht/y6+xEQ1ZwNntZFH
+         yuuMZdJJfF1bXIx9/UBrbPxlCpoEc2rWUlv+ArXSVzeIXQSvXXZ189OkE3tcDyQqlL8R
+         Oigw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=aCe9cQlxizWPqPrStonYM1I4buyo4DZsOUx0n5WkBks=;
-        b=00EKBqTBygIM9QbEh9MWc5Tk3EQWgEHnEiQiOI2gdN41YF5bWesJm5cP7D2toFzFsD
-         pN0krEmP2h8qGr9FOD0+ERUAN7W7eUqAacfXgMJBgXjMfID8vEPO/GnuGHobld8MIph/
-         pa63/f7LRumKycgunGBPwT9XxKiznVjL7zDsZsJ9MOJod7U+dDn0BgkIqST2VaHienDH
-         piedCC4g1MS8rrOiZoUY2LlHPlbRakAPatLE2esjD5aYClTnsevndf+6kcUF60T/AYbK
-         /f+0Rlcu8TXPvG5MgZWT7cQZPP/HBmW7DkTyvUshx2BXgozxqj9yMGt1qloh0uu3xtYg
-         Xu3A==
-X-Gm-Message-State: AOAM531ZSzQIz+aTCS75esZLHfVDIUORTTCJY0+kjDlxxRVbADYVC9ba
-        If/7zSgxwMpczMzYenxResJ/QZCnOQU=
-X-Google-Smtp-Source: ABdhPJz6qkuWYSYWCS6+mOypEwBn+e6YltqMTa5m7Eoaa/osaM1VZAas0JNhRAM5V3h1Ym0aeYL92g==
-X-Received: by 2002:a17:902:ac96:b0:13d:f848:cbbe with SMTP id h22-20020a170902ac9600b0013df848cbbemr1149227plr.9.1632765921445;
-        Mon, 27 Sep 2021 11:05:21 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id i69sm18493369pgc.7.2021.09.27.11.05.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 27 Sep 2021 11:05:21 -0700 (PDT)
-Subject: Re: [PATCH 5.10 000/103] 5.10.70-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20210927170225.702078779@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <ee06c7cb-d730-3e49-ce46-b803fa91651a@gmail.com>
-Date:   Mon, 27 Sep 2021 11:05:17 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=d9SFeoPXyI6hu/c5IGhRfKrUUOLxP3FUmK8Fq79Nf0I=;
+        b=hMP2gw9pdY+IUdRiP+1n6701ToRf1g7dmFHFz8fNwXJrZ1MMsKuhU+FENJH0a/QkPx
+         Ol4iryavD8jaHJ+BaTjhoQ8NLHAcUjAngbJ6KLXuZ3rgNI7x0uEVMbrXE+cvEQ6LyG62
+         dQEyj4Kci3CGyZS8pQbVm1HntOfspjBa6C8xxsEmS5fINKyFRFTNsy3e4GmkJaiyyBWk
+         6pbFOf3haZivAlXS9k1UhMaxF94kIYdgQacGywTxYH2Xih/Zla5pktFrIDveEYk4EYc8
+         BhgjPVNbc9w4+uMay6IyGDdfIeseBgXCaWXSyWD5SCJuVMIsAQi8PqQxmpGG4mUNTaEE
+         h9kQ==
+X-Gm-Message-State: AOAM532LqwGEiYvelIMsfaWJZxcp08v4ItgRixihczihBIlM/Wxgbf4L
+        pZHhpDCR8bnAjipsbwNNF61VtbuMCc+p+KzHM5JFhGoTKz6oRQ==
+X-Google-Smtp-Source: ABdhPJwtMjMwt7qkJD9mPH63iqq/70C0wpKG5aSk7gT6vLSQhAg2tztMeCDZwJrx7Dfbxti7dlJs3TIPpx1ccEQrVDA=
+X-Received: by 2002:aca:3d57:: with SMTP id k84mr365138oia.167.1632767033475;
+ Mon, 27 Sep 2021 11:23:53 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 27 Sep 2021 23:53:41 +0530
+Message-ID: <CA+G9fYvpn2OVw3-GrkDSPHA1piSD9L4v=thu+z5Z-uDXAx4FUQ@mail.gmail.com>
+Subject: Re: [PATCH 5.14 000/162] 5.14.9-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/27/21 10:01 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.70 release.
-> There are 103 patches in this series, all will be posted as a response
+On Mon, 27 Sept 2021 at 22:48, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.14.9 release.
+> There are 162 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
-> 
+>
 > Responses should be made by Wed, 29 Sep 2021 17:02:05 +0000.
 > Anything received after that time might be too late.
-> 
+>
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.70-rc1.gz
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.9-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
 > and the diffstat can be found below.
-> 
+>
 > thanks,
-> 
+>
 > greg k-h
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+Following commit caused the build failures on s390 on 5.10 and 5.14 branches.
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+
+> Alexandra Winter <wintera@linux.ibm.com>
+>     s390/qeth: fix deadlock during failing recovery
+
+drivers/s390/net/qeth_core_main.c: In function 'qeth_close_dev_handler':
+drivers/s390/net/qeth_core_main.c:83:9: error: too few arguments to
+function 'ccwgroup_set_offline'
+   83 |         ccwgroup_set_offline(card->gdev);
+      |         ^~~~~~~~~~~~~~~~~~~~
+In file included from drivers/s390/net/qeth_core.h:44,
+                 from drivers/s390/net/qeth_core_main.c:46:
+arch/s390/include/asm/ccwgroup.h:61:5: note: declared here
+   61 | int ccwgroup_set_offline(struct ccwgroup_device *gdev, bool call_gdrv);
+      |     ^~~~~~~~~~~~~~~~~~~~
+make[3]: *** [scripts/Makefile.build:280:
+drivers/s390/net/qeth_core_main.o] Error 1
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+--
+Linaro LKFT
+https://lkft.linaro.org
