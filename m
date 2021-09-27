@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54D4D419A4B
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:06:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 202FB419C79
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235673AbhI0RIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:08:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47186 "EHLO mail.kernel.org"
+        id S237550AbhI0R3g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:29:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236056AbhI0RHP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:07:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 711B5611C5;
-        Mon, 27 Sep 2021 17:05:36 +0000 (UTC)
+        id S238117AbhI0R0H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:26:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD8D56137A;
+        Mon, 27 Sep 2021 17:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762337;
-        bh=i4iaWoQ1Sgn/qBlgsSBs9HIavAn/HhwJWpFMBgsledo=;
+        s=korg; t=1632762982;
+        bh=7G2xqep2J7jsKFjUY4YncPNZDDk4BnM5y2fcEI/FRCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YVKCmu26NWNbrKVl+VumLFu4EEJR7ZUDExNnnBRE/27w3LXGh+stTkeVCD6JCb9Pd
-         szAXj5SVKLjOr7Y+LrhlmRpKpXylwstj4gjbSXcjQTT+qCNwDXwFBThDSErAfnc1pi
-         XWL/HDYlSTHyv82LHG5ai5yENqdfdrkBw5qHOZ7Q=
+        b=IWcmoDzkvvo0VSeZ0KWaUOpZFsXANicqV4ha18NZvdnDdhSw5sgRA1Ohsnh8losjr
+         gUiyjGDv4gNtXfc1fvQ5PaqdtWuHZAmIaDOn9JcJfsQaKMTr3vesAiw2dV0mEX7T3D
+         KK8P/ef8GJFusIvI8nPtukh1zKO6lDCENblCHn0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sagi Grimberg <sagi@grimberg.me>,
+        stable@vger.kernel.org, zhang kai <zhangkaiheb@126.com>,
+        David Ahern <dsahern@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 52/68] nvme-multipath: fix ANA state updates when a namespace is not present
+Subject: [PATCH 5.14 122/162] ipv6: delay fib6_sernum increase in fib6_add
 Date:   Mon, 27 Sep 2021 19:02:48 +0200
-Message-Id: <20210927170221.754953512@linuxfoundation.org>
+Message-Id: <20210927170237.663953487@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
-References: <20210927170219.901812470@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,59 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Eidelman <anton.eidelman@gmail.com>
+From: zhang kai <zhangkaiheb@126.com>
 
-[ Upstream commit 79f528afa93918519574773ea49a444c104bc1bd ]
+[ Upstream commit e87b5052271e39d62337ade531992b7e5d8c2cfa ]
 
-nvme_update_ana_state() has a deficiency that results in a failure to
-properly update the ana state for a namespace in the following case:
+only increase fib6_sernum in net namespace after add fib6_info
+successfully.
 
-  NSIDs in ctrl->namespaces:	1, 3,    4
-  NSIDs in desc->nsids:		1, 2, 3, 4
-
-Loop iteration 0:
-    ns index = 0, n = 0, ns->head->ns_id = 1, nsid = 1, MATCH.
-Loop iteration 1:
-    ns index = 1, n = 1, ns->head->ns_id = 3, nsid = 2, NO MATCH.
-Loop iteration 2:
-    ns index = 2, n = 2, ns->head->ns_id = 4, nsid = 4, MATCH.
-
-Where the update to the ANA state of NSID 3 is missed.  To fix this
-increment n and retry the update with the same ns when ns->head->ns_id is
-higher than nsid,
-
-Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: zhang kai <zhangkaiheb@126.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/multipath.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/ipv6/ip6_fib.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index 590b040e90a3..016a67fd4198 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -522,14 +522,17 @@ static int nvme_update_ana_state(struct nvme_ctrl *ctrl,
+diff --git a/net/ipv6/ip6_fib.c b/net/ipv6/ip6_fib.c
+index ef75c9b05f17..68e94e9f5089 100644
+--- a/net/ipv6/ip6_fib.c
++++ b/net/ipv6/ip6_fib.c
+@@ -1378,7 +1378,6 @@ int fib6_add(struct fib6_node *root, struct fib6_info *rt,
+ 	int err = -ENOMEM;
+ 	int allow_create = 1;
+ 	int replace_required = 0;
+-	int sernum = fib6_new_sernum(info->nl_net);
  
- 	down_read(&ctrl->namespaces_rwsem);
- 	list_for_each_entry(ns, &ctrl->namespaces, list) {
--		unsigned nsid = le32_to_cpu(desc->nsids[n]);
--
-+		unsigned nsid;
-+again:
-+		nsid = le32_to_cpu(desc->nsids[n]);
- 		if (ns->head->ns_id < nsid)
- 			continue;
- 		if (ns->head->ns_id == nsid)
- 			nvme_update_ns_ana_state(desc, ns);
- 		if (++n == nr_nsids)
- 			break;
-+		if (ns->head->ns_id > nsid)
-+			goto again;
+ 	if (info->nlh) {
+ 		if (!(info->nlh->nlmsg_flags & NLM_F_CREATE))
+@@ -1478,7 +1477,7 @@ int fib6_add(struct fib6_node *root, struct fib6_info *rt,
+ 	if (!err) {
+ 		if (rt->nh)
+ 			list_add(&rt->nh_list, &rt->nh->f6i_list);
+-		__fib6_update_sernum_upto_root(rt, sernum);
++		__fib6_update_sernum_upto_root(rt, fib6_new_sernum(info->nl_net));
+ 		fib6_start_gc(info->nl_net, rt);
  	}
- 	up_read(&ctrl->namespaces_rwsem);
- 	return 0;
+ 
 -- 
 2.33.0
 
