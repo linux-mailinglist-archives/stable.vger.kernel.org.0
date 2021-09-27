@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70F53419B11
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DAB9419BF6
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:23:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236629AbhI0RPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:15:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55022 "EHLO mail.kernel.org"
+        id S236978AbhI0RYb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:24:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236250AbhI0RMi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:12:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 253436128A;
-        Mon, 27 Sep 2021 17:08:49 +0000 (UTC)
+        id S237163AbhI0RWD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:22:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55C196113D;
+        Mon, 27 Sep 2021 17:14:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762530;
-        bh=MbkHdspzcPTIe80Wb9E9CW+bEsiWvthVlZ37+Yg7yt4=;
+        s=korg; t=1632762841;
+        bh=VBMXl2HKuhmt9NC/nuRofxYnHDkRShkifbNE1Tp4fAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aryy3jzlaM9WzX485oAFzX2EiFugHwd25juELA1795FpMPSfSHjh/RrSWAGvF95wp
-         jyjOCTK7vPQYY8gzEt3sF9wsa4b/0k26C6zFv6L80k3ZUxz6uPuG5qa5UsEZQ6ykn8
-         4wPWK4AG2g/xBvmTMOSuq/JAFHmMGu7h+eDV8LwI=
+        b=Fmc2s1CJ9e2OBylCo8I2S0PPxy69rbaH1bwHKduDK4AzLJFDnSfklVLb25YS9VVW+
+         v3i55ZRhGMangC4Vejapu1lCV5tWbCnDXMbPOkkBQjds8wkeWIJUhR46B2CXI5savQ
+         NjNIPz0IaEUkAJgwWRXV0u3o7ffDOk4fB5Wktmug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Chris Chiu <chris.chiu@canonical.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Subject: [PATCH 5.10 026/103] xhci: Set HCD flag to defer primary roothub registration
+        stable@vger.kernel.org, Lino Sanfilippo <LinoSanfilippo@gmx.de>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 072/162] net: dsa: dont allocate the slave_mii_bus using devres
 Date:   Mon, 27 Sep 2021 19:01:58 +0200
-Message-Id: <20210927170226.635557357@linuxfoundation.org>
+Message-Id: <20210927170235.946627159@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +43,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit b7a0a792f864583207c593b50fd1b752ed89f4c1 upstream.
+[ Upstream commit 5135e96a3dd2f4555ae6981c3155a62bcf3227f6 ]
 
-Set "HCD_FLAG_DEFER_RH_REGISTER" to hcd->flags in xhci_run() to defer
-registering primary roothub in usb_add_hcd(). This will make sure both
-primary roothub and secondary roothub will be registered along with the
-second HCD. This is required for cold plugged USB devices to be detected
-in certain PCIe USB cards (like Inateck USB card connected to AM64 EVM
-or J7200 EVM).
+The Linux device model permits both the ->shutdown and ->remove driver
+methods to get called during a shutdown procedure. Example: a DSA switch
+which sits on an SPI bus, and the SPI bus driver calls this on its
+->shutdown method:
 
-CC: stable@vger.kernel.org # 5.4+
-Suggested-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Tested-by: Chris Chiu <chris.chiu@canonical.com>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Link: https://lore.kernel.org/r/20210909064200.16216-3-kishon@ti.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+spi_unregister_controller
+-> device_for_each_child(&ctlr->dev, NULL, __unregister);
+   -> spi_unregister_device(to_spi_device(dev));
+      -> device_del(&spi->dev);
+
+So this is a simple pattern which can theoretically appear on any bus,
+although the only other buses on which I've been able to find it are
+I2C:
+
+i2c_del_adapter
+-> device_for_each_child(&adap->dev, NULL, __unregister_client);
+   -> i2c_unregister_device(client);
+      -> device_unregister(&client->dev);
+
+The implication of this pattern is that devices on these buses can be
+unregistered after having been shut down. The drivers for these devices
+might choose to return early either from ->remove or ->shutdown if the
+other callback has already run once, and they might choose that the
+->shutdown method should only perform a subset of the teardown done by
+->remove (to avoid unnecessary delays when rebooting).
+
+So in other words, the device driver may choose on ->remove to not
+do anything (therefore to not unregister an MDIO bus it has registered
+on ->probe), because this ->remove is actually triggered by the
+device_shutdown path, and its ->shutdown method has already run and done
+the minimally required cleanup.
+
+This used to be fine until the blamed commit, but now, the following
+BUG_ON triggers:
+
+void mdiobus_free(struct mii_bus *bus)
+{
+	/* For compatibility with error handling in drivers. */
+	if (bus->state == MDIOBUS_ALLOCATED) {
+		kfree(bus);
+		return;
+	}
+
+	BUG_ON(bus->state != MDIOBUS_UNREGISTERED);
+	bus->state = MDIOBUS_RELEASED;
+
+	put_device(&bus->dev);
+}
+
+In other words, there is an attempt to free an MDIO bus which was not
+unregistered. The attempt to free it comes from the devres release
+callbacks of the SPI device, which are executed after the device is
+unregistered.
+
+I'm not saying that the fact that MDIO buses allocated using devres
+would automatically get unregistered wasn't strange. I'm just saying
+that the commit didn't care about auditing existing call paths in the
+kernel, and now, the following code sequences are potentially buggy:
+
+(a) devm_mdiobus_alloc followed by plain mdiobus_register, for a device
+    located on a bus that unregisters its children on shutdown. After
+    the blamed patch, either both the alloc and the register should use
+    devres, or none should.
+
+(b) devm_mdiobus_alloc followed by plain mdiobus_register, and then no
+    mdiobus_unregister at all in the remove path. After the blamed
+    patch, nobody unregisters the MDIO bus anymore, so this is even more
+    buggy than the previous case which needs a specific bus
+    configuration to be seen, this one is an unconditional bug.
+
+In this case, DSA falls into category (a), it tries to be helpful and
+registers an MDIO bus on behalf of the switch, which might be on such a
+bus. I've no idea why it does it under devres.
+
+It does this on probe:
+
+	if (!ds->slave_mii_bus && ds->ops->phy_read)
+		alloc and register mdio bus
+
+and this on remove:
+
+	if (ds->slave_mii_bus && ds->ops->phy_read)
+		unregister mdio bus
+
+I _could_ imagine using devres because the condition used on remove is
+different than the condition used on probe. So strictly speaking, DSA
+cannot determine whether the ds->slave_mii_bus it sees on remove is the
+ds->slave_mii_bus that _it_ has allocated on probe. Using devres would
+have solved that problem. But nonetheless, the existing code already
+proceeds to unregister the MDIO bus, even though it might be
+unregistering an MDIO bus it has never registered. So I can only guess
+that no driver that implements ds->ops->phy_read also allocates and
+registers ds->slave_mii_bus itself.
+
+So in that case, if unregistering is fine, freeing must be fine too.
+
+Stop using devres and free the MDIO bus manually. This will make devres
+stop attempting to free a still registered MDIO bus on ->shutdown.
+
+Fixes: ac3a68d56651 ("net: phy: don't abuse devres in devm_mdiobus_register()")
+Reported-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Tested-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/dsa/dsa2.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -693,6 +693,7 @@ int xhci_run(struct usb_hcd *hcd)
- 		if (ret)
- 			xhci_free_command(xhci, command);
- 	}
-+	set_bit(HCD_FLAG_DEFER_RH_REGISTER, &hcd->flags);
- 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
- 			"Finished xhci_run for USB2 roothub");
+diff --git a/net/dsa/dsa2.c b/net/dsa/dsa2.c
+index 383fdc0565c7..76ed5ef0e36a 100644
+--- a/net/dsa/dsa2.c
++++ b/net/dsa/dsa2.c
+@@ -792,7 +792,7 @@ static int dsa_switch_setup(struct dsa_switch *ds)
+ 	devlink_params_publish(ds->devlink);
  
+ 	if (!ds->slave_mii_bus && ds->ops->phy_read) {
+-		ds->slave_mii_bus = devm_mdiobus_alloc(ds->dev);
++		ds->slave_mii_bus = mdiobus_alloc();
+ 		if (!ds->slave_mii_bus) {
+ 			err = -ENOMEM;
+ 			goto teardown;
+@@ -802,13 +802,16 @@ static int dsa_switch_setup(struct dsa_switch *ds)
+ 
+ 		err = mdiobus_register(ds->slave_mii_bus);
+ 		if (err < 0)
+-			goto teardown;
++			goto free_slave_mii_bus;
+ 	}
+ 
+ 	ds->setup = true;
+ 
+ 	return 0;
+ 
++free_slave_mii_bus:
++	if (ds->slave_mii_bus && ds->ops->phy_read)
++		mdiobus_free(ds->slave_mii_bus);
+ teardown:
+ 	if (ds->ops->teardown)
+ 		ds->ops->teardown(ds);
+@@ -833,8 +836,11 @@ static void dsa_switch_teardown(struct dsa_switch *ds)
+ 	if (!ds->setup)
+ 		return;
+ 
+-	if (ds->slave_mii_bus && ds->ops->phy_read)
++	if (ds->slave_mii_bus && ds->ops->phy_read) {
+ 		mdiobus_unregister(ds->slave_mii_bus);
++		mdiobus_free(ds->slave_mii_bus);
++		ds->slave_mii_bus = NULL;
++	}
+ 
+ 	dsa_switch_unregister_notifier(ds);
+ 
+-- 
+2.33.0
+
 
 
