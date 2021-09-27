@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74D8D419C82
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D649419A6C
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:07:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237815AbhI0R3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:29:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41158 "EHLO mail.kernel.org"
+        id S236478AbhI0RJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:09:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236237AbhI0R1R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:27:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66C3861252;
-        Mon, 27 Sep 2021 17:16:51 +0000 (UTC)
+        id S236110AbhI0RHw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:07:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C41FC611F0;
+        Mon, 27 Sep 2021 17:06:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632763012;
-        bh=FmbXMo8+EuFBs50mH4feTIcSVV2JB4nHMNs6ihHAOto=;
+        s=korg; t=1632762373;
+        bh=xi95IEWQSZdZ1nRNe0fmKxA2/HNzYWWNPOdEgCniOxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lmg/eqBK0EJZtjTtklyWiVT7J/+Hw1ykSP8M50FJb9+HHnSePCHIK6b6DLkQ78KMP
-         HoColUPi5CanfmHMLthCEHhk+s57w91C4u5olOWIn7SPanyrnEJfEb3ME6mMd51QjM
-         XHXuLjqvLUpVSQxK+cNcv5rcGDUsjE5TBp/mk2lY=
+        b=zo95UljvxGwkJgcjpogfM0PHboNkkoz9pw/PiPBhvBo/dzgl3HdNfmJ1o+ubu516V
+         yykpjaXBgM0aeBwp7CkqB23DITTVrof5lxSeB5zaRg1T7DVYuM6FAJaGczMsx5tAIc
+         jKt09Ardlmsu4BpKVDQrsfXZpZVV2kK7/ie/onoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 135/162] compiler.h: Introduce absolute_pointer macro
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Antoine Tenart <atenart@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Srinivas Pandruvada <srinivas.pIandruvada@linux.intel.com>
+Subject: [PATCH 5.4 65/68] thermal/drivers/int340x: Do not set a wrong tcc offset on resume
 Date:   Mon, 27 Sep 2021 19:03:01 +0200
-Message-Id: <20210927170238.099106861@linuxfoundation.org>
+Message-Id: <20210927170222.218389250@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
-References: <20210927170233.453060397@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+References: <20210927170219.901812470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Antoine Tenart <atenart@kernel.org>
 
-[ Upstream commit f6b5f1a56987de837f8e25cd560847106b8632a8 ]
+commit 8b4bd256674720709a9d858a219fcac6f2f253b5 upstream.
 
-absolute_pointer() disassociates a pointer from its originating symbol
-type and context. Use it to prevent compiler warnings/errors such as
+After upgrading to Linux 5.13.3 I noticed my laptop would shutdown due
+to overheat (when it should not). It turned out this was due to commit
+fe6a6de6692e ("thermal/drivers/int340x/processor_thermal: Fix tcc setting").
 
-  drivers/net/ethernet/i825xx/82596.c: In function 'i82596_probe':
-  arch/m68k/include/asm/string.h:72:25: error:
-	'__builtin_memcpy' reading 6 bytes from a region of size 0 [-Werror=stringop-overread]
+What happens is this drivers uses a global variable to keep track of the
+tcc offset (tcc_offset_save) and uses it on resume. The issue is this
+variable is initialized to 0, but is only set in
+tcc_offset_degree_celsius_store, i.e. when the tcc offset is explicitly
+set by userspace. If that does not happen, the resume path will set the
+offset to 0 (in my case the h/w default being 3, the offset would become
+too low after a suspend/resume cycle).
 
-Such warnings may be reported by gcc 11.x for string and memory
-operations on fixed addresses.
+The issue did not arise before commit fe6a6de6692e, as the function
+setting the offset would return if the offset was 0. This is no longer
+the case (rightfully).
 
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by not applying the offset if it wasn't saved before, reverting
+back to the old logic. A better approach will come later, but this will
+be easier to apply to stable kernels.
+
+The logic to restore the offset after a resume was there long before
+commit fe6a6de6692e, but as a value of 0 was considered invalid I'm
+referencing the commit that made the issue possible in the Fixes tag
+instead.
+
+Fixes: fe6a6de6692e ("thermal/drivers/int340x/processor_thermal: Fix tcc setting")
+Cc: stable@vger.kernel.org
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Reviewed-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Tested-by: Srinivas Pandruvada <srinivas.pI andruvada@linux.intel.com>
+Link: https://lore.kernel.org/r/20210909085613.5577-2-atenart@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/compiler.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/thermal/intel/int340x_thermal/processor_thermal_device.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/compiler.h b/include/linux/compiler.h
-index b67261a1e3e9..3d5af56337bd 100644
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -188,6 +188,8 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
-     (typeof(ptr)) (__ptr + (off)); })
- #endif
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
+@@ -179,7 +179,7 @@ static int tcc_offset_update(unsigned in
+ 	return 0;
+ }
  
-+#define absolute_pointer(val)	RELOC_HIDE((void *)(val), 0)
-+
- #ifndef OPTIMIZER_HIDE_VAR
- /* Make the optimizer believe the variable can be manipulated arbitrarily. */
- #define OPTIMIZER_HIDE_VAR(var)						\
--- 
-2.33.0
-
+-static unsigned int tcc_offset_save;
++static int tcc_offset_save = -1;
+ 
+ static ssize_t tcc_offset_degree_celsius_store(struct device *dev,
+ 				struct device_attribute *attr, const char *buf,
+@@ -703,7 +703,8 @@ static int proc_thermal_resume(struct de
+ 	proc_dev = dev_get_drvdata(dev);
+ 	proc_thermal_read_ppcc(proc_dev);
+ 
+-	tcc_offset_update(tcc_offset_save);
++	if (tcc_offset_save >= 0)
++		tcc_offset_update(tcc_offset_save);
+ 
+ 	return 0;
+ }
 
 
