@@ -2,79 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E157419C73
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0A96419D72
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:49:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238063AbhI0R32 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:29:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41174 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236779AbhI0R1c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:27:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31A7F6140B;
-        Mon, 27 Sep 2021 17:16:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632763013;
-        bh=f/BEVjLTb49Z6TVWWDAkvRhydk7RaDnxPLSTajgJNYc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=sIlsM4lK4EkXw3AcZ+N6ayBYbjJvte7NeC3D2nnuHIMwY49LwN5+5zBwwT2mf6ecT
-         xA8MnpKcZkKOrMs3gCAvIFe5JiTHQgMUmsaDC44ZigYnP20i/UMwkSzItRxQd6Shr2
-         cgF58c+n0tzaRaEmm03//ltDP/U21LjZflSv/00snbCevfqVf5W1716noRXKvtNNj3
-         EZMGIPIQq7vxYnv6seq7QQ6EsDZH/hCPFWMYZHcrDoqRRaBI009FW/owgwB/V0awV8
-         MWHLGtb4B/wuvcaG7uUoW0iwy9IAW01w6yNt/K/A6Ooasyjf4lWy+ZqQInxt/pwhtd
-         i0vR2cZITu/+w==
-Date:   Mon, 27 Sep 2021 18:16:02 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.14 075/162] kselftest/arm64: signal: Add SVE to the set
- of features we can check for
-Message-ID: <20210927171602.GG4199@sirena.org.uk>
-References: <20210927170233.453060397@linuxfoundation.org>
- <20210927170236.052759270@linuxfoundation.org>
+        id S237570AbhI0Rvf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:51:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47880 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235880AbhI0Rva (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 13:51:30 -0400
+Received: from mail-oi1-x22a.google.com (mail-oi1-x22a.google.com [IPv6:2607:f8b0:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85211C061A54
+        for <stable@vger.kernel.org>; Mon, 27 Sep 2021 10:43:24 -0700 (PDT)
+Received: by mail-oi1-x22a.google.com with SMTP id x124so26562379oix.9
+        for <stable@vger.kernel.org>; Mon, 27 Sep 2021 10:43:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=/6PqtAuxAQF2+Mkx3dvUi6/5jAweBVPbOW1F3Gm5Qus=;
+        b=TK+OvSWcoa7k2LYKZKp7aonrPA+03c8GYlBHXgBm+hFkUnsmqIqL0SH6VcjDu5x1UY
+         Mte38H6aHi83/a1WV165YfBPG/uC9g3ZukGnvXayKwhfxl1Igh+A4fCpnRdozGRDwLS5
+         f2nY1qzNHmgBICDOuz7D9m8hJcZBbDk9p3UwbafNY6lv6GieiinUqewPMCoktSCbXnQc
+         /SV4/32i9Qd+OYm6n2weVGB7/Ev+vsc3IrhmtOlV3e8Ss1JWeGW1pG6Jbwm+yYa8yq9J
+         ykVPWPIZ0070MD9jqIIpi/4ArCDJqcC08luNmkdpwf+hFSqFGaVj4tqUrmSTAIcN8hod
+         2hrw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=/6PqtAuxAQF2+Mkx3dvUi6/5jAweBVPbOW1F3Gm5Qus=;
+        b=MUROXz+Qtoz7XeWUjyXeBVxk4/+77Q63bmdk4nMpCn1VXOKhoYqJkyh0lW12BAjzX+
+         EKGWbBjEqK5dcz9sCdrBcWmLHoEfx7fpOpFzY4q8TGQEYiklD7XX6/v327BHHKt7uKqu
+         PJYPo8/7mD2jn4aBebi291zqqvZtHV/bVEEoDKp7pG0QBXIpzUvv7wZZQ53Ssokxcsv2
+         CRFIGCvOVAsBnGEm3iYMrBenOSJ+ciUzs4KgAzyG7kpxWAoDcarENwrQ02E5cpcfAoH1
+         Re2rZYstDwR4PVFBsGfPR8tRj3B/miOuVbPMfWFWnA3+1A1Ea6EpYr8ZrS6Shke01rd8
+         kzrQ==
+X-Gm-Message-State: AOAM532f1H6YONj5dxzCIDNPzyb64umS9dqlY72yxwfoN6ZkmzITl4e4
+        HmFMmuey1wvzSOt2Xr9OeC7RWVa14Dmosk7YBQsNpQ==
+X-Google-Smtp-Source: ABdhPJw8Qgh0R3YF8UblgpBhaO4+VlkiynxF/BTrAxLvED9CTrftnAHjlziEtuo/EiYryFMZ9GhQPRk5XPhTQ8Z314s=
+X-Received: by 2002:a05:6808:1a11:: with SMTP id bk17mr269217oib.0.1632764603683;
+ Mon, 27 Sep 2021 10:43:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="vJguvTgX93MxBIIe"
-Content-Disposition: inline
-In-Reply-To: <20210927170236.052759270@linuxfoundation.org>
-X-Cookie: 98% lean.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 27 Sep 2021 23:13:12 +0530
+Message-ID: <CA+G9fYvJ0rqin3f+46dzrXEeGcP+s6iwsUdnHJiQr8qzkPEJFw@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/103] 5.10.70-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        wintera@linux.ibm.com
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, 27 Sept 2021 at 22:40, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.10.70 release.
+> There are 103 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 29 Sep 2021 17:02:05 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.70-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
---vJguvTgX93MxBIIe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Following commit caused the build failures on s390,
 
-On Mon, Sep 27, 2021 at 07:02:01PM +0200, Greg Kroah-Hartman wrote:
-> From: Mark Brown <broonie@kernel.org>
->=20
-> [ Upstream commit d4e4dc4fab686c5f3f185272a19b83930664bef5 ]
->=20
-> Allow testcases for SVE signal handling to flag the dependency and be
-> skipped on systems without SVE support.
 
-Unless you're backporting some test that makes use of this I'm not sure
-why this is stable material?
+> Alexandra Winter <wintera@linux.ibm.com>
+>     s390/qeth: fix deadlock during failing recovery
 
---vJguvTgX93MxBIIe
-Content-Type: application/pgp-signature; name="signature.asc"
+drivers/s390/net/qeth_core_main.c: In function 'qeth_close_dev_handler':
+drivers/s390/net/qeth_core_main.c:83:9: error: too few arguments to
+function 'ccwgroup_set_offline'
+   83 |         ccwgroup_set_offline(card->gdev);
+      |         ^~~~~~~~~~~~~~~~~~~~
+In file included from drivers/s390/net/qeth_core.h:44,
+                 from drivers/s390/net/qeth_core_main.c:46:
+arch/s390/include/asm/ccwgroup.h:61:5: note: declared here
+   61 | int ccwgroup_set_offline(struct ccwgroup_device *gdev, bool call_gdrv);
+      |     ^~~~~~~~~~~~~~~~~~~~
+make[3]: *** [scripts/Makefile.build:280:
+drivers/s390/net/qeth_core_main.o] Error 1
 
------BEGIN PGP SIGNATURE-----
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmFR/FIACgkQJNaLcl1U
-h9Be4Qf/RiMUSdDNsQDz597c+r5WftWviZyAJ+TdXKwLV4E68sxcJ/LywwZL8w9e
-qinCapGHMk5z0EsBkxzTxqFskoBP0Rm0Uub5LfHPO1Kj8pDrro8LI7UZIwYIystn
-h3wpj0cvT2RJEimnKTGxPG0+73iND8CipK62v8c6AAPrnWJ6ZRvi4n/EK7N4BWmo
-veheNhL/aV46cig+dzLHfih7oZGYHAdOTGrTHwFtY6dONI92GBofSrJ6OgAbju29
-n9ZeUB2kfwhT1qEWaIohadXi+oKCzx6rRxXZ6I0tcLnLWrZ1EQWysx/7gtVvbCoa
-IiwZpH14A3AkfQHi/5VmfIFP4ar5Tg==
-=Zrou
------END PGP SIGNATURE-----
-
---vJguvTgX93MxBIIe--
+-- 
+Linaro LKFT
+https://lkft.linaro.org
