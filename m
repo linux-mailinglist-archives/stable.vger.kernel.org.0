@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 262CE419B9C
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:19:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0397C419BBC
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:20:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235978AbhI0RUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:20:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35378 "EHLO mail.kernel.org"
+        id S237036AbhI0RVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:21:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237416AbhI0RS2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:18:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E24A6109F;
-        Mon, 27 Sep 2021 17:12:29 +0000 (UTC)
+        id S236997AbhI0RTr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:19:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4711F6120C;
+        Mon, 27 Sep 2021 17:12:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762749;
-        bh=HepcGExfzO9xHUUHU3nFG+8wOL1hfP8WA54LsRsilhk=;
+        s=korg; t=1632762779;
+        bh=9LRoE2px25O4HcnNQgzWjeuyz5NTiCYmeax5E52GbXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rTXMDFVUfvDqRdy6zQfU6gzHE0I4MrkBKC6233EJbrl3pCp2tJS2wxMf74JC5xohj
-         CajXIvvSRoGOtoDNjK5yafneBEPLOSofCgUX1I8MUMmZYgMtZ28erOvwzGQ82Vp19w
-         kRBC7UDvF8fJCvYl/wh/WAu2ILNYOF+yDVEwgWm8=
+        b=Bnj1Kq3M9T5sqEQwl/8t9OiFEpz2qrnTTxBwFSLj2D4gaFNj9KFmrESYJ4/1nK0ps
+         GGFt3cQYZoDK8Y9FL2HZuVFYw9C12qyRFAXNLmF8WeXg1YuVsF8jJJdtVH7V9Im5S9
+         bVJ42Q9OIBkeX32U3vHpob3I1HwR1xbI4sCdY7zM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.14 020/162] staging: greybus: uart: fix tty use after free
-Date:   Mon, 27 Sep 2021 19:01:06 +0200
-Message-Id: <20210927170234.152508085@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Rui Miguel Silva <rui.silva@linaro.org>
+Subject: [PATCH 5.14 021/162] usb: isp1760: do not sleep in field register poll
+Date:   Mon, 27 Sep 2021 19:01:07 +0200
+Message-Id: <20210927170234.192519990@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
 References: <20210927170233.453060397@linuxfoundation.org>
@@ -39,172 +39,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Rui Miguel Silva <rui.silva@linaro.org>
 
-commit 92dc0b1f46e12cfabd28d709bb34f7a39431b44f upstream.
+commit 41f673183862a183d4ea0522c045fabfbd1b28c8 upstream.
 
-User space can hold a tty open indefinitely and tty drivers must not
-release the underlying structures until the last user is gone.
+When polling for a setup or clear of a register field we were sleeping
+in atomic context but using a very tight sleep interval.
 
-Switch to using the tty-port reference counter to manage the life time
-of the greybus tty state to avoid use after free after a disconnect.
+Since the use cases for this poll mechanism are only in setup and
+stop paths, and in practice this poll is not used most of the times
+but needs to be there to comply to hardware setup times, remove the
+sleep time and make the poll loop tighter.
 
-Fixes: a18e15175708 ("greybus: more uart work")
-Cc: stable@vger.kernel.org      # 4.9
-Reviewed-by: Alex Elder <elder@linaro.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210906124538.22358-1-johan@kernel.org
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Rui Miguel Silva <rui.silva@linaro.org>
+Link: https://lore.kernel.org/r/20210727100516.4190681-3-rui.silva@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/greybus/uart.c |   62 +++++++++++++++++++++--------------------
- 1 file changed, 32 insertions(+), 30 deletions(-)
+ drivers/usb/isp1760/isp1760-hcd.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/greybus/uart.c
-+++ b/drivers/staging/greybus/uart.c
-@@ -761,6 +761,17 @@ out:
- 	gbphy_runtime_put_autosuspend(gb_tty->gbphy_dev);
+--- a/drivers/usb/isp1760/isp1760-hcd.c
++++ b/drivers/usb/isp1760/isp1760-hcd.c
+@@ -251,7 +251,7 @@ static int isp1760_hcd_set_and_wait(stru
+ 	isp1760_hcd_set(hcd, field);
+ 
+ 	return regmap_field_read_poll_timeout(priv->fields[field], val,
+-					      val, 10, timeout_us);
++					      val, 0, timeout_us);
  }
  
-+static void gb_tty_port_destruct(struct tty_port *port)
-+{
-+	struct gb_tty *gb_tty = container_of(port, struct gb_tty, port);
-+
-+	if (gb_tty->minor != GB_NUM_MINORS)
-+		release_minor(gb_tty);
-+	kfifo_free(&gb_tty->write_fifo);
-+	kfree(gb_tty->buffer);
-+	kfree(gb_tty);
-+}
-+
- static const struct tty_operations gb_ops = {
- 	.install =		gb_tty_install,
- 	.open =			gb_tty_open,
-@@ -786,6 +797,7 @@ static const struct tty_port_operations
- 	.dtr_rts =		gb_tty_dtr_rts,
- 	.activate =		gb_tty_port_activate,
- 	.shutdown =		gb_tty_port_shutdown,
-+	.destruct =		gb_tty_port_destruct,
- };
+ static int isp1760_hcd_set_and_wait_swap(struct usb_hcd *hcd, u32 field,
+@@ -263,7 +263,7 @@ static int isp1760_hcd_set_and_wait_swap
+ 	isp1760_hcd_set(hcd, field);
  
- static int gb_uart_probe(struct gbphy_device *gbphy_dev,
-@@ -798,17 +810,11 @@ static int gb_uart_probe(struct gbphy_de
- 	int retval;
- 	int minor;
- 
--	gb_tty = kzalloc(sizeof(*gb_tty), GFP_KERNEL);
--	if (!gb_tty)
--		return -ENOMEM;
--
- 	connection = gb_connection_create(gbphy_dev->bundle,
- 					  le16_to_cpu(gbphy_dev->cport_desc->id),
- 					  gb_uart_request_handler);
--	if (IS_ERR(connection)) {
--		retval = PTR_ERR(connection);
--		goto exit_tty_free;
--	}
-+	if (IS_ERR(connection))
-+		return PTR_ERR(connection);
- 
- 	max_payload = gb_operation_get_payload_size_max(connection);
- 	if (max_payload < sizeof(struct gb_uart_send_data_request)) {
-@@ -816,13 +822,23 @@ static int gb_uart_probe(struct gbphy_de
- 		goto exit_connection_destroy;
- 	}
- 
-+	gb_tty = kzalloc(sizeof(*gb_tty), GFP_KERNEL);
-+	if (!gb_tty) {
-+		retval = -ENOMEM;
-+		goto exit_connection_destroy;
-+	}
-+
-+	tty_port_init(&gb_tty->port);
-+	gb_tty->port.ops = &gb_port_ops;
-+	gb_tty->minor = GB_NUM_MINORS;
-+
- 	gb_tty->buffer_payload_max = max_payload -
- 			sizeof(struct gb_uart_send_data_request);
- 
- 	gb_tty->buffer = kzalloc(gb_tty->buffer_payload_max, GFP_KERNEL);
- 	if (!gb_tty->buffer) {
- 		retval = -ENOMEM;
--		goto exit_connection_destroy;
-+		goto exit_put_port;
- 	}
- 
- 	INIT_WORK(&gb_tty->tx_work, gb_uart_tx_write_work);
-@@ -830,7 +846,7 @@ static int gb_uart_probe(struct gbphy_de
- 	retval = kfifo_alloc(&gb_tty->write_fifo, GB_UART_WRITE_FIFO_SIZE,
- 			     GFP_KERNEL);
- 	if (retval)
--		goto exit_buf_free;
-+		goto exit_put_port;
- 
- 	gb_tty->credits = GB_UART_FIRMWARE_CREDITS;
- 	init_completion(&gb_tty->credits_complete);
-@@ -844,7 +860,7 @@ static int gb_uart_probe(struct gbphy_de
- 		} else {
- 			retval = minor;
- 		}
--		goto exit_kfifo_free;
-+		goto exit_put_port;
- 	}
- 
- 	gb_tty->minor = minor;
-@@ -853,9 +869,6 @@ static int gb_uart_probe(struct gbphy_de
- 	init_waitqueue_head(&gb_tty->wioctl);
- 	mutex_init(&gb_tty->mutex);
- 
--	tty_port_init(&gb_tty->port);
--	gb_tty->port.ops = &gb_port_ops;
--
- 	gb_tty->connection = connection;
- 	gb_tty->gbphy_dev = gbphy_dev;
- 	gb_connection_set_data(connection, gb_tty);
-@@ -863,7 +876,7 @@ static int gb_uart_probe(struct gbphy_de
- 
- 	retval = gb_connection_enable_tx(connection);
- 	if (retval)
--		goto exit_release_minor;
-+		goto exit_put_port;
- 
- 	send_control(gb_tty, gb_tty->ctrlout);
- 
-@@ -890,16 +903,10 @@ static int gb_uart_probe(struct gbphy_de
- 
- exit_connection_disable:
- 	gb_connection_disable(connection);
--exit_release_minor:
--	release_minor(gb_tty);
--exit_kfifo_free:
--	kfifo_free(&gb_tty->write_fifo);
--exit_buf_free:
--	kfree(gb_tty->buffer);
-+exit_put_port:
-+	tty_port_put(&gb_tty->port);
- exit_connection_destroy:
- 	gb_connection_destroy(connection);
--exit_tty_free:
--	kfree(gb_tty);
- 
- 	return retval;
- }
-@@ -930,15 +937,10 @@ static void gb_uart_remove(struct gbphy_
- 	gb_connection_disable_rx(connection);
- 	tty_unregister_device(gb_tty_driver, gb_tty->minor);
- 
--	/* FIXME - free transmit / receive buffers */
--
- 	gb_connection_disable(connection);
--	tty_port_destroy(&gb_tty->port);
- 	gb_connection_destroy(connection);
--	release_minor(gb_tty);
--	kfifo_free(&gb_tty->write_fifo);
--	kfree(gb_tty->buffer);
--	kfree(gb_tty);
-+
-+	tty_port_put(&gb_tty->port);
+ 	return regmap_field_read_poll_timeout(priv->fields[field], val,
+-					      !val, 10, timeout_us);
++					      !val, 0, timeout_us);
  }
  
- static int gb_tty_init(void)
+ static int isp1760_hcd_clear_and_wait(struct usb_hcd *hcd, u32 field,
+@@ -275,7 +275,7 @@ static int isp1760_hcd_clear_and_wait(st
+ 	isp1760_hcd_clear(hcd, field);
+ 
+ 	return regmap_field_read_poll_timeout(priv->fields[field], val,
+-					      !val, 10, timeout_us);
++					      !val, 0, timeout_us);
+ }
+ 
+ static bool isp1760_hcd_is_set(struct usb_hcd *hcd, u32 field)
 
 
