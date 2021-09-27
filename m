@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A52A419AA7
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:09:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F551419BC4
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:20:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236422AbhI0RKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:10:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48546 "EHLO mail.kernel.org"
+        id S237170AbhI0RWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:22:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236507AbhI0RJN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:09:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C5666120C;
-        Mon, 27 Sep 2021 17:07:12 +0000 (UTC)
+        id S236730AbhI0RUD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:20:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DE5561350;
+        Mon, 27 Sep 2021 17:13:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762433;
-        bh=7p7BTxAY4LdQdfc64WqD+BC4T1XXgJp16WkGugIKKsc=;
+        s=korg; t=1632762788;
+        bh=38tLrzU3GQyZ7yzIgAVqz3JfHZu5Qz1HzKMtAAOteP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yqLdaZHqes32XCgRIbhQPwS2btJs6jznJiYlKSXd8104A2kCqFj9AYWgrutrRF91W
-         lX2JWJ8VCvvioNt1YHA09Lj8hTv6gNlG5E+4c0qUDwmvVM+H8JL+HzrSc4d4MXG/kz
-         tsfVgioXKOROOF6PAbkSmJuGqVqK62BBn+fj1wY8=
+        b=HTYp4IPvu0ANneHbVUL8cd2UIw3MPgfRADXOlFtYWXSdzv1rGi3TRUvlaNC7I1kvH
+         y1/KLBUluLG2CX+xSXKf4xiexyic61zTkPmE7tHw+nwp4F0/Ug0A25GNARjv2kE8H9
+         Wljv032eWYhpC1+QpwhqIyvUzM+rbrSPf6qjrz4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Jun <chenjun102@huawei.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Feng Tang <feng.tang@intel.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Rui Xiang <rui.xiang@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 003/103] mm: fix uninitialized use in overcommit_policy_handler
-Date:   Mon, 27 Sep 2021 19:01:35 +0200
-Message-Id: <20210927170225.817580781@linuxfoundation.org>
+        stable@vger.kernel.org, Markus Suvanto <markus.suvanto@gmail.com>,
+        David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        linux-afs@lists.infradead.org, openafs-devel@openafs.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 050/162] afs: Fix corruption in reads at fpos 2G-4G from an OpenAFS server
+Date:   Mon, 27 Sep 2021 19:01:36 +0200
+Message-Id: <20210927170235.227425867@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +42,227 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Jun <chenjun102@huawei.com>
+From: David Howells <dhowells@redhat.com>
 
-commit bcbda81020c3ee77e2c098cadf3e84f99ca3de17 upstream.
+[ Upstream commit b537a3c21775075395af475dcc6ef212fcf29db8 ]
 
-We get an unexpected value of /proc/sys/vm/overcommit_memory after
-running the following program:
+AFS-3 has two data fetch RPC variants, FS.FetchData and FS.FetchData64, and
+Linux's afs client switches between them when talking to a non-YFS server
+if the read size, the file position or the sum of the two have the upper 32
+bits set of the 64-bit value.
 
-  int main()
-  {
-      int fd = open("/proc/sys/vm/overcommit_memory", O_RDWR);
-      write(fd, "1", 1);
-      write(fd, "2", 1);
-      close(fd);
-  }
+This is a problem, however, since the file position and length fields of
+FS.FetchData are *signed* 32-bit values.
 
-write(fd, "2", 1) will pass *ppos = 1 to proc_dointvec_minmax.
-proc_dointvec_minmax will return 0 without setting new_policy.
+Fix this by capturing the capability bits obtained from the fileserver when
+it's sent an FS.GetCapabilities RPC, rather than just discarding them, and
+then picking out the VICED_CAPABILITY_64BITFILES flag.  This can then be
+used to decide whether to use FS.FetchData or FS.FetchData64 - and also
+FS.StoreData or FS.StoreData64 - rather than using upper_32_bits() to
+switch on the parameter values.
 
-  t.data = &new_policy;
-  ret = proc_dointvec_minmax(&t, write, buffer, lenp, ppos)
-      -->do_proc_dointvec
-         -->__do_proc_dointvec
-              if (write) {
-                if (proc_first_pos_non_zero_ignore(ppos, table))
-                  goto out;
+This capabilities flag could also be used to limit the maximum size of the
+file, but all servers must be checked for that.
 
-  sysctl_overcommit_memory = new_policy;
+Note that the issue does not exist with FS.StoreData - that uses *unsigned*
+32-bit values.  It's also not a problem with Auristor servers as its
+YFS.FetchData64 op uses unsigned 64-bit values.
 
-so sysctl_overcommit_memory will be set to an uninitialized value.
+This can be tested by cloning a git repo through an OpenAFS client to an
+OpenAFS server and then doing "git status" on it from a Linux afs
+client[1].  Provided the clone has a pack file that's in the 2G-4G range,
+the git status will show errors like:
 
-Check whether new_policy has been changed by proc_dointvec_minmax.
+	error: packfile .git/objects/pack/pack-5e813c51d12b6847bbc0fcd97c2bca66da50079c.pack does not match index
+	error: packfile .git/objects/pack/pack-5e813c51d12b6847bbc0fcd97c2bca66da50079c.pack does not match index
 
-Link: https://lkml.kernel.org/r/20210923020524.13289-1-chenjun102@huawei.com
-Fixes: 56f3547bfa4d ("mm: adjust vm_committed_as_batch according to vm overcommit policy")
-Signed-off-by: Chen Jun <chenjun102@huawei.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Feng Tang <feng.tang@intel.com>
-Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Rui Xiang <rui.xiang@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This can be observed in the server's FileLog with something like the
+following appearing:
+
+Sun Aug 29 19:31:39 2021 SRXAFS_FetchData, Fid = 2303380852.491776.3263114, Host 192.168.11.201:7001, Id 1001
+Sun Aug 29 19:31:39 2021 CheckRights: len=0, for host=192.168.11.201:7001
+Sun Aug 29 19:31:39 2021 FetchData_RXStyle: Pos 18446744071815340032, Len 3154
+Sun Aug 29 19:31:39 2021 FetchData_RXStyle: file size 2400758866
+...
+Sun Aug 29 19:31:40 2021 SRXAFS_FetchData returns 5
+
+Note the file position of 18446744071815340032.  This is the requested file
+position sign-extended.
+
+Fixes: b9b1f8d5930a ("AFS: write support fixes")
+Reported-by: Markus Suvanto <markus.suvanto@gmail.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+Tested-by: Markus Suvanto <markus.suvanto@gmail.com>
+cc: linux-afs@lists.infradead.org
+cc: openafs-devel@openafs.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=214217#c9 [1]
+Link: https://lore.kernel.org/r/951332.1631308745@warthog.procyon.org.uk/
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/util.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/afs/fs_probe.c     |  8 +++++++-
+ fs/afs/fsclient.c     | 31 ++++++++++++++++++++-----------
+ fs/afs/internal.h     |  1 +
+ fs/afs/protocol_afs.h | 15 +++++++++++++++
+ fs/afs/protocol_yfs.h |  6 ++++++
+ 5 files changed, 49 insertions(+), 12 deletions(-)
+ create mode 100644 fs/afs/protocol_afs.h
 
---- a/mm/util.c
-+++ b/mm/util.c
-@@ -756,7 +756,7 @@ int overcommit_policy_handler(struct ctl
- 		size_t *lenp, loff_t *ppos)
- {
- 	struct ctl_table t;
--	int new_policy;
-+	int new_policy = -1;
- 	int ret;
+diff --git a/fs/afs/fs_probe.c b/fs/afs/fs_probe.c
+index e7e98ad63a91..c0031a3ab42f 100644
+--- a/fs/afs/fs_probe.c
++++ b/fs/afs/fs_probe.c
+@@ -9,6 +9,7 @@
+ #include <linux/slab.h>
+ #include "afs_fs.h"
+ #include "internal.h"
++#include "protocol_afs.h"
+ #include "protocol_yfs.h"
  
- 	/*
-@@ -774,7 +774,7 @@ int overcommit_policy_handler(struct ctl
- 		t = *table;
- 		t.data = &new_policy;
- 		ret = proc_dointvec_minmax(&t, write, buffer, lenp, ppos);
--		if (ret)
-+		if (ret || new_policy == -1)
+ static unsigned int afs_fs_probe_fast_poll_interval = 30 * HZ;
+@@ -102,7 +103,7 @@ void afs_fileserver_probe_result(struct afs_call *call)
+ 	struct afs_addr_list *alist = call->alist;
+ 	struct afs_server *server = call->server;
+ 	unsigned int index = call->addr_ix;
+-	unsigned int rtt_us = 0;
++	unsigned int rtt_us = 0, cap0;
+ 	int ret = call->error;
+ 
+ 	_enter("%pU,%u", &server->uuid, index);
+@@ -159,6 +160,11 @@ void afs_fileserver_probe_result(struct afs_call *call)
+ 			clear_bit(AFS_SERVER_FL_IS_YFS, &server->flags);
+ 			alist->addrs[index].srx_service = call->service_id;
+ 		}
++		cap0 = ntohl(call->tmp);
++		if (cap0 & AFS3_VICED_CAPABILITY_64BITFILES)
++			set_bit(AFS_SERVER_FL_HAS_FS64, &server->flags);
++		else
++			clear_bit(AFS_SERVER_FL_HAS_FS64, &server->flags);
+ 	}
+ 
+ 	if (rxrpc_kernel_get_srtt(call->net->socket, call->rxcall, &rtt_us) &&
+diff --git a/fs/afs/fsclient.c b/fs/afs/fsclient.c
+index dd3f45d906d2..4943413d9c5f 100644
+--- a/fs/afs/fsclient.c
++++ b/fs/afs/fsclient.c
+@@ -456,9 +456,7 @@ void afs_fs_fetch_data(struct afs_operation *op)
+ 	struct afs_read *req = op->fetch.req;
+ 	__be32 *bp;
+ 
+-	if (upper_32_bits(req->pos) ||
+-	    upper_32_bits(req->len) ||
+-	    upper_32_bits(req->pos + req->len))
++	if (test_bit(AFS_SERVER_FL_HAS_FS64, &op->server->flags))
+ 		return afs_fs_fetch_data64(op);
+ 
+ 	_enter("");
+@@ -1113,9 +1111,7 @@ void afs_fs_store_data(struct afs_operation *op)
+ 	       (unsigned long long)op->store.pos,
+ 	       (unsigned long long)op->store.i_size);
+ 
+-	if (upper_32_bits(op->store.pos) ||
+-	    upper_32_bits(op->store.size) ||
+-	    upper_32_bits(op->store.i_size))
++	if (test_bit(AFS_SERVER_FL_HAS_FS64, &op->server->flags))
+ 		return afs_fs_store_data64(op);
+ 
+ 	call = afs_alloc_flat_call(op->net, &afs_RXFSStoreData,
+@@ -1229,7 +1225,7 @@ static void afs_fs_setattr_size(struct afs_operation *op)
+ 	       key_serial(op->key), vp->fid.vid, vp->fid.vnode);
+ 
+ 	ASSERT(attr->ia_valid & ATTR_SIZE);
+-	if (upper_32_bits(attr->ia_size))
++	if (test_bit(AFS_SERVER_FL_HAS_FS64, &op->server->flags))
+ 		return afs_fs_setattr_size64(op);
+ 
+ 	call = afs_alloc_flat_call(op->net, &afs_RXFSStoreData_as_Status,
+@@ -1657,20 +1653,33 @@ static int afs_deliver_fs_get_capabilities(struct afs_call *call)
  			return ret;
  
- 		mm_compute_batch(new_policy);
+ 		count = ntohl(call->tmp);
+-
+ 		call->count = count;
+ 		call->count2 = count;
+-		afs_extract_discard(call, count * sizeof(__be32));
++		if (count == 0) {
++			call->unmarshall = 4;
++			call->tmp = 0;
++			break;
++		}
++
++		/* Extract the first word of the capabilities to call->tmp */
++		afs_extract_to_tmp(call);
+ 		call->unmarshall++;
+ 		fallthrough;
+ 
+-		/* Extract capabilities words */
+ 	case 2:
+ 		ret = afs_extract_data(call, false);
+ 		if (ret < 0)
+ 			return ret;
+ 
+-		/* TODO: Examine capabilities */
++		afs_extract_discard(call, (count - 1) * sizeof(__be32));
++		call->unmarshall++;
++		fallthrough;
++
++		/* Extract remaining capabilities words */
++	case 3:
++		ret = afs_extract_data(call, false);
++		if (ret < 0)
++			return ret;
+ 
+ 		call->unmarshall++;
+ 		break;
+diff --git a/fs/afs/internal.h b/fs/afs/internal.h
+index 5ed416f4ff33..928408888054 100644
+--- a/fs/afs/internal.h
++++ b/fs/afs/internal.h
+@@ -516,6 +516,7 @@ struct afs_server {
+ #define AFS_SERVER_FL_IS_YFS	16		/* Server is YFS not AFS */
+ #define AFS_SERVER_FL_NO_IBULK	17		/* Fileserver doesn't support FS.InlineBulkStatus */
+ #define AFS_SERVER_FL_NO_RM2	18		/* Fileserver doesn't support YFS.RemoveFile2 */
++#define AFS_SERVER_FL_HAS_FS64	19		/* Fileserver supports FS.{Fetch,Store}Data64 */
+ 	atomic_t		ref;		/* Object refcount */
+ 	atomic_t		active;		/* Active user count */
+ 	u32			addr_version;	/* Address list version */
+diff --git a/fs/afs/protocol_afs.h b/fs/afs/protocol_afs.h
+new file mode 100644
+index 000000000000..0c39358c8b70
+--- /dev/null
++++ b/fs/afs/protocol_afs.h
+@@ -0,0 +1,15 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/* AFS protocol bits
++ *
++ * Copyright (C) 2021 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ */
++
++
++#define AFSCAPABILITIESMAX 196 /* Maximum number of words in a capability set */
++
++/* AFS3 Fileserver capabilities word 0 */
++#define AFS3_VICED_CAPABILITY_ERRORTRANS	0x0001 /* Uses UAE errors */
++#define AFS3_VICED_CAPABILITY_64BITFILES	0x0002 /* FetchData64 & StoreData64 supported */
++#define AFS3_VICED_CAPABILITY_WRITELOCKACL	0x0004 /* Can lock a file even without lock perm */
++#define AFS3_VICED_CAPABILITY_SANEACLS		0x0008 /* ACLs reviewed for sanity - don't use */
+diff --git a/fs/afs/protocol_yfs.h b/fs/afs/protocol_yfs.h
+index b5bd03b1d3c7..e4cd89c44c46 100644
+--- a/fs/afs/protocol_yfs.h
++++ b/fs/afs/protocol_yfs.h
+@@ -168,3 +168,9 @@ enum yfs_lock_type {
+ 	yfs_LockMandatoryWrite	= 0x101,
+ 	yfs_LockMandatoryExtend	= 0x102,
+ };
++
++/* RXYFS Viced Capability Flags */
++#define YFS_VICED_CAPABILITY_ERRORTRANS		0x0001 /* Deprecated v0.195 */
++#define YFS_VICED_CAPABILITY_64BITFILES		0x0002 /* Deprecated v0.195 */
++#define YFS_VICED_CAPABILITY_WRITELOCKACL	0x0004 /* Can lock a file even without lock perm */
++#define YFS_VICED_CAPABILITY_SANEACLS		0x0008 /* Deprecated v0.195 */
+-- 
+2.33.0
+
 
 
