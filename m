@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBAB4419AE6
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:13:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EDF3419C7B
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:28:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236200AbhI0ROh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:14:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47542 "EHLO mail.kernel.org"
+        id S237870AbhI0R3h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:29:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235903AbhI0RLq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:11:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8454D61260;
-        Mon, 27 Sep 2021 17:08:24 +0000 (UTC)
+        id S237427AbhI0R0I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:26:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66C4E61206;
+        Mon, 27 Sep 2021 17:16:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762505;
-        bh=gbg0rutphFkZs8yPTvbw04awPgPi4s4f/mRCFXZpLXo=;
+        s=korg; t=1632762988;
+        bh=B48P/sPxW9NjwsFSkLfkNOm8f7MVUR9FPhIKEmz7z2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DqntMWexF5Bu8WpCq5Xx+XhwIxjJzgcR3YQnVasEsv/AntCPEsh1AWp5YGn+jn2Sj
-         pRpNZxySLG3gQf247scIWTPFvit2wtYcU1MaIZcXvivq506MKOj5meWesNSnvdQibO
-         qPlyzfFORDP4f9omLqNkMOkvTfM0XfYSghV2amJI=
+        b=S8NDHJWyIy3Ho5LwXpgAYey9ksQ0gEbu9Oo5kEvtyXHxK3c3G1pKKqXLSIG8na6R2
+         1386/ELUiT0pvoOYnnU19gcqWv17yaKJB84Y+HxFyX/Q9aJbZQ8ezrTCmcjMwSclmE
+         +DC/f6T8opaCEy6Vv/HZeTTpkwOHSR/D3IXAE73U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandra Winter <wintera@linux.ibm.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Paul Fulghum <paulkf@microgate.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 048/103] s390/qeth: fix deadlock during failing recovery
+Subject: [PATCH 5.14 094/162] tty: synclink_gt: rename a conflicting function name
 Date:   Mon, 27 Sep 2021 19:02:20 +0200
-Message-Id: <20210927170227.414776158@linuxfoundation.org>
+Message-Id: <20210927170236.686619248@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-References: <20210927170225.702078779@linuxfoundation.org>
+In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
+References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,105 +41,230 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandra Winter <wintera@linux.ibm.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit d2b59bd4b06d84a4eadb520b0f71c62fe8ec0a62 ]
+[ Upstream commit 06e49073dfba24df4b1073a068631b13a0039c34 ]
 
-Commit 0b9902c1fcc5 ("s390/qeth: fix deadlock during recovery") removed
-taking discipline_mutex inside qeth_do_reset(), fixing potential
-deadlocks. An error path was missed though, that still takes
-discipline_mutex and thus has the original deadlock potential.
+'set_signals()' in synclink_gt.c conflicts with an exported symbol
+in arch/um/, so change set_signals() to set_gtsignals(). Keep
+the function names similar by also changing get_signals() to
+get_gtsignals().
 
-Intermittent deadlocks were seen when a qeth channel path is configured
-offline, causing a race between qeth_do_reset and ccwgroup_remove.
-Call qeth_set_offline() directly in the qeth_do_reset() error case and
-then a new variant of ccwgroup_set_offline(), without taking
-discipline_mutex.
+../drivers/tty/synclink_gt.c:442:13: error: conflicting types for ‘set_signals’
+ static void set_signals(struct slgt_info *info);
+             ^~~~~~~~~~~
+In file included from ../include/linux/irqflags.h:16:0,
+                 from ../include/linux/spinlock.h:58,
+                 from ../include/linux/mm_types.h:9,
+                 from ../include/linux/buildid.h:5,
+                 from ../include/linux/module.h:14,
+                 from ../drivers/tty/synclink_gt.c:46:
+../arch/um/include/asm/irqflags.h:6:5: note: previous declaration of ‘set_signals’ was here
+ int set_signals(int enable);
+     ^~~~~~~~~~~
 
-Fixes: b41b554c1ee7 ("s390/qeth: fix locking for discipline setup / removal")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 705b6c7b34f2 ("[PATCH] new driver synclink_gt")
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Cc: Paul Fulghum <paulkf@microgate.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20210902003806.17054-1-rdunlap@infradead.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/ccwgroup.h  |  2 +-
- drivers/s390/cio/ccwgroup.c       | 10 ++++++++--
- drivers/s390/net/qeth_core_main.c |  3 ++-
- 3 files changed, 11 insertions(+), 4 deletions(-)
+ drivers/tty/synclink_gt.c | 44 +++++++++++++++++++--------------------
+ 1 file changed, 22 insertions(+), 22 deletions(-)
 
-diff --git a/arch/s390/include/asm/ccwgroup.h b/arch/s390/include/asm/ccwgroup.h
-index ad3acb1e882b..8a22da9a735a 100644
---- a/arch/s390/include/asm/ccwgroup.h
-+++ b/arch/s390/include/asm/ccwgroup.h
-@@ -58,7 +58,7 @@ struct ccwgroup_device *get_ccwgroupdev_by_busid(struct ccwgroup_driver *gdrv,
- 						 char *bus_id);
+diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
+index 5bb928b7873e..2f5fbd7db7ca 100644
+--- a/drivers/tty/synclink_gt.c
++++ b/drivers/tty/synclink_gt.c
+@@ -438,8 +438,8 @@ static void reset_tbufs(struct slgt_info *info);
+ static void tdma_reset(struct slgt_info *info);
+ static bool tx_load(struct slgt_info *info, const char *buf, unsigned int count);
  
- extern int ccwgroup_set_online(struct ccwgroup_device *gdev);
--extern int ccwgroup_set_offline(struct ccwgroup_device *gdev);
-+int ccwgroup_set_offline(struct ccwgroup_device *gdev, bool call_gdrv);
+-static void get_signals(struct slgt_info *info);
+-static void set_signals(struct slgt_info *info);
++static void get_gtsignals(struct slgt_info *info);
++static void set_gtsignals(struct slgt_info *info);
+ static void set_rate(struct slgt_info *info, u32 data_rate);
  
- extern int ccwgroup_probe_ccwdev(struct ccw_device *cdev);
- extern void ccwgroup_remove_ccwdev(struct ccw_device *cdev);
-diff --git a/drivers/s390/cio/ccwgroup.c b/drivers/s390/cio/ccwgroup.c
-index 483a9ecfcbb1..cfdc1c7825d0 100644
---- a/drivers/s390/cio/ccwgroup.c
-+++ b/drivers/s390/cio/ccwgroup.c
-@@ -98,12 +98,13 @@ EXPORT_SYMBOL(ccwgroup_set_online);
- /**
-  * ccwgroup_set_offline() - disable a ccwgroup device
-  * @gdev: target ccwgroup device
-+ * @call_gdrv: Call the registered gdrv set_offline function
-  *
-  * This function attempts to put the ccwgroup device into the offline state.
-  * Returns:
-  *  %0 on success and a negative error value on failure.
-  */
--int ccwgroup_set_offline(struct ccwgroup_device *gdev)
-+int ccwgroup_set_offline(struct ccwgroup_device *gdev, bool call_gdrv)
- {
- 	struct ccwgroup_driver *gdrv = to_ccwgroupdrv(gdev->dev.driver);
- 	int ret = -EINVAL;
-@@ -112,11 +113,16 @@ int ccwgroup_set_offline(struct ccwgroup_device *gdev)
- 		return -EAGAIN;
- 	if (gdev->state == CCWGROUP_OFFLINE)
- 		goto out;
-+	if (!call_gdrv) {
-+		ret = 0;
-+		goto offline;
-+	}
- 	if (gdrv->set_offline)
- 		ret = gdrv->set_offline(gdev);
- 	if (ret)
- 		goto out;
- 
-+offline:
- 	gdev->state = CCWGROUP_OFFLINE;
- out:
- 	atomic_set(&gdev->onoff, 0);
-@@ -145,7 +151,7 @@ static ssize_t ccwgroup_online_store(struct device *dev,
- 	if (value == 1)
- 		ret = ccwgroup_set_online(gdev);
- 	else if (value == 0)
--		ret = ccwgroup_set_offline(gdev);
-+		ret = ccwgroup_set_offline(gdev, true);
- 	else
- 		ret = -EINVAL;
- out:
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 7b0155b0e99e..15477bfb5bd8 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -5406,7 +5406,8 @@ static int qeth_do_reset(void *data)
- 		dev_info(&card->gdev->dev,
- 			 "Device successfully recovered!\n");
- 	} else {
--		ccwgroup_set_offline(card->gdev);
-+		qeth_set_offline(card, disc, true);
-+		ccwgroup_set_offline(card->gdev, false);
- 		dev_warn(&card->gdev->dev,
- 			 "The qeth device driver failed to recover an error on the device\n");
+ static void bh_transmit(struct slgt_info *info);
+@@ -720,7 +720,7 @@ static void set_termios(struct tty_struct *tty, struct ktermios *old_termios)
+ 	if ((old_termios->c_cflag & CBAUD) && !C_BAUD(tty)) {
+ 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+ 		spin_lock_irqsave(&info->lock,flags);
+-		set_signals(info);
++		set_gtsignals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
  	}
+ 
+@@ -730,7 +730,7 @@ static void set_termios(struct tty_struct *tty, struct ktermios *old_termios)
+ 		if (!C_CRTSCTS(tty) || !tty_throttled(tty))
+ 			info->signals |= SerialSignal_RTS;
+ 		spin_lock_irqsave(&info->lock,flags);
+-	 	set_signals(info);
++	 	set_gtsignals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
+ 	}
+ 
+@@ -1181,7 +1181,7 @@ static inline void line_info(struct seq_file *m, struct slgt_info *info)
+ 
+ 	/* output current serial signal states */
+ 	spin_lock_irqsave(&info->lock,flags);
+-	get_signals(info);
++	get_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 
+ 	stat_buf[0] = 0;
+@@ -1281,7 +1281,7 @@ static void throttle(struct tty_struct * tty)
+ 	if (C_CRTSCTS(tty)) {
+ 		spin_lock_irqsave(&info->lock,flags);
+ 		info->signals &= ~SerialSignal_RTS;
+-		set_signals(info);
++		set_gtsignals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
+ 	}
+ }
+@@ -1306,7 +1306,7 @@ static void unthrottle(struct tty_struct * tty)
+ 	if (C_CRTSCTS(tty)) {
+ 		spin_lock_irqsave(&info->lock,flags);
+ 		info->signals |= SerialSignal_RTS;
+-		set_signals(info);
++		set_gtsignals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
+ 	}
+ }
+@@ -1477,7 +1477,7 @@ static int hdlcdev_open(struct net_device *dev)
+ 
+ 	/* inform generic HDLC layer of current DCD status */
+ 	spin_lock_irqsave(&info->lock, flags);
+-	get_signals(info);
++	get_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock, flags);
+ 	if (info->signals & SerialSignal_DCD)
+ 		netif_carrier_on(dev);
+@@ -2232,7 +2232,7 @@ static void isr_txeom(struct slgt_info *info, unsigned short status)
+ 		if (info->params.mode != MGSL_MODE_ASYNC && info->drop_rts_on_tx_done) {
+ 			info->signals &= ~SerialSignal_RTS;
+ 			info->drop_rts_on_tx_done = false;
+-			set_signals(info);
++			set_gtsignals(info);
+ 		}
+ 
+ #if SYNCLINK_GENERIC_HDLC
+@@ -2397,7 +2397,7 @@ static void shutdown(struct slgt_info *info)
+ 
+  	if (!info->port.tty || info->port.tty->termios.c_cflag & HUPCL) {
+ 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+-		set_signals(info);
++		set_gtsignals(info);
+ 	}
+ 
+ 	flush_cond_wait(&info->gpio_wait_q);
+@@ -2425,7 +2425,7 @@ static void program_hw(struct slgt_info *info)
+ 	else
+ 		async_mode(info);
+ 
+-	set_signals(info);
++	set_gtsignals(info);
+ 
+ 	info->dcd_chkcount = 0;
+ 	info->cts_chkcount = 0;
+@@ -2433,7 +2433,7 @@ static void program_hw(struct slgt_info *info)
+ 	info->dsr_chkcount = 0;
+ 
+ 	slgt_irq_on(info, IRQ_DCD | IRQ_CTS | IRQ_DSR | IRQ_RI);
+-	get_signals(info);
++	get_gtsignals(info);
+ 
+ 	if (info->netcount ||
+ 	    (info->port.tty && info->port.tty->termios.c_cflag & CREAD))
+@@ -2670,7 +2670,7 @@ static int wait_mgsl_event(struct slgt_info *info, int __user *mask_ptr)
+ 	spin_lock_irqsave(&info->lock,flags);
+ 
+ 	/* return immediately if state matches requested events */
+-	get_signals(info);
++	get_gtsignals(info);
+ 	s = info->signals;
+ 
+ 	events = mask &
+@@ -3088,7 +3088,7 @@ static int tiocmget(struct tty_struct *tty)
+  	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&info->lock,flags);
+- 	get_signals(info);
++ 	get_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 
+ 	result = ((info->signals & SerialSignal_RTS) ? TIOCM_RTS:0) +
+@@ -3127,7 +3127,7 @@ static int tiocmset(struct tty_struct *tty,
+ 		info->signals &= ~SerialSignal_DTR;
+ 
+ 	spin_lock_irqsave(&info->lock,flags);
+-	set_signals(info);
++	set_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 	return 0;
+ }
+@@ -3138,7 +3138,7 @@ static int carrier_raised(struct tty_port *port)
+ 	struct slgt_info *info = container_of(port, struct slgt_info, port);
+ 
+ 	spin_lock_irqsave(&info->lock,flags);
+-	get_signals(info);
++	get_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 	return (info->signals & SerialSignal_DCD) ? 1 : 0;
+ }
+@@ -3153,7 +3153,7 @@ static void dtr_rts(struct tty_port *port, int on)
+ 		info->signals |= SerialSignal_RTS | SerialSignal_DTR;
+ 	else
+ 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+-	set_signals(info);
++	set_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ }
+ 
+@@ -3951,10 +3951,10 @@ static void tx_start(struct slgt_info *info)
+ 
+ 		if (info->params.mode != MGSL_MODE_ASYNC) {
+ 			if (info->params.flags & HDLC_FLAG_AUTO_RTS) {
+-				get_signals(info);
++				get_gtsignals(info);
+ 				if (!(info->signals & SerialSignal_RTS)) {
+ 					info->signals |= SerialSignal_RTS;
+-					set_signals(info);
++					set_gtsignals(info);
+ 					info->drop_rts_on_tx_done = true;
+ 				}
+ 			}
+@@ -4008,7 +4008,7 @@ static void reset_port(struct slgt_info *info)
+ 	rx_stop(info);
+ 
+ 	info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+-	set_signals(info);
++	set_gtsignals(info);
+ 
+ 	slgt_irq_off(info, IRQ_ALL | IRQ_MASTER);
+ }
+@@ -4430,7 +4430,7 @@ static void tx_set_idle(struct slgt_info *info)
+ /*
+  * get state of V24 status (input) signals
+  */
+-static void get_signals(struct slgt_info *info)
++static void get_gtsignals(struct slgt_info *info)
+ {
+ 	unsigned short status = rd_reg16(info, SSR);
+ 
+@@ -4492,7 +4492,7 @@ static void msc_set_vcr(struct slgt_info *info)
+ /*
+  * set state of V24 control (output) signals
+  */
+-static void set_signals(struct slgt_info *info)
++static void set_gtsignals(struct slgt_info *info)
+ {
+ 	unsigned char val = rd_reg8(info, VCR);
+ 	if (info->signals & SerialSignal_DTR)
 -- 
 2.33.0
 
