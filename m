@@ -2,66 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04FF341A10D
+	by mail.lfdr.de (Postfix) with ESMTP id 4EE9F41A10E
 	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 23:03:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237257AbhI0VFB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237276AbhI0VFB (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 27 Sep 2021 17:05:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37716 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237307AbhI0VEy (ORCPT
+        with ESMTP id S237256AbhI0VEy (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 17:04:54 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8B23C061775;
-        Mon, 27 Sep 2021 14:03:14 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id y1so12633149plk.10;
-        Mon, 27 Sep 2021 14:03:14 -0700 (PDT)
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68A54C06176E;
+        Mon, 27 Sep 2021 14:03:16 -0700 (PDT)
+Received: by mail-pf1-x436.google.com with SMTP id w19so16996333pfn.12;
+        Mon, 27 Sep 2021 14:03:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=GJQog8q1yaUP19SPqG/dWz+OpJq/0eCUCcPMO7ecCI8=;
-        b=OtcjgayUyf2+X6LYcQZNEHHPCXSTo2IIzFUI6aXxaRldsevkNqhvil8oJlgKeZaycO
-         1VMm2vWpCDj4Es6LqBpyNs3aw8vtqB5UqOQ1nafSogrnuoO2IJcv0w8qooEBgxNdY/Jy
-         VBXE4uFfx7TFPr3VDOjDoxLCykQibuedZ5OWWvmP7gR5ZM/4cXppx6ea4lvp1aUpwoFd
-         LAIZJjc6EhyUSDZX1+XwkH0ulEYn2r3XqRaT+bnPLf4s4AuFmPszOD/G1yWyaDO7Szg4
-         Vx0uW0wzSz4NHii/t03dEG12doE+Vo8RcgXRLlXIC6BwH+LqlZx5tM/zecdP3XHhCWYo
-         fdqg==
+        bh=ETleUGqj8okouLW+8qnjHS0760cK4CL53iB0k0eC4GY=;
+        b=BhgIhf3pF0/fF3D7M8SD1R2rSyzbVDt92gPENJBRZwq/gewYzqA44On2xUvcprSFYN
+         XlVrTpYAArnwmAmi5q1FZpLffouCAr0wYVD7hhEprcOiQEgIitS7DWcahrZT5Q2JX16Z
+         0TCweoONmXgJlN/l0rx1KWuLBvAHKcdjRj1WXKo2BSQr4d8hIg91cdDC5rMzRaAdy7O7
+         tNczDAAC2BsVD2OrgEOwWfyUCntqUbYRpeg+fKc+PaVAe8hEMsX1YGBJRtMEvPO4m5UG
+         +cRDVgWMlxWtRQB58F+MulTTSkWxN0ancNDlIAvPa7ySpc/BW0rgZjLOh3hJfHuY0zD8
+         eFmw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=GJQog8q1yaUP19SPqG/dWz+OpJq/0eCUCcPMO7ecCI8=;
-        b=flxjqNa3SN/uSXgKS5BHniwoNduzZvCpqBoCRWTHlDZN23kDI8BrnLtIBepCa829sV
-         qU1ffdyrb2eUIWhmImVnPVCJmiUzlEeX/zosWtY25bcTLBuPY0H30GeZjsW008XbpLDX
-         uO0V44jddtG5c/H6J7D/tHodtdV5qTLocvQPYRxgcC9xVrLHX0eBeEwF0ulyjC2yzo19
-         p5zASPSFEGCC9gFGNeUYDvtJm5h9X0vdLFbyZ/vv4gF/go74cB0aXgw/GpU0Ey7LZQ9b
-         v4psY6/Sj9Tlsf0dBqQXh0LEAaE7jxNvhCDwOfa2YCd6WBhlBg6WaukYij/JInHiw372
-         1HGQ==
-X-Gm-Message-State: AOAM5332YRhwxBodutPmEVWJkwPzewJ2hnI6TDX3ebODJ9rShJi74Njv
-        iQBprXD1Qq3hNxUP3mAGByX1PDr0rlU=
-X-Google-Smtp-Source: ABdhPJwD4btqjdgdfYNi98WDdLhvxD0vGApa9hSVKqv5+tpnumXW/q1v2wJPuvFRD4f/klDNS5kA6g==
-X-Received: by 2002:a17:90b:3143:: with SMTP id ip3mr1303996pjb.50.1632776593857;
-        Mon, 27 Sep 2021 14:03:13 -0700 (PDT)
+        bh=ETleUGqj8okouLW+8qnjHS0760cK4CL53iB0k0eC4GY=;
+        b=aqor6bvDP8Rq5c3xh1oDbWBxbSZeBDXDiPIyXgSCY+Fr4H1vVnmtDK8r4XJNctPp+9
+         GMXHGYs0rb4lKX6d/cMV1zhyXZ1TWQv+3mUt0HJeVIcE1eYdTBbWybNL3rjLlPnqaqvX
+         cHfEVPg+mqJXJOOo0QMX7jGfVCui+xu8dTn9qoFJzwWmg4ItxyMHrQiD/I+Z5K4HutoN
+         Hiea8QRNhgAXXxvHXzUUXrpEczG5DC3bM540gk3k9vfle8t3Df+hNHH+ul+kKDECI10H
+         96e3DSYqvTWX2vdYHjR/0hiFgdTTRqXs3Yf9sLenPt8NfL34jTq+7SPDEMym/8NXR518
+         zwGQ==
+X-Gm-Message-State: AOAM532H7vVP84dj0SyX+xDVCaYnioLZZtHEYueLajS/YL71AgibAOsE
+        KQhqbPjNNLhnfttWDJUbV/wIciw3Up0=
+X-Google-Smtp-Source: ABdhPJxhcTA/oRZRlsyJvsgZ532edZsaP37vj4aJ1ceyJqTiY60SD7F5OAJw7bmpEg869ihGkD8A1w==
+X-Received: by 2002:aa7:82d0:0:b0:413:5e93:2f7a with SMTP id f16-20020aa782d0000000b004135e932f7amr1938782pfn.16.1632776595564;
+        Mon, 27 Sep 2021 14:03:15 -0700 (PDT)
 Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id o16sm19227652pgv.29.2021.09.27.14.03.12
+        by smtp.gmail.com with ESMTPSA id o16sm19227652pgv.29.2021.09.27.14.03.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Sep 2021 14:03:13 -0700 (PDT)
+        Mon, 27 Sep 2021 14:03:14 -0700 (PDT)
 From:   Florian Fainelli <f.fainelli@gmail.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     stable@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>,
         Alex Sverdlin <alexander.sverdlin@nokia.com>,
+        kernel test robot <lkp@intel.com>,
         Russell King <rmk+kernel@armlinux.org.uk>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Steven Rostedt <rostedt@goodmis.org>,
         Ingo Molnar <mingo@redhat.com>,
         Russell King <linux@armlinux.org.uk>,
         linux-arm-kernel@lists.infradead.org (moderated list:ARM PORT)
-Subject: [PATCH stable 4.14 v3 3/4] ARM: 9079/1: ftrace: Add MODULE_PLTS support
-Date:   Mon, 27 Sep 2021 14:02:58 -0700
-Message-Id: <20210927210259.3216965-4-f.fainelli@gmail.com>
+Subject: [PATCH stable 4.14 v3 4/4] ARM: 9098/1: ftrace: MODULE_PLT: Fix build problem without DYNAMIC_FTRACE
+Date:   Mon, 27 Sep 2021 14:02:59 -0700
+Message-Id: <20210927210259.3216965-5-f.fainelli@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210927210259.3216965-1-f.fainelli@gmail.com>
 References: <20210927210259.3216965-1-f.fainelli@gmail.com>
@@ -73,298 +74,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alex Sverdlin <alexander.sverdlin@nokia.com>
 
-commit 79f32b221b18c15a98507b101ef4beb52444cc6f upstream
+commit 6fa630bf473827aee48cbf0efbbdf6f03134e890 upstream
 
-Teach ftrace_make_call() and ftrace_make_nop() about PLTs.
-Teach PLT code about FTRACE and all its callbacks.
-Otherwise the following might happen:
+FTRACE_ADDR is only defined when CONFIG_DYNAMIC_FTRACE is defined, the
+latter is even stronger requirement than CONFIG_FUNCTION_TRACER (which is
+enough for MCOUNT_ADDR).
 
-------------[ cut here ]------------
-WARNING: CPU: 14 PID: 2265 at .../arch/arm/kernel/insn.c:14 __arm_gen_branch+0x83/0x8c()
-...
-Hardware name: LSI Axxia AXM55XX
-[<c0314a49>] (unwind_backtrace) from [<c03115e9>] (show_stack+0x11/0x14)
-[<c03115e9>] (show_stack) from [<c0519f51>] (dump_stack+0x81/0xa8)
-[<c0519f51>] (dump_stack) from [<c032185d>] (warn_slowpath_common+0x69/0x90)
-[<c032185d>] (warn_slowpath_common) from [<c03218f3>] (warn_slowpath_null+0x17/0x1c)
-[<c03218f3>] (warn_slowpath_null) from [<c03143cf>] (__arm_gen_branch+0x83/0x8c)
-[<c03143cf>] (__arm_gen_branch) from [<c0314337>] (ftrace_make_nop+0xf/0x24)
-[<c0314337>] (ftrace_make_nop) from [<c038ebcb>] (ftrace_process_locs+0x27b/0x3e8)
-[<c038ebcb>] (ftrace_process_locs) from [<c0378d79>] (load_module+0x11e9/0x1a44)
-[<c0378d79>] (load_module) from [<c037974d>] (SyS_finit_module+0x59/0x84)
-[<c037974d>] (SyS_finit_module) from [<c030e981>] (ret_fast_syscall+0x1/0x18)
----[ end trace e1b64ced7a89adcc ]---
-------------[ cut here ]------------
-WARNING: CPU: 14 PID: 2265 at .../kernel/trace/ftrace.c:1979 ftrace_bug+0x1b1/0x234()
-...
-Hardware name: LSI Axxia AXM55XX
-[<c0314a49>] (unwind_backtrace) from [<c03115e9>] (show_stack+0x11/0x14)
-[<c03115e9>] (show_stack) from [<c0519f51>] (dump_stack+0x81/0xa8)
-[<c0519f51>] (dump_stack) from [<c032185d>] (warn_slowpath_common+0x69/0x90)
-[<c032185d>] (warn_slowpath_common) from [<c03218f3>] (warn_slowpath_null+0x17/0x1c)
-[<c03218f3>] (warn_slowpath_null) from [<c038e87d>] (ftrace_bug+0x1b1/0x234)
-[<c038e87d>] (ftrace_bug) from [<c038ebd5>] (ftrace_process_locs+0x285/0x3e8)
-[<c038ebd5>] (ftrace_process_locs) from [<c0378d79>] (load_module+0x11e9/0x1a44)
-[<c0378d79>] (load_module) from [<c037974d>] (SyS_finit_module+0x59/0x84)
-[<c037974d>] (SyS_finit_module) from [<c030e981>] (ret_fast_syscall+0x1/0x18)
----[ end trace e1b64ced7a89adcd ]---
-ftrace failed to modify [<e9ef7006>] 0xe9ef7006
-actual: 02:f0:3b:fa
-ftrace record flags: 0
-(0) expected tramp: c0314265
+Link: https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org/thread/ZUVCQBHDMFVR7CCB7JPESLJEWERZDJ3T/
 
-[florian: resolved merge conflict with struct
-dyn_arch_ftrace::old_mcount]
-
+Fixes: 1f12fb25c5c5d22f ("ARM: 9079/1: ftrace: Add MODULE_PLTS support")
+Reported-by: kernel test robot <lkp@intel.com>
 Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- arch/arm/include/asm/ftrace.h |  3 +++
- arch/arm/include/asm/module.h |  1 +
- arch/arm/kernel/ftrace.c      | 50 ++++++++++++++++++++++++++++-------
- arch/arm/kernel/module-plts.c | 44 +++++++++++++++++++++++++++---
- 4 files changed, 84 insertions(+), 14 deletions(-)
+ arch/arm/kernel/module-plts.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/include/asm/ftrace.h b/arch/arm/include/asm/ftrace.h
-index 9e842ff41768..faeb6b1c0089 100644
---- a/arch/arm/include/asm/ftrace.h
-+++ b/arch/arm/include/asm/ftrace.h
-@@ -19,6 +19,9 @@ struct dyn_arch_ftrace {
- #ifdef CONFIG_OLD_MCOUNT
- 	bool	old_mcount;
- #endif
-+#ifdef CONFIG_ARM_MODULE_PLTS
-+	struct module *mod;
-+#endif
- };
- 
- static inline unsigned long ftrace_call_adjust(unsigned long addr)
-diff --git a/arch/arm/include/asm/module.h b/arch/arm/include/asm/module.h
-index 6996405770f9..e3d7a51bcf9c 100644
---- a/arch/arm/include/asm/module.h
-+++ b/arch/arm/include/asm/module.h
-@@ -30,6 +30,7 @@ struct plt_entries {
- 
- struct mod_plt_sec {
- 	struct elf32_shdr	*plt;
-+	struct plt_entries	*plt_ent;
- 	int			plt_count;
- };
- 
-diff --git a/arch/arm/kernel/ftrace.c b/arch/arm/kernel/ftrace.c
-index eb083230b06b..1a5edcfb0306 100644
---- a/arch/arm/kernel/ftrace.c
-+++ b/arch/arm/kernel/ftrace.c
-@@ -96,9 +96,10 @@ int ftrace_arch_code_modify_post_process(void)
- 	return 0;
- }
- 
--static unsigned long ftrace_call_replace(unsigned long pc, unsigned long addr)
-+static unsigned long ftrace_call_replace(unsigned long pc, unsigned long addr,
-+					 bool warn)
- {
--	return arm_gen_branch_link(pc, addr, true);
-+	return arm_gen_branch_link(pc, addr, warn);
- }
- 
- static int ftrace_modify_code(unsigned long pc, unsigned long old,
-@@ -137,14 +138,14 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
- 	int ret;
- 
- 	pc = (unsigned long)&ftrace_call;
--	new = ftrace_call_replace(pc, (unsigned long)func);
-+	new = ftrace_call_replace(pc, (unsigned long)func, true);
- 
- 	ret = ftrace_modify_code(pc, 0, new, false);
- 
- #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
- 	if (!ret) {
- 		pc = (unsigned long)&ftrace_regs_call;
--		new = ftrace_call_replace(pc, (unsigned long)func);
-+		new = ftrace_call_replace(pc, (unsigned long)func, true);
- 
- 		ret = ftrace_modify_code(pc, 0, new, false);
- 	}
-@@ -153,7 +154,7 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
- #ifdef CONFIG_OLD_MCOUNT
- 	if (!ret) {
- 		pc = (unsigned long)&ftrace_call_old;
--		new = ftrace_call_replace(pc, (unsigned long)func);
-+		new = ftrace_call_replace(pc, (unsigned long)func, true);
- 
- 		ret = ftrace_modify_code(pc, 0, new, false);
- 	}
-@@ -166,10 +167,22 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
- {
- 	unsigned long new, old;
- 	unsigned long ip = rec->ip;
-+	unsigned long aaddr = adjust_address(rec, addr);
-+	struct module *mod = NULL;
-+
-+#ifdef CONFIG_ARM_MODULE_PLTS
-+	mod = rec->arch.mod;
-+#endif
- 
- 	old = ftrace_nop_replace(rec);
- 
--	new = ftrace_call_replace(ip, adjust_address(rec, addr));
-+	new = ftrace_call_replace(ip, aaddr, !mod);
-+#ifdef CONFIG_ARM_MODULE_PLTS
-+	if (!new && mod) {
-+		aaddr = get_module_plt(mod, ip, aaddr);
-+		new = ftrace_call_replace(ip, aaddr, true);
-+	}
-+#endif
- 
- 	return ftrace_modify_code(rec->ip, old, new, true);
- }
-@@ -182,9 +195,9 @@ int ftrace_modify_call(struct dyn_ftrace *rec, unsigned long old_addr,
- 	unsigned long new, old;
- 	unsigned long ip = rec->ip;
- 
--	old = ftrace_call_replace(ip, adjust_address(rec, old_addr));
-+	old = ftrace_call_replace(ip, adjust_address(rec, old_addr), true);
- 
--	new = ftrace_call_replace(ip, adjust_address(rec, addr));
-+	new = ftrace_call_replace(ip, adjust_address(rec, addr), true);
- 
- 	return ftrace_modify_code(rec->ip, old, new, true);
- }
-@@ -194,12 +207,29 @@ int ftrace_modify_call(struct dyn_ftrace *rec, unsigned long old_addr,
- int ftrace_make_nop(struct module *mod,
- 		    struct dyn_ftrace *rec, unsigned long addr)
- {
-+	unsigned long aaddr = adjust_address(rec, addr);
- 	unsigned long ip = rec->ip;
- 	unsigned long old;
- 	unsigned long new;
- 	int ret;
- 
--	old = ftrace_call_replace(ip, adjust_address(rec, addr));
-+#ifdef CONFIG_ARM_MODULE_PLTS
-+	/* mod is only supplied during module loading */
-+	if (!mod)
-+		mod = rec->arch.mod;
-+	else
-+		rec->arch.mod = mod;
-+#endif
-+
-+	old = ftrace_call_replace(ip, aaddr,
-+				  !IS_ENABLED(CONFIG_ARM_MODULE_PLTS) || !mod);
-+#ifdef CONFIG_ARM_MODULE_PLTS
-+	if (!old && mod) {
-+		aaddr = get_module_plt(mod, ip, aaddr);
-+		old = ftrace_call_replace(ip, aaddr, true);
-+	}
-+#endif
-+
- 	new = ftrace_nop_replace(rec);
- 	ret = ftrace_modify_code(ip, old, new, true);
- 
-@@ -207,7 +237,7 @@ int ftrace_make_nop(struct module *mod,
- 	if (ret == -EINVAL && addr == MCOUNT_ADDR) {
- 		rec->arch.old_mcount = true;
- 
--		old = ftrace_call_replace(ip, adjust_address(rec, addr));
-+		old = ftrace_call_replace(ip, adjust_address(rec, addr), true);
- 		new = ftrace_nop_replace(rec);
- 		ret = ftrace_modify_code(ip, old, new, true);
- 	}
 diff --git a/arch/arm/kernel/module-plts.c b/arch/arm/kernel/module-plts.c
-index f272711c411f..6804a145be11 100644
+index 6804a145be11..ed0e09cc735f 100644
 --- a/arch/arm/kernel/module-plts.c
 +++ b/arch/arm/kernel/module-plts.c
-@@ -7,6 +7,7 @@
-  */
- 
- #include <linux/elf.h>
-+#include <linux/ftrace.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/sort.h>
-@@ -22,19 +23,52 @@
- 						    (PLT_ENT_STRIDE - 8))
+@@ -24,7 +24,7 @@
  #endif
  
-+static const u32 fixed_plts[] = {
-+#ifdef CONFIG_FUNCTION_TRACER
-+	FTRACE_ADDR,
-+	MCOUNT_ADDR,
-+#endif
-+};
-+
- static bool in_init(const struct module *mod, unsigned long loc)
- {
- 	return loc - (u32)mod->init_layout.base < mod->init_layout.size;
- }
- 
-+static void prealloc_fixed(struct mod_plt_sec *pltsec, struct plt_entries *plt)
-+{
-+	int i;
-+
-+	if (!ARRAY_SIZE(fixed_plts) || pltsec->plt_count)
-+		return;
-+	pltsec->plt_count = ARRAY_SIZE(fixed_plts);
-+
-+	for (i = 0; i < ARRAY_SIZE(plt->ldr); ++i)
-+		plt->ldr[i] = PLT_ENT_LDR;
-+
-+	BUILD_BUG_ON(sizeof(fixed_plts) > sizeof(plt->lit));
-+	memcpy(plt->lit, fixed_plts, sizeof(fixed_plts));
-+}
-+
- u32 get_module_plt(struct module *mod, unsigned long loc, Elf32_Addr val)
- {
- 	struct mod_plt_sec *pltsec = !in_init(mod, loc) ? &mod->arch.core :
- 							  &mod->arch.init;
-+	struct plt_entries *plt;
-+	int idx;
-+
-+	/* cache the address, ELF header is available only during module load */
-+	if (!pltsec->plt_ent)
-+		pltsec->plt_ent = (struct plt_entries *)pltsec->plt->sh_addr;
-+	plt = pltsec->plt_ent;
- 
--	struct plt_entries *plt = (struct plt_entries *)pltsec->plt->sh_addr;
--	int idx = 0;
-+	prealloc_fixed(pltsec, plt);
-+
-+	for (idx = 0; idx < ARRAY_SIZE(fixed_plts); ++idx)
-+		if (plt->lit[idx] == val)
-+			return (u32)&plt->ldr[idx];
- 
-+	idx = 0;
- 	/*
- 	 * Look for an existing entry pointing to 'val'. Given that the
- 	 * relocations are sorted, this will be the last entry we allocated.
-@@ -182,8 +216,8 @@ static unsigned int count_plts(const Elf32_Sym *syms, Elf32_Addr base,
- int module_frob_arch_sections(Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
- 			      char *secstrings, struct module *mod)
- {
--	unsigned long core_plts = 0;
--	unsigned long init_plts = 0;
-+	unsigned long core_plts = ARRAY_SIZE(fixed_plts);
-+	unsigned long init_plts = ARRAY_SIZE(fixed_plts);
- 	Elf32_Shdr *s, *sechdrs_end = sechdrs + ehdr->e_shnum;
- 	Elf32_Sym *syms = NULL;
- 
-@@ -238,6 +272,7 @@ int module_frob_arch_sections(Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
- 	mod->arch.core.plt->sh_size = round_up(core_plts * PLT_ENT_SIZE,
- 					       sizeof(struct plt_entries));
- 	mod->arch.core.plt_count = 0;
-+	mod->arch.core.plt_ent = NULL;
- 
- 	mod->arch.init.plt->sh_type = SHT_NOBITS;
- 	mod->arch.init.plt->sh_flags = SHF_EXECINSTR | SHF_ALLOC;
-@@ -245,6 +280,7 @@ int module_frob_arch_sections(Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
- 	mod->arch.init.plt->sh_size = round_up(init_plts * PLT_ENT_SIZE,
- 					       sizeof(struct plt_entries));
- 	mod->arch.init.plt_count = 0;
-+	mod->arch.init.plt_ent = NULL;
- 
- 	pr_debug("%s: plt=%x, init.plt=%x\n", __func__,
- 		 mod->arch.core.plt->sh_size, mod->arch.init.plt->sh_size);
+ static const u32 fixed_plts[] = {
+-#ifdef CONFIG_FUNCTION_TRACER
++#ifdef CONFIG_DYNAMIC_FTRACE
+ 	FTRACE_ADDR,
+ 	MCOUNT_ADDR,
+ #endif
 -- 
 2.25.1
 
