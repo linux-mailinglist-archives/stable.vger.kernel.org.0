@@ -2,66 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 033AB4193EF
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 14:16:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A28D94193F7
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 14:17:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234266AbhI0MRm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 08:17:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41330 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234271AbhI0MRk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 08:17:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD77960F94;
-        Mon, 27 Sep 2021 12:16:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632744962;
-        bh=ScWr0KJ5dXV0Oy+XMLm1gK9FFaZskQeWFagbStBDCrA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nezlJiXAF9EJ32CvusjWox+b20y+/CH4ZiZ/CkMCCqFVCyU48+B7FvpdVVHT8yRTF
-         1KAqINq4Ib227dQ1A8gmx8nHNe0+YNZipqmtHe5foyzQ6nULwiLoeh3lBpZSBb2lgp
-         XBR39PpmkoZ5F1PBgjbiG1/kegfndGym3fBSYYwE=
-Date:   Mon, 27 Sep 2021 14:15:59 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Catalin Marinas <catalin.marinas@arm.com>
-Cc:     stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>
-Subject: Re: [PATCH stable-5.14.y] arm64: add MTE supported check to thread
- switching and syscall entry/exit
-Message-ID: <YVG1/z7l4FB0Gz0B@kroah.com>
-References: <20210927113124.439854-1-catalin.marinas@arm.com>
+        id S234218AbhI0MSn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 08:18:43 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:51565 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234259AbhI0MSl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Sep 2021 08:18:41 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 714B25C00B1;
+        Mon, 27 Sep 2021 08:17:00 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 27 Sep 2021 08:17:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=INVKYL/hImMLfwyu3HkJ3O9tiNp
+        9okvbdqAbJgPUcIA=; b=HEkhCKoXGZEZORodRpbAWjivivkrQU32/NKBMeUNIr/
+        SE/UA1g0Q4IKTILY5wQ0Ksl5temW9I/PFCe0zjkEgL48Z2GXwc/uwtbn4SMVwW50
+        94vcZZxkAh2OOjWaHciM4Z3wsmf6H/BswbkfYjeRZw7hCV1ic7hrhNeactAkMnEC
+        U2Ewz1e7BcMV6/wUwqL9+nMDcAIYgdj/7vItCyLCSpOmCuFd3phDJjzDuzg+Icpk
+        Hgsjnzg+GT81QIJuIiA2ya7ep9G54GENmwOagn9j8psHOqQJ0LlyQENAxyRJU1SK
+        WDcXeHatqUu6aymvdfk+zqV7AL9FndDl7xjr5TQutMQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=INVKYL
+        /hImMLfwyu3HkJ3O9tiNp9okvbdqAbJgPUcIA=; b=qUlBh2cEUgBPxYAaYwON2c
+        l4Jau0kWOowJxoG5nf1hND7qcQ2P9yAqEHz0qrI3vvWe6Lw8lba4bJPrOpoSXwQk
+        ldqVRtsq+nb8ByufS6d4qyxg4V3sRRZgjDqBdIjAd0hmOc0iVqp3rl4FfTg0gKPc
+        /obrVBYXpm7HPMCnqC5aT/8bqRMnMRfMBNsafu3Wn1Ux1aEC/Ax+d3BR3WMXQLMA
+        GlF3OqEQxJYEmZqby24ODTyiALCU9qGnZ9fK9SSJ8Q6vivbH05VCqEi981krd1uG
+        GZdt4q2nZoX4MTIUNoVBshzYsWEvnrX7TwKdyXQbyPdRU3Wgk01zIyBwgEQynXJA
+        ==
+X-ME-Sender: <xms:PLZRYR_oPsu_zx5OC_RmwDERzdnaRnV12M56_qlz-jmVGKg95YdNCg>
+    <xme:PLZRYVvL3jSe4xTXS8X-2QviMW9rIcvzcyuaGmnAn70HMMVYDhT3jDdud8H7R0UA5
+    TN2VFeDtBbThg>
+X-ME-Received: <xmr:PLZRYfCv1AamG7S4WiFpmgnFyiqEZPUz521dV70As8_7O8Mh2HGeDegaWq0EFCoDGpSrnOZrovjdonWJwCco9qChwgKGUIBK>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudejkedggeelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:PLZRYVf1w5Tj_LYdfR74IMkJjmRe2nVp2jwlzWKNOxZv9p8VfxHDPQ>
+    <xmx:PLZRYWNkU0AQA9A5KHz3PEWWbWgvvUzUVz0RuT55hvX8KYYiF_-qCg>
+    <xmx:PLZRYXlM3TUyxspmM9IvcwDpKWi9RFdiLSewSUoa8amrV_KxATw6kQ>
+    <xmx:PLZRYXh0z1WoZ01lEUbZfMJVBLFjvjflSkSnQyhhWUGHvOHQ4PxP4w>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 27 Sep 2021 08:16:59 -0400 (EDT)
+Date:   Mon, 27 Sep 2021 14:16:57 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     stable@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Malte Di Donato <malte@neo-soft.org>
+Subject: Re: [PATCH stable-5.10] USB: serial: cp210x: fix dropped characters
+ with CP2102
+Message-ID: <YVG2OVNtg9ScNIpW@kroah.com>
+References: <20210927090012.14437-1-johan@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210927113124.439854-1-catalin.marinas@arm.com>
+In-Reply-To: <20210927090012.14437-1-johan@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 27, 2021 at 12:31:24PM +0100, Catalin Marinas wrote:
-> From: Peter Collingbourne <pcc@google.com>
+On Mon, Sep 27, 2021 at 11:00:12AM +0200, Johan Hovold wrote:
+> commit c32dfec6c1c36bbbcd5d33e949d99aeb215877ec upstream.
 > 
-> commit 8c8a3b5bd960cd88f7655b5251dc28741e11f139 upstream.
-> 
-> This lets us avoid doing unnecessary work on hardware that does not
-> support MTE, and will allow us to freely use MTE instructions in the
-> code called by mte_thread_switch().
-> 
-> Since this would mean that we do a redundant check in
-> mte_check_tfsr_el1(), remove it and add two checks now required in its
-> callers. This also avoids an unnecessary DSB+ISB sequence on the syscall
-> exit path for hardware not supporting MTE.
-> 
-> Fixes: 65812c6921cc ("arm64: mte: Enable async tag check fault")
-> Cc: <stable@vger.kernel.org> # 5.13.x
-> Signed-off-by: Peter Collingbourne <pcc@google.com>
-> Link: https://linux-review.googlesource.com/id/I02fd000d1ef2c86c7d2952a7f099b254ec227a5d
-> Link: https://lore.kernel.org/r/20210915190336.398390-1-pcc@google.com
-> [catalin.marinas@arm.com: adjust the commit log slightly]
-> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> ---
->  arch/arm64/include/asm/mte.h |  6 ++++++
->  arch/arm64/kernel/mte.c      | 10 ++++------
->  2 files changed, 10 insertions(+), 6 deletions(-)
 
-Now queued up, thanks.
+Both now queued up, thanks.
 
 greg k-h
