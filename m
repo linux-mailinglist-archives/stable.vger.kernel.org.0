@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08A6D419B5C
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:16:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0E01419B71
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:17:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237145AbhI0RRj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:17:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54388 "EHLO mail.kernel.org"
+        id S236073AbhI0RTS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:19:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235711AbhI0RPi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:15:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 73D6F6137D;
-        Mon, 27 Sep 2021 17:11:11 +0000 (UTC)
+        id S235820AbhI0RQn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:16:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D8F060238;
+        Mon, 27 Sep 2021 17:11:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632762672;
-        bh=iUtyp+/r3ntGp3CauAKQdeetw2ecfDT+mt+3REUJ7qU=;
+        s=korg; t=1632762695;
+        bh=CGvZ5TLO5rzIwhIAS4yIEYmpZjvloeNZ3UQ6m4E23Z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NZzrgUBG6gVxbflHrJ2zB0E+P1k9/t1S/IrwAG37Y1hq/f74on1zKQn6zAJG9qjFG
-         ITPn0eIE74ygf/Rr649k8ZQB9QczsM4pRlfB2p5tQrJQelkeeTW8UD+ox65SB61nU+
-         /cByXBu6xWJJ4XtgdyFswSyHWaH3dx9bU5S0QdbQ=
+        b=nukpeE0e0Wx/T5UID7Tt9Pi75dID6MWcj98wuagdI3Kkckezb0xdYpnTqj5h1ESx6
+         O6MqtiQhQF1TF3KaZy4voPTK57ZRzLT4fwTmXGqtU1R4L13xiv2UY7F4hEeAWtRh+l
+         Fe2ZVy5UOGJm/d/qR1dVtaM7tE+jCaYUwRoShAHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        David Hildenbrand <david@redhat.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Michal Hocko <mhocko@suse.com>,
+        stable@vger.kernel.org, Wengang Wang <wen.gang.wang@oracle.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.14 001/162] mm, hwpoison: add is_free_buddy_page() in HWPoisonHandlable()
-Date:   Mon, 27 Sep 2021 19:00:47 +0200
-Message-Id: <20210927170233.505942394@linuxfoundation.org>
+Subject: [PATCH 5.14 002/162] ocfs2: drop acl cache for directories too
+Date:   Mon, 27 Sep 2021 19:00:48 +0200
+Message-Id: <20210927170233.543958175@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
 References: <20210927170233.453060397@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,48 +46,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naoya Horiguchi <naoya.horiguchi@nec.com>
+From: Wengang Wang <wen.gang.wang@oracle.com>
 
-commit acfa299a4a63a58e5e81a87cb16798f20d35f7d7 upstream.
+commit 9c0f0a03e386f4e1df33db676401547e1b7800c6 upstream.
 
-Commit fcc00621d88b ("mm/hwpoison: retry with shake_page() for
-unhandlable pages") changed the return value of __get_hwpoison_page() to
-retry for transiently unhandlable cases.  However, __get_hwpoison_page()
-currently fails to properly judge buddy pages as handlable, so hard/soft
-offline for buddy pages always fail as "unhandlable page".  This is
-totally regrettable.
+ocfs2_data_convert_worker() is currently dropping any cached acl info
+for FILE before down-converting meta lock.  It should also drop for
+DIRECTORY.  Otherwise the second acl lookup returns the cached one (from
+VFS layer) which could be already stale.
 
-So let's add is_free_buddy_page() in HWPoisonHandlable(), so that
-__get_hwpoison_page() returns different return values between buddy
-pages and unhandlable pages as intended.
+The problem we are seeing is that the acl changes on one node doesn't
+get refreshed on other nodes in the following case:
 
-Link: https://lkml.kernel.org/r/20210909004131.163221-1-naoya.horiguchi@linux.dev
-Fixes: fcc00621d88b ("mm/hwpoison: retry with shake_page() for unhandlable pages")
-Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Michal Hocko <mhocko@suse.com>
+  Node 1                    Node 2
+  --------------            ----------------
+  getfacl dir1
+
+                            getfacl dir1    <-- this is OK
+
+  setfacl -m u:user1:rwX dir1
+  getfacl dir1   <-- see the change for user1
+
+                            getfacl dir1    <-- can't see change for user1
+
+Link: https://lkml.kernel.org/r/20210903012631.6099-1-wen.gang.wang@oracle.com
+Signed-off-by: Wengang Wang <wen.gang.wang@oracle.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory-failure.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ocfs2/dlmglue.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -1127,7 +1127,7 @@ static int page_action(struct page_state
-  */
- static inline bool HWPoisonHandlable(struct page *page)
- {
--	return PageLRU(page) || __PageMovable(page);
-+	return PageLRU(page) || __PageMovable(page) || is_free_buddy_page(page);
- }
+--- a/fs/ocfs2/dlmglue.c
++++ b/fs/ocfs2/dlmglue.c
+@@ -3939,7 +3939,7 @@ static int ocfs2_data_convert_worker(str
+ 		oi = OCFS2_I(inode);
+ 		oi->ip_dir_lock_gen++;
+ 		mlog(0, "generation: %u\n", oi->ip_dir_lock_gen);
+-		goto out;
++		goto out_forget;
+ 	}
  
- static int __get_hwpoison_page(struct page *page)
+ 	if (!S_ISREG(inode->i_mode))
+@@ -3970,6 +3970,7 @@ static int ocfs2_data_convert_worker(str
+ 		filemap_fdatawait(mapping);
+ 	}
+ 
++out_forget:
+ 	forget_all_cached_acls(inode);
+ 
+ out:
 
 
