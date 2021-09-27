@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7066419CAB
-	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:29:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9445F419CB0
+	for <lists+stable@lfdr.de>; Mon, 27 Sep 2021 19:29:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237234AbhI0Raz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Sep 2021 13:30:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46358 "EHLO mail.kernel.org"
+        id S237515AbhI0RbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Sep 2021 13:31:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238387AbhI0R2x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:28:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1248661505;
-        Mon, 27 Sep 2021 17:17:39 +0000 (UTC)
+        id S238559AbhI0R3N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Sep 2021 13:29:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 585F861506;
+        Mon, 27 Sep 2021 17:17:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632763060;
-        bh=Q11rLpbcOzPwcbGfU8zIZAnps4I8QgejIKQt8T4q/4s=;
+        s=korg; t=1632763065;
+        bh=lmAck5aMugDhQ8m+a+g3/ahIbVwK4Wot21bB9ycaGWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1qU2hdBrwJdaoU6fU4glSgWj/1N92ASsqlUQDrYuiNI/Ub9KySzUiMS/9596EKQ/b
-         bQJLqg5bc7fmMCfDo4ffO9GGhXDoI+LZcbzIAQzbWo2YZba+j0Cqm9UafQzIl01tY5
-         b8gIM6JINmqv5tBwdLj+nYjHBSo8nHEi+yaLecr4=
+        b=wu7TToF2f7TBobSRCVVT25k7py5JeTgBc1q1QKSGTQPHjotJjl5nDtwm+RMg1ndab
+         u9JNNpmWEMqx284hWxdM7qzXhxpmFO0dVeSyFMdVz9lEXnPYAbqhXO/48YzP0ZRC30
+         O6EAg6GScYGck47drSrn02btDO00SZsKZXv1Ya+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>, Juergen Gross <jgross@suse.com>,
-        Borislav Petkov <bp@suse.de>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.14 152/162] x86/setup: Call early_reserve_memory() earlier
-Date:   Mon, 27 Sep 2021 19:03:18 +0200
-Message-Id: <20210927170238.694139363@linuxfoundation.org>
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Antoine Tenart <atenart@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Srinivas Pandruvada <srinivas.pIandruvada@linux.intel.com>
+Subject: [PATCH 5.14 153/162] thermal/drivers/int340x: Do not set a wrong tcc offset on resume
+Date:   Mon, 27 Sep 2021 19:03:19 +0200
+Message-Id: <20210927170238.727412905@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210927170233.453060397@linuxfoundation.org>
 References: <20210927170233.453060397@linuxfoundation.org>
@@ -42,73 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Antoine Tenart <atenart@kernel.org>
 
-commit 8aa83e6395ce047a506f0b16edca45f36c1ae7f8 upstream.
+commit 8b4bd256674720709a9d858a219fcac6f2f253b5 upstream.
 
-Commit in Fixes introduced early_reserve_memory() to do all needed
-initial memblock_reserve() calls in one function. Unfortunately, the call
-of early_reserve_memory() is done too late for Xen dom0, as in some
-cases a Xen hook called by e820__memory_setup() will need those memory
-reservations to have happened already.
+After upgrading to Linux 5.13.3 I noticed my laptop would shutdown due
+to overheat (when it should not). It turned out this was due to commit
+fe6a6de6692e ("thermal/drivers/int340x/processor_thermal: Fix tcc setting").
 
-Move the call of early_reserve_memory() before the call of
-e820__memory_setup() in order to avoid such problems.
+What happens is this drivers uses a global variable to keep track of the
+tcc offset (tcc_offset_save) and uses it on resume. The issue is this
+variable is initialized to 0, but is only set in
+tcc_offset_degree_celsius_store, i.e. when the tcc offset is explicitly
+set by userspace. If that does not happen, the resume path will set the
+offset to 0 (in my case the h/w default being 3, the offset would become
+too low after a suspend/resume cycle).
 
-Fixes: a799c2bd29d1 ("x86/setup: Consolidate early memory reservations")
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
+The issue did not arise before commit fe6a6de6692e, as the function
+setting the offset would return if the offset was 0. This is no longer
+the case (rightfully).
+
+Fix this by not applying the offset if it wasn't saved before, reverting
+back to the old logic. A better approach will come later, but this will
+be easier to apply to stable kernels.
+
+The logic to restore the offset after a resume was there long before
+commit fe6a6de6692e, but as a value of 0 was considered invalid I'm
+referencing the commit that made the issue possible in the Fixes tag
+instead.
+
+Fixes: fe6a6de6692e ("thermal/drivers/int340x/processor_thermal: Fix tcc setting")
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210920120421.29276-1-jgross@suse.com
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Reviewed-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Tested-by: Srinivas Pandruvada <srinivas.pI andruvada@linux.intel.com>
+Link: https://lore.kernel.org/r/20210909085613.5577-2-atenart@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/setup.c |   26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ drivers/thermal/intel/int340x_thermal/processor_thermal_device.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/setup.c
-+++ b/arch/x86/kernel/setup.c
-@@ -839,6 +839,20 @@ void __init setup_arch(char **cmdline_p)
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
+@@ -107,7 +107,7 @@ static int tcc_offset_update(unsigned in
+ 	return 0;
+ }
  
- 	x86_init.oem.arch_setup();
+-static unsigned int tcc_offset_save;
++static int tcc_offset_save = -1;
  
-+	/*
-+	 * Do some memory reservations *before* memory is added to memblock, so
-+	 * memblock allocations won't overwrite it.
-+	 *
-+	 * After this point, everything still needed from the boot loader or
-+	 * firmware or kernel text should be early reserved or marked not RAM in
-+	 * e820. All other memory is free game.
-+	 *
-+	 * This call needs to happen before e820__memory_setup() which calls the
-+	 * xen_memory_setup() on Xen dom0 which relies on the fact that those
-+	 * early reservations have happened already.
-+	 */
-+	early_reserve_memory();
-+
- 	iomem_resource.end = (1ULL << boot_cpu_data.x86_phys_bits) - 1;
- 	e820__memory_setup();
- 	parse_setup_data();
-@@ -885,18 +899,6 @@ void __init setup_arch(char **cmdline_p)
+ static ssize_t tcc_offset_degree_celsius_store(struct device *dev,
+ 				struct device_attribute *attr, const char *buf,
+@@ -352,7 +352,8 @@ int proc_thermal_resume(struct device *d
+ 	proc_dev = dev_get_drvdata(dev);
+ 	proc_thermal_read_ppcc(proc_dev);
  
- 	parse_early_param();
+-	tcc_offset_update(tcc_offset_save);
++	if (tcc_offset_save >= 0)
++		tcc_offset_update(tcc_offset_save);
  
--	/*
--	 * Do some memory reservations *before* memory is added to
--	 * memblock, so memblock allocations won't overwrite it.
--	 * Do it after early param, so we could get (unlikely) panic from
--	 * serial.
--	 *
--	 * After this point everything still needed from the boot loader or
--	 * firmware or kernel text should be early reserved or marked not
--	 * RAM in e820. All other memory is free game.
--	 */
--	early_reserve_memory();
--
- #ifdef CONFIG_MEMORY_HOTPLUG
- 	/*
- 	 * Memory used by the kernel cannot be hot-removed because Linux
+ 	return 0;
+ }
 
 
