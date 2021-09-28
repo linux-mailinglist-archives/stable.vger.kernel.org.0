@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2964541A7D0
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 07:58:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91B0D41A7D4
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 07:58:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238989AbhI1F7f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 01:59:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49036 "EHLO mail.kernel.org"
+        id S239451AbhI1F7k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 01:59:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239259AbhI1F6n (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239261AbhI1F6n (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 28 Sep 2021 01:58:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6C5C61359;
-        Tue, 28 Sep 2021 05:56:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EC0161288;
+        Tue, 28 Sep 2021 05:56:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632808606;
-        bh=7IFTgHmDk+NZJOgLv6P8aY226whWo0FQCWtd7vn/C8I=;
+        s=k20201202; t=1632808607;
+        bh=H8gT73qWs9QvZDEwxm1QJLZLlOdawtOYwPH/pJwvbgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=If1kGa7jzQEbryyIZaH17/UztNr9HtAr04gW/j6yA2T70iri9W72e/yrqAY4AoqtB
-         jUw8EDbY0qYrYdKaMNyvcyETzh9mWtpaOVMTUPMGKwhMzdan8ZFQa+451JIdIc/Sl3
-         zd2YWSqDGeiM3ynUIjf17uYDFiy0sNzl8+EiEM9hynE4RAuR9dkynJAgnCcLw2HjS/
-         sTJbGOd681SKj2f3d8msk5n+Yc1dnDNEHFzxLz6kE2CgHORjBzuq7kPvu2MVixkRSQ
-         PDmu2ciELeJOMPYiSDO7dk0JWNXaHRbZk96HSaYLb/8VYWPRsagg96Ikh+9LFKzalf
-         rTJUJv03ZtAKA==
+        b=KMpmrzUIr/zqVxrujj2ekmDk1E2yRdjQCsXLdovYvyvhfyWn4Fnf70xICpfvPlk7p
+         h5vi1Em3C/exHsoHRVlC3bQhpjwOugkgpPn9gGdUsiJsekkd1hE+DNGl5vEBW5dqdA
+         ukIpsTuf38Lj8bN1jYcQ8J0yRl5Xd9Wtsj3r5oiQxcPkYjPd8zGhN/n8cjfFfC9vJa
+         E9it6BWRK2J4dVO/ASfvrk+/Wq+fPh5y805+qj1A/P71yCfTIxGDPo2XEh9X6uxBWy
+         yx9uHWfJUjwCUSYDHoWZFaXWETrvybI3DlTCjtGJxa4k/OdLa7wXNMNSQ+ORbFaU6z
+         ihfVBEPDY2vdA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dai Ngo <dai.ngo@oracle.com>, Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, bfields@fieldses.org,
-        linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 04/23] nfsd: back channel stuck in SEQ4_STATUS_CB_PATH_DOWN
-Date:   Tue, 28 Sep 2021 01:56:25 -0400
-Message-Id: <20210928055645.172544-4-sashal@kernel.org>
+Cc:     Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, clm@fb.com,
+        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 05/23] btrfs: replace BUG_ON() in btrfs_csum_one_bio() with proper error handling
+Date:   Tue, 28 Sep 2021 01:56:26 -0400
+Message-Id: <20210928055645.172544-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210928055645.172544-1-sashal@kernel.org>
 References: <20210928055645.172544-1-sashal@kernel.org>
@@ -42,65 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dai Ngo <dai.ngo@oracle.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 02579b2ff8b0becfb51d85a975908ac4ab15fba8 ]
+[ Upstream commit bbc9a6eb5eec03dcafee266b19f56295e3b2aa8f ]
 
-When the back channel enters SEQ4_STATUS_CB_PATH_DOWN state, the client
-recovers by sending BIND_CONN_TO_SESSION but the server fails to recover
-the back channel and leaves it as NFSD4_CB_DOWN.
+There is a BUG_ON() in btrfs_csum_one_bio() to catch code logic error.
+It has indeed caught several bugs during subpage development.
+But the BUG_ON() itself will bring down the whole system which is
+an overkill.
 
-Fix by enhancing nfsd4_bind_conn_to_session to probe the back channel
-by calling nfsd4_probe_callback.
+Replace it with a WARN() and exit gracefully, so that it won't crash the
+whole system while we can still catch the code logic error.
 
-Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ fs/btrfs/file-item.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index 0313390fa4b4..1cdf7e0a5c22 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -3512,7 +3512,7 @@ static struct nfsd4_conn *__nfsd4_find_conn(struct svc_xprt *xpt, struct nfsd4_s
- }
+diff --git a/fs/btrfs/file-item.c b/fs/btrfs/file-item.c
+index 48a2ea6d7092..2de1d8247494 100644
+--- a/fs/btrfs/file-item.c
++++ b/fs/btrfs/file-item.c
+@@ -568,7 +568,18 @@ blk_status_t btrfs_csum_one_bio(struct btrfs_inode *inode, struct bio *bio,
  
- static __be32 nfsd4_match_existing_connection(struct svc_rqst *rqst,
--				struct nfsd4_session *session, u32 req)
-+		struct nfsd4_session *session, u32 req, struct nfsd4_conn **conn)
- {
- 	struct nfs4_client *clp = session->se_client;
- 	struct svc_xprt *xpt = rqst->rq_xprt;
-@@ -3535,6 +3535,8 @@ static __be32 nfsd4_match_existing_connection(struct svc_rqst *rqst,
- 	else
- 		status = nfserr_inval;
- 	spin_unlock(&clp->cl_lock);
-+	if (status == nfs_ok && conn)
-+		*conn = c;
- 	return status;
- }
+ 		if (!ordered) {
+ 			ordered = btrfs_lookup_ordered_extent(inode, offset);
+-			BUG_ON(!ordered); /* Logic error */
++			/*
++			 * The bio range is not covered by any ordered extent,
++			 * must be a code logic error.
++			 */
++			if (unlikely(!ordered)) {
++				WARN(1, KERN_WARNING
++			"no ordered extent for root %llu ino %llu offset %llu\n",
++				     inode->root->root_key.objectid,
++				     btrfs_ino(inode), offset);
++				kvfree(sums);
++				return BLK_STS_IOERR;
++			}
+ 		}
  
-@@ -3559,8 +3561,16 @@ __be32 nfsd4_bind_conn_to_session(struct svc_rqst *rqstp,
- 	status = nfserr_wrong_cred;
- 	if (!nfsd4_mach_creds_match(session->se_client, rqstp))
- 		goto out;
--	status = nfsd4_match_existing_connection(rqstp, session, bcts->dir);
--	if (status == nfs_ok || status == nfserr_inval)
-+	status = nfsd4_match_existing_connection(rqstp, session,
-+			bcts->dir, &conn);
-+	if (status == nfs_ok) {
-+		if (bcts->dir == NFS4_CDFC4_FORE_OR_BOTH ||
-+				bcts->dir == NFS4_CDFC4_BACK)
-+			conn->cn_flags |= NFS4_CDFC4_BACK;
-+		nfsd4_probe_callback(session->se_client);
-+		goto out;
-+	}
-+	if (status == nfserr_inval)
- 		goto out;
- 	status = nfsd4_map_bcts_dir(&bcts->dir);
- 	if (status)
+ 		nr_sectors = BTRFS_BYTES_TO_BLKS(fs_info,
 -- 
 2.33.0
 
