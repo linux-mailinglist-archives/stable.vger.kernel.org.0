@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A1C041A868
+	by mail.lfdr.de (Postfix) with ESMTP id D30A241A869
 	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 08:03:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239042AbhI1GEd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239038AbhI1GEd (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 28 Sep 2021 02:04:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48778 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239870AbhI1GCs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239871AbhI1GCs (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 28 Sep 2021 02:02:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77507613B1;
-        Tue, 28 Sep 2021 05:57:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AED8E61391;
+        Tue, 28 Sep 2021 05:57:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632808658;
-        bh=ot6VfK65sg2Y7YZeriZdOjctKXKEZ76qidoh2h4/l4I=;
+        s=k20201202; t=1632808660;
+        bh=mi15zyT9T6+AXpeD0B5QFINjteCdWDkTRSQg1MPD12E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g38b9t556pbM5JjkBPS32eSeoy+HUQSbzQfaYx5RhmBygKuVrat8TC+VDoe0UI17p
-         Q2ZNrJRpr3oXWyOA03lsp5VjyvknlTn5cc7vWwjHfvVnGmN+jNkwJOSpFkdsdeJ0ie
-         Tgmtrq1TG8Gz22xaaeoh4nDfTmNnySFYbfmVtR4NxRTw//YeNP4eX15+6JpgtLEaWr
-         OvNnRoEweAUjnJliL+b0tgnylpGhORtvNM5TRfF8qamytO3hCqrJCX7kD+cCvRnxEH
-         cFeSe/5eQzEAAgDhn26HNv3Aw9/urVzq5eseNf0nDXl2Qr0aAI0hkv9jPonrMWgQCA
-         3wlttxkWvLCdw==
+        b=Cubo2lxYcjV8ViwKRyErXDe9gjcqe//lBHwZRbFPSL7fY86SSrVNkJDliqnRouHcu
+         BHeaKsGow45rhBX+txeiK3tFPZG1pJ6Cer+Kgad0VVJ4R9FQkEA9S2nmp0J8D7ebN+
+         6W0V/7tYFEvCdrmwA6nQ2Uu0vJKklWcfecJ29ppHHEM2eDUesFUaaZhlwz5sTFTHgx
+         9xi9HZCMUjBoqjXpfF5nEq3aYU3duENGwPzIgEFtC8HiW4BGWn19vYh59GbY65dxLZ
+         IP09ZIbMrrZ3BmvrGmhc8MXIrxR89oVGr1cHZbjSnEu9aO2VHWvbUkUSgUk9OvLMXS
+         j0kespRgssCmA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ming Lei <ming.lei@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Christoph Hellwig <hch@lst.de>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 5/6] scsi: sd: Free scsi_disk device via put_device()
-Date:   Tue, 28 Sep 2021 01:57:33 -0400
-Message-Id: <20210928055734.173182-5-sashal@kernel.org>
+Cc:     Faizel K B <faizel.kb@dicortech.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 6/6] usb: testusb: Fix for showing the connection speed
+Date:   Tue, 28 Sep 2021 01:57:34 -0400
+Message-Id: <20210928055734.173182-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210928055734.173182-1-sashal@kernel.org>
 References: <20210928055734.173182-1-sashal@kernel.org>
@@ -45,48 +42,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Faizel K B <faizel.kb@dicortech.com>
 
-[ Upstream commit 265dfe8ebbabae7959060bd1c3f75c2473b697ed ]
+[ Upstream commit f81c08f897adafd2ed43f86f00207ff929f0b2eb ]
 
-After a device is initialized via device_initialize() it should be freed
-via put_device(). sd_probe() currently gets this wrong, fix it up.
+testusb' application which uses 'usbtest' driver reports 'unknown speed'
+from the function 'find_testdev'. The variable 'entry->speed' was not
+updated from  the application. The IOCTL mentioned in the FIXME comment can
+only report whether the connection is low speed or not. Speed is read using
+the IOCTL USBDEVFS_GET_SPEED which reports the proper speed grade.  The
+call is implemented in the function 'handle_testdev' where the file
+descriptor was availble locally. Sample output is given below where 'high
+speed' is printed as the connected speed.
 
-Link: https://lore.kernel.org/r/20210906090112.531442-1-ming.lei@redhat.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+sudo ./testusb -a
+high speed      /dev/bus/usb/001/011    0
+/dev/bus/usb/001/011 test 0,    0.000015 secs
+/dev/bus/usb/001/011 test 1,    0.194208 secs
+/dev/bus/usb/001/011 test 2,    0.077289 secs
+/dev/bus/usb/001/011 test 3,    0.170604 secs
+/dev/bus/usb/001/011 test 4,    0.108335 secs
+/dev/bus/usb/001/011 test 5,    2.788076 secs
+/dev/bus/usb/001/011 test 6,    2.594610 secs
+/dev/bus/usb/001/011 test 7,    2.905459 secs
+/dev/bus/usb/001/011 test 8,    2.795193 secs
+/dev/bus/usb/001/011 test 9,    8.372651 secs
+/dev/bus/usb/001/011 test 10,    6.919731 secs
+/dev/bus/usb/001/011 test 11,   16.372687 secs
+/dev/bus/usb/001/011 test 12,   16.375233 secs
+/dev/bus/usb/001/011 test 13,    2.977457 secs
+/dev/bus/usb/001/011 test 14 --> 22 (Invalid argument)
+/dev/bus/usb/001/011 test 17,    0.148826 secs
+/dev/bus/usb/001/011 test 18,    0.068718 secs
+/dev/bus/usb/001/011 test 19,    0.125992 secs
+/dev/bus/usb/001/011 test 20,    0.127477 secs
+/dev/bus/usb/001/011 test 21 --> 22 (Invalid argument)
+/dev/bus/usb/001/011 test 24,    4.133763 secs
+/dev/bus/usb/001/011 test 27,    2.140066 secs
+/dev/bus/usb/001/011 test 28,    2.120713 secs
+/dev/bus/usb/001/011 test 29,    0.507762 secs
+
+Signed-off-by: Faizel K B <faizel.kb@dicortech.com>
+Link: https://lore.kernel.org/r/20210902114444.15106-1-faizel.kb@dicortech.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sd.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ tools/usb/testusb.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index 671bf1e03ee1..426f1b3aa15e 100644
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -3179,15 +3179,16 @@ static int sd_probe(struct device *dev)
+diff --git a/tools/usb/testusb.c b/tools/usb/testusb.c
+index 0692d99b6d8f..18c895654e76 100644
+--- a/tools/usb/testusb.c
++++ b/tools/usb/testusb.c
+@@ -278,12 +278,6 @@ static int find_testdev(const char *name, const struct stat *sb, int flag)
  	}
  
- 	device_initialize(&sdkp->dev);
--	sdkp->dev.parent = dev;
-+	sdkp->dev.parent = get_device(dev);
- 	sdkp->dev.class = &sd_disk_class;
- 	dev_set_name(&sdkp->dev, "%s", dev_name(dev));
+ 	entry->ifnum = ifnum;
+-
+-	/* FIXME update USBDEVFS_CONNECTINFO so it tells about high speed etc */
+-
+-	fprintf(stderr, "%s speed\t%s\t%u\n",
+-		speed(entry->speed), entry->name, entry->ifnum);
+-
+ 	entry->next = testdevs;
+ 	testdevs = entry;
+ 	return 0;
+@@ -312,6 +306,14 @@ static void *handle_testdev (void *arg)
+ 		return 0;
+ 	}
  
- 	error = device_add(&sdkp->dev);
--	if (error)
--		goto out_free_index;
-+	if (error) {
-+		put_device(&sdkp->dev);
-+		goto out;
-+	}
- 
--	get_device(dev);
- 	dev_set_drvdata(dev, sdkp);
- 
- 	get_device(&sdkp->dev);	/* prevent release before async_schedule */
++	status  =  ioctl(fd, USBDEVFS_GET_SPEED, NULL);
++	if (status < 0)
++		fprintf(stderr, "USBDEVFS_GET_SPEED failed %d\n", status);
++	else
++		dev->speed = status;
++	fprintf(stderr, "%s speed\t%s\t%u\n",
++			speed(dev->speed), dev->name, dev->ifnum);
++
+ restart:
+ 	for (i = 0; i < TEST_CASES; i++) {
+ 		if (dev->test != -1 && dev->test != i)
 -- 
 2.33.0
 
