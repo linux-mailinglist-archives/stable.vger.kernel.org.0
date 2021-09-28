@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA82C41BA32
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 00:23:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74A0141BA38
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 00:23:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243100AbhI1WYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 18:24:49 -0400
-Received: from relay11.mail.gandi.net ([217.70.178.231]:46527 "EHLO
+        id S243225AbhI1WY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 18:24:56 -0400
+Received: from relay11.mail.gandi.net ([217.70.178.231]:48595 "EHLO
         relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243118AbhI1WYq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 18:24:46 -0400
+        with ESMTP id S243133AbhI1WYs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 18:24:48 -0400
 Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay11.mail.gandi.net (Postfix) with ESMTPSA id AD91B100009;
-        Tue, 28 Sep 2021 22:23:05 +0000 (UTC)
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 7C00D10000C;
+        Tue, 28 Sep 2021 22:23:06 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Richard Weinberger <richard@nod.at>,
         Vignesh Raghavendra <vigneshr@ti.com>,
         Tudor Ambarus <Tudor.Ambarus@microchip.com>
 Cc:     <linux-mtd@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 8/9] mtd: rawnand: socrates: Keep the driver compatible with on-die ECC engines
-Date:   Wed, 29 Sep 2021 00:22:47 +0200
-Message-Id: <20210928222258.199726-9-miquel.raynal@bootlin.com>
+        stable@vger.kernel.org, Jan Hoffmann <jan@3e8.eu>,
+        Kestrel seventyfour <kestrelseventyfour@gmail.com>
+Subject: [PATCH 9/9] mtd: rawnand: xway: Keep the driver compatible with on-die ECC engines
+Date:   Wed, 29 Sep 2021 00:22:48 +0200
+Message-Id: <20210928222258.199726-10-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210928222258.199726-1-miquel.raynal@bootlin.com>
 References: <20210928222258.199726-1-miquel.raynal@bootlin.com>
@@ -59,20 +60,22 @@ nand_scan(). During the initialization step, the core will consider this
 entry as the default engine for this driver. This value may of course
 be overloaded by the user if the usual DT properties are provided.
 
-Fixes: b36bf0a0fe5d ("mtd: rawnand: socrates: Move the ECC initialization to ->attach_chip()")
+Fixes: d525914b5bd8 ("mtd: rawnand: xway: Move the ECC initialization to ->attach_chip()")
 Cc: stable@vger.kernel.org
+Cc: Jan Hoffmann <jan@3e8.eu>
+Cc: Kestrel seventyfour <kestrelseventyfour@gmail.com>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 ---
- drivers/mtd/nand/raw/socrates_nand.c | 12 +++++++++---
+ drivers/mtd/nand/raw/xway_nand.c | 12 +++++++++---
  1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/socrates_nand.c b/drivers/mtd/nand/raw/socrates_nand.c
-index 70f8305c9b6e..fb39cc7ebce0 100644
---- a/drivers/mtd/nand/raw/socrates_nand.c
-+++ b/drivers/mtd/nand/raw/socrates_nand.c
-@@ -119,9 +119,8 @@ static int socrates_nand_device_ready(struct nand_chip *nand_chip)
+diff --git a/drivers/mtd/nand/raw/xway_nand.c b/drivers/mtd/nand/raw/xway_nand.c
+index 26751976e502..236fd8c5a958 100644
+--- a/drivers/mtd/nand/raw/xway_nand.c
++++ b/drivers/mtd/nand/raw/xway_nand.c
+@@ -148,9 +148,8 @@ static void xway_write_buf(struct nand_chip *chip, const u_char *buf, int len)
  
- static int socrates_attach_chip(struct nand_chip *chip)
+ static int xway_attach_chip(struct nand_chip *chip)
  {
 -	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
 -
@@ -82,20 +85,20 @@ index 70f8305c9b6e..fb39cc7ebce0 100644
  		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
  
  	return 0;
-@@ -175,6 +174,13 @@ static int socrates_nand_probe(struct platform_device *ofdev)
- 	/* TODO: I have no idea what real delay is. */
- 	nand_chip->legacy.chip_delay = 20;	/* 20us command delay time */
+@@ -219,6 +218,13 @@ static int xway_nand_probe(struct platform_device *pdev)
+ 		    | NAND_CON_SE_P | NAND_CON_WP_P | NAND_CON_PRE_P
+ 		    | cs_flag, EBU_NAND_CON);
  
 +	/*
 +	 * This driver assumes that the default ECC engine should be TYPE_SOFT.
 +	 * Set ->engine_type before registering the NAND devices in order to
 +	 * provide a driver specific default value.
 +	 */
-+	nand_chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
++	data->chip.ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
 +
- 	dev_set_drvdata(&ofdev->dev, host);
- 
- 	res = nand_scan(nand_chip, 1);
+ 	/* Scan to find existence of the device */
+ 	err = nand_scan(&data->chip, 1);
+ 	if (err)
 -- 
 2.27.0
 
