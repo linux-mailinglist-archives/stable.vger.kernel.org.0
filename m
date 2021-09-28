@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C464641BA01
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 00:15:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88B8941BA28
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 00:23:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243087AbhI1WQy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 18:16:54 -0400
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:58661 "EHLO
-        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243077AbhI1WQv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 18:16:51 -0400
+        id S243057AbhI1WYl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 18:24:41 -0400
+Received: from relay11.mail.gandi.net ([217.70.178.231]:52691 "EHLO
+        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243040AbhI1WYl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 18:24:41 -0400
 Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id BD8EE1C0002;
-        Tue, 28 Sep 2021 22:15:09 +0000 (UTC)
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 0C3DF100005;
+        Tue, 28 Sep 2021 22:22:59 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Richard Weinberger <richard@nod.at>,
         Vignesh Raghavendra <vigneshr@ti.com>,
         Tudor Ambarus <Tudor.Ambarus@microchip.com>
 Cc:     <linux-mtd@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        Vladimir Zapolskiy <vz@mleia.com>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
         stable@vger.kernel.org
-Subject: [PATCH 1/8] mtd: rawnand: fsmc: Fix use of SM ORDER
-Date:   Wed, 29 Sep 2021 00:15:00 +0200
-Message-Id: <20210928221507.199198-2-miquel.raynal@bootlin.com>
+Subject: [PATCH 1/9] mtd: rawnand: ams-delta: Keep the driver compatible with on-die ECC engines
+Date:   Wed, 29 Sep 2021 00:22:40 +0200
+Message-Id: <20210928222258.199726-2-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210928221507.199198-1-miquel.raynal@bootlin.com>
-References: <20210928221507.199198-1-miquel.raynal@bootlin.com>
+In-Reply-To: <20210928222258.199726-1-miquel.raynal@bootlin.com>
+References: <20210928222258.199726-1-miquel.raynal@bootlin.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
@@ -36,39 +34,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The introduction of the generic ECC engine API lead to a number of
-changes in various drivers which broke some of them. Here is a typical
-example: I expected the SM_ORDER option to be handled by the Hamming ECC
-engine internals. Problem: the fsmc driver does not instantiate (yet) a
-real ECC engine object so we had to use a 'bare' ECC helper instead of
-the shiny rawnand functions. However, when not intializing this engine
-properly and using the bare helpers, we do not get the SM ORDER feature
-handled automatically. It looks like this was lost in the process so
-let's ensure we use the right SM ORDER now.
+Following the introduction of the generic ECC engine infrastructure, it
+was necessary to reorganize the code and move the ECC configuration in
+the ->attach_chip() hook. Failing to do that properly lead to a first
+series of fixes supposed to stabilize the situation. Unfortunately, this
+only fixed the use of software ECC engines, preventing any other kind of
+engine to be used, including on-die ones.
 
-Fixes: ad9ffdce4539 ("mtd: rawnand: fsmc: Fix external use of SW Hamming ECC helper")
+It is now time to (finally) fix the situation by ensuring that we still
+provide a default (eg. software ECC) but will still support different
+ECC engines such as on-die ECC engines if properly described in the
+device tree.
+
+There are no changes needed on the core side in order to do this, but we
+just need to leverage the logic there which allows:
+1- a subsystem default (set to Host engines in the raw NAND world)
+2- a driver specific default (here set to software ECC engines)
+3- any type of engine requested by the user (ie. described in the DT)
+
+As the raw NAND subsystem has not yet been fully converted to the ECC
+engine infrastructure, in order to provide a default ECC engine for this
+driver we need to set chip->ecc.engine_type *before* calling
+nand_scan(). During the initialization step, the core will consider this
+entry as the default engine for this driver. This value may of course
+be overloaded by the user if the usual DT properties are provided.
+
+Fixes: 59d93473323a ("mtd: rawnand: ams-delta: Move the ECC initialization to ->attach_chip()")
 Cc: stable@vger.kernel.org
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 ---
- drivers/mtd/nand/raw/fsmc_nand.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mtd/nand/raw/ams-delta.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/fsmc_nand.c b/drivers/mtd/nand/raw/fsmc_nand.c
-index a3e66155ae40..658f0cbe7ce8 100644
---- a/drivers/mtd/nand/raw/fsmc_nand.c
-+++ b/drivers/mtd/nand/raw/fsmc_nand.c
-@@ -438,8 +438,10 @@ static int fsmc_correct_ecc1(struct nand_chip *chip,
- 			     unsigned char *read_ecc,
- 			     unsigned char *calc_ecc)
- {
-+	bool sm_order = chip->ecc.options & NAND_ECC_SOFT_HAMMING_SM_ORDER;
-+
- 	return ecc_sw_hamming_correct(buf, read_ecc, calc_ecc,
--				      chip->ecc.size, false);
-+				      chip->ecc.size, sm_order);
- }
+diff --git a/drivers/mtd/nand/raw/ams-delta.c b/drivers/mtd/nand/raw/ams-delta.c
+index ff1697f899ba..13de39aa3288 100644
+--- a/drivers/mtd/nand/raw/ams-delta.c
++++ b/drivers/mtd/nand/raw/ams-delta.c
+@@ -217,9 +217,8 @@ static int gpio_nand_setup_interface(struct nand_chip *this, int csline,
  
- /* Count the number of 0's in buff upto a max of max_bits */
+ static int gpio_nand_attach_chip(struct nand_chip *chip)
+ {
+-	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
+-
+-	if (chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN)
++	if (chip->ecc.engine_type == NAND_ECC_ENGINE_TYPE_SOFT &&
++	    chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN)
+ 		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
+ 
+ 	return 0;
+@@ -370,6 +369,13 @@ static int gpio_nand_probe(struct platform_device *pdev)
+ 	/* Release write protection */
+ 	gpiod_set_value(priv->gpiod_nwp, 0);
+ 
++	/*
++	 * This driver assumes that the default ECC engine should be TYPE_SOFT.
++	 * Set ->engine_type before registering the NAND devices in order to
++	 * provide a driver specific default value.
++	 */
++	this->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
++
+ 	/* Scan to find existence of the device */
+ 	err = nand_scan(this, 1);
+ 	if (err)
 -- 
 2.27.0
 
