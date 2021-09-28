@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50C8141A815
+	by mail.lfdr.de (Postfix) with ESMTP id 072B141A814
 	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 07:59:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239709AbhI1GBT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 02:01:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49570 "EHLO mail.kernel.org"
+        id S239686AbhI1GBI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 02:01:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239415AbhI1F7c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Sep 2021 01:59:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C16766127A;
-        Tue, 28 Sep 2021 05:56:59 +0000 (UTC)
+        id S239421AbhI1F7d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Sep 2021 01:59:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B8DC461372;
+        Tue, 28 Sep 2021 05:57:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632808619;
-        bh=Hv6zhBgHG460Lq2ZwpA4zetkrNeCBkz0ebL3kw8dHp4=;
+        s=k20201202; t=1632808620;
+        bh=Qlnfsy33Fa5GLT82aBUq02M+g7d+tQhUIXd/wlt7r+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PgrxY7k3UanllSA3fu353MrXCk+JSbR6DnkvgJtpvRapN9oXMiOZB9R+gUwXIoBnT
-         MOe89h1oMA9fOoUv2fWydVyuooF1I7wp6NjHtuooMeHEF9RspVze0Bo55DY3Nthnvk
-         I/UxFe4H6SVklumcSNR1dV/06WW7qesjXWobbEpwGHXUukl2WlzQLTliCco/Hbd7Ji
-         sIMTXPy3NiUq0Z5aNnxrzLNtfurOF/pFvKzinMGKMAOUovCPgfSWmdZZoPoLSOzqLq
-         /INStys1S0PmHu3C/IAt5n10XxqQvKbO3ZeTi355vRxIPSWh4fnnFRhPWrNqccRzDg
-         tFV/w4Hoq6BXQ==
+        b=tnC+I3Tdiy/sjxw50ZSa4vrmstG+2goT1dujLJ+C6hQNoMAV07dwyrxSSVK6Z3Vcm
+         orVZR83eq5pTcie/x4mFZ8HBBYlV/XpuypVJnYySRQV6wb3TYFv8iZ++xhv6BrQ/p/
+         MpVaO/EwRPDQZV2ECWAtcH5VPs+PB1kc5IDoLEbuhh8BmPQLHoi6l7v5EzSh4UK8hB
+         cJxjBrpoouXPS250EMPlgKTgO2nO99nmtv53hBfyt3iZLKvVKfv4Xo6H9KoL4KHtLp
+         +47idKMWFCYepgfwzGjxrPrjV+mX2+zhTapUqdtfroYTwPNzIhIg7GjLbRO8DqhEil
+         Q+7xt0DCAA3nQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ansuel Smith <ansuelsmth@gmail.com>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
-        bjorn.andersson@linaro.org, amitk@kernel.org,
-        thara.gopinath@linaro.org, rui.zhang@intel.com,
-        linux-arm-msm@vger.kernel.org, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 19/23] thermal/drivers/tsens: Fix wrong check for tzd in irq handlers
-Date:   Tue, 28 Sep 2021 01:56:40 -0400
-Message-Id: <20210928055645.172544-19-sashal@kernel.org>
+Cc:     Wen Xiong <wenxiong@linux.ibm.com>,
+        Brian King <brking@linux.ibm.com>,
+        James Bottomley <jejb@linux.ibm.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 20/23] scsi: ses: Retry failed Send/Receive Diagnostic commands
+Date:   Tue, 28 Sep 2021 01:56:41 -0400
+Message-Id: <20210928055645.172544-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210928055645.172544-1-sashal@kernel.org>
 References: <20210928055645.172544-1-sashal@kernel.org>
@@ -46,47 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ansuel Smith <ansuelsmth@gmail.com>
+From: Wen Xiong <wenxiong@linux.ibm.com>
 
-[ Upstream commit cf96921876dcee4d6ac07b9de470368a075ba9ad ]
+[ Upstream commit fbdac19e642899455b4e64c63aafe2325df7aafa ]
 
-Some devices can have some thermal sensors disabled from the
-factory. The current two irq handler functions check all the sensor by
-default and the check if the sensor was actually registered is
-wrong. The tzd is actually never set if the registration fails hence
-the IS_ERR check is wrong.
+Setting SCSI logging level with error=3, we saw some errors from enclosues:
 
-Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210907212543.20220-1-ansuelsmth@gmail.com
+[108017.360833] ses 0:0:9:0: tag#641 Done: NEEDS_RETRY Result: hostbyte=DID_ERROR driverbyte=DRIVER_OK cmd_age=0s
+[108017.360838] ses 0:0:9:0: tag#641 CDB: Receive Diagnostic 1c 01 01 00 20 00
+[108017.427778] ses 0:0:9:0: Power-on or device reset occurred
+[108017.427784] ses 0:0:9:0: tag#641 Done: SUCCESS Result: hostbyte=DID_OK driverbyte=DRIVER_OK cmd_age=0s
+[108017.427788] ses 0:0:9:0: tag#641 CDB: Receive Diagnostic 1c 01 01 00 20 00
+[108017.427791] ses 0:0:9:0: tag#641 Sense Key : Unit Attention [current]
+[108017.427793] ses 0:0:9:0: tag#641 Add. Sense: Bus device reset function occurred
+[108017.427801] ses 0:0:9:0: Failed to get diagnostic page 0x1
+[108017.427804] ses 0:0:9:0: Failed to bind enclosure -19
+[108017.427895] ses 0:0:10:0: Attached Enclosure device
+[108017.427942] ses 0:0:10:0: Attached scsi generic sg18 type 13
+
+Retry if the Send/Receive Diagnostic commands complete with a transient
+error status (NOT_READY or UNIT_ATTENTION with ASC 0x29).
+
+Link: https://lore.kernel.org/r/1631849061-10210-2-git-send-email-wenxiong@linux.ibm.com
+Reviewed-by: Brian King <brking@linux.ibm.com>
+Reviewed-by: James Bottomley <jejb@linux.ibm.com>
+Signed-off-by: Wen Xiong <wenxiong@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/qcom/tsens.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/ses.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/thermal/qcom/tsens.c b/drivers/thermal/qcom/tsens.c
-index 3c4c0516e58a..cb4f4b522446 100644
---- a/drivers/thermal/qcom/tsens.c
-+++ b/drivers/thermal/qcom/tsens.c
-@@ -415,7 +415,7 @@ static irqreturn_t tsens_critical_irq_thread(int irq, void *data)
- 		const struct tsens_sensor *s = &priv->sensor[i];
- 		u32 hw_id = s->hw_id;
+diff --git a/drivers/scsi/ses.c b/drivers/scsi/ses.c
+index c2afba2a5414..43e682297fd5 100644
+--- a/drivers/scsi/ses.c
++++ b/drivers/scsi/ses.c
+@@ -87,9 +87,16 @@ static int ses_recv_diag(struct scsi_device *sdev, int page_code,
+ 		0
+ 	};
+ 	unsigned char recv_page_code;
++	unsigned int retries = SES_RETRIES;
++	struct scsi_sense_hdr sshdr;
++
++	do {
++		ret = scsi_execute_req(sdev, cmd, DMA_FROM_DEVICE, buf, bufflen,
++				       &sshdr, SES_TIMEOUT, 1, NULL);
++	} while (ret > 0 && --retries && scsi_sense_valid(&sshdr) &&
++		 (sshdr.sense_key == NOT_READY ||
++		  (sshdr.sense_key == UNIT_ATTENTION && sshdr.asc == 0x29)));
  
--		if (IS_ERR(s->tzd))
-+		if (!s->tzd)
- 			continue;
- 		if (!tsens_threshold_violated(priv, hw_id, &d))
- 			continue;
-@@ -465,7 +465,7 @@ static irqreturn_t tsens_irq_thread(int irq, void *data)
- 		const struct tsens_sensor *s = &priv->sensor[i];
- 		u32 hw_id = s->hw_id;
+-	ret =  scsi_execute_req(sdev, cmd, DMA_FROM_DEVICE, buf, bufflen,
+-				NULL, SES_TIMEOUT, SES_RETRIES, NULL);
+ 	if (unlikely(ret))
+ 		return ret;
  
--		if (IS_ERR(s->tzd))
-+		if (!s->tzd)
- 			continue;
- 		if (!tsens_threshold_violated(priv, hw_id, &d))
- 			continue;
+@@ -121,9 +128,16 @@ static int ses_send_diag(struct scsi_device *sdev, int page_code,
+ 		bufflen & 0xff,
+ 		0
+ 	};
++	struct scsi_sense_hdr sshdr;
++	unsigned int retries = SES_RETRIES;
++
++	do {
++		result = scsi_execute_req(sdev, cmd, DMA_TO_DEVICE, buf, bufflen,
++					  &sshdr, SES_TIMEOUT, 1, NULL);
++	} while (result > 0 && --retries && scsi_sense_valid(&sshdr) &&
++		 (sshdr.sense_key == NOT_READY ||
++		  (sshdr.sense_key == UNIT_ATTENTION && sshdr.asc == 0x29)));
+ 
+-	result = scsi_execute_req(sdev, cmd, DMA_TO_DEVICE, buf, bufflen,
+-				  NULL, SES_TIMEOUT, SES_RETRIES, NULL);
+ 	if (result)
+ 		sdev_printk(KERN_ERR, sdev, "SEND DIAGNOSTIC result: %8x\n",
+ 			    result);
 -- 
 2.33.0
 
