@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 918AC41A79C
+	by mail.lfdr.de (Postfix) with ESMTP id 4469B41A79B
 	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 07:57:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238999AbhI1F6j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 01:58:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48754 "EHLO mail.kernel.org"
+        id S239100AbhI1F6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 01:58:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239107AbhI1F6F (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239108AbhI1F6F (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 28 Sep 2021 01:58:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6667611EF;
-        Tue, 28 Sep 2021 05:56:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 213336127A;
+        Tue, 28 Sep 2021 05:56:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632808572;
-        bh=7FwgpOhTmyxgrzocDaeCBh9rle0uDzLBqgpbfy6ZBYk=;
+        s=k20201202; t=1632808573;
+        bh=xrMAs+IPKkLz+WhNBr+/uWnEYjVSKPnqoj2nhShfunE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uWvqB2s3BkBegb/uowECtbch5Y9tQqzziKYev4hzopcwKeOfY1kJVJ/kZIQ/4HBG6
-         GGkoQxlUEYATPaxOr/JNFw1xRKj2Gw3phdHbqnDwszx2BWLxpi4C4xA6fJjvVLayQQ
-         7xVPcVcw1MVwAqqZ0dpAlsOhOznKCXPOyiAYJ7wc0A9/P4+1NWAIOLustymzRKy2jO
-         EtUBGaIJwnOvA+l9QKEqEStvBgXqxLoEbo1esv5EEVjCLqxBO/iKiUCySMWGDZKr3k
-         LF9B4D4llD/nTJTP83ICzLwYQbj0D5yRuom9AL4mda5lsyJ/M4vinjHysNftiHI8GE
-         1xsueWwgDKCgg==
+        b=cemAvYs090T6zr3rCLcZmJjkY7eUKclTUrRD8UssQutinH+LXDtnjRYwBXCzfS0lB
+         S25mftrS+gLTm0frUqcO/h+vlxTct7liQzF4g1Qs/lXEuxanZGuF8cnwbg0lxAx6ts
+         6t/4sQBHdQgxGFnX6KUaauyP6mI8dqEMY9xDU4Mn0o4ksPySW+kOvFpygWgWam5GrS
+         0dlhc36cFdvQ6UYsnRutLISU45ocrOetI5pN1G3IKxjhstSvjZS9tyZDRCuju1551L
+         SCWlxee97u6WhXYipUv5LDwwj+vxPm57Ak55FphrNzOdisMHfHefZNBmcM+7mipusS
+         Bt1wvJ9/XT6Cg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oded Gabbay <ogabbay@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Arnd@vger.kernel.org, gregkh@linuxfoundation.org,
-        obitton@habana.ai, oshpigelman@habana.ai, osharabi@habana.ai
-Subject: [PATCH AUTOSEL 5.14 22/40] habanalabs/gaudi: fix LBW RR configuration
-Date:   Tue, 28 Sep 2021 01:55:06 -0400
-Message-Id: <20210928055524.172051-22-sashal@kernel.org>
+Cc:     Li Zhijian <lizhijian@cn.fujitsu.com>,
+        Philip Li <philip.li@intel.com>,
+        kernel test robot <lkp@intel.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 23/40] selftests: be sure to make khdr before other targets
+Date:   Tue, 28 Sep 2021 01:55:07 -0400
+Message-Id: <20210928055524.172051-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210928055524.172051-1-sashal@kernel.org>
 References: <20210928055524.172051-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,325 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oded Gabbay <ogabbay@kernel.org>
+From: Li Zhijian <lizhijian@cn.fujitsu.com>
 
-[ Upstream commit 0a5ff77bf0a94468d541735f919a633f167787e9 ]
+[ Upstream commit 8914a7a247e065438a0ec86a58c1c359223d2c9e ]
 
-Couple of fixes to the LBW RR configuration:
+LKP/0Day reported some building errors about kvm, and errors message
+are not always same:
+- lib/x86_64/processor.c:1083:31: error: ‘KVM_CAP_NESTED_STATE’ undeclared
+(first use in this function); did you mean ‘KVM_CAP_PIT_STATE2’?
+- lib/test_util.c:189:30: error: ‘MAP_HUGE_16KB’ undeclared (first use
+in this function); did you mean ‘MAP_HUGE_16GB’?
 
-1. Add missing configuration of the SM RR registers in the DMA_IF.
-2. Remove HBW range that doesn't belong.
-3. Add entire gap + DBG area, from end of TPC7 to end of entire
-   DBG space.
+Although kvm relies on the khdr, they still be built in parallel when -j
+is specified. In this case, it will cause compiling errors.
 
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+Here we mark target khdr as NOTPARALLEL to make it be always built
+first.
+
+CC: Philip Li <philip.li@intel.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Li Zhijian <lizhijian@cn.fujitsu.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../misc/habanalabs/gaudi/gaudi_security.c    | 115 ++++++++++--------
- 1 file changed, 67 insertions(+), 48 deletions(-)
+ tools/testing/selftests/lib.mk | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/misc/habanalabs/gaudi/gaudi_security.c b/drivers/misc/habanalabs/gaudi/gaudi_security.c
-index 0d3240f1f7d7..2b8bafda41bc 100644
---- a/drivers/misc/habanalabs/gaudi/gaudi_security.c
-+++ b/drivers/misc/habanalabs/gaudi/gaudi_security.c
-@@ -8,16 +8,21 @@
- #include "gaudiP.h"
- #include "../include/gaudi/asic_reg/gaudi_regs.h"
- 
--#define GAUDI_NUMBER_OF_RR_REGS		24
--#define GAUDI_NUMBER_OF_LBW_RANGES	12
-+#define GAUDI_NUMBER_OF_LBW_RR_REGS	28
-+#define GAUDI_NUMBER_OF_HBW_RR_REGS	24
-+#define GAUDI_NUMBER_OF_LBW_RANGES	10
- 
--static u64 gaudi_rr_lbw_hit_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_lbw_hit_aw_regs[GAUDI_NUMBER_OF_LBW_RR_REGS] = {
-+	mmDMA_IF_W_S_SOB_HIT_WPROT,
- 	mmDMA_IF_W_S_DMA0_HIT_WPROT,
- 	mmDMA_IF_W_S_DMA1_HIT_WPROT,
-+	mmDMA_IF_E_S_SOB_HIT_WPROT,
- 	mmDMA_IF_E_S_DMA0_HIT_WPROT,
- 	mmDMA_IF_E_S_DMA1_HIT_WPROT,
-+	mmDMA_IF_W_N_SOB_HIT_WPROT,
- 	mmDMA_IF_W_N_DMA0_HIT_WPROT,
- 	mmDMA_IF_W_N_DMA1_HIT_WPROT,
-+	mmDMA_IF_E_N_SOB_HIT_WPROT,
- 	mmDMA_IF_E_N_DMA0_HIT_WPROT,
- 	mmDMA_IF_E_N_DMA1_HIT_WPROT,
- 	mmSIF_RTR_0_LBW_RANGE_PROT_HIT_AW,
-@@ -38,13 +43,17 @@ static u64 gaudi_rr_lbw_hit_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_7_LBW_RANGE_PROT_HIT_AW,
- };
- 
--static u64 gaudi_rr_lbw_hit_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_lbw_hit_ar_regs[GAUDI_NUMBER_OF_LBW_RR_REGS] = {
-+	mmDMA_IF_W_S_SOB_HIT_RPROT,
- 	mmDMA_IF_W_S_DMA0_HIT_RPROT,
- 	mmDMA_IF_W_S_DMA1_HIT_RPROT,
-+	mmDMA_IF_E_S_SOB_HIT_RPROT,
- 	mmDMA_IF_E_S_DMA0_HIT_RPROT,
- 	mmDMA_IF_E_S_DMA1_HIT_RPROT,
-+	mmDMA_IF_W_N_SOB_HIT_RPROT,
- 	mmDMA_IF_W_N_DMA0_HIT_RPROT,
- 	mmDMA_IF_W_N_DMA1_HIT_RPROT,
-+	mmDMA_IF_E_N_SOB_HIT_RPROT,
- 	mmDMA_IF_E_N_DMA0_HIT_RPROT,
- 	mmDMA_IF_E_N_DMA1_HIT_RPROT,
- 	mmSIF_RTR_0_LBW_RANGE_PROT_HIT_AR,
-@@ -65,13 +74,17 @@ static u64 gaudi_rr_lbw_hit_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_7_LBW_RANGE_PROT_HIT_AR,
- };
- 
--static u64 gaudi_rr_lbw_min_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_lbw_min_aw_regs[GAUDI_NUMBER_OF_LBW_RR_REGS] = {
-+	mmDMA_IF_W_S_SOB_MIN_WPROT_0,
- 	mmDMA_IF_W_S_DMA0_MIN_WPROT_0,
- 	mmDMA_IF_W_S_DMA1_MIN_WPROT_0,
-+	mmDMA_IF_E_S_SOB_MIN_WPROT_0,
- 	mmDMA_IF_E_S_DMA0_MIN_WPROT_0,
- 	mmDMA_IF_E_S_DMA1_MIN_WPROT_0,
-+	mmDMA_IF_W_N_SOB_MIN_WPROT_0,
- 	mmDMA_IF_W_N_DMA0_MIN_WPROT_0,
- 	mmDMA_IF_W_N_DMA1_MIN_WPROT_0,
-+	mmDMA_IF_E_N_SOB_MIN_WPROT_0,
- 	mmDMA_IF_E_N_DMA0_MIN_WPROT_0,
- 	mmDMA_IF_E_N_DMA1_MIN_WPROT_0,
- 	mmSIF_RTR_0_LBW_RANGE_PROT_MIN_AW_0,
-@@ -92,13 +105,17 @@ static u64 gaudi_rr_lbw_min_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_7_LBW_RANGE_PROT_MIN_AW_0,
- };
- 
--static u64 gaudi_rr_lbw_max_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_lbw_max_aw_regs[GAUDI_NUMBER_OF_LBW_RR_REGS] = {
-+	mmDMA_IF_W_S_SOB_MAX_WPROT_0,
- 	mmDMA_IF_W_S_DMA0_MAX_WPROT_0,
- 	mmDMA_IF_W_S_DMA1_MAX_WPROT_0,
-+	mmDMA_IF_E_S_SOB_MAX_WPROT_0,
- 	mmDMA_IF_E_S_DMA0_MAX_WPROT_0,
- 	mmDMA_IF_E_S_DMA1_MAX_WPROT_0,
-+	mmDMA_IF_W_N_SOB_MAX_WPROT_0,
- 	mmDMA_IF_W_N_DMA0_MAX_WPROT_0,
- 	mmDMA_IF_W_N_DMA1_MAX_WPROT_0,
-+	mmDMA_IF_E_N_SOB_MAX_WPROT_0,
- 	mmDMA_IF_E_N_DMA0_MAX_WPROT_0,
- 	mmDMA_IF_E_N_DMA1_MAX_WPROT_0,
- 	mmSIF_RTR_0_LBW_RANGE_PROT_MAX_AW_0,
-@@ -119,13 +136,17 @@ static u64 gaudi_rr_lbw_max_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_7_LBW_RANGE_PROT_MAX_AW_0,
- };
- 
--static u64 gaudi_rr_lbw_min_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_lbw_min_ar_regs[GAUDI_NUMBER_OF_LBW_RR_REGS] = {
-+	mmDMA_IF_W_S_SOB_MIN_RPROT_0,
- 	mmDMA_IF_W_S_DMA0_MIN_RPROT_0,
- 	mmDMA_IF_W_S_DMA1_MIN_RPROT_0,
-+	mmDMA_IF_E_S_SOB_MIN_RPROT_0,
- 	mmDMA_IF_E_S_DMA0_MIN_RPROT_0,
- 	mmDMA_IF_E_S_DMA1_MIN_RPROT_0,
-+	mmDMA_IF_W_N_SOB_MIN_RPROT_0,
- 	mmDMA_IF_W_N_DMA0_MIN_RPROT_0,
- 	mmDMA_IF_W_N_DMA1_MIN_RPROT_0,
-+	mmDMA_IF_E_N_SOB_MIN_RPROT_0,
- 	mmDMA_IF_E_N_DMA0_MIN_RPROT_0,
- 	mmDMA_IF_E_N_DMA1_MIN_RPROT_0,
- 	mmSIF_RTR_0_LBW_RANGE_PROT_MIN_AR_0,
-@@ -146,13 +167,17 @@ static u64 gaudi_rr_lbw_min_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_7_LBW_RANGE_PROT_MIN_AR_0,
- };
- 
--static u64 gaudi_rr_lbw_max_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_lbw_max_ar_regs[GAUDI_NUMBER_OF_LBW_RR_REGS] = {
-+	mmDMA_IF_W_S_SOB_MAX_RPROT_0,
- 	mmDMA_IF_W_S_DMA0_MAX_RPROT_0,
- 	mmDMA_IF_W_S_DMA1_MAX_RPROT_0,
-+	mmDMA_IF_E_S_SOB_MAX_RPROT_0,
- 	mmDMA_IF_E_S_DMA0_MAX_RPROT_0,
- 	mmDMA_IF_E_S_DMA1_MAX_RPROT_0,
-+	mmDMA_IF_W_N_SOB_MAX_RPROT_0,
- 	mmDMA_IF_W_N_DMA0_MAX_RPROT_0,
- 	mmDMA_IF_W_N_DMA1_MAX_RPROT_0,
-+	mmDMA_IF_E_N_SOB_MAX_RPROT_0,
- 	mmDMA_IF_E_N_DMA0_MAX_RPROT_0,
- 	mmDMA_IF_E_N_DMA1_MAX_RPROT_0,
- 	mmSIF_RTR_0_LBW_RANGE_PROT_MAX_AR_0,
-@@ -173,7 +198,7 @@ static u64 gaudi_rr_lbw_max_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_7_LBW_RANGE_PROT_MAX_AR_0,
- };
- 
--static u64 gaudi_rr_hbw_hit_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_hit_aw_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_HIT_AW,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_HIT_AW,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_HIT_AW,
-@@ -200,7 +225,7 @@ static u64 gaudi_rr_hbw_hit_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_HIT_AW
- };
- 
--static u64 gaudi_rr_hbw_hit_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_hit_ar_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_HIT_AR,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_HIT_AR,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_HIT_AR,
-@@ -227,7 +252,7 @@ static u64 gaudi_rr_hbw_hit_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_HIT_AR
- };
- 
--static u64 gaudi_rr_hbw_base_low_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_base_low_aw_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_BASE_LOW_AW_0,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_BASE_LOW_AW_0,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_BASE_LOW_AW_0,
-@@ -254,7 +279,7 @@ static u64 gaudi_rr_hbw_base_low_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_BASE_LOW_AW_0
- };
- 
--static u64 gaudi_rr_hbw_base_high_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_base_high_aw_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_BASE_HIGH_AW_0,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_BASE_HIGH_AW_0,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_BASE_HIGH_AW_0,
-@@ -281,7 +306,7 @@ static u64 gaudi_rr_hbw_base_high_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_BASE_HIGH_AW_0
- };
- 
--static u64 gaudi_rr_hbw_mask_low_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_mask_low_aw_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_MASK_LOW_AW_0,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_MASK_LOW_AW_0,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_MASK_LOW_AW_0,
-@@ -308,7 +333,7 @@ static u64 gaudi_rr_hbw_mask_low_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_MASK_LOW_AW_0
- };
- 
--static u64 gaudi_rr_hbw_mask_high_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_mask_high_aw_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_MASK_HIGH_AW_0,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_MASK_HIGH_AW_0,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_MASK_HIGH_AW_0,
-@@ -335,7 +360,7 @@ static u64 gaudi_rr_hbw_mask_high_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_MASK_HIGH_AW_0
- };
- 
--static u64 gaudi_rr_hbw_base_low_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_base_low_ar_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_BASE_LOW_AR_0,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_BASE_LOW_AR_0,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_BASE_LOW_AR_0,
-@@ -362,7 +387,7 @@ static u64 gaudi_rr_hbw_base_low_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_BASE_LOW_AR_0
- };
- 
--static u64 gaudi_rr_hbw_base_high_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_base_high_ar_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_BASE_HIGH_AR_0,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_BASE_HIGH_AR_0,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_BASE_HIGH_AR_0,
-@@ -389,7 +414,7 @@ static u64 gaudi_rr_hbw_base_high_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_BASE_HIGH_AR_0
- };
- 
--static u64 gaudi_rr_hbw_mask_low_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_mask_low_ar_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_MASK_LOW_AR_0,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_MASK_LOW_AR_0,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_MASK_LOW_AR_0,
-@@ -416,7 +441,7 @@ static u64 gaudi_rr_hbw_mask_low_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_MASK_LOW_AR_0
- };
- 
--static u64 gaudi_rr_hbw_mask_high_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_mask_high_ar_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_MASK_HIGH_AR_0,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_MASK_HIGH_AR_0,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_MASK_HIGH_AR_0,
-@@ -12841,50 +12866,44 @@ static void gaudi_init_range_registers_lbw(struct hl_device *hdev)
- 	u32 lbw_rng_end[GAUDI_NUMBER_OF_LBW_RANGES];
- 	int i, j;
- 
--	lbw_rng_start[0]  = (0xFBFE0000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[0]    = (0xFBFFF000 & 0x3FFFFFF) + 1;
-+	lbw_rng_start[0]  = (0xFC0E8000 & 0x3FFFFFF) - 1; /* 0x000E7FFF */
-+	lbw_rng_end[0]    = (0xFC11FFFF & 0x3FFFFFF) + 1; /* 0x00120000 */
- 
--	lbw_rng_start[1]  = (0xFC0E8000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[1]    = (0xFC120000 & 0x3FFFFFF) + 1;
-+	lbw_rng_start[1]  = (0xFC1E8000 & 0x3FFFFFF) - 1; /* 0x001E7FFF */
-+	lbw_rng_end[1]    = (0xFC48FFFF & 0x3FFFFFF) + 1; /* 0x00490000 */
- 
--	lbw_rng_start[2]  = (0xFC1E8000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[2]    = (0xFC48FFFF & 0x3FFFFFF) + 1;
-+	lbw_rng_start[2]  = (0xFC600000 & 0x3FFFFFF) - 1; /* 0x005FFFFF */
-+	lbw_rng_end[2]    = (0xFCC48FFF & 0x3FFFFFF) + 1; /* 0x00C49000 */
- 
--	lbw_rng_start[3]  = (0xFC600000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[3]    = (0xFCC48FFF & 0x3FFFFFF) + 1;
-+	lbw_rng_start[3]  = (0xFCC4A000 & 0x3FFFFFF) - 1; /* 0x00C49FFF */
-+	lbw_rng_end[3]    = (0xFCCDFFFF & 0x3FFFFFF) + 1; /* 0x00CE0000 */
- 
--	lbw_rng_start[4]  = (0xFCC4A000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[4]    = (0xFCCDFFFF & 0x3FFFFFF) + 1;
-+	lbw_rng_start[4]  = (0xFCCE4000 & 0x3FFFFFF) - 1; /* 0x00CE3FFF */
-+	lbw_rng_end[4]    = (0xFCD1FFFF & 0x3FFFFFF) + 1; /* 0x00D20000 */
- 
--	lbw_rng_start[5]  = (0xFCCE4000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[5]    = (0xFCD1FFFF & 0x3FFFFFF) + 1;
-+	lbw_rng_start[5]  = (0xFCD24000 & 0x3FFFFFF) - 1; /* 0x00D23FFF */
-+	lbw_rng_end[5]    = (0xFCD5FFFF & 0x3FFFFFF) + 1; /* 0x00D60000 */
- 
--	lbw_rng_start[6]  = (0xFCD24000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[6]    = (0xFCD5FFFF & 0x3FFFFFF) + 1;
-+	lbw_rng_start[6]  = (0xFCD64000 & 0x3FFFFFF) - 1; /* 0x00D63FFF */
-+	lbw_rng_end[6]    = (0xFCD9FFFF & 0x3FFFFFF) + 1; /* 0x00DA0000 */
- 
--	lbw_rng_start[7]  = (0xFCD64000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[7]    = (0xFCD9FFFF & 0x3FFFFFF) + 1;
-+	lbw_rng_start[7]  = (0xFCDA4000 & 0x3FFFFFF) - 1; /* 0x00DA3FFF */
-+	lbw_rng_end[7]    = (0xFCDDFFFF & 0x3FFFFFF) + 1; /* 0x00DE0000 */
- 
--	lbw_rng_start[8]  = (0xFCDA4000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[8]    = (0xFCDDFFFF & 0x3FFFFFF) + 1;
-+	lbw_rng_start[8]  = (0xFCDE4000 & 0x3FFFFFF) - 1; /* 0x00DE3FFF */
-+	lbw_rng_end[8]    = (0xFCE05FFF & 0x3FFFFFF) + 1; /* 0x00E06000 */
- 
--	lbw_rng_start[9]  = (0xFCDE4000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[9]    = (0xFCE05FFF & 0x3FFFFFF) + 1;
-+	lbw_rng_start[9]  = (0xFCFC9000 & 0x3FFFFFF) - 1; /* 0x00FC8FFF */
-+	lbw_rng_end[9]    = (0xFFFFFFFE & 0x3FFFFFF) + 1; /* 0x03FFFFFF */
- 
--	lbw_rng_start[10]  = (0xFEC43000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[10]    = (0xFEC43FFF & 0x3FFFFFF) + 1;
--
--	lbw_rng_start[11] = (0xFE484000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[11]   = (0xFE484FFF & 0x3FFFFFF) + 1;
--
--	for (i = 0 ; i < GAUDI_NUMBER_OF_RR_REGS ; i++) {
-+	for (i = 0 ; i < GAUDI_NUMBER_OF_LBW_RR_REGS ; i++) {
- 		WREG32(gaudi_rr_lbw_hit_aw_regs[i],
- 				(1 << GAUDI_NUMBER_OF_LBW_RANGES) - 1);
- 		WREG32(gaudi_rr_lbw_hit_ar_regs[i],
- 				(1 << GAUDI_NUMBER_OF_LBW_RANGES) - 1);
- 	}
- 
--	for (i = 0 ; i < GAUDI_NUMBER_OF_RR_REGS ; i++)
-+	for (i = 0 ; i < GAUDI_NUMBER_OF_LBW_RR_REGS ; i++)
- 		for (j = 0 ; j < GAUDI_NUMBER_OF_LBW_RANGES ; j++) {
- 			WREG32(gaudi_rr_lbw_min_aw_regs[i] + (j << 2),
- 							lbw_rng_start[j]);
-@@ -12931,12 +12950,12 @@ static void gaudi_init_range_registers_hbw(struct hl_device *hdev)
- 	 * 6th range is the host
- 	 */
- 
--	for (i = 0 ; i < GAUDI_NUMBER_OF_RR_REGS ; i++) {
-+	for (i = 0 ; i < GAUDI_NUMBER_OF_HBW_RR_REGS ; i++) {
- 		WREG32(gaudi_rr_hbw_hit_aw_regs[i], 0x1F);
- 		WREG32(gaudi_rr_hbw_hit_ar_regs[i], 0x1D);
- 	}
- 
--	for (i = 0 ; i < GAUDI_NUMBER_OF_RR_REGS ; i++) {
-+	for (i = 0 ; i < GAUDI_NUMBER_OF_HBW_RR_REGS ; i++) {
- 		WREG32(gaudi_rr_hbw_base_low_aw_regs[i], dram_addr_lo);
- 		WREG32(gaudi_rr_hbw_base_low_ar_regs[i], dram_addr_lo);
- 
+diff --git a/tools/testing/selftests/lib.mk b/tools/testing/selftests/lib.mk
+index fa2ac0e56b43..fe7ee2b0f29c 100644
+--- a/tools/testing/selftests/lib.mk
++++ b/tools/testing/selftests/lib.mk
+@@ -48,6 +48,7 @@ ARCH		?= $(SUBARCH)
+ # When local build is done, headers are installed in the default
+ # INSTALL_HDR_PATH usr/include.
+ .PHONY: khdr
++.NOTPARALLEL:
+ khdr:
+ ifndef KSFT_KHDR_INSTALL_DONE
+ ifeq (1,$(DEFAULT_INSTALL_HDR_PATH))
 -- 
 2.33.0
 
