@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 676EA41B2C8
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 17:17:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E84941B2C4
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 17:16:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241471AbhI1PSj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 11:18:39 -0400
-Received: from mx0b-0064b401.pphosted.com ([205.220.178.238]:24308 "EHLO
+        id S241442AbhI1PSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 11:18:33 -0400
+Received: from mx0b-0064b401.pphosted.com ([205.220.178.238]:18656 "EHLO
         mx0b-0064b401.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S241473AbhI1PSf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 11:18:35 -0400
+        by vger.kernel.org with ESMTP id S241399AbhI1PSc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 11:18:32 -0400
 Received: from pps.filterd (m0250811.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18SEbVuE013175;
-        Tue, 28 Sep 2021 15:16:53 GMT
+        by mx0a-0064b401.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18SEvOpf004030;
+        Tue, 28 Sep 2021 15:16:50 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version; s=PPS06212021;
- bh=KU0zgooPe+pFzkZOEoR8cr5WimE66OGJbsyLhvfgSUc=;
- b=MYcWR9uTi17+DG8M/HqmdYhVPgbuowvHSfFnDmXuZ/+9tG0qgGLEvOuEr9KwcydrnAb8
- /Zzf7Q4R3jHdv6TWFQzFGUP8asyCFVLcgbFC/vhm/QPSISwAYAgsVdRBZLa8otD4Keow
- FJpEZejysJ9QOCwGKeSptQvI42OPk+A1rHAVIrQ0PZRVUfzVYEhpTAs0cu05kyX60UZo
- 9s/bweRGOODt48s/Ud45k9cIUkUWTBcjQe3LWts2i7ISqpG88Gsra36Z/BTRrwlMlcgh
- d2zdozqiKbnQIFGiDcds2GPIw4h/FROn7HUG88J0dTs7LY+eSnaHfQSWkr5rRnBmgMgi JA== 
-Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2048.outbound.protection.outlook.com [104.47.66.48])
-        by mx0a-0064b401.pphosted.com with ESMTP id 3bc0qfr9a4-3
+ bh=e+IKItZN/l4bduo4nL7AYH2bbIsxCVQoRFDo17Es7JA=;
+ b=jofplDeCBcpOUUPYiJyaaqOPSCLF/6qtNOZ1VpoBxCCJD1Ho3GyQcYna+rzumI/4sm3l
+ sixXjXBdCZhQ2foUnfpdNVgV/ROWOmaVY8MbeyTQ1/b56qi1fzH7J9CSTCgqffAvL5LD
+ pgd8H3ZVQRv3R4SdYeb11a9pt3h5r13alCHgAC5l06HLaB/RuJ6mNtn1nJiV8I81VHBP
+ 7LO3FN6y9pF+n/AkubLLietBL2vGm40x5VJLAPNd6TUs/6QN2lVwIKLa1r1Rw9xmPJa3
+ zIKP7ms+z8ERtUbsEiY39JS46H0+4kbDaUSOV47qBkozERue/k8Nyg7qP3p46HPDyMCW gw== 
+Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2043.outbound.protection.outlook.com [104.47.66.43])
+        by mx0a-0064b401.pphosted.com with ESMTP id 3bc0qfr9a6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Sep 2021 15:16:53 +0000
+        Tue, 28 Sep 2021 15:16:50 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=URoc7ieHsxZyySNqI5ShxAPyYAX5HkP+IrKKIGj68lRkkdmvJK1OIe+e6ZF4gIbn6weLQN7XXPxnBaNaFrMOSqDVgANeb0fUVc9+f+31TVKYBNytv1Fi1q4qTGV4bH8M1+cJixcUQThhvCeYM/JlmmWzMt4CwO+hkY2/Su+tnxbRcC1Wakx4/LeJlW9q/jJbUxveLh8vtW5Xj9kiQhy98podzdRP+dhTj5mNCh3+RvcYKukU/KekKSXSiz/tTW17XJqfQGIZje5ZhvAYCZBvDANQwHqkn8axlLd9CGL55uVJiUip3qRXfkFMCCjiVA/lzfxVh14vwzyqtLGaEl96Rg==
+ b=oFuJRl1N0NybM2hTttve/SZw7ZBVfZvYmJzMHmpb3+npy+HpRazeMGri63rI56NqitrUHiujIj34enk/4uVdoa/iXMqmmFD+QxYZabh+JBdONwU4Wz4kIwoYr8cm+r/YarVIBOgW0bm41iWGBQDfq+OyVQVEOsZYLgRU9jLuTvuYEX3Chfrko5Dt2ZlKjbZ3TLoiC43rBb7mh2yaZ7SKK0bBc29G30sph1G36jNngsTIIq90Gz+2wHaN+lZB1WA52zESM3btqfOEhBBNLgaUPWwjuzsjroDyltg4/54I+6sWZLkf/SvqOY5GT2xF94EpZWqHr3WeJ4pjf4hmCpZTHg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version;
- bh=KU0zgooPe+pFzkZOEoR8cr5WimE66OGJbsyLhvfgSUc=;
- b=lVqsjsolF0du8x+0w4mtvDEN51imhmAe9uQNlsPFaBx9mEPAwML+JWuo3ZqOM6hb2/tS/xa2mAAoU7ngMvJTPumR9veKQz4Ft6zyJc2MsafzYfMwQN6Guo0CHfd95H9+leVku+9f+VCC4u+7wfprqsLqILEjZnlmtP7wrGxEv8qHzIpl+yWhwClpcJmnSXDRwBxFIfCvOzwI+GVO6lkDzZ4jf6NBHP1+X74VpRHCXF7wOVE0ZLTs8uSXe+yCk3WB0jhVPwpxkaBlY++u0n+IixWqxVUwRJsB1p8bbQ31Nl8g3DHvN5hN71yoZ6Giph9bKChrNRMPrYoi4sr6AhHsEA==
+ bh=e+IKItZN/l4bduo4nL7AYH2bbIsxCVQoRFDo17Es7JA=;
+ b=Hqy4kHZoT4WpeJWtjtzXppGTo9AkFfboeDOTwFaMQbXmJEoYgHF9szp6IVKsUDcYl2snYvllfLzuhs8xv6SOlfstjEREH1pD+rfwCfMHiicNMWtA3UQ4LwyDKSWI2IfZa2tNYUTPxY2kxp3E+okyXLxNHcnl82zZNwvC5Xds3cY9srJVdzfiBbEZCRd0r4TdWC5CRUrMWqZkykuneMhfv9R2UcLKTyio6CSWXXiDCvc5p5uWrD1epUepq2A8fpsuXnNxKSrdNkCOolj9i6gFBbAgYzz7B/Uypk0n3JI7TdrGhIsg8Dwvf53EdpcrcHjltykh619wtYEbsqn1TxUu+g==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=windriver.com; dmarc=pass action=none
  header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
@@ -40,20 +40,20 @@ Authentication-Results: vger.kernel.org; dkim=none (message not signed)
  header.d=none;vger.kernel.org; dmarc=none action=none
  header.from=windriver.com;
 Received: from DM4PR11MB5327.namprd11.prod.outlook.com (2603:10b6:5:392::22)
- by DM6PR11MB3609.namprd11.prod.outlook.com (2603:10b6:5:140::20) with
+ by DM4PR11MB5261.namprd11.prod.outlook.com (2603:10b6:5:388::13) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4544.15; Tue, 28 Sep
- 2021 15:16:46 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4566.14; Tue, 28 Sep
+ 2021 15:16:48 +0000
 Received: from DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::3d20:a9f3:70c4:f286]) by DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::3d20:a9f3:70c4:f286%5]) with mapi id 15.20.4544.022; Tue, 28 Sep 2021
- 15:16:46 +0000
+ 15:16:48 +0000
 From:   Ovidiu Panait <ovidiu.panait@windriver.com>
 To:     stable@vger.kernel.org
 Cc:     greg@kroah.com
-Subject: [PATCH 4.14 2/3] usb: hso: fix error handling code of hso_create_net_device
-Date:   Tue, 28 Sep 2021 18:15:43 +0300
-Message-Id: <20210928151544.270412-3-ovidiu.panait@windriver.com>
+Subject: [PATCH 4.14 3/3] usb: hso: remove the bailout parameter
+Date:   Tue, 28 Sep 2021 18:15:44 +0300
+Message-Id: <20210928151544.270412-4-ovidiu.panait@windriver.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210928151544.270412-1-ovidiu.panait@windriver.com>
 References: <20210928151544.270412-1-ovidiu.panait@windriver.com>
@@ -63,59 +63,59 @@ X-ClientProxiedBy: VI1PR0501CA0019.eurprd05.prod.outlook.com
  (2603:10a6:800:92::29) To DM4PR11MB5327.namprd11.prod.outlook.com
  (2603:10b6:5:392::22)
 MIME-Version: 1.0
-Received: from otp-linux03.wrs.com (46.97.150.20) by VI1PR0501CA0019.eurprd05.prod.outlook.com (2603:10a6:800:92::29) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4566.14 via Frontend Transport; Tue, 28 Sep 2021 15:16:46 +0000
+Received: from otp-linux03.wrs.com (46.97.150.20) by VI1PR0501CA0019.eurprd05.prod.outlook.com (2603:10a6:800:92::29) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4566.14 via Frontend Transport; Tue, 28 Sep 2021 15:16:47 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 00031cd7-af78-4e9e-d615-08d98292fcc0
-X-MS-TrafficTypeDiagnostic: DM6PR11MB3609:
-X-Microsoft-Antispam-PRVS: <DM6PR11MB360964A2C6BD6986C039A95FFEA89@DM6PR11MB3609.namprd11.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:457;
+X-MS-Office365-Filtering-Correlation-Id: bf9351cd-1257-4621-50e0-08d98292fd69
+X-MS-TrafficTypeDiagnostic: DM4PR11MB5261:
+X-Microsoft-Antispam-PRVS: <DM4PR11MB5261DBBC2AC04410FA315A7CFEA89@DM4PR11MB5261.namprd11.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: o5vYEgWhJl06+H6DR5XoU7QgKEanhXmFSoOrIoEbZch+S4GNAHhkySxaLesg/it7VXMhev6WxN5v3oqrJ+Y50vINP5YoDkPYGrAEmZyEihYs53fDja7JgSND5qwyQJ4f/GPYJlbU6j5fm+NBiFv0njRYXYl1iPIO837TzVWltdao736FeSH8HcyBGGc1cE/PA2WA33tcZdBFukzWKHH3gWzRhTRSKJ4lCGYn25b3sANHZuliMKLqqXJvwCdluXxGot8aDMW7z7W0tKMMb0G4P05WpUEevdYWGSZD0418ksuHIaZi5I2X3rFk2+HcDveL2B702kb5WuIiUVBsxK6qcTxBe18E7FD9uY34NCLyRNzRM1sGqwTQm9CbQhgmOo2z6uA0fY+QqJHwhPluA9e2dqh5lRxbXfeoSHvduH8JKGBXBDjQtphGhalODVsMtt/25hpfFFRwhQWsoFNFdDoXsMM7IsDvhPtYF9uLfJV8tQBYfbiU8wel7D6TRU6cF2K5xH55Ge/tBIYTCRxO1xw6P16RnK2eBwSNhhJ2YgROQOjCylVQkQCCJyk1f+uRlJw+DjCnxDvlPDwNVU2Ri1r5Txf7BCkigyfLTKPLssD/ZDMX7UKbVDyR/OIJYTG4JI3is6hxugb+rPFQv+U6XwXoYT39i4M/ioogqtvN2HNxMquZSsDRdE1EYW0R8/Kxv28pZBeyxuS9PonqGdel2pSSuclbETwuAbGrP8DPShKivTe/EmxkgkgY0Th+lC/obxUEaApBzJKyNO9q9scMt+PPRpZaxpHTSY9vCYI9h9C5VX4S4mWDz4ff7F4z35qjBz7E
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(8936002)(5660300002)(508600001)(4326008)(6486002)(2616005)(8676002)(956004)(38100700002)(66946007)(2906002)(38350700002)(966005)(86362001)(316002)(66556008)(66476007)(44832011)(26005)(6512007)(6666004)(52116002)(186003)(83380400001)(36756003)(6916009)(1076003)(6506007)(99710200001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: 08NspcJPMXyf3//vaUOs9zE4kPn6jj/ypWg90tUbFvYFMEiDnv+4B5Nn+xEPTepDILD2YJrSEtRxzFo8MV7tInCy63LEpsJ3mV9yVrNq/GjO/lERyR0o3ji60zk0HCsJ+tTzDIMsTdk+ITbF1coiQcCkhrEeJEmkyi2zM9x7V1lODJYkHf5UMpsU309tzTU9ZVRG1jo6NeOQmwktegOyqM4Y40dO+vbyPQcWyhr2bwwWJw1DHG4ZQww3ISSrJLZFcgUziSSSCCpEar9jfmpEcVu9gjCbbzEow5YfXRfx+c2mFya0orlXkm6PlLDOZFt2TEMyrsDQLe3cyDKzdwjKqxjJjevEdH1i4swIVetMK0dWM2wJI64TYbI3o8llW3hyuwUPLKml7jUv+7u4468oeS6an0wZq34WSVl26ruEbVysApx0aoGovhAqY8Xdiugw3H1AGo9sOYK8OqgFKtQsU65ABNhc906VcBCD9cBELDXq1vHSze59ZgacIsdLRfgOHKZy7Szjk2WNA/tDhhOxj5M3L9s/+z2wha28su2eALrFyHJtTpEsnCBb0n6+TJzGKKX9zYAeJxAIQpkTrk99qT7ZPDBwswc/PkRZei6D0eVw4mP3d4oFgojizyq+EJH55RlAJjIT+jCNgg8RkwKcuzrDzZEvL/sv5ZhmjmwM38N5PaG1MJzEv7C6P3XQV5UWb3TV20RVR/RcXeEn0ff05Q==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(6486002)(2616005)(8936002)(26005)(6506007)(44832011)(66946007)(52116002)(66476007)(66556008)(4326008)(316002)(956004)(2906002)(38350700002)(38100700002)(36756003)(6666004)(5660300002)(508600001)(8676002)(1076003)(6512007)(86362001)(83380400001)(186003)(6916009);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?NX0G2YJ1PaValHHJE1aZIhUXgo5aJzb+Li6CQmzeUmOcl5AZ5sEcYR/c9f9W?=
- =?us-ascii?Q?M76o0Gwu8zF/9uWtD42rtFtEYfbkWE5tb0zetGd92RsoNh0l6jVRgzdZbHAj?=
- =?us-ascii?Q?T3EYROtqmRxUfTB+OS6O472BZRprxACBkP8fh1blJ1Bsc0wkVbm8+Vk6DXwo?=
- =?us-ascii?Q?vOY36mMnbvzgHojWQ+CiVukmuSG3dgWhI8Y67wte8SlB+jC1/fb4YFBnZB7/?=
- =?us-ascii?Q?KaBdp1pbQyheHIIhQHOx4+gObxx1h5JOUr1DIQ5L9bUorG8o3974h470vW56?=
- =?us-ascii?Q?V0ff2i+j1GYjLPRvjHbgepXe+cULb7Oq8WTBxby6MoEyOZtiewVMJXrKCr2D?=
- =?us-ascii?Q?M+XNoKgX3yN7XknHt0Dv+cRS3GHD+HPYaeFG7vr6mMSIOFuiLCF9jUj3WcpA?=
- =?us-ascii?Q?YDQhgAQhTk25VhQ+A9qAgZJcmO8kF0ttcnN7lQQpKNs+XKimtSn1c6HCGyYJ?=
- =?us-ascii?Q?WDJHRcxP4TgfiLB0TfrvYdMmdIkEZuylfmtCORJHXCorJO8YIQuIIMltZGP4?=
- =?us-ascii?Q?3+OCDG0fnduqMrf3NBLpXWLV6arxD/crENAji1rHIMvvEW4OXAwJTebtkLPT?=
- =?us-ascii?Q?VNjHnf+wQ9rlrLlC2pISpqgk2NfiX2AAI+a/HIaw8pvYZ2v1XvLXTHw+sSpK?=
- =?us-ascii?Q?Bv6zeNO2OpGAD77RYcm7oiMsnEtDTispzPJYHsOqoZIol60/S9PW4Q6zuXsw?=
- =?us-ascii?Q?figOwVdlUJpk5VDblxYQj2zcZNuY21t5rIz1kmgC7/vEaIzOdbFRaV4TgvX0?=
- =?us-ascii?Q?H6yiLoRjYq+Wqov8LwMAQLhtYSbqD+cmW78yixl5smwzfnU1wXp0lUjkT0tY?=
- =?us-ascii?Q?eUHQW0GECk3mwFjhAGI3u5TiRDYT0mU2o8ow2EC31WQyn1PXNjnNOUzDgpDH?=
- =?us-ascii?Q?olffcSpVSQhFtM6eE+ywS9YKrWQFT+P2i9iOvcd8JTmDvdoAZmEyt7yn8DwU?=
- =?us-ascii?Q?S4joPe4/YqTCpM/lCTNsJyYr+YlT/f2N60iKS5aIbKjXv8yxxhgM9H0lQKOw?=
- =?us-ascii?Q?rnLLlV9nCfKt//IsRLopWNNoKODj4KfSqJwKvwj6Z2TfWx59nh98GxmgcLsg?=
- =?us-ascii?Q?ul1yL72cHD7uMWVnJTpCZN2msBptJ7IvSuz3+PEpGQec56vPGxO1DUuN4EB5?=
- =?us-ascii?Q?4W80gJly83tma1N0mVRlrwuxvER+4zoQQD9sD4WSzDBfdx2cNOeRvk4Idh26?=
- =?us-ascii?Q?BbMAT8B7Nh7nNpioxk3HSDpg9sCavBo8vmOkjvCeZwAJPY/XPRh8addhf7ry?=
- =?us-ascii?Q?WG1bCXKBDM0VcnSUQaTl4IS1RMV3jiPi00zFNRYEHS+RdG9j8b4DzN7FDIZ0?=
- =?us-ascii?Q?4afvJvTY2DyN7O6wiXqZnQQE?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?HUbftu+hsZUwv2h/40JCnGVkFKX9b0RkWAZUtCt/7Ta05NtAMtfiMfdCjreR?=
+ =?us-ascii?Q?W+khwqrlioLnJU8B8FufAWx8B/07nDEMAOfs2kNvquaoggwdng6svZp2ieaP?=
+ =?us-ascii?Q?Sf7e6BQNSSijkqhkYY4uKep0q2A8TIiWsD+L9L95GbD8K6PHVpeRtja+PjJA?=
+ =?us-ascii?Q?lxlqx6WXYg7AjXLDJegDPv0Jpr6xkdaknAYyq1rDYhFLBejl16tw7KUHTpuG?=
+ =?us-ascii?Q?OcgKJdC/NVDaj/qkHaKar0lRmJWniixk4GViqksXljaMInlCatLFZfeMWKSz?=
+ =?us-ascii?Q?UIs3xGV4am+GoRToaelLxG+eDuLJtsbouT0cGBrjH+C5MrTuwz121izYg/X2?=
+ =?us-ascii?Q?ZxLqqNFYSaK0Da09qeM0WpBEhG2BxRNbBsLh2CaYOLCGycVg0ozIoUsogqkJ?=
+ =?us-ascii?Q?qijqvfUhp7FNDMIOXqfKTYTqgz9sk3fIhfs6ZD0UMLj1bMiagchr2w+QZ5jt?=
+ =?us-ascii?Q?ND3Te7IIi+bRQsU9VFfgBOPAxlb1thuLiXazaUlLeuYGUbmtJabBLxJZlH2G?=
+ =?us-ascii?Q?O4I+S3cic3bptUmmdzcaDkFjbfEMkFAwUy2lFHNvwPm8bRNbtra1HNQkGiqI?=
+ =?us-ascii?Q?vCQxZXE5LUujNi73i6IlJIxNgJYK9YbLqhbiRmTYwVKrhxquLj5I3A3x4Mw3?=
+ =?us-ascii?Q?Y9QXL39ACjb77tVytYoQKbDF0+r6MusOBKWktmMD/ImArHXItBhWBaA5/GFj?=
+ =?us-ascii?Q?mpdyzHi1W80CHkx+jzIad5JnPBuysxlT4rUd5WHhIWRPaHcSgcw6KCbDytEE?=
+ =?us-ascii?Q?q4SxSJAsbE0b80Wa6dKAU9YkOdoPjzQTrCfa1zuhzbn6YOsnMt0UuSxFrDNb?=
+ =?us-ascii?Q?F6y0VObFhx1uU1AesKSu4bLZy7iddYsIo0UNVhVRsde6sT0iqjBHjYsZ4cV6?=
+ =?us-ascii?Q?a7LmvtppgExHhQEAUF59xlKWHZh1+Uu/WlM6HqnxQLuNC6G+unwbRjHK00Ip?=
+ =?us-ascii?Q?n1Ud+jdBC+BaEi4fy3/cFnRQN/+6Ui/3YELPlksS5ya+NDYeooSoPla3kfvw?=
+ =?us-ascii?Q?Gs8TNz40f5ABQIcRjwsLkU+lPU/Kqqy63R57ZIxxMJ/WorBJ14Vm9PZ/Znc1?=
+ =?us-ascii?Q?UKDWG0I5ZUY5url/qXjmeo2uzgWvt3QD04VtdNTyH9lq19YzzT2pJfGwuxmY?=
+ =?us-ascii?Q?Y8J5/c2ij1jLvzWZGjpj+qEWT1CqE+7RwCSQMNdv9v7eEfx6TlI3cZs06zxq?=
+ =?us-ascii?Q?Am3zXQBF4MrZXotmQx/clhazEmXY3doAtQ6EGU8fOVBXuWDdJGRqfpy3a9De?=
+ =?us-ascii?Q?BPtMizeSXm0IGLcIdYbhte6hcNlOD4XvJNI+LAkH4PRIsRzORmXzYY/lxcYN?=
+ =?us-ascii?Q?8LtPObiEU6uPmhsOXN+BZ/N1?=
 X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 00031cd7-af78-4e9e-d615-08d98292fcc0
+X-MS-Exchange-CrossTenant-Network-Message-Id: bf9351cd-1257-4621-50e0-08d98292fd69
 X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5327.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Sep 2021 15:16:46.8252
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Sep 2021 15:16:47.9642
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: MQDQoiOfw3Qadf4DVdObOvJukibw8P+3HAFLVluR6oASQiNrsu17NYcqqxd14iz/H1kXnwf2QCKAA1i78o+Cne0eYWaUxOWwuamfAup/UL8=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR11MB3609
-X-Proofpoint-GUID: m_z-253xLMkDoIQh_-ZFAAW-nIWWoU_T
-X-Proofpoint-ORIG-GUID: m_z-253xLMkDoIQh_-ZFAAW-nIWWoU_T
+X-MS-Exchange-CrossTenant-UserPrincipalName: rKvIHQ2Ugb4oeW4n9Xndcd/a3HP17BU/JnBoQ6HYDY6ejQPvvmoDLk7DBV9vOxPIiikhsjQaIryolPwXNiZe1+icm49Ouk5G8tb0bIgJvBY=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR11MB5261
+X-Proofpoint-GUID: FoaF6W1l0H-rwyHD1QzllOUORvWixqfJ
+X-Proofpoint-ORIG-GUID: FoaF6W1l0H-rwyHD1QzllOUORvWixqfJ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
  definitions=2021-09-28_05,2021-09-28_01,2020-04-07_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
- mlxlogscore=989 adultscore=0 mlxscore=0 malwarescore=0 phishscore=0
+ mlxlogscore=689 adultscore=0 mlxscore=0 malwarescore=0 phishscore=0
  impostorscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
  spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2109230001 definitions=main-2109280088
@@ -125,111 +125,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit a6ecfb39ba9d7316057cea823b196b734f6b18ca upstream.
+commit dcb713d53e2eadf42b878c12a471e74dc6ed3145 upstream.
 
-The current error handling code of hso_create_net_device is
-hso_free_net_device, no matter which errors lead to. For example,
-WARNING in hso_free_net_device [1].
+There are two invocation sites of hso_free_net_device. After
+refactoring hso_create_net_device, this parameter is useless.
+Remove the bailout in the hso_free_net_device and change the invocation
+sites of this function.
 
-Fix this by refactoring the error handling code of
-hso_create_net_device by handling different errors by different code.
-
-[1] https://syzkaller.appspot.com/bug?id=66eff8d49af1b28370ad342787413e35bbe76efe
-
-Reported-by: syzbot+44d53c7255bb1aea22d2@syzkaller.appspotmail.com
-Fixes: 5fcfb6d0bfcd ("hso: fix bailout in error case of probe")
 Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 ---
- drivers/net/usb/hso.c | 33 +++++++++++++++++++++++----------
- 1 file changed, 23 insertions(+), 10 deletions(-)
+ drivers/net/usb/hso.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/net/usb/hso.c b/drivers/net/usb/hso.c
-index eb2b87f186a5..a47a01057e50 100644
+index a47a01057e50..353f300686c3 100644
 --- a/drivers/net/usb/hso.c
 +++ b/drivers/net/usb/hso.c
-@@ -2510,7 +2510,7 @@ static struct hso_device *hso_create_net_device(struct usb_interface *interface,
- 			   hso_net_init);
- 	if (!net) {
- 		dev_err(&interface->dev, "Unable to create ethernet device\n");
--		goto exit;
-+		goto err_hso_dev;
- 	}
- 
- 	hso_net = netdev_priv(net);
-@@ -2523,13 +2523,13 @@ static struct hso_device *hso_create_net_device(struct usb_interface *interface,
- 				      USB_DIR_IN);
- 	if (!hso_net->in_endp) {
- 		dev_err(&interface->dev, "Can't find BULK IN endpoint\n");
--		goto exit;
-+		goto err_net;
- 	}
- 	hso_net->out_endp = hso_get_ep(interface, USB_ENDPOINT_XFER_BULK,
- 				       USB_DIR_OUT);
- 	if (!hso_net->out_endp) {
- 		dev_err(&interface->dev, "Can't find BULK OUT endpoint\n");
--		goto exit;
-+		goto err_net;
- 	}
- 	SET_NETDEV_DEV(net, &interface->dev);
- 	SET_NETDEV_DEVTYPE(net, &hso_type);
-@@ -2538,18 +2538,18 @@ static struct hso_device *hso_create_net_device(struct usb_interface *interface,
- 	for (i = 0; i < MUX_BULK_RX_BUF_COUNT; i++) {
- 		hso_net->mux_bulk_rx_urb_pool[i] = usb_alloc_urb(0, GFP_KERNEL);
- 		if (!hso_net->mux_bulk_rx_urb_pool[i])
--			goto exit;
-+			goto err_mux_bulk_rx;
- 		hso_net->mux_bulk_rx_buf_pool[i] = kzalloc(MUX_BULK_RX_BUF_SIZE,
- 							   GFP_KERNEL);
- 		if (!hso_net->mux_bulk_rx_buf_pool[i])
--			goto exit;
-+			goto err_mux_bulk_rx;
- 	}
- 	hso_net->mux_bulk_tx_urb = usb_alloc_urb(0, GFP_KERNEL);
- 	if (!hso_net->mux_bulk_tx_urb)
--		goto exit;
-+		goto err_mux_bulk_rx;
- 	hso_net->mux_bulk_tx_buf = kzalloc(MUX_BULK_TX_BUF_SIZE, GFP_KERNEL);
- 	if (!hso_net->mux_bulk_tx_buf)
--		goto exit;
-+		goto err_free_tx_urb;
- 
- 	add_net_device(hso_dev);
- 
-@@ -2557,7 +2557,7 @@ static struct hso_device *hso_create_net_device(struct usb_interface *interface,
- 	result = register_netdev(net);
- 	if (result) {
- 		dev_err(&interface->dev, "Failed to register device\n");
--		goto exit;
-+		goto err_free_tx_buf;
- 	}
- 
- 	hso_log_port(hso_dev);
-@@ -2565,8 +2565,21 @@ static struct hso_device *hso_create_net_device(struct usb_interface *interface,
- 	hso_create_rfkill(hso_dev, interface);
- 
- 	return hso_dev;
--exit:
--	hso_free_net_device(hso_dev, true);
-+
-+err_free_tx_buf:
-+	remove_net_device(hso_dev);
-+	kfree(hso_net->mux_bulk_tx_buf);
-+err_free_tx_urb:
-+	usb_free_urb(hso_net->mux_bulk_tx_urb);
-+err_mux_bulk_rx:
-+	for (i = 0; i < MUX_BULK_RX_BUF_COUNT; i++) {
-+		usb_free_urb(hso_net->mux_bulk_rx_urb_pool[i]);
-+		kfree(hso_net->mux_bulk_rx_buf_pool[i]);
-+	}
-+err_net:
-+	free_netdev(net);
-+err_hso_dev:
-+	kfree(hso_dev);
- 	return NULL;
+@@ -2367,7 +2367,7 @@ static int remove_net_device(struct hso_device *hso_dev)
  }
  
+ /* Frees our network device */
+-static void hso_free_net_device(struct hso_device *hso_dev, bool bailout)
++static void hso_free_net_device(struct hso_device *hso_dev)
+ {
+ 	int i;
+ 	struct hso_net *hso_net = dev2net(hso_dev);
+@@ -2390,7 +2390,7 @@ static void hso_free_net_device(struct hso_device *hso_dev, bool bailout)
+ 	kfree(hso_net->mux_bulk_tx_buf);
+ 	hso_net->mux_bulk_tx_buf = NULL;
+ 
+-	if (hso_net->net && !bailout)
++	if (hso_net->net)
+ 		free_netdev(hso_net->net);
+ 
+ 	kfree(hso_dev);
+@@ -3144,7 +3144,7 @@ static void hso_free_interface(struct usb_interface *interface)
+ 				rfkill_unregister(rfk);
+ 				rfkill_destroy(rfk);
+ 			}
+-			hso_free_net_device(network_table[i], false);
++			hso_free_net_device(network_table[i]);
+ 		}
+ 	}
+ }
 -- 
 2.25.1
 
