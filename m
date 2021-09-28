@@ -2,110 +2,248 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E36F41AAFE
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 10:50:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DF5F41ABBF
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 11:26:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239738AbhI1Ivl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 04:51:41 -0400
-Received: from smtp-relay-internal-0.canonical.com ([185.125.188.122]:53200
-        "EHLO smtp-relay-internal-0.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239716AbhI1Ivj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 04:51:39 -0400
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com [209.85.167.72])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 4D24E40303
-        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 08:49:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1632818999;
-        bh=AbbCj9W6fgvQ0YX3UCQV/nDvOLaUQu6puIQCBSTWMLI=;
-        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-         MIME-Version;
-        b=KSkHaKao8CFwiePIvhYKxXcjRZzWtn6WUBEEnTF0mzJVelM0vXnbsTlejMn+R2wnu
-         qAcvqNW1Lwtiud93VHCNU3UbIdJmiYZOcxVVYEFqKGrSxnHclz1RWBqEj9zMKhuylF
-         5eApVZhGiNFpmS56sG6lrGs8bpYloY7/bKSr62GPBIToXlohsLy2XmiSZST0ztfWfl
-         b3M4oY0NlH8j/rdk7qTCZj6Ss5QKhg6ucXu4bStr2Ue4mRuSb+KSZG7PGN7aeRSkCU
-         7/6VyvjY0Qmrkvcw9Nm7O0exeHRq2Zn4a6AG0yZzNNrQSWvJTKlaURj0v/4yxLhAkm
-         aF/89HTM5mY/w==
-Received: by mail-lf1-f72.google.com with SMTP id x33-20020a0565123fa100b003fcfd99073dso1126437lfa.6
-        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 01:49:59 -0700 (PDT)
+        id S239708AbhI1J17 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 05:27:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36638 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239687AbhI1J16 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 05:27:58 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 969A8C061575
+        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 02:26:18 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id dn26so3661845edb.13
+        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 02:26:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=wAcX3sCT345ARd1qWMjICS1I0tdu1z6MUxEDqgzdHaE=;
+        b=rcIBwGwVLcVCfx2Z9MspMhS5B9ZfEoWGWLEgjGgIzN+MDLC9wUN9IO4Y4WqKDUGY2q
+         viPNK8UwNLU8/qyH8QviALVH4Vm7XQOFSDMyG9MoYhj77bztR1JVXyahkupuEjffGsng
+         Ks/FT/9wl0U3l/jhSHml+uKhkvTp8fWGgBl2VgBvzotr6HsSWDp2g9zX3f3lpQVtLlIv
+         e33tuvr1AM4DIIeeOWQY1CfmxX+gwOR94yzlpE4L7q6XIgXkhudKRd4PcrbZwnLOjN1i
+         sKg+c/l9JzrP23NrjuVACquHJ0aQ009/+weqYy3l8TJRaGQ5jgy8VypPuvN6xR+jv4G7
+         0u2g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=AbbCj9W6fgvQ0YX3UCQV/nDvOLaUQu6puIQCBSTWMLI=;
-        b=6ozYTlLQGtebHYe3D8tOGZ932mCk9yrEiqij2lPs/tB1nfzMB8jjrZoZe1lii1hc9w
-         x4VrmRvYZpK6ot1E4mjDRV4CHHR/JxMxivvor9DLXyKN+BKovwnhnTjSTN+LGl/eYi74
-         sxMwiGR3Byryz5RhSxRDo1r8IGxAF63pU5AO40GfLVVGwbfUHO20GsuAOAZYSX0ATW8v
-         MUAU3DZTd8UwoMW5WRLi5BylFgjNjNQ7C1tb9CiXncCC2lJWM+YeL3AIb9CFE/Fm+WXF
-         5uU32mazhpkKSp8iA4mW1I77XdrkQ/neE+z5vPsmjg2dQpTnTNEw7YXd542b5dTOgSl+
-         zSYQ==
-X-Gm-Message-State: AOAM530TLvkuXIGCDlmkZN18eaj+KzIqbTnbJ3if1TSkQSXmbEDb2laE
-        qCokcVyGmw8eRUBcW+JNaAL3hfjegUve2NPQVuBf3MWgMnaBTUqXxFm4W7vjB0Bt0vnana4UGe3
-        FfS0CvwYrSB4bjeQU3XhrBo5Bbkie3pDyxQ==
-X-Received: by 2002:a2e:9b07:: with SMTP id u7mr5004440lji.67.1632818998544;
-        Tue, 28 Sep 2021 01:49:58 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz+jmZuGlOMWLwSCGqG5ZxzPv7RzpU3AVMuSPcDXWUcDo+lOv1Q5DFIJD0PwCq6hiQcDUSsnA==
-X-Received: by 2002:a2e:9b07:: with SMTP id u7mr5004414lji.67.1632818998387;
-        Tue, 28 Sep 2021 01:49:58 -0700 (PDT)
-Received: from localhost.localdomain (78-11-189-27.static.ip.netia.com.pl. [78.11.189.27])
-        by smtp.gmail.com with ESMTPSA id h13sm1848419lfl.205.2021.09.28.01.49.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Sep 2021 01:49:57 -0700 (PDT)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-To:     Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Tomasz Figa <tomasz.figa@gmail.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>, linux-clk@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Sylwester Nawrocki <snawrocki@kernel.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 02/12] regulator: dt-bindings: samsung,s5m8767: correct s5m8767,pmic-buck-default-dvs-idx property
-Date:   Tue, 28 Sep 2021 10:49:39 +0200
-Message-Id: <20210928084949.27939-3-krzysztof.kozlowski@canonical.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210928084949.27939-1-krzysztof.kozlowski@canonical.com>
-References: <20210928084949.27939-1-krzysztof.kozlowski@canonical.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=wAcX3sCT345ARd1qWMjICS1I0tdu1z6MUxEDqgzdHaE=;
+        b=nKWSlumSwJtX48BNh1MpBRTYgij4j8iBX91/K67hSn314M9UpYMAEVrN2yDyP+U059
+         zK46LOlOmeQANfGh/cjxnQfvgsWY07zcJjhMbUZuQQ5L9lznfQyz4DS9lY09TpyI7ZLS
+         wEj4dzFFRFevkw8liIBUkbm83nMkrCWjH6YUPfq9ynuTan44EIJLv3su+mEx9ioapZdA
+         zqwEZP7ousDOtfzKFMhtNifp1HTtitiIzRxuj3+3nzq8YIUcPt++oE/5wwvOTAaHrVVE
+         +FZh8BuE6CK8q2MJpmgbjTtO4iXWwGFLEXCc+KAMEraZLW+fC3pFcIcrMpW7rUJ1ePH8
+         QeHA==
+X-Gm-Message-State: AOAM531QT8LGbV49iPtWO1ovF7rA1DsrxOZE5kDxwyCqvLhayzqrbK1+
+        er6HAPov8nV+v5kwpRgrQqVdAIGFlQntP2p4TeY5Vw==
+X-Google-Smtp-Source: ABdhPJwRTFbg568fKLRcO+AIcdX7atTMGfHNz6wbO83QX5vnBMX7XP56M1qHxI4WhFBhUu/cBLjt/U0NcFC1mN7j8XU=
+X-Received: by 2002:a17:906:4f96:: with SMTP id o22mr5417229eju.169.1632821176932;
+ Tue, 28 Sep 2021 02:26:16 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210927170219.901812470@linuxfoundation.org>
+In-Reply-To: <20210927170219.901812470@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 28 Sep 2021 14:56:05 +0530
+Message-ID: <CA+G9fYsvAymC-W2D+BL_EzX--okZquiVeex7oRNKoFGBc_-_ig@mail.gmail.com>
+Subject: Re: [PATCH 5.4 00/68] 5.4.150-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The driver was always parsing "s5m8767,pmic-buck-default-dvs-idx", not
-"s5m8767,pmic-buck234-default-dvs-idx".
+On Mon, 27 Sept 2021 at 22:35, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.4.150 release.
+> There are 68 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 29 Sep 2021 17:02:05 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.4.150-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Cc: <stable@vger.kernel.org>
-Fixes: 26aec009f6b6 ("regulator: add device tree support for s5m8767")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
----
- Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-diff --git a/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt b/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
-index d9cff1614f7a..6cd83d920155 100644
---- a/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
-+++ b/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
-@@ -39,7 +39,7 @@ Optional properties of the main device node (the parent!):
- 
- Additional properties required if either of the optional properties are used:
- 
-- - s5m8767,pmic-buck234-default-dvs-idx: Default voltage setting selected from
-+ - s5m8767,pmic-buck-default-dvs-idx: Default voltage setting selected from
-    the possible 8 options selectable by the dvs gpios. The value of this
-    property should be between 0 and 7. If not specified or if out of range, the
-    default value of this property is set to 0.
--- 
-2.30.2
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
+## Build
+* kernel: 5.4.150-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-5.4.y
+* git commit: aa1e7cd620d9f606f5b03b2e2d3ab68f5540359c
+* git describe: v5.4.149-69-gaa1e7cd620d9
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
+49-69-gaa1e7cd620d9
+
+## No regressions (compared to v5.4.149-69-g143ba1e50d69)
+
+## No fixes (compared to v5.4.149-69-g143ba1e50d69)
+
+
+## Test result summary
+total: 71836, pass: 58826, fail: 561, skip: 11488, xfail: 961
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 288 total, 288 passed, 0 failed
+* arm64: 38 total, 38 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 19 total, 19 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 51 total, 51 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 36 total, 36 passed, 0 failed
+* riscv: 30 total, 30 passed, 0 failed
+* s390: 12 total, 12 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 38 total, 37 passed, 1 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* prep-tmp-disk
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
