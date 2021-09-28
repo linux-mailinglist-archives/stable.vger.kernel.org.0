@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAD3341A7C3
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 07:58:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7E7A41A7C5
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 07:58:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238974AbhI1F7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 01:59:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48754 "EHLO mail.kernel.org"
+        id S239417AbhI1F7c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 01:59:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238924AbhI1F6i (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239097AbhI1F6i (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 28 Sep 2021 01:58:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 884686128C;
-        Tue, 28 Sep 2021 05:56:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30F996134F;
+        Tue, 28 Sep 2021 05:56:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632808594;
-        bh=Vyp65lF8I7F1LMg011ze4pcDp+F4AJwyEL3Les0tYUQ=;
+        s=k20201202; t=1632808595;
+        bh=crqvBOsxyoY5DzoUVWd4iR+3mgG1KyOOOtX4Z+Mn0zY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XkDvUGBYDUM0zoSYc5TaVEGd4dMVj+uQ6E2GMaSLIYG8yEZLQx2F6sTYbsqNx0Bms
-         aZCQJbZg/l6ZDAL1j+JPcf/zxPDf9HztQJXJwqL5Ly+yjvMqRKg38q7DToI2PBUWRX
-         hE9nKPPB6Vb3n4CrloDqtMNV5UUcXy1VdcRFNjGrIysTFhjazUk1y3ArPa8MJFuQRW
-         372lx+zQRFwbR49BXZdahfjxQqkLscE56K7L3yIcZO+WzH8nGpbD48FM21HDNqQiuT
-         Iuoh9QhkVvvQGEUI8CUUbnQLkeO7GOL3+HmdEzGThwVBajOEHa1qA8TsOvhh0AQ7Jc
-         SFLUkXGsxyfMw==
+        b=iC1TXuGYYV76tE3zy7GqjBHsmdKP3v1X+9pWUFu8MScwGwH8KReIgj2NuBoAwvwG+
+         Uozij6nQpMRmlpDVuYDpL6CGH77q6IY0Xq6qUGBLDf9MjYNZC5KHMCiBhDL9o2NkFj
+         S3PGR+XPEPuivqclUDRL8nfWqO6B7gmTDXFmJdynF6olJvVA5cq633AeaL+0bl9M7F
+         7HAkoW3TncMuaPIu7AvuKZZuFr9YWjky32Ml35gqgcsjCx0dl3oYdTlf2VCwyIWSNQ
+         szgbz31Ytdl0uDBx486OrVUJvRjiloOyEpzwk1dPPyrO9rLgJNTKknMoFGegOs3heN
+         mr1GkXwfX3jJw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de
-Subject: [PATCH AUTOSEL 5.14 34/40] irqchip/gic: Work around broken Renesas integration
-Date:   Tue, 28 Sep 2021 01:55:18 -0400
-Message-Id: <20210928055524.172051-34-sashal@kernel.org>
+Cc:     Steve French <stfrench@microsoft.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
+        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 5.14 35/40] smb3: correct smb3 ACL security descriptor
+Date:   Tue, 28 Sep 2021 01:55:19 -0400
+Message-Id: <20210928055524.172051-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210928055524.172051-1-sashal@kernel.org>
 References: <20210928055524.172051-1-sashal@kernel.org>
@@ -42,121 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit b78f26926b17cc289e4f16b63363abe0aa2e8efc ]
+[ Upstream commit b06d893ef2492245d0319b4136edb4c346b687a3 ]
 
-Geert reported that the GIC driver locks up on a Renesas system
-since 005c34ae4b44f085 ("irqchip/gic: Atomically update affinity")
-fixed the driver to use writeb_relaxed() instead of writel_relaxed().
+Address warning:
 
-As it turns out, the interconnect used on this system mandates
-32bit wide accesses for all MMIO transactions, even if the GIC
-architecture specifically mandates for some registers to be byte
-accessible. Gahhh...
+        fs/smbfs_client/smb2pdu.c:2425 create_sd_buf()
+        warn: struct type mismatch 'smb3_acl vs cifs_acl'
 
-Work around the issue by crudly detecting the offending system,
-and falling back to an inefficient RMW+lock implementation.
+Pointed out by Dan Carpenter via smatch code analysis tool
 
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/CAMuHMdV+Ev47K5NO8XHsanSq5YRMCHn2gWAQyV-q2LpJVy9HiQ@mail.gmail.com
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic.c | 52 ++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 51 insertions(+), 1 deletion(-)
+ fs/cifs/smb2pdu.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/irqchip/irq-gic.c b/drivers/irqchip/irq-gic.c
-index d329ec3d64d8..5f22c9d65e57 100644
---- a/drivers/irqchip/irq-gic.c
-+++ b/drivers/irqchip/irq-gic.c
-@@ -107,6 +107,8 @@ static DEFINE_RAW_SPINLOCK(cpu_map_lock);
+diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+index b6d2e3591927..e1739d0135b4 100644
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -2398,7 +2398,7 @@ create_sd_buf(umode_t mode, bool set_owner, unsigned int *len)
+ 	buf->sd.OffsetDacl = cpu_to_le32(ptr - (__u8 *)&buf->sd);
+ 	/* Ship the ACL for now. we will copy it into buf later. */
+ 	aclptr = ptr;
+-	ptr += sizeof(struct cifs_acl);
++	ptr += sizeof(struct smb3_acl);
  
- #endif
+ 	/* create one ACE to hold the mode embedded in reserved special SID */
+ 	acelen = setup_special_mode_ACE((struct cifs_ace *)ptr, (__u64)mode);
+@@ -2423,7 +2423,7 @@ create_sd_buf(umode_t mode, bool set_owner, unsigned int *len)
+ 	acl.AclRevision = ACL_REVISION; /* See 2.4.4.1 of MS-DTYP */
+ 	acl.AclSize = cpu_to_le16(acl_size);
+ 	acl.AceCount = cpu_to_le16(ace_count);
+-	memcpy(aclptr, &acl, sizeof(struct cifs_acl));
++	memcpy(aclptr, &acl, sizeof(struct smb3_acl));
  
-+static DEFINE_STATIC_KEY_FALSE(needs_rmw_access);
-+
- /*
-  * The GIC mapping of CPU interfaces does not necessarily match
-  * the logical CPU numbering.  Let's use a mapping as returned
-@@ -774,6 +776,25 @@ static int gic_pm_init(struct gic_chip_data *gic)
- #endif
- 
- #ifdef CONFIG_SMP
-+static void rmw_writeb(u8 bval, void __iomem *addr)
-+{
-+	static DEFINE_RAW_SPINLOCK(rmw_lock);
-+	unsigned long offset = (unsigned long)addr & 3UL;
-+	unsigned long shift = offset * 8;
-+	unsigned long flags;
-+	u32 val;
-+
-+	raw_spin_lock_irqsave(&rmw_lock, flags);
-+
-+	addr -= offset;
-+	val = readl_relaxed(addr);
-+	val &= ~GENMASK(shift + 7, shift);
-+	val |= bval << shift;
-+	writel_relaxed(val, addr);
-+
-+	raw_spin_unlock_irqrestore(&rmw_lock, flags);
-+}
-+
- static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
- 			    bool force)
- {
-@@ -788,7 +809,10 @@ static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
- 	if (cpu >= NR_GIC_CPU_IF || cpu >= nr_cpu_ids)
- 		return -EINVAL;
- 
--	writeb_relaxed(gic_cpu_map[cpu], reg);
-+	if (static_branch_unlikely(&needs_rmw_access))
-+		rmw_writeb(gic_cpu_map[cpu], reg);
-+	else
-+		writeb_relaxed(gic_cpu_map[cpu], reg);
- 	irq_data_update_effective_affinity(d, cpumask_of(cpu));
- 
- 	return IRQ_SET_MASK_OK_DONE;
-@@ -1375,6 +1399,30 @@ static bool gic_check_eoimode(struct device_node *node, void __iomem **base)
- 	return true;
- }
- 
-+static bool gic_enable_rmw_access(void *data)
-+{
-+	/*
-+	 * The EMEV2 class of machines has a broken interconnect, and
-+	 * locks up on accesses that are less than 32bit. So far, only
-+	 * the affinity setting requires it.
-+	 */
-+	if (of_machine_is_compatible("renesas,emev2")) {
-+		static_branch_enable(&needs_rmw_access);
-+		return true;
-+	}
-+
-+	return false;
-+}
-+
-+static const struct gic_quirk gic_quirks[] = {
-+	{
-+		.desc		= "broken byte access",
-+		.compatible	= "arm,pl390",
-+		.init		= gic_enable_rmw_access,
-+	},
-+	{ },
-+};
-+
- static int gic_of_setup(struct gic_chip_data *gic, struct device_node *node)
- {
- 	if (!gic || !node)
-@@ -1391,6 +1439,8 @@ static int gic_of_setup(struct gic_chip_data *gic, struct device_node *node)
- 	if (of_property_read_u32(node, "cpu-offset", &gic->percpu_offset))
- 		gic->percpu_offset = 0;
- 
-+	gic_enable_of_quirks(node, gic_quirks, gic);
-+
- 	return 0;
- 
- error:
+ 	buf->ccontext.DataLength = cpu_to_le32(ptr - (__u8 *)&buf->sd);
+ 	*len = roundup(ptr - (__u8 *)buf, 8);
 -- 
 2.33.0
 
