@@ -2,18 +2,18 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 851E041BA2A
+	by mail.lfdr.de (Postfix) with ESMTP id F2E7941BA2B
 	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 00:23:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243080AbhI1WYn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 18:24:43 -0400
-Received: from relay11.mail.gandi.net ([217.70.178.231]:45117 "EHLO
+        id S243092AbhI1WYo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 18:24:44 -0400
+Received: from relay11.mail.gandi.net ([217.70.178.231]:36219 "EHLO
         relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243058AbhI1WYm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 18:24:42 -0400
+        with ESMTP id S243032AbhI1WYn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 18:24:43 -0400
 Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay11.mail.gandi.net (Postfix) with ESMTPSA id C4D8D100006;
-        Tue, 28 Sep 2021 22:23:00 +0000 (UTC)
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 8BFE4100007;
+        Tue, 28 Sep 2021 22:23:01 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Richard Weinberger <richard@nod.at>,
         Vignesh Raghavendra <vigneshr@ti.com>,
@@ -21,9 +21,9 @@ To:     Richard Weinberger <richard@nod.at>,
 Cc:     <linux-mtd@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
         stable@vger.kernel.org
-Subject: [PATCH 2/9] mtd: rawnand: au1550nd: Keep the driver compatible with on-die ECC engines
-Date:   Wed, 29 Sep 2021 00:22:41 +0200
-Message-Id: <20210928222258.199726-3-miquel.raynal@bootlin.com>
+Subject: [PATCH 3/9] mtd: rawnand: gpio: Keep the driver compatible with on-die ECC engines
+Date:   Wed, 29 Sep 2021 00:22:42 +0200
+Message-Id: <20210928222258.199726-4-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210928222258.199726-1-miquel.raynal@bootlin.com>
 References: <20210928222258.199726-1-miquel.raynal@bootlin.com>
@@ -59,20 +59,20 @@ nand_scan(). During the initialization step, the core will consider this
 entry as the default engine for this driver. This value may of course
 be overloaded by the user if the usual DT properties are provided.
 
-Fixes: dbffc8ccdf3a ("mtd: rawnand: au1550: Move the ECC initialization to ->attach_chip()")
+Fixes: f6341f6448e0 ("mtd: rawnand: gpio: Move the ECC initialization to ->attach_chip()")
 Cc: stable@vger.kernel.org
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 ---
- drivers/mtd/nand/raw/au1550nd.c | 12 +++++++++---
+ drivers/mtd/nand/raw/gpio.c | 12 +++++++++---
  1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/au1550nd.c b/drivers/mtd/nand/raw/au1550nd.c
-index 99116896cfd6..5aa3a06d740c 100644
---- a/drivers/mtd/nand/raw/au1550nd.c
-+++ b/drivers/mtd/nand/raw/au1550nd.c
-@@ -239,9 +239,8 @@ static int au1550nd_exec_op(struct nand_chip *this,
+diff --git a/drivers/mtd/nand/raw/gpio.c b/drivers/mtd/nand/raw/gpio.c
+index fb7a086de35e..fdf073d2e1b6 100644
+--- a/drivers/mtd/nand/raw/gpio.c
++++ b/drivers/mtd/nand/raw/gpio.c
+@@ -163,9 +163,8 @@ static int gpio_nand_exec_op(struct nand_chip *chip,
  
- static int au1550nd_attach_chip(struct nand_chip *chip)
+ static int gpio_nand_attach_chip(struct nand_chip *chip)
  {
 -	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
 -
@@ -82,20 +82,20 @@ index 99116896cfd6..5aa3a06d740c 100644
  		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
  
  	return 0;
-@@ -310,6 +309,13 @@ static int au1550nd_probe(struct platform_device *pdev)
- 	if (pd->devwidth)
- 		this->options |= NAND_BUSWIDTH_16;
+@@ -365,6 +364,13 @@ static int gpio_nand_probe(struct platform_device *pdev)
+ 	if (gpiomtd->nwp && !IS_ERR(gpiomtd->nwp))
+ 		gpiod_direction_output(gpiomtd->nwp, 1);
  
 +	/*
 +	 * This driver assumes that the default ECC engine should be TYPE_SOFT.
 +	 * Set ->engine_type before registering the NAND devices in order to
 +	 * provide a driver specific default value.
 +	 */
-+	this->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
++	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
 +
- 	ret = nand_scan(this, 1);
- 	if (ret) {
- 		dev_err(&pdev->dev, "NAND scan failed with %d\n", ret);
+ 	ret = nand_scan(chip, 1);
+ 	if (ret)
+ 		goto err_wp;
 -- 
 2.27.0
 
