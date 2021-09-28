@@ -2,84 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E384F41AC25
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 11:43:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0777741ACF5
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 12:29:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239224AbhI1Jph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 05:45:37 -0400
-Received: from coyote.holtmann.net ([212.227.132.17]:51298 "EHLO
-        mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235071AbhI1Jpg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 05:45:36 -0400
-Received: from smtpclient.apple (p5b3d2185.dip0.t-ipconnect.de [91.61.33.133])
-        by mail.holtmann.org (Postfix) with ESMTPSA id 587E8CECD8;
-        Tue, 28 Sep 2021 11:43:56 +0200 (CEST)
-Content-Type: text/plain;
-        charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 14.0 \(3654.120.0.1.13\))
-Subject: Re: [PATCH] bluetooth: Add another Bluetooth part for Realtek 8852AE
-From:   Marcel Holtmann <marcel@holtmann.org>
-In-Reply-To: <20210927204302.10871-1-Larry.Finger@lwfinger.net>
-Date:   Tue, 28 Sep 2021 11:43:55 +0200
-Cc:     "Gustavo F. Padovan" <gustavo@padovan.org>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        linux-bluetooth <linux-bluetooth@vger.kernel.org>,
-        Hilda Wu <hildawu@realtek.com>, Stable <stable@vger.kernel.org>
+        id S240068AbhI1KbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 06:31:25 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32538 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S240055AbhI1KbY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 06:31:24 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18S8sEdW035509;
+        Tue, 28 Sep 2021 06:29:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=PQeU7C76MiSQb8Cpy524WrJ4qxMuQBE5aX+bqIChG3k=;
+ b=UGk9cebiBCrmQtvKmd0wn4fM+LR4aMJSCRidVWWufckfiy1j1YbAx7VGbui5P5hRD6ye
+ FfUghDoUHxfv1EvQq+RLZc8n/6/C1WeBg0NeEHB3nOjHCTDMsrrZJlmOMGJhcIQY4Pm0
+ z5I7jveWZny0c331aQYBXp8varwlPnt/QsWwKBzJbml/EW8wgqZwmOe75s44Qo5JzFDM
+ /rn7m3uIMxsoZ02imiMVbsT3iKBK8UH+lyXB639JDVqMsTjNLAOk0m740BSU+hljYX26
+ b16S0ZSKA7gdpwdyVxkpGgi9nTl66kJp73F4Y3t12ULuc7FRvpvssPbNqrmf8bne/oNk 6w== 
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bbtew8jwu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Sep 2021 06:29:40 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18SADuof003951;
+        Tue, 28 Sep 2021 10:29:39 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma01fra.de.ibm.com with ESMTP id 3b9ud9k953-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Sep 2021 10:29:38 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18SATZPQ40108514
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 28 Sep 2021 10:29:35 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4D46D52052;
+        Tue, 28 Sep 2021 10:29:35 +0000 (GMT)
+Received: from [9.171.64.190] (unknown [9.171.64.190])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id CC0BF5205A;
+        Tue, 28 Sep 2021 10:29:34 +0000 (GMT)
+Message-ID: <b224bdf4-cd15-369e-e82a-95e77e8f798c@linux.ibm.com>
+Date:   Tue, 28 Sep 2021 12:29:34 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.0
+Subject: Re: [PATCH 5.10 048/103] s390/qeth: fix deadlock during failing
+ recovery
+Content-Language: en-US
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        linux-stable <stable@vger.kernel.org>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Karsten Graul <kgraul@linux.ibm.com>
+References: <20210927170225.702078779@linuxfoundation.org>
+ <20210927170227.414776158@linuxfoundation.org>
+ <CA+G9fYs2a78_RXaqfE3WMjSOh=HhuS=OjVxh9Hswzrme+pqxqQ@mail.gmail.com>
+From:   Julian Wiedmann <jwi@linux.ibm.com>
+In-Reply-To: <CA+G9fYs2a78_RXaqfE3WMjSOh=HhuS=OjVxh9Hswzrme+pqxqQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: H-ZsEvG73U7IQqDIdrlHLkQwObtoFBm-
+X-Proofpoint-GUID: H-ZsEvG73U7IQqDIdrlHLkQwObtoFBm-
 Content-Transfer-Encoding: 7bit
-Message-Id: <AC19C8F8-6AC8-4B1F-AFB0-7D72F57D885D@holtmann.org>
-References: <20210927204302.10871-1-Larry.Finger@lwfinger.net>
-To:     Larry Finger <Larry.Finger@lwfinger.net>
-X-Mailer: Apple Mail (2.3654.120.0.1.13)
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-09-28_05,2021-09-28_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ lowpriorityscore=0 suspectscore=0 phishscore=0 mlxlogscore=999 spamscore=0
+ bulkscore=0 priorityscore=1501 malwarescore=0 adultscore=0 impostorscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2109280058
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Larry,
-
-> This Realtek device has both wifi and BT components. The latter reports
-> a USB ID of 0bda:4852, which is not in the table.
+On 27.09.21 19:45, Naresh Kamboju wrote:
+> Following commit caused the build failures on s390,
 > 
-> The portion of /sys/kernel/debug/usb/devices pertaining to this device is
+> On Mon, 27 Sept 2021 at 22:43, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+>>
+>> From: Alexandra Winter <wintera@linux.ibm.com>
+>>
+>> [ Upstream commit d2b59bd4b06d84a4eadb520b0f71c62fe8ec0a62 ]
+>>
+
+Yes, this depends on ee909d0b1dac ("s390/qeth: Fix deadlock in remove_discipline").
+
+
 > 
-> T:  Bus=06 Lev=01 Prnt=01 Port=03 Cnt=02 Dev#=  3 Spd=12   MxCh= 0
-> D:  Ver= 1.00 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
-> P:  Vendor=0bda ProdID=4852 Rev= 0.00
-> S:  Manufacturer=Realtek
-> S:  Product=Bluetooth Radio
-> S:  SerialNumber=00e04c000001
-> C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
-> I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-> E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
-> E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-> E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-> I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-> E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-> E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-> I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-> E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-> E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-> I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-> E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-> E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-> I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-> E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-> E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-> I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-> E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-> E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-> I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-> E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-> E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+> drivers/s390/net/qeth_core_main.c: In function 'qeth_close_dev_handler':
+> drivers/s390/net/qeth_core_main.c:83:9: error: too few arguments to
+> function 'ccwgroup_set_offline'
+>    83 |         ccwgroup_set_offline(card->gdev);
+>       |         ^~~~~~~~~~~~~~~~~~~~
+> In file included from drivers/s390/net/qeth_core.h:44,
+>                  from drivers/s390/net/qeth_core_main.c:46:
+> arch/s390/include/asm/ccwgroup.h:61:5: note: declared here
+>    61 | int ccwgroup_set_offline(struct ccwgroup_device *gdev, bool call_gdrv);
+>       |     ^~~~~~~~~~~~~~~~~~~~
+> make[3]: *** [scripts/Makefile.build:280:
+> drivers/s390/net/qeth_core_main.o] Error 1
 > 
-> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-> Cc: Stable <stable@vger.kernel.org>
-> ---
-> drivers/bluetooth/btusb.c | 2 ++
-> 1 file changed, 2 insertions(+)
-
-patch does not apply cleanly to bluetooth-next tree.
-
-Regards
-
-Marcel
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> 
+> 
+> Build url:
+> https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/1626658768#L73
+> 
+> 
+> --
+> Linaro LKFT
+> https://lkft.linaro.org
+> 
 
