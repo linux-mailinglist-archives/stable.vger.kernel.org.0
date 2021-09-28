@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E90441A877
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 08:03:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DE0D41A856
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 08:02:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239416AbhI1GFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 02:05:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49680 "EHLO mail.kernel.org"
+        id S239581AbhI1GES (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 02:04:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239650AbhI1GA5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Sep 2021 02:00:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA9A0613A9;
-        Tue, 28 Sep 2021 05:57:29 +0000 (UTC)
+        id S239625AbhI1GCr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Sep 2021 02:02:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E87D613B5;
+        Tue, 28 Sep 2021 05:57:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632808649;
-        bh=tXM17ftZo6zb9iZvoXX/Qu2JrcVS4VAYlpj1pqVIu9g=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQO9IQISfptfUkN1aQK80egg4kvOG7o5XlaQto6qiWm+WxG60tmmplyojnBCv+Cpz
-         +znzks1ixA5EHslTJf8j61Fbo7JIVL5rJUzuundughC/GsWfwNuFWvdIIyzyu0qjV4
-         OMXzzYQLLYyyOnsYoSmZ9YDwq/PfI4RPIStQRs8/Dv4wgigI868yP2Ricqpr8pA2tv
-         ta2aZWTQmEvqOzCuq2tUDibVNSeq5yLJe3L3ICOCeaGbG/YI+3FQi/eEXBpN116rvW
-         D7kluR6DyFb5GOpD+OtvQCM6rGBay7Tytp0THamBzPtHeGE2cLtoyPrx1qLFxa1lyC
-         w1HOFndoqZ9Lg==
+        s=k20201202; t=1632808655;
+        bh=QH4WM6JybP8VY6blTEobSCVrUtbDcdaxuYSvThxX7sg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=MKHNW8a3Tvydfia/2Jzu4ObdcVDT6WpK+n2hPF0a5imQB4BBxYh84X7vCKQiwZ/S7
+         c7Ec0x7o6J1lxZPGtY4W/0Bk4utesKAD5PrsJVkMwjoHjZoWHugdXl0NhYF9++g/O5
+         rpV1NxSeVvSM9oU/FBK1aHnI0aDu6WcUwRxVi9acY8PbCLX0fZsNLcizxJIUWsJQeJ
+         TmbcEraU1Il3FcgR+4bBDAMd+UMStaNcr1qH/PIA3PmHaR6QfhAhrCTEE4I3xkJRxX
+         LurS6Lzgjq+TR/VFEAmoFmB8glFch61zT7QOkk7+hGgWxydMHJ+1h2b1XiOS6E5ePP
+         19s2mhkgVybnQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        David Miller <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, sparclinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 3/8] sparc64: fix pci_iounmap() when CONFIG_PCI is not set
-Date:   Tue, 28 Sep 2021 01:57:21 -0400
-Message-Id: <20210928055727.173078-3-sashal@kernel.org>
+Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, hkallweit1@gmail.com,
+        kuba@kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 1/6] net: mdio: introduce a shutdown method to mdio device drivers
+Date:   Tue, 28 Sep 2021 01:57:29 -0400
+Message-Id: <20210928055734.173182-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210928055727.173078-1-sashal@kernel.org>
-References: <20210928055727.173078-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,46 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit d8b1e10a2b8efaf71d151aa756052fbf2f3b6d57 ]
+[ Upstream commit cf9579976f724ad517cc15b7caadea728c7e245c ]
 
-Guenter reported [1] that the pci_iounmap() changes remain problematic,
-with sparc64 allnoconfig and tinyconfig still not building due to the
-header file changes and confusion with the arch-specific pci_iounmap()
-implementation.
+MDIO-attached devices might have interrupts and other things that might
+need quiesced when we kexec into a new kernel. Things are even more
+creepy when those interrupt lines are shared, and in that case it is
+absolutely mandatory to disable all interrupt sources.
 
-I'm pretty convinced that sparc should just use GENERIC_IOMAP instead of
-doing its own thing, since it turns out that the sparc64 version of
-pci_iounmap() is somewhat buggy (see [2]).  But in the meantime, this
-just fixes the build by avoiding the trivial re-definition of the empty
-case.
+Moreover, MDIO devices might be DSA switches, and DSA needs its own
+shutdown method to unlink from the DSA master, which is a new
+requirement that appeared after commit 2f1e8ea726e9 ("net: dsa: link
+interfaces with the DSA master to get rid of lockdep warnings").
 
-Link: https://lore.kernel.org/lkml/20210920134424.GA346531@roeck-us.net/ [1]
-Link: https://lore.kernel.org/lkml/CAHk-=wgheheFx9myQyy5osh79BAazvmvYURAtub2gQtMvLrhqQ@mail.gmail.com/ [2]
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Cc: David Miller <davem@davemloft.net>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+So introduce a ->shutdown method in the MDIO device driver structure.
+
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/lib/iomap.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/phy/mdio_device.c | 11 +++++++++++
+ include/linux/mdio.h          |  3 +++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/arch/sparc/lib/iomap.c b/arch/sparc/lib/iomap.c
-index c9da9f139694..f3a8cd491ce0 100644
---- a/arch/sparc/lib/iomap.c
-+++ b/arch/sparc/lib/iomap.c
-@@ -19,8 +19,10 @@ void ioport_unmap(void __iomem *addr)
- EXPORT_SYMBOL(ioport_map);
- EXPORT_SYMBOL(ioport_unmap);
- 
-+#ifdef CONFIG_PCI
- void pci_iounmap(struct pci_dev *dev, void __iomem * addr)
- {
- 	/* nothing to do */
+diff --git a/drivers/net/phy/mdio_device.c b/drivers/net/phy/mdio_device.c
+index 9c88e6749b9a..34600b0061bb 100644
+--- a/drivers/net/phy/mdio_device.c
++++ b/drivers/net/phy/mdio_device.c
+@@ -135,6 +135,16 @@ static int mdio_remove(struct device *dev)
+ 	return 0;
  }
- EXPORT_SYMBOL(pci_iounmap);
-+#endif
+ 
++static void mdio_shutdown(struct device *dev)
++{
++	struct mdio_device *mdiodev = to_mdio_device(dev);
++	struct device_driver *drv = mdiodev->dev.driver;
++	struct mdio_driver *mdiodrv = to_mdio_driver(drv);
++
++	if (mdiodrv->shutdown)
++		mdiodrv->shutdown(mdiodev);
++}
++
+ /**
+  * mdio_driver_register - register an mdio_driver with the MDIO layer
+  * @new_driver: new mdio_driver to register
+@@ -149,6 +159,7 @@ int mdio_driver_register(struct mdio_driver *drv)
+ 	mdiodrv->driver.bus = &mdio_bus_type;
+ 	mdiodrv->driver.probe = mdio_probe;
+ 	mdiodrv->driver.remove = mdio_remove;
++	mdiodrv->driver.shutdown = mdio_shutdown;
+ 
+ 	retval = driver_register(&mdiodrv->driver);
+ 	if (retval) {
+diff --git a/include/linux/mdio.h b/include/linux/mdio.h
+index bf9d1d750693..78b3cf50566f 100644
+--- a/include/linux/mdio.h
++++ b/include/linux/mdio.h
+@@ -61,6 +61,9 @@ struct mdio_driver {
+ 
+ 	/* Clears up any memory if needed */
+ 	void (*remove)(struct mdio_device *mdiodev);
++
++	/* Quiesces the device on system shutdown, turns off interrupts etc */
++	void (*shutdown)(struct mdio_device *mdiodev);
+ };
+ #define to_mdio_driver(d)						\
+ 	container_of(to_mdio_common_driver(d), struct mdio_driver, mdiodrv)
 -- 
 2.33.0
 
