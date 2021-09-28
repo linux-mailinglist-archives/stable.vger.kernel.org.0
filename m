@@ -2,95 +2,248 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6A8B41B3BD
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 18:23:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D49EA41B463
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 18:46:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241707AbhI1QYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 12:24:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50884 "EHLO
+        id S229760AbhI1Qsg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 12:48:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241662AbhI1QYk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 12:24:40 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57BFCC06161C;
-        Tue, 28 Sep 2021 09:23:01 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id k23-20020a17090a591700b001976d2db364so3243448pji.2;
-        Tue, 28 Sep 2021 09:23:01 -0700 (PDT)
+        with ESMTP id S229523AbhI1Qsg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 12:48:36 -0400
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C861C06161C
+        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 09:46:56 -0700 (PDT)
+Received: by mail-ed1-x535.google.com with SMTP id dj4so86214231edb.5
+        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 09:46:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=wAY3/JWg2wbXJxCRk/+67tG4BaraBIPavuBFme6tVEQ=;
-        b=WdD2fQMQ4yQqLhkndIhwcFvm28lW6pOc9aRY2mdmuLh6kuoSQ+gquLZFvcP1DBe8nB
-         QcIRprCdYkYjg/zd9SmxvXVHjnqKr+7y7grilB0DQYEk92LIaqZIEpqzOYsnScN0+IUr
-         HjBbMUUaM76wx0988U28Pu/wxikUEPkrvV3OLoLs75PUMRnz7ZQsAI1A/6uPcHMVKn2T
-         4n4rzJwi09MGC7Ywe1iwHjsoaJjrbCgacHuIZLDT8kabb7SToa7+vS47JqY50qj2nyFo
-         XsGewgvYjBotUeGZlbOTzmJXK+XxTjUYB2X/xL6YlkReiHABm1IcoftQpOM7MyNsch6o
-         uEnw==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=TUxglweC6N1WY79ISdseA2NBR0rjJM+nm4q/sPuPvsA=;
+        b=ORghtTfTJlUjmS/iU/IOM0zHv2l5wotpDxzaZJP0qH2UabwgsPuO55RGX4n2YAkccf
+         NgxUgtAKvNjHvp0+rhawdMFNacSNNZv81hjdx1Q4EAOdX4YFZqBDKFEcsV4/UqTv3Cgz
+         4j9CNi6uFwBwneW/h97PtvBzG+QB6unQhG3XZzMtN/TL0fgBFH3CBvPDo1wK+KVlfyfj
+         iqGZ1xPszqaQVbOHupcPZGQNt3vn/zIv7Ht6li3AouYpM/SeiBNfNk4VkPEt8dxjWSUA
+         i1gqkXiR3AsJ7alttSk17M1YFwhr8d2687VpjNNpx0N4IOtBWxAL4XS+0xh1t9ZWPB81
+         si9Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=wAY3/JWg2wbXJxCRk/+67tG4BaraBIPavuBFme6tVEQ=;
-        b=hbQOk9fk/aVblrkRZfOQIY+YX7Qs74jJlbu2tOGT7MURdg+lvMnznIvZd71xIRqGZe
-         d6nkjq/hHHeIJX2tCq1Ky+zW5NlZZc8cKISwnaTSwumnLaZH9e55+TPaadC+6eUP8H4N
-         L7N5I2B/JL741CZvjv8uWnL+gJwftxAg7BgWQdfCitjgmPAv8GRIhiBfAYulEa28H2wd
-         h1FhH9oyG1YLtASzr4vQU0lGExrsAaIyzf0mJMgj78FMR9W07KH2U38muPOpUZ3JTfmi
-         H7Xu2yQsNXZR4E80E0edLLulW5EASjaLfSy3CokKEicw+/+asp32RZjHsO/+U4QaZV1U
-         S+3g==
-X-Gm-Message-State: AOAM531UUMnGuJyWVGasLJrZkcALNWo2cD2SyPAaqN68AWrmt2+xShiC
-        3t2PjuTrd+NVErcbbAcWmNLPXy1Yj1M=
-X-Google-Smtp-Source: ABdhPJy/9Uy/Br/pHc64+APndSUOnX5oGTCdbZF/7XFtBYKQyNFZalc1cRiT+sEtPm1r3Bp4wE+eGg==
-X-Received: by 2002:a17:90a:31cf:: with SMTP id j15mr827904pjf.86.1632846180413;
-        Tue, 28 Sep 2021 09:23:00 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id m10sm3003134pjs.21.2021.09.28.09.22.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 28 Sep 2021 09:22:59 -0700 (PDT)
-Subject: Re: [PATCH 5.10 000/102] 5.10.70-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20210928071741.331837387@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <afc197dc-f79e-8afd-92ad-0986307dfa8a@gmail.com>
-Date:   Tue, 28 Sep 2021 09:22:56 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=TUxglweC6N1WY79ISdseA2NBR0rjJM+nm4q/sPuPvsA=;
+        b=ABTtGxUAGQb6bHj2A/w5Nfz722H69omQmI3Ms3TPSLKqOtGny47Z79eMtKNjtEQDtc
+         7wckl7ptSTofqHKjxZw4nIGL7RAS9Yz1JbEEA/xQKAp/qwW+Gl0+aZHelreuL6Putpxb
+         5DwhlrZ179ZqDz8GMqi9gYtC0tPr6ZC89+vSZnmsJhtjMLShYV35dEP7PnN4bMMMr4Eg
+         oRK1F/WmsFDBnf6vwTWIvH5TD02UjtV7NYcHRfBqnGWbK0A33pwMD0zB7FYDzQA8rTaX
+         ZmaKrJNtcy8HUs0u7+HnfF++IrfkaWT0eWCkR73qJkB5A17SM87a8VnSsEX/rGaT+7/4
+         tnFA==
+X-Gm-Message-State: AOAM531NSQTBntlYHYMqAcBcLLiWqWBefZR9BzhihS8cWu+yz9gfCf2N
+        HO0P5mZdd8vpFacu8d8OPlwn6c9Ss1LDzm43Hsnzbg==
+X-Google-Smtp-Source: ABdhPJyoQ8w3rXfIaAKPbUHV7IKGbpBzKG6kA3uJYEVUw8UsKwgpcetJC6CjtuU0Z8lM3P2Grz7Et1wVehMdUw8Z9hQ=
+X-Received: by 2002:a05:6402:5146:: with SMTP id n6mr8547850edd.357.1632847614431;
+ Tue, 28 Sep 2021 09:46:54 -0700 (PDT)
 MIME-Version: 1.0
+References: <20210928071741.331837387@linuxfoundation.org>
 In-Reply-To: <20210928071741.331837387@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 28 Sep 2021 22:16:42 +0530
+Message-ID: <CA+G9fYsp=-fDNdY-NYx6oZUmaembx5MqPZh-YA4Cwn=TVLm12w@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/102] 5.10.70-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/28/21 12:18 AM, Greg Kroah-Hartman wrote:
+On Tue, 28 Sept 2021 at 12:49, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
 > This is the start of the stable review cycle for the 5.10.70 release.
 > There are 102 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
-> 
+>
 > Responses should be made by Thu, 30 Sep 2021 07:17:22 +0000.
 > Anything received after that time might be too late.
-> 
+>
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.70-rc2.gz
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.10.70-rc2.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.10.y
 > and the diffstat can be found below.
-> 
+>
 > thanks,
-> 
+>
 > greg k-h
 
-On ARCH_BRCMSTB, using 32-bit and 64-bit kernels:
+The stable-rc 5.10.70-rc2 report,
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build
+* kernel: 5.10.70-rc2
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.10.y
+* git commit: 9583b61453b7d7bd52b2b593858583715f37f254
+* git describe: v5.10.69-103-g9583b61453b7
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
+.69-103-g9583b61453b7
+
+## No regressions (compared to v5.10.67-125-gbb6d31464809)
+
+## No fixes (compared to v5.10.67-125-gbb6d31464809)
+
+## Test result summary
+total: 83364, pass: 69629, fail: 554, skip: 12129, xfail: 1052
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 289 total, 289 passed, 0 failed
+* arm64: 39 total, 39 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 38 total, 38 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 51 total, 51 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 36 total, 35 passed, 1 failed
+* riscv: 30 total, 30 passed, 0 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 39 total, 39 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
