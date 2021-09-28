@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6836241A7CC
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 07:58:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2964541A7D0
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 07:58:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239436AbhI1F7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 01:59:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49598 "EHLO mail.kernel.org"
+        id S238989AbhI1F7f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 01:59:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239202AbhI1F6l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Sep 2021 01:58:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58FFE611F0;
+        id S239259AbhI1F6n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Sep 2021 01:58:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6C5C61359;
         Tue, 28 Sep 2021 05:56:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1632808606;
-        bh=1BDI3ZVdJ/s08tnw6uvuhb79UtVnXik7lPZ9T5LzB1M=;
+        bh=7IFTgHmDk+NZJOgLv6P8aY226whWo0FQCWtd7vn/C8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z0mhbLSnwWfagD7iAOMbwHXpHZWKMHY1YZRh6mqC5VJQWfC2y9yLHh2Ck2kRxpJEQ
-         dAlonYEwzju+qH7Umm3RyHZTlsblvepPsrght5uMuJYBsZSWwUCaCBwUFgQtPg2B4F
-         n+5qCeDqJt2nNhFVQ2Oh1Z8Wz3s30nmX7nwmP6IT9SjeDBubwxNabJoumM+A/gCHkL
-         YbOEkAkZs2pxpFuLrc2GWvAjhJWUr/i6e4YoFJt6L1SqW22mykVTbJ6mllQ2pQeZK2
-         ZaBPPwGMzsDc3i327xMbBsSjkhjsEUudoYSzkBJWrLi6zS42ABUMWvIFEAP8E0D2vk
-         mnPL2/FFX76+Q==
+        b=If1kGa7jzQEbryyIZaH17/UztNr9HtAr04gW/j6yA2T70iri9W72e/yrqAY4AoqtB
+         jUw8EDbY0qYrYdKaMNyvcyETzh9mWtpaOVMTUPMGKwhMzdan8ZFQa+451JIdIc/Sl3
+         zd2YWSqDGeiM3ynUIjf17uYDFiy0sNzl8+EiEM9hynE4RAuR9dkynJAgnCcLw2HjS/
+         sTJbGOd681SKj2f3d8msk5n+Yc1dnDNEHFzxLz6kE2CgHORjBzuq7kPvu2MVixkRSQ
+         PDmu2ciELeJOMPYiSDO7dk0JWNXaHRbZk96HSaYLb/8VYWPRsagg96Ikh+9LFKzalf
+         rTJUJv03ZtAKA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, mgross@linux.intel.com,
-        linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 03/23] platform/x86: touchscreen_dmi: Update info for the Chuwi Hi10 Plus (CWI527) tablet
-Date:   Tue, 28 Sep 2021 01:56:24 -0400
-Message-Id: <20210928055645.172544-3-sashal@kernel.org>
+Cc:     Dai Ngo <dai.ngo@oracle.com>, Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, bfields@fieldses.org,
+        linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 04/23] nfsd: back channel stuck in SEQ4_STATUS_CB_PATH_DOWN
+Date:   Tue, 28 Sep 2021 01:56:25 -0400
+Message-Id: <20210928055645.172544-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210928055645.172544-1-sashal@kernel.org>
 References: <20210928055645.172544-1-sashal@kernel.org>
@@ -42,62 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Dai Ngo <dai.ngo@oracle.com>
 
-[ Upstream commit 196159d278ae3b49e7bbb7c76822e6008fd89b97 ]
+[ Upstream commit 02579b2ff8b0becfb51d85a975908ac4ab15fba8 ]
 
-Add info for getting the firmware directly from the UEFI for the Chuwi Hi10
-Plus (CWI527), so that the user does not need to manually install the
-firmware in /lib/firmware/silead.
+When the back channel enters SEQ4_STATUS_CB_PATH_DOWN state, the client
+recovers by sending BIND_CONN_TO_SESSION but the server fails to recover
+the back channel and leaves it as NFSD4_CB_DOWN.
 
-This change will make the touchscreen on these devices work OOTB,
-without requiring any manual setup.
+Fix by enhancing nfsd4_bind_conn_to_session to probe the back channel
+by calling nfsd4_probe_callback.
 
-Also tweak the min and width/height values a bit for more accurate position
-reporting.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210905130210.32810-2-hdegoede@redhat.com
+Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/touchscreen_dmi.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ fs/nfsd/nfs4state.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index 4f5d53b585db..59b7e90cd587 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -100,10 +100,10 @@ static const struct ts_dmi_data chuwi_hi10_air_data = {
- };
+diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+index 0313390fa4b4..1cdf7e0a5c22 100644
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -3512,7 +3512,7 @@ static struct nfsd4_conn *__nfsd4_find_conn(struct svc_xprt *xpt, struct nfsd4_s
+ }
  
- static const struct property_entry chuwi_hi10_plus_props[] = {
--	PROPERTY_ENTRY_U32("touchscreen-min-x", 0),
--	PROPERTY_ENTRY_U32("touchscreen-min-y", 5),
--	PROPERTY_ENTRY_U32("touchscreen-size-x", 1914),
--	PROPERTY_ENTRY_U32("touchscreen-size-y", 1283),
-+	PROPERTY_ENTRY_U32("touchscreen-min-x", 12),
-+	PROPERTY_ENTRY_U32("touchscreen-min-y", 10),
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1908),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 1270),
- 	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-chuwi-hi10plus.fw"),
- 	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
- 	PROPERTY_ENTRY_BOOL("silead,home-button"),
-@@ -111,6 +111,15 @@ static const struct property_entry chuwi_hi10_plus_props[] = {
- };
+ static __be32 nfsd4_match_existing_connection(struct svc_rqst *rqst,
+-				struct nfsd4_session *session, u32 req)
++		struct nfsd4_session *session, u32 req, struct nfsd4_conn **conn)
+ {
+ 	struct nfs4_client *clp = session->se_client;
+ 	struct svc_xprt *xpt = rqst->rq_xprt;
+@@ -3535,6 +3535,8 @@ static __be32 nfsd4_match_existing_connection(struct svc_rqst *rqst,
+ 	else
+ 		status = nfserr_inval;
+ 	spin_unlock(&clp->cl_lock);
++	if (status == nfs_ok && conn)
++		*conn = c;
+ 	return status;
+ }
  
- static const struct ts_dmi_data chuwi_hi10_plus_data = {
-+	.embedded_fw = {
-+		.name	= "silead/gsl1680-chuwi-hi10plus.fw",
-+		.prefix = { 0xf0, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00 },
-+		.length	= 34056,
-+		.sha256	= { 0xfd, 0x0a, 0x08, 0x08, 0x3c, 0xa6, 0x34, 0x4e,
-+			    0x2c, 0x49, 0x9c, 0xcd, 0x7d, 0x44, 0x9d, 0x38,
-+			    0x10, 0x68, 0xb5, 0xbd, 0xb7, 0x2a, 0x63, 0xb5,
-+			    0x67, 0x0b, 0x96, 0xbd, 0x89, 0x67, 0x85, 0x09 },
-+	},
- 	.acpi_name      = "MSSL0017:00",
- 	.properties     = chuwi_hi10_plus_props,
- };
+@@ -3559,8 +3561,16 @@ __be32 nfsd4_bind_conn_to_session(struct svc_rqst *rqstp,
+ 	status = nfserr_wrong_cred;
+ 	if (!nfsd4_mach_creds_match(session->se_client, rqstp))
+ 		goto out;
+-	status = nfsd4_match_existing_connection(rqstp, session, bcts->dir);
+-	if (status == nfs_ok || status == nfserr_inval)
++	status = nfsd4_match_existing_connection(rqstp, session,
++			bcts->dir, &conn);
++	if (status == nfs_ok) {
++		if (bcts->dir == NFS4_CDFC4_FORE_OR_BOTH ||
++				bcts->dir == NFS4_CDFC4_BACK)
++			conn->cn_flags |= NFS4_CDFC4_BACK;
++		nfsd4_probe_callback(session->se_client);
++		goto out;
++	}
++	if (status == nfserr_inval)
+ 		goto out;
+ 	status = nfsd4_map_bcts_dir(&bcts->dir);
+ 	if (status)
 -- 
 2.33.0
 
