@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FEF741A879
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 08:03:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2AD541A876
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 08:03:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239227AbhI1GFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 02:05:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49036 "EHLO mail.kernel.org"
+        id S239176AbhI1GFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 02:05:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239324AbhI1GA4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239167AbhI1GA4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 28 Sep 2021 02:00:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91984613A2;
-        Tue, 28 Sep 2021 05:57:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13DC061374;
+        Tue, 28 Sep 2021 05:57:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632808645;
-        bh=vItgBdU7Zpij+YFPmETvQ4GYWk6GNPFn4Vv0M4mh/zk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQayqJ2xPYInnhxjCiN9GiS0VbV+FbLvhKwqQNjRJcbQ0VTEjogPlwJ9I2GgvEP0u
-         aLD0zICi+dt5LyV52yxMKKhXq7ZqjSuU3Eb2Hhar3MKq899VUWmNm1BWrd0RLbHvt7
-         eo9l5Eax7CqTG97VAkZxrD3UXx2ttX7HRNQVNOTYFzg+OxFNK7XFFyRLYN+2ut+Zaf
-         Rn6EpbenfsAAp9K6Zy4ASuyt/mW3wlMnKi7hv11WmJ/U2C3mQD4u5ppOLROPF7srbf
-         V2JK2bMxIeY934pEmwl9fkgZpZZ7cZqQNn4tw5QBjhqvfBNbIcWHl5HLoDzpPiniZV
-         7F78rCfdfDMJA==
+        s=k20201202; t=1632808648;
+        bh=KfotpKkme5bWhJkBoR5AxobkJU/KNbYopsgya2RvmVg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=lubJt3jSqC+mYG6T5M077kry9+nwR7OnEA6WFDQbnQ8dDYP79272W2rcprSZaTYFv
+         +BqZZdmEnbANEiOjES/IKq6sMDUZjsGVmH/iBlapFbwJySiE8JuxCugucadbkUGNiJ
+         Fr13hHsb5Q4ASWnlu94vrr3TNvZHc+wquTawBreiqJ2MYAxrz0U2U4qrEYyxQ55n3v
+         p7VAL/2eotUrZCJG1jamyOcAQDhu314A8bfwXTn34qyOq7rfcGekdw7Fgj3O8/CAu6
+         FIWS+zAn6AStMqA35O+bxVUesMe8Y5UFNl8jTPQuXq6uaES8EEfFziG76ZxccpxtJC
+         jyhTeeTda1n5w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Changbin Du <changbin.du@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, changbin.du@intel.com
-Subject: [PATCH AUTOSEL 4.19 10/10] tools/vm/page-types: remove dependency on opt_file for idle page tracking
-Date:   Tue, 28 Sep 2021 01:57:16 -0400
-Message-Id: <20210928055716.172951-10-sashal@kernel.org>
+Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, hkallweit1@gmail.com,
+        kuba@kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 1/8] net: mdio: introduce a shutdown method to mdio device drivers
+Date:   Tue, 28 Sep 2021 01:57:19 -0400
+Message-Id: <20210928055727.173078-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210928055716.172951-1-sashal@kernel.org>
-References: <20210928055716.172951-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,45 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changbin Du <changbin.du@gmail.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit ebaeab2fe87987cef28eb5ab174c42cd28594387 ]
+[ Upstream commit cf9579976f724ad517cc15b7caadea728c7e245c ]
 
-Idle page tracking can also be used for process address space, not only
-file mappings.
+MDIO-attached devices might have interrupts and other things that might
+need quiesced when we kexec into a new kernel. Things are even more
+creepy when those interrupt lines are shared, and in that case it is
+absolutely mandatory to disable all interrupt sources.
 
-Without this change, using with '-i' option for process address space
-encounters below errors reported.
+Moreover, MDIO devices might be DSA switches, and DSA needs its own
+shutdown method to unlink from the DSA master, which is a new
+requirement that appeared after commit 2f1e8ea726e9 ("net: dsa: link
+interfaces with the DSA master to get rid of lockdep warnings").
 
-  $ sudo ./page-types -p $(pidof bash) -i
-  mark page idle: Bad file descriptor
-  mark page idle: Bad file descriptor
-  mark page idle: Bad file descriptor
-  mark page idle: Bad file descriptor
-  ...
+So introduce a ->shutdown method in the MDIO device driver structure.
 
-Link: https://lkml.kernel.org/r/20210917032826.10669-1-changbin.du@gmail.com
-Signed-off-by: Changbin Du <changbin.du@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/vm/page-types.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/mdio_device.c | 11 +++++++++++
+ include/linux/mdio.h          |  3 +++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/tools/vm/page-types.c b/tools/vm/page-types.c
-index 1ff3a6c0367b..89063b967b6b 100644
---- a/tools/vm/page-types.c
-+++ b/tools/vm/page-types.c
-@@ -1341,7 +1341,7 @@ int main(int argc, char *argv[])
- 	if (opt_list && opt_list_mapcnt)
- 		kpagecount_fd = checked_open(PROC_KPAGECOUNT, O_RDONLY);
+diff --git a/drivers/net/phy/mdio_device.c b/drivers/net/phy/mdio_device.c
+index e24f28924af8..5265180251ea 100644
+--- a/drivers/net/phy/mdio_device.c
++++ b/drivers/net/phy/mdio_device.c
+@@ -146,6 +146,16 @@ static int mdio_remove(struct device *dev)
+ 	return 0;
+ }
  
--	if (opt_mark_idle && opt_file)
-+	if (opt_mark_idle)
- 		page_idle_fd = checked_open(SYS_KERNEL_MM_PAGE_IDLE, O_RDWR);
++static void mdio_shutdown(struct device *dev)
++{
++	struct mdio_device *mdiodev = to_mdio_device(dev);
++	struct device_driver *drv = mdiodev->dev.driver;
++	struct mdio_driver *mdiodrv = to_mdio_driver(drv);
++
++	if (mdiodrv->shutdown)
++		mdiodrv->shutdown(mdiodev);
++}
++
+ /**
+  * mdio_driver_register - register an mdio_driver with the MDIO layer
+  * @new_driver: new mdio_driver to register
+@@ -160,6 +170,7 @@ int mdio_driver_register(struct mdio_driver *drv)
+ 	mdiodrv->driver.bus = &mdio_bus_type;
+ 	mdiodrv->driver.probe = mdio_probe;
+ 	mdiodrv->driver.remove = mdio_remove;
++	mdiodrv->driver.shutdown = mdio_shutdown;
  
- 	if (opt_list && opt_pid)
+ 	retval = driver_register(&mdiodrv->driver);
+ 	if (retval) {
+diff --git a/include/linux/mdio.h b/include/linux/mdio.h
+index ca08ab16ecdc..780c4859ce2d 100644
+--- a/include/linux/mdio.h
++++ b/include/linux/mdio.h
+@@ -63,6 +63,9 @@ struct mdio_driver {
+ 
+ 	/* Clears up any memory if needed */
+ 	void (*remove)(struct mdio_device *mdiodev);
++
++	/* Quiesces the device on system shutdown, turns off interrupts etc */
++	void (*shutdown)(struct mdio_device *mdiodev);
+ };
+ #define to_mdio_driver(d)						\
+ 	container_of(to_mdio_common_driver(d), struct mdio_driver, mdiodrv)
 -- 
 2.33.0
 
