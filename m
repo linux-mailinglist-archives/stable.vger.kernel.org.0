@@ -2,77 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7A0941B177
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 16:00:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABDBC41B188
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 16:04:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241068AbhI1OCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 10:02:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60800 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240898AbhI1OCS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Sep 2021 10:02:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44B8A60F5B;
-        Tue, 28 Sep 2021 14:00:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1632837638;
-        bh=5ce9ZVawoql2g8ZzUuUZzMTZ2C6WGYF2pEegE7ULnDI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uD9BtqOk3MDTUafiiL+HMPag4/nmqUJ4jJJWiNYoFbsWhodPdlqKlsAOkOroAppVw
-         fPW7Z0kdGTu6useIApzwtH0XF2fCqmytlyrTt4c3UwBLBOTq28t+t321vhLW2jNVgC
-         0svi8gXL++kTjvkl90SQhEWzev+9JYR1kNC+G24U=
-Date:   Tue, 28 Sep 2021 16:00:36 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Rudi Heitbaum <rudi@heitbaum.com>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.14 000/161] 5.14.9-rc2 review
-Message-ID: <YVMgBFkkVJsStK/O@kroah.com>
-References: <20210928071739.782455217@linuxfoundation.org>
- <20210928124222.GA7@235a98196aae>
+        id S240898AbhI1OGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 10:06:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46680 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240488AbhI1OGN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 10:06:13 -0400
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C631C06161C
+        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 07:04:34 -0700 (PDT)
+Received: by mail-pf1-x429.google.com with SMTP id b68so1092419pfb.10
+        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 07:04:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=qVfPI7nDYURY1PhyrsBP0G2+839Vx2Ycu7HEf0lxTQs=;
+        b=Pso8hRotqtxVDvPg4cFt9kaH1XsXRr/sffpdBytv+K4YKh2E6j3frF4aRGQ0Jpmhor
+         0UfhmGuGTotoYNPdgmzPYcAx6PwlwQwZlcAuVzRw2eq8mEQfjLVLD0n6shkilv2nu8Gn
+         97mCQpPQvegjzbydmyGRIjDoOohS9t3FeHnqjsVeAyAro1ZEGj3eKp5J38/NJ1eANIpT
+         uqbhmMHTP7fCFE700G+Fk6DrYHCGoMkb99NxXQNx3RJx5xg63KIav3WgG7NnoNi3xTia
+         U9LvmhWRTcpYnSdNvnGNdilO/FnpDE25iCaykhUyjfAmvxFYbG07jgAzbVr2xixFfPVt
+         HKjw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=qVfPI7nDYURY1PhyrsBP0G2+839Vx2Ycu7HEf0lxTQs=;
+        b=QhxL7UG/TwzInRueWia23qRk4uGj9hKzWAOHmq+2PB9uORzva0jC5RqriO5b8HLjc5
+         ml3CVRmql+m8JrWgYTXYnZEOKWDTcZ5QvT8IOwUGEg0iUAkayUpsC7ioDJ0uj/qsuZcS
+         0+kFJlqUpBLY6eFSg5iZvricyaRatXqEAAM5IV/J8+lGTV5uWmz91GUQWe39SrqKWvZp
+         jSrtw03g7O0+pKGs51vAkulUL33NlGazxKCm/wJY5kIEzY2V8i3/JOBvW5X3U56ji2mw
+         TpZB4RyQtdfDNDPHMC27pMEzIkESMKFzt6yxRXOHZXqTkULdhpLGTPn2gagTb6xegOuc
+         EaOw==
+X-Gm-Message-State: AOAM532IZ2K+tBmRGLOkxgs870hdzryBjQNoDBGG8iRUwW3z+8ojpZNh
+        InHIt7KwsrPENL3KmhsRlBbdhnWdjuJdVnU1
+X-Google-Smtp-Source: ABdhPJxHtCb1HteE6lZ6YBLrEg3PEzgzqAQbGZYVRneItmjYpI3HBnkmRzAdMgJzipS54xM0hvlmcQ==
+X-Received: by 2002:a62:7543:0:b0:44b:b97a:d0db with SMTP id q64-20020a627543000000b0044bb97ad0dbmr1282352pfc.9.1632837873494;
+        Tue, 28 Sep 2021 07:04:33 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id fh3sm2885629pjb.8.2021.09.28.07.04.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Sep 2021 07:04:33 -0700 (PDT)
+Message-ID: <615320f1.1c69fb81.1852d.8ba1@mx.google.com>
+Date:   Tue, 28 Sep 2021 07:04:33 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210928124222.GA7@235a98196aae>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.14.8-162-g6ee566ecf238
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.14.y
+Subject: stable-rc/linux-5.14.y baseline: 116 runs,
+ 1 regressions (v5.14.8-162-g6ee566ecf238)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 28, 2021 at 10:42:27PM +1000, Rudi Heitbaum wrote:
-> On Tue, Sep 28, 2021 at 09:19:04AM +0200, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.14.9 release.
-> > There are 161 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Thu, 30 Sep 2021 07:17:13 +0000.
-> > Anything received after that time might be too late.
-> 
-> Hi Greg,
-> 
-> the following patch causes IGC not to build as PTP_1588_CLOCK_OPTIONAL
-> is not included in the 5.14.9-rc2 patch.
-> 
-> igc: fix build errors for PTP
-> [ Upstream commit 87758511075ec961486fe78d7548dd709b524433 ]
-> 
-> the config is only found in 5.15rc on this commit:
-> https://github.com/torvalds/linux/commit/e5f31552674e88bff3a4e3ca3e5357668b5f2973
-> 
-> diff --git a/drivers/net/ethernet/intel/Kconfig b/drivers/net/ethernet/intel/Kconfig
-> index 82744a7501c7..c11d974a62d8 100644
-> --- a/drivers/net/ethernet/intel/Kconfig
-> +++ b/drivers/net/ethernet/intel/Kconfig
-> @@ -335,6 +335,7 @@ config IGC
->  	tristate "Intel(R) Ethernet Controller I225-LM/I225-V support"
->  	default n
->  	depends on PCI
-> +	depends on PTP_1588_CLOCK_OPTIONAL
->  	help
->  	  This driver supports Intel(R) Ethernet Controller I225-LM/I225-V
->  	  family of adapters.
+stable-rc/linux-5.14.y baseline: 116 runs, 1 regressions (v5.14.8-162-g6ee5=
+66ecf238)
 
-Ah, thanks, now deleted.  The "Fixes:" tags in this commit kind of lie :(
+Regressions Summary
+-------------------
 
-greg k-h
+platform  | arch | lab          | compiler | defconfig          | regressio=
+ns
+----------+------+--------------+----------+--------------------+----------=
+--
+beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1        =
+  =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.14.y/ker=
+nel/v5.14.8-162-g6ee566ecf238/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.14.y
+  Describe: v5.14.8-162-g6ee566ecf238
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6ee566ecf2389b44c84362709162382d166f80c2 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab          | compiler | defconfig          | regressio=
+ns
+----------+------+--------------+----------+--------------------+----------=
+--
+beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1        =
+  =
+
+
+  Details:     https://kernelci.org/test/plan/id/6152e56f9c6728f94c99a32e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.8=
+-162-g6ee566ecf238/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagl=
+e-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.8=
+-162-g6ee566ecf238/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagl=
+e-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6152e56f9c6728f94c99a=
+32f
+        failing since 6 days (last pass: v5.14.6-169-g2f7b80d27451, first f=
+ail: v5.14.6-171-gc25893599ebc) =
+
+ =20
