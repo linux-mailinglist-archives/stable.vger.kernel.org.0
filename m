@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BD0941A765
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 07:55:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2197141A773
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 07:55:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238118AbhI1F5N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 01:57:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47654 "EHLO mail.kernel.org"
+        id S239015AbhI1F5W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 01:57:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238950AbhI1F5L (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238955AbhI1F5L (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 28 Sep 2021 01:57:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 604E66120D;
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D12C1611CC;
         Tue, 28 Sep 2021 05:55:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632808532;
-        bh=5Y/E7/1Pihv7RM07/Ul/WtSQVHQxh+kSXuhOnwJwQhM=;
+        s=k20201202; t=1632808533;
+        bh=3j7cRuwX8oE8k8wLA4cpV+B/YSxYbRpiZh1fi63kOl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=poYxVDSTYnuMZR9imTcU4333S4HpZ+irKMGddpM+NrZBDIJ0T3SmqouLQ17KI1xjl
-         5nFfc7ITZ0i6VJ2806X6d7NTN66Nw2lh//cdBCg5Voh2XeeTyUHDU46STe/Eyen+GX
-         z+/0qrdchY2U7X8T2jf3cLmAsAlBZZii1AKwlWVpfRFc8w/4sQMAv0JWKgRPJGGrQR
-         o0vLidA/sEjQrB6zXAr0jHFfLoVVpfa8y1e4uN7luvW7Hb0IhKTS9IOfYy1pvMXQLe
-         DI1jvidm2K9E/9O+Y9tvcNP4XAJql0cbz1il/Cd86Uqoew7nLDRs2T3dzy8GGRw1iM
-         vGLoj9Kc9XCdg==
+        b=EgFde5imkdbL72IzCgqkmyXpYey+cqvYOdZ1lHBtyA/3h7WGljMEzlFngdtAz7Q7E
+         JNgzAbY+Zk1PerxAVcFNgv7W043k7XVBx6aKSa6eyGw/L4MvaZjs0jD4Z47qkz9NhK
+         IUltPtuLWzgh+k5JUMj6MFKGBLTBksiid4UKp6AeDQrawAUqacK3Kl3BDJLjgN4LxJ
+         HJ9ebrvt3zK5xTiGxvZBJ29pXiraj6OL+Z7WYdh3GqdHwKSRLPspSzReHmfzMu3J0g
+         csXTgvAVdTvpan21+vvQfA7pH+QlcJRs3zyU6AOFVs1/RNEh9ZmYEQBaSok8UhQLlv
+         z9NZwahl+ZpbQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>, Jan Kara <jack@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, jack@suse.com,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 13/40] ext2: fix sleeping in atomic bugs on error
-Date:   Tue, 28 Sep 2021 01:54:57 -0400
-Message-Id: <20210928055524.172051-13-sashal@kernel.org>
+Cc:     Philip Yang <Philip.Yang@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.14 14/40] drm/amdkfd: handle svm migrate init error
+Date:   Tue, 28 Sep 2021 01:54:58 -0400
+Message-Id: <20210928055524.172051-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210928055524.172051-1-sashal@kernel.org>
 References: <20210928055524.172051-1-sashal@kernel.org>
@@ -42,60 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Philip Yang <Philip.Yang@amd.com>
 
-[ Upstream commit 372d1f3e1bfede719864d0d1fbf3146b1e638c88 ]
+[ Upstream commit 7d6687200a939176847090bbde5cb79a82792a2f ]
 
-The ext2_error() function syncs the filesystem so it sleeps.  The caller
-is holding a spinlock so it's not allowed to sleep.
+If svm migration init failed to create pgmap for device memory, set
+pgmap type to 0 to disable device SVM support capability.
 
-   ext2_statfs() <- disables preempt
-   -> ext2_count_free_blocks()
-      -> ext2_get_group_desc()
-
-Fix this by using WARN() to print an error message and a stack trace
-instead of using ext2_error().
-
-Link: https://lore.kernel.org/r/20210921203233.GA16529@kili
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Philip Yang <Philip.Yang@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext2/balloc.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_migrate.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/ext2/balloc.c b/fs/ext2/balloc.c
-index 1f3f4326bf3c..c17ccc19b938 100644
---- a/fs/ext2/balloc.c
-+++ b/fs/ext2/balloc.c
-@@ -48,10 +48,9 @@ struct ext2_group_desc * ext2_get_group_desc(struct super_block * sb,
- 	struct ext2_sb_info *sbi = EXT2_SB(sb);
- 
- 	if (block_group >= sbi->s_groups_count) {
--		ext2_error (sb, "ext2_get_group_desc",
--			    "block_group >= groups_count - "
--			    "block_group = %d, groups_count = %lu",
--			    block_group, sbi->s_groups_count);
-+		WARN(1, "block_group >= groups_count - "
-+		     "block_group = %d, groups_count = %lu",
-+		     block_group, sbi->s_groups_count);
- 
- 		return NULL;
- 	}
-@@ -59,10 +58,9 @@ struct ext2_group_desc * ext2_get_group_desc(struct super_block * sb,
- 	group_desc = block_group >> EXT2_DESC_PER_BLOCK_BITS(sb);
- 	offset = block_group & (EXT2_DESC_PER_BLOCK(sb) - 1);
- 	if (!sbi->s_group_desc[group_desc]) {
--		ext2_error (sb, "ext2_get_group_desc",
--			    "Group descriptor not loaded - "
--			    "block_group = %d, group_desc = %lu, desc = %lu",
--			     block_group, group_desc, offset);
-+		WARN(1, "Group descriptor not loaded - "
-+		     "block_group = %d, group_desc = %lu, desc = %lu",
-+		      block_group, group_desc, offset);
- 		return NULL;
- 	}
- 
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
+index dab290a4d19d..165e0ebb619d 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
+@@ -894,6 +894,9 @@ int svm_migrate_init(struct amdgpu_device *adev)
+ 	r = devm_memremap_pages(adev->dev, pgmap);
+ 	if (IS_ERR(r)) {
+ 		pr_err("failed to register HMM device memory\n");
++
++		/* Disable SVM support capability */
++		pgmap->type = 0;
+ 		devm_release_mem_region(adev->dev, res->start,
+ 					res->end - res->start + 1);
+ 		return PTR_ERR(r);
 -- 
 2.33.0
 
