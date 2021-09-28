@@ -2,104 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C18C41AA11
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 09:49:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C99841AA37
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 09:58:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239342AbhI1Hv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 03:51:29 -0400
-Received: from new2-smtp.messagingengine.com ([66.111.4.224]:58193 "EHLO
-        new2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239328AbhI1Hv2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 03:51:28 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 46945580C56;
-        Tue, 28 Sep 2021 03:49:49 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Tue, 28 Sep 2021 03:49:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=W1gTysFUCeHCFA697MxJ7RHRRe/
-        6ka4WMwz+p8/IZsg=; b=hEojnP22XPcGnEnxkVQa4yKcHzpbA5C4R8n21q/flzo
-        Z7/18QIyEjpb4D70QOmLH6DLs8TgYkPB9aalehoUrc2OHvwD7pOUjJqdWgmh06w1
-        C/GLUQqWEhxFjHepQmy0LC/DqFaU+cVoofEFfJCH4KnzF3fdwfVo6gINnv9MUwRa
-        MItl2MCT7R0x5/kIIOzQNFdAyc3iQ9NJfDcakjdjuz6Nll+W89XPTH7jph9ziRKL
-        TASTIKT+3hNbsIMQZBq0wcGiGvLQ3zjB3nxF79qSm+ofvhBPWZL6ecK9aHITirii
-        DquuJLYoen09F7+KGfsp6dl6iSCf12+cbBBOwuqELGQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=W1gTys
-        FUCeHCFA697MxJ7RHRRe/6ka4WMwz+p8/IZsg=; b=uRdWG9QqQbQi8PgDbRACtw
-        kHFp5cFmNnlCIheCsKPpL5H8fLb50fqptgpfkDnfTSI6fvUJ1a1F26eWdumVY2IK
-        q/4yJ8gjydEbODr+9OpuJA6oS+zkT+RKbwdrL6LHUQnZskPW/l2iEeeLDgIiQxLr
-        O4mUP0NT82prseC1ijBDW8To/s8RqAO8YWkosl+crm8TDivCwhUYsND+eEbVaNox
-        kuy9tGYWfqZruXpvLCUQkJ88RwSfNWMT8MdutRfjbwsbpd799Liw3trJY1AIxNut
-        3NPuceCXSRjDYzyOxTyItRPa4A8psIbLOqkouoRHaHZe6KJzUL/L6h6huyjI0TmA
-        ==
-X-ME-Sender: <xms:HMlSYTgfgHC1NMelg3XOGENjEUQTCCwvwWorJsdmDfSG0FGWSdG3Ag>
-    <xme:HMlSYQC3L6IKKzfdB9OF6qmwgCgA5MxPzhj8EnASQTo0f4MhgcbLj02Ajh3XJEb4R
-    2fqPLI5BrfM5A>
-X-ME-Received: <xmr:HMlSYTFDG5i2jDLoEeW2-0xcDtwhGAwzSCEq83zWPEr8vZHUk97I8vwQIlnR4xHDbAANeyhRwZk3o7HA7kGM5UzjLhDy6ztR>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudejledguddvudcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuhe
-    ejgfffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhs
-    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
-    hhrdgtohhm
-X-ME-Proxy: <xmx:HMlSYQQOCfaa1Q4DUgvAIgMU659QePbUU65zRvSepId7Linfkl6cAA>
-    <xmx:HMlSYQxUZoTxx9bBPG1zkJna2lup90jKHc-j0HXUC5OOJQ3c_NJr3g>
-    <xmx:HMlSYW4tC7MQnQ4J5RvzcN1MPkyFI7JlUf1WO7bndCGnJZCJ1mS5uw>
-    <xmx:HclSYRS4PI7qTS6AGin8LTYIYAeF-m3qJu2umnsKShY-JX6Cb7RpkQ>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 28 Sep 2021 03:49:48 -0400 (EDT)
-Date:   Tue, 28 Sep 2021 09:49:45 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Macpaul Lin <macpaul.lin@mediatek.com>
-Cc:     Leon Yu <leoyu@nvidia.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Jose Abreu <joabreu@synopsys.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Fabien Parent <fparent@baylibre.com>,
-        Miles Chen <miles.chen@mediatek.com>,
-        Bear Wang <bear.wang@mediatek.com>,
-        Pablo Sun <pablo.sun@mediatek.com>,
-        Macpaul Lin <macpaul@gmail.com>,
-        linux-mediatek@lists.infradead.org, stable@vger.kernel.org
-Subject: Re: backport commit ("31096c3e8b11 net: stmmac: don't attach
- interface until resume finishes") to linux-5.4-stable
-Message-ID: <YVLJGT7JAVc7rnBx@kroah.com>
-References: <20210927104500.1505-1-macpaul.lin@mediatek.com>
- <20210928074349.24622-1-macpaul.lin@mediatek.com>
+        id S239524AbhI1H7y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 03:59:54 -0400
+Received: from szxga01-in.huawei.com ([45.249.212.187]:26934 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239548AbhI1H7y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 03:59:54 -0400
+Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.55])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4HJWwh60Grzbmt6;
+        Tue, 28 Sep 2021 15:53:56 +0800 (CST)
+Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
+ dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.8; Tue, 28 Sep 2021 15:58:13 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.8; Tue, 28 Sep 2021 15:58:11 +0800
+Subject: Re: [PATCH 5.10 000/103] 5.10.70-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20210927170225.702078779@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <c0467f16-e71b-e22b-1b24-3d4ce76bf7ce@huawei.com>
+Date:   Tue, 28 Sep 2021 15:58:11 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210928074349.24622-1-macpaul.lin@mediatek.com>
+In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ kwepemm600013.china.huawei.com (7.193.23.68)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 28, 2021 at 03:43:49PM +0800, Macpaul Lin wrote:
-> Hi reviewers,
-> 
-> I suggest to backport 
-> commit "31096c3e8b11 net: stmmac: don't attach interface until resume finishes"
-> to linux-5.4 stable tree.
-> 
-> This patch fix resume issue by deferring netif_device_attach().
-> 
-> However, the patch cannot be cherry-pick directly on to stable-5.4.
-> A slightly change to the origin patch is required.
-> I'd like to provide the modification to stable-5.4 if it is needed.
 
-Ok, can you please send a properly backported patch so that we can apply
-it?
 
-thanks,
+On 2021/9/28 1:01, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.70 release.
+> There are 103 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 29 Sep 2021 17:02:05 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.70-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-greg k-h
+Tested on arm64 and x86 for 5.10.70-rc1,
+
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.10.y
+Version: 5.10.70-rc1
+Commit: f5ab3f2ed675e0ca060bf87466c9ac2406f1d83f
+Compiler: gcc version 7.3.0 (GCC)
+
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8907
+passed: 8907
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8907
+passed: 8907
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
