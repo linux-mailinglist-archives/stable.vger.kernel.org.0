@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE4DF41A7D2
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 07:58:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E135E41A7D5
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 07:58:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239260AbhI1F7i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 01:59:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49038 "EHLO mail.kernel.org"
+        id S239473AbhI1F7k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 01:59:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239265AbhI1F6n (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239266AbhI1F6n (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 28 Sep 2021 01:58:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0D4D6135A;
-        Tue, 28 Sep 2021 05:56:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44AA36135D;
+        Tue, 28 Sep 2021 05:56:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632808607;
-        bh=t8N8NGuLBdh0yHwm9J2hKJ4Bn3Xes7NfZRyFZ4a/DW0=;
+        s=k20201202; t=1632808608;
+        bh=CjBckuTPQmZwyfynoGj+MiRCVivspQcr7cvOvZNRb+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AitPtZB8T51GgMyWnwDsOKMlYnYiOMFnmMmaqfHx+sDhjAnDxV2pQTW4hPzit+PLC
-         ciZmaS1EItLY9y8XJjqv1FEN5X22JQjdjMfUebuSRKG7rvDbw0ob0S/X013msNV3uR
-         Zt8D2vQ8zHHQ7bx+C2MSiSnb+6+RUli0cSkZ7zU6UZbgsXMh1NTapM0Za+kyfyt7mL
-         zSJGQhpTcEW8IPvlW8G1p42bAl5uF7bO5vTGEbWJaC8idlztaM8jN0ulhsmiVcVymy
-         6UUbLgU8Lgt2J2J497MTdNXwKZAVmB8EtcHANV8Au85LOL5GUg4BdvU9tKh8gWGyLu
-         wXRSfAvLrve2g==
+        b=qJZkOiLxef17gVG3LC5IqhriYnIrTxq+/9mO3mvWZLpTcEuZ8RkovCMNt8trPj7LN
+         HrnuVj/Cf+tZpofkHXDbX9NxhcQ+blNHTyA1CY/HvIOkZXIDyghdJx+rjxED7pM87g
+         OdffILILgqsdlhXwaycS7qa3uYWQ+DBFxLz3k9LC+RmtlGIE0t9j2+J6OcwijzM8M9
+         bOTMi21PVyg2JD3D0EnM6RCIlcLXLgbTG4lWYDxe2GZrxvJJ+aPW9xbXy6p587JWRJ
+         2NVt6+N8ceSc3zdMC8jo02e8AOJUJtt92DRdJLRKuKmIrR3ftYeX2kRg1ujF1LKdmA
+         nE1GKPXQyXbBg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Filipe Manana <fdmanana@suse.com>, David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, clm@fb.com,
-        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 06/23] btrfs: fix mount failure due to past and transient device flush error
-Date:   Tue, 28 Sep 2021 01:56:27 -0400
-Message-Id: <20210928055645.172544-6-sashal@kernel.org>
+Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, hkallweit1@gmail.com,
+        kuba@kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 07/23] net: mdio: introduce a shutdown method to mdio device drivers
+Date:   Tue, 28 Sep 2021 01:56:28 -0400
+Message-Id: <20210928055645.172544-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210928055645.172544-1-sashal@kernel.org>
 References: <20210928055645.172544-1-sashal@kernel.org>
@@ -42,79 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 6b225baababf1e3d41a4250e802cbd193e1343fb ]
+[ Upstream commit cf9579976f724ad517cc15b7caadea728c7e245c ]
 
-When we get an error flushing one device, during a super block commit, we
-record the error in the device structure, in the field 'last_flush_error'.
-This is used to later check if we should error out the super block commit,
-depending on whether the number of flush errors is greater than or equals
-to the maximum tolerated device failures for a raid profile.
+MDIO-attached devices might have interrupts and other things that might
+need quiesced when we kexec into a new kernel. Things are even more
+creepy when those interrupt lines are shared, and in that case it is
+absolutely mandatory to disable all interrupt sources.
 
-However if we get a transient device flush error, unmount the filesystem
-and later try to mount it, we can fail the mount because we treat that
-past error as critical and consider the device is missing. Even if it's
-very likely that the error will happen again, as it's probably due to a
-hardware related problem, there may be cases where the error might not
-happen again. One example is during testing, and a test case like the
-new generic/648 from fstests always triggers this. The test cases
-generic/019 and generic/475 also trigger this scenario, but very
-sporadically.
+Moreover, MDIO devices might be DSA switches, and DSA needs its own
+shutdown method to unlink from the DSA master, which is a new
+requirement that appeared after commit 2f1e8ea726e9 ("net: dsa: link
+interfaces with the DSA master to get rid of lockdep warnings").
 
-When this happens we get an error like this:
+So introduce a ->shutdown method in the MDIO device driver structure.
 
-  $ mount /dev/sdc /mnt
-  mount: /mnt wrong fs type, bad option, bad superblock on /dev/sdc, missing codepage or helper program, or other error.
-
-  $ dmesg
-  (...)
-  [12918.886926] BTRFS warning (device sdc): chunk 13631488 missing 1 devices, max tolerance is 0 for writable mount
-  [12918.888293] BTRFS warning (device sdc): writable mount is not allowed due to too many missing devices
-  [12918.890853] BTRFS error (device sdc): open_ctree failed
-
-The failure happens because when btrfs_check_rw_degradable() is called at
-mount time, or at remount from RO to RW time, is sees a non zero value in
-a device's ->last_flush_error attribute, and therefore considers that the
-device is 'missing'.
-
-Fix this by setting a device's ->last_flush_error to zero when we close a
-device, making sure the error is not seen on the next mount attempt. We
-only need to track flush errors during the current mount, so that we never
-commit a super block if such errors happened.
-
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/net/phy/mdio_device.c | 11 +++++++++++
+ include/linux/mdio.h          |  3 +++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 509811aabb3f..bd4f0581c7c3 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -1147,6 +1147,19 @@ static void btrfs_close_one_device(struct btrfs_device *device)
- 	atomic_set(&device->dev_stats_ccnt, 0);
- 	extent_io_tree_release(&device->alloc_state);
+diff --git a/drivers/net/phy/mdio_device.c b/drivers/net/phy/mdio_device.c
+index 0837319a52d7..797c41f5590e 100644
+--- a/drivers/net/phy/mdio_device.c
++++ b/drivers/net/phy/mdio_device.c
+@@ -179,6 +179,16 @@ static int mdio_remove(struct device *dev)
+ 	return 0;
+ }
  
-+	/*
-+	 * Reset the flush error record. We might have a transient flush error
-+	 * in this mount, and if so we aborted the current transaction and set
-+	 * the fs to an error state, guaranteeing no super blocks can be further
-+	 * committed. However that error might be transient and if we unmount the
-+	 * filesystem and mount it again, we should allow the mount to succeed
-+	 * (btrfs_check_rw_degradable() should not fail) - if after mounting the
-+	 * filesystem again we still get flush errors, then we will again abort
-+	 * any transaction and set the error state, guaranteeing no commits of
-+	 * unsafe super blocks.
-+	 */
-+	device->last_flush_error = 0;
++static void mdio_shutdown(struct device *dev)
++{
++	struct mdio_device *mdiodev = to_mdio_device(dev);
++	struct device_driver *drv = mdiodev->dev.driver;
++	struct mdio_driver *mdiodrv = to_mdio_driver(drv);
 +
- 	/* Verify the device is back in a pristine state  */
- 	ASSERT(!test_bit(BTRFS_DEV_STATE_FLUSH_SENT, &device->dev_state));
- 	ASSERT(!test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state));
++	if (mdiodrv->shutdown)
++		mdiodrv->shutdown(mdiodev);
++}
++
+ /**
+  * mdio_driver_register - register an mdio_driver with the MDIO layer
+  * @drv: new mdio_driver to register
+@@ -193,6 +203,7 @@ int mdio_driver_register(struct mdio_driver *drv)
+ 	mdiodrv->driver.bus = &mdio_bus_type;
+ 	mdiodrv->driver.probe = mdio_probe;
+ 	mdiodrv->driver.remove = mdio_remove;
++	mdiodrv->driver.shutdown = mdio_shutdown;
+ 
+ 	retval = driver_register(&mdiodrv->driver);
+ 	if (retval) {
+diff --git a/include/linux/mdio.h b/include/linux/mdio.h
+index dbd69b3d170b..de5fb4b333ce 100644
+--- a/include/linux/mdio.h
++++ b/include/linux/mdio.h
+@@ -72,6 +72,9 @@ struct mdio_driver {
+ 
+ 	/* Clears up any memory if needed */
+ 	void (*remove)(struct mdio_device *mdiodev);
++
++	/* Quiesces the device on system shutdown, turns off interrupts etc */
++	void (*shutdown)(struct mdio_device *mdiodev);
+ };
+ #define to_mdio_driver(d)						\
+ 	container_of(to_mdio_common_driver(d), struct mdio_driver, mdiodrv)
 -- 
 2.33.0
 
