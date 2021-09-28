@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6839241A896
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 08:05:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E90441A877
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 08:03:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239445AbhI1GFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239416AbhI1GFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 28 Sep 2021 02:05:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49038 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239648AbhI1GA5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239650AbhI1GA5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 28 Sep 2021 02:00:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75145613A8;
-        Tue, 28 Sep 2021 05:57:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA9A0613A9;
+        Tue, 28 Sep 2021 05:57:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632808648;
-        bh=Y4XjyZvXYrLEKqhTcaGzcA+k3/KH2wAv3Jyuw9cGryI=;
+        s=k20201202; t=1632808649;
+        bh=tXM17ftZo6zb9iZvoXX/Qu2JrcVS4VAYlpj1pqVIu9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EianYCz/trToiQ0TXG2H1NnHFQZTY1kgJilWnwCT3Z4LFArFBpurBeWfylHHn6rPa
-         pGvhqI+2F3gcEn7sV0ShN2bhRdDDM8MgVS5jtM3rl2CZ0J3sS2atKm4kCoe7SXOVQi
-         6rBESfxDeUxwYzFfqyDZhTiqaBgYonjgoIZom4CeNdBY31c6hjAoAoGglOjsbB6IEk
-         3xYLt9xaUEPU1V69+IQxsv+3cr0dN78lQmn+OpK5Gnr28Fx5G5bNIMMKr6YRWwUwk9
-         1ausbTrBXiCbGO4cuGDQGsXkanvhD2jEQxzQO8qMtMcFmnCnkWIAuYkA2GoMF6VZEc
-         Z2EFGwUtJA76A==
+        b=oQO9IQISfptfUkN1aQK80egg4kvOG7o5XlaQto6qiWm+WxG60tmmplyojnBCv+Cpz
+         +znzks1ixA5EHslTJf8j61Fbo7JIVL5rJUzuundughC/GsWfwNuFWvdIIyzyu0qjV4
+         OMXzzYQLLYyyOnsYoSmZ9YDwq/PfI4RPIStQRs8/Dv4wgigI868yP2Ricqpr8pA2tv
+         ta2aZWTQmEvqOzCuq2tUDibVNSeq5yLJe3L3ICOCeaGbG/YI+3FQi/eEXBpN116rvW
+         D7kluR6DyFb5GOpD+OtvQCM6rGBay7Tytp0THamBzPtHeGE2cLtoyPrx1qLFxa1lyC
+         w1HOFndoqZ9Lg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Beulich <jbeulich@suse.com>, Paul Durrant <paul@xen.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, wei.liu@kernel.org,
-        kuba@kernel.org, xen-devel@lists.xenproject.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 2/8] xen-netback: correct success/error reporting for the SKB-with-fraglist case
-Date:   Tue, 28 Sep 2021 01:57:20 -0400
-Message-Id: <20210928055727.173078-2-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        David Miller <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, sparclinux@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 3/8] sparc64: fix pci_iounmap() when CONFIG_PCI is not set
+Date:   Tue, 28 Sep 2021 01:57:21 -0400
+Message-Id: <20210928055727.173078-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210928055727.173078-1-sashal@kernel.org>
 References: <20210928055727.173078-1-sashal@kernel.org>
@@ -44,37 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 3ede7f84c7c21f93c5eac611d60eba3f2c765e0f ]
+[ Upstream commit d8b1e10a2b8efaf71d151aa756052fbf2f3b6d57 ]
 
-When re-entering the main loop of xenvif_tx_check_gop() a 2nd time, the
-special considerations for the head of the SKB no longer apply. Don't
-mistakenly report ERROR to the frontend for the first entry in the list,
-even if - from all I can tell - this shouldn't matter much as the overall
-transmit will need to be considered failed anyway.
+Guenter reported [1] that the pci_iounmap() changes remain problematic,
+with sparc64 allnoconfig and tinyconfig still not building due to the
+header file changes and confusion with the arch-specific pci_iounmap()
+implementation.
 
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Paul Durrant <paul@xen.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+I'm pretty convinced that sparc should just use GENERIC_IOMAP instead of
+doing its own thing, since it turns out that the sparc64 version of
+pci_iounmap() is somewhat buggy (see [2]).  But in the meantime, this
+just fixes the build by avoiding the trivial re-definition of the empty
+case.
+
+Link: https://lore.kernel.org/lkml/20210920134424.GA346531@roeck-us.net/ [1]
+Link: https://lore.kernel.org/lkml/CAHk-=wgheheFx9myQyy5osh79BAazvmvYURAtub2gQtMvLrhqQ@mail.gmail.com/ [2]
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Cc: David Miller <davem@davemloft.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/netback.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/sparc/lib/iomap.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
-index ad555a9a3eca..e1d6dbb4b770 100644
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -492,7 +492,7 @@ static int xenvif_tx_check_gop(struct xenvif_queue *queue,
- 				 * the header's copy failed, and they are
- 				 * sharing a slot, send an error
- 				 */
--				if (i == 0 && sharedslot)
-+				if (i == 0 && !first_shinfo && sharedslot)
- 					xenvif_idx_release(queue, pending_idx,
- 							   XEN_NETIF_RSP_ERROR);
- 				else
+diff --git a/arch/sparc/lib/iomap.c b/arch/sparc/lib/iomap.c
+index c9da9f139694..f3a8cd491ce0 100644
+--- a/arch/sparc/lib/iomap.c
++++ b/arch/sparc/lib/iomap.c
+@@ -19,8 +19,10 @@ void ioport_unmap(void __iomem *addr)
+ EXPORT_SYMBOL(ioport_map);
+ EXPORT_SYMBOL(ioport_unmap);
+ 
++#ifdef CONFIG_PCI
+ void pci_iounmap(struct pci_dev *dev, void __iomem * addr)
+ {
+ 	/* nothing to do */
+ }
+ EXPORT_SYMBOL(pci_iounmap);
++#endif
 -- 
 2.33.0
 
