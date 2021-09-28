@@ -2,126 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62DE741A860
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 08:03:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA91541A8AF
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 08:10:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239018AbhI1GE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 02:04:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49596 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239885AbhI1GCv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Sep 2021 02:02:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA7BA613D1;
-        Tue, 28 Sep 2021 05:57:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632808667;
-        bh=mi15zyT9T6+AXpeD0B5QFINjteCdWDkTRSQg1MPD12E=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wz8r1viAtgr48v9rVsYrvMrI+IT3S1DmQJbLyGsLHK/f32uSKp2rxafqMTTo4ZVbY
-         FsdLizv3VNMFXmuLziEdL+4jlgZYIFhI8k+5qvFkmcA/2aAYSxXs+Uhh+6ARLt9Pp8
-         XDi0LPpelcD/+ay6p4e0m9eiYCKQneLK53faQKqOG7c3BYBVbkKMuIgTISzsqzMylR
-         MHMsG8rqLYyDhIGZj7tDbMtFFi3c5At/rxVV6towrOSXiX4R0EfjG6T5Ge9nFDMFgf
-         5muDFq1hhebJngZhmVnCTxUnHGYWgiNoI1zindmA5Si1w0rq8u0NNG2XaayrzzYhKE
-         QBg0RQ0k8tMLQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Faizel K B <faizel.kb@dicortech.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 5/5] usb: testusb: Fix for showing the connection speed
-Date:   Tue, 28 Sep 2021 01:57:41 -0400
-Message-Id: <20210928055741.173265-5-sashal@kernel.org>
+        id S236001AbhI1GMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 02:12:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47738 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235362AbhI1GMA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 02:12:00 -0400
+Received: from mblankhorst.nl (mblankhorst.nl [IPv6:2a02:2308:0:7ec:e79c:4e97:b6c4:f0ae])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D368C061575
+        for <stable@vger.kernel.org>; Mon, 27 Sep 2021 23:10:21 -0700 (PDT)
+From:   Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+To:     intel-gfx-trybot@lists.freedesktop.org
+Cc:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>, stable@vger.kernel.org
+Subject: [PATCH 08/21] drm/i915: Fix runtime pm handling in i915_gem_shrink
+Date:   Tue, 28 Sep 2021 08:10:03 +0200
+Message-Id: <20210928061016.2789949-8-maarten.lankhorst@linux.intel.com>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210928055741.173265-1-sashal@kernel.org>
-References: <20210928055741.173265-1-sashal@kernel.org>
+In-Reply-To: <20210928061016.2789949-1-maarten.lankhorst@linux.intel.com>
+References: <20210928061016.2789949-1-maarten.lankhorst@linux.intel.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Faizel K B <faizel.kb@dicortech.com>
+We forgot to call intel_runtime_pm_put on error, fix it!
 
-[ Upstream commit f81c08f897adafd2ed43f86f00207ff929f0b2eb ]
-
-testusb' application which uses 'usbtest' driver reports 'unknown speed'
-from the function 'find_testdev'. The variable 'entry->speed' was not
-updated from  the application. The IOCTL mentioned in the FIXME comment can
-only report whether the connection is low speed or not. Speed is read using
-the IOCTL USBDEVFS_GET_SPEED which reports the proper speed grade.  The
-call is implemented in the function 'handle_testdev' where the file
-descriptor was availble locally. Sample output is given below where 'high
-speed' is printed as the connected speed.
-
-sudo ./testusb -a
-high speed      /dev/bus/usb/001/011    0
-/dev/bus/usb/001/011 test 0,    0.000015 secs
-/dev/bus/usb/001/011 test 1,    0.194208 secs
-/dev/bus/usb/001/011 test 2,    0.077289 secs
-/dev/bus/usb/001/011 test 3,    0.170604 secs
-/dev/bus/usb/001/011 test 4,    0.108335 secs
-/dev/bus/usb/001/011 test 5,    2.788076 secs
-/dev/bus/usb/001/011 test 6,    2.594610 secs
-/dev/bus/usb/001/011 test 7,    2.905459 secs
-/dev/bus/usb/001/011 test 8,    2.795193 secs
-/dev/bus/usb/001/011 test 9,    8.372651 secs
-/dev/bus/usb/001/011 test 10,    6.919731 secs
-/dev/bus/usb/001/011 test 11,   16.372687 secs
-/dev/bus/usb/001/011 test 12,   16.375233 secs
-/dev/bus/usb/001/011 test 13,    2.977457 secs
-/dev/bus/usb/001/011 test 14 --> 22 (Invalid argument)
-/dev/bus/usb/001/011 test 17,    0.148826 secs
-/dev/bus/usb/001/011 test 18,    0.068718 secs
-/dev/bus/usb/001/011 test 19,    0.125992 secs
-/dev/bus/usb/001/011 test 20,    0.127477 secs
-/dev/bus/usb/001/011 test 21 --> 22 (Invalid argument)
-/dev/bus/usb/001/011 test 24,    4.133763 secs
-/dev/bus/usb/001/011 test 27,    2.140066 secs
-/dev/bus/usb/001/011 test 28,    2.120713 secs
-/dev/bus/usb/001/011 test 29,    0.507762 secs
-
-Signed-off-by: Faizel K B <faizel.kb@dicortech.com>
-Link: https://lore.kernel.org/r/20210902114444.15106-1-faizel.kb@dicortech.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Fixes: cf41a8f1dc1e ("drm/i915: Finally remove obj->mm.lock.")
+Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: <stable@vger.kernel.org> # v5.13+
 ---
- tools/usb/testusb.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/i915/gem/i915_gem_shrinker.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/tools/usb/testusb.c b/tools/usb/testusb.c
-index 0692d99b6d8f..18c895654e76 100644
---- a/tools/usb/testusb.c
-+++ b/tools/usb/testusb.c
-@@ -278,12 +278,6 @@ static int find_testdev(const char *name, const struct stat *sb, int flag)
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_shrinker.c b/drivers/gpu/drm/i915/gem/i915_gem_shrinker.c
+index e382b7f2353b..5ab136ffdeb2 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_shrinker.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_shrinker.c
+@@ -118,7 +118,7 @@ i915_gem_shrink(struct i915_gem_ww_ctx *ww,
+ 	intel_wakeref_t wakeref = 0;
+ 	unsigned long count = 0;
+ 	unsigned long scanned = 0;
+-	int err;
++	int err = 0;
+ 
+ 	/* CHV + VTD workaround use stop_machine(); need to trylock vm->mutex */
+ 	bool trylock_vm = !ww && intel_vm_no_concurrent_access_wa(i915);
+@@ -242,12 +242,15 @@ i915_gem_shrink(struct i915_gem_ww_ctx *ww,
+ 		list_splice_tail(&still_in_list, phase->list);
+ 		spin_unlock_irqrestore(&i915->mm.obj_lock, flags);
+ 		if (err)
+-			return err;
++			break;
  	}
  
- 	entry->ifnum = ifnum;
--
--	/* FIXME update USBDEVFS_CONNECTINFO so it tells about high speed etc */
--
--	fprintf(stderr, "%s speed\t%s\t%u\n",
--		speed(entry->speed), entry->name, entry->ifnum);
--
- 	entry->next = testdevs;
- 	testdevs = entry;
- 	return 0;
-@@ -312,6 +306,14 @@ static void *handle_testdev (void *arg)
- 		return 0;
- 	}
+ 	if (shrink & I915_SHRINK_BOUND)
+ 		intel_runtime_pm_put(&i915->runtime_pm, wakeref);
  
-+	status  =  ioctl(fd, USBDEVFS_GET_SPEED, NULL);
-+	if (status < 0)
-+		fprintf(stderr, "USBDEVFS_GET_SPEED failed %d\n", status);
-+	else
-+		dev->speed = status;
-+	fprintf(stderr, "%s speed\t%s\t%u\n",
-+			speed(dev->speed), dev->name, dev->ifnum);
++	if (err)
++		return err;
 +
- restart:
- 	for (i = 0; i < TEST_CASES; i++) {
- 		if (dev->test != -1 && dev->test != i)
+ 	if (nr_scanned)
+ 		*nr_scanned += scanned;
+ 	return count;
 -- 
 2.33.0
 
