@@ -2,104 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AEDA41B827
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 22:09:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E92FC41B840
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 22:19:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242687AbhI1ULM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 16:11:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40386 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242679AbhI1ULM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Sep 2021 16:11:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFC9A611BD;
-        Tue, 28 Sep 2021 20:09:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632859772;
-        bh=1zjiJRB4COENYADtGBiO8bi9VSTzBhcEvxXTXQ4YCJE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=dz0C6jtbZVt+WG3dNRtf+Uc9eF5JOWHAvfNIrrYzMIOTtnDRCp+/azIndIeYUhuhS
-         GGj9WX0TpZ5ehMF/69Pmyeuh3/ucdVx+qA3a0SrYvsaqxSgZV0shpnjQj0dgnvtlDW
-         GK5b7nwNLoS1JV2QEWs0jn4T3pv6UNuQ3GOrIAsdusi/ot+w2ueV1sdE8WVRcdnqZX
-         cgiO+4gf5OFvRgfRTooLYYuaVZiaQIlw1bPQgPWn+ImuCn12t1mkZQ50n8ZtXb4XEj
-         c908lF8UTPW0K3QMGBiV0IMqbWqaiGDPylrbcjaaPN5jbUKJVQP3alF56n6OkfPFBJ
-         vyPqI1c2el5Eg==
-Date:   Tue, 28 Sep 2021 21:08:43 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Cc:     f.fainelli@gmail.com, rjui@broadcom.com, sbranden@broadcom.com,
-        bcm-kernel-feedback-list@broadcom.com, nsaenz@kernel.org,
-        linux-spi@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        jgg@ziepe.ca, p.rosenberger@kunbus.com,
-        linux-integrity@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] spi: bcm2835: do not unregister controller in shutdown
- handler
-Message-ID: <20210928200843.GM4199@sirena.org.uk>
-References: <20210928195657.5573-1-LinoSanfilippo@gmx.de>
+        id S242669AbhI1UVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 16:21:11 -0400
+Received: from mslow1.mail.gandi.net ([217.70.178.240]:53509 "EHLO
+        mslow1.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232756AbhI1UVK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 16:21:10 -0400
+Received: from relay6-d.mail.gandi.net (unknown [217.70.183.198])
+        by mslow1.mail.gandi.net (Postfix) with ESMTP id 0AE38D2C64;
+        Tue, 28 Sep 2021 20:11:37 +0000 (UTC)
+Received: (Authenticated sender: thomas.perrot@bootlin.com)
+        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id A34F8C0002;
+        Tue, 28 Sep 2021 20:11:13 +0000 (UTC)
+Message-ID: <5e1c5979b7fd35aa5715ed9b25ca3a59b7b259f4.camel@bootlin.com>
+Subject: Re: [PATCH] bus: mhi: pci_generic: increase timeout value for
+ operations to 24000ms
+From:   Thomas Perrot <thomas.perrot@bootlin.com>
+To:     linux-arm-msm@vger.kernel.org
+Cc:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        hemantk@codeaurora.org, loic.poulain@linaro.org,
+        stable@vger.kernel.org
+Date:   Tue, 28 Sep 2021 22:11:12 +0200
+In-Reply-To: <20210816042206.GA3637@thinkpad>
+References: <20210805140231.268273-1-thomas.perrot@bootlin.com>
+         <20210816042206.GA3637@thinkpad>
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-+0L0MOBcfzP8BlPB1d/S"
+User-Agent: Evolution 3.38.4 (3.38.4-1.fc33) 
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="B9BE8dkJ1pIKavwa"
-Content-Disposition: inline
-In-Reply-To: <20210928195657.5573-1-LinoSanfilippo@gmx.de>
-X-Cookie: 98% lean.
-User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---B9BE8dkJ1pIKavwa
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-+0L0MOBcfzP8BlPB1d/S
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Sep 28, 2021 at 09:56:57PM +0200, Lino Sanfilippo wrote:
-> Do not unregister the SPI controller in the shutdown handler. The reason
-> to avoid this is that controller unregistration results in the slave
-> devices remove() handler being called which may be unexpected for slave
-> drivers at system shutdown.
->=20
-> One example is if the BCM2835 driver is used together with the TPM SPI
-> driver:
-> At system shutdown first the TPM chip devices (pre) shutdown handler
-> (tpm_class_shutdown) is called, stopping the chip and setting an operatio=
-ns
-> pointer to NULL.
-> Then since the BCM2835 shutdown handler unregisters the SPI controller the
-> TPM SPI remove function (tpm_tis_spi_remove) is also called. In case of
-> TPM 2 this function accesses the now nullified operations pointer,
-> resulting in the following NULL pointer access:
->=20
-> [  174.078277] 8<--- cut here ---
-> [  174.078288] Unable to handle kernel NULL pointer dereference at virtua=
-l address 00000034
-> [  174.078293] pgd =3D 557a5fc9
-> [  174.078300] [00000034] *pgd=3D031cf003, *pmd=3D00000000
-> [  174.078317] Internal error: Oops: 206 [#1] SMP ARM
-> [  174.078323] Modules linked in: tpm_tis_spi tpm_tis_core tpm spidev gpi=
-o_pca953x mcp320x rtc_pcf2127 industrialio regmap_i2c regmap_spi 8021q garp=
- stp llc ftdi_sio6
+Hello Manivannan,
 
-Please think hard before including complete backtraces in upstream
-reports, they are very large and contain almost no useful information
-relative to their size so often obscure the relevant content in your
-message. If part of the backtrace is usefully illustrative (it often is
-for search engines if nothing else) then it's usually better to pull out
-the relevant sections.
+I just saw that this patch seems not yet been merged, is there a issue
+with it?
 
---B9BE8dkJ1pIKavwa
+Best regards,
+Thomas
+
+On Mon, 2021-08-16 at 09:52 +0530, Manivannan Sadhasivam wrote:
+> On Thu, Aug 05, 2021 at 04:02:31PM +0200, Thomas Perrot wrote:
+> > Otherwise, the waiting time was too short to use a Sierra Wireless
+> > EM919X
+> > connected to an i.MX6 through the PCIe bus.
+> >=20
+> > Signed-off-by: Thomas Perrot <thomas.perrot@bootlin.com>
+>=20
+> Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+>=20
+> Thanks,
+> Mani
+>=20
+> > ---
+> > =C2=A0drivers/bus/mhi/pci_generic.c | 2 +-
+> > =C2=A01 file changed, 1 insertion(+), 1 deletion(-)
+> >=20
+> > diff --git a/drivers/bus/mhi/pci_generic.c
+> > b/drivers/bus/mhi/pci_generic.c
+> > index 4dd1077354af..e08ed6e5031b 100644
+> > --- a/drivers/bus/mhi/pci_generic.c
+> > +++ b/drivers/bus/mhi/pci_generic.c
+> > @@ -248,7 +248,7 @@ static struct mhi_event_config
+> > modem_qcom_v1_mhi_events[] =3D {
+> > =C2=A0
+> > =C2=A0static const struct mhi_controller_config
+> > modem_qcom_v1_mhiv_config =3D {
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0.max_channels =3D 128,
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0.timeout_ms =3D 8000,
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0.timeout_ms =3D 24000,
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0.num_channels =3D ARRAY=
+_SIZE(modem_qcom_v1_mhi_channels),
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0.ch_cfg =3D modem_qcom_=
+v1_mhi_channels,
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0.num_events =3D ARRAY_S=
+IZE(modem_qcom_v1_mhi_events),
+> > --=20
+> > 2.31.1
+> >=20
+
+--=20
+Thomas Perrot, Bootlin
+Embedded Linux and kernel engineering
+https://bootlin.com
+
+
+--=-+0L0MOBcfzP8BlPB1d/S
 Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmFTdkoACgkQJNaLcl1U
-h9CTzgf9HUmFe5BoskDVSI+tZ1ZSUUmxs3qmjAsP2XzBPZp/I7ktj6J+xN+F2iIy
-hgzIj3PGq+/ytsrwbcQC1mNWCjseYHVAaDWyBzKnP8MLMp0g7LrpatFM/BSPmoTK
-3n2tvz8Hi+GK0q2I8aqw+JKku5QC+kz7VN4ppt+MfwMfswxpMwBgrY44uJh5aPE6
-i+iJjseUk9USwDgTvD9so28Vpk+iOwWvYAoVwgH3vZghRaJ80lJ9Uhv+dwyrmBVt
-/GMSxG8AtRWyHbYfegaCMdh/PX0tWYfAE2Pzg9qQgVzLW2t0jju2YZz7d+b48fhN
-2hT9RxJ6bnNzZ2U8LQ/e+giE8r5swQ==
-=ztne
+iQGzBAABCAAdFiEEh0B3xqajCiMDqBIhn8ALBXH+Cu0FAmFTduAACgkQn8ALBXH+
+Cu33nQwAs8zG3VKh9pWXs3sGavgBzl6meKlz7wh6FZKl4wpbOlpaBhtt7H9wHqyt
+9vk+xrgkljYqTM7CEAm15LLUPjh0jKT1IJ4dkqozWGZhxq5O4FhguBWf/YpdROd3
+lXDbh21z7A92L/yQR0IZCrVDDzYQsTw+Fh9h8IBC2dsCWgjD2DhHuGvWrQxn4KP7
+0v7Ic+PIHZXgO4/8wppWi2DYYCJPD5rq1oL2LbI9/IUF9E/vmDfzGXA4FfLsX+V8
+kKXv5kNI5MkZDzpzftuSvDWAZ28RTdcjTiYQQuoK8P7wOUKtIN67n79W0L65DteK
+OyVZmT6O/v6t+SIdYlzs45LYVxfjfIfOJ6q2SDRk1pcWWvTXaoOw6iTiUMZkdPBp
+1OZHi1E5wGEiwd6ZhXJSe15sU+RLb7FcSPO83SjA50xfEKDSnM9O7oY3y4fAaFfN
+RAHerf7tWPMQY6hbSnnt6CxM6wnwDm9VVNEb4LyPWwke7spTa+EauMYJZJf3oZ9I
+la4m5o5q
+=G2lD
 -----END PGP SIGNATURE-----
 
---B9BE8dkJ1pIKavwa--
+--=-+0L0MOBcfzP8BlPB1d/S--
+
