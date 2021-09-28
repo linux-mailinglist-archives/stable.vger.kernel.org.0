@@ -2,100 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C99841AA37
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 09:58:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72DED41AAAE
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 10:36:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239524AbhI1H7y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 03:59:54 -0400
-Received: from szxga01-in.huawei.com ([45.249.212.187]:26934 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239548AbhI1H7y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 03:59:54 -0400
-Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.55])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4HJWwh60Grzbmt6;
-        Tue, 28 Sep 2021 15:53:56 +0800 (CST)
-Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
- dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Tue, 28 Sep 2021 15:58:13 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Tue, 28 Sep 2021 15:58:11 +0800
-Subject: Re: [PATCH 5.10 000/103] 5.10.70-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210927170225.702078779@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <c0467f16-e71b-e22b-1b24-3d4ce76bf7ce@huawei.com>
-Date:   Tue, 28 Sep 2021 15:58:11 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S239536AbhI1Ii2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 04:38:28 -0400
+Received: from mailgw01.mediatek.com ([60.244.123.138]:44780 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S239380AbhI1Ii2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 04:38:28 -0400
+X-UUID: 16b148b8893c4832acc3deec790d0fbf-20210928
+X-UUID: 16b148b8893c4832acc3deec790d0fbf-20210928
+Received: from mtkcas07.mediatek.inc [(172.21.101.84)] by mailgw01.mediatek.com
+        (envelope-from <macpaul.lin@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 880464663; Tue, 28 Sep 2021 16:36:46 +0800
+Received: from mtkexhb01.mediatek.inc (172.21.101.102) by
+ mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Tue, 28 Sep 2021 16:36:45 +0800
+Received: from MTKCAS06.mediatek.inc (172.21.101.30) by mtkexhb01.mediatek.inc
+ (172.21.101.102) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 28 Sep
+ 2021 16:36:45 +0800
+Received: from mtksdccf07.mediatek.inc (172.21.84.99) by MTKCAS06.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 28 Sep 2021 16:36:45 +0800
+From:   Macpaul Lin <macpaul.lin@mediatek.com>
+To:     Leon Yu <leoyu@nvidia.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Russell King <linux@armlinux.org.uk>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
+        <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Miles Chen <miles.chen@mediatek.com>,
+        Bear Wang <bear.wang@mediatek.com>,
+        Pablo Sun <pablo.sun@mediatek.com>,
+        Fabien Parent <fparent@baylibre.com>,
+        Macpaul Lin <macpaul.lin@mediatek.com>,
+        Macpaul Lin <macpaul@gmail.com>,
+        <linux-mediatek@lists.infradead.org>
+Subject: [PATCH] net: stmmac: don't attach interface until resume finishes
+Date:   Tue, 28 Sep 2021 16:36:20 +0800
+Message-ID: <20210928083620.29090-1-macpaul.lin@mediatek.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <YVLJGT7JAVc7rnBx@kroah.com>
+References: <YVLJGT7JAVc7rnBx@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20210927170225.702078779@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- kwepemm600013.china.huawei.com (7.193.23.68)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-MTK:  N
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Leon Yu <leoyu@nvidia.com>
 
+commit 31096c3e8b1163c6e966bf4d1f36d8b699008f84 upstream.
 
-On 2021/9/28 1:01, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.70 release.
-> There are 103 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 29 Sep 2021 17:02:05 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.70-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Commit 14b41a2959fb ("net: stmmac: Delete txtimer in suspend()") was the
+first attempt to fix a race between mod_timer() and setup_timer()
+during stmmac_resume(). However the issue still exists as the commit
+only addressed half of the issue.
 
-Tested on arm64 and x86 for 5.10.70-rc1,
+Same race can still happen as stmmac_resume() re-attaches interface
+way too early - even before hardware is fully initialized.  Worse,
+doing so allows network traffic to restart and stmmac_tx_timer_arm()
+being called in the middle of stmmac_resume(), which re-init tx timers
+in stmmac_init_coalesce().  timer_list will be corrupted and system
+crashes as a result of race between mod_timer() and setup_timer().
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.10.y
-Version: 5.10.70-rc1
-Commit: f5ab3f2ed675e0ca060bf87466c9ac2406f1d83f
-Compiler: gcc version 7.3.0 (GCC)
+  systemd--1995    2.... 552950018us : stmmac_suspend: 4994
+  ksoftirq-9       0..s2 553123133us : stmmac_tx_timer_arm: 2276
+  systemd--1995    0.... 553127896us : stmmac_resume: 5101
+  systemd--320     7...2 553132752us : stmmac_tx_timer_arm: 2276
+  (sd-exec-1999    5...2 553135204us : stmmac_tx_timer_arm: 2276
+  ---------------------------------
+  pc : run_timer_softirq+0x468/0x5e0
+  lr : run_timer_softirq+0x570/0x5e0
+  Call trace:
+   run_timer_softirq+0x468/0x5e0
+   __do_softirq+0x124/0x398
+   irq_exit+0xd8/0xe0
+   __handle_domain_irq+0x6c/0xc0
+   gic_handle_irq+0x60/0xb0
+   el1_irq+0xb8/0x180
+   arch_cpu_idle+0x38/0x230
+   default_idle_call+0x24/0x3c
+   do_idle+0x1e0/0x2b8
+   cpu_startup_entry+0x28/0x48
+   secondary_start_kernel+0x1b4/0x208
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8907
-passed: 8907
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+Fix this by deferring netif_device_attach() to the end of
+stmmac_resume().
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8907
-passed: 8907
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+Signed-off-by: Leon Yu <leoyu@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+---
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 10d28be73f45..56d227b31dbd 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -4853,8 +4853,6 @@ int stmmac_resume(struct device *dev)
+ 			stmmac_mdio_reset(priv->mii);
+ 	}
+ 
+-	netif_device_attach(ndev);
+-
+ 	mutex_lock(&priv->lock);
+ 
+ 	stmmac_reset_queues_param(priv);
+@@ -4878,6 +4876,8 @@ int stmmac_resume(struct device *dev)
+ 
+ 	phylink_mac_change(priv->phylink, true);
+ 
++	netif_device_attach(ndev);
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(stmmac_resume);
+-- 
+2.18.0
+
