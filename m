@@ -2,18 +2,18 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 918C041BA2F
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 00:23:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11B1D41BA30
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 00:23:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243103AbhI1WYp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 18:24:45 -0400
-Received: from relay11.mail.gandi.net ([217.70.178.231]:36219 "EHLO
+        id S243122AbhI1WYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 18:24:46 -0400
+Received: from relay11.mail.gandi.net ([217.70.178.231]:46527 "EHLO
         relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243095AbhI1WYo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 18:24:44 -0400
+        with ESMTP id S243102AbhI1WYp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 18:24:45 -0400
 Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 6A51C100008;
-        Tue, 28 Sep 2021 22:23:03 +0000 (UTC)
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 379AD100002;
+        Tue, 28 Sep 2021 22:23:04 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Richard Weinberger <richard@nod.at>,
         Vignesh Raghavendra <vigneshr@ti.com>,
@@ -21,9 +21,9 @@ To:     Richard Weinberger <richard@nod.at>,
 Cc:     <linux-mtd@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
         stable@vger.kernel.org
-Subject: [PATCH 5/9] mtd: rawnand: orion: Keep the driver compatible with on-die ECC engines
-Date:   Wed, 29 Sep 2021 00:22:44 +0200
-Message-Id: <20210928222258.199726-6-miquel.raynal@bootlin.com>
+Subject: [PATCH 6/9] mtd: rawnand: pasemi: Keep the driver compatible with on-die ECC engines
+Date:   Wed, 29 Sep 2021 00:22:45 +0200
+Message-Id: <20210928222258.199726-7-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210928222258.199726-1-miquel.raynal@bootlin.com>
 References: <20210928222258.199726-1-miquel.raynal@bootlin.com>
@@ -59,20 +59,20 @@ nand_scan(). During the initialization step, the core will consider this
 entry as the default engine for this driver. This value may of course
 be overloaded by the user if the usual DT properties are provided.
 
-Fixes: 553508cec2e8 ("mtd: rawnand: orion: Move the ECC initialization to ->attach_chip()")
+Fixes: 8fc6f1f042b2 ("mtd: rawnand: pasemi: Move the ECC initialization to ->attach_chip()")
 Cc: stable@vger.kernel.org
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 ---
- drivers/mtd/nand/raw/orion_nand.c | 12 +++++++++---
+ drivers/mtd/nand/raw/pasemi_nand.c | 12 +++++++++---
  1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/orion_nand.c b/drivers/mtd/nand/raw/orion_nand.c
-index 66211c9311d2..2c87c7d89205 100644
---- a/drivers/mtd/nand/raw/orion_nand.c
-+++ b/drivers/mtd/nand/raw/orion_nand.c
-@@ -85,9 +85,8 @@ static void orion_nand_read_buf(struct nand_chip *chip, uint8_t *buf, int len)
+diff --git a/drivers/mtd/nand/raw/pasemi_nand.c b/drivers/mtd/nand/raw/pasemi_nand.c
+index 789f33312c15..c176036453ed 100644
+--- a/drivers/mtd/nand/raw/pasemi_nand.c
++++ b/drivers/mtd/nand/raw/pasemi_nand.c
+@@ -75,9 +75,8 @@ static int pasemi_device_ready(struct nand_chip *chip)
  
- static int orion_nand_attach_chip(struct nand_chip *chip)
+ static int pasemi_attach_chip(struct nand_chip *chip)
  {
 -	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
 -
@@ -82,20 +82,20 @@ index 66211c9311d2..2c87c7d89205 100644
  		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
  
  	return 0;
-@@ -190,6 +189,13 @@ static int __init orion_nand_probe(struct platform_device *pdev)
- 		return ret;
- 	}
+@@ -154,6 +153,13 @@ static int pasemi_nand_probe(struct platform_device *ofdev)
+ 	/* Enable the following for a flash based bad block table */
+ 	chip->bbt_options = NAND_BBT_USE_FLASH;
  
 +	/*
 +	 * This driver assumes that the default ECC engine should be TYPE_SOFT.
 +	 * Set ->engine_type before registering the NAND devices in order to
 +	 * provide a driver specific default value.
 +	 */
-+	nc->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
++	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
 +
- 	ret = nand_scan(nc, 1);
- 	if (ret)
- 		goto no_dev;
+ 	/* Scan to find existence of the device */
+ 	err = nand_scan(chip, 1);
+ 	if (err)
 -- 
 2.27.0
 
