@@ -2,68 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C161141B11B
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 15:48:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7A0941B177
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 16:00:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240870AbhI1Ntq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 09:49:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42578 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233878AbhI1Ntp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 09:49:45 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61C55C061575
-        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 06:48:06 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id d21so58047758wra.12
-        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 06:48:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=x0pWExGBmrIq729IIlvOahOD2dMzv6RJizC7Zlt0vBc=;
-        b=qGrraksKngTokA/kbztfYuOu0cZgEXWP1KOdwr8PZBR4uQAPzt5pzbKQfhkrgO2yXQ
-         fhEV6szT4QctK0jlYrvURglArFPfubtrLSYC27SVx0Y38RaeNkabkX/MrEaU4WRL6Y9n
-         jdptlD7Twf1VyQs9wtve77F3iWsOrO8pFCvYdaU6XV+ypHMZ6GgSlM3xFeBUmunxuiOn
-         tix0y65+UZe9cSwF/nK++TzAq1JR+3c54c5XKpOUx/gZUctmmycJD23gTDMHtNxKnz6o
-         /dBS+vIRVLqL4AUhlGm/56ICeufIeFOH020bSsEOdIpgiKFuMc9QWIeP3JzrKnf5c3AP
-         gjFQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=x0pWExGBmrIq729IIlvOahOD2dMzv6RJizC7Zlt0vBc=;
-        b=JZ2odf3nPIc2n0lR24NtKh9JCImu+4Z9JYmQrY3fC2h6pActIX0VdTGTtMHscQkj+V
-         gbmxPT/dOpikAayF7MHP/XiBX5CvGrSwoagJbvHya+rfA+nqplPAxdeTleY3kZndRfZi
-         /rNc/iWu50N61entzfV6V7z0SvjLw8LPdUGr9J0ooarQ9ckzR2T75Kk2Fx0fpTQwwePm
-         4CglrUSD1xWwSUdk7OTgI1KKKFv67llA/BurTc9TrhRZoEcCEbd8iSY8Nv5sRcGLHp8t
-         ajPjHsftOTVCtvAryC3rW0a2eUXwEqHIy65VhwEdcpuV0NaLLnouNq+l2Jd+c1D8dQCO
-         RdAQ==
-X-Gm-Message-State: AOAM531CAqgbjB2SG0fhAqEnAFIVU4gnEzqQS2zjq9Z9vDuDGKajFfLm
-        0zrQuUFz1nTtST33aZqHG2Dwl2PkzcKfSLBH5TU=
-X-Google-Smtp-Source: ABdhPJwYYrEyT3woUoO2IbGQrxmz3nWF04rRl5tTG7zejoAnixzIYveh4cqaVQVBB5drQm6haqtvLJmyDAhbY9Gv4bI=
-X-Received: by 2002:adf:8b52:: with SMTP id v18mr90746wra.1.1632836885040;
- Tue, 28 Sep 2021 06:48:05 -0700 (PDT)
+        id S241068AbhI1OCS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 10:02:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60800 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S240898AbhI1OCS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Sep 2021 10:02:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44B8A60F5B;
+        Tue, 28 Sep 2021 14:00:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1632837638;
+        bh=5ce9ZVawoql2g8ZzUuUZzMTZ2C6WGYF2pEegE7ULnDI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=uD9BtqOk3MDTUafiiL+HMPag4/nmqUJ4jJJWiNYoFbsWhodPdlqKlsAOkOroAppVw
+         fPW7Z0kdGTu6useIApzwtH0XF2fCqmytlyrTt4c3UwBLBOTq28t+t321vhLW2jNVgC
+         0svi8gXL++kTjvkl90SQhEWzev+9JYR1kNC+G24U=
+Date:   Tue, 28 Sep 2021 16:00:36 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Rudi Heitbaum <rudi@heitbaum.com>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.14 000/161] 5.14.9-rc2 review
+Message-ID: <YVMgBFkkVJsStK/O@kroah.com>
+References: <20210928071739.782455217@linuxfoundation.org>
+ <20210928124222.GA7@235a98196aae>
 MIME-Version: 1.0
-Received: by 2002:a5d:47a6:0:0:0:0:0 with HTTP; Tue, 28 Sep 2021 06:48:04
- -0700 (PDT)
-Reply-To: ms.lisahugh000@gmail.com
-From:   MS LISA HUGH <felly.newton1@gmail.com>
-Date:   Tue, 28 Sep 2021 15:48:04 +0200
-Message-ID: <CAJwqh3u95+q1W+ZkNNACzQyea6mKO6HjsGXvku=cBHv-jSmUKg@mail.gmail.com>
-Subject: THE DETAILS LATER. >>MS LISA HUGH.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210928124222.GA7@235a98196aae>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+On Tue, Sep 28, 2021 at 10:42:27PM +1000, Rudi Heitbaum wrote:
+> On Tue, Sep 28, 2021 at 09:19:04AM +0200, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.14.9 release.
+> > There are 161 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Thu, 30 Sep 2021 07:17:13 +0000.
+> > Anything received after that time might be too late.
+> 
+> Hi Greg,
+> 
+> the following patch causes IGC not to build as PTP_1588_CLOCK_OPTIONAL
+> is not included in the 5.14.9-rc2 patch.
+> 
+> igc: fix build errors for PTP
+> [ Upstream commit 87758511075ec961486fe78d7548dd709b524433 ]
+> 
+> the config is only found in 5.15rc on this commit:
+> https://github.com/torvalds/linux/commit/e5f31552674e88bff3a4e3ca3e5357668b5f2973
+> 
+> diff --git a/drivers/net/ethernet/intel/Kconfig b/drivers/net/ethernet/intel/Kconfig
+> index 82744a7501c7..c11d974a62d8 100644
+> --- a/drivers/net/ethernet/intel/Kconfig
+> +++ b/drivers/net/ethernet/intel/Kconfig
+> @@ -335,6 +335,7 @@ config IGC
+>  	tristate "Intel(R) Ethernet Controller I225-LM/I225-V support"
+>  	default n
+>  	depends on PCI
+> +	depends on PTP_1588_CLOCK_OPTIONAL
+>  	help
+>  	  This driver supports Intel(R) Ethernet Controller I225-LM/I225-V
+>  	  family of adapters.
 
-I am Ms Lisa Hugh accountant and files keeping with with the bank.
+Ah, thanks, now deleted.  The "Fixes:" tags in this commit kind of lie :(
 
-I need Your help for this transfer($4,500,000,00 ,U.S.DOLLARS)to your
-bank account with your co-operation for both of us benefit.
-
-Please send the follow below,
-1)AGE....2)TELEPHONE NUMBER,,,,,...,3)COUNTRY.....4)OCCUPATION......
-Thanks.
-Ms Lisa Hugh
+greg k-h
