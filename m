@@ -2,18 +2,18 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20C9D41BA3D
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 00:23:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7F8C41BA3C
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 00:23:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243156AbhI1WZA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S243185AbhI1WZA (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 28 Sep 2021 18:25:00 -0400
-Received: from relay11.mail.gandi.net ([217.70.178.231]:35167 "EHLO
+Received: from relay11.mail.gandi.net ([217.70.178.231]:56823 "EHLO
         relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243162AbhI1WYv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 18:24:51 -0400
+        with ESMTP id S243173AbhI1WYw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 18:24:52 -0400
 Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay11.mail.gandi.net (Postfix) with ESMTPSA id F1CEC100007;
-        Tue, 28 Sep 2021 22:23:09 +0000 (UTC)
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id CFF70100009;
+        Tue, 28 Sep 2021 22:23:10 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Richard Weinberger <richard@nod.at>,
         Vignesh Raghavendra <vigneshr@ti.com>,
@@ -21,9 +21,9 @@ To:     Richard Weinberger <richard@nod.at>,
 Cc:     <linux-mtd@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
         stable@vger.kernel.org
-Subject: [PATCH 3/9] mtd: rawnand: gpio: Keep the driver compatible with on-die ECC engines
-Date:   Wed, 29 Sep 2021 00:22:52 +0200
-Message-Id: <20210928222258.199726-14-miquel.raynal@bootlin.com>
+Subject: [PATCH 4/9] mtd: rawnand: mpc5121: Keep the driver compatible with on-die ECC engines
+Date:   Wed, 29 Sep 2021 00:22:53 +0200
+Message-Id: <20210928222258.199726-15-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210928222258.199726-1-miquel.raynal@bootlin.com>
 References: <20210928222258.199726-1-miquel.raynal@bootlin.com>
@@ -59,20 +59,20 @@ nand_scan(). During the initialization step, the core will consider this
 entry as the default engine for this driver. This value may of course
 be overloaded by the user if the usual DT properties are provided.
 
-Fixes: f6341f6448e0 ("mtd: rawnand: gpio: Move the ECC initialization to ->attach_chip()")
+Fixes: 6dd09f775b72 ("mtd: rawnand: mpc5121: Move the ECC initialization to ->attach_chip()")
 Cc: stable@vger.kernel.org
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 ---
- drivers/mtd/nand/raw/gpio.c | 12 +++++++++---
+ drivers/mtd/nand/raw/mpc5121_nfc.c | 12 +++++++++---
  1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/gpio.c b/drivers/mtd/nand/raw/gpio.c
-index fb7a086de35e..fdf073d2e1b6 100644
---- a/drivers/mtd/nand/raw/gpio.c
-+++ b/drivers/mtd/nand/raw/gpio.c
-@@ -163,9 +163,8 @@ static int gpio_nand_exec_op(struct nand_chip *chip,
+diff --git a/drivers/mtd/nand/raw/mpc5121_nfc.c b/drivers/mtd/nand/raw/mpc5121_nfc.c
+index bcd4a556c959..cb293c50acb8 100644
+--- a/drivers/mtd/nand/raw/mpc5121_nfc.c
++++ b/drivers/mtd/nand/raw/mpc5121_nfc.c
+@@ -605,9 +605,8 @@ static void mpc5121_nfc_free(struct device *dev, struct mtd_info *mtd)
  
- static int gpio_nand_attach_chip(struct nand_chip *chip)
+ static int mpc5121_nfc_attach_chip(struct nand_chip *chip)
  {
 -	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
 -
@@ -82,9 +82,9 @@ index fb7a086de35e..fdf073d2e1b6 100644
  		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
  
  	return 0;
-@@ -365,6 +364,13 @@ static int gpio_nand_probe(struct platform_device *pdev)
- 	if (gpiomtd->nwp && !IS_ERR(gpiomtd->nwp))
- 		gpiod_direction_output(gpiomtd->nwp, 1);
+@@ -772,6 +771,13 @@ static int mpc5121_nfc_probe(struct platform_device *op)
+ 		goto error;
+ 	}
  
 +	/*
 +	 * This driver assumes that the default ECC engine should be TYPE_SOFT.
@@ -93,9 +93,9 @@ index fb7a086de35e..fdf073d2e1b6 100644
 +	 */
 +	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
 +
- 	ret = nand_scan(chip, 1);
- 	if (ret)
- 		goto err_wp;
+ 	/* Detect NAND chips */
+ 	retval = nand_scan(chip, be32_to_cpup(chips_no));
+ 	if (retval) {
 -- 
 2.27.0
 
