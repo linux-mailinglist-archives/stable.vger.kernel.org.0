@@ -2,18 +2,18 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42A8D41BA2E
+	by mail.lfdr.de (Postfix) with ESMTP id 918C041BA2F
 	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 00:23:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243114AbhI1WYp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S243103AbhI1WYp (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 28 Sep 2021 18:24:45 -0400
-Received: from relay11.mail.gandi.net ([217.70.178.231]:46527 "EHLO
+Received: from relay11.mail.gandi.net ([217.70.178.231]:36219 "EHLO
         relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243088AbhI1WYo (ORCPT
+        with ESMTP id S243095AbhI1WYo (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 18:24:44 -0400
 Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay11.mail.gandi.net (Postfix) with ESMTPSA id A380410000A;
-        Tue, 28 Sep 2021 22:23:02 +0000 (UTC)
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 6A51C100008;
+        Tue, 28 Sep 2021 22:23:03 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Richard Weinberger <richard@nod.at>,
         Vignesh Raghavendra <vigneshr@ti.com>,
@@ -21,9 +21,9 @@ To:     Richard Weinberger <richard@nod.at>,
 Cc:     <linux-mtd@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
         stable@vger.kernel.org
-Subject: [PATCH 4/9] mtd: rawnand: mpc5121: Keep the driver compatible with on-die ECC engines
-Date:   Wed, 29 Sep 2021 00:22:43 +0200
-Message-Id: <20210928222258.199726-5-miquel.raynal@bootlin.com>
+Subject: [PATCH 5/9] mtd: rawnand: orion: Keep the driver compatible with on-die ECC engines
+Date:   Wed, 29 Sep 2021 00:22:44 +0200
+Message-Id: <20210928222258.199726-6-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210928222258.199726-1-miquel.raynal@bootlin.com>
 References: <20210928222258.199726-1-miquel.raynal@bootlin.com>
@@ -59,20 +59,20 @@ nand_scan(). During the initialization step, the core will consider this
 entry as the default engine for this driver. This value may of course
 be overloaded by the user if the usual DT properties are provided.
 
-Fixes: 6dd09f775b72 ("mtd: rawnand: mpc5121: Move the ECC initialization to ->attach_chip()")
+Fixes: 553508cec2e8 ("mtd: rawnand: orion: Move the ECC initialization to ->attach_chip()")
 Cc: stable@vger.kernel.org
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 ---
- drivers/mtd/nand/raw/mpc5121_nfc.c | 12 +++++++++---
+ drivers/mtd/nand/raw/orion_nand.c | 12 +++++++++---
  1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/mpc5121_nfc.c b/drivers/mtd/nand/raw/mpc5121_nfc.c
-index bcd4a556c959..cb293c50acb8 100644
---- a/drivers/mtd/nand/raw/mpc5121_nfc.c
-+++ b/drivers/mtd/nand/raw/mpc5121_nfc.c
-@@ -605,9 +605,8 @@ static void mpc5121_nfc_free(struct device *dev, struct mtd_info *mtd)
+diff --git a/drivers/mtd/nand/raw/orion_nand.c b/drivers/mtd/nand/raw/orion_nand.c
+index 66211c9311d2..2c87c7d89205 100644
+--- a/drivers/mtd/nand/raw/orion_nand.c
++++ b/drivers/mtd/nand/raw/orion_nand.c
+@@ -85,9 +85,8 @@ static void orion_nand_read_buf(struct nand_chip *chip, uint8_t *buf, int len)
  
- static int mpc5121_nfc_attach_chip(struct nand_chip *chip)
+ static int orion_nand_attach_chip(struct nand_chip *chip)
  {
 -	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
 -
@@ -82,8 +82,8 @@ index bcd4a556c959..cb293c50acb8 100644
  		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
  
  	return 0;
-@@ -772,6 +771,13 @@ static int mpc5121_nfc_probe(struct platform_device *op)
- 		goto error;
+@@ -190,6 +189,13 @@ static int __init orion_nand_probe(struct platform_device *pdev)
+ 		return ret;
  	}
  
 +	/*
@@ -91,11 +91,11 @@ index bcd4a556c959..cb293c50acb8 100644
 +	 * Set ->engine_type before registering the NAND devices in order to
 +	 * provide a driver specific default value.
 +	 */
-+	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
++	nc->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
 +
- 	/* Detect NAND chips */
- 	retval = nand_scan(chip, be32_to_cpup(chips_no));
- 	if (retval) {
+ 	ret = nand_scan(nc, 1);
+ 	if (ret)
+ 		goto no_dev;
 -- 
 2.27.0
 
