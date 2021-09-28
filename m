@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 072B141A814
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 07:59:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD57B41A812
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 07:59:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239686AbhI1GBI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 02:01:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48784 "EHLO mail.kernel.org"
+        id S239677AbhI1GBG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 02:01:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239421AbhI1F7d (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239423AbhI1F7d (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 28 Sep 2021 01:59:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B8DC461372;
-        Tue, 28 Sep 2021 05:57:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B31061368;
+        Tue, 28 Sep 2021 05:57:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632808620;
-        bh=Qlnfsy33Fa5GLT82aBUq02M+g7d+tQhUIXd/wlt7r+0=;
+        s=k20201202; t=1632808621;
+        bh=dT/0ijY4wMft8N/PMs/O8z766eKLlFc43XEtjuJfa2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tnC+I3Tdiy/sjxw50ZSa4vrmstG+2goT1dujLJ+C6hQNoMAV07dwyrxSSVK6Z3Vcm
-         orVZR83eq5pTcie/x4mFZ8HBBYlV/XpuypVJnYySRQV6wb3TYFv8iZ++xhv6BrQ/p/
-         MpVaO/EwRPDQZV2ECWAtcH5VPs+PB1kc5IDoLEbuhh8BmPQLHoi6l7v5EzSh4UK8hB
-         cJxjBrpoouXPS250EMPlgKTgO2nO99nmtv53hBfyt3iZLKvVKfv4Xo6H9KoL4KHtLp
-         +47idKMWFCYepgfwzGjxrPrjV+mX2+zhTapUqdtfroYTwPNzIhIg7GjLbRO8DqhEil
-         Q+7xt0DCAA3nQ==
+        b=QHwB20HAKMw5xPVoH9/UU3Ei4kPa8gLhiOLdgDOPs+uOzCF6wHVt3O8mFd5rVwXG2
+         QZxHLPpzxQAntfM8cYXyPKtzqFVcQUXC+f7B+ggA92C55uIhF6QPsDRKMkurin49k7
+         iUafOqjBv10BS6XGGT9s1+lhp0eW6u4OnCXkaBCMwxpwwTuxR+rcBhLKku2lscyijC
+         Z7PiYQ5CS7qxwScxuXegdXPj1gUAbvQUlYZdcD3kmjkAq6R2CXyD2ar6JpqX8hSqUF
+         1107Yk94Z1Ibza77S2ykn9eqVuvPw4CLvbPp+7YkrN5ho9TTIZPCDa1l2o0zW4eRsX
+         tzjiSbfy9vyAw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wen Xiong <wenxiong@linux.ibm.com>,
-        Brian King <brking@linux.ibm.com>,
-        James Bottomley <jejb@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 20/23] scsi: ses: Retry failed Send/Receive Diagnostic commands
-Date:   Tue, 28 Sep 2021 01:56:41 -0400
-Message-Id: <20210928055645.172544-20-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de
+Subject: [PATCH AUTOSEL 5.10 21/23] irqchip/gic: Work around broken Renesas integration
+Date:   Tue, 28 Sep 2021 01:56:42 -0400
+Message-Id: <20210928055645.172544-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210928055645.172544-1-sashal@kernel.org>
 References: <20210928055645.172544-1-sashal@kernel.org>
@@ -44,79 +42,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Xiong <wenxiong@linux.ibm.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit fbdac19e642899455b4e64c63aafe2325df7aafa ]
+[ Upstream commit b78f26926b17cc289e4f16b63363abe0aa2e8efc ]
 
-Setting SCSI logging level with error=3, we saw some errors from enclosues:
+Geert reported that the GIC driver locks up on a Renesas system
+since 005c34ae4b44f085 ("irqchip/gic: Atomically update affinity")
+fixed the driver to use writeb_relaxed() instead of writel_relaxed().
 
-[108017.360833] ses 0:0:9:0: tag#641 Done: NEEDS_RETRY Result: hostbyte=DID_ERROR driverbyte=DRIVER_OK cmd_age=0s
-[108017.360838] ses 0:0:9:0: tag#641 CDB: Receive Diagnostic 1c 01 01 00 20 00
-[108017.427778] ses 0:0:9:0: Power-on or device reset occurred
-[108017.427784] ses 0:0:9:0: tag#641 Done: SUCCESS Result: hostbyte=DID_OK driverbyte=DRIVER_OK cmd_age=0s
-[108017.427788] ses 0:0:9:0: tag#641 CDB: Receive Diagnostic 1c 01 01 00 20 00
-[108017.427791] ses 0:0:9:0: tag#641 Sense Key : Unit Attention [current]
-[108017.427793] ses 0:0:9:0: tag#641 Add. Sense: Bus device reset function occurred
-[108017.427801] ses 0:0:9:0: Failed to get diagnostic page 0x1
-[108017.427804] ses 0:0:9:0: Failed to bind enclosure -19
-[108017.427895] ses 0:0:10:0: Attached Enclosure device
-[108017.427942] ses 0:0:10:0: Attached scsi generic sg18 type 13
+As it turns out, the interconnect used on this system mandates
+32bit wide accesses for all MMIO transactions, even if the GIC
+architecture specifically mandates for some registers to be byte
+accessible. Gahhh...
 
-Retry if the Send/Receive Diagnostic commands complete with a transient
-error status (NOT_READY or UNIT_ATTENTION with ASC 0x29).
+Work around the issue by crudly detecting the offending system,
+and falling back to an inefficient RMW+lock implementation.
 
-Link: https://lore.kernel.org/r/1631849061-10210-2-git-send-email-wenxiong@linux.ibm.com
-Reviewed-by: Brian King <brking@linux.ibm.com>
-Reviewed-by: James Bottomley <jejb@linux.ibm.com>
-Signed-off-by: Wen Xiong <wenxiong@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/CAMuHMdV+Ev47K5NO8XHsanSq5YRMCHn2gWAQyV-q2LpJVy9HiQ@mail.gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ses.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+ drivers/irqchip/irq-gic.c | 52 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 51 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ses.c b/drivers/scsi/ses.c
-index c2afba2a5414..43e682297fd5 100644
---- a/drivers/scsi/ses.c
-+++ b/drivers/scsi/ses.c
-@@ -87,9 +87,16 @@ static int ses_recv_diag(struct scsi_device *sdev, int page_code,
- 		0
- 	};
- 	unsigned char recv_page_code;
-+	unsigned int retries = SES_RETRIES;
-+	struct scsi_sense_hdr sshdr;
+diff --git a/drivers/irqchip/irq-gic.c b/drivers/irqchip/irq-gic.c
+index 6053245a4754..176f5f06432d 100644
+--- a/drivers/irqchip/irq-gic.c
++++ b/drivers/irqchip/irq-gic.c
+@@ -107,6 +107,8 @@ static DEFINE_RAW_SPINLOCK(cpu_map_lock);
+ 
+ #endif
+ 
++static DEFINE_STATIC_KEY_FALSE(needs_rmw_access);
 +
-+	do {
-+		ret = scsi_execute_req(sdev, cmd, DMA_FROM_DEVICE, buf, bufflen,
-+				       &sshdr, SES_TIMEOUT, 1, NULL);
-+	} while (ret > 0 && --retries && scsi_sense_valid(&sshdr) &&
-+		 (sshdr.sense_key == NOT_READY ||
-+		  (sshdr.sense_key == UNIT_ATTENTION && sshdr.asc == 0x29)));
+ /*
+  * The GIC mapping of CPU interfaces does not necessarily match
+  * the logical CPU numbering.  Let's use a mapping as returned
+@@ -777,6 +779,25 @@ static int gic_pm_init(struct gic_chip_data *gic)
+ #endif
  
--	ret =  scsi_execute_req(sdev, cmd, DMA_FROM_DEVICE, buf, bufflen,
--				NULL, SES_TIMEOUT, SES_RETRIES, NULL);
- 	if (unlikely(ret))
- 		return ret;
- 
-@@ -121,9 +128,16 @@ static int ses_send_diag(struct scsi_device *sdev, int page_code,
- 		bufflen & 0xff,
- 		0
- 	};
-+	struct scsi_sense_hdr sshdr;
-+	unsigned int retries = SES_RETRIES;
+ #ifdef CONFIG_SMP
++static void rmw_writeb(u8 bval, void __iomem *addr)
++{
++	static DEFINE_RAW_SPINLOCK(rmw_lock);
++	unsigned long offset = (unsigned long)addr & 3UL;
++	unsigned long shift = offset * 8;
++	unsigned long flags;
++	u32 val;
 +
-+	do {
-+		result = scsi_execute_req(sdev, cmd, DMA_TO_DEVICE, buf, bufflen,
-+					  &sshdr, SES_TIMEOUT, 1, NULL);
-+	} while (result > 0 && --retries && scsi_sense_valid(&sshdr) &&
-+		 (sshdr.sense_key == NOT_READY ||
-+		  (sshdr.sense_key == UNIT_ATTENTION && sshdr.asc == 0x29)));
++	raw_spin_lock_irqsave(&rmw_lock, flags);
++
++	addr -= offset;
++	val = readl_relaxed(addr);
++	val &= ~GENMASK(shift + 7, shift);
++	val |= bval << shift;
++	writel_relaxed(val, addr);
++
++	raw_spin_unlock_irqrestore(&rmw_lock, flags);
++}
++
+ static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
+ 			    bool force)
+ {
+@@ -791,7 +812,10 @@ static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
+ 	if (cpu >= NR_GIC_CPU_IF || cpu >= nr_cpu_ids)
+ 		return -EINVAL;
  
--	result = scsi_execute_req(sdev, cmd, DMA_TO_DEVICE, buf, bufflen,
--				  NULL, SES_TIMEOUT, SES_RETRIES, NULL);
- 	if (result)
- 		sdev_printk(KERN_ERR, sdev, "SEND DIAGNOSTIC result: %8x\n",
- 			    result);
+-	writeb_relaxed(gic_cpu_map[cpu], reg);
++	if (static_branch_unlikely(&needs_rmw_access))
++		rmw_writeb(gic_cpu_map[cpu], reg);
++	else
++		writeb_relaxed(gic_cpu_map[cpu], reg);
+ 	irq_data_update_effective_affinity(d, cpumask_of(cpu));
+ 
+ 	return IRQ_SET_MASK_OK_DONE;
+@@ -1384,6 +1408,30 @@ static bool gic_check_eoimode(struct device_node *node, void __iomem **base)
+ 	return true;
+ }
+ 
++static bool gic_enable_rmw_access(void *data)
++{
++	/*
++	 * The EMEV2 class of machines has a broken interconnect, and
++	 * locks up on accesses that are less than 32bit. So far, only
++	 * the affinity setting requires it.
++	 */
++	if (of_machine_is_compatible("renesas,emev2")) {
++		static_branch_enable(&needs_rmw_access);
++		return true;
++	}
++
++	return false;
++}
++
++static const struct gic_quirk gic_quirks[] = {
++	{
++		.desc		= "broken byte access",
++		.compatible	= "arm,pl390",
++		.init		= gic_enable_rmw_access,
++	},
++	{ },
++};
++
+ static int gic_of_setup(struct gic_chip_data *gic, struct device_node *node)
+ {
+ 	if (!gic || !node)
+@@ -1400,6 +1448,8 @@ static int gic_of_setup(struct gic_chip_data *gic, struct device_node *node)
+ 	if (of_property_read_u32(node, "cpu-offset", &gic->percpu_offset))
+ 		gic->percpu_offset = 0;
+ 
++	gic_enable_of_quirks(node, gic_quirks, gic);
++
+ 	return 0;
+ 
+ error:
 -- 
 2.33.0
 
