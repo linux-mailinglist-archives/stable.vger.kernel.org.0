@@ -2,96 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CEB941B78F
-	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 21:29:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B0A041B7AF
+	for <lists+stable@lfdr.de>; Tue, 28 Sep 2021 21:38:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242472AbhI1Tar (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 15:30:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37850 "EHLO
+        id S242415AbhI1Tk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 15:40:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242390AbhI1Tap (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 15:30:45 -0400
-Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FFB2C061745
-        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 12:29:05 -0700 (PDT)
-Received: by mail-ed1-x52c.google.com with SMTP id dj4so87926592edb.5
-        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 12:29:05 -0700 (PDT)
+        with ESMTP id S242394AbhI1TkZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 15:40:25 -0400
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 222FCC06161C
+        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 12:38:46 -0700 (PDT)
+Received: by mail-pg1-x530.google.com with SMTP id x191so168292pgd.9
+        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 12:38:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=5tZgnGnFy4OrV5l11NT8NKhXd/UTimRRQIk4YumiNXk=;
-        b=faZQTaoipHpseebYlqhoUULbpYWvW8mhhMQu8ZNIHByfa1QDNuyJn4ifqCp6JIwdtE
-         w7YEwmfeX728BUDJjUg3vdMywxIfIvUIm0hN5bb+WWhOtUkMgWYLcpPwH6LaTEWqGzLW
-         2gkyqBgbyAqMBD6iOeTp7GP82UnI5YFkp0EDgqGbWDiXxG4FfL3RLsCcEduTKNmWdR18
-         gP2FATt2HVoZbFk3UPqmC7G6HRZS+Szin5zStRZtn3EE6HIYJ+iBh1EAvt5/hi9IiEI+
-         qdFWrrsKlOnKnHfQkj3hLr2CFznd0oYQL3lUbyF8HOKMzN2Xeqc6RNTDfgXgMUFrAAvZ
-         53qQ==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=aCt0wRAhhhF29okwjGKWLU7z1zeU1z+PDsgVblEp4n8=;
+        b=iWvzhu8V5CgEjPtaD4b866kWV0u+5+dK+lIBAR2GSWLLbc4AIIgDWr81LmqTg/2FB8
+         KjO+b4MufkAvmQVfwm/VzprZaYWb3B1FwgV8/ikrlZ2qmvdCZRr/R4ebw6R2T2PzCeii
+         ihMRnA4N1AFEwur/Qkg41NlA6aTTyLswHxGegoNwVJR/P9Vmcb17BSNKpKzAIAq/Wo44
+         iPh1419TOvSVz1747C5wBYQHgzjqnHxLmrP+/AmSZhl91FzldIfEUMZ8j9wcUVPYBsWw
+         hHRkxBycJtaHkNCd965JVS5WcfA/3Lr5iXyQcJIixdfcWyk0qEHGFd4Y/tGwo5iMvjQi
+         raxw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=5tZgnGnFy4OrV5l11NT8NKhXd/UTimRRQIk4YumiNXk=;
-        b=lxkyvQml5pf2UB6NjT0n2E9quURFtA1C3gXUn/OnoJbeiLUzd6g/XuM83SFYKoqmNb
-         bagSfD3Ntomb6ZCfvqeVu0BtX24hVingrQEau3pCX/l3ioMUg3c7nqLPsFd/C9k4lhTy
-         yYk6gVinbYzvVdix8mwvNKB1LOGVaTtsNibP8C8aQuUuzlLsupOgKcLUz5ulaglzpmtl
-         PrBTJApo8qvXBJGNdd2BYr906SM6j7VEZncj00+x4KjZKPUq1MIIlvrcKNBrNWf91u+P
-         gSFo+Ij666ti3BHZVe7SUtmj9POZzaFCA7rHzTVyt6R84t8RIGU4vT1CD3+/t5JcuhJ/
-         Gc1g==
-X-Gm-Message-State: AOAM530JFZIjBOhovLYQyVUrs0vxw7u1wpg+0Y9pWoZfjlTSWTtdL6aC
-        scFAMj45/BPCQL7S/OCeToFgyv54G1cvdA==
-X-Google-Smtp-Source: ABdhPJxK3deca/d5n51mI8RorPMfaHvZM6cCJyY/scBUCtgC6C7Jsq7k8x0ScBUL87BlYlY8RFOUYw==
-X-Received: by 2002:a17:906:2e8d:: with SMTP id o13mr3472969eji.513.1632857343752;
-        Tue, 28 Sep 2021 12:29:03 -0700 (PDT)
-Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
-        by smtp.gmail.com with ESMTPSA id s4sm24304eja.23.2021.09.28.12.29.02
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=aCt0wRAhhhF29okwjGKWLU7z1zeU1z+PDsgVblEp4n8=;
+        b=aIiH8YQzQk1cJOE7ob8T19UWCdm07bZvj9MkdVVV7fcXcclGVUnVaYW00LmqkeY7kT
+         HbY4U2vxYv/4XUtFd8nZBS7ODXO0kB9GrN078Y93XL5grozCzbvDVm3M1AMIAUPqf6Xr
+         3otSaTYhGVBHpexdhWXzS5eT5466YzwWphSK61TkWrFtl4oDyx+7YwYfNfpcaub3FIgC
+         g0qCX996+Lgwr4ARo+JaLNliuk97YS+4b7DClLQ3ekHmCRgJDLNzzJkDdA7jK6vXG6uv
+         k2lZ14t9B7JJmrz/mMK58vGe9jSEWQEzowqIn7rD6/nga9g0dSODRC5y5rRbpyiUrqlq
+         DlMQ==
+X-Gm-Message-State: AOAM5319CI3IbOmy791v4J6eFm1w/pS2PdTpnjqjvL4LC1+nyADT4RmO
+        8vhIxp7FAcIP/BOUSJ3hcGi5FMcAvE+uqhgo
+X-Google-Smtp-Source: ABdhPJwYtmod2Tcy7JKwlEwfpGi6SKSuCem7qQTeuWK0UweJ1cM+v0aVB7XQE61aTt2rwNX7Le2Q9g==
+X-Received: by 2002:a05:6a00:1142:b0:43f:75ae:5084 with SMTP id b2-20020a056a00114200b0043f75ae5084mr7268423pfm.6.1632857925549;
+        Tue, 28 Sep 2021 12:38:45 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id qe17sm3690905pjb.39.2021.09.28.12.38.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Sep 2021 12:29:03 -0700 (PDT)
-Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
-Date:   Tue, 28 Sep 2021 21:29:02 +0200
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     Ovidiu Panait <ovidiu.panait@windriver.com>
-Cc:     stable@vger.kernel.org, greg@kroah.com
-Subject: Re: [PATCH 5.4 0/3] usb: hso: backport CVE-2021-37159 fix
-Message-ID: <YVNs/mLb9YXNz7G+@eldamar.lan>
-References: <20210928131523.2314252-1-ovidiu.panait@windriver.com>
+        Tue, 28 Sep 2021 12:38:45 -0700 (PDT)
+Message-ID: <61536f45.1c69fb81.fa27b.b5d2@mx.google.com>
+Date:   Tue, 28 Sep 2021 12:38:45 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210928131523.2314252-1-ovidiu.panait@windriver.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.14.8-160-gc91145f28005
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.14
+Subject: stable-rc/queue/5.14 baseline: 98 runs,
+ 1 regressions (v5.14.8-160-gc91145f28005)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Ovidiu
+stable-rc/queue/5.14 baseline: 98 runs, 1 regressions (v5.14.8-160-gc91145f=
+28005)
 
-On Tue, Sep 28, 2021 at 04:15:20PM +0300, Ovidiu Panait wrote:
-> All 3 upstream commits apply cleanly:
->    * 5fcfb6d0bfcd ("hso: fix bailout in error case of probe") is a support
->      patch needed for context
->    * a6ecfb39ba9d ("usb: hso: fix error handling code of hso_create_net_device")
->      is the actual fix
->    * dcb713d53e2e ("usb: hso: remove the bailout parameter") is a follow up
->      cleanup commit
-> 
-> Dongliang Mu (2):
->   usb: hso: fix error handling code of hso_create_net_device
->   usb: hso: remove the bailout parameter
-> 
-> Oliver Neukum (1):
->   hso: fix bailout in error case of probe
-> 
->  drivers/net/usb/hso.c | 33 +++++++++++++++++++++++----------
->  1 file changed, 23 insertions(+), 10 deletions(-)
+Regressions Summary
+-------------------
 
-Noticing you sent this patch series for 4.14, 4.19 and 5.4 but am I
-right that the last commit dcb713d53e2e ("usb: hso: remove the bailout
-parameter") as cleanup commit should ideally as well be applied to
-5.10.y and 5.14.y?
+platform  | arch | lab          | compiler | defconfig          | regressio=
+ns
+----------+------+--------------+----------+--------------------+----------=
+--
+beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1        =
+  =
 
-Whilst it's probably not strictly needed it would otherwise leave the
-upper 5.10.y and 5.14.y inconsistent with those where these series are
-applied.
 
-Regards,
-Salvatore
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
+nel/v5.14.8-160-gc91145f28005/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.14
+  Describe: v5.14.8-160-gc91145f28005
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      c91145f2800552fa057a7a1e36d49ce5870c69cb =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab          | compiler | defconfig          | regressio=
+ns
+----------+------+--------------+----------+--------------------+----------=
+--
+beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1        =
+  =
+
+
+  Details:     https://kernelci.org/test/plan/id/61533abbbbd72661bb99a31c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.8-1=
+60-gc91145f28005/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
+xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.8-1=
+60-gc91145f28005/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
+xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61533abbbbd72661bb99a=
+31d
+        new failure (last pass: v5.14.7-248-gf2e859a1e522) =
+
+ =20
