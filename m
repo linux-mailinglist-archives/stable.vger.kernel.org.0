@@ -2,71 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB7B941BD02
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 05:00:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 051F441BD86
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 05:36:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243721AbhI2DCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 23:02:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55944 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243255AbhI2DCL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 23:02:11 -0400
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7C1EC06161C
-        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 20:00:28 -0700 (PDT)
-Received: by mail-wr1-x443.google.com with SMTP id t8so1731197wrq.4
-        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 20:00:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
-        bh=+MDYu2cZk5y6qEtCDaD7IWEU7wQ5JsJjonx7gGHCu64=;
-        b=GYwIMkV+FJk/m2AYA02e22VhdGVLtOCxwLrazFjwNefAmXhoZVm5O8WF2Q2fPSKC+I
-         FsBTYH+Tv1A+o3QpRAWbyQsFM0+ODxm+Ra4z7I+AnnGiRm/cp/rqGVeiwAaic7TQ65Zr
-         ZZoTvTUVoOW5hUQ84rzQpb7UF9bfGt1T2mu74fwOS4ZMveKIUiW3ObErTIs8eR9r6y8F
-         FWGCADSq/f14B7is4CwDJ5dvBEhCH8dig3ENsCH9sZIFVFRW4vRGbnsb080fJXPe9hOm
-         cZKuZGl9f3WZxfFV0PCEh7wYq+U41wiF5XiYG6UYJ/qq8EcO/cWSEndGyEwHYBB3MRwb
-         Xv8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to;
-        bh=+MDYu2cZk5y6qEtCDaD7IWEU7wQ5JsJjonx7gGHCu64=;
-        b=xrIpFDZP8N3i/eHzIQf4daR27b7O/1d+hFl5sUe3uFQcc+OpABQYZoGL9TOGwYce6m
-         PGVA9W2rBsx0EdzUW+t1j2tY/ixHR9v3yRPSUGT5BVqByoopsXMtz8X8RtLJK+ZEoaHI
-         N3Tc0mdqLHW5+jxVJ26aLhxFDsjTjuJEUGFLu0G4ec+xuy7FkN4khMpaeSubiXhQGSsK
-         CcW6FxNqMaCP12IPSyz2r07dyKpOIyCWhK8SJioheQM1zrm50VUFgHgIVyeDVuJXcJs8
-         2u5ivJl+5pPlAyzYLbkLr/TMNezACONFdOUkjCsN64c3HJwBOuETge5GQiabu2MI8EBB
-         dj9w==
-X-Gm-Message-State: AOAM531jBG2CqAsUjP8pPXDATiDuIbepXndLaeg5o2GIVnBaFQFpm2No
-        kZ1/qJXfI2lh5ZyTevHZQBTklqFi99mYd/mWFA==
-X-Google-Smtp-Source: ABdhPJwnRjavz2dt9duazva8QtM4B2GCtiiMjDDTgYZpHYyEuPdjJ0aQDmVSJkOViLHjtm+QBF97pBz8ZjaLW4qzDF0=
-X-Received: by 2002:a5d:6481:: with SMTP id o1mr4022846wri.140.1632884427233;
- Tue, 28 Sep 2021 20:00:27 -0700 (PDT)
+        id S242501AbhI2Dic (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 23:38:32 -0400
+Received: from szxga08-in.huawei.com ([45.249.212.255]:23186 "EHLO
+        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240067AbhI2Dib (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 23:38:31 -0400
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.54])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4HK2825ppyz1DHQ6;
+        Wed, 29 Sep 2021 11:35:30 +0800 (CST)
+Received: from dggema774-chm.china.huawei.com (10.1.198.216) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2308.8; Wed, 29 Sep 2021 11:36:49 +0800
+Received: from use12-sp2.huawei.com (10.67.189.174) by
+ dggema774-chm.china.huawei.com (10.1.198.216) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2308.8; Wed, 29 Sep 2021 11:36:48 +0800
+From:   Xiaoming Ni <nixiaoming@huawei.com>
+To:     <oss@buserror.net>, <mpe@ellerman.id.au>,
+        <benh@kernel.crashing.org>, <paulus@samba.org>,
+        <paul.gortmaker@windriver.com>, <chenhui.zhao@freescale.com>,
+        <Yuantian.Tang@feescale.com>, <linuxppc-dev@lists.ozlabs.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        <gregkh@linuxfoundation.org>
+CC:     <wangle6@huawei.com>, <liuwenliang@huawei.com>,
+        <chenjianguo3@huawei.com>, <nixiaoming@huawei.com>
+Subject: [PATCH v2 0/2] powerpc:85xx: fix timebase sync issue when CONFIG_HOTPLUG_CPU=n
+Date:   Wed, 29 Sep 2021 11:36:44 +0800
+Message-ID: <20210929033646.39630-1-nixiaoming@huawei.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <021a5ee3-25ef-1de4-0111-d4c3281e0f45@huawei.com>
+References: <021a5ee3-25ef-1de4-0111-d4c3281e0f45@huawei.com>
 MIME-Version: 1.0
-Reply-To: mrakainkarim7@gmail.com
-Sender: hopegoods123@gmail.com
-Received: by 2002:a5d:6986:0:0:0:0:0 with HTTP; Tue, 28 Sep 2021 20:00:26
- -0700 (PDT)
-From:   Mr Akain Karim <aeyuhlmy739@gmail.com>
-Date:   Tue, 28 Sep 2021 20:00:26 -0700
-X-Google-Sender-Auth: GoidI0epcbYlNEpBCuSrj__hsZM
-Message-ID: <CA+my=6xP313tehopeW_p4q0pBP+-2Lv=3X7DSuY8=ivqokURvg@mail.gmail.com>
-Subject: Greetings
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.67.189.174]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggema774-chm.china.huawei.com (10.1.198.216)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+When CONFIG_SMP=y, timebase synchronization is required for mpc8572 when
+ the second kernel is started
+	arch/powerpc/kernel/smp.c:
+	int __cpu_up(unsigned int cpu, struct task_struct *tidle)
+	{
+		...
+		if (smp_ops->give_timebase)
+			smp_ops->give_timebase();
+		...
+	}
+
+	void start_secondary(void *unused)
+	{
+		...
+		if (smp_ops->take_timebase)
+			smp_ops->take_timebase();
+		...
+	}
+
+When CONFIG_HOTPLUG_CPU=n and CONFIG_KEXEC_CORE=n,
+ smp_85xx_ops.give_timebase is NULL,
+ smp_85xx_ops.take_timebase is NULL,
+As a result, the timebase is not synchronized.
+
+test code:
+	for i in $(seq 1 3); do taskset 1 date; taskset 2 date; sleep 1; echo;done
+log:
+	Sat Sep 25 18:50:00 CST 2021
+	Sat Sep 25 19:07:47 CST 2021
+
+	Sat Sep 25 18:50:01 CST 2021
+	Sat Sep 25 19:07:48 CST 2021
+
+	Sat Sep 25 18:50:02 CST 2021
+	Sat Sep 25 19:07:49 CST 2021
+
+Code snippet about give_timebase and take_timebase assignments:
+	arch/powerpc/platforms/85xx/smp.c:
+	#ifdef CONFIG_HOTPLUG_CPU
+	#ifdef CONFIG_FSL_CORENET_RCPM
+		fsl_rcpm_init();
+	#endif
+	#ifdef CONFIG_FSL_PMC
+		mpc85xx_setup_pmc();
+	#endif
+		if (qoriq_pm_ops) {
+			smp_85xx_ops.give_timebase = mpc85xx_give_timebase;
+			smp_85xx_ops.take_timebase = mpc85xx_take_timebase;
+
+config dependency:
+	FSL_CORENET_RCPM depends on the PPC_E500MC.
+	FSL_PMC depends on SUSPEND.
+	SUSPEND depends on ARCH_SUSPEND_POSSIBLE.
+	ARCH_SUSPEND_POSSIBLE depends on !PPC_E500MC.
+
+CONFIG_HOTPLUG_CPU and CONFIG_FSL_PMC require the timebase function, but
+the timebase should not depend on CONFIG_HOTPLUG_CPU and CONFIG_FSL_PMC.
+Therefore, adjust the macro control range. Ensure that the corresponding
+ timebase hook function is not empty when the dtsi node is configured.
+
+-----
+changes in v2:
+ 1. add new patch: "powerpc:85xx:Fix oops when mpc85xx_smp_guts_ids node
+  cannot be found"
+ 2. Using !CONFIG_FSL_CORENET_RCPM to manage the timebase code of !PPC_E500MC
+
+v1:
+ https://lore.kernel.org/lkml/20210926025144.55674-1-nixiaoming@huawei.com
+------
+
+Xiaoming Ni (2):
+  powerpc:85xx:Fix oops when mpc85xx_smp_guts_ids node cannot be found
+  powerpc:85xx: fix timebase sync issue when CONFIG_HOTPLUG_CPU=n
+
+ arch/powerpc/platforms/85xx/Makefile         |  4 +++-
+ arch/powerpc/platforms/85xx/mpc85xx_pm_ops.c |  7 +++++--
+ arch/powerpc/platforms/85xx/smp.c            | 12 ++++++------
+ 3 files changed, 14 insertions(+), 9 deletions(-)
+
 -- 
-*Compliment of the day,I am Mr. Akain Karim,  I Have a Business Proposal of
-$10.5million for you and I  was compelled to use this medium due to the
-nature of this project, I have access to very vital information that can be
-used to transfer this huge amount of money, which may culminate into the
-investment of the said funds into your company or any lucrative venture in
-your country. If you will like to assist me as a partner then indicate your
-interest, after which we shall both discuss the modalities and the sharing
-percentage.Upon receipt of your reply on your expression of Interest.I will
-give you full details on how the business will be executed and I am open
-for negotiation.Thanks for your anticipated cooperation.Best RegardsMr. 	
-Akain Karim*  Please feel free to reach me on my e-mail:mrakainkarim7@gmail.com
+2.27.0
+
