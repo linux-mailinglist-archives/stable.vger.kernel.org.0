@@ -2,141 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5D1C41C442
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 14:04:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 468BB41C509
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 14:58:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245547AbhI2MGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Sep 2021 08:06:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37990 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245211AbhI2MGd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 08:06:33 -0400
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69F2BC06161C
-        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 05:04:52 -0700 (PDT)
-Received: by mail-pg1-x533.google.com with SMTP id 66so2053950pgc.9
-        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 05:04:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:user-agent:in-reply-to:references
-         :message-id:mime-version:content-transfer-encoding;
-        bh=O+kwQC4M0E3sUw4dmsxYQXLtGg3AMi5EmwiMTeq0Mu4=;
-        b=qw3OOrK/4e4AM3+2JQgTPdk7h8rozsq6Eza9GHl6/VAUmCBclH7pGUr5g++lfx0bX6
-         3tNMlzhxym4xdDyt9CF1Tqhj3pMB+vQkZzqHv0cy4nRe4w6HxSITZX17o7XAhOfhwC7r
-         SmO1k2mn/mxAXq9H0jCW3F2RPI+C6gOMpDA3yvL4kYSzJ/t66Xk1ZDa4BJ0hn5SjQKQN
-         dGzINlNFFpnwSVSGmyRiqYetijRaX2iZhEilKlLsslbaXBzSy/jhQt1EQ8+EUhccp5gw
-         VmV1ks/j9W/81+lqeNECr87E+lGSWJukUyj80XNZfNVfU3iRHsg5Q26in2aOwx7oluwt
-         QFTQ==
+        id S1343986AbhI2M7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Sep 2021 08:59:20 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:52675 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1343943AbhI2M7U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 08:59:20 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1632920258;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=bpZea9PfMakNmCoBD5I1m62foJfzIGiMSLO3InTSSbU=;
+        b=A3fEYFxvLIYW4/WCAjvdzN8wjJno14RcZ7lSvj8+c4Oe954TDSvN2kP5Iviglz4mz5z+n+
+        E9JVPUiIgby99zsF3bbzf9kQg7zCO8flMbqtZVIDMUhSfPnyNdoAlT/Netx0NFgXKwCqro
+        HnGhOfw3O9tAkxrnRtSUfuNOQ+S0IDE=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-459--YAGKtl_OqWXimC-QF-upw-1; Wed, 29 Sep 2021 08:57:37 -0400
+X-MC-Unique: -YAGKtl_OqWXimC-QF-upw-1
+Received: by mail-ed1-f72.google.com with SMTP id z6-20020a50cd06000000b003d2c2e38f1fso2345263edi.1
+        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 05:57:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:user-agent:in-reply-to
-         :references:message-id:mime-version:content-transfer-encoding;
-        bh=O+kwQC4M0E3sUw4dmsxYQXLtGg3AMi5EmwiMTeq0Mu4=;
-        b=HzHwkgIbWwnl4vLeMBkfkX+4G2ffyo/nSVMjeorZNrnWnFQfKsvaAG1Q25/mbZzUPD
-         Vr7pyT1OUQ66kXcTTuDGDJAieok9ID/EIQtz/ZvE593/mQmeL6mJ7RbeVQZrXP/Gw5Mx
-         DANHXltuZPPm8amC+KdbwlYxHr6usePvFohARvg/eGvpRUWg7E2g2ziLbJvaXF1dcwda
-         PdLG+eIeY+12zMntCQfpXfhz31dZwaA5Dd7kYu9s9dXxUYmQd2siaNKyqLkJ7rO5SyJk
-         CKo9jWLVxPPCme7BQXaw4TsEDk2/VnkYNkIoYKTc+HqIQcWDbueDHgtLjB4aq60KITvP
-         CdJg==
-X-Gm-Message-State: AOAM532/ycgW0oEt7zHLFzqg7njlRPtyk4KB59l9k89Id+KiotGE4tU2
-        EAUX3jv+b0qLrMiHrqg4BkW+0NJzszYE
-X-Google-Smtp-Source: ABdhPJwL+JkaE70dk1RsNkXUtipXgEKGpAwvD9cskLR+DzQZHKm/4cbC08v9ZtzXnv0UxK19QjiQAg==
-X-Received: by 2002:a63:7a45:: with SMTP id j5mr9243171pgn.369.1632917091886;
-        Wed, 29 Sep 2021 05:04:51 -0700 (PDT)
-Received: from ?IPv6:::1? ([2409:4072:6d9d:8ec1:20a3:9c79:fefb:80c0])
-        by smtp.gmail.com with ESMTPSA id q21sm2381057pgk.71.2021.09.29.05.04.49
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 29 Sep 2021 05:04:50 -0700 (PDT)
-Date:   Wed, 29 Sep 2021 17:34:42 +0530
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     Aleksander Morgado <aleksander@aleksander.es>,
-        Thomas Perrot <thomas.perrot@bootlin.com>,
-        linux-arm-msm@vger.kernel.org
-CC:     hemantk@codeaurora.org, loic.poulain@linaro.org,
-        stable@vger.kernel.org
-Subject: =?US-ASCII?Q?Re=3A_=5BPATCH=5D_bus=3A_mhi=3A_pci=5Fgeneric=3A_increa?= =?US-ASCII?Q?se_timeout_value_for_operations_to_24000ms?=
-User-Agent: K-9 Mail for Android
-In-Reply-To: <f358044a-78d0-ad63-a777-87b4b9d94745@aleksander.es>
-References: <20210805140231.268273-1-thomas.perrot@bootlin.com> <f358044a-78d0-ad63-a777-87b4b9d94745@aleksander.es>
-Message-ID: <73A52D61-FCAB-4A2B-BA96-0117F6942842@linaro.org>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=bpZea9PfMakNmCoBD5I1m62foJfzIGiMSLO3InTSSbU=;
+        b=3Aslwswv7UK45O4W1BQzt2kuJZMu+XloKP3DdAKSxnTDTQ6vKqAM/QhaP1V0V2EDfS
+         g0CRFDVCerFwMqZVQE20a4A7z9IXszQ1491KGOy8WRuXNFCeYvpBhSX2hWTPuh7M5gyE
+         j1/WATppLjz4UWR0SbJ9CTGIbpcEbEbOOmyXLbIAuGuxkivqysacqg83oXZhbN7t5TAZ
+         +iBSALFCaPmx6Gn3EfkpT1Ibs+aR3Q/YLzT9MPkdnJR+r95vPw19V+cp3/1ofyRNiPVN
+         DK20SvKH9V9XYmg7sEvmeBkY9ue5IAKwmcHbcj+t8/O7S50nZ4xxc8AyC4uQDuYTmhNE
+         h5aw==
+X-Gm-Message-State: AOAM5307l38KHMu3pReooZLVrr4c4dbSXU4sPdUiq+jKHi6PVmB+SxcC
+        c5eMv5rWH5t5oshgczfIuAVR48sju4WIB46nS4tqDQiJYyVahoLTXXk39QzfLMzxFb/jp8vfDfc
+        E+EQQ9jl9aKToGHU/
+X-Received: by 2002:a17:906:facf:: with SMTP id lu15mr13847349ejb.93.1632920256322;
+        Wed, 29 Sep 2021 05:57:36 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwLC1v3Po7islv73cKGJ2aC+qXBOQrx7DNPXg7NAfW1+AgjzaOohtOVUPjZiE/wftSniaBSEQ==
+X-Received: by 2002:a17:906:facf:: with SMTP id lu15mr13847335ejb.93.1632920256155;
+        Wed, 29 Sep 2021 05:57:36 -0700 (PDT)
+Received: from ?IPV6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.gmail.com with ESMTPSA id k10sm1382488ejo.117.2021.09.29.05.57.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 29 Sep 2021 05:57:35 -0700 (PDT)
+Message-ID: <e194b33f-cc6e-bdfe-186b-12fa37b81a3e@redhat.com>
+Date:   Wed, 29 Sep 2021 14:57:32 +0200
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.0
+Subject: Re: [PATCH 0/2] Fix wild/dangling pointer in x86 ptp_kvm
+Content-Language: en-US
+To:     Zelin Deng <zelin.deng@linux.alibaba.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc:     x86@kernel.org, kvm@vger.kernel.org, stable@vger.kernel.org
+References: <1632892429-101194-1-git-send-email-zelin.deng@linux.alibaba.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <1632892429-101194-1-git-send-email-zelin.deng@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 29/09/21 07:13, Zelin Deng wrote:
+> When I was doing PTP_SYS_OFFSET_PRECISE ioctl in VM which has 128 vCPUs,
+> I got error returned occasionally. Then I checked the routine of
+> "getcrosststamp". I found in kvm_arch_ptp_get_crosststamp() of x86,
+> pvclock vcpu time info was got from hv_clock arrary which has only 64
+> elements. Hence this ioctl is executed on vCPU > 64, a wild/dangling
+> pointer will be got, which had casued the error.
+> To confirm this finding, I wrote a simple PTP_SYS_OFFSET_PRECISE ioctl
+> test and used "taskset -c n" to run the test, when it was executed on
+> vCPUs >= 64 it returned error.
+> This patchset exposes this_cpu_pvti() to get per cpu pvclock vcpu time
+> info of vCPUs >= 64 insdead of getting them from hv_clock arrary.
+> 
+> Zelin Deng (2):
+>    x86/kvmclock: Move this_cpu_pvti into kvmclock.h
+>    ptp: Fix ptp_kvm_getcrosststamp issue for x86 ptp_kvm
+> 
+>   arch/x86/include/asm/kvmclock.h | 14 ++++++++++++++
+>   arch/x86/kernel/kvmclock.c      | 13 ++-----------
+>   drivers/ptp/ptp_kvm_x86.c       |  9 ++-------
+>   3 files changed, 18 insertions(+), 18 deletions(-)
+> 
 
+Queued, thanks.
 
-On 29 September 2021 3:07:23 PM IST, Aleksander Morgado <aleksander@aleksa=
-nder=2Ees> wrote:
->Hey all,
->
->On 5/8/21 16:02, Thomas Perrot wrote:
->> Otherwise, the waiting time was too short to use a Sierra Wireless EM91=
-9X
->> connected to an i=2EMX6 through the PCIe bus=2E
->>=20
->> Signed-off-by: Thomas Perrot <thomas=2Eperrot@bootlin=2Ecom>
->> ---
->>   drivers/bus/mhi/pci_generic=2Ec | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>=20
->> diff --git a/drivers/bus/mhi/pci_generic=2Ec b/drivers/bus/mhi/pci_gene=
-ric=2Ec
->> index 4dd1077354af=2E=2Ee08ed6e5031b 100644
->> --- a/drivers/bus/mhi/pci_generic=2Ec
->> +++ b/drivers/bus/mhi/pci_generic=2Ec
->> @@ -248,7 +248,7 @@ static struct mhi_event_config modem_qcom_v1_mhi_ev=
-ents[] =3D {
->>  =20
->>   static const struct mhi_controller_config modem_qcom_v1_mhiv_config =
-=3D {
->>   	=2Emax_channels =3D 128,
->> -	=2Etimeout_ms =3D 8000,
->> +	=2Etimeout_ms =3D 24000,
->
->
->This modem_qcom_v1_mhiv_config config applies to all generic SDX24, SDX55=
- and SDX65 modules=2E
->Other vendor-branded SDX55 based modules in this same file (Foxconn SDX55=
-, MV31), have 20000ms as timeout=2E
->Other vendor-branded SDX24 based modules in this same file (Quectel EM12x=
-x), have also 20000ms as timeout=2E
->Maybe it makes sense to have a common timeout for all?
->
+Paolo
 
-Eventhough the baseport coming from Qualcomm for the modem chipsets are sa=
-me, it is possible that the vendors might have customized the firmware for =
-their own usecase=2E That could be the cause of the delay for modem booting=
-=2E=20
-
-So I don't think we should use the same timeout of 2400ms for all modems=
-=2E=20
-
->Thomas, is the 24000ms value taken from experimentation, or is it a safe =
-enough value? Maybe 20000ms as in other modules would have been enough?
->
-
-It was derived from testing I believe=2E=20
-
-Thanks,=20
-Mani
-
->And if 20000ms wasn't enough but 24000ms is, how about adding that same v=
-alue for all modules? These modules definitely need time to boot, not sure =
-if having slightly different timeout values for each would make much sense,=
- unless there are very very different values required=2E
->
->What do you think?
->
->>   	=2Enum_channels =3D ARRAY_SIZE(modem_qcom_v1_mhi_channels),
->>   	=2Ech_cfg =3D modem_qcom_v1_mhi_channels,
->>   	=2Enum_events =3D ARRAY_SIZE(modem_qcom_v1_mhi_events),
->>=20
->
->
-
---=20
-Sent from my Android device with K-9 Mail=2E Please excuse my brevity=2E
