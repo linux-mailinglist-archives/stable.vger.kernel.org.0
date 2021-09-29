@@ -2,116 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E43141C576
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 15:22:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9616E41C5BF
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 15:36:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344130AbhI2NX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Sep 2021 09:23:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55926 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344061AbhI2NX7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 09:23:59 -0400
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9379C06161C;
-        Wed, 29 Sep 2021 06:22:17 -0700 (PDT)
-Received: by mail-lf1-x12b.google.com with SMTP id i4so10776270lfv.4;
-        Wed, 29 Sep 2021 06:22:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=W5CDoiyQWe3fkMo95Qs0HrnoAnDkKKLh5LYjCOQ+FI0=;
-        b=YBdn70PJp+h6ggqq7zYZftlvdTqQ5wPr4nDDKavtdJz7WBlnJKF+beU6whg8AJ7/K9
-         ibeKWqouQxHFbRxs8aMfcmg/WKia7GqP2Bj4PQD87cdaQSLCyhc9/y6TLcgK0KwPNL2l
-         uxZIS5nmLVgBrZrzzWEEfplGAqATQ6wDWEtq2PD1ts2annoYJp3QH9EKvG57etVegWqB
-         j2jNViKe3Q55tPQNJBil+UKBgViC9cH+sheZNuwD9Y6+JeJb0U09N+Ri2ec+E3c+CtWA
-         2cHnb9i+5PnqV6NFTmf4DnuZZl295ZVgvVuD7ZWCAf4YhOpBc3MuKG98eI4IqeOIgsjW
-         V/xw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=W5CDoiyQWe3fkMo95Qs0HrnoAnDkKKLh5LYjCOQ+FI0=;
-        b=fS2I84YiKyYG9E+FUwy3m72RHKgNboeoQOh4mxUfK+niPqtJvASKHF3dEixIpfulsS
-         4M1sD/7LFu/cM/svDocPLqHYq7s6bx3on8lGWBulWlTQSfaXmhtEyRPc47VIdhp34ULf
-         S7vMT4Ybpa0O8llBwcpzMBoz3MH2/FhQlJQm5AF56A03GqmQYqpAFuviUn9cbm3h4xD1
-         eCdYPWycWVwtYFkfO6wU57vzxLtIBr0R9mhMXladD+P+h3ayxOIbCQ3ae3bREz69rJaa
-         5va06lwhCNdS/2fUBsNkPBmmk1YSr8J0b+v/HD1twDEg0CDiJHYfg5VFZdnAVw4r+x/i
-         Me1Q==
-X-Gm-Message-State: AOAM533/3BvsGh45qfrsWrO9KpzCgYhMYxo+DLvkoQ+RjjHqwpOBkd33
-        fd+U1p3nektHR8FrYE5tXa0=
-X-Google-Smtp-Source: ABdhPJyivlM9SHwZKs0H3Uiy641Ghmodj1wwX81PFkfnRWng5DvuRVFYruRGPR4jmSnqClqsMn1DOg==
-X-Received: by 2002:a2e:7c0a:: with SMTP id x10mr6065532ljc.455.1632921736376;
-        Wed, 29 Sep 2021 06:22:16 -0700 (PDT)
-Received: from localhost.localdomain (h-98-128-228-193.NA.cust.bahnhof.se. [98.128.228.193])
-        by smtp.gmail.com with ESMTPSA id z10sm283695ljc.117.2021.09.29.06.22.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Sep 2021 06:22:15 -0700 (PDT)
-From:   Rikard Falkeborn <rikard.falkeborn@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Wei Yongjun <weiyongjun1@huawei.com>
-Cc:     Oliver Neukum <oneukum@suse.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Junlin Yang <yangjunlin@yulong.com>, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/2] usb: cdc-wdm: Fix check for WWAN
-Date:   Wed, 29 Sep 2021 15:21:42 +0200
-Message-Id: <20210929132143.36822-2-rikard.falkeborn@gmail.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210929132143.36822-1-rikard.falkeborn@gmail.com>
-References: <20210929132143.36822-1-rikard.falkeborn@gmail.com>
+        id S1344218AbhI2Nh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Sep 2021 09:37:57 -0400
+Received: from mga18.intel.com ([134.134.136.126]:58887 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1344186AbhI2Nh5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 Sep 2021 09:37:57 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10122"; a="212024984"
+X-IronPort-AV: E=Sophos;i="5.85,332,1624345200"; 
+   d="scan'208";a="212024984"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Sep 2021 06:36:16 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.85,332,1624345200"; 
+   d="scan'208";a="563312306"
+Received: from ahunter-desktop.fi.intel.com ([10.237.72.76])
+  by fmsmga002.fm.intel.com with ESMTP; 29 Sep 2021 06:36:14 -0700
+From:   Adrian Hunter <adrian.hunter@intel.com>
+To:     stable@vger.kernel.org
+Subject: [PATCH v5.14] scsi: ufs: ufs-pci: Fix Intel LKF link stability
+Date:   Wed, 29 Sep 2021 16:36:01 +0300
+Message-Id: <20210929133601.53705-1-adrian.hunter@intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
+Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki, Business Identity Code: 0357606 - 4, Domiciled in Helsinki
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 5c912e679506 ("usb: cdc-wdm: fix build error when CONFIG_WWAN_CORE
-is not set") fixed a build error when CONFIG_WWAN was set but
-CONFIG_WWAN_CORE was not. Since then CONFIG_WWAN_CORE was removed and
-joined with CONFIG_WWAN in commit 89212e160b81 ("net: wwan: Fix WWAN
-config symbols").
+commit 1cbc9ad3eecd492be33b727b4606ae75bc880676 upstream.
 
-Also, since CONFIG_WWAN has class tri-state instead of bool, we cannot
-check if it is defined directly, but have to use IS_DEFINED() instead.
+Intel LKF can experience link errors. Make fixes to increase link
+stability, especially when switching to high speed modes.
 
-Fixes: 5c912e679506 ("usb: cdc-wdm: fix build error when CONFIG_WWAN_CORE is not set")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+Link: https://lore.kernel.org/r/20210831145317.26306-1-adrian.hunter@intel.com
+Fixes: b2c57925df1f ("scsi: ufs: ufs-pci: Add support for Intel LKF")
+Cc: stable@vger.kernel.org
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 ---
- drivers/usb/class/cdc-wdm.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/scsi/ufs/ufshcd-pci.c | 78 +++++++++++++++++++++++++++++++++++
+ drivers/scsi/ufs/ufshcd.c     |  3 +-
+ drivers/scsi/ufs/ufshcd.h     |  1 +
+ 3 files changed, 81 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/class/cdc-wdm.c b/drivers/usb/class/cdc-wdm.c
-index 35d5908b5478..03b25aaaa1dd 100644
---- a/drivers/usb/class/cdc-wdm.c
-+++ b/drivers/usb/class/cdc-wdm.c
-@@ -824,7 +824,7 @@ static struct usb_class_driver wdm_class = {
- };
- 
- /* --- WWAN framework integration --- */
--#ifdef CONFIG_WWAN_CORE
-+#if IS_ENABLED(CONFIG_WWAN)
- static int wdm_wwan_port_start(struct wwan_port *port)
- {
- 	struct wdm_device *desc = wwan_port_get_drvdata(port);
-@@ -963,11 +963,11 @@ static void wdm_wwan_rx(struct wdm_device *desc, int length)
- 	/* inbuf has been copied, it is safe to check for outstanding data */
- 	schedule_work(&desc->service_outs_intr);
+diff --git a/drivers/scsi/ufs/ufshcd-pci.c b/drivers/scsi/ufs/ufshcd-pci.c
+index e6c334bfb4c2..40acca04d03b 100644
+--- a/drivers/scsi/ufs/ufshcd-pci.c
++++ b/drivers/scsi/ufs/ufshcd-pci.c
+@@ -128,6 +128,81 @@ static int ufs_intel_link_startup_notify(struct ufs_hba *hba,
+ 	return err;
  }
--#else /* CONFIG_WWAN_CORE */
-+#else /* CONFIG_WWAN */
- static void wdm_wwan_init(struct wdm_device *desc) {}
- static void wdm_wwan_deinit(struct wdm_device *desc) {}
- static void wdm_wwan_rx(struct wdm_device *desc, int length) {}
--#endif /* CONFIG_WWAN_CORE */
-+#endif /* CONFIG_WWAN */
  
- /* --- error handling --- */
- static void wdm_rxwork(struct work_struct *work)
++static int ufs_intel_set_lanes(struct ufs_hba *hba, u32 lanes)
++{
++	struct ufs_pa_layer_attr pwr_info = hba->pwr_info;
++	int ret;
++
++	pwr_info.lane_rx = lanes;
++	pwr_info.lane_tx = lanes;
++	ret = ufshcd_config_pwr_mode(hba, &pwr_info);
++	if (ret)
++		dev_err(hba->dev, "%s: Setting %u lanes, err = %d\n",
++			__func__, lanes, ret);
++	return ret;
++}
++
++static int ufs_intel_lkf_pwr_change_notify(struct ufs_hba *hba,
++				enum ufs_notify_change_status status,
++				struct ufs_pa_layer_attr *dev_max_params,
++				struct ufs_pa_layer_attr *dev_req_params)
++{
++	int err = 0;
++
++	switch (status) {
++	case PRE_CHANGE:
++		if (ufshcd_is_hs_mode(dev_max_params) &&
++		    (hba->pwr_info.lane_rx != 2 || hba->pwr_info.lane_tx != 2))
++			ufs_intel_set_lanes(hba, 2);
++		memcpy(dev_req_params, dev_max_params, sizeof(*dev_req_params));
++		break;
++	case POST_CHANGE:
++		if (ufshcd_is_hs_mode(dev_req_params)) {
++			u32 peer_granularity;
++
++			usleep_range(1000, 1250);
++			err = ufshcd_dme_peer_get(hba, UIC_ARG_MIB(PA_GRANULARITY),
++						  &peer_granularity);
++		}
++		break;
++	default:
++		break;
++	}
++
++	return err;
++}
++
++static int ufs_intel_lkf_apply_dev_quirks(struct ufs_hba *hba)
++{
++	u32 granularity, peer_granularity;
++	u32 pa_tactivate, peer_pa_tactivate;
++	int ret;
++
++	ret = ufshcd_dme_get(hba, UIC_ARG_MIB(PA_GRANULARITY), &granularity);
++	if (ret)
++		goto out;
++
++	ret = ufshcd_dme_peer_get(hba, UIC_ARG_MIB(PA_GRANULARITY), &peer_granularity);
++	if (ret)
++		goto out;
++
++	ret = ufshcd_dme_get(hba, UIC_ARG_MIB(PA_TACTIVATE), &pa_tactivate);
++	if (ret)
++		goto out;
++
++	ret = ufshcd_dme_peer_get(hba, UIC_ARG_MIB(PA_TACTIVATE), &peer_pa_tactivate);
++	if (ret)
++		goto out;
++
++	if (granularity == peer_granularity) {
++		u32 new_peer_pa_tactivate = pa_tactivate + 2;
++
++		ret = ufshcd_dme_peer_set(hba, UIC_ARG_MIB(PA_TACTIVATE), new_peer_pa_tactivate);
++	}
++out:
++	return ret;
++}
++
+ #define INTEL_ACTIVELTR		0x804
+ #define INTEL_IDLELTR		0x808
+ 
+@@ -351,6 +426,7 @@ static int ufs_intel_lkf_init(struct ufs_hba *hba)
+ 	struct ufs_host *ufs_host;
+ 	int err;
+ 
++	hba->nop_out_timeout = 200;
+ 	hba->quirks |= UFSHCD_QUIRK_BROKEN_AUTO_HIBERN8;
+ 	hba->caps |= UFSHCD_CAP_CRYPTO;
+ 	err = ufs_intel_common_init(hba);
+@@ -381,6 +457,8 @@ static struct ufs_hba_variant_ops ufs_intel_lkf_hba_vops = {
+ 	.exit			= ufs_intel_common_exit,
+ 	.hce_enable_notify	= ufs_intel_hce_enable_notify,
+ 	.link_startup_notify	= ufs_intel_link_startup_notify,
++	.pwr_change_notify	= ufs_intel_lkf_pwr_change_notify,
++	.apply_dev_quirks	= ufs_intel_lkf_apply_dev_quirks,
+ 	.resume			= ufs_intel_resume,
+ 	.device_reset		= ufs_intel_device_reset,
+ };
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 15ac5fa14805..77e2e0e516b7 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -4775,7 +4775,7 @@ static int ufshcd_verify_dev_init(struct ufs_hba *hba)
+ 	mutex_lock(&hba->dev_cmd.lock);
+ 	for (retries = NOP_OUT_RETRIES; retries > 0; retries--) {
+ 		err = ufshcd_exec_dev_cmd(hba, DEV_CMD_TYPE_NOP,
+-					       NOP_OUT_TIMEOUT);
++					  hba->nop_out_timeout);
+ 
+ 		if (!err || err == -ETIMEDOUT)
+ 			break;
+@@ -9414,6 +9414,7 @@ int ufshcd_alloc_host(struct device *dev, struct ufs_hba **hba_handle)
+ 	hba->dev = dev;
+ 	*hba_handle = hba;
+ 	hba->dev_ref_clk_freq = REF_CLK_FREQ_INVAL;
++	hba->nop_out_timeout = NOP_OUT_TIMEOUT;
+ 
+ 	INIT_LIST_HEAD(&hba->clk_list_head);
+ 
+diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
+index 194755c9ddfe..613610f5f46b 100644
+--- a/drivers/scsi/ufs/ufshcd.h
++++ b/drivers/scsi/ufs/ufshcd.h
+@@ -814,6 +814,7 @@ struct ufs_hba {
+ 	/* Device management request data */
+ 	struct ufs_dev_cmd dev_cmd;
+ 	ktime_t last_dme_cmd_tstamp;
++	int nop_out_timeout;
+ 
+ 	/* Keeps information of the UFS device connected to this host */
+ 	struct ufs_dev_info dev_info;
 -- 
-2.33.0
+2.25.1
 
