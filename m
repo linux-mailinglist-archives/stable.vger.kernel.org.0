@@ -2,190 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9616E41C5BF
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 15:36:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3205141C779
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 16:55:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344218AbhI2Nh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Sep 2021 09:37:57 -0400
-Received: from mga18.intel.com ([134.134.136.126]:58887 "EHLO mga18.intel.com"
+        id S1344803AbhI2O5N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Sep 2021 10:57:13 -0400
+Received: from 8bytes.org ([81.169.241.247]:41198 "EHLO theia.8bytes.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344186AbhI2Nh5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 Sep 2021 09:37:57 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10122"; a="212024984"
-X-IronPort-AV: E=Sophos;i="5.85,332,1624345200"; 
-   d="scan'208";a="212024984"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Sep 2021 06:36:16 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.85,332,1624345200"; 
-   d="scan'208";a="563312306"
-Received: from ahunter-desktop.fi.intel.com ([10.237.72.76])
-  by fmsmga002.fm.intel.com with ESMTP; 29 Sep 2021 06:36:14 -0700
-From:   Adrian Hunter <adrian.hunter@intel.com>
-To:     stable@vger.kernel.org
-Subject: [PATCH v5.14] scsi: ufs: ufs-pci: Fix Intel LKF link stability
-Date:   Wed, 29 Sep 2021 16:36:01 +0300
-Message-Id: <20210929133601.53705-1-adrian.hunter@intel.com>
-X-Mailer: git-send-email 2.25.1
+        id S1344808AbhI2O5M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 Sep 2021 10:57:12 -0400
+Received: from cap.home.8bytes.org (p4ff2b5b0.dip0.t-ipconnect.de [79.242.181.176])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by theia.8bytes.org (Postfix) with ESMTPSA id 8AD32105D;
+        Wed, 29 Sep 2021 16:55:24 +0200 (CEST)
+From:   Joerg Roedel <joro@8bytes.org>
+To:     x86@kernel.org
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        hpa@zytor.com, Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Joerg Roedel <jroedel@suse.de>,
+        Mike Rapoport <rppt@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH v2 4/4] x86/64/mm: Map all kernel memory into trampoline_pgd
+Date:   Wed, 29 Sep 2021 16:55:01 +0200
+Message-Id: <20210929145501.4612-5-joro@8bytes.org>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20210929145501.4612-1-joro@8bytes.org>
+References: <20210929145501.4612-1-joro@8bytes.org>
 MIME-Version: 1.0
-Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki, Business Identity Code: 0357606 - 4, Domiciled in Helsinki
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 1cbc9ad3eecd492be33b727b4606ae75bc880676 upstream.
+From: Joerg Roedel <jroedel@suse.de>
 
-Intel LKF can experience link errors. Make fixes to increase link
-stability, especially when switching to high speed modes.
+The trampoline_pgd only maps the 0xfffffff000000000-0xffffffffffffffff
+range of kernel memory (with 4-level paging). This range contains the
+kernels text+data+bss mappings and the module mapping space, but not the
+direct mapping and the vmalloc area.
 
-Link: https://lore.kernel.org/r/20210831145317.26306-1-adrian.hunter@intel.com
-Fixes: b2c57925df1f ("scsi: ufs: ufs-pci: Add support for Intel LKF")
+This is enough to get an application processors out of real-mode, but
+for code that switches back to real-mode the trampoline_pgd is missing
+important parts of the address space. For example, consider this code
+from arch/x86/kernel/reboot.c, function machine_real_restart() for a
+64-bit kernel:
+
+	#ifdef CONFIG_X86_32
+		load_cr3(initial_page_table);
+	#else
+		write_cr3(real_mode_header->trampoline_pgd);
+
+		/* Exiting long mode will fail if CR4.PCIDE is set. */
+		if (boot_cpu_has(X86_FEATURE_PCID))
+			cr4_clear_bits(X86_CR4_PCIDE);
+	#endif
+
+		/* Jump to the identity-mapped low memory code */
+	#ifdef CONFIG_X86_32
+		asm volatile("jmpl *%0" : :
+			     "rm" (real_mode_header->machine_real_restart_asm),
+			     "a" (type));
+	#else
+		asm volatile("ljmpl *%0" : :
+			     "m" (real_mode_header->machine_real_restart_asm),
+			     "D" (type));
+	#endif
+
+The code switches to the trampoline_pgd, which unmaps the direct mapping
+and also the kernel stack. The call to cr4_clear_bits() will find no
+stack and crash the machine. The real_mode_header pointer below points
+into the direct mapping, and dereferencing it also causes a crash.
+
+The reason this does not crash always is only that kernel mappings are
+global and the CR3 switch does not flush those mappings. But if theses
+mappings are not in the TLB already, the above code will crash before it
+can jump to the real-mode stub.
+
+Extend the trampoline_pgd to contain all kernel mappings to prevent
+these crashes and to make code which runs on this page-table more
+robust.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/scsi/ufs/ufshcd-pci.c | 78 +++++++++++++++++++++++++++++++++++
- drivers/scsi/ufs/ufshcd.c     |  3 +-
- drivers/scsi/ufs/ufshcd.h     |  1 +
- 3 files changed, 81 insertions(+), 1 deletion(-)
+ arch/x86/realmode/init.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd-pci.c b/drivers/scsi/ufs/ufshcd-pci.c
-index e6c334bfb4c2..40acca04d03b 100644
---- a/drivers/scsi/ufs/ufshcd-pci.c
-+++ b/drivers/scsi/ufs/ufshcd-pci.c
-@@ -128,6 +128,81 @@ static int ufs_intel_link_startup_notify(struct ufs_hba *hba,
- 	return err;
- }
+diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
+index 0cfe1046cec9..792cb9ca9b29 100644
+--- a/arch/x86/realmode/init.c
++++ b/arch/x86/realmode/init.c
+@@ -91,6 +91,7 @@ static void __init setup_real_mode(void)
+ #ifdef CONFIG_X86_64
+ 	u64 *trampoline_pgd;
+ 	u64 efer;
++	int i;
+ #endif
  
-+static int ufs_intel_set_lanes(struct ufs_hba *hba, u32 lanes)
-+{
-+	struct ufs_pa_layer_attr pwr_info = hba->pwr_info;
-+	int ret;
-+
-+	pwr_info.lane_rx = lanes;
-+	pwr_info.lane_tx = lanes;
-+	ret = ufshcd_config_pwr_mode(hba, &pwr_info);
-+	if (ret)
-+		dev_err(hba->dev, "%s: Setting %u lanes, err = %d\n",
-+			__func__, lanes, ret);
-+	return ret;
-+}
-+
-+static int ufs_intel_lkf_pwr_change_notify(struct ufs_hba *hba,
-+				enum ufs_notify_change_status status,
-+				struct ufs_pa_layer_attr *dev_max_params,
-+				struct ufs_pa_layer_attr *dev_req_params)
-+{
-+	int err = 0;
-+
-+	switch (status) {
-+	case PRE_CHANGE:
-+		if (ufshcd_is_hs_mode(dev_max_params) &&
-+		    (hba->pwr_info.lane_rx != 2 || hba->pwr_info.lane_tx != 2))
-+			ufs_intel_set_lanes(hba, 2);
-+		memcpy(dev_req_params, dev_max_params, sizeof(*dev_req_params));
-+		break;
-+	case POST_CHANGE:
-+		if (ufshcd_is_hs_mode(dev_req_params)) {
-+			u32 peer_granularity;
-+
-+			usleep_range(1000, 1250);
-+			err = ufshcd_dme_peer_get(hba, UIC_ARG_MIB(PA_GRANULARITY),
-+						  &peer_granularity);
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return err;
-+}
-+
-+static int ufs_intel_lkf_apply_dev_quirks(struct ufs_hba *hba)
-+{
-+	u32 granularity, peer_granularity;
-+	u32 pa_tactivate, peer_pa_tactivate;
-+	int ret;
-+
-+	ret = ufshcd_dme_get(hba, UIC_ARG_MIB(PA_GRANULARITY), &granularity);
-+	if (ret)
-+		goto out;
-+
-+	ret = ufshcd_dme_peer_get(hba, UIC_ARG_MIB(PA_GRANULARITY), &peer_granularity);
-+	if (ret)
-+		goto out;
-+
-+	ret = ufshcd_dme_get(hba, UIC_ARG_MIB(PA_TACTIVATE), &pa_tactivate);
-+	if (ret)
-+		goto out;
-+
-+	ret = ufshcd_dme_peer_get(hba, UIC_ARG_MIB(PA_TACTIVATE), &peer_pa_tactivate);
-+	if (ret)
-+		goto out;
-+
-+	if (granularity == peer_granularity) {
-+		u32 new_peer_pa_tactivate = pa_tactivate + 2;
-+
-+		ret = ufshcd_dme_peer_set(hba, UIC_ARG_MIB(PA_TACTIVATE), new_peer_pa_tactivate);
-+	}
-+out:
-+	return ret;
-+}
-+
- #define INTEL_ACTIVELTR		0x804
- #define INTEL_IDLELTR		0x808
+ 	base = (unsigned char *)real_mode_header;
+@@ -147,8 +148,17 @@ static void __init setup_real_mode(void)
+ 	trampoline_header->flags = 0;
  
-@@ -351,6 +426,7 @@ static int ufs_intel_lkf_init(struct ufs_hba *hba)
- 	struct ufs_host *ufs_host;
- 	int err;
+ 	trampoline_pgd = (u64 *) __va(real_mode_header->trampoline_pgd);
++
++	/*
++	 * Map all of kernel memory into the trampoline PGD so that it includes
++	 * the direct mapping and vmalloc space. This is needed to keep the
++	 * stack and real_mode_header mapped when switching to this page table.
++	 */
++	for (i = pgd_index(__PAGE_OFFSET); i < PTRS_PER_PGD; i++)
++		trampoline_pgd[i] = init_top_pgt[i].pgd;
++
++	/* Map the real mode stub as virtual == physical */
+ 	trampoline_pgd[0] = trampoline_pgd_entry.pgd;
+-	trampoline_pgd[511] = init_top_pgt[511].pgd;
+ #endif
  
-+	hba->nop_out_timeout = 200;
- 	hba->quirks |= UFSHCD_QUIRK_BROKEN_AUTO_HIBERN8;
- 	hba->caps |= UFSHCD_CAP_CRYPTO;
- 	err = ufs_intel_common_init(hba);
-@@ -381,6 +457,8 @@ static struct ufs_hba_variant_ops ufs_intel_lkf_hba_vops = {
- 	.exit			= ufs_intel_common_exit,
- 	.hce_enable_notify	= ufs_intel_hce_enable_notify,
- 	.link_startup_notify	= ufs_intel_link_startup_notify,
-+	.pwr_change_notify	= ufs_intel_lkf_pwr_change_notify,
-+	.apply_dev_quirks	= ufs_intel_lkf_apply_dev_quirks,
- 	.resume			= ufs_intel_resume,
- 	.device_reset		= ufs_intel_device_reset,
- };
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 15ac5fa14805..77e2e0e516b7 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -4775,7 +4775,7 @@ static int ufshcd_verify_dev_init(struct ufs_hba *hba)
- 	mutex_lock(&hba->dev_cmd.lock);
- 	for (retries = NOP_OUT_RETRIES; retries > 0; retries--) {
- 		err = ufshcd_exec_dev_cmd(hba, DEV_CMD_TYPE_NOP,
--					       NOP_OUT_TIMEOUT);
-+					  hba->nop_out_timeout);
- 
- 		if (!err || err == -ETIMEDOUT)
- 			break;
-@@ -9414,6 +9414,7 @@ int ufshcd_alloc_host(struct device *dev, struct ufs_hba **hba_handle)
- 	hba->dev = dev;
- 	*hba_handle = hba;
- 	hba->dev_ref_clk_freq = REF_CLK_FREQ_INVAL;
-+	hba->nop_out_timeout = NOP_OUT_TIMEOUT;
- 
- 	INIT_LIST_HEAD(&hba->clk_list_head);
- 
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index 194755c9ddfe..613610f5f46b 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -814,6 +814,7 @@ struct ufs_hba {
- 	/* Device management request data */
- 	struct ufs_dev_cmd dev_cmd;
- 	ktime_t last_dme_cmd_tstamp;
-+	int nop_out_timeout;
- 
- 	/* Keeps information of the UFS device connected to this host */
- 	struct ufs_dev_info dev_info;
+ 	sme_sev_setup_real_mode(trampoline_header);
 -- 
-2.25.1
+2.33.0
 
