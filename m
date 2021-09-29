@@ -2,98 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 468BB41C509
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 14:58:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 770D541C540
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 15:11:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343986AbhI2M7U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Sep 2021 08:59:20 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:52675 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1343943AbhI2M7U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 08:59:20 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1632920258;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=bpZea9PfMakNmCoBD5I1m62foJfzIGiMSLO3InTSSbU=;
-        b=A3fEYFxvLIYW4/WCAjvdzN8wjJno14RcZ7lSvj8+c4Oe954TDSvN2kP5Iviglz4mz5z+n+
-        E9JVPUiIgby99zsF3bbzf9kQg7zCO8flMbqtZVIDMUhSfPnyNdoAlT/Netx0NFgXKwCqro
-        HnGhOfw3O9tAkxrnRtSUfuNOQ+S0IDE=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-459--YAGKtl_OqWXimC-QF-upw-1; Wed, 29 Sep 2021 08:57:37 -0400
-X-MC-Unique: -YAGKtl_OqWXimC-QF-upw-1
-Received: by mail-ed1-f72.google.com with SMTP id z6-20020a50cd06000000b003d2c2e38f1fso2345263edi.1
-        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 05:57:37 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=bpZea9PfMakNmCoBD5I1m62foJfzIGiMSLO3InTSSbU=;
-        b=3Aslwswv7UK45O4W1BQzt2kuJZMu+XloKP3DdAKSxnTDTQ6vKqAM/QhaP1V0V2EDfS
-         g0CRFDVCerFwMqZVQE20a4A7z9IXszQ1491KGOy8WRuXNFCeYvpBhSX2hWTPuh7M5gyE
-         j1/WATppLjz4UWR0SbJ9CTGIbpcEbEbOOmyXLbIAuGuxkivqysacqg83oXZhbN7t5TAZ
-         +iBSALFCaPmx6Gn3EfkpT1Ibs+aR3Q/YLzT9MPkdnJR+r95vPw19V+cp3/1ofyRNiPVN
-         DK20SvKH9V9XYmg7sEvmeBkY9ue5IAKwmcHbcj+t8/O7S50nZ4xxc8AyC4uQDuYTmhNE
-         h5aw==
-X-Gm-Message-State: AOAM5307l38KHMu3pReooZLVrr4c4dbSXU4sPdUiq+jKHi6PVmB+SxcC
-        c5eMv5rWH5t5oshgczfIuAVR48sju4WIB46nS4tqDQiJYyVahoLTXXk39QzfLMzxFb/jp8vfDfc
-        E+EQQ9jl9aKToGHU/
-X-Received: by 2002:a17:906:facf:: with SMTP id lu15mr13847349ejb.93.1632920256322;
-        Wed, 29 Sep 2021 05:57:36 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwLC1v3Po7islv73cKGJ2aC+qXBOQrx7DNPXg7NAfW1+AgjzaOohtOVUPjZiE/wftSniaBSEQ==
-X-Received: by 2002:a17:906:facf:: with SMTP id lu15mr13847335ejb.93.1632920256155;
-        Wed, 29 Sep 2021 05:57:36 -0700 (PDT)
-Received: from ?IPV6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.gmail.com with ESMTPSA id k10sm1382488ejo.117.2021.09.29.05.57.34
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 29 Sep 2021 05:57:35 -0700 (PDT)
-Message-ID: <e194b33f-cc6e-bdfe-186b-12fa37b81a3e@redhat.com>
-Date:   Wed, 29 Sep 2021 14:57:32 +0200
+        id S1344035AbhI2NMu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Sep 2021 09:12:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35634 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1344018AbhI2NMt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 Sep 2021 09:12:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3762461407;
+        Wed, 29 Sep 2021 13:11:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1632921068;
+        bh=y7oSv0Zt6pe3/Qt3nArX9bWdZBkd3cvha4kEdcajIb4=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=t0ahZ1hglVQvI9onTUW/YmmTpNgxXmZnAQAO4OzrgBHyrTRkvtKdh4sT8slMQ2UGG
+         gCJ2EMoP28p3adQGJTQvn97oNIK95760sWzF8d0xP/O3qATagLq5JmD07UOtC1d36b
+         TQUe1pe3IsIq1StlcgIxFJvzdCY0coFBd2+rUzVaqi9SD2CnwOZW+hWnE/Ue2TQ4p4
+         pqvHaeUZ4R6IsdKlVzZzBjlfTlVr4/EYMU//ECzalzUhibQ5DdL67HgHoZtAJgPfBA
+         +4mP5KhVBnbRYFdxdKBt1cOniofAiy7Re2P6rpes6UT1q6UT7dGTDP4iSkGsHX3PF0
+         2wCxsB6y63Naw==
+Date:   Wed, 29 Sep 2021 06:11:07 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     x86@kernel.org
+Cc:     jose.souza@intel.com, hpa@zytor.com, bp@alien8.de,
+        mingo@redhat.com, tglx@linutronix.de, kai.heng.feng@canonical.com,
+        bhelgaas@google.com, linux-pci@vger.kernel.org, rudolph@fb.com,
+        xapienz@fb.com, bmilton@fb.com, paulmck@kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] x86/intel: Disable HPET on another Intel Coffee Lake
+ platform
+Message-ID: <20210929061107.243699c2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20210917024648.1383476-1-kuba@kernel.org>
+References: <20210917024648.1383476-1-kuba@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.0
-Subject: Re: [PATCH 0/2] Fix wild/dangling pointer in x86 ptp_kvm
-Content-Language: en-US
-To:     Zelin Deng <zelin.deng@linux.alibaba.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Cc:     x86@kernel.org, kvm@vger.kernel.org, stable@vger.kernel.org
-References: <1632892429-101194-1-git-send-email-zelin.deng@linux.alibaba.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <1632892429-101194-1-git-send-email-zelin.deng@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 29/09/21 07:13, Zelin Deng wrote:
-> When I was doing PTP_SYS_OFFSET_PRECISE ioctl in VM which has 128 vCPUs,
-> I got error returned occasionally. Then I checked the routine of
-> "getcrosststamp". I found in kvm_arch_ptp_get_crosststamp() of x86,
-> pvclock vcpu time info was got from hv_clock arrary which has only 64
-> elements. Hence this ioctl is executed on vCPU > 64, a wild/dangling
-> pointer will be got, which had casued the error.
-> To confirm this finding, I wrote a simple PTP_SYS_OFFSET_PRECISE ioctl
-> test and used "taskset -c n" to run the test, when it was executed on
-> vCPUs >= 64 it returned error.
-> This patchset exposes this_cpu_pvti() to get per cpu pvclock vcpu time
-> info of vCPUs >= 64 insdead of getting them from hv_clock arrary.
-> 
-> Zelin Deng (2):
->    x86/kvmclock: Move this_cpu_pvti into kvmclock.h
->    ptp: Fix ptp_kvm_getcrosststamp issue for x86 ptp_kvm
-> 
->   arch/x86/include/asm/kvmclock.h | 14 ++++++++++++++
->   arch/x86/kernel/kvmclock.c      | 13 ++-----------
->   drivers/ptp/ptp_kvm_x86.c       |  9 ++-------
->   3 files changed, 18 insertions(+), 18 deletions(-)
-> 
+On Thu, 16 Sep 2021 19:46:48 -0700 Jakub Kicinski wrote:
+> My Lenovo T490s with i7-8665U had been marking TSC as unstable
+> since v5.13, resulting in very sluggish desktop experience...
 
-Queued, thanks.
+Where do we stand? Waiting for tglx to refactor PC10 detection and use
+that, or just review delay?
 
-Paolo
+> +++ b/arch/x86/kernel/early-quirks.c
+> @@ -716,6 +716,8 @@ static struct chipset early_qrk[] __initdata = {
+>  		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+>  	{ PCI_VENDOR_ID_INTEL, 0x3e20,
+>  		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+> +	{ PCI_VENDOR_ID_INTEL, 0x3e34,
+> +		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+>  	{ PCI_VENDOR_ID_INTEL, 0x3ec4,
+>  		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+>  	{ PCI_VENDOR_ID_INTEL, 0x8a12,
 
