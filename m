@@ -2,110 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCA3D41C563
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 15:17:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E43141C576
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 15:22:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344081AbhI2NTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Sep 2021 09:19:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54856 "EHLO
+        id S1344130AbhI2NX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Sep 2021 09:23:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344098AbhI2NTR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 09:19:17 -0400
-Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F2CFC061755
-        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 06:17:36 -0700 (PDT)
-Received: by mail-ed1-x52c.google.com with SMTP id y35so8665925ede.3
-        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 06:17:36 -0700 (PDT)
+        with ESMTP id S1344061AbhI2NX7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 09:23:59 -0400
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9379C06161C;
+        Wed, 29 Sep 2021 06:22:17 -0700 (PDT)
+Received: by mail-lf1-x12b.google.com with SMTP id i4so10776270lfv.4;
+        Wed, 29 Sep 2021 06:22:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=aleksander-es.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=UJLiiUeulvsE5Jpu0obENQGGvYdNvxhst0WjqmLYdUg=;
-        b=v4YOzY3zC6nHOPzxbDz2rLrlZesaa8fIiHRxmFuNP2QGO6VtJVWDIV+pshTho5RnWf
-         rsoqAlNkLsvprRAYGCqBF3ByuYuDoKYcqPODlO9vOIsLlU1tDjlKXCUrdsOOd/MxPSpn
-         +VkPTIsG3TQUVstZP9VzxEGq/LgTcFW1woySilmgFdsHvSiW/0BxB9pSis8zwVQdpcTq
-         bIfl++Tvy+17cMLlBrtmJ0CkjAkD5dCwii60pp3b1RqHd0yhds1IjLm9phacZd2jjnUU
-         0ikndzbT8Bk4jfMwC76f1dDJSUJO9r89SJd53LvPcKuwNmszBsrIJPqT4Ftna3tH87Pf
-         BTvw==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=W5CDoiyQWe3fkMo95Qs0HrnoAnDkKKLh5LYjCOQ+FI0=;
+        b=YBdn70PJp+h6ggqq7zYZftlvdTqQ5wPr4nDDKavtdJz7WBlnJKF+beU6whg8AJ7/K9
+         ibeKWqouQxHFbRxs8aMfcmg/WKia7GqP2Bj4PQD87cdaQSLCyhc9/y6TLcgK0KwPNL2l
+         uxZIS5nmLVgBrZrzzWEEfplGAqATQ6wDWEtq2PD1ts2annoYJp3QH9EKvG57etVegWqB
+         j2jNViKe3Q55tPQNJBil+UKBgViC9cH+sheZNuwD9Y6+JeJb0U09N+Ri2ec+E3c+CtWA
+         2cHnb9i+5PnqV6NFTmf4DnuZZl295ZVgvVuD7ZWCAf4YhOpBc3MuKG98eI4IqeOIgsjW
+         V/xw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=UJLiiUeulvsE5Jpu0obENQGGvYdNvxhst0WjqmLYdUg=;
-        b=mVzvLNoV66Cc/JdFrIVOffFvqP3kLYBStRNe1GshfS/73xob2APvazFKlR3vgGj0RI
-         5CVIr1q4+heLxWSdRZUfKQQe+AhP0suct/j0WnRr8Ds1UGbiR2s0RdK5Gp3Tzukfyp6k
-         79fOvlBQabIlQ277YnNeUWQwP3xL0Ha5lhGygkzhk/fLGqlX1gzr3Gn0LxE/abrWhqyY
-         ocjRTuNfXZo3gXmiI5+IBvr2Jklejrv/BOY+XJKUP8gH+X666cAXXC3S59deW37g0V14
-         ISxjZtT2VfY5gKUVCXTMj5mhvPBYPZnoTeUBHup922shPGU5VqSfCrtSLZyvZSxMfa7V
-         ZG3A==
-X-Gm-Message-State: AOAM531TjhtIO/nxGoqkMcUhAVQJW+MhIJfVTZTkmYMQZO2cZjGLFbCp
-        2xKNKdTrZTonJqqc9v1TBz7LVTI30LNaQx+Q2X37aw==
-X-Google-Smtp-Source: ABdhPJyPDEvncO7qg4K5DedWjH02dF6b/iP9HhGB6aoRgnqmLyh9HPFi0+KHqSz5GwTR7RxcSwp5RMJrerMI0Ni2o7o=
-X-Received: by 2002:a17:906:6d0:: with SMTP id v16mr13841146ejb.258.1632921435817;
- Wed, 29 Sep 2021 06:17:15 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=W5CDoiyQWe3fkMo95Qs0HrnoAnDkKKLh5LYjCOQ+FI0=;
+        b=fS2I84YiKyYG9E+FUwy3m72RHKgNboeoQOh4mxUfK+niPqtJvASKHF3dEixIpfulsS
+         4M1sD/7LFu/cM/svDocPLqHYq7s6bx3on8lGWBulWlTQSfaXmhtEyRPc47VIdhp34ULf
+         S7vMT4Ybpa0O8llBwcpzMBoz3MH2/FhQlJQm5AF56A03GqmQYqpAFuviUn9cbm3h4xD1
+         eCdYPWycWVwtYFkfO6wU57vzxLtIBr0R9mhMXladD+P+h3ayxOIbCQ3ae3bREz69rJaa
+         5va06lwhCNdS/2fUBsNkPBmmk1YSr8J0b+v/HD1twDEg0CDiJHYfg5VFZdnAVw4r+x/i
+         Me1Q==
+X-Gm-Message-State: AOAM533/3BvsGh45qfrsWrO9KpzCgYhMYxo+DLvkoQ+RjjHqwpOBkd33
+        fd+U1p3nektHR8FrYE5tXa0=
+X-Google-Smtp-Source: ABdhPJyivlM9SHwZKs0H3Uiy641Ghmodj1wwX81PFkfnRWng5DvuRVFYruRGPR4jmSnqClqsMn1DOg==
+X-Received: by 2002:a2e:7c0a:: with SMTP id x10mr6065532ljc.455.1632921736376;
+        Wed, 29 Sep 2021 06:22:16 -0700 (PDT)
+Received: from localhost.localdomain (h-98-128-228-193.NA.cust.bahnhof.se. [98.128.228.193])
+        by smtp.gmail.com with ESMTPSA id z10sm283695ljc.117.2021.09.29.06.22.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Sep 2021 06:22:15 -0700 (PDT)
+From:   Rikard Falkeborn <rikard.falkeborn@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        Wei Yongjun <weiyongjun1@huawei.com>
+Cc:     Oliver Neukum <oneukum@suse.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Junlin Yang <yangjunlin@yulong.com>, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/2] usb: cdc-wdm: Fix check for WWAN
+Date:   Wed, 29 Sep 2021 15:21:42 +0200
+Message-Id: <20210929132143.36822-2-rikard.falkeborn@gmail.com>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20210929132143.36822-1-rikard.falkeborn@gmail.com>
+References: <20210929132143.36822-1-rikard.falkeborn@gmail.com>
 MIME-Version: 1.0
-References: <20210805140231.268273-1-thomas.perrot@bootlin.com>
- <f358044a-78d0-ad63-a777-87b4b9d94745@aleksander.es> <73A52D61-FCAB-4A2B-BA96-0117F6942842@linaro.org>
-In-Reply-To: <73A52D61-FCAB-4A2B-BA96-0117F6942842@linaro.org>
-From:   Aleksander Morgado <aleksander@aleksander.es>
-Date:   Wed, 29 Sep 2021 15:17:04 +0200
-Message-ID: <CAAP7ucL1Zv6g8G0SWAjEAjr6OSVTyDmvmFkH+vMmmBwOH2=ZUQ@mail.gmail.com>
-Subject: Re: [PATCH] bus: mhi: pci_generic: increase timeout value for
- operations to 24000ms
-To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Cc:     Thomas Perrot <thomas.perrot@bootlin.com>,
-        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
-        hemantk@codeaurora.org, Loic Poulain <loic.poulain@linaro.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hey Mani,
+Commit 5c912e679506 ("usb: cdc-wdm: fix build error when CONFIG_WWAN_CORE
+is not set") fixed a build error when CONFIG_WWAN was set but
+CONFIG_WWAN_CORE was not. Since then CONFIG_WWAN_CORE was removed and
+joined with CONFIG_WWAN in commit 89212e160b81 ("net: wwan: Fix WWAN
+config symbols").
 
-> >> diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-> >> index 4dd1077354af..e08ed6e5031b 100644
-> >> --- a/drivers/bus/mhi/pci_generic.c
-> >> +++ b/drivers/bus/mhi/pci_generic.c
-> >> @@ -248,7 +248,7 @@ static struct mhi_event_config modem_qcom_v1_mhi_events[] = {
-> >>
-> >>   static const struct mhi_controller_config modem_qcom_v1_mhiv_config = {
-> >>      .max_channels = 128,
-> >> -    .timeout_ms = 8000,
-> >> +    .timeout_ms = 24000,
-> >
-> >
-> >This modem_qcom_v1_mhiv_config config applies to all generic SDX24, SDX55 and SDX65 modules.
-> >Other vendor-branded SDX55 based modules in this same file (Foxconn SDX55, MV31), have 20000ms as timeout.
-> >Other vendor-branded SDX24 based modules in this same file (Quectel EM12xx), have also 20000ms as timeout.
-> >Maybe it makes sense to have a common timeout for all?
-> >
->
-> Eventhough the baseport coming from Qualcomm for the modem chipsets are same, it is possible that the vendors might have customized the firmware for their own usecase. That could be the cause of the delay for modem booting.
->
-> So I don't think we should use the same timeout of 2400ms for all modems.
->
+Also, since CONFIG_WWAN has class tri-state instead of bool, we cannot
+check if it is defined directly, but have to use IS_DEFINED() instead.
 
-Please note it's 24000ms what's being suggested here, not 2400ms.
+Fixes: 5c912e679506 ("usb: cdc-wdm: fix build error when CONFIG_WWAN_CORE is not set")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+---
+ drivers/usb/class/cdc-wdm.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-> >Thomas, is the 24000ms value taken from experimentation, or is it a safe enough value? Maybe 20000ms as in other modules would have been enough?
-> >
->
-> It was derived from testing I believe.
+diff --git a/drivers/usb/class/cdc-wdm.c b/drivers/usb/class/cdc-wdm.c
+index 35d5908b5478..03b25aaaa1dd 100644
+--- a/drivers/usb/class/cdc-wdm.c
++++ b/drivers/usb/class/cdc-wdm.c
+@@ -824,7 +824,7 @@ static struct usb_class_driver wdm_class = {
+ };
+ 
+ /* --- WWAN framework integration --- */
+-#ifdef CONFIG_WWAN_CORE
++#if IS_ENABLED(CONFIG_WWAN)
+ static int wdm_wwan_port_start(struct wwan_port *port)
+ {
+ 	struct wdm_device *desc = wwan_port_get_drvdata(port);
+@@ -963,11 +963,11 @@ static void wdm_wwan_rx(struct wdm_device *desc, int length)
+ 	/* inbuf has been copied, it is safe to check for outstanding data */
+ 	schedule_work(&desc->service_outs_intr);
+ }
+-#else /* CONFIG_WWAN_CORE */
++#else /* CONFIG_WWAN */
+ static void wdm_wwan_init(struct wdm_device *desc) {}
+ static void wdm_wwan_deinit(struct wdm_device *desc) {}
+ static void wdm_wwan_rx(struct wdm_device *desc, int length) {}
+-#endif /* CONFIG_WWAN_CORE */
++#endif /* CONFIG_WWAN */
+ 
+ /* --- error handling --- */
+ static void wdm_rxwork(struct work_struct *work)
+-- 
+2.33.0
 
-Following your reasoning above, shouldn't this 24000ms timeout be
-applied only to the Sierra Wireless EM91xx devices (which may have
-custom firmware bits delaying the initialization a bit longer), and
-not to the generic SDX24, SDX55 and SDX65?
-
-If I'm not mistaken, Thomas is testing with a custom mhi_pci_generic
-entry for the EM91xx; as in
-https://forum.sierrawireless.com/t/sierra-wireless-airprime-em919x-pcie-support/24927.
-I'm also playing with that same entry on my own setup, but have other
-problems of my own :)
-
-
---
-Aleksander
-https://aleksander.es
