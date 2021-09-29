@@ -2,81 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9026341BE99
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 07:13:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB05041BF6A
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 08:58:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244216AbhI2FPd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Sep 2021 01:15:33 -0400
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:41166 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S244207AbhI2FPc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 01:15:32 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R711e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=zelin.deng@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0Uq-OmY6_1632892430;
-Received: from localhost(mailfrom:zelin.deng@linux.alibaba.com fp:SMTPD_---0Uq-OmY6_1632892430)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 29 Sep 2021 13:13:50 +0800
-From:   Zelin Deng <zelin.deng@linux.alibaba.com>
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Cc:     x86@kernel.org, kvm@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH 2/2] ptp: Fix ptp_kvm_getcrosststamp issue for x86 ptp_kvm
-Date:   Wed, 29 Sep 2021 13:13:49 +0800
-Message-Id: <1632892429-101194-3-git-send-email-zelin.deng@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1632892429-101194-1-git-send-email-zelin.deng@linux.alibaba.com>
-References: <1632892429-101194-1-git-send-email-zelin.deng@linux.alibaba.com>
+        id S244314AbhI2G7y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Sep 2021 02:59:54 -0400
+Received: from mga17.intel.com ([192.55.52.151]:49197 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229536AbhI2G7y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 Sep 2021 02:59:54 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10121"; a="205025381"
+X-IronPort-AV: E=Sophos;i="5.85,331,1624345200"; 
+   d="scan'208";a="205025381"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Sep 2021 23:58:08 -0700
+X-IronPort-AV: E=Sophos;i="5.85,331,1624345200"; 
+   d="scan'208";a="554513777"
+Received: from jmaugusx-mobl1.gar.corp.intel.com (HELO [10.249.254.159]) ([10.249.254.159])
+  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Sep 2021 23:58:07 -0700
+Message-ID: <9fbd95f4-1b73-aa63-6bd5-a46d021606f8@linux.intel.com>
+Date:   Wed, 29 Sep 2021 08:58:05 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.0
+Subject: Re: [PATCH 08/21] drm/i915: Fix runtime pm handling in
+ i915_gem_shrink
+Content-Language: en-US
+To:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        intel-gfx-trybot@lists.freedesktop.org
+Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>, stable@vger.kernel.org
+References: <20210928061016.2789949-1-maarten.lankhorst@linux.intel.com>
+ <20210928061016.2789949-8-maarten.lankhorst@linux.intel.com>
+From:   =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= 
+        <thomas.hellstrom@linux.intel.com>
+In-Reply-To: <20210928061016.2789949-8-maarten.lankhorst@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If PTP_SYS_OFFSET_PRECISE ioctl is executed on vCPU >= 64, struct
-pvclock_vcpu_time_info *src which is got by "src = &hv_clock[cpu].pvti"
-could be wild/dangling pointer, as hv_clock arrary has only
-HVC_BOOT_ARRAY_SIZE (64) elements.
-Therefore let's change it to "this_cpu_pvti()"
 
-Fixes: 95a3d4454bb1 ("Switch kvmclock data to a PER_CPU variable")
-Signed-off-by: Zelin Deng <zelin.deng@linux.alibaba.com>
-Cc: <stable@vger.kernel.org>
----
- drivers/ptp/ptp_kvm_x86.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+On 9/28/21 08:10, Maarten Lankhorst wrote:
+> We forgot to call intel_runtime_pm_put on error, fix it!
+>
+> Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> Fixes: cf41a8f1dc1e ("drm/i915: Finally remove obj->mm.lock.")
+> Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+> Cc: <stable@vger.kernel.org> # v5.13+
+> ---
+>   drivers/gpu/drm/i915/gem/i915_gem_shrinker.c | 7 +++++--
+>   1 file changed, 5 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_shrinker.c b/drivers/gpu/drm/i915/gem/i915_gem_shrinker.c
+> index e382b7f2353b..5ab136ffdeb2 100644
+> --- a/drivers/gpu/drm/i915/gem/i915_gem_shrinker.c
+> +++ b/drivers/gpu/drm/i915/gem/i915_gem_shrinker.c
+> @@ -118,7 +118,7 @@ i915_gem_shrink(struct i915_gem_ww_ctx *ww,
+>   	intel_wakeref_t wakeref = 0;
+>   	unsigned long count = 0;
+>   	unsigned long scanned = 0;
+> -	int err;
+> +	int err = 0;
+>   
+>   	/* CHV + VTD workaround use stop_machine(); need to trylock vm->mutex */
+>   	bool trylock_vm = !ww && intel_vm_no_concurrent_access_wa(i915);
+> @@ -242,12 +242,15 @@ i915_gem_shrink(struct i915_gem_ww_ctx *ww,
+>   		list_splice_tail(&still_in_list, phase->list);
+>   		spin_unlock_irqrestore(&i915->mm.obj_lock, flags);
+>   		if (err)
+> -			return err;
+> +			break;
+>   	}
+>   
+>   	if (shrink & I915_SHRINK_BOUND)
+>   		intel_runtime_pm_put(&i915->runtime_pm, wakeref);
+>   
+> +	if (err)
+> +		return err;
+> +
+>   	if (nr_scanned)
+>   		*nr_scanned += scanned;
+>   	return count;
 
-diff --git a/drivers/ptp/ptp_kvm_x86.c b/drivers/ptp/ptp_kvm_x86.c
-index 3dd519d..d0096cd 100644
---- a/drivers/ptp/ptp_kvm_x86.c
-+++ b/drivers/ptp/ptp_kvm_x86.c
-@@ -15,8 +15,6 @@
- #include <linux/ptp_clock_kernel.h>
- #include <linux/ptp_kvm.h>
- 
--struct pvclock_vsyscall_time_info *hv_clock;
--
- static phys_addr_t clock_pair_gpa;
- static struct kvm_clock_pairing clock_pair;
- 
-@@ -28,8 +26,7 @@ int kvm_arch_ptp_init(void)
- 		return -ENODEV;
- 
- 	clock_pair_gpa = slow_virt_to_phys(&clock_pair);
--	hv_clock = pvclock_get_pvti_cpu0_va();
--	if (!hv_clock)
-+	if (!pvclock_get_pvti_cpu0_va())
- 		return -ENODEV;
- 
- 	ret = kvm_hypercall2(KVM_HC_CLOCK_PAIRING, clock_pair_gpa,
-@@ -64,10 +61,8 @@ int kvm_arch_ptp_get_crosststamp(u64 *cycle, struct timespec64 *tspec,
- 	struct pvclock_vcpu_time_info *src;
- 	unsigned int version;
- 	long ret;
--	int cpu;
- 
--	cpu = smp_processor_id();
--	src = &hv_clock[cpu].pvti;
-+	src = this_cpu_pvti();
- 
- 	do {
- 		/*
--- 
-1.8.3.1
+
+Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+
 
