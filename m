@@ -2,62 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 770D541C540
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 15:11:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCA3D41C563
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 15:17:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344035AbhI2NMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Sep 2021 09:12:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35634 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344018AbhI2NMt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 Sep 2021 09:12:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3762461407;
-        Wed, 29 Sep 2021 13:11:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632921068;
-        bh=y7oSv0Zt6pe3/Qt3nArX9bWdZBkd3cvha4kEdcajIb4=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=t0ahZ1hglVQvI9onTUW/YmmTpNgxXmZnAQAO4OzrgBHyrTRkvtKdh4sT8slMQ2UGG
-         gCJ2EMoP28p3adQGJTQvn97oNIK95760sWzF8d0xP/O3qATagLq5JmD07UOtC1d36b
-         TQUe1pe3IsIq1StlcgIxFJvzdCY0coFBd2+rUzVaqi9SD2CnwOZW+hWnE/Ue2TQ4p4
-         pqvHaeUZ4R6IsdKlVzZzBjlfTlVr4/EYMU//ECzalzUhibQ5DdL67HgHoZtAJgPfBA
-         +4mP5KhVBnbRYFdxdKBt1cOniofAiy7Re2P6rpes6UT1q6UT7dGTDP4iSkGsHX3PF0
-         2wCxsB6y63Naw==
-Date:   Wed, 29 Sep 2021 06:11:07 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     x86@kernel.org
-Cc:     jose.souza@intel.com, hpa@zytor.com, bp@alien8.de,
-        mingo@redhat.com, tglx@linutronix.de, kai.heng.feng@canonical.com,
-        bhelgaas@google.com, linux-pci@vger.kernel.org, rudolph@fb.com,
-        xapienz@fb.com, bmilton@fb.com, paulmck@kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] x86/intel: Disable HPET on another Intel Coffee Lake
- platform
-Message-ID: <20210929061107.243699c2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20210917024648.1383476-1-kuba@kernel.org>
-References: <20210917024648.1383476-1-kuba@kernel.org>
+        id S1344081AbhI2NTT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Sep 2021 09:19:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54856 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344098AbhI2NTR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 09:19:17 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F2CFC061755
+        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 06:17:36 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id y35so8665925ede.3
+        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 06:17:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=aleksander-es.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=UJLiiUeulvsE5Jpu0obENQGGvYdNvxhst0WjqmLYdUg=;
+        b=v4YOzY3zC6nHOPzxbDz2rLrlZesaa8fIiHRxmFuNP2QGO6VtJVWDIV+pshTho5RnWf
+         rsoqAlNkLsvprRAYGCqBF3ByuYuDoKYcqPODlO9vOIsLlU1tDjlKXCUrdsOOd/MxPSpn
+         +VkPTIsG3TQUVstZP9VzxEGq/LgTcFW1woySilmgFdsHvSiW/0BxB9pSis8zwVQdpcTq
+         bIfl++Tvy+17cMLlBrtmJ0CkjAkD5dCwii60pp3b1RqHd0yhds1IjLm9phacZd2jjnUU
+         0ikndzbT8Bk4jfMwC76f1dDJSUJO9r89SJd53LvPcKuwNmszBsrIJPqT4Ftna3tH87Pf
+         BTvw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=UJLiiUeulvsE5Jpu0obENQGGvYdNvxhst0WjqmLYdUg=;
+        b=mVzvLNoV66Cc/JdFrIVOffFvqP3kLYBStRNe1GshfS/73xob2APvazFKlR3vgGj0RI
+         5CVIr1q4+heLxWSdRZUfKQQe+AhP0suct/j0WnRr8Ds1UGbiR2s0RdK5Gp3Tzukfyp6k
+         79fOvlBQabIlQ277YnNeUWQwP3xL0Ha5lhGygkzhk/fLGqlX1gzr3Gn0LxE/abrWhqyY
+         ocjRTuNfXZo3gXmiI5+IBvr2Jklejrv/BOY+XJKUP8gH+X666cAXXC3S59deW37g0V14
+         ISxjZtT2VfY5gKUVCXTMj5mhvPBYPZnoTeUBHup922shPGU5VqSfCrtSLZyvZSxMfa7V
+         ZG3A==
+X-Gm-Message-State: AOAM531TjhtIO/nxGoqkMcUhAVQJW+MhIJfVTZTkmYMQZO2cZjGLFbCp
+        2xKNKdTrZTonJqqc9v1TBz7LVTI30LNaQx+Q2X37aw==
+X-Google-Smtp-Source: ABdhPJyPDEvncO7qg4K5DedWjH02dF6b/iP9HhGB6aoRgnqmLyh9HPFi0+KHqSz5GwTR7RxcSwp5RMJrerMI0Ni2o7o=
+X-Received: by 2002:a17:906:6d0:: with SMTP id v16mr13841146ejb.258.1632921435817;
+ Wed, 29 Sep 2021 06:17:15 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20210805140231.268273-1-thomas.perrot@bootlin.com>
+ <f358044a-78d0-ad63-a777-87b4b9d94745@aleksander.es> <73A52D61-FCAB-4A2B-BA96-0117F6942842@linaro.org>
+In-Reply-To: <73A52D61-FCAB-4A2B-BA96-0117F6942842@linaro.org>
+From:   Aleksander Morgado <aleksander@aleksander.es>
+Date:   Wed, 29 Sep 2021 15:17:04 +0200
+Message-ID: <CAAP7ucL1Zv6g8G0SWAjEAjr6OSVTyDmvmFkH+vMmmBwOH2=ZUQ@mail.gmail.com>
+Subject: Re: [PATCH] bus: mhi: pci_generic: increase timeout value for
+ operations to 24000ms
+To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Cc:     Thomas Perrot <thomas.perrot@bootlin.com>,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+        hemantk@codeaurora.org, Loic Poulain <loic.poulain@linaro.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 16 Sep 2021 19:46:48 -0700 Jakub Kicinski wrote:
-> My Lenovo T490s with i7-8665U had been marking TSC as unstable
-> since v5.13, resulting in very sluggish desktop experience...
+Hey Mani,
 
-Where do we stand? Waiting for tglx to refactor PC10 detection and use
-that, or just review delay?
+> >> diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
+> >> index 4dd1077354af..e08ed6e5031b 100644
+> >> --- a/drivers/bus/mhi/pci_generic.c
+> >> +++ b/drivers/bus/mhi/pci_generic.c
+> >> @@ -248,7 +248,7 @@ static struct mhi_event_config modem_qcom_v1_mhi_events[] = {
+> >>
+> >>   static const struct mhi_controller_config modem_qcom_v1_mhiv_config = {
+> >>      .max_channels = 128,
+> >> -    .timeout_ms = 8000,
+> >> +    .timeout_ms = 24000,
+> >
+> >
+> >This modem_qcom_v1_mhiv_config config applies to all generic SDX24, SDX55 and SDX65 modules.
+> >Other vendor-branded SDX55 based modules in this same file (Foxconn SDX55, MV31), have 20000ms as timeout.
+> >Other vendor-branded SDX24 based modules in this same file (Quectel EM12xx), have also 20000ms as timeout.
+> >Maybe it makes sense to have a common timeout for all?
+> >
+>
+> Eventhough the baseport coming from Qualcomm for the modem chipsets are same, it is possible that the vendors might have customized the firmware for their own usecase. That could be the cause of the delay for modem booting.
+>
+> So I don't think we should use the same timeout of 2400ms for all modems.
+>
 
-> +++ b/arch/x86/kernel/early-quirks.c
-> @@ -716,6 +716,8 @@ static struct chipset early_qrk[] __initdata = {
->  		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
->  	{ PCI_VENDOR_ID_INTEL, 0x3e20,
->  		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
-> +	{ PCI_VENDOR_ID_INTEL, 0x3e34,
-> +		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
->  	{ PCI_VENDOR_ID_INTEL, 0x3ec4,
->  		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
->  	{ PCI_VENDOR_ID_INTEL, 0x8a12,
+Please note it's 24000ms what's being suggested here, not 2400ms.
 
+> >Thomas, is the 24000ms value taken from experimentation, or is it a safe enough value? Maybe 20000ms as in other modules would have been enough?
+> >
+>
+> It was derived from testing I believe.
+
+Following your reasoning above, shouldn't this 24000ms timeout be
+applied only to the Sierra Wireless EM91xx devices (which may have
+custom firmware bits delaying the initialization a bit longer), and
+not to the generic SDX24, SDX55 and SDX65?
+
+If I'm not mistaken, Thomas is testing with a custom mhi_pci_generic
+entry for the EM91xx; as in
+https://forum.sierrawireless.com/t/sierra-wireless-airprime-em919x-pcie-support/24927.
+I'm also playing with that same entry on my own setup, but have other
+problems of my own :)
+
+
+--
+Aleksander
+https://aleksander.es
