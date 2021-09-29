@@ -2,115 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AFC341CCCC
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 21:46:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C26C341CD47
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 22:15:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344584AbhI2Tri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Sep 2021 15:47:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60768 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344548AbhI2Trh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 15:47:37 -0400
-Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DE16C06161C;
-        Wed, 29 Sep 2021 12:45:55 -0700 (PDT)
-Received: by mail-lf1-x133.google.com with SMTP id e15so15360813lfr.10;
-        Wed, 29 Sep 2021 12:45:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=UnUfHc5j9QIw/2Dtg2ID4k2lM7bfzKchSEUnnCdyvX8=;
-        b=bSZCEAYmzhEE0RUUylCd7e3a3wvOzZwMmhunr8VpWVmGKIhA/zWB89IpMhngvCyfJ9
-         J7s2YnMYqKtIMxESPwcoBA+XTGK5MmC2rPqG7BqlFUHu7AOZDvJErtS9hBg8rUqQCWxh
-         0vbjoIlG6qrDDjRU1LTWmQkRDgu3hf+V5qwSElML/Fk8juc0HeH8xhHA9hQidZiTcqFV
-         XzHSeO1PNNUcivlIVnCbrgdYdu8XKej5PRc6PCNHyMyOwG7DXsocnOy6EjBQ1EfWqbe9
-         qKXs7y82GShzIwoDGgHDYKGe2txSjhas/K+Ez1pVk5ipvW6a2FoLqGmBhHo/fSsxBh3E
-         +99w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=UnUfHc5j9QIw/2Dtg2ID4k2lM7bfzKchSEUnnCdyvX8=;
-        b=NeVCIgkLrkjARnRLiRYcXWKuth7HSthYyNEi+7FLjVKt6A/yviaQ6GwolllEGQ5fxn
-         +U8TQzVoG/OlK0h69gnEZSWMQufz9P2U01/WBopapqCLN7uyaMSpTaOTQ/COoUiZZ35M
-         BXGQGFhnmVxs6HmBzRB+CWaM6Msm1NO88kwssogYYEXMMQv+0mGKymaE6MfVxwwJmUdM
-         +Gtg6tpzlMw2Sv8JUFwF+5YqErz1ZjoZWoigCxoAnq/ppcDykIGohvBxj5xBcC//CGNE
-         Ao2IvTJgvPOSg6w1i46tXZIbsN2SdY0PuyLbmRVcN6bHGGaOSw2ouH8teqc9Qc9dbCyN
-         AuZw==
-X-Gm-Message-State: AOAM530/4776TviCu26D+g93J9Z/mqpR02ej1JL7vJokRCExGmSRuzjo
-        jZCWs1z5FX7fG/N8c8JngR4=
-X-Google-Smtp-Source: ABdhPJzbYJD0+CFHHnIcgHhiiSshWSe7W9yhR9Uor6rRL+9FN1V2qt7DfMKJ+j3H6fNh4gzzXxH6xA==
-X-Received: by 2002:ac2:5617:: with SMTP id v23mr1530410lfd.114.1632944753757;
-        Wed, 29 Sep 2021 12:45:53 -0700 (PDT)
-Received: from localhost.localdomain (h-98-128-228-193.NA.cust.bahnhof.se. [98.128.228.193])
-        by smtp.gmail.com with ESMTPSA id v27sm104607lfp.0.2021.09.29.12.45.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Sep 2021 12:45:53 -0700 (PDT)
-From:   Rikard Falkeborn <rikard.falkeborn@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Wei Yongjun <weiyongjun1@huawei.com>
-Cc:     Oliver Neukum <oneukum@suse.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Junlin Yang <yangjunlin@yulong.com>, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
+        id S1346609AbhI2URA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Sep 2021 16:17:00 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:45495 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1346513AbhI2URA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 16:17:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1632946518;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=c1ABNFoBo1LgtH8KX+kiNf5MSzSI0rhiaZugaCCGFME=;
+        b=U3Sw6Wfj1dGKqaAu7ZYt52W0NbpkZMMqEVeHe275TmG6DmYckwaBl3/7CjCHQ4iDkH5pCp
+        0AQ96B70fZf9RHvrrQ8yGjvAn8y6W34flBdg2lGNPRRP+Bd7OddhvxZ3XUFOD442Kbs1rE
+        m4xH8pTlkgiN8r07EEmyqBJ1DrSshbQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-281-OIOOsasNPbi_UcqAI0mVtg-1; Wed, 29 Sep 2021 16:15:17 -0400
+X-MC-Unique: OIOOsasNPbi_UcqAI0mVtg-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8B32981450F;
+        Wed, 29 Sep 2021 20:15:15 +0000 (UTC)
+Received: from x1.localdomain (unknown [10.39.194.254])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E4E4618EC5;
+        Wed, 29 Sep 2021 20:15:13 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, alsa-devel@alsa-project.org,
         stable@vger.kernel.org
-Subject: [PATCH V2 1/2] usb: cdc-wdm: Fix check for WWAN
-Date:   Wed, 29 Sep 2021 21:45:46 +0200
-Message-Id: <20210929194547.46954-2-rikard.falkeborn@gmail.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210929194547.46954-1-rikard.falkeborn@gmail.com>
-References: <20210929194547.46954-1-rikard.falkeborn@gmail.com>
+Subject: [PATCH regression fix] ASoC: nau8824: Fix headphone vs headset, button-press detection no longer working
+Date:   Wed, 29 Sep 2021 22:15:12 +0200
+Message-Id: <20210929201512.460360-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-CONFIG_WWAN_CORE was with CONFIG_WWAN in commit 89212e160b81 ("net: wwan:
-Fix WWAN config symbols"), but did not update all users of it. Change it
-back to use CONFIG_WWAN instead.
+Commit 1d25684e2251 ("ASoC: nau8824: Fix open coded prefix handling")
+replaced the nau8824_dapm_enable_pin() helper with direct calls to
+snd_soc_dapm_enable_pin(), but the helper was using
+snd_soc_dapm_force_enable_pin() and not forcing the MICBIAS + SAR
+supplies on breaks headphone vs headset and button-press detection.
 
-Fixes: 89212e160b81 ("net: wwan: Fix WWAN config symbols")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+Replace the snd_soc_dapm_enable_pin() calls with
+snd_soc_dapm_force_enable_pin() to fix this.
+
+Cc: stable@vger.kernel.org
+Fixes: 1d25684e2251 ("ASoC: nau8824: Fix open coded prefix handling")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
-Changes:
-V1-V2: Use ifdef instead of IS_ENABLED
+ sound/soc/codecs/nau8824.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-
- drivers/usb/class/cdc-wdm.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/usb/class/cdc-wdm.c b/drivers/usb/class/cdc-wdm.c
-index 35d5908b5478..fdf79bcf7eb0 100644
---- a/drivers/usb/class/cdc-wdm.c
-+++ b/drivers/usb/class/cdc-wdm.c
-@@ -824,7 +824,7 @@ static struct usb_class_driver wdm_class = {
- };
+diff --git a/sound/soc/codecs/nau8824.c b/sound/soc/codecs/nau8824.c
+index cea1d43e0cb8..77f647529354 100644
+--- a/sound/soc/codecs/nau8824.c
++++ b/sound/soc/codecs/nau8824.c
+@@ -874,8 +874,8 @@ static void nau8824_jdet_work(struct work_struct *work)
+ 	struct regmap *regmap = nau8824->regmap;
+ 	int adc_value, event = 0, event_mask = 0;
  
- /* --- WWAN framework integration --- */
--#ifdef CONFIG_WWAN_CORE
-+#ifdef CONFIG_WWAN
- static int wdm_wwan_port_start(struct wwan_port *port)
- {
- 	struct wdm_device *desc = wwan_port_get_drvdata(port);
-@@ -963,11 +963,11 @@ static void wdm_wwan_rx(struct wdm_device *desc, int length)
- 	/* inbuf has been copied, it is safe to check for outstanding data */
- 	schedule_work(&desc->service_outs_intr);
- }
--#else /* CONFIG_WWAN_CORE */
-+#else /* CONFIG_WWAN */
- static void wdm_wwan_init(struct wdm_device *desc) {}
- static void wdm_wwan_deinit(struct wdm_device *desc) {}
- static void wdm_wwan_rx(struct wdm_device *desc, int length) {}
--#endif /* CONFIG_WWAN_CORE */
-+#endif /* CONFIG_WWAN */
+-	snd_soc_dapm_enable_pin(dapm, "MICBIAS");
+-	snd_soc_dapm_enable_pin(dapm, "SAR");
++	snd_soc_dapm_force_enable_pin(dapm, "MICBIAS");
++	snd_soc_dapm_force_enable_pin(dapm, "SAR");
+ 	snd_soc_dapm_sync(dapm);
  
- /* --- error handling --- */
- static void wdm_rxwork(struct work_struct *work)
+ 	msleep(100);
 -- 
-2.33.0
+2.31.1
 
