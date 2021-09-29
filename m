@@ -2,92 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15BA841CBD2
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 20:29:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C937241CCB5
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 21:39:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346150AbhI2S3O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Sep 2021 14:29:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42752 "EHLO
+        id S245557AbhI2TkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Sep 2021 15:40:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346121AbhI2S3K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 14:29:10 -0400
-Received: from mail-vs1-xe2f.google.com (mail-vs1-xe2f.google.com [IPv6:2607:f8b0:4864:20::e2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B5E2C061764
-        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 11:27:29 -0700 (PDT)
-Received: by mail-vs1-xe2f.google.com with SMTP id az15so4130772vsb.8
-        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 11:27:29 -0700 (PDT)
+        with ESMTP id S245483AbhI2TkZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 15:40:25 -0400
+Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1A6AC06161C;
+        Wed, 29 Sep 2021 12:38:43 -0700 (PDT)
+Received: by mail-lf1-x135.google.com with SMTP id j5so10446827lfg.8;
+        Wed, 29 Sep 2021 12:38:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=okE6uYssVxlrHpNZxYNSY75OjjqU1G8ZWpy8hg3xuB0=;
-        b=m9jNO6Te3WPz86OxLpUmoWaDf2Ra9kqeN/DfyaHrG0STjJcMIADYv9u12PdeKX8aP1
-         hO8OXlbzXC/xhc2UPyh0iY/gdgNUkST46zyqnfeBQpQnnQVihCMwllMV58iwGeQmXHDB
-         QPTiCzTDq/nidtgcxo6qY7AFrkluvwtiFW5il7QLSNhG9Svs5Pf/KZKpOxmPQNt67yWa
-         Jfh+Tt49wsuTSoieurIMZVocRTDsR5OZ35FRAy/uhXAQ9y50MPd0f5WOE/ie+WKszjnS
-         o/QyA9H69wdJTnB6e+VJG9LXg6XI3GlN2Sp+n4umg+7Ob5Ea7zdjqeGbud5xWUGQpAJx
-         3MPw==
+        h=from:date:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=FR6O+t/hHG3GO+XxCstQHhRjJr6nSWaSUfjf+6LlEqs=;
+        b=l6MTonIcecw3Pk6ZEY4sO94i6/K+GdA0cToRE5zZaTUslJBVE3QPkEgS1De2dvi13p
+         XFiBReTE4ujD4ozA+luiOH4mljOPsOwy1CufpwwJIg7P9rmMV6jfDJKomHTK5vx0ZjeM
+         wIKYcpL2IMYqd5osJienjOsj3PRcP+WvLLKwHiYGIA6+zUlnR5sB0T5oT6WcFDkccgiK
+         BCcklSkCOL5nYfmDc7smP2tafibBQAL7cONCxxmxZ9sXyy9OwQ0Vt2kGGygcfRNCyv5u
+         TwjoFS/oBDuhWBo0mWSE2wzG/4XzIbRl9WuEbuKG+xk6WHU38AhsuUJV+TkJZLXOoisQ
+         Ebpw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to:content-transfer-encoding;
-        bh=okE6uYssVxlrHpNZxYNSY75OjjqU1G8ZWpy8hg3xuB0=;
-        b=0FboDLQ97oAGQa1cmf4Ftm4fDQBiqKN79CnLJvGi0hE7A9r6IDv8ZTHmpSC/FX4TEf
-         7TOWt62sW4AKTRkRilf3mwfEykAT2fe0eDuws+g2WB+nNOK6WTej09an5g/d1mcyELb1
-         Lr7MSzVtcrwxUOppdqEtH3y6cKZJXp07KoewR1Bph+bxVlgF5O2lUTWkZ4Arqwshmvkr
-         qB/ewHSQNVdoMW9YT08XXT0AQD2ntWx4vuwnFakNGfI3rFCU2QbuSXJFw1W7YyCDNmmJ
-         ye/M7GHab6AByTihUAhqICLAJeToN7x44AdGIutX04s+4mtuYVbk9DmCDpe5xrNTxOwx
-         htSA==
-X-Gm-Message-State: AOAM533eBjcu2RZSt+wh9FI4WDyVpEpABJRhNYUCGCTV41/dB3Zla2F5
-        LA7GuA+S4hjqzRwWpeyIQTx4gMggYKRoCqW66Zk=
-X-Google-Smtp-Source: ABdhPJxnJ/vj5i8MrgGuRKcw6m5Q2XEuylV0nyT3W2prXejKl5sYqhhrJrBOZgBLcR8Y5mhGCB3JpZ1tOILdheLyHbc=
-X-Received: by 2002:a05:6102:a8d:: with SMTP id n13mr1920318vsg.17.1632940048563;
- Wed, 29 Sep 2021 11:27:28 -0700 (PDT)
+        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=FR6O+t/hHG3GO+XxCstQHhRjJr6nSWaSUfjf+6LlEqs=;
+        b=6MT7+9kPAyGx5WLf28hmCH7KmuaqdtByXOGSQN/CBFeJDrVOJzjTLCnFx+iX+EEH7o
+         R8eje8rPEOErXfHz+BKkaqoP507TnNZVMtFg/3vNDVH4iSNzUoOZT4nI3jpTqK8om3hX
+         ShbYWzKFLX8NXKDBD9+ydZxP4ryJpGEfwWXqOz+O+NFddHa1WsgYgLv2zWrFNhkUXEMj
+         ccbJd5cfyYBOpokexFb/DVm2Lgzg8cbpAI3OBY0tmMmMgpcsbexbnZu+7n9KwGFliQcs
+         QZmUuhc+YyIppOK53WccFPuakyZEZTVW3fFcFD2NcHaFZvk4UIf/Et03KjgbhEZrJRKp
+         skdw==
+X-Gm-Message-State: AOAM531fSMaDaL1aZMWlFASsbeYHzAl8UQPzqIr9ifKVDNUyceXvJOsF
+        J4Z7v/3F1Ny6AJp2SEXeqxWdz2gW2jSa3A==
+X-Google-Smtp-Source: ABdhPJwFTrU1/4un/Cb6hi+AO39VtiV+5dxT5T9EN2MhAZAMCj5OvGYsR88wbaSeDWsaonhggnufXg==
+X-Received: by 2002:a19:6b08:: with SMTP id d8mr1530967lfa.87.1632944322294;
+        Wed, 29 Sep 2021 12:38:42 -0700 (PDT)
+Received: from rikard (h-98-128-228-193.NA.cust.bahnhof.se. [98.128.228.193])
+        by smtp.gmail.com with ESMTPSA id bp5sm92147lfb.133.2021.09.29.12.38.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Sep 2021 12:38:41 -0700 (PDT)
+From:   Rikard Falkeborn <rikard.falkeborn@gmail.com>
+X-Google-Original-From: Rikard Falkeborn <rikard.falkeborn>
+Date:   Wed, 29 Sep 2021 21:38:39 +0200
+To:     Rikard Falkeborn <rikard.falkeborn@gmail.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Junlin Yang <yangjunlin@yulong.com>, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] usb: cdc-wdm: Fix check for WWAN
+Message-ID: <YVTAv6BWsxS0I2My@rikard>
+References: <20210929132143.36822-1-rikard.falkeborn@gmail.com>
+ <20210929132143.36822-2-rikard.falkeborn@gmail.com>
 MIME-Version: 1.0
-Reply-To: martinafrancis022@gmail.com
-Sender: edwinasmith933@gmail.com
-Received: by 2002:ab0:4883:0:0:0:0:0 with HTTP; Wed, 29 Sep 2021 11:27:27
- -0700 (PDT)
-From:   Martina Francis <martinafrancis655@gmail.com>
-Date:   Wed, 29 Sep 2021 11:27:27 -0700
-X-Google-Sender-Auth: ixruka1Lxiqy37ihsenl3lxwa5M
-Message-ID: <CAHbqCvQqP-gMhgixrRN7hq-0f3+URFMy3fuY35RczQAFwAWdog@mail.gmail.com>
-Subject: =?UTF-8?B?RG9icsO9IGRlxYggbW9qYSBkcmFow6E=?=
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210929132143.36822-2-rikard.falkeborn@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Dobr=C3=BD de=C5=88 moja drah=C3=A1,
-Ako sa m=C3=A1=C5=A1 dnes a tvoja rodina?
-Som pani Martina Francis. M=C3=A1m fond (2 700 000,00 MILI=C3=93N USD), kto=
-r=C3=BD
-som zdedil po svojom zosnulom man=C5=BEelovi a chcem prostredn=C3=ADctvom v=
-=C3=A1s
-darova=C5=A5 chudobn=C3=BDm =C4=BEu=C4=8Fom, t=C3=BDran=C3=BDm de=C5=A5om, =
-menej privilegovan=C3=BDm osob=C3=A1m,
-cirkv=C3=A1m, sirotincom a trpiacim vdov=C3=A1m v spolo=C4=8Dnosti. Ale ja =
-tak dlho
-trp=C3=ADm rakovinou, =C5=BEe som bol hospitalizovan=C3=BD na lie=C4=8Denie=
-. Teraz m=C3=A1m
-strach z toho, =C4=8Do mi lek=C3=A1r ozn=C3=A1mil po s=C3=A9rii testov na m=
-ne, =C5=BEe kv=C3=B4li
-chorobe mo=C5=BEno nebudem dlho =C5=BEi=C5=A5 a ob=C3=A1vam sa, =C5=BEe pr=
-=C3=ADdem o tento fond pre
-vl=C3=A1du, preto=C5=BEe sa nestaraj=C3=BA o chudobn=C3=BDch v spolo=C4=8Dn=
-osti.
+On Wed, Sep 29, 2021 at 03:21:42PM +0200, Rikard Falkeborn wrote:
+> Commit 5c912e679506 ("usb: cdc-wdm: fix build error when CONFIG_WWAN_CORE
+> is not set") fixed a build error when CONFIG_WWAN was set but
+> CONFIG_WWAN_CORE was not. Since then CONFIG_WWAN_CORE was removed and
+> joined with CONFIG_WWAN in commit 89212e160b81 ("net: wwan: Fix WWAN
+> config symbols").
+> 
+> Also, since CONFIG_WWAN has class tri-state instead of bool, we cannot
+> check if it is defined directly, but have to use IS_DEFINED() instead.
 
-Ocen=C3=ADm va=C5=A1u =C3=BAprimnos=C5=A5 a odvahu zvl=C3=A1dnu=C5=A5 tento=
- projekt.
-Kontaktujte ma ihne=C4=8F po pre=C4=8D=C3=ADtan=C3=AD tejto spr=C3=A1vy a z=
-=C3=ADskajte =C4=8Fal=C5=A1ie
-podrobnosti o tejto humanit=C3=A1rnej agende.
+That last part is wrong, sorry for the noise. I'll send a V2.
 
-Boh v=C3=A1m =C5=BEehnaj, k=C3=BDm =C4=8Dak=C3=A1m na va=C5=A1u odpove=C4=
-=8F.
-Va=C5=A1a sestra.
-
-Pani Martina Francis.
+Rikard
