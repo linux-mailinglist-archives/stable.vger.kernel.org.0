@@ -2,200 +2,248 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7690341BBB1
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 02:26:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D30F441BBB7
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 02:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243410AbhI2A17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Sep 2021 20:27:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49722 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240715AbhI2A17 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 20:27:59 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BD05C06161C
-        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 17:26:19 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id r2so812256pgl.10
-        for <stable@vger.kernel.org>; Tue, 28 Sep 2021 17:26:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=BVeg6wpPfEjirfpFyJhOMNYoKmJr9108wUx9jB9HlAU=;
-        b=hD+4kLdtV2DOvSSa4T+DV7py3vjlji1lubG445Z7tJDhm9OSxUbvQC031Zt8+bvG90
-         OPU2TMzgErcHb3zsWJXGwseUJJ+Io716OI4/tFj2wyDeuHgoYo0mr3GjYPNy2TBKtkbV
-         zlDZAF86WctCOYNIORgqGsVBmt3Flk0gRyKaLuGzvbneIEVOXoJ8gOUaJCJQqorEjgGZ
-         WSDEm7WDYAgrzsgOqj3A7utmx6GEMpUQwpqHpMG8RVGRcn9HD80Ysk518lmHgIIw5xgT
-         htCBfSAGEDZab+U5HMrzeQ9iVMXm3OcG2a6GaIssgCJKIe8ymITg2CVawsXW8vhhoXfr
-         KP3A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=BVeg6wpPfEjirfpFyJhOMNYoKmJr9108wUx9jB9HlAU=;
-        b=YuvCaggeaQG/3RF1lk/UobAx07N5olEzyy+VIurzXydb63ZNK8e2XMUy/VW12hPp7T
-         PbjuiCKzjLZtZu0UkSUAoM2AYMTS4irNwbZehI09j2+0Dz/Q19aq1jkOM0AFaM9YB+/R
-         TCkN2EySjP4MqCHwcHFN9T89wP2wO5bEghlLCSvt2qFhZZ0N4KA5N9c4d+BV7JuyzG7o
-         99EKNEamdxNlL/Fl4kmImSiorI5oy1jr/ga/7vFOKVsThzYq1jYOCPhONUQBaNnDjdfk
-         IVP0lUFox6lGff+C7Qe9vXE8KNuguAbqEQbScQMP50c1Jr3bMv/dv+sPtIiUj1nkMZey
-         NtzA==
-X-Gm-Message-State: AOAM530D5kC1bQf3BNSS7OY7xu1MQy3/Xd0N/apix+4RPNuKPOp17xK5
-        6wChjJvYidEPIY93sqLKdCL8NK1aDYWmhBzf
-X-Google-Smtp-Source: ABdhPJzC+jcYzWpFfsBIcemgZTPcj9lRmh4LUueP8SPjN24ZMbohp5GCRMrA88uXbQv4IVN7TRYhkA==
-X-Received: by 2002:a62:7543:0:b0:44b:b97a:d0db with SMTP id q64-20020a627543000000b0044bb97ad0dbmr3805828pfc.9.1632875178322;
-        Tue, 28 Sep 2021 17:26:18 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d12sm303928pgf.19.2021.09.28.17.26.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Sep 2021 17:26:18 -0700 (PDT)
-Message-ID: <6153b2aa.1c69fb81.6e391.1fb7@mx.google.com>
-Date:   Tue, 28 Sep 2021 17:26:18 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S242525AbhI2AdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Sep 2021 20:33:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42044 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S240715AbhI2AdI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Sep 2021 20:33:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27AAA613BD;
+        Wed, 29 Sep 2021 00:31:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1632875488;
+        bh=HjdVWJnKMwXF65cLTCeXMKC9SY3TjN/w3RiwrlWgIGQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=gm5cDH4m2v6piR46mLc/JSBVCPI+BfX7C0Jl7Q9/ebduscr7kYKOyDJkRRCW97nyn
+         OTatGXAIaYy1C1n0aWd1IAjKuOvRWb2mnvy9J8yYdLcaUe4FNNmyDRHCy0lW4hmgLr
+         UVhvsec9oDp8bC3APGn9osA0ZA2pTfi2elVoASuoeo8ItgTHPmH0nfi0XQWufrVgg/
+         S1TUt3arPeuIoYfFmD/XGk2UG4IIQnjyy4UCFhlFKR/dIAEWnnoMKqItFfEsiyBlrZ
+         KcLb3haPCx5SKIcykWluOcG5RPc72bVPhpgFYbPljMjvXkHtdcJcOaHnKgdjXnVBov
+         mHe++aRPFe4wg==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Siewior <bigeasy@linutronix.de>,
+        netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH MANUALSEL 5.14] net: core: Correct the sock::sk_lock.owned lockdep annotations
+Date:   Tue, 28 Sep 2021 20:31:27 -0400
+Message-Id: <20210929003127.208073-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.284-31-g4bf84f7dee1f
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-Subject: stable-rc/queue/4.9 baseline: 78 runs,
- 3 regressions (v4.9.284-31-g4bf84f7dee1f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 78 runs, 3 regressions (v4.9.284-31-g4bf84f7d=
-ee1f)
+From: Thomas Gleixner <tglx@linutronix.de>
 
-Regressions Summary
--------------------
+[ Upstream commit 2dcb96bacce36021c2f3eaae0cef607b5bb71ede ]
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
+lock_sock_fast() and lock_sock_nested() contain lockdep annotations for the
+sock::sk_lock.owned 'mutex'. sock::sk_lock.owned is not a regular mutex. It
+is just lockdep wise equivalent. In fact it's an open coded trivial mutex
+implementation with some interesting features.
 
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
+sock::sk_lock.slock is a regular spinlock protecting the 'mutex'
+representation sock::sk_lock.owned which is a plain boolean. If 'owned' is
+true, then some other task holds the 'mutex', otherwise it is uncontended.
+As this locking construct is obviously endangered by lock ordering issues as
+any other locking primitive it got lockdep annotated via a dedicated
+dependency map sock::sk_lock.dep_map which has to be updated at the lock
+and unlock sites.
 
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
+lock_sock_nested() is a straight forward 'mutex' lock operation:
 
+  might_sleep();
+  spin_lock_bh(sock::sk_lock.slock)
+  while (!try_lock(sock::sk_lock.owned)) {
+      spin_unlock_bh(sock::sk_lock.slock);
+      wait_for_release();
+      spin_lock_bh(sock::sk_lock.slock);
+  }
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.284-31-g4bf84f7dee1f/plan/baseline/
+The lockdep annotation for sock::sk_lock.owned is for unknown reasons
+_after_ the lock has been acquired, i.e. after the code block above and
+after releasing sock::sk_lock.slock, but inside the bottom halves disabled
+region:
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.284-31-g4bf84f7dee1f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      4bf84f7dee1fa59c524f60a45a8e308589535c2e =
+  spin_unlock(sock::sk_lock.slock);
+  mutex_acquire(&sk->sk_lock.dep_map, subclass, 0, _RET_IP_);
+  local_bh_enable();
 
+The placement after the unlock is obvious because otherwise the
+mutex_acquire() would nest into the spin lock held region.
 
+But that's from the lockdep perspective still the wrong place:
 
-Test Regressions
----------------- =
+ 1) The mutex_acquire() is issued _after_ the successful acquisition which
+    is pointless because in a dead lock scenario this point is never
+    reached which means that if the deadlock is the first instance of
+    exposing the wrong lock order lockdep does not have a chance to detect
+    it.
 
+ 2) It only works because lockdep is rather lax on the context from which
+    the mutex_acquire() is issued. Acquiring a mutex inside a bottom halves
+    and therefore non-preemptible region is obviously invalid, except for a
+    trylock which is clearly not the case here.
 
+    This 'works' stops working on RT enabled kernels where the bottom halves
+    serialization is done via a local lock, which exposes this misplacement
+    because the 'mutex' and the local lock nest the wrong way around and
+    lockdep complains rightfully about a lock inversion.
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
+The placement is wrong since the initial commit a5b5bb9a053a ("[PATCH]
+lockdep: annotate sk_locks") which introduced this.
 
+Fix it by moving the mutex_acquire() in front of the actual lock
+acquisition, which is what the regular mutex_lock() operation does as well.
 
-  Details:     https://kernelci.org/test/plan/id/61537bbaccc2da9e3b99a2fd
+lock_sock_fast() is not that straight forward. It looks at the first glance
+like a convoluted trylock operation:
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.284-3=
-1-g4bf84f7dee1f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.284-3=
-1-g4bf84f7dee1f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+  spin_lock_bh(sock::sk_lock.slock)
+  if (!sock::sk_lock.owned)
+      return false;
+  while (!try_lock(sock::sk_lock.owned)) {
+      spin_unlock_bh(sock::sk_lock.slock);
+      wait_for_release();
+      spin_lock_bh(sock::sk_lock.slock);
+  }
+  spin_unlock(sock::sk_lock.slock);
+  mutex_acquire(&sk->sk_lock.dep_map, subclass, 0, _RET_IP_);
+  local_bh_enable();
+  return true;
 
+But that's not the case: lock_sock_fast() is an interesting optimization
+for short critical sections which can run with bottom halves disabled and
+sock::sk_lock.slock held. This allows to shortcut the 'mutex' operation in
+the non contended case by preventing other lockers to acquire
+sock::sk_lock.owned because they are blocked on sock::sk_lock.slock, which
+in turn avoids the overhead of doing the heavy processing in release_sock()
+including waking up wait queue waiters.
 
+In the contended case, i.e. when sock::sk_lock.owned == true the behavior
+is the same as lock_sock_nested().
 
-  * baseline.login: https://kernelci.org/test/case/id/61537bbaccc2da9e3b99a=
-2fe
-        failing since 318 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
+Semantically this shortcut means, that the task acquired the 'mutex' even
+if it does not touch the sock::sk_lock.owned field in the non-contended
+case. Not telling lockdep about this shortcut acquisition is hiding
+potential lock ordering violations in the fast path.
 
- =
+As a consequence the same reasoning as for the above lock_sock_nested()
+case vs. the placement of the lockdep annotation applies.
 
+The current placement of the lockdep annotation was just copied from
+the original lock_sock(), now renamed to lock_sock_nested(),
+implementation.
 
+Fix this by moving the mutex_acquire() in front of the actual lock
+acquisition and adding the corresponding mutex_release() into
+unlock_sock_fast(). Also document the fast path return case with a comment.
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
+Reported-by: Sebastian Siewior <bigeasy@linutronix.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: netdev@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ include/net/sock.h |  1 +
+ net/core/sock.c    | 37 +++++++++++++++++++++++--------------
+ 2 files changed, 24 insertions(+), 14 deletions(-)
 
+diff --git a/include/net/sock.h b/include/net/sock.h
+index f23cb259b0e2..e9ef47c0cfce 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -1641,6 +1641,7 @@ static inline void unlock_sock_fast(struct sock *sk, bool slow)
+ 		release_sock(sk);
+ 		__release(&sk->sk_lock.slock);
+ 	} else {
++		mutex_release(&sk->sk_lock.dep_map, _RET_IP_);
+ 		spin_unlock_bh(&sk->sk_lock.slock);
+ 	}
+ }
+diff --git a/net/core/sock.c b/net/core/sock.c
+index a3eea6e0b30a..54b8eeccbdf4 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -3158,17 +3158,15 @@ EXPORT_SYMBOL(sock_init_data);
+ 
+ void lock_sock_nested(struct sock *sk, int subclass)
+ {
++	/* The sk_lock has mutex_lock() semantics here. */
++	mutex_acquire(&sk->sk_lock.dep_map, subclass, 0, _RET_IP_);
++
+ 	might_sleep();
+ 	spin_lock_bh(&sk->sk_lock.slock);
+ 	if (sk->sk_lock.owned)
+ 		__lock_sock(sk);
+ 	sk->sk_lock.owned = 1;
+-	spin_unlock(&sk->sk_lock.slock);
+-	/*
+-	 * The sk_lock has mutex_lock() semantics here:
+-	 */
+-	mutex_acquire(&sk->sk_lock.dep_map, subclass, 0, _RET_IP_);
+-	local_bh_enable();
++	spin_unlock_bh(&sk->sk_lock.slock);
+ }
+ EXPORT_SYMBOL(lock_sock_nested);
+ 
+@@ -3206,24 +3204,35 @@ EXPORT_SYMBOL(release_sock);
+  */
+ bool lock_sock_fast(struct sock *sk) __acquires(&sk->sk_lock.slock)
+ {
++	/* The sk_lock has mutex_lock() semantics here. */
++	mutex_acquire(&sk->sk_lock.dep_map, 0, 0, _RET_IP_);
++
+ 	might_sleep();
+ 	spin_lock_bh(&sk->sk_lock.slock);
+ 
+-	if (!sk->sk_lock.owned)
++	if (!sk->sk_lock.owned) {
+ 		/*
+-		 * Note : We must disable BH
++		 * Fast path return with bottom halves disabled and
++		 * sock::sk_lock.slock held.
++		 *
++		 * The 'mutex' is not contended and holding
++		 * sock::sk_lock.slock prevents all other lockers to
++		 * proceed so the corresponding unlock_sock_fast() can
++		 * avoid the slow path of release_sock() completely and
++		 * just release slock.
++		 *
++		 * From a semantical POV this is equivalent to 'acquiring'
++		 * the 'mutex', hence the corresponding lockdep
++		 * mutex_release() has to happen in the fast path of
++		 * unlock_sock_fast().
+ 		 */
+ 		return false;
++	}
+ 
+ 	__lock_sock(sk);
+ 	sk->sk_lock.owned = 1;
+-	spin_unlock(&sk->sk_lock.slock);
+-	/*
+-	 * The sk_lock has mutex_lock() semantics here:
+-	 */
+-	mutex_acquire(&sk->sk_lock.dep_map, 0, 0, _RET_IP_);
+ 	__acquire(&sk->sk_lock.slock);
+-	local_bh_enable();
++	spin_unlock_bh(&sk->sk_lock.slock);
+ 	return true;
+ }
+ EXPORT_SYMBOL(lock_sock_fast);
+-- 
+2.33.0
 
-  Details:     https://kernelci.org/test/plan/id/6153788171f31c48a099a2f0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.284-3=
-1-g4bf84f7dee1f/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.284-3=
-1-g4bf84f7dee1f/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6153788171f31c48a099a=
-2f1
-        failing since 318 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61537ba806023b850399a348
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.284-3=
-1-g4bf84f7dee1f/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.284-3=
-1-g4bf84f7dee1f/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61537ba806023b850399a=
-349
-        failing since 318 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =20
