@@ -2,26 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B8EB41BD84
+	by mail.lfdr.de (Postfix) with ESMTP id 8D19741BD85
 	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 05:36:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242224AbhI2Dic (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S243984AbhI2Dic (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 28 Sep 2021 23:38:32 -0400
-Received: from szxga01-in.huawei.com ([45.249.212.187]:26963 "EHLO
+Received: from szxga01-in.huawei.com ([45.249.212.187]:26964 "EHLO
         szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241509AbhI2Dib (ORCPT
+        with ESMTP id S241901AbhI2Dib (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 28 Sep 2021 23:38:31 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.53])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4HK24c4X3qzbmvH;
+Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.53])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4HK24c65qMzbmvt;
         Wed, 29 Sep 2021 11:32:32 +0800 (CST)
 Received: from dggema774-chm.china.huawei.com (10.1.198.216) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
+ dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
  15.1.2308.8; Wed, 29 Sep 2021 11:36:49 +0800
 Received: from use12-sp2.huawei.com (10.67.189.174) by
  dggema774-chm.china.huawei.com (10.1.198.216) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.8; Wed, 29 Sep 2021 11:36:48 +0800
+ 15.1.2308.8; Wed, 29 Sep 2021 11:36:49 +0800
 From:   Xiaoming Ni <nixiaoming@huawei.com>
 To:     <oss@buserror.net>, <mpe@ellerman.id.au>,
         <benh@kernel.crashing.org>, <paulus@samba.org>,
@@ -31,9 +31,9 @@ To:     <oss@buserror.net>, <mpe@ellerman.id.au>,
         <gregkh@linuxfoundation.org>
 CC:     <wangle6@huawei.com>, <liuwenliang@huawei.com>,
         <chenjianguo3@huawei.com>, <nixiaoming@huawei.com>
-Subject: [PATCH v2 1/2] powerpc:85xx:Fix oops when mpc85xx_smp_guts_ids node cannot be found
-Date:   Wed, 29 Sep 2021 11:36:45 +0800
-Message-ID: <20210929033646.39630-2-nixiaoming@huawei.com>
+Subject: [PATCH v2 2/2] powerpc:85xx: fix timebase sync issue when CONFIG_HOTPLUG_CPU=n
+Date:   Wed, 29 Sep 2021 11:36:46 +0800
+Message-ID: <20210929033646.39630-3-nixiaoming@huawei.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210929033646.39630-1-nixiaoming@huawei.com>
 References: <021a5ee3-25ef-1de4-0111-d4c3281e0f45@huawei.com>
@@ -49,33 +49,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When the field described in mpc85xx_smp_guts_ids[] is not configured in
- dtb, the mpc85xx_setup_pmc() does not assign a value to the "guts"
- variable. As a result, the oops is triggered when
- mpc85xx_freeze_time_base() is executed.
+When CONFIG_SMP=y, timebase synchronization is required when the second
+ kernel is started.
+	arch/powerpc/kernel/smp.c:
+	int __cpu_up(unsigned int cpu, struct task_struct *tidle)
+	{
+		...
+		if (smp_ops->give_timebase)
+			smp_ops->give_timebase();
+		...
+	}
 
-Fixes:56f1ba280719 ("powerpc/mpc85xx: refactor the PM operations")
+	void start_secondary(void *unused)
+	{
+		...
+		if (smp_ops->take_timebase)
+			smp_ops->take_timebase();
+		...
+	}
+
+When CONFIG_HOTPLUG_CPU=n and CONFIG_KEXEC_CORE=n,
+ smp_85xx_ops.give_timebase is NULL,
+ smp_85xx_ops.take_timebase is NULL,
+As a result, the timebase is not synchronized.
+
+Timebase  synchronization does not depend on CONFIG_HOTPLUG_CPU.
+
+Fixes: 56f1ba280719 ("powerpc/mpc85xx: refactor the PM operations")
 Cc: stable@vger.kernel.org #v4.6
 Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
 ---
- arch/powerpc/platforms/85xx/mpc85xx_pm_ops.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/powerpc/platforms/85xx/Makefile         |  4 +++-
+ arch/powerpc/platforms/85xx/mpc85xx_pm_ops.c |  4 ++++
+ arch/powerpc/platforms/85xx/smp.c            | 12 ++++++------
+ 3 files changed, 13 insertions(+), 7 deletions(-)
 
+diff --git a/arch/powerpc/platforms/85xx/Makefile b/arch/powerpc/platforms/85xx/Makefile
+index 60e4e97a929d..260fbad7967b 100644
+--- a/arch/powerpc/platforms/85xx/Makefile
++++ b/arch/powerpc/platforms/85xx/Makefile
+@@ -3,7 +3,9 @@
+ # Makefile for the PowerPC 85xx linux kernel.
+ #
+ obj-$(CONFIG_SMP) += smp.o
+-obj-$(CONFIG_FSL_PMC)		  += mpc85xx_pm_ops.o
++ifneq ($(CONFIG_FSL_CORENET_RCPM),y)
++obj-$(CONFIG_SMP) += mpc85xx_pm_ops.o
++endif
+ 
+ obj-y += common.o
+ 
 diff --git a/arch/powerpc/platforms/85xx/mpc85xx_pm_ops.c b/arch/powerpc/platforms/85xx/mpc85xx_pm_ops.c
-index 7c0133f558d0..ffa8a7a6a2db 100644
+index ffa8a7a6a2db..4a8af80011a6 100644
 --- a/arch/powerpc/platforms/85xx/mpc85xx_pm_ops.c
 +++ b/arch/powerpc/platforms/85xx/mpc85xx_pm_ops.c
-@@ -94,9 +94,8 @@ int __init mpc85xx_setup_pmc(void)
- 			pr_err("Could not map guts node address\n");
- 			return -ENOMEM;
- 		}
-+		qoriq_pm_ops = &mpc85xx_pm_ops;
+@@ -17,6 +17,7 @@
+ 
+ static struct ccsr_guts __iomem *guts;
+ 
++#ifdef CONFIG_FSL_PMC
+ static void mpc85xx_irq_mask(int cpu)
+ {
+ 
+@@ -49,6 +50,7 @@ static void mpc85xx_cpu_up_prepare(int cpu)
+ {
+ 
+ }
++#endif
+ 
+ static void mpc85xx_freeze_time_base(bool freeze)
+ {
+@@ -76,10 +78,12 @@ static const struct of_device_id mpc85xx_smp_guts_ids[] = {
+ 
+ static const struct fsl_pm_ops mpc85xx_pm_ops = {
+ 	.freeze_time_base = mpc85xx_freeze_time_base,
++#ifdef CONFIG_FSL_PMC
+ 	.irq_mask = mpc85xx_irq_mask,
+ 	.irq_unmask = mpc85xx_irq_unmask,
+ 	.cpu_die = mpc85xx_cpu_die,
+ 	.cpu_up_prepare = mpc85xx_cpu_up_prepare,
++#endif
+ };
+ 
+ int __init mpc85xx_setup_pmc(void)
+diff --git a/arch/powerpc/platforms/85xx/smp.c b/arch/powerpc/platforms/85xx/smp.c
+index c6df294054fe..83f4a6389a28 100644
+--- a/arch/powerpc/platforms/85xx/smp.c
++++ b/arch/powerpc/platforms/85xx/smp.c
+@@ -40,7 +40,6 @@ struct epapr_spin_table {
+ 	u32	pir;
+ };
+ 
+-#ifdef CONFIG_HOTPLUG_CPU
+ static u64 timebase;
+ static int tb_req;
+ static int tb_valid;
+@@ -112,6 +111,7 @@ static void mpc85xx_take_timebase(void)
+ 	local_irq_restore(flags);
+ }
+ 
++#ifdef CONFIG_HOTPLUG_CPU
+ static void smp_85xx_cpu_offline_self(void)
+ {
+ 	unsigned int cpu = smp_processor_id();
+@@ -495,21 +495,21 @@ void __init mpc85xx_smp_init(void)
+ 		smp_85xx_ops.probe = NULL;
  	}
  
--	qoriq_pm_ops = &mpc85xx_pm_ops;
+-#ifdef CONFIG_HOTPLUG_CPU
+ #ifdef CONFIG_FSL_CORENET_RCPM
++	/* Assign a value to qoriq_pm_ops on PPC_E500MC */
+ 	fsl_rcpm_init();
+-#endif
 -
- 	return 0;
- }
+-#ifdef CONFIG_FSL_PMC
++#else
++	/* Assign a value to qoriq_pm_ops on !PPC_E500MC */
+ 	mpc85xx_setup_pmc();
+ #endif
+ 	if (qoriq_pm_ops) {
+ 		smp_85xx_ops.give_timebase = mpc85xx_give_timebase;
+ 		smp_85xx_ops.take_timebase = mpc85xx_take_timebase;
++#ifdef CONFIG_HOTPLUG_CPU
+ 		smp_85xx_ops.cpu_offline_self = smp_85xx_cpu_offline_self;
+ 		smp_85xx_ops.cpu_die = qoriq_cpu_kill;
+-	}
+ #endif
++	}
+ 	smp_ops = &smp_85xx_ops;
+ 
+ #ifdef CONFIG_KEXEC_CORE
 -- 
 2.27.0
 
