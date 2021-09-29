@@ -2,61 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3D4841CB43
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 19:49:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3305041CB72
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 20:05:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345291AbhI2RvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Sep 2021 13:51:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33952 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345150AbhI2RvS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 13:51:18 -0400
-Received: from mail-vs1-xe2e.google.com (mail-vs1-xe2e.google.com [IPv6:2607:f8b0:4864:20::e2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D165C06161C
-        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 10:49:37 -0700 (PDT)
-Received: by mail-vs1-xe2e.google.com with SMTP id n17so3995041vsr.10
-        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 10:49:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=mkE82ywOBx4O5mxcOAlUP7NX5adAXbV5F4olQT7nHl4=;
-        b=lKvG1tBsgi86Lglx4FT3KBcrSopI2HZLp3qwVamUpSxl1BkrZcx1q1SUJj+G5cwBV9
-         W9HleYG0PNIRHoha9JVkux5ySDKitHxSfVRbeeKflEO1046fYcJRLKeLrFSmEOTMbgiu
-         Y/RRAbYAPilj7+nrk5KIsNkoySygNxNUSze6yVjXHdY/aSBz876xmRY5h9otR8JUJm5P
-         nOphSY7CZIdRJXi2jMY3B9tEVgrV0EfK6vC1mCHU6181xDwwHzjw2Dz3CK67etZbOAnX
-         ENnKR0YQWl6uxKOpJQ0o1prGBZqp8UjS4/eCxd4k6boiE90FFuMLHaXC5hUpMvJKj5i7
-         VxgA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=mkE82ywOBx4O5mxcOAlUP7NX5adAXbV5F4olQT7nHl4=;
-        b=ShhKvUB22Hz1EFb10pvas8/8rndoPZyTrGxsmhmZmRL7DOCeqbu5mDtE7LfEUplpNH
-         epPzJmgRYrfQz8B0Jao17zLJOUrr2Fzi9MH4HMCWLAz7FUWqnCWiDiV3NyWgz4FXzZhr
-         cOheRNOdi9e4l5Es5owdh7JKNv/EzyjTLwFA4+T2uIyCUR6ZrbCVLDWGEjb7FKRVN7KN
-         5F5dnIvq+LYQ67wNBzq2ouXJxC3uAa0ioq5F6abXljGbRy4Rci4L0fr3P7T1OoQZvmTo
-         DJaD0YIek5WAV1/trRRDBIdvc7cYFeFVN9b3tIsOeyFENGv9Oofz/r3Kp+o6BIhMZAru
-         b4dw==
-X-Gm-Message-State: AOAM533LPArO2DsVo2Dc1Ke3daLPXV3zFoyNdpWQ+QImmhZiNOuvlNF5
-        DFXDkbZiCtgnRVlVE15u5UCNQXJnUfofL+120i0=
-X-Google-Smtp-Source: ABdhPJzMtJnWd3SUYAmwgY5ErOHyry7wDobhkfQBMT82+5BViahDlY9WuHoCdfD9i3vfx8OOezqDaee4lkST/HjQD84=
-X-Received: by 2002:a67:fa5a:: with SMTP id j26mr1687331vsq.60.1632937776763;
- Wed, 29 Sep 2021 10:49:36 -0700 (PDT)
+        id S245613AbhI2SHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Sep 2021 14:07:13 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:52728 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244794AbhI2SHM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 14:07:12 -0400
+Received: from notapiano (unknown [IPv6:2804:14c:1a9:2434:b693:c9:5cb6:b688])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: nfraprado)
+        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 9C0951F44850;
+        Wed, 29 Sep 2021 19:05:27 +0100 (BST)
+Date:   Wed, 29 Sep 2021 15:05:22 -0300
+From:   =?utf-8?B?TsOtY29sYXMgRi4gUi4gQS4=?= Prado 
+        <nfraprado@collabora.com>
+To:     Brian Norris <briannorris@chromium.org>
+Cc:     Heiko =?utf-8?Q?St=C3=BCbner?= <heiko@sntech.de>,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-rockchip@lists.infradead.org,
+        Sandy Huang <hjc@rock-chips.com>,
+        Chen-Yu Tsai <wenst@chromium.org>,
+        Thomas Hebb <tommyhebb@gmail.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v3 2/4] drm/rockchip: dsi: Reconfigure hardware on
+ resume()
+Message-ID: <20210929180522.3zksg7mpwdut7tra@notapiano>
+References: <20210928213552.1001939-1-briannorris@chromium.org>
+ <20210928143413.v3.2.I4e9d93aadb00b1ffc7d506e3186a25492bf0b732@changeid>
 MIME-Version: 1.0
-Received: by 2002:ab0:6cf9:0:0:0:0:0 with HTTP; Wed, 29 Sep 2021 10:49:36
- -0700 (PDT)
-Reply-To: aalihelp5@gmail.com
-From:   Hui Ka Yan <jacobmoore.moores41@gmail.com>
-Date:   Wed, 29 Sep 2021 10:49:36 -0700
-Message-ID: <CAEedSLe3maxJEhy5P=0ZvSwogyvEFAGXzv+E1z2SzDgEhV8Ovg@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210928143413.v3.2.I4e9d93aadb00b1ffc7d506e3186a25492bf0b732@changeid>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Am Mr. Hui Ka Yan. I am donating a grant of $10,500,000 USD to
-you,Contact Me ( aalihelp5@gmail.com ) for further details. Thanks and
-God bless.
+On Tue, Sep 28, 2021 at 02:35:50PM -0700, Brian Norris wrote:
+> Since commit 43c2de1002d2, we perform most HW configuration in the
+> bind() function. This configuration may be lost on suspend/resume, so we
+> need to call it again. That may lead to errors like this after system
+> suspend/resume:
+> 
+>   dw-mipi-dsi-rockchip ff968000.mipi: failed to write command FIFO
+>   panel-kingdisplay-kd097d04 ff960000.mipi.0: failed write init cmds: -110
+> 
+> Tested on Acer Chromebook Tab 10 (RK3399 Gru-Scarlet).
+> 
+> Note that early mailing list versions of this driver borrowed Rockchip's
+> downstream/BSP solution, to do HW configuration in mode_set() (which
+> *is* called at the appropriate pre-enable() times), but that was
+> discarded along the way. I've avoided that still, because mode_set()
+> documentation doesn't suggest this kind of purpose as far as I can tell.
+> 
+> Fixes: 43c2de1002d2 ("drm/rockchip: dsi: move all lane config except LCDC mux to bind()")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Brian Norris <briannorris@chromium.org>
+
+Tested-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
