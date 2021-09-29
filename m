@@ -2,64 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3305041CB72
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 20:05:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3537241CBB6
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 20:21:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245613AbhI2SHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Sep 2021 14:07:13 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:52728 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244794AbhI2SHM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 14:07:12 -0400
-Received: from notapiano (unknown [IPv6:2804:14c:1a9:2434:b693:c9:5cb6:b688])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: nfraprado)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 9C0951F44850;
-        Wed, 29 Sep 2021 19:05:27 +0100 (BST)
-Date:   Wed, 29 Sep 2021 15:05:22 -0300
-From:   =?utf-8?B?TsOtY29sYXMgRi4gUi4gQS4=?= Prado 
-        <nfraprado@collabora.com>
-To:     Brian Norris <briannorris@chromium.org>
-Cc:     Heiko =?utf-8?Q?St=C3=BCbner?= <heiko@sntech.de>,
-        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-rockchip@lists.infradead.org,
-        Sandy Huang <hjc@rock-chips.com>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        Thomas Hebb <tommyhebb@gmail.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v3 2/4] drm/rockchip: dsi: Reconfigure hardware on
- resume()
-Message-ID: <20210929180522.3zksg7mpwdut7tra@notapiano>
-References: <20210928213552.1001939-1-briannorris@chromium.org>
- <20210928143413.v3.2.I4e9d93aadb00b1ffc7d506e3186a25492bf0b732@changeid>
+        id S1345758AbhI2SW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Sep 2021 14:22:58 -0400
+Received: from h02mx15.reliablemail.org ([185.76.66.168]:42778 "EHLO
+        h02mx15.reliablemail.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343518AbhI2SW6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 14:22:58 -0400
+X-Greylist: delayed 362 seconds by postgrey-1.27 at vger.kernel.org; Wed, 29 Sep 2021 14:22:57 EDT
+X-Halon-Out: 2fdeebfa-2151-11ec-930f-f5be715b97e5
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=grimler.se;
+        s=default; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:
+        Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
+        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=JDCzG/NIZpsyCZN5FF/XKbBBvpMH6WE/le82sQnlqHg=; b=tevEXB9OJcHUm79hQldt/+qPOH
+        wSgouYbV7OMTgVLCsCLnLdbbX+fzAsWVo7wgP7dRWARg2RRsmgwkQsNtRhwPJxCiKxr9xAOZsybT2
+        +jJ2OsImryccVQSHJZ9JKFIaU9YI8YN5lR3by/afRJ0fMPrbxQYEDJNeckrk4N1DFION+DDZsy3p9
+        lb56lW8UyEJxryTEtx8SXt0pNYHGnYKlHwCCyUY0CVYBNDIdd3AkHGf2/qIpnXS8uZt8U31tkYr22
+        aKt/Y87uhVZ5aAgbe9FJmR9udqBiFKyGpp4fV2eDdLuPnKY+QJDGmhJDj18tDq9Q7zBUgntbFVyPR
+        Giw0yJCg==;
+From:   Henrik Grimler <henrik@grimler.se>
+To:     sre@kernel.org, m.szyprowski@samsung.com,
+        krzysztof.kozlowski@canonical.com, sebastian.krzyszkowiak@puri.sm,
+        hdegoede@redhat.com, linux-pm@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org,
+        ~postmarketos/upstreaming@lists.sr.ht
+Cc:     Henrik Grimler <henrik@grimler.se>, stable@vger.kernel.org,
+        Wolfgang Wiedmeyer <wolfgit@wiedmeyer.de>
+Subject: [PATCH v2 1/2] power: supply: max17042_battery: use VFSOC for capacity when no rsns
+Date:   Wed, 29 Sep 2021 20:14:17 +0200
+Message-Id: <20210929181418.4221-1-henrik@grimler.se>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210928143413.v3.2.I4e9d93aadb00b1ffc7d506e3186a25492bf0b732@changeid>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - cpsrv07.misshosting.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - grimler.se
+X-Get-Message-Sender-Via: cpsrv07.misshosting.com: authenticated_id: henrik@grimler.se
+X-Authenticated-Sender: cpsrv07.misshosting.com: henrik@grimler.se
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 28, 2021 at 02:35:50PM -0700, Brian Norris wrote:
-> Since commit 43c2de1002d2, we perform most HW configuration in the
-> bind() function. This configuration may be lost on suspend/resume, so we
-> need to call it again. That may lead to errors like this after system
-> suspend/resume:
-> 
->   dw-mipi-dsi-rockchip ff968000.mipi: failed to write command FIFO
->   panel-kingdisplay-kd097d04 ff960000.mipi.0: failed write init cmds: -110
-> 
-> Tested on Acer Chromebook Tab 10 (RK3399 Gru-Scarlet).
-> 
-> Note that early mailing list versions of this driver borrowed Rockchip's
-> downstream/BSP solution, to do HW configuration in mode_set() (which
-> *is* called at the appropriate pre-enable() times), but that was
-> discarded along the way. I've avoided that still, because mode_set()
-> documentation doesn't suggest this kind of purpose as far as I can tell.
-> 
-> Fixes: 43c2de1002d2 ("drm/rockchip: dsi: move all lane config except LCDC mux to bind()")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Brian Norris <briannorris@chromium.org>
+On Galaxy S3 (i9300/i9305), which has the max17047 fuel gauge and no
+current sense resistor (rsns), the RepSOC register does not provide an
+accurate state of charge value. The reported value is wrong, and does
+not change over time. VFSOC however, which uses the voltage fuel gauge
+to determine the state of charge, always shows an accurate value.
 
-Tested-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+For devices without current sense, VFSOC is already used for the
+soc-alert (0x0003 is written to MiscCFG register), so with this change
+the source of the alert and the PROP_CAPACITY value match.
+
+Fixes: 359ab9f5b154 ("power_supply: Add MAX17042 Fuel Gauge Driver")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Suggested-by: Wolfgang Wiedmeyer <wolfgit@wiedmeyer.de>
+Signed-off-by: Henrik Grimler <henrik@grimler.se>
+---
+Changes in v2:
+Re-write commit message to highlight that VFSOC is already used for
+alert, after Krzysztof's comments
+---
+ drivers/power/supply/max17042_battery.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/power/supply/max17042_battery.c b/drivers/power/supply/max17042_battery.c
+index 8dffae76b6a3..5809ba997093 100644
+--- a/drivers/power/supply/max17042_battery.c
++++ b/drivers/power/supply/max17042_battery.c
+@@ -313,7 +313,10 @@ static int max17042_get_property(struct power_supply *psy,
+ 		val->intval = data * 625 / 8;
+ 		break;
+ 	case POWER_SUPPLY_PROP_CAPACITY:
+-		ret = regmap_read(map, MAX17042_RepSOC, &data);
++		if (chip->pdata->enable_current_sense)
++			ret = regmap_read(map, MAX17042_RepSOC, &data);
++		else
++			ret = regmap_read(map, MAX17042_VFSOC, &data);
+ 		if (ret < 0)
+ 			return ret;
+ 
+
+base-commit: 5816b3e6577eaa676ceb00a848f0fd65fe2adc29
+-- 
+2.33.0
+
