@@ -2,137 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D43B41CD4E
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 22:19:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F21741CE4F
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 23:42:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346520AbhI2UUy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Sep 2021 16:20:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40152 "EHLO
+        id S1346795AbhI2Vnl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Sep 2021 17:43:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346475AbhI2UUx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 16:20:53 -0400
-Received: from mail-qt1-x831.google.com (mail-qt1-x831.google.com [IPv6:2607:f8b0:4864:20::831])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69E0EC061765
-        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 13:19:12 -0700 (PDT)
-Received: by mail-qt1-x831.google.com with SMTP id f15so3529091qtv.9
-        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 13:19:12 -0700 (PDT)
+        with ESMTP id S1345431AbhI2Vnk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 17:43:40 -0400
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16494C06161C
+        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 14:41:59 -0700 (PDT)
+Received: by mail-pg1-x535.google.com with SMTP id a73so1143379pge.0
+        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 14:41:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=toxicpanda-com.20210112.gappssmtp.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=02EXaRR/LNadeGaGEAJYu9eu7Tm3d0AkQIYMMcAXP4c=;
-        b=LE4/GyFbg6PDYrFzMabU3wOkVWt1bHu/gEgjJL5r//rlKzDS9g6ZiNQZLgEqE5952C
-         dhL0UwiqvNKYDPPQwubbwnqD9mpLnpOEj3bv8j2jO1T9MAE3sZYwQ6v4I0zIsPKYyZ4O
-         rdmxyzL/WT5dtPbI02l1h0ZBCIiueWXex102uRrAV0withKV6ROlvuDYxJP2cXQYBS2P
-         MiqX0CMENIKK+QG5J5hg8kAfOm4AOlfDXgGFEFmsQPmHc89hK9HHWbd0922OIa0ky0DK
-         +koVjJRzBZVdI1lt+yaJcdYnUZs9aEE637ZhmjvS56wbP/NlDDSnzSlUs5LBT01p5N49
-         lXxQ==
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=abMqKB2u9rMv7oTMhh3m+4tF/IOseMheczHvshPya7I=;
+        b=m2TpfLPcLu9QNlpl9HdlKoBc8s1yHlw4a109KsDKLctrx7o8muqZD1eHvNnSMFttA4
+         fG/Qr03uUF4rZlyD2y5we7iu/kBHcB7kAcgNqqFQxqqdqXM4LcSJU7E1Kk2EQDquxze3
+         ukoem9hVnnoq3QW4dNuZ5rJ+R/K06pjADNQPM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=02EXaRR/LNadeGaGEAJYu9eu7Tm3d0AkQIYMMcAXP4c=;
-        b=U1JSIrt457bRPORKXrxQt1CHuRsndKhqWwzl7ovO44XajrAkRfCD+GGbildNtWFFTO
-         zvjGaNcsE4FcTOmCl5IC00fcGopfHwwHmsDPXqF61XpIRH9svBRwEpO7LZvN42RGv5Yj
-         2WcGSkp6Q9mvM8UZksAxl3wQBG9tl23Esh4Wskl2G717D9c91Xl/g62WAr3UY0yYLHqI
-         qkJyQkdl+JYbHruqY5J3H26GA0L5GIVnHE3CaRsKQ8UYSBgLW+FTbp0uCF/Lclhi087J
-         sFgqYq6nDCaAQf+coWYav+FV3IJKUh0zvFN/8w0TOMoiQOKA5sC7ytk46Zq4qYh/gO3h
-         5lvw==
-X-Gm-Message-State: AOAM531OmFSL3FcAa2NQE90z5he+4Gh7X1gx2M7ajK9wCHfN35+4zWbX
-        nxSZDQiMETTAT6YpONSqvuBMDg==
-X-Google-Smtp-Source: ABdhPJwtTleKCd4n65jPyiBJ5xy5JKPI3hEe5Ya8CJPORXD/cexXVJrGJWxaT2KgbAuRKQXmDeCx3Q==
-X-Received: by 2002:ac8:4243:: with SMTP id r3mr2223327qtm.187.1632946751266;
-        Wed, 29 Sep 2021 13:19:11 -0700 (PDT)
-Received: from [192.168.1.45] (cpe-174-109-172-136.nc.res.rr.com. [174.109.172.136])
-        by smtp.gmail.com with ESMTPSA id z10sm485338qtv.6.2021.09.29.13.19.09
+        bh=abMqKB2u9rMv7oTMhh3m+4tF/IOseMheczHvshPya7I=;
+        b=f4pyfZUKYbbW9gjlo9FSqw48IBZcfx+jRYrQ/qTgwhb8ys8o1XBQrPW61Oopyaas7d
+         4AZ3pyZCXxDcYlInyjfNpYwQRqAbvZTPyzjOpDlyjvIRuJmGSJdkq1ws/JGuSzoAZUHD
+         01SPm74EVagBjts5veEtPmgae5NV3Yv1QThIpGa83I2a/2v/lKqphWj2oUc+O+9x6Blp
+         j/gzkEtvGLEju3T3U9b6pNPvT1IzmP8kQZI33PPVT9WxTdeA6DBKR1em0si9HgryUGgx
+         5uSsRUmMkqCSUIognDCnTCBcCCGFWVM68tXf8ZfNmOX4HoIkXJ9nGU7inRcIedFPbu+0
+         sxJQ==
+X-Gm-Message-State: AOAM530Wyjyl6zJgDn8Dc/G8Pp5Yt5AKU+PAvZbrnL7diUeQrALDWifD
+        Om/ug5CfHnw492caCH5lqb1FNg==
+X-Google-Smtp-Source: ABdhPJz6ktUCSGWMztTH+AFVhmEQXYShJtqGc2SK/UWNTJBqVnMthbvvG3CKCGzYVePbkfPuK8YC7Q==
+X-Received: by 2002:a63:1d5c:: with SMTP id d28mr1797415pgm.143.1632951718606;
+        Wed, 29 Sep 2021 14:41:58 -0700 (PDT)
+Received: from localhost ([2620:15c:202:201:1bde:f4ad:4338:e765])
+        by smtp.gmail.com with UTF8SMTPSA id p9sm698691pfo.153.2021.09.29.14.41.57
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 29 Sep 2021 13:19:10 -0700 (PDT)
-Subject: Re: [PATCH] nbd: use shifts rather than multiplies
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Pavel Machek <pavel@ucw.cz>, Jens Axboe <axboe@kernel.dk>,
-        linux-block@vger.kernel.org, nbd@other.debian.org,
-        linux-kernel@vger.kernel.org, llvm@lists.linux.dev
-References: <20210920232533.4092046-1-ndesaulniers@google.com>
-From:   Josef Bacik <josef@toxicpanda.com>
-Message-ID: <079a17e7-6cf1-7632-bf12-1df0edf4f93a@toxicpanda.com>
-Date:   Wed, 29 Sep 2021 16:19:09 -0400
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.14.0
+        Wed, 29 Sep 2021 14:41:57 -0700 (PDT)
+From:   Brian Norris <briannorris@chromium.org>
+To:     Andrzej Hajda <a.hajda@samsung.com>,
+        Neil Armstrong <narmstrong@baylibre.com>
+Cc:     dri-devel@lists.freedesktop.org,
+        linux-rockchip@lists.infradead.org,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        linux-kernel@vger.kernel.org, Jonas Karlman <jonas@kwiboo.se>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Brian Norris <briannorris@chromium.org>,
+        stable@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Subject: [PATCH] drm/brdige: analogix_dp: Grab runtime PM reference for DP-AUX
+Date:   Wed, 29 Sep 2021 14:41:03 -0700
+Message-Id: <20210929144010.1.I773a08785666ebb236917b0c8e6c05e3de471e75@changeid>
+X-Mailer: git-send-email 2.33.0.685.g46640cef36-goog
 MIME-Version: 1.0
-In-Reply-To: <20210920232533.4092046-1-ndesaulniers@google.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/20/21 7:25 PM, Nick Desaulniers wrote:
-> commit fad7cd3310db ("nbd: add the check to prevent overflow in
-> __nbd_ioctl()") raised an issue from the fallback helpers added in
-> commit f0907827a8a9 ("compiler.h: enable builtin overflow checkers and
-> add fallback code")
-> 
-> ERROR: modpost: "__divdi3" [drivers/block/nbd.ko] undefined!
-> 
-> As Stephen Rothwell notes:
->    The added check_mul_overflow() call is being passed 64 bit values.
->    COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW is not set for this build (see
->    include/linux/overflow.h).
-> 
-> Specifically, the helpers for checking whether the results of a
-> multiplication overflowed (__unsigned_mul_overflow,
-> __signed_add_overflow) use the division operator when
-> !COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW.  This is problematic for 64b
-> operands on 32b hosts.
-> 
-> This was fixed upstream by
-> commit 76ae847497bc ("Documentation: raise minimum supported version of
-> GCC to 5.1")
-> which is not suitable to be backported to stable.
-> 
-> Further, __builtin_mul_overflow() would emit a libcall to a
-> compiler-rt-only symbol when compiling with clang < 14 for 32b targets.
-> 
-> ld.lld: error: undefined symbol: __mulodi4
-> 
-> In order to keep stable buildable with GCC 4.9 and clang < 14, modify
-> struct nbd_config to instead track the number of bits of the block size;
-> reconstructing the block size using runtime checked shifts that are not
-> problematic for those compilers and in a ways that can be backported to
-> stable.
-> 
-> In nbd_set_size, we do validate that the value of blksize must be a
-> power of two (POT) and is in the range of [512, PAGE_SIZE] (both
-> inclusive).
-> 
-> This does modify the debugfs interface.
-> 
-> Cc: stable@vger.kernel.org
-> Cc: Arnd Bergmann <arnd@kernel.org>
-> Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-> Link: https://github.com/ClangBuiltLinux/linux/issues/1438
-> Link: https://lore.kernel.org/all/20210909182525.372ee687@canb.auug.org.au/
-> Link: https://lore.kernel.org/stable/CAHk-=whiQBofgis_rkniz8GBP9wZtSZdcDEffgSLO62BUGV3gg@mail.gmail.com/
-> Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-> Reported-by: Nathan Chancellor <nathan@kernel.org>
-> Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-> Suggested-by: Kees Cook <keescook@chromium.org>
-> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Suggested-by: Pavel Machek <pavel@ucw.cz>
-> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+If the display is not enable()d, then we aren't holding a runtime PM
+reference here. Thus, it's easy to accidentally cause a hang, if user
+space is poking around at /dev/drm_dp_aux0 at the "wrong" time.
 
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Let's get the panel and PM state right before trying to talk AUX.
 
-Thanks,
+Fixes: 0d97ad03f422 ("drm/bridge: analogix_dp: Remove duplicated code")
+Cc: <stable@vger.kernel.org>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+---
 
-Josef
+ .../gpu/drm/bridge/analogix/analogix_dp_core.c  | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+index b7d2e4449cfa..a1b553904b85 100644
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+@@ -1632,8 +1632,23 @@ static ssize_t analogix_dpaux_transfer(struct drm_dp_aux *aux,
+ 				       struct drm_dp_aux_msg *msg)
+ {
+ 	struct analogix_dp_device *dp = to_dp(aux);
++	int ret, ret2;
+ 
+-	return analogix_dp_transfer(dp, msg);
++	ret = analogix_dp_prepare_panel(dp, true, false);
++	if (ret) {
++		DRM_DEV_ERROR(dp->dev, "Failed to prepare panel (%d)\n", ret);
++		return ret;
++	}
++
++	pm_runtime_get_sync(dp->dev);
++	ret = analogix_dp_transfer(dp, msg);
++	pm_runtime_put(dp->dev);
++
++	ret2 = analogix_dp_prepare_panel(dp, false, false);
++	if (ret2)
++		DRM_DEV_ERROR(dp->dev, "Failed to unprepare panel (%d)\n", ret2);
++
++	return ret;
+ }
+ 
+ struct analogix_dp_device *
+-- 
+2.33.0.685.g46640cef36-goog
+
