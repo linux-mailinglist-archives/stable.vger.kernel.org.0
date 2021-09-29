@@ -2,98 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3537241CBB6
-	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 20:21:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15BA841CBD2
+	for <lists+stable@lfdr.de>; Wed, 29 Sep 2021 20:29:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345758AbhI2SW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Sep 2021 14:22:58 -0400
-Received: from h02mx15.reliablemail.org ([185.76.66.168]:42778 "EHLO
-        h02mx15.reliablemail.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343518AbhI2SW6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 14:22:58 -0400
-X-Greylist: delayed 362 seconds by postgrey-1.27 at vger.kernel.org; Wed, 29 Sep 2021 14:22:57 EDT
-X-Halon-Out: 2fdeebfa-2151-11ec-930f-f5be715b97e5
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=grimler.se;
-        s=default; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:
-        Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
-        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=JDCzG/NIZpsyCZN5FF/XKbBBvpMH6WE/le82sQnlqHg=; b=tevEXB9OJcHUm79hQldt/+qPOH
-        wSgouYbV7OMTgVLCsCLnLdbbX+fzAsWVo7wgP7dRWARg2RRsmgwkQsNtRhwPJxCiKxr9xAOZsybT2
-        +jJ2OsImryccVQSHJZ9JKFIaU9YI8YN5lR3by/afRJ0fMPrbxQYEDJNeckrk4N1DFION+DDZsy3p9
-        lb56lW8UyEJxryTEtx8SXt0pNYHGnYKlHwCCyUY0CVYBNDIdd3AkHGf2/qIpnXS8uZt8U31tkYr22
-        aKt/Y87uhVZ5aAgbe9FJmR9udqBiFKyGpp4fV2eDdLuPnKY+QJDGmhJDj18tDq9Q7zBUgntbFVyPR
-        Giw0yJCg==;
-From:   Henrik Grimler <henrik@grimler.se>
-To:     sre@kernel.org, m.szyprowski@samsung.com,
-        krzysztof.kozlowski@canonical.com, sebastian.krzyszkowiak@puri.sm,
-        hdegoede@redhat.com, linux-pm@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org,
-        ~postmarketos/upstreaming@lists.sr.ht
-Cc:     Henrik Grimler <henrik@grimler.se>, stable@vger.kernel.org,
-        Wolfgang Wiedmeyer <wolfgit@wiedmeyer.de>
-Subject: [PATCH v2 1/2] power: supply: max17042_battery: use VFSOC for capacity when no rsns
-Date:   Wed, 29 Sep 2021 20:14:17 +0200
-Message-Id: <20210929181418.4221-1-henrik@grimler.se>
-X-Mailer: git-send-email 2.33.0
+        id S1346150AbhI2S3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Sep 2021 14:29:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42752 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346121AbhI2S3K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Sep 2021 14:29:10 -0400
+Received: from mail-vs1-xe2f.google.com (mail-vs1-xe2f.google.com [IPv6:2607:f8b0:4864:20::e2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B5E2C061764
+        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 11:27:29 -0700 (PDT)
+Received: by mail-vs1-xe2f.google.com with SMTP id az15so4130772vsb.8
+        for <stable@vger.kernel.org>; Wed, 29 Sep 2021 11:27:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=okE6uYssVxlrHpNZxYNSY75OjjqU1G8ZWpy8hg3xuB0=;
+        b=m9jNO6Te3WPz86OxLpUmoWaDf2Ra9kqeN/DfyaHrG0STjJcMIADYv9u12PdeKX8aP1
+         hO8OXlbzXC/xhc2UPyh0iY/gdgNUkST46zyqnfeBQpQnnQVihCMwllMV58iwGeQmXHDB
+         QPTiCzTDq/nidtgcxo6qY7AFrkluvwtiFW5il7QLSNhG9Svs5Pf/KZKpOxmPQNt67yWa
+         Jfh+Tt49wsuTSoieurIMZVocRTDsR5OZ35FRAy/uhXAQ9y50MPd0f5WOE/ie+WKszjnS
+         o/QyA9H69wdJTnB6e+VJG9LXg6XI3GlN2Sp+n4umg+7Ob5Ea7zdjqeGbud5xWUGQpAJx
+         3MPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=okE6uYssVxlrHpNZxYNSY75OjjqU1G8ZWpy8hg3xuB0=;
+        b=0FboDLQ97oAGQa1cmf4Ftm4fDQBiqKN79CnLJvGi0hE7A9r6IDv8ZTHmpSC/FX4TEf
+         7TOWt62sW4AKTRkRilf3mwfEykAT2fe0eDuws+g2WB+nNOK6WTej09an5g/d1mcyELb1
+         Lr7MSzVtcrwxUOppdqEtH3y6cKZJXp07KoewR1Bph+bxVlgF5O2lUTWkZ4Arqwshmvkr
+         qB/ewHSQNVdoMW9YT08XXT0AQD2ntWx4vuwnFakNGfI3rFCU2QbuSXJFw1W7YyCDNmmJ
+         ye/M7GHab6AByTihUAhqICLAJeToN7x44AdGIutX04s+4mtuYVbk9DmCDpe5xrNTxOwx
+         htSA==
+X-Gm-Message-State: AOAM533eBjcu2RZSt+wh9FI4WDyVpEpABJRhNYUCGCTV41/dB3Zla2F5
+        LA7GuA+S4hjqzRwWpeyIQTx4gMggYKRoCqW66Zk=
+X-Google-Smtp-Source: ABdhPJxnJ/vj5i8MrgGuRKcw6m5Q2XEuylV0nyT3W2prXejKl5sYqhhrJrBOZgBLcR8Y5mhGCB3JpZ1tOILdheLyHbc=
+X-Received: by 2002:a05:6102:a8d:: with SMTP id n13mr1920318vsg.17.1632940048563;
+ Wed, 29 Sep 2021 11:27:28 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - cpsrv07.misshosting.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - grimler.se
-X-Get-Message-Sender-Via: cpsrv07.misshosting.com: authenticated_id: henrik@grimler.se
-X-Authenticated-Sender: cpsrv07.misshosting.com: henrik@grimler.se
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Reply-To: martinafrancis022@gmail.com
+Sender: edwinasmith933@gmail.com
+Received: by 2002:ab0:4883:0:0:0:0:0 with HTTP; Wed, 29 Sep 2021 11:27:27
+ -0700 (PDT)
+From:   Martina Francis <martinafrancis655@gmail.com>
+Date:   Wed, 29 Sep 2021 11:27:27 -0700
+X-Google-Sender-Auth: ixruka1Lxiqy37ihsenl3lxwa5M
+Message-ID: <CAHbqCvQqP-gMhgixrRN7hq-0f3+URFMy3fuY35RczQAFwAWdog@mail.gmail.com>
+Subject: =?UTF-8?B?RG9icsO9IGRlxYggbW9qYSBkcmFow6E=?=
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Galaxy S3 (i9300/i9305), which has the max17047 fuel gauge and no
-current sense resistor (rsns), the RepSOC register does not provide an
-accurate state of charge value. The reported value is wrong, and does
-not change over time. VFSOC however, which uses the voltage fuel gauge
-to determine the state of charge, always shows an accurate value.
+--=20
+Dobr=C3=BD de=C5=88 moja drah=C3=A1,
+Ako sa m=C3=A1=C5=A1 dnes a tvoja rodina?
+Som pani Martina Francis. M=C3=A1m fond (2 700 000,00 MILI=C3=93N USD), kto=
+r=C3=BD
+som zdedil po svojom zosnulom man=C5=BEelovi a chcem prostredn=C3=ADctvom v=
+=C3=A1s
+darova=C5=A5 chudobn=C3=BDm =C4=BEu=C4=8Fom, t=C3=BDran=C3=BDm de=C5=A5om, =
+menej privilegovan=C3=BDm osob=C3=A1m,
+cirkv=C3=A1m, sirotincom a trpiacim vdov=C3=A1m v spolo=C4=8Dnosti. Ale ja =
+tak dlho
+trp=C3=ADm rakovinou, =C5=BEe som bol hospitalizovan=C3=BD na lie=C4=8Denie=
+. Teraz m=C3=A1m
+strach z toho, =C4=8Do mi lek=C3=A1r ozn=C3=A1mil po s=C3=A9rii testov na m=
+ne, =C5=BEe kv=C3=B4li
+chorobe mo=C5=BEno nebudem dlho =C5=BEi=C5=A5 a ob=C3=A1vam sa, =C5=BEe pr=
+=C3=ADdem o tento fond pre
+vl=C3=A1du, preto=C5=BEe sa nestaraj=C3=BA o chudobn=C3=BDch v spolo=C4=8Dn=
+osti.
 
-For devices without current sense, VFSOC is already used for the
-soc-alert (0x0003 is written to MiscCFG register), so with this change
-the source of the alert and the PROP_CAPACITY value match.
+Ocen=C3=ADm va=C5=A1u =C3=BAprimnos=C5=A5 a odvahu zvl=C3=A1dnu=C5=A5 tento=
+ projekt.
+Kontaktujte ma ihne=C4=8F po pre=C4=8D=C3=ADtan=C3=AD tejto spr=C3=A1vy a z=
+=C3=ADskajte =C4=8Fal=C5=A1ie
+podrobnosti o tejto humanit=C3=A1rnej agende.
 
-Fixes: 359ab9f5b154 ("power_supply: Add MAX17042 Fuel Gauge Driver")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Suggested-by: Wolfgang Wiedmeyer <wolfgit@wiedmeyer.de>
-Signed-off-by: Henrik Grimler <henrik@grimler.se>
----
-Changes in v2:
-Re-write commit message to highlight that VFSOC is already used for
-alert, after Krzysztof's comments
----
- drivers/power/supply/max17042_battery.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+Boh v=C3=A1m =C5=BEehnaj, k=C3=BDm =C4=8Dak=C3=A1m na va=C5=A1u odpove=C4=
+=8F.
+Va=C5=A1a sestra.
 
-diff --git a/drivers/power/supply/max17042_battery.c b/drivers/power/supply/max17042_battery.c
-index 8dffae76b6a3..5809ba997093 100644
---- a/drivers/power/supply/max17042_battery.c
-+++ b/drivers/power/supply/max17042_battery.c
-@@ -313,7 +313,10 @@ static int max17042_get_property(struct power_supply *psy,
- 		val->intval = data * 625 / 8;
- 		break;
- 	case POWER_SUPPLY_PROP_CAPACITY:
--		ret = regmap_read(map, MAX17042_RepSOC, &data);
-+		if (chip->pdata->enable_current_sense)
-+			ret = regmap_read(map, MAX17042_RepSOC, &data);
-+		else
-+			ret = regmap_read(map, MAX17042_VFSOC, &data);
- 		if (ret < 0)
- 			return ret;
- 
-
-base-commit: 5816b3e6577eaa676ceb00a848f0fd65fe2adc29
--- 
-2.33.0
-
+Pani Martina Francis.
