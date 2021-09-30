@@ -2,93 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45FA841DC1D
-	for <lists+stable@lfdr.de>; Thu, 30 Sep 2021 16:16:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 087B341DC3F
+	for <lists+stable@lfdr.de>; Thu, 30 Sep 2021 16:27:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351836AbhI3OSE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Sep 2021 10:18:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32904 "EHLO
+        id S1349622AbhI3O3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Sep 2021 10:29:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240149AbhI3OSE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Sep 2021 10:18:04 -0400
-Received: from fieldses.org (fieldses.org [IPv6:2600:3c00:e000:2f7::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97018C06176A;
-        Thu, 30 Sep 2021 07:16:21 -0700 (PDT)
-Received: by fieldses.org (Postfix, from userid 2815)
-        id BB434703F; Thu, 30 Sep 2021 10:16:20 -0400 (EDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 fieldses.org BB434703F
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fieldses.org;
-        s=default; t=1633011380;
-        bh=d+zTKb1U2WCtpOSHtjtEGCRkMq8DHSFqEIy3a/LI1Dg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=XXmkX3d58WdggHN44Xy7qNKKfXsKmNHyNMvAAPA2YwcCJioKbVi4kGKwpMhnz/Fom
-         HHTj+Y056Rsqk6sfgEFNHAy33Y9XbGQYPkNOjDtp3qgXi2VXh5KDXGZ+LwWR7CvwZx
-         yQ55umNNVGHORlMHWXZ363pgwhycuzpc+yVZGbig=
-Date:   Thu, 30 Sep 2021 10:16:20 -0400
-From:   "J. Bruce Fields" <bfields@fieldses.org>
-To:     "Ho, Patrick" <Patrick.Ho@netapp.com>
-Cc:     Chuck Lever <chuck.lever@oracle.com>,
-        "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>,
+        with ESMTP id S1348233AbhI3O3e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Sep 2021 10:29:34 -0400
+Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [IPv6:2001:67c:2050::465:102])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C65AC06176A;
+        Thu, 30 Sep 2021 07:27:51 -0700 (PDT)
+Received: from smtp202.mailbox.org (smtp202.mailbox.org [IPv6:2001:67c:2050:105:465:1:4:0])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4HKwZD2LZLzQjf1;
+        Thu, 30 Sep 2021 16:27:48 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at heinlein-support.de
+Subject: Re: [PATCH v2 1/2] mwifiex: Use non-posted PCI write when setting TX
+ ring write pointer
+To:     David Laight <David.Laight@ACULAB.COM>,
+        =?UTF-8?B?J1BhbGkgUm9ow6FyJw==?= <pali@kernel.org>
+Cc:     Amitkumar Karwar <amitkarwar@gmail.com>,
+        Ganapathi Bhat <ganapathi017@gmail.com>,
+        Xinming Hu <huxinming820@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Tsuchiya Yuto <kitakar@gmail.com>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Brian Norris <briannorris@chromium.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] nfsd: fix error handling of register_pernet_subsys() in
- init_nfsd()
-Message-ID: <20210930141620.GA9422@fieldses.org>
-References: <SJ0PR06MB8327D188504E0F367C8B4E53F4AA9@SJ0PR06MB8327.namprd06.prod.outlook.com>
+References: <20210914114813.15404-1-verdre@v0yd.nl>
+ <20210914114813.15404-2-verdre@v0yd.nl>
+ <8f65f41a807c46d496bf1b45816077e4@AcuMS.aculab.com>
+ <20210922142726.guviqler5k7wnm52@pali>
+ <e0a4e0adc56148039f853ccb083be53a@AcuMS.aculab.com>
+From:   =?UTF-8?Q?Jonas_Dre=c3=9fler?= <verdre@v0yd.nl>
+Message-ID: <ae8ca158-ad86-9c0d-7217-f9db3d2fc42e@v0yd.nl>
+Date:   Thu, 30 Sep 2021 16:27:40 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <SJ0PR06MB8327D188504E0F367C8B4E53F4AA9@SJ0PR06MB8327.namprd06.prod.outlook.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+In-Reply-To: <e0a4e0adc56148039f853ccb083be53a@AcuMS.aculab.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: 3267726B
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 30, 2021 at 03:48:42AM +0000, Ho, Patrick wrote:
-> >From 7417896fcc7aea645fa0b89f39fa55979251dca3 Mon Sep 17 00:00:00 2001
-> From: Patrick Ho <Patrick.Ho@netapp.com>
-> Date: Sat, 21 Aug 2021 02:56:26 -0400
-> Subject: [PATCH] nfsd: fix error handling of register_pernet_subsys() in
->  init_nfsd()
+On 9/22/21 5:54 PM, David Laight wrote:
 > 
-> init_nfsd() should not unregister pernet subsys if the register fails
-> but should instead unwind from the last successful operation which is
-> register_filesystem().
+> From: Pali Rohár
+>> Sent: 22 September 2021 15:27
+>>
+>> On Wednesday 22 September 2021 14:03:25 David Laight wrote:
+>>> From: Jonas Dreßler
+>>>> Sent: 14 September 2021 12:48
+>>>>
+>>>> On the 88W8897 card it's very important the TX ring write pointer is
+>>>> updated correctly to its new value before setting the TX ready
+>>>> interrupt, otherwise the firmware appears to crash (probably because
+>>>> it's trying to DMA-read from the wrong place). The issue is present in
+>>>> the latest firmware version 15.68.19.p21 of the pcie+usb card.
+>>>>
+>>>> Since PCI uses "posted writes" when writing to a register, it's not
+>>>> guaranteed that a write will happen immediately. That means the pointer
+>>>> might be outdated when setting the TX ready interrupt, leading to
+>>>> firmware crashes especially when ASPM L1 and L1 substates are enabled
+>>>> (because of the higher link latency, the write will probably take
+>>>> longer).
+>>>>
+>>>> So fix those firmware crashes by always using a non-posted write for
+>>>> this specific register write. We do that by simply reading back the
+>>>> register after writing it, just as a few other PCI drivers do.
+>>>>
+>>>> This fixes a bug where during rx/tx traffic and with ASPM L1 substates
+>>>> enabled (the enabled substates are platform dependent), the firmware
+>>>> crashes and eventually a command timeout appears in the logs.
+>>>
+>>> I think you need to change your terminology.
+>>> PCIe does have some non-posted write transactions - but I can't
+>>> remember when they are used.
+>>
+>> In PCIe are all memory write requests as posted.
+>>
+>> Non-posted writes in PCIe are used only for IO and config requests. But
+>> this is not case for proposed patch change as it access only card's
+>> memory space.
+>>
+>> Technically this patch does not use non-posted memory write (as PCIe
+>> does not support / provide it), just adds something like a barrier and
+>> I'm not sure if it is really correct (you already wrote more details
+>> about it, so I will let it be).
+>>
+>> I'm not sure what is the correct terminology, I do not know how this
+>> kind of write-followed-by-read "trick" is correctly called.
 > 
-> Unregistering a failed register_pernet_subsys() call can result in
-> a kernel GPF as revealed by programmatically injecting an error in
-> register_pernet_subsys().
+> I think it is probably best to say:
+>     "flush the posted write when setting the TX ring write pointer".
 > 
-> Verified the fix handled failure gracefully with no lingering nfsd
-> entry in /proc/filesystems.  This change was introduced by the commit
-> bd5ae9288d64 ("nfsd: register pernet ops last, unregister first"),
-> the original error handling logic was correct.
+> The write can get posted in any/all of the following places:
+> 1) The cpu store buffer.
+> 2) The PCIe host bridge.
+> 3) Any other PCIe bridges.
+> 4) The PCIe slave logic in the target.
+>     There could be separate buffers for each BAR,
+> 5) The actual target logic for that address block.
+>     The target (probably) will look a bit like an old fashioned cpu
+>     motherboard with the PCIe slave logic as the main bus master.
+> 
+> The readback forces all the posted write buffers be flushed.
+> 
+> In this case I suspect it is either flushing (5) or the extra
+> delay of the read TLP processing that 'fixes' the problem.
+> 
+> Note that depending on the exact code and host cpu the second
+> write may not need to wait for the response to the read TLP.
+> So the write, readback, write TLP may be back to back on the
+> actual PCIe link.
+> 
+> Although I don't have access to an actual PCIe monitor we
+> do have the ability to trace 'data' TLP into fpga memory
+> on one of our systems.
+> This is near real-time but they are slightly munged.
+> Watching the TLP can be illuminating!
+> 
+> 	David
+> 
+> -
+> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+> Registration No: 1397386 (Wales)
+> 
 
-Whoops, thanks for catching this.  I assume Chuck will pick it up.
+Thanks for the detailed explanations, it looks like indeed the read-back 
+is not the real fix here, a simple udelay(50) before sending the "TX 
+ready" interrupt also does the trick.
 
-Acked-by: J. Bruce Fields <bfields@redhat.com>
+                 } else {
++                       udelay(50);
++
+                         /* Send the TX ready interrupt */
+                         if (mwifiex_write_reg(adapter, PCIE_CPU_INT_EVENT,
+                                               CPU_INTR_DNLD_RDY)) {
 
---b.
+I've tested that for a week now and haven't seen any firmware crashes. 
+Interestingly enough it looks like the delay can also be added after 
+setting the "TX ready" interrupt, just not before updating the TX ring 
+write pointer.
 
-> 
-> Fixes: bd5ae9288d64 ("nfsd: register pernet ops last, unregister first")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Patrick Ho <Patrick.Ho@netapp.com>
-> ---
->  fs/nfsd/nfsctl.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
-> index c2c3d9077dc5..09ae1a0873d0 100644
-> --- a/fs/nfsd/nfsctl.c
-> +++ b/fs/nfsd/nfsctl.c
-> @@ -1545,7 +1545,7 @@ static int __init init_nfsd(void)
->  		goto out_free_all;
->  	return 0;
->  out_free_all:
-> -	unregister_pernet_subsys(&nfsd_net_ops);
-> +	unregister_filesystem(&nfsd_fs_type);
->  out_free_exports:
->  	remove_proc_entry("fs/nfs/exports", NULL);
->  	remove_proc_entry("fs/nfs", NULL);
-> -- 
-> 2.17.1
+I have no idea if 50 usecs is a good duration to wait here, from trying 
+different values I found that 10 to 20 usecs is not enough, but who 
+knows, maybe that's platform dependent?
