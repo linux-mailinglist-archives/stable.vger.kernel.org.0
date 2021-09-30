@@ -2,94 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2825741E059
-	for <lists+stable@lfdr.de>; Thu, 30 Sep 2021 19:50:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D0C241E08F
+	for <lists+stable@lfdr.de>; Thu, 30 Sep 2021 20:04:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352829AbhI3Rvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Sep 2021 13:51:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48718 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352811AbhI3Rvr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Sep 2021 13:51:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83A6B619F6;
-        Thu, 30 Sep 2021 17:50:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633024204;
-        bh=wmMWLvwhnbwHzx6QepxW0UDh7l7UL5DDPF2/tuPgT5U=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=LpCNnl3cJrz51EecxYyNZfq8KhNrzg3NL8dyMt1Nri1eK8xVpIf/qcquEYQnPyFuZ
-         fhsBSsoWLvakaRQPrctNiaEfSgPeJHF8Yo3n9lPtgINFvxQBRtsSeVCkRUnQWFyUkp
-         GdJOnzBFFTR1cruWUv1qaiZ/+MTFuX8yg2LngKQ6fIurJfr9H9os4hZzY+7SIc0YcR
-         oAmZIJOzZZDmL08ebCAsaCFMlEO9+T60Xkl5gV7asFfJ7kwwc8sZZ/j+eF6cFCwk1J
-         nC5ekYAfn4N/WJqXsQ7nKhwdunIiO6FXZ8OWlIgeYpfy8NjFPre7QrhpZzFA6EWy9O
-         oHgIxlDHRvr2A==
-Date:   Thu, 30 Sep 2021 10:50:02 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
-        Bjorn Helgaas <helgaas@kernel.org>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        jose.souza@intel.com, "H. Peter Anvin" <hpa@zytor.com>,
-        Borislav Petkov <bp@alien8.de>, Ingo Molnar <mingo@kernel.org>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        id S229699AbhI3SFz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Sep 2021 14:05:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58622 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1353029AbhI3SFz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Sep 2021 14:05:55 -0400
+Received: from mout-p-101.mailbox.org (mout-p-101.mailbox.org [IPv6:2001:67c:2050::465:101])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9206BC06176C;
+        Thu, 30 Sep 2021 11:04:12 -0700 (PDT)
+Received: from smtp1.mailbox.org (smtp1.mailbox.org [IPv6:2001:67c:2050:105:465:1:1:0])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mout-p-101.mailbox.org (Postfix) with ESMTPS id 4HL1Mq0ttGzQkBY;
+        Thu, 30 Sep 2021 20:04:07 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at heinlein-support.de
+Subject: Re: [PATCH v2 2/2] mwifiex: Try waking the firmware until we get an
+ interrupt
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Amitkumar Karwar <amitkarwar@gmail.com>,
+        Ganapathi Bhat <ganapathi017@gmail.com>,
+        Xinming Hu <huxinming820@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Tsuchiya Yuto <kitakar@gmail.com>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+        Maximilian Luz <luzmaximilian@gmail.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
-        Linux PCI <linux-pci@vger.kernel.org>, rudolph@fb.com,
-        xapienz@fb.com, bmilton@fb.com,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Feng Tang <feng.tang@intel.com>,
-        Harry Pan <harry.pan@intel.com>
-Subject: Re: [PATCH RFT v2] x86/hpet: Use another crystalball to evaluate
- HPET usability
-Message-ID: <20210930105002.67c87396@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <87czoq6kt8.ffs@tglx>
-References: <20210929160550.GA773748@bhelgaas>
-        <87mtnu77mr.ffs@tglx>
-        <87k0iy71rw.ffs@tglx>
-        <CAJZ5v0hH_h9V0dACEMomqZbwpQUf6GB_8UK9+S1AGEdFQqvPLQ@mail.gmail.com>
-        <87h7e26lh9.ffs@tglx>
-        <87czoq6kt8.ffs@tglx>
+        =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali@kernel.org>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Brian Norris <briannorris@chromium.org>, stable@vger.kernel.org
+References: <20210914114813.15404-1-verdre@v0yd.nl>
+ <20210914114813.15404-3-verdre@v0yd.nl> <YUsRT1rmtITJiJRh@smile.fi.intel.com>
+From:   =?UTF-8?Q?Jonas_Dre=c3=9fler?= <verdre@v0yd.nl>
+Message-ID: <d9b1c8ea-99e2-7c3e-ec8e-61362e8ccfa7@v0yd.nl>
+Date:   Thu, 30 Sep 2021 20:04:00 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <YUsRT1rmtITJiJRh@smile.fi.intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: 839D1188F
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 30 Sep 2021 19:21:39 +0200 Thomas Gleixner wrote:
-> On recent Intel systems the HPET stops working when the system reaches PC10
-> idle state.
+On 9/22/21 1:19 PM, Andy Shevchenko wrote:
+> On Tue, Sep 14, 2021 at 01:48:13PM +0200, Jonas Dreßler wrote:
+>> It seems that the firmware of the 88W8897 card sometimes ignores or
+>> misses when we try to wake it up by writing to the firmware status
+>> register. This leads to the firmware wakeup timeout expiring and the
+>> driver resetting the card because we assume the firmware has hung up or
+>> crashed (unfortunately that's not unlikely with this card).
+>>
+>> Turns out that most of the time the firmware actually didn't hang up,
+>> but simply "missed" our wakeup request and didn't send us an AWAKE
+>> event.
+>>
+>> Trying again to read the firmware status register after a short timeout
+>> usually makes the firmware wake up as expected, so add a small retry
+>> loop to mwifiex_pm_wakeup_card() that looks at the interrupt status to
+>> check whether the card woke up.
+>>
+>> The number of tries and timeout lengths for this were determined
+>> experimentally: The firmware usually takes about 500 us to wake up
+>> after we attempt to read the status register. In some cases where the
+>> firmware is very busy (for example while doing a bluetooth scan) it
+>> might even miss our requests for multiple milliseconds, which is why
+>> after 15 tries the waiting time gets increased to 10 ms. The maximum
+>> number of tries it took to wake the firmware when testing this was
+>> around 20, so a maximum number of 50 tries should give us plenty of
+>> safety margin.
+>>
+>> A good reproducer for this issue is letting the firmware sleep and wake
+>> up in very short intervals, for example by pinging a device on the
+>> network every 0.1 seconds.
 > 
-> The approach of adding PCI ids to the early quirks to disable HPET on
-> these systems is a whack a mole game which makes no sense.
+> ...
 > 
-> Check for PC10 instead and force disable HPET if supported. The check is
-> overbroad as it does not take ACPI, intel_idle enablement and command
-> line parameters into account. That's fine as long as there is at least
-> PMTIMER available to calibrate the TSC frequency. The decision can be
-> overruled by adding "hpet=force" on the kernel command line.
+>> +	do {
+>> +		if (mwifiex_write_reg(adapter, reg->fw_status, FIRMWARE_READY_PCIE)) {
+>> +			mwifiex_dbg(adapter, ERROR,
+>> +				    "Writing fw_status register failed\n");
+>> +			return -EIO;
+>> +		}
+>> +
+>> +		n_tries++;
+>> +
+>> +		if (n_tries <= N_WAKEUP_TRIES_SHORT_INTERVAL)
+>> +			usleep_range(400, 700);
+>> +		else
+>> +			msleep(10);
+>> +	} while (n_tries <= N_WAKEUP_TRIES_SHORT_INTERVAL + N_WAKEUP_TRIES_LONG_INTERVAL &&
+>> +		 READ_ONCE(adapter->int_status) == 0);
 > 
-> Remove the related early PCI quirks for affected Ice Cake and Coffin Lake
-> systems as they are not longer required. That should also cover all
-> other systems, i.e. Tiger Rag and newer generations, which are most
-> likely affected by this as well.
+> Can't you use read_poll_timeout() twice instead of this custom approach?
 > 
-> Fixes: Yet another hardware trainwreck
-> Reported-by: Jakub Kicinski <kuba@kernel.org>
-> Not-yet-signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 
-Tested-by: Jakub Kicinski <kuba@kernel.org>
+I've tried this now, but read_poll_timeout() is not ideal for our 
+use-case. What we'd need would be read->sleep->poll->repeat instead of 
+read->poll->sleep->repeat. With read_poll_timeout() we always end up 
+doing one more (unnecessary) write.
 
-$ dmesg | grep -i hpet
-[    0.014755] ACPI: HPET 0x000000005DC0F000 000038
-[    0.014854] ACPI: Reserving HPET table memory at [mem 0x5dc0f000-0x5dc0f037]
-[    0.144457] ACPI: HPET id: 0x8086a201 base: 0xfed00000
-[    0.296550] hpet: HPET dysfunctional in PC10. Force disabled.
-[    0.912010] hpet_acpi_add: no address or irqs in _CRS
-$ cat /sys/devices/system/clocksource/clocksource0/available_clocksource
-tsc acpi_pm 
-$ cat /sys/devices/system/clocksource/clocksource0/current_clocksource
-tsc
-$ dmesg | grep RIP
-$
+>> +	mwifiex_dbg(adapter, EVENT,
+>> +		    "event: Tried %d times until firmware woke up\n", n_tries);
+> 
+
