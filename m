@@ -2,73 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D581041D604
-	for <lists+stable@lfdr.de>; Thu, 30 Sep 2021 11:08:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FC7841D62B
+	for <lists+stable@lfdr.de>; Thu, 30 Sep 2021 11:21:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349227AbhI3JK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Sep 2021 05:10:29 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:48796 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348400AbhI3JK2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Sep 2021 05:10:28 -0400
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1632992925;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Z2oPtc9b4BmqlFJay6jWW7uTcsrX5/QQB2wxEI5hkt0=;
-        b=k9uQjQgbf5JdrOhAhuW3cweMBNGjoPqPkGI7wsuVU3sAV61Zy0SkpVQ+VEMBaKbWzhMrzO
-        Ng8+l4ExKe0y2/CPNar2xVcAXQYJgqcdJceP8/wp5lmJm5tTWxlo8Or+3dyLRAo0ZUFs1m
-        KR+hCYaODEfysXCD3swVGQgKV7nOqUVjyaAChVE/fdZwzgMtMEaykPYp81kMCAwYg6zTwv
-        5ojMhB1Nmg5Y7q1rCLr39KETYcGutbganEsG2UmbERjd1NX1g916D6dvKQeqXA1fzbjXgS
-        1cgR9gydiLTDj4LvO9HMH5+UDi8JyYUtAokL3Epd/fkZRTSmehX/3fpbZr4INQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1632992925;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Z2oPtc9b4BmqlFJay6jWW7uTcsrX5/QQB2wxEI5hkt0=;
-        b=2cksT07ARFxHJvt2Sqpw5ea5gNlBrqCJLo0ITtkYaZV8hsP6DbSGt3xE5GjCkmYZZhMTDV
-        5hbV/Zm0jLso83AA==
-To:     Bjorn Helgaas <helgaas@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     x86@kernel.org, jose.souza@intel.com, hpa@zytor.com, bp@alien8.de,
-        mingo@redhat.com, kai.heng.feng@canonical.com, bhelgaas@google.com,
-        linux-pci@vger.kernel.org, rudolph@fb.com, xapienz@fb.com,
-        bmilton@fb.com, paulmck@kernel.org, stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>
-Subject: Re: [PATCH v2] x86/intel: Disable HPET on another Intel Coffee Lake
- platform
-In-Reply-To: <20210929160550.GA773748@bhelgaas>
-References: <20210929160550.GA773748@bhelgaas>
-Date:   Thu, 30 Sep 2021 11:08:44 +0200
-Message-ID: <87mtnu77mr.ffs@tglx>
+        id S1349326AbhI3JXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Sep 2021 05:23:16 -0400
+Received: from mga14.intel.com ([192.55.52.115]:18073 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1349293AbhI3JXQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Sep 2021 05:23:16 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10122"; a="224800326"
+X-IronPort-AV: E=Sophos;i="5.85,335,1624345200"; 
+   d="scan'208";a="224800326"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Sep 2021 02:21:29 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.85,335,1624345200"; 
+   d="scan'208";a="487253919"
+Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.170]) ([10.237.72.170])
+  by orsmga008.jf.intel.com with ESMTP; 30 Sep 2021 02:21:27 -0700
+Subject: Re: [PATCH] USB: xhci: dbc: fix tty registration race
+To:     Johan Hovold <johan@kernel.org>,
+        Mathias Nyman <mathias.nyman@intel.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>
+References: <20210928120400.20704-1-johan@kernel.org>
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+Message-ID: <87c08115-06e0-6734-887a-7ae4e97fe5ab@linux.intel.com>
+Date:   Thu, 30 Sep 2021 12:24:10 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20210928120400.20704-1-johan@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 29 2021 at 11:05, Bjorn Helgaas wrote:
-> On Wed, Sep 29, 2021 at 06:11:07AM -0700, Jakub Kicinski wrote:
->> On Thu, 16 Sep 2021 19:46:48 -0700 Jakub Kicinski wrote:
->> > My Lenovo T490s with i7-8665U had been marking TSC as unstable
->> > since v5.13, resulting in very sluggish desktop experience...
->> 
->> Where do we stand? Waiting for tglx to refactor PC10 detection and use
->> that, or just review delay?
->
-> From my point of view, this is an x86 issue, not a PCI one, so I'll
-> defer to the x86 folks.
+On 28.9.2021 15.04, Johan Hovold wrote:
+> Make sure to allocate resources before registering the tty device to
+> avoid having a racing open() and write() fail to enable rx or
+> dereference a NULL pointer when accessing the uninitialised fifo.
+> 
+> Fixes: dfba2174dc42 ("usb: xhci: Add DbC support in xHCI driver")
+> Cc: stable@vger.kernel.org      # 4.16
+> Cc: Lu Baolu <baolu.lu@linux.intel.com>
+> Signed-off-by: Johan Hovold <johan@kernel.org>
 
-Yes, it is. I'm still trying to make sense of this enumeration
-muck. Adding these silly PCI ids to the quirks section is a whack a mole
-game which does not make sense.
+Thanks, adding to queue
 
-Lemme find a few spare cycles to whip up a patch.
+-Mathias
 
-Thanks,
-
-        tglx
