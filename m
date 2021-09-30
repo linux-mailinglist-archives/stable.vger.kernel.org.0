@@ -2,156 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D097641E160
-	for <lists+stable@lfdr.de>; Thu, 30 Sep 2021 20:47:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D801D41E1C3
+	for <lists+stable@lfdr.de>; Thu, 30 Sep 2021 20:52:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344699AbhI3Stb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Sep 2021 14:49:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40596 "EHLO
+        id S239921AbhI3Sya (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Sep 2021 14:54:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344678AbhI3Stb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Sep 2021 14:49:31 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EB40C06176A
-        for <stable@vger.kernel.org>; Thu, 30 Sep 2021 11:47:48 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id il14-20020a17090b164e00b0019c7a7c362dso2335362pjb.0
-        for <stable@vger.kernel.org>; Thu, 30 Sep 2021 11:47:48 -0700 (PDT)
+        with ESMTP id S239130AbhI3Sya (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Sep 2021 14:54:30 -0400
+Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5055CC06176A;
+        Thu, 30 Sep 2021 11:52:47 -0700 (PDT)
+Received: by mail-lf1-x12d.google.com with SMTP id i19so26049183lfu.0;
+        Thu, 30 Sep 2021 11:52:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=zXeTk4LPfX/WqiVGu0z/Z5ztfMBVuFAePHpT9Y2CLlU=;
-        b=HUw0tX+USGGLz8ETX1o7z7aNY7nLRycqKMSjiYkV4/Kw25YXx1RZg2B7vqBt+uO95h
-         aLybaLcqwj9fQEBe5Mt0KysbShPKq3R3wDUvUdPKaL3kseQBETG6yl50p0MJbr01WAcv
-         6AnRL0x2X3uiuKUGd25BzOpZpZGWdwJk8WviCbwUoyxSW22GW8cDaQVwEfieM4j/uRJo
-         CtzaO8PRQqsaWtVE9N/AZt3UqdGVGXOKwWAuRs9VBSh3Mjy1qJKPGxdBvMxk4Xf1mH8M
-         P/gkNZxFzhA9SIfJhfkLwBaVigePybS2IOzOosBCALRdmA6dFzks1YrmjsAW+1vV88rO
-         Eu9g==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=zsZzgfbUxGvjY/35BurfncfGOk+t4Oowod0eAnc2ywY=;
+        b=D7wBGA4MHOGlZToVTsDa3JbYniANqoTYX/L6Nf4gW7M0qzAFuTAAmQT4b0mgmasKe1
+         B13/UIE0PYaJ53o6dCSwAeSoc7wpvW2mHhhGhij/ZeDEjjVSsYmD1kYBGvvlFczFo0WV
+         jfET0P/eh9p6p6HZrKVCSeWXoPpzIrxV+YesYe9n/bhkGIrpkhcCJdM/aG0V1EGp0USs
+         B9y71wxNnfgalkU/Y0ExhC7ttpwhxmEJDtBZbhK5oiXRRjTM9OUmsEqwSmDcVr5dRnzk
+         uLFeE0+VikbsX+VUIz64f9vqBcOi72dUJws2t/P8+53sAK9ZmczIZcjCmCbYoPPOKg1t
+         nxcA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=zXeTk4LPfX/WqiVGu0z/Z5ztfMBVuFAePHpT9Y2CLlU=;
-        b=fg0uGBC7IfwlQWsA1k5nlPppO1kG1I5TVLf6rLAA0cRQcNWB08wH8MuDAA1tqynhHB
-         u3NZ8ZGoLTnp/xxtoqsBba8to2EKq5qckKf1yp6qjGUVR6fTQ+7B/eanBnxWvx7b7zhm
-         CizRVxDxCa4qE/UT/xVikwRf1nh0LUwQ4UdU81KDNuCsHYzR5pRN3O45Bsa2QUgoDGBt
-         x9BMy784e6P4fid8+9KeXkfq564wqpfJn7/Upm7mRmjTyNm6mj/yWuwlwaYEne79Ax39
-         Lrh7sup1ZoQlx8kFB0qcPMaUDUkQ5nsnifXcG1zpIpnCKoZCaNJ7Ew0a3XRRDIJlBX5P
-         mUcw==
-X-Gm-Message-State: AOAM533bhPdLLvwD2WAj+rA8Gpt+W2S4JvxyebZ7iPLMjIRap+k1ApHd
-        vPZq0tM5qd/CP2slugWwy/jOYXC7PpLFHbx1
-X-Google-Smtp-Source: ABdhPJy2C/2eTkDAL+h2FAhdumDa8kVXZsXUloDbCwRWCYLEGtWnmAjxXW1+qaBBn1aeSxKqoPpK4g==
-X-Received: by 2002:a17:902:9a91:b0:138:efd5:7302 with SMTP id w17-20020a1709029a9100b00138efd57302mr5684746plp.35.1633027667588;
-        Thu, 30 Sep 2021 11:47:47 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h9sm6166932pjg.9.2021.09.30.11.47.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Sep 2021 11:47:47 -0700 (PDT)
-Message-ID: <61560653.1c69fb81.bb8b7.15e0@mx.google.com>
-Date:   Thu, 30 Sep 2021 11:47:47 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=zsZzgfbUxGvjY/35BurfncfGOk+t4Oowod0eAnc2ywY=;
+        b=UyVaXWYuLnxXVSgQfi9G7gCUZ4KT5dHtThAJv0H1z/EHhXHPVUBGEdpArQRy0l6ZQV
+         +/cmErZb1ctI75AK5ADBFj422LfOM0XqWytVsQnAaACoWmj+nKRvBV4uic0MKbtYsoqa
+         kAMetLxJfF2YCUpZ+Chn3c0PQI+7Oz4X1xEufaRLL46fSyOFm9JUGUUdHdfzzUKHMKjY
+         04Q6NlYysAIWr+e+Zdh/cKFhZv5yxGK20jySfcTnLsNIUL5PW+47ebXVxcQH5vsnRTXY
+         GrN+GqJAfUS126wkSq3lFLik8/y93Gp/gJVQ9diZEgKLJTFDEeEW8WKWZKkSgGgOEgJC
+         2WqQ==
+X-Gm-Message-State: AOAM530nT3nvCA8SDsCqLTP4FJgfWt+2/1k2TwoUlwkW712neuGgkvJn
+        /SoiUUBrUxa7NSz2jfPw0i8xkl0cY3e/MUxTYkk=
+X-Google-Smtp-Source: ABdhPJyuLNTMt0ZfVRJivxJBhQSBqt1uAJ+pmxKpumn8GqdqEowJcyZIyMRooTQjTfPV8wn3f2cuHNFaz00vrHt0a6Y=
+X-Received: by 2002:a2e:a26b:: with SMTP id k11mr7698881ljm.185.1633027964954;
+ Thu, 30 Sep 2021 11:52:44 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.14.9
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.14.y
-Subject: stable/linux-5.14.y baseline: 183 runs, 2 regressions (v5.14.9)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20210930155633.2745201-1-frieder@fris.de> <20210930155633.2745201-9-frieder@fris.de>
+In-Reply-To: <20210930155633.2745201-9-frieder@fris.de>
+From:   Heiko Thiery <heiko.thiery@gmail.com>
+Date:   Thu, 30 Sep 2021 20:52:33 +0200
+Message-ID: <CAEyMn7YbYAUvxEgKDB4x4AGomhBeuBDj71b2LuCs1A2emToU0w@mail.gmail.com>
+Subject: Re: [PATCH 8/8] arm64: dts: imx8mm-kontron: Leave reg_vdd_arm always
+ powered on
+To:     Frieder Schrempf <frieder@fris.de>
+Cc:     devicetree@vger.kernel.org,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Rob Herring <robh+dt@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>, stable@vger.kernel.org,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.14.y baseline: 183 runs, 2 regressions (v5.14.9)
+Hi Frieder,
 
-Regressions Summary
--------------------
+Am Do., 30. Sept. 2021 um 17:57 Uhr schrieb Frieder Schrempf <frieder@fris.de>:
+>
+> From: Frieder Schrempf <frieder.schrempf@kontron.de>
+>
+> When the cpufreq driver is enabled, the buck2 regulator is kept powered on
+> by the dependency between the CPU nodes with 'cpu-supply' set. Without the
+> cpufreq driver the kernel will power off the regulator as it doesn't see
+> any users. This is obviously not what we want, therefore keep the regulator
+> powered on in any case.
+>
+> Reported-by: Heiko Thiery <heiko.thiery@gmail.com>
+> Fixes: 21c4f45b335f ("arm64: dts: Add the Kontron i.MX8M Mini SoMs and baseboards")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-platform                | arch  | lab        | compiler | defconfig | regre=
-ssions
-------------------------+-------+------------+----------+-----------+------=
-------
-imx8mp-evk              | arm64 | lab-nxp    | gcc-8    | defconfig | 1    =
-      =
+Tested-by: Heiko Thiery <heiko.thiery@gmail.com>
 
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-8    | defconfig | 1    =
-      =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.14.y/kernel=
-/v5.14.9/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.14.y
-  Describe: v5.14.9
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      70248e7b378b96f208d5544ee25b808a8ef2ddc2 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                | arch  | lab        | compiler | defconfig | regre=
-ssions
-------------------------+-------+------------+----------+-----------+------=
-------
-imx8mp-evk              | arm64 | lab-nxp    | gcc-8    | defconfig | 1    =
-      =
-
-
-  Details:     https://kernelci.org/test/plan/id/6155d21eed52ae27e999a2fa
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.14.y/v5.14.9/ar=
-m64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.14.y/v5.14.9/ar=
-m64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6155d21eed52ae27e999a=
-2fb
-        new failure (last pass: v5.14.7) =
-
- =
-
-
-
-platform                | arch  | lab        | compiler | defconfig | regre=
-ssions
-------------------------+-------+------------+----------+-----------+------=
-------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-8    | defconfig | 1    =
-      =
-
-
-  Details:     https://kernelci.org/test/plan/id/6155d11b47570e036a99a33e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.14.y/v5.14.9/ar=
-m64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bananapi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.14.y/v5.14.9/ar=
-m64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bananapi-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6155d11b47570e036a99a=
-33f
-        failing since 18 days (last pass: v5.14.2, first fail: v5.14.3) =
-
- =20
+> ---
+>  arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi
+> index 213014f59b46..c3418d263eb4 100644
+> --- a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi
+> +++ b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi
+> @@ -105,6 +105,7 @@ reg_vdd_arm: BUCK2 {
+>                                 regulator-min-microvolt = <850000>;
+>                                 regulator-max-microvolt = <950000>;
+>                                 regulator-boot-on;
+> +                               regulator-always-on;
+>                                 regulator-ramp-delay = <3125>;
+>                                 nxp,dvs-run-voltage = <950000>;
+>                                 nxp,dvs-standby-voltage = <850000>;
+> --
+> 2.33.0
+>
