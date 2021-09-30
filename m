@@ -2,106 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D801D41E1C3
-	for <lists+stable@lfdr.de>; Thu, 30 Sep 2021 20:52:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BE9141E20C
+	for <lists+stable@lfdr.de>; Thu, 30 Sep 2021 21:10:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239921AbhI3Sya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Sep 2021 14:54:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41832 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239130AbhI3Sya (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Sep 2021 14:54:30 -0400
-Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5055CC06176A;
-        Thu, 30 Sep 2021 11:52:47 -0700 (PDT)
-Received: by mail-lf1-x12d.google.com with SMTP id i19so26049183lfu.0;
-        Thu, 30 Sep 2021 11:52:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=zsZzgfbUxGvjY/35BurfncfGOk+t4Oowod0eAnc2ywY=;
-        b=D7wBGA4MHOGlZToVTsDa3JbYniANqoTYX/L6Nf4gW7M0qzAFuTAAmQT4b0mgmasKe1
-         B13/UIE0PYaJ53o6dCSwAeSoc7wpvW2mHhhGhij/ZeDEjjVSsYmD1kYBGvvlFczFo0WV
-         jfET0P/eh9p6p6HZrKVCSeWXoPpzIrxV+YesYe9n/bhkGIrpkhcCJdM/aG0V1EGp0USs
-         B9y71wxNnfgalkU/Y0ExhC7ttpwhxmEJDtBZbhK5oiXRRjTM9OUmsEqwSmDcVr5dRnzk
-         uLFeE0+VikbsX+VUIz64f9vqBcOi72dUJws2t/P8+53sAK9ZmczIZcjCmCbYoPPOKg1t
-         nxcA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=zsZzgfbUxGvjY/35BurfncfGOk+t4Oowod0eAnc2ywY=;
-        b=UyVaXWYuLnxXVSgQfi9G7gCUZ4KT5dHtThAJv0H1z/EHhXHPVUBGEdpArQRy0l6ZQV
-         +/cmErZb1ctI75AK5ADBFj422LfOM0XqWytVsQnAaACoWmj+nKRvBV4uic0MKbtYsoqa
-         kAMetLxJfF2YCUpZ+Chn3c0PQI+7Oz4X1xEufaRLL46fSyOFm9JUGUUdHdfzzUKHMKjY
-         04Q6NlYysAIWr+e+Zdh/cKFhZv5yxGK20jySfcTnLsNIUL5PW+47ebXVxcQH5vsnRTXY
-         GrN+GqJAfUS126wkSq3lFLik8/y93Gp/gJVQ9diZEgKLJTFDEeEW8WKWZKkSgGgOEgJC
-         2WqQ==
-X-Gm-Message-State: AOAM530nT3nvCA8SDsCqLTP4FJgfWt+2/1k2TwoUlwkW712neuGgkvJn
-        /SoiUUBrUxa7NSz2jfPw0i8xkl0cY3e/MUxTYkk=
-X-Google-Smtp-Source: ABdhPJyuLNTMt0ZfVRJivxJBhQSBqt1uAJ+pmxKpumn8GqdqEowJcyZIyMRooTQjTfPV8wn3f2cuHNFaz00vrHt0a6Y=
-X-Received: by 2002:a2e:a26b:: with SMTP id k11mr7698881ljm.185.1633027964954;
- Thu, 30 Sep 2021 11:52:44 -0700 (PDT)
+        id S229722AbhI3TL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Sep 2021 15:11:59 -0400
+Received: from mga06.intel.com ([134.134.136.31]:30998 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229652AbhI3TL4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Sep 2021 15:11:56 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10123"; a="286287302"
+X-IronPort-AV: E=Sophos;i="5.85,336,1624345200"; 
+   d="scan'208";a="286287302"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Sep 2021 12:09:52 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.85,336,1624345200"; 
+   d="scan'208";a="520531978"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.171])
+  by fmsmga008.fm.intel.com with SMTP; 30 Sep 2021 12:09:43 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Thu, 30 Sep 2021 22:09:43 +0300
+From:   Ville Syrjala <ville.syrjala@linux.intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org, Karthik B S <karthik.b.s@intel.com>
+Subject: [PATCH 1/2] drm/i915: Extend the async flip VT-d w/a to skl/bxt
+Date:   Thu, 30 Sep 2021 22:09:42 +0300
+Message-Id: <20210930190943.17547-1-ville.syrjala@linux.intel.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-References: <20210930155633.2745201-1-frieder@fris.de> <20210930155633.2745201-9-frieder@fris.de>
-In-Reply-To: <20210930155633.2745201-9-frieder@fris.de>
-From:   Heiko Thiery <heiko.thiery@gmail.com>
-Date:   Thu, 30 Sep 2021 20:52:33 +0200
-Message-ID: <CAEyMn7YbYAUvxEgKDB4x4AGomhBeuBDj71b2LuCs1A2emToU0w@mail.gmail.com>
-Subject: Re: [PATCH 8/8] arm64: dts: imx8mm-kontron: Leave reg_vdd_arm always
- powered on
-To:     Frieder Schrempf <frieder@fris.de>
-Cc:     devicetree@vger.kernel.org,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Rob Herring <robh+dt@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>, stable@vger.kernel.org,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Frieder,
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-Am Do., 30. Sept. 2021 um 17:57 Uhr schrieb Frieder Schrempf <frieder@fris.de>:
->
-> From: Frieder Schrempf <frieder.schrempf@kontron.de>
->
-> When the cpufreq driver is enabled, the buck2 regulator is kept powered on
-> by the dependency between the CPU nodes with 'cpu-supply' set. Without the
-> cpufreq driver the kernel will power off the regulator as it doesn't see
-> any users. This is obviously not what we want, therefore keep the regulator
-> powered on in any case.
->
-> Reported-by: Heiko Thiery <heiko.thiery@gmail.com>
-> Fixes: 21c4f45b335f ("arm64: dts: Add the Kontron i.MX8M Mini SoMs and baseboards")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Looks like skl/bxt/derivatives also need the plane stride
+stretch w/a when using async flips and VT-d is enabled, or
+else we get corruption on screen. To my surprise this was
+even documented in bspec, but only as a note on the
+CHICHKEN_PIPESL register description rather than on the
+w/a list.
 
-Tested-by: Heiko Thiery <heiko.thiery@gmail.com>
+So very much the same thing as on HSW/BDW, except the bits
+moved yet again.
 
-> ---
->  arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi
-> index 213014f59b46..c3418d263eb4 100644
-> --- a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi
-> +++ b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi
-> @@ -105,6 +105,7 @@ reg_vdd_arm: BUCK2 {
->                                 regulator-min-microvolt = <850000>;
->                                 regulator-max-microvolt = <950000>;
->                                 regulator-boot-on;
-> +                               regulator-always-on;
->                                 regulator-ramp-delay = <3125>;
->                                 nxp,dvs-run-voltage = <950000>;
->                                 nxp,dvs-standby-voltage = <850000>;
-> --
-> 2.33.0
->
+Cc: stable@vger.kernel.org
+Cc: Karthik B S <karthik.b.s@intel.com>
+Fixes: 55ea1cb178ef ("drm/i915: Enable async flips in i915")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+---
+ drivers/gpu/drm/i915/i915_reg.h |  5 +++++
+ drivers/gpu/drm/i915/intel_pm.c | 12 ++++++++++++
+ 2 files changed, 17 insertions(+)
+
+diff --git a/drivers/gpu/drm/i915/i915_reg.h b/drivers/gpu/drm/i915/i915_reg.h
+index 3a20a55d2512..29f6bfc2002d 100644
+--- a/drivers/gpu/drm/i915/i915_reg.h
++++ b/drivers/gpu/drm/i915/i915_reg.h
+@@ -8222,6 +8222,11 @@ enum {
+ #define  HSW_SPR_STRETCH_MAX_X1		REG_FIELD_PREP(HSW_SPR_STRETCH_MAX_MASK, 3)
+ #define  HSW_FBCQ_DIS			(1 << 22)
+ #define  BDW_DPRS_MASK_VBLANK_SRD	(1 << 0)
++#define  SKL_PLANE1_STRETCH_MAX_MASK	REG_GENMASK(1, 0)
++#define  SKL_PLANE1_STRETCH_MAX_X8	REG_FIELD_PREP(SKL_PLANE1_STRETCH_MAX_MASK, 0)
++#define  SKL_PLANE1_STRETCH_MAX_X4	REG_FIELD_PREP(SKL_PLANE1_STRETCH_MAX_MASK, 1)
++#define  SKL_PLANE1_STRETCH_MAX_X2	REG_FIELD_PREP(SKL_PLANE1_STRETCH_MAX_MASK, 2)
++#define  SKL_PLANE1_STRETCH_MAX_X1	REG_FIELD_PREP(SKL_PLANE1_STRETCH_MAX_MASK, 3)
+ #define CHICKEN_PIPESL_1(pipe) _MMIO_PIPE(pipe, _CHICKEN_PIPESL_1_A, _CHICKEN_PIPESL_1_B)
+ 
+ #define _CHICKEN_TRANS_A	0x420c0
+diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
+index ef5f73934dab..74d4620a4999 100644
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -76,6 +76,8 @@ struct intel_wm_config {
+ 
+ static void gen9_init_clock_gating(struct drm_i915_private *dev_priv)
+ {
++	enum pipe pipe;
++
+ 	if (HAS_LLC(dev_priv)) {
+ 		/*
+ 		 * WaCompressedResourceDisplayNewHashMode:skl,kbl
+@@ -89,6 +91,16 @@ static void gen9_init_clock_gating(struct drm_i915_private *dev_priv)
+ 			   SKL_DE_COMPRESSED_HASH_MODE);
+ 	}
+ 
++	for_each_pipe(dev_priv, pipe) {
++		/*
++		 * "Plane N strech max must be programmed to 11b (x1)
++		 *  when Async flips are enabled on that plane."
++		 */
++		if (!IS_GEMINILAKE(dev_priv) && intel_vtd_active())
++			intel_uncore_rmw(&dev_priv->uncore, CHICKEN_PIPESL_1(pipe),
++					 SKL_PLANE1_STRETCH_MAX_MASK, SKL_PLANE1_STRETCH_MAX_X1);
++	}
++
+ 	/* See Bspec note for PSR2_CTL bit 31, Wa#828:skl,bxt,kbl,cfl */
+ 	intel_uncore_write(&dev_priv->uncore, CHICKEN_PAR1_1,
+ 		   intel_uncore_read(&dev_priv->uncore, CHICKEN_PAR1_1) | SKL_EDP_PSR_FIX_RDWRAP);
+-- 
+2.32.0
+
