@@ -2,125 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12A3C41E879
-	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 09:39:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09F0641E9C3
+	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 11:41:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352537AbhJAHkq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Oct 2021 03:40:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43210 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231318AbhJAHkp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Oct 2021 03:40:45 -0400
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DA13C06177A
-        for <stable@vger.kernel.org>; Fri,  1 Oct 2021 00:39:00 -0700 (PDT)
-Received: by mail-pl1-x632.google.com with SMTP id w11so5735869plz.13
-        for <stable@vger.kernel.org>; Fri, 01 Oct 2021 00:39:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=V6Orf97LITG3TtcY2U9YlrpeTHclGOUtzKEGj7Adl8s=;
-        b=UiTvl6Z8AB7T/q+57AvtQEbRh08tOHqwwZkwuBJpMW85c31LBaju0OhcGFd8+P7n7S
-         MvcpPj4e4ehNyGUnkyEmYLWND60AG/qf8/9DdDz7w2WpN8GkuyjxhwPhJgiLcrgSwil7
-         ulcrAq6vPJsZs932+QTB3rIH3Vz48yU0PwNixHXFK08dHjw03i0nBHhra8KJKJrC6xIO
-         xiUlfvY93irjX2i/S+IpL9HSmmqFanSJ/CUVnLILFNbA7/7qu6nDrfwaPN8p8lh0oFur
-         sZeF/RAnLCw5oPZNbbMjoaw/rz9ghCFLbBkcXPeAq1Rsv4Rjj03eM2Vf6oR2EiahOd8I
-         LCrA==
+        id S1353129AbhJAJnc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Oct 2021 05:43:32 -0400
+Received: from smtp-relay-internal-0.canonical.com ([185.125.188.122]:56936
+        "EHLO smtp-relay-internal-0.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1353104AbhJAJna (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Oct 2021 05:43:30 -0400
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com [209.85.167.71])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 0B4054079A
+        for <stable@vger.kernel.org>; Fri,  1 Oct 2021 09:41:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1633081306;
+        bh=v20vzGvpKOribJ20xC/9VCM3R/uezZSx/XMUZB6UVm8=;
+        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+         MIME-Version;
+        b=rSA2qd0WittqyL+HmXKaXGyDZA3FGDNpcGhRPwB2rNgAu10P+46mN80EaRYw9HCha
+         cAlC1oDEVMGRKBgeWCHGefKqSVg5IURpKSPSf9KFn88vd/J/qmNDRlUeO0PJiLOFGr
+         6bZ+gm2NKfCOyuEyYMJisGoUCja9wx6U0Pc3SqbJ+5DIB0jR8qD2BrUS6zsE95Lugv
+         ID5h7QnnVJAbqHFBI80sNOMVx45J4/GtLlalKsUGyr4jxb497atZLH4ZPqnK3Ot2Pv
+         efOSajbfYp/PeMwKlcUypAQ4ueuT65iM75FX1gY/nHgEmb0+hxdRVRE4f5hgXHTaXX
+         hbbDTN5cpgo3A==
+Received: by mail-lf1-f71.google.com with SMTP id d16-20020a056512369000b003fca9e038ddso8440621lfs.3
+        for <stable@vger.kernel.org>; Fri, 01 Oct 2021 02:41:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=V6Orf97LITG3TtcY2U9YlrpeTHclGOUtzKEGj7Adl8s=;
-        b=7IMn/Gg0BTf0cUiHMLkNryNYx8SWcnLdwcEAqTNugxyLqkUb31Dw6E3QA9a4rXXesl
-         jCd6jMJPWTf1UvsArxujQS/kaGoWTK/s7AktM8Nzg3CaNAI0fBhD82aVCLCVSk/Q/yw0
-         3A/4A7UjJevxC+bwdXoY6lkrwRoRRWa4IWpFnNxGS/IBM3uWrN8QPpm5QMKkoowmUJgE
-         bFMOmVeHSAydk1NDxgJKKor0c0pz9NLtvZb23PCwsh2f3ZHawptLqqDnVxaIKxR8HQ0M
-         /5+1sBcdsAyMVso0Tg0R7NBlu2VZt09pU7ZYlmuxcZAqROuvE+Aextu2CiG/rpw5F1po
-         Xkrw==
-X-Gm-Message-State: AOAM531Uf1c7HsfKdXem39WjvxvAMMBJV11AW3OLtuAeAztyGu5i4a3d
-        41epHjmz+R8jq2moaesQqGQVbt91QJRy
-X-Google-Smtp-Source: ABdhPJyFjolspmiRIi8F+dxzTNukyTgpEJ1Kwk3jEScz6c/AbbYUzNCcwFx//3g2Xh1Nen0MfbyGPA==
-X-Received: by 2002:a17:90a:3483:: with SMTP id p3mr11838929pjb.80.1633073939902;
-        Fri, 01 Oct 2021 00:38:59 -0700 (PDT)
-Received: from thinkpad ([117.193.209.206])
-        by smtp.gmail.com with ESMTPSA id az15sm6868282pjb.42.2021.10.01.00.38.56
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=v20vzGvpKOribJ20xC/9VCM3R/uezZSx/XMUZB6UVm8=;
+        b=fgyPVFkSX3UHOHVWJtzVa/ZemTOc4sccmpFnw3Z5CreU+3bJMtZ0cMznBTns5PZt8v
+         rddkscVZ93DXA68HPNvtjTfk+XwB7AnS0pJKGmiyjxqNM4WRUqicgVsNneiclvo3KvOW
+         gtMMf9hdsdlAJAd/7YksRI7E6GD4VpzM4iNK5OPyWvNlXofm/WdI9vegVnp4qvzKGmn7
+         NnPr46lBKjAF6xzZCFZziteNUMhXCQJ9is11OTWQRy8NuTfVj4aiwz07jqRzTQjj9lgo
+         lelK331OP16H0q25ZCxcioobFlvxhL5/WAiQTrankbSsFHOQ+L1QpqAIYNZqJQpD3tld
+         52bg==
+X-Gm-Message-State: AOAM530UR6w0bOfyW/oMt6ZExWe0sCQsPOjm9vF1pPU2f3Q8ozDgQFx3
+        djFYpSX/e/qEOB630P3+EtcCb+3fF0me+B+lDJ10RFGesstI6+zBu8+rUOI7qKg3j4Lo8D3oA9X
+        VU+jyIqR0yhwCVHyJOF33b1gC22h2ovzgNA==
+X-Received: by 2002:ac2:54ad:: with SMTP id w13mr4653062lfk.397.1633081305324;
+        Fri, 01 Oct 2021 02:41:45 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzDM/2n968561+gri4JiNCrryeT8FcT9w+LPoI4aPwOrJmmL+onBhw/h3J9ufX1+3dsi0sCYQ==
+X-Received: by 2002:ac2:54ad:: with SMTP id w13mr4653033lfk.397.1633081305075;
+        Fri, 01 Oct 2021 02:41:45 -0700 (PDT)
+Received: from localhost.localdomain ([193.178.187.25])
+        by smtp.gmail.com with ESMTPSA id g29sm673784lfj.212.2021.10.01.02.41.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Oct 2021 00:38:58 -0700 (PDT)
-Date:   Fri, 1 Oct 2021 13:08:54 +0530
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     Loic Poulain <loic.poulain@linaro.org>
-Cc:     Thomas Perrot <thomas.perrot@bootlin.com>,
-        Aleksander Morgado <aleksander@aleksander.es>,
-        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
-        Hemant Kumar <hemantk@codeaurora.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] bus: mhi: pci_generic: increase timeout value for
- operations to 24000ms
-Message-ID: <20211001073854.GD5821@thinkpad>
-References: <20210805140231.268273-1-thomas.perrot@bootlin.com>
- <f358044a-78d0-ad63-a777-87b4b9d94745@aleksander.es>
- <73A52D61-FCAB-4A2B-BA96-0117F6942842@linaro.org>
- <CAAP7ucL1Zv6g8G0SWAjEAjr6OSVTyDmvmFkH+vMmmBwOH2=ZUQ@mail.gmail.com>
- <54c063613fe63282a1c26b312c772e89b662eae6.camel@bootlin.com>
- <CAMZdPi9AJcdVC2AS08ZtHU6sv1CMLhudgJHVpQF2zLfF+OV=Og@mail.gmail.com>
+        Fri, 01 Oct 2021 02:41:44 -0700 (PDT)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+To:     Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Tomasz Figa <tomasz.figa@gmail.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>, linux-clk@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH v2 01/10] regulator: s5m8767: do not use reset value as DVS voltage if GPIO DVS is disabled
+Date:   Fri,  1 Oct 2021 11:40:57 +0200
+Message-Id: <20211001094106.52412-2-krzysztof.kozlowski@canonical.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20211001094106.52412-1-krzysztof.kozlowski@canonical.com>
+References: <20211001094106.52412-1-krzysztof.kozlowski@canonical.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAMZdPi9AJcdVC2AS08ZtHU6sv1CMLhudgJHVpQF2zLfF+OV=Og@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 30, 2021 at 12:19:48PM +0200, Loic Poulain wrote:
-> On Thu, 30 Sept 2021 at 10:08, Thomas Perrot <thomas.perrot@bootlin.com> wrote:
-> >
-> > Hello,
-> >
+The driver and its bindings, before commit 04f9f068a619 ("regulator:
+s5m8767: Modify parsing method of the voltage table of buck2/3/4") were
+requiring to provide at least one safe/default voltage for DVS registers
+if DVS GPIO is not being enabled.
 
-[...]
+IOW, if s5m8767,pmic-buck2-uses-gpio-dvs is missing, the
+s5m8767,pmic-buck2-dvs-voltage should still be present and contain one
+voltage.
 
-> I agree, let's set a conservative high value for generic SDX55, so
-> have wider support, that can be tuned per vendor IDs if necessary
-> anyway.
-> 
+This requirement was coming from driver behavior matching this condition
+(none of DVS GPIO is enabled): it was always initializing the DVS
+selector pins to 0 and keeping the DVS enable setting at reset value
+(enabled).  Therefore if none of DVS GPIO is enabled in devicetree,
+driver was configuring the first DVS voltage for buck[234].
 
-No. Since this device seems to have a dedicated config, let's increase the
-timeout only for this device until we get reports for other devices.
+Mentioned commit 04f9f068a619 ("regulator: s5m8767: Modify parsing
+method of the voltage table of buck2/3/4") broke it because DVS voltage
+won't be parsed from devicetree if DVS GPIO is not enabled.  After the
+change, driver will configure bucks to use the register reset value as
+voltage which might have unpleasant effects.
 
-> Regards,
-> Loic
-> 
-> >
-> > Moreover, Sierra EM919x modems use a custom controller configuration,
-> > we are currently working on it. As our tests not being sufficiently
-> > conclusive, so we have not yet submitted.
-> >
-> > Best regards,
-> > Thomas
-> >
-> > > >
-> > > > It was derived from testing I believe.
-> > >
-> > > Following your reasoning above, shouldn't this 24000ms timeout be
-> > > applied only to the Sierra Wireless EM91xx devices (which may have
-> > > custom firmware bits delaying the initialization a bit longer), and
-> > > not to the generic SDX24, SDX55 and SDX65?
-> > >
-> > > If I'm not mistaken, Thomas is testing with a custom mhi_pci_generic
-> > > entry for the EM91xx; as in
-> > > https://forum.sierrawireless.com/t/sierra-wireless-airprime-em919x-pcie-support/24927
-> > > .
-> > > I'm also playing with that same entry on my own setup, but have other
-> > > problems of my own :)
-> > >
-> > >
-> > > --
-> > > Aleksander
-> > > https://aleksander.es
-> >
-> > --
-> > Thomas Perrot, Bootlin
-> > Embedded Linux and kernel engineering
-> > https://bootlin.com
-> >
+Fix this by relaxing the bindings constrain: if DVS GPIO is not enabled
+in devicetree (therefore DVS voltage is also not parsed), explicitly
+disable it.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 04f9f068a619 ("regulator: s5m8767: Modify parsing method of the voltage table of buck2/3/4")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+---
+ .../bindings/regulator/samsung,s5m8767.txt    | 21 +++++++------------
+ drivers/regulator/s5m8767.c                   | 21 ++++++++-----------
+ 2 files changed, 17 insertions(+), 25 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt b/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
+index 093edda0c8df..d9cff1614f7a 100644
+--- a/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
++++ b/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
+@@ -13,6 +13,14 @@ common regulator binding documented in:
+ 
+ 
+ Required properties of the main device node (the parent!):
++ - s5m8767,pmic-buck-ds-gpios: GPIO specifiers for three host gpio's used
++   for selecting GPIO DVS lines. It is one-to-one mapped to dvs gpio lines.
++
++ [1] If either of the 's5m8767,pmic-buck[2/3/4]-uses-gpio-dvs' optional
++     property is specified, then all the eight voltage values for the
++     's5m8767,pmic-buck[2/3/4]-dvs-voltage' should be specified.
++
++Optional properties of the main device node (the parent!):
+  - s5m8767,pmic-buck2-dvs-voltage: A set of 8 voltage values in micro-volt (uV)
+    units for buck2 when changing voltage using gpio dvs. Refer to [1] below
+    for additional information.
+@@ -25,19 +33,6 @@ Required properties of the main device node (the parent!):
+    units for buck4 when changing voltage using gpio dvs. Refer to [1] below
+    for additional information.
+ 
+- - s5m8767,pmic-buck-ds-gpios: GPIO specifiers for three host gpio's used
+-   for selecting GPIO DVS lines. It is one-to-one mapped to dvs gpio lines.
+-
+- [1] If none of the 's5m8767,pmic-buck[2/3/4]-uses-gpio-dvs' optional
+-     property is specified, the 's5m8767,pmic-buck[2/3/4]-dvs-voltage'
+-     property should specify atleast one voltage level (which would be a
+-     safe operating voltage).
+-
+-     If either of the 's5m8767,pmic-buck[2/3/4]-uses-gpio-dvs' optional
+-     property is specified, then all the eight voltage values for the
+-     's5m8767,pmic-buck[2/3/4]-dvs-voltage' should be specified.
+-
+-Optional properties of the main device node (the parent!):
+  - s5m8767,pmic-buck2-uses-gpio-dvs: 'buck2' can be controlled by gpio dvs.
+  - s5m8767,pmic-buck3-uses-gpio-dvs: 'buck3' can be controlled by gpio dvs.
+  - s5m8767,pmic-buck4-uses-gpio-dvs: 'buck4' can be controlled by gpio dvs.
+diff --git a/drivers/regulator/s5m8767.c b/drivers/regulator/s5m8767.c
+index 7c111bbdc2af..35269f998210 100644
+--- a/drivers/regulator/s5m8767.c
++++ b/drivers/regulator/s5m8767.c
+@@ -850,18 +850,15 @@ static int s5m8767_pmic_probe(struct platform_device *pdev)
+ 	/* DS4 GPIO */
+ 	gpio_direction_output(pdata->buck_ds[2], 0x0);
+ 
+-	if (pdata->buck2_gpiodvs || pdata->buck3_gpiodvs ||
+-	   pdata->buck4_gpiodvs) {
+-		regmap_update_bits(s5m8767->iodev->regmap_pmic,
+-				S5M8767_REG_BUCK2CTRL, 1 << 1,
+-				(pdata->buck2_gpiodvs) ? (1 << 1) : (0 << 1));
+-		regmap_update_bits(s5m8767->iodev->regmap_pmic,
+-				S5M8767_REG_BUCK3CTRL, 1 << 1,
+-				(pdata->buck3_gpiodvs) ? (1 << 1) : (0 << 1));
+-		regmap_update_bits(s5m8767->iodev->regmap_pmic,
+-				S5M8767_REG_BUCK4CTRL, 1 << 1,
+-				(pdata->buck4_gpiodvs) ? (1 << 1) : (0 << 1));
+-	}
++	regmap_update_bits(s5m8767->iodev->regmap_pmic,
++			   S5M8767_REG_BUCK2CTRL, 1 << 1,
++			   (pdata->buck2_gpiodvs) ? (1 << 1) : (0 << 1));
++	regmap_update_bits(s5m8767->iodev->regmap_pmic,
++			   S5M8767_REG_BUCK3CTRL, 1 << 1,
++			   (pdata->buck3_gpiodvs) ? (1 << 1) : (0 << 1));
++	regmap_update_bits(s5m8767->iodev->regmap_pmic,
++			   S5M8767_REG_BUCK4CTRL, 1 << 1,
++			   (pdata->buck4_gpiodvs) ? (1 << 1) : (0 << 1));
+ 
+ 	/* Initialize GPIO DVS registers */
+ 	for (i = 0; i < 8; i++) {
+-- 
+2.30.2
+
