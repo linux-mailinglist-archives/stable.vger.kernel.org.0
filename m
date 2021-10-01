@@ -2,135 +2,215 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B205241EAAF
-	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 12:09:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FA1841EB67
+	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 13:08:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353285AbhJAKLV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Oct 2021 06:11:21 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:30689 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230073AbhJAKLV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Oct 2021 06:11:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633082976;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=b14EzvT2GgzChfN1socPvNOLlgA3D2n94sk8MOsWBCg=;
-        b=BAzZ0JJbknYa02FLI3jhJvM7+XVvtftCNTYBpgOX+A0Ql1zE7z45LOXMELiNLrnjWoyJ1t
-        S6gKmXRM2QsEero0iqmCCXnCkH6j9ImCXXPMixP3M94HfGhkw/4ybZJtJLeCMi69uKHdrM
-        rLomoz8vUAC4K6j3eJIqPKz1MOePsrc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-504-0VGfWj8RMEeqFNceTz2VxQ-1; Fri, 01 Oct 2021 06:09:35 -0400
-X-MC-Unique: 0VGfWj8RMEeqFNceTz2VxQ-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4E8E7184215E;
-        Fri,  1 Oct 2021 10:09:34 +0000 (UTC)
-Received: from x1.localdomain (unknown [10.39.193.11])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 63B89608BA;
-        Fri,  1 Oct 2021 10:09:33 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Tobias Gurtzick <magic@wizardtales.com>
-Subject: [PATCH] platform/x86/intel: hid: Add DMI switches allow list
-Date:   Fri,  1 Oct 2021 12:09:32 +0200
-Message-Id: <20211001100932.7907-1-hdegoede@redhat.com>
+        id S1352328AbhJALKB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Oct 2021 07:10:01 -0400
+Received: from mail-ot1-f45.google.com ([209.85.210.45]:44984 "EHLO
+        mail-ot1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230008AbhJALKA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Oct 2021 07:10:00 -0400
+Received: by mail-ot1-f45.google.com with SMTP id h9-20020a9d2f09000000b005453f95356cso10994656otb.11;
+        Fri, 01 Oct 2021 04:08:16 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=EtAHmQZw91u7lVU62l1P8pNTURuYrm0FshqcUyypknw=;
+        b=RoSIKz2rg9h5aEA1hlf4lODjxJfRbfteOtdMZ8YRwmTYjTHmLcFIhENpXXuprCBTck
+         PgoFVYPSvPfS1ugsFYT2Wq/F1ZvUbhtDhf/QC7hvazba0vudBFfAkjeFRRwb4nVOLSwQ
+         I+G/U3BOUG9p2N9Ypyll7msf+3mKdeF3/F8FaZ2sBwu7cxMdA0ZZktO96EkD8dJI4+qB
+         uTba0/ZyNaG4nGWt+1nuqlax4EoNGVnpRQ7OLKW8NVvOSoiISmG4Q66AxV+kqssFGpuF
+         yk4obqn76KEzQFi60xWrFz6+jyrh2suKPLDZoZHYgDJoCYhEiqb86OS6Khlagx6DgH+s
+         o5xQ==
+X-Gm-Message-State: AOAM533grl42c5LmgVv8ZbOUvBxZwG9YxuLnd4/eWDNLvAApe1vdi0Hf
+        DfrCZ2b7dIDApNfGrNIYVJjOdXvAVm6cdV+3blI=
+X-Google-Smtp-Source: ABdhPJzo+0Q0KOxUoYQMmvMSP1UskRUfApAoeDtwjOT0KkLdiqigAI4XNGs0kPuGRX/q+zt3TgqAbNwDMkcP/x4w83Q=
+X-Received: by 2002:a05:6830:165a:: with SMTP id h26mr9902807otr.301.1633086496224;
+ Fri, 01 Oct 2021 04:08:16 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+References: <20210929160550.GA773748@bhelgaas> <87mtnu77mr.ffs@tglx>
+ <87k0iy71rw.ffs@tglx> <CAJZ5v0hH_h9V0dACEMomqZbwpQUf6GB_8UK9+S1AGEdFQqvPLQ@mail.gmail.com>
+ <87h7e26lh9.ffs@tglx> <87czoq6kt8.ffs@tglx>
+In-Reply-To: <87czoq6kt8.ffs@tglx>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Fri, 1 Oct 2021 13:08:04 +0200
+Message-ID: <CAJZ5v0gCmRUF4PRoQzdQqf1sDieAgH-MY_=74HB+c_=VqW3qww@mail.gmail.com>
+Subject: Re: [PATCH RFT v2] x86/hpet: Use another crystalball to evaluate HPET usability
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Bjorn Helgaas <helgaas@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>, jose.souza@intel.com,
+        "H. Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@alien8.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Linux PCI <linux-pci@vger.kernel.org>, rudolph@fb.com,
+        xapienz@fb.com, bmilton@fb.com,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Feng Tang <feng.tang@intel.com>,
+        Harry Pan <harry.pan@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+On Thu, Sep 30, 2021 at 7:21 PM Thomas Gleixner <tglx@linutronix.de> wrote:
+>
+> On recent Intel systems the HPET stops working when the system reaches PC10
+> idle state.
+>
+> The approach of adding PCI ids to the early quirks to disable HPET on
+> these systems is a whack a mole game which makes no sense.
+>
+> Check for PC10 instead and force disable HPET if supported. The check is
+> overbroad as it does not take ACPI, intel_idle enablement and command
+> line parameters into account. That's fine as long as there is at least
+> PMTIMER available to calibrate the TSC frequency. The decision can be
+> overruled by adding "hpet=force" on the kernel command line.
+>
+> Remove the related early PCI quirks for affected Ice Cake and Coffin Lake
+> systems as they are not longer required. That should also cover all
+> other systems, i.e. Tiger Rag and newer generations, which are most
+> likely affected by this as well.
+>
+> Fixes: Yet another hardware trainwreck
+> Reported-by: Jakub Kicinski <kuba@kernel.org>
+> Not-yet-signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 
-commit b201cb0ebe87b209e252d85668e517ac1929e250 upstream.
+Reviewed-by: Rafael J. Wysocki <rafael@kernel.org>
 
-Some devices, even non convertible ones, can send incorrect
-SW_TABLET_MODE reports.
-
-Add an allow list and accept such reports only from devices in it.
-
-Bug reported for Dell XPS 17 9710 on:
-https://gitlab.freedesktop.org/libinput/libinput/-/issues/662
-
-Fixes: ac32bae00083 ("platform/x86: intel-hid: Add alternative method to enable switches")
-Depends-on: 153cca9caa81 ("platform/x86: Add and use a dual_accel_detect() helper")
-Reported-by: Tobias Gurtzick <magic@wizardtales.com>
-Suggested-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Tobias Gurtzick <magic@wizardtales.com>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Link: https://lore.kernel.org/r/20210920160312.9787-1-jose.exposito89@gmail.com
-[hdegoede@redhat.com: Check dmi_switches_auto_add_allow_list only once]
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/platform/x86/intel-hid.c | 27 ++++++++++++++++++++++-----
- 1 file changed, 22 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/platform/x86/intel-hid.c b/drivers/platform/x86/intel-hid.c
-index 2e4e97a626a5..7b03b497d93b 100644
---- a/drivers/platform/x86/intel-hid.c
-+++ b/drivers/platform/x86/intel-hid.c
-@@ -118,12 +118,30 @@ static const struct dmi_system_id dmi_vgbs_allow_list[] = {
- 	{ }
- };
- 
-+/*
-+ * Some devices, even non convertible ones, can send incorrect SW_TABLET_MODE
-+ * reports. Accept such reports only from devices in this list.
-+ */
-+static const struct dmi_system_id dmi_auto_add_switch[] = {
-+	{
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_CHASSIS_TYPE, "31" /* Convertible */),
-+		},
-+	},
-+	{
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_CHASSIS_TYPE, "32" /* Detachable */),
-+		},
-+	},
-+	{} /* Array terminator */
-+};
-+
- struct intel_hid_priv {
- 	struct input_dev *input_dev;
- 	struct input_dev *array;
- 	struct input_dev *switches;
- 	bool wakeup_mode;
--	bool dual_accel;
-+	bool auto_add_switch;
- };
- 
- #define HID_EVENT_FILTER_UUID	"eeec56b3-4442-408f-a792-4edd4d758054"
-@@ -452,10 +470,8 @@ static void notify_handler(acpi_handle handle, u32 event, void *context)
- 	 * Some convertible have unreliable VGBS return which could cause incorrect
- 	 * SW_TABLET_MODE report, in these cases we enable support when receiving
- 	 * the first event instead of during driver setup.
--	 *
--	 * See dual_accel_detect.h for more info on the dual_accel check.
- 	 */
--	if (!priv->switches && !priv->dual_accel && (event == 0xcc || event == 0xcd)) {
-+	if (!priv->switches && priv->auto_add_switch && (event == 0xcc || event == 0xcd)) {
- 		dev_info(&device->dev, "switch event received, enable switches supports\n");
- 		err = intel_hid_switches_setup(device);
- 		if (err)
-@@ -596,7 +612,8 @@ static int intel_hid_probe(struct platform_device *device)
- 		return -ENOMEM;
- 	dev_set_drvdata(&device->dev, priv);
- 
--	priv->dual_accel = dual_accel_detect();
-+	/* See dual_accel_detect.h for more info on the dual_accel check. */
-+	priv->auto_add_switch = dmi_check_system(dmi_auto_add_switch) && !dual_accel_detect();
- 
- 	err = intel_hid_input_setup(device);
- 	if (err) {
--- 
-2.31.1
-
+> ---
+> Notes: Completely untested. Use at your own peril.
+>
+> V2: Move the substate check into the helper function. Adjust function
+>     name accordingly.
+> ---
+>  arch/x86/kernel/early-quirks.c |    6 ---
+>  arch/x86/kernel/hpet.c         |   81 +++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 81 insertions(+), 6 deletions(-)
+>
+> --- a/arch/x86/kernel/early-quirks.c
+> +++ b/arch/x86/kernel/early-quirks.c
+> @@ -714,12 +714,6 @@ static struct chipset early_qrk[] __init
+>          */
+>         { PCI_VENDOR_ID_INTEL, 0x0f00,
+>                 PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+> -       { PCI_VENDOR_ID_INTEL, 0x3e20,
+> -               PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+> -       { PCI_VENDOR_ID_INTEL, 0x3ec4,
+> -               PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+> -       { PCI_VENDOR_ID_INTEL, 0x8a12,
+> -               PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+>         { PCI_VENDOR_ID_BROADCOM, 0x4331,
+>           PCI_CLASS_NETWORK_OTHER, PCI_ANY_ID, 0, apple_airport_reset},
+>         {}
+> --- a/arch/x86/kernel/hpet.c
+> +++ b/arch/x86/kernel/hpet.c
+> @@ -10,6 +10,7 @@
+>  #include <asm/irq_remapping.h>
+>  #include <asm/hpet.h>
+>  #include <asm/time.h>
+> +#include <asm/mwait.h>
+>
+>  #undef  pr_fmt
+>  #define pr_fmt(fmt) "hpet: " fmt
+> @@ -916,6 +917,83 @@ static bool __init hpet_counting(void)
+>         return false;
+>  }
+>
+> +static bool __init mwait_pc10_supported(void)
+> +{
+> +       unsigned int eax, ebx, ecx, mwait_substates;
+> +
+> +       if (boot_cpu_data.x86_vendor != X86_VENDOR_INTEL)
+> +               return false;
+> +
+> +       if (!cpu_feature_enabled(X86_FEATURE_MWAIT))
+> +               return false;
+> +
+> +       if (boot_cpu_data.cpuid_level < CPUID_MWAIT_LEAF)
+> +               return false;
+> +
+> +       cpuid(CPUID_MWAIT_LEAF, &eax, &ebx, &ecx, &mwait_substates);
+> +
+> +       return (ecx & CPUID5_ECX_EXTENSIONS_SUPPORTED) &&
+> +              (ecx & CPUID5_ECX_INTERRUPT_BREAK) &&
+> +              (mwait_substates & (0xF << 28));
+> +}
+> +
+> +/*
+> + * Check whether the system supports PC10. If so force disable HPET as that
+> + * stops counting in PC10. This check is overbroad as it does not take any
+> + * of the following into account:
+> + *
+> + *     - ACPI tables
+> + *     - Enablement of intel_idle
+> + *     - Command line arguments which limit intel_idle C-state support
+> + *
+> + * That's perfectly fine. HPET is a piece of hardware designed by committee
+> + * and the only reasons why it is still in use on modern systems is the
+> + * fact that it is impossible to reliably query TSC and CPU frequency via
+> + * CPUID or firmware.
+> + *
+> + * If HPET is functional it is useful for calibrating TSC, but this can be
+> + * done via PMTIMER as well which seems to be the last remaining timer on
+> + * X86/INTEL platforms that has not been completely wreckaged by feature
+> + * creep.
+> + *
+> + * In theory HPET support should be removed altogether, but there are older
+> + * systems out there which depend on it because TSC and APIC timer are
+> + * dysfunctional in deeper C-states.
+> + *
+> + * It's only 20 years now that hardware people have been asked to provide
+> + * reliable and discoverable facilities which can be used for timekeeping
+> + * and per CPU timer interrupts.
+> + *
+> + * The probability that this problem is going to be solved in the
+> + * forseeable future is close to zero, so the kernel has to be cluttered
+> + * with heuristics to keep up with the ever growing amount of hardware and
+> + * firmware trainwrecks. Hopefully some day hardware people will understand
+> + * that the approach of "This can be fixed in software" is not sustainable.
+> + * Hope dies last...
+> + */
+> +static bool __init hpet_is_pc10_damaged(void)
+> +{
+> +       unsigned long long pcfg;
+> +
+> +       /* Check whether PC10 substates are supported */
+> +       if (!mwait_pc10_supported())
+> +               return false;
+> +
+> +       /* Check whether PC10 is enabled in PKG C-state limit */
+> +       rdmsrl(MSR_PKG_CST_CONFIG_CONTROL, pcfg);
+> +       if ((pcfg & 0xF) < 8)
+> +               return false;
+> +
+> +       if (hpet_force_user) {
+> +               pr_warn("HPET force enabled via command line, but dysfunctional in PC10.\n");
+> +               return false;
+> +       }
+> +
+> +       pr_info("HPET dysfunctional in PC10. Force disabled.\n");
+> +       boot_hpet_disable = true;
+> +       return true;
+> +}
+> +
+>  /**
+>   * hpet_enable - Try to setup the HPET timer. Returns 1 on success.
+>   */
+> @@ -929,6 +1007,9 @@ int __init hpet_enable(void)
+>         if (!is_hpet_capable())
+>                 return 0;
+>
+> +       if (hpet_is_pc10_damaged())
+> +               return 0;
+> +
+>         hpet_set_mapping();
+>         if (!hpet_virt_address)
+>                 return 0;
+>
