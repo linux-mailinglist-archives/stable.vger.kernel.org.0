@@ -2,255 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3C6141EEC1
-	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 15:41:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12A4941EED8
+	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 15:45:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353427AbhJANnf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Oct 2021 09:43:35 -0400
-Received: from esa5.hc3370-68.iphmx.com ([216.71.155.168]:3391 "EHLO
-        esa5.hc3370-68.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352761AbhJANnf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Oct 2021 09:43:35 -0400
-X-Greylist: delayed 427 seconds by postgrey-1.27 at vger.kernel.org; Fri, 01 Oct 2021 09:43:34 EDT
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=citrix.com; s=securemail; t=1633095711;
-  h=from:to:cc:subject:date:message-id:mime-version;
-  bh=zyrYxS31DlDQsiUuEYQyKQVGd43v6Z84P7SkT3jY84I=;
-  b=Pu2nI2EH11F4VeboQmIHyWMqT1eDuJa22oKVIohj0zopfUgqN1tMd/PP
-   lzGfMRMu3+HvKLgpRHG5xxJGQ9XphtAREZZk0zM0fBrAzu9ZAKt1JU2V1
-   fqtHewFBN69Z8fBJEngt9aWSz1EzRdfa5bPLWq98daffhttFjfnBuThgY
-   c=;
-Authentication-Results: esa5.hc3370-68.iphmx.com; dkim=none (message not signed) header.i=none
-IronPort-SDR: LAgkcqnN4dpWrgEgejG2uDUm41zlKnV3vF0z+Y0ebp+j3qYaSxySsgPytjMW0dcNvLq4AsQ3J8
- y4tuFl13p+3Vf7rqwqskySUZwj0CrAy+RUfZ/kDlisKKyZcYnWFtgodop9xsvsAGQtXQoXWFtU
- XKtAVjDhJgbu5DkCh7wLWrDqlF9/tsAmECY47Lu018bpo7VgFLDDGAH+gSQg3A2P1YRcGZP+4q
- M8f0wuZj85TwVNWZ10UnKW0UV8h9XuaM17moz2uPMcwdNJBJzF0qJ5qDrO0JdEotXUcjbRwQRF
- Sq7s+tzMfh3irQB1LLUr1cbZ
-X-SBRS: 5.1
-X-MesageID: 53719107
-X-Ironport-Server: esa5.hc3370-68.iphmx.com
-X-Remote-IP: 162.221.156.83
-X-Policy: $RELAYED
-IronPort-Data: A9a23:fgadx6mCdh5CQuTYaZG9gl7o5gxOIERdPkR7XQ2eYbSJt1+Wr1Gzt
- xJOXm3Xb/jeY2GgKopzb42+8U0PusXdxt4xQAtuqioxRiMWpZLJC+rCIxarNUt+DCFioGGLT
- Sk6QoOdRCzhZiaE/n9BClVlxJVF/fngqoDUUYYoAQgsA185IMsdoUg7wbdg2tYx2YPR7z6l4
- rseneWOYDdJ5BYsWo4kw/rrRMRH5amaVJsw5zTSVNgT1LPsvyB94KE3fMldG0DQUIhMdtNWc
- s6YpF2PEsE1yD92Yj+tuu6TnkTn2dc+NyDW4pZdc/DKbhSvOkXee0v0XRYRQR4/ttmHozx+4
- PRE6biqd1YsBPLNgMdBaDhaTn5yE4QTrdcrIVDn2SCS50jPcn+qyPRyFkAme4Yf/46bA0kXq
- 6ZecmpUKEne2aTmm9pXScE17ignBOviOo5Zn3hkxDXQC/sOSpHfWaTao9Rf2V/cg+gTRqmHN
- pNBNlKDajzuPQweBFQVDK44u9jxrXnybhhZgWyK8P9fD2/7k1UqjemF3MDuUtmLQ8pStlyVq
- mLP4yLyBRRyHMSC1jeD2nK9iejJ2yj9MKoJGbS+9PVCj1qUyWgeThYRUDOTufO+jFy/XdN3M
- UEY+iMy66M18SSDStj7Qg39o3OeuBMYc8RfHvd86wyXzKfQpQGDCQAsVSJIYtgrnNE5SCZs1
- VKTmd7tQzt1v9W9SWqU3qWFsTSofyMSKAcqbzcsRA8E7t+z5o0+5jrVR8clELO8iNLdEDT8h
- TuNqUAWja8Sj8MQ1+Og/FbIgxqlo5SPRQkwji3LUWa1xgd4YpO5fYuu6Eid4fsoBIWYSx+Zv
- HkAn8mG98gHCJ3LnyuIKM0dTO+B5PufNjDYx1l1EPEJ7zmx9mSxVYFW7it3KEpgPoADYzCBS
- H7aqw5XorBTNX2sZKpfaoe9Tc8tyMDIEcn5UdjXY8BIb5w3cxWIlByCfmbJgTqryhJ11/hiZ
- 9HLKq5AEEr2F4xGxWaSXdlM1IV0xzgdmVjyR82kwzqOhO/2iGGudZ8JN16Hb+Yc5ayCoRnI/
- 9s3C/Zm2ymzQ8WkPHCIoNd7wUQiaChjXM+q+6S7Y8bZemJb9Hcd5+g9KF/LU6Jihbgdsu7V8
- nynVkZcxTITblWccl7SOxiPhF71NKuTTE7X3wRwYD5EOFB5OO5DCZvzkbNsIdHLE8Q5k5ZJo
- wEtIZnoPxi2Ym2vF84hRZf8tpd+Ux+gmBiDOSGoCBBmIcU7H1aWoYG9I1u+nMXrMsZRnZBiy
- 1FH/lmFKafvuiw4VJqGAB5R5wnZUYchdBJaABKTf4g7lLTE+4l2MS3h5sLb0OlXQSgvMgCyj
- l7MaT9B/LGli9ZsrLHh2PDVx6/0QrAWNhcLQAHmAUOeaHCyEpyLmtQbDo5lvFn1CQvJxUlVT
- b8Okq6gYKFZxgYiXkgVO+8D8J/SLuDH/9dypjmI1l2XB7hyIr8/cHSAw+dVsahBmu1QtQesA
- xrd8dhGI7SZfsjiFQdJdgYia+2C09ASmyXTsqtpcBmruncv8erVS1hWMjmNlDdZcOl/PrQ6z
- Lpzo8UR8QG+1EYna47UkiBO+m2QBXUcSKF75IoCCYrmh1NzmFFPaJDREAHs55SLZ4keO0UmO
- GbM1qHDm65d1gzJdH9qTSrB2u9UhJIvvhFWzQBdewTVy4Sd3vJuhU9f6zU6SAhR3y5r6eMrN
- zg5LVBxKIWP4yxs2JpJUVezFlwTHxae4EHwlQcEzTWLU0myW2XRB2QhIuLRrlsB+mdRczUHr
- rGVzGHpDWTjcM3rh3ZgXEdkr7roTMBr9x2Ek8eiRpzXE54/aDvjo6mveWtX9Ee3XZJv3BXK9
- btw4eJ9SaznLipB8aQ0Br6T2akUVB3ZdndJRuts/f9REGzREN1oNeNi96xllhtxGsH3
-IronPort-HdrOrdr: A9a23:2DIfbqNwWe8umcBcTsmjsMiBIKoaSvp037Eqv3oRdfU1SL3/qy
- nApoV56faZslkssRIb6Le90cu7MBHhHPdOiOF7V9rPYOCPghrNEGgI1+vfKlPbdREWjtQtsJ
- tdTw==
-X-IronPort-AV: E=Sophos;i="5.85,339,1624334400"; 
-   d="scan'208";a="53719107"
-From:   Jane Malalane <jane.malalane@citrix.com>
-To:     LKML <linux-kernel@vger.kernel.org>
-CC:     <jane.malalane@citrix.com>, <x86@kernel.org>,
+        id S230250AbhJANrH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Oct 2021 09:47:07 -0400
+Received: from mail-sn1anam02on2057.outbound.protection.outlook.com ([40.107.96.57]:34242
+        "EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S230160AbhJANrG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 Oct 2021 09:47:06 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=nej3DAYHDy9OhCxiLydSC3uleZSpWsdKVDGoNoYbfSCIzt0bHy28PoB9tGZHIXgWcxv6FosHuhOXPiI3tv9Ifg46IdA3Lq0INCWZ2Dnql4LN8agr7wbCW/6nGGkI9LQmS2Fu7k55a4KuU1KL8EnR1gZxKHS/in3MrzyLXz60Dvlm/bZ0TxczirviZaR3VBAcBc7fw8k2G/2eIwsJi6iJp99NyWtM9RI1W698Ae+T82W+7pf7DRPDUk2Rj/H945H1+BjeZp8149i5kbKJxJYTKdu78BQHngWIipRVcCJ4YthoBMMw5u8bERom+gADQnsNGl+9xmFqoRVlJNIQUbSNPg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=aUs2HC6d6X5FMHYVZZqCckMyJ+KbVta8GvL+tqUY4Oo=;
+ b=IsQdDLGJkXHlxEatxpAolYpqLMbmkSRctUZdVXY5S/yFLDFtHdWs2afqRBVll5nXGMyKqikAlvFMposvrLkK1Omu4ClE4HGxZoa10JoognicQw+FGQIbrdnmu2/imk5n0nlHkPt4bTR0jH3aScRxPd3dq0fmqX+HD8tMQle2edjKgHqjKw5n8LMUIytUm4fdMsex3wMtBbKiBcO9mi9mGrUovl1FIWvggQBfbh2u/M/VyaQJHG3qIs5pe5jZBGZJ9/0V7tE5mnlL11BYziu1PASDw2jOK4HMLr0+Wi+QaRKr6N6xpdeRVQ0L4aUaP3+fEmtv76Lz8Ebsyd58HrEJOg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=aUs2HC6d6X5FMHYVZZqCckMyJ+KbVta8GvL+tqUY4Oo=;
+ b=VU4VGKmGkjOwKEcx6CDh9vijSebpYI+dCo6MEHmFvRJY2KECPvCMycxZl7gU2y3pHDHtDimiP1rRPfUST7A+A3GRdM4gzbHz4idnvd9dvfu5GVToS8JarlyMwd3wFv8KADa6W9krCoZhs8/4ufTNQpPxvkpp9Hy9eyx9CrhgroE=
+Authentication-Results: vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=none action=none header.from=amd.com;
+Received: from DM4PR12MB5229.namprd12.prod.outlook.com (2603:10b6:5:398::12)
+ by DM4PR12MB5133.namprd12.prod.outlook.com (2603:10b6:5:390::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4566.15; Fri, 1 Oct
+ 2021 13:45:20 +0000
+Received: from DM4PR12MB5229.namprd12.prod.outlook.com
+ ([fe80::d560:d21:cd59:9418]) by DM4PR12MB5229.namprd12.prod.outlook.com
+ ([fe80::d560:d21:cd59:9418%7]) with mapi id 15.20.4544.022; Fri, 1 Oct 2021
+ 13:45:20 +0000
+Subject: Re: [PATCH] x86/sev: Return an error on a returned non-zero
+ SW_EXITINFO1[31:0]
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     linux-kernel@vger.kernel.org, x86@kernel.org,
         Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, Pu Wen <puwen@hygon.cn>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andrew Cooper <andrew.cooper3@citrix.com>,
-        Yazen Ghannam <Yazen.Ghannam@amd.com>,
-        "Brijesh Singh" <brijesh.singh@amd.com>,
-        Huang Rui <ray.huang@amd.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Kim Phillips <kim.phillips@amd.com>, <stable@vger.kernel.org>
-Subject: [PATCH] x86/cpu: Fix migration safety with X86_BUG_NULL_SEL
-Date:   Fri, 1 Oct 2021 14:33:49 +0100
-Message-ID: <20211001133349.9825-1-jane.malalane@citrix.com>
-X-Mailer: git-send-email 2.11.0
+        Ingo Molnar <mingo@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <jroedel@suse.de>,
+        Brijesh Singh <brijesh.singh@amd.com>, stable@vger.kernel.org
+References: <efc772af831e9e7f517f0439b13b41f56bad8784.1633063321.git.thomas.lendacky@amd.com>
+ <YVbYWz+8J7iMTJjc@zn.tnic>
+From:   Tom Lendacky <thomas.lendacky@amd.com>
+Message-ID: <00d48af4-1683-350c-c334-08968d455e4c@amd.com>
+Date:   Fri, 1 Oct 2021 08:45:17 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
+In-Reply-To: <YVbYWz+8J7iMTJjc@zn.tnic>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SN6PR04CA0095.namprd04.prod.outlook.com
+ (2603:10b6:805:f2::36) To DM4PR12MB5229.namprd12.prod.outlook.com
+ (2603:10b6:5:398::12)
 MIME-Version: 1.0
-Content-Type: text/plain
+Received: from office-ryzen.texastahm.com (67.79.209.213) by SN6PR04CA0095.namprd04.prod.outlook.com (2603:10b6:805:f2::36) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4566.14 via Frontend Transport; Fri, 1 Oct 2021 13:45:19 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 39fdd7b8-bddd-441f-4ad1-08d984e1b5bf
+X-MS-TrafficTypeDiagnostic: DM4PR12MB5133:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <DM4PR12MB5133A0FA4A147DC49D33B142ECAB9@DM4PR12MB5133.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:5797;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: gB9KDBjm6bvNfNie9+Eb1CpecCtCJ1k18TK9MIgsPCiXCbVJepuXFqdbAurmbbMGyJNwRqCp1rsv9jV4eXvQnzh+7oWOKqz6NN22GqBTu1e/IKPDgWcVHttD3gVIbZreS4+tiK+k5cqjQuDwCl1UTq8Zbk7J4tv35tJQzSjZomtxCAgI28RVuXupdWlbgs+nftxrYjAMhAFxhhBwv7+PG3/dzvCVxg/zFX77fc2A02+kUPmeBNglb2o1lBaWbFqXBycn3YcipTCw9Ge/lTlvE84XOH2RWI681Vm2B6mTqtIr12wktU8kWLSUVt8+mTfg6nXKDSQExxjhZlikdy913cmdHyxaRS0rXE1eaRRyi1Bwdb7vPmn+kDPBgDOMf+LypQS+wpZCxE2ED077YQy9YhCTJz9kpEGV/rii5YI9/dBBU4qUQY28PKM2EMAYLX8tFtVNjgd0MNZtnzrJmwZXgb4xXBDcQ/K/koisOI8XPwEmes/gxSWLWYYF67iF1AeYUfcAkbdwbD4wYLc7LBB6x12uPFaz6OJtCVBdoFMskW7rTEOxU1hmOyV+rTmrYvzq52vxf3PyxKg+CkjbB6j65Yoz95GX9UjdUAseiwnwNB8ZnNPzS03eUibfiY2lPxTKrMCLeMcYbJyqMn6s4n6yYkyNH5GxO6pwmYOWr6gMDwYkcM7cndC6OH+KOdkq92yWH2gNmCEO638Ehdaz8arDIhsmmkQLJl7Hq7WFfGQnoG3IAvcgNLqnlFyEZnwIJvS3
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR12MB5229.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(186003)(8936002)(26005)(36756003)(6916009)(2906002)(86362001)(4744005)(38100700002)(31696002)(66946007)(5660300002)(6506007)(316002)(66476007)(66556008)(53546011)(6512007)(54906003)(4326008)(31686004)(6486002)(83380400001)(508600001)(956004)(2616005)(8676002)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?YVhxRzlvaTVCS0VaZDluRldGa1ZoVE03YU5qQ2M0dVRVTkMwMTNxMWdsOTRR?=
+ =?utf-8?B?dHZESmZlYjY3ZUt3Y2lrS3dpeXdVVmoxUjR1UnhpWFZKZGdUSnJ5ZUdjOFR1?=
+ =?utf-8?B?WHJ6dkFRbmdvRW1ralVwandFVlRoMTR1eUpCak54SWE1RU01UmsrWEJ5R2NN?=
+ =?utf-8?B?UCticURlSUZqTGVqQTRaSVVueGhHdjZ6ZmtPaVQ3UnVBa2JvWGF2ekdmUmUy?=
+ =?utf-8?B?Z0xUZ2QrRWdxeXM1TmQ0S01LK28yeE5QZW1BOVRqSUdwdXlFSE1oMWQ5dFJF?=
+ =?utf-8?B?OTFQZHM4aUdKUlVROHNwMXhBcG80OUY0cGZTQ2t3aDU5MDA2eVNhSGVmenll?=
+ =?utf-8?B?UTd2UzVMQi9QL3pJOWU4MklXOE8vQVkwVStDL1UzbTY3UkF5WmtiYmxqRUZi?=
+ =?utf-8?B?Qi9pL3RFMGhPM3VJaUxOSmhzTG9IQ05ENkhSRW94TUxiVGtGWHVFYnljaHhQ?=
+ =?utf-8?B?MnNLRWdiN2lIMm0yMzV1Y3p3dkJ4TUZOU01RMDhzZHBKVnlyYmpmVTdyQ0s4?=
+ =?utf-8?B?OUxkeWlQU1ZKMVlpb1laelhHaEpyWEhpZ3h2MDJYWmtGOHUrRHJqR3BsVmIv?=
+ =?utf-8?B?a09EdGxqdHlIUmhKQWowMlQ2YnJrTlNiV3MrSVB0TjBzemF3eEM5NWFlanFJ?=
+ =?utf-8?B?WTdPeG1TV2p3ajNKWFRUNVQybW9Jd2VuNmszZVJpcVJqZGV1eGczTFRQTjJa?=
+ =?utf-8?B?bU5QNzZ6N05sdWc2b2NJNHFMMml0MmxwVlhtYTRubjBIM1QxTDdIdFB1c1la?=
+ =?utf-8?B?OHJudURFSUpqRHc5bmd0UGIzQkRYR2FlQW9keVNzM0JTaE4xM0VRYkErK2tt?=
+ =?utf-8?B?QTNKSzVzdThTaUN0eE8xa1dDRTdUUjhiSGd1S1g0bXA3WjFTalBTellIWmFJ?=
+ =?utf-8?B?cFJoK25hY21Wc3A5TnZGUWJaeUhZb2gxdCt0bmRIeHE4bkI1cnE1RDZjbnlu?=
+ =?utf-8?B?V2pjRGlid1ZPYzFBM2NHQjJvcXJEVnIvU0sydXhuazlpb2lLaWFyVmdvQ1hD?=
+ =?utf-8?B?R05vY3A5WXJLdUx3Ri9mZThGRlJaMk94UVRDMHM0UzZmbCt4RjN3S0Rkd1VR?=
+ =?utf-8?B?V1ZRQUExa0ZabVFKcmp5NGpvQ2NpVUluc2k4RXg2cnlvQ3F3V0s4MDgrcUxE?=
+ =?utf-8?B?eitCS2Y3WFlKZ3hkVHlkZ3N6REJpbzg0NzFKckNsc2NyZkdraFRUWW40SFpH?=
+ =?utf-8?B?NW5pMmFZRnBzOWdxc3J2cTIzUW5MWW80ZWgyUnpJa3dNUlU4b0NCQTg0UVBP?=
+ =?utf-8?B?VG5WZ1RwZVE0WHhxeHM5ckUwZk4xTjhhYUFVNlk5ZlMwbmhwN2RzWmtId0V4?=
+ =?utf-8?B?ZEJxd1NxL3didmRHZEN3YU5CcTRsK3V6cXFkc3F4eHdpWTlqczc3akVjdGhL?=
+ =?utf-8?B?QWRJNHlDQzl2cDJIeGM3NmV2NHIxcnRZTDJ2M3JtNi9ybTF2WTlEYlZvYm40?=
+ =?utf-8?B?MEVyMElRdFlVRTZTSnd6Y2xNZW8wYi9LRnJIb3FHcWxBQytQeVFpYTFrLzVi?=
+ =?utf-8?B?OElxWWV4SmZ4YXJDZjduSkIvVHljbFFJbWdoYWxUUitlcUhKVms0WkE5U3U0?=
+ =?utf-8?B?TzVwS1J2bFN6ZVpmQWlrM0s0dGhiTHBKZVlkakZoOW1wbHZDQ3pqODUxMCsv?=
+ =?utf-8?B?QW03LzFKMk11cjdad1pHclI4Y01EYkhMT09iTkhiNUNJUkdTR2RJbzVZLzVh?=
+ =?utf-8?B?WnkvY250b2l5WUl5cXI3QzVhaFRZU08yS0tQaElzcURRdDhCb0cxWm9maVVS?=
+ =?utf-8?Q?5drNWro096CWJmwVwUDR48OBRgO8Rd53gb9t5hm?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 39fdd7b8-bddd-441f-4ad1-08d984e1b5bf
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR12MB5229.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Oct 2021 13:45:20.2501
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: THgXYNqHzp/FSW8rF02xI/kHY299npOXhD6dHSNmHprZN+fEfcgfmwXW6y50xKsZzmu8LWO+lt+sSwUkhsUyEA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5133
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently, Linux probes for X86_BUG_NULL_SEL unconditionally which
-makes it unsafe to migrate in a virtualised environment as the
-properties across the migration pool might differ.
+On 10/1/21 4:43 AM, Borislav Petkov wrote:
+> On Thu, Sep 30, 2021 at 11:42:01PM -0500, Tom Lendacky wrote:
+>> After returning from a VMGEXIT NAE event, SW_EXITINFO1[31:0] is checked
+>> for a value of 1, which indicates an error and that SW_EXITINFO2 contains
+>> exception information. However, future versions of the GHCB specification
+>> may define new values for SW_EXITINFO1[31:0], so really any non-zero value
+>> should be treated as an error.
+>>
+> 
+> So I wanna do this ontop. Might wanna apply it and look at the result -
+> it shows better what the changes are.
 
-Zen3 adds the NullSelectorClearsBase bit to indicate that loading
-a NULL segment selector zeroes the base and limit fields, as well as
-just attributes. Zen2 also has this behaviour but doesn't have the
-NSCB bit.
+Yup, looks good to me.
 
-When virtualised, NSCB might be cleared for migration safety,
-therefore we must not probe. Always honour the NSCB bit in this case,
-as the hypervisor is expected to synthesize it in the Zen2 case.
+> 
+> ---
+> From: Borislav Petkov <bp@suse.de>
+> Date: Fri, 1 Oct 2021 11:41:05 +0200
+> Subject: [PATCH] x86/sev: Carve out HV call return value verification
+> 
+> Carve out the verification of the HV call return value into a separate
+> helper and make it more readable.
+> 
+> No it more readable.
 
-Signed-off-by: Jane Malalane <jane.malalane@citrix.com>
----
-CC: <x86@kernel.org>
-CC: Thomas Gleixner <tglx@linutronix.de>
-CC: Ingo Molnar <mingo@redhat.com>
-CC: Borislav Petkov <bp@alien8.de>
-CC: "H. Peter Anvin" <hpa@zytor.com>
-CC: Pu Wen <puwen@hygon.cn>
-CC: Paolo Bonzini <pbonzini@redhat.com>
-CC: Sean Christopherson <seanjc@google.com>
-CC: Peter Zijlstra <peterz@infradead.org>
-CC: Andrew Cooper <andrew.cooper3@citrix.com>
-CC: Yazen Ghannam <Yazen.Ghannam@amd.com>
-CC: Brijesh Singh <brijesh.singh@amd.com>
-CC: Huang Rui <ray.huang@amd.com>
-CC: Andy Lutomirski <luto@kernel.org>
-CC: Kim Phillips <kim.phillips@amd.com>
-CC: <stable@vger.kernel.org>
----
- arch/x86/include/asm/cpufeatures.h |  2 +-
- arch/x86/kernel/cpu/amd.c          | 23 +++++++++++++++++++++++
- arch/x86/kernel/cpu/common.c       |  6 ++----
- arch/x86/kernel/cpu/cpu.h          |  1 +
- arch/x86/kernel/cpu/hygon.c        | 23 +++++++++++++++++++++++
- 5 files changed, 50 insertions(+), 5 deletions(-)
+I'm assuming you don't want this last sentence...
 
-diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
-index d0ce5cfd3ac1..f571e4f6fe83 100644
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -96,7 +96,7 @@
- #define X86_FEATURE_SYSCALL32		( 3*32+14) /* "" syscall in IA32 userspace */
- #define X86_FEATURE_SYSENTER32		( 3*32+15) /* "" sysenter in IA32 userspace */
- #define X86_FEATURE_REP_GOOD		( 3*32+16) /* REP microcode works well */
--/* FREE!                                ( 3*32+17) */
-+#define X86_FEATURE_NSCB		( 3*32+17) /* Null Selector Clears Base */
- #define X86_FEATURE_LFENCE_RDTSC	( 3*32+18) /* "" LFENCE synchronizes RDTSC */
- #define X86_FEATURE_ACC_POWER		( 3*32+19) /* AMD Accumulated Power Mechanism */
- #define X86_FEATURE_NOPL		( 3*32+20) /* The NOPL (0F 1F) instructions */
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index 2131af9f2fa2..73c4863fe0f4 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -650,6 +650,29 @@ static void early_init_amd(struct cpuinfo_x86 *c)
- 	if (c->x86_power & BIT(14))
- 		set_cpu_cap(c, X86_FEATURE_RAPL);
- 
-+	/*
-+	 * Zen1 and earlier CPUs don't clear segment base/limits when
-+	 * loading a NULL selector.  This has been designated
-+	 * X86_BUG_NULL_SEG.
-+	 *
-+	 * Zen3 CPUs advertise Null Selector Clears Base in CPUID.
-+	 * Zen2 CPUs also have this behaviour, but no CPUID bit.
-+	 *
-+	 * A hypervisor may sythesize the bit, but may also hide it
-+	 * for migration safety, so we must not probe for model
-+	 * specific behaviour when virtualised.
-+	 */
-+	if (c->extended_cpuid_level >= 0x80000021 &&
-+	    cpuid_eax(0x80000021) & BIT(6))
-+		set_cpu_cap(c, X86_FEATURE_NSCB);
-+
-+	if (!cpu_has(c, X86_FEATURE_HYPERVISOR) && !cpu_has(c, X86_FEATURE_NSCB) &&
-+	    c->x86 == 0x17)
-+		detect_null_seg_behavior(c);
-+
-+	if (!cpu_has(c, X86_FEATURE_NSCB))
-+		set_cpu_bug(c, X86_BUG_NULL_SEG);
-+
- #ifdef CONFIG_X86_64
- 	set_cpu_cap(c, X86_FEATURE_SYSCALL32);
- #else
-diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index 0f8885949e8c..690337796e61 100644
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -1395,7 +1395,7 @@ void __init early_cpu_init(void)
- 	early_identify_cpu(&boot_cpu_data);
- }
- 
--static void detect_null_seg_behavior(struct cpuinfo_x86 *c)
-+void detect_null_seg_behavior(struct cpuinfo_x86 *c)
- {
- #ifdef CONFIG_X86_64
- 	/*
-@@ -1419,7 +1419,7 @@ static void detect_null_seg_behavior(struct cpuinfo_x86 *c)
- 	loadsegment(fs, 0);
- 	rdmsrl(MSR_FS_BASE, tmp);
- 	if (tmp != 0)
--		set_cpu_bug(c, X86_BUG_NULL_SEG);
-+		set_cpu_cap(c, X86_FEATURE_NSCB);
- 	wrmsrl(MSR_FS_BASE, old_base);
- #endif
- }
-@@ -1457,8 +1457,6 @@ static void generic_identify(struct cpuinfo_x86 *c)
- 
- 	get_model_name(c); /* Default name */
- 
--	detect_null_seg_behavior(c);
--
- 	/*
- 	 * ESPFIX is a strange bug.  All real CPUs have it.  Paravirt
- 	 * systems that run Linux at CPL > 0 may or may not have the
-diff --git a/arch/x86/kernel/cpu/cpu.h b/arch/x86/kernel/cpu/cpu.h
-index 95521302630d..642f46e0dd67 100644
---- a/arch/x86/kernel/cpu/cpu.h
-+++ b/arch/x86/kernel/cpu/cpu.h
-@@ -75,6 +75,7 @@ extern int detect_extended_topology_early(struct cpuinfo_x86 *c);
- extern int detect_extended_topology(struct cpuinfo_x86 *c);
- extern int detect_ht_early(struct cpuinfo_x86 *c);
- extern void detect_ht(struct cpuinfo_x86 *c);
-+extern void detect_null_seg_behavior(struct cpuinfo_x86 *c);
- 
- unsigned int aperfmperf_get_khz(int cpu);
- 
-diff --git a/arch/x86/kernel/cpu/hygon.c b/arch/x86/kernel/cpu/hygon.c
-index 6d50136f7ab9..765f1556d964 100644
---- a/arch/x86/kernel/cpu/hygon.c
-+++ b/arch/x86/kernel/cpu/hygon.c
-@@ -264,6 +264,29 @@ static void early_init_hygon(struct cpuinfo_x86 *c)
- 	if (c->x86_power & BIT(14))
- 		set_cpu_cap(c, X86_FEATURE_RAPL);
- 
-+	/*
-+	 * Zen1 and earlier CPUs don't clear segment base/limits when
-+	 * loading a NULL selector.  This has been designated
-+	 * X86_BUG_NULL_SEG.
-+	 *
-+	 * Zen3 CPUs advertise Null Selector Clears Base in CPUID.
-+	 * Zen2 CPUs also have this behaviour, but no CPUID bit.
-+	 *
-+	 * A hypervisor may sythesize the bit, but may also hide it
-+	 * for migration safety, so we must not probe for model
-+	 * specific behaviour when virtualised.
-+	 */
-+	if (c->extended_cpuid_level >= 0x80000021 &&
-+	    cpuid_eax(0x80000021) & BIT(6))
-+	        set_cpu_cap(c, X86_FEATURE_NSCB);
-+
-+	if (!cpu_has(c, X86_FEATURE_HYPERVISOR) && !cpu_has(c, X86_FEATURE_NSCB) &&
-+	    c->x86 == 0x18)
-+                detect_null_seg_behavior(c);
-+
-+	if (!cpu_has(c, X86_FEATURE_NSCB))
-+		set_cpu_bug(c, X86_BUG_NULL_SEG);
-+
- #ifdef CONFIG_X86_64
- 	set_cpu_cap(c, X86_FEATURE_SYSCALL32);
- #endif
--- 
-2.11.0
+Thanks,
+Tom
 
+> 
