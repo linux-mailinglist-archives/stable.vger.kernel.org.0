@@ -2,60 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EC9A41F670
-	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 22:43:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBF4241F6A2
+	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 23:08:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355526AbhJAUpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Oct 2021 16:45:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56730 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355480AbhJAUpO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Oct 2021 16:45:14 -0400
-Received: from mail-vk1-xa35.google.com (mail-vk1-xa35.google.com [IPv6:2607:f8b0:4864:20::a35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE385C061775
-        for <stable@vger.kernel.org>; Fri,  1 Oct 2021 13:43:29 -0700 (PDT)
-Received: by mail-vk1-xa35.google.com with SMTP id h132so4988226vke.8
-        for <stable@vger.kernel.org>; Fri, 01 Oct 2021 13:43:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=mkE82ywOBx4O5mxcOAlUP7NX5adAXbV5F4olQT7nHl4=;
-        b=dkT8TnDRk0L2TW2mOvn0xa/gh/FwfX52Ek+a6SIMWKLOapDFGkWpRIfKkl5jlC7UX3
-         uoyp9Zmf0fJ0MZJZZl7CjxmOPpjp+0xfG5phgtlhAazTUGdAJdV9CY0xlZkiBtL/Psi7
-         LkA0wIi84GQyskbLopRy/5QfQajP+VgDxyAzXVGEHBMfxXyiXBt6SaODChqjzmrh3il8
-         a9K5RtuQN0tay+bJnhd5qWEWAnpFIMmc81noaBPVF2SGWII45yhhaIwy8Xkj+aq7n4oy
-         c0L29ZgbjXsfgQQBgdNx4piSGnR2A+Db3de+9CkpIOa/ishW/cbVHQMDalKHjFVVbXlU
-         ttfA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=mkE82ywOBx4O5mxcOAlUP7NX5adAXbV5F4olQT7nHl4=;
-        b=toJKeVoBnV+64zKkN6r7HNSIflwxUnIREFiph0trDRDpp1Q5XVmtcZhDa07pPAJGW1
-         xlncOSWyhZpf62S1SuYtZzCyu99B38dKOB0k7xKsvc2gjygPJ91NgrncmtqQ0ZF4HTRf
-         Zbywp6z7LqFNjop2uVbEi7mNHMLUbyseXiUNMrGMKFRwmOBpq3onRuBGFG9mTVmrD9H7
-         jt3euaqrjjj5TglkZPUe5G78giQzyE6pIvUKr9OajbGi5XIzrWsuuKe50QtFjpzeCKSR
-         +DWM/sLNZZ3Oicq6BjyrDAiw00GrS7gm2fY2VYVJnTUs6UmsC7YCVzI6scXteMhfwC8r
-         d/MQ==
-X-Gm-Message-State: AOAM530jUYi/GvRKwXMOeFD3ZQTosHg++xHH5Age+Cdj011nlk8uOxpG
-        Guqo5C6h4djzAwg+duOKmf5rOpOqkYCJ635+xII=
-X-Google-Smtp-Source: ABdhPJwhecJZJGXSellYpxoa3kd/xqK9Zv2NZ+MjyG5YtFU4kE9/7nM0aWMnPpnLPPmVSI2XB9ZdL3/HLM/H3am8Hes=
-X-Received: by 2002:a1f:b2d6:: with SMTP id b205mr9723979vkf.11.1633121008964;
- Fri, 01 Oct 2021 13:43:28 -0700 (PDT)
+        id S230131AbhJAVKB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Oct 2021 17:10:01 -0400
+Received: from mga14.intel.com ([192.55.52.115]:47732 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230134AbhJAVKB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 Oct 2021 17:10:01 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10124"; a="225236295"
+X-IronPort-AV: E=Sophos;i="5.85,340,1624345200"; 
+   d="scan'208";a="225236295"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Oct 2021 14:08:16 -0700
+X-IronPort-AV: E=Sophos;i="5.85,340,1624345200"; 
+   d="scan'208";a="619406958"
+Received: from mdroper-desk1.fm.intel.com (HELO mdroper-desk1.amr.corp.intel.com) ([10.1.27.134])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Oct 2021 14:08:16 -0700
+Date:   Fri, 1 Oct 2021 14:08:15 -0700
+From:   Matt Roper <matthew.d.roper@intel.com>
+To:     Ville Syrjala <ville.syrjala@linux.intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
+        Karthik B S <karthik.b.s@intel.com>
+Subject: Re: [Intel-gfx] [PATCH 1/2] drm/i915: Extend the async flip VT-d w/a
+ to skl/bxt
+Message-ID: <20211001210815.GG3389343@mdroper-desk1.amr.corp.intel.com>
+References: <20210930190943.17547-1-ville.syrjala@linux.intel.com>
 MIME-Version: 1.0
-Received: by 2002:ab0:6cf9:0:0:0:0:0 with HTTP; Fri, 1 Oct 2021 13:43:28 -0700 (PDT)
-Reply-To: aalihelp5@gmail.com
-From:   Hui Ka Yan <jacobmoore.moores41@gmail.com>
-Date:   Fri, 1 Oct 2021 13:43:28 -0700
-Message-ID: <CAEedSLe+LE4Ff2r1-VUR9SwEFHHgm_kU8=YKKGLud0tOwrxA_Q@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210930190943.17547-1-ville.syrjala@linux.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Sep 30, 2021 at 10:09:42PM +0300, Ville Syrjala wrote:
+> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> 
+> Looks like skl/bxt/derivatives also need the plane stride
+> stretch w/a when using async flips and VT-d is enabled, or
+> else we get corruption on screen. To my surprise this was
+> even documented in bspec, but only as a note on the
+> CHICHKEN_PIPESL register description rather than on the
+> w/a list.
+> 
+> So very much the same thing as on HSW/BDW, except the bits
+> moved yet again.
+
+Bspec 7522 doesn't say anything about this requirement being tied to
+VT-d on these platforms.  Should we drop the intel_vtd_active()
+condition to be safe?
+
+
+Matt
+
+> 
+> Cc: stable@vger.kernel.org
+> Cc: Karthik B S <karthik.b.s@intel.com>
+> Fixes: 55ea1cb178ef ("drm/i915: Enable async flips in i915")
+> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> ---
+>  drivers/gpu/drm/i915/i915_reg.h |  5 +++++
+>  drivers/gpu/drm/i915/intel_pm.c | 12 ++++++++++++
+>  2 files changed, 17 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/i915/i915_reg.h b/drivers/gpu/drm/i915/i915_reg.h
+> index 3a20a55d2512..29f6bfc2002d 100644
+> --- a/drivers/gpu/drm/i915/i915_reg.h
+> +++ b/drivers/gpu/drm/i915/i915_reg.h
+> @@ -8222,6 +8222,11 @@ enum {
+>  #define  HSW_SPR_STRETCH_MAX_X1		REG_FIELD_PREP(HSW_SPR_STRETCH_MAX_MASK, 3)
+>  #define  HSW_FBCQ_DIS			(1 << 22)
+>  #define  BDW_DPRS_MASK_VBLANK_SRD	(1 << 0)
+> +#define  SKL_PLANE1_STRETCH_MAX_MASK	REG_GENMASK(1, 0)
+> +#define  SKL_PLANE1_STRETCH_MAX_X8	REG_FIELD_PREP(SKL_PLANE1_STRETCH_MAX_MASK, 0)
+> +#define  SKL_PLANE1_STRETCH_MAX_X4	REG_FIELD_PREP(SKL_PLANE1_STRETCH_MAX_MASK, 1)
+> +#define  SKL_PLANE1_STRETCH_MAX_X2	REG_FIELD_PREP(SKL_PLANE1_STRETCH_MAX_MASK, 2)
+> +#define  SKL_PLANE1_STRETCH_MAX_X1	REG_FIELD_PREP(SKL_PLANE1_STRETCH_MAX_MASK, 3)
+>  #define CHICKEN_PIPESL_1(pipe) _MMIO_PIPE(pipe, _CHICKEN_PIPESL_1_A, _CHICKEN_PIPESL_1_B)
+>  
+>  #define _CHICKEN_TRANS_A	0x420c0
+> diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
+> index ef5f73934dab..74d4620a4999 100644
+> --- a/drivers/gpu/drm/i915/intel_pm.c
+> +++ b/drivers/gpu/drm/i915/intel_pm.c
+> @@ -76,6 +76,8 @@ struct intel_wm_config {
+>  
+>  static void gen9_init_clock_gating(struct drm_i915_private *dev_priv)
+>  {
+> +	enum pipe pipe;
+> +
+>  	if (HAS_LLC(dev_priv)) {
+>  		/*
+>  		 * WaCompressedResourceDisplayNewHashMode:skl,kbl
+> @@ -89,6 +91,16 @@ static void gen9_init_clock_gating(struct drm_i915_private *dev_priv)
+>  			   SKL_DE_COMPRESSED_HASH_MODE);
+>  	}
+>  
+> +	for_each_pipe(dev_priv, pipe) {
+> +		/*
+> +		 * "Plane N strech max must be programmed to 11b (x1)
+> +		 *  when Async flips are enabled on that plane."
+> +		 */
+> +		if (!IS_GEMINILAKE(dev_priv) && intel_vtd_active())
+> +			intel_uncore_rmw(&dev_priv->uncore, CHICKEN_PIPESL_1(pipe),
+> +					 SKL_PLANE1_STRETCH_MAX_MASK, SKL_PLANE1_STRETCH_MAX_X1);
+> +	}
+> +
+>  	/* See Bspec note for PSR2_CTL bit 31, Wa#828:skl,bxt,kbl,cfl */
+>  	intel_uncore_write(&dev_priv->uncore, CHICKEN_PAR1_1,
+>  		   intel_uncore_read(&dev_priv->uncore, CHICKEN_PAR1_1) | SKL_EDP_PSR_FIX_RDWRAP);
+> -- 
+> 2.32.0
+> 
+
 -- 
-Am Mr. Hui Ka Yan. I am donating a grant of $10,500,000 USD to
-you,Contact Me ( aalihelp5@gmail.com ) for further details. Thanks and
-God bless.
+Matt Roper
+Graphics Software Engineer
+VTT-OSGC Platform Enablement
+Intel Corporation
+(916) 356-2795
