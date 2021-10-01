@@ -2,129 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA02D41F177
-	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 17:48:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DA0041F287
+	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 18:52:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353719AbhJAPuS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Oct 2021 11:50:18 -0400
-Received: from 8bytes.org ([81.169.241.247]:43004 "EHLO theia.8bytes.org"
+        id S1355253AbhJAQxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Oct 2021 12:53:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353712AbhJAPuN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 Oct 2021 11:50:13 -0400
-Received: from cap.home.8bytes.org (p4ff2b5b0.dip0.t-ipconnect.de [79.242.181.176])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by theia.8bytes.org (Postfix) with ESMTPSA id A8A804D4;
-        Fri,  1 Oct 2021 17:48:27 +0200 (CEST)
-From:   Joerg Roedel <joro@8bytes.org>
-To:     x86@kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        hpa@zytor.com, Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Joerg Roedel <jroedel@suse.de>,
-        Mike Rapoport <rppt@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH v3 4/4] x86/64/mm: Map all kernel memory into trampoline_pgd
-Date:   Fri,  1 Oct 2021 17:48:17 +0200
-Message-Id: <20211001154817.29225-5-joro@8bytes.org>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211001154817.29225-1-joro@8bytes.org>
-References: <20211001154817.29225-1-joro@8bytes.org>
+        id S1355160AbhJAQxq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 Oct 2021 12:53:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED68E6124D;
+        Fri,  1 Oct 2021 16:52:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1633107122;
+        bh=bk6/xYP2gqu5R6jhA4DnP4czQX4XmdvKGTlusbUWxhM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=fbhqdqylof8JG/SUxYb3CwkopmcxNnoSmLlIcFin3yIabe2ebXxhk1rIRGtHc7bUQ
+         ij8FFxf6YgdaKixcitdY8m6pml8Gx/kosoxriOTfQkIfaRJm32qfxWWp54thh8eTxX
+         FjWjvGS7ELOB5hFs78cQlXuwj7XqKCBw2GzEJZ4bzJ5IbgJFQPXEvaG+BdHnZD8NIj
+         CKWbTXP2VyuZGD4xR8l/86nkdf+Ax5/luKj5W22KpB5rmKJjLpgCHrJH2mBzgULkAD
+         OMWgV1VVMLB1HA1+26VkNgxQTYKCc080/fdOFtEMhC/qmtE056s6MXRquu26C1Si8o
+         T34IMzY95kNjA==
+Date:   Fri, 1 Oct 2021 12:52:01 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Pawel Laszczak <pawell@cadence.com>
+Cc:     Greg KH <greg@kroah.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] usb: cdns3: fix race condition before setting doorbell
+Message-ID: <YVc8sZqAR1EOjrlE@sashalap>
+References: <20210930094217.23316-1-pawell@gli-login.cadence.com>
+ <YVWLamYUlXMmjdqq@kroah.com>
+ <BYAPR07MB5381A0DD3A5CBB66D5178372DDAA9@BYAPR07MB5381.namprd07.prod.outlook.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <BYAPR07MB5381A0DD3A5CBB66D5178372DDAA9@BYAPR07MB5381.namprd07.prod.outlook.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+On Thu, Sep 30, 2021 at 10:22:42AM +0000, Pawel Laszczak wrote:
+>>
+>>On Thu, Sep 30, 2021 at 11:42:17AM +0200, Pawel Laszczak wrote:
+>>> From: Pawel Laszczak <pawell@cadence.com>
+>>>
+>>> commit b69ec50b3e55c4b2a85c8bc46763eaf33060584 upstream
+>>>
+>>> For DEV_VER_V3 version there exist race condition between clearing
+>>> ep_sts.EP_STS_TRBERR and setting ep_cmd.EP_CMD_DRDY bit.
+>>> Setting EP_CMD_DRDY will be ignored by controller when
+>>> EP_STS_TRBERR is set. So, between these two instructions we have
+>>> a small time gap in which the EP_STS_TRBERR can be set. In such case
+>>> the transfer will not start after setting doorbell.
+>>>
+>>> Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+>>> cc: <stable@vger.kernel.org> # 5.4.x
+>>> Tested-by: Aswath Govindraju <a-govindraju@ti.com>
+>>> Reviewed-by: Aswath Govindraju <a-govindraju@ti.com>
+>>> Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+>>> ---
+>>>  drivers/usb/cdns3/gadget.c | 14 ++++++++++++++
+>>>  1 file changed, 14 insertions(+)
+>>
+>>What kernel(s) are you wanting this applied to?
+>
+>To 5.4. I added information in cc: <stable@vger.kernel.org>  tag (# 5.4.x) .
+>Is it sufficient or not?  I ask because I need to post this fix also to v5.10.
 
-The trampoline_pgd only maps the 0xfffffff000000000-0xffffffffffffffff
-range of kernel memory (with 4-level paging). This range contains the
-kernels text+data+bss mappings and the module mapping space, but not the
-direct mapping and the vmalloc area.
+I queued this up for both 5.10 and 5.4, thanks.
 
-This is enough to get an application processors out of real-mode, but
-for code that switches back to real-mode the trampoline_pgd is missing
-important parts of the address space. For example, consider this code
-from arch/x86/kernel/reboot.c, function machine_real_restart() for a
-64-bit kernel:
+The issue seems to be that in the upstream patch you explicitly stated
+to go only to 5.12:
 
-	#ifdef CONFIG_X86_32
-		load_cr3(initial_page_table);
-	#else
-		write_cr3(real_mode_header->trampoline_pgd);
+	cc: <stable@vger.kernel.org> # 5.12.x
 
-		/* Exiting long mode will fail if CR4.PCIDE is set. */
-		if (boot_cpu_has(X86_FEATURE_PCID))
-			cr4_clear_bits(X86_CR4_PCIDE);
-	#endif
+Was that your intent?
 
-		/* Jump to the identity-mapped low memory code */
-	#ifdef CONFIG_X86_32
-		asm volatile("jmpl *%0" : :
-			     "rm" (real_mode_header->machine_real_restart_asm),
-			     "a" (type));
-	#else
-		asm volatile("ljmpl *%0" : :
-			     "m" (real_mode_header->machine_real_restart_asm),
-			     "D" (type));
-	#endif
-
-The code switches to the trampoline_pgd, which unmaps the direct mapping
-and also the kernel stack. The call to cr4_clear_bits() will find no
-stack and crash the machine. The real_mode_header pointer below points
-into the direct mapping, and dereferencing it also causes a crash.
-
-The reason this does not crash always is only that kernel mappings are
-global and the CR3 switch does not flush those mappings. But if theses
-mappings are not in the TLB already, the above code will crash before it
-can jump to the real-mode stub.
-
-Extend the trampoline_pgd to contain all kernel mappings to prevent
-these crashes and to make code which runs on this page-table more
-robust.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- arch/x86/realmode/init.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
-
-diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
-index b9802b18f504..77617cd624fe 100644
---- a/arch/x86/realmode/init.c
-+++ b/arch/x86/realmode/init.c
-@@ -95,6 +95,7 @@ static void __init setup_real_mode(void)
- #ifdef CONFIG_X86_64
- 	u64 *trampoline_pgd;
- 	u64 efer;
-+	int i;
- #endif
- 
- 	base = (unsigned char *)real_mode_header;
-@@ -151,8 +152,17 @@ static void __init setup_real_mode(void)
- 	trampoline_header->flags = 0;
- 
- 	trampoline_pgd = (u64 *) __va(real_mode_header->trampoline_pgd);
-+
-+	/* Map the real mode stub as virtual == physical */
- 	trampoline_pgd[0] = trampoline_pgd_entry.pgd;
--	trampoline_pgd[511] = init_top_pgt[511].pgd;
-+
-+	/*
-+	 * Include the entirety of the kernel mapping into the trampoline
-+	 * PGD.  This way, all mappings present in the normal kernel page
-+	 * tables are usable while running on trampoline_pgd.
-+	 */
-+	for (i = pgd_index(__PAGE_OFFSET); i < PTRS_PER_PGD; i++)
-+		trampoline_pgd[i] = init_top_pgt[i].pgd;
- #endif
- 
- 	sme_sev_setup_real_mode(trampoline_header);
 -- 
-2.33.0
-
+Thanks,
+Sasha
