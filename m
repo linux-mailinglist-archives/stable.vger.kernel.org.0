@@ -2,122 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ACFB41E6DC
-	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 06:42:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D9B941E83A
+	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 09:21:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351842AbhJAEnz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Oct 2021 00:43:55 -0400
-Received: from mail-dm6nam10on2048.outbound.protection.outlook.com ([40.107.93.48]:43287
-        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S230477AbhJAEnz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 Oct 2021 00:43:55 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=K50YGau1VYTtmEgIYlCu2/ttzYfnDotzopeBBuoCNe1YlHC1d/UrtsAqO2Y1G//pIYHO87kDO5hc7NgulCIte2QdHdDw/XoBB0Nl37qPK7Iqpb5+txq3HpZR+dilhmT7HV2gX+COspukuBu1ZItOQYMRtTOze03WxXZeg9DFCdDIpe0/kyM2MgUiTProkVUXVubGulw9y3bLJHBP1h3y2I9OJEJsBqVVkqwD9hJboH66FvbQTvwsdqjr05X3NQO6RKwene1KTPuw/A3Oow7HhpsXZV1bQKietVChfhdSl+q6HG+ymuKbVSiHLKEnLWy/ekJHAdFsLsoAuIV3waqbEw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=5aSIRvMfaRsNjy+ZOvu3++/rvF++EgsC6LnlkREbP5g=;
- b=V4niSoemJgichj16KU7KrTWtv7XBtVxk7vrVAfsPceT+PuLlcfLbe/TW7vA7pDLsL1iONPRpfjbiupJbEaXL+KFXjPzp2H2DqRlcyLwt1vZje4MuMElSuvOr85jzNNvgKxKJLlvTtuTrPp9F8Dmke+sJ9unigc154Vq8+HqQTa7PSQYOL2Gx8Kg0Ru6bEaqU3GbjtxgJUjVyQskxKQRnH2yd1lXtKB2ujd/Vmsu+g3I0iZARexMfj68xc6qrsvRiJ5gwaOgY3d19mXu5YpLoYhU57f6+rTkC4+GR+F/qFbtmeZMERu/jA+Jfk8dMHuaTGxsdq1CVL00+PP3f8C7xEA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=5aSIRvMfaRsNjy+ZOvu3++/rvF++EgsC6LnlkREbP5g=;
- b=ZhdLlL0aJuG3Wt/JXWrTXXbi0KtlaUKI6onn7G9WWkpTkfCX/5Ystw1FER4UypXe8JthVYDcaajAC04JoG6r43G7hyoQDg38GTqgeFR530lcYdOfm5UuHlfObe5mLx81Ac4xkyjB4sOKHT3EdrOT9DQaztOgLu+EfrnLQbLxw0w=
-Received: from BN9PR03CA0416.namprd03.prod.outlook.com (2603:10b6:408:111::31)
- by BL0PR12MB2449.namprd12.prod.outlook.com (2603:10b6:207:40::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4544.13; Fri, 1 Oct
- 2021 04:42:09 +0000
-Received: from BN8NAM11FT039.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:111:cafe::90) by BN9PR03CA0416.outlook.office365.com
- (2603:10b6:408:111::31) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4566.16 via Frontend
- Transport; Fri, 1 Oct 2021 04:42:09 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com;
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- BN8NAM11FT039.mail.protection.outlook.com (10.13.177.169) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.4566.14 via Frontend Transport; Fri, 1 Oct 2021 04:42:09 +0000
-Received: from tlendack-t1.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.8; Thu, 30 Sep
- 2021 23:42:07 -0500
-From:   Tom Lendacky <thomas.lendacky@amd.com>
-To:     <linux-kernel@vger.kernel.org>, <x86@kernel.org>
-CC:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, "Joerg Roedel" <jroedel@suse.de>,
-        Brijesh Singh <brijesh.singh@amd.com>, <stable@vger.kernel.org>
-Subject: [PATCH] x86/sev: Return an error on a returned non-zero SW_EXITINFO1[31:0]
-Date:   Thu, 30 Sep 2021 23:42:01 -0500
-Message-ID: <efc772af831e9e7f517f0439b13b41f56bad8784.1633063321.git.thomas.lendacky@amd.com>
-X-Mailer: git-send-email 2.33.0
+        id S231213AbhJAHWz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Oct 2021 03:22:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44374 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231164AbhJAHWz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 Oct 2021 03:22:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6323613A0;
+        Fri,  1 Oct 2021 07:21:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1633072871;
+        bh=P+Qe5wC7Wej8NovvvGOgOry6hwfzJdM/EQObhQn4QBE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FeGG5CB0OZCRQlSNfAaoS2dN+f6UTWloeVgkff3TFmdEMCJqcoiz5bJvfsHhPZzrM
+         5OOkrY/CkX6qVlJUxofAaaoRqIcCeplhU+fCyGBvotkqJQMxlqhJJcDytO9XpRxJ+v
+         +5lNht7u6+gGu0O3m+SNhGbqMh0snOlF9hpBFNlFvW89qCEfF3JEFNkyVRg3pyys9p
+         bh2Qw6ibzWLIsYWVD0/wXtFb3TkmchWG4bFLH0IQjAaQsIk1oFbBNUkksGS0hT2J/u
+         pQPySal2BhlwXePbIg3xKO9Z2DnvJxYzWovTbxLtxThuiegPlB3aogJ1ZTRAcb+XPz
+         i2Gmk2XLFjbmw==
+Date:   Fri, 1 Oct 2021 15:21:06 +0800
+From:   Peter Chen <peter.chen@kernel.org>
+To:     Frieder Schrempf <frieder.schrempf@kontron.de>
+Cc:     Fabio Estevam <festevam@gmail.com>, shawnguo@kernel.org,
+        marex@denx.de, gregkh@linuxfoundation.org,
+        linux-usb@vger.kernel.org, heiko.thiery@gmail.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v3] usb: chipidea: ci_hdrc_imx: Also search for 'phys'
+ phandle
+Message-ID: <20211001072106.GA5555@Peter>
+References: <20210921113754.767631-1-festevam@gmail.com>
+ <7f3b82ad-ff12-ce23-12a3-25b09c767759@kontron.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 60ac023a-53eb-4397-bd2c-08d98495d3f9
-X-MS-TrafficTypeDiagnostic: BL0PR12MB2449:
-X-Microsoft-Antispam-PRVS: <BL0PR12MB2449DAAF25B6402C4578208BECAB9@BL0PR12MB2449.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:4502;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: eC3RJXcv8Hc2EMHRJa1vo/6UwlYfP+38nf6obEkkiNMhteeqwUJdRihnoqjD+/FC/deQ9+OQMxDSXatUQzil9GDpD2ZT8nvahnlZ0mw7LwTBMylpeP4vTqexv4xiHgstI8qDuz6Vc15EsNuc/+hP54tt4drMXVef+lxroV0hpjfH3gUoj5n6VdJy/2tJS6P+C/QRQm6qUgjcwvLyBDzHUPbBe/xrpnzn+uqVcU1C25luMzvs+jSYgyOj5z6UsNjqP5I3OsaOWqFQy/AXdHiRu6JRBPWGcYwNAEURgrcleH6iQDHm0GWKdQIej2+UzRmFlTAoSUs8iCi3FJS+3zapwHi46mrNVc4viN1gqJZ4ZmC1jITsbSHy3FnNHYP4e1Hbcy35gv8CFmSKyE3A+8MMIKKGnm0ozRSBHJSkS/FhtViYAInznWTdQ2JqEmaIR+1necD7aEZxTYva12WbMBgmt3FsOTXmi/jb1Ayry8FLtXmUM40KA5tFL5cB7ep/tYWCvXhXWmVKI80IoCoBdFOZUpqulNCeJVY1gyLsTaeZKJaPB+x2S5Q6lNlPo3XzWFjGcIxx3KqPnaOZ72u4yTaIllLDdOV1d97Deo6ol9CC5X6jzgCELCABoPV/Nw6tVT+QC5nNYUw+fVMJQ+pgknMIGLiiOKHi25djMElPTuuaBUBFOTAEULXrVTfM8YjfhZkzynp0j89WhutOtID7zlzaFSEYG3KGEoE/7VyQ2ww2tEc=
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(36840700001)(46966006)(508600001)(336012)(2616005)(2906002)(82310400003)(186003)(4326008)(86362001)(70586007)(36860700001)(70206006)(47076005)(4744005)(16526019)(36756003)(110136005)(81166007)(426003)(5660300002)(26005)(6666004)(7696005)(8676002)(316002)(54906003)(356005)(8936002)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Oct 2021 04:42:09.0549
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 60ac023a-53eb-4397-bd2c-08d98495d3f9
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT039.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB2449
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7f3b82ad-ff12-ce23-12a3-25b09c767759@kontron.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-After returning from a VMGEXIT NAE event, SW_EXITINFO1[31:0] is checked
-for a value of 1, which indicates an error and that SW_EXITINFO2 contains
-exception information. However, future versions of the GHCB specification
-may define new values for SW_EXITINFO1[31:0], so really any non-zero value
-should be treated as an error.
+On 21-09-30 16:36:51, Frieder Schrempf wrote:
+> On 21.09.21 13:37, Fabio Estevam wrote:
+> > When passing 'phys' in the devicetree to describe the USB PHY phandle
+> > (which is the recommended way according to
+> > Documentation/devicetree/bindings/usb/ci-hdrc-usb2.txt) the
+> > following NULL pointer dereference is observed on i.MX7 and i.MX8MM:
+> > 
+> > [    1.489344] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000098
+> > [    1.498170] Mem abort info:
+> > [    1.500966]   ESR = 0x96000044
+> > [    1.504030]   EC = 0x25: DABT (current EL), IL = 32 bits
+> > [    1.509356]   SET = 0, FnV = 0
+> > [    1.512416]   EA = 0, S1PTW = 0
+> > [    1.515569]   FSC = 0x04: level 0 translation fault
+> > [    1.520458] Data abort info:
+> > [    1.523349]   ISV = 0, ISS = 0x00000044
+> > [    1.527196]   CM = 0, WnR = 1
+> > [    1.530176] [0000000000000098] user address but active_mm is swapper
+> > [    1.536544] Internal error: Oops: 96000044 [#1] PREEMPT SMP
+> > [    1.542125] Modules linked in:
+> > [    1.545190] CPU: 3 PID: 7 Comm: kworker/u8:0 Not tainted 5.14.0-dirty #3
+> > [    1.551901] Hardware name: Kontron i.MX8MM N801X S (DT)
+> > [    1.557133] Workqueue: events_unbound deferred_probe_work_func
+> > [    1.562984] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
+> > [    1.568998] pc : imx7d_charger_detection+0x3f0/0x510
+> > [    1.573973] lr : imx7d_charger_detection+0x22c/0x510
+> > 
+> > This happens because the charger functions check for the phy presence
+> > inside the imx_usbmisc_data structure (data->usb_phy), but the chipidea
+> > core populates the usb_phy passed via 'phys' inside 'struct ci_hdrc'
+> > (ci->usb_phy) instead.
+> > 
+> > This causes the NULL pointer dereference inside imx7d_charger_detection().
+> > 
+> > Fix it by also searching for 'phys' in case 'fsl,usbphy' is not found.
+> > 
+> > Tested on a imx7s-warp board.
+> > 
+> > Cc: stable@vger.kernel.org
+> > Fixes: 746f316b753a ("usb: chipidea: introduce imx7d USB charger detection")
+> > Reported-by: Heiko Thiery <heiko.thiery@gmail.com>
+> > Signed-off-by: Fabio Estevam <festevam@gmail.com>
+> > Reviewed-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+> 
+> Tested-by: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-Fixes: 597cfe48212a ("x86/boot/compressed/64: Setup a GHCB-based VC Exception handler")
-Cc: <stable@vger.kernel.org> # 5.10+
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
----
- arch/x86/kernel/sev-shared.c | 2 ++
- 1 file changed, 2 insertions(+)
+Applied, thanks.
 
-diff --git a/arch/x86/kernel/sev-shared.c b/arch/x86/kernel/sev-shared.c
-index 34f20e08dc46..ff1e82ff52d9 100644
---- a/arch/x86/kernel/sev-shared.c
-+++ b/arch/x86/kernel/sev-shared.c
-@@ -130,6 +130,8 @@ static enum es_result sev_es_ghcb_hv_call(struct ghcb *ghcb,
- 		} else {
- 			ret = ES_VMM_ERROR;
- 		}
-+	} else if (ghcb->save.sw_exit_info_1 & 0xffffffff) {
-+		ret = ES_VMM_ERROR;
- 	} else {
- 		ret = ES_OK;
- 	}
+Peter
+> 
+> > ---
+> > Changes since v2:
+> > 
+> > - Added Frieder's reviewed-by tag.
+> > - Cc stable
+> > - Improved the commit log and fixed typo in 'dereferenced'
+> > 
+> >  drivers/usb/chipidea/ci_hdrc_imx.c | 15 ++++++++++-----
+> >  1 file changed, 10 insertions(+), 5 deletions(-)
+> > 
+> > diff --git a/drivers/usb/chipidea/ci_hdrc_imx.c b/drivers/usb/chipidea/ci_hdrc_imx.c
+> > index 8b7bc10b6e8b..f1d100671ee6 100644
+> > --- a/drivers/usb/chipidea/ci_hdrc_imx.c
+> > +++ b/drivers/usb/chipidea/ci_hdrc_imx.c
+> > @@ -420,11 +420,16 @@ static int ci_hdrc_imx_probe(struct platform_device *pdev)
+> >  	data->phy = devm_usb_get_phy_by_phandle(dev, "fsl,usbphy", 0);
+> >  	if (IS_ERR(data->phy)) {
+> >  		ret = PTR_ERR(data->phy);
+> > -		/* Return -EINVAL if no usbphy is available */
+> > -		if (ret == -ENODEV)
+> > -			data->phy = NULL;
+> > -		else
+> > -			goto err_clk;
+> > +		if (ret == -ENODEV) {
+> > +			data->phy = devm_usb_get_phy_by_phandle(dev, "phys", 0);
+> > +			if (IS_ERR(data->phy)) {
+> > +				ret = PTR_ERR(data->phy);
+> > +				if (ret == -ENODEV)
+> > +					data->phy = NULL;
+> > +				else
+> > +					goto err_clk;
+> > +			}
+> > +		}
+> >  	}
+> >  
+> >  	pdata.usb_phy = data->phy;
+> > 
+
 -- 
-2.33.0
+
+Thanks,
+Peter Chen
 
