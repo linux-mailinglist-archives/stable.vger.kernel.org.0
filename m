@@ -2,101 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C16541EA1F
-	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 11:52:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B205241EAAF
+	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 12:09:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353240AbhJAJyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Oct 2021 05:54:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45302 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353236AbhJAJyV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Oct 2021 05:54:21 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65A5BC061775;
-        Fri,  1 Oct 2021 02:52:37 -0700 (PDT)
-Date:   Fri, 01 Oct 2021 09:52:34 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1633081955;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=LQF2GC7PP3ik/rdt9jcKV+yUP1P9cj4TUA2No4CVKmE=;
-        b=spRGud5Cqj4isxGr2ChanGYmhIzYiNF/c6grZW/U4/ChzHzNnc1Cnn4xJP+cUIC9hb/bup
-        Ft5SZ9CqDWQ27mcEAbovClWSaiAi3KkcFX+Wxa/o0qnynVqiDDQBWPXndYF78opY4jgkNd
-        qB2qNUY9Hg7+e67rdmTCZh2odXkF+s1w+NO2BA59w78z4GkAwq+DHn/0X+yJyrKPPXeysd
-        7T+H8x1TGG1u8pKI1JqW4pYR1UCKZQ82dsxJJlGGSk990Q215chtXTPltMZHLbNEJ38zAO
-        xMnCofEU5wKT+c8k0MwpRydetiozh48i56zRo50nsSmFEawrrE1h3zfa31EJ+w==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1633081955;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=LQF2GC7PP3ik/rdt9jcKV+yUP1P9cj4TUA2No4CVKmE=;
-        b=ZxbMg6YoLLvXx5kZazg9AtxjTNqID0WDKow+w3VXNGfmb7ZEf4ZsokO61x6e/JO5NFLJLR
-        eugzLVGHUdWsRVAQ==
-From:   "tip-bot2 for Tom Lendacky" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/sev: Return an error on a returned non-zero
- SW_EXITINFO1[31:0]
-Cc:     Tom Lendacky <thomas.lendacky@amd.com>,
-        Borislav Petkov <bp@suse.de>, <stable@vger.kernel.org>,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: =?utf-8?q?=3Cefc772af831e9e7f517f0439b13b41f56bad8784=2E16330?=
- =?utf-8?q?63321=2Egit=2Ethomas=2Elendacky=40amd=2Ecom=3E?=
-References: =?utf-8?q?=3Cefc772af831e9e7f517f0439b13b41f56bad8784=2E163306?=
- =?utf-8?q?3321=2Egit=2Ethomas=2Elendacky=40amd=2Ecom=3E?=
+        id S1353285AbhJAKLV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Oct 2021 06:11:21 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:30689 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230073AbhJAKLV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Oct 2021 06:11:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1633082976;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=b14EzvT2GgzChfN1socPvNOLlgA3D2n94sk8MOsWBCg=;
+        b=BAzZ0JJbknYa02FLI3jhJvM7+XVvtftCNTYBpgOX+A0Ql1zE7z45LOXMELiNLrnjWoyJ1t
+        S6gKmXRM2QsEero0iqmCCXnCkH6j9ImCXXPMixP3M94HfGhkw/4ybZJtJLeCMi69uKHdrM
+        rLomoz8vUAC4K6j3eJIqPKz1MOePsrc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-504-0VGfWj8RMEeqFNceTz2VxQ-1; Fri, 01 Oct 2021 06:09:35 -0400
+X-MC-Unique: 0VGfWj8RMEeqFNceTz2VxQ-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4E8E7184215E;
+        Fri,  1 Oct 2021 10:09:34 +0000 (UTC)
+Received: from x1.localdomain (unknown [10.39.193.11])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 63B89608BA;
+        Fri,  1 Oct 2021 10:09:33 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     stable@vger.kernel.org
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Tobias Gurtzick <magic@wizardtales.com>
+Subject: [PATCH] platform/x86/intel: hid: Add DMI switches allow list
+Date:   Fri,  1 Oct 2021 12:09:32 +0200
+Message-Id: <20211001100932.7907-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Message-ID: <163308195430.25758.9298065722458178197.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+From: José Expósito <jose.exposito89@gmail.com>
 
-Commit-ID:     06f2ac3d4219bbbfd93d79e01966a42053084f11
-Gitweb:        https://git.kernel.org/tip/06f2ac3d4219bbbfd93d79e01966a42053084f11
-Author:        Tom Lendacky <thomas.lendacky@amd.com>
-AuthorDate:    Thu, 30 Sep 2021 23:42:01 -05:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Fri, 01 Oct 2021 11:14:41 +02:00
+commit b201cb0ebe87b209e252d85668e517ac1929e250 upstream.
 
-x86/sev: Return an error on a returned non-zero SW_EXITINFO1[31:0]
+Some devices, even non convertible ones, can send incorrect
+SW_TABLET_MODE reports.
 
-After returning from a VMGEXIT NAE event, SW_EXITINFO1[31:0] is checked
-for a value of 1, which indicates an error and that SW_EXITINFO2
-contains exception information. However, future versions of the GHCB
-specification may define new values for SW_EXITINFO1[31:0], so really
-any non-zero value should be treated as an error.
+Add an allow list and accept such reports only from devices in it.
 
-Fixes: 597cfe48212a ("x86/boot/compressed/64: Setup a GHCB-based VC Exception handler")
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org> # 5.10+
-Link: https://lkml.kernel.org/r/efc772af831e9e7f517f0439b13b41f56bad8784.1633063321.git.thomas.lendacky@amd.com
+Bug reported for Dell XPS 17 9710 on:
+https://gitlab.freedesktop.org/libinput/libinput/-/issues/662
+
+Fixes: ac32bae00083 ("platform/x86: intel-hid: Add alternative method to enable switches")
+Depends-on: 153cca9caa81 ("platform/x86: Add and use a dual_accel_detect() helper")
+Reported-by: Tobias Gurtzick <magic@wizardtales.com>
+Suggested-by: Hans de Goede <hdegoede@redhat.com>
+Tested-by: Tobias Gurtzick <magic@wizardtales.com>
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Link: https://lore.kernel.org/r/20210920160312.9787-1-jose.exposito89@gmail.com
+[hdegoede@redhat.com: Check dmi_switches_auto_add_allow_list only once]
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- arch/x86/kernel/sev-shared.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/platform/x86/intel-hid.c | 27 ++++++++++++++++++++++-----
+ 1 file changed, 22 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/kernel/sev-shared.c b/arch/x86/kernel/sev-shared.c
-index 9f90f46..bf1033a 100644
---- a/arch/x86/kernel/sev-shared.c
-+++ b/arch/x86/kernel/sev-shared.c
-@@ -130,6 +130,8 @@ static enum es_result sev_es_ghcb_hv_call(struct ghcb *ghcb,
- 		} else {
- 			ret = ES_VMM_ERROR;
- 		}
-+	} else if (ghcb->save.sw_exit_info_1 & 0xffffffff) {
-+		ret = ES_VMM_ERROR;
- 	} else {
- 		ret = ES_OK;
- 	}
+diff --git a/drivers/platform/x86/intel-hid.c b/drivers/platform/x86/intel-hid.c
+index 2e4e97a626a5..7b03b497d93b 100644
+--- a/drivers/platform/x86/intel-hid.c
++++ b/drivers/platform/x86/intel-hid.c
+@@ -118,12 +118,30 @@ static const struct dmi_system_id dmi_vgbs_allow_list[] = {
+ 	{ }
+ };
+ 
++/*
++ * Some devices, even non convertible ones, can send incorrect SW_TABLET_MODE
++ * reports. Accept such reports only from devices in this list.
++ */
++static const struct dmi_system_id dmi_auto_add_switch[] = {
++	{
++		.matches = {
++			DMI_EXACT_MATCH(DMI_CHASSIS_TYPE, "31" /* Convertible */),
++		},
++	},
++	{
++		.matches = {
++			DMI_EXACT_MATCH(DMI_CHASSIS_TYPE, "32" /* Detachable */),
++		},
++	},
++	{} /* Array terminator */
++};
++
+ struct intel_hid_priv {
+ 	struct input_dev *input_dev;
+ 	struct input_dev *array;
+ 	struct input_dev *switches;
+ 	bool wakeup_mode;
+-	bool dual_accel;
++	bool auto_add_switch;
+ };
+ 
+ #define HID_EVENT_FILTER_UUID	"eeec56b3-4442-408f-a792-4edd4d758054"
+@@ -452,10 +470,8 @@ static void notify_handler(acpi_handle handle, u32 event, void *context)
+ 	 * Some convertible have unreliable VGBS return which could cause incorrect
+ 	 * SW_TABLET_MODE report, in these cases we enable support when receiving
+ 	 * the first event instead of during driver setup.
+-	 *
+-	 * See dual_accel_detect.h for more info on the dual_accel check.
+ 	 */
+-	if (!priv->switches && !priv->dual_accel && (event == 0xcc || event == 0xcd)) {
++	if (!priv->switches && priv->auto_add_switch && (event == 0xcc || event == 0xcd)) {
+ 		dev_info(&device->dev, "switch event received, enable switches supports\n");
+ 		err = intel_hid_switches_setup(device);
+ 		if (err)
+@@ -596,7 +612,8 @@ static int intel_hid_probe(struct platform_device *device)
+ 		return -ENOMEM;
+ 	dev_set_drvdata(&device->dev, priv);
+ 
+-	priv->dual_accel = dual_accel_detect();
++	/* See dual_accel_detect.h for more info on the dual_accel check. */
++	priv->auto_add_switch = dmi_check_system(dmi_auto_add_switch) && !dual_accel_detect();
+ 
+ 	err = intel_hid_input_setup(device);
+ 	if (err) {
+-- 
+2.31.1
+
