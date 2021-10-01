@@ -2,110 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC11C41EFE4
-	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 16:45:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA02D41F177
+	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 17:48:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354647AbhJAOqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Oct 2021 10:46:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57564 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354640AbhJAOqt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Oct 2021 10:46:49 -0400
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D105FC06177D
-        for <stable@vger.kernel.org>; Fri,  1 Oct 2021 07:45:04 -0700 (PDT)
-Received: by mail-ed1-x533.google.com with SMTP id l7so11980187edq.3
-        for <stable@vger.kernel.org>; Fri, 01 Oct 2021 07:45:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=/H4joMu0i9PRc5y/5IfyO1O3DFiCiHeAFXYOy9MybLU=;
-        b=Sqtq3HVEmFqyq/iZGy3bAUBBvoIIgqDCQe03hPij1pHQ+afGQ+qW4oxzfc6+IQYFAk
-         8sdQMlTfSDwM/Vdd1CJBkNXlYzqUIs7kjIrH/2t+zg3ttq27VO3sQ43AlcBfvpXxKTvl
-         LJ3PlZ6m4VGH2MQRjDVCng2EuhT9h0wVEaeNU4baqn2jFjdOfQHFiF2yKOb9Jj/nE2WT
-         +c/MWFqDTQ0Mz7EPjLT8UhMOzISMjhG8DhpniuDVQDNev5vXymJFaLiemoBg6FM8YkNB
-         qKOz2aScbgR3tKjPuAU54oJVPgg5Bzspd8vBSSjyF4fyOuUspQHrydXkPUbbOutVmVuA
-         y+2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/H4joMu0i9PRc5y/5IfyO1O3DFiCiHeAFXYOy9MybLU=;
-        b=6tgfy93F+LaZHL06T2cWB9D/cA1GugplAp+Cyu9fi+RMQnwFpKqxRgCKKuTYqeS+JH
-         i/hXxJF8UNtgJiGdURSvT7DTwIK7wSIJYNbwahWTPZX/m7U1QGyP3Ymgl7aGjnmXRinj
-         XCVrsAxH14qA35y+u7kRl5vT2jD91CS+69PPFT8q7gdsYw8d3xqdOMshmEx1YE8c+a6m
-         7zj+M9TxMk+K7QhcnPBAiMKP+a+RMbRFGh8JakEkxdnGcUmvjm3UdZ6huGm7KX3ST7hf
-         V9e7GlNgglGWVfeRoH57D/1eYAfgga+4Y7UhOdkwGL78DWJ9Mhr1PaTYJl8fTvASVEkD
-         wWGw==
-X-Gm-Message-State: AOAM532y3LoB1MInGwhGb8wbWKLdwQa8+YiRL0IDfJyBvLlotTaglk8l
-        ezIelGk94Y5e/Age5A0kz8A0IbIL0kS9E87CHoU6
-X-Google-Smtp-Source: ABdhPJzS4Iw/cDlHH6KS55tisJ+ktQs+SukEzIuiCOuC5dk2GUdyTS52lv4qmMGUFGDGNBh9PabWSBxWmsNBGr46Xdw=
-X-Received: by 2002:a50:9b06:: with SMTP id o6mr14719691edi.284.1633099502606;
- Fri, 01 Oct 2021 07:45:02 -0700 (PDT)
+        id S1353719AbhJAPuS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Oct 2021 11:50:18 -0400
+Received: from 8bytes.org ([81.169.241.247]:43004 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1353712AbhJAPuN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 Oct 2021 11:50:13 -0400
+Received: from cap.home.8bytes.org (p4ff2b5b0.dip0.t-ipconnect.de [79.242.181.176])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by theia.8bytes.org (Postfix) with ESMTPSA id A8A804D4;
+        Fri,  1 Oct 2021 17:48:27 +0200 (CEST)
+From:   Joerg Roedel <joro@8bytes.org>
+To:     x86@kernel.org
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        hpa@zytor.com, Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Joerg Roedel <jroedel@suse.de>,
+        Mike Rapoport <rppt@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH v3 4/4] x86/64/mm: Map all kernel memory into trampoline_pgd
+Date:   Fri,  1 Oct 2021 17:48:17 +0200
+Message-Id: <20211001154817.29225-5-joro@8bytes.org>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211001154817.29225-1-joro@8bytes.org>
+References: <20211001154817.29225-1-joro@8bytes.org>
 MIME-Version: 1.0
-References: <20211001024506.3762647-1-tkjos@google.com> <CAHC9VhQ-uziaYRYWaah=RMmz7HUVvxGs+4F=g2sizVXR0ZSWVw@mail.gmail.com>
-In-Reply-To: <CAHC9VhQ-uziaYRYWaah=RMmz7HUVvxGs+4F=g2sizVXR0ZSWVw@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 1 Oct 2021 10:44:51 -0400
-Message-ID: <CAHC9VhSet40x697Of5GJhpuWo-AH4TzEu_SgfBDMmANSzByQEw@mail.gmail.com>
-Subject: Re: [PATCH] binder: use cred instead of task for selinux checks
-To:     Todd Kjos <tkjos@google.com>
-Cc:     gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
-        maco@android.com, christian@brauner.io,
-        James Morris <jmorris@namei.org>,
-        Serge Hallyn <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, keescook@chromium.org,
-        jannh@google.com, Jeffrey Vander Stoep <jeffv@google.com>,
-        zohar@linux.ibm.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-kernel@vger.kernel.org, joel@joelfernandes.org,
-        kernel-team@android.com, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 1, 2021 at 10:38 AM Paul Moore <paul@paul-moore.com> wrote:
-> On Thu, Sep 30, 2021 at 10:45 PM Todd Kjos <tkjos@google.com> wrote:
-> >
-> > Save the struct cred associated with a binder process
-> > at initial open to avoid potential race conditions
-> > when converting to a security ID.
-> >
-> > Since binder was integrated with selinux, it has passed
-> > 'struct task_struct' associated with the binder_proc
-> > to represent the source and target of transactions.
-> > The conversion of task to SID was then done in the hook
-> > implementations. It turns out that there are race conditions
-> > which can result in an incorrect security context being used.
-> >
-> > Fix by saving the 'struct cred' during binder_open and pass
-> > it to the selinux subsystem.
-> >
-> > Fixes: 79af73079d75 ("Add security hooks to binder and implement the
-> > hooks for SELinux.")
-> > Signed-off-by: Todd Kjos <tkjos@google.com>
-> > Cc: stable@vger.kernel.org # 5.14 (need backport for earlier stables)
-> > ---
-> >  drivers/android/binder.c          | 14 +++++----
-> >  drivers/android/binder_internal.h |  3 ++
-> >  include/linux/lsm_hook_defs.h     | 14 ++++-----
-> >  include/linux/security.h          | 28 +++++++++---------
-> >  security/security.c               | 14 ++++-----
-> >  security/selinux/hooks.c          | 48 +++++++++----------------------
-> >  6 files changed, 52 insertions(+), 69 deletions(-)
->
-> Thanks Todd, I'm happy to see someone with a better understanding of
-> binder than me pitch in to clean this up :)  A couple of quick
-> comments/questions below ...
+From: Joerg Roedel <jroedel@suse.de>
 
-Ooops, I was a little over zealous when trimming my response and I
-accidentally cut off my comment that the associated comment blocks in
-include/linux/lsm_hooks.h should also be updated to reflect the binder
-LSM hook changes.
+The trampoline_pgd only maps the 0xfffffff000000000-0xffffffffffffffff
+range of kernel memory (with 4-level paging). This range contains the
+kernels text+data+bss mappings and the module mapping space, but not the
+direct mapping and the vmalloc area.
 
+This is enough to get an application processors out of real-mode, but
+for code that switches back to real-mode the trampoline_pgd is missing
+important parts of the address space. For example, consider this code
+from arch/x86/kernel/reboot.c, function machine_real_restart() for a
+64-bit kernel:
+
+	#ifdef CONFIG_X86_32
+		load_cr3(initial_page_table);
+	#else
+		write_cr3(real_mode_header->trampoline_pgd);
+
+		/* Exiting long mode will fail if CR4.PCIDE is set. */
+		if (boot_cpu_has(X86_FEATURE_PCID))
+			cr4_clear_bits(X86_CR4_PCIDE);
+	#endif
+
+		/* Jump to the identity-mapped low memory code */
+	#ifdef CONFIG_X86_32
+		asm volatile("jmpl *%0" : :
+			     "rm" (real_mode_header->machine_real_restart_asm),
+			     "a" (type));
+	#else
+		asm volatile("ljmpl *%0" : :
+			     "m" (real_mode_header->machine_real_restart_asm),
+			     "D" (type));
+	#endif
+
+The code switches to the trampoline_pgd, which unmaps the direct mapping
+and also the kernel stack. The call to cr4_clear_bits() will find no
+stack and crash the machine. The real_mode_header pointer below points
+into the direct mapping, and dereferencing it also causes a crash.
+
+The reason this does not crash always is only that kernel mappings are
+global and the CR3 switch does not flush those mappings. But if theses
+mappings are not in the TLB already, the above code will crash before it
+can jump to the real-mode stub.
+
+Extend the trampoline_pgd to contain all kernel mappings to prevent
+these crashes and to make code which runs on this page-table more
+robust.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ arch/x86/realmode/init.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
+index b9802b18f504..77617cd624fe 100644
+--- a/arch/x86/realmode/init.c
++++ b/arch/x86/realmode/init.c
+@@ -95,6 +95,7 @@ static void __init setup_real_mode(void)
+ #ifdef CONFIG_X86_64
+ 	u64 *trampoline_pgd;
+ 	u64 efer;
++	int i;
+ #endif
+ 
+ 	base = (unsigned char *)real_mode_header;
+@@ -151,8 +152,17 @@ static void __init setup_real_mode(void)
+ 	trampoline_header->flags = 0;
+ 
+ 	trampoline_pgd = (u64 *) __va(real_mode_header->trampoline_pgd);
++
++	/* Map the real mode stub as virtual == physical */
+ 	trampoline_pgd[0] = trampoline_pgd_entry.pgd;
+-	trampoline_pgd[511] = init_top_pgt[511].pgd;
++
++	/*
++	 * Include the entirety of the kernel mapping into the trampoline
++	 * PGD.  This way, all mappings present in the normal kernel page
++	 * tables are usable while running on trampoline_pgd.
++	 */
++	for (i = pgd_index(__PAGE_OFFSET); i < PTRS_PER_PGD; i++)
++		trampoline_pgd[i] = init_top_pgt[i].pgd;
+ #endif
+ 
+ 	sme_sev_setup_real_mode(trampoline_header);
 -- 
-paul moore
-www.paul-moore.com
+2.33.0
+
