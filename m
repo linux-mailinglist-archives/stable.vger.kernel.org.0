@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEE9A41F607
-	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 21:59:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B33041F609
+	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 21:59:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353310AbhJAUAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Oct 2021 16:00:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43060 "EHLO mail.kernel.org"
+        id S241935AbhJAUA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Oct 2021 16:00:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241726AbhJAUAy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 Oct 2021 16:00:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C67E761AE0;
-        Fri,  1 Oct 2021 19:59:08 +0000 (UTC)
+        id S1354131AbhJAUA4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 Oct 2021 16:00:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7890C61ACF;
+        Fri,  1 Oct 2021 19:59:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633118350;
-        bh=RqyrewmnrCEu148W3hZVOHonsU0izWALcHQxYH5Kk60=;
+        s=k20201202; t=1633118351;
+        bh=lmgWailf9PCmhTaU6pNgRCCvdpOpXgJpPGWHcrWeySE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oBTm5vHBloopaxLo4XEnMByiWgQGrtDpZP58Wd5fmx5LB0+igtSeRjvDfCUaYzbZW
-         WNPcUAbn0WoePg0YWBcQLTshuTQJWaOfa0TfbrmgsE99ek8Wp+UxDgVltS9KhPX10p
-         mmKcirHRWY0kJmim8sPpEriKMP+T0mAtjgzfz1YZkk1p9RGqY/FaWSr06znURYJMgR
-         +m7azii/AF4DFcsQm9xqa3478uxUiHPUThVNPIZTb3rM4lQQhfx6uGkDZapwcRt5Uz
-         FmqH4G8PKF2Wak/LWafO2uaMTF3XhB4wOtR+JykGLR3gmuCSQ1hxdX37z5DAxpBrRE
-         aExpFx9xTLvGA==
+        b=Zh2SmhBpU6/ISLID/EMXhAYIScniFND7a5rPJFw0Cp9DS6/Ugq4e9VU3EbVOi7PuK
+         rkzSsa+5y4rxQ8dCjqFVNYOqvuL4dT3gXc7PzsZ7+W6XYSmGxFH0/VOpmDD3YSAztY
+         nH+b5WYV88mFS+k3+VXdjeTYXsQjV5nDzE7y3fDUQZQlyQPKFuSXiI/itAIrO7t5UK
+         Su74gq2JrQsPf0R8xjTI7eRKGCIJEv6x+HQUbMPyTEX7OpcGMRy+A0aK2J96nGfpge
+         74/W5eZ28khU0eA438KjNZb07iRkLQG2LP7dEWpcLi7tOUBXX0BDDsKKKcBfzbmgXR
+         G9o+JNAk8A00A==
 From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
 To:     Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Cc:     Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
         Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
         pali@kernel.org, =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
         stable@vger.kernel.org
-Subject: [PATCH 06/13] PCI: aardvark: Do not clear status bits of masked interrupts
-Date:   Fri,  1 Oct 2021 21:58:49 +0200
-Message-Id: <20211001195856.10081-7-kabel@kernel.org>
+Subject: [PATCH 07/13] PCI: aardvark: Do not unmask unused interrupts
+Date:   Fri,  1 Oct 2021 21:58:50 +0200
+Message-Id: <20211001195856.10081-8-kabel@kernel.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20211001195856.10081-1-kabel@kernel.org>
 References: <20211001195856.10081-1-kabel@kernel.org>
@@ -44,10 +44,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-It is incorrect to clear status bits of masked interrupts.
-
-The aardvark driver clears all status interrupt bits if no unmasked
-status bit is set. Masked bits should never be cleared.
+There are lot of undocumented interrupt bits. Fix all *_ALL_MASK macros to
+define all interrupt bits, so that driver can properly mask all interrupts,
+including those which are undocumented.
 
 Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
 Signed-off-by: Pali Rohár <pali@kernel.org>
@@ -55,26 +54,38 @@ Reviewed-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 Cc: stable@vger.kernel.org
 ---
- drivers/pci/controller/pci-aardvark.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/pci/controller/pci-aardvark.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index d5d6f92e5143..e4986806a189 100644
+index e4986806a189..46fbaba1e6e4 100644
 --- a/drivers/pci/controller/pci-aardvark.c
 +++ b/drivers/pci/controller/pci-aardvark.c
-@@ -1295,11 +1295,8 @@ static void advk_pcie_handle_int(struct advk_pcie *pcie)
- 	isr1_mask = advk_readl(pcie, PCIE_ISR1_MASK_REG);
- 	isr1_status = isr1_val & ((~isr1_mask) & PCIE_ISR1_ALL_MASK);
+@@ -107,13 +107,13 @@
+ #define     PCIE_ISR0_MSI_INT_PENDING		BIT(24)
+ #define     PCIE_ISR0_INTX_ASSERT(val)		BIT(16 + (val))
+ #define     PCIE_ISR0_INTX_DEASSERT(val)	BIT(20 + (val))
+-#define	    PCIE_ISR0_ALL_MASK			GENMASK(26, 0)
++#define     PCIE_ISR0_ALL_MASK			GENMASK(31, 0)
+ #define PCIE_ISR1_REG				(CONTROL_BASE_ADDR + 0x48)
+ #define PCIE_ISR1_MASK_REG			(CONTROL_BASE_ADDR + 0x4C)
+ #define     PCIE_ISR1_POWER_STATE_CHANGE	BIT(4)
+ #define     PCIE_ISR1_FLUSH			BIT(5)
+ #define     PCIE_ISR1_INTX_ASSERT(val)		BIT(8 + (val))
+-#define     PCIE_ISR1_ALL_MASK			GENMASK(11, 4)
++#define     PCIE_ISR1_ALL_MASK			GENMASK(31, 0)
+ #define PCIE_MSI_ADDR_LOW_REG			(CONTROL_BASE_ADDR + 0x50)
+ #define PCIE_MSI_ADDR_HIGH_REG			(CONTROL_BASE_ADDR + 0x54)
+ #define PCIE_MSI_STATUS_REG			(CONTROL_BASE_ADDR + 0x58)
+@@ -199,7 +199,7 @@
+ #define     PCIE_IRQ_MSI_INT2_DET		BIT(21)
+ #define     PCIE_IRQ_RC_DBELL_DET		BIT(22)
+ #define     PCIE_IRQ_EP_STATUS			BIT(23)
+-#define     PCIE_IRQ_ALL_MASK			0xfff0fb
++#define     PCIE_IRQ_ALL_MASK			GENMASK(31, 0)
+ #define     PCIE_IRQ_ENABLE_INTS_MASK		PCIE_IRQ_CORE_INT
  
--	if (!isr0_status && !isr1_status) {
--		advk_writel(pcie, isr0_val, PCIE_ISR0_REG);
--		advk_writel(pcie, isr1_val, PCIE_ISR1_REG);
-+	if (!isr0_status && !isr1_status)
- 		return;
--	}
- 
- 	/* Process MSI interrupts */
- 	if (isr0_status & PCIE_ISR0_MSI_INT_PENDING)
+ /* Transaction types */
 -- 
 2.32.0
 
