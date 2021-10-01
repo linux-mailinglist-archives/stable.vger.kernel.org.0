@@ -2,107 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DAA241E9C5
-	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 11:41:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D969341E9F8
+	for <lists+stable@lfdr.de>; Fri,  1 Oct 2021 11:44:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353167AbhJAJnf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Oct 2021 05:43:35 -0400
-Received: from smtp-relay-internal-1.canonical.com ([185.125.188.123]:46574
-        "EHLO smtp-relay-internal-1.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1353121AbhJAJnb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Oct 2021 05:43:31 -0400
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com [209.85.167.69])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        id S1352915AbhJAJpq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Oct 2021 05:45:46 -0400
+Received: from mail.skyhub.de ([5.9.137.197]:33856 "EHLO mail.skyhub.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1352947AbhJAJpq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 Oct 2021 05:45:46 -0400
+Received: from zn.tnic (p200300ec2f0e8e00572b4e04e961fee2.dip0.t-ipconnect.de [IPv6:2003:ec:2f0e:8e00:572b:4e04:e961:fee2])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 5990D402D0
-        for <stable@vger.kernel.org>; Fri,  1 Oct 2021 09:41:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1633081307;
-        bh=AbbCj9W6fgvQ0YX3UCQV/nDvOLaUQu6puIQCBSTWMLI=;
-        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-         MIME-Version;
-        b=GCsjuBOvV8fh2yMPyArirrxsa3EOsPaXaDp5CjIAri1uO0BGKJM1+vpj8aMa7BFWD
-         VhCRK0fzoVAr0wK/ZcV7aS9/ZMOuht0xbbRLZzM379yhC2TkxGc9Itgaz05/I5bXgR
-         C2/RU6UWCGfdALv/oq8ewtiRY5wKcxIQ/9oIX/izaeatVheAFaJvFHQ/a2CbuCCT6t
-         +0gavhZbxNipRE4beFbkUsxMUJ9G/zgmKO/dF3lOs66QTysjSvMxx1o73kgYSHRkZp
-         2OHCfcfBMNrENqamsfcMkPJf4Yq8nWx9EwvDPTYIeL8JBkjQ60HLGqgDpkY99xUx8H
-         7L7Oow34FFoMw==
-Received: by mail-lf1-f69.google.com with SMTP id s28-20020a056512203c00b003f42015e912so8448199lfs.4
-        for <stable@vger.kernel.org>; Fri, 01 Oct 2021 02:41:47 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=AbbCj9W6fgvQ0YX3UCQV/nDvOLaUQu6puIQCBSTWMLI=;
-        b=fM+rAnR+Q1OVzNaczYE3ZXQmNAmrl9jDv79hMIzJ/QXMkSjoUbdWXx/QhBp7Rdg7bx
-         /uy1L27fOsUHpdtPTktZpE+egeamnyiYh497tBlajhSiZBiu5ysp8u1Be+802Q0afjiq
-         CipdJHEJrQCfJAHcrt+MHZock/zXUvK3E92UgSBPyFkSM2ywwYp+YYJXQPPWZP//0SV3
-         jxWS+P16rAcqQQ0vKGUSYQvZuNSfaexpCrV2R3tQapyZzEY5wP33Sptb3FEjTPhONjsB
-         f/vKM7HXultf4+oFJE509rT3JuU4JmDZZcxWXjScyAJS50XMNToJXvGQNub8cy4wNyC1
-         7Zaw==
-X-Gm-Message-State: AOAM531rH2U7twhP1wxpWhUWJxJPQ1O8ANUk8TUrMiwpSF0biZEJD+RQ
-        VnJsx7KfaZK9QS4jdKxMEmzHeYuixX/QAwcA0wV9QioNhLY2BPkrCy6OL/VARoECaU07cppXeis
-        tn5oBI+FgB9GELHv4axBEm6RLZsooDhW6jQ==
-X-Received: by 2002:a05:6512:234a:: with SMTP id p10mr4595011lfu.558.1633081306797;
-        Fri, 01 Oct 2021 02:41:46 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxyg7W1xzgknYSesTbUGNII7OW6AkXeOJ/Dcs6Zcc8B3ryexy+M7AriWK9TeCvsP8l3FNeeRw==
-X-Received: by 2002:a05:6512:234a:: with SMTP id p10mr4594990lfu.558.1633081306628;
-        Fri, 01 Oct 2021 02:41:46 -0700 (PDT)
-Received: from localhost.localdomain ([193.178.187.25])
-        by smtp.gmail.com with ESMTPSA id g29sm673784lfj.212.2021.10.01.02.41.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Oct 2021 02:41:46 -0700 (PDT)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-To:     Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Tomasz Figa <tomasz.figa@gmail.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>, linux-clk@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH v2 02/10] regulator: dt-bindings: samsung,s5m8767: correct s5m8767,pmic-buck-default-dvs-idx property
-Date:   Fri,  1 Oct 2021 11:40:58 +0200
-Message-Id: <20211001094106.52412-3-krzysztof.kozlowski@canonical.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211001094106.52412-1-krzysztof.kozlowski@canonical.com>
-References: <20211001094106.52412-1-krzysztof.kozlowski@canonical.com>
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 7E0A91EC05B6;
+        Fri,  1 Oct 2021 11:44:00 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1633081440;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=qaH2SgXehFdkwuB+NIo6dtbyZPg14ekiHuQVpif4oEY=;
+        b=WUJyFN8nvj3q1/0z8QCYl3onXXIBSU7a4EcE8pg50Wq8WlgoI2ELV5TtshIUd15J2q/xCE
+        ov05ia8r/CJDTX+tfsPXk+U1gU037u1/D+xt3WvtrtNwVy4L0JczZIxN0mwG+/wCo0r7B6
+        WzIM8vlfW11m0Skjt1hVp0xRepqzqzc=
+Date:   Fri, 1 Oct 2021 11:43:55 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Tom Lendacky <thomas.lendacky@amd.com>
+Cc:     linux-kernel@vger.kernel.org, x86@kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <jroedel@suse.de>,
+        Brijesh Singh <brijesh.singh@amd.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] x86/sev: Return an error on a returned non-zero
+ SW_EXITINFO1[31:0]
+Message-ID: <YVbYWz+8J7iMTJjc@zn.tnic>
+References: <efc772af831e9e7f517f0439b13b41f56bad8784.1633063321.git.thomas.lendacky@amd.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <efc772af831e9e7f517f0439b13b41f56bad8784.1633063321.git.thomas.lendacky@amd.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The driver was always parsing "s5m8767,pmic-buck-default-dvs-idx", not
-"s5m8767,pmic-buck234-default-dvs-idx".
+On Thu, Sep 30, 2021 at 11:42:01PM -0500, Tom Lendacky wrote:
+> After returning from a VMGEXIT NAE event, SW_EXITINFO1[31:0] is checked
+> for a value of 1, which indicates an error and that SW_EXITINFO2 contains
+> exception information. However, future versions of the GHCB specification
+> may define new values for SW_EXITINFO1[31:0], so really any non-zero value
+> should be treated as an error.
+> 
+> Fixes: 597cfe48212a ("x86/boot/compressed/64: Setup a GHCB-based VC Exception handler")
+> Cc: <stable@vger.kernel.org> # 5.10+
+> Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+> ---
+>  arch/x86/kernel/sev-shared.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/arch/x86/kernel/sev-shared.c b/arch/x86/kernel/sev-shared.c
+> index 34f20e08dc46..ff1e82ff52d9 100644
+> --- a/arch/x86/kernel/sev-shared.c
+> +++ b/arch/x86/kernel/sev-shared.c
+> @@ -130,6 +130,8 @@ static enum es_result sev_es_ghcb_hv_call(struct ghcb *ghcb,
+>  		} else {
+>  			ret = ES_VMM_ERROR;
+>  		}
+> +	} else if (ghcb->save.sw_exit_info_1 & 0xffffffff) {
+> +		ret = ES_VMM_ERROR;
+>  	} else {
+>  		ret = ES_OK;
+>  	}
+> -- 
 
-Cc: <stable@vger.kernel.org>
-Fixes: 26aec009f6b6 ("regulator: add device tree support for s5m8767")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+So I wanna do this ontop. Might wanna apply it and look at the result -
+it shows better what the changes are.
+
 ---
- Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+From: Borislav Petkov <bp@suse.de>
+Date: Fri, 1 Oct 2021 11:41:05 +0200
+Subject: [PATCH] x86/sev: Carve out HV call return value verification
 
-diff --git a/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt b/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
-index d9cff1614f7a..6cd83d920155 100644
---- a/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
-+++ b/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
-@@ -39,7 +39,7 @@ Optional properties of the main device node (the parent!):
+Carve out the verification of the HV call return value into a separate
+helper and make it more readable.
+
+No it more readable.
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+---
+ arch/x86/kernel/sev-shared.c | 53 ++++++++++++++++++++----------------
+ 1 file changed, 29 insertions(+), 24 deletions(-)
+
+diff --git a/arch/x86/kernel/sev-shared.c b/arch/x86/kernel/sev-shared.c
+index bf1033a62e48..f2933f740fa7 100644
+--- a/arch/x86/kernel/sev-shared.c
++++ b/arch/x86/kernel/sev-shared.c
+@@ -94,25 +94,15 @@ static void vc_finish_insn(struct es_em_ctxt *ctxt)
+ 	ctxt->regs->ip += ctxt->insn.length;
+ }
  
- Additional properties required if either of the optional properties are used:
+-static enum es_result sev_es_ghcb_hv_call(struct ghcb *ghcb,
+-					  struct es_em_ctxt *ctxt,
+-					  u64 exit_code, u64 exit_info_1,
+-					  u64 exit_info_2)
++static enum es_result verify_exception_info(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ {
+-	enum es_result ret;
++	int ret;
  
-- - s5m8767,pmic-buck234-default-dvs-idx: Default voltage setting selected from
-+ - s5m8767,pmic-buck-default-dvs-idx: Default voltage setting selected from
-    the possible 8 options selectable by the dvs gpios. The value of this
-    property should be between 0 and 7. If not specified or if out of range, the
-    default value of this property is set to 0.
+-	/* Fill in protocol and format specifiers */
+-	ghcb->protocol_version = GHCB_PROTOCOL_MAX;
+-	ghcb->ghcb_usage       = GHCB_DEFAULT_USAGE;
++	ret = ghcb->save.sw_exit_info_1 & 0xffffffff;
++	if (!ret)
++		return ES_OK;
+ 
+-	ghcb_set_sw_exit_code(ghcb, exit_code);
+-	ghcb_set_sw_exit_info_1(ghcb, exit_info_1);
+-	ghcb_set_sw_exit_info_2(ghcb, exit_info_2);
+-
+-	sev_es_wr_ghcb_msr(__pa(ghcb));
+-	VMGEXIT();
+-
+-	if ((ghcb->save.sw_exit_info_1 & 0xffffffff) == 1) {
++	if (ret == 1) {
+ 		u64 info = ghcb->save.sw_exit_info_2;
+ 		unsigned long v;
+ 
+@@ -124,19 +114,34 @@ static enum es_result sev_es_ghcb_hv_call(struct ghcb *ghcb,
+ 		    ((v == X86_TRAP_GP) || (v == X86_TRAP_UD)) &&
+ 		    ((info & SVM_EVTINJ_TYPE_MASK) == SVM_EVTINJ_TYPE_EXEPT)) {
+ 			ctxt->fi.vector = v;
++
+ 			if (info & SVM_EVTINJ_VALID_ERR)
+ 				ctxt->fi.error_code = info >> 32;
+-			ret = ES_EXCEPTION;
+-		} else {
+-			ret = ES_VMM_ERROR;
++
++			return ES_EXCEPTION;
+ 		}
+-	} else if (ghcb->save.sw_exit_info_1 & 0xffffffff) {
+-		ret = ES_VMM_ERROR;
+-	} else {
+-		ret = ES_OK;
+ 	}
+ 
+-	return ret;
++	return ES_VMM_ERROR;
++}
++
++static enum es_result sev_es_ghcb_hv_call(struct ghcb *ghcb,
++					  struct es_em_ctxt *ctxt,
++					  u64 exit_code, u64 exit_info_1,
++					  u64 exit_info_2)
++{
++	/* Fill in protocol and format specifiers */
++	ghcb->protocol_version = GHCB_PROTOCOL_MAX;
++	ghcb->ghcb_usage       = GHCB_DEFAULT_USAGE;
++
++	ghcb_set_sw_exit_code(ghcb, exit_code);
++	ghcb_set_sw_exit_info_1(ghcb, exit_info_1);
++	ghcb_set_sw_exit_info_2(ghcb, exit_info_2);
++
++	sev_es_wr_ghcb_msr(__pa(ghcb));
++	VMGEXIT();
++
++	return verify_exception_info(ghcb, ctxt);
+ }
+ 
+ /*
 -- 
-2.30.2
+2.29.2
 
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
