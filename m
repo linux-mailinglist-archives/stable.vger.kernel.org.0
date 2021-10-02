@@ -2,134 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C096141FCE1
-	for <lists+stable@lfdr.de>; Sat,  2 Oct 2021 17:53:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17DF241FDCC
+	for <lists+stable@lfdr.de>; Sat,  2 Oct 2021 20:51:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233535AbhJBPz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Oct 2021 11:55:29 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:56986 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233438AbhJBPz2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Oct 2021 11:55:28 -0400
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: sre)
-        with ESMTPSA id D13321F411C6
-Received: by earth.universe (Postfix, from userid 1000)
-        id D4F533C0CA8; Sat,  2 Oct 2021 17:53:39 +0200 (CEST)
-Date:   Sat, 2 Oct 2021 17:53:39 +0200
-From:   Sebastian Reichel <sebastian.reichel@collabora.com>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Henrik Grimler <henrik@grimler.se>, m.szyprowski@samsung.com,
-        krzysztof.kozlowski@canonical.com, sebastian.krzyszkowiak@puri.sm,
-        linux-pm@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
-        ~postmarketos/upstreaming@lists.sr.ht, stable@vger.kernel.org,
-        Wolfgang Wiedmeyer <wolfgit@wiedmeyer.de>
-Subject: Re: [PATCH v2 1/2] power: supply: max17042_battery: use VFSOC for
- capacity when no rsns
-Message-ID: <20211002155339.u33vym7gp5kchwrz@earth.universe>
-References: <20210929181418.4221-1-henrik@grimler.se>
- <be608922-ef03-da35-c65c-575f301b596b@redhat.com>
+        id S233887AbhJBSw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Oct 2021 14:52:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37598 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233799AbhJBSw4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Oct 2021 14:52:56 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02EFEC0613EC
+        for <stable@vger.kernel.org>; Sat,  2 Oct 2021 11:51:10 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id x7so46145261edd.6
+        for <stable@vger.kernel.org>; Sat, 02 Oct 2021 11:51:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=KdP4fI8E/dFqBPvw71gyuqgU8AZ1mfgWR9mHj59NkDM=;
+        b=AklDwk7alvTtOiFLPDozGr5kC0ezDkoBwBElCt78HizsL9IS2I3D86FngvrvG5y0jU
+         t1wbRPt5zmeA0U9AW8EKiJBr7V4CvNCnhzQbEx+XrlkbOL4ppUT3LFIp4a79InFJPjWQ
+         fiUGxfyP54zzs6l8CTwxsCDfsmflwXn6WjIJOefQmfPnInLtIYWe8CItMvBZqDif1Vvr
+         +0q/3V9i2FxBzhAq2w3Amcgiunr89SB/1L5lng5eNY9q4m64uF9On6hsiNFm2LP8K+Iw
+         6bLrGnWyd1cUtTgQn4/T9yALoSvwNtogfNQ0QfrLjZWRc19MavjxcW0O//QlScWu0LiK
+         byiA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition
+         :content-transfer-encoding:in-reply-to;
+        bh=KdP4fI8E/dFqBPvw71gyuqgU8AZ1mfgWR9mHj59NkDM=;
+        b=N80cRU+83oxfHyRQtW1vuB74QGITuPgDB0JJUFzM6EmPNEEgYn+JuU2cDUTfeWtqGg
+         TNP1TjaRTF+Fslrb1KuMFZ2vc1WGnTJ33gF997MjbmeU97l3F6Kwsuo2mmdhMIe8j4R5
+         9crbmZ/EJWCX/l8WsK95NRpw+9zrZ+VPeOLQ8WP2r0fVKTuy3oLxO2XjMeAzJbB7rNJ4
+         v/zx4IB15ZhtOlda3eOcfUizvgZgMuJF/7bm4SkctETFxOsiZOLyCzvyIJw/MzWI4T5J
+         hHIJzxz9gCFRBmwoGKJIdUtLQE7r8pKXg+Yihk0GNKyXZD4zlSQfDSQODJfpeh1vrqfl
+         ZMKA==
+X-Gm-Message-State: AOAM533E+oq2pkVOXnLbZxhNzU97I3iUNQcXQ/wpnjvnuqayaKK5l3RS
+        tK8mBxxhu/NrwnHcMI3IOV/ytjtzzBfwiw==
+X-Google-Smtp-Source: ABdhPJxBfZk0HnJwsBm4Ifm5IFK2Y/Q9+J7sULVkxCXcXTqInFwDBNIl36wpDWd3D7GUBbeY9RKO8A==
+X-Received: by 2002:a05:6402:3128:: with SMTP id dd8mr5541023edb.383.1633200668601;
+        Sat, 02 Oct 2021 11:51:08 -0700 (PDT)
+Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
+        by smtp.gmail.com with ESMTPSA id t4sm4874655edc.2.2021.10.02.11.51.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 02 Oct 2021 11:51:07 -0700 (PDT)
+Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
+Date:   Sat, 2 Oct 2021 20:51:07 +0200
+From:   Salvatore Bonaccorso <carnil@debian.org>
+To:     Ovidiu Panait <ovidiu.panait@windriver.com>
+Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
+        greg@kroah.com
+Subject: Re: [PATCH 5.4 0/3] usb: hso: backport CVE-2021-37159 fix
+Message-ID: <YViqG5Yun6N7bhVl@eldamar.lan>
+References: <20210928131523.2314252-1-ovidiu.panait@windriver.com>
+ <YVNs/mLb9YXNz7G+@eldamar.lan>
+ <2c3095ae-9f67-2a38-e258-1f8d707c4fa2@windriver.com>
+ <YVc9mtE329rqf5ab@sashalap>
+ <18e2816e-cf21-27c2-afc6-bc46fcebde88@windriver.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="7egjpavqn5hc2qqd"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <be608922-ef03-da35-c65c-575f301b596b@redhat.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <18e2816e-cf21-27c2-afc6-bc46fcebde88@windriver.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---7egjpavqn5hc2qqd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
 Hi,
 
-On Wed, Sep 29, 2021 at 09:43:25PM +0200, Hans de Goede wrote:
-> On 9/29/21 8:14 PM, Henrik Grimler wrote:
-> > On Galaxy S3 (i9300/i9305), which has the max17047 fuel gauge and no
-> > current sense resistor (rsns), the RepSOC register does not provide an
-> > accurate state of charge value. The reported value is wrong, and does
-> > not change over time. VFSOC however, which uses the voltage fuel gauge
-> > to determine the state of charge, always shows an accurate value.
-> >=20
-> > For devices without current sense, VFSOC is already used for the
-> > soc-alert (0x0003 is written to MiscCFG register), so with this change
-> > the source of the alert and the PROP_CAPACITY value match.
-> >=20
-> > Fixes: 359ab9f5b154 ("power_supply: Add MAX17042 Fuel Gauge Driver")
-> > Cc: <stable@vger.kernel.org>
-> > Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-> > Suggested-by: Wolfgang Wiedmeyer <wolfgit@wiedmeyer.de>
-> > Signed-off-by: Henrik Grimler <henrik@grimler.se>
-> > ---
-> > Changes in v2:
-> > Re-write commit message to highlight that VFSOC is already used for
-> > alert, after Krzysztof's comments
->=20
-> Thanks, both patches looks good to me:
->=20
-> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
->=20
-> for the series.
+On Sat, Oct 02, 2021 at 03:36:21PM +0300, Ovidiu Panait wrote:
+> Hi Sasha,
+> 
+> On 10/1/21 7:55 PM, Sasha Levin wrote:
+> > [Please note: This e-mail is from an EXTERNAL e-mail address]
+> > 
+> > On Wed, Sep 29, 2021 at 11:03:19AM +0300, Ovidiu Panait wrote:
+> > > Hi Salvatore,
+> > > 
+> > > On 9/28/21 10:29 PM, Salvatore Bonaccorso wrote:
+> > > > [Please note: This e-mail is from an EXTERNAL e-mail address]
+> > > > 
+> > > > Hi Ovidiu
+> > > > 
+> > > > On Tue, Sep 28, 2021 at 04:15:20PM +0300, Ovidiu Panait wrote:
+> > > > > All 3 upstream commits apply cleanly:
+> > > > >    * 5fcfb6d0bfcd ("hso: fix bailout in error case of
+> > > > > probe") is a support
+> > > > >      patch needed for context
+> > > > >    * a6ecfb39ba9d ("usb: hso: fix error handling code of
+> > > > > hso_create_net_device")
+> > > > >      is the actual fix
+> > > > >    * dcb713d53e2e ("usb: hso: remove the bailout parameter")
+> > > > > is a follow up
+> > > > >      cleanup commit
+> > > > > 
+> > > > > Dongliang Mu (2):
+> > > > >   usb: hso: fix error handling code of hso_create_net_device
+> > > > >   usb: hso: remove the bailout parameter
+> > > > > 
+> > > > > Oliver Neukum (1):
+> > > > >   hso: fix bailout in error case of probe
+> > > > > 
+> > > > >  drivers/net/usb/hso.c | 33 +++++++++++++++++++++++----------
+> > > > >  1 file changed, 23 insertions(+), 10 deletions(-)
+> > > > Noticing you sent this patch series for 4.14, 4.19 and 5.4 but am I
+> > > > right that the last commit dcb713d53e2e ("usb: hso: remove the bailout
+> > > > parameter") as cleanup commit should ideally as well be applied to
+> > > > 5.10.y and 5.14.y?
+> > > > 
+> > > > Whilst it's probably not strictly needed it would otherwise leave the
+> > > > upper 5.10.y and 5.14.y inconsistent with those where these series are
+> > > > applied.
+> > > 
+> > > You're right, I have sent the cleanup patch for 5.10/5.14 integration
+> > > as well:
+> > > 
+> > > https://lore.kernel.org/stable/20210929075940.1961832-1-ovidiu.panait@windriver.com/T/#t
+> > > 
+> > 
+> > Why do we need that cleanup commit in <=5.4 to begin with? Does it
+> > actually fix anything?
+> > 
+> The cleanup patch was part of the same patchset with a6ecfb39ba9d ("usb:
+> hso: fix error handling code of hso_create_net_device") fix .
+> 
+> 
+> I think it can be dropped, as it doesn't seem to fix anything. Can only the
+> first two commits be cherry-picked for <=5.4, or should I resend?
 
-Thanks, both queued.
+Probably the right thing to do, Sasha and Ovidiu. Picking it would
+have the small advantage of future commits to backport which would
+conflict around the changed lines.
 
--- Sebastian
+But I have no voice on that matter, I was really only going thorugh
+some stable commits backports request covering CVEs and noticed the
+submission and it's discrepancy.
 
->=20
->=20
-> Regards,
->=20
-> Hans
->=20
->=20
-> > ---
-> >  drivers/power/supply/max17042_battery.c | 5 ++++-
-> >  1 file changed, 4 insertions(+), 1 deletion(-)
-> >=20
-> > diff --git a/drivers/power/supply/max17042_battery.c b/drivers/power/su=
-pply/max17042_battery.c
-> > index 8dffae76b6a3..5809ba997093 100644
-> > --- a/drivers/power/supply/max17042_battery.c
-> > +++ b/drivers/power/supply/max17042_battery.c
-> > @@ -313,7 +313,10 @@ static int max17042_get_property(struct power_supp=
-ly *psy,
-> >  		val->intval =3D data * 625 / 8;
-> >  		break;
-> >  	case POWER_SUPPLY_PROP_CAPACITY:
-> > -		ret =3D regmap_read(map, MAX17042_RepSOC, &data);
-> > +		if (chip->pdata->enable_current_sense)
-> > +			ret =3D regmap_read(map, MAX17042_RepSOC, &data);
-> > +		else
-> > +			ret =3D regmap_read(map, MAX17042_VFSOC, &data);
-> >  		if (ret < 0)
-> >  			return ret;
-> > =20
-> >=20
-> > base-commit: 5816b3e6577eaa676ceb00a848f0fd65fe2adc29
-> >=20
->=20
+For Debian I have for now picked all three commits on top of 4.19.208.
 
---7egjpavqn5hc2qqd
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAmFYgIMACgkQ2O7X88g7
-+poQLg/8CXVaO8gho0G+JicSoNEXEmdF+noJAB/DYjGgXihZVXKvvJQpP/fjLt7z
-28rm2NaWrV02OlWK0Rpx1ZIkCU1CPJjnnLUwxMEyKICyjJPH8p61nEYRKYSVDtN6
-Y9c9isOFNVcHUU8Sg14E+1xr9PImplWmvSTLEODb9DqJ8fBwtrO5JRJ54F3lOUkB
-Hqzv7hKYjbslAOnT/rVn3CcMhliT7xCp+GUU22sEwsUlX9P0aBHuHZPkBouTpflD
-r4y9Z6HvW3WGGSdulTvYBkPQWWYeXSrFv37pi/I65cn0GJH3hw5uUUSkQM6Mxg1u
-tRj3N5DtAR6FDGfqOSSjWhciY6N5NOs1dwAwpNnFWoX6ZQHpF3KNRt9HX1BBS37a
-TGPBHU/a66b12XiMQoALHceVRupYNJ1wqvMhkNiSfiL/mczCTS0mAZeWqyfvL9EP
-aqCHHe50hSoO/dJU5KyZW3EtCkcHUMmP4+LLR8QkZHFZdz7Zg4pcXbsmZoPZZ6eN
-9VuQDDf16VLk3fGird4gxuEoL4OhZHbMKkDdhXnfHTYG2wHmI83eanIHtOjQKazA
-zAXlFMiUy42llxw/beB/NR97/phZ9XAf2i2URrxOG1DqbpxRBbdb6XpO5qenaoox
-Cb3RUHYF4x6ZDSj/ySZnMJABlS6RzN6UAf4avYycKku0cZG4bTg=
-=HT6D
------END PGP SIGNATURE-----
-
---7egjpavqn5hc2qqd--
+Regards,
+Salvatore
