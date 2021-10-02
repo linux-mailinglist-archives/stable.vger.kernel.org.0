@@ -2,107 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9A0541F99D
-	for <lists+stable@lfdr.de>; Sat,  2 Oct 2021 06:19:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C96741FA46
+	for <lists+stable@lfdr.de>; Sat,  2 Oct 2021 09:25:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230209AbhJBEU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Oct 2021 00:20:57 -0400
-Received: from new3-smtp.messagingengine.com ([66.111.4.229]:54897 "EHLO
-        new3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229520AbhJBEU5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Oct 2021 00:20:57 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id E3135580F81;
-        Sat,  2 Oct 2021 00:19:11 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sat, 02 Oct 2021 00:19:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nakato.io; h=
-        from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=fm2; bh=XliFWXIjL29k8
-        nU0RjgNu6OyBCt8KghjoRwqfcsYNzM=; b=buUJjmOBa1OZVow7BwEnPKxU3u6Q0
-        yBlx2aCL5/sVxqhErLM0ij/EVVpdLjelPFepZ2gGwzB6Pl3qf13NPUJbLYZ3RfrD
-        mohG+uPJn9G28qUSOzi7j8mS3Mmw+na5OGr/0sbkIai/FyfthfOm1tBPvS9AG5vd
-        SX5xONoTogOjBhtc3/dM4tA8zUIqnSLFP/LRRSn0O3voF3W+izeF/wMJ7LhqCtl8
-        yVHmLK5oBZ2y6NQBTt3Gj6RSre3V23sVx8Zdrg6IlVLzmYerpFu3G0FksUbSFYZO
-        EjmYtVLzr9addiqvP8+4gdfS9ab3rLhPCX5B3r9H/OwBF4mJtdV13ZsjA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :in-reply-to:message-id:mime-version:references:subject:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; bh=XliFWXIjL29k8nU0RjgNu6OyBCt8KghjoRwqfcsYNzM=; b=uLzp6brD
-        aQLKvEXiN90RDd8kVc49eJH4E3iAMnQrOpDnHFsKqp60kUoy0aAKr/dLJN27reMO
-        E6jUrYrWcHbNxJRooXsLbesW8LoVxM5L12GwmgDskghGGl6bzonU751aD0pQIpU5
-        ncIDfv5NW5ZS1wYvCvAlsbFZQ87S/q2QcAvu0Vgm9UkgYAmTPsIG4hLsOd+c4ZRR
-        84ii7wAPkYibaKQExqtfBMxMYSrcdRGS0bwVQiMIJ6nXX2HenHmCtrnd+3xNTICf
-        MfxLszSs8MkibthVCq+rM1SgVLI6dpFUGEbSjISjKGwzNlDmAOVy1SEXpdpV4g3f
-        dhHrXM6XLcwgxA==
-X-ME-Sender: <xms:v91XYReG1wThITEGaLlSKFAqqZHMovsgROQv5tJXJJmwDO9Ww9eJ9Q>
-    <xme:v91XYfPdZomyB28SvBAf3csgt3HZfcKpcYUkt97Hz76wyAv5ia7Xy2b7BOfDlRKk-
-    1hNlh71OVmDbehUVQ>
-X-ME-Received: <xmr:v91XYagqmTmNIkZO0ImJnGigOytzaHavw7gKOrWKUntkTwz4_uoOWb--wNgsu1TEyeDBygYdYZUodwgDwTnfspGiHCAPMc3F4ZpKGahC>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudekjedgkedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgjfhgggfestdekre
-    dtredttdenucfhrhhomhepufgrtghhihcumfhinhhguceonhgrkhgrthhosehnrghkrght
-    ohdrihhoqeenucggtffrrghtthgvrhhnpedufeethfetgeektdeuvdetiefhteffuddule
-    dukeektdfhtdefudeiheejgffhhfenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgr
-    mhepmhgrihhlfhhrohhmpehnrghkrghtohesnhgrkhgrthhordhioh
-X-ME-Proxy: <xmx:v91XYa-FTWor_WV_eNSCu1-cFJTkUv7L1sBb57M2TH_51boDkKezIg>
-    <xmx:v91XYdvptCRGMHLxRtipD0R-g4Tvmr-XZ5oZRajlFPDkgZpM6wQB5A>
-    <xmx:v91XYZHw7CvI0erGmsJJp8XVelL58gFPrkTR2tyEZKPLowsnEGeWTg>
-    <xmx:v91XYTJwG-lXLRh6gjjQiMU_fex-92g6h-fpOgW_QzoWnJyxINZG4w>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 2 Oct 2021 00:19:07 -0400 (EDT)
-From:   Sachi King <nakato@nakato.io>
-To:     Shyam-sundar.S-k@amd.com, hdegoede@redhat.com,
-        mgross@linux.intel.com, mario.limonciello@amd.com,
-        rafael@kernel.org, lenb@kernel.org
-Cc:     platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-acpi@vger.kernel.org, Sachi King <nakato@nakato.io>,
-        stable@vger.kernel.org
-Subject: [PATCH 2/2] ACPI: PM: Include alternate AMDI0005 id in special behaviour
-Date:   Sat,  2 Oct 2021 14:18:40 +1000
-Message-Id: <20211002041840.2058647-2-nakato@nakato.io>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211002041840.2058647-1-nakato@nakato.io>
-References: <20211002041840.2058647-1-nakato@nakato.io>
+        id S232490AbhJBH1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Oct 2021 03:27:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56962 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231941AbhJBH1i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Oct 2021 03:27:38 -0400
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1A62C061775
+        for <stable@vger.kernel.org>; Sat,  2 Oct 2021 00:25:52 -0700 (PDT)
+Received: by mail-pl1-x630.google.com with SMTP id bb10so327648plb.2
+        for <stable@vger.kernel.org>; Sat, 02 Oct 2021 00:25:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=8MWhlcE5Sbj8TM/Wc0jluje/+kLIAzFI3kqgLGMN3HQ=;
+        b=Ni7DiKjc2bJCI82BRfI833u5pWjmm/YhxvAtucnWH5iIY/cTE7jPv8A+wI31U8jeue
+         HY8dHlUh599JQ55nf0gnYIrX4/MRHCbJ2FjzmvCv+F/g6Kz3W7qmAY+mo9KLWmkzsh9L
+         yyuhe31YMTCMpkndMfWqKnOLmW/tFYZAHZzWKjvFDSlcB2h7FIg18/jXnPNs7g7FLfyO
+         mj8mJIaqfvsrl7GEGr4kaibQaNp0FlxlJKZ8/tnia72i7B0TA4LSWkwMoen8VFJXw5nj
+         nyzl/2nGI5RN8ANZeO/5oySH9AytH7s1HIA730k4VCZJuHzKD1s3r+6I+x0voiyo5/PB
+         sK7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=8MWhlcE5Sbj8TM/Wc0jluje/+kLIAzFI3kqgLGMN3HQ=;
+        b=ypOWQiz+8n/OG6DplBrjEn/DbnyCm0NrY1vhmD1S1kUAMmbrzGUXU8v+ds6YGJbKVL
+         SK7l453nvYCLshMDZg1XOvBLbZIs9gCOMCDDGKAnEpfVt4mfQqzwcTprRSTyi3EVjkKg
+         kUIcgez8PP1589NTN7TjnA92RuhzTKReaNPOfN8qnntkHefl2vXNpOqchSvILwog5c0G
+         mls73/9bpNp5r0/V+EwVzQo2iGrI8B1X2Up14uTgvV109bRE4qdmcNLQ2L3tPHwTEZ7Z
+         HrHUTMnUlONMkOgBcDP5CnLzeih/l55Xu4Ahpdg1mx0deg8CuiahoEwC3oPuWWTyuGwi
+         JS3g==
+X-Gm-Message-State: AOAM53354FrVstlHqjaFUu9skY06XKzXLWk4w5uIpbmPEPCikel5FuJp
+        PwNh82cNoapLuyGU+TjqHxyTwMQY0tu23bZwIAg=
+X-Google-Smtp-Source: ABdhPJzXMLuQqTPB3znjyRc+iQLKpsz/4+DXX5SA+d8CO2Eu26q42Bj4G9vWjTbcevZ+RNUw6OpsW3isTIafQHlIp/Y=
+X-Received: by 2002:a17:90a:6301:: with SMTP id e1mr18016506pjj.245.1633159552379;
+ Sat, 02 Oct 2021 00:25:52 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a17:90b:1d03:0:0:0:0 with HTTP; Sat, 2 Oct 2021 00:25:51
+ -0700 (PDT)
+Reply-To: mrrocklampa1970@gmail.com
+From:   "Mr.Rock Lampa" <mrrocklompo50@gmail.com>
+Date:   Sat, 2 Oct 2021 00:25:51 -0700
+Message-ID: <CAL2SEa31GPqTMv7UX+8aoiF8j-NbOoKEqeqwV_iwbGO6Barydw@mail.gmail.com>
+Subject: READ AND REPLY
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The Surface Laptop 4 AMD has used the AMD0005 to identify this
-controller instead of using the appropriate ACPI ID AMDI0005.  The
-AMD0005 needs the same special casing as AMDI0005.
-
-Cc: <stable@vger.kernel.org> # 5.14+
-Signed-off-by: Sachi King <nakato@nakato.io>
----
- drivers/acpi/x86/s2idle.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/acpi/x86/s2idle.c b/drivers/acpi/x86/s2idle.c
-index bd92b549fd5a..1c48358b43ba 100644
---- a/drivers/acpi/x86/s2idle.c
-+++ b/drivers/acpi/x86/s2idle.c
-@@ -371,7 +371,7 @@ static int lps0_device_attach(struct acpi_device *adev,
- 		return 0;
- 
- 	if (acpi_s2idle_vendor_amd()) {
--		/* AMD0004, AMDI0005:
-+		/* AMD0004, AMD0005, AMDI0005:
- 		 * - Should use rev_id 0x0
- 		 * - function mask > 0x3: Should use AMD method, but has off by one bug
- 		 * - function mask = 0x3: Should use Microsoft method
-@@ -390,6 +390,7 @@ static int lps0_device_attach(struct acpi_device *adev,
- 					ACPI_LPS0_DSM_UUID_MICROSOFT, 0,
- 					&lps0_dsm_guid_microsoft);
- 		if (lps0_dsm_func_mask > 0x3 && (!strcmp(hid, "AMD0004") ||
-+						 !strcmp(hid, "AMD0005") ||
- 						 !strcmp(hid, "AMDI0005"))) {
- 			lps0_dsm_func_mask = (lps0_dsm_func_mask << 1) | 0x1;
- 			acpi_handle_debug(adev->handle, "_DSM UUID %s: Adjusted function mask: 0x%x\n",
--- 
-2.33.0
-
+Dear Friend,
+My Name is Mr. Rock Lampa; I am a banker by profession. My reason for
+contacting you is to transfer abandoned $15.5 Million United States
+Dollars to your account.
+Further details of the transaction shall be forwarded to you as soon
+as I receive your return mail indicating your interest.
+Thanks and hope to hear from you soon.
+Mr. Rock Lampa
