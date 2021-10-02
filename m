@@ -2,56 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBEF741F99A
-	for <lists+stable@lfdr.de>; Sat,  2 Oct 2021 06:19:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9A0541F99D
+	for <lists+stable@lfdr.de>; Sat,  2 Oct 2021 06:19:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229779AbhJBEUy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Oct 2021 00:20:54 -0400
-Received: from new3-smtp.messagingengine.com ([66.111.4.229]:56705 "EHLO
+        id S230209AbhJBEU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Oct 2021 00:20:57 -0400
+Received: from new3-smtp.messagingengine.com ([66.111.4.229]:54897 "EHLO
         new3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229520AbhJBEUx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Oct 2021 00:20:53 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 5C56C580F78;
-        Sat,  2 Oct 2021 00:19:07 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S229520AbhJBEU5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Oct 2021 00:20:57 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailnew.nyi.internal (Postfix) with ESMTP id E3135580F81;
+        Sat,  2 Oct 2021 00:19:11 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sat, 02 Oct 2021 00:19:07 -0400
+  by compute6.internal (MEProxy); Sat, 02 Oct 2021 00:19:11 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nakato.io; h=
-        from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=fm2; bh=DylGuvJdATMpY2rkZNSmEhOXei
-        4V9ICF4PCv80+yHZU=; b=uQGVcLLvCwd9i2ayafKDsKP/VbvpMY+Sr6VU7RrtU+
-        Jl6O1p94E67UPYEiY0oy+uf2iARPa65iLiQ80HIz73ToOYzyklY1J7qJf11Xadql
-        mxjPY92QKBX7YkCkiHyIjE7JzMAUdso5B/xiKaLxND1sDQ8hmLDwQKBX+zRFV7R1
-        nNCB3R5zQbslSfQg7UFLquu1WL9S77tZUfAPT438GLSJ1y2AfAJJzEBGxC52+tde
-        l42DmwVL76xQinziGdP3IQWhx52Sk3eWWsflVxln5IwOxdAe60JHA3Hu+qpv8OFz
-        46JKKi5RnYaJc96/YD9cDrr1o0pz+Ivhhr/RYrCa38Hg==
+        from:to:cc:subject:date:message-id:in-reply-to:references
+        :mime-version:content-transfer-encoding; s=fm2; bh=XliFWXIjL29k8
+        nU0RjgNu6OyBCt8KghjoRwqfcsYNzM=; b=buUJjmOBa1OZVow7BwEnPKxU3u6Q0
+        yBlx2aCL5/sVxqhErLM0ij/EVVpdLjelPFepZ2gGwzB6Pl3qf13NPUJbLYZ3RfrD
+        mohG+uPJn9G28qUSOzi7j8mS3Mmw+na5OGr/0sbkIai/FyfthfOm1tBPvS9AG5vd
+        SX5xONoTogOjBhtc3/dM4tA8zUIqnSLFP/LRRSn0O3voF3W+izeF/wMJ7LhqCtl8
+        yVHmLK5oBZ2y6NQBTt3Gj6RSre3V23sVx8Zdrg6IlVLzmYerpFu3G0FksUbSFYZO
+        EjmYtVLzr9addiqvP8+4gdfS9ab3rLhPCX5B3r9H/OwBF4mJtdV13ZsjA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=DylGuvJdATMpY2rkZ
-        NSmEhOXei4V9ICF4PCv80+yHZU=; b=ualAtLYMQ2osHUxoNLlsPQ6qo0dffpcdi
-        28MPCRVSz/kTzoCPFzzB9cSn+P2rJMztYJUWw8/xa4E2kirp9d94UKT6H2LWP472
-        fPRX6v3mHkdnnLrG8ll3cCdV5EN/8GrCQrPKJ3bO0OHbnO+9ySncq5c81WunlmKk
-        D6imId/DbyRe/hAqJc9twNhlUKxdi4khZIC2C7pHzppWt2oq4KgyAKNP0JFTgkaA
-        ApZeunTwBe8rWM/Na7l9qmNTgG96R3o/fBkmJOPRkfwLatarp5gaLZuYvLUabnxo
-        wlmyFIVgJyUD3MCRzTTS57FUdslAxW7sN016mAVCn9A1Iu4nEIIjA==
-X-ME-Sender: <xms:ut1XYddSqXNoMVO768Tcq20_hyuY2qTBJJOXf_K_nQ2QvhWcsxx9dg>
-    <xme:ut1XYbOLr3fwzj8Gv5cJyLYBgPxLpX5kqTwuZHRmjBgwKUzRI9GfYXW1aeE6mq-_K
-    -eADjO6ssknOddXIw>
-X-ME-Received: <xmr:ut1XYWilpaeajnW4vTwgdonpwR2Arlk9qu0KPPrIJsEqYqUEdRMTNZ90FSaSZNVt6DrypHQFbR4vnah0I1v5MlRLViLK0bKvg-wx5hAc>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudekjedgkeduucetufdoteggodetrfdotf
+        :in-reply-to:message-id:mime-version:references:subject:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm3; bh=XliFWXIjL29k8nU0RjgNu6OyBCt8KghjoRwqfcsYNzM=; b=uLzp6brD
+        aQLKvEXiN90RDd8kVc49eJH4E3iAMnQrOpDnHFsKqp60kUoy0aAKr/dLJN27reMO
+        E6jUrYrWcHbNxJRooXsLbesW8LoVxM5L12GwmgDskghGGl6bzonU751aD0pQIpU5
+        ncIDfv5NW5ZS1wYvCvAlsbFZQ87S/q2QcAvu0Vgm9UkgYAmTPsIG4hLsOd+c4ZRR
+        84ii7wAPkYibaKQExqtfBMxMYSrcdRGS0bwVQiMIJ6nXX2HenHmCtrnd+3xNTICf
+        MfxLszSs8MkibthVCq+rM1SgVLI6dpFUGEbSjISjKGwzNlDmAOVy1SEXpdpV4g3f
+        dhHrXM6XLcwgxA==
+X-ME-Sender: <xms:v91XYReG1wThITEGaLlSKFAqqZHMovsgROQv5tJXJJmwDO9Ww9eJ9Q>
+    <xme:v91XYfPdZomyB28SvBAf3csgt3HZfcKpcYUkt97Hz76wyAv5ia7Xy2b7BOfDlRKk-
+    1hNlh71OVmDbehUVQ>
+X-ME-Received: <xmr:v91XYagqmTmNIkZO0ImJnGigOytzaHavw7gKOrWKUntkTwz4_uoOWb--wNgsu1TEyeDBygYdYZUodwgDwTnfspGiHCAPMc3F4ZpKGahC>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudekjedgkedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtre
-    dttdenucfhrhhomhepufgrtghhihcumfhinhhguceonhgrkhgrthhosehnrghkrghtohdr
-    ihhoqeenucggtffrrghtthgvrhhnpefgjeegieejleelkeeikefhleevudehheehgfeuud
-    dtheetheetvddvfeehjeeitdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhep
-    mhgrihhlfhhrohhmpehnrghkrghtohesnhgrkhgrthhordhioh
-X-ME-Proxy: <xmx:ut1XYW9J5iSh0hazEC7TruTGh9oIVZiSsYBgsZDGZ0DBeLeqKPrPkA>
-    <xmx:ut1XYZvCnswo-3TCNR36AaZaIowRzOjq3pLi64w8beIY04-ai6vLUA>
-    <xmx:ut1XYVG6OhSbyIm890ntqchOwhP8VjahjoekSzGWUUH_ZBiXC7qseg>
-    <xmx:u91XYfKjbC5fQLJzo54mQ_9hwYDQHenk8KF9eysfy_M7YPhM0ln9xw>
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgjfhgggfestdekre
+    dtredttdenucfhrhhomhepufgrtghhihcumfhinhhguceonhgrkhgrthhosehnrghkrght
+    ohdrihhoqeenucggtffrrghtthgvrhhnpedufeethfetgeektdeuvdetiefhteffuddule
+    dukeektdfhtdefudeiheejgffhhfenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgr
+    mhepmhgrihhlfhhrohhmpehnrghkrghtohesnhgrkhgrthhordhioh
+X-ME-Proxy: <xmx:v91XYa-FTWor_WV_eNSCu1-cFJTkUv7L1sBb57M2TH_51boDkKezIg>
+    <xmx:v91XYdvptCRGMHLxRtipD0R-g4Tvmr-XZ5oZRajlFPDkgZpM6wQB5A>
+    <xmx:v91XYZHw7CvI0erGmsJJp8XVelL58gFPrkTR2tyEZKPLowsnEGeWTg>
+    <xmx:v91XYTJwG-lXLRh6gjjQiMU_fex-92g6h-fpOgW_QzoWnJyxINZG4w>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 2 Oct 2021 00:19:02 -0400 (EDT)
+ 2 Oct 2021 00:19:07 -0400 (EDT)
 From:   Sachi King <nakato@nakato.io>
 To:     Shyam-sundar.S-k@amd.com, hdegoede@redhat.com,
         mgross@linux.intel.com, mario.limonciello@amd.com,
@@ -59,10 +60,12 @@ To:     Shyam-sundar.S-k@amd.com, hdegoede@redhat.com,
 Cc:     platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-acpi@vger.kernel.org, Sachi King <nakato@nakato.io>,
         stable@vger.kernel.org
-Subject: [PATCH 1/2] platform/x86: amd-pmc: Add alternative acpi id for PMC controller
-Date:   Sat,  2 Oct 2021 14:18:39 +1000
-Message-Id: <20211002041840.2058647-1-nakato@nakato.io>
+Subject: [PATCH 2/2] ACPI: PM: Include alternate AMDI0005 id in special behaviour
+Date:   Sat,  2 Oct 2021 14:18:40 +1000
+Message-Id: <20211002041840.2058647-2-nakato@nakato.io>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211002041840.2058647-1-nakato@nakato.io>
+References: <20211002041840.2058647-1-nakato@nakato.io>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -70,27 +73,36 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 The Surface Laptop 4 AMD has used the AMD0005 to identify this
-controller instead of using the appropriate ACPI ID AMDI0005.  Include
-AMD0005 in the acpi id list.
+controller instead of using the appropriate ACPI ID AMDI0005.  The
+AMD0005 needs the same special casing as AMDI0005.
 
 Cc: <stable@vger.kernel.org> # 5.14+
 Signed-off-by: Sachi King <nakato@nakato.io>
 ---
- drivers/platform/x86/amd-pmc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/x86/s2idle.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/amd-pmc.c b/drivers/platform/x86/amd-pmc.c
-index d6a7c896ac86..fc95620101e8 100644
---- a/drivers/platform/x86/amd-pmc.c
-+++ b/drivers/platform/x86/amd-pmc.c
-@@ -476,6 +476,7 @@ static const struct acpi_device_id amd_pmc_acpi_ids[] = {
- 	{"AMDI0006", 0},
- 	{"AMDI0007", 0},
- 	{"AMD0004", 0},
-+	{"AMD0005", 0},
- 	{ }
- };
- MODULE_DEVICE_TABLE(acpi, amd_pmc_acpi_ids);
+diff --git a/drivers/acpi/x86/s2idle.c b/drivers/acpi/x86/s2idle.c
+index bd92b549fd5a..1c48358b43ba 100644
+--- a/drivers/acpi/x86/s2idle.c
++++ b/drivers/acpi/x86/s2idle.c
+@@ -371,7 +371,7 @@ static int lps0_device_attach(struct acpi_device *adev,
+ 		return 0;
+ 
+ 	if (acpi_s2idle_vendor_amd()) {
+-		/* AMD0004, AMDI0005:
++		/* AMD0004, AMD0005, AMDI0005:
+ 		 * - Should use rev_id 0x0
+ 		 * - function mask > 0x3: Should use AMD method, but has off by one bug
+ 		 * - function mask = 0x3: Should use Microsoft method
+@@ -390,6 +390,7 @@ static int lps0_device_attach(struct acpi_device *adev,
+ 					ACPI_LPS0_DSM_UUID_MICROSOFT, 0,
+ 					&lps0_dsm_guid_microsoft);
+ 		if (lps0_dsm_func_mask > 0x3 && (!strcmp(hid, "AMD0004") ||
++						 !strcmp(hid, "AMD0005") ||
+ 						 !strcmp(hid, "AMDI0005"))) {
+ 			lps0_dsm_func_mask = (lps0_dsm_func_mask << 1) | 0x1;
+ 			acpi_handle_debug(adev->handle, "_DSM UUID %s: Adjusted function mask: 0x%x\n",
 -- 
 2.33.0
 
