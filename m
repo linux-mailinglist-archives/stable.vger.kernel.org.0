@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F3F24201FB
-	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 16:18:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC2B44201FC
+	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 16:18:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230433AbhJCOUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Oct 2021 10:20:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52950 "EHLO mail.kernel.org"
+        id S230250AbhJCOUS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Oct 2021 10:20:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230477AbhJCOUP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 3 Oct 2021 10:20:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CBD261B00;
-        Sun,  3 Oct 2021 14:18:27 +0000 (UTC)
+        id S230477AbhJCOUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 3 Oct 2021 10:20:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2DA9619F7;
+        Sun,  3 Oct 2021 14:18:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633270708;
-        bh=gx7of2cQ0up4YWDwI0rfl6vEPo8HTlIN5FA19PVJcSI=;
+        s=korg; t=1633270711;
+        bh=CQMHzXRpwcqgVEjiztKJ483lrgGBJ78w+goFQsxljyA=;
         h=Subject:To:Cc:From:Date:From;
-        b=KBNDyn0CnMGTpk+boU21UX+hKeHO64NnFB0LeJwnMQPv31CcEhM0iU0ArB6SmfzAu
-         lCW+38hheXPrZbAwBzvetXmF0oyRZpdpqALnxNRkl0vrSgMZX+r5mxDevmC7XpBdCG
-         EqJmE2CK4wG75QRRlVH85u1JpDe44V6q7ayuXEGA=
-Subject: FAILED: patch "[PATCH] RDMA/cma: Ensure rdma_addr_cancel() happens before issuing" failed to apply to 4.9-stable tree
+        b=o3deQC5zIqgUV6k0eNXGHD82zSHRLTY4QHkP/nemh6WXzu12caX88v3NH8ZN39uQv
+         uAdo+01elK6b6cPUiqle/GGzLkSTPmTI7jdidvgtSoCPDjx4snF4fagskNETHg5ZZp
+         cfCV0beN49g538vrB/hXvrlfr3Dl+domCwAs16sE=
+Subject: FAILED: patch "[PATCH] RDMA/cma: Ensure rdma_addr_cancel() happens before issuing" failed to apply to 4.14-stable tree
 To:     jgg@ziepe.ca, jgg@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Oct 2021 16:18:23 +0200
-Message-ID: <1633270703251153@kroah.com>
+Date:   Sun, 03 Oct 2021 16:18:25 +0200
+Message-ID: <163327070513424@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
