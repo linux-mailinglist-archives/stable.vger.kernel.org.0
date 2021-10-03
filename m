@@ -2,145 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17DF241FDCC
-	for <lists+stable@lfdr.de>; Sat,  2 Oct 2021 20:51:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D93E41FF41
+	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 04:48:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233887AbhJBSw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Oct 2021 14:52:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37598 "EHLO
+        id S229587AbhJCCtz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Oct 2021 22:49:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233799AbhJBSw4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Oct 2021 14:52:56 -0400
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02EFEC0613EC
-        for <stable@vger.kernel.org>; Sat,  2 Oct 2021 11:51:10 -0700 (PDT)
-Received: by mail-ed1-x52e.google.com with SMTP id x7so46145261edd.6
-        for <stable@vger.kernel.org>; Sat, 02 Oct 2021 11:51:09 -0700 (PDT)
+        with ESMTP id S229560AbhJCCty (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Oct 2021 22:49:54 -0400
+Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59BC3C0613EC
+        for <stable@vger.kernel.org>; Sat,  2 Oct 2021 19:48:08 -0700 (PDT)
+Received: by mail-il1-x142.google.com with SMTP id k13so14661048ilo.7
+        for <stable@vger.kernel.org>; Sat, 02 Oct 2021 19:48:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=KdP4fI8E/dFqBPvw71gyuqgU8AZ1mfgWR9mHj59NkDM=;
-        b=AklDwk7alvTtOiFLPDozGr5kC0ezDkoBwBElCt78HizsL9IS2I3D86FngvrvG5y0jU
-         t1wbRPt5zmeA0U9AW8EKiJBr7V4CvNCnhzQbEx+XrlkbOL4ppUT3LFIp4a79InFJPjWQ
-         fiUGxfyP54zzs6l8CTwxsCDfsmflwXn6WjIJOefQmfPnInLtIYWe8CItMvBZqDif1Vvr
-         +0q/3V9i2FxBzhAq2w3Amcgiunr89SB/1L5lng5eNY9q4m64uF9On6hsiNFm2LP8K+Iw
-         6bLrGnWyd1cUtTgQn4/T9yALoSvwNtogfNQ0QfrLjZWRc19MavjxcW0O//QlScWu0LiK
-         byiA==
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=/T9drlD1s9vO6lHEMs4LJzmDo2MKXEHBXvFYaWoQWpk=;
+        b=MKsAjVhkPAgGlMCIF9WtC2k8zaBSwIdlwfxrEY3B+w1syPedAwJTo+6txEDW4G0zST
+         sLNcxINpYohu8sk0EyGteGNy3aqHO9ozG8wS8/JV2iAxnrvhvs/Ii1X6KcCzIN+k6S1y
+         O5kQkj1f0X++p6Q3i2hW9I1BeSQ4k1BHpGm6/Sz+nyeL8797+mOuEhZVinuoQEBVL0vb
+         rJ29pwTs1sGtrkAafwyBssHdjdWLzWdLSUH/MP7f+U4CSJdYJnyLhKLtyKhIflxTRVdb
+         wxvsfZP1jAbWm/UhW7oLDsAyZ3SSTaLtANG9ZVWN9WLAPAtAAo2dM329vysfC873jNMH
+         jT0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition
-         :content-transfer-encoding:in-reply-to;
-        bh=KdP4fI8E/dFqBPvw71gyuqgU8AZ1mfgWR9mHj59NkDM=;
-        b=N80cRU+83oxfHyRQtW1vuB74QGITuPgDB0JJUFzM6EmPNEEgYn+JuU2cDUTfeWtqGg
-         TNP1TjaRTF+Fslrb1KuMFZ2vc1WGnTJ33gF997MjbmeU97l3F6Kwsuo2mmdhMIe8j4R5
-         9crbmZ/EJWCX/l8WsK95NRpw+9zrZ+VPeOLQ8WP2r0fVKTuy3oLxO2XjMeAzJbB7rNJ4
-         v/zx4IB15ZhtOlda3eOcfUizvgZgMuJF/7bm4SkctETFxOsiZOLyCzvyIJw/MzWI4T5J
-         hHIJzxz9gCFRBmwoGKJIdUtLQE7r8pKXg+Yihk0GNKyXZD4zlSQfDSQODJfpeh1vrqfl
-         ZMKA==
-X-Gm-Message-State: AOAM533E+oq2pkVOXnLbZxhNzU97I3iUNQcXQ/wpnjvnuqayaKK5l3RS
-        tK8mBxxhu/NrwnHcMI3IOV/ytjtzzBfwiw==
-X-Google-Smtp-Source: ABdhPJxBfZk0HnJwsBm4Ifm5IFK2Y/Q9+J7sULVkxCXcXTqInFwDBNIl36wpDWd3D7GUBbeY9RKO8A==
-X-Received: by 2002:a05:6402:3128:: with SMTP id dd8mr5541023edb.383.1633200668601;
-        Sat, 02 Oct 2021 11:51:08 -0700 (PDT)
-Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
-        by smtp.gmail.com with ESMTPSA id t4sm4874655edc.2.2021.10.02.11.51.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 02 Oct 2021 11:51:07 -0700 (PDT)
-Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
-Date:   Sat, 2 Oct 2021 20:51:07 +0200
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     Ovidiu Panait <ovidiu.panait@windriver.com>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        greg@kroah.com
-Subject: Re: [PATCH 5.4 0/3] usb: hso: backport CVE-2021-37159 fix
-Message-ID: <YViqG5Yun6N7bhVl@eldamar.lan>
-References: <20210928131523.2314252-1-ovidiu.panait@windriver.com>
- <YVNs/mLb9YXNz7G+@eldamar.lan>
- <2c3095ae-9f67-2a38-e258-1f8d707c4fa2@windriver.com>
- <YVc9mtE329rqf5ab@sashalap>
- <18e2816e-cf21-27c2-afc6-bc46fcebde88@windriver.com>
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=/T9drlD1s9vO6lHEMs4LJzmDo2MKXEHBXvFYaWoQWpk=;
+        b=a+VaCvVouumdIElScnbw80J+JV/Xfbh9V6/4l23d6mdSSQTPfQndFtXvjcv1qvlV3u
+         FB3oAUvfpMSD/JyirR2ZW0hiJtA3qeRWgqdLD3l8laMBF1UPhuqw3ilTqUgVNe7VucBt
+         RNvj2ea5AVLxFIErmYY5ilbWeyWvpu1cYYnaWjuWWOlajbxIx4vDm3Na4hwTagrhcA4i
+         WWf3zcWI6UqwvTFkrLluiJwd27+BC1Uph69lFU53Ya17YK2Sd79iB5l2nURfcEqeteqk
+         aGuV5BFVMmOuPIyhj//fxbwrXrqI4phlLjSajMije3uJK8cYI3Lcs6Ir5Y/MDvdEljZk
+         lIeA==
+X-Gm-Message-State: AOAM530jpQNiNqs4LcWdacTwd+R5BZQUlTo1D1khKb+CC0FW3PLULN9J
+        gwOwIPPPOZ9bVXuuBStvikp1IelmNBpV2Kr6tVY=
+X-Google-Smtp-Source: ABdhPJy4rf/lwqUjokKCvlcRNFWmX5oPhpAATPTdKtuMJ5lzfSFeHEkxtZ78TIiqXOuMU5Wv+1NhQsRLRaDKSif1TpQ=
+X-Received: by 2002:a05:6e02:1846:: with SMTP id b6mr4853533ilv.75.1633229287767;
+ Sat, 02 Oct 2021 19:48:07 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <18e2816e-cf21-27c2-afc6-bc46fcebde88@windriver.com>
+Received: by 2002:a4f:bf57:0:0:0:0:0 with HTTP; Sat, 2 Oct 2021 19:48:07 -0700 (PDT)
+Reply-To: irenezakari88@gmail.com
+From:   Irene Zakari <irenezakari44@gmail.com>
+Date:   Sat, 2 Oct 2021 19:48:07 -0700
+Message-ID: <CALwnxk=oVyZtqiB9MtUjFcv1mRqiwSuXOr6aUVXRMmChOiYazw@mail.gmail.com>
+Subject: PLEASE I NEED YOUR HELP
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Hello   ..
 
-On Sat, Oct 02, 2021 at 03:36:21PM +0300, Ovidiu Panait wrote:
-> Hi Sasha,
-> 
-> On 10/1/21 7:55 PM, Sasha Levin wrote:
-> > [Please note: This e-mail is from an EXTERNAL e-mail address]
-> > 
-> > On Wed, Sep 29, 2021 at 11:03:19AM +0300, Ovidiu Panait wrote:
-> > > Hi Salvatore,
-> > > 
-> > > On 9/28/21 10:29 PM, Salvatore Bonaccorso wrote:
-> > > > [Please note: This e-mail is from an EXTERNAL e-mail address]
-> > > > 
-> > > > Hi Ovidiu
-> > > > 
-> > > > On Tue, Sep 28, 2021 at 04:15:20PM +0300, Ovidiu Panait wrote:
-> > > > > All 3 upstream commits apply cleanly:
-> > > > >    * 5fcfb6d0bfcd ("hso: fix bailout in error case of
-> > > > > probe") is a support
-> > > > >      patch needed for context
-> > > > >    * a6ecfb39ba9d ("usb: hso: fix error handling code of
-> > > > > hso_create_net_device")
-> > > > >      is the actual fix
-> > > > >    * dcb713d53e2e ("usb: hso: remove the bailout parameter")
-> > > > > is a follow up
-> > > > >      cleanup commit
-> > > > > 
-> > > > > Dongliang Mu (2):
-> > > > >   usb: hso: fix error handling code of hso_create_net_device
-> > > > >   usb: hso: remove the bailout parameter
-> > > > > 
-> > > > > Oliver Neukum (1):
-> > > > >   hso: fix bailout in error case of probe
-> > > > > 
-> > > > >  drivers/net/usb/hso.c | 33 +++++++++++++++++++++++----------
-> > > > >  1 file changed, 23 insertions(+), 10 deletions(-)
-> > > > Noticing you sent this patch series for 4.14, 4.19 and 5.4 but am I
-> > > > right that the last commit dcb713d53e2e ("usb: hso: remove the bailout
-> > > > parameter") as cleanup commit should ideally as well be applied to
-> > > > 5.10.y and 5.14.y?
-> > > > 
-> > > > Whilst it's probably not strictly needed it would otherwise leave the
-> > > > upper 5.10.y and 5.14.y inconsistent with those where these series are
-> > > > applied.
-> > > 
-> > > You're right, I have sent the cleanup patch for 5.10/5.14 integration
-> > > as well:
-> > > 
-> > > https://lore.kernel.org/stable/20210929075940.1961832-1-ovidiu.panait@windriver.com/T/#t
-> > > 
-> > 
-> > Why do we need that cleanup commit in <=5.4 to begin with? Does it
-> > actually fix anything?
-> > 
-> The cleanup patch was part of the same patchset with a6ecfb39ba9d ("usb:
-> hso: fix error handling code of hso_create_net_device") fix .
-> 
-> 
-> I think it can be dropped, as it doesn't seem to fix anything. Can only the
-> first two commits be cherry-picked for <=5.4, or should I resend?
+How do you do over there? I hope you are doing well?
 
-Probably the right thing to do, Sasha and Ovidiu. Picking it would
-have the small advantage of future commits to backport which would
-conflict around the changed lines.
+My name is Irene. (24 years), i am single, from Gambia, the only child
+of late Eng. Bernard Bakary Zakaria. the Director of Bajam Enterprise
+(Building Construction Company in The Gambia) also the CEO of Bernard
+Import and Export (GAMBIA).
 
-But I have no voice on that matter, I was really only going thorugh
-some stable commits backports request covering CVEs and noticed the
-submission and it's discrepancy.
+As a matter of fact my mother died when i was barely 4 years old
+according to my late father and because of the type of love he had for
+my mother made him to remain UN-married till he left the ghost..
 
-For Debian I have for now picked all three commits on top of 4.19.208.
+So after the death of my father as a result of assassinate, his brother (My
+Uncle) who is the purchasing and marketing sale manager of my late
+fathers company named (Mr. James Tokunbo Oriade Zakaria) wanted to
+convert all the properties and resources of my late father into his
+which i quarreled with him and it made him to lay his anger on me to
+the extent of hiring an assassins to kill me but to God be the glory i
+succeeded by making a way to Burkina faso for my dear life.
+Honestly i do live a fearful life even here in Burkina faso because of
+those Assassins coming after me .
 
-Regards,
-Salvatore
+I would want to live and study in your country for my better future.
+because my father same blood brother wanted to force me into undecided
+marriage, just for me to leave my father home and went and live with
+another man I never know as he want to occupied all my father home
+and maybe to sold it as my father no longer alive, I'm the only child
+daughter my father born, '' but he don't know that i am not
+interesting in any of my father properties or early marriage for now,
+because i still have future to think about and to focus on my studies
+first as i was doing my first year in the University before the death
+of my father.
+
+Actually what I want to discuss with you is about my personal issue
+concern funds my late father deposited in a bank outside my country,
+worth $4.5 million united state dollars. i need your assistance to
+receive and invest this funds in your country.
+
+Please help me, I am sincere to you and I want to be member of your
+family as well if you wouldn't mind to accept me and lead me to better
+future in your country.
+
+All the documents the bank issue to my father during time of deposit
+is with me now.
+I already notify the bank on phone about the death of my father and
+they are surprise for the news and accept that my father is their good
+customer.
+I will be happy if this money can be invested in any business of your
+choice and it will be under your control till i finished my education,
+also I'm assuring you good relationship and I am ready to discuss the
+amount of money to give you from this money for your help.
+
+Therefore, I shall give you the bank contact and other necessary
+information in my next email if you will only promise me that you will
+not/never betray and disclosed this matter to anybody, because, this
+money is the only hope i have for survival on earth since I have lost
+my parents.
+
+Moreover I have the FUND PLACEMENT CERTIFICATE and the DEATH
+CERTIFICATE here with me, but before I give you further information, i
+will like to know your full data
+
+1. Full Name: ........................
+2. Address: ..................
+3. Nationality: ........... Sex................
+4. Age:........... Date of Birth:................
+5. Occupation:...................
+.....
+6. Phone: ........... Fax:.........................
+7. State of Origin: .......Country:..............
+8. Occupation:...................
+................
+9. Marital status........... E-mail address's: ............
+10. Scan copy of your ID card or Driving License/Photo:............
+DECLARATION:
+
+so that i will be fully sure that i am not trusting the wrong person.
+and it will also give me the mind to send you the bank contact for you
+to communicate with them for more verification about this money. and
+to know you more better.
+
+Meanwhile, you can reach me through my pastor,his name is Pastor Paul
+any time you call, tell him that you want to speak with me because
+right now i am living in the church here in Burkina faso and i don't
+want to stay here any longer,
+send for me to speak with you his phone number is this(+226 75213646)
+
+I will stop here and i will be waiting for your reply and feel free
+ask any thing you want to know about me.
+Please help me, I would be highly appreciated
+Have nice day.
+From Irene
