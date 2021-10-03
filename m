@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59C13420178
-	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 14:17:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2DA642017A
+	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 14:17:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230004AbhJCMTU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Oct 2021 08:19:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51080 "EHLO mail.kernel.org"
+        id S230010AbhJCMTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Oct 2021 08:19:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229505AbhJCMTT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 3 Oct 2021 08:19:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C361C613A0;
-        Sun,  3 Oct 2021 12:17:31 +0000 (UTC)
+        id S229505AbhJCMTY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 3 Oct 2021 08:19:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C7D3D61B49;
+        Sun,  3 Oct 2021 12:17:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633263452;
-        bh=XE4JgPJCyenDY7iXuE4K3Vl9di0AT3to+CP7vRrxMSY=;
+        s=korg; t=1633263457;
+        bh=806WtexZcGZTw7ODRob+YQN1fl80vXd5lTM4UDQoPng=;
         h=Subject:To:Cc:From:Date:From;
-        b=VCYK0WIwC8fzsTzIPgvWqy2zciIpqyKqjU11cMn7tobTwou4nm/k4nurrTgc+V2sb
-         OacglucoHydfn1AA7lahL7rdoGtsxODPquK+92FfVgnRbFry61515RrOBDlkaUdIbe
-         M3+tL9amL9NpvNpB1daAmavotbOjnrMjLB/2dXrM=
-Subject: FAILED: patch "[PATCH] hwmon: (tmp421) handle I2C errors" failed to apply to 4.14-stable tree
+        b=uy5xbXlX+1C7KtSrJ0ogwOoiwyIAQE+61A+BrZuC0xOym5bFD5U9D0ZS+YLDaaKM9
+         1VQvIJGMRmoayywJ1jI5QqFeAUFIVIVkPbxnRw887h6UyFJk3YcA/ctubrk2PSmbrd
+         Blp9suV00b/DZAUddY6d8ZM5ljvhV5BotRr0FaHM=
+Subject: FAILED: patch "[PATCH] hwmon: (tmp421) handle I2C errors" failed to apply to 4.19-stable tree
 To:     fercerpav@gmail.com, linux@roeck-us.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Oct 2021 14:17:22 +0200
-Message-ID: <1633263442226101@kroah.com>
+Date:   Sun, 03 Oct 2021 14:17:23 +0200
+Message-ID: <1633263443119194@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
