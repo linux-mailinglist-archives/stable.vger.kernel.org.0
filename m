@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21BBA4201E8
-	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 16:11:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC7664201EA
+	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 16:11:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230422AbhJCONC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Oct 2021 10:13:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50926 "EHLO mail.kernel.org"
+        id S230207AbhJCONH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Oct 2021 10:13:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230207AbhJCONC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 3 Oct 2021 10:13:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0772161A54;
-        Sun,  3 Oct 2021 14:11:13 +0000 (UTC)
+        id S230428AbhJCONH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 3 Oct 2021 10:13:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3359E61A54;
+        Sun,  3 Oct 2021 14:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633270274;
-        bh=ljzAaXIRfTiPxChNNT1P/0wq4px2lt96QLLOLHnmCHs=;
+        s=korg; t=1633270279;
+        bh=NXuDXDj5JBZA0HDKdBIeoIQwBWVTXDEr1ialrLuAI7c=;
         h=Subject:To:Cc:From:Date:From;
-        b=SxKbx7GibCNCfbvr1qAX3vvQiJzz/f0lFtJrZe4/9GJ69mxVFmfEfaznSW9jyj9Yv
-         dYomwNVpRAKfS6wRjxAQ+wNn5UstW20yunYjbdZKb3K/7Sy1gsdTGvtjKJCefcnmWB
-         G7pDcEEADSmGNZQbJOoV0Wb1YoOgwSsR7ltClvzg=
-Subject: FAILED: patch "[PATCH] KVM: x86: Clear KVM's cached guest CR3 at RESET/INIT" failed to apply to 4.19-stable tree
+        b=KTrL5gDI26W/jpOjsLJcaaNQ24uLfGO9Se/TInNWXXigWMaXgy8Ej3YwdbXAw3Yg4
+         B6I4B0zAxpzJkxlodVkHpB6IYiB2STrZQwVhF7FFt6ngPNWbpQFqMfpIDI/d8TBBov
+         8lvirIrGFBXuliLAtA23mAUR7ds03WYHExp1L3D4=
+Subject: FAILED: patch "[PATCH] KVM: x86: Clear KVM's cached guest CR3 at RESET/INIT" failed to apply to 4.9-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Oct 2021 16:10:59 +0200
-Message-ID: <163327025957181@kroah.com>
+Date:   Sun, 03 Oct 2021 16:11:00 +0200
+Message-ID: <1633270260137198@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
