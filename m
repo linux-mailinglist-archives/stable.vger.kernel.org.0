@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D976E42017D
-	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 14:18:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86D9642017E
+	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 14:18:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230135AbhJCMTy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Oct 2021 08:19:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51320 "EHLO mail.kernel.org"
+        id S230136AbhJCMT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Oct 2021 08:19:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230050AbhJCMTx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 3 Oct 2021 08:19:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 198C261A10;
-        Sun,  3 Oct 2021 12:18:05 +0000 (UTC)
+        id S230050AbhJCMT4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 3 Oct 2021 08:19:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87F5161507;
+        Sun,  3 Oct 2021 12:18:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633263486;
-        bh=A3swVqt9ghl27/qtUmkltv5x8wu53AGyPbow5MMT/aI=;
+        s=korg; t=1633263489;
+        bh=nZh74SVsoy3WYYOZUBStgOsoKimMjfKA1vov++rRvmw=;
         h=Subject:To:Cc:From:Date:From;
-        b=Dzb+YbtH4Gy7JaDgZQyrGpHEYuaK8Pgu9eDdwEyq43rgRDHOLsjPAi7OnCH16m8zR
-         ZG4DIT1u1ZuQjG0ue+VTazsZDaYfHtespHy/hAw6x9iTIrYX1dNS8y1vJF2EBQz3A2
-         hxP2EWI15qYf3EDgZMdowFBHTdRTx6ZOLJXrGJcQ=
-Subject: FAILED: patch "[PATCH] hwmon: (w83793) Fix NULL pointer dereference by removing" failed to apply to 4.9-stable tree
+        b=Kc1C/ljf2IpIsq/D0W0qxvGYjrJQ8glvE0OtdWj5twa8vHIGub/E1pzi/6Q5FZSnt
+         RzS9/YqkZTIZVqpAlCNnWy7LpKRdCJFSkkn+XG0z9qml+sOpybwMiB9pAi7e8vmm6I
+         VpBqePsgXYNxBbXcoePv0p4QpI9ehAZl6YR7jHno=
+Subject: FAILED: patch "[PATCH] hwmon: (w83793) Fix NULL pointer dereference by removing" failed to apply to 4.19-stable tree
 To:     lutovinova@ispras.ru, linux@roeck-us.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Oct 2021 14:17:54 +0200
-Message-ID: <1633263474225151@kroah.com>
+Date:   Sun, 03 Oct 2021 14:17:55 +0200
+Message-ID: <1633263475135173@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
