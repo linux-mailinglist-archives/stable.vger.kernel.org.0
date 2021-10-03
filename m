@@ -2,78 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40EF74201F3
-	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 16:16:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0BA14201FA
+	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 16:18:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230405AbhJCOSD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Oct 2021 10:18:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52212 "EHLO mail.kernel.org"
+        id S230408AbhJCOUN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Oct 2021 10:20:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230250AbhJCOSC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 3 Oct 2021 10:18:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2E9061B00;
-        Sun,  3 Oct 2021 14:16:14 +0000 (UTC)
+        id S230250AbhJCOUM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 3 Oct 2021 10:20:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6AED619F7;
+        Sun,  3 Oct 2021 14:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633270575;
-        bh=iz8OwoA1KSQRR7ghgLdO4bXC5lIJtF5D8luSFSvaE1U=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KmFMt40HaC1QnXzwnqpRfJvBuSovqM5unyIPeHWY/UbaBH50RTE1VTuey1KLCkJEv
-         gTiJh6x6uFZsRub26lBluUExpAeVygxRKmcqj+4eZyrBcDM4E8l7P0Er5jjHT98mHR
-         mUIsdkQuM2s51uEMep4llbs9xoA1/CC577LI9P4Y=
-Date:   Sun, 3 Oct 2021 16:16:13 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sean Christopherson <seanjc@google.com>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Peter Foley <pefoley@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 5.10] KVM: rseq: Update rseq when processing
- NOTIFY_RESUME on xfer to KVM guest
-Message-ID: <YVm7LRQSegT0WR0Q@kroah.com>
-References: <20210927192846.1533905-1-seanjc@google.com>
+        s=korg; t=1633270705;
+        bh=4+YDCyXGOrVw7ubFL+MvSUahTBq4MqrzP6GzBosExFs=;
+        h=Subject:To:Cc:From:Date:From;
+        b=ppYFnwufIQRD/7TaaYQIz67UJ3swXn8Fw5GjO8rpV/nzRkX813VPilLR3aT07Pqv8
+         RR0GOIUd2Uje7qvmDP8bbyT2+2ylzPc1+nHM8cp14iXTX+9GyxChj0ZhP6mlCMCigF
+         IAGrbajh3uhPc8qA08cMvRSjZ8JJA/eD4bolyFBo=
+Subject: FAILED: patch "[PATCH] RDMA/cma: Ensure rdma_addr_cancel() happens before issuing" failed to apply to 4.4-stable tree
+To:     jgg@ziepe.ca, jgg@nvidia.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 03 Oct 2021 16:18:22 +0200
+Message-ID: <1633270702150231@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210927192846.1533905-1-seanjc@google.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 27, 2021 at 12:28:46PM -0700, Sean Christopherson wrote:
-> commit 8646e53633f314e4d746a988240d3b951a92f94a upstream.
-> 
-> Invoke rseq's NOTIFY_RESUME handler when processing the flag prior to
-> transferring to a KVM guest, which is roughly equivalent to an exit to
-> userspace and processes many of the same pending actions.  While the task
-> cannot be in an rseq critical section as the KVM path is reachable only
-> by via ioctl(KVM_RUN), the side effects that apply to rseq outside of a
-> critical section still apply, e.g. the current CPU needs to be updated if
-> the task is migrated.
-> 
-> Clearing TIF_NOTIFY_RESUME without informing rseq can lead to segfaults
-> and other badness in userspace VMMs that use rseq in combination with KVM,
-> e.g. due to the CPU ID being stale after task migration.
-> 
-> Fixes: 72c3c0fe54a3 ("x86/kvm: Use generic xfer to guest work function")
-> Reported-by: Peter Foley <pefoley@google.com>
-> Bisected-by: Doug Evans <dje@google.com>
-> Acked-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-> Cc: Shakeel Butt <shakeelb@google.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
-> Message-Id: <20210901203030.1292304-2-seanjc@google.com>
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> [sean: Resolve benign conflict due to unrelated access_ok() check in 5.10]
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
-> ---
->  kernel/entry/kvm.c |  4 +++-
->  kernel/rseq.c      | 13 ++++++++++---
->  2 files changed, 13 insertions(+), 4 deletions(-)
 
-Applied, but we also need a 5.14.y version as well.
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 305d568b72f17f674155a2a8275f865f207b3808 Mon Sep 17 00:00:00 2001
+From: Jason Gunthorpe <jgg@ziepe.ca>
+Date: Thu, 16 Sep 2021 15:34:46 -0300
+Subject: [PATCH] RDMA/cma: Ensure rdma_addr_cancel() happens before issuing
+ more requests
+
+The FSM can run in a circle allowing rdma_resolve_ip() to be called twice
+on the same id_priv. While this cannot happen without going through the
+work, it violates the invariant that the same address resolution
+background request cannot be active twice.
+
+       CPU 1                                  CPU 2
+
+rdma_resolve_addr():
+  RDMA_CM_IDLE -> RDMA_CM_ADDR_QUERY
+  rdma_resolve_ip(addr_handler)  #1
+
+			 process_one_req(): for #1
+                          addr_handler():
+                            RDMA_CM_ADDR_QUERY -> RDMA_CM_ADDR_BOUND
+                            mutex_unlock(&id_priv->handler_mutex);
+                            [.. handler still running ..]
+
+rdma_resolve_addr():
+  RDMA_CM_ADDR_BOUND -> RDMA_CM_ADDR_QUERY
+  rdma_resolve_ip(addr_handler)
+    !! two requests are now on the req_list
+
+rdma_destroy_id():
+ destroy_id_handler_unlock():
+  _destroy_id():
+   cma_cancel_operation():
+    rdma_addr_cancel()
+
+                          // process_one_req() self removes it
+		          spin_lock_bh(&lock);
+                           cancel_delayed_work(&req->work);
+	                   if (!list_empty(&req->list)) == true
+
+      ! rdma_addr_cancel() returns after process_on_req #1 is done
+
+   kfree(id_priv)
+
+			 process_one_req(): for #2
+                          addr_handler():
+	                    mutex_lock(&id_priv->handler_mutex);
+                            !! Use after free on id_priv
+
+rdma_addr_cancel() expects there to be one req on the list and only
+cancels the first one. The self-removal behavior of the work only happens
+after the handler has returned. This yields a situations where the
+req_list can have two reqs for the same "handle" but rdma_addr_cancel()
+only cancels the first one.
+
+The second req remains active beyond rdma_destroy_id() and will
+use-after-free id_priv once it inevitably triggers.
+
+Fix this by remembering if the id_priv has called rdma_resolve_ip() and
+always cancel before calling it again. This ensures the req_list never
+gets more than one item in it and doesn't cost anything in the normal flow
+that never uses this strange error path.
+
+Link: https://lore.kernel.org/r/0-v1-3bc675b8006d+22-syz_cancel_uaf_jgg@nvidia.com
+Cc: stable@vger.kernel.org
+Fixes: e51060f08a61 ("IB: IP address based RDMA connection manager")
+Reported-by: syzbot+dc3dfba010d7671e05f5@syzkaller.appspotmail.com
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index 8862b0e572f0..704ce595542c 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -1783,6 +1783,14 @@ static void cma_cancel_operation(struct rdma_id_private *id_priv,
+ {
+ 	switch (state) {
+ 	case RDMA_CM_ADDR_QUERY:
++		/*
++		 * We can avoid doing the rdma_addr_cancel() based on state,
++		 * only RDMA_CM_ADDR_QUERY has a work that could still execute.
++		 * Notice that the addr_handler work could still be exiting
++		 * outside this state, however due to the interaction with the
++		 * handler_mutex the work is guaranteed not to touch id_priv
++		 * during exit.
++		 */
+ 		rdma_addr_cancel(&id_priv->id.route.addr.dev_addr);
+ 		break;
+ 	case RDMA_CM_ROUTE_QUERY:
+@@ -3425,6 +3433,21 @@ int rdma_resolve_addr(struct rdma_cm_id *id, struct sockaddr *src_addr,
+ 		if (dst_addr->sa_family == AF_IB) {
+ 			ret = cma_resolve_ib_addr(id_priv);
+ 		} else {
++			/*
++			 * The FSM can return back to RDMA_CM_ADDR_BOUND after
++			 * rdma_resolve_ip() is called, eg through the error
++			 * path in addr_handler(). If this happens the existing
++			 * request must be canceled before issuing a new one.
++			 * Since canceling a request is a bit slow and this
++			 * oddball path is rare, keep track once a request has
++			 * been issued. The track turns out to be a permanent
++			 * state since this is the only cancel as it is
++			 * immediately before rdma_resolve_ip().
++			 */
++			if (id_priv->used_resolve_ip)
++				rdma_addr_cancel(&id->route.addr.dev_addr);
++			else
++				id_priv->used_resolve_ip = 1;
+ 			ret = rdma_resolve_ip(cma_src_addr(id_priv), dst_addr,
+ 					      &id->route.addr.dev_addr,
+ 					      timeout_ms, addr_handler,
+diff --git a/drivers/infiniband/core/cma_priv.h b/drivers/infiniband/core/cma_priv.h
+index 5c463da99845..f92f101ea981 100644
+--- a/drivers/infiniband/core/cma_priv.h
++++ b/drivers/infiniband/core/cma_priv.h
+@@ -91,6 +91,7 @@ struct rdma_id_private {
+ 	u8			afonly;
+ 	u8			timeout;
+ 	u8			min_rnr_timer;
++	u8 used_resolve_ip;
+ 	enum ib_gid_type	gid_type;
+ 
+ 	/*
+
