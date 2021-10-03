@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C8434201E1
-	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 16:07:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04BB64201E2
+	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 16:07:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230406AbhJCOJX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Oct 2021 10:09:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49992 "EHLO mail.kernel.org"
+        id S230425AbhJCOJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Oct 2021 10:09:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230207AbhJCOJW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 3 Oct 2021 10:09:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E31C61881;
-        Sun,  3 Oct 2021 14:07:33 +0000 (UTC)
+        id S230419AbhJCOJ0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 3 Oct 2021 10:09:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1664B61881;
+        Sun,  3 Oct 2021 14:07:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633270053;
-        bh=P4FYJZiNrkoSMlIb4vrpbsmFCTHO7g7vfsVTU9EmRZs=;
+        s=korg; t=1633270059;
+        bh=K/hUxA51kXW1Vz0hlbwAIseU9+s45h1DZ6bs0une7Ig=;
         h=Subject:To:Cc:From:Date:From;
-        b=1DXlofzwAW7rJx4AquHelSGK/nSuHXfS/wbFeiJQUKbnyb2DuP+LiHZsQVfilDFCD
-         bLkqpBGRjwJElEgiWUuIJzPQMWxNbPPOJfICUEbpxNaV67dCJHgSOKFrSE098sjLfT
-         CFblT2qeiwgEzIdeXDqkO3oLJ6JFmLZyFcRbrAzk=
-Subject: FAILED: patch "[PATCH] ptp: Fix ptp_kvm_getcrosststamp issue for x86 ptp_kvm" failed to apply to 5.10-stable tree
+        b=bUd5/gofpCiY6o/n31ngF/trkPIG5vc2EoS7s6nxGev9XDkJ8P3SDwyZjWm9xtslw
+         He+4C+o9wC+g8HpwClPDC4Rp1Iy1MYXVdMICMgmaL4Hc5e+IWZ6PdvmkzqwbIIY3zI
+         uib+64I4qiAPs5PyuNy2hSQmVcP/SQzZaDRtULkw=
+Subject: FAILED: patch "[PATCH] ptp: Fix ptp_kvm_getcrosststamp issue for x86 ptp_kvm" failed to apply to 5.4-stable tree
 To:     zelin.deng@linux.alibaba.com, pbonzini@redhat.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Oct 2021 16:07:31 +0200
-Message-ID: <16332700511111@kroah.com>
+Date:   Sun, 03 Oct 2021 16:07:32 +0200
+Message-ID: <1633270052066@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
