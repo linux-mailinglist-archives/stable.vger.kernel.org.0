@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86D9642017E
-	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 14:18:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 726A642017F
+	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 14:18:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230136AbhJCMT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Oct 2021 08:19:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51354 "EHLO mail.kernel.org"
+        id S230156AbhJCMUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Oct 2021 08:20:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230050AbhJCMT4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 3 Oct 2021 08:19:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87F5161507;
-        Sun,  3 Oct 2021 12:18:08 +0000 (UTC)
+        id S230050AbhJCMUB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 3 Oct 2021 08:20:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D7F0061B49;
+        Sun,  3 Oct 2021 12:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633263489;
-        bh=nZh74SVsoy3WYYOZUBStgOsoKimMjfKA1vov++rRvmw=;
+        s=korg; t=1633263494;
+        bh=oAgBnNQwMs+Yi7wygTB3wdqIq+RAEWbnP8hUV4RUx2Q=;
         h=Subject:To:Cc:From:Date:From;
-        b=Kc1C/ljf2IpIsq/D0W0qxvGYjrJQ8glvE0OtdWj5twa8vHIGub/E1pzi/6Q5FZSnt
-         RzS9/YqkZTIZVqpAlCNnWy7LpKRdCJFSkkn+XG0z9qml+sOpybwMiB9pAi7e8vmm6I
-         VpBqePsgXYNxBbXcoePv0p4QpI9ehAZl6YR7jHno=
-Subject: FAILED: patch "[PATCH] hwmon: (w83793) Fix NULL pointer dereference by removing" failed to apply to 4.19-stable tree
+        b=kLEn+hYmosmXLBYfDyHhI2zHXYCIH3fMDHrU504doG23aJ9IPT8mQSghpoKlNXmpS
+         TG8mhkbA6++TcomeMj3KiDgoDCtNeO3ITMA61cKcS/cx5rI4mVv4ln+rxspgsY7Qcl
+         DX0JqoKTjuhnSHj2ktrXuCYRnFyzn+MYLLn16vcA=
+Subject: FAILED: patch "[PATCH] hwmon: (w83792d) Fix NULL pointer dereference by removing" failed to apply to 4.4-stable tree
 To:     lutovinova@ispras.ru, linux@roeck-us.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Oct 2021 14:17:55 +0200
-Message-ID: <1633263475135173@kroah.com>
+Date:   Sun, 03 Oct 2021 14:18:12 +0200
+Message-ID: <1633263492143163@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,14 +45,14 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From dd4d747ef05addab887dc8ff0d6ab9860bbcd783 Mon Sep 17 00:00:00 2001
+From 0f36b88173f028e372668ae040ab1a496834d278 Mon Sep 17 00:00:00 2001
 From: Nadezda Lutovinova <lutovinova@ispras.ru>
-Date: Tue, 21 Sep 2021 18:51:53 +0300
-Subject: [PATCH] hwmon: (w83793) Fix NULL pointer dereference by removing
+Date: Tue, 21 Sep 2021 18:51:52 +0300
+Subject: [PATCH] hwmon: (w83792d) Fix NULL pointer dereference by removing
  unnecessary structure field
 
-If driver read tmp value sufficient for
-(tmp & 0x08) && (!(tmp & 0x80)) && ((tmp & 0x7) == ((tmp >> 4) & 0x7))
+If driver read val value sufficient for
+(val & 0x08) && (!(val & 0x80)) && ((val & 0x7) == ((val >> 4) & 0x7))
 from device then Null pointer dereference occurs.
 (It is possible if tmp = 0b0xyz1xyz, where same literals mean same numbers)
 Also lm75[] does not serve a purpose anymore after switching to
@@ -64,59 +64,61 @@ Found by Linux Driver Verification project (linuxtesting.org).
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
-Link: https://lore.kernel.org/r/20210921155153.28098-3-lutovinova@ispras.ru
-[groeck: Dropped unnecessary continuation lines, fixed multi-line alignments]
+Link: https://lore.kernel.org/r/20210921155153.28098-2-lutovinova@ispras.ru
+[groeck: Dropped unnecessary continuation lines, fixed multipline alignment]
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 
-diff --git a/drivers/hwmon/w83793.c b/drivers/hwmon/w83793.c
-index e7d0484eabe4..1d2854de1cfc 100644
---- a/drivers/hwmon/w83793.c
-+++ b/drivers/hwmon/w83793.c
-@@ -202,7 +202,6 @@ static inline s8 TEMP_TO_REG(long val, s8 min, s8 max)
- }
+diff --git a/drivers/hwmon/w83792d.c b/drivers/hwmon/w83792d.c
+index abd5c3a722b9..1f175f381350 100644
+--- a/drivers/hwmon/w83792d.c
++++ b/drivers/hwmon/w83792d.c
+@@ -264,9 +264,6 @@ struct w83792d_data {
+ 	char valid;		/* !=0 if following fields are valid */
+ 	unsigned long last_updated;	/* In jiffies */
  
- struct w83793_data {
+-	/* array of 2 pointers to subclients */
 -	struct i2c_client *lm75[2];
- 	struct device *hwmon_dev;
- 	struct mutex update_lock;
- 	char valid;			/* !=0 if following fields are valid */
-@@ -1566,7 +1565,6 @@ w83793_detect_subclients(struct i2c_client *client)
- 	int address = client->addr;
- 	u8 tmp;
- 	struct i2c_adapter *adapter = client->adapter;
--	struct w83793_data *data = i2c_get_clientdata(client);
+-
+ 	u8 in[9];		/* Register value */
+ 	u8 in_max[9];		/* Register value */
+ 	u8 in_min[9];		/* Register value */
+@@ -927,7 +924,6 @@ w83792d_detect_subclients(struct i2c_client *new_client)
+ 	int address = new_client->addr;
+ 	u8 val;
+ 	struct i2c_adapter *adapter = new_client->adapter;
+-	struct w83792d_data *data = i2c_get_clientdata(new_client);
  
  	id = i2c_adapter_id(adapter);
  	if (force_subclients[0] == id && force_subclients[1] == address) {
-@@ -1586,21 +1584,19 @@ w83793_detect_subclients(struct i2c_client *client)
+@@ -946,21 +942,19 @@ w83792d_detect_subclients(struct i2c_client *new_client)
  	}
  
- 	tmp = w83793_read_value(client, W83793_REG_I2C_SUBADDR);
--	if (!(tmp & 0x08))
--		data->lm75[0] = devm_i2c_new_dummy_device(&client->dev, adapter,
--							  0x48 + (tmp & 0x7));
--	if (!(tmp & 0x80)) {
--		if (!IS_ERR(data->lm75[0])
--		    && ((tmp & 0x7) == ((tmp >> 4) & 0x7))) {
--			dev_err(&client->dev,
--				"duplicate addresses 0x%x, "
--				"use force_subclients\n", data->lm75[0]->addr);
+ 	val = w83792d_read_value(new_client, W83792D_REG_I2C_SUBADDR);
+-	if (!(val & 0x08))
+-		data->lm75[0] = devm_i2c_new_dummy_device(&new_client->dev, adapter,
+-							  0x48 + (val & 0x7));
+-	if (!(val & 0x80)) {
+-		if (!IS_ERR(data->lm75[0]) &&
+-			((val & 0x7) == ((val >> 4) & 0x7))) {
+-			dev_err(&new_client->dev,
+-				"duplicate addresses 0x%x, use force_subclient\n",
+-				data->lm75[0]->addr);
 -			return -ENODEV;
 -		}
--		data->lm75[1] = devm_i2c_new_dummy_device(&client->dev, adapter,
--							  0x48 + ((tmp >> 4) & 0x7));
+-		data->lm75[1] = devm_i2c_new_dummy_device(&new_client->dev, adapter,
+-							  0x48 + ((val >> 4) & 0x7));
 +
-+	if (!(tmp & 0x88) && (tmp & 0x7) == ((tmp >> 4) & 0x7)) {
-+		dev_err(&client->dev,
-+			"duplicate addresses 0x%x, use force_subclient\n", 0x48 + (tmp & 0x7));
++	if (!(val & 0x88) && (val & 0x7) == ((val >> 4) & 0x7)) {
++		dev_err(&new_client->dev,
++			"duplicate addresses 0x%x, use force_subclient\n", 0x48 + (val & 0x7));
 +		return -ENODEV;
  	}
  
-+	if (!(tmp & 0x08))
-+		devm_i2c_new_dummy_device(&client->dev, adapter, 0x48 + (tmp & 0x7));
++	if (!(val & 0x08))
++		devm_i2c_new_dummy_device(&new_client->dev, adapter, 0x48 + (val & 0x7));
 +
-+	if (!(tmp & 0x80))
-+		devm_i2c_new_dummy_device(&client->dev, adapter, 0x48 + ((tmp >> 4) & 0x7));
++	if (!(val & 0x80))
++		devm_i2c_new_dummy_device(&new_client->dev, adapter, 0x48 + ((val >> 4) & 0x7));
 +
  	return 0;
  }
