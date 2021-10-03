@@ -2,170 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6615142010A
-	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 11:18:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FD86420177
+	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 14:17:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229848AbhJCJUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Oct 2021 05:20:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56510 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229512AbhJCJUP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Oct 2021 05:20:15 -0400
-Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [IPv6:2001:67c:2050::465:102])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 595BFC0613EC;
-        Sun,  3 Oct 2021 02:18:28 -0700 (PDT)
-Received: from smtp1.mailbox.org (smtp1.mailbox.org [80.241.60.240])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4HMdYs6NzvzQk90;
-        Sun,  3 Oct 2021 11:18:25 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at heinlein-support.de
-Message-ID: <5f0b52be-8b9c-b015-6c5a-f2f470e37058@v0yd.nl>
-Date:   Sun, 3 Oct 2021 11:18:15 +0200
+        id S229994AbhJCMTL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Oct 2021 08:19:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50984 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229505AbhJCMTL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 3 Oct 2021 08:19:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 880C961507;
+        Sun,  3 Oct 2021 12:17:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1633263444;
+        bh=GNmWcrSCq6P9GROPrUM/rVBkO5okmeHAb1yl8UwXd3A=;
+        h=Subject:To:Cc:From:Date:From;
+        b=YCx8rgYXyq1L4KEq21r7nt5l4G1E/OtUYgQG/fmWni+Pq+Aauu9aB/QpHHe2p4xnJ
+         GSsLh8ej2Lc2fuhAOt3n3Zl8Ra59VlsiMtgnyHOCrt+s8LeStDvu8sGGPe9ie9V6pz
+         2LBGBXMyqwwpLRXADs9yUdr5YwGO4aE28OvrlZjI=
+Subject: FAILED: patch "[PATCH] hwmon: (tmp421) handle I2C errors" failed to apply to 4.4-stable tree
+To:     fercerpav@gmail.com, linux@roeck-us.net
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 03 Oct 2021 14:17:21 +0200
+Message-ID: <163326344184176@kroah.com>
 MIME-Version: 1.0
-From:   =?UTF-8?Q?Jonas_Dre=c3=9fler?= <verdre@v0yd.nl>
-Subject: Re: [PATCH v2 2/2] mwifiex: Try waking the firmware until we get an
- interrupt
-To:     Amitkumar Karwar <amitkarwar@gmail.com>,
-        Ganapathi Bhat <ganapathi017@gmail.com>,
-        Xinming Hu <huxinming820@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     Tsuchiya Yuto <kitakar@gmail.com>, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali@kernel.org>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Brian Norris <briannorris@chromium.org>, stable@vger.kernel.org
-References: <20210914114813.15404-1-verdre@v0yd.nl>
- <20210914114813.15404-3-verdre@v0yd.nl>
-Content-Language: en-US
-In-Reply-To: <20210914114813.15404-3-verdre@v0yd.nl>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Rspamd-Queue-Id: 3CFE718B4
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/14/21 13:48, Jonas Dreßler wrote:
-> It seems that the firmware of the 88W8897 card sometimes ignores or
-> misses when we try to wake it up by writing to the firmware status
-> register. This leads to the firmware wakeup timeout expiring and the
-> driver resetting the card because we assume the firmware has hung up or
-> crashed (unfortunately that's not unlikely with this card).
-> 
-> Turns out that most of the time the firmware actually didn't hang up,
-> but simply "missed" our wakeup request and didn't send us an AWAKE
-> event.
-> 
-> Trying again to read the firmware status register after a short timeout
-> usually makes the firmware wake up as expected, so add a small retry
-> loop to mwifiex_pm_wakeup_card() that looks at the interrupt status to
-> check whether the card woke up.
-> 
-> The number of tries and timeout lengths for this were determined
-> experimentally: The firmware usually takes about 500 us to wake up
-> after we attempt to read the status register. In some cases where the
-> firmware is very busy (for example while doing a bluetooth scan) it
-> might even miss our requests for multiple milliseconds, which is why
-> after 15 tries the waiting time gets increased to 10 ms. The maximum
-> number of tries it took to wake the firmware when testing this was
-> around 20, so a maximum number of 50 tries should give us plenty of
-> safety margin.
-> 
-> A good reproducer for this issue is letting the firmware sleep and wake
-> up in very short intervals, for example by pinging a device on the
-> network every 0.1 seconds.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
-> ---
->   drivers/net/wireless/marvell/mwifiex/pcie.c | 33 +++++++++++++++++----
->   1 file changed, 27 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.c b/drivers/net/wireless/marvell/mwifiex/pcie.c
-> index 0eff717ac5fa..7fea319e013c 100644
-> --- a/drivers/net/wireless/marvell/mwifiex/pcie.c
-> +++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
-> @@ -661,11 +661,15 @@ static void mwifiex_delay_for_sleep_cookie(struct mwifiex_adapter *adapter,
->   			    "max count reached while accessing sleep cookie\n");
->   }
->   
-> +#define N_WAKEUP_TRIES_SHORT_INTERVAL 15
-> +#define N_WAKEUP_TRIES_LONG_INTERVAL 35
-> +
->   /* This function wakes up the card by reading fw_status register. */
->   static int mwifiex_pm_wakeup_card(struct mwifiex_adapter *adapter)
->   {
->   	struct pcie_service_card *card = adapter->card;
->   	const struct mwifiex_pcie_card_reg *reg = card->pcie.reg;
-> +	int n_tries = 0;
->   
->   	mwifiex_dbg(adapter, EVENT,
->   		    "event: Wakeup device...\n");
-> @@ -673,12 +677,29 @@ static int mwifiex_pm_wakeup_card(struct mwifiex_adapter *adapter)
->   	if (reg->sleep_cookie)
->   		mwifiex_pcie_dev_wakeup_delay(adapter);
->   
-> -	/* Accessing fw_status register will wakeup device */
-> -	if (mwifiex_write_reg(adapter, reg->fw_status, FIRMWARE_READY_PCIE)) {
-> -		mwifiex_dbg(adapter, ERROR,
-> -			    "Writing fw_status register failed\n");
-> -		return -1;
-> -	}
-> +	/* Access the fw_status register to wake up the device.
-> +	 * Since the 88W8897 firmware sometimes appears to ignore or miss
-> +	 * that wakeup request, we continue trying until we receive an
-> +	 * interrupt from the card.
-> +	 */
-> +	do {
-> +		if (mwifiex_write_reg(adapter, reg->fw_status, FIRMWARE_READY_PCIE)) {
-> +			mwifiex_dbg(adapter, ERROR,
-> +				    "Writing fw_status register failed\n");
-> +			return -EIO;
-> +		}
-> +
-> +		n_tries++;
-> +
-> +		if (n_tries <= N_WAKEUP_TRIES_SHORT_INTERVAL)
-> +			usleep_range(400, 700);
-> +		else
-> +			msleep(10);
-> +	} while (n_tries <= N_WAKEUP_TRIES_SHORT_INTERVAL + N_WAKEUP_TRIES_LONG_INTERVAL &&
-> +		 READ_ONCE(adapter->int_status) == 0);
-> +
-> +	mwifiex_dbg(adapter, EVENT,
-> +		    "event: Tried %d times until firmware woke up\n", n_tries);
->   
->   	if (reg->sleep_cookie) {
->   		mwifiex_pcie_dev_wakeup_delay(adapter);
-> 
 
-So I think I have another solution that might be a lot more elegant, how
-about this:
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-try_again:
-	n_tries++;
+thanks,
 
-	mwifiex_write_reg(adapter, reg->fw_status, FIRMWARE_READY_PCIE);
+greg k-h
 
-	if (wait_event_interruptible_timeout(adapter->card_wakeup_wait_q,
-					     READ_ONCE(adapter->int_status) != 0,
-					     WAKEUP_TRY_AGAIN_TIMEOUT) == 0 &&
-	    n_tries < MAX_N_WAKEUP_TRIES) {
-		goto try_again;
-	}
+------------------ original commit in Linus's tree ------------------
 
+From 2938b2978a70d4cc10777ee71c9e512ffe4e0f4b Mon Sep 17 00:00:00 2001
+From: Paul Fertser <fercerpav@gmail.com>
+Date: Fri, 24 Sep 2021 12:30:09 +0300
+Subject: [PATCH] hwmon: (tmp421) handle I2C errors
 
-and then call wake_up_interruptible() in the mwifiex_interrupt_status()
-interrupt handler.
+Function i2c_smbus_read_byte_data() can return a negative error number
+instead of the data read if I2C transaction failed for whatever reason.
 
-This solution should make sure we always keep wakeup latency to a minimum
-and can still retry the register write if things didn't work.
+Lack of error checking can lead to serious issues on production
+hardware, e.g. errors treated as temperatures produce spurious critical
+temperature-crossed-threshold errors in BMC logs for OCP server
+hardware. The patch was tested with Mellanox OCP Mezzanine card
+emulating TMP421 protocol for temperature sensing which sometimes leads
+to I2C protocol error during early boot up stage.
+
+Fixes: 9410700b881f ("hwmon: Add driver for Texas Instruments TMP421/422/423 sensor chips")
+Cc: stable@vger.kernel.org
+Signed-off-by: Paul Fertser <fercerpav@gmail.com>
+Link: https://lore.kernel.org/r/20210924093011.26083-1-fercerpav@gmail.com
+[groeck: dropped unnecessary line breaks]
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+
+diff --git a/drivers/hwmon/tmp421.c b/drivers/hwmon/tmp421.c
+index ede66ea6a730..8fd8c3a94dfe 100644
+--- a/drivers/hwmon/tmp421.c
++++ b/drivers/hwmon/tmp421.c
+@@ -119,38 +119,56 @@ static int temp_from_u16(u16 reg)
+ 	return (temp * 1000 + 128) / 256;
+ }
+ 
+-static struct tmp421_data *tmp421_update_device(struct device *dev)
++static int tmp421_update_device(struct tmp421_data *data)
+ {
+-	struct tmp421_data *data = dev_get_drvdata(dev);
+ 	struct i2c_client *client = data->client;
++	int ret = 0;
+ 	int i;
+ 
+ 	mutex_lock(&data->update_lock);
+ 
+ 	if (time_after(jiffies, data->last_updated + (HZ / 2)) ||
+ 	    !data->valid) {
+-		data->config = i2c_smbus_read_byte_data(client,
+-			TMP421_CONFIG_REG_1);
++		ret = i2c_smbus_read_byte_data(client, TMP421_CONFIG_REG_1);
++		if (ret < 0)
++			goto exit;
++		data->config = ret;
+ 
+ 		for (i = 0; i < data->channels; i++) {
+-			data->temp[i] = i2c_smbus_read_byte_data(client,
+-				TMP421_TEMP_MSB[i]) << 8;
+-			data->temp[i] |= i2c_smbus_read_byte_data(client,
+-				TMP421_TEMP_LSB[i]);
++			ret = i2c_smbus_read_byte_data(client, TMP421_TEMP_MSB[i]);
++			if (ret < 0)
++				goto exit;
++			data->temp[i] = ret << 8;
++
++			ret = i2c_smbus_read_byte_data(client, TMP421_TEMP_LSB[i]);
++			if (ret < 0)
++				goto exit;
++			data->temp[i] |= ret;
+ 		}
+ 		data->last_updated = jiffies;
+ 		data->valid = 1;
+ 	}
+ 
++exit:
+ 	mutex_unlock(&data->update_lock);
+ 
+-	return data;
++	if (ret < 0) {
++		data->valid = 0;
++		return ret;
++	}
++
++	return 0;
+ }
+ 
+ static int tmp421_read(struct device *dev, enum hwmon_sensor_types type,
+ 		       u32 attr, int channel, long *val)
+ {
+-	struct tmp421_data *tmp421 = tmp421_update_device(dev);
++	struct tmp421_data *tmp421 = dev_get_drvdata(dev);
++	int ret = 0;
++
++	ret = tmp421_update_device(tmp421);
++	if (ret)
++		return ret;
+ 
+ 	switch (attr) {
+ 	case hwmon_temp_input:
+
