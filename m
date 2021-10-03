@@ -2,149 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1E3541FF43
-	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 04:49:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6615142010A
+	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 11:18:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229561AbhJCCvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Oct 2021 22:51:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56886 "EHLO
+        id S229848AbhJCJUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Oct 2021 05:20:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229560AbhJCCvP (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Sat, 2 Oct 2021 22:51:15 -0400
-Received: from mail-io1-xd44.google.com (mail-io1-xd44.google.com [IPv6:2607:f8b0:4864:20::d44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2815AC0613EC
-        for <Stable@vger.kernel.org>; Sat,  2 Oct 2021 19:49:29 -0700 (PDT)
-Received: by mail-io1-xd44.google.com with SMTP id e144so16238407iof.3
-        for <Stable@vger.kernel.org>; Sat, 02 Oct 2021 19:49:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=/T9drlD1s9vO6lHEMs4LJzmDo2MKXEHBXvFYaWoQWpk=;
-        b=AlmTzrlxmwSQd/e/Iy0y8tAjLS7HsCvujPsYFZgXpAuULfmRXk63ethy8rbWchpOeE
-         VuKmymcWxT254deaeQ38ITUjJrzkpaoZqgKNdXiNJwfB2I6NsxLbAwHiamnYtnKciWuO
-         E2HKykVOHYWglbRVDtqMy70nEFUmaxz5z93fCCRlIMiFRZc1Yf2EgTVEc/b/WQU6DDHc
-         apCpDfCZ+3fKDWOhG0wzaRVtRAgzG1CLdA1vMQX0S/aOTDLMTv03jXhiJE1YkMxEDOTK
-         tFvjq4QRXTns61GPLUgfRqG4YUhlc7ENivjV8ZklkcTmuXLt6rs+y3cvDu4PSPGjKUqj
-         mCGQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=/T9drlD1s9vO6lHEMs4LJzmDo2MKXEHBXvFYaWoQWpk=;
-        b=QBJJ8xSTnvzV3VP6eLleCsVHSvF/cAi0dXlLLKpgJXAOMsAeNkqe02cl0rYySof18p
-         Do892SfIYW47Qa0yKvlhKXBixsLn/tUisJxFeGwDa3HF/S4Pg3rInImgTpQp19udTCJe
-         f9PKnO+tlZpSUpXzqP+Cl2cDRztuNWysUa9lYDHJJGW3WexyvCaeSPADFecgqVMxi6XQ
-         uv+tQATHaagHEXlXpVskLwA6Z4C5TEevyFJgS9mvQhtL5aTU6YRyBg5KPF5umvfNdUK0
-         dEyfCCuQqLt2Vw00n/Dgu73TEcj96JcdEPG8yTsM8Vs5r/aAdp0NMRaoLKchFKixoDi4
-         I/tw==
-X-Gm-Message-State: AOAM531MHO5aKIVQ4dzoQoVJla8QEM0uN6zv3M9iIqEdYGJP3tgbzgz6
-        fOlvRCgvfC7Uidouv2PFXXqcEQYtYGyM7Bu25jo=
-X-Google-Smtp-Source: ABdhPJxrW5V6ZK2QUAGrqlkgsrpb8U1FYvH5BsL8QfF9A7wXp6Vc7MxSHhIjoCCiYtLueAlAfL+QAs1zoK+QNoeyS3s=
-X-Received: by 2002:a02:2e44:: with SMTP id u4mr5058177jae.58.1633229368489;
- Sat, 02 Oct 2021 19:49:28 -0700 (PDT)
+        with ESMTP id S229512AbhJCJUP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Oct 2021 05:20:15 -0400
+Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [IPv6:2001:67c:2050::465:102])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 595BFC0613EC;
+        Sun,  3 Oct 2021 02:18:28 -0700 (PDT)
+Received: from smtp1.mailbox.org (smtp1.mailbox.org [80.241.60.240])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4HMdYs6NzvzQk90;
+        Sun,  3 Oct 2021 11:18:25 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at heinlein-support.de
+Message-ID: <5f0b52be-8b9c-b015-6c5a-f2f470e37058@v0yd.nl>
+Date:   Sun, 3 Oct 2021 11:18:15 +0200
 MIME-Version: 1.0
-Received: by 2002:a4f:bf57:0:0:0:0:0 with HTTP; Sat, 2 Oct 2021 19:49:28 -0700 (PDT)
-Reply-To: irenezakari88@gmail.com
-From:   Irene Zakari <irenezakari44@gmail.com>
-Date:   Sat, 2 Oct 2021 19:49:28 -0700
-Message-ID: <CALwnxkmSTAvpT7=pB65Q0TtVSzKebpRxeSZCBb4nidQAjvUV_Q@mail.gmail.com>
-Subject: PLEASE I NEED YOUR HELP
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+From:   =?UTF-8?Q?Jonas_Dre=c3=9fler?= <verdre@v0yd.nl>
+Subject: Re: [PATCH v2 2/2] mwifiex: Try waking the firmware until we get an
+ interrupt
+To:     Amitkumar Karwar <amitkarwar@gmail.com>,
+        Ganapathi Bhat <ganapathi017@gmail.com>,
+        Xinming Hu <huxinming820@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     Tsuchiya Yuto <kitakar@gmail.com>, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali@kernel.org>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Brian Norris <briannorris@chromium.org>, stable@vger.kernel.org
+References: <20210914114813.15404-1-verdre@v0yd.nl>
+ <20210914114813.15404-3-verdre@v0yd.nl>
+Content-Language: en-US
+In-Reply-To: <20210914114813.15404-3-verdre@v0yd.nl>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: 3CFE718B4
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello   ..
+On 9/14/21 13:48, Jonas Dreßler wrote:
+> It seems that the firmware of the 88W8897 card sometimes ignores or
+> misses when we try to wake it up by writing to the firmware status
+> register. This leads to the firmware wakeup timeout expiring and the
+> driver resetting the card because we assume the firmware has hung up or
+> crashed (unfortunately that's not unlikely with this card).
+> 
+> Turns out that most of the time the firmware actually didn't hang up,
+> but simply "missed" our wakeup request and didn't send us an AWAKE
+> event.
+> 
+> Trying again to read the firmware status register after a short timeout
+> usually makes the firmware wake up as expected, so add a small retry
+> loop to mwifiex_pm_wakeup_card() that looks at the interrupt status to
+> check whether the card woke up.
+> 
+> The number of tries and timeout lengths for this were determined
+> experimentally: The firmware usually takes about 500 us to wake up
+> after we attempt to read the status register. In some cases where the
+> firmware is very busy (for example while doing a bluetooth scan) it
+> might even miss our requests for multiple milliseconds, which is why
+> after 15 tries the waiting time gets increased to 10 ms. The maximum
+> number of tries it took to wake the firmware when testing this was
+> around 20, so a maximum number of 50 tries should give us plenty of
+> safety margin.
+> 
+> A good reproducer for this issue is letting the firmware sleep and wake
+> up in very short intervals, for example by pinging a device on the
+> network every 0.1 seconds.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
+> ---
+>   drivers/net/wireless/marvell/mwifiex/pcie.c | 33 +++++++++++++++++----
+>   1 file changed, 27 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.c b/drivers/net/wireless/marvell/mwifiex/pcie.c
+> index 0eff717ac5fa..7fea319e013c 100644
+> --- a/drivers/net/wireless/marvell/mwifiex/pcie.c
+> +++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
+> @@ -661,11 +661,15 @@ static void mwifiex_delay_for_sleep_cookie(struct mwifiex_adapter *adapter,
+>   			    "max count reached while accessing sleep cookie\n");
+>   }
+>   
+> +#define N_WAKEUP_TRIES_SHORT_INTERVAL 15
+> +#define N_WAKEUP_TRIES_LONG_INTERVAL 35
+> +
+>   /* This function wakes up the card by reading fw_status register. */
+>   static int mwifiex_pm_wakeup_card(struct mwifiex_adapter *adapter)
+>   {
+>   	struct pcie_service_card *card = adapter->card;
+>   	const struct mwifiex_pcie_card_reg *reg = card->pcie.reg;
+> +	int n_tries = 0;
+>   
+>   	mwifiex_dbg(adapter, EVENT,
+>   		    "event: Wakeup device...\n");
+> @@ -673,12 +677,29 @@ static int mwifiex_pm_wakeup_card(struct mwifiex_adapter *adapter)
+>   	if (reg->sleep_cookie)
+>   		mwifiex_pcie_dev_wakeup_delay(adapter);
+>   
+> -	/* Accessing fw_status register will wakeup device */
+> -	if (mwifiex_write_reg(adapter, reg->fw_status, FIRMWARE_READY_PCIE)) {
+> -		mwifiex_dbg(adapter, ERROR,
+> -			    "Writing fw_status register failed\n");
+> -		return -1;
+> -	}
+> +	/* Access the fw_status register to wake up the device.
+> +	 * Since the 88W8897 firmware sometimes appears to ignore or miss
+> +	 * that wakeup request, we continue trying until we receive an
+> +	 * interrupt from the card.
+> +	 */
+> +	do {
+> +		if (mwifiex_write_reg(adapter, reg->fw_status, FIRMWARE_READY_PCIE)) {
+> +			mwifiex_dbg(adapter, ERROR,
+> +				    "Writing fw_status register failed\n");
+> +			return -EIO;
+> +		}
+> +
+> +		n_tries++;
+> +
+> +		if (n_tries <= N_WAKEUP_TRIES_SHORT_INTERVAL)
+> +			usleep_range(400, 700);
+> +		else
+> +			msleep(10);
+> +	} while (n_tries <= N_WAKEUP_TRIES_SHORT_INTERVAL + N_WAKEUP_TRIES_LONG_INTERVAL &&
+> +		 READ_ONCE(adapter->int_status) == 0);
+> +
+> +	mwifiex_dbg(adapter, EVENT,
+> +		    "event: Tried %d times until firmware woke up\n", n_tries);
+>   
+>   	if (reg->sleep_cookie) {
+>   		mwifiex_pcie_dev_wakeup_delay(adapter);
+> 
 
-How do you do over there? I hope you are doing well?
+So I think I have another solution that might be a lot more elegant, how
+about this:
 
-My name is Irene. (24 years), i am single, from Gambia, the only child
-of late Eng. Bernard Bakary Zakaria. the Director of Bajam Enterprise
-(Building Construction Company in The Gambia) also the CEO of Bernard
-Import and Export (GAMBIA).
+try_again:
+	n_tries++;
 
-As a matter of fact my mother died when i was barely 4 years old
-according to my late father and because of the type of love he had for
-my mother made him to remain UN-married till he left the ghost..
+	mwifiex_write_reg(adapter, reg->fw_status, FIRMWARE_READY_PCIE);
 
-So after the death of my father as a result of assassinate, his brother (My
-Uncle) who is the purchasing and marketing sale manager of my late
-fathers company named (Mr. James Tokunbo Oriade Zakaria) wanted to
-convert all the properties and resources of my late father into his
-which i quarreled with him and it made him to lay his anger on me to
-the extent of hiring an assassins to kill me but to God be the glory i
-succeeded by making a way to Burkina faso for my dear life.
-Honestly i do live a fearful life even here in Burkina faso because of
-those Assassins coming after me .
+	if (wait_event_interruptible_timeout(adapter->card_wakeup_wait_q,
+					     READ_ONCE(adapter->int_status) != 0,
+					     WAKEUP_TRY_AGAIN_TIMEOUT) == 0 &&
+	    n_tries < MAX_N_WAKEUP_TRIES) {
+		goto try_again;
+	}
 
-I would want to live and study in your country for my better future.
-because my father same blood brother wanted to force me into undecided
-marriage, just for me to leave my father home and went and live with
-another man I never know as he want to occupied all my father home
-and maybe to sold it as my father no longer alive, I'm the only child
-daughter my father born, '' but he don't know that i am not
-interesting in any of my father properties or early marriage for now,
-because i still have future to think about and to focus on my studies
-first as i was doing my first year in the University before the death
-of my father.
 
-Actually what I want to discuss with you is about my personal issue
-concern funds my late father deposited in a bank outside my country,
-worth $4.5 million united state dollars. i need your assistance to
-receive and invest this funds in your country.
+and then call wake_up_interruptible() in the mwifiex_interrupt_status()
+interrupt handler.
 
-Please help me, I am sincere to you and I want to be member of your
-family as well if you wouldn't mind to accept me and lead me to better
-future in your country.
-
-All the documents the bank issue to my father during time of deposit
-is with me now.
-I already notify the bank on phone about the death of my father and
-they are surprise for the news and accept that my father is their good
-customer.
-I will be happy if this money can be invested in any business of your
-choice and it will be under your control till i finished my education,
-also I'm assuring you good relationship and I am ready to discuss the
-amount of money to give you from this money for your help.
-
-Therefore, I shall give you the bank contact and other necessary
-information in my next email if you will only promise me that you will
-not/never betray and disclosed this matter to anybody, because, this
-money is the only hope i have for survival on earth since I have lost
-my parents.
-
-Moreover I have the FUND PLACEMENT CERTIFICATE and the DEATH
-CERTIFICATE here with me, but before I give you further information, i
-will like to know your full data
-
-1. Full Name: ........................
-2. Address: ..................
-3. Nationality: ........... Sex................
-4. Age:........... Date of Birth:................
-5. Occupation:...................
-.....
-6. Phone: ........... Fax:.........................
-7. State of Origin: .......Country:..............
-8. Occupation:...................
-................
-9. Marital status........... E-mail address's: ............
-10. Scan copy of your ID card or Driving License/Photo:............
-DECLARATION:
-
-so that i will be fully sure that i am not trusting the wrong person.
-and it will also give me the mind to send you the bank contact for you
-to communicate with them for more verification about this money. and
-to know you more better.
-
-Meanwhile, you can reach me through my pastor,his name is Pastor Paul
-any time you call, tell him that you want to speak with me because
-right now i am living in the church here in Burkina faso and i don't
-want to stay here any longer,
-send for me to speak with you his phone number is this(+226 75213646)
-
-I will stop here and i will be waiting for your reply and feel free
-ask any thing you want to know about me.
-Please help me, I would be highly appreciated
-Have nice day.
-From Irene
+This solution should make sure we always keep wakeup latency to a minimum
+and can still retry the register write if things didn't work.
