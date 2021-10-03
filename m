@@ -2,82 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10A18420209
-	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 16:24:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2777742022E
+	for <lists+stable@lfdr.de>; Sun,  3 Oct 2021 17:26:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230430AbhJCO0I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Oct 2021 10:26:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38484 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230412AbhJCO0H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Oct 2021 10:26:07 -0400
-Received: from mail-il1-x129.google.com (mail-il1-x129.google.com [IPv6:2607:f8b0:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45EEEC0613EC
-        for <stable@vger.kernel.org>; Sun,  3 Oct 2021 07:24:20 -0700 (PDT)
-Received: by mail-il1-x129.google.com with SMTP id t15so13195290ilj.1
-        for <stable@vger.kernel.org>; Sun, 03 Oct 2021 07:24:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=xQrYULKok+hL+AIRGJuG9CojAZcnV9Xr+it7yxQJVlY=;
-        b=kl9JvquzNcFzLueuRTIariZ1Sy5+w/1Ar0V9b7TIocKEnFsdkxq06grm9FEuNw8Cfv
-         xESIKOfwG22PBsdxtK3hHfzPur6v6CLQ4FTkVpcC0ksu7LCG5YCSLmgX4gNwUHLZPyCd
-         mM17xS2yR8uuiynCnwwTy8bCgAMXRbAIT5IjZWv8QbD8Fb2qWbNyUT8iCqWMPl0sXFhs
-         3LvnR68KO8n54sDRQIAPNcRDOfqCP9KOUbx1ByMCes4Qqs9pE8TqkNNwxygG6Omokabh
-         RLuDRegr5gaaTpx9ATfHKSIiIzBPcAqMIE8Fr8/tbWnX721RoYXacBNy9hlbCxX2RX/Q
-         WOxQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=xQrYULKok+hL+AIRGJuG9CojAZcnV9Xr+it7yxQJVlY=;
-        b=qFdhUiWYHpxlLTyPKlS/c1qqb3ZReZeKrurTROD71+6wlzy8MENb2mEJG1l1VunfqH
-         RonDmX8XlXB0XtMeffddfb7EFDO485cQHonmvfyLwQWtFjHKIE+JdSEoRLVaW1s/FPnz
-         h5DXISm+BfV+i0b7elgPmpRxJPiq2bnP1I+XCnptjj0olPWInX131pKJyREwOU+AvYCm
-         zjeNe3Z4qjot9H0ewBS/RqVfMYa3abRvqUP9mj5BdNPOKTbaYWrs+OFNMU8OxIf7Uwzn
-         WqnnnqAwn6owbnvSC+45pRMcuZFA3BUCYZ5Zx1cQkD5BqA+uryYj7hZPerc/nAqAAbmH
-         aBtg==
-X-Gm-Message-State: AOAM53088empPZKmv5qvXI+6MZsa3IrJvvvdoz6c0OXxWZcwqOFlzzh8
-        VpAGA1W/5j0MoEg3BIf5NzB2l1yqb7hEwx5c/Hw=
-X-Google-Smtp-Source: ABdhPJyMcIuA0cl33zX6eHcrivvkee5yiO75tjf+sCzvrxZqEeWzkD1R2Bf+Y+gzxs2UrCAYr64Yn0MtibUqnhwaDFI=
-X-Received: by 2002:a05:6e02:1c89:: with SMTP id w9mr6362516ill.243.1633271059564;
- Sun, 03 Oct 2021 07:24:19 -0700 (PDT)
+        id S230521AbhJCP14 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Oct 2021 11:27:56 -0400
+Received: from mout.gmx.net ([212.227.15.18]:37487 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230516AbhJCP1z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 3 Oct 2021 11:27:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1633274750;
+        bh=GsIV15WbViOKkLUGeouMdOFdGvs2UA2diG7UBvlfgvs=;
+        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
+        b=Ge0tKegNb5s7q3aqxsDMJHZPB8zu4m5Bo0cdOLI/C77t7EAzDyrVtkIWsjFw/jrQm
+         +7Fp3hAor1gaANsykcuO9pNSwG+7rsJCkt73vE5ny+YRb7q9lwvzt/CT3lWjlo6usK
+         BSsSfzSZJ8Kbm2oSWv9SB+nlhspxwsO3+gdePTYk=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.178.54] ([46.223.119.124]) by mail.gmx.net (mrgmx005
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1M26rD-1mUZKZ0EeX-002aNz; Sun, 03
+ Oct 2021 17:25:50 +0200
+Subject: Re: [PATCH] spi: bcm2835: do not unregister controller in shutdown
+ handler
+To:     Mark Brown <broonie@kernel.org>
+Cc:     f.fainelli@gmail.com, rjui@broadcom.com, sbranden@broadcom.com,
+        bcm-kernel-feedback-list@broadcom.com, nsaenz@kernel.org,
+        linux-spi@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        jgg@ziepe.ca, p.rosenberger@kunbus.com,
+        linux-integrity@vger.kernel.org, stable@vger.kernel.org
+References: <20210928195657.5573-1-LinoSanfilippo@gmx.de>
+ <20211001175422.GA53652@sirena.org.uk>
+From:   Lino Sanfilippo <LinoSanfilippo@gmx.de>
+Message-ID: <2c4d7115-7a02-f79e-c91b-3c2dd54051b2@gmx.de>
+Date:   Sun, 3 Oct 2021 17:25:47 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Received: by 2002:a05:6e02:1a0f:0:0:0:0 with HTTP; Sun, 3 Oct 2021 07:24:19
- -0700 (PDT)
-Reply-To: mrsaishag45@gmail.com
-From:   Mrs Aisha Al-Qaddafi <mrsaishagaddafi488@gmail.com>
-Date:   Sun, 3 Oct 2021 07:24:19 -0700
-Message-ID: <CAOXivUqXO2Q7=4fDrdn0z3JGGN0thO-CrcviEqoXNqcnHMLFNg@mail.gmail.com>
-Subject: Dear Friend,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20211001175422.GA53652@sirena.org.uk>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:JXzItrah1Ysv5H34L0vLflnCcU0pNh57s1u2g2KlMO1ntSz2/KF
+ Et+leSUTxSIhHkZiqMU1lG5a887SeUgTQNSAGrQ47OTfPWcmhYOBQieM7Q8IxQkcxn1dPRK
+ Sdn8pK5zyk2sjy48Q9TPNYs+SOw45UDXoehKfjltYlu6P+qtymLNQ57SSLFr3A0EwzvhMh9
+ VrXUWfBLHGTtUxXDtsBRw==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:6zwH3r+iLco=:6W0apopmoj2B09KvDs+rIU
+ cQFTT2y4R3c2xdCAjDCYOPwfYFHJMFovhRRHMzJmilHReC+fla8JZKctZTE/cIIwx3MmYvUwX
+ 2WT61p/+37yZGEnAVkCKnfFqYHArblQEDKt3Un/BJzyJV7f8WRVM1N1sow2dcX0Ix0o3IQPC8
+ 0pewl87Sa/4X+7FuC2NG24n6+HWmZCJ77BN789zZPFqTs/5m4VZcooH5cX1KDaS/1/ITCsCLF
+ uGgxry8VQIXPtXtEbqjzY+vP7zT8hoMVubPcPQLyHkhbBGuq8GsU26inAGmLXqxFH4FFzyiK4
+ glKOrpeFz280AxlQAWxWZ23nKiAd+4gIIe6q343ZeIyQHtKAna8/q8Bx1SI33D+l0oBdPG0hK
+ hWKNrVD5tXJCC9n/nMVFewHqn/g+4PR1IhdYY1zGweUkdmq/Pz0rYKTIeWeLJd/YOp0An7BZ8
+ lZNIOODue23K7WjV1KEI/DZ4ao1mYT/6LtM0V1W73KDOGqwVSfkzAhXMMM/9bpd/kE4flaaI9
+ JUWIi5FzhI88cZgsxyFTBdYf1HSFIVz3DwRNhQ96KHTYcN091RlgMKueSZ/vbbenlbbzj6Mwt
+ 4PKEBNrLAIilLoVFWSw2t8aQYRKqry4puEbqNn1ZMi5PvcUp2/ZqE1HL1izNk+NyQKOfSqD+8
+ AC4f6dHk+s5QR6zliP1lF4vZ+M9cF54H3GSRhHCDFBYDJg0J1bPt3eX12n+17dnYRKGfYOeTp
+ bTMIumzxiC/9u5w1HUBAeDWf8/X+poWAHg8f7ezWxpwIIvgq/sWuovsAWHWABG4CPVg2gH96L
+ 1VrlE4U5Z3V+W1fn8ctj4jlh1lr0dRkPdYPmNslhahuDOHCWuApQZ5uKnAgx5WTJ1T5Tq8SX3
+ UBYwRXmR5M/+kfjTbHcbPVvtQvk/YUPW5AxJK+leNSMVpryhOdaqiLFIIiuWSA8cHWks8LHVD
+ PMLB+iJ5UKLsvagA+HWrzYHcRSkt3ACJKzsNPN6+5i6ZD0Qwg7CG6yfoRbbSd1691frm7aPNS
+ FEijcEJ0vji19sHXaQn/8iZICE3Z7WLfRWRt3sgnpb/HRIMBThz5xWeEyfnKr+UanHj5+fKpq
+ rePWMb5ClTYlQc=
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
 
-I came across your e-mail contact prior to a private search while in
-need of your assistance. I am Aisha Al-Qaddafi, the only biological
-Daughter of Former President of Libya Col. Muammar Al-Qaddafi. Am a
-single Mother and a Widow with three Children.
+Hi,
 
-I have investment funds worth Twenty Seven Million Five Hundred
-Thousand United State Dollar ($27.500.000.00 ) and i need a trusted
-investment Manager/Partner because of my current refugee status,
-however, I am interested in you for investment project assistance in
-your country, may be from there, we can build business relationship in
-the nearest future.
+On 01.10.21 at 19:54, Mark Brown wrote:
+> On Tue, Sep 28, 2021 at 09:56:57PM +0200, Lino Sanfilippo wrote:
+>
+>> One example is if the BCM2835 driver is used together with the TPM SPI
+>> driver:
+>> At system shutdown first the TPM chip devices (pre) shutdown handler
+>> (tpm_class_shutdown) is called, stopping the chip and setting an operat=
+ions
+>> pointer to NULL.
+>> Then since the BCM2835 shutdown handler unregisters the SPI controller =
+the
+>> TPM SPI remove function (tpm_tis_spi_remove) is also called. In case of
+>> TPM 2 this function accesses the now nullified operations pointer,
+>> resulting in the following NULL pointer access:
+>
+> This is a bug in that driver, it should be able to cope with a race
+> between a removal (which might be triggered for some other reason) and a
+> shutdown.  Obviously this is actively triggered by this code path but it
+> could happen via some other mechanism.
+>
+>> The first attempt to fix this was with an extra check in the tpm chip
+>> driver (see https://marc.info/?l=3Dlinux-integrity&m=3D163129718414118&=
+w=3D2) to
+>> avoid the NULL pointer access.
+>> Then Jason Gunthorpe noted that the real issue was the BCM driver
+>> unregistering the chip in the shutdown handler(see
+>> https://marc.info/?l=3Dlinux-integrity&m=3D163129718414118&w=3D2) which=
+ led
+>> me to this solution.
+>
+> Whatever happens here you should still fix the driver.
 
-I am willing to negotiate an investment/business profit sharing ratio
-with you based on the future investment earning profits.
+Agreed.
 
-If you are willing to handle this project on my behalf kindly reply
-urgently to enable me to provide you more information about the
-investment funds.
+>
+>> -static int bcm2835_spi_remove(struct platform_device *pdev)
+>> +static void bcm2835_spi_shutdown(struct platform_device *pdev)
+>>  {
+>>  	struct spi_controller *ctlr =3D platform_get_drvdata(pdev);
+>>  	struct bcm2835_spi *bs =3D spi_controller_get_devdata(ctlr);
+>>
+>> -	bcm2835_debugfs_remove(bs);
+>> -
+>> -	spi_unregister_controller(ctlr);
+>> -
+>>  	bcm2835_dma_release(ctlr, bs);
+>
+> It is not at all clear to me that it is safe to deallocate the DMA
+> resources the controller is using without first releasing the
+> controller, I don't see what's stopping something coming along and
+> submitting new transactions which could in turn try to start doing
+> DMA.
+>
 
-Your Urgent Reply Will Be Appreciated
+I see your point here. So what about narrowing down the shutdown handler
+to only disable the hardware:
 
-Best Regards
-Mrs Aisha Al-Qaddafi
+static void bcm2835_spi_shutdown(struct platform_device *pdev)
+{
+	struct spi_controller *ctlr =3D platform_get_drvdata(pdev);
+	struct bcm2835_spi *bs =3D spi_controller_get_devdata(ctlr);
+
+	if (ctlr->dma_tx)
+		dmaengine_terminate_sync(ctlr->dma_tx);
+
+	if (ctlr->dma_rx)
+		dmaengine_terminate_sync(ctlr->dma_rx);
+
+	/* Clear FIFOs, and disable the HW block */
+	bcm2835_wr(bs, BCM2835_SPI_CS,
+		   BCM2835_SPI_CS_CLEAR_RX | BCM2835_SPI_CS_CLEAR_TX);
+
+	clk_disable_unprepare(bs->clk);
+}
+
+Regards,
+Lino
+
+
+
+
+
