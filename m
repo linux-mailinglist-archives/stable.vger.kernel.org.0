@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B04CA420BF4
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:59:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AA06420DA6
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:15:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234441AbhJDNBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:01:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32900 "EHLO mail.kernel.org"
+        id S236309AbhJDNRF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:17:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234440AbhJDM7o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:59:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BCABA61507;
-        Mon,  4 Oct 2021 12:57:42 +0000 (UTC)
+        id S235839AbhJDNP0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:15:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3E3361528;
+        Mon,  4 Oct 2021 13:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352263;
-        bh=kecqeoEY1ApU2mMIuYtqh1Ysyhtgb9SGG7Gj0G8KGCM=;
+        s=korg; t=1633352761;
+        bh=hBpwhCIXWFm1/2nqfd/rj7OWXeBolmMCC9WSqyJBS34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xN2IEYML/bkmVmD3/wM4h1IvsTq+xplqy8ifp3CG1fE2d+4T3jPF8QxlTSju+DBxv
-         W7TXMZwmgaEva5ABKV4QOSnV+vwVhjpal04diee/96ZWuSsrKaq6G5mh8mUR5mhakf
-         B5IZRFpazTGVBdWkCfFekGuhTt/kXWrimfafZ/sE=
+        b=ytGt5tscHs0fAj3asi7g3bLP/fEMUv/JeTjQA+Sx5K7IM9wsZbE1Yw1TEd7ctapxs
+         EXujuhyuSSRIKD5cnPXC+xLuSY9mOG8imxi9l4e38X26dU1vephXNRoyEP9u0oO+gc
+         x/s/E3LkIDhByoXvhXeWUYfKbM3edA6fLL0VI754=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 4.9 52/57] ARM: 9098/1: ftrace: MODULE_PLT: Fix build problem without DYNAMIC_FTRACE
+        stable@vger.kernel.org,
+        syzbot+0196ac871673f0c20f68@syzkaller.appspotmail.com,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 16/56] mac80211: limit injected vht mcs/nss in ieee80211_parse_tx_radiotap
 Date:   Mon,  4 Oct 2021 14:52:36 +0200
-Message-Id: <20211004125030.592343929@linuxfoundation.org>
+Message-Id: <20211004125030.522343221@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
-References: <20211004125028.940212411@linuxfoundation.org>
+In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
+References: <20211004125030.002116402@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +42,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Sverdlin <alexander.sverdlin@nokia.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit 6fa630bf473827aee48cbf0efbbdf6f03134e890 upstream
+[ Upstream commit 13cb6d826e0ac0d144b0d48191ff1a111d32f0c6 ]
 
-FTRACE_ADDR is only defined when CONFIG_DYNAMIC_FTRACE is defined, the
-latter is even stronger requirement than CONFIG_FUNCTION_TRACER (which is
-enough for MCOUNT_ADDR).
+Limit max values for vht mcs and nss in ieee80211_parse_tx_radiotap
+routine in order to fix the following warning reported by syzbot:
 
-Link: https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org/thread/ZUVCQBHDMFVR7CCB7JPESLJEWERZDJ3T/
+WARNING: CPU: 0 PID: 10717 at include/net/mac80211.h:989 ieee80211_rate_set_vht include/net/mac80211.h:989 [inline]
+WARNING: CPU: 0 PID: 10717 at include/net/mac80211.h:989 ieee80211_parse_tx_radiotap+0x101e/0x12d0 net/mac80211/tx.c:2244
+Modules linked in:
+CPU: 0 PID: 10717 Comm: syz-executor.5 Not tainted 5.14.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:ieee80211_rate_set_vht include/net/mac80211.h:989 [inline]
+RIP: 0010:ieee80211_parse_tx_radiotap+0x101e/0x12d0 net/mac80211/tx.c:2244
+RSP: 0018:ffffc9000186f3e8 EFLAGS: 00010216
+RAX: 0000000000000618 RBX: ffff88804ef76500 RCX: ffffc900143a5000
+RDX: 0000000000040000 RSI: ffffffff888f478e RDI: 0000000000000003
+RBP: 00000000ffffffff R08: 0000000000000000 R09: 0000000000000100
+R10: ffffffff888f46f9 R11: 0000000000000000 R12: 00000000fffffff8
+R13: ffff88804ef7653c R14: 0000000000000001 R15: 0000000000000004
+FS:  00007fbf5718f700(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b2de23000 CR3: 000000006a671000 CR4: 00000000001506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000600
+Call Trace:
+ ieee80211_monitor_select_queue+0xa6/0x250 net/mac80211/iface.c:740
+ netdev_core_pick_tx+0x169/0x2e0 net/core/dev.c:4089
+ __dev_queue_xmit+0x6f9/0x3710 net/core/dev.c:4165
+ __bpf_tx_skb net/core/filter.c:2114 [inline]
+ __bpf_redirect_no_mac net/core/filter.c:2139 [inline]
+ __bpf_redirect+0x5ba/0xd20 net/core/filter.c:2162
+ ____bpf_clone_redirect net/core/filter.c:2429 [inline]
+ bpf_clone_redirect+0x2ae/0x420 net/core/filter.c:2401
+ bpf_prog_eeb6f53a69e5c6a2+0x59/0x234
+ bpf_dispatcher_nop_func include/linux/bpf.h:717 [inline]
+ __bpf_prog_run include/linux/filter.h:624 [inline]
+ bpf_prog_run include/linux/filter.h:631 [inline]
+ bpf_test_run+0x381/0xa30 net/bpf/test_run.c:119
+ bpf_prog_test_run_skb+0xb84/0x1ee0 net/bpf/test_run.c:663
+ bpf_prog_test_run kernel/bpf/syscall.c:3307 [inline]
+ __sys_bpf+0x2137/0x5df0 kernel/bpf/syscall.c:4605
+ __do_sys_bpf kernel/bpf/syscall.c:4691 [inline]
+ __se_sys_bpf kernel/bpf/syscall.c:4689 [inline]
+ __x64_sys_bpf+0x75/0xb0 kernel/bpf/syscall.c:4689
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x4665f9
 
-Fixes: 1f12fb25c5c5d22f ("ARM: 9079/1: ftrace: Add MODULE_PLTS support")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: syzbot+0196ac871673f0c20f68@syzkaller.appspotmail.com
+Fixes: 646e76bb5daf4 ("mac80211: parse VHT info in injected frames")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Link: https://lore.kernel.org/r/c26c3f02dcb38ab63b2f2534cb463d95ee81bb13.1632141760.git.lorenzo@kernel.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/module-plts.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mac80211/tx.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/arm/kernel/module-plts.c
-+++ b/arch/arm/kernel/module-plts.c
-@@ -24,7 +24,7 @@
- #endif
+diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
+index eb87ed0146d1..d82d22b6a2a9 100644
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -2156,7 +2156,11 @@ static bool ieee80211_parse_tx_radiotap(struct ieee80211_local *local,
+ 			}
  
- static const u32 fixed_plts[] = {
--#ifdef CONFIG_FUNCTION_TRACER
-+#ifdef CONFIG_DYNAMIC_FTRACE
- 	FTRACE_ADDR,
- 	MCOUNT_ADDR,
- #endif
+ 			vht_mcs = iterator.this_arg[4] >> 4;
++			if (vht_mcs > 11)
++				vht_mcs = 0;
+ 			vht_nss = iterator.this_arg[4] & 0xF;
++			if (!vht_nss || vht_nss > 8)
++				vht_nss = 1;
+ 			break;
+ 
+ 		/*
+-- 
+2.33.0
+
 
 
