@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25D17420B7F
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:56:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B076F420D73
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:13:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233793AbhJDM5n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 08:57:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58886 "EHLO mail.kernel.org"
+        id S235906AbhJDNP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:15:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233799AbhJDM5G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:57:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DFDE61373;
-        Mon,  4 Oct 2021 12:55:16 +0000 (UTC)
+        id S236172AbhJDNNc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:13:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17BAD61B3E;
+        Mon,  4 Oct 2021 13:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352117;
-        bh=+8z6GtqFIsd5jiPx7zDa8kzi5V0UNHTXnf+8IYsEnlc=;
+        s=korg; t=1633352714;
+        bh=cXgnBP+vUWeCWYi2Pza35xjs8y6lEZ4xs4PTc/6Z69s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N+HHQVnA6QU5TrNGmIU3QV5zaHPZJlfpOPw1/Km2zRq4TxZTMCxo1GfLY0iEkrUwT
-         sdQ9ef+69dL+d0JDmqLGN1jRs8clnjcnWim3bTbruS7UfAe9Nv9vU9lyykxQdDVDS6
-         mISFJYKMJcfqaLovoutU3Ua+nqZi2AFmYhG10In4=
+        b=bAvMt5yphjJSAG9KHzrnxa/X7Sd/hPKuGHUF8LR5ONO239zXkrTlF4NEICqogBOHo
+         2xxItbkdC57iF3ZnUN/htkhKV+M19zfCt9X4Uwo+RCFtXj6bbBMLTuYEZVI1STENGw
+         ttnGveqFaNga2+hb2hXDRJ+DlmLiOduyKUk/xlwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+3493b1873fb3ea827986@syzkaller.appspotmail.com,
-        syzbot+2b8443c35458a617c904@syzkaller.appspotmail.com,
-        syzbot+ee5cb15f4a0e85e0d54e@syzkaller.appspotmail.com,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.4 39/41] netfilter: ipset: Fix oversized kvmalloc() calls
+        stable@vger.kernel.org, Zelin Deng <zelin.deng@linux.alibaba.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 60/95] x86/kvmclock: Move this_cpu_pvti into kvmclock.h
 Date:   Mon,  4 Oct 2021 14:52:30 +0200
-Message-Id: <20211004125027.825490255@linuxfoundation.org>
+Message-Id: <20211004125035.538640579@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
-References: <20211004125026.597501645@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +39,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jozsef Kadlecsik <kadlec@netfilter.org>
+From: Zelin Deng <zelin.deng@linux.alibaba.com>
 
-commit 7bbc3d385bd813077acaf0e6fdb2a86a901f5382 upstream.
+commit ad9af930680bb396c87582edc172b3a7cf2a3fbf upstream.
 
-The commit
+There're other modules might use hv_clock_per_cpu variable like ptp_kvm,
+so move it into kvmclock.h and export the symbol to make it visiable to
+other modules.
 
-commit 7661809d493b426e979f39ab512e3adf41fbcc69
-Author: Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed Jul 14 09:45:49 2021 -0700
-
-    mm: don't allow oversized kvmalloc() calls
-
-limits the max allocatable memory via kvmalloc() to MAX_INT. Apply the
-same limit in ipset.
-
-Reported-by: syzbot+3493b1873fb3ea827986@syzkaller.appspotmail.com
-Reported-by: syzbot+2b8443c35458a617c904@syzkaller.appspotmail.com
-Reported-by: syzbot+ee5cb15f4a0e85e0d54e@syzkaller.appspotmail.com
-Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Zelin Deng <zelin.deng@linux.alibaba.com>
+Cc: <stable@vger.kernel.org>
+Message-Id: <1632892429-101194-2-git-send-email-zelin.deng@linux.alibaba.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/ipset/ip_set_hash_gen.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/kvmclock.h |   14 ++++++++++++++
+ arch/x86/kernel/kvmclock.c      |   13 ++-----------
+ 2 files changed, 16 insertions(+), 11 deletions(-)
 
---- a/net/netfilter/ipset/ip_set_hash_gen.h
-+++ b/net/netfilter/ipset/ip_set_hash_gen.h
-@@ -102,11 +102,11 @@ htable_size(u8 hbits)
- {
- 	size_t hsize;
+--- a/arch/x86/include/asm/kvmclock.h
++++ b/arch/x86/include/asm/kvmclock.h
+@@ -2,6 +2,20 @@
+ #ifndef _ASM_X86_KVM_CLOCK_H
+ #define _ASM_X86_KVM_CLOCK_H
  
--	/* We must fit both into u32 in jhash and size_t */
-+	/* We must fit both into u32 in jhash and INT_MAX in kvmalloc_node() */
- 	if (hbits > 31)
- 		return 0;
- 	hsize = jhash_size(hbits);
--	if ((((size_t)-1) - sizeof(struct htable)) / sizeof(struct hbucket *)
-+	if ((INT_MAX - sizeof(struct htable)) / sizeof(struct hbucket *)
- 	    < hsize)
- 		return 0;
++#include <linux/percpu.h>
++
+ extern struct clocksource kvm_clock;
  
++DECLARE_PER_CPU(struct pvclock_vsyscall_time_info *, hv_clock_per_cpu);
++
++static inline struct pvclock_vcpu_time_info *this_cpu_pvti(void)
++{
++	return &this_cpu_read(hv_clock_per_cpu)->pvti;
++}
++
++static inline struct pvclock_vsyscall_time_info *this_cpu_hvclock(void)
++{
++	return this_cpu_read(hv_clock_per_cpu);
++}
++
+ #endif /* _ASM_X86_KVM_CLOCK_H */
+--- a/arch/x86/kernel/kvmclock.c
++++ b/arch/x86/kernel/kvmclock.c
+@@ -64,18 +64,9 @@ early_param("no-kvmclock-vsyscall", pars
+ static struct pvclock_vsyscall_time_info
+ 			hv_clock_boot[HVC_BOOT_ARRAY_SIZE] __bss_decrypted __aligned(PAGE_SIZE);
+ static struct pvclock_wall_clock wall_clock __bss_decrypted;
+-static DEFINE_PER_CPU(struct pvclock_vsyscall_time_info *, hv_clock_per_cpu);
+ static struct pvclock_vsyscall_time_info *hvclock_mem;
+-
+-static inline struct pvclock_vcpu_time_info *this_cpu_pvti(void)
+-{
+-	return &this_cpu_read(hv_clock_per_cpu)->pvti;
+-}
+-
+-static inline struct pvclock_vsyscall_time_info *this_cpu_hvclock(void)
+-{
+-	return this_cpu_read(hv_clock_per_cpu);
+-}
++DEFINE_PER_CPU(struct pvclock_vsyscall_time_info *, hv_clock_per_cpu);
++EXPORT_PER_CPU_SYMBOL_GPL(hv_clock_per_cpu);
+ 
+ /*
+  * The wallclock is the time of day when we booted. Since then, some time may
 
 
