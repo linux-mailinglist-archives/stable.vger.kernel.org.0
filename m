@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 603B3421048
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:41:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3649420DDC
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:17:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238687AbhJDNmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:42:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52272 "EHLO mail.kernel.org"
+        id S235921AbhJDNTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:19:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238429AbhJDNk0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:40:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D13B61B4E;
-        Mon,  4 Oct 2021 13:18:36 +0000 (UTC)
+        id S236100AbhJDNRo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:17:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98B0C6140B;
+        Mon,  4 Oct 2021 13:07:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353516;
-        bh=x2pvUxqOKptEVdjLWWkkly4p8ms1I51toKBAxrRhozU=;
+        s=korg; t=1633352832;
+        bh=RIL/+FetrdQsM3QDEaP1T7W6PTzOS2m9SLR+75p0IaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IumDyBLUtDHeBXoxYBXB8s3872FeQP58uq2csn1ethiEgBvzpmyv7DKsUbbVU6LcJ
-         6CdQnS6k2ImkbJqQft1hf+af+2wpQFsTD5exPmHoIR8uRqXdltFLtiT1GYHoxO/tBo
-         f6F9wHJ6FHRO5VJLqr6DBdIKgJGzXVwlDjmEmks8=
+        b=nOuC3bkdu1t0IN4AdHaP5shjESrUtGxWglIfdLckbYksU4iaRseMRgHXhT/TT3Hgq
+         ODMKnHMSM8+sjmxfIpovHdXbGuyY/fe8Rw9zMugirCfA/wT4iOxni50a3+4LwCt7l5
+         4/rwYQLEFHPM1+5/pFcNPU834YZOyTQITKe7Q5Dw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 132/172] net: phy: bcm7xxx: Fixed indirect MMD operations
+        stable@vger.kernel.org, stable@kernel.org,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Eric Whitney <enwlinux@gmail.com>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 42/56] ext4: fix reserved space counter leakage
 Date:   Mon,  4 Oct 2021 14:53:02 +0200
-Message-Id: <20211004125049.225551879@linuxfoundation.org>
+Message-Id: <20211004125031.327804120@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
+References: <20211004125030.002116402@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,193 +41,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
 
-[ Upstream commit d88fd1b546ff19c8040cfaea76bf16aed1c5a0bb ]
+commit 6fed83957f21eff11c8496e9f24253b03d2bc1dc upstream.
 
-When EEE support was added to the 28nm EPHY it was assumed that it would
-be able to support the standard clause 45 over clause 22 register access
-method. It turns out that the PHY does not support that, which is the
-very reason for using the indirect shadow mode 2 bank 3 access method.
+When ext4_insert_delayed block receives and recovers from an error from
+ext4_es_insert_delayed_block(), e.g., ENOMEM, it does not release the
+space it has reserved for that block insertion as it should. One effect
+of this bug is that s_dirtyclusters_counter is not decremented and
+remains incorrectly elevated until the file system has been unmounted.
+This can result in premature ENOSPC returns and apparent loss of free
+space.
 
-Implement {read,write}_mmd to allow the standard PHY library routines
-pertaining to EEE querying and configuration to work correctly on these
-PHYs. This forces us to implement a __phy_set_clr_bits() function that
-does not grab the MDIO bus lock since the PHY driver's {read,write}_mmd
-functions are always called with that lock held.
+Another effect of this bug is that
+/sys/fs/ext4/<dev>/delayed_allocation_blocks can remain non-zero even
+after syncfs has been executed on the filesystem.
 
-Fixes: 83ee102a6998 ("net: phy: bcm7xxx: add support for 28nm EPHY")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Besides, add check for s_dirtyclusters_counter when inode is going to be
+evicted and freed. s_dirtyclusters_counter can still keep non-zero until
+inode is written back in .evict_inode(), and thus the check is delayed
+to .destroy_inode().
+
+Fixes: 51865fda28e5 ("ext4: let ext4 maintain extent status tree")
+Cc: stable@kernel.org
+Suggested-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Reviewed-by: Eric Whitney <enwlinux@gmail.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20210823061358.84473-1-jefflexu@linux.alibaba.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/bcm7xxx.c | 114 ++++++++++++++++++++++++++++++++++++--
- 1 file changed, 110 insertions(+), 4 deletions(-)
+ fs/ext4/inode.c |    5 +++++
+ fs/ext4/super.c |    6 ++++++
+ 2 files changed, 11 insertions(+)
 
-diff --git a/drivers/net/phy/bcm7xxx.c b/drivers/net/phy/bcm7xxx.c
-index e79297a4bae8..27b6a3f507ae 100644
---- a/drivers/net/phy/bcm7xxx.c
-+++ b/drivers/net/phy/bcm7xxx.c
-@@ -27,7 +27,12 @@
- #define MII_BCM7XXX_SHD_2_ADDR_CTRL	0xe
- #define MII_BCM7XXX_SHD_2_CTRL_STAT	0xf
- #define MII_BCM7XXX_SHD_2_BIAS_TRIM	0x1a
-+#define MII_BCM7XXX_SHD_3_PCS_CTRL	0x0
-+#define MII_BCM7XXX_SHD_3_PCS_STATUS	0x1
-+#define MII_BCM7XXX_SHD_3_EEE_CAP	0x2
- #define MII_BCM7XXX_SHD_3_AN_EEE_ADV	0x3
-+#define MII_BCM7XXX_SHD_3_EEE_LP	0x4
-+#define MII_BCM7XXX_SHD_3_EEE_WK_ERR	0x5
- #define MII_BCM7XXX_SHD_3_PCS_CTRL_2	0x6
- #define  MII_BCM7XXX_PCS_CTRL_2_DEF	0x4400
- #define MII_BCM7XXX_SHD_3_AN_STAT	0xb
-@@ -216,25 +221,37 @@ static int bcm7xxx_28nm_resume(struct phy_device *phydev)
- 	return genphy_config_aneg(phydev);
- }
- 
--static int phy_set_clr_bits(struct phy_device *dev, int location,
--					int set_mask, int clr_mask)
-+static int __phy_set_clr_bits(struct phy_device *dev, int location,
-+			      int set_mask, int clr_mask)
- {
- 	int v, ret;
- 
--	v = phy_read(dev, location);
-+	v = __phy_read(dev, location);
- 	if (v < 0)
- 		return v;
- 
- 	v &= ~clr_mask;
- 	v |= set_mask;
- 
--	ret = phy_write(dev, location, v);
-+	ret = __phy_write(dev, location, v);
- 	if (ret < 0)
- 		return ret;
- 
- 	return v;
- }
- 
-+static int phy_set_clr_bits(struct phy_device *dev, int location,
-+			    int set_mask, int clr_mask)
-+{
-+	int ret;
-+
-+	mutex_lock(&dev->mdio.bus->mdio_lock);
-+	ret = __phy_set_clr_bits(dev, location, set_mask, clr_mask);
-+	mutex_unlock(&dev->mdio.bus->mdio_lock);
-+
-+	return ret;
-+}
-+
- static int bcm7xxx_28nm_ephy_01_afe_config_init(struct phy_device *phydev)
- {
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -1782,6 +1782,7 @@ static int ext4_insert_delayed_block(str
+ 	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
  	int ret;
-@@ -398,6 +415,93 @@ static int bcm7xxx_28nm_ephy_config_init(struct phy_device *phydev)
- 	return bcm7xxx_28nm_ephy_apd_enable(phydev);
+ 	bool allocated = false;
++	bool reserved = false;
+ 
+ 	/*
+ 	 * If the cluster containing lblk is shared with a delayed,
+@@ -1798,6 +1799,7 @@ static int ext4_insert_delayed_block(str
+ 		ret = ext4_da_reserve_space(inode);
+ 		if (ret != 0)   /* ENOSPC */
+ 			goto errout;
++		reserved = true;
+ 	} else {   /* bigalloc */
+ 		if (!ext4_es_scan_clu(inode, &ext4_es_is_delonly, lblk)) {
+ 			if (!ext4_es_scan_clu(inode,
+@@ -1810,6 +1812,7 @@ static int ext4_insert_delayed_block(str
+ 					ret = ext4_da_reserve_space(inode);
+ 					if (ret != 0)   /* ENOSPC */
+ 						goto errout;
++					reserved = true;
+ 				} else {
+ 					allocated = true;
+ 				}
+@@ -1820,6 +1823,8 @@ static int ext4_insert_delayed_block(str
+ 	}
+ 
+ 	ret = ext4_es_insert_delayed_block(inode, lblk, allocated);
++	if (ret && reserved)
++		ext4_da_release_space(inode, 1);
+ 
+ errout:
+ 	return ret;
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -1141,6 +1141,12 @@ static void ext4_destroy_inode(struct in
+ 				true);
+ 		dump_stack();
+ 	}
++
++	if (EXT4_I(inode)->i_reserved_data_blocks)
++		ext4_msg(inode->i_sb, KERN_ERR,
++			 "Inode %lu (%p): i_reserved_data_blocks (%u) not cleared!",
++			 inode->i_ino, EXT4_I(inode),
++			 EXT4_I(inode)->i_reserved_data_blocks);
  }
  
-+#define MII_BCM7XXX_REG_INVALID	0xff
-+
-+static u8 bcm7xxx_28nm_ephy_regnum_to_shd(u16 regnum)
-+{
-+	switch (regnum) {
-+	case MDIO_CTRL1:
-+		return MII_BCM7XXX_SHD_3_PCS_CTRL;
-+	case MDIO_STAT1:
-+		return MII_BCM7XXX_SHD_3_PCS_STATUS;
-+	case MDIO_PCS_EEE_ABLE:
-+		return MII_BCM7XXX_SHD_3_EEE_CAP;
-+	case MDIO_AN_EEE_ADV:
-+		return MII_BCM7XXX_SHD_3_AN_EEE_ADV;
-+	case MDIO_AN_EEE_LPABLE:
-+		return MII_BCM7XXX_SHD_3_EEE_LP;
-+	case MDIO_PCS_EEE_WK_ERR:
-+		return MII_BCM7XXX_SHD_3_EEE_WK_ERR;
-+	default:
-+		return MII_BCM7XXX_REG_INVALID;
-+	}
-+}
-+
-+static bool bcm7xxx_28nm_ephy_dev_valid(int devnum)
-+{
-+	return devnum == MDIO_MMD_AN || devnum == MDIO_MMD_PCS;
-+}
-+
-+static int bcm7xxx_28nm_ephy_read_mmd(struct phy_device *phydev,
-+				      int devnum, u16 regnum)
-+{
-+	u8 shd = bcm7xxx_28nm_ephy_regnum_to_shd(regnum);
-+	int ret;
-+
-+	if (!bcm7xxx_28nm_ephy_dev_valid(devnum) ||
-+	    shd == MII_BCM7XXX_REG_INVALID)
-+		return -EOPNOTSUPP;
-+
-+	/* set shadow mode 2 */
-+	ret = __phy_set_clr_bits(phydev, MII_BCM7XXX_TEST,
-+				 MII_BCM7XXX_SHD_MODE_2, 0);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Access the desired shadow register address */
-+	ret = __phy_write(phydev, MII_BCM7XXX_SHD_2_ADDR_CTRL, shd);
-+	if (ret < 0)
-+		goto reset_shadow_mode;
-+
-+	ret = __phy_read(phydev, MII_BCM7XXX_SHD_2_CTRL_STAT);
-+
-+reset_shadow_mode:
-+	/* reset shadow mode 2 */
-+	__phy_set_clr_bits(phydev, MII_BCM7XXX_TEST, 0,
-+			   MII_BCM7XXX_SHD_MODE_2);
-+	return ret;
-+}
-+
-+static int bcm7xxx_28nm_ephy_write_mmd(struct phy_device *phydev,
-+				       int devnum, u16 regnum, u16 val)
-+{
-+	u8 shd = bcm7xxx_28nm_ephy_regnum_to_shd(regnum);
-+	int ret;
-+
-+	if (!bcm7xxx_28nm_ephy_dev_valid(devnum) ||
-+	    shd == MII_BCM7XXX_REG_INVALID)
-+		return -EOPNOTSUPP;
-+
-+	/* set shadow mode 2 */
-+	ret = __phy_set_clr_bits(phydev, MII_BCM7XXX_TEST,
-+				 MII_BCM7XXX_SHD_MODE_2, 0);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Access the desired shadow register address */
-+	ret = __phy_write(phydev, MII_BCM7XXX_SHD_2_ADDR_CTRL, shd);
-+	if (ret < 0)
-+		goto reset_shadow_mode;
-+
-+	/* Write the desired value in the shadow register */
-+	__phy_write(phydev, MII_BCM7XXX_SHD_2_CTRL_STAT, val);
-+
-+reset_shadow_mode:
-+	/* reset shadow mode 2 */
-+	return __phy_set_clr_bits(phydev, MII_BCM7XXX_TEST, 0,
-+				  MII_BCM7XXX_SHD_MODE_2);
-+}
-+
- static int bcm7xxx_28nm_ephy_resume(struct phy_device *phydev)
- {
- 	int ret;
-@@ -595,6 +699,8 @@ static void bcm7xxx_28nm_remove(struct phy_device *phydev)
- 	.get_stats	= bcm7xxx_28nm_get_phy_stats,			\
- 	.probe		= bcm7xxx_28nm_probe,				\
- 	.remove		= bcm7xxx_28nm_remove,				\
-+	.read_mmd	= bcm7xxx_28nm_ephy_read_mmd,			\
-+	.write_mmd	= bcm7xxx_28nm_ephy_write_mmd,			\
- }
- 
- #define BCM7XXX_40NM_EPHY(_oui, _name)					\
--- 
-2.33.0
-
+ static void init_once(void *foo)
 
 
