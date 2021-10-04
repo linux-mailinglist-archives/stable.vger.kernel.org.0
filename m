@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67FF8421056
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:41:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B349E420D83
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:14:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238551AbhJDNmj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:42:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53180 "EHLO mail.kernel.org"
+        id S236169AbhJDNP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:15:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238558AbhJDNkr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:40:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B045763258;
-        Mon,  4 Oct 2021 13:18:50 +0000 (UTC)
+        id S235590AbhJDNN5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:13:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFFF261BA1;
+        Mon,  4 Oct 2021 13:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353531;
-        bh=+nw6+fxqcZSIr9uOpnTpoheCYQHci09iflANwjnsGlQ=;
+        s=korg; t=1633352734;
+        bh=vqWyOeURbVSKl5y9uVz/VN+k2c77rNz1w9AaZ81FS7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a30g95XH7ycfQTv3t/vGAjuS/HzJq7ymnJQKcbkQAFBWfdGwm0VUEs1bNgrjeWQBa
-         3w3Sw0Fl5fsfp1cCQzsjbpi7EuOUldszPBwGdwyTMrvH6o9jC2Yvz2D8w/DqFrWZaT
-         BB/rknCM0B3cCKyJgBSv3hMzZFRu+tphg7EDbfyQ=
+        b=wH3/izxR5kOcmnKpUwdhhB86EUDL1/EAENCNctUI+VJdMAaSz+nKyGybYAr6oL3d7
+         m14h0d0ipdykWI1V9yvfxWw0x+Qmalulq4qvE/BEswtXI1sP8EfLxA1/M/ZKAncKUd
+         Nwvoe+tNV29RH0CVqa/yNREc23xMMw/9Bdtl4M3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Paolo Abeni <pabeni@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+1dd53f7a89b299d59eaf@syzkaller.appspotmail.com
-Subject: [PATCH 5.14 133/172] net: introduce and use lock_sock_fast_nested()
+        stable@vger.kernel.org,
+        syzbot+3493b1873fb3ea827986@syzkaller.appspotmail.com,
+        syzbot+2b8443c35458a617c904@syzkaller.appspotmail.com,
+        syzbot+ee5cb15f4a0e85e0d54e@syzkaller.appspotmail.com,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.19 93/95] netfilter: ipset: Fix oversized kvmalloc() calls
 Date:   Mon,  4 Oct 2021 14:53:03 +0200
-Message-Id: <20211004125049.256812757@linuxfoundation.org>
+Message-Id: <20211004125036.606912734@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,216 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Jozsef Kadlecsik <kadlec@netfilter.org>
 
-[ Upstream commit 49054556289e8787501630b7c7a9d407da02e296 ]
+commit 7bbc3d385bd813077acaf0e6fdb2a86a901f5382 upstream.
 
-Syzkaller reported a false positive deadlock involving
-the nl socket lock and the subflow socket lock:
+The commit
 
-MPTCP: kernel_bind error, err=-98
-============================================
-WARNING: possible recursive locking detected
-5.15.0-rc1-syzkaller #0 Not tainted
---------------------------------------------
-syz-executor998/6520 is trying to acquire lock:
-ffff8880795718a0 (k-sk_lock-AF_INET){+.+.}-{0:0}, at: mptcp_close+0x267/0x7b0 net/mptcp/protocol.c:2738
+commit 7661809d493b426e979f39ab512e3adf41fbcc69
+Author: Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Wed Jul 14 09:45:49 2021 -0700
 
-but task is already holding lock:
-ffff8880787c8c60 (k-sk_lock-AF_INET){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1612 [inline]
-ffff8880787c8c60 (k-sk_lock-AF_INET){+.+.}-{0:0}, at: mptcp_close+0x23/0x7b0 net/mptcp/protocol.c:2720
+    mm: don't allow oversized kvmalloc() calls
 
-other info that might help us debug this:
- Possible unsafe locking scenario:
+limits the max allocatable memory via kvmalloc() to MAX_INT. Apply the
+same limit in ipset.
 
-       CPU0
-       ----
-  lock(k-sk_lock-AF_INET);
-  lock(k-sk_lock-AF_INET);
-
- *** DEADLOCK ***
-
- May be due to missing lock nesting notation
-
-3 locks held by syz-executor998/6520:
- #0: ffffffff8d176c50 (cb_lock){++++}-{3:3}, at: genl_rcv+0x15/0x40 net/netlink/genetlink.c:802
- #1: ffffffff8d176d08 (genl_mutex){+.+.}-{3:3}, at: genl_lock net/netlink/genetlink.c:33 [inline]
- #1: ffffffff8d176d08 (genl_mutex){+.+.}-{3:3}, at: genl_rcv_msg+0x3e0/0x580 net/netlink/genetlink.c:790
- #2: ffff8880787c8c60 (k-sk_lock-AF_INET){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1612 [inline]
- #2: ffff8880787c8c60 (k-sk_lock-AF_INET){+.+.}-{0:0}, at: mptcp_close+0x23/0x7b0 net/mptcp/protocol.c:2720
-
-stack backtrace:
-CPU: 1 PID: 6520 Comm: syz-executor998 Not tainted 5.15.0-rc1-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_deadlock_bug kernel/locking/lockdep.c:2944 [inline]
- check_deadlock kernel/locking/lockdep.c:2987 [inline]
- validate_chain kernel/locking/lockdep.c:3776 [inline]
- __lock_acquire.cold+0x149/0x3ab kernel/locking/lockdep.c:5015
- lock_acquire kernel/locking/lockdep.c:5625 [inline]
- lock_acquire+0x1ab/0x510 kernel/locking/lockdep.c:5590
- lock_sock_fast+0x36/0x100 net/core/sock.c:3229
- mptcp_close+0x267/0x7b0 net/mptcp/protocol.c:2738
- inet_release+0x12e/0x280 net/ipv4/af_inet.c:431
- __sock_release net/socket.c:649 [inline]
- sock_release+0x87/0x1b0 net/socket.c:677
- mptcp_pm_nl_create_listen_socket+0x238/0x2c0 net/mptcp/pm_netlink.c:900
- mptcp_nl_cmd_add_addr+0x359/0x930 net/mptcp/pm_netlink.c:1170
- genl_family_rcv_msg_doit+0x228/0x320 net/netlink/genetlink.c:731
- genl_family_rcv_msg net/netlink/genetlink.c:775 [inline]
- genl_rcv_msg+0x328/0x580 net/netlink/genetlink.c:792
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2504
- genl_rcv+0x24/0x40 net/netlink/genetlink.c:803
- netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1340
- netlink_sendmsg+0x86d/0xdb0 net/netlink/af_netlink.c:1929
- sock_sendmsg_nosec net/socket.c:704 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:724
- sock_no_sendpage+0x101/0x150 net/core/sock.c:2980
- kernel_sendpage.part.0+0x1a0/0x340 net/socket.c:3504
- kernel_sendpage net/socket.c:3501 [inline]
- sock_sendpage+0xe5/0x140 net/socket.c:1003
- pipe_to_sendpage+0x2ad/0x380 fs/splice.c:364
- splice_from_pipe_feed fs/splice.c:418 [inline]
- __splice_from_pipe+0x43e/0x8a0 fs/splice.c:562
- splice_from_pipe fs/splice.c:597 [inline]
- generic_splice_sendpage+0xd4/0x140 fs/splice.c:746
- do_splice_from fs/splice.c:767 [inline]
- direct_splice_actor+0x110/0x180 fs/splice.c:936
- splice_direct_to_actor+0x34b/0x8c0 fs/splice.c:891
- do_splice_direct+0x1b3/0x280 fs/splice.c:979
- do_sendfile+0xae9/0x1240 fs/read_write.c:1249
- __do_sys_sendfile64 fs/read_write.c:1314 [inline]
- __se_sys_sendfile64 fs/read_write.c:1300 [inline]
- __x64_sys_sendfile64+0x1cc/0x210 fs/read_write.c:1300
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f215cb69969
-Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 e1 14 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffc96bb3868 EFLAGS: 00000246 ORIG_RAX: 0000000000000028
-RAX: ffffffffffffffda RBX: 00007f215cbad072 RCX: 00007f215cb69969
-RDX: 0000000000000000 RSI: 0000000000000004 RDI: 0000000000000005
-RBP: 0000000000000000 R08: 00007ffc96bb3a08 R09: 00007ffc96bb3a08
-R10: 0000000100000002 R11: 0000000000000246 R12: 00007ffc96bb387c
-R13: 431bde82d7b634db R14: 0000000000000000 R15: 0000000000000000
-
-the problem originates from uncorrect lock annotation in the mptcp
-code and is only visible since commit 2dcb96bacce3 ("net: core: Correct
-the sock::sk_lock.owned lockdep annotations"), but is present since
-the port-based endpoint support initial implementation.
-
-This patch addresses the issue introducing a nested variant of
-lock_sock_fast() and using it in the relevant code path.
-
-Fixes: 1729cf186d8a ("mptcp: create the listening socket for new port")
-Fixes: 2dcb96bacce3 ("net: core: Correct the sock::sk_lock.owned lockdep annotations")
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Reported-and-tested-by: syzbot+1dd53f7a89b299d59eaf@syzkaller.appspotmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+3493b1873fb3ea827986@syzkaller.appspotmail.com
+Reported-by: syzbot+2b8443c35458a617c904@syzkaller.appspotmail.com
+Reported-by: syzbot+ee5cb15f4a0e85e0d54e@syzkaller.appspotmail.com
+Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/sock.h   | 31 ++++++++++++++++++++++++++++++-
- net/core/sock.c      | 17 ++---------------
- net/mptcp/protocol.c |  2 +-
- 3 files changed, 33 insertions(+), 17 deletions(-)
+ net/netfilter/ipset/ip_set_hash_gen.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/sock.h b/include/net/sock.h
-index f23cb259b0e2..980b471b569d 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -1624,7 +1624,36 @@ void release_sock(struct sock *sk);
- 				SINGLE_DEPTH_NESTING)
- #define bh_unlock_sock(__sk)	spin_unlock(&((__sk)->sk_lock.slock))
- 
--bool lock_sock_fast(struct sock *sk) __acquires(&sk->sk_lock.slock);
-+bool __lock_sock_fast(struct sock *sk) __acquires(&sk->sk_lock.slock);
-+
-+/**
-+ * lock_sock_fast - fast version of lock_sock
-+ * @sk: socket
-+ *
-+ * This version should be used for very small section, where process wont block
-+ * return false if fast path is taken:
-+ *
-+ *   sk_lock.slock locked, owned = 0, BH disabled
-+ *
-+ * return true if slow path is taken:
-+ *
-+ *   sk_lock.slock unlocked, owned = 1, BH enabled
-+ */
-+static inline bool lock_sock_fast(struct sock *sk)
-+{
-+	/* The sk_lock has mutex_lock() semantics here. */
-+	mutex_acquire(&sk->sk_lock.dep_map, 0, 0, _RET_IP_);
-+
-+	return __lock_sock_fast(sk);
-+}
-+
-+/* fast socket lock variant for caller already holding a [different] socket lock */
-+static inline bool lock_sock_fast_nested(struct sock *sk)
-+{
-+	mutex_acquire(&sk->sk_lock.dep_map, SINGLE_DEPTH_NESTING, 0, _RET_IP_);
-+
-+	return __lock_sock_fast(sk);
-+}
- 
- /**
-  * unlock_sock_fast - complement of lock_sock_fast
-diff --git a/net/core/sock.c b/net/core/sock.c
-index a3eea6e0b30a..1cf0edc79f37 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -3191,20 +3191,7 @@ void release_sock(struct sock *sk)
- }
- EXPORT_SYMBOL(release_sock);
- 
--/**
-- * lock_sock_fast - fast version of lock_sock
-- * @sk: socket
-- *
-- * This version should be used for very small section, where process wont block
-- * return false if fast path is taken:
-- *
-- *   sk_lock.slock locked, owned = 0, BH disabled
-- *
-- * return true if slow path is taken:
-- *
-- *   sk_lock.slock unlocked, owned = 1, BH enabled
-- */
--bool lock_sock_fast(struct sock *sk) __acquires(&sk->sk_lock.slock)
-+bool __lock_sock_fast(struct sock *sk) __acquires(&sk->sk_lock.slock)
+--- a/net/netfilter/ipset/ip_set_hash_gen.h
++++ b/net/netfilter/ipset/ip_set_hash_gen.h
+@@ -104,11 +104,11 @@ htable_size(u8 hbits)
  {
- 	might_sleep();
- 	spin_lock_bh(&sk->sk_lock.slock);
-@@ -3226,7 +3213,7 @@ bool lock_sock_fast(struct sock *sk) __acquires(&sk->sk_lock.slock)
- 	local_bh_enable();
- 	return true;
- }
--EXPORT_SYMBOL(lock_sock_fast);
-+EXPORT_SYMBOL(__lock_sock_fast);
+ 	size_t hsize;
  
- int sock_gettstamp(struct socket *sock, void __user *userstamp,
- 		   bool timeval, bool time32)
-diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index 4d2abdd3cd3b..7d4d40360f77 100644
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -2622,7 +2622,7 @@ static void mptcp_close(struct sock *sk, long timeout)
- 	inet_csk(sk)->icsk_mtup.probe_timestamp = tcp_jiffies32;
- 	mptcp_for_each_subflow(mptcp_sk(sk), subflow) {
- 		struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
--		bool slow = lock_sock_fast(ssk);
-+		bool slow = lock_sock_fast_nested(ssk);
+-	/* We must fit both into u32 in jhash and size_t */
++	/* We must fit both into u32 in jhash and INT_MAX in kvmalloc_node() */
+ 	if (hbits > 31)
+ 		return 0;
+ 	hsize = jhash_size(hbits);
+-	if ((((size_t)-1) - sizeof(struct htable)) / sizeof(struct hbucket *)
++	if ((INT_MAX - sizeof(struct htable)) / sizeof(struct hbucket *)
+ 	    < hsize)
+ 		return 0;
  
- 		sock_orphan(ssk);
- 		unlock_sock_fast(ssk, slow);
--- 
-2.33.0
-
 
 
