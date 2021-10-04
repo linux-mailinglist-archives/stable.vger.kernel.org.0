@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA363420F26
+	by mail.lfdr.de (Postfix) with ESMTP id 60219420F25
 	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:30:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236914AbhJDNbp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:31:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43088 "EHLO mail.kernel.org"
+        id S236886AbhJDNbo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:31:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237097AbhJDN3z (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237098AbhJDN3z (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 4 Oct 2021 09:29:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C914613AD;
-        Mon,  4 Oct 2021 13:13:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86F8B6320E;
+        Mon,  4 Oct 2021 13:13:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353202;
-        bh=/CSU1UQt3B9EPyyzD9OkcwMM9NnbyDRvBgclPSg/Km8=;
+        s=korg; t=1633353205;
+        bh=XyyBT2CR4VZdwk2vKad6wgcPft6lAhFe6EIjzXUwRXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vp3cRoBaCLxnZG3N5HTwWG5mi23uE7c4g/f6Mdrx1TgXkGvbPmvucmsJBixeGj/NL
-         WtK6PTFnGCUijOK593INWtmwaK0WBQ7MbUQUAq8/dmEWKsptPvpudZGaB+n+ED9rve
-         FttESErzOMEiG8+cB6mRvj8UpPhoMMQrkR+Ss3Tc=
+        b=uAqbkJaV7Agq2wrVdBb1fRjv9sCbFI9y8xBy5UMB9V4JWQnmYYzrjrlULzOPfgi4T
+         KabHu7anfiOyDxSgHvWkHlM3qAcydHfUzZgWezw3zEmdtgAkjnUv0uDdsJyI/a/c4m
+         HtDQWpFJ0RAHqfqLc0vzv7VDgGSl+MvP7sBmvCqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        stable@vger.kernel.org, Cameron Berkenpas <cam@neo-zeon.de>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.14 036/172] ALSA: firewire-motu: fix truncated bytes in message tracepoints
-Date:   Mon,  4 Oct 2021 14:51:26 +0200
-Message-Id: <20211004125046.145124019@linuxfoundation.org>
+Subject: [PATCH 5.14 037/172] ALSA: hda/realtek: Quirks to enable speaker output for Lenovo Legion 7i 15IMHG05, Yoga 7i 14ITL5/15ITL5, and 13s Gen2 laptops.
+Date:   Mon,  4 Oct 2021 14:51:27 +0200
+Message-Id: <20211004125046.176644923@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
 References: <20211004125044.945314266@linuxfoundation.org>
@@ -39,48 +39,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Cameron Berkenpas <cam@neo-zeon.de>
 
-commit cb1bcf5ed536747013fe2b3f9bd56ce3242c295a upstream.
+commit ad7cc2d41b7a8d0c5c5ecff37c3de7a4e137b3a6 upstream.
 
-In MOTU protocol v2/v3, first two data chunks across 2nd and 3rd data
-channels includes message bytes from device. The total size of message
-is 48 bits per data block.
+This patch initializes and enables speaker output on the Lenovo Legion 7i
+15IMHG05, Yoga 7i 14ITL5/15ITL5, and 13s Gen2 series of laptops using the
+HDA verb sequence specific to each model.
 
-The 'data_block_message' tracepoints event produced by ALSA firewire-motu
-driver exposes the sequence of messages to userspace in 64 bit storage,
-however lower 32 bits are actually available since current implementation
-truncates 16 bits in upper of the message as a result of bit shift
-operation within 32 bit storage.
+Speaker automute is suppressed for the Lenovo Legion 7i 15IMHG05 to avoid
+breaking speaker output on resume and when devices are unplugged from its
+headphone jack.
 
-This commit fixes the bug by perform the bit shift in 64 bit storage.
+Thanks to: Andreas Holzer, Vincent Morel, sycxyc, Max Christian Pohle and
+all others that helped.
 
-Fixes: c6b0b9e65f09 ("ALSA: firewire-motu: add tracepoints for messages for unique protocol")
+[ minor coding style fixes by tiwai ]
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208555
+Signed-off-by: Cameron Berkenpas <cam@neo-zeon.de>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210920110734.27161-1-o-takashi@sakamocchi.jp
+Link: https://lore.kernel.org/r/20210913212627.339362-1-cam@neo-zeon.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/firewire/motu/amdtp-motu.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ sound/pci/hda/patch_realtek.c |  129 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 129 insertions(+)
 
---- a/sound/firewire/motu/amdtp-motu.c
-+++ b/sound/firewire/motu/amdtp-motu.c
-@@ -276,10 +276,11 @@ static void __maybe_unused copy_message(
- 
- 	/* This is just for v2/v3 protocol. */
- 	for (i = 0; i < data_blocks; ++i) {
--		*frames = (be32_to_cpu(buffer[1]) << 16) |
--			  (be32_to_cpu(buffer[2]) >> 16);
-+		*frames = be32_to_cpu(buffer[1]);
-+		*frames <<= 16;
-+		*frames |= be32_to_cpu(buffer[2]) >> 16;
-+		++frames;
- 		buffer += data_block_quadlets;
--		frames++;
- 	}
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6442,6 +6442,20 @@ static void alc_fixup_thinkpad_acpi(stru
+ 	hda_fixup_thinkpad_acpi(codec, fix, action);
  }
  
++/* Fixup for Lenovo Legion 15IMHg05 speaker output on headset removal. */
++static void alc287_fixup_legion_15imhg05_speakers(struct hda_codec *codec,
++						  const struct hda_fixup *fix,
++						  int action)
++{
++	struct alc_spec *spec = codec->spec;
++
++	switch (action) {
++	case HDA_FIXUP_ACT_PRE_PROBE:
++		spec->gen.suppress_auto_mute = 1;
++		break;
++	}
++}
++
+ /* for alc295_fixup_hp_top_speakers */
+ #include "hp_x360_helper.c"
+ 
+@@ -6659,6 +6673,10 @@ enum {
+ 	ALC623_FIXUP_LENOVO_THINKSTATION_P340,
+ 	ALC255_FIXUP_ACER_HEADPHONE_AND_MIC,
+ 	ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST,
++	ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS,
++	ALC287_FIXUP_LEGION_15IMHG05_AUTOMUTE,
++	ALC287_FIXUP_YOGA7_14ITL_SPEAKERS,
++	ALC287_FIXUP_13S_GEN2_SPEAKERS
+ };
+ 
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -8249,6 +8267,113 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
+ 	},
++	[ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS] = {
++		.type = HDA_FIXUP_VERBS,
++		//.v.verbs = legion_15imhg05_coefs,
++		.v.verbs = (const struct hda_verb[]) {
++			 // set left speaker Legion 7i.
++			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x24 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x41 },
++
++			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0xc },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x1a },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
++
++			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x2 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
++
++			 // set right speaker Legion 7i.
++			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x24 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x42 },
++
++			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0xc },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x2a },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
++
++			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x2 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
++			 {}
++		},
++		.chained = true,
++		.chain_id = ALC287_FIXUP_LEGION_15IMHG05_AUTOMUTE,
++	},
++	[ALC287_FIXUP_LEGION_15IMHG05_AUTOMUTE] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc287_fixup_legion_15imhg05_speakers,
++		.chained = true,
++		.chain_id = ALC269_FIXUP_HEADSET_MODE,
++	},
++	[ALC287_FIXUP_YOGA7_14ITL_SPEAKERS] = {
++		.type = HDA_FIXUP_VERBS,
++		.v.verbs = (const struct hda_verb[]) {
++			 // set left speaker Yoga 7i.
++			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x24 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x41 },
++
++			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0xc },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x1a },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
++
++			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x2 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
++
++			 // set right speaker Yoga 7i.
++			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x24 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x46 },
++
++			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0xc },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x2a },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
++
++			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x2 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
++			 {}
++		},
++		.chained = true,
++		.chain_id = ALC269_FIXUP_HEADSET_MODE,
++	},
++	[ALC287_FIXUP_13S_GEN2_SPEAKERS] = {
++		.type = HDA_FIXUP_VERBS,
++		.v.verbs = (const struct hda_verb[]) {
++			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x24 },
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0x41 },
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0x2 },
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
++			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x24 },
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0x42 },
++			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0x2 },
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
++			{}
++		},
++		.chained = true,
++		.chain_id = ALC269_FIXUP_HEADSET_MODE,
++	},
+ };
+ 
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -8643,6 +8768,10 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x3818, "Lenovo C940", ALC298_FIXUP_LENOVO_SPK_VOLUME),
+ 	SND_PCI_QUIRK(0x17aa, 0x3827, "Ideapad S740", ALC285_FIXUP_IDEAPAD_S740_COEF),
+ 	SND_PCI_QUIRK(0x17aa, 0x3843, "Yoga 9i", ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP),
++	SND_PCI_QUIRK(0x17aa, 0x3813, "Legion 7i 15IMHG05", ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS),
++	SND_PCI_QUIRK(0x17aa, 0x3852, "Lenovo Yoga 7 14ITL5", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
++	SND_PCI_QUIRK(0x17aa, 0x3853, "Lenovo Yoga 7 15ITL5", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
++	SND_PCI_QUIRK(0x17aa, 0x3819, "Lenovo 13s Gen2 ITL", ALC287_FIXUP_13S_GEN2_SPEAKERS),
+ 	SND_PCI_QUIRK(0x17aa, 0x3902, "Lenovo E50-80", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
+ 	SND_PCI_QUIRK(0x17aa, 0x3977, "IdeaPad S210", ALC283_FIXUP_INT_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo B50-70", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
 
 
