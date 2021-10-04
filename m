@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08849420D99
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:15:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05843420C0F
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:00:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235593AbhJDNQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:16:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54356 "EHLO mail.kernel.org"
+        id S234402AbhJDNCY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:02:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235845AbhJDNOg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:14:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E28B61BA5;
-        Mon,  4 Oct 2021 13:05:53 +0000 (UTC)
+        id S234183AbhJDNA7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:00:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A105619E9;
+        Mon,  4 Oct 2021 12:58:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352753;
-        bh=8vn8TgtgDX0d24YZKQGbn+g0vStMejX4ykhzkhty2pU=;
+        s=korg; t=1633352291;
+        bh=p9uIb9QCVQcCBcNyFClCCJZkqdtnv8Dp7Lhw/LDdsZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2kyEO/hWBaloD1dSEphdljtjGch1mPo0beUfYdKluBZQmTHtl8VjfAsExCo7WKWJc
-         bmRDrE3fFYVX4pvUy3tRcL1TVPj4QjLxV0Z734V+GzSVr3lO8Xf43JofJbBm5b6hFP
-         qQhaCedcqN8Y46HheDnfWvNhwp4ISg9afS/Pnloc=
+        b=EZ0lJzmXQtTaaaq+mwJqb2QRS2mIri74TWEnscmv5yEyJi6KeP3Nbbjr+xWURYCBv
+         qGQBf9/qtWxakxwIFDzV4xC91n9JwgNb+wTdFNHltwwW9CP7Ox3X9Mu5Qb3I7GCqV7
+         HkZWI++8oP8al3YTm/3o6vGSpeAfU+GZAaWlpFXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Chen <yiche@redhat.com>,
-        Andrea Claudi <aclaudi@redhat.com>,
-        Julian Anastasov <ja@ssi.bg>,
-        Simon Horman <horms@verge.net.au>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 13/56] ipvs: check that ip_vs_conn_tab_bits is between 8 and 20
+        stable@vger.kernel.org,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 4.9 49/57] ARM: 9077/1: PLT: Move struct plt_entries definition to header
 Date:   Mon,  4 Oct 2021 14:52:33 +0200
-Message-Id: <20211004125030.428220201@linuxfoundation.org>
+Message-Id: <20211004125030.502926792@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
-References: <20211004125030.002116402@linuxfoundation.org>
+In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
+References: <20211004125028.940212411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Claudi <aclaudi@redhat.com>
+From: Alex Sverdlin <alexander.sverdlin@nokia.com>
 
-[ Upstream commit 69e73dbfda14fbfe748d3812da1244cce2928dcb ]
+commit 4e271701c17dee70c6e1351c4d7d42e70405c6a9 upstream
 
-ip_vs_conn_tab_bits may be provided by the user through the
-conn_tab_bits module parameter. If this value is greater than 31, or
-less than 0, the shift operator used to derive tab_size causes undefined
-behaviour.
+No functional change, later it will be re-used in several files.
 
-Fix this checking ip_vs_conn_tab_bits value to be in the range specified
-in ipvs Kconfig. If not, simply use default value.
-
-Fixes: 6f7edb4881bf ("IPVS: Allow boot time change of hash size")
-Reported-by: Yi Chen <yiche@redhat.com>
-Signed-off-by: Andrea Claudi <aclaudi@redhat.com>
-Acked-by: Julian Anastasov <ja@ssi.bg>
-Acked-by: Simon Horman <horms@verge.net.au>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/ipvs/ip_vs_conn.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm/include/asm/module.h |    9 +++++++++
+ arch/arm/kernel/module-plts.c |    9 ---------
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/net/netfilter/ipvs/ip_vs_conn.c b/net/netfilter/ipvs/ip_vs_conn.c
-index 02f2f636798d..d1524ca4b90e 100644
---- a/net/netfilter/ipvs/ip_vs_conn.c
-+++ b/net/netfilter/ipvs/ip_vs_conn.c
-@@ -1394,6 +1394,10 @@ int __init ip_vs_conn_init(void)
- 	int idx;
+--- a/arch/arm/include/asm/module.h
++++ b/arch/arm/include/asm/module.h
+@@ -18,6 +18,15 @@ enum {
+ };
+ #endif
  
- 	/* Compute size and mask */
-+	if (ip_vs_conn_tab_bits < 8 || ip_vs_conn_tab_bits > 20) {
-+		pr_info("conn_tab_bits not in [8, 20]. Using default value\n");
-+		ip_vs_conn_tab_bits = CONFIG_IP_VS_TAB_BITS;
-+	}
- 	ip_vs_conn_tab_size = 1 << ip_vs_conn_tab_bits;
- 	ip_vs_conn_tab_mask = ip_vs_conn_tab_size - 1;
++#define PLT_ENT_STRIDE		L1_CACHE_BYTES
++#define PLT_ENT_COUNT		(PLT_ENT_STRIDE / sizeof(u32))
++#define PLT_ENT_SIZE		(sizeof(struct plt_entries) / PLT_ENT_COUNT)
++
++struct plt_entries {
++	u32	ldr[PLT_ENT_COUNT];
++	u32	lit[PLT_ENT_COUNT];
++};
++
+ struct mod_plt_sec {
+ 	struct elf32_shdr	*plt;
+ 	int			plt_count;
+--- a/arch/arm/kernel/module-plts.c
++++ b/arch/arm/kernel/module-plts.c
+@@ -14,10 +14,6 @@
+ #include <asm/cache.h>
+ #include <asm/opcodes.h>
  
--- 
-2.33.0
-
+-#define PLT_ENT_STRIDE		L1_CACHE_BYTES
+-#define PLT_ENT_COUNT		(PLT_ENT_STRIDE / sizeof(u32))
+-#define PLT_ENT_SIZE		(sizeof(struct plt_entries) / PLT_ENT_COUNT)
+-
+ #ifdef CONFIG_THUMB2_KERNEL
+ #define PLT_ENT_LDR		__opcode_to_mem_thumb32(0xf8dff000 | \
+ 							(PLT_ENT_STRIDE - 4))
+@@ -26,11 +22,6 @@
+ 						    (PLT_ENT_STRIDE - 8))
+ #endif
+ 
+-struct plt_entries {
+-	u32	ldr[PLT_ENT_COUNT];
+-	u32	lit[PLT_ENT_COUNT];
+-};
+-
+ static bool in_init(const struct module *mod, unsigned long loc)
+ {
+ 	return loc - (u32)mod->init_layout.base < mod->init_layout.size;
 
 
