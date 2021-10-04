@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F5D1420BF7
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:59:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BA61420FC4
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:36:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234250AbhJDNB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:01:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59900 "EHLO mail.kernel.org"
+        id S237963AbhJDNhp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:37:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233446AbhJDM7q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:59:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6004761994;
-        Mon,  4 Oct 2021 12:57:45 +0000 (UTC)
+        id S237981AbhJDNfp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:35:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF48E63236;
+        Mon,  4 Oct 2021 13:16:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352265;
-        bh=iN6shAK1uMj87NTIcvDPLrlffVNZbrfpLNn2NEQRmkc=;
+        s=korg; t=1633353381;
+        bh=tYr1UR5UVV9/l4UvwpgkGg2+Y55MDBz5RAQC9WXHaPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R0wh3ISoiy2TDBlFUtr60fhMFjUeX30g8ZfEAWesnU0eadyWAVPPVckNJFhCjF/+S
-         7xwbsJYHYAxdOmy2LcKXZQ9AcO+fVz36UfN+XwTq8AHo2SuLMBtXd/mdchVulDMbzO
-         Z5dU+S4P+HwFhVIZrBX2pn6K1HBJ6TdUqJVdiW5c=
+        b=l/UXXRg+Q5OPMxr1ew52G9uqBjneS30AMrvdhDMGeEdrjWqEPRSiK31J5feItLVWR
+         TgDrRWmlVWKKx95430w/fmxKX03HZa1Rkz3oUbLJbq8pYviMW32Ng7aUwX4N6VqaTy
+         JswZO/+cnW/Nk+7eho6JPmkwQg2hrGSIbzAOjeSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Nanyong Sun <sunnanyong@huawei.com>
-Subject: [PATCH 4.9 53/57] arm64: Extend workaround for erratum 1024718 to all versions of Cortex-A55
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 107/172] dsa: mv88e6xxx: Fix MTU definition
 Date:   Mon,  4 Oct 2021 14:52:37 +0200
-Message-Id: <20211004125030.623951794@linuxfoundation.org>
+Message-Id: <20211004125048.440210951@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
-References: <20211004125028.940212411@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +40,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Andrew Lunn <andrew@lunn.ch>
 
-commit c0b15c25d25171db4b70cc0b7dbc1130ee94017d upstream.
+[ Upstream commit b92ce2f54c0f0ff781e914ec189c25f7bf1b1ec2 ]
 
-The erratum 1024718 affects Cortex-A55 r0p0 to r2p0. However
-we apply the work around for r0p0 - r1p0. Unfortunately this
-won't be fixed for the future revisions for the CPU. Thus
-extend the work around for all versions of A55, to cover
-for r2p0 and any future revisions.
+The MTU passed to the DSA driver is the payload size, typically 1500.
+However, the switch uses the frame size when applying restrictions.
+Adjust the MTU with the size of the Ethernet header and the frame
+checksum. The VLAN header also needs to be included when the frame
+size it per port, but not when it is global.
 
-Cc: stable@vger.kernel.org
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/20210203230057.3961239-1-suzuki.poulose@arm.com
-[will: Update Kconfig help text]
-Signed-off-by: Will Deacon <will@kernel.org>
-[Nanyon: adjust for stable version below v4.16, which set TCR_HD earlier
-in assembly code]
-Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 1baf0fac10fb ("net: dsa: mv88e6xxx: Use chip-wide max frame size for MTU")
+Reported by: 曹煜 <cao88yu@gmail.com>
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/Kconfig   |    2 +-
- arch/arm64/mm/proc.S |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/dsa/mv88e6xxx/chip.c    | 12 ++++++------
+ drivers/net/dsa/mv88e6xxx/global1.c |  2 ++
+ drivers/net/dsa/mv88e6xxx/port.c    |  2 ++
+ 3 files changed, 10 insertions(+), 6 deletions(-)
 
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -433,7 +433,7 @@ config ARM64_ERRATUM_1024718
- 	help
- 	  This option adds work around for Arm Cortex-A55 Erratum 1024718.
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index f99f09c50722..014950a343f4 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -2775,8 +2775,8 @@ static int mv88e6xxx_setup_port(struct mv88e6xxx_chip *chip, int port)
+ 	if (err)
+ 		return err;
  
--	  Affected Cortex-A55 cores (r0p0, r0p1, r1p0) could cause incorrect
-+	  Affected Cortex-A55 cores (all revisions) could cause incorrect
- 	  update of the hardware dirty bit when the DBM/AP bits are updated
- 	  without a break-before-make. The work around is to disable the usage
- 	  of hardware DBM locally on the affected cores. CPUs not affected by
---- a/arch/arm64/mm/proc.S
-+++ b/arch/arm64/mm/proc.S
-@@ -442,8 +442,8 @@ ENTRY(__cpu_setup)
- 	cmp	x9, #2
- 	b.lt	1f
- #ifdef CONFIG_ARM64_ERRATUM_1024718
--	/* Disable hardware DBM on Cortex-A55 r0p0, r0p1 & r1p0 */
--	cpu_midr_match MIDR_CORTEX_A55, MIDR_CPU_VAR_REV(0, 0), MIDR_CPU_VAR_REV(1, 0), x1, x2, x3, x4
-+	/* Disable hardware DBM on Cortex-A55 all versions */
-+	cpu_midr_match MIDR_CORTEX_A55, MIDR_CPU_VAR_REV(0, 0), MIDR_CPU_VAR_REV(0xf, 0xf), x1, x2, x3, x4
- 	cbnz	x1, 1f
- #endif
- 	orr	x10, x10, #TCR_HD		// hardware Dirty flag update
+-	/* Port Control 2: don't force a good FCS, set the maximum frame size to
+-	 * 10240 bytes, disable 802.1q tags checking, don't discard tagged or
++	/* Port Control 2: don't force a good FCS, set the MTU size to
++	 * 10222 bytes, disable 802.1q tags checking, don't discard tagged or
+ 	 * untagged frames on this port, do a destination address lookup on all
+ 	 * received packets as usual, disable ARP mirroring and don't send a
+ 	 * copy of all transmitted/received frames on this port to the CPU.
+@@ -2795,7 +2795,7 @@ static int mv88e6xxx_setup_port(struct mv88e6xxx_chip *chip, int port)
+ 		return err;
+ 
+ 	if (chip->info->ops->port_set_jumbo_size) {
+-		err = chip->info->ops->port_set_jumbo_size(chip, port, 10240);
++		err = chip->info->ops->port_set_jumbo_size(chip, port, 10218);
+ 		if (err)
+ 			return err;
+ 	}
+@@ -2885,10 +2885,10 @@ static int mv88e6xxx_get_max_mtu(struct dsa_switch *ds, int port)
+ 	struct mv88e6xxx_chip *chip = ds->priv;
+ 
+ 	if (chip->info->ops->port_set_jumbo_size)
+-		return 10240;
++		return 10240 - VLAN_ETH_HLEN - ETH_FCS_LEN;
+ 	else if (chip->info->ops->set_max_frame_size)
+-		return 1632;
+-	return 1522;
++		return 1632 - VLAN_ETH_HLEN - ETH_FCS_LEN;
++	return 1522 - VLAN_ETH_HLEN - ETH_FCS_LEN;
+ }
+ 
+ static int mv88e6xxx_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
+diff --git a/drivers/net/dsa/mv88e6xxx/global1.c b/drivers/net/dsa/mv88e6xxx/global1.c
+index 815b0f681d69..5848112036b0 100644
+--- a/drivers/net/dsa/mv88e6xxx/global1.c
++++ b/drivers/net/dsa/mv88e6xxx/global1.c
+@@ -232,6 +232,8 @@ int mv88e6185_g1_set_max_frame_size(struct mv88e6xxx_chip *chip, int mtu)
+ 	u16 val;
+ 	int err;
+ 
++	mtu += ETH_HLEN + ETH_FCS_LEN;
++
+ 	err = mv88e6xxx_g1_read(chip, MV88E6XXX_G1_CTL1, &val);
+ 	if (err)
+ 		return err;
+diff --git a/drivers/net/dsa/mv88e6xxx/port.c b/drivers/net/dsa/mv88e6xxx/port.c
+index f77e2ee64a60..451028c57af8 100644
+--- a/drivers/net/dsa/mv88e6xxx/port.c
++++ b/drivers/net/dsa/mv88e6xxx/port.c
+@@ -1277,6 +1277,8 @@ int mv88e6165_port_set_jumbo_size(struct mv88e6xxx_chip *chip, int port,
+ 	u16 reg;
+ 	int err;
+ 
++	size += VLAN_ETH_HLEN + ETH_FCS_LEN;
++
+ 	err = mv88e6xxx_port_read(chip, port, MV88E6XXX_PORT_CTL2, &reg);
+ 	if (err)
+ 		return err;
+-- 
+2.33.0
+
 
 
