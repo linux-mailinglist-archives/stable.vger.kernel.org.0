@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E1A442103D
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:40:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 287FE420EC2
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:26:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238298AbhJDNl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:41:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51836 "EHLO mail.kernel.org"
+        id S233615AbhJDN2C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:28:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238355AbhJDNkU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:40:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3ECC961A35;
-        Mon,  4 Oct 2021 13:18:21 +0000 (UTC)
+        id S237124AbhJDN0I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:26:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C39161B64;
+        Mon,  4 Oct 2021 13:11:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353501;
-        bh=n3VZaAq9PSuEzTDDy2q1lkPqT6ToTpRbCzrGvuW8MVA=;
+        s=korg; t=1633353091;
+        bh=QZPAyoVekpWpaI4IzSz6775G3bUhIgdbC558h4Om17g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0hSxxTAwwlHCaz5OKvZHk2tOW7/ZuLADihhqRgYlo2eRTT+umy3tYPpiJ6TWwUKrs
-         eqte2nu+kepRKT9UNv3uw2GjS4+dF7Ayb0RCD+Ox+H9djK/Q1wUXalWD1Ny/HKOrWb
-         xFITjTi54MGPXwyY6KLRhDgKhR84+s7YiwvvqvEU=
+        b=zBcfZdPAMEKEIES3jWvZi8J27eDRA+9B7GQRhkQajfIUJbYPhl4VbSHrePJzZ79pN
+         lCuOoa/7m//w2AYQjeRGly3eKo0GYXZlFlAqXqa/YwcPFkEmPTTLGOB94GdjTlf/kn
+         uXcZloqWpIyF2uPdxxfRKplqsQOBEsBmyAEkq2Gg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ritesh Harjani <riteshh@linux.ibm.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 5.14 153/172] ext4: fix loff_t overflow in ext4_max_bitmap_size()
+        stable@vger.kernel.org,
+        =?UTF-8?q?minihanshen ?= <minihanshen@tencent.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        John Allen <john.allen@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.10 85/93] crypto: ccp - fix resource leaks in ccp_run_aes_gcm_cmd()
 Date:   Mon,  4 Oct 2021 14:53:23 +0200
-Message-Id: <20211004125049.912795259@linuxfoundation.org>
+Message-Id: <20211004125037.414128604@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,65 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ritesh Harjani <riteshh@linux.ibm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 75ca6ad408f459f00b09a64f04c774559848c097 upstream.
+commit 505d9dcb0f7ddf9d075e729523a33d38642ae680 upstream.
 
-We should use unsigned long long rather than loff_t to avoid
-overflow in ext4_max_bitmap_size() for comparison before returning.
-w/o this patch sbi->s_bitmap_maxbytes was becoming a negative
-value due to overflow of upper_limit (with has_huge_files as true)
+There are three bugs in this code:
 
-Below is a quick test to trigger it on a 64KB pagesize system.
+1) If we ccp_init_data() fails for &src then we need to free aad.
+   Use goto e_aad instead of goto e_ctx.
+2) The label to free the &final_wa was named incorrectly as "e_tag" but
+   it should have been "e_final_wa".  One error path leaked &final_wa.
+3) The &tag was leaked on one error path.  In that case, I added a free
+   before the goto because the resource was local to that block.
 
-sudo mkfs.ext4 -b 65536 -O ^has_extents,^64bit /dev/loop2
-sudo mount /dev/loop2 /mnt
-sudo echo "hello" > /mnt/hello 	-> This will error out with
-				"echo: write error: File too large"
-
-Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/594f409e2c543e90fd836b78188dfa5c575065ba.1622867594.git.riteshh@linux.ibm.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 36cf515b9bbe ("crypto: ccp - Enable support for AES GCM on v5 CCPs")
+Reported-by: "minihanshen(沈明航)" <minihanshen@tencent.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: John Allen <john.allen@amd.com>
+Tested-by: John Allen <john.allen@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/crypto/ccp/ccp-ops.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3185,17 +3185,17 @@ static loff_t ext4_max_size(int blkbits,
-  */
- static loff_t ext4_max_bitmap_size(int bits, int has_huge_files)
- {
--	loff_t res = EXT4_NDIR_BLOCKS;
-+	unsigned long long upper_limit, res = EXT4_NDIR_BLOCKS;
- 	int meta_blocks;
--	loff_t upper_limit;
--	/* This is calculated to be the largest file size for a dense, block
-+
-+	/*
-+	 * This is calculated to be the largest file size for a dense, block
- 	 * mapped file such that the file's total number of 512-byte sectors,
- 	 * including data and all indirect blocks, does not exceed (2^48 - 1).
- 	 *
- 	 * __u32 i_blocks_lo and _u16 i_blocks_high represent the total
- 	 * number of 512-byte sectors of the file.
- 	 */
--
- 	if (!has_huge_files) {
- 		/*
- 		 * !has_huge_files or implies that the inode i_block field
-@@ -3238,7 +3238,7 @@ static loff_t ext4_max_bitmap_size(int b
- 	if (res > MAX_LFS_FILESIZE)
- 		res = MAX_LFS_FILESIZE;
+--- a/drivers/crypto/ccp/ccp-ops.c
++++ b/drivers/crypto/ccp/ccp-ops.c
+@@ -778,7 +778,7 @@ ccp_run_aes_gcm_cmd(struct ccp_cmd_queue
+ 				    in_place ? DMA_BIDIRECTIONAL
+ 					     : DMA_TO_DEVICE);
+ 		if (ret)
+-			goto e_ctx;
++			goto e_aad;
  
--	return res;
-+	return (loff_t)res;
- }
+ 		if (in_place) {
+ 			dst = src;
+@@ -863,7 +863,7 @@ ccp_run_aes_gcm_cmd(struct ccp_cmd_queue
+ 	op.u.aes.size = 0;
+ 	ret = cmd_q->ccp->vdata->perform->aes(&op);
+ 	if (ret)
+-		goto e_dst;
++		goto e_final_wa;
  
- static ext4_fsblk_t descriptor_loc(struct super_block *sb,
+ 	if (aes->action == CCP_AES_ACTION_ENCRYPT) {
+ 		/* Put the ciphered tag after the ciphertext. */
+@@ -873,17 +873,19 @@ ccp_run_aes_gcm_cmd(struct ccp_cmd_queue
+ 		ret = ccp_init_dm_workarea(&tag, cmd_q, authsize,
+ 					   DMA_BIDIRECTIONAL);
+ 		if (ret)
+-			goto e_tag;
++			goto e_final_wa;
+ 		ret = ccp_set_dm_area(&tag, 0, p_tag, 0, authsize);
+-		if (ret)
+-			goto e_tag;
++		if (ret) {
++			ccp_dm_free(&tag);
++			goto e_final_wa;
++		}
+ 
+ 		ret = crypto_memneq(tag.address, final_wa.address,
+ 				    authsize) ? -EBADMSG : 0;
+ 		ccp_dm_free(&tag);
+ 	}
+ 
+-e_tag:
++e_final_wa:
+ 	ccp_dm_free(&final_wa);
+ 
+ e_dst:
 
 
