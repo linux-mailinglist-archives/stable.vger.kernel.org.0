@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8422A420FD5
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:37:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C68E9420DF1
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:18:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237802AbhJDNiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:38:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51836 "EHLO mail.kernel.org"
+        id S236421AbhJDNUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:20:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237149AbhJDNhC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:37:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F21A261215;
-        Mon,  4 Oct 2021 13:16:39 +0000 (UTC)
+        id S236572AbhJDNSj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:18:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AEF0161B46;
+        Mon,  4 Oct 2021 13:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353400;
-        bh=8ofguC9CtQHUSM4/k/g9gXqsobh2j3qKHdJ08Hij9uk=;
+        s=korg; t=1633352866;
+        bh=t/9gFuZK62+2+aeVhuMTdacunlbUyE/NL9u+sDaxjbw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VP6lK/1UBx93bw+lnCBIWQkmZfc32fHyLWYsl1S9duCeBgc3knj9Qt0OnNGSx1ILD
-         aqJ/OmddnUKCNonHmndIWoLWlr2vMBHv5EWKA5wWZTR7KBSU8ukAhRKBfGpVUYEXxx
-         +AgWRzoC/CB5wWl/pFy7PS04HcuNJW29aNfqFVpI=
+        b=svDWHmxOhGLG3KmM6WEtsxm1e9K3UG+9bUVVpGHJ8VwtBlbgAhDNhwR/n/7WjX2bP
+         D1GKhqg7BNvgsoS/bouq99+imrUTHl+hbucnpST9er8JuQuUUKMfsdoKjnCxi3BRYM
+         1FUxsX51AOys9j4zPCQzjS6YUS2JKmOH8KuGpatw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenpeng Liang <liangwenpeng@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        Felicitas Hetzelt <felicitashetzelt@gmail.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 113/172] RDMA/hns: Add the check of the CQE size of the user space
+Subject: [PATCH 5.4 23/56] e100: fix length calculation in e100_get_regs_len
 Date:   Mon,  4 Oct 2021 14:52:43 +0200
-Message-Id: <20211004125048.632020201@linuxfoundation.org>
+Message-Id: <20211004125030.728177186@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
+References: <20211004125030.002116402@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,76 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenpeng Liang <liangwenpeng@huawei.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-[ Upstream commit e671f0ecfece14940a9bb81981098910ea278cf7 ]
+[ Upstream commit 4329c8dc110b25d5f04ed20c6821bb60deff279f ]
 
-If the CQE size of the user space is not the size supported by the
-hardware, the creation of CQ should be stopped.
+commit abf9b902059f ("e100: cleanup unneeded math") tried to simplify
+e100_get_regs_len and remove a double 'divide and then multiply'
+calculation that the e100_reg_regs_len function did.
 
-Fixes: 09a5f210f67e ("RDMA/hns: Add support for CQE in size of 64 Bytes")
-Link: https://lore.kernel.org/r/20210927125557.15031-3-liangwenpeng@huawei.com
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+This change broke the size calculation entirely as it failed to account
+for the fact that the numbered registers are actually 4 bytes wide and
+not 1 byte. This resulted in a significant under allocation of the
+register buffer used by e100_get_regs.
+
+Fix this by properly multiplying the register count by u32 first before
+adding the size of the dump buffer.
+
+Fixes: abf9b902059f ("e100: cleanup unneeded math")
+Reported-by: Felicitas Hetzelt <felicitashetzelt@gmail.com>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_cq.c | 31 ++++++++++++++++++-------
- 1 file changed, 22 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/intel/e100.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_cq.c b/drivers/infiniband/hw/hns/hns_roce_cq.c
-index 1e9c3c5bee68..d763f097599f 100644
---- a/drivers/infiniband/hw/hns/hns_roce_cq.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_cq.c
-@@ -326,19 +326,30 @@ static void set_cq_param(struct hns_roce_cq *hr_cq, u32 cq_entries, int vector,
- 	INIT_LIST_HEAD(&hr_cq->rq_list);
- }
- 
--static void set_cqe_size(struct hns_roce_cq *hr_cq, struct ib_udata *udata,
--			 struct hns_roce_ib_create_cq *ucmd)
-+static int set_cqe_size(struct hns_roce_cq *hr_cq, struct ib_udata *udata,
-+			struct hns_roce_ib_create_cq *ucmd)
+diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
+index 911b3d2a94e1..ea0f97d76964 100644
+--- a/drivers/net/ethernet/intel/e100.c
++++ b/drivers/net/ethernet/intel/e100.c
+@@ -2439,7 +2439,11 @@ static void e100_get_drvinfo(struct net_device *netdev,
+ static int e100_get_regs_len(struct net_device *netdev)
  {
- 	struct hns_roce_dev *hr_dev = to_hr_dev(hr_cq->ib_cq.device);
- 
--	if (udata) {
--		if (udata->inlen >= offsetofend(typeof(*ucmd), cqe_size))
--			hr_cq->cqe_size = ucmd->cqe_size;
--		else
--			hr_cq->cqe_size = HNS_ROCE_V2_CQE_SIZE;
--	} else {
-+	if (!udata) {
- 		hr_cq->cqe_size = hr_dev->caps.cqe_sz;
-+		return 0;
-+	}
+ 	struct nic *nic = netdev_priv(netdev);
+-	return 1 + E100_PHY_REGS + sizeof(nic->mem->dump_buf);
 +
-+	if (udata->inlen >= offsetofend(typeof(*ucmd), cqe_size)) {
-+		if (ucmd->cqe_size != HNS_ROCE_V2_CQE_SIZE &&
-+		    ucmd->cqe_size != HNS_ROCE_V3_CQE_SIZE) {
-+			ibdev_err(&hr_dev->ib_dev,
-+				  "invalid cqe size %u.\n", ucmd->cqe_size);
-+			return -EINVAL;
-+		}
-+
-+		hr_cq->cqe_size = ucmd->cqe_size;
-+	} else {
-+		hr_cq->cqe_size = HNS_ROCE_V2_CQE_SIZE;
- 	}
-+
-+	return 0;
++	/* We know the number of registers, and the size of the dump buffer.
++	 * Calculate the total size in bytes.
++	 */
++	return (1 + E100_PHY_REGS) * sizeof(u32) + sizeof(nic->mem->dump_buf);
  }
  
- int hns_roce_create_cq(struct ib_cq *ib_cq, const struct ib_cq_init_attr *attr,
-@@ -366,7 +377,9 @@ int hns_roce_create_cq(struct ib_cq *ib_cq, const struct ib_cq_init_attr *attr,
- 
- 	set_cq_param(hr_cq, attr->cqe, attr->comp_vector, &ucmd);
- 
--	set_cqe_size(hr_cq, udata, &ucmd);
-+	ret = set_cqe_size(hr_cq, udata, &ucmd);
-+	if (ret)
-+		return ret;
- 
- 	ret = alloc_cq_buf(hr_dev, hr_cq, udata, ucmd.buf_addr);
- 	if (ret) {
+ static void e100_get_regs(struct net_device *netdev,
 -- 
 2.33.0
 
