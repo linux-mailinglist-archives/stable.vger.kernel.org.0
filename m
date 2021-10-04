@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEA93420F5A
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:32:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69496420F20
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:30:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237098AbhJDNd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:33:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48040 "EHLO mail.kernel.org"
+        id S237047AbhJDNb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:31:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237452AbhJDNc3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:32:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 47A9361A03;
-        Mon,  4 Oct 2021 13:14:36 +0000 (UTC)
+        id S235297AbhJDN3b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:29:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F60B6321B;
+        Mon,  4 Oct 2021 13:13:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353276;
-        bh=E/13+KPXCm4XKKMzY1Izeosv8/zVuxbrCSZTUN8fVsI=;
+        s=korg; t=1633353195;
+        bh=ZTne2VZLofEonIy43J/+zmPzCS+nJjaStaqiKJNj2kM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wVZwS7s8penxCorTKHiMtSgS/vrBfNQRUWBjVU8bcpSsAAxc7Vwbfs76waOlW4ffc
-         dYVOo831UatnN/wiIR844p8dltwnKaN2cSLv33QrKywNQEUvQ1B/xPN3Gm6El5b/G6
-         YDbnuiyXl8Qg+TgP72cg/0WV23i5v90wRjYttenM=
+        b=0+miB/05vgrr9wPz+rukJcwAgkowtk47iY9m7+6+ndAD07VQXz2U0u/qoeXos2T0s
+         fuvNU1NF4IyuZp2JPHhkcKOEuJtAgp142vIq+G1hStb2hu0jgHqVeS2iIHVozPNtEz
+         4Dpml7udUUvAem1OGhPEWyIylwUmFkJTelaA3fwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Guchun Chen <guchun.chen@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 032/172] drm/amdgpu: stop scheduler when calling hw_fini (v2)
-Date:   Mon,  4 Oct 2021 14:51:22 +0200
-Message-Id: <20211004125046.004589330@linuxfoundation.org>
+Subject: [PATCH 5.14 033/172] cpufreq: schedutil: Destroy mutex before kobject_put() frees the memory
+Date:   Mon,  4 Oct 2021 14:51:23 +0200
+Message-Id: <20211004125046.036208574@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
 References: <20211004125044.945314266@linuxfoundation.org>
@@ -43,55 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guchun Chen <guchun.chen@amd.com>
+From: James Morse <james.morse@arm.com>
 
-[ Upstream commit f7d6779df642720e22bffd449e683bb8690bd3bf ]
+[ Upstream commit cdef1196608892b9a46caa5f2b64095a7f0be60c ]
 
-This gurantees no more work on the ring can be submitted
-to hardware in suspend/resume case, otherwise a potential
-race will occur and the ring will get no chance to stay
-empty before suspend.
+Since commit e5c6b312ce3c ("cpufreq: schedutil: Use kobject release()
+method to free sugov_tunables") kobject_put() has kfree()d the
+attr_set before gov_attr_set_put() returns.
 
-v2: Call drm_sched_resubmit_job before drm_sched_start to
-restart jobs from the pending list.
+kobject_put() isn't the last user of attr_set in gov_attr_set_put(),
+the subsequent mutex_destroy() triggers a use-after-free:
+| BUG: KASAN: use-after-free in mutex_is_locked+0x20/0x60
+| Read of size 8 at addr ffff000800ca4250 by task cpuhp/2/20
+|
+| CPU: 2 PID: 20 Comm: cpuhp/2 Not tainted 5.15.0-rc1 #12369
+| Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno Development
+| Platform, BIOS EDK II Jul 30 2018
+| Call trace:
+|  dump_backtrace+0x0/0x380
+|  show_stack+0x1c/0x30
+|  dump_stack_lvl+0x8c/0xb8
+|  print_address_description.constprop.0+0x74/0x2b8
+|  kasan_report+0x1f4/0x210
+|  kasan_check_range+0xfc/0x1a4
+|  __kasan_check_read+0x38/0x60
+|  mutex_is_locked+0x20/0x60
+|  mutex_destroy+0x80/0x100
+|  gov_attr_set_put+0xfc/0x150
+|  sugov_exit+0x78/0x190
+|  cpufreq_offline.isra.0+0x2c0/0x660
+|  cpuhp_cpufreq_offline+0x14/0x24
+|  cpuhp_invoke_callback+0x430/0x6d0
+|  cpuhp_thread_fun+0x1b0/0x624
+|  smpboot_thread_fn+0x5e0/0xa6c
+|  kthread+0x3a0/0x450
+|  ret_from_fork+0x10/0x20
 
-Suggested-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Suggested-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Guchun Chen <guchun.chen@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Swap the order of the calls.
+
+Fixes: e5c6b312ce3c ("cpufreq: schedutil: Use kobject release() method to free sugov_tunables")
+Cc: 4.7+ <stable@vger.kernel.org> # 4.7+
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/cpufreq/cpufreq_governor_attr_set.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-index 7495911516c2..49884069226a 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-@@ -532,6 +532,9 @@ void amdgpu_fence_driver_hw_fini(struct amdgpu_device *adev)
- 		if (!ring || !ring->fence_drv.initialized)
- 			continue;
+diff --git a/drivers/cpufreq/cpufreq_governor_attr_set.c b/drivers/cpufreq/cpufreq_governor_attr_set.c
+index 66b05a326910..a6f365b9cc1a 100644
+--- a/drivers/cpufreq/cpufreq_governor_attr_set.c
++++ b/drivers/cpufreq/cpufreq_governor_attr_set.c
+@@ -74,8 +74,8 @@ unsigned int gov_attr_set_put(struct gov_attr_set *attr_set, struct list_head *l
+ 	if (count)
+ 		return count;
  
-+		if (!ring->no_scheduler)
-+			drm_sched_stop(&ring->sched, NULL);
-+
- 		/* You can't wait for HW to signal if it's gone */
- 		if (!drm_dev_is_unplugged(&adev->ddev))
- 			r = amdgpu_fence_wait_empty(ring);
-@@ -591,6 +594,11 @@ void amdgpu_fence_driver_hw_init(struct amdgpu_device *adev)
- 		if (!ring || !ring->fence_drv.initialized)
- 			continue;
- 
-+		if (!ring->no_scheduler) {
-+			drm_sched_resubmit_jobs(&ring->sched);
-+			drm_sched_start(&ring->sched, true);
-+		}
-+
- 		/* enable the interrupt */
- 		if (ring->fence_drv.irq_src)
- 			amdgpu_irq_get(adev, ring->fence_drv.irq_src,
+-	kobject_put(&attr_set->kobj);
+ 	mutex_destroy(&attr_set->update_lock);
++	kobject_put(&attr_set->kobj);
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(gov_attr_set_put);
 -- 
 2.33.0
 
