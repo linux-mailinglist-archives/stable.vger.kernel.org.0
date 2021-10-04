@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC706420B70
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:56:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D7DD420E7E
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:23:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233642AbhJDM5R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 08:57:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58562 "EHLO mail.kernel.org"
+        id S236938AbhJDNZa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:25:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233583AbhJDM4y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:56:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44D3261381;
-        Mon,  4 Oct 2021 12:55:05 +0000 (UTC)
+        id S237018AbhJDNXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:23:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AE9E61BF9;
+        Mon,  4 Oct 2021 13:10:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352105;
-        bh=3VLZ/WICwSTMSN9p38AsSX12mzwis0ijWCrv7INjS3k=;
+        s=korg; t=1633353024;
+        bh=f/shuwPzVil5WND4olXrU970I4Zk1shVQ9/tYXPC+uU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UUQDYqNiCFuB7/nPTqlgs1yKEiGopP+D+QoAfw34LHJOU1olXgfRoROyGQvBCbO13
-         LcSCBPWlaHiDw0VtZO07SlcbE5hoG1TuXSXJ5R2bOK+AA6A1GM+6HFBwCQml5qK+kH
-         VqkyI66QW5fA57ioEfd8xzbyy5QgKayoO2ixluH0=
+        b=Fs2a30yp7yH9bRV+1LmtW0EJ3o48+ejJfamTMD5BztMm7fKiJ217BlldwyTP2z0B9
+         jA0TLjsza+84veA1ni4n+LQIPfx5H5H6pz9ZlSrrdgc/8b1jwrzdFn1v9wTXRDC/qN
+         fWa6KxcSFdUVWkKz7xG+W536Jyrk62/YNUUzpG6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Federico Vaga <federico.vaga@cern.ch>,
-        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 34/41] ipack: ipoctal: fix module reference leak
+        stable@vger.kernel.org, Christoph Lameter <cl@linux.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 27/93] IB/cma: Do not send IGMP leaves for sendonly Multicast groups
 Date:   Mon,  4 Oct 2021 14:52:25 +0200
-Message-Id: <20211004125027.660794110@linuxfoundation.org>
+Message-Id: <20211004125035.472636900@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
-References: <20211004125026.597501645@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,79 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Christoph Lameter <cl@gentwo.de>
 
-commit bb8a4fcb2136508224c596a7e665bdba1d7c3c27 upstream.
+[ Upstream commit 2cc74e1ee31d00393b6698ec80b322fd26523da4 ]
 
-A reference to the carrier module was taken on every open but was only
-released once when the final reference to the tty struct was dropped.
+ROCE uses IGMP for Multicast instead of the native Infiniband system where
+joins are required in order to post messages on the Multicast group.  On
+Ethernet one can send Multicast messages to arbitrary addresses without
+the need to subscribe to a group.
 
-Fix this by taking the module reference and initialising the tty driver
-data when installing the tty.
+So ROCE correctly does not send IGMP joins during rdma_join_multicast().
 
-Fixes: 82a82340bab6 ("ipoctal: get carrier driver to avoid rmmod")
-Cc: stable@vger.kernel.org      # 3.18
-Cc: Federico Vaga <federico.vaga@cern.ch>
-Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210917114622.5412-6-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+F.e. in cma_iboe_join_multicast() we see:
+
+   if (addr->sa_family == AF_INET) {
+                if (gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP) {
+                        ib.rec.hop_limit = IPV6_DEFAULT_HOPLIMIT;
+                        if (!send_only) {
+                                err = cma_igmp_send(ndev, &ib.rec.mgid,
+                                                    true);
+                        }
+                }
+        } else {
+
+So the IGMP join is suppressed as it is unnecessary.
+
+However no such check is done in destroy_mc(). And therefore leaving a
+sendonly multicast group will send an IGMP leave.
+
+This means that the following scenario can lead to a multicast receiver
+unexpectedly being unsubscribed from a MC group:
+
+1. Sender thread does a sendonly join on MC group X. No IGMP join
+   is sent.
+
+2. Receiver thread does a regular join on the same MC Group x.
+   IGMP join is sent and the receiver begins to get messages.
+
+3. Sender thread terminates and destroys MC group X.
+   IGMP leave is sent and the receiver no longer receives data.
+
+This patch adds the same logic for sendonly joins to destroy_mc() that is
+also used in cma_iboe_join_multicast().
+
+Fixes: ab15c95a17b3 ("IB/core: Support for CMA multicast join flags")
+Link: https://lore.kernel.org/r/alpine.DEB.2.22.394.2109081340540.668072@gentwo.de
+Signed-off-by: Christoph Lameter <cl@linux.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ipack/devices/ipoctal.c |   29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ drivers/infiniband/core/cma.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/ipack/devices/ipoctal.c
-+++ b/drivers/ipack/devices/ipoctal.c
-@@ -87,22 +87,34 @@ static int ipoctal_port_activate(struct
- 	return 0;
- }
- 
--static int ipoctal_open(struct tty_struct *tty, struct file *file)
-+static int ipoctal_install(struct tty_driver *driver, struct tty_struct *tty)
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index a4962b499b61..3029e96161b5 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -1814,6 +1814,8 @@ static void cma_release_port(struct rdma_id_private *id_priv)
+ static void destroy_mc(struct rdma_id_private *id_priv,
+ 		       struct cma_multicast *mc)
  {
- 	struct ipoctal_channel *channel = dev_get_drvdata(tty->dev);
- 	struct ipoctal *ipoctal = chan_to_ipoctal(channel, tty->index);
--	int err;
--
--	tty->driver_data = channel;
-+	int res;
- 
- 	if (!ipack_get_carrier(ipoctal->dev))
- 		return -EBUSY;
- 
--	err = tty_port_open(&channel->tty_port, tty, file);
--	if (err)
--		ipack_put_carrier(ipoctal->dev);
-+	res = tty_standard_install(driver, tty);
-+	if (res)
-+		goto err_put_carrier;
++	bool send_only = mc->join_state == BIT(SENDONLY_FULLMEMBER_JOIN);
 +
-+	tty->driver_data = channel;
-+
-+	return 0;
-+
-+err_put_carrier:
-+	ipack_put_carrier(ipoctal->dev);
-+
-+	return res;
-+}
-+
-+static int ipoctal_open(struct tty_struct *tty, struct file *file)
-+{
-+	struct ipoctal_channel *channel = tty->driver_data;
+ 	if (rdma_cap_ib_mcast(id_priv->id.device, id_priv->id.port_num))
+ 		ib_sa_free_multicast(mc->sa_mc);
  
--	return err;
-+	return tty_port_open(&channel->tty_port, tty, file);
- }
+@@ -1830,7 +1832,10 @@ static void destroy_mc(struct rdma_id_private *id_priv,
  
- static void ipoctal_reset_stats(struct ipoctal_stats *stats)
-@@ -669,6 +681,7 @@ static void ipoctal_cleanup(struct tty_s
+ 			cma_set_mgid(id_priv, (struct sockaddr *)&mc->addr,
+ 				     &mgid);
+-			cma_igmp_send(ndev, &mgid, false);
++
++			if (!send_only)
++				cma_igmp_send(ndev, &mgid, false);
++
+ 			dev_put(ndev);
+ 		}
  
- static const struct tty_operations ipoctal_fops = {
- 	.ioctl =		NULL,
-+	.install =		ipoctal_install,
- 	.open =			ipoctal_open,
- 	.close =		ipoctal_close,
- 	.write =		ipoctal_write_tty,
+-- 
+2.33.0
+
 
 
