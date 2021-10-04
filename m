@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94EC1420DB7
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:16:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E51DC420D5B
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:12:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236157AbhJDNRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:17:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53268 "EHLO mail.kernel.org"
+        id S235557AbhJDNOa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:14:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236165AbhJDNP5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:15:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D1AD61BB1;
-        Mon,  4 Oct 2021 13:06:23 +0000 (UTC)
+        id S236016AbhJDNMm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:12:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C51DC61B2B;
+        Mon,  4 Oct 2021 13:04:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352783;
-        bh=J2cbfPo+jXvz+Ybtz1scyw8vr+JE42uix/3FzEJs3Co=;
+        s=korg; t=1633352697;
+        bh=cUTiwfggWkTkoBOnHrKaY3s6iBGG2/Iy51L4KfSG/gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VVeEPM0JNpl4bd11cmc7bMPGJhPVaizbyNekNcTshh9RGZHOtVefTRq3DsuLd+dxD
-         CsbEVw2pVpmYrN0yXK2HxyjyeEEPu5AbVdyhPqJsCxxLo/pcX3Cd8lA18gY1GBvSZ/
-         V1iAybmh4pNYjb23fHdYpS4w/V7khRDsrfqcoAYM=
+        b=2XWuTFv47kabhc7Ljz3AWHT3ek5YFid76WW/wZ+tknuyn4bj6ZNolZvhiiz9tmbNu
+         5ctICIQ66GtleB+hhpH7foMvctWjTm0fXgRYIpsXyoLPkR84WORi8HcnuF+q+/u+EG
+         Rf4z9AyO24a1UuU/0kVzV0EFaD1Yu9HQaMI4qvnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadezda Lutovinova <lutovinova@ispras.ru>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.4 08/56] hwmon: (w83791d) Fix NULL pointer dereference by removing unnecessary structure field
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 58/95] cpufreq: schedutil: Destroy mutex before kobject_put() frees the memory
 Date:   Mon,  4 Oct 2021 14:52:28 +0200
-Message-Id: <20211004125030.274671840@linuxfoundation.org>
+Message-Id: <20211004125035.468096286@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
-References: <20211004125030.002116402@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,84 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadezda Lutovinova <lutovinova@ispras.ru>
+From: James Morse <james.morse@arm.com>
 
-commit 943c15ac1b84d378da26bba41c83c67e16499ac4 upstream.
+[ Upstream commit cdef1196608892b9a46caa5f2b64095a7f0be60c ]
 
-If driver read val value sufficient for
-(val & 0x08) && (!(val & 0x80)) && ((val & 0x7) == ((val >> 4) & 0x7))
-from device then Null pointer dereference occurs.
-(It is possible if tmp = 0b0xyz1xyz, where same literals mean same numbers)
-Also lm75[] does not serve a purpose anymore after switching to
-devm_i2c_new_dummy_device() in w83791d_detect_subclients().
+Since commit e5c6b312ce3c ("cpufreq: schedutil: Use kobject release()
+method to free sugov_tunables") kobject_put() has kfree()d the
+attr_set before gov_attr_set_put() returns.
 
-The patch fixes possible NULL pointer dereference by removing lm75[].
+kobject_put() isn't the last user of attr_set in gov_attr_set_put(),
+the subsequent mutex_destroy() triggers a use-after-free:
+| BUG: KASAN: use-after-free in mutex_is_locked+0x20/0x60
+| Read of size 8 at addr ffff000800ca4250 by task cpuhp/2/20
+|
+| CPU: 2 PID: 20 Comm: cpuhp/2 Not tainted 5.15.0-rc1 #12369
+| Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno Development
+| Platform, BIOS EDK II Jul 30 2018
+| Call trace:
+|  dump_backtrace+0x0/0x380
+|  show_stack+0x1c/0x30
+|  dump_stack_lvl+0x8c/0xb8
+|  print_address_description.constprop.0+0x74/0x2b8
+|  kasan_report+0x1f4/0x210
+|  kasan_check_range+0xfc/0x1a4
+|  __kasan_check_read+0x38/0x60
+|  mutex_is_locked+0x20/0x60
+|  mutex_destroy+0x80/0x100
+|  gov_attr_set_put+0xfc/0x150
+|  sugov_exit+0x78/0x190
+|  cpufreq_offline.isra.0+0x2c0/0x660
+|  cpuhp_cpufreq_offline+0x14/0x24
+|  cpuhp_invoke_callback+0x430/0x6d0
+|  cpuhp_thread_fun+0x1b0/0x624
+|  smpboot_thread_fn+0x5e0/0xa6c
+|  kthread+0x3a0/0x450
+|  ret_from_fork+0x10/0x20
 
-Found by Linux Driver Verification project (linuxtesting.org).
+Swap the order of the calls.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
-Link: https://lore.kernel.org/r/20210921155153.28098-1-lutovinova@ispras.ru
-[groeck: Dropped unnecessary continuation lines, fixed multi-line alignment]
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e5c6b312ce3c ("cpufreq: schedutil: Use kobject release() method to free sugov_tunables")
+Cc: 4.7+ <stable@vger.kernel.org> # 4.7+
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/w83791d.c |   29 +++++++++++------------------
- 1 file changed, 11 insertions(+), 18 deletions(-)
+ drivers/cpufreq/cpufreq_governor_attr_set.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hwmon/w83791d.c
-+++ b/drivers/hwmon/w83791d.c
-@@ -273,9 +273,6 @@ struct w83791d_data {
- 	char valid;			/* !=0 if following fields are valid */
- 	unsigned long last_updated;	/* In jiffies */
+diff --git a/drivers/cpufreq/cpufreq_governor_attr_set.c b/drivers/cpufreq/cpufreq_governor_attr_set.c
+index 52841f807a7e..45fdf30cade3 100644
+--- a/drivers/cpufreq/cpufreq_governor_attr_set.c
++++ b/drivers/cpufreq/cpufreq_governor_attr_set.c
+@@ -77,8 +77,8 @@ unsigned int gov_attr_set_put(struct gov_attr_set *attr_set, struct list_head *l
+ 	if (count)
+ 		return count;
  
--	/* array of 2 pointers to subclients */
--	struct i2c_client *lm75[2];
--
- 	/* volts */
- 	u8 in[NUMBER_OF_VIN];		/* Register value */
- 	u8 in_max[NUMBER_OF_VIN];	/* Register value */
-@@ -1258,7 +1255,6 @@ static const struct attribute_group w837
- static int w83791d_detect_subclients(struct i2c_client *client)
- {
- 	struct i2c_adapter *adapter = client->adapter;
--	struct w83791d_data *data = i2c_get_clientdata(client);
- 	int address = client->addr;
- 	int i, id;
- 	u8 val;
-@@ -1281,22 +1277,19 @@ static int w83791d_detect_subclients(str
- 	}
- 
- 	val = w83791d_read(client, W83791D_REG_I2C_SUBADDR);
--	if (!(val & 0x08))
--		data->lm75[0] = devm_i2c_new_dummy_device(&client->dev, adapter,
--							  0x48 + (val & 0x7));
--	if (!(val & 0x80)) {
--		if (!IS_ERR(data->lm75[0]) &&
--				((val & 0x7) == ((val >> 4) & 0x7))) {
--			dev_err(&client->dev,
--				"duplicate addresses 0x%x, "
--				"use force_subclient\n",
--				data->lm75[0]->addr);
--			return -ENODEV;
--		}
--		data->lm75[1] = devm_i2c_new_dummy_device(&client->dev, adapter,
--							  0x48 + ((val >> 4) & 0x7));
-+
-+	if (!(val & 0x88) && (val & 0x7) == ((val >> 4) & 0x7)) {
-+		dev_err(&client->dev,
-+			"duplicate addresses 0x%x, use force_subclient\n", 0x48 + (val & 0x7));
-+		return -ENODEV;
- 	}
- 
-+	if (!(val & 0x08))
-+		devm_i2c_new_dummy_device(&client->dev, adapter, 0x48 + (val & 0x7));
-+
-+	if (!(val & 0x80))
-+		devm_i2c_new_dummy_device(&client->dev, adapter, 0x48 + ((val >> 4) & 0x7));
-+
+-	kobject_put(&attr_set->kobj);
+ 	mutex_destroy(&attr_set->update_lock);
++	kobject_put(&attr_set->kobj);
  	return 0;
  }
- 
+ EXPORT_SYMBOL_GPL(gov_attr_set_put);
+-- 
+2.33.0
+
 
 
