@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 861D0420FB7
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:35:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 942BE420CB5
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:07:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237930AbhJDNha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:37:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48662 "EHLO mail.kernel.org"
+        id S234927AbhJDNJM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:09:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237885AbhJDNfa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:35:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA3B461BAA;
-        Mon,  4 Oct 2021 13:16:05 +0000 (UTC)
+        id S234712AbhJDNH4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:07:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 198EB613DB;
+        Mon,  4 Oct 2021 13:01:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353366;
-        bh=HSo0HeoTq6932krhI7dspLP/+JlyL66tOuDir8PxY7w=;
+        s=korg; t=1633352520;
+        bh=yOhE8lHul4cv5jJEdhv5Qa7pAAADaG+mWfMcWdn4VJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XO4t4BjCqebfSnyNCwtvPA42rP4Pvi+m4OnhCAkddvLXF4YuLKkLBvoaX05K3oM+F
-         SRC70qkdBOOlDBxTl5TPoDXhkn8826GbQsSILsFh35+SJUm9PObUQ7fAszdZiVLB+3
-         UvLoOxwc2Qx3shlJwn2eAhEy0f0WJ412LH2SVllo=
+        b=LAkIkmMP4fWqeZOGeYMMebrGSYxd6WfgrURtA9ImvGOzSZ/TjOdxADehezzFIpJAA
+         lNNzXH53oglhFiZmGFy9JlYgGdJQ7bTRJk48aFWYLXL2qfCi+2AqwGWK+KsPps0kAi
+         gCVS80AslQszXs3Hd0HZsMJK8EqKd2aQg8f8AZew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Gonda <pgonda@google.com>,
-        Marc Orr <marcorr@google.com>,
-        Nathan Tempelman <natet@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Steve Rutherford <srutherford@google.com>,
-        Brijesh Singh <brijesh.singh@amd.com>, kvm@vger.kernel.org
-Subject: [PATCH 5.14 058/172] KVM: SEV: Allow some commands for mirror VM
-Date:   Mon,  4 Oct 2021 14:51:48 +0200
-Message-Id: <20211004125046.868220573@linuxfoundation.org>
+        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Michael Chan <michael.chan@broadocm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 19/95] bnxt_en: Fix TX timeout when TX ring size is set to the smallest
+Date:   Mon,  4 Oct 2021 14:51:49 +0200
+Message-Id: <20211004125034.180731956@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +41,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Gonda <pgonda@google.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-commit 5b92b6ca92b65bef811048c481e4446f4828500a upstream.
+[ Upstream commit 5bed8b0704c9ecccc8f4a2c377d7c8e21090a82e ]
 
-A mirrored SEV-ES VM will need to call KVM_SEV_LAUNCH_UPDATE_VMSA to
-setup its vCPUs and have them measured, and their VMSAs encrypted. Without
-this change, it is impossible to have mirror VMs as part of SEV-ES VMs.
+The smallest TX ring size we support must fit a TX SKB with MAX_SKB_FRAGS
++ 1.  Because the first TX BD for a packet is always a long TX BD, we
+need an extra TX BD to fit this packet.  Define BNXT_MIN_TX_DESC_CNT with
+this value to make this more clear.  The current code uses a minimum
+that is off by 1.  Fix it using this constant.
 
-Also allow the guest status check and debugging commands since they do
-not change any guest state.
+The tx_wake_thresh to determine when to wake up the TX queue is half the
+ring size but we must have at least BNXT_MIN_TX_DESC_CNT for the next
+packet which may have maximum fragments.  So the comparison of the
+available TX BDs with tx_wake_thresh should be >= instead of > in the
+current code.  Otherwise, at the smallest ring size, we will never wake
+up the TX queue and will cause TX timeout.
 
-Signed-off-by: Peter Gonda <pgonda@google.com>
-Cc: Marc Orr <marcorr@google.com>
-Cc: Nathan Tempelman <natet@google.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Sean Christopherson <seanjc@google.com>
-Cc: Steve Rutherford <srutherford@google.com>
-Cc: Brijesh Singh <brijesh.singh@amd.com>
-Cc: kvm@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Fixes: 54526d1fd593 ("KVM: x86: Support KVM VMs sharing SEV context", 2021-04-21)
-Message-Id: <20210921150345.2221634-3-pgonda@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadocm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/svm/sev.c |   19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c         | 8 ++++----
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h         | 5 +++++
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 2 +-
+ 3 files changed, 10 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kvm/svm/sev.c
-+++ b/arch/x86/kvm/svm/sev.c
-@@ -1509,6 +1509,20 @@ static int sev_receive_finish(struct kvm
- 	return sev_issue_cmd(kvm, SEV_CMD_RECEIVE_FINISH, &data, &argp->error);
- }
- 
-+static bool cmd_allowed_from_miror(u32 cmd_id)
-+{
-+	/*
-+	 * Allow mirrors VM to call KVM_SEV_LAUNCH_UPDATE_VMSA to enable SEV-ES
-+	 * active mirror VMs. Also allow the debugging and status commands.
-+	 */
-+	if (cmd_id == KVM_SEV_LAUNCH_UPDATE_VMSA ||
-+	    cmd_id == KVM_SEV_GUEST_STATUS || cmd_id == KVM_SEV_DBG_DECRYPT ||
-+	    cmd_id == KVM_SEV_DBG_ENCRYPT)
-+		return true;
-+
-+	return false;
-+}
-+
- int svm_mem_enc_op(struct kvm *kvm, void __user *argp)
- {
- 	struct kvm_sev_cmd sev_cmd;
-@@ -1525,8 +1539,9 @@ int svm_mem_enc_op(struct kvm *kvm, void
- 
- 	mutex_lock(&kvm->lock);
- 
--	/* enc_context_owner handles all memory enc operations */
--	if (is_mirroring_enc_context(kvm)) {
-+	/* Only the enc_context_owner handles some memory enc operations. */
-+	if (is_mirroring_enc_context(kvm) &&
-+	    !cmd_allowed_from_miror(sev_cmd.id)) {
- 		r = -EINVAL;
- 		goto out;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 55827ac65a15..5e30299bcf64 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -294,7 +294,7 @@ static bool bnxt_txr_netif_try_stop_queue(struct bnxt *bp,
+ 	 * netif_tx_queue_stopped().
+ 	 */
+ 	smp_mb();
+-	if (bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh) {
++	if (bnxt_tx_avail(bp, txr) >= bp->tx_wake_thresh) {
+ 		netif_tx_wake_queue(txq);
+ 		return false;
  	}
+@@ -625,7 +625,7 @@ static void bnxt_tx_int(struct bnxt *bp, struct bnxt_napi *bnapi, int nr_pkts)
+ 	smp_mb();
+ 
+ 	if (unlikely(netif_tx_queue_stopped(txq)) &&
+-	    bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh &&
++	    bnxt_tx_avail(bp, txr) >= bp->tx_wake_thresh &&
+ 	    READ_ONCE(txr->dev_state) != BNXT_DEV_STATE_CLOSING)
+ 		netif_tx_wake_queue(txq);
+ }
+@@ -1909,7 +1909,7 @@ static int bnxt_poll_work(struct bnxt *bp, struct bnxt_napi *bnapi, int budget)
+ 		if (TX_CMP_TYPE(txcmp) == CMP_TYPE_TX_L2_CMP) {
+ 			tx_pkts++;
+ 			/* return full budget so NAPI will complete. */
+-			if (unlikely(tx_pkts > bp->tx_wake_thresh)) {
++			if (unlikely(tx_pkts >= bp->tx_wake_thresh)) {
+ 				rx_pkts = budget;
+ 				raw_cons = NEXT_RAW_CMP(raw_cons);
+ 				break;
+@@ -2712,7 +2712,7 @@ static int bnxt_init_tx_rings(struct bnxt *bp)
+ 	u16 i;
+ 
+ 	bp->tx_wake_thresh = max_t(int, bp->tx_ring_size / 2,
+-				   MAX_SKB_FRAGS + 1);
++				   BNXT_MIN_TX_DESC_CNT);
+ 
+ 	for (i = 0; i < bp->tx_nr_rings; i++) {
+ 		struct bnxt_tx_ring_info *txr = &bp->tx_ring[i];
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.h b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+index f3f5484c43e4..5c1c3a0ed928 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+@@ -484,6 +484,11 @@ struct rx_tpa_end_cmp_ext {
+ #define BNXT_MAX_RX_JUM_DESC_CNT	(RX_DESC_CNT * MAX_RX_AGG_PAGES - 1)
+ #define BNXT_MAX_TX_DESC_CNT		(TX_DESC_CNT * MAX_TX_PAGES - 1)
+ 
++/* Minimum TX BDs for a TX packet with MAX_SKB_FRAGS + 1.  We need one extra
++ * BD because the first TX BD is always a long BD.
++ */
++#define BNXT_MIN_TX_DESC_CNT		(MAX_SKB_FRAGS + 2)
++
+ #define RX_RING(x)	(((x) & ~(RX_DESC_CNT - 1)) >> (BNXT_PAGE_SHIFT - 4))
+ #define RX_IDX(x)	((x) & (RX_DESC_CNT - 1))
+ 
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+index 511240e8246f..e75a47a9f511 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -446,7 +446,7 @@ static int bnxt_set_ringparam(struct net_device *dev,
+ 
+ 	if ((ering->rx_pending > BNXT_MAX_RX_DESC_CNT) ||
+ 	    (ering->tx_pending > BNXT_MAX_TX_DESC_CNT) ||
+-	    (ering->tx_pending <= MAX_SKB_FRAGS))
++	    (ering->tx_pending < BNXT_MIN_TX_DESC_CNT))
+ 		return -EINVAL;
+ 
+ 	if (netif_running(dev))
+-- 
+2.33.0
+
 
 
