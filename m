@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 909E2420FDC
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:37:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 079C4420DC1
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:17:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238082AbhJDNjB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:39:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48650 "EHLO mail.kernel.org"
+        id S236381AbhJDNSL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:18:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238148AbhJDNh2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:37:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EDD36121F;
-        Mon,  4 Oct 2021 13:16:55 +0000 (UTC)
+        id S234436AbhJDNQV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:16:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9626F61BB2;
+        Mon,  4 Oct 2021 13:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353415;
-        bh=ZO6zA9c8Lzwvtuu4Dipo711ge+UklH1aYIsTPUIsBKc=;
+        s=korg; t=1633352793;
+        bh=n1CoMQiKBXVMk5YwYTLUvIGd8zllXLDTXO9xNoJVG5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yILEQddT1Zq8HIn/fU9T8qzyJqkbNXzmam7uwU5BwuWFu0UzIZFUdvIOs4EbtfCyU
-         zr6FNgL3YBvsBCaWXJX5YM3lmSOUu08PYX/s3Shm9gNBpOmuf2lC6Lv1cLqbRe/BDj
-         gfie/25RqchV48pNr5QgJ6tVV1Oo9GJ8K+yxgsOg=
+        b=Ou8v8/il8XjsMM/BmSIwdjEt4vpGTjTVlC1ecNdZhkrzZisbBpsboADcC2UxvVozN
+         bgiRtetGVEcpgTStV6rHmpL35TZkZWRIH8khvNW1wEVWrcKvK2TBj1AlF6RiUuRqp8
+         Gf2pEeCrnmcRx2Xz/CX6M6uoek7Xp6vDIUghK3uM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Marek Vasut <marex@denx.de>, Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 119/172] net: ks8851: fix link error
+Subject: [PATCH 5.4 29/56] net: phy: bcm7xxx: request and manage GPHY clock
 Date:   Mon,  4 Oct 2021 14:52:49 +0200
-Message-Id: <20211004125048.824493986@linuxfoundation.org>
+Message-Id: <20211004125030.918133685@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
+References: <20211004125030.002116402@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,84 +41,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 51bb08dd04a05035a64504faa47651d36b0f3125 ]
+[ Upstream commit ba4ee3c053659119472135231dbef8f6880ce1fb ]
 
-An object file cannot be built for both loadable module and built-in
-use at the same time:
+The internal Gigabit PHY on Broadcom STB chips has a digital clock which
+drives its MDIO interface among other things, the driver now requests
+and manage that clock during .probe() and .remove() accordingly.
 
-arm-linux-gnueabi-ld: drivers/net/ethernet/micrel/ks8851_common.o: in function `ks8851_probe_common':
-ks8851_common.c:(.text+0xf80): undefined reference to `__this_module'
+Because the PHY driver can be probed with the clocks turned off we need
+to apply the dummy BMSR workaround during the driver probe function to
+ensure subsequent MDIO read or write towards the PHY will succeed.
 
-Change the ks8851_common code to be a standalone module instead,
-and use Makefile logic to ensure this is built-in if at least one
-of its two users is.
-
-Fixes: 797047f875b5 ("net: ks8851: Implement Parallel bus operations")
-Link: https://lore.kernel.org/netdev/20210125121937.3900988-1-arnd@kernel.org/
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Acked-by: Marek Vasut <marex@denx.de>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/micrel/Makefile        | 6 ++----
- drivers/net/ethernet/micrel/ks8851_common.c | 8 ++++++++
- 2 files changed, 10 insertions(+), 4 deletions(-)
+ drivers/net/phy/bcm7xxx.c | 30 +++++++++++++++++++++++++++++-
+ 1 file changed, 29 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/micrel/Makefile b/drivers/net/ethernet/micrel/Makefile
-index 5cc00d22c708..6ecc4eb30e74 100644
---- a/drivers/net/ethernet/micrel/Makefile
-+++ b/drivers/net/ethernet/micrel/Makefile
-@@ -4,8 +4,6 @@
- #
+diff --git a/drivers/net/phy/bcm7xxx.c b/drivers/net/phy/bcm7xxx.c
+index af8eabe7a6d4..e68dd2e9443c 100644
+--- a/drivers/net/phy/bcm7xxx.c
++++ b/drivers/net/phy/bcm7xxx.c
+@@ -11,6 +11,7 @@
+ #include "bcm-phy-lib.h"
+ #include <linux/bitops.h>
+ #include <linux/brcmphy.h>
++#include <linux/clk.h>
+ #include <linux/mdio.h>
  
- obj-$(CONFIG_KS8842) += ks8842.o
--obj-$(CONFIG_KS8851) += ks8851.o
--ks8851-objs = ks8851_common.o ks8851_spi.o
--obj-$(CONFIG_KS8851_MLL) += ks8851_mll.o
--ks8851_mll-objs = ks8851_common.o ks8851_par.o
-+obj-$(CONFIG_KS8851) += ks8851_common.o ks8851_spi.o
-+obj-$(CONFIG_KS8851_MLL) += ks8851_common.o ks8851_par.o
- obj-$(CONFIG_KSZ884X_PCI) += ksz884x.o
-diff --git a/drivers/net/ethernet/micrel/ks8851_common.c b/drivers/net/ethernet/micrel/ks8851_common.c
-index 831518466de2..0f9c5457b93e 100644
---- a/drivers/net/ethernet/micrel/ks8851_common.c
-+++ b/drivers/net/ethernet/micrel/ks8851_common.c
-@@ -1057,6 +1057,7 @@ int ks8851_suspend(struct device *dev)
+ /* Broadcom BCM7xxx internal PHY registers */
+@@ -39,6 +40,7 @@
  
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(ks8851_suspend);
+ struct bcm7xxx_phy_priv {
+ 	u64	*stats;
++	struct clk *clk;
+ };
  
- int ks8851_resume(struct device *dev)
+ static int bcm7xxx_28nm_d0_afe_config_init(struct phy_device *phydev)
+@@ -517,6 +519,7 @@ static void bcm7xxx_28nm_get_phy_stats(struct phy_device *phydev,
+ static int bcm7xxx_28nm_probe(struct phy_device *phydev)
  {
-@@ -1070,6 +1071,7 @@ int ks8851_resume(struct device *dev)
+ 	struct bcm7xxx_phy_priv *priv;
++	int ret = 0;
  
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(ks8851_resume);
- #endif
+ 	priv = devm_kzalloc(&phydev->mdio.dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+@@ -530,7 +533,30 @@ static int bcm7xxx_28nm_probe(struct phy_device *phydev)
+ 	if (!priv->stats)
+ 		return -ENOMEM;
  
- static int ks8851_register_mdiobus(struct ks8851_net *ks, struct device *dev)
-@@ -1243,6 +1245,7 @@ int ks8851_probe_common(struct net_device *netdev, struct device *dev,
- err_reg_io:
- 	return ret;
- }
-+EXPORT_SYMBOL_GPL(ks8851_probe_common);
- 
- int ks8851_remove_common(struct device *dev)
- {
-@@ -1261,3 +1264,8 @@ int ks8851_remove_common(struct device *dev)
- 
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(ks8851_remove_common);
+-	return 0;
++	priv->clk = devm_clk_get_optional(&phydev->mdio.dev, NULL);
++	if (IS_ERR(priv->clk))
++		return PTR_ERR(priv->clk);
 +
-+MODULE_DESCRIPTION("KS8851 Network driver");
-+MODULE_AUTHOR("Ben Dooks <ben@simtec.co.uk>");
-+MODULE_LICENSE("GPL");
++	ret = clk_prepare_enable(priv->clk);
++	if (ret)
++		return ret;
++
++	/* Dummy read to a register to workaround an issue upon reset where the
++	 * internal inverter may not allow the first MDIO transaction to pass
++	 * the MDIO management controller and make us return 0xffff for such
++	 * reads. This is needed to ensure that any subsequent reads to the
++	 * PHY will succeed.
++	 */
++	phy_read(phydev, MII_BMSR);
++
++	return ret;
++}
++
++static void bcm7xxx_28nm_remove(struct phy_device *phydev)
++{
++	struct bcm7xxx_phy_priv *priv = phydev->priv;
++
++	clk_disable_unprepare(priv->clk);
+ }
+ 
+ #define BCM7XXX_28NM_GPHY(_oui, _name)					\
+@@ -548,6 +574,7 @@ static int bcm7xxx_28nm_probe(struct phy_device *phydev)
+ 	.get_strings	= bcm_phy_get_strings,				\
+ 	.get_stats	= bcm7xxx_28nm_get_phy_stats,			\
+ 	.probe		= bcm7xxx_28nm_probe,				\
++	.remove		= bcm7xxx_28nm_remove,				\
+ }
+ 
+ #define BCM7XXX_28NM_EPHY(_oui, _name)					\
+@@ -563,6 +590,7 @@ static int bcm7xxx_28nm_probe(struct phy_device *phydev)
+ 	.get_strings	= bcm_phy_get_strings,				\
+ 	.get_stats	= bcm7xxx_28nm_get_phy_stats,			\
+ 	.probe		= bcm7xxx_28nm_probe,				\
++	.remove		= bcm7xxx_28nm_remove,				\
+ }
+ 
+ #define BCM7XXX_40NM_EPHY(_oui, _name)					\
 -- 
 2.33.0
 
