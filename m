@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB93F420C67
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:03:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45E3E420D14
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:10:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235025AbhJDNF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:05:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39430 "EHLO mail.kernel.org"
+        id S235869AbhJDNLn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:11:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235048AbhJDNDk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:03:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C4FF60F9C;
-        Mon,  4 Oct 2021 12:59:58 +0000 (UTC)
+        id S235797AbhJDNJm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:09:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F8BA61B4A;
+        Mon,  4 Oct 2021 13:03:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352399;
-        bh=nUIhjs/QdPnTw7z7RL7Q6AysHV5W77yNY62NC+lmdwk=;
+        s=korg; t=1633352612;
+        bh=Y2LPHQeOAlRpPu6UrmPSDGtATkA8zLCHugewhlxOzFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mkDC0dqMCxxo8uKbVmTh4kIqlZtHweYq8b/hWQCANNQ667JfFLIhaTb/QglwJElq3
-         1PgggeTv8ZVCu/7qjA9McXCaCx+Z6thJ3PlLStQUsqEdn+9R7ape88SUuiBbbvFI2M
-         4Cw97EQhx9CqpmA0u1k3D11E8WBiHAQ9pspFxE6k=
+        b=p3e7sd540EvLbd054fLvxy9jtakDugrqnouiIH51yw9KsxZY4kGKCSIWKjqNpqkwR
+         SRlcvwSGNKum1XF0zJXgyI5yl73R6zPe0QHUQTe5MnjdV1J4IKPCVMLOuLFYX6jdjk
+         nFzF5EilkwoDkY8Ikd6P4L5oPHZUs5UefitYi0TI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chih-Kang Chang <gary.chang@realtek.com>,
-        Zong-Zhe Yang <kevin_yang@realtek.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 47/75] mac80211: Fix ieee80211_amsdu_aggregate frag_tail bug
+        stable@vger.kernel.org, Yuchung Cheng <ycheng@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Qiumiao Zhang <zhangqiumiao1@huawei.com>
+Subject: [PATCH 4.19 52/95] tcp: create a helper to model exponential backoff
 Date:   Mon,  4 Oct 2021 14:52:22 +0200
-Message-Id: <20211004125033.104326012@linuxfoundation.org>
+Message-Id: <20211004125035.273941481@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chih-Kang Chang <gary.chang@realtek.com>
+From: Yuchung Cheng <ycheng@google.com>
 
-[ Upstream commit fe94bac626d9c1c5bc98ab32707be8a9d7f8adba ]
+commit 01a523b071618abbc634d1958229fe3bd2dfa5fa upstream.
 
-In ieee80211_amsdu_aggregate() set a pointer frag_tail point to the
-end of skb_shinfo(head)->frag_list, and use it to bind other skb in
-the end of this function. But when execute ieee80211_amsdu_aggregate()
-->ieee80211_amsdu_realloc_pad()->pskb_expand_head(), the address of
-skb_shinfo(head)->frag_list will be changed. However, the
-ieee80211_amsdu_aggregate() not update frag_tail after call
-pskb_expand_head(). That will cause the second skb can't bind to the
-head skb appropriately.So we update the address of frag_tail to fix it.
+Create a helper to model TCP exponential backoff for the next patch.
+This is pure refactor w no behavior change.
 
-Fixes: 6e0456b54545 ("mac80211: add A-MSDU tx support")
-Signed-off-by: Chih-Kang Chang <gary.chang@realtek.com>
-Signed-off-by: Zong-Zhe Yang <kevin_yang@realtek.com>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Link: https://lore.kernel.org/r/20210830073240.12736-1-pkshih@realtek.com
-[reword comment]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Yuchung Cheng <ycheng@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Neal Cardwell <ncardwell@google.com>
+Reviewed-by: Soheil Hassas Yeganeh <soheil@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Qiumiao Zhang <zhangqiumiao1@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/tx.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/ipv4/tcp_timer.c |   27 ++++++++++++++++-----------
+ 1 file changed, 16 insertions(+), 11 deletions(-)
 
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index e7b63ba8c184..0b5171824338 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -3202,6 +3202,14 @@ static bool ieee80211_amsdu_aggregate(struct ieee80211_sub_if_data *sdata,
- 	if (!ieee80211_amsdu_prepare_head(sdata, fast_tx, head))
- 		goto out;
+--- a/net/ipv4/tcp_timer.c
++++ b/net/ipv4/tcp_timer.c
+@@ -160,7 +160,20 @@ static void tcp_mtu_probing(struct inet_
+ 	tcp_sync_mss(sk, icsk->icsk_pmtu_cookie);
+ }
  
-+	/* If n == 2, the "while (*frag_tail)" loop above didn't execute
-+	 * and  frag_tail should be &skb_shinfo(head)->frag_list.
-+	 * However, ieee80211_amsdu_prepare_head() can reallocate it.
-+	 * Reload frag_tail to have it pointing to the correct place.
-+	 */
-+	if (n == 2)
-+		frag_tail = &skb_shinfo(head)->frag_list;
-+
- 	/*
- 	 * Pad out the previous subframe to a multiple of 4 by adding the
- 	 * padding to the next one, that's being added. Note that head->len
--- 
-2.33.0
-
++static unsigned int tcp_model_timeout(struct sock *sk,
++				      unsigned int boundary,
++				      unsigned int rto_base)
++{
++	unsigned int linear_backoff_thresh, timeout;
+ 
++	linear_backoff_thresh = ilog2(TCP_RTO_MAX / rto_base);
++	if (boundary <= linear_backoff_thresh)
++		timeout = ((2 << boundary) - 1) * rto_base;
++	else
++		timeout = ((2 << linear_backoff_thresh) - 1) * rto_base +
++			(boundary - linear_backoff_thresh) * TCP_RTO_MAX;
++	return jiffies_to_msecs(timeout);
++}
+ /**
+  *  retransmits_timed_out() - returns true if this connection has timed out
+  *  @sk:       The current socket
+@@ -178,23 +191,15 @@ static bool retransmits_timed_out(struct
+ 				  unsigned int boundary,
+ 				  unsigned int timeout)
+ {
+-	const unsigned int rto_base = TCP_RTO_MIN;
+-	unsigned int linear_backoff_thresh, start_ts;
++	unsigned int start_ts;
+ 
+ 	if (!inet_csk(sk)->icsk_retransmits)
+ 		return false;
+ 
+ 	start_ts = tcp_sk(sk)->retrans_stamp;
+-	if (likely(timeout == 0)) {
+-		linear_backoff_thresh = ilog2(TCP_RTO_MAX/rto_base);
++	if (likely(timeout == 0))
++		timeout = tcp_model_timeout(sk, boundary, TCP_RTO_MIN);
+ 
+-		if (boundary <= linear_backoff_thresh)
+-			timeout = ((2 << boundary) - 1) * rto_base;
+-		else
+-			timeout = ((2 << linear_backoff_thresh) - 1) * rto_base +
+-				(boundary - linear_backoff_thresh) * TCP_RTO_MAX;
+-		timeout = jiffies_to_msecs(timeout);
+-	}
+ 	return (s32)(tcp_time_stamp(tcp_sk(sk)) - start_ts - timeout) >= 0;
+ }
+ 
 
 
