@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F28AC420B61
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 241A2420E24
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:20:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233500AbhJDM5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 08:57:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58126 "EHLO mail.kernel.org"
+        id S235865AbhJDNWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:22:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233605AbhJDM4j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:56:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E6456136F;
-        Mon,  4 Oct 2021 12:54:49 +0000 (UTC)
+        id S236409AbhJDNUA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:20:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CFA361BB3;
+        Mon,  4 Oct 2021 13:08:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352090;
-        bh=IM0GVIETrA1TCgyu+Y0HSv9K4DcNrkaq6dSy2MZMlhk=;
+        s=korg; t=1633352916;
+        bh=+yUVARZu29DRfXokr8TaH/t8DVBnSx1bQ6kmmymw/2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D6VP4wA7sXqdUzL4HRFw7h9ILlh6cz6YuvOa+o1EyOKdTo3kTYF/ZuQw3Uxx6IH8g
-         dL+wpvSi59S1DOhjtfvtspyaoRDgqtew5BVldGq1SHHFG25JYALiaxCewm35u7M9B8
-         lkjVxj+eAmUkxk7zI7COpG++CGYmTgjGsbcDCFx8=
+        b=uQuAMmmC4JTrtQj0Jt+QMscCR27IIiGopbR8cLIsUMgcTMpPZAxT4IIhrZHfGHc3W
+         mhkJs5a4MxeHuskL2uiWQ/0aY9REbcXA23qDQJiZLft6Q57YjXK4uTfJiIGt9qBSMi
+         vjAi0PpQTNoUqMBLIHfKUhLScoUbBxe/B1cbhF0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 09/41] USB: serial: option: add device id for Foxconn T99W265
+        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 02/93] cpufreq: schedutil: Use kobject release() method to free sugov_tunables
 Date:   Mon,  4 Oct 2021 14:52:00 +0200
-Message-Id: <20211004125026.884206794@linuxfoundation.org>
+Message-Id: <20211004125034.665736576@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
-References: <20211004125026.597501645@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +41,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slark Xiao <slark_xiao@163.com>
+From: Kevin Hao <haokexin@gmail.com>
 
-commit 9e3eed534f8235a4a596a9dae5b8a6425d81ea1a upstream.
+[ Upstream commit e5c6b312ce3cc97e90ea159446e6bfa06645364d ]
 
-Adding support for Foxconn device T99W265 for enumeration with
-PID 0xe0db.
+The struct sugov_tunables is protected by the kobject, so we can't free
+it directly. Otherwise we would get a call trace like this:
+  ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x30
+  WARNING: CPU: 3 PID: 720 at lib/debugobjects.c:505 debug_print_object+0xb8/0x100
+  Modules linked in:
+  CPU: 3 PID: 720 Comm: a.sh Tainted: G        W         5.14.0-rc1-next-20210715-yocto-standard+ #507
+  Hardware name: Marvell OcteonTX CN96XX board (DT)
+  pstate: 40400009 (nZcv daif +PAN -UAO -TCO BTYPE=--)
+  pc : debug_print_object+0xb8/0x100
+  lr : debug_print_object+0xb8/0x100
+  sp : ffff80001ecaf910
+  x29: ffff80001ecaf910 x28: ffff00011b10b8d0 x27: ffff800011043d80
+  x26: ffff00011a8f0000 x25: ffff800013cb3ff0 x24: 0000000000000000
+  x23: ffff80001142aa68 x22: ffff800011043d80 x21: ffff00010de46f20
+  x20: ffff800013c0c520 x19: ffff800011d8f5b0 x18: 0000000000000010
+  x17: 6e6968207473696c x16: 5f72656d6974203a x15: 6570797420746365
+  x14: 6a626f2029302065 x13: 303378302f307830 x12: 2b6e665f72656d69
+  x11: ffff8000124b1560 x10: ffff800012331520 x9 : ffff8000100ca6b0
+  x8 : 000000000017ffe8 x7 : c0000000fffeffff x6 : 0000000000000001
+  x5 : ffff800011d8c000 x4 : ffff800011d8c740 x3 : 0000000000000000
+  x2 : ffff0001108301c0 x1 : ab3c90eedf9c0f00 x0 : 0000000000000000
+  Call trace:
+   debug_print_object+0xb8/0x100
+   __debug_check_no_obj_freed+0x1c0/0x230
+   debug_check_no_obj_freed+0x20/0x88
+   slab_free_freelist_hook+0x154/0x1c8
+   kfree+0x114/0x5d0
+   sugov_exit+0xbc/0xc0
+   cpufreq_exit_governor+0x44/0x90
+   cpufreq_set_policy+0x268/0x4a8
+   store_scaling_governor+0xe0/0x128
+   store+0xc0/0xf0
+   sysfs_kf_write+0x54/0x80
+   kernfs_fop_write_iter+0x128/0x1c0
+   new_sync_write+0xf0/0x190
+   vfs_write+0x2d4/0x478
+   ksys_write+0x74/0x100
+   __arm64_sys_write+0x24/0x30
+   invoke_syscall.constprop.0+0x54/0xe0
+   do_el0_svc+0x64/0x158
+   el0_svc+0x2c/0xb0
+   el0t_64_sync_handler+0xb0/0xb8
+   el0t_64_sync+0x198/0x19c
+  irq event stamp: 5518
+  hardirqs last  enabled at (5517): [<ffff8000100cbd7c>] console_unlock+0x554/0x6c8
+  hardirqs last disabled at (5518): [<ffff800010fc0638>] el1_dbg+0x28/0xa0
+  softirqs last  enabled at (5504): [<ffff8000100106e0>] __do_softirq+0x4d0/0x6c0
+  softirqs last disabled at (5483): [<ffff800010049548>] irq_exit+0x1b0/0x1b8
 
-usb-devices output for 0xe0db
-T:  Bus=04 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 19 Spd=5000 MxCh= 0
-D:  Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
-P:  Vendor=0489 ProdID=e0db Rev=05.04
-S:  Manufacturer=Microsoft
-S:  Product=Generic Mobile Broadband Adapter
-S:  SerialNumber=6c50f452
-C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+So split the original sugov_tunables_free() into two functions,
+sugov_clear_global_tunables() is just used to clear the global_tunables
+and the new sugov_tunables_free() is used as kobj_type::release to
+release the sugov_tunables safely.
 
-if0/1: MBIM, if2:Diag, if3:GNSS, if4: Modem
-
-Signed-off-by: Slark Xiao <slark_xiao@163.com>
-Link: https://lore.kernel.org/r/20210917110106.9852-1-slark_xiao@163.com
-[ johan: use USB_DEVICE_INTERFACE_CLASS(), amend comment ]
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9bdcb44e391d ("cpufreq: schedutil: New governor based on scheduler utilization data")
+Cc: 4.7+ <stable@vger.kernel.org> # 4.7+
+Signed-off-by: Kevin Hao <haokexin@gmail.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/sched/cpufreq_schedutil.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -2059,6 +2059,8 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
- 	{ USB_DEVICE(0x0489, 0xe0b5),						/* Foxconn T77W968 ESIM */
- 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
-+	{ USB_DEVICE_INTERFACE_CLASS(0x0489, 0xe0db, 0xff),			/* Foxconn T99W265 MBIM */
-+	  .driver_info = RSVD(3) },
- 	{ USB_DEVICE(0x1508, 0x1001),						/* Fibocom NL668 (IOT version) */
- 	  .driver_info = RSVD(4) | RSVD(5) | RSVD(6) },
- 	{ USB_DEVICE(0x2cb7, 0x0104),						/* Fibocom NL678 series */
+diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
+index 97d318b0cd0c..5e39da0ae086 100644
+--- a/kernel/sched/cpufreq_schedutil.c
++++ b/kernel/sched/cpufreq_schedutil.c
+@@ -610,9 +610,17 @@ static struct attribute *sugov_attrs[] = {
+ };
+ ATTRIBUTE_GROUPS(sugov);
+ 
++static void sugov_tunables_free(struct kobject *kobj)
++{
++	struct gov_attr_set *attr_set = container_of(kobj, struct gov_attr_set, kobj);
++
++	kfree(to_sugov_tunables(attr_set));
++}
++
+ static struct kobj_type sugov_tunables_ktype = {
+ 	.default_groups = sugov_groups,
+ 	.sysfs_ops = &governor_sysfs_ops,
++	.release = &sugov_tunables_free,
+ };
+ 
+ /********************** cpufreq governor interface *********************/
+@@ -712,12 +720,10 @@ static struct sugov_tunables *sugov_tunables_alloc(struct sugov_policy *sg_polic
+ 	return tunables;
+ }
+ 
+-static void sugov_tunables_free(struct sugov_tunables *tunables)
++static void sugov_clear_global_tunables(void)
+ {
+ 	if (!have_governor_per_policy())
+ 		global_tunables = NULL;
+-
+-	kfree(tunables);
+ }
+ 
+ static int sugov_init(struct cpufreq_policy *policy)
+@@ -780,7 +786,7 @@ out:
+ fail:
+ 	kobject_put(&tunables->attr_set.kobj);
+ 	policy->governor_data = NULL;
+-	sugov_tunables_free(tunables);
++	sugov_clear_global_tunables();
+ 
+ stop_kthread:
+ 	sugov_kthread_stop(sg_policy);
+@@ -807,7 +813,7 @@ static void sugov_exit(struct cpufreq_policy *policy)
+ 	count = gov_attr_set_put(&tunables->attr_set, &sg_policy->tunables_hook);
+ 	policy->governor_data = NULL;
+ 	if (!count)
+-		sugov_tunables_free(tunables);
++		sugov_clear_global_tunables();
+ 
+ 	mutex_unlock(&global_tunables_lock);
+ 
+-- 
+2.33.0
+
 
 
