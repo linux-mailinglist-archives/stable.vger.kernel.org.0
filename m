@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A109420E2B
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:20:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA8B7420F7D
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:34:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235618AbhJDNWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:22:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55680 "EHLO mail.kernel.org"
+        id S237878AbhJDNfV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:35:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236320AbhJDNUI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:20:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83D1C61B61;
-        Mon,  4 Oct 2021 13:08:48 +0000 (UTC)
+        id S237863AbhJDNdP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:33:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5694063229;
+        Mon,  4 Oct 2021 13:15:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352929;
-        bh=kGKiF1DtwiO4dV+S2WgUlGJy/NgNseMmgKgi4+Dpd8I=;
+        s=korg; t=1633353304;
+        bh=6Fx4jLoQmEwtdDz/vk3Y9llijFeQHQ06JFzmRm6Y6OE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CmtXU+wSopjvnuMcC0luAu5m+OKfuelxHnht5/Rxd/WV5Y+VfhaJdoey0AMvAZSSi
-         8+GZNmfF4qNbqjk6pO5Bb1vRU7famc7Xvpu+/1b40oiyIABYHhm2o98cyjXPgTxTxt
-         6lgKifD2OAZWIvEVnVaqIeoXHM58BcZ7JAuzxn60=
+        b=BmIvYuI/AGrwturBi/7wklH1/KoDQRUMPksq+58ae8UJ667gqaKlzmGUPB/SoU14o
+         YHjuaCKR/v6VbH3YrYCgavWTXkjU2O2LC1cqhjxZsaoT4xk0+3Xy64Sb6Scj3CAYTw
+         +hBJBIXdsgqezNqadRS0m6f0wj3ix+sYT6mjhOxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Jia He <justin.he@arm.com>
-Subject: [PATCH 5.10 07/93] ACPI: NFIT: Use fallback node id when numa info in NFIT table is incorrect
-Date:   Mon,  4 Oct 2021 14:52:05 +0200
-Message-Id: <20211004125034.824568396@linuxfoundation.org>
+        stable@vger.kernel.org, Yi Chen <yiche@redhat.com>,
+        Andrea Claudi <aclaudi@redhat.com>,
+        Julian Anastasov <ja@ssi.bg>,
+        Simon Horman <horms@verge.net.au>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 076/172] ipvs: check that ip_vs_conn_tab_bits is between 8 and 20
+Date:   Mon,  4 Oct 2021 14:52:06 +0200
+Message-Id: <20211004125047.453936422@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia He <justin.he@arm.com>
+From: Andrea Claudi <aclaudi@redhat.com>
 
-commit f060db99374e80e853ac4916b49f0a903f65e9dc upstream.
+[ Upstream commit 69e73dbfda14fbfe748d3812da1244cce2928dcb ]
 
-When ACPI NFIT table is failing to populate correct numa information
-on arm64, dax_kmem will get NUMA_NO_NODE from the NFIT driver.
+ip_vs_conn_tab_bits may be provided by the user through the
+conn_tab_bits module parameter. If this value is greater than 31, or
+less than 0, the shift operator used to derive tab_size causes undefined
+behaviour.
 
-Without this patch, pmem can't be probed as RAM devices on arm64 guest:
-  $ndctl create-namespace -fe namespace0.0 --mode=devdax --map=dev -s 1g -a 128M
-  kmem dax0.0: rejecting DAX region [mem 0x240400000-0x2bfffffff] with invalid node: -1
-  kmem: probe of dax0.0 failed with error -22
+Fix this checking ip_vs_conn_tab_bits value to be in the range specified
+in ipvs Kconfig. If not, simply use default value.
 
-Suggested-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Jia He <justin.he@arm.com>
-Cc: <stable@vger.kernel.org>
-Fixes: c221c0b0308f ("device-dax: "Hotplug" persistent memory for use like normal RAM")
-Link: https://lore.kernel.org/r/20210922152919.6940-1-justin.he@arm.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6f7edb4881bf ("IPVS: Allow boot time change of hash size")
+Reported-by: Yi Chen <yiche@redhat.com>
+Signed-off-by: Andrea Claudi <aclaudi@redhat.com>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Acked-by: Simon Horman <horms@verge.net.au>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/nfit/core.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ net/netfilter/ipvs/ip_vs_conn.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/acpi/nfit/core.c
-+++ b/drivers/acpi/nfit/core.c
-@@ -3018,6 +3018,18 @@ static int acpi_nfit_register_region(str
- 		ndr_desc->target_node = NUMA_NO_NODE;
- 	}
+diff --git a/net/netfilter/ipvs/ip_vs_conn.c b/net/netfilter/ipvs/ip_vs_conn.c
+index c100c6b112c8..2c467c422dc6 100644
+--- a/net/netfilter/ipvs/ip_vs_conn.c
++++ b/net/netfilter/ipvs/ip_vs_conn.c
+@@ -1468,6 +1468,10 @@ int __init ip_vs_conn_init(void)
+ 	int idx;
  
-+	/* Fallback to address based numa information if node lookup failed */
-+	if (ndr_desc->numa_node == NUMA_NO_NODE) {
-+		ndr_desc->numa_node = memory_add_physaddr_to_nid(spa->address);
-+		dev_info(acpi_desc->dev, "changing numa node from %d to %d for nfit region [%pa-%pa]",
-+			NUMA_NO_NODE, ndr_desc->numa_node, &res.start, &res.end);
+ 	/* Compute size and mask */
++	if (ip_vs_conn_tab_bits < 8 || ip_vs_conn_tab_bits > 20) {
++		pr_info("conn_tab_bits not in [8, 20]. Using default value\n");
++		ip_vs_conn_tab_bits = CONFIG_IP_VS_TAB_BITS;
 +	}
-+	if (ndr_desc->target_node == NUMA_NO_NODE) {
-+		ndr_desc->target_node = phys_to_target_node(spa->address);
-+		dev_info(acpi_desc->dev, "changing target node from %d to %d for nfit region [%pa-%pa]",
-+			NUMA_NO_NODE, ndr_desc->numa_node, &res.start, &res.end);
-+	}
-+
- 	/*
- 	 * Persistence domain bits are hierarchical, if
- 	 * ACPI_NFIT_CAPABILITY_CACHE_FLUSH is set then
+ 	ip_vs_conn_tab_size = 1 << ip_vs_conn_tab_bits;
+ 	ip_vs_conn_tab_mask = ip_vs_conn_tab_size - 1;
+ 
+-- 
+2.33.0
+
 
 
