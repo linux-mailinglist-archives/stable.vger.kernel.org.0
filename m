@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E709942105B
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:41:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBCF9421060
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:42:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238644AbhJDNmx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:42:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53358 "EHLO mail.kernel.org"
+        id S237268AbhJDNnI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:43:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238661AbhJDNlB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:41:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF3D861A38;
-        Mon,  4 Oct 2021 13:18:55 +0000 (UTC)
+        id S237843AbhJDNl0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:41:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AE196324E;
+        Mon,  4 Oct 2021 13:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353536;
-        bh=ShJlBkA40CjiAkPHOgUgb6ijLeB+QaFfCM6mx2ID/CQ=;
+        s=korg; t=1633353538;
+        bh=pqqQrhnj5xoZGD+GvFFvCJKJuXDEOF2Whz/VMVPU0xI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VyhmMywC5p44wCF27AJ9rPbSBOvXPQI51lHr8CabHmbyPQo2PmRPbiJg/ZpBaycrp
-         jDn65M8hJ2ac9nWJbW3wDEbZTj7GQSeclZjsZ7zYTDT2i2xijLnQFUUh7zATU2Gpwt
-         BYuYVdJLBoaNdZimLE91nrd8MLEZvzP+9ao8Sy2s=
+        b=MtXOZmu9b1YvfaiRorMBmrYWI/STC+0RqfeQNLRRpRQ+ZbsUVqyrPuzvF0hM5Qdse
+         xQpUxWjkWdNrzNSGtYttOxpwmqIsJ9iizLwgh09J7jTjyOCV3nXcjKA96NcYWvwKh+
+         iPqwHRecJSFsQyhIl2cb92he0XoOJ6sk8sPujjuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>,
-        Wong Vee Khee <vee.khee.wong@linux.intel.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Jann Horn <jannh@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 135/172] net: stmmac: fix EEE init issue when paired with EEE capable PHYs
-Date:   Mon,  4 Oct 2021 14:53:05 +0200
-Message-Id: <20211004125049.321093067@linuxfoundation.org>
+Subject: [PATCH 5.14 136/172] af_unix: fix races in sk_peer_pid and sk_peer_cred accesses
+Date:   Mon,  4 Oct 2021 14:53:06 +0200
+Message-Id: <20211004125049.358368087@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
 References: <20211004125044.945314266@linuxfoundation.org>
@@ -42,41 +44,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wong Vee Khee <vee.khee.wong@linux.intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 656ed8b015f19bf3f6e6b3ddd9a4bb4aa5ca73e1 ]
+[ Upstream commit 35306eb23814444bd4021f8a1c3047d3cb0c8b2b ]
 
-When STMMAC is paired with Energy-Efficient Ethernet(EEE) capable PHY,
-and the PHY is advertising EEE by default, we need to enable EEE on the
-xPCS side too, instead of having user to manually trigger the enabling
-config via ethtool.
+Jann Horn reported that SO_PEERCRED and SO_PEERGROUPS implementations
+are racy, as af_unix can concurrently change sk_peer_pid and sk_peer_cred.
 
-Fixed this by adding xpcs_config_eee() call in stmmac_eee_init().
+In order to fix this issue, this patch adds a new spinlock that needs
+to be used whenever these fields are read or written.
 
-Fixes: 7617af3d1a5e ("net: pcs: Introducing support for DWC xpcs Energy Efficient Ethernet")
-Cc: Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>
-Signed-off-by: Wong Vee Khee <vee.khee.wong@linux.intel.com>
+Jann also pointed out that l2cap_sock_get_peer_pid_cb() is currently
+reading sk->sk_peer_pid which makes no sense, as this field
+is only possibly set by AF_UNIX sockets.
+We will have to clean this in a separate patch.
+This could be done by reverting b48596d1dc25 "Bluetooth: L2CAP: Add get_peer_pid callback"
+or implementing what was truly expected.
+
+Fixes: 109f6e39fa07 ("af_unix: Allow SO_PEERCRED to work across namespaces.")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Jann Horn <jannh@google.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Cc: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Cc: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ include/net/sock.h |  2 ++
+ net/core/sock.c    | 32 ++++++++++++++++++++++++++------
+ net/unix/af_unix.c | 34 ++++++++++++++++++++++++++++------
+ 3 files changed, 56 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 2218bc3a624b..86151a817b79 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -486,6 +486,10 @@ bool stmmac_eee_init(struct stmmac_priv *priv)
- 		timer_setup(&priv->eee_ctrl_timer, stmmac_eee_ctrl_timer, 0);
- 		stmmac_set_eee_timer(priv, priv->hw, STMMAC_DEFAULT_LIT_LS,
- 				     eee_tw_timer);
-+		if (priv->hw->xpcs)
-+			xpcs_config_eee(priv->hw->xpcs,
-+					priv->plat->mult_fact_100ns,
-+					true);
+diff --git a/include/net/sock.h b/include/net/sock.h
+index 980b471b569d..db0cb8aa591f 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -487,8 +487,10 @@ struct sock {
+ 	u8			sk_prefer_busy_poll;
+ 	u16			sk_busy_poll_budget;
+ #endif
++	spinlock_t		sk_peer_lock;
+ 	struct pid		*sk_peer_pid;
+ 	const struct cred	*sk_peer_cred;
++
+ 	long			sk_rcvtimeo;
+ 	ktime_t			sk_stamp;
+ #if BITS_PER_LONG==32
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 1cf0edc79f37..bd1b34b3b778 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -1366,6 +1366,16 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
+ }
+ EXPORT_SYMBOL(sock_setsockopt);
+ 
++static const struct cred *sk_get_peer_cred(struct sock *sk)
++{
++	const struct cred *cred;
++
++	spin_lock(&sk->sk_peer_lock);
++	cred = get_cred(sk->sk_peer_cred);
++	spin_unlock(&sk->sk_peer_lock);
++
++	return cred;
++}
+ 
+ static void cred_to_ucred(struct pid *pid, const struct cred *cred,
+ 			  struct ucred *ucred)
+@@ -1542,7 +1552,11 @@ int sock_getsockopt(struct socket *sock, int level, int optname,
+ 		struct ucred peercred;
+ 		if (len > sizeof(peercred))
+ 			len = sizeof(peercred);
++
++		spin_lock(&sk->sk_peer_lock);
+ 		cred_to_ucred(sk->sk_peer_pid, sk->sk_peer_cred, &peercred);
++		spin_unlock(&sk->sk_peer_lock);
++
+ 		if (copy_to_user(optval, &peercred, len))
+ 			return -EFAULT;
+ 		goto lenout;
+@@ -1550,20 +1564,23 @@ int sock_getsockopt(struct socket *sock, int level, int optname,
+ 
+ 	case SO_PEERGROUPS:
+ 	{
++		const struct cred *cred;
+ 		int ret, n;
+ 
+-		if (!sk->sk_peer_cred)
++		cred = sk_get_peer_cred(sk);
++		if (!cred)
+ 			return -ENODATA;
+ 
+-		n = sk->sk_peer_cred->group_info->ngroups;
++		n = cred->group_info->ngroups;
+ 		if (len < n * sizeof(gid_t)) {
+ 			len = n * sizeof(gid_t);
++			put_cred(cred);
+ 			return put_user(len, optlen) ? -EFAULT : -ERANGE;
+ 		}
+ 		len = n * sizeof(gid_t);
+ 
+-		ret = groups_to_user((gid_t __user *)optval,
+-				     sk->sk_peer_cred->group_info);
++		ret = groups_to_user((gid_t __user *)optval, cred->group_info);
++		put_cred(cred);
+ 		if (ret)
+ 			return ret;
+ 		goto lenout;
+@@ -1921,9 +1938,10 @@ static void __sk_destruct(struct rcu_head *head)
+ 		sk->sk_frag.page = NULL;
  	}
  
- 	if (priv->plat->has_gmac4 && priv->tx_lpi_timer <= STMMAC_ET_MAX) {
+-	if (sk->sk_peer_cred)
+-		put_cred(sk->sk_peer_cred);
++	/* We do not need to acquire sk->sk_peer_lock, we are the last user. */
++	put_cred(sk->sk_peer_cred);
+ 	put_pid(sk->sk_peer_pid);
++
+ 	if (likely(sk->sk_net_refcnt))
+ 		put_net(sock_net(sk));
+ 	sk_prot_free(sk->sk_prot_creator, sk);
+@@ -3124,6 +3142,8 @@ void sock_init_data(struct socket *sock, struct sock *sk)
+ 
+ 	sk->sk_peer_pid 	=	NULL;
+ 	sk->sk_peer_cred	=	NULL;
++	spin_lock_init(&sk->sk_peer_lock);
++
+ 	sk->sk_write_pending	=	0;
+ 	sk->sk_rcvlowat		=	1;
+ 	sk->sk_rcvtimeo		=	MAX_SCHEDULE_TIMEOUT;
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index 91ff09d833e8..f96ee27d9ff2 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -600,20 +600,42 @@ static void unix_release_sock(struct sock *sk, int embrion)
+ 
+ static void init_peercred(struct sock *sk)
+ {
+-	put_pid(sk->sk_peer_pid);
+-	if (sk->sk_peer_cred)
+-		put_cred(sk->sk_peer_cred);
++	const struct cred *old_cred;
++	struct pid *old_pid;
++
++	spin_lock(&sk->sk_peer_lock);
++	old_pid = sk->sk_peer_pid;
++	old_cred = sk->sk_peer_cred;
+ 	sk->sk_peer_pid  = get_pid(task_tgid(current));
+ 	sk->sk_peer_cred = get_current_cred();
++	spin_unlock(&sk->sk_peer_lock);
++
++	put_pid(old_pid);
++	put_cred(old_cred);
+ }
+ 
+ static void copy_peercred(struct sock *sk, struct sock *peersk)
+ {
+-	put_pid(sk->sk_peer_pid);
+-	if (sk->sk_peer_cred)
+-		put_cred(sk->sk_peer_cred);
++	const struct cred *old_cred;
++	struct pid *old_pid;
++
++	if (sk < peersk) {
++		spin_lock(&sk->sk_peer_lock);
++		spin_lock_nested(&peersk->sk_peer_lock, SINGLE_DEPTH_NESTING);
++	} else {
++		spin_lock(&peersk->sk_peer_lock);
++		spin_lock_nested(&sk->sk_peer_lock, SINGLE_DEPTH_NESTING);
++	}
++	old_pid = sk->sk_peer_pid;
++	old_cred = sk->sk_peer_cred;
+ 	sk->sk_peer_pid  = get_pid(peersk->sk_peer_pid);
+ 	sk->sk_peer_cred = get_cred(peersk->sk_peer_cred);
++
++	spin_unlock(&sk->sk_peer_lock);
++	spin_unlock(&peersk->sk_peer_lock);
++
++	put_pid(old_pid);
++	put_cred(old_cred);
+ }
+ 
+ static int unix_listen(struct socket *sock, int backlog)
 -- 
 2.33.0
 
