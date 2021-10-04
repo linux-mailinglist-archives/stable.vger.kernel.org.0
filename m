@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C12B0420883
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 11:40:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30054420884
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 11:40:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232200AbhJDJmo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 05:42:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47232 "EHLO mail.kernel.org"
+        id S232272AbhJDJmp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 05:42:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230270AbhJDJmm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 05:42:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5BBE61248;
-        Mon,  4 Oct 2021 09:40:53 +0000 (UTC)
+        id S230270AbhJDJmp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 05:42:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B7276124B;
+        Mon,  4 Oct 2021 09:40:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633340454;
-        bh=pf902m1zIrLEcJlawMuYybQ/SQ1oI+evoqGyODRvWyA=;
+        s=korg; t=1633340456;
+        bh=4N/5mfcGdNJtqgFL+slaiBDvFi3ZzPRY7kypi0eV5qM=;
         h=Subject:To:Cc:From:Date:From;
-        b=CB/ZQm02h6vYu7W03M6S6kQtmNPJYd+hD9xtDI+a+JqhrVaKyiI+S3teable5deoF
-         RuSna6u/U2bTlBQKk/iu+S8f4mp20YWchxw7gKcA6ctC74OlRaoobcgFi58MuyLxLK
-         QZnPB3u6Pi/8wCjBzxLGscPUUYc1tc6LETwv3rjo=
-Subject: FAILED: patch "[PATCH] ext4: fix reserved space counter leakage" failed to apply to 4.14-stable tree
+        b=GsSB70uCqSuZ2iAEEhgvQIZ/gU+5IBTb9nXd6CvNCM2RBq+3AE/FggkpIOsGe0nc3
+         Ba6pGumEhQgWlChe/QFyc1PnZTVy7Q7mo+P4KmRqhWIFaIBL37pFxDoSYoHGnXRaPM
+         ps2F+1SYJcKZDtaZUFGYQno+SRJ5u+RWw3PK9UEs=
+Subject: FAILED: patch "[PATCH] ext4: fix reserved space counter leakage" failed to apply to 4.4-stable tree
 To:     jefflexu@linux.alibaba.com, enwlinux@gmail.com,
         hsiangkao@linux.alibaba.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Oct 2021 11:40:52 +0200
-Message-ID: <163334045215115@kroah.com>
+Date:   Mon, 04 Oct 2021 11:40:53 +0200
+Message-ID: <16333404532791@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
