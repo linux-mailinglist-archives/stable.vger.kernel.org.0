@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 908DC420D90
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:14:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A66C5420ED3
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:27:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236216AbhJDNQV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:16:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53970 "EHLO mail.kernel.org"
+        id S236552AbhJDN25 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:28:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235775AbhJDNOW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:14:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56C5061A08;
-        Mon,  4 Oct 2021 13:05:41 +0000 (UTC)
+        id S236880AbhJDN1L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:27:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B73B461B56;
+        Mon,  4 Oct 2021 13:11:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352741;
-        bh=POM7wi/gOiCHS+/d1qiQ+sLrHFscOacNgpZ0vJSjwEk=;
+        s=korg; t=1633353116;
+        bh=YE1zx6nVgkP8CuYGLxll0ajKOtAaprvH74dQUHfl4IM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C/8HdrzrDXuGDlRmSq2GLAdaXj2AJQInEu7qoBW7FH5FIRmRq25QFH4p3cy2RHce/
-         X2q2Art9csqxX5bcd6PRpOUmHjVsPMNW7PkfxIeJosjXd5M9qm1qxx/SLnOimd2oTw
-         xQ9LQx78J4qac4Xf7ddacayDTzPq+egXgAK9/xQM=
+        b=1GFQp6aYyVd4IcHPN8Oi4cAaEYQJreCZMZ24xvsqmBnWJHrLX+jpv7hsGap5lEiCG
+         Q3C03oQOEwtkqgveQjgU6zsnuxeWw86RsD2x61ZB1/3dWVxBxBqXnF2eixzKp+hnVz
+         8/KV4aopiqUYIByBTsPSV76+aa++VC4S0wzA3i2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.19 90/95] usb: hso: remove the bailout parameter
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 62/93] net: hns3: fix always enable rx vlan filter problem after selftest
 Date:   Mon,  4 Oct 2021 14:53:00 +0200
-Message-Id: <20211004125036.518351411@linuxfoundation.org>
+Message-Id: <20211004125036.611141592@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Guangbin Huang <huangguangbin2@huawei.com>
 
-commit dcb713d53e2eadf42b878c12a471e74dc6ed3145 upstream.
+[ Upstream commit 27bf4af69fcb9845fb2f0076db5d562ec072e70f ]
 
-There are two invocation sites of hso_free_net_device. After
-refactoring hso_create_net_device, this parameter is useless.
-Remove the bailout in the hso_free_net_device and change the invocation
-sites of this function.
+Currently, the rx vlan filter will always be disabled before selftest and
+be enabled after selftest as the rx vlan filter feature is fixed on in
+old device earlier than V3.
 
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+However, this feature is not fixed in some new devices and it can be
+disabled by user. In this case, it is wrong if rx vlan filter is enabled
+after selftest. So fix it.
+
+Fixes: bcc26e8dc432 ("net: hns3: remove unused code in hns3_self_test()")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/hso.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -2368,7 +2368,7 @@ static int remove_net_device(struct hso_
- }
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+index 436d777cce06..cd0d7a546957 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+@@ -336,7 +336,8 @@ static void hns3_selftest_prepare(struct net_device *ndev,
  
- /* Frees our network device */
--static void hso_free_net_device(struct hso_device *hso_dev, bool bailout)
-+static void hso_free_net_device(struct hso_device *hso_dev)
- {
- 	int i;
- 	struct hso_net *hso_net = dev2net(hso_dev);
-@@ -2391,7 +2391,7 @@ static void hso_free_net_device(struct h
- 	kfree(hso_net->mux_bulk_tx_buf);
- 	hso_net->mux_bulk_tx_buf = NULL;
+ #if IS_ENABLED(CONFIG_VLAN_8021Q)
+ 	/* Disable the vlan filter for selftest does not support it */
+-	if (h->ae_algo->ops->enable_vlan_filter)
++	if (h->ae_algo->ops->enable_vlan_filter &&
++	    ndev->features & NETIF_F_HW_VLAN_CTAG_FILTER)
+ 		h->ae_algo->ops->enable_vlan_filter(h, false);
+ #endif
  
--	if (hso_net->net && !bailout)
-+	if (hso_net->net)
- 		free_netdev(hso_net->net);
+@@ -361,7 +362,8 @@ static void hns3_selftest_restore(struct net_device *ndev, bool if_running)
+ 		h->ae_algo->ops->halt_autoneg(h, false);
  
- 	kfree(hso_dev);
-@@ -3143,7 +3143,7 @@ static void hso_free_interface(struct us
- 				rfkill_unregister(rfk);
- 				rfkill_destroy(rfk);
- 			}
--			hso_free_net_device(network_table[i], false);
-+			hso_free_net_device(network_table[i]);
- 		}
- 	}
- }
+ #if IS_ENABLED(CONFIG_VLAN_8021Q)
+-	if (h->ae_algo->ops->enable_vlan_filter)
++	if (h->ae_algo->ops->enable_vlan_filter &&
++	    ndev->features & NETIF_F_HW_VLAN_CTAG_FILTER)
+ 		h->ae_algo->ops->enable_vlan_filter(h, true);
+ #endif
+ 
+-- 
+2.33.0
+
 
 
