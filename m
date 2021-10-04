@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6BC9420BA8
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:57:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD76D420B37
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:54:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233855AbhJDM64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 08:58:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60114 "EHLO mail.kernel.org"
+        id S233151AbhJDMzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 08:55:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233861AbhJDM54 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:57:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8662B6139F;
-        Mon,  4 Oct 2021 12:56:07 +0000 (UTC)
+        id S233132AbhJDMzt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:55:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FD216124C;
+        Mon,  4 Oct 2021 12:54:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352168;
-        bh=jm/bz3aY0eXr4qGNMnY9PrzQ0rSEqHPBJfUzku8CSJ0=;
+        s=korg; t=1633352041;
+        bh=YJpWnxLF0W0MXEdB7eyL5x4rB8uf941j7FDbJUGhOeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xH7pxx5r+eW0Ym2IV74KCpoyEzNyeyGrk0ew3CdgDRR3Pn7D7hR6yVrdAauYKyRqe
-         0+VczZLQyKxrds61cQcrcIpGl65AJJwSvWo/fH7HTGYyrsIY8fjpN7y2upb10l7gt0
-         ddm6U4V/6vuKSF9H6VyHUrgD1gTl2i4mKEqUfSHQ=
+        b=VpP8lYSOg/AmH4WfnqAa6g3lfTz7f0PmV+PIwecjuIpHQkq4AglPpICP59RxKJya8
+         5mqAG8iiZTNBScHwEOXNfDQBBDrac/eR4V2mlh8qBz4K6fgajyvHRQACar2uxxzTOX
+         EF48sIhX+dQReIF3EBoa5XHnNNuFdKjx3vte+7y8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 08/57] staging: greybus: uart: fix tty use after free
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 4.4 01/41] usb: gadget: r8a66597: fix a loop in set_feature()
 Date:   Mon,  4 Oct 2021 14:51:52 +0200
-Message-Id: <20211004125029.199595609@linuxfoundation.org>
+Message-Id: <20211004125026.646760333@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
-References: <20211004125028.940212411@linuxfoundation.org>
+In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
+References: <20211004125026.597501645@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -39,172 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 92dc0b1f46e12cfabd28d709bb34f7a39431b44f upstream.
+commit 17956b53ebff6a490baf580a836cbd3eae94892b upstream.
 
-User space can hold a tty open indefinitely and tty drivers must not
-release the underlying structures until the last user is gone.
+This loop is supposed to loop until if reads something other than
+CS_IDST or until it times out after 30,000 attempts.  But because of
+the || vs && bug, it will never time out and instead it will loop a
+minimum of 30,000 times.
 
-Switch to using the tty-port reference counter to manage the life time
-of the greybus tty state to avoid use after free after a disconnect.
+This bug is quite old but the code is only used in USB_DEVICE_TEST_MODE
+so it probably doesn't affect regular usage.
 
-Fixes: a18e15175708 ("greybus: more uart work")
-Cc: stable@vger.kernel.org      # 4.9
-Reviewed-by: Alex Elder <elder@linaro.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210906124538.22358-1-johan@kernel.org
+Fixes: 96fe53ef5498 ("usb: gadget: r8a66597-udc: add support for TEST_MODE")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20210906094221.GA10957@kili
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/greybus/uart.c |   62 +++++++++++++++++++++--------------------
- 1 file changed, 32 insertions(+), 30 deletions(-)
+ drivers/usb/gadget/udc/r8a66597-udc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/greybus/uart.c
-+++ b/drivers/staging/greybus/uart.c
-@@ -812,6 +812,17 @@ out:
- 	gbphy_runtime_put_autosuspend(gb_tty->gbphy_dev);
- }
+--- a/drivers/usb/gadget/udc/r8a66597-udc.c
++++ b/drivers/usb/gadget/udc/r8a66597-udc.c
+@@ -1253,7 +1253,7 @@ static void set_feature(struct r8a66597
+ 			do {
+ 				tmp = r8a66597_read(r8a66597, INTSTS0) & CTSQ;
+ 				udelay(1);
+-			} while (tmp != CS_IDST || timeout-- > 0);
++			} while (tmp != CS_IDST && timeout-- > 0);
  
-+static void gb_tty_port_destruct(struct tty_port *port)
-+{
-+	struct gb_tty *gb_tty = container_of(port, struct gb_tty, port);
-+
-+	if (gb_tty->minor != GB_NUM_MINORS)
-+		release_minor(gb_tty);
-+	kfifo_free(&gb_tty->write_fifo);
-+	kfree(gb_tty->buffer);
-+	kfree(gb_tty);
-+}
-+
- static const struct tty_operations gb_ops = {
- 	.install =		gb_tty_install,
- 	.open =			gb_tty_open,
-@@ -834,6 +845,7 @@ static struct tty_port_operations gb_por
- 	.dtr_rts =		gb_tty_dtr_rts,
- 	.activate =		gb_tty_port_activate,
- 	.shutdown =		gb_tty_port_shutdown,
-+	.destruct =		gb_tty_port_destruct,
- };
- 
- static int gb_uart_probe(struct gbphy_device *gbphy_dev,
-@@ -846,17 +858,11 @@ static int gb_uart_probe(struct gbphy_de
- 	int retval;
- 	int minor;
- 
--	gb_tty = kzalloc(sizeof(*gb_tty), GFP_KERNEL);
--	if (!gb_tty)
--		return -ENOMEM;
--
- 	connection = gb_connection_create(gbphy_dev->bundle,
- 					  le16_to_cpu(gbphy_dev->cport_desc->id),
- 					  gb_uart_request_handler);
--	if (IS_ERR(connection)) {
--		retval = PTR_ERR(connection);
--		goto exit_tty_free;
--	}
-+	if (IS_ERR(connection))
-+		return PTR_ERR(connection);
- 
- 	max_payload = gb_operation_get_payload_size_max(connection);
- 	if (max_payload < sizeof(struct gb_uart_send_data_request)) {
-@@ -864,13 +870,23 @@ static int gb_uart_probe(struct gbphy_de
- 		goto exit_connection_destroy;
- 	}
- 
-+	gb_tty = kzalloc(sizeof(*gb_tty), GFP_KERNEL);
-+	if (!gb_tty) {
-+		retval = -ENOMEM;
-+		goto exit_connection_destroy;
-+	}
-+
-+	tty_port_init(&gb_tty->port);
-+	gb_tty->port.ops = &gb_port_ops;
-+	gb_tty->minor = GB_NUM_MINORS;
-+
- 	gb_tty->buffer_payload_max = max_payload -
- 			sizeof(struct gb_uart_send_data_request);
- 
- 	gb_tty->buffer = kzalloc(gb_tty->buffer_payload_max, GFP_KERNEL);
- 	if (!gb_tty->buffer) {
- 		retval = -ENOMEM;
--		goto exit_connection_destroy;
-+		goto exit_put_port;
- 	}
- 
- 	INIT_WORK(&gb_tty->tx_work, gb_uart_tx_write_work);
-@@ -878,7 +894,7 @@ static int gb_uart_probe(struct gbphy_de
- 	retval = kfifo_alloc(&gb_tty->write_fifo, GB_UART_WRITE_FIFO_SIZE,
- 			     GFP_KERNEL);
- 	if (retval)
--		goto exit_buf_free;
-+		goto exit_put_port;
- 
- 	gb_tty->credits = GB_UART_FIRMWARE_CREDITS;
- 	init_completion(&gb_tty->credits_complete);
-@@ -892,7 +908,7 @@ static int gb_uart_probe(struct gbphy_de
- 		} else {
- 			retval = minor;
- 		}
--		goto exit_kfifo_free;
-+		goto exit_put_port;
- 	}
- 
- 	gb_tty->minor = minor;
-@@ -901,9 +917,6 @@ static int gb_uart_probe(struct gbphy_de
- 	init_waitqueue_head(&gb_tty->wioctl);
- 	mutex_init(&gb_tty->mutex);
- 
--	tty_port_init(&gb_tty->port);
--	gb_tty->port.ops = &gb_port_ops;
--
- 	gb_tty->connection = connection;
- 	gb_tty->gbphy_dev = gbphy_dev;
- 	gb_connection_set_data(connection, gb_tty);
-@@ -911,7 +924,7 @@ static int gb_uart_probe(struct gbphy_de
- 
- 	retval = gb_connection_enable_tx(connection);
- 	if (retval)
--		goto exit_release_minor;
-+		goto exit_put_port;
- 
- 	send_control(gb_tty, gb_tty->ctrlout);
- 
-@@ -938,16 +951,10 @@ static int gb_uart_probe(struct gbphy_de
- 
- exit_connection_disable:
- 	gb_connection_disable(connection);
--exit_release_minor:
--	release_minor(gb_tty);
--exit_kfifo_free:
--	kfifo_free(&gb_tty->write_fifo);
--exit_buf_free:
--	kfree(gb_tty->buffer);
-+exit_put_port:
-+	tty_port_put(&gb_tty->port);
- exit_connection_destroy:
- 	gb_connection_destroy(connection);
--exit_tty_free:
--	kfree(gb_tty);
- 
- 	return retval;
- }
-@@ -978,15 +985,10 @@ static void gb_uart_remove(struct gbphy_
- 	gb_connection_disable_rx(connection);
- 	tty_unregister_device(gb_tty_driver, gb_tty->minor);
- 
--	/* FIXME - free transmit / receive buffers */
--
- 	gb_connection_disable(connection);
--	tty_port_destroy(&gb_tty->port);
- 	gb_connection_destroy(connection);
--	release_minor(gb_tty);
--	kfifo_free(&gb_tty->write_fifo);
--	kfree(gb_tty->buffer);
--	kfree(gb_tty);
-+
-+	tty_port_put(&gb_tty->port);
- }
- 
- static int gb_tty_init(void)
+ 			if (tmp == CS_IDST)
+ 				r8a66597_bset(r8a66597,
 
 
