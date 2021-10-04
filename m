@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 491EF420E74
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:23:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 501F0420FD0
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:37:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236096AbhJDNZM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:25:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38168 "EHLO mail.kernel.org"
+        id S237220AbhJDNiw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:38:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236524AbhJDNWJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:22:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DEC261BE3;
-        Mon,  4 Oct 2021 13:09:40 +0000 (UTC)
+        id S236540AbhJDNgj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:36:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F8E361244;
+        Mon,  4 Oct 2021 13:16:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352980;
-        bh=G5N68ogxPOyVPsCq0EXsuXcQ22sRzRd8LAAZOtMEC1M=;
+        s=korg; t=1633353388;
+        bh=TntB1egtxX+cVgnbi3uAtTG3jLkqyUYeWXXsNEWXATk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=amJ+BC4GbjX1BLGYe1vQZCVuo4HvHF/Q2aWnrKfaxEXss7iYIjD0RpPT0FXP/NQeB
-         zYiJC9XmvICIRTEmEzsEENNJv1X0/qWmimQanO06WubwReTcZOzf3rWIKskttPGLuf
-         RFEBezjdSvl68HWNzwaNCyt7Yn18Rg2k/ZT1xn7Y=
+        b=jE7c7LT+WQBS5UqavNLBoOm+3EHcIdncmQH2gzUBVzGE04eLTmLk337oqh3hEXNx+
+         ztDGbvEdT2N74GW7kevfpgZfDuTsfWbgk+xE5tQ798cGwX4cCFRTcELgBckm64iUh4
+         zX2sqquqAQQux0NoiKBBr+4ZYNPi37feb2mR/1Y4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Auld <matthew.auld@intel.com>,
-        Michael Mason <michael.w.mason@intel.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jani Nikula <jani.nikula@intel.com>,
+        stable@vger.kernel.org,
+        Felicitas Hetzelt <felicitashetzelt@gmail.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 42/93] drm/i915/request: fix early tracepoints
+Subject: [PATCH 5.14 110/172] e100: fix buffer overrun in e100_get_regs
 Date:   Mon,  4 Oct 2021 14:52:40 +0200
-Message-Id: <20211004125035.948980497@linuxfoundation.org>
+Message-Id: <20211004125048.530845087@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,120 +42,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Auld <matthew.auld@intel.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-[ Upstream commit c83ff0186401169eb27ce5057d820b7a863455c3 ]
+[ Upstream commit 51032e6f17ce990d06123ad7307f258c50d25aa7 ]
 
-Currently we blow up in trace_dma_fence_init, when calling into
-get_driver_name or get_timeline_name, since both the engine and context
-might be NULL(or contain some garbage address) in the case of newly
-allocated slab objects via the request ctor. Note that we also use
-SLAB_TYPESAFE_BY_RCU here, which allows requests to be immediately
-freed, but delay freeing the underlying page by an RCU grace period.
-With this scheme requests can be re-allocated, at the same time as they
-are also being read by some lockless RCU lookup mechanism.
+The e100_get_regs function is used to implement a simple register dump
+for the e100 device. The data is broken into a couple of MAC control
+registers, and then a series of PHY registers, followed by a memory dump
+buffer.
 
-In the ctor case, which is only called for new slab objects(i.e allocate
-new page and call the ctor for each object) it's safe to reset the
-context/engine prior to calling into dma_fence_init, since we can be
-certain that no one is doing an RCU lookup which might depend on peeking
-at the engine/context, like in active_engine(), since the object can't
-yet be externally visible.
+The total length of the register dump is defined as (1 + E100_PHY_REGS)
+* sizeof(u32) + sizeof(nic->mem->dump_buf).
 
-In the recycled case(which might also be externally visible) the request
-refcount always transitions from 0->1 after we set the context/engine
-etc, which should ensure it's valid to dereference the engine for
-example, when doing an RCU list-walk, so long as we can also increment
-the refcount first. If the refcount is already zero, then the request is
-considered complete/released.  If it's non-zero, then the request might
-be in the process of being re-allocated, or potentially still in flight,
-however after successfully incrementing the refcount, it's possible to
-carefully inspect the request state, to determine if the request is
-still what we were looking for. Note that all externally visible
-requests returned to the cache must have zero refcount.
+The logic for filling in the PHY registers uses a convoluted inverted
+count for loop which counts from E100_PHY_REGS (0x1C) down to 0, and
+assigns the slots 1 + E100_PHY_REGS - i. The first loop iteration will
+fill in [1] and the final loop iteration will fill in [1 + 0x1C]. This
+is actually one more than the supposed number of PHY registers.
 
-One possible fix then is to move dma_fence_init out from the request
-ctor. Originally this was how it was done, but it was moved in:
+The memory dump buffer is then filled into the space at
+[2 + E100_PHY_REGS] which will cause that memcpy to assign 4 bytes past
+the total size.
 
-commit 855e39e65cfc33a73724f1cc644ffc5754864a20
-Author: Chris Wilson <chris@chris-wilson.co.uk>
-Date:   Mon Feb 3 09:41:48 2020 +0000
+The end result is that we overrun the total buffer size allocated by the
+kernel, which could lead to a panic or other issues due to memory
+corruption.
 
-    drm/i915: Initialise basic fence before acquiring seqno
+It is difficult to determine the actual total number of registers
+here. The only 8255x datasheet I could find indicates there are 28 total
+MDI registers. However, we're reading 29 here, and reading them in
+reverse!
 
-where it looks like intel_timeline_get_seqno() relied on some of the
-rq->fence state, but that is no longer the case since:
+In addition, the ethtool e100 register dump interface appears to read
+the first PHY register to determine if the device is in MDI or MDIx
+mode. This doesn't appear to be documented anywhere within the 8255x
+datasheet. I can only assume it must be in register 28 (the extra
+register we're reading here).
 
-commit 12ca695d2c1ed26b2dcbb528b42813bd0f216cfc
-Author: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Date:   Tue Mar 23 16:49:50 2021 +0100
+Lets not change any of the intended meaning of what we copy here. Just
+extend the space by 4 bytes to account for the extra register and
+continue copying the data out in the same order.
 
-    drm/i915: Do not share hwsp across contexts any more, v8.
+Change the E100_PHY_REGS value to be the correct total (29) so that the
+total register dump size is calculated properly. Fix the offset for
+where we copy the dump buffer so that it doesn't overrun the total size.
 
-intel_timeline_get_seqno() could also be cleaned up slightly by dropping
-the request argument.
+Re-write the for loop to use counting up instead of the convoluted
+down-counting. Correct the mdio_read offset to use the 0-based register
+offsets, but maintain the bizarre reverse ordering so that we have the
+ABI expected by applications like ethtool. This requires and additional
+subtraction of 1. It seems a bit odd but it makes the flow of assignment
+into the register buffer easier to follow.
 
-Moving dma_fence_init back out of the ctor, should ensure we have enough
-of the request initialised in case of trace_dma_fence_init.
-Functionally this should be the same, and is effectively what we were
-already open coding before, except now we also assign the fence->lock
-and fence->ops, but since these are invariant for recycled
-requests(which might be externally visible), and will therefore already
-hold the same value, it shouldn't matter.
-
-An alternative fix, since we don't yet have a fully initialised request
-when in the ctor, is just setting the context/engine as NULL, but this
-does require adding some extra handling in get_driver_name etc.
-
-v2(Daniel):
-  - Try to make the commit message less confusing
-
-Fixes: 855e39e65cfc ("drm/i915: Initialise basic fence before acquiring seqno")
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Cc: Michael Mason <michael.w.mason@intel.com>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210921134202.3803151-1-matthew.auld@intel.com
-(cherry picked from commit be988eaee1cb208c4445db46bc3ceaf75f586f0b)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Felicitas Hetzelt <felicitashetzelt@gmail.com>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/i915_request.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/intel/e100.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index d8fef42ca38e..896389f93029 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -776,8 +776,6 @@ static void __i915_request_ctor(void *arg)
- 	i915_sw_fence_init(&rq->submit, submit_notify);
- 	i915_sw_fence_init(&rq->semaphore, semaphore_notify);
+diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
+index 71b9f0563b32..1fa68ebe9432 100644
+--- a/drivers/net/ethernet/intel/e100.c
++++ b/drivers/net/ethernet/intel/e100.c
+@@ -2437,7 +2437,7 @@ static void e100_get_drvinfo(struct net_device *netdev,
+ 		sizeof(info->bus_info));
+ }
  
--	dma_fence_init(&rq->fence, &i915_fence_ops, &rq->lock, 0, 0);
--
- 	rq->capture_list = NULL;
+-#define E100_PHY_REGS 0x1C
++#define E100_PHY_REGS 0x1D
+ static int e100_get_regs_len(struct net_device *netdev)
+ {
+ 	struct nic *nic = netdev_priv(netdev);
+@@ -2459,14 +2459,18 @@ static void e100_get_regs(struct net_device *netdev,
+ 	buff[0] = ioread8(&nic->csr->scb.cmd_hi) << 24 |
+ 		ioread8(&nic->csr->scb.cmd_lo) << 16 |
+ 		ioread16(&nic->csr->scb.status);
+-	for (i = E100_PHY_REGS; i >= 0; i--)
+-		buff[1 + E100_PHY_REGS - i] =
+-			mdio_read(netdev, nic->mii.phy_id, i);
++	for (i = 0; i < E100_PHY_REGS; i++)
++		/* Note that we read the registers in reverse order. This
++		 * ordering is the ABI apparently used by ethtool and other
++		 * applications.
++		 */
++		buff[1 + i] = mdio_read(netdev, nic->mii.phy_id,
++					E100_PHY_REGS - 1 - i);
+ 	memset(nic->mem->dump_buf, 0, sizeof(nic->mem->dump_buf));
+ 	e100_exec_cb(nic, NULL, e100_dump);
+ 	msleep(10);
+-	memcpy(&buff[2 + E100_PHY_REGS], nic->mem->dump_buf,
+-		sizeof(nic->mem->dump_buf));
++	memcpy(&buff[1 + E100_PHY_REGS], nic->mem->dump_buf,
++	       sizeof(nic->mem->dump_buf));
+ }
  
- 	init_llist_head(&rq->execute_cb);
-@@ -840,17 +838,12 @@ __i915_request_create(struct intel_context *ce, gfp_t gfp)
- 	rq->ring = ce->ring;
- 	rq->execution_mask = ce->engine->mask;
- 
--	kref_init(&rq->fence.refcount);
--	rq->fence.flags = 0;
--	rq->fence.error = 0;
--	INIT_LIST_HEAD(&rq->fence.cb_list);
--
- 	ret = intel_timeline_get_seqno(tl, rq, &seqno);
- 	if (ret)
- 		goto err_free;
- 
--	rq->fence.context = tl->fence_context;
--	rq->fence.seqno = seqno;
-+	dma_fence_init(&rq->fence, &i915_fence_ops, &rq->lock,
-+		       tl->fence_context, seqno);
- 
- 	RCU_INIT_POINTER(rq->timeline, tl);
- 	RCU_INIT_POINTER(rq->hwsp_cacheline, tl->hwsp_cacheline);
+ static void e100_get_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
 -- 
 2.33.0
 
