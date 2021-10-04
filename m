@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFA8C420E0A
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:19:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70178420EAA
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:25:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236668AbhJDNVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:21:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33046 "EHLO mail.kernel.org"
+        id S236440AbhJDN1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:27:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236720AbhJDNSx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:18:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FF0961A50;
-        Mon,  4 Oct 2021 13:08:04 +0000 (UTC)
+        id S236074AbhJDNZT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:25:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C57361B67;
+        Mon,  4 Oct 2021 13:11:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352885;
-        bh=+NuMV9BUgtpHB0g8l38pZksZHURkRwyr2lYuWLq+wFY=;
+        s=korg; t=1633353069;
+        bh=T+GwVrBkHRdAsDemXIdBCuPtet2vHVLxLt4P9GH+so0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C7THWcc6194uAYYNhEDFr/qTgrWkuBMhIHgKVZ/3jM1MMWVO4YxEin5meWXiaEkAO
-         BZW7dyc2mn/lalo0PrY8lEyTKKpoiJVSosP3s8BJVb5NUPI+roVrvgWukEENsFKp9S
-         +Nt/ZsHApQaMWWQgyK8NUsdgDYGoZS/3n35LCzho=
+        b=DpWS5iuYSmDC7Y0+OCY76geGakkhye+58bqEcnD0EnfVLiBzbasAIiIwXQwzVIlqt
+         U/mszgMqJ7DlQgmUcz832vFhAzPbC6GbHyjrX7OgNFedj6xcIoJrrTlm66bCqzE+6j
+         AtK2sscPmkZYostQX91adQSLvyLTGoKNylRT1cvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com,
-        Anirudh Rayabharam <mail@anirudhrb.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.4 55/56] HID: usbhid: free raw_report buffers in usbhid_stop
+        stable@vger.kernel.org, stable@kernel.org,
+        Hou Tao <houtao1@huawei.com>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 77/93] ext4: limit the number of blocks in one ADD_RANGE TLV
 Date:   Mon,  4 Oct 2021 14:53:15 +0200
-Message-Id: <20211004125031.746730974@linuxfoundation.org>
+Message-Id: <20211004125037.131468396@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
-References: <20211004125030.002116402@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Hou Tao <houtao1@huawei.com>
 
-commit f7744fa16b96da57187dc8e5634152d3b63d72de upstream.
+commit a2c2f0826e2b75560b31daf1cd9a755ab93cf4c6 upstream.
 
-Free the unsent raw_report buffers when the device is removed.
+Now EXT4_FC_TAG_ADD_RANGE uses ext4_extent to track the
+newly-added blocks, but the limit on the max value of
+ee_len field is ignored, and it can lead to BUG_ON as
+shown below when running command "fallocate -l 128M file"
+on a fast_commit-enabled fs:
 
-Fixes a memory leak reported by syzbot at:
-https://syzkaller.appspot.com/bug?id=7b4fa7cb1a7c2d3342a2a8a6c53371c8c418ab47
+  kernel BUG at fs/ext4/ext4_extents.h:199!
+  invalid opcode: 0000 [#1] SMP PTI
+  CPU: 3 PID: 624 Comm: fallocate Not tainted 5.14.0-rc6+ #1
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
+  RIP: 0010:ext4_fc_write_inode_data+0x1f3/0x200
+  Call Trace:
+   ? ext4_fc_write_inode+0xf2/0x150
+   ext4_fc_commit+0x93b/0xa00
+   ? ext4_fallocate+0x1ad/0x10d0
+   ext4_sync_file+0x157/0x340
+   ? ext4_sync_file+0x157/0x340
+   vfs_fsync_range+0x49/0x80
+   do_fsync+0x3d/0x70
+   __x64_sys_fsync+0x14/0x20
+   do_syscall_64+0x3b/0xc0
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Reported-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
-Tested-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Simply fixing it by limiting the number of blocks
+in one EXT4_FC_TAG_ADD_RANGE TLV.
+
+Fixes: aa75f4d3daae ("ext4: main fast-commit commit path")
+Cc: stable@kernel.org
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20210820044505.474318-1-houtao1@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/usbhid/hid-core.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ fs/ext4/fast_commit.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -503,7 +503,7 @@ static void hid_ctrl(struct urb *urb)
- 
- 	if (unplug) {
- 		usbhid->ctrltail = usbhid->ctrlhead;
--	} else {
-+	} else if (usbhid->ctrlhead != usbhid->ctrltail) {
- 		usbhid->ctrltail = (usbhid->ctrltail + 1) & (HID_CONTROL_FIFO_SIZE - 1);
- 
- 		if (usbhid->ctrlhead != usbhid->ctrltail &&
-@@ -1221,9 +1221,20 @@ static void usbhid_stop(struct hid_devic
- 	mutex_lock(&usbhid->mutex);
- 
- 	clear_bit(HID_STARTED, &usbhid->iofl);
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -832,6 +832,12 @@ static int ext4_fc_write_inode_data(stru
+ 					    sizeof(lrange), (u8 *)&lrange, crc))
+ 				return -ENOSPC;
+ 		} else {
++			unsigned int max = (map.m_flags & EXT4_MAP_UNWRITTEN) ?
++				EXT_UNWRITTEN_MAX_LEN : EXT_INIT_MAX_LEN;
 +
- 	spin_lock_irq(&usbhid->lock);	/* Sync with error and led handlers */
- 	set_bit(HID_DISCONNECTED, &usbhid->iofl);
-+	while (usbhid->ctrltail != usbhid->ctrlhead) {
-+		if (usbhid->ctrl[usbhid->ctrltail].dir == USB_DIR_OUT) {
-+			kfree(usbhid->ctrl[usbhid->ctrltail].raw_report);
-+			usbhid->ctrl[usbhid->ctrltail].raw_report = NULL;
-+		}
++			/* Limit the number of blocks in one extent */
++			map.m_len = min(max, map.m_len);
 +
-+		usbhid->ctrltail = (usbhid->ctrltail + 1) &
-+			(HID_CONTROL_FIFO_SIZE - 1);
-+	}
- 	spin_unlock_irq(&usbhid->lock);
-+
- 	usb_kill_urb(usbhid->urbin);
- 	usb_kill_urb(usbhid->urbout);
- 	usb_kill_urb(usbhid->urbctrl);
+ 			fc_ext.fc_ino = cpu_to_le32(inode->i_ino);
+ 			ex = (struct ext4_extent *)&fc_ext.fc_ex;
+ 			ex->ee_block = cpu_to_le32(map.m_lblk);
 
 
