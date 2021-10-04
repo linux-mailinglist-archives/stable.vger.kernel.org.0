@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78C68420B83
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:56:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51F57420BC6
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:58:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234075AbhJDM5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 08:57:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58438 "EHLO mail.kernel.org"
+        id S233654AbhJDM7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 08:59:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233565AbhJDM5O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:57:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD15F6139F;
-        Mon,  4 Oct 2021 12:55:24 +0000 (UTC)
+        id S233514AbhJDM6m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:58:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF4FD613DB;
+        Mon,  4 Oct 2021 12:56:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352125;
-        bh=2qpAD+L5/T28ZNjqb6iHZdmxrgabzWb4CH1om1FuagI=;
+        s=korg; t=1633352213;
+        bh=5kUpxhTfvUoJXzjUIp5murX8RUHXpivsC5XC4W5Zq7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z6oWsrtN38GF7AVA/OBKdZddtjwcPANYeBLVrX+3g/brgK5mmn1V6fXSa/Uv58Ms7
-         /NxTjlAPxWrbkB8OuRSGniCCLnJbFYVlQRQUvDTbyyYNwZg5FDZdU7vUE5iw4sy9P4
-         eSWD+hJyG+4NM+dr/yIP8qZ9RY0q1wQhRucMmBkU=
+        b=lMxOsA9sXGnjxlVNbSAliOaGz9fLD6OO8okqOhPBbry8n96PtwkU3bgGPcZ2Qvk21
+         tLblyMsQDRM03CJd1v33r3+psMcHy0FCtx9qt25MVyabdlK9oCstQBeQ+6ZIeVtT1R
+         0ADIoYR6s1j1p+qbm+RkxrWYUGXkdMC/opbNxDe4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Igor Matheus Andrade Torrente <igormtorrente@gmail.com>,
         Sasha Levin <sashal@kernel.org>,
         syzbot+858dc7a2f7ef07c2c219@syzkaller.appspotmail.com
-Subject: [PATCH 4.4 25/41] tty: Fix out-of-bound vmalloc access in imageblit
+Subject: [PATCH 4.9 32/57] tty: Fix out-of-bound vmalloc access in imageblit
 Date:   Mon,  4 Oct 2021 14:52:16 +0200
-Message-Id: <20211004125027.378244619@linuxfoundation.org>
+Message-Id: <20211004125029.947668884@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
-References: <20211004125026.597501645@linuxfoundation.org>
+In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
+References: <20211004125028.940212411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -73,10 +73,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 19 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
-index 9f479b4c6491..0fab196a1d90 100644
+index 8c74d9ebfc50..9f1573b0e453 100644
 --- a/drivers/tty/vt/vt.c
 +++ b/drivers/tty/vt/vt.c
-@@ -882,8 +882,25 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
+@@ -886,8 +886,25 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
  	new_row_size = new_cols << 1;
  	new_screen_size = new_row_size * new_rows;
  
@@ -102,7 +102,7 @@ index 9f479b4c6491..0fab196a1d90 100644
 +		return resize_screen(vc, new_cols, new_rows, user);
 +	}
  
- 	if (new_screen_size > (4 << 20))
+ 	if (new_screen_size > (4 << 20) || !new_screen_size)
  		return -EINVAL;
 -- 
 2.33.0
