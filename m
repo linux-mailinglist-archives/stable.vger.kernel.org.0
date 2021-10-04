@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04DA1420F73
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:34:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98049420CC7
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:07:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237820AbhJDNe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:34:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47096 "EHLO mail.kernel.org"
+        id S234940AbhJDNJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:09:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237172AbhJDNdH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:33:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54E2E61BA5;
-        Mon,  4 Oct 2021 13:14:51 +0000 (UTC)
+        id S235578AbhJDNIj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:08:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41E0E61B4E;
+        Mon,  4 Oct 2021 13:02:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353291;
-        bh=6EsxzmryHjfkatAodB7A/kelLMtV/Zo6OI6kY/nZSi8=;
+        s=korg; t=1633352550;
+        bh=DJfgbm9xB9i2IFSMUDTQnZuSnBx6Si5bDVUPsVdUJuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZNv2O6/Zt7dG2h3jxrIA8saJNIeSwwmdfFtXRKF+jkvSRyx2w+zAYA7w8uMjRWe1Y
-         YyIipcZY0XEvTbY5OOmRv+ueKrR+AmSA1sRjP37+9dxwhuP3owjKnqKxgmqPDix2Tv
-         UIvtX+17cNI0axvzcrj9U0V4rGALwFFumNocr0G8=
+        b=yM3JG9TIy/xxDArEegiUjqX1mBKkjr3iOh3b3tPpV+TZDdESv+QJzVb5f+fPeO8Zm
+         csV/B5vGJqi5fHCHOVaUjhbGrcWSF1pkhnpqzynkGE2HhyJG2URMf/rX2yI2Gh/Gpn
+         VHtezYbCQM+JG8Q1mMQE+0Fq31/UZbsJ3+2fb2Qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Ser <contact@emersion.fr>,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Harry Wentland <hwentlan@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
-Subject: [PATCH 5.14 071/172] drm/amdgpu: check tiling flags when creating FB on GFX8-
+        stable@vger.kernel.org,
+        syzbot+fadc0aaf497e6a493b9f@syzkaller.appspotmail.com,
+        Christoph Hellwig <hch@lst.de>, NeilBrown <neilb@suse.de>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 31/95] md: fix a lock order reversal in md_alloc
 Date:   Mon,  4 Oct 2021 14:52:01 +0200
-Message-Id: <20211004125047.289306191@linuxfoundation.org>
+Message-Id: <20211004125034.583541154@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,92 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Ser <contact@emersion.fr>
+From: Christoph Hellwig <hch@lst.de>
 
-commit 98122e63a7ecc08c4172a17d97a06ef5536eb268 upstream.
+[ Upstream commit 7df835a32a8bedf7ce88efcfa7c9b245b52ff139 ]
 
-On GFX9+, format modifiers are always enabled and ensure the
-frame-buffers can be scanned out at ADDFB2 time.
+Commit b0140891a8cea3 ("md: Fix race when creating a new md device.")
+not only moved assigning mddev->gendisk before calling add_disk, which
+fixes the races described in the commit log, but also added a
+mddev->open_mutex critical section over add_disk and creation of the
+md kobj.  Adding a kobject after add_disk is racy vs deleting the gendisk
+right after adding it, but md already prevents against that by holding
+a mddev->active reference.
 
-On GFX8-, format modifiers are not supported and no other check
-is performed. This means ADDFB2 IOCTLs will succeed even if the
-tiling isn't supported for scan-out, and will result in garbage
-displayed on screen [1].
+On the other hand taking this lock added a lock order reversal with what
+is not disk->open_mutex (used to be bdev->bd_mutex when the commit was
+added) for partition devices, which need that lock for the internal open
+for the partition scan, and a recent commit also takes it for
+non-partitioned devices, leading to further lockdep splatter.
 
-Fix this by adding a check for tiling flags for GFX8 and older.
-The check is taken from radeonsi in Mesa (see how is_displayable
-is populated in gfx6_compute_surface).
-
-Changes in v2: use drm_WARN_ONCE instead of drm_WARN (Michel)
-
-[1]: https://github.com/swaywm/wlroots/issues/3185
-
-Signed-off-by: Simon Ser <contact@emersion.fr>
-Acked-by: Michel Dänzer <mdaenzer@redhat.com>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: Harry Wentland <hwentlan@amd.com>
-Cc: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Cc: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b0140891a8ce ("md: Fix race when creating a new md device.")
+Fixes: d62633873590 ("block: support delayed holder registration")
+Reported-by: syzbot+fadc0aaf497e6a493b9f@syzkaller.appspotmail.com
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Tested-by: syzbot+fadc0aaf497e6a493b9f@syzkaller.appspotmail.com
+Reviewed-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_display.c |   31 ++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
+ drivers/md/md.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-@@ -837,6 +837,28 @@ static int convert_tiling_flags_to_modif
- 	return 0;
- }
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index fae6a983ceee..7e0477e883c7 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -5401,10 +5401,6 @@ static int md_alloc(dev_t dev, char *name)
+ 	 */
+ 	disk->flags |= GENHD_FL_EXT_DEVT;
+ 	mddev->gendisk = disk;
+-	/* As soon as we call add_disk(), another thread could get
+-	 * through to md_open, so make sure it doesn't get too far
+-	 */
+-	mutex_lock(&mddev->open_mutex);
+ 	add_disk(disk);
  
-+/* Mirrors the is_displayable check in radeonsi's gfx6_compute_surface */
-+static int check_tiling_flags_gfx6(struct amdgpu_framebuffer *afb)
-+{
-+	u64 micro_tile_mode;
-+
-+	/* Zero swizzle mode means linear */
-+	if (AMDGPU_TILING_GET(afb->tiling_flags, SWIZZLE_MODE) == 0)
-+		return 0;
-+
-+	micro_tile_mode = AMDGPU_TILING_GET(afb->tiling_flags, MICRO_TILE_MODE);
-+	switch (micro_tile_mode) {
-+	case 0: /* DISPLAY */
-+	case 3: /* RENDER */
-+		return 0;
-+	default:
-+		drm_dbg_kms(afb->base.dev,
-+			    "Micro tile mode %llu not supported for scanout\n",
-+			    micro_tile_mode);
-+		return -EINVAL;
-+	}
-+}
-+
- static void get_block_dimensions(unsigned int block_log2, unsigned int cpp,
- 				 unsigned int *width, unsigned int *height)
- {
-@@ -1103,6 +1125,7 @@ int amdgpu_display_framebuffer_init(stru
- 				    const struct drm_mode_fb_cmd2 *mode_cmd,
- 				    struct drm_gem_object *obj)
- {
-+	struct amdgpu_device *adev = drm_to_adev(dev);
- 	int ret, i;
- 
- 	/*
-@@ -1122,6 +1145,14 @@ int amdgpu_display_framebuffer_init(stru
- 	if (ret)
- 		return ret;
- 
-+	if (!dev->mode_config.allow_fb_modifiers) {
-+		drm_WARN_ONCE(dev, adev->family >= AMDGPU_FAMILY_AI,
-+			      "GFX9+ requires FB check based on format modifier\n");
-+		ret = check_tiling_flags_gfx6(rfb);
-+		if (ret)
-+			return ret;
-+	}
-+
- 	if (dev->mode_config.allow_fb_modifiers &&
- 	    !(rfb->base.flags & DRM_MODE_FB_MODIFIERS)) {
- 		ret = convert_tiling_flags_to_modifier(rfb);
+ 	error = kobject_add(&mddev->kobj, &disk_to_dev(disk)->kobj, "%s", "md");
+@@ -5419,7 +5415,6 @@ static int md_alloc(dev_t dev, char *name)
+ 	if (mddev->kobj.sd &&
+ 	    sysfs_create_group(&mddev->kobj, &md_bitmap_group))
+ 		pr_debug("pointless warning\n");
+-	mutex_unlock(&mddev->open_mutex);
+  abort:
+ 	mutex_unlock(&disks_mutex);
+ 	if (!error && mddev->kobj.sd) {
+-- 
+2.33.0
+
 
 
