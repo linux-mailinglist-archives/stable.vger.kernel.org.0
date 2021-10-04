@@ -2,70 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26BC842187F
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 22:37:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41E8542189F
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 22:49:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236474AbhJDUis (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 16:38:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52610 "EHLO
+        id S229895AbhJDUvF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 16:51:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234781AbhJDUir (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 16:38:47 -0400
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95E41C061745;
-        Mon,  4 Oct 2021 13:36:58 -0700 (PDT)
-Received: by mail-pf1-x435.google.com with SMTP id u7so15487495pfg.13;
-        Mon, 04 Oct 2021 13:36:58 -0700 (PDT)
+        with ESMTP id S229741AbhJDUvC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 16:51:02 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B2B9C061745;
+        Mon,  4 Oct 2021 13:49:13 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id g13-20020a17090a3c8d00b00196286963b9so340399pjc.3;
+        Mon, 04 Oct 2021 13:49:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=2aakct6Tiywj1dmyOSpVp2RVb9X8CxstYhPbiUxOe0E=;
-        b=Y9AUoHkqDDcdKo4UlYgxMiTEEbRWWGhI0EG5y+0V28GqBCBNbPhed+bqU2ZwRwbsd4
-         I0XEv/dt3LWwucZnpR48Gkc4U5oLoi5bPlcMC+9f1g2WnjSraSQR0IApMsIM+ik0/dxR
-         g1T9n5aljAgHc1AMzNQJQS4TK0l43q85603TEYwnUqB53Gy4eQEbu2ZnP3RgltzLUHWB
-         5ZfTFZfVmb76blUxVwIZzLH1VVTNUVPDF6b7aZ8a9oQW7vUJfgI9xGSVWbysyacPzMWJ
-         B6jUEHOFbWwbXImro0sj7Wxdolb8LSSKF/y2QeuoXfA3odTF1BJu162aKdAhtyWamdoZ
-         FsZQ==
+        bh=lUSgOjX07V5C2VptmfcV2gNkX9WDBsPP3BRqImw10VU=;
+        b=l39A9EzuILx65jBxr2xjnx90Cusr1u/cJILH0RF0gaCdd1FWyzmbzYuxNSBqLyA7gj
+         QOWLWFfpPuEJRurTWdFojvMrol3X/baG+M2ivdcfsDkKHjh+Y/C3cG9zf/rR0soEHurw
+         wL5NiGeYsLTXL8znTLWliy2aYhph9meE1DwicC162/REACr+cQmCOa42PyeHBFJPnj5Y
+         gXhoOf7aRf0PG/8Hr6owczgkKkt92TrvHS8XP+r3bfwmayIu36EnCDndr2yqlQ7wz8jv
+         jRcv7IJSQ8LzRNdMZ1cYOa368a65oKyWbg8Um7UlUgHbvv99211AGWfiJkYLqZKWLOfw
+         F8Ww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=2aakct6Tiywj1dmyOSpVp2RVb9X8CxstYhPbiUxOe0E=;
-        b=hTiY1eTLL8BjkJXX57G7pQzAdynGmq2hCYsdUv9CxuJVS6Hw/RCE6CwnXu/thA06gs
-         Ku97fQzWCmPxH5d5nuXuzHZ8DFLDYwB5KfZfVESCC2P6Vo5lOr9DCcMcIhmBk/bK/vof
-         OsgafaDxyGN24bKp8YapfdVr0scLrjuZp+aEmPcMlM0BlB4Atimaklc9SP4KOUOhaSjG
-         122X8QFz3pO4al4oUmvvZtIJTYkpEm4rqy84jcMDWo9h4WcA8bBTyASzlIJKoqHRqGaY
-         hB2NVU8mwSQz3ee4N8me9dIQr+arkni0IpJF5iwy2TkPDvEnyOa/gn6pIy1ZFdavCrA6
-         1zRw==
-X-Gm-Message-State: AOAM533rZnTMr9OrZqCMuMiogqxZTpAfVpIMoHIWWjY7g1ZsxIcGnXqW
-        oDS59eaUJAB1M3NEkJWUZvo=
-X-Google-Smtp-Source: ABdhPJzex1KqOfmBjXdizb0YilGQcHtVTCtn9Sb61q4WRY41LJK1Z8/4a6JEFY99j8g5s/Ph3sRhew==
-X-Received: by 2002:a62:445:0:b0:44c:3b5b:f680 with SMTP id 66-20020a620445000000b0044c3b5bf680mr14071267pfe.30.1633379818159;
-        Mon, 04 Oct 2021 13:36:58 -0700 (PDT)
+        bh=lUSgOjX07V5C2VptmfcV2gNkX9WDBsPP3BRqImw10VU=;
+        b=fj4VXOLoc5JxUOEeVE5MBk3PsRCI/3u6nTFPH6d9xEaUDnX70P/259ankvmLxycxc2
+         f06wdLj/Ow+xZ8WIHiUMOgngQ3Fxey5cTw4lLogG1Ox6LkWzLjDw2beYFB/IAwx/eeSb
+         xGq9w3mlKQpm0EjIUEz3pGskBQ58LXxTTO4vd+o3OTWsAJ7quxCtYSHhAFVbE0UUXJan
+         k1ojcjfxmrMSMf7advGsHTNbQCk8/v0IYz8pG6CGwaYiFxtQ4nxwnqfK4t65L2ow7V5x
+         Llm81AKe9QxzaRjYIm3zsnI5Ibc8piAWIZv/R856LbTqJ0CGwXBgPXFQe9MfGbJLq2Ns
+         sJWQ==
+X-Gm-Message-State: AOAM533N++Ao30LTcoxfZX09zqyEPKGa75Nl0cg7wGXD96dzLPqGGLqO
+        BEN4gF6VhZyX0TihpJK3Aj5A9fi3V1A=
+X-Google-Smtp-Source: ABdhPJz7t8nCLL+p5xVLjmVVtjlVb2oE2PskvIyM0+e91oyhWNlhGSywyjgd3SX3Y6GdEcVNevSdyQ==
+X-Received: by 2002:a17:90b:1258:: with SMTP id gx24mr22772842pjb.205.1633380552265;
+        Mon, 04 Oct 2021 13:49:12 -0700 (PDT)
 Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id p2sm15908309pgd.84.2021.10.04.13.36.53
+        by smtp.googlemail.com with ESMTPSA id 11sm14757508pfl.41.2021.10.04.13.49.05
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 04 Oct 2021 13:36:57 -0700 (PDT)
-Subject: Re: [PATCH 5.4 56/56] net: mdiobus: Fix memory leak in
- __mdiobus_register
+        Mon, 04 Oct 2021 13:49:11 -0700 (PDT)
+Subject: Re: [PATCH 5.10 00/93] 5.10.71-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com,
-        Yanfei Xu <yanfei.xu@windriver.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-References: <20211004125030.002116402@linuxfoundation.org>
- <20211004125031.778001541@linuxfoundation.org>
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20211004125034.579439135@linuxfoundation.org>
 From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <b66df5f7-e309-8826-a114-b45a3f2f7c17@gmail.com>
-Date:   Mon, 4 Oct 2021 13:36:49 -0700
+Message-ID: <2c14d264-bd66-e113-f658-86fe98913f37@gmail.com>
+Date:   Mon, 4 Oct 2021 13:48:59 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.13.0
 MIME-Version: 1.0
-In-Reply-To: <20211004125031.778001541@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -73,17 +70,27 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/4/21 5:53 AM, Greg Kroah-Hartman wrote:
-> From: Yanfei Xu <yanfei.xu@windriver.com>
+On 10/4/21 5:51 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.71 release.
+> There are 93 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> commit ab609f25d19858513919369ff3d9a63c02cd9e2e upstream.
+> Responses should be made by Wed, 06 Oct 2021 12:50:17 +0000.
+> Anything received after that time might be too late.
 > 
-> Once device_register() failed, we should call put_device() to
-> decrement reference count for cleanup. Or it will cause memory
-> leak.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.71-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Please also revert this change which has since been reverted upstream:
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=10eff1f5788b6ffac212c254e2f3666219576889
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
 Florian
