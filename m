@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEEC4420BAC
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:57:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2601420BAE
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:57:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234352AbhJDM7B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 08:59:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60266 "EHLO mail.kernel.org"
+        id S234115AbhJDM7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 08:59:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234106AbhJDM6C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:58:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0935611CA;
-        Mon,  4 Oct 2021 12:56:12 +0000 (UTC)
+        id S234129AbhJDM6E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:58:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D99C61401;
+        Mon,  4 Oct 2021 12:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352173;
-        bh=KvL2Z9eUIJwjp1Sie+wWDmU7tm014BGRpi+uE3aOItI=;
+        s=korg; t=1633352175;
+        bh=BFZY71GuP2yt54EvqhWNMliZdsiXzWKpRwSYklZ2AEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O/Zxyq9pV0Gr6BoKlN6JT2CWe3MwIOfQVNO8P3Rq4MQDccv8C2og53uk86Hb8fnrU
-         YTSl0dDPhbdyQk3fZVrtgtffv37SUFfpXH8xaGxZY34Y+yg8PYXbvRiB6tItTdwVUv
-         jWoCPA++EWAzWoeoB6fNgdrhyzgrN4KrqVLskFjA=
+        b=B11Z29OjaGv/jHeOqY5nBduOLiZDldYmzvBT4ZO+r+CWxLSqF7hQ5dyHzgF4hvavJ
+         pL62kbvhAfZlC3NdZZ5r2I6o3kIKA8PlhSOBnOtHlKz3+HEdeMfcpZ9mmMhvYp/ruq
+         bQrj2VOgrfVIlGSALLCNlHBA1oCpOcebPcjrzxbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 18/57] blktrace: Fix uaf in blk_trace access after removing by sysfs
-Date:   Mon,  4 Oct 2021 14:52:02 +0200
-Message-Id: <20211004125029.519838179@linuxfoundation.org>
+        stable@vger.kernel.org, Jesper Nilsson <jesper.nilsson@axis.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 19/57] net: stmmac: allow CSR clock of 300MHz
+Date:   Mon,  4 Oct 2021 14:52:03 +0200
+Message-Id: <20211004125029.547868172@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
 References: <20211004125028.940212411@linuxfoundation.org>
@@ -39,91 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Jesper Nilsson <jesper.nilsson@axis.com>
 
-[ Upstream commit 5afedf670caf30a2b5a52da96eb7eac7dee6a9c9 ]
+[ Upstream commit 08dad2f4d541fcfe5e7bfda72cc6314bbfd2802f ]
 
-There is an use-after-free problem triggered by following process:
+The Synopsys Ethernet IP uses the CSR clock as a base clock for MDC.
+The divisor used is set in the MAC_MDIO_Address register field CR
+(Clock Rate)
 
-      P1(sda)				P2(sdb)
-			echo 0 > /sys/block/sdb/trace/enable
-			  blk_trace_remove_queue
-			    synchronize_rcu
-			    blk_trace_free
-			      relay_close
-rcu_read_lock
-__blk_add_trace
-  trace_note_tsk
-  (Iterate running_trace_list)
-			        relay_close_buf
-				  relay_destroy_buf
-				    kfree(buf)
-    trace_note(sdb's bt)
-      relay_reserve
-        buf->offset <- nullptr deference (use-after-free) !!!
-rcu_read_unlock
+The divisor is there to change the CSR clock into a clock that falls
+below the IEEE 802.3 specified max frequency of 2.5MHz.
 
-[  502.714379] BUG: kernel NULL pointer dereference, address:
-0000000000000010
-[  502.715260] #PF: supervisor read access in kernel mode
-[  502.715903] #PF: error_code(0x0000) - not-present page
-[  502.716546] PGD 103984067 P4D 103984067 PUD 17592b067 PMD 0
-[  502.717252] Oops: 0000 [#1] SMP
-[  502.720308] RIP: 0010:trace_note.isra.0+0x86/0x360
-[  502.732872] Call Trace:
-[  502.733193]  __blk_add_trace.cold+0x137/0x1a3
-[  502.733734]  blk_add_trace_rq+0x7b/0xd0
-[  502.734207]  blk_add_trace_rq_issue+0x54/0xa0
-[  502.734755]  blk_mq_start_request+0xde/0x1b0
-[  502.735287]  scsi_queue_rq+0x528/0x1140
-...
-[  502.742704]  sg_new_write.isra.0+0x16e/0x3e0
-[  502.747501]  sg_ioctl+0x466/0x1100
+If the CSR clock is 300MHz, the code falls back to using the reset
+value in the MAC_MDIO_Address register, as described in the comment
+above this code.
 
-Reproduce method:
-  ioctl(/dev/sda, BLKTRACESETUP, blk_user_trace_setup[buf_size=127])
-  ioctl(/dev/sda, BLKTRACESTART)
-  ioctl(/dev/sdb, BLKTRACESETUP, blk_user_trace_setup[buf_size=127])
-  ioctl(/dev/sdb, BLKTRACESTART)
+However, 300MHz is actually an allowed value and the proper divider
+can be estimated quite easily (it's just 1Hz difference!)
 
-  echo 0 > /sys/block/sdb/trace/enable &
-  // Add delay(mdelay/msleep) before kernel enters blk_trace_free()
+A CSR frequency of 300MHz with the maximum clock rate value of 0x5
+(STMMAC_CSR_250_300M, a divisor of 124) gives somewhere around
+~2.42MHz which is below the IEEE 802.3 specified maximum.
 
-  ioctl$SG_IO(/dev/sda, SG_IO, ...)
-  // Enters trace_note_tsk() after blk_trace_free() returned
-  // Use mdelay in rcu region rather than msleep(which may schedule out)
+For the ARTPEC-8 SoC, the CSR clock is this problematic 300MHz,
+and unfortunately, the reset-value of the MAC_MDIO_Address CR field
+is 0x0.
 
-Remove blk_trace from running_list before calling blk_trace_free() by
-sysfs if blk_trace is at Blktrace_running state.
+This leads to a clock rate of zero and a divisor of 42, and gives an
+MDC frequency of ~7.14MHz.
 
-Fixes: c71a896154119f ("blktrace: add ftrace plugin")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Link: https://lore.kernel.org/r/20210923134921.109194-1-chengzhihao1@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Allow CSR clock of 300MHz by making the comparison inclusive.
+
+Signed-off-by: Jesper Nilsson <jesper.nilsson@axis.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/blktrace.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-index 88eb9261c7b5..056107787f4a 100644
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -1584,6 +1584,14 @@ static int blk_trace_remove_queue(struct request_queue *q)
- 	if (bt == NULL)
- 		return -EINVAL;
- 
-+	if (bt->trace_state == Blktrace_running) {
-+		bt->trace_state = Blktrace_stopped;
-+		spin_lock_irq(&running_trace_lock);
-+		list_del_init(&bt->running_list);
-+		spin_unlock_irq(&running_trace_lock);
-+		relay_flush(bt->rchan);
-+	}
-+
- 	put_probe_ref();
- 	synchronize_rcu();
- 	blk_trace_free(bt);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index dbd56fefa2f3..0a7ff854d1c3 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -178,7 +178,7 @@ static void stmmac_clk_csr_set(struct stmmac_priv *priv)
+ 			priv->clk_csr = STMMAC_CSR_100_150M;
+ 		else if ((clk_rate >= CSR_F_150M) && (clk_rate < CSR_F_250M))
+ 			priv->clk_csr = STMMAC_CSR_150_250M;
+-		else if ((clk_rate >= CSR_F_250M) && (clk_rate < CSR_F_300M))
++		else if ((clk_rate >= CSR_F_250M) && (clk_rate <= CSR_F_300M))
+ 			priv->clk_csr = STMMAC_CSR_250_300M;
+ 	}
+ }
 -- 
 2.33.0
 
