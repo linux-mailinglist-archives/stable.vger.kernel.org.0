@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FB46421000
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:38:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6468F420D6A
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:13:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238267AbhJDNkL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:40:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49924 "EHLO mail.kernel.org"
+        id S235650AbhJDNPF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:15:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238371AbhJDNiZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:38:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 850FC6159A;
-        Mon,  4 Oct 2021 13:17:20 +0000 (UTC)
+        id S236086AbhJDNNK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:13:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E710461BA4;
+        Mon,  4 Oct 2021 13:05:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353440;
-        bh=FZwgsMyYOtSav5zQPNH1yBIkX+5AlpRp7AQZkNa3UuQ=;
+        s=korg; t=1633352707;
+        bh=eyC0Tzv53FFFU/5eHMqYw7yMEYbE1QpsRWtofhlR+C8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LuZXvsD1MOOfW517UyNM3Q/w8GXStVEUtcbsTt8lGaxPyNf4vQ+DVCYEalZLokgei
-         U5iiY1ztVa25zQLNQOIt9TCkfJBvSjbU58xlXm4KFweCmGwioTUQ6CO0ZYrgJEIeV1
-         zkJnALP6WyDXb6mrpENYXRyoXwgsQSD8fHxVnEhA=
+        b=WRMlv67m1Pab/YrF/KPVVklP6ikEzPLK8OAujV3dSSQVXqJLVfwCTXTgay0RGepQ5
+         NEIvnBPdedtWyMp6ZroSF87C13KSnZep6X2dl69PHEcI3EoEHACzOwChKTWNHfaBLH
+         7eo9jjJW1YdjpTb/hJH633r/A6rqoicFmpUe+BmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 128/172] net: hns3: fix show wrong state when add existing uc mac address
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 88/95] hso: fix bailout in error case of probe
 Date:   Mon,  4 Oct 2021 14:52:58 +0200
-Message-Id: <20211004125049.101994260@linuxfoundation.org>
+Message-Id: <20211004125036.456344463@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 108b3c7810e14892c4a1819b1d268a2c785c087c ]
+commit 5fcfb6d0bfcda17f0d0656e4e5b3710af2bbaae5 upstream.
 
-Currently, if function adds an existing unicast mac address, eventhough
-driver will not add this address into hardware, but it will return 0 in
-function hclge_add_uc_addr_common(). It will cause the state of this
-unicast mac address is ACTIVE in driver, but it should be in TO-ADD state.
+The driver tries to reuse code for disconnect in case
+of a failed probe.
+If resources need to be freed after an error in probe, the
+netdev must not be freed because it has never been registered.
+Fix it by telling the helper which path we are in.
 
-To fix this problem, function hclge_add_uc_addr_common() returns -EEXIST
-if mac address is existing, and delete two error log to avoid printing
-them all the time after this modification.
-
-Fixes: 72110b567479 ("net: hns3: return 0 and print warning when hit duplicate MAC")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../hisilicon/hns3/hns3pf/hclge_main.c        | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ drivers/net/usb/hso.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index 90a72c79fec9..9920e76b4f41 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -8701,15 +8701,8 @@ int hclge_add_uc_addr_common(struct hclge_vport *vport,
- 	}
- 
- 	/* check if we just hit the duplicate */
--	if (!ret) {
--		dev_warn(&hdev->pdev->dev, "VF %u mac(%pM) exists\n",
--			 vport->vport_id, addr);
--		return 0;
--	}
--
--	dev_err(&hdev->pdev->dev,
--		"PF failed to add unicast entry(%pM) in the MAC table\n",
--		addr);
-+	if (!ret)
-+		return -EEXIST;
- 
- 	return ret;
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -2368,7 +2368,7 @@ static int remove_net_device(struct hso_
  }
-@@ -8861,7 +8854,13 @@ static void hclge_sync_vport_mac_list(struct hclge_vport *vport,
- 		} else {
- 			set_bit(HCLGE_VPORT_STATE_MAC_TBL_CHANGE,
- 				&vport->state);
--			break;
-+
-+			/* If one unicast mac address is existing in hardware,
-+			 * we need to try whether other unicast mac addresses
-+			 * are new addresses that can be added.
-+			 */
-+			if (ret != -EEXIST)
-+				break;
+ 
+ /* Frees our network device */
+-static void hso_free_net_device(struct hso_device *hso_dev)
++static void hso_free_net_device(struct hso_device *hso_dev, bool bailout)
+ {
+ 	int i;
+ 	struct hso_net *hso_net = dev2net(hso_dev);
+@@ -2391,7 +2391,7 @@ static void hso_free_net_device(struct h
+ 	kfree(hso_net->mux_bulk_tx_buf);
+ 	hso_net->mux_bulk_tx_buf = NULL;
+ 
+-	if (hso_net->net)
++	if (hso_net->net && !bailout)
+ 		free_netdev(hso_net->net);
+ 
+ 	kfree(hso_dev);
+@@ -2567,7 +2567,7 @@ static struct hso_device *hso_create_net
+ 
+ 	return hso_dev;
+ exit:
+-	hso_free_net_device(hso_dev);
++	hso_free_net_device(hso_dev, true);
+ 	return NULL;
+ }
+ 
+@@ -3130,7 +3130,7 @@ static void hso_free_interface(struct us
+ 				rfkill_unregister(rfk);
+ 				rfkill_destroy(rfk);
+ 			}
+-			hso_free_net_device(network_table[i]);
++			hso_free_net_device(network_table[i], false);
  		}
  	}
  }
--- 
-2.33.0
-
 
 
