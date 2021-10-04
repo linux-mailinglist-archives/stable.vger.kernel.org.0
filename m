@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58CE8420C03
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:00:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 082F6420C7A
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:04:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233650AbhJDNCF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:02:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60266 "EHLO mail.kernel.org"
+        id S235241AbhJDNF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:05:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234331AbhJDNA1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:00:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CE00613C8;
-        Mon,  4 Oct 2021 12:57:58 +0000 (UTC)
+        id S234399AbhJDNEA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:04:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C26C1613C8;
+        Mon,  4 Oct 2021 13:00:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352278;
-        bh=ZMFTrj+G1zzL9POirBeOmm9akaZ2DUSRVUlKBDsS6DA=;
+        s=korg; t=1633352419;
+        bh=M+WXZ0rd37CTK7wFIWxL4ogRsIyFsFNKW0/TeZrKOGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BsYlObfSfRiizy6oOuZSGcJZXs62bL6ogMfJLxFBchyXz+873iLrsdWNNkylUHlY1
-         xAjE01tuzt6xfAAgMJdDUhTBfl3ltVM637nnLUftRDlqjf7g2pvQhZgej2J3Bjbyi+
-         xsPBnzKHuF+/cEusPsK0ImX3O2FzTwe/QFbISb4U=
+        b=TXUVjj8sRWrtiDnbfuTH31lbLxVAIob1dC/KWPSS7v6S+APxmcIP8F6cu83nJPHVa
+         7HVoc6G5jqoG7dX3vEnfncSDhb/e5bZYaYkvN+vt1L4JMP/aMwG9z5wWpBgYMbydZ7
+         68X8vveAcG5apmWU6Wo/mFou/ifagzUTdrlWHAx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 44/57] ipack: ipoctal: fix missing allocation-failure check
-Date:   Mon,  4 Oct 2021 14:52:28 +0200
-Message-Id: <20211004125030.347305488@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Jann Horn <jannh@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 54/75] af_unix: fix races in sk_peer_pid and sk_peer_cred accesses
+Date:   Mon,  4 Oct 2021 14:52:29 +0200
+Message-Id: <20211004125033.335733437@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
-References: <20211004125028.940212411@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +44,190 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 445c8132727728dc297492a7d9fc074af3e94ba3 upstream.
+[ Upstream commit 35306eb23814444bd4021f8a1c3047d3cb0c8b2b ]
 
-Add the missing error handling when allocating the transmit buffer to
-avoid dereferencing a NULL pointer in write() should the allocation
-ever fail.
+Jann Horn reported that SO_PEERCRED and SO_PEERGROUPS implementations
+are racy, as af_unix can concurrently change sk_peer_pid and sk_peer_cred.
 
-Fixes: ba4dc61fe8c5 ("Staging: ipack: add support for IP-OCTAL mezzanine board")
-Cc: stable@vger.kernel.org      # 3.5
-Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210917114622.5412-5-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In order to fix this issue, this patch adds a new spinlock that needs
+to be used whenever these fields are read or written.
+
+Jann also pointed out that l2cap_sock_get_peer_pid_cb() is currently
+reading sk->sk_peer_pid which makes no sense, as this field
+is only possibly set by AF_UNIX sockets.
+We will have to clean this in a separate patch.
+This could be done by reverting b48596d1dc25 "Bluetooth: L2CAP: Add get_peer_pid callback"
+or implementing what was truly expected.
+
+Fixes: 109f6e39fa07 ("af_unix: Allow SO_PEERCRED to work across namespaces.")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Jann Horn <jannh@google.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Cc: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Cc: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ipack/devices/ipoctal.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/net/sock.h |  2 ++
+ net/core/sock.c    | 32 ++++++++++++++++++++++++++------
+ net/unix/af_unix.c | 34 ++++++++++++++++++++++++++++------
+ 3 files changed, 56 insertions(+), 12 deletions(-)
 
---- a/drivers/ipack/devices/ipoctal.c
-+++ b/drivers/ipack/devices/ipoctal.c
-@@ -391,7 +391,9 @@ static int ipoctal_inst_slot(struct ipoc
+diff --git a/include/net/sock.h b/include/net/sock.h
+index 70fe85bee4e5..029df5cdeaf1 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -454,8 +454,10 @@ struct sock {
+ 	u32			sk_ack_backlog;
+ 	u32			sk_max_ack_backlog;
+ 	kuid_t			sk_uid;
++	spinlock_t		sk_peer_lock;
+ 	struct pid		*sk_peer_pid;
+ 	const struct cred	*sk_peer_cred;
++
+ 	long			sk_rcvtimeo;
+ 	ktime_t			sk_stamp;
+ #if BITS_PER_LONG==32
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 699bd3052c61..427024597204 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -1069,6 +1069,16 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
+ }
+ EXPORT_SYMBOL(sock_setsockopt);
  
- 		channel = &ipoctal->channel[i];
- 		tty_port_init(&channel->tty_port);
--		tty_port_alloc_xmit_buf(&channel->tty_port);
-+		res = tty_port_alloc_xmit_buf(&channel->tty_port);
-+		if (res)
-+			continue;
- 		channel->tty_port.ops = &ipoctal_tty_port_ops;
++static const struct cred *sk_get_peer_cred(struct sock *sk)
++{
++	const struct cred *cred;
++
++	spin_lock(&sk->sk_peer_lock);
++	cred = get_cred(sk->sk_peer_cred);
++	spin_unlock(&sk->sk_peer_lock);
++
++	return cred;
++}
  
- 		ipoctal_reset_stats(&channel->stats);
+ static void cred_to_ucred(struct pid *pid, const struct cred *cred,
+ 			  struct ucred *ucred)
+@@ -1242,7 +1252,11 @@ int sock_getsockopt(struct socket *sock, int level, int optname,
+ 		struct ucred peercred;
+ 		if (len > sizeof(peercred))
+ 			len = sizeof(peercred);
++
++		spin_lock(&sk->sk_peer_lock);
+ 		cred_to_ucred(sk->sk_peer_pid, sk->sk_peer_cred, &peercred);
++		spin_unlock(&sk->sk_peer_lock);
++
+ 		if (copy_to_user(optval, &peercred, len))
+ 			return -EFAULT;
+ 		goto lenout;
+@@ -1250,20 +1264,23 @@ int sock_getsockopt(struct socket *sock, int level, int optname,
+ 
+ 	case SO_PEERGROUPS:
+ 	{
++		const struct cred *cred;
+ 		int ret, n;
+ 
+-		if (!sk->sk_peer_cred)
++		cred = sk_get_peer_cred(sk);
++		if (!cred)
+ 			return -ENODATA;
+ 
+-		n = sk->sk_peer_cred->group_info->ngroups;
++		n = cred->group_info->ngroups;
+ 		if (len < n * sizeof(gid_t)) {
+ 			len = n * sizeof(gid_t);
++			put_cred(cred);
+ 			return put_user(len, optlen) ? -EFAULT : -ERANGE;
+ 		}
+ 		len = n * sizeof(gid_t);
+ 
+-		ret = groups_to_user((gid_t __user *)optval,
+-				     sk->sk_peer_cred->group_info);
++		ret = groups_to_user((gid_t __user *)optval, cred->group_info);
++		put_cred(cred);
+ 		if (ret)
+ 			return ret;
+ 		goto lenout;
+@@ -1574,9 +1591,10 @@ static void __sk_destruct(struct rcu_head *head)
+ 		sk->sk_frag.page = NULL;
+ 	}
+ 
+-	if (sk->sk_peer_cred)
+-		put_cred(sk->sk_peer_cred);
++	/* We do not need to acquire sk->sk_peer_lock, we are the last user. */
++	put_cred(sk->sk_peer_cred);
+ 	put_pid(sk->sk_peer_pid);
++
+ 	if (likely(sk->sk_net_refcnt))
+ 		put_net(sock_net(sk));
+ 	sk_prot_free(sk->sk_prot_creator, sk);
+@@ -2753,6 +2771,8 @@ void sock_init_data(struct socket *sock, struct sock *sk)
+ 
+ 	sk->sk_peer_pid 	=	NULL;
+ 	sk->sk_peer_cred	=	NULL;
++	spin_lock_init(&sk->sk_peer_lock);
++
+ 	sk->sk_write_pending	=	0;
+ 	sk->sk_rcvlowat		=	1;
+ 	sk->sk_rcvtimeo		=	MAX_SCHEDULE_TIMEOUT;
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index f30509ff302e..0e494902fada 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -595,20 +595,42 @@ static void unix_release_sock(struct sock *sk, int embrion)
+ 
+ static void init_peercred(struct sock *sk)
+ {
+-	put_pid(sk->sk_peer_pid);
+-	if (sk->sk_peer_cred)
+-		put_cred(sk->sk_peer_cred);
++	const struct cred *old_cred;
++	struct pid *old_pid;
++
++	spin_lock(&sk->sk_peer_lock);
++	old_pid = sk->sk_peer_pid;
++	old_cred = sk->sk_peer_cred;
+ 	sk->sk_peer_pid  = get_pid(task_tgid(current));
+ 	sk->sk_peer_cred = get_current_cred();
++	spin_unlock(&sk->sk_peer_lock);
++
++	put_pid(old_pid);
++	put_cred(old_cred);
+ }
+ 
+ static void copy_peercred(struct sock *sk, struct sock *peersk)
+ {
+-	put_pid(sk->sk_peer_pid);
+-	if (sk->sk_peer_cred)
+-		put_cred(sk->sk_peer_cred);
++	const struct cred *old_cred;
++	struct pid *old_pid;
++
++	if (sk < peersk) {
++		spin_lock(&sk->sk_peer_lock);
++		spin_lock_nested(&peersk->sk_peer_lock, SINGLE_DEPTH_NESTING);
++	} else {
++		spin_lock(&peersk->sk_peer_lock);
++		spin_lock_nested(&sk->sk_peer_lock, SINGLE_DEPTH_NESTING);
++	}
++	old_pid = sk->sk_peer_pid;
++	old_cred = sk->sk_peer_cred;
+ 	sk->sk_peer_pid  = get_pid(peersk->sk_peer_pid);
+ 	sk->sk_peer_cred = get_cred(peersk->sk_peer_cred);
++
++	spin_unlock(&sk->sk_peer_lock);
++	spin_unlock(&peersk->sk_peer_lock);
++
++	put_pid(old_pid);
++	put_cred(old_cred);
+ }
+ 
+ static int unix_listen(struct socket *sock, int backlog)
+-- 
+2.33.0
+
 
 
