@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BDF5420C28
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:01:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EE6D420BF0
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:59:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234475AbhJDNDD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:03:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59970 "EHLO mail.kernel.org"
+        id S234017AbhJDNBP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:01:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234270AbhJDNBn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:01:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5843D61A05;
-        Mon,  4 Oct 2021 12:58:39 +0000 (UTC)
+        id S234434AbhJDM7m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:59:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 85F7261501;
+        Mon,  4 Oct 2021 12:57:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352319;
-        bh=oW7tEkdYVS0Qd9dZHnKmmTbzN3l+ICLyNp33Z63vQKM=;
+        s=korg; t=1633352258;
+        bh=gok02t1LxhiUx/Qci0u1gRim8BXHjd/nRHrV6PRueiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sEalYlY17tjmIiY2oe0EUy7ObWL2wnitd9PIoejkWLKPqdPerkz6BOkcSCBFU9YMv
-         MHGlQEryoAZ1f80FCB+uqzAtf1MrtH8Nu+70DZZJytYMvZSFnS7e1FLmZjMIBipnXe
-         5VEFm7oeU4mOYI2CM7DU4HJpFB+VRo4IDclc6w7M=
+        b=CZYTgsJavjL1Hb+EYDWS5rnpUljz5yH7jvSwxY/wfPQsJQA9nQ4Zx9qmbr/MNPn3c
+         xfSjB0aD/DaASFfzPW2J9EnBOM9DXRcaifdOEpW2HXRbE19eMjSzpN20306ET8T2TU
+         4ao3GrfxAdnTBtCKtEMbluYwJIFELU1gYJ2owowM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 16/75] net: hso: fix muxed tty registration
+        stable@vger.kernel.org, Uwe Brandt <uwe.brandt@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 07/57] USB: serial: cp210x: add ID for GW Instek GDM-834x Digital Multimeter
 Date:   Mon,  4 Oct 2021 14:51:51 +0200
-Message-Id: <20211004125032.073955157@linuxfoundation.org>
+Message-Id: <20211004125029.167890755@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
+References: <20211004125028.940212411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,59 +39,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Uwe Brandt <uwe.brandt@gmail.com>
 
-commit e8f69b16ee776da88589b5271e3f46020efc8f6c upstream.
+commit 3bd18ba7d859eb1fbef3beb1e80c24f6f7d7596c upstream.
 
-If resource allocation and registration fail for a muxed tty device
-(e.g. if there are no more minor numbers) the driver should not try to
-deregister the never-registered (or already-deregistered) tty.
+Add the USB serial device ID for the GW Instek GDM-834x Digital Multimeter.
 
-Fix up the error handling to avoid dereferencing a NULL pointer when
-attempting to remove the character device.
-
-Fixes: 72dc1c096c70 ("HSO: add option hso driver")
-Cc: stable@vger.kernel.org	# 2.6.27
+Signed-off-by: Uwe Brandt <uwe.brandt@gmail.com>
+Link: https://lore.kernel.org/r/YUxFl3YUCPGJZd8Y@hovoldconsulting.com
+Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/hso.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -2713,14 +2713,14 @@ struct hso_device *hso_create_mux_serial
- 
- 	serial = kzalloc(sizeof(*serial), GFP_KERNEL);
- 	if (!serial)
--		goto exit;
-+		goto err_free_dev;
- 
- 	hso_dev->port_data.dev_serial = serial;
- 	serial->parent = hso_dev;
- 
- 	if (hso_serial_common_create
- 	    (serial, 1, CTRL_URB_RX_SIZE, CTRL_URB_TX_SIZE))
--		goto exit;
-+		goto err_free_serial;
- 
- 	serial->tx_data_length--;
- 	serial->write_data = hso_mux_serial_write_data;
-@@ -2736,11 +2736,9 @@ struct hso_device *hso_create_mux_serial
- 	/* done, return it */
- 	return hso_dev;
- 
--exit:
--	if (serial) {
--		tty_unregister_device(tty_drv, serial->minor);
--		kfree(serial);
--	}
-+err_free_serial:
-+	kfree(serial);
-+err_free_dev:
- 	kfree(hso_dev);
- 	return NULL;
- 
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -231,6 +231,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x1FB9, 0x0602) }, /* Lake Shore Model 648 Magnet Power Supply */
+ 	{ USB_DEVICE(0x1FB9, 0x0700) }, /* Lake Shore Model 737 VSM Controller */
+ 	{ USB_DEVICE(0x1FB9, 0x0701) }, /* Lake Shore Model 776 Hall Matrix */
++	{ USB_DEVICE(0x2184, 0x0030) }, /* GW Instek GDM-834x Digital Multimeter */
+ 	{ USB_DEVICE(0x2626, 0xEA60) }, /* Aruba Networks 7xxx USB Serial Console */
+ 	{ USB_DEVICE(0x3195, 0xF190) }, /* Link Instruments MSO-19 */
+ 	{ USB_DEVICE(0x3195, 0xF280) }, /* Link Instruments MSO-28 */
 
 
