@@ -2,156 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9F694218CA
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 22:54:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9267A4218DD
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 22:58:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232836AbhJDU4R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 16:56:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56852 "EHLO
+        id S233243AbhJDVAI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 17:00:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232496AbhJDU4Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 16:56:16 -0400
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2309BC061745
-        for <stable@vger.kernel.org>; Mon,  4 Oct 2021 13:54:27 -0700 (PDT)
-Received: by mail-pg1-x52d.google.com with SMTP id h3so7102105pgb.7
-        for <stable@vger.kernel.org>; Mon, 04 Oct 2021 13:54:27 -0700 (PDT)
+        with ESMTP id S231892AbhJDVAI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 17:00:08 -0400
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0AF7C061745;
+        Mon,  4 Oct 2021 13:58:18 -0700 (PDT)
+Received: by mail-pf1-x42c.google.com with SMTP id m26so2318233pff.3;
+        Mon, 04 Oct 2021 13:58:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=QPF7zNYf8E05tW5ku/k4Nlsl1bf2PjFwWIenStxFMrs=;
-        b=BzLeoe9VebR3W3UiFYd9+8jt4gKKJkgx/rvtfNfNhGekxO5C5HSU770LAdHPDTwS96
-         H8/cx04jr0vooPk9lHDC3NEiEhrN1VYArkxcB/el1CTBq7p3tiC0o/J84nILv/1ArTln
-         Cu2z6/5vtc0DgJDuZzYd+LTwwh+pQFFez6fBPQkj/zyLp6hPDZ8Yn6IdiHdyWfw/gErr
-         wsnHyNBzTJGdop+T8P3c2m5fo9mo0LEkVe+HV7ZVGK0AH5wYula4niVBCQthv6JhqL2v
-         c0uEoqCex68eFtj9dGqqW8t8fFb3Xd+RJB0h1IfxlFw49TpyqbTu1F3FeCkRsNxmuN7L
-         eZFg==
+        d=gmail.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=fYKYnOB8eWX1FiGjloaLnrlnefMtOtSdd7NJtILGyco=;
+        b=C853Tx89yfcySPNqnvWJUUspBQsHrNlVdaWx40wDNpiyGaqX66YzY6OIV9LpWeHroj
+         Tzn3kN19LDzPdtZhFrS8v+y2MZJaaMIBhPkS0tUAKusmD2/1lmghxjmbAnqkIL+kH89f
+         ZgjxlhzOy9DwqVhSgnb3GAbM4sPEEMluqvJObWlQGQW08975rLdEn+4KgMs2Cm4glwOh
+         RJnrWOF5zaF4glrUSybhq/FcpQsSTKlS27S0cFWcAEWFzsLEVND9hTVLKQYmHh1Z+pCu
+         mboSNpeH0I3aGQ6HYvbOxonQwcskp17QsmcANLHr3TNMD8eX/4veW7UVvUOWPHZaJJ/d
+         YpTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=QPF7zNYf8E05tW5ku/k4Nlsl1bf2PjFwWIenStxFMrs=;
-        b=BOIcvY89VLyYskujDB3eKVFoqPqTWhBEktTw21AvH4eqwpDe/C1m8kzsXoylETEAhi
-         VBImq++AzQBykASFk7sDWqhGMTEqbUVhGO0OJ8rvB2miPQi5/n01KDwdGhmQgUeSZauM
-         oVuCPZkRrw5BwkvVHCLhNwO9TcpWfm0u0nVYoo4u2tkROcuVCcUWgrCJguMVnUGKmQoQ
-         HWxTg4E8IPzXoal4740JSMqhx7D1uoC/8LhKZjj13YP6sL45AxNeypDd5jXvvDkPmAV9
-         khxgAAWmngGRNOazNmQDwR4rex1OgEaOlDKqw7sT72spayH6ECB37WKzfJwN+52Uu3Az
-         XbGg==
-X-Gm-Message-State: AOAM5301DoX77SnBmGb/Qrk6fwV6d6ZRDXlWLwmUt7i94iYRl1hW1crz
-        AiCFsQeFp6ESDsvzPnMm7ZEBNCmQdBWQRG81
-X-Google-Smtp-Source: ABdhPJx/gzMeUJswaHm3CIy+eZwxo5/imLcr+G5V6yruAsrIQWxuFgcMs8p/PRVzgt9HxsT7rB7jEQ==
-X-Received: by 2002:a05:6a00:1a01:b0:44c:1ec3:364f with SMTP id g1-20020a056a001a0100b0044c1ec3364fmr18972260pfv.86.1633380866405;
-        Mon, 04 Oct 2021 13:54:26 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d22sm15210001pgi.73.2021.10.04.13.54.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Oct 2021 13:54:26 -0700 (PDT)
-Message-ID: <615b6a02.1c69fb81.80374.d522@mx.google.com>
-Date:   Mon, 04 Oct 2021 13:54:26 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=fYKYnOB8eWX1FiGjloaLnrlnefMtOtSdd7NJtILGyco=;
+        b=6qMKdPbYbVsQu/bhWOudsrBepioIB4wWj0U3K7XvE9nl+/FI5yJ+Olri6M+cJJupkV
+         p9u1NIex6Jj1S7ScB+NiLCvW1sfuaPCwN8hqC9wDqU7Gd9986/5dYgxhrM6ADwR5WcWp
+         XuAsziXLuDDzhZXbwEiUCbDQIXk4a1rey8q5ULrxKPMQi+lUofDaFqYA4UX6u40GIibG
+         ojvITiyaxgkwH91em4rtQ6aNtE/fB3g/aEhHcXHlb/0hyhgNU7ouVs0oBm9vVuask8c6
+         Iwjx+DwojZ3umybwjsnsyJfQSLKk1WRxUcWi+wBP4dvY90LYbkUr4/mCZGuc6Jhuk2Y0
+         K+Sg==
+X-Gm-Message-State: AOAM530el4id5ekDUt6TAolNO2XjwApHE/KUHjbCIcjvVDyWFkp7sD7M
+        fkEzLbDQCoHl0sH/GPJFbVo=
+X-Google-Smtp-Source: ABdhPJwx06KLZhNYOn84KbuSaDXLkt+qrtkepn9nPBW3w8b4a2bXyeTlO1qxtwcLYnsGxJvm6Z/qGw==
+X-Received: by 2002:a63:e00b:: with SMTP id e11mr12767854pgh.190.1633381098393;
+        Mon, 04 Oct 2021 13:58:18 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id r8sm13482765pfg.91.2021.10.04.13.58.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 04 Oct 2021 13:58:17 -0700 (PDT)
+Subject: Re: [PATCH 5.10 90/93] net: mdiobus: Fix memory leak in
+ __mdiobus_register
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org,
+        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com,
+        Yanfei Xu <yanfei.xu@windriver.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>
+References: <20211004125034.579439135@linuxfoundation.org>
+ <20211004125037.569805106@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <f806f7c8-f7c4-2c70-4dec-be8794fdb2a7@gmail.com>
+Date:   Mon, 4 Oct 2021 13:58:16 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.150-56-g7a20c2f48815
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 125 runs,
- 3 regressions (v5.4.150-56-g7a20c2f48815)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20211004125037.569805106@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 125 runs, 3 regressions (v5.4.150-56-g7a20c2f=
-48815)
+On 10/4/21 5:53 AM, Greg Kroah-Hartman wrote:
+> From: Yanfei Xu <yanfei.xu@windriver.com>
+> 
+> commit ab609f25d19858513919369ff3d9a63c02cd9e2e upstream.
+> 
+> Once device_register() failed, we should call put_device() to
+> decrement reference count for cleanup. Or it will cause memory
+> leak.
 
-Regressions Summary
--------------------
-
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.150-56-g7a20c2f48815/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.150-56-g7a20c2f48815
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      7a20c2f48815499296505c4dd843cdbfbc8a9200 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/615b4f2a4a1a4435bf99a2dd
-
-  Results:     67 PASS, 3 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.150-5=
-6-g7a20c2f48815/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.150-5=
-6-g7a20c2f48815/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/615b4f2a4a1a4435bf99a2f1
-        failing since 111 days (last pass: v5.4.125-37-g7cda316475cf, first=
- fail: v5.4.125-84-g411d62eda127)
-
-    2021-10-04T18:59:46.201641  /lava-4642627/1/../bin/lava-test-case<8>[  =
- 15.472959] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-iodomain-grf-prob=
-ed RESULT=3Dfail>
-    2021-10-04T18:59:46.202207  =
-
-    2021-10-04T18:59:46.202745  /lava-4642627/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/615b4f2a4a1a4435bf99a301
-        failing since 111 days (last pass: v5.4.125-37-g7cda316475cf, first=
- fail: v5.4.125-84-g411d62eda127)
-
-    2021-10-04T18:59:44.758743  /lava-4642627/1/../bin/lava-test-case
-    2021-10-04T18:59:44.777062  <8>[   14.047528] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>
-    2021-10-04T18:59:44.777476  /lava-4642627/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/615b4f2a4a1a4435bf99a302
-        failing since 111 days (last pass: v5.4.125-37-g7cda316475cf, first=
- fail: v5.4.125-84-g411d62eda127)
-
-    2021-10-04T18:59:43.740001  /lava-4642627/1/../bin/lava-test-case
-    2021-10-04T18:59:43.745182  <8>[   13.027692] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
- =20
+Also needs to be dropped.
+-- 
+Florian
