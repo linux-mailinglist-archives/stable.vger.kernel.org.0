@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A63EC420D4D
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:12:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14B1F420E69
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:23:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234977AbhJDNOE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:14:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45352 "EHLO mail.kernel.org"
+        id S236799AbhJDNZA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:25:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235969AbhJDNMT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:12:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D77261B7C;
-        Mon,  4 Oct 2021 13:04:41 +0000 (UTC)
+        id S236843AbhJDNXX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:23:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F258661BF5;
+        Mon,  4 Oct 2021 13:10:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352681;
-        bh=ZMFTrj+G1zzL9POirBeOmm9akaZ2DUSRVUlKBDsS6DA=;
+        s=korg; t=1633353007;
+        bh=qJ9lhhn04jBi8L3e0Q5wmv8IRUQA0TvXcJUX+Ff7azk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=txksjmrcaGbzV9MkigQlKxDZLbGIy7Bye70jSibtWsQjMyaubAkRDe9e9C1b9xTfP
-         HSYpPRhjpFk598YkS510HnMMHLFAGLJbWqxniEkXLjIltN2ldeIlQwbImCsNIOjRTA
-         87zLMBo45I9s0k8Wf3zedlCeoJCsRcDd6bmlGpts=
+        b=ola53muYqF0NHrcw39QDcs/3MerVeP6TJ3jNL5JJDqpgrntApDK4kKKez2R3MbM22
+         rVHAQbWAEPxhWnfRJ8km+v85zpZKd/YhbFbV+e0UEPBQUNXaJoljsU7KzA7mRyPs7J
+         cD9sC/DQBoAnp7g+ZeELlTIeestB74akSPukA60Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 79/95] ipack: ipoctal: fix missing allocation-failure check
+        stable@vger.kernel.org, Jiri Benc <jbenc@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 51/93] selftests, bpf: test_lwt_ip_encap: Really disable rp_filter
 Date:   Mon,  4 Oct 2021 14:52:49 +0200
-Message-Id: <20211004125036.159612333@linuxfoundation.org>
+Message-Id: <20211004125036.260211093@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jiri Benc <jbenc@redhat.com>
 
-commit 445c8132727728dc297492a7d9fc074af3e94ba3 upstream.
+[ Upstream commit 79e2c306667542b8ee2d9a9d947eadc7039f0a3c ]
 
-Add the missing error handling when allocating the transmit buffer to
-avoid dereferencing a NULL pointer in write() should the allocation
-ever fail.
+It's not enough to set net.ipv4.conf.all.rp_filter=0, that does not override
+a greater rp_filter value on the individual interfaces. We also need to set
+net.ipv4.conf.default.rp_filter=0 before creating the interfaces. That way,
+they'll also get their own rp_filter value of zero.
 
-Fixes: ba4dc61fe8c5 ("Staging: ipack: add support for IP-OCTAL mezzanine board")
-Cc: stable@vger.kernel.org      # 3.5
-Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210917114622.5412-5-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0fde56e4385b0 ("selftests: bpf: add test_lwt_ip_encap selftest")
+Signed-off-by: Jiri Benc <jbenc@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/b1cdd9d469f09ea6e01e9c89a6071c79b7380f89.1632386362.git.jbenc@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ipack/devices/ipoctal.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/testing/selftests/bpf/test_lwt_ip_encap.sh | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/drivers/ipack/devices/ipoctal.c
-+++ b/drivers/ipack/devices/ipoctal.c
-@@ -391,7 +391,9 @@ static int ipoctal_inst_slot(struct ipoc
+diff --git a/tools/testing/selftests/bpf/test_lwt_ip_encap.sh b/tools/testing/selftests/bpf/test_lwt_ip_encap.sh
+index 59ea56945e6c..b497bb85b667 100755
+--- a/tools/testing/selftests/bpf/test_lwt_ip_encap.sh
++++ b/tools/testing/selftests/bpf/test_lwt_ip_encap.sh
+@@ -112,6 +112,14 @@ setup()
+ 	ip netns add "${NS2}"
+ 	ip netns add "${NS3}"
  
- 		channel = &ipoctal->channel[i];
- 		tty_port_init(&channel->tty_port);
--		tty_port_alloc_xmit_buf(&channel->tty_port);
-+		res = tty_port_alloc_xmit_buf(&channel->tty_port);
-+		if (res)
-+			continue;
- 		channel->tty_port.ops = &ipoctal_tty_port_ops;
++	# rp_filter gets confused by what these tests are doing, so disable it
++	ip netns exec ${NS1} sysctl -wq net.ipv4.conf.all.rp_filter=0
++	ip netns exec ${NS2} sysctl -wq net.ipv4.conf.all.rp_filter=0
++	ip netns exec ${NS3} sysctl -wq net.ipv4.conf.all.rp_filter=0
++	ip netns exec ${NS1} sysctl -wq net.ipv4.conf.default.rp_filter=0
++	ip netns exec ${NS2} sysctl -wq net.ipv4.conf.default.rp_filter=0
++	ip netns exec ${NS3} sysctl -wq net.ipv4.conf.default.rp_filter=0
++
+ 	ip link add veth1 type veth peer name veth2
+ 	ip link add veth3 type veth peer name veth4
+ 	ip link add veth5 type veth peer name veth6
+@@ -236,11 +244,6 @@ setup()
+ 	ip -netns ${NS1} -6 route add ${IPv6_GRE}/128 dev veth5 via ${IPv6_6} ${VRF}
+ 	ip -netns ${NS2} -6 route add ${IPv6_GRE}/128 dev veth7 via ${IPv6_8} ${VRF}
  
- 		ipoctal_reset_stats(&channel->stats);
+-	# rp_filter gets confused by what these tests are doing, so disable it
+-	ip netns exec ${NS1} sysctl -wq net.ipv4.conf.all.rp_filter=0
+-	ip netns exec ${NS2} sysctl -wq net.ipv4.conf.all.rp_filter=0
+-	ip netns exec ${NS3} sysctl -wq net.ipv4.conf.all.rp_filter=0
+-
+ 	TMPFILE=$(mktemp /tmp/test_lwt_ip_encap.XXXXXX)
+ 
+ 	sleep 1  # reduce flakiness
+-- 
+2.33.0
+
 
 
