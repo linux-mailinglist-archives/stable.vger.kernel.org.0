@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8076D420E1C
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:20:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60253420B96
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:56:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236094AbhJDNVp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:21:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55046 "EHLO mail.kernel.org"
+        id S233757AbhJDM6V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 08:58:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236463AbhJDNTm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:19:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D41861A56;
-        Mon,  4 Oct 2021 13:08:30 +0000 (UTC)
+        id S234005AbhJDM5f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:57:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1729A6136F;
+        Mon,  4 Oct 2021 12:55:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352911;
-        bh=Q/vUP3Zmw8Yw1BXBMLQQwD4vLyUa1rkialpTJn41U54=;
+        s=korg; t=1633352146;
+        bh=LtFDb+OlNbQ3uDCXmfCdM2NkAwXmwWP1Igcg5xMNyTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1+TJ5ge0gC4Lez2Zm06DCvK5mjQaZZDD60Y3fZsbos3z3jfwBZRMdWIUdSN/C2aHx
-         SOGecqtD/UpC6yleeds9Muh0a1VXPyGs3Nj+bPJ1CMhluJ26QYdRP5Kw670zduT/FC
-         w7DKnDP6YufmTLEtioR3MlECPkYB+LzVGw2Gx4so=
+        b=fiCgOGUrtp2fvDXQSDSQZCCwlcOBM3NE72ndvpeByu6nFdcVSJvk6Tf/zpvFHkt2I
+         Srp4rQmPulHP/LqQa96+y7ood82M3Ck+06COAxNmrjp+lmUONFe56ck5BLJ/vNvCft
+         wn22JcYmoyl55r+3uhNHzHAAFw1p8AKFIi5Opxxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zelin Deng <zelin.deng@linux.alibaba.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 16/93] x86/kvmclock: Move this_cpu_pvti into kvmclock.h
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 23/41] spi: Fix tegra20 build with CONFIG_PM=n
 Date:   Mon,  4 Oct 2021 14:52:14 +0200
-Message-Id: <20211004125035.109567155@linuxfoundation.org>
+Message-Id: <20211004125027.316190460@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
+References: <20211004125026.597501645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,69 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zelin Deng <zelin.deng@linux.alibaba.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit ad9af930680bb396c87582edc172b3a7cf2a3fbf upstream.
+[ Upstream commit efafec27c5658ed987e720130772f8933c685e87 ]
 
-There're other modules might use hv_clock_per_cpu variable like ptp_kvm,
-so move it into kvmclock.h and export the symbol to make it visiable to
-other modules.
+Without CONFIG_PM enabled, the SET_RUNTIME_PM_OPS() macro ends up being
+empty, and the only use of tegra_slink_runtime_{resume,suspend} goes
+away, resulting in
 
-Signed-off-by: Zelin Deng <zelin.deng@linux.alibaba.com>
-Cc: <stable@vger.kernel.org>
-Message-Id: <1632892429-101194-2-git-send-email-zelin.deng@linux.alibaba.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  drivers/spi/spi-tegra20-slink.c:1200:12: error: ‘tegra_slink_runtime_resume’ defined but not used [-Werror=unused-function]
+   1200 | static int tegra_slink_runtime_resume(struct device *dev)
+        |            ^~~~~~~~~~~~~~~~~~~~~~~~~~
+  drivers/spi/spi-tegra20-slink.c:1188:12: error: ‘tegra_slink_runtime_suspend’ defined but not used [-Werror=unused-function]
+   1188 | static int tegra_slink_runtime_suspend(struct device *dev)
+        |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+mark the functions __maybe_unused to make the build happy.
+
+This hits the alpha allmodconfig build (and others).
+
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/kvmclock.h |   14 ++++++++++++++
- arch/x86/kernel/kvmclock.c      |   13 ++-----------
- 2 files changed, 16 insertions(+), 11 deletions(-)
+ drivers/spi/spi-tegra20-slink.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/kvmclock.h
-+++ b/arch/x86/include/asm/kvmclock.h
-@@ -2,6 +2,20 @@
- #ifndef _ASM_X86_KVM_CLOCK_H
- #define _ASM_X86_KVM_CLOCK_H
+--- a/drivers/spi/spi-tegra20-slink.c
++++ b/drivers/spi/spi-tegra20-slink.c
+@@ -1210,7 +1210,7 @@ static int tegra_slink_resume(struct dev
+ }
+ #endif
  
-+#include <linux/percpu.h>
-+
- extern struct clocksource kvm_clock;
+-static int tegra_slink_runtime_suspend(struct device *dev)
++static int __maybe_unused tegra_slink_runtime_suspend(struct device *dev)
+ {
+ 	struct spi_master *master = dev_get_drvdata(dev);
+ 	struct tegra_slink_data *tspi = spi_master_get_devdata(master);
+@@ -1222,7 +1222,7 @@ static int tegra_slink_runtime_suspend(s
+ 	return 0;
+ }
  
-+DECLARE_PER_CPU(struct pvclock_vsyscall_time_info *, hv_clock_per_cpu);
-+
-+static inline struct pvclock_vcpu_time_info *this_cpu_pvti(void)
-+{
-+	return &this_cpu_read(hv_clock_per_cpu)->pvti;
-+}
-+
-+static inline struct pvclock_vsyscall_time_info *this_cpu_hvclock(void)
-+{
-+	return this_cpu_read(hv_clock_per_cpu);
-+}
-+
- #endif /* _ASM_X86_KVM_CLOCK_H */
---- a/arch/x86/kernel/kvmclock.c
-+++ b/arch/x86/kernel/kvmclock.c
-@@ -50,18 +50,9 @@ early_param("no-kvmclock-vsyscall", pars
- static struct pvclock_vsyscall_time_info
- 			hv_clock_boot[HVC_BOOT_ARRAY_SIZE] __bss_decrypted __aligned(PAGE_SIZE);
- static struct pvclock_wall_clock wall_clock __bss_decrypted;
--static DEFINE_PER_CPU(struct pvclock_vsyscall_time_info *, hv_clock_per_cpu);
- static struct pvclock_vsyscall_time_info *hvclock_mem;
--
--static inline struct pvclock_vcpu_time_info *this_cpu_pvti(void)
--{
--	return &this_cpu_read(hv_clock_per_cpu)->pvti;
--}
--
--static inline struct pvclock_vsyscall_time_info *this_cpu_hvclock(void)
--{
--	return this_cpu_read(hv_clock_per_cpu);
--}
-+DEFINE_PER_CPU(struct pvclock_vsyscall_time_info *, hv_clock_per_cpu);
-+EXPORT_PER_CPU_SYMBOL_GPL(hv_clock_per_cpu);
- 
- /*
-  * The wallclock is the time of day when we booted. Since then, some time may
+-static int tegra_slink_runtime_resume(struct device *dev)
++static int __maybe_unused tegra_slink_runtime_resume(struct device *dev)
+ {
+ 	struct spi_master *master = dev_get_drvdata(dev);
+ 	struct tegra_slink_data *tspi = spi_master_get_devdata(master);
 
 
