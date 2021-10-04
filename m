@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E616420D7B
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:14:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA38F420E45
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:22:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236042AbhJDNPe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:15:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47394 "EHLO mail.kernel.org"
+        id S236214AbhJDNYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:24:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236188AbhJDNNd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:13:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B064D61B74;
-        Mon,  4 Oct 2021 13:05:18 +0000 (UTC)
+        id S235587AbhJDNV2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:21:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E7B0F61BB5;
+        Mon,  4 Oct 2021 13:09:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352719;
-        bh=btchl0DR4ajugpku7C1Va3oggK8PguAEAjFscJpsi7s=;
+        s=korg; t=1633352957;
+        bh=2OFygWrPdFqjXvujpA+E2LGyRXoPwVbU9xNY8uzohmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qMd5OaF7a3qd0hPQYDh+cv6YGDUXNb7XG6plPWafGPXvvjrwI6PlmfxSyS6tPKb7X
-         DiO/9jgdsZ8XUYGVc1uLo+s9nPyqGqT2ED550nmzSnSTTzb08q9bf5c5+0e0SJnoF5
-         8z0TjUOlZpifkOo6+H7pb8vfpGm8qHu0zD9Yc/V4=
+        b=V5Tu5LATL1ds+gyelhsAwq806KQPk9l5GSOsRQ2+ImNJHcjArPQgaOk6flcO63k04
+         YiF7DnglRX4LG6RaXKbcWOw2ZZQM5gHQUXco2WPJVjtG0yIRGIec/xSewoIGIPv0nE
+         UVd6NxHQFF0m23fV52HKKfnq3kVIrRRqDD/2QOos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Chen <yiche@redhat.com>,
-        Andrea Claudi <aclaudi@redhat.com>,
-        Julian Anastasov <ja@ssi.bg>,
-        Simon Horman <horms@verge.net.au>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        syzbot+0e964fad69a9c462bc1e@syzkaller.appspotmail.com,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 62/95] ipvs: check that ip_vs_conn_tab_bits is between 8 and 20
+Subject: [PATCH 5.10 34/93] mac80211-hwsim: fix late beacon hrtimer handling
 Date:   Mon,  4 Oct 2021 14:52:32 +0200
-Message-Id: <20211004125035.599313418@linuxfoundation.org>
+Message-Id: <20211004125035.690145604@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Claudi <aclaudi@redhat.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 69e73dbfda14fbfe748d3812da1244cce2928dcb ]
+[ Upstream commit 313bbd1990b6ddfdaa7da098d0c56b098a833572 ]
 
-ip_vs_conn_tab_bits may be provided by the user through the
-conn_tab_bits module parameter. If this value is greater than 31, or
-less than 0, the shift operator used to derive tab_size causes undefined
-behaviour.
+Thomas explained in https://lore.kernel.org/r/87mtoeb4hb.ffs@tglx
+that our handling of the hrtimer here is wrong: If the timer fires
+late (e.g. due to vCPU scheduling, as reported by Dmitry/syzbot)
+then it tries to actually rearm the timer at the next deadline,
+which might be in the past already:
 
-Fix this checking ip_vs_conn_tab_bits value to be in the range specified
-in ipvs Kconfig. If not, simply use default value.
+ 1          2          3          N          N+1
+ |          |          |   ...    |          |
 
-Fixes: 6f7edb4881bf ("IPVS: Allow boot time change of hash size")
-Reported-by: Yi Chen <yiche@redhat.com>
-Signed-off-by: Andrea Claudi <aclaudi@redhat.com>
-Acked-by: Julian Anastasov <ja@ssi.bg>
-Acked-by: Simon Horman <horms@verge.net.au>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+ ^ intended to fire here (1)
+            ^ next deadline here (2)
+                                      ^ actually fired here
+
+The next time it fires, it's later, but will still try to schedule
+for the next deadline (now 3), etc. until it catches up with N,
+but that might take a long time, causing stalls etc.
+
+Now, all of this is simulation, so we just have to fix it, but
+note that the behaviour is wrong even per spec, since there's no
+value then in sending all those beacons unaligned - they should be
+aligned to the TBTT (1, 2, 3, ... in the picture), and if we're a
+bit (or a lot) late, then just resume at that point.
+
+Therefore, change the code to use hrtimer_forward_now() which will
+ensure that the next firing of the timer would be at N+1 (in the
+picture), i.e. the next interval point after the current time.
+
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Reported-by: syzbot+0e964fad69a9c462bc1e@syzkaller.appspotmail.com
+Fixes: 01e59e467ecf ("mac80211_hwsim: hrtimer beacon")
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20210915112936.544f383472eb.I3f9712009027aa09244b65399bf18bf482a8c4f1@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipvs/ip_vs_conn.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/wireless/mac80211_hwsim.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/ipvs/ip_vs_conn.c b/net/netfilter/ipvs/ip_vs_conn.c
-index 5b2b17867cb1..2780a847701e 100644
---- a/net/netfilter/ipvs/ip_vs_conn.c
-+++ b/net/netfilter/ipvs/ip_vs_conn.c
-@@ -1399,6 +1399,10 @@ int __init ip_vs_conn_init(void)
- 	int idx;
- 
- 	/* Compute size and mask */
-+	if (ip_vs_conn_tab_bits < 8 || ip_vs_conn_tab_bits > 20) {
-+		pr_info("conn_tab_bits not in [8, 20]. Using default value\n");
-+		ip_vs_conn_tab_bits = CONFIG_IP_VS_TAB_BITS;
-+	}
- 	ip_vs_conn_tab_size = 1 << ip_vs_conn_tab_bits;
- 	ip_vs_conn_tab_mask = ip_vs_conn_tab_size - 1;
+diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
+index 4ca0b06d09ad..b793d61d15d2 100644
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -1795,8 +1795,8 @@ mac80211_hwsim_beacon(struct hrtimer *timer)
+ 		bcn_int -= data->bcn_delta;
+ 		data->bcn_delta = 0;
+ 	}
+-	hrtimer_forward(&data->beacon_timer, hrtimer_get_expires(timer),
+-			ns_to_ktime(bcn_int * NSEC_PER_USEC));
++	hrtimer_forward_now(&data->beacon_timer,
++			    ns_to_ktime(bcn_int * NSEC_PER_USEC));
+ 	return HRTIMER_RESTART;
+ }
  
 -- 
 2.33.0
