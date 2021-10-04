@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A216E420FED
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:37:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7806B420E5E
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:23:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237825AbhJDNjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:39:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51966 "EHLO mail.kernel.org"
+        id S236496AbhJDNYj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:24:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238153AbhJDNhI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:37:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D3CB6124B;
-        Mon,  4 Oct 2021 13:16:44 +0000 (UTC)
+        id S236606AbhJDNXB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:23:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3AB761AEC;
+        Mon,  4 Oct 2021 13:09:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353405;
-        bh=KMlCW3ihomlYIXeJo//98hTRu56y/+zQROHmuNdSJxs=;
+        s=korg; t=1633352994;
+        bh=gHJQs/WJVTPGvHr88ZfDwTJS4cgdWv8niIcvFYnSHNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tGao5fDQOLiNRM2qS1FbavaTBSS4P6myoWir72up5/k4Qcwsjb4Ftf7iDC9iNbFcn
-         2MqOvfFIZsNLTzaUeqaYHh2YpMt3gaHI5I2gwnHUCGqMGEcQJKRU85x3ifqnwMDgeK
-         v4luCo4+8OGFd2acvymW5gqiX5C+s9JQgl8eA2ag=
+        b=JMml2VTmaoHAhuEls2lVX/Yk9J1IzFv1AbU5G2Di//f2/GCNwAkgL0UbwNh02txTr
+         2f/lQt9b548UlHZL+NN15StwhvcVsMSmVpKXZEIu0a4FwMimraKFnHP4VxzzHgWkKa
+         210z6FEsNnSjrS8aqJ16qbw2nzcNeIw8SDBITByg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org,
+        Felicitas Hetzelt <felicitashetzelt@gmail.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 115/172] libbpf: Fix segfault in static linker for objects without BTF
+Subject: [PATCH 5.10 47/93] e100: fix buffer overrun in e100_get_regs
 Date:   Mon,  4 Oct 2021 14:52:45 +0200
-Message-Id: <20211004125048.693992509@linuxfoundation.org>
+Message-Id: <20211004125036.117184522@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,64 +42,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-[ Upstream commit bcfd367c2839f2126c048fe59700ec1b538e2b06 ]
+[ Upstream commit 51032e6f17ce990d06123ad7307f258c50d25aa7 ]
 
-When a BPF object is compiled without BTF info (without -g),
-trying to link such objects using bpftool causes a SIGSEGV due to
-btf__get_nr_types accessing obj->btf which is NULL. Fix this by
-checking for the NULL pointer, and return error.
+The e100_get_regs function is used to implement a simple register dump
+for the e100 device. The data is broken into a couple of MAC control
+registers, and then a series of PHY registers, followed by a memory dump
+buffer.
 
-Reproducer:
-$ cat a.bpf.c
-extern int foo(void);
-int bar(void) { return foo(); }
-$ cat b.bpf.c
-int foo(void) { return 0; }
-$ clang -O2 -target bpf -c a.bpf.c
-$ clang -O2 -target bpf -c b.bpf.c
-$ bpftool gen obj out a.bpf.o b.bpf.o
-Segmentation fault (core dumped)
+The total length of the register dump is defined as (1 + E100_PHY_REGS)
+* sizeof(u32) + sizeof(nic->mem->dump_buf).
 
-After fix:
-$ bpftool gen obj out a.bpf.o b.bpf.o
-libbpf: failed to find BTF info for object 'a.bpf.o'
-Error: failed to link 'a.bpf.o': Unknown error -22 (-22)
+The logic for filling in the PHY registers uses a convoluted inverted
+count for loop which counts from E100_PHY_REGS (0x1C) down to 0, and
+assigns the slots 1 + E100_PHY_REGS - i. The first loop iteration will
+fill in [1] and the final loop iteration will fill in [1 + 0x1C]. This
+is actually one more than the supposed number of PHY registers.
 
-Fixes: a46349227cd8 (libbpf: Add linker extern resolution support for functions and global variables)
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20210924023725.70228-1-memxor@gmail.com
+The memory dump buffer is then filled into the space at
+[2 + E100_PHY_REGS] which will cause that memcpy to assign 4 bytes past
+the total size.
+
+The end result is that we overrun the total buffer size allocated by the
+kernel, which could lead to a panic or other issues due to memory
+corruption.
+
+It is difficult to determine the actual total number of registers
+here. The only 8255x datasheet I could find indicates there are 28 total
+MDI registers. However, we're reading 29 here, and reading them in
+reverse!
+
+In addition, the ethtool e100 register dump interface appears to read
+the first PHY register to determine if the device is in MDI or MDIx
+mode. This doesn't appear to be documented anywhere within the 8255x
+datasheet. I can only assume it must be in register 28 (the extra
+register we're reading here).
+
+Lets not change any of the intended meaning of what we copy here. Just
+extend the space by 4 bytes to account for the extra register and
+continue copying the data out in the same order.
+
+Change the E100_PHY_REGS value to be the correct total (29) so that the
+total register dump size is calculated properly. Fix the offset for
+where we copy the dump buffer so that it doesn't overrun the total size.
+
+Re-write the for loop to use counting up instead of the convoluted
+down-counting. Correct the mdio_read offset to use the 0-based register
+offsets, but maintain the bizarre reverse ordering so that we have the
+ABI expected by applications like ethtool. This requires and additional
+subtraction of 1. It seems a bit odd but it makes the flow of assignment
+into the register buffer easier to follow.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Felicitas Hetzelt <felicitashetzelt@gmail.com>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/linker.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/e100.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/tools/lib/bpf/linker.c b/tools/lib/bpf/linker.c
-index 10911a8cad0f..2df880cefdae 100644
---- a/tools/lib/bpf/linker.c
-+++ b/tools/lib/bpf/linker.c
-@@ -1649,11 +1649,17 @@ static bool btf_is_non_static(const struct btf_type *t)
- static int find_glob_sym_btf(struct src_obj *obj, Elf64_Sym *sym, const char *sym_name,
- 			     int *out_btf_sec_id, int *out_btf_id)
+diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
+index fee329d98621..ee86ea12fa37 100644
+--- a/drivers/net/ethernet/intel/e100.c
++++ b/drivers/net/ethernet/intel/e100.c
+@@ -2431,7 +2431,7 @@ static void e100_get_drvinfo(struct net_device *netdev,
+ 		sizeof(info->bus_info));
+ }
+ 
+-#define E100_PHY_REGS 0x1C
++#define E100_PHY_REGS 0x1D
+ static int e100_get_regs_len(struct net_device *netdev)
  {
--	int i, j, n = btf__get_nr_types(obj->btf), m, btf_id = 0;
-+	int i, j, n, m, btf_id = 0;
- 	const struct btf_type *t;
- 	const struct btf_var_secinfo *vi;
- 	const char *name;
+ 	struct nic *nic = netdev_priv(netdev);
+@@ -2453,14 +2453,18 @@ static void e100_get_regs(struct net_device *netdev,
+ 	buff[0] = ioread8(&nic->csr->scb.cmd_hi) << 24 |
+ 		ioread8(&nic->csr->scb.cmd_lo) << 16 |
+ 		ioread16(&nic->csr->scb.status);
+-	for (i = E100_PHY_REGS; i >= 0; i--)
+-		buff[1 + E100_PHY_REGS - i] =
+-			mdio_read(netdev, nic->mii.phy_id, i);
++	for (i = 0; i < E100_PHY_REGS; i++)
++		/* Note that we read the registers in reverse order. This
++		 * ordering is the ABI apparently used by ethtool and other
++		 * applications.
++		 */
++		buff[1 + i] = mdio_read(netdev, nic->mii.phy_id,
++					E100_PHY_REGS - 1 - i);
+ 	memset(nic->mem->dump_buf, 0, sizeof(nic->mem->dump_buf));
+ 	e100_exec_cb(nic, NULL, e100_dump);
+ 	msleep(10);
+-	memcpy(&buff[2 + E100_PHY_REGS], nic->mem->dump_buf,
+-		sizeof(nic->mem->dump_buf));
++	memcpy(&buff[1 + E100_PHY_REGS], nic->mem->dump_buf,
++	       sizeof(nic->mem->dump_buf));
+ }
  
-+	if (!obj->btf) {
-+		pr_warn("failed to find BTF info for object '%s'\n", obj->filename);
-+		return -EINVAL;
-+	}
-+
-+	n = btf__get_nr_types(obj->btf);
- 	for (i = 1; i <= n; i++) {
- 		t = btf__type_by_id(obj->btf, i);
- 
+ static void e100_get_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
 -- 
 2.33.0
 
