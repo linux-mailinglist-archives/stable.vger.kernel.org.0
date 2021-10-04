@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB1C8420F47
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:31:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ED2B420C4A
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:02:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236924AbhJDNdA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:33:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45186 "EHLO mail.kernel.org"
+        id S234798AbhJDNEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:04:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236532AbhJDNbH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:31:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9F7663214;
-        Mon,  4 Oct 2021 13:14:00 +0000 (UTC)
+        id S234690AbhJDNDF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:03:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50DC661A58;
+        Mon,  4 Oct 2021 12:59:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353241;
-        bh=kEcqwp9mXAMYwj8cNUa25CVhfk4qG4FSVdvEhS3bt1Y=;
+        s=korg; t=1633352373;
+        bh=2vUH5UaK+CTkUML7SMrS/yBFMSd7Ex3I/o640zwF/+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0NfM/Y/KAJrVfJL0cEgMDUllpIhFJ1AHfu8cOhKuvdIhZu4jam0gmQjs8s2/ecyZN
-         q08wxTnHPmFsosbEN0mlnpGF4BDVq218Rwyt02HTZVio+ZdS1sG7+ThENObUV0bX27
-         wC+nJACRo5WkF41wgXx2tBvGoCkQPNAHHkO50Q2E=
+        b=J1mnSqb/3vFGqJg69hNVg54GtuvhOE6E18O6OlFTPQ199WawM5syx0BEeVEzIk/HE
+         nJ5vogjqSOoOXtz8S8oxSTgLBzjlUrlvumJbwdqzuTRmfu834t330C+EqtfB5qGdMY
+         2lH1Wsy8y3hHOeB4xWBEqdW9+EKvqjoAQE9nKr1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.14 050/172] KVM: x86: Fix stack-out-of-bounds memory access from ioapic_write_indirect()
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.14 05/75] xen/x86: fix PV trap handling on secondary processors
 Date:   Mon,  4 Oct 2021 14:51:40 +0200
-Message-Id: <20211004125046.613221744@linuxfoundation.org>
+Message-Id: <20211004125031.708386040@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,91 +40,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-commit 2f9b68f57c6278c322793a06063181deded0ad69 upstream.
+commit 0594c58161b6e0f3da8efa9c6e3d4ba52b652717 upstream.
 
-KASAN reports the following issue:
+The initial observation was that in PV mode under Xen 32-bit user space
+didn't work anymore. Attempts of system calls ended in #GP(0x402). All
+of the sudden the vector 0x80 handler was not in place anymore. As it
+turns out up to 5.13 redundant initialization did occur: Once from
+cpu_initialize_context() (through its VCPUOP_initialise hypercall) and a
+2nd time while each CPU was brought fully up. This 2nd initialization is
+now gone, uncovering that the 1st one was flawed: Unlike for the
+set_trap_table hypercall, a full virtual IDT needs to be specified here;
+the "vector" fields of the individual entries are of no interest. With
+many (kernel) IDT entries still(?) (i.e. at that point at least) empty,
+the syscall vector 0x80 ended up in slot 0x20 of the virtual IDT, thus
+becoming the domain's handler for vector 0x20.
 
- BUG: KASAN: stack-out-of-bounds in kvm_make_vcpus_request_mask+0x174/0x440 [kvm]
- Read of size 8 at addr ffffc9001364f638 by task qemu-kvm/4798
+Make xen_convert_trap_info() fit for either purpose, leveraging the fact
+that on the xen_copy_trap_info() path the table starts out zero-filled.
+This includes moving out the writing of the sentinel, which would also
+have lead to a buffer overrun in the xen_copy_trap_info() case if all
+(kernel) IDT entries were populated. Convert the writing of the sentinel
+to clearing of the entire table entry rather than just the address
+field.
 
- CPU: 0 PID: 4798 Comm: qemu-kvm Tainted: G               X --------- ---
- Hardware name: AMD Corporation DAYTONA_X/DAYTONA_X, BIOS RYM0081C 07/13/2020
- Call Trace:
-  dump_stack+0xa5/0xe6
-  print_address_description.constprop.0+0x18/0x130
-  ? kvm_make_vcpus_request_mask+0x174/0x440 [kvm]
-  __kasan_report.cold+0x7f/0x114
-  ? kvm_make_vcpus_request_mask+0x174/0x440 [kvm]
-  kasan_report+0x38/0x50
-  kasan_check_range+0xf5/0x1d0
-  kvm_make_vcpus_request_mask+0x174/0x440 [kvm]
-  kvm_make_scan_ioapic_request_mask+0x84/0xc0 [kvm]
-  ? kvm_arch_exit+0x110/0x110 [kvm]
-  ? sched_clock+0x5/0x10
-  ioapic_write_indirect+0x59f/0x9e0 [kvm]
-  ? static_obj+0xc0/0xc0
-  ? __lock_acquired+0x1d2/0x8c0
-  ? kvm_ioapic_eoi_inject_work+0x120/0x120 [kvm]
+(I didn't bother trying to identify the commit which uncovered the issue
+in 5.14; the commit named below is the one which actually introduced the
+bad code.)
 
-The problem appears to be that 'vcpu_bitmap' is allocated as a single long
-on stack and it should really be KVM_MAX_VCPUS long. We also seem to clear
-the lower 16 bits of it with bitmap_zero() for no particular reason (my
-guess would be that 'bitmap' and 'vcpu_bitmap' variables in
-kvm_bitmap_or_dest_vcpus() caused the confusion: while the later is indeed
-16-bit long, the later should accommodate all possible vCPUs).
-
-Fixes: 7ee30bc132c6 ("KVM: x86: deliver KVM IOAPIC scan request to target vCPUs")
-Fixes: 9a2ae9f6b6bb ("KVM: x86: Zero the IOAPIC scan request dest vCPUs bitmap")
-Reported-by: Dr. David Alan Gilbert <dgilbert@redhat.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210827092516.1027264-7-vkuznets@redhat.com>
+Fixes: f87e4cac4f4e ("xen: SMP guest support")
 Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/7a266932-092e-b68f-f2bb-1473b61adc6e@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/ioapic.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/x86/xen/enlighten_pv.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kvm/ioapic.c
-+++ b/arch/x86/kvm/ioapic.c
-@@ -319,8 +319,8 @@ static void ioapic_write_indirect(struct
- 	unsigned index;
- 	bool mask_before, mask_after;
- 	union kvm_ioapic_redirect_entry *e;
--	unsigned long vcpu_bitmap;
- 	int old_remote_irr, old_delivery_status, old_dest_id, old_dest_mode;
-+	DECLARE_BITMAP(vcpu_bitmap, KVM_MAX_VCPUS);
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -721,8 +721,8 @@ static void xen_write_idt_entry(gate_des
+ 	preempt_enable();
+ }
  
- 	switch (ioapic->ioregsel) {
- 	case IOAPIC_REG_VERSION:
-@@ -384,9 +384,9 @@ static void ioapic_write_indirect(struct
- 			irq.shorthand = APIC_DEST_NOSHORT;
- 			irq.dest_id = e->fields.dest_id;
- 			irq.msi_redir_hint = false;
--			bitmap_zero(&vcpu_bitmap, 16);
-+			bitmap_zero(vcpu_bitmap, KVM_MAX_VCPUS);
- 			kvm_bitmap_or_dest_vcpus(ioapic->kvm, &irq,
--						 &vcpu_bitmap);
-+						 vcpu_bitmap);
- 			if (old_dest_mode != e->fields.dest_mode ||
- 			    old_dest_id != e->fields.dest_id) {
- 				/*
-@@ -399,10 +399,10 @@ static void ioapic_write_indirect(struct
- 				    kvm_lapic_irq_dest_mode(
- 					!!e->fields.dest_mode);
- 				kvm_bitmap_or_dest_vcpus(ioapic->kvm, &irq,
--							 &vcpu_bitmap);
-+							 vcpu_bitmap);
- 			}
- 			kvm_make_scan_ioapic_request_mask(ioapic->kvm,
--							  &vcpu_bitmap);
-+							  vcpu_bitmap);
- 		} else {
- 			kvm_make_scan_ioapic_request(ioapic->kvm);
- 		}
+-static void xen_convert_trap_info(const struct desc_ptr *desc,
+-				  struct trap_info *traps)
++static unsigned xen_convert_trap_info(const struct desc_ptr *desc,
++				      struct trap_info *traps, bool full)
+ {
+ 	unsigned in, out, count;
+ 
+@@ -732,17 +732,18 @@ static void xen_convert_trap_info(const
+ 	for (in = out = 0; in < count; in++) {
+ 		gate_desc *entry = (gate_desc *)(desc->address) + in;
+ 
+-		if (cvt_gate_to_trap(in, entry, &traps[out]))
++		if (cvt_gate_to_trap(in, entry, &traps[out]) || full)
+ 			out++;
+ 	}
+-	traps[out].address = 0;
++
++	return out;
+ }
+ 
+ void xen_copy_trap_info(struct trap_info *traps)
+ {
+ 	const struct desc_ptr *desc = this_cpu_ptr(&idt_desc);
+ 
+-	xen_convert_trap_info(desc, traps);
++	xen_convert_trap_info(desc, traps, true);
+ }
+ 
+ /* Load a new IDT into Xen.  In principle this can be per-CPU, so we
+@@ -752,6 +753,7 @@ static void xen_load_idt(const struct de
+ {
+ 	static DEFINE_SPINLOCK(lock);
+ 	static struct trap_info traps[257];
++	unsigned out;
+ 
+ 	trace_xen_cpu_load_idt(desc);
+ 
+@@ -759,7 +761,8 @@ static void xen_load_idt(const struct de
+ 
+ 	memcpy(this_cpu_ptr(&idt_desc), desc, sizeof(idt_desc));
+ 
+-	xen_convert_trap_info(desc, traps);
++	out = xen_convert_trap_info(desc, traps, false);
++	memset(&traps[out], 0, sizeof(traps[0]));
+ 
+ 	xen_mc_flush();
+ 	if (HYPERVISOR_set_trap_table(traps))
 
 
