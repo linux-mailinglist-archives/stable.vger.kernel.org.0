@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB087420C78
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:04:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DE35420B52
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:54:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234238AbhJDNFz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:05:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39808 "EHLO mail.kernel.org"
+        id S233480AbhJDM4h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 08:56:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234714AbhJDND7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:03:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5982B61B00;
-        Mon,  4 Oct 2021 13:00:16 +0000 (UTC)
+        id S233387AbhJDM4U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:56:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 580746139F;
+        Mon,  4 Oct 2021 12:54:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352416;
-        bh=3CbfnhaRsqjTMnTodKaC5u+H/RT0qZ50z34F6KstTaE=;
+        s=korg; t=1633352071;
+        bh=PIbSv5+aLo81YMPeqyWAtnVJitmVlGcjP8D8JKUBSBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xTv9iQd7pA4q4lalaC/kGcK7Hx9xuHFltlwDWoftCc7KkZvYEu0HRvQpRvVXBKB0y
-         Ravvnro+AZebEz7q32hxsLZVh5JWHy3H2nLYx1qHDXLZiq5ZGz8bZ8g1xy1TPrXjSe
-         xWW2uNzojdG3sAG2bseFYL8vsM1U0PcRk09kBGX4=
+        b=se+tNMLIWhgA4VuXEQu0n/lXE1DySDunsA0yvLf/aUBsC4sDbC5i2pZumEez+Q8xz
+         cKyyBkq+VGZp0TCU/Fdu//Ymvdqpav5y12R5a2xECAD8wThFS8iITv+7Pzf4+8GEI5
+         0PnGpiDYR4E4H38nkpErVXTW/ca4diMJM6LFN+8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Arnd Bergmann <arnd@arndb.de>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 36/75] spi: Fix tegra20 build with CONFIG_PM=n
-Date:   Mon,  4 Oct 2021 14:52:11 +0200
-Message-Id: <20211004125032.725696066@linuxfoundation.org>
+Subject: [PATCH 4.4 21/41] alpha: Declare virt_to_phys and virt_to_bus parameter as pointer to volatile
+Date:   Mon,  4 Oct 2021 14:52:12 +0200
+Message-Id: <20211004125027.255850386@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
+References: <20211004125026.597501645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit efafec27c5658ed987e720130772f8933c685e87 ]
+[ Upstream commit 35a3f4ef0ab543daa1725b0c963eb8c05e3376f8 ]
 
-Without CONFIG_PM enabled, the SET_RUNTIME_PM_OPS() macro ends up being
-empty, and the only use of tegra_slink_runtime_{resume,suspend} goes
-away, resulting in
+Some drivers pass a pointer to volatile data to virt_to_bus() and
+virt_to_phys(), and that works fine.  One exception is alpha.  This
+results in a number of compile errors such as
 
-  drivers/spi/spi-tegra20-slink.c:1200:12: error: ‘tegra_slink_runtime_resume’ defined but not used [-Werror=unused-function]
-   1200 | static int tegra_slink_runtime_resume(struct device *dev)
-        |            ^~~~~~~~~~~~~~~~~~~~~~~~~~
-  drivers/spi/spi-tegra20-slink.c:1188:12: error: ‘tegra_slink_runtime_suspend’ defined but not used [-Werror=unused-function]
-   1188 | static int tegra_slink_runtime_suspend(struct device *dev)
-        |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+  drivers/net/wan/lmc/lmc_main.c: In function 'lmc_softreset':
+  drivers/net/wan/lmc/lmc_main.c:1782:50: error:
+	passing argument 1 of 'virt_to_bus' discards 'volatile'
+	qualifier from pointer target type
 
-mark the functions __maybe_unused to make the build happy.
+  drivers/atm/ambassador.c: In function 'do_loader_command':
+  drivers/atm/ambassador.c:1747:58: error:
+	passing argument 1 of 'virt_to_bus' discards 'volatile'
+	qualifier from pointer target type
 
-This hits the alpha allmodconfig build (and others).
+Declare the parameter of virt_to_phys and virt_to_bus as pointer to
+volatile to fix the problem.
 
-Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-tegra20-slink.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/alpha/include/asm/io.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/spi/spi-tegra20-slink.c b/drivers/spi/spi-tegra20-slink.c
-index c39bfcbda5f2..1548f7b738c1 100644
---- a/drivers/spi/spi-tegra20-slink.c
-+++ b/drivers/spi/spi-tegra20-slink.c
-@@ -1210,7 +1210,7 @@ static int tegra_slink_resume(struct device *dev)
- }
- #endif
- 
--static int tegra_slink_runtime_suspend(struct device *dev)
-+static int __maybe_unused tegra_slink_runtime_suspend(struct device *dev)
+diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
+index 355aec0867f4..e55a5e6ab460 100644
+--- a/arch/alpha/include/asm/io.h
++++ b/arch/alpha/include/asm/io.h
+@@ -60,7 +60,7 @@ extern inline void set_hae(unsigned long new_hae)
+  * Change virtual addresses to physical addresses and vv.
+  */
+ #ifdef USE_48_BIT_KSEG
+-static inline unsigned long virt_to_phys(void *address)
++static inline unsigned long virt_to_phys(volatile void *address)
  {
- 	struct spi_master *master = dev_get_drvdata(dev);
- 	struct tegra_slink_data *tspi = spi_master_get_devdata(master);
-@@ -1222,7 +1222,7 @@ static int tegra_slink_runtime_suspend(struct device *dev)
- 	return 0;
+ 	return (unsigned long)address - IDENT_ADDR;
  }
- 
--static int tegra_slink_runtime_resume(struct device *dev)
-+static int __maybe_unused tegra_slink_runtime_resume(struct device *dev)
+@@ -70,7 +70,7 @@ static inline void * phys_to_virt(unsigned long address)
+ 	return (void *) (address + IDENT_ADDR);
+ }
+ #else
+-static inline unsigned long virt_to_phys(void *address)
++static inline unsigned long virt_to_phys(volatile void *address)
  {
- 	struct spi_master *master = dev_get_drvdata(dev);
- 	struct tegra_slink_data *tspi = spi_master_get_devdata(master);
+         unsigned long phys = (unsigned long)address;
+ 
+@@ -111,7 +111,7 @@ static inline dma_addr_t __deprecated isa_page_to_bus(struct page *page)
+ extern unsigned long __direct_map_base;
+ extern unsigned long __direct_map_size;
+ 
+-static inline unsigned long __deprecated virt_to_bus(void *address)
++static inline unsigned long __deprecated virt_to_bus(volatile void *address)
+ {
+ 	unsigned long phys = virt_to_phys(address);
+ 	unsigned long bus = phys + __direct_map_base;
 -- 
 2.33.0
 
