@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6097F420DC5
+	by mail.lfdr.de (Postfix) with ESMTP id BA1A7420DC6
 	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:17:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235579AbhJDNTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235262AbhJDNTD (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 4 Oct 2021 09:19:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54180 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236227AbhJDNQZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:16:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9047D61244;
-        Mon,  4 Oct 2021 13:06:38 +0000 (UTC)
+        id S236249AbhJDNQc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:16:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 57A46610E6;
+        Mon,  4 Oct 2021 13:06:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352799;
-        bh=Hro0QMF5+Yxe4Ukd8w8lnkt1+26V0yLpWkmhmlOEtOg=;
+        s=korg; t=1633352802;
+        bh=mPGDAq3CAz9VjshLKKPtwF558MAdDcL4ZjEeh649IZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GlIictDPeGThxTtCw8nkhahJQ2zr3NX2aOerUfpAMwoFf+nDrOzXY2MVISsU6Sf39
-         ah2AGMePQhcnjjZa6PjnNyGVRWjypFLdH638IiDSsnNDtL28mbXBW9cSOUKjQMVGY6
-         cn/tLFFMX3G4z5B8Z1t28r2nxIWxtST7NALCPdoM=
+        b=k1WXTRyDOJjXN7lHD0e9OhW/5cXmZv2keqxb66aVikoXzeyaGla8QZ/YzTOUbAy4m
+         0P2uaJZHzj78sCP4HDUWuwM6BOz/GNLr7YhJA+VZuGJz3pO1nOXdew+P36xKSi8/Ym
+         mVQL/I9JGTZHLDsVg2JRIQ+CqTj7WEjZS8bwWHSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlad Buslov <vladbu@nvidia.com>,
-        Cong Wang <cong.wang@bytedance.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Jann Horn <jannh@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 31/56] net: sched: flower: protect fl_walk() with rcu
-Date:   Mon,  4 Oct 2021 14:52:51 +0200
-Message-Id: <20211004125030.978580676@linuxfoundation.org>
+Subject: [PATCH 5.4 32/56] af_unix: fix races in sk_peer_pid and sk_peer_cred accesses
+Date:   Mon,  4 Oct 2021 14:52:52 +0200
+Message-Id: <20211004125031.010472409@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
 References: <20211004125030.002116402@linuxfoundation.org>
@@ -41,210 +44,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlad Buslov <vladbu@nvidia.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit d5ef190693a7d76c5c192d108e8dec48307b46ee ]
+[ Upstream commit 35306eb23814444bd4021f8a1c3047d3cb0c8b2b ]
 
-Patch that refactored fl_walk() to use idr_for_each_entry_continue_ul()
-also removed rcu protection of individual filters which causes following
-use-after-free when filter is deleted concurrently. Fix fl_walk() to obtain
-rcu read lock while iterating and taking the filter reference and temporary
-release the lock while calling arg->fn() callback that can sleep.
+Jann Horn reported that SO_PEERCRED and SO_PEERGROUPS implementations
+are racy, as af_unix can concurrently change sk_peer_pid and sk_peer_cred.
 
-KASAN trace:
+In order to fix this issue, this patch adds a new spinlock that needs
+to be used whenever these fields are read or written.
 
-[  352.773640] ==================================================================
-[  352.775041] BUG: KASAN: use-after-free in fl_walk+0x159/0x240 [cls_flower]
-[  352.776304] Read of size 4 at addr ffff8881c8251480 by task tc/2987
+Jann also pointed out that l2cap_sock_get_peer_pid_cb() is currently
+reading sk->sk_peer_pid which makes no sense, as this field
+is only possibly set by AF_UNIX sockets.
+We will have to clean this in a separate patch.
+This could be done by reverting b48596d1dc25 "Bluetooth: L2CAP: Add get_peer_pid callback"
+or implementing what was truly expected.
 
-[  352.777862] CPU: 3 PID: 2987 Comm: tc Not tainted 5.15.0-rc2+ #2
-[  352.778980] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-[  352.781022] Call Trace:
-[  352.781573]  dump_stack_lvl+0x46/0x5a
-[  352.782332]  print_address_description.constprop.0+0x1f/0x140
-[  352.783400]  ? fl_walk+0x159/0x240 [cls_flower]
-[  352.784292]  ? fl_walk+0x159/0x240 [cls_flower]
-[  352.785138]  kasan_report.cold+0x83/0xdf
-[  352.785851]  ? fl_walk+0x159/0x240 [cls_flower]
-[  352.786587]  kasan_check_range+0x145/0x1a0
-[  352.787337]  fl_walk+0x159/0x240 [cls_flower]
-[  352.788163]  ? fl_put+0x10/0x10 [cls_flower]
-[  352.789007]  ? __mutex_unlock_slowpath.constprop.0+0x220/0x220
-[  352.790102]  tcf_chain_dump+0x231/0x450
-[  352.790878]  ? tcf_chain_tp_delete_empty+0x170/0x170
-[  352.791833]  ? __might_sleep+0x2e/0xc0
-[  352.792594]  ? tfilter_notify+0x170/0x170
-[  352.793400]  ? __mutex_unlock_slowpath.constprop.0+0x220/0x220
-[  352.794477]  tc_dump_tfilter+0x385/0x4b0
-[  352.795262]  ? tc_new_tfilter+0x1180/0x1180
-[  352.796103]  ? __mod_node_page_state+0x1f/0xc0
-[  352.796974]  ? __build_skb_around+0x10e/0x130
-[  352.797826]  netlink_dump+0x2c0/0x560
-[  352.798563]  ? netlink_getsockopt+0x430/0x430
-[  352.799433]  ? __mutex_unlock_slowpath.constprop.0+0x220/0x220
-[  352.800542]  __netlink_dump_start+0x356/0x440
-[  352.801397]  rtnetlink_rcv_msg+0x3ff/0x550
-[  352.802190]  ? tc_new_tfilter+0x1180/0x1180
-[  352.802872]  ? rtnl_calcit.isra.0+0x1f0/0x1f0
-[  352.803668]  ? tc_new_tfilter+0x1180/0x1180
-[  352.804344]  ? _copy_from_iter_nocache+0x800/0x800
-[  352.805202]  ? kasan_set_track+0x1c/0x30
-[  352.805900]  netlink_rcv_skb+0xc6/0x1f0
-[  352.806587]  ? rht_deferred_worker+0x6b0/0x6b0
-[  352.807455]  ? rtnl_calcit.isra.0+0x1f0/0x1f0
-[  352.808324]  ? netlink_ack+0x4d0/0x4d0
-[  352.809086]  ? netlink_deliver_tap+0x62/0x3d0
-[  352.809951]  netlink_unicast+0x353/0x480
-[  352.810744]  ? netlink_attachskb+0x430/0x430
-[  352.811586]  ? __alloc_skb+0xd7/0x200
-[  352.812349]  netlink_sendmsg+0x396/0x680
-[  352.813132]  ? netlink_unicast+0x480/0x480
-[  352.813952]  ? __import_iovec+0x192/0x210
-[  352.814759]  ? netlink_unicast+0x480/0x480
-[  352.815580]  sock_sendmsg+0x6c/0x80
-[  352.816299]  ____sys_sendmsg+0x3a5/0x3c0
-[  352.817096]  ? kernel_sendmsg+0x30/0x30
-[  352.817873]  ? __ia32_sys_recvmmsg+0x150/0x150
-[  352.818753]  ___sys_sendmsg+0xd8/0x140
-[  352.819518]  ? sendmsg_copy_msghdr+0x110/0x110
-[  352.820402]  ? ___sys_recvmsg+0xf4/0x1a0
-[  352.821110]  ? __copy_msghdr_from_user+0x260/0x260
-[  352.821934]  ? _raw_spin_lock+0x81/0xd0
-[  352.822680]  ? __handle_mm_fault+0xef3/0x1b20
-[  352.823549]  ? rb_insert_color+0x2a/0x270
-[  352.824373]  ? copy_page_range+0x16b0/0x16b0
-[  352.825209]  ? perf_event_update_userpage+0x2d0/0x2d0
-[  352.826190]  ? __fget_light+0xd9/0xf0
-[  352.826941]  __sys_sendmsg+0xb3/0x130
-[  352.827613]  ? __sys_sendmsg_sock+0x20/0x20
-[  352.828377]  ? do_user_addr_fault+0x2c5/0x8a0
-[  352.829184]  ? fpregs_assert_state_consistent+0x52/0x60
-[  352.830001]  ? exit_to_user_mode_prepare+0x32/0x160
-[  352.830845]  do_syscall_64+0x35/0x80
-[  352.831445]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  352.832331] RIP: 0033:0x7f7bee973c17
-[  352.833078] Code: 0c 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 89 54 24 1c 48 89 74 24 10
-[  352.836202] RSP: 002b:00007ffcbb368e28 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-[  352.837524] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f7bee973c17
-[  352.838715] RDX: 0000000000000000 RSI: 00007ffcbb368e50 RDI: 0000000000000003
-[  352.839838] RBP: 00007ffcbb36d090 R08: 00000000cea96d79 R09: 00007f7beea34a40
-[  352.841021] R10: 00000000004059bb R11: 0000000000000246 R12: 000000000046563f
-[  352.842208] R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffcbb36d088
-
-[  352.843784] Allocated by task 2960:
-[  352.844451]  kasan_save_stack+0x1b/0x40
-[  352.845173]  __kasan_kmalloc+0x7c/0x90
-[  352.845873]  fl_change+0x282/0x22db [cls_flower]
-[  352.846696]  tc_new_tfilter+0x6cf/0x1180
-[  352.847493]  rtnetlink_rcv_msg+0x471/0x550
-[  352.848323]  netlink_rcv_skb+0xc6/0x1f0
-[  352.849097]  netlink_unicast+0x353/0x480
-[  352.849886]  netlink_sendmsg+0x396/0x680
-[  352.850678]  sock_sendmsg+0x6c/0x80
-[  352.851398]  ____sys_sendmsg+0x3a5/0x3c0
-[  352.852202]  ___sys_sendmsg+0xd8/0x140
-[  352.852967]  __sys_sendmsg+0xb3/0x130
-[  352.853718]  do_syscall_64+0x35/0x80
-[  352.854457]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-[  352.855830] Freed by task 7:
-[  352.856421]  kasan_save_stack+0x1b/0x40
-[  352.857139]  kasan_set_track+0x1c/0x30
-[  352.857854]  kasan_set_free_info+0x20/0x30
-[  352.858609]  __kasan_slab_free+0xed/0x130
-[  352.859348]  kfree+0xa7/0x3c0
-[  352.859951]  process_one_work+0x44d/0x780
-[  352.860685]  worker_thread+0x2e2/0x7e0
-[  352.861390]  kthread+0x1f4/0x220
-[  352.862022]  ret_from_fork+0x1f/0x30
-
-[  352.862955] Last potentially related work creation:
-[  352.863758]  kasan_save_stack+0x1b/0x40
-[  352.864378]  kasan_record_aux_stack+0xab/0xc0
-[  352.865028]  insert_work+0x30/0x160
-[  352.865617]  __queue_work+0x351/0x670
-[  352.866261]  rcu_work_rcufn+0x30/0x40
-[  352.866917]  rcu_core+0x3b2/0xdb0
-[  352.867561]  __do_softirq+0xf6/0x386
-
-[  352.868708] Second to last potentially related work creation:
-[  352.869779]  kasan_save_stack+0x1b/0x40
-[  352.870560]  kasan_record_aux_stack+0xab/0xc0
-[  352.871426]  call_rcu+0x5f/0x5c0
-[  352.872108]  queue_rcu_work+0x44/0x50
-[  352.872855]  __fl_put+0x17c/0x240 [cls_flower]
-[  352.873733]  fl_delete+0xc7/0x100 [cls_flower]
-[  352.874607]  tc_del_tfilter+0x510/0xb30
-[  352.886085]  rtnetlink_rcv_msg+0x471/0x550
-[  352.886875]  netlink_rcv_skb+0xc6/0x1f0
-[  352.887636]  netlink_unicast+0x353/0x480
-[  352.888285]  netlink_sendmsg+0x396/0x680
-[  352.888942]  sock_sendmsg+0x6c/0x80
-[  352.889583]  ____sys_sendmsg+0x3a5/0x3c0
-[  352.890311]  ___sys_sendmsg+0xd8/0x140
-[  352.891019]  __sys_sendmsg+0xb3/0x130
-[  352.891716]  do_syscall_64+0x35/0x80
-[  352.892395]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-[  352.893666] The buggy address belongs to the object at ffff8881c8251000
-                which belongs to the cache kmalloc-2k of size 2048
-[  352.895696] The buggy address is located 1152 bytes inside of
-                2048-byte region [ffff8881c8251000, ffff8881c8251800)
-[  352.897640] The buggy address belongs to the page:
-[  352.898492] page:00000000213bac35 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1c8250
-[  352.900110] head:00000000213bac35 order:3 compound_mapcount:0 compound_pincount:0
-[  352.901541] flags: 0x2ffff800010200(slab|head|node=0|zone=2|lastcpupid=0x1ffff)
-[  352.902908] raw: 002ffff800010200 0000000000000000 dead000000000122 ffff888100042f00
-[  352.904391] raw: 0000000000000000 0000000000080008 00000001ffffffff 0000000000000000
-[  352.905861] page dumped because: kasan: bad access detected
-
-[  352.907323] Memory state around the buggy address:
-[  352.908218]  ffff8881c8251380: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  352.909471]  ffff8881c8251400: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  352.910735] >ffff8881c8251480: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  352.912012]                    ^
-[  352.912642]  ffff8881c8251500: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  352.913919]  ffff8881c8251580: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  352.915185] ==================================================================
-
-Fixes: d39d714969cd ("idr: introduce idr_for_each_entry_continue_ul()")
-Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
-Acked-by: Cong Wang <cong.wang@bytedance.com>
+Fixes: 109f6e39fa07 ("af_unix: Allow SO_PEERCRED to work across namespaces.")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Jann Horn <jannh@google.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Cc: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Cc: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/cls_flower.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ include/net/sock.h |  2 ++
+ net/core/sock.c    | 32 ++++++++++++++++++++++++++------
+ net/unix/af_unix.c | 34 ++++++++++++++++++++++++++++------
+ 3 files changed, 56 insertions(+), 12 deletions(-)
 
-diff --git a/net/sched/cls_flower.c b/net/sched/cls_flower.c
-index c5a0f2c2635e..26979b4853bd 100644
---- a/net/sched/cls_flower.c
-+++ b/net/sched/cls_flower.c
-@@ -1741,18 +1741,24 @@ static void fl_walk(struct tcf_proto *tp, struct tcf_walker *arg,
- 
- 	arg->count = arg->skip;
- 
-+	rcu_read_lock();
- 	idr_for_each_entry_continue_ul(&head->handle_idr, f, tmp, id) {
- 		/* don't return filters that are being deleted */
- 		if (!refcount_inc_not_zero(&f->refcnt))
- 			continue;
-+		rcu_read_unlock();
+diff --git a/include/net/sock.h b/include/net/sock.h
+index d3dd89b6e2cb..079b5f6f13d8 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -470,8 +470,10 @@ struct sock {
+ 	u32			sk_ack_backlog;
+ 	u32			sk_max_ack_backlog;
+ 	kuid_t			sk_uid;
++	spinlock_t		sk_peer_lock;
+ 	struct pid		*sk_peer_pid;
+ 	const struct cred	*sk_peer_cred;
 +
- 		if (arg->fn(tp, f, arg) < 0) {
- 			__fl_put(f);
- 			arg->stop = 1;
-+			rcu_read_lock();
- 			break;
+ 	long			sk_rcvtimeo;
+ 	ktime_t			sk_stamp;
+ #if BITS_PER_LONG==32
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 452883b28aba..57b7a10703c3 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -1181,6 +1181,16 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
+ }
+ EXPORT_SYMBOL(sock_setsockopt);
+ 
++static const struct cred *sk_get_peer_cred(struct sock *sk)
++{
++	const struct cred *cred;
++
++	spin_lock(&sk->sk_peer_lock);
++	cred = get_cred(sk->sk_peer_cred);
++	spin_unlock(&sk->sk_peer_lock);
++
++	return cred;
++}
+ 
+ static void cred_to_ucred(struct pid *pid, const struct cred *cred,
+ 			  struct ucred *ucred)
+@@ -1355,7 +1365,11 @@ int sock_getsockopt(struct socket *sock, int level, int optname,
+ 		struct ucred peercred;
+ 		if (len > sizeof(peercred))
+ 			len = sizeof(peercred);
++
++		spin_lock(&sk->sk_peer_lock);
+ 		cred_to_ucred(sk->sk_peer_pid, sk->sk_peer_cred, &peercred);
++		spin_unlock(&sk->sk_peer_lock);
++
+ 		if (copy_to_user(optval, &peercred, len))
+ 			return -EFAULT;
+ 		goto lenout;
+@@ -1363,20 +1377,23 @@ int sock_getsockopt(struct socket *sock, int level, int optname,
+ 
+ 	case SO_PEERGROUPS:
+ 	{
++		const struct cred *cred;
+ 		int ret, n;
+ 
+-		if (!sk->sk_peer_cred)
++		cred = sk_get_peer_cred(sk);
++		if (!cred)
+ 			return -ENODATA;
+ 
+-		n = sk->sk_peer_cred->group_info->ngroups;
++		n = cred->group_info->ngroups;
+ 		if (len < n * sizeof(gid_t)) {
+ 			len = n * sizeof(gid_t);
++			put_cred(cred);
+ 			return put_user(len, optlen) ? -EFAULT : -ERANGE;
  		}
- 		__fl_put(f);
- 		arg->count++;
-+		rcu_read_lock();
+ 		len = n * sizeof(gid_t);
+ 
+-		ret = groups_to_user((gid_t __user *)optval,
+-				     sk->sk_peer_cred->group_info);
++		ret = groups_to_user((gid_t __user *)optval, cred->group_info);
++		put_cred(cred);
+ 		if (ret)
+ 			return ret;
+ 		goto lenout;
+@@ -1714,9 +1731,10 @@ static void __sk_destruct(struct rcu_head *head)
+ 		sk->sk_frag.page = NULL;
  	}
-+	rcu_read_unlock();
- 	arg->cookie = id;
+ 
+-	if (sk->sk_peer_cred)
+-		put_cred(sk->sk_peer_cred);
++	/* We do not need to acquire sk->sk_peer_lock, we are the last user. */
++	put_cred(sk->sk_peer_cred);
+ 	put_pid(sk->sk_peer_pid);
++
+ 	if (likely(sk->sk_net_refcnt))
+ 		put_net(sock_net(sk));
+ 	sk_prot_free(sk->sk_prot_creator, sk);
+@@ -2915,6 +2933,8 @@ void sock_init_data(struct socket *sock, struct sock *sk)
+ 
+ 	sk->sk_peer_pid 	=	NULL;
+ 	sk->sk_peer_cred	=	NULL;
++	spin_lock_init(&sk->sk_peer_lock);
++
+ 	sk->sk_write_pending	=	0;
+ 	sk->sk_rcvlowat		=	1;
+ 	sk->sk_rcvtimeo		=	MAX_SCHEDULE_TIMEOUT;
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index 3098710c9c34..05470ca91bd9 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -595,20 +595,42 @@ static void unix_release_sock(struct sock *sk, int embrion)
+ 
+ static void init_peercred(struct sock *sk)
+ {
+-	put_pid(sk->sk_peer_pid);
+-	if (sk->sk_peer_cred)
+-		put_cred(sk->sk_peer_cred);
++	const struct cred *old_cred;
++	struct pid *old_pid;
++
++	spin_lock(&sk->sk_peer_lock);
++	old_pid = sk->sk_peer_pid;
++	old_cred = sk->sk_peer_cred;
+ 	sk->sk_peer_pid  = get_pid(task_tgid(current));
+ 	sk->sk_peer_cred = get_current_cred();
++	spin_unlock(&sk->sk_peer_lock);
++
++	put_pid(old_pid);
++	put_cred(old_cred);
  }
  
+ static void copy_peercred(struct sock *sk, struct sock *peersk)
+ {
+-	put_pid(sk->sk_peer_pid);
+-	if (sk->sk_peer_cred)
+-		put_cred(sk->sk_peer_cred);
++	const struct cred *old_cred;
++	struct pid *old_pid;
++
++	if (sk < peersk) {
++		spin_lock(&sk->sk_peer_lock);
++		spin_lock_nested(&peersk->sk_peer_lock, SINGLE_DEPTH_NESTING);
++	} else {
++		spin_lock(&peersk->sk_peer_lock);
++		spin_lock_nested(&sk->sk_peer_lock, SINGLE_DEPTH_NESTING);
++	}
++	old_pid = sk->sk_peer_pid;
++	old_cred = sk->sk_peer_cred;
+ 	sk->sk_peer_pid  = get_pid(peersk->sk_peer_pid);
+ 	sk->sk_peer_cred = get_cred(peersk->sk_peer_cred);
++
++	spin_unlock(&sk->sk_peer_lock);
++	spin_unlock(&peersk->sk_peer_lock);
++
++	put_pid(old_pid);
++	put_cred(old_cred);
+ }
+ 
+ static int unix_listen(struct socket *sock, int backlog)
 -- 
 2.33.0
 
