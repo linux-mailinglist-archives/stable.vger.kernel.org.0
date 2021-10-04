@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E960420EE4
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:27:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C355A421046
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:41:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236944AbhJDN3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:29:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43540 "EHLO mail.kernel.org"
+        id S238404AbhJDNmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:42:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236569AbhJDN1O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:27:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DAE161B73;
-        Mon,  4 Oct 2021 13:12:00 +0000 (UTC)
+        id S238401AbhJDNkY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:40:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B774E63241;
+        Mon,  4 Oct 2021 13:18:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353121;
-        bh=jbUUksO8/O5l1DD79pf6fQNRbf0oU5EYVTc7R6A6ofM=;
+        s=korg; t=1633353514;
+        bh=sOVzJxwK84o5XNM1rfS3b5If5JqEFxjGHjgIVU5UD90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t5SO4AnZA5De5IZ5T009KbfU+CY0CrbkF2trD0UE8ads7RNoal0YJCEw7DQOCzA4r
-         SDOfg6RzDMVZq6JEKOBfcai9U+l1KVc1y0lr5vjrWPAmor6EhFPR7AlBNz9EBCn+xk
-         umNKpRDAdyzSHML4hLBXu1fQc0v08MZ5wmbFTzCE=
+        b=Ywc15LXXkTL6M5NJfdVfFnlbIcLJ0RvnCyXCEgzvtFAB9mYDZoUs7NsD1EksUV6ru
+         vvo/RKVP8OO5Zs+CSNAP+PFYX+b0+vZBqlATvWYM/avOL3E0SmUDQVa+mDtATLe5DX
+         3nNIOciZoJXknWDQqi5BpBhsjoNoPgfpjieGfbtw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com,
-        Yanfei Xu <yanfei.xu@windriver.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 90/93] net: mdiobus: Fix memory leak in __mdiobus_register
+        stable@vger.kernel.org, stable@kernel.org,
+        yangerkun <yangerkun@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.14 158/172] ext4: flush s_error_work before journal destroy in ext4_fill_super
 Date:   Mon,  4 Oct 2021 14:53:28 +0200
-Message-Id: <20211004125037.569805106@linuxfoundation.org>
+Message-Id: <20211004125050.070888021@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,89 +40,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yanfei Xu <yanfei.xu@windriver.com>
+From: yangerkun <yangerkun@huawei.com>
 
-commit ab609f25d19858513919369ff3d9a63c02cd9e2e upstream.
+commit bb9464e08309f6befe80866f5be51778ca355ee9 upstream.
 
-Once device_register() failed, we should call put_device() to
-decrement reference count for cleanup. Or it will cause memory
-leak.
+The error path in ext4_fill_super forget to flush s_error_work before
+journal destroy, and it may trigger the follow bug since
+flush_stashed_error_work can run concurrently with journal destroy
+without any protection for sbi->s_journal.
 
-BUG: memory leak
-unreferenced object 0xffff888114032e00 (size 256):
-  comm "kworker/1:3", pid 2960, jiffies 4294943572 (age 15.920s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 08 2e 03 14 81 88 ff ff  ................
-    08 2e 03 14 81 88 ff ff 90 76 65 82 ff ff ff ff  .........ve.....
-  backtrace:
-    [<ffffffff8265cfab>] kmalloc include/linux/slab.h:591 [inline]
-    [<ffffffff8265cfab>] kzalloc include/linux/slab.h:721 [inline]
-    [<ffffffff8265cfab>] device_private_init drivers/base/core.c:3203 [inline]
-    [<ffffffff8265cfab>] device_add+0x89b/0xdf0 drivers/base/core.c:3253
-    [<ffffffff828dd643>] __mdiobus_register+0xc3/0x450 drivers/net/phy/mdio_bus.c:537
-    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
-    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
-    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
-    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
-    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
-    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
-    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
-    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
-    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
-    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
-    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
-    [<ffffffff82660916>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
-    [<ffffffff8265cd0b>] device_add+0x5fb/0xdf0 drivers/base/core.c:3359
-    [<ffffffff82c343b9>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2170
-    [<ffffffff82c4473c>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
+[32031.740193] EXT4-fs (loop66): get root inode failed
+[32031.740484] EXT4-fs (loop66): mount failed
+[32031.759805] ------------[ cut here ]------------
+[32031.759807] kernel BUG at fs/jbd2/transaction.c:373!
+[32031.760075] invalid opcode: 0000 [#1] SMP PTI
+[32031.760336] CPU: 5 PID: 1029268 Comm: kworker/5:1 Kdump: loaded
+4.18.0
+[32031.765112] Call Trace:
+[32031.765375]  ? __switch_to_asm+0x35/0x70
+[32031.765635]  ? __switch_to_asm+0x41/0x70
+[32031.765893]  ? __switch_to_asm+0x35/0x70
+[32031.766148]  ? __switch_to_asm+0x41/0x70
+[32031.766405]  ? _cond_resched+0x15/0x40
+[32031.766665]  jbd2__journal_start+0xf1/0x1f0 [jbd2]
+[32031.766934]  jbd2_journal_start+0x19/0x20 [jbd2]
+[32031.767218]  flush_stashed_error_work+0x30/0x90 [ext4]
+[32031.767487]  process_one_work+0x195/0x390
+[32031.767747]  worker_thread+0x30/0x390
+[32031.768007]  ? process_one_work+0x390/0x390
+[32031.768265]  kthread+0x10d/0x130
+[32031.768521]  ? kthread_flush_work_fn+0x10/0x10
+[32031.768778]  ret_from_fork+0x35/0x40
 
-BUG: memory leak
-unreferenced object 0xffff888116f06900 (size 32):
-  comm "kworker/0:2", pid 2670, jiffies 4294944448 (age 7.160s)
-  hex dump (first 32 bytes):
-    75 73 62 2d 30 30 31 3a 30 30 33 00 00 00 00 00  usb-001:003.....
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff81484516>] kstrdup+0x36/0x70 mm/util.c:60
-    [<ffffffff814845a3>] kstrdup_const+0x53/0x80 mm/util.c:83
-    [<ffffffff82296ba2>] kvasprintf_const+0xc2/0x110 lib/kasprintf.c:48
-    [<ffffffff82358d4b>] kobject_set_name_vargs+0x3b/0xe0 lib/kobject.c:289
-    [<ffffffff826575f3>] dev_set_name+0x63/0x90 drivers/base/core.c:3147
-    [<ffffffff828dd63b>] __mdiobus_register+0xbb/0x450 drivers/net/phy/mdio_bus.c:535
-    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
-    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
-    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
-    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
-    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
-    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
-    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
-    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
-    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
-    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
-    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
+static int start_this_handle(...)
+    BUG_ON(journal->j_flags & JBD2_UNMOUNT); <---- Trigger this
 
-Reported-by: syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
-Signed-off-by: Yanfei Xu <yanfei.xu@windriver.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Besides, after we enable fast commit, ext4_fc_replay can add work to
+s_error_work but return success, so the latter journal destroy in
+ext4_load_journal can trigger this problem too.
+
+Fix this problem with two steps:
+1. Call ext4_commit_super directly in ext4_handle_error for the case
+   that called from ext4_fc_replay
+2. Since it's hard to pair the init and flush for s_error_work, we'd
+   better add a extras flush_work before journal destroy in
+   ext4_fill_super
+
+Besides, this patch will call ext4_commit_super in ext4_handle_error for
+any nojournal case too. But it seems safe since the reason we call
+schedule_work was that we should save error info to sb through journal
+if available. Conversely, for the nojournal case, it seems useless delay
+commit superblock to s_error_work.
+
+Fixes: c92dc856848f ("ext4: defer saving error info from atomic context")
+Fixes: 2d01ddc86606 ("ext4: save error info to sb through journal if available")
+Cc: stable@kernel.org
+Signed-off-by: yangerkun <yangerkun@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20210924093917.1953239-1-yangerkun@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/mdio_bus.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/super.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -537,6 +537,7 @@ int __mdiobus_register(struct mii_bus *b
- 	err = device_register(&bus->dev);
- 	if (err) {
- 		pr_err("mii_bus %s failed to register\n", bus->id);
-+		put_device(&bus->dev);
- 		return -EINVAL;
- 	}
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -661,7 +661,7 @@ static void ext4_handle_error(struct sup
+ 		 * constraints, it may not be safe to do it right here so we
+ 		 * defer superblock flushing to a workqueue.
+ 		 */
+-		if (continue_fs)
++		if (continue_fs && journal)
+ 			schedule_work(&EXT4_SB(sb)->s_error_work);
+ 		else
+ 			ext4_commit_super(sb);
+@@ -5189,12 +5189,15 @@ failed_mount_wq:
+ 	sbi->s_ea_block_cache = NULL;
  
+ 	if (sbi->s_journal) {
++		/* flush s_error_work before journal destroy. */
++		flush_work(&sbi->s_error_work);
+ 		jbd2_journal_destroy(sbi->s_journal);
+ 		sbi->s_journal = NULL;
+ 	}
+ failed_mount3a:
+ 	ext4_es_unregister_shrinker(sbi);
+ failed_mount3:
++	/* flush s_error_work before sbi destroy */
+ 	flush_work(&sbi->s_error_work);
+ 	del_timer_sync(&sbi->s_err_report);
+ 	ext4_stop_mmpd(sbi);
 
 
