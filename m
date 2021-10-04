@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8324C420E28
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:20:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30E9F420B67
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:55:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236481AbhJDNWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:22:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55644 "EHLO mail.kernel.org"
+        id S233633AbhJDM5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 08:57:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236311AbhJDNUH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:20:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A9C5961BB6;
-        Mon,  4 Oct 2021 13:08:40 +0000 (UTC)
+        id S233429AbhJDM4o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:56:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 003516124C;
+        Mon,  4 Oct 2021 12:54:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352921;
-        bh=ZTne2VZLofEonIy43J/+zmPzCS+nJjaStaqiKJNj2kM=;
+        s=korg; t=1633352095;
+        bh=KrSXW3FpQTDxChH/rMxa29cVXPURILQ5fIyu0FFd3Cs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q0Ra1Ma7RmIVe22YSoQH1QUXn3QBDi865jSxKsJkQz9BiUEaGwdYocJhUiYSmmOFQ
-         tNhrklyVEKH1APRYdXSLWgYzjBstIjoD11I/5gnsCy2F7t0iIRuxK0OKHTdDGNVmL9
-         kuyg+y9wXeERXjiV2iXcUOUT48S+/96gRbo8IajU=
+        b=07uKIH5UQ6Pdhlhq7eA0i9oEuSyaLr1RIRvnLp/DtkutfJ5TqfZoQb2J5WIxxL+2b
+         87+X6/yMutco36bUF0vVyjD2c52Yvbq4mZvYo13jteu+Z8qsAMIEEbms6rw0cWc4Rw
+         F2Lt+8kmr+UHZxl9cspcfUXZvK9zilaGn27G4AQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 04/93] cpufreq: schedutil: Destroy mutex before kobject_put() frees the memory
+Subject: [PATCH 4.4 11/41] net/mlx4_en: Dont allow aRFS for encapsulated packets
 Date:   Mon,  4 Oct 2021 14:52:02 +0200
-Message-Id: <20211004125034.727523227@linuxfoundation.org>
+Message-Id: <20211004125026.949384510@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
+References: <20211004125026.597501645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Aya Levin <ayal@nvidia.com>
 
-[ Upstream commit cdef1196608892b9a46caa5f2b64095a7f0be60c ]
+[ Upstream commit fdbccea419dc782079ce5881d2705cc9e3881480 ]
 
-Since commit e5c6b312ce3c ("cpufreq: schedutil: Use kobject release()
-method to free sugov_tunables") kobject_put() has kfree()d the
-attr_set before gov_attr_set_put() returns.
+Driver doesn't support aRFS for encapsulated packets, return early error
+in such a case.
 
-kobject_put() isn't the last user of attr_set in gov_attr_set_put(),
-the subsequent mutex_destroy() triggers a use-after-free:
-| BUG: KASAN: use-after-free in mutex_is_locked+0x20/0x60
-| Read of size 8 at addr ffff000800ca4250 by task cpuhp/2/20
-|
-| CPU: 2 PID: 20 Comm: cpuhp/2 Not tainted 5.15.0-rc1 #12369
-| Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno Development
-| Platform, BIOS EDK II Jul 30 2018
-| Call trace:
-|  dump_backtrace+0x0/0x380
-|  show_stack+0x1c/0x30
-|  dump_stack_lvl+0x8c/0xb8
-|  print_address_description.constprop.0+0x74/0x2b8
-|  kasan_report+0x1f4/0x210
-|  kasan_check_range+0xfc/0x1a4
-|  __kasan_check_read+0x38/0x60
-|  mutex_is_locked+0x20/0x60
-|  mutex_destroy+0x80/0x100
-|  gov_attr_set_put+0xfc/0x150
-|  sugov_exit+0x78/0x190
-|  cpufreq_offline.isra.0+0x2c0/0x660
-|  cpuhp_cpufreq_offline+0x14/0x24
-|  cpuhp_invoke_callback+0x430/0x6d0
-|  cpuhp_thread_fun+0x1b0/0x624
-|  smpboot_thread_fn+0x5e0/0xa6c
-|  kthread+0x3a0/0x450
-|  ret_from_fork+0x10/0x20
-
-Swap the order of the calls.
-
-Fixes: e5c6b312ce3c ("cpufreq: schedutil: Use kobject release() method to free sugov_tunables")
-Cc: 4.7+ <stable@vger.kernel.org> # 4.7+
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 1eb8c695bda9 ("net/mlx4_en: Add accelerated RFS support")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/cpufreq_governor_attr_set.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx4/en_netdev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/cpufreq/cpufreq_governor_attr_set.c b/drivers/cpufreq/cpufreq_governor_attr_set.c
-index 66b05a326910..a6f365b9cc1a 100644
---- a/drivers/cpufreq/cpufreq_governor_attr_set.c
-+++ b/drivers/cpufreq/cpufreq_governor_attr_set.c
-@@ -74,8 +74,8 @@ unsigned int gov_attr_set_put(struct gov_attr_set *attr_set, struct list_head *l
- 	if (count)
- 		return count;
+diff --git a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+index 9dd081715c1e..c9be239c6ec0 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+@@ -311,6 +311,9 @@ mlx4_en_filter_rfs(struct net_device *net_dev, const struct sk_buff *skb,
+ 	int nhoff = skb_network_offset(skb);
+ 	int ret = 0;
  
--	kobject_put(&attr_set->kobj);
- 	mutex_destroy(&attr_set->update_lock);
-+	kobject_put(&attr_set->kobj);
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(gov_attr_set_put);
++	if (skb->encapsulation)
++		return -EPROTONOSUPPORT;
++
+ 	if (skb->protocol != htons(ETH_P_IP))
+ 		return -EPROTONOSUPPORT;
+ 
 -- 
 2.33.0
 
