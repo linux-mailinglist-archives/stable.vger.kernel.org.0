@@ -2,80 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AF46420AE3
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:29:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1426420B2C
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:49:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231613AbhJDMbS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 08:31:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49332 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230418AbhJDMbS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 08:31:18 -0400
-Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 707F6C061745
-        for <stable@vger.kernel.org>; Mon,  4 Oct 2021 05:29:29 -0700 (PDT)
-Received: by mail-ed1-x541.google.com with SMTP id g8so64344924edt.7
-        for <stable@vger.kernel.org>; Mon, 04 Oct 2021 05:29:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=dF3XIjpEZBzVynULYTVWvPuYH0OmWhBcpIJjlV41ebc=;
-        b=cZ3utz/8bThfu+8lASLMJAyVUp3yr25n5QAF1rspnJQCJxrMDXica0O37iFx32bQUv
-         fAF1zqNpbG5rmiTe4mEwgGeDNfF9pae70ZLLfIkCGJhMydNcOhOT0iIKxNcccYgE6Dpf
-         ylvwlwFAjjVYl6R3ZQX6ULx3IpKlNJjFVLim6ZdzUI3NLfp3Y74fftWjbh3bsymFwZbh
-         KTEAMxJFRdLC3KsIgquhjzxWCc0do7uK8mQnbRcmXv5At/pWTa1asGB4KsJfrITl5mJW
-         VUfOx0ve2SBR69UmSh9D64F1V95BtMoa2t/zDlwqkLyJJHkBZNRt0Ql5tQzF+ibBtKme
-         d5Cg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=dF3XIjpEZBzVynULYTVWvPuYH0OmWhBcpIJjlV41ebc=;
-        b=DFqzTkeXRlQGgJg07FtuOxwFRYffmUdOQJZpPtpBWlK30Nk2R++78D7BM0AnxV3Wb0
-         Xhpx32Mu3dbQ/jO+mLFHKQqedX68LihqjROqRMjpn4LaF+TzFDPZvnJAoUeYJVJut0pS
-         wT/tuOSlQDdlFKeMe691HK0yptU/V/3rQbxv1+HwKvQPAygBNi41avkK1ZGdZaOolHl8
-         IUbue7PH3LSEtUJ8tK1ISTQasWWOjLrHmWaFWTFFIq7qKHQn3xko/NtQWpmuYpDnbCwu
-         Dlt8vx/ywThFiJSTgdCyqu703g5gn8t4/OunQBgwPtXFmpHPn7wspNnf8cMivNIAEcnu
-         V0HQ==
-X-Gm-Message-State: AOAM530Gkho+XacKXs60dlHGuDb99GimhF+qwW12T/hKoTLPtQFtVMbm
-        AJAYHTvNA2qDBJ5ltPX/p5MDCMWnPpQW8ZwEFmw=
-X-Google-Smtp-Source: ABdhPJzD61KDTOmrtYBpK6FDHEESkuj49YnsrR+xNOSEeYnPwRZFSzDDrWzdR3dxfrF5OATtWog9GmKzE0Qt13xpx7E=
-X-Received: by 2002:a50:999e:: with SMTP id m30mr17982322edb.151.1633350567762;
- Mon, 04 Oct 2021 05:29:27 -0700 (PDT)
+        id S231337AbhJDMvN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 08:51:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55764 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229836AbhJDMvN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:51:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B20396124C;
+        Mon,  4 Oct 2021 12:49:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1633351764;
+        bh=+HwUhsuP6MVKRpgbKf+vXOZOCYCgZp8OBkYFKe3NbyE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=k2rzhQnyHr6jnh5xTvXNa+gPYf7uCWtdQFWsNzYolRM5TM7kOLAMEB7LcZbNLATU+
+         bKxpbxah0ol0M/TGU7dAGCKTyYZTtbqfEpP95HRHVv8bZvL+s8/Ad1XN1AJoYpbCek
+         8nGPkVECzAcDKAd/tUXPTEP9fLZ6hzNoD1G89zUmpaWqrMP3Ex23OPNLtHrMfwVzeQ
+         9oPxekGskiNYLVX3ehkEU70vmYdJB6dWnB2b7P0HKAKrMILX6c6B+eab2zbvbrGkth
+         hltyOBaIc+VW5NUL8yyfBZuNBCplwNEf9Tzv/YS4eWVoZaSp84W1HbteTRSK5Ryibq
+         sSCYFvbMBLtbA==
+Date:   Mon, 4 Oct 2021 13:49:21 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Lino Sanfilippo <LinoSanfilippo@gmx.de>
+Cc:     f.fainelli@gmail.com, rjui@broadcom.com, sbranden@broadcom.com,
+        bcm-kernel-feedback-list@broadcom.com, nsaenz@kernel.org,
+        linux-spi@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        jgg@ziepe.ca, p.rosenberger@kunbus.com,
+        linux-integrity@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] spi: bcm2835: do not unregister controller in shutdown
+ handler
+Message-ID: <YVr4USeiIoQJ0Pqh@sirena.org.uk>
+References: <20210928195657.5573-1-LinoSanfilippo@gmx.de>
+ <20211001175422.GA53652@sirena.org.uk>
+ <2c4d7115-7a02-f79e-c91b-3c2dd54051b2@gmx.de>
 MIME-Version: 1.0
-Received: by 2002:a17:907:1b0e:0:0:0:0 with HTTP; Mon, 4 Oct 2021 05:29:26
- -0700 (PDT)
-Reply-To: jahaalice216@gmail.com
-From:   AliceJahab <alivdjafd@gmail.com>
-Date:   Mon, 4 Oct 2021 12:29:26 +0000
-Message-ID: <CA+=VFRO5-56xW9=r-CN2eV-FriYL=cEVKJsJtsDfwosyzZgMnQ@mail.gmail.com>
-Subject: Mrs. Alice Jahab
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="RcF28Bs204Ejhms1"
+Content-Disposition: inline
+In-Reply-To: <2c4d7115-7a02-f79e-c91b-3c2dd54051b2@gmx.de>
+X-Cookie: If it heals good, say it.
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear,
 
-My name is Mrs. Alice Jahab and I am married to Mr. Razaki Jahab for
-19 years without a child and my husband died in four days from his
-illness. I am contacting you to let you know my desire to give the
-amount of US $ 3.5 million to charities in your country that I
-inherited from my late husband. Due to my disease (cancer) that have
-been confirmed for only eight months by doctors, so it is my wish that
-this money is invested and distributed to charities of your choice
-such as home orphanages, schools, the homeless people, nursing home,
-hospitals and many other things that will be for the benefit of the
-least privileged. I want you to contact me on my private email
-(jahaalice216@gmail.com) so that i will start to send you the details
-you need as the new beneficiary to the fund.
+--RcF28Bs204Ejhms1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Once I hear from you confirming acceptance of the charity work, I will
-give all pertinent information and sworn testimony authorizing the
-bank to disclose and transfer the money to you as my duly appointed
-representative.
+On Sun, Oct 03, 2021 at 05:25:47PM +0200, Lino Sanfilippo wrote:
 
-Thanks,
+> I see your point here. So what about narrowing down the shutdown handler
+> to only disable the hardware:
 
-Mrs. Alice Jahab
+> static void bcm2835_spi_shutdown(struct platform_device *pdev)
+> {
+> 	struct spi_controller *ctlr =3D platform_get_drvdata(pdev);
+> 	struct bcm2835_spi *bs =3D spi_controller_get_devdata(ctlr);
+>=20
+> 	if (ctlr->dma_tx)
+> 		dmaengine_terminate_sync(ctlr->dma_tx);
+>=20
+> 	if (ctlr->dma_rx)
+> 		dmaengine_terminate_sync(ctlr->dma_rx);
+>=20
+> 	/* Clear FIFOs, and disable the HW block */
+> 	bcm2835_wr(bs, BCM2835_SPI_CS,
+> 		   BCM2835_SPI_CS_CLEAR_RX | BCM2835_SPI_CS_CLEAR_TX);
+>=20
+> 	clk_disable_unprepare(bs->clk);
+> }
+
+This still leaves a potential race where something (eg, an interrupt
+handler) could come in and try to schedule more SPI transfers on the
+shut down hardware.  I'm really not sure we can do something that's
+totally robust here without also ensuring that all the client drivers
+also have effective shutdown implementations (which seems ambitious) or
+doing what we have now and unregistering the clients.  I am, however,
+wondering if we really need the shutdown callback at all - the commit
+adding it just describes what it's doing, it doesn't explain why it's
+particularly needed.  I guess there might be an issue on reboot with
+reset not completely resetting the hardware?
+
+--RcF28Bs204Ejhms1
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmFa+FEACgkQJNaLcl1U
+h9Aw9wf/Q1ESD1wDdZcEiaAk3DV1WXkmfSTqsKkW5cXYRyNVoUNqBH6qZIDJWV9t
+l5qRi5zzy+yxR4mj1JKYTxidOe8N0SxRxqnGus6CQ9ZBjuGWOV9GK6gT+15eoLR4
++g2ew8Kg6j1VBn5tvZyZYvqmKYwd5FxxF5hBE7NeIU8J8nbe5MHWl4jPkJ8SDvJb
+KofgwdfezKmkR6eioIJtYKKaxUxgK1JWb33TYGQvKXu5MeMoroR0BjoWJ6k/cOim
++srK5/1OMyVMBXoHXj8rEHJ+uNEtvXcriwM5UkreCeMiLSpf1ayUehz1wxB0aAXq
+h5uj2fyE1BzNy1id1yqSDsutP49RkA==
+=yMkL
+-----END PGP SIGNATURE-----
+
+--RcF28Bs204Ejhms1--
