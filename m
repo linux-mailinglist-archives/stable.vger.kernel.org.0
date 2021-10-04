@@ -2,93 +2,228 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0CA842170D
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 21:11:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17154421760
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 21:23:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238934AbhJDTN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 15:13:26 -0400
-Received: from mga09.intel.com ([134.134.136.24]:61381 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238562AbhJDTLs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 15:11:48 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10127"; a="225464580"
-X-IronPort-AV: E=Sophos;i="5.85,346,1624345200"; 
-   d="scan'208";a="225464580"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Oct 2021 12:09:42 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.85,346,1624345200"; 
-   d="scan'208";a="567358907"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.171])
-  by fmsmga002.fm.intel.com with SMTP; 04 Oct 2021 12:09:39 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Mon, 04 Oct 2021 22:09:38 +0300
-Date:   Mon, 4 Oct 2021 22:09:38 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Matt Roper <matthew.d.roper@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
-        Karthik B S <karthik.b.s@intel.com>
-Subject: Re: [Intel-gfx] [PATCH 1/2] drm/i915: Extend the async flip VT-d w/a
- to skl/bxt
-Message-ID: <YVtRciGIj5WHoM5k@intel.com>
-References: <20210930190943.17547-1-ville.syrjala@linux.intel.com>
- <20211001210815.GG3389343@mdroper-desk1.amr.corp.intel.com>
- <YVeFOzabpcWAbVFQ@intel.com>
- <20211004175000.GA366973@mdroper-desk1.amr.corp.intel.com>
+        id S238245AbhJDTZK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 15:25:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35528 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237266AbhJDTZJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 15:25:09 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65E3EC061745
+        for <stable@vger.kernel.org>; Mon,  4 Oct 2021 12:23:20 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id rj12-20020a17090b3e8c00b0019f88e44d85so187409pjb.4
+        for <stable@vger.kernel.org>; Mon, 04 Oct 2021 12:23:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=S7lZitUZtL8ClQjA52+iJmXfCDtfnKOZRgq4gYOQpdk=;
+        b=Svsd9JIjuocFsGtuJy8fVc1OCzjdqBztpkiJ0diWc/WsOQaNZjAfIG+qcoD1etVnf6
+         QpiNyPuZYyLGQ76FqOkmSbadP9zW0qzhf+YP6Xsz2ra8O+TIq+HiJfr4BjVrgmZhg7Xt
+         st3dsnxeZePy4ViP30tb3/7Ckho9yf1jgXwHf5vtH4jbXeeKKJeNwbYTnSZVucZ2S/vw
+         9lTJdQg8havWnwEJ4sC8mOs3yxXknXANPHeEG1ncYTtQhLNao0W4NLExxK9A0pPO5WEp
+         mYRQUEtKnjZxM+hsaBmJQcp+HTS1XtySIvq9R2y83hYiXBKOxJP4k50RbjUzMP4VQkQU
+         P1FQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=S7lZitUZtL8ClQjA52+iJmXfCDtfnKOZRgq4gYOQpdk=;
+        b=O14oCqDQ/M82U27IF0P0YupQk27JSfBmxhI6MlFCYBPFRA6zoFf5gd6X+50AgFKgn4
+         7Ok59W1CPbZ3ThG72P1D12TwMcsAbwaBzUnyeIW8AMvx8WBjwe7DCVjuLIiGEwGKRHOe
+         ZB9NPSY+5t9lPAzxhw3VWniao7WE3RuwDh1TFc46aPp9HmrwEOLFZM3VCGI3ZVR71nbU
+         yMm+KKYynT/pq1WZIufN8DLZBOsBifu7mXyfCuytBumjJvmMCPp3Y4eQtxQ82xoQYszl
+         JvWjj+8i/n+Bp2YEpqUNsAJTzVLGxM1RrANKL5W5cHKz0k0LB5RRDUI+KcJZfCvhg05Q
+         UVNw==
+X-Gm-Message-State: AOAM533Djg8Kp40XL9vfg6bwjIOP5205KwoKMH5r/esKt64Ck3Q6uvKX
+        L8ZPCxc6ZdAsjcHJlR79PQYWPidwVyE/MVrc
+X-Google-Smtp-Source: ABdhPJzxXFzJI+OFwzHZ6pEiOLsZx35ntIZ7g4boX2+x9sTowO721VCjXpBQzE4ym35wbD//Kos6hw==
+X-Received: by 2002:a17:90b:f8d:: with SMTP id ft13mr14045967pjb.137.1633375399788;
+        Mon, 04 Oct 2021 12:23:19 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h9sm17141151pjg.9.2021.10.04.12.23.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Oct 2021 12:23:19 -0700 (PDT)
+Message-ID: <615b54a7.1c69fb81.bb8b7.202b@mx.google.com>
+Date:   Mon, 04 Oct 2021 12:23:19 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20211004175000.GA366973@mdroper-desk1.amr.corp.intel.com>
-X-Patchwork-Hint: comment
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.70-93-g42da4b1238c5
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 161 runs,
+ 5 regressions (v5.10.70-93-g42da4b1238c5)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 04, 2021 at 10:50:00AM -0700, Matt Roper wrote:
-> On Sat, Oct 02, 2021 at 01:01:31AM +0300, Ville Syrjälä wrote:
-> > On Fri, Oct 01, 2021 at 02:08:15PM -0700, Matt Roper wrote:
-> > > On Thu, Sep 30, 2021 at 10:09:42PM +0300, Ville Syrjala wrote:
-> > > > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > > 
-> > > > Looks like skl/bxt/derivatives also need the plane stride
-> > > > stretch w/a when using async flips and VT-d is enabled, or
-> > > > else we get corruption on screen. To my surprise this was
-> > > > even documented in bspec, but only as a note on the
-> > > > CHICHKEN_PIPESL register description rather than on the
-> > > > w/a list.
-> > > > 
-> > > > So very much the same thing as on HSW/BDW, except the bits
-> > > > moved yet again.
-> > > 
-> > > Bspec 7522 doesn't say anything about this requirement being tied to
-> > > VT-d on these platforms.  Should we drop the intel_vtd_active()
-> > > condition to be safe?
-> > 
-> > I think it's just an oversight in bspec. I read through the hsd and
-> > IIRC it did specify that it's VT-d only. Also real life confirms
-> > it. No problems whatsoever when VT-d is disabled.
-> 
-> I notice there are additional bits that we should set to apply this
-> workaround to planes 2, 3, and 4, but since i915 still artificially
-> limits async flips to just the primary plane, only programming bits 1:0
-> should be fine for now; we'll just need to remember to extend this
-> workaround if we do start allowing async flips on other planes in the
-> future.
+stable-rc/queue/5.10 baseline: 161 runs, 5 regressions (v5.10.70-93-g42da4b=
+1238c5)
 
-Aye. gen8_de_pipe_flip_done_mask() is the other place where we
-still hardcode this for plane 1 only. I think the rest of the code
-I did end up making more or less plane agnostic already.
+Regressions Summary
+-------------------
 
-I was considering at least parametrizing the register defines but
-then I got a nagging feeling that I once ran into some issues while
-trying to stick non-constant numbers into REG_BIT & co. So I
-decided to hardcode plane 1 for the moment.
+platform                | arch  | lab           | compiler | defconfig     =
+     | regressions
+------------------------+-------+---------------+----------+---------------=
+-----+------------
+hip07-d05               | arm64 | lab-collabora | gcc-8    | defconfig     =
+     | 1          =
 
-> 
-> Reviewed-by: Matt Roper <matthew.d.roper@intel.com>
+rk3288-veyron-jaq       | arm   | lab-collabora | gcc-8    | multi_v7_defco=
+nfig | 3          =
 
-Thanks. Pushed.
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-8    | defconfig     =
+     | 1          =
 
--- 
-Ville Syrjälä
-Intel
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.70-93-g42da4b1238c5/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.70-93-g42da4b1238c5
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      42da4b1238c5aa9878308f223346b2fd84d3b39d =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                | arch  | lab           | compiler | defconfig     =
+     | regressions
+------------------------+-------+---------------+----------+---------------=
+-----+------------
+hip07-d05               | arm64 | lab-collabora | gcc-8    | defconfig     =
+     | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615b1feb8217db706799a358
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+93-g42da4b1238c5/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+93-g42da4b1238c5/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615b1feb8217db706799a=
+359
+        failing since 95 days (last pass: v5.10.46-100-gce5b41f85637, first=
+ fail: v5.10.46-100-g3b96099161c8b) =
+
+ =
+
+
+
+platform                | arch  | lab           | compiler | defconfig     =
+     | regressions
+------------------------+-------+---------------+----------+---------------=
+-----+------------
+rk3288-veyron-jaq       | arm   | lab-collabora | gcc-8    | multi_v7_defco=
+nfig | 3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615b34bd71ec7d3aa399a2e4
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+93-g42da4b1238c5/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288=
+-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+93-g42da4b1238c5/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288=
+-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/615b34bd71ec7d3aa399a2f8
+        failing since 111 days (last pass: v5.10.43-44-g253317604975, first=
+ fail: v5.10.43-130-g87b5f83f722c)
+
+    2021-10-04T17:07:00.299967  /lava-4641868/1/../bin/lava-test-case<8>[  =
+ 13.258461] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-iodomain-grf-prob=
+ed RESULT=3Dfail>
+    2021-10-04T17:07:00.300281  =
+
+    2021-10-04T17:07:00.300474  /lava-4641868/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/615b34bd71ec7d3aa399a310
+        failing since 111 days (last pass: v5.10.43-44-g253317604975, first=
+ fail: v5.10.43-130-g87b5f83f722c)
+
+    2021-10-04T17:06:58.876033  /lava-4641868/1/../bin/lava-test-case<8>[  =
+ 11.834103] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdio0-probe=
+d RESULT=3Dfail>
+    2021-10-04T17:06:58.876449  =
+
+    2021-10-04T17:06:58.876718  /lava-4641868/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/615b34bd71ec7d3aa399a311
+        failing since 111 days (last pass: v5.10.43-44-g253317604975, first=
+ fail: v5.10.43-130-g87b5f83f722c)
+
+    2021-10-04T17:06:57.839481  /lava-4641868/1/../bin/lava-test-case
+    2021-10-04T17:06:57.844628  <8>[   10.814442] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =
+
+
+
+platform                | arch  | lab           | compiler | defconfig     =
+     | regressions
+------------------------+-------+---------------+----------+---------------=
+-----+------------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-8    | defconfig     =
+     | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615b2000940751618f99a2ef
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+93-g42da4b1238c5/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-banan=
+api-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+93-g42da4b1238c5/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-banan=
+api-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615b2000940751618f99a=
+2f0
+        failing since 21 days (last pass: v5.10.63-26-gfb6b5e198aab, first =
+fail: v5.10.64-214-g93e17c2075d7) =
+
+ =20
