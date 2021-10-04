@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44649420D26
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:10:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC78B420B5B
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:55:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235372AbhJDNMU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:12:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45352 "EHLO mail.kernel.org"
+        id S233460AbhJDM4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 08:56:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235383AbhJDNKT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:10:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A6F661AF9;
-        Mon,  4 Oct 2021 13:03:48 +0000 (UTC)
+        id S233551AbhJDM4b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:56:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA514611CA;
+        Mon,  4 Oct 2021 12:54:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352629;
-        bh=LAfmcfEVroKyQ/aId21cj4Yfr4CXpvoC9O0rdpbe+90=;
+        s=korg; t=1633352082;
+        bh=780dyysR3rOK5VjuRacIsg7c1xyCT69xdp13r16mHd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T5+85SMQj2PAwnZXfBB4DXt0hnpq03UJsaGFC1KwEcaLOpzgiu/RUypl/zuyK2QcA
-         DcbKhPnp2MvtI5o21+ilEPy9tjdBZXJ0JVc5lu/mKDsCgFGL33YiTKPouGLBSVa06/
-         hCucUAMOYQcU4olDLOqG5elyVTOznxhc3IleXPwQ=
+        b=TF6AdxM7zAXhE6oQOHKBY/xRiwTkE1Jmbpw5yGvri8K4bO+tVPqKpWe/jqIw5iYbc
+         6sgZgzTC29kvK/xSSaPs7GgeSJzHB7msMLDFT6vNIr/WrfGbBb0z9nuKieL5dhERD4
+         wWIKgy+4sXOL/8sIarUZwvEi9ylajPEufrQV87mM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Moritz Fischer <mdf@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 27/95] fpga: machxo2-spi: Fix missing error code in machxo2_write_complete()
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 06/41] USB: serial: mos7840: remove duplicated 0xac24 device ID
 Date:   Mon,  4 Oct 2021 14:51:57 +0200
-Message-Id: <20211004125034.450954602@linuxfoundation.org>
+Message-Id: <20211004125026.797987743@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
+References: <20211004125026.597501645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit a1e4470823d99e75b596748086e120dea169ed3c ]
+commit 211f323768a25b30c106fd38f15a0f62c7c2b5f4 upstream.
 
-The error code is missing in this code scenario, add the error code
-'-EINVAL' to the return value 'ret'.
+0xac24 device ID is already defined and used via
+BANDB_DEVICE_ID_USO9ML2_4.  Remove the duplicate from the list.
 
-Eliminate the follow smatch warning:
-
-drivers/fpga/machxo2-spi.c:341 machxo2_write_complete()
-  warn: missing error code 'ret'.
-
-[mdf@kernel.org: Reworded commit message]
-Fixes: 88fb3a002330 ("fpga: lattice machxo2: Add Lattice MachXO2 support")
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Signed-off-by: Moritz Fischer <mdf@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 27f1281d5f72 ("USB: serial: Extra device/vendor ID for mos7840 driver")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/fpga/machxo2-spi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/serial/mos7840.c |    2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/fpga/machxo2-spi.c b/drivers/fpga/machxo2-spi.c
-index e3cbd7ff9dc9..fa76239f979b 100644
---- a/drivers/fpga/machxo2-spi.c
-+++ b/drivers/fpga/machxo2-spi.c
-@@ -334,6 +334,7 @@ static int machxo2_write_complete(struct fpga_manager *mgr,
- 			break;
- 		if (++refreshloop == MACHXO2_MAX_REFRESH_LOOP) {
- 			machxo2_cleanup(mgr);
-+			ret = -EINVAL;
- 			goto fail;
- 		}
- 	} while (1);
--- 
-2.33.0
-
+--- a/drivers/usb/serial/mos7840.c
++++ b/drivers/usb/serial/mos7840.c
+@@ -126,7 +126,6 @@
+ #define BANDB_DEVICE_ID_USOPTL4_2P       0xBC02
+ #define BANDB_DEVICE_ID_USOPTL4_4        0xAC44
+ #define BANDB_DEVICE_ID_USOPTL4_4P       0xBC03
+-#define BANDB_DEVICE_ID_USOPTL2_4        0xAC24
+ 
+ /* This driver also supports
+  * ATEN UC2324 device using Moschip MCS7840
+@@ -207,7 +206,6 @@ static const struct usb_device_id id_tab
+ 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_2P)},
+ 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_4)},
+ 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_4P)},
+-	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL2_4)},
+ 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2324)},
+ 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2322)},
+ 	{USB_DEVICE(USB_VENDOR_ID_MOXA, MOXA_DEVICE_ID_2210)},
 
 
