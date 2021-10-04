@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9750C420F0E
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:28:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19E83420F0F
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:28:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237784AbhJDNae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:30:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43756 "EHLO mail.kernel.org"
+        id S237593AbhJDNaf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:30:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237580AbhJDN2i (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237584AbhJDN2i (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 4 Oct 2021 09:28:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E0A6630EC;
-        Mon,  4 Oct 2021 13:12:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A3CD630ED;
+        Mon,  4 Oct 2021 13:12:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353177;
-        bh=f8Mph9YfQHSljEHarddPFrndZItbVLbbQJqCHznPDGA=;
+        s=korg; t=1633353179;
+        bh=nnvI+DyE+yoXgRypbYvm5aHACcR7idqHxDvQBfatckY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vOfeAdMd+EMvelbJFestHBcMw80BWPAZq/1C/MDVZYB679Euip9FnZygMegrqSNS3
-         IWEBl/uRbwoFx1SDXLBhs+dcS/VNPx/5RddxEphHUbhxOnFH4XZclilFJqGL91AL6f
-         5ecKhJtb1bELgAzjzGPNC7wwclu0HjT339wt6Dyk=
+        b=IMkIIvmQWWbwkIHaFAz9NVbBfT51IYZCenZR1mYHRgWC/b4iOUo2ktRgwDw3J4BCZ
+         C6HU97fuZB9TGDrvyaHjN0aGrTEmngeGQfvBqhYtKCGhj85QUWi7aDvzrABJDWEO7/
+         4h9ESMwu7EOg9Gf/D1pG/KWEPHsDXjlMw8AVVvpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 005/172] ASoC: fsl_esai: register platform component before registering cpu dai
-Date:   Mon,  4 Oct 2021 14:50:55 +0200
-Message-Id: <20211004125045.126952626@linuxfoundation.org>
+Subject: [PATCH 5.14 006/172] ASoC: fsl_micfil: register platform component before registering cpu dai
+Date:   Mon,  4 Oct 2021 14:50:56 +0200
+Message-Id: <20211004125045.157883255@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
 References: <20211004125044.945314266@linuxfoundation.org>
@@ -42,7 +42,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit f12ce92e98b21c1fc669cd74e12c54a0fe3bc2eb ]
+[ Upstream commit 0adf292069dcca8bab76a603251fcaabf77468ca ]
 
 There is no defer probe when adding platform component to
 snd_soc_pcm_runtime(rtd), the code is in snd_soc_add_pcm_runtime()
@@ -61,49 +61,48 @@ is empty, the sound card can't be used.
 As there is defer probe checking for cpu dai component, then register
 platform component before cpu dai to avoid such issue.
 
-Fixes: 43d24e76b698 ("ASoC: fsl_esai: Add ESAI CPU DAI driver")
+Fixes: 47a70e6fc9a8 ("ASoC: Add MICFIL SoC Digital Audio Interface driver.")
 Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Link: https://lore.kernel.org/r/1630665006-31437-3-git-send-email-shengjiu.wang@nxp.com
+Link: https://lore.kernel.org/r/1630665006-31437-4-git-send-email-shengjiu.wang@nxp.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_esai.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ sound/soc/fsl/fsl_micfil.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/fsl/fsl_esai.c b/sound/soc/fsl/fsl_esai.c
-index a961f837cd09..bda66b30e063 100644
---- a/sound/soc/fsl/fsl_esai.c
-+++ b/sound/soc/fsl/fsl_esai.c
-@@ -1073,6 +1073,16 @@ static int fsl_esai_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		goto err_pm_get_sync;
+diff --git a/sound/soc/fsl/fsl_micfil.c b/sound/soc/fsl/fsl_micfil.c
+index 8c0c75ce9490..9f90989ac59a 100644
+--- a/sound/soc/fsl/fsl_micfil.c
++++ b/sound/soc/fsl/fsl_micfil.c
+@@ -737,18 +737,23 @@ static int fsl_micfil_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(&pdev->dev);
+ 	regcache_cache_only(micfil->regmap, true);
  
 +	/*
 +	 * Register platform component before registering cpu dai for there
 +	 * is not defer probe for platform component in snd_soc_add_pcm_runtime().
 +	 */
-+	ret = imx_pcm_dma_init(pdev, IMX_ESAI_DMABUF_SIZE);
++	ret = devm_snd_dmaengine_pcm_register(&pdev->dev, NULL, 0);
 +	if (ret) {
-+		dev_err(&pdev->dev, "failed to init imx pcm dma: %d\n", ret);
-+		goto err_pm_get_sync;
++		dev_err(&pdev->dev, "failed to pcm register\n");
++		return ret;
 +	}
 +
- 	ret = devm_snd_soc_register_component(&pdev->dev, &fsl_esai_component,
- 					      &fsl_esai_dai, 1);
+ 	ret = devm_snd_soc_register_component(&pdev->dev, &fsl_micfil_component,
+ 					      &fsl_micfil_dai, 1);
  	if (ret) {
-@@ -1082,12 +1092,6 @@ static int fsl_esai_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "failed to register component %s\n",
+ 			fsl_micfil_component.name);
+-		return ret;
+ 	}
  
- 	INIT_WORK(&esai_priv->work, fsl_esai_hw_reset);
- 
--	ret = imx_pcm_dma_init(pdev, IMX_ESAI_DMABUF_SIZE);
--	if (ret) {
--		dev_err(&pdev->dev, "failed to init imx pcm dma: %d\n", ret);
--		goto err_pm_get_sync;
--	}
+-	ret = devm_snd_dmaengine_pcm_register(&pdev->dev, NULL, 0);
+-	if (ret)
+-		dev_err(&pdev->dev, "failed to pcm register\n");
 -
  	return ret;
+ }
  
- err_pm_get_sync:
 -- 
 2.33.0
 
