@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDD52420CA5
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:06:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1B6C420E84
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:23:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235207AbhJDNH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:07:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38546 "EHLO mail.kernel.org"
+        id S236987AbhJDNZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:25:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235235AbhJDNF6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:05:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4247961A4F;
-        Mon,  4 Oct 2021 13:01:07 +0000 (UTC)
+        id S237024AbhJDNXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:23:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 29D2161C11;
+        Mon,  4 Oct 2021 13:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352467;
-        bh=04kIWPn05Hq1DT9FgELgq24nOOVbuN6zG7jDb7g0c10=;
+        s=korg; t=1633353026;
+        bh=H/EPqUtZHIEDKO9oV35T1Bf3435LGktlH6aQfh5KD0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iwUSC76L/IuEd+gS6cp0k6MXHaY4sf7y5fcJHU3Kqjtg3KprXydA00MSgQ03dUsHT
-         ekUL4jCkwuY4ffWem2dcNS4/Ggre0Q+icqRt53mIwyxlbCjPsrPmQ/ohBgM3LKnlIp
-         tkh3Lea5Re0aZwZW0AF0dKLY2PO1u1kohF3CsaYk=
+        b=x9LulAlBHQOfY0REebGNzrHTxc/uL+SgxUMav/AgwGe3h5gG8xZdZZfKh1GVRkd42
+         LiUppWGwpVspa2c3+5o8HMnnt5IeWeUvFLP79exItkX5gW+Oi++JJTDskGUBSetqx9
+         kDpkeHqbCSwps+qnfTjlwI/rqgmPOellVFQpa5r8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Arnd Bergmann <arnd@kernel.org>
-Subject: [PATCH 4.14 41/75] qnx4: work around gcc false positive warning bug
+        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 18/93] KVM: x86: nSVM: dont copy virt_ext from vmcb12
 Date:   Mon,  4 Oct 2021 14:52:16 +0200
-Message-Id: <20211004125032.891042855@linuxfoundation.org>
+Message-Id: <20211004125035.178726400@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,120 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-commit d5f6545934c47e97c0b48a645418e877b452a992 upstream.
+commit faf6b755629627f19feafa75b32e81cd7738f12d upstream.
 
-In commit b7213ffa0e58 ("qnx4: avoid stringop-overread errors") I tried
-to teach gcc about how the directory entry structure can be two
-different things depending on a status flag.  It made the code clearer,
-and it seemed to make gcc happy.
+These field correspond to features that we don't expose yet to L2
 
-However, Arnd points to a gcc bug, where despite using two different
-members of a union, gcc then gets confused, and uses the size of one of
-the members to decide if a string overrun happens.  And not necessarily
-the rigth one.
+While currently there are no CVE worthy features in this field,
+if AMD adds more features to this field, that could allow guest
+escapes similar to CVE-2021-3653 and CVE-2021-3656.
 
-End result: with some configurations, gcc-11 will still complain about
-the source buffer size being overread:
-
-  fs/qnx4/dir.c: In function 'qnx4_readdir':
-  fs/qnx4/dir.c:76:32: error: 'strnlen' specified bound [16, 48] exceeds source size 1 [-Werror=stringop-overread]
-     76 |                         size = strnlen(name, size);
-        |                                ^~~~~~~~~~~~~~~~~~~
-  fs/qnx4/dir.c:26:22: note: source object declared here
-     26 |                 char de_name;
-        |                      ^~~~~~~
-
-because gcc will get confused about which union member entry is actually
-getting accessed, even when the source code is very clear about it.  Gcc
-internally will have combined two "redundant" pointers (pointing to
-different union elements that are at the same offset), and takes the
-size checking from one or the other - not necessarily the right one.
-
-This is clearly a gcc bug, but we can work around it fairly easily.  The
-biggest thing here is the big honking comment about why we do what we
-do.
-
-Link: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=99578#c6
-Reported-and-tested-by: Arnd Bergmann <arnd@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20210914154825.104886-6-mlevitsk@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/qnx4/dir.c |   36 +++++++++++++++++++++++++++---------
- 1 file changed, 27 insertions(+), 9 deletions(-)
+ arch/x86/kvm/svm/nested.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/qnx4/dir.c
-+++ b/fs/qnx4/dir.c
-@@ -20,12 +20,33 @@
-  * depending on the status field in the last byte. The
-  * first byte is where the name start either way, and a
-  * zero means it's empty.
-+ *
-+ * Also, due to a bug in gcc, we don't want to use the
-+ * real (differently sized) name arrays in the inode and
-+ * link entries, but always the 'de_name[]' one in the
-+ * fake struct entry.
-+ *
-+ * See
-+ *
-+ *   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=99578#c6
-+ *
-+ * for details, but basically gcc will take the size of the
-+ * 'name' array from one of the used union entries randomly.
-+ *
-+ * This use of 'de_name[]' (48 bytes) avoids the false positive
-+ * warnings that would happen if gcc decides to use 'inode.di_name'
-+ * (16 bytes) even when the pointer and size were to come from
-+ * 'link.dl_name' (48 bytes).
-+ *
-+ * In all cases the actual name pointer itself is the same, it's
-+ * only the gcc internal 'what is the size of this field' logic
-+ * that can get confused.
-  */
- union qnx4_directory_entry {
- 	struct {
--		char de_name;
--		char de_pad[62];
--		char de_status;
-+		const char de_name[48];
-+		u8 de_pad[15];
-+		u8 de_status;
- 	};
- 	struct qnx4_inode_entry inode;
- 	struct qnx4_link_info link;
-@@ -53,29 +74,26 @@ static int qnx4_readdir(struct file *fil
- 		ix = (ctx->pos >> QNX4_DIR_ENTRY_SIZE_BITS) % QNX4_INODES_PER_BLOCK;
- 		for (; ix < QNX4_INODES_PER_BLOCK; ix++, ctx->pos += QNX4_DIR_ENTRY_SIZE) {
- 			union qnx4_directory_entry *de;
--			const char *name;
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -447,7 +447,6 @@ static void nested_prepare_vmcb_control(
+ 		(svm->nested.ctl.int_ctl & int_ctl_vmcb12_bits) |
+ 		(svm->nested.hsave->control.int_ctl & int_ctl_vmcb01_bits);
  
- 			offset = ix * QNX4_DIR_ENTRY_SIZE;
- 			de = (union qnx4_directory_entry *) (bh->b_data + offset);
- 
--			if (!de->de_name)
-+			if (!de->de_name[0])
- 				continue;
- 			if (!(de->de_status & (QNX4_FILE_USED|QNX4_FILE_LINK)))
- 				continue;
- 			if (!(de->de_status & QNX4_FILE_LINK)) {
- 				size = sizeof(de->inode.di_fname);
--				name = de->inode.di_fname;
- 				ino = blknum * QNX4_INODES_PER_BLOCK + ix - 1;
- 			} else {
- 				size = sizeof(de->link.dl_fname);
--				name = de->link.dl_fname;
- 				ino = ( le32_to_cpu(de->link.dl_inode_blk) - 1 ) *
- 					QNX4_INODES_PER_BLOCK +
- 					de->link.dl_inode_ndx;
- 			}
--			size = strnlen(name, size);
-+			size = strnlen(de->de_name, size);
- 			QNX4DEBUG((KERN_INFO "qnx4_readdir:%.*s\n", size, name));
--			if (!dir_emit(ctx, name, size, ino, DT_UNKNOWN)) {
-+			if (!dir_emit(ctx, de->de_name, size, ino, DT_UNKNOWN)) {
- 				brelse(bh);
- 				return 0;
- 			}
+-	svm->vmcb->control.virt_ext            = svm->nested.ctl.virt_ext;
+ 	svm->vmcb->control.int_vector          = svm->nested.ctl.int_vector;
+ 	svm->vmcb->control.int_state           = svm->nested.ctl.int_state;
+ 	svm->vmcb->control.event_inj           = svm->nested.ctl.event_inj;
 
 
