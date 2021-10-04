@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E77FE420FB3
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:35:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1E58420D1D
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:10:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238164AbhJDNhK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:37:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47478 "EHLO mail.kernel.org"
+        id S235824AbhJDNL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:11:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237811AbhJDNfR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:35:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C3A961BA3;
-        Mon,  4 Oct 2021 13:15:58 +0000 (UTC)
+        id S234884AbhJDNJ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:09:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D4F761B70;
+        Mon,  4 Oct 2021 13:03:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353358;
-        bh=yRx8cgjxY/YxB69xlXp2qebeWDPtFnn+ap4eb5bfAG0=;
+        s=korg; t=1633352623;
+        bh=HEWDTzCLqV+HpbB90KCj3txdaD1TWH2NcrLpXvEobLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lvbzsv8JF3XD4mYw7umPcb2YuegqFaMxNoqOzxkL1PFIevzo2/DUp5PCFTyGcPWs4
-         Ig4Jk2QkmrtAAQ8casGb4OfCv6M4yCzvY1N9ITu+WS6Pk/e5rw/habOcqiQFkPULs/
-         y2Y06Lo97+q+EOdbLAoGiyuM26/Bh3mTv3DYCC3s=
+        b=a9w0pru1PDlqwbMq3C2Mu0DJ5eEfRdP8Qy35fKm68/u1lsMycG73+/Wb8r8Sm5Wf4
+         v7y5IJIyFz701Ke4LYp7sqa1aE+Rf9i5hqIzBnHtJ5fExEMlFOGm+qQ/vOhsxSRJV2
+         WauIMvLLOnR/e22skhHs308vJf5/Gfx/b7oEbvfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+dc3dfba010d7671e05f5@syzkaller.appspotmail.com,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.14 065/172] RDMA/cma: Ensure rdma_addr_cancel() happens before issuing more requests
+        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Paul Fulghum <paulkf@microgate.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 25/95] tty: synclink_gt: rename a conflicting function name
 Date:   Mon,  4 Oct 2021 14:51:55 +0200
-Message-Id: <20211004125047.092504860@linuxfoundation.org>
+Message-Id: <20211004125034.377580951@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,125 +41,232 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 305d568b72f17f674155a2a8275f865f207b3808 upstream.
+[ Upstream commit 06e49073dfba24df4b1073a068631b13a0039c34 ]
 
-The FSM can run in a circle allowing rdma_resolve_ip() to be called twice
-on the same id_priv. While this cannot happen without going through the
-work, it violates the invariant that the same address resolution
-background request cannot be active twice.
+'set_signals()' in synclink_gt.c conflicts with an exported symbol
+in arch/um/, so change set_signals() to set_gtsignals(). Keep
+the function names similar by also changing get_signals() to
+get_gtsignals().
 
-       CPU 1                                  CPU 2
+../drivers/tty/synclink_gt.c:442:13: error: conflicting types for ‘set_signals’
+ static void set_signals(struct slgt_info *info);
+             ^~~~~~~~~~~
+In file included from ../include/linux/irqflags.h:16:0,
+                 from ../include/linux/spinlock.h:58,
+                 from ../include/linux/mm_types.h:9,
+                 from ../include/linux/buildid.h:5,
+                 from ../include/linux/module.h:14,
+                 from ../drivers/tty/synclink_gt.c:46:
+../arch/um/include/asm/irqflags.h:6:5: note: previous declaration of ‘set_signals’ was here
+ int set_signals(int enable);
+     ^~~~~~~~~~~
 
-rdma_resolve_addr():
-  RDMA_CM_IDLE -> RDMA_CM_ADDR_QUERY
-  rdma_resolve_ip(addr_handler)  #1
-
-			 process_one_req(): for #1
-                          addr_handler():
-                            RDMA_CM_ADDR_QUERY -> RDMA_CM_ADDR_BOUND
-                            mutex_unlock(&id_priv->handler_mutex);
-                            [.. handler still running ..]
-
-rdma_resolve_addr():
-  RDMA_CM_ADDR_BOUND -> RDMA_CM_ADDR_QUERY
-  rdma_resolve_ip(addr_handler)
-    !! two requests are now on the req_list
-
-rdma_destroy_id():
- destroy_id_handler_unlock():
-  _destroy_id():
-   cma_cancel_operation():
-    rdma_addr_cancel()
-
-                          // process_one_req() self removes it
-		          spin_lock_bh(&lock);
-                           cancel_delayed_work(&req->work);
-	                   if (!list_empty(&req->list)) == true
-
-      ! rdma_addr_cancel() returns after process_on_req #1 is done
-
-   kfree(id_priv)
-
-			 process_one_req(): for #2
-                          addr_handler():
-	                    mutex_lock(&id_priv->handler_mutex);
-                            !! Use after free on id_priv
-
-rdma_addr_cancel() expects there to be one req on the list and only
-cancels the first one. The self-removal behavior of the work only happens
-after the handler has returned. This yields a situations where the
-req_list can have two reqs for the same "handle" but rdma_addr_cancel()
-only cancels the first one.
-
-The second req remains active beyond rdma_destroy_id() and will
-use-after-free id_priv once it inevitably triggers.
-
-Fix this by remembering if the id_priv has called rdma_resolve_ip() and
-always cancel before calling it again. This ensures the req_list never
-gets more than one item in it and doesn't cost anything in the normal flow
-that never uses this strange error path.
-
-Link: https://lore.kernel.org/r/0-v1-3bc675b8006d+22-syz_cancel_uaf_jgg@nvidia.com
-Cc: stable@vger.kernel.org
-Fixes: e51060f08a61 ("IB: IP address based RDMA connection manager")
-Reported-by: syzbot+dc3dfba010d7671e05f5@syzkaller.appspotmail.com
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 705b6c7b34f2 ("[PATCH] new driver synclink_gt")
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Cc: Paul Fulghum <paulkf@microgate.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20210902003806.17054-1-rdunlap@infradead.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c      |   23 +++++++++++++++++++++++
- drivers/infiniband/core/cma_priv.h |    1 +
- 2 files changed, 24 insertions(+)
+ drivers/tty/synclink_gt.c | 44 +++++++++++++++++++--------------------
+ 1 file changed, 22 insertions(+), 22 deletions(-)
 
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -1776,6 +1776,14 @@ static void cma_cancel_operation(struct
- {
- 	switch (state) {
- 	case RDMA_CM_ADDR_QUERY:
-+		/*
-+		 * We can avoid doing the rdma_addr_cancel() based on state,
-+		 * only RDMA_CM_ADDR_QUERY has a work that could still execute.
-+		 * Notice that the addr_handler work could still be exiting
-+		 * outside this state, however due to the interaction with the
-+		 * handler_mutex the work is guaranteed not to touch id_priv
-+		 * during exit.
-+		 */
- 		rdma_addr_cancel(&id_priv->id.route.addr.dev_addr);
- 		break;
- 	case RDMA_CM_ROUTE_QUERY:
-@@ -3410,6 +3418,21 @@ int rdma_resolve_addr(struct rdma_cm_id
- 		if (dst_addr->sa_family == AF_IB) {
- 			ret = cma_resolve_ib_addr(id_priv);
- 		} else {
-+			/*
-+			 * The FSM can return back to RDMA_CM_ADDR_BOUND after
-+			 * rdma_resolve_ip() is called, eg through the error
-+			 * path in addr_handler(). If this happens the existing
-+			 * request must be canceled before issuing a new one.
-+			 * Since canceling a request is a bit slow and this
-+			 * oddball path is rare, keep track once a request has
-+			 * been issued. The track turns out to be a permanent
-+			 * state since this is the only cancel as it is
-+			 * immediately before rdma_resolve_ip().
-+			 */
-+			if (id_priv->used_resolve_ip)
-+				rdma_addr_cancel(&id->route.addr.dev_addr);
-+			else
-+				id_priv->used_resolve_ip = 1;
- 			ret = rdma_resolve_ip(cma_src_addr(id_priv), dst_addr,
- 					      &id->route.addr.dev_addr,
- 					      timeout_ms, addr_handler,
---- a/drivers/infiniband/core/cma_priv.h
-+++ b/drivers/infiniband/core/cma_priv.h
-@@ -91,6 +91,7 @@ struct rdma_id_private {
- 	u8			afonly;
- 	u8			timeout;
- 	u8			min_rnr_timer;
-+	u8 used_resolve_ip;
- 	enum ib_gid_type	gid_type;
+diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
+index 503836be5fe2..afe34beec720 100644
+--- a/drivers/tty/synclink_gt.c
++++ b/drivers/tty/synclink_gt.c
+@@ -438,8 +438,8 @@ static void reset_tbufs(struct slgt_info *info);
+ static void tdma_reset(struct slgt_info *info);
+ static bool tx_load(struct slgt_info *info, const char *buf, unsigned int count);
  
- 	/*
+-static void get_signals(struct slgt_info *info);
+-static void set_signals(struct slgt_info *info);
++static void get_gtsignals(struct slgt_info *info);
++static void set_gtsignals(struct slgt_info *info);
+ static void set_rate(struct slgt_info *info, u32 data_rate);
+ 
+ static void bh_transmit(struct slgt_info *info);
+@@ -721,7 +721,7 @@ static void set_termios(struct tty_struct *tty, struct ktermios *old_termios)
+ 	if ((old_termios->c_cflag & CBAUD) && !C_BAUD(tty)) {
+ 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+ 		spin_lock_irqsave(&info->lock,flags);
+-		set_signals(info);
++		set_gtsignals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
+ 	}
+ 
+@@ -731,7 +731,7 @@ static void set_termios(struct tty_struct *tty, struct ktermios *old_termios)
+ 		if (!C_CRTSCTS(tty) || !tty_throttled(tty))
+ 			info->signals |= SerialSignal_RTS;
+ 		spin_lock_irqsave(&info->lock,flags);
+-	 	set_signals(info);
++	 	set_gtsignals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
+ 	}
+ 
+@@ -1183,7 +1183,7 @@ static inline void line_info(struct seq_file *m, struct slgt_info *info)
+ 
+ 	/* output current serial signal states */
+ 	spin_lock_irqsave(&info->lock,flags);
+-	get_signals(info);
++	get_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 
+ 	stat_buf[0] = 0;
+@@ -1283,7 +1283,7 @@ static void throttle(struct tty_struct * tty)
+ 	if (C_CRTSCTS(tty)) {
+ 		spin_lock_irqsave(&info->lock,flags);
+ 		info->signals &= ~SerialSignal_RTS;
+-		set_signals(info);
++		set_gtsignals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
+ 	}
+ }
+@@ -1308,7 +1308,7 @@ static void unthrottle(struct tty_struct * tty)
+ 	if (C_CRTSCTS(tty)) {
+ 		spin_lock_irqsave(&info->lock,flags);
+ 		info->signals |= SerialSignal_RTS;
+-		set_signals(info);
++		set_gtsignals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
+ 	}
+ }
+@@ -1480,7 +1480,7 @@ static int hdlcdev_open(struct net_device *dev)
+ 
+ 	/* inform generic HDLC layer of current DCD status */
+ 	spin_lock_irqsave(&info->lock, flags);
+-	get_signals(info);
++	get_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock, flags);
+ 	if (info->signals & SerialSignal_DCD)
+ 		netif_carrier_on(dev);
+@@ -2236,7 +2236,7 @@ static void isr_txeom(struct slgt_info *info, unsigned short status)
+ 		if (info->params.mode != MGSL_MODE_ASYNC && info->drop_rts_on_tx_done) {
+ 			info->signals &= ~SerialSignal_RTS;
+ 			info->drop_rts_on_tx_done = false;
+-			set_signals(info);
++			set_gtsignals(info);
+ 		}
+ 
+ #if SYNCLINK_GENERIC_HDLC
+@@ -2401,7 +2401,7 @@ static void shutdown(struct slgt_info *info)
+ 
+  	if (!info->port.tty || info->port.tty->termios.c_cflag & HUPCL) {
+ 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+-		set_signals(info);
++		set_gtsignals(info);
+ 	}
+ 
+ 	flush_cond_wait(&info->gpio_wait_q);
+@@ -2429,7 +2429,7 @@ static void program_hw(struct slgt_info *info)
+ 	else
+ 		async_mode(info);
+ 
+-	set_signals(info);
++	set_gtsignals(info);
+ 
+ 	info->dcd_chkcount = 0;
+ 	info->cts_chkcount = 0;
+@@ -2437,7 +2437,7 @@ static void program_hw(struct slgt_info *info)
+ 	info->dsr_chkcount = 0;
+ 
+ 	slgt_irq_on(info, IRQ_DCD | IRQ_CTS | IRQ_DSR | IRQ_RI);
+-	get_signals(info);
++	get_gtsignals(info);
+ 
+ 	if (info->netcount ||
+ 	    (info->port.tty && info->port.tty->termios.c_cflag & CREAD))
+@@ -2681,7 +2681,7 @@ static int wait_mgsl_event(struct slgt_info *info, int __user *mask_ptr)
+ 	spin_lock_irqsave(&info->lock,flags);
+ 
+ 	/* return immediately if state matches requested events */
+-	get_signals(info);
++	get_gtsignals(info);
+ 	s = info->signals;
+ 
+ 	events = mask &
+@@ -3099,7 +3099,7 @@ static int tiocmget(struct tty_struct *tty)
+  	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&info->lock,flags);
+- 	get_signals(info);
++ 	get_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 
+ 	result = ((info->signals & SerialSignal_RTS) ? TIOCM_RTS:0) +
+@@ -3138,7 +3138,7 @@ static int tiocmset(struct tty_struct *tty,
+ 		info->signals &= ~SerialSignal_DTR;
+ 
+ 	spin_lock_irqsave(&info->lock,flags);
+-	set_signals(info);
++	set_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 	return 0;
+ }
+@@ -3149,7 +3149,7 @@ static int carrier_raised(struct tty_port *port)
+ 	struct slgt_info *info = container_of(port, struct slgt_info, port);
+ 
+ 	spin_lock_irqsave(&info->lock,flags);
+-	get_signals(info);
++	get_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 	return (info->signals & SerialSignal_DCD) ? 1 : 0;
+ }
+@@ -3164,7 +3164,7 @@ static void dtr_rts(struct tty_port *port, int on)
+ 		info->signals |= SerialSignal_RTS | SerialSignal_DTR;
+ 	else
+ 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+-	set_signals(info);
++	set_gtsignals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ }
+ 
+@@ -3963,10 +3963,10 @@ static void tx_start(struct slgt_info *info)
+ 
+ 		if (info->params.mode != MGSL_MODE_ASYNC) {
+ 			if (info->params.flags & HDLC_FLAG_AUTO_RTS) {
+-				get_signals(info);
++				get_gtsignals(info);
+ 				if (!(info->signals & SerialSignal_RTS)) {
+ 					info->signals |= SerialSignal_RTS;
+-					set_signals(info);
++					set_gtsignals(info);
+ 					info->drop_rts_on_tx_done = true;
+ 				}
+ 			}
+@@ -4020,7 +4020,7 @@ static void reset_port(struct slgt_info *info)
+ 	rx_stop(info);
+ 
+ 	info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+-	set_signals(info);
++	set_gtsignals(info);
+ 
+ 	slgt_irq_off(info, IRQ_ALL | IRQ_MASTER);
+ }
+@@ -4442,7 +4442,7 @@ static void tx_set_idle(struct slgt_info *info)
+ /*
+  * get state of V24 status (input) signals
+  */
+-static void get_signals(struct slgt_info *info)
++static void get_gtsignals(struct slgt_info *info)
+ {
+ 	unsigned short status = rd_reg16(info, SSR);
+ 
+@@ -4504,7 +4504,7 @@ static void msc_set_vcr(struct slgt_info *info)
+ /*
+  * set state of V24 control (output) signals
+  */
+-static void set_signals(struct slgt_info *info)
++static void set_gtsignals(struct slgt_info *info)
+ {
+ 	unsigned char val = rd_reg8(info, VCR);
+ 	if (info->signals & SerialSignal_DTR)
+-- 
+2.33.0
+
 
 
