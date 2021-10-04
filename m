@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A6CD420CE0
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:08:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A4D5420F85
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:34:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234119AbhJDNJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:09:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44986 "EHLO mail.kernel.org"
+        id S235058AbhJDNfn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:35:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235636AbhJDNIu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:08:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C41CC61B5F;
-        Mon,  4 Oct 2021 13:02:48 +0000 (UTC)
+        id S237915AbhJDNd1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:33:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B7D461AFB;
+        Mon,  4 Oct 2021 13:15:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352569;
-        bh=+wYsI52atHo2ux8D6F65OaFgCER6I/1TSchdi9T/f8Y=;
+        s=korg; t=1633353312;
+        bh=6LI1YIgDj93n3QpB3bBhQyuMdgSbIaQMZm7vvdiDFWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aS74nfGzfS2mptASNjuzS5jbkS9NWjSUxQBqLSxi/YMKo+Xwai7Pw2dYQDyD8S/GG
-         M8XQdLk7wDSOzwc5Um0CIqOhBhpksnJEJVKwcRjCWQa15K66GiZiaKjHZmzWnQDGzy
-         pFCEIEAPVSql4pWgFrbHrqHVtKLFAayA9hbJqKjw=
+        b=1orxzTpad8ZWN843Ak+RT2gOr0TObH6x2Pv6ZtPTR2krdcyRO6VnzRI2K9bRGb1ma
+         uhBl04C8unZoTZ4Y5WiMjf98dO5cm9g6CXI9HiwyUikSMMiE2jfbeHF7pqs7P1yoHu
+         +DHsh8x3iIwhgROuqEumlLRB5N6tmSAAZlkgZuI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org, Christoph Lameter <cl@linux.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 38/95] compiler.h: Introduce absolute_pointer macro
+Subject: [PATCH 5.14 078/172] IB/cma: Do not send IGMP leaves for sendonly Multicast groups
 Date:   Mon,  4 Oct 2021 14:52:08 +0200
-Message-Id: <20211004125034.819040728@linuxfoundation.org>
+Message-Id: <20211004125047.517377919@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Christoph Lameter <cl@gentwo.de>
 
-[ Upstream commit f6b5f1a56987de837f8e25cd560847106b8632a8 ]
+[ Upstream commit 2cc74e1ee31d00393b6698ec80b322fd26523da4 ]
 
-absolute_pointer() disassociates a pointer from its originating symbol
-type and context. Use it to prevent compiler warnings/errors such as
+ROCE uses IGMP for Multicast instead of the native Infiniband system where
+joins are required in order to post messages on the Multicast group.  On
+Ethernet one can send Multicast messages to arbitrary addresses without
+the need to subscribe to a group.
 
-  drivers/net/ethernet/i825xx/82596.c: In function 'i82596_probe':
-  arch/m68k/include/asm/string.h:72:25: error:
-	'__builtin_memcpy' reading 6 bytes from a region of size 0 [-Werror=stringop-overread]
+So ROCE correctly does not send IGMP joins during rdma_join_multicast().
 
-Such warnings may be reported by gcc 11.x for string and memory
-operations on fixed addresses.
+F.e. in cma_iboe_join_multicast() we see:
 
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+   if (addr->sa_family == AF_INET) {
+                if (gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP) {
+                        ib.rec.hop_limit = IPV6_DEFAULT_HOPLIMIT;
+                        if (!send_only) {
+                                err = cma_igmp_send(ndev, &ib.rec.mgid,
+                                                    true);
+                        }
+                }
+        } else {
+
+So the IGMP join is suppressed as it is unnecessary.
+
+However no such check is done in destroy_mc(). And therefore leaving a
+sendonly multicast group will send an IGMP leave.
+
+This means that the following scenario can lead to a multicast receiver
+unexpectedly being unsubscribed from a MC group:
+
+1. Sender thread does a sendonly join on MC group X. No IGMP join
+   is sent.
+
+2. Receiver thread does a regular join on the same MC Group x.
+   IGMP join is sent and the receiver begins to get messages.
+
+3. Sender thread terminates and destroys MC group X.
+   IGMP leave is sent and the receiver no longer receives data.
+
+This patch adds the same logic for sendonly joins to destroy_mc() that is
+also used in cma_iboe_join_multicast().
+
+Fixes: ab15c95a17b3 ("IB/core: Support for CMA multicast join flags")
+Link: https://lore.kernel.org/r/alpine.DEB.2.22.394.2109081340540.668072@gentwo.de
+Signed-off-by: Christoph Lameter <cl@linux.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/compiler.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/infiniband/core/cma.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/compiler.h b/include/linux/compiler.h
-index 6a53300cbd1e..ab9dfb14f486 100644
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -228,6 +228,8 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
-     (typeof(ptr)) (__ptr + (off)); })
- #endif
- 
-+#define absolute_pointer(val)	RELOC_HIDE((void *)(val), 0)
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index 36ab9da70932..107462905b21 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -1818,6 +1818,8 @@ static void cma_release_port(struct rdma_id_private *id_priv)
+ static void destroy_mc(struct rdma_id_private *id_priv,
+ 		       struct cma_multicast *mc)
+ {
++	bool send_only = mc->join_state == BIT(SENDONLY_FULLMEMBER_JOIN);
 +
- #ifndef OPTIMIZER_HIDE_VAR
- /* Make the optimizer believe the variable can be manipulated arbitrarily. */
- #define OPTIMIZER_HIDE_VAR(var)						\
+ 	if (rdma_cap_ib_mcast(id_priv->id.device, id_priv->id.port_num))
+ 		ib_sa_free_multicast(mc->sa_mc);
+ 
+@@ -1834,7 +1836,10 @@ static void destroy_mc(struct rdma_id_private *id_priv,
+ 
+ 			cma_set_mgid(id_priv, (struct sockaddr *)&mc->addr,
+ 				     &mgid);
+-			cma_igmp_send(ndev, &mgid, false);
++
++			if (!send_only)
++				cma_igmp_send(ndev, &mgid, false);
++
+ 			dev_put(ndev);
+ 		}
+ 
 -- 
 2.33.0
 
