@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8907A420DC8
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:17:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C64DE420FF2
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:37:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235560AbhJDNTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:19:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55624 "EHLO mail.kernel.org"
+        id S233842AbhJDNjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:39:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235936AbhJDNRF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:17:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0E9F61251;
-        Mon,  4 Oct 2021 13:06:52 +0000 (UTC)
+        id S237912AbhJDNho (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:37:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F8E0613DB;
+        Mon,  4 Oct 2021 13:17:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352813;
-        bh=3bx9m+ut5LiGou6cSvjk+1Yn8D8lTwH54ke4s96q4w0=;
+        s=korg; t=1633353435;
+        bh=6znmiAQI0D3L8XyYriWdU5mi/p9+rpxvrGDto5V/CtA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2bPJ0TcTwvIYicZp3rdKNrjTFMyftIVtZOF5lOn95EvCRGWwkY+Cu0i9WwFR6Kl1G
-         KFWMFmGXxIaOkvMuPZxgEH2uB1TYVIrIaFQHHel5wFi4xsXBa30DyU1QorVNk9dhir
-         h2fNVGn1bzzMZJANxIB+cqQhtx2IgqYRHMOjuVdM=
+        b=SEvc+ZPtYuFUChIrG1facdIsIjG3zFPCf4XqON8Q5z/7DDgS3zC25d2SwoJtXvZxh
+         SrS1QBTv/ka5d1jhYKreQ1B76iMM9t1f/g6kX5JBR8ihTfTjl2aaIe1ICNXJ1KrKMC
+         sMVkCjV8xtDcVlXbT8AvpnNoWoeFZ+GEyk2zaJVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 36/56] ipack: ipoctal: fix stack information leak
+        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 126/172] net: hns3: dont rollback when destroy mqprio fail
 Date:   Mon,  4 Oct 2021 14:52:56 +0200
-Message-Id: <20211004125031.136318955@linuxfoundation.org>
+Message-Id: <20211004125049.041036533@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
-References: <20211004125030.002116402@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,86 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jian Shen <shenjian15@huawei.com>
 
-commit a89936cce87d60766a75732a9e7e25c51164f47c upstream.
+[ Upstream commit d82650be60ee92e7486f755f5387023278aa933f ]
 
-The tty driver name is used also after registering the driver and must
-specifically not be allocated on the stack to avoid leaking information
-to user space (or triggering an oops).
+For destroy mqprio is irreversible in stack, so it's unnecessary
+to rollback the tc configuration when destroy mqprio failed.
+Otherwise, it may cause the configuration being inconsistent
+between driver and netstack.
 
-Drivers should not try to encode topology information in the tty device
-name but this one snuck in through staging without anyone noticing and
-another driver has since copied this malpractice.
+As the failure is usually caused by reset, and the driver will
+restore the configuration after reset, so it can keep the
+configuration being consistent between driver and hardware.
 
-Fixing the ABI is a separate issue, but this at least plugs the security
-hole.
-
-Fixes: ba4dc61fe8c5 ("Staging: ipack: add support for IP-OCTAL mezzanine board")
-Cc: stable@vger.kernel.org      # 3.5
-Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210917114622.5412-2-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5a5c90917467 ("net: hns3: add support for tc mqprio offload")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ipack/devices/ipoctal.c |   19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c  | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
---- a/drivers/ipack/devices/ipoctal.c
-+++ b/drivers/ipack/devices/ipoctal.c
-@@ -266,7 +266,6 @@ static int ipoctal_inst_slot(struct ipoc
- 	int res;
- 	int i;
- 	struct tty_driver *tty;
--	char name[20];
- 	struct ipoctal_channel *channel;
- 	struct ipack_region *region;
- 	void __iomem *addr;
-@@ -357,8 +356,11 @@ static int ipoctal_inst_slot(struct ipoc
- 	/* Fill struct tty_driver with ipoctal data */
- 	tty->owner = THIS_MODULE;
- 	tty->driver_name = KBUILD_MODNAME;
--	sprintf(name, KBUILD_MODNAME ".%d.%d.", bus_nr, slot);
--	tty->name = name;
-+	tty->name = kasprintf(GFP_KERNEL, KBUILD_MODNAME ".%d.%d.", bus_nr, slot);
-+	if (!tty->name) {
-+		res = -ENOMEM;
-+		goto err_put_driver;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+index 5fadfdbc4858..e4f87ffd41ac 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+@@ -493,12 +493,17 @@ static int hclge_setup_tc(struct hnae3_handle *h,
+ 	return hclge_notify_init_up(hdev);
+ 
+ err_out:
+-	/* roll-back */
+-	memcpy(&kinfo->tc_info, &old_tc_info, sizeof(old_tc_info));
+-	if (hclge_config_tc(hdev, &kinfo->tc_info))
+-		dev_err(&hdev->pdev->dev,
+-			"failed to roll back tc configuration\n");
+-
++	if (!tc) {
++		dev_warn(&hdev->pdev->dev,
++			 "failed to destroy mqprio, will active after reset, ret = %d\n",
++			 ret);
++	} else {
++		/* roll-back */
++		memcpy(&kinfo->tc_info, &old_tc_info, sizeof(old_tc_info));
++		if (hclge_config_tc(hdev, &kinfo->tc_info))
++			dev_err(&hdev->pdev->dev,
++				"failed to roll back tc configuration\n");
 +	}
- 	tty->major = 0;
+ 	hclge_notify_init_up(hdev);
  
- 	tty->minor_start = 0;
-@@ -374,8 +376,7 @@ static int ipoctal_inst_slot(struct ipoc
- 	res = tty_register_driver(tty);
- 	if (res) {
- 		dev_err(&ipoctal->dev->dev, "Can't register tty driver.\n");
--		put_tty_driver(tty);
--		return res;
-+		goto err_free_name;
- 	}
- 
- 	/* Save struct tty_driver for use it when uninstalling the device */
-@@ -412,6 +413,13 @@ static int ipoctal_inst_slot(struct ipoc
- 				       ipoctal_irq_handler, ipoctal);
- 
- 	return 0;
-+
-+err_free_name:
-+	kfree(tty->name);
-+err_put_driver:
-+	put_tty_driver(tty);
-+
-+	return res;
- }
- 
- static inline int ipoctal_copy_write_buffer(struct ipoctal_channel *channel,
-@@ -700,6 +708,7 @@ static void __ipoctal_remove(struct ipoc
- 	}
- 
- 	tty_unregister_driver(ipoctal->tty_drv);
-+	kfree(ipoctal->tty_drv->name);
- 	put_tty_driver(ipoctal->tty_drv);
- 	kfree(ipoctal);
- }
+ 	return ret;
+-- 
+2.33.0
+
 
 
