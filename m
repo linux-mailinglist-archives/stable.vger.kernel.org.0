@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 100E8420CB0
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:07:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB1C8420F47
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:31:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234499AbhJDNJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:09:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39402 "EHLO mail.kernel.org"
+        id S236924AbhJDNdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:33:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234983AbhJDNGz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:06:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22E2A611C2;
-        Mon,  4 Oct 2021 13:01:35 +0000 (UTC)
+        id S236532AbhJDNbH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:31:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9F7663214;
+        Mon,  4 Oct 2021 13:14:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352496;
-        bh=MylyCFsFcFuRAZurpinNKG7rgGh5Fk9L5R3wmCK5FYg=;
+        s=korg; t=1633353241;
+        bh=kEcqwp9mXAMYwj8cNUa25CVhfk4qG4FSVdvEhS3bt1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8NA3elpcPZ2WWl9ZNVwLT98yrX5VWB5aeXd4KVS/ntBb32uy02JRTy631xbXUmj9
-         47CBmy5JMqCWUbP8Y0wirT2n0WwMNkQQ7wmVPx9YhtbQMUiBVcNqd6aumn+EVmYS3e
-         4mw9bRIBKPTI5pUSgyugECGnHlq048APRLzube4E=
+        b=0NfM/Y/KAJrVfJL0cEgMDUllpIhFJ1AHfu8cOhKuvdIhZu4jam0gmQjs8s2/ecyZN
+         q08wxTnHPmFsosbEN0mlnpGF4BDVq218Rwyt02HTZVio+ZdS1sG7+ThENObUV0bX27
+         wC+nJACRo5WkF41wgXx2tBvGoCkQPNAHHkO50Q2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 10/95] staging: greybus: uart: fix tty use after free
+        stable@vger.kernel.org,
+        "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.14 050/172] KVM: x86: Fix stack-out-of-bounds memory access from ioapic_write_indirect()
 Date:   Mon,  4 Oct 2021 14:51:40 +0200
-Message-Id: <20211004125033.906683142@linuxfoundation.org>
+Message-Id: <20211004125046.613221744@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,172 +43,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit 92dc0b1f46e12cfabd28d709bb34f7a39431b44f upstream.
+commit 2f9b68f57c6278c322793a06063181deded0ad69 upstream.
 
-User space can hold a tty open indefinitely and tty drivers must not
-release the underlying structures until the last user is gone.
+KASAN reports the following issue:
 
-Switch to using the tty-port reference counter to manage the life time
-of the greybus tty state to avoid use after free after a disconnect.
+ BUG: KASAN: stack-out-of-bounds in kvm_make_vcpus_request_mask+0x174/0x440 [kvm]
+ Read of size 8 at addr ffffc9001364f638 by task qemu-kvm/4798
 
-Fixes: a18e15175708 ("greybus: more uart work")
-Cc: stable@vger.kernel.org      # 4.9
-Reviewed-by: Alex Elder <elder@linaro.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210906124538.22358-1-johan@kernel.org
+ CPU: 0 PID: 4798 Comm: qemu-kvm Tainted: G               X --------- ---
+ Hardware name: AMD Corporation DAYTONA_X/DAYTONA_X, BIOS RYM0081C 07/13/2020
+ Call Trace:
+  dump_stack+0xa5/0xe6
+  print_address_description.constprop.0+0x18/0x130
+  ? kvm_make_vcpus_request_mask+0x174/0x440 [kvm]
+  __kasan_report.cold+0x7f/0x114
+  ? kvm_make_vcpus_request_mask+0x174/0x440 [kvm]
+  kasan_report+0x38/0x50
+  kasan_check_range+0xf5/0x1d0
+  kvm_make_vcpus_request_mask+0x174/0x440 [kvm]
+  kvm_make_scan_ioapic_request_mask+0x84/0xc0 [kvm]
+  ? kvm_arch_exit+0x110/0x110 [kvm]
+  ? sched_clock+0x5/0x10
+  ioapic_write_indirect+0x59f/0x9e0 [kvm]
+  ? static_obj+0xc0/0xc0
+  ? __lock_acquired+0x1d2/0x8c0
+  ? kvm_ioapic_eoi_inject_work+0x120/0x120 [kvm]
+
+The problem appears to be that 'vcpu_bitmap' is allocated as a single long
+on stack and it should really be KVM_MAX_VCPUS long. We also seem to clear
+the lower 16 bits of it with bitmap_zero() for no particular reason (my
+guess would be that 'bitmap' and 'vcpu_bitmap' variables in
+kvm_bitmap_or_dest_vcpus() caused the confusion: while the later is indeed
+16-bit long, the later should accommodate all possible vCPUs).
+
+Fixes: 7ee30bc132c6 ("KVM: x86: deliver KVM IOAPIC scan request to target vCPUs")
+Fixes: 9a2ae9f6b6bb ("KVM: x86: Zero the IOAPIC scan request dest vCPUs bitmap")
+Reported-by: Dr. David Alan Gilbert <dgilbert@redhat.com>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210827092516.1027264-7-vkuznets@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/greybus/uart.c |   62 +++++++++++++++++++++--------------------
- 1 file changed, 32 insertions(+), 30 deletions(-)
+ arch/x86/kvm/ioapic.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/staging/greybus/uart.c
-+++ b/drivers/staging/greybus/uart.c
-@@ -799,6 +799,17 @@ out:
- 	gbphy_runtime_put_autosuspend(gb_tty->gbphy_dev);
- }
+--- a/arch/x86/kvm/ioapic.c
++++ b/arch/x86/kvm/ioapic.c
+@@ -319,8 +319,8 @@ static void ioapic_write_indirect(struct
+ 	unsigned index;
+ 	bool mask_before, mask_after;
+ 	union kvm_ioapic_redirect_entry *e;
+-	unsigned long vcpu_bitmap;
+ 	int old_remote_irr, old_delivery_status, old_dest_id, old_dest_mode;
++	DECLARE_BITMAP(vcpu_bitmap, KVM_MAX_VCPUS);
  
-+static void gb_tty_port_destruct(struct tty_port *port)
-+{
-+	struct gb_tty *gb_tty = container_of(port, struct gb_tty, port);
-+
-+	if (gb_tty->minor != GB_NUM_MINORS)
-+		release_minor(gb_tty);
-+	kfifo_free(&gb_tty->write_fifo);
-+	kfree(gb_tty->buffer);
-+	kfree(gb_tty);
-+}
-+
- static const struct tty_operations gb_ops = {
- 	.install =		gb_tty_install,
- 	.open =			gb_tty_open,
-@@ -822,6 +833,7 @@ static const struct tty_port_operations
- 	.dtr_rts =		gb_tty_dtr_rts,
- 	.activate =		gb_tty_port_activate,
- 	.shutdown =		gb_tty_port_shutdown,
-+	.destruct =		gb_tty_port_destruct,
- };
- 
- static int gb_uart_probe(struct gbphy_device *gbphy_dev,
-@@ -834,17 +846,11 @@ static int gb_uart_probe(struct gbphy_de
- 	int retval;
- 	int minor;
- 
--	gb_tty = kzalloc(sizeof(*gb_tty), GFP_KERNEL);
--	if (!gb_tty)
--		return -ENOMEM;
--
- 	connection = gb_connection_create(gbphy_dev->bundle,
- 					  le16_to_cpu(gbphy_dev->cport_desc->id),
- 					  gb_uart_request_handler);
--	if (IS_ERR(connection)) {
--		retval = PTR_ERR(connection);
--		goto exit_tty_free;
--	}
-+	if (IS_ERR(connection))
-+		return PTR_ERR(connection);
- 
- 	max_payload = gb_operation_get_payload_size_max(connection);
- 	if (max_payload < sizeof(struct gb_uart_send_data_request)) {
-@@ -852,13 +858,23 @@ static int gb_uart_probe(struct gbphy_de
- 		goto exit_connection_destroy;
- 	}
- 
-+	gb_tty = kzalloc(sizeof(*gb_tty), GFP_KERNEL);
-+	if (!gb_tty) {
-+		retval = -ENOMEM;
-+		goto exit_connection_destroy;
-+	}
-+
-+	tty_port_init(&gb_tty->port);
-+	gb_tty->port.ops = &gb_port_ops;
-+	gb_tty->minor = GB_NUM_MINORS;
-+
- 	gb_tty->buffer_payload_max = max_payload -
- 			sizeof(struct gb_uart_send_data_request);
- 
- 	gb_tty->buffer = kzalloc(gb_tty->buffer_payload_max, GFP_KERNEL);
- 	if (!gb_tty->buffer) {
- 		retval = -ENOMEM;
--		goto exit_connection_destroy;
-+		goto exit_put_port;
- 	}
- 
- 	INIT_WORK(&gb_tty->tx_work, gb_uart_tx_write_work);
-@@ -866,7 +882,7 @@ static int gb_uart_probe(struct gbphy_de
- 	retval = kfifo_alloc(&gb_tty->write_fifo, GB_UART_WRITE_FIFO_SIZE,
- 			     GFP_KERNEL);
- 	if (retval)
--		goto exit_buf_free;
-+		goto exit_put_port;
- 
- 	gb_tty->credits = GB_UART_FIRMWARE_CREDITS;
- 	init_completion(&gb_tty->credits_complete);
-@@ -880,7 +896,7 @@ static int gb_uart_probe(struct gbphy_de
+ 	switch (ioapic->ioregsel) {
+ 	case IOAPIC_REG_VERSION:
+@@ -384,9 +384,9 @@ static void ioapic_write_indirect(struct
+ 			irq.shorthand = APIC_DEST_NOSHORT;
+ 			irq.dest_id = e->fields.dest_id;
+ 			irq.msi_redir_hint = false;
+-			bitmap_zero(&vcpu_bitmap, 16);
++			bitmap_zero(vcpu_bitmap, KVM_MAX_VCPUS);
+ 			kvm_bitmap_or_dest_vcpus(ioapic->kvm, &irq,
+-						 &vcpu_bitmap);
++						 vcpu_bitmap);
+ 			if (old_dest_mode != e->fields.dest_mode ||
+ 			    old_dest_id != e->fields.dest_id) {
+ 				/*
+@@ -399,10 +399,10 @@ static void ioapic_write_indirect(struct
+ 				    kvm_lapic_irq_dest_mode(
+ 					!!e->fields.dest_mode);
+ 				kvm_bitmap_or_dest_vcpus(ioapic->kvm, &irq,
+-							 &vcpu_bitmap);
++							 vcpu_bitmap);
+ 			}
+ 			kvm_make_scan_ioapic_request_mask(ioapic->kvm,
+-							  &vcpu_bitmap);
++							  vcpu_bitmap);
  		} else {
- 			retval = minor;
+ 			kvm_make_scan_ioapic_request(ioapic->kvm);
  		}
--		goto exit_kfifo_free;
-+		goto exit_put_port;
- 	}
- 
- 	gb_tty->minor = minor;
-@@ -889,9 +905,6 @@ static int gb_uart_probe(struct gbphy_de
- 	init_waitqueue_head(&gb_tty->wioctl);
- 	mutex_init(&gb_tty->mutex);
- 
--	tty_port_init(&gb_tty->port);
--	gb_tty->port.ops = &gb_port_ops;
--
- 	gb_tty->connection = connection;
- 	gb_tty->gbphy_dev = gbphy_dev;
- 	gb_connection_set_data(connection, gb_tty);
-@@ -899,7 +912,7 @@ static int gb_uart_probe(struct gbphy_de
- 
- 	retval = gb_connection_enable_tx(connection);
- 	if (retval)
--		goto exit_release_minor;
-+		goto exit_put_port;
- 
- 	send_control(gb_tty, gb_tty->ctrlout);
- 
-@@ -926,16 +939,10 @@ static int gb_uart_probe(struct gbphy_de
- 
- exit_connection_disable:
- 	gb_connection_disable(connection);
--exit_release_minor:
--	release_minor(gb_tty);
--exit_kfifo_free:
--	kfifo_free(&gb_tty->write_fifo);
--exit_buf_free:
--	kfree(gb_tty->buffer);
-+exit_put_port:
-+	tty_port_put(&gb_tty->port);
- exit_connection_destroy:
- 	gb_connection_destroy(connection);
--exit_tty_free:
--	kfree(gb_tty);
- 
- 	return retval;
- }
-@@ -966,15 +973,10 @@ static void gb_uart_remove(struct gbphy_
- 	gb_connection_disable_rx(connection);
- 	tty_unregister_device(gb_tty_driver, gb_tty->minor);
- 
--	/* FIXME - free transmit / receive buffers */
--
- 	gb_connection_disable(connection);
--	tty_port_destroy(&gb_tty->port);
- 	gb_connection_destroy(connection);
--	release_minor(gb_tty);
--	kfifo_free(&gb_tty->write_fifo);
--	kfree(gb_tty->buffer);
--	kfree(gb_tty);
-+
-+	tty_port_put(&gb_tty->port);
- }
- 
- static int gb_tty_init(void)
 
 
