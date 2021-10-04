@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 949B9420C83
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:04:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E616420D7B
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:14:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234021AbhJDNGg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:06:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38968 "EHLO mail.kernel.org"
+        id S236042AbhJDNPe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:15:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233573AbhJDNEo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:04:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D49E761B05;
-        Mon,  4 Oct 2021 13:00:25 +0000 (UTC)
+        id S236188AbhJDNNd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:13:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B064D61B74;
+        Mon,  4 Oct 2021 13:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352426;
-        bh=nSTmr121dkjbPIH6jZrbKOssLMtUrK4KbeQ23eg16U8=;
+        s=korg; t=1633352719;
+        bh=btchl0DR4ajugpku7C1Va3oggK8PguAEAjFscJpsi7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SwYnljGhDPicHOfffqQvlIMKDhpGL0GXAF1nEmXthT+JVuM7o71Z4na4K/hFwnQ++
-         iqXgIoO6PjFQ7Tij6chO0YreBRvRDu6jOF6jW8r6yv5Zjab5PGT3Dv8ix1HLwwIgjZ
-         KZgTEQukcUkUgJO5BQkJVjB0y4Mtz0joERbsbGdM=
+        b=qMd5OaF7a3qd0hPQYDh+cv6YGDUXNb7XG6plPWafGPXvvjrwI6PlmfxSyS6tPKb7X
+         DiO/9jgdsZ8XUYGVc1uLo+s9nPyqGqT2ED550nmzSnSTTzb08q9bf5c5+0e0SJnoF5
+         8z0TjUOlZpifkOo6+H7pb8vfpGm8qHu0zD9Yc/V4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 57/75] ipack: ipoctal: fix tty-registration error handling
+        stable@vger.kernel.org, Yi Chen <yiche@redhat.com>,
+        Andrea Claudi <aclaudi@redhat.com>,
+        Julian Anastasov <ja@ssi.bg>,
+        Simon Horman <horms@verge.net.au>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 62/95] ipvs: check that ip_vs_conn_tab_bits is between 8 and 20
 Date:   Mon,  4 Oct 2021 14:52:32 +0200
-Message-Id: <20211004125033.445066630@linuxfoundation.org>
+Message-Id: <20211004125035.599313418@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Andrea Claudi <aclaudi@redhat.com>
 
-commit cd20d59291d1790dc74248476e928f57fc455189 upstream.
+[ Upstream commit 69e73dbfda14fbfe748d3812da1244cce2928dcb ]
 
-Registration of the ipoctal tty devices is unlikely to fail, but if it
-ever does, make sure not to deregister a never registered tty device
-(and dereference a NULL pointer) when the driver is later unbound.
+ip_vs_conn_tab_bits may be provided by the user through the
+conn_tab_bits module parameter. If this value is greater than 31, or
+less than 0, the shift operator used to derive tab_size causes undefined
+behaviour.
 
-Fixes: 2afb41d9d30d ("Staging: ipack/devices/ipoctal: Check tty_register_device return value.")
-Cc: stable@vger.kernel.org      # 3.7
-Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210917114622.5412-4-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this checking ip_vs_conn_tab_bits value to be in the range specified
+in ipvs Kconfig. If not, simply use default value.
+
+Fixes: 6f7edb4881bf ("IPVS: Allow boot time change of hash size")
+Reported-by: Yi Chen <yiche@redhat.com>
+Signed-off-by: Andrea Claudi <aclaudi@redhat.com>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Acked-by: Simon Horman <horms@verge.net.au>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ipack/devices/ipoctal.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ net/netfilter/ipvs/ip_vs_conn.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/ipack/devices/ipoctal.c
-+++ b/drivers/ipack/devices/ipoctal.c
-@@ -38,6 +38,7 @@ struct ipoctal_channel {
- 	unsigned int			pointer_read;
- 	unsigned int			pointer_write;
- 	struct tty_port			tty_port;
-+	bool				tty_registered;
- 	union scc2698_channel __iomem	*regs;
- 	union scc2698_block __iomem	*block_regs;
- 	unsigned int			board_id;
-@@ -402,9 +403,11 @@ static int ipoctal_inst_slot(struct ipoc
- 							i, NULL, channel, NULL);
- 		if (IS_ERR(tty_dev)) {
- 			dev_err(&ipoctal->dev->dev, "Failed to register tty device.\n");
-+			tty_port_free_xmit_buf(&channel->tty_port);
- 			tty_port_destroy(&channel->tty_port);
- 			continue;
- 		}
-+		channel->tty_registered = true;
- 	}
+diff --git a/net/netfilter/ipvs/ip_vs_conn.c b/net/netfilter/ipvs/ip_vs_conn.c
+index 5b2b17867cb1..2780a847701e 100644
+--- a/net/netfilter/ipvs/ip_vs_conn.c
++++ b/net/netfilter/ipvs/ip_vs_conn.c
+@@ -1399,6 +1399,10 @@ int __init ip_vs_conn_init(void)
+ 	int idx;
  
- 	/*
-@@ -705,6 +708,10 @@ static void __ipoctal_remove(struct ipoc
+ 	/* Compute size and mask */
++	if (ip_vs_conn_tab_bits < 8 || ip_vs_conn_tab_bits > 20) {
++		pr_info("conn_tab_bits not in [8, 20]. Using default value\n");
++		ip_vs_conn_tab_bits = CONFIG_IP_VS_TAB_BITS;
++	}
+ 	ip_vs_conn_tab_size = 1 << ip_vs_conn_tab_bits;
+ 	ip_vs_conn_tab_mask = ip_vs_conn_tab_size - 1;
  
- 	for (i = 0; i < NR_CHANNELS; i++) {
- 		struct ipoctal_channel *channel = &ipoctal->channel[i];
-+
-+		if (!channel->tty_registered)
-+			continue;
-+
- 		tty_unregister_device(ipoctal->tty_drv, i);
- 		tty_port_free_xmit_buf(&channel->tty_port);
- 		tty_port_destroy(&channel->tty_port);
+-- 
+2.33.0
+
 
 
