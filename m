@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 040FD4209BE
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 13:09:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6E394209C0
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 13:12:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229929AbhJDLLL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 07:11:11 -0400
-Received: from new1-smtp.messagingengine.com ([66.111.4.221]:36887 "EHLO
-        new1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229825AbhJDLLL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 07:11:11 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 2914C580B12;
-        Mon,  4 Oct 2021 07:09:19 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 04 Oct 2021 07:09:19 -0400
+        id S230238AbhJDLOR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 07:14:17 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:35503 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229609AbhJDLOQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 07:14:16 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailout.nyi.internal (Postfix) with ESMTP id 56F755C00D4;
+        Mon,  4 Oct 2021 07:12:27 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Mon, 04 Oct 2021 07:12:27 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=lsyNJGlVJemF3bmuo/TeOw5FPZj
-        guP/ok8eqc5zK9Yo=; b=ofuOrwCeCMDj6KimNylXQnECJY02jw60zFkkIaXOSsy
-        dPiUqztj88DQh2ajS1MNQKHYE3syPMtRQD8M7G49AcuVvSQRN6vCKYY1mhxU4xWi
-        5SCHQ7KfoaanzH/RkiuGNWkn+GuRQFUA7qPEmDzLrV43LNfXp+4/51H5nxxt1XNO
-        2NWBhzWjk3kjsmM5JLETGPXw6fdRRH6DwjpCha5a3LjVnMX7ru8MxqhYS00c3Je7
-        N196yA/GS04yHdEPKPbhQBOkH23Y+CQc+vPmvoNUUnT3cgSrQyV70EZPl+3BzBvw
-        /wCSYe2HXleODrMF6PfbQGF4m8uhwzmRp1igM9fEfCw==
+        :content-type:in-reply-to; s=fm2; bh=tmfBhLajCSYyPa1PuwIDiR6E6dV
+        uCYY3+nyPglfVFMg=; b=iG5e9nizXr75BN3sYgRa1cknwEP9qeIwA74lj30Tmuq
+        ZbWQDnRDjlgTfPF2VYHTYsYN8EealSykg1jy170ixFwAT38PuwtrOkeAkIl/3404
+        2CTWCzqdOYu54FJ8Hg4Pe6tjfhDtb8fXQoTMOyJ9wudEAvkTXzTpdHDq6QZv088w
+        ATa+oQlI1EyLOjILAnQrEWB2ldyi92dkt4wL8XbR0k7craIUbPEInm6AKbnc03ej
+        OQablLFHil9miXItQSwsWj+oP+3uM20CxsaXSLZOD79rn2vcMuhyYs5xz/PDj4Cj
+        KobqnprGFTpF0oLJc2pPd9kwzAz1vmliIlo9kRfZ20A==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-type:date:from:in-reply-to
         :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=lsyNJG
-        lVJemF3bmuo/TeOw5FPZjguP/ok8eqc5zK9Yo=; b=KYLSd7g3/l1dZRbE1aWElm
-        0vn0jRtYZvxicTCI5D4h76hj9rMGULr6zZ+Z+AYYGER17DRlzw2XlaP/jyPmQTVL
-        7445ZLPB1rhVSftCUI7PiXu1Ra5w+f+zMpsK4NUUcJUvw1o5z5JNQbyDk2dZu1aH
-        uiaFSgpfxkrACyz/V1AIy3rWMR0OK4zO/H40mFsDg6BSNe8wlBws5PZ4C4SyT+R5
-        CNPG1aB+/yk8Oirfr3ESg6FYvGicHqWD6m47jNSBN64ynzPbe0LJ7xfQCmj+MZtg
-        RrfUntTHgAPuKhdo4AOhiACE56rCgxjsle5CEVcPOaWwqaHnX/76fpVeXk/pSgsQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=tmfBhL
+        ajCSYyPa1PuwIDiR6E6dVuCYY3+nyPglfVFMg=; b=KVLoAkqYafh4p2kA1Rureh
+        hvn2WEwmgxL7CTXgEQ4D69H1fSM7kmypBMIEQsC1F5+sjiewGdCELoC9uU9kjb56
+        Y99jRupl0nJh5AGdu/uYQtmp6kaPzzUIxY8z+AUq2q4bjulQJHFaSEX7IsRrTWkd
+        qAFahsTNdUKeNceeyuLUzOfS3Gwy127g5zs3nQSrVw8BgWSBQoU08Gjozex5vgIO
+        pRqiBY2D5To+uV8anBbWTUq6rXPu/jsICNqd4xmdNjyaRlkJMdI47Sd5T9w3azUd
+        KJrrUnrIQ4DVIJwWPk0HSCQykGlBhjKIhcznWYQTThUA9wxQvTg+TOUvBIdEVztg
         ==
-X-ME-Sender: <xms:3uBaYZzlVpRHrRAP_sBcRVbvdcdZOPVsTCVWX2ESpmtydyc2VYdqzw>
-    <xme:3uBaYZQHEHcqYa38XI6aoqdHgmd2hyli_-lK7qIxBElGgVJv9SykzS7us6CC6cOMu
-    ioPEiMeM-F_3Q>
-X-ME-Received: <xmr:3uBaYTWKcmSb6WgD2--2wlEZ6Iy94LpmZIRYWNQcZ4JSVQARgjPUPE_s7oHu1GFMPCtuQefZh5KAwiVQthiBYnc29uzp0VE7>
+X-ME-Sender: <xms:m-FaYQyuYktQVBcLWhj5FHGBBeHYsGF51W4sPTqJAKACHsDTOuo_Zg>
+    <xme:m-FaYUT_aOTNDIAizn40jryI8icKNiVt2ot2kohfm0PK9xDZTBLB5zVExJKOIIk-_
+    CtNncgv9XknWA>
+X-ME-Received: <xmr:m-FaYSUgHNh7v3nk_U6BHykm70bKmbXdTJQRLMMb0OmxPdlia8VIfodXNNSZzndq0xI_sGk74qnKDkVWs1lS3aGWF22CMPBu>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudelvddgfeehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
@@ -48,55 +48,48 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudelvddgfeehucetufdoteggod
     ehkeeltefhleduuddvhfffuedvffduveegheekgeeiffevheegfeetgfenucffohhmrghi
     nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:3uBaYbjir1C_BhxEaZhK-yOF9msZNlAlX0RN-NTfoxpxv_h2g6W9NA>
-    <xmx:3uBaYbCceC7spgFqXvBFdm7bYtVfUEMTDMpgE4CEMInYPzYLmrDc1Q>
-    <xmx:3uBaYUJzR7mDW4Af8zYMj74TfmEcDPErtZ_WS_txF98i97fDESulrA>
-    <xmx:3-BaYdw2dZX9yntdKNRxt_84XQS9lx80XCc8d_IJHnTtB8xZPm4Nww>
+X-ME-Proxy: <xmx:m-FaYehZ2kUcZ8mq5FF9oTVHpxJ7rEtZ6GY-kjNhsqa7cN-UKTTG-Q>
+    <xmx:m-FaYSB84jgAE5x2zr4Tv_B14O2pf8_pYK4p_lhwF2iVaXgCAWCziA>
+    <xmx:m-FaYfI1WmIYw66E36hXCwJdmovxNI7u0S0dw7ej8gUStkxdvuNjhg>
+    <xmx:m-FaYV-mmi-Zsl2YYJcZNpjDJF-TUDkgaWx1_3bLuUBHqu4K0t5x5g>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 4 Oct 2021 07:09:17 -0400 (EDT)
-Date:   Mon, 4 Oct 2021 13:09:14 +0200
+ 4 Oct 2021 07:12:26 -0400 (EDT)
+Date:   Mon, 4 Oct 2021 13:12:25 +0200
 From:   Greg KH <greg@kroah.com>
-To:     Nanyong Sun <sunnanyong@huawei.com>
-Cc:     catalin.marinas@arm.com, will@kernel.org, suzuki.poulose@arm.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, james.morse@arm.com,
-        hayashi.kunihiko@socionext.com
-Subject: Re: [PATCH v4.4 v4.9 v4.14] arm64: Extend workaround for erratum
- 1024718 to all versions of Cortex-A55
-Message-ID: <YVrg2mXyaI/5D6mH@kroah.com>
-References: <20210929075210.819396-1-sunnanyong@huawei.com>
+To:     Ovidiu Panait <ovidiu.panait@windriver.com>
+Cc:     stable@vger.kernel.org, carnil@debian.org
+Subject: Re: [PATCH 5.14 1/1] usb: hso: remove the bailout parameter
+Message-ID: <YVrhmd26AXJ/kWSR@kroah.com>
+References: <20210929075940.1961832-1-ovidiu.panait@windriver.com>
+ <20210929075940.1961832-2-ovidiu.panait@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210929075210.819396-1-sunnanyong@huawei.com>
+In-Reply-To: <20210929075940.1961832-2-ovidiu.panait@windriver.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 29, 2021 at 03:52:10PM +0800, Nanyong Sun wrote:
-> From: Suzuki K Poulose <suzuki.poulose@arm.com>
+On Wed, Sep 29, 2021 at 10:59:40AM +0300, Ovidiu Panait wrote:
+> From: Dongliang Mu <mudongliangabcd@gmail.com>
 > 
-> commit c0b15c25d25171db4b70cc0b7dbc1130ee94017d upstream.
+> commit dcb713d53e2eadf42b878c12a471e74dc6ed3145 upstream.
 > 
-> The erratum 1024718 affects Cortex-A55 r0p0 to r2p0. However
-> we apply the work around for r0p0 - r1p0. Unfortunately this
-> won't be fixed for the future revisions for the CPU. Thus
-> extend the work around for all versions of A55, to cover
-> for r2p0 and any future revisions.
+> There are two invocation sites of hso_free_net_device. After
+> refactoring hso_create_net_device, this parameter is useless.
+> Remove the bailout in the hso_free_net_device and change the invocation
+> sites of this function.
 > 
-> Cc: stable@vger.kernel.org #v4.4 v4.9 v4.14
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: James Morse <james.morse@arm.com>
-> Cc: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-> Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-> Link: https://lore.kernel.org/r/20210203230057.3961239-1-suzuki.poulose@arm.com
-> [will: Update Kconfig help text]
-> Signed-off-by: Will Deacon <will@kernel.org>
-> [Nanyon: adjust for stable version below v4.16, which set TCR_HD earlier
-> in assembly code]
-> Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
+> Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+> ---
+> Backport this cleanup patch to 5.10 and 5.14 in order to keep the
+> codebase consistent with the following 4.14/4.19/5.4 patchseries:
+> [4.14] https://lore.kernel.org/stable/20210928151544.270412-1-ovidiu.panait@windriver.com/T/#m3212ee8701e6e6a532c681e26aa557a324628577
+> [4.19] https://lore.kernel.org/stable/20210928143001.202223-1-ovidiu.panait@windriver.com/T/#mfc27ef6f6bb647d051f27ebc6ea19a423e8b67cc
+> [5.4] https://lore.kernel.org/stable/YVNs%2FmLb9YXNz7G+@eldamar.lan/T/#m5a020c3314a5e1c686f923efdf6fdb6a6aa90652
 
-Now queued up,t hanks.
+Ick, but ok, now queued up....
 
 greg k-h
