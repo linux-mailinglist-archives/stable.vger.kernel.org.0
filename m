@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CCEC420DE5
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:17:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1EAE420EA3
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:25:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236419AbhJDNTa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:19:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54356 "EHLO mail.kernel.org"
+        id S237169AbhJDN04 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:26:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236436AbhJDNSU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:18:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFE5361B40;
-        Mon,  4 Oct 2021 13:07:37 +0000 (UTC)
+        id S236818AbhJDNZB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:25:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E752861213;
+        Mon,  4 Oct 2021 13:11:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352858;
-        bh=YZH3u+3leyMqYh6D0I5gxL44STaJjzd3Hhi8+dW6354=;
+        s=korg; t=1633353061;
+        bh=GhX5/qYarg6pDMOppzzQ2dlKl9eBye/DRa2Dn9/mJU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lwb+OenC88GirKe8ajfdAKrK+gQ47ECFAryZBWaPWSLsL8nZsbr5hsgqzQkpGccf1
-         gF3/Am5vJ+scTtB/MYdlMaHduK6uKURLfmdvsuDeAa6niBH4cpYpZNIQrXOEncTgj4
-         MWs3YVJj3pAmhgkTrPjwDUwci1eXwrfj/o7Wk9go=
+        b=YIZaHUsUakFJp1gO9sIcQpFnpdfbII+RakGyQXRTRWJiGqQwdn0ClAQEdHHoTdnHc
+         QlZXIHQ393SGFj/uT54aWA7xp43j/Q9euXF7O/KZ2tXboWFv5VtXkqZOdX1nkJx5Rs
+         tRJa82pJ9mYtZa+BuiXudWQrLh+vS/kxAs8ifR1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.4 51/56] usb: hso: remove the bailout parameter
-Date:   Mon,  4 Oct 2021 14:53:11 +0200
-Message-Id: <20211004125031.605160451@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 74/93] ipack: ipoctal: fix missing allocation-failure check
+Date:   Mon,  4 Oct 2021 14:53:12 +0200
+Message-Id: <20211004125037.030787547@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
-References: <20211004125030.002116402@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit dcb713d53e2eadf42b878c12a471e74dc6ed3145 upstream.
+commit 445c8132727728dc297492a7d9fc074af3e94ba3 upstream.
 
-There are two invocation sites of hso_free_net_device. After
-refactoring hso_create_net_device, this parameter is useless.
-Remove the bailout in the hso_free_net_device and change the invocation
-sites of this function.
+Add the missing error handling when allocating the transmit buffer to
+avoid dereferencing a NULL pointer in write() should the allocation
+ever fail.
 
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Fixes: ba4dc61fe8c5 ("Staging: ipack: add support for IP-OCTAL mezzanine board")
+Cc: stable@vger.kernel.org      # 3.5
+Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210917114622.5412-5-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/hso.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/ipack/devices/ipoctal.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -2354,7 +2354,7 @@ static int remove_net_device(struct hso_
- }
+--- a/drivers/ipack/devices/ipoctal.c
++++ b/drivers/ipack/devices/ipoctal.c
+@@ -388,7 +388,9 @@ static int ipoctal_inst_slot(struct ipoc
  
- /* Frees our network device */
--static void hso_free_net_device(struct hso_device *hso_dev, bool bailout)
-+static void hso_free_net_device(struct hso_device *hso_dev)
- {
- 	int i;
- 	struct hso_net *hso_net = dev2net(hso_dev);
-@@ -2377,7 +2377,7 @@ static void hso_free_net_device(struct h
- 	kfree(hso_net->mux_bulk_tx_buf);
- 	hso_net->mux_bulk_tx_buf = NULL;
+ 		channel = &ipoctal->channel[i];
+ 		tty_port_init(&channel->tty_port);
+-		tty_port_alloc_xmit_buf(&channel->tty_port);
++		res = tty_port_alloc_xmit_buf(&channel->tty_port);
++		if (res)
++			continue;
+ 		channel->tty_port.ops = &ipoctal_tty_port_ops;
  
--	if (hso_net->net && !bailout)
-+	if (hso_net->net)
- 		free_netdev(hso_net->net);
- 
- 	kfree(hso_dev);
-@@ -3133,7 +3133,7 @@ static void hso_free_interface(struct us
- 				rfkill_unregister(rfk);
- 				rfkill_destroy(rfk);
- 			}
--			hso_free_net_device(network_table[i], false);
-+			hso_free_net_device(network_table[i]);
- 		}
- 	}
- }
+ 		ipoctal_reset_stats(&channel->stats);
 
 
