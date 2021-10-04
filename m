@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7BB0420E35
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:21:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3120420CBA
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:07:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236584AbhJDNW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:22:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36474 "EHLO mail.kernel.org"
+        id S235071AbhJDNJP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:09:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234291AbhJDNVA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:21:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D73D461A6E;
-        Mon,  4 Oct 2021 13:08:58 +0000 (UTC)
+        id S234764AbhJDNGN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:06:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7AA961B29;
+        Mon,  4 Oct 2021 13:01:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352939;
-        bh=bw8Cqxi+JoX149C4Wv7vwcRC1nRCoTdgW+pHtvlJwPY=;
+        s=korg; t=1633352470;
+        bh=676gQ5WGzDzM5kEVF/NdaXRkrR2WYJaSPaZg6ZhxM0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BgqomlKll6MHxPkhvvBSOxpA8KbxK2B4cl3vgoi/nSAFKISgeetSjHAZpcuGRWgUs
-         WR1xyS3BTl/Sre1gAC9jXjcKbKooPCT6zF7LKMlsyxF2BaGAFwAO1ST/v4NSDOHlzJ
-         +O/d1LUR9VmAajbadpCVnp4Savx70R7mYiBhvvRc=
+        b=MnYhcN3FO9db3M52+/luNOE/ANhE+CkIpzeFqzfWI5Iw/P3EKneI0VC6iIxnYcNrf
+         onCM8Fw9k7R082VEpAK1+Eu1xpjCimbgb4HgGFHd/CGANo53A/QNNKu+lAfiAeCzK5
+         XxFifaoMe5UaBAIjN7sC9JaP0TqDxLe6hKdcoN5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 19/93] KVM: nVMX: Filter out all unsupported controls when eVMCS was activated
+        stable@vger.kernel.org,
+        Igor Matheus Andrade Torrente <igormtorrente@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+858dc7a2f7ef07c2c219@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 42/75] tty: Fix out-of-bound vmalloc access in imageblit
 Date:   Mon,  4 Oct 2021 14:52:17 +0200
-Message-Id: <20211004125035.218613950@linuxfoundation.org>
+Message-Id: <20211004125032.928978910@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,85 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
 
-commit 8d68bad6d869fae8f4d50ab6423538dec7da72d1 upstream.
+[ Upstream commit 3b0c406124719b625b1aba431659f5cdc24a982c ]
 
-Windows Server 2022 with Hyper-V role enabled failed to boot on KVM when
-enlightened VMCS is advertised. Debugging revealed there are two exposed
-secondary controls it is not happy with: SECONDARY_EXEC_ENABLE_VMFUNC and
-SECONDARY_EXEC_SHADOW_VMCS. These controls are known to be unsupported,
-as there are no corresponding fields in eVMCSv1 (see the comment above
-EVMCS1_UNSUPPORTED_2NDEXEC definition).
+This issue happens when a userspace program does an ioctl
+FBIOPUT_VSCREENINFO passing the fb_var_screeninfo struct
+containing only the fields xres, yres, and bits_per_pixel
+with values.
 
-Previously, commit 31de3d2500e4 ("x86/kvm/hyper-v: move VMX controls
-sanitization out of nested_enable_evmcs()") introduced the required
-filtering mechanism for VMX MSRs but for some reason put only known
-to be problematic (and not full EVMCS1_UNSUPPORTED_* lists) controls
-there.
+If this struct is the same as the previous ioctl, the
+vc_resize() detects it and doesn't call the resize_screen(),
+leaving the fb_var_screeninfo incomplete. And this leads to
+the updatescrollmode() calculates a wrong value to
+fbcon_display->vrows, which makes the real_y() return a
+wrong value of y, and that value, eventually, causes
+the imageblit to access an out-of-bound address value.
 
-Note, Windows Server 2022 seems to have gained some sanity check for VMX
-MSRs: it doesn't even try to launch a guest when there's something it
-doesn't like, nested_evmcs_check_controls() mechanism can't catch the
-problem.
+To solve this issue I made the resize_screen() be called
+even if the screen does not need any resizing, so it will
+"fix and fill" the fb_var_screeninfo independently.
 
-Let's be bold this time and instead of playing whack-a-mole just filter out
-all unsupported controls from VMX MSRs.
-
-Fixes: 31de3d2500e4 ("x86/kvm/hyper-v: move VMX controls sanitization out of nested_enable_evmcs()")
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20210907163530.110066-1-vkuznets@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Cc: stable <stable@vger.kernel.org> # after 5.15-rc2 is out, give it time to bake
+Reported-and-tested-by: syzbot+858dc7a2f7ef07c2c219@syzkaller.appspotmail.com
+Signed-off-by: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+Link: https://lore.kernel.org/r/20210628134509.15895-1-igormtorrente@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/evmcs.c |   12 +++++++++---
- arch/x86/kvm/vmx/vmx.c   |    9 +++++----
- 2 files changed, 14 insertions(+), 7 deletions(-)
+ drivers/tty/vt/vt.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/vmx/evmcs.c
-+++ b/arch/x86/kvm/vmx/evmcs.c
-@@ -352,14 +352,20 @@ void nested_evmcs_filter_control_msr(u32
- 	switch (msr_index) {
- 	case MSR_IA32_VMX_EXIT_CTLS:
- 	case MSR_IA32_VMX_TRUE_EXIT_CTLS:
--		ctl_high &= ~VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL;
-+		ctl_high &= ~EVMCS1_UNSUPPORTED_VMEXIT_CTRL;
- 		break;
- 	case MSR_IA32_VMX_ENTRY_CTLS:
- 	case MSR_IA32_VMX_TRUE_ENTRY_CTLS:
--		ctl_high &= ~VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL;
-+		ctl_high &= ~EVMCS1_UNSUPPORTED_VMENTRY_CTRL;
- 		break;
- 	case MSR_IA32_VMX_PROCBASED_CTLS2:
--		ctl_high &= ~SECONDARY_EXEC_VIRTUALIZE_APIC_ACCESSES;
-+		ctl_high &= ~EVMCS1_UNSUPPORTED_2NDEXEC;
-+		break;
-+	case MSR_IA32_VMX_PINBASED_CTLS:
-+		ctl_high &= ~EVMCS1_UNSUPPORTED_PINCTRL;
-+		break;
-+	case MSR_IA32_VMX_VMFUNC:
-+		ctl_low &= ~EVMCS1_UNSUPPORTED_VMFUNC;
- 		break;
- 	}
+diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
+index d497208b43f4..f4ac5ec5dc02 100644
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -883,8 +883,25 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
+ 	new_row_size = new_cols << 1;
+ 	new_screen_size = new_row_size * new_rows;
  
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -1867,10 +1867,11 @@ static int vmx_get_msr(struct kvm_vcpu *
- 				    &msr_info->data))
- 			return 1;
- 		/*
--		 * Enlightened VMCS v1 doesn't have certain fields, but buggy
--		 * Hyper-V versions are still trying to use corresponding
--		 * features when they are exposed. Filter out the essential
--		 * minimum.
-+		 * Enlightened VMCS v1 doesn't have certain VMCS fields but
-+		 * instead of just ignoring the features, different Hyper-V
-+		 * versions are either trying to use them and fail or do some
-+		 * sanity checking and refuse to boot. Filter all unsupported
-+		 * features out.
- 		 */
- 		if (!msr_info->host_initiated &&
- 		    vmx->nested.enlightened_vmcs_enabled)
+-	if (new_cols == vc->vc_cols && new_rows == vc->vc_rows)
+-		return 0;
++	if (new_cols == vc->vc_cols && new_rows == vc->vc_rows) {
++		/*
++		 * This function is being called here to cover the case
++		 * where the userspace calls the FBIOPUT_VSCREENINFO twice,
++		 * passing the same fb_var_screeninfo containing the fields
++		 * yres/xres equal to a number non-multiple of vc_font.height
++		 * and yres_virtual/xres_virtual equal to number lesser than the
++		 * vc_font.height and yres/xres.
++		 * In the second call, the struct fb_var_screeninfo isn't
++		 * being modified by the underlying driver because of the
++		 * if above, and this causes the fbcon_display->vrows to become
++		 * negative and it eventually leads to out-of-bound
++		 * access by the imageblit function.
++		 * To give the correct values to the struct and to not have
++		 * to deal with possible errors from the code below, we call
++		 * the resize_screen here as well.
++		 */
++		return resize_screen(vc, new_cols, new_rows, user);
++	}
+ 
+ 	if (new_screen_size > KMALLOC_MAX_SIZE || !new_screen_size)
+ 		return -EINVAL;
+-- 
+2.33.0
+
 
 
