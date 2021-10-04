@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67A33420C5E
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:03:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B407A420E6D
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:23:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233692AbhJDNFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:05:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39400 "EHLO mail.kernel.org"
+        id S236853AbhJDNZF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:25:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235024AbhJDNDi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:03:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D2EE61AEC;
-        Mon,  4 Oct 2021 12:59:54 +0000 (UTC)
+        id S236873AbhJDNX3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:23:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C12C61BF3;
+        Mon,  4 Oct 2021 13:10:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352394;
-        bh=jNpmYPJE1z97s9zfAE8RJax1RBKozyW2UxwHze8RfZA=;
+        s=korg; t=1633353012;
+        bh=r7XJEaL/8RlBaOqF5DRbSvJHEOIGr8i+rARVrtVS91k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vGOeeX2sX4vhOys0fJ0ASfTQwnXm9g/IjVysWLSMCmyKGxzcdcs38EKPI/8Dia+ae
-         w1CSqcC8UhAtFnPHtCh2mCYURzUTFMzX7zDVcSAVeNpFWg9BsFyTOMoDq+NY4HPXWN
-         wSzLstSaasep7t0cYQgiCxNWPuQRb/oS+9U7M+xg=
+        b=dIvRfw7cqd0vOrtzvdGlfWAffMvoENDjJdENiYjhsGLvoiQK9Yh0PlEeTzU4nbDzs
+         83kCKiES5Dz3h+GCTcZJAa/8ZpdpGNutTSRDviP9Lk+O3DQD0WoHtnq/DgvABJFxWG
+         3LDxc3XxVml7Sc3gDOBeg7fzoi/zgafbg9x8Ynes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.14 45/75] mac80211: fix use-after-free in CCMP/GCMP RX
+        stable@vger.kernel.org,
+        syzbot+6bb0528b13611047209c@syzkaller.appspotmail.com,
+        Hao Sun <sunhao.th@gmail.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.10 22/93] RDMA/cma: Do not change route.addr.src_addr.ss_family
 Date:   Mon,  4 Oct 2021 14:52:20 +0200
-Message-Id: <20211004125033.041021292@linuxfoundation.org>
+Message-Id: <20211004125035.308810861@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,54 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-commit 94513069eb549737bcfc3d988d6ed4da948a2de8 upstream.
+commit bc0bdc5afaa740d782fbf936aaeebd65e5c2921d upstream.
 
-When PN checking is done in mac80211, for fragmentation we need
-to copy the PN to the RX struct so we can later use it to do a
-comparison, since commit bf30ca922a0c ("mac80211: check defrag
-PN against current frame").
+If the state is not idle then rdma_bind_addr() will immediately fail and
+no change to global state should happen.
 
-Unfortunately, in that commit I used the 'hdr' variable without
-it being necessarily valid, so use-after-free could occur if it
-was necessary to reallocate (parts of) the frame.
+For instance if the state is already RDMA_CM_LISTEN then this will corrupt
+the src_addr and would cause the test in cma_cancel_operation():
 
-Fix this by reloading the variable after the code that results
-in the reallocations, if any.
+		if (cma_any_addr(cma_src_addr(id_priv)) && !id_priv->cma_dev)
 
-This fixes https://bugzilla.kernel.org/show_bug.cgi?id=214401.
+To view a mangled src_addr, eg with a IPv6 loopback address but an IPv4
+family, failing the test.
 
+This would manifest as this trace from syzkaller:
+
+  BUG: KASAN: use-after-free in __list_add_valid+0x93/0xa0 lib/list_debug.c:26
+  Read of size 8 at addr ffff8881546491e0 by task syz-executor.1/32204
+
+  CPU: 1 PID: 32204 Comm: syz-executor.1 Not tainted 5.12.0-rc8-syzkaller #0
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  Call Trace:
+   __dump_stack lib/dump_stack.c:79 [inline]
+   dump_stack+0x141/0x1d7 lib/dump_stack.c:120
+   print_address_description.constprop.0.cold+0x5b/0x2f8 mm/kasan/report.c:232
+   __kasan_report mm/kasan/report.c:399 [inline]
+   kasan_report.cold+0x7c/0xd8 mm/kasan/report.c:416
+   __list_add_valid+0x93/0xa0 lib/list_debug.c:26
+   __list_add include/linux/list.h:67 [inline]
+   list_add_tail include/linux/list.h:100 [inline]
+   cma_listen_on_all drivers/infiniband/core/cma.c:2557 [inline]
+   rdma_listen+0x787/0xe00 drivers/infiniband/core/cma.c:3751
+   ucma_listen+0x16a/0x210 drivers/infiniband/core/ucma.c:1102
+   ucma_write+0x259/0x350 drivers/infiniband/core/ucma.c:1732
+   vfs_write+0x28e/0xa30 fs/read_write.c:603
+   ksys_write+0x1ee/0x250 fs/read_write.c:658
+   do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Which is indicating that an rdma_id_private was destroyed without doing
+cma_cancel_listens().
+
+Instead of trying to re-use the src_addr memory to indirectly create an
+any address build one explicitly on the stack and bind to that as any
+other normal flow would do.
+
+Link: https://lore.kernel.org/r/0-v1-9fbb33f5e201+2a-cma_listen_jgg@nvidia.com
 Cc: stable@vger.kernel.org
-Fixes: bf30ca922a0c ("mac80211: check defrag PN against current frame")
-Link: https://lore.kernel.org/r/20210927115838.12b9ac6bb233.I1d066acd5408a662c3b6e828122cd314fcb28cdb@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 732d41c545bb ("RDMA/cma: Make the locking for automatic state transition more clear")
+Reported-by: syzbot+6bb0528b13611047209c@syzkaller.appspotmail.com
+Tested-by: Hao Sun <sunhao.th@gmail.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/wpa.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/infiniband/core/cma.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/net/mac80211/wpa.c
-+++ b/net/mac80211/wpa.c
-@@ -514,6 +514,9 @@ ieee80211_crypto_ccmp_decrypt(struct iee
- 			return RX_DROP_UNUSABLE;
- 	}
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -3732,9 +3732,13 @@ int rdma_listen(struct rdma_cm_id *id, i
+ 	int ret;
  
-+	/* reload hdr - skb might have been reallocated */
-+	hdr = (void *)rx->skb->data;
+ 	if (!cma_comp_exch(id_priv, RDMA_CM_ADDR_BOUND, RDMA_CM_LISTEN)) {
++		struct sockaddr_in any_in = {
++			.sin_family = AF_INET,
++			.sin_addr.s_addr = htonl(INADDR_ANY),
++		};
 +
- 	data_len = skb->len - hdrlen - IEEE80211_CCMP_HDR_LEN - mic_len;
- 	if (!rx->sta || data_len < 0)
- 		return RX_DROP_UNUSABLE;
-@@ -744,6 +747,9 @@ ieee80211_crypto_gcmp_decrypt(struct iee
- 			return RX_DROP_UNUSABLE;
- 	}
- 
-+	/* reload hdr - skb might have been reallocated */
-+	hdr = (void *)rx->skb->data;
-+
- 	data_len = skb->len - hdrlen - IEEE80211_GCMP_HDR_LEN - mic_len;
- 	if (!rx->sta || data_len < 0)
- 		return RX_DROP_UNUSABLE;
+ 		/* For a well behaved ULP state will be RDMA_CM_IDLE */
+-		id->route.addr.src_addr.ss_family = AF_INET;
+-		ret = rdma_bind_addr(id, cma_src_addr(id_priv));
++		ret = rdma_bind_addr(id, (struct sockaddr *)&any_in);
+ 		if (ret)
+ 			return ret;
+ 		if (WARN_ON(!cma_comp_exch(id_priv, RDMA_CM_ADDR_BOUND,
 
 
