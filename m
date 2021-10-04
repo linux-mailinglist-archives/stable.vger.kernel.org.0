@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A41B420D88
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:14:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E709942105B
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:41:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235620AbhJDNQF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:16:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53702 "EHLO mail.kernel.org"
+        id S238644AbhJDNmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:42:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235600AbhJDNOK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:14:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA6BE619E9;
-        Mon,  4 Oct 2021 13:05:38 +0000 (UTC)
+        id S238661AbhJDNlB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:41:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF3D861A38;
+        Mon,  4 Oct 2021 13:18:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352739;
-        bh=cEi2Zz9fecudZ3IftRcBMYyRKog8MuWhtFtLwqNd6Dw=;
+        s=korg; t=1633353536;
+        bh=ShJlBkA40CjiAkPHOgUgb6ijLeB+QaFfCM6mx2ID/CQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IpyxLNRNprhg55XlkxafplC95+jAXwMod93ZIm5sfiYgh5sge61nTcWVsOusT6wKO
-         BL8HObDsHdHOldgjOI3dH6qRWxPtsdZY0UWKKutWuJFZKSvNEn6MHAlKAcYN55Eh/Q
-         dL9Ph/yJO8o2cC3beyN1W/NxkuMLH9FsCFo7mIro=
+        b=VyhmMywC5p44wCF27AJ9rPbSBOvXPQI51lHr8CabHmbyPQo2PmRPbiJg/ZpBaycrp
+         jDn65M8hJ2ac9nWJbW3wDEbZTj7GQSeclZjsZ7zYTDT2i2xijLnQFUUh7zATU2Gpwt
+         BYuYVdJLBoaNdZimLE91nrd8MLEZvzP+9ao8Sy2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com,
-        Yanfei Xu <yanfei.xu@windriver.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 95/95] net: mdiobus: Fix memory leak in __mdiobus_register
+        Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>,
+        Wong Vee Khee <vee.khee.wong@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 135/172] net: stmmac: fix EEE init issue when paired with EEE capable PHYs
 Date:   Mon,  4 Oct 2021 14:53:05 +0200
-Message-Id: <20211004125036.677573066@linuxfoundation.org>
+Message-Id: <20211004125049.321093067@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,89 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yanfei Xu <yanfei.xu@windriver.com>
+From: Wong Vee Khee <vee.khee.wong@linux.intel.com>
 
-commit ab609f25d19858513919369ff3d9a63c02cd9e2e upstream.
+[ Upstream commit 656ed8b015f19bf3f6e6b3ddd9a4bb4aa5ca73e1 ]
 
-Once device_register() failed, we should call put_device() to
-decrement reference count for cleanup. Or it will cause memory
-leak.
+When STMMAC is paired with Energy-Efficient Ethernet(EEE) capable PHY,
+and the PHY is advertising EEE by default, we need to enable EEE on the
+xPCS side too, instead of having user to manually trigger the enabling
+config via ethtool.
 
-BUG: memory leak
-unreferenced object 0xffff888114032e00 (size 256):
-  comm "kworker/1:3", pid 2960, jiffies 4294943572 (age 15.920s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 08 2e 03 14 81 88 ff ff  ................
-    08 2e 03 14 81 88 ff ff 90 76 65 82 ff ff ff ff  .........ve.....
-  backtrace:
-    [<ffffffff8265cfab>] kmalloc include/linux/slab.h:591 [inline]
-    [<ffffffff8265cfab>] kzalloc include/linux/slab.h:721 [inline]
-    [<ffffffff8265cfab>] device_private_init drivers/base/core.c:3203 [inline]
-    [<ffffffff8265cfab>] device_add+0x89b/0xdf0 drivers/base/core.c:3253
-    [<ffffffff828dd643>] __mdiobus_register+0xc3/0x450 drivers/net/phy/mdio_bus.c:537
-    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
-    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
-    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
-    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
-    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
-    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
-    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
-    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
-    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
-    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
-    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
-    [<ffffffff82660916>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
-    [<ffffffff8265cd0b>] device_add+0x5fb/0xdf0 drivers/base/core.c:3359
-    [<ffffffff82c343b9>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2170
-    [<ffffffff82c4473c>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
+Fixed this by adding xpcs_config_eee() call in stmmac_eee_init().
 
-BUG: memory leak
-unreferenced object 0xffff888116f06900 (size 32):
-  comm "kworker/0:2", pid 2670, jiffies 4294944448 (age 7.160s)
-  hex dump (first 32 bytes):
-    75 73 62 2d 30 30 31 3a 30 30 33 00 00 00 00 00  usb-001:003.....
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff81484516>] kstrdup+0x36/0x70 mm/util.c:60
-    [<ffffffff814845a3>] kstrdup_const+0x53/0x80 mm/util.c:83
-    [<ffffffff82296ba2>] kvasprintf_const+0xc2/0x110 lib/kasprintf.c:48
-    [<ffffffff82358d4b>] kobject_set_name_vargs+0x3b/0xe0 lib/kobject.c:289
-    [<ffffffff826575f3>] dev_set_name+0x63/0x90 drivers/base/core.c:3147
-    [<ffffffff828dd63b>] __mdiobus_register+0xbb/0x450 drivers/net/phy/mdio_bus.c:535
-    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
-    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
-    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
-    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
-    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
-    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
-    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
-    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
-    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
-    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
-    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
-
-Reported-by: syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
-Signed-off-by: Yanfei Xu <yanfei.xu@windriver.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Fixes: 7617af3d1a5e ("net: pcs: Introducing support for DWC xpcs Energy Efficient Ethernet")
+Cc: Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>
+Signed-off-by: Wong Vee Khee <vee.khee.wong@linux.intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio_bus.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -381,6 +381,7 @@ int __mdiobus_register(struct mii_bus *b
- 	err = device_register(&bus->dev);
- 	if (err) {
- 		pr_err("mii_bus %s failed to register\n", bus->id);
-+		put_device(&bus->dev);
- 		return -EINVAL;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 2218bc3a624b..86151a817b79 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -486,6 +486,10 @@ bool stmmac_eee_init(struct stmmac_priv *priv)
+ 		timer_setup(&priv->eee_ctrl_timer, stmmac_eee_ctrl_timer, 0);
+ 		stmmac_set_eee_timer(priv, priv->hw, STMMAC_DEFAULT_LIT_LS,
+ 				     eee_tw_timer);
++		if (priv->hw->xpcs)
++			xpcs_config_eee(priv->hw->xpcs,
++					priv->plat->mult_fact_100ns,
++					true);
  	}
  
+ 	if (priv->plat->has_gmac4 && priv->tx_lpi_timer <= STMMAC_ET_MAX) {
+-- 
+2.33.0
+
 
 
