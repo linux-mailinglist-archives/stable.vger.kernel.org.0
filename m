@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC78B420B5B
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:55:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6F20420BEA
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:59:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233460AbhJDM4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 08:56:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57978 "EHLO mail.kernel.org"
+        id S234594AbhJDNBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:01:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233551AbhJDM4b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:56:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA514611CA;
-        Mon,  4 Oct 2021 12:54:41 +0000 (UTC)
+        id S234230AbhJDM7h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:59:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 549F86140A;
+        Mon,  4 Oct 2021 12:57:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352082;
-        bh=780dyysR3rOK5VjuRacIsg7c1xyCT69xdp13r16mHd4=;
+        s=korg; t=1633352249;
+        bh=D8uQ+j1H8akNlCAvSrYN1IrGarwVgDzlMgVLQDbSjrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TF6AdxM7zAXhE6oQOHKBY/xRiwTkE1Jmbpw5yGvri8K4bO+tVPqKpWe/jqIw5iYbc
-         6sgZgzTC29kvK/xSSaPs7GgeSJzHB7msMLDFT6vNIr/WrfGbBb0z9nuKieL5dhERD4
-         wWIKgy+4sXOL/8sIarUZwvEi9ylajPEufrQV87mM=
+        b=kOBod2UUZPyNHZ4rb3vxXhAjNPDUdbYii4A1SOfKbPK5v6l34V6gyqtvjH/fN1tY2
+         bWetUt1ORmfM+OesqAiV/9Ns3wQ6hsvw3xGiSkrXqlG75/n0V4QbOs9beSV/b7bzVr
+         AwKO5d+0BTRd69RmYK0ZjibSO9ZsMkFenWCfUF1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 06/41] USB: serial: mos7840: remove duplicated 0xac24 device ID
-Date:   Mon,  4 Oct 2021 14:51:57 +0200
-Message-Id: <20211004125026.797987743@linuxfoundation.org>
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Subject: [PATCH 4.9 14/57] serial: mvebu-uart: fix drivers tx_empty callback
+Date:   Mon,  4 Oct 2021 14:51:58 +0200
+Message-Id: <20211004125029.382711682@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
-References: <20211004125026.597501645@linuxfoundation.org>
+In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
+References: <20211004125028.940212411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 211f323768a25b30c106fd38f15a0f62c7c2b5f4 upstream.
+commit 74e1eb3b4a1ef2e564b4bdeb6e92afe844e900de upstream.
 
-0xac24 device ID is already defined and used via
-BANDB_DEVICE_ID_USO9ML2_4.  Remove the duplicate from the list.
+Driver's tx_empty callback should signal when the transmit shift register
+is empty. So when the last character has been sent.
 
-Fixes: 27f1281d5f72 ("USB: serial: Extra device/vendor ID for mos7840 driver")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+STAT_TX_FIFO_EMP bit signals only that HW transmit FIFO is empty, which
+happens when the last byte is loaded into transmit shift register.
+
+STAT_TX_EMP bit signals when the both HW transmit FIFO and transmit shift
+register are empty.
+
+So replace STAT_TX_FIFO_EMP check by STAT_TX_EMP in mvebu_uart_tx_empty()
+callback function.
+
+Fixes: 30530791a7a0 ("serial: mvebu-uart: initial support for Armada-3700 serial port")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20210911132017.25505-1-pali@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/mos7840.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/tty/serial/mvebu-uart.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/mos7840.c
-+++ b/drivers/usb/serial/mos7840.c
-@@ -126,7 +126,6 @@
- #define BANDB_DEVICE_ID_USOPTL4_2P       0xBC02
- #define BANDB_DEVICE_ID_USOPTL4_4        0xAC44
- #define BANDB_DEVICE_ID_USOPTL4_4P       0xBC03
--#define BANDB_DEVICE_ID_USOPTL2_4        0xAC24
+--- a/drivers/tty/serial/mvebu-uart.c
++++ b/drivers/tty/serial/mvebu-uart.c
+@@ -108,7 +108,7 @@ static unsigned int mvebu_uart_tx_empty(
+ 	st = readl(port->membase + UART_STAT);
+ 	spin_unlock_irqrestore(&port->lock, flags);
  
- /* This driver also supports
-  * ATEN UC2324 device using Moschip MCS7840
-@@ -207,7 +206,6 @@ static const struct usb_device_id id_tab
- 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_2P)},
- 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_4)},
- 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_4P)},
--	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL2_4)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2324)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2322)},
- 	{USB_DEVICE(USB_VENDOR_ID_MOXA, MOXA_DEVICE_ID_2210)},
+-	return (st & STAT_TX_FIFO_EMP) ? TIOCSER_TEMT : 0;
++	return (st & STAT_TX_EMP) ? TIOCSER_TEMT : 0;
+ }
+ 
+ static unsigned int mvebu_uart_get_mctrl(struct uart_port *port)
 
 
