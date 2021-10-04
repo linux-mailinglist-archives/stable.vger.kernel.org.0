@@ -2,35 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 716E8420C22
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:01:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38DED420F5D
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:32:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233460AbhJDNCx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:02:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32900 "EHLO mail.kernel.org"
+        id S237097AbhJDNeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:34:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234434AbhJDNBX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:01:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 45A9C619E5;
-        Mon,  4 Oct 2021 12:58:34 +0000 (UTC)
+        id S237681AbhJDNc3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:32:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B00961B97;
+        Mon,  4 Oct 2021 13:14:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352314;
-        bh=Rs3Vcciiab+UuXssMClhbU/oEVDVBzV1cge3WXf6soM=;
+        s=korg; t=1633353281;
+        bh=9i9/bVfxe+6AmXfvgRdDqZ4w6gYjUsBQXFnQotSu0IY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QgjBKJoLMtirPvn37bRDpDd33fOwPWI7REPKGT3Kgpt5cVu/kif/oKX10iPB+P4xb
-         idBDZpmPAkh4E0SYrxplS99azrTP99WchBnYahWlHIQLW/Dw524bYMZK949Cx3UMy9
-         KpMgRcr6KBbAfg+jQknxUEt9xAvo1CODA9pVo+Cc=
+        b=1ixXI9xWBL9tazy5KYBqny7VF8WLCb/G5N/jDTz7LtyiwbzmEtjJggjGcJXOof23+
+         kFUS2aHARSWfUuHFf9Zqs7u1bmIiD1sqn5UjZPiHX0Dj9PsTmV5LQl0DmOWC2OSXC/
+         20DW7vRBpfYaL51ns/KQkx4DX8XQp8nfxM903IKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Johannes Thumshirn <jth@kernel.org>
-Subject: [PATCH 4.14 14/75] mcb: fix error handling in mcb_alloc_bus()
+        stable@vger.kernel.org, Alper Gun <alpergun@google.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        David Rienjes <rientjes@google.com>,
+        Marc Orr <marcorr@google.com>, John Allen <john.allen@amd.com>,
+        Peter Gonda <pgonda@google.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Vipin Sharma <vipinsh@google.com>,
+        Mingwei Zhang <mizhang@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.14 059/172] KVM: SVM: fix missing sev_decommission in sev_receive_start
 Date:   Mon,  4 Oct 2021 14:51:49 +0200
-Message-Id: <20211004125032.012617483@linuxfoundation.org>
+Message-Id: <20211004125046.902566015@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,58 +48,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Mingwei Zhang <mizhang@google.com>
 
-commit 25a1433216489de4abc889910f744e952cb6dbae upstream.
+commit f1815e0aa770f2127c5df31eb5c2f0e37b60fa77 upstream.
 
-There are two bugs:
-1) If ida_simple_get() fails then this code calls put_device(carrier)
-   but we haven't yet called get_device(carrier) and probably that
-   leads to a use after free.
-2) After device_initialize() then we need to use put_device() to
-   release the bus.  This will free the internal resources tied to the
-   device and call mcb_free_bus() which will free the rest.
+DECOMMISSION the current SEV context if binding an ASID fails after
+RECEIVE_START.  Per AMD's SEV API, RECEIVE_START generates a new guest
+context and thus needs to be paired with DECOMMISSION:
 
-Fixes: 5d9e2ab9fea4 ("mcb: Implement bus->dev.release callback")
-Fixes: 18d288198099 ("mcb: Correctly initialize the bus's device")
+     The RECEIVE_START command is the only command other than the LAUNCH_START
+     command that generates a new guest context and guest handle.
+
+The missing DECOMMISSION can result in subsequent SEV launch failures,
+as the firmware leaks memory and might not able to allocate more SEV
+guest contexts in the future.
+
+Note, LAUNCH_START suffered the same bug, but was previously fixed by
+commit 934002cd660b ("KVM: SVM: Call SEV Guest Decommission if ASID
+binding fails").
+
+Cc: Alper Gun <alpergun@google.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: David Rienjes <rientjes@google.com>
+Cc: Marc Orr <marcorr@google.com>
+Cc: John Allen <john.allen@amd.com>
+Cc: Peter Gonda <pgonda@google.com>
+Cc: Sean Christopherson <seanjc@google.com>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Vipin Sharma <vipinsh@google.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Johannes Thumshirn <jth@kernel.org>
-Link: https://lore.kernel.org/r/32e160cf6864ce77f9d62948338e24db9fd8ead9.1630931319.git.johannes.thumshirn@wdc.com
+Reviewed-by: Marc Orr <marcorr@google.com>
+Acked-by: Brijesh Singh <brijesh.singh@amd.com>
+Fixes: af43cbbf954b ("KVM: SVM: Add support for KVM_SEV_RECEIVE_START command")
+Signed-off-by: Mingwei Zhang <mizhang@google.com>
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210912181815.3899316-1-mizhang@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mcb/mcb-core.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/x86/kvm/svm/sev.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/mcb/mcb-core.c
-+++ b/drivers/mcb/mcb-core.c
-@@ -280,8 +280,8 @@ struct mcb_bus *mcb_alloc_bus(struct dev
+--- a/arch/x86/kvm/svm/sev.c
++++ b/arch/x86/kvm/svm/sev.c
+@@ -1405,8 +1405,10 @@ static int sev_receive_start(struct kvm
  
- 	bus_nr = ida_simple_get(&mcb_ida, 0, 0, GFP_KERNEL);
- 	if (bus_nr < 0) {
--		rc = bus_nr;
--		goto err_free;
-+		kfree(bus);
-+		return ERR_PTR(bus_nr);
- 	}
+ 	/* Bind ASID to this guest */
+ 	ret = sev_bind_asid(kvm, start.handle, error);
+-	if (ret)
++	if (ret) {
++		sev_decommission(start.handle);
+ 		goto e_free_session;
++	}
  
- 	bus->bus_nr = bus_nr;
-@@ -296,12 +296,12 @@ struct mcb_bus *mcb_alloc_bus(struct dev
- 	dev_set_name(&bus->dev, "mcb:%d", bus_nr);
- 	rc = device_add(&bus->dev);
- 	if (rc)
--		goto err_free;
-+		goto err_put;
- 
- 	return bus;
--err_free:
--	put_device(carrier);
--	kfree(bus);
-+
-+err_put:
-+	put_device(&bus->dev);
- 	return ERR_PTR(rc);
- }
- EXPORT_SYMBOL_GPL(mcb_alloc_bus);
+ 	params.handle = start.handle;
+ 	if (copy_to_user((void __user *)(uintptr_t)argp->data,
 
 
