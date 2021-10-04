@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0222420F8C
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:34:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7BB0420E35
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:21:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237993AbhJDNfr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:35:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48814 "EHLO mail.kernel.org"
+        id S236584AbhJDNW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:22:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236269AbhJDNdv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:33:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C136961AAC;
-        Mon,  4 Oct 2021 13:15:32 +0000 (UTC)
+        id S234291AbhJDNVA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:21:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D73D461A6E;
+        Mon,  4 Oct 2021 13:08:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353333;
-        bh=mOgugXgcLv2VxWNy/hGeUqDkIQm2ezwHnXM9Shl0ZrY=;
+        s=korg; t=1633352939;
+        bh=bw8Cqxi+JoX149C4Wv7vwcRC1nRCoTdgW+pHtvlJwPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2dmHcVDYfonHoPKtAnoNtluPiUgRqKyr8MuPRt6D5Y8rKAlJ+qvlxNiROh/rjnaee
-         NhOA8azJsNHO3P5RA6VOXWteIaQB1c7ZjU8SOE/U4X0LoSmNm3PIjzTs5brGkRLiLU
-         bIRnQe43ho7L51uMRbXyZ/3dYlXU627iZv94jweo=
+        b=BgqomlKll6MHxPkhvvBSOxpA8KbxK2B4cl3vgoi/nSAFKISgeetSjHAZpcuGRWgUs
+         WR1xyS3BTl/Sre1gAC9jXjcKbKooPCT6zF7LKMlsyxF2BaGAFwAO1ST/v4NSDOHlzJ
+         +O/d1LUR9VmAajbadpCVnp4Savx70R7mYiBhvvRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Eric Dumazet <edumazet@google.com>
-Subject: [PATCH 5.14 087/172] netfilter: log: work around missing softdep backend module
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 19/93] KVM: nVMX: Filter out all unsupported controls when eVMCS was activated
 Date:   Mon,  4 Oct 2021 14:52:17 +0200
-Message-Id: <20211004125047.798905253@linuxfoundation.org>
+Message-Id: <20211004125035.218613950@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,148 +39,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit b53deef054e58fe4f37c66211b8ece9f8fc1aa13 ]
+commit 8d68bad6d869fae8f4d50ab6423538dec7da72d1 upstream.
 
-iptables/nftables has two types of log modules:
+Windows Server 2022 with Hyper-V role enabled failed to boot on KVM when
+enlightened VMCS is advertised. Debugging revealed there are two exposed
+secondary controls it is not happy with: SECONDARY_EXEC_ENABLE_VMFUNC and
+SECONDARY_EXEC_SHADOW_VMCS. These controls are known to be unsupported,
+as there are no corresponding fields in eVMCSv1 (see the comment above
+EVMCS1_UNSUPPORTED_2NDEXEC definition).
 
-1. backend, e.g. nf_log_syslog, which implement the functionality
-2. frontend, e.g. xt_LOG or nft_log, which call the functionality
-   provided by backend based on nf_tables or xtables rule set.
+Previously, commit 31de3d2500e4 ("x86/kvm/hyper-v: move VMX controls
+sanitization out of nested_enable_evmcs()") introduced the required
+filtering mechanism for VMX MSRs but for some reason put only known
+to be problematic (and not full EVMCS1_UNSUPPORTED_* lists) controls
+there.
 
-Problem is that the request_module() call to load the backed in
-nf_logger_find_get() might happen with nftables transaction mutex held
-in case the call path is via nf_tables/nft_compat.
+Note, Windows Server 2022 seems to have gained some sanity check for VMX
+MSRs: it doesn't even try to launch a guest when there's something it
+doesn't like, nested_evmcs_check_controls() mechanism can't catch the
+problem.
 
-This can cause deadlocks (see 'Fixes' tags for details).
+Let's be bold this time and instead of playing whack-a-mole just filter out
+all unsupported controls from VMX MSRs.
 
-The chosen solution as to let modprobe deal with this by adding 'pre: '
-soft dep tag to xt_LOG (to load the syslog backend) and xt_NFLOG (to
-load nflog backend).
-
-Eric reports that this breaks on systems with older modprobe that
-doesn't support softdeps.
-
-Another, similar issue occurs when someone either insmods xt_(NF)LOG
-directly or unloads the backend module (possible if no log frontend
-is in use): because the frontend module is already loaded, modprobe is
-not invoked again so the softdep isn't evaluated.
-
-Add a workaround: If nf_logger_find_get() returns -ENOENT and call
-is not via nft_compat, load the backend explicitly and try again.
-
-Else, let nft_compat ask for deferred request_module via nf_tables
-infra.
-
-Softdeps are kept in-place, so with newer modprobe the dependencies
-are resolved from userspace.
-
-Fixes: cefa31a9d461 ("netfilter: nft_log: perform module load from nf_tables")
-Fixes: a38b5b56d6f4 ("netfilter: nf_log: add module softdeps")
-Reported-and-tested-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 31de3d2500e4 ("x86/kvm/hyper-v: move VMX controls sanitization out of nested_enable_evmcs()")
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20210907163530.110066-1-vkuznets@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nft_compat.c | 17 ++++++++++++++++-
- net/netfilter/xt_LOG.c     | 10 +++++++++-
- net/netfilter/xt_NFLOG.c   | 10 +++++++++-
- 3 files changed, 34 insertions(+), 3 deletions(-)
+ arch/x86/kvm/vmx/evmcs.c |   12 +++++++++---
+ arch/x86/kvm/vmx/vmx.c   |    9 +++++----
+ 2 files changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/net/netfilter/nft_compat.c b/net/netfilter/nft_compat.c
-index 272bcdb1392d..f69cc73c5813 100644
---- a/net/netfilter/nft_compat.c
-+++ b/net/netfilter/nft_compat.c
-@@ -19,6 +19,7 @@
- #include <linux/netfilter_bridge/ebtables.h>
- #include <linux/netfilter_arp/arp_tables.h>
- #include <net/netfilter/nf_tables.h>
-+#include <net/netfilter/nf_log.h>
- 
- /* Used for matches where *info is larger than X byte */
- #define NFT_MATCH_LARGE_THRESH	192
-@@ -257,8 +258,22 @@ nft_target_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
- 	nft_compat_wait_for_destructors();
- 
- 	ret = xt_check_target(&par, size, proto, inv);
--	if (ret < 0)
-+	if (ret < 0) {
-+		if (ret == -ENOENT) {
-+			const char *modname = NULL;
-+
-+			if (strcmp(target->name, "LOG") == 0)
-+				modname = "nf_log_syslog";
-+			else if (strcmp(target->name, "NFLOG") == 0)
-+				modname = "nfnetlink_log";
-+
-+			if (modname &&
-+			    nft_request_module(ctx->net, "%s", modname) == -EAGAIN)
-+				return -EAGAIN;
-+		}
-+
- 		return ret;
-+	}
- 
- 	/* The standard target cannot be used */
- 	if (!target->target)
-diff --git a/net/netfilter/xt_LOG.c b/net/netfilter/xt_LOG.c
-index 2ff75f7637b0..f39244f9c0ed 100644
---- a/net/netfilter/xt_LOG.c
-+++ b/net/netfilter/xt_LOG.c
-@@ -44,6 +44,7 @@ log_tg(struct sk_buff *skb, const struct xt_action_param *par)
- static int log_tg_check(const struct xt_tgchk_param *par)
- {
- 	const struct xt_log_info *loginfo = par->targinfo;
-+	int ret;
- 
- 	if (par->family != NFPROTO_IPV4 && par->family != NFPROTO_IPV6)
- 		return -EINVAL;
-@@ -58,7 +59,14 @@ static int log_tg_check(const struct xt_tgchk_param *par)
- 		return -EINVAL;
+--- a/arch/x86/kvm/vmx/evmcs.c
++++ b/arch/x86/kvm/vmx/evmcs.c
+@@ -352,14 +352,20 @@ void nested_evmcs_filter_control_msr(u32
+ 	switch (msr_index) {
+ 	case MSR_IA32_VMX_EXIT_CTLS:
+ 	case MSR_IA32_VMX_TRUE_EXIT_CTLS:
+-		ctl_high &= ~VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL;
++		ctl_high &= ~EVMCS1_UNSUPPORTED_VMEXIT_CTRL;
+ 		break;
+ 	case MSR_IA32_VMX_ENTRY_CTLS:
+ 	case MSR_IA32_VMX_TRUE_ENTRY_CTLS:
+-		ctl_high &= ~VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL;
++		ctl_high &= ~EVMCS1_UNSUPPORTED_VMENTRY_CTRL;
+ 		break;
+ 	case MSR_IA32_VMX_PROCBASED_CTLS2:
+-		ctl_high &= ~SECONDARY_EXEC_VIRTUALIZE_APIC_ACCESSES;
++		ctl_high &= ~EVMCS1_UNSUPPORTED_2NDEXEC;
++		break;
++	case MSR_IA32_VMX_PINBASED_CTLS:
++		ctl_high &= ~EVMCS1_UNSUPPORTED_PINCTRL;
++		break;
++	case MSR_IA32_VMX_VMFUNC:
++		ctl_low &= ~EVMCS1_UNSUPPORTED_VMFUNC;
+ 		break;
  	}
  
--	return nf_logger_find_get(par->family, NF_LOG_TYPE_LOG);
-+	ret = nf_logger_find_get(par->family, NF_LOG_TYPE_LOG);
-+	if (ret != 0 && !par->nft_compat) {
-+		request_module("%s", "nf_log_syslog");
-+
-+		ret = nf_logger_find_get(par->family, NF_LOG_TYPE_LOG);
-+	}
-+
-+	return ret;
- }
- 
- static void log_tg_destroy(const struct xt_tgdtor_param *par)
-diff --git a/net/netfilter/xt_NFLOG.c b/net/netfilter/xt_NFLOG.c
-index fb5793208059..e660c3710a10 100644
---- a/net/netfilter/xt_NFLOG.c
-+++ b/net/netfilter/xt_NFLOG.c
-@@ -42,13 +42,21 @@ nflog_tg(struct sk_buff *skb, const struct xt_action_param *par)
- static int nflog_tg_check(const struct xt_tgchk_param *par)
- {
- 	const struct xt_nflog_info *info = par->targinfo;
-+	int ret;
- 
- 	if (info->flags & ~XT_NFLOG_MASK)
- 		return -EINVAL;
- 	if (info->prefix[sizeof(info->prefix) - 1] != '\0')
- 		return -EINVAL;
- 
--	return nf_logger_find_get(par->family, NF_LOG_TYPE_ULOG);
-+	ret = nf_logger_find_get(par->family, NF_LOG_TYPE_ULOG);
-+	if (ret != 0 && !par->nft_compat) {
-+		request_module("%s", "nfnetlink_log");
-+
-+		ret = nf_logger_find_get(par->family, NF_LOG_TYPE_ULOG);
-+	}
-+
-+	return ret;
- }
- 
- static void nflog_tg_destroy(const struct xt_tgdtor_param *par)
--- 
-2.33.0
-
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -1867,10 +1867,11 @@ static int vmx_get_msr(struct kvm_vcpu *
+ 				    &msr_info->data))
+ 			return 1;
+ 		/*
+-		 * Enlightened VMCS v1 doesn't have certain fields, but buggy
+-		 * Hyper-V versions are still trying to use corresponding
+-		 * features when they are exposed. Filter out the essential
+-		 * minimum.
++		 * Enlightened VMCS v1 doesn't have certain VMCS fields but
++		 * instead of just ignoring the features, different Hyper-V
++		 * versions are either trying to use them and fail or do some
++		 * sanity checking and refuse to boot. Filter all unsupported
++		 * features out.
+ 		 */
+ 		if (!msr_info->host_initiated &&
+ 		    vmx->nested.enlightened_vmcs_enabled)
 
 
