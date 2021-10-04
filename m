@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CA9A420C72
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:04:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC706420B70
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:56:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235093AbhJDNFs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:05:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39478 "EHLO mail.kernel.org"
+        id S233642AbhJDM5R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 08:57:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235095AbhJDNDp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:03:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DC3D611CA;
-        Mon,  4 Oct 2021 13:00:06 +0000 (UTC)
+        id S233583AbhJDM4y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:56:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44D3261381;
+        Mon,  4 Oct 2021 12:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352407;
-        bh=/jedxVR/RPuLMpMlT+S75a77nQHDpdLauJf1ZEvXxzQ=;
+        s=korg; t=1633352105;
+        bh=3VLZ/WICwSTMSN9p38AsSX12mzwis0ijWCrv7INjS3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ch5OYSKNT4QgbqNaj+RlvOXP2PWO8+UA+d9BBPixW1sl1NAgSlxxM+q9ZDBMtKy2X
-         GtNJapP//TZgjkFlC5hTvGU42WzGk5zhGm5zuQmleMMZxakeyq3c1do8HwlUCkP+S1
-         fjdI1myR3uzKJLecgBYUk7fypetHAjVwebHH7DWc=
+        b=UUQDYqNiCFuB7/nPTqlgs1yKEiGopP+D+QoAfw34LHJOU1olXgfRoROyGQvBCbO13
+         LcSCBPWlaHiDw0VtZO07SlcbE5hoG1TuXSXJ5R2bOK+AA6A1GM+6HFBwCQml5qK+kH
+         VqkyI66QW5fA57ioEfd8xzbyy5QgKayoO2ixluH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Fertser <fercerpav@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 50/75] hwmon: (tmp421) fix rounding for negative values
+        stable@vger.kernel.org, Federico Vaga <federico.vaga@cern.ch>,
+        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 34/41] ipack: ipoctal: fix module reference leak
 Date:   Mon,  4 Oct 2021 14:52:25 +0200
-Message-Id: <20211004125033.202886857@linuxfoundation.org>
+Message-Id: <20211004125027.660794110@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
+References: <20211004125026.597501645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,74 +40,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Fertser <fercerpav@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 724e8af85854c4d3401313b6dd7d79cf792d8990 ]
+commit bb8a4fcb2136508224c596a7e665bdba1d7c3c27 upstream.
 
-Old code produces -24999 for 0b1110011100000000 input in standard format due to
-always rounding up rather than "away from zero".
+A reference to the carrier module was taken on every open but was only
+released once when the final reference to the tty struct was dropped.
 
-Use the common macro for division, unify and simplify the conversion code along
-the way.
+Fix this by taking the module reference and initialising the tty driver
+data when installing the tty.
 
-Fixes: 9410700b881f ("hwmon: Add driver for Texas Instruments TMP421/422/423 sensor chips")
-Signed-off-by: Paul Fertser <fercerpav@gmail.com>
-Link: https://lore.kernel.org/r/20210924093011.26083-3-fercerpav@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 82a82340bab6 ("ipoctal: get carrier driver to avoid rmmod")
+Cc: stable@vger.kernel.org      # 3.18
+Cc: Federico Vaga <federico.vaga@cern.ch>
+Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210917114622.5412-6-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/tmp421.c | 24 ++++++++----------------
- 1 file changed, 8 insertions(+), 16 deletions(-)
+ drivers/ipack/devices/ipoctal.c |   29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hwmon/tmp421.c b/drivers/hwmon/tmp421.c
-index ceb3db6f3fdd..c45968454110 100644
---- a/drivers/hwmon/tmp421.c
-+++ b/drivers/hwmon/tmp421.c
-@@ -109,23 +109,17 @@ struct tmp421_data {
- 	s16 temp[4];
- };
- 
--static int temp_from_s16(s16 reg)
-+static int temp_from_raw(u16 reg, bool extended)
- {
- 	/* Mask out status bits */
- 	int temp = reg & ~0xf;
- 
--	return (temp * 1000 + 128) / 256;
--}
--
--static int temp_from_u16(u16 reg)
--{
--	/* Mask out status bits */
--	int temp = reg & ~0xf;
--
--	/* Add offset for extended temperature range. */
--	temp -= 64 * 256;
-+	if (extended)
-+		temp = temp - 64 * 256;
-+	else
-+		temp = (s16)temp;
- 
--	return (temp * 1000 + 128) / 256;
-+	return DIV_ROUND_CLOSEST(temp * 1000, 256);
+--- a/drivers/ipack/devices/ipoctal.c
++++ b/drivers/ipack/devices/ipoctal.c
+@@ -87,22 +87,34 @@ static int ipoctal_port_activate(struct
+ 	return 0;
  }
  
- static struct tmp421_data *tmp421_update_device(struct device *dev)
-@@ -162,10 +156,8 @@ static int tmp421_read(struct device *dev, enum hwmon_sensor_types type,
+-static int ipoctal_open(struct tty_struct *tty, struct file *file)
++static int ipoctal_install(struct tty_driver *driver, struct tty_struct *tty)
+ {
+ 	struct ipoctal_channel *channel = dev_get_drvdata(tty->dev);
+ 	struct ipoctal *ipoctal = chan_to_ipoctal(channel, tty->index);
+-	int err;
+-
+-	tty->driver_data = channel;
++	int res;
  
- 	switch (attr) {
- 	case hwmon_temp_input:
--		if (tmp421->config & TMP421_CONFIG_RANGE)
--			*val = temp_from_u16(tmp421->temp[channel]);
--		else
--			*val = temp_from_s16(tmp421->temp[channel]);
-+		*val = temp_from_raw(tmp421->temp[channel],
-+				     tmp421->config & TMP421_CONFIG_RANGE);
- 		return 0;
- 	case hwmon_temp_fault:
- 		/*
--- 
-2.33.0
-
+ 	if (!ipack_get_carrier(ipoctal->dev))
+ 		return -EBUSY;
+ 
+-	err = tty_port_open(&channel->tty_port, tty, file);
+-	if (err)
+-		ipack_put_carrier(ipoctal->dev);
++	res = tty_standard_install(driver, tty);
++	if (res)
++		goto err_put_carrier;
++
++	tty->driver_data = channel;
++
++	return 0;
++
++err_put_carrier:
++	ipack_put_carrier(ipoctal->dev);
++
++	return res;
++}
++
++static int ipoctal_open(struct tty_struct *tty, struct file *file)
++{
++	struct ipoctal_channel *channel = tty->driver_data;
+ 
+-	return err;
++	return tty_port_open(&channel->tty_port, tty, file);
+ }
+ 
+ static void ipoctal_reset_stats(struct ipoctal_stats *stats)
+@@ -669,6 +681,7 @@ static void ipoctal_cleanup(struct tty_s
+ 
+ static const struct tty_operations ipoctal_fops = {
+ 	.ioctl =		NULL,
++	.install =		ipoctal_install,
+ 	.open =			ipoctal_open,
+ 	.close =		ipoctal_close,
+ 	.write =		ipoctal_write_tty,
 
 
