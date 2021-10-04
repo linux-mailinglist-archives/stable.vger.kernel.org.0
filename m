@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44993420FA4
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:34:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E08E9420D91
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:14:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237685AbhJDNgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:36:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47126 "EHLO mail.kernel.org"
+        id S235803AbhJDNQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:16:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237790AbhJDNe6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:34:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D06AB61B94;
-        Mon,  4 Oct 2021 13:15:42 +0000 (UTC)
+        id S235804AbhJDNOX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:14:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E24EC61BA0;
+        Mon,  4 Oct 2021 13:05:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353343;
-        bh=Ngzd6vnYAgy7Jn4kK3/xn3EoxOXbL2tA7BSMXCQYXfw=;
+        s=korg; t=1633352744;
+        bh=69gQyZZInhANl4SK5UHYeaBwH70EXctwhR3mpjtzySA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W6mwLD/KbPK11tpRVh8a/O4KFWPFz3nfv45HF1cV2blrNLEeVFKM+Q5PyTWFFSlkX
-         qwCmuiod5Yz6pzlHjmB9XV1ua/er7UlypnLZ6uEUWWw/MVlJX52fg93cHwutOhPPiu
-         vioNnNEQU55CiD63C6qpp4Frh7hB7Ap/SquedUy8=
+        b=RSUR7MLUKDvWRRDX43ycOgISGSBRmfuWMgM823qtJ0nNN6DJRm8nGWyrLpXM79NiW
+         uDMQ6w9IfKiOBsIJetLtTk5/6t0vXCgfg5M/HlkRZxt2XNhZ6oW7DWSY9JcPBQnkeP
+         lH05VvWOZyLgWYdx9RV/Q0Rz/25v/dwG5hmnWopI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+0196ac871673f0c20f68@syzkaller.appspotmail.com,
-        Lorenzo Bianconi <lorenzo@kernel.org>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 090/172] mac80211: limit injected vht mcs/nss in ieee80211_parse_tx_radiotap
-Date:   Mon,  4 Oct 2021 14:52:20 +0200
-Message-Id: <20211004125047.901183239@linuxfoundation.org>
+        Igor Matheus Andrade Torrente <igormtorrente@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+858dc7a2f7ef07c2c219@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 01/56] tty: Fix out-of-bound vmalloc access in imageblit
+Date:   Mon,  4 Oct 2021 14:52:21 +0200
+Message-Id: <20211004125030.050535487@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
+References: <20211004125030.002116402@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,82 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
 
-[ Upstream commit 13cb6d826e0ac0d144b0d48191ff1a111d32f0c6 ]
+[ Upstream commit 3b0c406124719b625b1aba431659f5cdc24a982c ]
 
-Limit max values for vht mcs and nss in ieee80211_parse_tx_radiotap
-routine in order to fix the following warning reported by syzbot:
+This issue happens when a userspace program does an ioctl
+FBIOPUT_VSCREENINFO passing the fb_var_screeninfo struct
+containing only the fields xres, yres, and bits_per_pixel
+with values.
 
-WARNING: CPU: 0 PID: 10717 at include/net/mac80211.h:989 ieee80211_rate_set_vht include/net/mac80211.h:989 [inline]
-WARNING: CPU: 0 PID: 10717 at include/net/mac80211.h:989 ieee80211_parse_tx_radiotap+0x101e/0x12d0 net/mac80211/tx.c:2244
-Modules linked in:
-CPU: 0 PID: 10717 Comm: syz-executor.5 Not tainted 5.14.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:ieee80211_rate_set_vht include/net/mac80211.h:989 [inline]
-RIP: 0010:ieee80211_parse_tx_radiotap+0x101e/0x12d0 net/mac80211/tx.c:2244
-RSP: 0018:ffffc9000186f3e8 EFLAGS: 00010216
-RAX: 0000000000000618 RBX: ffff88804ef76500 RCX: ffffc900143a5000
-RDX: 0000000000040000 RSI: ffffffff888f478e RDI: 0000000000000003
-RBP: 00000000ffffffff R08: 0000000000000000 R09: 0000000000000100
-R10: ffffffff888f46f9 R11: 0000000000000000 R12: 00000000fffffff8
-R13: ffff88804ef7653c R14: 0000000000000001 R15: 0000000000000004
-FS:  00007fbf5718f700(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b2de23000 CR3: 000000006a671000 CR4: 00000000001506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000600
-Call Trace:
- ieee80211_monitor_select_queue+0xa6/0x250 net/mac80211/iface.c:740
- netdev_core_pick_tx+0x169/0x2e0 net/core/dev.c:4089
- __dev_queue_xmit+0x6f9/0x3710 net/core/dev.c:4165
- __bpf_tx_skb net/core/filter.c:2114 [inline]
- __bpf_redirect_no_mac net/core/filter.c:2139 [inline]
- __bpf_redirect+0x5ba/0xd20 net/core/filter.c:2162
- ____bpf_clone_redirect net/core/filter.c:2429 [inline]
- bpf_clone_redirect+0x2ae/0x420 net/core/filter.c:2401
- bpf_prog_eeb6f53a69e5c6a2+0x59/0x234
- bpf_dispatcher_nop_func include/linux/bpf.h:717 [inline]
- __bpf_prog_run include/linux/filter.h:624 [inline]
- bpf_prog_run include/linux/filter.h:631 [inline]
- bpf_test_run+0x381/0xa30 net/bpf/test_run.c:119
- bpf_prog_test_run_skb+0xb84/0x1ee0 net/bpf/test_run.c:663
- bpf_prog_test_run kernel/bpf/syscall.c:3307 [inline]
- __sys_bpf+0x2137/0x5df0 kernel/bpf/syscall.c:4605
- __do_sys_bpf kernel/bpf/syscall.c:4691 [inline]
- __se_sys_bpf kernel/bpf/syscall.c:4689 [inline]
- __x64_sys_bpf+0x75/0xb0 kernel/bpf/syscall.c:4689
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x4665f9
+If this struct is the same as the previous ioctl, the
+vc_resize() detects it and doesn't call the resize_screen(),
+leaving the fb_var_screeninfo incomplete. And this leads to
+the updatescrollmode() calculates a wrong value to
+fbcon_display->vrows, which makes the real_y() return a
+wrong value of y, and that value, eventually, causes
+the imageblit to access an out-of-bound address value.
 
-Reported-by: syzbot+0196ac871673f0c20f68@syzkaller.appspotmail.com
-Fixes: 646e76bb5daf4 ("mac80211: parse VHT info in injected frames")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Link: https://lore.kernel.org/r/c26c3f02dcb38ab63b2f2534cb463d95ee81bb13.1632141760.git.lorenzo@kernel.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+To solve this issue I made the resize_screen() be called
+even if the screen does not need any resizing, so it will
+"fix and fill" the fb_var_screeninfo independently.
+
+Cc: stable <stable@vger.kernel.org> # after 5.15-rc2 is out, give it time to bake
+Reported-and-tested-by: syzbot+858dc7a2f7ef07c2c219@syzkaller.appspotmail.com
+Signed-off-by: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+Link: https://lore.kernel.org/r/20210628134509.15895-1-igormtorrente@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/tx.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/tty/vt/vt.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index 0208f68af394..751e601c4623 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -2209,7 +2209,11 @@ bool ieee80211_parse_tx_radiotap(struct sk_buff *skb,
- 			}
+diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
+index 404b80dc06b8..d1ab8561e258 100644
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -1215,8 +1215,25 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
+ 	new_row_size = new_cols << 1;
+ 	new_screen_size = new_row_size * new_rows;
  
- 			vht_mcs = iterator.this_arg[4] >> 4;
-+			if (vht_mcs > 11)
-+				vht_mcs = 0;
- 			vht_nss = iterator.this_arg[4] & 0xF;
-+			if (!vht_nss || vht_nss > 8)
-+				vht_nss = 1;
- 			break;
+-	if (new_cols == vc->vc_cols && new_rows == vc->vc_rows)
+-		return 0;
++	if (new_cols == vc->vc_cols && new_rows == vc->vc_rows) {
++		/*
++		 * This function is being called here to cover the case
++		 * where the userspace calls the FBIOPUT_VSCREENINFO twice,
++		 * passing the same fb_var_screeninfo containing the fields
++		 * yres/xres equal to a number non-multiple of vc_font.height
++		 * and yres_virtual/xres_virtual equal to number lesser than the
++		 * vc_font.height and yres/xres.
++		 * In the second call, the struct fb_var_screeninfo isn't
++		 * being modified by the underlying driver because of the
++		 * if above, and this causes the fbcon_display->vrows to become
++		 * negative and it eventually leads to out-of-bound
++		 * access by the imageblit function.
++		 * To give the correct values to the struct and to not have
++		 * to deal with possible errors from the code below, we call
++		 * the resize_screen here as well.
++		 */
++		return resize_screen(vc, new_cols, new_rows, user);
++	}
  
- 		/*
+ 	if (new_screen_size > KMALLOC_MAX_SIZE || !new_screen_size)
+ 		return -EINVAL;
 -- 
 2.33.0
 
