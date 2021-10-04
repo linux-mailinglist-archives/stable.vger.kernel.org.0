@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B5F2420D2F
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:11:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AEEB420E48
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:22:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235467AbhJDNMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:12:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45800 "EHLO mail.kernel.org"
+        id S234997AbhJDNYG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:24:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235664AbhJDNKm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:10:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B67E61AFF;
-        Mon,  4 Oct 2021 13:04:03 +0000 (UTC)
+        id S236295AbhJDNWG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:22:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5FBF61B26;
+        Mon,  4 Oct 2021 13:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352644;
-        bh=viIZgotVEB/9pg0QOwfS4z21bbhSoxavr5XUnD4ivvo=;
+        s=korg; t=1633352970;
+        bh=/iEj+Dy6csfBsYnHFRL20+7jzqNMnO/aEswdmbKKV8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n55/iYnebxx6OreCq7H+AKP+CfZFFTQLdlcwK2G8qgcLP6Fp5wiK7Y8PU30aRiWR/
-         xP8LtFxkKgyJJpL2+BpTV9YQNZi9kDes3i5MKk0rFTks9gpVTUNMegj+osAbpQNM5j
-         R8JmHCtdDondXX70vOL7qLbCyRXu+zr87ke62TJo=
+        b=EvervD2+g81jonbeTAwtjbHLB3jzlNPGT0d46S9KmK0duJ0Z8TmBdU1+RCPcvZew2
+         nvUWwOysh6mrPOQa2udZPDj/jDc56/Cq6q82zeAE/UwDG7HsR9XfyKh/66b0zd7U9A
+         QJmSnOs8gNp2hC6lKP4iXV75Zom0PBEQPmyd09Io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+581aff2ae6b860625116@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Paul Fertser <fercerpav@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 66/95] sctp: break out if skb_header_pointer returns NULL in sctp_rcv_ootb
+Subject: [PATCH 5.10 38/93] hwmon: (tmp421) fix rounding for negative values
 Date:   Mon,  4 Oct 2021 14:52:36 +0200
-Message-Id: <20211004125035.723652364@linuxfoundation.org>
+Message-Id: <20211004125035.824675340@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Paul Fertser <fercerpav@gmail.com>
 
-[ Upstream commit f7e745f8e94492a8ac0b0a26e25f2b19d342918f ]
+[ Upstream commit 724e8af85854c4d3401313b6dd7d79cf792d8990 ]
 
-We should always check if skb_header_pointer's return is NULL before
-using it, otherwise it may cause null-ptr-deref, as syzbot reported:
+Old code produces -24999 for 0b1110011100000000 input in standard format due to
+always rounding up rather than "away from zero".
 
-  KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-  RIP: 0010:sctp_rcv_ootb net/sctp/input.c:705 [inline]
-  RIP: 0010:sctp_rcv+0x1d84/0x3220 net/sctp/input.c:196
-  Call Trace:
-  <IRQ>
-   sctp6_rcv+0x38/0x60 net/sctp/ipv6.c:1109
-   ip6_protocol_deliver_rcu+0x2e9/0x1ca0 net/ipv6/ip6_input.c:422
-   ip6_input_finish+0x62/0x170 net/ipv6/ip6_input.c:463
-   NF_HOOK include/linux/netfilter.h:307 [inline]
-   NF_HOOK include/linux/netfilter.h:301 [inline]
-   ip6_input+0x9c/0xd0 net/ipv6/ip6_input.c:472
-   dst_input include/net/dst.h:460 [inline]
-   ip6_rcv_finish net/ipv6/ip6_input.c:76 [inline]
-   NF_HOOK include/linux/netfilter.h:307 [inline]
-   NF_HOOK include/linux/netfilter.h:301 [inline]
-   ipv6_rcv+0x28c/0x3c0 net/ipv6/ip6_input.c:297
+Use the common macro for division, unify and simplify the conversion code along
+the way.
 
-Fixes: 3acb50c18d8d ("sctp: delay as much as possible skb_linearize")
-Reported-by: syzbot+581aff2ae6b860625116@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9410700b881f ("hwmon: Add driver for Texas Instruments TMP421/422/423 sensor chips")
+Signed-off-by: Paul Fertser <fercerpav@gmail.com>
+Link: https://lore.kernel.org/r/20210924093011.26083-3-fercerpav@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/input.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/tmp421.c | 24 ++++++++----------------
+ 1 file changed, 8 insertions(+), 16 deletions(-)
 
-diff --git a/net/sctp/input.c b/net/sctp/input.c
-index 8b7c07fc66d4..64dc2923a21b 100644
---- a/net/sctp/input.c
-+++ b/net/sctp/input.c
-@@ -687,7 +687,7 @@ static int sctp_rcv_ootb(struct sk_buff *skb)
- 		ch = skb_header_pointer(skb, offset, sizeof(*ch), &_ch);
+diff --git a/drivers/hwmon/tmp421.c b/drivers/hwmon/tmp421.c
+index c9ef83627bb7..b963a369c5ab 100644
+--- a/drivers/hwmon/tmp421.c
++++ b/drivers/hwmon/tmp421.c
+@@ -100,23 +100,17 @@ struct tmp421_data {
+ 	s16 temp[4];
+ };
  
- 		/* Break out if chunk length is less then minimal. */
--		if (ntohs(ch->length) < sizeof(_ch))
-+		if (!ch || ntohs(ch->length) < sizeof(_ch))
- 			break;
+-static int temp_from_s16(s16 reg)
++static int temp_from_raw(u16 reg, bool extended)
+ {
+ 	/* Mask out status bits */
+ 	int temp = reg & ~0xf;
  
- 		ch_end = offset + SCTP_PAD4(ntohs(ch->length));
+-	return (temp * 1000 + 128) / 256;
+-}
+-
+-static int temp_from_u16(u16 reg)
+-{
+-	/* Mask out status bits */
+-	int temp = reg & ~0xf;
+-
+-	/* Add offset for extended temperature range. */
+-	temp -= 64 * 256;
++	if (extended)
++		temp = temp - 64 * 256;
++	else
++		temp = (s16)temp;
+ 
+-	return (temp * 1000 + 128) / 256;
++	return DIV_ROUND_CLOSEST(temp * 1000, 256);
+ }
+ 
+ static int tmp421_update_device(struct tmp421_data *data)
+@@ -172,10 +166,8 @@ static int tmp421_read(struct device *dev, enum hwmon_sensor_types type,
+ 
+ 	switch (attr) {
+ 	case hwmon_temp_input:
+-		if (tmp421->config & TMP421_CONFIG_RANGE)
+-			*val = temp_from_u16(tmp421->temp[channel]);
+-		else
+-			*val = temp_from_s16(tmp421->temp[channel]);
++		*val = temp_from_raw(tmp421->temp[channel],
++				     tmp421->config & TMP421_CONFIG_RANGE);
+ 		return 0;
+ 	case hwmon_temp_fault:
+ 		/*
 -- 
 2.33.0
 
