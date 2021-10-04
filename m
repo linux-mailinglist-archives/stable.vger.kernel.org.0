@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BD73420F84
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:34:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95F4C420CEA
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:08:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237923AbhJDNfi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:35:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47632 "EHLO mail.kernel.org"
+        id S235397AbhJDNKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:10:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237926AbhJDNd2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:33:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB63161BD1;
-        Mon,  4 Oct 2021 13:15:13 +0000 (UTC)
+        id S235720AbhJDNI5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:08:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A31161B53;
+        Mon,  4 Oct 2021 13:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353314;
-        bh=PVQxchNJYVmgCOmwM3J2JXorZwGMXhX/490UHVjdzv0=;
+        s=korg; t=1633352577;
+        bh=Qpw+0JOAtXvF72nD6YO8s0qWtGz7d9UoqHaDKv3er18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jQOHPlPMRXgMRbRAY0Df2l+DyZr42JmtElR7JiYoeIZuZPNWBFkcXC7RxoNWs4yt5
-         QuLTL1GaRXSYbHh4PWKF+gbGGvtfyWsFHbmIC+jB5pcqDQx/H28dlnI5/6ZaiPRRkY
-         TGm8I4gHqUbZcBOFc7O3pOu3oS85L6PvnHibkSr4=
+        b=Lt1mizUGgvMbWUF/IGudCQimAv8RtW0WHQ4bou0Wcxo918crA4Pydcog9KT3LZuW9
+         4o3JC/ypk+gdM6+aIApo+mNCAKXWLHbBHvRHNIy6a8uatGunsrMZceteZAqVAAvGTp
+         0BwELoQf7047mIFDf8t/6ov2mrVV5pTqbvjtFzMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tao Liu <thomas.liu@ucloud.cn>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        "David S. Miller" <davem@davemloft.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 079/172] RDMA/cma: Fix listener leak in rdma_cma_listen_on_all() failure
-Date:   Mon,  4 Oct 2021 14:52:09 +0200
-Message-Id: <20211004125047.547112539@linuxfoundation.org>
+Subject: [PATCH 4.19 40/95] sparc: avoid stringop-overread errors
+Date:   Mon,  4 Oct 2021 14:52:10 +0200
+Message-Id: <20211004125034.889749080@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,95 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tao Liu <thomas.liu@ucloud.cn>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit ca465e1f1f9b38fe916a36f7d80c5d25f2337c81 ]
+[ Upstream commit fc7c028dcdbfe981bca75d2a7b95f363eb691ef3 ]
 
-If cma_listen_on_all() fails it leaves the per-device ID still on the
-listen_list but the state is not set to RDMA_CM_ADDR_BOUND.
+The sparc mdesc code does pointer games with 'struct mdesc_hdr', but
+didn't describe to the compiler how that header is then followed by the
+data that the header describes.
 
-When the cmid is eventually destroyed cma_cancel_listens() is not called
-due to the wrong state, however the per-device IDs are still holding the
-refcount preventing the ID from being destroyed, thus deadlocking:
+As a result, gcc is now unhappy since it does stricter pointer range
+tracking, and doesn't understand about how these things work.  This
+results in various errors like:
 
- task:rping state:D stack:   0 pid:19605 ppid: 47036 flags:0x00000084
- Call Trace:
-  __schedule+0x29a/0x780
-  ? free_unref_page_commit+0x9b/0x110
-  schedule+0x3c/0xa0
-  schedule_timeout+0x215/0x2b0
-  ? __flush_work+0x19e/0x1e0
-  wait_for_completion+0x8d/0xf0
-  _destroy_id+0x144/0x210 [rdma_cm]
-  ucma_close_id+0x2b/0x40 [rdma_ucm]
-  __destroy_id+0x93/0x2c0 [rdma_ucm]
-  ? __xa_erase+0x4a/0xa0
-  ucma_destroy_id+0x9a/0x120 [rdma_ucm]
-  ucma_write+0xb8/0x130 [rdma_ucm]
-  vfs_write+0xb4/0x250
-  ksys_write+0xb5/0xd0
-  ? syscall_trace_enter.isra.19+0x123/0x190
-  do_syscall_64+0x33/0x40
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+    arch/sparc/kernel/mdesc.c: In function ‘mdesc_node_by_name’:
+    arch/sparc/kernel/mdesc.c:647:22: error: ‘strcmp’ reading 1 or more bytes from a region of size 0 [-Werror=stringop-overread]
+      647 |                 if (!strcmp(names + ep[ret].name_offset, name))
+          |                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Ensure that cma_listen_on_all() atomically unwinds its action under the
-lock during error.
+which are easily avoided by just describing 'struct mdesc_hdr' better,
+and making the node_block() helper function look into that unsized
+data[] that follows the header.
 
-Fixes: c80a0c52d85c ("RDMA/cma: Add missing error handling of listen_id")
-Link: https://lore.kernel.org/r/20210913093344.17230-1-thomas.liu@ucloud.cn
-Signed-off-by: Tao Liu <thomas.liu@ucloud.cn>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+This makes the sparc64 build happy again at least for my cross-compiler
+version (gcc version 11.2.1).
+
+Link: https://lore.kernel.org/lkml/CAHk-=wi4NW3NC0xWykkw=6LnjQD6D_rtRtxY9g8gQAJXtQMi8A@mail.gmail.com/
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: David S. Miller <davem@davemloft.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ arch/sparc/kernel/mdesc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 107462905b21..dbbacc8e9273 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -1746,15 +1746,16 @@ static void cma_cancel_route(struct rdma_id_private *id_priv)
- 	}
- }
+diff --git a/arch/sparc/kernel/mdesc.c b/arch/sparc/kernel/mdesc.c
+index 51028abe5e90..ecec6a616e0d 100644
+--- a/arch/sparc/kernel/mdesc.c
++++ b/arch/sparc/kernel/mdesc.c
+@@ -40,6 +40,7 @@ struct mdesc_hdr {
+ 	u32	node_sz; /* node block size */
+ 	u32	name_sz; /* name block size */
+ 	u32	data_sz; /* data block size */
++	char	data[];
+ } __attribute__((aligned(16)));
  
--static void cma_cancel_listens(struct rdma_id_private *id_priv)
-+static void _cma_cancel_listens(struct rdma_id_private *id_priv)
+ struct mdesc_elem {
+@@ -613,7 +614,7 @@ EXPORT_SYMBOL(mdesc_get_node_info);
+ 
+ static struct mdesc_elem *node_block(struct mdesc_hdr *mdesc)
  {
- 	struct rdma_id_private *dev_id_priv;
- 
-+	lockdep_assert_held(&lock);
-+
- 	/*
- 	 * Remove from listen_any_list to prevent added devices from spawning
- 	 * additional listen requests.
- 	 */
--	mutex_lock(&lock);
- 	list_del(&id_priv->list);
- 
- 	while (!list_empty(&id_priv->listen_list)) {
-@@ -1768,6 +1769,12 @@ static void cma_cancel_listens(struct rdma_id_private *id_priv)
- 		rdma_destroy_id(&dev_id_priv->id);
- 		mutex_lock(&lock);
- 	}
-+}
-+
-+static void cma_cancel_listens(struct rdma_id_private *id_priv)
-+{
-+	mutex_lock(&lock);
-+	_cma_cancel_listens(id_priv);
- 	mutex_unlock(&lock);
+-	return (struct mdesc_elem *) (mdesc + 1);
++	return (struct mdesc_elem *) mdesc->data;
  }
  
-@@ -2587,7 +2594,7 @@ static int cma_listen_on_all(struct rdma_id_private *id_priv)
- 	return 0;
- 
- err_listen:
--	list_del(&id_priv->list);
-+	_cma_cancel_listens(id_priv);
- 	mutex_unlock(&lock);
- 	if (to_destroy)
- 		rdma_destroy_id(&to_destroy->id);
+ static void *name_block(struct mdesc_hdr *mdesc)
 -- 
 2.33.0
 
