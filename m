@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 979FC420C51
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:02:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60097420F49
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234905AbhJDNEo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:04:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38968 "EHLO mail.kernel.org"
+        id S235974AbhJDNdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:33:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233514AbhJDNDK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:03:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 211E361507;
-        Mon,  4 Oct 2021 12:59:35 +0000 (UTC)
+        id S236934AbhJDNbZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:31:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8123561B95;
+        Mon,  4 Oct 2021 13:14:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352376;
-        bh=BnWP2ZpN6HYeeK7J1xnmdQ8aL2iTNTQWxxsnClOMMOc=;
+        s=korg; t=1633353244;
+        bh=q2trGVriMZMUOyZfsxMWXmpaTylBwQZuAL0w1q7+hck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yTHuZHu6fM1r6AVtHHVlx+AjkgeLH3Cv7XV3Lqx9GEnY/EfS5dXVSiN9mdvD4cmyL
-         UGaguBrWNSC6al3LGNruo3nCq8dHpFPzYyu4MRHtSh7NfUdwiepnF6y91pn/JicUww
-         3L49l49el/D6udrJXTxYc733/6sjmrp2W4SF4qYc=
+        b=a5R1ttSSUJAr2VH9x/p+ee4yAoa670kqVOwfF//kY9lBSO241a5XW76lGWklM3s6O
+         BlJ53TWdO/oNSPqM1aok3GCu4OtBQeDjbjN+M9vzJmvNLqjbhR/9DdCsNymwCrPxNm
+         cR9nOdP2ZvJLWjSbRZoO7DYxKwG9SFnHC9IvIbEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Ondrej Zary <linux@zary.sk>
-Subject: [PATCH 4.14 06/75] usb-storage: Add quirk for ScanLogic SL11R-IDE older than 2.6c
+        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.14 051/172] KVM: x86: nSVM: dont copy virt_ext from vmcb12
 Date:   Mon,  4 Oct 2021 14:51:41 +0200
-Message-Id: <20211004125031.740015325@linuxfoundation.org>
+Message-Id: <20211004125046.643320569@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,59 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Zary <linux@zary.sk>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-commit b55d37ef6b7db3eda9b4495a8d9b0a944ee8c67d upstream.
+commit faf6b755629627f19feafa75b32e81cd7738f12d upstream.
 
-ScanLogic SL11R-IDE with firmware older than 2.6c (the latest one) has
-broken tag handling, preventing the device from working at all:
-usb 1-1: new full-speed USB device number 2 using uhci_hcd
-usb 1-1: New USB device found, idVendor=04ce, idProduct=0002, bcdDevice= 2.60
-usb 1-1: New USB device strings: Mfr=1, Product=1, SerialNumber=0
-usb 1-1: Product: USB Device
-usb 1-1: Manufacturer: USB Device
-usb-storage 1-1:1.0: USB Mass Storage device detected
-scsi host2: usb-storage 1-1:1.0
-usbcore: registered new interface driver usb-storage
-usb 1-1: reset full-speed USB device number 2 using uhci_hcd
-usb 1-1: reset full-speed USB device number 2 using uhci_hcd
-usb 1-1: reset full-speed USB device number 2 using uhci_hcd
-usb 1-1: reset full-speed USB device number 2 using uhci_hcd
+These field correspond to features that we don't expose yet to L2
 
-Add US_FL_BULK_IGNORE_TAG to fix it. Also update my e-mail address.
+While currently there are no CVE worthy features in this field,
+if AMD adds more features to this field, that could allow guest
+escapes similar to CVE-2021-3653 and CVE-2021-3656.
 
-2.6c is the only firmware that claims Linux compatibility.
-The firmware can be upgraded using ezotgdbg utility:
-https://github.com/asciilifeform/ezotgdbg
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Ondrej Zary <linux@zary.sk>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210913210106.12717-1-linux@zary.sk
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20210914154825.104886-6-mlevitsk@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/unusual_devs.h |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/x86/kvm/svm/nested.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -435,9 +435,16 @@ UNUSUAL_DEV(  0x04cb, 0x0100, 0x0000, 0x
- 		USB_SC_UFI, USB_PR_DEVICE, NULL, US_FL_FIX_INQUIRY | US_FL_SINGLE_LUN),
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -545,7 +545,6 @@ static void nested_vmcb02_prepare_contro
+ 		(svm->nested.ctl.int_ctl & int_ctl_vmcb12_bits) |
+ 		(svm->vmcb01.ptr->control.int_ctl & int_ctl_vmcb01_bits);
  
- /*
-- * Reported by Ondrej Zary <linux@rainbow-software.org>
-+ * Reported by Ondrej Zary <linux@zary.sk>
-  * The device reports one sector more and breaks when that sector is accessed
-+ * Firmwares older than 2.6c (the latest one and the only that claims Linux
-+ * support) have also broken tag handling
-  */
-+UNUSUAL_DEV(  0x04ce, 0x0002, 0x0000, 0x026b,
-+		"ScanLogic",
-+		"SL11R-IDE",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_FIX_CAPACITY | US_FL_BULK_IGNORE_TAG),
- UNUSUAL_DEV(  0x04ce, 0x0002, 0x026c, 0x026c,
- 		"ScanLogic",
- 		"SL11R-IDE",
+-	svm->vmcb->control.virt_ext            = svm->nested.ctl.virt_ext;
+ 	svm->vmcb->control.int_vector          = svm->nested.ctl.int_vector;
+ 	svm->vmcb->control.int_state           = svm->nested.ctl.int_state;
+ 	svm->vmcb->control.event_inj           = svm->nested.ctl.event_inj;
 
 
