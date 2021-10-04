@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FCEA420C2F
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:02:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CE3C420BD5
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:58:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235115AbhJDNDs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:03:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58620 "EHLO mail.kernel.org"
+        id S234337AbhJDNA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:00:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234310AbhJDNBy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:01:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 850DA61A10;
-        Mon,  4 Oct 2021 12:58:47 +0000 (UTC)
+        id S234334AbhJDM67 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:58:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36016613AC;
+        Mon,  4 Oct 2021 12:57:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352328;
-        bh=OGWx/km/u1oS9VJfkpvXoCZ8G0dGGhs78a0sEFwooAQ=;
+        s=korg; t=1633352226;
+        bh=jaaH+N1Ti4iJ1GW6PkXJJWxY9THTxW7E7t5EeLJyHnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M0Q9kX+dZP2SES84F0/KQd5iLC8ZoFemKAts5Scz+rzUJlALKZHJkQdafoyEtUTjn
-         YHGvhNhpMd20AsCmJOXf/U8VzQ6KjApFPzT7eZ14VwZPN2tZ1eJi3vfkJrzOxlVvB4
-         0szMvvNoWayO3VNUwcf4w3lyUgXpm5asfX0tWGX4=
+        b=BwxZ//biFBUEGIY4zaFnZv0gtn1KmZgh6avrEI9h57HmTN2vM7tQBz3ce3GaTrDY7
+         Qbz2QvX6irJYgSPZayMuarkAm6rJCQInM9oqmby1qHCjZLkCFq0/BTFcyouRJ//cvk
+         E4B7uRsm5VmNfG8pqT4nqDQLyrIcLV/Km9xc/ECc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Baokun Li <libaokun1@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 19/75] scsi: iscsi: Adjust iface sysfs attr detection
+        stable@vger.kernel.org, Carlo Lobrano <c.lobrano@gmail.com>,
+        Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 10/57] USB: serial: option: add Telit LN920 compositions
 Date:   Mon,  4 Oct 2021 14:51:54 +0200
-Message-Id: <20211004125032.168399306@linuxfoundation.org>
+Message-Id: <20211004125029.261298031@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
+References: <20211004125028.940212411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Carlo Lobrano <c.lobrano@gmail.com>
 
-[ Upstream commit 4e28550829258f7dab97383acaa477bd724c0ff4 ]
+commit 7bb057134d609b9c038a00b6876cf0d37d0118ce upstream.
 
-ISCSI_NET_PARAM_IFACE_ENABLE belongs to enum iscsi_net_param instead of
-iscsi_iface_param so move it to ISCSI_NET_PARAM. Otherwise, when we call
-into the driver, we might not match and return that we don't want attr
-visible in sysfs. Found in code review.
+This patch adds the following Telit LN920 compositions:
 
-Link: https://lore.kernel.org/r/20210901085336.2264295-1-libaokun1@huawei.com
-Fixes: e746f3451ec7 ("scsi: iscsi: Fix iface sysfs attr detection")
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+0x1060: tty, adb, rmnet, tty, tty, tty, tty
+0x1061: tty, adb, mbim, tty, tty, tty, tty
+0x1062: rndis, tty, adb, tty, tty, tty, tty
+0x1063: tty, adb, ecm, tty, tty, tty, tty
+
+Signed-off-by: Carlo Lobrano <c.lobrano@gmail.com>
+Link: https://lore.kernel.org/r/20210903123913.1086513-1-c.lobrano@gmail.com
+Reviewed-by: Daniele Palmas <dnlplm@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/serial/option.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 064c941e5483..d276d84c0f7a 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -429,9 +429,7 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
- 	struct iscsi_transport *t = iface->transport;
- 	int param = -1;
- 
--	if (attr == &dev_attr_iface_enabled.attr)
--		param = ISCSI_NET_PARAM_IFACE_ENABLE;
--	else if (attr == &dev_attr_iface_def_taskmgmt_tmo.attr)
-+	if (attr == &dev_attr_iface_def_taskmgmt_tmo.attr)
- 		param = ISCSI_IFACE_PARAM_DEF_TASKMGMT_TMO;
- 	else if (attr == &dev_attr_iface_header_digest.attr)
- 		param = ISCSI_IFACE_PARAM_HDRDGST_EN;
-@@ -471,7 +469,9 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
- 	if (param != -1)
- 		return t->attr_is_visible(ISCSI_IFACE_PARAM, param);
- 
--	if (attr == &dev_attr_iface_vlan_id.attr)
-+	if (attr == &dev_attr_iface_enabled.attr)
-+		param = ISCSI_NET_PARAM_IFACE_ENABLE;
-+	else if (attr == &dev_attr_iface_vlan_id.attr)
- 		param = ISCSI_NET_PARAM_VLAN_ID;
- 	else if (attr == &dev_attr_iface_vlan_priority.attr)
- 		param = ISCSI_NET_PARAM_VLAN_PRIORITY;
--- 
-2.33.0
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1187,6 +1187,14 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1056, 0xff),	/* Telit FD980 */
+ 	  .driver_info = NCTRL(2) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1060, 0xff),	/* Telit LN920 (rmnet) */
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1061, 0xff),	/* Telit LN920 (MBIM) */
++	  .driver_info = NCTRL(0) | RSVD(1) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1062, 0xff),	/* Telit LN920 (RNDIS) */
++	  .driver_info = NCTRL(2) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1063, 0xff),	/* Telit LN920 (ECM) */
++	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
 
 
