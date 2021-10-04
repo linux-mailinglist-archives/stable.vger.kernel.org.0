@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B3C1421013
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:38:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9214D420DEC
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:17:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238447AbhJDNk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:40:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52280 "EHLO mail.kernel.org"
+        id S236486AbhJDNTp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:19:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238565AbhJDNiq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:38:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F19F63245;
-        Mon,  4 Oct 2021 13:17:50 +0000 (UTC)
+        id S236546AbhJDNSg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:18:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00EA161B43;
+        Mon,  4 Oct 2021 13:07:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353471;
-        bh=dHnNYp5A+OqL1gE6Z3IskOI2r698DKp6V3t6uhpPoC4=;
+        s=korg; t=1633352863;
+        bh=/OPIkO0iQKyLqA5RPHPn66O/nq6y776p2R2o0amDLlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TgzvO46EKTRZjv10O/seRuc09nT4NUmWFNJYZxUsCjLwytlM14J8cXheYaygSCS4l
-         R0Nw+Mz3CppC0kiqs7nF7sRUEFaf+/JLH1+2Ol01ofX+4h24NBJnqm5txMm/KazvHA
-         O/bt3esAJUKZuNxiMPScxSerNXqJnxxtHAZLPuvU=
+        b=MYpof6vwejZm8qfj1hBl35G3zyw/6js6cu4pAlZZ4qt07CbYxsH459ShVj5ZoICjb
+         cz7XmDynZZGMuJmSezsfI7gYd/Xk1Okz2BHNmWPI/sjR4wUBYtW0V/8a0Le69AyoNt
+         WD0iCTxe7A/kzm+aTUZXs+OyogWa+2KxXvchYdcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 142/172] hwmon: (pmbus/mp2975) Add missed POUT attribute for page 1 mp2975 controller
-Date:   Mon,  4 Oct 2021 14:53:12 +0200
-Message-Id: <20211004125049.552469029@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+07efed3bc5a1407bd742@syzkaller.appspotmail.com,
+        "F.A. SULAIMAN" <asha.16@itfac.mrt.ac.lk>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.4 53/56] HID: betop: fix slab-out-of-bounds Write in betop_probe
+Date:   Mon,  4 Oct 2021 14:53:13 +0200
+Message-Id: <20211004125031.677388981@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
+References: <20211004125030.002116402@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@nvidia.com>
+From: F.A.Sulaiman <asha.16@itfac.mrt.ac.lk>
 
-[ Upstream commit 2292e2f685cd5c65e3f47bbcf9f469513acc3195 ]
+commit 1e4ce418b1cb1a810256b5fb3fd33d22d1325993 upstream.
 
-Add missed attribute for reading POUT from page 1.
-It is supported by device, but has been missed in initial commit.
+Syzbot reported slab-out-of-bounds Write bug in hid-betopff driver.
+The problem is the driver assumes the device must have an input report but
+some malicious devices violate this assumption.
 
-Fixes: 2c6fcbb21149 ("hwmon: (pmbus) Add support for MPS Multi-phase mp2975 controller")
-Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
-Link: https://lore.kernel.org/r/20210927070740.2149290-1-vadimp@nvidia.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So this patch checks hid_device's input is non empty before it's been used.
+
+Reported-by: syzbot+07efed3bc5a1407bd742@syzkaller.appspotmail.com
+Signed-off-by: F.A. SULAIMAN <asha.16@itfac.mrt.ac.lk>
+Reviewed-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/pmbus/mp2975.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-betopff.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hwmon/pmbus/mp2975.c b/drivers/hwmon/pmbus/mp2975.c
-index eb94bd5f4e2a..51986adfbf47 100644
---- a/drivers/hwmon/pmbus/mp2975.c
-+++ b/drivers/hwmon/pmbus/mp2975.c
-@@ -54,7 +54,7 @@
+--- a/drivers/hid/hid-betopff.c
++++ b/drivers/hid/hid-betopff.c
+@@ -56,15 +56,22 @@ static int betopff_init(struct hid_devic
+ {
+ 	struct betopff_device *betopff;
+ 	struct hid_report *report;
+-	struct hid_input *hidinput =
+-			list_first_entry(&hid->inputs, struct hid_input, list);
++	struct hid_input *hidinput;
+ 	struct list_head *report_list =
+ 			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
+-	struct input_dev *dev = hidinput->input;
++	struct input_dev *dev;
+ 	int field_count = 0;
+ 	int error;
+ 	int i, j;
  
- #define MP2975_RAIL2_FUNC	(PMBUS_HAVE_VOUT | PMBUS_HAVE_STATUS_VOUT | \
- 				 PMBUS_HAVE_IOUT | PMBUS_HAVE_STATUS_IOUT | \
--				 PMBUS_PHASE_VIRTUAL)
-+				 PMBUS_HAVE_POUT | PMBUS_PHASE_VIRTUAL)
- 
- struct mp2975_data {
- 	struct pmbus_driver_info info;
--- 
-2.33.0
-
++	if (list_empty(&hid->inputs)) {
++		hid_err(hid, "no inputs found\n");
++		return -ENODEV;
++	}
++
++	hidinput = list_first_entry(&hid->inputs, struct hid_input, list);
++	dev = hidinput->input;
++
+ 	if (list_empty(report_list)) {
+ 		hid_err(hid, "no output reports found\n");
+ 		return -ENODEV;
 
 
