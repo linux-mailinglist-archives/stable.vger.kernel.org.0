@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73E13420F56
+	by mail.lfdr.de (Postfix) with ESMTP id E3E5D420F57
 	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:32:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237044AbhJDNdz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:33:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43478 "EHLO mail.kernel.org"
+        id S237079AbhJDNd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:33:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237367AbhJDNcH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:32:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F71863218;
-        Mon,  4 Oct 2021 13:14:28 +0000 (UTC)
+        id S237426AbhJDNcO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:32:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 343316321F;
+        Mon,  4 Oct 2021 13:14:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353269;
-        bh=wMUfaPOSbDYg0Re1NQ+m55QvzmgwDQjV4f0BPIx3r/M=;
+        s=korg; t=1633353271;
+        bh=Xy3oE2Xq3WAjsrr4EQP0eQ6UUM3UMVsrmCQJxRcWtsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kmm5cTDWaRvN4ixnVlkrz4lWRa6oh0ooz7i8qTEFlNzwvQKQ1oxX2i5n44/vmgWim
-         j2h5yb6w3qfSJ9dgUjIQ5EppxFSH92DG1MLkaT5ohIi5LDiqCNowJ2x1N0rPPi+gVt
-         x3heO4bNHYBmc3PdDq54oouqvjxWafMKp746ob+8=
+        b=kTzT8KsksU2I+dRPUiycVgdxnZpNh1lMiKztevfum6p75LHEI4Fd8k/Ajv/Uq/V/E
+         mIUD3ywxe7TvUGE/iZxkx/kG9YpW1tSZQnCUAtwvak6vBsA3Pz2jxNzrTvUTvjPTz3
+         jSHpdw6T1fJEFmM1YmsriFuT6ZGVNUYPB/dJfoyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Likun Gao <Likun.Gao@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 029/172] scsi: qla2xxx: Changes to support kdump kernel for NVMe BFS
-Date:   Mon,  4 Oct 2021 14:51:19 +0200
-Message-Id: <20211004125045.910213083@linuxfoundation.org>
+Subject: [PATCH 5.14 030/172] drm/amdgpu: adjust fence driver enable sequence
+Date:   Mon,  4 Oct 2021 14:51:20 +0200
+Message-Id: <20211004125045.941117273@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
 References: <20211004125044.945314266@linuxfoundation.org>
@@ -43,130 +41,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurav Kashyap <skashyap@marvell.com>
+From: Likun Gao <Likun.Gao@amd.com>
 
-[ Upstream commit 4a0a542fe5e4273baf9228459ef3f75c29490cba ]
+[ Upstream commit 8d35a2596164c1c9d34d4656fd42b445cd1e247f ]
 
-The MSI-X and MSI calls fails in kdump kernel. Because of this
-qla2xxx_create_qpair() fails leading to .create_queue callback failure.
-The fix is to return existing qpair instead of allocating new one and
-allocate a single hw queue.
+Fence driver was enabled per ring when sw init on per IP block before.
+Change to enable all the fence driver at the same time after
+amdgpu_device_ip_init finished.
+Rename some function related to fence to make it reasonable for read.
 
-[   19.975838] qla2xxx [0000:d8:00.1]-00c7:11: MSI-X: Failed to enable support,
-giving   up -- 16/-28.
-[   19.984885] qla2xxx [0000:d8:00.1]-0037:11: Falling back-to MSI mode --
-ret=-28.
-[   19.992278] qla2xxx [0000:d8:00.1]-0039:11: Falling back-to INTa mode --
-ret=-28.
-..
-..
-..
-[   21.141518] qla2xxx [0000:d8:00.0]-2104:2: qla_nvme_alloc_queue: handle
-00000000e7ee499d, idx =1, qsize 32
-[   21.151166] qla2xxx [0000:d8:00.0]-0181:2: FW/Driver is not multi-queue capable.
-[   21.158558] qla2xxx [0000:d8:00.0]-2122:2: Failed to allocate qpair
-[   21.164824] nvme nvme0: NVME-FC{0}: reset: Reconnect attempt failed (-22)
-[   21.171612] nvme nvme0: NVME-FC{0}: Reconnect attempt in 2 seconds
-
-Link: https://lore.kernel.org/r/20210810043720.1137-13-njavali@marvell.com
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Likun Gao <Likun.Gao@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_def.h  |  1 -
- drivers/scsi/qla2xxx/qla_isr.c  |  2 ++
- drivers/scsi/qla2xxx/qla_nvme.c | 40 +++++++++++++++------------------
- 3 files changed, 20 insertions(+), 23 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 10 +++--
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c  | 44 +++-------------------
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ring.h   |  7 ++--
+ 3 files changed, 14 insertions(+), 47 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_def.h b/drivers/scsi/qla2xxx/qla_def.h
-index 2f67ec1df3e6..82b6f4c2eb4a 100644
---- a/drivers/scsi/qla2xxx/qla_def.h
-+++ b/drivers/scsi/qla2xxx/qla_def.h
-@@ -3935,7 +3935,6 @@ struct qla_hw_data {
- 		uint32_t	scm_supported_f:1;
- 				/* Enabled in Driver */
- 		uint32_t	scm_enabled:1;
--		uint32_t	max_req_queue_warned:1;
- 		uint32_t	plogi_template_valid:1;
- 		uint32_t	port_isolated:1;
- 	} flags;
-diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
-index d9fb093a60a1..2aa8f519aae6 100644
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -4201,6 +4201,8 @@ skip_msi:
- 		ql_dbg(ql_dbg_init, vha, 0x0125,
- 		    "INTa mode: Enabled.\n");
- 		ha->flags.mr_intr_valid = 1;
-+		/* Set max_qpair to 0, as MSI-X and MSI in not enabled */
-+		ha->max_qpairs = 0;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index 7b42636fc7dc..112add12707d 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -3631,6 +3631,8 @@ fence_driver_init:
+ 		goto release_ras_con;
  	}
  
- clear_risc_ints:
-diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
-index a7259733e470..9316d7d91e2a 100644
---- a/drivers/scsi/qla2xxx/qla_nvme.c
-+++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -109,19 +109,24 @@ static int qla_nvme_alloc_queue(struct nvme_fc_local_port *lport,
- 		return -EINVAL;
++	amdgpu_fence_driver_hw_init(adev);
++
+ 	dev_info(adev->dev,
+ 		"SE %d, SH per SE %d, CU per SH %d, active_cu_number %d\n",
+ 			adev->gfx.config.max_shader_engines,
+@@ -3798,7 +3800,7 @@ void amdgpu_device_fini_hw(struct amdgpu_device *adev)
+ 		else
+ 			drm_atomic_helper_shutdown(adev_to_drm(adev));
  	}
+-	amdgpu_fence_driver_fini_hw(adev);
++	amdgpu_fence_driver_hw_fini(adev);
  
--	if (ha->queue_pair_map[qidx]) {
--		*handle = ha->queue_pair_map[qidx];
--		ql_log(ql_log_info, vha, 0x2121,
--		    "Returning existing qpair of %p for idx=%x\n",
--		    *handle, qidx);
--		return 0;
--	}
-+	/* Use base qpair if max_qpairs is 0 */
-+	if (!ha->max_qpairs) {
-+		qpair = ha->base_qpair;
-+	} else {
-+		if (ha->queue_pair_map[qidx]) {
-+			*handle = ha->queue_pair_map[qidx];
-+			ql_log(ql_log_info, vha, 0x2121,
-+			       "Returning existing qpair of %p for idx=%x\n",
-+			       *handle, qidx);
-+			return 0;
-+		}
+ 	if (adev->pm_sysfs_en)
+ 		amdgpu_pm_sysfs_fini(adev);
+@@ -3820,7 +3822,7 @@ void amdgpu_device_fini_hw(struct amdgpu_device *adev)
+ void amdgpu_device_fini_sw(struct amdgpu_device *adev)
+ {
+ 	amdgpu_device_ip_fini(adev);
+-	amdgpu_fence_driver_fini_sw(adev);
++	amdgpu_fence_driver_sw_fini(adev);
+ 	release_firmware(adev->firmware.gpu_info_fw);
+ 	adev->firmware.gpu_info_fw = NULL;
+ 	adev->accel_working = false;
+@@ -3895,7 +3897,7 @@ int amdgpu_device_suspend(struct drm_device *dev, bool fbcon)
+ 	/* evict vram memory */
+ 	amdgpu_bo_evict_vram(adev);
  
--	qpair = qla2xxx_create_qpair(vha, 5, vha->vp_idx, true);
--	if (qpair == NULL) {
--		ql_log(ql_log_warn, vha, 0x2122,
--		    "Failed to allocate qpair\n");
--		return -EINVAL;
-+		qpair = qla2xxx_create_qpair(vha, 5, vha->vp_idx, true);
-+		if (!qpair) {
-+			ql_log(ql_log_warn, vha, 0x2122,
-+			       "Failed to allocate qpair\n");
-+			return -EINVAL;
-+		}
+-	amdgpu_fence_driver_suspend(adev);
++	amdgpu_fence_driver_hw_fini(adev);
+ 
+ 	amdgpu_device_ip_suspend_phase2(adev);
+ 	/* evict remaining vram memory
+@@ -3940,7 +3942,7 @@ int amdgpu_device_resume(struct drm_device *dev, bool fbcon)
+ 		dev_err(adev->dev, "amdgpu_device_ip_resume failed (%d).\n", r);
+ 		return r;
  	}
- 	*handle = qpair;
+-	amdgpu_fence_driver_resume(adev);
++	amdgpu_fence_driver_hw_init(adev);
  
-@@ -728,18 +733,9 @@ int qla_nvme_register_hba(struct scsi_qla_host *vha)
  
- 	WARN_ON(vha->nvme_local_port);
+ 	r = amdgpu_device_ip_late_init(adev);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+index 72d9b92b1754..49c5c7331c53 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+@@ -417,9 +417,6 @@ int amdgpu_fence_driver_start_ring(struct amdgpu_ring *ring,
+ 	}
+ 	amdgpu_fence_write(ring, atomic_read(&ring->fence_drv.last_seq));
  
--	if (ha->max_req_queues < 3) {
--		if (!ha->flags.max_req_queue_warned)
--			ql_log(ql_log_info, vha, 0x2120,
--			       "%s: Disabling FC-NVME due to lack of free queue pairs (%d).\n",
--			       __func__, ha->max_req_queues);
--		ha->flags.max_req_queue_warned = 1;
--		return ret;
--	}
+-	if (irq_src)
+-		amdgpu_irq_get(adev, irq_src, irq_type);
 -
- 	qla_nvme_fc_transport.max_hw_queues =
- 	    min((uint8_t)(qla_nvme_fc_transport.max_hw_queues),
--		(uint8_t)(ha->max_req_queues - 2));
-+		(uint8_t)(ha->max_qpairs ? ha->max_qpairs : 1));
+ 	ring->fence_drv.irq_src = irq_src;
+ 	ring->fence_drv.irq_type = irq_type;
+ 	ring->fence_drv.initialized = true;
+@@ -525,7 +522,7 @@ int amdgpu_fence_driver_init(struct amdgpu_device *adev)
+  *
+  * Tear down the fence driver for all possible rings (all asics).
+  */
+-void amdgpu_fence_driver_fini_hw(struct amdgpu_device *adev)
++void amdgpu_fence_driver_hw_fini(struct amdgpu_device *adev)
+ {
+ 	int i, r;
  
- 	pinfo.node_name = wwn_to_u64(vha->node_name);
- 	pinfo.port_name = wwn_to_u64(vha->port_name);
+@@ -553,7 +550,7 @@ void amdgpu_fence_driver_fini_hw(struct amdgpu_device *adev)
+ 	}
+ }
+ 
+-void amdgpu_fence_driver_fini_sw(struct amdgpu_device *adev)
++void amdgpu_fence_driver_sw_fini(struct amdgpu_device *adev)
+ {
+ 	unsigned int i, j;
+ 
+@@ -572,49 +569,18 @@ void amdgpu_fence_driver_fini_sw(struct amdgpu_device *adev)
+ }
+ 
+ /**
+- * amdgpu_fence_driver_suspend - suspend the fence driver
+- * for all possible rings.
+- *
+- * @adev: amdgpu device pointer
+- *
+- * Suspend the fence driver for all possible rings (all asics).
+- */
+-void amdgpu_fence_driver_suspend(struct amdgpu_device *adev)
+-{
+-	int i, r;
+-
+-	for (i = 0; i < AMDGPU_MAX_RINGS; i++) {
+-		struct amdgpu_ring *ring = adev->rings[i];
+-		if (!ring || !ring->fence_drv.initialized)
+-			continue;
+-
+-		/* wait for gpu to finish processing current batch */
+-		r = amdgpu_fence_wait_empty(ring);
+-		if (r) {
+-			/* delay GPU reset to resume */
+-			amdgpu_fence_driver_force_completion(ring);
+-		}
+-
+-		/* disable the interrupt */
+-		if (ring->fence_drv.irq_src)
+-			amdgpu_irq_put(adev, ring->fence_drv.irq_src,
+-				       ring->fence_drv.irq_type);
+-	}
+-}
+-
+-/**
+- * amdgpu_fence_driver_resume - resume the fence driver
++ * amdgpu_fence_driver_hw_init - enable the fence driver
+  * for all possible rings.
+  *
+  * @adev: amdgpu device pointer
+  *
+- * Resume the fence driver for all possible rings (all asics).
++ * Enable the fence driver for all possible rings (all asics).
+  * Not all asics have all rings, so each asic will only
+  * start the fence driver on the rings it has using
+  * amdgpu_fence_driver_start_ring().
+  * Returns 0 for success.
+  */
+-void amdgpu_fence_driver_resume(struct amdgpu_device *adev)
++void amdgpu_fence_driver_hw_init(struct amdgpu_device *adev)
+ {
+ 	int i;
+ 
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ring.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_ring.h
+index e7d3d0dbdd96..27adffa7658d 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ring.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ring.h
+@@ -107,8 +107,6 @@ struct amdgpu_fence_driver {
+ };
+ 
+ int amdgpu_fence_driver_init(struct amdgpu_device *adev);
+-void amdgpu_fence_driver_fini_hw(struct amdgpu_device *adev);
+-void amdgpu_fence_driver_fini_sw(struct amdgpu_device *adev);
+ void amdgpu_fence_driver_force_completion(struct amdgpu_ring *ring);
+ 
+ int amdgpu_fence_driver_init_ring(struct amdgpu_ring *ring,
+@@ -117,8 +115,9 @@ int amdgpu_fence_driver_init_ring(struct amdgpu_ring *ring,
+ int amdgpu_fence_driver_start_ring(struct amdgpu_ring *ring,
+ 				   struct amdgpu_irq_src *irq_src,
+ 				   unsigned irq_type);
+-void amdgpu_fence_driver_suspend(struct amdgpu_device *adev);
+-void amdgpu_fence_driver_resume(struct amdgpu_device *adev);
++void amdgpu_fence_driver_hw_fini(struct amdgpu_device *adev);
++void amdgpu_fence_driver_sw_fini(struct amdgpu_device *adev);
++void amdgpu_fence_driver_hw_init(struct amdgpu_device *adev);
+ int amdgpu_fence_emit(struct amdgpu_ring *ring, struct dma_fence **fence,
+ 		      unsigned flags);
+ int amdgpu_fence_emit_polling(struct amdgpu_ring *ring, uint32_t *s,
 -- 
 2.33.0
 
