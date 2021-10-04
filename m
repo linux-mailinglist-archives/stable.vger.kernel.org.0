@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A484421043
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:40:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3954420EE9
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:27:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238343AbhJDNmD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:42:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51998 "EHLO mail.kernel.org"
+        id S236991AbhJDN3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:29:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238367AbhJDNkV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:40:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49B1263243;
-        Mon,  4 Oct 2021 13:18:31 +0000 (UTC)
+        id S237199AbhJDN13 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:27:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 204CF61B7C;
+        Mon,  4 Oct 2021 13:12:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353511;
-        bh=RFVMULWlW6WKVHE/aq1jPRvh16HMIOxjmD6igGeMCZI=;
+        s=korg; t=1633353131;
+        bh=+NuMV9BUgtpHB0g8l38pZksZHURkRwyr2lYuWLq+wFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Q4RraG2CCgD6zkVNQaBiwjO0s2kE7fQEG+R/u6a5dwQcOh/7nMkb3Emu9wCpKskD
-         zL575tvEbJ9HbJoMjH224NVLpi0aO/ZRUyx+4BltW8nwLFEV1akypFQDoBUm6I/o4x
-         1eOkcbuRmyT960UY3bhbMJTNLVsZmxPCQoQBTbZo=
+        b=S03uauDm50ckkLntw/LvYZ75L4RbWtKj4pn3c6uIVTz1zZ6dlpuwaOP7UHFslSKT9
+         aZD1MMKR7ttK7J1v5T+WQUwIs+6Xbow9JsiEJnV7xs6KlwwNnkepf/NI2RL7SWI8K6
+         LnGC/51eysAW2kUSSZEhMGbMmb8T2gAjAeIdMncI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        yangerkun <yangerkun@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.14 157/172] ext4: fix potential infinite loop in ext4_dx_readdir()
+        stable@vger.kernel.org,
+        syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com,
+        Anirudh Rayabharam <mail@anirudhrb.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.10 89/93] HID: usbhid: free raw_report buffers in usbhid_stop
 Date:   Mon,  4 Oct 2021 14:53:27 +0200
-Message-Id: <20211004125050.039072048@linuxfoundation.org>
+Message-Id: <20211004125037.539007195@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,68 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangerkun <yangerkun@huawei.com>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-commit 42cb447410d024e9d54139ae9c21ea132a8c384c upstream.
+commit f7744fa16b96da57187dc8e5634152d3b63d72de upstream.
 
-When ext4_htree_fill_tree() fails, ext4_dx_readdir() can run into an
-infinite loop since if info->last_pos != ctx->pos this will reset the
-directory scan and reread the failing entry.  For example:
+Free the unsent raw_report buffers when the device is removed.
 
-1. a dx_dir which has 3 block, block 0 as dx_root block, block 1/2 as
-   leaf block which own the ext4_dir_entry_2
-2. block 1 read ok and call_filldir which will fill the dirent and update
-   the ctx->pos
-3. block 2 read fail, but we has already fill some dirent, so we will
-   return back to userspace will a positive return val(see ksys_getdents64)
-4. the second ext4_dx_readdir will reset the world since info->last_pos
-   != ctx->pos, and will also init the curr_hash which pos to block 1
-5. So we will read block1 too, and once block2 still read fail, we can
-   only fill one dirent because the hash of the entry in block1(besides
-   the last one) won't greater than curr_hash
-6. this time, we forget update last_pos too since the read for block2
-   will fail, and since we has got the one entry, ksys_getdents64 can
-   return success
-7. Latter we will trapped in a loop with step 4~6
+Fixes a memory leak reported by syzbot at:
+https://syzkaller.appspot.com/bug?id=7b4fa7cb1a7c2d3342a2a8a6c53371c8c418ab47
 
-Cc: stable@kernel.org
-Signed-off-by: yangerkun <yangerkun@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/20210914111415.3921954-1-yangerkun@huawei.com
+Reported-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
+Tested-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/dir.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/hid/usbhid/hid-core.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/dir.c
-+++ b/fs/ext4/dir.c
-@@ -551,7 +551,7 @@ static int ext4_dx_readdir(struct file *
- 	struct dir_private_info *info = file->private_data;
- 	struct inode *inode = file_inode(file);
- 	struct fname *fname;
--	int	ret;
-+	int ret = 0;
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -503,7 +503,7 @@ static void hid_ctrl(struct urb *urb)
  
- 	if (!info) {
- 		info = ext4_htree_create_dir_info(file, ctx->pos);
-@@ -599,7 +599,7 @@ static int ext4_dx_readdir(struct file *
- 						   info->curr_minor_hash,
- 						   &info->next_hash);
- 			if (ret < 0)
--				return ret;
-+				goto finished;
- 			if (ret == 0) {
- 				ctx->pos = ext4_get_htree_eof(file);
- 				break;
-@@ -630,7 +630,7 @@ static int ext4_dx_readdir(struct file *
- 	}
- finished:
- 	info->last_pos = ctx->pos;
--	return 0;
-+	return ret < 0 ? ret : 0;
- }
+ 	if (unplug) {
+ 		usbhid->ctrltail = usbhid->ctrlhead;
+-	} else {
++	} else if (usbhid->ctrlhead != usbhid->ctrltail) {
+ 		usbhid->ctrltail = (usbhid->ctrltail + 1) & (HID_CONTROL_FIFO_SIZE - 1);
  
- static int ext4_release_dir(struct inode *inode, struct file *filp)
+ 		if (usbhid->ctrlhead != usbhid->ctrltail &&
+@@ -1221,9 +1221,20 @@ static void usbhid_stop(struct hid_devic
+ 	mutex_lock(&usbhid->mutex);
+ 
+ 	clear_bit(HID_STARTED, &usbhid->iofl);
++
+ 	spin_lock_irq(&usbhid->lock);	/* Sync with error and led handlers */
+ 	set_bit(HID_DISCONNECTED, &usbhid->iofl);
++	while (usbhid->ctrltail != usbhid->ctrlhead) {
++		if (usbhid->ctrl[usbhid->ctrltail].dir == USB_DIR_OUT) {
++			kfree(usbhid->ctrl[usbhid->ctrltail].raw_report);
++			usbhid->ctrl[usbhid->ctrltail].raw_report = NULL;
++		}
++
++		usbhid->ctrltail = (usbhid->ctrltail + 1) &
++			(HID_CONTROL_FIFO_SIZE - 1);
++	}
+ 	spin_unlock_irq(&usbhid->lock);
++
+ 	usb_kill_urb(usbhid->urbin);
+ 	usb_kill_urb(usbhid->urbout);
+ 	usb_kill_urb(usbhid->urbctrl);
 
 
