@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9214D420DEC
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:17:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE15A421017
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:38:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236486AbhJDNTp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:19:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55160 "EHLO mail.kernel.org"
+        id S238499AbhJDNkf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:40:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236546AbhJDNSg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:18:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00EA161B43;
-        Mon,  4 Oct 2021 13:07:42 +0000 (UTC)
+        id S238578AbhJDNir (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:38:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76C4C6323C;
+        Mon,  4 Oct 2021 13:17:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352863;
-        bh=/OPIkO0iQKyLqA5RPHPn66O/nq6y776p2R2o0amDLlQ=;
+        s=korg; t=1633353474;
+        bh=ySpziAZem5KNqlDnou3VwQL1fS/N6AvHf+/pgMkMVQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MYpof6vwejZm8qfj1hBl35G3zyw/6js6cu4pAlZZ4qt07CbYxsH459ShVj5ZoICjb
-         cz7XmDynZZGMuJmSezsfI7gYd/Xk1Okz2BHNmWPI/sjR4wUBYtW0V/8a0Le69AyoNt
-         WD0iCTxe7A/kzm+aTUZXs+OyogWa+2KxXvchYdcU=
+        b=Y4LwBmzH1JGL4OLoNT+IepK+Ow/6onCv63lYHufJZ1thztKzcg06ltGi3haX09a7F
+         KhaLC8i2kt8jBFCRswGfBN285l/vafN/Gg87GXEcLCjH0TNgN/vIzi6w2VhXRjezjt
+         OshhSjNa2idX+7jy70FjKSivsjgLGLAJctAY18ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+07efed3bc5a1407bd742@syzkaller.appspotmail.com,
-        "F.A. SULAIMAN" <asha.16@itfac.mrt.ac.lk>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.4 53/56] HID: betop: fix slab-out-of-bounds Write in betop_probe
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 143/172] kvm: fix objtool relocation warning
 Date:   Mon,  4 Oct 2021 14:53:13 +0200
-Message-Id: <20211004125031.677388981@linuxfoundation.org>
+Message-Id: <20211004125049.582434477@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
-References: <20211004125030.002116402@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +49,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: F.A.Sulaiman <asha.16@itfac.mrt.ac.lk>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 1e4ce418b1cb1a810256b5fb3fd33d22d1325993 upstream.
+[ Upstream commit 291073a566b2094c7192872cc0f17ce73d83cb76 ]
 
-Syzbot reported slab-out-of-bounds Write bug in hid-betopff driver.
-The problem is the driver assumes the device must have an input report but
-some malicious devices violate this assumption.
+The recent change to make objtool aware of more symbol relocation types
+(commit 24ff65257375: "objtool: Teach get_alt_entry() about more
+relocation types") also added another check, and resulted in this
+objtool warning when building kvm on x86:
 
-So this patch checks hid_device's input is non empty before it's been used.
+    arch/x86/kvm/emulate.o: warning: objtool: __ex_table+0x4: don't know how to handle reloc symbol type: kvm_fastop_exception
 
-Reported-by: syzbot+07efed3bc5a1407bd742@syzkaller.appspotmail.com
-Signed-off-by: F.A. SULAIMAN <asha.16@itfac.mrt.ac.lk>
-Reviewed-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The reason seems to be that kvm_fastop_exception() is marked as a global
+symbol, which causes the relocation to ke kept around for objtool.  And
+at the same time, the kvm_fastop_exception definition (which is done as
+an inline asm statement) doesn't actually set the type of the global,
+which then makes objtool unhappy.
+
+The minimal fix is to just not mark kvm_fastop_exception as being a
+global symbol.  It's only used in that one compilation unit anyway, so
+it was always pointless.  That's how all the other local exception table
+labels are done.
+
+I'm not entirely happy about the kinds of games that the kvm code plays
+with doing its own exception handling, and the fact that it confused
+objtool is most definitely a symptom of the code being a bit too subtle
+and ad-hoc.  But at least this trivial one-liner makes objtool no longer
+upset about what is going on.
+
+Fixes: 24ff65257375 ("objtool: Teach get_alt_entry() about more relocation types")
+Link: https://lore.kernel.org/lkml/CAHk-=wiZwq-0LknKhXN4M+T8jbxn_2i9mcKpO+OaBSSq_Eh7tg@mail.gmail.com/
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Sean Christopherson <seanjc@google.com>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: Wanpeng Li <wanpengli@tencent.com>
+Cc: Jim Mattson <jmattson@google.com>
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-betopff.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ arch/x86/kvm/emulate.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/hid/hid-betopff.c
-+++ b/drivers/hid/hid-betopff.c
-@@ -56,15 +56,22 @@ static int betopff_init(struct hid_devic
- {
- 	struct betopff_device *betopff;
- 	struct hid_report *report;
--	struct hid_input *hidinput =
--			list_first_entry(&hid->inputs, struct hid_input, list);
-+	struct hid_input *hidinput;
- 	struct list_head *report_list =
- 			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
--	struct input_dev *dev = hidinput->input;
-+	struct input_dev *dev;
- 	int field_count = 0;
- 	int error;
- 	int i, j;
+diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
+index 2837110e66ed..50050d06672b 100644
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -435,7 +435,6 @@ static int fastop(struct x86_emulate_ctxt *ctxt, fastop_t fop);
+ 	__FOP_RET(#op)
  
-+	if (list_empty(&hid->inputs)) {
-+		hid_err(hid, "no inputs found\n");
-+		return -ENODEV;
-+	}
-+
-+	hidinput = list_first_entry(&hid->inputs, struct hid_input, list);
-+	dev = hidinput->input;
-+
- 	if (list_empty(report_list)) {
- 		hid_err(hid, "no output reports found\n");
- 		return -ENODEV;
+ asm(".pushsection .fixup, \"ax\"\n"
+-    ".global kvm_fastop_exception \n"
+     "kvm_fastop_exception: xor %esi, %esi; ret\n"
+     ".popsection");
+ 
+-- 
+2.33.0
+
 
 
