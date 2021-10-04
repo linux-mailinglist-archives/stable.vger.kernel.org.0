@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12C42420BBE
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:57:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7391420D15
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:10:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233624AbhJDM7j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 08:59:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59724 "EHLO mail.kernel.org"
+        id S235331AbhJDNLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:11:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233336AbhJDM60 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:58:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A35860F9C;
-        Mon,  4 Oct 2021 12:56:37 +0000 (UTC)
+        id S235809AbhJDNJo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:09:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 659FB60F9C;
+        Mon,  4 Oct 2021 13:03:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352197;
-        bh=780dyysR3rOK5VjuRacIsg7c1xyCT69xdp13r16mHd4=;
+        s=korg; t=1633352621;
+        bh=+vmliVF3h7whJ63pel0fd0qaw8JqRC3leYCvfM2RWus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uu+3/5FaCzmHcKcJepHja8GDrBUvnrAgNQ16+4dnltw7KlIdMTutdBdJE15H6PasS
-         J1jzWniTbqBXqtIGttgHu/SvEN9jeqM7hGwn16hVO11jUgX/L2jq1nv0HbKA6z8G6R
-         zffUxi5Kwo+i9C6ONA5nfAx6DjBbpRWu7ZF9JkbY=
+        b=J50Qa1LZz25StZNb5RsA9bxrGgP4VuAq9KhSIqrfnvtUH7wZafeMRqYWa/tWHirsF
+         gUlf6Wo+5uhX7YZDcTLAR4XylzhLMj6n244233MrKIAc+J1X1g0SPvz9zVtGaB/pX7
+         qS0FFeYvGeAFBVFw0ryOg3v3A/Fmx4uFxNQFA7NM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 09/57] USB: serial: mos7840: remove duplicated 0xac24 device ID
-Date:   Mon,  4 Oct 2021 14:51:53 +0200
-Message-Id: <20211004125029.230878947@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 24/95] tty: synclink_gt, drop unneeded forward declarations
+Date:   Mon,  4 Oct 2021 14:51:54 +0200
+Message-Id: <20211004125034.345938066@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
-References: <20211004125028.940212411@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +39,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit 211f323768a25b30c106fd38f15a0f62c7c2b5f4 upstream.
+[ Upstream commit b9b90fe655c0bd816847ac1bcbf179cfa2981ecb ]
 
-0xac24 device ID is already defined and used via
-BANDB_DEVICE_ID_USO9ML2_4.  Remove the duplicate from the list.
+Forward declarations make the code larger and rewrites harder. Harder as
+they are often omitted from global changes. Remove forward declarations
+which are not really needed, i.e. the definition of the function is
+before its first use.
 
-Fixes: 27f1281d5f72 ("USB: serial: Extra device/vendor ID for mos7840 driver")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20210302062214.29627-39-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/mos7840.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/tty/synclink_gt.c | 57 +--------------------------------------
+ 1 file changed, 1 insertion(+), 56 deletions(-)
 
---- a/drivers/usb/serial/mos7840.c
-+++ b/drivers/usb/serial/mos7840.c
-@@ -126,7 +126,6 @@
- #define BANDB_DEVICE_ID_USOPTL4_2P       0xBC02
- #define BANDB_DEVICE_ID_USOPTL4_4        0xAC44
- #define BANDB_DEVICE_ID_USOPTL4_4P       0xBC03
--#define BANDB_DEVICE_ID_USOPTL2_4        0xAC24
+diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
+index e9779b03ee56..503836be5fe2 100644
+--- a/drivers/tty/synclink_gt.c
++++ b/drivers/tty/synclink_gt.c
+@@ -137,37 +137,14 @@ MODULE_PARM_DESC(maxframe, "Maximum frame size used by device (4096 to 65535)");
+  */
+ static struct tty_driver *serial_driver;
  
- /* This driver also supports
-  * ATEN UC2324 device using Moschip MCS7840
-@@ -207,7 +206,6 @@ static const struct usb_device_id id_tab
- 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_2P)},
- 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_4)},
- 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_4P)},
--	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL2_4)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2324)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2322)},
- 	{USB_DEVICE(USB_VENDOR_ID_MOXA, MOXA_DEVICE_ID_2210)},
+-static int  open(struct tty_struct *tty, struct file * filp);
+-static void close(struct tty_struct *tty, struct file * filp);
+-static void hangup(struct tty_struct *tty);
+-static void set_termios(struct tty_struct *tty, struct ktermios *old_termios);
+-
+-static int  write(struct tty_struct *tty, const unsigned char *buf, int count);
+-static int put_char(struct tty_struct *tty, unsigned char ch);
+-static void send_xchar(struct tty_struct *tty, char ch);
+ static void wait_until_sent(struct tty_struct *tty, int timeout);
+-static int  write_room(struct tty_struct *tty);
+-static void flush_chars(struct tty_struct *tty);
+ static void flush_buffer(struct tty_struct *tty);
+-static void tx_hold(struct tty_struct *tty);
+ static void tx_release(struct tty_struct *tty);
+ 
+-static int  ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg);
+-static int  chars_in_buffer(struct tty_struct *tty);
+-static void throttle(struct tty_struct * tty);
+-static void unthrottle(struct tty_struct * tty);
+-static int set_break(struct tty_struct *tty, int break_state);
+-
+ /*
+- * generic HDLC support and callbacks
++ * generic HDLC support
+  */
+-#if SYNCLINK_GENERIC_HDLC
+ #define dev_to_port(D) (dev_to_hdlc(D)->priv)
+-static void hdlcdev_tx_done(struct slgt_info *info);
+-static void hdlcdev_rx(struct slgt_info *info, char *buf, int size);
+-static int  hdlcdev_init(struct slgt_info *info);
+-static void hdlcdev_exit(struct slgt_info *info);
+-#endif
+ 
+ 
+ /*
+@@ -186,9 +163,6 @@ struct cond_wait {
+ 	wait_queue_entry_t wait;
+ 	unsigned int data;
+ };
+-static void init_cond_wait(struct cond_wait *w, unsigned int data);
+-static void add_cond_wait(struct cond_wait **head, struct cond_wait *w);
+-static void remove_cond_wait(struct cond_wait **head, struct cond_wait *w);
+ static void flush_cond_wait(struct cond_wait **head);
+ 
+ /*
+@@ -443,12 +417,8 @@ static void shutdown(struct slgt_info *info);
+ static void program_hw(struct slgt_info *info);
+ static void change_params(struct slgt_info *info);
+ 
+-static int  register_test(struct slgt_info *info);
+-static int  irq_test(struct slgt_info *info);
+-static int  loopback_test(struct slgt_info *info);
+ static int  adapter_test(struct slgt_info *info);
+ 
+-static void reset_adapter(struct slgt_info *info);
+ static void reset_port(struct slgt_info *info);
+ static void async_mode(struct slgt_info *info);
+ static void sync_mode(struct slgt_info *info);
+@@ -457,14 +427,12 @@ static void rx_stop(struct slgt_info *info);
+ static void rx_start(struct slgt_info *info);
+ static void reset_rbufs(struct slgt_info *info);
+ static void free_rbufs(struct slgt_info *info, unsigned int first, unsigned int last);
+-static void rdma_reset(struct slgt_info *info);
+ static bool rx_get_frame(struct slgt_info *info);
+ static bool rx_get_buf(struct slgt_info *info);
+ 
+ static void tx_start(struct slgt_info *info);
+ static void tx_stop(struct slgt_info *info);
+ static void tx_set_idle(struct slgt_info *info);
+-static unsigned int free_tbuf_count(struct slgt_info *info);
+ static unsigned int tbuf_bytes(struct slgt_info *info);
+ static void reset_tbufs(struct slgt_info *info);
+ static void tdma_reset(struct slgt_info *info);
+@@ -472,26 +440,10 @@ static bool tx_load(struct slgt_info *info, const char *buf, unsigned int count)
+ 
+ static void get_signals(struct slgt_info *info);
+ static void set_signals(struct slgt_info *info);
+-static void enable_loopback(struct slgt_info *info);
+ static void set_rate(struct slgt_info *info, u32 data_rate);
+ 
+-static int  bh_action(struct slgt_info *info);
+-static void bh_handler(struct work_struct *work);
+ static void bh_transmit(struct slgt_info *info);
+-static void isr_serial(struct slgt_info *info);
+-static void isr_rdma(struct slgt_info *info);
+ static void isr_txeom(struct slgt_info *info, unsigned short status);
+-static void isr_tdma(struct slgt_info *info);
+-
+-static int  alloc_dma_bufs(struct slgt_info *info);
+-static void free_dma_bufs(struct slgt_info *info);
+-static int  alloc_desc(struct slgt_info *info);
+-static void free_desc(struct slgt_info *info);
+-static int  alloc_bufs(struct slgt_info *info, struct slgt_desc *bufs, int count);
+-static void free_bufs(struct slgt_info *info, struct slgt_desc *bufs, int count);
+-
+-static int  alloc_tmp_rbuf(struct slgt_info *info);
+-static void free_tmp_rbuf(struct slgt_info *info);
+ 
+ static void tx_timeout(struct timer_list *t);
+ static void rx_timeout(struct timer_list *t);
+@@ -509,10 +461,6 @@ static int  tx_abort(struct slgt_info *info);
+ static int  rx_enable(struct slgt_info *info, int enable);
+ static int  modem_input_wait(struct slgt_info *info,int arg);
+ static int  wait_mgsl_event(struct slgt_info *info, int __user *mask_ptr);
+-static int  tiocmget(struct tty_struct *tty);
+-static int  tiocmset(struct tty_struct *tty,
+-				unsigned int set, unsigned int clear);
+-static int set_break(struct tty_struct *tty, int break_state);
+ static int  get_interface(struct slgt_info *info, int __user *if_mode);
+ static int  set_interface(struct slgt_info *info, int if_mode);
+ static int  set_gpio(struct slgt_info *info, struct gpio_desc __user *gpio);
+@@ -526,9 +474,6 @@ static int  set_xctrl(struct slgt_info *info, int if_mode);
+ /*
+  * driver functions
+  */
+-static void add_device(struct slgt_info *info);
+-static void device_init(int adapter_num, struct pci_dev *pdev);
+-static int  claim_resources(struct slgt_info *info);
+ static void release_resources(struct slgt_info *info);
+ 
+ /*
+-- 
+2.33.0
+
 
 
