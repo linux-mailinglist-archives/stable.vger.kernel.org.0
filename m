@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA8B7420F7D
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:34:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40C7C420B43
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:54:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237878AbhJDNfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:35:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47302 "EHLO mail.kernel.org"
+        id S233367AbhJDM4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 08:56:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237863AbhJDNdP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:33:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5694063229;
-        Mon,  4 Oct 2021 13:15:04 +0000 (UTC)
+        id S233325AbhJDM4F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:56:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75F416136F;
+        Mon,  4 Oct 2021 12:54:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353304;
-        bh=6Fx4jLoQmEwtdDz/vk3Y9llijFeQHQ06JFzmRm6Y6OE=;
+        s=korg; t=1633352056;
+        bh=X3povAYB0S8ZRP+U0tbXONKSqUu4GZmMawXHAQr5QQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BmIvYuI/AGrwturBi/7wklH1/KoDQRUMPksq+58ae8UJ667gqaKlzmGUPB/SoU14o
-         YHjuaCKR/v6VbH3YrYCgavWTXkjU2O2LC1cqhjxZsaoT4xk0+3Xy64Sb6Scj3CAYTw
-         +hBJBIXdsgqezNqadRS0m6f0wj3ix+sYT6mjhOxI=
+        b=UOpqlPNACQCD4ejnQVuQ13qplKTT2sRoYYGDSH3n3zNwcm3FL/mlHH94T6RWtSRZB
+         xLht8XracELWXn5c1//xGnbxI/s/GInCEI3B3tEFm4lNWxkyHKJMy3qTwhaMVFZC8u
+         QA2aDe2YFcJjOpbvU5lteNZOwWHy+38Yp44L9rbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Chen <yiche@redhat.com>,
-        Andrea Claudi <aclaudi@redhat.com>,
-        Julian Anastasov <ja@ssi.bg>,
-        Simon Horman <horms@verge.net.au>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 076/172] ipvs: check that ip_vs_conn_tab_bits is between 8 and 20
+Subject: [PATCH 4.4 15/41] compiler.h: Introduce absolute_pointer macro
 Date:   Mon,  4 Oct 2021 14:52:06 +0200
-Message-Id: <20211004125047.453936422@linuxfoundation.org>
+Message-Id: <20211004125027.071382825@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
+References: <20211004125026.597501645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Claudi <aclaudi@redhat.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 69e73dbfda14fbfe748d3812da1244cce2928dcb ]
+[ Upstream commit f6b5f1a56987de837f8e25cd560847106b8632a8 ]
 
-ip_vs_conn_tab_bits may be provided by the user through the
-conn_tab_bits module parameter. If this value is greater than 31, or
-less than 0, the shift operator used to derive tab_size causes undefined
-behaviour.
+absolute_pointer() disassociates a pointer from its originating symbol
+type and context. Use it to prevent compiler warnings/errors such as
 
-Fix this checking ip_vs_conn_tab_bits value to be in the range specified
-in ipvs Kconfig. If not, simply use default value.
+  drivers/net/ethernet/i825xx/82596.c: In function 'i82596_probe':
+  arch/m68k/include/asm/string.h:72:25: error:
+	'__builtin_memcpy' reading 6 bytes from a region of size 0 [-Werror=stringop-overread]
 
-Fixes: 6f7edb4881bf ("IPVS: Allow boot time change of hash size")
-Reported-by: Yi Chen <yiche@redhat.com>
-Signed-off-by: Andrea Claudi <aclaudi@redhat.com>
-Acked-by: Julian Anastasov <ja@ssi.bg>
-Acked-by: Simon Horman <horms@verge.net.au>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Such warnings may be reported by gcc 11.x for string and memory
+operations on fixed addresses.
+
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipvs/ip_vs_conn.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ include/linux/compiler.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/netfilter/ipvs/ip_vs_conn.c b/net/netfilter/ipvs/ip_vs_conn.c
-index c100c6b112c8..2c467c422dc6 100644
---- a/net/netfilter/ipvs/ip_vs_conn.c
-+++ b/net/netfilter/ipvs/ip_vs_conn.c
-@@ -1468,6 +1468,10 @@ int __init ip_vs_conn_init(void)
- 	int idx;
+diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+index 7cabe0cc8665..bc8077e5e688 100644
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -208,6 +208,8 @@ void ftrace_likely_update(struct ftrace_branch_data *f, int val, int expect);
+     (typeof(ptr)) (__ptr + (off)); })
+ #endif
  
- 	/* Compute size and mask */
-+	if (ip_vs_conn_tab_bits < 8 || ip_vs_conn_tab_bits > 20) {
-+		pr_info("conn_tab_bits not in [8, 20]. Using default value\n");
-+		ip_vs_conn_tab_bits = CONFIG_IP_VS_TAB_BITS;
-+	}
- 	ip_vs_conn_tab_size = 1 << ip_vs_conn_tab_bits;
- 	ip_vs_conn_tab_mask = ip_vs_conn_tab_size - 1;
- 
++#define absolute_pointer(val)	RELOC_HIDE((void *)(val), 0)
++
+ #ifndef OPTIMIZER_HIDE_VAR
+ #define OPTIMIZER_HIDE_VAR(var) barrier()
+ #endif
 -- 
 2.33.0
 
