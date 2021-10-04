@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C68E9420DF1
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:18:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4262E420D47
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:12:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236421AbhJDNUA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:20:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55624 "EHLO mail.kernel.org"
+        id S235038AbhJDNOB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:14:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236572AbhJDNSj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:18:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AEF0161B46;
-        Mon,  4 Oct 2021 13:07:45 +0000 (UTC)
+        id S235238AbhJDNLm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:11:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0406F61B56;
+        Mon,  4 Oct 2021 13:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352866;
-        bh=t/9gFuZK62+2+aeVhuMTdacunlbUyE/NL9u+sDaxjbw=;
+        s=korg; t=1633352663;
+        bh=y86zAI1RbSfboZD7+j8pHcbrgsxRAaITEgR4jcjDvXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=svDWHmxOhGLG3KmM6WEtsxm1e9K3UG+9bUVVpGHJ8VwtBlbgAhDNhwR/n/7WjX2bP
-         D1GKhqg7BNvgsoS/bouq99+imrUTHl+hbucnpST9er8JuQuUUKMfsdoKjnCxi3BRYM
-         1FUxsX51AOys9j4zPCQzjS6YUS2JKmOH8KuGpatw=
+        b=Uapm6jk4L8asnrUG9MNCDygeoVVGfGAoHrrKKD65U2pcgJkX9oBSTItNq2yCYGUqF
+         xMPmZeOEzdyX56/+y4PF0LElLx5bdkCZfrg0uI2Ft8YS7h4WbkByxFEKKR/y+vJ7wg
+         jtTuhV8xZd3okUBYSVFPd22z0NHRliW1Z+si7tC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Felicitas Hetzelt <felicitashetzelt@gmail.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 23/56] e100: fix length calculation in e100_get_regs_len
+Subject: [PATCH 4.19 73/95] scsi: csiostor: Add module softdep on cxgb4
 Date:   Mon,  4 Oct 2021 14:52:43 +0200
-Message-Id: <20211004125030.728177186@linuxfoundation.org>
+Message-Id: <20211004125035.960917794@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
-References: <20211004125030.002116402@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Keller <jacob.e.keller@intel.com>
+From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 
-[ Upstream commit 4329c8dc110b25d5f04ed20c6821bb60deff279f ]
+[ Upstream commit 79a7482249a7353bc86aff8127954d5febf02472 ]
 
-commit abf9b902059f ("e100: cleanup unneeded math") tried to simplify
-e100_get_regs_len and remove a double 'divide and then multiply'
-calculation that the e100_reg_regs_len function did.
+Both cxgb4 and csiostor drivers run on their own independent Physical
+Function. But when cxgb4 and csiostor are both being loaded in parallel via
+modprobe, there is a race when firmware upgrade is attempted by both the
+drivers.
 
-This change broke the size calculation entirely as it failed to account
-for the fact that the numbered registers are actually 4 bytes wide and
-not 1 byte. This resulted in a significant under allocation of the
-register buffer used by e100_get_regs.
+When the cxgb4 driver initiates the firmware upgrade, it halts the firmware
+and the chip until upgrade is complete. When the csiostor driver is coming
+up in parallel, the firmware mailbox communication fails with timeouts and
+the csiostor driver probe fails.
 
-Fix this by properly multiplying the register count by u32 first before
-adding the size of the dump buffer.
+Add a module soft dependency on cxgb4 driver to ensure loading csiostor
+triggers cxgb4 to load first when available to avoid the firmware upgrade
+race.
 
-Fixes: abf9b902059f ("e100: cleanup unneeded math")
-Reported-by: Felicitas Hetzelt <felicitashetzelt@gmail.com>
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/1632759248-15382-1-git-send-email-rahul.lakkireddy@chelsio.com
+Fixes: a3667aaed569 ("[SCSI] csiostor: Chelsio FCoE offload driver")
+Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e100.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/scsi/csiostor/csio_init.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
-index 911b3d2a94e1..ea0f97d76964 100644
---- a/drivers/net/ethernet/intel/e100.c
-+++ b/drivers/net/ethernet/intel/e100.c
-@@ -2439,7 +2439,11 @@ static void e100_get_drvinfo(struct net_device *netdev,
- static int e100_get_regs_len(struct net_device *netdev)
- {
- 	struct nic *nic = netdev_priv(netdev);
--	return 1 + E100_PHY_REGS + sizeof(nic->mem->dump_buf);
-+
-+	/* We know the number of registers, and the size of the dump buffer.
-+	 * Calculate the total size in bytes.
-+	 */
-+	return (1 + E100_PHY_REGS) * sizeof(u32) + sizeof(nic->mem->dump_buf);
- }
- 
- static void e100_get_regs(struct net_device *netdev,
+diff --git a/drivers/scsi/csiostor/csio_init.c b/drivers/scsi/csiostor/csio_init.c
+index 1793981337dd..b59bcd2553d1 100644
+--- a/drivers/scsi/csiostor/csio_init.c
++++ b/drivers/scsi/csiostor/csio_init.c
+@@ -1263,3 +1263,4 @@ MODULE_DEVICE_TABLE(pci, csio_pci_tbl);
+ MODULE_VERSION(CSIO_DRV_VERSION);
+ MODULE_FIRMWARE(FW_FNAME_T5);
+ MODULE_FIRMWARE(FW_FNAME_T6);
++MODULE_SOFTDEP("pre: cxgb4");
 -- 
 2.33.0
 
