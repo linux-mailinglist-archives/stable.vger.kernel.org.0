@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1CB342102F
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:40:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6735A420E83
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:23:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237847AbhJDNl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:41:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51040 "EHLO mail.kernel.org"
+        id S236984AbhJDNZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:25:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237898AbhJDNjr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:39:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 769386324F;
-        Mon,  4 Oct 2021 13:18:08 +0000 (UTC)
+        id S237035AbhJDNXt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:23:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C6C662F90;
+        Mon,  4 Oct 2021 13:10:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353489;
-        bh=NqnKqcJrD8CIMdyshFs5P7HueF5CcLL6BZXUu7We/qE=;
+        s=korg; t=1633353032;
+        bh=tE+ZNtAM287sbHbJHJVb9sslrkZ9UnTiPPEYOlWSGF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2KHR56LUY2o2IKeUAEzSDFltbs4y/AKAd5tG8jXvPSs0xWGi/wyqUUgXRwJymKJXe
-         wy1I/m781I7AtjzaZOpmvdNqSs8OH3JnsDExsGYZAeU47Y/ll3BzFLIVANs0wYFXce
-         VOrhuJTxXf09Vmd2+g3mQ7+bCQzcCpdykNikdJlE=
+        b=BMN8xSfpfYjcKTqXKMqwPjap5xhPHUwhPWuyGrQqzdisLSZnkRVFMl94f5i/RhXrw
+         tsKnTZH2WxIbO53AI7PfvrlkqJe8HuyChFX5tdAvm8bSGhiZoTslzc6TZ1JPTCviIO
+         kr3wsiCBiXaIbqVbM0zmup50Rwfs/GEZx0iVZFVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 131/172] net: hns3: disable firmware compatible features when uninstall PF
+Subject: [PATCH 5.10 63/93] net: phy: bcm7xxx: Fixed indirect MMD operations
 Date:   Mon,  4 Oct 2021 14:53:01 +0200
-Message-Id: <20211004125049.193594128@linuxfoundation.org>
+Message-Id: <20211004125036.643561601@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +40,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangbin Huang <huangguangbin2@huawei.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 0178839ccca36dee238a57e7f4c3c252f5dbbba6 ]
+[ Upstream commit d88fd1b546ff19c8040cfaea76bf16aed1c5a0bb ]
 
-Currently, the firmware compatible features are enabled in PF driver
-initialization process, but they are not disabled in PF driver
-deinitialization process and firmware keeps these features in enabled
-status.
+When EEE support was added to the 28nm EPHY it was assumed that it would
+be able to support the standard clause 45 over clause 22 register access
+method. It turns out that the PHY does not support that, which is the
+very reason for using the indirect shadow mode 2 bank 3 access method.
 
-In this case, if load an old PF driver (for example, in VM) which not
-support the firmware compatible features, firmware will still send mailbox
-message to PF when link status changed and PF will print
-"un-supported mailbox message, code = 201".
+Implement {read,write}_mmd to allow the standard PHY library routines
+pertaining to EEE querying and configuration to work correctly on these
+PHYs. This forces us to implement a __phy_set_clr_bits() function that
+does not grab the MDIO bus lock since the PHY driver's {read,write}_mmd
+functions are always called with that lock held.
 
-To fix this problem, disable these firmware compatible features in PF
-driver deinitialization process.
-
-Fixes: ed8fb4b262ae ("net: hns3: add link change event report")
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Fixes: 83ee102a6998 ("net: phy: bcm7xxx: add support for 28nm EPHY")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../hisilicon/hns3/hns3pf/hclge_cmd.c         | 21 ++++++++++++-------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ drivers/net/phy/bcm7xxx.c | 114 ++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 110 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
-index eb748aa35952..0f0bf3d503bf 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
-@@ -472,7 +472,7 @@ int hclge_cmd_queue_init(struct hclge_dev *hdev)
- 	return ret;
+diff --git a/drivers/net/phy/bcm7xxx.c b/drivers/net/phy/bcm7xxx.c
+index 15812001b3ff..115044e21c74 100644
+--- a/drivers/net/phy/bcm7xxx.c
++++ b/drivers/net/phy/bcm7xxx.c
+@@ -27,7 +27,12 @@
+ #define MII_BCM7XXX_SHD_2_ADDR_CTRL	0xe
+ #define MII_BCM7XXX_SHD_2_CTRL_STAT	0xf
+ #define MII_BCM7XXX_SHD_2_BIAS_TRIM	0x1a
++#define MII_BCM7XXX_SHD_3_PCS_CTRL	0x0
++#define MII_BCM7XXX_SHD_3_PCS_STATUS	0x1
++#define MII_BCM7XXX_SHD_3_EEE_CAP	0x2
+ #define MII_BCM7XXX_SHD_3_AN_EEE_ADV	0x3
++#define MII_BCM7XXX_SHD_3_EEE_LP	0x4
++#define MII_BCM7XXX_SHD_3_EEE_WK_ERR	0x5
+ #define MII_BCM7XXX_SHD_3_PCS_CTRL_2	0x6
+ #define  MII_BCM7XXX_PCS_CTRL_2_DEF	0x4400
+ #define MII_BCM7XXX_SHD_3_AN_STAT	0xb
+@@ -216,25 +221,37 @@ static int bcm7xxx_28nm_resume(struct phy_device *phydev)
+ 	return genphy_config_aneg(phydev);
  }
  
--static int hclge_firmware_compat_config(struct hclge_dev *hdev)
-+static int hclge_firmware_compat_config(struct hclge_dev *hdev, bool en)
+-static int phy_set_clr_bits(struct phy_device *dev, int location,
+-					int set_mask, int clr_mask)
++static int __phy_set_clr_bits(struct phy_device *dev, int location,
++			      int set_mask, int clr_mask)
  {
- 	struct hclge_firmware_compat_cmd *req;
- 	struct hclge_desc desc;
-@@ -480,13 +480,16 @@ static int hclge_firmware_compat_config(struct hclge_dev *hdev)
+ 	int v, ret;
  
- 	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_IMP_COMPAT_CFG, false);
+-	v = phy_read(dev, location);
++	v = __phy_read(dev, location);
+ 	if (v < 0)
+ 		return v;
  
--	req = (struct hclge_firmware_compat_cmd *)desc.data;
-+	if (en) {
-+		req = (struct hclge_firmware_compat_cmd *)desc.data;
+ 	v &= ~clr_mask;
+ 	v |= set_mask;
  
--	hnae3_set_bit(compat, HCLGE_LINK_EVENT_REPORT_EN_B, 1);
--	hnae3_set_bit(compat, HCLGE_NCSI_ERROR_REPORT_EN_B, 1);
--	if (hnae3_dev_phy_imp_supported(hdev))
--		hnae3_set_bit(compat, HCLGE_PHY_IMP_EN_B, 1);
--	req->compat = cpu_to_le32(compat);
-+		hnae3_set_bit(compat, HCLGE_LINK_EVENT_REPORT_EN_B, 1);
-+		hnae3_set_bit(compat, HCLGE_NCSI_ERROR_REPORT_EN_B, 1);
-+		if (hnae3_dev_phy_imp_supported(hdev))
-+			hnae3_set_bit(compat, HCLGE_PHY_IMP_EN_B, 1);
+-	ret = phy_write(dev, location, v);
++	ret = __phy_write(dev, location, v);
+ 	if (ret < 0)
+ 		return ret;
+ 
+ 	return v;
+ }
+ 
++static int phy_set_clr_bits(struct phy_device *dev, int location,
++			    int set_mask, int clr_mask)
++{
++	int ret;
 +
-+		req->compat = cpu_to_le32(compat);
++	mutex_lock(&dev->mdio.bus->mdio_lock);
++	ret = __phy_set_clr_bits(dev, location, set_mask, clr_mask);
++	mutex_unlock(&dev->mdio.bus->mdio_lock);
++
++	return ret;
++}
++
+ static int bcm7xxx_28nm_ephy_01_afe_config_init(struct phy_device *phydev)
+ {
+ 	int ret;
+@@ -398,6 +415,93 @@ static int bcm7xxx_28nm_ephy_config_init(struct phy_device *phydev)
+ 	return bcm7xxx_28nm_ephy_apd_enable(phydev);
+ }
+ 
++#define MII_BCM7XXX_REG_INVALID	0xff
++
++static u8 bcm7xxx_28nm_ephy_regnum_to_shd(u16 regnum)
++{
++	switch (regnum) {
++	case MDIO_CTRL1:
++		return MII_BCM7XXX_SHD_3_PCS_CTRL;
++	case MDIO_STAT1:
++		return MII_BCM7XXX_SHD_3_PCS_STATUS;
++	case MDIO_PCS_EEE_ABLE:
++		return MII_BCM7XXX_SHD_3_EEE_CAP;
++	case MDIO_AN_EEE_ADV:
++		return MII_BCM7XXX_SHD_3_AN_EEE_ADV;
++	case MDIO_AN_EEE_LPABLE:
++		return MII_BCM7XXX_SHD_3_EEE_LP;
++	case MDIO_PCS_EEE_WK_ERR:
++		return MII_BCM7XXX_SHD_3_EEE_WK_ERR;
++	default:
++		return MII_BCM7XXX_REG_INVALID;
 +	}
- 
- 	return hclge_cmd_send(&hdev->hw, &desc, 1);
- }
-@@ -543,7 +546,7 @@ int hclge_cmd_init(struct hclge_dev *hdev)
- 	/* ask the firmware to enable some features, driver can work without
- 	 * it.
- 	 */
--	ret = hclge_firmware_compat_config(hdev);
-+	ret = hclge_firmware_compat_config(hdev, true);
- 	if (ret)
- 		dev_warn(&hdev->pdev->dev,
- 			 "Firmware compatible features not enabled(%d).\n",
-@@ -573,6 +576,8 @@ static void hclge_cmd_uninit_regs(struct hclge_hw *hw)
- 
- void hclge_cmd_uninit(struct hclge_dev *hdev)
- {
-+	hclge_firmware_compat_config(hdev, false);
++}
 +
- 	set_bit(HCLGE_STATE_CMD_DISABLE, &hdev->state);
- 	/* wait to ensure that the firmware completes the possible left
- 	 * over commands.
++static bool bcm7xxx_28nm_ephy_dev_valid(int devnum)
++{
++	return devnum == MDIO_MMD_AN || devnum == MDIO_MMD_PCS;
++}
++
++static int bcm7xxx_28nm_ephy_read_mmd(struct phy_device *phydev,
++				      int devnum, u16 regnum)
++{
++	u8 shd = bcm7xxx_28nm_ephy_regnum_to_shd(regnum);
++	int ret;
++
++	if (!bcm7xxx_28nm_ephy_dev_valid(devnum) ||
++	    shd == MII_BCM7XXX_REG_INVALID)
++		return -EOPNOTSUPP;
++
++	/* set shadow mode 2 */
++	ret = __phy_set_clr_bits(phydev, MII_BCM7XXX_TEST,
++				 MII_BCM7XXX_SHD_MODE_2, 0);
++	if (ret < 0)
++		return ret;
++
++	/* Access the desired shadow register address */
++	ret = __phy_write(phydev, MII_BCM7XXX_SHD_2_ADDR_CTRL, shd);
++	if (ret < 0)
++		goto reset_shadow_mode;
++
++	ret = __phy_read(phydev, MII_BCM7XXX_SHD_2_CTRL_STAT);
++
++reset_shadow_mode:
++	/* reset shadow mode 2 */
++	__phy_set_clr_bits(phydev, MII_BCM7XXX_TEST, 0,
++			   MII_BCM7XXX_SHD_MODE_2);
++	return ret;
++}
++
++static int bcm7xxx_28nm_ephy_write_mmd(struct phy_device *phydev,
++				       int devnum, u16 regnum, u16 val)
++{
++	u8 shd = bcm7xxx_28nm_ephy_regnum_to_shd(regnum);
++	int ret;
++
++	if (!bcm7xxx_28nm_ephy_dev_valid(devnum) ||
++	    shd == MII_BCM7XXX_REG_INVALID)
++		return -EOPNOTSUPP;
++
++	/* set shadow mode 2 */
++	ret = __phy_set_clr_bits(phydev, MII_BCM7XXX_TEST,
++				 MII_BCM7XXX_SHD_MODE_2, 0);
++	if (ret < 0)
++		return ret;
++
++	/* Access the desired shadow register address */
++	ret = __phy_write(phydev, MII_BCM7XXX_SHD_2_ADDR_CTRL, shd);
++	if (ret < 0)
++		goto reset_shadow_mode;
++
++	/* Write the desired value in the shadow register */
++	__phy_write(phydev, MII_BCM7XXX_SHD_2_CTRL_STAT, val);
++
++reset_shadow_mode:
++	/* reset shadow mode 2 */
++	return __phy_set_clr_bits(phydev, MII_BCM7XXX_TEST, 0,
++				  MII_BCM7XXX_SHD_MODE_2);
++}
++
+ static int bcm7xxx_28nm_ephy_resume(struct phy_device *phydev)
+ {
+ 	int ret;
+@@ -595,6 +699,8 @@ static void bcm7xxx_28nm_remove(struct phy_device *phydev)
+ 	.get_stats	= bcm7xxx_28nm_get_phy_stats,			\
+ 	.probe		= bcm7xxx_28nm_probe,				\
+ 	.remove		= bcm7xxx_28nm_remove,				\
++	.read_mmd	= bcm7xxx_28nm_ephy_read_mmd,			\
++	.write_mmd	= bcm7xxx_28nm_ephy_write_mmd,			\
+ }
+ 
+ #define BCM7XXX_40NM_EPHY(_oui, _name)					\
 -- 
 2.33.0
 
