@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6735A420E83
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:23:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B94C6420DD9
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:17:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236984AbhJDNZf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:25:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38168 "EHLO mail.kernel.org"
+        id S236250AbhJDNTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:19:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237035AbhJDNXt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:23:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C6C662F90;
-        Mon,  4 Oct 2021 13:10:31 +0000 (UTC)
+        id S236028AbhJDNRe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:17:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2952B61381;
+        Mon,  4 Oct 2021 13:07:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353032;
-        bh=tE+ZNtAM287sbHbJHJVb9sslrkZ9UnTiPPEYOlWSGF8=;
+        s=korg; t=1633352829;
+        bh=NfBgPbexfQYmmmEUqC27Aahnb4SkmWuTmGADyoFnBRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BMN8xSfpfYjcKTqXKMqwPjap5xhPHUwhPWuyGrQqzdisLSZnkRVFMl94f5i/RhXrw
-         tsKnTZH2WxIbO53AI7PfvrlkqJe8HuyChFX5tdAvm8bSGhiZoTslzc6TZ1JPTCviIO
-         kr3wsiCBiXaIbqVbM0zmup50Rwfs/GEZx0iVZFVA=
+        b=1oqXe4GmoHdpwPMtg8RgortmyUgNQtHMusKmyKoBM4qXuLD+RoUxE3CEsjrqAW0Hs
+         z7KMmPfWgZSShaP+GjuqV4Pg0cxqgqSTB4m8dkp8FS2ofh4ZF+hf63EcH9cC4mHPxA
+         iqXLrfb6Pd6G25jPq737MRj8zyE3mKgF2Z5rXaHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 63/93] net: phy: bcm7xxx: Fixed indirect MMD operations
+        stable@vger.kernel.org, Ritesh Harjani <riteshh@linux.ibm.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 5.4 41/56] ext4: fix loff_t overflow in ext4_max_bitmap_size()
 Date:   Mon,  4 Oct 2021 14:53:01 +0200
-Message-Id: <20211004125036.643561601@linuxfoundation.org>
+Message-Id: <20211004125031.289331928@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
+References: <20211004125030.002116402@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,193 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Ritesh Harjani <riteshh@linux.ibm.com>
 
-[ Upstream commit d88fd1b546ff19c8040cfaea76bf16aed1c5a0bb ]
+commit 75ca6ad408f459f00b09a64f04c774559848c097 upstream.
 
-When EEE support was added to the 28nm EPHY it was assumed that it would
-be able to support the standard clause 45 over clause 22 register access
-method. It turns out that the PHY does not support that, which is the
-very reason for using the indirect shadow mode 2 bank 3 access method.
+We should use unsigned long long rather than loff_t to avoid
+overflow in ext4_max_bitmap_size() for comparison before returning.
+w/o this patch sbi->s_bitmap_maxbytes was becoming a negative
+value due to overflow of upper_limit (with has_huge_files as true)
 
-Implement {read,write}_mmd to allow the standard PHY library routines
-pertaining to EEE querying and configuration to work correctly on these
-PHYs. This forces us to implement a __phy_set_clr_bits() function that
-does not grab the MDIO bus lock since the PHY driver's {read,write}_mmd
-functions are always called with that lock held.
+Below is a quick test to trigger it on a 64KB pagesize system.
 
-Fixes: 83ee102a6998 ("net: phy: bcm7xxx: add support for 28nm EPHY")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+sudo mkfs.ext4 -b 65536 -O ^has_extents,^64bit /dev/loop2
+sudo mount /dev/loop2 /mnt
+sudo echo "hello" > /mnt/hello 	-> This will error out with
+				"echo: write error: File too large"
+
+Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Link: https://lore.kernel.org/r/594f409e2c543e90fd836b78188dfa5c575065ba.1622867594.git.riteshh@linux.ibm.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/bcm7xxx.c | 114 ++++++++++++++++++++++++++++++++++++--
- 1 file changed, 110 insertions(+), 4 deletions(-)
+ fs/ext4/super.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/phy/bcm7xxx.c b/drivers/net/phy/bcm7xxx.c
-index 15812001b3ff..115044e21c74 100644
---- a/drivers/net/phy/bcm7xxx.c
-+++ b/drivers/net/phy/bcm7xxx.c
-@@ -27,7 +27,12 @@
- #define MII_BCM7XXX_SHD_2_ADDR_CTRL	0xe
- #define MII_BCM7XXX_SHD_2_CTRL_STAT	0xf
- #define MII_BCM7XXX_SHD_2_BIAS_TRIM	0x1a
-+#define MII_BCM7XXX_SHD_3_PCS_CTRL	0x0
-+#define MII_BCM7XXX_SHD_3_PCS_STATUS	0x1
-+#define MII_BCM7XXX_SHD_3_EEE_CAP	0x2
- #define MII_BCM7XXX_SHD_3_AN_EEE_ADV	0x3
-+#define MII_BCM7XXX_SHD_3_EEE_LP	0x4
-+#define MII_BCM7XXX_SHD_3_EEE_WK_ERR	0x5
- #define MII_BCM7XXX_SHD_3_PCS_CTRL_2	0x6
- #define  MII_BCM7XXX_PCS_CTRL_2_DEF	0x4400
- #define MII_BCM7XXX_SHD_3_AN_STAT	0xb
-@@ -216,25 +221,37 @@ static int bcm7xxx_28nm_resume(struct phy_device *phydev)
- 	return genphy_config_aneg(phydev);
- }
- 
--static int phy_set_clr_bits(struct phy_device *dev, int location,
--					int set_mask, int clr_mask)
-+static int __phy_set_clr_bits(struct phy_device *dev, int location,
-+			      int set_mask, int clr_mask)
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -2830,17 +2830,17 @@ static loff_t ext4_max_size(int blkbits,
+  */
+ static loff_t ext4_max_bitmap_size(int bits, int has_huge_files)
  {
- 	int v, ret;
+-	loff_t res = EXT4_NDIR_BLOCKS;
++	unsigned long long upper_limit, res = EXT4_NDIR_BLOCKS;
+ 	int meta_blocks;
+-	loff_t upper_limit;
+-	/* This is calculated to be the largest file size for a dense, block
++
++	/*
++	 * This is calculated to be the largest file size for a dense, block
+ 	 * mapped file such that the file's total number of 512-byte sectors,
+ 	 * including data and all indirect blocks, does not exceed (2^48 - 1).
+ 	 *
+ 	 * __u32 i_blocks_lo and _u16 i_blocks_high represent the total
+ 	 * number of 512-byte sectors of the file.
+ 	 */
+-
+ 	if (!has_huge_files) {
+ 		/*
+ 		 * !has_huge_files or implies that the inode i_block field
+@@ -2883,7 +2883,7 @@ static loff_t ext4_max_bitmap_size(int b
+ 	if (res > MAX_LFS_FILESIZE)
+ 		res = MAX_LFS_FILESIZE;
  
--	v = phy_read(dev, location);
-+	v = __phy_read(dev, location);
- 	if (v < 0)
- 		return v;
- 
- 	v &= ~clr_mask;
- 	v |= set_mask;
- 
--	ret = phy_write(dev, location, v);
-+	ret = __phy_write(dev, location, v);
- 	if (ret < 0)
- 		return ret;
- 
- 	return v;
+-	return res;
++	return (loff_t)res;
  }
  
-+static int phy_set_clr_bits(struct phy_device *dev, int location,
-+			    int set_mask, int clr_mask)
-+{
-+	int ret;
-+
-+	mutex_lock(&dev->mdio.bus->mdio_lock);
-+	ret = __phy_set_clr_bits(dev, location, set_mask, clr_mask);
-+	mutex_unlock(&dev->mdio.bus->mdio_lock);
-+
-+	return ret;
-+}
-+
- static int bcm7xxx_28nm_ephy_01_afe_config_init(struct phy_device *phydev)
- {
- 	int ret;
-@@ -398,6 +415,93 @@ static int bcm7xxx_28nm_ephy_config_init(struct phy_device *phydev)
- 	return bcm7xxx_28nm_ephy_apd_enable(phydev);
- }
- 
-+#define MII_BCM7XXX_REG_INVALID	0xff
-+
-+static u8 bcm7xxx_28nm_ephy_regnum_to_shd(u16 regnum)
-+{
-+	switch (regnum) {
-+	case MDIO_CTRL1:
-+		return MII_BCM7XXX_SHD_3_PCS_CTRL;
-+	case MDIO_STAT1:
-+		return MII_BCM7XXX_SHD_3_PCS_STATUS;
-+	case MDIO_PCS_EEE_ABLE:
-+		return MII_BCM7XXX_SHD_3_EEE_CAP;
-+	case MDIO_AN_EEE_ADV:
-+		return MII_BCM7XXX_SHD_3_AN_EEE_ADV;
-+	case MDIO_AN_EEE_LPABLE:
-+		return MII_BCM7XXX_SHD_3_EEE_LP;
-+	case MDIO_PCS_EEE_WK_ERR:
-+		return MII_BCM7XXX_SHD_3_EEE_WK_ERR;
-+	default:
-+		return MII_BCM7XXX_REG_INVALID;
-+	}
-+}
-+
-+static bool bcm7xxx_28nm_ephy_dev_valid(int devnum)
-+{
-+	return devnum == MDIO_MMD_AN || devnum == MDIO_MMD_PCS;
-+}
-+
-+static int bcm7xxx_28nm_ephy_read_mmd(struct phy_device *phydev,
-+				      int devnum, u16 regnum)
-+{
-+	u8 shd = bcm7xxx_28nm_ephy_regnum_to_shd(regnum);
-+	int ret;
-+
-+	if (!bcm7xxx_28nm_ephy_dev_valid(devnum) ||
-+	    shd == MII_BCM7XXX_REG_INVALID)
-+		return -EOPNOTSUPP;
-+
-+	/* set shadow mode 2 */
-+	ret = __phy_set_clr_bits(phydev, MII_BCM7XXX_TEST,
-+				 MII_BCM7XXX_SHD_MODE_2, 0);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Access the desired shadow register address */
-+	ret = __phy_write(phydev, MII_BCM7XXX_SHD_2_ADDR_CTRL, shd);
-+	if (ret < 0)
-+		goto reset_shadow_mode;
-+
-+	ret = __phy_read(phydev, MII_BCM7XXX_SHD_2_CTRL_STAT);
-+
-+reset_shadow_mode:
-+	/* reset shadow mode 2 */
-+	__phy_set_clr_bits(phydev, MII_BCM7XXX_TEST, 0,
-+			   MII_BCM7XXX_SHD_MODE_2);
-+	return ret;
-+}
-+
-+static int bcm7xxx_28nm_ephy_write_mmd(struct phy_device *phydev,
-+				       int devnum, u16 regnum, u16 val)
-+{
-+	u8 shd = bcm7xxx_28nm_ephy_regnum_to_shd(regnum);
-+	int ret;
-+
-+	if (!bcm7xxx_28nm_ephy_dev_valid(devnum) ||
-+	    shd == MII_BCM7XXX_REG_INVALID)
-+		return -EOPNOTSUPP;
-+
-+	/* set shadow mode 2 */
-+	ret = __phy_set_clr_bits(phydev, MII_BCM7XXX_TEST,
-+				 MII_BCM7XXX_SHD_MODE_2, 0);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Access the desired shadow register address */
-+	ret = __phy_write(phydev, MII_BCM7XXX_SHD_2_ADDR_CTRL, shd);
-+	if (ret < 0)
-+		goto reset_shadow_mode;
-+
-+	/* Write the desired value in the shadow register */
-+	__phy_write(phydev, MII_BCM7XXX_SHD_2_CTRL_STAT, val);
-+
-+reset_shadow_mode:
-+	/* reset shadow mode 2 */
-+	return __phy_set_clr_bits(phydev, MII_BCM7XXX_TEST, 0,
-+				  MII_BCM7XXX_SHD_MODE_2);
-+}
-+
- static int bcm7xxx_28nm_ephy_resume(struct phy_device *phydev)
- {
- 	int ret;
-@@ -595,6 +699,8 @@ static void bcm7xxx_28nm_remove(struct phy_device *phydev)
- 	.get_stats	= bcm7xxx_28nm_get_phy_stats,			\
- 	.probe		= bcm7xxx_28nm_probe,				\
- 	.remove		= bcm7xxx_28nm_remove,				\
-+	.read_mmd	= bcm7xxx_28nm_ephy_read_mmd,			\
-+	.write_mmd	= bcm7xxx_28nm_ephy_write_mmd,			\
- }
- 
- #define BCM7XXX_40NM_EPHY(_oui, _name)					\
--- 
-2.33.0
-
+ static ext4_fsblk_t descriptor_loc(struct super_block *sb,
 
 
