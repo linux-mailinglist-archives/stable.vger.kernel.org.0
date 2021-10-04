@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2513F420C38
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:02:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 462BF420F78
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:34:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234705AbhJDNDx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:03:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59724 "EHLO mail.kernel.org"
+        id S237295AbhJDNfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:35:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233722AbhJDNCd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:02:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE53D6139F;
-        Mon,  4 Oct 2021 12:59:12 +0000 (UTC)
+        id S237834AbhJDNdN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:33:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AEA563220;
+        Mon,  4 Oct 2021 13:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352353;
-        bh=26TA8nubAfFtNQJW6UV7BtYIqZcrh5Ub5l1uHmSyTUE=;
+        s=korg; t=1633353296;
+        bh=mwrT3A4MSX4FPKmDvIrXw0wCmLdpaT9k1vmICzOY6mE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OUWZ3byi/XAwU5hDmNffm3DN/pUkbwV6BoGl0Cr7qTuJtfNntCG4mEWFqaK3ISq9h
-         ItG2RLgHYzRHqspim8194TDxhuvpM+5Zi1WHOqvCYF3JzNxuMd1o9lLOaUA8jI+U0V
-         tjxY9m6cM2edPQDJadBVesL97xMaLo1J+fIWU9NQ=
+        b=1oyajh23fW5W/iOjlkJc7rS7PiT4Mi4tz8IOobBG+0+7yxpaqo6lKn2WMcxD4yDDY
+         oimTwcAPO8uSfVhIT7QxXzQmDGZubRc3CH6XyoNtdeEwwWFgz9NCPHLhde5u2G27zi
+         cjxwQnIsJT38BUhD9hRxHxl8HjBjtTkINawkpPfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Georgi Djakov <djakov@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/75] compiler.h: Introduce absolute_pointer macro
+Subject: [PATCH 5.14 073/172] interconnect: qcom: sdm660: Fix id of slv_cnoc_mnoc_cfg
 Date:   Mon,  4 Oct 2021 14:52:03 +0200
-Message-Id: <20211004125032.459433370@linuxfoundation.org>
+Message-Id: <20211004125047.354025989@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +41,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Shawn Guo <shawn.guo@linaro.org>
 
-[ Upstream commit f6b5f1a56987de837f8e25cd560847106b8632a8 ]
+[ Upstream commit a06c2e5c048e5e07fac9daf3073bd0b6582913c7 ]
 
-absolute_pointer() disassociates a pointer from its originating symbol
-type and context. Use it to prevent compiler warnings/errors such as
+The id of slv_cnoc_mnoc_cfg node is mistakenly coded as id of
+slv_blsp_1.  It causes the following warning on slv_blsp_1 node adding.
+Correct the id of slv_cnoc_mnoc_cfg node.
 
-  drivers/net/ethernet/i825xx/82596.c: In function 'i82596_probe':
-  arch/m68k/include/asm/string.h:72:25: error:
-	'__builtin_memcpy' reading 6 bytes from a region of size 0 [-Werror=stringop-overread]
+[    1.948180] ------------[ cut here ]------------
+[    1.954122] WARNING: CPU: 2 PID: 7 at drivers/interconnect/core.c:962 icc_node_add+0xe4/0xf8
+[    1.958994] Modules linked in:
+[    1.967399] CPU: 2 PID: 7 Comm: kworker/u16:0 Not tainted 5.14.0-rc6-next-20210818 #21
+[    1.970275] Hardware name: Xiaomi Redmi Note 7 (DT)
+[    1.978169] Workqueue: events_unbound deferred_probe_work_func
+[    1.982945] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[    1.988849] pc : icc_node_add+0xe4/0xf8
+[    1.995699] lr : qnoc_probe+0x350/0x438
+[    1.999519] sp : ffff80001008bb10
+[    2.003337] x29: ffff80001008bb10 x28: 000000000000001a x27: ffffb83ddc61ee28
+[    2.006818] x26: ffff2fe341d44080 x25: ffff2fe340f3aa80 x24: ffffb83ddc98f0e8
+[    2.013938] x23: 0000000000000024 x22: ffff2fe3408b7400 x21: 0000000000000000
+[    2.021054] x20: ffff2fe3408b7410 x19: ffff2fe341d44080 x18: 0000000000000010
+[    2.028173] x17: ffff2fe3bdd0aac0 x16: 0000000000000281 x15: ffff2fe3400f5528
+[    2.035290] x14: 000000000000013f x13: ffff2fe3400f5528 x12: 00000000ffffffea
+[    2.042410] x11: ffffb83ddc9109d0 x10: ffffb83ddc8f8990 x9 : ffffb83ddc8f89e8
+[    2.049527] x8 : 0000000000017fe8 x7 : c0000000ffffefff x6 : 0000000000000001
+[    2.056645] x5 : 0000000000057fa8 x4 : 0000000000000000 x3 : ffffb83ddc9903b0
+[    2.063764] x2 : 1a1f6fde34d45500 x1 : ffff2fe340f3a880 x0 : ffff2fe340f3a880
+[    2.070882] Call trace:
+[    2.077989]  icc_node_add+0xe4/0xf8
+[    2.080247]  qnoc_probe+0x350/0x438
+[    2.083718]  platform_probe+0x68/0xd8
+[    2.087191]  really_probe+0xb8/0x300
+[    2.091011]  __driver_probe_device+0x78/0xe0
+[    2.094659]  driver_probe_device+0x80/0x110
+[    2.098911]  __device_attach_driver+0x90/0xe0
+[    2.102818]  bus_for_each_drv+0x78/0xc8
+[    2.107331]  __device_attach+0xf0/0x150
+[    2.110977]  device_initial_probe+0x14/0x20
+[    2.114796]  bus_probe_device+0x9c/0xa8
+[    2.118963]  deferred_probe_work_func+0x88/0xc0
+[    2.122784]  process_one_work+0x1a4/0x338
+[    2.127296]  worker_thread+0x1f8/0x420
+[    2.131464]  kthread+0x150/0x160
+[    2.135107]  ret_from_fork+0x10/0x20
+[    2.138495] ---[ end trace 5eea8768cb620e87 ]---
 
-Such warnings may be reported by gcc 11.x for string and memory
-operations on fixed addresses.
-
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: f80a1d414328 ("interconnect: qcom: Add SDM660 interconnect provider driver")
+Link: https://lore.kernel.org/r/20210823014003.31391-1-shawn.guo@linaro.org
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/compiler.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/interconnect/qcom/sdm660.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/compiler.h b/include/linux/compiler.h
-index 3b6e6522e0ec..d29b68379223 100644
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -152,6 +152,8 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
-     (typeof(ptr)) (__ptr + (off)); })
- #endif
- 
-+#define absolute_pointer(val)	RELOC_HIDE((void *)(val), 0)
-+
- #ifndef OPTIMIZER_HIDE_VAR
- #define OPTIMIZER_HIDE_VAR(var) barrier()
- #endif
+diff --git a/drivers/interconnect/qcom/sdm660.c b/drivers/interconnect/qcom/sdm660.c
+index 632dbdd21915..ac13046537e8 100644
+--- a/drivers/interconnect/qcom/sdm660.c
++++ b/drivers/interconnect/qcom/sdm660.c
+@@ -307,7 +307,7 @@ DEFINE_QNODE(slv_bimc_cfg, SDM660_SLAVE_BIMC_CFG, 4, -1, 56, true, -1, 0, -1, 0)
+ DEFINE_QNODE(slv_prng, SDM660_SLAVE_PRNG, 4, -1, 44, true, -1, 0, -1, 0);
+ DEFINE_QNODE(slv_spdm, SDM660_SLAVE_SPDM, 4, -1, 60, true, -1, 0, -1, 0);
+ DEFINE_QNODE(slv_qdss_cfg, SDM660_SLAVE_QDSS_CFG, 4, -1, 63, true, -1, 0, -1, 0);
+-DEFINE_QNODE(slv_cnoc_mnoc_cfg, SDM660_SLAVE_BLSP_1, 4, -1, 66, true, -1, 0, -1, SDM660_MASTER_CNOC_MNOC_CFG);
++DEFINE_QNODE(slv_cnoc_mnoc_cfg, SDM660_SLAVE_CNOC_MNOC_CFG, 4, -1, 66, true, -1, 0, -1, SDM660_MASTER_CNOC_MNOC_CFG);
+ DEFINE_QNODE(slv_snoc_cfg, SDM660_SLAVE_SNOC_CFG, 4, -1, 70, true, -1, 0, -1, 0);
+ DEFINE_QNODE(slv_qm_cfg, SDM660_SLAVE_QM_CFG, 4, -1, 212, true, -1, 0, -1, 0);
+ DEFINE_QNODE(slv_clk_ctl, SDM660_SLAVE_CLK_CTL, 4, -1, 47, true, -1, 0, -1, 0);
 -- 
 2.33.0
 
