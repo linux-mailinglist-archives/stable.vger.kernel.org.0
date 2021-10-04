@@ -2,95 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85ACE4209CE
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 13:15:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC113420A53
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 13:46:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232772AbhJDLRl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 07:17:41 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:49031 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232519AbhJDLRj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 07:17:39 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id ECAB95C0126;
-        Mon,  4 Oct 2021 07:15:50 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Mon, 04 Oct 2021 07:15:50 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=Ro+x3/V0XJj8yniVDrm2njrKNgN
-        X3rskcmDa6rLY6i0=; b=ft9/QkKLU2adJp/NvRxOPEejo5akgs3Ajm/8Ygai+gv
-        firDS9zqhd311OKeYKWUm3G3E1s+/siASlqbr2zrMsO4bMjTGOU3QbrAl1P1/NEk
-        bAmIRN1o/T0xk3nL4aUL2IhWO9uQ5z3uCY25coLvZte/XqkOWUcVGhy9x6gh+jBf
-        acdJw056YprZqhKDjHfv5HalGIUaV4F5hrr0ssM+bGjnJgRMxke3DfON2rmDeGJj
-        4kMEUuUvo8NTWJO45z6Vr3r+fHqmoOrCmBifmwTmxXH9Qin3W5RO6EIALJnnP1M4
-        UuJlDFF2odNT4S31DUL0o2hHhPVNQFlQKxYZu0hsTFA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Ro+x3/
-        V0XJj8yniVDrm2njrKNgNX3rskcmDa6rLY6i0=; b=Yo/Hn8UVQwsLSlMy+yP0xt
-        6kKI3SpqevWaHUcA5fDM23tIxW465kdj78c3WIgZiBpSk/UNcfMpy6hmuHQVpRTP
-        L1P3+x1pbFLoEpLUkhTPwvk12E3Old1LmwaPNmds3cIUPF5hsxNgnzDtZel8Jvvo
-        F0zqOZSlx+IFL3jALeZJdUmbVnmro8S8n5hsVGbV6Mhv5lDDu+SjAlLrqN/PQxnO
-        wrccKP09BmhseDuYDBOjHAtbu+nAQiCoAKxFh6Nih9nbF4Zj7r0Ql8/e5Yeiq8Gh
-        H3cGsedT2MhCJVZF6nTkrBmSGcVjVLQ6A30MiV1232nvGhFyt7lzV+5Kv0Cj/5VA
-        ==
-X-ME-Sender: <xms:ZuJaYZdYGABB6gm1RjXHm19dQ1tDwdtnTqLVfIyXiYZsBIFPyH3pNg>
-    <xme:ZuJaYXN-H88FeqOf39PpXVgPv9m805r2kpy0Al-D9MWf4hPDZBkBoEakqLiwDoj0x
-    I8qwmLMUwkUIw>
-X-ME-Received: <xmr:ZuJaYSiBaL8W_iq9_o4a-954kol76u6ihM4IsZxKH_YZ3e1W4uPdKt5B8xeovuDxeiEA4RY0j5OB2kL5WO2UVrzlk29oM6hS>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudelvddgfeeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:ZuJaYS9aTGnZcxf6JyCZrA2R-ixJZI8IpJ9GVhjrnCdRE3UqptaVvw>
-    <xmx:ZuJaYVtkIJDWmFIhy6DT35-XHmRzTJmGmkAb-kS5R2mef6-3tTMBiQ>
-    <xmx:ZuJaYREZv2apK8Y993XIMx4U6vECl3wbRBcAHq-DPy5oCmwNRXKKiA>
-    <xmx:ZuJaYe6Bc3U8bcz_hjFXNNtklPYAYa22-DJVZndBqHdsLnVN8ZZaPw>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 4 Oct 2021 07:15:50 -0400 (EDT)
-Date:   Mon, 4 Oct 2021 13:15:48 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Ovidiu Panait <ovidiu.panait@windriver.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 5.4 0/3] usb: hso: backport CVE-2021-37159 fix
-Message-ID: <YVriZLdyjyQ4iEDg@kroah.com>
-References: <20210928131523.2314252-1-ovidiu.panait@windriver.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210928131523.2314252-1-ovidiu.panait@windriver.com>
+        id S232707AbhJDLru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 07:47:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39416 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229778AbhJDLru (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 07:47:50 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25E48C061745;
+        Mon,  4 Oct 2021 04:46:01 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id z20so12357326edc.13;
+        Mon, 04 Oct 2021 04:46:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id;
+        bh=Ewvfb9TfoOrB3wjVZosaVIDfp3qUGnihOrSho0ZmSw8=;
+        b=UGzdLUxzYx/3rJlY199GS8BnPIVwwYWR7WtOio2DSVcI7jmy8LAE+vUJ/9Ay2OtjYh
+         LucVch9Zwko3HjRSNhXcrVjWFqfEtor4sTOjkqc6We4+kEDWt0/LWKv/DCIxwJfyb6Sn
+         ENsl9LBFY20ZJ2lCjUU47RgvE8M20Gz/r4Ne9p5MaZ0ufS266eBvFRcryiNcfiq7XWKw
+         ukgqoYiVHMSRzrse4s8xuGpdY4iRRQeDtSYPndLFDwlM7/Y8X9bjmJVgmMba3Po6m8Cs
+         GgL+tcgoKCtlzONracSYeRPK8dIZiKelgXSfXIQtoUPxU5/6XtO2StgIfjz5a6JAox72
+         kGXQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=Ewvfb9TfoOrB3wjVZosaVIDfp3qUGnihOrSho0ZmSw8=;
+        b=tx26m5khF4bV1aeAiNkCDd1byTVoSmK0QtgUlIJFw14qCGw3zLxlATVby2eKMvCRFQ
+         LdAbjRxZVSt/yTmvcVjGTNiyFvqNNWP0DHjovfhs6d6SrKvgXLEJQbEC2MR2/TsZQgtx
+         gkUU5RCWR4xlc35n+ny6uTw7obRl7UrvwVSJoeJmsZmcJWeCV1rVwREmwwAk+LRnHWfM
+         ULAsIHdp0zHlYAnJ0rZ8mZyzXRTQs69/9637/lMK9QaVw/XF37LTRx3DobWCDG863Cpy
+         IEyuBi5RaPjQR6uYINFLSQ079ah564C9Pefvxq0An4Whd6KoIhlWgE5ndT0541lAHnGU
+         n1og==
+X-Gm-Message-State: AOAM530MHqwksgvi5jzmrOGn1ijImsJG9tUU2zyTmXSPPtakfnUReuzE
+        oEZBYtZfK4groLeQe6lw1r0=
+X-Google-Smtp-Source: ABdhPJwqc/nsfxXFBK2UgZvXBUEQYE8w0KDIJe2tszoXCjURtk+kTG43VFauU+TFsnkjywjUGxQOsg==
+X-Received: by 2002:a17:907:7601:: with SMTP id jx1mr16818056ejc.69.1633347959389;
+        Mon, 04 Oct 2021 04:45:59 -0700 (PDT)
+Received: from LABNL-ITC-SW01.tmt.telital.com (static-82-85-31-68.clienti.tiscali.it. [82.85.31.68])
+        by smtp.gmail.com with ESMTPSA id z5sm7250251edm.82.2021.10.04.04.45.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Oct 2021 04:45:58 -0700 (PDT)
+From:   Daniele Palmas <dnlplm@gmail.com>
+To:     Loic Poulain <loic.poulain@linaro.org>,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sergey Ryazanov <ryazanov.s.a@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     netdev@vger.kernel.org, stable@vger.kernel.org,
+        Daniele Palmas <dnlplm@gmail.com>
+Subject: [PATCH 1/1] drivers: net: mhi: fix error path in mhi_net_newlink
+Date:   Mon,  4 Oct 2021 13:46:01 +0200
+Message-Id: <20211004114601.13870-1-dnlplm@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 28, 2021 at 04:15:20PM +0300, Ovidiu Panait wrote:
-> All 3 upstream commits apply cleanly:
->    * 5fcfb6d0bfcd ("hso: fix bailout in error case of probe") is a support
->      patch needed for context
->    * a6ecfb39ba9d ("usb: hso: fix error handling code of hso_create_net_device")
->      is the actual fix
->    * dcb713d53e2e ("usb: hso: remove the bailout parameter") is a follow up
->      cleanup commit
-> 
-> Dongliang Mu (2):
->   usb: hso: fix error handling code of hso_create_net_device
->   usb: hso: remove the bailout parameter
-> 
-> Oliver Neukum (1):
->   hso: fix bailout in error case of probe
-> 
->  drivers/net/usb/hso.c | 33 +++++++++++++++++++++++----------
->  1 file changed, 23 insertions(+), 10 deletions(-)
-> 
-> -- 
-> 2.25.1
+Fix double free_netdev when mhi_prepare_for_transfer fails.
 
-All now queued up, thanks.
+This is a back-port of upstream:
+commit 4526fe74c3c509 ("drivers: net: mhi: fix error path in mhi_net_newlink")
 
-greg k-h
+Fixes: 13adac032982 ("net: mhi_net: Register wwan_ops for link creation")
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+Hello Greg,
+
+if maintainers ack, this should go just to 5.14 branch.
+
+Thanks,
+Daniele
+---
+ drivers/net/mhi/net.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/mhi/net.c b/drivers/net/mhi/net.c
+index e60e38c1f09d..5e49f7a919b6 100644
+--- a/drivers/net/mhi/net.c
++++ b/drivers/net/mhi/net.c
+@@ -337,7 +337,7 @@ static int mhi_net_newlink(void *ctxt, struct net_device *ndev, u32 if_id,
+ 	/* Start MHI channels */
+ 	err = mhi_prepare_for_transfer(mhi_dev);
+ 	if (err)
+-		goto out_err;
++		return err;
+ 
+ 	/* Number of transfer descriptors determines size of the queue */
+ 	mhi_netdev->rx_queue_sz = mhi_get_free_desc_count(mhi_dev, DMA_FROM_DEVICE);
+@@ -347,7 +347,7 @@ static int mhi_net_newlink(void *ctxt, struct net_device *ndev, u32 if_id,
+ 	else
+ 		err = register_netdev(ndev);
+ 	if (err)
+-		goto out_err;
++		return err;
+ 
+ 	if (mhi_netdev->proto) {
+ 		err = mhi_netdev->proto->init(mhi_netdev);
+@@ -359,8 +359,6 @@ static int mhi_net_newlink(void *ctxt, struct net_device *ndev, u32 if_id,
+ 
+ out_err_proto:
+ 	unregister_netdevice(ndev);
+-out_err:
+-	free_netdev(ndev);
+ 	return err;
+ }
+ 
+-- 
+2.30.2
+
