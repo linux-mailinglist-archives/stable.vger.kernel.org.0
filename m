@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93F04420DF4
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:18:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A46F5420CAF
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:07:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236531AbhJDNUI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:20:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55644 "EHLO mail.kernel.org"
+        id S233573AbhJDNJF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:09:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236605AbhJDNSm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:18:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1432561B48;
-        Mon,  4 Oct 2021 13:07:50 +0000 (UTC)
+        id S234880AbhJDNGw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:06:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDB7661A10;
+        Mon,  4 Oct 2021 13:01:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352871;
-        bh=qJ9lhhn04jBi8L3e0Q5wmv8IRUQA0TvXcJUX+Ff7azk=;
+        s=korg; t=1633352491;
+        bh=J24wOe4xyhUCDLUreq5i644+FCLl3h8HW+498wR9LDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CPAYsBOOf0C1PLYwAicsRHsqvt4cBC03aENbeCY0Cd6iEbpMWgj7sliAVnfEXc5yc
-         unT170jLhXxkjDGmx3kvfSjVSoNNIanMML7dxVwR0XJRAEVZoQtZkrjJ10k7nrbvMr
-         gSRHS9ZVuPck0JfeZN81Eq7FLpY2q3CIRyoYMSA8=
+        b=kbtwhe8LbMO8rE6nhTz7O2EVxiltfHRAjy8/QNiERKa+MJYxe+SlGvTAeOlr5feXj
+         ojB25NRxXy/UwktQy2Nge8s+RBNHEgafk7n1qkBDAFqnJ9HbD+PiayBDULw6TiCImb
+         cBDbcgHCMD+FwV+wsm+r7sJaapT+Ulx5WFRqEeM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Benc <jbenc@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 25/56] selftests, bpf: test_lwt_ip_encap: Really disable rp_filter
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.14 70/75] usb: hso: remove the bailout parameter
 Date:   Mon,  4 Oct 2021 14:52:45 +0200
-Message-Id: <20211004125030.794608192@linuxfoundation.org>
+Message-Id: <20211004125033.888169475@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
-References: <20211004125030.002116402@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Benc <jbenc@redhat.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 79e2c306667542b8ee2d9a9d947eadc7039f0a3c ]
+commit dcb713d53e2eadf42b878c12a471e74dc6ed3145 upstream.
 
-It's not enough to set net.ipv4.conf.all.rp_filter=0, that does not override
-a greater rp_filter value on the individual interfaces. We also need to set
-net.ipv4.conf.default.rp_filter=0 before creating the interfaces. That way,
-they'll also get their own rp_filter value of zero.
+There are two invocation sites of hso_free_net_device. After
+refactoring hso_create_net_device, this parameter is useless.
+Remove the bailout in the hso_free_net_device and change the invocation
+sites of this function.
 
-Fixes: 0fde56e4385b0 ("selftests: bpf: add test_lwt_ip_encap selftest")
-Signed-off-by: Jiri Benc <jbenc@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/b1cdd9d469f09ea6e01e9c89a6071c79b7380f89.1632386362.git.jbenc@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/test_lwt_ip_encap.sh | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/net/usb/hso.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/test_lwt_ip_encap.sh b/tools/testing/selftests/bpf/test_lwt_ip_encap.sh
-index 59ea56945e6c..b497bb85b667 100755
---- a/tools/testing/selftests/bpf/test_lwt_ip_encap.sh
-+++ b/tools/testing/selftests/bpf/test_lwt_ip_encap.sh
-@@ -112,6 +112,14 @@ setup()
- 	ip netns add "${NS2}"
- 	ip netns add "${NS3}"
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -2367,7 +2367,7 @@ static int remove_net_device(struct hso_
+ }
  
-+	# rp_filter gets confused by what these tests are doing, so disable it
-+	ip netns exec ${NS1} sysctl -wq net.ipv4.conf.all.rp_filter=0
-+	ip netns exec ${NS2} sysctl -wq net.ipv4.conf.all.rp_filter=0
-+	ip netns exec ${NS3} sysctl -wq net.ipv4.conf.all.rp_filter=0
-+	ip netns exec ${NS1} sysctl -wq net.ipv4.conf.default.rp_filter=0
-+	ip netns exec ${NS2} sysctl -wq net.ipv4.conf.default.rp_filter=0
-+	ip netns exec ${NS3} sysctl -wq net.ipv4.conf.default.rp_filter=0
-+
- 	ip link add veth1 type veth peer name veth2
- 	ip link add veth3 type veth peer name veth4
- 	ip link add veth5 type veth peer name veth6
-@@ -236,11 +244,6 @@ setup()
- 	ip -netns ${NS1} -6 route add ${IPv6_GRE}/128 dev veth5 via ${IPv6_6} ${VRF}
- 	ip -netns ${NS2} -6 route add ${IPv6_GRE}/128 dev veth7 via ${IPv6_8} ${VRF}
+ /* Frees our network device */
+-static void hso_free_net_device(struct hso_device *hso_dev, bool bailout)
++static void hso_free_net_device(struct hso_device *hso_dev)
+ {
+ 	int i;
+ 	struct hso_net *hso_net = dev2net(hso_dev);
+@@ -2390,7 +2390,7 @@ static void hso_free_net_device(struct h
+ 	kfree(hso_net->mux_bulk_tx_buf);
+ 	hso_net->mux_bulk_tx_buf = NULL;
  
--	# rp_filter gets confused by what these tests are doing, so disable it
--	ip netns exec ${NS1} sysctl -wq net.ipv4.conf.all.rp_filter=0
--	ip netns exec ${NS2} sysctl -wq net.ipv4.conf.all.rp_filter=0
--	ip netns exec ${NS3} sysctl -wq net.ipv4.conf.all.rp_filter=0
--
- 	TMPFILE=$(mktemp /tmp/test_lwt_ip_encap.XXXXXX)
+-	if (hso_net->net && !bailout)
++	if (hso_net->net)
+ 		free_netdev(hso_net->net);
  
- 	sleep 1  # reduce flakiness
--- 
-2.33.0
-
+ 	kfree(hso_dev);
+@@ -3142,7 +3142,7 @@ static void hso_free_interface(struct us
+ 				rfkill_unregister(rfk);
+ 				rfkill_destroy(rfk);
+ 			}
+-			hso_free_net_device(network_table[i], false);
++			hso_free_net_device(network_table[i]);
+ 		}
+ 	}
+ }
 
 
