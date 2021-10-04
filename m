@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E6D2420B6C
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:56:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43591420BC3
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:58:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233539AbhJDM5N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 08:57:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58438 "EHLO mail.kernel.org"
+        id S233422AbhJDM7q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 08:59:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233642AbhJDM4t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:56:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 418EF613D5;
-        Mon,  4 Oct 2021 12:55:00 +0000 (UTC)
+        id S234050AbhJDM6j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:58:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 18ED0613C8;
+        Mon,  4 Oct 2021 12:56:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352100;
+        s=korg; t=1633352210;
         bh=9XXk2aRpKB6tXvQFgKMYVowWqxIjDz5YLOU2CpF/oEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UgxLsPVTagahfWGtPFZJ5wytCUXZFd0iPoFDVsTLiTWGgD/RyG+G7HOQYqaNAbVAP
-         jO+NUUqUL1cfblF5V+3XmqseN8wb31I+Vm2gF+TpPu4hrOZJmZyfLBv5ReftPUJz8z
-         lbvVNS6ZpBbnRgROzC5YLC83KFvFMvmc0Pn3htX4=
+        b=P2zeHnam7F65r7T1kOXgmsF1O45BamptETlM29J7uDFeK63lIXWZ3dB6GAuvbOPv0
+         Oz0Jlgpm0lS9kXSdhEChibUvjSChpIBfxv8STD2KXzBovhdtOdAOWv3iEMDnfzrxmv
+         pJ3T6j4GelhuVp+cdlMFoF/Ff+dUCfd4lU/5n+4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Arnd Bergmann <arnd@kernel.org>
-Subject: [PATCH 4.4 24/41] qnx4: work around gcc false positive warning bug
+Subject: [PATCH 4.9 31/57] qnx4: work around gcc false positive warning bug
 Date:   Mon,  4 Oct 2021 14:52:15 +0200
-Message-Id: <20211004125027.347679586@linuxfoundation.org>
+Message-Id: <20211004125029.917304629@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
-References: <20211004125026.597501645@linuxfoundation.org>
+In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
+References: <20211004125028.940212411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
