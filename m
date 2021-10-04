@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35D86420EF7
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:28:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14DAC420EFB
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:28:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237121AbhJDN3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:29:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42998 "EHLO mail.kernel.org"
+        id S237145AbhJDN34 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:29:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237301AbhJDN2U (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237305AbhJDN2U (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 4 Oct 2021 09:28:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4833961CF1;
-        Mon,  4 Oct 2021 13:12:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DE41630EB;
+        Mon,  4 Oct 2021 13:12:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353148;
-        bh=ACW6hK/bxBhrKoJRAmXCY1vQZLYwpA0ua52mYen6ehU=;
+        s=korg; t=1633353151;
+        bh=R7QmoX3UQsBmiAj5F9JmxpW4UeUK+tcNYPc35PrQL+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PlemMmIh65bRqw9KMQd0MYB2YFwh3pgu4UQzCJKfK+dLEqfUS0FEK6zAmiJtKZIWC
-         bYUhd46n8IEaS1BOyBKP7pIpplDi/u3O34VzBEb46/PcbuL0o8qzBPxhm68I7mm+Dh
-         4SSOt0NEKsx0ZNO879MMHyHjC9Twub3Q6sqOWndo=
+        b=cg4Jv28CcMpMbou/1LGUGrgPfGpkNIW3QqU97GJIpg4ZShFKaJe0I8BoDkKHjUmjB
+         yPFhz/j/1xbVnpBbQBzu9mXxdxiV4j1wBH4ZfoQdoXk4oWF6A8v33BHK2CZDLRs95N
+         06ve2WFAQFpZxWkqWHPybzZicbkM4+kaVVLDzDHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lama Kayal <lkayal@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Alexandra Winter <wintera@linux.ibm.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 015/172] net/mlx4_en: Resolve bad operstate value
-Date:   Mon,  4 Oct 2021 14:51:05 +0200
-Message-Id: <20211004125045.460790743@linuxfoundation.org>
+Subject: [PATCH 5.14 016/172] s390/qeth: Fix deadlock in remove_discipline
+Date:   Mon,  4 Oct 2021 14:51:06 +0200
+Message-Id: <20211004125045.492226759@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
 References: <20211004125044.945314266@linuxfoundation.org>
@@ -41,125 +41,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lama Kayal <lkayal@nvidia.com>
+From: Alexandra Winter <wintera@linux.ibm.com>
 
-[ Upstream commit 72a3c58d18fd780eecd80178bb2132ce741a0a74 ]
+[ Upstream commit ee909d0b1dac8632eeb78cbf17661d6c7674bbd0 ]
 
-Any link state change that's done prior to net device registration
-isn't reflected on the state, thus the operational state is left
-obsolete, with 'UNKNOWN' status.
+Problem: qeth_close_dev_handler is a worker that tries to acquire
+card->discipline_mutex via drv->set_offline() in ccwgroup_set_offline().
+Since commit b41b554c1ee7
+("s390/qeth: fix locking for discipline setup / removal")
+qeth_remove_discipline() is called under card->discipline_mutex and
+cancels the work and waits for it to finish.
 
-To resolve the issue, query link state from FW upon open operations
-to ensure operational state is updated.
+STOPLAN reception with reason code IPA_RC_VEPA_TO_VEB_TRANSITION is the
+only situation that schedules close_dev_work. In that situation scheduling
+qeth recovery will also result in an offline interface, when resetting the
+isolation mode fails, if the external switch is still set to VEB.
+And since commit 0b9902c1fcc5 ("s390/qeth: fix deadlock during recovery")
+qeth recovery does not aquire card->discipline_mutex anymore.
 
-Fixes: c27a02cd94d6 ("mlx4_en: Add driver for Mellanox ConnectX 10GbE NIC")
-Signed-off-by: Lama Kayal <lkayal@nvidia.com>
-Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+So we accept the longer pathlength of qeth_schedule_recovery in this
+error situation and re-use the existing function.
+
+As a side-benefit this changes the hwtrap to behave like during recovery
+instead of like during a user-triggered set_offline.
+
+Fixes: b41b554c1ee7 ("s390/qeth: fix locking for discipline setup / removal")
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Acked-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx4/en_netdev.c    | 47 ++++++++++++-------
- drivers/net/ethernet/mellanox/mlx4/mlx4_en.h  |  1 -
- 2 files changed, 29 insertions(+), 19 deletions(-)
+ drivers/s390/net/qeth_core.h      |  1 -
+ drivers/s390/net/qeth_core_main.c | 16 ++++------------
+ drivers/s390/net/qeth_l2_main.c   |  1 -
+ drivers/s390/net/qeth_l3_main.c   |  1 -
+ 4 files changed, 4 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-index 1e672bc36c4d..a6878e5f922a 100644
---- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-@@ -1272,7 +1272,6 @@ static void mlx4_en_do_set_rx_mode(struct work_struct *work)
- 	if (!netif_carrier_ok(dev)) {
- 		if (!mlx4_en_QUERY_PORT(mdev, priv->port)) {
- 			if (priv->port_state.link_state) {
--				priv->last_link_state = MLX4_DEV_EVENT_PORT_UP;
- 				netif_carrier_on(dev);
- 				en_dbg(LINK, priv, "Link Up\n");
- 			}
-@@ -1560,26 +1559,36 @@ static void mlx4_en_service_task(struct work_struct *work)
- 	mutex_unlock(&mdev->state_lock);
- }
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index f4d554ea0c93..52bdb2c8c085 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -877,7 +877,6 @@ struct qeth_card {
+ 	struct napi_struct napi;
+ 	struct qeth_rx rx;
+ 	struct delayed_work buffer_reclaim_work;
+-	struct work_struct close_dev_work;
+ };
  
--static void mlx4_en_linkstate(struct work_struct *work)
-+static void mlx4_en_linkstate(struct mlx4_en_priv *priv)
-+{
-+	struct mlx4_en_port_state *port_state = &priv->port_state;
-+	struct mlx4_en_dev *mdev = priv->mdev;
-+	struct net_device *dev = priv->dev;
-+	bool up;
-+
-+	if (mlx4_en_QUERY_PORT(mdev, priv->port))
-+		port_state->link_state = MLX4_PORT_STATE_DEV_EVENT_PORT_DOWN;
-+
-+	up = port_state->link_state == MLX4_PORT_STATE_DEV_EVENT_PORT_UP;
-+	if (up == netif_carrier_ok(dev))
-+		netif_carrier_event(dev);
-+	if (!up) {
-+		en_info(priv, "Link Down\n");
-+		netif_carrier_off(dev);
-+	} else {
-+		en_info(priv, "Link Up\n");
-+		netif_carrier_on(dev);
-+	}
-+}
-+
-+static void mlx4_en_linkstate_work(struct work_struct *work)
- {
- 	struct mlx4_en_priv *priv = container_of(work, struct mlx4_en_priv,
- 						 linkstate_task);
- 	struct mlx4_en_dev *mdev = priv->mdev;
--	int linkstate = priv->link_state;
+ static inline bool qeth_card_hw_is_reachable(struct qeth_card *card)
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 51f7f4e680c3..dba3b345218f 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -71,15 +71,6 @@ static void qeth_issue_next_read_cb(struct qeth_card *card,
+ static int qeth_qdio_establish(struct qeth_card *);
+ static void qeth_free_qdio_queues(struct qeth_card *card);
  
- 	mutex_lock(&mdev->state_lock);
--	/* If observable port state changed set carrier state and
--	 * report to system log */
--	if (priv->last_link_state != linkstate) {
--		if (linkstate == MLX4_DEV_EVENT_PORT_DOWN) {
--			en_info(priv, "Link Down\n");
--			netif_carrier_off(priv->dev);
--		} else {
--			en_info(priv, "Link Up\n");
--			netif_carrier_on(priv->dev);
--		}
--	}
--	priv->last_link_state = linkstate;
-+	mlx4_en_linkstate(priv);
- 	mutex_unlock(&mdev->state_lock);
- }
- 
-@@ -2082,9 +2091,11 @@ static int mlx4_en_open(struct net_device *dev)
- 	mlx4_en_clear_stats(dev);
- 
- 	err = mlx4_en_start_port(dev);
--	if (err)
-+	if (err) {
- 		en_err(priv, "Failed starting port:%d\n", priv->port);
+-static void qeth_close_dev_handler(struct work_struct *work)
+-{
+-	struct qeth_card *card;
 -
-+		goto out;
-+	}
-+	mlx4_en_linkstate(priv);
- out:
- 	mutex_unlock(&mdev->state_lock);
- 	return err;
-@@ -3171,7 +3182,7 @@ int mlx4_en_init_netdev(struct mlx4_en_dev *mdev, int port,
- 	spin_lock_init(&priv->stats_lock);
- 	INIT_WORK(&priv->rx_mode_task, mlx4_en_do_set_rx_mode);
- 	INIT_WORK(&priv->restart_task, mlx4_en_restart);
--	INIT_WORK(&priv->linkstate_task, mlx4_en_linkstate);
-+	INIT_WORK(&priv->linkstate_task, mlx4_en_linkstate_work);
- 	INIT_DELAYED_WORK(&priv->stats_task, mlx4_en_do_get_stats);
- 	INIT_DELAYED_WORK(&priv->service_task, mlx4_en_service_task);
- #ifdef CONFIG_RFS_ACCEL
-diff --git a/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h b/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-index f3d1a20201ef..6bf558c5ec10 100644
---- a/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-+++ b/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-@@ -552,7 +552,6 @@ struct mlx4_en_priv {
+-	card = container_of(work, struct qeth_card, close_dev_work);
+-	QETH_CARD_TEXT(card, 2, "cldevhdl");
+-	ccwgroup_set_offline(card->gdev);
+-}
+-
+ static const char *qeth_get_cardname(struct qeth_card *card)
+ {
+ 	if (IS_VM_NIC(card)) {
+@@ -797,10 +788,12 @@ static struct qeth_ipa_cmd *qeth_check_ipa_data(struct qeth_card *card,
+ 	case IPA_CMD_STOPLAN:
+ 		if (cmd->hdr.return_code == IPA_RC_VEPA_TO_VEB_TRANSITION) {
+ 			dev_err(&card->gdev->dev,
+-				"Interface %s is down because the adjacent port is no longer in reflective relay mode\n",
++				"Adjacent port of interface %s is no longer in reflective relay mode, trigger recovery\n",
+ 				netdev_name(card->dev));
+-			schedule_work(&card->close_dev_work);
++			/* Set offline, then probably fail to set online: */
++			qeth_schedule_recovery(card);
+ 		} else {
++			/* stay online for subsequent STARTLAN */
+ 			dev_warn(&card->gdev->dev,
+ 				 "The link for interface %s on CHPID 0x%X failed\n",
+ 				 netdev_name(card->dev), card->info.chpid);
+@@ -1559,7 +1552,6 @@ static void qeth_setup_card(struct qeth_card *card)
+ 	INIT_LIST_HEAD(&card->ipato.entries);
+ 	qeth_init_qdio_info(card);
+ 	INIT_DELAYED_WORK(&card->buffer_reclaim_work, qeth_buffer_reclaim_work);
+-	INIT_WORK(&card->close_dev_work, qeth_close_dev_handler);
+ 	hash_init(card->rx_mode_addrs);
+ 	hash_init(card->local_addrs4);
+ 	hash_init(card->local_addrs6);
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index d7cdd9cfe485..3dbe592ca97a 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -2218,7 +2218,6 @@ static void qeth_l2_remove_device(struct ccwgroup_device *gdev)
+ 	if (gdev->state == CCWGROUP_ONLINE)
+ 		qeth_set_offline(card, card->discipline, false);
  
- 	struct mlx4_hwq_resources res;
- 	int link_state;
--	int last_link_state;
- 	bool port_up;
- 	int port;
- 	int registered;
+-	cancel_work_sync(&card->close_dev_work);
+ 	if (card->dev->reg_state == NETREG_REGISTERED)
+ 		unregister_netdev(card->dev);
+ }
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index f0d6f205c53c..5ba38499e3e2 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1965,7 +1965,6 @@ static void qeth_l3_remove_device(struct ccwgroup_device *cgdev)
+ 	if (cgdev->state == CCWGROUP_ONLINE)
+ 		qeth_set_offline(card, card->discipline, false);
+ 
+-	cancel_work_sync(&card->close_dev_work);
+ 	if (card->dev->reg_state == NETREG_REGISTERED)
+ 		unregister_netdev(card->dev);
+ 
 -- 
 2.33.0
 
