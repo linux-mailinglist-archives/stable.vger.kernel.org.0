@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60097420F49
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:31:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3B23420CB1
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:07:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235974AbhJDNdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:33:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47096 "EHLO mail.kernel.org"
+        id S234908AbhJDNJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:09:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236934AbhJDNbZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:31:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8123561B95;
-        Mon,  4 Oct 2021 13:14:03 +0000 (UTC)
+        id S234940AbhJDNH1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:07:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE4A46121F;
+        Mon,  4 Oct 2021 13:01:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353244;
-        bh=q2trGVriMZMUOyZfsxMWXmpaTylBwQZuAL0w1q7+hck=;
+        s=korg; t=1633352499;
+        bh=UOtbJN11IgaL8n5jQqF4YIQpqohAKu2mHELdkAGvZUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a5R1ttSSUJAr2VH9x/p+ee4yAoa670kqVOwfF//kY9lBSO241a5XW76lGWklM3s6O
-         BlJ53TWdO/oNSPqM1aok3GCu4OtBQeDjbjN+M9vzJmvNLqjbhR/9DdCsNymwCrPxNm
-         cR9nOdP2ZvJLWjSbRZoO7DYxKwG9SFnHC9IvIbEY=
+        b=QUKdJNlqywOof5d9JVajKnY9vmBXFu7sI2T5E1yK8gXBha0oDVS/uU1rQgrnTsSVE
+         DgTQ/kNPlCqbBTyTbOO/9dtOWzyPLMQyfIAljGS20HxIyifqws2D6m3tl1K1ll42kr
+         mhg99F8Rjnq2LRkuvdMBCSEGg3Llnz5q6snp1NK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.14 051/172] KVM: x86: nSVM: dont copy virt_ext from vmcb12
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Julian Sikorski <belegdol+github@gmail.com>
+Subject: [PATCH 4.19 11/95] Re-enable UAS for LaCie Rugged USB3-FW with fk quirk
 Date:   Mon,  4 Oct 2021 14:51:41 +0200
-Message-Id: <20211004125046.643320569@linuxfoundation.org>
+Message-Id: <20211004125033.938404116@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Julian Sikorski <belegdol@gmail.com>
 
-commit faf6b755629627f19feafa75b32e81cd7738f12d upstream.
+commit ce1c42b4dacfe7d71c852d8bf3371067ccba865c upstream.
 
-These field correspond to features that we don't expose yet to L2
+Further testing has revealed that LaCie Rugged USB3-FW does work with
+uas as long as US_FL_NO_REPORT_OPCODES and US_FL_NO_SAME are enabled.
 
-While currently there are no CVE worthy features in this field,
-if AMD adds more features to this field, that could allow guest
-escapes similar to CVE-2021-3653 and CVE-2021-3656.
-
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20210914154825.104886-6-mlevitsk@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lore.kernel.org/linux-usb/2167ea48-e273-a336-a4e0-10a4e883e75e@redhat.com/
+Cc: stable <stable@vger.kernel.org>
+Suggested-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Julian Sikorski <belegdol+github@gmail.com>
+Link: https://lore.kernel.org/r/20210913181454.7365-1-belegdol+github@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/nested.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/usb/storage/unusual_uas.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/svm/nested.c
-+++ b/arch/x86/kvm/svm/nested.c
-@@ -545,7 +545,6 @@ static void nested_vmcb02_prepare_contro
- 		(svm->nested.ctl.int_ctl & int_ctl_vmcb12_bits) |
- 		(svm->vmcb01.ptr->control.int_ctl & int_ctl_vmcb01_bits);
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -50,7 +50,7 @@ UNUSUAL_DEV(0x059f, 0x1061, 0x0000, 0x99
+ 		"LaCie",
+ 		"Rugged USB3-FW",
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+-		US_FL_IGNORE_UAS),
++		US_FL_NO_REPORT_OPCODES | US_FL_NO_SAME),
  
--	svm->vmcb->control.virt_ext            = svm->nested.ctl.virt_ext;
- 	svm->vmcb->control.int_vector          = svm->nested.ctl.int_vector;
- 	svm->vmcb->control.int_state           = svm->nested.ctl.int_state;
- 	svm->vmcb->control.event_inj           = svm->nested.ctl.event_inj;
+ /*
+  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
 
 
