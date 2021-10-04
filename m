@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CA3E420F72
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:34:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8324C420E28
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:20:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236945AbhJDNe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:34:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47126 "EHLO mail.kernel.org"
+        id S236481AbhJDNWI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:22:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237701AbhJDNdI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:33:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C217263223;
-        Mon,  4 Oct 2021 13:14:53 +0000 (UTC)
+        id S236311AbhJDNUH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:20:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A9C5961BB6;
+        Mon,  4 Oct 2021 13:08:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353294;
-        bh=vI/ThSmCYCnrsLHSHczvncB2LQJS+cvNs/OvwovcF64=;
+        s=korg; t=1633352921;
+        bh=ZTne2VZLofEonIy43J/+zmPzCS+nJjaStaqiKJNj2kM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BTVFE4kNHx7VKmoyUMHqbQGCODYxHXaW3CYRN0IuPK92waN/MeNi3G/FywUqZewtY
-         uRCtNt2AQKFa55xkz90uzG/TKSgT0SH/hU/i9gdVKJZtnHk3Fd1ctwkdc6f72QUjTk
-         5kFwNN6h8Ui/+HZlgzdfjRNCStd8BzlMHSTkJRx0=
+        b=Q0Ra1Ma7RmIVe22YSoQH1QUXn3QBDi865jSxKsJkQz9BiUEaGwdYocJhUiYSmmOFQ
+         tNhrklyVEKH1APRYdXSLWgYzjBstIjoD11I/5gnsCy2F7t0iIRuxK0OKHTdDGNVmL9
+         kuyg+y9wXeERXjiV2iXcUOUT48S+/96gRbo8IajU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hawking Zhang <Hawking.Zhang@amd.com>,
-        Le Ma <Le.Ma@amd.com>, Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.14 072/172] drm/amdgpu: correct initial cp_hqd_quantum for gfx9
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 04/93] cpufreq: schedutil: Destroy mutex before kobject_put() frees the memory
 Date:   Mon,  4 Oct 2021 14:52:02 +0200
-Message-Id: <20211004125047.321124595@linuxfoundation.org>
+Message-Id: <20211004125034.727523227@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,32 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawking Zhang <Hawking.Zhang@amd.com>
+From: James Morse <james.morse@arm.com>
 
-commit 9f52c25f59b504a29dda42d83ac1e24d2af535d4 upstream.
+[ Upstream commit cdef1196608892b9a46caa5f2b64095a7f0be60c ]
 
-didn't read the value of mmCP_HQD_QUANTUM from correct
-register offset
+Since commit e5c6b312ce3c ("cpufreq: schedutil: Use kobject release()
+method to free sugov_tunables") kobject_put() has kfree()d the
+attr_set before gov_attr_set_put() returns.
 
-Signed-off-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Reviewed-by: Le Ma <Le.Ma@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+kobject_put() isn't the last user of attr_set in gov_attr_set_put(),
+the subsequent mutex_destroy() triggers a use-after-free:
+| BUG: KASAN: use-after-free in mutex_is_locked+0x20/0x60
+| Read of size 8 at addr ffff000800ca4250 by task cpuhp/2/20
+|
+| CPU: 2 PID: 20 Comm: cpuhp/2 Not tainted 5.15.0-rc1 #12369
+| Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno Development
+| Platform, BIOS EDK II Jul 30 2018
+| Call trace:
+|  dump_backtrace+0x0/0x380
+|  show_stack+0x1c/0x30
+|  dump_stack_lvl+0x8c/0xb8
+|  print_address_description.constprop.0+0x74/0x2b8
+|  kasan_report+0x1f4/0x210
+|  kasan_check_range+0xfc/0x1a4
+|  __kasan_check_read+0x38/0x60
+|  mutex_is_locked+0x20/0x60
+|  mutex_destroy+0x80/0x100
+|  gov_attr_set_put+0xfc/0x150
+|  sugov_exit+0x78/0x190
+|  cpufreq_offline.isra.0+0x2c0/0x660
+|  cpuhp_cpufreq_offline+0x14/0x24
+|  cpuhp_invoke_callback+0x430/0x6d0
+|  cpuhp_thread_fun+0x1b0/0x624
+|  smpboot_thread_fn+0x5e0/0xa6c
+|  kthread+0x3a0/0x450
+|  ret_from_fork+0x10/0x20
+
+Swap the order of the calls.
+
+Fixes: e5c6b312ce3c ("cpufreq: schedutil: Use kobject release() method to free sugov_tunables")
+Cc: 4.7+ <stable@vger.kernel.org> # 4.7+
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c |    2 +-
+ drivers/cpufreq/cpufreq_governor_attr_set.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-@@ -3598,7 +3598,7 @@ static int gfx_v9_0_mqd_init(struct amdg
+diff --git a/drivers/cpufreq/cpufreq_governor_attr_set.c b/drivers/cpufreq/cpufreq_governor_attr_set.c
+index 66b05a326910..a6f365b9cc1a 100644
+--- a/drivers/cpufreq/cpufreq_governor_attr_set.c
++++ b/drivers/cpufreq/cpufreq_governor_attr_set.c
+@@ -74,8 +74,8 @@ unsigned int gov_attr_set_put(struct gov_attr_set *attr_set, struct list_head *l
+ 	if (count)
+ 		return count;
  
- 	/* set static priority for a queue/ring */
- 	gfx_v9_0_mqd_set_priority(ring, mqd);
--	mqd->cp_hqd_quantum = RREG32(mmCP_HQD_QUANTUM);
-+	mqd->cp_hqd_quantum = RREG32_SOC15(GC, 0, mmCP_HQD_QUANTUM);
- 
- 	/* map_queues packet doesn't need activate the queue,
- 	 * so only kiq need set this field.
+-	kobject_put(&attr_set->kobj);
+ 	mutex_destroy(&attr_set->update_lock);
++	kobject_put(&attr_set->kobj);
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(gov_attr_set_put);
+-- 
+2.33.0
+
 
 
