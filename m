@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37ECB420C01
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:00:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32516420D43
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:12:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233497AbhJDNBz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:01:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58620 "EHLO mail.kernel.org"
+        id S234962AbhJDNN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:13:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233954AbhJDNAQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:00:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5A3C611CA;
-        Mon,  4 Oct 2021 12:57:55 +0000 (UTC)
+        id S235133AbhJDNLW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:11:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DAC2C61B64;
+        Mon,  4 Oct 2021 13:04:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352276;
-        bh=fUsAVldm2FJA0oh2jr9oNvDYwn18Vg8BhamPbUVQQ8E=;
+        s=korg; t=1633352658;
+        bh=Na4Nue5z7rnnyHt6iDK3OiivgVF9ZHM5e7rUVSMTWK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sJ35/UDgLyxl4n/flfqtqwtRHfVfIRP7XKDDUj446TN9/NfSrTqav4YrzUT1YhchI
-         f+xp7j+mzFljCy1WGStW5tw0kOkTNAiEWB9trO7xFvNjkjk5nvi0fz02S595+GJR9k
-         wPmU1z1+55s1CATHqCGyhu4adnWIyt/Y9ySu/44c=
+        b=G81N8vyZhcIo9/zFweLN6lGV64ZLdnASwHIbD0TXVgXD0soPRaONgmaZy0xf0ssW1
+         kSWyLNeiB+5l1nYpWjyy1F622+js0TIyTlAeYxaiV6ygh0RJs5YEfOW92UcQFDZZqY
+         sF8kmOg583QXODzjIawsfYWFXSf2+YPelopK3Xi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com,
-        Yanfei Xu <yanfei.xu@windriver.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 57/57] net: mdiobus: Fix memory leak in __mdiobus_register
+        Felicitas Hetzelt <felicitashetzelt@gmail.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 71/95] e100: fix buffer overrun in e100_get_regs
 Date:   Mon,  4 Oct 2021 14:52:41 +0200
-Message-Id: <20211004125030.751799483@linuxfoundation.org>
+Message-Id: <20211004125035.894321841@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
-References: <20211004125028.940212411@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,89 +42,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yanfei Xu <yanfei.xu@windriver.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-commit ab609f25d19858513919369ff3d9a63c02cd9e2e upstream.
+[ Upstream commit 51032e6f17ce990d06123ad7307f258c50d25aa7 ]
 
-Once device_register() failed, we should call put_device() to
-decrement reference count for cleanup. Or it will cause memory
-leak.
+The e100_get_regs function is used to implement a simple register dump
+for the e100 device. The data is broken into a couple of MAC control
+registers, and then a series of PHY registers, followed by a memory dump
+buffer.
 
-BUG: memory leak
-unreferenced object 0xffff888114032e00 (size 256):
-  comm "kworker/1:3", pid 2960, jiffies 4294943572 (age 15.920s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 08 2e 03 14 81 88 ff ff  ................
-    08 2e 03 14 81 88 ff ff 90 76 65 82 ff ff ff ff  .........ve.....
-  backtrace:
-    [<ffffffff8265cfab>] kmalloc include/linux/slab.h:591 [inline]
-    [<ffffffff8265cfab>] kzalloc include/linux/slab.h:721 [inline]
-    [<ffffffff8265cfab>] device_private_init drivers/base/core.c:3203 [inline]
-    [<ffffffff8265cfab>] device_add+0x89b/0xdf0 drivers/base/core.c:3253
-    [<ffffffff828dd643>] __mdiobus_register+0xc3/0x450 drivers/net/phy/mdio_bus.c:537
-    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
-    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
-    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
-    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
-    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
-    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
-    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
-    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
-    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
-    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
-    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
-    [<ffffffff82660916>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
-    [<ffffffff8265cd0b>] device_add+0x5fb/0xdf0 drivers/base/core.c:3359
-    [<ffffffff82c343b9>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2170
-    [<ffffffff82c4473c>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
+The total length of the register dump is defined as (1 + E100_PHY_REGS)
+* sizeof(u32) + sizeof(nic->mem->dump_buf).
 
-BUG: memory leak
-unreferenced object 0xffff888116f06900 (size 32):
-  comm "kworker/0:2", pid 2670, jiffies 4294944448 (age 7.160s)
-  hex dump (first 32 bytes):
-    75 73 62 2d 30 30 31 3a 30 30 33 00 00 00 00 00  usb-001:003.....
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff81484516>] kstrdup+0x36/0x70 mm/util.c:60
-    [<ffffffff814845a3>] kstrdup_const+0x53/0x80 mm/util.c:83
-    [<ffffffff82296ba2>] kvasprintf_const+0xc2/0x110 lib/kasprintf.c:48
-    [<ffffffff82358d4b>] kobject_set_name_vargs+0x3b/0xe0 lib/kobject.c:289
-    [<ffffffff826575f3>] dev_set_name+0x63/0x90 drivers/base/core.c:3147
-    [<ffffffff828dd63b>] __mdiobus_register+0xbb/0x450 drivers/net/phy/mdio_bus.c:535
-    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
-    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
-    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
-    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
-    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
-    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
-    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
-    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
-    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
-    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
-    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
+The logic for filling in the PHY registers uses a convoluted inverted
+count for loop which counts from E100_PHY_REGS (0x1C) down to 0, and
+assigns the slots 1 + E100_PHY_REGS - i. The first loop iteration will
+fill in [1] and the final loop iteration will fill in [1 + 0x1C]. This
+is actually one more than the supposed number of PHY registers.
 
-Reported-by: syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
-Signed-off-by: Yanfei Xu <yanfei.xu@windriver.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The memory dump buffer is then filled into the space at
+[2 + E100_PHY_REGS] which will cause that memcpy to assign 4 bytes past
+the total size.
+
+The end result is that we overrun the total buffer size allocated by the
+kernel, which could lead to a panic or other issues due to memory
+corruption.
+
+It is difficult to determine the actual total number of registers
+here. The only 8255x datasheet I could find indicates there are 28 total
+MDI registers. However, we're reading 29 here, and reading them in
+reverse!
+
+In addition, the ethtool e100 register dump interface appears to read
+the first PHY register to determine if the device is in MDI or MDIx
+mode. This doesn't appear to be documented anywhere within the 8255x
+datasheet. I can only assume it must be in register 28 (the extra
+register we're reading here).
+
+Lets not change any of the intended meaning of what we copy here. Just
+extend the space by 4 bytes to account for the extra register and
+continue copying the data out in the same order.
+
+Change the E100_PHY_REGS value to be the correct total (29) so that the
+total register dump size is calculated properly. Fix the offset for
+where we copy the dump buffer so that it doesn't overrun the total size.
+
+Re-write the for loop to use counting up instead of the convoluted
+down-counting. Correct the mdio_read offset to use the 0-based register
+offsets, but maintain the bizarre reverse ordering so that we have the
+ABI expected by applications like ethtool. This requires and additional
+subtraction of 1. It seems a bit odd but it makes the flow of assignment
+into the register buffer easier to follow.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Felicitas Hetzelt <felicitashetzelt@gmail.com>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio_bus.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/e100.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -319,6 +319,7 @@ int __mdiobus_register(struct mii_bus *b
- 	err = device_register(&bus->dev);
- 	if (err) {
- 		pr_err("mii_bus %s failed to register\n", bus->id);
-+		put_device(&bus->dev);
- 		return -EINVAL;
- 	}
+diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
+index 4d27eaf05641..ba5b515c86e2 100644
+--- a/drivers/net/ethernet/intel/e100.c
++++ b/drivers/net/ethernet/intel/e100.c
+@@ -2433,7 +2433,7 @@ static void e100_get_drvinfo(struct net_device *netdev,
+ 		sizeof(info->bus_info));
+ }
  
+-#define E100_PHY_REGS 0x1C
++#define E100_PHY_REGS 0x1D
+ static int e100_get_regs_len(struct net_device *netdev)
+ {
+ 	struct nic *nic = netdev_priv(netdev);
+@@ -2455,14 +2455,18 @@ static void e100_get_regs(struct net_device *netdev,
+ 	buff[0] = ioread8(&nic->csr->scb.cmd_hi) << 24 |
+ 		ioread8(&nic->csr->scb.cmd_lo) << 16 |
+ 		ioread16(&nic->csr->scb.status);
+-	for (i = E100_PHY_REGS; i >= 0; i--)
+-		buff[1 + E100_PHY_REGS - i] =
+-			mdio_read(netdev, nic->mii.phy_id, i);
++	for (i = 0; i < E100_PHY_REGS; i++)
++		/* Note that we read the registers in reverse order. This
++		 * ordering is the ABI apparently used by ethtool and other
++		 * applications.
++		 */
++		buff[1 + i] = mdio_read(netdev, nic->mii.phy_id,
++					E100_PHY_REGS - 1 - i);
+ 	memset(nic->mem->dump_buf, 0, sizeof(nic->mem->dump_buf));
+ 	e100_exec_cb(nic, NULL, e100_dump);
+ 	msleep(10);
+-	memcpy(&buff[2 + E100_PHY_REGS], nic->mem->dump_buf,
+-		sizeof(nic->mem->dump_buf));
++	memcpy(&buff[1 + E100_PHY_REGS], nic->mem->dump_buf,
++	       sizeof(nic->mem->dump_buf));
+ }
+ 
+ static void e100_get_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
+-- 
+2.33.0
+
 
 
