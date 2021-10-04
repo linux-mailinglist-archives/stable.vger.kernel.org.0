@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E2B7420E4D
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:22:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80B56420D44
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:12:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236400AbhJDNYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:24:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33046 "EHLO mail.kernel.org"
+        id S235529AbhJDNN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:13:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236430AbhJDNWs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:22:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9721D61BE4;
-        Mon,  4 Oct 2021 13:09:45 +0000 (UTC)
+        id S235453AbhJDNLl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:11:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88B2261B03;
+        Mon,  4 Oct 2021 13:04:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352986;
-        bh=BVz3P0qfRiqO8nW7axQItDIJOBviNJFuPSP2wkwuAMI=;
+        s=korg; t=1633352661;
+        bh=1ghMdtphKXKe1KwNpRdVfyD26RNIR5e27bdtHbqO+24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AwE6YettO88MGZA/865KY/ly8kPTKVJX6xQgpAMo4hezw4ld8/xGZahjUSwTo9sv3
-         lBLxh5cCXb6ElmlHCtWPv/az6zHV2r3SlpGd9PejGWWJZLX7jr0i4nmUuU0BL2VQgr
-         IqCak9FjsBS9zUPPRt73xiVlXWUFlvaBADfBZ4dc=
+        b=13CrINBWTfLM0iAgUZ27gXGDczGiXcos0h0vhEflfM/XzqgmefqglyaoE0d2Ebue9
+         2nbOTiITNLufWhuoD3yQMap5Bjn61bARU9bC/RUTElSp4VTLsdCK5bZh8PT0XrD+i/
+         8XJPi5MeN7f77eqGZZB8+tCSi/fUAZ9PDu1u2aJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 44/93] dsa: mv88e6xxx: Fix MTU definition
+Subject: [PATCH 4.19 72/95] Revert "block, bfq: honor already-setup queue merges"
 Date:   Mon,  4 Oct 2021 14:52:42 +0200
-Message-Id: <20211004125036.017299797@linuxfoundation.org>
+Message-Id: <20211004125035.932083278@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,91 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Lunn <andrew@lunn.ch>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit b92ce2f54c0f0ff781e914ec189c25f7bf1b1ec2 ]
+[ Upstream commit ebc69e897e17373fbe1daaff1debaa77583a5284 ]
 
-The MTU passed to the DSA driver is the payload size, typically 1500.
-However, the switch uses the frame size when applying restrictions.
-Adjust the MTU with the size of the Ethernet header and the frame
-checksum. The VLAN header also needs to be included when the frame
-size it per port, but not when it is global.
+This reverts commit 2d52c58b9c9bdae0ca3df6a1eab5745ab3f7d80b.
 
-Fixes: 1baf0fac10fb ("net: dsa: mv88e6xxx: Use chip-wide max frame size for MTU")
-Reported by: 曹煜 <cao88yu@gmail.com>
-Signed-off-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+We have had several folks complain that this causes hangs for them, which
+is especially problematic as the commit has also hit stable already.
+
+As no resolution seems to be forthcoming right now, revert the patch.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=214503
+Fixes: 2d52c58b9c9b ("block, bfq: honor already-setup queue merges")
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c    | 12 ++++++------
- drivers/net/dsa/mv88e6xxx/global1.c |  2 ++
- drivers/net/dsa/mv88e6xxx/port.c    |  2 ++
- 3 files changed, 10 insertions(+), 6 deletions(-)
+ block/bfq-iosched.c | 16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index caa3c4f30405..50bbea220fbf 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -2613,8 +2613,8 @@ static int mv88e6xxx_setup_port(struct mv88e6xxx_chip *chip, int port)
- 	if (err)
- 		return err;
- 
--	/* Port Control 2: don't force a good FCS, set the maximum frame size to
--	 * 10240 bytes, disable 802.1q tags checking, don't discard tagged or
-+	/* Port Control 2: don't force a good FCS, set the MTU size to
-+	 * 10222 bytes, disable 802.1q tags checking, don't discard tagged or
- 	 * untagged frames on this port, do a destination address lookup on all
- 	 * received packets as usual, disable ARP mirroring and don't send a
- 	 * copy of all transmitted/received frames on this port to the CPU.
-@@ -2633,7 +2633,7 @@ static int mv88e6xxx_setup_port(struct mv88e6xxx_chip *chip, int port)
- 		return err;
- 
- 	if (chip->info->ops->port_set_jumbo_size) {
--		err = chip->info->ops->port_set_jumbo_size(chip, port, 10240);
-+		err = chip->info->ops->port_set_jumbo_size(chip, port, 10218);
- 		if (err)
- 			return err;
- 	}
-@@ -2718,10 +2718,10 @@ static int mv88e6xxx_get_max_mtu(struct dsa_switch *ds, int port)
- 	struct mv88e6xxx_chip *chip = ds->priv;
- 
- 	if (chip->info->ops->port_set_jumbo_size)
--		return 10240;
-+		return 10240 - VLAN_ETH_HLEN - ETH_FCS_LEN;
- 	else if (chip->info->ops->set_max_frame_size)
--		return 1632;
--	return 1522;
-+		return 1632 - VLAN_ETH_HLEN - ETH_FCS_LEN;
-+	return 1522 - VLAN_ETH_HLEN - ETH_FCS_LEN;
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index c8c94e8e0f72..b2bad345c523 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -2137,15 +2137,6 @@ bfq_setup_merge(struct bfq_queue *bfqq, struct bfq_queue *new_bfqq)
+ 	 * are likely to increase the throughput.
+ 	 */
+ 	bfqq->new_bfqq = new_bfqq;
+-	/*
+-	 * The above assignment schedules the following redirections:
+-	 * each time some I/O for bfqq arrives, the process that
+-	 * generated that I/O is disassociated from bfqq and
+-	 * associated with new_bfqq. Here we increases new_bfqq->ref
+-	 * in advance, adding the number of processes that are
+-	 * expected to be associated with new_bfqq as they happen to
+-	 * issue I/O.
+-	 */
+ 	new_bfqq->ref += process_refs;
+ 	return new_bfqq;
  }
+@@ -2205,10 +2196,6 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ {
+ 	struct bfq_queue *in_service_bfqq, *new_bfqq;
  
- static int mv88e6xxx_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
-diff --git a/drivers/net/dsa/mv88e6xxx/global1.c b/drivers/net/dsa/mv88e6xxx/global1.c
-index 33d443a37efc..9936ae69e5ee 100644
---- a/drivers/net/dsa/mv88e6xxx/global1.c
-+++ b/drivers/net/dsa/mv88e6xxx/global1.c
-@@ -232,6 +232,8 @@ int mv88e6185_g1_set_max_frame_size(struct mv88e6xxx_chip *chip, int mtu)
- 	u16 val;
- 	int err;
+-	/* if a merge has already been setup, then proceed with that first */
+-	if (bfqq->new_bfqq)
+-		return bfqq->new_bfqq;
+-
+ 	/*
+ 	 * Prevent bfqq from being merged if it has been created too
+ 	 * long ago. The idea is that true cooperating processes, and
+@@ -2223,6 +2210,9 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ 	if (bfq_too_late_for_merging(bfqq))
+ 		return NULL;
  
-+	mtu += ETH_HLEN + ETH_FCS_LEN;
++	if (bfqq->new_bfqq)
++		return bfqq->new_bfqq;
 +
- 	err = mv88e6xxx_g1_read(chip, MV88E6XXX_G1_CTL1, &val);
- 	if (err)
- 		return err;
-diff --git a/drivers/net/dsa/mv88e6xxx/port.c b/drivers/net/dsa/mv88e6xxx/port.c
-index 8128dc607cf4..dfd9e8292e9a 100644
---- a/drivers/net/dsa/mv88e6xxx/port.c
-+++ b/drivers/net/dsa/mv88e6xxx/port.c
-@@ -1082,6 +1082,8 @@ int mv88e6165_port_set_jumbo_size(struct mv88e6xxx_chip *chip, int port,
- 	u16 reg;
- 	int err;
+ 	if (!io_struct || unlikely(bfqq == &bfqd->oom_bfqq))
+ 		return NULL;
  
-+	size += VLAN_ETH_HLEN + ETH_FCS_LEN;
-+
- 	err = mv88e6xxx_port_read(chip, port, MV88E6XXX_PORT_CTL2, &reg);
- 	if (err)
- 		return err;
 -- 
 2.33.0
 
