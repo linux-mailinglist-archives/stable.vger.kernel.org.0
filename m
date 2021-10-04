@@ -2,44 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BD33420FBA
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:35:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17274420C30
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:02:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237897AbhJDNhc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:37:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48650 "EHLO mail.kernel.org"
+        id S234427AbhJDNDu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:03:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235019AbhJDNf3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:35:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A1CB563239;
-        Mon,  4 Oct 2021 13:16:00 +0000 (UTC)
+        id S234126AbhJDNCH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:02:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03AC2615A4;
+        Mon,  4 Oct 2021 12:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353361;
-        bh=9kAS1EdsWHXPEiGsFvpceYBJh9ghv41JBffYWz0WCcs=;
+        s=korg; t=1633352335;
+        bh=3+uSUMwiGr0vWOPVOODaHR+2+RrS0BvRSyqfqhN1DcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PHRXrLtmoq2/lrbHp4IHu1hdAMR1YSBs6+47Uf8hOYo6Y9qcpBzIfGTvseGK6DeN0
-         cRM8nFe9weJxdEnPaHoGZX/wfsNnDf1QW5rs2IQMDc57AxL7uMmM6sIDasJLAGjYMy
-         kQcuflzHaPptLLMldxc0f78Pf/juuYE9JcmcunOo=
+        b=ieFpEIGJAEWt1BAhBkxvefFdedg4DVBZKR9RDJ8KnNrpzcXKNk9IyJuzH4L1aaZuU
+         COPKPQoaxEcUC1MKIUnds4vuk6wnhWGTdlc/FGiKjfJ7z70ON57CXE+pRIbWS8bAd1
+         zSQbB+kPF53QK8sK2Vg38VLR/bngclzFeJV7yev8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.14 066/172] nbd: use shifts rather than multiplies
+        stable@vger.kernel.org, Kaige Fu <kaige.fu@linux.alibaba.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 21/75] irqchip/gic-v3-its: Fix potential VPE leak on error
 Date:   Mon,  4 Oct 2021 14:51:56 +0200
-Message-Id: <20211004125047.122127830@linuxfoundation.org>
+Message-Id: <20211004125032.229863489@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,176 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Kaige Fu <kaige.fu@linux.alibaba.com>
 
-commit 41e76c6a3c83c85e849f10754b8632ea763d9be4 upstream.
+[ Upstream commit 280bef512933b2dda01d681d8cbe499b98fc5bdd ]
 
-commit fad7cd3310db ("nbd: add the check to prevent overflow in
-__nbd_ioctl()") raised an issue from the fallback helpers added in
-commit f0907827a8a9 ("compiler.h: enable builtin overflow checkers and
-add fallback code")
+In its_vpe_irq_domain_alloc, when its_vpe_init() returns an error,
+there is an off-by-one in the number of VPEs to be freed.
 
-ERROR: modpost: "__divdi3" [drivers/block/nbd.ko] undefined!
+Fix it by simply passing the number of VPEs allocated, which is the
+index of the loop iterating over the VPEs.
 
-As Stephen Rothwell notes:
-  The added check_mul_overflow() call is being passed 64 bit values.
-  COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW is not set for this build (see
-  include/linux/overflow.h).
-
-Specifically, the helpers for checking whether the results of a
-multiplication overflowed (__unsigned_mul_overflow,
-__signed_add_overflow) use the division operator when
-!COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW.  This is problematic for 64b
-operands on 32b hosts.
-
-This was fixed upstream by
-commit 76ae847497bc ("Documentation: raise minimum supported version of
-GCC to 5.1")
-which is not suitable to be backported to stable.
-
-Further, __builtin_mul_overflow() would emit a libcall to a
-compiler-rt-only symbol when compiling with clang < 14 for 32b targets.
-
-ld.lld: error: undefined symbol: __mulodi4
-
-In order to keep stable buildable with GCC 4.9 and clang < 14, modify
-struct nbd_config to instead track the number of bits of the block size;
-reconstructing the block size using runtime checked shifts that are not
-problematic for those compilers and in a ways that can be backported to
-stable.
-
-In nbd_set_size, we do validate that the value of blksize must be a
-power of two (POT) and is in the range of [512, PAGE_SIZE] (both
-inclusive).
-
-This does modify the debugfs interface.
-
-Cc: stable@vger.kernel.org
-Cc: Arnd Bergmann <arnd@kernel.org>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1438
-Link: https://lore.kernel.org/all/20210909182525.372ee687@canb.auug.org.au/
-Link: https://lore.kernel.org/stable/CAHk-=whiQBofgis_rkniz8GBP9wZtSZdcDEffgSLO62BUGV3gg@mail.gmail.com/
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Suggested-by: Kees Cook <keescook@chromium.org>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Suggested-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20210920232533.4092046-1-ndesaulniers@google.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7d75bbb4bc1a ("irqchip/gic-v3-its: Add VPE irq domain allocation/teardown")
+Signed-off-by: Kaige Fu <kaige.fu@linux.alibaba.com>
+[maz: fixed commit message]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/d9e36dee512e63670287ed9eff884a5d8d6d27f2.1631672311.git.kaige.fu@linux.alibaba.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c |   29 +++++++++++++++++------------
- 1 file changed, 17 insertions(+), 12 deletions(-)
+ drivers/irqchip/irq-gic-v3-its.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -97,13 +97,18 @@ struct nbd_config {
+diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
+index 1d2267c6d31a..85b4610e6dc4 100644
+--- a/drivers/irqchip/irq-gic-v3-its.c
++++ b/drivers/irqchip/irq-gic-v3-its.c
+@@ -2730,7 +2730,7 @@ static int its_vpe_irq_domain_alloc(struct irq_domain *domain, unsigned int virq
  
- 	atomic_t recv_threads;
- 	wait_queue_head_t recv_wq;
--	loff_t blksize;
-+	unsigned int blksize_bits;
- 	loff_t bytesize;
- #if IS_ENABLED(CONFIG_DEBUG_FS)
- 	struct dentry *dbg_dir;
- #endif
- };
+ 	if (err) {
+ 		if (i > 0)
+-			its_vpe_irq_domain_free(domain, virq, i - 1);
++			its_vpe_irq_domain_free(domain, virq, i);
  
-+static inline unsigned int nbd_blksize(struct nbd_config *config)
-+{
-+	return 1u << config->blksize_bits;
-+}
-+
- struct nbd_device {
- 	struct blk_mq_tag_set tag_set;
- 
-@@ -147,7 +152,7 @@ static struct dentry *nbd_dbg_dir;
- 
- #define NBD_MAGIC 0x68797548
- 
--#define NBD_DEF_BLKSIZE 1024
-+#define NBD_DEF_BLKSIZE_BITS 10
- 
- static unsigned int nbds_max = 16;
- static int max_part = 16;
-@@ -350,12 +355,12 @@ static int nbd_set_size(struct nbd_devic
- 		loff_t blksize)
- {
- 	if (!blksize)
--		blksize = NBD_DEF_BLKSIZE;
-+		blksize = 1u << NBD_DEF_BLKSIZE_BITS;
- 	if (blksize < 512 || blksize > PAGE_SIZE || !is_power_of_2(blksize))
- 		return -EINVAL;
- 
- 	nbd->config->bytesize = bytesize;
--	nbd->config->blksize = blksize;
-+	nbd->config->blksize_bits = __ffs(blksize);
- 
- 	if (!nbd->task_recv)
- 		return 0;
-@@ -1370,7 +1375,7 @@ static int nbd_start_device(struct nbd_d
- 		args->index = i;
- 		queue_work(nbd->recv_workq, &args->work);
- 	}
--	return nbd_set_size(nbd, config->bytesize, config->blksize);
-+	return nbd_set_size(nbd, config->bytesize, nbd_blksize(config));
- }
- 
- static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *bdev)
-@@ -1439,11 +1444,11 @@ static int __nbd_ioctl(struct block_devi
- 	case NBD_SET_BLKSIZE:
- 		return nbd_set_size(nbd, config->bytesize, arg);
- 	case NBD_SET_SIZE:
--		return nbd_set_size(nbd, arg, config->blksize);
-+		return nbd_set_size(nbd, arg, nbd_blksize(config));
- 	case NBD_SET_SIZE_BLOCKS:
--		if (check_mul_overflow((loff_t)arg, config->blksize, &bytesize))
-+		if (check_shl_overflow(arg, config->blksize_bits, &bytesize))
- 			return -EINVAL;
--		return nbd_set_size(nbd, bytesize, config->blksize);
-+		return nbd_set_size(nbd, bytesize, nbd_blksize(config));
- 	case NBD_SET_TIMEOUT:
- 		nbd_set_cmd_timeout(nbd, arg);
- 		return 0;
-@@ -1509,7 +1514,7 @@ static struct nbd_config *nbd_alloc_conf
- 	atomic_set(&config->recv_threads, 0);
- 	init_waitqueue_head(&config->recv_wq);
- 	init_waitqueue_head(&config->conn_wait);
--	config->blksize = NBD_DEF_BLKSIZE;
-+	config->blksize_bits = NBD_DEF_BLKSIZE_BITS;
- 	atomic_set(&config->live_connections, 0);
- 	try_module_get(THIS_MODULE);
- 	return config;
-@@ -1637,7 +1642,7 @@ static int nbd_dev_dbg_init(struct nbd_d
- 	debugfs_create_file("tasks", 0444, dir, nbd, &nbd_dbg_tasks_fops);
- 	debugfs_create_u64("size_bytes", 0444, dir, &config->bytesize);
- 	debugfs_create_u32("timeout", 0444, dir, &nbd->tag_set.timeout);
--	debugfs_create_u64("blocksize", 0444, dir, &config->blksize);
-+	debugfs_create_u32("blocksize_bits", 0444, dir, &config->blksize_bits);
- 	debugfs_create_file("flags", 0444, dir, nbd, &nbd_dbg_flags_fops);
- 
- 	return 0;
-@@ -1841,7 +1846,7 @@ nbd_device_policy[NBD_DEVICE_ATTR_MAX +
- static int nbd_genl_size_set(struct genl_info *info, struct nbd_device *nbd)
- {
- 	struct nbd_config *config = nbd->config;
--	u64 bsize = config->blksize;
-+	u64 bsize = nbd_blksize(config);
- 	u64 bytes = config->bytesize;
- 
- 	if (info->attrs[NBD_ATTR_SIZE_BYTES])
-@@ -1850,7 +1855,7 @@ static int nbd_genl_size_set(struct genl
- 	if (info->attrs[NBD_ATTR_BLOCK_SIZE_BYTES])
- 		bsize = nla_get_u64(info->attrs[NBD_ATTR_BLOCK_SIZE_BYTES]);
- 
--	if (bytes != config->bytesize || bsize != config->blksize)
-+	if (bytes != config->bytesize || bsize != nbd_blksize(config))
- 		return nbd_set_size(nbd, bytes, bsize);
- 	return 0;
- }
+ 		its_lpi_free_chunks(bitmap, base, nr_ids);
+ 		its_free_prop_table(vprop_page);
+-- 
+2.33.0
+
 
 
