@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D535C420DD2
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:17:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A41B420D88
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:14:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236237AbhJDNTL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:19:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53570 "EHLO mail.kernel.org"
+        id S235620AbhJDNQF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:16:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235324AbhJDNR7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:17:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E501261452;
-        Mon,  4 Oct 2021 13:07:18 +0000 (UTC)
+        id S235600AbhJDNOK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:14:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA6BE619E9;
+        Mon,  4 Oct 2021 13:05:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352839;
-        bh=AdPPmaDhB9r1EYgDS6UYCzPUvS1tjyIFmQYSiMH925g=;
+        s=korg; t=1633352739;
+        bh=cEi2Zz9fecudZ3IftRcBMYyRKog8MuWhtFtLwqNd6Dw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JOl8yM1AbTFbYTYzrVvbeVaNvHwaJbCMgsGygE8QFe9z7fHgwxIZpC9ja2kl6t+l7
-         TzZzbwe+oG8wY6+bXmXdKyLtCwtOrFxI9MNYatJ6OOupDT54nSU0k+PGz/w74WoX9k
-         dDoPnvUikf0JsY5scQpM48i6HjLa59GAO1oLLZmA=
+        b=IpyxLNRNprhg55XlkxafplC95+jAXwMod93ZIm5sfiYgh5sge61nTcWVsOusT6wKO
+         BL8HObDsHdHOldgjOI3dH6qRWxPtsdZY0UWKKutWuJFZKSvNEn6MHAlKAcYN55Eh/Q
+         dL9Ph/yJO8o2cC3beyN1W/NxkuMLH9FsCFo7mIro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org,
+        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com,
+        Yanfei Xu <yanfei.xu@windriver.com>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 45/56] net: udp: annotate data race around udp_sk(sk)->corkflag
+Subject: [PATCH 4.19 95/95] net: mdiobus: Fix memory leak in __mdiobus_register
 Date:   Mon,  4 Oct 2021 14:53:05 +0200
-Message-Id: <20211004125031.423707387@linuxfoundation.org>
+Message-Id: <20211004125036.677573066@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
-References: <20211004125030.002116402@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,73 +42,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Yanfei Xu <yanfei.xu@windriver.com>
 
-commit a9f5970767d11eadc805d5283f202612c7ba1f59 upstream.
+commit ab609f25d19858513919369ff3d9a63c02cd9e2e upstream.
 
-up->corkflag field can be read or written without any lock.
-Annotate accesses to avoid possible syzbot/KCSAN reports.
+Once device_register() failed, we should call put_device() to
+decrement reference count for cleanup. Or it will cause memory
+leak.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
+BUG: memory leak
+unreferenced object 0xffff888114032e00 (size 256):
+  comm "kworker/1:3", pid 2960, jiffies 4294943572 (age 15.920s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 08 2e 03 14 81 88 ff ff  ................
+    08 2e 03 14 81 88 ff ff 90 76 65 82 ff ff ff ff  .........ve.....
+  backtrace:
+    [<ffffffff8265cfab>] kmalloc include/linux/slab.h:591 [inline]
+    [<ffffffff8265cfab>] kzalloc include/linux/slab.h:721 [inline]
+    [<ffffffff8265cfab>] device_private_init drivers/base/core.c:3203 [inline]
+    [<ffffffff8265cfab>] device_add+0x89b/0xdf0 drivers/base/core.c:3253
+    [<ffffffff828dd643>] __mdiobus_register+0xc3/0x450 drivers/net/phy/mdio_bus.c:537
+    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
+    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
+    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
+    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
+    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
+    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
+    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
+    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
+    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
+    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
+    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
+    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
+    [<ffffffff82660916>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
+    [<ffffffff8265cd0b>] device_add+0x5fb/0xdf0 drivers/base/core.c:3359
+    [<ffffffff82c343b9>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2170
+    [<ffffffff82c4473c>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
+
+BUG: memory leak
+unreferenced object 0xffff888116f06900 (size 32):
+  comm "kworker/0:2", pid 2670, jiffies 4294944448 (age 7.160s)
+  hex dump (first 32 bytes):
+    75 73 62 2d 30 30 31 3a 30 30 33 00 00 00 00 00  usb-001:003.....
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff81484516>] kstrdup+0x36/0x70 mm/util.c:60
+    [<ffffffff814845a3>] kstrdup_const+0x53/0x80 mm/util.c:83
+    [<ffffffff82296ba2>] kvasprintf_const+0xc2/0x110 lib/kasprintf.c:48
+    [<ffffffff82358d4b>] kobject_set_name_vargs+0x3b/0xe0 lib/kobject.c:289
+    [<ffffffff826575f3>] dev_set_name+0x63/0x90 drivers/base/core.c:3147
+    [<ffffffff828dd63b>] __mdiobus_register+0xbb/0x450 drivers/net/phy/mdio_bus.c:535
+    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
+    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
+    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
+    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
+    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
+    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
+    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
+    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
+    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
+    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
+    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
+    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
+
+Reported-by: syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
+Signed-off-by: Yanfei Xu <yanfei.xu@windriver.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/udp.c |   10 +++++-----
- net/ipv6/udp.c |    2 +-
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/phy/mdio_bus.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -981,7 +981,7 @@ int udp_sendmsg(struct sock *sk, struct
- 	__be16 dport;
- 	u8  tos;
- 	int err, is_udplite = IS_UDPLITE(sk);
--	int corkreq = up->corkflag || msg->msg_flags&MSG_MORE;
-+	int corkreq = READ_ONCE(up->corkflag) || msg->msg_flags&MSG_MORE;
- 	int (*getfrag)(void *, char *, int, int, int, struct sk_buff *);
- 	struct sk_buff *skb;
- 	struct ip_options_data opt_copy;
-@@ -1289,7 +1289,7 @@ int udp_sendpage(struct sock *sk, struct
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -381,6 +381,7 @@ int __mdiobus_register(struct mii_bus *b
+ 	err = device_register(&bus->dev);
+ 	if (err) {
+ 		pr_err("mii_bus %s failed to register\n", bus->id);
++		put_device(&bus->dev);
+ 		return -EINVAL;
  	}
  
- 	up->len += size;
--	if (!(up->corkflag || (flags&MSG_MORE)))
-+	if (!(READ_ONCE(up->corkflag) || (flags&MSG_MORE)))
- 		ret = udp_push_pending_frames(sk);
- 	if (!ret)
- 		ret = size;
-@@ -2551,9 +2551,9 @@ int udp_lib_setsockopt(struct sock *sk,
- 	switch (optname) {
- 	case UDP_CORK:
- 		if (val != 0) {
--			up->corkflag = 1;
-+			WRITE_ONCE(up->corkflag, 1);
- 		} else {
--			up->corkflag = 0;
-+			WRITE_ONCE(up->corkflag, 0);
- 			lock_sock(sk);
- 			push_pending_frames(sk);
- 			release_sock(sk);
-@@ -2676,7 +2676,7 @@ int udp_lib_getsockopt(struct sock *sk,
- 
- 	switch (optname) {
- 	case UDP_CORK:
--		val = up->corkflag;
-+		val = READ_ONCE(up->corkflag);
- 		break;
- 
- 	case UDP_ENCAP:
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -1231,7 +1231,7 @@ int udpv6_sendmsg(struct sock *sk, struc
- 	int addr_len = msg->msg_namelen;
- 	bool connected = false;
- 	int ulen = len;
--	int corkreq = up->corkflag || msg->msg_flags&MSG_MORE;
-+	int corkreq = READ_ONCE(up->corkflag) || msg->msg_flags&MSG_MORE;
- 	int err;
- 	int is_udplite = IS_UDPLITE(sk);
- 	int (*getfrag)(void *, char *, int, int, int, struct sk_buff *);
 
 
