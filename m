@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 164FA420F24
+	by mail.lfdr.de (Postfix) with ESMTP id AA363420F26
 	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:30:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236377AbhJDNbn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:31:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42998 "EHLO mail.kernel.org"
+        id S236914AbhJDNbp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:31:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237075AbhJDN3y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:29:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A317F63217;
-        Mon,  4 Oct 2021 13:13:19 +0000 (UTC)
+        id S237097AbhJDN3z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:29:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C914613AD;
+        Mon,  4 Oct 2021 13:13:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353200;
-        bh=rpLhAIABTnDAQ3XCCglWj+vsyjstCqUg+9CzjH/sCG4=;
+        s=korg; t=1633353202;
+        bh=/CSU1UQt3B9EPyyzD9OkcwMM9NnbyDRvBgclPSg/Km8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UbdPgt5GR7HsHNRZGEeGwicr9rQOER2ScDRy31QrD5TwPErmG0c4c3Aef377ou1xN
-         GkjVtM8y94izh6YJU8YOXBnsnXVMR0VA6Y/CJBzpn7eqMIa0A/7O/b9M06jPP4PW1j
-         UsSZfJW+2g+gAFoo4KJ5luAum4VvH5ZovXt/FKDk=
+        b=vp3cRoBaCLxnZG3N5HTwWG5mi23uE7c4g/f6Mdrx1TgXkGvbPmvucmsJBixeGj/NL
+         WtK6PTFnGCUijOK593INWtmwaK0WBQ7MbUQUAq8/dmEWKsptPvpudZGaB+n+ED9rve
+         FttESErzOMEiG8+cB6mRvj8UpPhoMMQrkR+Ss3Tc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Henningsson <coding@diwic.se>,
-        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.14 035/172] ALSA: rawmidi: introduce SNDRV_RAWMIDI_IOCTL_USER_PVERSION
-Date:   Mon,  4 Oct 2021 14:51:25 +0200
-Message-Id: <20211004125046.106750937@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.14 036/172] ALSA: firewire-motu: fix truncated bytes in message tracepoints
+Date:   Mon,  4 Oct 2021 14:51:26 +0200
+Message-Id: <20211004125046.145124019@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
 References: <20211004125044.945314266@linuxfoundation.org>
@@ -39,74 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaroslav Kysela <perex@perex.cz>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 09d23174402da0f10e98da2c61bb5ac8e7d79fdd upstream.
+commit cb1bcf5ed536747013fe2b3f9bd56ce3242c295a upstream.
 
-The new framing mode causes the user space regression, because
-the alsa-lib code does not initialize the reserved space in
-the params structure when the device is opened.
+In MOTU protocol v2/v3, first two data chunks across 2nd and 3rd data
+channels includes message bytes from device. The total size of message
+is 48 bits per data block.
 
-This change adds SNDRV_RAWMIDI_IOCTL_USER_PVERSION like we
-do for the PCM interface for the protocol acknowledgment.
+The 'data_block_message' tracepoints event produced by ALSA firewire-motu
+driver exposes the sequence of messages to userspace in 64 bit storage,
+however lower 32 bits are actually available since current implementation
+truncates 16 bits in upper of the message as a result of bit shift
+operation within 32 bit storage.
 
-Cc: David Henningsson <coding@diwic.se>
+This commit fixes the bug by perform the bit shift in 64 bit storage.
+
+Fixes: c6b0b9e65f09 ("ALSA: firewire-motu: add tracepoints for messages for unique protocol")
 Cc: <stable@vger.kernel.org>
-Fixes: 08fdced60ca0 ("ALSA: rawmidi: Add framing mode")
-BugLink: https://github.com/alsa-project/alsa-lib/issues/178
-Signed-off-by: Jaroslav Kysela <perex@perex.cz>
-Link: https://lore.kernel.org/r/20210920171850.154186-1-perex@perex.cz
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20210920110734.27161-1-o-takashi@sakamocchi.jp
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/sound/rawmidi.h     |    1 +
- include/uapi/sound/asound.h |    1 +
- sound/core/rawmidi.c        |    9 +++++++++
- 3 files changed, 11 insertions(+)
+ sound/firewire/motu/amdtp-motu.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/include/sound/rawmidi.h
-+++ b/include/sound/rawmidi.h
-@@ -98,6 +98,7 @@ struct snd_rawmidi_file {
- 	struct snd_rawmidi *rmidi;
- 	struct snd_rawmidi_substream *input;
- 	struct snd_rawmidi_substream *output;
-+	unsigned int user_pversion;	/* supported protocol version */
- };
+--- a/sound/firewire/motu/amdtp-motu.c
++++ b/sound/firewire/motu/amdtp-motu.c
+@@ -276,10 +276,11 @@ static void __maybe_unused copy_message(
  
- struct snd_rawmidi_str {
---- a/include/uapi/sound/asound.h
-+++ b/include/uapi/sound/asound.h
-@@ -783,6 +783,7 @@ struct snd_rawmidi_status {
- 
- #define SNDRV_RAWMIDI_IOCTL_PVERSION	_IOR('W', 0x00, int)
- #define SNDRV_RAWMIDI_IOCTL_INFO	_IOR('W', 0x01, struct snd_rawmidi_info)
-+#define SNDRV_RAWMIDI_IOCTL_USER_PVERSION _IOW('W', 0x02, int)
- #define SNDRV_RAWMIDI_IOCTL_PARAMS	_IOWR('W', 0x10, struct snd_rawmidi_params)
- #define SNDRV_RAWMIDI_IOCTL_STATUS	_IOWR('W', 0x20, struct snd_rawmidi_status)
- #define SNDRV_RAWMIDI_IOCTL_DROP	_IOW('W', 0x30, int)
---- a/sound/core/rawmidi.c
-+++ b/sound/core/rawmidi.c
-@@ -873,12 +873,21 @@ static long snd_rawmidi_ioctl(struct fil
- 			return -EINVAL;
- 		}
+ 	/* This is just for v2/v3 protocol. */
+ 	for (i = 0; i < data_blocks; ++i) {
+-		*frames = (be32_to_cpu(buffer[1]) << 16) |
+-			  (be32_to_cpu(buffer[2]) >> 16);
++		*frames = be32_to_cpu(buffer[1]);
++		*frames <<= 16;
++		*frames |= be32_to_cpu(buffer[2]) >> 16;
++		++frames;
+ 		buffer += data_block_quadlets;
+-		frames++;
  	}
-+	case SNDRV_RAWMIDI_IOCTL_USER_PVERSION:
-+		if (get_user(rfile->user_pversion, (unsigned int __user *)arg))
-+			return -EFAULT;
-+		return 0;
-+
- 	case SNDRV_RAWMIDI_IOCTL_PARAMS:
- 	{
- 		struct snd_rawmidi_params params;
+ }
  
- 		if (copy_from_user(&params, argp, sizeof(struct snd_rawmidi_params)))
- 			return -EFAULT;
-+		if (rfile->user_pversion < SNDRV_PROTOCOL_VERSION(2, 0, 2)) {
-+			params.mode = 0;
-+			memset(params.reserved, 0, sizeof(params.reserved));
-+		}
- 		switch (params.stream) {
- 		case SNDRV_RAWMIDI_STREAM_OUTPUT:
- 			if (rfile->output == NULL)
 
 
