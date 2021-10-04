@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F509420B7B
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:56:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94EC1420DB7
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:16:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233728AbhJDM5e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 08:57:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58126 "EHLO mail.kernel.org"
+        id S236157AbhJDNRz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:17:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233745AbhJDM5B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:57:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55F846136F;
-        Mon,  4 Oct 2021 12:55:12 +0000 (UTC)
+        id S236165AbhJDNP5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:15:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D1AD61BB1;
+        Mon,  4 Oct 2021 13:06:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352112;
-        bh=YeuBdjHPhpH+h+ECanTgR03oQtGty1S+cjLvxgJyC1E=;
+        s=korg; t=1633352783;
+        bh=J2cbfPo+jXvz+Ybtz1scyw8vr+JE42uix/3FzEJs3Co=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FVYV3cZgqwVHQ9TVjJpP5iwLL3yZglhMBxNhQn08n4RwUTOHaJ+7X13k77ABaH6S8
-         Cgy8NlJWayKF2OFwEDF2/hp+Z0nSrvy+ny0378mB4grZJQwRPbZm+vKZbhPOlBg6X6
-         Z1byx+MrjD5mLM5Jczt+QDdcHO125kzHnWnd1QFw=
+        b=VVeEPM0JNpl4bd11cmc7bMPGJhPVaizbyNekNcTshh9RGZHOtVefTRq3DsuLd+dxD
+         CsbEVw2pVpmYrN0yXK2HxyjyeEEPu5AbVdyhPqJsCxxLo/pcX3Cd8lA18gY1GBvSZ/
+         V1iAybmh4pNYjb23fHdYpS4w/V7khRDsrfqcoAYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Nanyong Sun <sunnanyong@huawei.com>
-Subject: [PATCH 4.4 37/41] arm64: Extend workaround for erratum 1024718 to all versions of Cortex-A55
+        stable@vger.kernel.org, Nadezda Lutovinova <lutovinova@ispras.ru>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.4 08/56] hwmon: (w83791d) Fix NULL pointer dereference by removing unnecessary structure field
 Date:   Mon,  4 Oct 2021 14:52:28 +0200
-Message-Id: <20211004125027.765211462@linuxfoundation.org>
+Message-Id: <20211004125030.274671840@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
-References: <20211004125026.597501645@linuxfoundation.org>
+In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
+References: <20211004125030.002116402@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +39,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Nadezda Lutovinova <lutovinova@ispras.ru>
 
-commit c0b15c25d25171db4b70cc0b7dbc1130ee94017d upstream.
+commit 943c15ac1b84d378da26bba41c83c67e16499ac4 upstream.
 
-The erratum 1024718 affects Cortex-A55 r0p0 to r2p0. However
-we apply the work around for r0p0 - r1p0. Unfortunately this
-won't be fixed for the future revisions for the CPU. Thus
-extend the work around for all versions of A55, to cover
-for r2p0 and any future revisions.
+If driver read val value sufficient for
+(val & 0x08) && (!(val & 0x80)) && ((val & 0x7) == ((val >> 4) & 0x7))
+from device then Null pointer dereference occurs.
+(It is possible if tmp = 0b0xyz1xyz, where same literals mean same numbers)
+Also lm75[] does not serve a purpose anymore after switching to
+devm_i2c_new_dummy_device() in w83791d_detect_subclients().
+
+The patch fixes possible NULL pointer dereference by removing lm75[].
+
+Found by Linux Driver Verification project (linuxtesting.org).
 
 Cc: stable@vger.kernel.org
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/20210203230057.3961239-1-suzuki.poulose@arm.com
-[will: Update Kconfig help text]
-Signed-off-by: Will Deacon <will@kernel.org>
-[Nanyon: adjust for stable version below v4.16, which set TCR_HD earlier
-in assembly code]
-Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
+Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
+Link: https://lore.kernel.org/r/20210921155153.28098-1-lutovinova@ispras.ru
+[groeck: Dropped unnecessary continuation lines, fixed multi-line alignment]
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm64/Kconfig   |    2 +-
- arch/arm64/mm/proc.S |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/hwmon/w83791d.c |   29 +++++++++++------------------
+ 1 file changed, 11 insertions(+), 18 deletions(-)
 
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -381,7 +381,7 @@ config ARM64_ERRATUM_1024718
- 	help
- 	  This option adds work around for Arm Cortex-A55 Erratum 1024718.
+--- a/drivers/hwmon/w83791d.c
++++ b/drivers/hwmon/w83791d.c
+@@ -273,9 +273,6 @@ struct w83791d_data {
+ 	char valid;			/* !=0 if following fields are valid */
+ 	unsigned long last_updated;	/* In jiffies */
  
--	  Affected Cortex-A55 cores (r0p0, r0p1, r1p0) could cause incorrect
-+	  Affected Cortex-A55 cores (all revisions) could cause incorrect
- 	  update of the hardware dirty bit when the DBM/AP bits are updated
- 	  without a break-before-make. The work around is to disable the usage
- 	  of hardware DBM locally on the affected cores. CPUs not affected by
---- a/arch/arm64/mm/proc.S
-+++ b/arch/arm64/mm/proc.S
-@@ -222,8 +222,8 @@ ENTRY(__cpu_setup)
- 	cmp	x9, #2
- 	b.lt	1f
- #ifdef CONFIG_ARM64_ERRATUM_1024718
--	/* Disable hardware DBM on Cortex-A55 r0p0, r0p1 & r1p0 */
--	cpu_midr_match MIDR_CORTEX_A55, MIDR_CPU_VAR_REV(0, 0), MIDR_CPU_VAR_REV(1, 0), x1, x2, x3, x4
-+	/* Disable hardware DBM on Cortex-A55 all versions */
-+	cpu_midr_match MIDR_CORTEX_A55, MIDR_CPU_VAR_REV(0, 0), MIDR_CPU_VAR_REV(0xf, 0xf), x1, x2, x3, x4
- 	cbnz	x1, 1f
- #endif
- 	orr	x10, x10, #TCR_HD		// hardware Dirty flag update
+-	/* array of 2 pointers to subclients */
+-	struct i2c_client *lm75[2];
+-
+ 	/* volts */
+ 	u8 in[NUMBER_OF_VIN];		/* Register value */
+ 	u8 in_max[NUMBER_OF_VIN];	/* Register value */
+@@ -1258,7 +1255,6 @@ static const struct attribute_group w837
+ static int w83791d_detect_subclients(struct i2c_client *client)
+ {
+ 	struct i2c_adapter *adapter = client->adapter;
+-	struct w83791d_data *data = i2c_get_clientdata(client);
+ 	int address = client->addr;
+ 	int i, id;
+ 	u8 val;
+@@ -1281,22 +1277,19 @@ static int w83791d_detect_subclients(str
+ 	}
+ 
+ 	val = w83791d_read(client, W83791D_REG_I2C_SUBADDR);
+-	if (!(val & 0x08))
+-		data->lm75[0] = devm_i2c_new_dummy_device(&client->dev, adapter,
+-							  0x48 + (val & 0x7));
+-	if (!(val & 0x80)) {
+-		if (!IS_ERR(data->lm75[0]) &&
+-				((val & 0x7) == ((val >> 4) & 0x7))) {
+-			dev_err(&client->dev,
+-				"duplicate addresses 0x%x, "
+-				"use force_subclient\n",
+-				data->lm75[0]->addr);
+-			return -ENODEV;
+-		}
+-		data->lm75[1] = devm_i2c_new_dummy_device(&client->dev, adapter,
+-							  0x48 + ((val >> 4) & 0x7));
++
++	if (!(val & 0x88) && (val & 0x7) == ((val >> 4) & 0x7)) {
++		dev_err(&client->dev,
++			"duplicate addresses 0x%x, use force_subclient\n", 0x48 + (val & 0x7));
++		return -ENODEV;
+ 	}
+ 
++	if (!(val & 0x08))
++		devm_i2c_new_dummy_device(&client->dev, adapter, 0x48 + (val & 0x7));
++
++	if (!(val & 0x80))
++		devm_i2c_new_dummy_device(&client->dev, adapter, 0x48 + ((val >> 4) & 0x7));
++
+ 	return 0;
+ }
+ 
 
 
