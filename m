@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8797A420EBE
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:26:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85506420EC0
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:26:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237023AbhJDN1z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:27:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39884 "EHLO mail.kernel.org"
+        id S237035AbhJDN17 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:27:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236765AbhJDNZy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:25:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95F7361BFD;
-        Mon,  4 Oct 2021 13:11:25 +0000 (UTC)
+        id S237106AbhJDN0E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:26:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD18F61C32;
+        Mon,  4 Oct 2021 13:11:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353086;
-        bh=HkzmHn7XQtDDUPx25hwrJ9mNGPveo/J5caG/OJrMG2E=;
+        s=korg; t=1633353088;
+        bh=139i+vU/Vrd6p109Ed/zuAP4DoRqWlAoxEoeuH58J94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k2qZXWcSXUauYkHSoAs3bYVo5tcFsLtOOIywTd3w6/DVpdhCyOshscxZqjvNI6m7x
-         rJOLfwxQFHQQ4P6xErRYx8PQHcYsUhyfxLsOw9ToTS3dWWl+qjHkVRy6IHrVp9TYue
-         /qyrbXS3zi8GlBVMCqg6ee+pE6YUlcqLTv/X8C7Q=
+        b=EDdRax+NFFg+Wfr9KM0rbMiDEXlnT4rMKMrii7x/VOr7O2xSyzvv9EIgAREAEnZ4l
+         wiCEN8baY7CAj5J+tEBb+jJtQlmjaKN1aYXa3mkR5YPNQANtlCtcBhXbPkvptte1lp
+         Y8Xmqk6F9FMqbwxuLejNSK7XXZ1jm7yhs0Oy6Vlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rander Wang <rander.wang@linux.intel.com>,
-        Shuming Fan <shumingf@realtek.com>,
-        Mark Brown <broonie@kernel.org>,
-        Robert Lee <lerobert@google.com>
-Subject: [PATCH 5.10 83/93] ASoC: dapm: use component prefix when checking widget names
-Date:   Mon,  4 Oct 2021 14:53:21 +0200
-Message-Id: <20211004125037.353769462@linuxfoundation.org>
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.10 84/93] usb: hso: remove the bailout parameter
+Date:   Mon,  4 Oct 2021 14:53:22 +0200
+Message-Id: <20211004125037.383513731@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
 References: <20211004125034.579439135@linuxfoundation.org>
@@ -43,54 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuming Fan <shumingf@realtek.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit ae4fc532244b3bb4d86c397418d980b0c6be1dfd upstream.
+commit dcb713d53e2eadf42b878c12a471e74dc6ed3145 upstream.
 
-On a TigerLake SoundWire platform, we see these warnings:
+There are two invocation sites of hso_free_net_device. After
+refactoring hso_create_net_device, this parameter is useless.
+Remove the bailout in the hso_free_net_device and change the invocation
+sites of this function.
 
-[   27.360086] rt5682 sdw:0:25d:5682:0: ASoC: DAPM unknown pin MICBIAS
-[   27.360092] rt5682 sdw:0:25d:5682:0: ASoC: DAPM unknown pin Vref2
-
-This is root-caused to the addition of a component prefix in the
-machine driver. The tests in soc-dapm should account for a prefix
-instead of reporting an invalid issue.
-
-Reported-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@linux.intel.com>
-Signed-off-by: Shuming Fan <shumingf@realtek.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210208234043.59750-2-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Robert Lee <lerobert@google.com>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[Backport this cleanup patch to 5.10 and 5.14 in order to keep the
+codebase consistent with the 4.14/4.19/5.4 patchseries]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-dapm.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/net/usb/hso.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -2528,9 +2528,20 @@ static struct snd_soc_dapm_widget *dapm_
- {
- 	struct snd_soc_dapm_widget *w;
- 	struct snd_soc_dapm_widget *fallback = NULL;
-+	char prefixed_pin[80];
-+	const char *pin_name;
-+	const char *prefix = soc_dapm_prefix(dapm);
-+
-+	if (prefix) {
-+		snprintf(prefixed_pin, sizeof(prefixed_pin), "%s %s",
-+			 prefix, pin);
-+		pin_name = prefixed_pin;
-+	} else {
-+		pin_name = pin;
-+	}
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -2354,7 +2354,7 @@ static int remove_net_device(struct hso_
+ }
  
- 	for_each_card_widgets(dapm->card, w) {
--		if (!strcmp(w->name, pin)) {
-+		if (!strcmp(w->name, pin_name)) {
- 			if (w->dapm == dapm)
- 				return w;
- 			else
+ /* Frees our network device */
+-static void hso_free_net_device(struct hso_device *hso_dev, bool bailout)
++static void hso_free_net_device(struct hso_device *hso_dev)
+ {
+ 	int i;
+ 	struct hso_net *hso_net = dev2net(hso_dev);
+@@ -2377,7 +2377,7 @@ static void hso_free_net_device(struct h
+ 	kfree(hso_net->mux_bulk_tx_buf);
+ 	hso_net->mux_bulk_tx_buf = NULL;
+ 
+-	if (hso_net->net && !bailout)
++	if (hso_net->net)
+ 		free_netdev(hso_net->net);
+ 
+ 	kfree(hso_dev);
+@@ -3137,7 +3137,7 @@ static void hso_free_interface(struct us
+ 				rfkill_unregister(rfk);
+ 				rfkill_destroy(rfk);
+ 			}
+-			hso_free_net_device(network_table[i], false);
++			hso_free_net_device(network_table[i]);
+ 		}
+ 	}
+ }
 
 
