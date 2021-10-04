@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79D6242103E
+	by mail.lfdr.de (Postfix) with ESMTP id E5B5442103F
 	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:40:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238293AbhJDNmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:42:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51850 "EHLO mail.kernel.org"
+        id S238323AbhJDNmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:42:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238356AbhJDNkU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:40:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D55F861501;
-        Mon,  4 Oct 2021 13:18:23 +0000 (UTC)
+        id S238364AbhJDNkV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:40:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4512363242;
+        Mon,  4 Oct 2021 13:18:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353504;
-        bh=2qsfbws95ldWgWaAEjuk+CYl+0H/cNEXWLareyVg+tw=;
+        s=korg; t=1633353506;
+        bh=D09irdrxtdPodoeP43k512tk67bMsz+r/9cUiYRIAjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=taRXdU/jVnJmxmgmg4YDey2rD/Z2nsKbe9od7NmQXBg+LN7C5MiQHD+HMA12pgUPl
-         YDq7Bhu7fPbkv/5OX0TbvoPMIWPXccK/Uig7zrnSrx3NTdEq3Zr5TtnwmE5IX46A/u
-         6x+RqO8biO5+7LBKqfbfsF+6ZbdcGnx6Jza5Z6ws=
+        b=mCYmsewHW7fhvYNjd341ummuS22+rU1N9P3dTfj5xYJ2nZYlrZv+DvHKfphEL6DcH
+         1EjfaGmqfSHevc38Bmmq8nhDiMoZrer1QfWbAyujkQ+1D4MbEdhCDFmfyIZ+7RG+91
+         2BxIwpKx6cbEz7MxqlubK2TOQcR6RMyO+a7sMxSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
-        Hou Tao <houtao1@huawei.com>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.14 154/172] ext4: limit the number of blocks in one ADD_RANGE TLV
-Date:   Mon,  4 Oct 2021 14:53:24 +0200
-Message-Id: <20211004125049.944161646@linuxfoundation.org>
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Eric Whitney <enwlinux@gmail.com>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.14 155/172] ext4: fix reserved space counter leakage
+Date:   Mon,  4 Oct 2021 14:53:25 +0200
+Message-Id: <20211004125049.975194364@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
 References: <20211004125044.945314266@linuxfoundation.org>
@@ -39,60 +41,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
 
-commit a2c2f0826e2b75560b31daf1cd9a755ab93cf4c6 upstream.
+commit 6fed83957f21eff11c8496e9f24253b03d2bc1dc upstream.
 
-Now EXT4_FC_TAG_ADD_RANGE uses ext4_extent to track the
-newly-added blocks, but the limit on the max value of
-ee_len field is ignored, and it can lead to BUG_ON as
-shown below when running command "fallocate -l 128M file"
-on a fast_commit-enabled fs:
+When ext4_insert_delayed block receives and recovers from an error from
+ext4_es_insert_delayed_block(), e.g., ENOMEM, it does not release the
+space it has reserved for that block insertion as it should. One effect
+of this bug is that s_dirtyclusters_counter is not decremented and
+remains incorrectly elevated until the file system has been unmounted.
+This can result in premature ENOSPC returns and apparent loss of free
+space.
 
-  kernel BUG at fs/ext4/ext4_extents.h:199!
-  invalid opcode: 0000 [#1] SMP PTI
-  CPU: 3 PID: 624 Comm: fallocate Not tainted 5.14.0-rc6+ #1
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
-  RIP: 0010:ext4_fc_write_inode_data+0x1f3/0x200
-  Call Trace:
-   ? ext4_fc_write_inode+0xf2/0x150
-   ext4_fc_commit+0x93b/0xa00
-   ? ext4_fallocate+0x1ad/0x10d0
-   ext4_sync_file+0x157/0x340
-   ? ext4_sync_file+0x157/0x340
-   vfs_fsync_range+0x49/0x80
-   do_fsync+0x3d/0x70
-   __x64_sys_fsync+0x14/0x20
-   do_syscall_64+0x3b/0xc0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+Another effect of this bug is that
+/sys/fs/ext4/<dev>/delayed_allocation_blocks can remain non-zero even
+after syncfs has been executed on the filesystem.
 
-Simply fixing it by limiting the number of blocks
-in one EXT4_FC_TAG_ADD_RANGE TLV.
+Besides, add check for s_dirtyclusters_counter when inode is going to be
+evicted and freed. s_dirtyclusters_counter can still keep non-zero until
+inode is written back in .evict_inode(), and thus the check is delayed
+to .destroy_inode().
 
-Fixes: aa75f4d3daae ("ext4: main fast-commit commit path")
+Fixes: 51865fda28e5 ("ext4: let ext4 maintain extent status tree")
 Cc: stable@kernel.org
-Signed-off-by: Hou Tao <houtao1@huawei.com>
+Suggested-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Reviewed-by: Eric Whitney <enwlinux@gmail.com>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/20210820044505.474318-1-houtao1@huawei.com
+Link: https://lore.kernel.org/r/20210823061358.84473-1-jefflexu@linux.alibaba.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/fast_commit.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/ext4/inode.c |    5 +++++
+ fs/ext4/super.c |    6 ++++++
+ 2 files changed, 11 insertions(+)
 
---- a/fs/ext4/fast_commit.c
-+++ b/fs/ext4/fast_commit.c
-@@ -893,6 +893,12 @@ static int ext4_fc_write_inode_data(stru
- 					    sizeof(lrange), (u8 *)&lrange, crc))
- 				return -ENOSPC;
- 		} else {
-+			unsigned int max = (map.m_flags & EXT4_MAP_UNWRITTEN) ?
-+				EXT_UNWRITTEN_MAX_LEN : EXT_INIT_MAX_LEN;
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -1640,6 +1640,7 @@ static int ext4_insert_delayed_block(str
+ 	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
+ 	int ret;
+ 	bool allocated = false;
++	bool reserved = false;
+ 
+ 	/*
+ 	 * If the cluster containing lblk is shared with a delayed,
+@@ -1656,6 +1657,7 @@ static int ext4_insert_delayed_block(str
+ 		ret = ext4_da_reserve_space(inode);
+ 		if (ret != 0)   /* ENOSPC */
+ 			goto errout;
++		reserved = true;
+ 	} else {   /* bigalloc */
+ 		if (!ext4_es_scan_clu(inode, &ext4_es_is_delonly, lblk)) {
+ 			if (!ext4_es_scan_clu(inode,
+@@ -1668,6 +1670,7 @@ static int ext4_insert_delayed_block(str
+ 					ret = ext4_da_reserve_space(inode);
+ 					if (ret != 0)   /* ENOSPC */
+ 						goto errout;
++					reserved = true;
+ 				} else {
+ 					allocated = true;
+ 				}
+@@ -1678,6 +1681,8 @@ static int ext4_insert_delayed_block(str
+ 	}
+ 
+ 	ret = ext4_es_insert_delayed_block(inode, lblk, allocated);
++	if (ret && reserved)
++		ext4_da_release_space(inode, 1);
+ 
+ errout:
+ 	return ret;
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -1351,6 +1351,12 @@ static void ext4_destroy_inode(struct in
+ 				true);
+ 		dump_stack();
+ 	}
 +
-+			/* Limit the number of blocks in one extent */
-+			map.m_len = min(max, map.m_len);
-+
- 			fc_ext.fc_ino = cpu_to_le32(inode->i_ino);
- 			ex = (struct ext4_extent *)&fc_ext.fc_ex;
- 			ex->ee_block = cpu_to_le32(map.m_lblk);
++	if (EXT4_I(inode)->i_reserved_data_blocks)
++		ext4_msg(inode->i_sb, KERN_ERR,
++			 "Inode %lu (%p): i_reserved_data_blocks (%u) not cleared!",
++			 inode->i_ino, EXT4_I(inode),
++			 EXT4_I(inode)->i_reserved_data_blocks);
+ }
+ 
+ static void init_once(void *foo)
 
 
