@@ -2,126 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8531442059E
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 07:52:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 874FF4205A0
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 07:53:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231970AbhJDFxv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 01:53:51 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:60670 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231935AbhJDFxv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 01:53:51 -0400
-Received: from sequoia.work.tihix.com (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 4C70E20B861E;
-        Sun,  3 Oct 2021 22:52:02 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 4C70E20B861E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1633326722;
-        bh=YuYuQCLYvGt135JMf9sLNe7YvbMcnd/CI+4BgHuZKCo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kfEsdLzwZug5WYvPIEV/4cLPD2GKKseDHV/tVKEo/0f/42sr8SDSqyNksDaA5FoAq
-         0uJhlbdq2FqIB08qd7KO0L9fs7wc6vcSj26XwxAkLfXrBI4XZ0QdHjQK0d2KdmgAQn
-         294NlfwVexASusXiyYUQh+1FOFAl6FmJkv+l8DPE=
-From:   Tyler Hicks <tyhicks@linux.microsoft.com>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
-Cc:     dan.j.williams@intel.com, sumiyawang@tencent.com,
-        yongduan@tencent.com
-Subject: [PATCH 5.4] libnvdimm/pmem: Fix crash triggered when I/O in-flight during unbind
-Date:   Mon,  4 Oct 2021 00:51:34 -0500
-Message-Id: <20211004055134.677854-1-tyhicks@linux.microsoft.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <1631797319109199@kroah.com>
-References: <1631797319109199@kroah.com>
+        id S232517AbhJDFzY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 01:55:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43348 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232131AbhJDFzY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 01:55:24 -0400
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF720C0613EC
+        for <stable@vger.kernel.org>; Sun,  3 Oct 2021 22:53:35 -0700 (PDT)
+Received: by mail-pl1-x632.google.com with SMTP id w14so1019817pll.2
+        for <stable@vger.kernel.org>; Sun, 03 Oct 2021 22:53:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=A07XLiCTM5yTsvVK2jaiQqlIt8XWGabLw6IztzGVmGE=;
+        b=ZtDPjHlIviJBvJ5DOGaSQ/7b7coDhLwL0smVDDvtgMGoa+atU2Ik6qJ1DHxRY0iRA/
+         dsvAq1OyQzdXYkAPPRnCkzb//xE7pi9JhBF4eITz0KVXSzpLlL+EF6rcR1kGJHECWByQ
+         oOYCpOtlMTUgCtYH1K51YhaJpe5DV9iHsU1bdR8qd4JCudj/dB9GFGmvZZeJVshb4QjB
+         9X0qkOYF2PKi+IG7u1J3A+XDCRt9dSLChyF8xQiRVak5RBp76SFmU4mZsSRpZqAMm8BR
+         VqcV5O7j4wzxYqWGB/KtwyXC8YLDQKRuQggs9Q7P+mOjsaWZRTQipF5SYIopvmW1ekox
+         othQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=A07XLiCTM5yTsvVK2jaiQqlIt8XWGabLw6IztzGVmGE=;
+        b=15vG+OAmH151BROs3R2GWKpB1PkzI2AMLxoZof86T57qnPPfcfHvrwhK/O6Lq4bkxT
+         So9YdTVsL00kkgx0nDE47cw/RnuCG18pqhpz4CA7l0sbEa8hLyJlHe/4MweUcBwoXK72
+         4+Ei9oGN7xMOYAsQhPo2Z4qpgrx9y0Yk3J7R33g2EaZsPh28LusXoTOyJfMNjooWhwQ7
+         Z1RJpiytCYY2evCxh6zuCjcoU0qTuxJgO/Yz08PysWVMl/DUnzk+LdhfRwXsKEC7g41a
+         0zCRSSoorlWqAjG6cG8ZRBqD9gr/9xzOm8A01Gumf2VlASyhNVMn7380sKg8/iQswdj6
+         FKQg==
+X-Gm-Message-State: AOAM531IccTUCMOEq2HyZBIY9kSMNG7/Uns/EuqK9JKDrehF2X6I5Lsm
+        iJhvXBVOfbDrlf/bXeKEZBTGGseEb/DXwNSk
+X-Google-Smtp-Source: ABdhPJy69dE3uMhLFjd0pDYjeiqtp2c/Leki3khXlt1dg0fF0JaAiwbuR6TgVcPXWlkcmWRunG4w9Q==
+X-Received: by 2002:a17:902:a50f:b029:11a:cd45:9009 with SMTP id s15-20020a170902a50fb029011acd459009mr21840257plq.38.1633326815257;
+        Sun, 03 Oct 2021 22:53:35 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id k35sm6239723pjc.53.2021.10.03.22.53.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 03 Oct 2021 22:53:34 -0700 (PDT)
+Message-ID: <615a96de.1c69fb81.f7d62.3ec5@mx.google.com>
+Date:   Sun, 03 Oct 2021 22:53:34 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.150-12-gbcf15feed6a1
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 198 runs,
+ 3 regressions (v5.4.150-12-gbcf15feed6a1)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: sumiyawang <sumiyawang@tencent.com>
+stable-rc/queue/5.4 baseline: 198 runs, 3 regressions (v5.4.150-12-gbcf15fe=
+ed6a1)
 
-commit 32b2397c1e56f33b0b1881def965bb89bd12f448 upstream.
+Regressions Summary
+-------------------
 
-There is a use after free crash when the pmem driver tears down its
-mapping while I/O is still inbound.
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+3          =
 
-This is triggered by driver unbind, "ndctl destroy-namespace", while I/O
-is in flight.
 
-Fix the sequence of blk_cleanup_queue() vs memunmap().
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.150-12-gbcf15feed6a1/plan/baseline/
 
-The crash signature is of the form:
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.150-12-gbcf15feed6a1
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      bcf15feed6a1b2aa42957da73490ce2307ac5793 =
 
- BUG: unable to handle page fault for address: ffffc90080200000
- CPU: 36 PID: 9606 Comm: systemd-udevd
- Call Trace:
-  ? pmem_do_bvec+0xf9/0x3a0
-  ? xas_alloc+0x55/0xd0
-  pmem_rw_page+0x4b/0x80
-  bdev_read_page+0x86/0xb0
-  do_mpage_readpage+0x5d4/0x7a0
-  ? lru_cache_add+0xe/0x10
-  mpage_readpages+0xf9/0x1c0
-  ? bd_link_disk_holder+0x1a0/0x1a0
-  blkdev_readpages+0x1d/0x20
-  read_pages+0x67/0x1a0
 
-  ndctl Call Trace in vmcore:
-  PID: 23473  TASK: ffff88c4fbbe8000  CPU: 1   COMMAND: "ndctl"
-  __schedule
-  schedule
-  blk_mq_freeze_queue_wait
-  blk_freeze_queue
-  blk_cleanup_queue
-  pmem_release_queue
-  devm_action_release
-  release_nodes
-  devres_release_all
-  device_release_driver_internal
-  device_driver_detach
-  unbind_store
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: sumiyawang <sumiyawang@tencent.com>
-Reviewed-by: yongduan <yongduan@tencent.com>
-Link: https://lore.kernel.org/r/1629632949-14749-1-git-send-email-sumiyawang@tencent.com
-Fixes: 50f44ee7248a ("mm/devm_memremap_pages: fix final page put race")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-[tyhicks: Minor contextual change in pmem_attach_disk() due to the
- transition to 'struct range' not yet taking place. Preserve the
- memcpy() call rather than initializing the range struct. That change
- was introduced in v5.10 with commit a4574f63edc6 ("mm/memremap_pages:
- convert to 'struct range'")]
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
----
+Test Regressions
+---------------- =
 
-We're seeing memory corruption issues in production and, AFAICT, we
-exercise this bit of code around the time that the corruption takes
-place. Therefore, I'm submitting this manually tested backport for
-inclusion in linux-5.4.y since it wasn't automatically applied due to
-the need for a manual backport.
 
- drivers/nvdimm/pmem.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
-index f9f76f6ba07b..7e65306b2bf2 100644
---- a/drivers/nvdimm/pmem.c
-+++ b/drivers/nvdimm/pmem.c
-@@ -423,11 +423,11 @@ static int pmem_attach_disk(struct device *dev,
- 		pmem->pfn_flags |= PFN_MAP;
- 		memcpy(&bb_res, &pmem->pgmap.res, sizeof(bb_res));
- 	} else {
-+		addr = devm_memremap(dev, pmem->phys_addr,
-+				pmem->size, ARCH_MEMREMAP_PMEM);
- 		if (devm_add_action_or_reset(dev, pmem_release_queue,
- 					&pmem->pgmap))
- 			return -ENOMEM;
--		addr = devm_memremap(dev, pmem->phys_addr,
--				pmem->size, ARCH_MEMREMAP_PMEM);
- 		memcpy(&bb_res, &nsio->res, sizeof(bb_res));
- 	}
- 
--- 
-2.25.1
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+3          =
 
+
+  Details:     https://kernelci.org/test/plan/id/615a6bb23d8bfe4a4099a2db
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.150-1=
+2-gbcf15feed6a1/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
+veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.150-1=
+2-gbcf15feed6a1/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
+veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/615a6bb23d8bfe4a4099a2ef
+        failing since 111 days (last pass: v5.4.125-37-g7cda316475cf, first=
+ fail: v5.4.125-84-g411d62eda127)
+
+    2021-10-04T02:48:45.017900  /lava-4637025/1/../bin/lava-test-case
+    2021-10-04T02:48:45.035135  <8>[   15.814545] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
+    2021-10-04T02:48:45.035360  /lava-4637025/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/615a6bb23d8bfe4a4099a307
+        failing since 111 days (last pass: v5.4.125-37-g7cda316475cf, first=
+ fail: v5.4.125-84-g411d62eda127)
+
+    2021-10-04T02:48:43.592765  /lava-4637025/1/../bin/lava-test-case
+    2021-10-04T02:48:43.609886  <8>[   14.389036] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>
+    2021-10-04T02:48:43.610173  /lava-4637025/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/615a6bb23d8bfe4a4099a308
+        failing since 111 days (last pass: v5.4.125-37-g7cda316475cf, first=
+ fail: v5.4.125-84-g411d62eda127)
+
+    2021-10-04T02:48:42.572782  /lava-4637025/1/../bin/lava-test-case
+    2021-10-04T02:48:42.578439  <8>[   13.369493] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =20
