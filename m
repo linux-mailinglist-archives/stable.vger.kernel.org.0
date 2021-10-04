@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 227F3420EB8
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:25:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7113D420EB4
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:25:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236963AbhJDN1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:27:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38150 "EHLO mail.kernel.org"
+        id S236959AbhJDN1b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:27:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236934AbhJDNZa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:25:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7BF161C12;
-        Mon,  4 Oct 2021 13:11:18 +0000 (UTC)
+        id S236208AbhJDNZb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:25:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA49861C14;
+        Mon,  4 Oct 2021 13:11:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353079;
-        bh=jcRBK8EomAPjn5aI+Arc7e/MeSBMdj8wu2+Bk1uCW4k=;
+        s=korg; t=1633353081;
+        bh=Zir6WWtaZQgjcbiLvfVuEMCCOq2lBqseqnqrAjomzKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xqQwsEQjrQ0ZpByDiRJhyB29p8j3wyT2moZ4lS1Z2PhfaC92FugFJP3tcDNZyQYu9
-         DmwOlehIk5bvi4eMyfxPFwaLDZ3PKC0R6chYw+RcgBGnDaX3dDZFYcr+Ny+ZxdKa6J
-         M8qBA3ZDLr1/quBNdd+flJD18Xw5O5T/fh4rU+DQ=
+        b=KP3e7oKjy8XvSM+8NIlbvGyUFW0kDjOAYEuFV3AATLPthmWe62/DB0p9F47IjpLWv
+         xEdCYCfv7aORdd5IYUcsIfcQYKNUC9I5sqI9xzzGMFvOsMT+/5YZJ8NxGdWb1nvgP7
+         VvXpLHWlusQGWt6qnFHh3VrJqXdYgkX7+anWQCQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrej Shadura <andrew.shadura@collabora.co.uk>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.10 81/93] HID: u2fzero: ignore incomplete packets without data
-Date:   Mon,  4 Oct 2021 14:53:19 +0200
-Message-Id: <20211004125037.279106340@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 82/93] net: udp: annotate data race around udp_sk(sk)->corkflag
+Date:   Mon,  4 Oct 2021 14:53:20 +0200
+Message-Id: <20211004125037.316344203@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
 References: <20211004125034.579439135@linuxfoundation.org>
@@ -40,35 +39,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrej Shadura <andrew.shadura@collabora.co.uk>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 22d65765f211cc83186fd8b87521159f354c0da9 upstream.
+commit a9f5970767d11eadc805d5283f202612c7ba1f59 upstream.
 
-Since the actual_length calculation is performed unsigned, packets
-shorter than 7 bytes (e.g. packets without data or otherwise truncated)
-or non-received packets ("zero" bytes) can cause buffer overflow.
+up->corkflag field can be read or written without any lock.
+Annotate accesses to avoid possible syzbot/KCSAN reports.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=214437
-Fixes: 42337b9d4d958("HID: add driver for U2F Zero built-in LED and RNG")
-Signed-off-by: Andrej Shadura <andrew.shadura@collabora.co.uk>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-u2fzero.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/ipv4/udp.c |   10 +++++-----
+ net/ipv6/udp.c |    2 +-
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/hid/hid-u2fzero.c
-+++ b/drivers/hid/hid-u2fzero.c
-@@ -198,7 +198,9 @@ static int u2fzero_rng_read(struct hwrng
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -1035,7 +1035,7 @@ int udp_sendmsg(struct sock *sk, struct
+ 	__be16 dport;
+ 	u8  tos;
+ 	int err, is_udplite = IS_UDPLITE(sk);
+-	int corkreq = up->corkflag || msg->msg_flags&MSG_MORE;
++	int corkreq = READ_ONCE(up->corkflag) || msg->msg_flags&MSG_MORE;
+ 	int (*getfrag)(void *, char *, int, int, int, struct sk_buff *);
+ 	struct sk_buff *skb;
+ 	struct ip_options_data opt_copy;
+@@ -1343,7 +1343,7 @@ int udp_sendpage(struct sock *sk, struct
  	}
  
- 	ret = u2fzero_recv(dev, &req, &resp);
--	if (ret < 0)
-+
-+	/* ignore errors or packets without data */
-+	if (ret < offsetof(struct u2f_hid_msg, init.data))
- 		return 0;
+ 	up->len += size;
+-	if (!(up->corkflag || (flags&MSG_MORE)))
++	if (!(READ_ONCE(up->corkflag) || (flags&MSG_MORE)))
+ 		ret = udp_push_pending_frames(sk);
+ 	if (!ret)
+ 		ret = size;
+@@ -2609,9 +2609,9 @@ int udp_lib_setsockopt(struct sock *sk,
+ 	switch (optname) {
+ 	case UDP_CORK:
+ 		if (val != 0) {
+-			up->corkflag = 1;
++			WRITE_ONCE(up->corkflag, 1);
+ 		} else {
+-			up->corkflag = 0;
++			WRITE_ONCE(up->corkflag, 0);
+ 			lock_sock(sk);
+ 			push_pending_frames(sk);
+ 			release_sock(sk);
+@@ -2734,7 +2734,7 @@ int udp_lib_getsockopt(struct sock *sk,
  
- 	/* only take the minimum amount of data it is safe to take */
+ 	switch (optname) {
+ 	case UDP_CORK:
+-		val = up->corkflag;
++		val = READ_ONCE(up->corkflag);
+ 		break;
+ 
+ 	case UDP_ENCAP:
+--- a/net/ipv6/udp.c
++++ b/net/ipv6/udp.c
+@@ -1288,7 +1288,7 @@ int udpv6_sendmsg(struct sock *sk, struc
+ 	int addr_len = msg->msg_namelen;
+ 	bool connected = false;
+ 	int ulen = len;
+-	int corkreq = up->corkflag || msg->msg_flags&MSG_MORE;
++	int corkreq = READ_ONCE(up->corkflag) || msg->msg_flags&MSG_MORE;
+ 	int err;
+ 	int is_udplite = IS_UDPLITE(sk);
+ 	int (*getfrag)(void *, char *, int, int, int, struct sk_buff *);
 
 
