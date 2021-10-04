@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 079C4420DC1
+	by mail.lfdr.de (Postfix) with ESMTP id A1B2A420DC3
 	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:17:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236381AbhJDNSL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:18:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53980 "EHLO mail.kernel.org"
+        id S235599AbhJDNSN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:18:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234436AbhJDNQV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:16:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9626F61BB2;
-        Mon,  4 Oct 2021 13:06:33 +0000 (UTC)
+        id S235823AbhJDNQX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:16:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07C9960FC1;
+        Mon,  4 Oct 2021 13:06:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352793;
-        bh=n1CoMQiKBXVMk5YwYTLUvIGd8zllXLDTXO9xNoJVG5I=;
+        s=korg; t=1633352796;
+        bh=DtPARgZLa+U6xg/VhZ8xWi5MlRsO3NwGfIJkC4qSvp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ou8v8/il8XjsMM/BmSIwdjEt4vpGTjTVlC1ecNdZhkrzZisbBpsboADcC2UxvVozN
-         bgiRtetGVEcpgTStV6rHmpL35TZkZWRIH8khvNW1wEVWrcKvK2TBj1AlF6RiUuRqp8
-         Gf2pEeCrnmcRx2Xz/CX6M6uoek7Xp6vDIUghK3uM=
+        b=OLXMowXBMlfKt8SucMv3v6egLAPU132gqbNoAMfOlPvN6X5DkpxR2CPoZUYEECO+p
+         l5byT9sONr8BF5mYtBPSP1DvY9PBCl7Rkbb7l/Qft1c2RJc+f0sDtZB9maETWbagZ6
+         Er8E/SxLL6W3Bwk9kTPbcAVxr8UNU7IlEW58MqD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 29/56] net: phy: bcm7xxx: request and manage GPHY clock
-Date:   Mon,  4 Oct 2021 14:52:49 +0200
-Message-Id: <20211004125030.918133685@linuxfoundation.org>
+Subject: [PATCH 5.4 30/56] net: phy: bcm7xxx: Fixed indirect MMD operations
+Date:   Mon,  4 Oct 2021 14:52:50 +0200
+Message-Id: <20211004125030.946920592@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
 References: <20211004125030.002116402@linuxfoundation.org>
@@ -43,97 +42,186 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit ba4ee3c053659119472135231dbef8f6880ce1fb ]
+[ Upstream commit d88fd1b546ff19c8040cfaea76bf16aed1c5a0bb ]
 
-The internal Gigabit PHY on Broadcom STB chips has a digital clock which
-drives its MDIO interface among other things, the driver now requests
-and manage that clock during .probe() and .remove() accordingly.
+When EEE support was added to the 28nm EPHY it was assumed that it would
+be able to support the standard clause 45 over clause 22 register access
+method. It turns out that the PHY does not support that, which is the
+very reason for using the indirect shadow mode 2 bank 3 access method.
 
-Because the PHY driver can be probed with the clocks turned off we need
-to apply the dummy BMSR workaround during the driver probe function to
-ensure subsequent MDIO read or write towards the PHY will succeed.
+Implement {read,write}_mmd to allow the standard PHY library routines
+pertaining to EEE querying and configuration to work correctly on these
+PHYs. This forces us to implement a __phy_set_clr_bits() function that
+does not grab the MDIO bus lock since the PHY driver's {read,write}_mmd
+functions are always called with that lock held.
 
+Fixes: 83ee102a6998 ("net: phy: bcm7xxx: add support for 28nm EPHY")
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/bcm7xxx.c | 30 +++++++++++++++++++++++++++++-
- 1 file changed, 29 insertions(+), 1 deletion(-)
+ drivers/net/phy/bcm7xxx.c | 114 ++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 110 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/phy/bcm7xxx.c b/drivers/net/phy/bcm7xxx.c
-index af8eabe7a6d4..e68dd2e9443c 100644
+index e68dd2e9443c..8686794148b8 100644
 --- a/drivers/net/phy/bcm7xxx.c
 +++ b/drivers/net/phy/bcm7xxx.c
-@@ -11,6 +11,7 @@
- #include "bcm-phy-lib.h"
- #include <linux/bitops.h>
- #include <linux/brcmphy.h>
-+#include <linux/clk.h>
- #include <linux/mdio.h>
+@@ -27,7 +27,12 @@
+ #define MII_BCM7XXX_SHD_2_ADDR_CTRL	0xe
+ #define MII_BCM7XXX_SHD_2_CTRL_STAT	0xf
+ #define MII_BCM7XXX_SHD_2_BIAS_TRIM	0x1a
++#define MII_BCM7XXX_SHD_3_PCS_CTRL	0x0
++#define MII_BCM7XXX_SHD_3_PCS_STATUS	0x1
++#define MII_BCM7XXX_SHD_3_EEE_CAP	0x2
+ #define MII_BCM7XXX_SHD_3_AN_EEE_ADV	0x3
++#define MII_BCM7XXX_SHD_3_EEE_LP	0x4
++#define MII_BCM7XXX_SHD_3_EEE_WK_ERR	0x5
+ #define MII_BCM7XXX_SHD_3_PCS_CTRL_2	0x6
+ #define  MII_BCM7XXX_PCS_CTRL_2_DEF	0x4400
+ #define MII_BCM7XXX_SHD_3_AN_STAT	0xb
+@@ -212,25 +217,37 @@ static int bcm7xxx_28nm_resume(struct phy_device *phydev)
+ 	return genphy_config_aneg(phydev);
+ }
  
- /* Broadcom BCM7xxx internal PHY registers */
-@@ -39,6 +40,7 @@
- 
- struct bcm7xxx_phy_priv {
- 	u64	*stats;
-+	struct clk *clk;
- };
- 
- static int bcm7xxx_28nm_d0_afe_config_init(struct phy_device *phydev)
-@@ -517,6 +519,7 @@ static void bcm7xxx_28nm_get_phy_stats(struct phy_device *phydev,
- static int bcm7xxx_28nm_probe(struct phy_device *phydev)
+-static int phy_set_clr_bits(struct phy_device *dev, int location,
+-					int set_mask, int clr_mask)
++static int __phy_set_clr_bits(struct phy_device *dev, int location,
++			      int set_mask, int clr_mask)
  {
- 	struct bcm7xxx_phy_priv *priv;
-+	int ret = 0;
+ 	int v, ret;
  
- 	priv = devm_kzalloc(&phydev->mdio.dev, sizeof(*priv), GFP_KERNEL);
- 	if (!priv)
-@@ -530,7 +533,30 @@ static int bcm7xxx_28nm_probe(struct phy_device *phydev)
- 	if (!priv->stats)
- 		return -ENOMEM;
+-	v = phy_read(dev, location);
++	v = __phy_read(dev, location);
+ 	if (v < 0)
+ 		return v;
  
--	return 0;
-+	priv->clk = devm_clk_get_optional(&phydev->mdio.dev, NULL);
-+	if (IS_ERR(priv->clk))
-+		return PTR_ERR(priv->clk);
+ 	v &= ~clr_mask;
+ 	v |= set_mask;
+ 
+-	ret = phy_write(dev, location, v);
++	ret = __phy_write(dev, location, v);
+ 	if (ret < 0)
+ 		return ret;
+ 
+ 	return v;
+ }
+ 
++static int phy_set_clr_bits(struct phy_device *dev, int location,
++			    int set_mask, int clr_mask)
++{
++	int ret;
 +
-+	ret = clk_prepare_enable(priv->clk);
-+	if (ret)
-+		return ret;
-+
-+	/* Dummy read to a register to workaround an issue upon reset where the
-+	 * internal inverter may not allow the first MDIO transaction to pass
-+	 * the MDIO management controller and make us return 0xffff for such
-+	 * reads. This is needed to ensure that any subsequent reads to the
-+	 * PHY will succeed.
-+	 */
-+	phy_read(phydev, MII_BMSR);
++	mutex_lock(&dev->mdio.bus->mdio_lock);
++	ret = __phy_set_clr_bits(dev, location, set_mask, clr_mask);
++	mutex_unlock(&dev->mdio.bus->mdio_lock);
 +
 +	return ret;
 +}
 +
-+static void bcm7xxx_28nm_remove(struct phy_device *phydev)
-+{
-+	struct bcm7xxx_phy_priv *priv = phydev->priv;
+ static int bcm7xxx_28nm_ephy_01_afe_config_init(struct phy_device *phydev)
+ {
+ 	int ret;
+@@ -394,6 +411,93 @@ static int bcm7xxx_28nm_ephy_config_init(struct phy_device *phydev)
+ 	return bcm7xxx_28nm_ephy_apd_enable(phydev);
+ }
+ 
++#define MII_BCM7XXX_REG_INVALID	0xff
 +
-+	clk_disable_unprepare(priv->clk);
- }
- 
- #define BCM7XXX_28NM_GPHY(_oui, _name)					\
-@@ -548,6 +574,7 @@ static int bcm7xxx_28nm_probe(struct phy_device *phydev)
- 	.get_strings	= bcm_phy_get_strings,				\
++static u8 bcm7xxx_28nm_ephy_regnum_to_shd(u16 regnum)
++{
++	switch (regnum) {
++	case MDIO_CTRL1:
++		return MII_BCM7XXX_SHD_3_PCS_CTRL;
++	case MDIO_STAT1:
++		return MII_BCM7XXX_SHD_3_PCS_STATUS;
++	case MDIO_PCS_EEE_ABLE:
++		return MII_BCM7XXX_SHD_3_EEE_CAP;
++	case MDIO_AN_EEE_ADV:
++		return MII_BCM7XXX_SHD_3_AN_EEE_ADV;
++	case MDIO_AN_EEE_LPABLE:
++		return MII_BCM7XXX_SHD_3_EEE_LP;
++	case MDIO_PCS_EEE_WK_ERR:
++		return MII_BCM7XXX_SHD_3_EEE_WK_ERR;
++	default:
++		return MII_BCM7XXX_REG_INVALID;
++	}
++}
++
++static bool bcm7xxx_28nm_ephy_dev_valid(int devnum)
++{
++	return devnum == MDIO_MMD_AN || devnum == MDIO_MMD_PCS;
++}
++
++static int bcm7xxx_28nm_ephy_read_mmd(struct phy_device *phydev,
++				      int devnum, u16 regnum)
++{
++	u8 shd = bcm7xxx_28nm_ephy_regnum_to_shd(regnum);
++	int ret;
++
++	if (!bcm7xxx_28nm_ephy_dev_valid(devnum) ||
++	    shd == MII_BCM7XXX_REG_INVALID)
++		return -EOPNOTSUPP;
++
++	/* set shadow mode 2 */
++	ret = __phy_set_clr_bits(phydev, MII_BCM7XXX_TEST,
++				 MII_BCM7XXX_SHD_MODE_2, 0);
++	if (ret < 0)
++		return ret;
++
++	/* Access the desired shadow register address */
++	ret = __phy_write(phydev, MII_BCM7XXX_SHD_2_ADDR_CTRL, shd);
++	if (ret < 0)
++		goto reset_shadow_mode;
++
++	ret = __phy_read(phydev, MII_BCM7XXX_SHD_2_CTRL_STAT);
++
++reset_shadow_mode:
++	/* reset shadow mode 2 */
++	__phy_set_clr_bits(phydev, MII_BCM7XXX_TEST, 0,
++			   MII_BCM7XXX_SHD_MODE_2);
++	return ret;
++}
++
++static int bcm7xxx_28nm_ephy_write_mmd(struct phy_device *phydev,
++				       int devnum, u16 regnum, u16 val)
++{
++	u8 shd = bcm7xxx_28nm_ephy_regnum_to_shd(regnum);
++	int ret;
++
++	if (!bcm7xxx_28nm_ephy_dev_valid(devnum) ||
++	    shd == MII_BCM7XXX_REG_INVALID)
++		return -EOPNOTSUPP;
++
++	/* set shadow mode 2 */
++	ret = __phy_set_clr_bits(phydev, MII_BCM7XXX_TEST,
++				 MII_BCM7XXX_SHD_MODE_2, 0);
++	if (ret < 0)
++		return ret;
++
++	/* Access the desired shadow register address */
++	ret = __phy_write(phydev, MII_BCM7XXX_SHD_2_ADDR_CTRL, shd);
++	if (ret < 0)
++		goto reset_shadow_mode;
++
++	/* Write the desired value in the shadow register */
++	__phy_write(phydev, MII_BCM7XXX_SHD_2_CTRL_STAT, val);
++
++reset_shadow_mode:
++	/* reset shadow mode 2 */
++	return __phy_set_clr_bits(phydev, MII_BCM7XXX_TEST, 0,
++				  MII_BCM7XXX_SHD_MODE_2);
++}
++
+ static int bcm7xxx_28nm_ephy_resume(struct phy_device *phydev)
+ {
+ 	int ret;
+@@ -591,6 +695,8 @@ static void bcm7xxx_28nm_remove(struct phy_device *phydev)
  	.get_stats	= bcm7xxx_28nm_get_phy_stats,			\
  	.probe		= bcm7xxx_28nm_probe,				\
-+	.remove		= bcm7xxx_28nm_remove,				\
- }
- 
- #define BCM7XXX_28NM_EPHY(_oui, _name)					\
-@@ -563,6 +590,7 @@ static int bcm7xxx_28nm_probe(struct phy_device *phydev)
- 	.get_strings	= bcm_phy_get_strings,				\
- 	.get_stats	= bcm7xxx_28nm_get_phy_stats,			\
- 	.probe		= bcm7xxx_28nm_probe,				\
-+	.remove		= bcm7xxx_28nm_remove,				\
+ 	.remove		= bcm7xxx_28nm_remove,				\
++	.read_mmd	= bcm7xxx_28nm_ephy_read_mmd,			\
++	.write_mmd	= bcm7xxx_28nm_ephy_write_mmd,			\
  }
  
  #define BCM7XXX_40NM_EPHY(_oui, _name)					\
