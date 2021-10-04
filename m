@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E2B5420E13
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:19:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62168420C59
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:03:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235940AbhJDNVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:21:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54104 "EHLO mail.kernel.org"
+        id S234963AbhJDNE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:04:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235309AbhJDNTU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:19:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3591B61BC1;
-        Mon,  4 Oct 2021 13:08:20 +0000 (UTC)
+        id S234968AbhJDNDd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:03:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17D7061A78;
+        Mon,  4 Oct 2021 12:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352900;
-        bh=X28Zg4aWw+lyjHmNQ5LZLvKHYQtbXNZ4nstGn3KQck8=;
+        s=korg; t=1633352389;
+        bh=PZphukInpo/nFI1X+TcSefwgh7kD0/GTSYOYSCK0vsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sjCwM88Hid53uY4gkK5kxyuZY5oVx3pPGt2EHerB8/aPA9+BdQK9BzS9xwMSoHEYF
-         UMm/JPlEgqKrh0BZ8rp9BMMFokfzxym4Ecoxn2Snf+FM9BHmvaaLGKrlWFWrzX92w4
-         ylki1rRHiY1Xt8hdLxU028ZVt16rdmiPUQKUPqJ0=
+        b=wqnE8mk6eKy3P0n3Co+jvrQc0U/RwF6cviaPwa5xqifsB/dofmmp98Qc/fKSwu2J6
+         FGtWldjKDcEsTSMZjuwZOBF/32H6RRT7bOv80XpCSEnw8Mc/BTDzVlqLYXjmx8G1W7
+         v/34Tvc3HZ41pElQ3gBSc0Pk6VaKtTTQt1lXJmME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadezda Lutovinova <lutovinova@ispras.ru>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.10 12/93] hwmon: (w83791d) Fix NULL pointer dereference by removing unnecessary structure field
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 35/75] net: 6pack: Fix tx timeout and slot time
 Date:   Mon,  4 Oct 2021 14:52:10 +0200
-Message-Id: <20211004125034.985771326@linuxfoundation.org>
+Message-Id: <20211004125032.688577623@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,84 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadezda Lutovinova <lutovinova@ispras.ru>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 943c15ac1b84d378da26bba41c83c67e16499ac4 upstream.
+[ Upstream commit 3c0d2a46c0141913dc6fd126c57d0615677d946e ]
 
-If driver read val value sufficient for
-(val & 0x08) && (!(val & 0x80)) && ((val & 0x7) == ((val >> 4) & 0x7))
-from device then Null pointer dereference occurs.
-(It is possible if tmp = 0b0xyz1xyz, where same literals mean same numbers)
-Also lm75[] does not serve a purpose anymore after switching to
-devm_i2c_new_dummy_device() in w83791d_detect_subclients().
+tx timeout and slot time are currently specified in units of HZ.  On
+Alpha, HZ is defined as 1024.  When building alpha:allmodconfig, this
+results in the following error message.
 
-The patch fixes possible NULL pointer dereference by removing lm75[].
+  drivers/net/hamradio/6pack.c: In function 'sixpack_open':
+  drivers/net/hamradio/6pack.c:71:41: error:
+  	unsigned conversion from 'int' to 'unsigned char'
+  	changes value from '256' to '0'
 
-Found by Linux Driver Verification project (linuxtesting.org).
+In the 6PACK protocol, tx timeout is specified in units of 10 ms and
+transmitted over the wire:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
-Link: https://lore.kernel.org/r/20210921155153.28098-1-lutovinova@ispras.ru
-[groeck: Dropped unnecessary continuation lines, fixed multi-line alignment]
+    https://www.linux-ax25.org/wiki/6PACK
+
+Defining a value dependent on HZ doesn't really make sense, and
+presumably comes from the (very historical) situation where HZ was
+originally 100.
+
+Note that the SIXP_SLOTTIME use explicitly is about 10ms granularity:
+
+        mod_timer(&sp->tx_t, jiffies + ((when + 1) * HZ) / 100);
+
+and the SIXP_TXDELAY walue is sent as a byte over the wire.
+
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/w83791d.c |   29 +++++++++++------------------
- 1 file changed, 11 insertions(+), 18 deletions(-)
+ drivers/net/hamradio/6pack.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/hwmon/w83791d.c
-+++ b/drivers/hwmon/w83791d.c
-@@ -273,9 +273,6 @@ struct w83791d_data {
- 	char valid;			/* !=0 if following fields are valid */
- 	unsigned long last_updated;	/* In jiffies */
+diff --git a/drivers/net/hamradio/6pack.c b/drivers/net/hamradio/6pack.c
+index 231eaef29266..7e430300818e 100644
+--- a/drivers/net/hamradio/6pack.c
++++ b/drivers/net/hamradio/6pack.c
+@@ -68,9 +68,9 @@
+ #define SIXP_DAMA_OFF		0
  
--	/* array of 2 pointers to subclients */
--	struct i2c_client *lm75[2];
--
- 	/* volts */
- 	u8 in[NUMBER_OF_VIN];		/* Register value */
- 	u8 in_max[NUMBER_OF_VIN];	/* Register value */
-@@ -1257,7 +1254,6 @@ static const struct attribute_group w837
- static int w83791d_detect_subclients(struct i2c_client *client)
- {
- 	struct i2c_adapter *adapter = client->adapter;
--	struct w83791d_data *data = i2c_get_clientdata(client);
- 	int address = client->addr;
- 	int i, id;
- 	u8 val;
-@@ -1280,22 +1276,19 @@ static int w83791d_detect_subclients(str
- 	}
+ /* default level 2 parameters */
+-#define SIXP_TXDELAY			(HZ/4)	/* in 1 s */
++#define SIXP_TXDELAY			25	/* 250 ms */
+ #define SIXP_PERSIST			50	/* in 256ths */
+-#define SIXP_SLOTTIME			(HZ/10)	/* in 1 s */
++#define SIXP_SLOTTIME			10	/* 100 ms */
+ #define SIXP_INIT_RESYNC_TIMEOUT	(3*HZ/2) /* in 1 s */
+ #define SIXP_RESYNC_TIMEOUT		5*HZ	/* in 1 s */
  
- 	val = w83791d_read(client, W83791D_REG_I2C_SUBADDR);
--	if (!(val & 0x08))
--		data->lm75[0] = devm_i2c_new_dummy_device(&client->dev, adapter,
--							  0x48 + (val & 0x7));
--	if (!(val & 0x80)) {
--		if (!IS_ERR(data->lm75[0]) &&
--				((val & 0x7) == ((val >> 4) & 0x7))) {
--			dev_err(&client->dev,
--				"duplicate addresses 0x%x, "
--				"use force_subclient\n",
--				data->lm75[0]->addr);
--			return -ENODEV;
--		}
--		data->lm75[1] = devm_i2c_new_dummy_device(&client->dev, adapter,
--							  0x48 + ((val >> 4) & 0x7));
-+
-+	if (!(val & 0x88) && (val & 0x7) == ((val >> 4) & 0x7)) {
-+		dev_err(&client->dev,
-+			"duplicate addresses 0x%x, use force_subclient\n", 0x48 + (val & 0x7));
-+		return -ENODEV;
- 	}
- 
-+	if (!(val & 0x08))
-+		devm_i2c_new_dummy_device(&client->dev, adapter, 0x48 + (val & 0x7));
-+
-+	if (!(val & 0x80))
-+		devm_i2c_new_dummy_device(&client->dev, adapter, 0x48 + ((val >> 4) & 0x7));
-+
- 	return 0;
- }
- 
+-- 
+2.33.0
+
 
 
