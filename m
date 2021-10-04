@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 966E0420BA4
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:56:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD1A8420C23
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:01:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233826AbhJDM6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 08:58:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59970 "EHLO mail.kernel.org"
+        id S234242AbhJDNCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:02:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233461AbhJDM5v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:57:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EBFA261425;
-        Mon,  4 Oct 2021 12:56:01 +0000 (UTC)
+        id S234665AbhJDNBZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:01:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C28FB61881;
+        Mon,  4 Oct 2021 12:58:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352162;
-        bh=BnWP2ZpN6HYeeK7J1xnmdQ8aL2iTNTQWxxsnClOMMOc=;
+        s=korg; t=1633352317;
+        bh=D8uQ+j1H8akNlCAvSrYN1IrGarwVgDzlMgVLQDbSjrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XP7tI1gexploehBBxoFvO4E7sChGgCZjP1Nl7Nf42IH+/nUvXzgcfofqjgKX7sKRl
-         oQWcAbTSUp6f+FesZmoTBfVh0kVqtCTdRYWQly3B1u5l3Lrwph14fIpKjfUxVMmycO
-         NfD/lLtATYSJHrWfVe75faJnE/28SaW+CeZ9fIKA=
+        b=RcmLC3+Kswg5jSqd1cv33z9Qc1FCG+OxYue2F1ab/EflSiCblBgRzG8S5gsTjKeJA
+         tj8AICs+Mq3aZg1UIPef1/aDMJXr5zoZHlSHI2SxwbUftIh4Tx+i3ac+ynzfx9Gqcb
+         0hy+waFeQppHAkacMzNet63rjMdiFb8Az7boU5yQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Ondrej Zary <linux@zary.sk>
-Subject: [PATCH 4.9 06/57] usb-storage: Add quirk for ScanLogic SL11R-IDE older than 2.6c
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Subject: [PATCH 4.14 15/75] serial: mvebu-uart: fix drivers tx_empty callback
 Date:   Mon,  4 Oct 2021 14:51:50 +0200
-Message-Id: <20211004125029.139238037@linuxfoundation.org>
+Message-Id: <20211004125032.043399224@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
-References: <20211004125028.940212411@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,59 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Zary <linux@zary.sk>
+From: Pali Rohár <pali@kernel.org>
 
-commit b55d37ef6b7db3eda9b4495a8d9b0a944ee8c67d upstream.
+commit 74e1eb3b4a1ef2e564b4bdeb6e92afe844e900de upstream.
 
-ScanLogic SL11R-IDE with firmware older than 2.6c (the latest one) has
-broken tag handling, preventing the device from working at all:
-usb 1-1: new full-speed USB device number 2 using uhci_hcd
-usb 1-1: New USB device found, idVendor=04ce, idProduct=0002, bcdDevice= 2.60
-usb 1-1: New USB device strings: Mfr=1, Product=1, SerialNumber=0
-usb 1-1: Product: USB Device
-usb 1-1: Manufacturer: USB Device
-usb-storage 1-1:1.0: USB Mass Storage device detected
-scsi host2: usb-storage 1-1:1.0
-usbcore: registered new interface driver usb-storage
-usb 1-1: reset full-speed USB device number 2 using uhci_hcd
-usb 1-1: reset full-speed USB device number 2 using uhci_hcd
-usb 1-1: reset full-speed USB device number 2 using uhci_hcd
-usb 1-1: reset full-speed USB device number 2 using uhci_hcd
+Driver's tx_empty callback should signal when the transmit shift register
+is empty. So when the last character has been sent.
 
-Add US_FL_BULK_IGNORE_TAG to fix it. Also update my e-mail address.
+STAT_TX_FIFO_EMP bit signals only that HW transmit FIFO is empty, which
+happens when the last byte is loaded into transmit shift register.
 
-2.6c is the only firmware that claims Linux compatibility.
-The firmware can be upgraded using ezotgdbg utility:
-https://github.com/asciilifeform/ezotgdbg
+STAT_TX_EMP bit signals when the both HW transmit FIFO and transmit shift
+register are empty.
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Ondrej Zary <linux@zary.sk>
+So replace STAT_TX_FIFO_EMP check by STAT_TX_EMP in mvebu_uart_tx_empty()
+callback function.
+
+Fixes: 30530791a7a0 ("serial: mvebu-uart: initial support for Armada-3700 serial port")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210913210106.12717-1-linux@zary.sk
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20210911132017.25505-1-pali@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/unusual_devs.h |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/tty/serial/mvebu-uart.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -435,9 +435,16 @@ UNUSUAL_DEV(  0x04cb, 0x0100, 0x0000, 0x
- 		USB_SC_UFI, USB_PR_DEVICE, NULL, US_FL_FIX_INQUIRY | US_FL_SINGLE_LUN),
+--- a/drivers/tty/serial/mvebu-uart.c
++++ b/drivers/tty/serial/mvebu-uart.c
+@@ -108,7 +108,7 @@ static unsigned int mvebu_uart_tx_empty(
+ 	st = readl(port->membase + UART_STAT);
+ 	spin_unlock_irqrestore(&port->lock, flags);
  
- /*
-- * Reported by Ondrej Zary <linux@rainbow-software.org>
-+ * Reported by Ondrej Zary <linux@zary.sk>
-  * The device reports one sector more and breaks when that sector is accessed
-+ * Firmwares older than 2.6c (the latest one and the only that claims Linux
-+ * support) have also broken tag handling
-  */
-+UNUSUAL_DEV(  0x04ce, 0x0002, 0x0000, 0x026b,
-+		"ScanLogic",
-+		"SL11R-IDE",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_FIX_CAPACITY | US_FL_BULK_IGNORE_TAG),
- UNUSUAL_DEV(  0x04ce, 0x0002, 0x026c, 0x026c,
- 		"ScanLogic",
- 		"SL11R-IDE",
+-	return (st & STAT_TX_FIFO_EMP) ? TIOCSER_TEMT : 0;
++	return (st & STAT_TX_EMP) ? TIOCSER_TEMT : 0;
+ }
+ 
+ static unsigned int mvebu_uart_get_mctrl(struct uart_port *port)
 
 
