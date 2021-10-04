@@ -2,155 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70C4B421704
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 21:07:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44C9142160C
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 20:07:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234998AbhJDTJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 15:09:39 -0400
-Received: from mga14.intel.com ([192.55.52.115]:27558 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233226AbhJDTJi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 15:09:38 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10127"; a="225878382"
-X-IronPort-AV: E=Sophos;i="5.85,346,1624345200"; 
-   d="scan'208";a="225878382"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Oct 2021 10:50:02 -0700
-X-IronPort-AV: E=Sophos;i="5.85,346,1624345200"; 
-   d="scan'208";a="457750649"
-Received: from mdroper-desk1.fm.intel.com (HELO mdroper-desk1.amr.corp.intel.com) ([10.1.27.134])
-  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Oct 2021 10:50:02 -0700
-Date:   Mon, 4 Oct 2021 10:50:00 -0700
-From:   Matt Roper <matthew.d.roper@intel.com>
-To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
-        Karthik B S <karthik.b.s@intel.com>
-Subject: Re: [Intel-gfx] [PATCH 1/2] drm/i915: Extend the async flip VT-d w/a
- to skl/bxt
-Message-ID: <20211004175000.GA366973@mdroper-desk1.amr.corp.intel.com>
-References: <20210930190943.17547-1-ville.syrjala@linux.intel.com>
- <20211001210815.GG3389343@mdroper-desk1.amr.corp.intel.com>
- <YVeFOzabpcWAbVFQ@intel.com>
+        id S237719AbhJDSIw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 14:08:52 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:45340 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237205AbhJDSIY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 14:08:24 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id C16131C0B76; Mon,  4 Oct 2021 20:06:33 +0200 (CEST)
+Date:   Mon, 4 Oct 2021 20:06:33 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 00/41] 4.4.286-rc1 review
+Message-ID: <20211004180633.GB14089@duo.ucw.cz>
+References: <20211004125026.597501645@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="l76fUT7nc3MelDdI"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YVeFOzabpcWAbVFQ@intel.com>
+In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Oct 02, 2021 at 01:01:31AM +0300, Ville Syrjälä wrote:
-> On Fri, Oct 01, 2021 at 02:08:15PM -0700, Matt Roper wrote:
-> > On Thu, Sep 30, 2021 at 10:09:42PM +0300, Ville Syrjala wrote:
-> > > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > 
-> > > Looks like skl/bxt/derivatives also need the plane stride
-> > > stretch w/a when using async flips and VT-d is enabled, or
-> > > else we get corruption on screen. To my surprise this was
-> > > even documented in bspec, but only as a note on the
-> > > CHICHKEN_PIPESL register description rather than on the
-> > > w/a list.
-> > > 
-> > > So very much the same thing as on HSW/BDW, except the bits
-> > > moved yet again.
-> > 
-> > Bspec 7522 doesn't say anything about this requirement being tied to
-> > VT-d on these platforms.  Should we drop the intel_vtd_active()
-> > condition to be safe?
-> 
-> I think it's just an oversight in bspec. I read through the hsd and
-> IIRC it did specify that it's VT-d only. Also real life confirms
-> it. No problems whatsoever when VT-d is disabled.
 
-I notice there are additional bits that we should set to apply this
-workaround to planes 2, 3, and 4, but since i915 still artificially
-limits async flips to just the primary plane, only programming bits 1:0
-should be fine for now; we'll just need to remember to extend this
-workaround if we do start allowing async flips on other planes in the
-future.
+--l76fUT7nc3MelDdI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Reviewed-by: Matt Roper <matthew.d.roper@intel.com>
+Hi!
 
-> 
-> > 
-> > 
-> > Matt
-> > 
-> > > 
-> > > Cc: stable@vger.kernel.org
-> > > Cc: Karthik B S <karthik.b.s@intel.com>
-> > > Fixes: 55ea1cb178ef ("drm/i915: Enable async flips in i915")
-> > > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > ---
-> > >  drivers/gpu/drm/i915/i915_reg.h |  5 +++++
-> > >  drivers/gpu/drm/i915/intel_pm.c | 12 ++++++++++++
-> > >  2 files changed, 17 insertions(+)
-> > > 
-> > > diff --git a/drivers/gpu/drm/i915/i915_reg.h b/drivers/gpu/drm/i915/i915_reg.h
-> > > index 3a20a55d2512..29f6bfc2002d 100644
-> > > --- a/drivers/gpu/drm/i915/i915_reg.h
-> > > +++ b/drivers/gpu/drm/i915/i915_reg.h
-> > > @@ -8222,6 +8222,11 @@ enum {
-> > >  #define  HSW_SPR_STRETCH_MAX_X1		REG_FIELD_PREP(HSW_SPR_STRETCH_MAX_MASK, 3)
-> > >  #define  HSW_FBCQ_DIS			(1 << 22)
-> > >  #define  BDW_DPRS_MASK_VBLANK_SRD	(1 << 0)
-> > > +#define  SKL_PLANE1_STRETCH_MAX_MASK	REG_GENMASK(1, 0)
-> > > +#define  SKL_PLANE1_STRETCH_MAX_X8	REG_FIELD_PREP(SKL_PLANE1_STRETCH_MAX_MASK, 0)
-> > > +#define  SKL_PLANE1_STRETCH_MAX_X4	REG_FIELD_PREP(SKL_PLANE1_STRETCH_MAX_MASK, 1)
-> > > +#define  SKL_PLANE1_STRETCH_MAX_X2	REG_FIELD_PREP(SKL_PLANE1_STRETCH_MAX_MASK, 2)
-> > > +#define  SKL_PLANE1_STRETCH_MAX_X1	REG_FIELD_PREP(SKL_PLANE1_STRETCH_MAX_MASK, 3)
-> > >  #define CHICKEN_PIPESL_1(pipe) _MMIO_PIPE(pipe, _CHICKEN_PIPESL_1_A, _CHICKEN_PIPESL_1_B)
-> > >  
-> > >  #define _CHICKEN_TRANS_A	0x420c0
-> > > diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
-> > > index ef5f73934dab..74d4620a4999 100644
-> > > --- a/drivers/gpu/drm/i915/intel_pm.c
-> > > +++ b/drivers/gpu/drm/i915/intel_pm.c
-> > > @@ -76,6 +76,8 @@ struct intel_wm_config {
-> > >  
-> > >  static void gen9_init_clock_gating(struct drm_i915_private *dev_priv)
-> > >  {
-> > > +	enum pipe pipe;
-> > > +
-> > >  	if (HAS_LLC(dev_priv)) {
-> > >  		/*
-> > >  		 * WaCompressedResourceDisplayNewHashMode:skl,kbl
-> > > @@ -89,6 +91,16 @@ static void gen9_init_clock_gating(struct drm_i915_private *dev_priv)
-> > >  			   SKL_DE_COMPRESSED_HASH_MODE);
-> > >  	}
-> > >  
-> > > +	for_each_pipe(dev_priv, pipe) {
-> > > +		/*
-> > > +		 * "Plane N strech max must be programmed to 11b (x1)
-> > > +		 *  when Async flips are enabled on that plane."
-> > > +		 */
-> > > +		if (!IS_GEMINILAKE(dev_priv) && intel_vtd_active())
-> > > +			intel_uncore_rmw(&dev_priv->uncore, CHICKEN_PIPESL_1(pipe),
-> > > +					 SKL_PLANE1_STRETCH_MAX_MASK, SKL_PLANE1_STRETCH_MAX_X1);
-> > > +	}
-> > > +
-> > >  	/* See Bspec note for PSR2_CTL bit 31, Wa#828:skl,bxt,kbl,cfl */
-> > >  	intel_uncore_write(&dev_priv->uncore, CHICKEN_PAR1_1,
-> > >  		   intel_uncore_read(&dev_priv->uncore, CHICKEN_PAR1_1) | SKL_EDP_PSR_FIX_RDWRAP);
-> > > -- 
-> > > 2.32.0
-> > > 
-> > 
-> > -- 
-> > Matt Roper
-> > Graphics Software Engineer
-> > VTT-OSGC Platform Enablement
-> > Intel Corporation
-> > (916) 356-2795
-> 
-> -- 
-> Ville Syrjälä
-> Intel
+> This is the start of the stable review cycle for the 4.4.286 release.
+> There are 41 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 
--- 
-Matt Roper
-Graphics Software Engineer
-VTT-OSGC Platform Enablement
-Intel Corporation
-(916) 356-2795
+CIP testing did not find any problems here:
+
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+4.4.y
+
+(Note that our testing on 4.4 is single target where 4.19 has wider
+set, so it is impossible to tell if it 4.4 has same problem as 4.19
+based on our testing).
+
+Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+
+Best regards,
+                                                                Pavel
+
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--l76fUT7nc3MelDdI
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYVtCqQAKCRAw5/Bqldv6
+8qswAJ9WAYqMgzhxt8VJg+P7tZ7a1hrALgCZAUtFYuwUyTdtu+xYmDyUAT3iK2Y=
+=HOwQ
+-----END PGP SIGNATURE-----
+
+--l76fUT7nc3MelDdI--
