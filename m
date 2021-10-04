@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C6E7420CDB
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:08:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA760420C40
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:02:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235369AbhJDNJp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:09:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39514 "EHLO mail.kernel.org"
+        id S234177AbhJDNEA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:04:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235617AbhJDNIq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:08:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C204A61B52;
-        Mon,  4 Oct 2021 13:02:43 +0000 (UTC)
+        id S233981AbhJDNCw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:02:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1570161409;
+        Mon,  4 Oct 2021 12:59:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352564;
-        bh=gMhw0cjMySFpDPumZElrDmJBDvre5oDGHL8yaIjVQzk=;
+        s=korg; t=1633352363;
+        bh=2x/8C7RGicmM784+vbWKsqQcHRNQFf3C1wuczzZL2ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vdq2jb1phtdxVktwv2PabEiVHSYSFES1wvAWU5aOBaK5Ix4fY5wA9Aw1qxtBrwFWm
-         2qXvijyj7h+AwT70OfNqA+mQLAgK1MY61LMRXZfzKRvZhwJKgZJn6UVet5XUoTgVu9
-         TzYwovVycMqiVLMyCHkSOFRP5nWttNZGniWO74c0=
+        b=TVhF6routJSrf398yRM5pP9kOo4yRUDMPkY6+/8hspilxeehbkqX6wH5wTMKb0Kub
+         0doToYL4vf+EUdeddGtzY9bpyI85Ri/Dm3qmq9EYDlSMxKSGy3kwbKFIkubQ027z/j
+         13RgwcQTPTb/njiVdAuft4durjMnmE9e7t7+kriQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 36/95] xen/balloon: use a kernel thread instead a workqueue
+Subject: [PATCH 4.14 31/75] qnx4: avoid stringop-overread errors
 Date:   Mon,  4 Oct 2021 14:52:06 +0200
-Message-Id: <20211004125034.753338888@linuxfoundation.org>
+Message-Id: <20211004125032.558921579@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,193 +40,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 8480ed9c2bbd56fc86524998e5f2e3e22f5038f6 ]
+[ Upstream commit b7213ffa0e585feb1aee3e7173e965e66ee0abaa ]
 
-Today the Xen ballooning is done via delayed work in a workqueue. This
-might result in workqueue hangups being reported in case of large
-amounts of memory are being ballooned in one go (here 16GB):
+The qnx4 directory entries are 64-byte blocks that have different
+contents depending on the a status byte that is in the last byte of the
+block.
 
-BUG: workqueue lockup - pool cpus=6 node=0 flags=0x0 nice=0 stuck for 64s!
-Showing busy workqueues and worker pools:
-workqueue events: flags=0x0
-  pwq 12: cpus=6 node=0 flags=0x0 nice=0 active=2/256 refcnt=3
-    in-flight: 229:balloon_process
-    pending: cache_reap
-workqueue events_freezable_power_: flags=0x84
-  pwq 12: cpus=6 node=0 flags=0x0 nice=0 active=1/256 refcnt=2
-    pending: disk_events_workfn
-workqueue mm_percpu_wq: flags=0x8
-  pwq 12: cpus=6 node=0 flags=0x0 nice=0 active=1/256 refcnt=2
-    pending: vmstat_update
-pool 12: cpus=6 node=0 flags=0x0 nice=0 hung=64s workers=3 idle: 2222 43
+In particular, a directory entry can be either a "link info" entry with
+a 48-byte name and pointers to the real inode information, or an "inode
+entry" with a smaller 16-byte name and the full inode information.
 
-This can easily be avoided by using a dedicated kernel thread for doing
-the ballooning work.
+But the code was written to always just treat the directory name as if
+it was part of that "inode entry", and just extend the name to the
+longer case if the status byte said it was a link entry.
 
-Reported-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20210827123206.15429-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+That work just fine and gives the right results, but now that gcc is
+tracking data structure accesses much more, the code can trigger a
+compiler error about using up to 48 bytes (the long name) in a structure
+that only has that shorter name in it:
+
+   fs/qnx4/dir.c: In function ‘qnx4_readdir’:
+   fs/qnx4/dir.c:51:32: error: ‘strnlen’ specified bound 48 exceeds source size 16 [-Werror=stringop-overread]
+      51 |                         size = strnlen(de->di_fname, size);
+         |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+   In file included from fs/qnx4/qnx4.h:3,
+                    from fs/qnx4/dir.c:16:
+   include/uapi/linux/qnx4_fs.h:45:25: note: source object declared here
+      45 |         char            di_fname[QNX4_SHORT_NAME_MAX];
+         |                         ^~~~~~~~
+
+which is because the source code doesn't really make this whole "one of
+two different types" explicit.
+
+Fix this by introducing a very explicit union of the two types, and
+basically explaining to the compiler what is really going on.
+
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/balloon.c | 62 +++++++++++++++++++++++++++++++------------
- 1 file changed, 45 insertions(+), 17 deletions(-)
+ fs/qnx4/dir.c | 51 ++++++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 34 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
-index b23edf64c2b2..643dbe5620e8 100644
---- a/drivers/xen/balloon.c
-+++ b/drivers/xen/balloon.c
-@@ -43,6 +43,8 @@
- #include <linux/sched.h>
- #include <linux/cred.h>
- #include <linux/errno.h>
-+#include <linux/freezer.h>
-+#include <linux/kthread.h>
- #include <linux/mm.h>
- #include <linux/bootmem.h>
- #include <linux/pagemap.h>
-@@ -120,7 +122,7 @@ static struct ctl_table xen_root[] = {
- #define EXTENT_ORDER (fls(XEN_PFN_PER_PAGE) - 1)
+diff --git a/fs/qnx4/dir.c b/fs/qnx4/dir.c
+index a6ee23aadd28..2a66844b7ff8 100644
+--- a/fs/qnx4/dir.c
++++ b/fs/qnx4/dir.c
+@@ -15,13 +15,27 @@
+ #include <linux/buffer_head.h>
+ #include "qnx4.h"
  
- /*
-- * balloon_process() state:
-+ * balloon_thread() state:
-  *
-  * BP_DONE: done or nothing to do,
-  * BP_WAIT: wait to be rescheduled,
-@@ -135,6 +137,8 @@ enum bp_state {
- 	BP_ECANCELED
- };
- 
-+/* Main waiting point for xen-balloon thread. */
-+static DECLARE_WAIT_QUEUE_HEAD(balloon_thread_wq);
- 
- static DEFINE_MUTEX(balloon_mutex);
- 
-@@ -149,10 +153,6 @@ static xen_pfn_t frame_list[PAGE_SIZE / sizeof(xen_pfn_t)];
- static LIST_HEAD(ballooned_pages);
- static DECLARE_WAIT_QUEUE_HEAD(balloon_wq);
- 
--/* Main work function, always executed in process context. */
--static void balloon_process(struct work_struct *work);
--static DECLARE_DELAYED_WORK(balloon_worker, balloon_process);
--
- /* When ballooning out (allocating memory to return to Xen) we don't really
-    want the kernel to try too hard since that can trigger the oom killer. */
- #define GFP_BALLOON \
-@@ -383,7 +383,7 @@ static void xen_online_page(struct page *page)
- static int xen_memory_notifier(struct notifier_block *nb, unsigned long val, void *v)
- {
- 	if (val == MEM_ONLINE)
--		schedule_delayed_work(&balloon_worker, 0);
-+		wake_up(&balloon_thread_wq);
- 
- 	return NOTIFY_OK;
- }
-@@ -508,18 +508,43 @@ static enum bp_state decrease_reservation(unsigned long nr_pages, gfp_t gfp)
- }
- 
- /*
-- * As this is a work item it is guaranteed to run as a single instance only.
-+ * Stop waiting if either state is not BP_EAGAIN and ballooning action is
-+ * needed, or if the credit has changed while state is BP_EAGAIN.
-+ */
-+static bool balloon_thread_cond(enum bp_state state, long credit)
-+{
-+	if (state != BP_EAGAIN)
-+		credit = 0;
-+
-+	return current_credit() != credit || kthread_should_stop();
-+}
-+
 +/*
-+ * As this is a kthread it is guaranteed to run as a single instance only.
-  * We may of course race updates of the target counts (which are protected
-  * by the balloon lock), or with changes to the Xen hard limit, but we will
-  * recover from these in time.
-  */
--static void balloon_process(struct work_struct *work)
-+static int balloon_thread(void *unused)
++ * A qnx4 directory entry is an inode entry or link info
++ * depending on the status field in the last byte. The
++ * first byte is where the name start either way, and a
++ * zero means it's empty.
++ */
++union qnx4_directory_entry {
++	struct {
++		char de_name;
++		char de_pad[62];
++		char de_status;
++	};
++	struct qnx4_inode_entry inode;
++	struct qnx4_link_info link;
++};
++
+ static int qnx4_readdir(struct file *file, struct dir_context *ctx)
  {
- 	enum bp_state state = BP_DONE;
- 	long credit;
-+	unsigned long timeout;
+ 	struct inode *inode = file_inode(file);
+ 	unsigned int offset;
+ 	struct buffer_head *bh;
+-	struct qnx4_inode_entry *de;
+-	struct qnx4_link_info *le;
+ 	unsigned long blknum;
+ 	int ix, ino;
+ 	int size;
+@@ -38,27 +52,30 @@ static int qnx4_readdir(struct file *file, struct dir_context *ctx)
+ 		}
+ 		ix = (ctx->pos >> QNX4_DIR_ENTRY_SIZE_BITS) % QNX4_INODES_PER_BLOCK;
+ 		for (; ix < QNX4_INODES_PER_BLOCK; ix++, ctx->pos += QNX4_DIR_ENTRY_SIZE) {
++			union qnx4_directory_entry *de;
++			const char *name;
 +
-+	set_freezable();
-+	for (;;) {
-+		if (state == BP_EAGAIN)
-+			timeout = balloon_stats.schedule_delay * HZ;
-+		else
-+			timeout = 3600 * HZ;
-+		credit = current_credit();
- 
-+		wait_event_interruptible_timeout(balloon_thread_wq,
-+				 balloon_thread_cond(state, credit), timeout);
+ 			offset = ix * QNX4_DIR_ENTRY_SIZE;
+-			de = (struct qnx4_inode_entry *) (bh->b_data + offset);
+-			if (!de->di_fname[0])
++			de = (union qnx4_directory_entry *) (bh->b_data + offset);
 +
-+		if (kthread_should_stop())
-+			return 0;
- 
--	do {
- 		mutex_lock(&balloon_mutex);
- 
- 		credit = current_credit();
-@@ -546,12 +571,7 @@ static void balloon_process(struct work_struct *work)
- 		mutex_unlock(&balloon_mutex);
- 
- 		cond_resched();
--
--	} while (credit && state == BP_DONE);
--
--	/* Schedule more work if there is some still to be done. */
--	if (state == BP_EAGAIN)
--		schedule_delayed_work(&balloon_worker, balloon_stats.schedule_delay * HZ);
-+	}
- }
- 
- /* Resets the Xen limit, sets new target, and kicks off processing. */
-@@ -559,7 +579,7 @@ void balloon_set_new_target(unsigned long target)
- {
- 	/* No need for lock. Not read-modify-write updates. */
- 	balloon_stats.target_pages = target;
--	schedule_delayed_work(&balloon_worker, 0);
-+	wake_up(&balloon_thread_wq);
- }
- EXPORT_SYMBOL_GPL(balloon_set_new_target);
- 
-@@ -664,7 +684,7 @@ void free_xenballooned_pages(int nr_pages, struct page **pages)
- 
- 	/* The balloon may be too large now. Shrink it if needed. */
- 	if (current_credit())
--		schedule_delayed_work(&balloon_worker, 0);
-+		wake_up(&balloon_thread_wq);
- 
- 	mutex_unlock(&balloon_mutex);
- }
-@@ -698,6 +718,8 @@ static void __init balloon_add_region(unsigned long start_pfn,
- 
- static int __init balloon_init(void)
- {
-+	struct task_struct *task;
-+
- 	if (!xen_domain())
- 		return -ENODEV;
- 
-@@ -741,6 +763,12 @@ static int __init balloon_init(void)
- 	}
- #endif
- 
-+	task = kthread_run(balloon_thread, NULL, "xen-balloon");
-+	if (IS_ERR(task)) {
-+		pr_err("xen-balloon thread could not be started, ballooning will not work!\n");
-+		return PTR_ERR(task);
-+	}
-+
- 	/* Init the xen-balloon driver. */
- 	xen_balloon_init();
- 
++			if (!de->de_name)
+ 				continue;
+-			if (!(de->di_status & (QNX4_FILE_USED|QNX4_FILE_LINK)))
++			if (!(de->de_status & (QNX4_FILE_USED|QNX4_FILE_LINK)))
+ 				continue;
+-			if (!(de->di_status & QNX4_FILE_LINK))
+-				size = QNX4_SHORT_NAME_MAX;
+-			else
+-				size = QNX4_NAME_MAX;
+-			size = strnlen(de->di_fname, size);
+-			QNX4DEBUG((KERN_INFO "qnx4_readdir:%.*s\n", size, de->di_fname));
+-			if (!(de->di_status & QNX4_FILE_LINK))
++			if (!(de->de_status & QNX4_FILE_LINK)) {
++				size = sizeof(de->inode.di_fname);
++				name = de->inode.di_fname;
+ 				ino = blknum * QNX4_INODES_PER_BLOCK + ix - 1;
+-			else {
+-				le  = (struct qnx4_link_info*)de;
+-				ino = ( le32_to_cpu(le->dl_inode_blk) - 1 ) *
++			} else {
++				size = sizeof(de->link.dl_fname);
++				name = de->link.dl_fname;
++				ino = ( le32_to_cpu(de->link.dl_inode_blk) - 1 ) *
+ 					QNX4_INODES_PER_BLOCK +
+-					le->dl_inode_ndx;
++					de->link.dl_inode_ndx;
+ 			}
+-			if (!dir_emit(ctx, de->di_fname, size, ino, DT_UNKNOWN)) {
++			size = strnlen(name, size);
++			QNX4DEBUG((KERN_INFO "qnx4_readdir:%.*s\n", size, name));
++			if (!dir_emit(ctx, name, size, ino, DT_UNKNOWN)) {
+ 				brelse(bh);
+ 				return 0;
+ 			}
 -- 
 2.33.0
 
