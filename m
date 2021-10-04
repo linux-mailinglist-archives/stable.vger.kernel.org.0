@@ -2,147 +2,303 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72E5A420B8E
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:56:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89699420DBB
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:16:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233677AbhJDM6A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 08:58:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59346 "EHLO mail.kernel.org"
+        id S236191AbhJDNSB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:18:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233700AbhJDM5Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:57:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5930861501;
-        Mon,  4 Oct 2021 12:55:35 +0000 (UTC)
+        id S236190AbhJDNQF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:16:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25F47619E5;
+        Mon,  4 Oct 2021 13:06:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352135;
-        bh=L241wpkUh0bWgSPDGbsmy1HluiZHT2lvYcQZyy8xsko=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X6WySviV7Z9WsQWwV7TKkbbxCWkOBjkHkSmwVXJkD+1zNDU00ptWzImMV2nQnSMn4
-         hFC11J91U1T1tvwVB7GDGMn+QD8ah8vO425Vva/eveOclLS7f1EdkcF9PRzu6e473S
-         YZVwvMpcfB8R5EmeaPAinSwoq6W/dY1o4EhsFc9c=
+        s=korg; t=1633352788;
+        bh=2MVw7IzTt6yv+cn42ozVudPqsyGT+KWABWfZ3yT/T6E=;
+        h=From:To:Cc:Subject:Date:From;
+        b=neOFB8gXUQ+DeEpVBpf5J0y6R0LCax90OKaY2yi2kXBqgKNulauF5yajGsgwSg1YK
+         vrRrmH4gMrQ+TweC5s/IB8oMu8xZ8doPWpvvDKAzmLiF7Hjk+M2ekqcnEAD47ZHqu1
+         kGGAS0xxY0m6Q62xCz51kwjNgSK2sn7eblHbHKY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Felicitas Hetzelt <felicitashetzelt@gmail.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 29/41] e100: fix buffer overrun in e100_get_regs
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.4 00/56] 5.4.151-rc1 review
 Date:   Mon,  4 Oct 2021 14:52:20 +0200
-Message-Id: <20211004125027.500694420@linuxfoundation.org>
+Message-Id: <20211004125030.002116402@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
-References: <20211004125026.597501645@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.151-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.151-rc1
+X-KernelTest-Deadline: 2021-10-06T12:50+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Keller <jacob.e.keller@intel.com>
+This is the start of the stable review cycle for the 5.4.151 release.
+There are 56 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 51032e6f17ce990d06123ad7307f258c50d25aa7 ]
+Responses should be made by Wed, 06 Oct 2021 12:50:17 +0000.
+Anything received after that time might be too late.
 
-The e100_get_regs function is used to implement a simple register dump
-for the e100 device. The data is broken into a couple of MAC control
-registers, and then a series of PHY registers, followed by a memory dump
-buffer.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.151-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-The total length of the register dump is defined as (1 + E100_PHY_REGS)
-* sizeof(u32) + sizeof(nic->mem->dump_buf).
+thanks,
 
-The logic for filling in the PHY registers uses a convoluted inverted
-count for loop which counts from E100_PHY_REGS (0x1C) down to 0, and
-assigns the slots 1 + E100_PHY_REGS - i. The first loop iteration will
-fill in [1] and the final loop iteration will fill in [1 + 0x1C]. This
-is actually one more than the supposed number of PHY registers.
+greg k-h
 
-The memory dump buffer is then filled into the space at
-[2 + E100_PHY_REGS] which will cause that memcpy to assign 4 bytes past
-the total size.
+-------------
+Pseudo-Shortlog of commits:
 
-The end result is that we overrun the total buffer size allocated by the
-kernel, which could lead to a panic or other issues due to memory
-corruption.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.151-rc1
 
-It is difficult to determine the actual total number of registers
-here. The only 8255x datasheet I could find indicates there are 28 total
-MDI registers. However, we're reading 29 here, and reading them in
-reverse!
+Yanfei Xu <yanfei.xu@windriver.com>
+    net: mdiobus: Fix memory leak in __mdiobus_register
 
-In addition, the ethtool e100 register dump interface appears to read
-the first PHY register to determine if the device is in MDI or MDIx
-mode. This doesn't appear to be documented anywhere within the 8255x
-datasheet. I can only assume it must be in register 28 (the extra
-register we're reading here).
+Anirudh Rayabharam <mail@anirudhrb.com>
+    HID: usbhid: free raw_report buffers in usbhid_stop
 
-Lets not change any of the intended meaning of what we copy here. Just
-extend the space by 4 bytes to account for the extra register and
-continue copying the data out in the same order.
+Jozsef Kadlecsik <kadlec@netfilter.org>
+    netfilter: ipset: Fix oversized kvmalloc() calls
 
-Change the E100_PHY_REGS value to be the correct total (29) so that the
-total register dump size is calculated properly. Fix the offset for
-where we copy the dump buffer so that it doesn't overrun the total size.
+F.A.Sulaiman <asha.16@itfac.mrt.ac.lk>
+    HID: betop: fix slab-out-of-bounds Write in betop_probe
 
-Re-write the for loop to use counting up instead of the convoluted
-down-counting. Correct the mdio_read offset to use the 0-based register
-offsets, but maintain the bizarre reverse ordering so that we have the
-ABI expected by applications like ethtool. This requires and additional
-subtraction of 1. It seems a bit odd but it makes the flow of assignment
-into the register buffer easier to follow.
+Dan Carpenter <dan.carpenter@oracle.com>
+    crypto: ccp - fix resource leaks in ccp_run_aes_gcm_cmd()
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Felicitas Hetzelt <felicitashetzelt@gmail.com>
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Jacob Keller <jacob.e.keller@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/ethernet/intel/e100.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+Dongliang Mu <mudongliangabcd@gmail.com>
+    usb: hso: remove the bailout parameter
 
-diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
-index abb65ed9492b..aa556e4f9051 100644
---- a/drivers/net/ethernet/intel/e100.c
-+++ b/drivers/net/ethernet/intel/e100.c
-@@ -2462,7 +2462,7 @@ static void e100_get_drvinfo(struct net_device *netdev,
- 		sizeof(info->bus_info));
- }
- 
--#define E100_PHY_REGS 0x1C
-+#define E100_PHY_REGS 0x1D
- static int e100_get_regs_len(struct net_device *netdev)
- {
- 	struct nic *nic = netdev_priv(netdev);
-@@ -2484,14 +2484,18 @@ static void e100_get_regs(struct net_device *netdev,
- 	buff[0] = ioread8(&nic->csr->scb.cmd_hi) << 24 |
- 		ioread8(&nic->csr->scb.cmd_lo) << 16 |
- 		ioread16(&nic->csr->scb.status);
--	for (i = E100_PHY_REGS; i >= 0; i--)
--		buff[1 + E100_PHY_REGS - i] =
--			mdio_read(netdev, nic->mii.phy_id, i);
-+	for (i = 0; i < E100_PHY_REGS; i++)
-+		/* Note that we read the registers in reverse order. This
-+		 * ordering is the ABI apparently used by ethtool and other
-+		 * applications.
-+		 */
-+		buff[1 + i] = mdio_read(netdev, nic->mii.phy_id,
-+					E100_PHY_REGS - 1 - i);
- 	memset(nic->mem->dump_buf, 0, sizeof(nic->mem->dump_buf));
- 	e100_exec_cb(nic, NULL, e100_dump);
- 	msleep(10);
--	memcpy(&buff[2 + E100_PHY_REGS], nic->mem->dump_buf,
--		sizeof(nic->mem->dump_buf));
-+	memcpy(&buff[1 + E100_PHY_REGS], nic->mem->dump_buf,
-+	       sizeof(nic->mem->dump_buf));
- }
- 
- static void e100_get_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
--- 
-2.33.0
+Dongliang Mu <mudongliangabcd@gmail.com>
+    usb: hso: fix error handling code of hso_create_net_device
 
+Oliver Neukum <oneukum@suse.com>
+    hso: fix bailout in error case of probe
+
+sumiyawang <sumiyawang@tencent.com>
+    libnvdimm/pmem: Fix crash triggered when I/O in-flight during unbind
+
+Rob Herring <robh@kernel.org>
+    PCI: Fix pci_host_bridge struct device release/free handling
+
+Leon Yu <leoyu@nvidia.com>
+    net: stmmac: don't attach interface until resume finishes
+
+Eric Dumazet <edumazet@google.com>
+    net: udp: annotate data race around udp_sk(sk)->corkflag
+
+Andrej Shadura <andrew.shadura@collabora.co.uk>
+    HID: u2fzero: ignore incomplete packets without data
+
+yangerkun <yangerkun@huawei.com>
+    ext4: fix potential infinite loop in ext4_dx_readdir()
+
+Jeffle Xu <jefflexu@linux.alibaba.com>
+    ext4: fix reserved space counter leakage
+
+Ritesh Harjani <riteshh@linux.ibm.com>
+    ext4: fix loff_t overflow in ext4_max_bitmap_size()
+
+Johan Hovold <johan@kernel.org>
+    ipack: ipoctal: fix module reference leak
+
+Johan Hovold <johan@kernel.org>
+    ipack: ipoctal: fix missing allocation-failure check
+
+Johan Hovold <johan@kernel.org>
+    ipack: ipoctal: fix tty-registration error handling
+
+Johan Hovold <johan@kernel.org>
+    ipack: ipoctal: fix tty registration race
+
+Johan Hovold <johan@kernel.org>
+    ipack: ipoctal: fix stack information leak
+
+Nirmoy Das <nirmoy.das@amd.com>
+    debugfs: debugfs_create_file_size(): use IS_ERR to check for error
+
+Chen Jingwen <chenjingwen6@huawei.com>
+    elf: don't use MAP_FIXED_NOREPLACE for elf interpreter mappings
+
+Kan Liang <kan.liang@linux.intel.com>
+    perf/x86/intel: Update event constraints for ICX
+
+Eric Dumazet <edumazet@google.com>
+    af_unix: fix races in sk_peer_pid and sk_peer_cred accesses
+
+Vlad Buslov <vladbu@nvidia.com>
+    net: sched: flower: protect fl_walk() with rcu
+
+Florian Fainelli <f.fainelli@gmail.com>
+    net: phy: bcm7xxx: Fixed indirect MMD operations
+
+Florian Fainelli <f.fainelli@gmail.com>
+    net: phy: bcm7xxx: request and manage GPHY clock
+
+Jian Shen <shenjian15@huawei.com>
+    net: hns3: do not allow call hns3_nic_net_open repeatedly
+
+Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+    scsi: csiostor: Add module softdep on cxgb4
+
+Jens Axboe <axboe@kernel.dk>
+    Revert "block, bfq: honor already-setup queue merges"
+
+Jiri Benc <jbenc@redhat.com>
+    selftests, bpf: test_lwt_ip_encap: Really disable rp_filter
+
+Jacob Keller <jacob.e.keller@intel.com>
+    e100: fix buffer overrun in e100_get_regs
+
+Jacob Keller <jacob.e.keller@intel.com>
+    e100: fix length calculation in e100_get_regs_len
+
+Xiao Liang <shaw.leon@gmail.com>
+    net: ipv4: Fix rtnexthop len when RTA_FLOW is present
+
+Paul Fertser <fercerpav@gmail.com>
+    hwmon: (tmp421) fix rounding for negative values
+
+Paul Fertser <fercerpav@gmail.com>
+    hwmon: (tmp421) report /PVLD condition as fault
+
+Xin Long <lucien.xin@gmail.com>
+    sctp: break out if skb_header_pointer returns NULL in sctp_rcv_ootb
+
+Johannes Berg <johannes.berg@intel.com>
+    mac80211-hwsim: fix late beacon hrtimer handling
+
+Johannes Berg <johannes.berg@intel.com>
+    mac80211: mesh: fix potentially unaligned access
+
+Lorenzo Bianconi <lorenzo@kernel.org>
+    mac80211: limit injected vht mcs/nss in ieee80211_parse_tx_radiotap
+
+Chih-Kang Chang <gary.chang@realtek.com>
+    mac80211: Fix ieee80211_amsdu_aggregate frag_tail bug
+
+Vadim Pasternak <vadimp@nvidia.com>
+    hwmon: (mlxreg-fan) Return non-zero value when fan current state is enforced from sysfs
+
+Andrea Claudi <aclaudi@redhat.com>
+    ipvs: check that ip_vs_conn_tab_bits is between 8 and 20
+
+Charlene Liu <Charlene.Liu@amd.com>
+    drm/amd/display: Pass PCI deviceid into DC
+
+Zelin Deng <zelin.deng@linux.alibaba.com>
+    x86/kvmclock: Move this_cpu_pvti into kvmclock.h
+
+Johannes Berg <johannes.berg@intel.com>
+    mac80211: fix use-after-free in CCMP/GCMP RX
+
+Jonathan Hsu <jonathan.hsu@mediatek.com>
+    scsi: ufs: Fix illegal offset in UPIU event trace
+
+Nadezda Lutovinova <lutovinova@ispras.ru>
+    hwmon: (w83791d) Fix NULL pointer dereference by removing unnecessary structure field
+
+Nadezda Lutovinova <lutovinova@ispras.ru>
+    hwmon: (w83792d) Fix NULL pointer dereference by removing unnecessary structure field
+
+Nadezda Lutovinova <lutovinova@ispras.ru>
+    hwmon: (w83793) Fix NULL pointer dereference by removing unnecessary structure field
+
+Eric Biggers <ebiggers@google.com>
+    fs-verity: fix signed integer overflow with i_size near S64_MAX
+
+Pawel Laszczak <pawell@cadence.com>
+    usb: cdns3: fix race condition before setting doorbell
+
+James Morse <james.morse@arm.com>
+    cpufreq: schedutil: Destroy mutex before kobject_put() frees the memory
+
+Kevin Hao <haokexin@gmail.com>
+    cpufreq: schedutil: Use kobject release() method to free sugov_tunables
+
+Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+    tty: Fix out-of-bound vmalloc access in imageblit
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                          |   4 +-
+ arch/x86/events/intel/core.c                      |   1 +
+ arch/x86/include/asm/kvmclock.h                   |  14 +++
+ arch/x86/kernel/kvmclock.c                        |  13 +-
+ block/bfq-iosched.c                               |  16 +--
+ drivers/cpufreq/cpufreq_governor_attr_set.c       |   2 +-
+ drivers/crypto/ccp/ccp-ops.c                      |  14 ++-
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   1 +
+ drivers/hid/hid-betopff.c                         |  13 +-
+ drivers/hid/hid-u2fzero.c                         |   4 +-
+ drivers/hid/usbhid/hid-core.c                     |  13 +-
+ drivers/hwmon/mlxreg-fan.c                        |  12 +-
+ drivers/hwmon/tmp421.c                            |  33 ++---
+ drivers/hwmon/w83791d.c                           |  29 ++---
+ drivers/hwmon/w83792d.c                           |  28 ++---
+ drivers/hwmon/w83793.c                            |  26 ++--
+ drivers/ipack/devices/ipoctal.c                   |  63 +++++++---
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c   |   5 +
+ drivers/net/ethernet/intel/e100.c                 |  22 ++--
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   4 +-
+ drivers/net/phy/bcm7xxx.c                         | 144 +++++++++++++++++++++-
+ drivers/net/phy/mdio_bus.c                        |   1 +
+ drivers/net/usb/hso.c                             |  33 +++--
+ drivers/net/wireless/mac80211_hwsim.c             |   4 +-
+ drivers/nvdimm/pmem.c                             |   4 +-
+ drivers/pci/probe.c                               |  36 +++---
+ drivers/pci/remove.c                              |   2 +-
+ drivers/scsi/csiostor/csio_init.c                 |   1 +
+ drivers/scsi/ufs/ufshcd.c                         |   3 +-
+ drivers/tty/vt/vt.c                               |  21 +++-
+ drivers/usb/cdns3/gadget.c                        |  14 +++
+ fs/binfmt_elf.c                                   |   2 +-
+ fs/debugfs/inode.c                                |   2 +-
+ fs/ext4/dir.c                                     |   6 +-
+ fs/ext4/inode.c                                   |   5 +
+ fs/ext4/super.c                                   |  16 ++-
+ fs/verity/enable.c                                |   2 +-
+ fs/verity/open.c                                  |   2 +-
+ include/net/ip_fib.h                              |   2 +-
+ include/net/nexthop.h                             |   2 +-
+ include/net/sock.h                                |   2 +
+ kernel/sched/cpufreq_schedutil.c                  |  16 ++-
+ net/core/sock.c                                   |  32 ++++-
+ net/ipv4/fib_semantics.c                          |  16 +--
+ net/ipv4/udp.c                                    |  10 +-
+ net/ipv6/route.c                                  |   5 +-
+ net/ipv6/udp.c                                    |   2 +-
+ net/mac80211/mesh_ps.c                            |   3 +-
+ net/mac80211/tx.c                                 |  12 ++
+ net/mac80211/wpa.c                                |   6 +
+ net/netfilter/ipset/ip_set_hash_gen.h             |   4 +-
+ net/netfilter/ipvs/ip_vs_conn.c                   |   4 +
+ net/sched/cls_flower.c                            |   6 +
+ net/sctp/input.c                                  |   2 +-
+ net/unix/af_unix.c                                |  34 ++++-
+ tools/testing/selftests/bpf/test_lwt_ip_encap.sh  |  13 +-
+ 56 files changed, 552 insertions(+), 234 deletions(-)
 
 
