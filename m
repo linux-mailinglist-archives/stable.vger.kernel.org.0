@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEAFD420C21
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:01:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 861D0420FB7
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:35:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234167AbhJDNCx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:02:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32834 "EHLO mail.kernel.org"
+        id S237930AbhJDNha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:37:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234661AbhJDNBX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:01:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DEBE61872;
-        Mon,  4 Oct 2021 12:58:31 +0000 (UTC)
+        id S237885AbhJDNfa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:35:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA3B461BAA;
+        Mon,  4 Oct 2021 13:16:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352312;
-        bh=PET7HZ0UpCtVSueVdDh7OTv6gjFlQEU7lUc8ADdHlDc=;
+        s=korg; t=1633353366;
+        bh=HSo0HeoTq6932krhI7dspLP/+JlyL66tOuDir8PxY7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tnLh9q+DZsL8x4EYmH8h9nPrtyk/+lDBTdT8OX9D+S51dnsIOZi3gvGUvkh9KP6cq
-         m9cS/tho95p5ag8x77TCg97UbFZ1g9+J04yJSvcqAZsiRwusgb/RqToma0I7NdnbB1
-         yGi8He5OApHf1e6lH77N/JlJO3UtJIwEUtm1n4EU=
+        b=XO4t4BjCqebfSnyNCwtvPA42rP4Pvi+m4OnhCAkddvLXF4YuLKkLBvoaX05K3oM+F
+         SRC70qkdBOOlDBxTl5TPoDXhkn8826GbQsSILsFh35+SJUm9PObUQ7fAszdZiVLB+3
+         UvLoOxwc2Qx3shlJwn2eAhEy0f0WJ412LH2SVllo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 13/75] USB: serial: option: add device id for Foxconn T99W265
+        stable@vger.kernel.org, Peter Gonda <pgonda@google.com>,
+        Marc Orr <marcorr@google.com>,
+        Nathan Tempelman <natet@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Steve Rutherford <srutherford@google.com>,
+        Brijesh Singh <brijesh.singh@amd.com>, kvm@vger.kernel.org
+Subject: [PATCH 5.14 058/172] KVM: SEV: Allow some commands for mirror VM
 Date:   Mon,  4 Oct 2021 14:51:48 +0200
-Message-Id: <20211004125031.981373025@linuxfoundation.org>
+Message-Id: <20211004125046.868220573@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slark Xiao <slark_xiao@163.com>
+From: Peter Gonda <pgonda@google.com>
 
-commit 9e3eed534f8235a4a596a9dae5b8a6425d81ea1a upstream.
+commit 5b92b6ca92b65bef811048c481e4446f4828500a upstream.
 
-Adding support for Foxconn device T99W265 for enumeration with
-PID 0xe0db.
+A mirrored SEV-ES VM will need to call KVM_SEV_LAUNCH_UPDATE_VMSA to
+setup its vCPUs and have them measured, and their VMSAs encrypted. Without
+this change, it is impossible to have mirror VMs as part of SEV-ES VMs.
 
-usb-devices output for 0xe0db
-T:  Bus=04 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 19 Spd=5000 MxCh= 0
-D:  Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
-P:  Vendor=0489 ProdID=e0db Rev=05.04
-S:  Manufacturer=Microsoft
-S:  Product=Generic Mobile Broadband Adapter
-S:  SerialNumber=6c50f452
-C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+Also allow the guest status check and debugging commands since they do
+not change any guest state.
 
-if0/1: MBIM, if2:Diag, if3:GNSS, if4: Modem
-
-Signed-off-by: Slark Xiao <slark_xiao@163.com>
-Link: https://lore.kernel.org/r/20210917110106.9852-1-slark_xiao@163.com
-[ johan: use USB_DEVICE_INTERFACE_CLASS(), amend comment ]
+Signed-off-by: Peter Gonda <pgonda@google.com>
+Cc: Marc Orr <marcorr@google.com>
+Cc: Nathan Tempelman <natet@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Sean Christopherson <seanjc@google.com>
+Cc: Steve Rutherford <srutherford@google.com>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: kvm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 54526d1fd593 ("KVM: x86: Support KVM VMs sharing SEV context", 2021-04-21)
+Message-Id: <20210921150345.2221634-3-pgonda@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kvm/svm/sev.c |   19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -2077,6 +2077,8 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
- 	{ USB_DEVICE(0x0489, 0xe0b5),						/* Foxconn T77W968 ESIM */
- 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
-+	{ USB_DEVICE_INTERFACE_CLASS(0x0489, 0xe0db, 0xff),			/* Foxconn T99W265 MBIM */
-+	  .driver_info = RSVD(3) },
- 	{ USB_DEVICE(0x1508, 0x1001),						/* Fibocom NL668 (IOT version) */
- 	  .driver_info = RSVD(4) | RSVD(5) | RSVD(6) },
- 	{ USB_DEVICE(0x2cb7, 0x0104),						/* Fibocom NL678 series */
+--- a/arch/x86/kvm/svm/sev.c
++++ b/arch/x86/kvm/svm/sev.c
+@@ -1509,6 +1509,20 @@ static int sev_receive_finish(struct kvm
+ 	return sev_issue_cmd(kvm, SEV_CMD_RECEIVE_FINISH, &data, &argp->error);
+ }
+ 
++static bool cmd_allowed_from_miror(u32 cmd_id)
++{
++	/*
++	 * Allow mirrors VM to call KVM_SEV_LAUNCH_UPDATE_VMSA to enable SEV-ES
++	 * active mirror VMs. Also allow the debugging and status commands.
++	 */
++	if (cmd_id == KVM_SEV_LAUNCH_UPDATE_VMSA ||
++	    cmd_id == KVM_SEV_GUEST_STATUS || cmd_id == KVM_SEV_DBG_DECRYPT ||
++	    cmd_id == KVM_SEV_DBG_ENCRYPT)
++		return true;
++
++	return false;
++}
++
+ int svm_mem_enc_op(struct kvm *kvm, void __user *argp)
+ {
+ 	struct kvm_sev_cmd sev_cmd;
+@@ -1525,8 +1539,9 @@ int svm_mem_enc_op(struct kvm *kvm, void
+ 
+ 	mutex_lock(&kvm->lock);
+ 
+-	/* enc_context_owner handles all memory enc operations */
+-	if (is_mirroring_enc_context(kvm)) {
++	/* Only the enc_context_owner handles some memory enc operations. */
++	if (is_mirroring_enc_context(kvm) &&
++	    !cmd_allowed_from_miror(sev_cmd.id)) {
+ 		r = -EINVAL;
+ 		goto out;
+ 	}
 
 
