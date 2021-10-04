@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11026420CFD
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:09:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53946420CBB
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:07:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235285AbhJDNKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:10:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46410 "EHLO mail.kernel.org"
+        id S235744AbhJDNJP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:09:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235288AbhJDNJI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:09:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C597561B55;
-        Mon,  4 Oct 2021 13:03:18 +0000 (UTC)
+        id S235274AbhJDNGS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:06:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03715619E5;
+        Mon,  4 Oct 2021 13:01:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352599;
-        bh=gtHvc0HZonQuMqEPsdc0C0bkVaBd1dO2c49JDHCP3Xk=;
+        s=korg; t=1633352472;
+        bh=gZRoWHK5YsVW5ybCZsJ5ke2p6y9sv2+1qxtb19q8dEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MzMAxHgjT89apewuZAExE8HJ74ujoSYI6TLtjkp2aJgsxturwaFqVAsTKzH0e/XAU
-         ckk4/SlU8ejKWUl3EAcNrsZ7/dyxK4FbzN/0YW0+nN31wc22+jOr9HCbA/rr+xebzU
-         cH+TViZigglmwel4d5Ag8TBypJsMnHXtm4z+gblo=
+        b=qxbdNIBhcIPU8Wmt0b96rFrZAnjjFvRzwQ9IwC4u9l2bKAhmagyMxKQhIsU4d0Bpa
+         1t4ePYCzo03rLsLq69fd3qccC5GAFansEuYby+UlcX84sgBYMILGZClhxEuVR5hx2q
+         irSf1dr6OhuKfuWZCVN+9AfY1q1x8BS5RRqUGzTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>
-Subject: [PATCH 4.19 48/95] arm64: dts: marvell: armada-37xx: Extend PCIe MEM space
+        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 43/75] cpufreq: schedutil: Use kobject release() method to free sugov_tunables
 Date:   Mon,  4 Oct 2021 14:52:18 +0200
-Message-Id: <20211004125035.148973261@linuxfoundation.org>
+Message-Id: <20211004125032.968003488@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +41,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Kevin Hao <haokexin@gmail.com>
 
-commit 514ef1e62d6521c2199d192b1c71b79d2aa21d5a upstream.
+[ Upstream commit e5c6b312ce3cc97e90ea159446e6bfa06645364d ]
 
-Current PCIe MEM space of size 16 MB is not enough for some combination
-of PCIe cards (e.g. NVMe disk together with ath11k wifi card). ARM Trusted
-Firmware for Armada 3700 platform already assigns 128 MB for PCIe window,
-so extend PCIe MEM space to the end of 128 MB PCIe window which allows to
-allocate more PCIe BARs for more PCIe cards.
+The struct sugov_tunables is protected by the kobject, so we can't free
+it directly. Otherwise we would get a call trace like this:
+  ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x30
+  WARNING: CPU: 3 PID: 720 at lib/debugobjects.c:505 debug_print_object+0xb8/0x100
+  Modules linked in:
+  CPU: 3 PID: 720 Comm: a.sh Tainted: G        W         5.14.0-rc1-next-20210715-yocto-standard+ #507
+  Hardware name: Marvell OcteonTX CN96XX board (DT)
+  pstate: 40400009 (nZcv daif +PAN -UAO -TCO BTYPE=--)
+  pc : debug_print_object+0xb8/0x100
+  lr : debug_print_object+0xb8/0x100
+  sp : ffff80001ecaf910
+  x29: ffff80001ecaf910 x28: ffff00011b10b8d0 x27: ffff800011043d80
+  x26: ffff00011a8f0000 x25: ffff800013cb3ff0 x24: 0000000000000000
+  x23: ffff80001142aa68 x22: ffff800011043d80 x21: ffff00010de46f20
+  x20: ffff800013c0c520 x19: ffff800011d8f5b0 x18: 0000000000000010
+  x17: 6e6968207473696c x16: 5f72656d6974203a x15: 6570797420746365
+  x14: 6a626f2029302065 x13: 303378302f307830 x12: 2b6e665f72656d69
+  x11: ffff8000124b1560 x10: ffff800012331520 x9 : ffff8000100ca6b0
+  x8 : 000000000017ffe8 x7 : c0000000fffeffff x6 : 0000000000000001
+  x5 : ffff800011d8c000 x4 : ffff800011d8c740 x3 : 0000000000000000
+  x2 : ffff0001108301c0 x1 : ab3c90eedf9c0f00 x0 : 0000000000000000
+  Call trace:
+   debug_print_object+0xb8/0x100
+   __debug_check_no_obj_freed+0x1c0/0x230
+   debug_check_no_obj_freed+0x20/0x88
+   slab_free_freelist_hook+0x154/0x1c8
+   kfree+0x114/0x5d0
+   sugov_exit+0xbc/0xc0
+   cpufreq_exit_governor+0x44/0x90
+   cpufreq_set_policy+0x268/0x4a8
+   store_scaling_governor+0xe0/0x128
+   store+0xc0/0xf0
+   sysfs_kf_write+0x54/0x80
+   kernfs_fop_write_iter+0x128/0x1c0
+   new_sync_write+0xf0/0x190
+   vfs_write+0x2d4/0x478
+   ksys_write+0x74/0x100
+   __arm64_sys_write+0x24/0x30
+   invoke_syscall.constprop.0+0x54/0xe0
+   do_el0_svc+0x64/0x158
+   el0_svc+0x2c/0xb0
+   el0t_64_sync_handler+0xb0/0xb8
+   el0t_64_sync+0x198/0x19c
+  irq event stamp: 5518
+  hardirqs last  enabled at (5517): [<ffff8000100cbd7c>] console_unlock+0x554/0x6c8
+  hardirqs last disabled at (5518): [<ffff800010fc0638>] el1_dbg+0x28/0xa0
+  softirqs last  enabled at (5504): [<ffff8000100106e0>] __do_softirq+0x4d0/0x6c0
+  softirqs last disabled at (5483): [<ffff800010049548>] irq_exit+0x1b0/0x1b8
 
-Without this change some combination of PCIe cards cannot be used and
-kernel show error messages in dmesg during initialization:
+So split the original sugov_tunables_free() into two functions,
+sugov_clear_global_tunables() is just used to clear the global_tunables
+and the new sugov_tunables_free() is used as kobj_type::release to
+release the sugov_tunables safely.
 
-    pci 0000:00:00.0: BAR 8: no space for [mem size 0x01800000]
-    pci 0000:00:00.0: BAR 8: failed to assign [mem size 0x01800000]
-    pci 0000:00:00.0: BAR 6: assigned [mem 0xe8000000-0xe80007ff pref]
-    pci 0000:01:00.0: BAR 8: no space for [mem size 0x01800000]
-    pci 0000:01:00.0: BAR 8: failed to assign [mem size 0x01800000]
-    pci 0000:02:03.0: BAR 8: no space for [mem size 0x01000000]
-    pci 0000:02:03.0: BAR 8: failed to assign [mem size 0x01000000]
-    pci 0000:02:07.0: BAR 8: no space for [mem size 0x00100000]
-    pci 0000:02:07.0: BAR 8: failed to assign [mem size 0x00100000]
-    pci 0000:03:00.0: BAR 0: no space for [mem size 0x01000000 64bit]
-    pci 0000:03:00.0: BAR 0: failed to assign [mem size 0x01000000 64bit]
-
-Due to bugs in U-Boot port for Turris Mox, the second range in Turris Mox
-kernel DTS file for PCIe must start at 16 MB offset. Otherwise U-Boot
-crashes during loading of kernel DTB file. This bug is present only in
-U-Boot code for Turris Mox and therefore other Armada 3700 devices are not
-affected by this bug. Bug is fixed in U-Boot version 2021.07.
-
-To not break booting new kernels on existing versions of U-Boot on Turris
-Mox, use first 16 MB range for IO and second range with rest of PCIe window
-for MEM.
-
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: 76f6386b25cc ("arm64: dts: marvell: Add Aardvark PCIe support for Armada 3700")
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 9bdcb44e391d ("cpufreq: schedutil: New governor based on scheduler utilization data")
+Cc: 4.7+ <stable@vger.kernel.org> # 4.7+
+Signed-off-by: Kevin Hao <haokexin@gmail.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/marvell/armada-37xx.dtsi |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ kernel/sched/cpufreq_schedutil.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-+++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-@@ -376,8 +376,15 @@
- 			#interrupt-cells = <1>;
- 			msi-parent = <&pcie0>;
- 			msi-controller;
--			ranges = <0x82000000 0 0xe8000000   0 0xe8000000 0 0x1000000 /* Port 0 MEM */
--				  0x81000000 0 0xe9000000   0 0xe9000000 0 0x10000>; /* Port 0 IO*/
-+			/*
-+			 * The 128 MiB address range [0xe8000000-0xf0000000] is
-+			 * dedicated for PCIe and can be assigned to 8 windows
-+			 * with size a power of two. Use one 64 KiB window for
-+			 * IO at the end and the remaining seven windows
-+			 * (totaling 127 MiB) for MEM.
-+			 */
-+			ranges = <0x82000000 0 0xe8000000   0 0xe8000000   0 0x07f00000   /* Port 0 MEM */
-+				  0x81000000 0 0xefff0000   0 0xefff0000   0 0x00010000>; /* Port 0 IO */
- 			interrupt-map-mask = <0 0 0 7>;
- 			interrupt-map = <0 0 0 1 &pcie_intc 0>,
- 					<0 0 0 2 &pcie_intc 1>,
+diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
+index f8c45d30ec6d..90a998638bdd 100644
+--- a/kernel/sched/cpufreq_schedutil.c
++++ b/kernel/sched/cpufreq_schedutil.c
+@@ -441,9 +441,17 @@ static struct attribute *sugov_attributes[] = {
+ 	NULL
+ };
+ 
++static void sugov_tunables_free(struct kobject *kobj)
++{
++	struct gov_attr_set *attr_set = container_of(kobj, struct gov_attr_set, kobj);
++
++	kfree(to_sugov_tunables(attr_set));
++}
++
+ static struct kobj_type sugov_tunables_ktype = {
+ 	.default_attrs = sugov_attributes,
+ 	.sysfs_ops = &governor_sysfs_ops,
++	.release = &sugov_tunables_free,
+ };
+ 
+ /********************** cpufreq governor interface *********************/
+@@ -534,12 +542,10 @@ static struct sugov_tunables *sugov_tunables_alloc(struct sugov_policy *sg_polic
+ 	return tunables;
+ }
+ 
+-static void sugov_tunables_free(struct sugov_tunables *tunables)
++static void sugov_clear_global_tunables(void)
+ {
+ 	if (!have_governor_per_policy())
+ 		global_tunables = NULL;
+-
+-	kfree(tunables);
+ }
+ 
+ static int sugov_init(struct cpufreq_policy *policy)
+@@ -602,7 +608,7 @@ out:
+ fail:
+ 	kobject_put(&tunables->attr_set.kobj);
+ 	policy->governor_data = NULL;
+-	sugov_tunables_free(tunables);
++	sugov_clear_global_tunables();
+ 
+ stop_kthread:
+ 	sugov_kthread_stop(sg_policy);
+@@ -629,7 +635,7 @@ static void sugov_exit(struct cpufreq_policy *policy)
+ 	count = gov_attr_set_put(&tunables->attr_set, &sg_policy->tunables_hook);
+ 	policy->governor_data = NULL;
+ 	if (!count)
+-		sugov_tunables_free(tunables);
++		sugov_clear_global_tunables();
+ 
+ 	mutex_unlock(&global_tunables_lock);
+ 
+-- 
+2.33.0
+
 
 
