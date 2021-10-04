@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16A27420C57
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:03:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1819420F4E
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:32:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234938AbhJDNE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:04:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39234 "EHLO mail.kernel.org"
+        id S235371AbhJDNdt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:33:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234947AbhJDNDZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:03:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC26961A6E;
-        Mon,  4 Oct 2021 12:59:43 +0000 (UTC)
+        id S236866AbhJDNbo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:31:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 118516321D;
+        Mon,  4 Oct 2021 13:14:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352384;
-        bh=x5Kpa+sCFAuZLMbSwCGEjCSK6Nh9LCy8OSs8IJv5z6U=;
+        s=korg; t=1633353254;
+        bh=mbmNN62ELByuihih3ryR8Om+bUVPmgYhHcEm5uwHV1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jnupJTZtGONim16vkF5P2GciuIAUMViQBSS8hblpWAARtMYXUd4RwZrPWqGD5qVOD
-         zEvKLQzrJRHHb7xqImEPBu0TqUihVY3YWvDoJEVblLmpfMzZBkRbr/6uDe+mRUcFd0
-         C9YAu0Y5l9tCxlz2hv1k0I0PYFvLHi2hs1rLiqDA=
+        b=aOLIp+J9p7YIX2MuB6ny9EvbAgETSIydX2r6OwS/nM8me5JO8iUDjRJNhfPJLl/qk
+         OfmVcr5l9q8Vi4Ubid9YWvxN8F6PmudP6n0RuUaPtCLzdbv+6cYp9TCjcCc0J+oUbl
+         nwi2vYWRSLgFcCtfhves9DCNCEopsLM3GzTJ5AKk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Oliver Neukum <oneukum@suse.com>,
-        Julian Sikorski <belegdol+github@gmail.com>
-Subject: [PATCH 4.14 09/75] Re-enable UAS for LaCie Rugged USB3-FW with fk quirk
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.14 054/172] KVM: nVMX: Filter out all unsupported controls when eVMCS was activated
 Date:   Mon,  4 Oct 2021 14:51:44 +0200
-Message-Id: <20211004125031.840082949@linuxfoundation.org>
+Message-Id: <20211004125046.745188738@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +39,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Sikorski <belegdol@gmail.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit ce1c42b4dacfe7d71c852d8bf3371067ccba865c upstream.
+commit 8d68bad6d869fae8f4d50ab6423538dec7da72d1 upstream.
 
-Further testing has revealed that LaCie Rugged USB3-FW does work with
-uas as long as US_FL_NO_REPORT_OPCODES and US_FL_NO_SAME are enabled.
+Windows Server 2022 with Hyper-V role enabled failed to boot on KVM when
+enlightened VMCS is advertised. Debugging revealed there are two exposed
+secondary controls it is not happy with: SECONDARY_EXEC_ENABLE_VMFUNC and
+SECONDARY_EXEC_SHADOW_VMCS. These controls are known to be unsupported,
+as there are no corresponding fields in eVMCSv1 (see the comment above
+EVMCS1_UNSUPPORTED_2NDEXEC definition).
 
-Link: https://lore.kernel.org/linux-usb/2167ea48-e273-a336-a4e0-10a4e883e75e@redhat.com/
-Cc: stable <stable@vger.kernel.org>
-Suggested-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Julian Sikorski <belegdol+github@gmail.com>
-Link: https://lore.kernel.org/r/20210913181454.7365-1-belegdol+github@gmail.com
+Previously, commit 31de3d2500e4 ("x86/kvm/hyper-v: move VMX controls
+sanitization out of nested_enable_evmcs()") introduced the required
+filtering mechanism for VMX MSRs but for some reason put only known
+to be problematic (and not full EVMCS1_UNSUPPORTED_* lists) controls
+there.
+
+Note, Windows Server 2022 seems to have gained some sanity check for VMX
+MSRs: it doesn't even try to launch a guest when there's something it
+doesn't like, nested_evmcs_check_controls() mechanism can't catch the
+problem.
+
+Let's be bold this time and instead of playing whack-a-mole just filter out
+all unsupported controls from VMX MSRs.
+
+Fixes: 31de3d2500e4 ("x86/kvm/hyper-v: move VMX controls sanitization out of nested_enable_evmcs()")
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20210907163530.110066-1-vkuznets@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/unusual_uas.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/vmx/evmcs.c |   12 +++++++++---
+ arch/x86/kvm/vmx/vmx.c   |    9 +++++----
+ 2 files changed, 14 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -63,7 +63,7 @@ UNUSUAL_DEV(0x059f, 0x1061, 0x0000, 0x99
- 		"LaCie",
- 		"Rugged USB3-FW",
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
--		US_FL_IGNORE_UAS),
-+		US_FL_NO_REPORT_OPCODES | US_FL_NO_SAME),
+--- a/arch/x86/kvm/vmx/evmcs.c
++++ b/arch/x86/kvm/vmx/evmcs.c
+@@ -354,14 +354,20 @@ void nested_evmcs_filter_control_msr(u32
+ 	switch (msr_index) {
+ 	case MSR_IA32_VMX_EXIT_CTLS:
+ 	case MSR_IA32_VMX_TRUE_EXIT_CTLS:
+-		ctl_high &= ~VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL;
++		ctl_high &= ~EVMCS1_UNSUPPORTED_VMEXIT_CTRL;
+ 		break;
+ 	case MSR_IA32_VMX_ENTRY_CTLS:
+ 	case MSR_IA32_VMX_TRUE_ENTRY_CTLS:
+-		ctl_high &= ~VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL;
++		ctl_high &= ~EVMCS1_UNSUPPORTED_VMENTRY_CTRL;
+ 		break;
+ 	case MSR_IA32_VMX_PROCBASED_CTLS2:
+-		ctl_high &= ~SECONDARY_EXEC_VIRTUALIZE_APIC_ACCESSES;
++		ctl_high &= ~EVMCS1_UNSUPPORTED_2NDEXEC;
++		break;
++	case MSR_IA32_VMX_PINBASED_CTLS:
++		ctl_high &= ~EVMCS1_UNSUPPORTED_PINCTRL;
++		break;
++	case MSR_IA32_VMX_VMFUNC:
++		ctl_low &= ~EVMCS1_UNSUPPORTED_VMFUNC;
+ 		break;
+ 	}
  
- /*
-  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -1840,10 +1840,11 @@ static int vmx_get_msr(struct kvm_vcpu *
+ 				    &msr_info->data))
+ 			return 1;
+ 		/*
+-		 * Enlightened VMCS v1 doesn't have certain fields, but buggy
+-		 * Hyper-V versions are still trying to use corresponding
+-		 * features when they are exposed. Filter out the essential
+-		 * minimum.
++		 * Enlightened VMCS v1 doesn't have certain VMCS fields but
++		 * instead of just ignoring the features, different Hyper-V
++		 * versions are either trying to use them and fail or do some
++		 * sanity checking and refuse to boot. Filter all unsupported
++		 * features out.
+ 		 */
+ 		if (!msr_info->host_initiated &&
+ 		    vmx->nested.enlightened_vmcs_enabled)
 
 
