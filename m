@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69514420FD7
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:37:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F527420DF7
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:18:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238076AbhJDNjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:39:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51976 "EHLO mail.kernel.org"
+        id S236100AbhJDNUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:20:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237396AbhJDNhI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:37:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B581961371;
-        Mon,  4 Oct 2021 13:16:47 +0000 (UTC)
+        id S236615AbhJDNSn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:18:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A22A61501;
+        Mon,  4 Oct 2021 13:07:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353408;
-        bh=ICQ9giKx1yX1KNC8hrc8Dh7/P4Nbzd8yq/uN1thGmYI=;
+        s=korg; t=1633352874;
+        bh=knhnxQ4qB49HdDyRuZ4hbJOq9y5nztVWRotn+7bmwto=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=upP7ctRV2UgT/psxmJF3oS97ki7Z94sppTXoLvIePzIZjE0q+rE0ywsNov2R9cRgt
-         XshK6O/vrc52n7/jRST3zF9kJ1s8TAWuaQovxm77H59olPnyH3Q1D8lBEXH70Rq2+X
-         gxnghF8LDmB4zisA4sn983OZn0HTS9U9jZM4zKPA=
+        b=k7F1WSJ95LVvo0zLiKU6yCbIl4VGDItNU3MMk2GsfGXbUahc3Eb9hdvHw1OENmvL3
+         aQjeITQ+7Un2wPSSclI6a/wZVgfvnzTLL3UiRul0IomduqWYIGiVXhBOegCkxn3PZk
+         +h24KBrMI8fPEi8A9SvSVXe+Jlltw0i++aceMQQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Benc <jbenc@redhat.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 116/172] selftests, bpf: Fix makefile dependencies on libbpf
+Subject: [PATCH 5.4 26/56] Revert "block, bfq: honor already-setup queue merges"
 Date:   Mon,  4 Oct 2021 14:52:46 +0200
-Message-Id: <20211004125048.730812023@linuxfoundation.org>
+Message-Id: <20211004125030.828342920@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
+References: <20211004125030.002116402@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +39,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Benc <jbenc@redhat.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit d888eaac4fb1df30320bb1305a8f78efe86524c6 ]
+[ Upstream commit ebc69e897e17373fbe1daaff1debaa77583a5284 ]
 
-When building bpf selftest with make -j, I'm randomly getting build failures
-such as this one:
+This reverts commit 2d52c58b9c9bdae0ca3df6a1eab5745ab3f7d80b.
 
-  In file included from progs/bpf_flow.c:19:
-  [...]/tools/testing/selftests/bpf/tools/include/bpf/bpf_helpers.h:11:10: fatal error: 'bpf_helper_defs.h' file not found
-  #include "bpf_helper_defs.h"
-           ^~~~~~~~~~~~~~~~~~~
+We have had several folks complain that this causes hangs for them, which
+is especially problematic as the commit has also hit stable already.
 
-The file that fails the build varies between runs but it's always in the
-progs/ subdir.
+As no resolution seems to be forthcoming right now, revert the patch.
 
-The reason is a missing make dependency on libbpf for the .o files in
-progs/. There was a dependency before commit 3ac2e20fba07e but that commit
-removed it to prevent unneeded rebuilds. However, that only works if libbpf
-has been built already; the 'wildcard' prerequisite does not trigger when
-there's no bpf_helper_defs.h generated yet.
-
-Keep the libbpf as an order-only prerequisite to satisfy both goals. It is
-always built before the progs/ objects but it does not trigger unnecessary
-rebuilds by itself.
-
-Fixes: 3ac2e20fba07e ("selftests/bpf: BPF object files should depend only on libbpf headers")
-Signed-off-by: Jiri Benc <jbenc@redhat.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/ee84ab66436fba05a197f952af23c98d90eb6243.1632758415.git.jbenc@redhat.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=214503
+Fixes: 2d52c58b9c9b ("block, bfq: honor already-setup queue merges")
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/Makefile | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ block/bfq-iosched.c | 16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
-index f405b20c1e6c..93f1f124ef89 100644
---- a/tools/testing/selftests/bpf/Makefile
-+++ b/tools/testing/selftests/bpf/Makefile
-@@ -374,7 +374,8 @@ $(TRUNNER_BPF_OBJS): $(TRUNNER_OUTPUT)/%.o:				\
- 		     $(TRUNNER_BPF_PROGS_DIR)/%.c			\
- 		     $(TRUNNER_BPF_PROGS_DIR)/*.h			\
- 		     $$(INCLUDE_DIR)/vmlinux.h				\
--		     $(wildcard $(BPFDIR)/bpf_*.h) | $(TRUNNER_OUTPUT)
-+		     $(wildcard $(BPFDIR)/bpf_*.h)			\
-+		     | $(TRUNNER_OUTPUT) $$(BPFOBJ)
- 	$$(call $(TRUNNER_BPF_BUILD_RULE),$$<,$$@,			\
- 					  $(TRUNNER_BPF_CFLAGS))
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index 8dee243e639f..73bffd7af15c 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -2523,15 +2523,6 @@ bfq_setup_merge(struct bfq_queue *bfqq, struct bfq_queue *new_bfqq)
+ 	 * are likely to increase the throughput.
+ 	 */
+ 	bfqq->new_bfqq = new_bfqq;
+-	/*
+-	 * The above assignment schedules the following redirections:
+-	 * each time some I/O for bfqq arrives, the process that
+-	 * generated that I/O is disassociated from bfqq and
+-	 * associated with new_bfqq. Here we increases new_bfqq->ref
+-	 * in advance, adding the number of processes that are
+-	 * expected to be associated with new_bfqq as they happen to
+-	 * issue I/O.
+-	 */
+ 	new_bfqq->ref += process_refs;
+ 	return new_bfqq;
+ }
+@@ -2591,10 +2582,6 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ {
+ 	struct bfq_queue *in_service_bfqq, *new_bfqq;
+ 
+-	/* if a merge has already been setup, then proceed with that first */
+-	if (bfqq->new_bfqq)
+-		return bfqq->new_bfqq;
+-
+ 	/*
+ 	 * Do not perform queue merging if the device is non
+ 	 * rotational and performs internal queueing. In fact, such a
+@@ -2649,6 +2636,9 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ 	if (bfq_too_late_for_merging(bfqq))
+ 		return NULL;
+ 
++	if (bfqq->new_bfqq)
++		return bfqq->new_bfqq;
++
+ 	if (!io_struct || unlikely(bfqq == &bfqd->oom_bfqq))
+ 		return NULL;
  
 -- 
 2.33.0
