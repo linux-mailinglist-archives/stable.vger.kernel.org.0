@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6ACE420D34
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:11:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBEE3420FCD
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:37:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236032AbhJDNMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:12:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46410 "EHLO mail.kernel.org"
+        id S237360AbhJDNiH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:38:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235057AbhJDNKv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:10:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C97A861213;
-        Mon,  4 Oct 2021 13:04:11 +0000 (UTC)
+        id S237358AbhJDNgH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:36:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C008560FC1;
+        Mon,  4 Oct 2021 13:16:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352652;
-        bh=io2NPCsfUxpEm+HL50U3w8YEhkK/MtrriuOngdv+6tU=;
+        s=korg; t=1633353386;
+        bh=MOVB2EVEGBw+2mcUPRQksY8mvQOqtJOcvIvCwzLcoD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e02/EB75olLtCN/sVbMcbP94cUMH7mMvAgygeYNeu4183JIYgwVCB/aqX83T1m1H7
-         FKMzQJyZ5CyHpw5FotOA1qeCmAMC/rLUxIcPBZVwz5qVQNSC1vPRFIAeXqEuHzaPw3
-         Tm9FMGWkHXcEam3p0drGoI3d80orWWEA5ltHpYf0=
+        b=PQT7xb4cNqGWXC2KsfzBCor6cfEox4EmtGicxJe50a/XuSB2tviMJHjUKweSNaDlk
+         I+Ucq11nifOnhv4D2/EkSKPjCUvt883sTPkplg1JjUTCpjEZdn0UhNp+PyrvvlYTTL
+         BVqH8pzzOVFkf7zWtotDEKcF8U2yXYJCMnabDDWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Fertser <fercerpav@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org,
+        Felicitas Hetzelt <felicitashetzelt@gmail.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 69/95] hwmon: (tmp421) fix rounding for negative values
+Subject: [PATCH 5.14 109/172] e100: fix length calculation in e100_get_regs_len
 Date:   Mon,  4 Oct 2021 14:52:39 +0200
-Message-Id: <20211004125035.835738754@linuxfoundation.org>
+Message-Id: <20211004125048.501036388@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,72 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Fertser <fercerpav@gmail.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-[ Upstream commit 724e8af85854c4d3401313b6dd7d79cf792d8990 ]
+[ Upstream commit 4329c8dc110b25d5f04ed20c6821bb60deff279f ]
 
-Old code produces -24999 for 0b1110011100000000 input in standard format due to
-always rounding up rather than "away from zero".
+commit abf9b902059f ("e100: cleanup unneeded math") tried to simplify
+e100_get_regs_len and remove a double 'divide and then multiply'
+calculation that the e100_reg_regs_len function did.
 
-Use the common macro for division, unify and simplify the conversion code along
-the way.
+This change broke the size calculation entirely as it failed to account
+for the fact that the numbered registers are actually 4 bytes wide and
+not 1 byte. This resulted in a significant under allocation of the
+register buffer used by e100_get_regs.
 
-Fixes: 9410700b881f ("hwmon: Add driver for Texas Instruments TMP421/422/423 sensor chips")
-Signed-off-by: Paul Fertser <fercerpav@gmail.com>
-Link: https://lore.kernel.org/r/20210924093011.26083-3-fercerpav@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fix this by properly multiplying the register count by u32 first before
+adding the size of the dump buffer.
+
+Fixes: abf9b902059f ("e100: cleanup unneeded math")
+Reported-by: Felicitas Hetzelt <felicitashetzelt@gmail.com>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/tmp421.c | 24 ++++++++----------------
- 1 file changed, 8 insertions(+), 16 deletions(-)
+ drivers/net/ethernet/intel/e100.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/tmp421.c b/drivers/hwmon/tmp421.c
-index c2113c00b635..cdd01a848301 100644
---- a/drivers/hwmon/tmp421.c
-+++ b/drivers/hwmon/tmp421.c
-@@ -109,23 +109,17 @@ struct tmp421_data {
- 	s16 temp[4];
- };
- 
--static int temp_from_s16(s16 reg)
-+static int temp_from_raw(u16 reg, bool extended)
+diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
+index 1b0958bd24f6..71b9f0563b32 100644
+--- a/drivers/net/ethernet/intel/e100.c
++++ b/drivers/net/ethernet/intel/e100.c
+@@ -2441,7 +2441,11 @@ static void e100_get_drvinfo(struct net_device *netdev,
+ static int e100_get_regs_len(struct net_device *netdev)
  {
- 	/* Mask out status bits */
- 	int temp = reg & ~0xf;
- 
--	return (temp * 1000 + 128) / 256;
--}
--
--static int temp_from_u16(u16 reg)
--{
--	/* Mask out status bits */
--	int temp = reg & ~0xf;
--
--	/* Add offset for extended temperature range. */
--	temp -= 64 * 256;
-+	if (extended)
-+		temp = temp - 64 * 256;
-+	else
-+		temp = (s16)temp;
- 
--	return (temp * 1000 + 128) / 256;
-+	return DIV_ROUND_CLOSEST(temp * 1000, 256);
+ 	struct nic *nic = netdev_priv(netdev);
+-	return 1 + E100_PHY_REGS + sizeof(nic->mem->dump_buf);
++
++	/* We know the number of registers, and the size of the dump buffer.
++	 * Calculate the total size in bytes.
++	 */
++	return (1 + E100_PHY_REGS) * sizeof(u32) + sizeof(nic->mem->dump_buf);
  }
  
- static struct tmp421_data *tmp421_update_device(struct device *dev)
-@@ -162,10 +156,8 @@ static int tmp421_read(struct device *dev, enum hwmon_sensor_types type,
- 
- 	switch (attr) {
- 	case hwmon_temp_input:
--		if (tmp421->config & TMP421_CONFIG_RANGE)
--			*val = temp_from_u16(tmp421->temp[channel]);
--		else
--			*val = temp_from_s16(tmp421->temp[channel]);
-+		*val = temp_from_raw(tmp421->temp[channel],
-+				     tmp421->config & TMP421_CONFIG_RANGE);
- 		return 0;
- 	case hwmon_temp_fault:
- 		/*
+ static void e100_get_regs(struct net_device *netdev,
 -- 
 2.33.0
 
