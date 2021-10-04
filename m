@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F836420F22
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:30:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 164FA420F24
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:30:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235966AbhJDNbm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:31:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42862 "EHLO mail.kernel.org"
+        id S236377AbhJDNbn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:31:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234860AbhJDN3v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:29:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 147A4630EE;
-        Mon,  4 Oct 2021 13:13:16 +0000 (UTC)
+        id S237075AbhJDN3y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:29:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A317F63217;
+        Mon,  4 Oct 2021 13:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353197;
-        bh=qZ75XWmRJHr60jyHiriNAaXxKD+Lg009yY198zFv4T4=;
+        s=korg; t=1633353200;
+        bh=rpLhAIABTnDAQ3XCCglWj+vsyjstCqUg+9CzjH/sCG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=or/cnmOl0iyxETsMHukiic1AsFlkOcq3XFAh9xX3BW0cAoz0Fxs/Du03fjdErh9FC
-         gZ78xRyvYFDwvIxk49bAbtxaW0/STKRwLEF7YVRN7n2aBz3Gtqf/PfIjYcH5QqXh/r
-         PCyqZv08qZYVIuyn1EuKSv1/dN85st0C4TWnOLMw=
+        b=UbdPgt5GR7HsHNRZGEeGwicr9rQOER2ScDRy31QrD5TwPErmG0c4c3Aef377ou1xN
+         GkjVtM8y94izh6YJU8YOXBnsnXVMR0VA6Y/CJBzpn7eqMIa0A/7O/b9M06jPP4PW1j
+         UsSZfJW+2g+gAFoo4KJ5luAum4VvH5ZovXt/FKDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 034/172] scsi: ufs: ufs-pci: Fix Intel LKF link stability
-Date:   Mon,  4 Oct 2021 14:51:24 +0200
-Message-Id: <20211004125046.076308113@linuxfoundation.org>
+        stable@vger.kernel.org, David Henningsson <coding@diwic.se>,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.14 035/172] ALSA: rawmidi: introduce SNDRV_RAWMIDI_IOCTL_USER_PVERSION
+Date:   Mon,  4 Oct 2021 14:51:25 +0200
+Message-Id: <20211004125046.106750937@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
 References: <20211004125044.945314266@linuxfoundation.org>
@@ -40,163 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Jaroslav Kysela <perex@perex.cz>
 
-commit 1cbc9ad3eecd492be33b727b4606ae75bc880676 upstream.
+commit 09d23174402da0f10e98da2c61bb5ac8e7d79fdd upstream.
 
-Intel LKF can experience link errors. Make fixes to increase link
-stability, especially when switching to high speed modes.
+The new framing mode causes the user space regression, because
+the alsa-lib code does not initialize the reserved space in
+the params structure when the device is opened.
 
-Link: https://lore.kernel.org/r/20210831145317.26306-1-adrian.hunter@intel.com
-Fixes: b2c57925df1f ("scsi: ufs: ufs-pci: Add support for Intel LKF")
-Cc: stable@vger.kernel.org
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This change adds SNDRV_RAWMIDI_IOCTL_USER_PVERSION like we
+do for the PCM interface for the protocol acknowledgment.
+
+Cc: David Henningsson <coding@diwic.se>
+Cc: <stable@vger.kernel.org>
+Fixes: 08fdced60ca0 ("ALSA: rawmidi: Add framing mode")
+BugLink: https://github.com/alsa-project/alsa-lib/issues/178
+Signed-off-by: Jaroslav Kysela <perex@perex.cz>
+Link: https://lore.kernel.org/r/20210920171850.154186-1-perex@perex.cz
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufshcd-pci.c | 78 +++++++++++++++++++++++++++++++++++
- drivers/scsi/ufs/ufshcd.c     |  3 +-
- drivers/scsi/ufs/ufshcd.h     |  1 +
- 3 files changed, 81 insertions(+), 1 deletion(-)
+ include/sound/rawmidi.h     |    1 +
+ include/uapi/sound/asound.h |    1 +
+ sound/core/rawmidi.c        |    9 +++++++++
+ 3 files changed, 11 insertions(+)
 
-diff --git a/drivers/scsi/ufs/ufshcd-pci.c b/drivers/scsi/ufs/ufshcd-pci.c
-index e6c334bfb4c2..40acca04d03b 100644
---- a/drivers/scsi/ufs/ufshcd-pci.c
-+++ b/drivers/scsi/ufs/ufshcd-pci.c
-@@ -128,6 +128,81 @@ static int ufs_intel_link_startup_notify(struct ufs_hba *hba,
- 	return err;
- }
- 
-+static int ufs_intel_set_lanes(struct ufs_hba *hba, u32 lanes)
-+{
-+	struct ufs_pa_layer_attr pwr_info = hba->pwr_info;
-+	int ret;
-+
-+	pwr_info.lane_rx = lanes;
-+	pwr_info.lane_tx = lanes;
-+	ret = ufshcd_config_pwr_mode(hba, &pwr_info);
-+	if (ret)
-+		dev_err(hba->dev, "%s: Setting %u lanes, err = %d\n",
-+			__func__, lanes, ret);
-+	return ret;
-+}
-+
-+static int ufs_intel_lkf_pwr_change_notify(struct ufs_hba *hba,
-+				enum ufs_notify_change_status status,
-+				struct ufs_pa_layer_attr *dev_max_params,
-+				struct ufs_pa_layer_attr *dev_req_params)
-+{
-+	int err = 0;
-+
-+	switch (status) {
-+	case PRE_CHANGE:
-+		if (ufshcd_is_hs_mode(dev_max_params) &&
-+		    (hba->pwr_info.lane_rx != 2 || hba->pwr_info.lane_tx != 2))
-+			ufs_intel_set_lanes(hba, 2);
-+		memcpy(dev_req_params, dev_max_params, sizeof(*dev_req_params));
-+		break;
-+	case POST_CHANGE:
-+		if (ufshcd_is_hs_mode(dev_req_params)) {
-+			u32 peer_granularity;
-+
-+			usleep_range(1000, 1250);
-+			err = ufshcd_dme_peer_get(hba, UIC_ARG_MIB(PA_GRANULARITY),
-+						  &peer_granularity);
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return err;
-+}
-+
-+static int ufs_intel_lkf_apply_dev_quirks(struct ufs_hba *hba)
-+{
-+	u32 granularity, peer_granularity;
-+	u32 pa_tactivate, peer_pa_tactivate;
-+	int ret;
-+
-+	ret = ufshcd_dme_get(hba, UIC_ARG_MIB(PA_GRANULARITY), &granularity);
-+	if (ret)
-+		goto out;
-+
-+	ret = ufshcd_dme_peer_get(hba, UIC_ARG_MIB(PA_GRANULARITY), &peer_granularity);
-+	if (ret)
-+		goto out;
-+
-+	ret = ufshcd_dme_get(hba, UIC_ARG_MIB(PA_TACTIVATE), &pa_tactivate);
-+	if (ret)
-+		goto out;
-+
-+	ret = ufshcd_dme_peer_get(hba, UIC_ARG_MIB(PA_TACTIVATE), &peer_pa_tactivate);
-+	if (ret)
-+		goto out;
-+
-+	if (granularity == peer_granularity) {
-+		u32 new_peer_pa_tactivate = pa_tactivate + 2;
-+
-+		ret = ufshcd_dme_peer_set(hba, UIC_ARG_MIB(PA_TACTIVATE), new_peer_pa_tactivate);
-+	}
-+out:
-+	return ret;
-+}
-+
- #define INTEL_ACTIVELTR		0x804
- #define INTEL_IDLELTR		0x808
- 
-@@ -351,6 +426,7 @@ static int ufs_intel_lkf_init(struct ufs_hba *hba)
- 	struct ufs_host *ufs_host;
- 	int err;
- 
-+	hba->nop_out_timeout = 200;
- 	hba->quirks |= UFSHCD_QUIRK_BROKEN_AUTO_HIBERN8;
- 	hba->caps |= UFSHCD_CAP_CRYPTO;
- 	err = ufs_intel_common_init(hba);
-@@ -381,6 +457,8 @@ static struct ufs_hba_variant_ops ufs_intel_lkf_hba_vops = {
- 	.exit			= ufs_intel_common_exit,
- 	.hce_enable_notify	= ufs_intel_hce_enable_notify,
- 	.link_startup_notify	= ufs_intel_link_startup_notify,
-+	.pwr_change_notify	= ufs_intel_lkf_pwr_change_notify,
-+	.apply_dev_quirks	= ufs_intel_lkf_apply_dev_quirks,
- 	.resume			= ufs_intel_resume,
- 	.device_reset		= ufs_intel_device_reset,
+--- a/include/sound/rawmidi.h
++++ b/include/sound/rawmidi.h
+@@ -98,6 +98,7 @@ struct snd_rawmidi_file {
+ 	struct snd_rawmidi *rmidi;
+ 	struct snd_rawmidi_substream *input;
+ 	struct snd_rawmidi_substream *output;
++	unsigned int user_pversion;	/* supported protocol version */
  };
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 3a204324151a..bfc13f646d7b 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -4767,7 +4767,7 @@ static int ufshcd_verify_dev_init(struct ufs_hba *hba)
- 	mutex_lock(&hba->dev_cmd.lock);
- 	for (retries = NOP_OUT_RETRIES; retries > 0; retries--) {
- 		err = ufshcd_exec_dev_cmd(hba, DEV_CMD_TYPE_NOP,
--					       NOP_OUT_TIMEOUT);
-+					  hba->nop_out_timeout);
  
- 		if (!err || err == -ETIMEDOUT)
- 			break;
-@@ -9403,6 +9403,7 @@ int ufshcd_alloc_host(struct device *dev, struct ufs_hba **hba_handle)
- 	hba->dev = dev;
- 	*hba_handle = hba;
- 	hba->dev_ref_clk_freq = REF_CLK_FREQ_INVAL;
-+	hba->nop_out_timeout = NOP_OUT_TIMEOUT;
+ struct snd_rawmidi_str {
+--- a/include/uapi/sound/asound.h
++++ b/include/uapi/sound/asound.h
+@@ -783,6 +783,7 @@ struct snd_rawmidi_status {
  
- 	INIT_LIST_HEAD(&hba->clk_list_head);
+ #define SNDRV_RAWMIDI_IOCTL_PVERSION	_IOR('W', 0x00, int)
+ #define SNDRV_RAWMIDI_IOCTL_INFO	_IOR('W', 0x01, struct snd_rawmidi_info)
++#define SNDRV_RAWMIDI_IOCTL_USER_PVERSION _IOW('W', 0x02, int)
+ #define SNDRV_RAWMIDI_IOCTL_PARAMS	_IOWR('W', 0x10, struct snd_rawmidi_params)
+ #define SNDRV_RAWMIDI_IOCTL_STATUS	_IOWR('W', 0x20, struct snd_rawmidi_status)
+ #define SNDRV_RAWMIDI_IOCTL_DROP	_IOW('W', 0x30, int)
+--- a/sound/core/rawmidi.c
++++ b/sound/core/rawmidi.c
+@@ -873,12 +873,21 @@ static long snd_rawmidi_ioctl(struct fil
+ 			return -EINVAL;
+ 		}
+ 	}
++	case SNDRV_RAWMIDI_IOCTL_USER_PVERSION:
++		if (get_user(rfile->user_pversion, (unsigned int __user *)arg))
++			return -EFAULT;
++		return 0;
++
+ 	case SNDRV_RAWMIDI_IOCTL_PARAMS:
+ 	{
+ 		struct snd_rawmidi_params params;
  
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index 86d4765a17b8..aa95deffb873 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -814,6 +814,7 @@ struct ufs_hba {
- 	/* Device management request data */
- 	struct ufs_dev_cmd dev_cmd;
- 	ktime_t last_dme_cmd_tstamp;
-+	int nop_out_timeout;
- 
- 	/* Keeps information of the UFS device connected to this host */
- 	struct ufs_dev_info dev_info;
--- 
-2.33.0
-
+ 		if (copy_from_user(&params, argp, sizeof(struct snd_rawmidi_params)))
+ 			return -EFAULT;
++		if (rfile->user_pversion < SNDRV_PROTOCOL_VERSION(2, 0, 2)) {
++			params.mode = 0;
++			memset(params.reserved, 0, sizeof(params.reserved));
++		}
+ 		switch (params.stream) {
+ 		case SNDRV_RAWMIDI_STREAM_OUTPUT:
+ 			if (rfile->output == NULL)
 
 
