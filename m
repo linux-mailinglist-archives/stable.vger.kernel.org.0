@@ -2,141 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB5234213EF
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 18:21:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37A32421420
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 18:31:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236818AbhJDQXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 12:23:34 -0400
-Received: from srv4.3e8.eu ([193.25.101.238]:50710 "EHLO srv4.3e8.eu"
+        id S237075AbhJDQdN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 12:33:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236825AbhJDQXe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 12:23:34 -0400
-Received: from [IPV6:2003:c6:cf12:5a0:9abc:9583:6f0a:c734] (p200300c6cf1205a09abc95836f0ac734.dip0.t-ipconnect.de [IPv6:2003:c6:cf12:5a0:9abc:9583:6f0a:c734])
-        (using TLSv1.3 with cipher TLS_CHACHA20_POLY1305_SHA256 (256/256 bits))
-        (No client certificate requested)
-        by srv4.3e8.eu (Postfix) with ESMTPSA id 0F4D86002D;
-        Mon,  4 Oct 2021 18:21:38 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=3e8.eu;
-        s=mail20170724; t=1633364499;
-        bh=7S7LOgvK7iNZhzXkgYBc06MPzFkxnPh65XnsimcMjl8=;
-        h=Date:To:Cc:References:From:Subject:In-Reply-To:From;
-        b=aXHcuvdEIRuf4TsPVWaNEMRS0kJc/j4KGyWK3z8MFgaSGSWHYwEMWeDuD5aBbGNuK
-         rmIZNsh1lkQ8QzVK+6RnQqLg/Kw3eOlUZoIPoc9wgbiOizbORLTQfc+UUAkJzwn1WF
-         YWACHrZ7yzCwnwWiHojgTEs8BjX4bkyxTg8pv3odmTQk5BNdDcUrZK+PnC1Jj/qy/Y
-         BEvF/rq/WLkiyewC70nHzdNtYAvTeVNkjRodFKAI1EP5etwmUhp6/45F54dL8tt6ya
-         yG3AmT1DhaOr/vw/QiqtCAJOPX0hzYeOl1Mli5J0Shab+s+AsQkDf9NT9dAdzdkVon
-         wMNCUQ7/NBYeA==
-Message-ID: <62e191eb-6e85-0c7f-7447-dc2106bb0a4d@3e8.eu>
-Date:   Mon, 4 Oct 2021 18:21:35 +0200
+        id S235704AbhJDQdN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 12:33:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD5DE61184;
+        Mon,  4 Oct 2021 16:31:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1633365084;
+        bh=xC5zyZY8esd3E0X5X90FwEIpcl9VP5zy4k4PAm5SGaA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=i8vpfOh36DB3ixtiEcbdS4OLgvMOR/hegKqLFwK4uQxo6TYEMtzZC/AgqfHRcsCrH
+         cdqpPpDN/5F0k83bkujOD4sGzMzu3p1p3uS+YkT8w9/pO000h5fy+b3qk1CbrFxcxr
+         0U300JuKxhKys0R8t8DGKNv1a3sUrtga2qYt3mBU2cCinNBTD7vbqWvt5tGLg5adwr
+         2SAsOKN24KBWCOTSJ/eoAR834iFjXHoHq4IxcN256S/i+K+J12wRbB0gYnX51/v97N
+         3qR6OdTxIt6B459Jetw/vdgRxwapwC0N+TtIMiOD+lEMNIx/Kpk3Glu5fEPUKG+EK1
+         UGF+AH67qVZMw==
+Date:   Mon, 4 Oct 2021 17:31:21 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Jason Gunthorpe <jgg@ziepe.ca>
+Cc:     Lino Sanfilippo <LinoSanfilippo@gmx.de>, f.fainelli@gmail.com,
+        rjui@broadcom.com, sbranden@broadcom.com,
+        bcm-kernel-feedback-list@broadcom.com, nsaenz@kernel.org,
+        linux-spi@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        p.rosenberger@kunbus.com, linux-integrity@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] spi: bcm2835: do not unregister controller in shutdown
+ handler
+Message-ID: <YVssWYaxuQDi8jI5@sirena.org.uk>
+References: <20210928195657.5573-1-LinoSanfilippo@gmx.de>
+ <20211001175422.GA53652@sirena.org.uk>
+ <2c4d7115-7a02-f79e-c91b-3c2dd54051b2@gmx.de>
+ <YVr4USeiIoQJ0Pqh@sirena.org.uk>
+ <20211004131756.GW3544071@ziepe.ca>
+ <YVsLxHMCdXf4vS+i@sirena.org.uk>
+ <20211004154436.GY3544071@ziepe.ca>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.1
-Content-Language: en-US
-To:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Tudor Ambarus <Tudor.Ambarus@microchip.com>
-Cc:     linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        Kestrel seventyfour <kestrelseventyfour@gmail.com>
-References: <20210928222258.199726-1-miquel.raynal@bootlin.com>
- <20210928222258.199726-10-miquel.raynal@bootlin.com>
- <20211004174048.608b07ef@xps13>
-From:   Jan Hoffmann <jan@3e8.eu>
-Subject: Re: [PATCH 9/9] mtd: rawnand: xway: Keep the driver compatible with
- on-die ECC engines
-In-Reply-To: <20211004174048.608b07ef@xps13>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="Vk4aO1eaTM88kUGw"
+Content-Disposition: inline
+In-Reply-To: <20211004154436.GY3544071@ziepe.ca>
+X-Cookie: If it heals good, say it.
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Miquèl,
 
-> Hi Jan,
-> 
-> miquel.raynal@bootlin.com wrote on Wed, 29 Sep 2021 00:22:48 +0200:
-> 
->> Following the introduction of the generic ECC engine infrastructure, it
->> was necessary to reorganize the code and move the ECC configuration in
->> the ->attach_chip() hook. Failing to do that properly lead to a first
->> series of fixes supposed to stabilize the situation. Unfortunately, this
->> only fixed the use of software ECC engines, preventing any other kind of
->> engine to be used, including on-die ones.
->>
->> It is now time to (finally) fix the situation by ensuring that we still
->> provide a default (eg. software ECC) but will still support different
->> ECC engines such as on-die ECC engines if properly described in the
->> device tree.
->>
->> There are no changes needed on the core side in order to do this, but we
->> just need to leverage the logic there which allows:
->> 1- a subsystem default (set to Host engines in the raw NAND world)
->> 2- a driver specific default (here set to software ECC engines)
->> 3- any type of engine requested by the user (ie. described in the DT)
->>
->> As the raw NAND subsystem has not yet been fully converted to the ECC
->> engine infrastructure, in order to provide a default ECC engine for this
->> driver we need to set chip->ecc.engine_type *before* calling
->> nand_scan(). During the initialization step, the core will consider this
->> entry as the default engine for this driver. This value may of course
->> be overloaded by the user if the usual DT properties are provided.
->>
->> Fixes: d525914b5bd8 ("mtd: rawnand: xway: Move the ECC initialization to ->attach_chip()")
->> Cc: stable@vger.kernel.org
->> Cc: Jan Hoffmann <jan@3e8.eu>
-> 
-> I think you already tested this change and validated it, would you mind
-> providing your Tested-by?
+--Vk4aO1eaTM88kUGw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yes, I tested this on a device using software ECC (Fritzbox 7412 with
-Toshiba NAND chip) and on a device using on-die ECC (Fritzbox 7362 SL
-with Micron NAND chip).
+On Mon, Oct 04, 2021 at 12:44:36PM -0300, Jason Gunthorpe wrote:
+> On Mon, Oct 04, 2021 at 03:12:20PM +0100, Mark Brown wrote:
+> > On Mon, Oct 04, 2021 at 10:17:56AM -0300, Jason Gunthorpe wrote:
 
-Tested-by: Jan Hoffmann <jan@3e8.eu>
+> > > When something like kexec happens we need the machine to be in a state
+> > > where random DMA's are not corrupting memory.
 
->> Cc: Kestrel seventyfour <kestrelseventyfour@gmail.com>
->> Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
->> ---
->>   drivers/mtd/nand/raw/xway_nand.c | 12 +++++++++---
->>   1 file changed, 9 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/mtd/nand/raw/xway_nand.c b/drivers/mtd/nand/raw/xway_nand.c
->> index 26751976e502..236fd8c5a958 100644
->> --- a/drivers/mtd/nand/raw/xway_nand.c
->> +++ b/drivers/mtd/nand/raw/xway_nand.c
->> @@ -148,9 +148,8 @@ static void xway_write_buf(struct nand_chip *chip, const u_char *buf, int len)
->>   
->>   static int xway_attach_chip(struct nand_chip *chip)
->>   {
->> -	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
->> -
->> -	if (chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN)
->> +	if (chip->ecc.engine_type == NAND_ECC_ENGINE_TYPE_SOFT &&
->> +	    chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN)
->>   		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
->>   
->>   	return 0;
->> @@ -219,6 +218,13 @@ static int xway_nand_probe(struct platform_device *pdev)
->>   		    | NAND_CON_SE_P | NAND_CON_WP_P | NAND_CON_PRE_P
->>   		    | cs_flag, EBU_NAND_CON);
->>   
->> +	/*
->> +	 * This driver assumes that the default ECC engine should be TYPE_SOFT.
->> +	 * Set ->engine_type before registering the NAND devices in order to
->> +	 * provide a driver specific default value.
->> +	 */
->> +	data->chip.ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
->> +
->>   	/* Scan to find existence of the device */
->>   	err = nand_scan(&data->chip, 1);
->>   	if (err)
-> 
-> 
-> Thanks,
-> Miquèl
-> 
+> > That's all well and good but there's no point in implementing something
+> > half baked that's opening up a whole bunch of opportunities to crash the
+> > system if more work comes in after it's half broken the device setup. =
+=20
 
-Thanks,
-Jan
+> Well, that is up to the driver implementing this. It looks like device
+> shutdown is called before the userspace is all nuked so yes,
+> concurrency with userspace is a possible concern here.
+
+It's not just userspace that can initiate things - interrupts are also
+an issue, someone could press a button or whatever.  Frankly for SPI the
+quiescing part doesn't seem like logic that should be implemented in
+drivers, it's a subsystem level thing since there's nothing driver
+specific about it.
+
+> > > Due to the emergency sort of nature it is not appropriate to do
+> > > locking complicated sorts of things like struct device unregistrations
+> > > here.
+
+> > That's just not what's actually implemented in a bunch of places, nor
+> > something one would infer from the documentation ("Called at shut-down
+> > to quiesce the device", no mention of emergency cases which I'd guess
+> > would just be kdump) -=20
+
+> Drivers mis understanding stuff is not new..
+
+Not just drivers, entire subsystems.  And like I say given the
+documentation I'd be hard pressed to say that it's a misunderstanding.
+
+> > that's a different thing and definitely abusing the API.  I would guess
+> > that a good proportion of people implementing it are more worried about
+> > clean system shutdown than they are about kdump.
+
+> The other important case is to get the device cleaned up enough to
+> pass back to firmware for platforms that use a firmware
+> shutdown/reboot path.
+
+Right, so the other cases I'm aware of are doing pretty much that -
+bringing things down to a state where the system can reboot cleanly.
+That can definitely include things like blocking for some hardware, and
+you're going to need some concurrency handling which means a combination
+of locking and infrequently tested lockless code paths.
+
+In the case of this specific driver I'm still not clear that the best
+thing isn't just to delete the shutdown callback and let any ongoing
+transfers complete, though I guess there'd be issues in kexec cases with
+long enough tansfers.
+
+--Vk4aO1eaTM88kUGw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmFbLFgACgkQJNaLcl1U
+h9CBKQf9GQ2KXuo+WmJK0ivezZx5gC5jF7VSvNRus+fKLGu5Uorq8FQ3ylrl1/pR
+85lCQLPVoaHAzKbptULKGdqo4kp/Rz623GgSEHAbSazeq+jiO4Okp/BgcYr6swYT
+PU3xCob1clSWHd7TaUort5ObersVFAmy3egaELXdpDTy6o7/W1JmR5ikEDuEg5Us
+EWNn9h2oeYcqkbygqa+0yiA2/Z+UICUyv1ZI6GLGIAZqiWH/hLF2o0fxkKLDbMNw
+BjuDlgtc4FEn6fss/GojWqaHO+OSObdDFeJMckiBIEKW7IxHYOKOm6gVDc/2neFV
+sECi73OZzJz9snQva6F8G6ZZ+h9/bA==
+=3RQB
+-----END PGP SIGNATURE-----
+
+--Vk4aO1eaTM88kUGw--
