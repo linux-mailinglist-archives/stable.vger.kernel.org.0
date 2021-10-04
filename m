@@ -2,213 +2,224 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A976F4205B3
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 08:09:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E01E4205F1
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 08:44:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232615AbhJDGKw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 02:10:52 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:34230 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231935AbhJDGKw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 02:10:52 -0400
-Received: from sequoia.work.tihix.com (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
-        by linux.microsoft.com (Postfix) with ESMTPSA id EB31720B861E;
-        Sun,  3 Oct 2021 23:09:02 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com EB31720B861E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1633327743;
-        bh=THyLkAVaDs1Hb92aOse98gBjcNS/im3qub3b4KePinA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=i+YokozB2sWf+jfr4g4qRR+P8mPaGVgPum+tXZWOEsAZ+R22OlXDCUy5XbRObxXEv
-         exyzKR5zFEwUz/BUaWxBHY9hHEc4AyOwvc3NhKOfOWmHnKVi5IPdjdJfRJppXxY49k
-         sh8rY3g1BAedoeMia9cDVJYJeZam7CN3gR9P4N/s=
-From:   Tyler Hicks <tyhicks@linux.microsoft.com>
-To:     stable@vger.kernel.org
-Cc:     Rob Herring <robh@kernel.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.4] PCI: Fix pci_host_bridge struct device release/free handling
-Date:   Mon,  4 Oct 2021 01:08:38 -0500
-Message-Id: <20211004060838.678790-1-tyhicks@linux.microsoft.com>
-X-Mailer: git-send-email 2.25.1
+        id S232536AbhJDGps (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 02:45:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54462 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232131AbhJDGps (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 02:45:48 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A604FC061745
+        for <stable@vger.kernel.org>; Sun,  3 Oct 2021 23:43:59 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id 187so9224583pfc.10
+        for <stable@vger.kernel.org>; Sun, 03 Oct 2021 23:43:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=IcXL517oc239P6P/T3ME3cUz+lHVLT+7bx+mXxHOmJI=;
+        b=z/SdRgawFws/TrFCgZbbJEyoqJc1BT9dHOrKQdePS6AjVZHQ2eYWC5YZtPY7M/9uy3
+         ExmZ7wOHB8QSlO2CNmdYDzTvfxbZbbL4kBHUddP3EHCcRIxCF3Tj6xSpXVktMzXcsGkk
+         Q6jqIfXUk4Z2uQkPeIiksk4NM7EQr3tq/UFru89bXxWhApkPhPrVe1cNTyboIWhh/REx
+         g3SmUEvQEZah8P8gVR+HFYDzMzlW5p9jA6idh+ZwVeZBSAuC+o4sFE6Ce71V5GSArXzE
+         bNFhWb0NYK0use56KHTExxJetyNheL9WThF1J+ryJ1ssqTkvxsQEotLW3edEMY364JkQ
+         1rUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=IcXL517oc239P6P/T3ME3cUz+lHVLT+7bx+mXxHOmJI=;
+        b=CnV5loCffg1ggwqF8IZjvE8mxExvA33O9aOESxkb9XuJQRgZk9/SvI+y8ct/evRs+G
+         xLqoYnOYLBC5UrXqiHyCNe/gFYLEArtnNrgah+RakD5JBHJRzW9h276q/HJakPOFjl95
+         WxL+ZPpGvY/4Scs62Vq877WWZa3vgJvu+wVWhagBHbFTrPabRv3GQJtnXLsHzQMsA+rY
+         EzXDjz8val1D9FwsExWXKSSTC3uiuF7phuNWNe8uQZ3OG9OCha7T2lMb02pHUPKv33vz
+         4kvHW+HEE+/mbxQQpKw112U74tzI996bXrjtbXF1brVePkz92Qgc1ry1BEyrUUqw0Frs
+         DHDQ==
+X-Gm-Message-State: AOAM532YjBznT2tuD8j+jwCvy8h/IOldZ8kMxgjtlLJh4ZqtfGVVDTG/
+        5aPHGtn+FkjVPWD4fMlaWklDktjsxrwjk7oE
+X-Google-Smtp-Source: ABdhPJxO+Et0j3b8cvpRK+7Boi+E+v1c3RVAZaZxKG8DlTmBB1MUIJvH1o+QPEsVQbrv82zsHrFSiQ==
+X-Received: by 2002:a05:6a00:2389:b0:44c:434:6c5d with SMTP id f9-20020a056a00238900b0044c04346c5dmr20070639pfc.29.1633329839073;
+        Sun, 03 Oct 2021 23:43:59 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a5sm2825160pff.219.2021.10.03.23.43.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 03 Oct 2021 23:43:58 -0700 (PDT)
+Message-ID: <615aa2ae.1c69fb81.2fb14.7911@mx.google.com>
+Date:   Sun, 03 Oct 2021 23:43:58 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.70-24-g9336e9d0c3ad
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 204 runs,
+ 5 regressions (v5.10.70-24-g9336e9d0c3ad)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+stable-rc/queue/5.10 baseline: 204 runs, 5 regressions (v5.10.70-24-g9336e9=
+d0c3ad)
 
-commit 9885440b16b8fc1dd7275800fd28f56a92f60896 upstream.
+Regressions Summary
+-------------------
 
-The PCI code has several paths where the struct pci_host_bridge is freed
-directly. This is wrong because it contains a struct device which is
-refcounted and should be freed using put_device(). This can result in
-use-after-free errors. I think this problem has existed since 2012 with
-commit 7b5436635800 ("PCI: add generic device into pci_host_bridge
-struct"). It generally hasn't mattered as most host bridge drivers are
-still built-in and can't unbind.
+platform                | arch  | lab           | compiler | defconfig     =
+     | regressions
+------------------------+-------+---------------+----------+---------------=
+-----+------------
+hip07-d05               | arm64 | lab-collabora | gcc-8    | defconfig     =
+     | 1          =
 
-The problem is a struct device should never be freed directly once
-device_initialize() is called and a ref is held, but that doesn't happen
-until pci_register_host_bridge(). There's then a window between allocating
-the host bridge and pci_register_host_bridge() where kfree should be used.
-This is fragile and requires callers to do the right thing. To fix this, we
-need to split device_register() into device_initialize() and device_add()
-calls, so that the host bridge struct is always freed by using a
-put_device().
+rk3288-veyron-jaq       | arm   | lab-collabora | gcc-8    | multi_v7_defco=
+nfig | 3          =
 
-devm_pci_alloc_host_bridge() is using devm_kzalloc() to allocate struct
-pci_host_bridge which will be freed directly. Instead, we can use a custom
-devres action to call put_device().
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-8    | defconfig     =
+     | 1          =
 
-Link: https://lore.kernel.org/r/20200513223859.11295-2-robh@kernel.org
-Reported-by: Anders Roxell <anders.roxell@linaro.org>
-Tested-by: Anders Roxell <anders.roxell@linaro.org>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-[tyhicks: Minor contextual change in pci_init_host_bridge() due to the
- lack of a native_dpc member in the pci_host_bridge struct. It was added
- in v5.7 with commit ac1c8e35a326 ("PCI/DPC: Add Error Disconnect
- Recover (EDR) support")]
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
----
 
-This commit has been identified as a fix for random memory corruption
-that we're experiencing in production. The memory corruption is easily
-reproducible on 5.4.150 and we get a nice KASAN splat that led us to
-discovering the upstream fix that wasn't marked for stable inclusion. I
-don't see any obvious reasons why this wouldn't be a valid linux-5.4.y
-candidate and hope we can get it applied there.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.70-24-g9336e9d0c3ad/plan/baseline/
 
-I've verified that the KASAN splat goes away and I don't see any other
-evidence of the memory corruption issue once this commit is applied to
-5.4.150.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.70-24-g9336e9d0c3ad
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9336e9d0c3ad587f7810d2bdf26653f6d947b12f =
 
- drivers/pci/probe.c  | 36 +++++++++++++++++++-----------------
- drivers/pci/remove.c |  2 +-
- 2 files changed, 20 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index f28213b62527..a41d04c57642 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -564,7 +564,7 @@ static struct pci_bus *pci_alloc_bus(struct pci_bus *parent)
- 	return b;
- }
- 
--static void devm_pci_release_host_bridge_dev(struct device *dev)
-+static void pci_release_host_bridge_dev(struct device *dev)
- {
- 	struct pci_host_bridge *bridge = to_pci_host_bridge(dev);
- 
-@@ -573,12 +573,7 @@ static void devm_pci_release_host_bridge_dev(struct device *dev)
- 
- 	pci_free_resource_list(&bridge->windows);
- 	pci_free_resource_list(&bridge->dma_ranges);
--}
--
--static void pci_release_host_bridge_dev(struct device *dev)
--{
--	devm_pci_release_host_bridge_dev(dev);
--	kfree(to_pci_host_bridge(dev));
-+	kfree(bridge);
- }
- 
- static void pci_init_host_bridge(struct pci_host_bridge *bridge)
-@@ -597,6 +592,8 @@ static void pci_init_host_bridge(struct pci_host_bridge *bridge)
- 	bridge->native_shpc_hotplug = 1;
- 	bridge->native_pme = 1;
- 	bridge->native_ltr = 1;
-+
-+	device_initialize(&bridge->dev);
- }
- 
- struct pci_host_bridge *pci_alloc_host_bridge(size_t priv)
-@@ -614,17 +611,25 @@ struct pci_host_bridge *pci_alloc_host_bridge(size_t priv)
- }
- EXPORT_SYMBOL(pci_alloc_host_bridge);
- 
-+static void devm_pci_alloc_host_bridge_release(void *data)
-+{
-+	pci_free_host_bridge(data);
-+}
-+
- struct pci_host_bridge *devm_pci_alloc_host_bridge(struct device *dev,
- 						   size_t priv)
- {
-+	int ret;
- 	struct pci_host_bridge *bridge;
- 
--	bridge = devm_kzalloc(dev, sizeof(*bridge) + priv, GFP_KERNEL);
-+	bridge = pci_alloc_host_bridge(priv);
- 	if (!bridge)
- 		return NULL;
- 
--	pci_init_host_bridge(bridge);
--	bridge->dev.release = devm_pci_release_host_bridge_dev;
-+	ret = devm_add_action_or_reset(dev, devm_pci_alloc_host_bridge_release,
-+				       bridge);
-+	if (ret)
-+		return NULL;
- 
- 	return bridge;
- }
-@@ -632,10 +637,7 @@ EXPORT_SYMBOL(devm_pci_alloc_host_bridge);
- 
- void pci_free_host_bridge(struct pci_host_bridge *bridge)
- {
--	pci_free_resource_list(&bridge->windows);
--	pci_free_resource_list(&bridge->dma_ranges);
--
--	kfree(bridge);
-+	put_device(&bridge->dev);
- }
- EXPORT_SYMBOL(pci_free_host_bridge);
- 
-@@ -866,7 +868,7 @@ static int pci_register_host_bridge(struct pci_host_bridge *bridge)
- 	if (err)
- 		goto free;
- 
--	err = device_register(&bridge->dev);
-+	err = device_add(&bridge->dev);
- 	if (err) {
- 		put_device(&bridge->dev);
- 		goto free;
-@@ -933,7 +935,7 @@ static int pci_register_host_bridge(struct pci_host_bridge *bridge)
- 
- unregister:
- 	put_device(&bridge->dev);
--	device_unregister(&bridge->dev);
-+	device_del(&bridge->dev);
- 
- free:
- 	kfree(bus);
-@@ -2945,7 +2947,7 @@ struct pci_bus *pci_create_root_bus(struct device *parent, int bus,
- 	return bridge->bus;
- 
- err_out:
--	kfree(bridge);
-+	put_device(&bridge->dev);
- 	return NULL;
- }
- EXPORT_SYMBOL_GPL(pci_create_root_bus);
-diff --git a/drivers/pci/remove.c b/drivers/pci/remove.c
-index e9c6b120cf45..95dec03d9f2a 100644
---- a/drivers/pci/remove.c
-+++ b/drivers/pci/remove.c
-@@ -160,6 +160,6 @@ void pci_remove_root_bus(struct pci_bus *bus)
- 	host_bridge->bus = NULL;
- 
- 	/* remove the host bridge */
--	device_unregister(&host_bridge->dev);
-+	device_del(&host_bridge->dev);
- }
- EXPORT_SYMBOL_GPL(pci_remove_root_bus);
--- 
-2.25.1
 
+Test Regressions
+---------------- =
+
+
+
+platform                | arch  | lab           | compiler | defconfig     =
+     | regressions
+------------------------+-------+---------------+----------+---------------=
+-----+------------
+hip07-d05               | arm64 | lab-collabora | gcc-8    | defconfig     =
+     | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615a6e1a2e5fac802d99a2ee
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+24-g9336e9d0c3ad/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+24-g9336e9d0c3ad/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615a6e1a2e5fac802d99a=
+2ef
+        failing since 94 days (last pass: v5.10.46-100-gce5b41f85637, first=
+ fail: v5.10.46-100-g3b96099161c8b) =
+
+ =
+
+
+
+platform                | arch  | lab           | compiler | defconfig     =
+     | regressions
+------------------------+-------+---------------+----------+---------------=
+-----+------------
+rk3288-veyron-jaq       | arm   | lab-collabora | gcc-8    | multi_v7_defco=
+nfig | 3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615a7391ce72e8939c99a2da
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+24-g9336e9d0c3ad/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288=
+-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+24-g9336e9d0c3ad/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288=
+-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/615a7391ce72e8939c99a30c
+        failing since 110 days (last pass: v5.10.43-44-g253317604975, first=
+ fail: v5.10.43-130-g87b5f83f722c)
+
+    2021-10-04T03:22:51.982996  /lava-4637413/1/../bin/lava-test-case
+    2021-10-04T03:22:52.000842  <8>[   13.941431] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
+    2021-10-04T03:22:52.001175  /lava-4637413/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/615a7391ce72e8939c99a310
+        failing since 110 days (last pass: v5.10.43-44-g253317604975, first=
+ fail: v5.10.43-130-g87b5f83f722c)
+
+    2021-10-04T03:22:50.557202  /lava-4637413/1/../bin/lava-test-case
+    2021-10-04T03:22:50.574368  <8>[   12.515295] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>
+    2021-10-04T03:22:50.574716  /lava-4637413/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/615a7391ce72e8939c99a311
+        failing since 110 days (last pass: v5.10.43-44-g253317604975, first=
+ fail: v5.10.43-130-g87b5f83f722c)
+
+    2021-10-04T03:22:49.538677  /lava-4637413/1/../bin/lava-test-case
+    2021-10-04T03:22:49.543951  <8>[   11.496046] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =
+
+
+
+platform                | arch  | lab           | compiler | defconfig     =
+     | regressions
+------------------------+-------+---------------+----------+---------------=
+-----+------------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-8    | defconfig     =
+     | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615a6de1713563508899a2e5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+24-g9336e9d0c3ad/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-banan=
+api-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+24-g9336e9d0c3ad/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-banan=
+api-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615a6de1713563508899a=
+2e6
+        failing since 20 days (last pass: v5.10.63-26-gfb6b5e198aab, first =
+fail: v5.10.64-214-g93e17c2075d7) =
+
+ =20
