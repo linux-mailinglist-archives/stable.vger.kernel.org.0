@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60628420FE6
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:37:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B04B420D59
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:12:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237346AbhJDNjE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:39:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48748 "EHLO mail.kernel.org"
+        id S235817AbhJDNOX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:14:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238243AbhJDNhj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:37:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9591061409;
-        Mon,  4 Oct 2021 13:17:10 +0000 (UTC)
+        id S235634AbhJDNMm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:12:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A48861B7D;
+        Mon,  4 Oct 2021 13:04:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353431;
-        bh=R5uxxn9DzDyPVVxSyA7s65e0PfvERh2ByqkcVG7xAJ4=;
+        s=korg; t=1633352694;
+        bh=xvb0BHosjtP7JTAoWsTComR2+BIC2m1Uxu0qABGC6IQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KgtBpwHLyOljWUl3zu58BxQ94FJmn1ZU6Wyg2htOcLX8l+wTvBO0QFpBPS+LLMSx2
-         LrISrYrICGXeVmI2U0iG6nEJHiBmldHf0KsTidO8sY98ssH+q9BVqRf0pHt7tRT+PY
-         ri7uYeS2DxqjfXUNuA/9Tn4QGVz0xOdOGI4XFLi4=
+        b=0fcxHI3slSJ7NiTlEEj2Uib7zv7SjBd5AqK3iRVb6ZswAwdVwaRpzYnMxxeAxc2Il
+         Dd7SI0w69fwMrw1DPZFbeDcxSn0sYliSrKOZO1AMWKSkoXVxtTUoNFRDMTyToFx8to
+         bSOdm9fB4iZ3R3NRkSlb3f/1sSm90DY5CpuNXZGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 124/172] net: hns3: do not allow call hns3_nic_net_open repeatedly
+        stable@vger.kernel.org,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 4.19 84/95] ARM: 9077/1: PLT: Move struct plt_entries definition to header
 Date:   Mon,  4 Oct 2021 14:52:54 +0200
-Message-Id: <20211004125048.980281126@linuxfoundation.org>
+Message-Id: <20211004125036.325905574@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,84 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Alex Sverdlin <alexander.sverdlin@nokia.com>
 
-[ Upstream commit 5b09e88e1bf7fe86540fab4b5f3eece8abead39e ]
+commit 4e271701c17dee70c6e1351c4d7d42e70405c6a9 upstream
 
-hns3_nic_net_open() is not allowed to called repeatly, but there
-is no checking for this. When doing device reset and setup tc
-concurrently, there is a small oppotunity to call hns3_nic_net_open
-repeatedly, and cause kernel bug by calling napi_enable twice.
+No functional change, later it will be re-used in several files.
 
-The calltrace information is like below:
-[ 3078.222780] ------------[ cut here ]------------
-[ 3078.230255] kernel BUG at net/core/dev.c:6991!
-[ 3078.236224] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-[ 3078.243431] Modules linked in: hns3 hclgevf hclge hnae3 vfio_iommu_type1 vfio_pci vfio_virqfd vfio pv680_mii(O)
-[ 3078.258880] CPU: 0 PID: 295 Comm: kworker/u8:5 Tainted: G           O      5.14.0-rc4+ #1
-[ 3078.269102] Hardware name:  , BIOS KpxxxFPGA 1P B600 V181 08/12/2021
-[ 3078.276801] Workqueue: hclge hclge_service_task [hclge]
-[ 3078.288774] pstate: 60400009 (nZCv daif +PAN -UAO -TCO BTYPE=--)
-[ 3078.296168] pc : napi_enable+0x80/0x84
-tc qdisc sho[w  3d0e7v8 .e3t0h218 79] lr : hns3_nic_net_open+0x138/0x510 [hns3]
-
-[ 3078.314771] sp : ffff8000108abb20
-[ 3078.319099] x29: ffff8000108abb20 x28: 0000000000000000 x27: ffff0820a8490300
-[ 3078.329121] x26: 0000000000000001 x25: ffff08209cfc6200 x24: 0000000000000000
-[ 3078.339044] x23: ffff0820a8490300 x22: ffff08209cd76000 x21: ffff0820abfe3880
-[ 3078.349018] x20: 0000000000000000 x19: ffff08209cd76900 x18: 0000000000000000
-[ 3078.358620] x17: 0000000000000000 x16: ffffc816e1727a50 x15: 0000ffff8f4ff930
-[ 3078.368895] x14: 0000000000000000 x13: 0000000000000000 x12: 0000259e9dbeb6b4
-[ 3078.377987] x11: 0096a8f7e764eb40 x10: 634615ad28d3eab5 x9 : ffffc816ad8885b8
-[ 3078.387091] x8 : ffff08209cfc6fb8 x7 : ffff0820ac0da058 x6 : ffff0820a8490344
-[ 3078.396356] x5 : 0000000000000140 x4 : 0000000000000003 x3 : ffff08209cd76938
-[ 3078.405365] x2 : 0000000000000000 x1 : 0000000000000010 x0 : ffff0820abfe38a0
-[ 3078.414657] Call trace:
-[ 3078.418517]  napi_enable+0x80/0x84
-[ 3078.424626]  hns3_reset_notify_up_enet+0x78/0xd0 [hns3]
-[ 3078.433469]  hns3_reset_notify+0x64/0x80 [hns3]
-[ 3078.441430]  hclge_notify_client+0x68/0xb0 [hclge]
-[ 3078.450511]  hclge_reset_rebuild+0x524/0x884 [hclge]
-[ 3078.458879]  hclge_reset_service_task+0x3c4/0x680 [hclge]
-[ 3078.467470]  hclge_service_task+0xb0/0xb54 [hclge]
-[ 3078.475675]  process_one_work+0x1dc/0x48c
-[ 3078.481888]  worker_thread+0x15c/0x464
-[ 3078.487104]  kthread+0x160/0x170
-[ 3078.492479]  ret_from_fork+0x10/0x18
-[ 3078.498785] Code: c8027c81 35ffffa2 d50323bf d65f03c0 (d4210000)
-[ 3078.506889] ---[ end trace 8ebe0340a1b0fb44 ]---
-
-Once hns3_nic_net_open() is excute success, the flag
-HNS3_NIC_STATE_DOWN will be cleared. So add checking for this
-flag, directly return when HNS3_NIC_STATE_DOWN is no set.
-
-Fixes: e888402789b9 ("net: hns3: call hns3_nic_net_open() while doing HNAE3_UP_CLIENT")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm/include/asm/module.h |    9 +++++++++
+ arch/arm/kernel/module-plts.c |    9 ---------
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index 9faa3712ea5b..b24ad9bc8e1b 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -776,6 +776,11 @@ static int hns3_nic_net_open(struct net_device *netdev)
- 	if (hns3_nic_resetting(netdev))
- 		return -EBUSY;
+--- a/arch/arm/include/asm/module.h
++++ b/arch/arm/include/asm/module.h
+@@ -19,6 +19,15 @@ enum {
+ };
+ #endif
  
-+	if (!test_bit(HNS3_NIC_STATE_DOWN, &priv->state)) {
-+		netdev_warn(netdev, "net open repeatedly!\n");
-+		return 0;
-+	}
++#define PLT_ENT_STRIDE		L1_CACHE_BYTES
++#define PLT_ENT_COUNT		(PLT_ENT_STRIDE / sizeof(u32))
++#define PLT_ENT_SIZE		(sizeof(struct plt_entries) / PLT_ENT_COUNT)
 +
- 	netif_carrier_off(netdev);
++struct plt_entries {
++	u32	ldr[PLT_ENT_COUNT];
++	u32	lit[PLT_ENT_COUNT];
++};
++
+ struct mod_plt_sec {
+ 	struct elf32_shdr	*plt;
+ 	int			plt_count;
+--- a/arch/arm/kernel/module-plts.c
++++ b/arch/arm/kernel/module-plts.c
+@@ -14,10 +14,6 @@
+ #include <asm/cache.h>
+ #include <asm/opcodes.h>
  
- 	ret = hns3_nic_set_real_num_queue(netdev);
--- 
-2.33.0
-
+-#define PLT_ENT_STRIDE		L1_CACHE_BYTES
+-#define PLT_ENT_COUNT		(PLT_ENT_STRIDE / sizeof(u32))
+-#define PLT_ENT_SIZE		(sizeof(struct plt_entries) / PLT_ENT_COUNT)
+-
+ #ifdef CONFIG_THUMB2_KERNEL
+ #define PLT_ENT_LDR		__opcode_to_mem_thumb32(0xf8dff000 | \
+ 							(PLT_ENT_STRIDE - 4))
+@@ -26,11 +22,6 @@
+ 						    (PLT_ENT_STRIDE - 8))
+ #endif
+ 
+-struct plt_entries {
+-	u32	ldr[PLT_ENT_COUNT];
+-	u32	lit[PLT_ENT_COUNT];
+-};
+-
+ static bool in_init(const struct module *mod, unsigned long loc)
+ {
+ 	return loc - (u32)mod->init_layout.base < mod->init_layout.size;
 
 
