@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37B10420E98
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:24:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B1D9420DDB
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:17:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236559AbhJDN0g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:26:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36558 "EHLO mail.kernel.org"
+        id S236348AbhJDNTR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:19:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236618AbhJDNYs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:24:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 184D56187D;
-        Mon,  4 Oct 2021 13:10:45 +0000 (UTC)
+        id S235644AbhJDNSK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:18:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46B5261401;
+        Mon,  4 Oct 2021 13:07:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353046;
-        bh=5at9LR2gxd76n5JvtUUaI4ATSpIPam0Dra4aT+StrP8=;
+        s=korg; t=1633352845;
+        bh=N2rJ718O84x0hLnlf6FP1msC88XuBpJqMlyEEtlJP6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BdVyysywas+kpQiP1bY84kNH+lCcYf+tM35Ftxu1srJv61Wac2K4OPLQ2IKNWZriO
-         4GF7Z+6N67QJdV6gIJgU7VXJ4Ezp8H9t7KKz+GNPqILb9NbDnyLK71wnuC4cGhNyuI
-         AJoMPs2kviVNlztSf3aXxFeM06tTtrOQa49HxyZU=
+        b=Y/JL1bqUczEzim3ccGce9bKQhZ+qjElixbAiESehQrH2cueoDrMy++u4VU+6x2O/b
+         c34ze+zbLGyvjbQFxCLD04v7QQa1HrIy3qo75dMOal0rgYmTGio0da4EomFfOrglDE
+         LR91hlbwjGBzF4sH6IO4JmHkio97/GnR0C3ANAQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Chen Jingwen <chenjingwen6@huawei.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 69/93] elf: dont use MAP_FIXED_NOREPLACE for elf interpreter mappings
+        stable@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>,
+        Rob Herring <robh@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>
+Subject: [PATCH 5.4 47/56] PCI: Fix pci_host_bridge struct device release/free handling
 Date:   Mon,  4 Oct 2021 14:53:07 +0200
-Message-Id: <20211004125036.854846972@linuxfoundation.org>
+Message-Id: <20211004125031.486249023@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
+References: <20211004125030.002116402@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +43,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Jingwen <chenjingwen6@huawei.com>
+From: Rob Herring <robh@kernel.org>
 
-commit 9b2f72cc0aa4bb444541bb87581c35b7508b37d3 upstream.
+commit 9885440b16b8fc1dd7275800fd28f56a92f60896 upstream.
 
-In commit b212921b13bd ("elf: don't use MAP_FIXED_NOREPLACE for elf
-executable mappings") we still leave MAP_FIXED_NOREPLACE in place for
-load_elf_interp.
+The PCI code has several paths where the struct pci_host_bridge is freed
+directly. This is wrong because it contains a struct device which is
+refcounted and should be freed using put_device(). This can result in
+use-after-free errors. I think this problem has existed since 2012 with
+commit 7b5436635800 ("PCI: add generic device into pci_host_bridge
+struct"). It generally hasn't mattered as most host bridge drivers are
+still built-in and can't unbind.
 
-Unfortunately, this will cause kernel to fail to start with:
+The problem is a struct device should never be freed directly once
+device_initialize() is called and a ref is held, but that doesn't happen
+until pci_register_host_bridge(). There's then a window between allocating
+the host bridge and pci_register_host_bridge() where kfree should be used.
+This is fragile and requires callers to do the right thing. To fix this, we
+need to split device_register() into device_initialize() and device_add()
+calls, so that the host bridge struct is always freed by using a
+put_device().
 
-    1 (init): Uhuuh, elf segment at 00003ffff7ffd000 requested but the memory is mapped already
-    Failed to execute /init (error -17)
+devm_pci_alloc_host_bridge() is using devm_kzalloc() to allocate struct
+pci_host_bridge which will be freed directly. Instead, we can use a custom
+devres action to call put_device().
 
-The reason is that the elf interpreter (ld.so) has overlapping segments.
-
-  readelf -l ld-2.31.so
-  Program Headers:
-    Type           Offset             VirtAddr           PhysAddr
-                   FileSiz            MemSiz              Flags  Align
-    LOAD           0x0000000000000000 0x0000000000000000 0x0000000000000000
-                   0x000000000002c94c 0x000000000002c94c  R E    0x10000
-    LOAD           0x000000000002dae0 0x000000000003dae0 0x000000000003dae0
-                   0x00000000000021e8 0x0000000000002320  RW     0x10000
-    LOAD           0x000000000002fe00 0x000000000003fe00 0x000000000003fe00
-                   0x00000000000011ac 0x0000000000001328  RW     0x10000
-
-The reason for this problem is the same as described in commit
-ad55eac74f20 ("elf: enforce MAP_FIXED on overlaying elf segments").
-
-Not only executable binaries, elf interpreters (e.g. ld.so) can have
-overlapping elf segments, so we better drop MAP_FIXED_NOREPLACE and go
-back to MAP_FIXED in load_elf_interp.
-
-Fixes: 4ed28639519c ("fs, elf: drop MAP_FIXED usage from elf_map")
-Cc: <stable@vger.kernel.org> # v4.19
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Signed-off-by: Chen Jingwen <chenjingwen6@huawei.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20200513223859.11295-2-robh@kernel.org
+Reported-by: Anders Roxell <anders.roxell@linaro.org>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+[tyhicks: Minor contextual change in pci_init_host_bridge() due to the
+ lack of a native_dpc member in the pci_host_bridge struct. It was added
+ in v5.7 with commit ac1c8e35a326 ("PCI/DPC: Add Error Disconnect
+ Recover (EDR) support")]
+Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/binfmt_elf.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/binfmt_elf.c
-+++ b/fs/binfmt_elf.c
-@@ -627,7 +627,7 @@ static unsigned long load_elf_interp(str
+---
+ drivers/pci/probe.c  |   36 +++++++++++++++++++-----------------
+ drivers/pci/remove.c |    2 +-
+ 2 files changed, 20 insertions(+), 18 deletions(-)
+
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -564,7 +564,7 @@ static struct pci_bus *pci_alloc_bus(str
+ 	return b;
+ }
  
- 			vaddr = eppnt->p_vaddr;
- 			if (interp_elf_ex->e_type == ET_EXEC || load_addr_set)
--				elf_type |= MAP_FIXED_NOREPLACE;
-+				elf_type |= MAP_FIXED;
- 			else if (no_base && interp_elf_ex->e_type == ET_DYN)
- 				load_addr = -vaddr;
+-static void devm_pci_release_host_bridge_dev(struct device *dev)
++static void pci_release_host_bridge_dev(struct device *dev)
+ {
+ 	struct pci_host_bridge *bridge = to_pci_host_bridge(dev);
  
+@@ -573,12 +573,7 @@ static void devm_pci_release_host_bridge
+ 
+ 	pci_free_resource_list(&bridge->windows);
+ 	pci_free_resource_list(&bridge->dma_ranges);
+-}
+-
+-static void pci_release_host_bridge_dev(struct device *dev)
+-{
+-	devm_pci_release_host_bridge_dev(dev);
+-	kfree(to_pci_host_bridge(dev));
++	kfree(bridge);
+ }
+ 
+ static void pci_init_host_bridge(struct pci_host_bridge *bridge)
+@@ -597,6 +592,8 @@ static void pci_init_host_bridge(struct
+ 	bridge->native_shpc_hotplug = 1;
+ 	bridge->native_pme = 1;
+ 	bridge->native_ltr = 1;
++
++	device_initialize(&bridge->dev);
+ }
+ 
+ struct pci_host_bridge *pci_alloc_host_bridge(size_t priv)
+@@ -614,17 +611,25 @@ struct pci_host_bridge *pci_alloc_host_b
+ }
+ EXPORT_SYMBOL(pci_alloc_host_bridge);
+ 
++static void devm_pci_alloc_host_bridge_release(void *data)
++{
++	pci_free_host_bridge(data);
++}
++
+ struct pci_host_bridge *devm_pci_alloc_host_bridge(struct device *dev,
+ 						   size_t priv)
+ {
++	int ret;
+ 	struct pci_host_bridge *bridge;
+ 
+-	bridge = devm_kzalloc(dev, sizeof(*bridge) + priv, GFP_KERNEL);
++	bridge = pci_alloc_host_bridge(priv);
+ 	if (!bridge)
+ 		return NULL;
+ 
+-	pci_init_host_bridge(bridge);
+-	bridge->dev.release = devm_pci_release_host_bridge_dev;
++	ret = devm_add_action_or_reset(dev, devm_pci_alloc_host_bridge_release,
++				       bridge);
++	if (ret)
++		return NULL;
+ 
+ 	return bridge;
+ }
+@@ -632,10 +637,7 @@ EXPORT_SYMBOL(devm_pci_alloc_host_bridge
+ 
+ void pci_free_host_bridge(struct pci_host_bridge *bridge)
+ {
+-	pci_free_resource_list(&bridge->windows);
+-	pci_free_resource_list(&bridge->dma_ranges);
+-
+-	kfree(bridge);
++	put_device(&bridge->dev);
+ }
+ EXPORT_SYMBOL(pci_free_host_bridge);
+ 
+@@ -866,7 +868,7 @@ static int pci_register_host_bridge(stru
+ 	if (err)
+ 		goto free;
+ 
+-	err = device_register(&bridge->dev);
++	err = device_add(&bridge->dev);
+ 	if (err) {
+ 		put_device(&bridge->dev);
+ 		goto free;
+@@ -933,7 +935,7 @@ static int pci_register_host_bridge(stru
+ 
+ unregister:
+ 	put_device(&bridge->dev);
+-	device_unregister(&bridge->dev);
++	device_del(&bridge->dev);
+ 
+ free:
+ 	kfree(bus);
+@@ -2945,7 +2947,7 @@ struct pci_bus *pci_create_root_bus(stru
+ 	return bridge->bus;
+ 
+ err_out:
+-	kfree(bridge);
++	put_device(&bridge->dev);
+ 	return NULL;
+ }
+ EXPORT_SYMBOL_GPL(pci_create_root_bus);
+--- a/drivers/pci/remove.c
++++ b/drivers/pci/remove.c
+@@ -160,6 +160,6 @@ void pci_remove_root_bus(struct pci_bus
+ 	host_bridge->bus = NULL;
+ 
+ 	/* remove the host bridge */
+-	device_unregister(&host_bridge->dev);
++	device_del(&host_bridge->dev);
+ }
+ EXPORT_SYMBOL_GPL(pci_remove_root_bus);
 
 
