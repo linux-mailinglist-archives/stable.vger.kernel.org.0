@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1407E420F94
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:34:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0A6D420CE8
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:08:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237418AbhJDNgH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:36:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46660 "EHLO mail.kernel.org"
+        id S235401AbhJDNKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:10:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237412AbhJDNeL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:34:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B6816322E;
-        Mon,  4 Oct 2021 13:15:34 +0000 (UTC)
+        id S235682AbhJDNIy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:08:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0703A61507;
+        Mon,  4 Oct 2021 13:02:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353335;
-        bh=LgLeeQ3zUhnWp7pPHG74A0xyP+Q69eZpi8ZtnZdj5jY=;
+        s=korg; t=1633352574;
+        bh=VXUGaDhtVoeZSSsU2IvHn6DYvzidLK0LF2xx5OmvA4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Egxm7QMSgs9BGaqAvlm406ORJB4ELT/Gtm7rcpXCh0pDvrdcSwP7z76sqqk4edAd3
-         ar9e7ry+ETKaOKMGuI/0CoRfw1epS/jq2CzLZHDbYVsBVu4ir8uqjv/UIAG41ewV6F
-         KcKXPoloUEfnyWU49xfjxW3H418/byzbe7KuuObw=
+        b=wbvsY4THNac/6Kk7MR/o0dWRwEMKkyUS4WcOg+eR6n9M2iagHWmVh91UhcAKMx8Wc
+         0LQVNnlD5naO6PDKGxXTMeHjWdd+tX/vHW+lGPJSWKHaLvGcU5jOkaEmLAHpkr7wGU
+         aorjqtHFbLV18D6YzKqpCxk5HHbi0/4opgVknz/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@intel.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.14 061/172] KVM: VMX: Fix a TSX_CTRL_CPUID_CLEAR field mask issue
-Date:   Mon,  4 Oct 2021 14:51:51 +0200
-Message-Id: <20211004125046.965171779@linuxfoundation.org>
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 22/95] net/mlx4_en: Dont allow aRFS for encapsulated packets
+Date:   Mon,  4 Oct 2021 14:51:52 +0200
+Message-Id: <20211004125034.284315433@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@intel.com>
+From: Aya Levin <ayal@nvidia.com>
 
-commit 5c49d1850ddd3240d20dc40b01f593e35a184f38 upstream.
+[ Upstream commit fdbccea419dc782079ce5881d2705cc9e3881480 ]
 
-When updating the host's mask for its MSR_IA32_TSX_CTRL user return entry,
-clear the mask in the found uret MSR instead of vmx->guest_uret_msrs[i].
-Modifying guest_uret_msrs directly is completely broken as 'i' does not
-point at the MSR_IA32_TSX_CTRL entry.  In fact, it's guaranteed to be an
-out-of-bounds accesses as is always set to kvm_nr_uret_msrs in a prior
-loop. By sheer dumb luck, the fallout is limited to "only" failing to
-preserve the host's TSX_CTRL_CPUID_CLEAR.  The out-of-bounds access is
-benign as it's guaranteed to clear a bit in a guest MSR value, which are
-always zero at vCPU creation on both x86-64 and i386.
+Driver doesn't support aRFS for encapsulated packets, return early error
+in such a case.
 
-Cc: stable@vger.kernel.org
-Fixes: 8ea8b8d6f869 ("KVM: VMX: Use common x86's uret MSR list as the one true list")
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@intel.com>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210926015545.281083-1-zhenzhong.duan@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1eb8c695bda9 ("net/mlx4_en: Add accelerated RFS support")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx4/en_netdev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -6816,7 +6816,7 @@ static int vmx_create_vcpu(struct kvm_vc
- 		 */
- 		tsx_ctrl = vmx_find_uret_msr(vmx, MSR_IA32_TSX_CTRL);
- 		if (tsx_ctrl)
--			vmx->guest_uret_msrs[i].mask = ~(u64)TSX_CTRL_CPUID_CLEAR;
-+			tsx_ctrl->mask = ~(u64)TSX_CTRL_CPUID_CLEAR;
- 	}
+diff --git a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+index afd2dd8ebd73..d2a36c79714f 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+@@ -372,6 +372,9 @@ mlx4_en_filter_rfs(struct net_device *net_dev, const struct sk_buff *skb,
+ 	int nhoff = skb_network_offset(skb);
+ 	int ret = 0;
  
- 	err = alloc_loaded_vmcs(&vmx->vmcs01);
++	if (skb->encapsulation)
++		return -EPROTONOSUPPORT;
++
+ 	if (skb->protocol != htons(ETH_P_IP))
+ 		return -EPROTONOSUPPORT;
+ 
+-- 
+2.33.0
+
 
 
