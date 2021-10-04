@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 965C9420EF6
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:28:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35D86420EF7
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:28:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236407AbhJDN3v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:29:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42862 "EHLO mail.kernel.org"
+        id S237121AbhJDN3z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:29:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236310AbhJDN2M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:28:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C956261C57;
-        Mon,  4 Oct 2021 13:12:25 +0000 (UTC)
+        id S237301AbhJDN2U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:28:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4833961CF1;
+        Mon,  4 Oct 2021 13:12:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353146;
-        bh=SNuLXSjEJ3SGPPQ89MtS3cxAmomRynwTtNlk3yaHJNk=;
+        s=korg; t=1633353148;
+        bh=ACW6hK/bxBhrKoJRAmXCY1vQZLYwpA0ua52mYen6ehU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eegQVawZrkCEa0fKri1+bmGrCn181/laNIdOYMPmI3XAh+DR5AAhPrE9A5PwBW77w
-         45A7l21lF4lEggdaGZxU/jbNrwIuUj4mZanwAhCwHQAatZGBJEWy+Dr+AVfAEtTn36
-         iU0VtmJgYH++Ikj1+adpJLYlbqIlNCWYJXpvSwP8=
+        b=PlemMmIh65bRqw9KMQd0MYB2YFwh3pgu4UQzCJKfK+dLEqfUS0FEK6zAmiJtKZIWC
+         bYUhd46n8IEaS1BOyBKP7pIpplDi/u3O34VzBEb46/PcbuL0o8qzBPxhm68I7mm+Dh
+         4SSOt0NEKsx0ZNO879MMHyHjC9Twub3Q6sqOWndo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Collins <collinsd@codeaurora.org>,
-        satya priya <skakit@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Lama Kayal <lkayal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 014/172] pinctrl: qcom: spmi-gpio: correct parent irqspec translation
-Date:   Mon,  4 Oct 2021 14:51:04 +0200
-Message-Id: <20211004125045.430693277@linuxfoundation.org>
+Subject: [PATCH 5.14 015/172] net/mlx4_en: Resolve bad operstate value
+Date:   Mon,  4 Oct 2021 14:51:05 +0200
+Message-Id: <20211004125045.460790743@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
 References: <20211004125044.945314266@linuxfoundation.org>
@@ -42,130 +41,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Collins <collinsd@codeaurora.org>
+From: Lama Kayal <lkayal@nvidia.com>
 
-[ Upstream commit d36a97736b2cc9b13db0dfdf6f32b115ec193614 ]
+[ Upstream commit 72a3c58d18fd780eecd80178bb2132ce741a0a74 ]
 
-pmic_gpio_child_to_parent_hwirq() and
-gpiochip_populate_parent_fwspec_fourcell() translate a pinctrl-
-spmi-gpio irqspec to an SPMI controller irqspec.  When they do
-this, they use a fixed SPMI slave ID of 0 and a fixed GPIO
-peripheral offset of 0xC0 (corresponding to SPMI address 0xC000).
-This translation results in an incorrect irqspec for secondary
-PMICs that don't have a slave ID of 0 as well as for PMIC chips
-which have GPIO peripherals located at a base address other than
-0xC000.
+Any link state change that's done prior to net device registration
+isn't reflected on the state, thus the operational state is left
+obsolete, with 'UNKNOWN' status.
 
-Correct this issue by passing the slave ID of the pinctrl-spmi-
-gpio device's parent in the SPMI controller irqspec and by
-calculating the peripheral ID base from the device tree 'reg'
-property of the pinctrl-spmi-gpio device.
+To resolve the issue, query link state from FW upon open operations
+to ensure operational state is updated.
 
-Signed-off-by: David Collins <collinsd@codeaurora.org>
-Signed-off-by: satya priya <skakit@codeaurora.org>
-Fixes: ca69e2d165eb ("qcom: spmi-gpio: add support for hierarchical IRQ chip")
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/1631798498-10864-2-git-send-email-skakit@codeaurora.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: c27a02cd94d6 ("mlx4_en: Add driver for Mellanox ConnectX 10GbE NIC")
+Signed-off-by: Lama Kayal <lkayal@nvidia.com>
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/qcom/pinctrl-spmi-gpio.c | 37 ++++++++++++++++++++++--
- 1 file changed, 34 insertions(+), 3 deletions(-)
+ .../net/ethernet/mellanox/mlx4/en_netdev.c    | 47 ++++++++++++-------
+ drivers/net/ethernet/mellanox/mlx4/mlx4_en.h  |  1 -
+ 2 files changed, 29 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c b/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c
-index a89d24a040af..9b524969eff7 100644
---- a/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c
-+++ b/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- * Copyright (c) 2012-2014, The Linux Foundation. All rights reserved.
-+ * Copyright (c) 2012-2014, 2016-2021 The Linux Foundation. All rights reserved.
-  */
- 
- #include <linux/gpio/driver.h>
-@@ -14,6 +14,7 @@
- #include <linux/platform_device.h>
- #include <linux/regmap.h>
- #include <linux/slab.h>
-+#include <linux/spmi.h>
- #include <linux/types.h>
- 
- #include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
-@@ -171,6 +172,8 @@ struct pmic_gpio_state {
- 	struct pinctrl_dev *ctrl;
- 	struct gpio_chip chip;
- 	struct irq_chip irq;
-+	u8 usid;
-+	u8 pid_base;
- };
- 
- static const struct pinconf_generic_params pmic_gpio_bindings[] = {
-@@ -949,12 +952,36 @@ static int pmic_gpio_child_to_parent_hwirq(struct gpio_chip *chip,
- 					   unsigned int *parent_hwirq,
- 					   unsigned int *parent_type)
- {
--	*parent_hwirq = child_hwirq + 0xc0;
-+	struct pmic_gpio_state *state = gpiochip_get_data(chip);
-+
-+	*parent_hwirq = child_hwirq + state->pid_base;
- 	*parent_type = child_type;
- 
- 	return 0;
+diff --git a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+index 1e672bc36c4d..a6878e5f922a 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+@@ -1272,7 +1272,6 @@ static void mlx4_en_do_set_rx_mode(struct work_struct *work)
+ 	if (!netif_carrier_ok(dev)) {
+ 		if (!mlx4_en_QUERY_PORT(mdev, priv->port)) {
+ 			if (priv->port_state.link_state) {
+-				priv->last_link_state = MLX4_DEV_EVENT_PORT_UP;
+ 				netif_carrier_on(dev);
+ 				en_dbg(LINK, priv, "Link Up\n");
+ 			}
+@@ -1560,26 +1559,36 @@ static void mlx4_en_service_task(struct work_struct *work)
+ 	mutex_unlock(&mdev->state_lock);
  }
  
-+static void *pmic_gpio_populate_parent_fwspec(struct gpio_chip *chip,
-+					     unsigned int parent_hwirq,
-+					     unsigned int parent_type)
+-static void mlx4_en_linkstate(struct work_struct *work)
++static void mlx4_en_linkstate(struct mlx4_en_priv *priv)
 +{
-+	struct pmic_gpio_state *state = gpiochip_get_data(chip);
-+	struct irq_fwspec *fwspec;
++	struct mlx4_en_port_state *port_state = &priv->port_state;
++	struct mlx4_en_dev *mdev = priv->mdev;
++	struct net_device *dev = priv->dev;
++	bool up;
 +
-+	fwspec = kzalloc(sizeof(*fwspec), GFP_KERNEL);
-+	if (!fwspec)
-+		return NULL;
++	if (mlx4_en_QUERY_PORT(mdev, priv->port))
++		port_state->link_state = MLX4_PORT_STATE_DEV_EVENT_PORT_DOWN;
 +
-+	fwspec->fwnode = chip->irq.parent_domain->fwnode;
-+
-+	fwspec->param_count = 4;
-+	fwspec->param[0] = state->usid;
-+	fwspec->param[1] = parent_hwirq;
-+	/* param[2] must be left as 0 */
-+	fwspec->param[3] = parent_type;
-+
-+	return fwspec;
++	up = port_state->link_state == MLX4_PORT_STATE_DEV_EVENT_PORT_UP;
++	if (up == netif_carrier_ok(dev))
++		netif_carrier_event(dev);
++	if (!up) {
++		en_info(priv, "Link Down\n");
++		netif_carrier_off(dev);
++	} else {
++		en_info(priv, "Link Up\n");
++		netif_carrier_on(dev);
++	}
 +}
 +
- static int pmic_gpio_probe(struct platform_device *pdev)
++static void mlx4_en_linkstate_work(struct work_struct *work)
  {
- 	struct irq_domain *parent_domain;
-@@ -965,6 +992,7 @@ static int pmic_gpio_probe(struct platform_device *pdev)
- 	struct pmic_gpio_pad *pad, *pads;
- 	struct pmic_gpio_state *state;
- 	struct gpio_irq_chip *girq;
-+	const struct spmi_device *parent_spmi_dev;
- 	int ret, npins, i;
- 	u32 reg;
+ 	struct mlx4_en_priv *priv = container_of(work, struct mlx4_en_priv,
+ 						 linkstate_task);
+ 	struct mlx4_en_dev *mdev = priv->mdev;
+-	int linkstate = priv->link_state;
  
-@@ -984,6 +1012,9 @@ static int pmic_gpio_probe(struct platform_device *pdev)
+ 	mutex_lock(&mdev->state_lock);
+-	/* If observable port state changed set carrier state and
+-	 * report to system log */
+-	if (priv->last_link_state != linkstate) {
+-		if (linkstate == MLX4_DEV_EVENT_PORT_DOWN) {
+-			en_info(priv, "Link Down\n");
+-			netif_carrier_off(priv->dev);
+-		} else {
+-			en_info(priv, "Link Up\n");
+-			netif_carrier_on(priv->dev);
+-		}
+-	}
+-	priv->last_link_state = linkstate;
++	mlx4_en_linkstate(priv);
+ 	mutex_unlock(&mdev->state_lock);
+ }
  
- 	state->dev = &pdev->dev;
- 	state->map = dev_get_regmap(dev->parent, NULL);
-+	parent_spmi_dev = to_spmi_device(dev->parent);
-+	state->usid = parent_spmi_dev->usid;
-+	state->pid_base = reg >> 8;
+@@ -2082,9 +2091,11 @@ static int mlx4_en_open(struct net_device *dev)
+ 	mlx4_en_clear_stats(dev);
  
- 	pindesc = devm_kcalloc(dev, npins, sizeof(*pindesc), GFP_KERNEL);
- 	if (!pindesc)
-@@ -1059,7 +1090,7 @@ static int pmic_gpio_probe(struct platform_device *pdev)
- 	girq->fwnode = of_node_to_fwnode(state->dev->of_node);
- 	girq->parent_domain = parent_domain;
- 	girq->child_to_parent_hwirq = pmic_gpio_child_to_parent_hwirq;
--	girq->populate_parent_alloc_arg = gpiochip_populate_parent_fwspec_fourcell;
-+	girq->populate_parent_alloc_arg = pmic_gpio_populate_parent_fwspec;
- 	girq->child_offset_to_irq = pmic_gpio_child_offset_to_irq;
- 	girq->child_irq_domain_ops.translate = pmic_gpio_domain_translate;
+ 	err = mlx4_en_start_port(dev);
+-	if (err)
++	if (err) {
+ 		en_err(priv, "Failed starting port:%d\n", priv->port);
+-
++		goto out;
++	}
++	mlx4_en_linkstate(priv);
+ out:
+ 	mutex_unlock(&mdev->state_lock);
+ 	return err;
+@@ -3171,7 +3182,7 @@ int mlx4_en_init_netdev(struct mlx4_en_dev *mdev, int port,
+ 	spin_lock_init(&priv->stats_lock);
+ 	INIT_WORK(&priv->rx_mode_task, mlx4_en_do_set_rx_mode);
+ 	INIT_WORK(&priv->restart_task, mlx4_en_restart);
+-	INIT_WORK(&priv->linkstate_task, mlx4_en_linkstate);
++	INIT_WORK(&priv->linkstate_task, mlx4_en_linkstate_work);
+ 	INIT_DELAYED_WORK(&priv->stats_task, mlx4_en_do_get_stats);
+ 	INIT_DELAYED_WORK(&priv->service_task, mlx4_en_service_task);
+ #ifdef CONFIG_RFS_ACCEL
+diff --git a/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h b/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
+index f3d1a20201ef..6bf558c5ec10 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
++++ b/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
+@@ -552,7 +552,6 @@ struct mlx4_en_priv {
  
+ 	struct mlx4_hwq_resources res;
+ 	int link_state;
+-	int last_link_state;
+ 	bool port_up;
+ 	int port;
+ 	int registered;
 -- 
 2.33.0
 
