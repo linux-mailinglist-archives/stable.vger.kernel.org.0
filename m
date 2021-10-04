@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6878420DAD
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:15:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D550B420C6F
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:03:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235825AbhJDNRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:17:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55680 "EHLO mail.kernel.org"
+        id S234112AbhJDNFl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:05:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235959AbhJDNP2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:15:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1DBC61B94;
-        Mon,  4 Oct 2021 13:06:13 +0000 (UTC)
+        id S235088AbhJDNDp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:03:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D0E66187D;
+        Mon,  4 Oct 2021 13:00:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352774;
-        bh=XErQ9kUZ0Tgqwe22IYQHrapJERMBVej15DCB9EfcK/I=;
+        s=korg; t=1633352404;
+        bh=ggqInwVKEz0wwFwt85FRlsV2GgUMnVleSDtjTL7l9RY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PIYCuVF3WZc7gZcSYG+uSBwNHb258sKsI3gfNAELbqSvd6PNFJ8S1zCii+a28ODd8
-         ICH+DkAfJEI/jyAjTBZd1AbvF22/8tE6Ve1enWMvc2zI1u+s92EtOyXofuAhKmfbYF
-         JS6w7xame9KHKh1f7Bf6DZaXMD1Azr3YhbXxYCec=
+        b=DOc05ZyrjTZmzDQGw97OlGbddnK5bGfQwRiI8vQpRekvIj2QcpP97H0JEYdaZMXFc
+         k5w+vMLvo0BoA5eYMMR/Xn8NEs/LfQLGHTeaGGthH5ghtW8cBt/QijiAKzctwuelU7
+         a0RTUv08wjAuuQ3ev3XDW60bOZg9mI7vOW6URYDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
-        Pawel Laszczak <pawell@cadence.com>,
+        stable@vger.kernel.org,
+        syzbot+581aff2ae6b860625116@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 04/56] usb: cdns3: fix race condition before setting doorbell
+Subject: [PATCH 4.14 49/75] sctp: break out if skb_header_pointer returns NULL in sctp_rcv_ootb
 Date:   Mon,  4 Oct 2021 14:52:24 +0200
-Message-Id: <20211004125030.153725747@linuxfoundation.org>
+Message-Id: <20211004125033.172419193@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
-References: <20211004125030.002116402@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,59 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Laszczak <pawell@cadence.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit b69ec50b3e55c4b2a85c8bc46763eaf33060584 upstream
+[ Upstream commit f7e745f8e94492a8ac0b0a26e25f2b19d342918f ]
 
-For DEV_VER_V3 version there exist race condition between clearing
-ep_sts.EP_STS_TRBERR and setting ep_cmd.EP_CMD_DRDY bit.
-Setting EP_CMD_DRDY will be ignored by controller when
-EP_STS_TRBERR is set. So, between these two instructions we have
-a small time gap in which the EP_STS_TRBERR can be set. In such case
-the transfer will not start after setting doorbell.
+We should always check if skb_header_pointer's return is NULL before
+using it, otherwise it may cause null-ptr-deref, as syzbot reported:
 
-Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
-cc: <stable@vger.kernel.org> # 5.4.x
-Tested-by: Aswath Govindraju <a-govindraju@ti.com>
-Reviewed-by: Aswath Govindraju <a-govindraju@ti.com>
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+  KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+  RIP: 0010:sctp_rcv_ootb net/sctp/input.c:705 [inline]
+  RIP: 0010:sctp_rcv+0x1d84/0x3220 net/sctp/input.c:196
+  Call Trace:
+  <IRQ>
+   sctp6_rcv+0x38/0x60 net/sctp/ipv6.c:1109
+   ip6_protocol_deliver_rcu+0x2e9/0x1ca0 net/ipv6/ip6_input.c:422
+   ip6_input_finish+0x62/0x170 net/ipv6/ip6_input.c:463
+   NF_HOOK include/linux/netfilter.h:307 [inline]
+   NF_HOOK include/linux/netfilter.h:301 [inline]
+   ip6_input+0x9c/0xd0 net/ipv6/ip6_input.c:472
+   dst_input include/net/dst.h:460 [inline]
+   ip6_rcv_finish net/ipv6/ip6_input.c:76 [inline]
+   NF_HOOK include/linux/netfilter.h:307 [inline]
+   NF_HOOK include/linux/netfilter.h:301 [inline]
+   ipv6_rcv+0x28c/0x3c0 net/ipv6/ip6_input.c:297
+
+Fixes: 3acb50c18d8d ("sctp: delay as much as possible skb_linearize")
+Reported-by: syzbot+581aff2ae6b860625116@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/cdns3/gadget.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ net/sctp/input.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/cdns3/gadget.c b/drivers/usb/cdns3/gadget.c
-index c3bf54cc530f..296f2ee1b680 100644
---- a/drivers/usb/cdns3/gadget.c
-+++ b/drivers/usb/cdns3/gadget.c
-@@ -807,6 +807,19 @@ static void cdns3_wa1_tray_restore_cycle_bit(struct cdns3_device *priv_dev,
- 		cdns3_wa1_restore_cycle_bit(priv_ep);
- }
+diff --git a/net/sctp/input.c b/net/sctp/input.c
+index 89a24de23086..b20a1fbea8bf 100644
+--- a/net/sctp/input.c
++++ b/net/sctp/input.c
+@@ -679,7 +679,7 @@ static int sctp_rcv_ootb(struct sk_buff *skb)
+ 		ch = skb_header_pointer(skb, offset, sizeof(*ch), &_ch);
  
-+static void cdns3_rearm_drdy_if_needed(struct cdns3_endpoint *priv_ep)
-+{
-+	struct cdns3_device *priv_dev = priv_ep->cdns3_dev;
-+
-+	if (priv_dev->dev_ver < DEV_VER_V3)
-+		return;
-+
-+	if (readl(&priv_dev->regs->ep_sts) & EP_STS_TRBERR) {
-+		writel(EP_STS_TRBERR, &priv_dev->regs->ep_sts);
-+		writel(EP_CMD_DRDY, &priv_dev->regs->ep_cmd);
-+	}
-+}
-+
- /**
-  * cdns3_ep_run_transfer - start transfer on no-default endpoint hardware
-  * @priv_ep: endpoint object
-@@ -1003,6 +1016,7 @@ int cdns3_ep_run_transfer(struct cdns3_endpoint *priv_ep,
- 		/*clearing TRBERR and EP_STS_DESCMIS before seting DRDY*/
- 		writel(EP_STS_TRBERR | EP_STS_DESCMIS, &priv_dev->regs->ep_sts);
- 		writel(EP_CMD_DRDY, &priv_dev->regs->ep_cmd);
-+		cdns3_rearm_drdy_if_needed(priv_ep);
- 		trace_cdns3_doorbell_epx(priv_ep->name,
- 					 readl(&priv_dev->regs->ep_traddr));
- 	}
+ 		/* Break out if chunk length is less then minimal. */
+-		if (ntohs(ch->length) < sizeof(_ch))
++		if (!ch || ntohs(ch->length) < sizeof(_ch))
+ 			break;
+ 
+ 		ch_end = offset + SCTP_PAD4(ntohs(ch->length));
 -- 
 2.33.0
 
