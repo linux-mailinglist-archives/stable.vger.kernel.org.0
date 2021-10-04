@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45E3E420D14
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:10:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81C68420E78
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:23:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235869AbhJDNLn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:11:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47344 "EHLO mail.kernel.org"
+        id S234939AbhJDNZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:25:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235797AbhJDNJm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:09:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F8BA61B4A;
-        Mon,  4 Oct 2021 13:03:32 +0000 (UTC)
+        id S236949AbhJDNXj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:23:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5C4861B70;
+        Mon,  4 Oct 2021 13:10:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352612;
-        bh=Y2LPHQeOAlRpPu6UrmPSDGtATkA8zLCHugewhlxOzFw=;
+        s=korg; t=1633353017;
+        bh=pKIv5ZIEhTmDZth8FWRdX463UbhpyPioYdH+f5mknIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p3e7sd540EvLbd054fLvxy9jtakDugrqnouiIH51yw9KsxZY4kGKCSIWKjqNpqkwR
-         SRlcvwSGNKum1XF0zJXgyI5yl73R6zPe0QHUQTe5MnjdV1J4IKPCVMLOuLFYX6jdjk
-         nFzF5EilkwoDkY8Ikd6P4L5oPHZUs5UefitYi0TI=
+        b=GUbZMK0b0KlMiawdZavlBTfCA5JkSAHP93rnzvSBIkrZInFDP0JbfIDhd7xif/Ml/
+         BA1jdPbknpWQDD0D735Dxt+Njx9nSbGnO6ywqW+CUminUBU2SaD01ouG4WXA0Bwniv
+         J+GwHP4HOwU8iyUF7LtRiZw65vN/S12etXqmuut8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuchung Cheng <ycheng@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Qiumiao Zhang <zhangqiumiao1@huawei.com>
-Subject: [PATCH 4.19 52/95] tcp: create a helper to model exponential backoff
+        stable@vger.kernel.org, Hawking Zhang <Hawking.Zhang@amd.com>,
+        Le Ma <Le.Ma@amd.com>, Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 24/93] drm/amdgpu: correct initial cp_hqd_quantum for gfx9
 Date:   Mon,  4 Oct 2021 14:52:22 +0200
-Message-Id: <20211004125035.273941481@linuxfoundation.org>
+Message-Id: <20211004125035.382811357@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,73 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuchung Cheng <ycheng@google.com>
+From: Hawking Zhang <Hawking.Zhang@amd.com>
 
-commit 01a523b071618abbc634d1958229fe3bd2dfa5fa upstream.
+commit 9f52c25f59b504a29dda42d83ac1e24d2af535d4 upstream.
 
-Create a helper to model TCP exponential backoff for the next patch.
-This is pure refactor w no behavior change.
+didn't read the value of mmCP_HQD_QUANTUM from correct
+register offset
 
-Signed-off-by: Yuchung Cheng <ycheng@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Neal Cardwell <ncardwell@google.com>
-Reviewed-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Qiumiao Zhang <zhangqiumiao1@huawei.com>
+Signed-off-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Reviewed-by: Le Ma <Le.Ma@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_timer.c |   27 ++++++++++++++++-----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/tcp_timer.c
-+++ b/net/ipv4/tcp_timer.c
-@@ -160,7 +160,20 @@ static void tcp_mtu_probing(struct inet_
- 	tcp_sync_mss(sk, icsk->icsk_pmtu_cookie);
- }
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -3542,7 +3542,7 @@ static int gfx_v9_0_mqd_init(struct amdg
  
-+static unsigned int tcp_model_timeout(struct sock *sk,
-+				      unsigned int boundary,
-+				      unsigned int rto_base)
-+{
-+	unsigned int linear_backoff_thresh, timeout;
+ 	/* set static priority for a queue/ring */
+ 	gfx_v9_0_mqd_set_priority(ring, mqd);
+-	mqd->cp_hqd_quantum = RREG32(mmCP_HQD_QUANTUM);
++	mqd->cp_hqd_quantum = RREG32_SOC15(GC, 0, mmCP_HQD_QUANTUM);
  
-+	linear_backoff_thresh = ilog2(TCP_RTO_MAX / rto_base);
-+	if (boundary <= linear_backoff_thresh)
-+		timeout = ((2 << boundary) - 1) * rto_base;
-+	else
-+		timeout = ((2 << linear_backoff_thresh) - 1) * rto_base +
-+			(boundary - linear_backoff_thresh) * TCP_RTO_MAX;
-+	return jiffies_to_msecs(timeout);
-+}
- /**
-  *  retransmits_timed_out() - returns true if this connection has timed out
-  *  @sk:       The current socket
-@@ -178,23 +191,15 @@ static bool retransmits_timed_out(struct
- 				  unsigned int boundary,
- 				  unsigned int timeout)
- {
--	const unsigned int rto_base = TCP_RTO_MIN;
--	unsigned int linear_backoff_thresh, start_ts;
-+	unsigned int start_ts;
- 
- 	if (!inet_csk(sk)->icsk_retransmits)
- 		return false;
- 
- 	start_ts = tcp_sk(sk)->retrans_stamp;
--	if (likely(timeout == 0)) {
--		linear_backoff_thresh = ilog2(TCP_RTO_MAX/rto_base);
-+	if (likely(timeout == 0))
-+		timeout = tcp_model_timeout(sk, boundary, TCP_RTO_MIN);
- 
--		if (boundary <= linear_backoff_thresh)
--			timeout = ((2 << boundary) - 1) * rto_base;
--		else
--			timeout = ((2 << linear_backoff_thresh) - 1) * rto_base +
--				(boundary - linear_backoff_thresh) * TCP_RTO_MAX;
--		timeout = jiffies_to_msecs(timeout);
--	}
- 	return (s32)(tcp_time_stamp(tcp_sk(sk)) - start_ts - timeout) >= 0;
- }
- 
+ 	/* map_queues packet doesn't need activate the queue,
+ 	 * so only kiq need set this field.
 
 
