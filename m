@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBCF9421060
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:42:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC247420E96
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:24:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237268AbhJDNnI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:43:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55964 "EHLO mail.kernel.org"
+        id S236420AbhJDN0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:26:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237843AbhJDNl0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:41:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AE196324E;
-        Mon,  4 Oct 2021 13:18:58 +0000 (UTC)
+        id S236444AbhJDNYg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:24:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A9EF661B4F;
+        Mon,  4 Oct 2021 13:10:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353538;
-        bh=pqqQrhnj5xoZGD+GvFFvCJKJuXDEOF2Whz/VMVPU0xI=;
+        s=korg; t=1633353044;
+        bh=yeUli1ll5vm0FXwC0MKDuNB/gLPy/36s4ULzK/w1Hms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MtXOZmu9b1YvfaiRorMBmrYWI/STC+0RqfeQNLRRpRQ+ZbsUVqyrPuzvF0hM5Qdse
-         xQpUxWjkWdNrzNSGtYttOxpwmqIsJ9iizLwgh09J7jTjyOCV3nXcjKA96NcYWvwKh+
-         iPqwHRecJSFsQyhIl2cb92he0XoOJ6sk8sPujjuY=
+        b=TIAnTilarvzT2IhgOMjOmWc+nYC7XZ+mT0azLevHEMVeWbg79PGV6CJ3t3YpMcsb3
+         juv2FO9wvFWgDbi9Hrv23tLI4TGdxAM3jgBReMwjLU2UXEc425b+I4gFS1OM6rHCn8
+         IGALbF01mwegAu+Rcj+twYZfxbeFfQXBZap+HUvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jann Horn <jannh@google.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 136/172] af_unix: fix races in sk_peer_pid and sk_peer_cred accesses
+        stable@vger.kernel.org, Sven Peter <sven@svenpeter.dev>,
+        Orlando Chamberlain <redecorating@protonmail.com>,
+        Aditya Garg <gargaditya08@live.com>,
+        Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 68/93] nvme: add command id quirk for apple controllers
 Date:   Mon,  4 Oct 2021 14:53:06 +0200
-Message-Id: <20211004125049.358368087@linuxfoundation.org>
+Message-Id: <20211004125036.816550509@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,190 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit 35306eb23814444bd4021f8a1c3047d3cb0c8b2b ]
+commit a2941f6aa71a72be2c82c0a168523a492d093530 upstream.
 
-Jann Horn reported that SO_PEERCRED and SO_PEERGROUPS implementations
-are racy, as af_unix can concurrently change sk_peer_pid and sk_peer_cred.
+Some apple controllers use the command id as an index to implementation
+specific data structures and will fail if the value is out of bounds.
+The nvme driver's recently introduced command sequence number breaks
+this controller.
 
-In order to fix this issue, this patch adds a new spinlock that needs
-to be used whenever these fields are read or written.
+Provide a quirk so these spec incompliant controllers can function as
+before. The driver will not have the ability to detect bad completions
+when this quirk is used, but we weren't previously checking this anyway.
 
-Jann also pointed out that l2cap_sock_get_peer_pid_cb() is currently
-reading sk->sk_peer_pid which makes no sense, as this field
-is only possibly set by AF_UNIX sockets.
-We will have to clean this in a separate patch.
-This could be done by reverting b48596d1dc25 "Bluetooth: L2CAP: Add get_peer_pid callback"
-or implementing what was truly expected.
+The quirk bit was selected so that it can readily apply to stable.
 
-Fixes: 109f6e39fa07 ("af_unix: Allow SO_PEERCRED to work across namespaces.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Jann Horn <jannh@google.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Cc: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=214509
+Cc: Sven Peter <sven@svenpeter.dev>
+Reported-by: Orlando Chamberlain <redecorating@protonmail.com>
+Reported-by: Aditya Garg <gargaditya08@live.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Tested-by: Sven Peter <sven@svenpeter.dev>
+Link: https://lore.kernel.org/r/20210927154306.387437-1-kbusch@kernel.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/sock.h |  2 ++
- net/core/sock.c    | 32 ++++++++++++++++++++++++++------
- net/unix/af_unix.c | 34 ++++++++++++++++++++++++++++------
- 3 files changed, 56 insertions(+), 12 deletions(-)
+ drivers/nvme/host/core.c |    4 +++-
+ drivers/nvme/host/nvme.h |    6 ++++++
+ drivers/nvme/host/pci.c  |    3 ++-
+ 3 files changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/sock.h b/include/net/sock.h
-index 980b471b569d..db0cb8aa591f 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -487,8 +487,10 @@ struct sock {
- 	u8			sk_prefer_busy_poll;
- 	u16			sk_busy_poll_budget;
- #endif
-+	spinlock_t		sk_peer_lock;
- 	struct pid		*sk_peer_pid;
- 	const struct cred	*sk_peer_cred;
-+
- 	long			sk_rcvtimeo;
- 	ktime_t			sk_stamp;
- #if BITS_PER_LONG==32
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 1cf0edc79f37..bd1b34b3b778 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -1366,6 +1366,16 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- }
- EXPORT_SYMBOL(sock_setsockopt);
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -831,6 +831,7 @@ EXPORT_SYMBOL_GPL(nvme_cleanup_cmd);
+ blk_status_t nvme_setup_cmd(struct nvme_ns *ns, struct request *req,
+ 		struct nvme_command *cmd)
+ {
++	struct nvme_ctrl *ctrl = nvme_req(req)->ctrl;
+ 	blk_status_t ret = BLK_STS_OK;
  
-+static const struct cred *sk_get_peer_cred(struct sock *sk)
-+{
-+	const struct cred *cred;
-+
-+	spin_lock(&sk->sk_peer_lock);
-+	cred = get_cred(sk->sk_peer_cred);
-+	spin_unlock(&sk->sk_peer_lock);
-+
-+	return cred;
-+}
- 
- static void cred_to_ucred(struct pid *pid, const struct cred *cred,
- 			  struct ucred *ucred)
-@@ -1542,7 +1552,11 @@ int sock_getsockopt(struct socket *sock, int level, int optname,
- 		struct ucred peercred;
- 		if (len > sizeof(peercred))
- 			len = sizeof(peercred);
-+
-+		spin_lock(&sk->sk_peer_lock);
- 		cred_to_ucred(sk->sk_peer_pid, sk->sk_peer_cred, &peercred);
-+		spin_unlock(&sk->sk_peer_lock);
-+
- 		if (copy_to_user(optval, &peercred, len))
- 			return -EFAULT;
- 		goto lenout;
-@@ -1550,20 +1564,23 @@ int sock_getsockopt(struct socket *sock, int level, int optname,
- 
- 	case SO_PEERGROUPS:
- 	{
-+		const struct cred *cred;
- 		int ret, n;
- 
--		if (!sk->sk_peer_cred)
-+		cred = sk_get_peer_cred(sk);
-+		if (!cred)
- 			return -ENODATA;
- 
--		n = sk->sk_peer_cred->group_info->ngroups;
-+		n = cred->group_info->ngroups;
- 		if (len < n * sizeof(gid_t)) {
- 			len = n * sizeof(gid_t);
-+			put_cred(cred);
- 			return put_user(len, optlen) ? -EFAULT : -ERANGE;
- 		}
- 		len = n * sizeof(gid_t);
- 
--		ret = groups_to_user((gid_t __user *)optval,
--				     sk->sk_peer_cred->group_info);
-+		ret = groups_to_user((gid_t __user *)optval, cred->group_info);
-+		put_cred(cred);
- 		if (ret)
- 			return ret;
- 		goto lenout;
-@@ -1921,9 +1938,10 @@ static void __sk_destruct(struct rcu_head *head)
- 		sk->sk_frag.page = NULL;
+ 	nvme_clear_nvme_request(req);
+@@ -877,7 +878,8 @@ blk_status_t nvme_setup_cmd(struct nvme_
+ 		return BLK_STS_IOERR;
  	}
  
--	if (sk->sk_peer_cred)
--		put_cred(sk->sk_peer_cred);
-+	/* We do not need to acquire sk->sk_peer_lock, we are the last user. */
-+	put_cred(sk->sk_peer_cred);
- 	put_pid(sk->sk_peer_pid);
+-	nvme_req(req)->genctr++;
++	if (!(ctrl->quirks & NVME_QUIRK_SKIP_CID_GEN))
++		nvme_req(req)->genctr++;
+ 	cmd->common.command_id = nvme_cid(req);
+ 	trace_nvme_setup_cmd(req, cmd);
+ 	return ret;
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -144,6 +144,12 @@ enum nvme_quirks {
+ 	 * NVMe 1.3 compliance.
+ 	 */
+ 	NVME_QUIRK_NO_NS_DESC_LIST		= (1 << 15),
 +
- 	if (likely(sk->sk_net_refcnt))
- 		put_net(sock_net(sk));
- 	sk_prot_free(sk->sk_prot_creator, sk);
-@@ -3124,6 +3142,8 @@ void sock_init_data(struct socket *sock, struct sock *sk)
++	/*
++	 * The controller requires the command_id value be be limited, so skip
++	 * encoding the generation sequence number.
++	 */
++	NVME_QUIRK_SKIP_CID_GEN			= (1 << 17),
+ };
  
- 	sk->sk_peer_pid 	=	NULL;
- 	sk->sk_peer_cred	=	NULL;
-+	spin_lock_init(&sk->sk_peer_lock);
-+
- 	sk->sk_write_pending	=	0;
- 	sk->sk_rcvlowat		=	1;
- 	sk->sk_rcvtimeo		=	MAX_SCHEDULE_TIMEOUT;
-diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-index 91ff09d833e8..f96ee27d9ff2 100644
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -600,20 +600,42 @@ static void unix_release_sock(struct sock *sk, int embrion)
+ /*
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3259,7 +3259,8 @@ static const struct pci_device_id nvme_i
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2005),
+ 		.driver_data = NVME_QUIRK_SINGLE_VECTOR |
+ 				NVME_QUIRK_128_BYTES_SQES |
+-				NVME_QUIRK_SHARED_TAGS },
++				NVME_QUIRK_SHARED_TAGS |
++				NVME_QUIRK_SKIP_CID_GEN },
  
- static void init_peercred(struct sock *sk)
- {
--	put_pid(sk->sk_peer_pid);
--	if (sk->sk_peer_cred)
--		put_cred(sk->sk_peer_cred);
-+	const struct cred *old_cred;
-+	struct pid *old_pid;
-+
-+	spin_lock(&sk->sk_peer_lock);
-+	old_pid = sk->sk_peer_pid;
-+	old_cred = sk->sk_peer_cred;
- 	sk->sk_peer_pid  = get_pid(task_tgid(current));
- 	sk->sk_peer_cred = get_current_cred();
-+	spin_unlock(&sk->sk_peer_lock);
-+
-+	put_pid(old_pid);
-+	put_cred(old_cred);
- }
- 
- static void copy_peercred(struct sock *sk, struct sock *peersk)
- {
--	put_pid(sk->sk_peer_pid);
--	if (sk->sk_peer_cred)
--		put_cred(sk->sk_peer_cred);
-+	const struct cred *old_cred;
-+	struct pid *old_pid;
-+
-+	if (sk < peersk) {
-+		spin_lock(&sk->sk_peer_lock);
-+		spin_lock_nested(&peersk->sk_peer_lock, SINGLE_DEPTH_NESTING);
-+	} else {
-+		spin_lock(&peersk->sk_peer_lock);
-+		spin_lock_nested(&sk->sk_peer_lock, SINGLE_DEPTH_NESTING);
-+	}
-+	old_pid = sk->sk_peer_pid;
-+	old_cred = sk->sk_peer_cred;
- 	sk->sk_peer_pid  = get_pid(peersk->sk_peer_pid);
- 	sk->sk_peer_cred = get_cred(peersk->sk_peer_cred);
-+
-+	spin_unlock(&sk->sk_peer_lock);
-+	spin_unlock(&peersk->sk_peer_lock);
-+
-+	put_pid(old_pid);
-+	put_cred(old_cred);
- }
- 
- static int unix_listen(struct socket *sock, int backlog)
--- 
-2.33.0
-
+ 	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_EXPRESS, 0xffffff) },
+ 	{ 0, }
 
 
