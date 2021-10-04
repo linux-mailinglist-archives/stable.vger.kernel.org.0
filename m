@@ -2,132 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E38E420886
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 11:41:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27EC44208F6
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 12:06:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230270AbhJDJmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 05:42:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47326 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232308AbhJDJmu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 05:42:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27F3561248;
-        Mon,  4 Oct 2021 09:41:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633340461;
-        bh=LFGYce04zHd4wRLvnwkaX9ya85ncXl0PzyuWpTA66uA=;
-        h=Subject:To:Cc:From:Date:From;
-        b=qhJXpBh87I1hThh9vSm4Gk1ZfDnWJh28QLHOcYArScDRcx8vs/icAYnQ0pfBInQIi
-         ez3on6XqRp12MNzCAa9/Bote3/u2FCzzUI+GW8R5gVwDHYMlNE0GGHYmkr9RriKT0p
-         u7B8n6kcvaNRCsgwq9e95awdQjeA+kcNOdRqgDhc=
-Subject: FAILED: patch "[PATCH] ext4: fix reserved space counter leakage" failed to apply to 4.9-stable tree
-To:     jefflexu@linux.alibaba.com, enwlinux@gmail.com,
-        hsiangkao@linux.alibaba.com, tytso@mit.edu
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Oct 2021 11:40:54 +0200
-Message-ID: <1633340454131135@kroah.com>
+        id S229760AbhJDKIU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 06:08:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44706 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229573AbhJDKIT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 06:08:19 -0400
+Received: from mail-ua1-x935.google.com (mail-ua1-x935.google.com [IPv6:2607:f8b0:4864:20::935])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E846C061745
+        for <stable@vger.kernel.org>; Mon,  4 Oct 2021 03:06:31 -0700 (PDT)
+Received: by mail-ua1-x935.google.com with SMTP id t36so11887170uad.4
+        for <stable@vger.kernel.org>; Mon, 04 Oct 2021 03:06:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=x0pWExGBmrIq729IIlvOahOD2dMzv6RJizC7Zlt0vBc=;
+        b=Q6qGd7Ca0xkWHT/3CdwfLeN2yzXcCthyPCWGgUFGGcxGql5lTtU4fLa7E0+rIdMBFV
+         YIdXtEkLqkBRUrkzQN92DBCpoLeirUQOI3H+VeOCbM09TgcN7cxNE1AXqPcZ1s5okGkK
+         QEmZMJzkKTuWEADXqcluzFK/MC5LlrqrrOS8k9L964mVPhsKxxJVtT06b1ivNkN47lN7
+         ppfP94HdIlD+Zz3qf59PZdSHneXpxJrxVf27S20/gdbfqv7Acuv7fgfptRelxFF2Z6xt
+         04TEIJ+Nlqax+xc714e7Z2V64wjrbjYjiqdkjZ7phz/KJJmZFQWrwgzhftmbr60PyCeG
+         T8tA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=x0pWExGBmrIq729IIlvOahOD2dMzv6RJizC7Zlt0vBc=;
+        b=iQklj2dTjxmBnW0TjEi0jLiIFH+9wwCDJcUVuxvbG6sftE5Fprg2qJdW832DKd1KIH
+         8z9bI+IhZGJsljbEnz3cp/f+ZLzv1KouGUnVtl0i6ZIlv8d7RBCJ5eZ9jYy0tutxTl0J
+         Gz1RmUX4s9NUBkCstqO1K7WS6y+am8oJE4j9W8cBYKdDyZ9u4YHJFzSGtNd0mNkI5uTi
+         hmitaPg6vZysgCTfmYOZgbDGRMZti5fcO0ZVXRU8kmGqURTDpP4Im2q4Ny6JEX1mmb+3
+         W9wDJBt/2UdtqXj9GO9ZEQSSAKy7zDc2fIp96OUAI29WMsXAhzFZpZOUTFK9a0ZwFlsS
+         1BaQ==
+X-Gm-Message-State: AOAM530yzhw9/iY8Ns3GZeYsEAASuTPti3JqEYwkiNQqFizelkSDa9ix
+        gNNwTTx8q1FKEiECr6as2Z7NhrFQc5T8IVMPRO0=
+X-Google-Smtp-Source: ABdhPJxvbkhtvixxBVeKPP+3eRNUhuKt3Ewi5BxVNvFTK3TYv+RvaN9gwQ1okdF6g3p5AxFFVx+ArbpcC/W1RrBylrs=
+X-Received: by 2002:ab0:6ec6:: with SMTP id c6mr6065360uav.97.1633341990420;
+ Mon, 04 Oct 2021 03:06:30 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a59:c48c:0:b0:22d:8d31:b57e with HTTP; Mon, 4 Oct 2021
+ 03:06:30 -0700 (PDT)
+Reply-To: ms.lisahugh000@gmail.com
+From:   Ms Lisa Hugh <lisahugh531@gmail.com>
+Date:   Mon, 4 Oct 2021 12:06:30 +0200
+Message-ID: <CAFnQ+S5o4PbcJhYG1rRVdBaYERhybpCh4CJyPaqbhNvY0fW+wg@mail.gmail.com>
+Subject: THE DETAILS LATER. >>MS LISA HUGH.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Dear Friend,
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I am Ms Lisa Hugh accountant and files keeping with with the bank.
 
-thanks,
+I need Your help for this transfer($4,500,000,00 ,U.S.DOLLARS)to your
+bank account with your co-operation for both of us benefit.
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 6fed83957f21eff11c8496e9f24253b03d2bc1dc Mon Sep 17 00:00:00 2001
-From: Jeffle Xu <jefflexu@linux.alibaba.com>
-Date: Mon, 23 Aug 2021 14:13:58 +0800
-Subject: [PATCH] ext4: fix reserved space counter leakage
-
-When ext4_insert_delayed block receives and recovers from an error from
-ext4_es_insert_delayed_block(), e.g., ENOMEM, it does not release the
-space it has reserved for that block insertion as it should. One effect
-of this bug is that s_dirtyclusters_counter is not decremented and
-remains incorrectly elevated until the file system has been unmounted.
-This can result in premature ENOSPC returns and apparent loss of free
-space.
-
-Another effect of this bug is that
-/sys/fs/ext4/<dev>/delayed_allocation_blocks can remain non-zero even
-after syncfs has been executed on the filesystem.
-
-Besides, add check for s_dirtyclusters_counter when inode is going to be
-evicted and freed. s_dirtyclusters_counter can still keep non-zero until
-inode is written back in .evict_inode(), and thus the check is delayed
-to .destroy_inode().
-
-Fixes: 51865fda28e5 ("ext4: let ext4 maintain extent status tree")
-Cc: stable@kernel.org
-Suggested-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-Reviewed-by: Eric Whitney <enwlinux@gmail.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/20210823061358.84473-1-jefflexu@linux.alibaba.com
-
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 2a076d236ba1..9df1ab070fa5 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -1628,6 +1628,7 @@ static int ext4_insert_delayed_block(struct inode *inode, ext4_lblk_t lblk)
- 	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
- 	int ret;
- 	bool allocated = false;
-+	bool reserved = false;
- 
- 	/*
- 	 * If the cluster containing lblk is shared with a delayed,
-@@ -1644,6 +1645,7 @@ static int ext4_insert_delayed_block(struct inode *inode, ext4_lblk_t lblk)
- 		ret = ext4_da_reserve_space(inode);
- 		if (ret != 0)   /* ENOSPC */
- 			goto errout;
-+		reserved = true;
- 	} else {   /* bigalloc */
- 		if (!ext4_es_scan_clu(inode, &ext4_es_is_delonly, lblk)) {
- 			if (!ext4_es_scan_clu(inode,
-@@ -1656,6 +1658,7 @@ static int ext4_insert_delayed_block(struct inode *inode, ext4_lblk_t lblk)
- 					ret = ext4_da_reserve_space(inode);
- 					if (ret != 0)   /* ENOSPC */
- 						goto errout;
-+					reserved = true;
- 				} else {
- 					allocated = true;
- 				}
-@@ -1666,6 +1669,8 @@ static int ext4_insert_delayed_block(struct inode *inode, ext4_lblk_t lblk)
- 	}
- 
- 	ret = ext4_es_insert_delayed_block(inode, lblk, allocated);
-+	if (ret && reserved)
-+		ext4_da_release_space(inode, 1);
- 
- errout:
- 	return ret;
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index feca816b6bf3..a52f1572daa5 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -1352,6 +1352,12 @@ static void ext4_destroy_inode(struct inode *inode)
- 				true);
- 		dump_stack();
- 	}
-+
-+	if (EXT4_I(inode)->i_reserved_data_blocks)
-+		ext4_msg(inode->i_sb, KERN_ERR,
-+			 "Inode %lu (%p): i_reserved_data_blocks (%u) not cleared!",
-+			 inode->i_ino, EXT4_I(inode),
-+			 EXT4_I(inode)->i_reserved_data_blocks);
- }
- 
- static void init_once(void *foo)
-
+Please send the follow below,
+1)AGE....2)TELEPHONE NUMBER,,,,,...,3)COUNTRY.....4)OCCUPATION......
+Thanks.
+Ms Lisa Hugh
