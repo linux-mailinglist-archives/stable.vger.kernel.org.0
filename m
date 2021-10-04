@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7806B420E5E
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:23:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE043420D48
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:12:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236496AbhJDNYj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:24:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36536 "EHLO mail.kernel.org"
+        id S235418AbhJDNOC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:14:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236606AbhJDNXB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:23:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3AB761AEC;
-        Mon,  4 Oct 2021 13:09:53 +0000 (UTC)
+        id S235876AbhJDNLn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:11:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90E6A619E0;
+        Mon,  4 Oct 2021 13:04:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352994;
-        bh=gHJQs/WJVTPGvHr88ZfDwTJS4cgdWv8niIcvFYnSHNo=;
+        s=korg; t=1633352671;
+        bh=Mi15hLFHfysKcQSNjgBVo+oeOIULKUTWDpLNMG358DQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JMml2VTmaoHAhuEls2lVX/Yk9J1IzFv1AbU5G2Di//f2/GCNwAkgL0UbwNh02txTr
-         2f/lQt9b548UlHZL+NN15StwhvcVsMSmVpKXZEIu0a4FwMimraKFnHP4VxzzHgWkKa
-         210z6FEsNnSjrS8aqJ16qbw2nzcNeIw8SDBITByg=
+        b=uIrHlaDrVk1/t80H9Ha8XGFKhxB7FicdybcbXGLWJs3R+lFksLO4z/GNjy3s8p9Mg
+         kD/ew1q0thpo8RLaIr4UujaoKOLA3gZDi0iWCc+7uc57lNzGjFgLCIyOoMNraXJNXa
+         mmVaZIFxl/51/z05BtsQZ9wu1ALxOwejqCIKVEhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Felicitas Hetzelt <felicitashetzelt@gmail.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 47/93] e100: fix buffer overrun in e100_get_regs
+        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Chen Jingwen <chenjingwen6@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 75/95] elf: dont use MAP_FIXED_NOREPLACE for elf interpreter mappings
 Date:   Mon,  4 Oct 2021 14:52:45 +0200
-Message-Id: <20211004125036.117184522@linuxfoundation.org>
+Message-Id: <20211004125036.028203832@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,107 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Keller <jacob.e.keller@intel.com>
+From: Chen Jingwen <chenjingwen6@huawei.com>
 
-[ Upstream commit 51032e6f17ce990d06123ad7307f258c50d25aa7 ]
+commit 9b2f72cc0aa4bb444541bb87581c35b7508b37d3 upstream.
 
-The e100_get_regs function is used to implement a simple register dump
-for the e100 device. The data is broken into a couple of MAC control
-registers, and then a series of PHY registers, followed by a memory dump
-buffer.
+In commit b212921b13bd ("elf: don't use MAP_FIXED_NOREPLACE for elf
+executable mappings") we still leave MAP_FIXED_NOREPLACE in place for
+load_elf_interp.
 
-The total length of the register dump is defined as (1 + E100_PHY_REGS)
-* sizeof(u32) + sizeof(nic->mem->dump_buf).
+Unfortunately, this will cause kernel to fail to start with:
 
-The logic for filling in the PHY registers uses a convoluted inverted
-count for loop which counts from E100_PHY_REGS (0x1C) down to 0, and
-assigns the slots 1 + E100_PHY_REGS - i. The first loop iteration will
-fill in [1] and the final loop iteration will fill in [1 + 0x1C]. This
-is actually one more than the supposed number of PHY registers.
+    1 (init): Uhuuh, elf segment at 00003ffff7ffd000 requested but the memory is mapped already
+    Failed to execute /init (error -17)
 
-The memory dump buffer is then filled into the space at
-[2 + E100_PHY_REGS] which will cause that memcpy to assign 4 bytes past
-the total size.
+The reason is that the elf interpreter (ld.so) has overlapping segments.
 
-The end result is that we overrun the total buffer size allocated by the
-kernel, which could lead to a panic or other issues due to memory
-corruption.
+  readelf -l ld-2.31.so
+  Program Headers:
+    Type           Offset             VirtAddr           PhysAddr
+                   FileSiz            MemSiz              Flags  Align
+    LOAD           0x0000000000000000 0x0000000000000000 0x0000000000000000
+                   0x000000000002c94c 0x000000000002c94c  R E    0x10000
+    LOAD           0x000000000002dae0 0x000000000003dae0 0x000000000003dae0
+                   0x00000000000021e8 0x0000000000002320  RW     0x10000
+    LOAD           0x000000000002fe00 0x000000000003fe00 0x000000000003fe00
+                   0x00000000000011ac 0x0000000000001328  RW     0x10000
 
-It is difficult to determine the actual total number of registers
-here. The only 8255x datasheet I could find indicates there are 28 total
-MDI registers. However, we're reading 29 here, and reading them in
-reverse!
+The reason for this problem is the same as described in commit
+ad55eac74f20 ("elf: enforce MAP_FIXED on overlaying elf segments").
 
-In addition, the ethtool e100 register dump interface appears to read
-the first PHY register to determine if the device is in MDI or MDIx
-mode. This doesn't appear to be documented anywhere within the 8255x
-datasheet. I can only assume it must be in register 28 (the extra
-register we're reading here).
+Not only executable binaries, elf interpreters (e.g. ld.so) can have
+overlapping elf segments, so we better drop MAP_FIXED_NOREPLACE and go
+back to MAP_FIXED in load_elf_interp.
 
-Lets not change any of the intended meaning of what we copy here. Just
-extend the space by 4 bytes to account for the extra register and
-continue copying the data out in the same order.
-
-Change the E100_PHY_REGS value to be the correct total (29) so that the
-total register dump size is calculated properly. Fix the offset for
-where we copy the dump buffer so that it doesn't overrun the total size.
-
-Re-write the for loop to use counting up instead of the convoluted
-down-counting. Correct the mdio_read offset to use the 0-based register
-offsets, but maintain the bizarre reverse ordering so that we have the
-ABI expected by applications like ethtool. This requires and additional
-subtraction of 1. It seems a bit odd but it makes the flow of assignment
-into the register buffer easier to follow.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Felicitas Hetzelt <felicitashetzelt@gmail.com>
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Jacob Keller <jacob.e.keller@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4ed28639519c ("fs, elf: drop MAP_FIXED usage from elf_map")
+Cc: <stable@vger.kernel.org> # v4.19
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Chen Jingwen <chenjingwen6@huawei.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/e100.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ fs/binfmt_elf.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
-index fee329d98621..ee86ea12fa37 100644
---- a/drivers/net/ethernet/intel/e100.c
-+++ b/drivers/net/ethernet/intel/e100.c
-@@ -2431,7 +2431,7 @@ static void e100_get_drvinfo(struct net_device *netdev,
- 		sizeof(info->bus_info));
- }
+--- a/fs/binfmt_elf.c
++++ b/fs/binfmt_elf.c
+@@ -580,7 +580,7 @@ static unsigned long load_elf_interp(str
+ 				elf_prot |= PROT_EXEC;
+ 			vaddr = eppnt->p_vaddr;
+ 			if (interp_elf_ex->e_type == ET_EXEC || load_addr_set)
+-				elf_type |= MAP_FIXED_NOREPLACE;
++				elf_type |= MAP_FIXED;
+ 			else if (no_base && interp_elf_ex->e_type == ET_DYN)
+ 				load_addr = -vaddr;
  
--#define E100_PHY_REGS 0x1C
-+#define E100_PHY_REGS 0x1D
- static int e100_get_regs_len(struct net_device *netdev)
- {
- 	struct nic *nic = netdev_priv(netdev);
-@@ -2453,14 +2453,18 @@ static void e100_get_regs(struct net_device *netdev,
- 	buff[0] = ioread8(&nic->csr->scb.cmd_hi) << 24 |
- 		ioread8(&nic->csr->scb.cmd_lo) << 16 |
- 		ioread16(&nic->csr->scb.status);
--	for (i = E100_PHY_REGS; i >= 0; i--)
--		buff[1 + E100_PHY_REGS - i] =
--			mdio_read(netdev, nic->mii.phy_id, i);
-+	for (i = 0; i < E100_PHY_REGS; i++)
-+		/* Note that we read the registers in reverse order. This
-+		 * ordering is the ABI apparently used by ethtool and other
-+		 * applications.
-+		 */
-+		buff[1 + i] = mdio_read(netdev, nic->mii.phy_id,
-+					E100_PHY_REGS - 1 - i);
- 	memset(nic->mem->dump_buf, 0, sizeof(nic->mem->dump_buf));
- 	e100_exec_cb(nic, NULL, e100_dump);
- 	msleep(10);
--	memcpy(&buff[2 + E100_PHY_REGS], nic->mem->dump_buf,
--		sizeof(nic->mem->dump_buf));
-+	memcpy(&buff[1 + E100_PHY_REGS], nic->mem->dump_buf,
-+	       sizeof(nic->mem->dump_buf));
- }
- 
- static void e100_get_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
--- 
-2.33.0
-
 
 
