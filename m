@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D7DD420E7E
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:23:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD328420DB2
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:15:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236938AbhJDNZa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:25:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38132 "EHLO mail.kernel.org"
+        id S236046AbhJDNRe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:17:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237018AbhJDNXs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:23:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AE9E61BF9;
-        Mon,  4 Oct 2021 13:10:23 +0000 (UTC)
+        id S236049AbhJDNPf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:15:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF33461A4F;
+        Mon,  4 Oct 2021 13:06:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353024;
-        bh=f/shuwPzVil5WND4olXrU970I4Zk1shVQ9/tYXPC+uU=;
+        s=korg; t=1633352776;
+        bh=hS9Cv2GgpA22l9hSUJmgIrgptdAdxoBtyueF6qM0twM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fs2a30yp7yH9bRV+1LmtW0EJ3o48+ejJfamTMD5BztMm7fKiJ217BlldwyTP2z0B9
-         jA0TLjsza+84veA1ni4n+LQIPfx5H5H6pz9ZlSrrdgc/8b1jwrzdFn1v9wTXRDC/qN
-         fWa6KxcSFdUVWkKz7xG+W536Jyrk62/YNUUzpG6M=
+        b=RdfhxJ7p0FO1Uvw/KLIkeyUB9siM5zKNKfCUcVR2DuV6o7gsNcEiLMe0wq4YPuJth
+         5JkKEqrjWCGZoVb22Cu6f61rTEQqc+TFML52NZ63Stf6EO2CcoSEyCAOsbso+405XO
+         XDA0Nma0+vpKSRqHSlQ3FUDPJ7WT9l2r2/oM7wjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Lameter <cl@linux.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 27/93] IB/cma: Do not send IGMP leaves for sendonly Multicast groups
+        stable@vger.kernel.org, Boris Burkov <boris@bur.io>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 5.4 05/56] fs-verity: fix signed integer overflow with i_size near S64_MAX
 Date:   Mon,  4 Oct 2021 14:52:25 +0200
-Message-Id: <20211004125035.472636900@linuxfoundation.org>
+Message-Id: <20211004125030.183851324@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
+References: <20211004125030.002116402@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Lameter <cl@gentwo.de>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 2cc74e1ee31d00393b6698ec80b322fd26523da4 ]
+commit 80f6e3080bfcf865062a926817b3ca6c4a137a57 upstream.
 
-ROCE uses IGMP for Multicast instead of the native Infiniband system where
-joins are required in order to post messages on the Multicast group.  On
-Ethernet one can send Multicast messages to arbitrary addresses without
-the need to subscribe to a group.
+If the file size is almost S64_MAX, the calculated number of Merkle tree
+levels exceeds FS_VERITY_MAX_LEVELS, causing FS_IOC_ENABLE_VERITY to
+fail.  This is unintentional, since as the comment above the definition
+of FS_VERITY_MAX_LEVELS states, it is enough for over U64_MAX bytes of
+data using SHA-256 and 4K blocks.  (Specifically, 4096*128**8 >= 2**64.)
 
-So ROCE correctly does not send IGMP joins during rdma_join_multicast().
+The bug is actually that when the number of blocks in the first level is
+calculated from i_size, there is a signed integer overflow due to i_size
+being signed.  Fix this by treating i_size as unsigned.
 
-F.e. in cma_iboe_join_multicast() we see:
+This was found by the new test "generic: test fs-verity EFBIG scenarios"
+(https://lkml.kernel.org/r/b1d116cd4d0ea74b9cd86f349c672021e005a75c.1631558495.git.boris@bur.io).
 
-   if (addr->sa_family == AF_INET) {
-                if (gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP) {
-                        ib.rec.hop_limit = IPV6_DEFAULT_HOPLIMIT;
-                        if (!send_only) {
-                                err = cma_igmp_send(ndev, &ib.rec.mgid,
-                                                    true);
-                        }
-                }
-        } else {
+This didn't affect ext4 or f2fs since those have a smaller maximum file
+size, but it did affect btrfs which allows files up to S64_MAX bytes.
 
-So the IGMP join is suppressed as it is unnecessary.
-
-However no such check is done in destroy_mc(). And therefore leaving a
-sendonly multicast group will send an IGMP leave.
-
-This means that the following scenario can lead to a multicast receiver
-unexpectedly being unsubscribed from a MC group:
-
-1. Sender thread does a sendonly join on MC group X. No IGMP join
-   is sent.
-
-2. Receiver thread does a regular join on the same MC Group x.
-   IGMP join is sent and the receiver begins to get messages.
-
-3. Sender thread terminates and destroys MC group X.
-   IGMP leave is sent and the receiver no longer receives data.
-
-This patch adds the same logic for sendonly joins to destroy_mc() that is
-also used in cma_iboe_join_multicast().
-
-Fixes: ab15c95a17b3 ("IB/core: Support for CMA multicast join flags")
-Link: https://lore.kernel.org/r/alpine.DEB.2.22.394.2109081340540.668072@gentwo.de
-Signed-off-by: Christoph Lameter <cl@linux.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Boris Burkov <boris@bur.io>
+Fixes: 3fda4c617e84 ("fs-verity: implement FS_IOC_ENABLE_VERITY ioctl")
+Fixes: fd2d1acfcadf ("fs-verity: add the hook for file ->open()")
+Cc: <stable@vger.kernel.org> # v5.4+
+Reviewed-by: Boris Burkov <boris@bur.io>
+Link: https://lore.kernel.org/r/20210916203424.113376-1-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/core/cma.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/verity/enable.c |    2 +-
+ fs/verity/open.c   |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index a4962b499b61..3029e96161b5 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -1814,6 +1814,8 @@ static void cma_release_port(struct rdma_id_private *id_priv)
- static void destroy_mc(struct rdma_id_private *id_priv,
- 		       struct cma_multicast *mc)
- {
-+	bool send_only = mc->join_state == BIT(SENDONLY_FULLMEMBER_JOIN);
-+
- 	if (rdma_cap_ib_mcast(id_priv->id.device, id_priv->id.port_num))
- 		ib_sa_free_multicast(mc->sa_mc);
+--- a/fs/verity/enable.c
++++ b/fs/verity/enable.c
+@@ -136,7 +136,7 @@ static int build_merkle_tree(struct inod
+ 	 * (level 0) and ascending to the root node (level 'num_levels - 1').
+ 	 * Then at the end (level 'num_levels'), calculate the root hash.
+ 	 */
+-	blocks = (inode->i_size + params->block_size - 1) >>
++	blocks = ((u64)inode->i_size + params->block_size - 1) >>
+ 		 params->log_blocksize;
+ 	for (level = 0; level <= params->num_levels; level++) {
+ 		err = build_merkle_tree_level(inode, level, blocks, params,
+--- a/fs/verity/open.c
++++ b/fs/verity/open.c
+@@ -89,7 +89,7 @@ int fsverity_init_merkle_tree_params(str
+ 	 */
  
-@@ -1830,7 +1832,10 @@ static void destroy_mc(struct rdma_id_private *id_priv,
- 
- 			cma_set_mgid(id_priv, (struct sockaddr *)&mc->addr,
- 				     &mgid);
--			cma_igmp_send(ndev, &mgid, false);
-+
-+			if (!send_only)
-+				cma_igmp_send(ndev, &mgid, false);
-+
- 			dev_put(ndev);
- 		}
- 
--- 
-2.33.0
-
+ 	/* Compute number of levels and the number of blocks in each level */
+-	blocks = (inode->i_size + params->block_size - 1) >> log_blocksize;
++	blocks = ((u64)inode->i_size + params->block_size - 1) >> log_blocksize;
+ 	pr_debug("Data is %lld bytes (%llu blocks)\n", inode->i_size, blocks);
+ 	while (blocks > 1) {
+ 		if (params->num_levels >= FS_VERITY_MAX_LEVELS) {
 
 
