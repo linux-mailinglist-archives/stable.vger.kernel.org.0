@@ -2,40 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9B67420F06
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:28:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48AA1420F08
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:28:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237738AbhJDNaW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:30:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43478 "EHLO mail.kernel.org"
+        id S236395AbhJDNaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:30:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237446AbhJDN2a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:28:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0289D6137D;
-        Mon,  4 Oct 2021 13:12:46 +0000 (UTC)
+        id S237464AbhJDN2b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:28:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADBFD61C48;
+        Mon,  4 Oct 2021 13:12:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353166;
-        bh=gstO0AvIrv/0Q9NjnFGBELz0a+QCjMDzz7lAhmlf72o=;
+        s=korg; t=1633353169;
+        bh=Supx4RRVHRgenGiH964uPjNYEQ08HNmm2bDw3KofKEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vLveilkk2AFtyZrn1ICRYpDCXYuNdn3SVC1g7qvBdR1zVjzbhYvnFGBzw/Renb9a0
-         N3dOhbcfVgj3tQIOE9lmlUUcRFH9fkhIYasWh9s2GPGPO7Gng1kIlpWF7P03CkPLVQ
-         FclmskWVzDVuRjegDu+NukPHhIfGhMgPu6CKNVQE=
+        b=HDW+ADFOT/U/D2d1Vsi6iESRjYJc84iiNCCGXZEmcuqVWr17qHNTQ2CpsDgl1nmY4
+         WN3YtnNmKfljmyhamiIoWLEIpxwQacGEyQ65ixz6G7s/8oy0vgD2aBHPiufdVVdLQS
+         qKZu48VdpgzbQiZFhaoLPTVYVzarHnsfm9vK3jWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Elver <elver@google.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Alexander Potapenko <glider@google.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Aleksandr Nogikh <nogikh@google.com>,
-        Taras Madan <tarasmadan@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 021/172] kasan: fix Kconfig check of CC_HAS_WORKING_NOSANITIZE_ADDRESS
-Date:   Mon,  4 Oct 2021 14:51:11 +0200
-Message-Id: <20211004125045.642797519@linuxfoundation.org>
+        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 022/172] HID: amd_sfh: Fix potential NULL pointer dereference
+Date:   Mon,  4 Oct 2021 14:51:12 +0200
+Message-Id: <20211004125045.681932875@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
 References: <20211004125044.945314266@linuxfoundation.org>
@@ -47,53 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit fa360beac4b62d54879a88b182afef4b369c9700 ]
+[ Upstream commit d46ef750ed58cbeeba2d9a55c99231c30a172764 ]
 
-In the main KASAN config option CC_HAS_WORKING_NOSANITIZE_ADDRESS is
-checked for instrumentation-based modes.  However, if
-HAVE_ARCH_KASAN_HW_TAGS is true all modes may still be selected.
+devm_add_action_or_reset() can suddenly invoke amd_mp2_pci_remove() at
+registration that will cause NULL pointer dereference since
+corresponding data is not initialized yet. The patch moves
+initialization of data before devm_add_action_or_reset().
 
-To fix, also make the software modes depend on
-CC_HAS_WORKING_NOSANITIZE_ADDRESS.
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Link: https://lkml.kernel.org/r/20210910084240.1215803-1-elver@google.com
-Fixes: 6a63a63ff1ac ("kasan: introduce CONFIG_KASAN_HW_TAGS")
-Signed-off-by: Marco Elver <elver@google.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Aleksandr Nogikh <nogikh@google.com>
-Cc: Taras Madan <tarasmadan@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[jkosina@suse.cz: rebase]
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Acked-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Kconfig.kasan | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/lib/Kconfig.kasan b/lib/Kconfig.kasan
-index 1e2d10f86011..cdc842d090db 100644
---- a/lib/Kconfig.kasan
-+++ b/lib/Kconfig.kasan
-@@ -66,6 +66,7 @@ choice
- config KASAN_GENERIC
- 	bool "Generic mode"
- 	depends on HAVE_ARCH_KASAN && CC_HAS_KASAN_GENERIC
-+	depends on CC_HAS_WORKING_NOSANITIZE_ADDRESS
- 	select SLUB_DEBUG if SLUB
- 	select CONSTRUCTORS
- 	help
-@@ -86,6 +87,7 @@ config KASAN_GENERIC
- config KASAN_SW_TAGS
- 	bool "Software tag-based mode"
- 	depends on HAVE_ARCH_KASAN_SW_TAGS && CC_HAS_KASAN_SW_TAGS
-+	depends on CC_HAS_WORKING_NOSANITIZE_ADDRESS
- 	select SLUB_DEBUG if SLUB
- 	select CONSTRUCTORS
- 	help
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+index 8d68796aa905..4069b813c6c3 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+@@ -235,6 +235,10 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
+ 		return rc;
+ 	}
+ 
++	rc = amd_sfh_hid_client_init(privdata);
++	if (rc)
++		return rc;
++
+ 	privdata->cl_data = devm_kzalloc(&pdev->dev, sizeof(struct amdtp_cl_data), GFP_KERNEL);
+ 	if (!privdata->cl_data)
+ 		return -ENOMEM;
+@@ -245,7 +249,7 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
+ 
+ 	mp2_select_ops(privdata);
+ 
+-	return amd_sfh_hid_client_init(privdata);
++	return 0;
+ }
+ 
+ static const struct pci_device_id amd_mp2_pci_tbl[] = {
 -- 
 2.33.0
 
