@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 462BF420F78
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:34:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F375420CD9
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:08:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237295AbhJDNfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:35:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47266 "EHLO mail.kernel.org"
+        id S235810AbhJDNJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:09:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237834AbhJDNdN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:33:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AEA563220;
-        Mon,  4 Oct 2021 13:14:56 +0000 (UTC)
+        id S235609AbhJDNIo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:08:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 588E261A58;
+        Mon,  4 Oct 2021 13:02:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353296;
-        bh=mwrT3A4MSX4FPKmDvIrXw0wCmLdpaT9k1vmICzOY6mE=;
+        s=korg; t=1633352558;
+        bh=JykexGAPNf0ofLwIzVrFG6D+y1QB9Y5AeNY+sL7dlec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1oyajh23fW5W/iOjlkJc7rS7PiT4Mi4tz8IOobBG+0+7yxpaqo6lKn2WMcxD4yDDY
-         oimTwcAPO8uSfVhIT7QxXzQmDGZubRc3CH6XyoNtdeEwwWFgz9NCPHLhde5u2G27zi
-         cjxwQnIsJT38BUhD9hRxHxl8HjBjtTkINawkpPfs=
+        b=QCviMaKVfh5p/tN1Tb1BAWQIvfv5hz0+IISV7P9AoMpofpb/fLd+BZ3TeYaxH1kF3
+         8Xd7mDv1FSTs5Mtovcy8nF42NG+RMwb/qadIJX2wVXWdnw1WQd2U2VuBulrcoDVlOb
+         6cxcqbqXV92V0ZjrWFDTR6sNw8zu6/w381fw2BsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Georgi Djakov <djakov@kernel.org>,
+        stable@vger.kernel.org, Jesper Nilsson <jesper.nilsson@axis.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 073/172] interconnect: qcom: sdm660: Fix id of slv_cnoc_mnoc_cfg
-Date:   Mon,  4 Oct 2021 14:52:03 +0200
-Message-Id: <20211004125047.354025989@linuxfoundation.org>
+Subject: [PATCH 4.19 34/95] net: stmmac: allow CSR clock of 300MHz
+Date:   Mon,  4 Oct 2021 14:52:04 +0200
+Message-Id: <20211004125034.683950635@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,76 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shawn Guo <shawn.guo@linaro.org>
+From: Jesper Nilsson <jesper.nilsson@axis.com>
 
-[ Upstream commit a06c2e5c048e5e07fac9daf3073bd0b6582913c7 ]
+[ Upstream commit 08dad2f4d541fcfe5e7bfda72cc6314bbfd2802f ]
 
-The id of slv_cnoc_mnoc_cfg node is mistakenly coded as id of
-slv_blsp_1.  It causes the following warning on slv_blsp_1 node adding.
-Correct the id of slv_cnoc_mnoc_cfg node.
+The Synopsys Ethernet IP uses the CSR clock as a base clock for MDC.
+The divisor used is set in the MAC_MDIO_Address register field CR
+(Clock Rate)
 
-[    1.948180] ------------[ cut here ]------------
-[    1.954122] WARNING: CPU: 2 PID: 7 at drivers/interconnect/core.c:962 icc_node_add+0xe4/0xf8
-[    1.958994] Modules linked in:
-[    1.967399] CPU: 2 PID: 7 Comm: kworker/u16:0 Not tainted 5.14.0-rc6-next-20210818 #21
-[    1.970275] Hardware name: Xiaomi Redmi Note 7 (DT)
-[    1.978169] Workqueue: events_unbound deferred_probe_work_func
-[    1.982945] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[    1.988849] pc : icc_node_add+0xe4/0xf8
-[    1.995699] lr : qnoc_probe+0x350/0x438
-[    1.999519] sp : ffff80001008bb10
-[    2.003337] x29: ffff80001008bb10 x28: 000000000000001a x27: ffffb83ddc61ee28
-[    2.006818] x26: ffff2fe341d44080 x25: ffff2fe340f3aa80 x24: ffffb83ddc98f0e8
-[    2.013938] x23: 0000000000000024 x22: ffff2fe3408b7400 x21: 0000000000000000
-[    2.021054] x20: ffff2fe3408b7410 x19: ffff2fe341d44080 x18: 0000000000000010
-[    2.028173] x17: ffff2fe3bdd0aac0 x16: 0000000000000281 x15: ffff2fe3400f5528
-[    2.035290] x14: 000000000000013f x13: ffff2fe3400f5528 x12: 00000000ffffffea
-[    2.042410] x11: ffffb83ddc9109d0 x10: ffffb83ddc8f8990 x9 : ffffb83ddc8f89e8
-[    2.049527] x8 : 0000000000017fe8 x7 : c0000000ffffefff x6 : 0000000000000001
-[    2.056645] x5 : 0000000000057fa8 x4 : 0000000000000000 x3 : ffffb83ddc9903b0
-[    2.063764] x2 : 1a1f6fde34d45500 x1 : ffff2fe340f3a880 x0 : ffff2fe340f3a880
-[    2.070882] Call trace:
-[    2.077989]  icc_node_add+0xe4/0xf8
-[    2.080247]  qnoc_probe+0x350/0x438
-[    2.083718]  platform_probe+0x68/0xd8
-[    2.087191]  really_probe+0xb8/0x300
-[    2.091011]  __driver_probe_device+0x78/0xe0
-[    2.094659]  driver_probe_device+0x80/0x110
-[    2.098911]  __device_attach_driver+0x90/0xe0
-[    2.102818]  bus_for_each_drv+0x78/0xc8
-[    2.107331]  __device_attach+0xf0/0x150
-[    2.110977]  device_initial_probe+0x14/0x20
-[    2.114796]  bus_probe_device+0x9c/0xa8
-[    2.118963]  deferred_probe_work_func+0x88/0xc0
-[    2.122784]  process_one_work+0x1a4/0x338
-[    2.127296]  worker_thread+0x1f8/0x420
-[    2.131464]  kthread+0x150/0x160
-[    2.135107]  ret_from_fork+0x10/0x20
-[    2.138495] ---[ end trace 5eea8768cb620e87 ]---
+The divisor is there to change the CSR clock into a clock that falls
+below the IEEE 802.3 specified max frequency of 2.5MHz.
 
-Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Fixes: f80a1d414328 ("interconnect: qcom: Add SDM660 interconnect provider driver")
-Link: https://lore.kernel.org/r/20210823014003.31391-1-shawn.guo@linaro.org
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
+If the CSR clock is 300MHz, the code falls back to using the reset
+value in the MAC_MDIO_Address register, as described in the comment
+above this code.
+
+However, 300MHz is actually an allowed value and the proper divider
+can be estimated quite easily (it's just 1Hz difference!)
+
+A CSR frequency of 300MHz with the maximum clock rate value of 0x5
+(STMMAC_CSR_250_300M, a divisor of 124) gives somewhere around
+~2.42MHz which is below the IEEE 802.3 specified maximum.
+
+For the ARTPEC-8 SoC, the CSR clock is this problematic 300MHz,
+and unfortunately, the reset-value of the MAC_MDIO_Address CR field
+is 0x0.
+
+This leads to a clock rate of zero and a divisor of 42, and gives an
+MDC frequency of ~7.14MHz.
+
+Allow CSR clock of 300MHz by making the comparison inclusive.
+
+Signed-off-by: Jesper Nilsson <jesper.nilsson@axis.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/interconnect/qcom/sdm660.c | 2 +-
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/interconnect/qcom/sdm660.c b/drivers/interconnect/qcom/sdm660.c
-index 632dbdd21915..ac13046537e8 100644
---- a/drivers/interconnect/qcom/sdm660.c
-+++ b/drivers/interconnect/qcom/sdm660.c
-@@ -307,7 +307,7 @@ DEFINE_QNODE(slv_bimc_cfg, SDM660_SLAVE_BIMC_CFG, 4, -1, 56, true, -1, 0, -1, 0)
- DEFINE_QNODE(slv_prng, SDM660_SLAVE_PRNG, 4, -1, 44, true, -1, 0, -1, 0);
- DEFINE_QNODE(slv_spdm, SDM660_SLAVE_SPDM, 4, -1, 60, true, -1, 0, -1, 0);
- DEFINE_QNODE(slv_qdss_cfg, SDM660_SLAVE_QDSS_CFG, 4, -1, 63, true, -1, 0, -1, 0);
--DEFINE_QNODE(slv_cnoc_mnoc_cfg, SDM660_SLAVE_BLSP_1, 4, -1, 66, true, -1, 0, -1, SDM660_MASTER_CNOC_MNOC_CFG);
-+DEFINE_QNODE(slv_cnoc_mnoc_cfg, SDM660_SLAVE_CNOC_MNOC_CFG, 4, -1, 66, true, -1, 0, -1, SDM660_MASTER_CNOC_MNOC_CFG);
- DEFINE_QNODE(slv_snoc_cfg, SDM660_SLAVE_SNOC_CFG, 4, -1, 70, true, -1, 0, -1, 0);
- DEFINE_QNODE(slv_qm_cfg, SDM660_SLAVE_QM_CFG, 4, -1, 212, true, -1, 0, -1, 0);
- DEFINE_QNODE(slv_clk_ctl, SDM660_SLAVE_CLK_CTL, 4, -1, 47, true, -1, 0, -1, 0);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index af59761ddfa0..064e13bd2c8b 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -227,7 +227,7 @@ static void stmmac_clk_csr_set(struct stmmac_priv *priv)
+ 			priv->clk_csr = STMMAC_CSR_100_150M;
+ 		else if ((clk_rate >= CSR_F_150M) && (clk_rate < CSR_F_250M))
+ 			priv->clk_csr = STMMAC_CSR_150_250M;
+-		else if ((clk_rate >= CSR_F_250M) && (clk_rate < CSR_F_300M))
++		else if ((clk_rate >= CSR_F_250M) && (clk_rate <= CSR_F_300M))
+ 			priv->clk_csr = STMMAC_CSR_250_300M;
+ 	}
+ 
 -- 
 2.33.0
 
