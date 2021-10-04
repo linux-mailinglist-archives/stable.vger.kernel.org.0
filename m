@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B080420BDA
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:59:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB93F420C67
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:03:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234351AbhJDNAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:00:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60396 "EHLO mail.kernel.org"
+        id S235025AbhJDNF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:05:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234369AbhJDM7I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:59:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20DC76136F;
-        Mon,  4 Oct 2021 12:57:10 +0000 (UTC)
+        id S235048AbhJDNDk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:03:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C4FF60F9C;
+        Mon,  4 Oct 2021 12:59:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352231;
-        bh=p4MW1yMPGbukPI9CZBWfFnmZXKKaAISODnQxVRfHXWc=;
+        s=korg; t=1633352399;
+        bh=nUIhjs/QdPnTw7z7RL7Q6AysHV5W77yNY62NC+lmdwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lakjYqp7cRKsh1WThKNcvAHZjCHqnzhx31luQauqc3ey3/PEV8IG8OIrYXdWX9qoA
-         RucDbId6xHhC1hVoT7+tVfI21Yxixi1vJUtbRKkRLQrpS+x+xJI8r0UIBLJLcK88Lg
-         c9Rd5j9emcYJfU61Gu5I4piUIOp5cZ/yU8tRmNaM=
+        b=mkDC0dqMCxxo8uKbVmTh4kIqlZtHweYq8b/hWQCANNQ667JfFLIhaTb/QglwJElq3
+         1PgggeTv8ZVCu/7qjA9McXCaCx+Z6thJ3PlLStQUsqEdn+9R7ape88SUuiBbbvFI2M
+         4Cw97EQhx9CqpmA0u1k3D11E8WBiHAQ9pspFxE6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Fertser <fercerpav@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Chih-Kang Chang <gary.chang@realtek.com>,
+        Zong-Zhe Yang <kevin_yang@realtek.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 38/57] hwmon: (tmp421) fix rounding for negative values
+Subject: [PATCH 4.14 47/75] mac80211: Fix ieee80211_amsdu_aggregate frag_tail bug
 Date:   Mon,  4 Oct 2021 14:52:22 +0200
-Message-Id: <20211004125030.143735285@linuxfoundation.org>
+Message-Id: <20211004125033.104326012@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
-References: <20211004125028.940212411@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,72 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Fertser <fercerpav@gmail.com>
+From: Chih-Kang Chang <gary.chang@realtek.com>
 
-[ Upstream commit 724e8af85854c4d3401313b6dd7d79cf792d8990 ]
+[ Upstream commit fe94bac626d9c1c5bc98ab32707be8a9d7f8adba ]
 
-Old code produces -24999 for 0b1110011100000000 input in standard format due to
-always rounding up rather than "away from zero".
+In ieee80211_amsdu_aggregate() set a pointer frag_tail point to the
+end of skb_shinfo(head)->frag_list, and use it to bind other skb in
+the end of this function. But when execute ieee80211_amsdu_aggregate()
+->ieee80211_amsdu_realloc_pad()->pskb_expand_head(), the address of
+skb_shinfo(head)->frag_list will be changed. However, the
+ieee80211_amsdu_aggregate() not update frag_tail after call
+pskb_expand_head(). That will cause the second skb can't bind to the
+head skb appropriately.So we update the address of frag_tail to fix it.
 
-Use the common macro for division, unify and simplify the conversion code along
-the way.
-
-Fixes: 9410700b881f ("hwmon: Add driver for Texas Instruments TMP421/422/423 sensor chips")
-Signed-off-by: Paul Fertser <fercerpav@gmail.com>
-Link: https://lore.kernel.org/r/20210924093011.26083-3-fercerpav@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 6e0456b54545 ("mac80211: add A-MSDU tx support")
+Signed-off-by: Chih-Kang Chang <gary.chang@realtek.com>
+Signed-off-by: Zong-Zhe Yang <kevin_yang@realtek.com>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Link: https://lore.kernel.org/r/20210830073240.12736-1-pkshih@realtek.com
+[reword comment]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/tmp421.c | 24 ++++++++----------------
- 1 file changed, 8 insertions(+), 16 deletions(-)
+ net/mac80211/tx.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/hwmon/tmp421.c b/drivers/hwmon/tmp421.c
-index bfb98b96c781..324e7aaeb0b1 100644
---- a/drivers/hwmon/tmp421.c
-+++ b/drivers/hwmon/tmp421.c
-@@ -83,23 +83,17 @@ struct tmp421_data {
- 	s16 temp[4];
- };
+diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
+index e7b63ba8c184..0b5171824338 100644
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -3202,6 +3202,14 @@ static bool ieee80211_amsdu_aggregate(struct ieee80211_sub_if_data *sdata,
+ 	if (!ieee80211_amsdu_prepare_head(sdata, fast_tx, head))
+ 		goto out;
  
--static int temp_from_s16(s16 reg)
-+static int temp_from_raw(u16 reg, bool extended)
- {
- 	/* Mask out status bits */
- 	int temp = reg & ~0xf;
- 
--	return (temp * 1000 + 128) / 256;
--}
--
--static int temp_from_u16(u16 reg)
--{
--	/* Mask out status bits */
--	int temp = reg & ~0xf;
--
--	/* Add offset for extended temperature range. */
--	temp -= 64 * 256;
-+	if (extended)
-+		temp = temp - 64 * 256;
-+	else
-+		temp = (s16)temp;
- 
--	return (temp * 1000 + 128) / 256;
-+	return DIV_ROUND_CLOSEST(temp * 1000, 256);
- }
- 
- static struct tmp421_data *tmp421_update_device(struct device *dev)
-@@ -136,10 +130,8 @@ static int tmp421_read(struct device *dev, enum hwmon_sensor_types type,
- 
- 	switch (attr) {
- 	case hwmon_temp_input:
--		if (tmp421->config & TMP421_CONFIG_RANGE)
--			*val = temp_from_u16(tmp421->temp[channel]);
--		else
--			*val = temp_from_s16(tmp421->temp[channel]);
-+		*val = temp_from_raw(tmp421->temp[channel],
-+				     tmp421->config & TMP421_CONFIG_RANGE);
- 		return 0;
- 	case hwmon_temp_fault:
- 		/*
++	/* If n == 2, the "while (*frag_tail)" loop above didn't execute
++	 * and  frag_tail should be &skb_shinfo(head)->frag_list.
++	 * However, ieee80211_amsdu_prepare_head() can reallocate it.
++	 * Reload frag_tail to have it pointing to the correct place.
++	 */
++	if (n == 2)
++		frag_tail = &skb_shinfo(head)->frag_list;
++
+ 	/*
+ 	 * Pad out the previous subframe to a multiple of 4 by adding the
+ 	 * padding to the next one, that's being added. Note that head->len
 -- 
 2.33.0
 
