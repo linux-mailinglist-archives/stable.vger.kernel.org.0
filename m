@@ -2,84 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16B01421262
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 17:12:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B42A742127F
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 17:18:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235593AbhJDPOF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 11:14:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59998 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233821AbhJDPOE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 11:14:04 -0400
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47919C061746
-        for <stable@vger.kernel.org>; Mon,  4 Oct 2021 08:12:15 -0700 (PDT)
-Received: by mail-pf1-x42b.google.com with SMTP id 145so14757214pfz.11
-        for <stable@vger.kernel.org>; Mon, 04 Oct 2021 08:12:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=EdTnE8LHxQ5qsE4h1mP+l9YCbW0cQHMMcRYNQpAyjtM=;
-        b=exjYSrq4nXX2bwlK/2PGFh3YatBUKKVQg/gE7KJsBuLl6SQaf6E04NxfIRMWAkE45I
-         JPv6cqcsZZIbq6L0ae+j8nVrhvYd72crStjb8hq99tcCUXbArzeUaIjrfptEAKNrTQvc
-         82D9YFejSdeTzDgK7ETp1XLyaXGxfcvkOmXKpTlW7Gw5VUDTyipYR6T/BlCA9+X1eyTq
-         Ni0EyuvIXThmmXR/IAoilgnjmcHJoQfchtUDpvj6NJw5BZ0lEJApzNN4z7SrD8yP/Qw1
-         6gQYhdXny+lpzvweH7r1dESb++NDEsurtG0OFX7hmGEcr+Cb8zPdRm0aO2Fh8HwqfcmK
-         tp2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=EdTnE8LHxQ5qsE4h1mP+l9YCbW0cQHMMcRYNQpAyjtM=;
-        b=zoY18i1sxLfWQHXmqzC9oacn3aKmIwqz/n8I5RYLv3K8jdJwhBHOwDlXD1OQ6h/QZy
-         /p+zsjNebOOaGCEScyebOljCnGLRav/bOgGJgWK80iGWwmS5G0FVCgg9ukikezxxjyDl
-         djsaqLevNdrbkc0jYoEadv6VXEHomGSkNQ9UfQSzzcMBho1K9UTaR/Yg2XVP9Dc6S9XK
-         gC0diVoX5TrdCR4Zj6VrC8VMphxGt4ZUrYFlptDETxoUSYjr6x+sWv0t/5PdyvTTW8Iy
-         a9XkJnkJgOWhP6lkHdroRmwAo1+mXygaEIOofDnxTLA12VJ2oWjb1bnqsZkFu4nipf3r
-         Eumw==
-X-Gm-Message-State: AOAM533Y+4ZUMjLWr3O2zWkURqqmjytXnqdgVHM8f8ZZgF6Na6JvITc+
-        a2CNRQOhFnXp7Thd1lz3B1xbVg==
-X-Google-Smtp-Source: ABdhPJz+hEZfOWevoZ499SQzdrq1Z2mZ0LBr2DK49KoFcWsRA8yyL5ojTW/OSab9+pivob3aXlwm7A==
-X-Received: by 2002:a63:724b:: with SMTP id c11mr11377679pgn.9.1633360334666;
-        Mon, 04 Oct 2021 08:12:14 -0700 (PDT)
-Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
-        by smtp.gmail.com with ESMTPSA id q16sm16151347pfk.214.2021.10.04.08.12.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Oct 2021 08:12:14 -0700 (PDT)
-Date:   Mon, 4 Oct 2021 15:12:10 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     dje@google.com, mathieu.desnoyers@efficios.com,
-        pbonzini@redhat.com, pefoley@google.com, shakeelb@google.com,
-        tglx@linutronix.de, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] KVM: rseq: Update rseq when processing
- NOTIFY_RESUME on xfer" failed to apply to 5.10-stable tree
-Message-ID: <YVsZytQ+9Bek78lc@google.com>
-References: <1632660262120183@kroah.com>
- <YVIcAy/nf+0bBdqG@google.com>
- <YVm69hXIo2j4bf82@kroah.com>
+        id S234555AbhJDPUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 11:20:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47852 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233561AbhJDPUQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 11:20:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3B3961248;
+        Mon,  4 Oct 2021 15:18:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1633360707;
+        bh=YCumSfZ/dbeZ4OPqKY/gryHPhfKvWqhTZ2tQRhwz7fE=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=DsJQDfXlE+N06KUEB403Inv0dnbSzPZzQ6A0vfRSbByuN2Qt+TiLn90gfnhQTSyJP
+         YdKatr8dwfaFlAtjycIprLdflZPKkrx0ydeJHvt9aGpi0mvgw8YV6f4eufW8KhdgbE
+         j/BEQ6U6vCLq8kv1QcMo3YhqKN8rrZEehLQV8ux9XRJRGNzoZvjGP5hfCrY6PxKeIT
+         qahcZXdWmH7ENesSjboacp9vRAfACnILKVrEG7R9sCkQMq2fdQkMHAKi7e3y11MzOM
+         XzDGbCbNJmvc/X60Zk+W6YKHGEARjS2UOiv9iMpIThBIIjr8hlXAp8LkmQ5ZBjPXpk
+         fsmpBDx6zdJUA==
+Date:   Mon, 4 Oct 2021 17:18:23 +0200
+From:   Marek =?UTF-8?B?QmVow7pu?= <kabel@kernel.org>
+To:     Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc:     Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+        pali@kernel.org, stable@vger.kernel.org, maz@kernel.org
+Subject: Re: [PATCH 06/13] PCI: aardvark: Do not clear status bits of masked
+ interrupts
+Message-ID: <20211004171823.0288684e@thinkpad>
+In-Reply-To: <20211004140653.GB24914@lpieralisi>
+References: <20211001195856.10081-1-kabel@kernel.org>
+        <20211001195856.10081-7-kabel@kernel.org>
+        <20211004140653.GB24914@lpieralisi>
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YVm69hXIo2j4bf82@kroah.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Oct 03, 2021, Greg KH wrote:
-> On Mon, Sep 27, 2021 at 07:31:15PM +0000, Sean Christopherson wrote:
-> > On Sun, Sep 26, 2021, gregkh@linuxfoundation.org wrote:
-> > > 
-> > > The patch below does not apply to the 5.10-stable tree.
-> > > If someone wants it applied there, or to any other stable or longterm
-> > > tree, then please email the backport, including the original git commit
-> > > id to <stable@vger.kernel.org>.
-> > 
-> > 5.10 backport sent: https://lkml.kernel.org/r/20210927192846.1533905-1-seanjc@google.comb
+On Mon, 4 Oct 2021 15:06:53 +0100
+Lorenzo Pieralisi <lorenzo.pieralisi@arm.com> wrote:
+
+> [+Marc - always better to have his eyes on IRQ handling code]
 > 
-> What about 5.14?
+> > -	if (!isr0_status && !isr1_status) {
+> > -		advk_writel(pcie, isr0_val, PCIE_ISR0_REG);
+> > -		advk_writel(pcie, isr1_val, PCIE_ISR1_REG);  
+> 
+> This looks fine - on the other hand if no interrupt is set in the status
+> registers (that are filtered with the masks) we are dealing with a
+> spurious IRQ right ? Just gauging how severe this is.
 
-The original patch applied cleanly to 5.14, went in as commit 336dabf99386.
+Yes, spurious IRQ can really happen.
 
-https://lkml.kernel.org/r/20210927170234.621422016@linuxfoundation.org
+Patch 7 in this series fixes an issue where aardvark does not mask all
+interrupts, and then kernel can think that an interrupt is masked but
+it really isn't.
+
+Also, some interrupts may be masked by the user of the emulated bridge
+(some other driver), so that they can be polled. But if we clear all of
+them in the status, even the masked ones, then the other driver which
+is polling will always get a zero.
+
+Marek
