@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71FDB420C61
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:03:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20C8C420CD2
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:07:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235134AbhJDNFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:05:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60266 "EHLO mail.kernel.org"
+        id S235162AbhJDNJj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:09:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234519AbhJDNCF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:02:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 251B161A56;
-        Mon,  4 Oct 2021 12:58:50 +0000 (UTC)
+        id S235455AbhJDNI1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:08:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0352061A54;
+        Mon,  4 Oct 2021 13:02:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352330;
-        bh=YJpWnxLF0W0MXEdB7eyL5x4rB8uf941j7FDbJUGhOeY=;
+        s=korg; t=1633352535;
+        bh=FuBLvPZOaNDqtLiQ6Jkd1Gd1oxqwHc0IZGNzQGqzgOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aVLSIgH6CXygfiTA2wN1bmkb5wW1MbHjv2veN2dtn7o/ZEoh63kB/o9zm3SWZeso6
-         NPz2vl9mchtb/gPOZis6OLu58D3YMB9XgKXuyMz3zz7RaUIq2FdE78MOPREL6nI03U
-         +g3sf6IDI4c7PLo8MyP5NfGLXsrIaHBnqXFI6QHA=
+        b=nyoro2H7H/4eT6SZZ2PL/0xJWsK8FW0i6xzfNsctpOEeNIF2EXaRmxvlTrcUjECuy
+         21A/b5U4wxhwyVV/u4iKBToCh5rdFNv4vwIA9zWr6nnL/CCOvvbWT+1KakfnsIN3l/
+         psWT+Iwx9MAqUmTL174H35Fvf+Y1KQ67+b8MBxms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.14 02/75] usb: gadget: r8a66597: fix a loop in set_feature()
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Ondrej Zary <linux@zary.sk>
+Subject: [PATCH 4.19 07/95] usb-storage: Add quirk for ScanLogic SL11R-IDE older than 2.6c
 Date:   Mon,  4 Oct 2021 14:51:37 +0200
-Message-Id: <20211004125031.611185774@linuxfoundation.org>
+Message-Id: <20211004125033.807699489@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +39,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Ondrej Zary <linux@zary.sk>
 
-commit 17956b53ebff6a490baf580a836cbd3eae94892b upstream.
+commit b55d37ef6b7db3eda9b4495a8d9b0a944ee8c67d upstream.
 
-This loop is supposed to loop until if reads something other than
-CS_IDST or until it times out after 30,000 attempts.  But because of
-the || vs && bug, it will never time out and instead it will loop a
-minimum of 30,000 times.
+ScanLogic SL11R-IDE with firmware older than 2.6c (the latest one) has
+broken tag handling, preventing the device from working at all:
+usb 1-1: new full-speed USB device number 2 using uhci_hcd
+usb 1-1: New USB device found, idVendor=04ce, idProduct=0002, bcdDevice= 2.60
+usb 1-1: New USB device strings: Mfr=1, Product=1, SerialNumber=0
+usb 1-1: Product: USB Device
+usb 1-1: Manufacturer: USB Device
+usb-storage 1-1:1.0: USB Mass Storage device detected
+scsi host2: usb-storage 1-1:1.0
+usbcore: registered new interface driver usb-storage
+usb 1-1: reset full-speed USB device number 2 using uhci_hcd
+usb 1-1: reset full-speed USB device number 2 using uhci_hcd
+usb 1-1: reset full-speed USB device number 2 using uhci_hcd
+usb 1-1: reset full-speed USB device number 2 using uhci_hcd
 
-This bug is quite old but the code is only used in USB_DEVICE_TEST_MODE
-so it probably doesn't affect regular usage.
+Add US_FL_BULK_IGNORE_TAG to fix it. Also update my e-mail address.
 
-Fixes: 96fe53ef5498 ("usb: gadget: r8a66597-udc: add support for TEST_MODE")
+2.6c is the only firmware that claims Linux compatibility.
+The firmware can be upgraded using ezotgdbg utility:
+https://github.com/asciilifeform/ezotgdbg
+
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Ondrej Zary <linux@zary.sk>
 Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20210906094221.GA10957@kili
+Link: https://lore.kernel.org/r/20210913210106.12717-1-linux@zary.sk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/r8a66597-udc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/storage/unusual_devs.h |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/udc/r8a66597-udc.c
-+++ b/drivers/usb/gadget/udc/r8a66597-udc.c
-@@ -1253,7 +1253,7 @@ static void set_feature(struct r8a66597
- 			do {
- 				tmp = r8a66597_read(r8a66597, INTSTS0) & CTSQ;
- 				udelay(1);
--			} while (tmp != CS_IDST || timeout-- > 0);
-+			} while (tmp != CS_IDST && timeout-- > 0);
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -416,9 +416,16 @@ UNUSUAL_DEV(  0x04cb, 0x0100, 0x0000, 0x
+ 		USB_SC_UFI, USB_PR_DEVICE, NULL, US_FL_FIX_INQUIRY | US_FL_SINGLE_LUN),
  
- 			if (tmp == CS_IDST)
- 				r8a66597_bset(r8a66597,
+ /*
+- * Reported by Ondrej Zary <linux@rainbow-software.org>
++ * Reported by Ondrej Zary <linux@zary.sk>
+  * The device reports one sector more and breaks when that sector is accessed
++ * Firmwares older than 2.6c (the latest one and the only that claims Linux
++ * support) have also broken tag handling
+  */
++UNUSUAL_DEV(  0x04ce, 0x0002, 0x0000, 0x026b,
++		"ScanLogic",
++		"SL11R-IDE",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_FIX_CAPACITY | US_FL_BULK_IGNORE_TAG),
+ UNUSUAL_DEV(  0x04ce, 0x0002, 0x026c, 0x026c,
+ 		"ScanLogic",
+ 		"SL11R-IDE",
 
 
