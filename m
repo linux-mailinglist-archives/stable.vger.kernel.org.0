@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F527420DF7
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:18:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42CED420D49
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:12:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236100AbhJDNUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:20:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55666 "EHLO mail.kernel.org"
+        id S235536AbhJDNOC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:14:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236615AbhJDNSn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:18:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A22A61501;
-        Mon,  4 Oct 2021 13:07:53 +0000 (UTC)
+        id S235878AbhJDNLo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:11:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2610661B71;
+        Mon,  4 Oct 2021 13:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352874;
-        bh=knhnxQ4qB49HdDyRuZ4hbJOq9y5nztVWRotn+7bmwto=;
+        s=korg; t=1633352673;
+        bh=r3o2RCWkW/45aVMhlbCjcIRd4LXHGCu7gTCngs+oZPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k7F1WSJ95LVvo0zLiKU6yCbIl4VGDItNU3MMk2GsfGXbUahc3Eb9hdvHw1OENmvL3
-         aQjeITQ+7Un2wPSSclI6a/wZVgfvnzTLL3UiRul0IomduqWYIGiVXhBOegCkxn3PZk
-         +h24KBrMI8fPEi8A9SvSVXe+Jlltw0i++aceMQQQ=
+        b=2MG4WNF07tpGs1lVI3JC4ff/bvIzxR3l1HZx70wSoBLB9Nn3KwWr3S10Y1gzbZ6nB
+         1KIwCMp4apW6PK87k1Fxdyv3hB+LfHZd044kXxKNCKBjyB9yySbh2cLtijSrZOvZAn
+         DJ6D7vRESHhUQ1slGdcST2Jtk4vaJ6Ym0YnGvh30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 26/56] Revert "block, bfq: honor already-setup queue merges"
+        stable@vger.kernel.org,
+        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 76/95] ipack: ipoctal: fix stack information leak
 Date:   Mon,  4 Oct 2021 14:52:46 +0200
-Message-Id: <20211004125030.828342920@linuxfoundation.org>
+Message-Id: <20211004125036.061004958@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
-References: <20211004125030.002116402@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,68 +40,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit ebc69e897e17373fbe1daaff1debaa77583a5284 ]
+commit a89936cce87d60766a75732a9e7e25c51164f47c upstream.
 
-This reverts commit 2d52c58b9c9bdae0ca3df6a1eab5745ab3f7d80b.
+The tty driver name is used also after registering the driver and must
+specifically not be allocated on the stack to avoid leaking information
+to user space (or triggering an oops).
 
-We have had several folks complain that this causes hangs for them, which
-is especially problematic as the commit has also hit stable already.
+Drivers should not try to encode topology information in the tty device
+name but this one snuck in through staging without anyone noticing and
+another driver has since copied this malpractice.
 
-As no resolution seems to be forthcoming right now, revert the patch.
+Fixing the ABI is a separate issue, but this at least plugs the security
+hole.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=214503
-Fixes: 2d52c58b9c9b ("block, bfq: honor already-setup queue merges")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ba4dc61fe8c5 ("Staging: ipack: add support for IP-OCTAL mezzanine board")
+Cc: stable@vger.kernel.org      # 3.5
+Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210917114622.5412-2-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-iosched.c | 16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
+ drivers/ipack/devices/ipoctal.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 8dee243e639f..73bffd7af15c 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2523,15 +2523,6 @@ bfq_setup_merge(struct bfq_queue *bfqq, struct bfq_queue *new_bfqq)
- 	 * are likely to increase the throughput.
- 	 */
- 	bfqq->new_bfqq = new_bfqq;
--	/*
--	 * The above assignment schedules the following redirections:
--	 * each time some I/O for bfqq arrives, the process that
--	 * generated that I/O is disassociated from bfqq and
--	 * associated with new_bfqq. Here we increases new_bfqq->ref
--	 * in advance, adding the number of processes that are
--	 * expected to be associated with new_bfqq as they happen to
--	 * issue I/O.
--	 */
- 	new_bfqq->ref += process_refs;
- 	return new_bfqq;
- }
-@@ -2591,10 +2582,6 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
- {
- 	struct bfq_queue *in_service_bfqq, *new_bfqq;
+--- a/drivers/ipack/devices/ipoctal.c
++++ b/drivers/ipack/devices/ipoctal.c
+@@ -269,7 +269,6 @@ static int ipoctal_inst_slot(struct ipoc
+ 	int res;
+ 	int i;
+ 	struct tty_driver *tty;
+-	char name[20];
+ 	struct ipoctal_channel *channel;
+ 	struct ipack_region *region;
+ 	void __iomem *addr;
+@@ -360,8 +359,11 @@ static int ipoctal_inst_slot(struct ipoc
+ 	/* Fill struct tty_driver with ipoctal data */
+ 	tty->owner = THIS_MODULE;
+ 	tty->driver_name = KBUILD_MODNAME;
+-	sprintf(name, KBUILD_MODNAME ".%d.%d.", bus_nr, slot);
+-	tty->name = name;
++	tty->name = kasprintf(GFP_KERNEL, KBUILD_MODNAME ".%d.%d.", bus_nr, slot);
++	if (!tty->name) {
++		res = -ENOMEM;
++		goto err_put_driver;
++	}
+ 	tty->major = 0;
  
--	/* if a merge has already been setup, then proceed with that first */
--	if (bfqq->new_bfqq)
--		return bfqq->new_bfqq;
--
- 	/*
- 	 * Do not perform queue merging if the device is non
- 	 * rotational and performs internal queueing. In fact, such a
-@@ -2649,6 +2636,9 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
- 	if (bfq_too_late_for_merging(bfqq))
- 		return NULL;
+ 	tty->minor_start = 0;
+@@ -377,8 +379,7 @@ static int ipoctal_inst_slot(struct ipoc
+ 	res = tty_register_driver(tty);
+ 	if (res) {
+ 		dev_err(&ipoctal->dev->dev, "Can't register tty driver.\n");
+-		put_tty_driver(tty);
+-		return res;
++		goto err_free_name;
+ 	}
  
-+	if (bfqq->new_bfqq)
-+		return bfqq->new_bfqq;
+ 	/* Save struct tty_driver for use it when uninstalling the device */
+@@ -415,6 +416,13 @@ static int ipoctal_inst_slot(struct ipoc
+ 				       ipoctal_irq_handler, ipoctal);
+ 
+ 	return 0;
 +
- 	if (!io_struct || unlikely(bfqq == &bfqd->oom_bfqq))
- 		return NULL;
++err_free_name:
++	kfree(tty->name);
++err_put_driver:
++	put_tty_driver(tty);
++
++	return res;
+ }
  
--- 
-2.33.0
-
+ static inline int ipoctal_copy_write_buffer(struct ipoctal_channel *channel,
+@@ -703,6 +711,7 @@ static void __ipoctal_remove(struct ipoc
+ 	}
+ 
+ 	tty_unregister_driver(ipoctal->tty_drv);
++	kfree(ipoctal->tty_drv->name);
+ 	put_tty_driver(ipoctal->tty_drv);
+ 	kfree(ipoctal);
+ }
 
 
