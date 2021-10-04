@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 127D8420EE0
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:27:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3589E420EEC
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:27:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236900AbhJDN3M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:29:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39884 "EHLO mail.kernel.org"
+        id S237224AbhJDN30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:29:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237257AbhJDN1y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:27:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54A3B61C4F;
-        Mon,  4 Oct 2021 13:12:18 +0000 (UTC)
+        id S236358AbhJDN17 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:27:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B978D61B7F;
+        Mon,  4 Oct 2021 13:12:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353138;
-        bh=Rkr1HwoKGGxIRuA6VZPHJxUWKBvbfGer4rG/Un0/UcY=;
+        s=korg; t=1633353141;
+        bh=UfSqkBk9FStrSwiZKqdl42llm3bzbVxvtR6OatMzF7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=npktbZnH70OPpUDWvYQxzKpnC0S8hC/ejHUjDEcgRIZV2I8lKSJk/Q2IdBxAB7Ixr
-         ZZD/xT5o80xzsCCvWZSmkJ58KQUusOwe1qfG1IxvVG1OEss/VD322kqn/DcSg9XPeV
-         4yL5DY65GxsYPQBva3w15AvIHfBtGkNircnBh+pM=
+        b=tHMV3et0REZm69V/vykF0bdDcXghpI9KTm6RSSt/CIFMDhao7fZX5qMIlo1joICjK
+         bTgspFUsIwlAK++z/mxOF2ccdfzIEkcffFrUh7DL2gd6TnIMOaDwSI8ArmDK+Xpoz4
+         s5HMOedg2DyCQ+M3CLZji1gAfamsE9ZtNSSWzawQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yong Zhi <yong.zhi@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Daniel Baluta <daniel.baluta@gmail.com>,
+        stable@vger.kernel.org,
         Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Daniel Baluta <daniel.baluta@gmail.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 011/172] ASoC: SOF: Fix DSP oops stack dump output contents
-Date:   Mon,  4 Oct 2021 14:51:01 +0200
-Message-Id: <20211004125045.331988033@linuxfoundation.org>
+Subject: [PATCH 5.14 012/172] ASoC: SOF: imx: imx8: Bar index is only valid for IRAM and SRAM types
+Date:   Mon,  4 Oct 2021 14:51:02 +0200
+Message-Id: <20211004125045.363549779@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
 References: <20211004125044.945314266@linuxfoundation.org>
@@ -43,41 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yong Zhi <yong.zhi@intel.com>
+From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
 
-[ Upstream commit ac4dfccb96571ca03af7cac64b7a0b2952c97f3a ]
+[ Upstream commit 10d93a98190aec2c3ff98d9472ab1bf0543aa02c ]
 
-Fix @buf arg given to hex_dump_to_buffer() and stack address used
-in dump error output.
+i.MX8 only uses SOF_FW_BLK_TYPE_IRAM (1) and SOF_FW_BLK_TYPE_SRAM (3)
+bars, everything else is left as 0 in sdev->bar[] array.
 
-Fixes: e657c18a01c8 ('ASoC: SOF: Add xtensa support')
-Signed-off-by: Yong Zhi <yong.zhi@intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Daniel Baluta <daniel.baluta@gmail.com>
+If a broken or purposefully crafted firmware image is loaded with other
+types of FW_BLK_TYPE then a kernel crash can be triggered.
+
+Make sure that only IRAM/SRAM type is converted to bar index.
+
+Fixes: 202acc565a1f0 ("ASoC: SOF: imx: Add i.MX8 HW support")
 Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20210915063230.29711-1-peter.ujfalusi@linux.intel.com
+Reviewed-by: Daniel Baluta <daniel.baluta@gmail.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Link: https://lore.kernel.org/r/20210915122116.18317-5-peter.ujfalusi@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/xtensa/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/sof/imx/imx8.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/sof/xtensa/core.c b/sound/soc/sof/xtensa/core.c
-index bbb9a2282ed9..f6e3411b33cf 100644
---- a/sound/soc/sof/xtensa/core.c
-+++ b/sound/soc/sof/xtensa/core.c
-@@ -122,9 +122,9 @@ static void xtensa_stack(struct snd_sof_dev *sdev, void *oops, u32 *stack,
- 	 * 0x0049fbb0: 8000f2d0 0049fc00 6f6c6c61 00632e63
- 	 */
- 	for (i = 0; i < stack_words; i += 4) {
--		hex_dump_to_buffer(stack + i * 4, 16, 16, 4,
-+		hex_dump_to_buffer(stack + i, 16, 16, 4,
- 				   buf, sizeof(buf), false);
--		dev_err(sdev->dev, "0x%08x: %s\n", stack_ptr + i, buf);
-+		dev_err(sdev->dev, "0x%08x: %s\n", stack_ptr + i * 4, buf);
- 	}
+diff --git a/sound/soc/sof/imx/imx8.c b/sound/soc/sof/imx/imx8.c
+index 12fedf0984bd..7e9723a10d02 100644
+--- a/sound/soc/sof/imx/imx8.c
++++ b/sound/soc/sof/imx/imx8.c
+@@ -365,7 +365,14 @@ static int imx8_remove(struct snd_sof_dev *sdev)
+ /* on i.MX8 there is 1 to 1 match between type and BAR idx */
+ static int imx8_get_bar_index(struct snd_sof_dev *sdev, u32 type)
+ {
+-	return type;
++	/* Only IRAM and SRAM bars are valid */
++	switch (type) {
++	case SOF_FW_BLK_TYPE_IRAM:
++	case SOF_FW_BLK_TYPE_SRAM:
++		return type;
++	default:
++		return -EINVAL;
++	}
  }
  
+ static void imx8_ipc_msg_data(struct snd_sof_dev *sdev,
 -- 
 2.33.0
 
