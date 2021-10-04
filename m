@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F39B0420DB4
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:15:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41696420BF3
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:59:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236099AbhJDNRp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:17:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53200 "EHLO mail.kernel.org"
+        id S234662AbhJDNBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:01:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236118AbhJDNPs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:15:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E56461BA3;
-        Mon,  4 Oct 2021 13:06:18 +0000 (UTC)
+        id S234195AbhJDM7o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:59:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B37A613D5;
+        Mon,  4 Oct 2021 12:57:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352778;
-        bh=6XxndlJ+hbnPD+TaMAe645ki6TjPjn91KhRQqbaYJ/U=;
+        s=korg; t=1633352260;
+        bh=nSTmr121dkjbPIH6jZrbKOssLMtUrK4KbeQ23eg16U8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w3pmL1uR3JfrpbiOlz2KCQ/xSDEEso8tv45vaxvnZkEaOGOw4cuzEwU+7z+NumUwC
-         ++qdbFk8rVsVdwsXxzVQZtr41rZI/eWkcX+gJ0p9tzGVIw6vBlMNuP7KhAJ4uycYjW
-         mWVba/OOH5aZP7NN5p4x2nMuvpfYG02LjOlAb41Y=
+        b=0wVFSL2yooNZTx/fD5FpvLphAmwRTYbQteHBNLeXwyFz5NMin/f2iBs2VPPqkuwE6
+         WHxYyMNCTRtRnkUJtNMBstLZ73YTaPBh4h8sqnROAm39YOao7sTDxxeh7ilp5K+jgL
+         0vTro8m/ilEVRzBnvVWo/G2OBVS4VaQk3lkLwBeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadezda Lutovinova <lutovinova@ispras.ru>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.4 06/56] hwmon: (w83793) Fix NULL pointer dereference by removing unnecessary structure field
-Date:   Mon,  4 Oct 2021 14:52:26 +0200
-Message-Id: <20211004125030.214035100@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 43/57] ipack: ipoctal: fix tty-registration error handling
+Date:   Mon,  4 Oct 2021 14:52:27 +0200
+Message-Id: <20211004125030.315472775@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
-References: <20211004125030.002116402@linuxfoundation.org>
+In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
+References: <20211004125028.940212411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,81 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadezda Lutovinova <lutovinova@ispras.ru>
+From: Johan Hovold <johan@kernel.org>
 
-commit dd4d747ef05addab887dc8ff0d6ab9860bbcd783 upstream.
+commit cd20d59291d1790dc74248476e928f57fc455189 upstream.
 
-If driver read tmp value sufficient for
-(tmp & 0x08) && (!(tmp & 0x80)) && ((tmp & 0x7) == ((tmp >> 4) & 0x7))
-from device then Null pointer dereference occurs.
-(It is possible if tmp = 0b0xyz1xyz, where same literals mean same numbers)
-Also lm75[] does not serve a purpose anymore after switching to
-devm_i2c_new_dummy_device() in w83791d_detect_subclients().
+Registration of the ipoctal tty devices is unlikely to fail, but if it
+ever does, make sure not to deregister a never registered tty device
+(and dereference a NULL pointer) when the driver is later unbound.
 
-The patch fixes possible NULL pointer dereference by removing lm75[].
-
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
-Link: https://lore.kernel.org/r/20210921155153.28098-3-lutovinova@ispras.ru
-[groeck: Dropped unnecessary continuation lines, fixed multi-line alignments]
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 2afb41d9d30d ("Staging: ipack/devices/ipoctal: Check tty_register_device return value.")
+Cc: stable@vger.kernel.org      # 3.7
+Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210917114622.5412-4-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/w83793.c |   26 +++++++++++---------------
- 1 file changed, 11 insertions(+), 15 deletions(-)
+ drivers/ipack/devices/ipoctal.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/hwmon/w83793.c
-+++ b/drivers/hwmon/w83793.c
-@@ -202,7 +202,6 @@ static inline s8 TEMP_TO_REG(long val, s
- }
- 
- struct w83793_data {
--	struct i2c_client *lm75[2];
- 	struct device *hwmon_dev;
- 	struct mutex update_lock;
- 	char valid;			/* !=0 if following fields are valid */
-@@ -1566,7 +1565,6 @@ w83793_detect_subclients(struct i2c_clie
- 	int address = client->addr;
- 	u8 tmp;
- 	struct i2c_adapter *adapter = client->adapter;
--	struct w83793_data *data = i2c_get_clientdata(client);
- 
- 	id = i2c_adapter_id(adapter);
- 	if (force_subclients[0] == id && force_subclients[1] == address) {
-@@ -1586,21 +1584,19 @@ w83793_detect_subclients(struct i2c_clie
+--- a/drivers/ipack/devices/ipoctal.c
++++ b/drivers/ipack/devices/ipoctal.c
+@@ -38,6 +38,7 @@ struct ipoctal_channel {
+ 	unsigned int			pointer_read;
+ 	unsigned int			pointer_write;
+ 	struct tty_port			tty_port;
++	bool				tty_registered;
+ 	union scc2698_channel __iomem	*regs;
+ 	union scc2698_block __iomem	*block_regs;
+ 	unsigned int			board_id;
+@@ -402,9 +403,11 @@ static int ipoctal_inst_slot(struct ipoc
+ 							i, NULL, channel, NULL);
+ 		if (IS_ERR(tty_dev)) {
+ 			dev_err(&ipoctal->dev->dev, "Failed to register tty device.\n");
++			tty_port_free_xmit_buf(&channel->tty_port);
+ 			tty_port_destroy(&channel->tty_port);
+ 			continue;
+ 		}
++		channel->tty_registered = true;
  	}
  
- 	tmp = w83793_read_value(client, W83793_REG_I2C_SUBADDR);
--	if (!(tmp & 0x08))
--		data->lm75[0] = devm_i2c_new_dummy_device(&client->dev, adapter,
--							  0x48 + (tmp & 0x7));
--	if (!(tmp & 0x80)) {
--		if (!IS_ERR(data->lm75[0])
--		    && ((tmp & 0x7) == ((tmp >> 4) & 0x7))) {
--			dev_err(&client->dev,
--				"duplicate addresses 0x%x, "
--				"use force_subclients\n", data->lm75[0]->addr);
--			return -ENODEV;
--		}
--		data->lm75[1] = devm_i2c_new_dummy_device(&client->dev, adapter,
--							  0x48 + ((tmp >> 4) & 0x7));
-+
-+	if (!(tmp & 0x88) && (tmp & 0x7) == ((tmp >> 4) & 0x7)) {
-+		dev_err(&client->dev,
-+			"duplicate addresses 0x%x, use force_subclient\n", 0x48 + (tmp & 0x7));
-+		return -ENODEV;
- 	}
+ 	/*
+@@ -705,6 +708,10 @@ static void __ipoctal_remove(struct ipoc
  
-+	if (!(tmp & 0x08))
-+		devm_i2c_new_dummy_device(&client->dev, adapter, 0x48 + (tmp & 0x7));
+ 	for (i = 0; i < NR_CHANNELS; i++) {
+ 		struct ipoctal_channel *channel = &ipoctal->channel[i];
 +
-+	if (!(tmp & 0x80))
-+		devm_i2c_new_dummy_device(&client->dev, adapter, 0x48 + ((tmp >> 4) & 0x7));
++		if (!channel->tty_registered)
++			continue;
 +
- 	return 0;
- }
- 
+ 		tty_unregister_device(ipoctal->tty_drv, i);
+ 		tty_port_free_xmit_buf(&channel->tty_port);
+ 		tty_port_destroy(&channel->tty_port);
 
 
