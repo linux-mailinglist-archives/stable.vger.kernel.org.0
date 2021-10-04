@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B077F420EB2
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:25:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 132DF421024
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:39:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236524AbhJDN13 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:27:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38148 "EHLO mail.kernel.org"
+        id S237902AbhJDNlD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:41:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236929AbhJDNZa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:25:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 312CA61B63;
-        Mon,  4 Oct 2021 13:11:16 +0000 (UTC)
+        id S238079AbhJDNjC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:39:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E2DA6323A;
+        Mon,  4 Oct 2021 13:18:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353076;
-        bh=qu+WSH9qPU3IcvVtKrMjd5cwDirZGSzcucxPtJM+UzE=;
+        s=korg; t=1633353486;
+        bh=623FplseSe4mF/o7DtESWhLIbFvpBnAtd8YcM7CFvTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RKjLclRp/den9bjLakZ2cp7onqEIGF1vQqDV66lQcSt6T5WgpubrHBs2E96HDVQUj
-         yeUn8vwBI/Nce0EWeCadx5fQLkHlCpMwmByQLhNAZoUqXOgkUkPoCE8j6mJbPakTxL
-         Lnq0nZ6T63PffLO1+RdXyeGNhQag3EWrafCCFjuw=
+        b=pWfKAbRlSmIV8884cSXSEYiT7l7iWQbX6CMqBDbyYaQc1uC15SU03JsELMlzFaS64
+         zKtg4JiUfwlZyUeVo9asDzzyAbEaK6uhiaYluaDspbmjTCHmquk6cJG3e133Zd1vhD
+         wXuQx6PlTFZMlmatJln5LFReq1ORWe2xNklzp8CU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        yangerkun <yangerkun@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 80/93] ext4: fix potential infinite loop in ext4_dx_readdir()
+        stable@vger.kernel.org,
+        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.14 148/172] ipack: ipoctal: fix stack information leak
 Date:   Mon,  4 Oct 2021 14:53:18 +0200
-Message-Id: <20211004125037.238214278@linuxfoundation.org>
+Message-Id: <20211004125049.744454878@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,68 +40,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangerkun <yangerkun@huawei.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 42cb447410d024e9d54139ae9c21ea132a8c384c upstream.
+commit a89936cce87d60766a75732a9e7e25c51164f47c upstream.
 
-When ext4_htree_fill_tree() fails, ext4_dx_readdir() can run into an
-infinite loop since if info->last_pos != ctx->pos this will reset the
-directory scan and reread the failing entry.  For example:
+The tty driver name is used also after registering the driver and must
+specifically not be allocated on the stack to avoid leaking information
+to user space (or triggering an oops).
 
-1. a dx_dir which has 3 block, block 0 as dx_root block, block 1/2 as
-   leaf block which own the ext4_dir_entry_2
-2. block 1 read ok and call_filldir which will fill the dirent and update
-   the ctx->pos
-3. block 2 read fail, but we has already fill some dirent, so we will
-   return back to userspace will a positive return val(see ksys_getdents64)
-4. the second ext4_dx_readdir will reset the world since info->last_pos
-   != ctx->pos, and will also init the curr_hash which pos to block 1
-5. So we will read block1 too, and once block2 still read fail, we can
-   only fill one dirent because the hash of the entry in block1(besides
-   the last one) won't greater than curr_hash
-6. this time, we forget update last_pos too since the read for block2
-   will fail, and since we has got the one entry, ksys_getdents64 can
-   return success
-7. Latter we will trapped in a loop with step 4~6
+Drivers should not try to encode topology information in the tty device
+name but this one snuck in through staging without anyone noticing and
+another driver has since copied this malpractice.
 
-Cc: stable@kernel.org
-Signed-off-by: yangerkun <yangerkun@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/20210914111415.3921954-1-yangerkun@huawei.com
+Fixing the ABI is a separate issue, but this at least plugs the security
+hole.
+
+Fixes: ba4dc61fe8c5 ("Staging: ipack: add support for IP-OCTAL mezzanine board")
+Cc: stable@vger.kernel.org      # 3.5
+Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210917114622.5412-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/dir.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/ipack/devices/ipoctal.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
---- a/fs/ext4/dir.c
-+++ b/fs/ext4/dir.c
-@@ -534,7 +534,7 @@ static int ext4_dx_readdir(struct file *
- 	struct dir_private_info *info = file->private_data;
- 	struct inode *inode = file_inode(file);
- 	struct fname *fname;
--	int	ret;
-+	int ret = 0;
+--- a/drivers/ipack/devices/ipoctal.c
++++ b/drivers/ipack/devices/ipoctal.c
+@@ -264,7 +264,6 @@ static int ipoctal_inst_slot(struct ipoc
+ 	int res;
+ 	int i;
+ 	struct tty_driver *tty;
+-	char name[20];
+ 	struct ipoctal_channel *channel;
+ 	struct ipack_region *region;
+ 	void __iomem *addr;
+@@ -355,8 +354,11 @@ static int ipoctal_inst_slot(struct ipoc
+ 	/* Fill struct tty_driver with ipoctal data */
+ 	tty->owner = THIS_MODULE;
+ 	tty->driver_name = KBUILD_MODNAME;
+-	sprintf(name, KBUILD_MODNAME ".%d.%d.", bus_nr, slot);
+-	tty->name = name;
++	tty->name = kasprintf(GFP_KERNEL, KBUILD_MODNAME ".%d.%d.", bus_nr, slot);
++	if (!tty->name) {
++		res = -ENOMEM;
++		goto err_put_driver;
++	}
+ 	tty->major = 0;
  
- 	if (!info) {
- 		info = ext4_htree_create_dir_info(file, ctx->pos);
-@@ -582,7 +582,7 @@ static int ext4_dx_readdir(struct file *
- 						   info->curr_minor_hash,
- 						   &info->next_hash);
- 			if (ret < 0)
--				return ret;
-+				goto finished;
- 			if (ret == 0) {
- 				ctx->pos = ext4_get_htree_eof(file);
- 				break;
-@@ -613,7 +613,7 @@ static int ext4_dx_readdir(struct file *
+ 	tty->minor_start = 0;
+@@ -372,8 +374,7 @@ static int ipoctal_inst_slot(struct ipoc
+ 	res = tty_register_driver(tty);
+ 	if (res) {
+ 		dev_err(&ipoctal->dev->dev, "Can't register tty driver.\n");
+-		put_tty_driver(tty);
+-		return res;
++		goto err_free_name;
  	}
- finished:
- 	info->last_pos = ctx->pos;
--	return 0;
-+	return ret < 0 ? ret : 0;
+ 
+ 	/* Save struct tty_driver for use it when uninstalling the device */
+@@ -410,6 +411,13 @@ static int ipoctal_inst_slot(struct ipoc
+ 				       ipoctal_irq_handler, ipoctal);
+ 
+ 	return 0;
++
++err_free_name:
++	kfree(tty->name);
++err_put_driver:
++	put_tty_driver(tty);
++
++	return res;
  }
  
- static int ext4_dir_open(struct inode * inode, struct file * filp)
+ static inline int ipoctal_copy_write_buffer(struct ipoctal_channel *channel,
+@@ -697,6 +705,7 @@ static void __ipoctal_remove(struct ipoc
+ 	}
+ 
+ 	tty_unregister_driver(ipoctal->tty_drv);
++	kfree(ipoctal->tty_drv->name);
+ 	put_tty_driver(ipoctal->tty_drv);
+ 	kfree(ipoctal);
+ }
 
 
