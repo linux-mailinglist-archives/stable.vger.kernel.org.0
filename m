@@ -2,89 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41F64421070
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:42:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 835D04210AC
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238350AbhJDNoD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:44:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52272 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238467AbhJDNmK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:42:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19C246325B;
-        Mon,  4 Oct 2021 13:19:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353566;
-        bh=ZMUJaosnSfpumiE1XUBa4H9et9EkphiGvIelb+9USeU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PsIxZHBDQ3VfM6KOgoDESMtxPAN0jtozTn6SjkkmYO02D+dnTXSuRYDIUf/inb1mH
-         ipfq2ZVt3XllTgGMb1KVZnFdB8w2G+dPGhA2dt4k+Zx/TDBsx1HiVuPMYw/5Kk2Uah
-         bCR6nJtay9N3YskSSiV1AbFzxBLkYGSeIRhc80Ac=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 172/172] drivers: net: mhi: fix error path in mhi_net_newlink
-Date:   Mon,  4 Oct 2021 14:53:42 +0200
-Message-Id: <20211004125050.532085067@linuxfoundation.org>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S238225AbhJDNuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:50:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38078 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233329AbhJDNuE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 09:50:04 -0400
+Received: from mail-qt1-x836.google.com (mail-qt1-x836.google.com [IPv6:2607:f8b0:4864:20::836])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5BF2C04E2F4
+        for <stable@vger.kernel.org>; Mon,  4 Oct 2021 06:17:59 -0700 (PDT)
+Received: by mail-qt1-x836.google.com with SMTP id e16so5333071qts.4
+        for <stable@vger.kernel.org>; Mon, 04 Oct 2021 06:17:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=JPvcFTOHIGx9xgqu5ddNdve5jNdRddJHTQcQMlxuUb4=;
+        b=UMIFsC4ZdZIj3RkBCIxhu+WL1QM8xiwS679e8/Y8EifC/4Pc/Vov5qlsZsgb9rWOaZ
+         KI+kC8rRZF7jDiNSIQrlK9BMn+6z26u2rf67nRVgdcuer9tVqIApteymS6Zbo6/roHCC
+         9FSGMGZlujafa/5QodHnnoqTIS6zB88kv0egPGAHfCpUvDOa3rZEt2QOVx9NtkubRJtU
+         bfbymcUaq/18N5vh5iFrPxGaquVTUMwDGL/CAXrWYzYtrjyV04YSWH40toiZP/1QaKui
+         hk2ZubrkTADUaeaeR4xji8rQcH7PUR3GsDeerelpgIS8DnSzbkuUqbL3r4OZKfMBxIlR
+         Hzuw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=JPvcFTOHIGx9xgqu5ddNdve5jNdRddJHTQcQMlxuUb4=;
+        b=JccHElD0DH0Brcj7qSY34gUWm214L0pZV5ocN60yc1Aiymp95011/rzBm/fEcNdDTS
+         JaDNDXhY6KoFaCES8xr8AjL5j7upzOTsSA3DkkXKMflnqC3ZYPLT8282qBr7gd6hsArg
+         P5JA9Ny/KMOXbTVKOOifdaxSTx8OVkgCMI6h8MmavSFPf+EPrzfrkS4mGr1A0CSlzpim
+         s9UCJz4cbhspY7ft9IeOgKRABimSo5JaJwySW9R5mCoqDwH5Ndu51trKqSngbYi18DO5
+         2ydYbEfjXAgfh3jUm5KXAVBcclojxMsjq7w+/jFj4sUiOKfY3/HttLEcs1YuoZVBuavC
+         NefA==
+X-Gm-Message-State: AOAM531xRK55wod5LGmldqTRfyMnmfr1oxb2MIW2aAWiA438IaqUgmzR
+        UTQUScQDaplNarbFutdohitMPA==
+X-Google-Smtp-Source: ABdhPJwdFLgMD3BnQcwrih7T2hB2I/DIr+gMNW6QdD7a1s9w2k10tDtk2GbyLGc/JQ96h26jkMNd0w==
+X-Received: by 2002:ac8:4084:: with SMTP id p4mr13618411qtl.255.1633353478081;
+        Mon, 04 Oct 2021 06:17:58 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-162-113-129.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.129])
+        by smtp.gmail.com with ESMTPSA id v17sm8247440qkp.75.2021.10.04.06.17.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Oct 2021 06:17:57 -0700 (PDT)
+Received: from jgg by mlx with local (Exim 4.94)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1mXNqv-00ATdu-02; Mon, 04 Oct 2021 10:17:57 -0300
+Date:   Mon, 4 Oct 2021 10:17:56 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Mark Brown <broonie@kernel.org>
+Cc:     Lino Sanfilippo <LinoSanfilippo@gmx.de>, f.fainelli@gmail.com,
+        rjui@broadcom.com, sbranden@broadcom.com,
+        bcm-kernel-feedback-list@broadcom.com, nsaenz@kernel.org,
+        linux-spi@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        p.rosenberger@kunbus.com, linux-integrity@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] spi: bcm2835: do not unregister controller in shutdown
+ handler
+Message-ID: <20211004131756.GW3544071@ziepe.ca>
+References: <20210928195657.5573-1-LinoSanfilippo@gmx.de>
+ <20211001175422.GA53652@sirena.org.uk>
+ <2c4d7115-7a02-f79e-c91b-3c2dd54051b2@gmx.de>
+ <YVr4USeiIoQJ0Pqh@sirena.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YVr4USeiIoQJ0Pqh@sirena.org.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+On Mon, Oct 04, 2021 at 01:49:21PM +0100, Mark Brown wrote:
 
-commit 4526fe74c3c5095cc55931a3a6fb4932f9e06002 upstream.
+> This still leaves a potential race where something (eg, an interrupt
+> handler) could come in and try to schedule more SPI transfers on the
+> shut down hardware.  I'm really not sure we can do something that's
+> totally robust here without also ensuring that all the client drivers
+> also have effective shutdown implementations (which seems ambitious) or
+> doing what we have now and unregistering the clients.  I am, however,
+> wondering if we really need the shutdown callback at all - the commit
+> adding it just describes what it's doing, it doesn't explain why it's
+> particularly needed.  I guess there might be an issue on reboot with
+> reset not completely resetting the hardware?
 
-Fix double free_netdev when mhi_prepare_for_transfer fails.
+Shutdown is supposed to quiet the HW so it is not doing DMAs any
+more. This is basically an 'emergency' kind of path, the HW should be
+violently stopped if available - ie clearing the bus master bits on
+PCI, for instance.
 
-Fixes: 3ffec6a14f24 ("net: Add mhi-net driver")
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
-Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/mhi/net.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+When something like kexec happens we need the machine to be in a state
+where random DMA's are not corrupting memory.
 
---- a/drivers/net/mhi/net.c
-+++ b/drivers/net/mhi/net.c
-@@ -337,7 +337,7 @@ static int mhi_net_newlink(void *ctxt, s
- 	/* Start MHI channels */
- 	err = mhi_prepare_for_transfer(mhi_dev);
- 	if (err)
--		goto out_err;
-+		return err;
- 
- 	/* Number of transfer descriptors determines size of the queue */
- 	mhi_netdev->rx_queue_sz = mhi_get_free_desc_count(mhi_dev, DMA_FROM_DEVICE);
-@@ -347,7 +347,7 @@ static int mhi_net_newlink(void *ctxt, s
- 	else
- 		err = register_netdev(ndev);
- 	if (err)
--		goto out_err;
-+		return err;
- 
- 	if (mhi_netdev->proto) {
- 		err = mhi_netdev->proto->init(mhi_netdev);
-@@ -359,8 +359,6 @@ static int mhi_net_newlink(void *ctxt, s
- 
- out_err_proto:
- 	unregister_netdevice(ndev);
--out_err:
--	free_netdev(ndev);
- 	return err;
- }
- 
+Due to the emergency sort of nature it is not appropriate to do
+locking complicated sorts of things like struct device unregistrations
+here.
 
+Jason
 
