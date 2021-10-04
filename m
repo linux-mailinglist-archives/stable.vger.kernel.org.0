@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C66A2420E49
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:22:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F5D1420BF7
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:59:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235935AbhJDNYH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:24:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38132 "EHLO mail.kernel.org"
+        id S234250AbhJDNB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:01:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236310AbhJDNWH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:22:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 606A861BE2;
-        Mon,  4 Oct 2021 13:09:32 +0000 (UTC)
+        id S233446AbhJDM7q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:59:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6004761994;
+        Mon,  4 Oct 2021 12:57:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352972;
-        bh=IjMMtgtM0oVf+t9/3xXFyfrH5reLdafwa1rTsgl+j78=;
+        s=korg; t=1633352265;
+        bh=iN6shAK1uMj87NTIcvDPLrlffVNZbrfpLNn2NEQRmkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k5et2OKnRmgz69y7M6aepnUYJtVmfraGJH6cHXanJVm6NRt27hNRCJaNwVKM5JCZJ
-         +4bdRDSImYlUR45FOFwK5r78/muC1xoJhvQYZpC4DskMtPBA+yFQJpx5mPg2dWxWT+
-         Q8giP5k+9qdWojOg1X03tcKojoH9sPBwpCX0Ns0E=
+        b=R0wh3ISoiy2TDBlFUtr60fhMFjUeX30g8ZfEAWesnU0eadyWAVPPVckNJFhCjF/+S
+         7xwbsJYHYAxdOmy2LcKXZQ9AcO+fVz36UfN+XwTq8AHo2SuLMBtXd/mdchVulDMbzO
+         Z5dU+S4P+HwFhVIZrBX2pn6K1HBJ6TdUqJVdiW5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Pavel Machek (CIP)" <pavel@denx.de>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 39/93] net: enetc: fix the incorrect clearing of IF_MODE bits
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Nanyong Sun <sunnanyong@huawei.com>
+Subject: [PATCH 4.9 53/57] arm64: Extend workaround for erratum 1024718 to all versions of Cortex-A55
 Date:   Mon,  4 Oct 2021 14:52:37 +0200
-Message-Id: <20211004125035.855516921@linuxfoundation.org>
+Message-Id: <20211004125030.623951794@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
+References: <20211004125028.940212411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-[ Upstream commit 325fd36ae76a6d089983b2d2eccb41237d35b221 ]
+commit c0b15c25d25171db4b70cc0b7dbc1130ee94017d upstream.
 
-The enetc phylink .mac_config handler intends to clear the IFMODE field
-(bits 1:0) of the PM0_IF_MODE register, but incorrectly clears all the
-other fields instead.
+The erratum 1024718 affects Cortex-A55 r0p0 to r2p0. However
+we apply the work around for r0p0 - r1p0. Unfortunately this
+won't be fixed for the future revisions for the CPU. Thus
+extend the work around for all versions of A55, to cover
+for r2p0 and any future revisions.
 
-For normal operation, the bug was inconsequential, due to the fact that
-we write the PM0_IF_MODE register in two stages, first in
-phylink .mac_config (which incorrectly cleared out a bunch of stuff),
-then we update the speed and duplex to the correct values in
-phylink .mac_link_up.
+Cc: stable@vger.kernel.org
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/20210203230057.3961239-1-suzuki.poulose@arm.com
+[will: Update Kconfig help text]
+Signed-off-by: Will Deacon <will@kernel.org>
+[Nanyon: adjust for stable version below v4.16, which set TCR_HD earlier
+in assembly code]
+Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Judging by the code (not tested), it looks like maybe loopback mode was
-broken, since this is one of the settings in PM0_IF_MODE which is
-incorrectly cleared.
-
-Fixes: c76a97218dcb ("net: enetc: force the RGMII speed and duplex instead of operating in inband mode")
-Reported-by: Pavel Machek (CIP) <pavel@denx.de>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc_pf.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arm64/Kconfig   |    2 +-
+ arch/arm64/mm/proc.S |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_pf.c b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-index 68133563a40c..716b396bf094 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-@@ -504,8 +504,7 @@ static void enetc_mac_config(struct enetc_hw *hw, phy_interface_t phy_mode)
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -433,7 +433,7 @@ config ARM64_ERRATUM_1024718
+ 	help
+ 	  This option adds work around for Arm Cortex-A55 Erratum 1024718.
  
- 	if (phy_interface_mode_is_rgmii(phy_mode)) {
- 		val = enetc_port_rd(hw, ENETC_PM0_IF_MODE);
--		val &= ~ENETC_PM0_IFM_EN_AUTO;
--		val &= ENETC_PM0_IFM_IFMODE_MASK;
-+		val &= ~(ENETC_PM0_IFM_EN_AUTO | ENETC_PM0_IFM_IFMODE_MASK);
- 		val |= ENETC_PM0_IFM_IFMODE_GMII | ENETC_PM0_IFM_RG;
- 		enetc_port_wr(hw, ENETC_PM0_IF_MODE, val);
- 	}
--- 
-2.33.0
-
+-	  Affected Cortex-A55 cores (r0p0, r0p1, r1p0) could cause incorrect
++	  Affected Cortex-A55 cores (all revisions) could cause incorrect
+ 	  update of the hardware dirty bit when the DBM/AP bits are updated
+ 	  without a break-before-make. The work around is to disable the usage
+ 	  of hardware DBM locally on the affected cores. CPUs not affected by
+--- a/arch/arm64/mm/proc.S
++++ b/arch/arm64/mm/proc.S
+@@ -442,8 +442,8 @@ ENTRY(__cpu_setup)
+ 	cmp	x9, #2
+ 	b.lt	1f
+ #ifdef CONFIG_ARM64_ERRATUM_1024718
+-	/* Disable hardware DBM on Cortex-A55 r0p0, r0p1 & r1p0 */
+-	cpu_midr_match MIDR_CORTEX_A55, MIDR_CPU_VAR_REV(0, 0), MIDR_CPU_VAR_REV(1, 0), x1, x2, x3, x4
++	/* Disable hardware DBM on Cortex-A55 all versions */
++	cpu_midr_match MIDR_CORTEX_A55, MIDR_CPU_VAR_REV(0, 0), MIDR_CPU_VAR_REV(0xf, 0xf), x1, x2, x3, x4
+ 	cbnz	x1, 1f
+ #endif
+ 	orr	x10, x10, #TCR_HD		// hardware Dirty flag update
 
 
