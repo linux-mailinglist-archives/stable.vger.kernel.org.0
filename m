@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC952420D6C
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:13:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 621CE420C77
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:04:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235842AbhJDNPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:15:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47394 "EHLO mail.kernel.org"
+        id S234713AbhJDNFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:05:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235874AbhJDNLn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:11:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 227ED61B6F;
-        Mon,  4 Oct 2021 13:04:27 +0000 (UTC)
+        id S234715AbhJDND7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:03:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EDE7F61AFF;
+        Mon,  4 Oct 2021 13:00:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352668;
-        bh=OCfoDgZA22Ou7+PqGJu7iFeST6hFCL3+nTaHZB+tMZI=;
+        s=korg; t=1633352414;
+        bh=NulYGI2OphzDb88YVZ/4t9qDg7n1zPiCTvCMSVXEJ+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KYhFaYW0G+H42OeSGdo0Mx+efvfMhkKk0ZGwnE5rEuWTs67jLP//w9ONfRfwIj5C9
-         memdcrLvqvi0by1hbpww6EtKlqsmiCngGIXeDpjz17wU0BbZ8MkHBcjP4dL0Wxc5ln
-         DAgCAd7vCznkhFZCVXnm3aWX9/TxbbRmGbhLZ3Ew=
+        b=hjAWqkmfrlYiUh1nB5d9YfeClfv9Bcn5M0H/zRKJAAw5v29jyqTvF52JHLd/iMula
+         y4uTn+dAh32LQVKP6bM7HNFBuzD15tEWur07jFqsbVIWf165oHy0pQA1qWfUA0P5ug
+         yfV98fxm31tQhJLomNs6HoHA9OPM2D8ja1ZRoCXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 57/95] cpufreq: schedutil: Use kobject release() method to free sugov_tunables
-Date:   Mon,  4 Oct 2021 14:52:27 +0200
-Message-Id: <20211004125035.432411192@linuxfoundation.org>
+Subject: [PATCH 4.14 53/75] scsi: csiostor: Add module softdep on cxgb4
+Date:   Mon,  4 Oct 2021 14:52:28 +0200
+Message-Id: <20211004125033.298879414@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,128 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Hao <haokexin@gmail.com>
+From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 
-[ Upstream commit e5c6b312ce3cc97e90ea159446e6bfa06645364d ]
+[ Upstream commit 79a7482249a7353bc86aff8127954d5febf02472 ]
 
-The struct sugov_tunables is protected by the kobject, so we can't free
-it directly. Otherwise we would get a call trace like this:
-  ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x30
-  WARNING: CPU: 3 PID: 720 at lib/debugobjects.c:505 debug_print_object+0xb8/0x100
-  Modules linked in:
-  CPU: 3 PID: 720 Comm: a.sh Tainted: G        W         5.14.0-rc1-next-20210715-yocto-standard+ #507
-  Hardware name: Marvell OcteonTX CN96XX board (DT)
-  pstate: 40400009 (nZcv daif +PAN -UAO -TCO BTYPE=--)
-  pc : debug_print_object+0xb8/0x100
-  lr : debug_print_object+0xb8/0x100
-  sp : ffff80001ecaf910
-  x29: ffff80001ecaf910 x28: ffff00011b10b8d0 x27: ffff800011043d80
-  x26: ffff00011a8f0000 x25: ffff800013cb3ff0 x24: 0000000000000000
-  x23: ffff80001142aa68 x22: ffff800011043d80 x21: ffff00010de46f20
-  x20: ffff800013c0c520 x19: ffff800011d8f5b0 x18: 0000000000000010
-  x17: 6e6968207473696c x16: 5f72656d6974203a x15: 6570797420746365
-  x14: 6a626f2029302065 x13: 303378302f307830 x12: 2b6e665f72656d69
-  x11: ffff8000124b1560 x10: ffff800012331520 x9 : ffff8000100ca6b0
-  x8 : 000000000017ffe8 x7 : c0000000fffeffff x6 : 0000000000000001
-  x5 : ffff800011d8c000 x4 : ffff800011d8c740 x3 : 0000000000000000
-  x2 : ffff0001108301c0 x1 : ab3c90eedf9c0f00 x0 : 0000000000000000
-  Call trace:
-   debug_print_object+0xb8/0x100
-   __debug_check_no_obj_freed+0x1c0/0x230
-   debug_check_no_obj_freed+0x20/0x88
-   slab_free_freelist_hook+0x154/0x1c8
-   kfree+0x114/0x5d0
-   sugov_exit+0xbc/0xc0
-   cpufreq_exit_governor+0x44/0x90
-   cpufreq_set_policy+0x268/0x4a8
-   store_scaling_governor+0xe0/0x128
-   store+0xc0/0xf0
-   sysfs_kf_write+0x54/0x80
-   kernfs_fop_write_iter+0x128/0x1c0
-   new_sync_write+0xf0/0x190
-   vfs_write+0x2d4/0x478
-   ksys_write+0x74/0x100
-   __arm64_sys_write+0x24/0x30
-   invoke_syscall.constprop.0+0x54/0xe0
-   do_el0_svc+0x64/0x158
-   el0_svc+0x2c/0xb0
-   el0t_64_sync_handler+0xb0/0xb8
-   el0t_64_sync+0x198/0x19c
-  irq event stamp: 5518
-  hardirqs last  enabled at (5517): [<ffff8000100cbd7c>] console_unlock+0x554/0x6c8
-  hardirqs last disabled at (5518): [<ffff800010fc0638>] el1_dbg+0x28/0xa0
-  softirqs last  enabled at (5504): [<ffff8000100106e0>] __do_softirq+0x4d0/0x6c0
-  softirqs last disabled at (5483): [<ffff800010049548>] irq_exit+0x1b0/0x1b8
+Both cxgb4 and csiostor drivers run on their own independent Physical
+Function. But when cxgb4 and csiostor are both being loaded in parallel via
+modprobe, there is a race when firmware upgrade is attempted by both the
+drivers.
 
-So split the original sugov_tunables_free() into two functions,
-sugov_clear_global_tunables() is just used to clear the global_tunables
-and the new sugov_tunables_free() is used as kobj_type::release to
-release the sugov_tunables safely.
+When the cxgb4 driver initiates the firmware upgrade, it halts the firmware
+and the chip until upgrade is complete. When the csiostor driver is coming
+up in parallel, the firmware mailbox communication fails with timeouts and
+the csiostor driver probe fails.
 
-Fixes: 9bdcb44e391d ("cpufreq: schedutil: New governor based on scheduler utilization data")
-Cc: 4.7+ <stable@vger.kernel.org> # 4.7+
-Signed-off-by: Kevin Hao <haokexin@gmail.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Add a module soft dependency on cxgb4 driver to ensure loading csiostor
+triggers cxgb4 to load first when available to avoid the firmware upgrade
+race.
+
+Link: https://lore.kernel.org/r/1632759248-15382-1-git-send-email-rahul.lakkireddy@chelsio.com
+Fixes: a3667aaed569 ("[SCSI] csiostor: Chelsio FCoE offload driver")
+Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/cpufreq_schedutil.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/scsi/csiostor/csio_init.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
-index 1b7ec822dc75..60f0e0e048f0 100644
---- a/kernel/sched/cpufreq_schedutil.c
-+++ b/kernel/sched/cpufreq_schedutil.c
-@@ -591,9 +591,17 @@ static struct attribute *sugov_attributes[] = {
- 	NULL
- };
- 
-+static void sugov_tunables_free(struct kobject *kobj)
-+{
-+	struct gov_attr_set *attr_set = container_of(kobj, struct gov_attr_set, kobj);
-+
-+	kfree(to_sugov_tunables(attr_set));
-+}
-+
- static struct kobj_type sugov_tunables_ktype = {
- 	.default_attrs = sugov_attributes,
- 	.sysfs_ops = &governor_sysfs_ops,
-+	.release = &sugov_tunables_free,
- };
- 
- /********************** cpufreq governor interface *********************/
-@@ -693,12 +701,10 @@ static struct sugov_tunables *sugov_tunables_alloc(struct sugov_policy *sg_polic
- 	return tunables;
- }
- 
--static void sugov_tunables_free(struct sugov_tunables *tunables)
-+static void sugov_clear_global_tunables(void)
- {
- 	if (!have_governor_per_policy())
- 		global_tunables = NULL;
--
--	kfree(tunables);
- }
- 
- static int sugov_init(struct cpufreq_policy *policy)
-@@ -761,7 +767,7 @@ out:
- fail:
- 	kobject_put(&tunables->attr_set.kobj);
- 	policy->governor_data = NULL;
--	sugov_tunables_free(tunables);
-+	sugov_clear_global_tunables();
- 
- stop_kthread:
- 	sugov_kthread_stop(sg_policy);
-@@ -788,7 +794,7 @@ static void sugov_exit(struct cpufreq_policy *policy)
- 	count = gov_attr_set_put(&tunables->attr_set, &sg_policy->tunables_hook);
- 	policy->governor_data = NULL;
- 	if (!count)
--		sugov_tunables_free(tunables);
-+		sugov_clear_global_tunables();
- 
- 	mutex_unlock(&global_tunables_lock);
- 
+diff --git a/drivers/scsi/csiostor/csio_init.c b/drivers/scsi/csiostor/csio_init.c
+index 03c7b1603dbc..c64db2047efc 100644
+--- a/drivers/scsi/csiostor/csio_init.c
++++ b/drivers/scsi/csiostor/csio_init.c
+@@ -1260,3 +1260,4 @@ MODULE_DEVICE_TABLE(pci, csio_pci_tbl);
+ MODULE_VERSION(CSIO_DRV_VERSION);
+ MODULE_FIRMWARE(FW_FNAME_T5);
+ MODULE_FIRMWARE(FW_FNAME_T6);
++MODULE_SOFTDEP("pre: cxgb4");
 -- 
 2.33.0
 
