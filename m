@@ -2,90 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3386E42168E
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 20:31:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DCF742169E
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 20:36:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238731AbhJDSc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 14:32:58 -0400
-Received: from mout.gmx.net ([212.227.15.15]:57667 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235252AbhJDSc5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 14:32:57 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1633372253;
-        bh=xsdXZCIxECKbJqvAVvk/1or5BnC2aUn2qlxBoVzS3yE=;
-        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
-        b=j5LsNJL3eLr1U3ooUrQKI9vNb5/X3TdQJ5HmpGgAj8yueeE/S41jIxrwnaGm1kcAO
-         N2AmcxQP5uciyq3c5chaSYdM4PYeztCeEem8/hevfEG1YahkdAubARHc9UEAzVD55p
-         h7eRq1RmWr56ARlTLknYZmA25CYfFGKOrAHuPtt8=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.178.51] ([46.223.119.124]) by mail.gmx.net (mrgmx005
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1MnakR-1nGSjo17y9-00jaEX; Mon, 04
- Oct 2021 20:30:53 +0200
-Subject: Re: [PATCH] spi: bcm2835: do not unregister controller in shutdown
- handler
-To:     Jason Gunthorpe <jgg@ziepe.ca>, Mark Brown <broonie@kernel.org>
-Cc:     f.fainelli@gmail.com, rjui@broadcom.com, sbranden@broadcom.com,
-        bcm-kernel-feedback-list@broadcom.com, nsaenz@kernel.org,
-        linux-spi@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        p.rosenberger@kunbus.com, linux-integrity@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20210928195657.5573-1-LinoSanfilippo@gmx.de>
- <20211001175422.GA53652@sirena.org.uk>
- <2c4d7115-7a02-f79e-c91b-3c2dd54051b2@gmx.de>
- <YVr4USeiIoQJ0Pqh@sirena.org.uk> <20211004131756.GW3544071@ziepe.ca>
- <YVsLxHMCdXf4vS+i@sirena.org.uk> <20211004154436.GY3544071@ziepe.ca>
-From:   Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Message-ID: <af8df53c-93e9-f157-9308-b0b69908e112@gmx.de>
-Date:   Mon, 4 Oct 2021 20:30:52 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <20211004154436.GY3544071@ziepe.ca>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:6BawwZRvhSZFNFahnbJztUOfPMlcFJNspLu2cSkUdr6m9nIuqj1
- i4mVmx96ySWIzhvtPAb9xtA98bkjRdBwrKF0r1p1zoVrnpfGiaBlPm4uBieLZXXqaYq2FJ4
- SY9QZ0fRvqMoYxC5i9fCTn8gNmO98MRY4EcSPrSjU362piegFL2yyYJpaqVF/OAbAKkrdAe
- vPsPO2+FcyTDbksiRR4+Q==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:CS9UQIO2qgc=:dt3rstHiQk6qz0r5/HxxKQ
- ZXElpRA1yQTyRXX3TCGaJF0XLRcFyXoCHL1nCjMI6Scwn57rL3saa1NBtOjatAJ8yv836OI6X
- reAsfMv1kHBzYlvlM9o3g9usJg087vl0VAv7hwUsjDtiv5x22z41yJ5bmZCvaMiq1iF2a9B7j
- 1OSAIdwUVXBaXVImJiew/eW/YM+miedU98kl25BmDwXYRBREB6XUoUJ80cWQ72J1cZjbxVRCq
- oP1xutjx8O5gJmaribCb0Vy3ZF2vHODt9MZcwgx/WeDsbVj314uMcr6PZyxIOBRooDgExCx5D
- GgQ8zXz2scDg7PXDZfsoxawJjPsVtw2pm34Ya4XK+fN3SDPgbY8cl2KA/OK2tDQGKwhEzATMZ
- 7lfONjN/EgSjzvRYSX7Jr+Hus1z51BIq3xU4XhIubbys0GjquUjQShvAdL2KtXj6R46yUBBQW
- 6BeYvVvOFfTQXBLHux9wF9eyNk+KhFyQPe6MEjypTyBVEFu/7D9FYKEBfQw7EBKpQKHIdKCID
- ghQQkPRzzwqNVQvs7WBzJ/roNqQWZonxGug22cwyBfJewLa6XYNm+0p7FpO3iWpijmnnI6AL5
- kRVkK2cjbBRElCQDuEyWbKern3BkLZV24WsYvLJKuKO0adaULYE1EfHl7tJC8iAOTBzozuJI5
- 6nsCgODqw33j+X7USRgdFY9Q1nhIYm0g8e4EGf1nyqgQZjBiS5pnrpjVPuqg0NfLdDAuxPyWh
- Wnel+2SglSdzKjtGBQn08cLB2pzWYAKPGkEDrQ2JIJS6ZVJsH558ZZ4mDbS6OW24nWi1gz/Hx
- VNvxowohrplkbQOQ4LHGhAOdn2cTGDRWAHpoPmYfjJqaV44jqYVd8TmG47RxEiYswKBLBUeHf
- CTtoBQH3MWmbig/Ni6GtKH8tFnNhVJmyBGr1UHGUobj6ysHuP1qObYL2NQYtOshHf2AEA2TIw
- EcyNAnbjrAC1c5HzdYIeUUHY4AfiB6VOS7QegSZdhQ/z3V7wfvgIv7tfA79oDLT4i+NeJx4XQ
- 4OGE9lvnukSnLesazpJ2DqHKnwCn+QMzr/IYjfnqZGTu/qldxhJq1WxYqK1aub9WgNxmC+d2j
- XahgvKuYDdWDco=
+        id S237863AbhJDSiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 14:38:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52774 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234437AbhJDSiG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 14:38:06 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F099C061745;
+        Mon,  4 Oct 2021 11:36:17 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id on12-20020a17090b1d0c00b001997c60aa29so447539pjb.1;
+        Mon, 04 Oct 2021 11:36:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=5y2t/ZH+SX9ahuOyLaWvsDdmBwZwjaw92eWd0yfwnhk=;
+        b=jnsE7xk7HTOpM7530Pv1ds0IKNpkvzQ1GROQ23dREEuNh5rUhdg6/vFd/ldKod4vjP
+         ZMqjuqYEDRJdEz1ba2uwZN1i+7kacosh0Dt33HvNNLf/5jAu3SRl4BoEdCGCInOQL9MS
+         RpNlQSfh46rPJ9aSbWaN9g9AkV6ksqcE/UjeReVVFgc9DheVxlcWmeEN7KIegCxJcgBa
+         qElivXO6pE86lUevEkRh2kZYOys0ZCfbQkt5B0XfMSY4DaCtY0/rmwfZtLemiiVPnjaj
+         XIzDDxKxR7Xo0HzvNu7MqwateU3cmYjLv+hxd5Naiw5K3TeNV0MLymBH/2MqaK3HWQyT
+         CoyA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=5y2t/ZH+SX9ahuOyLaWvsDdmBwZwjaw92eWd0yfwnhk=;
+        b=3tbZ4wnqTA9HRkiOkYR4yNtk9MpbZTM2Tk8swJa4i+ycFYGWP7oCFRpvM0EjT/StTy
+         6Wf6sRcbQOZLfbFl2SYbEOhGTAzOnfHBBiE3ysvrngTJHVmt7md16L0/YIRH9ddhoRRk
+         T5hXIVabV6MgpYqCGY0UOe77jiedJMQyvmox9FMtIEGPFD+8iZEccwsMB6nJ+VOHyvrQ
+         +VjZcCj0pfTr/4qulWnbGy44LuHdG522egVEtpLEdFVAB4Sp85hgcUnst6NNp/VpXamu
+         caPIYF3S6GeF1CdtRj5G4qNjBEO/COH9s+8eQiv5sD2ByENKxyso1MRmoSySfhx2K4Fn
+         +2jg==
+X-Gm-Message-State: AOAM531pCB+nmJXvgfISA8YLjdcoOYYZoS3yTz6rx68udy0bN+erq2Wf
+        yIFlV5DYKU3aMfKkbBjeV81IB3/yISoxpdOvShM=
+X-Google-Smtp-Source: ABdhPJzihWlBiJVArNdWVgsRWufLxdOM8jmxcyHyfHQzL/9PBQeHqpmUNm67k/9yLQZBak6AU0EcDQ==
+X-Received: by 2002:a17:902:7fcf:b0:13e:c994:ee67 with SMTP id t15-20020a1709027fcf00b0013ec994ee67mr1117355plb.12.1633372576307;
+        Mon, 04 Oct 2021 11:36:16 -0700 (PDT)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
+        by smtp.gmail.com with ESMTPSA id p16sm15518308pfq.95.2021.10.04.11.36.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Oct 2021 11:36:15 -0700 (PDT)
+Message-ID: <615b499f.1c69fb81.97f6b.d6a9@mx.google.com>
+Date:   Mon, 04 Oct 2021 11:36:15 -0700 (PDT)
+X-Google-Original-Date: Mon, 04 Oct 2021 18:36:14 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+Subject: RE: [PATCH 5.14 000/172] 5.14.10-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 04.10.21 at 17:44, Jason Gunthorpe wrote:
+On Mon,  4 Oct 2021 14:50:50 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.14.10 release.
+> There are 172 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 06 Oct 2021 12:50:17 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.10-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
->
-> Well, that is up to the driver implementing this. It looks like device
-> shutdown is called before the userspace is all nuked so yes,
-> concurrency with userspace is a possible concern here.
->
+5.14.10-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
 
-So the TPM driver has to handle remove() after shutdown() anyway, right?
-Because even if not caused by the BCM2835 drivers controller unregistratio=
-n
-something else could unload the module and the problem (NULL pointer acces=
-s)
-would be the same.
-
-Regards,
-Lino
