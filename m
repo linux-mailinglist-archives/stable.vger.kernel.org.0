@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62116420C31
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:02:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13F22420BE8
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:59:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234317AbhJDNDu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:03:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37450 "EHLO mail.kernel.org"
+        id S234172AbhJDNBG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:01:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234102AbhJDNCH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:02:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A8946136F;
-        Mon,  4 Oct 2021 12:58:57 +0000 (UTC)
+        id S234210AbhJDM7e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:59:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFE0961391;
+        Mon,  4 Oct 2021 12:57:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352338;
-        bh=TmY0Ggc7kznm0+HSGp0QLZ03YBiBeR1Q6935jrzMTBk=;
+        s=korg; t=1633352247;
+        bh=Rs3Vcciiab+UuXssMClhbU/oEVDVBzV1cge3WXf6soM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iZPmTwqPSeNY16K76iOmA4sUx2zP7rDoowcXL78qOV945u+66ekuEu0AhQI7ew+MV
-         9bThJ6v1rLmKuSdmXBchLK5HSm/LaxWIeCiDUq07lZ5Vb1b0kx5aTG0+lK2rjSmUoB
-         wf/qUb816tnEYIlUBpY1KwSJ1fUMiGGx+cvuRWBA=
+        b=k+JJXOOKOcPNnGsVs+d43o8hyIDsa+kfWiZuj9mjQDIJe45CDOroXe5kO85zmqLfk
+         noul8JdursslL27x7pMGDFv2g+LABK/Sx9NwFHxSl3hQWvq7kWYldgFUTqsf+VgiBT
+         9CtRcDaWL3iIYNTI3eG/DYCEvtLB5nJgf3CRQbf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+fadc0aaf497e6a493b9f@syzkaller.appspotmail.com,
-        Christoph Hellwig <hch@lst.de>, NeilBrown <neilb@suse.de>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 22/75] md: fix a lock order reversal in md_alloc
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Johannes Thumshirn <jth@kernel.org>
+Subject: [PATCH 4.9 13/57] mcb: fix error handling in mcb_alloc_bus()
 Date:   Mon,  4 Oct 2021 14:51:57 +0200
-Message-Id: <20211004125032.258530117@linuxfoundation.org>
+Message-Id: <20211004125029.353281938@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
+References: <20211004125028.940212411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,61 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 7df835a32a8bedf7ce88efcfa7c9b245b52ff139 ]
+commit 25a1433216489de4abc889910f744e952cb6dbae upstream.
 
-Commit b0140891a8cea3 ("md: Fix race when creating a new md device.")
-not only moved assigning mddev->gendisk before calling add_disk, which
-fixes the races described in the commit log, but also added a
-mddev->open_mutex critical section over add_disk and creation of the
-md kobj.  Adding a kobject after add_disk is racy vs deleting the gendisk
-right after adding it, but md already prevents against that by holding
-a mddev->active reference.
+There are two bugs:
+1) If ida_simple_get() fails then this code calls put_device(carrier)
+   but we haven't yet called get_device(carrier) and probably that
+   leads to a use after free.
+2) After device_initialize() then we need to use put_device() to
+   release the bus.  This will free the internal resources tied to the
+   device and call mcb_free_bus() which will free the rest.
 
-On the other hand taking this lock added a lock order reversal with what
-is not disk->open_mutex (used to be bdev->bd_mutex when the commit was
-added) for partition devices, which need that lock for the internal open
-for the partition scan, and a recent commit also takes it for
-non-partitioned devices, leading to further lockdep splatter.
-
-Fixes: b0140891a8ce ("md: Fix race when creating a new md device.")
-Fixes: d62633873590 ("block: support delayed holder registration")
-Reported-by: syzbot+fadc0aaf497e6a493b9f@syzkaller.appspotmail.com
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Tested-by: syzbot+fadc0aaf497e6a493b9f@syzkaller.appspotmail.com
-Reviewed-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5d9e2ab9fea4 ("mcb: Implement bus->dev.release callback")
+Fixes: 18d288198099 ("mcb: Correctly initialize the bus's device")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Johannes Thumshirn <jth@kernel.org>
+Link: https://lore.kernel.org/r/32e160cf6864ce77f9d62948338e24db9fd8ead9.1630931319.git.johannes.thumshirn@wdc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/md.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/mcb/mcb-core.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 0af9aa187ce5..5e8706a66c31 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -5375,10 +5375,6 @@ static int md_alloc(dev_t dev, char *name)
- 	 */
- 	disk->flags |= GENHD_FL_EXT_DEVT;
- 	mddev->gendisk = disk;
--	/* As soon as we call add_disk(), another thread could get
--	 * through to md_open, so make sure it doesn't get too far
--	 */
--	mutex_lock(&mddev->open_mutex);
- 	add_disk(disk);
+--- a/drivers/mcb/mcb-core.c
++++ b/drivers/mcb/mcb-core.c
+@@ -280,8 +280,8 @@ struct mcb_bus *mcb_alloc_bus(struct dev
  
- 	error = kobject_init_and_add(&mddev->kobj, &md_ktype,
-@@ -5394,7 +5390,6 @@ static int md_alloc(dev_t dev, char *name)
- 	if (mddev->kobj.sd &&
- 	    sysfs_create_group(&mddev->kobj, &md_bitmap_group))
- 		pr_debug("pointless warning\n");
--	mutex_unlock(&mddev->open_mutex);
-  abort:
- 	mutex_unlock(&disks_mutex);
- 	if (!error && mddev->kobj.sd) {
--- 
-2.33.0
-
+ 	bus_nr = ida_simple_get(&mcb_ida, 0, 0, GFP_KERNEL);
+ 	if (bus_nr < 0) {
+-		rc = bus_nr;
+-		goto err_free;
++		kfree(bus);
++		return ERR_PTR(bus_nr);
+ 	}
+ 
+ 	bus->bus_nr = bus_nr;
+@@ -296,12 +296,12 @@ struct mcb_bus *mcb_alloc_bus(struct dev
+ 	dev_set_name(&bus->dev, "mcb:%d", bus_nr);
+ 	rc = device_add(&bus->dev);
+ 	if (rc)
+-		goto err_free;
++		goto err_put;
+ 
+ 	return bus;
+-err_free:
+-	put_device(carrier);
+-	kfree(bus);
++
++err_put:
++	put_device(&bus->dev);
+ 	return ERR_PTR(rc);
+ }
+ EXPORT_SYMBOL_GPL(mcb_alloc_bus);
 
 
