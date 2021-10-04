@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0535542087F
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 11:40:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33982420880
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 11:40:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232181AbhJDJmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 05:42:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47078 "EHLO mail.kernel.org"
+        id S232278AbhJDJmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 05:42:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230270AbhJDJmJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 05:42:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB9BB6124B;
-        Mon,  4 Oct 2021 09:40:20 +0000 (UTC)
+        id S230270AbhJDJmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 05:42:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C9E1610A8;
+        Mon,  4 Oct 2021 09:40:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633340421;
-        bh=5/F7/Sc+2GAZyedODJmscvFr13tHrbRUk77ZgCbRURM=;
+        s=korg; t=1633340423;
+        bh=kl7wXD7t4F1PkDPFQEExTDFV6HebLdgufM0QNg+ugZ0=;
         h=Subject:To:Cc:From:Date:From;
-        b=BGj4KUzkYtuSocfzRf4WLdYuvU7WSg7Dyb4s0SnWmu9oWnHYOqHurcMdtqI0eve5M
-         wQLaYNX+5vlo2C28Wc4UBBdoiQPhuD5iOjEHEvHapqVASbo6SuPbCOozZxCVeXTYG6
-         v7Rd3fACOcvdEjq7J8I3IrIgSinrj9dVfJZWeO84=
-Subject: FAILED: patch "[PATCH] ext4: fix loff_t overflow in ext4_max_bitmap_size()" failed to apply to 4.4-stable tree
+        b=1JqFkDQTgOqva+AYgJyIZMkiWsyXS2J/zDTkrmNifpzUFdmwF9zCd3V6sP/OnJHtp
+         28I/TwLfU38UDuh3cHHnPeDOpGMJEvpUGXbVXzN3ODT1NTZ3td/X9M2JYo7l3ZPb35
+         S+rKyh7jEEOcDIYauzPbSzlxnlzbhNQTKIMgLCHM=
+Subject: FAILED: patch "[PATCH] ext4: fix loff_t overflow in ext4_max_bitmap_size()" failed to apply to 4.14-stable tree
 To:     riteshh@linux.ibm.com, jack@suse.cz, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 04 Oct 2021 11:40:11 +0200
-Message-ID: <1633340411217176@kroah.com>
+Message-ID: <1633340411169114@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
