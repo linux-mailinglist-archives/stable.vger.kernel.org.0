@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CFE8420DAC
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:15:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BF23420BDE
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:59:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235809AbhJDNRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:17:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55678 "EHLO mail.kernel.org"
+        id S233937AbhJDNAn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:00:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235949AbhJDNP1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:15:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D63661BA7;
-        Mon,  4 Oct 2021 13:06:11 +0000 (UTC)
+        id S233943AbhJDM7M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:59:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B06B615A4;
+        Mon,  4 Oct 2021 12:57:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352771;
-        bh=ZTne2VZLofEonIy43J/+zmPzCS+nJjaStaqiKJNj2kM=;
+        s=korg; t=1633352236;
+        bh=L241wpkUh0bWgSPDGbsmy1HluiZHT2lvYcQZyy8xsko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V6b//5wzPfuTlFjeB21BJQqs4kFHUShYvmjSBchkV3uxoGFK620oSljwEmThDjrla
-         +mumIaBaRR0yYxBAt4+CgCYdzsngcnzr59jrPj2TbH6/XYlCpLtc13e4pBWXYbZpsE
-         bGOy4j3Cry1GyAqWjcesQTfir2HVbZhh08HYP5iA=
+        b=MDzY9vLWfu08nJF3bA6cCzN5xRgohG7RxDIDy5mto8T3HkuXZPCVb+BSyHQo4evYl
+         gYQ1e+runFTLI/ANdyn73+bmZYWNbEIigjTaP9CRR+mxbX42eEkaAvC1DXvNIUllZN
+         RjzmJFyDb7SnCaFoGC3jzIQ37kySzL0zAVdE2TDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Felicitas Hetzelt <felicitashetzelt@gmail.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 03/56] cpufreq: schedutil: Destroy mutex before kobject_put() frees the memory
-Date:   Mon,  4 Oct 2021 14:52:23 +0200
-Message-Id: <20211004125030.114945689@linuxfoundation.org>
+Subject: [PATCH 4.9 40/57] e100: fix buffer overrun in e100_get_regs
+Date:   Mon,  4 Oct 2021 14:52:24 +0200
+Message-Id: <20211004125030.212671311@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
-References: <20211004125030.002116402@linuxfoundation.org>
+In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
+References: <20211004125028.940212411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +42,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-[ Upstream commit cdef1196608892b9a46caa5f2b64095a7f0be60c ]
+[ Upstream commit 51032e6f17ce990d06123ad7307f258c50d25aa7 ]
 
-Since commit e5c6b312ce3c ("cpufreq: schedutil: Use kobject release()
-method to free sugov_tunables") kobject_put() has kfree()d the
-attr_set before gov_attr_set_put() returns.
+The e100_get_regs function is used to implement a simple register dump
+for the e100 device. The data is broken into a couple of MAC control
+registers, and then a series of PHY registers, followed by a memory dump
+buffer.
 
-kobject_put() isn't the last user of attr_set in gov_attr_set_put(),
-the subsequent mutex_destroy() triggers a use-after-free:
-| BUG: KASAN: use-after-free in mutex_is_locked+0x20/0x60
-| Read of size 8 at addr ffff000800ca4250 by task cpuhp/2/20
-|
-| CPU: 2 PID: 20 Comm: cpuhp/2 Not tainted 5.15.0-rc1 #12369
-| Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno Development
-| Platform, BIOS EDK II Jul 30 2018
-| Call trace:
-|  dump_backtrace+0x0/0x380
-|  show_stack+0x1c/0x30
-|  dump_stack_lvl+0x8c/0xb8
-|  print_address_description.constprop.0+0x74/0x2b8
-|  kasan_report+0x1f4/0x210
-|  kasan_check_range+0xfc/0x1a4
-|  __kasan_check_read+0x38/0x60
-|  mutex_is_locked+0x20/0x60
-|  mutex_destroy+0x80/0x100
-|  gov_attr_set_put+0xfc/0x150
-|  sugov_exit+0x78/0x190
-|  cpufreq_offline.isra.0+0x2c0/0x660
-|  cpuhp_cpufreq_offline+0x14/0x24
-|  cpuhp_invoke_callback+0x430/0x6d0
-|  cpuhp_thread_fun+0x1b0/0x624
-|  smpboot_thread_fn+0x5e0/0xa6c
-|  kthread+0x3a0/0x450
-|  ret_from_fork+0x10/0x20
+The total length of the register dump is defined as (1 + E100_PHY_REGS)
+* sizeof(u32) + sizeof(nic->mem->dump_buf).
 
-Swap the order of the calls.
+The logic for filling in the PHY registers uses a convoluted inverted
+count for loop which counts from E100_PHY_REGS (0x1C) down to 0, and
+assigns the slots 1 + E100_PHY_REGS - i. The first loop iteration will
+fill in [1] and the final loop iteration will fill in [1 + 0x1C]. This
+is actually one more than the supposed number of PHY registers.
 
-Fixes: e5c6b312ce3c ("cpufreq: schedutil: Use kobject release() method to free sugov_tunables")
-Cc: 4.7+ <stable@vger.kernel.org> # 4.7+
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+The memory dump buffer is then filled into the space at
+[2 + E100_PHY_REGS] which will cause that memcpy to assign 4 bytes past
+the total size.
+
+The end result is that we overrun the total buffer size allocated by the
+kernel, which could lead to a panic or other issues due to memory
+corruption.
+
+It is difficult to determine the actual total number of registers
+here. The only 8255x datasheet I could find indicates there are 28 total
+MDI registers. However, we're reading 29 here, and reading them in
+reverse!
+
+In addition, the ethtool e100 register dump interface appears to read
+the first PHY register to determine if the device is in MDI or MDIx
+mode. This doesn't appear to be documented anywhere within the 8255x
+datasheet. I can only assume it must be in register 28 (the extra
+register we're reading here).
+
+Lets not change any of the intended meaning of what we copy here. Just
+extend the space by 4 bytes to account for the extra register and
+continue copying the data out in the same order.
+
+Change the E100_PHY_REGS value to be the correct total (29) so that the
+total register dump size is calculated properly. Fix the offset for
+where we copy the dump buffer so that it doesn't overrun the total size.
+
+Re-write the for loop to use counting up instead of the convoluted
+down-counting. Correct the mdio_read offset to use the 0-based register
+offsets, but maintain the bizarre reverse ordering so that we have the
+ABI expected by applications like ethtool. This requires and additional
+subtraction of 1. It seems a bit odd but it makes the flow of assignment
+into the register buffer easier to follow.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Felicitas Hetzelt <felicitashetzelt@gmail.com>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/cpufreq_governor_attr_set.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/e100.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/cpufreq/cpufreq_governor_attr_set.c b/drivers/cpufreq/cpufreq_governor_attr_set.c
-index 66b05a326910..a6f365b9cc1a 100644
---- a/drivers/cpufreq/cpufreq_governor_attr_set.c
-+++ b/drivers/cpufreq/cpufreq_governor_attr_set.c
-@@ -74,8 +74,8 @@ unsigned int gov_attr_set_put(struct gov_attr_set *attr_set, struct list_head *l
- 	if (count)
- 		return count;
- 
--	kobject_put(&attr_set->kobj);
- 	mutex_destroy(&attr_set->update_lock);
-+	kobject_put(&attr_set->kobj);
- 	return 0;
+diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
+index abb65ed9492b..aa556e4f9051 100644
+--- a/drivers/net/ethernet/intel/e100.c
++++ b/drivers/net/ethernet/intel/e100.c
+@@ -2462,7 +2462,7 @@ static void e100_get_drvinfo(struct net_device *netdev,
+ 		sizeof(info->bus_info));
  }
- EXPORT_SYMBOL_GPL(gov_attr_set_put);
+ 
+-#define E100_PHY_REGS 0x1C
++#define E100_PHY_REGS 0x1D
+ static int e100_get_regs_len(struct net_device *netdev)
+ {
+ 	struct nic *nic = netdev_priv(netdev);
+@@ -2484,14 +2484,18 @@ static void e100_get_regs(struct net_device *netdev,
+ 	buff[0] = ioread8(&nic->csr->scb.cmd_hi) << 24 |
+ 		ioread8(&nic->csr->scb.cmd_lo) << 16 |
+ 		ioread16(&nic->csr->scb.status);
+-	for (i = E100_PHY_REGS; i >= 0; i--)
+-		buff[1 + E100_PHY_REGS - i] =
+-			mdio_read(netdev, nic->mii.phy_id, i);
++	for (i = 0; i < E100_PHY_REGS; i++)
++		/* Note that we read the registers in reverse order. This
++		 * ordering is the ABI apparently used by ethtool and other
++		 * applications.
++		 */
++		buff[1 + i] = mdio_read(netdev, nic->mii.phy_id,
++					E100_PHY_REGS - 1 - i);
+ 	memset(nic->mem->dump_buf, 0, sizeof(nic->mem->dump_buf));
+ 	e100_exec_cb(nic, NULL, e100_dump);
+ 	msleep(10);
+-	memcpy(&buff[2 + E100_PHY_REGS], nic->mem->dump_buf,
+-		sizeof(nic->mem->dump_buf));
++	memcpy(&buff[1 + E100_PHY_REGS], nic->mem->dump_buf,
++	       sizeof(nic->mem->dump_buf));
+ }
+ 
+ static void e100_get_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
 -- 
 2.33.0
 
