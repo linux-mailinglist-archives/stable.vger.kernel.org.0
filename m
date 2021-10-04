@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F13C2420FAB
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:35:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B080420BDA
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:59:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237876AbhJDNhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:37:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47278 "EHLO mail.kernel.org"
+        id S234351AbhJDNAl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:00:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237379AbhJDNfP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:35:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1325963237;
-        Mon,  4 Oct 2021 13:15:47 +0000 (UTC)
+        id S234369AbhJDM7I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:59:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20DC76136F;
+        Mon,  4 Oct 2021 12:57:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353348;
-        bh=dkaVwAlz6CyVqyM8xECrBznTqLQIOxNjSqT/gmsxpwc=;
+        s=korg; t=1633352231;
+        bh=p4MW1yMPGbukPI9CZBWfFnmZXKKaAISODnQxVRfHXWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LtU6vFaLgD9nvCTDtmlI/J0ncvTm8SYAv2BPQgsVY89vpxWCrXwRnoYAJXK2sumH7
-         0o3QwmAp8OTLGwvGdOVpGbjxsggRXMSbPNB+Y1Kz9IWGarq8oc0CBYWWA2PFj17Lg4
-         YeGy+ux2N6kkCaCIYM8ruPvNmp+tJ1cLDAJfINKY=
+        b=lakjYqp7cRKsh1WThKNcvAHZjCHqnzhx31luQauqc3ey3/PEV8IG8OIrYXdWX9qoA
+         RucDbId6xHhC1hVoT7+tVfI21Yxixi1vJUtbRKkRLQrpS+x+xJI8r0UIBLJLcK88Lg
+         c9Rd5j9emcYJfU61Gu5I4piUIOp5cZ/yU8tRmNaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        syzbot+0e964fad69a9c462bc1e@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Paul Fertser <fercerpav@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 092/172] mac80211-hwsim: fix late beacon hrtimer handling
+Subject: [PATCH 4.9 38/57] hwmon: (tmp421) fix rounding for negative values
 Date:   Mon,  4 Oct 2021 14:52:22 +0200
-Message-Id: <20211004125047.963354066@linuxfoundation.org>
+Message-Id: <20211004125030.143735285@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
+References: <20211004125028.940212411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,64 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Paul Fertser <fercerpav@gmail.com>
 
-[ Upstream commit 313bbd1990b6ddfdaa7da098d0c56b098a833572 ]
+[ Upstream commit 724e8af85854c4d3401313b6dd7d79cf792d8990 ]
 
-Thomas explained in https://lore.kernel.org/r/87mtoeb4hb.ffs@tglx
-that our handling of the hrtimer here is wrong: If the timer fires
-late (e.g. due to vCPU scheduling, as reported by Dmitry/syzbot)
-then it tries to actually rearm the timer at the next deadline,
-which might be in the past already:
+Old code produces -24999 for 0b1110011100000000 input in standard format due to
+always rounding up rather than "away from zero".
 
- 1          2          3          N          N+1
- |          |          |   ...    |          |
+Use the common macro for division, unify and simplify the conversion code along
+the way.
 
- ^ intended to fire here (1)
-            ^ next deadline here (2)
-                                      ^ actually fired here
-
-The next time it fires, it's later, but will still try to schedule
-for the next deadline (now 3), etc. until it catches up with N,
-but that might take a long time, causing stalls etc.
-
-Now, all of this is simulation, so we just have to fix it, but
-note that the behaviour is wrong even per spec, since there's no
-value then in sending all those beacons unaligned - they should be
-aligned to the TBTT (1, 2, 3, ... in the picture), and if we're a
-bit (or a lot) late, then just resume at that point.
-
-Therefore, change the code to use hrtimer_forward_now() which will
-ensure that the next firing of the timer would be at N+1 (in the
-picture), i.e. the next interval point after the current time.
-
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Reported-by: Dmitry Vyukov <dvyukov@google.com>
-Reported-by: syzbot+0e964fad69a9c462bc1e@syzkaller.appspotmail.com
-Fixes: 01e59e467ecf ("mac80211_hwsim: hrtimer beacon")
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20210915112936.544f383472eb.I3f9712009027aa09244b65399bf18bf482a8c4f1@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 9410700b881f ("hwmon: Add driver for Texas Instruments TMP421/422/423 sensor chips")
+Signed-off-by: Paul Fertser <fercerpav@gmail.com>
+Link: https://lore.kernel.org/r/20210924093011.26083-3-fercerpav@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hwmon/tmp421.c | 24 ++++++++----------------
+ 1 file changed, 8 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index ffa894f7312a..0adae76eb8df 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -1867,8 +1867,8 @@ mac80211_hwsim_beacon(struct hrtimer *timer)
- 		bcn_int -= data->bcn_delta;
- 		data->bcn_delta = 0;
- 	}
--	hrtimer_forward(&data->beacon_timer, hrtimer_get_expires(timer),
--			ns_to_ktime(bcn_int * NSEC_PER_USEC));
-+	hrtimer_forward_now(&data->beacon_timer,
-+			    ns_to_ktime(bcn_int * NSEC_PER_USEC));
- 	return HRTIMER_RESTART;
+diff --git a/drivers/hwmon/tmp421.c b/drivers/hwmon/tmp421.c
+index bfb98b96c781..324e7aaeb0b1 100644
+--- a/drivers/hwmon/tmp421.c
++++ b/drivers/hwmon/tmp421.c
+@@ -83,23 +83,17 @@ struct tmp421_data {
+ 	s16 temp[4];
+ };
+ 
+-static int temp_from_s16(s16 reg)
++static int temp_from_raw(u16 reg, bool extended)
+ {
+ 	/* Mask out status bits */
+ 	int temp = reg & ~0xf;
+ 
+-	return (temp * 1000 + 128) / 256;
+-}
+-
+-static int temp_from_u16(u16 reg)
+-{
+-	/* Mask out status bits */
+-	int temp = reg & ~0xf;
+-
+-	/* Add offset for extended temperature range. */
+-	temp -= 64 * 256;
++	if (extended)
++		temp = temp - 64 * 256;
++	else
++		temp = (s16)temp;
+ 
+-	return (temp * 1000 + 128) / 256;
++	return DIV_ROUND_CLOSEST(temp * 1000, 256);
  }
  
+ static struct tmp421_data *tmp421_update_device(struct device *dev)
+@@ -136,10 +130,8 @@ static int tmp421_read(struct device *dev, enum hwmon_sensor_types type,
+ 
+ 	switch (attr) {
+ 	case hwmon_temp_input:
+-		if (tmp421->config & TMP421_CONFIG_RANGE)
+-			*val = temp_from_u16(tmp421->temp[channel]);
+-		else
+-			*val = temp_from_s16(tmp421->temp[channel]);
++		*val = temp_from_raw(tmp421->temp[channel],
++				     tmp421->config & TMP421_CONFIG_RANGE);
+ 		return 0;
+ 	case hwmon_temp_fault:
+ 		/*
 -- 
 2.33.0
 
