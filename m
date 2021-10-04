@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD2B7420CDC
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:08:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60F48420C3F
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:02:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235381AbhJDNJq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:09:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39808 "EHLO mail.kernel.org"
+        id S234721AbhJDND7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:03:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235616AbhJDNIq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:08:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4713761B54;
-        Mon,  4 Oct 2021 13:02:46 +0000 (UTC)
+        id S234115AbhJDNCx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:02:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72DD96140A;
+        Mon,  4 Oct 2021 12:59:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352566;
-        bh=yuX+e6YYWhK0Lp73BJCvI1l5EPpImW/knaNjanDA4W8=;
+        s=korg; t=1633352366;
+        bh=Ph40bzWZ+VYDS03XR1nO7k7kHctxU69Bi/ZMKB5DkMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HxmF+C16Y9LJwwhjPKd443jMTNeXQI57kdWxnmS82Ss2ww5o3aO5XD30YGP6JmlkD
-         UWHUMp9LOqB2GgZ+UNHIcQ6B623t4BTmcPxtOfUEjznTea++fCqk7tRsba8Zu/lFm1
-         vJZ5YhDNi6KM7DQdAWRPNJ8bOJ78mP8bXzisSKRY=
+        b=nhnCThdFQj5VpyhnRhj8O/D9dUdtQikiv36IpDF47y02I4eKVCYukdFdckMiXz2hU
+         rHOpI+1UHtg3WO+gzmOg0LZoXYGjoqh0LozY3fKFgUiy2Oq6+sIhvKoKjcbW6//Faz
+         9pqLrzIUYDy5tMB6dabA62sQ3XykmaNL0h//zMeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 37/95] nvme-multipath: fix ANA state updates when a namespace is not present
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.14 32/75] parisc: Use absolute_pointer() to define PAGE0
 Date:   Mon,  4 Oct 2021 14:52:07 +0200
-Message-Id: <20211004125034.785229040@linuxfoundation.org>
+Message-Id: <20211004125032.594286145@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,59 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Eidelman <anton.eidelman@gmail.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 79f528afa93918519574773ea49a444c104bc1bd ]
+[ Upstream commit 90cc7bed1ed19f869ae7221a6b41887fe762a6a3 ]
 
-nvme_update_ana_state() has a deficiency that results in a failure to
-properly update the ana state for a namespace in the following case:
+Use absolute_pointer() wrapper for PAGE0 to avoid this compiler warning:
 
-  NSIDs in ctrl->namespaces:	1, 3,    4
-  NSIDs in desc->nsids:		1, 2, 3, 4
+  arch/parisc/kernel/setup.c: In function 'start_parisc':
+  error: '__builtin_memcmp_eq' specified bound 8 exceeds source size 0
 
-Loop iteration 0:
-    ns index = 0, n = 0, ns->head->ns_id = 1, nsid = 1, MATCH.
-Loop iteration 1:
-    ns index = 1, n = 1, ns->head->ns_id = 3, nsid = 2, NO MATCH.
-Loop iteration 2:
-    ns index = 2, n = 2, ns->head->ns_id = 4, nsid = 4, MATCH.
-
-Where the update to the ANA state of NSID 3 is missed.  To fix this
-increment n and retry the update with the same ns when ns->head->ns_id is
-higher than nsid,
-
-Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Co-Developed-by: Guenter Roeck <linux@roeck-us.net>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/multipath.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/parisc/include/asm/page.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index 64f699a1afd7..022e03643dac 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -398,14 +398,17 @@ static int nvme_update_ana_state(struct nvme_ctrl *ctrl,
+diff --git a/arch/parisc/include/asm/page.h b/arch/parisc/include/asm/page.h
+index af00fe9bf846..c631a8fd856a 100644
+--- a/arch/parisc/include/asm/page.h
++++ b/arch/parisc/include/asm/page.h
+@@ -179,7 +179,7 @@ extern int npmem_ranges;
+ #include <asm-generic/getorder.h>
+ #include <asm/pdc.h>
  
- 	down_read(&ctrl->namespaces_rwsem);
- 	list_for_each_entry(ns, &ctrl->namespaces, list) {
--		unsigned nsid = le32_to_cpu(desc->nsids[n]);
--
-+		unsigned nsid;
-+again:
-+		nsid = le32_to_cpu(desc->nsids[n]);
- 		if (ns->head->ns_id < nsid)
- 			continue;
- 		if (ns->head->ns_id == nsid)
- 			nvme_update_ns_ana_state(desc, ns);
- 		if (++n == nr_nsids)
- 			break;
-+		if (ns->head->ns_id > nsid)
-+			goto again;
- 	}
- 	up_read(&ctrl->namespaces_rwsem);
- 	return 0;
+-#define PAGE0   ((struct zeropage *)__PAGE_OFFSET)
++#define PAGE0   ((struct zeropage *)absolute_pointer(__PAGE_OFFSET))
+ 
+ /* DEFINITION OF THE ZERO-PAGE (PAG0) */
+ /* based on work by Jason Eckhardt (jason@equator.com) */
 -- 
 2.33.0
 
