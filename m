@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59A7D420D79
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:13:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65E44420FC1
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236037AbhJDNPd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:15:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47450 "EHLO mail.kernel.org"
+        id S237858AbhJDNhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:37:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236194AbhJDNNd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:13:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84B3461B96;
-        Mon,  4 Oct 2021 13:05:23 +0000 (UTC)
+        id S237980AbhJDNfo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:35:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A0CB619E5;
+        Mon,  4 Oct 2021 13:16:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352724;
-        bh=a2+kG5sFOBIYP9dp9OMr88Vdq/6u3z9eqdVqNmIRAYY=;
+        s=korg; t=1633353373;
+        bh=Y3zaoMuK9r5z71WMDMDg7pYrYJIYFgv8tbIWFfgPS7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MUAWf7MT5Y77U3VI68nfHtp/4EpgorjjkvRdl7HXhv0CXL06CoaXg12zZg9ydNjRc
-         Z/mCudqtVBGJXLR2/egqOc1xECS6WC59tOpts7eY8q0nsP05Co/0TIYOLegpMz0Td/
-         6Gq2OYAENvEYRaAbX1p/mSgVMK7hPHdT3LA36oHg=
+        b=a6tw3f3NAERHIokrWocDpI0FZmkxoAfamEe1MCpw+b90gVqUZ/ZzJWxaqLf1Qw5ry
+         1BBKbfzeA7urqND8Rn8FNmQsLINL/U7h0Edn/9G9pvEtBArnX0DgqHhpdjOew9z3dH
+         +eqFsdVxVFIhREoLfVjanGI9iOHYQN/twVQy2Wqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chih-Kang Chang <gary.chang@realtek.com>,
-        Zong-Zhe Yang <kevin_yang@realtek.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Matthew Auld <matthew.auld@intel.com>,
+        Michael Mason <michael.w.mason@intel.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 64/95] mac80211: Fix ieee80211_amsdu_aggregate frag_tail bug
+Subject: [PATCH 5.14 104/172] drm/i915/request: fix early tracepoints
 Date:   Mon,  4 Oct 2021 14:52:34 +0200
-Message-Id: <20211004125035.660254796@linuxfoundation.org>
+Message-Id: <20211004125048.339352055@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +43,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chih-Kang Chang <gary.chang@realtek.com>
+From: Matthew Auld <matthew.auld@intel.com>
 
-[ Upstream commit fe94bac626d9c1c5bc98ab32707be8a9d7f8adba ]
+[ Upstream commit c83ff0186401169eb27ce5057d820b7a863455c3 ]
 
-In ieee80211_amsdu_aggregate() set a pointer frag_tail point to the
-end of skb_shinfo(head)->frag_list, and use it to bind other skb in
-the end of this function. But when execute ieee80211_amsdu_aggregate()
-->ieee80211_amsdu_realloc_pad()->pskb_expand_head(), the address of
-skb_shinfo(head)->frag_list will be changed. However, the
-ieee80211_amsdu_aggregate() not update frag_tail after call
-pskb_expand_head(). That will cause the second skb can't bind to the
-head skb appropriately.So we update the address of frag_tail to fix it.
+Currently we blow up in trace_dma_fence_init, when calling into
+get_driver_name or get_timeline_name, since both the engine and context
+might be NULL(or contain some garbage address) in the case of newly
+allocated slab objects via the request ctor. Note that we also use
+SLAB_TYPESAFE_BY_RCU here, which allows requests to be immediately
+freed, but delay freeing the underlying page by an RCU grace period.
+With this scheme requests can be re-allocated, at the same time as they
+are also being read by some lockless RCU lookup mechanism.
 
-Fixes: 6e0456b54545 ("mac80211: add A-MSDU tx support")
-Signed-off-by: Chih-Kang Chang <gary.chang@realtek.com>
-Signed-off-by: Zong-Zhe Yang <kevin_yang@realtek.com>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Link: https://lore.kernel.org/r/20210830073240.12736-1-pkshih@realtek.com
-[reword comment]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+In the ctor case, which is only called for new slab objects(i.e allocate
+new page and call the ctor for each object) it's safe to reset the
+context/engine prior to calling into dma_fence_init, since we can be
+certain that no one is doing an RCU lookup which might depend on peeking
+at the engine/context, like in active_engine(), since the object can't
+yet be externally visible.
+
+In the recycled case(which might also be externally visible) the request
+refcount always transitions from 0->1 after we set the context/engine
+etc, which should ensure it's valid to dereference the engine for
+example, when doing an RCU list-walk, so long as we can also increment
+the refcount first. If the refcount is already zero, then the request is
+considered complete/released.  If it's non-zero, then the request might
+be in the process of being re-allocated, or potentially still in flight,
+however after successfully incrementing the refcount, it's possible to
+carefully inspect the request state, to determine if the request is
+still what we were looking for. Note that all externally visible
+requests returned to the cache must have zero refcount.
+
+One possible fix then is to move dma_fence_init out from the request
+ctor. Originally this was how it was done, but it was moved in:
+
+commit 855e39e65cfc33a73724f1cc644ffc5754864a20
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Mon Feb 3 09:41:48 2020 +0000
+
+    drm/i915: Initialise basic fence before acquiring seqno
+
+where it looks like intel_timeline_get_seqno() relied on some of the
+rq->fence state, but that is no longer the case since:
+
+commit 12ca695d2c1ed26b2dcbb528b42813bd0f216cfc
+Author: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Date:   Tue Mar 23 16:49:50 2021 +0100
+
+    drm/i915: Do not share hwsp across contexts any more, v8.
+
+intel_timeline_get_seqno() could also be cleaned up slightly by dropping
+the request argument.
+
+Moving dma_fence_init back out of the ctor, should ensure we have enough
+of the request initialised in case of trace_dma_fence_init.
+Functionally this should be the same, and is effectively what we were
+already open coding before, except now we also assign the fence->lock
+and fence->ops, but since these are invariant for recycled
+requests(which might be externally visible), and will therefore already
+hold the same value, it shouldn't matter.
+
+An alternative fix, since we don't yet have a fully initialised request
+when in the ctor, is just setting the context/engine as NULL, but this
+does require adding some extra handling in get_driver_name etc.
+
+v2(Daniel):
+  - Try to make the commit message less confusing
+
+Fixes: 855e39e65cfc ("drm/i915: Initialise basic fence before acquiring seqno")
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Cc: Michael Mason <michael.w.mason@intel.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210921134202.3803151-1-matthew.auld@intel.com
+(cherry picked from commit be988eaee1cb208c4445db46bc3ceaf75f586f0b)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/tx.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpu/drm/i915/i915_request.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index 5c5908127fcb..adeee760ab4c 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -3264,6 +3264,14 @@ static bool ieee80211_amsdu_aggregate(struct ieee80211_sub_if_data *sdata,
- 	if (!ieee80211_amsdu_prepare_head(sdata, fast_tx, head))
- 		goto out;
+diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+index 37aef1308573..7db972fa7024 100644
+--- a/drivers/gpu/drm/i915/i915_request.c
++++ b/drivers/gpu/drm/i915/i915_request.c
+@@ -914,8 +914,6 @@ static void __i915_request_ctor(void *arg)
+ 	i915_sw_fence_init(&rq->submit, submit_notify);
+ 	i915_sw_fence_init(&rq->semaphore, semaphore_notify);
  
-+	/* If n == 2, the "while (*frag_tail)" loop above didn't execute
-+	 * and  frag_tail should be &skb_shinfo(head)->frag_list.
-+	 * However, ieee80211_amsdu_prepare_head() can reallocate it.
-+	 * Reload frag_tail to have it pointing to the correct place.
-+	 */
-+	if (n == 2)
-+		frag_tail = &skb_shinfo(head)->frag_list;
-+
- 	/*
- 	 * Pad out the previous subframe to a multiple of 4 by adding the
- 	 * padding to the next one, that's being added. Note that head->len
+-	dma_fence_init(&rq->fence, &i915_fence_ops, &rq->lock, 0, 0);
+-
+ 	rq->capture_list = NULL;
+ 
+ 	init_llist_head(&rq->execute_cb);
+@@ -978,17 +976,12 @@ __i915_request_create(struct intel_context *ce, gfp_t gfp)
+ 	rq->ring = ce->ring;
+ 	rq->execution_mask = ce->engine->mask;
+ 
+-	kref_init(&rq->fence.refcount);
+-	rq->fence.flags = 0;
+-	rq->fence.error = 0;
+-	INIT_LIST_HEAD(&rq->fence.cb_list);
+-
+ 	ret = intel_timeline_get_seqno(tl, rq, &seqno);
+ 	if (ret)
+ 		goto err_free;
+ 
+-	rq->fence.context = tl->fence_context;
+-	rq->fence.seqno = seqno;
++	dma_fence_init(&rq->fence, &i915_fence_ops, &rq->lock,
++		       tl->fence_context, seqno);
+ 
+ 	RCU_INIT_POINTER(rq->timeline, tl);
+ 	rq->hwsp_seqno = tl->hwsp_seqno;
 -- 
 2.33.0
 
