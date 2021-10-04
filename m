@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14B1F420E69
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:23:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 909E2420FDC
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:37:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236799AbhJDNZA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:25:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37062 "EHLO mail.kernel.org"
+        id S238082AbhJDNjB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:39:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236843AbhJDNXX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:23:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F258661BF5;
-        Mon,  4 Oct 2021 13:10:06 +0000 (UTC)
+        id S238148AbhJDNh2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:37:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EDD36121F;
+        Mon,  4 Oct 2021 13:16:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353007;
-        bh=qJ9lhhn04jBi8L3e0Q5wmv8IRUQA0TvXcJUX+Ff7azk=;
+        s=korg; t=1633353415;
+        bh=ZO6zA9c8Lzwvtuu4Dipo711ge+UklH1aYIsTPUIsBKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ola53muYqF0NHrcw39QDcs/3MerVeP6TJ3jNL5JJDqpgrntApDK4kKKez2R3MbM22
-         rVHAQbWAEPxhWnfRJ8km+v85zpZKd/YhbFbV+e0UEPBQUNXaJoljsU7KzA7mRyPs7J
-         cD9sC/DQBoAnp7g+ZeELlTIeestB74akSPukA60Q=
+        b=yILEQddT1Zq8HIn/fU9T8qzyJqkbNXzmam7uwU5BwuWFu0UzIZFUdvIOs4EbtfCyU
+         zr6FNgL3YBvsBCaWXJX5YM3lmSOUu08PYX/s3Shm9gNBpOmuf2lC6Lv1cLqbRe/BDj
+         gfie/25RqchV48pNr5QgJ6tVV1Oo9GJ8K+yxgsOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Benc <jbenc@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Marek Vasut <marex@denx.de>, Arnd Bergmann <arnd@arndb.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 51/93] selftests, bpf: test_lwt_ip_encap: Really disable rp_filter
+Subject: [PATCH 5.14 119/172] net: ks8851: fix link error
 Date:   Mon,  4 Oct 2021 14:52:49 +0200
-Message-Id: <20211004125036.260211093@linuxfoundation.org>
+Message-Id: <20211004125048.824493986@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Benc <jbenc@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 79e2c306667542b8ee2d9a9d947eadc7039f0a3c ]
+[ Upstream commit 51bb08dd04a05035a64504faa47651d36b0f3125 ]
 
-It's not enough to set net.ipv4.conf.all.rp_filter=0, that does not override
-a greater rp_filter value on the individual interfaces. We also need to set
-net.ipv4.conf.default.rp_filter=0 before creating the interfaces. That way,
-they'll also get their own rp_filter value of zero.
+An object file cannot be built for both loadable module and built-in
+use at the same time:
 
-Fixes: 0fde56e4385b0 ("selftests: bpf: add test_lwt_ip_encap selftest")
-Signed-off-by: Jiri Benc <jbenc@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/b1cdd9d469f09ea6e01e9c89a6071c79b7380f89.1632386362.git.jbenc@redhat.com
+arm-linux-gnueabi-ld: drivers/net/ethernet/micrel/ks8851_common.o: in function `ks8851_probe_common':
+ks8851_common.c:(.text+0xf80): undefined reference to `__this_module'
+
+Change the ks8851_common code to be a standalone module instead,
+and use Makefile logic to ensure this is built-in if at least one
+of its two users is.
+
+Fixes: 797047f875b5 ("net: ks8851: Implement Parallel bus operations")
+Link: https://lore.kernel.org/netdev/20210125121937.3900988-1-arnd@kernel.org/
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Acked-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/test_lwt_ip_encap.sh | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/micrel/Makefile        | 6 ++----
+ drivers/net/ethernet/micrel/ks8851_common.c | 8 ++++++++
+ 2 files changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/test_lwt_ip_encap.sh b/tools/testing/selftests/bpf/test_lwt_ip_encap.sh
-index 59ea56945e6c..b497bb85b667 100755
---- a/tools/testing/selftests/bpf/test_lwt_ip_encap.sh
-+++ b/tools/testing/selftests/bpf/test_lwt_ip_encap.sh
-@@ -112,6 +112,14 @@ setup()
- 	ip netns add "${NS2}"
- 	ip netns add "${NS3}"
+diff --git a/drivers/net/ethernet/micrel/Makefile b/drivers/net/ethernet/micrel/Makefile
+index 5cc00d22c708..6ecc4eb30e74 100644
+--- a/drivers/net/ethernet/micrel/Makefile
++++ b/drivers/net/ethernet/micrel/Makefile
+@@ -4,8 +4,6 @@
+ #
  
-+	# rp_filter gets confused by what these tests are doing, so disable it
-+	ip netns exec ${NS1} sysctl -wq net.ipv4.conf.all.rp_filter=0
-+	ip netns exec ${NS2} sysctl -wq net.ipv4.conf.all.rp_filter=0
-+	ip netns exec ${NS3} sysctl -wq net.ipv4.conf.all.rp_filter=0
-+	ip netns exec ${NS1} sysctl -wq net.ipv4.conf.default.rp_filter=0
-+	ip netns exec ${NS2} sysctl -wq net.ipv4.conf.default.rp_filter=0
-+	ip netns exec ${NS3} sysctl -wq net.ipv4.conf.default.rp_filter=0
+ obj-$(CONFIG_KS8842) += ks8842.o
+-obj-$(CONFIG_KS8851) += ks8851.o
+-ks8851-objs = ks8851_common.o ks8851_spi.o
+-obj-$(CONFIG_KS8851_MLL) += ks8851_mll.o
+-ks8851_mll-objs = ks8851_common.o ks8851_par.o
++obj-$(CONFIG_KS8851) += ks8851_common.o ks8851_spi.o
++obj-$(CONFIG_KS8851_MLL) += ks8851_common.o ks8851_par.o
+ obj-$(CONFIG_KSZ884X_PCI) += ksz884x.o
+diff --git a/drivers/net/ethernet/micrel/ks8851_common.c b/drivers/net/ethernet/micrel/ks8851_common.c
+index 831518466de2..0f9c5457b93e 100644
+--- a/drivers/net/ethernet/micrel/ks8851_common.c
++++ b/drivers/net/ethernet/micrel/ks8851_common.c
+@@ -1057,6 +1057,7 @@ int ks8851_suspend(struct device *dev)
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(ks8851_suspend);
+ 
+ int ks8851_resume(struct device *dev)
+ {
+@@ -1070,6 +1071,7 @@ int ks8851_resume(struct device *dev)
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(ks8851_resume);
+ #endif
+ 
+ static int ks8851_register_mdiobus(struct ks8851_net *ks, struct device *dev)
+@@ -1243,6 +1245,7 @@ int ks8851_probe_common(struct net_device *netdev, struct device *dev,
+ err_reg_io:
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(ks8851_probe_common);
+ 
+ int ks8851_remove_common(struct device *dev)
+ {
+@@ -1261,3 +1264,8 @@ int ks8851_remove_common(struct device *dev)
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(ks8851_remove_common);
 +
- 	ip link add veth1 type veth peer name veth2
- 	ip link add veth3 type veth peer name veth4
- 	ip link add veth5 type veth peer name veth6
-@@ -236,11 +244,6 @@ setup()
- 	ip -netns ${NS1} -6 route add ${IPv6_GRE}/128 dev veth5 via ${IPv6_6} ${VRF}
- 	ip -netns ${NS2} -6 route add ${IPv6_GRE}/128 dev veth7 via ${IPv6_8} ${VRF}
- 
--	# rp_filter gets confused by what these tests are doing, so disable it
--	ip netns exec ${NS1} sysctl -wq net.ipv4.conf.all.rp_filter=0
--	ip netns exec ${NS2} sysctl -wq net.ipv4.conf.all.rp_filter=0
--	ip netns exec ${NS3} sysctl -wq net.ipv4.conf.all.rp_filter=0
--
- 	TMPFILE=$(mktemp /tmp/test_lwt_ip_encap.XXXXXX)
- 
- 	sleep 1  # reduce flakiness
++MODULE_DESCRIPTION("KS8851 Network driver");
++MODULE_AUTHOR("Ben Dooks <ben@simtec.co.uk>");
++MODULE_LICENSE("GPL");
 -- 
 2.33.0
 
