@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18C3B420CAA
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:07:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE1D0420D4B
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:12:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234754AbhJDNJC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:09:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39234 "EHLO mail.kernel.org"
+        id S235303AbhJDNOD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:14:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235301AbhJDNGr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:06:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9937D61B40;
-        Mon,  4 Oct 2021 13:01:22 +0000 (UTC)
+        id S235805AbhJDNMO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:12:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F68461B7B;
+        Mon,  4 Oct 2021 13:04:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352483;
-        bh=vqWyOeURbVSKl5y9uVz/VN+k2c77rNz1w9AaZ81FS7o=;
+        s=korg; t=1633352678;
+        bh=nSTmr121dkjbPIH6jZrbKOssLMtUrK4KbeQ23eg16U8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=szTZrn82o0OH2lGrdKrWXDw9oxFW8WWi+bk75mlTXf9m5LvwPhD05vuMgk3Z3sT+9
-         AkhVa1uHthW4VEOnO+lyuBHjfboHjEyuHidypWI2e9YptrqmctzDh9KCcJmBwPY/lt
-         LI2IdaE8qK3I0AZyYL71RGpzUi1hG36gthda+aKc=
+        b=RdCqdYxBaL7D4xH441ytYIg2I7J89Lz0eupGBiba/6dlodGiTeN2QN7a+5j4bJzdH
+         t2XXXdnIzoH/+tiyl+3hHtHAA7/rXlhWNFm1dGs+swecb7oZaP2PFvLgzKXPquBZ3D
+         /R3cdn24++NCrwrmQtYEgghPmgpvq7jFTdJSAyts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+3493b1873fb3ea827986@syzkaller.appspotmail.com,
-        syzbot+2b8443c35458a617c904@syzkaller.appspotmail.com,
-        syzbot+ee5cb15f4a0e85e0d54e@syzkaller.appspotmail.com,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.14 73/75] netfilter: ipset: Fix oversized kvmalloc() calls
+        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 78/95] ipack: ipoctal: fix tty-registration error handling
 Date:   Mon,  4 Oct 2021 14:52:48 +0200
-Message-Id: <20211004125033.979324818@linuxfoundation.org>
+Message-Id: <20211004125036.127267103@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jozsef Kadlecsik <kadlec@netfilter.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit 7bbc3d385bd813077acaf0e6fdb2a86a901f5382 upstream.
+commit cd20d59291d1790dc74248476e928f57fc455189 upstream.
 
-The commit
+Registration of the ipoctal tty devices is unlikely to fail, but if it
+ever does, make sure not to deregister a never registered tty device
+(and dereference a NULL pointer) when the driver is later unbound.
 
-commit 7661809d493b426e979f39ab512e3adf41fbcc69
-Author: Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed Jul 14 09:45:49 2021 -0700
-
-    mm: don't allow oversized kvmalloc() calls
-
-limits the max allocatable memory via kvmalloc() to MAX_INT. Apply the
-same limit in ipset.
-
-Reported-by: syzbot+3493b1873fb3ea827986@syzkaller.appspotmail.com
-Reported-by: syzbot+2b8443c35458a617c904@syzkaller.appspotmail.com
-Reported-by: syzbot+ee5cb15f4a0e85e0d54e@syzkaller.appspotmail.com
-Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 2afb41d9d30d ("Staging: ipack/devices/ipoctal: Check tty_register_device return value.")
+Cc: stable@vger.kernel.org      # 3.7
+Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210917114622.5412-4-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/ipset/ip_set_hash_gen.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/ipack/devices/ipoctal.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/netfilter/ipset/ip_set_hash_gen.h
-+++ b/net/netfilter/ipset/ip_set_hash_gen.h
-@@ -104,11 +104,11 @@ htable_size(u8 hbits)
- {
- 	size_t hsize;
+--- a/drivers/ipack/devices/ipoctal.c
++++ b/drivers/ipack/devices/ipoctal.c
+@@ -38,6 +38,7 @@ struct ipoctal_channel {
+ 	unsigned int			pointer_read;
+ 	unsigned int			pointer_write;
+ 	struct tty_port			tty_port;
++	bool				tty_registered;
+ 	union scc2698_channel __iomem	*regs;
+ 	union scc2698_block __iomem	*block_regs;
+ 	unsigned int			board_id;
+@@ -402,9 +403,11 @@ static int ipoctal_inst_slot(struct ipoc
+ 							i, NULL, channel, NULL);
+ 		if (IS_ERR(tty_dev)) {
+ 			dev_err(&ipoctal->dev->dev, "Failed to register tty device.\n");
++			tty_port_free_xmit_buf(&channel->tty_port);
+ 			tty_port_destroy(&channel->tty_port);
+ 			continue;
+ 		}
++		channel->tty_registered = true;
+ 	}
  
--	/* We must fit both into u32 in jhash and size_t */
-+	/* We must fit both into u32 in jhash and INT_MAX in kvmalloc_node() */
- 	if (hbits > 31)
- 		return 0;
- 	hsize = jhash_size(hbits);
--	if ((((size_t)-1) - sizeof(struct htable)) / sizeof(struct hbucket *)
-+	if ((INT_MAX - sizeof(struct htable)) / sizeof(struct hbucket *)
- 	    < hsize)
- 		return 0;
+ 	/*
+@@ -705,6 +708,10 @@ static void __ipoctal_remove(struct ipoc
  
+ 	for (i = 0; i < NR_CHANNELS; i++) {
+ 		struct ipoctal_channel *channel = &ipoctal->channel[i];
++
++		if (!channel->tty_registered)
++			continue;
++
+ 		tty_unregister_device(ipoctal->tty_drv, i);
+ 		tty_port_free_xmit_buf(&channel->tty_port);
+ 		tty_port_destroy(&channel->tty_port);
 
 
