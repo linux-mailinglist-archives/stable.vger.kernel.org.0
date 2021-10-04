@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 221CB420CB2
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:07:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3128B420F4D
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:32:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235286AbhJDNJI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:09:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39448 "EHLO mail.kernel.org"
+        id S236408AbhJDNdr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:33:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234971AbhJDNHa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:07:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B295461251;
-        Mon,  4 Oct 2021 13:01:41 +0000 (UTC)
+        id S237044AbhJDNb2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:31:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E8D463215;
+        Mon,  4 Oct 2021 13:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352502;
-        bh=ZFeCRxW0V8QfMMha9wGmHmpRCO+ITUAUgxke5fW27ps=;
+        s=korg; t=1633353246;
+        bh=UPMXDFjMj4uUQEIY9z8v9Xv8Ch6dZZuSXPPiC+3LamM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yYxbJeA8fuvqFAaauHf7YvfCJjxLCBtr7iMB0T9+VbcU040mNf8Nst7/CMEOETPSM
-         xilAZDE1jR33Q5esJ/QIhxfgzhdmlCzjbSIlwtRg28MYwjHDl9AXwTdVUp19WvQM8k
-         VGPGBCa99vBqx6PdI/rXhXgm8KoyLKm23T2S0DQg=
+        b=uc4dORGuejC3shWoOQCYwo0KBv3u6EmUgKV3bMg7yh5xy+ZbjKncRoFj/iOb5Usf5
+         ekpQVIT46IRxNSyRFZXFy5bEhNRa9uCyG7g81P5pfQfTLCWroSSN+ZuMSKj/I/kIiS
+         9Bz4uK7ZPo7oUW28eqjHgUPgev9AzXiOJZwwTZHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 12/95] USB: serial: mos7840: remove duplicated 0xac24 device ID
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.14 052/172] KVM: x86: Clear KVMs cached guest CR3 at RESET/INIT
 Date:   Mon,  4 Oct 2021 14:51:42 +0200
-Message-Id: <20211004125033.967578700@linuxfoundation.org>
+Message-Id: <20211004125046.675618539@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 211f323768a25b30c106fd38f15a0f62c7c2b5f4 upstream.
+commit 03a6e84069d1870f5b3d360e64cb330b66f76dee upstream.
 
-0xac24 device ID is already defined and used via
-BANDB_DEVICE_ID_USO9ML2_4.  Remove the duplicate from the list.
+Explicitly zero the guest's CR3 and mark it available+dirty at RESET/INIT.
+Per Intel's SDM and AMD's APM, CR3 is zeroed at both RESET and INIT.  For
+RESET, this is a nop as vcpu is zero-allocated.  For INIT, the bug has
+likely escaped notice because no firmware/kernel puts its page tables root
+at PA=0, let alone relies on INIT to get the desired CR3 for such page
+tables.
 
-Fixes: 27f1281d5f72 ("USB: serial: Extra device/vendor ID for mos7840 driver")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210921000303.400537-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/mos7840.c |    2 --
- 1 file changed, 2 deletions(-)
+ arch/x86/kvm/x86.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/serial/mos7840.c
-+++ b/drivers/usb/serial/mos7840.c
-@@ -113,7 +113,6 @@
- #define BANDB_DEVICE_ID_USOPTL4_2P       0xBC02
- #define BANDB_DEVICE_ID_USOPTL4_4        0xAC44
- #define BANDB_DEVICE_ID_USOPTL4_4P       0xBC03
--#define BANDB_DEVICE_ID_USOPTL2_4        0xAC24
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -10873,6 +10873,9 @@ void kvm_vcpu_reset(struct kvm_vcpu *vcp
  
- /* This driver also supports
-  * ATEN UC2324 device using Moschip MCS7840
-@@ -194,7 +193,6 @@ static const struct usb_device_id id_tab
- 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_2P)},
- 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_4)},
- 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL4_4P)},
--	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL2_4)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2324)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2322)},
- 	{USB_DEVICE(USB_VENDOR_ID_MOXA, MOXA_DEVICE_ID_2210)},
+ 	static_call(kvm_x86_vcpu_reset)(vcpu, init_event);
+ 
++	vcpu->arch.cr3 = 0;
++	kvm_register_mark_dirty(vcpu, VCPU_EXREG_CR3);
++
+ 	/*
+ 	 * Reset the MMU context if paging was enabled prior to INIT (which is
+ 	 * implied if CR0.PG=1 as CR0 will be '0' prior to RESET).  Unlike the
 
 
