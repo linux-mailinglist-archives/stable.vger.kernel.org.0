@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3988C421006
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:38:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67F39420D72
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:13:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238362AbhJDNkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:40:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51804 "EHLO mail.kernel.org"
+        id S235860AbhJDNP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:15:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238449AbhJDNid (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:38:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1933861401;
-        Mon,  4 Oct 2021 13:17:27 +0000 (UTC)
+        id S236174AbhJDNNc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:13:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE9D5619E7;
+        Mon,  4 Oct 2021 13:05:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353448;
-        bh=A6OAFOoeE0GJwtRZrzNpPaX6O+RvyS3RqmRz6D0YbV4=;
+        s=korg; t=1633352712;
+        bh=+0DQQQLmIQLKwx/0MMa8E3YVPGNF+IEyAwsXgPXejlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qe86y17SCmnOSg16KXaPdiEpbLNoJZI9wdiBTFbCBZ8gA2bkB27/KbTipBc2Pj/w4
-         xGTxlA+8HjUznpUGg27joj23kO3agSgTvwizoBpXrWZNnI9H2M4ArleyurU5moZH3R
-         wLXiN1o4I5rcP7PbYWL4c0bmb1gS/DcRfofSJRgY=
+        b=MZf5qWjpaoInGc6LI9fj+9Fv7L0AVHmYOuLNSALhD30QSMYdADP6plfAUgtC8xMaV
+         zxGwfn6aywJ/RanWHSDjwQVqePSEzhrZjb6CtdOIIL52GDVkBaXYH3AAntD9At6FDY
+         S3JtXVb8GBMDzcUU07fJXDK0VsrhVaaTkhaVQaXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Fertser <fercerpav@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 099/172] hwmon: (tmp421) report /PVLD condition as fault
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 59/95] mac80211: fix use-after-free in CCMP/GCMP RX
 Date:   Mon,  4 Oct 2021 14:52:29 +0200
-Message-Id: <20211004125048.180041613@linuxfoundation.org>
+Message-Id: <20211004125035.500814442@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +38,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Fertser <fercerpav@gmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 540effa7f283d25bcc13c0940d808002fee340b8 ]
+commit 94513069eb549737bcfc3d988d6ed4da948a2de8 upstream.
 
-For both local and remote sensors all the supported ICs can report an
-"undervoltage lockout" condition which means the conversion wasn't
-properly performed due to insufficient power supply voltage and so the
-measurement results can't be trusted.
+When PN checking is done in mac80211, for fragmentation we need
+to copy the PN to the RX struct so we can later use it to do a
+comparison, since commit bf30ca922a0c ("mac80211: check defrag
+PN against current frame").
 
-Fixes: 9410700b881f ("hwmon: Add driver for Texas Instruments TMP421/422/423 sensor chips")
-Signed-off-by: Paul Fertser <fercerpav@gmail.com>
-Link: https://lore.kernel.org/r/20210924093011.26083-2-fercerpav@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Unfortunately, in that commit I used the 'hdr' variable without
+it being necessarily valid, so use-after-free could occur if it
+was necessary to reallocate (parts of) the frame.
+
+Fix this by reloading the variable after the code that results
+in the reallocations, if any.
+
+This fixes https://bugzilla.kernel.org/show_bug.cgi?id=214401.
+
+Cc: stable@vger.kernel.org
+Fixes: bf30ca922a0c ("mac80211: check defrag PN against current frame")
+Link: https://lore.kernel.org/r/20210927115838.12b9ac6bb233.I1d066acd5408a662c3b6e828122cd314fcb28cdb@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/tmp421.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ net/mac80211/wpa.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/hwmon/tmp421.c b/drivers/hwmon/tmp421.c
-index 8fd8c3a94dfe..c9ef83627bb7 100644
---- a/drivers/hwmon/tmp421.c
-+++ b/drivers/hwmon/tmp421.c
-@@ -179,10 +179,10 @@ static int tmp421_read(struct device *dev, enum hwmon_sensor_types type,
- 		return 0;
- 	case hwmon_temp_fault:
- 		/*
--		 * The OPEN bit signals a fault. This is bit 0 of the temperature
--		 * register (low byte).
-+		 * Any of OPEN or /PVLD bits indicate a hardware mulfunction
-+		 * and the conversion result may be incorrect
- 		 */
--		*val = tmp421->temp[channel] & 0x01;
-+		*val = !!(tmp421->temp[channel] & 0x03);
- 		return 0;
- 	default:
- 		return -EOPNOTSUPP;
-@@ -195,9 +195,6 @@ static umode_t tmp421_is_visible(const void *data, enum hwmon_sensor_types type,
- {
- 	switch (attr) {
- 	case hwmon_temp_fault:
--		if (channel == 0)
--			return 0;
--		return 0444;
- 	case hwmon_temp_input:
- 		return 0444;
- 	default:
--- 
-2.33.0
-
+--- a/net/mac80211/wpa.c
++++ b/net/mac80211/wpa.c
+@@ -523,6 +523,9 @@ ieee80211_crypto_ccmp_decrypt(struct iee
+ 			return RX_DROP_UNUSABLE;
+ 	}
+ 
++	/* reload hdr - skb might have been reallocated */
++	hdr = (void *)rx->skb->data;
++
+ 	data_len = skb->len - hdrlen - IEEE80211_CCMP_HDR_LEN - mic_len;
+ 	if (!rx->sta || data_len < 0)
+ 		return RX_DROP_UNUSABLE;
+@@ -752,6 +755,9 @@ ieee80211_crypto_gcmp_decrypt(struct iee
+ 			return RX_DROP_UNUSABLE;
+ 	}
+ 
++	/* reload hdr - skb might have been reallocated */
++	hdr = (void *)rx->skb->data;
++
+ 	data_len = skb->len - hdrlen - IEEE80211_GCMP_HDR_LEN - mic_len;
+ 	if (!rx->sta || data_len < 0)
+ 		return RX_DROP_UNUSABLE;
 
 
