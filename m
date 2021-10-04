@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1FB5421002
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:38:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F509420B7B
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:56:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238295AbhJDNkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:40:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51592 "EHLO mail.kernel.org"
+        id S233728AbhJDM5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 08:57:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238392AbhJDNi2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:38:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89C1C61452;
-        Mon,  4 Oct 2021 13:17:25 +0000 (UTC)
+        id S233745AbhJDM5B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:57:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55F846136F;
+        Mon,  4 Oct 2021 12:55:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353446;
-        bh=Ko+dduaZiB2EhbGu7/niHXZHWa8H/muRU8/PhXJN4hM=;
+        s=korg; t=1633352112;
+        bh=YeuBdjHPhpH+h+ECanTgR03oQtGty1S+cjLvxgJyC1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZbuHFIUCbNSCI2e23UWx14LER2V8dyftogEiTk7AG32yDsIuZF38c1pFgcf3Hf+bj
-         cvBeoA2aiEc4eNwbUjZsvM+gXpqi+ZCb0XnkjN/gSGj/GXxuEgbBc1IP+WTP5LpkOz
-         TId6jQDUYQpbXn1t5TmGowX7rRIeHbeAB/nkCR4A=
+        b=FVYV3cZgqwVHQ9TVjJpP5iwLL3yZglhMBxNhQn08n4RwUTOHaJ+7X13k77ABaH6S8
+         Cgy8NlJWayKF2OFwEDF2/hp+Z0nSrvy+ny0378mB4grZJQwRPbZm+vKZbhPOlBg6X6
+         Z1byx+MrjD5mLM5Jczt+QDdcHO125kzHnWnd1QFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 098/172] RDMA/hns: Work around broken constant propagation in gcc 8
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Nanyong Sun <sunnanyong@huawei.com>
+Subject: [PATCH 4.4 37/41] arm64: Extend workaround for erratum 1024718 to all versions of Cortex-A55
 Date:   Mon,  4 Oct 2021 14:52:28 +0200
-Message-Id: <20211004125048.149741508@linuxfoundation.org>
+Message-Id: <20211004125027.765211462@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
+References: <20211004125026.597501645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,77 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-[ Upstream commit 14351f08ed5c8b888cdd95651152db7e096ee27f ]
+commit c0b15c25d25171db4b70cc0b7dbc1130ee94017d upstream.
 
-gcc 8.3 and 5.4 throw this:
+The erratum 1024718 affects Cortex-A55 r0p0 to r2p0. However
+we apply the work around for r0p0 - r1p0. Unfortunately this
+won't be fixed for the future revisions for the CPU. Thus
+extend the work around for all versions of A55, to cover
+for r2p0 and any future revisions.
 
-In function 'modify_qp_init_to_rtr',
-././include/linux/compiler_types.h:322:38: error: call to '__compiletime_assert_1859' declared with attribute error: FIELD_PREP: value too large for the field
-  _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
-[..]
-drivers/infiniband/hw/hns/hns_roce_common.h:91:52: note: in expansion of macro 'FIELD_PREP'
-   *((__le32 *)ptr + (field_h) / 32) |= cpu_to_le32(FIELD_PREP(   \
-                                                    ^~~~~~~~~~
-drivers/infiniband/hw/hns/hns_roce_common.h:95:39: note: in expansion of macro '_hr_reg_write'
- #define hr_reg_write(ptr, field, val) _hr_reg_write(ptr, field, val)
-                                       ^~~~~~~~~~~~~
-drivers/infiniband/hw/hns/hns_roce_hw_v2.c:4412:2: note: in expansion of macro 'hr_reg_write'
-  hr_reg_write(context, QPC_LP_PKTN_INI, lp_pktn_ini);
+Cc: stable@vger.kernel.org
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/20210203230057.3961239-1-suzuki.poulose@arm.com
+[will: Update Kconfig help text]
+Signed-off-by: Will Deacon <will@kernel.org>
+[Nanyon: adjust for stable version below v4.16, which set TCR_HD earlier
+in assembly code]
+Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Because gcc has miscalculated the constantness of lp_pktn_ini:
-
-	mtu = ib_mtu_enum_to_int(ib_mtu);
-	if (WARN_ON(mtu < 0)) [..]
-	lp_pktn_ini = ilog2(MAX_LP_MSG_LEN / mtu);
-
-Since mtu is limited to {256,512,1024,2048,4096} lp_pktn_ini is between 4
-and 8 which is compatible with the 4 bit field in the FIELD_PREP.
-
-Work around this broken compiler by adding a 'can never be true'
-constraint on lp_pktn_ini's value which clears out the problem.
-
-Fixes: f0cb411aad23 ("RDMA/hns: Use new interface to modify QP context")
-Link: https://lore.kernel.org/r/0-v1-c773ecb137bc+11f-hns_gcc8_jgg@nvidia.com
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ arch/arm64/Kconfig   |    2 +-
+ arch/arm64/mm/proc.S |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index c320891c8763..6cb4a4e10837 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -4411,7 +4411,12 @@ static int modify_qp_init_to_rtr(struct ib_qp *ibqp,
- 	hr_qp->path_mtu = ib_mtu;
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -381,7 +381,7 @@ config ARM64_ERRATUM_1024718
+ 	help
+ 	  This option adds work around for Arm Cortex-A55 Erratum 1024718.
  
- 	mtu = ib_mtu_enum_to_int(ib_mtu);
--	if (WARN_ON(mtu < 0))
-+	if (WARN_ON(mtu <= 0))
-+		return -EINVAL;
-+#define MAX_LP_MSG_LEN 65536
-+	/* MTU * (2 ^ LP_PKTN_INI) shouldn't be bigger than 64KB */
-+	lp_pktn_ini = ilog2(MAX_LP_MSG_LEN / mtu);
-+	if (WARN_ON(lp_pktn_ini >= 0xF))
- 		return -EINVAL;
- 
- 	if (attr_mask & IB_QP_PATH_MTU) {
-@@ -4419,10 +4424,6 @@ static int modify_qp_init_to_rtr(struct ib_qp *ibqp,
- 		hr_reg_clear(qpc_mask, QPC_MTU);
- 	}
- 
--#define MAX_LP_MSG_LEN 65536
--	/* MTU * (2 ^ LP_PKTN_INI) shouldn't be bigger than 64KB */
--	lp_pktn_ini = ilog2(MAX_LP_MSG_LEN / mtu);
--
- 	hr_reg_write(context, QPC_LP_PKTN_INI, lp_pktn_ini);
- 	hr_reg_clear(qpc_mask, QPC_LP_PKTN_INI);
- 
--- 
-2.33.0
-
+-	  Affected Cortex-A55 cores (r0p0, r0p1, r1p0) could cause incorrect
++	  Affected Cortex-A55 cores (all revisions) could cause incorrect
+ 	  update of the hardware dirty bit when the DBM/AP bits are updated
+ 	  without a break-before-make. The work around is to disable the usage
+ 	  of hardware DBM locally on the affected cores. CPUs not affected by
+--- a/arch/arm64/mm/proc.S
++++ b/arch/arm64/mm/proc.S
+@@ -222,8 +222,8 @@ ENTRY(__cpu_setup)
+ 	cmp	x9, #2
+ 	b.lt	1f
+ #ifdef CONFIG_ARM64_ERRATUM_1024718
+-	/* Disable hardware DBM on Cortex-A55 r0p0, r0p1 & r1p0 */
+-	cpu_midr_match MIDR_CORTEX_A55, MIDR_CPU_VAR_REV(0, 0), MIDR_CPU_VAR_REV(1, 0), x1, x2, x3, x4
++	/* Disable hardware DBM on Cortex-A55 all versions */
++	cpu_midr_match MIDR_CORTEX_A55, MIDR_CPU_VAR_REV(0, 0), MIDR_CPU_VAR_REV(0xf, 0xf), x1, x2, x3, x4
+ 	cbnz	x1, 1f
+ #endif
+ 	orr	x10, x10, #TCR_HD		// hardware Dirty flag update
 
 
