@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65E44420FC1
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AE5D420D9F
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:15:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237858AbhJDNhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:37:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48040 "EHLO mail.kernel.org"
+        id S236294AbhJDNRA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:17:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237980AbhJDNfo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:35:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A0CB619E5;
-        Mon,  4 Oct 2021 13:16:13 +0000 (UTC)
+        id S235635AbhJDNPF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:15:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 97EC261AFB;
+        Mon,  4 Oct 2021 13:05:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353373;
-        bh=Y3zaoMuK9r5z71WMDMDg7pYrYJIYFgv8tbIWFfgPS7M=;
+        s=korg; t=1633352756;
+        bh=w2/tw0MJQbGX+kPmlBFrpr+57ztRKyEJicKJas5Rlys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a6tw3f3NAERHIokrWocDpI0FZmkxoAfamEe1MCpw+b90gVqUZ/ZzJWxaqLf1Qw5ry
-         1BBKbfzeA7urqND8Rn8FNmQsLINL/U7h0Edn/9G9pvEtBArnX0DgqHhpdjOew9z3dH
-         +eqFsdVxVFIhREoLfVjanGI9iOHYQN/twVQy2Wqs=
+        b=rD+Hl2WfsYvSfmwmD1/mSjtKijVn08CwpsWfJfNRt15aoCT1rvCRY+HM8bfzoo2Ce
+         ihcz3OpN6REWzCmgO4tB/ESuJvSXSdZ7a3icFa7unjFNZU0x+KRjQ6wh5Hc8Rw17nm
+         W1aT9eKkWQ6jO2sFmb0UaR5Hpqf9Rzx6JcjZ/vVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Auld <matthew.auld@intel.com>,
-        Michael Mason <michael.w.mason@intel.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jani Nikula <jani.nikula@intel.com>,
+        stable@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 104/172] drm/i915/request: fix early tracepoints
+Subject: [PATCH 5.4 14/56] hwmon: (mlxreg-fan) Return non-zero value when fan current state is enforced from sysfs
 Date:   Mon,  4 Oct 2021 14:52:34 +0200
-Message-Id: <20211004125048.339352055@linuxfoundation.org>
+Message-Id: <20211004125030.461221745@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
+References: <20211004125030.002116402@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,120 +40,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Auld <matthew.auld@intel.com>
+From: Vadim Pasternak <vadimp@nvidia.com>
 
-[ Upstream commit c83ff0186401169eb27ce5057d820b7a863455c3 ]
+[ Upstream commit e6fab7af6ba1bc77c78713a83876f60ca7a4a064 ]
 
-Currently we blow up in trace_dma_fence_init, when calling into
-get_driver_name or get_timeline_name, since both the engine and context
-might be NULL(or contain some garbage address) in the case of newly
-allocated slab objects via the request ctor. Note that we also use
-SLAB_TYPESAFE_BY_RCU here, which allows requests to be immediately
-freed, but delay freeing the underlying page by an RCU grace period.
-With this scheme requests can be re-allocated, at the same time as they
-are also being read by some lockless RCU lookup mechanism.
+Fan speed minimum can be enforced from sysfs. For example, setting
+current fan speed to 20 is used to enforce fan speed to be at 100%
+speed, 19 - to be not below 90% speed, etcetera. This feature provides
+ability to limit fan speed according to some system wise
+considerations, like absence of some replaceable units or high system
+ambient temperature.
 
-In the ctor case, which is only called for new slab objects(i.e allocate
-new page and call the ctor for each object) it's safe to reset the
-context/engine prior to calling into dma_fence_init, since we can be
-certain that no one is doing an RCU lookup which might depend on peeking
-at the engine/context, like in active_engine(), since the object can't
-yet be externally visible.
+Request for changing fan minimum speed is configuration request and can
+be set only through 'sysfs' write procedure. In this situation value of
+argument 'state' is above nominal fan speed maximum.
 
-In the recycled case(which might also be externally visible) the request
-refcount always transitions from 0->1 after we set the context/engine
-etc, which should ensure it's valid to dereference the engine for
-example, when doing an RCU list-walk, so long as we can also increment
-the refcount first. If the refcount is already zero, then the request is
-considered complete/released.  If it's non-zero, then the request might
-be in the process of being re-allocated, or potentially still in flight,
-however after successfully incrementing the refcount, it's possible to
-carefully inspect the request state, to determine if the request is
-still what we were looking for. Note that all externally visible
-requests returned to the cache must have zero refcount.
+Return non-zero code in this case to avoid
+thermal_cooling_device_stats_update() call, because in this case
+statistics update violates thermal statistics table range.
+The issues is observed in case kernel is configured with option
+CONFIG_THERMAL_STATISTICS.
 
-One possible fix then is to move dma_fence_init out from the request
-ctor. Originally this was how it was done, but it was moved in:
+Here is the trace from KASAN:
+[  159.506659] BUG: KASAN: slab-out-of-bounds in thermal_cooling_device_stats_update+0x7d/0xb0
+[  159.516016] Read of size 4 at addr ffff888116163840 by task hw-management.s/7444
+[  159.545625] Call Trace:
+[  159.548366]  dump_stack+0x92/0xc1
+[  159.552084]  ? thermal_cooling_device_stats_update+0x7d/0xb0
+[  159.635869]  thermal_zone_device_update+0x345/0x780
+[  159.688711]  thermal_zone_device_set_mode+0x7d/0xc0
+[  159.694174]  mlxsw_thermal_modules_init+0x48f/0x590 [mlxsw_core]
+[  159.700972]  ? mlxsw_thermal_set_cur_state+0x5a0/0x5a0 [mlxsw_core]
+[  159.731827]  mlxsw_thermal_init+0x763/0x880 [mlxsw_core]
+[  160.070233] RIP: 0033:0x7fd995909970
+[  160.074239] Code: 73 01 c3 48 8b 0d 28 d5 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 0f 1f 44 00 00 83 3d 99 2d 2c 00 00 75 10 b8 01 00 00 00 0f 05 <48> 3d 01 f0 ff ..
+[  160.095242] RSP: 002b:00007fff54f5d938 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+[  160.103722] RAX: ffffffffffffffda RBX: 0000000000000013 RCX: 00007fd995909970
+[  160.111710] RDX: 0000000000000013 RSI: 0000000001906008 RDI: 0000000000000001
+[  160.119699] RBP: 0000000001906008 R08: 00007fd995bc9760 R09: 00007fd996210700
+[  160.127687] R10: 0000000000000073 R11: 0000000000000246 R12: 0000000000000013
+[  160.135673] R13: 0000000000000001 R14: 00007fd995bc8600 R15: 0000000000000013
+[  160.143671]
+[  160.145338] Allocated by task 2924:
+[  160.149242]  kasan_save_stack+0x19/0x40
+[  160.153541]  __kasan_kmalloc+0x7f/0xa0
+[  160.157743]  __kmalloc+0x1a2/0x2b0
+[  160.161552]  thermal_cooling_device_setup_sysfs+0xf9/0x1a0
+[  160.167687]  __thermal_cooling_device_register+0x1b5/0x500
+[  160.173833]  devm_thermal_of_cooling_device_register+0x60/0xa0
+[  160.180356]  mlxreg_fan_probe+0x474/0x5e0 [mlxreg_fan]
+[  160.248140]
+[  160.249807] The buggy address belongs to the object at ffff888116163400
+[  160.249807]  which belongs to the cache kmalloc-1k of size 1024
+[  160.263814] The buggy address is located 64 bytes to the right of
+[  160.263814]  1024-byte region [ffff888116163400, ffff888116163800)
+[  160.277536] The buggy address belongs to the page:
+[  160.282898] page:0000000012275840 refcount:1 mapcount:0 mapping:0000000000000000 index:0xffff888116167000 pfn:0x116160
+[  160.294872] head:0000000012275840 order:3 compound_mapcount:0 compound_pincount:0
+[  160.303251] flags: 0x200000000010200(slab|head|node=0|zone=2)
+[  160.309694] raw: 0200000000010200 ffffea00046f7208 ffffea0004928208 ffff88810004dbc0
+[  160.318367] raw: ffff888116167000 00000000000a0006 00000001ffffffff 0000000000000000
+[  160.327033] page dumped because: kasan: bad access detected
+[  160.333270]
+[  160.334937] Memory state around the buggy address:
+[  160.356469] >ffff888116163800: fc ..
 
-commit 855e39e65cfc33a73724f1cc644ffc5754864a20
-Author: Chris Wilson <chris@chris-wilson.co.uk>
-Date:   Mon Feb 3 09:41:48 2020 +0000
-
-    drm/i915: Initialise basic fence before acquiring seqno
-
-where it looks like intel_timeline_get_seqno() relied on some of the
-rq->fence state, but that is no longer the case since:
-
-commit 12ca695d2c1ed26b2dcbb528b42813bd0f216cfc
-Author: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Date:   Tue Mar 23 16:49:50 2021 +0100
-
-    drm/i915: Do not share hwsp across contexts any more, v8.
-
-intel_timeline_get_seqno() could also be cleaned up slightly by dropping
-the request argument.
-
-Moving dma_fence_init back out of the ctor, should ensure we have enough
-of the request initialised in case of trace_dma_fence_init.
-Functionally this should be the same, and is effectively what we were
-already open coding before, except now we also assign the fence->lock
-and fence->ops, but since these are invariant for recycled
-requests(which might be externally visible), and will therefore already
-hold the same value, it shouldn't matter.
-
-An alternative fix, since we don't yet have a fully initialised request
-when in the ctor, is just setting the context/engine as NULL, but this
-does require adding some extra handling in get_driver_name etc.
-
-v2(Daniel):
-  - Try to make the commit message less confusing
-
-Fixes: 855e39e65cfc ("drm/i915: Initialise basic fence before acquiring seqno")
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Cc: Michael Mason <michael.w.mason@intel.com>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210921134202.3803151-1-matthew.auld@intel.com
-(cherry picked from commit be988eaee1cb208c4445db46bc3ceaf75f586f0b)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Fixes: 65afb4c8e7e4 ("hwmon: (mlxreg-fan) Add support for Mellanox FAN driver")
+Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
+Link: https://lore.kernel.org/r/20210916183151.869427-1-vadimp@nvidia.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/i915_request.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/hwmon/mlxreg-fan.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 37aef1308573..7db972fa7024 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -914,8 +914,6 @@ static void __i915_request_ctor(void *arg)
- 	i915_sw_fence_init(&rq->submit, submit_notify);
- 	i915_sw_fence_init(&rq->semaphore, semaphore_notify);
+diff --git a/drivers/hwmon/mlxreg-fan.c b/drivers/hwmon/mlxreg-fan.c
+index ed8d59d4eecb..bd8f5a3aaad9 100644
+--- a/drivers/hwmon/mlxreg-fan.c
++++ b/drivers/hwmon/mlxreg-fan.c
+@@ -291,8 +291,8 @@ static int mlxreg_fan_set_cur_state(struct thermal_cooling_device *cdev,
+ {
+ 	struct mlxreg_fan *fan = cdev->devdata;
+ 	unsigned long cur_state;
++	int i, config = 0;
+ 	u32 regval;
+-	int i;
+ 	int err;
  
--	dma_fence_init(&rq->fence, &i915_fence_ops, &rq->lock, 0, 0);
--
- 	rq->capture_list = NULL;
+ 	/*
+@@ -305,6 +305,12 @@ static int mlxreg_fan_set_cur_state(struct thermal_cooling_device *cdev,
+ 	 * overwritten.
+ 	 */
+ 	if (state >= MLXREG_FAN_SPEED_MIN && state <= MLXREG_FAN_SPEED_MAX) {
++		/*
++		 * This is configuration change, which is only supported through sysfs.
++		 * For configuration non-zero value is to be returned to avoid thermal
++		 * statistics update.
++		 */
++		config = 1;
+ 		state -= MLXREG_FAN_MAX_STATE;
+ 		for (i = 0; i < state; i++)
+ 			fan->cooling_levels[i] = state;
+@@ -319,7 +325,7 @@ static int mlxreg_fan_set_cur_state(struct thermal_cooling_device *cdev,
  
- 	init_llist_head(&rq->execute_cb);
-@@ -978,17 +976,12 @@ __i915_request_create(struct intel_context *ce, gfp_t gfp)
- 	rq->ring = ce->ring;
- 	rq->execution_mask = ce->engine->mask;
+ 		cur_state = MLXREG_FAN_PWM_DUTY2STATE(regval);
+ 		if (state < cur_state)
+-			return 0;
++			return config;
  
--	kref_init(&rq->fence.refcount);
--	rq->fence.flags = 0;
--	rq->fence.error = 0;
--	INIT_LIST_HEAD(&rq->fence.cb_list);
--
- 	ret = intel_timeline_get_seqno(tl, rq, &seqno);
- 	if (ret)
- 		goto err_free;
+ 		state = cur_state;
+ 	}
+@@ -335,7 +341,7 @@ static int mlxreg_fan_set_cur_state(struct thermal_cooling_device *cdev,
+ 		dev_err(fan->dev, "Failed to write PWM duty\n");
+ 		return err;
+ 	}
+-	return 0;
++	return config;
+ }
  
--	rq->fence.context = tl->fence_context;
--	rq->fence.seqno = seqno;
-+	dma_fence_init(&rq->fence, &i915_fence_ops, &rq->lock,
-+		       tl->fence_context, seqno);
- 
- 	RCU_INIT_POINTER(rq->timeline, tl);
- 	rq->hwsp_seqno = tl->hwsp_seqno;
+ static const struct thermal_cooling_device_ops mlxreg_fan_cooling_ops = {
 -- 
 2.33.0
 
