@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CC19420ED0
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:27:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B581420D5E
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:12:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236491AbhJDN2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:28:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43148 "EHLO mail.kernel.org"
+        id S234737AbhJDNOc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:14:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236644AbhJDN0p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:26:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77560619E0;
-        Mon,  4 Oct 2021 13:11:45 +0000 (UTC)
+        id S235686AbhJDNMt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:12:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D590161373;
+        Mon,  4 Oct 2021 13:05:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353105;
-        bh=b1EO2jLRRSP1cObfg2czLkT3lsMblga0o2LNOVE8mnM=;
+        s=korg; t=1633352702;
+        bh=WQFJBCNPXnY7bvv8x9nhyVjC38kJBnHQWIFmgGT5sBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eiKjbgnqMGFUNhsOAZKxOFxtqppfyGADlwB0c2WtX4vAkl4piG0kz/Hf82YCEYGk7
-         RrNhgqJsmURwK2lhOR5yRKGj6sRCTyLs/5QaQ2oyfAr+qW7nGjbtQ8HVWqygqqBHJV
-         VtVWkd/qHOGCl2KqKk0DBr+IC6FrUxKTIRLZgU9Q=
+        b=zQPctP1gIssBLyUNgmyHze65vUXRp/HTNej4dKoDvO+WnDqnhohPUDuA5QTskzEtp
+         wS1RS+fewS4Lm5i1gZFG+qJdb2wb3UcOuQ75gK7g/gwXjeddVyBcKbsR0/XF0ImQFJ
+         8QD4dnW+m+TY1727O8dTNDVwP/l7cAx8VzRWHzqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 58/93] net: hns3: fix mixed flag HCLGE_FLAG_MQPRIO_ENABLE and HCLGE_FLAG_DCB_ENABLE
+        stable@vger.kernel.org,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 4.19 86/95] ARM: 9079/1: ftrace: Add MODULE_PLTS support
 Date:   Mon,  4 Oct 2021 14:52:56 +0200
-Message-Id: <20211004125036.482185602@linuxfoundation.org>
+Message-Id: <20211004125036.396240398@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,134 +41,292 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Alex Sverdlin <alexander.sverdlin@nokia.com>
 
-[ Upstream commit 0472e95ffeac8e61259eec17ab61608c6b35599d ]
+commit 79f32b221b18c15a98507b101ef4beb52444cc6f upstream
 
-HCLGE_FLAG_MQPRIO_ENABLE is supposed to set when enable
-multiple TCs with tc mqprio, and HCLGE_FLAG_DCB_ENABLE is
-supposed to set when enable multiple TCs with ets. But
-the driver mixed the flags when updating the tm configuration.
+Teach ftrace_make_call() and ftrace_make_nop() about PLTs.
+Teach PLT code about FTRACE and all its callbacks.
+Otherwise the following might happen:
 
-Furtherly, PFC should be available when HCLGE_FLAG_MQPRIO_ENABLE
-too, so remove the unnecessary limitation.
+------------[ cut here ]------------
+WARNING: CPU: 14 PID: 2265 at .../arch/arm/kernel/insn.c:14 __arm_gen_branch+0x83/0x8c()
+...
+Hardware name: LSI Axxia AXM55XX
+[<c0314a49>] (unwind_backtrace) from [<c03115e9>] (show_stack+0x11/0x14)
+[<c03115e9>] (show_stack) from [<c0519f51>] (dump_stack+0x81/0xa8)
+[<c0519f51>] (dump_stack) from [<c032185d>] (warn_slowpath_common+0x69/0x90)
+[<c032185d>] (warn_slowpath_common) from [<c03218f3>] (warn_slowpath_null+0x17/0x1c)
+[<c03218f3>] (warn_slowpath_null) from [<c03143cf>] (__arm_gen_branch+0x83/0x8c)
+[<c03143cf>] (__arm_gen_branch) from [<c0314337>] (ftrace_make_nop+0xf/0x24)
+[<c0314337>] (ftrace_make_nop) from [<c038ebcb>] (ftrace_process_locs+0x27b/0x3e8)
+[<c038ebcb>] (ftrace_process_locs) from [<c0378d79>] (load_module+0x11e9/0x1a44)
+[<c0378d79>] (load_module) from [<c037974d>] (SyS_finit_module+0x59/0x84)
+[<c037974d>] (SyS_finit_module) from [<c030e981>] (ret_fast_syscall+0x1/0x18)
+---[ end trace e1b64ced7a89adcc ]---
+------------[ cut here ]------------
+WARNING: CPU: 14 PID: 2265 at .../kernel/trace/ftrace.c:1979 ftrace_bug+0x1b1/0x234()
+...
+Hardware name: LSI Axxia AXM55XX
+[<c0314a49>] (unwind_backtrace) from [<c03115e9>] (show_stack+0x11/0x14)
+[<c03115e9>] (show_stack) from [<c0519f51>] (dump_stack+0x81/0xa8)
+[<c0519f51>] (dump_stack) from [<c032185d>] (warn_slowpath_common+0x69/0x90)
+[<c032185d>] (warn_slowpath_common) from [<c03218f3>] (warn_slowpath_null+0x17/0x1c)
+[<c03218f3>] (warn_slowpath_null) from [<c038e87d>] (ftrace_bug+0x1b1/0x234)
+[<c038e87d>] (ftrace_bug) from [<c038ebd5>] (ftrace_process_locs+0x285/0x3e8)
+[<c038ebd5>] (ftrace_process_locs) from [<c0378d79>] (load_module+0x11e9/0x1a44)
+[<c0378d79>] (load_module) from [<c037974d>] (SyS_finit_module+0x59/0x84)
+[<c037974d>] (SyS_finit_module) from [<c030e981>] (ret_fast_syscall+0x1/0x18)
+---[ end trace e1b64ced7a89adcd ]---
+ftrace failed to modify [<e9ef7006>] 0xe9ef7006
+actual: 02:f0:3b:fa
+ftrace record flags: 0
+(0) expected tramp: c0314265
 
-Fixes: 5a5c90917467 ("net: hns3: add support for tc mqprio offload")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[florian: resolved merge conflict with struct
+dyn_arch_ftrace::old_mcount]
+
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../hisilicon/hns3/hns3pf/hclge_dcb.c         |  7 +++--
- .../ethernet/hisilicon/hns3/hns3pf/hclge_tm.c | 31 +++----------------
- 2 files changed, 10 insertions(+), 28 deletions(-)
+ arch/arm/include/asm/ftrace.h |    3 ++
+ arch/arm/include/asm/module.h |    1 
+ arch/arm/kernel/ftrace.c      |   50 +++++++++++++++++++++++++++++++++---------
+ arch/arm/kernel/module-plts.c |   44 +++++++++++++++++++++++++++++++++---
+ 4 files changed, 84 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-index a93c7eb4e7cb..28a90ead4795 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-@@ -248,6 +248,10 @@ static int hclge_ieee_setets(struct hnae3_handle *h, struct ieee_ets *ets)
- 	}
+--- a/arch/arm/include/asm/ftrace.h
++++ b/arch/arm/include/asm/ftrace.h
+@@ -19,6 +19,9 @@ struct dyn_arch_ftrace {
+ #ifdef CONFIG_OLD_MCOUNT
+ 	bool	old_mcount;
+ #endif
++#ifdef CONFIG_ARM_MODULE_PLTS
++	struct module *mod;
++#endif
+ };
  
- 	hclge_tm_schd_info_update(hdev, num_tc);
-+	if (num_tc > 1)
-+		hdev->flag |= HCLGE_FLAG_DCB_ENABLE;
+ static inline unsigned long ftrace_call_adjust(unsigned long addr)
+--- a/arch/arm/include/asm/module.h
++++ b/arch/arm/include/asm/module.h
+@@ -30,6 +30,7 @@ struct plt_entries {
+ 
+ struct mod_plt_sec {
+ 	struct elf32_shdr	*plt;
++	struct plt_entries	*plt_ent;
+ 	int			plt_count;
+ };
+ 
+--- a/arch/arm/kernel/ftrace.c
++++ b/arch/arm/kernel/ftrace.c
+@@ -96,9 +96,10 @@ int ftrace_arch_code_modify_post_process
+ 	return 0;
+ }
+ 
+-static unsigned long ftrace_call_replace(unsigned long pc, unsigned long addr)
++static unsigned long ftrace_call_replace(unsigned long pc, unsigned long addr,
++					 bool warn)
+ {
+-	return arm_gen_branch_link(pc, addr, true);
++	return arm_gen_branch_link(pc, addr, warn);
+ }
+ 
+ static int ftrace_modify_code(unsigned long pc, unsigned long old,
+@@ -137,14 +138,14 @@ int ftrace_update_ftrace_func(ftrace_fun
+ 	int ret;
+ 
+ 	pc = (unsigned long)&ftrace_call;
+-	new = ftrace_call_replace(pc, (unsigned long)func);
++	new = ftrace_call_replace(pc, (unsigned long)func, true);
+ 
+ 	ret = ftrace_modify_code(pc, 0, new, false);
+ 
+ #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+ 	if (!ret) {
+ 		pc = (unsigned long)&ftrace_regs_call;
+-		new = ftrace_call_replace(pc, (unsigned long)func);
++		new = ftrace_call_replace(pc, (unsigned long)func, true);
+ 
+ 		ret = ftrace_modify_code(pc, 0, new, false);
+ 	}
+@@ -153,7 +154,7 @@ int ftrace_update_ftrace_func(ftrace_fun
+ #ifdef CONFIG_OLD_MCOUNT
+ 	if (!ret) {
+ 		pc = (unsigned long)&ftrace_call_old;
+-		new = ftrace_call_replace(pc, (unsigned long)func);
++		new = ftrace_call_replace(pc, (unsigned long)func, true);
+ 
+ 		ret = ftrace_modify_code(pc, 0, new, false);
+ 	}
+@@ -166,10 +167,22 @@ int ftrace_make_call(struct dyn_ftrace *
+ {
+ 	unsigned long new, old;
+ 	unsigned long ip = rec->ip;
++	unsigned long aaddr = adjust_address(rec, addr);
++	struct module *mod = NULL;
++
++#ifdef CONFIG_ARM_MODULE_PLTS
++	mod = rec->arch.mod;
++#endif
+ 
+ 	old = ftrace_nop_replace(rec);
+ 
+-	new = ftrace_call_replace(ip, adjust_address(rec, addr));
++	new = ftrace_call_replace(ip, aaddr, !mod);
++#ifdef CONFIG_ARM_MODULE_PLTS
++	if (!new && mod) {
++		aaddr = get_module_plt(mod, ip, aaddr);
++		new = ftrace_call_replace(ip, aaddr, true);
++	}
++#endif
+ 
+ 	return ftrace_modify_code(rec->ip, old, new, true);
+ }
+@@ -182,9 +195,9 @@ int ftrace_modify_call(struct dyn_ftrace
+ 	unsigned long new, old;
+ 	unsigned long ip = rec->ip;
+ 
+-	old = ftrace_call_replace(ip, adjust_address(rec, old_addr));
++	old = ftrace_call_replace(ip, adjust_address(rec, old_addr), true);
+ 
+-	new = ftrace_call_replace(ip, adjust_address(rec, addr));
++	new = ftrace_call_replace(ip, adjust_address(rec, addr), true);
+ 
+ 	return ftrace_modify_code(rec->ip, old, new, true);
+ }
+@@ -194,12 +207,29 @@ int ftrace_modify_call(struct dyn_ftrace
+ int ftrace_make_nop(struct module *mod,
+ 		    struct dyn_ftrace *rec, unsigned long addr)
+ {
++	unsigned long aaddr = adjust_address(rec, addr);
+ 	unsigned long ip = rec->ip;
+ 	unsigned long old;
+ 	unsigned long new;
+ 	int ret;
+ 
+-	old = ftrace_call_replace(ip, adjust_address(rec, addr));
++#ifdef CONFIG_ARM_MODULE_PLTS
++	/* mod is only supplied during module loading */
++	if (!mod)
++		mod = rec->arch.mod;
 +	else
-+		hdev->flag &= ~HCLGE_FLAG_DCB_ENABLE;
++		rec->arch.mod = mod;
++#endif
++
++	old = ftrace_call_replace(ip, aaddr,
++				  !IS_ENABLED(CONFIG_ARM_MODULE_PLTS) || !mod);
++#ifdef CONFIG_ARM_MODULE_PLTS
++	if (!old && mod) {
++		aaddr = get_module_plt(mod, ip, aaddr);
++		old = ftrace_call_replace(ip, aaddr, true);
++	}
++#endif
++
+ 	new = ftrace_nop_replace(rec);
+ 	ret = ftrace_modify_code(ip, old, new, true);
  
- 	ret = hclge_ieee_ets_to_tm_info(hdev, ets);
- 	if (ret)
-@@ -313,8 +317,7 @@ static int hclge_ieee_setpfc(struct hnae3_handle *h, struct ieee_pfc *pfc)
- 	u8 i, j, pfc_map, *prio_tc;
- 	int ret;
+@@ -207,7 +237,7 @@ int ftrace_make_nop(struct module *mod,
+ 	if (ret == -EINVAL && addr == MCOUNT_ADDR) {
+ 		rec->arch.old_mcount = true;
  
--	if (!(hdev->dcbx_cap & DCB_CAP_DCBX_VER_IEEE) ||
--	    hdev->flag & HCLGE_FLAG_MQPRIO_ENABLE)
-+	if (!(hdev->dcbx_cap & DCB_CAP_DCBX_VER_IEEE))
- 		return -EINVAL;
- 
- 	if (pfc->pfc_en == hdev->tm_info.pfc_en)
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-index 42e82bf69b8e..69d081515c60 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-@@ -646,14 +646,6 @@ static void hclge_tm_tc_info_init(struct hclge_dev *hdev)
- 	for (i = 0; i < HNAE3_MAX_USER_PRIO; i++)
- 		hdev->tm_info.prio_tc[i] =
- 			(i >= hdev->tm_info.num_tc) ? 0 : i;
--
--	/* DCB is enabled if we have more than 1 TC or pfc_en is
--	 * non-zero.
--	 */
--	if (hdev->tm_info.num_tc > 1 || hdev->tm_info.pfc_en)
--		hdev->flag |= HCLGE_FLAG_DCB_ENABLE;
--	else
--		hdev->flag &= ~HCLGE_FLAG_DCB_ENABLE;
- }
- 
- static void hclge_tm_pg_info_init(struct hclge_dev *hdev)
-@@ -684,10 +676,10 @@ static void hclge_tm_pg_info_init(struct hclge_dev *hdev)
- 
- static void hclge_update_fc_mode_by_dcb_flag(struct hclge_dev *hdev)
- {
--	if (!(hdev->flag & HCLGE_FLAG_DCB_ENABLE)) {
-+	if (hdev->tm_info.num_tc == 1 && !hdev->tm_info.pfc_en) {
- 		if (hdev->fc_mode_last_time == HCLGE_FC_PFC)
- 			dev_warn(&hdev->pdev->dev,
--				 "DCB is disable, but last mode is FC_PFC\n");
-+				 "Only 1 tc used, but last mode is FC_PFC\n");
- 
- 		hdev->tm_info.fc_mode = hdev->fc_mode_last_time;
- 	} else if (hdev->tm_info.fc_mode != HCLGE_FC_PFC) {
-@@ -713,7 +705,7 @@ static void hclge_update_fc_mode(struct hclge_dev *hdev)
+-		old = ftrace_call_replace(ip, adjust_address(rec, addr));
++		old = ftrace_call_replace(ip, adjust_address(rec, addr), true);
+ 		new = ftrace_nop_replace(rec);
+ 		ret = ftrace_modify_code(ip, old, new, true);
  	}
- }
+--- a/arch/arm/kernel/module-plts.c
++++ b/arch/arm/kernel/module-plts.c
+@@ -7,6 +7,7 @@
+  */
  
--static void hclge_pfc_info_init(struct hclge_dev *hdev)
-+void hclge_tm_pfc_info_update(struct hclge_dev *hdev)
+ #include <linux/elf.h>
++#include <linux/ftrace.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/sort.h>
+@@ -22,19 +23,52 @@
+ 						    (PLT_ENT_STRIDE - 8))
+ #endif
+ 
++static const u32 fixed_plts[] = {
++#ifdef CONFIG_FUNCTION_TRACER
++	FTRACE_ADDR,
++	MCOUNT_ADDR,
++#endif
++};
++
+ static bool in_init(const struct module *mod, unsigned long loc)
  {
- 	if (hdev->ae_dev->dev_version >= HNAE3_DEVICE_VERSION_V3)
- 		hclge_update_fc_mode(hdev);
-@@ -729,7 +721,7 @@ static void hclge_tm_schd_info_init(struct hclge_dev *hdev)
- 
- 	hclge_tm_vport_info_update(hdev);
- 
--	hclge_pfc_info_init(hdev);
-+	hclge_tm_pfc_info_update(hdev);
+ 	return loc - (u32)mod->init_layout.base < mod->init_layout.size;
  }
  
- static int hclge_tm_pg_to_pri_map(struct hclge_dev *hdev)
-@@ -1465,19 +1457,6 @@ void hclge_tm_schd_info_update(struct hclge_dev *hdev, u8 num_tc)
- 	hclge_tm_schd_info_init(hdev);
- }
- 
--void hclge_tm_pfc_info_update(struct hclge_dev *hdev)
--{
--	/* DCB is enabled if we have more than 1 TC or pfc_en is
--	 * non-zero.
--	 */
--	if (hdev->tm_info.num_tc > 1 || hdev->tm_info.pfc_en)
--		hdev->flag |= HCLGE_FLAG_DCB_ENABLE;
--	else
--		hdev->flag &= ~HCLGE_FLAG_DCB_ENABLE;
--
--	hclge_pfc_info_init(hdev);
--}
--
- int hclge_tm_init_hw(struct hclge_dev *hdev, bool init)
++static void prealloc_fixed(struct mod_plt_sec *pltsec, struct plt_entries *plt)
++{
++	int i;
++
++	if (!ARRAY_SIZE(fixed_plts) || pltsec->plt_count)
++		return;
++	pltsec->plt_count = ARRAY_SIZE(fixed_plts);
++
++	for (i = 0; i < ARRAY_SIZE(plt->ldr); ++i)
++		plt->ldr[i] = PLT_ENT_LDR;
++
++	BUILD_BUG_ON(sizeof(fixed_plts) > sizeof(plt->lit));
++	memcpy(plt->lit, fixed_plts, sizeof(fixed_plts));
++}
++
+ u32 get_module_plt(struct module *mod, unsigned long loc, Elf32_Addr val)
  {
- 	int ret;
-@@ -1523,7 +1502,7 @@ int hclge_tm_vport_map_update(struct hclge_dev *hdev)
- 	if (ret)
- 		return ret;
+ 	struct mod_plt_sec *pltsec = !in_init(mod, loc) ? &mod->arch.core :
+ 							  &mod->arch.init;
++	struct plt_entries *plt;
++	int idx;
++
++	/* cache the address, ELF header is available only during module load */
++	if (!pltsec->plt_ent)
++		pltsec->plt_ent = (struct plt_entries *)pltsec->plt->sh_addr;
++	plt = pltsec->plt_ent;
  
--	if (!(hdev->flag & HCLGE_FLAG_DCB_ENABLE))
-+	if (hdev->tm_info.num_tc == 1 && !hdev->tm_info.pfc_en)
- 		return 0;
+-	struct plt_entries *plt = (struct plt_entries *)pltsec->plt->sh_addr;
+-	int idx = 0;
++	prealloc_fixed(pltsec, plt);
++
++	for (idx = 0; idx < ARRAY_SIZE(fixed_plts); ++idx)
++		if (plt->lit[idx] == val)
++			return (u32)&plt->ldr[idx];
  
- 	return hclge_tm_bp_setup(hdev);
--- 
-2.33.0
-
++	idx = 0;
+ 	/*
+ 	 * Look for an existing entry pointing to 'val'. Given that the
+ 	 * relocations are sorted, this will be the last entry we allocated.
+@@ -182,8 +216,8 @@ static unsigned int count_plts(const Elf
+ int module_frob_arch_sections(Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
+ 			      char *secstrings, struct module *mod)
+ {
+-	unsigned long core_plts = 0;
+-	unsigned long init_plts = 0;
++	unsigned long core_plts = ARRAY_SIZE(fixed_plts);
++	unsigned long init_plts = ARRAY_SIZE(fixed_plts);
+ 	Elf32_Shdr *s, *sechdrs_end = sechdrs + ehdr->e_shnum;
+ 	Elf32_Sym *syms = NULL;
+ 
+@@ -238,6 +272,7 @@ int module_frob_arch_sections(Elf_Ehdr *
+ 	mod->arch.core.plt->sh_size = round_up(core_plts * PLT_ENT_SIZE,
+ 					       sizeof(struct plt_entries));
+ 	mod->arch.core.plt_count = 0;
++	mod->arch.core.plt_ent = NULL;
+ 
+ 	mod->arch.init.plt->sh_type = SHT_NOBITS;
+ 	mod->arch.init.plt->sh_flags = SHF_EXECINSTR | SHF_ALLOC;
+@@ -245,6 +280,7 @@ int module_frob_arch_sections(Elf_Ehdr *
+ 	mod->arch.init.plt->sh_size = round_up(init_plts * PLT_ENT_SIZE,
+ 					       sizeof(struct plt_entries));
+ 	mod->arch.init.plt_count = 0;
++	mod->arch.init.plt_ent = NULL;
+ 
+ 	pr_debug("%s: plt=%x, init.plt=%x\n", __func__,
+ 		 mod->arch.core.plt->sh_size, mod->arch.init.plt->sh_size);
 
 
