@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11EB8420DF8
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:18:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4819E420CAC
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:07:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234270AbhJDNUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:20:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55680 "EHLO mail.kernel.org"
+        id S234270AbhJDNJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:09:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236618AbhJDNSn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:18:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 37EFD61A38;
-        Mon,  4 Oct 2021 13:07:59 +0000 (UTC)
+        id S235307AbhJDNGr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:06:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 474CD613AC;
+        Mon,  4 Oct 2021 13:01:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352879;
-        bh=Tz4qOokfeXJKGxkszgzrmb1XGj8kFC/SFTXN4vTfSGs=;
+        s=korg; t=1633352485;
+        bh=PaS8DXTucc4XRnztat11GNzIWcUA1B1MLeSoIEYNxDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CbJpT3rFhvxOJokbBffypg0/UepIiaSVSw0jQb7zpprvZAx+9ONQoCAK7StB5Lkpt
-         LP5VpWx41lPO6fg5pLLIuV6aCPlyvvKlMyOX08Ufuv37HCHUAWDsPR1MBD6/9MGkVX
-         Nt/t+dkpB7Sg0d/g8M8n7O02TFjK5Dnm8UgU2KXM=
+        b=NTqDGqoei4mS61gEbSbvUG9fzH9hc0YP3qrY6+PzP8FUjDKu+h2R2vifXkcFbPzNT
+         K08AXdQbLaKcFZ4AFkkhfOD+00gKJCbb9Ppv/TIChVf+EKOEkpNDi3h0omZ8XbYqUZ
+         WrrJaSiHHmv3bD5w9iJZg3Bm/ehi9NcvIVzKtfQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 28/56] net: hns3: do not allow call hns3_nic_net_open repeatedly
-Date:   Mon,  4 Oct 2021 14:52:48 +0200
-Message-Id: <20211004125030.888524315@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com,
+        Anirudh Rayabharam <mail@anirudhrb.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.14 74/75] HID: usbhid: free raw_report buffers in usbhid_stop
+Date:   Mon,  4 Oct 2021 14:52:49 +0200
+Message-Id: <20211004125034.017930999@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
-References: <20211004125030.002116402@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,84 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-[ Upstream commit 5b09e88e1bf7fe86540fab4b5f3eece8abead39e ]
+commit f7744fa16b96da57187dc8e5634152d3b63d72de upstream.
 
-hns3_nic_net_open() is not allowed to called repeatly, but there
-is no checking for this. When doing device reset and setup tc
-concurrently, there is a small oppotunity to call hns3_nic_net_open
-repeatedly, and cause kernel bug by calling napi_enable twice.
+Free the unsent raw_report buffers when the device is removed.
 
-The calltrace information is like below:
-[ 3078.222780] ------------[ cut here ]------------
-[ 3078.230255] kernel BUG at net/core/dev.c:6991!
-[ 3078.236224] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-[ 3078.243431] Modules linked in: hns3 hclgevf hclge hnae3 vfio_iommu_type1 vfio_pci vfio_virqfd vfio pv680_mii(O)
-[ 3078.258880] CPU: 0 PID: 295 Comm: kworker/u8:5 Tainted: G           O      5.14.0-rc4+ #1
-[ 3078.269102] Hardware name:  , BIOS KpxxxFPGA 1P B600 V181 08/12/2021
-[ 3078.276801] Workqueue: hclge hclge_service_task [hclge]
-[ 3078.288774] pstate: 60400009 (nZCv daif +PAN -UAO -TCO BTYPE=--)
-[ 3078.296168] pc : napi_enable+0x80/0x84
-tc qdisc sho[w  3d0e7v8 .e3t0h218 79] lr : hns3_nic_net_open+0x138/0x510 [hns3]
+Fixes a memory leak reported by syzbot at:
+https://syzkaller.appspot.com/bug?id=7b4fa7cb1a7c2d3342a2a8a6c53371c8c418ab47
 
-[ 3078.314771] sp : ffff8000108abb20
-[ 3078.319099] x29: ffff8000108abb20 x28: 0000000000000000 x27: ffff0820a8490300
-[ 3078.329121] x26: 0000000000000001 x25: ffff08209cfc6200 x24: 0000000000000000
-[ 3078.339044] x23: ffff0820a8490300 x22: ffff08209cd76000 x21: ffff0820abfe3880
-[ 3078.349018] x20: 0000000000000000 x19: ffff08209cd76900 x18: 0000000000000000
-[ 3078.358620] x17: 0000000000000000 x16: ffffc816e1727a50 x15: 0000ffff8f4ff930
-[ 3078.368895] x14: 0000000000000000 x13: 0000000000000000 x12: 0000259e9dbeb6b4
-[ 3078.377987] x11: 0096a8f7e764eb40 x10: 634615ad28d3eab5 x9 : ffffc816ad8885b8
-[ 3078.387091] x8 : ffff08209cfc6fb8 x7 : ffff0820ac0da058 x6 : ffff0820a8490344
-[ 3078.396356] x5 : 0000000000000140 x4 : 0000000000000003 x3 : ffff08209cd76938
-[ 3078.405365] x2 : 0000000000000000 x1 : 0000000000000010 x0 : ffff0820abfe38a0
-[ 3078.414657] Call trace:
-[ 3078.418517]  napi_enable+0x80/0x84
-[ 3078.424626]  hns3_reset_notify_up_enet+0x78/0xd0 [hns3]
-[ 3078.433469]  hns3_reset_notify+0x64/0x80 [hns3]
-[ 3078.441430]  hclge_notify_client+0x68/0xb0 [hclge]
-[ 3078.450511]  hclge_reset_rebuild+0x524/0x884 [hclge]
-[ 3078.458879]  hclge_reset_service_task+0x3c4/0x680 [hclge]
-[ 3078.467470]  hclge_service_task+0xb0/0xb54 [hclge]
-[ 3078.475675]  process_one_work+0x1dc/0x48c
-[ 3078.481888]  worker_thread+0x15c/0x464
-[ 3078.487104]  kthread+0x160/0x170
-[ 3078.492479]  ret_from_fork+0x10/0x18
-[ 3078.498785] Code: c8027c81 35ffffa2 d50323bf d65f03c0 (d4210000)
-[ 3078.506889] ---[ end trace 8ebe0340a1b0fb44 ]---
-
-Once hns3_nic_net_open() is excute success, the flag
-HNS3_NIC_STATE_DOWN will be cleared. So add checking for this
-flag, directly return when HNS3_NIC_STATE_DOWN is no set.
-
-Fixes: e888402789b9 ("net: hns3: call hns3_nic_net_open() while doing HNAE3_UP_CLIENT")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
+Tested-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hid/usbhid/hid-core.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index db9c8f943811..ffd1018d43fb 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -452,6 +452,11 @@ static int hns3_nic_net_open(struct net_device *netdev)
- 	if (hns3_nic_resetting(netdev))
- 		return -EBUSY;
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -501,7 +501,7 @@ static void hid_ctrl(struct urb *urb)
  
-+	if (!test_bit(HNS3_NIC_STATE_DOWN, &priv->state)) {
-+		netdev_warn(netdev, "net open repeatedly!\n");
-+		return 0;
-+	}
+ 	if (unplug) {
+ 		usbhid->ctrltail = usbhid->ctrlhead;
+-	} else {
++	} else if (usbhid->ctrlhead != usbhid->ctrltail) {
+ 		usbhid->ctrltail = (usbhid->ctrltail + 1) & (HID_CONTROL_FIFO_SIZE - 1);
+ 
+ 		if (usbhid->ctrlhead != usbhid->ctrltail &&
+@@ -1214,9 +1214,20 @@ static void usbhid_stop(struct hid_devic
+ 	mutex_lock(&usbhid->mutex);
+ 
+ 	clear_bit(HID_STARTED, &usbhid->iofl);
 +
- 	netif_carrier_off(netdev);
- 
- 	ret = hns3_nic_set_real_num_queue(netdev);
--- 
-2.33.0
-
+ 	spin_lock_irq(&usbhid->lock);	/* Sync with error and led handlers */
+ 	set_bit(HID_DISCONNECTED, &usbhid->iofl);
++	while (usbhid->ctrltail != usbhid->ctrlhead) {
++		if (usbhid->ctrl[usbhid->ctrltail].dir == USB_DIR_OUT) {
++			kfree(usbhid->ctrl[usbhid->ctrltail].raw_report);
++			usbhid->ctrl[usbhid->ctrltail].raw_report = NULL;
++		}
++
++		usbhid->ctrltail = (usbhid->ctrltail + 1) &
++			(HID_CONTROL_FIFO_SIZE - 1);
++	}
+ 	spin_unlock_irq(&usbhid->lock);
++
+ 	usb_kill_urb(usbhid->urbin);
+ 	usb_kill_urb(usbhid->urbout);
+ 	usb_kill_urb(usbhid->urbctrl);
 
 
