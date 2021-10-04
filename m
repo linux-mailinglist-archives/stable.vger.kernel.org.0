@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78EDF420E64
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:23:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9089A420D4A
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:12:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236700AbhJDNYz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:24:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36956 "EHLO mail.kernel.org"
+        id S235509AbhJDNOD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:14:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236789AbhJDNXM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:23:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87D2661B4A;
-        Mon,  4 Oct 2021 13:10:01 +0000 (UTC)
+        id S235915AbhJDNL6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:11:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD68361B72;
+        Mon,  4 Oct 2021 13:04:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353002;
-        bh=29TPReECuXNxlKe+iAGUb6RVYFT7vyhuWxugvvBx1dM=;
+        s=korg; t=1633352676;
+        bh=wyMY1huRCNbpoO8j0Fn8jm0T0PLjaIIMmNDIL1urKvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M9szH8JQfIl3BmzuzrAI6IOZGwucbQBMtdSN7woP3OLuoLgG7rsD5jnOPkFFu9t4d
-         T36cevpEPWbA9GProq7bf4qHUZyB+nFaNKxYE90f1qHYRvRIxd77Y7G8zysZZthJrj
-         FtM4dzuWUkqqMpx8A4EPYNvEhE52UAmhvBmug+7Q=
+        b=kg0lDEQ6M9Tcw1XXrURWrBkPMRJpaIMHk5Ql4MFq+uRj13trqJ8J0cHAJy3piis2+
+         Npbq/nqKnXWIvfWB9ToKwhe+6+UKynAHEbdDNoZtWJP+MWMWPGZ8xuQmZypikiGjp4
+         w7ZATDTD+RVaZiJG5WcI7XQwG53891belAFc7P2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenz Bauer <lmb@cloudflare.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 49/93] bpf: Exempt CAP_BPF from checks against bpf_jit_limit
+        stable@vger.kernel.org,
+        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 77/95] ipack: ipoctal: fix tty registration race
 Date:   Mon,  4 Oct 2021 14:52:47 +0200
-Message-Id: <20211004125036.189446722@linuxfoundation.org>
+Message-Id: <20211004125036.094770957@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <lmb@cloudflare.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 8a98ae12fbefdb583a7696de719a1d57e5e940a2 ]
+commit 65c001df517a7bf9be8621b53d43c89f426ce8d6 upstream.
 
-When introducing CAP_BPF, bpf_jit_charge_modmem() was not changed to treat
-programs with CAP_BPF as privileged for the purpose of JIT memory allocation.
-This means that a program without CAP_BPF can block a program with CAP_BPF
-from loading a program.
+Make sure to set the tty class-device driver data before registering the
+tty to avoid having a racing open() dereference a NULL pointer.
 
-Fix this by checking bpf_capable() in bpf_jit_charge_modmem().
-
-Fixes: 2c78ee898d8f ("bpf: Implement CAP_BPF")
-Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20210922111153.19843-1-lmb@cloudflare.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9c1d784afc6f ("Staging: ipack/devices/ipoctal: Get rid of ipoctal_list.")
+Cc: stable@vger.kernel.org      # 3.7
+Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210917114622.5412-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ipack/devices/ipoctal.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-index d12efb2550d3..2e4a658d65d6 100644
---- a/kernel/bpf/core.c
-+++ b/kernel/bpf/core.c
-@@ -831,7 +831,7 @@ int bpf_jit_charge_modmem(u32 pages)
- {
- 	if (atomic_long_add_return(pages, &bpf_jit_current) >
- 	    (bpf_jit_limit >> PAGE_SHIFT)) {
--		if (!capable(CAP_SYS_ADMIN)) {
-+		if (!bpf_capable()) {
- 			atomic_long_sub(pages, &bpf_jit_current);
- 			return -EPERM;
+--- a/drivers/ipack/devices/ipoctal.c
++++ b/drivers/ipack/devices/ipoctal.c
+@@ -398,13 +398,13 @@ static int ipoctal_inst_slot(struct ipoc
+ 		spin_lock_init(&channel->lock);
+ 		channel->pointer_read = 0;
+ 		channel->pointer_write = 0;
+-		tty_dev = tty_port_register_device(&channel->tty_port, tty, i, NULL);
++		tty_dev = tty_port_register_device_attr(&channel->tty_port, tty,
++							i, NULL, channel, NULL);
+ 		if (IS_ERR(tty_dev)) {
+ 			dev_err(&ipoctal->dev->dev, "Failed to register tty device.\n");
+ 			tty_port_destroy(&channel->tty_port);
+ 			continue;
  		}
--- 
-2.33.0
-
+-		dev_set_drvdata(tty_dev, channel);
+ 	}
+ 
+ 	/*
 
 
