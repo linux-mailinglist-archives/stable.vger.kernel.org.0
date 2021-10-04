@@ -2,106 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC754420595
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 07:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8531442059E
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 07:52:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232388AbhJDFek (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 01:34:40 -0400
-Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:54156 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232358AbhJDFej (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 01:34:39 -0400
-Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1944keAi029444
-        for <stable@vger.kernel.org>; Sun, 3 Oct 2021 22:32:51 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding :
- content-type; s=facebook; bh=ZUciwl852Lqkpzfl9IQj/1VtOOCjVLQ1V25CpGOStg8=;
- b=mNAkkDiRSat9OXzXDx4Au+H55XKv2EQXNbeNNJkFMURGVCcAt6EqY1dIs1xTlXVop9Vz
- er49znYGVhLF4Z5qOrbOdYZz9WzhFOwJq9GI5Joz1p2nnqK7VwLwh/lho3Oy+aGTVQM4
- rcnvluOfF7n9+wJcr5VJiE2NBf3DHnwc5PM= 
-Received: from mail.thefacebook.com ([163.114.132.120])
-        by mx0a-00082601.pphosted.com with ESMTP id 3bftvkr8dc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-        for <stable@vger.kernel.org>; Sun, 03 Oct 2021 22:32:51 -0700
-Received: from intmgw001.38.frc1.facebook.com (2620:10d:c085:208::f) by
- mail.thefacebook.com (2620:10d:c085:11d::6) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.14; Sun, 3 Oct 2021 22:32:50 -0700
-Received: by devbig006.ftw2.facebook.com (Postfix, from userid 4523)
-        id 5EF6615554668; Sun,  3 Oct 2021 22:32:43 -0700 (PDT)
-From:   Song Liu <songliubraving@fb.com>
-To:     <linux-kernel@vger.kernel.org>
-CC:     <kernel-team@fb.com>, <acme@kernel.org>, <peterz@infradead.org>,
-        <mingo@redhat.com>, Song Liu <songliubraving@fb.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH] perf-script: check session->header.env.arch before using it
-Date:   Sun, 3 Oct 2021 22:32:38 -0700
-Message-ID: <20211004053238.514936-1-songliubraving@fb.com>
-X-Mailer: git-send-email 2.30.2
+        id S231970AbhJDFxv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 01:53:51 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:60670 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231935AbhJDFxv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 01:53:51 -0400
+Received: from sequoia.work.tihix.com (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 4C70E20B861E;
+        Sun,  3 Oct 2021 22:52:02 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 4C70E20B861E
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1633326722;
+        bh=YuYuQCLYvGt135JMf9sLNe7YvbMcnd/CI+4BgHuZKCo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=kfEsdLzwZug5WYvPIEV/4cLPD2GKKseDHV/tVKEo/0f/42sr8SDSqyNksDaA5FoAq
+         0uJhlbdq2FqIB08qd7KO0L9fs7wc6vcSj26XwxAkLfXrBI4XZ0QdHjQK0d2KdmgAQn
+         294NlfwVexASusXiyYUQh+1FOFAl6FmJkv+l8DPE=
+From:   Tyler Hicks <tyhicks@linux.microsoft.com>
+To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
+Cc:     dan.j.williams@intel.com, sumiyawang@tencent.com,
+        yongduan@tencent.com
+Subject: [PATCH 5.4] libnvdimm/pmem: Fix crash triggered when I/O in-flight during unbind
+Date:   Mon,  4 Oct 2021 00:51:34 -0500
+Message-Id: <20211004055134.677854-1-tyhicks@linux.microsoft.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <1631797319109199@kroah.com>
+References: <1631797319109199@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-FB-Internal: Safe
-Content-Type: text/plain
-X-FB-Source: Intern
-X-Proofpoint-ORIG-GUID: DmVD5Dx7G-_Wlj208zDSF1USTLJUY3RC
-X-Proofpoint-GUID: DmVD5Dx7G-_Wlj208zDSF1USTLJUY3RC
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-10-04_01,2021-10-01_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 malwarescore=0
- lowpriorityscore=0 phishscore=0 impostorscore=0 adultscore=0
- mlxlogscore=985 spamscore=0 mlxscore=0 bulkscore=0 priorityscore=1501
- suspectscore=0 clxscore=1011 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2109230001 definitions=main-2110040038
-X-FB-Internal: deliver
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When perf.data is not written cleanly, we would like to process existing
-data as much as possible (please see f_header.data.size =3D=3D 0 conditio=
-n
-in perf_session__read_header). However, perf.data with partial data may
-crash perf. Specifically, we see crash in perf-script for NULL
-session->header.env.arch.
+From: sumiyawang <sumiyawang@tencent.com>
 
-Fix this by checking session->header.env.arch before using it to determin=
-e
-native_arch. Also split the if condition so it is easier to read.
+commit 32b2397c1e56f33b0b1881def965bb89bd12f448 upstream.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Song Liu <songliubraving@fb.com>
+There is a use after free crash when the pmem driver tears down its
+mapping while I/O is still inbound.
+
+This is triggered by driver unbind, "ndctl destroy-namespace", while I/O
+is in flight.
+
+Fix the sequence of blk_cleanup_queue() vs memunmap().
+
+The crash signature is of the form:
+
+ BUG: unable to handle page fault for address: ffffc90080200000
+ CPU: 36 PID: 9606 Comm: systemd-udevd
+ Call Trace:
+  ? pmem_do_bvec+0xf9/0x3a0
+  ? xas_alloc+0x55/0xd0
+  pmem_rw_page+0x4b/0x80
+  bdev_read_page+0x86/0xb0
+  do_mpage_readpage+0x5d4/0x7a0
+  ? lru_cache_add+0xe/0x10
+  mpage_readpages+0xf9/0x1c0
+  ? bd_link_disk_holder+0x1a0/0x1a0
+  blkdev_readpages+0x1d/0x20
+  read_pages+0x67/0x1a0
+
+  ndctl Call Trace in vmcore:
+  PID: 23473  TASK: ffff88c4fbbe8000  CPU: 1   COMMAND: "ndctl"
+  __schedule
+  schedule
+  blk_mq_freeze_queue_wait
+  blk_freeze_queue
+  blk_cleanup_queue
+  pmem_release_queue
+  devm_action_release
+  release_nodes
+  devres_release_all
+  device_release_driver_internal
+  device_driver_detach
+  unbind_store
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: sumiyawang <sumiyawang@tencent.com>
+Reviewed-by: yongduan <yongduan@tencent.com>
+Link: https://lore.kernel.org/r/1629632949-14749-1-git-send-email-sumiyawang@tencent.com
+Fixes: 50f44ee7248a ("mm/devm_memremap_pages: fix final page put race")
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+[tyhicks: Minor contextual change in pmem_attach_disk() due to the
+ transition to 'struct range' not yet taking place. Preserve the
+ memcpy() call rather than initializing the range struct. That change
+ was introduced in v5.10 with commit a4574f63edc6 ("mm/memremap_pages:
+ convert to 'struct range'")]
+Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
 ---
- tools/perf/builtin-script.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/builtin-script.c b/tools/perf/builtin-script.c
-index 6211d0b84b7a6..7821f6740ac1d 100644
---- a/tools/perf/builtin-script.c
-+++ b/tools/perf/builtin-script.c
-@@ -4039,12 +4039,17 @@ int cmd_script(int argc, const char **argv)
- 		goto out_delete;
-=20
- 	uname(&uts);
--	if (data.is_pipe ||  /* assume pipe_mode indicates native_arch */
--	    !strcmp(uts.machine, session->header.env.arch) ||
--	    (!strcmp(uts.machine, "x86_64") &&
--	     !strcmp(session->header.env.arch, "i386")))
-+	if (data.is_pipe)  /* assume pipe_mode indicates native_arch */
- 		native_arch =3D true;
-=20
-+	if (session->header.env.arch) {
-+		if (!strcmp(uts.machine, session->header.env.arch))
-+			native_arch =3D true;
-+		else if (!strcmp(uts.machine, "x86_64") &&
-+			 !strcmp(session->header.env.arch, "i386"))
-+			native_arch =3D true;
-+	}
-+
- 	script.session =3D session;
- 	script__setup_sample_type(&script);
-=20
---=20
-2.30.2
+We're seeing memory corruption issues in production and, AFAICT, we
+exercise this bit of code around the time that the corruption takes
+place. Therefore, I'm submitting this manually tested backport for
+inclusion in linux-5.4.y since it wasn't automatically applied due to
+the need for a manual backport.
+
+ drivers/nvdimm/pmem.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
+index f9f76f6ba07b..7e65306b2bf2 100644
+--- a/drivers/nvdimm/pmem.c
++++ b/drivers/nvdimm/pmem.c
+@@ -423,11 +423,11 @@ static int pmem_attach_disk(struct device *dev,
+ 		pmem->pfn_flags |= PFN_MAP;
+ 		memcpy(&bb_res, &pmem->pgmap.res, sizeof(bb_res));
+ 	} else {
++		addr = devm_memremap(dev, pmem->phys_addr,
++				pmem->size, ARCH_MEMREMAP_PMEM);
+ 		if (devm_add_action_or_reset(dev, pmem_release_queue,
+ 					&pmem->pgmap))
+ 			return -ENOMEM;
+-		addr = devm_memremap(dev, pmem->phys_addr,
+-				pmem->size, ARCH_MEMREMAP_PMEM);
+ 		memcpy(&bb_res, &nsio->res, sizeof(bb_res));
+ 	}
+ 
+-- 
+2.25.1
 
