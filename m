@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3A13420DD4
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:17:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE5F1420FF0
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:37:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235851AbhJDNTN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:19:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54356 "EHLO mail.kernel.org"
+        id S237865AbhJDNjR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:39:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234195AbhJDNQg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:16:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E50C6126A;
-        Mon,  4 Oct 2021 13:06:45 +0000 (UTC)
+        id S238233AbhJDNhf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:37:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3644A61381;
+        Mon,  4 Oct 2021 13:17:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352805;
-        bh=zVWennPLgznWrX4GrMKdu0rIsdHHGG/jMVBFP0fQIcQ=;
+        s=korg; t=1633353428;
+        bh=o1woYyxAb4jdYyvX4H/ZpVBQrw1/liLQJM+goEOTvlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nEQac0EYgej+ZcdzWQyWnUNkz8ujHV9nwdNpD0elzCV3ae5PPVJFZOObQPJm+XHei
-         F+GpQ0eSLk/KDEZymkbN3gvR2fMP4BWQiOjDAx149kixHnqc2fTacjBY744FE/t8vA
-         9ojRbRDqLC43UzU1cMMJy/Q5DyWhKll5ndMX50vg=
+        b=VLuZHHBy/7tQcWmEk3aPg4OF5OqJO2/zd4e109xra1AbaH3MvztNZrcFtKzexePg8
+         5/o2HzhzOnvw3gdQ0yk6+nPBM33LFmxL8vxkUf7a5saJ1CFMylISoAUeCu5ADAHGSi
+         KqhBWqC9zZ/ZMTXAZ8uwQSukIE2Du0YopKVbj5rc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Feng Zhou <zhoufeng.zf@bytedance.com>,
+        Sandeep Penigalapati <sandeep.penigalapati@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 33/56] perf/x86/intel: Update event constraints for ICX
+Subject: [PATCH 5.14 123/172] ixgbe: Fix NULL pointer dereference in ixgbe_xdp_setup
 Date:   Mon,  4 Oct 2021 14:52:53 +0200
-Message-Id: <20211004125031.043196886@linuxfoundation.org>
+Message-Id: <20211004125048.950525466@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
-References: <20211004125030.002116402@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +42,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Feng Zhou <zhoufeng.zf@bytedance.com>
 
-[ Upstream commit ecc2123e09f9e71ddc6c53d71e283b8ada685fe2 ]
+[ Upstream commit 513e605d7a9ce136886cb42ebb2c40e9a6eb6333 ]
 
-According to the latest event list, the event encoding 0xEF is only
-available on the first 4 counters. Add it into the event constraints
-table.
+The ixgbe driver currently generates a NULL pointer dereference with
+some machine (online cpus < 63). This is due to the fact that the
+maximum value of num_xdp_queues is nr_cpu_ids. Code is in
+"ixgbe_set_rss_queues"".
 
-Fixes: 6017608936c1 ("perf/x86/intel: Add Icelake support")
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/1632842343-25862-1-git-send-email-kan.liang@linux.intel.com
+Here's how the problem repeats itself:
+Some machine (online cpus < 63), And user set num_queues to 63 through
+ethtool. Code is in the "ixgbe_set_channels",
+	adapter->ring_feature[RING_F_FDIR].limit = count;
+
+It becomes 63.
+
+When user use xdp, "ixgbe_set_rss_queues" will set queues num.
+	adapter->num_rx_queues = rss_i;
+	adapter->num_tx_queues = rss_i;
+	adapter->num_xdp_queues = ixgbe_xdp_queues(adapter);
+
+And rss_i's value is from
+	f = &adapter->ring_feature[RING_F_FDIR];
+	rss_i = f->indices = f->limit;
+
+So "num_rx_queues" > "num_xdp_queues", when run to "ixgbe_xdp_setup",
+	for (i = 0; i < adapter->num_rx_queues; i++)
+		if (adapter->xdp_ring[i]->xsk_umem)
+
+It leads to panic.
+
+Call trace:
+[exception RIP: ixgbe_xdp+368]
+RIP: ffffffffc02a76a0  RSP: ffff9fe16202f8d0  RFLAGS: 00010297
+RAX: 0000000000000000  RBX: 0000000000000020  RCX: 0000000000000000
+RDX: 0000000000000000  RSI: 000000000000001c  RDI: ffffffffa94ead90
+RBP: ffff92f8f24c0c18   R8: 0000000000000000   R9: 0000000000000000
+R10: ffff9fe16202f830  R11: 0000000000000000  R12: ffff92f8f24c0000
+R13: ffff9fe16202fc01  R14: 000000000000000a  R15: ffffffffc02a7530
+ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+ 7 [ffff9fe16202f8f0] dev_xdp_install at ffffffffa89fbbcc
+ 8 [ffff9fe16202f920] dev_change_xdp_fd at ffffffffa8a08808
+ 9 [ffff9fe16202f960] do_setlink at ffffffffa8a20235
+10 [ffff9fe16202fa88] rtnl_setlink at ffffffffa8a20384
+11 [ffff9fe16202fc78] rtnetlink_rcv_msg at ffffffffa8a1a8dd
+12 [ffff9fe16202fcf0] netlink_rcv_skb at ffffffffa8a717eb
+13 [ffff9fe16202fd40] netlink_unicast at ffffffffa8a70f88
+14 [ffff9fe16202fd80] netlink_sendmsg at ffffffffa8a71319
+15 [ffff9fe16202fdf0] sock_sendmsg at ffffffffa89df290
+16 [ffff9fe16202fe08] __sys_sendto at ffffffffa89e19c8
+17 [ffff9fe16202ff30] __x64_sys_sendto at ffffffffa89e1a64
+18 [ffff9fe16202ff38] do_syscall_64 at ffffffffa84042b9
+19 [ffff9fe16202ff50] entry_SYSCALL_64_after_hwframe at ffffffffa8c0008c
+
+So I fix ixgbe_max_channels so that it will not allow a setting of queues
+to be higher than the num_online_cpus(). And when run to ixgbe_xdp_setup,
+take the smaller value of num_rx_queues and num_xdp_queues.
+
+Fixes: 4a9b32f30f80 ("ixgbe: fix potential RX buffer starvation for AF_XDP")
+Signed-off-by: Feng Zhou <zhoufeng.zf@bytedance.com>
+Tested-by: Sandeep Penigalapati <sandeep.penigalapati@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c | 2 +-
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c    | 8 ++++++--
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
-index 9cb3266e148d..70758f99c9e4 100644
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -259,6 +259,7 @@ static struct event_constraint intel_icl_event_constraints[] = {
- 	INTEL_EVENT_CONSTRAINT_RANGE(0xa8, 0xb0, 0xf),
- 	INTEL_EVENT_CONSTRAINT_RANGE(0xb7, 0xbd, 0xf),
- 	INTEL_EVENT_CONSTRAINT_RANGE(0xd0, 0xe6, 0xf),
-+	INTEL_EVENT_CONSTRAINT(0xef, 0xf),
- 	INTEL_EVENT_CONSTRAINT_RANGE(0xf0, 0xf4, 0xf),
- 	EVENT_CONSTRAINT_END
- };
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c
+index 4ceaca0f6ce3..21321d164708 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c
+@@ -3204,7 +3204,7 @@ static unsigned int ixgbe_max_channels(struct ixgbe_adapter *adapter)
+ 		max_combined = ixgbe_max_rss_indices(adapter);
+ 	}
+ 
+-	return max_combined;
++	return min_t(int, max_combined, num_online_cpus());
+ }
+ 
+ static void ixgbe_get_channels(struct net_device *dev,
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index 14aea40da50f..77350e5fdf97 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -10112,6 +10112,7 @@ static int ixgbe_xdp_setup(struct net_device *dev, struct bpf_prog *prog)
+ 	struct ixgbe_adapter *adapter = netdev_priv(dev);
+ 	struct bpf_prog *old_prog;
+ 	bool need_reset;
++	int num_queues;
+ 
+ 	if (adapter->flags & IXGBE_FLAG_SRIOV_ENABLED)
+ 		return -EINVAL;
+@@ -10161,11 +10162,14 @@ static int ixgbe_xdp_setup(struct net_device *dev, struct bpf_prog *prog)
+ 	/* Kick start the NAPI context if there is an AF_XDP socket open
+ 	 * on that queue id. This so that receiving will start.
+ 	 */
+-	if (need_reset && prog)
+-		for (i = 0; i < adapter->num_rx_queues; i++)
++	if (need_reset && prog) {
++		num_queues = min_t(int, adapter->num_rx_queues,
++				   adapter->num_xdp_queues);
++		for (i = 0; i < num_queues; i++)
+ 			if (adapter->xdp_ring[i]->xsk_pool)
+ 				(void)ixgbe_xsk_wakeup(adapter->netdev, i,
+ 						       XDP_WAKEUP_RX);
++	}
+ 
+ 	return 0;
+ }
 -- 
 2.33.0
 
