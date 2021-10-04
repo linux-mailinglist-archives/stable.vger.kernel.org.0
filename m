@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CE8D420B3E
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:54:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2513F420C38
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:02:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233314AbhJDMz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 08:55:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57190 "EHLO mail.kernel.org"
+        id S234705AbhJDNDx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:03:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233336AbhJDMz5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:55:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22458611CA;
-        Mon,  4 Oct 2021 12:54:07 +0000 (UTC)
+        id S233722AbhJDNCd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:02:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE53D6139F;
+        Mon,  4 Oct 2021 12:59:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352048;
-        bh=a3kKQzprsEhnT0xC/Q3xEzNs/uiNm2Ol/Zu7WWqsyk8=;
+        s=korg; t=1633352353;
+        bh=26TA8nubAfFtNQJW6UV7BtYIqZcrh5Ub5l1uHmSyTUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2FUtFCVE1o2cnsLf8kF09Wu3GkM50EwAr9FqWiqgzLqgTLlAtij7IXErKMzKjVrm8
-         387l1HK85idq4+XipFEg/EffCJhefsS0k7EPxIeJZrkjw0beC002k2agVnYaBLfoy5
-         ++YUs76Yib1nDS/zwkjPYAWK60uZbOBUMRZfp7jM=
+        b=OUWZ3byi/XAwU5hDmNffm3DN/pUkbwV6BoGl0Cr7qTuJtfNntCG4mEWFqaK3ISq9h
+         ItG2RLgHYzRHqspim8194TDxhuvpM+5Zi1WHOqvCYF3JzNxuMd1o9lLOaUA8jI+U0V
+         tjxY9m6cM2edPQDJadBVesL97xMaLo1J+fIWU9NQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Baokun Li <libaokun1@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 12/41] scsi: iscsi: Adjust iface sysfs attr detection
+Subject: [PATCH 4.14 28/75] compiler.h: Introduce absolute_pointer macro
 Date:   Mon,  4 Oct 2021 14:52:03 +0200
-Message-Id: <20211004125026.981868008@linuxfoundation.org>
+Message-Id: <20211004125032.459433370@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
-References: <20211004125026.597501645@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 4e28550829258f7dab97383acaa477bd724c0ff4 ]
+[ Upstream commit f6b5f1a56987de837f8e25cd560847106b8632a8 ]
 
-ISCSI_NET_PARAM_IFACE_ENABLE belongs to enum iscsi_net_param instead of
-iscsi_iface_param so move it to ISCSI_NET_PARAM. Otherwise, when we call
-into the driver, we might not match and return that we don't want attr
-visible in sysfs. Found in code review.
+absolute_pointer() disassociates a pointer from its originating symbol
+type and context. Use it to prevent compiler warnings/errors such as
 
-Link: https://lore.kernel.org/r/20210901085336.2264295-1-libaokun1@huawei.com
-Fixes: e746f3451ec7 ("scsi: iscsi: Fix iface sysfs attr detection")
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+  drivers/net/ethernet/i825xx/82596.c: In function 'i82596_probe':
+  arch/m68k/include/asm/string.h:72:25: error:
+	'__builtin_memcpy' reading 6 bytes from a region of size 0 [-Werror=stringop-overread]
+
+Such warnings may be reported by gcc 11.x for string and memory
+operations on fixed addresses.
+
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ include/linux/compiler.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 39d03300d3d9..9906a3b562e9 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -429,9 +429,7 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
- 	struct iscsi_transport *t = iface->transport;
- 	int param = -1;
+diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+index 3b6e6522e0ec..d29b68379223 100644
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -152,6 +152,8 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
+     (typeof(ptr)) (__ptr + (off)); })
+ #endif
  
--	if (attr == &dev_attr_iface_enabled.attr)
--		param = ISCSI_NET_PARAM_IFACE_ENABLE;
--	else if (attr == &dev_attr_iface_def_taskmgmt_tmo.attr)
-+	if (attr == &dev_attr_iface_def_taskmgmt_tmo.attr)
- 		param = ISCSI_IFACE_PARAM_DEF_TASKMGMT_TMO;
- 	else if (attr == &dev_attr_iface_header_digest.attr)
- 		param = ISCSI_IFACE_PARAM_HDRDGST_EN;
-@@ -471,7 +469,9 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
- 	if (param != -1)
- 		return t->attr_is_visible(ISCSI_IFACE_PARAM, param);
- 
--	if (attr == &dev_attr_iface_vlan_id.attr)
-+	if (attr == &dev_attr_iface_enabled.attr)
-+		param = ISCSI_NET_PARAM_IFACE_ENABLE;
-+	else if (attr == &dev_attr_iface_vlan_id.attr)
- 		param = ISCSI_NET_PARAM_VLAN_ID;
- 	else if (attr == &dev_attr_iface_vlan_priority.attr)
- 		param = ISCSI_NET_PARAM_VLAN_PRIORITY;
++#define absolute_pointer(val)	RELOC_HIDE((void *)(val), 0)
++
+ #ifndef OPTIMIZER_HIDE_VAR
+ #define OPTIMIZER_HIDE_VAR(var) barrier()
+ #endif
 -- 
 2.33.0
 
