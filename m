@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A357421081
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:43:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 766D2421074
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:42:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238188AbhJDNpP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:45:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51966 "EHLO mail.kernel.org"
+        id S238133AbhJDNn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:43:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238302AbhJDNmB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238312AbhJDNmB (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 4 Oct 2021 09:42:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 952A061B5F;
-        Mon,  4 Oct 2021 13:19:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B3FE63253;
+        Mon,  4 Oct 2021 13:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353559;
-        bh=GTeihYqeg/dAY5dWT6mKp5H7xEbmQHk9pU9mM3bKo5Y=;
+        s=korg; t=1633353561;
+        bh=GlWKmOobAdEdOz+XCFsvbufbbhhE9Url2lpdui7hLC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gdY6wLqsIxy+CpS9b6y0G8X5mfRwQOXS4aA82mJ52io65zb/O43dqsq49FRyLjzYl
-         LeAKT/lHwRkmE9GZHu+EbaeKrmXToUiDzLkKxd6lA5FAVMTwyELXqYFpcBvrK3E4P1
-         gl7BXUThFpHYrFVCS4XzikrFSyRZaAtixkZfcTio=
+        b=nLvoIXtD7fsf14pE1YMPto6ZvAu4MwiTSguy64AyVOouHzihFU4/TCVqCJbK57KVT
+         Og7P+zK7yrJjDzcYJaaqot2+lC4HKKibgQ9KNxCQ9+MxNY9HYPjOLpPytUclW1YaYO
+         F/1OQP5/mcLhLm/XOIB1RErCv6aU51CBPhq8wGSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TCS Robot <tcs_robot@tencent.com>,
-        Haimin Zhang <tcs_kernel@tencent.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.14 169/172] KVM: x86: Handle SRCU initialization failure during page track init
-Date:   Mon,  4 Oct 2021 14:53:39 +0200
-Message-Id: <20211004125050.431128011@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.14 170/172] netfilter: conntrack: serialize hash resizes and cleanups
+Date:   Mon,  4 Oct 2021 14:53:40 +0200
+Message-Id: <20211004125050.470578865@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
 References: <20211004125044.945314266@linuxfoundation.org>
@@ -40,80 +40,209 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haimin Zhang <tcs_kernel@tencent.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit eb7511bf9182292ef1df1082d23039e856d1ddfb upstream.
+commit e9edc188fc76499b0b9bd60364084037f6d03773 upstream.
 
-Check the return of init_srcu_struct(), which can fail due to OOM, when
-initializing the page track mechanism.  Lack of checking leads to a NULL
-pointer deref found by a modified syzkaller.
+Syzbot was able to trigger the following warning [1]
 
-Reported-by: TCS Robot <tcs_robot@tencent.com>
-Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
-Message-Id: <1630636626-12262-1-git-send-email-tcs_kernel@tencent.com>
-[Move the call towards the beginning of kvm_arch_init_vm. - Paolo]
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+No repro found by syzbot yet but I was able to trigger similar issue
+by having 2 scripts running in parallel, changing conntrack hash sizes,
+and:
+
+for j in `seq 1 1000` ; do unshare -n /bin/true >/dev/null ; done
+
+It would take more than 5 minutes for net_namespace structures
+to be cleaned up.
+
+This is because nf_ct_iterate_cleanup() has to restart everytime
+a resize happened.
+
+By adding a mutex, we can serialize hash resizes and cleanups
+and also make get_next_corpse() faster by skipping over empty
+buckets.
+
+Even without resizes in the picture, this patch considerably
+speeds up network namespace dismantles.
+
+[1]
+INFO: task syz-executor.0:8312 can't die for more than 144 seconds.
+task:syz-executor.0  state:R  running task     stack:25672 pid: 8312 ppid:  6573 flags:0x00004006
+Call Trace:
+ context_switch kernel/sched/core.c:4955 [inline]
+ __schedule+0x940/0x26f0 kernel/sched/core.c:6236
+ preempt_schedule_common+0x45/0xc0 kernel/sched/core.c:6408
+ preempt_schedule_thunk+0x16/0x18 arch/x86/entry/thunk_64.S:35
+ __local_bh_enable_ip+0x109/0x120 kernel/softirq.c:390
+ local_bh_enable include/linux/bottom_half.h:32 [inline]
+ get_next_corpse net/netfilter/nf_conntrack_core.c:2252 [inline]
+ nf_ct_iterate_cleanup+0x15a/0x450 net/netfilter/nf_conntrack_core.c:2275
+ nf_conntrack_cleanup_net_list+0x14c/0x4f0 net/netfilter/nf_conntrack_core.c:2469
+ ops_exit_list+0x10d/0x160 net/core/net_namespace.c:171
+ setup_net+0x639/0xa30 net/core/net_namespace.c:349
+ copy_net_ns+0x319/0x760 net/core/net_namespace.c:470
+ create_new_namespaces+0x3f6/0xb20 kernel/nsproxy.c:110
+ unshare_nsproxy_namespaces+0xc1/0x1f0 kernel/nsproxy.c:226
+ ksys_unshare+0x445/0x920 kernel/fork.c:3128
+ __do_sys_unshare kernel/fork.c:3202 [inline]
+ __se_sys_unshare kernel/fork.c:3200 [inline]
+ __x64_sys_unshare+0x2d/0x40 kernel/fork.c:3200
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7f63da68e739
+RSP: 002b:00007f63d7c05188 EFLAGS: 00000246 ORIG_RAX: 0000000000000110
+RAX: ffffffffffffffda RBX: 00007f63da792f80 RCX: 00007f63da68e739
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000040000000
+RBP: 00007f63da6e8cc4 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f63da792f80
+R13: 00007fff50b75d3f R14: 00007f63d7c05300 R15: 0000000000022000
+
+Showing all locks held in the system:
+1 lock held by khungtaskd/27:
+ #0: ffffffff8b980020 (rcu_read_lock){....}-{1:2}, at: debug_show_all_locks+0x53/0x260 kernel/locking/lockdep.c:6446
+2 locks held by kworker/u4:2/153:
+ #0: ffff888010c69138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: arch_atomic64_set arch/x86/include/asm/atomic64_64.h:34 [inline]
+ #0: ffff888010c69138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: arch_atomic_long_set include/linux/atomic/atomic-long.h:41 [inline]
+ #0: ffff888010c69138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: atomic_long_set include/linux/atomic/atomic-instrumented.h:1198 [inline]
+ #0: ffff888010c69138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: set_work_data kernel/workqueue.c:634 [inline]
+ #0: ffff888010c69138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: set_work_pool_and_clear_pending kernel/workqueue.c:661 [inline]
+ #0: ffff888010c69138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x896/0x1690 kernel/workqueue.c:2268
+ #1: ffffc9000140fdb0 ((kfence_timer).work){+.+.}-{0:0}, at: process_one_work+0x8ca/0x1690 kernel/workqueue.c:2272
+1 lock held by systemd-udevd/2970:
+1 lock held by in:imklog/6258:
+ #0: ffff88807f970ff0 (&f->f_pos_lock){+.+.}-{3:3}, at: __fdget_pos+0xe9/0x100 fs/file.c:990
+3 locks held by kworker/1:6/8158:
+1 lock held by syz-executor.0/8312:
+2 locks held by kworker/u4:13/9320:
+1 lock held by syz-executor.5/10178:
+1 lock held by syz-executor.4/10217:
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/kvm_page_track.h |    2 +-
- arch/x86/kvm/mmu/page_track.c         |    4 ++--
- arch/x86/kvm/x86.c                    |    7 ++++++-
- 3 files changed, 9 insertions(+), 4 deletions(-)
+ net/netfilter/nf_conntrack_core.c |   70 ++++++++++++++++++++------------------
+ 1 file changed, 37 insertions(+), 33 deletions(-)
 
---- a/arch/x86/include/asm/kvm_page_track.h
-+++ b/arch/x86/include/asm/kvm_page_track.h
-@@ -46,7 +46,7 @@ struct kvm_page_track_notifier_node {
- 			    struct kvm_page_track_notifier_node *node);
- };
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -75,6 +75,9 @@ static __read_mostly struct kmem_cache *
+ static DEFINE_SPINLOCK(nf_conntrack_locks_all_lock);
+ static __read_mostly bool nf_conntrack_locks_all;
  
--void kvm_page_track_init(struct kvm *kvm);
-+int kvm_page_track_init(struct kvm *kvm);
- void kvm_page_track_cleanup(struct kvm *kvm);
++/* serialize hash resizes and nf_ct_iterate_cleanup */
++static DEFINE_MUTEX(nf_conntrack_mutex);
++
+ #define GC_SCAN_INTERVAL	(120u * HZ)
+ #define GC_SCAN_MAX_DURATION	msecs_to_jiffies(10)
  
- void kvm_page_track_free_memslot(struct kvm_memory_slot *slot);
---- a/arch/x86/kvm/mmu/page_track.c
-+++ b/arch/x86/kvm/mmu/page_track.c
-@@ -163,13 +163,13 @@ void kvm_page_track_cleanup(struct kvm *
- 	cleanup_srcu_struct(&head->track_srcu);
+@@ -2192,28 +2195,31 @@ get_next_corpse(int (*iter)(struct nf_co
+ 	spinlock_t *lockp;
+ 
+ 	for (; *bucket < nf_conntrack_htable_size; (*bucket)++) {
++		struct hlist_nulls_head *hslot = &nf_conntrack_hash[*bucket];
++
++		if (hlist_nulls_empty(hslot))
++			continue;
++
+ 		lockp = &nf_conntrack_locks[*bucket % CONNTRACK_LOCKS];
+ 		local_bh_disable();
+ 		nf_conntrack_lock(lockp);
+-		if (*bucket < nf_conntrack_htable_size) {
+-			hlist_nulls_for_each_entry(h, n, &nf_conntrack_hash[*bucket], hnnode) {
+-				if (NF_CT_DIRECTION(h) != IP_CT_DIR_REPLY)
+-					continue;
+-				/* All nf_conn objects are added to hash table twice, one
+-				 * for original direction tuple, once for the reply tuple.
+-				 *
+-				 * Exception: In the IPS_NAT_CLASH case, only the reply
+-				 * tuple is added (the original tuple already existed for
+-				 * a different object).
+-				 *
+-				 * We only need to call the iterator once for each
+-				 * conntrack, so we just use the 'reply' direction
+-				 * tuple while iterating.
+-				 */
+-				ct = nf_ct_tuplehash_to_ctrack(h);
+-				if (iter(ct, data))
+-					goto found;
+-			}
++		hlist_nulls_for_each_entry(h, n, hslot, hnnode) {
++			if (NF_CT_DIRECTION(h) != IP_CT_DIR_REPLY)
++				continue;
++			/* All nf_conn objects are added to hash table twice, one
++			 * for original direction tuple, once for the reply tuple.
++			 *
++			 * Exception: In the IPS_NAT_CLASH case, only the reply
++			 * tuple is added (the original tuple already existed for
++			 * a different object).
++			 *
++			 * We only need to call the iterator once for each
++			 * conntrack, so we just use the 'reply' direction
++			 * tuple while iterating.
++			 */
++			ct = nf_ct_tuplehash_to_ctrack(h);
++			if (iter(ct, data))
++				goto found;
+ 		}
+ 		spin_unlock(lockp);
+ 		local_bh_enable();
+@@ -2231,26 +2237,20 @@ found:
+ static void nf_ct_iterate_cleanup(int (*iter)(struct nf_conn *i, void *data),
+ 				  void *data, u32 portid, int report)
+ {
+-	unsigned int bucket = 0, sequence;
++	unsigned int bucket = 0;
+ 	struct nf_conn *ct;
+ 
+ 	might_sleep();
+ 
+-	for (;;) {
+-		sequence = read_seqcount_begin(&nf_conntrack_generation);
+-
+-		while ((ct = get_next_corpse(iter, data, &bucket)) != NULL) {
+-			/* Time to push up daises... */
++	mutex_lock(&nf_conntrack_mutex);
++	while ((ct = get_next_corpse(iter, data, &bucket)) != NULL) {
++		/* Time to push up daises... */
+ 
+-			nf_ct_delete(ct, portid, report);
+-			nf_ct_put(ct);
+-			cond_resched();
+-		}
+-
+-		if (!read_seqcount_retry(&nf_conntrack_generation, sequence))
+-			break;
+-		bucket = 0;
++		nf_ct_delete(ct, portid, report);
++		nf_ct_put(ct);
++		cond_resched();
+ 	}
++	mutex_unlock(&nf_conntrack_mutex);
  }
  
--void kvm_page_track_init(struct kvm *kvm)
-+int kvm_page_track_init(struct kvm *kvm)
- {
- 	struct kvm_page_track_notifier_head *head;
+ struct iter_data {
+@@ -2486,8 +2486,10 @@ int nf_conntrack_hash_resize(unsigned in
+ 	if (!hash)
+ 		return -ENOMEM;
  
- 	head = &kvm->arch.track_notifier_head;
--	init_srcu_struct(&head->track_srcu);
- 	INIT_HLIST_HEAD(&head->track_notifier_list);
-+	return init_srcu_struct(&head->track_srcu);
- }
++	mutex_lock(&nf_conntrack_mutex);
+ 	old_size = nf_conntrack_htable_size;
+ 	if (old_size == hashsize) {
++		mutex_unlock(&nf_conntrack_mutex);
+ 		kvfree(hash);
+ 		return 0;
+ 	}
+@@ -2523,6 +2525,8 @@ int nf_conntrack_hash_resize(unsigned in
+ 	nf_conntrack_all_unlock();
+ 	local_bh_enable();
  
- /*
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -11093,9 +11093,15 @@ void kvm_arch_free_vm(struct kvm *kvm)
- 
- int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- {
-+	int ret;
++	mutex_unlock(&nf_conntrack_mutex);
 +
- 	if (type)
- 		return -EINVAL;
- 
-+	ret = kvm_page_track_init(kvm);
-+	if (ret)
-+		return ret;
-+
- 	INIT_HLIST_HEAD(&kvm->arch.mask_notifier_list);
- 	INIT_LIST_HEAD(&kvm->arch.active_mmu_pages);
- 	INIT_LIST_HEAD(&kvm->arch.zapped_obsolete_pages);
-@@ -11128,7 +11134,6 @@ int kvm_arch_init_vm(struct kvm *kvm, un
- 
- 	kvm_apicv_init(kvm);
- 	kvm_hv_init_vm(kvm);
--	kvm_page_track_init(kvm);
- 	kvm_mmu_init_vm(kvm);
- 
- 	return static_call(kvm_x86_vm_init)(kvm);
+ 	synchronize_net();
+ 	kvfree(old_hash);
+ 	return 0;
 
 
