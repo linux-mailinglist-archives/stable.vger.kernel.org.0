@@ -2,109 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5F62420689
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 09:20:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4371E4206BD
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 09:40:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229484AbhJDHWd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 03:22:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47184 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229478AbhJDHWd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 03:22:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D8CC610FB;
-        Mon,  4 Oct 2021 07:20:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633332045;
-        bh=ON9CK3XRzMqoI/ij0MYu2d0w6sGiAjn9TWL7zrg3BUs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VHXEjC0/qIziU+y3wvcqO+udrRv91NeTU4mJgPvM0jCUw9CDfF8IA/D5AC8dlQf1Y
-         OMVCeEKh+GnfoNdncvr/puPgqZVjv3F5uLMTyBcWmRnFfU7rQLMoq4T7g387+9P8YH
-         VWOw/Tmnk/NktAtiRei39De6w/jGsKeNZKZhwPYPksy4hEb+nGAKJ2m849xaeB+qsR
-         5H1+m6HeYN8J/14NhcvS0zxdaOxAPIsucE4xo4gyQJb97S9fv4ymZKoWw1DCAA2UXN
-         DUgTDsBTfST5+vvuDU3TA5n2Syn41V/qYu46YLOElQ383iiKRVy5pBN7oTI5eGy7H5
-         Aa2BqrI2eRQ1w==
-Date:   Mon, 4 Oct 2021 15:20:39 +0800
-From:   Peter Chen <peter.chen@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Fabio Estevam <festevam@gmail.com>, shawnguo@kernel.org,
-        marex@denx.de, linux-usb@vger.kernel.org, heiko.thiery@gmail.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3] usb: chipidea: ci_hdrc_imx: Also search for 'phys'
- phandle
-Message-ID: <20211004072039.GB27151@Peter>
-References: <20210921113754.767631-1-festevam@gmail.com>
- <7f3b82ad-ff12-ce23-12a3-25b09c767759@kontron.de>
- <20211004065142.GA27151@Peter>
- <YVqpKIq88Co4IWCP@kroah.com>
+        id S230178AbhJDHmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 03:42:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39258 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230010AbhJDHmF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 03:42:05 -0400
+Received: from mail-vs1-xe34.google.com (mail-vs1-xe34.google.com [IPv6:2607:f8b0:4864:20::e34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9340CC061745
+        for <stable@vger.kernel.org>; Mon,  4 Oct 2021 00:40:16 -0700 (PDT)
+Received: by mail-vs1-xe34.google.com with SMTP id i30so18341507vsj.13
+        for <stable@vger.kernel.org>; Mon, 04 Oct 2021 00:40:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=pckxtullhVREPerXztIf6cTr/3mMvTjli3nJvLvfpEs=;
+        b=RmAOzbomPTO8hE0RstPg6S1XlcLefa+7bJZlYgEHtz9DYTHvagHF0j6uAVAeo4buNp
+         ibiJvmhXW1v45ozhqIMEmU2+KpujgwKUvm3KSGyJA59YpldjPG4loEyZ2zrcPaWYpXio
+         URzZuteXKCNd7KrwT7urX0w4MS0kzn+UD5GSGEtxfBXiUjY6cw1hZsVK9JQY/iANaNgb
+         hnGsGlShsm0xz4NvNyvDkC+Ooh517MOyTH9oEqOThy/FeXG+hfjlCFt2kLRm1hGc1WP0
+         2O6hTiCqErcPKN0Dl2hXoid01diict7nseZz2S95EMck3dYhNSRel7u5x5IhoQyMeNn+
+         j5+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=pckxtullhVREPerXztIf6cTr/3mMvTjli3nJvLvfpEs=;
+        b=Nojv9Mlvdwlp9aNcK1+O6eX81k/xtXeKCrIBrw3SI4M47CNEkJ+hrUCKRKjkOK0epe
+         RjyA4LIaOMHO36SVs+zxk4fmVgoMCKUtuXIlfA0qDqGyQD03sFipaHes9AJkKbzaxOKL
+         cFWwcJImR4tJUdvfF3OIV1P+Eew4ZToYhulPncqBsHgCPG1EsHUQY3XxSV11u7rMsEtg
+         HoCM5kE3QAFT0ADy3X7vwHrOxx10/kpTNXHeOUQdLKHRfjAi/gr11MNoavkoX7g7+5if
+         dmpvASsD/G30r6WJUFUQ4xhIUilGbUy4066Qq7HflS57Wx5agHlJGGU91RJN2sqXGmOo
+         yb5A==
+X-Gm-Message-State: AOAM533Qulr61iLhVIIPm6hoCI9NbiUETg6jST0fMWv6LuFB8FfF4wMM
+        I4JlxdUGbHwRWES4AkZLIlaqdltiDSx7piIe2SY=
+X-Google-Smtp-Source: ABdhPJyudM9M4k/RQebQFVWaBirPygVh2OP56KlSTY+Bs7/n3kbuDRlPNOtTnU/SBIirPJzmmvsEHgjqAJLANDAFgSw=
+X-Received: by 2002:a05:6102:c6:: with SMTP id u6mr11214795vsp.43.1633333215403;
+ Mon, 04 Oct 2021 00:40:15 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YVqpKIq88Co4IWCP@kroah.com>
+Received: by 2002:ab0:3898:0:0:0:0:0 with HTTP; Mon, 4 Oct 2021 00:40:15 -0700 (PDT)
+Reply-To: UlricaMica122@outlook.com
+From:   Ulrica Mica <ulricamica526@gmail.com>
+Date:   Mon, 4 Oct 2021 07:40:15 +0000
+Message-ID: <CAE52iB=CHcqxsYVfp=cT_Xaa3CP24KK0LfnjZmD_822u-jgSaQ@mail.gmail.com>
+Subject: good morning
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21-10-04 09:11:36, Greg KH wrote:
-> On Mon, Oct 04, 2021 at 02:51:42PM +0800, Peter Chen wrote:
-> > On 21-09-30 16:36:51, Frieder Schrempf wrote:
-> > > On 21.09.21 13:37, Fabio Estevam wrote:
-> > > > When passing 'phys' in the devicetree to describe the USB PHY phandle
-> > > > (which is the recommended way according to
-> > > > Documentation/devicetree/bindings/usb/ci-hdrc-usb2.txt) the
-> > > > following NULL pointer dereference is observed on i.MX7 and i.MX8MM:
-> > > > 
-> > > > [    1.489344] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000098
-> > > > [    1.498170] Mem abort info:
-> > > > [    1.500966]   ESR = 0x96000044
-> > > > [    1.504030]   EC = 0x25: DABT (current EL), IL = 32 bits
-> > > > [    1.509356]   SET = 0, FnV = 0
-> > > > [    1.512416]   EA = 0, S1PTW = 0
-> > > > [    1.515569]   FSC = 0x04: level 0 translation fault
-> > > > [    1.520458] Data abort info:
-> > > > [    1.523349]   ISV = 0, ISS = 0x00000044
-> > > > [    1.527196]   CM = 0, WnR = 1
-> > > > [    1.530176] [0000000000000098] user address but active_mm is swapper
-> > > > [    1.536544] Internal error: Oops: 96000044 [#1] PREEMPT SMP
-> > > > [    1.542125] Modules linked in:
-> > > > [    1.545190] CPU: 3 PID: 7 Comm: kworker/u8:0 Not tainted 5.14.0-dirty #3
-> > > > [    1.551901] Hardware name: Kontron i.MX8MM N801X S (DT)
-> > > > [    1.557133] Workqueue: events_unbound deferred_probe_work_func
-> > > > [    1.562984] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
-> > > > [    1.568998] pc : imx7d_charger_detection+0x3f0/0x510
-> > > > [    1.573973] lr : imx7d_charger_detection+0x22c/0x510
-> > > > 
-> > > > This happens because the charger functions check for the phy presence
-> > > > inside the imx_usbmisc_data structure (data->usb_phy), but the chipidea
-> > > > core populates the usb_phy passed via 'phys' inside 'struct ci_hdrc'
-> > > > (ci->usb_phy) instead.
-> > > > 
-> > > > This causes the NULL pointer dereference inside imx7d_charger_detection().
-> > > > 
-> > > > Fix it by also searching for 'phys' in case 'fsl,usbphy' is not found.
-> > > > 
-> > > > Tested on a imx7s-warp board.
-> > > > 
-> > > > Cc: stable@vger.kernel.org
-> > > > Fixes: 746f316b753a ("usb: chipidea: introduce imx7d USB charger detection")
-> > > > Reported-by: Heiko Thiery <heiko.thiery@gmail.com>
-> > > > Signed-off-by: Fabio Estevam <festevam@gmail.com>
-> > > > Reviewed-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-> > > 
-> > > Tested-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-> > 
-> > Acked-by: Peter Chen <peter.chen@kernel.org>
-> > 
-> > Greg, would you please help apply it?
-> 
-> Sure.  But I have usually been ignoring chipidea patches and hoping you
-> would pick them up and forward them on to me.  Should I no longer do
-> that and just wait for an ack from you?
-
-Yes, please do that way, thanks.
-
 -- 
-
-Thanks,
-Peter Chen
-
+Hello
+Can i talk to you please?
+Mrs. Ulrica Mica
