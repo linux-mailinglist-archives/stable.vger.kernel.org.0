@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BAE2421025
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:39:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B077F420EB2
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:25:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237425AbhJDNlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:41:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53350 "EHLO mail.kernel.org"
+        id S236524AbhJDN13 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:27:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238077AbhJDNjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:39:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E265C61B43;
-        Mon,  4 Oct 2021 13:18:03 +0000 (UTC)
+        id S236929AbhJDNZa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:25:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 312CA61B63;
+        Mon,  4 Oct 2021 13:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353484;
-        bh=+nmn2T/gLkpxJZ3Hz0C18UkyZUU9sXotryoqJch8cxA=;
+        s=korg; t=1633353076;
+        bh=qu+WSH9qPU3IcvVtKrMjd5cwDirZGSzcucxPtJM+UzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lJY2EbBuQj1flo2yD0iheUGdsrmVz0E5Vdjt/8vBeO53P8Y5g/x64lM/suXflrQlV
-         e5170xrowGc4/br7pjatCbJzkRuS9aubPehp1iyZQd8kImDl6zedLR7HwYUJwDls3a
-         Kowe58TyD4MEkF5I0bBmEvaByO/5MxcLP05a9xeM=
+        b=RKjLclRp/den9bjLakZ2cp7onqEIGF1vQqDV66lQcSt6T5WgpubrHBs2E96HDVQUj
+         yeUn8vwBI/Nce0EWeCadx5fQLkHlCpMwmByQLhNAZoUqXOgkUkPoCE8j6mJbPakTxL
+         Lnq0nZ6T63PffLO1+RdXyeGNhQag3EWrafCCFjuw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Nirmoy Das <nirmoy.das@amd.com>
-Subject: [PATCH 5.14 147/172] debugfs: debugfs_create_file_size(): use IS_ERR to check for error
-Date:   Mon,  4 Oct 2021 14:53:17 +0200
-Message-Id: <20211004125049.716004118@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        yangerkun <yangerkun@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 80/93] ext4: fix potential infinite loop in ext4_dx_readdir()
+Date:   Mon,  4 Oct 2021 14:53:18 +0200
+Message-Id: <20211004125037.238214278@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +40,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nirmoy Das <nirmoy.das@amd.com>
+From: yangerkun <yangerkun@huawei.com>
 
-commit af505cad9567f7a500d34bf183696d570d7f6810 upstream.
+commit 42cb447410d024e9d54139ae9c21ea132a8c384c upstream.
 
-debugfs_create_file() returns encoded error so use IS_ERR for checking
-return value.
+When ext4_htree_fill_tree() fails, ext4_dx_readdir() can run into an
+infinite loop since if info->last_pos != ctx->pos this will reset the
+directory scan and reread the failing entry.  For example:
 
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
-Fixes: ff9fb72bc077 ("debugfs: return error values, not NULL")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210902102917.2233-1-nirmoy.das@amd.com
+1. a dx_dir which has 3 block, block 0 as dx_root block, block 1/2 as
+   leaf block which own the ext4_dir_entry_2
+2. block 1 read ok and call_filldir which will fill the dirent and update
+   the ctx->pos
+3. block 2 read fail, but we has already fill some dirent, so we will
+   return back to userspace will a positive return val(see ksys_getdents64)
+4. the second ext4_dx_readdir will reset the world since info->last_pos
+   != ctx->pos, and will also init the curr_hash which pos to block 1
+5. So we will read block1 too, and once block2 still read fail, we can
+   only fill one dirent because the hash of the entry in block1(besides
+   the last one) won't greater than curr_hash
+6. this time, we forget update last_pos too since the read for block2
+   will fail, and since we has got the one entry, ksys_getdents64 can
+   return success
+7. Latter we will trapped in a loop with step 4~6
+
+Cc: stable@kernel.org
+Signed-off-by: yangerkun <yangerkun@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20210914111415.3921954-1-yangerkun@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/debugfs/inode.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/dir.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/debugfs/inode.c
-+++ b/fs/debugfs/inode.c
-@@ -528,7 +528,7 @@ void debugfs_create_file_size(const char
- {
- 	struct dentry *de = debugfs_create_file(name, mode, parent, data, fops);
+--- a/fs/ext4/dir.c
++++ b/fs/ext4/dir.c
+@@ -534,7 +534,7 @@ static int ext4_dx_readdir(struct file *
+ 	struct dir_private_info *info = file->private_data;
+ 	struct inode *inode = file_inode(file);
+ 	struct fname *fname;
+-	int	ret;
++	int ret = 0;
  
--	if (de)
-+	if (!IS_ERR(de))
- 		d_inode(de)->i_size = file_size;
+ 	if (!info) {
+ 		info = ext4_htree_create_dir_info(file, ctx->pos);
+@@ -582,7 +582,7 @@ static int ext4_dx_readdir(struct file *
+ 						   info->curr_minor_hash,
+ 						   &info->next_hash);
+ 			if (ret < 0)
+-				return ret;
++				goto finished;
+ 			if (ret == 0) {
+ 				ctx->pos = ext4_get_htree_eof(file);
+ 				break;
+@@ -613,7 +613,7 @@ static int ext4_dx_readdir(struct file *
+ 	}
+ finished:
+ 	info->last_pos = ctx->pos;
+-	return 0;
++	return ret < 0 ? ret : 0;
  }
- EXPORT_SYMBOL_GPL(debugfs_create_file_size);
+ 
+ static int ext4_dir_open(struct inode * inode, struct file * filp)
 
 
