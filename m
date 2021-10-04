@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64324420B7D
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:56:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4013A420DBA
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:16:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233613AbhJDM5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 08:57:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57824 "EHLO mail.kernel.org"
+        id S235089AbhJDNR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:17:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233624AbhJDM5D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:57:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3267613AC;
-        Mon,  4 Oct 2021 12:55:14 +0000 (UTC)
+        id S235573AbhJDNQE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:16:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DDEDF61B29;
+        Mon,  4 Oct 2021 13:06:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352115;
-        bh=8PiVwGkXWJD5okVWy9HY50VjTZ6cNLUcjQvgfdQ5A/k=;
+        s=korg; t=1633352786;
+        bh=gG59fSRIIgy3lVwCTUFGi1F3PsQ72ZwhLHqxapx85oI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QJasmgqmWRb+m30OxiYH8RYlO88FRA6FgESnkKh6pnBW8B1IcROIkLTr7+d7u/054
-         xZ9kN4BtWYGWUHHkpC8RGeMlffHs8Cy+6tC2LPWT2fmnySB7RNLiJihuJ+bxmu1ObH
-         oYjNRTkvk4umlTNSoqjL4Ehgp7XvZtKYTu6KkFI8=
+        b=xNJRSm8o8Db+ewpSFsOFLWz5c9Qkmb3oQU19RU2kpL+IekDxM48/CQn2ZRli/0Ycs
+         z7e/wsS6N0t1tf3OWDRrFLNC/9jlPBx/NXS1bSdjUdw+JMsVV9p7m2LYVJVILysNvc
+         rv+sVZ7iN1josWauX5r8v7qb9RgsmeGbHugjKnzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+07efed3bc5a1407bd742@syzkaller.appspotmail.com,
-        "F.A. SULAIMAN" <asha.16@itfac.mrt.ac.lk>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.4 38/41] HID: betop: fix slab-out-of-bounds Write in betop_probe
+        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jonathan Hsu <jonathan.hsu@mediatek.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 09/56] scsi: ufs: Fix illegal offset in UPIU event trace
 Date:   Mon,  4 Oct 2021 14:52:29 +0200
-Message-Id: <20211004125027.795710426@linuxfoundation.org>
+Message-Id: <20211004125030.306636302@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
-References: <20211004125026.597501645@linuxfoundation.org>
+In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
+References: <20211004125030.002116402@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: F.A.Sulaiman <asha.16@itfac.mrt.ac.lk>
+From: Jonathan Hsu <jonathan.hsu@mediatek.com>
 
-commit 1e4ce418b1cb1a810256b5fb3fd33d22d1325993 upstream.
+commit e8c2da7e329ce004fee748b921e4c765dc2fa338 upstream.
 
-Syzbot reported slab-out-of-bounds Write bug in hid-betopff driver.
-The problem is the driver assumes the device must have an input report but
-some malicious devices violate this assumption.
+Fix incorrect index for UTMRD reference in ufshcd_add_tm_upiu_trace().
 
-So this patch checks hid_device's input is non empty before it's been used.
-
-Reported-by: syzbot+07efed3bc5a1407bd742@syzkaller.appspotmail.com
-Signed-off-by: F.A. SULAIMAN <asha.16@itfac.mrt.ac.lk>
-Reviewed-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Link: https://lore.kernel.org/r/20210924085848.25500-1-jonathan.hsu@mediatek.com
+Fixes: 4b42d557a8ad ("scsi: ufs: core: Fix wrong Task Tag used in task management request UPIUs")
+Cc: stable@vger.kernel.org
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jonathan Hsu <jonathan.hsu@mediatek.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-betopff.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/scsi/ufs/ufshcd.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/hid/hid-betopff.c
-+++ b/drivers/hid/hid-betopff.c
-@@ -59,15 +59,22 @@ static int betopff_init(struct hid_devic
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -320,8 +320,7 @@ static void ufshcd_add_query_upiu_trace(
+ static void ufshcd_add_tm_upiu_trace(struct ufs_hba *hba, unsigned int tag,
+ 		const char *str)
  {
- 	struct betopff_device *betopff;
- 	struct hid_report *report;
--	struct hid_input *hidinput =
--			list_first_entry(&hid->inputs, struct hid_input, list);
-+	struct hid_input *hidinput;
- 	struct list_head *report_list =
- 			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
--	struct input_dev *dev = hidinput->input;
-+	struct input_dev *dev;
- 	int field_count = 0;
- 	int error;
- 	int i, j;
+-	int off = (int)tag - hba->nutrs;
+-	struct utp_task_req_desc *descp = &hba->utmrdl_base_addr[off];
++	struct utp_task_req_desc *descp = &hba->utmrdl_base_addr[tag];
  
-+	if (list_empty(&hid->inputs)) {
-+		hid_err(hid, "no inputs found\n");
-+		return -ENODEV;
-+	}
-+
-+	hidinput = list_first_entry(&hid->inputs, struct hid_input, list);
-+	dev = hidinput->input;
-+
- 	if (list_empty(report_list)) {
- 		hid_err(hid, "no output reports found\n");
- 		return -ENODEV;
+ 	trace_ufshcd_upiu(dev_name(hba->dev), str, &descp->req_header,
+ 			&descp->input_param1);
 
 
