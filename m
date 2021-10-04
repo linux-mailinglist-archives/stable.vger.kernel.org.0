@@ -2,43 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 801FF420D3A
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:11:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 007B0420BEB
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:59:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235294AbhJDNM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:12:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45614 "EHLO mail.kernel.org"
+        id S233350AbhJDNBK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:01:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235590AbhJDNKb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:10:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6872B6187D;
-        Mon,  4 Oct 2021 13:03:53 +0000 (UTC)
+        id S234232AbhJDM7i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:59:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE3B561425;
+        Mon,  4 Oct 2021 12:57:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352634;
-        bh=Ofpdn3+5syBLPpoTCj6UEHk3TkbzVCImSc2gI52dcE0=;
+        s=korg; t=1633352252;
+        bh=oOiKDlFbuWZmdynbxMwkSVSJ3PrCJoVgN6O7BwsAt7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f3JfnQf/bH5a5zoWHhGg/Q4zuiynFSJYW+6J/nYiWOgZY/O8Jt5JHvQS6jDcfyrVo
-         xNK+S6wqTVUnAe/qu9sRGNwhSMGAArVyWYqrtPtVKu4Ru0xHw/JXj0jzYCrzGNxf0R
-         JlAoZWiNntI0yDf3bxFzRhoBGiDO9OlWibK3F27E=
+        b=DnkE0fo+PwhvwQixYa5ZUzCS214lVIsNYal/s0dXNWNimZvFUqwGG2Y1CZMvtn/vG
+         2cEVhT6K2XCBwcTC3P1Xswcp595iQ1Rp7VeK1KKyPKsBdDTdd/Tt7Gg/hmmZAhEDF9
+         IJCIHLf+4Kn2Or+WoqpufPUpGkbIAMf7Te+6PMJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Miodrag Dinic <miodrag.dinic@mips.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>,
-        Goran Ferenc <goran.ferenc@mips.com>,
-        Aleksandar Markovic <aleksandar.markovic@mips.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 29/95] irqchip/goldfish-pic: Select GENERIC_IRQ_CHIP to fix build
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 15/57] net: hso: fix muxed tty registration
 Date:   Mon,  4 Oct 2021 14:51:59 +0200
-Message-Id: <20211004125034.512129998@linuxfoundation.org>
+Message-Id: <20211004125029.415102900@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
+References: <20211004125028.940212411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,55 +39,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 969ac78db78c723a24e9410666b457cc1b0cb3c3 ]
+commit e8f69b16ee776da88589b5271e3f46020efc8f6c upstream.
 
-irq-goldfish-pic uses GENERIC_IRQ_CHIP interfaces so select that symbol
-to fix build errors.
+If resource allocation and registration fail for a muxed tty device
+(e.g. if there are no more minor numbers) the driver should not try to
+deregister the never-registered (or already-deregistered) tty.
 
-Fixes these build errors:
+Fix up the error handling to avoid dereferencing a NULL pointer when
+attempting to remove the character device.
 
-mips-linux-ld: drivers/irqchip/irq-goldfish-pic.o: in function `goldfish_pic_of_init':
-irq-goldfish-pic.c:(.init.text+0xc0): undefined reference to `irq_alloc_generic_chip'
-mips-linux-ld: irq-goldfish-pic.c:(.init.text+0xf4): undefined reference to `irq_gc_unmask_enable_reg'
-mips-linux-ld: irq-goldfish-pic.c:(.init.text+0xf8): undefined reference to `irq_gc_unmask_enable_reg'
-mips-linux-ld: irq-goldfish-pic.c:(.init.text+0x100): undefined reference to `irq_gc_mask_disable_reg'
-mips-linux-ld: irq-goldfish-pic.c:(.init.text+0x104): undefined reference to `irq_gc_mask_disable_reg'
-mips-linux-ld: irq-goldfish-pic.c:(.init.text+0x11c): undefined reference to `irq_setup_generic_chip'
-mips-linux-ld: irq-goldfish-pic.c:(.init.text+0x168): undefined reference to `irq_remove_generic_chip'
-
-Fixes: 4235ff50cf98 ("irqchip/irq-goldfish-pic: Add Goldfish PIC driver")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Miodrag Dinic <miodrag.dinic@mips.com>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Goran Ferenc <goran.ferenc@mips.com>
-Cc: Aleksandar Markovic <aleksandar.markovic@mips.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210905162519.21507-1-rdunlap@infradead.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 72dc1c096c70 ("HSO: add option hso driver")
+Cc: stable@vger.kernel.org	# 2.6.27
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/irqchip/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/usb/hso.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/irqchip/Kconfig b/drivers/irqchip/Kconfig
-index 8cb6800dbdfb..9d3812cd668e 100644
---- a/drivers/irqchip/Kconfig
-+++ b/drivers/irqchip/Kconfig
-@@ -357,6 +357,7 @@ config MESON_IRQ_GPIO
- config GOLDFISH_PIC
-        bool "Goldfish programmable interrupt controller"
-        depends on MIPS && (GOLDFISH || COMPILE_TEST)
-+       select GENERIC_IRQ_CHIP
-        select IRQ_DOMAIN
-        help
-          Say yes here to enable Goldfish interrupt controller driver used
--- 
-2.33.0
-
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -2715,14 +2715,14 @@ struct hso_device *hso_create_mux_serial
+ 
+ 	serial = kzalloc(sizeof(*serial), GFP_KERNEL);
+ 	if (!serial)
+-		goto exit;
++		goto err_free_dev;
+ 
+ 	hso_dev->port_data.dev_serial = serial;
+ 	serial->parent = hso_dev;
+ 
+ 	if (hso_serial_common_create
+ 	    (serial, 1, CTRL_URB_RX_SIZE, CTRL_URB_TX_SIZE))
+-		goto exit;
++		goto err_free_serial;
+ 
+ 	serial->tx_data_length--;
+ 	serial->write_data = hso_mux_serial_write_data;
+@@ -2738,11 +2738,9 @@ struct hso_device *hso_create_mux_serial
+ 	/* done, return it */
+ 	return hso_dev;
+ 
+-exit:
+-	if (serial) {
+-		tty_unregister_device(tty_drv, serial->minor);
+-		kfree(serial);
+-	}
++err_free_serial:
++	kfree(serial);
++err_free_dev:
+ 	kfree(hso_dev);
+ 	return NULL;
+ 
 
 
