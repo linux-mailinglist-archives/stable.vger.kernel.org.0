@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B076F420D73
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:13:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D70420C81
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:04:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235906AbhJDNP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:15:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47310 "EHLO mail.kernel.org"
+        id S235276AbhJDNGT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:06:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236172AbhJDNNc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:13:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17BAD61B3E;
-        Mon,  4 Oct 2021 13:05:13 +0000 (UTC)
+        id S234685AbhJDNEZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:04:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ABC99619E0;
+        Mon,  4 Oct 2021 13:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352714;
-        bh=cXgnBP+vUWeCWYi2Pza35xjs8y6lEZ4xs4PTc/6Z69s=;
+        s=korg; t=1633352424;
+        bh=wyMY1huRCNbpoO8j0Fn8jm0T0PLjaIIMmNDIL1urKvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bAvMt5yphjJSAG9KHzrnxa/X7Sd/hPKuGHUF8LR5ONO239zXkrTlF4NEICqogBOHo
-         2xxItbkdC57iF3ZnUN/htkhKV+M19zfCt9X4Uwo+RCFtXj6bbBMLTuYEZVI1STENGw
-         ttnGveqFaNga2+hb2hXDRJ+DlmLiOduyKUk/xlwc=
+        b=rVA5avsuL5tUxC9aWO2JOvnqd+9jxXf9roSi6oQjHHoX2xvGXgRbXGYhngm6x42yt
+         858opVIzFDenwMxge6Mfe1xyxHkmgvS0c+uZTBbMHSTjwF2oQthzcCncq/zadJTr+6
+         xI63rVgt+fkFXgvXgI3WmGIMF0GycfIA+JJ9abOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zelin Deng <zelin.deng@linux.alibaba.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 60/95] x86/kvmclock: Move this_cpu_pvti into kvmclock.h
-Date:   Mon,  4 Oct 2021 14:52:30 +0200
-Message-Id: <20211004125035.538640579@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 56/75] ipack: ipoctal: fix tty registration race
+Date:   Mon,  4 Oct 2021 14:52:31 +0200
+Message-Id: <20211004125033.410212330@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,69 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zelin Deng <zelin.deng@linux.alibaba.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit ad9af930680bb396c87582edc172b3a7cf2a3fbf upstream.
+commit 65c001df517a7bf9be8621b53d43c89f426ce8d6 upstream.
 
-There're other modules might use hv_clock_per_cpu variable like ptp_kvm,
-so move it into kvmclock.h and export the symbol to make it visiable to
-other modules.
+Make sure to set the tty class-device driver data before registering the
+tty to avoid having a racing open() dereference a NULL pointer.
 
-Signed-off-by: Zelin Deng <zelin.deng@linux.alibaba.com>
-Cc: <stable@vger.kernel.org>
-Message-Id: <1632892429-101194-2-git-send-email-zelin.deng@linux.alibaba.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 9c1d784afc6f ("Staging: ipack/devices/ipoctal: Get rid of ipoctal_list.")
+Cc: stable@vger.kernel.org      # 3.7
+Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210917114622.5412-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/kvmclock.h |   14 ++++++++++++++
- arch/x86/kernel/kvmclock.c      |   13 ++-----------
- 2 files changed, 16 insertions(+), 11 deletions(-)
+ drivers/ipack/devices/ipoctal.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/kvmclock.h
-+++ b/arch/x86/include/asm/kvmclock.h
-@@ -2,6 +2,20 @@
- #ifndef _ASM_X86_KVM_CLOCK_H
- #define _ASM_X86_KVM_CLOCK_H
+--- a/drivers/ipack/devices/ipoctal.c
++++ b/drivers/ipack/devices/ipoctal.c
+@@ -398,13 +398,13 @@ static int ipoctal_inst_slot(struct ipoc
+ 		spin_lock_init(&channel->lock);
+ 		channel->pointer_read = 0;
+ 		channel->pointer_write = 0;
+-		tty_dev = tty_port_register_device(&channel->tty_port, tty, i, NULL);
++		tty_dev = tty_port_register_device_attr(&channel->tty_port, tty,
++							i, NULL, channel, NULL);
+ 		if (IS_ERR(tty_dev)) {
+ 			dev_err(&ipoctal->dev->dev, "Failed to register tty device.\n");
+ 			tty_port_destroy(&channel->tty_port);
+ 			continue;
+ 		}
+-		dev_set_drvdata(tty_dev, channel);
+ 	}
  
-+#include <linux/percpu.h>
-+
- extern struct clocksource kvm_clock;
- 
-+DECLARE_PER_CPU(struct pvclock_vsyscall_time_info *, hv_clock_per_cpu);
-+
-+static inline struct pvclock_vcpu_time_info *this_cpu_pvti(void)
-+{
-+	return &this_cpu_read(hv_clock_per_cpu)->pvti;
-+}
-+
-+static inline struct pvclock_vsyscall_time_info *this_cpu_hvclock(void)
-+{
-+	return this_cpu_read(hv_clock_per_cpu);
-+}
-+
- #endif /* _ASM_X86_KVM_CLOCK_H */
---- a/arch/x86/kernel/kvmclock.c
-+++ b/arch/x86/kernel/kvmclock.c
-@@ -64,18 +64,9 @@ early_param("no-kvmclock-vsyscall", pars
- static struct pvclock_vsyscall_time_info
- 			hv_clock_boot[HVC_BOOT_ARRAY_SIZE] __bss_decrypted __aligned(PAGE_SIZE);
- static struct pvclock_wall_clock wall_clock __bss_decrypted;
--static DEFINE_PER_CPU(struct pvclock_vsyscall_time_info *, hv_clock_per_cpu);
- static struct pvclock_vsyscall_time_info *hvclock_mem;
--
--static inline struct pvclock_vcpu_time_info *this_cpu_pvti(void)
--{
--	return &this_cpu_read(hv_clock_per_cpu)->pvti;
--}
--
--static inline struct pvclock_vsyscall_time_info *this_cpu_hvclock(void)
--{
--	return this_cpu_read(hv_clock_per_cpu);
--}
-+DEFINE_PER_CPU(struct pvclock_vsyscall_time_info *, hv_clock_per_cpu);
-+EXPORT_PER_CPU_SYMBOL_GPL(hv_clock_per_cpu);
- 
- /*
-  * The wallclock is the time of day when we booted. Since then, some time may
+ 	/*
 
 
