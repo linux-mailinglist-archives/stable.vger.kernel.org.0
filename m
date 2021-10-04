@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D59E421040
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:40:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A484421043
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:40:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238327AbhJDNmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:42:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51966 "EHLO mail.kernel.org"
+        id S238343AbhJDNmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:42:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238365AbhJDNkV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238367AbhJDNkV (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 4 Oct 2021 09:40:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C38F463249;
-        Mon,  4 Oct 2021 13:18:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 49B1263243;
+        Mon,  4 Oct 2021 13:18:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353509;
-        bh=5dbIpN1b1KCkIL85oclPaVQEms3ds1iIW2ZwTh4oEcM=;
+        s=korg; t=1633353511;
+        bh=RFVMULWlW6WKVHE/aq1jPRvh16HMIOxjmD6igGeMCZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q+4yNqAnsLcyyhBripgZqqlSuLEwxTdntIkz9eK/1ewsNbK0VF8PKduAlF8gy1Y9G
-         /svIM+bEoDiMCJghqZdQP3pT4CZCcHds/ldi5cU/XW4yqFyP+6KbYjmbhyml2gRFQl
-         OEFRf3euk/9Zt8zoc1+tLLHfxRk2CkXZgMGuWu2Y=
+        b=0Q4RraG2CCgD6zkVNQaBiwjO0s2kE7fQEG+R/u6a5dwQcOh/7nMkb3Emu9wCpKskD
+         zL575tvEbJ9HbJoMjH224NVLpi0aO/ZRUyx+4BltW8nwLFEV1akypFQDoBUm6I/o4x
+         1eOkcbuRmyT960UY3bhbMJTNLVsZmxPCQoQBTbZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
-        Harshad Shirwadkar <harshadshirwadkar@gmail.com>,
+        yangerkun <yangerkun@huawei.com>, Jan Kara <jack@suse.cz>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.14 156/172] ext4: add error checking to ext4_ext_replay_set_iblocks()
-Date:   Mon,  4 Oct 2021 14:53:26 +0200
-Message-Id: <20211004125050.007490714@linuxfoundation.org>
+Subject: [PATCH 5.14 157/172] ext4: fix potential infinite loop in ext4_dx_readdir()
+Date:   Mon,  4 Oct 2021 14:53:27 +0200
+Message-Id: <20211004125050.039072048@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
 References: <20211004125044.945314266@linuxfoundation.org>
@@ -40,99 +40,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: yangerkun <yangerkun@huawei.com>
 
-commit 1fd95c05d8f742abfe906620780aee4dbe1a2db0 upstream.
+commit 42cb447410d024e9d54139ae9c21ea132a8c384c upstream.
 
-If the call to ext4_map_blocks() fails due to an corrupted file
-system, ext4_ext_replay_set_iblocks() can get stuck in an infinite
-loop.  This could be reproduced by running generic/526 with a file
-system that has inline_data and fast_commit enabled.  The system will
-repeatedly log to the console:
+When ext4_htree_fill_tree() fails, ext4_dx_readdir() can run into an
+infinite loop since if info->last_pos != ctx->pos this will reset the
+directory scan and reread the failing entry.  For example:
 
-EXT4-fs warning (device dm-3): ext4_block_to_path:105: block 1074800922 > max in inode 131076
+1. a dx_dir which has 3 block, block 0 as dx_root block, block 1/2 as
+   leaf block which own the ext4_dir_entry_2
+2. block 1 read ok and call_filldir which will fill the dirent and update
+   the ctx->pos
+3. block 2 read fail, but we has already fill some dirent, so we will
+   return back to userspace will a positive return val(see ksys_getdents64)
+4. the second ext4_dx_readdir will reset the world since info->last_pos
+   != ctx->pos, and will also init the curr_hash which pos to block 1
+5. So we will read block1 too, and once block2 still read fail, we can
+   only fill one dirent because the hash of the entry in block1(besides
+   the last one) won't greater than curr_hash
+6. this time, we forget update last_pos too since the read for block2
+   will fail, and since we has got the one entry, ksys_getdents64 can
+   return success
+7. Latter we will trapped in a loop with step 4~6
 
-and the stack that it gets stuck in is:
-
-   ext4_block_to_path+0xe3/0x130
-   ext4_ind_map_blocks+0x93/0x690
-   ext4_map_blocks+0x100/0x660
-   skip_hole+0x47/0x70
-   ext4_ext_replay_set_iblocks+0x223/0x440
-   ext4_fc_replay_inode+0x29e/0x3b0
-   ext4_fc_replay+0x278/0x550
-   do_one_pass+0x646/0xc10
-   jbd2_journal_recover+0x14a/0x270
-   jbd2_journal_load+0xc4/0x150
-   ext4_load_journal+0x1f3/0x490
-   ext4_fill_super+0x22d4/0x2c00
-
-With this patch, generic/526 still fails, but system is no longer
-locking up in a tight loop.  It's likely the root casue is that
-fast_commit replay is corrupting file systems with inline_data, and we
-probably need to add better error handling in the fast commit replay
-code path beyond what is done here, which essentially just breaks the
-infinite loop without reporting the to the higher levels of the code.
-
-Fixes: 8016E29F4362 ("ext4: fast commit recovery path")
 Cc: stable@kernel.org
-Cc: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
+Signed-off-by: yangerkun <yangerkun@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20210914111415.3921954-1-yangerkun@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/extents.c |   19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ fs/ext4/dir.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -5908,7 +5908,7 @@ void ext4_ext_replay_shrink_inode(struct
+--- a/fs/ext4/dir.c
++++ b/fs/ext4/dir.c
+@@ -551,7 +551,7 @@ static int ext4_dx_readdir(struct file *
+ 	struct dir_private_info *info = file->private_data;
+ 	struct inode *inode = file_inode(file);
+ 	struct fname *fname;
+-	int	ret;
++	int ret = 0;
+ 
+ 	if (!info) {
+ 		info = ext4_htree_create_dir_info(file, ctx->pos);
+@@ -599,7 +599,7 @@ static int ext4_dx_readdir(struct file *
+ 						   info->curr_minor_hash,
+ 						   &info->next_hash);
+ 			if (ret < 0)
+-				return ret;
++				goto finished;
+ 			if (ret == 0) {
+ 				ctx->pos = ext4_get_htree_eof(file);
+ 				break;
+@@ -630,7 +630,7 @@ static int ext4_dx_readdir(struct file *
+ 	}
+ finished:
+ 	info->last_pos = ctx->pos;
+-	return 0;
++	return ret < 0 ? ret : 0;
  }
  
- /* Check if *cur is a hole and if it is, skip it */
--static void skip_hole(struct inode *inode, ext4_lblk_t *cur)
-+static int skip_hole(struct inode *inode, ext4_lblk_t *cur)
- {
- 	int ret;
- 	struct ext4_map_blocks map;
-@@ -5917,9 +5917,12 @@ static void skip_hole(struct inode *inod
- 	map.m_len = ((inode->i_size) >> inode->i_sb->s_blocksize_bits) - *cur;
- 
- 	ret = ext4_map_blocks(NULL, inode, &map, 0);
-+	if (ret < 0)
-+		return ret;
- 	if (ret != 0)
--		return;
-+		return 0;
- 	*cur = *cur + map.m_len;
-+	return 0;
- }
- 
- /* Count number of blocks used by this inode and update i_blocks */
-@@ -5968,7 +5971,9 @@ int ext4_ext_replay_set_iblocks(struct i
- 	 * iblocks by total number of differences found.
- 	 */
- 	cur = 0;
--	skip_hole(inode, &cur);
-+	ret = skip_hole(inode, &cur);
-+	if (ret < 0)
-+		goto out;
- 	path = ext4_find_extent(inode, cur, NULL, 0);
- 	if (IS_ERR(path))
- 		goto out;
-@@ -5987,8 +5992,12 @@ int ext4_ext_replay_set_iblocks(struct i
- 		}
- 		cur = max(cur + 1, le32_to_cpu(ex->ee_block) +
- 					ext4_ext_get_actual_len(ex));
--		skip_hole(inode, &cur);
--
-+		ret = skip_hole(inode, &cur);
-+		if (ret < 0) {
-+			ext4_ext_drop_refs(path);
-+			kfree(path);
-+			break;
-+		}
- 		path2 = ext4_find_extent(inode, cur, NULL, 0);
- 		if (IS_ERR(path2)) {
- 			ext4_ext_drop_refs(path);
+ static int ext4_release_dir(struct inode *inode, struct file *filp)
 
 
