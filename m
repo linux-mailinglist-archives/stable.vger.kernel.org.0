@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B06B9420C1D
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:00:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CB11420CB6
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:07:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234635AbhJDNCq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:02:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32806 "EHLO mail.kernel.org"
+        id S234429AbhJDNJL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:09:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234633AbhJDNBP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:01:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04FC961528;
-        Mon,  4 Oct 2021 12:58:28 +0000 (UTC)
+        id S233874AbhJDNHx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:07:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C5AE6139F;
+        Mon,  4 Oct 2021 13:01:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352309;
-        bh=mnkJT49VvAXRSAQkoctsO9IGjbbCIfgmocQyrYppJV0=;
+        s=korg; t=1633352518;
+        bh=ai6t8Io9YxNczUiR+Rh8jbyDH7qVOcOTOC9EGJBkAPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IVPWavMu5iy5L/csNWMm5+dJFDRBDgqihM1gSm8Mr+N3IGEUUqGvGVmwT+WI8I6fo
-         pidta8cAuSgJU7EcCKBmwkA8RDIdDGVsbP6y/T4vVDovw2sz6QsaAZaceafpsTG3RU
-         ALVZ+2EWepus7WEgyjx+MsU4+fMJL+8XC7wUO1Hs=
+        b=o5NSQ7Wc1RZD1zd58N4IhppMv9+GtqTGgtKEFkmP2wHABjU8Gfw27daoFUSfLECvO
+         ONzIV6uZ8bfE0hc0RTTNSZkn45ErL1byoEo9IwEFnEXsXTB7iJbUYRMEznQVbsaY5Z
+         w7TDi2rfzvLH28wM6t9J2O2VHmO5ULKiYhjGf0W0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 12/75] USB: serial: option: remove duplicate USB device ID
-Date:   Mon,  4 Oct 2021 14:51:47 +0200
-Message-Id: <20211004125031.948999085@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 18/95] net: hso: fix muxed tty registration
+Date:   Mon,  4 Oct 2021 14:51:48 +0200
+Message-Id: <20211004125034.148261499@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,30 +39,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 1ca200a8c6f079950a04ea3c3380fe8cf78e95a2 upstream.
+commit e8f69b16ee776da88589b5271e3f46020efc8f6c upstream.
 
-The device ZTE 0x0094 is already on the list.
+If resource allocation and registration fail for a muxed tty device
+(e.g. if there are no more minor numbers) the driver should not try to
+deregister the never-registered (or already-deregistered) tty.
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Fixes: b9e44fe5ecda ("USB: option: cleanup zte 3g-dongle's pid in option.c")
-Cc: stable@vger.kernel.org
+Fix up the error handling to avoid dereferencing a NULL pointer when
+attempting to remove the character device.
+
+Fixes: 72dc1c096c70 ("HSO: add option hso driver")
+Cc: stable@vger.kernel.org	# 2.6.27
 Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/usb/hso.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1661,7 +1661,6 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0060, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0070, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0073, 0xff, 0xff, 0xff) },
--	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0094, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0130, 0xff, 0xff, 0xff),
- 	  .driver_info = RSVD(1) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0133, 0xff, 0xff, 0xff),
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -2714,14 +2714,14 @@ struct hso_device *hso_create_mux_serial
+ 
+ 	serial = kzalloc(sizeof(*serial), GFP_KERNEL);
+ 	if (!serial)
+-		goto exit;
++		goto err_free_dev;
+ 
+ 	hso_dev->port_data.dev_serial = serial;
+ 	serial->parent = hso_dev;
+ 
+ 	if (hso_serial_common_create
+ 	    (serial, 1, CTRL_URB_RX_SIZE, CTRL_URB_TX_SIZE))
+-		goto exit;
++		goto err_free_serial;
+ 
+ 	serial->tx_data_length--;
+ 	serial->write_data = hso_mux_serial_write_data;
+@@ -2737,11 +2737,9 @@ struct hso_device *hso_create_mux_serial
+ 	/* done, return it */
+ 	return hso_dev;
+ 
+-exit:
+-	if (serial) {
+-		tty_unregister_device(tty_drv, serial->minor);
+-		kfree(serial);
+-	}
++err_free_serial:
++	kfree(serial);
++err_free_dev:
+ 	kfree(hso_dev);
+ 	return NULL;
+ 
 
 
