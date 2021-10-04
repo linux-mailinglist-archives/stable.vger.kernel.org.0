@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 942BE420CB5
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:07:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 716E8420C22
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:01:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234927AbhJDNJM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:09:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44986 "EHLO mail.kernel.org"
+        id S233460AbhJDNCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:02:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234712AbhJDNH4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:07:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 198EB613DB;
-        Mon,  4 Oct 2021 13:01:59 +0000 (UTC)
+        id S234434AbhJDNBX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:01:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 45A9C619E5;
+        Mon,  4 Oct 2021 12:58:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352520;
-        bh=yOhE8lHul4cv5jJEdhv5Qa7pAAADaG+mWfMcWdn4VJY=;
+        s=korg; t=1633352314;
+        bh=Rs3Vcciiab+UuXssMClhbU/oEVDVBzV1cge3WXf6soM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LAkIkmMP4fWqeZOGeYMMebrGSYxd6WfgrURtA9ImvGOzSZ/TjOdxADehezzFIpJAA
-         lNNzXH53oglhFiZmGFy9JlYgGdJQ7bTRJk48aFWYLXL2qfCi+2AqwGWK+KsPps0kAi
-         gCVS80AslQszXs3Hd0HZsMJK8EqKd2aQg8f8AZew=
+        b=QgjBKJoLMtirPvn37bRDpDd33fOwPWI7REPKGT3Kgpt5cVu/kif/oKX10iPB+P4xb
+         idBDZpmPAkh4E0SYrxplS99azrTP99WchBnYahWlHIQLW/Dw524bYMZK949Cx3UMy9
+         KpMgRcr6KBbAfg+jQknxUEt9xAvo1CODA9pVo+Cc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Michael Chan <michael.chan@broadocm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/95] bnxt_en: Fix TX timeout when TX ring size is set to the smallest
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Johannes Thumshirn <jth@kernel.org>
+Subject: [PATCH 4.14 14/75] mcb: fix error handling in mcb_alloc_bus()
 Date:   Mon,  4 Oct 2021 14:51:49 +0200
-Message-Id: <20211004125034.180731956@linuxfoundation.org>
+Message-Id: <20211004125032.012617483@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,105 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 5bed8b0704c9ecccc8f4a2c377d7c8e21090a82e ]
+commit 25a1433216489de4abc889910f744e952cb6dbae upstream.
 
-The smallest TX ring size we support must fit a TX SKB with MAX_SKB_FRAGS
-+ 1.  Because the first TX BD for a packet is always a long TX BD, we
-need an extra TX BD to fit this packet.  Define BNXT_MIN_TX_DESC_CNT with
-this value to make this more clear.  The current code uses a minimum
-that is off by 1.  Fix it using this constant.
+There are two bugs:
+1) If ida_simple_get() fails then this code calls put_device(carrier)
+   but we haven't yet called get_device(carrier) and probably that
+   leads to a use after free.
+2) After device_initialize() then we need to use put_device() to
+   release the bus.  This will free the internal resources tied to the
+   device and call mcb_free_bus() which will free the rest.
 
-The tx_wake_thresh to determine when to wake up the TX queue is half the
-ring size but we must have at least BNXT_MIN_TX_DESC_CNT for the next
-packet which may have maximum fragments.  So the comparison of the
-available TX BDs with tx_wake_thresh should be >= instead of > in the
-current code.  Otherwise, at the smallest ring size, we will never wake
-up the TX queue and will cause TX timeout.
-
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadocm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5d9e2ab9fea4 ("mcb: Implement bus->dev.release callback")
+Fixes: 18d288198099 ("mcb: Correctly initialize the bus's device")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Johannes Thumshirn <jth@kernel.org>
+Link: https://lore.kernel.org/r/32e160cf6864ce77f9d62948338e24db9fd8ead9.1630931319.git.johannes.thumshirn@wdc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c         | 8 ++++----
- drivers/net/ethernet/broadcom/bnxt/bnxt.h         | 5 +++++
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 2 +-
- 3 files changed, 10 insertions(+), 5 deletions(-)
+ drivers/mcb/mcb-core.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 55827ac65a15..5e30299bcf64 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -294,7 +294,7 @@ static bool bnxt_txr_netif_try_stop_queue(struct bnxt *bp,
- 	 * netif_tx_queue_stopped().
- 	 */
- 	smp_mb();
--	if (bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh) {
-+	if (bnxt_tx_avail(bp, txr) >= bp->tx_wake_thresh) {
- 		netif_tx_wake_queue(txq);
- 		return false;
+--- a/drivers/mcb/mcb-core.c
++++ b/drivers/mcb/mcb-core.c
+@@ -280,8 +280,8 @@ struct mcb_bus *mcb_alloc_bus(struct dev
+ 
+ 	bus_nr = ida_simple_get(&mcb_ida, 0, 0, GFP_KERNEL);
+ 	if (bus_nr < 0) {
+-		rc = bus_nr;
+-		goto err_free;
++		kfree(bus);
++		return ERR_PTR(bus_nr);
  	}
-@@ -625,7 +625,7 @@ static void bnxt_tx_int(struct bnxt *bp, struct bnxt_napi *bnapi, int nr_pkts)
- 	smp_mb();
  
- 	if (unlikely(netif_tx_queue_stopped(txq)) &&
--	    bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh &&
-+	    bnxt_tx_avail(bp, txr) >= bp->tx_wake_thresh &&
- 	    READ_ONCE(txr->dev_state) != BNXT_DEV_STATE_CLOSING)
- 		netif_tx_wake_queue(txq);
- }
-@@ -1909,7 +1909,7 @@ static int bnxt_poll_work(struct bnxt *bp, struct bnxt_napi *bnapi, int budget)
- 		if (TX_CMP_TYPE(txcmp) == CMP_TYPE_TX_L2_CMP) {
- 			tx_pkts++;
- 			/* return full budget so NAPI will complete. */
--			if (unlikely(tx_pkts > bp->tx_wake_thresh)) {
-+			if (unlikely(tx_pkts >= bp->tx_wake_thresh)) {
- 				rx_pkts = budget;
- 				raw_cons = NEXT_RAW_CMP(raw_cons);
- 				break;
-@@ -2712,7 +2712,7 @@ static int bnxt_init_tx_rings(struct bnxt *bp)
- 	u16 i;
+ 	bus->bus_nr = bus_nr;
+@@ -296,12 +296,12 @@ struct mcb_bus *mcb_alloc_bus(struct dev
+ 	dev_set_name(&bus->dev, "mcb:%d", bus_nr);
+ 	rc = device_add(&bus->dev);
+ 	if (rc)
+-		goto err_free;
++		goto err_put;
  
- 	bp->tx_wake_thresh = max_t(int, bp->tx_ring_size / 2,
--				   MAX_SKB_FRAGS + 1);
-+				   BNXT_MIN_TX_DESC_CNT);
- 
- 	for (i = 0; i < bp->tx_nr_rings; i++) {
- 		struct bnxt_tx_ring_info *txr = &bp->tx_ring[i];
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.h b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-index f3f5484c43e4..5c1c3a0ed928 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -484,6 +484,11 @@ struct rx_tpa_end_cmp_ext {
- #define BNXT_MAX_RX_JUM_DESC_CNT	(RX_DESC_CNT * MAX_RX_AGG_PAGES - 1)
- #define BNXT_MAX_TX_DESC_CNT		(TX_DESC_CNT * MAX_TX_PAGES - 1)
- 
-+/* Minimum TX BDs for a TX packet with MAX_SKB_FRAGS + 1.  We need one extra
-+ * BD because the first TX BD is always a long BD.
-+ */
-+#define BNXT_MIN_TX_DESC_CNT		(MAX_SKB_FRAGS + 2)
+ 	return bus;
+-err_free:
+-	put_device(carrier);
+-	kfree(bus);
 +
- #define RX_RING(x)	(((x) & ~(RX_DESC_CNT - 1)) >> (BNXT_PAGE_SHIFT - 4))
- #define RX_IDX(x)	((x) & (RX_DESC_CNT - 1))
- 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-index 511240e8246f..e75a47a9f511 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -446,7 +446,7 @@ static int bnxt_set_ringparam(struct net_device *dev,
- 
- 	if ((ering->rx_pending > BNXT_MAX_RX_DESC_CNT) ||
- 	    (ering->tx_pending > BNXT_MAX_TX_DESC_CNT) ||
--	    (ering->tx_pending <= MAX_SKB_FRAGS))
-+	    (ering->tx_pending < BNXT_MIN_TX_DESC_CNT))
- 		return -EINVAL;
- 
- 	if (netif_running(dev))
--- 
-2.33.0
-
++err_put:
++	put_device(&bus->dev);
+ 	return ERR_PTR(rc);
+ }
+ EXPORT_SYMBOL_GPL(mcb_alloc_bus);
 
 
