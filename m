@@ -2,118 +2,199 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF139420538
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 06:24:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A59A42052F
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 06:20:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232359AbhJDE0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 00:26:31 -0400
-Received: from mail1.ugh.no ([178.79.162.34]:58782 "EHLO mail1.ugh.no"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230193AbhJDE0a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 00:26:30 -0400
-X-Greylist: delayed 522 seconds by postgrey-1.27 at vger.kernel.org; Mon, 04 Oct 2021 00:26:30 EDT
-Received: from localhost (localhost [127.0.0.1])
-        by mail1.ugh.no (Postfix) with ESMTP id 56DC02554CA;
-        Mon,  4 Oct 2021 06:15:59 +0200 (CEST)
-Received: from mail1.ugh.no ([127.0.0.1])
-        by localhost (catastrophix.ugh.no [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id LwONpQ8GEa86; Mon,  4 Oct 2021 06:15:58 +0200 (CEST)
-Received: from [IPV6:2a0a:2780:4e89:40:96fb:1f70:94af:2f39] (unknown [IPv6:2a0a:2780:4e89:40:96fb:1f70:94af:2f39])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: andre@tomt.net)
-        by mail.ugh.no (Postfix) with ESMTPSA id DE8C02554C4;
-        Mon,  4 Oct 2021 06:15:57 +0200 (CEST)
-Message-ID: <0599f364-c9cc-31af-e500-89778f0b566c@tomt.net>
-Date:   Mon, 4 Oct 2021 06:15:56 +0200
+        id S232391AbhJDEVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 00:21:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51318 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232388AbhJDEVu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 00:21:50 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0839C0613EC
+        for <stable@vger.kernel.org>; Sun,  3 Oct 2021 21:20:01 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id u7so13337720pfg.13
+        for <stable@vger.kernel.org>; Sun, 03 Oct 2021 21:20:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Bsza8kPU3v8iUYk9LAcu50eb8Tkr1f2IQVYj42oIK+w=;
+        b=exAHmYpdRS1Z0Sic44lmtt3yndRYJbt67pYimskzMJ9WSZZHhTYFTgB35mwPaFPds1
+         PqB/0RCLvbf2vj42n2NzhL5y1dkbmRQZDQyg4Nijg8o5hwx+VbBKe5cwuKfVv5lcv99T
+         j9soaEP9zKe7/wSDZIkpXMxmCSX6FpkcO9wt4EJGLP3pOeHL0IC4b4oxV1geM+YVT2YA
+         7wpNAacAaZlL8eA6etI0tv4/TJsMcm17xRoGT8F6Wjzm+yaVKbqmI6WPTCPMZcWY+ATU
+         FB/I4wT/oLpW9VkQ5Bj231LdBXdwYMSvm8WxfE46Jb6sonIKCIL5bvJrCIEOrkcZ6EJC
+         ywUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Bsza8kPU3v8iUYk9LAcu50eb8Tkr1f2IQVYj42oIK+w=;
+        b=NO+WgNq2mWOju1VnqMPbT/ay/1Ly8icRnym4LH45Q6d17wgrBj/LmZ+haG5+VW0s65
+         YTekyp43oMLf0NfuLouwZknV22OyyMmcGjSlt0cwhlW6csUI/ah5PvP20Kgk9oTDeLB6
+         lNehiT48ayeBG1GiBe/yqb43TgsWttV60OFlHDomAO/ytWiIvIGHcazc7E4GZEJiORz5
+         scaCUkV/fKO9y6XskWDAn01QhisJdvxU2dx/vdEg+r4dv4eES322rxNh835Z0GYoW07R
+         LvgfYOc4B2vmec6y8AvyYhnSy8nx6jrxvJZTLZ+tv93R1lLi0gIJyQmYMNsVeJ/fC5he
+         y6ZA==
+X-Gm-Message-State: AOAM532UdOAlf3VQh3iGMME61dVYHE7Dx01Fk8eoZdDkMVfHWCbdCNAj
+        NA1YBHbAb4Yu7wAEBOhWXa5/Yx9+oOXUwZzc
+X-Google-Smtp-Source: ABdhPJwS+s9AdUyox8e9l8K+0foufcfKT+cuLNwwy3JnKtuC7/3dPWaWsMQbaeX3QPmxTV2ZKTp5dg==
+X-Received: by 2002:a63:950f:: with SMTP id p15mr9029856pgd.265.1633321201130;
+        Sun, 03 Oct 2021 21:20:01 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e22sm12308307pfn.101.2021.10.03.21.20.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 03 Oct 2021 21:20:00 -0700 (PDT)
+Message-ID: <615a80f0.1c69fb81.c71c5.5368@mx.google.com>
+Date:   Sun, 03 Oct 2021 21:20:00 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.1
-Subject: Re: [PATCH 5.14 058/162] igc: fix build errors for PTP
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Ederson de Souza <ederson.desouza@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        intel-wired-lan@lists.osuosl.org, Sasha Levin <sashal@kernel.org>
-References: <20210927170233.453060397@linuxfoundation.org>
- <20210927170235.491648102@linuxfoundation.org>
-From:   Andre Tomt <andre@tomt.net>
-In-Reply-To: <20210927170235.491648102@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.208-62-g0f04201c0ff5
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y baseline: 105 runs,
+ 4 regressions (v4.19.208-62-g0f04201c0ff5)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 27.09.2021 19:01, Greg Kroah-Hartman wrote:
-> From: Randy Dunlap <rdunlap@infradead.org>
-> 
-> [ Upstream commit 87758511075ec961486fe78d7548dd709b524433 ]
-> 
-> When IGC=y and PTP_1588_CLOCK=m, the ptp_*() interface family is
-> not available to the igc driver. Make this driver depend on
-> PTP_1588_CLOCK_OPTIONAL so that it will build without errors.
-> 
-> Various igc commits have used ptp_*() functions without checking
-> that PTP_1588_CLOCK is enabled. Fix all of these here.
-> 
-> Fixes these build errors:
-> 
-> ld: drivers/net/ethernet/intel/igc/igc_main.o: in function `igc_msix_other':
-> igc_main.c:(.text+0x6494): undefined reference to `ptp_clock_event'
-> ld: igc_main.c:(.text+0x64ef): undefined reference to `ptp_clock_event'
-> ld: igc_main.c:(.text+0x6559): undefined reference to `ptp_clock_event'
-> ld: drivers/net/ethernet/intel/igc/igc_ethtool.o: in function `igc_ethtool_get_ts_info':
-> igc_ethtool.c:(.text+0xc7a): undefined reference to `ptp_clock_index'
-> ld: drivers/net/ethernet/intel/igc/igc_ptp.o: in function `igc_ptp_feature_enable_i225':
-> igc_ptp.c:(.text+0x330): undefined reference to `ptp_find_pin'
-> ld: igc_ptp.c:(.text+0x36f): undefined reference to `ptp_find_pin'
-> ld: drivers/net/ethernet/intel/igc/igc_ptp.o: in function `igc_ptp_init':
-> igc_ptp.c:(.text+0x11cd): undefined reference to `ptp_clock_register'
-> ld: drivers/net/ethernet/intel/igc/igc_ptp.o: in function `igc_ptp_stop':
-> igc_ptp.c:(.text+0x12dd): undefined reference to `ptp_clock_unregister'
-> ld: drivers/platform/x86/dell/dell-wmi-privacy.o: in function `dell_privacy_wmi_probe':
-> 
-> Fixes: 64433e5bf40ab ("igc: Enable internal i225 PPS")
-> Fixes: 60dbede0c4f3d ("igc: Add support for ethtool GET_TS_INFO command")
-> Fixes: 87938851b6efb ("igc: enable auxiliary PHC functions for the i225")
-> Fixes: 5f2958052c582 ("igc: Add basic skeleton for PTP")
-> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> Cc: Ederson de Souza <ederson.desouza@intel.com>
-> Cc: Tony Nguyen <anthony.l.nguyen@intel.com>
-> Cc: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-> Cc: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Jakub Kicinski <kuba@kernel.org>
-> Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
-> Cc: intel-wired-lan@lists.osuosl.org
-> Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->   drivers/net/ethernet/intel/Kconfig | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/net/ethernet/intel/Kconfig b/drivers/net/ethernet/intel/Kconfig
-> index 82744a7501c7..c11d974a62d8 100644
-> --- a/drivers/net/ethernet/intel/Kconfig
-> +++ b/drivers/net/ethernet/intel/Kconfig
-> @@ -335,6 +335,7 @@ config IGC
->   	tristate "Intel(R) Ethernet Controller I225-LM/I225-V support"
->   	default n
->   	depends on PCI
-> +	depends on PTP_1588_CLOCK_OPTIONAL
->   	help
->   	  This driver supports Intel(R) Ethernet Controller I225-LM/I225-V
->   	  family of adapters.
-> 
+stable-rc/linux-4.19.y baseline: 105 runs, 4 regressions (v4.19.208-62-g0f0=
+4201c0ff5)
 
-PTP_1588_CLOCK_OPTIONAL does not exist in 5.14, so this effectively 
-disables the igc driver completely when applied to stable as-is.
+Regressions Summary
+-------------------
+
+platform          | arch | lab           | compiler | defconfig           |=
+ regressions
+------------------+------+---------------+----------+---------------------+=
+------------
+panda             | arm  | lab-collabora | gcc-8    | omap2plus_defconfig |=
+ 1          =
+
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig  |=
+ 3          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.208-62-g0f04201c0ff5/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.208-62-g0f04201c0ff5
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      0f04201c0ff5f1626882d81d25edf16e6c1e6c8f =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch | lab           | compiler | defconfig           |=
+ regressions
+------------------+------+---------------+----------+---------------------+=
+------------
+panda             | arm  | lab-collabora | gcc-8    | omap2plus_defconfig |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615a48778d24c6ead699a301
+
+  Results:     5 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+08-62-g0f04201c0ff5/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pa=
+nda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+08-62-g0f04201c0ff5/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pa=
+nda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/615a48778d24c6e=
+ad699a307
+        new failure (last pass: v4.19.208-56-g99d9199153a6)
+        2 lines
+
+    2021-10-04T00:18:47.525873  <8>[   22.917724] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-10-04T00:18:47.573081  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/105
+    2021-10-04T00:18:47.582240  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+d34 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =
+
+
+
+platform          | arch | lab           | compiler | defconfig           |=
+ regressions
+------------------+------+---------------+----------+---------------------+=
+------------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig  |=
+ 3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615a499ceb7be6fcea99a2ea
+
+  Results:     64 PASS, 6 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+08-62-g0f04201c0ff5/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3=
+288-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+08-62-g0f04201c0ff5/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3=
+288-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/615a499ceb7be6fcea99a2ff
+        failing since 110 days (last pass: v4.19.194, first fail: v4.19.194=
+-68-g3c1f7bd17074)
+
+    2021-10-04T00:23:25.838471  /lava-4636082/1/../bin/lava-test-case<8>[  =
+ 15.491299] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdio0-probe=
+d RESULT=3Dfail>
+    2021-10-04T00:23:25.838749  =
+
+    2021-10-04T00:23:25.838942  /lava-4636082/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/615a499ceb7be6fcea99a300
+        failing since 110 days (last pass: v4.19.194, first fail: v4.19.194=
+-68-g3c1f7bd17074)
+
+    2021-10-04T00:23:24.801630  /lava-4636082/1/../bin/lava-test-case
+    2021-10-04T00:23:24.806936  <8>[   14.471862] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/615a499ceb7be6fcea99a328
+        failing since 110 days (last pass: v4.19.194, first fail: v4.19.194=
+-68-g3c1f7bd17074)
+
+    2021-10-04T00:23:28.262428  /lava-4636082/1/../bin/lava-test-case
+    2021-10-04T00:23:28.279744  <8>[   17.933335] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
+    2021-10-04T00:23:28.279955  /lava-4636082/1/../bin/lava-test-case   =
+
+ =20
