@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B407A420E6D
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:23:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF79A420D12
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:09:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236853AbhJDNZF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:25:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37266 "EHLO mail.kernel.org"
+        id S235782AbhJDNLm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:11:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236873AbhJDNX3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:23:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C12C61BF3;
-        Mon,  4 Oct 2021 13:10:11 +0000 (UTC)
+        id S235789AbhJDNJl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:09:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 09CB661AEC;
+        Mon,  4 Oct 2021 13:03:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353012;
-        bh=r7XJEaL/8RlBaOqF5DRbSvJHEOIGr8i+rARVrtVS91k=;
+        s=korg; t=1633352607;
+        bh=OSRvumG2QaN5I2Fyok2rb7aYzcqO2eo/PN0ovzWbOJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dIvRfw7cqd0vOrtzvdGlfWAffMvoENDjJdENiYjhsGLvoiQK9Yh0PlEeTzU4nbDzs
-         83kCKiES5Dz3h+GCTcZJAa/8ZpdpGNutTSRDviP9Lk+O3DQD0WoHtnq/DgvABJFxWG
-         3LDxc3XxVml7Sc3gDOBeg7fzoi/zgafbg9x8Ynes=
+        b=OQ6rgjg8rPKtvoV4rD2duR4PU0aVmJTLXyRRe1C0KTza8AYP3E6XSC50VWY0smyX2
+         ukVOv5RSCWA2tqPKYt7cWaf+el1O9YKuX6C4LVts22FfejQGIuMfKmbp5wbiKlza6G
+         jftx3NF9Q18Luu5e+tMIYo+xtYoPlPfoD0m8+hH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+6bb0528b13611047209c@syzkaller.appspotmail.com,
-        Hao Sun <sunhao.th@gmail.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.10 22/93] RDMA/cma: Do not change route.addr.src_addr.ss_family
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Qiumiao Zhang <zhangqiumiao1@huawei.com>
+Subject: [PATCH 4.19 50/95] tcp: address problems caused by EDT misshaps
 Date:   Mon,  4 Oct 2021 14:52:20 +0200
-Message-Id: <20211004125035.308810861@linuxfoundation.org>
+Message-Id: <20211004125035.212480377@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,82 +40,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit bc0bdc5afaa740d782fbf936aaeebd65e5c2921d upstream.
+commit 9efdda4e3abed13f0903b7b6e4d4c2102019440a upstream.
 
-If the state is not idle then rdma_bind_addr() will immediately fail and
-no change to global state should happen.
+When a qdisc setup including pacing FQ is dismantled and recreated,
+some TCP packets are sent earlier than instructed by TCP stack.
 
-For instance if the state is already RDMA_CM_LISTEN then this will corrupt
-the src_addr and would cause the test in cma_cancel_operation():
+TCP can be fooled when ACK comes back, because the following
+operation can return a negative value.
 
-		if (cma_any_addr(cma_src_addr(id_priv)) && !id_priv->cma_dev)
+    tcp_time_stamp(tp) - tp->rx_opt.rcv_tsecr;
 
-To view a mangled src_addr, eg with a IPv6 loopback address but an IPv4
-family, failing the test.
+Some paths in TCP stack were not dealing properly with this,
+this patch addresses four of them.
 
-This would manifest as this trace from syzkaller:
-
-  BUG: KASAN: use-after-free in __list_add_valid+0x93/0xa0 lib/list_debug.c:26
-  Read of size 8 at addr ffff8881546491e0 by task syz-executor.1/32204
-
-  CPU: 1 PID: 32204 Comm: syz-executor.1 Not tainted 5.12.0-rc8-syzkaller #0
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  Call Trace:
-   __dump_stack lib/dump_stack.c:79 [inline]
-   dump_stack+0x141/0x1d7 lib/dump_stack.c:120
-   print_address_description.constprop.0.cold+0x5b/0x2f8 mm/kasan/report.c:232
-   __kasan_report mm/kasan/report.c:399 [inline]
-   kasan_report.cold+0x7c/0xd8 mm/kasan/report.c:416
-   __list_add_valid+0x93/0xa0 lib/list_debug.c:26
-   __list_add include/linux/list.h:67 [inline]
-   list_add_tail include/linux/list.h:100 [inline]
-   cma_listen_on_all drivers/infiniband/core/cma.c:2557 [inline]
-   rdma_listen+0x787/0xe00 drivers/infiniband/core/cma.c:3751
-   ucma_listen+0x16a/0x210 drivers/infiniband/core/ucma.c:1102
-   ucma_write+0x259/0x350 drivers/infiniband/core/ucma.c:1732
-   vfs_write+0x28e/0xa30 fs/read_write.c:603
-   ksys_write+0x1ee/0x250 fs/read_write.c:658
-   do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Which is indicating that an rdma_id_private was destroyed without doing
-cma_cancel_listens().
-
-Instead of trying to re-use the src_addr memory to indirectly create an
-any address build one explicitly on the stack and bind to that as any
-other normal flow would do.
-
-Link: https://lore.kernel.org/r/0-v1-9fbb33f5e201+2a-cma_listen_jgg@nvidia.com
-Cc: stable@vger.kernel.org
-Fixes: 732d41c545bb ("RDMA/cma: Make the locking for automatic state transition more clear")
-Reported-by: syzbot+6bb0528b13611047209c@syzkaller.appspotmail.com
-Tested-by: Hao Sun <sunhao.th@gmail.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: ab408b6dc744 ("tcp: switch tcp and sch_fq to new earliest departure time model")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Qiumiao Zhang <zhangqiumiao1@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/core/cma.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/ipv4/tcp_input.c |   16 ++++++++++------
+ net/ipv4/tcp_timer.c |   10 ++++++----
+ 2 files changed, 16 insertions(+), 10 deletions(-)
 
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -3732,9 +3732,13 @@ int rdma_listen(struct rdma_cm_id *id, i
- 	int ret;
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -581,10 +581,12 @@ static inline void tcp_rcv_rtt_measure_t
+ 		u32 delta = tcp_time_stamp(tp) - tp->rx_opt.rcv_tsecr;
+ 		u32 delta_us;
  
- 	if (!cma_comp_exch(id_priv, RDMA_CM_ADDR_BOUND, RDMA_CM_LISTEN)) {
-+		struct sockaddr_in any_in = {
-+			.sin_family = AF_INET,
-+			.sin_addr.s_addr = htonl(INADDR_ANY),
-+		};
+-		if (!delta)
+-			delta = 1;
+-		delta_us = delta * (USEC_PER_SEC / TCP_TS_HZ);
+-		tcp_rcv_rtt_update(tp, delta_us, 0);
++		if (likely(delta < INT_MAX / (USEC_PER_SEC / TCP_TS_HZ))) {
++			if (!delta)
++				delta = 1;
++			delta_us = delta * (USEC_PER_SEC / TCP_TS_HZ);
++			tcp_rcv_rtt_update(tp, delta_us, 0);
++		}
+ 	}
+ }
+ 
+@@ -2931,9 +2933,11 @@ static bool tcp_ack_update_rtt(struct so
+ 	if (seq_rtt_us < 0 && tp->rx_opt.saw_tstamp && tp->rx_opt.rcv_tsecr &&
+ 	    flag & FLAG_ACKED) {
+ 		u32 delta = tcp_time_stamp(tp) - tp->rx_opt.rcv_tsecr;
+-		u32 delta_us = delta * (USEC_PER_SEC / TCP_TS_HZ);
+ 
+-		seq_rtt_us = ca_rtt_us = delta_us;
++		if (likely(delta < INT_MAX / (USEC_PER_SEC / TCP_TS_HZ))) {
++			seq_rtt_us = delta * (USEC_PER_SEC / TCP_TS_HZ);
++			ca_rtt_us = seq_rtt_us;
++		}
+ 	}
+ 	rs->rtt_us = ca_rtt_us; /* RTT of last (S)ACKed packet (or -1) */
+ 	if (seq_rtt_us < 0)
+--- a/net/ipv4/tcp_timer.c
++++ b/net/ipv4/tcp_timer.c
+@@ -40,15 +40,17 @@ static u32 tcp_clamp_rto_to_user_timeout
+ {
+ 	struct inet_connection_sock *icsk = inet_csk(sk);
+ 	u32 elapsed, start_ts;
++	s32 remaining;
+ 
+ 	start_ts = tcp_retransmit_stamp(sk);
+ 	if (!icsk->icsk_user_timeout || !start_ts)
+ 		return icsk->icsk_rto;
+ 	elapsed = tcp_time_stamp(tcp_sk(sk)) - start_ts;
+-	if (elapsed >= icsk->icsk_user_timeout)
++	remaining = icsk->icsk_user_timeout - elapsed;
++	if (remaining <= 0)
+ 		return 1; /* user timeout has passed; fire ASAP */
+-	else
+-		return min_t(u32, icsk->icsk_rto, msecs_to_jiffies(icsk->icsk_user_timeout - elapsed));
 +
- 		/* For a well behaved ULP state will be RDMA_CM_IDLE */
--		id->route.addr.src_addr.ss_family = AF_INET;
--		ret = rdma_bind_addr(id, cma_src_addr(id_priv));
-+		ret = rdma_bind_addr(id, (struct sockaddr *)&any_in);
- 		if (ret)
- 			return ret;
- 		if (WARN_ON(!cma_comp_exch(id_priv, RDMA_CM_ADDR_BOUND,
++	return min_t(u32, icsk->icsk_rto, msecs_to_jiffies(remaining));
+ }
+ 
+ /**
+@@ -210,7 +212,7 @@ static bool retransmits_timed_out(struct
+ 				(boundary - linear_backoff_thresh) * TCP_RTO_MAX;
+ 		timeout = jiffies_to_msecs(timeout);
+ 	}
+-	return (tcp_time_stamp(tcp_sk(sk)) - start_ts) >= timeout;
++	return (s32)(tcp_time_stamp(tcp_sk(sk)) - start_ts - timeout) >= 0;
+ }
+ 
+ /* A write timeout has occurred. Process the after effects. */
 
 
