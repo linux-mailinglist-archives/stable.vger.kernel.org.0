@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FDDF420FD2
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:37:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA3E8420C99
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:05:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237156AbhJDNix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:38:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51592 "EHLO mail.kernel.org"
+        id S235016AbhJDNHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:07:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237668AbhJDNgm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:36:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4C7261053;
-        Mon,  4 Oct 2021 13:16:34 +0000 (UTC)
+        id S235079AbhJDNFk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:05:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECFAD619F5;
+        Mon,  4 Oct 2021 13:00:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353395;
-        bh=Xz0TUOjXF0iUnwdvQFRiT9f0vxgEg38Ef9OUoCkHeck=;
+        s=korg; t=1633352453;
+        bh=IbeZ8mVVQ84qrPawrREJrENXt9DzouTpVHru1cM/LMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eKFEa4SRFAiRbLxkH3H1lQGSCN/347+jhy2yipd7hoUeqOxn/gc9srlQrMxzUEWTF
-         hNCeTjQTVh5Y58Wokaj4s7G5sKbg2qHG7B+xx781LhP6m3kSG7kS1shx/EbKTYe++6
-         gcw8pyJfhNB0LFoIN3xdVU3O25m7E/htRT3zWW3Y=
+        b=iNQC3GO0L4xOn92XY7fseJkBPHvoQZXsks5iZotzeAdW16fquNljp8aAeXJ7N22cR
+         gSckYyQAB/EQXPWhzdl8PA0fV0biMwh8x2vTwJu/mcsvMzsww9S1Dt7tIKOkP0s2JK
+         7TpdzmQlSlU94q8Kzwl6toRTJSuFPSYxaxeEIz9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenpeng Liang <liangwenpeng@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 112/172] RDMA/hns: Fix the size setting error when copying CQE in clean_cq()
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Nanyong Sun <sunnanyong@huawei.com>
+Subject: [PATCH 4.14 67/75] arm64: Extend workaround for erratum 1024718 to all versions of Cortex-A55
 Date:   Mon,  4 Oct 2021 14:52:42 +0200
-Message-Id: <20211004125048.601056832@linuxfoundation.org>
+Message-Id: <20211004125033.785412302@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenpeng Liang <liangwenpeng@huawei.com>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-[ Upstream commit cc26aee100588a3f293921342a307b6309ace193 ]
+commit c0b15c25d25171db4b70cc0b7dbc1130ee94017d upstream.
 
-The size of CQE is different for different versions of hardware, so the
-driver needs to specify the size of CQE explicitly.
+The erratum 1024718 affects Cortex-A55 r0p0 to r2p0. However
+we apply the work around for r0p0 - r1p0. Unfortunately this
+won't be fixed for the future revisions for the CPU. Thus
+extend the work around for all versions of A55, to cover
+for r2p0 and any future revisions.
 
-Fixes: 09a5f210f67e ("RDMA/hns: Add support for CQE in size of 64 Bytes")
-Link: https://lore.kernel.org/r/20210927125557.15031-2-liangwenpeng@huawei.com
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/20210203230057.3961239-1-suzuki.poulose@arm.com
+[will: Update Kconfig help text]
+Signed-off-by: Will Deacon <will@kernel.org>
+[Nanyon: adjust for stable version below v4.16, which set TCR_HD earlier
+in assembly code]
+Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/Kconfig   |    2 +-
+ arch/arm64/mm/proc.S |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 6cb4a4e10837..0ccb0c453f6a 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -3306,7 +3306,7 @@ static void __hns_roce_v2_cq_clean(struct hns_roce_cq *hr_cq, u32 qpn,
- 			dest = get_cqe_v2(hr_cq, (prod_index + nfreed) &
- 					  hr_cq->ib_cq.cqe);
- 			owner_bit = hr_reg_read(dest, CQE_OWNER);
--			memcpy(dest, cqe, sizeof(*cqe));
-+			memcpy(dest, cqe, hr_cq->cqe_size);
- 			hr_reg_write(dest, CQE_OWNER, owner_bit);
- 		}
- 	}
--- 
-2.33.0
-
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -450,7 +450,7 @@ config ARM64_ERRATUM_1024718
+ 	help
+ 	  This option adds work around for Arm Cortex-A55 Erratum 1024718.
+ 
+-	  Affected Cortex-A55 cores (r0p0, r0p1, r1p0) could cause incorrect
++	  Affected Cortex-A55 cores (all revisions) could cause incorrect
+ 	  update of the hardware dirty bit when the DBM/AP bits are updated
+ 	  without a break-before-make. The work around is to disable the usage
+ 	  of hardware DBM locally on the affected cores. CPUs not affected by
+--- a/arch/arm64/mm/proc.S
++++ b/arch/arm64/mm/proc.S
+@@ -455,8 +455,8 @@ ENTRY(__cpu_setup)
+ 	cmp	x9, #2
+ 	b.lt	1f
+ #ifdef CONFIG_ARM64_ERRATUM_1024718
+-	/* Disable hardware DBM on Cortex-A55 r0p0, r0p1 & r1p0 */
+-	cpu_midr_match MIDR_CORTEX_A55, MIDR_CPU_VAR_REV(0, 0), MIDR_CPU_VAR_REV(1, 0), x1, x2, x3, x4
++	/* Disable hardware DBM on Cortex-A55 all versions */
++	cpu_midr_match MIDR_CORTEX_A55, MIDR_CPU_VAR_REV(0, 0), MIDR_CPU_VAR_REV(0xf, 0xf), x1, x2, x3, x4
+ 	cbnz	x1, 1f
+ #endif
+ 	orr	x10, x10, #TCR_HD		// hardware Dirty flag update
 
 
