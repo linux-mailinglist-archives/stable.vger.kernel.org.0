@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9C38420E7F
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:23:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 481D8420FE1
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:37:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236951AbhJDNZa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:25:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38150 "EHLO mail.kernel.org"
+        id S236582AbhJDNjE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:39:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237023AbhJDNXs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:23:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAED961C13;
-        Mon,  4 Oct 2021 13:10:28 +0000 (UTC)
+        id S237952AbhJDNhc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:37:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 34E946136F;
+        Mon,  4 Oct 2021 13:17:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353029;
+        s=korg; t=1633353423;
         bh=3C6iHA7wH4RyXJEFJq7ukVmCEwCLUOLvkiHSGmNUM4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xOZBu1Z7zBLi8lZhE2n2WaEAAi3bnRg67Nw1ByPYEDUj1j2s2OUXt+eUU8LD+RspQ
-         HuedAsDoqb+tw2xKePfMPYP74uuVAuDUycBulVj4djiyErYnhaQP9MY6plJw+HYYgO
-         BYirdTA9d5RDvEa+S/dJd6Jcb03tBWL3PfNFMXaI=
+        b=P2yMjfcxLI17MJ1AXu/7lWWshYM7z4E7J1PL2TJAP/r5ZH3VjwWAufpiCvOJjAZmR
+         AGYusdQffXosGFxQwdwUyUnuK5NW685tHTuOPeWQIEXcoFhPgZBA26CmOiV1896Rou
+         6oWuboBLkRenSxti8rocOnDn+HFU9CCkvfLpPHq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 54/93] scsi: csiostor: Add module softdep on cxgb4
+Subject: [PATCH 5.14 122/172] scsi: csiostor: Add module softdep on cxgb4
 Date:   Mon,  4 Oct 2021 14:52:52 +0200
-Message-Id: <20211004125036.363453462@linuxfoundation.org>
+Message-Id: <20211004125048.920060453@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
