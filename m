@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60219420F25
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:30:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B17B420F28
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:30:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236886AbhJDNbo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:31:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43074 "EHLO mail.kernel.org"
+        id S237093AbhJDNbq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:31:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237098AbhJDN3z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:29:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86F8B6320E;
-        Mon,  4 Oct 2021 13:13:24 +0000 (UTC)
+        id S236307AbhJDN34 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:29:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D91163226;
+        Mon,  4 Oct 2021 13:13:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353205;
-        bh=XyyBT2CR4VZdwk2vKad6wgcPft6lAhFe6EIjzXUwRXM=;
+        s=korg; t=1633353207;
+        bh=gbzeM37Zhas7eRYhP+wau5J9CfcGmKSSSDNQGx29buo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uAqbkJaV7Agq2wrVdBb1fRjv9sCbFI9y8xBy5UMB9V4JWQnmYYzrjrlULzOPfgi4T
-         KabHu7anfiOyDxSgHvWkHlM3qAcydHfUzZgWezw3zEmdtgAkjnUv0uDdsJyI/a/c4m
-         HtDQWpFJ0RAHqfqLc0vzv7VDgGSl+MvP7sBmvCqA=
+        b=eTWT1FKsuXB3Awkl1qhh9rJG7juu+37COohuSg+iTdQjNAtcpLMy18oVKXLCBZN/1
+         Mb2E8WlFYj2I/IgEutJRwwHT7lD6Uz7yHiu9tiEoJT/jWvOwaHO5wfmV1OR/za9nmu
+         bANGWgFVJiveyIH3AZh+FwAMWrrsYiKUWbJECfh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cameron Berkenpas <cam@neo-zeon.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.14 037/172] ALSA: hda/realtek: Quirks to enable speaker output for Lenovo Legion 7i 15IMHG05, Yoga 7i 14ITL5/15ITL5, and 13s Gen2 laptops.
-Date:   Mon,  4 Oct 2021 14:51:27 +0200
-Message-Id: <20211004125046.176644923@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
+        Jia He <justin.he@arm.com>
+Subject: [PATCH 5.14 038/172] ACPI: NFIT: Use fallback node id when numa info in NFIT table is incorrect
+Date:   Mon,  4 Oct 2021 14:51:28 +0200
+Message-Id: <20211004125046.212942681@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
 References: <20211004125044.945314266@linuxfoundation.org>
@@ -39,191 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cameron Berkenpas <cam@neo-zeon.de>
+From: Jia He <justin.he@arm.com>
 
-commit ad7cc2d41b7a8d0c5c5ecff37c3de7a4e137b3a6 upstream.
+commit f060db99374e80e853ac4916b49f0a903f65e9dc upstream.
 
-This patch initializes and enables speaker output on the Lenovo Legion 7i
-15IMHG05, Yoga 7i 14ITL5/15ITL5, and 13s Gen2 series of laptops using the
-HDA verb sequence specific to each model.
+When ACPI NFIT table is failing to populate correct numa information
+on arm64, dax_kmem will get NUMA_NO_NODE from the NFIT driver.
 
-Speaker automute is suppressed for the Lenovo Legion 7i 15IMHG05 to avoid
-breaking speaker output on resume and when devices are unplugged from its
-headphone jack.
+Without this patch, pmem can't be probed as RAM devices on arm64 guest:
+  $ndctl create-namespace -fe namespace0.0 --mode=devdax --map=dev -s 1g -a 128M
+  kmem dax0.0: rejecting DAX region [mem 0x240400000-0x2bfffffff] with invalid node: -1
+  kmem: probe of dax0.0 failed with error -22
 
-Thanks to: Andreas Holzer, Vincent Morel, sycxyc, Max Christian Pohle and
-all others that helped.
-
-[ minor coding style fixes by tiwai ]
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208555
-Signed-off-by: Cameron Berkenpas <cam@neo-zeon.de>
+Suggested-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Jia He <justin.he@arm.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210913212627.339362-1-cam@neo-zeon.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: c221c0b0308f ("device-dax: "Hotplug" persistent memory for use like normal RAM")
+Link: https://lore.kernel.org/r/20210922152919.6940-1-justin.he@arm.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |  129 ++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 129 insertions(+)
+ drivers/acpi/nfit/core.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6442,6 +6442,20 @@ static void alc_fixup_thinkpad_acpi(stru
- 	hda_fixup_thinkpad_acpi(codec, fix, action);
- }
+--- a/drivers/acpi/nfit/core.c
++++ b/drivers/acpi/nfit/core.c
+@@ -3007,6 +3007,18 @@ static int acpi_nfit_register_region(str
+ 		ndr_desc->target_node = NUMA_NO_NODE;
+ 	}
  
-+/* Fixup for Lenovo Legion 15IMHg05 speaker output on headset removal. */
-+static void alc287_fixup_legion_15imhg05_speakers(struct hda_codec *codec,
-+						  const struct hda_fixup *fix,
-+						  int action)
-+{
-+	struct alc_spec *spec = codec->spec;
-+
-+	switch (action) {
-+	case HDA_FIXUP_ACT_PRE_PROBE:
-+		spec->gen.suppress_auto_mute = 1;
-+		break;
++	/* Fallback to address based numa information if node lookup failed */
++	if (ndr_desc->numa_node == NUMA_NO_NODE) {
++		ndr_desc->numa_node = memory_add_physaddr_to_nid(spa->address);
++		dev_info(acpi_desc->dev, "changing numa node from %d to %d for nfit region [%pa-%pa]",
++			NUMA_NO_NODE, ndr_desc->numa_node, &res.start, &res.end);
 +	}
-+}
++	if (ndr_desc->target_node == NUMA_NO_NODE) {
++		ndr_desc->target_node = phys_to_target_node(spa->address);
++		dev_info(acpi_desc->dev, "changing target node from %d to %d for nfit region [%pa-%pa]",
++			NUMA_NO_NODE, ndr_desc->numa_node, &res.start, &res.end);
++	}
 +
- /* for alc295_fixup_hp_top_speakers */
- #include "hp_x360_helper.c"
- 
-@@ -6659,6 +6673,10 @@ enum {
- 	ALC623_FIXUP_LENOVO_THINKSTATION_P340,
- 	ALC255_FIXUP_ACER_HEADPHONE_AND_MIC,
- 	ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST,
-+	ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS,
-+	ALC287_FIXUP_LEGION_15IMHG05_AUTOMUTE,
-+	ALC287_FIXUP_YOGA7_14ITL_SPEAKERS,
-+	ALC287_FIXUP_13S_GEN2_SPEAKERS
- };
- 
- static const struct hda_fixup alc269_fixups[] = {
-@@ -8249,6 +8267,113 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
- 	},
-+	[ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS] = {
-+		.type = HDA_FIXUP_VERBS,
-+		//.v.verbs = legion_15imhg05_coefs,
-+		.v.verbs = (const struct hda_verb[]) {
-+			 // set left speaker Legion 7i.
-+			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x24 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x41 },
-+
-+			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0xc },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x1a },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
-+
-+			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x2 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
-+
-+			 // set right speaker Legion 7i.
-+			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x24 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x42 },
-+
-+			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0xc },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x2a },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
-+
-+			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x2 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
-+			 {}
-+		},
-+		.chained = true,
-+		.chain_id = ALC287_FIXUP_LEGION_15IMHG05_AUTOMUTE,
-+	},
-+	[ALC287_FIXUP_LEGION_15IMHG05_AUTOMUTE] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc287_fixup_legion_15imhg05_speakers,
-+		.chained = true,
-+		.chain_id = ALC269_FIXUP_HEADSET_MODE,
-+	},
-+	[ALC287_FIXUP_YOGA7_14ITL_SPEAKERS] = {
-+		.type = HDA_FIXUP_VERBS,
-+		.v.verbs = (const struct hda_verb[]) {
-+			 // set left speaker Yoga 7i.
-+			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x24 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x41 },
-+
-+			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0xc },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x1a },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
-+
-+			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x2 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
-+
-+			 // set right speaker Yoga 7i.
-+			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x24 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x46 },
-+
-+			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0xc },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x2a },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
-+
-+			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x2 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
-+			 { 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
-+			 {}
-+		},
-+		.chained = true,
-+		.chain_id = ALC269_FIXUP_HEADSET_MODE,
-+	},
-+	[ALC287_FIXUP_13S_GEN2_SPEAKERS] = {
-+		.type = HDA_FIXUP_VERBS,
-+		.v.verbs = (const struct hda_verb[]) {
-+			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x24 },
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0x41 },
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0x2 },
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
-+			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x24 },
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0x42 },
-+			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0x2 },
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
-+			{}
-+		},
-+		.chained = true,
-+		.chain_id = ALC269_FIXUP_HEADSET_MODE,
-+	},
- };
- 
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -8643,6 +8768,10 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x17aa, 0x3818, "Lenovo C940", ALC298_FIXUP_LENOVO_SPK_VOLUME),
- 	SND_PCI_QUIRK(0x17aa, 0x3827, "Ideapad S740", ALC285_FIXUP_IDEAPAD_S740_COEF),
- 	SND_PCI_QUIRK(0x17aa, 0x3843, "Yoga 9i", ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP),
-+	SND_PCI_QUIRK(0x17aa, 0x3813, "Legion 7i 15IMHG05", ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS),
-+	SND_PCI_QUIRK(0x17aa, 0x3852, "Lenovo Yoga 7 14ITL5", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
-+	SND_PCI_QUIRK(0x17aa, 0x3853, "Lenovo Yoga 7 15ITL5", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
-+	SND_PCI_QUIRK(0x17aa, 0x3819, "Lenovo 13s Gen2 ITL", ALC287_FIXUP_13S_GEN2_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x3902, "Lenovo E50-80", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
- 	SND_PCI_QUIRK(0x17aa, 0x3977, "IdeaPad S210", ALC283_FIXUP_INT_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo B50-70", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
+ 	/*
+ 	 * Persistence domain bits are hierarchical, if
+ 	 * ACPI_NFIT_CAPABILITY_CACHE_FLUSH is set then
 
 
