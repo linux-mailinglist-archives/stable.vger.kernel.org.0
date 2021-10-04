@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70178420EAA
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:25:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6841420E09
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:19:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236440AbhJDN1P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:27:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38020 "EHLO mail.kernel.org"
+        id S236653AbhJDNVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:21:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236074AbhJDNZT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:25:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C57361B67;
-        Mon,  4 Oct 2021 13:11:08 +0000 (UTC)
+        id S236743AbhJDNSz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:18:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36E1361B47;
+        Mon,  4 Oct 2021 13:08:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353069;
-        bh=T+GwVrBkHRdAsDemXIdBCuPtet2vHVLxLt4P9GH+so0=;
+        s=korg; t=1633352888;
+        bh=L5gVf7Hcyfcw716rljZqLlsFh1Wz47S0raxIr/2Vc9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DpWS5iuYSmDC7Y0+OCY76geGakkhye+58bqEcnD0EnfVLiBzbasAIiIwXQwzVIlqt
-         U/mszgMqJ7DlQgmUcz832vFhAzPbC6GbHyjrX7OgNFedj6xcIoJrrTlm66bCqzE+6j
-         AtK2sscPmkZYostQX91adQSLvyLTGoKNylRT1cvc=
+        b=cJ7hXbomJASQs/Nceu0Yr+nTNpYyd4x6pGNt4yQ6Fv5PFpyYv1f3AyNBgwtzGhuN1
+         PjbsguMFY8AqtQepq80hNwzH2p0BZTTnQqQLoNh46BH7j3IVq+dL8uscwbf+Dgowqz
+         PUpbE3e6FIwAIjRFMudeYlwKazrOFpBMTmk8cotE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Hou Tao <houtao1@huawei.com>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 77/93] ext4: limit the number of blocks in one ADD_RANGE TLV
-Date:   Mon,  4 Oct 2021 14:53:15 +0200
-Message-Id: <20211004125037.131468396@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com,
+        Yanfei Xu <yanfei.xu@windriver.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 56/56] net: mdiobus: Fix memory leak in __mdiobus_register
+Date:   Mon,  4 Oct 2021 14:53:16 +0200
+Message-Id: <20211004125031.778001541@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
+References: <20211004125030.002116402@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +42,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Yanfei Xu <yanfei.xu@windriver.com>
 
-commit a2c2f0826e2b75560b31daf1cd9a755ab93cf4c6 upstream.
+commit ab609f25d19858513919369ff3d9a63c02cd9e2e upstream.
 
-Now EXT4_FC_TAG_ADD_RANGE uses ext4_extent to track the
-newly-added blocks, but the limit on the max value of
-ee_len field is ignored, and it can lead to BUG_ON as
-shown below when running command "fallocate -l 128M file"
-on a fast_commit-enabled fs:
+Once device_register() failed, we should call put_device() to
+decrement reference count for cleanup. Or it will cause memory
+leak.
 
-  kernel BUG at fs/ext4/ext4_extents.h:199!
-  invalid opcode: 0000 [#1] SMP PTI
-  CPU: 3 PID: 624 Comm: fallocate Not tainted 5.14.0-rc6+ #1
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
-  RIP: 0010:ext4_fc_write_inode_data+0x1f3/0x200
-  Call Trace:
-   ? ext4_fc_write_inode+0xf2/0x150
-   ext4_fc_commit+0x93b/0xa00
-   ? ext4_fallocate+0x1ad/0x10d0
-   ext4_sync_file+0x157/0x340
-   ? ext4_sync_file+0x157/0x340
-   vfs_fsync_range+0x49/0x80
-   do_fsync+0x3d/0x70
-   __x64_sys_fsync+0x14/0x20
-   do_syscall_64+0x3b/0xc0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+BUG: memory leak
+unreferenced object 0xffff888114032e00 (size 256):
+  comm "kworker/1:3", pid 2960, jiffies 4294943572 (age 15.920s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 08 2e 03 14 81 88 ff ff  ................
+    08 2e 03 14 81 88 ff ff 90 76 65 82 ff ff ff ff  .........ve.....
+  backtrace:
+    [<ffffffff8265cfab>] kmalloc include/linux/slab.h:591 [inline]
+    [<ffffffff8265cfab>] kzalloc include/linux/slab.h:721 [inline]
+    [<ffffffff8265cfab>] device_private_init drivers/base/core.c:3203 [inline]
+    [<ffffffff8265cfab>] device_add+0x89b/0xdf0 drivers/base/core.c:3253
+    [<ffffffff828dd643>] __mdiobus_register+0xc3/0x450 drivers/net/phy/mdio_bus.c:537
+    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
+    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
+    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
+    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
+    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
+    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
+    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
+    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
+    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
+    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
+    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
+    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
+    [<ffffffff82660916>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
+    [<ffffffff8265cd0b>] device_add+0x5fb/0xdf0 drivers/base/core.c:3359
+    [<ffffffff82c343b9>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2170
+    [<ffffffff82c4473c>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
 
-Simply fixing it by limiting the number of blocks
-in one EXT4_FC_TAG_ADD_RANGE TLV.
+BUG: memory leak
+unreferenced object 0xffff888116f06900 (size 32):
+  comm "kworker/0:2", pid 2670, jiffies 4294944448 (age 7.160s)
+  hex dump (first 32 bytes):
+    75 73 62 2d 30 30 31 3a 30 30 33 00 00 00 00 00  usb-001:003.....
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff81484516>] kstrdup+0x36/0x70 mm/util.c:60
+    [<ffffffff814845a3>] kstrdup_const+0x53/0x80 mm/util.c:83
+    [<ffffffff82296ba2>] kvasprintf_const+0xc2/0x110 lib/kasprintf.c:48
+    [<ffffffff82358d4b>] kobject_set_name_vargs+0x3b/0xe0 lib/kobject.c:289
+    [<ffffffff826575f3>] dev_set_name+0x63/0x90 drivers/base/core.c:3147
+    [<ffffffff828dd63b>] __mdiobus_register+0xbb/0x450 drivers/net/phy/mdio_bus.c:535
+    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
+    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
+    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
+    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
+    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
+    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
+    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
+    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
+    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
+    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
+    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
+    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
 
-Fixes: aa75f4d3daae ("ext4: main fast-commit commit path")
-Cc: stable@kernel.org
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/20210820044505.474318-1-houtao1@huawei.com
+Reported-by: syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
+Signed-off-by: Yanfei Xu <yanfei.xu@windriver.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/fast_commit.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/phy/mdio_bus.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ext4/fast_commit.c
-+++ b/fs/ext4/fast_commit.c
-@@ -832,6 +832,12 @@ static int ext4_fc_write_inode_data(stru
- 					    sizeof(lrange), (u8 *)&lrange, crc))
- 				return -ENOSPC;
- 		} else {
-+			unsigned int max = (map.m_flags & EXT4_MAP_UNWRITTEN) ?
-+				EXT_UNWRITTEN_MAX_LEN : EXT_INIT_MAX_LEN;
-+
-+			/* Limit the number of blocks in one extent */
-+			map.m_len = min(max, map.m_len);
-+
- 			fc_ext.fc_ino = cpu_to_le32(inode->i_ino);
- 			ex = (struct ext4_extent *)&fc_ext.fc_ex;
- 			ex->ee_block = cpu_to_le32(map.m_lblk);
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -388,6 +388,7 @@ int __mdiobus_register(struct mii_bus *b
+ 	err = device_register(&bus->dev);
+ 	if (err) {
+ 		pr_err("mii_bus %s failed to register\n", bus->id);
++		put_device(&bus->dev);
+ 		return -EINVAL;
+ 	}
+ 
 
 
