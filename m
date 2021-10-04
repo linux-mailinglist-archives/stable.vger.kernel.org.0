@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41696420BF3
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:59:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 557F5420C73
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:04:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234662AbhJDNBX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:01:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32834 "EHLO mail.kernel.org"
+        id S235120AbhJDNFt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:05:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234195AbhJDM7o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:59:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B37A613D5;
-        Mon,  4 Oct 2021 12:57:39 +0000 (UTC)
+        id S235119AbhJDNDs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:03:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ABE3661213;
+        Mon,  4 Oct 2021 13:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352260;
-        bh=nSTmr121dkjbPIH6jZrbKOssLMtUrK4KbeQ23eg16U8=;
+        s=korg; t=1633352412;
+        bh=oQGg7jwlpxOcSXFgzD5LrllY6S+oQ8bqfAMAtDMphuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0wVFSL2yooNZTx/fD5FpvLphAmwRTYbQteHBNLeXwyFz5NMin/f2iBs2VPPqkuwE6
-         WHxYyMNCTRtRnkUJtNMBstLZ73YTaPBh4h8sqnROAm39YOao7sTDxxeh7ilp5K+jgL
-         0vTro8m/ilEVRzBnvVWo/G2OBVS4VaQk3lkLwBeo=
+        b=YY18yiSsAfHH8EYinFSVoDoTj1sjAnRxDICr23nxBi0zeRWPedzVvTFx6D441YiUJ
+         iW0I2W/Nblyq3Y8P5mmPcHx4eskf7RSFSgwVOrC5ZlPtjutdqLANlqyPFbMOp6Gjns
+         j0fO5xT9hBU//s+u+nKS4bjbZCvASejwkKhV0CFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 43/57] ipack: ipoctal: fix tty-registration error handling
+        Felicitas Hetzelt <felicitashetzelt@gmail.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 52/75] e100: fix buffer overrun in e100_get_regs
 Date:   Mon,  4 Oct 2021 14:52:27 +0200
-Message-Id: <20211004125030.315472775@linuxfoundation.org>
+Message-Id: <20211004125033.267856624@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
-References: <20211004125028.940212411@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +42,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-commit cd20d59291d1790dc74248476e928f57fc455189 upstream.
+[ Upstream commit 51032e6f17ce990d06123ad7307f258c50d25aa7 ]
 
-Registration of the ipoctal tty devices is unlikely to fail, but if it
-ever does, make sure not to deregister a never registered tty device
-(and dereference a NULL pointer) when the driver is later unbound.
+The e100_get_regs function is used to implement a simple register dump
+for the e100 device. The data is broken into a couple of MAC control
+registers, and then a series of PHY registers, followed by a memory dump
+buffer.
 
-Fixes: 2afb41d9d30d ("Staging: ipack/devices/ipoctal: Check tty_register_device return value.")
-Cc: stable@vger.kernel.org      # 3.7
-Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210917114622.5412-4-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The total length of the register dump is defined as (1 + E100_PHY_REGS)
+* sizeof(u32) + sizeof(nic->mem->dump_buf).
+
+The logic for filling in the PHY registers uses a convoluted inverted
+count for loop which counts from E100_PHY_REGS (0x1C) down to 0, and
+assigns the slots 1 + E100_PHY_REGS - i. The first loop iteration will
+fill in [1] and the final loop iteration will fill in [1 + 0x1C]. This
+is actually one more than the supposed number of PHY registers.
+
+The memory dump buffer is then filled into the space at
+[2 + E100_PHY_REGS] which will cause that memcpy to assign 4 bytes past
+the total size.
+
+The end result is that we overrun the total buffer size allocated by the
+kernel, which could lead to a panic or other issues due to memory
+corruption.
+
+It is difficult to determine the actual total number of registers
+here. The only 8255x datasheet I could find indicates there are 28 total
+MDI registers. However, we're reading 29 here, and reading them in
+reverse!
+
+In addition, the ethtool e100 register dump interface appears to read
+the first PHY register to determine if the device is in MDI or MDIx
+mode. This doesn't appear to be documented anywhere within the 8255x
+datasheet. I can only assume it must be in register 28 (the extra
+register we're reading here).
+
+Lets not change any of the intended meaning of what we copy here. Just
+extend the space by 4 bytes to account for the extra register and
+continue copying the data out in the same order.
+
+Change the E100_PHY_REGS value to be the correct total (29) so that the
+total register dump size is calculated properly. Fix the offset for
+where we copy the dump buffer so that it doesn't overrun the total size.
+
+Re-write the for loop to use counting up instead of the convoluted
+down-counting. Correct the mdio_read offset to use the 0-based register
+offsets, but maintain the bizarre reverse ordering so that we have the
+ABI expected by applications like ethtool. This requires and additional
+subtraction of 1. It seems a bit odd but it makes the flow of assignment
+into the register buffer easier to follow.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Felicitas Hetzelt <felicitashetzelt@gmail.com>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ipack/devices/ipoctal.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/ethernet/intel/e100.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/ipack/devices/ipoctal.c
-+++ b/drivers/ipack/devices/ipoctal.c
-@@ -38,6 +38,7 @@ struct ipoctal_channel {
- 	unsigned int			pointer_read;
- 	unsigned int			pointer_write;
- 	struct tty_port			tty_port;
-+	bool				tty_registered;
- 	union scc2698_channel __iomem	*regs;
- 	union scc2698_block __iomem	*block_regs;
- 	unsigned int			board_id;
-@@ -402,9 +403,11 @@ static int ipoctal_inst_slot(struct ipoc
- 							i, NULL, channel, NULL);
- 		if (IS_ERR(tty_dev)) {
- 			dev_err(&ipoctal->dev->dev, "Failed to register tty device.\n");
-+			tty_port_free_xmit_buf(&channel->tty_port);
- 			tty_port_destroy(&channel->tty_port);
- 			continue;
- 		}
-+		channel->tty_registered = true;
- 	}
+diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
+index ae967fa9e502..20961985ed12 100644
+--- a/drivers/net/ethernet/intel/e100.c
++++ b/drivers/net/ethernet/intel/e100.c
+@@ -2459,7 +2459,7 @@ static void e100_get_drvinfo(struct net_device *netdev,
+ 		sizeof(info->bus_info));
+ }
  
- 	/*
-@@ -705,6 +708,10 @@ static void __ipoctal_remove(struct ipoc
+-#define E100_PHY_REGS 0x1C
++#define E100_PHY_REGS 0x1D
+ static int e100_get_regs_len(struct net_device *netdev)
+ {
+ 	struct nic *nic = netdev_priv(netdev);
+@@ -2481,14 +2481,18 @@ static void e100_get_regs(struct net_device *netdev,
+ 	buff[0] = ioread8(&nic->csr->scb.cmd_hi) << 24 |
+ 		ioread8(&nic->csr->scb.cmd_lo) << 16 |
+ 		ioread16(&nic->csr->scb.status);
+-	for (i = E100_PHY_REGS; i >= 0; i--)
+-		buff[1 + E100_PHY_REGS - i] =
+-			mdio_read(netdev, nic->mii.phy_id, i);
++	for (i = 0; i < E100_PHY_REGS; i++)
++		/* Note that we read the registers in reverse order. This
++		 * ordering is the ABI apparently used by ethtool and other
++		 * applications.
++		 */
++		buff[1 + i] = mdio_read(netdev, nic->mii.phy_id,
++					E100_PHY_REGS - 1 - i);
+ 	memset(nic->mem->dump_buf, 0, sizeof(nic->mem->dump_buf));
+ 	e100_exec_cb(nic, NULL, e100_dump);
+ 	msleep(10);
+-	memcpy(&buff[2 + E100_PHY_REGS], nic->mem->dump_buf,
+-		sizeof(nic->mem->dump_buf));
++	memcpy(&buff[1 + E100_PHY_REGS], nic->mem->dump_buf,
++	       sizeof(nic->mem->dump_buf));
+ }
  
- 	for (i = 0; i < NR_CHANNELS; i++) {
- 		struct ipoctal_channel *channel = &ipoctal->channel[i];
-+
-+		if (!channel->tty_registered)
-+			continue;
-+
- 		tty_unregister_device(ipoctal->tty_drv, i);
- 		tty_port_free_xmit_buf(&channel->tty_port);
- 		tty_port_destroy(&channel->tty_port);
+ static void e100_get_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
+-- 
+2.33.0
+
 
 
