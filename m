@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6358420DD6
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:17:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6793B420D5C
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:12:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236239AbhJDNTP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:19:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55160 "EHLO mail.kernel.org"
+        id S235558AbhJDNOb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:14:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236301AbhJDNRB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:17:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A221611C2;
-        Mon,  4 Oct 2021 13:06:49 +0000 (UTC)
+        id S235660AbhJDNMp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:12:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59CE76137D;
+        Mon,  4 Oct 2021 13:04:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352810;
-        bh=omDE3SJPSI0nNgYo/PU0EBeSGvKbbk8izuJ1LC1pJ68=;
+        s=korg; t=1633352699;
+        bh=sCKqQsnWyy2TMFoIwAoK9TxQENvqp67L5yhaXHcheCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cPa2jPhBGv4fzYAg6zDWGmqNhgcVJKY2fg4/AbGuFL32SmFE8nPOqkbkPbMRXaUI4
-         Df1udjNE44EOsXXIDe2ExX9bu6U8+yio7f5JCzRAVoc1XSGYDrRuKjilV4iolRKVfs
-         1nKgrfTwgcfkWDU1eW3jLFaOI8sW92Jhw2YWBIEs=
+        b=WcbzqT/GzczerPGzsKHcJDq5pR5aGnqpqEnYfnP9fo5Te5KLHyvRmbdV8msJ9mRpQ
+         9R4V/tWVQBZFlJZeEh9G1R3KR8Oh+Ca4C+PRjbi7XI7lFHTrU8wbYM05owL0kdPlDi
+         x8fG7n69e6eGW4TX2KPTvCQBnnBQQN3ZQa+jMRrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Nirmoy Das <nirmoy.das@amd.com>
-Subject: [PATCH 5.4 35/56] debugfs: debugfs_create_file_size(): use IS_ERR to check for error
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 4.19 85/95] ARM: 9078/1: Add warn suppress parameter to arm_gen_branch_link()
 Date:   Mon,  4 Oct 2021 14:52:55 +0200
-Message-Id: <20211004125031.105052536@linuxfoundation.org>
+Message-Id: <20211004125036.356842983@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
-References: <20211004125030.002116402@linuxfoundation.org>
+In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
+References: <20211004125033.572932188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +41,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nirmoy Das <nirmoy.das@amd.com>
+From: Alex Sverdlin <alexander.sverdlin@nokia.com>
 
-commit af505cad9567f7a500d34bf183696d570d7f6810 upstream.
+commit 890cb057a46d323fd8c77ebecb6485476614cd21 upstream
 
-debugfs_create_file() returns encoded error so use IS_ERR for checking
-return value.
+Will be used in the following patch. No functional change.
 
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
-Fixes: ff9fb72bc077 ("debugfs: return error values, not NULL")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210902102917.2233-1-nirmoy.das@amd.com
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/debugfs/inode.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/include/asm/insn.h |    8 ++++----
+ arch/arm/kernel/ftrace.c    |    2 +-
+ arch/arm/kernel/insn.c      |   19 ++++++++++---------
+ 3 files changed, 15 insertions(+), 14 deletions(-)
 
---- a/fs/debugfs/inode.c
-+++ b/fs/debugfs/inode.c
-@@ -522,7 +522,7 @@ struct dentry *debugfs_create_file_size(
- {
- 	struct dentry *de = debugfs_create_file(name, mode, parent, data, fops);
+--- a/arch/arm/include/asm/insn.h
++++ b/arch/arm/include/asm/insn.h
+@@ -13,18 +13,18 @@ arm_gen_nop(void)
+ }
  
--	if (de)
-+	if (!IS_ERR(de))
- 		d_inode(de)->i_size = file_size;
- 	return de;
+ unsigned long
+-__arm_gen_branch(unsigned long pc, unsigned long addr, bool link);
++__arm_gen_branch(unsigned long pc, unsigned long addr, bool link, bool warn);
+ 
+ static inline unsigned long
+ arm_gen_branch(unsigned long pc, unsigned long addr)
+ {
+-	return __arm_gen_branch(pc, addr, false);
++	return __arm_gen_branch(pc, addr, false, true);
+ }
+ 
+ static inline unsigned long
+-arm_gen_branch_link(unsigned long pc, unsigned long addr)
++arm_gen_branch_link(unsigned long pc, unsigned long addr, bool warn)
+ {
+-	return __arm_gen_branch(pc, addr, true);
++	return __arm_gen_branch(pc, addr, true, warn);
+ }
+ 
+ #endif
+--- a/arch/arm/kernel/ftrace.c
++++ b/arch/arm/kernel/ftrace.c
+@@ -98,7 +98,7 @@ int ftrace_arch_code_modify_post_process
+ 
+ static unsigned long ftrace_call_replace(unsigned long pc, unsigned long addr)
+ {
+-	return arm_gen_branch_link(pc, addr);
++	return arm_gen_branch_link(pc, addr, true);
+ }
+ 
+ static int ftrace_modify_code(unsigned long pc, unsigned long old,
+--- a/arch/arm/kernel/insn.c
++++ b/arch/arm/kernel/insn.c
+@@ -3,8 +3,9 @@
+ #include <linux/kernel.h>
+ #include <asm/opcodes.h>
+ 
+-static unsigned long
+-__arm_gen_branch_thumb2(unsigned long pc, unsigned long addr, bool link)
++static unsigned long __arm_gen_branch_thumb2(unsigned long pc,
++					     unsigned long addr, bool link,
++					     bool warn)
+ {
+ 	unsigned long s, j1, j2, i1, i2, imm10, imm11;
+ 	unsigned long first, second;
+@@ -12,7 +13,7 @@ __arm_gen_branch_thumb2(unsigned long pc
+ 
+ 	offset = (long)addr - (long)(pc + 4);
+ 	if (offset < -16777216 || offset > 16777214) {
+-		WARN_ON_ONCE(1);
++		WARN_ON_ONCE(warn);
+ 		return 0;
+ 	}
+ 
+@@ -33,8 +34,8 @@ __arm_gen_branch_thumb2(unsigned long pc
+ 	return __opcode_thumb32_compose(first, second);
+ }
+ 
+-static unsigned long
+-__arm_gen_branch_arm(unsigned long pc, unsigned long addr, bool link)
++static unsigned long __arm_gen_branch_arm(unsigned long pc, unsigned long addr,
++					  bool link, bool warn)
+ {
+ 	unsigned long opcode = 0xea000000;
+ 	long offset;
+@@ -44,7 +45,7 @@ __arm_gen_branch_arm(unsigned long pc, u
+ 
+ 	offset = (long)addr - (long)(pc + 8);
+ 	if (unlikely(offset < -33554432 || offset > 33554428)) {
+-		WARN_ON_ONCE(1);
++		WARN_ON_ONCE(warn);
+ 		return 0;
+ 	}
+ 
+@@ -54,10 +55,10 @@ __arm_gen_branch_arm(unsigned long pc, u
+ }
+ 
+ unsigned long
+-__arm_gen_branch(unsigned long pc, unsigned long addr, bool link)
++__arm_gen_branch(unsigned long pc, unsigned long addr, bool link, bool warn)
+ {
+ 	if (IS_ENABLED(CONFIG_THUMB2_KERNEL))
+-		return __arm_gen_branch_thumb2(pc, addr, link);
++		return __arm_gen_branch_thumb2(pc, addr, link, warn);
+ 	else
+-		return __arm_gen_branch_arm(pc, addr, link);
++		return __arm_gen_branch_arm(pc, addr, link, warn);
  }
 
 
