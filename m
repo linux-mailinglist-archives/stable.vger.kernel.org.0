@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B1E0420ED5
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:27:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6097F420DC5
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:17:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236593AbhJDN26 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:28:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43492 "EHLO mail.kernel.org"
+        id S235579AbhJDNTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:19:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236722AbhJDN1L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:27:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 523FA61B72;
-        Mon,  4 Oct 2021 13:11:58 +0000 (UTC)
+        id S236227AbhJDNQZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:16:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9047D61244;
+        Mon,  4 Oct 2021 13:06:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353118;
-        bh=90CvL/O49qy5C+G7Aq+mqE2wEL7AFDCuIoCUyt0bVfA=;
+        s=korg; t=1633352799;
+        bh=Hro0QMF5+Yxe4Ukd8w8lnkt1+26V0yLpWkmhmlOEtOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RitOpha2BlF+fZIwoUQhzAXnlCD+xDXCOUNvNoLYovcmy6qo7EBbFsyNAtdpZnlS9
-         5f2OTjrtiBJe2JuG/Duc6p3B/hl0LYPrwmq+x1VLxhKclq77MXUFz+8q5i8Catg3gE
-         9YwqxlDVWNhTeGMoye3wAp3EVf0qG6ddyQ6E/x4U=
+        b=GlIictDPeGThxTtCw8nkhahJQ2zr3NX2aOerUfpAMwoFf+nDrOzXY2MVISsU6Sf39
+         ah2AGMePQhcnjjZa6PjnNyGVRWjypFLdH638IiDSsnNDtL28mbXBW9cSOUKjQMVGY6
+         cn/tLFFMX3G4z5B8Z1t28r2nxIWxtST7NALCPdoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Vlad Buslov <vladbu@nvidia.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 53/93] Revert "block, bfq: honor already-setup queue merges"
+Subject: [PATCH 5.4 31/56] net: sched: flower: protect fl_walk() with rcu
 Date:   Mon,  4 Oct 2021 14:52:51 +0200
-Message-Id: <20211004125036.331527780@linuxfoundation.org>
+Message-Id: <20211004125030.978580676@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
+References: <20211004125030.002116402@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,65 +41,209 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Vlad Buslov <vladbu@nvidia.com>
 
-[ Upstream commit ebc69e897e17373fbe1daaff1debaa77583a5284 ]
+[ Upstream commit d5ef190693a7d76c5c192d108e8dec48307b46ee ]
 
-This reverts commit 2d52c58b9c9bdae0ca3df6a1eab5745ab3f7d80b.
+Patch that refactored fl_walk() to use idr_for_each_entry_continue_ul()
+also removed rcu protection of individual filters which causes following
+use-after-free when filter is deleted concurrently. Fix fl_walk() to obtain
+rcu read lock while iterating and taking the filter reference and temporary
+release the lock while calling arg->fn() callback that can sleep.
 
-We have had several folks complain that this causes hangs for them, which
-is especially problematic as the commit has also hit stable already.
+KASAN trace:
 
-As no resolution seems to be forthcoming right now, revert the patch.
+[  352.773640] ==================================================================
+[  352.775041] BUG: KASAN: use-after-free in fl_walk+0x159/0x240 [cls_flower]
+[  352.776304] Read of size 4 at addr ffff8881c8251480 by task tc/2987
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=214503
-Fixes: 2d52c58b9c9b ("block, bfq: honor already-setup queue merges")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[  352.777862] CPU: 3 PID: 2987 Comm: tc Not tainted 5.15.0-rc2+ #2
+[  352.778980] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+[  352.781022] Call Trace:
+[  352.781573]  dump_stack_lvl+0x46/0x5a
+[  352.782332]  print_address_description.constprop.0+0x1f/0x140
+[  352.783400]  ? fl_walk+0x159/0x240 [cls_flower]
+[  352.784292]  ? fl_walk+0x159/0x240 [cls_flower]
+[  352.785138]  kasan_report.cold+0x83/0xdf
+[  352.785851]  ? fl_walk+0x159/0x240 [cls_flower]
+[  352.786587]  kasan_check_range+0x145/0x1a0
+[  352.787337]  fl_walk+0x159/0x240 [cls_flower]
+[  352.788163]  ? fl_put+0x10/0x10 [cls_flower]
+[  352.789007]  ? __mutex_unlock_slowpath.constprop.0+0x220/0x220
+[  352.790102]  tcf_chain_dump+0x231/0x450
+[  352.790878]  ? tcf_chain_tp_delete_empty+0x170/0x170
+[  352.791833]  ? __might_sleep+0x2e/0xc0
+[  352.792594]  ? tfilter_notify+0x170/0x170
+[  352.793400]  ? __mutex_unlock_slowpath.constprop.0+0x220/0x220
+[  352.794477]  tc_dump_tfilter+0x385/0x4b0
+[  352.795262]  ? tc_new_tfilter+0x1180/0x1180
+[  352.796103]  ? __mod_node_page_state+0x1f/0xc0
+[  352.796974]  ? __build_skb_around+0x10e/0x130
+[  352.797826]  netlink_dump+0x2c0/0x560
+[  352.798563]  ? netlink_getsockopt+0x430/0x430
+[  352.799433]  ? __mutex_unlock_slowpath.constprop.0+0x220/0x220
+[  352.800542]  __netlink_dump_start+0x356/0x440
+[  352.801397]  rtnetlink_rcv_msg+0x3ff/0x550
+[  352.802190]  ? tc_new_tfilter+0x1180/0x1180
+[  352.802872]  ? rtnl_calcit.isra.0+0x1f0/0x1f0
+[  352.803668]  ? tc_new_tfilter+0x1180/0x1180
+[  352.804344]  ? _copy_from_iter_nocache+0x800/0x800
+[  352.805202]  ? kasan_set_track+0x1c/0x30
+[  352.805900]  netlink_rcv_skb+0xc6/0x1f0
+[  352.806587]  ? rht_deferred_worker+0x6b0/0x6b0
+[  352.807455]  ? rtnl_calcit.isra.0+0x1f0/0x1f0
+[  352.808324]  ? netlink_ack+0x4d0/0x4d0
+[  352.809086]  ? netlink_deliver_tap+0x62/0x3d0
+[  352.809951]  netlink_unicast+0x353/0x480
+[  352.810744]  ? netlink_attachskb+0x430/0x430
+[  352.811586]  ? __alloc_skb+0xd7/0x200
+[  352.812349]  netlink_sendmsg+0x396/0x680
+[  352.813132]  ? netlink_unicast+0x480/0x480
+[  352.813952]  ? __import_iovec+0x192/0x210
+[  352.814759]  ? netlink_unicast+0x480/0x480
+[  352.815580]  sock_sendmsg+0x6c/0x80
+[  352.816299]  ____sys_sendmsg+0x3a5/0x3c0
+[  352.817096]  ? kernel_sendmsg+0x30/0x30
+[  352.817873]  ? __ia32_sys_recvmmsg+0x150/0x150
+[  352.818753]  ___sys_sendmsg+0xd8/0x140
+[  352.819518]  ? sendmsg_copy_msghdr+0x110/0x110
+[  352.820402]  ? ___sys_recvmsg+0xf4/0x1a0
+[  352.821110]  ? __copy_msghdr_from_user+0x260/0x260
+[  352.821934]  ? _raw_spin_lock+0x81/0xd0
+[  352.822680]  ? __handle_mm_fault+0xef3/0x1b20
+[  352.823549]  ? rb_insert_color+0x2a/0x270
+[  352.824373]  ? copy_page_range+0x16b0/0x16b0
+[  352.825209]  ? perf_event_update_userpage+0x2d0/0x2d0
+[  352.826190]  ? __fget_light+0xd9/0xf0
+[  352.826941]  __sys_sendmsg+0xb3/0x130
+[  352.827613]  ? __sys_sendmsg_sock+0x20/0x20
+[  352.828377]  ? do_user_addr_fault+0x2c5/0x8a0
+[  352.829184]  ? fpregs_assert_state_consistent+0x52/0x60
+[  352.830001]  ? exit_to_user_mode_prepare+0x32/0x160
+[  352.830845]  do_syscall_64+0x35/0x80
+[  352.831445]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  352.832331] RIP: 0033:0x7f7bee973c17
+[  352.833078] Code: 0c 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 89 54 24 1c 48 89 74 24 10
+[  352.836202] RSP: 002b:00007ffcbb368e28 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+[  352.837524] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f7bee973c17
+[  352.838715] RDX: 0000000000000000 RSI: 00007ffcbb368e50 RDI: 0000000000000003
+[  352.839838] RBP: 00007ffcbb36d090 R08: 00000000cea96d79 R09: 00007f7beea34a40
+[  352.841021] R10: 00000000004059bb R11: 0000000000000246 R12: 000000000046563f
+[  352.842208] R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffcbb36d088
+
+[  352.843784] Allocated by task 2960:
+[  352.844451]  kasan_save_stack+0x1b/0x40
+[  352.845173]  __kasan_kmalloc+0x7c/0x90
+[  352.845873]  fl_change+0x282/0x22db [cls_flower]
+[  352.846696]  tc_new_tfilter+0x6cf/0x1180
+[  352.847493]  rtnetlink_rcv_msg+0x471/0x550
+[  352.848323]  netlink_rcv_skb+0xc6/0x1f0
+[  352.849097]  netlink_unicast+0x353/0x480
+[  352.849886]  netlink_sendmsg+0x396/0x680
+[  352.850678]  sock_sendmsg+0x6c/0x80
+[  352.851398]  ____sys_sendmsg+0x3a5/0x3c0
+[  352.852202]  ___sys_sendmsg+0xd8/0x140
+[  352.852967]  __sys_sendmsg+0xb3/0x130
+[  352.853718]  do_syscall_64+0x35/0x80
+[  352.854457]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+[  352.855830] Freed by task 7:
+[  352.856421]  kasan_save_stack+0x1b/0x40
+[  352.857139]  kasan_set_track+0x1c/0x30
+[  352.857854]  kasan_set_free_info+0x20/0x30
+[  352.858609]  __kasan_slab_free+0xed/0x130
+[  352.859348]  kfree+0xa7/0x3c0
+[  352.859951]  process_one_work+0x44d/0x780
+[  352.860685]  worker_thread+0x2e2/0x7e0
+[  352.861390]  kthread+0x1f4/0x220
+[  352.862022]  ret_from_fork+0x1f/0x30
+
+[  352.862955] Last potentially related work creation:
+[  352.863758]  kasan_save_stack+0x1b/0x40
+[  352.864378]  kasan_record_aux_stack+0xab/0xc0
+[  352.865028]  insert_work+0x30/0x160
+[  352.865617]  __queue_work+0x351/0x670
+[  352.866261]  rcu_work_rcufn+0x30/0x40
+[  352.866917]  rcu_core+0x3b2/0xdb0
+[  352.867561]  __do_softirq+0xf6/0x386
+
+[  352.868708] Second to last potentially related work creation:
+[  352.869779]  kasan_save_stack+0x1b/0x40
+[  352.870560]  kasan_record_aux_stack+0xab/0xc0
+[  352.871426]  call_rcu+0x5f/0x5c0
+[  352.872108]  queue_rcu_work+0x44/0x50
+[  352.872855]  __fl_put+0x17c/0x240 [cls_flower]
+[  352.873733]  fl_delete+0xc7/0x100 [cls_flower]
+[  352.874607]  tc_del_tfilter+0x510/0xb30
+[  352.886085]  rtnetlink_rcv_msg+0x471/0x550
+[  352.886875]  netlink_rcv_skb+0xc6/0x1f0
+[  352.887636]  netlink_unicast+0x353/0x480
+[  352.888285]  netlink_sendmsg+0x396/0x680
+[  352.888942]  sock_sendmsg+0x6c/0x80
+[  352.889583]  ____sys_sendmsg+0x3a5/0x3c0
+[  352.890311]  ___sys_sendmsg+0xd8/0x140
+[  352.891019]  __sys_sendmsg+0xb3/0x130
+[  352.891716]  do_syscall_64+0x35/0x80
+[  352.892395]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+[  352.893666] The buggy address belongs to the object at ffff8881c8251000
+                which belongs to the cache kmalloc-2k of size 2048
+[  352.895696] The buggy address is located 1152 bytes inside of
+                2048-byte region [ffff8881c8251000, ffff8881c8251800)
+[  352.897640] The buggy address belongs to the page:
+[  352.898492] page:00000000213bac35 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1c8250
+[  352.900110] head:00000000213bac35 order:3 compound_mapcount:0 compound_pincount:0
+[  352.901541] flags: 0x2ffff800010200(slab|head|node=0|zone=2|lastcpupid=0x1ffff)
+[  352.902908] raw: 002ffff800010200 0000000000000000 dead000000000122 ffff888100042f00
+[  352.904391] raw: 0000000000000000 0000000000080008 00000001ffffffff 0000000000000000
+[  352.905861] page dumped because: kasan: bad access detected
+
+[  352.907323] Memory state around the buggy address:
+[  352.908218]  ffff8881c8251380: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  352.909471]  ffff8881c8251400: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  352.910735] >ffff8881c8251480: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  352.912012]                    ^
+[  352.912642]  ffff8881c8251500: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  352.913919]  ffff8881c8251580: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  352.915185] ==================================================================
+
+Fixes: d39d714969cd ("idr: introduce idr_for_each_entry_continue_ul()")
+Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
+Acked-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
+ net/sched/cls_flower.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 65c200e0ecb5..b8c2ddc01aec 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2526,15 +2526,6 @@ bfq_setup_merge(struct bfq_queue *bfqq, struct bfq_queue *new_bfqq)
- 	 * are likely to increase the throughput.
- 	 */
- 	bfqq->new_bfqq = new_bfqq;
--	/*
--	 * The above assignment schedules the following redirections:
--	 * each time some I/O for bfqq arrives, the process that
--	 * generated that I/O is disassociated from bfqq and
--	 * associated with new_bfqq. Here we increases new_bfqq->ref
--	 * in advance, adding the number of processes that are
--	 * expected to be associated with new_bfqq as they happen to
--	 * issue I/O.
--	 */
- 	new_bfqq->ref += process_refs;
- 	return new_bfqq;
- }
-@@ -2594,10 +2585,6 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
- {
- 	struct bfq_queue *in_service_bfqq, *new_bfqq;
+diff --git a/net/sched/cls_flower.c b/net/sched/cls_flower.c
+index c5a0f2c2635e..26979b4853bd 100644
+--- a/net/sched/cls_flower.c
++++ b/net/sched/cls_flower.c
+@@ -1741,18 +1741,24 @@ static void fl_walk(struct tcf_proto *tp, struct tcf_walker *arg,
  
--	/* if a merge has already been setup, then proceed with that first */
--	if (bfqq->new_bfqq)
--		return bfqq->new_bfqq;
--
- 	/*
- 	 * Do not perform queue merging if the device is non
- 	 * rotational and performs internal queueing. In fact, such a
-@@ -2652,6 +2639,9 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
- 	if (bfq_too_late_for_merging(bfqq))
- 		return NULL;
+ 	arg->count = arg->skip;
  
-+	if (bfqq->new_bfqq)
-+		return bfqq->new_bfqq;
++	rcu_read_lock();
+ 	idr_for_each_entry_continue_ul(&head->handle_idr, f, tmp, id) {
+ 		/* don't return filters that are being deleted */
+ 		if (!refcount_inc_not_zero(&f->refcnt))
+ 			continue;
++		rcu_read_unlock();
 +
- 	if (!io_struct || unlikely(bfqq == &bfqd->oom_bfqq))
- 		return NULL;
+ 		if (arg->fn(tp, f, arg) < 0) {
+ 			__fl_put(f);
+ 			arg->stop = 1;
++			rcu_read_lock();
+ 			break;
+ 		}
+ 		__fl_put(f);
+ 		arg->count++;
++		rcu_read_lock();
+ 	}
++	rcu_read_unlock();
+ 	arg->cookie = id;
+ }
  
 -- 
 2.33.0
