@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17274420C30
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:02:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA1BD420BE6
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:59:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234427AbhJDNDu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:03:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60396 "EHLO mail.kernel.org"
+        id S234170AbhJDNBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:01:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234126AbhJDNCH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:02:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03AC2615A4;
-        Mon,  4 Oct 2021 12:58:54 +0000 (UTC)
+        id S233957AbhJDM7b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:59:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D920E6140B;
+        Mon,  4 Oct 2021 12:57:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352335;
-        bh=3+uSUMwiGr0vWOPVOODaHR+2+RrS0BvRSyqfqhN1DcM=;
+        s=korg; t=1633352244;
+        bh=IM0GVIETrA1TCgyu+Y0HSv9K4DcNrkaq6dSy2MZMlhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ieFpEIGJAEWt1BAhBkxvefFdedg4DVBZKR9RDJ8KnNrpzcXKNk9IyJuzH4L1aaZuU
-         COPKPQoaxEcUC1MKIUnds4vuk6wnhWGTdlc/FGiKjfJ7z70ON57CXE+pRIbWS8bAd1
-         zSQbB+kPF53QK8sK2Vg38VLR/bngclzFeJV7yev8=
+        b=v0WjgaxQ+AbTWyf70q7erOVSuTrtWaczGHAOgIW+K+TjsX+bioaOtE7cKvWTkoM6Z
+         3z5QHtgbye1cxuS2GG+oLNoeBGHK0Soz6eWQ0CoIiT4GoUUeqq+PqZBzCt3ARABN/K
+         Mj8KKxTTwZ8cRy8OL1S4Gy2SLuQVME70+BdLu+bs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kaige Fu <kaige.fu@linux.alibaba.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 21/75] irqchip/gic-v3-its: Fix potential VPE leak on error
+        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 12/57] USB: serial: option: add device id for Foxconn T99W265
 Date:   Mon,  4 Oct 2021 14:51:56 +0200
-Message-Id: <20211004125032.229863489@linuxfoundation.org>
+Message-Id: <20211004125029.321831253@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
+References: <20211004125028.940212411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaige Fu <kaige.fu@linux.alibaba.com>
+From: Slark Xiao <slark_xiao@163.com>
 
-[ Upstream commit 280bef512933b2dda01d681d8cbe499b98fc5bdd ]
+commit 9e3eed534f8235a4a596a9dae5b8a6425d81ea1a upstream.
 
-In its_vpe_irq_domain_alloc, when its_vpe_init() returns an error,
-there is an off-by-one in the number of VPEs to be freed.
+Adding support for Foxconn device T99W265 for enumeration with
+PID 0xe0db.
 
-Fix it by simply passing the number of VPEs allocated, which is the
-index of the loop iterating over the VPEs.
+usb-devices output for 0xe0db
+T:  Bus=04 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 19 Spd=5000 MxCh= 0
+D:  Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
+P:  Vendor=0489 ProdID=e0db Rev=05.04
+S:  Manufacturer=Microsoft
+S:  Product=Generic Mobile Broadband Adapter
+S:  SerialNumber=6c50f452
+C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=896mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
+I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
 
-Fixes: 7d75bbb4bc1a ("irqchip/gic-v3-its: Add VPE irq domain allocation/teardown")
-Signed-off-by: Kaige Fu <kaige.fu@linux.alibaba.com>
-[maz: fixed commit message]
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/d9e36dee512e63670287ed9eff884a5d8d6d27f2.1631672311.git.kaige.fu@linux.alibaba.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+if0/1: MBIM, if2:Diag, if3:GNSS, if4: Modem
+
+Signed-off-by: Slark Xiao <slark_xiao@163.com>
+Link: https://lore.kernel.org/r/20210917110106.9852-1-slark_xiao@163.com
+[ johan: use USB_DEVICE_INTERFACE_CLASS(), amend comment ]
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/irqchip/irq-gic-v3-its.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
-index 1d2267c6d31a..85b4610e6dc4 100644
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -2730,7 +2730,7 @@ static int its_vpe_irq_domain_alloc(struct irq_domain *domain, unsigned int virq
- 
- 	if (err) {
- 		if (i > 0)
--			its_vpe_irq_domain_free(domain, virq, i - 1);
-+			its_vpe_irq_domain_free(domain, virq, i);
- 
- 		its_lpi_free_chunks(bitmap, base, nr_ids);
- 		its_free_prop_table(vprop_page);
--- 
-2.33.0
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -2059,6 +2059,8 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
+ 	{ USB_DEVICE(0x0489, 0xe0b5),						/* Foxconn T77W968 ESIM */
+ 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
++	{ USB_DEVICE_INTERFACE_CLASS(0x0489, 0xe0db, 0xff),			/* Foxconn T99W265 MBIM */
++	  .driver_info = RSVD(3) },
+ 	{ USB_DEVICE(0x1508, 0x1001),						/* Fibocom NL668 (IOT version) */
+ 	  .driver_info = RSVD(4) | RSVD(5) | RSVD(6) },
+ 	{ USB_DEVICE(0x2cb7, 0x0104),						/* Fibocom NL678 series */
 
 
