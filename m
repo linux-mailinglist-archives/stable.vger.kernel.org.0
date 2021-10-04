@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6841420E09
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:19:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB76642101E
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:39:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236653AbhJDNVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:21:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53244 "EHLO mail.kernel.org"
+        id S238590AbhJDNks (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:40:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236743AbhJDNSz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:18:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36E1361B47;
-        Mon,  4 Oct 2021 13:08:07 +0000 (UTC)
+        id S238617AbhJDNiu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:38:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35B356324B;
+        Mon,  4 Oct 2021 13:18:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352888;
-        bh=L5gVf7Hcyfcw716rljZqLlsFh1Wz47S0raxIr/2Vc9w=;
+        s=korg; t=1633353481;
+        bh=1MLeZklQqxtUfQ7JboQfwHPWxFjt2Oe4JLxtf++UOGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cJ7hXbomJASQs/Nceu0Yr+nTNpYyd4x6pGNt4yQ6Fv5PFpyYv1f3AyNBgwtzGhuN1
-         PjbsguMFY8AqtQepq80hNwzH2p0BZTTnQqQLoNh46BH7j3IVq+dL8uscwbf+Dgowqz
-         PUpbE3e6FIwAIjRFMudeYlwKazrOFpBMTmk8cotE=
+        b=njNWONOlmSCVg+LKKRF3cVFFDNZBxyda04Xm2zny2ekPp9YVRtPF694lrV+i++o15
+         aIRF6/C9PBK+paJxi/T3dZOGOvZ5+ZAcdAOm33ew4YCt3HFawDA0cv8ZW9mPudvTq4
+         NIggtNF5L1kipb5/XdznZECtcnVu3TcBVC72Vfqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com,
-        Yanfei Xu <yanfei.xu@windriver.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 56/56] net: mdiobus: Fix memory leak in __mdiobus_register
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Saravana Kannan <saravanak@google.com>
+Subject: [PATCH 5.14 146/172] driver core: fw_devlink: Improve handling of cyclic dependencies
 Date:   Mon,  4 Oct 2021 14:53:16 +0200
-Message-Id: <20211004125031.778001541@linuxfoundation.org>
+Message-Id: <20211004125049.685211278@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125030.002116402@linuxfoundation.org>
-References: <20211004125030.002116402@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,89 +40,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yanfei Xu <yanfei.xu@windriver.com>
+From: Saravana Kannan <saravanak@google.com>
 
-commit ab609f25d19858513919369ff3d9a63c02cd9e2e upstream.
+commit 2de9d8e0d2fe3a1eb632def2245529067cb35db5 upstream.
 
-Once device_register() failed, we should call put_device() to
-decrement reference count for cleanup. Or it will cause memory
-leak.
+When we have a dependency of the form:
 
-BUG: memory leak
-unreferenced object 0xffff888114032e00 (size 256):
-  comm "kworker/1:3", pid 2960, jiffies 4294943572 (age 15.920s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 08 2e 03 14 81 88 ff ff  ................
-    08 2e 03 14 81 88 ff ff 90 76 65 82 ff ff ff ff  .........ve.....
-  backtrace:
-    [<ffffffff8265cfab>] kmalloc include/linux/slab.h:591 [inline]
-    [<ffffffff8265cfab>] kzalloc include/linux/slab.h:721 [inline]
-    [<ffffffff8265cfab>] device_private_init drivers/base/core.c:3203 [inline]
-    [<ffffffff8265cfab>] device_add+0x89b/0xdf0 drivers/base/core.c:3253
-    [<ffffffff828dd643>] __mdiobus_register+0xc3/0x450 drivers/net/phy/mdio_bus.c:537
-    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
-    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
-    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
-    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
-    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
-    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
-    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
-    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
-    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
-    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
-    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
-    [<ffffffff82660916>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
-    [<ffffffff8265cd0b>] device_add+0x5fb/0xdf0 drivers/base/core.c:3359
-    [<ffffffff82c343b9>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2170
-    [<ffffffff82c4473c>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
+Device-A -> Device-C
+	Device-B
 
-BUG: memory leak
-unreferenced object 0xffff888116f06900 (size 32):
-  comm "kworker/0:2", pid 2670, jiffies 4294944448 (age 7.160s)
-  hex dump (first 32 bytes):
-    75 73 62 2d 30 30 31 3a 30 30 33 00 00 00 00 00  usb-001:003.....
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff81484516>] kstrdup+0x36/0x70 mm/util.c:60
-    [<ffffffff814845a3>] kstrdup_const+0x53/0x80 mm/util.c:83
-    [<ffffffff82296ba2>] kvasprintf_const+0xc2/0x110 lib/kasprintf.c:48
-    [<ffffffff82358d4b>] kobject_set_name_vargs+0x3b/0xe0 lib/kobject.c:289
-    [<ffffffff826575f3>] dev_set_name+0x63/0x90 drivers/base/core.c:3147
-    [<ffffffff828dd63b>] __mdiobus_register+0xbb/0x450 drivers/net/phy/mdio_bus.c:535
-    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
-    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
-    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
-    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
-    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
-    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
-    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
-    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
-    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
-    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
-    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
+Device-C -> Device-B
 
-Reported-by: syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
-Signed-off-by: Yanfei Xu <yanfei.xu@windriver.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Where,
+* Indentation denotes "child of" parent in previous line.
+* X -> Y denotes X is consumer of Y based on firmware (Eg: DT).
+
+We have cyclic dependency: device-A -> device-C -> device-B -> device-A
+
+fw_devlink current treats device-C -> device-B dependency as an invalid
+dependency and doesn't enforce it but leaves the rest of the
+dependencies as is.
+
+While the current behavior is necessary, it is not sufficient if the
+false dependency in this example is actually device-A -> device-C. When
+this is the case, device-C will correctly probe defer waiting for
+device-B to be added, but device-A will be incorrectly probe deferred by
+fw_devlink waiting on device-C to probe successfully. Due to this, none
+of the devices in the cycle will end up probing.
+
+To fix this, we need to go relax all the dependencies in the cycle like
+we already do in the other instances where fw_devlink detects cycles.
+A real world example of this was reported[1] and analyzed[2].
+
+[1] - https://lore.kernel.org/lkml/0a2c4106-7f48-2bb5-048e-8c001a7c3fda@samsung.com/
+[2] - https://lore.kernel.org/lkml/CAGETcx8peaew90SWiux=TyvuGgvTQOmO4BFALz7aj0Za5QdNFQ@mail.gmail.com/
+
+Fixes: f9aa460672c9 ("driver core: Refactor fw_devlink feature")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Saravana Kannan <saravanak@google.com>
+Link: https://lore.kernel.org/r/20210915170940.617415-2-saravanak@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/mdio_bus.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/base/core.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -388,6 +388,7 @@ int __mdiobus_register(struct mii_bus *b
- 	err = device_register(&bus->dev);
- 	if (err) {
- 		pr_err("mii_bus %s failed to register\n", bus->id);
-+		put_device(&bus->dev);
- 		return -EINVAL;
- 	}
- 
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -1790,14 +1790,21 @@ static int fw_devlink_create_devlink(str
+ 	 * be broken by applying logic. Check for these types of cycles and
+ 	 * break them so that devices in the cycle probe properly.
+ 	 *
+-	 * If the supplier's parent is dependent on the consumer, then
+-	 * the consumer-supplier dependency is a false dependency. So,
+-	 * treat it as an invalid link.
++	 * If the supplier's parent is dependent on the consumer, then the
++	 * consumer and supplier have a cyclic dependency. Since fw_devlink
++	 * can't tell which of the inferred dependencies are incorrect, don't
++	 * enforce probe ordering between any of the devices in this cyclic
++	 * dependency. Do this by relaxing all the fw_devlink device links in
++	 * this cycle and by treating the fwnode link between the consumer and
++	 * the supplier as an invalid dependency.
+ 	 */
+ 	sup_dev = fwnode_get_next_parent_dev(sup_handle);
+ 	if (sup_dev && device_is_dependent(con, sup_dev)) {
+-		dev_dbg(con, "Not linking to %pfwP - False link\n",
+-			sup_handle);
++		dev_info(con, "Fixing up cyclic dependency with %pfwP (%s)\n",
++			 sup_handle, dev_name(sup_dev));
++		device_links_write_lock();
++		fw_devlink_relax_cycle(con, sup_dev);
++		device_links_write_unlock();
+ 		ret = -EINVAL;
+ 	} else {
+ 		/*
 
 
