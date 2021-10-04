@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95F4C420CEA
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:08:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41508420B4C
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:54:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235397AbhJDNKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:10:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45454 "EHLO mail.kernel.org"
+        id S233413AbhJDM4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 08:56:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235720AbhJDNI5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:08:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A31161B53;
-        Mon,  4 Oct 2021 13:02:56 +0000 (UTC)
+        id S233436AbhJDM4P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:56:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FE6B611CA;
+        Mon,  4 Oct 2021 12:54:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352577;
-        bh=Qpw+0JOAtXvF72nD6YO8s0qWtGz7d9UoqHaDKv3er18=;
+        s=korg; t=1633352066;
+        bh=KnOdELypmSX+ZDsD/4DpIClkm3tIfkN7nfGuTmxbRFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lt1mizUGgvMbWUF/IGudCQimAv8RtW0WHQ4bou0Wcxo918crA4Pydcog9KT3LZuW9
-         4o3JC/ypk+gdM6+aIApo+mNCAKXWLHbBHvRHNIy6a8uatGunsrMZceteZAqVAAvGTp
-         0BwELoQf7047mIFDf8t/6ov2mrVV5pTqbvjtFzMg=
+        b=lg6oLHdiuX8y2n3oyEEXxooBTQXyzwAXlSqcHkOxfR9M2ZAKcr/rsXQz2334G4S0p
+         c+ElNnzdZx8qYpUURQhlysLHJRdvok5RwZkd0Ya0AAXhpsXFb4lFgqOQjiFNqI3u4R
+         2uG8gUTYE0HGJo89yTWl5THDlgyu2MlyDbbrlnsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 40/95] sparc: avoid stringop-overread errors
+        Sasha Levin <sashal@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.4 19/41] parisc: Use absolute_pointer() to define PAGE0
 Date:   Mon,  4 Oct 2021 14:52:10 +0200
-Message-Id: <20211004125034.889749080@linuxfoundation.org>
+Message-Id: <20211004125027.195032457@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
+References: <20211004125026.597501645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit fc7c028dcdbfe981bca75d2a7b95f363eb691ef3 ]
+[ Upstream commit 90cc7bed1ed19f869ae7221a6b41887fe762a6a3 ]
 
-The sparc mdesc code does pointer games with 'struct mdesc_hdr', but
-didn't describe to the compiler how that header is then followed by the
-data that the header describes.
+Use absolute_pointer() wrapper for PAGE0 to avoid this compiler warning:
 
-As a result, gcc is now unhappy since it does stricter pointer range
-tracking, and doesn't understand about how these things work.  This
-results in various errors like:
+  arch/parisc/kernel/setup.c: In function 'start_parisc':
+  error: '__builtin_memcmp_eq' specified bound 8 exceeds source size 0
 
-    arch/sparc/kernel/mdesc.c: In function ‘mdesc_node_by_name’:
-    arch/sparc/kernel/mdesc.c:647:22: error: ‘strcmp’ reading 1 or more bytes from a region of size 0 [-Werror=stringop-overread]
-      647 |                 if (!strcmp(names + ep[ret].name_offset, name))
-          |                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-which are easily avoided by just describing 'struct mdesc_hdr' better,
-and making the node_block() helper function look into that unsized
-data[] that follows the header.
-
-This makes the sparc64 build happy again at least for my cross-compiler
-version (gcc version 11.2.1).
-
-Link: https://lore.kernel.org/lkml/CAHk-=wi4NW3NC0xWykkw=6LnjQD6D_rtRtxY9g8gQAJXtQMi8A@mail.gmail.com/
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: David S. Miller <davem@davemloft.net>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Co-Developed-by: Guenter Roeck <linux@roeck-us.net>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/kernel/mdesc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/parisc/include/asm/page.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/sparc/kernel/mdesc.c b/arch/sparc/kernel/mdesc.c
-index 51028abe5e90..ecec6a616e0d 100644
---- a/arch/sparc/kernel/mdesc.c
-+++ b/arch/sparc/kernel/mdesc.c
-@@ -40,6 +40,7 @@ struct mdesc_hdr {
- 	u32	node_sz; /* node block size */
- 	u32	name_sz; /* name block size */
- 	u32	data_sz; /* data block size */
-+	char	data[];
- } __attribute__((aligned(16)));
+diff --git a/arch/parisc/include/asm/page.h b/arch/parisc/include/asm/page.h
+index 80e742a1c162..088888fcf8df 100644
+--- a/arch/parisc/include/asm/page.h
++++ b/arch/parisc/include/asm/page.h
+@@ -174,7 +174,7 @@ extern int npmem_ranges;
+ #include <asm-generic/getorder.h>
+ #include <asm/pdc.h>
  
- struct mdesc_elem {
-@@ -613,7 +614,7 @@ EXPORT_SYMBOL(mdesc_get_node_info);
+-#define PAGE0   ((struct zeropage *)__PAGE_OFFSET)
++#define PAGE0   ((struct zeropage *)absolute_pointer(__PAGE_OFFSET))
  
- static struct mdesc_elem *node_block(struct mdesc_hdr *mdesc)
- {
--	return (struct mdesc_elem *) (mdesc + 1);
-+	return (struct mdesc_elem *) mdesc->data;
- }
- 
- static void *name_block(struct mdesc_hdr *mdesc)
+ /* DEFINITION OF THE ZERO-PAGE (PAG0) */
+ /* based on work by Jason Eckhardt (jason@equator.com) */
 -- 
 2.33.0
 
