@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CABF420CCC
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:07:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53CA3420C33
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:02:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235037AbhJDNJe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:09:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39430 "EHLO mail.kernel.org"
+        id S234318AbhJDNDv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:03:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235560AbhJDNIi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:08:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7BB161B4C;
-        Mon,  4 Oct 2021 13:02:27 +0000 (UTC)
+        id S234787AbhJDNCW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:02:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BBB361A38;
+        Mon,  4 Oct 2021 12:59:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352548;
-        bh=7ie3UZy2F3R5XAAJKmnVEn2D/Hf5BWycaT8q0xuxwJY=;
+        s=korg; t=1633352345;
+        bh=w5ogr/zSyMKWph6B9D0Netl4mD3mRBJTOI1QSFI1wso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OeZup8xQ4owmfwgpjqZTJIj5OUnnoMX1VH2h/IElQurz0EBDD4Ufini5N/9deBd62
-         XtX5ET+lIMJi6p6PADs1lqb8Rvbv4xiQgyr3Fo02u7yf317/Qxgy7NNsuFwG5c/xR4
-         cyyZoeeBEAbTZz+QHQ/7duXPu5B2WO+hNBTopZ0g=
+        b=FzIvq3QdpPdPNZmXDuOqc+tQMFKyL2zZH5yLzzlR8MZinjIma+6l1BYWNdwmaIGW4
+         Asno6srEbQ8/W6l/4xgfm++kjGB5/ydbuV463rtDZ+L7gfTPrtX/60N8jHkBmlqQUk
+         So/UtYPfVKovvVVim9gN3P9ecAGDOoKkVOobfq4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kaige Fu <kaige.fu@linux.alibaba.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 30/95] irqchip/gic-v3-its: Fix potential VPE leak on error
+        stable@vger.kernel.org, Jesper Nilsson <jesper.nilsson@axis.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 25/75] net: stmmac: allow CSR clock of 300MHz
 Date:   Mon,  4 Oct 2021 14:52:00 +0200
-Message-Id: <20211004125034.551184514@linuxfoundation.org>
+Message-Id: <20211004125032.348776228@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
+References: <20211004125031.530773667@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaige Fu <kaige.fu@linux.alibaba.com>
+From: Jesper Nilsson <jesper.nilsson@axis.com>
 
-[ Upstream commit 280bef512933b2dda01d681d8cbe499b98fc5bdd ]
+[ Upstream commit 08dad2f4d541fcfe5e7bfda72cc6314bbfd2802f ]
 
-In its_vpe_irq_domain_alloc, when its_vpe_init() returns an error,
-there is an off-by-one in the number of VPEs to be freed.
+The Synopsys Ethernet IP uses the CSR clock as a base clock for MDC.
+The divisor used is set in the MAC_MDIO_Address register field CR
+(Clock Rate)
 
-Fix it by simply passing the number of VPEs allocated, which is the
-index of the loop iterating over the VPEs.
+The divisor is there to change the CSR clock into a clock that falls
+below the IEEE 802.3 specified max frequency of 2.5MHz.
 
-Fixes: 7d75bbb4bc1a ("irqchip/gic-v3-its: Add VPE irq domain allocation/teardown")
-Signed-off-by: Kaige Fu <kaige.fu@linux.alibaba.com>
-[maz: fixed commit message]
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/d9e36dee512e63670287ed9eff884a5d8d6d27f2.1631672311.git.kaige.fu@linux.alibaba.com
+If the CSR clock is 300MHz, the code falls back to using the reset
+value in the MAC_MDIO_Address register, as described in the comment
+above this code.
+
+However, 300MHz is actually an allowed value and the proper divider
+can be estimated quite easily (it's just 1Hz difference!)
+
+A CSR frequency of 300MHz with the maximum clock rate value of 0x5
+(STMMAC_CSR_250_300M, a divisor of 124) gives somewhere around
+~2.42MHz which is below the IEEE 802.3 specified maximum.
+
+For the ARTPEC-8 SoC, the CSR clock is this problematic 300MHz,
+and unfortunately, the reset-value of the MAC_MDIO_Address CR field
+is 0x0.
+
+This leads to a clock rate of zero and a divisor of 42, and gives an
+MDC frequency of ~7.14MHz.
+
+Allow CSR clock of 300MHz by making the comparison inclusive.
+
+Signed-off-by: Jesper Nilsson <jesper.nilsson@axis.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic-v3-its.c | 2 +-
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
-index cd58c123f547..b55dff1aa50b 100644
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -2996,7 +2996,7 @@ static int its_vpe_irq_domain_alloc(struct irq_domain *domain, unsigned int virq
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index a7b30f060536..2be2b3055904 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -232,7 +232,7 @@ static void stmmac_clk_csr_set(struct stmmac_priv *priv)
+ 			priv->clk_csr = STMMAC_CSR_100_150M;
+ 		else if ((clk_rate >= CSR_F_150M) && (clk_rate < CSR_F_250M))
+ 			priv->clk_csr = STMMAC_CSR_150_250M;
+-		else if ((clk_rate >= CSR_F_250M) && (clk_rate < CSR_F_300M))
++		else if ((clk_rate >= CSR_F_250M) && (clk_rate <= CSR_F_300M))
+ 			priv->clk_csr = STMMAC_CSR_250_300M;
+ 	}
  
- 	if (err) {
- 		if (i > 0)
--			its_vpe_irq_domain_free(domain, virq, i - 1);
-+			its_vpe_irq_domain_free(domain, virq, i);
- 
- 		its_lpi_free(bitmap, base, nr_ids);
- 		its_free_prop_table(vprop_page);
 -- 
 2.33.0
 
