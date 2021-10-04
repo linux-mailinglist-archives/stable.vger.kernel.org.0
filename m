@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4008420CFF
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:09:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A23A4420BC9
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:58:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235412AbhJDNKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:10:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46372 "EHLO mail.kernel.org"
+        id S233645AbhJDNAA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:00:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235280AbhJDNJI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:09:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1533A61AF0;
-        Mon,  4 Oct 2021 13:03:15 +0000 (UTC)
+        id S233648AbhJDM6q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:58:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7404E6159A;
+        Mon,  4 Oct 2021 12:56:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352596;
-        bh=SuYFxdk2dkDNbx7wpDLTjr2AdwtA/ZQa7z9diyDx8+Y=;
+        s=korg; t=1633352216;
+        bh=74WXfp7ZzmtZdoGLydhWMNpGc6OCv+tw3/l1mq7Y53I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQ94SSIBtGEgnRvTLPxViSj7MydSdki/er3vlUxGooiaP+azD+EKTGHeNFZaRNAsa
-         UpEkRxDpMngEjs8kMte/cG1ZKQ31ah2EMSO6UvXoeygLw3NojFWH507MriLbOnf50q
-         idrymxZOmb+nBk+vPrGWLM/m76nGQV2h1IKWzpcc=
+        b=Zn8+GiVTKqm7FER1ut2fpYcCmbaRWATk5wXWXPehOjRSIbiY995f7UMG2VhcYIveh
+         iZPkyL4uwvLajDlN4QAChkhLQ0T2r7vymeSXt5pW1yGeOMBvlM2dTDqvZvGykIxOgZ
+         eiKQ/TdxvYTH4bvLv5cR1BUtvCNy/apCEv92pKOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH 4.19 47/95] erofs: fix up erofs_lookup tracepoint
+        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 33/57] cpufreq: schedutil: Use kobject release() method to free sugov_tunables
 Date:   Mon,  4 Oct 2021 14:52:17 +0200
-Message-Id: <20211004125035.114732686@linuxfoundation.org>
+Message-Id: <20211004125029.985499001@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125033.572932188@linuxfoundation.org>
-References: <20211004125033.572932188@linuxfoundation.org>
+In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
+References: <20211004125028.940212411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,50 +41,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+From: Kevin Hao <haokexin@gmail.com>
 
-commit 93368aab0efc87288cac65e99c9ed2e0ffc9e7d0 upstream.
+[ Upstream commit e5c6b312ce3cc97e90ea159446e6bfa06645364d ]
 
-Fix up a misuse that the filename pointer isn't always valid in
-the ring buffer, and we should copy the content instead.
+The struct sugov_tunables is protected by the kobject, so we can't free
+it directly. Otherwise we would get a call trace like this:
+  ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x30
+  WARNING: CPU: 3 PID: 720 at lib/debugobjects.c:505 debug_print_object+0xb8/0x100
+  Modules linked in:
+  CPU: 3 PID: 720 Comm: a.sh Tainted: G        W         5.14.0-rc1-next-20210715-yocto-standard+ #507
+  Hardware name: Marvell OcteonTX CN96XX board (DT)
+  pstate: 40400009 (nZcv daif +PAN -UAO -TCO BTYPE=--)
+  pc : debug_print_object+0xb8/0x100
+  lr : debug_print_object+0xb8/0x100
+  sp : ffff80001ecaf910
+  x29: ffff80001ecaf910 x28: ffff00011b10b8d0 x27: ffff800011043d80
+  x26: ffff00011a8f0000 x25: ffff800013cb3ff0 x24: 0000000000000000
+  x23: ffff80001142aa68 x22: ffff800011043d80 x21: ffff00010de46f20
+  x20: ffff800013c0c520 x19: ffff800011d8f5b0 x18: 0000000000000010
+  x17: 6e6968207473696c x16: 5f72656d6974203a x15: 6570797420746365
+  x14: 6a626f2029302065 x13: 303378302f307830 x12: 2b6e665f72656d69
+  x11: ffff8000124b1560 x10: ffff800012331520 x9 : ffff8000100ca6b0
+  x8 : 000000000017ffe8 x7 : c0000000fffeffff x6 : 0000000000000001
+  x5 : ffff800011d8c000 x4 : ffff800011d8c740 x3 : 0000000000000000
+  x2 : ffff0001108301c0 x1 : ab3c90eedf9c0f00 x0 : 0000000000000000
+  Call trace:
+   debug_print_object+0xb8/0x100
+   __debug_check_no_obj_freed+0x1c0/0x230
+   debug_check_no_obj_freed+0x20/0x88
+   slab_free_freelist_hook+0x154/0x1c8
+   kfree+0x114/0x5d0
+   sugov_exit+0xbc/0xc0
+   cpufreq_exit_governor+0x44/0x90
+   cpufreq_set_policy+0x268/0x4a8
+   store_scaling_governor+0xe0/0x128
+   store+0xc0/0xf0
+   sysfs_kf_write+0x54/0x80
+   kernfs_fop_write_iter+0x128/0x1c0
+   new_sync_write+0xf0/0x190
+   vfs_write+0x2d4/0x478
+   ksys_write+0x74/0x100
+   __arm64_sys_write+0x24/0x30
+   invoke_syscall.constprop.0+0x54/0xe0
+   do_el0_svc+0x64/0x158
+   el0_svc+0x2c/0xb0
+   el0t_64_sync_handler+0xb0/0xb8
+   el0t_64_sync+0x198/0x19c
+  irq event stamp: 5518
+  hardirqs last  enabled at (5517): [<ffff8000100cbd7c>] console_unlock+0x554/0x6c8
+  hardirqs last disabled at (5518): [<ffff800010fc0638>] el1_dbg+0x28/0xa0
+  softirqs last  enabled at (5504): [<ffff8000100106e0>] __do_softirq+0x4d0/0x6c0
+  softirqs last disabled at (5483): [<ffff800010049548>] irq_exit+0x1b0/0x1b8
 
-Link: https://lore.kernel.org/r/20210921143531.81356-1-hsiangkao@linux.alibaba.com
-Fixes: 13f06f48f7bf ("staging: erofs: support tracepoint")
-Cc: stable@vger.kernel.org # 4.19+
-Reviewed-by: Chao Yu <chao@kernel.org>
-[ Gao Xiang: resolve trivial conflicts for 4.19.y. ]
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So split the original sugov_tunables_free() into two functions,
+sugov_clear_global_tunables() is just used to clear the global_tunables
+and the new sugov_tunables_free() is used as kobj_type::release to
+release the sugov_tunables safely.
 
+Fixes: 9bdcb44e391d ("cpufreq: schedutil: New governor based on scheduler utilization data")
+Cc: 4.7+ <stable@vger.kernel.org> # 4.7+
+Signed-off-by: Kevin Hao <haokexin@gmail.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/erofs/include/trace/events/erofs.h |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/sched/cpufreq_schedutil.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/drivers/staging/erofs/include/trace/events/erofs.h
-+++ b/drivers/staging/erofs/include/trace/events/erofs.h
-@@ -32,20 +32,20 @@ TRACE_EVENT(erofs_lookup,
- 	TP_STRUCT__entry(
- 		__field(dev_t,		dev	)
- 		__field(erofs_nid_t,	nid	)
--		__field(const char *,	name	)
-+		__string(name,		dentry->d_name.name	)
- 		__field(unsigned int,	flags	)
- 	),
+diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
+index cb771c76682e..f85802b55197 100644
+--- a/kernel/sched/cpufreq_schedutil.c
++++ b/kernel/sched/cpufreq_schedutil.c
+@@ -353,9 +353,17 @@ static struct attribute *sugov_attributes[] = {
+ 	NULL
+ };
  
- 	TP_fast_assign(
- 		__entry->dev	= dir->i_sb->s_dev;
- 		__entry->nid	= EROFS_V(dir)->nid;
--		__entry->name	= dentry->d_name.name;
-+		__assign_str(name, dentry->d_name.name);
- 		__entry->flags	= flags;
- 	),
++static void sugov_tunables_free(struct kobject *kobj)
++{
++	struct gov_attr_set *attr_set = container_of(kobj, struct gov_attr_set, kobj);
++
++	kfree(to_sugov_tunables(attr_set));
++}
++
+ static struct kobj_type sugov_tunables_ktype = {
+ 	.default_attrs = sugov_attributes,
+ 	.sysfs_ops = &governor_sysfs_ops,
++	.release = &sugov_tunables_free,
+ };
  
- 	TP_printk("dev = (%d,%d), pnid = %llu, name:%s, flags:%x",
- 		show_dev_nid(__entry),
--		__entry->name,
-+		__get_str(name),
- 		__entry->flags)
- );
+ /********************** cpufreq governor interface *********************/
+@@ -397,12 +405,10 @@ static struct sugov_tunables *sugov_tunables_alloc(struct sugov_policy *sg_polic
+ 	return tunables;
+ }
  
+-static void sugov_tunables_free(struct sugov_tunables *tunables)
++static void sugov_clear_global_tunables(void)
+ {
+ 	if (!have_governor_per_policy())
+ 		global_tunables = NULL;
+-
+-	kfree(tunables);
+ }
+ 
+ static int sugov_init(struct cpufreq_policy *policy)
+@@ -462,7 +468,7 @@ static int sugov_init(struct cpufreq_policy *policy)
+ 
+  fail:
+ 	policy->governor_data = NULL;
+-	sugov_tunables_free(tunables);
++	sugov_clear_global_tunables();
+ 
+  free_sg_policy:
+ 	mutex_unlock(&global_tunables_lock);
+@@ -485,7 +491,7 @@ static void sugov_exit(struct cpufreq_policy *policy)
+ 	count = gov_attr_set_put(&tunables->attr_set, &sg_policy->tunables_hook);
+ 	policy->governor_data = NULL;
+ 	if (!count)
+-		sugov_tunables_free(tunables);
++		sugov_clear_global_tunables();
+ 
+ 	mutex_unlock(&global_tunables_lock);
+ 
+-- 
+2.33.0
+
 
 
