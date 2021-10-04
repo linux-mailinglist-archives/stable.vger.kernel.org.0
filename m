@@ -2,104 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE90D420ADF
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:26:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AF46420AE3
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:29:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231765AbhJDM2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 08:28:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50676 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230238AbhJDM2I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:28:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E5556124C;
-        Mon,  4 Oct 2021 12:26:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633350379;
-        bh=S/xozdTW2Vv6URwHQvbZxlXTqDmdRuwhaA8ampD9IDk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bZGVgamiO/dFIWw3pDm1bomZoXCkpinHgJAGBDonfwuNM3EMLqsZ/3Bjyt0XAVdtp
-         qy5/FZRReOqAJ6tKbDcHsJpuPLkzMUIR63f7OsHCQgkMu3ZPRcMkwDtET1a8pKeg1p
-         fe1CxyOspkKIfY7f2SSsTO14ozX6Th3guTvqGY/fUf6XY1la33ArT8/0+RNKGZtSkZ
-         CsuRIFChyO3O/eOp4QOCrIisp//taINqBjWCcBNgO2RXAm0D7mbntHVbBVxTLb1N+W
-         4AsmRABAEbsJCKqwxYohNhjSreHgAEw224l9fwwrGmT+2F79otuAmluKIkoSr+ULbK
-         vpOjbBT2PVEKA==
-Date:   Mon, 4 Oct 2021 17:56:12 +0530
-From:   Manivannan Sadhasivam <mani@kernel.org>
-To:     Daniele Palmas <dnlplm@gmail.com>
-Cc:     Loic Poulain <loic.poulain@linaro.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sergey Ryazanov <ryazanov.s.a@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        netdev@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/1] drivers: net: mhi: fix error path in mhi_net_newlink
-Message-ID: <20211004122612.GF16442@workstation>
-References: <20211004114601.13870-1-dnlplm@gmail.com>
+        id S231613AbhJDMbS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 08:31:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49332 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230418AbhJDMbS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Oct 2021 08:31:18 -0400
+Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 707F6C061745
+        for <stable@vger.kernel.org>; Mon,  4 Oct 2021 05:29:29 -0700 (PDT)
+Received: by mail-ed1-x541.google.com with SMTP id g8so64344924edt.7
+        for <stable@vger.kernel.org>; Mon, 04 Oct 2021 05:29:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=dF3XIjpEZBzVynULYTVWvPuYH0OmWhBcpIJjlV41ebc=;
+        b=cZ3utz/8bThfu+8lASLMJAyVUp3yr25n5QAF1rspnJQCJxrMDXica0O37iFx32bQUv
+         fAF1zqNpbG5rmiTe4mEwgGeDNfF9pae70ZLLfIkCGJhMydNcOhOT0iIKxNcccYgE6Dpf
+         ylvwlwFAjjVYl6R3ZQX6ULx3IpKlNJjFVLim6ZdzUI3NLfp3Y74fftWjbh3bsymFwZbh
+         KTEAMxJFRdLC3KsIgquhjzxWCc0do7uK8mQnbRcmXv5At/pWTa1asGB4KsJfrITl5mJW
+         VUfOx0ve2SBR69UmSh9D64F1V95BtMoa2t/zDlwqkLyJJHkBZNRt0Ql5tQzF+ibBtKme
+         d5Cg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=dF3XIjpEZBzVynULYTVWvPuYH0OmWhBcpIJjlV41ebc=;
+        b=DFqzTkeXRlQGgJg07FtuOxwFRYffmUdOQJZpPtpBWlK30Nk2R++78D7BM0AnxV3Wb0
+         Xhpx32Mu3dbQ/jO+mLFHKQqedX68LihqjROqRMjpn4LaF+TzFDPZvnJAoUeYJVJut0pS
+         wT/tuOSlQDdlFKeMe691HK0yptU/V/3rQbxv1+HwKvQPAygBNi41avkK1ZGdZaOolHl8
+         IUbue7PH3LSEtUJ8tK1ISTQasWWOjLrHmWaFWTFFIq7qKHQn3xko/NtQWpmuYpDnbCwu
+         Dlt8vx/ywThFiJSTgdCyqu703g5gn8t4/OunQBgwPtXFmpHPn7wspNnf8cMivNIAEcnu
+         V0HQ==
+X-Gm-Message-State: AOAM530Gkho+XacKXs60dlHGuDb99GimhF+qwW12T/hKoTLPtQFtVMbm
+        AJAYHTvNA2qDBJ5ltPX/p5MDCMWnPpQW8ZwEFmw=
+X-Google-Smtp-Source: ABdhPJzD61KDTOmrtYBpK6FDHEESkuj49YnsrR+xNOSEeYnPwRZFSzDDrWzdR3dxfrF5OATtWog9GmKzE0Qt13xpx7E=
+X-Received: by 2002:a50:999e:: with SMTP id m30mr17982322edb.151.1633350567762;
+ Mon, 04 Oct 2021 05:29:27 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211004114601.13870-1-dnlplm@gmail.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Received: by 2002:a17:907:1b0e:0:0:0:0 with HTTP; Mon, 4 Oct 2021 05:29:26
+ -0700 (PDT)
+Reply-To: jahaalice216@gmail.com
+From:   AliceJahab <alivdjafd@gmail.com>
+Date:   Mon, 4 Oct 2021 12:29:26 +0000
+Message-ID: <CA+=VFRO5-56xW9=r-CN2eV-FriYL=cEVKJsJtsDfwosyzZgMnQ@mail.gmail.com>
+Subject: Mrs. Alice Jahab
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 04, 2021 at 01:46:01PM +0200, Daniele Palmas wrote:
-> Fix double free_netdev when mhi_prepare_for_transfer fails.
-> 
-> This is a back-port of upstream:
-> commit 4526fe74c3c509 ("drivers: net: mhi: fix error path in mhi_net_newlink")
-> 
-> Fixes: 13adac032982 ("net: mhi_net: Register wwan_ops for link creation")
-> Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Dear,
 
-Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+My name is Mrs. Alice Jahab and I am married to Mr. Razaki Jahab for
+19 years without a child and my husband died in four days from his
+illness. I am contacting you to let you know my desire to give the
+amount of US $ 3.5 million to charities in your country that I
+inherited from my late husband. Due to my disease (cancer) that have
+been confirmed for only eight months by doctors, so it is my wish that
+this money is invested and distributed to charities of your choice
+such as home orphanages, schools, the homeless people, nursing home,
+hospitals and many other things that will be for the benefit of the
+least privileged. I want you to contact me on my private email
+(jahaalice216@gmail.com) so that i will start to send you the details
+you need as the new beneficiary to the fund.
+
+Once I hear from you confirming acceptance of the charity work, I will
+give all pertinent information and sworn testimony authorizing the
+bank to disclose and transfer the money to you as my duly appointed
+representative.
 
 Thanks,
-Mani
 
-> ---
-> Hello Greg,
-> 
-> if maintainers ack, this should go just to 5.14 branch.
-> 
-> Thanks,
-> Daniele
-> ---
->  drivers/net/mhi/net.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/net/mhi/net.c b/drivers/net/mhi/net.c
-> index e60e38c1f09d..5e49f7a919b6 100644
-> --- a/drivers/net/mhi/net.c
-> +++ b/drivers/net/mhi/net.c
-> @@ -337,7 +337,7 @@ static int mhi_net_newlink(void *ctxt, struct net_device *ndev, u32 if_id,
->  	/* Start MHI channels */
->  	err = mhi_prepare_for_transfer(mhi_dev);
->  	if (err)
-> -		goto out_err;
-> +		return err;
->  
->  	/* Number of transfer descriptors determines size of the queue */
->  	mhi_netdev->rx_queue_sz = mhi_get_free_desc_count(mhi_dev, DMA_FROM_DEVICE);
-> @@ -347,7 +347,7 @@ static int mhi_net_newlink(void *ctxt, struct net_device *ndev, u32 if_id,
->  	else
->  		err = register_netdev(ndev);
->  	if (err)
-> -		goto out_err;
-> +		return err;
->  
->  	if (mhi_netdev->proto) {
->  		err = mhi_netdev->proto->init(mhi_netdev);
-> @@ -359,8 +359,6 @@ static int mhi_net_newlink(void *ctxt, struct net_device *ndev, u32 if_id,
->  
->  out_err_proto:
->  	unregister_netdevice(ndev);
-> -out_err:
-> -	free_netdev(ndev);
->  	return err;
->  }
->  
-> -- 
-> 2.30.2
-> 
+Mrs. Alice Jahab
