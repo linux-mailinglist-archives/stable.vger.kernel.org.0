@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC7E2420BE3
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:59:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 900FF420FEA
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:37:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233705AbhJDNBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:01:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60556 "EHLO mail.kernel.org"
+        id S235662AbhJDNjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:39:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233656AbhJDM7Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:59:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2E3A61409;
-        Mon,  4 Oct 2021 12:57:18 +0000 (UTC)
+        id S237016AbhJDNhA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:37:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69E9560F58;
+        Mon,  4 Oct 2021 13:16:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352239;
-        bh=r3o2RCWkW/45aVMhlbCjcIRd4LXHGCu7gTCngs+oZPw=;
+        s=korg; t=1633353397;
+        bh=45cCvgGivzf2l5zmt69Ocv2iGoXxUhV0NtkkOOfpBXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bm6QRRq6tlB0s42wHWJtvJC5E3GdwzDf07DiyOKG1ExsAlKizvqgQwgwA5qH0FTGy
-         L4Fot/YtA1Pl5a6nGFA8ut/jJYqvhZpwAYV+Jh629e8kRtVtjTJ6FYpGhD+6UiG4F0
-         Wik+gun3H05LwAsSdwAQxz+eBa+1t6gfdH+l0LXA=
+        b=ZLP4/ZyS9qKbJ0Q1eGLp7OkFwkMFM8Thi7bkmcXmhiijK2FaY3xSk5NlpjzkGhh6K
+         xzO0/2QxD9IZh8YEppQLWUaND3so8OXigzFMpVueQEeUpQ8sMRG75fgmG3mA1YLt5K
+         OAY/w98W+BV9Z4BwCpUDX+GEBR8KLjqu4Z96Wjvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 41/57] ipack: ipoctal: fix stack information leak
+        syzbot+581aff2ae6b860625116@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 095/172] sctp: break out if skb_header_pointer returns NULL in sctp_rcv_ootb
 Date:   Mon,  4 Oct 2021 14:52:25 +0200
-Message-Id: <20211004125030.251460890@linuxfoundation.org>
+Message-Id: <20211004125048.057271586@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125028.940212411@linuxfoundation.org>
-References: <20211004125028.940212411@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,86 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit a89936cce87d60766a75732a9e7e25c51164f47c upstream.
+[ Upstream commit f7e745f8e94492a8ac0b0a26e25f2b19d342918f ]
 
-The tty driver name is used also after registering the driver and must
-specifically not be allocated on the stack to avoid leaking information
-to user space (or triggering an oops).
+We should always check if skb_header_pointer's return is NULL before
+using it, otherwise it may cause null-ptr-deref, as syzbot reported:
 
-Drivers should not try to encode topology information in the tty device
-name but this one snuck in through staging without anyone noticing and
-another driver has since copied this malpractice.
+  KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+  RIP: 0010:sctp_rcv_ootb net/sctp/input.c:705 [inline]
+  RIP: 0010:sctp_rcv+0x1d84/0x3220 net/sctp/input.c:196
+  Call Trace:
+  <IRQ>
+   sctp6_rcv+0x38/0x60 net/sctp/ipv6.c:1109
+   ip6_protocol_deliver_rcu+0x2e9/0x1ca0 net/ipv6/ip6_input.c:422
+   ip6_input_finish+0x62/0x170 net/ipv6/ip6_input.c:463
+   NF_HOOK include/linux/netfilter.h:307 [inline]
+   NF_HOOK include/linux/netfilter.h:301 [inline]
+   ip6_input+0x9c/0xd0 net/ipv6/ip6_input.c:472
+   dst_input include/net/dst.h:460 [inline]
+   ip6_rcv_finish net/ipv6/ip6_input.c:76 [inline]
+   NF_HOOK include/linux/netfilter.h:307 [inline]
+   NF_HOOK include/linux/netfilter.h:301 [inline]
+   ipv6_rcv+0x28c/0x3c0 net/ipv6/ip6_input.c:297
 
-Fixing the ABI is a separate issue, but this at least plugs the security
-hole.
-
-Fixes: ba4dc61fe8c5 ("Staging: ipack: add support for IP-OCTAL mezzanine board")
-Cc: stable@vger.kernel.org      # 3.5
-Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210917114622.5412-2-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3acb50c18d8d ("sctp: delay as much as possible skb_linearize")
+Reported-by: syzbot+581aff2ae6b860625116@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ipack/devices/ipoctal.c |   19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ net/sctp/input.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/ipack/devices/ipoctal.c
-+++ b/drivers/ipack/devices/ipoctal.c
-@@ -269,7 +269,6 @@ static int ipoctal_inst_slot(struct ipoc
- 	int res;
- 	int i;
- 	struct tty_driver *tty;
--	char name[20];
- 	struct ipoctal_channel *channel;
- 	struct ipack_region *region;
- 	void __iomem *addr;
-@@ -360,8 +359,11 @@ static int ipoctal_inst_slot(struct ipoc
- 	/* Fill struct tty_driver with ipoctal data */
- 	tty->owner = THIS_MODULE;
- 	tty->driver_name = KBUILD_MODNAME;
--	sprintf(name, KBUILD_MODNAME ".%d.%d.", bus_nr, slot);
--	tty->name = name;
-+	tty->name = kasprintf(GFP_KERNEL, KBUILD_MODNAME ".%d.%d.", bus_nr, slot);
-+	if (!tty->name) {
-+		res = -ENOMEM;
-+		goto err_put_driver;
-+	}
- 	tty->major = 0;
+diff --git a/net/sctp/input.c b/net/sctp/input.c
+index 5ef86fdb1176..1f1786021d9c 100644
+--- a/net/sctp/input.c
++++ b/net/sctp/input.c
+@@ -702,7 +702,7 @@ static int sctp_rcv_ootb(struct sk_buff *skb)
+ 		ch = skb_header_pointer(skb, offset, sizeof(*ch), &_ch);
  
- 	tty->minor_start = 0;
-@@ -377,8 +379,7 @@ static int ipoctal_inst_slot(struct ipoc
- 	res = tty_register_driver(tty);
- 	if (res) {
- 		dev_err(&ipoctal->dev->dev, "Can't register tty driver.\n");
--		put_tty_driver(tty);
--		return res;
-+		goto err_free_name;
- 	}
+ 		/* Break out if chunk length is less then minimal. */
+-		if (ntohs(ch->length) < sizeof(_ch))
++		if (!ch || ntohs(ch->length) < sizeof(_ch))
+ 			break;
  
- 	/* Save struct tty_driver for use it when uninstalling the device */
-@@ -415,6 +416,13 @@ static int ipoctal_inst_slot(struct ipoc
- 				       ipoctal_irq_handler, ipoctal);
- 
- 	return 0;
-+
-+err_free_name:
-+	kfree(tty->name);
-+err_put_driver:
-+	put_tty_driver(tty);
-+
-+	return res;
- }
- 
- static inline int ipoctal_copy_write_buffer(struct ipoctal_channel *channel,
-@@ -703,6 +711,7 @@ static void __ipoctal_remove(struct ipoc
- 	}
- 
- 	tty_unregister_driver(ipoctal->tty_drv);
-+	kfree(ipoctal->tty_drv->name);
- 	put_tty_driver(ipoctal->tty_drv);
- 	kfree(ipoctal);
- }
+ 		ch_end = offset + SCTP_PAD4(ntohs(ch->length));
+-- 
+2.33.0
+
 
 
