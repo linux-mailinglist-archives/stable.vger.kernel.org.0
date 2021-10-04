@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D410C420E9E
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:25:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F547420EB6
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:25:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236651AbhJDN0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:26:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37062 "EHLO mail.kernel.org"
+        id S237240AbhJDN1f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:27:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236780AbhJDNZA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:25:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 219F861AFF;
-        Mon,  4 Oct 2021 13:10:55 +0000 (UTC)
+        id S236974AbhJDNZd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:25:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FB5F61B00;
+        Mon,  4 Oct 2021 13:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353056;
-        bh=YWNKwMYFXqAkQGkL/h+AULzd+53g6zrcTaU+yGRmkmI=;
+        s=korg; t=1633353083;
+        bh=yuqo054ZUEgcZ4czkQOXmi4eJq2jz1HMI8CjAhDrs5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N2DhG3kJZMdLPFPPoJOPtwIKA3Hq3e9fp0j3KNs0CCvvmx66/XsvjU7YHj+Z8og0i
-         7LjfEfqAPcfx8nuGhCF4etNRiYtWnCDtdFe6YqEs8SDYQq931sFvHTPTFMlf2sbA3Y
-         R2Z6jsyAQPNG9gtkOXtpIZ65Uuf8VLb92NZlpsU4=
+        b=hMUUFYRKp7nlOtdAsh4aB+OmyrCyHEZtKqwfA7TVZ+iO4uBrEVquvKM1kBmEqiBd1
+         v/f76ljC/y2CtdsFuCzFPbjN6xd7ZxIYCS/AoxdJcGDrIfF9Y+/1+QfFwk3Yw94RXw
+         nvupKTDzlIFgDAflUnZ1VP6JMUXeXEClSOBCYVmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Feng Zhou <zhoufeng.zf@bytedance.com>,
-        Sandeep Penigalapati <sandeep.penigalapati@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 55/93] ixgbe: Fix NULL pointer dereference in ixgbe_xdp_setup
-Date:   Mon,  4 Oct 2021 14:52:53 +0200
-Message-Id: <20211004125036.392235979@linuxfoundation.org>
+Subject: [PATCH 5.10 56/93] net: hns3: do not allow call hns3_nic_net_open repeatedly
+Date:   Mon,  4 Oct 2021 14:52:54 +0200
+Message-Id: <20211004125036.422158837@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
 References: <20211004125034.579439135@linuxfoundation.org>
@@ -42,117 +41,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Feng Zhou <zhoufeng.zf@bytedance.com>
+From: Jian Shen <shenjian15@huawei.com>
 
-[ Upstream commit 513e605d7a9ce136886cb42ebb2c40e9a6eb6333 ]
+[ Upstream commit 5b09e88e1bf7fe86540fab4b5f3eece8abead39e ]
 
-The ixgbe driver currently generates a NULL pointer dereference with
-some machine (online cpus < 63). This is due to the fact that the
-maximum value of num_xdp_queues is nr_cpu_ids. Code is in
-"ixgbe_set_rss_queues"".
+hns3_nic_net_open() is not allowed to called repeatly, but there
+is no checking for this. When doing device reset and setup tc
+concurrently, there is a small oppotunity to call hns3_nic_net_open
+repeatedly, and cause kernel bug by calling napi_enable twice.
 
-Here's how the problem repeats itself:
-Some machine (online cpus < 63), And user set num_queues to 63 through
-ethtool. Code is in the "ixgbe_set_channels",
-	adapter->ring_feature[RING_F_FDIR].limit = count;
+The calltrace information is like below:
+[ 3078.222780] ------------[ cut here ]------------
+[ 3078.230255] kernel BUG at net/core/dev.c:6991!
+[ 3078.236224] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+[ 3078.243431] Modules linked in: hns3 hclgevf hclge hnae3 vfio_iommu_type1 vfio_pci vfio_virqfd vfio pv680_mii(O)
+[ 3078.258880] CPU: 0 PID: 295 Comm: kworker/u8:5 Tainted: G           O      5.14.0-rc4+ #1
+[ 3078.269102] Hardware name:  , BIOS KpxxxFPGA 1P B600 V181 08/12/2021
+[ 3078.276801] Workqueue: hclge hclge_service_task [hclge]
+[ 3078.288774] pstate: 60400009 (nZCv daif +PAN -UAO -TCO BTYPE=--)
+[ 3078.296168] pc : napi_enable+0x80/0x84
+tc qdisc sho[w  3d0e7v8 .e3t0h218 79] lr : hns3_nic_net_open+0x138/0x510 [hns3]
 
-It becomes 63.
+[ 3078.314771] sp : ffff8000108abb20
+[ 3078.319099] x29: ffff8000108abb20 x28: 0000000000000000 x27: ffff0820a8490300
+[ 3078.329121] x26: 0000000000000001 x25: ffff08209cfc6200 x24: 0000000000000000
+[ 3078.339044] x23: ffff0820a8490300 x22: ffff08209cd76000 x21: ffff0820abfe3880
+[ 3078.349018] x20: 0000000000000000 x19: ffff08209cd76900 x18: 0000000000000000
+[ 3078.358620] x17: 0000000000000000 x16: ffffc816e1727a50 x15: 0000ffff8f4ff930
+[ 3078.368895] x14: 0000000000000000 x13: 0000000000000000 x12: 0000259e9dbeb6b4
+[ 3078.377987] x11: 0096a8f7e764eb40 x10: 634615ad28d3eab5 x9 : ffffc816ad8885b8
+[ 3078.387091] x8 : ffff08209cfc6fb8 x7 : ffff0820ac0da058 x6 : ffff0820a8490344
+[ 3078.396356] x5 : 0000000000000140 x4 : 0000000000000003 x3 : ffff08209cd76938
+[ 3078.405365] x2 : 0000000000000000 x1 : 0000000000000010 x0 : ffff0820abfe38a0
+[ 3078.414657] Call trace:
+[ 3078.418517]  napi_enable+0x80/0x84
+[ 3078.424626]  hns3_reset_notify_up_enet+0x78/0xd0 [hns3]
+[ 3078.433469]  hns3_reset_notify+0x64/0x80 [hns3]
+[ 3078.441430]  hclge_notify_client+0x68/0xb0 [hclge]
+[ 3078.450511]  hclge_reset_rebuild+0x524/0x884 [hclge]
+[ 3078.458879]  hclge_reset_service_task+0x3c4/0x680 [hclge]
+[ 3078.467470]  hclge_service_task+0xb0/0xb54 [hclge]
+[ 3078.475675]  process_one_work+0x1dc/0x48c
+[ 3078.481888]  worker_thread+0x15c/0x464
+[ 3078.487104]  kthread+0x160/0x170
+[ 3078.492479]  ret_from_fork+0x10/0x18
+[ 3078.498785] Code: c8027c81 35ffffa2 d50323bf d65f03c0 (d4210000)
+[ 3078.506889] ---[ end trace 8ebe0340a1b0fb44 ]---
 
-When user use xdp, "ixgbe_set_rss_queues" will set queues num.
-	adapter->num_rx_queues = rss_i;
-	adapter->num_tx_queues = rss_i;
-	adapter->num_xdp_queues = ixgbe_xdp_queues(adapter);
+Once hns3_nic_net_open() is excute success, the flag
+HNS3_NIC_STATE_DOWN will be cleared. So add checking for this
+flag, directly return when HNS3_NIC_STATE_DOWN is no set.
 
-And rss_i's value is from
-	f = &adapter->ring_feature[RING_F_FDIR];
-	rss_i = f->indices = f->limit;
-
-So "num_rx_queues" > "num_xdp_queues", when run to "ixgbe_xdp_setup",
-	for (i = 0; i < adapter->num_rx_queues; i++)
-		if (adapter->xdp_ring[i]->xsk_umem)
-
-It leads to panic.
-
-Call trace:
-[exception RIP: ixgbe_xdp+368]
-RIP: ffffffffc02a76a0  RSP: ffff9fe16202f8d0  RFLAGS: 00010297
-RAX: 0000000000000000  RBX: 0000000000000020  RCX: 0000000000000000
-RDX: 0000000000000000  RSI: 000000000000001c  RDI: ffffffffa94ead90
-RBP: ffff92f8f24c0c18   R8: 0000000000000000   R9: 0000000000000000
-R10: ffff9fe16202f830  R11: 0000000000000000  R12: ffff92f8f24c0000
-R13: ffff9fe16202fc01  R14: 000000000000000a  R15: ffffffffc02a7530
-ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
- 7 [ffff9fe16202f8f0] dev_xdp_install at ffffffffa89fbbcc
- 8 [ffff9fe16202f920] dev_change_xdp_fd at ffffffffa8a08808
- 9 [ffff9fe16202f960] do_setlink at ffffffffa8a20235
-10 [ffff9fe16202fa88] rtnl_setlink at ffffffffa8a20384
-11 [ffff9fe16202fc78] rtnetlink_rcv_msg at ffffffffa8a1a8dd
-12 [ffff9fe16202fcf0] netlink_rcv_skb at ffffffffa8a717eb
-13 [ffff9fe16202fd40] netlink_unicast at ffffffffa8a70f88
-14 [ffff9fe16202fd80] netlink_sendmsg at ffffffffa8a71319
-15 [ffff9fe16202fdf0] sock_sendmsg at ffffffffa89df290
-16 [ffff9fe16202fe08] __sys_sendto at ffffffffa89e19c8
-17 [ffff9fe16202ff30] __x64_sys_sendto at ffffffffa89e1a64
-18 [ffff9fe16202ff38] do_syscall_64 at ffffffffa84042b9
-19 [ffff9fe16202ff50] entry_SYSCALL_64_after_hwframe at ffffffffa8c0008c
-
-So I fix ixgbe_max_channels so that it will not allow a setting of queues
-to be higher than the num_online_cpus(). And when run to ixgbe_xdp_setup,
-take the smaller value of num_rx_queues and num_xdp_queues.
-
-Fixes: 4a9b32f30f80 ("ixgbe: fix potential RX buffer starvation for AF_XDP")
-Signed-off-by: Feng Zhou <zhoufeng.zf@bytedance.com>
-Tested-by: Sandeep Penigalapati <sandeep.penigalapati@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: e888402789b9 ("net: hns3: call hns3_nic_net_open() while doing HNAE3_UP_CLIENT")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c | 2 +-
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c    | 8 ++++++--
- 2 files changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c
-index a280aa34ca1d..55983904b6df 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c
-@@ -3216,7 +3216,7 @@ static unsigned int ixgbe_max_channels(struct ixgbe_adapter *adapter)
- 		max_combined = ixgbe_max_rss_indices(adapter);
- 	}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 936b9cfe1a62..4777db2623cf 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -444,6 +444,11 @@ static int hns3_nic_net_open(struct net_device *netdev)
+ 	if (hns3_nic_resetting(netdev))
+ 		return -EBUSY;
  
--	return max_combined;
-+	return min_t(int, max_combined, num_online_cpus());
- }
- 
- static void ixgbe_get_channels(struct net_device *dev,
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-index 37439b76fcb5..ffe322136c58 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -10123,6 +10123,7 @@ static int ixgbe_xdp_setup(struct net_device *dev, struct bpf_prog *prog)
- 	struct ixgbe_adapter *adapter = netdev_priv(dev);
- 	struct bpf_prog *old_prog;
- 	bool need_reset;
-+	int num_queues;
- 
- 	if (adapter->flags & IXGBE_FLAG_SRIOV_ENABLED)
- 		return -EINVAL;
-@@ -10172,11 +10173,14 @@ static int ixgbe_xdp_setup(struct net_device *dev, struct bpf_prog *prog)
- 	/* Kick start the NAPI context if there is an AF_XDP socket open
- 	 * on that queue id. This so that receiving will start.
- 	 */
--	if (need_reset && prog)
--		for (i = 0; i < adapter->num_rx_queues; i++)
-+	if (need_reset && prog) {
-+		num_queues = min_t(int, adapter->num_rx_queues,
-+				   adapter->num_xdp_queues);
-+		for (i = 0; i < num_queues; i++)
- 			if (adapter->xdp_ring[i]->xsk_pool)
- 				(void)ixgbe_xsk_wakeup(adapter->netdev, i,
- 						       XDP_WAKEUP_RX);
++	if (!test_bit(HNS3_NIC_STATE_DOWN, &priv->state)) {
++		netdev_warn(netdev, "net open repeatedly!\n");
++		return 0;
 +	}
++
+ 	netif_carrier_off(netdev);
  
- 	return 0;
- }
+ 	ret = hns3_nic_set_real_num_queue(netdev);
 -- 
 2.33.0
 
