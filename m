@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0036420E44
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:22:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80E7242100C
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:38:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235744AbhJDNX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:23:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37062 "EHLO mail.kernel.org"
+        id S238389AbhJDNkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:40:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236699AbhJDNVX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:21:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C6D561BC2;
-        Mon,  4 Oct 2021 13:09:14 +0000 (UTC)
+        id S238484AbhJDNig (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:38:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD97561425;
+        Mon,  4 Oct 2021 13:17:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352955;
-        bh=9TCFDX076KFMFP+Ixj5jt/z7WDpdxK/tcIF1mWSIeR0=;
+        s=korg; t=1633353456;
+        bh=Wt+sMAr+8EWBwBlCy8flEu8hW9jDBkUc8TR4Jc87d98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aDB3aFtb8IH+iWDprS3rIjWvoF8cRz5L71DolV4gjzr2GHncJMmL0r5GVX3H2gXp5
-         W9IrlhcmyOnkThAMFQtber5JhQl0+dfL+lX6LkEaT0JDY5vs9M/gyULvTQ0JmiFzoF
-         MPh9tVNvP2Q+40l3GtmM38lUm1YkpDKed/BYhAcI=
+        b=MN8kfICaXH7ipD2z4ciaHMGjc+ZjG/s0f7CB5HE3krefTT9uE3K/4KaMkNH44+jhO
+         tb15yCMsb0+lpiZFMuDTh0zFC5o/zp0AkwfOeR/1JweOep3pAXRlP3jXzGg/MxAin5
+         R1l/JjNWJvv5wbBDQ6CQZlXBbR+zo1yjC21WmCFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Xiao Liang <shaw.leon@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 33/93] mac80211: mesh: fix potentially unaligned access
-Date:   Mon,  4 Oct 2021 14:52:31 +0200
-Message-Id: <20211004125035.658573109@linuxfoundation.org>
+Subject: [PATCH 5.14 102/172] net: ipv4: Fix rtnexthop len when RTA_FLOW is present
+Date:   Mon,  4 Oct 2021 14:52:32 +0200
+Message-Id: <20211004125048.278818865@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +41,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Xiao Liang <shaw.leon@gmail.com>
 
-[ Upstream commit b9731062ce8afd35cf723bf3a8ad55d208f915a5 ]
+[ Upstream commit 597aa16c782496bf74c5dc3b45ff472ade6cee64 ]
 
-The pointer here points directly into the frame, so the
-access is potentially unaligned. Use get_unaligned_le16
-to avoid that.
+Multipath RTA_FLOW is embedded in nexthop. Dump it in fib_add_nexthop()
+to get the length of rtnexthop correct.
 
-Fixes: 3f52b7e328c5 ("mac80211: mesh power save basics")
-Link: https://lore.kernel.org/r/20210920154009.3110ff75be0c.Ib6a2ff9e9cc9bc6fca50fce631ec1ce725cc926b@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: b0f60193632e ("ipv4: Refactor nexthop attributes in fib_dump_info")
+Signed-off-by: Xiao Liang <shaw.leon@gmail.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh_ps.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/net/ip_fib.h     |  2 +-
+ include/net/nexthop.h    |  2 +-
+ net/ipv4/fib_semantics.c | 16 +++++++++-------
+ net/ipv6/route.c         |  5 +++--
+ 4 files changed, 14 insertions(+), 11 deletions(-)
 
-diff --git a/net/mac80211/mesh_ps.c b/net/mac80211/mesh_ps.c
-index 204830a55240..3fbd0b9ff913 100644
---- a/net/mac80211/mesh_ps.c
-+++ b/net/mac80211/mesh_ps.c
-@@ -2,6 +2,7 @@
- /*
-  * Copyright 2012-2013, Marco Porsch <marco.porsch@s2005.tu-chemnitz.de>
-  * Copyright 2012-2013, cozybit Inc.
-+ * Copyright (C) 2021 Intel Corporation
-  */
+diff --git a/include/net/ip_fib.h b/include/net/ip_fib.h
+index 3ab2563b1a23..7fd7f6093612 100644
+--- a/include/net/ip_fib.h
++++ b/include/net/ip_fib.h
+@@ -597,5 +597,5 @@ int ip_valid_fib_dump_req(struct net *net, const struct nlmsghdr *nlh,
+ int fib_nexthop_info(struct sk_buff *skb, const struct fib_nh_common *nh,
+ 		     u8 rt_family, unsigned char *flags, bool skip_oif);
+ int fib_add_nexthop(struct sk_buff *skb, const struct fib_nh_common *nh,
+-		    int nh_weight, u8 rt_family);
++		    int nh_weight, u8 rt_family, u32 nh_tclassid);
+ #endif  /* _NET_FIB_H */
+diff --git a/include/net/nexthop.h b/include/net/nexthop.h
+index 10e1777877e6..28085b995ddc 100644
+--- a/include/net/nexthop.h
++++ b/include/net/nexthop.h
+@@ -325,7 +325,7 @@ int nexthop_mpath_fill_node(struct sk_buff *skb, struct nexthop *nh,
+ 		struct fib_nh_common *nhc = &nhi->fib_nhc;
+ 		int weight = nhg->nh_entries[i].weight;
  
- #include "mesh.h"
-@@ -588,7 +589,7 @@ void ieee80211_mps_frame_release(struct sta_info *sta,
+-		if (fib_add_nexthop(skb, nhc, weight, rt_family) < 0)
++		if (fib_add_nexthop(skb, nhc, weight, rt_family, 0) < 0)
+ 			return -EMSGSIZE;
+ 	}
  
- 	/* only transmit to PS STA with announced, non-zero awake window */
- 	if (test_sta_flag(sta, WLAN_STA_PS_STA) &&
--	    (!elems->awake_window || !le16_to_cpu(*elems->awake_window)))
-+	    (!elems->awake_window || !get_unaligned_le16(elems->awake_window)))
- 		return;
+diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
+index 4c0c33e4710d..27fdd86b9cee 100644
+--- a/net/ipv4/fib_semantics.c
++++ b/net/ipv4/fib_semantics.c
+@@ -1663,7 +1663,7 @@ EXPORT_SYMBOL_GPL(fib_nexthop_info);
  
- 	if (!test_sta_flag(sta, WLAN_STA_MPSP_OWNER))
+ #if IS_ENABLED(CONFIG_IP_ROUTE_MULTIPATH) || IS_ENABLED(CONFIG_IPV6)
+ int fib_add_nexthop(struct sk_buff *skb, const struct fib_nh_common *nhc,
+-		    int nh_weight, u8 rt_family)
++		    int nh_weight, u8 rt_family, u32 nh_tclassid)
+ {
+ 	const struct net_device *dev = nhc->nhc_dev;
+ 	struct rtnexthop *rtnh;
+@@ -1681,6 +1681,9 @@ int fib_add_nexthop(struct sk_buff *skb, const struct fib_nh_common *nhc,
+ 
+ 	rtnh->rtnh_flags = flags;
+ 
++	if (nh_tclassid && nla_put_u32(skb, RTA_FLOW, nh_tclassid))
++		goto nla_put_failure;
++
+ 	/* length of rtnetlink header + attributes */
+ 	rtnh->rtnh_len = nlmsg_get_pos(skb) - (void *)rtnh;
+ 
+@@ -1708,14 +1711,13 @@ static int fib_add_multipath(struct sk_buff *skb, struct fib_info *fi)
+ 	}
+ 
+ 	for_nexthops(fi) {
+-		if (fib_add_nexthop(skb, &nh->nh_common, nh->fib_nh_weight,
+-				    AF_INET) < 0)
+-			goto nla_put_failure;
++		u32 nh_tclassid = 0;
+ #ifdef CONFIG_IP_ROUTE_CLASSID
+-		if (nh->nh_tclassid &&
+-		    nla_put_u32(skb, RTA_FLOW, nh->nh_tclassid))
+-			goto nla_put_failure;
++		nh_tclassid = nh->nh_tclassid;
+ #endif
++		if (fib_add_nexthop(skb, &nh->nh_common, nh->fib_nh_weight,
++				    AF_INET, nh_tclassid) < 0)
++			goto nla_put_failure;
+ 	} endfor_nexthops(fi);
+ 
+ mp_end:
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index 603340302101..0aeff2ce17b9 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -5700,14 +5700,15 @@ static int rt6_fill_node(struct net *net, struct sk_buff *skb,
+ 			goto nla_put_failure;
+ 
+ 		if (fib_add_nexthop(skb, &rt->fib6_nh->nh_common,
+-				    rt->fib6_nh->fib_nh_weight, AF_INET6) < 0)
++				    rt->fib6_nh->fib_nh_weight, AF_INET6,
++				    0) < 0)
+ 			goto nla_put_failure;
+ 
+ 		list_for_each_entry_safe(sibling, next_sibling,
+ 					 &rt->fib6_siblings, fib6_siblings) {
+ 			if (fib_add_nexthop(skb, &sibling->fib6_nh->nh_common,
+ 					    sibling->fib6_nh->fib_nh_weight,
+-					    AF_INET6) < 0)
++					    AF_INET6, 0) < 0)
+ 				goto nla_put_failure;
+ 		}
+ 
 -- 
 2.33.0
 
