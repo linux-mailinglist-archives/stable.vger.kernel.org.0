@@ -2,303 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89699420DBB
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:16:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44993420FA4
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:34:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236191AbhJDNSB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:18:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53702 "EHLO mail.kernel.org"
+        id S237685AbhJDNgm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:36:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236190AbhJDNQF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:16:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25F47619E5;
-        Mon,  4 Oct 2021 13:06:28 +0000 (UTC)
+        id S237790AbhJDNe6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:34:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D06AB61B94;
+        Mon,  4 Oct 2021 13:15:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352788;
-        bh=2MVw7IzTt6yv+cn42ozVudPqsyGT+KWABWfZ3yT/T6E=;
-        h=From:To:Cc:Subject:Date:From;
-        b=neOFB8gXUQ+DeEpVBpf5J0y6R0LCax90OKaY2yi2kXBqgKNulauF5yajGsgwSg1YK
-         vrRrmH4gMrQ+TweC5s/IB8oMu8xZ8doPWpvvDKAzmLiF7Hjk+M2ekqcnEAD47ZHqu1
-         kGGAS0xxY0m6Q62xCz51kwjNgSK2sn7eblHbHKY0=
+        s=korg; t=1633353343;
+        bh=Ngzd6vnYAgy7Jn4kK3/xn3EoxOXbL2tA7BSMXCQYXfw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=W6mwLD/KbPK11tpRVh8a/O4KFWPFz3nfv45HF1cV2blrNLEeVFKM+Q5PyTWFFSlkX
+         qwCmuiod5Yz6pzlHjmB9XV1ua/er7UlypnLZ6uEUWWw/MVlJX52fg93cHwutOhPPiu
+         vioNnNEQU55CiD63C6qpp4Frh7hB7Ap/SquedUy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.4 00/56] 5.4.151-rc1 review
+        stable@vger.kernel.org,
+        syzbot+0196ac871673f0c20f68@syzkaller.appspotmail.com,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 090/172] mac80211: limit injected vht mcs/nss in ieee80211_parse_tx_radiotap
 Date:   Mon,  4 Oct 2021 14:52:20 +0200
-Message-Id: <20211004125030.002116402@linuxfoundation.org>
+Message-Id: <20211004125047.901183239@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-MIME-Version: 1.0
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.151-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.4.151-rc1
-X-KernelTest-Deadline: 2021-10-06T12:50+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.4.151 release.
-There are 56 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Lorenzo Bianconi <lorenzo@kernel.org>
+
+[ Upstream commit 13cb6d826e0ac0d144b0d48191ff1a111d32f0c6 ]
+
+Limit max values for vht mcs and nss in ieee80211_parse_tx_radiotap
+routine in order to fix the following warning reported by syzbot:
+
+WARNING: CPU: 0 PID: 10717 at include/net/mac80211.h:989 ieee80211_rate_set_vht include/net/mac80211.h:989 [inline]
+WARNING: CPU: 0 PID: 10717 at include/net/mac80211.h:989 ieee80211_parse_tx_radiotap+0x101e/0x12d0 net/mac80211/tx.c:2244
+Modules linked in:
+CPU: 0 PID: 10717 Comm: syz-executor.5 Not tainted 5.14.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:ieee80211_rate_set_vht include/net/mac80211.h:989 [inline]
+RIP: 0010:ieee80211_parse_tx_radiotap+0x101e/0x12d0 net/mac80211/tx.c:2244
+RSP: 0018:ffffc9000186f3e8 EFLAGS: 00010216
+RAX: 0000000000000618 RBX: ffff88804ef76500 RCX: ffffc900143a5000
+RDX: 0000000000040000 RSI: ffffffff888f478e RDI: 0000000000000003
+RBP: 00000000ffffffff R08: 0000000000000000 R09: 0000000000000100
+R10: ffffffff888f46f9 R11: 0000000000000000 R12: 00000000fffffff8
+R13: ffff88804ef7653c R14: 0000000000000001 R15: 0000000000000004
+FS:  00007fbf5718f700(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b2de23000 CR3: 000000006a671000 CR4: 00000000001506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000600
+Call Trace:
+ ieee80211_monitor_select_queue+0xa6/0x250 net/mac80211/iface.c:740
+ netdev_core_pick_tx+0x169/0x2e0 net/core/dev.c:4089
+ __dev_queue_xmit+0x6f9/0x3710 net/core/dev.c:4165
+ __bpf_tx_skb net/core/filter.c:2114 [inline]
+ __bpf_redirect_no_mac net/core/filter.c:2139 [inline]
+ __bpf_redirect+0x5ba/0xd20 net/core/filter.c:2162
+ ____bpf_clone_redirect net/core/filter.c:2429 [inline]
+ bpf_clone_redirect+0x2ae/0x420 net/core/filter.c:2401
+ bpf_prog_eeb6f53a69e5c6a2+0x59/0x234
+ bpf_dispatcher_nop_func include/linux/bpf.h:717 [inline]
+ __bpf_prog_run include/linux/filter.h:624 [inline]
+ bpf_prog_run include/linux/filter.h:631 [inline]
+ bpf_test_run+0x381/0xa30 net/bpf/test_run.c:119
+ bpf_prog_test_run_skb+0xb84/0x1ee0 net/bpf/test_run.c:663
+ bpf_prog_test_run kernel/bpf/syscall.c:3307 [inline]
+ __sys_bpf+0x2137/0x5df0 kernel/bpf/syscall.c:4605
+ __do_sys_bpf kernel/bpf/syscall.c:4691 [inline]
+ __se_sys_bpf kernel/bpf/syscall.c:4689 [inline]
+ __x64_sys_bpf+0x75/0xb0 kernel/bpf/syscall.c:4689
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x4665f9
+
+Reported-by: syzbot+0196ac871673f0c20f68@syzkaller.appspotmail.com
+Fixes: 646e76bb5daf4 ("mac80211: parse VHT info in injected frames")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Link: https://lore.kernel.org/r/c26c3f02dcb38ab63b2f2534cb463d95ee81bb13.1632141760.git.lorenzo@kernel.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/mac80211/tx.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
+index 0208f68af394..751e601c4623 100644
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -2209,7 +2209,11 @@ bool ieee80211_parse_tx_radiotap(struct sk_buff *skb,
+ 			}
+ 
+ 			vht_mcs = iterator.this_arg[4] >> 4;
++			if (vht_mcs > 11)
++				vht_mcs = 0;
+ 			vht_nss = iterator.this_arg[4] & 0xF;
++			if (!vht_nss || vht_nss > 8)
++				vht_nss = 1;
+ 			break;
+ 
+ 		/*
+-- 
+2.33.0
 
-Responses should be made by Wed, 06 Oct 2021 12:50:17 +0000.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.151-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.4.151-rc1
-
-Yanfei Xu <yanfei.xu@windriver.com>
-    net: mdiobus: Fix memory leak in __mdiobus_register
-
-Anirudh Rayabharam <mail@anirudhrb.com>
-    HID: usbhid: free raw_report buffers in usbhid_stop
-
-Jozsef Kadlecsik <kadlec@netfilter.org>
-    netfilter: ipset: Fix oversized kvmalloc() calls
-
-F.A.Sulaiman <asha.16@itfac.mrt.ac.lk>
-    HID: betop: fix slab-out-of-bounds Write in betop_probe
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    crypto: ccp - fix resource leaks in ccp_run_aes_gcm_cmd()
-
-Dongliang Mu <mudongliangabcd@gmail.com>
-    usb: hso: remove the bailout parameter
-
-Dongliang Mu <mudongliangabcd@gmail.com>
-    usb: hso: fix error handling code of hso_create_net_device
-
-Oliver Neukum <oneukum@suse.com>
-    hso: fix bailout in error case of probe
-
-sumiyawang <sumiyawang@tencent.com>
-    libnvdimm/pmem: Fix crash triggered when I/O in-flight during unbind
-
-Rob Herring <robh@kernel.org>
-    PCI: Fix pci_host_bridge struct device release/free handling
-
-Leon Yu <leoyu@nvidia.com>
-    net: stmmac: don't attach interface until resume finishes
-
-Eric Dumazet <edumazet@google.com>
-    net: udp: annotate data race around udp_sk(sk)->corkflag
-
-Andrej Shadura <andrew.shadura@collabora.co.uk>
-    HID: u2fzero: ignore incomplete packets without data
-
-yangerkun <yangerkun@huawei.com>
-    ext4: fix potential infinite loop in ext4_dx_readdir()
-
-Jeffle Xu <jefflexu@linux.alibaba.com>
-    ext4: fix reserved space counter leakage
-
-Ritesh Harjani <riteshh@linux.ibm.com>
-    ext4: fix loff_t overflow in ext4_max_bitmap_size()
-
-Johan Hovold <johan@kernel.org>
-    ipack: ipoctal: fix module reference leak
-
-Johan Hovold <johan@kernel.org>
-    ipack: ipoctal: fix missing allocation-failure check
-
-Johan Hovold <johan@kernel.org>
-    ipack: ipoctal: fix tty-registration error handling
-
-Johan Hovold <johan@kernel.org>
-    ipack: ipoctal: fix tty registration race
-
-Johan Hovold <johan@kernel.org>
-    ipack: ipoctal: fix stack information leak
-
-Nirmoy Das <nirmoy.das@amd.com>
-    debugfs: debugfs_create_file_size(): use IS_ERR to check for error
-
-Chen Jingwen <chenjingwen6@huawei.com>
-    elf: don't use MAP_FIXED_NOREPLACE for elf interpreter mappings
-
-Kan Liang <kan.liang@linux.intel.com>
-    perf/x86/intel: Update event constraints for ICX
-
-Eric Dumazet <edumazet@google.com>
-    af_unix: fix races in sk_peer_pid and sk_peer_cred accesses
-
-Vlad Buslov <vladbu@nvidia.com>
-    net: sched: flower: protect fl_walk() with rcu
-
-Florian Fainelli <f.fainelli@gmail.com>
-    net: phy: bcm7xxx: Fixed indirect MMD operations
-
-Florian Fainelli <f.fainelli@gmail.com>
-    net: phy: bcm7xxx: request and manage GPHY clock
-
-Jian Shen <shenjian15@huawei.com>
-    net: hns3: do not allow call hns3_nic_net_open repeatedly
-
-Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
-    scsi: csiostor: Add module softdep on cxgb4
-
-Jens Axboe <axboe@kernel.dk>
-    Revert "block, bfq: honor already-setup queue merges"
-
-Jiri Benc <jbenc@redhat.com>
-    selftests, bpf: test_lwt_ip_encap: Really disable rp_filter
-
-Jacob Keller <jacob.e.keller@intel.com>
-    e100: fix buffer overrun in e100_get_regs
-
-Jacob Keller <jacob.e.keller@intel.com>
-    e100: fix length calculation in e100_get_regs_len
-
-Xiao Liang <shaw.leon@gmail.com>
-    net: ipv4: Fix rtnexthop len when RTA_FLOW is present
-
-Paul Fertser <fercerpav@gmail.com>
-    hwmon: (tmp421) fix rounding for negative values
-
-Paul Fertser <fercerpav@gmail.com>
-    hwmon: (tmp421) report /PVLD condition as fault
-
-Xin Long <lucien.xin@gmail.com>
-    sctp: break out if skb_header_pointer returns NULL in sctp_rcv_ootb
-
-Johannes Berg <johannes.berg@intel.com>
-    mac80211-hwsim: fix late beacon hrtimer handling
-
-Johannes Berg <johannes.berg@intel.com>
-    mac80211: mesh: fix potentially unaligned access
-
-Lorenzo Bianconi <lorenzo@kernel.org>
-    mac80211: limit injected vht mcs/nss in ieee80211_parse_tx_radiotap
-
-Chih-Kang Chang <gary.chang@realtek.com>
-    mac80211: Fix ieee80211_amsdu_aggregate frag_tail bug
-
-Vadim Pasternak <vadimp@nvidia.com>
-    hwmon: (mlxreg-fan) Return non-zero value when fan current state is enforced from sysfs
-
-Andrea Claudi <aclaudi@redhat.com>
-    ipvs: check that ip_vs_conn_tab_bits is between 8 and 20
-
-Charlene Liu <Charlene.Liu@amd.com>
-    drm/amd/display: Pass PCI deviceid into DC
-
-Zelin Deng <zelin.deng@linux.alibaba.com>
-    x86/kvmclock: Move this_cpu_pvti into kvmclock.h
-
-Johannes Berg <johannes.berg@intel.com>
-    mac80211: fix use-after-free in CCMP/GCMP RX
-
-Jonathan Hsu <jonathan.hsu@mediatek.com>
-    scsi: ufs: Fix illegal offset in UPIU event trace
-
-Nadezda Lutovinova <lutovinova@ispras.ru>
-    hwmon: (w83791d) Fix NULL pointer dereference by removing unnecessary structure field
-
-Nadezda Lutovinova <lutovinova@ispras.ru>
-    hwmon: (w83792d) Fix NULL pointer dereference by removing unnecessary structure field
-
-Nadezda Lutovinova <lutovinova@ispras.ru>
-    hwmon: (w83793) Fix NULL pointer dereference by removing unnecessary structure field
-
-Eric Biggers <ebiggers@google.com>
-    fs-verity: fix signed integer overflow with i_size near S64_MAX
-
-Pawel Laszczak <pawell@cadence.com>
-    usb: cdns3: fix race condition before setting doorbell
-
-James Morse <james.morse@arm.com>
-    cpufreq: schedutil: Destroy mutex before kobject_put() frees the memory
-
-Kevin Hao <haokexin@gmail.com>
-    cpufreq: schedutil: Use kobject release() method to free sugov_tunables
-
-Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
-    tty: Fix out-of-bound vmalloc access in imageblit
-
-
--------------
-
-Diffstat:
-
- Makefile                                          |   4 +-
- arch/x86/events/intel/core.c                      |   1 +
- arch/x86/include/asm/kvmclock.h                   |  14 +++
- arch/x86/kernel/kvmclock.c                        |  13 +-
- block/bfq-iosched.c                               |  16 +--
- drivers/cpufreq/cpufreq_governor_attr_set.c       |   2 +-
- drivers/crypto/ccp/ccp-ops.c                      |  14 ++-
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   1 +
- drivers/hid/hid-betopff.c                         |  13 +-
- drivers/hid/hid-u2fzero.c                         |   4 +-
- drivers/hid/usbhid/hid-core.c                     |  13 +-
- drivers/hwmon/mlxreg-fan.c                        |  12 +-
- drivers/hwmon/tmp421.c                            |  33 ++---
- drivers/hwmon/w83791d.c                           |  29 ++---
- drivers/hwmon/w83792d.c                           |  28 ++---
- drivers/hwmon/w83793.c                            |  26 ++--
- drivers/ipack/devices/ipoctal.c                   |  63 +++++++---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c   |   5 +
- drivers/net/ethernet/intel/e100.c                 |  22 ++--
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   4 +-
- drivers/net/phy/bcm7xxx.c                         | 144 +++++++++++++++++++++-
- drivers/net/phy/mdio_bus.c                        |   1 +
- drivers/net/usb/hso.c                             |  33 +++--
- drivers/net/wireless/mac80211_hwsim.c             |   4 +-
- drivers/nvdimm/pmem.c                             |   4 +-
- drivers/pci/probe.c                               |  36 +++---
- drivers/pci/remove.c                              |   2 +-
- drivers/scsi/csiostor/csio_init.c                 |   1 +
- drivers/scsi/ufs/ufshcd.c                         |   3 +-
- drivers/tty/vt/vt.c                               |  21 +++-
- drivers/usb/cdns3/gadget.c                        |  14 +++
- fs/binfmt_elf.c                                   |   2 +-
- fs/debugfs/inode.c                                |   2 +-
- fs/ext4/dir.c                                     |   6 +-
- fs/ext4/inode.c                                   |   5 +
- fs/ext4/super.c                                   |  16 ++-
- fs/verity/enable.c                                |   2 +-
- fs/verity/open.c                                  |   2 +-
- include/net/ip_fib.h                              |   2 +-
- include/net/nexthop.h                             |   2 +-
- include/net/sock.h                                |   2 +
- kernel/sched/cpufreq_schedutil.c                  |  16 ++-
- net/core/sock.c                                   |  32 ++++-
- net/ipv4/fib_semantics.c                          |  16 +--
- net/ipv4/udp.c                                    |  10 +-
- net/ipv6/route.c                                  |   5 +-
- net/ipv6/udp.c                                    |   2 +-
- net/mac80211/mesh_ps.c                            |   3 +-
- net/mac80211/tx.c                                 |  12 ++
- net/mac80211/wpa.c                                |   6 +
- net/netfilter/ipset/ip_set_hash_gen.h             |   4 +-
- net/netfilter/ipvs/ip_vs_conn.c                   |   4 +
- net/sched/cls_flower.c                            |   6 +
- net/sctp/input.c                                  |   2 +-
- net/unix/af_unix.c                                |  34 ++++-
- tools/testing/selftests/bpf/test_lwt_ip_encap.sh  |  13 +-
- 56 files changed, 552 insertions(+), 234 deletions(-)
 
 
