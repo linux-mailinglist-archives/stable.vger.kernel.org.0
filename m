@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E96FF420F80
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:34:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F6A2420B4E
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:54:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237974AbhJDNfe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:35:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47908 "EHLO mail.kernel.org"
+        id S233398AbhJDM42 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 08:56:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238028AbhJDNdj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:33:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3FF36322A;
-        Mon,  4 Oct 2021 13:15:18 +0000 (UTC)
+        id S233452AbhJDM4S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:56:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1A6B613A8;
+        Mon,  4 Oct 2021 12:54:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353319;
-        bh=jkEoC/AmAzweGxsRtvtS4zRynL39mkJqgo9Bahv6uAQ=;
+        s=korg; t=1633352069;
+        bh=LXB02JFs8bgi6dxze1zOCYnPyFndr88EFEvdb5wjlqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=enCUPCNSa6O9vwIUa1CBVz6a2oVm9S0x+CfBS1mHIQ1YiNVJaJ+YLFYzBA+aH64MG
-         sx7cgXpuoT1y24hNF3zZcNMjU6T09w0RDRQ3MpwJ8wJsYQ2fK/5prYhM3+LAgYesi3
-         XEddEWwdRMimXMVKPxvoit281x1j70r6+7zh8vQc=
+        b=XvvlxqgHHRjmJ3gcLajM91Wnb+J/Mql6CN0piIiNtDlwtSvRyBoU1cCPKK7MMANJQ
+         +BiE86VSsE0RtPi54wt7IlSt74z1yy5jXK1AHYFHKOdr4efm79eKIDP6Dplkel2tXR
+         OSXrg48/NPEshOBWljeNLaimu7FrNSjgw3uB+PBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Dan Li <ashimida@linux.alibaba.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 081/172] hwmon: (mlxreg-fan) Return non-zero value when fan current state is enforced from sysfs
+Subject: [PATCH 4.4 20/41] arm64: Mark __stack_chk_guard as __ro_after_init
 Date:   Mon,  4 Oct 2021 14:52:11 +0200
-Message-Id: <20211004125047.610582516@linuxfoundation.org>
+Message-Id: <20211004125027.226245055@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
+References: <20211004125026.597501645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,125 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@nvidia.com>
+From: Dan Li <ashimida@linux.alibaba.com>
 
-[ Upstream commit e6fab7af6ba1bc77c78713a83876f60ca7a4a064 ]
+[ Upstream commit 9fcb2e93f41c07a400885325e7dbdfceba6efaec ]
 
-Fan speed minimum can be enforced from sysfs. For example, setting
-current fan speed to 20 is used to enforce fan speed to be at 100%
-speed, 19 - to be not below 90% speed, etcetera. This feature provides
-ability to limit fan speed according to some system wise
-considerations, like absence of some replaceable units or high system
-ambient temperature.
+__stack_chk_guard is setup once while init stage and never changed
+after that.
 
-Request for changing fan minimum speed is configuration request and can
-be set only through 'sysfs' write procedure. In this situation value of
-argument 'state' is above nominal fan speed maximum.
+Although the modification of this variable at runtime will usually
+cause the kernel to crash (so does the attacker), it should be marked
+as __ro_after_init, and it should not affect performance if it is
+placed in the ro_after_init section.
 
-Return non-zero code in this case to avoid
-thermal_cooling_device_stats_update() call, because in this case
-statistics update violates thermal statistics table range.
-The issues is observed in case kernel is configured with option
-CONFIG_THERMAL_STATISTICS.
-
-Here is the trace from KASAN:
-[  159.506659] BUG: KASAN: slab-out-of-bounds in thermal_cooling_device_stats_update+0x7d/0xb0
-[  159.516016] Read of size 4 at addr ffff888116163840 by task hw-management.s/7444
-[  159.545625] Call Trace:
-[  159.548366]  dump_stack+0x92/0xc1
-[  159.552084]  ? thermal_cooling_device_stats_update+0x7d/0xb0
-[  159.635869]  thermal_zone_device_update+0x345/0x780
-[  159.688711]  thermal_zone_device_set_mode+0x7d/0xc0
-[  159.694174]  mlxsw_thermal_modules_init+0x48f/0x590 [mlxsw_core]
-[  159.700972]  ? mlxsw_thermal_set_cur_state+0x5a0/0x5a0 [mlxsw_core]
-[  159.731827]  mlxsw_thermal_init+0x763/0x880 [mlxsw_core]
-[  160.070233] RIP: 0033:0x7fd995909970
-[  160.074239] Code: 73 01 c3 48 8b 0d 28 d5 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 0f 1f 44 00 00 83 3d 99 2d 2c 00 00 75 10 b8 01 00 00 00 0f 05 <48> 3d 01 f0 ff ..
-[  160.095242] RSP: 002b:00007fff54f5d938 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-[  160.103722] RAX: ffffffffffffffda RBX: 0000000000000013 RCX: 00007fd995909970
-[  160.111710] RDX: 0000000000000013 RSI: 0000000001906008 RDI: 0000000000000001
-[  160.119699] RBP: 0000000001906008 R08: 00007fd995bc9760 R09: 00007fd996210700
-[  160.127687] R10: 0000000000000073 R11: 0000000000000246 R12: 0000000000000013
-[  160.135673] R13: 0000000000000001 R14: 00007fd995bc8600 R15: 0000000000000013
-[  160.143671]
-[  160.145338] Allocated by task 2924:
-[  160.149242]  kasan_save_stack+0x19/0x40
-[  160.153541]  __kasan_kmalloc+0x7f/0xa0
-[  160.157743]  __kmalloc+0x1a2/0x2b0
-[  160.161552]  thermal_cooling_device_setup_sysfs+0xf9/0x1a0
-[  160.167687]  __thermal_cooling_device_register+0x1b5/0x500
-[  160.173833]  devm_thermal_of_cooling_device_register+0x60/0xa0
-[  160.180356]  mlxreg_fan_probe+0x474/0x5e0 [mlxreg_fan]
-[  160.248140]
-[  160.249807] The buggy address belongs to the object at ffff888116163400
-[  160.249807]  which belongs to the cache kmalloc-1k of size 1024
-[  160.263814] The buggy address is located 64 bytes to the right of
-[  160.263814]  1024-byte region [ffff888116163400, ffff888116163800)
-[  160.277536] The buggy address belongs to the page:
-[  160.282898] page:0000000012275840 refcount:1 mapcount:0 mapping:0000000000000000 index:0xffff888116167000 pfn:0x116160
-[  160.294872] head:0000000012275840 order:3 compound_mapcount:0 compound_pincount:0
-[  160.303251] flags: 0x200000000010200(slab|head|node=0|zone=2)
-[  160.309694] raw: 0200000000010200 ffffea00046f7208 ffffea0004928208 ffff88810004dbc0
-[  160.318367] raw: ffff888116167000 00000000000a0006 00000001ffffffff 0000000000000000
-[  160.327033] page dumped because: kasan: bad access detected
-[  160.333270]
-[  160.334937] Memory state around the buggy address:
-[  160.356469] >ffff888116163800: fc ..
-
-Fixes: 65afb4c8e7e4 ("hwmon: (mlxreg-fan) Add support for Mellanox FAN driver")
-Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
-Link: https://lore.kernel.org/r/20210916183151.869427-1-vadimp@nvidia.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Dan Li <ashimida@linux.alibaba.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/r/1631612642-102881-1-git-send-email-ashimida@linux.alibaba.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/mlxreg-fan.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ arch/arm64/kernel/process.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/mlxreg-fan.c b/drivers/hwmon/mlxreg-fan.c
-index 116681fde33d..89fe7b9fe26b 100644
---- a/drivers/hwmon/mlxreg-fan.c
-+++ b/drivers/hwmon/mlxreg-fan.c
-@@ -315,8 +315,8 @@ static int mlxreg_fan_set_cur_state(struct thermal_cooling_device *cdev,
- {
- 	struct mlxreg_fan *fan = cdev->devdata;
- 	unsigned long cur_state;
-+	int i, config = 0;
- 	u32 regval;
--	int i;
- 	int err;
+diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
+index 10d6627673cb..6cd79888944e 100644
+--- a/arch/arm64/kernel/process.c
++++ b/arch/arm64/kernel/process.c
+@@ -55,7 +55,7 @@
  
- 	/*
-@@ -329,6 +329,12 @@ static int mlxreg_fan_set_cur_state(struct thermal_cooling_device *cdev,
- 	 * overwritten.
- 	 */
- 	if (state >= MLXREG_FAN_SPEED_MIN && state <= MLXREG_FAN_SPEED_MAX) {
-+		/*
-+		 * This is configuration change, which is only supported through sysfs.
-+		 * For configuration non-zero value is to be returned to avoid thermal
-+		 * statistics update.
-+		 */
-+		config = 1;
- 		state -= MLXREG_FAN_MAX_STATE;
- 		for (i = 0; i < state; i++)
- 			fan->cooling_levels[i] = state;
-@@ -343,7 +349,7 @@ static int mlxreg_fan_set_cur_state(struct thermal_cooling_device *cdev,
+ #ifdef CONFIG_CC_STACKPROTECTOR
+ #include <linux/stackprotector.h>
+-unsigned long __stack_chk_guard __read_mostly;
++unsigned long __stack_chk_guard __ro_after_init;
+ EXPORT_SYMBOL(__stack_chk_guard);
+ #endif
  
- 		cur_state = MLXREG_FAN_PWM_DUTY2STATE(regval);
- 		if (state < cur_state)
--			return 0;
-+			return config;
- 
- 		state = cur_state;
- 	}
-@@ -359,7 +365,7 @@ static int mlxreg_fan_set_cur_state(struct thermal_cooling_device *cdev,
- 		dev_err(fan->dev, "Failed to write PWM duty\n");
- 		return err;
- 	}
--	return 0;
-+	return config;
- }
- 
- static const struct thermal_cooling_device_ops mlxreg_fan_cooling_ops = {
 -- 
 2.33.0
 
