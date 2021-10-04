@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5283D42104B
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:41:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF0F3420ED6
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:27:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238696AbhJDNmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:42:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52280 "EHLO mail.kernel.org"
+        id S236644AbhJDN26 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:28:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238438AbhJDNk1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:40:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 210D56324C;
-        Mon,  4 Oct 2021 13:18:40 +0000 (UTC)
+        id S237173AbhJDN12 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:27:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D576C61B6F;
+        Mon,  4 Oct 2021 13:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353521;
-        bh=EMV0BO4WkbCyK2UzgFMNMPCHKceVyxffuyrhsxFJhnM=;
+        s=korg; t=1633353126;
+        bh=xYHtD90c8mluN6Xa+c907DAGwsSegR024QmpIaLPa0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y2DHWFlNzipHlBwtMj4UqlCHMDOQ+U4d6BPmZEzhuV1T1vNhtEoDQD/f9WuxbuJjo
-         Oq3gXeTlCs87MYRyYDyWA1Z4PD6xSLjIVXeiDjihJkW+AFmvo3hH0DfXPcRuMP9hdH
-         L2+cq5Aeb6Zv9mX/Hjy5DWRsS3aFDZ8bdYp4///g=
+        b=kAMgUWH+RvbhYIM/begecDDREFH8mjXFygLSvzOhJETkqPOX8k+pnlKRk5DiqoKmU
+         bd6m+UATdA7k5KRgo8iBnuVV/c6Cpy/P3sgrfG2w6voPd2RU54OluabyIdInup1qrr
+         G5OUXRx37m9G01r6trrX7ut2JA4D7Hd5A4BKNyIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 160/172] net: udp: annotate data race around udp_sk(sk)->corkflag
+        syzbot <syzkaller@googlegroups.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.10 92/93] netfilter: conntrack: serialize hash resizes and cleanups
 Date:   Mon,  4 Oct 2021 14:53:30 +0200
-Message-Id: <20211004125050.135125962@linuxfoundation.org>
+Message-Id: <20211004125037.629702392@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,71 +42,207 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-commit a9f5970767d11eadc805d5283f202612c7ba1f59 upstream.
+commit e9edc188fc76499b0b9bd60364084037f6d03773 upstream.
 
-up->corkflag field can be read or written without any lock.
-Annotate accesses to avoid possible syzbot/KCSAN reports.
+Syzbot was able to trigger the following warning [1]
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+No repro found by syzbot yet but I was able to trigger similar issue
+by having 2 scripts running in parallel, changing conntrack hash sizes,
+and:
+
+for j in `seq 1 1000` ; do unshare -n /bin/true >/dev/null ; done
+
+It would take more than 5 minutes for net_namespace structures
+to be cleaned up.
+
+This is because nf_ct_iterate_cleanup() has to restart everytime
+a resize happened.
+
+By adding a mutex, we can serialize hash resizes and cleanups
+and also make get_next_corpse() faster by skipping over empty
+buckets.
+
+Even without resizes in the picture, this patch considerably
+speeds up network namespace dismantles.
+
+[1]
+INFO: task syz-executor.0:8312 can't die for more than 144 seconds.
+task:syz-executor.0  state:R  running task     stack:25672 pid: 8312 ppid:  6573 flags:0x00004006
+Call Trace:
+ context_switch kernel/sched/core.c:4955 [inline]
+ __schedule+0x940/0x26f0 kernel/sched/core.c:6236
+ preempt_schedule_common+0x45/0xc0 kernel/sched/core.c:6408
+ preempt_schedule_thunk+0x16/0x18 arch/x86/entry/thunk_64.S:35
+ __local_bh_enable_ip+0x109/0x120 kernel/softirq.c:390
+ local_bh_enable include/linux/bottom_half.h:32 [inline]
+ get_next_corpse net/netfilter/nf_conntrack_core.c:2252 [inline]
+ nf_ct_iterate_cleanup+0x15a/0x450 net/netfilter/nf_conntrack_core.c:2275
+ nf_conntrack_cleanup_net_list+0x14c/0x4f0 net/netfilter/nf_conntrack_core.c:2469
+ ops_exit_list+0x10d/0x160 net/core/net_namespace.c:171
+ setup_net+0x639/0xa30 net/core/net_namespace.c:349
+ copy_net_ns+0x319/0x760 net/core/net_namespace.c:470
+ create_new_namespaces+0x3f6/0xb20 kernel/nsproxy.c:110
+ unshare_nsproxy_namespaces+0xc1/0x1f0 kernel/nsproxy.c:226
+ ksys_unshare+0x445/0x920 kernel/fork.c:3128
+ __do_sys_unshare kernel/fork.c:3202 [inline]
+ __se_sys_unshare kernel/fork.c:3200 [inline]
+ __x64_sys_unshare+0x2d/0x40 kernel/fork.c:3200
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7f63da68e739
+RSP: 002b:00007f63d7c05188 EFLAGS: 00000246 ORIG_RAX: 0000000000000110
+RAX: ffffffffffffffda RBX: 00007f63da792f80 RCX: 00007f63da68e739
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000040000000
+RBP: 00007f63da6e8cc4 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f63da792f80
+R13: 00007fff50b75d3f R14: 00007f63d7c05300 R15: 0000000000022000
+
+Showing all locks held in the system:
+1 lock held by khungtaskd/27:
+ #0: ffffffff8b980020 (rcu_read_lock){....}-{1:2}, at: debug_show_all_locks+0x53/0x260 kernel/locking/lockdep.c:6446
+2 locks held by kworker/u4:2/153:
+ #0: ffff888010c69138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: arch_atomic64_set arch/x86/include/asm/atomic64_64.h:34 [inline]
+ #0: ffff888010c69138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: arch_atomic_long_set include/linux/atomic/atomic-long.h:41 [inline]
+ #0: ffff888010c69138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: atomic_long_set include/linux/atomic/atomic-instrumented.h:1198 [inline]
+ #0: ffff888010c69138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: set_work_data kernel/workqueue.c:634 [inline]
+ #0: ffff888010c69138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: set_work_pool_and_clear_pending kernel/workqueue.c:661 [inline]
+ #0: ffff888010c69138 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x896/0x1690 kernel/workqueue.c:2268
+ #1: ffffc9000140fdb0 ((kfence_timer).work){+.+.}-{0:0}, at: process_one_work+0x8ca/0x1690 kernel/workqueue.c:2272
+1 lock held by systemd-udevd/2970:
+1 lock held by in:imklog/6258:
+ #0: ffff88807f970ff0 (&f->f_pos_lock){+.+.}-{3:3}, at: __fdget_pos+0xe9/0x100 fs/file.c:990
+3 locks held by kworker/1:6/8158:
+1 lock held by syz-executor.0/8312:
+2 locks held by kworker/u4:13/9320:
+1 lock held by syz-executor.5/10178:
+1 lock held by syz-executor.4/10217:
+
 Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/udp.c |   10 +++++-----
- net/ipv6/udp.c |    2 +-
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ net/netfilter/nf_conntrack_core.c |   70 ++++++++++++++++++++------------------
+ 1 file changed, 37 insertions(+), 33 deletions(-)
 
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -1053,7 +1053,7 @@ int udp_sendmsg(struct sock *sk, struct
- 	__be16 dport;
- 	u8  tos;
- 	int err, is_udplite = IS_UDPLITE(sk);
--	int corkreq = up->corkflag || msg->msg_flags&MSG_MORE;
-+	int corkreq = READ_ONCE(up->corkflag) || msg->msg_flags&MSG_MORE;
- 	int (*getfrag)(void *, char *, int, int, int, struct sk_buff *);
- 	struct sk_buff *skb;
- 	struct ip_options_data opt_copy;
-@@ -1361,7 +1361,7 @@ int udp_sendpage(struct sock *sk, struct
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -75,6 +75,9 @@ static __read_mostly struct kmem_cache *
+ static DEFINE_SPINLOCK(nf_conntrack_locks_all_lock);
+ static __read_mostly bool nf_conntrack_locks_all;
+ 
++/* serialize hash resizes and nf_ct_iterate_cleanup */
++static DEFINE_MUTEX(nf_conntrack_mutex);
++
+ #define GC_SCAN_INTERVAL	(120u * HZ)
+ #define GC_SCAN_MAX_DURATION	msecs_to_jiffies(10)
+ 
+@@ -2173,28 +2176,31 @@ get_next_corpse(int (*iter)(struct nf_co
+ 	spinlock_t *lockp;
+ 
+ 	for (; *bucket < nf_conntrack_htable_size; (*bucket)++) {
++		struct hlist_nulls_head *hslot = &nf_conntrack_hash[*bucket];
++
++		if (hlist_nulls_empty(hslot))
++			continue;
++
+ 		lockp = &nf_conntrack_locks[*bucket % CONNTRACK_LOCKS];
+ 		local_bh_disable();
+ 		nf_conntrack_lock(lockp);
+-		if (*bucket < nf_conntrack_htable_size) {
+-			hlist_nulls_for_each_entry(h, n, &nf_conntrack_hash[*bucket], hnnode) {
+-				if (NF_CT_DIRECTION(h) != IP_CT_DIR_REPLY)
+-					continue;
+-				/* All nf_conn objects are added to hash table twice, one
+-				 * for original direction tuple, once for the reply tuple.
+-				 *
+-				 * Exception: In the IPS_NAT_CLASH case, only the reply
+-				 * tuple is added (the original tuple already existed for
+-				 * a different object).
+-				 *
+-				 * We only need to call the iterator once for each
+-				 * conntrack, so we just use the 'reply' direction
+-				 * tuple while iterating.
+-				 */
+-				ct = nf_ct_tuplehash_to_ctrack(h);
+-				if (iter(ct, data))
+-					goto found;
+-			}
++		hlist_nulls_for_each_entry(h, n, hslot, hnnode) {
++			if (NF_CT_DIRECTION(h) != IP_CT_DIR_REPLY)
++				continue;
++			/* All nf_conn objects are added to hash table twice, one
++			 * for original direction tuple, once for the reply tuple.
++			 *
++			 * Exception: In the IPS_NAT_CLASH case, only the reply
++			 * tuple is added (the original tuple already existed for
++			 * a different object).
++			 *
++			 * We only need to call the iterator once for each
++			 * conntrack, so we just use the 'reply' direction
++			 * tuple while iterating.
++			 */
++			ct = nf_ct_tuplehash_to_ctrack(h);
++			if (iter(ct, data))
++				goto found;
+ 		}
+ 		spin_unlock(lockp);
+ 		local_bh_enable();
+@@ -2212,26 +2218,20 @@ found:
+ static void nf_ct_iterate_cleanup(int (*iter)(struct nf_conn *i, void *data),
+ 				  void *data, u32 portid, int report)
+ {
+-	unsigned int bucket = 0, sequence;
++	unsigned int bucket = 0;
+ 	struct nf_conn *ct;
+ 
+ 	might_sleep();
+ 
+-	for (;;) {
+-		sequence = read_seqcount_begin(&nf_conntrack_generation);
+-
+-		while ((ct = get_next_corpse(iter, data, &bucket)) != NULL) {
+-			/* Time to push up daises... */
++	mutex_lock(&nf_conntrack_mutex);
++	while ((ct = get_next_corpse(iter, data, &bucket)) != NULL) {
++		/* Time to push up daises... */
+ 
+-			nf_ct_delete(ct, portid, report);
+-			nf_ct_put(ct);
+-			cond_resched();
+-		}
+-
+-		if (!read_seqcount_retry(&nf_conntrack_generation, sequence))
+-			break;
+-		bucket = 0;
++		nf_ct_delete(ct, portid, report);
++		nf_ct_put(ct);
++		cond_resched();
  	}
++	mutex_unlock(&nf_conntrack_mutex);
+ }
  
- 	up->len += size;
--	if (!(up->corkflag || (flags&MSG_MORE)))
-+	if (!(READ_ONCE(up->corkflag) || (flags&MSG_MORE)))
- 		ret = udp_push_pending_frames(sk);
- 	if (!ret)
- 		ret = size;
-@@ -2662,9 +2662,9 @@ int udp_lib_setsockopt(struct sock *sk,
- 	switch (optname) {
- 	case UDP_CORK:
- 		if (val != 0) {
--			up->corkflag = 1;
-+			WRITE_ONCE(up->corkflag, 1);
- 		} else {
--			up->corkflag = 0;
-+			WRITE_ONCE(up->corkflag, 0);
- 			lock_sock(sk);
- 			push_pending_frames(sk);
- 			release_sock(sk);
-@@ -2787,7 +2787,7 @@ int udp_lib_getsockopt(struct sock *sk,
+ struct iter_data {
+@@ -2461,8 +2461,10 @@ int nf_conntrack_hash_resize(unsigned in
+ 	if (!hash)
+ 		return -ENOMEM;
  
- 	switch (optname) {
- 	case UDP_CORK:
--		val = up->corkflag;
-+		val = READ_ONCE(up->corkflag);
- 		break;
++	mutex_lock(&nf_conntrack_mutex);
+ 	old_size = nf_conntrack_htable_size;
+ 	if (old_size == hashsize) {
++		mutex_unlock(&nf_conntrack_mutex);
+ 		kvfree(hash);
+ 		return 0;
+ 	}
+@@ -2498,6 +2500,8 @@ int nf_conntrack_hash_resize(unsigned in
+ 	nf_conntrack_all_unlock();
+ 	local_bh_enable();
  
- 	case UDP_ENCAP:
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -1303,7 +1303,7 @@ int udpv6_sendmsg(struct sock *sk, struc
- 	int addr_len = msg->msg_namelen;
- 	bool connected = false;
- 	int ulen = len;
--	int corkreq = up->corkflag || msg->msg_flags&MSG_MORE;
-+	int corkreq = READ_ONCE(up->corkflag) || msg->msg_flags&MSG_MORE;
- 	int err;
- 	int is_udplite = IS_UDPLITE(sk);
- 	int (*getfrag)(void *, char *, int, int, int, struct sk_buff *);
++	mutex_unlock(&nf_conntrack_mutex);
++
+ 	synchronize_net();
+ 	kvfree(old_hash);
+ 	return 0;
 
 
