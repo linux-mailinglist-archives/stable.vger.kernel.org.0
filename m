@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53946420CBB
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:07:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26840420F9F
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:34:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235744AbhJDNJP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:09:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38830 "EHLO mail.kernel.org"
+        id S236622AbhJDNgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:36:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235274AbhJDNGS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:06:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03715619E5;
-        Mon,  4 Oct 2021 13:01:11 +0000 (UTC)
+        id S236582AbhJDNex (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:34:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B06761881;
+        Mon,  4 Oct 2021 13:15:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352472;
-        bh=gZRoWHK5YsVW5ybCZsJ5ke2p6y9sv2+1qxtb19q8dEE=;
+        s=korg; t=1633353338;
+        bh=RtU55DnzmwifvM70zL20eJG7d1lJfdM7W4xWz2HvvjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qxbdNIBhcIPU8Wmt0b96rFrZAnjjFvRzwQ9IwC4u9l2bKAhmagyMxKQhIsU4d0Bpa
-         1t4ePYCzo03rLsLq69fd3qccC5GAFansEuYby+UlcX84sgBYMILGZClhxEuVR5hx2q
-         irSf1dr6OhuKfuWZCVN+9AfY1q1x8BS5RRqUGzTc=
+        b=tJ7vL7TGCvFTS0nHP0QBRloy/6+OFemugSEZPQhpyMH3YzS8Q3XfvZ737CIX05pLA
+         hr0f5/V3GIp+k2CqdU+y6n21t9+Bms2VectdBHqAy8NQeLzhpdbFtJE58+ZPRLg8RW
+         kFA4v75RCYEwhpIK5t4kGnVIl61GVw+BdHLvSGLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 43/75] cpufreq: schedutil: Use kobject release() method to free sugov_tunables
+Subject: [PATCH 5.14 088/172] Revert "mac80211: do not use low data rates for data frames with no ack flag"
 Date:   Mon,  4 Oct 2021 14:52:18 +0200
-Message-Id: <20211004125032.968003488@linuxfoundation.org>
+Message-Id: <20211004125047.836891379@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125031.530773667@linuxfoundation.org>
-References: <20211004125031.530773667@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,128 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Hao <haokexin@gmail.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit e5c6b312ce3cc97e90ea159446e6bfa06645364d ]
+[ Upstream commit 98d46b021f6ee246c7a73f9d490d4cddb4511a3b ]
 
-The struct sugov_tunables is protected by the kobject, so we can't free
-it directly. Otherwise we would get a call trace like this:
-  ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x30
-  WARNING: CPU: 3 PID: 720 at lib/debugobjects.c:505 debug_print_object+0xb8/0x100
-  Modules linked in:
-  CPU: 3 PID: 720 Comm: a.sh Tainted: G        W         5.14.0-rc1-next-20210715-yocto-standard+ #507
-  Hardware name: Marvell OcteonTX CN96XX board (DT)
-  pstate: 40400009 (nZcv daif +PAN -UAO -TCO BTYPE=--)
-  pc : debug_print_object+0xb8/0x100
-  lr : debug_print_object+0xb8/0x100
-  sp : ffff80001ecaf910
-  x29: ffff80001ecaf910 x28: ffff00011b10b8d0 x27: ffff800011043d80
-  x26: ffff00011a8f0000 x25: ffff800013cb3ff0 x24: 0000000000000000
-  x23: ffff80001142aa68 x22: ffff800011043d80 x21: ffff00010de46f20
-  x20: ffff800013c0c520 x19: ffff800011d8f5b0 x18: 0000000000000010
-  x17: 6e6968207473696c x16: 5f72656d6974203a x15: 6570797420746365
-  x14: 6a626f2029302065 x13: 303378302f307830 x12: 2b6e665f72656d69
-  x11: ffff8000124b1560 x10: ffff800012331520 x9 : ffff8000100ca6b0
-  x8 : 000000000017ffe8 x7 : c0000000fffeffff x6 : 0000000000000001
-  x5 : ffff800011d8c000 x4 : ffff800011d8c740 x3 : 0000000000000000
-  x2 : ffff0001108301c0 x1 : ab3c90eedf9c0f00 x0 : 0000000000000000
-  Call trace:
-   debug_print_object+0xb8/0x100
-   __debug_check_no_obj_freed+0x1c0/0x230
-   debug_check_no_obj_freed+0x20/0x88
-   slab_free_freelist_hook+0x154/0x1c8
-   kfree+0x114/0x5d0
-   sugov_exit+0xbc/0xc0
-   cpufreq_exit_governor+0x44/0x90
-   cpufreq_set_policy+0x268/0x4a8
-   store_scaling_governor+0xe0/0x128
-   store+0xc0/0xf0
-   sysfs_kf_write+0x54/0x80
-   kernfs_fop_write_iter+0x128/0x1c0
-   new_sync_write+0xf0/0x190
-   vfs_write+0x2d4/0x478
-   ksys_write+0x74/0x100
-   __arm64_sys_write+0x24/0x30
-   invoke_syscall.constprop.0+0x54/0xe0
-   do_el0_svc+0x64/0x158
-   el0_svc+0x2c/0xb0
-   el0t_64_sync_handler+0xb0/0xb8
-   el0t_64_sync+0x198/0x19c
-  irq event stamp: 5518
-  hardirqs last  enabled at (5517): [<ffff8000100cbd7c>] console_unlock+0x554/0x6c8
-  hardirqs last disabled at (5518): [<ffff800010fc0638>] el1_dbg+0x28/0xa0
-  softirqs last  enabled at (5504): [<ffff8000100106e0>] __do_softirq+0x4d0/0x6c0
-  softirqs last disabled at (5483): [<ffff800010049548>] irq_exit+0x1b0/0x1b8
+This reverts commit d333322361e7 ("mac80211: do not use low data rates for
+data frames with no ack flag").
 
-So split the original sugov_tunables_free() into two functions,
-sugov_clear_global_tunables() is just used to clear the global_tunables
-and the new sugov_tunables_free() is used as kobj_type::release to
-release the sugov_tunables safely.
+Returning false early in rate_control_send_low breaks sending broadcast
+packets, since rate control will not select a rate for it.
 
-Fixes: 9bdcb44e391d ("cpufreq: schedutil: New governor based on scheduler utilization data")
-Cc: 4.7+ <stable@vger.kernel.org> # 4.7+
-Signed-off-by: Kevin Hao <haokexin@gmail.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Before re-introducing a fixed version of this patch, we should probably also
+make some changes to rate control to be more conservative in selecting rates
+for no-ack packets and also prevent using probing rates on them, since we won't
+get any feedback.
+
+Fixes: d333322361e7 ("mac80211: do not use low data rates for data frames with no ack flag")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20210906083559.9109-1-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/cpufreq_schedutil.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ net/mac80211/rate.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
-index f8c45d30ec6d..90a998638bdd 100644
---- a/kernel/sched/cpufreq_schedutil.c
-+++ b/kernel/sched/cpufreq_schedutil.c
-@@ -441,9 +441,17 @@ static struct attribute *sugov_attributes[] = {
- 	NULL
- };
+diff --git a/net/mac80211/rate.c b/net/mac80211/rate.c
+index e5935e3d7a07..8c6416129d5b 100644
+--- a/net/mac80211/rate.c
++++ b/net/mac80211/rate.c
+@@ -392,10 +392,6 @@ static bool rate_control_send_low(struct ieee80211_sta *pubsta,
+ 	int mcast_rate;
+ 	bool use_basicrate = false;
  
-+static void sugov_tunables_free(struct kobject *kobj)
-+{
-+	struct gov_attr_set *attr_set = container_of(kobj, struct gov_attr_set, kobj);
-+
-+	kfree(to_sugov_tunables(attr_set));
-+}
-+
- static struct kobj_type sugov_tunables_ktype = {
- 	.default_attrs = sugov_attributes,
- 	.sysfs_ops = &governor_sysfs_ops,
-+	.release = &sugov_tunables_free,
- };
- 
- /********************** cpufreq governor interface *********************/
-@@ -534,12 +542,10 @@ static struct sugov_tunables *sugov_tunables_alloc(struct sugov_policy *sg_polic
- 	return tunables;
- }
- 
--static void sugov_tunables_free(struct sugov_tunables *tunables)
-+static void sugov_clear_global_tunables(void)
- {
- 	if (!have_governor_per_policy())
- 		global_tunables = NULL;
+-	if (ieee80211_is_tx_data(txrc->skb) &&
+-	    info->flags & IEEE80211_TX_CTL_NO_ACK)
+-		return false;
 -
--	kfree(tunables);
- }
- 
- static int sugov_init(struct cpufreq_policy *policy)
-@@ -602,7 +608,7 @@ out:
- fail:
- 	kobject_put(&tunables->attr_set.kobj);
- 	policy->governor_data = NULL;
--	sugov_tunables_free(tunables);
-+	sugov_clear_global_tunables();
- 
- stop_kthread:
- 	sugov_kthread_stop(sg_policy);
-@@ -629,7 +635,7 @@ static void sugov_exit(struct cpufreq_policy *policy)
- 	count = gov_attr_set_put(&tunables->attr_set, &sg_policy->tunables_hook);
- 	policy->governor_data = NULL;
- 	if (!count)
--		sugov_tunables_free(tunables);
-+		sugov_clear_global_tunables();
- 
- 	mutex_unlock(&global_tunables_lock);
- 
+ 	if (!pubsta || rc_no_data_or_no_ack_use_min(txrc)) {
+ 		__rate_control_send_low(txrc->hw, sband, pubsta, info,
+ 					txrc->rate_idx_mask);
 -- 
 2.33.0
 
