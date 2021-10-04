@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DC12421034
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:40:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 227F3420EB8
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:25:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237989AbhJDNlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:41:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54580 "EHLO mail.kernel.org"
+        id S236963AbhJDN1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:27:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238244AbhJDNkK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:40:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E219E63246;
-        Mon,  4 Oct 2021 13:18:10 +0000 (UTC)
+        id S236934AbhJDNZa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:25:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7BF161C12;
+        Mon,  4 Oct 2021 13:11:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353491;
-        bh=O2IwRnTwwoWWJ7JCSAtvN+FgjoL7fhVWaMuWqUpB6gE=;
+        s=korg; t=1633353079;
+        bh=jcRBK8EomAPjn5aI+Arc7e/MeSBMdj8wu2+Bk1uCW4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QNX5IrnQ45P+mZp9/Wxzs66LOjktR+/cgRWUR1Olc7GkrFGqEv+4e1LWzYjvY4+/Y
-         UulgkP/QFM+J/RMAT4jlL2Wq37mx46bBwacqUc81VZ2XqZCFeKeavohXEv7Tr0i2/Q
-         iY+1TchOpb/wcOFjMqdKZoXhJnOwNhGnD0ZoZaho=
+        b=xqQwsEQjrQ0ZpByDiRJhyB29p8j3wyT2moZ4lS1Z2PhfaC92FugFJP3tcDNZyQYu9
+         DmwOlehIk5bvi4eMyfxPFwaLDZ3PKC0R6chYw+RcgBGnDaX3dDZFYcr+Ny+ZxdKa6J
+         M8qBA3ZDLr1/quBNdd+flJD18Xw5O5T/fh4rU+DQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.14 149/172] ipack: ipoctal: fix tty registration race
+        Andrej Shadura <andrew.shadura@collabora.co.uk>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.10 81/93] HID: u2fzero: ignore incomplete packets without data
 Date:   Mon,  4 Oct 2021 14:53:19 +0200
-Message-Id: <20211004125049.776300870@linuxfoundation.org>
+Message-Id: <20211004125037.279106340@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Andrej Shadura <andrew.shadura@collabora.co.uk>
 
-commit 65c001df517a7bf9be8621b53d43c89f426ce8d6 upstream.
+commit 22d65765f211cc83186fd8b87521159f354c0da9 upstream.
 
-Make sure to set the tty class-device driver data before registering the
-tty to avoid having a racing open() dereference a NULL pointer.
+Since the actual_length calculation is performed unsigned, packets
+shorter than 7 bytes (e.g. packets without data or otherwise truncated)
+or non-received packets ("zero" bytes) can cause buffer overflow.
 
-Fixes: 9c1d784afc6f ("Staging: ipack/devices/ipoctal: Get rid of ipoctal_list.")
-Cc: stable@vger.kernel.org      # 3.7
-Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210917114622.5412-3-johan@kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=214437
+Fixes: 42337b9d4d958("HID: add driver for U2F Zero built-in LED and RNG")
+Signed-off-by: Andrej Shadura <andrew.shadura@collabora.co.uk>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ipack/devices/ipoctal.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/hid-u2fzero.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/ipack/devices/ipoctal.c
-+++ b/drivers/ipack/devices/ipoctal.c
-@@ -393,13 +393,13 @@ static int ipoctal_inst_slot(struct ipoc
- 		spin_lock_init(&channel->lock);
- 		channel->pointer_read = 0;
- 		channel->pointer_write = 0;
--		tty_dev = tty_port_register_device(&channel->tty_port, tty, i, NULL);
-+		tty_dev = tty_port_register_device_attr(&channel->tty_port, tty,
-+							i, NULL, channel, NULL);
- 		if (IS_ERR(tty_dev)) {
- 			dev_err(&ipoctal->dev->dev, "Failed to register tty device.\n");
- 			tty_port_destroy(&channel->tty_port);
- 			continue;
- 		}
--		dev_set_drvdata(tty_dev, channel);
+--- a/drivers/hid/hid-u2fzero.c
++++ b/drivers/hid/hid-u2fzero.c
+@@ -198,7 +198,9 @@ static int u2fzero_rng_read(struct hwrng
  	}
  
- 	/*
+ 	ret = u2fzero_recv(dev, &req, &resp);
+-	if (ret < 0)
++
++	/* ignore errors or packets without data */
++	if (ret < offsetof(struct u2f_hid_msg, init.data))
+ 		return 0;
+ 
+ 	/* only take the minimum amount of data it is safe to take */
 
 
