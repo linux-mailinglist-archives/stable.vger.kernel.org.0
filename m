@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78122420E10
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:19:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3A9C420B4B
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:54:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234926AbhJDNVX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:21:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53980 "EHLO mail.kernel.org"
+        id S233514AbhJDM4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 08:56:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236339AbhJDNTR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:19:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6482961BBE;
-        Mon,  4 Oct 2021 13:08:17 +0000 (UTC)
+        id S233421AbhJDM4N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 08:56:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AD7D6124C;
+        Mon,  4 Oct 2021 12:54:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352898;
-        bh=Xbkdq9uOlq0W0ojR4ntt1ytqvtNWxvxwStH9xYAxCXU=;
+        s=korg; t=1633352064;
+        bh=FrjeccJEd58kGTBDJZBE+i7uYCJwJmk8Gc/d1RHD2hs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s5r8l4SFraB0OHPB9e9lAxzlffIgKwzuZEPT/tJOfkFIVivaH6v+Cocw1WtRoiQZl
-         nxVySlBRkhzlz0ZDwxi3Yvu+pTX+HKJ5cno85VFejgnYrX02exSNWSqzdmSfeC8IyI
-         flsaBv6Ltq0/vfC3QGOT5HjiPm09gaGdVIWQS7/A=
+        b=Kz2W0Zu1NIQWT/PFcmmiG1+tk2KxMsoeT72EBb3Dvx+5J+GJAp1XOetFecF5+pRZc
+         NmTlFsZsCKnULngIWN5EMOfXXqURcAJZl70OL3SNxCAD18IHck2OEWeSeNDSnGtKz7
+         47D9T7pB8X2S9AYbCNNgGGdxrys36L/9Vc+iq/uU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadezda Lutovinova <lutovinova@ispras.ru>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.10 11/93] hwmon: (w83792d) Fix NULL pointer dereference by removing unnecessary structure field
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 18/41] qnx4: avoid stringop-overread errors
 Date:   Mon,  4 Oct 2021 14:52:09 +0200
-Message-Id: <20211004125034.954842315@linuxfoundation.org>
+Message-Id: <20211004125027.164240536@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
-References: <20211004125034.579439135@linuxfoundation.org>
+In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
+References: <20211004125026.597501645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,83 +40,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadezda Lutovinova <lutovinova@ispras.ru>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 0f36b88173f028e372668ae040ab1a496834d278 upstream.
+[ Upstream commit b7213ffa0e585feb1aee3e7173e965e66ee0abaa ]
 
-If driver read val value sufficient for
-(val & 0x08) && (!(val & 0x80)) && ((val & 0x7) == ((val >> 4) & 0x7))
-from device then Null pointer dereference occurs.
-(It is possible if tmp = 0b0xyz1xyz, where same literals mean same numbers)
-Also lm75[] does not serve a purpose anymore after switching to
-devm_i2c_new_dummy_device() in w83791d_detect_subclients().
+The qnx4 directory entries are 64-byte blocks that have different
+contents depending on the a status byte that is in the last byte of the
+block.
 
-The patch fixes possible NULL pointer dereference by removing lm75[].
+In particular, a directory entry can be either a "link info" entry with
+a 48-byte name and pointers to the real inode information, or an "inode
+entry" with a smaller 16-byte name and the full inode information.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+But the code was written to always just treat the directory name as if
+it was part of that "inode entry", and just extend the name to the
+longer case if the status byte said it was a link entry.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
-Link: https://lore.kernel.org/r/20210921155153.28098-2-lutovinova@ispras.ru
-[groeck: Dropped unnecessary continuation lines, fixed multipline alignment]
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+That work just fine and gives the right results, but now that gcc is
+tracking data structure accesses much more, the code can trigger a
+compiler error about using up to 48 bytes (the long name) in a structure
+that only has that shorter name in it:
+
+   fs/qnx4/dir.c: In function ‘qnx4_readdir’:
+   fs/qnx4/dir.c:51:32: error: ‘strnlen’ specified bound 48 exceeds source size 16 [-Werror=stringop-overread]
+      51 |                         size = strnlen(de->di_fname, size);
+         |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+   In file included from fs/qnx4/qnx4.h:3,
+                    from fs/qnx4/dir.c:16:
+   include/uapi/linux/qnx4_fs.h:45:25: note: source object declared here
+      45 |         char            di_fname[QNX4_SHORT_NAME_MAX];
+         |                         ^~~~~~~~
+
+which is because the source code doesn't really make this whole "one of
+two different types" explicit.
+
+Fix this by introducing a very explicit union of the two types, and
+basically explaining to the compiler what is really going on.
+
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/w83792d.c |   28 +++++++++++-----------------
- 1 file changed, 11 insertions(+), 17 deletions(-)
+ fs/qnx4/dir.c | 51 ++++++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 34 insertions(+), 17 deletions(-)
 
---- a/drivers/hwmon/w83792d.c
-+++ b/drivers/hwmon/w83792d.c
-@@ -264,9 +264,6 @@ struct w83792d_data {
- 	char valid;		/* !=0 if following fields are valid */
- 	unsigned long last_updated;	/* In jiffies */
+diff --git a/fs/qnx4/dir.c b/fs/qnx4/dir.c
+index b218f965817b..41edf28192cb 100644
+--- a/fs/qnx4/dir.c
++++ b/fs/qnx4/dir.c
+@@ -14,13 +14,27 @@
+ #include <linux/buffer_head.h>
+ #include "qnx4.h"
  
--	/* array of 2 pointers to subclients */
--	struct i2c_client *lm75[2];
--
- 	u8 in[9];		/* Register value */
- 	u8 in_max[9];		/* Register value */
- 	u8 in_min[9];		/* Register value */
-@@ -927,7 +924,6 @@ w83792d_detect_subclients(struct i2c_cli
- 	int address = new_client->addr;
- 	u8 val;
- 	struct i2c_adapter *adapter = new_client->adapter;
--	struct w83792d_data *data = i2c_get_clientdata(new_client);
- 
- 	id = i2c_adapter_id(adapter);
- 	if (force_subclients[0] == id && force_subclients[1] == address) {
-@@ -946,21 +942,19 @@ w83792d_detect_subclients(struct i2c_cli
- 	}
- 
- 	val = w83792d_read_value(new_client, W83792D_REG_I2C_SUBADDR);
--	if (!(val & 0x08))
--		data->lm75[0] = devm_i2c_new_dummy_device(&new_client->dev, adapter,
--							  0x48 + (val & 0x7));
--	if (!(val & 0x80)) {
--		if (!IS_ERR(data->lm75[0]) &&
--			((val & 0x7) == ((val >> 4) & 0x7))) {
--			dev_err(&new_client->dev,
--				"duplicate addresses 0x%x, use force_subclient\n",
--				data->lm75[0]->addr);
--			return -ENODEV;
--		}
--		data->lm75[1] = devm_i2c_new_dummy_device(&new_client->dev, adapter,
--							  0x48 + ((val >> 4) & 0x7));
++/*
++ * A qnx4 directory entry is an inode entry or link info
++ * depending on the status field in the last byte. The
++ * first byte is where the name start either way, and a
++ * zero means it's empty.
++ */
++union qnx4_directory_entry {
++	struct {
++		char de_name;
++		char de_pad[62];
++		char de_status;
++	};
++	struct qnx4_inode_entry inode;
++	struct qnx4_link_info link;
++};
 +
-+	if (!(val & 0x88) && (val & 0x7) == ((val >> 4) & 0x7)) {
-+		dev_err(&new_client->dev,
-+			"duplicate addresses 0x%x, use force_subclient\n", 0x48 + (val & 0x7));
-+		return -ENODEV;
- 	}
- 
-+	if (!(val & 0x08))
-+		devm_i2c_new_dummy_device(&new_client->dev, adapter, 0x48 + (val & 0x7));
+ static int qnx4_readdir(struct file *file, struct dir_context *ctx)
+ {
+ 	struct inode *inode = file_inode(file);
+ 	unsigned int offset;
+ 	struct buffer_head *bh;
+-	struct qnx4_inode_entry *de;
+-	struct qnx4_link_info *le;
+ 	unsigned long blknum;
+ 	int ix, ino;
+ 	int size;
+@@ -37,27 +51,30 @@ static int qnx4_readdir(struct file *file, struct dir_context *ctx)
+ 		}
+ 		ix = (ctx->pos >> QNX4_DIR_ENTRY_SIZE_BITS) % QNX4_INODES_PER_BLOCK;
+ 		for (; ix < QNX4_INODES_PER_BLOCK; ix++, ctx->pos += QNX4_DIR_ENTRY_SIZE) {
++			union qnx4_directory_entry *de;
++			const char *name;
 +
-+	if (!(val & 0x80))
-+		devm_i2c_new_dummy_device(&new_client->dev, adapter, 0x48 + ((val >> 4) & 0x7));
+ 			offset = ix * QNX4_DIR_ENTRY_SIZE;
+-			de = (struct qnx4_inode_entry *) (bh->b_data + offset);
+-			if (!de->di_fname[0])
++			de = (union qnx4_directory_entry *) (bh->b_data + offset);
 +
- 	return 0;
- }
- 
++			if (!de->de_name)
+ 				continue;
+-			if (!(de->di_status & (QNX4_FILE_USED|QNX4_FILE_LINK)))
++			if (!(de->de_status & (QNX4_FILE_USED|QNX4_FILE_LINK)))
+ 				continue;
+-			if (!(de->di_status & QNX4_FILE_LINK))
+-				size = QNX4_SHORT_NAME_MAX;
+-			else
+-				size = QNX4_NAME_MAX;
+-			size = strnlen(de->di_fname, size);
+-			QNX4DEBUG((KERN_INFO "qnx4_readdir:%.*s\n", size, de->di_fname));
+-			if (!(de->di_status & QNX4_FILE_LINK))
++			if (!(de->de_status & QNX4_FILE_LINK)) {
++				size = sizeof(de->inode.di_fname);
++				name = de->inode.di_fname;
+ 				ino = blknum * QNX4_INODES_PER_BLOCK + ix - 1;
+-			else {
+-				le  = (struct qnx4_link_info*)de;
+-				ino = ( le32_to_cpu(le->dl_inode_blk) - 1 ) *
++			} else {
++				size = sizeof(de->link.dl_fname);
++				name = de->link.dl_fname;
++				ino = ( le32_to_cpu(de->link.dl_inode_blk) - 1 ) *
+ 					QNX4_INODES_PER_BLOCK +
+-					le->dl_inode_ndx;
++					de->link.dl_inode_ndx;
+ 			}
+-			if (!dir_emit(ctx, de->di_fname, size, ino, DT_UNKNOWN)) {
++			size = strnlen(name, size);
++			QNX4DEBUG((KERN_INFO "qnx4_readdir:%.*s\n", size, name));
++			if (!dir_emit(ctx, name, size, ino, DT_UNKNOWN)) {
+ 				brelse(bh);
+ 				return 0;
+ 			}
+-- 
+2.33.0
+
 
 
