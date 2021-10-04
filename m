@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94A2F420B53
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 14:54:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E77FE420FB3
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:35:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233487AbhJDM4i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 08:56:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57788 "EHLO mail.kernel.org"
+        id S238164AbhJDNhK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:37:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233383AbhJDM4X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 08:56:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF0946136F;
-        Mon,  4 Oct 2021 12:54:33 +0000 (UTC)
+        id S237811AbhJDNfR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:35:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C3A961BA3;
+        Mon,  4 Oct 2021 13:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633352074;
-        bh=RlyUX7sP5Ct99u20gbtpOm7CNK2Mnr+7k0y2eCkd/Bs=;
+        s=korg; t=1633353358;
+        bh=yRx8cgjxY/YxB69xlXp2qebeWDPtFnn+ap4eb5bfAG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wHfUhIyfQ8mNjgCv9dpI+RafkrppmWAjepb2mvJj+hgA0vmIB1veFF7rQenSSRf+u
-         0zZujjcN8Z1ty8Arymb5IbMS3J378XZDjKS/INotVfJGxyZbK1JXtlvJIir/LC8uu6
-         jS+N1c+MxKpu/j5ol9ZAaEnh03a75qUq5ZfFqFZA=
+        b=lvbzsv8JF3XD4mYw7umPcb2YuegqFaMxNoqOzxkL1PFIevzo2/DUp5PCFTyGcPWs4
+         Ig4Jk2QkmrtAAQ8casGb4OfCv6M4yCzvY1N9ITu+WS6Pk/e5rw/habOcqiQFkPULs/
+         y2Y06Lo97+q+EOdbLAoGiyuM26/Bh3mTv3DYCC3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.4 04/41] xen/x86: fix PV trap handling on secondary processors
+        stable@vger.kernel.org,
+        syzbot+dc3dfba010d7671e05f5@syzkaller.appspotmail.com,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.14 065/172] RDMA/cma: Ensure rdma_addr_cancel() happens before issuing more requests
 Date:   Mon,  4 Oct 2021 14:51:55 +0200
-Message-Id: <20211004125026.740038171@linuxfoundation.org>
+Message-Id: <20211004125047.092504860@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125026.597501645@linuxfoundation.org>
-References: <20211004125026.597501645@linuxfoundation.org>
+In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
+References: <20211004125044.945314266@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,98 +40,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-commit 0594c58161b6e0f3da8efa9c6e3d4ba52b652717 upstream.
+commit 305d568b72f17f674155a2a8275f865f207b3808 upstream.
 
-The initial observation was that in PV mode under Xen 32-bit user space
-didn't work anymore. Attempts of system calls ended in #GP(0x402). All
-of the sudden the vector 0x80 handler was not in place anymore. As it
-turns out up to 5.13 redundant initialization did occur: Once from
-cpu_initialize_context() (through its VCPUOP_initialise hypercall) and a
-2nd time while each CPU was brought fully up. This 2nd initialization is
-now gone, uncovering that the 1st one was flawed: Unlike for the
-set_trap_table hypercall, a full virtual IDT needs to be specified here;
-the "vector" fields of the individual entries are of no interest. With
-many (kernel) IDT entries still(?) (i.e. at that point at least) empty,
-the syscall vector 0x80 ended up in slot 0x20 of the virtual IDT, thus
-becoming the domain's handler for vector 0x20.
+The FSM can run in a circle allowing rdma_resolve_ip() to be called twice
+on the same id_priv. While this cannot happen without going through the
+work, it violates the invariant that the same address resolution
+background request cannot be active twice.
 
-Make xen_convert_trap_info() fit for either purpose, leveraging the fact
-that on the xen_copy_trap_info() path the table starts out zero-filled.
-This includes moving out the writing of the sentinel, which would also
-have lead to a buffer overrun in the xen_copy_trap_info() case if all
-(kernel) IDT entries were populated. Convert the writing of the sentinel
-to clearing of the entire table entry rather than just the address
-field.
+       CPU 1                                  CPU 2
 
-(I didn't bother trying to identify the commit which uncovered the issue
-in 5.14; the commit named below is the one which actually introduced the
-bad code.)
+rdma_resolve_addr():
+  RDMA_CM_IDLE -> RDMA_CM_ADDR_QUERY
+  rdma_resolve_ip(addr_handler)  #1
 
-Fixes: f87e4cac4f4e ("xen: SMP guest support")
+			 process_one_req(): for #1
+                          addr_handler():
+                            RDMA_CM_ADDR_QUERY -> RDMA_CM_ADDR_BOUND
+                            mutex_unlock(&id_priv->handler_mutex);
+                            [.. handler still running ..]
+
+rdma_resolve_addr():
+  RDMA_CM_ADDR_BOUND -> RDMA_CM_ADDR_QUERY
+  rdma_resolve_ip(addr_handler)
+    !! two requests are now on the req_list
+
+rdma_destroy_id():
+ destroy_id_handler_unlock():
+  _destroy_id():
+   cma_cancel_operation():
+    rdma_addr_cancel()
+
+                          // process_one_req() self removes it
+		          spin_lock_bh(&lock);
+                           cancel_delayed_work(&req->work);
+	                   if (!list_empty(&req->list)) == true
+
+      ! rdma_addr_cancel() returns after process_on_req #1 is done
+
+   kfree(id_priv)
+
+			 process_one_req(): for #2
+                          addr_handler():
+	                    mutex_lock(&id_priv->handler_mutex);
+                            !! Use after free on id_priv
+
+rdma_addr_cancel() expects there to be one req on the list and only
+cancels the first one. The self-removal behavior of the work only happens
+after the handler has returned. This yields a situations where the
+req_list can have two reqs for the same "handle" but rdma_addr_cancel()
+only cancels the first one.
+
+The second req remains active beyond rdma_destroy_id() and will
+use-after-free id_priv once it inevitably triggers.
+
+Fix this by remembering if the id_priv has called rdma_resolve_ip() and
+always cancel before calling it again. This ensures the req_list never
+gets more than one item in it and doesn't cost anything in the normal flow
+that never uses this strange error path.
+
+Link: https://lore.kernel.org/r/0-v1-3bc675b8006d+22-syz_cancel_uaf_jgg@nvidia.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/7a266932-092e-b68f-f2bb-1473b61adc6e@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: e51060f08a61 ("IB: IP address based RDMA connection manager")
+Reported-by: syzbot+dc3dfba010d7671e05f5@syzkaller.appspotmail.com
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/xen/enlighten.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/infiniband/core/cma.c      |   23 +++++++++++++++++++++++
+ drivers/infiniband/core/cma_priv.h |    1 +
+ 2 files changed, 24 insertions(+)
 
---- a/arch/x86/xen/enlighten.c
-+++ b/arch/x86/xen/enlighten.c
-@@ -861,8 +861,8 @@ static void xen_write_idt_entry(gate_des
- 	preempt_enable();
- }
- 
--static void xen_convert_trap_info(const struct desc_ptr *desc,
--				  struct trap_info *traps)
-+static unsigned xen_convert_trap_info(const struct desc_ptr *desc,
-+				      struct trap_info *traps, bool full)
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -1776,6 +1776,14 @@ static void cma_cancel_operation(struct
  {
- 	unsigned in, out, count;
+ 	switch (state) {
+ 	case RDMA_CM_ADDR_QUERY:
++		/*
++		 * We can avoid doing the rdma_addr_cancel() based on state,
++		 * only RDMA_CM_ADDR_QUERY has a work that could still execute.
++		 * Notice that the addr_handler work could still be exiting
++		 * outside this state, however due to the interaction with the
++		 * handler_mutex the work is guaranteed not to touch id_priv
++		 * during exit.
++		 */
+ 		rdma_addr_cancel(&id_priv->id.route.addr.dev_addr);
+ 		break;
+ 	case RDMA_CM_ROUTE_QUERY:
+@@ -3410,6 +3418,21 @@ int rdma_resolve_addr(struct rdma_cm_id
+ 		if (dst_addr->sa_family == AF_IB) {
+ 			ret = cma_resolve_ib_addr(id_priv);
+ 		} else {
++			/*
++			 * The FSM can return back to RDMA_CM_ADDR_BOUND after
++			 * rdma_resolve_ip() is called, eg through the error
++			 * path in addr_handler(). If this happens the existing
++			 * request must be canceled before issuing a new one.
++			 * Since canceling a request is a bit slow and this
++			 * oddball path is rare, keep track once a request has
++			 * been issued. The track turns out to be a permanent
++			 * state since this is the only cancel as it is
++			 * immediately before rdma_resolve_ip().
++			 */
++			if (id_priv->used_resolve_ip)
++				rdma_addr_cancel(&id->route.addr.dev_addr);
++			else
++				id_priv->used_resolve_ip = 1;
+ 			ret = rdma_resolve_ip(cma_src_addr(id_priv), dst_addr,
+ 					      &id->route.addr.dev_addr,
+ 					      timeout_ms, addr_handler,
+--- a/drivers/infiniband/core/cma_priv.h
++++ b/drivers/infiniband/core/cma_priv.h
+@@ -91,6 +91,7 @@ struct rdma_id_private {
+ 	u8			afonly;
+ 	u8			timeout;
+ 	u8			min_rnr_timer;
++	u8 used_resolve_ip;
+ 	enum ib_gid_type	gid_type;
  
-@@ -872,17 +872,18 @@ static void xen_convert_trap_info(const
- 	for (in = out = 0; in < count; in++) {
- 		gate_desc *entry = (gate_desc*)(desc->address) + in;
- 
--		if (cvt_gate_to_trap(in, entry, &traps[out]))
-+		if (cvt_gate_to_trap(in, entry, &traps[out]) || full)
- 			out++;
- 	}
--	traps[out].address = 0;
-+
-+	return out;
- }
- 
- void xen_copy_trap_info(struct trap_info *traps)
- {
- 	const struct desc_ptr *desc = this_cpu_ptr(&idt_desc);
- 
--	xen_convert_trap_info(desc, traps);
-+	xen_convert_trap_info(desc, traps, true);
- }
- 
- /* Load a new IDT into Xen.  In principle this can be per-CPU, so we
-@@ -892,6 +893,7 @@ static void xen_load_idt(const struct de
- {
- 	static DEFINE_SPINLOCK(lock);
- 	static struct trap_info traps[257];
-+	unsigned out;
- 
- 	trace_xen_cpu_load_idt(desc);
- 
-@@ -899,7 +901,8 @@ static void xen_load_idt(const struct de
- 
- 	memcpy(this_cpu_ptr(&idt_desc), desc, sizeof(idt_desc));
- 
--	xen_convert_trap_info(desc, traps);
-+	out = xen_convert_trap_info(desc, traps, false);
-+	memset(&traps[out], 0, sizeof(traps[0]));
- 
- 	xen_mc_flush();
- 	if (HYPERVISOR_set_trap_table(traps))
+ 	/*
 
 
