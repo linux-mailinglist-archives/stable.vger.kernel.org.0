@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4A2D421049
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:41:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95443420EE8
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:27:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238433AbhJDNmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:42:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53144 "EHLO mail.kernel.org"
+        id S236995AbhJDN3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:29:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238431AbhJDNk0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:40:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A5EA461A58;
-        Mon,  4 Oct 2021 13:18:38 +0000 (UTC)
+        id S236775AbhJDN12 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:27:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0849A61B7B;
+        Mon,  4 Oct 2021 13:12:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353519;
-        bh=jcRBK8EomAPjn5aI+Arc7e/MeSBMdj8wu2+Bk1uCW4k=;
+        s=korg; t=1633353123;
+        bh=sbVyS3b/pe/VN4ve5UOz0/7q/rDxrzYHx53sOjsguEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tnqQXafshT+uFu0tf/16mpEd+ZvZw2a9fOb1K72jWXNM805wRqAQQbBZqFMQsqRtN
-         dS92fz1LBjGii2tQ+cWBprUPINXWzEHAM2HpDUg2iqeauKUMEH4HCTxIjCOnSRjvUF
-         +w5z88B8QWQt0UYK1/uG6+xI9WtDaOt3Gu0DNuJk=
+        b=1tgIgQqylWAKTkDPVNF9ldMtELmgjkozozPh+EBqIYGQXjgiO0T3UUHLhNcI1cYBG
+         caJ05PHgWn5dHpEkh0RTUEQlq571NKsTMeDKwHSsjfYiVweBRr2+ayqSPcSoNUEq4B
+         5y8NEg0ORxd+xnhMSFpXeD12mjmyQ6FjH+s/nELo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrej Shadura <andrew.shadura@collabora.co.uk>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.14 159/172] HID: u2fzero: ignore incomplete packets without data
+        stable@vger.kernel.org, TCS Robot <tcs_robot@tencent.com>,
+        Haimin Zhang <tcs_kernel@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 91/93] KVM: x86: Handle SRCU initialization failure during page track init
 Date:   Mon,  4 Oct 2021 14:53:29 +0200
-Message-Id: <20211004125050.101297885@linuxfoundation.org>
+Message-Id: <20211004125037.599892813@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +40,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrej Shadura <andrew.shadura@collabora.co.uk>
+From: Haimin Zhang <tcs_kernel@tencent.com>
 
-commit 22d65765f211cc83186fd8b87521159f354c0da9 upstream.
+commit eb7511bf9182292ef1df1082d23039e856d1ddfb upstream.
 
-Since the actual_length calculation is performed unsigned, packets
-shorter than 7 bytes (e.g. packets without data or otherwise truncated)
-or non-received packets ("zero" bytes) can cause buffer overflow.
+Check the return of init_srcu_struct(), which can fail due to OOM, when
+initializing the page track mechanism.  Lack of checking leads to a NULL
+pointer deref found by a modified syzkaller.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=214437
-Fixes: 42337b9d4d958("HID: add driver for U2F Zero built-in LED and RNG")
-Signed-off-by: Andrej Shadura <andrew.shadura@collabora.co.uk>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Reported-by: TCS Robot <tcs_robot@tencent.com>
+Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
+Message-Id: <1630636626-12262-1-git-send-email-tcs_kernel@tencent.com>
+[Move the call towards the beginning of kvm_arch_init_vm. - Paolo]
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-u2fzero.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/kvm_page_track.h |    2 +-
+ arch/x86/kvm/mmu/page_track.c         |    4 ++--
+ arch/x86/kvm/x86.c                    |    7 ++++++-
+ 3 files changed, 9 insertions(+), 4 deletions(-)
 
---- a/drivers/hid/hid-u2fzero.c
-+++ b/drivers/hid/hid-u2fzero.c
-@@ -198,7 +198,9 @@ static int u2fzero_rng_read(struct hwrng
- 	}
+--- a/arch/x86/include/asm/kvm_page_track.h
++++ b/arch/x86/include/asm/kvm_page_track.h
+@@ -46,7 +46,7 @@ struct kvm_page_track_notifier_node {
+ 			    struct kvm_page_track_notifier_node *node);
+ };
  
- 	ret = u2fzero_recv(dev, &req, &resp);
--	if (ret < 0)
+-void kvm_page_track_init(struct kvm *kvm);
++int kvm_page_track_init(struct kvm *kvm);
+ void kvm_page_track_cleanup(struct kvm *kvm);
+ 
+ void kvm_page_track_free_memslot(struct kvm_memory_slot *slot);
+--- a/arch/x86/kvm/mmu/page_track.c
++++ b/arch/x86/kvm/mmu/page_track.c
+@@ -163,13 +163,13 @@ void kvm_page_track_cleanup(struct kvm *
+ 	cleanup_srcu_struct(&head->track_srcu);
+ }
+ 
+-void kvm_page_track_init(struct kvm *kvm)
++int kvm_page_track_init(struct kvm *kvm)
+ {
+ 	struct kvm_page_track_notifier_head *head;
+ 
+ 	head = &kvm->arch.track_notifier_head;
+-	init_srcu_struct(&head->track_srcu);
+ 	INIT_HLIST_HEAD(&head->track_notifier_list);
++	return init_srcu_struct(&head->track_srcu);
+ }
+ 
+ /*
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -10392,9 +10392,15 @@ void kvm_arch_free_vm(struct kvm *kvm)
+ 
+ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ {
++	int ret;
 +
-+	/* ignore errors or packets without data */
-+	if (ret < offsetof(struct u2f_hid_msg, init.data))
- 		return 0;
+ 	if (type)
+ 		return -EINVAL;
  
- 	/* only take the minimum amount of data it is safe to take */
++	ret = kvm_page_track_init(kvm);
++	if (ret)
++		return ret;
++
+ 	INIT_HLIST_HEAD(&kvm->arch.mask_notifier_list);
+ 	INIT_LIST_HEAD(&kvm->arch.active_mmu_pages);
+ 	INIT_LIST_HEAD(&kvm->arch.zapped_obsolete_pages);
+@@ -10421,7 +10427,6 @@ int kvm_arch_init_vm(struct kvm *kvm, un
+ 	INIT_DELAYED_WORK(&kvm->arch.kvmclock_sync_work, kvmclock_sync_fn);
+ 
+ 	kvm_hv_init_vm(kvm);
+-	kvm_page_track_init(kvm);
+ 	kvm_mmu_init_vm(kvm);
+ 
+ 	return kvm_x86_ops.vm_init(kvm);
 
 
