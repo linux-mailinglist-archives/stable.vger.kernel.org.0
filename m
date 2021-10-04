@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3DF1420F62
-	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:32:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 508A1420E08
+	for <lists+stable@lfdr.de>; Mon,  4 Oct 2021 15:19:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237258AbhJDNeC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Oct 2021 09:34:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43788 "EHLO mail.kernel.org"
+        id S236605AbhJDNVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Oct 2021 09:21:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237717AbhJDNca (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Oct 2021 09:32:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EBC2163222;
-        Mon,  4 Oct 2021 13:14:45 +0000 (UTC)
+        id S235501AbhJDNTE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Oct 2021 09:19:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91B5D61B5F;
+        Mon,  4 Oct 2021 13:08:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633353286;
-        bh=6+VYVM9nwwbfjsk9g6tXGkz1O3WybeWbbzqwmQ4uYfw=;
+        s=korg; t=1633352893;
+        bh=ulcV3j3PoqYVYo7rxSraAMbv8egXfBeNLQRkurbSSgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mk6cGibyS35YOT0jfew4Ht7EMSOB9bpzbgwK0Qpb5H+XN1YToNJ5onZxCskKa9+0E
-         xyFhwAIAgPss7xFOeOxyiF11NVBlVyJ1xXrJzWyHNxpmKQNWwChnbKopgMfvmIA0kY
-         4m83e/8Ti0L0vwTcdfT3m0tIxX72azTBoWCHGK44=
+        b=Tj1ka45vDZb3znhOPImoUWodeItjUu9bbTgelYCM+y0cDRvcvAYedXjjF/fIXBnCv
+         fl7Y8gBw4yhYRNw1+7+5Z5Z1qQuDyCgJUxjn16e/lSXmaifr9WA5pXXTCNYdoVbStl
+         KiTp9SqrRJKChYKXULrL8fbj92tuuWJMIvc7tzSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Praful Swarnakar <Praful.Swarnakar@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.14 069/172] drm/amd/display: Fix Display Flicker on embedded panels
+        Igor Matheus Andrade Torrente <igormtorrente@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+858dc7a2f7ef07c2c219@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 01/93] tty: Fix out-of-bound vmalloc access in imageblit
 Date:   Mon,  4 Oct 2021 14:51:59 +0200
-Message-Id: <20211004125047.216834835@linuxfoundation.org>
+Message-Id: <20211004125034.635571621@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211004125044.945314266@linuxfoundation.org>
-References: <20211004125044.945314266@linuxfoundation.org>
+In-Reply-To: <20211004125034.579439135@linuxfoundation.org>
+References: <20211004125034.579439135@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,55 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Praful Swarnakar <Praful.Swarnakar@amd.com>
+From: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
 
-commit 083fa05bbaf65a01866b5440031c822e32ad7510 upstream.
+[ Upstream commit 3b0c406124719b625b1aba431659f5cdc24a982c ]
 
-[Why]
-ASSR is dependent on Signed PSP Verstage to enable Content
-Protection for eDP panels. Unsigned PSP verstage is used
-during development phase causing ASSR to FAIL.
-As a result, link training is performed with
-DP_PANEL_MODE_DEFAULT instead of DP_PANEL_MODE_EDP for
-eDP panels that causes display flicker on some panels.
+This issue happens when a userspace program does an ioctl
+FBIOPUT_VSCREENINFO passing the fb_var_screeninfo struct
+containing only the fields xres, yres, and bits_per_pixel
+with values.
 
-[How]
-- Do not change panel mode, if ASSR is disabled
-- Just report and continue to perform eDP link training
-with right settings further.
+If this struct is the same as the previous ioctl, the
+vc_resize() detects it and doesn't call the resize_screen(),
+leaving the fb_var_screeninfo incomplete. And this leads to
+the updatescrollmode() calculates a wrong value to
+fbcon_display->vrows, which makes the real_y() return a
+wrong value of y, and that value, eventually, causes
+the imageblit to access an out-of-bound address value.
 
-Signed-off-by: Praful Swarnakar <Praful.Swarnakar@amd.com>
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+To solve this issue I made the resize_screen() be called
+even if the screen does not need any resizing, so it will
+"fix and fill" the fb_var_screeninfo independently.
+
+Cc: stable <stable@vger.kernel.org> # after 5.15-rc2 is out, give it time to bake
+Reported-and-tested-by: syzbot+858dc7a2f7ef07c2c219@syzkaller.appspotmail.com
+Signed-off-by: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+Link: https://lore.kernel.org/r/20210628134509.15895-1-igormtorrente@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c |   15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/tty/vt/vt.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-@@ -1813,14 +1813,13 @@ bool perform_link_training_with_retries(
- 		if (panel_mode == DP_PANEL_MODE_EDP) {
- 			struct cp_psp *cp_psp = &stream->ctx->cp_psp;
+diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
+index cea40ef090b7..a7ee1171eeb3 100644
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -1220,8 +1220,25 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
+ 	new_row_size = new_cols << 1;
+ 	new_screen_size = new_row_size * new_rows;
  
--			if (cp_psp && cp_psp->funcs.enable_assr) {
--				if (!cp_psp->funcs.enable_assr(cp_psp->handle, link)) {
--					/* since eDP implies ASSR on, change panel
--					 * mode to disable ASSR
--					 */
--					panel_mode = DP_PANEL_MODE_DEFAULT;
--				}
--			}
-+			if (cp_psp && cp_psp->funcs.enable_assr)
-+				/* ASSR is bound to fail with unsigned PSP
-+				 * verstage used during devlopment phase.
-+				 * Report and continue with eDP panel mode to
-+				 * perform eDP link training with right settings
-+				 */
-+				cp_psp->funcs.enable_assr(cp_psp->handle, link);
- 		}
- #endif
+-	if (new_cols == vc->vc_cols && new_rows == vc->vc_rows)
+-		return 0;
++	if (new_cols == vc->vc_cols && new_rows == vc->vc_rows) {
++		/*
++		 * This function is being called here to cover the case
++		 * where the userspace calls the FBIOPUT_VSCREENINFO twice,
++		 * passing the same fb_var_screeninfo containing the fields
++		 * yres/xres equal to a number non-multiple of vc_font.height
++		 * and yres_virtual/xres_virtual equal to number lesser than the
++		 * vc_font.height and yres/xres.
++		 * In the second call, the struct fb_var_screeninfo isn't
++		 * being modified by the underlying driver because of the
++		 * if above, and this causes the fbcon_display->vrows to become
++		 * negative and it eventually leads to out-of-bound
++		 * access by the imageblit function.
++		 * To give the correct values to the struct and to not have
++		 * to deal with possible errors from the code below, we call
++		 * the resize_screen here as well.
++		 */
++		return resize_screen(vc, new_cols, new_rows, user);
++	}
  
+ 	if (new_screen_size > KMALLOC_MAX_SIZE || !new_screen_size)
+ 		return -EINVAL;
+-- 
+2.33.0
+
 
 
