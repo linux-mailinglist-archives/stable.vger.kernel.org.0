@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 907E1422883
+	by mail.lfdr.de (Postfix) with ESMTP id 23339422882
 	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 15:51:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235401AbhJENwu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 09:52:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60144 "EHLO mail.kernel.org"
+        id S235517AbhJENws (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 09:52:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235448AbhJENwj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Oct 2021 09:52:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A7A961BB1;
-        Tue,  5 Oct 2021 13:50:47 +0000 (UTC)
+        id S235464AbhJENwk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Oct 2021 09:52:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DDAE961B05;
+        Tue,  5 Oct 2021 13:50:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633441848;
-        bh=RsL4ZYa4qQbh0UbeB0TEVBdhhViW5xlD3Tz4/lStPr4=;
+        s=k20201202; t=1633441849;
+        bh=5e7Sw77oXbElVdGKegv3F1SKV4xyAxsp0hWW5XW1Jpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sWnmY9T5RYw55MZiLoWiinVXxxy2tZNFFEQhHDRLpGT74vILX3qu1aDs4z62WpxAj
-         axH5KU5G2ZrqiNpyyktYRRjpmORFHzQl/Kh1vEqQfjFxIZTAi/GhzKw0Lr2EzH0mSP
-         LpwpDHX80yA6mmE7sWYnq7odE/lpwKcq8cp3q0PJr2Hwh9xY5POeUUvBDmelXPWtHF
-         LnFOaHapfFHWm0+lOL2I7U0vt71IfvWnCjT8ijvzH+SkmM7Mt4ypa4qh2AvAD7/utG
-         JbhWCYgRIG7qCfdshzop5Qsj7iIwY9N6OKuaGCUc/K9xIiaaTX0PtBgutnVGOYTxmO
-         KSj3vWepZjt4Q==
+        b=cofGO+3Dk6XcX0smhhyXzlQ+30dAst3xr0UeieCESFky1Ehbfj3nJx72C1aFgcvu0
+         oDisDX6P5fOn2hF+6EJT7zGWD4mqNdDbRtPo877FuIy7KFvqhi8AKNkdqI+NG6fn/f
+         +X7uNgZ+Oe0XbOM/+1WKW16AmluMdqmbUIZrC3FrA2JgBuYIFkf0KoQhMT++21VEuP
+         wHF/LU2UxPbs3cGYtBvYJwDokLZ2AzWhFsIGe5NSpaxGrxx5DhVJo9mP8L8mXpsq7R
+         uKs2oplwjFcKZb5+B1+QIo12CQos8JgCbzqKC0sKlOw4D/m9wGhw0GxIk4W70Sh3k6
+         DXH+gHP+xkBoA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeremy Sowden <jeremy@azazel.net>, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>, kadlec@netfilter.org,
-        davem@davemloft.net, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
-        kuba@kernel.org, netfilter-devel@vger.kernel.org,
-        coreteam@netfilter.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 12/40] netfilter: ip6_tables: zero-initialize fragment offset
-Date:   Tue,  5 Oct 2021 09:49:51 -0400
-Message-Id: <20211005135020.214291-12-sashal@kernel.org>
+Cc:     Joshua-Dickens <Joshua@Joshua-Dickens.com>,
+        Joshua Dickens <joshua.dickens@wacom.com>,
+        Ping Cheng <ping.cheng@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 13/40] HID: wacom: Add new Intuos BT (CTL-4100WL/CTL-6100WL) device IDs
+Date:   Tue,  5 Oct 2021 09:49:52 -0400
+Message-Id: <20211005135020.214291-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211005135020.214291-1-sashal@kernel.org>
 References: <20211005135020.214291-1-sashal@kernel.org>
@@ -45,36 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Sowden <jeremy@azazel.net>
+From: Joshua-Dickens <Joshua@Joshua-Dickens.com>
 
-[ Upstream commit 310e2d43c3ad429c1fba4b175806cf1f55ed73a6 ]
+[ Upstream commit 0c8fbaa553077630e8eae45bd9676cfc01836aeb ]
 
-ip6tables only sets the `IP6T_F_PROTO` flag on a rule if a protocol is
-specified (`-p tcp`, for example).  However, if the flag is not set,
-`ip6_packet_match` doesn't call `ipv6_find_hdr` for the skb, in which
-case the fragment offset is left uninitialized and a garbage value is
-passed to each matcher.
+Add the new PIDs to wacom_wac.c to support the new models in the Intuos series.
 
-Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+[jkosina@suse.cz: fix changelog]
+Signed-off-by: Joshua Dickens <joshua.dickens@wacom.com>
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/netfilter/ip6_tables.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/wacom_wac.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/net/ipv6/netfilter/ip6_tables.c b/net/ipv6/netfilter/ip6_tables.c
-index de2cf3943b91..a579ea14a69b 100644
---- a/net/ipv6/netfilter/ip6_tables.c
-+++ b/net/ipv6/netfilter/ip6_tables.c
-@@ -273,6 +273,7 @@ ip6t_do_table(struct sk_buff *skb,
- 	 * things we don't know, ie. tcp syn flag or ports).  If the
- 	 * rule is also a fragment-specific rule, non-fragments won't
- 	 * match it. */
-+	acpar.fragoff = 0;
- 	acpar.hotdrop = false;
- 	acpar.state   = state;
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 81ba642adcb7..528d94ccd76f 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -4720,6 +4720,12 @@ static const struct wacom_features wacom_features_0x393 =
+ 	{ "Wacom Intuos Pro S", 31920, 19950, 8191, 63,
+ 	  INTUOSP2S_BT, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 7,
+ 	  .touch_max = 10 };
++static const struct wacom_features wacom_features_0x3c6 =
++	{ "Wacom Intuos BT S", 15200, 9500, 4095, 63,
++	  INTUOSHT3_BT, WACOM_INTUOS_RES, WACOM_INTUOS_RES, 4 };
++static const struct wacom_features wacom_features_0x3c8 =
++	{ "Wacom Intuos BT M", 21600, 13500, 4095, 63,
++	  INTUOSHT3_BT, WACOM_INTUOS_RES, WACOM_INTUOS_RES, 4 };
  
+ static const struct wacom_features wacom_features_HID_ANY_ID =
+ 	{ "Wacom HID", .type = HID_GENERIC, .oVid = HID_ANY_ID, .oPid = HID_ANY_ID };
+@@ -4893,6 +4899,8 @@ const struct hid_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0x37A) },
+ 	{ USB_DEVICE_WACOM(0x37B) },
+ 	{ BT_DEVICE_WACOM(0x393) },
++	{ BT_DEVICE_WACOM(0x3c6) },
++	{ BT_DEVICE_WACOM(0x3c8) },
+ 	{ USB_DEVICE_WACOM(0x4001) },
+ 	{ USB_DEVICE_WACOM(0x4004) },
+ 	{ USB_DEVICE_WACOM(0x5000) },
 -- 
 2.33.0
 
