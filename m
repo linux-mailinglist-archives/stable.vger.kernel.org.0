@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC43E422229
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 11:21:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4D9442222B
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 11:21:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232992AbhJEJXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 05:23:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38114 "EHLO mail.kernel.org"
+        id S233635AbhJEJXo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 05:23:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233365AbhJEJXl (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Tue, 5 Oct 2021 05:23:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76D4F610C9;
-        Tue,  5 Oct 2021 09:21:50 +0000 (UTC)
+        id S233372AbhJEJXn (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Tue, 5 Oct 2021 05:23:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4D1F61165;
+        Tue,  5 Oct 2021 09:21:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633425710;
-        bh=iWM19I5yVtMijPUmujoTKAyuVb78otWFmK1GIOrjGvc=;
+        s=korg; t=1633425713;
+        bh=FfP9l2r1ZM6W+JGZvlCv6D23iBbWAIN7i19WiNbhtp4=;
         h=Subject:To:From:Date:From;
-        b=gcc2ZIsE50c2qLH7fgog+tAbo0KswT3KEyRxH1IKk7gS/AsNDy4Fj+SIeJ4WuhjyG
-         NqtJPb9zhAU9YLBaGrqznK7OXCMo9exFnujeS3WJ+sbbQnPcrYXrnzSf7EEfYpSIUX
-         9K1p8m59EdDORCxY8w8PWFfnLTRvdwCac5zaB49M=
-Subject: patch "iio: ssp_sensors: add more range checking in ssp_parse_dataframe()" added to staging-linus
-To:     dan.carpenter@oracle.com, Jonathan.Cameron@huawei.com,
+        b=G5F3KLWIfu6fXHErWrG135FzCNHnQx8qw7IX0TRF/Bx4i7o9GqJQgzUkL7sOxZhh7
+         QxpyZRnnwWU0e68Koq3Y3XmnHSIkwdKLfZyWlt14Y/FhKfCZfa/fy1IomsXA7TKuiQ
+         SghG6HGVLGNByJHzD+QtcFHpNdp/XHC9IJzOHAyo=
+Subject: patch "iio: adis16480: fix devices that do not support sleep mode" added to staging-linus
+To:     nuno.sa@analog.com, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 05 Oct 2021 11:21:25 +0200
-Message-ID: <1633425685183210@kroah.com>
+Date:   Tue, 05 Oct 2021 11:21:26 +0200
+Message-ID: <163342568652130@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: ssp_sensors: add more range checking in ssp_parse_dataframe()
+    iio: adis16480: fix devices that do not support sleep mode
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -51,60 +51,88 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 8167c9a375ccceed19048ad9d68cb2d02ed276e0 Mon Sep 17 00:00:00 2001
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Date: Thu, 9 Sep 2021 12:13:36 +0300
-Subject: iio: ssp_sensors: add more range checking in ssp_parse_dataframe()
+From ea1945c2f72d7bd253e2ebaa97cdd8d9ffcde076 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>
+Date: Fri, 3 Sep 2021 16:14:23 +0200
+Subject: iio: adis16480: fix devices that do not support sleep mode
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-The "idx" is validated at the start of the loop but it gets incremented
-during the iteration so it needs to be checked again.
+Not all devices supported by this driver support being put to sleep
+mode. For those devices, when calling 'adis16480_stop_device()' on the
+unbind path, we where actually writing in the SYNC_SCALE register.
 
-Fixes: 50dd64d57eee ("iio: common: ssp_sensors: Add sensorhub driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20210909091336.GA26312@kili
+Fixes: 80cbc848c4fa0 ("iio: imu: adis16480: Add support for ADIS16490")
+Fixes: 82e7a1b250170 ("iio: imu: adis16480: Add support for ADIS1649x family of devices")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20210903141423.517028-6-nuno.sa@analog.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/common/ssp_sensors/ssp_spi.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/iio/imu/adis16480.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/common/ssp_sensors/ssp_spi.c b/drivers/iio/common/ssp_sensors/ssp_spi.c
-index 77449b4f3df5..769bd9280524 100644
---- a/drivers/iio/common/ssp_sensors/ssp_spi.c
-+++ b/drivers/iio/common/ssp_sensors/ssp_spi.c
-@@ -273,6 +273,8 @@ static int ssp_parse_dataframe(struct ssp_data *data, char *dataframe, int len)
- 	for (idx = 0; idx < len;) {
- 		switch (dataframe[idx++]) {
- 		case SSP_MSG2AP_INST_BYPASS_DATA:
-+			if (idx >= len)
-+				return -EPROTO;
- 			sd = dataframe[idx++];
- 			if (sd < 0 || sd >= SSP_SENSOR_MAX) {
- 				dev_err(SSP_DEV,
-@@ -282,10 +284,13 @@ static int ssp_parse_dataframe(struct ssp_data *data, char *dataframe, int len)
+diff --git a/drivers/iio/imu/adis16480.c b/drivers/iio/imu/adis16480.c
+index a869a6e52a16..ed129321a14d 100644
+--- a/drivers/iio/imu/adis16480.c
++++ b/drivers/iio/imu/adis16480.c
+@@ -144,6 +144,7 @@ struct adis16480_chip_info {
+ 	unsigned int max_dec_rate;
+ 	const unsigned int *filter_freqs;
+ 	bool has_pps_clk_mode;
++	bool has_sleep_cnt;
+ 	const struct adis_data adis_data;
+ };
  
- 			if (indio_devs[sd]) {
- 				spd = iio_priv(indio_devs[sd]);
--				if (spd->process_data)
-+				if (spd->process_data) {
-+					if (idx >= len)
-+						return -EPROTO;
- 					spd->process_data(indio_devs[sd],
- 							  &dataframe[idx],
- 							  data->timestamp);
-+				}
- 			} else {
- 				dev_err(SSP_DEV, "no client for frame\n");
- 			}
-@@ -293,6 +298,8 @@ static int ssp_parse_dataframe(struct ssp_data *data, char *dataframe, int len)
- 			idx += ssp_offset_map[sd];
- 			break;
- 		case SSP_MSG2AP_INST_DEBUG_DATA:
-+			if (idx >= len)
-+				return -EPROTO;
- 			sd = ssp_print_mcu_debug(dataframe, &idx, len);
- 			if (sd) {
- 				dev_err(SSP_DEV,
+@@ -939,6 +940,7 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
+ 		.int_clk = 2460000,
+ 		.max_dec_rate = 2048,
++		.has_sleep_cnt = true,
+ 		.filter_freqs = adis16480_def_filter_freqs,
+ 		.adis_data = ADIS16480_DATA(16375, &adis16485_timeouts, 0),
+ 	},
+@@ -952,6 +954,7 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
+ 		.int_clk = 2460000,
+ 		.max_dec_rate = 2048,
++		.has_sleep_cnt = true,
+ 		.filter_freqs = adis16480_def_filter_freqs,
+ 		.adis_data = ADIS16480_DATA(16480, &adis16480_timeouts, 0),
+ 	},
+@@ -965,6 +968,7 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
+ 		.int_clk = 2460000,
+ 		.max_dec_rate = 2048,
++		.has_sleep_cnt = true,
+ 		.filter_freqs = adis16480_def_filter_freqs,
+ 		.adis_data = ADIS16480_DATA(16485, &adis16485_timeouts, 0),
+ 	},
+@@ -978,6 +982,7 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
+ 		.int_clk = 2460000,
+ 		.max_dec_rate = 2048,
++		.has_sleep_cnt = true,
+ 		.filter_freqs = adis16480_def_filter_freqs,
+ 		.adis_data = ADIS16480_DATA(16488, &adis16485_timeouts, 0),
+ 	},
+@@ -1425,9 +1430,12 @@ static int adis16480_probe(struct spi_device *spi)
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = devm_add_action_or_reset(&spi->dev, adis16480_stop, indio_dev);
+-	if (ret)
+-		return ret;
++	if (st->chip_info->has_sleep_cnt) {
++		ret = devm_add_action_or_reset(&spi->dev, adis16480_stop,
++					       indio_dev);
++		if (ret)
++			return ret;
++	}
+ 
+ 	ret = adis16480_config_irq_pin(spi->dev.of_node, st);
+ 	if (ret)
 -- 
 2.33.0
 
