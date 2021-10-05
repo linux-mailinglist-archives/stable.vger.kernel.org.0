@@ -2,94 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8228F421F42
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 09:09:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FAF1421F46
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 09:09:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232478AbhJEHLe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 03:11:34 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:50277 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231913AbhJEHLe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 03:11:34 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id 8EB955C0100;
-        Tue,  5 Oct 2021 03:09:43 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 05 Oct 2021 03:09:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nakato.io; h=
-        from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding:content-type; s=fm2; bh=
-        Hj37CP3Dw78hSfXRxxNojbV6w54/CCt3HwB3xajnRmc=; b=ZL4PM+i6e5oYR+90
-        cS4JXmlhIwbsdFNiXA1ZpVxKPHusnFvjg6r1yyKsSvpaduJzjHgUM/kX+RW9Nyg8
-        z0Z/CimhFQ0wTX8UglaW61faH71V0NxRgPlWWkXZmElrOSUiOK0B5KXCiILuVjbu
-        Gf0KD1Kt/ptAoQxgmWw8gotnUtaPixqvjiKZJLzefCx4ANlBUb4xe/7Jr90A4Eli
-        7kXjQ6CPGMhZacUW5kkTDIZ8OLUebehhVA5kZE04PPR9dEAEjdhhTexTNXXwzqR0
-        /dvmjBodoQb1yyDFq2fghdT6rhlbtVzMHxpcSXB+7qTfec9Ea+NyCsspcXI0dpHN
-        6EQgKA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; bh=Hj37CP3Dw78hSfXRxxNojbV6w54/CCt3HwB3xajnR
-        mc=; b=BPx9FwZbm/WOJyK2TJ0H6Y4RbSr3XIFUZ7ulvKV2pKZrIARFrzPWIv4vY
-        xLqkyhu2TYWhD27iTovkPtsq0/ElVsjd9eMM7k1WroTs4dnebc5zbUzNwY74TZ5T
-        N0kFr/rGT8hYW59KQg9ykEFD4NpOZ4lsauInmuBHUXPoRIlhTxIHVBoT5M9Xb0kU
-        o3KC8ek1jM8ReVgdXx3Hyy9Txsx95ywQdM2evUIB7XJv7OrGYnKrZ2VIwDDzbL23
-        YqHg/DU+tiqaUuc4AR+a86zb5obsvjGmLHdH0zXHj40Aqjrst2+Z4xVpSmI/M2xm
-        04TOFHBT5Ao0se4hHEYyam15VRa5A==
-X-ME-Sender: <xms:N_pbYUAec1p-I9nzp1O2Z9uOzXUSMhjqHAxMPlPT6tlmuu3FsBr0Jg>
-    <xme:N_pbYWh9J5svjY4BwZKtO2dHgynmKj9KaNM-ONL3Q6NqIAYaMHs4rKKcjKOoArnjL
-    XwW4bBXv5728cqUGA>
-X-ME-Received: <xmr:N_pbYXktvE1aGYYD67wjsdC0feS6q3rIz61L0HnawQMl8v2SZs53uO3w6F-hGDUGyq_faEj6_CG_oDvuv3azIziW-9pvBrTZbxVzpgJ6mthDdGc>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudelfedguddugecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkfgjfhgggfgtsehtuf
-    ertddttddvnecuhfhrohhmpefurggthhhiucfmihhnghcuoehnrghkrghtohesnhgrkhgr
-    thhordhioheqnecuggftrfgrthhtvghrnhepgeefkefgheevtddthfeihfevfffhhfejud
-    elheelgfdvteekuefgkeffudeiudffnecuffhomhgrihhnpehgihhthhhusgdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehnrghkrg
-    htohesnhgrkhgrthhordhioh
-X-ME-Proxy: <xmx:N_pbYax-aUjNqT7qLzNeU6mLoM1PhbhXKQ4o_2M3iEKEEhjRa6o4Dg>
-    <xmx:N_pbYZQ7jcelKaXov3EII-wiSylC8DN-IvMHpHS8zB6FsGvH4qcs5g>
-    <xmx:N_pbYVby_584YVqdG-W4a70E7TNocCBaa6rul0gdUU6TULfjGO-CTQ>
-    <xmx:N_pbYUFmpWfSsdc2pR2RLs5YWtK2qAhcApQ00ckky6eJL7GgQBltsA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 5 Oct 2021 03:09:39 -0400 (EDT)
-From:   Sachi King <nakato@nakato.io>
-To:     hdegoede@redhat.com, mgross@linux.intel.com,
-        mario.limonciello@amd.com, rafael@kernel.org, lenb@kernel.org,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Cc:     platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-acpi@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] platform/x86: amd-pmc: Add alternative acpi id for PMC controller
-Date:   Tue, 05 Oct 2021 18:09:36 +1100
-Message-ID: <2915349.f8ii16yrt4@youmu>
-In-Reply-To: <3ecd9046-ad0c-9c9a-9b09-bbab2f94b9f2@amd.com>
-References: <20211002041840.2058647-1-nakato@nakato.io> <3ecd9046-ad0c-9c9a-9b09-bbab2f94b9f2@amd.com>
+        id S231913AbhJEHLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 03:11:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51038 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232561AbhJEHLp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Oct 2021 03:11:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E13861425;
+        Tue,  5 Oct 2021 07:09:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1633417795;
+        bh=LolzeVyvQ9Fdg5AkSm3PkTTdmlFXrwEm0GL30clzJto=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GxilFPaiS6TAr3bQVhm56wzc4JTQjhYIvMLUUju0F9keWMASsTqBJHwvoAeWZytso
+         Ur8dqOIpN+fTIf/wdtaPFZ0UTFw/lePh/6iKtPZQpDMYrttaVpHfyAyOw72sYVcNmQ
+         mRHXK3IXIDTJUwxNyEfqn2W/2Sbk1Jag8/alf8pjr3JSV0NZ9PT2pN7njnXka7FMkp
+         VOeUvM84aserRlVX5MRJBD5CQv70yEU+3ydIDnQWT0DZ7LdIr9xBFl51zKPfZQSUew
+         +zSLr7O8WiPyBbJBjOCQeUnn+AT9lJvJIQr27kiO+Aa2PBONDGxVKGpnSSdUjAOE1D
+         QdRa/lhHU2QiQ==
+Date:   Tue, 5 Oct 2021 15:09:49 +0800
+From:   Shawn Guo <shawnguo@kernel.org>
+To:     Frieder Schrempf <frieder@fris.de>
+Cc:     devicetree@vger.kernel.org,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Rob Herring <robh+dt@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>, stable@vger.kernel.org,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>
+Subject: Re: [PATCH 4/8] arm64: dts: imx8mm-kontron: Fix reg_rst_eth2 and
+ reg_vdd_5v regulators
+Message-ID: <20211005070949.GB20743@dragon>
+References: <20210930155633.2745201-1-frieder@fris.de>
+ <20210930155633.2745201-5-frieder@fris.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210930155633.2745201-5-frieder@fris.de>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tuesday, 5 October 2021 16:16:18 AEDT Shyam Sundar S K wrote:
+On Thu, Sep 30, 2021 at 05:56:27PM +0200, Frieder Schrempf wrote:
+> From: Frieder Schrempf <frieder.schrempf@kontron.de>
 > 
-> On 10/2/2021 9:48 AM, Sachi King wrote:
-> > The Surface Laptop 4 AMD has used the AMD0005 to identify this
-> > controller instead of using the appropriate ACPI ID AMDI0005.  Include
-> > AMD0005 in the acpi id list.
+> The regulator reg_vdd_5v represents the fixed 5V supply on the board which
+> can't be switched off. Mark it as always-on.
 > 
-> Can you provide an ACPI dump
+> The regulator reg_rst_eth2 should keep the reset signal of the USB ethernet
+> adapter deassertet anytime. Fix the polarity and mark it as always-on.
 
-The ACPI dump for this device is available here:
-https://github.com/linux-surface/acpidumps/tree/master/surface_laptop_4_amd
+It seems to be wrong from the beginning that the reset is modelled by a
+regulator.
 
-> output of 'cat /sys/power/mem_sleep'
+> 
+> Fixes: 21c4f45b335f ("arm64: dts: Add the Kontron i.MX8M Mini SoMs and baseboards")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+> ---
+>  arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
+> index 62ba3bd08a0c..f2c8ccefd1bf 100644
+> --- a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
+> +++ b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
+> @@ -70,7 +70,9 @@ reg_rst_eth2: regulator-rst-eth2 {
+>  		regulator-name = "rst-usb-eth2";
+>  		pinctrl-names = "default";
+>  		pinctrl-0 = <&pinctrl_usb_eth2>;
+> -		gpio = <&gpio3 2 GPIO_ACTIVE_LOW>;
+> +		gpio = <&gpio3 2 GPIO_ACTIVE_HIGH>;
+> +		enable-active-high;
+> +		regulator-always-on;
+>  	};
+>  
+>  	reg_vdd_5v: regulator-5v {
+> @@ -78,6 +80,7 @@ reg_vdd_5v: regulator-5v {
+>  		regulator-name = "vdd-5v";
+>  		regulator-min-microvolt = <5000000>;
+>  		regulator-max-microvolt = <5000000>;
+> +		regulator-always-on;
 
-[s2idle]
+You do not have any on/off control over the regulator.  So how does this
+always-on property make any difference?
 
-Thanks,
-Sachi
+Shawn
 
-
+>  	};
+>  };
+>  
+> -- 
+> 2.33.0
+> 
