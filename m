@@ -2,176 +2,228 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34E7D4232D8
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 23:28:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96F7B42331E
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 00:01:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235679AbhJEVaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 17:30:15 -0400
-Received: from mx0b-00069f02.pphosted.com ([205.220.177.32]:27130 "EHLO
-        mx0b-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235957AbhJEVaP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 17:30:15 -0400
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 195LFsSY024348;
-        Tue, 5 Oct 2021 21:28:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2021-07-09;
- bh=iBaV51qMtP7RyQgfGWC46xfy78SlHAnhQOpMD7ttne8=;
- b=bC2n7cvnf0ZcELxn5PFem/xHXhfYktmhS0s4miGNBRovEYPsV/23f8KpwUyMzrNfMn7U
- 5TxqVJk3R9yBSjvwxbGuTIak7IETtmtSMTrCYnYUOPtIMtfJQ9Q67ddfsPnH5Yx4RQrq
- s6XWUluod7gbCAaoJkjQ0lmkDVmOWvdxScVQQnbkPfhWVFLzf73QSIoLfGab7aDOs0cw
- BSuPMCNCs4ZDIKt1eEJaOHABnYzBCkDKCYU/jggU6CaNmthwtGl/0ylTidrHuL8E2rrR
- lD6hphaoTuukJ91r5CPootFD5jVyNUsn7ObC1C/3IFKg4cAj72XfUFWuEXuGUqLN2Ncf eg== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by mx0b-00069f02.pphosted.com with ESMTP id 3bg454k82x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 05 Oct 2021 21:28:10 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 195LEfaR016788;
-        Tue, 5 Oct 2021 21:28:09 GMT
-Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2173.outbound.protection.outlook.com [104.47.57.173])
-        by userp3020.oracle.com with ESMTP id 3bf16tsmxt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 05 Oct 2021 21:28:08 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=OHS7YubRV9sDYbdDVyYP7RSx7tebXJ8CFKXmwzYZMASoDMp8kcYcc5T4ScFKakrWyQYFzRXyMoYb85z2kr0oyDCn6cCRNs2k2I22rjdOd20yGUW9UvPbBSxlTsx/J1McUZfPWPKHLcfKx9r5MLYJ9WL4F10M13xteL95LbLg/hhlPB3eQkjRmGsqUih6UFX5Fs/AVvvP8qZOaXS92LBRy/J+8+Jl1AjOcybaoYhtnMdlfC6erhkRxT8EKMU2ek5tnrgEYLdBRrz2iLuQ+2uKUvT6LBrszRkKJ5DNYdiTsY1W0tgBrQC1nObU9WyQonh61Z6bTApvQoQotrkmww+Wvw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=iBaV51qMtP7RyQgfGWC46xfy78SlHAnhQOpMD7ttne8=;
- b=HXm4Mlq1bQE2sRUi8HsU+aYatzGCzMClNbZnebtE9sdPWvjUzt8RIZfF7KQy/hEGSwidxChL/bp5PgJP5hOaSdcklwjUeCJe0bpcZ9GSxQ1IXo2AY+I+X36/AmKTIe6pZX9bY9pVFj6aaHrN6uqtgODfWqhGF5JqNBNiPu3WYxd7qDXR3ri59OXQn9+/UXVoKbZjzRqmTv8+DbBxWkRzxi0yGrxHxoc+9nYe+bSK/SfMVIjNXmRODTYeFs9dSKS6ZOHPyo7qvUgEx+yW2Zowg+0/fwySLPeHIY+9ndk3tKQPcsTwpwHrP4CCwzXmxqhajKeM7igMsJY5FCiCQkNflQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+        id S236610AbhJEWDS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 18:03:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38628 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233282AbhJEWDR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 18:03:17 -0400
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60557C061749
+        for <stable@vger.kernel.org>; Tue,  5 Oct 2021 15:01:26 -0700 (PDT)
+Received: by mail-ed1-x536.google.com with SMTP id z1so2087284edb.8
+        for <stable@vger.kernel.org>; Tue, 05 Oct 2021 15:01:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iBaV51qMtP7RyQgfGWC46xfy78SlHAnhQOpMD7ttne8=;
- b=G5EWK+HnoMJAollD/WeDr3coPuwV1nPxcRfARq5RaAdVRuFeCOGnspMLKokDCT6iraGDiyUm5mIWOZheFicAronpSc9/IT91phzsftMtMd69DTVEQU5stujaPz24rkcEUAxROBXtmddDqfsi5HahSfnGxK9qqUg/CdLr3GCUMnY=
-Authentication-Results: vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=none action=none header.from=oracle.com;
-Received: from BY5PR10MB4196.namprd10.prod.outlook.com (2603:10b6:a03:20d::23)
- by BYAPR10MB3349.namprd10.prod.outlook.com (2603:10b6:a03:155::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4566.19; Tue, 5 Oct
- 2021 21:28:06 +0000
-Received: from BY5PR10MB4196.namprd10.prod.outlook.com
- ([fe80::bc59:71de:1590:cbf5]) by BY5PR10MB4196.namprd10.prod.outlook.com
- ([fe80::bc59:71de:1590:cbf5%6]) with mapi id 15.20.4566.022; Tue, 5 Oct 2021
- 21:28:06 +0000
-Subject: Re: [PATCH] arm64/hugetlb: fix CMA gigantic page order for non-4K
- PAGE_SIZE
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Barry Song <song.bao.hua@hisilicon.com>, stable@vger.kernel.org
-References: <20211005202529.213812-1-mike.kravetz@oracle.com>
- <20211005135435.341477bb4b50b84202c32450@linux-foundation.org>
-From:   Mike Kravetz <mike.kravetz@oracle.com>
-Message-ID: <3747d914-c687-b983-c624-e3418b4d2448@oracle.com>
-Date:   Tue, 5 Oct 2021 14:28:03 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
-In-Reply-To: <20211005135435.341477bb4b50b84202c32450@linux-foundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: MW4PR03CA0279.namprd03.prod.outlook.com
- (2603:10b6:303:b5::14) To BY5PR10MB4196.namprd10.prod.outlook.com
- (2603:10b6:a03:20d::23)
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=BHOd9BkPqIwkTPsGc8DrilYdEXntmuvUTY0BtU2RG6Y=;
+        b=QQzJbFMLks75yUDxtki3gKgbiTPxN9sjyUj49MipC7Xg+oFnNvjnRLuHQTGAwl6gSi
+         LWSzC4Y0If85FgihiH/SGsGZxffKlAVR0at2mQmu8tFXGMvkjNbyXeUL5vHoY2MpMn4s
+         b+NqBeHiP9sWCCsxct4eZiKeQ4KBxPem94zMhsWJKOitN/RGLqeCzrmyl5w5Vx0rzw+u
+         CXMYtZsrFf+srzP09h5YPxWJAlJKnoYB2DQx71XcJm0LE+CbUZI7DeEjP7Q5/o7hhG+t
+         6vFguvyVg3gUpgEULgJbhuEQUOsSM6T9z99g12UyGsNTIEjDr8Ye/+dE2VzhLh9N2LLS
+         DQag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=BHOd9BkPqIwkTPsGc8DrilYdEXntmuvUTY0BtU2RG6Y=;
+        b=AQgypqI+UM2Nrc3CtGuufCJeLQNwonW1e2vLD3zvpA5WFxiRLWWRwQy9W1rB2sHrB8
+         VDRsujwKixDQxcqwZgQSdLbQblyXJtS8DnrhqrDRw35BRm0hjEGBB7Zrwu7uNrOYabHe
+         foQOLg1C/4YETMF8Z3NizqRyEgdTNJWkIbORTHSsH0pMlFEOryTk61LOczeFt2vwiXam
+         n+YPrNyfWxh9zaWwkChwPnvztXeU1pUPFZpAbSy6OeFM+T3EyH7FyB4sIcg6bkDjQ2sp
+         ExF+rM+4xaHOg8qLsNLgltxy31vWHiU3cT2XEjbh+4k43DB0pqYe+qCQjbbbIfjU+Y9c
+         dpEw==
+X-Gm-Message-State: AOAM530WRl7TybNP4CCEMARrcYKcDiVe0d7YBXRH9J4QENjNPBm3n5BU
+        lO4Ae7S4mAzbUBdqIu6HWFX+bGitg8Al8WMr1TCU
+X-Google-Smtp-Source: ABdhPJzBXG3C4e30gCQNoo0PSqowH+G4Q6buGHoGi5VbUNtMOPFnay7TkL2arTibDCK8AxofF+ooDTfR+ejxRXPQeEM=
+X-Received: by 2002:a17:907:784b:: with SMTP id lb11mr28047433ejc.307.1633471284736;
+ Tue, 05 Oct 2021 15:01:24 -0700 (PDT)
 MIME-Version: 1.0
-Received: from [192.168.2.123] (50.38.35.18) by MW4PR03CA0279.namprd03.prod.outlook.com (2603:10b6:303:b5::14) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4566.22 via Frontend Transport; Tue, 5 Oct 2021 21:28:05 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 57f18dd7-f167-49a7-7bda-08d988470548
-X-MS-TrafficTypeDiagnostic: BYAPR10MB3349:
-X-Microsoft-Antispam-PRVS: <BYAPR10MB3349A44D47153A097364F37CE2AF9@BYAPR10MB3349.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:3173;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: D/f6lW3aLtv+fv2MFwdc8e0jLgsVzo3L2UK2R6vCcuUnn+65CdypIHDGdEw51fEEf9gHYt6QZIQ6HCdLcGZcOLQGTGJpYndG0sAynZSPTvnjHBJKKarD79nXZeTNCaZBL6w4slswlLaHzyE5K0wu8jqkHLSQBzT5Yr+Pxj0fu7O9T2R/98nfj3/mJCl61w0taMlfyfFE1gXMO525r66hz0n+rTyPo+RG8iiVkAbU5DPIVPNzMILlTV8X1C7iKCVPgRgDXaOLdgoWjCreOo6bE+GWmtTj5I6d/3NgXDAx/Zo9PxZ7R5IkcgCqKAIxM0Lw/H0VHJ5kfxzXg7zl++mLufYMHCbCmfXipSn3koFYLE5wkXWf6AYyAfgOlYIAs92qhkIlp0YQFtpdYm2QlVUNB4SLmXQ3z9gG903B5EZiBqdtjsu8A37c9Yfzd1v5lQ/ZtyNsjt8A/yFSPiqfF0OF/+gNRIjMXZc9Rn7PHI/XNqLx27xA7zJteQm060O9rdkxWa/JTi8GW/a0LYSbR0ZFiEFJRXxen4vNbwielLvzLhvv4qtdZhyT4icwKr02BUVhadA9TKHJ11zXs27amNa3hYXSamAEmRosLSYdBLTAxbaAYSl3UFqU4g4Sm7X91rURSu72nFqbJww0vFCvvOidn+8t91oVVA/Wvj6ztcfDpqBlape3jmPpDVhQX5AVaHARux7WceTPFqPmlrH/uIeOiJ5tcVnK7nVAmRj6CK4roY04lnYhYFt0XJomu8B/Kxeax2zupUMgo9Yc0TlLQPYgeA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BY5PR10MB4196.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(366004)(66946007)(52116002)(26005)(8676002)(66476007)(66556008)(508600001)(53546011)(8936002)(4744005)(5660300002)(86362001)(186003)(2906002)(316002)(83380400001)(44832011)(6916009)(38350700002)(16576012)(6486002)(54906003)(4326008)(31696002)(38100700002)(956004)(2616005)(31686004)(36756003)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?QXcxR0pNbG1TUUZjc2tXVDhQN1BkYnBreXppNHNRVmxGQ1Z1T2dnYkR1eVdi?=
- =?utf-8?B?Zy9XM0dUY0hxYmhtMHd6V05jei9heWZWUEtsT29rWUtOd0JiVldaYllXY3lX?=
- =?utf-8?B?cG9ONlY3cXhxTVNhNFVUSGwwc3N4dk9rK1NnbUo5RC8wWnl0ZTZwWUJJZ1pP?=
- =?utf-8?B?d3YzcEdyaDhHOUZYS055YWIvckhCOUxvc25hcUt1bG1xTEdPSEJuQWtFYU9q?=
- =?utf-8?B?V3hickUrU3N6RVBmNjBoWVVqcGg0akRYMmtHZ2dNbnFZVDIzek9qa1VTVE1s?=
- =?utf-8?B?V1Mvbm9WWXBnWjJMdFFZN0FuS2lRQTVYNHFWR215WEc2aWx6aUtlR2lEaFVm?=
- =?utf-8?B?bnRMRjlTaGkxbzhtdDU0RDJ4eUZmbFh1ZXI2WDNXWjIwMjVFSjdWQjVBK1Nh?=
- =?utf-8?B?UnZxUjBmOWdQcG5HQitZbUNSc05pRXljbXhqbU5QdzUwajJySDQ2alJpN3Jl?=
- =?utf-8?B?UUZzSTQyZ0VpV1V2RUprRnMzR3pJVnBSYlR0NHNzVHFodDlVZXlVRjdMQ0VQ?=
- =?utf-8?B?VTN6cTBDV0h2STVoY2Fwcnh0dklCb3kzK3VBc3cweCtxclVENmYxbTYzZ0FN?=
- =?utf-8?B?Sml2cktmL2VtL2NpbjVBVHRueEFRUXNzRENNWk5vTUhtdTc2aVFyNTc5T3Rk?=
- =?utf-8?B?RzRZMUpXNXJ4YlY1c3BuYW0yREV5bmNHcU9udnlVNDBpT2Y2Y0xFcDRZRUFM?=
- =?utf-8?B?Sk1Lclh1Mzc4RE9kTmR3eDdQQ1hnK3JQb2QxQmhXcHY3cmxlQ1E0RGFtSHdL?=
- =?utf-8?B?SjlIVzA1N2lSWjJkV1RWREsyTnR5Y3A0VDN2ZCsrME1YR0MzU1JkeEVvZE5t?=
- =?utf-8?B?TG5KZUZ0U1Y5VW9HQ2NIZWJaU3JnN0dSMTBDRTdNR2ErdEV5eXYyYnV3SHFJ?=
- =?utf-8?B?QnVUUHY0R2wxZkpUN2Yrb0hJYVIvb3pHRmhNak9WeEpuL1RJNnM1VmtJdk10?=
- =?utf-8?B?M29QMWZwVWpqUUFUcHVPZk9wdkg5OTltQm40aytNZXRnRkFlcGZXeUFFcjdT?=
- =?utf-8?B?YVNvN1Z5UllhYjJOTFUxR0srQjI1Z3U5VTFQcE1wNi9DelJMcDRub2NRQ2I4?=
- =?utf-8?B?WTZvRytYNW9tNUQzem0yNnVPV1dyREt1QVdVb2NzSjBPOU02UHIxa2pqdXA3?=
- =?utf-8?B?MFpaRzNvVEpKb0k5WkJVWncxYkNPSWJlZVhyTXJ2ZzN3WVpnRnkyMWgvWTFw?=
- =?utf-8?B?aERNeFdqek1kejhWbWhyTlN2dnV2VzVWSzFUZjk0YWhWMlNvay9id3VkdWM3?=
- =?utf-8?B?ekMydy8xenZsdVJxZnQycU1sKzdKRlRXb0Jwb0N6dUVocDV2ZHVNRzVra05r?=
- =?utf-8?B?b0RyTGFkK1NEc2YxWnJHb1h4cytjNWlKQzRnS1hOZWlqVHp0a01XTWlXbmZJ?=
- =?utf-8?B?Y0x2VzA3bUhUYkkwM3NTZjNSbStCV0VDVkQ4TWd1emhraDl3MDZqUkRmemM1?=
- =?utf-8?B?dmZkcHFhd2RDNEExYWZIYXE3UEQyd3NPS1IzWnlNRjR5UWpJWWdkQzdrWVRW?=
- =?utf-8?B?eEl4STVKaytEazUvRHQ0MTVBeDFxeGkxTDBVL2NhSGNGb2V0K2k1a1BDMWlN?=
- =?utf-8?B?WHYxY2V2MUs4Vms2bExja3hDeUxWMmxzbDBLVithR3ZVOXNWVk1wR0M4d1JE?=
- =?utf-8?B?M1BydGlheXFpU1VOV0JXZEE3b1UvSzhqSTRNcGdyK2RCaTNsM3lBQzllWFhC?=
- =?utf-8?B?MDBsbHdVaS9mU1FsbkUwSFdDdy9aUFBCZWQwTTI5YlNNMzVCVXRXT1pzZC9E?=
- =?utf-8?Q?FgWbEsepcf7vNLTgPrRH9t9Xj/p089VxNJ/6agA?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 57f18dd7-f167-49a7-7bda-08d988470548
-X-MS-Exchange-CrossTenant-AuthSource: BY5PR10MB4196.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Oct 2021 21:28:06.5951
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: FfWZhybPs9lnIgG575dSGK6xhs+esNF4hk2uR3fZjSb4At3CmHfZmGT4TQ8c+k7Kjwtl9R2z9aw28vrri7uj4g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR10MB3349
-X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10128 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 adultscore=0
- phishscore=0 malwarescore=0 bulkscore=0 mlxlogscore=999 mlxscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110050125
-X-Proofpoint-GUID: 4LLraZR6XHvZfZCKjyyahzPyxHT8G1qm
-X-Proofpoint-ORIG-GUID: 4LLraZR6XHvZfZCKjyyahzPyxHT8G1qm
+References: <20211001175521.3853257-1-tkjos@google.com> <c6a650e4-15e4-2943-f759-0e9577784c7a@schaufler-ca.com>
+ <CAG48ez2tejBUXJGf0R9qpEiauL9-ABgkds6mZTQD7sZKLMdAAQ@mail.gmail.com>
+ <CAG48ez1SRau1Tnge5HVqxCFsNCizmnQLErqnC=eSeERv8jg-zQ@mail.gmail.com>
+ <f59c6e9f-2892-32da-62f8-8bbeec18ee4c@schaufler-ca.com> <CAG48ez0yF0u=QBLVL2XrGB8r8ouQj-_aS9SScu4O4f+LhZxCDw@mail.gmail.com>
+ <e0c1fab9-cb97-d5af-1f4b-f15b6b2097fd@schaufler-ca.com> <CAG48ez3qc+2sc6xTJQVqLTRcjCiw_Adx13KT3OvPMCjBLjZvgA@mail.gmail.com>
+ <6bd2de29-b46a-1d24-4c73-9e4e0f3f6eea@schaufler-ca.com> <CAG48ez0RM6NGZLdEjaqU9KmaOgeFR6cSeNo50XG9oaFxC_ayYw@mail.gmail.com>
+ <CAEjxPJ4X4N_zgH4oRbdkZi21mvS--ExDb_1gad09buMHshB_hQ@mail.gmail.com>
+ <CAHRSSEwVONsmf8JHo0PsDmexOqamKTsLF2BkpXZfAvsJvDw0ew@mail.gmail.com> <CAEjxPJ4MB4nEBSNOVZtM9N9XRiSB6qsmsCMuWN=Ocm8TcP64GA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4MB4nEBSNOVZtM9N9XRiSB6qsmsCMuWN=Ocm8TcP64GA@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 5 Oct 2021 18:01:13 -0400
+Message-ID: <CAHC9VhQbNAgiAaX_bmgYrooM1K-DfgfZei8PvoaF4VHGMb3Pjg@mail.gmail.com>
+Subject: Re: [PATCH v2] binder: use cred instead of task for selinux checks
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Todd Kjos <tkjos@google.com>, Jann Horn <jannh@google.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        arve@android.com, tkjos@android.com, maco@android.com,
+        christian@brauner.io, James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Kees Cook <keescook@chromium.org>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        devel@driverdev.osuosl.org,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        "Cc: Android Kernel" <kernel-team@android.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/5/21 1:54 PM, Andrew Morton wrote:
-> On Tue,  5 Oct 2021 13:25:29 -0700 Mike Kravetz <mike.kravetz@oracle.com> wrote:
-> 
->> For non-4K PAGE_SIZE configs, the largest gigantic huge page size is
->> CONT_PMD_SHIFT order.
-> 
-> What are the user visible effects of this bug?
-> 
-> 
+On Tue, Oct 5, 2021 at 1:12 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Tue, Oct 5, 2021 at 12:49 PM Todd Kjos <tkjos@google.com> wrote:
+> >
+> > On Tue, Oct 5, 2021 at 8:21 AM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
+> > >
+> > > On Mon, Oct 4, 2021 at 8:27 PM Jann Horn <jannh@google.com> wrote:
+> > > >
+> > > > On Tue, Oct 5, 2021 at 1:38 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > > > > On 10/4/2021 3:28 PM, Jann Horn wrote:
+> > > > > > On Mon, Oct 4, 2021 at 6:19 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > > > > >> On 10/1/2021 3:58 PM, Jann Horn wrote:
+> > > > > >>> On Fri, Oct 1, 2021 at 10:10 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > > > > >>>> On 10/1/2021 12:50 PM, Jann Horn wrote:
+> > > > > >>>>> On Fri, Oct 1, 2021 at 9:36 PM Jann Horn <jannh@google.com> wrote:
+> > > > > >>>>>> On Fri, Oct 1, 2021 at 8:46 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > > > > >>>>>>> On 10/1/2021 10:55 AM, Todd Kjos wrote:
+> > > > > >>>>>>>> Save the struct cred associated with a binder process
+> > > > > >>>>>>>> at initial open to avoid potential race conditions
+> > > > > >>>>>>>> when converting to a security ID.
+> > > > > >>>>>>>>
+> > > > > >>>>>>>> Since binder was integrated with selinux, it has passed
+> > > > > >>>>>>>> 'struct task_struct' associated with the binder_proc
+> > > > > >>>>>>>> to represent the source and target of transactions.
+> > > > > >>>>>>>> The conversion of task to SID was then done in the hook
+> > > > > >>>>>>>> implementations. It turns out that there are race conditions
+> > > > > >>>>>>>> which can result in an incorrect security context being used.
+> > > > > >>>>>>> In the LSM stacking patch set I've been posting for a while
+> > > > > >>>>>>> (on version 29 now) I use information from the task structure
+> > > > > >>>>>>> to ensure that the security information passed via the binder
+> > > > > >>>>>>> interface is agreeable to both sides. Passing the cred will
+> > > > > >>>>>>> make it impossible to do this check. The task information
+> > > > > >>>>>>> required is not appropriate to have in the cred.
+> > > > > >>>>>> Why not? Why can't you put the security identity of the task into the creds?
+> > > > > >>>>> Ah, I get it now, you're concerned about different processes wanting
+> > > > > >>>>> to see security contexts formatted differently (e.g. printing the
+> > > > > >>>>> SELinux label vs printing the AppArmor label), right?
+> > > > > >>>> That is correct.
+> > > > > >>>>
+> > > > > >>>>> But still, I don't think you can pull that information from the
+> > > > > >>>>> receiving task. Maybe the easiest solution would be to also store that
+> > > > > >>>>> in the creds? Or you'd have to manually grab that information when
+> > > > > >>>>> /dev/binder is opened.
+> > > > > >>>> I'm storing the information in the task security blob because that's
+> > > > > >>>> the appropriate scope. Today the LSM hook is given both task_struct's.
+> > > > > >>> Which is wrong, because you have no idea who the semantic "recipient
+> > > > > >>> task" is - any task that has a mapping of the binder fd can
+> > > > > >>> effectively receive transactions from it.
+> > > > > >>>
+> > > > > >>> (And the current "sender task" is also wrong, because binder looks at
+> > > > > >>> the task that opened the binder device, not the task currently
+> > > > > >>> performing the action.)
+> > > > > >> I'm confused. Are you saying that the existing binder code is
+> > > > > >> completely broken? Are you saying that neither "task" is correct?
+> > > > > > Yeah, basically
+> > > > >
+> > > > > Well, hot biscuits and gravy!
+> > > > >
+> > > > > >  - but luckily the actual impact this has is limited by
+> > > > > > the transitions that SELinux permits. If domain1 has no way to
+> > > > > > transition to domain2, then it can't abuse this bug to pretend to be
+> > > > > > domain2. I do have a reproducer that lets Android's "shell" domain
+> > > > > > send a binder transaction that appears to come from "runas", but
+> > > > > > luckily "runas" has no interesting privileges with regards to binder,
+> > > > > > so that's not exploitable.
+> > > > >
+> > > > > You're counting on the peculiarities of the SELinux policy you're
+> > > > > assuming is used to mask the fact that the hook isn't really doing
+> > > > > what it is supposed to?  Ouch.
+> > > >
+> > > > I'm not saying I like the current situation - I do think that this
+> > > > needs to change. I'm just saying it probably isn't *exploitable*, and
+> > > > exploitability often hinges on these little circumstantial details.
+> > > >
+> > > > > >> How does passing the creds from the wrong tasks "fix" the problem?
+> > > > > > This patch is not passing the creds from the "wrong" tasks at all. It
+> > > > > > relies on the basic idea that when a security context opens a
+> > > > > > resource, and then hands that resource to another context for
+> > > > > > read/write operations, then you can effectively treat this as a
+> > > > > > delegation of privileges from the original opener, and perform access
+> > > > > > checks against the credentials using which the resource was opened.
+> > > > >
+> > > > > OK. I can understand that without endorsing it.
+> > > > >
+> > > > > > In particular, we already have those semantics in the core kernel for
+> > > > > > ->read() and ->write() VFS operations - they are *not allowed* to look
+> > > > > > at the credentials of the caller, and if they want to make security
+> > > > > > checks, they have to instead check against file->f_cred, which are the
+> > > > > > credentials using which the file was originally opened. (Yes, some
+> > > > > > places still get that wrong.) Passing a file descriptor to another
+> > > > > > task is a delegation of access, and the other task can then call
+> > > > > > syscalls like read() / write() / mmap() on the file descriptor without
+> > > > > > needing to have any access to the underlying file.
+> > > > >
+> > > > > A mechanism sufficiently entrenched.
+> > > >
+> > > > It's not just "entrenched", it is a fundamental requirement for being
+> > > > able to use file descriptor passing with syscalls like write(). If
+> > > > task A gives a file descriptor to task B, then task B must be able to
+> > > > write() to that FD without having to worry that the FD actually refers
+> > > > to some sort of special file that interprets the written data as some
+> > > > type of command, or something like that, and that this leads to task B
+> > > > unknowingly passing through access checks.
+> > > >
+> > > > > > You can't really attribute binder transactions to specific tasks that
+> > > > > > are actually involved in the specific transaction, neither on the
+> > > > > > sending side nor on the receiving side, because binder is built around
+> > > > > > passing data through memory mappings. Memory mappings can be accessed
+> > > > > > by multiple tasks, and even a task that does not currently have it
+> > > > > > mapped could e.g. map it at a later time. And on top of that you have
+> > > > > > the problem that the receiving task might also go through privileged
+> > > > > > execve() transitions.
+> > > > >
+> > > > > OK. I'm curious now as to why the task_struct was being passed to the
+> > > > > hook in the first place.
+> > > >
+> > > > Probably because that's what most other LSM hooks looked like and the
+> > > > authors/reviewers of the patch didn't realize that this model doesn't
+> > > > really work for binder? FWIW, these hooks were added in commit
+> > > > 79af73079d75 ("Add security hooks to binder and implement the hooks
+> > > > for SELinux."). The commit message also just talks about "processes".
+> > >
+> > > Note that in the same code path (binder_transaction), sender_euid is
+> > > set from proc->tsk and security_ctx is based on proc->tsk. If we are
+> > > changing the hooks to operate on the opener cred, then presumably we
+> > > should be doing that for sender_euid and replace the
+> > > security_task_getsecid_obj() call with security_cred_getsecid()?
+> >
+> > Stephan, do you want that to be included in this patch? Or should I
+> > follow this up with another patch for the sender_euid case?
+>
+> Either way is fine with me. Fixing sender_euid arguably is a fix that
+> should go all the way back to the introduction of binder unless I
+> misunderstand; it is independent of SELinux. Fixing the
+> security_task_getsecid -> cred_secid only goes back to
+> ec74136ded792deed80780a2f8baf3521eeb72f9. So having it as 3 separate
+> patches may help with the different Fixes tags and back-porting
+> purposes.
 
-Sorry,
-I only recently got easy access to arm64 platforms.  This is what I saw
-as a user:
+Yes, as annoying as it may be, please do separate patches as the
+-stable and distro folks will have an easier time that way.
 
-The largest gigantic huge page size on arm64 with 64K PAGE_SIZE 64K is
-16G.  Therefore, one should be able to specify 'hugetlb_cma=16G' on the
-kernel command line so that 1 gigantic page can be allocated from CMA.
-However, when adding such an option the following message is produced:
-
-hugetlb_cma: cma area should be at least 8796093022208 MiB
-
-This is because the calculation for non-4K gigantic page order is
-incorrect in the arm64 specific routine arm64_hugetlb_cma_reserve().
-
-Would you like me to send a new version with this in the commit message?
-Or, is it easier for you to just add it?
 -- 
-Mike Kravetz
+paul moore
+www.paul-moore.com
