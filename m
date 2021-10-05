@@ -2,117 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13ADE421D1D
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 06:06:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5596421DB1
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 06:50:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229694AbhJEEHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 00:07:50 -0400
-Received: from mail-bo1ind01olkn0170.outbound.protection.outlook.com ([104.47.101.170]:6110
-        "EHLO IND01-BO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229446AbhJEEHt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Oct 2021 00:07:49 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=KH6gU9ixiXin231YcQJEu2Fg4fzkXcbYfHy9AysYGuXiMkfhJCA7vsOa+GBUfECduQ+/6QcNicQ8ohqguqOU3rsYaUa3HdHNn9DWWPxoPs2SCdEQXvwAphKAexwfmVFg6+q28ZXoQ4jtjdvfQ4mmdVok4PJH35uhNrrdjfscdIcyBvgDmP5wEJfNed+gM5frVAxsBGDtva3C8Fpu4z/UWIdKPuB+n8t8XPixvoqBsdaNG8bOkLdfkT1ZG6y1KdWimruJztbSD8g0fcSx/z8DZnkV+IvgdWP9MVmYm9k7GHacscl/gr4sIkyTFksnzFp49G0Hq3vtmep5ymkIoFhi3g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=YTmxTgJaUTgTdu+soctbZKN6E/SG84+5XRAnd/YL8u4=;
- b=PIDbQi9ca/pkXZhO37o2qxZZ7h6AcgzoQIImTemebWCMqz02Ll5kiGI9zRad7eT860tN+jV6c/PeX15HSGjxiHDNQ8T25pKRFZ+c1zs5eYuUoQuZ7YNv/JDlqmW2xriXEQynyUaMSgGkHP/q3h1mQHgcyHqg8BX4CzA7wd5xscQsg3GTvLPT5Ree8Zc0zMa6qLNC/mwJmAeW1avB6edJjJPeHIZE9OSZ6eTJVnzTsKWNpb3KJuRjpIvoPaxXZCJo1abMM7smuggXaXGEaLSiiMQb5uJlLR4xik43Wb64jxuh6XGzWt2QTKe+xVwcH6EyClfZJdQrC69aTybOlTGFHg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=YTmxTgJaUTgTdu+soctbZKN6E/SG84+5XRAnd/YL8u4=;
- b=jzsyynJtCJBfc1Qbl+NTinmPpTTeGBxJmdM1BXZ6xdaztkPi9kDpXjXX/mlTjdIiKCtSdVpwcUsXOh+Rh2W5+PblQF3Gc0lRiGAPxXb2ek9P4f2RKt8uWfKUZihFeRkSW2KLrNL6JCHmHbiGe273A5g9lZ9vf6FUwwrRbeRkxbJRXWVJA/EoB0L/8gTdVTDViE8IzNY9mdWy4wgkM/kSg9FzqZW9b2MR4xGSvjEdxpQZ7D7eRa/l3v5/YxW3VC01VmEWMjC/uytjNdMRg4/vO1+zveJC6UIUI2E20Wr2tj3MFLw4Pag3GsX/xdQyXa18WCW7FlIwEjxGankcq6oM+A==
-Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:1b::13)
- by PN3PR01MB5520.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:7b::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4566.14; Tue, 5 Oct
- 2021 04:05:56 +0000
-Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
- ([fe80::fc30:dd98:6807:9ea]) by PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
- ([fe80::fc30:dd98:6807:9ea%3]) with mapi id 15.20.4566.022; Tue, 5 Oct 2021
- 04:05:56 +0000
-From:   Aditya Garg <gargaditya08@live.com>
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-CC:     Orlando Chamberlain <redecorating@protonmail.com>,
-        "andriy.shevchenko@linux.intel.com" 
-        <andriy.shevchenko@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCHv4] mfd: intel-lpss: Add support for MacBookPro16,2 ICL-N UART
-Thread-Topic: [PATCHv4] mfd: intel-lpss: Add support for MacBookPro16,2 ICL-N
- UART
-Thread-Index: AQHXuZ5MsJKL1IrMDUG96U54DVzKvw==
-Date:   Tue, 5 Oct 2021 04:05:56 +0000
-Message-ID: <7E63F4C9-6AE9-4E97-9986-B13A397289C5@live.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:  [2zzvoxVMAW+SRXM4u24/sEL5Y+nabW8T1pca3mncUA699lWsgDXummVQkDywu5N9]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 111eafdb-385f-4c29-03cf-08d987b56ec5
-x-ms-traffictypediagnostic: PN3PR01MB5520:
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: aKqk/Cieh8kYTNv3oayN4/asjquTGdcq3pZYLin5EeSW+Nd8+aAbOKAPlkj+X/SS4a8ke5DwHuDqtmlLznCBSG6BVWBLysQWFpaKEI/k9aqa7hjpYJx9H7qvUPa1YDWtsQUBvby3X0HfsAQwT1ahYrdMTWwuRC5fXTo+ObrmBAPvF1vn0te7kG7uei8i/nkjCEnSYvDUydY0R/Sy2fx21kPHeA8z9jNCAcdUju0u4OJ9ryrAB90yJBmOLXobb096QL4rW5G98/JXnmlidgUNFQatlvvrzzHomSJt67s9nYzqwllGDq07eyOZw5G17J1SVMTLfwFgM4RcR576VizhtosTlc6ogaldR8bOrzPXnpeBJ6dtmoP4RupmHwOMu2fNlGODBidHX0Sy2431Dzy6dvQotoOJQiG2qDEOZ37TX+1XYgrNEqS4lDIuQd6lYXOG
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: VnY3A+coS3GQZStSCo+PjElM6cGb96izhqgdavzgFPf+KMxgAEC4NexK0fdiQBPyoB36SbCGD0pxE82+Ol/vHJXUnbb7qCLi9p/KhEBrZdtXmOCjsvwl8SVPtiqFnw8clJrjbbQjY7HQ70RVFB+SAA4sEW2X8ugjsuM44W8xU2CkoRlUXpqWPORl1jFaMDWH3UrZ1SIdkV8LRsgYAYMJHQ==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <CECCBCCFE2DA874D81DD0218268A9BE6@INDPRD01.PROD.OUTLOOK.COM>
-Content-Transfer-Encoding: quoted-printable
+        id S231393AbhJEEw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 00:52:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50952 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230403AbhJEEwZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 00:52:25 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFEE3C061745;
+        Mon,  4 Oct 2021 21:50:35 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id k23so2249300pji.0;
+        Mon, 04 Oct 2021 21:50:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ykx0E0HoH3gswN00KBdlmyPkgBtTSiv8X3i/sICQMYU=;
+        b=WmuQnKkjijrqbv3StPV2yJhsrhB7Rvv5yv/oNegG2zbI9MpArDC6VJTMLqChpgtU3F
+         snPnOhKtvvcgIOwemaRFiVPSId9IQROA+B5KB7wtS/Kgwu32WMIFcELzsm+QwqtOtrSN
+         6NcxyqzCng5XBCiciMIimuUqBRrNN4Rq2RwkKdN/WmojlRctstWrH0q/hblJqyH7xdZT
+         mD8qs4GtPXK+eEF3n3JCvHM/G/5VlftJNkf4g+wYWWRM6NO0EDeQOIudp04IiPwDVo1c
+         vSOHw23lq7JYGdA+kmH3X1yN3m7M95IMNDHzl0et2qb+Gr+Nm6YTn9xHthN2VFgChR9F
+         02pA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ykx0E0HoH3gswN00KBdlmyPkgBtTSiv8X3i/sICQMYU=;
+        b=HMCS13nAxkfiN4F0sUo22Wg4r6bjg1OtKs/EVyu8/IC9T06a85ucxRK+1v4609bhlG
+         DG3BCn2Lzp5Q/Z/IzmvWfYp1nhCxKXPB+pQn5iI2AXmH2/g9dEKc2nYxJ5OaYsWyVrek
+         k8CqdseWWaT0crfGW/dvMwYl1GrNoM57GcpVFujdPfQvNZSxCRq4PLt/EZWDB/dss16k
+         e6jlaKqurhKLGboX5DAN4b5MCAilGWPO75Y1NwZjRnRSzBeiE2AZnG5NUWwyHxDWTTjv
+         Rpq8QG+pb/gF8PFmVfouWeFwpUAG2+/Rqdey7GsydlLy5sRGZ4SDq/MjPBMbUCR1+dTW
+         4Phw==
+X-Gm-Message-State: AOAM532vOBK/aqW4WrZOTeOlAy/6uyvHjh/O6kHernQm+o1bUhH5nEQC
+        PcPszniz1exS6kvfu5MACmaJnerQZNGhGw==
+X-Google-Smtp-Source: ABdhPJxVMbu6CZZnqH4S7a6FUaErlJ6fIwdM+UzNqTo6+TlZEwgNLF0BdrKjiEM97J5z++Q6b5Qlvg==
+X-Received: by 2002:a17:90b:1105:: with SMTP id gi5mr1347588pjb.100.1633409435006;
+        Mon, 04 Oct 2021 21:50:35 -0700 (PDT)
+Received: from unconquered.home.aehallh.com (24-113-252-168.wavecable.com. [24.113.252.168])
+        by smtp.gmail.com with ESMTPSA id i8sm15901446pfo.117.2021.10.04.21.50.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Oct 2021 21:50:34 -0700 (PDT)
+From:   "Zephaniah E. Loss-Cutler-Hull" <zephaniah@gmail.com>
+To:     platform-driver-x86@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org,
+        "Zephaniah E. Loss-Cutler-Hull" <zephaniah@gmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] platform/x86: gigabyte-wmi: add support for B550 AORUS ELITE AX V2
+Date:   Mon,  4 Oct 2021 21:48:55 -0700
+Message-Id: <20211005044855.1429724-1-zephaniah@gmail.com>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-X-OriginatorOrg: sct-15-20-3174-20-msonline-outlook-a1a1a.templateTenant
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 111eafdb-385f-4c29-03cf-08d987b56ec5
-X-MS-Exchange-CrossTenant-originalarrivaltime: 05 Oct 2021 04:05:56.5537
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PN3PR01MB5520
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Added 8086:38a8 to the intel_lpss_pci driver. It is an Intel Ice Lake
-PCH-N UART controler present on the MacBookPro16,2.
+This works just fine on my system.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Orlando Chamberlain <redecorating@protonmail.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Zephaniah E. Loss-Cutler-Hull <zephaniah@gmail.com>
+Cc: <stable@vger.kernel.org>
 ---
-v3->v4: reviewed-by line
-=20
-drivers/mfd/intel-lpss-pci.c
- | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/platform/x86/gigabyte-wmi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-
-diff
- --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
-index c54d19fb184c..a872b4485eac 100644
---- a/drivers/mfd/intel-lpss-pci.c
-+++ b/drivers/mfd/intel-lpss-pci.c
-
-@@ -253,6 +253,8 @@ static const struct pci_device_id intel_lpss_pci_ids[] =
-=3D {
-
- 	{ PCI_VDEVICE(INTEL, 0x34ea), (kernel_ulong_t)&bxt_i2c_info },
- 	{ PCI_VDEVICE(INTEL, 0x34eb), (kernel_ulong_t)&bxt_i2c_info },
- 	{ PCI_VDEVICE(INTEL, 0x34fb), (kernel_ulong_t)&spt_info },
-
-+	/* ICL-N */
-+	{ PCI_VDEVICE(INTEL, 0x38a8), (kernel_ulong_t)&bxt_uart_info },
-
- 	/* TGL-H */
- 	{ PCI_VDEVICE(INTEL, 0x43a7), (kernel_ulong_t)&bxt_uart_info },
- 	{ PCI_VDEVICE(INTEL, 0x43a8), (kernel_ulong_t)&bxt_uart_info },
---=20
+diff --git a/drivers/platform/x86/gigabyte-wmi.c b/drivers/platform/x86/gigabyte-wmi.c
+index d53634c8a6e0..658bab4b7964 100644
+--- a/drivers/platform/x86/gigabyte-wmi.c
++++ b/drivers/platform/x86/gigabyte-wmi.c
+@@ -141,6 +141,7 @@ static u8 gigabyte_wmi_detect_sensor_usability(struct wmi_device *wdev)
+ 
+ static const struct dmi_system_id gigabyte_wmi_known_working_platforms[] = {
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B450M S2H V2"),
++	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 AORUS ELITE AX V2"),
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 AORUS ELITE"),
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 AORUS ELITE V2"),
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 GAMING X V2"),
+-- 
 2.33.0
-
 
