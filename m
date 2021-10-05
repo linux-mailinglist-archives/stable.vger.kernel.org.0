@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 503FB42288A
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 15:51:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68D0342288E
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 15:51:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235568AbhJENwy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 09:52:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60394 "EHLO mail.kernel.org"
+        id S235450AbhJENxF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 09:53:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235466AbhJENwm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Oct 2021 09:52:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F3EC61989;
-        Tue,  5 Oct 2021 13:50:50 +0000 (UTC)
+        id S235483AbhJENwo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Oct 2021 09:52:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB481615A3;
+        Tue,  5 Oct 2021 13:50:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633441851;
-        bh=Supx4RRVHRgenGiH964uPjNYEQ08HNmm2bDw3KofKEg=;
+        s=k20201202; t=1633441853;
+        bh=0lnmFkKEGL8qe77uI9RJxhhWy2zee8GFecR+3m+fJi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ahKxMSxPTU3C5p7gbxVl55Fgu98rbUWPZLINTzT0f2phbcmcXpgOyyRbNV/yLlN90
-         Xhs+riYHJOAeKNBvnKyAzhajSHkuNoPA2hSErn+/hWE0do2I5QTqmcCKu3O+P9YAPP
-         6lBDm6zDi29iBHO9HC4r4l7o4vmTaikbWLOKL/SGNk6dZgt+TJ02Ifl0NuowcJ28Nl
-         q2Z0QBLjkRjC1wr0G+HLcBpv+YcqoZVtHXqPeVpyeIDWpnO9fjEToi3fhw2zpWAKuF
-         EWXUUf6Zna9xfwc43Ash8RZDZZa0w/6+024nqLLsRKzIa2dd0NZ7zS2VAk1Av3jEyT
-         pWzU+enR7kPug==
+        b=NfCIk6OgsF2b0rEbrF2SbpuW35kaUIDcnjlqEbV1cXIrYtTobqCUJI9RebruASY2/
+         R+AL77NiVbtaUXOM0hsP95SwtCsziqI35iNDTZDAuI3dsJKvOeDJ4Q4jMmxNYItoC+
+         sSz9jv1eVa90BA1u7y40/JuFYeFRKKG2CyB9XdZ/zyKTUIr+VHqx9Du+V93KOTWs27
+         XziICADZtdNuLMdWNrKwLL2wBQiFCzZWPW0/PANp+CbDbrDppOHhemt4JgtC0WfbrP
+         D0Qgr9AeONOfog+/yOLDg6KDsXWRERC0tPBoJxFXM4QwCFLBgzHDEp4Z45gTnuP+aI
+         JdsL4VNIzMwZQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evgeny Novikov <novikov@ispras.ru>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        nehal-bakulchandra.shah@amd.com, basavaraj.natikar@amd.com,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 14/40] HID: amd_sfh: Fix potential NULL pointer dereference
-Date:   Tue,  5 Oct 2021 09:49:53 -0400
-Message-Id: <20211005135020.214291-14-sashal@kernel.org>
+Cc:     Marc Herbert <marc.herbert@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        kai.vehmanen@linux.intel.com, daniel.baluta@nxp.com,
+        perex@perex.cz, tiwai@suse.com,
+        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.14 15/40] ASoC: SOF: loader: release_firmware() on load failure to avoid batching
+Date:   Tue,  5 Oct 2021 09:49:54 -0400
+Message-Id: <20211005135020.214291-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211005135020.214291-1-sashal@kernel.org>
 References: <20211005135020.214291-1-sashal@kernel.org>
@@ -45,50 +49,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Marc Herbert <marc.herbert@intel.com>
 
-[ Upstream commit d46ef750ed58cbeeba2d9a55c99231c30a172764 ]
+[ Upstream commit 8a8e1813ffc35111fc0b6db49968ceb0e1615ced ]
 
-devm_add_action_or_reset() can suddenly invoke amd_mp2_pci_remove() at
-registration that will cause NULL pointer dereference since
-corresponding data is not initialized yet. The patch moves
-initialization of data before devm_add_action_or_reset().
+Invoke release_firmware() when the firmware fails to boot in
+sof_probe_continue().
 
-Found by Linux Driver Verification project (linuxtesting.org).
+The request_firmware() framework must be informed of failures in
+sof_probe_continue() otherwise its internal "batching"
+feature (different from caching) cached the firmware image
+forever. Attempts to correct the file in /lib/firmware/ were then
+silently and confusingly ignored until the next reboot. Unloading the
+drivers did not help because from their disconnected perspective the
+firmware had failed so there was nothing to release.
 
-[jkosina@suse.cz: rebase]
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Acked-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Also leverage the new snd_sof_fw_unload() function to simplify the
+snd_sof_device_remove() function.
+
+Signed-off-by: Marc Herbert <marc.herbert@intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20210916085008.28929-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ sound/soc/sof/core.c   | 4 +---
+ sound/soc/sof/loader.c | 2 ++
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-index 8d68796aa905..4069b813c6c3 100644
---- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-@@ -235,6 +235,10 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
- 		return rc;
- 	}
+diff --git a/sound/soc/sof/core.c b/sound/soc/sof/core.c
+index 3e4dd4a86363..59d0d7b2b55c 100644
+--- a/sound/soc/sof/core.c
++++ b/sound/soc/sof/core.c
+@@ -371,7 +371,6 @@ int snd_sof_device_remove(struct device *dev)
+ 			dev_warn(dev, "error: %d failed to prepare DSP for device removal",
+ 				 ret);
  
-+	rc = amd_sfh_hid_client_init(privdata);
-+	if (rc)
-+		return rc;
-+
- 	privdata->cl_data = devm_kzalloc(&pdev->dev, sizeof(struct amdtp_cl_data), GFP_KERNEL);
- 	if (!privdata->cl_data)
- 		return -ENOMEM;
-@@ -245,7 +249,7 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
+-		snd_sof_fw_unload(sdev);
+ 		snd_sof_ipc_free(sdev);
+ 		snd_sof_free_debug(sdev);
+ 		snd_sof_free_trace(sdev);
+@@ -394,8 +393,7 @@ int snd_sof_device_remove(struct device *dev)
+ 		snd_sof_remove(sdev);
  
- 	mp2_select_ops(privdata);
+ 	/* release firmware */
+-	release_firmware(pdata->fw);
+-	pdata->fw = NULL;
++	snd_sof_fw_unload(sdev);
  
--	return amd_sfh_hid_client_init(privdata);
-+	return 0;
+ 	return 0;
  }
- 
- static const struct pci_device_id amd_mp2_pci_tbl[] = {
+diff --git a/sound/soc/sof/loader.c b/sound/soc/sof/loader.c
+index 2b38a77cd594..9c3f251a0dd0 100644
+--- a/sound/soc/sof/loader.c
++++ b/sound/soc/sof/loader.c
+@@ -880,5 +880,7 @@ EXPORT_SYMBOL(snd_sof_run_firmware);
+ void snd_sof_fw_unload(struct snd_sof_dev *sdev)
+ {
+ 	/* TODO: support module unloading at runtime */
++	release_firmware(sdev->pdata->fw);
++	sdev->pdata->fw = NULL;
+ }
+ EXPORT_SYMBOL(snd_sof_fw_unload);
 -- 
 2.33.0
 
