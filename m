@@ -2,65 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32ECB422CA0
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 17:37:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6419422CCB
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 17:42:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231513AbhJEPj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 11:39:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33498 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229626AbhJEPj3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 11:39:29 -0400
-Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94778C061749
-        for <stable@vger.kernel.org>; Tue,  5 Oct 2021 08:37:38 -0700 (PDT)
-Received: by mail-yb1-xb2e.google.com with SMTP id v195so46039196ybb.0
-        for <stable@vger.kernel.org>; Tue, 05 Oct 2021 08:37:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=NpWv7GA0WLClwvElZUSNgJNa77VPRgntu/RMHdpJKeU=;
-        b=ZKzmoAoDE2MhcvQHJgQYqr12QB9of59K+SchFzNat9LD1j3VKR2+2RzY3GByKnjf5w
-         OahxrryGaUGMqpgwRDMqZfyJwDJ5H8BzEOY9Hwqs0brly19tLJw8psrhd2ZdVYceWFL2
-         OFpjVb7/QEIfdY3P/m7eG/OJWsI329oSXXMd9lEjl2M3mRXqpjiQ5Q9Q0KV30+IVPcZ/
-         aHxUEvPHsdV03OnoKFjzgA9wDm30NSg4yCpEGu/TQRhRtd7M876Imh8dYRDGrVqgDGix
-         0J+Q3xnggbJKzSwgai5q6yq3gdF+4qmcdwpJlKRgY17B6lMWhTXuG7UdOSErNF4uiLSj
-         H6cw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=NpWv7GA0WLClwvElZUSNgJNa77VPRgntu/RMHdpJKeU=;
-        b=YtKWLvWCRrPWLdo4Buq+4ILSexXAxszgDBzbULkMQBM/6WCyzFg3sDf+St1ODllQ3J
-         EKbDXh2SfkhxKmoF/3UqhWFaxPQaZAuf6733tyGmpnpK91bhj/if+PhaolzDRBEG8zQD
-         oHL2gVbE1rYdQ4YkVX45HUmVIsZfOBHoRO+MMwlaUdT+4nZz0UQXuV+qy8bPH4tmlTfg
-         moyUtGqbKDGVBnT1jh6qhQLDXDb46b0c1gSprnJxgz8NOPclgOcH+5V7Srm4K8mNvFwg
-         Lkykk1ZSQC6MEDgDNSPPwMFV60+sPqR0hYmvsmPc09EOOJUrJPA0N61Saqqxmt7kfG6u
-         1CEg==
-X-Gm-Message-State: AOAM530UaiFEx+/fegAkfLV8Vw14ikTWXZumaAeWaFfR63TzSFTusMCM
-        mws498n6H26jBqUpR3bYDX20QRerC5LtBNi9Wvc=
-X-Google-Smtp-Source: ABdhPJzuU2PZS1qiM2MDGPtWpndB541DX2OZnWc20HzjBbD9VZTPl78sZ3VMBJ9vG/hB5gxRSJfKaX5dhio179YHy+Y=
-X-Received: by 2002:a25:59c6:: with SMTP id n189mr24804297ybb.517.1633448257937;
- Tue, 05 Oct 2021 08:37:37 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a05:7000:9785:0:0:0:0 with HTTP; Tue, 5 Oct 2021 08:37:37
- -0700 (PDT)
-From:   Wilson Treanor <wilsontreanor5@gmail.com>
-Date:   Tue, 5 Oct 2021 15:37:37 +0000
-Message-ID: <CAE7D5ShzZpt4_NRjSkN-xS0ET+qKcm0ndE+qLEz9Bx1FqvZEbQ@mail.gmail.com>
-Subject: Re: Hello
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+        id S234282AbhJEPoX convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 5 Oct 2021 11:44:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44544 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231513AbhJEPoW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Oct 2021 11:44:22 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 502CD61131;
+        Tue,  5 Oct 2021 15:42:32 +0000 (UTC)
+Received: from sofa.misterjones.org ([185.219.108.64] helo=why.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <maz@kernel.org>)
+        id 1mXmaM-00EvaV-Ai; Tue, 05 Oct 2021 16:42:30 +0100
+Date:   Tue, 05 Oct 2021 16:42:29 +0100
+Message-ID: <87lf37qxzu.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Pali =?UTF-8?B?Um9ow6Fy?= <pali@kernel.org>
+Cc:     Marek =?UTF-8?B?QmVow7pu?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 06/13] PCI: aardvark: Do not clear status bits of masked interrupts
+In-Reply-To: <20211005131545.ol3rb3zzgzze67uf@pali>
+References: <20211001195856.10081-1-kabel@kernel.org>
+        <20211001195856.10081-7-kabel@kernel.org>
+        <20211004140653.GB24914@lpieralisi>
+        <871r50st5h.wl-maz@kernel.org>
+        <20211005141340.48c8c0f6@dellmb>
+        <87mtnnr6cl.wl-maz@kernel.org>
+        <20211005131545.ol3rb3zzgzze67uf@pali>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: pali@kernel.org, kabel@kernel.org, lorenzo.pieralisi@arm.com, thomas.petazzoni@bootlin.com, bhelgaas@google.com, linux-pci@vger.kernel.org, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Good day,
+On Tue, 05 Oct 2021 14:15:45 +0100,
+Pali Rohár <pali@kernel.org> wrote:
+> 
+> Hello!
+> 
+> I dislike this approach. It adds another magic number which is just
+> causing issues. Please read commit message for patch 11/13 where we
+> describe why such magic constants are bad and already caused lot of
+> issues in this driver.
 
-In my honor as the personal attorney to your late relative, I hereby
-officially invite you to his inheritance claim.
-With your permission, I will give you more information .
+As I said, feel free to write something better.
 
-Yours faithfully,
+> 
+> > > >  	/* Process MSI interrupts */
+> > > >  	if (isr0_status & PCIE_ISR0_MSI_INT_PENDING)
+> > > >  		advk_pcie_handle_msi(pcie);
+> > > >  
+> > > >  	/* Process legacy interrupts */
+> > > > -	for (i = 0; i < PCI_NUM_INTX; i++) {
+> > > > -		if (!(isr1_status & PCIE_ISR1_INTX_ASSERT(i)))
+> > > > -			continue;
+> > > > -
+> > > > +	for_each_set_bit(i, &isr1_status, PCI_NUM_INTX) {
+> > > >  		advk_writel(pcie, PCIE_ISR1_INTX_ASSERT(i),
+> > > >  			    PCIE_ISR1_REG);
+> > > 
+> > > 1. what you are doing here is code cleanup. We are currently in the
+> > >    state where we have lots of fixes for this driver, which we are
+> > >    hoping will go also to stable.
+> > 
+> > Yes, it is code cleanup. Because I don't find this patch to be very
+> > good, TBH. As for going into stable, that's not relevant for this
+> > discussion.
+> > 
+> > >    Some of them depend on these changes.
+> > >    Can we please first apply those fixes (we want to send them in
+> > >    batches to avoid sending 60 patchs in one series, since last time
+> > >    nobody wanted to review all of that) and do this afterwards?
+> > 
+> > It would be better to start with patches that are in a better
+> > shape. After all, this is what the code review process is about. This
+> > isn't "just take my patches".
+> > 
+> > > 2. you are throwing away lower 8 bits of isr1_status. We have follow-up
+> > >    patches (not in this series, but in another batch which we want to
+> > >    send after this) that will be using those lower 8 bits, so we do not
+> > >    want to throw away them now.
+> > 
+> > I'm discarding these bits because *in isolation*, that's the correct
+> > thing to do. Feel free to propose a better patch that doesn't discard
+> > these bits and still makes the code more palatable.
+> 
+> The code pattern in this function is: compose irs*_status variable and
+> then compare it with register macros defined at the top of driver. Each
+> bit in this register represent some event and for each event there is
+> simple macro to match.
+> 
+> So with your proposed change it would break all macros (as they are
+> going to be shifted by magic constant) and then this code disallow
+> access to events represented by low bits. And also it makes code pattern
+> different for isr0_status and isr1_status variables which is very
+> confusing and probably source for introduction of new bugs.
+
+Read what I have said: I'm suggesting changes based on this patch *in
+isolation*. I don't see any other related patch in my inbox (nor do I
+want to receive any). Feel free to suggest something better (that's
+the third time I write this...).
+
+> Also the whole early-return optimization can be removed as it does not
+> change functionality. So we will do so.
+> 
+> But we do not agree with the lower 8 bit discard of the isr1_status
+> variable as explained above.
+> 
+> So if we add the explanation to commit message and drop the early
+> return, would it be ok?
+
+Do what you want. I have no interest in this particular piece of code,
+and only replied to Lorenzo's request. It doesn't change what I think
+of this patch, but I have too much on my plate to get dragged into
+sterile arguments.
+
+	M.
 
 -- 
-Wilson Treanor. Esq
+Without deviation from the norm, progress is not possible.
