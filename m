@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B2B04228E9
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 15:53:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 258D84228E2
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 15:53:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235478AbhJENy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 09:54:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59672 "EHLO mail.kernel.org"
+        id S236267AbhJENyp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 09:54:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235506AbhJENxI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235680AbhJENxI (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 5 Oct 2021 09:53:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9568461A10;
-        Tue,  5 Oct 2021 13:51:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D7C2617E3;
+        Tue,  5 Oct 2021 13:51:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633441876;
-        bh=2i0aVUHfCGPExYqmX35vMDum/QmkD/6Gm1AyXtiIJUk=;
+        s=k20201202; t=1633441878;
+        bh=eQyrhUBqAGxOp4OQ8SRKA+qeUo7Jb3TpkpwhaY0OqBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WXF0PmoKYrn+P8MCHOBdlOEsNBiG7aQLM/Ud5AfXYbQLdr1EilSk1QOBGdYhEvHc/
-         yVvTDWLTZ5e6RMyXnlGP0xKyNLVDWdccvCQ8HDnCEAom8+DIZsZCFBS2V2utJwXCOt
-         bodHWrFGEuMSpaFARvWwa8AXw3gijlQduADy9NU6N3O+mEBIj8MEMjT6vpwtYR/mbY
-         vPuHp7rwno10NinzufT2KJ15w47QtUYc2ZD0OfWLNLrzJq0atYFVQNzamhiSa8j7cJ
-         8E/tRcJtU4d5PALfWlehQrhxzbbdh8QYU5y933S3bcgSaj6PEeWpHqbGIoa1Cb1Yst
-         QzQU/hQaxsaKg==
+        b=NGcZ5oGZfXUCQjK/0b7aKMyGc0sAMDFizgFX3U780Vpan5yIEE/Qazjsy91++qT/x
+         av6mNFIjXk+mf+F1G0Blc1rfjo8olSBZYYHEd9foEMpvDaHZDOrWJg7HL48cG/0LSr
+         j3hY23MiV+kSD+rCsE4vYxA6sq0qKGg0cTr6tHlmhoVsfvSvoUOhpNo60u/NIOZXB9
+         bhXIDoyWLrpjA2gkR8jHxiz1V6P6nyAUclJvkWs2pd9CyY6AaZlnB2KaTjDueJftUj
+         2nq/DTMgPMoTorOsif+hTdhtv897KeDw1o/T+z9U36ncrI8GXVUyTvJ7EOiqqkuXrh
+         jrT3+lLNee80A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Keith Busch <kbusch@kernel.org>, Sven Peter <sven@svenpeter.dev>,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Aditya Garg <gargaditya08@live.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, axboe@fb.com,
-        Christoph@vger.kernel.org, sagi@grimberg.me,
-        linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.14 29/40] nvme: add command id quirk for apple controllers
-Date:   Tue,  5 Oct 2021 09:50:08 -0400
-Message-Id: <20211005135020.214291-29-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Arnd Bergmann <arnd@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 30/40] vboxfs: fix broken legacy mount signature checking
+Date:   Tue,  5 Oct 2021 09:50:09 -0400
+Message-Id: <20211005135020.214291-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211005135020.214291-1-sashal@kernel.org>
 References: <20211005135020.214291-1-sashal@kernel.org>
@@ -46,90 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit a2941f6aa71a72be2c82c0a168523a492d093530 ]
+[ Upstream commit 9b3b353ef330e20bc2d99bf3165cc044cff26a09 ]
 
-Some apple controllers use the command id as an index to implementation
-specific data structures and will fail if the value is out of bounds.
-The nvme driver's recently introduced command sequence number breaks
-this controller.
+Commit 9d682ea6bcc7 ("vboxsf: Fix the check for the old binary
+mount-arguments struct") was meant to fix a build error due to sign
+mismatch in 'char' and the use of character constants, but it just moved
+the error elsewhere, in that on some architectures characters and signed
+and on others they are unsigned, and that's just how the C standard
+works.
 
-Provide a quirk so these spec incompliant controllers can function as
-before. The driver will not have the ability to detect bad completions
-when this quirk is used, but we weren't previously checking this anyway.
+The proper fix is a simple "don't do that then".  The code was just
+being silly and odd, and it should never have cared about signed vs
+unsigned characters in the first place, since what it is testing is not
+four "characters", but four bytes.
 
-The quirk bit was selected so that it can readily apply to stable.
+And the way to compare four bytes is by using "memcmp()".
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=214509
-Cc: Sven Peter <sven@svenpeter.dev>
-Reported-by: Orlando Chamberlain <redecorating@protonmail.com>
-Reported-by: Aditya Garg <gargaditya08@live.com>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Tested-by: Sven Peter <sven@svenpeter.dev>
-Link: https://lore.kernel.org/r/20210927154306.387437-1-kbusch@kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Which compilers will know to just turn into a single 32-bit compare with
+a constant, as long as you don't have crazy debug options enabled.
+
+Link: https://lore.kernel.org/lkml/20210927094123.576521-1-arnd@kernel.org/
+Cc: Arnd Bergmann <arnd@kernel.org>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 4 +++-
- drivers/nvme/host/nvme.h | 6 ++++++
- drivers/nvme/host/pci.c  | 3 ++-
- 3 files changed, 11 insertions(+), 2 deletions(-)
+ fs/vboxsf/super.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index e2374319df61..9b6f78eac937 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -980,6 +980,7 @@ EXPORT_SYMBOL_GPL(nvme_cleanup_cmd);
- blk_status_t nvme_setup_cmd(struct nvme_ns *ns, struct request *req)
+diff --git a/fs/vboxsf/super.c b/fs/vboxsf/super.c
+index 4f5e59f06284..37dd3fe5b1e9 100644
+--- a/fs/vboxsf/super.c
++++ b/fs/vboxsf/super.c
+@@ -21,10 +21,7 @@
+ 
+ #define VBOXSF_SUPER_MAGIC 0x786f4256 /* 'VBox' little endian */
+ 
+-#define VBSF_MOUNT_SIGNATURE_BYTE_0 ('\000')
+-#define VBSF_MOUNT_SIGNATURE_BYTE_1 ('\377')
+-#define VBSF_MOUNT_SIGNATURE_BYTE_2 ('\376')
+-#define VBSF_MOUNT_SIGNATURE_BYTE_3 ('\375')
++static const unsigned char VBSF_MOUNT_SIGNATURE[4] = "\000\377\376\375";
+ 
+ static int follow_symlinks;
+ module_param(follow_symlinks, int, 0444);
+@@ -386,12 +383,7 @@ static int vboxsf_setup(void)
+ 
+ static int vboxsf_parse_monolithic(struct fs_context *fc, void *data)
  {
- 	struct nvme_command *cmd = nvme_req(req)->cmd;
-+	struct nvme_ctrl *ctrl = nvme_req(req)->ctrl;
- 	blk_status_t ret = BLK_STS_OK;
- 
- 	if (!(req->rq_flags & RQF_DONTPREP)) {
-@@ -1028,7 +1029,8 @@ blk_status_t nvme_setup_cmd(struct nvme_ns *ns, struct request *req)
- 		return BLK_STS_IOERR;
+-	unsigned char *options = data;
+-
+-	if (options && options[0] == VBSF_MOUNT_SIGNATURE_BYTE_0 &&
+-		       options[1] == VBSF_MOUNT_SIGNATURE_BYTE_1 &&
+-		       options[2] == VBSF_MOUNT_SIGNATURE_BYTE_2 &&
+-		       options[3] == VBSF_MOUNT_SIGNATURE_BYTE_3) {
++	if (data && !memcmp(data, VBSF_MOUNT_SIGNATURE, 4)) {
+ 		vbg_err("vboxsf: Old binary mount data not supported, remove obsolete mount.vboxsf and/or update your VBoxService.\n");
+ 		return -EINVAL;
  	}
- 
--	nvme_req(req)->genctr++;
-+	if (!(ctrl->quirks & NVME_QUIRK_SKIP_CID_GEN))
-+		nvme_req(req)->genctr++;
- 	cmd->common.command_id = nvme_cid(req);
- 	trace_nvme_setup_cmd(req, cmd);
- 	return ret;
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index 26511794629b..12393a72662e 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -149,6 +149,12 @@ enum nvme_quirks {
- 	 * 48 bits.
- 	 */
- 	NVME_QUIRK_DMA_ADDRESS_BITS_48		= (1 << 16),
-+
-+	/*
-+	 * The controller requires the command_id value be be limited, so skip
-+	 * encoding the generation sequence number.
-+	 */
-+	NVME_QUIRK_SKIP_CID_GEN			= (1 << 17),
- };
- 
- /*
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index c246fdacba2e..4f22fbafe964 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3282,7 +3282,8 @@ static const struct pci_device_id nvme_id_table[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2005),
- 		.driver_data = NVME_QUIRK_SINGLE_VECTOR |
- 				NVME_QUIRK_128_BYTES_SQES |
--				NVME_QUIRK_SHARED_TAGS },
-+				NVME_QUIRK_SHARED_TAGS |
-+				NVME_QUIRK_SKIP_CID_GEN },
- 
- 	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_EXPRESS, 0xffffff) },
- 	{ 0, }
 -- 
 2.33.0
 
