@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23339422882
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 15:51:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 503FB42288A
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 15:51:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235517AbhJENws (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 09:52:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59672 "EHLO mail.kernel.org"
+        id S235568AbhJENwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 09:52:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235464AbhJENwk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Oct 2021 09:52:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DDAE961B05;
-        Tue,  5 Oct 2021 13:50:48 +0000 (UTC)
+        id S235466AbhJENwm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Oct 2021 09:52:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F3EC61989;
+        Tue,  5 Oct 2021 13:50:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633441849;
-        bh=5e7Sw77oXbElVdGKegv3F1SKV4xyAxsp0hWW5XW1Jpg=;
+        s=k20201202; t=1633441851;
+        bh=Supx4RRVHRgenGiH964uPjNYEQ08HNmm2bDw3KofKEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cofGO+3Dk6XcX0smhhyXzlQ+30dAst3xr0UeieCESFky1Ehbfj3nJx72C1aFgcvu0
-         oDisDX6P5fOn2hF+6EJT7zGWD4mqNdDbRtPo877FuIy7KFvqhi8AKNkdqI+NG6fn/f
-         +X7uNgZ+Oe0XbOM/+1WKW16AmluMdqmbUIZrC3FrA2JgBuYIFkf0KoQhMT++21VEuP
-         wHF/LU2UxPbs3cGYtBvYJwDokLZ2AzWhFsIGe5NSpaxGrxx5DhVJo9mP8L8mXpsq7R
-         uKs2oplwjFcKZb5+B1+QIo12CQos8JgCbzqKC0sKlOw4D/m9wGhw0GxIk4W70Sh3k6
-         DXH+gHP+xkBoA==
+        b=ahKxMSxPTU3C5p7gbxVl55Fgu98rbUWPZLINTzT0f2phbcmcXpgOyyRbNV/yLlN90
+         Xhs+riYHJOAeKNBvnKyAzhajSHkuNoPA2hSErn+/hWE0do2I5QTqmcCKu3O+P9YAPP
+         6lBDm6zDi29iBHO9HC4r4l7o4vmTaikbWLOKL/SGNk6dZgt+TJ02Ifl0NuowcJ28Nl
+         q2Z0QBLjkRjC1wr0G+HLcBpv+YcqoZVtHXqPeVpyeIDWpnO9fjEToi3fhw2zpWAKuF
+         EWXUUf6Zna9xfwc43Ash8RZDZZa0w/6+024nqLLsRKzIa2dd0NZ7zS2VAk1Av3jEyT
+         pWzU+enR7kPug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joshua-Dickens <Joshua@Joshua-Dickens.com>,
-        Joshua Dickens <joshua.dickens@wacom.com>,
-        Ping Cheng <ping.cheng@wacom.com>,
+Cc:     Evgeny Novikov <novikov@ispras.ru>,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        nehal-bakulchandra.shah@amd.com, basavaraj.natikar@amd.com,
         jikos@kernel.org, benjamin.tissoires@redhat.com,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 13/40] HID: wacom: Add new Intuos BT (CTL-4100WL/CTL-6100WL) device IDs
-Date:   Tue,  5 Oct 2021 09:49:52 -0400
-Message-Id: <20211005135020.214291-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 14/40] HID: amd_sfh: Fix potential NULL pointer dereference
+Date:   Tue,  5 Oct 2021 09:49:53 -0400
+Message-Id: <20211005135020.214291-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211005135020.214291-1-sashal@kernel.org>
 References: <20211005135020.214291-1-sashal@kernel.org>
@@ -45,47 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joshua-Dickens <Joshua@Joshua-Dickens.com>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit 0c8fbaa553077630e8eae45bd9676cfc01836aeb ]
+[ Upstream commit d46ef750ed58cbeeba2d9a55c99231c30a172764 ]
 
-Add the new PIDs to wacom_wac.c to support the new models in the Intuos series.
+devm_add_action_or_reset() can suddenly invoke amd_mp2_pci_remove() at
+registration that will cause NULL pointer dereference since
+corresponding data is not initialized yet. The patch moves
+initialization of data before devm_add_action_or_reset().
 
-[jkosina@suse.cz: fix changelog]
-Signed-off-by: Joshua Dickens <joshua.dickens@wacom.com>
-Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+Found by Linux Driver Verification project (linuxtesting.org).
+
+[jkosina@suse.cz: rebase]
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Acked-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/wacom_wac.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 81ba642adcb7..528d94ccd76f 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -4720,6 +4720,12 @@ static const struct wacom_features wacom_features_0x393 =
- 	{ "Wacom Intuos Pro S", 31920, 19950, 8191, 63,
- 	  INTUOSP2S_BT, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 7,
- 	  .touch_max = 10 };
-+static const struct wacom_features wacom_features_0x3c6 =
-+	{ "Wacom Intuos BT S", 15200, 9500, 4095, 63,
-+	  INTUOSHT3_BT, WACOM_INTUOS_RES, WACOM_INTUOS_RES, 4 };
-+static const struct wacom_features wacom_features_0x3c8 =
-+	{ "Wacom Intuos BT M", 21600, 13500, 4095, 63,
-+	  INTUOSHT3_BT, WACOM_INTUOS_RES, WACOM_INTUOS_RES, 4 };
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+index 8d68796aa905..4069b813c6c3 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+@@ -235,6 +235,10 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
+ 		return rc;
+ 	}
  
- static const struct wacom_features wacom_features_HID_ANY_ID =
- 	{ "Wacom HID", .type = HID_GENERIC, .oVid = HID_ANY_ID, .oPid = HID_ANY_ID };
-@@ -4893,6 +4899,8 @@ const struct hid_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0x37A) },
- 	{ USB_DEVICE_WACOM(0x37B) },
- 	{ BT_DEVICE_WACOM(0x393) },
-+	{ BT_DEVICE_WACOM(0x3c6) },
-+	{ BT_DEVICE_WACOM(0x3c8) },
- 	{ USB_DEVICE_WACOM(0x4001) },
- 	{ USB_DEVICE_WACOM(0x4004) },
- 	{ USB_DEVICE_WACOM(0x5000) },
++	rc = amd_sfh_hid_client_init(privdata);
++	if (rc)
++		return rc;
++
+ 	privdata->cl_data = devm_kzalloc(&pdev->dev, sizeof(struct amdtp_cl_data), GFP_KERNEL);
+ 	if (!privdata->cl_data)
+ 		return -ENOMEM;
+@@ -245,7 +249,7 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
+ 
+ 	mp2_select_ops(privdata);
+ 
+-	return amd_sfh_hid_client_init(privdata);
++	return 0;
+ }
+ 
+ static const struct pci_device_id amd_mp2_pci_tbl[] = {
 -- 
 2.33.0
 
