@@ -2,44 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 840BF422862
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 15:50:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45D78422863
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 15:50:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234850AbhJENwY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 09:52:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58802 "EHLO mail.kernel.org"
+        id S235324AbhJENwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 09:52:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235291AbhJENwS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Oct 2021 09:52:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05654613D5;
-        Tue,  5 Oct 2021 13:50:25 +0000 (UTC)
+        id S235325AbhJENwT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Oct 2021 09:52:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D33B61A05;
+        Tue,  5 Oct 2021 13:50:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633441827;
-        bh=6okTawUyTOxI3B3Z4YalRMWEYkJW/0Z3oG7uqjvHnbw=;
+        s=k20201202; t=1633441829;
+        bh=8nqKmcc4UXu2DsC/fRJhF9gsmsXaJgVNTi6OYaXcIhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IMxO7PnEjk5kvkUFYWQtpvk4pt0KNjT/ywawHG/OTf+DPZw39z+8fiHwJVg+r2sX1
-         UQYXWsO7XRM2NvdG0FdXmiMV37fwWK8ea1CacmUeqpEj1Q/MQW7EdRvdCSBMZle85W
-         eY5C2wsPT+N4KA/+1RFs07xshgkEK8qPcNICryWNcVAoVO2FzJScZnxkI40Em20uvE
-         xo14Dc1ZuzdOY3klY12rp7epxNPZhShaUxIvbxBctGmmRY4hnG5JBTIdzlWBz8g411
-         3PxjYZExYAKkYwcu+1Lo9bgpkkQch06YIwfbfaf9J3Ruf8crzZaLCSOq4SEsdTIK7u
-         ob8nd48kus4zQ==
+        b=WJpQhkRAM45EuxHAVVpdrArKifUe8YD8Z/PQCEoS6sH0FlqYa/Ixka6CMU1ircD42
+         kBATOWcj1wYCvRRK/MN9I6ElN90gKGAs02iR9dg2E+OG5C6P+qGxD/0WCiekz06bm/
+         qeVIoWD4sMPDpq25+2oc69SvRL3gnqqVKjnaoW9uMXvdzgzjq5aJdqN8hzbgwCn7NG
+         whQnvOfizHSvO4JmXvAdGIlGI8bb/qE3FbmBK8b0nK5q+b2ML28dScX8W6bPhXX3Nf
+         MeHa5JLFGIECtKwGCpnYjAVvcmwLlE2u4CewUbietATWGk9F/QFM6HjRQ9+QsZ+w7I
+         84jeBJJv2tuJg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Rander Wang <rander.wang@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Bard Liao <bard.liao@intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
-        liam.r.girdwood@linux.intel.com, yang.jie@linux.intel.com,
-        perex@perex.cz, tiwai@suse.com, kai.vehmanen@linux.intel.com,
-        yung-chuan.liao@linux.intel.com, libin.yang@intel.com,
-        vamshi.krishna.gopal@intel.com, yong.zhi@intel.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.14 03/40] ASoC: Intel: sof_sdw: tag SoundWire BEs as non-atomic
-Date:   Tue,  5 Oct 2021 09:49:42 -0400
-Message-Id: <20211005135020.214291-3-sashal@kernel.org>
+Cc:     Eric Whitney <enwlinux@gmail.com>, Theodore Ts'o <tytso@mit.edu>,
+        Sasha Levin <sashal@kernel.org>, adilger.kernel@dilger.ca,
+        linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 04/40] ext4: enforce buffer head state assertion in ext4_da_map_blocks
+Date:   Tue,  5 Oct 2021 09:49:43 -0400
+Message-Id: <20211005135020.214291-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211005135020.214291-1-sashal@kernel.org>
 References: <20211005135020.214291-1-sashal@kernel.org>
@@ -51,47 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Eric Whitney <enwlinux@gmail.com>
 
-[ Upstream commit 58eafe1ff52ee1ce255759fc15729519af180cbb ]
+[ Upstream commit 948ca5f30e1df0c11eb5b0f410b9ceb97fa77ad9 ]
 
-The SoundWire BEs make use of 'stream' functions for .prepare and
-.trigger. These functions will in turn force a Bank Switch, which
-implies a wait operation.
+Remove the code that re-initializes a buffer head with an invalid block
+number and BH_New and BH_Delay bits when a matching delayed and
+unwritten block has been found in the extent status cache. Replace it
+with assertions that verify the buffer head already has this state
+correctly set.  The current code masked an inline data truncation bug
+that left stale entries in the extent status cache.  With this change,
+generic/130 can be used to reproduce and detect that bug.
 
-Mark SoundWire BEs as nonatomic for consistency, but keep all other
-types of BEs as is. The initialization of .nonatomic is done outside
-of the create_sdw_dailink helper to avoid adding more parameters to
-deal with a single exception to the rule that BEs are atomic.
-
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Bard Liao <bard.liao@intel.com>
-Link: https://lore.kernel.org/r/20210907184436.33152-1-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Eric Whitney <enwlinux@gmail.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20210819144927.25163-3-enwlinux@gmail.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_sdw.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/ext4/inode.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index 1a867c73a48e..cb3afc4519cf 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -860,6 +860,11 @@ static int create_sdw_dailink(struct device *dev, int *be_index,
- 			      cpus + *cpu_id, cpu_dai_num,
- 			      codecs, codec_num,
- 			      NULL, &sdw_ops);
-+		/*
-+		 * SoundWire DAILINKs use 'stream' functions and Bank Switch operations
-+		 * based on wait_for_completion(), tag them as 'nonatomic'.
-+		 */
-+		dai_links[*be_index].nonatomic = true;
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 5bbf9f3b8b6f..4935b368ff1f 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -1721,13 +1721,16 @@ static int ext4_da_map_blocks(struct inode *inode, sector_t iblock,
+ 		}
  
- 		ret = set_codec_init_func(link, dai_links + (*be_index)++,
- 					  playback, group_id);
+ 		/*
+-		 * Delayed extent could be allocated by fallocate.
+-		 * So we need to check it.
++		 * the buffer head associated with a delayed and not unwritten
++		 * block found in the extent status cache must contain an
++		 * invalid block number and have its BH_New and BH_Delay bits
++		 * set, reflecting the state assigned when the block was
++		 * initially delayed allocated
+ 		 */
+-		if (ext4_es_is_delayed(&es) && !ext4_es_is_unwritten(&es)) {
+-			map_bh(bh, inode->i_sb, invalid_block);
+-			set_buffer_new(bh);
+-			set_buffer_delay(bh);
++		if (ext4_es_is_delonly(&es)) {
++			BUG_ON(bh->b_blocknr != invalid_block);
++			BUG_ON(!buffer_new(bh));
++			BUG_ON(!buffer_delay(bh));
+ 			return 0;
+ 		}
+ 
 -- 
 2.33.0
 
