@@ -2,116 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA12E4227F7
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 15:34:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 681EA42280F
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 15:36:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234520AbhJENg1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 09:36:27 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:41132 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234103AbhJENg1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 09:36:27 -0400
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 9BBDF20028;
-        Tue,  5 Oct 2021 13:34:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1633440875; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=muVpN94mowz5PNDdbHLdWMwCxQCzzIFQLh6tPGkXOCw=;
-        b=WB084CpVgo7IVkufWcK3GX0mN37NTIXQAwwmpfy8mfvZjcDCTnJJph90jEaoPJ8gs6E5BO
-        s7Z+YiKqhftnBIOnEtwSjw6L/5HUFyKN3dBids+HBSzO8WlZAQPyLKQ8bJBkW6WBWRx9Qa
-        iO4ZxJ64g3GTX589cF6hqBGZ96qyPzc=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 6487D13C35;
-        Tue,  5 Oct 2021 13:34:35 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id a1xEF2tUXGHnDwAAMHmgww
-        (envelope-from <jgross@suse.com>); Tue, 05 Oct 2021 13:34:35 +0000
-From:   Juergen Gross <jgross@suse.com>
-To:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org
+        id S234761AbhJENip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 09:38:45 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44340 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S234694AbhJENim (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 09:38:42 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 195DXtm5019131;
+        Tue, 5 Oct 2021 09:36:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=ektqZ/mfyb7dAOJNyP0mSMY39E6jfqwsUuut/kZQ/C4=;
+ b=rtaPLdNiOoA7CYBFJXvMHcYiL5pV09stDD7fjYmjaXbwvvG/IW9khIAf16M2r66e1WEr
+ C5RBbNVUrq+Xg6mGcGAl2XTAEMnnSQimDDniNZVYt5EKMji3gKPgn13xZLFlP/TtvdMB
+ bev2vli7tCvr35ZUlVbiIX7A9kHJLlKO56aN8e+hqiKAJTJlvibDj/y7A0nCP0i0Khd/
+ pwJDJvSD8t0uTDDKvoLqrr9xY3af9pJCl6C+WgEO6KVyrONRr2CsysxDA3Cgp7Hk0vnD
+ Uv+Gq9kzd9tTcPUum+pvoAc59h/aM+a9titm47a7yAmMXVxW+MH8da40jPetsZQg+jBw Qg== 
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bgnm9bef6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Oct 2021 09:36:45 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 195DWj7W022778;
+        Tue, 5 Oct 2021 13:36:43 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03fra.de.ibm.com with ESMTP id 3bef29gsxa-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Oct 2021 13:36:43 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 195DadM83867170
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 5 Oct 2021 13:36:39 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 216CE52069;
+        Tue,  5 Oct 2021 13:36:39 +0000 (GMT)
+Received: from osiris (unknown [9.145.46.219])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id CEF5A5207E;
+        Tue,  5 Oct 2021 13:36:38 +0000 (GMT)
+Date:   Tue, 5 Oct 2021 15:36:37 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huawei.com>
 Cc:     Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>
-Subject: [PATCH] xen/balloon: fix cancelled balloon action
-Date:   Tue,  5 Oct 2021 15:34:33 +0200
-Message-Id: <20211005133433.32008-1-jgross@suse.com>
-X-Mailer: git-send-email 2.26.2
+        "gor@linux.ibm.com" <gor@linux.ibm.com>,
+        "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] s390: Fix strrchr() implementation
+Message-ID: <YVxU5fNTpFt/P0wk@osiris>
+References: <20211005120836.60630-1-roberto.sassu@huawei.com>
+ <YVxP0OoUWQvhmqkq@osiris>
+ <4eb4c1ea-d392-62fd-201f-472f24496f46@suse.com>
+ <923ea0761d4d45158acbd1347d9bb6b5@huawei.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <923ea0761d4d45158acbd1347d9bb6b5@huawei.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 67M2sR0VWEH4Q98q3R6yU8XdcCyxG-A-
+X-Proofpoint-ORIG-GUID: 67M2sR0VWEH4Q98q3R6yU8XdcCyxG-A-
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-05_02,2021-10-04_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1011 impostorscore=0 mlxlogscore=936 bulkscore=0 phishscore=0
+ suspectscore=0 mlxscore=0 spamscore=0 malwarescore=0 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110050080
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In case a ballooning action is cancelled the new kernel thread handling
-the ballooning might end up in a busy loop.
+On Tue, Oct 05, 2021 at 01:30:45PM +0000, Roberto Sassu wrote:
+> > From: Juergen Gross [mailto:jgross@suse.com]
+> > Sent: Tuesday, October 5, 2021 3:25 PM
+> > On 05.10.21 15:14, Heiko Carstens wrote:
+> > > On Tue, Oct 05, 2021 at 02:08:36PM +0200, Roberto Sassu wrote:
+> > >> Fix two problems found in the strrchr() implementation for s390
+> > >> architectures: evaluate empty strings (return the string address instead of
+> > >> NULL, if '\0' is passed as second argument); evaluate the first character
+> > >> of non-empty strings (the current implementation stops at the second).
+> > >>
+> > >> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> > >> Cc: stable@vger.kernel.org
+> > >> Reported-by: Heiko Carstens <hca@linux.ibm.com> (incorrect behavior with
+> > empty strings)
+> > >> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > >> ---
+> > >>   arch/s390/lib/string.c | 15 +++++++--------
+> > >>   1 file changed, 7 insertions(+), 8 deletions(-)
+> > >
+> > > Applied, thanks!
+> > >
+> > 
+> > Really? I just wanted to write a response: len is unsigned (size_t)
+> > and compared to be >= 0, which sounds like always true.
+> 
+> Thanks for catching this. Will fix it.
 
-Fix that by handling the cancelled action gracefully.
-
-While at it introduce a short wait for the BP_WAIT case.
-
-Cc: stable@vger.kernel.org
-Fixes: 8480ed9c2bbd56 ("xen/balloon: use a kernel thread instead a workqueue")
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
- drivers/xen/balloon.c | 21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
-index 43ebfe36ac27..3a50f097ed3e 100644
---- a/drivers/xen/balloon.c
-+++ b/drivers/xen/balloon.c
-@@ -491,12 +491,12 @@ static enum bp_state decrease_reservation(unsigned long nr_pages, gfp_t gfp)
- }
- 
- /*
-- * Stop waiting if either state is not BP_EAGAIN and ballooning action is
-- * needed, or if the credit has changed while state is BP_EAGAIN.
-+ * Stop waiting if either state is BP_DONE and ballooning action is
-+ * needed, or if the credit has changed while state is not BP_DONE.
-  */
- static bool balloon_thread_cond(enum bp_state state, long credit)
- {
--	if (state != BP_EAGAIN)
-+	if (state == BP_DONE)
- 		credit = 0;
- 
- 	return current_credit() != credit || kthread_should_stop();
-@@ -516,10 +516,19 @@ static int balloon_thread(void *unused)
- 
- 	set_freezable();
- 	for (;;) {
--		if (state == BP_EAGAIN)
--			timeout = balloon_stats.schedule_delay * HZ;
--		else
-+		switch (state) {
-+		case BP_DONE:
-+		case BP_ECANCELED:
- 			timeout = 3600 * HZ;
-+			break;
-+		case BP_EAGAIN:
-+			timeout = balloon_stats.schedule_delay * HZ;
-+			break;
-+		case BP_WAIT:
-+			timeout = HZ;
-+			break;
-+		}
-+
- 		credit = current_credit();
- 
- 		wait_event_freezable_timeout(balloon_thread_wq,
--- 
-2.26.2
-
+I'll fix it. No need to resend.
