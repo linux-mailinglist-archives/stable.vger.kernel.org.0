@@ -2,95 +2,197 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF77A422EB9
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 19:07:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E968422EBE
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 19:07:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235351AbhJERJO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 13:09:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55292 "EHLO
+        id S235238AbhJERJi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 13:09:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235238AbhJERJN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 13:09:13 -0400
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A786C061749;
-        Tue,  5 Oct 2021 10:07:23 -0700 (PDT)
-Received: by mail-pf1-x429.google.com with SMTP id k26so93771pfi.5;
-        Tue, 05 Oct 2021 10:07:23 -0700 (PDT)
+        with ESMTP id S235198AbhJERJi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 13:09:38 -0400
+Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E026C061749
+        for <stable@vger.kernel.org>; Tue,  5 Oct 2021 10:07:48 -0700 (PDT)
+Received: by mail-pg1-x52d.google.com with SMTP id r2so20375465pgl.10
+        for <stable@vger.kernel.org>; Tue, 05 Oct 2021 10:07:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=B05M7p2z56b3Fz9xSboQeRMo1WViu9Pk/5djZoh8UYI=;
-        b=bbvqOckQ53HrWLKWD7OzhZ8KHG6Wq1xeGTDSA7y9orDLL6dnv6W2iTAsA3KVkI/A5R
-         QKJjT8qvrjKluSIzA34rV8Fa5Y/+dzByu5afHi6xkQfK73nEmpnvr9JGrCcusWt1q4Qb
-         del+u3PqNPINyF0A1GWbSXd4eeLkhxqNQ+326KUb+lFbu6N8dqakCxt8i+Nrz3nE0tZM
-         aS4GtSn/Xt8gadCBjlE2xFVckrHS4nSpfOMfUNc09mfLIL90m1nd07XWfLZP8wTvI4ue
-         JXMl/fjr+i/kSELs6ESXxxl6D9aIUL9zlGy0tT1Mgamaha+mXV+IPLb/zmmWAw0+AwER
-         v6Tg==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=MDp6fWhyae5K1RNdo/hds+kBd0YHDS0ut0pS8DE8n3g=;
+        b=6lELR2Ye+npjP6T5Zi50wnUnuz+/adB5lx12mplpix5ik7YlJxWZMh56X1wC/KvKnI
+         g3RJAthsw/eVdxMShquaqTueuvRHSu6UqRy5AysmSsL+ImVP5ACoPuC7nrg2cnVm+RWP
+         Tb3adjQSao/e03I5v00ZcoNH2behFpr7rzpTvK7NEcnFSxxWY1BgXB3jyQlzaJmBZr8C
+         rBwSBMtDpDU4cNf5ZpI4BPvehVw0qdllErZhnAK+XqQQQB3ANsIBaFI6acvrH00hoU1j
+         guf4v9m0S6do7xgZczJMb/N8qsk3qES46vMulSuQCAppmwfThgAWUAAqv1Z1bmHhWCra
+         sSUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=B05M7p2z56b3Fz9xSboQeRMo1WViu9Pk/5djZoh8UYI=;
-        b=Mq4L8uXQpzmmfh9Igv2XwS9UthbDAy+Xfe3ZXOL4YqLQArO9ZlyJfUWJSwkzHpBrsM
-         KEXC37LGRTMSnJIodVzIr6kOHrGtIb9AEwbzrU02d0mG8pJG+xhDxqVoCJnzigAb6GGZ
-         ma+v9YiRP14k9Uc0yUDWHKvuDJwtZe9RbJg5bHjwl9tGS4SJ50kJdHn3yLlMAGoLXmIM
-         YIMp7y3m02zBodmoeZD5OHxyUBff9znaAppy0K0cMCzq5NRPrCxngFr5gKDtsYD5cv6j
-         akWE270hfM3tbGfDkN/kcM7O5FJ8L2AzLMu8KtkLSE58mLCKc4bydTPvOXdtY6HTZjrv
-         UMuw==
-X-Gm-Message-State: AOAM531PfIdA8nf0Vt6Htu3KX/8SXwOl9sNnqDdwq4E1KKuySQJ9NeIv
-        1jbID9lcH11Xf4evacJ7ASUFXMF3lWc=
-X-Google-Smtp-Source: ABdhPJyveo9V3+gwaU9d0qeJ/Nd+aXs2wejdHP32fRhNmL+KYY7LDkArG+i62Y4UmzOcFIw59K1uGg==
-X-Received: by 2002:a63:3d4c:: with SMTP id k73mr16488851pga.44.1633453642183;
-        Tue, 05 Oct 2021 10:07:22 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id r8sm18043171pgp.30.2021.10.05.10.07.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 05 Oct 2021 10:07:21 -0700 (PDT)
-Subject: Re: [PATCH 5.4 00/53] 5.4.151-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20211005083256.183739807@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <029ffc61-239f-5e9c-548a-2105a45ee342@gmail.com>
-Date:   Tue, 5 Oct 2021 10:07:13 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=MDp6fWhyae5K1RNdo/hds+kBd0YHDS0ut0pS8DE8n3g=;
+        b=VFcs/z1Vfq0mOylgnJjcsmRKIMKPruBZxoqYgWhbymsTP3pNd946lIil2U/PCYoW1Z
+         SvF9oltO4pgoELDnO2YxOeKfhQwcVZtnmn/Fx2Imx424PIa/McnOHrRcs9xYFTNIzkYv
+         2ydq8cgiy74bbyBhsdkxY2X3tJuc+Rz3YyfPMNgMoR+PZoU0e4JYZ3DVa6cvLjYCNax2
+         hKRVew62kKnPrQ/VyTZ63LqQ5OQGYwPZR6c+ZhaZvMXEBKNsdUiBHHnDOtkACiCGva8C
+         UthIB4mUSv9zZHmUVIuUjtozwIXPRK3YZbjlP298GGIBb8UhAq855xBc5qDVbc8KF8hp
+         w5ew==
+X-Gm-Message-State: AOAM5335WufNvH0wEPpEv5T50GZNRBp1vY8gQYyWTHgbJz5U0MXA36wz
+        Z4u8y8aHRYCrYA8GfwGQb+tZfTK1al9BZgUu
+X-Google-Smtp-Source: ABdhPJw+zrzz2/uRewMiv/kFNh7bBkFJGlnIMqVmGiYPYYj1yZJf8UMBtALuJHk0VZ8ULckpnhh+aw==
+X-Received: by 2002:a63:4f56:: with SMTP id p22mr16531707pgl.134.1633453667410;
+        Tue, 05 Oct 2021 10:07:47 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s2sm17897078pfe.215.2021.10.05.10.07.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 05 Oct 2021 10:07:47 -0700 (PDT)
+Message-ID: <615c8663.1c69fb81.eca7.8553@mx.google.com>
+Date:   Tue, 05 Oct 2021 10:07:47 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20211005083256.183739807@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.70-92-gb230df3cda42
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 152 runs,
+ 3 regressions (v5.10.70-92-gb230df3cda42)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/5/21 1:38 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.151 release.
-> There are 53 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 07 Oct 2021 08:32:44 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.151-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+stable-rc/queue/5.10 baseline: 152 runs, 3 regressions (v5.10.70-92-gb230df=
+3cda42)
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+Regressions Summary
+-------------------
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+platform                | arch  | lab           | compiler | defconfig     =
+     | regressions
+------------------------+-------+---------------+----------+---------------=
+-----+------------
+hip07-d05               | arm64 | lab-collabora | gcc-8    | defconfig     =
+     | 1          =
+
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-8    | defconfig     =
+     | 1          =
+
+tegra124-nyan-big       | arm   | lab-collabora | gcc-8    | multi_v7_defco=
+nfig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.70-92-gb230df3cda42/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.70-92-gb230df3cda42
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      b230df3cda4208645c2f73de3bdbd50c1907886c =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                | arch  | lab           | compiler | defconfig     =
+     | regressions
+------------------------+-------+---------------+----------+---------------=
+-----+------------
+hip07-d05               | arm64 | lab-collabora | gcc-8    | defconfig     =
+     | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615c508c1a09d4f39a99a34c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+92-gb230df3cda42/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+92-gb230df3cda42/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615c508c1a09d4f39a99a=
+34d
+        failing since 96 days (last pass: v5.10.46-100-gce5b41f85637, first=
+ fail: v5.10.46-100-g3b96099161c8b) =
+
+ =
+
+
+
+platform                | arch  | lab           | compiler | defconfig     =
+     | regressions
+------------------------+-------+---------------+----------+---------------=
+-----+------------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-8    | defconfig     =
+     | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615c50921a09d4f39a99a359
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+92-gb230df3cda42/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-banan=
+api-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+92-gb230df3cda42/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-banan=
+api-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615c50921a09d4f39a99a=
+35a
+        failing since 22 days (last pass: v5.10.63-26-gfb6b5e198aab, first =
+fail: v5.10.64-214-g93e17c2075d7) =
+
+ =
+
+
+
+platform                | arch  | lab           | compiler | defconfig     =
+     | regressions
+------------------------+-------+---------------+----------+---------------=
+-----+------------
+tegra124-nyan-big       | arm   | lab-collabora | gcc-8    | multi_v7_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615c7deb7182daf56299a2e8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+92-gb230df3cda42/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-tegra1=
+24-nyan-big.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
+92-gb230df3cda42/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-tegra1=
+24-nyan-big.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615c7deb7182daf56299a=
+2e9
+        new failure (last pass: v5.10.70-93-g42da4b1238c5) =
+
+ =20
