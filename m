@@ -2,117 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2875421F39
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 09:03:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8228F421F42
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 09:09:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232130AbhJEHFs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 03:05:48 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:45140 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230526AbhJEHFs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 03:05:48 -0400
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 344091FE37;
-        Tue,  5 Oct 2021 07:03:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1633417437; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=hcrx3ePp251FBiwXmbCqaDo7jNPxyHRwok9KZypNiBs=;
-        b=JH2x3XIqtNu3I4HAKCg51sdgp8DYrbrvj4rCt1X36Jh1E2INn8tMjEbR3lspD8TdMMQ2j8
-        1wzMRKmiwwlfsq3AQZNwStzx59iYWKoTMHcyNmBsdGqoAL2+8Wx8FXHwmvGlaVvvT8YV55
-        9Zsi4Z2bIwxqmwctOB2U8/3JR84TSYg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1633417437;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=hcrx3ePp251FBiwXmbCqaDo7jNPxyHRwok9KZypNiBs=;
-        b=ZkoPgewj4qzzt84dwxpD7DUPypE7aEs2JyBf9Z2MxVaqflX8QAU7BI839E0AibldoihmQR
-        j3gBBeCJnMkAaZBg==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id E30F6133A7;
-        Tue,  5 Oct 2021 07:03:56 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id wSliNtz4W2EGPwAAMHmgww
-        (envelope-from <tzimmermann@suse.de>); Tue, 05 Oct 2021 07:03:56 +0000
-From:   Thomas Zimmermann <tzimmermann@suse.de>
-To:     daniel@ffwll.ch, airlied@linux.ie, mripard@kernel.org,
-        maarten.lankhorst@linux.intel.com, kernel@amanoeldawod.com,
-        dirty.ice.hu@gmail.com, michael+lkml@stapelberg.ch,
-        ville.syrjala@linux.intel.com
-Cc:     dri-devel@lists.freedesktop.org,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Maxime Ripard <maxime@cerno.tech>, stable@vger.kernel.org
-Subject: [PATCH v2] drm/fbdev: Clamp fbdev surface size if too large
-Date:   Tue,  5 Oct 2021 09:03:55 +0200
-Message-Id: <20211005070355.7680-1-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.33.0
+        id S232478AbhJEHLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 03:11:34 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:50277 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231913AbhJEHLe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 03:11:34 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 8EB955C0100;
+        Tue,  5 Oct 2021 03:09:43 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Tue, 05 Oct 2021 03:09:43 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nakato.io; h=
+        from:to:cc:subject:date:message-id:in-reply-to:references
+        :mime-version:content-transfer-encoding:content-type; s=fm2; bh=
+        Hj37CP3Dw78hSfXRxxNojbV6w54/CCt3HwB3xajnRmc=; b=ZL4PM+i6e5oYR+90
+        cS4JXmlhIwbsdFNiXA1ZpVxKPHusnFvjg6r1yyKsSvpaduJzjHgUM/kX+RW9Nyg8
+        z0Z/CimhFQ0wTX8UglaW61faH71V0NxRgPlWWkXZmElrOSUiOK0B5KXCiILuVjbu
+        Gf0KD1Kt/ptAoQxgmWw8gotnUtaPixqvjiKZJLzefCx4ANlBUb4xe/7Jr90A4Eli
+        7kXjQ6CPGMhZacUW5kkTDIZ8OLUebehhVA5kZE04PPR9dEAEjdhhTexTNXXwzqR0
+        /dvmjBodoQb1yyDFq2fghdT6rhlbtVzMHxpcSXB+7qTfec9Ea+NyCsspcXI0dpHN
+        6EQgKA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm1; bh=Hj37CP3Dw78hSfXRxxNojbV6w54/CCt3HwB3xajnR
+        mc=; b=BPx9FwZbm/WOJyK2TJ0H6Y4RbSr3XIFUZ7ulvKV2pKZrIARFrzPWIv4vY
+        xLqkyhu2TYWhD27iTovkPtsq0/ElVsjd9eMM7k1WroTs4dnebc5zbUzNwY74TZ5T
+        N0kFr/rGT8hYW59KQg9ykEFD4NpOZ4lsauInmuBHUXPoRIlhTxIHVBoT5M9Xb0kU
+        o3KC8ek1jM8ReVgdXx3Hyy9Txsx95ywQdM2evUIB7XJv7OrGYnKrZ2VIwDDzbL23
+        YqHg/DU+tiqaUuc4AR+a86zb5obsvjGmLHdH0zXHj40Aqjrst2+Z4xVpSmI/M2xm
+        04TOFHBT5Ao0se4hHEYyam15VRa5A==
+X-ME-Sender: <xms:N_pbYUAec1p-I9nzp1O2Z9uOzXUSMhjqHAxMPlPT6tlmuu3FsBr0Jg>
+    <xme:N_pbYWh9J5svjY4BwZKtO2dHgynmKj9KaNM-ONL3Q6NqIAYaMHs4rKKcjKOoArnjL
+    XwW4bBXv5728cqUGA>
+X-ME-Received: <xmr:N_pbYXktvE1aGYYD67wjsdC0feS6q3rIz61L0HnawQMl8v2SZs53uO3w6F-hGDUGyq_faEj6_CG_oDvuv3azIziW-9pvBrTZbxVzpgJ6mthDdGc>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudelfedguddugecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkfgjfhgggfgtsehtuf
+    ertddttddvnecuhfhrohhmpefurggthhhiucfmihhnghcuoehnrghkrghtohesnhgrkhgr
+    thhordhioheqnecuggftrfgrthhtvghrnhepgeefkefgheevtddthfeihfevfffhhfejud
+    elheelgfdvteekuefgkeffudeiudffnecuffhomhgrihhnpehgihhthhhusgdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehnrghkrg
+    htohesnhgrkhgrthhordhioh
+X-ME-Proxy: <xmx:N_pbYax-aUjNqT7qLzNeU6mLoM1PhbhXKQ4o_2M3iEKEEhjRa6o4Dg>
+    <xmx:N_pbYZQ7jcelKaXov3EII-wiSylC8DN-IvMHpHS8zB6FsGvH4qcs5g>
+    <xmx:N_pbYVby_584YVqdG-W4a70E7TNocCBaa6rul0gdUU6TULfjGO-CTQ>
+    <xmx:N_pbYUFmpWfSsdc2pR2RLs5YWtK2qAhcApQ00ckky6eJL7GgQBltsA>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 5 Oct 2021 03:09:39 -0400 (EDT)
+From:   Sachi King <nakato@nakato.io>
+To:     hdegoede@redhat.com, mgross@linux.intel.com,
+        mario.limonciello@amd.com, rafael@kernel.org, lenb@kernel.org,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Cc:     platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-acpi@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] platform/x86: amd-pmc: Add alternative acpi id for PMC controller
+Date:   Tue, 05 Oct 2021 18:09:36 +1100
+Message-ID: <2915349.f8ii16yrt4@youmu>
+In-Reply-To: <3ecd9046-ad0c-9c9a-9b09-bbab2f94b9f2@amd.com>
+References: <20211002041840.2058647-1-nakato@nakato.io> <3ecd9046-ad0c-9c9a-9b09-bbab2f94b9f2@amd.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Clamp the fbdev surface size of the available maximumi height to avoid
-failing to init console emulation. An example error is shown below.
+On Tuesday, 5 October 2021 16:16:18 AEDT Shyam Sundar S K wrote:
+> 
+> On 10/2/2021 9:48 AM, Sachi King wrote:
+> > The Surface Laptop 4 AMD has used the AMD0005 to identify this
+> > controller instead of using the appropriate ACPI ID AMDI0005.  Include
+> > AMD0005 in the acpi id list.
+> 
+> Can you provide an ACPI dump
 
-  bad framebuffer height 2304, should be >= 768 && <= 768
-  [drm] Initialized simpledrm 1.0.0 20200625 for simple-framebuffer.0 on minor 0
-  simple-framebuffer simple-framebuffer.0: [drm] *ERROR* fbdev: Failed to setup generic emulation (ret=-22)
+The ACPI dump for this device is available here:
+https://github.com/linux-surface/acpidumps/tree/master/surface_laptop_4_amd
 
-This is especially a problem with drivers that have very small screen
-sizes and cannot over-allocate at all.
+> output of 'cat /sys/power/mem_sleep'
 
-v2:
-	* reduce warning level (Ville)
+[s2idle]
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Fixes: 11e8f5fd223b ("drm: Add simpledrm driver")
-Reported-by: Amanoel Dawod <kernel@amanoeldawod.com>
-Reported-by: Zoltán Kővágó <dirty.ice.hu@gmail.com>
-Reported-by: Michael Stapelberg <michael+lkml@stapelberg.ch>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Maxime Ripard <maxime@cerno.tech>
-Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.14+
----
- drivers/gpu/drm/drm_fb_helper.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+Thanks,
+Sachi
 
-diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
-index 6860223f0068..3b5661cf6c2b 100644
---- a/drivers/gpu/drm/drm_fb_helper.c
-+++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -1508,6 +1508,7 @@ static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper,
- {
- 	struct drm_client_dev *client = &fb_helper->client;
- 	struct drm_device *dev = fb_helper->dev;
-+	struct drm_mode_config *config = &dev->mode_config;
- 	int ret = 0;
- 	int crtc_count = 0;
- 	struct drm_connector_list_iter conn_iter;
-@@ -1665,6 +1666,11 @@ static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper,
- 	/* Handle our overallocation */
- 	sizes.surface_height *= drm_fbdev_overalloc;
- 	sizes.surface_height /= 100;
-+	if (sizes.surface_height > config->max_height) {
-+		drm_dbg_kms(dev, "Fbdev over-allocation too large; clamping height to %d\n",
-+			    config->max_height);
-+		sizes.surface_height = config->max_height;
-+	}
- 
- 	/* push down into drivers */
- 	ret = (*fb_helper->funcs->fb_probe)(fb_helper, &sizes);
--- 
-2.33.0
 
