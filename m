@@ -2,120 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F3684229D6
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 16:00:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EADD422A08
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 16:04:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235366AbhJEOCj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 10:02:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40902 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236014AbhJEOB7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Oct 2021 10:01:59 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCDCE613D5;
-        Tue,  5 Oct 2021 13:58:28 +0000 (UTC)
-Received: from rostedt by gandalf.local.home with local (Exim 4.94.2)
-        (envelope-from <rostedt@goodmis.org>)
-        id 1mXkxf-0055ji-T8; Tue, 05 Oct 2021 09:58:27 -0400
-Message-ID: <20211005135827.746867602@goodmis.org>
-User-Agent: quilt/0.66
-Date:   Tue, 05 Oct 2021 09:57:45 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>, X86 ML <x86@kernel.org>,
-        Daniel Xu <dxu@dxuuu.xyz>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@alien8.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Abhishek Sagar <sagar.abhishek@gmail.com>,
-        Andrii Nakryiko <andrii.nakryiko@gmail.com>,
-        Paul McKenney <paulmck@kernel.org>, stable@vger.kernel.org,
-        Masami Hiramatsu <mhiramat@kernel.org>
-Subject: [for-linus][PATCH 12/27] ia64: kprobes: Fix to pass correct trampoline address to the handler
-References: <20211005135733.485175654@goodmis.org>
+        id S235133AbhJEOGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 10:06:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38492 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235173AbhJEOFc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 10:05:32 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07223C02B8C4
+        for <stable@vger.kernel.org>; Tue,  5 Oct 2021 06:55:47 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id d8so9946505edx.9
+        for <stable@vger.kernel.org>; Tue, 05 Oct 2021 06:55:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=4nQrZDe3L3lnevNgwmmPUj83yrkESGDrc+fmpfAhQFg=;
+        b=5Z80PapGlg+CLKzYJ7C4/tcqEsBWzVrpWomx8ZPjQx33tVA89XTnNsMfMpNoGlEPFc
+         Tv1ftiRthctlN0/AZ82d5WxOFvBqrAY1aPi2cvDs3OkwqfExUj04CDMxdO3i2i0tTXMg
+         i/5P1V6lcfEq1kvXAW819vWS8f7ST75/6BhpJPvGexNA7o9J7+fmvAJr/fJqOTc962jV
+         8FwKZTL5ttRXRnxqo4NBUjDHvTzE0QCoWcW1JgcBfKQ3xXwn/YNE7SulwFuZI7m5Q7FW
+         La6Vqpkut1o7RbUic5xqYwBizsyJLbJvOV/nzyfmDVhGK3od5SwWE6OM045ZsIVosw8y
+         yy7g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=4nQrZDe3L3lnevNgwmmPUj83yrkESGDrc+fmpfAhQFg=;
+        b=CuyHlYqUb+Vt0RhkhTnXFXpMYtzFXP3fmBdQZ79Krty3eFYc3pOySa896qmnXkdq+B
+         V1PEfzMhQtBdFVOxPyIzbCW9H2dhDMZ/1VPBV8h8OkSJIKJyqSPHI+zh/l7xEvYUMfws
+         RqKx795fzr1goCmvbd8qcSPlWHB5bXfIcDw+xNGC7bJJXQxUFWBYm7D0Bpp71sUEHoU/
+         1DgHNSByAmi9s49dTGt8WHTR4JXy36SMRcbneX9Al51z2RRRO17aY4Vn0x/BtOj9/PPY
+         cHaFkPThHYos76qlnwEr4cjLifzBvwcMPzvVt7SMiDKn2EWQzdO4ZhF00XKoYwIdU1Lc
+         1foA==
+X-Gm-Message-State: AOAM530Qd+pse8lA2cuEDhCQ/nT4K4BCDDIvFb0WBIcDN1edIfbpod5Q
+        crkQkVoeuWN+8TpXad8rokO9lUtY+j9k9d4sZgfC
+X-Google-Smtp-Source: ABdhPJxXFaPdoVeXTHWJ4N9Z9y35WGVg9/WQkoOpNDkwryi/oobLzFCbBmPQZs0ePNLDIgCowz+yAsCdg+1+ItUorQQ=
+X-Received: by 2002:a17:907:629b:: with SMTP id nd27mr25354271ejc.24.1633442022740;
+ Tue, 05 Oct 2021 06:53:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+References: <20211001175521.3853257-1-tkjos@google.com> <YVxTlBMSWBkLgSi9@kroah.com>
+In-Reply-To: <YVxTlBMSWBkLgSi9@kroah.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 5 Oct 2021 09:53:31 -0400
+Message-ID: <CAHC9VhTdyc6qagfFDLFteqTpayC4G=tNy1T7mueMKeZzU8QmwQ@mail.gmail.com>
+Subject: Re: [PATCH v2] binder: use cred instead of task for selinux checks
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Todd Kjos <tkjos@google.com>, arve@android.com, tkjos@android.com,
+        maco@android.com, christian@brauner.io,
+        James Morris <jmorris@namei.org>,
+        Serge Hallyn <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, keescook@chromium.org,
+        jannh@google.com, Jeffrey Vander Stoep <jeffv@google.com>,
+        zohar@linux.ibm.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-kernel@vger.kernel.org, joel@joelfernandes.org,
+        kernel-team@android.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+On Tue, Oct 5, 2021 at 9:31 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+> On Fri, Oct 01, 2021 at 10:55:21AM -0700, Todd Kjos wrote:
+> > Save the struct cred associated with a binder process
+> > at initial open to avoid potential race conditions
+> > when converting to a security ID.
+> >
+> > Since binder was integrated with selinux, it has passed
+> > 'struct task_struct' associated with the binder_proc
+> > to represent the source and target of transactions.
+> > The conversion of task to SID was then done in the hook
+> > implementations. It turns out that there are race conditions
+> > which can result in an incorrect security context being used.
+> >
+> > Fix by saving the 'struct cred' during binder_open and pass
+> > it to the selinux subsystem.
+> >
+> > Fixes: 79af73079d75 ("Add security hooks to binder and implement the
+> > hooks for SELinux.")
+> > Signed-off-by: Todd Kjos <tkjos@google.com>
+> > Cc: stable@vger.kernel.org # 5.14+ (need backport for earlier stables)
+> > ---
+> > v2: updated comments as suggested by Paul Moore
+> >
+> >  drivers/android/binder.c          | 14 +++++----
+> >  drivers/android/binder_internal.h |  4 +++
+> >  include/linux/lsm_hook_defs.h     | 14 ++++-----
+> >  include/linux/lsm_hooks.h         | 14 ++++-----
+> >  include/linux/security.h          | 28 +++++++++---------
+> >  security/security.c               | 14 ++++-----
+> >  security/selinux/hooks.c          | 48 +++++++++----------------------
+> >  7 files changed, 60 insertions(+), 76 deletions(-)
+>
+> Ideally I could get an ack from the security developers before taking
+> this in my tree...
 
-The following commit:
+This should probably go in via one of the security trees, e.g. SELinux
+or LSM, rather than the binder/driver tree.
 
-   Commit e792ff804f49 ("ia64: kprobes: Use generic kretprobe trampoline handler")
-
-Passed the wrong trampoline address to __kretprobe_trampoline_handler(): it
-passes the descriptor address instead of function entry address.
-
-Pass the right parameter.
-
-Also use correct symbol dereference function to get the function address
-from 'kretprobe_trampoline' - an IA64 special.
-
-Link: https://lkml.kernel.org/r/163163042696.489837.12551102356265354730.stgit@devnote2
-
-Fixes: e792ff804f49 ("ia64: kprobes: Use generic kretprobe trampoline handler")
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: X86 ML <x86@kernel.org>
-Cc: Daniel Xu <dxu@dxuuu.xyz>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Abhishek Sagar <sagar.abhishek@gmail.com>
-Cc: Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Cc: Paul McKenney <paulmck@kernel.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
----
- arch/ia64/kernel/kprobes.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/arch/ia64/kernel/kprobes.c b/arch/ia64/kernel/kprobes.c
-index 441ed04b1037..d4048518a1d7 100644
---- a/arch/ia64/kernel/kprobes.c
-+++ b/arch/ia64/kernel/kprobes.c
-@@ -398,7 +398,8 @@ static void kretprobe_trampoline(void)
- 
- int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
- {
--	regs->cr_iip = __kretprobe_trampoline_handler(regs, kretprobe_trampoline, NULL);
-+	regs->cr_iip = __kretprobe_trampoline_handler(regs,
-+		dereference_function_descriptor(kretprobe_trampoline), NULL);
- 	/*
- 	 * By returning a non-zero value, we are telling
- 	 * kprobe_handler() that we don't want the post_handler
-@@ -414,7 +415,7 @@ void __kprobes arch_prepare_kretprobe(struct kretprobe_instance *ri,
- 	ri->fp = NULL;
- 
- 	/* Replace the return addr with trampoline addr */
--	regs->b0 = ((struct fnptr *)kretprobe_trampoline)->ip;
-+	regs->b0 = (unsigned long)dereference_function_descriptor(kretprobe_trampoline);
- }
- 
- /* Check the instruction in the slot is break */
-@@ -902,14 +903,14 @@ static struct kprobe trampoline_p = {
- int __init arch_init_kprobes(void)
- {
- 	trampoline_p.addr =
--		(kprobe_opcode_t *)((struct fnptr *)kretprobe_trampoline)->ip;
-+		dereference_function_descriptor(kretprobe_trampoline);
- 	return register_kprobe(&trampoline_p);
- }
- 
- int __kprobes arch_trampoline_kprobe(struct kprobe *p)
- {
- 	if (p->addr ==
--		(kprobe_opcode_t *)((struct fnptr *)kretprobe_trampoline)->ip)
-+		dereference_function_descriptor(kretprobe_trampoline))
- 		return 1;
- 
- 	return 0;
 -- 
-2.32.0
+paul moore
+www.paul-moore.com
