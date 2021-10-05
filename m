@@ -2,66 +2,237 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E43CF4220A6
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 10:25:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF4B74220E8
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 10:37:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232478AbhJEI0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 04:26:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43206 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230286AbhJEI0v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 04:26:51 -0400
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52BF8C061745
-        for <stable@vger.kernel.org>; Tue,  5 Oct 2021 01:25:00 -0700 (PDT)
-Received: by mail-wr1-x444.google.com with SMTP id t2so12305721wrb.8
-        for <stable@vger.kernel.org>; Tue, 05 Oct 2021 01:25:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=1Br/N6WhyVMlujnGsxiPG2oa5QW+rtf7KlXAbdHBbwA=;
-        b=gXQ/iv3WG5lw1b4cmRvCd3CtGUzZZMoZqlk5e4/KhrqsXPk8ZoCxzfsFupEGymjB2P
-         jlYFz7+tb68EZgsW8JJzUs7WpigOUgN/kGjl+gPSPYw+n+MnF5SOOTfnByxQbNzlKDLB
-         oKI/it3MP986gFJGh0rNWRnUWPChMxe0RXezfHcRfa95M440qNBO0W5QvS7CQiHnwYIN
-         sla97nb8hSgqinJ4inziHveO2+PiRzblTIcc0Mp8Bb5fiB7l+AdaCdwFDbt1HT9ePQc4
-         oL1Oxkip3j6W3dDdrO3Fn2L+yaiolXBnu3/KyRBetQ2OfG4J+oXeLBVck/10VDLZHjfe
-         Z+Bg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=1Br/N6WhyVMlujnGsxiPG2oa5QW+rtf7KlXAbdHBbwA=;
-        b=M2NND6CR4n6sDFrnL2YCAxYcNuD/B0iB7EeSxTZdKafKE36NNixZR6yXqMvzMDWmyM
-         v7MMeVPMOxK4pr13SUDnXs+xKXUbabkVBFmMr9F+jx+ren/KWHYjvVGMa5QU5CSCOOSf
-         gDRFzS7Z9aUe491snf8ofMXHQTQUFl2UxAYod/OLjb6YQyy/MAJd5RNrATR04frWT9wK
-         vjOZLFw0Aj2+44ARkRviHaD7CEtF6yDTT4iHksS8+lHFo2MKgV45y8mRMXXaWMcfyzh0
-         LvbcWb3SI1POZ157wOpx6zfvioKr33W4BvZ9BA6yy4ck8H6fUS2EB9OC/altKmlg/2Av
-         +SWA==
-X-Gm-Message-State: AOAM5337ErtN5zx5eLx48Sihx+o2C2ITsrO3BG9ElyCCf4gGeCb6zBqO
-        ZWs40TTudu72iLOKe+2bOtZQ7WMzjKGHqP3WhBo=
-X-Google-Smtp-Source: ABdhPJxPXvA1htfCzk/xBZrC47wQanIz81dAYuZ7N7PuYWoRNn1D0nNg+rowgr64Rg3yAWryxZIST5omgFhDU6i5rng=
-X-Received: by 2002:adf:a2d7:: with SMTP id t23mr20425957wra.156.1633422298939;
- Tue, 05 Oct 2021 01:24:58 -0700 (PDT)
+        id S232167AbhJEIjt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 04:39:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50754 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230526AbhJEIjs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Oct 2021 04:39:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0CAB61130;
+        Tue,  5 Oct 2021 08:37:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1633423078;
+        bh=ch25ZyoSC4A/2UySrYo9vkFVpGLP3S3g3Kq3k6vSlOk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=wtaRPz3OgO836NpyEXSJSzHcqgqboZDCHB9fqdi2NnTIsUPEQ8KHe6sCeOI+b8izx
+         7ol5JlmNAaVqIPs1jwNTKTSaV8nICJoy7tBtI02nJpTygw7t+BhEytqwCFKLcXUFXw
+         DFfx9q4nQUPoJ0Yu/95frs/Cbx+kpQXfa34DcPuo=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.4 00/41] 4.4.286-rc2 review
+Date:   Tue,  5 Oct 2021 10:37:55 +0200
+Message-Id: <20211005083253.853051879@linuxfoundation.org>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Received: by 2002:adf:ef41:0:0:0:0:0 with HTTP; Tue, 5 Oct 2021 01:24:58 -0700 (PDT)
-Reply-To: mrsbillchantallawrence58@gmail.com
-From:   mrsbillchantal <mrssandraasas@gmail.com>
-Date:   Tue, 5 Oct 2021 09:24:58 +0100
-Message-ID: <CAJAjUuBpoLsLkYBnG4K9ni6pq_QWAVnCNLpkrtjq0vDbqv6jrw@mail.gmail.com>
-Subject: Dear Friend, My present internet connection is very slow in case you
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.286-rc2.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.286-rc2
+X-KernelTest-Deadline: 2021-10-07T08:32+00:00
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-hello....
+This is the start of the stable review cycle for the 4.4.286 release.
+There are 41 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-You have been compensated with the sum of 5.5 million dollars in this
-united nation the payment will be issue into atm visa card and send to
-you from the santander bank we need your address and your  Whatsapp
-this my email.ID (  mrsbillchantallawrence58@gmail.com)  contact  me
+Responses should be made by Thu, 07 Oct 2021 08:32:44 +0000.
+Anything received after that time might be too late.
 
-Thanks my
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.286-rc2.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
 
-mrs chantal
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.286-rc2
+
+NeilBrown <neilb@suse.com>
+    cred: allow get_cred() and put_cred() to be given NULL.
+
+Anirudh Rayabharam <mail@anirudhrb.com>
+    HID: usbhid: free raw_report buffers in usbhid_stop
+
+Jozsef Kadlecsik <kadlec@netfilter.org>
+    netfilter: ipset: Fix oversized kvmalloc() calls
+
+F.A.Sulaiman <asha.16@itfac.mrt.ac.lk>
+    HID: betop: fix slab-out-of-bounds Write in betop_probe
+
+Suzuki K Poulose <suzuki.poulose@arm.com>
+    arm64: Extend workaround for erratum 1024718 to all versions of Cortex-A55
+
+Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
+    EDAC/synopsys: Fix wrong value type assignment for edac_mode
+
+yangerkun <yangerkun@huawei.com>
+    ext4: fix potential infinite loop in ext4_dx_readdir()
+
+Johan Hovold <johan@kernel.org>
+    ipack: ipoctal: fix module reference leak
+
+Johan Hovold <johan@kernel.org>
+    ipack: ipoctal: fix missing allocation-failure check
+
+Johan Hovold <johan@kernel.org>
+    ipack: ipoctal: fix tty-registration error handling
+
+Johan Hovold <johan@kernel.org>
+    ipack: ipoctal: fix tty registration race
+
+Johan Hovold <johan@kernel.org>
+    ipack: ipoctal: fix stack information leak
+
+Jacob Keller <jacob.e.keller@intel.com>
+    e100: fix buffer overrun in e100_get_regs
+
+Jacob Keller <jacob.e.keller@intel.com>
+    e100: fix length calculation in e100_get_regs_len
+
+Andrea Claudi <aclaudi@redhat.com>
+    ipvs: check that ip_vs_conn_tab_bits is between 8 and 20
+
+Johannes Berg <johannes.berg@intel.com>
+    mac80211: fix use-after-free in CCMP/GCMP RX
+
+Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+    tty: Fix out-of-bound vmalloc access in imageblit
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    qnx4: work around gcc false positive warning bug
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    spi: Fix tegra20 build with CONFIG_PM=n
+
+Guenter Roeck <linux@roeck-us.net>
+    net: 6pack: Fix tx timeout and slot time
+
+Guenter Roeck <linux@roeck-us.net>
+    alpha: Declare virt_to_phys and virt_to_bus parameter as pointer to volatile
+
+Dan Li <ashimida@linux.alibaba.com>
+    arm64: Mark __stack_chk_guard as __ro_after_init
+
+Helge Deller <deller@gmx.de>
+    parisc: Use absolute_pointer() to define PAGE0
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    qnx4: avoid stringop-overread errors
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    sparc: avoid stringop-overread errors
+
+Guenter Roeck <linux@roeck-us.net>
+    net: i825xx: Use absolute_pointer for memcpy from fixed memory location
+
+Guenter Roeck <linux@roeck-us.net>
+    compiler.h: Introduce absolute_pointer macro
+
+Guenter Roeck <linux@roeck-us.net>
+    m68k: Double cast io functions to unsigned long
+
+Zhihao Cheng <chengzhihao1@huawei.com>
+    blktrace: Fix uaf in blk_trace access after removing by sysfs
+
+Baokun Li <libaokun1@huawei.com>
+    scsi: iscsi: Adjust iface sysfs attr detection
+
+Aya Levin <ayal@nvidia.com>
+    net/mlx4_en: Don't allow aRFS for encapsulated packets
+
+Johan Hovold <johan@kernel.org>
+    net: hso: fix muxed tty registration
+
+Slark Xiao <slark_xiao@163.com>
+    USB: serial: option: add device id for Foxconn T99W265
+
+Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+    USB: serial: option: remove duplicate USB device ID
+
+Carlo Lobrano <c.lobrano@gmail.com>
+    USB: serial: option: add Telit LN920 compositions
+
+Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+    USB: serial: mos7840: remove duplicated 0xac24 device ID
+
+Uwe Brandt <uwe.brandt@gmail.com>
+    USB: serial: cp210x: add ID for GW Instek GDM-834x Digital Multimeter
+
+Jan Beulich <jbeulich@suse.com>
+    xen/x86: fix PV trap handling on secondary processors
+
+Steve French <stfrench@microsoft.com>
+    cifs: fix incorrect check for null pointer in header_assemble
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    usb: musb: tusb6010: uninitialized data in tusb_fifo_write_unaligned()
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    usb: gadget: r8a66597: fix a loop in set_feature()
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                       |  4 +-
+ arch/alpha/include/asm/io.h                    |  6 +--
+ arch/arm64/Kconfig                             |  2 +-
+ arch/arm64/kernel/process.c                    |  2 +-
+ arch/arm64/mm/proc.S                           |  4 +-
+ arch/m68k/include/asm/raw_io.h                 | 20 ++++----
+ arch/parisc/include/asm/page.h                 |  2 +-
+ arch/sparc/kernel/mdesc.c                      |  3 +-
+ arch/x86/xen/enlighten.c                       | 15 +++---
+ drivers/edac/synopsys_edac.c                   |  2 +-
+ drivers/hid/hid-betopff.c                      | 13 +++--
+ drivers/hid/usbhid/hid-core.c                  | 13 ++++-
+ drivers/ipack/devices/ipoctal.c                | 63 +++++++++++++++++------
+ drivers/net/ethernet/i825xx/82596.c            |  2 +-
+ drivers/net/ethernet/intel/e100.c              | 22 +++++---
+ drivers/net/ethernet/mellanox/mlx4/en_netdev.c |  3 ++
+ drivers/net/hamradio/6pack.c                   |  4 +-
+ drivers/net/usb/hso.c                          | 12 ++---
+ drivers/scsi/scsi_transport_iscsi.c            |  8 +--
+ drivers/spi/spi-tegra20-slink.c                |  4 +-
+ drivers/tty/vt/vt.c                            | 21 +++++++-
+ drivers/usb/gadget/udc/r8a66597-udc.c          |  2 +-
+ drivers/usb/musb/tusb6010.c                    |  1 +
+ drivers/usb/serial/cp210x.c                    |  1 +
+ drivers/usb/serial/mos7840.c                   |  2 -
+ drivers/usb/serial/option.c                    | 11 +++-
+ fs/cifs/connect.c                              |  5 +-
+ fs/ext4/dir.c                                  |  6 +--
+ fs/qnx4/dir.c                                  | 69 +++++++++++++++++++-------
+ include/linux/compiler.h                       |  2 +
+ include/linux/cred.h                           | 14 ++++--
+ kernel/trace/blktrace.c                        |  8 +++
+ net/mac80211/wpa.c                             |  6 +++
+ net/netfilter/ipset/ip_set_hash_gen.h          |  4 +-
+ net/netfilter/ipvs/ip_vs_conn.c                |  4 ++
+ 35 files changed, 254 insertions(+), 106 deletions(-)
+
+
