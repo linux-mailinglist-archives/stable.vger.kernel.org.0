@@ -2,91 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B602D422840
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 15:47:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CCE1422857
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 15:50:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235094AbhJENtb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 09:49:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57310 "EHLO mail.kernel.org"
+        id S235268AbhJENwO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 09:52:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235133AbhJENt1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Oct 2021 09:49:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE0BC614C8;
-        Tue,  5 Oct 2021 13:47:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633441656;
-        bh=Tb0S7mTTVay5g/OLWemkKqRtK+aoDy54rLQE7qsW9Bg=;
-        h=Subject:To:From:Date:From;
-        b=dztCKmTiP4gyvx8OordKiMKTR0JmVBEcUKkbBfXXkfbyzLUPy9BqsCI22odwbJ6lY
-         DAofV57aYLs/CigHygJmaJVLqo/16RFyhPgJNo5qnHcnRc5NMwJFfri98xDcITtbF0
-         Jod3HMldF+gxsLRUV8BMrPp8zsBNMkjCnND7zOwM=
-Subject: patch "misc: gehc: Add SPI ID table" added to char-misc-linus
-To:     broonie@kernel.org, gregkh@linuxfoundation.org,
-        martyn.welch@collabora.com, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 05 Oct 2021 15:47:33 +0200
-Message-ID: <163344165312614@kroah.com>
+        id S235085AbhJENwN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Oct 2021 09:52:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B402361244;
+        Tue,  5 Oct 2021 13:50:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1633441822;
+        bh=a1Qbzr8/zB02DQWjCUA31GrFzN2vH4OUkEx92NYCYQM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=kzNOIpDuG6B+GB5IGl41l0ABg4LEW5KqPPjMyi3WULPMUXyTvx7mT5kX7n0/pr1f1
+         tJo428opHW+SbjNYr5h/sXR21prF6f6bIebz9U2BjWu64OpWyyqdpEvnEF2SCINm9D
+         BgFYdVqxQ76x+ew8klWnW35bzADIuq588n31dtlcAd5VzVd72YuE5J9++RxulYQI0P
+         PCXMY3Iz/b7RJ8w9CMcqiUmZbbGXsOn0oFimzOCdjHX5O88HsFX7zv0BUJRCDUKQKr
+         MKTaexeQANAjCHW+aOoMsY7k7tdNIOJdwUwrp8PJmSpoC+TK0u7lB4ADIbJbOkiRYE
+         bHzu/8eCuEe4g==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Zhang Yi <yi.zhang@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 01/40] ext4: check and update i_disksize properly
+Date:   Tue,  5 Oct 2021 09:49:40 -0400
+Message-Id: <20211005135020.214291-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Zhang Yi <yi.zhang@huawei.com>
 
-This is a note to let you know that I've just added the patch titled
+[ Upstream commit 4df031ff5876d94b48dd9ee486ba5522382a06b2 ]
 
-    misc: gehc: Add SPI ID table
+After commit 3da40c7b0898 ("ext4: only call ext4_truncate when size <=
+isize"), i_disksize could always be updated to i_size in ext4_setattr(),
+and we could sure that i_disksize <= i_size since holding inode lock and
+if i_disksize < i_size there are delalloc writes pending in the range
+upto i_size. If the end of the current write is <= i_size, there's no
+need to touch i_disksize since writeback will push i_disksize upto
+i_size eventually. So we can switch to check i_size instead of
+i_disksize in ext4_da_write_end() when write to the end of the file.
+we also could remove ext4_mark_inode_dirty() together because we defer
+inode dirtying to generic_write_end() or ext4_da_write_inline_data_end().
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From a3e16937319aea285c64ab5bf8464470afac8dd3 Mon Sep 17 00:00:00 2001
-From: Mark Brown <broonie@kernel.org>
-Date: Thu, 23 Sep 2021 20:46:09 +0100
-Subject: misc: gehc: Add SPI ID table
-
-Currently autoloading for SPI devices does not use the DT ID table, it uses
-SPI modalises. Supporting OF modalises is going to be difficult if not
-impractical, an attempt was made but has been reverted, so ensure that
-module autoloading works for this driver by adding a SPI ID table entry
-for the device name part of the compatible - currently only the full
-compatible is listed which isn't very idiomatic and won't match the
-modalias that is generated.
-
-Fixes: 96c8395e2166 ("spi: Revert modalias changes")
-Cc: stable <stable@vger.kernel.org>
-Tested-by: Martyn Welch <martyn.welch@collabora.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210923194609.52647-1-broonie@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20210716122024.1105856-2-yi.zhang@huawei.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/gehc-achc.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/inode.c | 34 ++++++++++++++++++----------------
+ 1 file changed, 18 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/misc/gehc-achc.c b/drivers/misc/gehc-achc.c
-index 02f33bc60c56..4c9c5394da6f 100644
---- a/drivers/misc/gehc-achc.c
-+++ b/drivers/misc/gehc-achc.c
-@@ -539,6 +539,7 @@ static int gehc_achc_probe(struct spi_device *spi)
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index d8de607849df..dca8e3810443 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -3084,35 +3084,37 @@ static int ext4_da_write_end(struct file *file,
+ 	end = start + copied - 1;
  
- static const struct spi_device_id gehc_achc_id[] = {
- 	{ "ge,achc", 0 },
-+	{ "achc", 0 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(spi, gehc_achc_id);
+ 	/*
+-	 * generic_write_end() will run mark_inode_dirty() if i_size
+-	 * changes.  So let's piggyback the i_disksize mark_inode_dirty
+-	 * into that.
++	 * Since we are holding inode lock, we are sure i_disksize <=
++	 * i_size. We also know that if i_disksize < i_size, there are
++	 * delalloc writes pending in the range upto i_size. If the end of
++	 * the current write is <= i_size, there's no need to touch
++	 * i_disksize since writeback will push i_disksize upto i_size
++	 * eventually. If the end of the current write is > i_size and
++	 * inside an allocated block (ext4_da_should_update_i_disksize()
++	 * check), we need to update i_disksize here as neither
++	 * ext4_writepage() nor certain ext4_writepages() paths not
++	 * allocating blocks update i_disksize.
++	 *
++	 * Note that we defer inode dirtying to generic_write_end() /
++	 * ext4_da_write_inline_data_end().
+ 	 */
+ 	new_i_size = pos + copied;
+-	if (copied && new_i_size > EXT4_I(inode)->i_disksize) {
++	if (copied && new_i_size > inode->i_size) {
+ 		if (ext4_has_inline_data(inode) ||
+-		    ext4_da_should_update_i_disksize(page, end)) {
++		    ext4_da_should_update_i_disksize(page, end))
+ 			ext4_update_i_disksize(inode, new_i_size);
+-			/* We need to mark inode dirty even if
+-			 * new_i_size is less that inode->i_size
+-			 * bu greater than i_disksize.(hint delalloc)
+-			 */
+-			ret = ext4_mark_inode_dirty(handle, inode);
+-		}
+ 	}
+ 
+ 	if (write_mode != CONVERT_INLINE_DATA &&
+ 	    ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA) &&
+ 	    ext4_has_inline_data(inode))
+-		ret2 = ext4_da_write_inline_data_end(inode, pos, len, copied,
++		ret = ext4_da_write_inline_data_end(inode, pos, len, copied,
+ 						     page);
+ 	else
+-		ret2 = generic_write_end(file, mapping, pos, len, copied,
++		ret = generic_write_end(file, mapping, pos, len, copied,
+ 							page, fsdata);
+ 
+-	copied = ret2;
+-	if (ret2 < 0)
+-		ret = ret2;
++	copied = ret;
+ 	ret2 = ext4_journal_stop(handle);
+ 	if (unlikely(ret2 && !ret))
+ 		ret = ret2;
 -- 
 2.33.0
-
 
