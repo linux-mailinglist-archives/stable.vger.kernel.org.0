@@ -2,90 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A4344225A1
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 13:47:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D86CF4225AD
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 13:49:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232658AbhJELtU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 07:49:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34788 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230500AbhJELtU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 07:49:20 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2873C061749;
-        Tue,  5 Oct 2021 04:47:29 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id g13-20020a17090a3c8d00b00196286963b9so1795352pjc.3;
-        Tue, 05 Oct 2021 04:47:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=/qeZJF/DjVv0OSOUHcuL+U2oI15czJP1GzeBGDs6VcQ=;
-        b=O6eFC0vAgyZZM6iaerOYZSnoxamNfDfW/ZJOjuMLRrED/ffe8J4gBssdRBQm04YWTh
-         cAtucQJzmRk2UlmzvHQyoFHQrZJUdqadD0LKcmDTVVNSGI/t1XU438a8PAuGLkd5aRnJ
-         DWKch21wXDv9+ELAMHYVOLQs9Cn4mYOZeYJdEVlKsydrU6Ko6IxzgwXRhP2bQNmVRQlS
-         JJMlkltTHWgtLW3PSQ4ooC2oNoPdzkBniMT3eCAbKCS5oj6wuVnLIerDRCIipeQSMdVT
-         omTETH0WWSALTQ44DkTtOwyPQTVTXNCzITb+s3xgULoHc/TdmVshjZpGOVE/YTSy4GUH
-         XrsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=/qeZJF/DjVv0OSOUHcuL+U2oI15czJP1GzeBGDs6VcQ=;
-        b=DraLAGq4WlLqbNHg5ridYFfUEjwDe26as3/ZxrFCdSN/FxTCAfB14sVlsF/XeiVgp4
-         33M0NC6j2EkMN3nEioH0CABB8fkiLpTDZ09Adl0aD+CifbmmRA8ddQCwcmQDxThm8LwL
-         VlyizIPww04KUbySw0re0s69o3iGmBXXqljP3dLntsUbalrdesg3AFWL9cWWEeVvUPOp
-         2jy2UzZPWWLhshBAmOWOsFoBqbX3sBnADH5QoCizHqQywwuB74GgBL2WCCpMt7E4wKAj
-         Y5q5fs5sDrKpUdYeCm30I4OCPBsJnDDHPfUoaS4jkgvRuY9/U+iQmuL0rELDJ8RUg7mY
-         Jj7A==
-X-Gm-Message-State: AOAM530Pye6mXq4aK4UbowHFqbe1TdLQ9L1oCOFRyLCbAgLxUbx5PcPG
-        eIF0gf3nKbGHBO+CvvhJjI7R95CyNljXzpS9zhI=
-X-Google-Smtp-Source: ABdhPJz04XcEduymmQjK02vaOjyUbcmeLHPGK6rgDjyv0xC/JskXuW7wQ8Twk7xouUJKEQtIP9J2yQ==
-X-Received: by 2002:a17:90b:17c9:: with SMTP id me9mr3287628pjb.197.1633434448945;
-        Tue, 05 Oct 2021 04:47:28 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [71.19.144.195])
-        by smtp.gmail.com with ESMTPSA id s25sm17687561pfm.138.2021.10.05.04.47.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Oct 2021 04:47:28 -0700 (PDT)
-Message-ID: <615c3b50.1c69fb81.3a387.4f59@mx.google.com>
-Date:   Tue, 05 Oct 2021 04:47:28 -0700 (PDT)
-X-Google-Original-Date: Tue, 05 Oct 2021 11:47:22 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20211005083301.812942169@linuxfoundation.org>
-Subject: RE: [PATCH 5.10 00/92] 5.10.71-rc2 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        id S234489AbhJELv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 07:51:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59756 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230500AbhJELvY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Oct 2021 07:51:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6617761244;
+        Tue,  5 Oct 2021 11:49:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1633434573;
+        bh=/2WlDXtCTfuy6HsykQv4xRXXanM2m2ygCrEeECVklJ4=;
+        h=Subject:To:From:Date:From;
+        b=A4LgAbj23NVDUKiDYfh9wkQFUcJqZZIDOVEOzsaxO+hY3ijuNVYA8wBUXnZ2rBMfm
+         Mddvtllj/CQK+kSdeR2pBLDCwBLVTE7bW1zziH9Sf6XgjiLr/RIbfVhodptD9Amndm
+         EJ3bjatdzNRzBbffvZubSw1R+5In0Tfu8yV+K5Hg=
+Subject: patch "usb: cdc-wdm: Fix check for WWAN" added to usb-linus
+To:     rikard.falkeborn@gmail.com, gregkh@linuxfoundation.org,
+        oneukum@suse.com, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 05 Oct 2021 13:49:31 +0200
+Message-ID: <1633434571634@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue,  5 Oct 2021 10:38:32 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.10.71 release.
-> There are 92 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 07 Oct 2021 08:32:44 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.71-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
 
-5.10.71-rc2 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+This is a note to let you know that I've just added the patch titled
+
+    usb: cdc-wdm: Fix check for WWAN
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 04d2b75537085cb0c85d73a2e0e50317bffa883f Mon Sep 17 00:00:00 2001
+From: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+Date: Wed, 29 Sep 2021 21:45:46 +0200
+Subject: usb: cdc-wdm: Fix check for WWAN
+
+CONFIG_WWAN_CORE was with CONFIG_WWAN in commit 89212e160b81 ("net: wwan:
+Fix WWAN config symbols"), but did not update all users of it. Change it
+back to use CONFIG_WWAN instead.
+
+Fixes: 89212e160b81 ("net: wwan: Fix WWAN config symbols")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20210929194547.46954-2-rikard.falkeborn@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/class/cdc-wdm.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/usb/class/cdc-wdm.c b/drivers/usb/class/cdc-wdm.c
+index 35d5908b5478..fdf79bcf7eb0 100644
+--- a/drivers/usb/class/cdc-wdm.c
++++ b/drivers/usb/class/cdc-wdm.c
+@@ -824,7 +824,7 @@ static struct usb_class_driver wdm_class = {
+ };
+ 
+ /* --- WWAN framework integration --- */
+-#ifdef CONFIG_WWAN_CORE
++#ifdef CONFIG_WWAN
+ static int wdm_wwan_port_start(struct wwan_port *port)
+ {
+ 	struct wdm_device *desc = wwan_port_get_drvdata(port);
+@@ -963,11 +963,11 @@ static void wdm_wwan_rx(struct wdm_device *desc, int length)
+ 	/* inbuf has been copied, it is safe to check for outstanding data */
+ 	schedule_work(&desc->service_outs_intr);
+ }
+-#else /* CONFIG_WWAN_CORE */
++#else /* CONFIG_WWAN */
+ static void wdm_wwan_init(struct wdm_device *desc) {}
+ static void wdm_wwan_deinit(struct wdm_device *desc) {}
+ static void wdm_wwan_rx(struct wdm_device *desc, int length) {}
+-#endif /* CONFIG_WWAN_CORE */
++#endif /* CONFIG_WWAN */
+ 
+ /* --- error handling --- */
+ static void wdm_rxwork(struct work_struct *work)
+-- 
+2.33.0
+
 
