@@ -2,85 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D638D4228A9
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 15:51:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7C0D4228B5
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 15:52:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234964AbhJENxf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 09:53:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60812 "EHLO mail.kernel.org"
+        id S235128AbhJENyC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 09:54:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235613AbhJENw7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Oct 2021 09:52:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6654B6152B;
-        Tue,  5 Oct 2021 13:51:08 +0000 (UTC)
+        id S235480AbhJENxF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Oct 2021 09:53:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC62E61989;
+        Tue,  5 Oct 2021 13:51:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633441869;
-        bh=gfSSvYoKamvAQoaTJ4v7jnSD7dGLcrlIf0jNkDZz3qg=;
+        s=k20201202; t=1633441870;
+        bh=OTrccWwKPffRiq3S6lIt8TgRqj+9/RN0ax0h0LgFrls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lhght99JIcveyYS1nJUwxMBs9bZQ4/2G6AjRPMOuWJRyyCAH+JBtPdV5qbyKSumZf
-         lnVO/K3f4hQvUnU396Uk6GsLTgvpM4pNlSLwBWENSxL646xWqiqIETZmvSZTa4icGJ
-         bz7Jiy1BgLSI3aVyIrP2n38oNmTcpmFjec8zrm1IFCxBsfiUMqfAzX7Am6NVq3UCdj
-         IsBXcUe8N7NOg61BYtU5vmaHqdahskJDO6rGJyU418JBa34f8to8Vja0cPdHzGpUEU
-         w12kl/f9iQwU3r8q15WTVePGMoPFgNYIU8cD3+uZJyLLriN0LMv9S3vlxgpf8eNy7v
-         LEaf7wLhBuzCw==
+        b=oNKZ6yxRKPie7Fg07LuPpcALLxRuWgOw/vB2Vk1LIZ+u7r6cOw2JO8rItrzEaCYV2
+         qp4+y8BhqLblvcTHBNZ1KEenNN8lh1TNxIMlP3Rqhjzr2eb2KaEnm5mWYomhSNgX2X
+         Kh4ZB3h78dE6P+45obM8QRiGBtCdKKd07F/vUtmeUL7RvxrBiZAYCt1jmGWh7eonw0
+         B/SMzjn2vHSn6vWfzDmTnw47nToECxtgUn/ZZjz6W+7cbJtU4eF2M4y9MZ7hzzIyvO
+         koGfkWgDyeF0+ZEmptSTNA4MldcZi72yZj3icMhSZgHRNYH7A//hUQY6b3CDYAqkj/
+         yB1DlwdZVPHNw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, nuno.sa@analog.com,
-        jdelvare@suse.com, linux-hwmon@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 24/40] hwmon: (ltc2947) Properly handle errors when looking for the external clock
-Date:   Tue,  5 Oct 2021 09:50:03 -0400
-Message-Id: <20211005135020.214291-24-sashal@kernel.org>
+Cc:     =?UTF-8?q?=E7=8E=8B=E8=B4=87?= <yun.wang@linux.alibaba.com>,
+        Abaci <abaci@linux.alibaba.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, jhs@mojatatu.com,
+        xiyou.wangcong@gmail.com, jiri@resnulli.us, kuba@kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 25/40] net: prevent user from passing illegal stab size
+Date:   Tue,  5 Oct 2021 09:50:04 -0400
+Message-Id: <20211005135020.214291-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211005135020.214291-1-sashal@kernel.org>
 References: <20211005135020.214291-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: 王贇 <yun.wang@linux.alibaba.com>
 
-[ Upstream commit 6f7d70467121f790b36af2d84bc02b5c236bf5e6 ]
+[ Upstream commit b193e15ac69d56f35e1d8e2b5d16cbd47764d053 ]
 
-The return value of devm_clk_get should in general be propagated to
-upper layer. In this case the clk is optional, use the appropriate
-wrapper instead of interpreting all errors as "The optional clk is not
-available".
+We observed below report when playing with netlink sock:
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/20210923201113.398932-1-u.kleine-koenig@pengutronix.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+  UBSAN: shift-out-of-bounds in net/sched/sch_api.c:580:10
+  shift exponent 249 is too large for 32-bit type
+  CPU: 0 PID: 685 Comm: a.out Not tainted
+  Call Trace:
+   dump_stack_lvl+0x8d/0xcf
+   ubsan_epilogue+0xa/0x4e
+   __ubsan_handle_shift_out_of_bounds+0x161/0x182
+   __qdisc_calculate_pkt_len+0xf0/0x190
+   __dev_queue_xmit+0x2ed/0x15b0
+
+it seems like kernel won't check the stab log value passing from
+user, and will use the insane value later to calculate pkt_len.
+
+This patch just add a check on the size/cell_log to avoid insane
+calculation.
+
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/ltc2947-core.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ include/net/pkt_sched.h | 1 +
+ net/sched/sch_api.c     | 6 ++++++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/drivers/hwmon/ltc2947-core.c b/drivers/hwmon/ltc2947-core.c
-index bb3f7749a0b0..5423466de697 100644
---- a/drivers/hwmon/ltc2947-core.c
-+++ b/drivers/hwmon/ltc2947-core.c
-@@ -989,8 +989,12 @@ static int ltc2947_setup(struct ltc2947_data *st)
- 		return ret;
+diff --git a/include/net/pkt_sched.h b/include/net/pkt_sched.h
+index 6d7b12cba015..bf79f3a890af 100644
+--- a/include/net/pkt_sched.h
++++ b/include/net/pkt_sched.h
+@@ -11,6 +11,7 @@
+ #include <uapi/linux/pkt_sched.h>
  
- 	/* check external clock presence */
--	extclk = devm_clk_get(st->dev, NULL);
--	if (!IS_ERR(extclk)) {
-+	extclk = devm_clk_get_optional(st->dev, NULL);
-+	if (IS_ERR(extclk))
-+		return dev_err_probe(st->dev, PTR_ERR(extclk),
-+				     "Failed to get external clock\n");
+ #define DEFAULT_TX_QUEUE_LEN	1000
++#define STAB_SIZE_LOG_MAX	30
+ 
+ struct qdisc_walker {
+ 	int	stop;
+diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
+index f87d07736a14..148edd0e71e3 100644
+--- a/net/sched/sch_api.c
++++ b/net/sched/sch_api.c
+@@ -513,6 +513,12 @@ static struct qdisc_size_table *qdisc_get_stab(struct nlattr *opt,
+ 		return stab;
+ 	}
+ 
++	if (s->size_log > STAB_SIZE_LOG_MAX ||
++	    s->cell_log > STAB_SIZE_LOG_MAX) {
++		NL_SET_ERR_MSG(extack, "Invalid logarithmic size of size table");
++		return ERR_PTR(-EINVAL);
++	}
 +
-+	if (extclk) {
- 		unsigned long rate_hz;
- 		u8 pre = 0, div, tbctl;
- 		u64 aux;
+ 	stab = kmalloc(sizeof(*stab) + tsize * sizeof(u16), GFP_KERNEL);
+ 	if (!stab)
+ 		return ERR_PTR(-ENOMEM);
 -- 
 2.33.0
 
