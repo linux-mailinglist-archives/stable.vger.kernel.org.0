@@ -2,125 +2,232 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46DFF422D2C
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 17:59:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E7A8422D53
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 18:04:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234282AbhJEQBD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 12:01:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38750 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231513AbhJEQBD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 12:01:03 -0400
-Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com [IPv6:2607:f8b0:4864:20::22f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FA41C061749;
-        Tue,  5 Oct 2021 08:59:12 -0700 (PDT)
-Received: by mail-oi1-x22f.google.com with SMTP id w206so26865205oiw.4;
-        Tue, 05 Oct 2021 08:59:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=GbrEqZ7dyz9hPPuoORW7wfM8IXr96v7NOPqUopADLMk=;
-        b=UrblCc0EKPnQim0RHW2SPcr71rNsvtmAthLVD9URnnG7XMtk64O0moOE80S5LHsSN/
-         eAlS2R2SjajcFn3hL+lhNHonmkZJQ7TRffwcWMMhgOgTQ1JrEUYKAvxEmGgrLK/cA+vV
-         sfhJKGez6p9sDhiUVAn+FsmzJkCg2y2JuGR2iXYEr/FJOYWWrGZAWtMa1yTIeWqWl9ri
-         3QzRtM5//joyo/WFX19oamwA4nInlr0tDQFYBXf3nkGB/JCKGMyIcktgwweyzGjeBIpI
-         tz/QlMaNgNO/yZ8cJ1UOaklgb0+XFCv7WJBd9GMQHyq44uJDQ7T2gTC4+U0jwPTLtJCI
-         k4bw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=GbrEqZ7dyz9hPPuoORW7wfM8IXr96v7NOPqUopADLMk=;
-        b=0XWEH9EZ6LyCgbJ0bSHJniqUdR+y3O59kyrlrUd3TrMWrpbZHk27wtV1RmjgLjpuqK
-         T8YfBy5Oyd10OnMOERLOXjwY1XWj417fcMasYNjW5s0Gw05xXWurM70LCsm7jun3eBCB
-         vsKuu5+eMYX5XDNQgGI91/nA6cquqaKeCiK7PAUFlMHudn5rmttRATe8Z2W+VcB9LkHJ
-         hcyhTo8zwgpxDkGxzBlmuNkkMX1Z7QFdYWqtWamJzcMKvPjMFA+9qXutE2QPGXMJzudW
-         JbTgA60oWZdDEhnWlni56u4AlIKf1cyrWLb8ZsnC6S36Lfq9yEssAbdYn6VIbsD6WEe8
-         MmZA==
-X-Gm-Message-State: AOAM533dX1Ly6fuDyKgyPBiA4DTSK7QA49NiyzJ512JUwekxvibFaZ9g
-        wR96JhmnfU2aEFnTcw5fzjY=
-X-Google-Smtp-Source: ABdhPJy/PWWd/G7HAacNqWJFVsN2zYiOXMBmZEY1I4QEKAmZDFyGiZM3/SdQxHV9JRlIAiu5J9X9DA==
-X-Received: by 2002:a54:4f82:: with SMTP id g2mr3023204oiy.134.1633449551825;
-        Tue, 05 Oct 2021 08:59:11 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id u25sm3477807oof.48.2021.10.05.08.59.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Oct 2021 08:59:11 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 5 Oct 2021 08:59:09 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.14 000/173] 5.14.10-rc2 review
-Message-ID: <20211005155909.GA1386975@roeck-us.net>
-References: <20211005083311.830861640@linuxfoundation.org>
+        id S231513AbhJEQG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 12:06:27 -0400
+Received: from foss.arm.com ([217.140.110.172]:37832 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236204AbhJEQG0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Oct 2021 12:06:26 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1F2E76D;
+        Tue,  5 Oct 2021 09:04:36 -0700 (PDT)
+Received: from lpieralisi (e121166-lin.cambridge.arm.com [10.1.196.255])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1E8AA3F766;
+        Tue,  5 Oct 2021 09:04:35 -0700 (PDT)
+Date:   Tue, 5 Oct 2021 17:04:29 +0100
+From:   Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+To:     Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>,
+        Marek =?iso-8859-1?Q?Beh=FAn?= <kabel@kernel.org>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 06/13] PCI: aardvark: Do not clear status bits of masked
+ interrupts
+Message-ID: <20211005160429.GA1728@lpieralisi>
+References: <20211001195856.10081-1-kabel@kernel.org>
+ <20211001195856.10081-7-kabel@kernel.org>
+ <20211004140653.GB24914@lpieralisi>
+ <871r50st5h.wl-maz@kernel.org>
+ <20211005141340.48c8c0f6@dellmb>
+ <87mtnnr6cl.wl-maz@kernel.org>
+ <20211005131545.ol3rb3zzgzze67uf@pali>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20211005083311.830861640@linuxfoundation.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20211005131545.ol3rb3zzgzze67uf@pali>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 05, 2021 at 10:38:40AM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.14.10 release.
-> There are 173 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, Oct 05, 2021 at 03:15:45PM +0200, Pali Rohár wrote:
+> On Tuesday 05 October 2021 13:42:02 Marc Zyngier wrote:
+> > On Tue, 05 Oct 2021 13:13:40 +0100,
+> > Marek Behún <kabel@kernel.org> wrote:
+> > > 
+> > > On Mon, 04 Oct 2021 16:31:54 +0100
+> > > Marc Zyngier <maz@kernel.org> wrote:
+> > > 
+> > > > On Mon, 04 Oct 2021 15:06:53 +0100,
+> > > > Lorenzo Pieralisi <lorenzo.pieralisi@arm.com> wrote:
+> > > > > 
+> > > > > [+Marc - always better to have his eyes on IRQ handling code]
+> > > > > 
+> > > > > On Fri, Oct 01, 2021 at 09:58:49PM +0200, Marek Behún wrote:  
+> > > > > > From: Pali Rohár <pali@kernel.org>
+> > > > > > 
+> > > > > > It is incorrect to clear status bits of masked interrupts.
+> > > > > > 
+> > > > > > The aardvark driver clears all status interrupt bits if no
+> > > > > > unmasked status bit is set. Masked bits should never be cleared.
+> > > > > > 
+> > > > > > Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host
+> > > > > > controller driver") Signed-off-by: Pali Rohár <pali@kernel.org>
+> > > > > > Reviewed-by: Marek Behún <kabel@kernel.org>
+> > > > > > Signed-off-by: Marek Behún <kabel@kernel.org>
+> > > > > > Cc: stable@vger.kernel.org
+> > > > > > ---
+> > > > > >  drivers/pci/controller/pci-aardvark.c | 5 +----
+> > > > > >  1 file changed, 1 insertion(+), 4 deletions(-)
+> > > > > > 
+> > > > > > diff --git a/drivers/pci/controller/pci-aardvark.c
+> > > > > > b/drivers/pci/controller/pci-aardvark.c index
+> > > > > > d5d6f92e5143..e4986806a189 100644 ---
+> > > > > > a/drivers/pci/controller/pci-aardvark.c +++
+> > > > > > b/drivers/pci/controller/pci-aardvark.c @@ -1295,11 +1295,8 @@
+> > > > > > static void advk_pcie_handle_int(struct advk_pcie *pcie)
+> > > > > > isr1_mask = advk_readl(pcie, PCIE_ISR1_MASK_REG); isr1_status =
+> > > > > > isr1_val & ((~isr1_mask) & PCIE_ISR1_ALL_MASK); 
+> > > > > > -	if (!isr0_status && !isr1_status) {
+> > > > > > -		advk_writel(pcie, isr0_val, PCIE_ISR0_REG);
+> > > > > > -		advk_writel(pcie, isr1_val, PCIE_ISR1_REG);  
+> > > > > 
+> > > > > This looks fine - on the other hand if no interrupt is set in the
+> > > > > status registers (that are filtered with the masks) we are dealing
+> > > > > with a spurious IRQ right ? Just gauging how severe this is.
+> > > > > 
+> > > > > Lorenzo
+> > > > >   
+> > > > > > +	if (!isr0_status && !isr1_status)
+> > > > > >  		return;  
+> > > > 
+> > > > The whole thing is a bit odd. What the commit message doesn't say is
+> > > > whether the status register shows the status of the line before
+> > > > masking, or after masking.
+> > > 
+> > > I don't quite understand what you are asking about.
+> > > If you are asking about the register itself:
+> > > the PCIE_ISR1_REG says which interrupts are currently set / active,
+> > > including those which are masked.
+> > 
+> > Then please say so in the commit message.
 > 
-> Responses should be made by Thu, 07 Oct 2021 08:32:44 +0000.
-> Anything received after that time might be too late.
+> Very well, we shall do so.
 > 
+> > > If you are asking about the isr1_status variable, it is the
+> > > status of the line after masking. I.e. masked interrupts are not set in
+> > > this variable, only active interrupts which are also unmasked. That is
+> > > obvious from the code.
+> > 
+> > Which is what I have said... two lines below. If you are going to
+> > reply, please do so in context.
+> > 
+> > > 
+> > > > The code seems to imply the former, but then the behaviour is
+> > > > awkward. How did we end-up here the first place?
+> > > 
+> > > I answered this in reply to Lorenzo's comment on this patch, see
+> > > https://lore.kernel.org/linux-pci/20211004171823.0288684e@thinkpad/
+> > 
+> > It did grace my inbox, thanks.
+> > 
+> > > > if that's only a
+> > > > spurious interrupt, then I'd probably simplify the code altogether,
+> > > > and drop all the early return code. Something like below, as usual
+> > > > completely untested.
+> > > > 
+> > > > 	M.
+> > > > 
+> > > > diff --git a/drivers/pci/controller/pci-aardvark.c
+> > > > b/drivers/pci/controller/pci-aardvark.c index
+> > > > 596ebcfcc82d..1d8f257ecb63 100644 ---
+> > > > a/drivers/pci/controller/pci-aardvark.c +++
+> > > > b/drivers/pci/controller/pci-aardvark.c @@ -1275,7 +1275,8 @@ static
+> > > > void advk_pcie_handle_msi(struct advk_pcie *pcie) static void
+> > > > advk_pcie_handle_int(struct advk_pcie *pcie) {
+> > > >  	u32 isr0_val, isr0_mask, isr0_status;
+> > > > -	u32 isr1_val, isr1_mask, isr1_status;
+> > > > +	u32 isr1_val, isr1_mask;
+> > > > +	unsigned long isr1_status;
+> > > >  	int i;
+> > > >  
+> > > >  	isr0_val = advk_readl(pcie, PCIE_ISR0_REG);
+> > > > @@ -1285,22 +1286,14 @@ static void advk_pcie_handle_int(struct
+> > > > advk_pcie *pcie) isr1_val = advk_readl(pcie, PCIE_ISR1_REG);
+> > > >  	isr1_mask = advk_readl(pcie, PCIE_ISR1_MASK_REG);
+> > > >  	isr1_status = isr1_val & ((~isr1_mask) & PCIE_ISR1_ALL_MASK);
+> > > > -
+> > > > -	if (!isr0_status && !isr1_status) {
+> > > > -		advk_writel(pcie, isr0_val, PCIE_ISR0_REG);
+> > > > -		advk_writel(pcie, isr1_val, PCIE_ISR1_REG);
+> > > > -		return;
+> > > > -	}
+> > > > +	isr1_status >> 8;
+> 
+> Hello!
+> 
+> I dislike this approach. It adds another magic number which is just
+> causing issues. Please read commit message for patch 11/13 where we
+> describe why such magic constants are bad and already caused lot of
+> issues in this driver.
+> 
+> > > >  	/* Process MSI interrupts */
+> > > >  	if (isr0_status & PCIE_ISR0_MSI_INT_PENDING)
+> > > >  		advk_pcie_handle_msi(pcie);
+> > > >  
+> > > >  	/* Process legacy interrupts */
+> > > > -	for (i = 0; i < PCI_NUM_INTX; i++) {
+> > > > -		if (!(isr1_status & PCIE_ISR1_INTX_ASSERT(i)))
+> > > > -			continue;
+> > > > -
+> > > > +	for_each_set_bit(i, &isr1_status, PCI_NUM_INTX) {
+> > > >  		advk_writel(pcie, PCIE_ISR1_INTX_ASSERT(i),
+> > > >  			    PCIE_ISR1_REG);
+> > > 
+> > > 1. what you are doing here is code cleanup. We are currently in the
+> > >    state where we have lots of fixes for this driver, which we are
+> > >    hoping will go also to stable.
+> > 
+> > Yes, it is code cleanup. Because I don't find this patch to be very
+> > good, TBH. As for going into stable, that's not relevant for this
+> > discussion.
+> > 
+> > >    Some of them depend on these changes.
+> > >    Can we please first apply those fixes (we want to send them in
+> > >    batches to avoid sending 60 patchs in one series, since last time
+> > >    nobody wanted to review all of that) and do this afterwards?
+> > 
+> > It would be better to start with patches that are in a better
+> > shape. After all, this is what the code review process is about. This
+> > isn't "just take my patches".
+> > 
+> > > 2. you are throwing away lower 8 bits of isr1_status. We have follow-up
+> > >    patches (not in this series, but in another batch which we want to
+> > >    send after this) that will be using those lower 8 bits, so we do not
+> > >    want to throw away them now.
+> > 
+> > I'm discarding these bits because *in isolation*, that's the correct
+> > thing to do. Feel free to propose a better patch that doesn't discard
+> > these bits and still makes the code more palatable.
+> 
+> The code pattern in this function is: compose irs*_status variable and
+> then compare it with register macros defined at the top of driver. Each
+> bit in this register represent some event and for each event there is
+> simple macro to match.
+> 
+> So with your proposed change it would break all macros (as they are
+> going to be shifted by magic constant) and then this code disallow
+> access to events represented by low bits. And also it makes code pattern
+> different for isr0_status and isr1_status variables which is very
+> confusing and probably source for introduction of new bugs.
+> 
+> Also the whole early-return optimization can be removed as it does not
+> change functionality. So we will do so.
+> 
+> But we do not agree with the lower 8 bit discard of the isr1_status
+> variable as explained above.
+> 
+> So if we add the explanation to commit message and drop the early
+> return, would it be ok?
 
-AFAICS the warning problems are still seen. Unfortunately I won't be able
-to bisect since I have limited internet access.
+Please repost a v2 of this series with the review comments you
+received (and tags removed if they are not applicable as things
+stand in mainline) and we will take it from there.
 
-Guenter
-
-=========================
-WARNING: held lock freed!
-5.14.10-rc2-00174-g355f3195d051 #1 Not tainted
--------------------------
-ip/202 is freeing memory c000000009918900-c000000009918f7f, with a lock still held there!
-c000000009918a20 (sk_lock-AF_INET){+.+.}-{0:0}, at: .sk_common_release+0x4c/0x1b0
-2 locks held by ip/202:
- #0: c00000000ae149d0 (&sb->s_type->i_mutex_key#5){+.+.}-{3:3}, at: .__sock_release+0x4c/0x150
- #1: c000000009918a20 (sk_lock-AF_INET){+.+.}-{0:0}, at: .sk_common_release+0x4c/0x1b0
-
-stack backtrace:
-CPU: 0 PID: 202 Comm: ip Not tainted 5.14.10-rc2-00174-g355f3195d051 #1
-Call Trace:
-[c000000009e27600] [c0000000008ddda8] .dump_stack_lvl+0xa4/0x100 (unreliable)
-[c000000009e27690] [c000000000179b74] .debug_check_no_locks_freed+0x194/0x1b0
-[c000000009e27730] [c0000000003b20e4] .kmem_cache_free+0x274/0x630
-[c000000009e27800] [c000000000d04dcc] .__sk_destruct+0x18c/0x2c0
-[c000000009e27890] [c000000000e67410] .udp_lib_close+0x10/0x30
-[c000000009e27900] [c000000000e81628] .inet_release+0x68/0xb0
-[c000000009e27980] [c000000000cf7a20] .__sock_release+0x70/0x150
-[c000000009e27a10] [c000000000cf7b28] .sock_close+0x28/0x40
-[c000000009e27a90] [c0000000003dbb74] .__fput+0xc4/0x310
-[c000000009e27b30] [c000000000116604] .task_work_run+0xc4/0x130
-[c000000009e27bd0] [c00000000001ba04] .do_notify_resume+0x414/0x4e0
-[c000000009e27ce0] [c00000000002b0f4] .interrupt_exit_user_prepare_main+0x254/0x2d0
-[c000000009e27d90] [c00000000002b4f4] .syscall_exit_prepare+0x74/0x120
-[c000000009e27e10] [c00000000000c258] system_call_common+0xf8/0x250
---- interrupt: c00 at 0x3fff811c618c
-NIP:  00003fff811c618c LR: 0000000010039e7c CTR: 0000000000000000
-REGS: c000000009e27e80 TRAP: 0c00   Not tainted  (5.14.10-rc2-00174-g355f3195d051)
-MSR:  800000000000f032 <SF,EE,PR,FP,ME,IR,DR,RI>  CR: 22000882  XER: 00000000
-IRQMASK: 0
-GPR00: 0000000000000006 00003fffcc4b33f0 00003fff812bf300 0000000000000000
-GPR04: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-GPR08: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-GPR12: 0000000000000000 00003fff81335810 00000000101025a8 0000000000000000
-GPR16: 0000000000000000 00003ffffcbd1e20 00000000100cbb46 00000000100cbb4e
-GPR20: 00000000100c9139 00000000100cbadb 0000000000000000 0000000000000000
-GPR24: ffffffffffffffff ffffffffffffffff ffffffffffffffff 00003fffcc4b3f7a
-GPR28: 0000000000000000 0000000000000001 0000000000000009 0000000000000003
-NIP [00003fff811c618c] 0x3fff811c618c
-LR [0000000010039e7c] 0x10039e7c
-
+Thanks,
+Lorenzo
