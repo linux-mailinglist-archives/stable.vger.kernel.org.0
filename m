@@ -2,218 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BD79422ECD
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 19:12:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 120AB422EF2
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 19:17:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236598AbhJEROV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 13:14:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56450 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233961AbhJEROV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 13:14:21 -0400
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05AFAC061749;
-        Tue,  5 Oct 2021 10:12:30 -0700 (PDT)
-Received: by mail-lf1-x12f.google.com with SMTP id i24so39090708lfj.13;
-        Tue, 05 Oct 2021 10:12:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=VfG0EMNUF/9ihTNG0o0r23xLdq2FB/bRJATXueQqBL8=;
-        b=dMUMfVLTWwTA0HWGYkpJjOviJFuvW3CannJzzRGAUqWt+SQ8cXJQgaGXRbunsJn0aJ
-         uBLjiT+rYzhMQhKF5ZUvDpJqWQ19k3ZFUHCXXrcgUU5nm7R1BOqmL/QzTGnVp7JPMkbI
-         l0Xrr9KMGEJIHKHz4we68eq6iBiU6WHYYIMFaV91ZJTumEqRhPpEafhFM+/IUeTTwMVr
-         CnLH+VZ3GSGKugRjT8HbEVoRvcWdRuQyddt6Mh+6dk23gNe0xnvhqS9g7IELWTWZ4B5z
-         7O182KDLsKXSooavj0KvJPPzW06b7Pbl5RDaCQSQGvpYF6cothNxTTdO3c5bjMSuPU5+
-         r2kA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=VfG0EMNUF/9ihTNG0o0r23xLdq2FB/bRJATXueQqBL8=;
-        b=21y4UzeN0Cnt7b8oBKTxwX1wu0cZvlut8xmwk+eNI86T/KGQpK1IGTfuZzpIY1hHLC
-         HmWm5TnLyQSrEGbMqdJzjiLm0+FlkGYgS5SNSFvfZDRzu7cuYrtkiTOauP7lVTPwqTaQ
-         K/EdWjiycxmfhd3rrztXO8onScQDAR4VyKtKV8jQuFs8fBHfOH6KoZLYlV+1xDTivPaN
-         lHf/zZ8F3yb8BWPu6LkOSkx5zf7/rJ3RGLK37HC1MNxwwgpysssfsYsTml2yCzQVMCSN
-         OQsLVQDPUkwFP7cZMemdU13JKQOnjCosHwvaFS70z+As7m/bC3KezuAAZNqZ3d57XBza
-         zH5w==
-X-Gm-Message-State: AOAM531AMdomhMA6pMU/8bgu7iJRKAk55WWiHTbvpo5hrum3RAiRSz4g
-        w0vA/ZM+jiE6dKoE50IgNFcNwfLNQ7Ko3JuQufRMePXlmtM=
-X-Google-Smtp-Source: ABdhPJzt/fLIDzpIyv5KpByxXbAROc6o5Pbxe5TWgzzO31bv80or06lf11M9VS0e6fY69o20/Oazy1wSCxs8SEkErPM=
-X-Received: by 2002:a05:6512:acc:: with SMTP id n12mr4455938lfu.395.1633453948174;
- Tue, 05 Oct 2021 10:12:28 -0700 (PDT)
+        id S236768AbhJERTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 13:19:09 -0400
+Received: from mail-vi1eur05on2096.outbound.protection.outlook.com ([40.107.21.96]:49761
+        "EHLO EUR05-VI1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S234938AbhJERTI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Oct 2021 13:19:08 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Ekj9iRf4gSxOWKLsg3YU06Idr7e0rJY9ROqGH++eihLGNOoQdlT/zgkj9Cs4dlshtY5iqYhPPRUK1ZxXSCT2ZrqW6BXD3qqSF6e/qHWvFI+Idw0JsSNoPqozt/6e4vwMd9op0VMIi8v6w96uSWxmwMmWV0eotdmRxcPWTS72A55xRVTxk55qmWqjeJA7GGzEg19xxFzv1svm0uaf4ghHsHaYpdm90CYhCOllsdigOhNlT0ZaJUO2Z1XxIc7m1V2q9dDelFo/B5pm8nh9doEACR+yV+ju8y0NCm6oq2QMIpc1drSeD3Iw+A4VxTib0lWzusoFafiGOENnoKh2dKYetQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=H1gL9pa/96GcysYb4dnL81fj0rY0i8LVeYSxLGeVDaE=;
+ b=T+YgIGfT/3VDU3QSfQzBL43FA5qZbiFnDYb1G/2CDEH9at1DjIbGlCBZ6x7p5Q4n6U9vQccy6JrdzqKSytjrHxkaO5twysTH3KfW4XM+HdMv7MGVdlj7Hik+uPFz3FvFBJfBGb/BmTkqcT/Nkkz1jExmX4cjQEfjvf3+ivJc3BLiejvxwPqT1bvVtrgtsleDYnZKP6OOplVsAPZ9sq7hEM2xfk8yJEg8A3Cnw5rPHVJ8J4nHKpWseBdtOxIqTHtDb/RRqIoB2hsyNTy9zd9b1ZObklvEJwCMvRT+tYtLU+tD4SxGFN3LjvK524S9W802SY4e9o42Iw5ulYAeCkXcVA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=kontron.de; dmarc=pass action=none header.from=kontron.de;
+ dkim=pass header.d=kontron.de; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mysnt.onmicrosoft.com;
+ s=selector2-mysnt-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=H1gL9pa/96GcysYb4dnL81fj0rY0i8LVeYSxLGeVDaE=;
+ b=EzA96OSOViZPXZevJ481D773I423SYKblfq+5cG6XkW51B3JjPaEbSYZY4zF6YhVtL03KZrHi4yir/wbbtuEZ0OTrWs7VsBmZ5FBQJ4njoY7N9MyJsHQEJAJgenoUj+/g2kSbyyLJL9UIyv09oQ8k0Z5LzWmWDoS73OhGc6PlkU=
+Authentication-Results: kernel.org; dkim=none (message not signed)
+ header.d=none;kernel.org; dmarc=none action=none header.from=kontron.de;
+Received: from AM0PR10MB2963.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:208:157::14)
+ by AM0PR10MB2579.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:208:12f::25) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4566.19; Tue, 5 Oct
+ 2021 17:17:15 +0000
+Received: from AM0PR10MB2963.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::216b:62be:3272:2560]) by AM0PR10MB2963.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::216b:62be:3272:2560%6]) with mapi id 15.20.4566.022; Tue, 5 Oct 2021
+ 17:17:15 +0000
+Message-ID: <37c1845d-9323-3187-ed0b-b9795758649d@kontron.de>
+Date:   Tue, 5 Oct 2021 19:17:13 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.2
+Subject: Re: [PATCH 5/8] arm64: dts: imx8mm-kontron: Fix CAN SPI clock
+ frequency
+Content-Language: en-US
+To:     Shawn Guo <shawnguo@kernel.org>, Frieder Schrempf <frieder@fris.de>
+Cc:     devicetree@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Rob Herring <robh+dt@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>, stable@vger.kernel.org,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>
+References: <20210930155633.2745201-1-frieder@fris.de>
+ <20210930155633.2745201-6-frieder@fris.de> <20211005071230.GC20743@dragon>
+From:   Frieder Schrempf <frieder.schrempf@kontron.de>
+In-Reply-To: <20211005071230.GC20743@dragon>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: AS8P250CA0011.EURP250.PROD.OUTLOOK.COM
+ (2603:10a6:20b:330::16) To AM0PR10MB2963.EURPRD10.PROD.OUTLOOK.COM
+ (2603:10a6:208:157::14)
 MIME-Version: 1.0
-References: <20211001175521.3853257-1-tkjos@google.com> <c6a650e4-15e4-2943-f759-0e9577784c7a@schaufler-ca.com>
- <CAG48ez2tejBUXJGf0R9qpEiauL9-ABgkds6mZTQD7sZKLMdAAQ@mail.gmail.com>
- <CAG48ez1SRau1Tnge5HVqxCFsNCizmnQLErqnC=eSeERv8jg-zQ@mail.gmail.com>
- <f59c6e9f-2892-32da-62f8-8bbeec18ee4c@schaufler-ca.com> <CAG48ez0yF0u=QBLVL2XrGB8r8ouQj-_aS9SScu4O4f+LhZxCDw@mail.gmail.com>
- <e0c1fab9-cb97-d5af-1f4b-f15b6b2097fd@schaufler-ca.com> <CAG48ez3qc+2sc6xTJQVqLTRcjCiw_Adx13KT3OvPMCjBLjZvgA@mail.gmail.com>
- <6bd2de29-b46a-1d24-4c73-9e4e0f3f6eea@schaufler-ca.com> <CAG48ez0RM6NGZLdEjaqU9KmaOgeFR6cSeNo50XG9oaFxC_ayYw@mail.gmail.com>
- <CAEjxPJ4X4N_zgH4oRbdkZi21mvS--ExDb_1gad09buMHshB_hQ@mail.gmail.com> <CAHRSSEwVONsmf8JHo0PsDmexOqamKTsLF2BkpXZfAvsJvDw0ew@mail.gmail.com>
-In-Reply-To: <CAHRSSEwVONsmf8JHo0PsDmexOqamKTsLF2BkpXZfAvsJvDw0ew@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 5 Oct 2021 13:12:16 -0400
-Message-ID: <CAEjxPJ4MB4nEBSNOVZtM9N9XRiSB6qsmsCMuWN=Ocm8TcP64GA@mail.gmail.com>
-Subject: Re: [PATCH v2] binder: use cred instead of task for selinux checks
-To:     Todd Kjos <tkjos@google.com>
-Cc:     Jann Horn <jannh@google.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        arve@android.com, tkjos@android.com, maco@android.com,
-        christian@brauner.io, James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Kees Cook <keescook@chromium.org>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        devel@driverdev.osuosl.org,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        "Cc: Android Kernel" <kernel-team@android.com>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Received: from [192.168.10.40] (88.130.78.70) by AS8P250CA0011.EURP250.PROD.OUTLOOK.COM (2603:10a6:20b:330::16) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4587.18 via Frontend Transport; Tue, 5 Oct 2021 17:17:14 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: f6a492e3-d98c-4e25-f84f-08d98823f9f0
+X-MS-TrafficTypeDiagnostic: AM0PR10MB2579:
+X-Microsoft-Antispam-PRVS: <AM0PR10MB2579853988C11FB8A88428CDE9AF9@AM0PR10MB2579.EURPRD10.PROD.OUTLOOK.COM>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: kv2N4fvr9RM8fOBvrIJFZn6PHMIc+uJfuDP+yS164Si/4So35ncDGwpNegC62fGAM6kvPAnZz/tH9ZJ3ngiCr8qJW76mcLppEw+GsytDbUo+rSKwTRpZvSrD5JU51uJ1ZVlLD8KzETyd9anU0lBMhU8C3eMnKUUHvS7Iec46bGaPiNhrZ6So9+4KeMeD8TdqSnEjmDGLWJ7xWWRMPrRkCBUY844mzfFkraNVa6k5o/87yQsCIzEk8K7IVdjv8x7sI/0zWZpDXAvsHDdnI4KHEDpL1A3JoyyXltejSvvkWXeGEpjajiO/xmLZ27XV5xCIcuFaHT1sc6ULYl480+hJEuRaZR1OvkMXqK6n7qKrqerQAirCOt1CBACjVaKc2OTfuGKyn2iEAZg9XDgksGIc6hWkLQMw16M4tVdypTMF/U/+CWp4MA+NlcYu2UMHdo3+j2jKla0+Vox5v2bGbrgyiOCO9GXMt7THtJUdMiXcXOQXFpu4RhRZ/lOTkLzRK1lHvlQvTFQ6YvPvGOiP7BqCykjiDNANgWsLRsIEUY0maZo4afaDC8pJCvVy1AKURJDRK/u8c6gD4WbffMAGvRxr2sPFbWGLy1tuaOf/J2b5tNjol6v2yKfJDoQVq0MR7O+rEh/aJHa1DZQnx6x/ltF8adf6jVVvsfTWKg8QNZfTRRM/8N5WNEtvqw2vTBmWWa+5iHQ+cCndg3JSQYsljlwJ1ocE+5UDL0OeNhIoV/vd9mIn+PLyKu3svWV+To7frsFw8UwSPd4M3ewi+gjdhDwm1Q==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR10MB2963.EURPRD10.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(4636009)(366004)(66476007)(66556008)(26005)(2906002)(508600001)(66946007)(53546011)(86362001)(7416002)(8936002)(8676002)(186003)(5660300002)(38100700002)(83380400001)(4326008)(316002)(110136005)(16576012)(6486002)(54906003)(36756003)(31686004)(956004)(44832011)(2616005)(31696002)(32563001)(43740500002)(45980500001);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?b2kyMXVBUDdmbnhPNnJ3bTFsWEpRU1JnUEZqa1B6KzFmdjRycFgxZTNpQ0lO?=
+ =?utf-8?B?MlhxS2VkTFRyR3REdDE3bjQrQmU5MUxmckFUdkVTejE4MWFTNW0vMHF6bXo0?=
+ =?utf-8?B?TVhrQTJuL2d4RXBtYmVnOThyRXVUYTJxbjNHZFVES3VQVlRleXl6UzBFdlJS?=
+ =?utf-8?B?dU1CUmkrcjREOXdKQW1XWFdRWUpidlJnSURmTzJPLzRyN3hJbmNrZ0VvcXQw?=
+ =?utf-8?B?T2dKWG5NeVN2c3ZFSklEZzdTRzVxUERqcXhvZmRqbUxnSkVsVnNJVElqcW51?=
+ =?utf-8?B?TXJtWkFnMEd4dUFkbzNxdVgwQytuTXByR2lMQzFRMWM2THZVQUZIOEUzdjJI?=
+ =?utf-8?B?MU03eGlSemYvdE96dUNuSTducWRoekdXakRiQXVETG9aUVBUOWthZ3FTWEds?=
+ =?utf-8?B?allSbkxlN0FoS200Umw0VmsyNlJzK3g1M0VhRUh3Njgzb3c1b21scThZbHpI?=
+ =?utf-8?B?UzVEZDhzT2w2WnBNVTNmemRJTzFadWdGNVJxRE9Fcm5jdnIvOEFYcDZwOWVN?=
+ =?utf-8?B?WTg1UXMwUXFCaElUeGpYeFhYV0hZS1ZNazl5cC9DOXFuQnAxSWQxcW03akc2?=
+ =?utf-8?B?MHk1M0ZPMmQrSHkzdDNLcWRnYWY4Wk4ySVV4UnhXWmNHSWNTNFdxamJ2N2wv?=
+ =?utf-8?B?ekJVUFVORUdJQ3dZdkh0ZjZqcnJ6S0E5WG1ZLzRXNFRId24zalozNjgxTE5H?=
+ =?utf-8?B?UTJqMFpCYjZvWC9tWUxZUkNFNFpCaGMvQm1YVFNYUGZpNnUyR1ZGQXlwdkVq?=
+ =?utf-8?B?L0xXNFdxcWd2OW9mbmRvY2YvVlZnY2kxWFFMVkhXbDlQOUUvbTRqYkhJWFV6?=
+ =?utf-8?B?RUsyc05td3dvN1BpeUNQNVRnRUhpdVZYNGxQTkQ4Z1RyWHRRK2xFK005UGtN?=
+ =?utf-8?B?cjRaNmxDeGd1OU9Nb0ZhVTN1VGJJTnVtSGtLSjkxV25OSEcrcVNFSHFVek1x?=
+ =?utf-8?B?aEJ5V2xrdVJXSmc0bmdMT0cwcUhDSjl0REk5eVNBWFdNSHB4UTlZUzd4L3Zh?=
+ =?utf-8?B?R05rOGQ0VklDWC9McVRPa0FNT0w2NmJVVU9hN0NGbk55UG1GTmxNakhtUTVF?=
+ =?utf-8?B?WldvYkUvR2NMVWlxME5OTkE3S1EyalBabEl2RGd1VTN5M3Zkc1BqbFlDUTJT?=
+ =?utf-8?B?V0h2ZXFLSmZVNy9xdDJPbE5kQmxSYnZ6NUVUUWpDaUY5OVlhT3BWMk52NEww?=
+ =?utf-8?B?RTF4UTJpM2IrNnZNbVJ2SnlGUVNpUXpIOWVmbWJPSHI5K0lhOW5VSDBIS0FI?=
+ =?utf-8?B?Y2pnQjN6akJUV05YRytBTnVXYVFRNGlmVUtHNW40enZOUTYwUDhDY0dOSWtv?=
+ =?utf-8?B?RzhwK1lDODZYVGpVd2YxcUN6STRmUnM3Q3NodWYrd1k4d2srQWFTZzF5bHVz?=
+ =?utf-8?B?ZjIwRS9FcDE4b2tFOWFaS1d4YXVHOUozR3hJdnJLaVA5QTBLSTZsaVF3NjVY?=
+ =?utf-8?B?dm12Z2VZSmdVc0JNOU5TUWdYWGFuL2hsN0dDNVFBQjBGV1JLKzNJQ1QrbFVm?=
+ =?utf-8?B?ZWpPQmlHeGkrQXJsUkxHSVI5d3FNcktGVzJJOEFKUmxCK3ZJdm4vcGs4dXEy?=
+ =?utf-8?B?NStoTXJ6V3RZTFBoajQ5eU9lSDduTFNsMUtzVjFCYUxUcHRYVkZScVRSbU1q?=
+ =?utf-8?B?R0trbkh6bG0yQjh5Z05nN2hNVGtpcm94UDIrMm9CY3Y5ZFcvQlRDc1RHQVhv?=
+ =?utf-8?B?QzhtT1NMTXJMb1k0bjg0cDV4UTdSYThyZDdpMTVTL29ka1NrOEhLb0ZkOWVw?=
+ =?utf-8?Q?vTuQn0cgP/mGbHEaCS2lfwD9hwUgnRGVN6PJXfy?=
+X-OriginatorOrg: kontron.de
+X-MS-Exchange-CrossTenant-Network-Message-Id: f6a492e3-d98c-4e25-f84f-08d98823f9f0
+X-MS-Exchange-CrossTenant-AuthSource: AM0PR10MB2963.EURPRD10.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Oct 2021 17:17:14.9407
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 8c9d3c97-3fd9-41c8-a2b1-646f3942daf1
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: OqRt88s7/9lIkuccR0D+KEmKYGc5gixtaYxUSJqkGlR1pMdVJjLJaQMYzqNcCVGTOrdURR/U7fwAEF6XJBSYv/mpGOIK0hmckvPkLOLG4mQ=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR10MB2579
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 5, 2021 at 12:49 PM Todd Kjos <tkjos@google.com> wrote:
->
-> On Tue, Oct 5, 2021 at 8:21 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Mon, Oct 4, 2021 at 8:27 PM Jann Horn <jannh@google.com> wrote:
-> > >
-> > > On Tue, Oct 5, 2021 at 1:38 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > > > On 10/4/2021 3:28 PM, Jann Horn wrote:
-> > > > > On Mon, Oct 4, 2021 at 6:19 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > > > >> On 10/1/2021 3:58 PM, Jann Horn wrote:
-> > > > >>> On Fri, Oct 1, 2021 at 10:10 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > > > >>>> On 10/1/2021 12:50 PM, Jann Horn wrote:
-> > > > >>>>> On Fri, Oct 1, 2021 at 9:36 PM Jann Horn <jannh@google.com> wrote:
-> > > > >>>>>> On Fri, Oct 1, 2021 at 8:46 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > > > >>>>>>> On 10/1/2021 10:55 AM, Todd Kjos wrote:
-> > > > >>>>>>>> Save the struct cred associated with a binder process
-> > > > >>>>>>>> at initial open to avoid potential race conditions
-> > > > >>>>>>>> when converting to a security ID.
-> > > > >>>>>>>>
-> > > > >>>>>>>> Since binder was integrated with selinux, it has passed
-> > > > >>>>>>>> 'struct task_struct' associated with the binder_proc
-> > > > >>>>>>>> to represent the source and target of transactions.
-> > > > >>>>>>>> The conversion of task to SID was then done in the hook
-> > > > >>>>>>>> implementations. It turns out that there are race conditions
-> > > > >>>>>>>> which can result in an incorrect security context being used.
-> > > > >>>>>>> In the LSM stacking patch set I've been posting for a while
-> > > > >>>>>>> (on version 29 now) I use information from the task structure
-> > > > >>>>>>> to ensure that the security information passed via the binder
-> > > > >>>>>>> interface is agreeable to both sides. Passing the cred will
-> > > > >>>>>>> make it impossible to do this check. The task information
-> > > > >>>>>>> required is not appropriate to have in the cred.
-> > > > >>>>>> Why not? Why can't you put the security identity of the task into the creds?
-> > > > >>>>> Ah, I get it now, you're concerned about different processes wanting
-> > > > >>>>> to see security contexts formatted differently (e.g. printing the
-> > > > >>>>> SELinux label vs printing the AppArmor label), right?
-> > > > >>>> That is correct.
-> > > > >>>>
-> > > > >>>>> But still, I don't think you can pull that information from the
-> > > > >>>>> receiving task. Maybe the easiest solution would be to also store that
-> > > > >>>>> in the creds? Or you'd have to manually grab that information when
-> > > > >>>>> /dev/binder is opened.
-> > > > >>>> I'm storing the information in the task security blob because that's
-> > > > >>>> the appropriate scope. Today the LSM hook is given both task_struct's.
-> > > > >>> Which is wrong, because you have no idea who the semantic "recipient
-> > > > >>> task" is - any task that has a mapping of the binder fd can
-> > > > >>> effectively receive transactions from it.
-> > > > >>>
-> > > > >>> (And the current "sender task" is also wrong, because binder looks at
-> > > > >>> the task that opened the binder device, not the task currently
-> > > > >>> performing the action.)
-> > > > >> I'm confused. Are you saying that the existing binder code is
-> > > > >> completely broken? Are you saying that neither "task" is correct?
-> > > > > Yeah, basically
-> > > >
-> > > > Well, hot biscuits and gravy!
-> > > >
-> > > > >  - but luckily the actual impact this has is limited by
-> > > > > the transitions that SELinux permits. If domain1 has no way to
-> > > > > transition to domain2, then it can't abuse this bug to pretend to be
-> > > > > domain2. I do have a reproducer that lets Android's "shell" domain
-> > > > > send a binder transaction that appears to come from "runas", but
-> > > > > luckily "runas" has no interesting privileges with regards to binder,
-> > > > > so that's not exploitable.
-> > > >
-> > > > You're counting on the peculiarities of the SELinux policy you're
-> > > > assuming is used to mask the fact that the hook isn't really doing
-> > > > what it is supposed to?  Ouch.
-> > >
-> > > I'm not saying I like the current situation - I do think that this
-> > > needs to change. I'm just saying it probably isn't *exploitable*, and
-> > > exploitability often hinges on these little circumstantial details.
-> > >
-> > > > >> How does passing the creds from the wrong tasks "fix" the problem?
-> > > > > This patch is not passing the creds from the "wrong" tasks at all. It
-> > > > > relies on the basic idea that when a security context opens a
-> > > > > resource, and then hands that resource to another context for
-> > > > > read/write operations, then you can effectively treat this as a
-> > > > > delegation of privileges from the original opener, and perform access
-> > > > > checks against the credentials using which the resource was opened.
-> > > >
-> > > > OK. I can understand that without endorsing it.
-> > > >
-> > > > > In particular, we already have those semantics in the core kernel for
-> > > > > ->read() and ->write() VFS operations - they are *not allowed* to look
-> > > > > at the credentials of the caller, and if they want to make security
-> > > > > checks, they have to instead check against file->f_cred, which are the
-> > > > > credentials using which the file was originally opened. (Yes, some
-> > > > > places still get that wrong.) Passing a file descriptor to another
-> > > > > task is a delegation of access, and the other task can then call
-> > > > > syscalls like read() / write() / mmap() on the file descriptor without
-> > > > > needing to have any access to the underlying file.
-> > > >
-> > > > A mechanism sufficiently entrenched.
-> > >
-> > > It's not just "entrenched", it is a fundamental requirement for being
-> > > able to use file descriptor passing with syscalls like write(). If
-> > > task A gives a file descriptor to task B, then task B must be able to
-> > > write() to that FD without having to worry that the FD actually refers
-> > > to some sort of special file that interprets the written data as some
-> > > type of command, or something like that, and that this leads to task B
-> > > unknowingly passing through access checks.
-> > >
-> > > > > You can't really attribute binder transactions to specific tasks that
-> > > > > are actually involved in the specific transaction, neither on the
-> > > > > sending side nor on the receiving side, because binder is built around
-> > > > > passing data through memory mappings. Memory mappings can be accessed
-> > > > > by multiple tasks, and even a task that does not currently have it
-> > > > > mapped could e.g. map it at a later time. And on top of that you have
-> > > > > the problem that the receiving task might also go through privileged
-> > > > > execve() transitions.
-> > > >
-> > > > OK. I'm curious now as to why the task_struct was being passed to the
-> > > > hook in the first place.
-> > >
-> > > Probably because that's what most other LSM hooks looked like and the
-> > > authors/reviewers of the patch didn't realize that this model doesn't
-> > > really work for binder? FWIW, these hooks were added in commit
-> > > 79af73079d75 ("Add security hooks to binder and implement the hooks
-> > > for SELinux."). The commit message also just talks about "processes".
-> >
-> > Note that in the same code path (binder_transaction), sender_euid is
-> > set from proc->tsk and security_ctx is based on proc->tsk. If we are
-> > changing the hooks to operate on the opener cred, then presumably we
-> > should be doing that for sender_euid and replace the
-> > security_task_getsecid_obj() call with security_cred_getsecid()?
->
-> Stephan, do you want that to be included in this patch? Or should I
-> follow this up with another patch for the sender_euid case?
+On 05.10.21 09:12, Shawn Guo wrote:
+> On Thu, Sep 30, 2021 at 05:56:28PM +0200, Frieder Schrempf wrote:
+>> From: Frieder Schrempf <frieder.schrempf@kontron.de>
+>>
+>> The MCP2515 can be used with an SPI clock of up to 10 MHz. Set the
+>> limit accordingly to prevent any performance issues caused by the
+>> really low clock speed of 100 kHz.
+> 
+> Could you share some testing result of this change?
 
-Either way is fine with me. Fixing sender_euid arguably is a fix that
-should go all the way back to the introduction of binder unless I
-misunderstand; it is independent of SELinux. Fixing the
-security_task_getsecid -> cred_secid only goes back to
-ec74136ded792deed80780a2f8baf3521eeb72f9. So having it as 3 separate
-patches may help with the different Fixes tags and back-porting
-purposes.
+Without this change, receiving CAN messages on the board beyond a
+certain bitrate will cause overrun errors (see 'ip -det -stat link show
+can0').
+
+With this fix, receiving messages on the bus works without any overrun
+errors for bitrates up to 1 MBit.
+
+
+> 
+>>
+>> Fixes: 21c4f45b335f ("arm64: dts: Add the Kontron i.MX8M Mini SoMs and baseboards")
+> 
+> It's really an optimization rather than fix, isn't it?
+
+It removes the arbitrarily low limit on the SPI frequency, that was
+caused by a typo in the original dts. As the usage of the CAN bus is
+seriously affected by this I would consider it a fix. But if you think
+otherwise, feel free to remove the Fixes tag.
+
+> 
+> Shawn
+> 
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+>> ---
+>>  arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
+>> index f2c8ccefd1bf..dbf11e03ecce 100644
+>> --- a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
+>> +++ b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
+>> @@ -98,7 +98,7 @@ can0: can@0 {
+>>  		clocks = <&osc_can>;
+>>  		interrupt-parent = <&gpio4>;
+>>  		interrupts = <28 IRQ_TYPE_EDGE_FALLING>;
+>> -		spi-max-frequency = <100000>;
+>> +		spi-max-frequency = <10000000>;
+>>  		vdd-supply = <&reg_vdd_3v3>;
+>>  		xceiver-supply = <&reg_vdd_5v>;
+>>  	};
+>> -- 
+>> 2.33.0
+>>
