@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72A0942221E
-	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 11:21:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0133D42221F
+	for <lists+stable@lfdr.de>; Tue,  5 Oct 2021 11:21:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233534AbhJEJXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 05:23:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37830 "EHLO mail.kernel.org"
+        id S233394AbhJEJX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 05:23:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233633AbhJEJXW (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Tue, 5 Oct 2021 05:23:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C65F61526;
-        Tue,  5 Oct 2021 09:21:32 +0000 (UTC)
+        id S233344AbhJEJX2 (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Tue, 5 Oct 2021 05:23:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87DAA61108;
+        Tue,  5 Oct 2021 09:21:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633425692;
-        bh=aI4ecJuyigHxqGLVRX5xoixhuKqi/6Zvz0k/3cFkOZ0=;
+        s=korg; t=1633425697;
+        bh=J5BIjn9hYNVu8iDrFl5taFz/BpGyuEa/PDtckRd/Pf0=;
         h=Subject:To:From:Date:From;
-        b=GYRCOYjy4j4cA3aKFBoi4MtdwgWM+h1xX6kWB/YzqkfKSYlLrDLkZxQjBhJWQgYZd
-         7Z6kd9WdQ3ns2e40CLVRQ27+FXkc+L/AXRnMkVW+M9YeorcCg9ofFU64YF59ZsO9sO
-         y30cQYMtZdB41+dDT10lD20epgqRuDbI71GRKMv4=
-Subject: patch "iio: adc128s052: Fix the error handling path of 'adc128_probe()'" added to staging-linus
-To:     christophe.jaillet@wanadoo.fr, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, ardeleanalex@gmail.com
+        b=ij+yBC4ySUZFlk0rNze9I87iC8sSUiu7siq+8BR8wSCYJh73t3FTPuZyp20meJLNa
+         wAsK/U+Ik5GgbbDBm1WebaoIBtvAvWftNXFT0n2g74WbYNrUXgYhv62GwcAMFxv0SH
+         UdIx+tvMFnRju6XwIp6UnHOF1ccj13yL53aiq+2I=
+Subject: patch "iio: adc: aspeed: set driver data when adc probe." added to staging-linus
+To:     billy_tsai@aspeedtech.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 05 Oct 2021 11:21:21 +0200
-Message-ID: <163342568199131@kroah.com>
+Date:   Tue, 05 Oct 2021 11:21:22 +0200
+Message-ID: <163342568217245@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc128s052: Fix the error handling path of 'adc128_probe()'
+    iio: adc: aspeed: set driver data when adc probe.
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -51,45 +51,34 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From bbcf40816b547b3c37af49168950491d20d81ce1 Mon Sep 17 00:00:00 2001
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Date: Sat, 21 Aug 2021 12:37:24 +0200
-Subject: iio: adc128s052: Fix the error handling path of 'adc128_probe()'
+From eb795cd97365a3d3d9da3926d234a7bc32a3bb15 Mon Sep 17 00:00:00 2001
+From: Billy Tsai <billy_tsai@aspeedtech.com>
+Date: Tue, 31 Aug 2021 15:14:44 +0800
+Subject: iio: adc: aspeed: set driver data when adc probe.
 
-A successful 'regulator_enable()' call should be balanced by a
-corresponding 'regulator_disable()' call in the error handling path of the
-probe, as already done in the remove function.
+Fix the issue when adc remove will get the null driver data.
 
-Update the error handling path accordingly.
-
-Fixes: 913b86468674 ("iio: adc: Add TI ADC128S052")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
-Link: https://lore.kernel.org/r/85189f1cfcf6f5f7b42d8730966f2a074b07b5f5.1629542160.git.christophe.jaillet@wanadoo.fr
+Fixed: commit 573803234e72 ("iio: Aspeed ADC")
+Signed-off-by: Billy Tsai <billy_tsai@aspeedtech.com>
+Link: https://lore.kernel.org/r/20210831071458.2334-2-billy_tsai@aspeedtech.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/ti-adc128s052.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/iio/adc/aspeed_adc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iio/adc/ti-adc128s052.c b/drivers/iio/adc/ti-adc128s052.c
-index 3143f35a6509..83c1ae07b3e9 100644
---- a/drivers/iio/adc/ti-adc128s052.c
-+++ b/drivers/iio/adc/ti-adc128s052.c
-@@ -171,7 +171,13 @@ static int adc128_probe(struct spi_device *spi)
- 	mutex_init(&adc->lock);
+diff --git a/drivers/iio/adc/aspeed_adc.c b/drivers/iio/adc/aspeed_adc.c
+index 19efaa41bc34..34ec0c28b2df 100644
+--- a/drivers/iio/adc/aspeed_adc.c
++++ b/drivers/iio/adc/aspeed_adc.c
+@@ -183,6 +183,7 @@ static int aspeed_adc_probe(struct platform_device *pdev)
  
- 	ret = iio_device_register(indio_dev);
-+	if (ret)
-+		goto err_disable_regulator;
+ 	data = iio_priv(indio_dev);
+ 	data->dev = &pdev->dev;
++	platform_set_drvdata(pdev, indio_dev);
  
-+	return 0;
-+
-+err_disable_regulator:
-+	regulator_disable(adc->reg);
- 	return ret;
- }
- 
+ 	data->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(data->base))
 -- 
 2.33.0
 
