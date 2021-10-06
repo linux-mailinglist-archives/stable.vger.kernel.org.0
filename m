@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DA1E423C40
-	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 13:12:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DF20423C4E
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 13:13:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238353AbhJFLOj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Oct 2021 07:14:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38250 "EHLO mail.kernel.org"
+        id S238401AbhJFLOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Oct 2021 07:14:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238343AbhJFLOe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 Oct 2021 07:14:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E318611C5;
-        Wed,  6 Oct 2021 11:12:41 +0000 (UTC)
+        id S238357AbhJFLOf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 Oct 2021 07:14:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B92BE61184;
+        Wed,  6 Oct 2021 11:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633518762;
-        bh=0WJwpk70JlUtzeH2V3Gk8E+EDZOjgTE79bmfvCAOkDs=;
+        s=k20201202; t=1633518763;
+        bh=iDuXUh8Sqb2SmjrONaN8Y8dFcYOdWd+BO/L8fjufths=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mBGNaHh9sg38AKkxpuqcdwSuxhXyi7qbwcQRCxSizT2NsNCXFaXRi0TgCuS+ijPsb
-         bB8Eof6hj60hAl+3mwqU/hQE3SZ4QB4ivvknVA5tEf01beAEBkJIbUMTWEDlYigNuT
-         O62l2Rpcvxz5iIZ0Jr0cbpXIq2rHHuDdoFOvRKrRoWBLY3GuzMLVlZFL2NZT3cVR4E
-         OjBSOPVjM+0Ui6yHESI7/CntVJR0v7X/akABnJRS3Ee4RX9X1dHreRiw/NiRYy7ESS
-         KBsv/chf9ojiesX/fGBeZaS9BSDOd7Sb9s2LQGJ4bTglTW5fvRjFI0OU88htsSzSPu
-         hPPmEssYy8akw==
+        b=mZl93efSh2uRb31uJl1Q58/f7lnAT2MSzaEUHZLt6fMV0y4vUDTrlJIoyDV+d9GJ/
+         ypARpgkHQGLKB538fW5YXGJK65NDT7YB/c20Qtlp+EAqx5Uvq0CB4pyxcTIGo51V3y
+         +yz3HuvixIDeLBDSBwsW1dDs1/N/HA21KArgI7afXvxalUdHHigpP7m6nerlbq99mi
+         XHWBS7GpkArAqet1xLIPHcyi5/26g1YxmT/n/UUyob0qgFZUnczOYqjCSEKgz02wnA
+         wbRYkn14aqxoFY/z4Dr08c3EsGCYZSfD2LswTBmtF0MGOjVwPcxjPn2jtA3GWhLEQ3
+         dnn/WePYNyCeA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fares Mehanna <faresx@amazon.de>,
+Cc:     Maxim Levitsky <mlevitsk@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
         mingo@redhat.com, bp@alien8.de, x86@kernel.org, kvm@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.10 5/7] kvm: x86: Add AMD PMU MSRs to msrs_to_save_all[]
-Date:   Wed,  6 Oct 2021 07:12:31 -0400
-Message-Id: <20211006111234.264020-5-sashal@kernel.org>
+Subject: [PATCH MANUALSEL 5.10 6/7] KVM: x86: nSVM: restore int_vector in svm_clear_vintr
+Date:   Wed,  6 Oct 2021 07:12:32 -0400
+Message-Id: <20211006111234.264020-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211006111234.264020-1-sashal@kernel.org>
 References: <20211006111234.264020-1-sashal@kernel.org>
@@ -43,43 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fares Mehanna <faresx@amazon.de>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-[ Upstream commit e1fc1553cd78292ab3521c94c9dd6e3e70e606a1 ]
+[ Upstream commit aee77e1169c1900fe4248dc186962e745b479d9e ]
 
-Intel PMU MSRs is in msrs_to_save_all[], so add AMD PMU MSRs to have a
-consistent behavior between Intel and AMD when using KVM_GET_MSRS,
-KVM_SET_MSRS or KVM_GET_MSR_INDEX_LIST.
+In svm_clear_vintr we try to restore the virtual interrupt
+injection that might be pending, but we fail to restore
+the interrupt vector.
 
-We have to add legacy and new MSRs to handle guests running without
-X86_FEATURE_PERFCTR_CORE.
-
-Signed-off-by: Fares Mehanna <faresx@amazon.de>
-Message-Id: <20210915133951.22389-1-faresx@amazon.de>
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20210914154825.104886-2-mlevitsk@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/kvm/svm/svm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index d65da3b5837b..b885063dc393 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1250,6 +1250,13 @@ static const u32 msrs_to_save_all[] = {
- 	MSR_ARCH_PERFMON_EVENTSEL0 + 12, MSR_ARCH_PERFMON_EVENTSEL0 + 13,
- 	MSR_ARCH_PERFMON_EVENTSEL0 + 14, MSR_ARCH_PERFMON_EVENTSEL0 + 15,
- 	MSR_ARCH_PERFMON_EVENTSEL0 + 16, MSR_ARCH_PERFMON_EVENTSEL0 + 17,
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index 1c23aee3778c..5e1d7396a6b8 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -1497,6 +1497,8 @@ static void svm_clear_vintr(struct vcpu_svm *svm)
+ 			(svm->nested.ctl.int_ctl & V_TPR_MASK));
+ 		svm->vmcb->control.int_ctl |= svm->nested.ctl.int_ctl &
+ 			V_IRQ_INJECTION_BITS_MASK;
 +
-+	MSR_K7_EVNTSEL0, MSR_K7_EVNTSEL1, MSR_K7_EVNTSEL2, MSR_K7_EVNTSEL3,
-+	MSR_K7_PERFCTR0, MSR_K7_PERFCTR1, MSR_K7_PERFCTR2, MSR_K7_PERFCTR3,
-+	MSR_F15H_PERF_CTL0, MSR_F15H_PERF_CTL1, MSR_F15H_PERF_CTL2,
-+	MSR_F15H_PERF_CTL3, MSR_F15H_PERF_CTL4, MSR_F15H_PERF_CTL5,
-+	MSR_F15H_PERF_CTR0, MSR_F15H_PERF_CTR1, MSR_F15H_PERF_CTR2,
-+	MSR_F15H_PERF_CTR3, MSR_F15H_PERF_CTR4, MSR_F15H_PERF_CTR5,
- };
++		svm->vmcb->control.int_vector = svm->nested.ctl.int_vector;
+ 	}
  
- static u32 msrs_to_save[ARRAY_SIZE(msrs_to_save_all)];
+ 	vmcb_mark_dirty(svm->vmcb, VMCB_INTR);
 -- 
 2.33.0
 
