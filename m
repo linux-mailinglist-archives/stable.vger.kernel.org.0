@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 578D6423C48
-	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 13:13:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D25F2423C60
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 13:13:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238536AbhJFLO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Oct 2021 07:14:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38666 "EHLO mail.kernel.org"
+        id S238561AbhJFLPi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Oct 2021 07:15:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238530AbhJFLO4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 Oct 2021 07:14:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6100761166;
-        Wed,  6 Oct 2021 11:13:03 +0000 (UTC)
+        id S238565AbhJFLO7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 Oct 2021 07:14:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 29D6861130;
+        Wed,  6 Oct 2021 11:13:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633518784;
+        s=k20201202; t=1633518788;
         bh=nP9Gz40YheGjmXGenK6aSQJa95wN7Jthsqmc5DCDn7Q=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qnPT1sM7n190/8tbmwVkPshN+Yet+pHEtVWMzLgnG5IdR2AiKNRBU6eNMgQ06Gz/8
-         hgAZZGP1rfPfIe4lcJw96h7naHCRNg6Kelq+Vxv2gOlqhVvmswWf9MFLSs59SQCaV6
-         XkZipMkXfXSxevTtMFCQ8zdE0EKtzQsbxdQeDNNXV+FqZSmMANlQ9MtzxO2rJT11Mk
-         rkaYnQb0sMYkGLiLMpGOUAG08NXBZXpOL1mUpKitWufignLyMT4DzUAFDIOFWDTjlF
-         AOOD88BgY6Z5sZxFyBHToavLtIvxLkifIzwyivoybKWu/3dNFhVrh0HibAqmQSL3kt
-         aMKKrEjv9mVtA==
+        h=From:To:Cc:Subject:Date:From;
+        b=sz7Q0BabO+4w05VRaGNPGC5sq0M70A08S7RwtkZl4HEvshCUsPsTCtGW+OCjj0P/V
+         3WyKgQC5phmKjTDhFkDCMCMgOY72ymdjQc9Ea+rF5fswwEERJ2+ipw1nd52PGf7DvV
+         0lrfGruAQleLdZ98n3fO2tha4uXJKhCg9FiIE3Tqdpz/5EzYQI/xw1fUsRiwyAjNvu
+         IBqspT3YzH3TRm3/2Em8AFcCGrIEjNgz7USnTPVEGxjRzKKs23p50dzd2e+v5dlZoW
+         noNNnxvUtBZcFYW6Gf7a+HOAjTb4PBWNslOwkMV6FBYrVrs5hC5r1O5Li8Z1ax8Aiz
+         MrXyKRwgeUVkg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Thomas Gleixner <tglx@linutronix.de>, alsa-devel@alsa-project.org,
         Takashi Iwai <tiwai@suse.com>,
         Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH MANUALSEL 4.19 2/2] ALSA: pcsp: Make hrtimer forwarding more robust
-Date:   Wed,  6 Oct 2021 07:12:59 -0400
-Message-Id: <20211006111259.264427-2-sashal@kernel.org>
+Subject: [PATCH MANUALSEL 4.14] ALSA: pcsp: Make hrtimer forwarding more robust
+Date:   Wed,  6 Oct 2021 07:13:04 -0400
+Message-Id: <20211006111305.264465-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211006111259.264427-1-sashal@kernel.org>
-References: <20211006111259.264427-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
