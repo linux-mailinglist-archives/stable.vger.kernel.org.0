@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E673424794
-	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 21:55:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95AF24247C5
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 22:14:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229892AbhJFT52 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Oct 2021 15:57:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57928 "EHLO
+        id S230466AbhJFUQA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Oct 2021 16:16:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229761AbhJFT5Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 15:57:24 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7E2FC061755
-        for <stable@vger.kernel.org>; Wed,  6 Oct 2021 12:55:31 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id s16so3370122pfk.0
-        for <stable@vger.kernel.org>; Wed, 06 Oct 2021 12:55:31 -0700 (PDT)
+        with ESMTP id S229992AbhJFUP7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 16:15:59 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 572D1C061746
+        for <stable@vger.kernel.org>; Wed,  6 Oct 2021 13:14:07 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id oa12-20020a17090b1bcc00b0019f715462a8so3289610pjb.3
+        for <stable@vger.kernel.org>; Wed, 06 Oct 2021 13:14:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=vTA7YImPCVZRpXPnIeE9XrhzunIHprJ2FKmX16eO+L4=;
-        b=kA6UdDYxLuiLutuWQ70ZfnPEvi++1nksM+OoEYZfDIhBMtjlGpRe5JhB0/iVcv2baH
-         vVmev/XGf7fXtI8XDC8o4yGSqEI6d3taYcaZjPRSMCePA7D7SRS2N3iY1VzWdNbvKl8p
-         jSkBiB5vboZN3fP7crsTcUqw7/AxqnMOFOgaJn5zKcFAmJXWoqPDc9Jp2ZmaQI0s5gly
-         Y5JHNr7ZTa7Wz8fsFStGFV0cRYqGYx/aZtRwj3Zl3bxp31YBKETYvJu76PQVTxmz+Ngq
-         ck2kDdYrN5P33A5j7wotxEtfAZtBFpu1RwX+6Tu5Z/CHlIcJulbybjuwzRKw3PB9fFL5
-         g7nw==
+        bh=XNafwxy3igzX0NY1SRsGtOey0UvJhZQERO4RwgpKeqA=;
+        b=OBIn+2bJR8XJYRELZ669mMRRdPbnUZjeaO/A/GspMW6kc4mvNaAozPqUMvt7r5c6gO
+         uI2Yn7CjBzK6UYHSpeXFK0q6grLfnBlWtypC8e5ORbhAGEVkWU7LziO/fnKx6LimdIeD
+         GC9WRBxb59viwYMkIMb0Eok+/hSUvpTj7OduqHu+OHs5mrKYLuV300ZMBtGSIBztieQB
+         iMVX/o/T2YWmsfsgyKBR/3VgVtEMmzI6999NPrncgT8et6SNU15EhORFYR1X47WJcYpu
+         ZvwR5zgEcw6NOv5U9mQDYEMWXGNoXqbj4j1UbIpq6PXPP42MrMKgNNwE0c7gF6B7rjgY
+         lp0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=vTA7YImPCVZRpXPnIeE9XrhzunIHprJ2FKmX16eO+L4=;
-        b=KqsmMGX8bL1o14nQqLhQRCer2Gb6MmdgcvWaNZ9LhIEO/BZEvp5wu5Fou/7uyWjMQf
-         dNhVPBub+wCinzQryBL3HNph4cOQfA/bpBr9pQbgzZHbftJBAaMj4ppRktv20OaBT//8
-         6jycO9fyaKo4A0dJ+3IXT3g//ldzN6tL68btl0cJPPKE0LzkDayqj0084Bxxh+hlAdF/
-         TJVG4FmsOolxo8vTED6TZB6rd1lIk2Ql23VeyTTsNUMJk3Hxy+Z7OCJHkY/FEtUH+vWK
-         KeM+I/KLKnPnEbwMyQiJlLOifk/h0M7VJOY7ulrWNetwGcsOI8tl0XSdB1mCLuwnWDbf
-         wEoQ==
-X-Gm-Message-State: AOAM532ZnZ8tKcodA7SuNJYRWRjGUD9Nyc7H2WiddP7dV+zg1DS80MOO
-        pGyl/+K9q36Xx7wdt6BLylijeLEYbp7uFHx1
-X-Google-Smtp-Source: ABdhPJyYpb0TXJjBTYDacx7dJKAHDwZiDhYKCGS36Gp0GXofLlPdFlaIE8VS+MEMbFQ2/QHIYmuY8Q==
-X-Received: by 2002:aa7:96e3:0:b0:44c:83be:19bc with SMTP id i3-20020aa796e3000000b0044c83be19bcmr10517727pfq.37.1633550130655;
-        Wed, 06 Oct 2021 12:55:30 -0700 (PDT)
+        bh=XNafwxy3igzX0NY1SRsGtOey0UvJhZQERO4RwgpKeqA=;
+        b=24kkeJQ1WrwZJaAcY5nv14MfxZr+D8GEEuqAWDq/4S+JfFLTmjagN9oGupIt7oHWR+
+         XAn01NNSTDtAe7ZxAXhukjJ5d+WNVyo5w8J4lqdQVhp08SaznVcP5XTccvfU/GaO1zXp
+         CGPOwfqEjANEpero3cjKwu9MSXmLs9eIOlvpWI8IsFtNj9T4VAZZ9WcnI9PeHoZyy4Hu
+         5eFx6IeZLNSGQoAy98caD505l11BNEC7fnHKS6pe3eiPYGs2CnFMSu+khuYpIikxM8NJ
+         7oZ5Sf+VaBT0HYGYVJfvRBx3+X3OSPg5ySUwfiRVfCFrbHmo/AMMApN/iYCNhRI9iqRn
+         UO6A==
+X-Gm-Message-State: AOAM532J/lMS6uY4SaVQz7OloaxVxjDh2b84nrtuD17BMOCxy0HwS2q9
+        O65NVvYYCZVhn4wwfXDOBBOxs1jsNqZUv92C
+X-Google-Smtp-Source: ABdhPJzMy5ve//h0crm3Q3PIjfYed3dzr3EMG7VzB6f4EpQTTMMdK5um/dnLxwW9/OWtDNdwSO8EoA==
+X-Received: by 2002:a17:903:20d3:b0:13e:d7f1:e906 with SMTP id i19-20020a17090320d300b0013ed7f1e906mr253965plb.14.1633551246160;
+        Wed, 06 Oct 2021 13:14:06 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t1sm20874395pgf.78.2021.10.06.12.55.30
+        by smtp.gmail.com with ESMTPSA id h4sm5925831pjm.14.2021.10.06.13.14.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Oct 2021 12:55:30 -0700 (PDT)
-Message-ID: <615dff32.1c69fb81.2257d.ede6@mx.google.com>
-Date:   Wed, 06 Oct 2021 12:55:30 -0700 (PDT)
+        Wed, 06 Oct 2021 13:14:05 -0700 (PDT)
+Message-ID: <615e038d.1c69fb81.942ff.2366@mx.google.com>
+Date:   Wed, 06 Oct 2021 13:14:05 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.14.9-173-gd1d4d31a257c
+X-Kernelci-Kernel: v5.4.150-53-gc5afd6e806b4
 X-Kernelci-Report-Type: build
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.14.y
-Subject: stable-rc/linux-5.14.y build: 177 builds: 2 failed, 175 passed,
- 106 warnings (v5.14.9-173-gd1d4d31a257c)
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 build: 186 builds: 0 failed, 186 passed,
+ 10 warnings (v5.4.150-53-gc5afd6e806b4)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,154 +65,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.14.y build: 177 builds: 2 failed, 175 passed, 106 warning=
-s (v5.14.9-173-gd1d4d31a257c)
+stable-rc/queue/5.4 build: 186 builds: 0 failed, 186 passed, 10 warnings (v=
+5.4.150-53-gc5afd6e806b4)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.14.=
-y/kernel/v5.14.9-173-gd1d4d31a257c/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
+/kernel/v5.4.150-53-gc5afd6e806b4/
 
 Tree: stable-rc
-Branch: linux-5.14.y
-Git Describe: v5.14.9-173-gd1d4d31a257c
-Git Commit: d1d4d31a257c9fb5087c34e33423b99ee508fdf6
+Branch: queue/5.4
+Git Describe: v5.4.150-53-gc5afd6e806b4
+Git Commit: c5afd6e806b4bdff96017981031b4703fd4f374e
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
 
-Build Failures Detected:
-
-mips:
-    decstation_64_defconfig: (gcc-8) FAIL
-    lemote2f_defconfig: (gcc-8) FAIL
-
 Warnings Detected:
 
 arc:
-    axs103_defconfig (gcc-8): 1 warning
-    axs103_smp_defconfig (gcc-8): 1 warning
-    haps_hs_defconfig (gcc-8): 1 warning
-    haps_hs_smp_defconfig (gcc-8): 1 warning
-    hsdk_defconfig (gcc-8): 1 warning
-    nsimosci_hs_defconfig (gcc-8): 1 warning
-    nsimosci_hs_smp_defconfig (gcc-8): 1 warning
-    vdk_hs38_defconfig (gcc-8): 1 warning
-    vdk_hs38_smp_defconfig (gcc-8): 1 warning
 
 arm64:
+    defconfig (gcc-8): 2 warnings
 
 arm:
-    am200epdkit_defconfig (gcc-8): 1 warning
     assabet_defconfig (gcc-8): 1 warning
-    badge4_defconfig (gcc-8): 1 warning
-    cerfcube_defconfig (gcc-8): 1 warning
-    colibri_pxa300_defconfig (gcc-8): 1 warning
     collie_defconfig (gcc-8): 1 warning
-    corgi_defconfig (gcc-8): 1 warning
-    ep93xx_defconfig (gcc-8): 1 warning
-    eseries_pxa_defconfig (gcc-8): 1 warning
-    footbridge_defconfig (gcc-8): 1 warning
     h3600_defconfig (gcc-8): 1 warning
-    h5000_defconfig (gcc-8): 1 warning
-    hackkit_defconfig (gcc-8): 1 warning
-    imx_v4_v5_defconfig (gcc-8): 1 warning
-    integrator_defconfig (gcc-8): 1 warning
-    iop32x_defconfig (gcc-8): 1 warning
-    ixp4xx_defconfig (gcc-8): 1 warning
-    jornada720_defconfig (gcc-8): 1 warning
-    keystone_defconfig (gcc-8): 1 warning
-    lart_defconfig (gcc-8): 1 warning
-    lpd270_defconfig (gcc-8): 1 warning
-    lubbock_defconfig (gcc-8): 1 warning
-    magician_defconfig (gcc-8): 1 warning
-    mainstone_defconfig (gcc-8): 1 warning
-    milbeaut_m10v_defconfig (gcc-8): 1 warning
-    multi_v4t_defconfig (gcc-8): 1 warning
-    mvebu_v7_defconfig (gcc-8): 1 warning
     neponset_defconfig (gcc-8): 1 warning
-    netwinder_defconfig (gcc-8): 1 warning
-    omap1_defconfig (gcc-8): 1 warning
-    oxnas_v6_defconfig (gcc-8): 1 warning
-    palmz72_defconfig (gcc-8): 1 warning
-    pcm027_defconfig (gcc-8): 1 warning
-    pleb_defconfig (gcc-8): 1 warning
-    pxa168_defconfig (gcc-8): 1 warning
-    pxa255-idp_defconfig (gcc-8): 1 warning
-    pxa3xx_defconfig (gcc-8): 1 warning
-    pxa910_defconfig (gcc-8): 1 warning
-    pxa_defconfig (gcc-8): 1 warning
-    qcom_defconfig (gcc-8): 1 warning
-    rpc_defconfig (gcc-8): 1 warning
-    s3c2410_defconfig (gcc-8): 1 warning
-    s3c6400_defconfig (gcc-8): 1 warning
-    s5pv210_defconfig (gcc-8): 1 warning
     shannon_defconfig (gcc-8): 1 warning
-    simpad_defconfig (gcc-8): 1 warning
-    spitz_defconfig (gcc-8): 1 warning
-    stm32_defconfig (gcc-8): 1 warning
-    tct_hammer_defconfig (gcc-8): 1 warning
-    tegra_defconfig (gcc-8): 1 warning
-    vexpress_defconfig (gcc-8): 1 warning
-    vf610m4_defconfig (gcc-8): 1 warning
-    viper_defconfig (gcc-8): 1 warning
-    vt8500_v6_v7_defconfig (gcc-8): 1 warning
-    zeus_defconfig (gcc-8): 1 warning
 
 i386:
 
 mips:
-    bcm63xx_defconfig (gcc-8): 1 warning
-    bigsur_defconfig (gcc-8): 1 warning
-    capcella_defconfig (gcc-8): 1 warning
-    cobalt_defconfig (gcc-8): 1 warning
-    db1xxx_defconfig (gcc-8): 1 warning
-    decstation_64_defconfig (gcc-8): 1 warning
-    decstation_defconfig (gcc-8): 1 warning
-    decstation_r4k_defconfig (gcc-8): 1 warning
-    e55_defconfig (gcc-8): 1 warning
-    fuloong2e_defconfig (gcc-8): 1 warning
-    gpr_defconfig (gcc-8): 1 warning
-    ip22_defconfig (gcc-8): 1 warning
-    ip32_defconfig (gcc-8): 1 warning
-    jazz_defconfig (gcc-8): 1 warning
-    jmr3927_defconfig (gcc-8): 1 warning
-    lemote2f_defconfig (gcc-8): 1 warning
-    loongson2k_defconfig (gcc-8): 1 warning
-    malta_defconfig (gcc-8): 1 warning
-    malta_kvm_defconfig (gcc-8): 1 warning
-    malta_qemu_32r6_defconfig (gcc-8): 1 warning
-    maltaaprp_defconfig (gcc-8): 1 warning
-    maltasmvp_defconfig (gcc-8): 1 warning
-    maltasmvp_eva_defconfig (gcc-8): 1 warning
-    maltaup_defconfig (gcc-8): 1 warning
-    maltaup_xpa_defconfig (gcc-8): 1 warning
-    mpc30x_defconfig (gcc-8): 1 warning
-    mtx1_defconfig (gcc-8): 1 warning
-    pic32mzda_defconfig (gcc-8): 1 warning
-    rb532_defconfig (gcc-8): 1 warning
-    rm200_defconfig (gcc-8): 2 warnings
-    sb1250_swarm_defconfig (gcc-8): 1 warning
-    tb0219_defconfig (gcc-8): 1 warning
-    tb0226_defconfig (gcc-8): 1 warning
-    tb0287_defconfig (gcc-8): 1 warning
-    workpad_defconfig (gcc-8): 1 warning
 
 riscv:
-    rv32_defconfig (gcc-8): 6 warnings
+    defconfig (gcc-8): 3 warnings
 
 x86_64:
 
 
 Warnings summary:
 
-    99   block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 d=
-efined but not used [-Wunused-function]
-    2    <stdin>:834:2: warning: #warning syscall fstat64 not implemented [=
--Wcpp]
-    2    <stdin>:1515:2: warning: #warning syscall clone3 not implemented [=
--Wcpp]
-    2    <stdin>:1131:2: warning: #warning syscall fstatat64 not implemente=
-d [-Wcpp]
-    1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+    5    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_=
+min_dma_period=E2=80=99 defined but not used [-Wunused-function]
+    2    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer=
+ to integer of different size [-Wpointer-to-int-cast]
+    1    include/linux/of_clk.h:13:31: warning: =E2=80=98struct of_device_i=
+d=E2=80=99 declared inside parameter list will not be visible outside of th=
+is definition or declaration
+    1    include/linux/of_clk.h:12:43: warning: =E2=80=98struct device_node=
+=E2=80=99 declared inside parameter list will not be visible outside of thi=
+s definition or declaration
+    1    include/linux/of_clk.h:11:45: warning: =E2=80=98struct device_node=
+=E2=80=99 declared inside parameter list will not be visible outside of thi=
+s definition or declaration
+
+Section mismatches summary:
+
+    1    WARNING: vmlinux.o(.text.unlikely+0x3458): Section mismatch in ref=
+erence from the function pmax_setup_memory_region() to the function .init.t=
+ext:add_memory_region()
+    1    WARNING: vmlinux.o(.text.unlikely+0x30f4): Section mismatch in ref=
+erence from the function pmax_setup_memory_region() to the function .init.t=
+ext:add_memory_region()
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -228,13 +142,13 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -243,12 +157,8 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -271,8 +181,8 @@ assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
 Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -296,30 +206,18 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -333,21 +231,13 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -361,12 +251,8 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -375,12 +261,8 @@ cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
 
 ---------------------------------------------------------------------------=
 -----
-cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -389,17 +271,18 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
+cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
 cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -408,12 +291,8 @@ colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
 
 ---------------------------------------------------------------------------=
 -----
-colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
-0 section mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -421,27 +300,13 @@ collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
 
 Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
-corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-cu1000-neo_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-cu1830-neo_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -450,49 +315,60 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-decstation_64_defconfig (mips, gcc-8) =E2=80=94 FAIL, 0 errors, 1 warning, =
-0 section mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-decstation_r4k_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning,=
+decstation_64_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
  0 section mismatches
 
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x3458): Section mismatch in referenc=
+e from the function pmax_setup_memory_region() to the function .init.text:a=
+dd_memory_region()
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x30f4): Section mismatch in referenc=
+e from the function pmax_setup_memory_region() to the function .init.text:a=
+dd_memory_region()
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section mi=
+smatches
+
 Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+    include/linux/of_clk.h:11:45: warning: =E2=80=98struct device_node=E2=
+=80=99 declared inside parameter list will not be visible outside of this d=
+efinition or declaration
+    include/linux/of_clk.h:12:43: warning: =E2=80=98struct device_node=E2=
+=80=99 declared inside parameter list will not be visible outside of this d=
+efinition or declaration
+    include/linux/of_clk.h:13:31: warning: =E2=80=98struct of_device_id=E2=
+=80=99 declared inside parameter list will not be visible outside of this d=
+efinition or declaration
 
 ---------------------------------------------------------------------------=
 -----
-defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section mi=
 smatches
 
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+Warnings:
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
 
 ---------------------------------------------------------------------------=
 -----
@@ -501,30 +377,33 @@ dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
+ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -538,21 +417,13 @@ mismatches
 
 ---------------------------------------------------------------------------=
 -----
-footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -566,12 +437,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -579,44 +446,28 @@ h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
  mismatches
 
 Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
-h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -625,12 +476,8 @@ hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -644,12 +491,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -658,102 +501,63 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
 ---------------------------------------------------------------------------=
 -----
-ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 FAIL, 0 errors, 1 warning, 0 sec=
+jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -764,15 +568,6 @@ section mismatches
 -----
 loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
-
----------------------------------------------------------------------------=
------
-loongson2k_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -791,125 +586,88 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
 ---------------------------------------------------------------------------=
 -----
-magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
 ---------------------------------------------------------------------------=
 -----
-mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
 ---------------------------------------------------------------------------=
 -----
-malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
-, 0 section mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
-0 section mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-milbeaut_m10v_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0=
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+milbeaut_m10v_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
 mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -923,12 +681,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -937,21 +691,18 @@ mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
+mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -970,12 +721,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -988,17 +735,13 @@ neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
 Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
-netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1017,40 +760,28 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nommu_k210_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nommu_k210_sdcard_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warn=
-ings, 0 section mismatches
+nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning,=
- 0 section mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1069,39 +800,23 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
 ---------------------------------------------------------------------------=
 -----
-palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
 ---------------------------------------------------------------------------=
 -----
-pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1110,66 +825,48 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
 mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
 ---------------------------------------------------------------------------=
 -----
-pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1178,12 +875,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1197,27 +890,13 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-    drivers/block/paride/bpck.c:32: warning: "PC" redefined
-
 ---------------------------------------------------------------------------=
 -----
-rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-rs90_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1226,45 +905,18 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rv32_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 secti=
-on mismatches
-
-Warnings:
-    <stdin>:834:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
-    <stdin>:1131:2: warning: #warning syscall fstatat64 not implemented [-W=
-cpp]
-    <stdin>:1515:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:834:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
-    <stdin>:1131:2: warning: #warning syscall fstatat64 not implemented [-W=
-cpp]
-    <stdin>:1515:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1273,12 +925,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0=
- section mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1286,8 +934,8 @@ shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
 Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1296,12 +944,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1325,21 +969,13 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1348,48 +984,33 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1413,26 +1034,23 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
 u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1441,30 +1059,18 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
 ---------------------------------------------------------------------------=
 -----
-vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1473,21 +1079,13 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1506,12 +1104,13 @@ xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
+zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
-Warnings:
-    block/mq-deadline.c:274:12: warning: =E2=80=98dd_queued=E2=80=99 define=
-d but not used [-Wunused-function]
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---
 For more info write to <info@kernelci.org>
