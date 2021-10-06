@@ -2,65 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFEF4423932
-	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 09:49:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F00F42393D
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 09:55:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237636AbhJFHvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Oct 2021 03:51:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57292 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237634AbhJFHvI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 03:51:08 -0400
-Received: from mail-io1-xd35.google.com (mail-io1-xd35.google.com [IPv6:2607:f8b0:4864:20::d35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 852BCC061755
-        for <stable@vger.kernel.org>; Wed,  6 Oct 2021 00:49:16 -0700 (PDT)
-Received: by mail-io1-xd35.google.com with SMTP id n71so1881457iod.0
-        for <stable@vger.kernel.org>; Wed, 06 Oct 2021 00:49:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=R29QZtO5L+HR0KBXfj2Mb33sep5QgkVbDI6EVdZi4+4=;
-        b=eHoStXreHmpr5mp4ZwDeJfS47U3zFapGwV1jXjjnfFjS0DdHphHIRLW47g4wnyposo
-         NETmE8YthtRHj7rUNkdYHmz9EZWFlRjUkxKTtHfei1ocH3Z7x2oQFg3slUE30u9/O9Cv
-         /sk96HQC+2t4UsC7PU/lOor0CAvxdxPluKhUiQxKeOCkLQKc7aVFTzf5BYcM9xO/bjp0
-         sRiHgDGM9u2VWQ8OyVoXcfEZSNC3EzJMl8CPTbAjuAq7i9KRYIoKV6GzKTcRlgDT4+t3
-         /0Zwmd9owHT+yShgimWnm3HTfNz2paiwE36lVSP6S9ProVvH0Q+FyjAgCJzoHMahstMl
-         9RpA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=R29QZtO5L+HR0KBXfj2Mb33sep5QgkVbDI6EVdZi4+4=;
-        b=B7J+MSlGFVh12zwhscB66JLd4P+Y/hlQY7j67xamYUobOTf6miwP6y1yRRhd+ooV+J
-         NTmtDPk9H5xuuw8e5NTFO3+Ai87T4RU11kCqPNxxUx4ICEiPyrQ8DNtsX+WobJp5gYJB
-         gNeP97C6ou86UOG/kJzvHuFGatL3Ek8fqWZhejzsB+K3O9bWNGpbSd4J3ECczruIyJp9
-         vDbiZ168yhGL1V3ORCKVYtdUtPMU5vTMX9ofB4EXMs347KdGKYU7oemhBbM8vp6TO+Jx
-         EQIoZRXS3TlTShpONFfcujCD9DsxcS8wofWXAoS6hg+mtkNXs38C69HSNDFNeeFtHLyN
-         OSJA==
-X-Gm-Message-State: AOAM531FlF1TETjy3Ng1OVqchcZjMvi1QlnGnUY503IZ9sT5MxC0Bz4d
-        PRxQjX/hiLWRAVGF29Iqge1lmXel4x++eyKl7U4=
-X-Google-Smtp-Source: ABdhPJxtzk7d7W0fXqVQPvWuTaSt8lJDB3b6O+5hsy2ljfzrF8LAULzSBGbxSzsTaH+3U8XrZ3XgVONbqUxh7RSeTW4=
-X-Received: by 2002:a6b:5b14:: with SMTP id v20mr5472539ioh.142.1633506555948;
- Wed, 06 Oct 2021 00:49:15 -0700 (PDT)
+        id S237508AbhJFH5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Oct 2021 03:57:07 -0400
+Received: from foss.arm.com ([217.140.110.172]:54532 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231300AbhJFH5H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 Oct 2021 03:57:07 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 70974D6E;
+        Wed,  6 Oct 2021 00:55:15 -0700 (PDT)
+Received: from [10.163.75.2] (unknown [10.163.75.2])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E85353F766;
+        Wed,  6 Oct 2021 00:55:12 -0700 (PDT)
+From:   Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [PATCH] arm64/hugetlb: fix CMA gigantic page order for non-4K
+ PAGE_SIZE
+To:     Mike Kravetz <mike.kravetz@oracle.com>,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc:     Will Deacon <will@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+        Barry Song <song.bao.hua@hisilicon.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org
+References: <20211005202529.213812-1-mike.kravetz@oracle.com>
+Message-ID: <18a86369-7ee2-0bc9-98f1-84fa595a1ee0@arm.com>
+Date:   Wed, 6 Oct 2021 13:25:09 +0530
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Received: by 2002:a4f:3c5a:0:0:0:0:0 with HTTP; Wed, 6 Oct 2021 00:49:15 -0700 (PDT)
-Reply-To: mrs.bill_chantal66@europe.com
-From:   "Mrs.Bill.Chantal" <ms1620544@gmail.com>
-Date:   Wed, 6 Oct 2021 08:49:15 +0100
-Message-ID: <CAChj5_0BbPRmpm5rch2G3S4f2-_eKoQzheHPfwhvM5CYTNrFzg@mail.gmail.com>
-Subject: Dear Friend
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20211005202529.213812-1-mike.kravetz@oracle.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend
 
-You have been compensated with the sum of 4 million dollars in this
-united nation the payment will be Issue into atm visa card and send to
-you from the bank we need your address passport and
-your Whatsapp number.You can contact my Email:mrs.bill_chantal66@europe.com
 
-Thanks
-Mrs. bill Chantal
+On 10/6/21 1:55 AM, Mike Kravetz wrote:
+> For non-4K PAGE_SIZE configs, the largest gigantic huge page size is
+> CONT_PMD_SHIFT order.
+> 
+> Fixes: abb7962adc80 ("arm64/hugetlb: Reserve CMA areas for gigantic
+> pages on 16K and 64K configs")
+> Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+> Cc: <stable@vger.kernel.org>
+
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+
+> ---
+>  arch/arm64/mm/hugetlbpage.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/arm64/mm/hugetlbpage.c b/arch/arm64/mm/hugetlbpage.c
+> index 23505fc35324..a8158c948966 100644
+> --- a/arch/arm64/mm/hugetlbpage.c
+> +++ b/arch/arm64/mm/hugetlbpage.c
+> @@ -43,7 +43,7 @@ void __init arm64_hugetlb_cma_reserve(void)
+>  #ifdef CONFIG_ARM64_4K_PAGES
+>  	order = PUD_SHIFT - PAGE_SHIFT;
+>  #else
+> -	order = CONT_PMD_SHIFT + PMD_SHIFT - PAGE_SHIFT;
+> +	order = CONT_PMD_SHIFT - PAGE_SHIFT;
+>  #endif
+>  	/*
+>  	 * HugeTLB CMA reservation is required for gigantic
+> 
+
+The commit a1634a542f74 ("arm64/mm: Redefine CONT_{PTE, PMD}_SHIFT")
+which got merged during the exact same week, broke the above commit
+as both were in flight. The commit here updated hugetlbpage_init()
+but did not update the new incoming arm64_hugetlb_cma_reserve().
