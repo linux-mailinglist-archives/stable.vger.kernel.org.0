@@ -2,165 +2,241 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4222F42355C
-	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 03:11:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D92C442356A
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 03:26:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234027AbhJFBNr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 21:13:47 -0400
-Received: from mx0b-00069f02.pphosted.com ([205.220.177.32]:41290 "EHLO
-        mx0b-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233994AbhJFBNr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 21:13:47 -0400
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1960NenW022627;
-        Wed, 6 Oct 2021 01:11:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2021-07-09;
- bh=YDorkgV8Tn0yuTU7JoLBMjLy5LntqUHBOqBVAOnX2W4=;
- b=uoJjetCCzLFm6TyoTMn6NijQphFeAdPYl3PIdMPSW4OGinAe1uQEllMmQ0jJ9PRvJiL/
- 5OIZckiLZTc4+kngCI1qU0EIgVAbxjyBvVSpZhfqiBHF0pE6dl2rQPx7E6VU0qxy/Az9
- lb0f2VWwSLK2D/1ZsrNqu4Ah116ej3N16HpgTCGxzME02WWQXYtEB4ZJVBu5eLrmHXvt
- xluH9NZ6B+U1Krtl6k0ng8CY3RT79sWfSCcQUiS0PECbilYUhdUQFA7JSnRUv7Ldef7N
- 1Pt7kllYcSXwghTxtbDJ5Bf7JpfUfBbLokqiEESu1nBcnVGPLhtOW+1H3qOOyjurMOmB wg== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by mx0b-00069f02.pphosted.com with ESMTP id 3bg454mbs3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 06 Oct 2021 01:11:47 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 1961A0IT195397;
-        Wed, 6 Oct 2021 01:11:47 GMT
-Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2177.outbound.protection.outlook.com [104.47.57.177])
-        by aserp3030.oracle.com with ESMTP id 3bev7u426v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 06 Oct 2021 01:11:47 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BWbCYa10xmwuUdFbIvceXpYWgt3qnP7RqhD1UmHqtVfnaV2Y9tnJvF+aRxGcyMSG8MaYPqy8STPo30z4qAqXKr4T/OoJQb1kveKTHxl4N4OyjlLRpm8+sFavp+yzYPwQ8emR/kDmpm29BpgeqgEJI38w5/5Hg67IPfOeMBSpTGuXNp0TvnLoNDUxai9lQwOTHwnsaSvW9ymlenNHi3lOiRSo9S9mFSlHfgELUFuzCdtXeTuiI7BvO2ATPeCrnNf+//1hKlO82/KbqVXn9RwQ8NUregMfg+rhwfL4jIGAajdBI7io/p4F/uffMQWpaxnoMAm4hIqrH39mhIugMjMJxw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=YDorkgV8Tn0yuTU7JoLBMjLy5LntqUHBOqBVAOnX2W4=;
- b=ibrnUAa0coErFGcKgP3KcvmUnMfZTEjUiMKy+zXZoNk+xgGFSbJ6A1yOVNjG0wtAMwT8dYNa8IlHlooZa1CQUx0bVMC2cWQuPvkdPUYFpoxPTKIxS3Wd+AIZIg7pzYtsZ34XTtcIPu9SDLLwXYRA1OiVF6CxmYDAdPHt705tfftwWgzKirq0pt0q4Up28eVcqFY5i9ImbVX4ROLN2ncuvLfHjfg8IGpyonzXDiHJd9SXobIt3pso/2eaq1jaX5LDypKaxqZqDUvKElsocaNLpuKPWo3FtRQQfpM9WqOu+numAk9tKoD1zFzqlLH60CXacKlUqUg62KeySa0zz2hW9w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+        id S231582AbhJFB2N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 21:28:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56816 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236953AbhJFB2M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 21:28:12 -0400
+Received: from mail-vs1-xe2a.google.com (mail-vs1-xe2a.google.com [IPv6:2607:f8b0:4864:20::e2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FC43C061755
+        for <stable@vger.kernel.org>; Tue,  5 Oct 2021 18:26:21 -0700 (PDT)
+Received: by mail-vs1-xe2a.google.com with SMTP id 66so1172293vsd.11
+        for <stable@vger.kernel.org>; Tue, 05 Oct 2021 18:26:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=YDorkgV8Tn0yuTU7JoLBMjLy5LntqUHBOqBVAOnX2W4=;
- b=Os8d3kiG71yQFQ18xGejpokUzroOaYrdGgJCfKZ63+EoH4WP2bhBsLiKASRHEAjFEi4+tGC7OcSSAou8DrReKUr/XcET4Ln37v97xxTcOrZA+rcCGqycZyLSms3okj6v/mG0n24wrPOZgBtkIqyB/oDPv+A93Rwju2LPtivM3AI=
-Authentication-Results: invisiblethingslab.com; dkim=none (message not signed)
- header.d=none;invisiblethingslab.com; dmarc=none action=none
- header.from=oracle.com;
-Received: from BLAPR10MB5009.namprd10.prod.outlook.com (2603:10b6:208:321::10)
- by MN2PR10MB4192.namprd10.prod.outlook.com (2603:10b6:208:1d9::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4566.15; Wed, 6 Oct
- 2021 01:11:45 +0000
-Received: from BLAPR10MB5009.namprd10.prod.outlook.com
- ([fe80::3c49:46aa:83e1:a329]) by BLAPR10MB5009.namprd10.prod.outlook.com
- ([fe80::3c49:46aa:83e1:a329%5]) with mapi id 15.20.4566.022; Wed, 6 Oct 2021
- 01:11:45 +0000
-Subject: Re: [PATCH] xen/balloon: fix cancelled balloon action
-To:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
-        linux-kernel@vger.kernel.org
-Cc:     Stefano Stabellini <sstabellini@kernel.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?= 
-        <marmarek@invisiblethingslab.com>
-References: <20211005133433.32008-1-jgross@suse.com>
-From:   Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Message-ID: <efaa22aa-2785-b03a-3c14-0ec232429945@oracle.com>
-Date:   Tue, 5 Oct 2021 21:11:41 -0400
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.14.0
-In-Reply-To: <20211005133433.32008-1-jgross@suse.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-ClientProxiedBy: SN4PR0201CA0017.namprd02.prod.outlook.com
- (2603:10b6:803:2b::27) To BLAPR10MB5009.namprd10.prod.outlook.com
- (2603:10b6:208:321::10)
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=hOmszyBrN18jbtk+dy9rpQ8byKmiyB5Wa60iraBOQC4=;
+        b=U9qnTD/yZkEwDB2ELWFT0fu5Bl2EFxl0ursnvpCPvodkrzBzjBEtk02N1XSxjMcR3E
+         qLz0icDyp0/5rmAkL/ioSylXy4DUTpCk6ciAHZ41pqAhbSaqDeDd7ZsIcAabgxTf1KVC
+         XyvqljQ+ma6c85ngGfS7DSSNVgLb3SuoXzMHa/7oao/AZDxep5HEfeonkIQQMB3cHIwA
+         GJ/oosLYTQCzKnfsLf8TYYNe5DoYrvlS7vYBk6dTPk3P2Z4zuW2FrGCcA1WunPOqSCQu
+         PJayjUFMQv0ZFhIoKW9KO1gZ68QwzwD+FLfzThuUSGoTdIpT7Xc6FkPfqP2OkuTGFQE0
+         +hhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=hOmszyBrN18jbtk+dy9rpQ8byKmiyB5Wa60iraBOQC4=;
+        b=8DV1G/EO1b/p/TwtQOkvbmG/F3AFzF2+wnhwEjq0pALh+5PZszDC1LELRSa5IzRGL6
+         niYvNWOrBLSMM+WUS1AqdSaKkiNp5nvjjFzsCnRj6ZNni6UGP597vZiWxs3Sg/qw3OHE
+         EOP++7hpKTOtSgxu9YvAnTFhY6cKt1MoRfQpDBr3cYyPBkhAQkhUsuCWimhCMCywPfIw
+         NdJp9a5+0bbxCLrySHGXQ/St0bvNsJaEreZMCGuMsZXAeWS+2Gug1jx6nuLQBOzzkGt3
+         bbLmQazpM66xpjWYdaVrKDvmTgWXpNdJ4IF4EwQs8H6qg0UlwFTWUUClhCuuZ4wLiOiA
+         yGmw==
+X-Gm-Message-State: AOAM532AeEYXTLwIfuScm9stMIqJUANjDLNk9lZnmkjCLrEF693N3g0W
+        K2NUTVQjsOjnUOSJc+zNGvRTDefM0CklTGqMRH5M4A==
+X-Google-Smtp-Source: ABdhPJyIdXV8PVV0sKWp8zvNpXfjTed55Xf9XW5lv9g1Trs5X4bqu9OuJsJh/1vw8/CEYlr3KQUz8vHJ2CMVf6LtukQ=
+X-Received: by 2002:a67:fd67:: with SMTP id h7mr259923vsa.52.1633483580393;
+ Tue, 05 Oct 2021 18:26:20 -0700 (PDT)
 MIME-Version: 1.0
-Received: from [10.74.102.28] (138.3.201.28) by SN4PR0201CA0017.namprd02.prod.outlook.com (2603:10b6:803:2b::27) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4587.18 via Frontend Transport; Wed, 6 Oct 2021 01:11:44 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 39cc25cb-6488-427a-c708-08d98866438f
-X-MS-TrafficTypeDiagnostic: MN2PR10MB4192:
-X-Microsoft-Antispam-PRVS: <MN2PR10MB4192298781617BEC8F6CC2908AB09@MN2PR10MB4192.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1417;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 2RWjbLedxCXn7r9Aqj2/a/QmrrUHtRG1l89N8aoMGaVWdU0iTXr7wNv1bp5PH9VHPl+lR2BOnFAsOPJaM1BMsbqwmCn895LUeR+XUSV1BKAbSdeOYtXOnnQ9LKIodNsi1l9Yb9DNI6+l7WE3Y93KW1gfO43aL3DE9d+1f3qdN0S7ccIB7cKkj4mSgFk8pAZEAIhR8yVSHKYgh3Rz8XS6xnwhgkQuBQkhF7sXDmQbwt9TgOy7doYUjZbUezuIVCldgTbA2D2aCpltYzpilTLxmQo+6Fg095G5r1q/8awlRuaHGX39EiXlqY7UnYvbHI7Kvwem7nXuIUS6S/3YYlgzi13n/oR6joqTb1tB8xfAGm49+RjX9wloAaXxtJdXQay/pHsyctzr9v9Y1Dagk0isWCRHYY+hoNaKn0udl7pSa1KYHbGZp2wiuIVR8Vh0izVY/gStyZfugpkhAAvBLdqi9hOwtPjbbJzqtOzJ2+v8Z0ZYfK512xuahCK3+t28Q3MzYxuZ7sZJwAq/H6Hn0krS+KYIFWNZ0/FAMvgVgpU8e9csHzQC6FvfIRTnVWMs/3f2VyDfGQSVRgImkDRvASip+xfsAwhV7C/AQs4M4fRBW0aowG3Td2DDhUxAIxKTThBGCv6k4LjPQKpDyMgk+A1U5H4oD4WA6dOCo1BYveoEzP/YhT9DG6yJajL1HWan4pYDXMkm1Rbiik5hA8Ywg3MGuzff7dvV9z4VxfOgVUGS62970i/UtjrLiPuMgZ7ISxyL
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BLAPR10MB5009.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(366004)(66556008)(186003)(66476007)(31696002)(36756003)(86362001)(53546011)(6666004)(66946007)(4326008)(31686004)(8676002)(6486002)(956004)(26005)(38100700002)(5660300002)(508600001)(44832011)(16576012)(8936002)(54906003)(4744005)(316002)(2906002)(2616005)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?Zi9qc3lKTHE2WUxqTWZleFRkYjJZcWIyWWlvUEZkRDFmbkhjenVPNXcrbjJP?=
- =?utf-8?B?TXBWRnRkV2F2TFMxOWtrNnJiNit1cnJROERWYjRTNlR2WkUya2ZiV0VQemhq?=
- =?utf-8?B?MFJDSHVrcHVjUEVybUoyZk54L0lYdG92NjhVcGNBMGpLVUVwbEpaSDU2ZEpu?=
- =?utf-8?B?WFM0VnhrbWY4UFk4cWxYK2gwQVhicVNTVmVaNTVrQUhNYU43Qm1sS1NEZjd6?=
- =?utf-8?B?Q3dXczh6ZHpnSmQzNGJzWW9FaFVUNnJ4VVA5eS9yNzhwaGYycHJweksrVm5R?=
- =?utf-8?B?UEZxY3lNenI5eUduT3VZMmF1TU44VnUrYlZuZWxVMi94VUlYV1BlUjlDcGJ1?=
- =?utf-8?B?djZSZDV1aFl3dDFwSUNCcVVxZHZEYjdmbk1rNG84eVJoejBXSmU1bmdkL2lj?=
- =?utf-8?B?aUhvd3NqUHZ4UU9VV1hESXJRTnU2UGhmNkZlY3FjV2ZnWGRCS1pSb3VlY2M3?=
- =?utf-8?B?eGdqYmJwb3QyL2UyQ0VEYVBFa0dGb3ZHWWREVkZTa0hGV0VNZFk3NmtzSk1P?=
- =?utf-8?B?b0xwWlFGbXN3RVRaakRYTGZLR2NaWGtwVU1ZMjlzdzZ0YnNGaEE4T0JZTzRZ?=
- =?utf-8?B?OWVsanc3MGV6cG9WT21DR3pHaUdyb0hCZXhqMHFScE1WTE53aFZRK0N3SFl6?=
- =?utf-8?B?UlI5SGdUenFsR2ZKUzJZZDM3YmN3OUVVQ2R4eHFEWGNDdC94ODQvMzBva1dS?=
- =?utf-8?B?aWZLa09Yb09kc2FzWXFleXZHNys4aGlaUVF4S05mSEQ2R0tUWGxjQmtON0No?=
- =?utf-8?B?VXJxdVA1SmJOWFZNUW1tYmp1MXlBU040TTRsTWNVeWdtekNhMkxhZVRMZmhS?=
- =?utf-8?B?dWRwTDJnTmFEelFjMUp2UWZCYjVSWS9Yd0hvdnRROVZiQ0lQdW5HZDB2dnU3?=
- =?utf-8?B?a1pXaU9RQjl1ajgvRzlRbVcycThZaldsMStoTDMzN0FQTkJoeWwyOUpZZW4v?=
- =?utf-8?B?RGZ1bEJWS3RIZm1sZ1Z4amJHb05PS3BURExLa2ZEdUt0NHZpamFsQ1puVEF1?=
- =?utf-8?B?NGtueGVvVEQ1VHRybnJYcW9MR1FyM3dBQzJ0cFkrVU9oNGNQdnVjZnB1cUxO?=
- =?utf-8?B?aUJGSEpGcFZnTXlYMEtWZzlMZkhhVzhIaEYwZ0tBS1JaSVlqQitNTTNKTjNl?=
- =?utf-8?B?MzgrUmFuTENUWWwxcWdCSEcrQndXa2x0UklLQmIrbnpDZkdHNVFvSTNzWWw3?=
- =?utf-8?B?a0laTlB5QzIvVU5KZnl5OWVGcHNESXhLci9rVW9YdjBGcktaZU13M2RuN29x?=
- =?utf-8?B?VWJpS0hVVnRuNlRXRytPcmpRZ1hrRktZdVVoWDJhS1p6YTBWM3BFK3lzVE04?=
- =?utf-8?B?RkgzbGVqeUIxbGxwMjVLSVd5VFl5T2tmQ1E0d1NWS2NXYmVyd0FaelpNd3do?=
- =?utf-8?B?azcrdkkycS9FNks0eHZRR1VHRUZ2ZkpuOFdKT25XaUMrQTlxM0liNjIwUzhZ?=
- =?utf-8?B?Q0Y3c1BQSmQ0dW9CTVovVWdOTmVVdW9uUEg5RWRML0p5aEZ2WjM4MVUyMHV2?=
- =?utf-8?B?amNXYnMvU0p0b21wK1Nib1JEblNyRE14QVhLdkxDWkRTT2VVRWNuVHZtdWRv?=
- =?utf-8?B?eWptT2JJazJmZksvS0xrMU54S2RaRU5CdHdlRWpsRUlQNEhQK05KQ01uN1py?=
- =?utf-8?B?YTVrY0J3c3RKTHZpQW94RHlWM3JpV1J0NlJUaWsyRXhqMzg4eUZ6NWdyOWJZ?=
- =?utf-8?B?aU5Zei9leHI3Qlkrb01nOXJ2bGpBa2VJUXphQWtPTUVJRHBkcDM3b0kxM0pk?=
- =?utf-8?Q?XimDfQbqNAxqewK1OuRLrDxdhG23fkSE/DqtxBh?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 39cc25cb-6488-427a-c708-08d98866438f
-X-MS-Exchange-CrossTenant-AuthSource: BLAPR10MB5009.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Oct 2021 01:11:45.3543
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: DrVF9eLBOeT9ZAiFmIThBuDpKLYtDE96ALsOM/6jSDXdaed05JwFATG23T96Od8QH0dL9cU/NqmRxshGTfrlkEzTfyLPaxDule6UJ28Yu0A=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR10MB4192
-X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10128 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 mlxlogscore=999 adultscore=0
- bulkscore=0 suspectscore=0 malwarescore=0 spamscore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109230001
- definitions=main-2110060006
-X-Proofpoint-GUID: jUsOfhKauYI8EwCyZDm6VomFZGcHwVOU
-X-Proofpoint-ORIG-GUID: jUsOfhKauYI8EwCyZDm6VomFZGcHwVOU
+References: <20211001175521.3853257-1-tkjos@google.com> <c6a650e4-15e4-2943-f759-0e9577784c7a@schaufler-ca.com>
+ <CAG48ez2tejBUXJGf0R9qpEiauL9-ABgkds6mZTQD7sZKLMdAAQ@mail.gmail.com>
+ <CAG48ez1SRau1Tnge5HVqxCFsNCizmnQLErqnC=eSeERv8jg-zQ@mail.gmail.com>
+ <f59c6e9f-2892-32da-62f8-8bbeec18ee4c@schaufler-ca.com> <CAG48ez0yF0u=QBLVL2XrGB8r8ouQj-_aS9SScu4O4f+LhZxCDw@mail.gmail.com>
+ <e0c1fab9-cb97-d5af-1f4b-f15b6b2097fd@schaufler-ca.com> <CAG48ez3qc+2sc6xTJQVqLTRcjCiw_Adx13KT3OvPMCjBLjZvgA@mail.gmail.com>
+ <6bd2de29-b46a-1d24-4c73-9e4e0f3f6eea@schaufler-ca.com> <CAG48ez0RM6NGZLdEjaqU9KmaOgeFR6cSeNo50XG9oaFxC_ayYw@mail.gmail.com>
+ <CAEjxPJ4X4N_zgH4oRbdkZi21mvS--ExDb_1gad09buMHshB_hQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4X4N_zgH4oRbdkZi21mvS--ExDb_1gad09buMHshB_hQ@mail.gmail.com>
+From:   Jann Horn <jannh@google.com>
+Date:   Wed, 6 Oct 2021 03:25:53 +0200
+Message-ID: <CAG48ez3tsZZYmcWVgE+gkR16XLH8mwuAUdaxHmLZn+3tJvb51A@mail.gmail.com>
+Subject: Re: [PATCH v2] binder: use cred instead of task for selinux checks
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        Todd Kjos <tkjos@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        arve@android.com, tkjos@android.com, maco@android.com,
+        christian@brauner.io, James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Kees Cook <keescook@chromium.org>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        devel@driverdev.osuosl.org,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        "Cc: Android Kernel" <kernel-team@android.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 10/5/21 9:34 AM, Juergen Gross wrote:
-> In case a ballooning action is cancelled the new kernel thread handling
-> the ballooning might end up in a busy loop.
+On Tue, Oct 5, 2021 at 5:21 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Mon, Oct 4, 2021 at 8:27 PM Jann Horn <jannh@google.com> wrote:
+> > On Tue, Oct 5, 2021 at 1:38 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > > On 10/4/2021 3:28 PM, Jann Horn wrote:
+> > > > On Mon, Oct 4, 2021 at 6:19 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > > >> On 10/1/2021 3:58 PM, Jann Horn wrote:
+> > > >>> On Fri, Oct 1, 2021 at 10:10 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > > >>>> On 10/1/2021 12:50 PM, Jann Horn wrote:
+> > > >>>>> On Fri, Oct 1, 2021 at 9:36 PM Jann Horn <jannh@google.com> wrote:
+> > > >>>>>> On Fri, Oct 1, 2021 at 8:46 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > > >>>>>>> On 10/1/2021 10:55 AM, Todd Kjos wrote:
+> > > >>>>>>>> Save the struct cred associated with a binder process
+> > > >>>>>>>> at initial open to avoid potential race conditions
+> > > >>>>>>>> when converting to a security ID.
+> > > >>>>>>>>
+> > > >>>>>>>> Since binder was integrated with selinux, it has passed
+> > > >>>>>>>> 'struct task_struct' associated with the binder_proc
+> > > >>>>>>>> to represent the source and target of transactions.
+> > > >>>>>>>> The conversion of task to SID was then done in the hook
+> > > >>>>>>>> implementations. It turns out that there are race conditions
+> > > >>>>>>>> which can result in an incorrect security context being used.
+> > > >>>>>>> In the LSM stacking patch set I've been posting for a while
+> > > >>>>>>> (on version 29 now) I use information from the task structure
+> > > >>>>>>> to ensure that the security information passed via the binder
+> > > >>>>>>> interface is agreeable to both sides. Passing the cred will
+> > > >>>>>>> make it impossible to do this check. The task information
+> > > >>>>>>> required is not appropriate to have in the cred.
+> > > >>>>>> Why not? Why can't you put the security identity of the task into the creds?
+> > > >>>>> Ah, I get it now, you're concerned about different processes wanting
+> > > >>>>> to see security contexts formatted differently (e.g. printing the
+> > > >>>>> SELinux label vs printing the AppArmor label), right?
+> > > >>>> That is correct.
+> > > >>>>
+> > > >>>>> But still, I don't think you can pull that information from the
+> > > >>>>> receiving task. Maybe the easiest solution would be to also store that
+> > > >>>>> in the creds? Or you'd have to manually grab that information when
+> > > >>>>> /dev/binder is opened.
+> > > >>>> I'm storing the information in the task security blob because that's
+> > > >>>> the appropriate scope. Today the LSM hook is given both task_struct's.
+> > > >>> Which is wrong, because you have no idea who the semantic "recipient
+> > > >>> task" is - any task that has a mapping of the binder fd can
+> > > >>> effectively receive transactions from it.
+> > > >>>
+> > > >>> (And the current "sender task" is also wrong, because binder looks at
+> > > >>> the task that opened the binder device, not the task currently
+> > > >>> performing the action.)
+> > > >> I'm confused. Are you saying that the existing binder code is
+> > > >> completely broken? Are you saying that neither "task" is correct?
+> > > > Yeah, basically
+> > >
+> > > Well, hot biscuits and gravy!
+> > >
+> > > >  - but luckily the actual impact this has is limited by
+> > > > the transitions that SELinux permits. If domain1 has no way to
+> > > > transition to domain2, then it can't abuse this bug to pretend to be
+> > > > domain2. I do have a reproducer that lets Android's "shell" domain
+> > > > send a binder transaction that appears to come from "runas", but
+> > > > luckily "runas" has no interesting privileges with regards to binder,
+> > > > so that's not exploitable.
+> > >
+> > > You're counting on the peculiarities of the SELinux policy you're
+> > > assuming is used to mask the fact that the hook isn't really doing
+> > > what it is supposed to?  Ouch.
+> >
+> > I'm not saying I like the current situation - I do think that this
+> > needs to change. I'm just saying it probably isn't *exploitable*, and
+> > exploitability often hinges on these little circumstantial details.
+> >
+> > > >> How does passing the creds from the wrong tasks "fix" the problem?
+> > > > This patch is not passing the creds from the "wrong" tasks at all. It
+> > > > relies on the basic idea that when a security context opens a
+> > > > resource, and then hands that resource to another context for
+> > > > read/write operations, then you can effectively treat this as a
+> > > > delegation of privileges from the original opener, and perform access
+> > > > checks against the credentials using which the resource was opened.
+> > >
+> > > OK. I can understand that without endorsing it.
+> > >
+> > > > In particular, we already have those semantics in the core kernel for
+> > > > ->read() and ->write() VFS operations - they are *not allowed* to look
+> > > > at the credentials of the caller, and if they want to make security
+> > > > checks, they have to instead check against file->f_cred, which are the
+> > > > credentials using which the file was originally opened. (Yes, some
+> > > > places still get that wrong.) Passing a file descriptor to another
+> > > > task is a delegation of access, and the other task can then call
+> > > > syscalls like read() / write() / mmap() on the file descriptor without
+> > > > needing to have any access to the underlying file.
+> > >
+> > > A mechanism sufficiently entrenched.
+> >
+> > It's not just "entrenched", it is a fundamental requirement for being
+> > able to use file descriptor passing with syscalls like write(). If
+> > task A gives a file descriptor to task B, then task B must be able to
+> > write() to that FD without having to worry that the FD actually refers
+> > to some sort of special file that interprets the written data as some
+> > type of command, or something like that, and that this leads to task B
+> > unknowingly passing through access checks.
+> >
+> > > > You can't really attribute binder transactions to specific tasks that
+> > > > are actually involved in the specific transaction, neither on the
+> > > > sending side nor on the receiving side, because binder is built around
+> > > > passing data through memory mappings. Memory mappings can be accessed
+> > > > by multiple tasks, and even a task that does not currently have it
+> > > > mapped could e.g. map it at a later time. And on top of that you have
+> > > > the problem that the receiving task might also go through privileged
+> > > > execve() transitions.
+> > >
+> > > OK. I'm curious now as to why the task_struct was being passed to the
+> > > hook in the first place.
+> >
+> > Probably because that's what most other LSM hooks looked like and the
+> > authors/reviewers of the patch didn't realize that this model doesn't
+> > really work for binder? FWIW, these hooks were added in commit
+> > 79af73079d75 ("Add security hooks to binder and implement the hooks
+> > for SELinux."). The commit message also just talks about "processes".
 >
-> Fix that by handling the cancelled action gracefully.
->
-> While at it introduce a short wait for the BP_WAIT case.
->
-> Cc: stable@vger.kernel.org
-> Fixes: 8480ed9c2bbd56 ("xen/balloon: use a kernel thread instead a workqueue")
-> Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-> Signed-off-by: Juergen Gross <jgross@suse.com>
+> Note that in the same code path (binder_transaction), sender_euid is
+> set from proc->tsk and security_ctx is based on proc->tsk. If we are
+> changing the hooks to operate on the opener cred, then presumably we
+> should be doing that for sender_euid and replace the
+> security_task_getsecid_obj() call with security_cred_getsecid()?
 
+Good point.
 
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+> NB Mandatory Access Control doesn't allow uncontrolled delegation,
+> hence typically checks against the subject credential either at
+> delegation/transfer or use or both. That's true in other places too,
+> e.g. file_permission, socket_sendmsg.
 
+The SELinux hook for sending binder transactions does actually have a
+delegation check on the sending side, checking against the current
+task, although that would be unreliable if another task in a different
+security context also has access to the binder mapping. But the
+security context used for the SELinux access check and delegation
+check is read separately from the security context transmitted to the
+other side, and if you race an execve() in between the two (which is
+possible because the creds are read from another thread), you can
+effectively bypass the delegation check with regards to the
+transmitted security context.
 
+binder_transfer_binder_ and binder_transfer_file are also effectively
+covered by that delegation check.
+
+The hook for setting the binder context manager also has a delegation
+check against the current task.
+
+If you actually wanted to prevent uncontrolled delegation, I think
+you'd also have to check all the VMAs for forbidden file mappings,
+ensure that in particular binder/io_uring/... FDs or VMAs can not be
+shared across any kind of privilege transition (even if both sides of
+the transition would've been allowed to have such an FD/VMA), and
+completely prevent pin_user_pages() on mappings that wouldn't be
+allowed to be inherited across a privilege transition (because
+otherwise someone could abuse a subsystem like io_uring to grab a
+reference to a bunch of pages from such a mapping and then write into
+them later)?
+
+At the moment, SELinux scans through file descriptors on transition
+but not through memory mappings of files, which is kinda weird...
