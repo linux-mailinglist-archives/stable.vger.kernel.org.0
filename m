@@ -2,153 +2,233 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6800A42387A
-	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 09:04:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D655423892
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 09:11:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236878AbhJFHGc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Oct 2021 03:06:32 -0400
-Received: from mail-dm6nam12on2115.outbound.protection.outlook.com ([40.107.243.115]:34433
-        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S230227AbhJFHGb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 Oct 2021 03:06:31 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=b0VXOXEX5nm1c4KF93eJNpD0B4HqW0a0qgc0OnBhDGr6y2E3nWjvRg0+kPTQt1Pv+e0KFKWIubVKyrV7VriWrli7Ph06ST2zHQ2wIduzc8IQawyi5ZOWQOM+Smzy0kgOLnTf88L/hYf9mkFSdAgFSr5dH+6TTIVdygYbvxy4jrJ6zYnImhg0RbytaxrkKVXGuBKpCiLhxv+zNNEK6uguKrHTrEGY490cpROYNm4Q/XksC9vG5D9IdzV8UFY9fg+zzOHtqUrWxs+73WsEj15+H1p9sjlpCwfp2oTP15e/jaqJZ628SLnXqst2qMKvcjyYP9svQqY+uZHHKVp+dyqCFw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=wNgkG0Owpmzxi+ZwZD16lLHp+miIjC0VpSKHOiw4HmM=;
- b=PJwhmf3i8pBCKyRwGX0PCybz1LBjn9QQ7lc8Dc6E1nm+K6AAwu8EMBbsit6oxZ3u3kDqkohNMd0HX/Z6M+4n9NcuavRLBA+/0I4C3OBxzf37KG0Ms8LpcH7qBpvWlWO2j4Y1zdeIZQ78ICeELMrsP75RDMGP+ZBPpc0kERH9rtpqLf7f7ly0ehz4keSoWcR2bY7SFU/kEVX8s1KSET1mmGsx7WlX7M0UQ59gZFeYLUX7870xL3Pw5U/l/2ms0JFub+IzU9bRM7xSp5bahRetJQmvsjm9hi/EFJzOeXMjrB5oNbFkDoMEbeYwpTtLvT5dC691PyPHPH52Ge6v0VLeyw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=wNgkG0Owpmzxi+ZwZD16lLHp+miIjC0VpSKHOiw4HmM=;
- b=DdWUBk+3hXs2x1k1k9FVf4YvANT2ngfIfCmaWrnuW7UQ48TyjQA17CxV584BRd8KnaO/o3ZOXTDYNzxzWahydclK3s1WdqnHeOcRWoXLe1yRxdp3UZvc9J28VWgwz8KDBQex2yWZn+FIQJstpM2ibPCfVqFJwuUuw3DfxcSsa+U=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=microsoft.com;
-Received: from BL0PR2101MB1092.namprd21.prod.outlook.com
- (2603:10b6:207:37::26) by BL0PR2101MB1747.namprd21.prod.outlook.com
- (2603:10b6:207:35::23) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4608.2; Wed, 6 Oct
- 2021 07:04:36 +0000
-Received: from BL0PR2101MB1092.namprd21.prod.outlook.com
- ([fe80::a5a1:1ba3:ae97:a567]) by BL0PR2101MB1092.namprd21.prod.outlook.com
- ([fe80::a5a1:1ba3:ae97:a567%7]) with mapi id 15.20.4608.003; Wed, 6 Oct 2021
- 07:04:36 +0000
-From:   Dexuan Cui <decui@microsoft.com>
-To:     kys@microsoft.com, sthemmin@microsoft.com, wei.liu@kernel.org,
-        jejb@linux.ibm.com, martin.petersen@oracle.com,
-        haiyangz@microsoft.com, ming.lei@redhat.com, bvanassche@acm.org,
-        john.garry@huawei.com, linux-scsi@vger.kernel.org,
-        linux-hyperv@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] scsi: storvsc: Cap scsi_driver.can_queue to fix a hang issue during boot
-Date:   Wed,  6 Oct 2021 00:03:45 -0700
-Message-Id: <20211006070345.51713-1-decui@microsoft.com>
-X-Mailer: git-send-email 2.17.1
-Reply-To: decui@microsoft.com
-Content-Type: text/plain
-X-ClientProxiedBy: MW4P223CA0012.NAMP223.PROD.OUTLOOK.COM
- (2603:10b6:303:80::17) To BL0PR2101MB1092.namprd21.prod.outlook.com
- (2603:10b6:207:37::26)
+        id S231163AbhJFHNR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Oct 2021 03:13:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48446 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229627AbhJFHNQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 03:13:16 -0400
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05FDEC061749
+        for <stable@vger.kernel.org>; Wed,  6 Oct 2021 00:11:25 -0700 (PDT)
+Received: by mail-ed1-x52d.google.com with SMTP id r18so5921598edv.12
+        for <stable@vger.kernel.org>; Wed, 06 Oct 2021 00:11:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=exAYTb6mcr4ScjMC08up/Sr9OyLfai05n/yrjn97kfQ=;
+        b=IWe+lxRT9YA0FKZcpq9XHTCtVYU7geWHNIMju8H3RU3n6H5YTEc6IeMUGNol5pf5Rq
+         kMe2dBf5/aDYiK6gqbk95UJjmtGwBYh+EgijTO4XEUfICLWXmBvNHdcsnqWeWkkj3+Op
+         QPuygUhWAYyEHys5mdgIlXJsY7/p3tgPgCiOnuh8XIAsy2FujS6Whzs8cykIvoddOTdK
+         FQ+abApt0dfVlvQ2/vQRA21qitd1i3WkoPR1xoenHo79/v4flRDJrzXJQvIpS4UjYO+L
+         7ktxmYKxFU6dFdwlAmZa5UT0SkZDgGKadMO6VE3qiJvew6IIiw8te/VUJSMlOlSLXYsN
+         0WXQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=exAYTb6mcr4ScjMC08up/Sr9OyLfai05n/yrjn97kfQ=;
+        b=nZLszaTKoEknfUniOCbnOiiVsCJ0VGygCu2wJND+uYzszl+mj/RkjmHrwobfjct5Di
+         wqGQISE2SRw36G/4g/yzYH7Sf+t452gsHGXY3kVFIUgdY2V2E1XTPlsZyVR/2sYNg5p7
+         HeoMtCwFbEzGbJEZ0oaIOc47AVJq0Vh8K8HEUDmXQ3i1VHhyAq8mRcRJthNOvTUfNMyM
+         kTK/ktrUq3c8ogJhWHy/q0JqUAyw231zzG9YwGbj2YvuIMa9FdtnlaPhzRu6OTyDgAJn
+         XaBV7yg2PnJ+6OR1kH1y6eb6Ecb795jXKenxsDVd9K7hSSYecB9QAgTxPW+LuaIo2K/c
+         sTEA==
+X-Gm-Message-State: AOAM533tnIQe55/UVnC/b2NpB6sbv6LzEzaxv0hSwlFf5fqF+ZXCUd7F
+        uDoU3xrqvQz7j8na7kJxN+sh/XS2d7j6de1spRkKxA==
+X-Google-Smtp-Source: ABdhPJwJ/4Ehaktzcx+dKyS+TZ09JPP0OW20w2dpX/RqYG7QRJkTU48TUWQdKHAU/eNJTDbxIzq8IKPjkco0uAxC0R8=
+X-Received: by 2002:a05:6402:5146:: with SMTP id n6mr31735052edd.357.1633504283426;
+ Wed, 06 Oct 2021 00:11:23 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from decui-u1804.corp.microsoft.com (2001:4898:80e8:b:822b:5dff:feb8:fa01) by MW4P223CA0012.NAMP223.PROD.OUTLOOK.COM (2603:10b6:303:80::17) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4566.17 via Frontend Transport; Wed, 6 Oct 2021 07:04:34 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: d21c8a49-26fe-4e43-5c84-08d988978e29
-X-MS-TrafficTypeDiagnostic: BL0PR2101MB1747:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <BL0PR2101MB174733EC14FD4E1B11552096BFB09@BL0PR2101MB1747.namprd21.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1060;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: sMsVgZyouo/Yt/Fru9+rLOizx3WBB52BJguwfz7+2VhYSvNDxIsymiFwyHLOPh2z8d69ga34xDVrUHWDWXhxqsdToDNrpol7jEA150ORNiBZZudfC46pfmTs5AhNs0prrYfNSoob6DzEWbqrr0/lx7b3nBqzJ4pJCLg7Vs4LqjFUGMzXH3vzU0EQNLWb6a/447GKRrQB912JDF4sRSZYYfJoPW3OHXX+REi5m0EQblZVHu+yjUdzV9vpJB6+GCJ9vNFehoQgzDHMewFVgFmDn9R+InwBVZ2gw85phGiipzCK0MSK0WXt47IvmZneHcpJrzYXX+YZ4zPsEavXcRHHB9z+HahXOQYVh0VARfb3Ko2wAfBPAb/xs7uDKRCadRzWcu9Xg6IcYtyfxwDSLj94Nc/5o3kEtv9pMPLgsdcP2K/WmvJ7n/1EfBqWtJhGjTM2FjDpP1InXHxHbHBBPRkfZ49EOpUsIlhm2777R5q6P8+hrIq3qFq9EasRWY3t0ArjDBhaByML6tgT2IcaykqE7RF7w+Dn++VN21BDwIgvn5NuXSGqknxCOeRPxA9ojWuZOP46yXo7HuVUNvyHlr1C7fRUpZyGrvgGQk94B7MxVsv6q6LLnQ1OyE/ULjIJ8GeTIPtNKeNXq5sjfHf3qfyYBok9A6tYE4FhfouGaSkHzRgGmumtdqyqqVS096Fbw3pI
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR2101MB1092.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(5660300002)(8676002)(66556008)(10290500003)(66476007)(66946007)(3450700001)(2616005)(4326008)(316002)(1076003)(38100700002)(7416002)(6666004)(186003)(36756003)(2906002)(8936002)(508600001)(82960400001)(6486002)(52116002)(86362001)(921005)(7696005)(83380400001)(82950400001);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?iglu+84bRQT6U/V6LrxkVwhOCKthgFsWyIj59e1/zek7GjDHcXTVyUZ6MuBM?=
- =?us-ascii?Q?5N0pqyfO4Sm5ZKAaHngpu5FWScfWG9qpqaJbJSZzMfGG05pcDcND+rQTaJtY?=
- =?us-ascii?Q?hSP4Y5Nvw3p5t6XfcwjeSF/H0YOP+CTEIRCFMTDVdgvBiqZ3/S9cA5TluRIS?=
- =?us-ascii?Q?KftS2Oaq3tdmjfx19eUoEU/+DtLyIQ1OQPV6uH3Qgaei/QosMnq2iidrSKTl?=
- =?us-ascii?Q?f1dK30RZTysaSCoM8lWFg5k5pys4dQvOrjD0QxhavpCR/jTRdues5kt7GgnJ?=
- =?us-ascii?Q?pofjcryCSyfQIW3FBTnZLGW4rP6J6gqz9f3K022dbfPwTGtbMesA77pxPct9?=
- =?us-ascii?Q?XdpE50+BfFDz5RCD9VsEPphIqd9fNwtpwbyALkXYBUX3L3vVNlDCPDyP9CIZ?=
- =?us-ascii?Q?1YOGyI3VX5y1tx2PoXZZBTfwHjDQBZz73GMNPIDPo7O+9zLaAiazFOEoCbpj?=
- =?us-ascii?Q?ll6QTcNmm7SGvhduUcQx0PokrqvXi/bp/fSYa8b7NA2OCedodcWC+zhFPUav?=
- =?us-ascii?Q?BKV5r+wlAdFWr8GbRZAoC70pbgiSpErjCYnHu6zRu6l/RPVWU7VbeJaMLyrF?=
- =?us-ascii?Q?yy0z5xptjyZN6ImlcrhsCCvcEJpcRZxhgDUBw6NOPWR1jrMVDOXMoXjufwfe?=
- =?us-ascii?Q?/eItT93cbXKnRuhluI2oW6v4qBp5vWrJgk/9S0uR8pTuYEYlKnnrjHFv6xhK?=
- =?us-ascii?Q?eVJcid70F2N+iEZ8VPh5I8iJWhXLoWTEqNYGpDGXuz+4iNqH4qAY1kVXzb7x?=
- =?us-ascii?Q?obEhz2FmFOok08JDvOWTZJmTJ0TohLhGSuDRxJadnrwpWQL6EkmHvVhgAOep?=
- =?us-ascii?Q?fR4JgGPyoQzo2b86ovIIee0cN0kt+ULIK2/2kNVhDc2GpP2SPkMoX76hyvhc?=
- =?us-ascii?Q?cxk+0Hht6bBd7XIj4BpAV7tjSUeztgHfO6LY9dS0td0l/biUpYV74Y0vo3+a?=
- =?us-ascii?Q?EJyqEtsKCRiBKK5dLdDFy+aPmIPQDQgZxPtXudDyy6H+8sXjvvr+jps050Ts?=
- =?us-ascii?Q?n4sHAJ4SS0xa2Vn465wnA+AtcKtiW4uMim+Yl/XH7BuUMw15wnsRa6XhEYBo?=
- =?us-ascii?Q?mKKUD+3q9B/oAY5KOKvx47SkvdO3XVinwTxfoSdHeWC6kdXIi/1XuXQUJ4LM?=
- =?us-ascii?Q?wdL1lD5kwMI9Eh7+VWLstSmqRgUh/NRLhNcwOE0ZZHfLTj8Z4O9QmIhhr2A6?=
- =?us-ascii?Q?v6NAH3gASzUDWeJnma5lGfepVQybkFLJFhmQX0s27fbq2hkGdoVQ4aBTQjhu?=
- =?us-ascii?Q?WMb8AHhMU6HFYQtNPYf8hDhXWGImmdx2mQkkOUDvE/cIZmobw05kXeZlp5CV?=
- =?us-ascii?Q?HPQ66dm/CoB0EZpCoofL/23VUbBJNSsjHtessIPpH1/dhp7f+H+X+rn4W6+g?=
- =?us-ascii?Q?xtxYgg3k25pkeGz6Sx2ihr6iF3eP?=
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d21c8a49-26fe-4e43-5c84-08d988978e29
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR2101MB1092.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Oct 2021 07:04:36.2366
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: kpBuQAXiBUvIyPk+V7cRPqGiY8sy/5OGRngOvDuXTB3mG3O6yVcYd+mj1RtxmQla2b4x2Tl9v+B7wQGj6sHFeQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR2101MB1747
+References: <20211005083300.523409586@linuxfoundation.org>
+In-Reply-To: <20211005083300.523409586@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 6 Oct 2021 12:41:12 +0530
+Message-ID: <CA+G9fYuXMBp3ZCUJ_A8BzLz9mu8w=z6SxoSb1griMWxbEMz=sA@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/95] 4.19.209-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-After commit ea2f0f77538c, a 416-CPU VM running on Hyper-V hangs during
-boot because scsi_add_host_with_dma() sets shost->cmd_per_lun to a
-negative number:
-	'max_outstanding_req_per_channel' is 352,
-	'max_sub_channels' is (416 - 1) / 4 = 103, so in storvsc_probe(),
-scsi_driver.can_queue = 352 * (103 + 1) * (100 - 10) / 100 = 32947, which
-is bigger than SHRT_MAX (i.e. 32767).
+On Tue, 5 Oct 2021 at 14:08, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.209 release.
+> There are 95 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 07 Oct 2021 08:32:44 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.209-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Fix the hang issue by capping scsi_driver.can_queue.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Add the below Fixed tag though ea2f0f77538c itself is good.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Fixes: ea2f0f77538c ("scsi: core: Cap scsi_host cmd_per_lun at can_queue")
-Cc: stable@vger.kernel.org
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
----
- drivers/scsi/storvsc_drv.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+## Build
+* kernel: 4.19.209-rc2
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-4.19.y
+* git commit: 88f9c3c825ad88e33c64932c60fb5c2d130a9fb1
+* git describe: v4.19.208-96-g88f9c3c825ad
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
+.208-96-g88f9c3c825ad
 
-diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
-index ebbbc1299c62..ba374908aec2 100644
---- a/drivers/scsi/storvsc_drv.c
-+++ b/drivers/scsi/storvsc_drv.c
-@@ -1976,6 +1976,16 @@ static int storvsc_probe(struct hv_device *device,
- 				(max_sub_channels + 1) *
- 				(100 - ring_avail_percent_lowater) / 100;
- 
-+	/*
-+	 * v5.14 (see commit ea2f0f77538c) implicitly requires that
-+	 * scsi_driver.can_queue should not exceed SHRT_MAX, otherwise
-+	 * scsi_add_host_with_dma() sets shost->cmd_per_lun to a negative
-+	 * number (note: the type of the "cmd_per_lun" field is "short"), and
-+	 * the system may hang during early boot.
-+	 */
-+	if (scsi_driver.can_queue > SHRT_MAX)
-+		scsi_driver.can_queue = SHRT_MAX;
-+
- 	host = scsi_host_alloc(&scsi_driver,
- 			       sizeof(struct hv_host_device));
- 	if (!host)
--- 
-2.17.1
+## No regressions (compared to v4.19.208-92-g95915ca2af72)
 
+## No fixes (compared to v4.19.208-92-g95915ca2af72)
+
+## Test result summary
+total: 77007, pass: 61916, fail: 648, skip: 12772, xfail: 1671
+
+## Build Summary
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 1 total, 1 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
