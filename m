@@ -2,102 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 188A442447D
-	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 19:39:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B41E04245EA
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 20:20:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238854AbhJFRk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Oct 2021 13:40:56 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:59560 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238578AbhJFRkz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 13:40:55 -0400
-Date:   Wed, 06 Oct 2021 17:39:00 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1633541941;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=TgbniOj4/RkP6KBozA7mOArvhZEi2s9nIHvsU9v8wuk=;
-        b=GymvlRHL2ZRWfWyA6bM8vzzthXIMjWQHT4cA0BcxSLMu7Ez3fGTU4qXll4bLu6N1XWs+1b
-        enuetE2czvvaJyGSF+4teh9QiF2vvd0cgr5RL12QZbfMGqhqDI0lHt9Vh+xuY2Nx5XnuEk
-        3XaaEdz9Eb4P/6Hl+RwqwkjO5emeiw+zGuMVTHzRBsdApsILiRIlDa4tTQIUXnGEljFIgY
-        BF1HeZJ/GRSQCPv4xBXqQL2BUaKgNBxqrfv1sZIw2YaIu8TccSlXGbz+rXQwyny8gzIzS4
-        0J9kfECSV+V1rnI9eu0sKg1SfasOdySsa3KsLGkcxhTcfCOEeRKP0fJzVdXpSw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1633541941;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=TgbniOj4/RkP6KBozA7mOArvhZEi2s9nIHvsU9v8wuk=;
-        b=hu63ktBrstS4A8bqvwz4Piz07VERdIKAmCeij04rjJtlqpR3I0+sBp/kdgG9I98esaRgcd
-        unRGShBvWN8VZzBg==
-From:   "tip-bot2 for James Morse" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/resctrl: Free the ctrlval arrays when
- domain_setup_mon_state() fails
-Cc:     James Morse <james.morse@arm.com>, Borislav Petkov <bp@suse.de>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        <stable@vger.kernel.org>, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20210917165958.28313-1-james.morse@arm.com>
-References: <20210917165958.28313-1-james.morse@arm.com>
+        id S231633AbhJFSWW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Oct 2021 14:22:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36216 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229992AbhJFSWV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 14:22:21 -0400
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B80E6C061746
+        for <stable@vger.kernel.org>; Wed,  6 Oct 2021 11:20:28 -0700 (PDT)
+Received: by mail-lf1-x12b.google.com with SMTP id j5so14083799lfg.8
+        for <stable@vger.kernel.org>; Wed, 06 Oct 2021 11:20:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=6BBz1x23DsjwhAhhb/P0xsyqDhfM2pEQpa9nGnmhgR4=;
+        b=XVV8Ip2vsIHk0X40arSl8LX95K8I3DW6rSUFStxfNCUa2tnrZblK+71XlTtLHMW7SE
+         ZdUm3cJcFj0sTMOE6guZAQU9cDrnPRaWDHiQ/XUKVG+B0FMYnH1PlX1g0xlipQY/27QQ
+         KkE5P1xDBnvJ34I6R7rchdiKL82/irziBxT1kWZBr5jc57905g3/BfT3zV/+uQMcu+JJ
+         wObB/6peGmoZzKJKmGhhVFw7PQ0GXfm0pd3ZwPS5Iozf6Y5jiNwZANoowvvtu9ITxAeu
+         VsXKB3+fKveLCsilyZ4/ZmXJdP+wo/cakfYOLWby3QEPRJdZq9/9/mZ5kmTG7EF2kIw1
+         rXJw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=6BBz1x23DsjwhAhhb/P0xsyqDhfM2pEQpa9nGnmhgR4=;
+        b=z1R1gE8ZCXHXmTyg6IaknCPYBME0awgdL0sC+7LXr9tSuAPFDxgtXJz7aa5lmB1i5R
+         kMsKvJbwm0C7Net7CUecavMhfsTJQx44L0AVgcvhdjf9COVGmBd2DNL2KhXuCM0/ZGBK
+         m71yAp7Djbg1PkJF+9tpyn8rJiC9N2taZuj96fz4SkMbhPriANHWKneZZM1rkqKvUawW
+         IbhVFqDvY+uF4XV2YEc5z/w8VYZZW93dy33C1VSTJjmvOAyhKjk3T5U7DNnsdFmHN15q
+         j5R0/iQLgR7AlQrdkypt0tiS+NxpGPwPm+cXFQu+VG90fnrJmyHxpZZGthgDArN5BiII
+         ff0g==
+X-Gm-Message-State: AOAM530wRxwpix26qbxdszQyG+mthuf+v2ZLKkjV/AQ+cqttLTzlE1PV
+        LiYCRg6kJLS7R8IcJPMnzIIuqiZWhj7pHqbAsi4=
+X-Google-Smtp-Source: ABdhPJyrV8u5U9LMFy1QBgVUhzwp3jaLsxYNhjCCcTl7V7arusFTQ3Xj2SXzNjiKaPY3LOd4Fdl+Y8rm835GY2BgDh8=
+X-Received: by 2002:a05:651c:3ce:: with SMTP id f14mr9523851ljp.90.1633544427045;
+ Wed, 06 Oct 2021 11:20:27 -0700 (PDT)
 MIME-Version: 1.0
-Message-ID: <163354194100.25758.3202711458810699953.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Received: by 2002:a2e:1407:0:0:0:0:0 with HTTP; Wed, 6 Oct 2021 11:20:26 -0700 (PDT)
+Reply-To: mrjoshuakunte@gmail.com
+From:   Mr Joshua Kunte <mrjoshuakunte23@gmail.com>
+Date:   Wed, 6 Oct 2021 19:20:26 +0100
+Message-ID: <CAE8KSLzgpmdDBfoP21vUX4LOYL6H_BhS=aOgT2RXz4da1Cyd+Q@mail.gmail.com>
+Subject: =?UTF-8?B?0JTQvtCx0YDRi9C5INC00LXQvdGM?=
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
-
-Commit-ID:     64e87d4bd3201bf8a4685083ee4daf5c0d001452
-Gitweb:        https://git.kernel.org/tip/64e87d4bd3201bf8a4685083ee4daf5c0d001452
-Author:        James Morse <james.morse@arm.com>
-AuthorDate:    Fri, 17 Sep 2021 16:59:58 
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Wed, 06 Oct 2021 18:45:21 +02:00
-
-x86/resctrl: Free the ctrlval arrays when domain_setup_mon_state() fails
-
-domain_add_cpu() is called whenever a CPU is brought online. The
-earlier call to domain_setup_ctrlval() allocates the control value
-arrays.
-
-If domain_setup_mon_state() fails, the control value arrays are not
-freed.
-
-Add the missing kfree() calls.
-
-Fixes: 1bd2a63b4f0de ("x86/intel_rdt/mba_sc: Add initialization support")
-Fixes: edf6fa1c4a951 ("x86/intel_rdt/cqm: Add RMID (Resource monitoring ID) management")
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Reinette Chatre <reinette.chatre@intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20210917165958.28313-1-james.morse@arm.com
----
- arch/x86/kernel/cpu/resctrl/core.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/arch/x86/kernel/cpu/resctrl/core.c b/arch/x86/kernel/cpu/resctrl/core.c
-index 4b8813b..b5de5a6 100644
---- a/arch/x86/kernel/cpu/resctrl/core.c
-+++ b/arch/x86/kernel/cpu/resctrl/core.c
-@@ -532,6 +532,8 @@ static void domain_add_cpu(int cpu, struct rdt_resource *r)
- 	}
- 
- 	if (r->mon_capable && domain_setup_mon_state(r, d)) {
-+		kfree(hw_dom->ctrl_val);
-+		kfree(hw_dom->mbps_val);
- 		kfree(d);
- 		return;
- 	}
+LS0gDQrQk9C00LUt0YLQviDQvdCwINC/0YDQvtGI0LvQvtC5INC90LXQtNC10LvQtSDQstCw0Lwg
+0LHRi9C70L4g0L7RgtC/0YDQsNCy0LvQtdC90L4g0L/QuNGB0YzQvNC+INGBINC+0LbQuNC00LDQ
+vdC40LXQvA0K0L/QvtC70YPRh9C40Lsg0L7RgiDQstCw0YEg0L/QtdGA0LXQvdCw0YHRgtGA0L7Q
+udC60YMg0L/QvtGH0YLRiywg0L3Qviwg0Log0LzQvtC10LzRgyDRg9C00LjQstC70LXQvdC40Y4s
+INCy0Ysg0YLQsNC6INC4INC90LUg0L7RgtCy0LXRgtC40LvQuC4NCtCf0L7QttCw0LvRg9C50YHR
+gtCwLCDQvtGC0LLQtdGC0YzRgtC1INC90LAg0LTQsNC70YzQvdC10LnRiNC40LUg0L7QsdGK0Y/R
+gdC90LXQvdC40Y8uDQoNCtChINGD0LLQsNC20LXQvdC40LXQvCwNCtCc0LjRgdGC0LXRgCDQlNC2
+0L7RiNGD0LAg0JrRg9C90YLQtS4NCg==
