@@ -2,161 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0025423A71
-	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 11:19:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAE86423AA5
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 11:36:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237812AbhJFJUz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Oct 2021 05:20:55 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:51294 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230131AbhJFJUy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 05:20:54 -0400
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id F215F1FE97;
-        Wed,  6 Oct 2021 09:19:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1633511942; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=hSmhfjw1mLDaDCCDvg5TTsk9tqS4UlBnVsDx65zDjn4=;
-        b=ie7CMRORf/PlMjidNm/bt6Uz5B4S0u0VANnWR/NV3jmg+15ruD02otk4HRrISQMg+6rseP
-        uESeS8g43No/r2oF+nsFkdUGu3nwhP8UUw6xItq/T7aP4rGqnehAiDqG8HxDkHSLeE2kGm
-        aqo1KlUvYDCVK36N0BVpjHL/29mj+V4=
-Received: from suse.cz (unknown [10.100.216.66])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id D4BCDA3B81;
-        Wed,  6 Oct 2021 09:19:01 +0000 (UTC)
-Date:   Wed, 6 Oct 2021 11:19:01 +0200
-From:   Petr Mladek <pmladek@suse.com>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        John Ogness <john.ogness@linutronix.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Fabio Estevam <festevam@denx.de>, linux-serial@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] workqueue: fix state-dump console deadlock
-Message-ID: <YV1qBZiXx/IADcb6@alley>
-References: <YV1Z8JslFiBSFGJF@hovoldconsulting.com>
- <20211006081115.20451-1-johan@kernel.org>
+        id S237909AbhJFJi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Oct 2021 05:38:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53844 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237820AbhJFJi0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 05:38:26 -0400
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67160C06174E
+        for <stable@vger.kernel.org>; Wed,  6 Oct 2021 02:36:34 -0700 (PDT)
+Received: by mail-ed1-x532.google.com with SMTP id l7so7568766edq.3
+        for <stable@vger.kernel.org>; Wed, 06 Oct 2021 02:36:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=rcNh0r9T7kBrXbUl4kwoWlPX/sZ4eZ8cwO79sUZA8X4=;
+        b=EVESwHctwsBLZQxT4NZ4k2CF1+9YMTfY6riM/UzylXVP6Q1hamfHIJPpHCfoo2gVv4
+         oeNbRUs6acnCuFAz+HJ5wbyzwtKa6mDR/lZe2zsyfxUuSkbAZFqN65HyhbGdQXYrB8ui
+         IV+qmQ6iJIBQ1SrrcZa4S5fU6NDbF20FSXbpbHKn8fBSa3ANYs39Q3C/A19zt/tqjH1A
+         cvLYdgVip6zJ+NED+VAsKou7JM33+gXIZRVAGpABpvKiJXy2J0UXB/SqHOcJolE8O2fC
+         xa6UqdAInGJoR2Ur4VKXoQyELZdjsyd13VnOp4jnZMkOs+T1g1wxXzctTKfS7cihbHZO
+         uGGg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=rcNh0r9T7kBrXbUl4kwoWlPX/sZ4eZ8cwO79sUZA8X4=;
+        b=Kpu4qJHCrrPsTQ9+eqE8p8rKCkueCqFdtnj+BBJ03jVoho7zTwtTiSpOCK+HX8PL0w
+         ayGf7oUQmmbXsS+r8wlpS6qOJfvElimGteLyWT1ODh3irTZzgz8D6UHs83Ky+HMfoaQt
+         q23NAqZ56fPEAOANCeq1DlO9pFxHEw3oLvL4HvVjtgbRLq8+w+npHAPaF7L3TK28XVuK
+         XMadyNIpoE8uzqMqO7TgsErVE/JQN3N8A0+CFr1926/3+vIymmA7Px5WXfm9rjHMmKZe
+         sdVaDSC54TEx5hbwz3rCXFSJY+iQYdN7cf2iqQiIw3kpfsRtsikCQxztD8rav0uJp1yr
+         Dv/w==
+X-Gm-Message-State: AOAM531tSHDzFYHrFkiKT6mLhs08HDFckbGI+a/tRL6DmkI4URM7KbBW
+        TOwC2otXLmHqWZToYLT3I+qsolLpgMVpMbHFnXdePw==
+X-Google-Smtp-Source: ABdhPJwV8nChSokFlOIMg6kZ0ARPzKO+d6ycSmuNYFHme9oxJewenlyUkr5aRjxeroI30BwiUe3To/lOHrglB81lMiQ=
+X-Received: by 2002:a05:6402:5146:: with SMTP id n6mr32426966edd.357.1633512992885;
+ Wed, 06 Oct 2021 02:36:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211006081115.20451-1-johan@kernel.org>
+References: <20211005083253.853051879@linuxfoundation.org>
+In-Reply-To: <20211005083253.853051879@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 6 Oct 2021 15:06:21 +0530
+Message-ID: <CA+G9fYubvAp1PpuMqabSvXnQjnKyhwTD5u82HfGPy0uYTmLLBA@mail.gmail.com>
+Subject: Re: [PATCH 4.4 00/41] 4.4.286-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed 2021-10-06 10:11:15, Johan Hovold wrote:
-> Console drivers often queue work while holding locks also taken in their
-> console write paths, something which can lead to deadlocks on SMP when
-> dumping workqueue state (e.g. sysrq-t or on suspend failures).
-> 
-> For serial console drivers this could look like:
-> 
-> 	CPU0				CPU1
-> 	----				----
-> 
-> 	show_workqueue_state();
-> 	  lock(&pool->lock);		<IRQ>
-> 	  				  lock(&port->lock);
-> 					  schedule_work();
-> 					    lock(&pool->lock);
-> 	  printk();
-> 	    lock(console_owner);
-> 	    lock(&port->lock);
-> 
-> where workqueues are, for example, used to push data to the line
-> discipline, process break signals and handle modem-status changes. Line
-> disciplines and serdev drivers can also queue work on write-wakeup
-> notifications, etc.
-> 
-> Reworking every console driver to avoid queuing work while holding locks
-> also taken in their write paths would complicate drivers and is neither
-> desirable or feasible.
-> 
-> Instead use the deferred-printk mechanism to avoid printing while
-> holding pool locks when dumping workqueue state.
-> 
-> Note that there are a few WARN_ON() assertions in the workqueue code
-> which could potentially also trigger a deadlock. Hopefully the ongoing
-> printk rework will provide a general solution for this eventually.
-> 
-> This was originally reported after a lockdep splat when executing
-> sysrq-t with the imx serial driver.
-> 
-> Fixes: 3494fc30846d ("workqueue: dump workqueues on sysrq-t")
-> Cc: stable@vger.kernel.org	# 4.0
-> Reported-by: Fabio Estevam <festevam@denx.de>
-> Signed-off-by: Johan Hovold <johan@kernel.org>
-> ---
->  kernel/workqueue.c | 10 +++++++++-
->  1 file changed, 9 insertions(+), 1 deletion(-)
-> 
-> diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-> index 33a6b4a2443d..fded64b48b96 100644
-> --- a/kernel/workqueue.c
-> +++ b/kernel/workqueue.c
-> @@ -4830,8 +4830,16 @@ void show_workqueue_state(void)
->  
->  		for_each_pwq(pwq, wq) {
->  			raw_spin_lock_irqsave(&pwq->pool->lock, flags);
-> -			if (pwq->nr_active || !list_empty(&pwq->inactive_works))
-> +			if (pwq->nr_active || !list_empty(&pwq->inactive_works)) {
-> +				/*
-> +				 * Defer printing to avoid deadlocks in console
-> +				 * drivers that queue work while holding locks
-> +				 * also taken in their write paths.
-> +				 */
-> +				printk_deferred_enter();
->  				show_pwq(pwq);
-> +				printk_deferred_exit();
-> +			}
->  			raw_spin_unlock_irqrestore(&pwq->pool->lock, flags);
->  			/*
->  			 * We could be printing a lot from atomic context, e.g.
+On Tue, 5 Oct 2021 at 14:08, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.4.286 release.
+> There are 41 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 07 Oct 2021 08:32:44 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.4.286-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-This handles only one printk() caller. But there are many more callers
-under pool->lock, for example in the next for-cycle in this function:
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-	for_each_pool(pool, pi) {
-		raw_spin_lock_irqsave(&pool->lock, flags);
-[...]
-		pr_info("pool %d:", pool->id);
-		pr_cont_pool_info(pool);
-		pr_cont(" hung=%us workers=%d",
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-And this is the problem with printk_deferred() and printk_deferred_enter().
-It is a "catch a mole" approach. It might end up with switching half
-of the kernel into printk_deferred().
+## Build
+* kernel: 4.4.286-rc2
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-4.4.y
+* git commit: 72b93c7258429eb65b95794f69218e8d8e0caeaa
+* git describe: v4.4.285-42-g72b93c725842
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.4.y/build/v4.4.2=
+85-42-g72b93c725842
 
-John Ogness is working on a generic solution where any printk() will
-be deferred out of box. consoles will be called from a dedicated
-kthreads.
+## No regressions (compared to v4.4.285-38-gf70f9a082d64)
 
-John has already worked on reworking printk() two years or so. It gets
-slowly because we need to be careful. Also we started with
-implementing lockless ringbuffer which was a big challenge. Anyway, there
-is a stable progress. The lockless ringbuffer is done. And the
-kthreads are the very next step.
+## No fixes (compared to v4.4.285-38-gf70f9a082d64)
 
-printk_deferred() is currently used only in the scheduler code where
-the deadlocks really happened in the past. printk_deferred_enter()
-is used only in printk() because it would be otherwise hard to debug
-and lockdep would always report problems there.
+## Test result summary
+total: 43887, pass: 34824, fail: 167, skip: 7877, xfail: 1019
 
-From this perspective, I suggest to ignore this possible deadlock if
-they do not happen in the real life.
+## Build Summary
+* i386: 1 total, 1 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
 
-If you really want to avoid the lockdep report. Alternative and
-probably easier workaround is to temporary disable lockdep around
-queuing the work in the console code. I do not see any reason
-why workqueue code would call back to console code directly.
-So the only source of a possible deadlock is the printk() path.
-But I think that it is not worth it. It is better to concentrate
-on the printk() rework.
+## Test suites summary
+* fwts
+* kselftest-android
+* kselftest-bpf
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* ssuite
+* v4l2-compliance
 
-Best Regards,
-Petr
+--
+Linaro LKFT
+https://lkft.linaro.org
