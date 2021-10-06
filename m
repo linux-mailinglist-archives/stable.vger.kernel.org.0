@@ -2,74 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A47D4247E5
-	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 22:24:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF4B742480D
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 22:38:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229992AbhJFU0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Oct 2021 16:26:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36198 "EHLO
+        id S239402AbhJFUkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Oct 2021 16:40:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229677AbhJFU0P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 16:26:15 -0400
-Received: from mail-vs1-xe2f.google.com (mail-vs1-xe2f.google.com [IPv6:2607:f8b0:4864:20::e2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A914C061746
-        for <stable@vger.kernel.org>; Wed,  6 Oct 2021 13:24:22 -0700 (PDT)
-Received: by mail-vs1-xe2f.google.com with SMTP id o124so4339511vsc.6
-        for <stable@vger.kernel.org>; Wed, 06 Oct 2021 13:24:22 -0700 (PDT)
+        with ESMTP id S239460AbhJFUkX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 16:40:23 -0400
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AE0FC061760
+        for <stable@vger.kernel.org>; Wed,  6 Oct 2021 13:38:30 -0700 (PDT)
+Received: by mail-lf1-x136.google.com with SMTP id y23so15808182lfb.0
+        for <stable@vger.kernel.org>; Wed, 06 Oct 2021 13:38:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
-        bh=DXfootdtuEJ2+Ch/nfAQkE3QtUQqgkpoST+17DHPaXM=;
-        b=kRb6RCAtAnB2pZDKWXHM7RaQfYtrFpSRBeBhAynsc2YNpBBXYfAhT7AS473gmkpasB
-         1S8YoxDdUwQBjUebqILHq8RL+sIKVvW0GG+NHzIvvKkcZpc5EgmF//xxg3n2uy0FKPZC
-         rVxYsPg/E8LQTGNfc2wDL+kqpsZj0ydJNi73fIcQ2Fsyr52q1FPn7I/Ez63WPSbsNmPU
-         0HOIuKNf51KBnXY2rqc5veGY06vq2RY+Q/HXqxmOxBSKHO1kBiFyJudf/SKiUKfei/d3
-         t3Wmv4Lxmcys+YibXFGXqXyxDJdZXvA+186nJU4Ja7bJ/TQVGnjNk0PWohGGzdhVbQZf
-         z8iw==
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Sch4r++lRpWjMNWm6J3bRObYHgBNc9lQrCbgQx2Tuoo=;
+        b=a4pZ+3Br7NaYQ2Kzf0S9JsFgIpq4GtOWcP82qqLDPevvFWGxm/mxbnaYhDvd0NjDzX
+         ByDUN83WSmy4t7uZxInG6536asXx/W9SjkQt5krKh7okGsyVux0QZoI8LaU9tQq8LPaj
+         ZqUEde7CRF+GnW8R8o5wp+0gkC+ZwoxlHuPEoYHOPaUN6vXiA6cQmpWgsAsIlLQ4JGzq
+         yFffrdE1JxW7PNPvPLd5UBxf2aYT/M43/9HFg9f236FAPnyEh9AZF/PBmEKUUV2XMoUR
+         me52kJBEfFV/8PhDgWlR+aZwczihZijcNWYIkBnKH8NufaVp6pDbdQz/I++4VCTzM07s
+         uyMg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to;
-        bh=DXfootdtuEJ2+Ch/nfAQkE3QtUQqgkpoST+17DHPaXM=;
-        b=pKGcAbyiEHdtJ7ZsWLT5Linjmu78vKMpEUt913QybY016ug/uOc1QPH115WF+lsG6y
-         uZdkPQxo7KX7CfPkVye/anGtB46GMQCDqed58Tq7Hg+41NfI+lCw+vjyQqGTEIlPggZ2
-         ANKO/oZ2wFE5ffZBLI/9oVkU2jp1NRfu0y0hURUcL8oy6y89R+cJb2O4E6dh/e/XEdhv
-         cBgzDaWCtQDatSLTpAlU0CYJcpscKt0k2S5hlFsc+YH4jumuk4TGCYDZvzK6LW9ENcju
-         6+wBFNcdtp4YLFAtahxJPqPLw/W9JdK6obXJQYHwzvsBqwEOhpOD6LwAUpM7PSZ/II2s
-         D7Mw==
-X-Gm-Message-State: AOAM532tcBmGXmxQ5T431mlcZQv+TX6b7zmck4GVgEdvFdi7SQNtM53O
-        JcvisapgO5PkDyvhyseWFczZZr8RmNN7NMN78g==
-X-Google-Smtp-Source: ABdhPJxhEvGCWyl9kXn0DwrPTS99gR3R0BVUdEGtRIT90iXGcV9jrJZNf6mnYBMNXqO+S+3HP8JfZrccPsI2WFqaqsY=
-X-Received: by 2002:a05:6102:20dc:: with SMTP id i28mr259385vsr.15.1633551861665;
- Wed, 06 Oct 2021 13:24:21 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Sch4r++lRpWjMNWm6J3bRObYHgBNc9lQrCbgQx2Tuoo=;
+        b=biubPqy6+kihqTVZf987JFbAlR+g3m/FUL91VOJ3mj03fqKzwHRuQYW6xcfcXvXB/L
+         SGuRjYBJnpnjJqlxZqqlwbLd+FJxDNuoMGbVcXe3vIR/RZEIG/L3Pin3Say0wI1wGFM2
+         8ZInR7YF563Mxu/A3gEaefzHSWP8gfmGPXPqd/J1nXaKw7F//nY4UKcdPpJ1cGHWvHqx
+         me6JVU3VeEMLnu7WCy/KNMlQ2n1k1pmazGybTkh6wSsbghYpwFFtvVX7fykt1HJ4/sXv
+         FOCZdBTFxFWkHQJFl4gx/ooUSueY97DbJNTzLqRBxszdksGEfvLB0UUBRwSy+Qv/lZKi
+         2+OA==
+X-Gm-Message-State: AOAM533GLjglBqq6aPcs6FPcGMVqY1/aO9bmPL1T5GiYZRTAradXFJhz
+        IHr1k+N7Y1nBZ+NvCy4VhCKBVunRhIenLKha5LHI/Q==
+X-Google-Smtp-Source: ABdhPJxedfCoEzB5tZdpBasgE/9MbGIE0zJY6OR1GtP4jFj59lIv6nV246bFd8nVlFKClxucfJ/Bsa7/IVMSMHTLXW0=
+X-Received: by 2002:a05:6512:239f:: with SMTP id c31mr176934lfv.19.1633552708433;
+ Wed, 06 Oct 2021 13:38:28 -0700 (PDT)
 MIME-Version: 1.0
-Reply-To: mutaliblawale@gmail.com
-Sender: my762963@gmail.com
-Received: by 2002:a05:612c:20a3:b0:235:d91b:3414 with HTTP; Wed, 6 Oct 2021
- 13:24:21 -0700 (PDT)
-From:   Mr Mutalib Lawale <mutaliblawale@gmail.com>
-Date:   Wed, 6 Oct 2021 20:24:21 +0000
-X-Google-Sender-Auth: 3rW1-hhG_GTEXzSKZ77JLnEvRaY
-Message-ID: <CAMZhdAVceWoXMKG0ooYikKiSnCBEdUsqQJr6h7ZY=1nWReSWig@mail.gmail.com>
-Subject: Hello Dear Friend,
-To:     undisclosed-recipients:;
+References: <20211006194610.953319-1-tkjos@google.com> <20211006194610.953319-4-tkjos@google.com>
+ <CAHRSSExN4g0qubjjLhdGx5DA7njT5ZwPkAzCY1OEdR1dbscLVA@mail.gmail.com>
+In-Reply-To: <CAHRSSExN4g0qubjjLhdGx5DA7njT5ZwPkAzCY1OEdR1dbscLVA@mail.gmail.com>
+From:   Todd Kjos <tkjos@google.com>
+Date:   Wed, 6 Oct 2021 13:38:15 -0700
+Message-ID: <CAHRSSEyHWvcLhjera_Gx_rJk+xOA8mTRpodEpHuHhYuLqrNEdQ@mail.gmail.com>
+Subject: Re: [PATCH v3 3/3] binder: use euid from cred instead of using task
+To:     gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
+        maco@android.com, christian@brauner.io, jmorris@namei.org,
+        serge@hallyn.com, paul@paul-moore.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        keescook@chromium.org, jannh@google.com, jeffv@google.com,
+        zohar@linux.ibm.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-kernel@vger.kernel.org
+Cc:     joel@joelfernandes.org, kernel-team@android.com,
+        stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello My Friend,
+On Wed, Oct 6, 2021 at 12:55 PM Todd Kjos <tkjos@google.com> wrote:
+>
+> On Wed, Oct 6, 2021 at 12:46 PM Todd Kjos <tkjos@google.com> wrote:
+> >
+> > Set a transaction's sender_euid from the the 'struct cred'
 
-I am the head operation manager in National Bank of Canada. I have a
-business proposal for you that concerns your last name that i wish to
-share with you, You will benefit from it, Please kindly contact me
-through my private Email Address to enable me give you  further
-clarification on the Transaction and i know it will interest you, and
-it is 100% risk free.
+Sigh...and I forgot to run checkpatch before submitting which would
+have caught this "the the"
 
-Email: (mutaliblawale263@gmail.com).
-
-
-I wait to hear from you soon.
-
-Best Regards,
+> > saved at binder_open() instead of looking up the euid
+> > from the binder proc's 'struct task'. This ensures
+> > the euid is associated with the security context that
+> > of the task that opened binder.
+> >
+> > Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
+> > Signed-off-by: Todd Kjos <tkjos@google.com>
+> > Stephen Smalley <stephen.smalley.work@gmail.com>
+>
+> This should have been "Suggested-by: Stephen Smalley
+> <stephen.smalley.work@gmail.com>"
+>
+> > Cc: stable@vger.kernel.org # 4.4+
+> > ---
+> > v3: added this patch to series
+> >
+> >  drivers/android/binder.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+> > index 989afd0804ca..26382e982c5e 100644
+> > --- a/drivers/android/binder.c
+> > +++ b/drivers/android/binder.c
+> > @@ -2711,7 +2711,7 @@ static void binder_transaction(struct binder_proc *proc,
+> >                 t->from = thread;
+> >         else
+> >                 t->from = NULL;
+> > -       t->sender_euid = task_euid(proc->tsk);
+> > +       t->sender_euid = proc->cred->euid;
+> >         t->to_proc = target_proc;
+> >         t->to_thread = target_thread;
+> >         t->code = tr->code;
+> > --
+> > 2.33.0.800.g4c38ced690-goog
+> >
