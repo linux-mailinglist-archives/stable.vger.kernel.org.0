@@ -2,181 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B4A042420B
-	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 18:01:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 743B9424202
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 18:00:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239303AbhJFQDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Oct 2021 12:03:06 -0400
-Received: from mout-p-201.mailbox.org ([80.241.56.171]:17782 "EHLO
-        mout-p-201.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239206AbhJFQDG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 12:03:06 -0400
-Received: from smtp1.mailbox.org (smtp1.mailbox.org [IPv6:2001:67c:2050:105:465:1:1:0])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mout-p-201.mailbox.org (Postfix) with ESMTPS id 4HPfMB17jYzQlRX;
-        Wed,  6 Oct 2021 18:01:10 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at heinlein-support.de
-Message-ID: <61b034e3-8d16-0488-d7e0-016e64f33b67@v0yd.nl>
-Date:   Wed, 6 Oct 2021 18:01:02 +0200
-MIME-Version: 1.0
-Subject: Re: [PATCH v2 1/2] mwifiex: Use non-posted PCI write when setting TX
- ring write pointer
-Content-Language: en-US
-From:   =?UTF-8?Q?Jonas_Dre=c3=9fler?= <verdre@v0yd.nl>
-To:     David Laight <David.Laight@ACULAB.COM>,
-        =?UTF-8?B?J1BhbGkgUm9ow6FyJw==?= <pali@kernel.org>
-Cc:     Amitkumar Karwar <amitkarwar@gmail.com>,
-        Ganapathi Bhat <ganapathi017@gmail.com>,
-        Xinming Hu <huxinming820@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Tsuchiya Yuto <kitakar@gmail.com>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Brian Norris <briannorris@chromium.org>,
+        id S233070AbhJFQC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Oct 2021 12:02:29 -0400
+Received: from frasgout.his.huawei.com ([185.176.79.56]:3939 "EHLO
+        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230021AbhJFQC3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 12:02:29 -0400
+Received: from fraeml736-chm.china.huawei.com (unknown [172.18.147.226])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4HPfHK39S1z67NPW;
+        Wed,  6 Oct 2021 23:57:49 +0800 (CST)
+Received: from lhreml724-chm.china.huawei.com (10.201.108.75) by
+ fraeml736-chm.china.huawei.com (10.206.15.217) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.8; Wed, 6 Oct 2021 18:00:34 +0200
+Received: from [10.47.95.252] (10.47.95.252) by lhreml724-chm.china.huawei.com
+ (10.201.108.75) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.1.2308.8; Wed, 6 Oct 2021
+ 17:00:33 +0100
+Subject: Re: [PATCH] scsi: storvsc: Cap scsi_driver.can_queue to fix a hang
+ issue during boot
+To:     Michael Kelley <mikelley@microsoft.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        KY Srinivasan <kys@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        "wei.liu@kernel.org" <wei.liu@kernel.org>,
+        "jejb@linux.ibm.com" <jejb@linux.ibm.com>,
+        "martin.petersen@oracle.com" <martin.petersen@oracle.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        "ming.lei@redhat.com" <ming.lei@redhat.com>,
+        "bvanassche@acm.org" <bvanassche@acm.org>,
+        "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <20210914114813.15404-1-verdre@v0yd.nl>
- <20210914114813.15404-2-verdre@v0yd.nl>
- <8f65f41a807c46d496bf1b45816077e4@AcuMS.aculab.com>
- <20210922142726.guviqler5k7wnm52@pali>
- <e0a4e0adc56148039f853ccb083be53a@AcuMS.aculab.com>
- <ae8ca158-ad86-9c0d-7217-f9db3d2fc42e@v0yd.nl>
-In-Reply-To: <ae8ca158-ad86-9c0d-7217-f9db3d2fc42e@v0yd.nl>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Rspamd-Queue-Id: 6BD7322F
+References: <20211006070345.51713-1-decui@microsoft.com>
+ <e36619df-652d-3550-cb4d-9b65b2f5faee@huawei.com>
+ <MWHPR21MB159368D7BAAD90E19F31D1C6D7B09@MWHPR21MB1593.namprd21.prod.outlook.com>
+From:   John Garry <john.garry@huawei.com>
+Message-ID: <d9416464-cf0f-2275-2d16-94e81d5b4362@huawei.com>
+Date:   Wed, 6 Oct 2021 17:03:09 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.1
+MIME-Version: 1.0
+In-Reply-To: <MWHPR21MB159368D7BAAD90E19F31D1C6D7B09@MWHPR21MB1593.namprd21.prod.outlook.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.47.95.252]
+X-ClientProxiedBy: lhreml709-chm.china.huawei.com (10.201.108.58) To
+ lhreml724-chm.china.huawei.com (10.201.108.75)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/30/21 16:27, Jonas Dreßler wrote:
-> On 9/22/21 5:54 PM, David Laight wrote:
+On 06/10/2021 16:01, Michael Kelley wrote:
+> From: John Garry <john.garry@huawei.com> Sent: Wednesday, October 6, 2021 1:17 AM
 >>
->> From: Pali Rohár
->>> Sent: 22 September 2021 15:27
->>>
->>> On Wednesday 22 September 2021 14:03:25 David Laight wrote:
->>>> From: Jonas Dreßler
->>>>> Sent: 14 September 2021 12:48
->>>>>
->>>>> On the 88W8897 card it's very important the TX ring write pointer is
->>>>> updated correctly to its new value before setting the TX ready
->>>>> interrupt, otherwise the firmware appears to crash (probably because
->>>>> it's trying to DMA-read from the wrong place). The issue is present in
->>>>> the latest firmware version 15.68.19.p21 of the pcie+usb card.
->>>>>
->>>>> Since PCI uses "posted writes" when writing to a register, it's not
->>>>> guaranteed that a write will happen immediately. That means the pointer
->>>>> might be outdated when setting the TX ready interrupt, leading to
->>>>> firmware crashes especially when ASPM L1 and L1 substates are enabled
->>>>> (because of the higher link latency, the write will probably take
->>>>> longer).
->>>>>
->>>>> So fix those firmware crashes by always using a non-posted write for
->>>>> this specific register write. We do that by simply reading back the
->>>>> register after writing it, just as a few other PCI drivers do.
->>>>>
->>>>> This fixes a bug where during rx/tx traffic and with ASPM L1 substates
->>>>> enabled (the enabled substates are platform dependent), the firmware
->>>>> crashes and eventually a command timeout appears in the logs.
->>>>
->>>> I think you need to change your terminology.
->>>> PCIe does have some non-posted write transactions - but I can't
->>>> remember when they are used.
->>>
->>> In PCIe are all memory write requests as posted.
->>>
->>> Non-posted writes in PCIe are used only for IO and config requests. But
->>> this is not case for proposed patch change as it access only card's
->>> memory space.
->>>
->>> Technically this patch does not use non-posted memory write (as PCIe
->>> does not support / provide it), just adds something like a barrier and
->>> I'm not sure if it is really correct (you already wrote more details
->>> about it, so I will let it be).
->>>
->>> I'm not sure what is the correct terminology, I do not know how this
->>> kind of write-followed-by-read "trick" is correctly called.
+>> On 06/10/2021 08:03, Dexuan Cui wrote:
+>>> After commit ea2f0f77538c, a 416-CPU VM running on Hyper-V hangs during
+>>> boot because scsi_add_host_with_dma() sets shost->cmd_per_lun to a
+>>> negative number:
+>>> 	'max_outstanding_req_per_channel' is 352,
+>>> 	'max_sub_channels' is (416 - 1) / 4 = 103, so in storvsc_probe(),
+>>> scsi_driver.can_queue = 352 * (103 + 1) * (100 - 10) / 100 = 32947, which
+>>> is bigger than SHRT_MAX (i.e. 32767).
 >>
->> I think it is probably best to say:
->>     "flush the posted write when setting the TX ring write pointer".
->>
->> The write can get posted in any/all of the following places:
->> 1) The cpu store buffer.
->> 2) The PCIe host bridge.
->> 3) Any other PCIe bridges.
->> 4) The PCIe slave logic in the target.
->>     There could be separate buffers for each BAR,
->> 5) The actual target logic for that address block.
->>     The target (probably) will look a bit like an old fashioned cpu
->>     motherboard with the PCIe slave logic as the main bus master.
->>
->> The readback forces all the posted write buffers be flushed.
->>
->> In this case I suspect it is either flushing (5) or the extra
->> delay of the read TLP processing that 'fixes' the problem.
->>
->> Note that depending on the exact code and host cpu the second
->> write may not need to wait for the response to the read TLP.
->> So the write, readback, write TLP may be back to back on the
->> actual PCIe link.
->>
->> Although I don't have access to an actual PCIe monitor we
->> do have the ability to trace 'data' TLP into fpga memory
->> on one of our systems.
->> This is near real-time but they are slightly munged.
->> Watching the TLP can be illuminating!
->>
->>     David
->>
->> -
->> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
->> Registration No: 1397386 (Wales)
+>> Out of curiosity, are these values realistic? You're capping can_queue
+>> just because of a data size issue, so, if these values are realistic,
+>> seems a weak reason.
 >>
 > 
-> Thanks for the detailed explanations, it looks like indeed the read-back is not the real fix here, a simple udelay(50) before sending the "TX ready" interrupt also does the trick.
+> The calculated value of can_queue is not realistic.  The blk-mq layer
+> caps the number of tags at 10240, 
+
+nit: 1024, I think
+
+> so the excessively large value
+> calculated here didn't definitively break anything, though it can be
+> poor from a performance tuning standpoint. The algorithm used here
+> is fairly broken, particularly in VMs with large CPU counts.  I have an
+> effort underway to fix it, but its part of a bigger set of changes to also
+> do a better job on the perf tuning aspects.
 > 
->                  } else {
-> +                       udelay(50);
-> +
->                          /* Send the TX ready interrupt */
->                          if (mwifiex_write_reg(adapter, PCIE_CPU_INT_EVENT,
->                                                CPU_INTR_DNLD_RDY)) {
+>>>
+>>> Fix the hang issue by capping scsi_driver.can_queue.
+>>>
+>>> Add the below Fixed tag though ea2f0f77538c itself is good.
+>>>
+>>> Fixes: ea2f0f77538c ("scsi: core: Cap scsi_host cmd_per_lun at can_queue")
+>>> Cc: stable@vger.kernel.org
+>>> Signed-off-by: Dexuan Cui <decui@microsoft.com>
+>>> ---
+>>>    drivers/scsi/storvsc_drv.c | 10 ++++++++++
+>>>    1 file changed, 10 insertions(+)
+>>>
+>>> diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
+>>> index ebbbc1299c62..ba374908aec2 100644
+>>> --- a/drivers/scsi/storvsc_drv.c
+>>> +++ b/drivers/scsi/storvsc_drv.c
+>>> @@ -1976,6 +1976,16 @@ static int storvsc_probe(struct hv_device *device,
+>>>    				(max_sub_channels + 1) *
+>>>    				(100 - ring_avail_percent_lowater) / 100;
+>>>
+>>> +	/*
+>>> +	 * v5.14 (see commit ea2f0f77538c) implicitly requires that
+>>> +	 * scsi_driver.can_queue should not exceed SHRT_MAX, otherwise
+>>> +	 * scsi_add_host_with_dma() sets shost->cmd_per_lun to a negative
+>>> +	 * number (note: the type of the "cmd_per_lun" field is "short"), and
+>>> +	 * the system may hang during early boot.
+>>> +	 */
+>>
+>> The different data sizes for cmd_per_lun and can_queue are problematic here.
+>>
+>> I'd be more inclined to set cmd_per_lun to the same data size as
+>> can_queue. We did discuss this when ea2f0f77538c was upstreamed
+>> (actually it was the other way around - setting can_queue to 16b).
 > 
-> I've tested that for a week now and haven't seen any firmware crashes. Interestingly enough it looks like the delay can also be added after setting the "TX ready" interrupt, just not before updating the TX ring write pointer.
+> I can see that making can_queue be 16 bits would make sense.
+> And it also seems that both cmd_per_lun and can_queue should be
+> unsigned, though I don't the implications of making such a change.
 > 
-> I have no idea if 50 usecs is a good duration to wait here, from trying different values I found that 10 to 20 usecs is not enough, but who knows, maybe that's platform dependent?
+> But in today's world where cmd_per_lun is "short" and can_queue
+> is "int",  ea2f0f77538c seems incorrect to me.  The comparison should
+> be done as "int", not "short", in order to prevent the truncation
+> problem with can_queue that Dexuan's patch is trying to address.
 
-So I spent the last few days going slightly crazy while trying to dig deeper
-into this.
+Yeah, right. I think can_queue values > short_max was considered outside 
+the realms of what is realistic then, hence my sloppy programming.
 
-My theory was that the udelay() delays some subsequent register write or
-other communication with the card that would trigger the crash if executed
-too early after writing the TX ring write pointer. So I tried moving the
-udelay() around, carefully checking when the crash is gone and when it isn't.
+> The result will always fit in back into the "short" cmd_per_lun since
+> it is calculating a "min" function.
+> 
+>>
+>> Thanks,
+>> John
+>>
+>>
+>>> +	if (scsi_driver.can_queue > SHRT_MAX)
+>>> +		scsi_driver.can_queue = SHRT_MAX;
+>>> +
+> 
+> This fix works, but is a more of a temporary hack until I can finish
+> a larger overhaul of the algorithm. 
 
-In the end my theory turned out completely wrong, what I found was this:
-Pinning down the last place where the udelay() is effective gets us here
-(https://elixir.bootlin.com/linux/latest/source/drivers/net/wireless/marvell/mwifiex/main.c#L340),
-right before we bail out of the main process and idle.
 
-I tried adding the udelay() as the first thing we do on the next run of the
-while-loop after that break, but with that the crash came back.
+> But for now, I think the better
+> fix is for ea2f0f77538c to do the comparison as "int" instead of "short".
+> 
 
-So what does this mean, we fix the crash by sleeping before idling? Sounds
-a bit counterintuitive to me...
+That seems better to me. But Let's wait for other possible opinion.
 
-The only thing I can take away from this is that maybe the udelay() keeps
-the CPU from entering some powersaving state and with that the PCI bus from
-entering ASPM states (considering that the crash can also be fixed by
-disabling ASPM L1.2).
+Thanks,
+John
