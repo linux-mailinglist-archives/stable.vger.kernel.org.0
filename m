@@ -2,124 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E6EE4235CE
-	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 04:27:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C97B4235F2
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 04:41:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237224AbhJFC3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Oct 2021 22:29:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42168 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237217AbhJFC3m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 22:29:42 -0400
-Received: from mail-vs1-xe34.google.com (mail-vs1-xe34.google.com [IPv6:2607:f8b0:4864:20::e34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE7F9C061755
-        for <stable@vger.kernel.org>; Tue,  5 Oct 2021 19:27:50 -0700 (PDT)
-Received: by mail-vs1-xe34.google.com with SMTP id d18so1344459vsh.1
-        for <stable@vger.kernel.org>; Tue, 05 Oct 2021 19:27:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=4OYSce36HFIDKSweIZsHOeEUQcMTMlRZW+u2FdUpafE=;
-        b=gHppIZL0NNL41Ah+TizK4cJGOSQt6n8ckgXCCWKJaVG6WuNu6D39wA8hcCUdEJ2ZBF
-         qP4uE8XmPBjyiFvPVso2jkrCUkzwGiwtyJdgYFh1W5jA3tUXXB194CJSf1C7SEgMRs4W
-         P6IDsUGsVQQvAQ7Amh1603Oup30JJYY0v3AZShcjcLS2cXmQ+BJ6vQoFS+wc7BMdd6bh
-         3EMeA44QQpjNXBGt2u4IpozI3Xy6CHpvFOfLvcPRLEmIVi6pIMRUrkMqgtyU0i2mHuuj
-         Q0k1kaP8hRW26c/ju0oSzrupcbkC9MJyflrfUTGXotsjd/k5vs3AS5biUUCmwpkqPkfE
-         RsZw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=4OYSce36HFIDKSweIZsHOeEUQcMTMlRZW+u2FdUpafE=;
-        b=W6K8BVlc5WDnQ+Kbdh47rtRtzn4e2nVqlErJvKkBH3UUohrQB4+1Lqi0UrOyz6AeA9
-         bkW+W05TmMuy0N4S/meAG0sUuBc4aIibtfaCv+L7lQs6H+bHPxX1zjpMZkKI0jIQ8CFe
-         vO2Ax5oPfKGRM1W4D4WbF5ASdqumCeFxSCU88eoRJJfwNR0CfYiawq2ABvX1xc9MQC48
-         jMzdyFtvbUvDJxs2RcNrq7UOkPcLiRftshyndpXsnuG3LuOK0IWfqc8kb28jt7boXbjR
-         Aa5nhkm6iMY7JXkve8CpC84+4tsqmaRTmEc1OAjA+lSQA7JNCZyCJzCSNSAGhE7L7OCf
-         8c+A==
-X-Gm-Message-State: AOAM530V5we9vv1Jf/azEq+tUgGgoivKpt+7zresXAyjN0U8Qk9Abnmf
-        WTMt0ZdItF3mz2o6742fSvsiOPBnoRlTZkwMNuAhRA==
-X-Google-Smtp-Source: ABdhPJyTH29CQo/Jwiml4RScXu5onK6nUS1xqUF5+/gSLGjq9q1MVF4srzfle3qW/NbIcsfW6Jj+di+yUzIVAAeTe7Y=
-X-Received: by 2002:a67:fd67:: with SMTP id h7mr382372vsa.52.1633487269836;
- Tue, 05 Oct 2021 19:27:49 -0700 (PDT)
+        id S230273AbhJFCnV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Oct 2021 22:43:21 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:58965 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229908AbhJFCnV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Oct 2021 22:43:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1633488089;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=RRg7qaSkYFTmSpOqY6x05C6jG3RXAAV6AEUBcClpAI0=;
+        b=DQb6VOw4JWJSzaiGWeSDBKhBhUk+PEN/A0mAvEM45kqZ8qyLGShfVrfenyyBcqKKC7+A/h
+        6WAjr69UUuDguI56EWcJghGlhTFeV5XBnFDn7988WUAtSNHvghDvwxxQGLRuht8H2ryCFw
+        ysrB6pL/P8lJF6vppBW2/7fYO4qEf4M=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-170-AIks4-1-O--jwvjN8Om7uQ-1; Tue, 05 Oct 2021 22:41:28 -0400
+X-MC-Unique: AIks4-1-O--jwvjN8Om7uQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E9F8E835DE2;
+        Wed,  6 Oct 2021 02:41:25 +0000 (UTC)
+Received: from Ruby.lyude.net (unknown [10.22.16.47])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 883739AA38;
+        Wed,  6 Oct 2021 02:41:21 +0000 (UTC)
+From:   Lyude Paul <lyude@redhat.com>
+To:     intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        nouveau@lists.freedesktop.org
+Cc:     stable@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Sean Paul <seanpaul@chromium.org>,
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v3 1/5] drm/i915: Add support for panels with VESA backlights with PWM enable/disable
+Date:   Tue,  5 Oct 2021 22:40:14 -0400
+Message-Id: <20211006024018.320394-2-lyude@redhat.com>
+In-Reply-To: <20211006024018.320394-1-lyude@redhat.com>
+References: <20211006024018.320394-1-lyude@redhat.com>
 MIME-Version: 1.0
-References: <20211001175521.3853257-1-tkjos@google.com> <c6a650e4-15e4-2943-f759-0e9577784c7a@schaufler-ca.com>
- <CAG48ez2tejBUXJGf0R9qpEiauL9-ABgkds6mZTQD7sZKLMdAAQ@mail.gmail.com>
- <CAG48ez1SRau1Tnge5HVqxCFsNCizmnQLErqnC=eSeERv8jg-zQ@mail.gmail.com>
- <f59c6e9f-2892-32da-62f8-8bbeec18ee4c@schaufler-ca.com> <CAG48ez0yF0u=QBLVL2XrGB8r8ouQj-_aS9SScu4O4f+LhZxCDw@mail.gmail.com>
- <e0c1fab9-cb97-d5af-1f4b-f15b6b2097fd@schaufler-ca.com> <CAG48ez3qc+2sc6xTJQVqLTRcjCiw_Adx13KT3OvPMCjBLjZvgA@mail.gmail.com>
- <6bd2de29-b46a-1d24-4c73-9e4e0f3f6eea@schaufler-ca.com> <CAG48ez0RM6NGZLdEjaqU9KmaOgeFR6cSeNo50XG9oaFxC_ayYw@mail.gmail.com>
- <CAEjxPJ4X4N_zgH4oRbdkZi21mvS--ExDb_1gad09buMHshB_hQ@mail.gmail.com> <7ec1090d-5bd7-bd05-4f38-07b1cc993721@schaufler-ca.com>
-In-Reply-To: <7ec1090d-5bd7-bd05-4f38-07b1cc993721@schaufler-ca.com>
-From:   Jann Horn <jannh@google.com>
-Date:   Wed, 6 Oct 2021 04:27:22 +0200
-Message-ID: <CAG48ez3ZxzO3fa0T3pE0a4wQYQDvBNY=i+Nj4MtZq-QHtJdFdA@mail.gmail.com>
-Subject: Re: [PATCH v2] binder: use cred instead of task for selinux checks
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Todd Kjos <tkjos@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        arve@android.com, tkjos@android.com, maco@android.com,
-        christian@brauner.io, James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Kees Cook <keescook@chromium.org>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        devel@driverdev.osuosl.org,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        "Cc: Android Kernel" <kernel-team@android.com>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 5, 2021 at 6:59 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 10/5/2021 8:21 AM, Stephen Smalley wrote:
-> > On Mon, Oct 4, 2021 at 8:27 PM Jann Horn <jannh@google.com> wrote:
-> >> On Tue, Oct 5, 2021 at 1:38 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >>> On 10/4/2021 3:28 PM, Jann Horn wrote:
-> >>>> You can't really attribute binder transactions to specific tasks that
-> >>>> are actually involved in the specific transaction, neither on the
-> >>>> sending side nor on the receiving side, because binder is built around
-> >>>> passing data through memory mappings. Memory mappings can be accessed
-> >>>> by multiple tasks, and even a task that does not currently have it
-> >>>> mapped could e.g. map it at a later time. And on top of that you have
-> >>>> the problem that the receiving task might also go through privileged
-> >>>> execve() transitions.
-> >>> OK. I'm curious now as to why the task_struct was being passed to the
-> >>> hook in the first place.
-> >> Probably because that's what most other LSM hooks looked like and the
-> >> authors/reviewers of the patch didn't realize that this model doesn't
-> >> really work for binder? FWIW, these hooks were added in commit
-> >> 79af73079d75 ("Add security hooks to binder and implement the hooks
-> >> for SELinux."). The commit message also just talks about "processes".
-> > Note that in the same code path (binder_transaction), sender_euid is
-> > set from proc->tsk and security_ctx is based on proc->tsk. If we are
-> > changing the hooks to operate on the opener cred, then presumably we
-> > should be doing that for sender_euid and replace the
-> > security_task_getsecid_obj() call with security_cred_getsecid()?
-> >
-> > NB Mandatory Access Control doesn't allow uncontrolled delegation,
-> > hence typically checks against the subject credential either at
-> > delegation/transfer or use or both. That's true in other places too,
-> > e.g. file_permission, socket_sendmsg.
->
-> Terrific. Now I'm even less convinced that either the proposed change
-> or the existing code make sense. It's also disturbing that the change
-> log claims that the reason for the change is fix a race condition when
-> in fact it changes the data being sent to the hook completely.
+This simply adds proper support for panel backlights that can be controlled
+via VESA's backlight control protocol, but which also require that we
+enable and disable the backlight via PWM instead of via the DPCD interface.
+We also enable this by default, in order to fix some people's backlights
+that were broken by not having this enabled.
 
-The race it's referring to is the one between
-security_binder_transaction() (which checks for permission to send a
-transaction and checks for delegation) and
-security_task_getsecid_obj() (which tells the recipient what the
-sender's security context is). (It's a good thing Paul noticed that
-the v1 patch didn't actually change the security_task_getsecid_obj()
-call... somehow I missed that.)
+For reference, backlights that require this and use VESA's backlight
+interface tend to be laptops with hybrid GPUs, but this very well may
+change in the future.
+
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://gitlab.freedesktop.org/drm/intel/-/issues/3680
+Fixes: fe7d52bccab6 ("drm/i915/dp: Don't use DPCD backlights that need PWM enable/disable")
+Cc: <stable@vger.kernel.org> # v5.12+
+---
+ .../drm/i915/display/intel_dp_aux_backlight.c | 24 ++++++++++++++-----
+ 1 file changed, 18 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c b/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
+index 569d17b4d00f..594fdc7453ca 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
++++ b/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
+@@ -293,6 +293,10 @@ intel_dp_aux_vesa_enable_backlight(const struct intel_crtc_state *crtc_state,
+ 	struct intel_panel *panel = &connector->panel;
+ 	struct intel_dp *intel_dp = enc_to_intel_dp(connector->encoder);
+ 
++	if (!panel->backlight.edp.vesa.info.aux_enable)
++		panel->backlight.pwm_funcs->enable(crtc_state, conn_state,
++						   panel->backlight.pwm_level_max);
++
+ 	drm_edp_backlight_enable(&intel_dp->aux, &panel->backlight.edp.vesa.info, level);
+ }
+ 
+@@ -304,6 +308,10 @@ static void intel_dp_aux_vesa_disable_backlight(const struct drm_connector_state
+ 	struct intel_dp *intel_dp = enc_to_intel_dp(connector->encoder);
+ 
+ 	drm_edp_backlight_disable(&intel_dp->aux, &panel->backlight.edp.vesa.info);
++
++	if (!panel->backlight.edp.vesa.info.aux_enable)
++		panel->backlight.pwm_funcs->disable(old_conn_state,
++						    intel_backlight_invert_pwm_level(connector, 0));
+ }
+ 
+ static int intel_dp_aux_vesa_setup_backlight(struct intel_connector *connector, enum pipe pipe)
+@@ -321,6 +329,15 @@ static int intel_dp_aux_vesa_setup_backlight(struct intel_connector *connector,
+ 	if (ret < 0)
+ 		return ret;
+ 
++	if (!panel->backlight.edp.vesa.info.aux_enable) {
++		ret = panel->backlight.pwm_funcs->setup(connector, pipe);
++		if (ret < 0) {
++			drm_err(&i915->drm,
++				"Failed to setup PWM backlight controls for eDP backlight: %d\n",
++				ret);
++			return ret;
++		}
++	}
+ 	panel->backlight.max = panel->backlight.edp.vesa.info.max;
+ 	panel->backlight.min = 0;
+ 	if (current_mode == DP_EDP_BACKLIGHT_CONTROL_MODE_DPCD) {
+@@ -340,12 +357,7 @@ intel_dp_aux_supports_vesa_backlight(struct intel_connector *connector)
+ 	struct intel_dp *intel_dp = intel_attached_dp(connector);
+ 	struct drm_i915_private *i915 = dp_to_i915(intel_dp);
+ 
+-	/* TODO: We currently only support AUX only backlight configurations, not backlights which
+-	 * require a mix of PWM and AUX controls to work. In the mean time, these machines typically
+-	 * work just fine using normal PWM controls anyway.
+-	 */
+-	if ((intel_dp->edp_dpcd[1] & DP_EDP_BACKLIGHT_AUX_ENABLE_CAP) &&
+-	    drm_edp_backlight_supported(intel_dp->edp_dpcd)) {
++	if (drm_edp_backlight_supported(intel_dp->edp_dpcd)) {
+ 		drm_dbg_kms(&i915->drm, "AUX Backlight Control Supported!\n");
+ 		return true;
+ 	}
+-- 
+2.31.1
+
