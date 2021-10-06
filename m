@@ -2,128 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 160E1424A80
-	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 01:24:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21958424A85
+	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 01:28:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229809AbhJFX0n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Oct 2021 19:26:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49368 "EHLO
+        id S231817AbhJFXab (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Oct 2021 19:30:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230300AbhJFX0m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 19:26:42 -0400
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99289C061746
-        for <stable@vger.kernel.org>; Wed,  6 Oct 2021 16:24:49 -0700 (PDT)
-Received: by mail-pf1-x436.google.com with SMTP id c29so3723063pfp.2
-        for <stable@vger.kernel.org>; Wed, 06 Oct 2021 16:24:49 -0700 (PDT)
+        with ESMTP id S231127AbhJFXa3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 19:30:29 -0400
+Received: from mail-vs1-xe2a.google.com (mail-vs1-xe2a.google.com [IPv6:2607:f8b0:4864:20::e2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 132A3C061753
+        for <stable@vger.kernel.org>; Wed,  6 Oct 2021 16:28:37 -0700 (PDT)
+Received: by mail-vs1-xe2a.google.com with SMTP id p2so4760283vst.10
+        for <stable@vger.kernel.org>; Wed, 06 Oct 2021 16:28:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=N/u1iDu6cta22r/CHdSy35sAXBnibAT+ULfUOFAjkYU=;
-        b=FcUnmxMAb9OqopbbbngxTR5pYzK3mduz0taRtPYPKSfFRN3/vWOhq0F/FIc/rHgwBt
-         hxeVdchgd6AQrN6291MGFJA9Jv3a8GsJbt1Jp3I+E8a8G9MXW+DOt4bVNTeaekdTVlT1
-         4uSEumIJKuCuwMQFt72s8a+qI9iM25SZ8n7Y6uilyIQ/wMX5HWfptlz4MtWyxkBskHKq
-         jiTXqCi2SVu7CJX+OsaLk5QtG66eMZ0ppDCoiwsxsKKwBRiarrtC3uDegltgDXTvIdQr
-         jdWLd1DSJtgp35JZrQNerv3wUrhTWngQkYY+9s1Ul09Cq6j+uH+ao7OcKMw8Zb/OFiJP
-         8x0Q==
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=mliJ3L4jhXygNAQVvyfh3C51SF5VAYCq+PUY3yCWUww=;
+        b=qi5Ix5Ey0HFp6L9+Tb4s0zGqPaWH11DuG+iN3lkQA45yIab1Igz9/t/wCd7KCEV28y
+         JxYKiC9codL3nn9bXsqMDsfa+SeQx8h3Nvr7trPCbJDT8y8sfyHK6MeY640ofUooBqwE
+         ZnWo2XX3gmZo9YozyxTto3ZVKMMM8zoNmKa9L9nfcbIevffVD/B8HV4B0AX+IFaDu0u/
+         9RLvfgL6PhTG7pbofxOwM2VphykA2gfzrP0NVMOAyQxiNwxFLKJXZE0FiN/gZ0Y4hWbV
+         6ehP2QTUVK1K7Ddq+kPCPs28QD5j5PLJ3qrOBNFwhLJ5V9zhf8eM1uCNO6iEZG/pCOFW
+         UUnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=N/u1iDu6cta22r/CHdSy35sAXBnibAT+ULfUOFAjkYU=;
-        b=g91c/tfVXORBkpwM0sev/MrBP2hqS/B3Z3U2f12Et3p0dEvYA0wmpp9m9/XXqvPVJd
-         79bxP1QQcDCvbV9gTCxtqsaqsHskEe6YcCiqcfOOw9+DSfI6kVacExOed5SnyaM+2WJJ
-         3GFUWgxCV6eBbwyDoBnaQGoBA1Nmr20/HNtedSI+XS/d4LjFklp+39aMcckPMdB/SKLk
-         86aRWvIHfvjRAmrAmt09lSrkrq8WdanbkuQC1WEvDqNx/MolmQ3k2kQlSrWRQ5iBMbCR
-         XDsxlA9HKxYlQCvXxwsFI6UEM2AOykEq0Y0bUqazgEvf2W/yLdoIcYqlfXPeG0AAn7+d
-         VMeg==
-X-Gm-Message-State: AOAM530nTrIHKK7hBYrBB6HryDXSWocgdFIbMJbahzpMi2bTRwDuAmQt
-        T+zZ2W4bP7zjMiu0V9l1ZlCkwZt9JcbZpFBL
-X-Google-Smtp-Source: ABdhPJyAlRhdZKLuwHjpEwKDRpFCVOfTTtuN4YaIb1BHhSzu0N/Xmy3ZoJ0tCO1KhY1ps0EIBSNtWQ==
-X-Received: by 2002:a63:8a43:: with SMTP id y64mr686543pgd.390.1633562688892;
-        Wed, 06 Oct 2021 16:24:48 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q6sm8313765pgc.1.2021.10.06.16.24.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Oct 2021 16:24:48 -0700 (PDT)
-Message-ID: <615e3040.1c69fb81.6d754.a012@mx.google.com>
-Date:   Wed, 06 Oct 2021 16:24:48 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=mliJ3L4jhXygNAQVvyfh3C51SF5VAYCq+PUY3yCWUww=;
+        b=B5hHBC3pWwl5CaI4GzUwHlDMXUu9vUqFKVpWGS+4E+Qf9YiMcRQ9UeFZQacvwsjMIR
+         9cl88zHtQenOWN/nKrzrcyAIGyYu29NDJ9zE7vYtkBPFOZOqhRD3Ob8Sl2vOXHc+3GB6
+         WdR3m5Z3CdDH1jrXW60CWU8BAXIJAxnuc5v6z2wDZi5gpz6ReMxUhowWsQm477lOivB/
+         xiZ4Leb9Nzq2ivv8BaQKrio4yjxjJJCWoJFZ71Y6JslFFNRAza6756pOHPTmbg5/Fadu
+         1iq01L1V7kGg+8XBNxv963+OmMAms8wbaPNqG7GT4qGhdluJi5uWhBfut2ftCp0fbFJ9
+         rpsw==
+X-Gm-Message-State: AOAM5319CRfXKCjVzAbjXziPCZSZCEQaJqkDeHcmhIt/1l0q9NpPeX/K
+        Ki8ySLlYUCV0mogSOtyvF2t39BpjgBJgyoBeJC1V9Q==
+X-Google-Smtp-Source: ABdhPJyHZF+bCbZ/lhqhjeh4XfDC8463ZxocSj5ca/etIelqyFKTTO3mnN4tAgT9tT0+uYirAM20MNrBJZXma3nZNAM=
+X-Received: by 2002:a67:df16:: with SMTP id s22mr1310976vsk.47.1633562914708;
+ Wed, 06 Oct 2021 16:28:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.14.9-173-gd1d4d31a257c
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.14.y
-Subject: stable-rc/linux-5.14.y baseline: 181 runs,
- 1 regressions (v5.14.9-173-gd1d4d31a257c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20211006224311.26662-1-ramjiyani@google.com> <YV4nnko8rmWAWj2+@gmail.com>
+In-Reply-To: <YV4nnko8rmWAWj2+@gmail.com>
+From:   Ramji Jiyani <ramjiyani@google.com>
+Date:   Wed, 6 Oct 2021 16:28:23 -0700
+Message-ID: <CAKUd0B-9ifaMBAxhaUZjppks8PCy4oCy=erRNnPBjrRxOGKUxQ@mail.gmail.com>
+Subject: Re: [PATCH v3] aio: Add support for the POLLFREE
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     arnd@arndb.de, viro@zeniv.linux.org.uk, bcrl@kvack.org, hch@lst.de,
+        kernel-team@android.com, linux-aio@kvack.org,
+        linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, oleg@redhat.com,
+        Jeff Moyer <jmoyer@redhat.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.14.y baseline: 181 runs, 1 regressions (v5.14.9-173-gd1d4=
-d31a257c)
+On Wed, Oct 6, 2021 at 3:48 PM Eric Biggers <ebiggers@kernel.org> wrote:
+>
+> On Wed, Oct 06, 2021 at 10:43:11PM +0000, Ramji Jiyani wrote:
+> > Fixes: f5cb779ba163 ("ANDROID: binder: remove waitqueue when thread exits.")
+> > Signed-off-by: Ramji Jiyani <ramjiyani@google.com>
+> > Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
+> > Cc: stable@vger.kernel.org # 4.19+
+>
+> The commit that this claims to be fixing is in linux-4.4.y, so either the fixes
+> tag is wrong or the Cc stable tag is wrong.  It's important to provide correct
+> information here for backporting purposes, so please do so.
+>
 
-Regressions Summary
--------------------
+Stable tag is correct; Fixes tag in this case is tricky.
 
-platform  | arch | lab          | compiler | defconfig          | regressio=
-ns
-----------+------+--------------+----------+--------------------+----------=
---
-beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1        =
-  =
+In 4.4 only way to poll binder file was via eventpoll and since binder wasn't
+flagging the POLLFREE before thread exit there was an UAF. Which got fixed
+by the commit currently Fixes tag is referring.
 
+Later, aio got enhanced by adding a polling feature in 4.19 [1].
+That introduced one more way to poll binder files; but it did not include
+support for POLLFREE, so UAF exists.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.14.y/ker=
-nel/v5.14.9-173-gd1d4d31a257c/plan/baseline/
+Should the Fixes tag refer to Commit bfe4037e722e ("aio: implement
+IOCB_CMD_POLL") [2] in this case?
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.14.y
-  Describe: v5.14.9-173-gd1d4d31a257c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      d1d4d31a257c9fb5087c34e33423b99ee508fdf6 =
+[1] https://lore.kernel.org/lkml/20180110155853.32348-32-hch@lst.de/
+[2] https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/fs/aio.c?h=v4.19.209&id=bfe4037e722ec672c9dafd5730d9132afeeb76e9
 
+> - Eric
 
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig          | regressio=
-ns
-----------+------+--------------+----------+--------------------+----------=
---
-beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1        =
-  =
-
-
-  Details:     https://kernelci.org/test/plan/id/615dfb78ff4daff79b99a324
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.9=
--173-gd1d4d31a257c/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagl=
-e-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.9=
--173-gd1d4d31a257c/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagl=
-e-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/615dfb78ff4daff79b99a=
-325
-        failing since 2 days (last pass: v5.14.9-74-gb50148bf3122, first fa=
-il: v5.14.9-173-gcda15f9c69e0) =
-
- =20
+~ Ramji
