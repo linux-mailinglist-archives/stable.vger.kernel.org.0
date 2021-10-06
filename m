@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D347B423851
-	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 08:47:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDAD042385B
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 08:52:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233148AbhJFGtu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Oct 2021 02:49:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43162 "EHLO
+        id S237332AbhJFGxu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Oct 2021 02:53:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229956AbhJFGtt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 02:49:49 -0400
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86593C061749
-        for <stable@vger.kernel.org>; Tue,  5 Oct 2021 23:47:57 -0700 (PDT)
-Received: by mail-ed1-x52d.google.com with SMTP id dj4so5835078edb.5
-        for <stable@vger.kernel.org>; Tue, 05 Oct 2021 23:47:57 -0700 (PDT)
+        with ESMTP id S231281AbhJFGxu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 02:53:50 -0400
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ADB5C06174E
+        for <stable@vger.kernel.org>; Tue,  5 Oct 2021 23:51:58 -0700 (PDT)
+Received: by mail-ed1-x533.google.com with SMTP id b8so5954792edk.2
+        for <stable@vger.kernel.org>; Tue, 05 Oct 2021 23:51:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=/RY0JnlX5/n503ZfUQl/lXYTDbDxPGWgSX/+M+PX6zg=;
-        b=ND/qn5EN6ZOX+kj9T4HjQnPgvD5vp2Tzd88EL4LNGrE3epRb/wAvkVPYGm2vagumIh
-         5y8C1J22S1jwKEhs2zhtCelhllowp+WwxxNgeVEMKR8iVS33bYsRXgkDxwBoGcmNnFjT
-         nb69wIInWgZDzDW3Qq6h93cEbPP2GMc7wZ7pKuwECq1pvrPI9ej8wsv9AQAbpy7P0ato
-         rFd+3YfC7de2ad4KJXDV/B4E/wyaaSs9pvz2bhMG3pjZf//CxeYn8IYgilEDPzM5UEu4
-         AzXYNn9EE+ylf3qRAO+YfUh8vhNXN7NGi3asoV6HFQbVrtq5Gc9z12tSRv2Ivk4eY94O
-         +v7w==
+        bh=F5MlL7aa9V9SQKA0yy2JIPNneUruJSM8OKi/Btkdfhk=;
+        b=YypW2bkn9zqkz6q/b0vu98l2xi0pOgzjdESrjyF4r2lBbN+zey7L7eZaqB0fmC1Ows
+         RJGc7OwNFFYQsZmxB3Rjde/ewoNa5cTDqLnbfvpQ3xisAipxLeyiUbLBxWXgMo2uAOJ/
+         lMwREusbVEXriIjnmtdb+mBb+o0/4kLZMYBtehW5mhdV/ej5ie8oAhIYPreBFLv3vzK9
+         j7rB8Noq2poA/9jOfFMSVcwai3Fp5vYf5XMiepXtwB3+9XuK51SM1ZgvrE3I0b5R7sis
+         G4kJwfC0pPjCU4A5+Edqc5T7ElDCKfwgIImgnYOVO+6VNU/untDflRKPI3vqnmUqK6sU
+         8X6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=/RY0JnlX5/n503ZfUQl/lXYTDbDxPGWgSX/+M+PX6zg=;
-        b=5fiLqaZGqA+g6cbJfUjrBffN5X/CZw6h9wTGap6fbPACkNb+wZDa8Q0K5k8xpNJaNY
-         t59BYPiM3Dul4+j9fub8exa3LxnRnq6yAULaWghlE1aueAPGvWLN8zWudQVXw6cxO8Jb
-         9zUUfs9ieuUNbzJZhIg9n25oTD+n/ZFc0o5qBzoBNIyIPx0xgvtjZbVi8dXR4B27smxr
-         bY8O5B9kstiMvDGexHB6L1JuLW0lDC45lPynUi0m8yyE8z3ArzOoADguphr+MHmtrA+N
-         Aq7LtGJu8l5OChr/N6v+SnHqiKTFZ/w3Nd7gq4MzZkSRBCirsnh/+Vuc9Lgr7XtGvtVa
-         sfSQ==
-X-Gm-Message-State: AOAM532PXzYRM4cMbLOVAMbtcPp0vfFmTeZ7m8DLF3UBPOOHAeqwWaIE
-        tBszU2KnbfhCkig7MbEexCCVsfb8KUhbLec9/LS5xA==
-X-Google-Smtp-Source: ABdhPJyLOOUJk/+zZ4hD4di+KTSZCiPPUtohb5zRN8TuFo8uu1LUCBYECUD6PevDWEBXIUyFDFLkaBqBGVz1BoUPrfo=
-X-Received: by 2002:a50:e184:: with SMTP id k4mr32628757edl.217.1633502875888;
- Tue, 05 Oct 2021 23:47:55 -0700 (PDT)
+        bh=F5MlL7aa9V9SQKA0yy2JIPNneUruJSM8OKi/Btkdfhk=;
+        b=W8El4EmWNG8d+VHKjxR64/JYDnWfz7x2crwSwedKqqz3qykQhPIV4Z1hKTXaJ1QNXz
+         KfTSITZ/RTmiwFWd4rSMFMmhfZ4RcqGpxSffTO876YPLidDKdUtXI0eSvZ5OG1hP77C9
+         8FV3vvPx/oCktd7Wgf3xEsZqTgtmDoatdjyBzGC6s6u7FtFz77tj1CQbd0ueYB7J8hTb
+         QWzhd/apeSlg3oZfeSFSBGHcC8QKuKi7BfUWqHZuUo82qcr1jFhepML54lk9vLerHlHd
+         9110Sb5Jg89ttVx+FkHXd1nLhcj67MtUnyyzURXzTIjQEdtLuyeIjTUzX58R8EoCwwHv
+         nmig==
+X-Gm-Message-State: AOAM53234CLo0+Y0WbcNSN1u1KCpTnhTgOHFBLRRPNAzaWlC+xRC5YEw
+        N0d/GD1TXTYGSmYNs9naNLNO+b9sdxFjb1WSGVnd1Q==
+X-Google-Smtp-Source: ABdhPJxYidtZmrZoIHsrMwpd2mnKmQnLP2RvNBEEOg0CM7ChDAIYy4Ixd/iAU+mf3ocYKcITOgzZQvIt47giAV8thl0=
+X-Received: by 2002:a17:906:c7c1:: with SMTP id dc1mr31737145ejb.6.1633503116005;
+ Tue, 05 Oct 2021 23:51:56 -0700 (PDT)
 MIME-Version: 1.0
-References: <20211005083301.812942169@linuxfoundation.org>
-In-Reply-To: <20211005083301.812942169@linuxfoundation.org>
+References: <20211005083256.183739807@linuxfoundation.org>
+In-Reply-To: <20211005083256.183739807@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 6 Oct 2021 12:17:44 +0530
-Message-ID: <CA+G9fYsjbuOwiSF7q=dm2EMP6JrURJ1-4+YB4-g6otoWBoPceg@mail.gmail.com>
-Subject: Re: [PATCH 5.10 00/92] 5.10.71-rc2 review
+Date:   Wed, 6 Oct 2021 12:21:44 +0530
+Message-ID: <CA+G9fYtJFM4FG9VMNsk2uQkBdBzGLik-+10M7J7-B69_MAAF_w@mail.gmail.com>
+Subject: Re: [PATCH 5.4 00/53] 5.4.151-rc2 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
         Shuah Khan <shuah@kernel.org>,
@@ -69,8 +69,8 @@ X-Mailing-List: stable@vger.kernel.org
 On Tue, 5 Oct 2021 at 14:08, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.10.71 release.
-> There are 92 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.4.151 release.
+> There are 53 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -79,10 +79,10 @@ On Tue, 5 Oct 2021 at 14:08, Greg Kroah-Hartman
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.71-rc2.gz
+5.4.151-rc2.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
+-rc.git linux-5.4.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -95,22 +95,22 @@ No regressions on arm64, arm, x86_64, and i386.
 Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
 ## Build
-* kernel: 5.10.71-rc2
+* kernel: 5.4.151-rc2
 * git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
 rc.git
-* git branch: linux-5.10.y
-* git commit: 76aee5dfd7ee7d3a9f3ba6c98ad0e8526191cd87
-* git describe: v5.10.70-93-g76aee5dfd7ee
+* git branch: linux-5.4.y
+* git commit: f7188f3f8d712443cf29de94ef1b644d2cfc5692
+* git describe: v5.4.150-54-gf7188f3f8d71
 * test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
-.70-93-g76aee5dfd7ee
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
+50-54-gf7188f3f8d71
 
-## No regressions (compared to v5.10.70-94-g02a774174b52)
+## No regressions (compared to v5.4.150-57-g86031298ba66)
 
-## No fixes (compared to v5.10.70-94-g02a774174b52)
+## No fixes (compared to v5.4.150-57-g86031298ba66)
 
 ## Test result summary
-total: 84250, pass: 70535, fail: 516, skip: 12276, xfail: 923
+total: 83333, pass: 68064, fail: 663, skip: 13037, xfail: 1569
 
 ## Build Summary
 * dragonboard-410c: 1 total, 1 passed, 0 failed
@@ -193,7 +193,6 @@ total: 84250, pass: 70535, fail: 516, skip: 12276, xfail: 923
 * kselftest-vm
 * kselftest-x86
 * kselftest-zram
-* kunit
 * kvm-unit-tests
 * libgpiod
 * libhugetlbfs
