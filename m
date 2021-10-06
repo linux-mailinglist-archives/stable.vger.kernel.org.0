@@ -2,72 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39ABF423C8B
-	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 13:22:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6863423C93
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 13:22:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238138AbhJFLYI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Oct 2021 07:24:08 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:27717 "EHLO
+        id S238250AbhJFLYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Oct 2021 07:24:34 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:28781 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231710AbhJFLYI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 07:24:08 -0400
+        by vger.kernel.org with ESMTP id S238280AbhJFLY1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 07:24:27 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633519335;
+        s=mimecast20190719; t=1633519355;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=v/JfOMi35WLM2+MZzOUHUTk7On4MySnDCb/mEC3ZCeE=;
-        b=CFtC+3Uv3G/BmiCFIJ6DvBDtwYOXmMHwCI2Rj2GwmUe62qp0GyKIJdHWIC0XiCiNEi0H9o
-        yrqViganksXsvjy5PmbLYu2yyuS+Zw+o5Au2CbJt5+tvbUHqI/PmmYqYCH1OWbJumlwONf
-        0uH1We5wip3zCZkuIP7qHKWEPydr1eM=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-461-n3SYzJtjMJKV4ou-BpjZlQ-1; Wed, 06 Oct 2021 07:22:14 -0400
-X-MC-Unique: n3SYzJtjMJKV4ou-BpjZlQ-1
-Received: by mail-ed1-f70.google.com with SMTP id p20-20020a50cd94000000b003db23619472so2295008edi.19
-        for <stable@vger.kernel.org>; Wed, 06 Oct 2021 04:22:14 -0700 (PDT)
+        bh=Fx4Z8OxDc6y4nOhB3/4DQOKWbbq0SahK6U+FBeZeNy4=;
+        b=bje4Zci6+iaxScMyqxn3g97Zfz6wWBKKXwS8dy7snAO4VXLQMTHkBazUSAPkJHGaRZt1Cq
+        M5Bzf2KzGZuSntccp5luz5yIKAlZ6DtQQhGonDAWBwMdOoJl83DXyixEc1rnDm1pmCuQuZ
+        kU9ouxXpSjieAWPjVjUTbhfSi/581Og=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-312-8NKbaqn-PHqDqiowPWK7dQ-1; Wed, 06 Oct 2021 07:22:34 -0400
+X-MC-Unique: 8NKbaqn-PHqDqiowPWK7dQ-1
+Received: by mail-ed1-f71.google.com with SMTP id w11-20020aa7da4b000000b003db381edfc0so1448673eds.22
+        for <stable@vger.kernel.org>; Wed, 06 Oct 2021 04:22:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
          :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=v/JfOMi35WLM2+MZzOUHUTk7On4MySnDCb/mEC3ZCeE=;
-        b=btL7s7/WMv1QjKjU3hlnrljVzFYU/q4iiCzrROPVMk54t8lAoUnuFW0Z56J3jDbSXF
-         VEov49kiHZAFek8M4LeoYEeWoxQghi6n/K3/mqLwr38a/CraJ2lEMQYzJFNxzAfMG//l
-         lTL+yytlSw9eT3sAwwMg28rxERp8X0RQcRY2rU2I+qjEKhjileJ8BeI1f+UytsfPjknv
-         q9rFG2SmgOghSgWLsmeo6scvDpwvZmk7Vw+BQjqJsRiB6VGks7qFhbJn6EKoxwVhXXji
-         wqbGeQudwNVIq58N68vvEbjp3wzM/guO81sQtNqjBoLPhK83DZaa2q1BWySA4NZclrl0
-         DmbQ==
-X-Gm-Message-State: AOAM533L5uHNyCNmZCNsUpBwRDKB7yMLTmnTg/nBQCPA8eAm2jmNaq1U
-        UK93Xeut/tRV2jzJ+RdF1BPS7J6aOhxqi3vXDSNx31W5/B1TOJARcJk51t87eO4G28nYu22eUYy
-        NBsap5BGFRMha50pi
-X-Received: by 2002:a17:906:254b:: with SMTP id j11mr21131207ejb.513.1633519333535;
-        Wed, 06 Oct 2021 04:22:13 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJylcfz1yIK5h80nly+MZgOukICPmd/XRFVIy5VZ7eKeiW48E0oVYz9JloSTXJaFKV1/u78H3g==
-X-Received: by 2002:a17:906:254b:: with SMTP id j11mr21131186ejb.513.1633519333342;
-        Wed, 06 Oct 2021 04:22:13 -0700 (PDT)
+        bh=Fx4Z8OxDc6y4nOhB3/4DQOKWbbq0SahK6U+FBeZeNy4=;
+        b=AQp99e/hx0bzotL6lD5YKlOeyqjRmXHzs/PmQym0ygHMCEatOYcVck4/I7JWwzBd/F
+         cojfQN9ElKaxscbmBdM6Ewx51ogPceUh1VGaMRWxfPOp1TdIXvNZgBZonvWJNONOyJlU
+         ymBYQ9dYmDM+1n8EklhGHucSrlAY+PcI5LMyWUjcfpqIbJXfgHXgTWslD3nl61Qh0Lrt
+         jGaK4R6VDi3w5OT8Ps4dWus/vKe4rz1wxuMmUiskRjML64F0ozDntmJy1HTlvUif8q+N
+         pvU8kk4ousKYWJMt3KgHyNPTizWIsuoSgnRGEqZJU3F/ZfWEO6l9yAXonOnquFwv7agT
+         ZsVw==
+X-Gm-Message-State: AOAM531N7SXK74Z3lE0Fn3D2fDXa19JJSfvoHyz6COvCyUb2W259USwz
+        z1/zyXJ5E2nq0FrwsCU/hpI7U5TeXvgP+qAiN9DyZQoyrfLjctUTPdARswH0kPiCLU0ugEqmbO1
+        9FV8uBCYqUUy3pPUw
+X-Received: by 2002:a05:6402:5191:: with SMTP id q17mr34076190edd.332.1633519353333;
+        Wed, 06 Oct 2021 04:22:33 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwc9xsgpKBa5tYi+Dtzc1zGfxzP3PbWYYvZbMl/GUREDM91cNffO9dMey+CseImnT9LwumvHQ==
+X-Received: by 2002:a05:6402:5191:: with SMTP id q17mr34076167edd.332.1633519353148;
+        Wed, 06 Oct 2021 04:22:33 -0700 (PDT)
 Received: from ?IPV6:2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e? ([2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e])
-        by smtp.gmail.com with ESMTPSA id b17sm2149920edd.77.2021.10.06.04.22.11
+        by smtp.gmail.com with ESMTPSA id bw25sm8912058ejb.20.2021.10.06.04.22.31
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 06 Oct 2021 04:22:12 -0700 (PDT)
-Message-ID: <689f5883-54aa-51f8-a06b-69d18d6a3c82@redhat.com>
-Date:   Wed, 6 Oct 2021 13:22:10 +0200
+        Wed, 06 Oct 2021 04:22:32 -0700 (PDT)
+Message-ID: <1a05eaed-a725-f8fb-efb4-4e20a80fdef3@redhat.com>
+Date:   Wed, 6 Oct 2021 13:22:31 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.1.0
-Subject: Re: [PATCH MANUALSEL 5.10 4/7] KVM: x86: VMX: synthesize invalid VM
- exit when emulating invalid guest state
+Subject: Re: [PATCH MANUALSEL 5.10 1/7] selftests: KVM: Align SMCCC call with
+ the spec in steal_time
 Content-Language: en-US
 To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Cc:     Maxim Levitsky <mlevitsk@redhat.com>,
-        Sean Christopherson <seanjc@google.com>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, x86@kernel.org, kvm@vger.kernel.org
+Cc:     Oliver Upton <oupton@google.com>,
+        Andrew Jones <drjones@redhat.com>, shuah@kernel.org,
+        kvm@vger.kernel.org, linux-kselftest@vger.kernel.org
 References: <20211006111234.264020-1-sashal@kernel.org>
- <20211006111234.264020-4-sashal@kernel.org>
 From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <20211006111234.264020-4-sashal@kernel.org>
+In-Reply-To: <20211006111234.264020-1-sashal@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -75,57 +74,50 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On 06/10/21 13:12, Sasha Levin wrote:
-> From: Maxim Levitsky <mlevitsk@redhat.com>
+> From: Oliver Upton <oupton@google.com>
 > 
-> [ Upstream commit c42dec148b3e1a88835e275b675e5155f99abd43 ]
+> [ Upstream commit 01f91acb55be7aac3950b89c458bcea9ef6e4f49 ]
 > 
-> Since no actual VM entry happened, the VM exit information is stale.
-> To avoid this, synthesize an invalid VM guest state VM exit.
+> The SMC64 calling convention passes a function identifier in w0 and its
+> parameters in x1-x17. Given this, there are two deviations in the
+> SMC64 call performed by the steal_time test: the function identifier is
+> assigned to a 64 bit register and the parameter is only 32 bits wide.
 > 
-> Suggested-by: Sean Christopherson <seanjc@google.com>
-> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-> Message-Id: <20210913140954.165665-6-mlevitsk@redhat.com>
+> Align the call with the SMCCC by using a 32 bit register to handle the
+> function identifier and increasing the parameter width to 64 bits.
+> 
+> Suggested-by: Andrew Jones <drjones@redhat.com>
+> Signed-off-by: Oliver Upton <oupton@google.com>
+> Reviewed-by: Andrew Jones <drjones@redhat.com>
+> Message-Id: <20210921171121.2148982-3-oupton@google.com>
 > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
->   arch/x86/kvm/vmx/vmx.c | 17 ++++++++++++++---
->   1 file changed, 14 insertions(+), 3 deletions(-)
+>   tools/testing/selftests/kvm/steal_time.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-> index fcd8bcb7e0ea..e3af56f05a37 100644
-> --- a/arch/x86/kvm/vmx/vmx.c
-> +++ b/arch/x86/kvm/vmx/vmx.c
-> @@ -6670,10 +6670,21 @@ static fastpath_t vmx_vcpu_run(struct kvm_vcpu *vcpu)
->   		     vmx->loaded_vmcs->soft_vnmi_blocked))
->   		vmx->loaded_vmcs->entry_time = ktime_get();
+> diff --git a/tools/testing/selftests/kvm/steal_time.c b/tools/testing/selftests/kvm/steal_time.c
+> index fcc840088c91..7daedee3e7ee 100644
+> --- a/tools/testing/selftests/kvm/steal_time.c
+> +++ b/tools/testing/selftests/kvm/steal_time.c
+> @@ -120,12 +120,12 @@ struct st_time {
+>   	uint64_t st_time;
+>   };
 >   
-> -	/* Don't enter VMX if guest state is invalid, let the exit handler
-> -	   start emulation until we arrive back to a valid state */
-> -	if (vmx->emulation_required)
-> +	/*
-> +	 * Don't enter VMX if guest state is invalid, let the exit handler
-> +	 * start emulation until we arrive back to a valid state.  Synthesize a
-> +	 * consistency check VM-Exit due to invalid guest state and bail.
-> +	 */
-> +	if (unlikely(vmx->emulation_required)) {
-> +		vmx->fail = 0;
-> +		vmx->exit_reason.full = EXIT_REASON_INVALID_STATE;
-> +		vmx->exit_reason.failed_vmentry = 1;
-> +		kvm_register_mark_available(vcpu, VCPU_EXREG_EXIT_INFO_1);
-> +		vmx->exit_qualification = ENTRY_FAIL_DEFAULT;
-> +		kvm_register_mark_available(vcpu, VCPU_EXREG_EXIT_INFO_2);
-> +		vmx->exit_intr_info = 0;
->   		return EXIT_FASTPATH_NONE;
-> +	}
+> -static int64_t smccc(uint32_t func, uint32_t arg)
+> +static int64_t smccc(uint32_t func, uint64_t arg)
+>   {
+>   	unsigned long ret;
 >   
->   	if (vmx->ple_window_dirty) {
->   		vmx->ple_window_dirty = false;
+>   	asm volatile(
+> -		"mov	x0, %1\n"
+> +		"mov	w0, %w1\n"
+>   		"mov	x1, %2\n"
+>   		"hvc	#0\n"
+>   		"mov	%0, x0\n"
 > 
 
-NACK for this one.
+Just fixing tests, but anyway:
 
-The others are good, I'll ack them individually though.  Thanks for 
-setting this up!
-
-Paolo
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 
