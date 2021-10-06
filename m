@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59B2E423C3D
-	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 13:12:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DA1E423C40
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 13:12:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238346AbhJFLOe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Oct 2021 07:14:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38218 "EHLO mail.kernel.org"
+        id S238353AbhJFLOj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Oct 2021 07:14:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238289AbhJFLOc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 Oct 2021 07:14:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6859611C3;
-        Wed,  6 Oct 2021 11:12:39 +0000 (UTC)
+        id S238343AbhJFLOe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 Oct 2021 07:14:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E318611C5;
+        Wed,  6 Oct 2021 11:12:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633518760;
-        bh=LCpnkQrtkpFME+dlxC2cukeR2xTz9DTyA0bWkNu3oDQ=;
+        s=k20201202; t=1633518762;
+        bh=0WJwpk70JlUtzeH2V3Gk8E+EDZOjgTE79bmfvCAOkDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rtaHTQ9AEaoqB0JDxOl0SD/NfBuN7uQ5j81y1dkciQlg/q+8oFaUyy3Rqo6SjfGc/
-         fUjxBqPBUTesv9l0UlVPey9S8XXVgL20jVuxCbmw2oXybrhS0nIUvs+APtM5lAcT7D
-         tW97gyqIMFZj0S7IG57Bd6qs/sF/kq58xgZvHUKREXkiax0CtodMhwWkL3GQFTYGjp
-         yqe3apTMEGts1oS/5hcP6t0IVkDDhHG48/7K/hqTYiZ2An5SypvwN+Uc+vCxoAHVdF
-         cHVFZ+PnrS2y/d/EXHQpSnZ98KWcVxZGjMXcAukhm3KpGYkGeYjUwOn1Xr1CgQ+RsQ
-         FuM5W/OpRFN1g==
+        b=mBGNaHh9sg38AKkxpuqcdwSuxhXyi7qbwcQRCxSizT2NsNCXFaXRi0TgCuS+ijPsb
+         bB8Eof6hj60hAl+3mwqU/hQE3SZ4QB4ivvknVA5tEf01beAEBkJIbUMTWEDlYigNuT
+         O62l2Rpcvxz5iIZ0Jr0cbpXIq2rHHuDdoFOvRKrRoWBLY3GuzMLVlZFL2NZT3cVR4E
+         OjBSOPVjM+0Ui6yHESI7/CntVJR0v7X/akABnJRS3Ee4RX9X1dHreRiw/NiRYy7ESS
+         KBsv/chf9ojiesX/fGBeZaS9BSDOd7Sb9s2LQGJ4bTglTW5fvRjFI0OU88htsSzSPu
+         hPPmEssYy8akw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maxim Levitsky <mlevitsk@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
+Cc:     Fares Mehanna <faresx@amazon.de>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
         mingo@redhat.com, bp@alien8.de, x86@kernel.org, kvm@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.10 4/7] KVM: x86: VMX: synthesize invalid VM exit when emulating invalid guest state
-Date:   Wed,  6 Oct 2021 07:12:30 -0400
-Message-Id: <20211006111234.264020-4-sashal@kernel.org>
+Subject: [PATCH MANUALSEL 5.10 5/7] kvm: x86: Add AMD PMU MSRs to msrs_to_save_all[]
+Date:   Wed,  6 Oct 2021 07:12:31 -0400
+Message-Id: <20211006111234.264020-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211006111234.264020-1-sashal@kernel.org>
 References: <20211006111234.264020-1-sashal@kernel.org>
@@ -44,51 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Fares Mehanna <faresx@amazon.de>
 
-[ Upstream commit c42dec148b3e1a88835e275b675e5155f99abd43 ]
+[ Upstream commit e1fc1553cd78292ab3521c94c9dd6e3e70e606a1 ]
 
-Since no actual VM entry happened, the VM exit information is stale.
-To avoid this, synthesize an invalid VM guest state VM exit.
+Intel PMU MSRs is in msrs_to_save_all[], so add AMD PMU MSRs to have a
+consistent behavior between Intel and AMD when using KVM_GET_MSRS,
+KVM_SET_MSRS or KVM_GET_MSR_INDEX_LIST.
 
-Suggested-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20210913140954.165665-6-mlevitsk@redhat.com>
+We have to add legacy and new MSRs to handle guests running without
+X86_FEATURE_PERFCTR_CORE.
+
+Signed-off-by: Fares Mehanna <faresx@amazon.de>
+Message-Id: <20210915133951.22389-1-faresx@amazon.de>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ arch/x86/kvm/x86.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index fcd8bcb7e0ea..e3af56f05a37 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -6670,10 +6670,21 @@ static fastpath_t vmx_vcpu_run(struct kvm_vcpu *vcpu)
- 		     vmx->loaded_vmcs->soft_vnmi_blocked))
- 		vmx->loaded_vmcs->entry_time = ktime_get();
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index d65da3b5837b..b885063dc393 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1250,6 +1250,13 @@ static const u32 msrs_to_save_all[] = {
+ 	MSR_ARCH_PERFMON_EVENTSEL0 + 12, MSR_ARCH_PERFMON_EVENTSEL0 + 13,
+ 	MSR_ARCH_PERFMON_EVENTSEL0 + 14, MSR_ARCH_PERFMON_EVENTSEL0 + 15,
+ 	MSR_ARCH_PERFMON_EVENTSEL0 + 16, MSR_ARCH_PERFMON_EVENTSEL0 + 17,
++
++	MSR_K7_EVNTSEL0, MSR_K7_EVNTSEL1, MSR_K7_EVNTSEL2, MSR_K7_EVNTSEL3,
++	MSR_K7_PERFCTR0, MSR_K7_PERFCTR1, MSR_K7_PERFCTR2, MSR_K7_PERFCTR3,
++	MSR_F15H_PERF_CTL0, MSR_F15H_PERF_CTL1, MSR_F15H_PERF_CTL2,
++	MSR_F15H_PERF_CTL3, MSR_F15H_PERF_CTL4, MSR_F15H_PERF_CTL5,
++	MSR_F15H_PERF_CTR0, MSR_F15H_PERF_CTR1, MSR_F15H_PERF_CTR2,
++	MSR_F15H_PERF_CTR3, MSR_F15H_PERF_CTR4, MSR_F15H_PERF_CTR5,
+ };
  
--	/* Don't enter VMX if guest state is invalid, let the exit handler
--	   start emulation until we arrive back to a valid state */
--	if (vmx->emulation_required)
-+	/*
-+	 * Don't enter VMX if guest state is invalid, let the exit handler
-+	 * start emulation until we arrive back to a valid state.  Synthesize a
-+	 * consistency check VM-Exit due to invalid guest state and bail.
-+	 */
-+	if (unlikely(vmx->emulation_required)) {
-+		vmx->fail = 0;
-+		vmx->exit_reason.full = EXIT_REASON_INVALID_STATE;
-+		vmx->exit_reason.failed_vmentry = 1;
-+		kvm_register_mark_available(vcpu, VCPU_EXREG_EXIT_INFO_1);
-+		vmx->exit_qualification = ENTRY_FAIL_DEFAULT;
-+		kvm_register_mark_available(vcpu, VCPU_EXREG_EXIT_INFO_2);
-+		vmx->exit_intr_info = 0;
- 		return EXIT_FASTPATH_NONE;
-+	}
- 
- 	if (vmx->ple_window_dirty) {
- 		vmx->ple_window_dirty = false;
+ static u32 msrs_to_save[ARRAY_SIZE(msrs_to_save_all)];
 -- 
 2.33.0
 
