@@ -2,120 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C740D423977
-	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 10:12:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DAF8423987
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 10:14:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237787AbhJFIOR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Oct 2021 04:14:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39958 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237771AbhJFIOP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 Oct 2021 04:14:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D721960F9D;
-        Wed,  6 Oct 2021 08:12:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633507943;
-        bh=aJyTVkoBDT25cCj9K161A8klU5lEuxkvGK6eMdnsbKM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FLeAHFkMAjVAlwbAS8mJEu0Escwr0IctrL+9zn5ePsnJijA69oN7nkf/XsTOb1amz
-         WLUiZqUozao1QXB4ucQXDGcM9tIp96qFy9SL+WqI2nrZ1g2ibAnCLL1xuD9180+Xor
-         R1Q7Vz9RtQvUKewh0W3EzliNov81WwiLCr1WNHsXaAG/VXLVcXKNHE/yw+4aoJiPcr
-         UxR8icm+iNTYCASy/C+65/lTAyY7GtXdzaaWr8jLcLxpq+3zMW1+8HJ81O6mbK10BO
-         zHzRmWWxULuSWiuB8CDqFzdoFXyZwNzAFvimy7AT/eVFEo73cIiPtNBzStqqPi0fHb
-         5Wh5I/5Mj2nUg==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1mY22K-0005L3-DB; Wed, 06 Oct 2021 10:12:24 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Tejun Heo <tj@kernel.org>
-Cc:     Lai Jiangshan <jiangshanlai@gmail.com>,
-        Petr Mladek <pmladek@suse.com>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        John Ogness <john.ogness@linutronix.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Fabio Estevam <festevam@denx.de>, linux-serial@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] workqueue: fix state-dump console deadlock
-Date:   Wed,  6 Oct 2021 10:11:15 +0200
-Message-Id: <20211006081115.20451-1-johan@kernel.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <YV1Z8JslFiBSFGJF@hovoldconsulting.com>
-References: <YV1Z8JslFiBSFGJF@hovoldconsulting.com>
+        id S237635AbhJFIQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Oct 2021 04:16:29 -0400
+Received: from frasgout.his.huawei.com ([185.176.79.56]:3936 "EHLO
+        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237638AbhJFIQ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 04:16:29 -0400
+Received: from fraeml738-chm.china.huawei.com (unknown [172.18.147.207])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4HPRx70hmjz67WRt;
+        Wed,  6 Oct 2021 16:11:23 +0800 (CST)
+Received: from lhreml724-chm.china.huawei.com (10.201.108.75) by
+ fraeml738-chm.china.huawei.com (10.206.15.219) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.8; Wed, 6 Oct 2021 10:14:33 +0200
+Received: from [10.47.95.252] (10.47.95.252) by lhreml724-chm.china.huawei.com
+ (10.201.108.75) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.1.2308.8; Wed, 6 Oct 2021
+ 09:14:32 +0100
+Subject: Re: [PATCH] scsi: storvsc: Cap scsi_driver.can_queue to fix a hang
+ issue during boot
+To:     <decui@microsoft.com>, <kys@microsoft.com>,
+        <sthemmin@microsoft.com>, <wei.liu@kernel.org>,
+        <jejb@linux.ibm.com>, <martin.petersen@oracle.com>,
+        <haiyangz@microsoft.com>, <ming.lei@redhat.com>,
+        <bvanassche@acm.org>, <linux-scsi@vger.kernel.org>,
+        <linux-hyperv@vger.kernel.org>
+CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+References: <20211006070345.51713-1-decui@microsoft.com>
+From:   John Garry <john.garry@huawei.com>
+Message-ID: <e36619df-652d-3550-cb4d-9b65b2f5faee@huawei.com>
+Date:   Wed, 6 Oct 2021 09:17:09 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20211006070345.51713-1-decui@microsoft.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.47.95.252]
+X-ClientProxiedBy: lhreml709-chm.china.huawei.com (10.201.108.58) To
+ lhreml724-chm.china.huawei.com (10.201.108.75)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Console drivers often queue work while holding locks also taken in their
-console write paths, something which can lead to deadlocks on SMP when
-dumping workqueue state (e.g. sysrq-t or on suspend failures).
+On 06/10/2021 08:03, Dexuan Cui wrote:
+> After commit ea2f0f77538c, a 416-CPU VM running on Hyper-V hangs during
+> boot because scsi_add_host_with_dma() sets shost->cmd_per_lun to a
+> negative number:
+> 	'max_outstanding_req_per_channel' is 352,
+> 	'max_sub_channels' is (416 - 1) / 4 = 103, so in storvsc_probe(),
+> scsi_driver.can_queue = 352 * (103 + 1) * (100 - 10) / 100 = 32947, which
+> is bigger than SHRT_MAX (i.e. 32767).
 
-For serial console drivers this could look like:
+Out of curiosity, are these values realistic? You're capping can_queue 
+just because of a data size issue, so, if these values are realistic, 
+seems a weak reason.
 
-	CPU0				CPU1
-	----				----
+> 
+> Fix the hang issue by capping scsi_driver.can_queue.
+> 
+> Add the below Fixed tag though ea2f0f77538c itself is good.
+> 
+> Fixes: ea2f0f77538c ("scsi: core: Cap scsi_host cmd_per_lun at can_queue")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Dexuan Cui <decui@microsoft.com>
+> ---
+>   drivers/scsi/storvsc_drv.c | 10 ++++++++++
+>   1 file changed, 10 insertions(+)
+> 
+> diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
+> index ebbbc1299c62..ba374908aec2 100644
+> --- a/drivers/scsi/storvsc_drv.c
+> +++ b/drivers/scsi/storvsc_drv.c
+> @@ -1976,6 +1976,16 @@ static int storvsc_probe(struct hv_device *device,
+>   				(max_sub_channels + 1) *
+>   				(100 - ring_avail_percent_lowater) / 100;
+>   
+> +	/*
+> +	 * v5.14 (see commit ea2f0f77538c) implicitly requires that
+> +	 * scsi_driver.can_queue should not exceed SHRT_MAX, otherwise
+> +	 * scsi_add_host_with_dma() sets shost->cmd_per_lun to a negative
+> +	 * number (note: the type of the "cmd_per_lun" field is "short"), and
+> +	 * the system may hang during early boot.
+> +	 */
 
-	show_workqueue_state();
-	  lock(&pool->lock);		<IRQ>
-	  				  lock(&port->lock);
-					  schedule_work();
-					    lock(&pool->lock);
-	  printk();
-	    lock(console_owner);
-	    lock(&port->lock);
+The different data sizes for cmd_per_lun and can_queue are problematic here.
 
-where workqueues are, for example, used to push data to the line
-discipline, process break signals and handle modem-status changes. Line
-disciplines and serdev drivers can also queue work on write-wakeup
-notifications, etc.
+I'd be more inclined to set cmd_per_lun to the same data size as 
+can_queue. We did discuss this when ea2f0f77538c was upstreamed 
+(actually it was the other way around - setting can_queue to 16b).
 
-Reworking every console driver to avoid queuing work while holding locks
-also taken in their write paths would complicate drivers and is neither
-desirable or feasible.
+Thanks,
+John
 
-Instead use the deferred-printk mechanism to avoid printing while
-holding pool locks when dumping workqueue state.
 
-Note that there are a few WARN_ON() assertions in the workqueue code
-which could potentially also trigger a deadlock. Hopefully the ongoing
-printk rework will provide a general solution for this eventually.
-
-This was originally reported after a lockdep splat when executing
-sysrq-t with the imx serial driver.
-
-Fixes: 3494fc30846d ("workqueue: dump workqueues on sysrq-t")
-Cc: stable@vger.kernel.org	# 4.0
-Reported-by: Fabio Estevam <festevam@denx.de>
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- kernel/workqueue.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
-
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 33a6b4a2443d..fded64b48b96 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -4830,8 +4830,16 @@ void show_workqueue_state(void)
- 
- 		for_each_pwq(pwq, wq) {
- 			raw_spin_lock_irqsave(&pwq->pool->lock, flags);
--			if (pwq->nr_active || !list_empty(&pwq->inactive_works))
-+			if (pwq->nr_active || !list_empty(&pwq->inactive_works)) {
-+				/*
-+				 * Defer printing to avoid deadlocks in console
-+				 * drivers that queue work while holding locks
-+				 * also taken in their write paths.
-+				 */
-+				printk_deferred_enter();
- 				show_pwq(pwq);
-+				printk_deferred_exit();
-+			}
- 			raw_spin_unlock_irqrestore(&pwq->pool->lock, flags);
- 			/*
- 			 * We could be printing a lot from atomic context, e.g.
--- 
-2.32.0
+> +	if (scsi_driver.can_queue > SHRT_MAX)
+> +		scsi_driver.can_queue = SHRT_MAX;
+> +
+>   	host = scsi_host_alloc(&scsi_driver,
+>   			       sizeof(struct hv_host_device));
+>   	if (!host)
+> 
 
