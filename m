@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C045D423F45
-	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 15:30:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27C7B423F4B
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 15:30:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238943AbhJFNc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Oct 2021 09:32:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49026 "EHLO mail.kernel.org"
+        id S238927AbhJFNce (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Oct 2021 09:32:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238892AbhJFNcZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 Oct 2021 09:32:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7A5260E9C;
-        Wed,  6 Oct 2021 13:30:32 +0000 (UTC)
+        id S238847AbhJFNc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 Oct 2021 09:32:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91DD460E9C;
+        Wed,  6 Oct 2021 13:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633527033;
-        bh=HvnztjarHSn+a6mS+GbFME7OEatQUSnVwZdZm6XrE2I=;
+        s=k20201202; t=1633527036;
+        bh=3bZ0l2e9fq6OQbxRWcrK/pEDNJzTx0y2BSzq7eI+KEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NUzpr3g89CeK2rY0F+q905VMlBGRk3YIiJ8JcCq+AaQTahV3Vx2t4gPxQ5T2pKiIy
-         /JlVWh6kMzsID2uyAbsAiZ94QcGY2nPBgn9IEB32ooqRFn13ASADlLd25LwcCaioKQ
-         ckxRbOmVJucXFtlIWw/lRVpfFbawAuLYP2Wo3mzS5ovLLnLwzIVeMwW0uAi2opd5mN
-         YyDxGj84Wv021JUAdALu9paV6VkTVGltHuD6p37TlrXFqLdO5yTC5kH2B0a3xWgpF4
-         nEiT4BKTbg+NNjUYQNpnar24aHcmtOazLIu9gMNRLzpQF3mzXNq88TH3XrUZIve301
-         p0DMdc89Y4KxA==
+        b=nNld3sJIUXGyRvGzUAx41o8O6FBZyvnwk3d+TTaRE4pPNKjlilRevs2TXWtPRFPT2
+         +98Ixwh+hzuSNNNAFSLolrcKZBJsD0m/QXe7bIL1OQWyKvgHp1TCnJU9vLL25H6EFj
+         5o8HOas3ahEfeYMS85qoUqH+M4wNI49TDMFSDDwY9N2jjUkmiUsFkQH9+Ad/4Y4D0A
+         RseYFIrsPqAyENcz2auM1oxfqo2PbXeX2OpOdBoFNs5jRYXSZQ1+P+Bnx4EfJr2Kic
+         JA7lnJMROVRBjou/hoSlnyN1IFyKYeqT30oGFjxe3fTrl4mOQxSDIgEXMaKfyfunL5
+         NUtVvC0n7J+Vg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, x86@kernel.org, kvm@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.14 8/9] KVM: x86: nSVM: restore int_vector in svm_clear_vintr
-Date:   Wed,  6 Oct 2021 09:30:20 -0400
-Message-Id: <20211006133021.271905-8-sashal@kernel.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>, alsa-devel@alsa-project.org,
+        Takashi Iwai <tiwai@suse.com>,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH MANUALSEL 5.14 9/9] ALSA: pcsp: Make hrtimer forwarding more robust
+Date:   Wed,  6 Oct 2021 09:30:21 -0400
+Message-Id: <20211006133021.271905-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211006133021.271905-1-sashal@kernel.org>
 References: <20211006133021.271905-1-sashal@kernel.org>
@@ -43,35 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit aee77e1169c1900fe4248dc186962e745b479d9e ]
+[ Upstream commit f2ff7147c6834f244b8ce636b12e71a3bd044629 ]
 
-In svm_clear_vintr we try to restore the virtual interrupt
-injection that might be pending, but we fail to restore
-the interrupt vector.
+The hrtimer callback pcsp_do_timer() prepares rearming of the timer with
+hrtimer_forward(). hrtimer_forward() is intended to provide a mechanism to
+forward the expiry time of the hrtimer by a multiple of the period argument
+so that the expiry time greater than the time provided in the 'now'
+argument.
 
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20210914154825.104886-2-mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+pcsp_do_timer() invokes hrtimer_forward() with the current timer expiry
+time as 'now' argument. That's providing a periodic timer expiry, but is
+not really robust when the timer callback is delayed so that the resulting
+new expiry time is already in the past which causes the callback to be
+invoked immediately again. If the timer is delayed then the back to back
+invocation is not really making it better than skipping the missed
+periods. Sound is distorted in any case.
+
+Use hrtimer_forward_now() which ensures that the next expiry is in the
+future. This prevents hogging the CPU in the timer expiry code and allows
+later on to remove hrtimer_forward() from the public interfaces.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: alsa-devel@alsa-project.org
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: Jaroslav Kysela <perex@perex.cz>
+Link: https://lore.kernel.org/r/20210923153339.623208460@linutronix.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/svm/svm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/drivers/pcsp/pcsp_lib.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 69639f9624f5..19d6ffdd3f73 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -1601,6 +1601,8 @@ static void svm_clear_vintr(struct vcpu_svm *svm)
+diff --git a/sound/drivers/pcsp/pcsp_lib.c b/sound/drivers/pcsp/pcsp_lib.c
+index ed40d0f7432c..773db4bf0876 100644
+--- a/sound/drivers/pcsp/pcsp_lib.c
++++ b/sound/drivers/pcsp/pcsp_lib.c
+@@ -143,7 +143,7 @@ enum hrtimer_restart pcsp_do_timer(struct hrtimer *handle)
+ 	if (pointer_update)
+ 		pcsp_pointer_update(chip);
  
- 		svm->vmcb->control.int_ctl |= svm->nested.ctl.int_ctl &
- 			V_IRQ_INJECTION_BITS_MASK;
-+
-+		svm->vmcb->control.int_vector = svm->nested.ctl.int_vector;
- 	}
+-	hrtimer_forward(handle, hrtimer_get_expires(handle), ns_to_ktime(ns));
++	hrtimer_forward_now(handle, ns_to_ktime(ns));
  
- 	vmcb_mark_dirty(svm->vmcb, VMCB_INTR);
+ 	return HRTIMER_RESTART;
+ }
 -- 
 2.33.0
 
