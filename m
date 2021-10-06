@@ -2,174 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CE33424785
-	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 21:51:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CA59424791
+	for <lists+stable@lfdr.de>; Wed,  6 Oct 2021 21:55:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239176AbhJFTw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Oct 2021 15:52:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56890 "EHLO
+        id S232626AbhJFT5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Oct 2021 15:57:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232607AbhJFTwy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 15:52:54 -0400
-Received: from mail-qv1-xf49.google.com (mail-qv1-xf49.google.com [IPv6:2607:f8b0:4864:20::f49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB52CC061760
-        for <stable@vger.kernel.org>; Wed,  6 Oct 2021 12:51:01 -0700 (PDT)
-Received: by mail-qv1-xf49.google.com with SMTP id c13-20020a056214224d00b00382f21b95fcso3597742qvc.5
-        for <stable@vger.kernel.org>; Wed, 06 Oct 2021 12:51:01 -0700 (PDT)
+        with ESMTP id S229992AbhJFT5U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Oct 2021 15:57:20 -0400
+Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9964C061753
+        for <stable@vger.kernel.org>; Wed,  6 Oct 2021 12:55:26 -0700 (PDT)
+Received: by mail-lf1-x12f.google.com with SMTP id y26so15281651lfa.11
+        for <stable@vger.kernel.org>; Wed, 06 Oct 2021 12:55:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=MHNhaL2DhBIuWauDT+vtiCzNM89DP5+QrC3jaOOyiBk=;
-        b=lfwJqX8cqAa7haAscR+/jA/gMlLMc6ZzbrNcb7IGffT2S2ilBqvEpTf5Wyls7a3fvX
-         Itt6ZdQhhQB/kmP25gyo5s8spF+oQ4yalSQQhZiIHgNnLjUwYaRp0/aTpEJReTWervAc
-         l7czNl7BHdlTjgJLobOfMv5ImWxrLcGrDWnfTy8tm/zODh0FxWSSKO1IKKqcp2mH9vvl
-         xbQpX6BbL8ONk7/oDTQUXgnoLkzXPVD60RJUzmaAU10+5pQi3rhsnIrApiDM46PxtsqT
-         gNnyTYTpM9Rwjz34lGTCyLxij6elj9Dhw9VmcvF9aXc93cVkOKO9ChOKpvJ45+PSyWPP
-         cXNQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=O34eH0EHa4dBMbkzaLgHHRId8l/MAEnDKw9FowvQGtw=;
+        b=edyHFq+vsfJFiZd8DhlRrAHySi3AsFfIcOaBRsKAK4GAw+GqH/Tkncskp+ehkhkvMJ
+         Rh2FRF9TCAYHNO5g5j8g+lb0xmVeKVhFZ6ypCqlHS/CxvSsbDGbiIdCrJ50GYAkgoDXB
+         9Sb4DaPWafxMxih6hnxJnEqkQX8cOODs1n7pML6RNkqDaOBKUqN94bTbsnZO0ZrfyTxW
+         KCcWG4t1IUhi6fL2HVsgpiA8yXyKm+j13sKaJOdS8iGg9UAZdGzrE87+cCGOZt/dupST
+         xw5XIxspcb5yhHEaZRQmQCmulymMeghKLzA/lGlYMS9Fz+fSqOmBElUx5g8238R1pbbB
+         Evyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=MHNhaL2DhBIuWauDT+vtiCzNM89DP5+QrC3jaOOyiBk=;
-        b=QiPJD58onC4yYrcK+ghdY8j50BNHr34J3EF4wjcUBfNxyb2K+ZGaast4BO6EgSYl8/
-         Yvx8fmMeQgjcORrR66GOSLlY81Fq/lk8cxQzBjcwHmtG7CV6EzFXRX0urbcFWy9RCZhh
-         //dM7BBlrZNaPP20GavUfQvKn6RFudBhCoB8kDXKskKeRpcgTQn8xAPKkcrpfM8K6WVp
-         29qsOK3N9+f3inKMTV6yz+q28zzqSCw5l6EFG97lrD3znQBbYG79oV3DZHXqsFR93LiV
-         bDZ/+1yO8ZdkIcvKAPwSEkCZjSGS0PEhEJirhO0T3JfZSxZBp+7SkzMIJN5lSe0rRUWR
-         mk5Q==
-X-Gm-Message-State: AOAM532G5DkcSgNR3vWekbRCz2IgGHWXHCtfLfjP8eOeli8Eebho/qi7
-        pwbUXOcdpTWBwmOeNqw1WmKum0U3t/2X0JM=
-X-Google-Smtp-Source: ABdhPJw5D7IIy6F7bebRd9XmMqbRLXvN0obnA6CCI/+0rNwfiD2DZ6KoyuHo+S1HESRhrU9T6rqFFhpwLEq0lO8=
-X-Received: from ramjiyani.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:2edd])
- (user=ramjiyani job=sendgmr) by 2002:ac8:cf:: with SMTP id
- d15mr85681qtg.416.1633549860871; Wed, 06 Oct 2021 12:51:00 -0700 (PDT)
-Date:   Wed,  6 Oct 2021 19:50:29 +0000
-Message-Id: <20211006195029.532034-1-ramjiyani@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.33.0.800.g4c38ced690-goog
-Subject: [PATCH v2] aio: Add support for the POLLFREE
-From:   Ramji Jiyani <ramjiyani@google.com>
-To:     arnd@arndb.de, viro@zeniv.linux.org.uk, bcrl@kvack.org
-Cc:     hch@lst.de, kernel-team@android.com, linux-aio@kvack.org,
-        linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        oleg@redhat.com, Ramji Jiyani <ramjiyani@google.com>,
-        Jeff Moyer <jmoyer@redhat.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=O34eH0EHa4dBMbkzaLgHHRId8l/MAEnDKw9FowvQGtw=;
+        b=TeGm0LvhVPmMCLnmz4UmGpGP46YxVjRlGq5yiXEQtlwscourEBzOZtU/xLHusQ3Wx/
+         L1nrU7p0kbxCSBeMKSYGsfREuoxq3KR6awl8rhJD//AphFF84uUKbUbPl3Qs4tCCNkER
+         0jsnUVsaENNtc7dDxmh3qs9uGU7lIrrMnmopSGi2Wf4UthdGejqfv/f1HxDiVWu29aNr
+         SWL5kRtu7DEnVglNv6rZkGedD2VoSlJcIjVCLqBwuRoo72gLKBgCuPlXoy/Dem1SAzpO
+         +r/MOAsh0Ahj1lwvDkiG2Lr6px0ES5Qj/N9IUBWA86To9kUfmyMTHWx8bS6wbpFhldbu
+         NB5w==
+X-Gm-Message-State: AOAM530gQl3e2cUabZtXTqgZ7guU47S0VxtaNM6kvqmeXvIhMpR+3cgN
+        wyir2by8XwTgeKQdvLC1PxDW5Fl77ybKJgica32aTA==
+X-Google-Smtp-Source: ABdhPJxvYTzX1/2a+GZtvlTtfbjZ2f1aHuPdE1JLzkl2Tf4YIk/gPLeLtgxyWjoSngDOiqBUv32ywAZBk6mznY+UUkI=
+X-Received: by 2002:a05:6512:2290:: with SMTP id f16mr11688585lfu.668.1633550125028;
+ Wed, 06 Oct 2021 12:55:25 -0700 (PDT)
+MIME-Version: 1.0
+References: <20211006194610.953319-1-tkjos@google.com> <20211006194610.953319-4-tkjos@google.com>
+In-Reply-To: <20211006194610.953319-4-tkjos@google.com>
+From:   Todd Kjos <tkjos@google.com>
+Date:   Wed, 6 Oct 2021 12:55:13 -0700
+Message-ID: <CAHRSSExN4g0qubjjLhdGx5DA7njT5ZwPkAzCY1OEdR1dbscLVA@mail.gmail.com>
+Subject: Re: [PATCH v3 3/3] binder: use euid from cred instead of using task
+To:     gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
+        maco@android.com, christian@brauner.io, jmorris@namei.org,
+        serge@hallyn.com, paul@paul-moore.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        keescook@chromium.org, jannh@google.com, jeffv@google.com,
+        zohar@linux.ibm.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-kernel@vger.kernel.org
+Cc:     joel@joelfernandes.org, kernel-team@android.com,
+        stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit f5cb779ba163 ("ANDROID: binder: remove waitqueue when thread
-exits.") fixed the use-after-free in eventpoll but aio still has the
-same issue because it doesn't honor the POLLFREE flag.
+On Wed, Oct 6, 2021 at 12:46 PM Todd Kjos <tkjos@google.com> wrote:
+>
+> Set a transaction's sender_euid from the the 'struct cred'
+> saved at binder_open() instead of looking up the euid
+> from the binder proc's 'struct task'. This ensures
+> the euid is associated with the security context that
+> of the task that opened binder.
+>
+> Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
+> Signed-off-by: Todd Kjos <tkjos@google.com>
+> Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Add support for the POLLFREE flag to force complete iocb inline in
-aio_poll_wake(). A thread may use it to signal it's exit and/or request
-to cleanup while pending poll request. In this case, aio_poll_wake()
-needs to make sure it doesn't keep any reference to the queue entry
-before returning from wake to avoid possible use after free via
-poll_cancel() path.
+This should have been "Suggested-by: Stephen Smalley
+<stephen.smalley.work@gmail.com>"
 
-The POLLFREE flag is no more exclusive to the epoll and is being
-shared with the aio. Remove comment from poll.h to avoid confusion.
-
-This fixes a use after free issue between binder thread and aio
-interactions in certain sequence of events [1].
-
-[1] https://lore.kernel.org/all/CAKUd0B_TCXRY4h1hTztfwWbNSFQqsudDLn2S_28csgWZmZAG3Q@mail.gmail.com/
-
-Signed-off-by: Ramji Jiyani <ramjiyani@google.com>
-Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
----
-Changes since v1:
-- Removed parenthesis around POLLFREE macro definition as per review.
-- Updated description to refer UAF issue discussion this patch fixes.
-- Updated description to remove reference to parenthesis change.
-- Added Reviewed-by
----
- fs/aio.c                        | 45 ++++++++++++++++++---------------
- include/uapi/asm-generic/poll.h |  2 +-
- 2 files changed, 26 insertions(+), 21 deletions(-)
-
-diff --git a/fs/aio.c b/fs/aio.c
-index 51b08ab01dff..5d539c05df42 100644
---- a/fs/aio.c
-+++ b/fs/aio.c
-@@ -1674,6 +1674,7 @@ static int aio_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
- {
- 	struct poll_iocb *req = container_of(wait, struct poll_iocb, wait);
- 	struct aio_kiocb *iocb = container_of(req, struct aio_kiocb, poll);
-+	struct kioctx *ctx = iocb->ki_ctx;
- 	__poll_t mask = key_to_poll(key);
- 	unsigned long flags;
- 
-@@ -1683,29 +1684,33 @@ static int aio_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
- 
- 	list_del_init(&req->wait.entry);
- 
--	if (mask && spin_trylock_irqsave(&iocb->ki_ctx->ctx_lock, flags)) {
--		struct kioctx *ctx = iocb->ki_ctx;
-+	/*
-+	 * Use irqsave/irqrestore because not all filesystems (e.g. fuse)
-+	 * call this function with IRQs disabled and because IRQs have to
-+	 * be disabled before ctx_lock is obtained.
-+	 */
-+	if (mask & POLLFREE) {
-+		/* Force complete iocb inline to remove refs to deleted entry */
-+		spin_lock_irqsave(&ctx->ctx_lock, flags);
-+	} else if (!(mask && spin_trylock_irqsave(&ctx->ctx_lock, flags))) {
-+		/* Can't complete iocb inline; schedule for later */
-+		schedule_work(&req->work);
-+		return 1;
-+	}
- 
--		/*
--		 * Try to complete the iocb inline if we can. Use
--		 * irqsave/irqrestore because not all filesystems (e.g. fuse)
--		 * call this function with IRQs disabled and because IRQs
--		 * have to be disabled before ctx_lock is obtained.
--		 */
--		list_del(&iocb->ki_list);
--		iocb->ki_res.res = mangle_poll(mask);
--		req->done = true;
--		if (iocb->ki_eventfd && eventfd_signal_allowed()) {
--			iocb = NULL;
--			INIT_WORK(&req->work, aio_poll_put_work);
--			schedule_work(&req->work);
--		}
--		spin_unlock_irqrestore(&ctx->ctx_lock, flags);
--		if (iocb)
--			iocb_put(iocb);
--	} else {
-+	/* complete iocb inline */
-+	list_del(&iocb->ki_list);
-+	iocb->ki_res.res = mangle_poll(mask);
-+	req->done = true;
-+	if (iocb->ki_eventfd && eventfd_signal_allowed()) {
-+		iocb = NULL;
-+		INIT_WORK(&req->work, aio_poll_put_work);
- 		schedule_work(&req->work);
- 	}
-+	spin_unlock_irqrestore(&ctx->ctx_lock, flags);
-+	if (iocb)
-+		iocb_put(iocb);
-+
- 	return 1;
- }
- 
-diff --git a/include/uapi/asm-generic/poll.h b/include/uapi/asm-generic/poll.h
-index 41b509f410bf..f9c520ce4bf4 100644
---- a/include/uapi/asm-generic/poll.h
-+++ b/include/uapi/asm-generic/poll.h
-@@ -29,7 +29,7 @@
- #define POLLRDHUP       0x2000
- #endif
- 
--#define POLLFREE	(__force __poll_t)0x4000	/* currently only for epoll */
-+#define POLLFREE	(__force __poll_t)0x4000
- 
- #define POLL_BUSY_LOOP	(__force __poll_t)0x8000
- 
--- 
-2.33.0.800.g4c38ced690-goog
-
+> Cc: stable@vger.kernel.org # 4.4+
+> ---
+> v3: added this patch to series
+>
+>  drivers/android/binder.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+> index 989afd0804ca..26382e982c5e 100644
+> --- a/drivers/android/binder.c
+> +++ b/drivers/android/binder.c
+> @@ -2711,7 +2711,7 @@ static void binder_transaction(struct binder_proc *proc,
+>                 t->from = thread;
+>         else
+>                 t->from = NULL;
+> -       t->sender_euid = task_euid(proc->tsk);
+> +       t->sender_euid = proc->cred->euid;
+>         t->to_proc = target_proc;
+>         t->to_thread = target_thread;
+>         t->code = tr->code;
+> --
+> 2.33.0.800.g4c38ced690-goog
+>
