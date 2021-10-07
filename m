@@ -2,137 +2,239 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B38FC425570
-	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 16:29:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 490874255C2
+	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 16:48:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242085AbhJGObD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Oct 2021 10:31:03 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:59078 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S242073AbhJGObB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Oct 2021 10:31:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633616947;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=UF3re4UnbtUqtYZZTivLh2H8ZzAeAte+9PT67KP/GWA=;
-        b=G0qKmuiixrhEhiUWbeFJDqt0Rln4FNjkbgbZG5imqF+xwO2OGaO2wCCzn0fg3GRowUeRam
-        PwQOQAW7uIA6IvUB9gv80Pq44ZzUVqmEjGPGJ8Re1PAtXqBwh37swGYKciQ6oZ8DIUflIN
-        yU1XfZmHxcvUeVMFL5uRrGWqOhOKCZU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-255-ufrnTYxeO4KxQJKz_zDHRg-1; Thu, 07 Oct 2021 10:29:04 -0400
-X-MC-Unique: ufrnTYxeO4KxQJKz_zDHRg-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2DB281007301;
-        Thu,  7 Oct 2021 14:29:01 +0000 (UTC)
-Received: from thinkpad.redhat.com (unknown [10.39.192.197])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B300626572;
-        Thu,  7 Oct 2021 14:28:57 +0000 (UTC)
-From:   Laurent Vivier <lvivier@redhat.com>
-To:     kvm-ppc@vger.kernel.org
-Cc:     Paul Mackerras <paulus@ozlabs.org>, Greg Kurz <groug@kaod.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        linux-kernel@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        linuxppc-dev@lists.ozlabs.org, Laurent Vivier <lvivier@redhat.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v2] KVM: PPC: Defer vtime accounting 'til after IRQ handling
-Date:   Thu,  7 Oct 2021 16:28:56 +0200
-Message-Id: <20211007142856.41205-1-lvivier@redhat.com>
+        id S242097AbhJGOuP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Oct 2021 10:50:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60430 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233419AbhJGOuP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Oct 2021 10:50:15 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8B49C061570
+        for <stable@vger.kernel.org>; Thu,  7 Oct 2021 07:48:21 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id ls18so5047478pjb.3
+        for <stable@vger.kernel.org>; Thu, 07 Oct 2021 07:48:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=80JS+T7f+lEn+4qNe4inYPigOSzX8jFyyQD1Pc60ut4=;
+        b=lHoOdbNtJpIzpFlrSRJlMyxWHggoCHTb4Y4GfIg6HrGdcy+nTDcEv7nwiYX9WlhZwJ
+         GjecMBqaZypoWVSEF/sDyOBlL16m2n8lgFksZvaZrMunE9fCwcUWwIF59ikAaE0nUvB/
+         6bUXtgyF4jJy+tHhZLQjusWcRLwKyxZ3bA3PedUIEWXjoZY8MP1NFIZeUvCj6Pja4P1m
+         nEXD615nqVG/HCxr5kKbwqqCEbbH1DxwcBTbpjyJIrErSRlcATjMQeDlIgIlasvRg6JF
+         5nYWB0l5W1mSogt1vSrZYd6J368KI8FhL91HqMQMF/MwLTD9+qmMTEV00c8X/5zNN45E
+         PL3Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=80JS+T7f+lEn+4qNe4inYPigOSzX8jFyyQD1Pc60ut4=;
+        b=cpw79nhdQ+URzum8Ww1s9FSuwmITWTLDDyuDSCsxPu7ijQmv9eNd6WCsALn81iHYG2
+         Jx0U0+MyI7g5kh5cb32tsE2RzvCpu6h2OlbtCmGvZAeTeY2c5qLIEvDfKbWrPkDm67R6
+         ZtxvHnOcQJ9giywEmVvmjkRKfmTgDCHQ2I4y06IJUAR7yIgn+yUIKp5Z42hpmhNdC4Ve
+         0X0Q9RB9b3oHc4rxQeOji/NNGQqwlfx4E9uCydNSdRhknuei8M/v7SaH+ovThdt5ufBF
+         KTEwctb6o/uQ8Ur50phgVKpuZJ5mg9sfFa9FOutyNZE2nLuO9hXH94vJTCl4PHRwJhfW
+         SpPw==
+X-Gm-Message-State: AOAM533a6wgrL7WzIWkPpXI63DB7nF2Taf09ziwnAJc/fS87bPM532/h
+        GV/RNUPhDBCuhTKwpKeqAEqBdM4Mt2ipsg==
+X-Google-Smtp-Source: ABdhPJx/cgqb4zR7LedqpTqDKXT57BaJqMa6zvI9cIanKou5C4Cb90mX0dbOj4907YMQcIKBnKXFGA==
+X-Received: by 2002:a17:90b:388f:: with SMTP id mu15mr5282983pjb.28.1633618100990;
+        Thu, 07 Oct 2021 07:48:20 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id ie13sm8359147pjb.20.2021.10.07.07.48.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 Oct 2021 07:48:20 -0700 (PDT)
+Message-ID: <615f08b4.1c69fb81.4f2d4.845a@mx.google.com>
+Date:   Thu, 07 Oct 2021 07:48:20 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.249
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable-rc/linux-4.14.y baseline: 114 runs, 4 regressions (v4.14.249)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 112665286d08 moved guest_exit() in the interrupt protected
-area to avoid wrong context warning (or worse), but the tick counter
-cannot be updated and the guest time is accounted to the system time.
+stable-rc/linux-4.14.y baseline: 114 runs, 4 regressions (v4.14.249)
 
-To fix the problem port to POWER the x86 fix
-160457140187 ("Defer vtime accounting 'til after IRQ handling"):
+Regressions Summary
+-------------------
 
-"Defer the call to account guest time until after servicing any IRQ(s)
- that happened in the guest or immediately after VM-Exit.  Tick-based
- accounting of vCPU time relies on PF_VCPU being set when the tick IRQ
- handler runs, and IRQs are blocked throughout the main sequence of
- vcpu_enter_guest(), including the call into vendor code to actually
- enter and exit the guest."
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+panda                | arm  | lab-collabora | gcc-8    | omap2plus_defconfi=
+g | 1          =
 
-Fixes: 112665286d08 ("KVM: PPC: Book3S HV: Context tracking exit guest context before enabling irqs")
-Cc: npiggin@gmail.com
-Cc: <stable@vger.kernel.org> # 5.12
-Signed-off-by: Laurent Vivier <lvivier@redhat.com>
----
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Notes:
-    v2: remove reference to commit 61bd0f66ff92
-        cc stable 5.12
-        add the same comment in the code as for x86
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
- arch/powerpc/kvm/book3s_hv.c | 24 ++++++++++++++++++++----
- 1 file changed, 20 insertions(+), 4 deletions(-)
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
 
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 2acb1c96cfaf..a694d1a8f6ce 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -3695,6 +3695,8 @@ static noinline void kvmppc_run_core(struct kvmppc_vcore *vc)
- 
- 	srcu_read_unlock(&vc->kvm->srcu, srcu_idx);
- 
-+	context_tracking_guest_exit();
-+
- 	set_irq_happened(trap);
- 
- 	spin_lock(&vc->lock);
-@@ -3726,9 +3728,15 @@ static noinline void kvmppc_run_core(struct kvmppc_vcore *vc)
- 
- 	kvmppc_set_host_core(pcpu);
- 
--	guest_exit_irqoff();
--
- 	local_irq_enable();
-+	/*
-+	 * Wait until after servicing IRQs to account guest time so that any
-+	 * ticks that occurred while running the guest are properly accounted
-+	 * to the guest.  Waiting until IRQs are enabled degrades the accuracy
-+	 * of accounting via context tracking, but the loss of accuracy is
-+	 * acceptable for all known use cases.
-+	 */
-+	vtime_account_guest_exit();
- 
- 	/* Let secondaries go back to the offline loop */
- 	for (i = 0; i < controlled_threads; ++i) {
-@@ -4506,13 +4514,21 @@ int kvmhv_run_single_vcpu(struct kvm_vcpu *vcpu, u64 time_limit,
- 
- 	srcu_read_unlock(&kvm->srcu, srcu_idx);
- 
-+	context_tracking_guest_exit();
-+
- 	set_irq_happened(trap);
- 
- 	kvmppc_set_host_core(pcpu);
- 
--	guest_exit_irqoff();
--
- 	local_irq_enable();
-+	/*
-+	 * Wait until after servicing IRQs to account guest time so that any
-+	 * ticks that occurred while running the guest are properly accounted
-+	 * to the guest.  Waiting until IRQs are enabled degrades the accuracy
-+	 * of accounting via context tracking, but the loss of accuracy is
-+	 * acceptable for all known use cases.
-+	 */
-+	vtime_account_guest_exit();
- 
- 	cpumask_clear_cpu(pcpu, &kvm->arch.cpu_in_guest);
- 
--- 
-2.31.1
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
+nel/v4.14.249/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.14.y
+  Describe: v4.14.249
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      756db2ba8bde4ead58ceb54e9cbc71f526f9a98f =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+panda                | arm  | lab-collabora | gcc-8    | omap2plus_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615ed0bfef8d1c0fcc99a2ec
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+49/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+49/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/615ed0bfef8d1c0=
+fcc99a2f2
+        new failure (last pass: v4.14.248-76-gb56df9ef1a53)
+        2 lines
+
+    2021-10-07T10:49:24.183742  [   20.651641] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-10-07T10:49:24.226862  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/97
+    2021-10-07T10:49:24.234550  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+d34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-10-07T10:49:24.247649  [   20.716705] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615ed7a8932b11a39399a2f1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+49/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+49/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615ed7a8932b11a39399a=
+2f2
+        failing since 326 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
+t fail: v4.14.206-23-g520c3568920c8) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615ecd47e4a700f30899a2e1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+49/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+49/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615ecd47e4a700f30899a=
+2e2
+        failing since 326 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
+t fail: v4.14.206-23-g520c3568920c8) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615ee3c7dc08784e1099a320
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+49/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilep=
+b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+49/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilep=
+b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615ee3c7dc08784e1099a=
+321
+        failing since 326 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
+t fail: v4.14.206-23-g520c3568920c8) =
+
+ =20
