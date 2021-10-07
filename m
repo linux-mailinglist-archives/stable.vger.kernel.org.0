@@ -2,94 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B7FF425F55
-	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 23:41:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7304E425F46
+	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 23:39:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242039AbhJGVnc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Oct 2021 17:43:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45552 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230120AbhJGVnb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Oct 2021 17:43:31 -0400
-Received: from phobos.denx.de (phobos.denx.de [IPv6:2a01:238:438b:c500:173d:9f52:ddab:ee01])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90A5EC061570
-        for <stable@vger.kernel.org>; Thu,  7 Oct 2021 14:41:37 -0700 (PDT)
-Received: from tr.lan (ip-89-176-112-137.net.upcbroadband.cz [89.176.112.137])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: marex@denx.de)
-        by phobos.denx.de (Postfix) with ESMTPSA id 81051831B0;
-        Thu,  7 Oct 2021 23:41:34 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-        s=phobos-20191101; t=1633642894;
-        bh=fInwMaWN1j+5AjRLOCJ8WqzjwYwU7a4/Fu/B//8E1nw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Z/uylYb/+tFSSLedBMIeUw3rCZ1rMa0hhSA1jLjNFTQTFHv31pFwCXcQXpppx/V9T
-         WOXzm3nMqhRPJiDTslzRwKwtYypS5Aw+Lg1FTZ5luYXvgWUw4TGTjyGgftE55Qup2i
-         P5ipqybRTME+AhTCDxkW5UVS3/LCtaQ1vtceRJD3Y8COFhLGBkg2MLfw4xbnZ1BDt5
-         I4lNftZr8BteE2pMfo+YOlXWPIVtKPhgb57MRZkKAZNNwLu3OjxBlPYCelMjtToa0f
-         IUwyL3e4wfXhEmGifrfPxptU8Mlps32Hqu+popG4+FgvVO/zIBhry/ZB9R+1nayMHs
-         A7hFUNdLb3olw==
-From:   Marek Vasut <marex@denx.de>
-To:     dri-devel@lists.freedesktop.org
-Cc:     nouveau@lists.freedesktop.org, Marek Vasut <marex@denx.de>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
-        Karol Herbst <kherbst@redhat.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH] drm/nouveau/fifo: Reinstate the correct engine bit programming
-Date:   Thu,  7 Oct 2021 23:41:17 +0200
-Message-Id: <20211007214117.231472-1-marex@denx.de>
-X-Mailer: git-send-email 2.33.0
+        id S242294AbhJGVlM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Oct 2021 17:41:12 -0400
+Received: from frasgout.his.huawei.com ([185.176.79.56]:3943 "EHLO
+        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235665AbhJGVlM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Oct 2021 17:41:12 -0400
+Received: from fraeml734-chm.china.huawei.com (unknown [172.18.147.200])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4HQPlc71p7z67bcg;
+        Fri,  8 Oct 2021 05:36:28 +0800 (CST)
+Received: from lhreml724-chm.china.huawei.com (10.201.108.75) by
+ fraeml734-chm.china.huawei.com (10.206.15.215) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.8; Thu, 7 Oct 2021 23:39:15 +0200
+Received: from [10.47.80.141] (10.47.80.141) by lhreml724-chm.china.huawei.com
+ (10.201.108.75) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.8; Thu, 7 Oct 2021
+ 22:39:14 +0100
+Subject: Re: [PATCH v2] scsi: core: Fix shost->cmd_per_lun calculation in
+ scsi_add_host_with_dma()
+To:     Dexuan Cui <decui@microsoft.com>, <kys@microsoft.com>,
+        <sthemmin@microsoft.com>, <wei.liu@kernel.org>,
+        <jejb@linux.ibm.com>, <martin.petersen@oracle.com>,
+        <haiyangz@microsoft.com>, <ming.lei@redhat.com>,
+        <bvanassche@acm.org>, <linux-scsi@vger.kernel.org>,
+        <linux-hyperv@vger.kernel.org>, <longli@microsoft.com>,
+        <mikelley@microsoft.com>
+CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+References: <20211007174957.2080-1-decui@microsoft.com>
+From:   John Garry <john.garry@huawei.com>
+Message-ID: <8fe3959d-9462-64f6-53d8-ef7036ec0545@huawei.com>
+Date:   Thu, 7 Oct 2021 22:41:46 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Virus-Scanned: clamav-milter 0.103.2 at phobos.denx.de
-X-Virus-Status: Clean
+In-Reply-To: <20211007174957.2080-1-decui@microsoft.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.47.80.141]
+X-ClientProxiedBy: lhreml744-chm.china.huawei.com (10.201.108.194) To
+ lhreml724-chm.china.huawei.com (10.201.108.75)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 64f7c698bea9 ("drm/nouveau/fifo: add engine_id hook") replaced
-fifo/chang84.c g84_fifo_chan_engine() call with an indirect call of
-fifo/g84.c g84_fifo_engine_id(). The G84_FIFO_ENGN_* values returned
-from the later g84_fifo_engine_id() are incremented by 1 compared to
-the previous g84_fifo_chan_engine() return values.
+On 07/10/2021 18:49, Dexuan Cui wrote:
+> After commit ea2f0f77538c, a 416-CPU VM running on Hyper-V hangs during
+> boot because scsi_add_host_with_dma() sets shost->cmd_per_lun to a
+> negative number (the below numbers may differ in different kernel versions):
+> in drivers/scsi/storvsc_drv.c, 	storvsc_drv_init() sets
+> 'max_outstanding_req_per_channel' to 352, and storvsc_probe() sets
+> 'max_sub_channels' to (416 - 1) / 4 = 103 and sets scsi_driver.can_queue to
+> 352 * (103 + 1) * (100 - 10) / 100 = 32947, which exceeds SHRT_MAX.
 
-This is fine either way for most of the code, except this one line
-where an engine bit programmed into the hardware is derived from the
-return value. Decrement the return value accordingly, otherwise the
-wrong engine bit is programmed into the hardware and that leads to
-the following failure:
-nouveau 0000:01:00.0: gr: 00000030 [ILLEGAL_MTHD ILLEGAL_CLASS] ch 1 [003fbce000 DRM] subc 3 class 0000 mthd 085c data 00000420
+I think that you just need to mention that if can_queue exceeds 
+SHRT_MAX, then there is a data truncation issue.
 
-On the following hardware:
-lspci -s 01:00.0
-01:00.0 VGA compatible controller: NVIDIA Corporation GT216GLM [Quadro FX 880M] (rev a2)
-lspci -ns 01:00.0
-01:00.0 0300: 10de:0a3c (rev a2)
+> 
+> Use min_t(int, ...) to fix the issue.
+> 
+> Fixes: ea2f0f77538c ("scsi: core: Cap scsi_host cmd_per_lun at can_queue")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Dexuan Cui <decui@microsoft.com>
 
-Fixes: 64f7c698bea9 ("drm/nouveau/fifo: add engine_id hook")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: <stable@vger.kernel.org> # 5.12+
-Cc: Ben Skeggs <bskeggs@redhat.com>
-Cc: Karol Herbst <kherbst@redhat.com>
-Cc: Lyude Paul <lyude@redhat.com>
----
- drivers/gpu/drm/nouveau/nvkm/engine/fifo/chang84.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+It looks ok, I'd just like to test it a bit more.
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/fifo/chang84.c b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/chang84.c
-index 353b77d9b3dc..3492c561f2cf 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/fifo/chang84.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/chang84.c
-@@ -82,7 +82,7 @@ g84_fifo_chan_engine_fini(struct nvkm_fifo_chan *base,
- 	if (offset < 0)
- 		return 0;
- 
--	engn = fifo->base.func->engine_id(&fifo->base, engine);
-+	engn = fifo->base.func->engine_id(&fifo->base, engine) - 1;
- 	save = nvkm_mask(device, 0x002520, 0x0000003f, 1 << engn);
- 	nvkm_wr32(device, 0x0032fc, chan->base.inst->addr >> 12);
- 	done = nvkm_msec(device, 2000,
--- 
-2.33.0
+Thanks,
+John
+
+> ---
+> 
+> v1 tried to fix the issue by changing the storvsc driver:
+> https://lwn.net/ml/linux-kernel/BYAPR21MB1270BBC14D5F1AE69FC31A16BFB09@BYAPR21MB1270.namprd21.prod.outlook.com/
+> 
+> v2 directly fixes the scsi core change instead as Michael Kelley and
+> John Garry suggested (refer to the above link).
+
+To be fair, it was Michael's suggestion
+
+> 
+>   drivers/scsi/hosts.c | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
+> index 3f6f14f0cafb..24b72ee4246f 100644
+> --- a/drivers/scsi/hosts.c
+> +++ b/drivers/scsi/hosts.c
+> @@ -220,7 +220,8 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
+>   		goto fail;
+>   	}
+>   
+> -	shost->cmd_per_lun = min_t(short, shost->cmd_per_lun,
+> +	/* Use min_t(int, ...) in case shost->can_queue exceeds SHRT_MAX */
+> +	shost->cmd_per_lun = min_t(int, shost->cmd_per_lun,
+>   				   shost->can_queue);
+>   
+>   	error = scsi_init_sense_cache(shost);
+> 
 
