@@ -2,68 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40869425556
-	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 16:24:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B38FC425570
+	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 16:29:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242031AbhJGO0A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Oct 2021 10:26:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54768 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241999AbhJGOZ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Oct 2021 10:25:58 -0400
-Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 940A1C061570
-        for <stable@vger.kernel.org>; Thu,  7 Oct 2021 07:24:04 -0700 (PDT)
-Received: by mail-ot1-x336.google.com with SMTP id g15-20020a9d128f000000b0054e3d55dd81so2571374otg.12
-        for <stable@vger.kernel.org>; Thu, 07 Oct 2021 07:24:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=DX4XUAShGVyVJ7RbL+K9ZezkxErvO/WAojJFXNdqg5U=;
-        b=YeswAEZU5sBQZvoXqK7MiW0ZSr55C0rAqLhQJ39aj6ybRKkFq0DQ0z0ZmawDY+0cI0
-         KeA/zd16Ynwn9vbUE2Wtf3ZZPfILRNbtRmQqrz/bxIPWic0m/s3D2nWiV7XeRwmZDSUf
-         qG4LJ6bDQ288qiclee+ukNvLVhApg1Stb0EVP48jQBWRY1JdGBwsGADmp+mWLibiC4nC
-         9FMvuefesY3VkY/vsT6QEvhc7sb+V6ujU5olXR7XidzthBE/Q/aGYWOEyq+Es75teIbq
-         YckMYcxUZktilNgpirGeD7GyAu/NJUvON7wWCaEdcg3c82tYy0QnV73+9nxKHTbtMOPy
-         cJsQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=DX4XUAShGVyVJ7RbL+K9ZezkxErvO/WAojJFXNdqg5U=;
-        b=F/rjDK4vJfxja33fcTcz2PX2komxgT9R86mKPahKWrD5DLp47Ca0uw1+RFfcpCUZCi
-         zG1qPekBwHjzMEmgbRIKk/AqSYSMD59AB2Lda2Smb3fW0X41xjC5TPF5Gf6UfTk35IRI
-         B1wfs+tiTAnGkRk3TL2hjhpkUUsDZNEB9vnzznRYdGeLysFGL3RQFD4pNJ1qG1lJz/4+
-         grh2+2wr2hET2gJMZLo+jOu5SQqNHawo0WeEzyRCo8x31sFTHxhcSFL3EoCMMTP8uzxh
-         l7p2WJ9J6yeVU9E8oHcV9nq4qfcB3+0OpvKA9+ZooYUAd4B4gSZ2Pi7uKdFwJ60ONvQi
-         kiqg==
-X-Gm-Message-State: AOAM53273cHbR9+h672WIJuuq5ck2vK11c28zXW9nw9fWtkb6cEV/CuP
-        ynLkHAnWAQ1OV5ynbHHSBogKQ+EMIoJD6ZMqkg==
-X-Google-Smtp-Source: ABdhPJxRC9eGdkcqWwhHu3vNih8AwU6OXmJmaoH/DUSIDGIKlDuV9bSgukdF5RHoV5Czu2Au24dBmh5jP2j4jjvr3R0=
-X-Received: by 2002:a9d:1b41:: with SMTP id l59mr3905845otl.283.1633616643982;
- Thu, 07 Oct 2021 07:24:03 -0700 (PDT)
+        id S242085AbhJGObD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Oct 2021 10:31:03 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:59078 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S242073AbhJGObB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Oct 2021 10:31:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1633616947;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=UF3re4UnbtUqtYZZTivLh2H8ZzAeAte+9PT67KP/GWA=;
+        b=G0qKmuiixrhEhiUWbeFJDqt0Rln4FNjkbgbZG5imqF+xwO2OGaO2wCCzn0fg3GRowUeRam
+        PwQOQAW7uIA6IvUB9gv80Pq44ZzUVqmEjGPGJ8Re1PAtXqBwh37swGYKciQ6oZ8DIUflIN
+        yU1XfZmHxcvUeVMFL5uRrGWqOhOKCZU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-255-ufrnTYxeO4KxQJKz_zDHRg-1; Thu, 07 Oct 2021 10:29:04 -0400
+X-MC-Unique: ufrnTYxeO4KxQJKz_zDHRg-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2DB281007301;
+        Thu,  7 Oct 2021 14:29:01 +0000 (UTC)
+Received: from thinkpad.redhat.com (unknown [10.39.192.197])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B300626572;
+        Thu,  7 Oct 2021 14:28:57 +0000 (UTC)
+From:   Laurent Vivier <lvivier@redhat.com>
+To:     kvm-ppc@vger.kernel.org
+Cc:     Paul Mackerras <paulus@ozlabs.org>, Greg Kurz <groug@kaod.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linux-kernel@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        linuxppc-dev@lists.ozlabs.org, Laurent Vivier <lvivier@redhat.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2] KVM: PPC: Defer vtime accounting 'til after IRQ handling
+Date:   Thu,  7 Oct 2021 16:28:56 +0200
+Message-Id: <20211007142856.41205-1-lvivier@redhat.com>
 MIME-Version: 1.0
-Received: by 2002:aca:1812:0:0:0:0:0 with HTTP; Thu, 7 Oct 2021 07:24:03 -0700 (PDT)
-Reply-To: jh714560@gmail.com
-From:   Mr Jonathan Haskel <hugschuchen@gmail.com>
-Date:   Thu, 7 Oct 2021 09:24:03 -0500
-Message-ID: <CADj8dbU1tWTiB9HQpTdGHp3TYW7j0EZiHpNAaL0QJLb6XOiOZQ@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Commit 112665286d08 moved guest_exit() in the interrupt protected
+area to avoid wrong context warning (or worse), but the tick counter
+cannot be updated and the guest time is accounted to the system time.
+
+To fix the problem port to POWER the x86 fix
+160457140187 ("Defer vtime accounting 'til after IRQ handling"):
+
+"Defer the call to account guest time until after servicing any IRQ(s)
+ that happened in the guest or immediately after VM-Exit.  Tick-based
+ accounting of vCPU time relies on PF_VCPU being set when the tick IRQ
+ handler runs, and IRQs are blocked throughout the main sequence of
+ vcpu_enter_guest(), including the call into vendor code to actually
+ enter and exit the guest."
+
+Fixes: 112665286d08 ("KVM: PPC: Book3S HV: Context tracking exit guest context before enabling irqs")
+Cc: npiggin@gmail.com
+Cc: <stable@vger.kernel.org> # 5.12
+Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+---
+
+Notes:
+    v2: remove reference to commit 61bd0f66ff92
+        cc stable 5.12
+        add the same comment in the code as for x86
+
+ arch/powerpc/kvm/book3s_hv.c | 24 ++++++++++++++++++++----
+ 1 file changed, 20 insertions(+), 4 deletions(-)
+
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 2acb1c96cfaf..a694d1a8f6ce 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -3695,6 +3695,8 @@ static noinline void kvmppc_run_core(struct kvmppc_vcore *vc)
+ 
+ 	srcu_read_unlock(&vc->kvm->srcu, srcu_idx);
+ 
++	context_tracking_guest_exit();
++
+ 	set_irq_happened(trap);
+ 
+ 	spin_lock(&vc->lock);
+@@ -3726,9 +3728,15 @@ static noinline void kvmppc_run_core(struct kvmppc_vcore *vc)
+ 
+ 	kvmppc_set_host_core(pcpu);
+ 
+-	guest_exit_irqoff();
+-
+ 	local_irq_enable();
++	/*
++	 * Wait until after servicing IRQs to account guest time so that any
++	 * ticks that occurred while running the guest are properly accounted
++	 * to the guest.  Waiting until IRQs are enabled degrades the accuracy
++	 * of accounting via context tracking, but the loss of accuracy is
++	 * acceptable for all known use cases.
++	 */
++	vtime_account_guest_exit();
+ 
+ 	/* Let secondaries go back to the offline loop */
+ 	for (i = 0; i < controlled_threads; ++i) {
+@@ -4506,13 +4514,21 @@ int kvmhv_run_single_vcpu(struct kvm_vcpu *vcpu, u64 time_limit,
+ 
+ 	srcu_read_unlock(&kvm->srcu, srcu_idx);
+ 
++	context_tracking_guest_exit();
++
+ 	set_irq_happened(trap);
+ 
+ 	kvmppc_set_host_core(pcpu);
+ 
+-	guest_exit_irqoff();
+-
+ 	local_irq_enable();
++	/*
++	 * Wait until after servicing IRQs to account guest time so that any
++	 * ticks that occurred while running the guest are properly accounted
++	 * to the guest.  Waiting until IRQs are enabled degrades the accuracy
++	 * of accounting via context tracking, but the loss of accuracy is
++	 * acceptable for all known use cases.
++	 */
++	vtime_account_guest_exit();
+ 
+ 	cpumask_clear_cpu(pcpu, &kvm->arch.cpu_in_guest);
+ 
 -- 
-I am Jonathan Haskel, and I work for one of London's banks.
-I'm contacting you this way because I have a valuable crucial business
-opportunity that would benefit both of us.
+2.31.1
 
-The call-up capital is significant. After receiving your thoughts and
-consideration, further information will be provided to you.
-Contact my private Email: jh714560@gmail.com
-
-Until then, Keep Well.
-Yours Regards,
-Mr Jonathan Haskel
