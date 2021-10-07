@@ -2,143 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41885425552
-	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 16:23:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40869425556
+	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 16:24:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242072AbhJGOZW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Oct 2021 10:25:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41406 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241688AbhJGOZU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Oct 2021 10:25:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0ABB3610A2;
-        Thu,  7 Oct 2021 14:23:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633616606;
-        bh=uzllrbSzscxVCvK+ALjIoEDJeLwfGfHy53kxeJdcpdk=;
-        h=Subject:To:From:Date:From;
-        b=z7duEmWHrba19hXPmFQEqaeQG5aiLN+6IYlSeOjnzY3cQVXeqCwBHqm7tl9KczmFk
-         0pPbwyIv36W5sU28GV1Tm+JCVbfh9RI4/yIHzMmjbg0sWCw36EHl21XpJLPn3ozVON
-         JqB1+MDeHuLBRZs27icx9SJO2TX8II7pJZ80U23Y=
-Subject: patch "Revert "serial: 8250: Fix reporting real baudrate value in c_ospeed" added to tty-next
-To:     johan@kernel.org, gregkh@linuxfoundation.org, pali@kernel.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 07 Oct 2021 16:23:24 +0200
-Message-ID: <1633616604169170@kroah.com>
+        id S242031AbhJGO0A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Oct 2021 10:26:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54768 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241999AbhJGOZ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Oct 2021 10:25:58 -0400
+Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 940A1C061570
+        for <stable@vger.kernel.org>; Thu,  7 Oct 2021 07:24:04 -0700 (PDT)
+Received: by mail-ot1-x336.google.com with SMTP id g15-20020a9d128f000000b0054e3d55dd81so2571374otg.12
+        for <stable@vger.kernel.org>; Thu, 07 Oct 2021 07:24:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=DX4XUAShGVyVJ7RbL+K9ZezkxErvO/WAojJFXNdqg5U=;
+        b=YeswAEZU5sBQZvoXqK7MiW0ZSr55C0rAqLhQJ39aj6ybRKkFq0DQ0z0ZmawDY+0cI0
+         KeA/zd16Ynwn9vbUE2Wtf3ZZPfILRNbtRmQqrz/bxIPWic0m/s3D2nWiV7XeRwmZDSUf
+         qG4LJ6bDQ288qiclee+ukNvLVhApg1Stb0EVP48jQBWRY1JdGBwsGADmp+mWLibiC4nC
+         9FMvuefesY3VkY/vsT6QEvhc7sb+V6ujU5olXR7XidzthBE/Q/aGYWOEyq+Es75teIbq
+         YckMYcxUZktilNgpirGeD7GyAu/NJUvON7wWCaEdcg3c82tYy0QnV73+9nxKHTbtMOPy
+         cJsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=DX4XUAShGVyVJ7RbL+K9ZezkxErvO/WAojJFXNdqg5U=;
+        b=F/rjDK4vJfxja33fcTcz2PX2komxgT9R86mKPahKWrD5DLp47Ca0uw1+RFfcpCUZCi
+         zG1qPekBwHjzMEmgbRIKk/AqSYSMD59AB2Lda2Smb3fW0X41xjC5TPF5Gf6UfTk35IRI
+         B1wfs+tiTAnGkRk3TL2hjhpkUUsDZNEB9vnzznRYdGeLysFGL3RQFD4pNJ1qG1lJz/4+
+         grh2+2wr2hET2gJMZLo+jOu5SQqNHawo0WeEzyRCo8x31sFTHxhcSFL3EoCMMTP8uzxh
+         l7p2WJ9J6yeVU9E8oHcV9nq4qfcB3+0OpvKA9+ZooYUAd4B4gSZ2Pi7uKdFwJ60ONvQi
+         kiqg==
+X-Gm-Message-State: AOAM53273cHbR9+h672WIJuuq5ck2vK11c28zXW9nw9fWtkb6cEV/CuP
+        ynLkHAnWAQ1OV5ynbHHSBogKQ+EMIoJD6ZMqkg==
+X-Google-Smtp-Source: ABdhPJxRC9eGdkcqWwhHu3vNih8AwU6OXmJmaoH/DUSIDGIKlDuV9bSgukdF5RHoV5Czu2Au24dBmh5jP2j4jjvr3R0=
+X-Received: by 2002:a9d:1b41:: with SMTP id l59mr3905845otl.283.1633616643982;
+ Thu, 07 Oct 2021 07:24:03 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Received: by 2002:aca:1812:0:0:0:0:0 with HTTP; Thu, 7 Oct 2021 07:24:03 -0700 (PDT)
+Reply-To: jh714560@gmail.com
+From:   Mr Jonathan Haskel <hugschuchen@gmail.com>
+Date:   Thu, 7 Oct 2021 09:24:03 -0500
+Message-ID: <CADj8dbU1tWTiB9HQpTdGHp3TYW7j0EZiHpNAaL0QJLb6XOiOZQ@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-This is a note to let you know that I've just added the patch titled
-
-    Revert "serial: 8250: Fix reporting real baudrate value in c_ospeed
-
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From d02b006b29de14968ba4afa998bede0d55469e29 Mon Sep 17 00:00:00 2001
-From: Johan Hovold <johan@kernel.org>
-Date: Thu, 7 Oct 2021 15:31:46 +0200
-Subject: Revert "serial: 8250: Fix reporting real baudrate value in c_ospeed
- field"
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-This reverts commit 32262e2e429cdb31f9e957e997d53458762931b7.
-
-The commit in question claims to determine the inverse of
-serial8250_get_divisor() but failed to notice that some drivers override
-the default implementation using a get_divisor() callback.
-
-This means that the computed line-speed values can be completely wrong
-and results in regular TCSETS requests failing (the incorrect values
-would also be passed to any overridden set_divisor() callback).
-
-Similarly, it also failed to honour the old (deprecated) ASYNC_SPD_FLAGS
-and would break applications relying on those when re-encoding the
-actual line speed.
-
-There are also at least two quirks, UART_BUG_QUOT and an OMAP1510
-workaround, which were happily ignored and that are now broken.
-
-Finally, even if the offending commit were to be implemented correctly,
-this is a new feature and not something which should be backported to
-stable.
-
-Cc: Pali Rohár <pali@kernel.org>
-Fixes: 32262e2e429c ("serial: 8250: Fix reporting real baudrate value in c_ospeed field")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211007133146.28949-1-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/8250/8250_port.c | 17 -----------------
- 1 file changed, 17 deletions(-)
-
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index dc6900b2daa8..66374704747e 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -2584,19 +2584,6 @@ static unsigned int serial8250_get_divisor(struct uart_port *port,
- 	return serial8250_do_get_divisor(port, baud, frac);
- }
- 
--static unsigned int serial8250_compute_baud_rate(struct uart_port *port,
--						 unsigned int quot)
--{
--	if ((port->flags & UPF_MAGIC_MULTIPLIER) && quot == 0x8001)
--		return port->uartclk / 4;
--	else if ((port->flags & UPF_MAGIC_MULTIPLIER) && quot == 0x8002)
--		return port->uartclk / 8;
--	else if (port->type == PORT_NPCM)
--		return DIV_ROUND_CLOSEST(port->uartclk - 2 * (quot + 2), 16 * (quot + 2));
--	else
--		return DIV_ROUND_CLOSEST(port->uartclk, 16 * quot);
--}
--
- static unsigned char serial8250_compute_lcr(struct uart_8250_port *up,
- 					    tcflag_t c_cflag)
- {
-@@ -2727,14 +2714,11 @@ void serial8250_update_uartclk(struct uart_port *port, unsigned int uartclk)
- 
- 	baud = serial8250_get_baud_rate(port, termios, NULL);
- 	quot = serial8250_get_divisor(port, baud, &frac);
--	baud = serial8250_compute_baud_rate(port, quot);
- 
- 	serial8250_rpm_get(up);
- 	spin_lock_irqsave(&port->lock, flags);
- 
- 	uart_update_timeout(port, termios->c_cflag, baud);
--	if (tty_termios_baud_rate(termios))
--		tty_termios_encode_baud_rate(termios, baud, baud);
- 
- 	serial8250_set_divisor(port, baud, quot, frac);
- 	serial_port_out(port, UART_LCR, up->lcr);
-@@ -2766,7 +2750,6 @@ serial8250_do_set_termios(struct uart_port *port, struct ktermios *termios,
- 
- 	baud = serial8250_get_baud_rate(port, termios, old);
- 	quot = serial8250_get_divisor(port, baud, &frac);
--	baud = serial8250_compute_baud_rate(port, quot);
- 
- 	/*
- 	 * Ok, we're now changing the port state.  Do it with
 -- 
-2.33.0
+I am Jonathan Haskel, and I work for one of London's banks.
+I'm contacting you this way because I have a valuable crucial business
+opportunity that would benefit both of us.
 
+The call-up capital is significant. After receiving your thoughts and
+consideration, further information will be provided to you.
+Contact my private Email: jh714560@gmail.com
 
+Until then, Keep Well.
+Yours Regards,
+Mr Jonathan Haskel
