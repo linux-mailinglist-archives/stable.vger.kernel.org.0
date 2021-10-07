@@ -2,78 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 042D2425FA3
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 00:03:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C167425FA1
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 00:02:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241328AbhJGWE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Oct 2021 18:04:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50436 "EHLO
+        id S241214AbhJGWEv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Oct 2021 18:04:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236629AbhJGWEz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Oct 2021 18:04:55 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92576C061570;
-        Thu,  7 Oct 2021 15:03:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=wU3g/Q5bFjmC/RAMo5fBPaUCFZ25fOmYlGFoJIgvs+M=; b=GZ6EgglK2XeevxRN6kzltXxI4l
-        SB+zNBpDfOxFS/o3wdRt1gOWqNXiNEkOvcTYK7vSkneawOK551B91yH560OKlcrXv+IvkMiiIiKko
-        /+/yb/qe23IId1TrW7KIt4L7pWpvhWNR+WDDz+KEaKIx0RrJHMma+D7Zf56MeHPZdazEPh3GIMTsq
-        r3dgFH4YFw991Ex1GUELN2InzNPn33t5PLJSgdsV7Vv0jthN/Wr3F6tGuPrijljuwAb3Y2el3EHSd
-        PBvl9BMxh7jMjWDAk62ayq0eavdGJLg7er9GexDtVC09OsahNFhKOMQlzzLvhNf6gLPUFq7mndl7k
-        bdyu0/7A==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mYbRz-002W6J-2w; Thu, 07 Oct 2021 22:01:23 +0000
-From:   "Matthew Wilcox (Oracle)" <willy@infradead.org>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-fsdevel@vger.kernel.org, Hao Sun <sunhao.th@gmail.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] vfs: Check fd has read access in kernel_read_file_from_fd()
-Date:   Thu,  7 Oct 2021 23:01:10 +0100
-Message-Id: <20211007220110.600005-1-willy@infradead.org>
-X-Mailer: git-send-email 2.31.1
+        with ESMTP id S236629AbhJGWEu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Oct 2021 18:04:50 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E78DC061570
+        for <stable@vger.kernel.org>; Thu,  7 Oct 2021 15:02:56 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id nn3-20020a17090b38c300b001a03bb6c4ebso3823736pjb.1
+        for <stable@vger.kernel.org>; Thu, 07 Oct 2021 15:02:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=uNBSCrqmISpx6MZX4j1GeD1ZPyOiycm0DFmzVg8/ji4=;
+        b=NITEletmO9hiehzxh0zF777D73UOzszYE3rS0H/3v7KKWoFVUlhR1ehu07vDha2FQ0
+         2c7WDx5GgpVQJg4XurTvoUc63fgNNzf2Kbar95SCIYVP0AjQlcuWWMagze1ZcaBbZHsk
+         AIICoXhcLxC8iMbx2UiOET1kWr5FqNRb/nGpAIL4pdZXUyHwmy29Ipw3ndkPXF8cJzWb
+         Mf8DVR7n7b4Kot4nKPGwkDNQgkwxYCrb6/FYdQeC4+PkAHmMpd+Pv2PJSZEe4OwUzmXo
+         vye1zu7ZdvU1pF8CQg/28LJEJOo3n52AAvTb4/IlaD690EDpQYeqxn+vdHdp/9MI5jG5
+         Kdug==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=uNBSCrqmISpx6MZX4j1GeD1ZPyOiycm0DFmzVg8/ji4=;
+        b=aUzbOpaWK0814hi3HerSy14r1wzLB3wt1I2k5+H78jGYT1s3+rUJfuIKQ/AijB8ozy
+         mdugwfHFi+V72o1T6dCh5FTvdoYtC2Nl3UXR58iplgGsYWzSq8gOedk8cY5m4rpQrvok
+         bwHr/MBWCxf7RTYXMdBOTYofvfnstXqht4oZTrnY/zzIWS41Xvqcu4vfom4HDV2M0d69
+         Je5KxvANtpKgGsS3999kyeCJUo/tTWzA/UQYd9rPjx1EV7N6TSOx9oXCikvwlhY8QZW8
+         fsVdwLo6yc/nNBToiVA+my1acozhXkiri/qyWMXWxz9EJJgS80AVI2fD6JlOkRTv1RxL
+         6iFw==
+X-Gm-Message-State: AOAM533+yUov3jVDIdFvmMrp9fvsAX5B+qpU6xbDkuYCZKx/VhCAYgVC
+        6+zuenvgnKgbf4o/pAKOBNtYgeSCnW6lSq7/
+X-Google-Smtp-Source: ABdhPJxS1QumxJzP7C8QhnV9XRYG0UP1wBc4ZjUJk5t9CAStxLN3wfHlkDnrBjpe3UzZZj3rlbykWw==
+X-Received: by 2002:a17:902:b48d:b0:13e:8e7e:24d8 with SMTP id y13-20020a170902b48d00b0013e8e7e24d8mr6268202plr.55.1633644175773;
+        Thu, 07 Oct 2021 15:02:55 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b142sm399041pfb.17.2021.10.07.15.02.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 Oct 2021 15:02:55 -0700 (PDT)
+Message-ID: <615f6e8f.1c69fb81.b998b.212a@mx.google.com>
+Date:   Thu, 07 Oct 2021 15:02:55 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.71-28-g2f55a27c87e9
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 130 runs,
+ 1 regressions (v5.10.71-28-g2f55a27c87e9)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If we open a file without read access and then pass the fd to a syscall
-whose implementation calls kernel_read_file_from_fd(), we get a warning
-from __kernel_read():
+stable-rc/queue/5.10 baseline: 130 runs, 1 regressions (v5.10.71-28-g2f55a2=
+7c87e9)
 
-        if (WARN_ON_ONCE(!(file->f_mode & FMODE_READ)))
+Regressions Summary
+-------------------
 
-This currently affects both finit_module() and kexec_file_load(), but
-it could affect other syscalls in the future.
+platform  | arch  | lab           | compiler | defconfig | regressions
+----------+-------+---------------+----------+-----------+------------
+hip07-d05 | arm64 | lab-collabora | gcc-8    | defconfig | 1          =
 
-Reported-by: Hao Sun <sunhao.th@gmail.com>
-Fixes: b844f0ecbc56 ("vfs: define kernel_copy_file_from_fd()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
----
- fs/kernel_read_file.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/kernel_read_file.c b/fs/kernel_read_file.c
-index 87aac4c72c37..1b07550485b9 100644
---- a/fs/kernel_read_file.c
-+++ b/fs/kernel_read_file.c
-@@ -178,7 +178,7 @@ int kernel_read_file_from_fd(int fd, loff_t offset, void **buf,
- 	struct fd f = fdget(fd);
- 	int ret = -EBADF;
- 
--	if (!f.file)
-+	if (!f.file || !(f.file->f_mode & FMODE_READ))
- 		goto out;
- 
- 	ret = kernel_read_file(f.file, offset, buf, buf_size, file_size, id);
--- 
-2.32.0
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.71-28-g2f55a27c87e9/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.71-28-g2f55a27c87e9
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      2f55a27c87e95e9c2587005feb275bcd367a7bdd =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform  | arch  | lab           | compiler | defconfig | regressions
+----------+-------+---------------+----------+-----------+------------
+hip07-d05 | arm64 | lab-collabora | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615f4e4098c2c1e0a999a2ee
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.71-=
+28-g2f55a27c87e9/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.71-=
+28-g2f55a27c87e9/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615f4e4198c2c1e0a999a=
+2ef
+        failing since 98 days (last pass: v5.10.46-100-gce5b41f85637, first=
+ fail: v5.10.46-100-g3b96099161c8b) =
+
+ =20
