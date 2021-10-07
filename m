@@ -2,151 +2,352 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 935E74259EB
-	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 19:50:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B0294259F2
+	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 19:51:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243355AbhJGRwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Oct 2021 13:52:35 -0400
-Received: from mail-dm3nam07on2133.outbound.protection.outlook.com ([40.107.95.133]:6368
-        "EHLO NAM02-DM3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S241738AbhJGRwc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Oct 2021 13:52:32 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=b53XYUjXOUfPJX/s0fTgJI0aq3LjU+xPcM0QRln7N96aRvnBbAi+41dQLo7N3SEVTvE8UbUl+8E+cSeEOQpgHjs6lMqWP5/B3f/et0D8PSEMnQcY/R4KhMC0I1gkBjRGCuWY4tiT3JTCAitB3BWO6suuXFDMEuQYdpH1JpOL6mCmxoECTtiv6N1HW9DcTeu6wphJrB19uDTzY8LEHNGd1/c6Y5GI8rbFYxqhqX1zesQ7z1c9pMW5iBCwpYh9TfRxIxL6HnDZNzFDkdKOpi5ShvVyiJN12vnR8vv7e1JZnHCk+w/8cQ/icErxysi25ghCPBlNSdBXbiXlJXCxU+MfWQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=HWbFI9LRsaO0WhUF9AzaBaJSLHD+3GeQRhlbySBFzvw=;
- b=I132KScIFSdp+RJg/PJrus5Aq6HzbnBOBOS2PqQRXqWoKroWRbC3Eyv3ce12I509y4qg0Y3bB0KKBRgJSyP/jdh63QkeyrrPrEIZ/9ybfuW/Zv9TAjVQquUIdsHZfXjMbCA+K/2TM+pSe6Jkrjn5wBRDrnzYyprey537xwLmKCJnAfAEeDZS6Z1ln8K6Q8NrdVRF1HS6KGxAS3cOZ14eYX8bu4jovzSxfpQsLCo6V/5GOs6Y/qPoevgXVTqRTd4Pif++yQ0W4DHFfXUyZp/Ybh0UAL7pRa0bjTjDLBpTM1UqOFKESnkOH1IkzTHXkFBs0Q0FHlPHJQbJN3qIecnRDA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HWbFI9LRsaO0WhUF9AzaBaJSLHD+3GeQRhlbySBFzvw=;
- b=B1KZ82L6MTFVhs7LDUohtgYsXyZ6Yx62Uw3qH0aG7PI6MSodbPa30YxH3WF21dcND8NUa0nAGmpj4a1WGAwYDFnvmviG8QUw1UEWQA/zfiruP9kG3954WUY60FFVU/aL8SPd/guGo0b/4WDjv062A9XsdsgzLpcocvPN4dKOJRo=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=microsoft.com;
-Received: from BL0PR2101MB1092.namprd21.prod.outlook.com
- (2603:10b6:207:37::26) by BL0PR2101MB0996.namprd21.prod.outlook.com
- (2603:10b6:207:36::30) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4608.3; Thu, 7 Oct
- 2021 17:50:32 +0000
-Received: from BL0PR2101MB1092.namprd21.prod.outlook.com
- ([fe80::a5a1:1ba3:ae97:a567]) by BL0PR2101MB1092.namprd21.prod.outlook.com
- ([fe80::a5a1:1ba3:ae97:a567%7]) with mapi id 15.20.4608.003; Thu, 7 Oct 2021
- 17:50:31 +0000
-From:   Dexuan Cui <decui@microsoft.com>
-To:     kys@microsoft.com, sthemmin@microsoft.com, wei.liu@kernel.org,
-        jejb@linux.ibm.com, martin.petersen@oracle.com,
-        haiyangz@microsoft.com, ming.lei@redhat.com, bvanassche@acm.org,
-        john.garry@huawei.com, linux-scsi@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, longli@microsoft.com,
-        mikelley@microsoft.com
-Cc:     linux-kernel@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v2] scsi: core: Fix shost->cmd_per_lun calculation in scsi_add_host_with_dma()
-Date:   Thu,  7 Oct 2021 10:49:57 -0700
-Message-Id: <20211007174957.2080-1-decui@microsoft.com>
-X-Mailer: git-send-email 2.17.1
-Content-Type: text/plain
-X-ClientProxiedBy: MW4P222CA0011.NAMP222.PROD.OUTLOOK.COM
- (2603:10b6:303:114::16) To BL0PR2101MB1092.namprd21.prod.outlook.com
- (2603:10b6:207:37::26)
+        id S242385AbhJGRw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Oct 2021 13:52:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48068 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243384AbhJGRwx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Oct 2021 13:52:53 -0400
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA193C06176F
+        for <stable@vger.kernel.org>; Thu,  7 Oct 2021 10:50:54 -0700 (PDT)
+Received: by mail-pl1-x62b.google.com with SMTP id l6so4384546plh.9
+        for <stable@vger.kernel.org>; Thu, 07 Oct 2021 10:50:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=lCtWeCJibhSGZZ0/kUrrD11bXwq+9Lot6Vd/7cltJwM=;
+        b=j8BXhNmEUI8fXm7UTNScuaP3057xMKnYOMHqFHtDbZzaaDmV8EzWkGgVoaCjmFosU8
+         jvCQ43wdNMkT6IMj4yvQFyEaaYrVGgvSBkkflVYs0u6s95zuonoaG4St0kzBtN3HMV+m
+         qFHeNaphs3XsEt7mDzlR0srSVeP2mTRF+wf4inpArMyPpII2AzUpHP2qutNkbC1KfrXm
+         /TlhsFDi+jbPT9dHjsN205NCdirjshpXM6cEAJGeFRawK/V05qciSoQAs5ccm+XiBWmu
+         ByuZL8I70uaMwqlhx0MEaQl7GF67StUtbDye3ADh1r+TOk1nqkDfaBta/gqRB0LMaHDt
+         0aNA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=lCtWeCJibhSGZZ0/kUrrD11bXwq+9Lot6Vd/7cltJwM=;
+        b=nzeCyF3R07PlodtSfS/vh4ecKoYUVvp105zbRPqTYP5cN9k0m9L520wudHoCLyBSvy
+         haCDFtOrVJJGIlnVFjxa7Glb91U5ZpD1lyOiQdKA82hTe9ZfJPCymxAz4PbFv5Q4uM3F
+         EUMsAqFG4QdDymnd1I76tgtPJILqP5BVeE3fp8ECidrIhe4JleKJ9Que2Zg25FY4p8sY
+         21t82dmrqswDmWFNx9aXseVTUooUrvLxDlNdhtpuVUwzr4+oHuo53t1w97Fx4xTJvwrW
+         YBdb8yZvXwFjQQbCeaWXrwVDYcf6nc/W25DJUg8uArRkX+N/6GVCd4QMwvA5IAudhC1s
+         ZV0A==
+X-Gm-Message-State: AOAM532KdrG70BVKjkWrlMtzhzXvqNeeEF4Ed/TR8eyrYdoWHiBaqjYL
+        PomPaQ3vlRmbJVE4w2pVgu+MoYcd0jbE4OvU
+X-Google-Smtp-Source: ABdhPJzOIb8EOsuLuHl57lnIZDLUzVIoCzjdOQYRKc5P84+hMGQJ2bC56Rnrdikm5mMQMO5ddx/HuQ==
+X-Received: by 2002:a17:90a:d3cb:: with SMTP id d11mr6405856pjw.109.1633629054058;
+        Thu, 07 Oct 2021 10:50:54 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 3sm9271700pjk.18.2021.10.07.10.50.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 Oct 2021 10:50:52 -0700 (PDT)
+Message-ID: <615f337c.1c69fb81.6db4.ac7d@mx.google.com>
+Date:   Thu, 07 Oct 2021 10:50:52 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from decui-u1804.corp.microsoft.com (2001:4898:80e8:9:822d:5dff:feb8:fa01) by MW4P222CA0011.NAMP222.PROD.OUTLOOK.COM (2603:10b6:303:114::16) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4566.22 via Frontend Transport; Thu, 7 Oct 2021 17:50:29 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 366e6d0b-f755-492c-631c-08d989baf4b9
-X-MS-TrafficTypeDiagnostic: BL0PR2101MB0996:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <BL0PR2101MB09964666ACA890A44E7A09AEBFB19@BL0PR2101MB0996.namprd21.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1148;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: x5uUhdLz30YpwCwxCmXFTVoTWybwP2mjUZD4u7nvh30Ap1rJOnYFPZxcLGEUjFH1GEaoHPEIAofQKv2HqPWAlVHybzk8CYeJniE+zarLZg3OUm4zuJqB89BBIl6x2hiY1PFWumYMF8gKpNm4EJt7JZlVIhMBs+fHUzv8SUbGQ+ruYJktpnFBt+yABnk2LBzSCH5A5yBrofzttU10DxjVCDTogWXyHEfLrbY42N3Sf1aFr00X63Itqpfh8H2bFcfWWE7E1yAWmwy/4xkI0t5Eu+rKzdwQqzY5nUbIWeP5XgyzD1aUYRix+yihBJa0eX25ruWmcxwdAL08K8aW7VNUoFk3HcmdD3tWX75HHwq7/rjIzEUpiWc10+ktb9J6tvgE6inGhEkKGamCmDi5AFlt0/HQKsSaue4xKE9wxNFpL50TiDdPGcNVPCHInPJzZU5OUI8DGBwudZCzB8MJ6ft79AFLOt6ORUjg/3Vi+ynv6LycEd0pHTHzLyeLecNXVuXdtdSVCBu6yfpsHhQ35vob6xSiyOFg82NxjiO7FDBx4XpNe12QAOHuuTfYrOhY4EOia7hX459Ln0Z76nTd+nUMEcvwXWkFQNvHcNTPZO1Q+LQNl2vFJOmumin/ipltoJY8uRiALsoeCZCTh43YRlyCWPdouksIsHzP5yJnFoSwsL5NeUAd+sfzTeyAQUa5jiEDEMkCgBPLw2iFuaREP1pRblWFqV0KVFXGS6ssJrjJ5TTn1C2LW4djy5M+sng7vPIOh2b7q0QREQT1hfk0Eznk7g==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR2101MB1092.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(7416002)(52116002)(508600001)(66946007)(5660300002)(66476007)(966005)(66556008)(316002)(8936002)(2906002)(10290500003)(8676002)(2616005)(86362001)(7696005)(6636002)(83380400001)(1076003)(82960400001)(36756003)(82950400001)(6666004)(186003)(4326008)(921005)(6486002)(38100700002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?O6RJwpp1S+wyu6Tjiiq3wybmw3ug5C1hdGPvbJu3A9rfL71t9TkQ4uwzKRkK?=
- =?us-ascii?Q?EdcyvjDyIXZp5WQImU3y+0nKD9fBnz+H9igoc4bakbLvzg7ynhgjJMLiInLI?=
- =?us-ascii?Q?MaAlEsSxkhV1Yzuy+GZKf0QF3hoxW9QVAxRYPzlGb2OIluFQteTpyLEjMd/l?=
- =?us-ascii?Q?oiFYYiUZf+IRx5iwQPY3ikqCPF4JWFWp1lyNGr+gi0KP2k9xd1bXgu62Qo3r?=
- =?us-ascii?Q?S0qLylnR+mUxDyb6NE5lOykzP+iONx3gBupt2wXCXjICiVUrT4EQruWdLNek?=
- =?us-ascii?Q?EaqfvALcw5ZsGQviBd5q6Vo9HfCJeEKOhwIHiB8cQYCibnWE+K4FUCH/RPbI?=
- =?us-ascii?Q?ywcbyKhbNBIUK3jZraVThA8L59fPqezDp56QB1CkrMvGh/ejmRDvrzafXqb/?=
- =?us-ascii?Q?aqlPdLezGsmP9J8r4cLxxsnsXl0bsVtnQ+KBwAhFR/VqlLteBPV4phtc0H1y?=
- =?us-ascii?Q?mcEBauCwQhRcooLKEt9RJFhr0KUSJPfnTqZOWziMNWcrC0HXqJXH1th2djWa?=
- =?us-ascii?Q?h8ZrgumRUFA+B2KORhX1BW35rqMBmMHauxfsakM6Z7etIGk+FvWm6FlMKpDO?=
- =?us-ascii?Q?vc3pmIr3k0nzX7NGeBNJWDPsYjVLcuPQtdRtK+qSz5YyUF4Nb3CpEqqI79QW?=
- =?us-ascii?Q?xKnjsdYgmZ02EaS7GQSPKQCVCcVHN24WKuXouSiV5AQLy3PuH+t9IDMBBKMY?=
- =?us-ascii?Q?2K0PbPV/aC2FfXGutORAthOjnOs549Ibe2MP2Bdv8o4/imODm4cMPZtvCATL?=
- =?us-ascii?Q?1JzAvJkr+iG8PrWTQ3oJLAu2+q28zN8832oCpQPbMilBmFy4tbWJ6ZN9x0au?=
- =?us-ascii?Q?Nk2AJZyMuXAoGSPaXWFkbgI5KQIDh17hu1Y4TRcwNsXyg172ZRsxpTc28J31?=
- =?us-ascii?Q?uQgZVB6I39KcvZMwfsUb6ZqLyUvKJt5pLuhGZVDBfZrvL5hJAsEDxeTW241/?=
- =?us-ascii?Q?/5cVvXY3MIQit3kCVhMvz5uSW42p0F3nlYeNeIw4RhphdR0EThTcP/KoGUCZ?=
- =?us-ascii?Q?vVzHuUO1GxbyEwmd4yb5BjMCLLtkjI/4gaGvIk1Dem29ZsR6E7YrYKan8+gM?=
- =?us-ascii?Q?435B33A4vtHujE717OyETE82K2TD76C9ikV6V9km3uP+nm7aSP5dTdPEpOB2?=
- =?us-ascii?Q?bo3aJYfnwg7OXd6OAsTSxDVGtvp4v6VcwNWCOwuf+6w+MSGmj5eQRD80rTaZ?=
- =?us-ascii?Q?+SsPOMK5mRDqASDSh4KVvX1bjLxoomuj2tAmKw/7RUjd3aTDe1KB8GBGA0am?=
- =?us-ascii?Q?9YktJuqk02aIKG6b8vEj/plBu6IZEHQXulzl2C5OSEZ5QUjZhS5PMSkLH6BG?=
- =?us-ascii?Q?4tEl2iGqPnHPjPz2fOrQNwek9mkdqrVexBfoVnJzPX7nJf+wzXBlFFirdFER?=
- =?us-ascii?Q?c9EIJYrtwyhyIP0lf3ViNcuBJ1LP?=
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 366e6d0b-f755-492c-631c-08d989baf4b9
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR2101MB1092.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Oct 2021 17:50:31.6685
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: icy51LPT+hW9MsNXj6CQIlgjzQJFIA2UYfX9MygHrB8DF5K66N8WipdIV+V2VwbgPu7Ep7l/WnTWS9AFJ8WGDw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR2101MB0996
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.286-1-g43b37e8c0b4e
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.4
+Subject: stable-rc/queue/4.4 baseline: 83 runs,
+ 7 regressions (v4.4.286-1-g43b37e8c0b4e)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-After commit ea2f0f77538c, a 416-CPU VM running on Hyper-V hangs during
-boot because scsi_add_host_with_dma() sets shost->cmd_per_lun to a
-negative number (the below numbers may differ in different kernel versions):
-in drivers/scsi/storvsc_drv.c, 	storvsc_drv_init() sets
-'max_outstanding_req_per_channel' to 352, and storvsc_probe() sets
-'max_sub_channels' to (416 - 1) / 4 = 103 and sets scsi_driver.can_queue to
-352 * (103 + 1) * (100 - 10) / 100 = 32947, which exceeds SHRT_MAX.
+stable-rc/queue/4.4 baseline: 83 runs, 7 regressions (v4.4.286-1-g43b37e8c0=
+b4e)
 
-Use min_t(int, ...) to fix the issue.
+Regressions Summary
+-------------------
 
-Fixes: ea2f0f77538c ("scsi: core: Cap scsi_host cmd_per_lun at can_queue")
-Cc: stable@vger.kernel.org
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
----
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+panda               | arm  | lab-collabora | gcc-8    | omap2plus_defconfig=
+ | 1          =
 
-v1 tried to fix the issue by changing the storvsc driver:
-https://lwn.net/ml/linux-kernel/BYAPR21MB1270BBC14D5F1AE69FC31A16BFB09@BYAPR21MB1270.namprd21.prod.outlook.com/
+qemu_arm-virt-gicv2 | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig =
+ | 1          =
 
-v2 directly fixes the scsi core change instead as Michael Kelley and
-John Garry suggested (refer to the above link).
+qemu_arm-virt-gicv2 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
+ | 1          =
 
- drivers/scsi/hosts.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+qemu_arm-virt-gicv2 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
+ | 1          =
 
-diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
-index 3f6f14f0cafb..24b72ee4246f 100644
---- a/drivers/scsi/hosts.c
-+++ b/drivers/scsi/hosts.c
-@@ -220,7 +220,8 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
- 		goto fail;
- 	}
- 
--	shost->cmd_per_lun = min_t(short, shost->cmd_per_lun,
-+	/* Use min_t(int, ...) in case shost->can_queue exceeds SHRT_MAX */
-+	shost->cmd_per_lun = min_t(int, shost->cmd_per_lun,
- 				   shost->can_queue);
- 
- 	error = scsi_init_sense_cache(shost);
--- 
-2.25.1
+qemu_arm-virt-gicv3 | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig =
+ | 1          =
 
+qemu_arm-virt-gicv3 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
+ | 1          =
+
+qemu_arm-virt-gicv3 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
+ | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.286-1-g43b37e8c0b4e/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.286-1-g43b37e8c0b4e
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      43b37e8c0b4e5d504aa4fc7c4ec7af616f813e44 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+panda               | arm  | lab-collabora | gcc-8    | omap2plus_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615efb72fb562657b399a42c
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.286-1=
+-g43b37e8c0b4e/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.286-1=
+-g43b37e8c0b4e/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/615efb72fb56265=
+7b399a432
+        failing since 0 day (last pass: v4.4.285-41-g63c3880750fc, first fa=
+il: v4.4.285-41-ge78bed372f2f)
+        2 lines
+
+    2021-10-07T13:51:25.628495  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/123
+    2021-10-07T13:51:25.637830  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+26c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-10-07T13:51:25.658257  [   19.443817] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+qemu_arm-virt-gicv2 | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615efcb921a82e794399a2e6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.286-1=
+-g43b37e8c0b4e/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
+virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.286-1=
+-g43b37e8c0b4e/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
+virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615efcb921a82e794399a=
+2e7
+        failing since 327 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+qemu_arm-virt-gicv2 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615efd30995be90c1a99a301
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.286-1=
+-g43b37e8c0b4e/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-=
+gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.286-1=
+-g43b37e8c0b4e/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-=
+gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615efd30995be90c1a99a=
+302
+        failing since 327 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+qemu_arm-virt-gicv2 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615f155066f97d32d299a2ed
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.286-1=
+-g43b37e8c0b4e/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_arm=
+-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.286-1=
+-g43b37e8c0b4e/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_arm=
+-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615f155066f97d32d299a=
+2ee
+        failing since 327 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+qemu_arm-virt-gicv3 | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615efbf07ccba111b499a301
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.286-1=
+-g43b37e8c0b4e/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
+virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.286-1=
+-g43b37e8c0b4e/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
+virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615efbf07ccba111b499a=
+302
+        failing since 327 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+qemu_arm-virt-gicv3 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615efda4554427026b99a2e8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.286-1=
+-g43b37e8c0b4e/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-=
+gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.286-1=
+-g43b37e8c0b4e/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-=
+gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615efda4554427026b99a=
+2e9
+        failing since 327 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+qemu_arm-virt-gicv3 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/615f1435dd1c3f4ebf99a468
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.286-1=
+-g43b37e8c0b4e/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_arm=
+-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.286-1=
+-g43b37e8c0b4e/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_arm=
+-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615f1435dd1c3f4ebf99a=
+469
+        failing since 327 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =20
