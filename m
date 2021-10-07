@@ -2,154 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE131424E0B
-	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 09:22:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3B26424E24
+	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 09:36:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232530AbhJGHYp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Oct 2021 03:24:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42024 "EHLO
+        id S232568AbhJGHhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Oct 2021 03:37:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232512AbhJGHYp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Oct 2021 03:24:45 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50A1FC061746
-        for <stable@vger.kernel.org>; Thu,  7 Oct 2021 00:22:52 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id ls14-20020a17090b350e00b001a00e2251c8so4379543pjb.4
-        for <stable@vger.kernel.org>; Thu, 07 Oct 2021 00:22:52 -0700 (PDT)
+        with ESMTP id S232512AbhJGHhv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Oct 2021 03:37:51 -0400
+Received: from mail-ot1-x32b.google.com (mail-ot1-x32b.google.com [IPv6:2607:f8b0:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32F9CC061746
+        for <stable@vger.kernel.org>; Thu,  7 Oct 2021 00:35:58 -0700 (PDT)
+Received: by mail-ot1-x32b.google.com with SMTP id c26-20020a056830349a00b0054d96d25c1eso6404499otu.9
+        for <stable@vger.kernel.org>; Thu, 07 Oct 2021 00:35:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=tFgxNHUBgbaAp2uVAex9rhUezklsVZLujtA2Scqjn+Q=;
-        b=AIpeBFwWEx5BOxAs14rWBV2xJ5RYGr3tB6+iigLeimkR0AMW8WzxMiBaXcm3WL7wWv
-         3bbyYHoMHDfagdT9PYHqlFAj+QhADB4yageO1poDYlUYX5oGHfC58uraYOtE3YKBdcH/
-         qQq8OU6Xlhv6ZRJh6Grx7Wq072qqOWJTM1PlNk5b6/HlzpTDdlltuewSgFs8YgMYWcjG
-         BiXF/5GFQEyZUaQAvR0qf2qNyEeGW/0xRhATj+QnZ7qRXUdnrAUWHEAcVsUjbQiQbNSE
-         Xjqis37AxAT+m0wJKvOmaS8NL16DdgKxKPqbDaQVWCL8FwAkF/VvUFo8lX0KYP8PYkLL
-         oWaA==
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=H46lBP7U3uS8gfic3XI+l15JbUNvAdGDD2k4mqDQUlQ=;
+        b=RUR4S9ARHKbAwjKOH7pritp2zK/Usd/+Pid7qxJP5E+4Edo6I0j1h4i79wCykLkrQj
+         o5x10xo1BgNvJRV+oleBbEDRnlOaARnhIqbu2khg4/+KQ8aqmwQxHTnBs1YzwSre3pxg
+         szJYQxwwVVfJUvzBgR3SXcYxLWerTxQaCHqZBrT6cqlurfkyXdb/q5JkJL1mZt5R6XNn
+         D52F9YetaWaekRn1UbqBtJnY7BGahWicPG2zMVnk6aeXQ/ji+BfZTJ/PzXMWlRoNT2tn
+         ufgcuSy+Q5eoZGQBNOntK0GeG0uyP32IECCnedsDLTdHXFjbXoMbl9dOScjZC10PUOQ2
+         KfUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=tFgxNHUBgbaAp2uVAex9rhUezklsVZLujtA2Scqjn+Q=;
-        b=YXCQDMiOu+uP+j7k8HVOviPmvXTu5VWIAczFCwizDqc52syOxdvPBxyDoW5amnRzn+
-         V67169J9d9AuOSl9VE1/XVmvrlA4eWdaohrRtaeSN/fV/Iycp+pHnNr+31CBQz/DG1VG
-         TIKm32KKiFyxGC4UXnZmZGhOrLReDBF/NltgN3Z6U7fFAA+pfBZtvwWw+te7PdCDX91o
-         xyS8C8RKWLh7/LZgqgdBRj+58k5UPhGdnROWqeArSFqQfZfyLizDN8YAFsYxehqKp2NE
-         /xZivx3vIyOkJLeRlmz3nvb1VmL8qoNhEn544rVLreHplOUsOfkRcYsSfew2y6vGLVUn
-         pzDg==
-X-Gm-Message-State: AOAM530SEbUHMJOMR02A4eyjdTUPFOI+vOhTK9cSyAqgN+LoiUPEtt/i
-        AnWbtM5ZawfpYm3B3MSmbA1gOZIYF+rYFnDd
-X-Google-Smtp-Source: ABdhPJzzm7mAgorKD3daaG6sr+4vrFU/Zzw8kHUED/Xg9oD1HsHOK/ZFY5MOQ7fJRg3PuhBnnMT+nA==
-X-Received: by 2002:a17:90a:c89:: with SMTP id v9mr3006991pja.71.1633591371654;
-        Thu, 07 Oct 2021 00:22:51 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p2sm24306457pgd.84.2021.10.07.00.22.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Oct 2021 00:22:51 -0700 (PDT)
-Message-ID: <615ea04b.1c69fb81.4bec2.8ed6@mx.google.com>
-Date:   Thu, 07 Oct 2021 00:22:51 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=H46lBP7U3uS8gfic3XI+l15JbUNvAdGDD2k4mqDQUlQ=;
+        b=1FkcC3IZsEtagiMxIoLUfu8p097XODbCFbz+0kEHzSgA4Hg8h8XbyUycw47/kNM8s8
+         J421vbsZS/pl8l0l88oHilHpEOzJta2u5Xq3alIRR6WdZ7fYoPEdQwZlxJbjDv9j3A59
+         ByaaplEEOL2tWGwPECbABwmNJvstTjTlzOsSNoPP6SdZCtX2Le188dfBJciLF9fEo1L/
+         P+6sj8anJ3RQeI7pXrKc5AcOgdo+ixB5yLbY/F/s3klmLZ6KsPIjrYITZfJdVOKow05w
+         kvZX8ZZSePwhfOu5e4Y5xrbihU7vhHGDDsVpojcYqGh4W8++U3NH62GAgV5GL1DjcTck
+         OxKg==
+X-Gm-Message-State: AOAM532w2xK+ujoVdkdU6PHGBfBreZstPi8+pVtrNEhG72ZrfbGyb0tF
+        Flew0P7FUJROvlQquxBAzPujyrbEZf8N97wps3U=
+X-Google-Smtp-Source: ABdhPJyiyTZljW0ga+1cqu7ZGdVGppCAZp3zf1xcpDCJOHkAyJL4uUn61VD27IzeiQ0sfeSqJuzTDRUWSEPo0Bd9EAw=
+X-Received: by 2002:a9d:a4d:: with SMTP id 71mr2355481otg.249.1633592156859;
+ Thu, 07 Oct 2021 00:35:56 -0700 (PDT)
 MIME-Version: 1.0
+Received: by 2002:a4a:96e7:0:0:0:0:0 with HTTP; Thu, 7 Oct 2021 00:35:55 -0700 (PDT)
+Reply-To: mohamedkasim794@yahoo.com
+From:   "Mr.Kasim Mohamed" <drjubrilubaro36@gmail.com>
+Date:   Thu, 7 Oct 2021 00:35:55 -0700
+Message-ID: <CA+7yYtPmUNQO-yjUpk9LA=ZGNET+N=h6Mi65OiBfR75TQkGfSw@mail.gmail.com>
+Subject: GOOD DAY
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.70-92-g164ad51675cf
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 baseline: 162 runs,
- 3 regressions (v5.10.70-92-g164ad51675cf)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 162 runs, 3 regressions (v5.10.70-92-g164ad5=
-1675cf)
+Dear Friend,
 
-Regressions Summary
--------------------
+Greetings.
 
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
+How are you doing today i hope fine?
 
+I came across your e-mail contact prior a private search while in need
+of your assistance. My name Mr.Kasim Mohamed =E2=80=99 I work with the
+department of Audit and accounting manager here in UBA Bank of Africa,
+There is this fund that was keep in my custody years ago and I need
+your assistance for the transferring of this fund to your bank account
+for both of us benefit for life time investment and the amount is (US
+$27,500. Million Dollars).
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.70-92-g164ad51675cf/plan/baseline/
+I have every inquiry details to make the bank believe you and release
+the fund to your bank account in within 7 banking working days with
+your full co-operation with me after success Note 50% for you while
+50% for me after success of the transfer of the funds to your bank
+account okay.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.70-92-g164ad51675cf
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      164ad51675cf3cabcbaff34615be2089a95378ca =
+WAITING TO HEAR FROM YOU.
+THANKS.
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/615e78e9460546ed0f99a2f2
-
-  Results:     67 PASS, 3 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
-92-g164ad51675cf/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288=
--veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.70-=
-92-g164ad51675cf/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288=
--veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/615e78e9460546ed0f99a306
-        failing since 113 days (last pass: v5.10.43-44-g253317604975, first=
- fail: v5.10.43-130-g87b5f83f722c)
-
-    2021-10-07T04:34:26.656854  /lava-4659965/1/../bin/lava-test-case
-    2021-10-07T04:34:26.674244  <8>[   13.545465] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
-    2021-10-07T04:34:26.674737  /lava-4659965/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/615e78e9460546ed0f99a31d
-        failing since 113 days (last pass: v5.10.43-44-g253317604975, first=
- fail: v5.10.43-130-g87b5f83f722c)
-
-    2021-10-07T04:34:25.234566  /lava-4659965/1/../bin/lava-test-case
-    2021-10-07T04:34:25.248101  <8>[   12.118840] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>
-    2021-10-07T04:34:25.248413  /lava-4659965/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/615e78e9460546ed0f99a31e
-        failing since 113 days (last pass: v5.10.43-44-g253317604975, first=
- fail: v5.10.43-130-g87b5f83f722c)
-
-    2021-10-07T04:34:24.211060  /lava-4659965/1/../bin/lava-test-case
-    2021-10-07T04:34:24.216614  <8>[   11.099339] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
- =20
+ Mr.Kasim Mohamed
