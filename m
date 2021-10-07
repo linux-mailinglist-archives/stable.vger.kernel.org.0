@@ -2,123 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B799425685
-	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 17:24:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E73D42568A
+	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 17:25:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232642AbhJGPZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Oct 2021 11:25:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40618 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230410AbhJGPZy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Oct 2021 11:25:54 -0400
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3517C061570
-        for <stable@vger.kernel.org>; Thu,  7 Oct 2021 08:24:00 -0700 (PDT)
-Received: by mail-ed1-x531.google.com with SMTP id d9so591315edh.5
-        for <stable@vger.kernel.org>; Thu, 07 Oct 2021 08:24:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=gHDuZTlGc2rJpzUr8UKQVYIrwD7USNVlq1NIiYVhYfw=;
-        b=mDcKpPSJ2ovp2qaHHZZU+Pv3JPFKAItNwoNirvaUfu8rWw/zVQviJym/hwXiOsuqsm
-         3yizOVJfWskSZ2toc+lfAaqMilOE0Fbwgh8nrgOPQPHz97sYE736T26FDoc25wGrOVh8
-         yI/fjTOuVRiSpi8ptiMixbpo4Kr5EpGwqsI5fZkHjp/YqKziz3pwgNlvDGC1xWjZ8oa0
-         aDB4HFQTQTXZ/6mREfakyGUvahUpBsGZHO3Dz9YgHPXXQczs12xYghxq08P3cWkNTYwM
-         lfPGBnsnXHcbiBfAp/tj6BYC6C0qy1AAb9uv4BfWiYgBGnTWIhlPIKBILpkZhjXiwgEb
-         FVwQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=gHDuZTlGc2rJpzUr8UKQVYIrwD7USNVlq1NIiYVhYfw=;
-        b=7PE/fspC7mVXxz5KU/pHWUE8F9+tq+UvUnFNhbvlzZq5UNbL1nPv+LodiMfby5xsyf
-         9+iZ0/wWrEmP/HMv83OHJgYK3WhIGRya94jw3oyRTDWVu/5Nm23WnTIephAuFAekz1Oj
-         zvhSzt6miiC/Jk9CUtZc4GG3csf9WCdF0+dRyl5c0eKFIMJNr4LcWkRO6hRoIt3t3cx9
-         dMzXyZbFMESuld7NbajxR/jFCs3MxLjB+C8OafDkaBHDEYEFJLDdkWXoY86MnzKf5ExT
-         FsIDPJJslw22FPhozjZp9c+Be7b/OrIAEdoOkP3HZdfIrtfXcZITrDPbrcgo86RYlRQv
-         m8BQ==
-X-Gm-Message-State: AOAM531tZIJsOdH3KOrXQtbzAxrGJx4vMYRFO6Udk59kuDHTyqkXDSEH
-        DJ59tmFyVAVYMRVp+rADw8JXWHaglY1Ts5pUP4Bk2A==
-X-Google-Smtp-Source: ABdhPJx8vDuz/FGDo+aeQxqTan7AcX4TUsajCf+a5kwlMl4oEVNWaMtznfPqVcaPbNQcX0D7KEHMZ9ZmfOq4Ji/etl4=
-X-Received: by 2002:a17:906:c302:: with SMTP id s2mr2419953ejz.499.1633620237988;
- Thu, 07 Oct 2021 08:23:57 -0700 (PDT)
+        id S230087AbhJGP1A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Oct 2021 11:27:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39988 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231366AbhJGP06 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Oct 2021 11:26:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1772E61090;
+        Thu,  7 Oct 2021 15:25:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1633620304;
+        bh=UGCRCYvmUhVObljPNJkwbU4BVXrBTDvuEF6Qpw5Rwzc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=JyIeCAiD13IiEXJ/WGJ79vL26uWDf4g9nPjfMIb9PSLkoJH4ghj9+ZybkXcMzo5/u
+         ah42NGp9Ty+/NFvUApFOU/oSjxpZ4FnKHa/oAj7pYYAWvItLv5aZK02H8b5hPuPPO8
+         E6GbZXf6rYpSE/DkGJRihAWwbX9eADnbMy74XBUc=
+Date:   Thu, 7 Oct 2021 17:25:02 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc:     Corentin =?iso-8859-1?Q?No=EBl?= <corentin.noel@collabora.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        virtualization@lists.linux-foundation.org,
+        regressions@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org
+Subject: Re: virtio-net: kernel panic in virtio_net.c
+Message-ID: <YV8RTqGSTuVLMFOP@kroah.com>
+References: <5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com>
+ <1633619172.5342586-1-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-References: <20211006133021.271905-1-sashal@kernel.org> <20211006133021.271905-4-sashal@kernel.org>
- <e5b8a6d4-6d5c-ada9-bb36-7ed3c8b7d637@redhat.com>
-In-Reply-To: <e5b8a6d4-6d5c-ada9-bb36-7ed3c8b7d637@redhat.com>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 7 Oct 2021 20:53:46 +0530
-Message-ID: <CA+G9fYt6J2UTgC8Ths11xHefj6qYOqS0JMfSMoHYwvMy3NzxWQ@mail.gmail.com>
-Subject: Re: [PATCH MANUALSEL 5.14 4/9] KVM: x86: reset pdptrs_from_userspace
- when exiting smm
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        X86 ML <x86@kernel.org>, kvm list <kvm@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1633619172.5342586-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 6 Oct 2021 at 19:06, Paolo Bonzini <pbonzini@redhat.com> wrote:
->
-> On 06/10/21 15:30, Sasha Levin wrote:
-> > From: Maxim Levitsky <mlevitsk@redhat.com>
-> >
-> > [ Upstream commit 37687c403a641f251cb2ef2e7830b88aa0647ba9 ]
-> >
-> > When exiting SMM, pdpts are loaded again from the guest memory.
-> >
-> > This fixes a theoretical bug, when exit from SMM triggers entry to the
-> > nested guest which re-uses some of the migration
-> > code which uses this flag as a workaround for a legacy userspace.
-> >
-> > Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-> > Message-Id: <20210913140954.165665-4-mlevitsk@redhat.com>
-> > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > ---
-> >   arch/x86/kvm/x86.c | 7 +++++++
-> >   1 file changed, 7 insertions(+)
-> >
-> > diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-> > index b3f855d48f72..1e7d629bbf36 100644
-> > --- a/arch/x86/kvm/x86.c
-> > +++ b/arch/x86/kvm/x86.c
-> > @@ -7659,6 +7659,13 @@ static void kvm_smm_changed(struct kvm_vcpu *vcpu, bool entering_smm)
-> >
-> >               /* Process a latched INIT or SMI, if any.  */
-> >               kvm_make_request(KVM_REQ_EVENT, vcpu);
-> > +
-> > +             /*
-> > +              * Even if KVM_SET_SREGS2 loaded PDPTRs out of band,
-> > +              * on SMM exit we still need to reload them from
-> > +              * guest memory
-> > +              */
-> > +             vcpu->arch.pdptrs_from_userspace = false;
-> >       }
-> >
-> >       kvm_mmu_reset_context(vcpu);
-> >
->
-> Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+On Thu, Oct 07, 2021 at 11:06:12PM +0800, Xuan Zhuo wrote:
+> On Thu, 07 Oct 2021 14:04:22 +0200, Corentin Noël <corentin.noel@collabora.com> wrote:
+> > I've been experiencing crashes with 5.14-rc1 and above that do not
+> > occur with 5.13,
+> 
+> I should have fixed this problem before. I don't know why, I just looked at the
+> latest net code, and this commit seems to be lost.
+> 
+>      1a8024239dacf53fcf39c0f07fbf2712af22864f virtio-net: fix for skb_over_panic inside big mode
+> 
+> Can you test this patch again?
 
-Is this expected to be in stable-rc 5.10 and below ?
-Because it is breaking the builds on queue/5.10, queue/5.4 and older branches.
+That commit showed up in 5.13-rc5, so 5.14-rc1 and 5.13 should have had
+it in it, right?
 
-arch/x86/kvm/x86.c: In function 'kvm_smm_changed':
-arch/x86/kvm/x86.c:6612:27: error: 'struct kvm_vcpu_arch' has no
-member named 'pdptrs_from_userspace'
- 6612 |                 vcpu->arch.pdptrs_from_userspace = false;
-      |                           ^
-make[3]: *** [scripts/Makefile.build:262: arch/x86/kvm/x86.o] Error 1
+thanks,
 
-ref:
-https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc-queues/-/jobs/1658987088#L443
-
-- Naresh
+greg k-h
