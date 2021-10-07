@@ -2,78 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC28F4257C5
-	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 18:21:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDF7B425871
+	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 18:51:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232323AbhJGQXF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Oct 2021 12:23:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37332 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241846AbhJGQXE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Oct 2021 12:23:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85CE061245;
-        Thu,  7 Oct 2021 16:21:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633623671;
-        bh=BalsQIewaM6OZkJRMKgt4kFUsr36Qobh/+HBXkovAsc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=y6Xs1be47WqT0hbyAxXWOXgLhzPJqv324AjeinCjB5EwuxW2nCL+3jVTqN3Eut4Rp
-         pK25QjEfVNzObZVMj9ZY/oV4CWe5p87JLz8VzVnLhSRI8pAPXFQgSQ+d7yJBZVhM+1
-         S0fykHY/yLcLt09glThJFAA5xohUVMFG2jX2nykc=
-Date:   Thu, 7 Oct 2021 18:21:08 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jann Horn <jannh@google.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Eric Dumazet <edumazet@google.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.14 54/75] af_unix: fix races in sk_peer_pid and
- sk_peer_cred accesses
-Message-ID: <YV8edF6SILKaJ/o2@kroah.com>
-References: <20211004125031.530773667@linuxfoundation.org>
- <20211004125033.335733437@linuxfoundation.org>
- <CAG48ez1yJxTZJNPsxgy7FVq40MVXoc0_h4-s0gH-xfM1s2tStA@mail.gmail.com>
+        id S242854AbhJGQwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Oct 2021 12:52:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33568 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229810AbhJGQwy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Oct 2021 12:52:54 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86373C061570
+        for <stable@vger.kernel.org>; Thu,  7 Oct 2021 09:51:00 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id cs11-20020a17090af50b00b0019fe3df3dddso5766822pjb.0
+        for <stable@vger.kernel.org>; Thu, 07 Oct 2021 09:51:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=fSbgU3ISBRgRlS1+YSsV/26S/a+IYBoftGk/kuNN+xQ=;
+        b=NfsYGlANDwaLErG8m6NprncrHboq3GsyJopYjiXyd55ygkpW5v1zijdFeyzsFgwpwO
+         V8gnL1sQ6KoT8m0duPMX8MVuFYbWxMhutlKPu2mVr4nFu6neKm4KfWhBAZy0QuHIRqUj
+         8pLCdW5MBO2EagLtcKTQh7WBlhOd0AEVecKoAaCTE2KxsLM/EHKD0x8pNxiMzLbqzWN1
+         gCzReYdNiYEpC2X0Aqr7LtGkVY9Diei2i/ZWiqU7d5gGgFedrHBvuqNNQJ4CboKpcSAm
+         sg6GooZ1eUMV9fXHiScE/RubWkkJlhk7R5S3JORd+OsMdH9lMQI5j+zPOvBnmdh/UNvV
+         zp8w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=fSbgU3ISBRgRlS1+YSsV/26S/a+IYBoftGk/kuNN+xQ=;
+        b=FlQ7NaswdOH08WqyfyegAR8SHs1e95OqMloXgmMkICDfbKGj7yVmBGHkq4PEGOymD5
+         1a3GRh/CuT3N2lD66/eSfDaEZirIFJj1i7x3T6DIeIhZorXg+K0+oy9JSSsfQEWdyks9
+         aR0tWNyiOLjKsaBHlKMwGqpk2JUpW6W25VMLgQdBjDPU17ZwJQTuWbr5C6Zc7oM0BBeB
+         gpevYUWUG4hDywiS8rPl/mQ4InD4bf26RrFbTidit6Chjbhk+oBfssFt24b9lfMhDwBH
+         1Zdx8FyCcsmwCU6hWRAljRAGtxXH9sWZjzmBpqZUHD0lkbhRqchsg+SUrsMyupkmOgo4
+         pYJg==
+X-Gm-Message-State: AOAM532YJDFi1UR/MMIJ5YUaEylCWyMNSYYy0RFHNzJlgSz6y4R30jVd
+        DE3XFtW/MIFP573sfP5FQYrAB8cxyxuamBrf
+X-Google-Smtp-Source: ABdhPJzXTTrs0MiL1/KhPIflk25jnkAaj3JCVkIzBsTD7tb4gjf7QcJmCimnPWwIP1NC4x53vnu6Lw==
+X-Received: by 2002:a17:902:6f01:b0:13b:7b8b:84a3 with SMTP id w1-20020a1709026f0100b0013b7b8b84a3mr4723635plk.40.1633625459835;
+        Thu, 07 Oct 2021 09:50:59 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b16sm115841pfm.58.2021.10.07.09.50.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 Oct 2021 09:50:59 -0700 (PDT)
+Message-ID: <615f2573.1c69fb81.7a61c.07b6@mx.google.com>
+Date:   Thu, 07 Oct 2021 09:50:59 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAG48ez1yJxTZJNPsxgy7FVq40MVXoc0_h4-s0gH-xfM1s2tStA@mail.gmail.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.14.10
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.14.y
+Subject: stable/linux-5.14.y baseline: 154 runs, 2 regressions (v5.14.10)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 07, 2021 at 05:57:54PM +0200, Jann Horn wrote:
-> On Mon, Oct 4, 2021 at 3:00 PM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > From: Eric Dumazet <edumazet@google.com>
-> >
-> > [ Upstream commit 35306eb23814444bd4021f8a1c3047d3cb0c8b2b ]
-> >
-> > Jann Horn reported that SO_PEERCRED and SO_PEERGROUPS implementations
-> > are racy, as af_unix can concurrently change sk_peer_pid and sk_peer_cred.
-> >
-> > In order to fix this issue, this patch adds a new spinlock that needs
-> > to be used whenever these fields are read or written.
-> >
-> > Jann also pointed out that l2cap_sock_get_peer_pid_cb() is currently
-> > reading sk->sk_peer_pid which makes no sense, as this field
-> > is only possibly set by AF_UNIX sockets.
-> > We will have to clean this in a separate patch.
-> > This could be done by reverting b48596d1dc25 "Bluetooth: L2CAP: Add get_peer_pid callback"
-> > or implementing what was truly expected.
-> >
-> > Fixes: 109f6e39fa07 ("af_unix: Allow SO_PEERCRED to work across namespaces.")
-> 
-> >From what I can tell, this fix only went into the stable trees for
-> >=4.14? SO_PEERGROUPS only appeared in 4.13, but the SO_PEERCRED in
-> 4.4 and 4.9 seems to have exactly the same UAF read as it has on the
-> newer kernels.
+stable/linux-5.14.y baseline: 154 runs, 2 regressions (v5.14.10)
 
-It doesn't apply cleanly there, can you provide a working backport?
+Regressions Summary
+-------------------
 
-thanks,
+platform   | arch  | lab          | compiler | defconfig          | regress=
+ions
+-----------+-------+--------------+----------+--------------------+--------=
+----
+beagle-xm  | arm   | lab-baylibre | gcc-8    | multi_v7_defconfig | 1      =
+    =
 
-greg k-h
+imx8mp-evk | arm64 | lab-nxp      | gcc-8    | defconfig          | 1      =
+    =
+
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.14.y/kernel=
+/v5.14.10/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.14.y
+  Describe: v5.14.10
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      b133f076639b918bb6ad157f6308b0f595058959 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch  | lab          | compiler | defconfig          | regress=
+ions
+-----------+-------+--------------+----------+--------------------+--------=
+----
+beagle-xm  | arm   | lab-baylibre | gcc-8    | multi_v7_defconfig | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/615ef34642a96737a799a2ea
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.14.y/v5.14.10/a=
+rm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-xm.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.14.y/v5.14.10/a=
+rm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615ef34642a96737a799a=
+2eb
+        new failure (last pass: v5.14.9) =
+
+ =
+
+
+
+platform   | arch  | lab          | compiler | defconfig          | regress=
+ions
+-----------+-------+--------------+----------+--------------------+--------=
+----
+imx8mp-evk | arm64 | lab-nxp      | gcc-8    | defconfig          | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/615eeedca3de08f45099a2f7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.14.y/v5.14.10/a=
+rm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.14.y/v5.14.10/a=
+rm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/615eeedca3de08f45099a=
+2f8
+        failing since 6 days (last pass: v5.14.7, first fail: v5.14.9) =
+
+ =20
