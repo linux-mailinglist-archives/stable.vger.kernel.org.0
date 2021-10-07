@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5785642554C
-	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 16:23:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41885425552
+	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 16:23:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242061AbhJGOY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Oct 2021 10:24:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41258 "EHLO mail.kernel.org"
+        id S242072AbhJGOZW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Oct 2021 10:25:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241688AbhJGOY5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Oct 2021 10:24:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0839D61029;
-        Thu,  7 Oct 2021 14:23:02 +0000 (UTC)
+        id S241688AbhJGOZU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Oct 2021 10:25:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0ABB3610A2;
+        Thu,  7 Oct 2021 14:23:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633616583;
-        bh=cDImrHkODIjoZYTu7Fo7pz+mDtNH2oOBxxOOoeVLwrU=;
+        s=korg; t=1633616606;
+        bh=uzllrbSzscxVCvK+ALjIoEDJeLwfGfHy53kxeJdcpdk=;
         h=Subject:To:From:Date:From;
-        b=j34nOeDGg4LmINm0IH8ws4I2tBe/iq24Lsf1U/vRUYqBhItbVWY+arrFdAHdLcqUf
-         lyUahCS8H5qd9B7S8EogpKGOqZcjK8SZYWA3sz3WtuB/BSAdwWw6/LOYLeDvMmKi0T
-         fC5nQu4yM0z8S+Q+QFKET6HpdWqreh0I7ATSxxhc=
-Subject: patch "Revert "serial: 8250: Fix reporting real baudrate value in c_ospeed" added to tty-testing
+        b=z7duEmWHrba19hXPmFQEqaeQG5aiLN+6IYlSeOjnzY3cQVXeqCwBHqm7tl9KczmFk
+         0pPbwyIv36W5sU28GV1Tm+JCVbfh9RI4/yIHzMmjbg0sWCw36EHl21XpJLPn3ozVON
+         JqB1+MDeHuLBRZs27icx9SJO2TX8II7pJZ80U23Y=
+Subject: patch "Revert "serial: 8250: Fix reporting real baudrate value in c_ospeed" added to tty-next
 To:     johan@kernel.org, gregkh@linuxfoundation.org, pali@kernel.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 07 Oct 2021 16:23:01 +0200
-Message-ID: <163361658180179@kroah.com>
+Date:   Thu, 07 Oct 2021 16:23:24 +0200
+Message-ID: <1633616604169170@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,13 +40,13 @@ This is a note to let you know that I've just added the patch titled
 
 to my tty git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-testing branch.
+in the tty-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
 
-The patch will be merged to the tty-next branch sometime soon,
-after it passes testing, and the merge window is open.
+The patch will also be merged in the next major kernel release
+during the merge window.
 
 If you have any questions about this process, please let me know.
 
