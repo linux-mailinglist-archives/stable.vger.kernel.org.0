@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C086A4258D6
-	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 19:05:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8C4E4258D7
+	for <lists+stable@lfdr.de>; Thu,  7 Oct 2021 19:05:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242917AbhJGRH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Oct 2021 13:07:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37046 "EHLO
+        id S242876AbhJGRHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Oct 2021 13:07:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242876AbhJGRH0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Oct 2021 13:07:26 -0400
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF223C061570
-        for <stable@vger.kernel.org>; Thu,  7 Oct 2021 10:05:31 -0700 (PDT)
-Received: by mail-wr1-x429.google.com with SMTP id o20so21116562wro.3
-        for <stable@vger.kernel.org>; Thu, 07 Oct 2021 10:05:31 -0700 (PDT)
+        with ESMTP id S242379AbhJGRHe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Oct 2021 13:07:34 -0400
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 905D0C061570
+        for <stable@vger.kernel.org>; Thu,  7 Oct 2021 10:05:40 -0700 (PDT)
+Received: by mail-wr1-x432.google.com with SMTP id t2so21149614wrb.8
+        for <stable@vger.kernel.org>; Thu, 07 Oct 2021 10:05:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=yT8BWw98ne1yIpW0t3VtiZPgqDZ4Qjw5d5DaO+/yNOQ=;
-        b=IUorRyOk0dd+Kaert/22r0aN31KSoSHhnsn8P5natp8iHIwPOhHO8b5wjp8/uJL8cl
-         MSiT1Y+FleQTPuRpuk8Qb/D+ma4a7IOmOVzo3WZcVS/Kr0NfmcuSJuSvLhAE4f5yTt3r
-         Kcpw6Clwk3paQnEINoWE/7/ES+7zw7R15zdt3YwErj8SRRSEi07eNxndXYgQV9aBIrae
-         lDOS6rhyLXmZJPlVD8/Jit2VzSdhlpS4OUdUtyINl5gqQgkBsQgnXb8/6/j/RvUWXfGa
-         jfrYQPt/CPdmPsDwnStrPFKQBLByJn+V6jDbkyUPXhks4y4x2Zj7xF7kUG32lEayBglY
-         /VBw==
+        bh=Wok8NLQCmfTMW1FRBpt9yU1QLcdKLocWhWkVpKdAgkc=;
+        b=XXTiO1Bi2G/Si0yp48ZtEb/PtGpAUmRyHqGS8Ex3aN8nLFGzIobs8ZnIQugF9gYVrY
+         HJwFwOjPd4xHTP+cDiOwsaeP+SAMEvGhbpxczszfNcqtIcAn8rNGj633jKTMn9WQHmu5
+         JJM4rTu8m8J1RnkGHe0c++/DyctWyEfs9I8Bn1d/en70bPn0sHduAbEustA2H5iFk+No
+         HufH0K+0rOZTz0rjHU1E0ht/kLIrXflwCCi93LgPJheDI7SSHAcx050rRQBr4pq+6dNi
+         h8zR6xCpUzc5DogxkhILR6NRXtphTLX2EEgbbcku0MSrKHEm8raAWAPr7HiJncVw3490
+         YAsw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=yT8BWw98ne1yIpW0t3VtiZPgqDZ4Qjw5d5DaO+/yNOQ=;
-        b=HO2uYxxkvuQxDFtkenjZENkdidUNo/tTBe4cK95k3hgLONssq0NxZULi70K2BGJXWW
-         YgumXqKX3D6y2UPEwaC993IIbXh4lok4+Oc9NCfr0blQsHIjk5GNDqSi2NDHQQczqso4
-         i1e+StFitGowVQl30Z95/gOJgHTFa3u9JO69JFwLxVRw6YD0Wr1n+gO39LcHYtQ4TSHb
-         2C+VlM38WNjuVReWQYbYc3zRAHizim5R5YGLMWUtegfS/vFCMctx//QqSxcuD5p6BPa7
-         7hbsmVbLKL2sxyQqZJnFEZhtcZSAP8h0VYxBJDpeHFaxJ52UAYhMzOPRc0dTDP0s0f6O
-         /1Aw==
-X-Gm-Message-State: AOAM533pk27o5IrMHWBwcUPhN/L8mQxvN+ab+ZlIIliHR/98TxfdL7h4
-        T9SKU87ZSHDgfaU+ujau3om3a9Vy2Fk4eg==
-X-Google-Smtp-Source: ABdhPJzfahePWfGmzXgExsI/Qg7la/Ck8bHPKgS/4p/+SCz6JDhVjqp096IQVoSbTfIBFeLO8qwekA==
-X-Received: by 2002:a5d:6dce:: with SMTP id d14mr7170718wrz.363.1633626329921;
-        Thu, 07 Oct 2021 10:05:29 -0700 (PDT)
+        bh=Wok8NLQCmfTMW1FRBpt9yU1QLcdKLocWhWkVpKdAgkc=;
+        b=asQFhqE+ph9D5Yn9MGI0b+Ynf2T5gTLhDVuHk5pNO6ucZqdoWtYZQmDhSbhg62NtpK
+         ssGKXl1vjn6kQVWjHM0h3ZpnQjufMXa30ZI0MY4HckgtVshjzSyNbqbs9z9Te03tdSxv
+         wQgiegezX3wI3blfYuPifUjs4dgsx94t4oD+jQ774uUUbQ2A7uX78Y4MryYwvPc7vjOu
+         zZZIntd9CJjHi+OZT09ZLuMIf9+3ALd5hB1K0mdUP2kOY2MNUT/NKeaT6izEaaBtfC2x
+         YLy+OKKglI112Sj8bkwqAB3luzjBHe1psc49TZzx1mCtOAM8ukdZ6Y9nApjx7a3hndxz
+         V8lA==
+X-Gm-Message-State: AOAM531kT2uqn2l3kycMcMSOv8xrjRkFGnR6zPF3QVqd4OveaxVtES6M
+        9iRKOtNAlF0HYvdJmSJNdC2FNjA6X/mRNg==
+X-Google-Smtp-Source: ABdhPJzNeEBGTXkkNm2Op/K1wvClEd0RIstsKuEeq6+KO712VMCFxqKdfZall1gu9z7uE1bquVABPQ==
+X-Received: by 2002:adf:9b97:: with SMTP id d23mr6798749wrc.135.1633626338837;
+        Thu, 07 Oct 2021 10:05:38 -0700 (PDT)
 Received: from localhost ([2a02:168:96c5:1:55ed:514f:6ad7:5bcc])
-        by smtp.gmail.com with ESMTPSA id d7sm228488wrh.13.2021.10.07.10.05.28
+        by smtp.gmail.com with ESMTPSA id f9sm193836wrt.11.2021.10.07.10.05.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Oct 2021 10:05:29 -0700 (PDT)
+        Thu, 07 Oct 2021 10:05:38 -0700 (PDT)
 From:   Jann Horn <jannh@google.com>
 To:     stable@vger.kernel.org
 Cc:     Eric Dumazet <edumazet@google.com>,
@@ -55,9 +55,9 @@ Cc:     Eric Dumazet <edumazet@google.com>,
         Marcel Holtmann <marcel@holtmann.org>,
         "David S . Miller" <davem@davemloft.net>,
         Jann Horn <jannh@google.com>
-Subject: [PATCH stable 4.4] af_unix: fix races in sk_peer_pid and sk_peer_cred accesses
-Date:   Thu,  7 Oct 2021 19:05:18 +0200
-Message-Id: <20211007170518.2587346-1-jannh@google.com>
+Subject: [PATCH stable 4.9] af_unix: fix races in sk_peer_pid and sk_peer_cred accesses
+Date:   Thu,  7 Oct 2021 19:05:36 +0200
+Message-Id: <20211007170536.2587403-1-jannh@google.com>
 X-Mailer: git-send-email 2.33.0.882.g93a45727a2-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
@@ -101,13 +101,13 @@ Signed-off-by: Jann Horn <jannh@google.com>
  3 files changed, 39 insertions(+), 9 deletions(-)
 
 diff --git a/include/net/sock.h b/include/net/sock.h
-index 1b657a3a30b5..3671bc7b7bc1 100644
+index cf27f3688c39..78c292f15ffc 100644
 --- a/include/net/sock.h
 +++ b/include/net/sock.h
-@@ -429,8 +429,10 @@ struct sock {
- #if IS_ENABLED(CONFIG_CGROUP_NET_PRIO)
- 	__u32			sk_cgrp_prioidx;
- #endif
+@@ -420,8 +420,10 @@ struct sock {
+ 	u32			sk_max_ack_backlog;
+ 	__u32			sk_priority;
+ 	__u32			sk_mark;
 +	spinlock_t		sk_peer_lock;
  	struct pid		*sk_peer_pid;
  	const struct cred	*sk_peer_cred;
@@ -116,10 +116,11 @@ index 1b657a3a30b5..3671bc7b7bc1 100644
  	long			sk_sndtimeo;
  	struct timer_list	sk_timer;
 diff --git a/net/core/sock.c b/net/core/sock.c
-index 82f9a7dbea6f..5e9ff8d9f9e3 100644
+index d468ffb5a31c..1845a37d9f7e 100644
 --- a/net/core/sock.c
 +++ b/net/core/sock.c
-@@ -1014,7 +1014,6 @@ set_rcvbuf:
+@@ -1011,7 +1011,6 @@ int sock_setsockopt(struct socket *sock, int level, i=
+nt optname,
  }
  EXPORT_SYMBOL(sock_setsockopt);
 =20
@@ -127,7 +128,7 @@ index 82f9a7dbea6f..5e9ff8d9f9e3 100644
  static void cred_to_ucred(struct pid *pid, const struct cred *cred,
  			  struct ucred *ucred)
  {
-@@ -1174,7 +1173,11 @@ int sock_getsockopt(struct socket *sock, int level, =
+@@ -1171,7 +1170,11 @@ int sock_getsockopt(struct socket *sock, int level, =
 int optname,
  		struct ucred peercred;
  		if (len > sizeof(peercred))
@@ -140,7 +141,7 @@ int optname,
  		if (copy_to_user(optval, &peercred, len))
  			return -EFAULT;
  		goto lenout;
-@@ -1467,9 +1470,10 @@ void sk_destruct(struct sock *sk)
+@@ -1439,9 +1442,10 @@ static void __sk_destruct(struct rcu_head *head)
  		sk->sk_frag.page =3D NULL;
  	}
 =20
@@ -153,7 +154,7 @@ int optname,
  	if (likely(sk->sk_net_refcnt))
  		put_net(sock_net(sk));
  	sk_prot_free(sk->sk_prot_creator, sk);
-@@ -2442,6 +2446,8 @@ void sock_init_data(struct socket *sock, struct sock =
+@@ -2490,6 +2494,8 @@ void sock_init_data(struct socket *sock, struct sock =
 *sk)
 =20
  	sk->sk_peer_pid 	=3D	NULL;
@@ -164,7 +165,7 @@ int optname,
  	sk->sk_rcvlowat		=3D	1;
  	sk->sk_rcvtimeo		=3D	MAX_SCHEDULE_TIMEOUT;
 diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-index cb9911dcafdb..242d170991b4 100644
+index 2c643e1919aa..e7e012933714 100644
 --- a/net/unix/af_unix.c
 +++ b/net/unix/af_unix.c
 @@ -594,20 +594,42 @@ static void unix_release_sock(struct sock *sk, int em=
@@ -218,7 +219,7 @@ brion)
 =20
  static int unix_listen(struct socket *sock, int backlog)
 
-base-commit: a123b2f4737a9f4e34e92e502972b6388f90133f
+base-commit: af222b7cde477ac2c3f757520bf7e6b7625a380f
 --=20
 2.33.0.882.g93a45727a2-goog
 
