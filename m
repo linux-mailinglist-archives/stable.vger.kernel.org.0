@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2795E426978
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:36:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8D62426954
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:34:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240325AbhJHLh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:37:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60680 "EHLO mail.kernel.org"
+        id S241901AbhJHLgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:36:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241608AbhJHLf5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:35:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B85C61029;
-        Fri,  8 Oct 2021 11:32:03 +0000 (UTC)
+        id S241764AbhJHLeH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:34:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF48160F21;
+        Fri,  8 Oct 2021 11:31:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692723;
-        bh=TlcQa+mkWgFKVPC9ORlPmHis2ze76S+cYuEFyfM1WR8=;
+        s=korg; t=1633692695;
+        bh=H8gT73qWs9QvZDEwxm1QJLZLlOdawtOYwPH/pJwvbgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J3fVxrVXJguZfawXWJFQtxYdNn0srwjg7h8XDmQCLGJeTf64r0oEQFe3dDm4R5lB8
-         bhsnLeYKY5H24W5RHfkeum8h4PcYICq0xsC0vuDY8U7TFEAFhx92GIJf2AnXRdbHsU
-         nD7nHE95yxOqdhuG4QiR00rJimxkKfEdhRBMSv0Q=
+        b=m5zR8ImkOohBYkea4fQQJ/0Jjxx9TLFCKntZhOMAP2n7MFO5aeuAA/6Dlj/2TaMko
+         QpjzM8YS6pDLBYT9pT+fzcpLKxK8y2x3qpRwypEcoRSnbanGeOjQOQwLgZCNtxKnyO
+         d+7edAttUrSjBvpYFABEAG12bRfRlF870ns+/KCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Ram Vegesna <ram.vegesna@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 16/48] scsi: elx: efct: Do not hold lock while calling fc_vport_terminate()
+Subject: [PATCH 5.10 05/29] btrfs: replace BUG_ON() in btrfs_csum_one_bio() with proper error handling
 Date:   Fri,  8 Oct 2021 13:27:52 +0200
-Message-Id: <20211008112720.560078449@linuxfoundation.org>
+Message-Id: <20211008112717.102361205@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112720.008415452@linuxfoundation.org>
-References: <20211008112720.008415452@linuxfoundation.org>
+In-Reply-To: <20211008112716.914501436@linuxfoundation.org>
+References: <20211008112716.914501436@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 450907424d9ebcc28fab42a065c3cddce49ee97d ]
+[ Upstream commit bbc9a6eb5eec03dcafee266b19f56295e3b2aa8f ]
 
-Smatch checker reported the following error:
+There is a BUG_ON() in btrfs_csum_one_bio() to catch code logic error.
+It has indeed caught several bugs during subpage development.
+But the BUG_ON() itself will bring down the whole system which is
+an overkill.
 
-  drivers/base/power/sysfs.c:833 dpm_sysfs_remove()
-  warn: sleeping in atomic context
+Replace it with a WARN() and exit gracefully, so that it won't crash the
+whole system while we can still catch the code logic error.
 
-With a calling sequence of:
-
-  efct_lio_npiv_drop_nport() <- disables preempt
-  -> fc_vport_terminate()
-     -> device_del()
-        -> dpm_sysfs_remove()
-
-Issue is efct_lio_npiv_drop_nport() is making the fc_vport_terminate() call
-while holding a lock w/ ipl raised.
-
-It is unnecessary to hold the lock over this call, shift where the lock is
-taken.
-
-Link: https://lore.kernel.org/r/20210907165225.10821-1-jsmart2021@gmail.com
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Co-developed-by: Ram Vegesna <ram.vegesna@broadcom.com>
-Signed-off-by: Ram Vegesna <ram.vegesna@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/elx/efct/efct_lio.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/file-item.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/elx/efct/efct_lio.c b/drivers/scsi/elx/efct/efct_lio.c
-index e0d798d6baee..f1d6fcfe12f0 100644
---- a/drivers/scsi/elx/efct/efct_lio.c
-+++ b/drivers/scsi/elx/efct/efct_lio.c
-@@ -880,11 +880,11 @@ efct_lio_npiv_drop_nport(struct se_wwn *wwn)
- 	struct efct *efct = lio_vport->efct;
- 	unsigned long flags = 0;
+diff --git a/fs/btrfs/file-item.c b/fs/btrfs/file-item.c
+index 48a2ea6d7092..2de1d8247494 100644
+--- a/fs/btrfs/file-item.c
++++ b/fs/btrfs/file-item.c
+@@ -568,7 +568,18 @@ blk_status_t btrfs_csum_one_bio(struct btrfs_inode *inode, struct bio *bio,
  
--	spin_lock_irqsave(&efct->tgt_efct.efct_lio_lock, flags);
--
- 	if (lio_vport->fc_vport)
- 		fc_vport_terminate(lio_vport->fc_vport);
+ 		if (!ordered) {
+ 			ordered = btrfs_lookup_ordered_extent(inode, offset);
+-			BUG_ON(!ordered); /* Logic error */
++			/*
++			 * The bio range is not covered by any ordered extent,
++			 * must be a code logic error.
++			 */
++			if (unlikely(!ordered)) {
++				WARN(1, KERN_WARNING
++			"no ordered extent for root %llu ino %llu offset %llu\n",
++				     inode->root->root_key.objectid,
++				     btrfs_ino(inode), offset);
++				kvfree(sums);
++				return BLK_STS_IOERR;
++			}
+ 		}
  
-+	spin_lock_irqsave(&efct->tgt_efct.efct_lio_lock, flags);
-+
- 	list_for_each_entry_safe(vport, next_vport, &efct->tgt_efct.vport_list,
- 				 list_entry) {
- 		if (vport->lio_vport == lio_vport) {
+ 		nr_sectors = BTRFS_BYTES_TO_BLKS(fs_info,
 -- 
 2.33.0
 
