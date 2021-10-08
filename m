@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 300BF42698E
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:37:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46B6C426902
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:31:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240483AbhJHLjS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:39:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59714 "EHLO mail.kernel.org"
+        id S240577AbhJHLdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:33:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240555AbhJHLgV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:36:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 404B96101A;
-        Fri,  8 Oct 2021 11:32:29 +0000 (UTC)
+        id S240891AbhJHLcW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:32:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B87B361073;
+        Fri,  8 Oct 2021 11:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692749;
-        bh=/vMdnTGIRNxo4mGYHll6b4s9a8WgufEfVbRp/DlK4b8=;
+        s=korg; t=1633692615;
+        bh=X7Jx8wRftHR4Xx+n+Ynd+iY4sJtTY0t/te8BqMaAYzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0OneRfH21d3TL2doDeaIM9vjn+MA+On3yjXVwpQjJWFmZrbKNadr+x8eymjy5ADj3
-         V3avtS6qUuyCs6CrbCIm3JmVst4LN1GZHdUWDx73QFEF0t+olQ4Wu/q2cyFAGZULYZ
-         kE7WY1MR5wnpSMuLdSMA23csKHBQ9nHCOsyPtuGc=
+        b=1gVXmkLitALpvcJUle28VaCkjAm6m0PaEf9nsWehsd/y7aXHxJcPPtVN6rE2eTH/E
+         hlDERs+gjmwKStwKSaK4Wr1X7LsDqQVLPy3hmfmekIveBYF9346uEEliMUYhO+CYIQ
+         5repCwXik6KD2Bl4ci5ZxYonbjcWfNRcrR7CTF8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>,
+        stable@vger.kernel.org, Fares Mehanna <faresx@amazon.de>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 27/48] Xen/gntdev: dont ignore kernel unmapping error
+Subject: [PATCH 5.4 13/16] kvm: x86: Add AMD PMU MSRs to msrs_to_save_all[]
 Date:   Fri,  8 Oct 2021 13:28:03 +0200
-Message-Id: <20211008112720.924493120@linuxfoundation.org>
+Message-Id: <20211008112715.907701710@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112720.008415452@linuxfoundation.org>
-References: <20211008112720.008415452@linuxfoundation.org>
+In-Reply-To: <20211008112715.444305067@linuxfoundation.org>
+References: <20211008112715.444305067@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Fares Mehanna <faresx@amazon.de>
 
-[ Upstream commit f28347cc66395e96712f5c2db0a302ee75bafce6 ]
+[ Upstream commit e1fc1553cd78292ab3521c94c9dd6e3e70e606a1 ]
 
-While working on XSA-361 and its follow-ups, I failed to spot another
-place where the kernel mapping part of an operation was not treated the
-same as the user space part. Detect and propagate errors and add a 2nd
-pr_debug().
+Intel PMU MSRs is in msrs_to_save_all[], so add AMD PMU MSRs to have a
+consistent behavior between Intel and AMD when using KVM_GET_MSRS,
+KVM_SET_MSRS or KVM_GET_MSR_INDEX_LIST.
 
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/c2513395-74dc-aea3-9192-fd265aa44e35@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+We have to add legacy and new MSRs to handle guests running without
+X86_FEATURE_PERFCTR_CORE.
+
+Signed-off-by: Fares Mehanna <faresx@amazon.de>
+Message-Id: <20210915133951.22389-1-faresx@amazon.de>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/gntdev.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/x86/kvm/x86.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
-index a3e7be96527d..23fd09a9bbaf 100644
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -396,6 +396,14 @@ static int __unmap_grant_pages(struct gntdev_grant_map *map, int offset,
- 			map->unmap_ops[offset+i].handle,
- 			map->unmap_ops[offset+i].status);
- 		map->unmap_ops[offset+i].handle = INVALID_GRANT_HANDLE;
-+		if (use_ptemod) {
-+			if (map->kunmap_ops[offset+i].status)
-+				err = -EINVAL;
-+			pr_debug("kunmap handle=%u st=%d\n",
-+				 map->kunmap_ops[offset+i].handle,
-+				 map->kunmap_ops[offset+i].status);
-+			map->kunmap_ops[offset+i].handle = INVALID_GRANT_HANDLE;
-+		}
- 	}
- 	return err;
- }
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index eed058529e4b..dfd70ed34f88 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1239,6 +1239,13 @@ static const u32 msrs_to_save_all[] = {
+ 	MSR_ARCH_PERFMON_EVENTSEL0 + 12, MSR_ARCH_PERFMON_EVENTSEL0 + 13,
+ 	MSR_ARCH_PERFMON_EVENTSEL0 + 14, MSR_ARCH_PERFMON_EVENTSEL0 + 15,
+ 	MSR_ARCH_PERFMON_EVENTSEL0 + 16, MSR_ARCH_PERFMON_EVENTSEL0 + 17,
++
++	MSR_K7_EVNTSEL0, MSR_K7_EVNTSEL1, MSR_K7_EVNTSEL2, MSR_K7_EVNTSEL3,
++	MSR_K7_PERFCTR0, MSR_K7_PERFCTR1, MSR_K7_PERFCTR2, MSR_K7_PERFCTR3,
++	MSR_F15H_PERF_CTL0, MSR_F15H_PERF_CTL1, MSR_F15H_PERF_CTL2,
++	MSR_F15H_PERF_CTL3, MSR_F15H_PERF_CTL4, MSR_F15H_PERF_CTL5,
++	MSR_F15H_PERF_CTR0, MSR_F15H_PERF_CTR1, MSR_F15H_PERF_CTR2,
++	MSR_F15H_PERF_CTR3, MSR_F15H_PERF_CTR4, MSR_F15H_PERF_CTR5,
+ };
+ 
+ static u32 msrs_to_save[ARRAY_SIZE(msrs_to_save_all)];
 -- 
 2.33.0
 
