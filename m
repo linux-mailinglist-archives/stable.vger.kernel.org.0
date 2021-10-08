@@ -2,161 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E01B1426527
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 09:19:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4B1542659A
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 10:05:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232424AbhJHHVm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 03:21:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33136 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232593AbhJHHVm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Oct 2021 03:21:42 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89831C061760
-        for <stable@vger.kernel.org>; Fri,  8 Oct 2021 00:19:47 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id g13-20020a17090a3c8d00b00196286963b9so8786918pjc.3
-        for <stable@vger.kernel.org>; Fri, 08 Oct 2021 00:19:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=7+g7lz1ipmRCKU1OiwvvBACzQBwvbIcjF+h0ftThR38=;
-        b=HynzP9EONAAL7NuMgpsIodOm/GQU/91Axg3BpDvfpk/uXcz7pkM6CYIXc9JgrK+bIE
-         L4bJWfnJgEkko1c/TbD9GgomaTeiqjQcyKgDapDOVqrdzgOZgDgng1Ip/UImZyvN3CHQ
-         AKxkCcEws7LQjRjjgXCbw0hMiumLiECB073xGA/CAD4h9RY7Xv68XyeuQp9+SfcqjRhl
-         DVe+Odep4Kcw2gAFalCBzedxYL3ybSEeIK8rQ8oZR9xanmfYRmUvK3bM6C83OBQ85Mo5
-         UNo08YZP1XiSH6Wpd7yF0SVIh/GZn5k+UBXbPusVQhnpmggGoVUScl3uHpltYoOmUU50
-         uBGQ==
+        id S233571AbhJHIHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 04:07:36 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:53066 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233345AbhJHIHf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Oct 2021 04:07:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1633680340;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=TF4BujFSeQ5kOB+yaF3TDp1qX43Am50rZssymfHLv4g=;
+        b=BALTjwHYUak61f0g1VNR5TpQqDHxuZGoj362MF3RrhB1eczwTIQXYpCVQIj1PZ5Qx0dhBd
+        HSWMzThy6m8BZ1UMUrjxlU9S6Cvwe5q44Gy6FSFTBUDo4Yrj2uEK1zjdOSeFTscF4mTBNz
+        fe484o5YmqlZ9Qf6Cc5Nb4jf1nnVMjU=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-164-LNO8jgcNOHqjhkwBdvnGuw-1; Fri, 08 Oct 2021 04:05:39 -0400
+X-MC-Unique: LNO8jgcNOHqjhkwBdvnGuw-1
+Received: by mail-wr1-f71.google.com with SMTP id 75-20020adf82d1000000b00160cbb0f800so5895318wrc.22
+        for <stable@vger.kernel.org>; Fri, 08 Oct 2021 01:05:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=7+g7lz1ipmRCKU1OiwvvBACzQBwvbIcjF+h0ftThR38=;
-        b=DZ2Sa4wMgJf9L03wrj+c7vu5M73xFLxKniLOGIBX+wTwDjbDGoCd2JR9vwAI1C4Qqu
-         9vRhtIISlwwFeAS6AWwUEzLFi3urkKADJEdyswBX+cS9SxA2XXP11oyB1PYrecJoZKSj
-         5DNt/954e7vxrf7ijr8EMdKNSvS7y61QmucMzYPKVvWuJrn9wZroH2QvfJzkCXtyRo3x
-         3NTl3qt/Sf4mZ62/fr7ZUZtS91ish6OxZBJdNARCFz3PkkvibknxLgWStvQETIfEA67z
-         8w0uOtJ+Hyf6+mSMT2WCt9awg6sVPQcBhWmnJ4NAqaW7FTtP+ysZIAStVfS5C2aLdJ6J
-         JGpw==
-X-Gm-Message-State: AOAM532t/kLY0QleVRwSqgAbP1xEHtVQ/MoFTuBW0aE4sTwBbIc09WT2
-        XD7oSNMG7ZRaKFar0q0/9rjCfJ5ylcPq226h
-X-Google-Smtp-Source: ABdhPJy/0XlqEnC0WM8tnqYT9NZlWITYmgnlLfg5lo8wFBhXYSCgDg5mISwoXwjWn80eI9e8KefnLA==
-X-Received: by 2002:a17:90a:dc81:: with SMTP id j1mr9946900pjv.155.1633677586952;
-        Fri, 08 Oct 2021 00:19:46 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 184sm1567949pfw.49.2021.10.08.00.19.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Oct 2021 00:19:46 -0700 (PDT)
-Message-ID: <615ff112.1c69fb81.ecf35.526e@mx.google.com>
-Date:   Fri, 08 Oct 2021 00:19:46 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:to:cc:references:from:organization:subject
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=TF4BujFSeQ5kOB+yaF3TDp1qX43Am50rZssymfHLv4g=;
+        b=LNdh51tdniCDt+h4ZeaElJovinicBQxRIMFGkKHMT9d891e0LDFv39giZTgjl0YkPz
+         Rv4Fc5zS+tCJTJhVJBqyJQqmlz7oZ739qsPsreiuAyL2VxB6AmS28zH6oA/7gnqgFsp7
+         fNPEN0iwg8M2CdqeljcOn4X4hglpMIUiFDdYLwKhmsOVvAfL+Y6YglXf3dfGAWAgF283
+         2ft7+naQ+Gswnj46KteLBBw0rbDRSAMxfqxQu/+vHy5NqJFptd5bioNTQzVjxgPFuIXU
+         zvh78StbDhzFFRB9agSC4cygVVuVgmQIlQKRf8mMkfbNLYZOeSy7/Wjnjxg/7HWX+wUS
+         +9Qw==
+X-Gm-Message-State: AOAM531GZdfeSmD6DnOJioYbffaAl+5+hVpLAFbK9Xmf3YcvXxP0t947
+        AobEI1WOi//VBXYD+0rgvbDL0MKAxkM1biB7iudSNZ20RQLtQZ8JeGQOLKi/kt88vceuJKZqKUS
+        Dh6eCEZ9LVl1mbOeagbc71TuXum/61QnfrDqncHFYdfzXT48Nm3v0fgBIGAYeeToB
+X-Received: by 2002:a1c:2b85:: with SMTP id r127mr834474wmr.134.1633680338086;
+        Fri, 08 Oct 2021 01:05:38 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw0n6ilNdp7Wy9iR8wZmeJdLnDy4XTbFxhcWRg9/5MjxxWYBVQf1jYwMpPIUJV3qF0MIQ1dOw==
+X-Received: by 2002:a1c:2b85:: with SMTP id r127mr834441wmr.134.1633680337829;
+        Fri, 08 Oct 2021 01:05:37 -0700 (PDT)
+Received: from [192.168.3.132] (p5b0c676e.dip0.t-ipconnect.de. [91.12.103.110])
+        by smtp.gmail.com with ESMTPSA id r18sm1744195wrs.47.2021.10.08.01.05.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 08 Oct 2021 01:05:37 -0700 (PDT)
+To:     Nadav Amit <nadav.amit@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Xu <peterx@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Nadav Amit <namit@vmware.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Jan Kara <jack@suse.cz>, stable@vger.kernel.org
+References: <20211007235055.469587-1-namit@vmware.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH] mm/userfaultfd: provide unmasked address on page-fault
+Message-ID: <d5a244e9-a04e-8794-e55f-380db5e8c6c4@redhat.com>
+Date:   Fri, 8 Oct 2021 10:05:36 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.71-27-g0503cdd00c93
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 baseline: 145 runs,
- 2 regressions (v5.10.71-27-g0503cdd00c93)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20211007235055.469587-1-namit@vmware.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 145 runs, 2 regressions (v5.10.71-27-g0503cd=
-d00c93)
+On 08.10.21 01:50, Nadav Amit wrote:
+> From: Nadav Amit <namit@vmware.com>
+> 
+> Userfaultfd is supposed to provide the full address (i.e., unmasked) of
+> the faulting access back to userspace. However, that is not the case for
+> quite some time.
+> 
+> Even running "userfaultfd_demo" from the userfaultfd man page provides
+> the wrong output (and contradicts the man page). Notice that
+> "UFFD_EVENT_PAGEFAULT event" shows the masked address.
+> 
+> 	Address returned by mmap() = 0x7fc5e30b3000
+> 
+> 	fault_handler_thread():
+> 	    poll() returns: nready = 1; POLLIN = 1; POLLERR = 0
+> 	    UFFD_EVENT_PAGEFAULT event: flags = 0; address = 7fc5e30b3000
+> 		(uffdio_copy.copy returned 4096)
+> 	Read address 0x7fc5e30b300f in main(): A
+> 	Read address 0x7fc5e30b340f in main(): A
+> 	Read address 0x7fc5e30b380f in main(): A
+> 	Read address 0x7fc5e30b3c0f in main(): A
+> 
+> Add a new "real_address" field to vmf to hold the unmasked address. It
+> is possible to keep the unmasked address in the existing address field
+> (and mask whenever necessary) instead, but this is likely to cause
+> backporting problems of this patch.
 
-Regressions Summary
--------------------
+Can we be sure that no existing users will rely on this behavior that 
+has been the case since end of 2016 IIRC, one year after UFFD was 
+upstreamed? I do wonder what the official ABI nowadays is, because man 
+pages aren't necessarily the source of truth.
 
-platform    | arch  | lab           | compiler | defconfig      | regressio=
-ns
-------------+-------+---------------+----------+----------------+----------=
---
-hip07-d05   | arm64 | lab-collabora | gcc-8    | defconfig      | 1        =
-  =
+I checked QEMU (postcopy live migration), and I think it should be fine 
+with this change.
 
-i945gsex-qs | i386  | lab-clabbe    | gcc-8    | i386_defconfig | 1        =
-  =
+If we don't want to change the current ABI behavior, we could add a new 
+feature flag to change behavior.
 
+@Peter, what are your thoughts?
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.71-27-g0503cdd00c93/plan/baseline/
+-- 
+Thanks,
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.71-27-g0503cdd00c93
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0503cdd00c93cd43022c0f86563ac6c27aac7ca2 =
+David / dhildenb
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform    | arch  | lab           | compiler | defconfig      | regressio=
-ns
-------------+-------+---------------+----------+----------------+----------=
---
-hip07-d05   | arm64 | lab-collabora | gcc-8    | defconfig      | 1        =
-  =
-
-
-  Details:     https://kernelci.org/test/plan/id/615fbc40d8c70d455999a336
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.71-=
-27-g0503cdd00c93/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.71-=
-27-g0503cdd00c93/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/615fbc40d8c70d455999a=
-337
-        failing since 98 days (last pass: v5.10.46-100-gce5b41f85637, first=
- fail: v5.10.46-100-g3b96099161c8b) =
-
- =
-
-
-
-platform    | arch  | lab           | compiler | defconfig      | regressio=
-ns
-------------+-------+---------------+----------+----------------+----------=
---
-i945gsex-qs | i386  | lab-clabbe    | gcc-8    | i386_defconfig | 1        =
-  =
-
-
-  Details:     https://kernelci.org/test/plan/id/615fb9dc980a6699df99a2e4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.71-=
-27-g0503cdd00c93/i386/i386_defconfig/gcc-8/lab-clabbe/baseline-i945gsex-qs.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.71-=
-27-g0503cdd00c93/i386/i386_defconfig/gcc-8/lab-clabbe/baseline-i945gsex-qs.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/615fb9dc980a6699df99a=
-2e5
-        new failure (last pass: v5.10.71-28-g2f55a27c87e9) =
-
- =20
