@@ -2,35 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85285426951
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:34:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D2C84269B5
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:38:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241775AbhJHLgI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:36:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59432 "EHLO mail.kernel.org"
+        id S242740AbhJHLkh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:40:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240337AbhJHLeH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:34:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 57D056135E;
-        Fri,  8 Oct 2021 11:31:26 +0000 (UTC)
+        id S243269AbhJHLjH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:39:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63B4761527;
+        Fri,  8 Oct 2021 11:33:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692686;
-        bh=rg0SbsjwPdxuWzq7sNcvIIHg0Ur4sdDbfVSZ5CHT2u4=;
+        s=korg; t=1633692806;
+        bh=PYVc1aUvJeZ0nwOzfsc2cUIMZPX+ebGO2v6h2cvVdlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JKyvWfgB6lHlfibI/9aE59GmsH9W4fxuR+Nhq9gBmeYV0Bb1pIbi2nFS7oLqDUe/5
-         CwMgk7UrBAzTSdJzAt4S3678AEB/zAkSvvourpuvzhdbhFn8hG7I5QaFctsKFfgSRN
-         Pz2J8eLaacjFbw9MvVCH0sN1Z8ILlapiwqEi3XYo=
+        b=Om4q2tmxAn8RJmrpKE8VRmQkmsjt/9H8zxdmzqsIKEQHDnNtergQNZ4AQqa+ZPcTd
+         31bSXP8dvuEXozFTDpiLl7vNURNaCUJRHZqCwajlsgxHazIkq9w4aIHBMsEwzzclje
+         QdHLv9e2PczxpqOt3SNEIfc3wwN8m1K0ign3Lrco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand K Mistry <amistry@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.10 28/29] perf/x86: Reset destroy callback on event init failure
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Marco Elver <elver@google.com>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        Alexander Potapenko <glider@google.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 39/48] kasan: always respect CONFIG_KASAN_STACK
 Date:   Fri,  8 Oct 2021 13:28:15 +0200
-Message-Id: <20211008112717.915996308@linuxfoundation.org>
+Message-Id: <20211008112721.337335079@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112716.914501436@linuxfoundation.org>
-References: <20211008112716.914501436@linuxfoundation.org>
+In-Reply-To: <20211008112720.008415452@linuxfoundation.org>
+References: <20211008112720.008415452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +48,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand K Mistry <amistry@google.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 02d029a41dc986e2d5a77ecca45803857b346829 upstream.
+[ Upstream commit 19532869feb9b0a97d17ddc14609d1e53a5b60db ]
 
-perf_init_event tries multiple init callbacks and does not reset the
-event state between tries. When x86_pmu_event_init runs, it
-unconditionally sets the destroy callback to hw_perf_event_destroy. On
-the next init attempt after x86_pmu_event_init, in perf_try_init_event,
-if the pmu's capabilities includes PERF_PMU_CAP_NO_EXCLUDE, the destroy
-callback will be run. However, if the next init didn't set the destroy
-callback, hw_perf_event_destroy will be run (since the callback wasn't
-reset).
+Currently, the asan-stack parameter is only passed along if
+CFLAGS_KASAN_SHADOW is not empty, which requires KASAN_SHADOW_OFFSET to
+be defined in Kconfig so that the value can be checked.  In RISC-V's
+case, KASAN_SHADOW_OFFSET is not defined in Kconfig, which means that
+asan-stack does not get disabled with clang even when CONFIG_KASAN_STACK
+is disabled, resulting in large stack warnings with allmodconfig:
 
-Looking at other pmu init functions, the common pattern is to only set
-the destroy callback on a successful init. Resetting the callback on
-failure tries to replicate that pattern.
+  drivers/video/fbdev/omap2/omapfb/displays/panel-lgphilips-lb035q02.c:117:12: error: stack frame size (14400) exceeds limit (2048) in function 'lb035q02_connect' [-Werror,-Wframe-larger-than]
+  static int lb035q02_connect(struct omap_dss_device *dssdev)
+             ^
+  1 error generated.
 
-This was discovered after commit f11dd0d80555 ("perf/x86/amd/ibs: Extend
-PERF_PMU_CAP_NO_EXCLUDE to IBS Op") when the second (and only second)
-run of the perf tool after a reboot results in 0 samples being
-generated. The extra run of hw_perf_event_destroy results in
-active_events having an extra decrement on each perf run. The second run
-has active_events == 0 and every subsequent run has active_events < 0.
-When active_events == 0, the NMI handler will early-out and not record
-any samples.
+Ensure that the value of CONFIG_KASAN_STACK is always passed along to
+the compiler so that these warnings do not happen when
+CONFIG_KASAN_STACK is disabled.
 
-Signed-off-by: Anand K Mistry <amistry@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210929170405.1.I078b98ee7727f9ae9d6df8262bad7e325e40faf0@changeid
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1453
+Link: https://lkml.kernel.org/r/20210922205525.570068-1-nathan@kernel.org
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Marco Elver <elver@google.com>
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/core.c |    1 +
- 1 file changed, 1 insertion(+)
+ scripts/Makefile.kasan | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/events/core.c
-+++ b/arch/x86/events/core.c
-@@ -2284,6 +2284,7 @@ static int x86_pmu_event_init(struct per
- 	if (err) {
- 		if (event->destroy)
- 			event->destroy(event);
-+		event->destroy = NULL;
- 	}
+diff --git a/scripts/Makefile.kasan b/scripts/Makefile.kasan
+index 801c415bac59..b9e94c5e7097 100644
+--- a/scripts/Makefile.kasan
++++ b/scripts/Makefile.kasan
+@@ -33,10 +33,11 @@ else
+ 	CFLAGS_KASAN := $(CFLAGS_KASAN_SHADOW) \
+ 	 $(call cc-param,asan-globals=1) \
+ 	 $(call cc-param,asan-instrumentation-with-call-threshold=$(call_threshold)) \
+-	 $(call cc-param,asan-stack=$(stack_enable)) \
+ 	 $(call cc-param,asan-instrument-allocas=1)
+ endif
  
- 	if (READ_ONCE(x86_pmu.attr_rdpmc) &&
++CFLAGS_KASAN += $(call cc-param,asan-stack=$(stack_enable))
++
+ endif # CONFIG_KASAN_GENERIC
+ 
+ ifdef CONFIG_KASAN_SW_TAGS
+-- 
+2.33.0
+
 
 
