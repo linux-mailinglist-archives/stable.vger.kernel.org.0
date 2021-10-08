@@ -2,68 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFC1A426658
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 11:10:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC88C4266A5
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 11:23:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230150AbhJHJMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 05:12:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34904 "EHLO mail.kernel.org"
+        id S237572AbhJHJZK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 05:25:10 -0400
+Received: from mga01.intel.com ([192.55.52.88]:41430 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229853AbhJHJMv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 05:12:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C41326103C;
-        Fri,  8 Oct 2021 09:10:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633684256;
-        bh=cRTZAOr+OnqMcQqKUZYCy+0dx50CX/Fm2+LAZGp0FoE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=B/iOn7fZ65LZbl5QV7sdyzjoLrjGnzq//t3LqwuvyG997DPjx9Etqz/kxuNLPTPjB
-         rVNqZVf5vqnJCLPczb2U4HlrMFZj8/IeRTtJXS384SyfitL4p4khNLtQFXbJo+pbmQ
-         JFY9sDl2uFcBXSEmf++Ss96sQMfuzNsM8scnu4HY=
-Date:   Fri, 8 Oct 2021 11:10:53 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Cc:     stable@vger.kernel.org, sashal@kernel.org,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Davidlohr Bueso <dbueso@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [RFC/PATCH for 4.14 and 4.19] lib/timerqueue: Rely on rbtree
- semantics for next timer
-Message-ID: <YWALHdipnUQT6mBQ@kroah.com>
-References: <20211007123243.595438-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+        id S237740AbhJHJZK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 05:25:10 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10130"; a="249830677"
+X-IronPort-AV: E=Sophos;i="5.85,357,1624345200"; 
+   d="scan'208";a="249830677"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Oct 2021 02:23:14 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.85,357,1624345200"; 
+   d="scan'208";a="489390451"
+Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
+  by orsmga008.jf.intel.com with ESMTP; 08 Oct 2021 02:23:12 -0700
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+To:     <gregkh@linuxfoundation.org>
+Cc:     <linux-usb@vger.kernel.org>,
+        Jonathan Bell <jonathan@raspberrypi.com>,
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 1/5] xhci: guard accesses to ep_state in xhci_endpoint_reset()
+Date:   Fri,  8 Oct 2021 12:25:43 +0300
+Message-Id: <20211008092547.3996295-2-mathias.nyman@linux.intel.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20211008092547.3996295-1-mathias.nyman@linux.intel.com>
+References: <20211008092547.3996295-1-mathias.nyman@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211007123243.595438-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 07, 2021 at 09:32:43PM +0900, Nobuhiro Iwamatsu wrote:
-> From: Davidlohr Bueso <dave@stgolabs.net>
-> 
-> commit 511885d7061eda3eb1faf3f57dcc936ff75863f1 upstream.
-> 
-> Simplify the timerqueue code by using cached rbtrees and rely on the tree
-> leftmost node semantics to get the timer with earliest expiration time.
-> This is a drop in conversion, and therefore semantics remain untouched.
-> 
-> The runtime overhead of cached rbtrees is be pretty much the same as the
-> current head->next method, noting that when removing the leftmost node,
-> a common operation for the timerqueue, the rb_next(leftmost) is O(1) as
-> well, so the next timer will either be the right node or its parent.
-> Therefore no extra pointer chasing. Finally, the size of the struct
-> timerqueue_head remains the same.
-> 
-> Passes several hours of rcutorture.
-> 
-> Signed-off-by: Davidlohr Bueso <dbueso@suse.de>
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> Link: https://lkml.kernel.org/r/20190724152323.bojciei3muvfxalm@linux-r8p5
-> Reference: CVE-2021-20317
-> Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
-> ---
+From: Jonathan Bell <jonathan@raspberrypi.com>
 
-Now queued up, thanks.
+See https://github.com/raspberrypi/linux/issues/3981
 
-greg k-h
+Two read-modify-write cycles on ep->ep_state are not guarded by
+xhci->lock. Fix these.
+
+Signed-off-by: Jonathan Bell <jonathan@raspberrypi.com>
+Fixes: f5249461b504 ("xhci: Clear the host side toggle manually when endpoint is soft reset")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+---
+ drivers/usb/host/xhci.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index 93c38b557afd..541fe4dcc43a 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -3214,10 +3214,13 @@ static void xhci_endpoint_reset(struct usb_hcd *hcd,
+ 		return;
+ 
+ 	/* Bail out if toggle is already being cleared by a endpoint reset */
++	spin_lock_irqsave(&xhci->lock, flags);
+ 	if (ep->ep_state & EP_HARD_CLEAR_TOGGLE) {
+ 		ep->ep_state &= ~EP_HARD_CLEAR_TOGGLE;
++		spin_unlock_irqrestore(&xhci->lock, flags);
+ 		return;
+ 	}
++	spin_unlock_irqrestore(&xhci->lock, flags);
+ 	/* Only interrupt and bulk ep's use data toggle, USB2 spec 5.5.4-> */
+ 	if (usb_endpoint_xfer_control(&host_ep->desc) ||
+ 	    usb_endpoint_xfer_isoc(&host_ep->desc))
+@@ -3303,8 +3306,10 @@ static void xhci_endpoint_reset(struct usb_hcd *hcd,
+ 	xhci_free_command(xhci, cfg_cmd);
+ cleanup:
+ 	xhci_free_command(xhci, stop_cmd);
++	spin_lock_irqsave(&xhci->lock, flags);
+ 	if (ep->ep_state & EP_SOFT_CLEAR_TOGGLE)
+ 		ep->ep_state &= ~EP_SOFT_CLEAR_TOGGLE;
++	spin_unlock_irqrestore(&xhci->lock, flags);
+ }
+ 
+ static int xhci_check_streams_endpoint(struct xhci_hcd *xhci,
+-- 
+2.25.1
+
