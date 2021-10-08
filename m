@@ -2,149 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96C09426744
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 11:59:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9357426755
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 12:02:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239454AbhJHKAx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 06:00:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41378 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238917AbhJHKAw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Oct 2021 06:00:52 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 058F4C061570;
-        Fri,  8 Oct 2021 02:58:56 -0700 (PDT)
-Date:   Fri, 08 Oct 2021 09:58:53 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1633687134;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
+        id S239628AbhJHKEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 06:04:24 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:38299 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S239609AbhJHKEX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Oct 2021 06:04:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1633687347;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=HkaEHRILfubdoOT6X98a6xdXk/Gxl5tQm58DK03ukdo=;
-        b=34iVcs2Q3buVbs22dpGC1ml+Q+GFlSFBPT91GsSqD8UrbsX5Gd0qF3JyLU0MqunF911E58
-        Lkccj9NAqIKaRGZUUA2jhjjz42ASfRn+kmfDDVUq0DCDq/+XMYELo5jvmlPbu3wdZhrhh3
-        02dAu0kMtKMDi8KlSg646xcSLvsbP0IwiElnZfTKUOE8qWak2wxO3dCUD80IDBMUGd3Wwf
-        c6PC+KH9SJC+kT1vxg+K0KHCnNmkuxNZvGr8wbuQ6WC3Mmf0YBj29GZV29uFALsgx67wb+
-        Yd4RQSJM2ZzMAUbzyb7e9thc1onKawm4l0l02Q/9q+rGe+gd/45MqAEiBKj9rw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1633687134;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=HkaEHRILfubdoOT6X98a6xdXk/Gxl5tQm58DK03ukdo=;
-        b=LwsgU2FQs1eERt37rvaumQyrspKAVAmYYW9JomsKQGoZ+4PN9OvR0vqHQ2T/OJWj8bUBL9
-        Dic6Jas9It9XX2DA==
-From:   "tip-bot2 for Borislav Petkov" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/fpu: Restore the masking out of reserved MXCSR bits
-Cc:     Ser Olmy <ser.olmy@protonmail.com>, Borislav Petkov <bp@suse.de>,
-        <stable@vger.kernel.org>, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <YVtA67jImg3KlBTw@zn.tnic>
-References: <YVtA67jImg3KlBTw@zn.tnic>
+        bh=/DYJJAEUu6hqgETTgE/jfMVtd0sOV59xWOXw/Ng2Zkk=;
+        b=AKXG9IFLhoTMN/2h6V8k0izor9Tv4o0cLcBsR5j3ENsjEFV7PkWc6CxN7+ye5hpsDgY6KB
+        2rpQHIUj1oY5fVa50P2hLvbERliQxJ/L1MLGq7O87ZLKPqSgi5+doMM4i30BSYT5dz5SF0
+        YGXBC1CyuIgKZeozr7QN1bNkIyjPKtA=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-89-mP9u8l-bOpy-4H_lnABGcQ-1; Fri, 08 Oct 2021 06:02:25 -0400
+X-MC-Unique: mP9u8l-bOpy-4H_lnABGcQ-1
+Received: by mail-ed1-f69.google.com with SMTP id p20-20020a50cd94000000b003db23619472so8700821edi.19
+        for <stable@vger.kernel.org>; Fri, 08 Oct 2021 03:02:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=/DYJJAEUu6hqgETTgE/jfMVtd0sOV59xWOXw/Ng2Zkk=;
+        b=5bP0l/IeOIC7Q1VIZUD8UwbaGfApOtwxvRpmiYmficwNnV3ZaeElez1eASS+nzK+4k
+         ZneJIq/I1d2Yy/e/iAZxlHhpwIJj5/wnF83r48S0BxmhWMy0xn2g6EN+R97u8QTYCpVO
+         sIQOA2q9sVGMfNLXliHtNmUdN2K+yljQgBJeqEYb6yIDuPMPZe0o8z3HKOuvmzn7CfEy
+         Sdegp4WndmOOxc7NMCOHJ9Lw/IMvquM6nMLIvN6soX3YM63MVpAbokvwOR8VO2PUL2Ty
+         oCNFUak3i051KV3JQYKDjdTyNj1LcA/CyR297pElKoARVmcKnJDxpL0Xfnf4eO+VtWPm
+         hVkg==
+X-Gm-Message-State: AOAM532UL+KYX3CM43fpZ62vIa4fxU5Z6/oxjHojkif6IrWG4p0fxou3
+        i6y2v4my0zui+66rZaWJXotdSc0eYHTQo1fhptitoA0HL9OPM69P77/0ULEqvDzoo+b47HjLfeG
+        REm6Zn+nAG0En4J0d
+X-Received: by 2002:a05:6402:1157:: with SMTP id g23mr14198457edw.379.1633687344436;
+        Fri, 08 Oct 2021 03:02:24 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzCXcDy+V1Ve+4wDUmBknbIZIJdSTIfRrrkzU3KaFgOcLrOJufywV2OgzBitVmiWIDaj6yP9Q==
+X-Received: by 2002:a05:6402:1157:: with SMTP id g23mr14198441edw.379.1633687344249;
+        Fri, 08 Oct 2021 03:02:24 -0700 (PDT)
+Received: from redhat.com ([2.55.132.170])
+        by smtp.gmail.com with ESMTPSA id l6sm804400edt.21.2021.10.08.03.02.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 08 Oct 2021 03:02:23 -0700 (PDT)
+Date:   Fri, 8 Oct 2021 06:02:20 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Corentin =?iso-8859-1?Q?No=EBl?= <corentin.noel@collabora.com>,
+        Jason Wang <jasowang@redhat.com>,
+        virtualization@lists.linux-foundation.org,
+        regressions@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org
+Subject: Re: virtio-net: kernel panic in virtio_net.c
+Message-ID: <20211008055902-mutt-send-email-mst@kernel.org>
+References: <YV8RTqGSTuVLMFOP@kroah.com>
+ <1633623446.6192446-1-xuanzhuo@linux.alibaba.com>
+ <YV/8Ia1d9zXvMqqc@kroah.com>
 MIME-Version: 1.0
-Message-ID: <163368713375.25758.3020127637765994658.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <YV/8Ia1d9zXvMqqc@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+On Fri, Oct 08, 2021 at 10:06:57AM +0200, Greg KH wrote:
+> On Fri, Oct 08, 2021 at 12:17:26AM +0800, Xuan Zhuo wrote:
+> > On Thu, 7 Oct 2021 17:25:02 +0200, Greg KH <gregkh@linuxfoundation.org> wrote:
+> > > On Thu, Oct 07, 2021 at 11:06:12PM +0800, Xuan Zhuo wrote:
+> > > > On Thu, 07 Oct 2021 14:04:22 +0200, Corentin Noël <corentin.noel@collabora.com> wrote:
+> > > > > I've been experiencing crashes with 5.14-rc1 and above that do not
+> > > > > occur with 5.13,
+> > > >
+> > > > I should have fixed this problem before. I don't know why, I just looked at the
+> > > > latest net code, and this commit seems to be lost.
+> > > >
+> > > >      1a8024239dacf53fcf39c0f07fbf2712af22864f virtio-net: fix for skb_over_panic inside big mode
+> > > >
+> > > > Can you test this patch again?
+> > >
+> > > That commit showed up in 5.13-rc5, so 5.14-rc1 and 5.13 should have had
+> > > it in it, right?
+> > >
+> > 
+> > Yes, it may be lost due to conflicts during a certain merge.
+> 
+> Really?  I tried to apply that again to 5.14 and it did not work.  So I
+> do not understand what to do here, can you try to explain it better?
+> 
+> thanks,
+> 
+> greg k-h
 
-Commit-ID:     d298b03506d3e161f7492c440babb0bfae35e650
-Gitweb:        https://git.kernel.org/tip/d298b03506d3e161f7492c440babb0bfae35e650
-Author:        Borislav Petkov <bp@suse.de>
-AuthorDate:    Wed, 06 Oct 2021 18:33:52 +02:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Fri, 08 Oct 2021 11:12:17 +02:00
+Hmm, something like the following perhaps then?
+Corentin would you like to try this?
+Warning: untested.
 
-x86/fpu: Restore the masking out of reserved MXCSR bits
 
-Ser Olmy reported a boot failure:
-
-  init[1] bad frame in sigreturn frame:(ptrval) ip:b7c9fbe6 sp:bf933310 orax:ffffffff \
-	  in libc-2.33.so[b7bed000+156000]
-  Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
-  CPU: 0 PID: 1 Comm: init Tainted: G        W         5.14.9 #1
-  Hardware name: Hewlett-Packard HP PC/HP Board, BIOS  JD.00.06 12/06/2001
-  Call Trace:
-   dump_stack_lvl
-   dump_stack
-   panic
-   do_exit.cold
-   do_group_exit
-   get_signal
-   arch_do_signal_or_restart
-   ? force_sig_info_to_task
-   ? force_sig
-   exit_to_user_mode_prepare
-   syscall_exit_to_user_mode
-   do_int80_syscall_32
-   entry_INT80_32
-
-on an old 32-bit Intel CPU:
-
-  vendor_id       : GenuineIntel
-  cpu family      : 6
-  model           : 6
-  model name      : Celeron (Mendocino)
-  stepping        : 5
-  microcode       : 0x3
-
-Ser bisected the problem to the commit in Fixes.
-
-tglx suggested reverting the rejection of invalid MXCSR values which
-this commit introduced and replacing it with what the old code did -
-simply masking them out to zero.
-
-Further debugging confirmed his suggestion:
-
-  fpu->state.fxsave.mxcsr: 0xb7be13b4, mxcsr_feature_mask: 0xffbf
-  WARNING: CPU: 0 PID: 1 at arch/x86/kernel/fpu/signal.c:384 __fpu_restore_sig+0x51f/0x540
-
-so restore the original behavior only for 32-bit kernels where you have
-ancient machines with buggy hardware. For 32-bit programs on 64-bit
-kernels, user space which supplies wrong MXCSR values is considered
-malicious so fail the sigframe restoration there.
-
-Fixes: 6f9866a166cd ("x86/fpu/signal: Let xrstor handle the features to init")
-Reported-by: Ser Olmy <ser.olmy@protonmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Ser Olmy <ser.olmy@protonmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/YVtA67jImg3KlBTw@zn.tnic
----
- arch/x86/kernel/fpu/signal.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
-
-diff --git a/arch/x86/kernel/fpu/signal.c b/arch/x86/kernel/fpu/signal.c
-index 445c57c..fa17a27 100644
---- a/arch/x86/kernel/fpu/signal.c
-+++ b/arch/x86/kernel/fpu/signal.c
-@@ -379,9 +379,14 @@ static int __fpu_restore_sig(void __user *buf, void __user *buf_fx,
- 				     sizeof(fpu->state.fxsave)))
- 			return -EFAULT;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 096c2ac6b7a6..18dd9f6d107d 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -406,12 +406,13 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+ 	 * add_recvbuf_mergeable() + get_mergeable_buf_len()
+ 	 */
+ 	truesize = headroom ? PAGE_SIZE : truesize;
+-	tailroom = truesize - len - headroom;
++	tailroom = truesize - headroom;
+ 	buf = p - headroom;
  
--		/* Reject invalid MXCSR values. */
--		if (fpu->state.fxsave.mxcsr & ~mxcsr_feature_mask)
--			return -EINVAL;
-+		if (IS_ENABLED(CONFIG_X86_64)) {
-+			/* Reject invalid MXCSR values. */
-+			if (fpu->state.fxsave.mxcsr & ~mxcsr_feature_mask)
-+				return -EINVAL;
-+		} else {
-+			/* Mask invalid bits out for historical reasons (broken hardware). */
-+			fpu->state.fxsave.mxcsr &= ~mxcsr_feature_mask;
-+		}
+ 	len -= hdr_len;
+ 	offset += hdr_padded_len;
+ 	p += hdr_padded_len;
++	tailroom -= hdr_padded_len + len;
  
- 		/* Enforce XFEATURE_MASK_FPSSE when XSAVE is enabled */
- 		if (use_xsave())
+ 	shinfo_size = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+ 
+
