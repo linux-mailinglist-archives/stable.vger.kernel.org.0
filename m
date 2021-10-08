@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A99B1426920
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:32:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07749426946
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:34:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241780AbhJHLeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:34:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59432 "EHLO mail.kernel.org"
+        id S241621AbhJHLf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:35:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240930AbhJHLc5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:32:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF49461353;
-        Fri,  8 Oct 2021 11:30:42 +0000 (UTC)
+        id S241000AbhJHLdz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:33:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C04F061040;
+        Fri,  8 Oct 2021 11:31:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692643;
-        bh=mUgukess8O9s+KgtEGp2K/ZCeaegdNTLZV51hG4FIk8=;
+        s=korg; t=1633692667;
+        bh=IEaQOTNlA53Qt75QXvCLuqc1WsdcEa6N94zuXbDr9Po=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f+fDam0dY66dDZuaWxnFgyP/obIlHjjWJM2d/KPd8PpHDH8D0Olc9V8kxcZ6EHkw6
-         tQeKMvpvG2HuKl7K7Jtk2AGQ4NoYDl0uQDwP3RZ6gx08O51PEqsIJtjT7TLF9aE6f8
-         6ed7DCPl7aXvUmfr5UxNSO2eTc7Yn5pIlxD+jZ0M=
+        b=PlKDoxOy95d/hNZxCzs811MKRYqJqr+T6BRhjPYnOHDjRNGmlsb35MzLsN3IF3zfs
+         w5KGjKFGk/+Jf4zcIUSj/1+Q8CGkwzziidEFzoHt/5M3HYHwKRT8HWv7OJeihzMuZQ
+         BhrvlHV0i+7nW183bLdDX3jRcCjY3bvkJcFYp1r4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tobias Schramm <t.schramm@manjaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 01/29] spi: rockchip: handle zero length transfers without timing out
-Date:   Fri,  8 Oct 2021 13:27:48 +0200
-Message-Id: <20211008112716.971550767@linuxfoundation.org>
+Subject: [PATCH 5.10 02/29] platform/x86: touchscreen_dmi: Add info for the Chuwi HiBook (CWI514) tablet
+Date:   Fri,  8 Oct 2021 13:27:49 +0200
+Message-Id: <20211008112717.003564438@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211008112716.914501436@linuxfoundation.org>
 References: <20211008112716.914501436@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,42 +39,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobias Schramm <t.schramm@manjaro.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 5457773ef99f25fcc4b238ac76b68e28273250f4 ]
+[ Upstream commit 3bf1669b0e033c885ebcb1ddc2334088dd125f2d ]
 
-Previously zero length transfers submitted to the Rokchip SPI driver would
-time out in the SPI layer. This happens because the SPI peripheral does
-not trigger a transfer completion interrupt for zero length transfers.
+Add touchscreen info for the Chuwi HiBook (CWI514) tablet. This includes
+info for getting the firmware directly from the UEFI, so that the user does
+not need to manually install the firmware in /lib/firmware/silead.
 
-Fix that by completing zero length transfers immediately at start of
-transfer.
+This change will make the touchscreen on these devices work OOTB,
+without requiring any manual setup.
 
-Signed-off-by: Tobias Schramm <t.schramm@manjaro.org>
-Link: https://lore.kernel.org/r/20210827050357.165409-1-t.schramm@manjaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210905130210.32810-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-rockchip.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/platform/x86/touchscreen_dmi.c | 37 ++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
 
-diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
-index 0aab37cd64e7..624273d0e727 100644
---- a/drivers/spi/spi-rockchip.c
-+++ b/drivers/spi/spi-rockchip.c
-@@ -582,6 +582,12 @@ static int rockchip_spi_transfer_one(
- 	int ret;
- 	bool use_dma;
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index 99260915122c..4f5d53b585db 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -141,6 +141,33 @@ static const struct ts_dmi_data chuwi_hi10_pro_data = {
+ 	.properties     = chuwi_hi10_pro_props,
+ };
  
-+	/* Zero length transfers won't trigger an interrupt on completion */
-+	if (!xfer->len) {
-+		spi_finalize_current_transfer(ctlr);
-+		return 1;
-+	}
++static const struct property_entry chuwi_hibook_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-min-x", 30),
++	PROPERTY_ENTRY_U32("touchscreen-min-y", 4),
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1892),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1276),
++	PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
++	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-chuwi-hibook.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	PROPERTY_ENTRY_BOOL("silead,home-button"),
++	{ }
++};
 +
- 	WARN_ON(readl_relaxed(rs->regs + ROCKCHIP_SPI_SSIENR) &&
- 		(readl_relaxed(rs->regs + ROCKCHIP_SPI_SR) & SR_BUSY));
- 
++static const struct ts_dmi_data chuwi_hibook_data = {
++	.embedded_fw = {
++		.name	= "silead/gsl1680-chuwi-hibook.fw",
++		.prefix = { 0xf0, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00 },
++		.length	= 40392,
++		.sha256	= { 0xf7, 0xc0, 0xe8, 0x5a, 0x6c, 0xf2, 0xeb, 0x8d,
++			    0x12, 0xc4, 0x45, 0xbf, 0x55, 0x13, 0x4c, 0x1a,
++			    0x13, 0x04, 0x31, 0x08, 0x65, 0x73, 0xf7, 0xa8,
++			    0x1b, 0x7d, 0x59, 0xc9, 0xe6, 0x97, 0xf7, 0x38 },
++	},
++	.acpi_name      = "MSSL0017:00",
++	.properties     = chuwi_hibook_props,
++};
++
+ static const struct property_entry chuwi_vi8_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-min-x", 4),
+ 	PROPERTY_ENTRY_U32("touchscreen-min-y", 6),
+@@ -936,6 +963,16 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
+ 		},
+ 	},
++	{
++		/* Chuwi HiBook (CWI514) */
++		.driver_data = (void *)&chuwi_hibook_data,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
++			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
++			/* Above matches are too generic, add bios-date match */
++			DMI_MATCH(DMI_BIOS_DATE, "05/07/2016"),
++		},
++	},
+ 	{
+ 		/* Chuwi Vi8 (CWI506) */
+ 		.driver_data = (void *)&chuwi_vi8_data,
 -- 
 2.33.0
 
