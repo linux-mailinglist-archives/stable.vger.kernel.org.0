@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B31A4426998
+	by mail.lfdr.de (Postfix) with ESMTP id 6AA2D426997
 	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:37:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241396AbhJHLje (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:39:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39522 "EHLO mail.kernel.org"
+        id S241316AbhJHLjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:39:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240463AbhJHLh5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241088AbhJHLh5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 8 Oct 2021 07:37:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F0F1613A7;
-        Fri,  8 Oct 2021 11:32:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 987A1613D5;
+        Fri,  8 Oct 2021 11:32:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692764;
-        bh=8hgJn1Ih+9Ernuswh+NV/WK81g7IXRnOXBF10QK3Gsg=;
+        s=korg; t=1633692767;
+        bh=EC4o/+itJCzaJfm6aSUdAN6lSrMpWZxRr4Ei4e4UMNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xTTNdCso78M/LwQG2KZH+AHBV/5ljaLwNuKIM0235McXR8J+kkAtykSeOdADW2uPJ
-         Tcya+o33Tgk+d1t3g3f4oeb/GMC1dvhc9OXmBce+D626yFeZWF6+X63QaUsdoujTah
-         zjOLvegL4uim+z1AeMIcXFZt5LrZqtyzvJLZ7Ga8=
+        b=UfUFAB8eE9EbbaHH8SWk6ai38OAdEPem+sct33or5+EadZIfnX8BoRXJFRSCgrQJm
+         78+2HotQa6v2PFEmu7l5/qBzEK3zoUnU/i52plku/fmy//Be9aAFwtBFPOVmEFZw7z
+         4gVQEZTvT1ECOOkEev0DBZNWrDDbjS1ii/Tbo/Mw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 05/48] nfsd: back channel stuck in SEQ4_STATUS_CB_PATH_DOWN
-Date:   Fri,  8 Oct 2021 13:27:41 +0200
-Message-Id: <20211008112720.196748309@linuxfoundation.org>
+Subject: [PATCH 5.14 06/48] btrfs: replace BUG_ON() in btrfs_csum_one_bio() with proper error handling
+Date:   Fri,  8 Oct 2021 13:27:42 +0200
+Message-Id: <20211008112720.234869117@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211008112720.008415452@linuxfoundation.org>
 References: <20211008112720.008415452@linuxfoundation.org>
@@ -40,65 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dai Ngo <dai.ngo@oracle.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 02579b2ff8b0becfb51d85a975908ac4ab15fba8 ]
+[ Upstream commit bbc9a6eb5eec03dcafee266b19f56295e3b2aa8f ]
 
-When the back channel enters SEQ4_STATUS_CB_PATH_DOWN state, the client
-recovers by sending BIND_CONN_TO_SESSION but the server fails to recover
-the back channel and leaves it as NFSD4_CB_DOWN.
+There is a BUG_ON() in btrfs_csum_one_bio() to catch code logic error.
+It has indeed caught several bugs during subpage development.
+But the BUG_ON() itself will bring down the whole system which is
+an overkill.
 
-Fix by enhancing nfsd4_bind_conn_to_session to probe the back channel
-by calling nfsd4_probe_callback.
+Replace it with a WARN() and exit gracefully, so that it won't crash the
+whole system while we can still catch the code logic error.
 
-Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ fs/btrfs/file-item.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index 3d805f5b1f5d..1c33a5255893 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -3570,7 +3570,7 @@ static struct nfsd4_conn *__nfsd4_find_conn(struct svc_xprt *xpt, struct nfsd4_s
- }
+diff --git a/fs/btrfs/file-item.c b/fs/btrfs/file-item.c
+index df6631eefc65..5e8a56113b23 100644
+--- a/fs/btrfs/file-item.c
++++ b/fs/btrfs/file-item.c
+@@ -666,7 +666,18 @@ blk_status_t btrfs_csum_one_bio(struct btrfs_inode *inode, struct bio *bio,
  
- static __be32 nfsd4_match_existing_connection(struct svc_rqst *rqst,
--				struct nfsd4_session *session, u32 req)
-+		struct nfsd4_session *session, u32 req, struct nfsd4_conn **conn)
- {
- 	struct nfs4_client *clp = session->se_client;
- 	struct svc_xprt *xpt = rqst->rq_xprt;
-@@ -3593,6 +3593,8 @@ static __be32 nfsd4_match_existing_connection(struct svc_rqst *rqst,
- 	else
- 		status = nfserr_inval;
- 	spin_unlock(&clp->cl_lock);
-+	if (status == nfs_ok && conn)
-+		*conn = c;
- 	return status;
- }
+ 		if (!ordered) {
+ 			ordered = btrfs_lookup_ordered_extent(inode, offset);
+-			BUG_ON(!ordered); /* Logic error */
++			/*
++			 * The bio range is not covered by any ordered extent,
++			 * must be a code logic error.
++			 */
++			if (unlikely(!ordered)) {
++				WARN(1, KERN_WARNING
++			"no ordered extent for root %llu ino %llu offset %llu\n",
++				     inode->root->root_key.objectid,
++				     btrfs_ino(inode), offset);
++				kvfree(sums);
++				return BLK_STS_IOERR;
++			}
+ 		}
  
-@@ -3617,8 +3619,16 @@ __be32 nfsd4_bind_conn_to_session(struct svc_rqst *rqstp,
- 	status = nfserr_wrong_cred;
- 	if (!nfsd4_mach_creds_match(session->se_client, rqstp))
- 		goto out;
--	status = nfsd4_match_existing_connection(rqstp, session, bcts->dir);
--	if (status == nfs_ok || status == nfserr_inval)
-+	status = nfsd4_match_existing_connection(rqstp, session,
-+			bcts->dir, &conn);
-+	if (status == nfs_ok) {
-+		if (bcts->dir == NFS4_CDFC4_FORE_OR_BOTH ||
-+				bcts->dir == NFS4_CDFC4_BACK)
-+			conn->cn_flags |= NFS4_CDFC4_BACK;
-+		nfsd4_probe_callback(session->se_client);
-+		goto out;
-+	}
-+	if (status == nfserr_inval)
- 		goto out;
- 	status = nfsd4_map_bcts_dir(&bcts->dir);
- 	if (status)
+ 		nr_sectors = BTRFS_BYTES_TO_BLKS(fs_info,
 -- 
 2.33.0
 
