@@ -2,151 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD3B8426974
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:36:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C47AB426906
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:31:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241579AbhJHLh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:37:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60678 "EHLO mail.kernel.org"
+        id S241422AbhJHLdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:33:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240936AbhJHLf5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:35:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E31EC613A6;
-        Fri,  8 Oct 2021 11:31:58 +0000 (UTC)
+        id S241143AbhJHLcM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:32:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17A7D6135E;
+        Fri,  8 Oct 2021 11:30:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692719;
-        bh=2ZHYXxnTOKNAMt5haKytR59bQ5hztoQjFR7mj6iEIbY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mDSszzfzFSxwNEjAOmKQ2WZwHGx7PQiZqdh1F+nzxN7K6VCms9Pu60kM37c5iw1Uo
-         V7/wXOggbr3uaW98ToQBk7WGyTKsaNsS7RdUWs4uM9cdq42sFpDGUupWdlNuqnfUF0
-         IfpxiLiOpIlfunFUB60zLNMlfl/sAIiyqK7OKUUM=
+        s=korg; t=1633692606;
+        bh=buiXg9GNRc7ZXE9kCnZhoVux+sYWboArSWolJbhn0tM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=HbIiWqeBF1t4i55C4SS4l+08cwbzVnfg+A0kOrXUEpLZzun2gPHaGckiHAuEgNdZa
+         fF4HrIrvtDYYsqsQaHF0ZKQiMQrBlOXGGK3fqwlFA7+XQU4EMmSwERmuNdWMP0kssK
+         xHZTGqMIb/53C5D+rS8quc6PqIBwO7nvWe/FpO8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 14/48] drm/amdkfd: fix svm_migrate_fini warning
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.4 00/16] 5.4.152-rc1 review
 Date:   Fri,  8 Oct 2021 13:27:50 +0200
-Message-Id: <20211008112720.499928174@linuxfoundation.org>
+Message-Id: <20211008112715.444305067@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112720.008415452@linuxfoundation.org>
-References: <20211008112720.008415452@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.152-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.152-rc1
+X-KernelTest-Deadline: 2021-10-10T11:27+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+This is the start of the stable review cycle for the 5.4.152 release.
+There are 16 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 197ae17722e989942b36e33e044787877f158574 ]
+Responses should be made by Sun, 10 Oct 2021 11:27:07 +0000.
+Anything received after that time might be too late.
 
-Device manager releases device-specific resources when a driver
-disconnects from a device, devm_memunmap_pages and
-devm_release_mem_region calls in svm_migrate_fini are redundant.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.152-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-It causes below warning trace after patch "drm/amdgpu: Split
-amdgpu_device_fini into early and late", so remove function
-svm_migrate_fini.
+thanks,
 
-BUG: https://gitlab.freedesktop.org/drm/amd/-/issues/1718
+greg k-h
 
-WARNING: CPU: 1 PID: 3646 at drivers/base/devres.c:795
-devm_release_action+0x51/0x60
-Call Trace:
-    ? memunmap_pages+0x360/0x360
-    svm_migrate_fini+0x2d/0x60 [amdgpu]
-    kgd2kfd_device_exit+0x23/0xa0 [amdgpu]
-    amdgpu_amdkfd_device_fini_sw+0x1d/0x30 [amdgpu]
-    amdgpu_device_fini_sw+0x45/0x290 [amdgpu]
-    amdgpu_driver_release_kms+0x12/0x30 [amdgpu]
-    drm_dev_release+0x20/0x40 [drm]
-    release_nodes+0x196/0x1e0
-    device_release_driver_internal+0x104/0x1d0
-    driver_detach+0x47/0x90
-    bus_remove_driver+0x7a/0xd0
-    pci_unregister_driver+0x3d/0x90
-    amdgpu_exit+0x11/0x20 [amdgpu]
+-------------
+Pseudo-Shortlog of commits:
 
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/gpu/drm/amd/amdkfd/kfd_device.c  |  1 -
- drivers/gpu/drm/amd/amdkfd/kfd_migrate.c | 13 ++++---------
- drivers/gpu/drm/amd/amdkfd/kfd_migrate.h |  5 -----
- 3 files changed, 4 insertions(+), 15 deletions(-)
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.152-rc1
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device.c b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
-index 5a872adcfdb9..5ba8a4f35344 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
-@@ -922,7 +922,6 @@ out:
- void kgd2kfd_device_exit(struct kfd_dev *kfd)
- {
- 	if (kfd->init_complete) {
--		svm_migrate_fini((struct amdgpu_device *)kfd->kgd);
- 		device_queue_manager_uninit(kfd->dqm);
- 		kfd_interrupt_exit(kfd);
- 		kfd_topology_remove_device(kfd);
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
-index 165e0ebb619d..4a16e3c257b9 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
-@@ -891,6 +891,10 @@ int svm_migrate_init(struct amdgpu_device *adev)
- 	pgmap->ops = &svm_migrate_pgmap_ops;
- 	pgmap->owner = SVM_ADEV_PGMAP_OWNER(adev);
- 	pgmap->flags = MIGRATE_VMA_SELECT_DEVICE_PRIVATE;
-+
-+	/* Device manager releases device-specific resources, memory region and
-+	 * pgmap when driver disconnects from device.
-+	 */
- 	r = devm_memremap_pages(adev->dev, pgmap);
- 	if (IS_ERR(r)) {
- 		pr_err("failed to register HMM device memory\n");
-@@ -911,12 +915,3 @@ int svm_migrate_init(struct amdgpu_device *adev)
- 
- 	return 0;
- }
--
--void svm_migrate_fini(struct amdgpu_device *adev)
--{
--	struct dev_pagemap *pgmap = &adev->kfd.dev->pgmap;
--
--	devm_memunmap_pages(adev->dev, pgmap);
--	devm_release_mem_region(adev->dev, pgmap->range.start,
--				pgmap->range.end - pgmap->range.start + 1);
--}
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.h b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.h
-index 0de76b5d4973..2f5b3394c9ed 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.h
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.h
-@@ -47,7 +47,6 @@ unsigned long
- svm_migrate_addr_to_pfn(struct amdgpu_device *adev, unsigned long addr);
- 
- int svm_migrate_init(struct amdgpu_device *adev);
--void svm_migrate_fini(struct amdgpu_device *adev);
- 
- #else
- 
-@@ -55,10 +54,6 @@ static inline int svm_migrate_init(struct amdgpu_device *adev)
- {
- 	return 0;
- }
--static inline void svm_migrate_fini(struct amdgpu_device *adev)
--{
--	/* empty */
--}
- 
- #endif /* IS_ENABLED(CONFIG_HSA_AMD_SVM) */
- 
--- 
-2.33.0
+Kate Hsuan <hpa@redhat.com>
+    libata: Add ATA_HORKAGE_NO_NCQ_ON_ATI for Samsung 860 and 870 SSD.
 
+Rik van Riel <riel@surriel.com>
+    silence nfscache allocation warnings with kvzalloc
+
+Anand K Mistry <amistry@google.com>
+    perf/x86: Reset destroy callback on event init failure
+
+Fares Mehanna <faresx@amazon.de>
+    kvm: x86: Add AMD PMU MSRs to msrs_to_save_all[]
+
+Sergey Senozhatsky <senozhatsky@chromium.org>
+    KVM: do not shrink halt_poll_ns below grow_start
+
+Changbin Du <changbin.du@intel.com>
+    tools/vm/page-types: remove dependency on opt_file for idle page tracking
+
+Wen Xiong <wenxiong@linux.ibm.com>
+    scsi: ses: Retry failed Send/Receive Diagnostic commands
+
+Shuah Khan <skhan@linuxfoundation.org>
+    selftests:kvm: fix get_warnings_count() ignoring fscanf() return warn
+
+Li Zhijian <lizhijian@cn.fujitsu.com>
+    selftests: be sure to make khdr before other targets
+
+Yang Yingliang <yangyingliang@huawei.com>
+    usb: dwc2: check return value after calling platform_get_resource()
+
+Faizel K B <faizel.kb@dicortech.com>
+    usb: testusb: Fix for showing the connection speed
+
+Ming Lei <ming.lei@redhat.com>
+    scsi: sd: Free scsi_disk device via put_device()
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    ext2: fix sleeping in atomic bugs on error
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    sparc64: fix pci_iounmap() when CONFIG_PCI is not set
+
+Jan Beulich <jbeulich@suse.com>
+    xen-netback: correct success/error reporting for the SKB-with-fraglist case
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    net: mdio: introduce a shutdown method to mdio device drivers
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +--
+ arch/sparc/lib/iomap.c                             |  2 ++
+ arch/x86/events/core.c                             |  1 +
+ arch/x86/kvm/x86.c                                 |  7 +++++
+ drivers/ata/libata-core.c                          | 34 ++++++++++++++++++++--
+ drivers/net/phy/mdio_device.c                      | 11 +++++++
+ drivers/net/xen-netback/netback.c                  |  2 +-
+ drivers/scsi/sd.c                                  |  9 +++---
+ drivers/scsi/ses.c                                 | 22 +++++++++++---
+ drivers/usb/dwc2/hcd.c                             |  4 +++
+ fs/ext2/balloc.c                                   | 14 ++++-----
+ fs/nfsd/nfscache.c                                 | 12 +++-----
+ include/linux/libata.h                             |  1 +
+ include/linux/mdio.h                               |  3 ++
+ .../selftests/kvm/x86_64/mmio_warning_test.c       |  3 +-
+ tools/testing/selftests/lib.mk                     |  1 +
+ tools/usb/testusb.c                                | 14 +++++----
+ tools/vm/page-types.c                              |  2 +-
+ virt/kvm/kvm_main.c                                |  6 +++-
+ 19 files changed, 114 insertions(+), 38 deletions(-)
 
 
