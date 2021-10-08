@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 293EB426912
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:32:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48D9C4268F3
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241190AbhJHLdz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:33:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59312 "EHLO mail.kernel.org"
+        id S240785AbhJHLcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:32:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241248AbhJHLcx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:32:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70F6F61108;
-        Fri,  8 Oct 2021 11:30:23 +0000 (UTC)
+        id S241110AbhJHLcJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:32:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1A8C611C3;
+        Fri,  8 Oct 2021 11:29:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692623;
-        bh=tXM17ftZo6zb9iZvoXX/Qu2JrcVS4VAYlpj1pqVIu9g=;
+        s=korg; t=1633692593;
+        bh=Gucow2pjyFXeIJbqCibqgTUgQxTxHPZvihH566WhnNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q0XZXWRZo7v27kHbZC1PgzljuiKLXzVSR6WVL6CBT9OArMVmx+CsjSklXphh1Q7kT
-         o0sy6GYnwOM8OrvX2amCwC+z0cYDx2hGM/11FLOEIyKEjyXn/dwyrHCmrtLlN6jg3G
-         egIggxkHfQIgq0OQsuJAZtiux2CFkE+5ZO20dEIc=
+        b=F1vvscog7bJ6bmfC0y1P0zy693qRmonZeyLTg97fyigVFFLuRJVL7P0o0ZWGJOdBy
+         x5WjqgqbNaYmuo/xga0Ok+Wj2Id5qAd5myoL7pT/Wsz9gqTEKdqVFgENNJivN6Nun8
+         Ql3b9UaZTmFckgiuC7w2TcRF+2FbvYuuTGBYe0Lg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        David Miller <davem@davemloft.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Christoph Hellwig <hch@lst.de>, Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 03/16] sparc64: fix pci_iounmap() when CONFIG_PCI is not set
+Subject: [PATCH 4.19 05/12] scsi: sd: Free scsi_disk device via put_device()
 Date:   Fri,  8 Oct 2021 13:27:53 +0200
-Message-Id: <20211008112715.566208431@linuxfoundation.org>
+Message-Id: <20211008112714.774772109@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112715.444305067@linuxfoundation.org>
-References: <20211008112715.444305067@linuxfoundation.org>
+In-Reply-To: <20211008112714.601107695@linuxfoundation.org>
+References: <20211008112714.601107695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit d8b1e10a2b8efaf71d151aa756052fbf2f3b6d57 ]
+[ Upstream commit 265dfe8ebbabae7959060bd1c3f75c2473b697ed ]
 
-Guenter reported [1] that the pci_iounmap() changes remain problematic,
-with sparc64 allnoconfig and tinyconfig still not building due to the
-header file changes and confusion with the arch-specific pci_iounmap()
-implementation.
+After a device is initialized via device_initialize() it should be freed
+via put_device(). sd_probe() currently gets this wrong, fix it up.
 
-I'm pretty convinced that sparc should just use GENERIC_IOMAP instead of
-doing its own thing, since it turns out that the sparc64 version of
-pci_iounmap() is somewhat buggy (see [2]).  But in the meantime, this
-just fixes the build by avoiding the trivial re-definition of the empty
-case.
-
-Link: https://lore.kernel.org/lkml/20210920134424.GA346531@roeck-us.net/ [1]
-Link: https://lore.kernel.org/lkml/CAHk-=wgheheFx9myQyy5osh79BAazvmvYURAtub2gQtMvLrhqQ@mail.gmail.com/ [2]
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Cc: David Miller <davem@davemloft.net>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20210906090112.531442-1-ming.lei@redhat.com
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/lib/iomap.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/sd.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/arch/sparc/lib/iomap.c b/arch/sparc/lib/iomap.c
-index c9da9f139694..f3a8cd491ce0 100644
---- a/arch/sparc/lib/iomap.c
-+++ b/arch/sparc/lib/iomap.c
-@@ -19,8 +19,10 @@ void ioport_unmap(void __iomem *addr)
- EXPORT_SYMBOL(ioport_map);
- EXPORT_SYMBOL(ioport_unmap);
+diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+index 342352d8e7bf..ed3702dadd30 100644
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -3444,15 +3444,16 @@ static int sd_probe(struct device *dev)
+ 	}
  
-+#ifdef CONFIG_PCI
- void pci_iounmap(struct pci_dev *dev, void __iomem * addr)
- {
- 	/* nothing to do */
- }
- EXPORT_SYMBOL(pci_iounmap);
-+#endif
+ 	device_initialize(&sdkp->dev);
+-	sdkp->dev.parent = dev;
++	sdkp->dev.parent = get_device(dev);
+ 	sdkp->dev.class = &sd_disk_class;
+ 	dev_set_name(&sdkp->dev, "%s", dev_name(dev));
+ 
+ 	error = device_add(&sdkp->dev);
+-	if (error)
+-		goto out_free_index;
++	if (error) {
++		put_device(&sdkp->dev);
++		goto out;
++	}
+ 
+-	get_device(dev);
+ 	dev_set_drvdata(dev, sdkp);
+ 
+ 	get_device(&sdkp->dev);	/* prevent release before async_schedule */
 -- 
 2.33.0
 
