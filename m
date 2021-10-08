@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2992E4268FB
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:31:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 278FF4268E3
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:31:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240427AbhJHLdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:33:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59392 "EHLO mail.kernel.org"
+        id S240511AbhJHLcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:32:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240795AbhJHLcJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:32:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 583A061039;
-        Fri,  8 Oct 2021 11:29:46 +0000 (UTC)
+        id S240660AbhJHLbg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:31:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 152EC61029;
+        Fri,  8 Oct 2021 11:29:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692586;
-        bh=iVoLt0e6/EnuelBsXgh2FhH+54Op2ZK8P4ECKCVv4ZI=;
+        s=korg; t=1633692571;
+        bh=pTt47VhSMgHL4Y6wUmlqptZk0U9hVMgQBIyORmmJ0I0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=piUU1trN1nYh2kA1yLsvTREXhUGiYA5X5Myq6k2abilAZBxu/EtbKoM//FKsrBf2O
-         FAirRczAvFuxS87tJLmRzM02eQhvCuns7jv3bSXHuKLQCXfSOxYg9AyrFeG/1Xr8N8
-         b0w9FDHquFNQXU7rY7Mm2nc0Y+tQgDWtb1Prp27c=
+        b=Ebblc5fP8t9PQ9zzyYBAM1lqsIJ5GfD8zTcoT/rEUU7glqzVKfbCOMNZerAdb5msU
+         L/ZwY81B2JRSG5vYX+yagsjksNMZyxMWcJcgvaneLeWQXMWRRIRcjeMEXMmvBTOMKM
+         XXcGD/VUFoaD6odBHr/rm9Ml9JqqcBpfJtd0qXos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Paul Durrant <paul@xen.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 02/12] xen-netback: correct success/error reporting for the SKB-with-fraglist case
+        stable@vger.kernel.org, Kate Hsuan <hpa@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        =?UTF-8?q?Krzysztof=20Ol=C4=99dzki?= <ole@ans.pl>
+Subject: [PATCH 4.14 09/10] libata: Add ATA_HORKAGE_NO_NCQ_ON_ATI for Samsung 860 and 870 SSD.
 Date:   Fri,  8 Oct 2021 13:27:50 +0200
-Message-Id: <20211008112714.684087230@linuxfoundation.org>
+Message-Id: <20211008112714.751595881@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112714.601107695@linuxfoundation.org>
-References: <20211008112714.601107695@linuxfoundation.org>
+In-Reply-To: <20211008112714.445637990@linuxfoundation.org>
+References: <20211008112714.445637990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +42,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Kate Hsuan <hpa@redhat.com>
 
-[ Upstream commit 3ede7f84c7c21f93c5eac611d60eba3f2c765e0f ]
+commit 7a8526a5cd51cf5f070310c6c37dd7293334ac49 upstream.
 
-When re-entering the main loop of xenvif_tx_check_gop() a 2nd time, the
-special considerations for the head of the SKB no longer apply. Don't
-mistakenly report ERROR to the frontend for the first entry in the list,
-even if - from all I can tell - this shouldn't matter much as the overall
-transmit will need to be considered failed anyway.
+Many users are reporting that the Samsung 860 and 870 SSD are having
+various issues when combined with AMD/ATI (vendor ID 0x1002)  SATA
+controllers and only completely disabling NCQ helps to avoid these
+issues.
 
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Paul Durrant <paul@xen.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Always disabling NCQ for Samsung 860/870 SSDs regardless of the host
+SATA adapter vendor will cause I/O performance degradation with well
+behaved adapters. To limit the performance impact to ATI adapters,
+introduce the ATA_HORKAGE_NO_NCQ_ON_ATI flag to force disable NCQ
+only for these adapters.
+
+Also, two libata.force parameters (noncqati and ncqati) are introduced
+to disable and enable the NCQ for the system which equipped with ATI
+SATA adapter and Samsung 860 and 870 SSDs. The user can determine NCQ
+function to be enabled or disabled according to the demand.
+
+After verifying the chipset from the user reports, the issue appears
+on AMD/ATI SB7x0/SB8x0/SB9x0 SATA Controllers and does not appear on
+recent AMD SATA adapters. The vendor ID of ATI should be 0x1002.
+Therefore, ATA_HORKAGE_NO_NCQ_ON_AMD was modified to
+ATA_HORKAGE_NO_NCQ_ON_ATI.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=201693
+Signed-off-by: Kate Hsuan <hpa@redhat.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210903094411.58749-1-hpa@redhat.com
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Krzysztof Olędzki <ole@ans.pl>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netback/netback.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ata/libata-core.c |   34 ++++++++++++++++++++++++++++++++--
+ include/linux/libata.h    |    1 +
+ 2 files changed, 33 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
-index 41bdfb684d46..4d0d5501ca56 100644
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -492,7 +492,7 @@ check_frags:
- 				 * the header's copy failed, and they are
- 				 * sharing a slot, send an error
- 				 */
--				if (i == 0 && sharedslot)
-+				if (i == 0 && !first_shinfo && sharedslot)
- 					xenvif_idx_release(queue, pending_idx,
- 							   XEN_NETIF_RSP_ERROR);
- 				else
--- 
-2.33.0
-
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -2276,6 +2276,25 @@ static void ata_dev_config_ncq_prio(stru
+ 
+ }
+ 
++static bool ata_dev_check_adapter(struct ata_device *dev,
++				  unsigned short vendor_id)
++{
++	struct pci_dev *pcidev = NULL;
++	struct device *parent_dev = NULL;
++
++	for (parent_dev = dev->tdev.parent; parent_dev != NULL;
++	     parent_dev = parent_dev->parent) {
++		if (dev_is_pci(parent_dev)) {
++			pcidev = to_pci_dev(parent_dev);
++			if (pcidev->vendor == vendor_id)
++				return true;
++			break;
++		}
++	}
++
++	return false;
++}
++
+ static int ata_dev_config_ncq(struct ata_device *dev,
+ 			       char *desc, size_t desc_sz)
+ {
+@@ -2292,6 +2311,13 @@ static int ata_dev_config_ncq(struct ata
+ 		snprintf(desc, desc_sz, "NCQ (not used)");
+ 		return 0;
+ 	}
++
++	if (dev->horkage & ATA_HORKAGE_NO_NCQ_ON_ATI &&
++	    ata_dev_check_adapter(dev, PCI_VENDOR_ID_ATI)) {
++		snprintf(desc, desc_sz, "NCQ (not used)");
++		return 0;
++	}
++
+ 	if (ap->flags & ATA_FLAG_NCQ) {
+ 		hdepth = min(ap->scsi_host->can_queue, ATA_MAX_QUEUE - 1);
+ 		dev->flags |= ATA_DFLAG_NCQ;
+@@ -4565,9 +4591,11 @@ static const struct ata_blacklist_entry
+ 	{ "Samsung SSD 850*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+ 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+ 	{ "Samsung SSD 860*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+-						ATA_HORKAGE_ZERO_AFTER_TRIM, },
++						ATA_HORKAGE_ZERO_AFTER_TRIM |
++						ATA_HORKAGE_NO_NCQ_ON_ATI, },
+ 	{ "Samsung SSD 870*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+-						ATA_HORKAGE_ZERO_AFTER_TRIM, },
++						ATA_HORKAGE_ZERO_AFTER_TRIM |
++						ATA_HORKAGE_NO_NCQ_ON_ATI, },
+ 	{ "FCCT*M500*",			NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+ 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+ 
+@@ -6860,6 +6888,8 @@ static int __init ata_parse_force_one(ch
+ 		{ "ncq",	.horkage_off	= ATA_HORKAGE_NONCQ },
+ 		{ "noncqtrim",	.horkage_on	= ATA_HORKAGE_NO_NCQ_TRIM },
+ 		{ "ncqtrim",	.horkage_off	= ATA_HORKAGE_NO_NCQ_TRIM },
++		{ "noncqati",	.horkage_on	= ATA_HORKAGE_NO_NCQ_ON_ATI },
++		{ "ncqati",	.horkage_off	= ATA_HORKAGE_NO_NCQ_ON_ATI },
+ 		{ "dump_id",	.horkage_on	= ATA_HORKAGE_DUMP_ID },
+ 		{ "pio0",	.xfer_mask	= 1 << (ATA_SHIFT_PIO + 0) },
+ 		{ "pio1",	.xfer_mask	= 1 << (ATA_SHIFT_PIO + 1) },
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -441,6 +441,7 @@ enum {
+ 	ATA_HORKAGE_NOTRIM	= (1 << 24),	/* don't use TRIM */
+ 	ATA_HORKAGE_MAX_SEC_1024 = (1 << 25),	/* Limit max sects to 1024 */
+ 	ATA_HORKAGE_MAX_TRIM_128M = (1 << 26),	/* Limit max trim size to 128M */
++	ATA_HORKAGE_NO_NCQ_ON_ATI = (1 << 27),	/* Disable NCQ on ATI chipset */
+ 
+ 	 /* DMA mask for user DMA control: User visible values; DO NOT
+ 	    renumber */
 
 
