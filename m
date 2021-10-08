@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEB0E4268F2
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:31:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD3B8426974
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:36:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241100AbhJHLcz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:32:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59312 "EHLO mail.kernel.org"
+        id S241579AbhJHLh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:37:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240771AbhJHLcF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:32:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4D7C6101A;
-        Fri,  8 Oct 2021 11:29:37 +0000 (UTC)
+        id S240936AbhJHLf5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:35:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E31EC613A6;
+        Fri,  8 Oct 2021 11:31:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692578;
-        bh=Z+B4c9/h693GP/zTPtooLZnAE9utVgm5/x5iTVqNr2Y=;
+        s=korg; t=1633692719;
+        bh=2ZHYXxnTOKNAMt5haKytR59bQ5hztoQjFR7mj6iEIbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z1TuUWCDtCtQTN4IDxIIUVTvDh+w6S/BzTlXsCIriH3t/b//lQJ7tYDZf9NjTiyRf
-         TLzJIR5AQpR5WQsjLi4e+Jvnq0Xj7ykDMTEArWV9N3nybsrtRuIk66y+Yf1cGKqA7R
-         Zp0ulKWPjUnqGqPABDsL82qXnhD7fxf6eYFuHI5M=
+        b=mDSszzfzFSxwNEjAOmKQ2WZwHGx7PQiZqdh1F+nzxN7K6VCms9Pu60kM37c5iw1Uo
+         V7/wXOggbr3uaW98ToQBk7WGyTKsaNsS7RdUWs4uM9cdq42sFpDGUupWdlNuqnfUF0
+         IfpxiLiOpIlfunFUB60zLNMlfl/sAIiyqK7OKUUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Philip Yang <Philip.Yang@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 01/12] net: mdio: introduce a shutdown method to mdio device drivers
-Date:   Fri,  8 Oct 2021 13:27:49 +0200
-Message-Id: <20211008112714.648037995@linuxfoundation.org>
+Subject: [PATCH 5.14 14/48] drm/amdkfd: fix svm_migrate_fini warning
+Date:   Fri,  8 Oct 2021 13:27:50 +0200
+Message-Id: <20211008112720.499928174@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112714.601107695@linuxfoundation.org>
-References: <20211008112714.601107695@linuxfoundation.org>
+In-Reply-To: <20211008112720.008415452@linuxfoundation.org>
+References: <20211008112720.008415452@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,75 +41,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Philip Yang <Philip.Yang@amd.com>
 
-[ Upstream commit cf9579976f724ad517cc15b7caadea728c7e245c ]
+[ Upstream commit 197ae17722e989942b36e33e044787877f158574 ]
 
-MDIO-attached devices might have interrupts and other things that might
-need quiesced when we kexec into a new kernel. Things are even more
-creepy when those interrupt lines are shared, and in that case it is
-absolutely mandatory to disable all interrupt sources.
+Device manager releases device-specific resources when a driver
+disconnects from a device, devm_memunmap_pages and
+devm_release_mem_region calls in svm_migrate_fini are redundant.
 
-Moreover, MDIO devices might be DSA switches, and DSA needs its own
-shutdown method to unlink from the DSA master, which is a new
-requirement that appeared after commit 2f1e8ea726e9 ("net: dsa: link
-interfaces with the DSA master to get rid of lockdep warnings").
+It causes below warning trace after patch "drm/amdgpu: Split
+amdgpu_device_fini into early and late", so remove function
+svm_migrate_fini.
 
-So introduce a ->shutdown method in the MDIO device driver structure.
+BUG: https://gitlab.freedesktop.org/drm/amd/-/issues/1718
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+WARNING: CPU: 1 PID: 3646 at drivers/base/devres.c:795
+devm_release_action+0x51/0x60
+Call Trace:
+    ? memunmap_pages+0x360/0x360
+    svm_migrate_fini+0x2d/0x60 [amdgpu]
+    kgd2kfd_device_exit+0x23/0xa0 [amdgpu]
+    amdgpu_amdkfd_device_fini_sw+0x1d/0x30 [amdgpu]
+    amdgpu_device_fini_sw+0x45/0x290 [amdgpu]
+    amdgpu_driver_release_kms+0x12/0x30 [amdgpu]
+    drm_dev_release+0x20/0x40 [drm]
+    release_nodes+0x196/0x1e0
+    device_release_driver_internal+0x104/0x1d0
+    driver_detach+0x47/0x90
+    bus_remove_driver+0x7a/0xd0
+    pci_unregister_driver+0x3d/0x90
+    amdgpu_exit+0x11/0x20 [amdgpu]
+
+Signed-off-by: Philip Yang <Philip.Yang@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio_device.c | 11 +++++++++++
- include/linux/mdio.h          |  3 +++
- 2 files changed, 14 insertions(+)
+ drivers/gpu/drm/amd/amdkfd/kfd_device.c  |  1 -
+ drivers/gpu/drm/amd/amdkfd/kfd_migrate.c | 13 ++++---------
+ drivers/gpu/drm/amd/amdkfd/kfd_migrate.h |  5 -----
+ 3 files changed, 4 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/phy/mdio_device.c b/drivers/net/phy/mdio_device.c
-index c924700cf37b..922f0f8973b6 100644
---- a/drivers/net/phy/mdio_device.c
-+++ b/drivers/net/phy/mdio_device.c
-@@ -176,6 +176,16 @@ static int mdio_remove(struct device *dev)
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device.c b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+index 5a872adcfdb9..5ba8a4f35344 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+@@ -922,7 +922,6 @@ out:
+ void kgd2kfd_device_exit(struct kfd_dev *kfd)
+ {
+ 	if (kfd->init_complete) {
+-		svm_migrate_fini((struct amdgpu_device *)kfd->kgd);
+ 		device_queue_manager_uninit(kfd->dqm);
+ 		kfd_interrupt_exit(kfd);
+ 		kfd_topology_remove_device(kfd);
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
+index 165e0ebb619d..4a16e3c257b9 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
+@@ -891,6 +891,10 @@ int svm_migrate_init(struct amdgpu_device *adev)
+ 	pgmap->ops = &svm_migrate_pgmap_ops;
+ 	pgmap->owner = SVM_ADEV_PGMAP_OWNER(adev);
+ 	pgmap->flags = MIGRATE_VMA_SELECT_DEVICE_PRIVATE;
++
++	/* Device manager releases device-specific resources, memory region and
++	 * pgmap when driver disconnects from device.
++	 */
+ 	r = devm_memremap_pages(adev->dev, pgmap);
+ 	if (IS_ERR(r)) {
+ 		pr_err("failed to register HMM device memory\n");
+@@ -911,12 +915,3 @@ int svm_migrate_init(struct amdgpu_device *adev)
+ 
  	return 0;
  }
+-
+-void svm_migrate_fini(struct amdgpu_device *adev)
+-{
+-	struct dev_pagemap *pgmap = &adev->kfd.dev->pgmap;
+-
+-	devm_memunmap_pages(adev->dev, pgmap);
+-	devm_release_mem_region(adev->dev, pgmap->range.start,
+-				pgmap->range.end - pgmap->range.start + 1);
+-}
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.h b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.h
+index 0de76b5d4973..2f5b3394c9ed 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.h
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.h
+@@ -47,7 +47,6 @@ unsigned long
+ svm_migrate_addr_to_pfn(struct amdgpu_device *adev, unsigned long addr);
  
-+static void mdio_shutdown(struct device *dev)
-+{
-+	struct mdio_device *mdiodev = to_mdio_device(dev);
-+	struct device_driver *drv = mdiodev->dev.driver;
-+	struct mdio_driver *mdiodrv = to_mdio_driver(drv);
-+
-+	if (mdiodrv->shutdown)
-+		mdiodrv->shutdown(mdiodev);
-+}
-+
- /**
-  * mdio_driver_register - register an mdio_driver with the MDIO layer
-  * @new_driver: new mdio_driver to register
-@@ -190,6 +200,7 @@ int mdio_driver_register(struct mdio_driver *drv)
- 	mdiodrv->driver.bus = &mdio_bus_type;
- 	mdiodrv->driver.probe = mdio_probe;
- 	mdiodrv->driver.remove = mdio_remove;
-+	mdiodrv->driver.shutdown = mdio_shutdown;
+ int svm_migrate_init(struct amdgpu_device *adev);
+-void svm_migrate_fini(struct amdgpu_device *adev);
  
- 	retval = driver_register(&mdiodrv->driver);
- 	if (retval) {
-diff --git a/include/linux/mdio.h b/include/linux/mdio.h
-index bfa7114167d7..85325e110a79 100644
---- a/include/linux/mdio.h
-+++ b/include/linux/mdio.h
-@@ -66,6 +66,9 @@ struct mdio_driver {
+ #else
  
- 	/* Clears up any memory if needed */
- 	void (*remove)(struct mdio_device *mdiodev);
-+
-+	/* Quiesces the device on system shutdown, turns off interrupts etc */
-+	void (*shutdown)(struct mdio_device *mdiodev);
- };
- #define to_mdio_driver(d)						\
- 	container_of(to_mdio_common_driver(d), struct mdio_driver, mdiodrv)
+@@ -55,10 +54,6 @@ static inline int svm_migrate_init(struct amdgpu_device *adev)
+ {
+ 	return 0;
+ }
+-static inline void svm_migrate_fini(struct amdgpu_device *adev)
+-{
+-	/* empty */
+-}
+ 
+ #endif /* IS_ENABLED(CONFIG_HSA_AMD_SVM) */
+ 
 -- 
 2.33.0
 
