@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 545854269B4
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:38:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F08D426948
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:34:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242727AbhJHLkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:40:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39486 "EHLO mail.kernel.org"
+        id S241687AbhJHLf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:35:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243255AbhJHLjG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:39:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFE71615E0;
-        Fri,  8 Oct 2021 11:33:16 +0000 (UTC)
+        id S241678AbhJHLd5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:33:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1635610E7;
+        Fri,  8 Oct 2021 11:31:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692797;
-        bh=CEQN41l6ZcHJHjaCHHfGMtXSoAkYU/pYnEf/L9HH98w=;
+        s=korg; t=1633692680;
+        bh=1oXpKnqvw9gWBfBIN8fnCTR5iUd2qYf4fAUArxYTFNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/MbRydj3M2mTrCYHQovtNBpdmPRI77IWj+PUEnZhk20IouWej/pUR9kqYLS4O4Jb
-         pB1nT5RN4EO6INQ+DnULrFTP88ZD/BCSjwgQ+78KCqTN3S2pdiaJ7hjqXfXIhLq59H
-         aLDPAKxyuAWaRYqhVXnDC2Mds2K9HaJj5Y7IOgyY=
+        b=gnoCpeprdPOPeIa3ODEUf7MQD6Vnz7Tos4TK5+3hUyLg7rZISk07+RK54zKPxdQse
+         GU2JhfsyREqF6mCMFtcwlNhnfDxLBUopBaBXSydOmdbu9Dp+ogV3ILn5szJiIFbF5D
+         CmdMEoNA6UL7hMnVOjulOhW1ZH6ME18lHv/5Ri2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Numfor Mbiziwo-Tiapo <nums@google.com>,
-        Ian Rogers <irogers@google.com>, Borislav Petkov <bp@suse.de>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
+        stable@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 35/48] x86/insn, tools/x86: Fix undefined behavior due to potential unaligned accesses
-Date:   Fri,  8 Oct 2021 13:28:11 +0200
-Message-Id: <20211008112721.194413986@linuxfoundation.org>
+Subject: [PATCH 5.10 25/29] KVM: do not shrink halt_poll_ns below grow_start
+Date:   Fri,  8 Oct 2021 13:28:12 +0200
+Message-Id: <20211008112717.806335574@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112720.008415452@linuxfoundation.org>
-References: <20211008112720.008415452@linuxfoundation.org>
+In-Reply-To: <20211008112716.914501436@linuxfoundation.org>
+References: <20211008112716.914501436@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,70 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Numfor Mbiziwo-Tiapo <nums@google.com>
+From: Sergey Senozhatsky <senozhatsky@chromium.org>
 
-[ Upstream commit 5ba1071f7554c4027bdbd712a146111de57918de ]
+[ Upstream commit ae232ea460888dc5a8b37e840c553b02521fbf18 ]
 
-Don't perform unaligned loads in __get_next() and __peek_nbyte_next() as
-these are forms of undefined behavior:
+grow_halt_poll_ns() ignores values between 0 and
+halt_poll_ns_grow_start (10000 by default). However,
+when we shrink halt_poll_ns we may fall way below
+halt_poll_ns_grow_start and endup with halt_poll_ns
+values that don't make a lot of sense: like 1 or 9,
+or 19.
 
-"A pointer to an object or incomplete type may be converted to a pointer
-to a different object or incomplete type. If the resulting pointer
-is not correctly aligned for the pointed-to type, the behavior is
-undefined."
+VCPU1 trace (halt_poll_ns_shrink equals 2):
 
-(from http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf)
+VCPU1 grow 10000
+VCPU1 shrink 5000
+VCPU1 shrink 2500
+VCPU1 shrink 1250
+VCPU1 shrink 625
+VCPU1 shrink 312
+VCPU1 shrink 156
+VCPU1 shrink 78
+VCPU1 shrink 39
+VCPU1 shrink 19
+VCPU1 shrink 9
+VCPU1 shrink 4
 
-These problems were identified using the undefined behavior sanitizer
-(ubsan) with the tools version of the code and perf test.
+Mirror what grow_halt_poll_ns() does and set halt_poll_ns
+to 0 as soon as new shrink-ed halt_poll_ns value falls
+below halt_poll_ns_grow_start.
 
- [ bp: Massage commit message. ]
-
-Signed-off-by: Numfor Mbiziwo-Tiapo <nums@google.com>
-Signed-off-by: Ian Rogers <irogers@google.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Link: https://lkml.kernel.org/r/20210923161843.751834-1-irogers@google.com
+Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-Id: <20210902031100.252080-1-senozhatsky@chromium.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/lib/insn.c       | 4 ++--
- tools/arch/x86/lib/insn.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ virt/kvm/kvm_main.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/lib/insn.c b/arch/x86/lib/insn.c
-index 058f19b20465..c565def611e2 100644
---- a/arch/x86/lib/insn.c
-+++ b/arch/x86/lib/insn.c
-@@ -37,10 +37,10 @@
- 	((insn)->next_byte + sizeof(t) + n <= (insn)->end_kaddr)
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 0e4310c415a8..57c0c3b18bde 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2756,15 +2756,19 @@ out:
  
- #define __get_next(t, insn)	\
--	({ t r = *(t*)insn->next_byte; insn->next_byte += sizeof(t); leXX_to_cpu(t, r); })
-+	({ t r; memcpy(&r, insn->next_byte, sizeof(t)); insn->next_byte += sizeof(t); leXX_to_cpu(t, r); })
+ static void shrink_halt_poll_ns(struct kvm_vcpu *vcpu)
+ {
+-	unsigned int old, val, shrink;
++	unsigned int old, val, shrink, grow_start;
  
- #define __peek_nbyte_next(t, insn, n)	\
--	({ t r = *(t*)((insn)->next_byte + n); leXX_to_cpu(t, r); })
-+	({ t r; memcpy(&r, (insn)->next_byte + n, sizeof(t)); leXX_to_cpu(t, r); })
+ 	old = val = vcpu->halt_poll_ns;
+ 	shrink = READ_ONCE(halt_poll_ns_shrink);
++	grow_start = READ_ONCE(halt_poll_ns_grow_start);
+ 	if (shrink == 0)
+ 		val = 0;
+ 	else
+ 		val /= shrink;
  
- #define get_next(t, insn)	\
- 	({ if (unlikely(!validate_next(t, insn, 0))) goto err_out; __get_next(t, insn); })
-diff --git a/tools/arch/x86/lib/insn.c b/tools/arch/x86/lib/insn.c
-index c41f95815480..797699462cd8 100644
---- a/tools/arch/x86/lib/insn.c
-+++ b/tools/arch/x86/lib/insn.c
-@@ -37,10 +37,10 @@
- 	((insn)->next_byte + sizeof(t) + n <= (insn)->end_kaddr)
- 
- #define __get_next(t, insn)	\
--	({ t r = *(t*)insn->next_byte; insn->next_byte += sizeof(t); leXX_to_cpu(t, r); })
-+	({ t r; memcpy(&r, insn->next_byte, sizeof(t)); insn->next_byte += sizeof(t); leXX_to_cpu(t, r); })
- 
- #define __peek_nbyte_next(t, insn, n)	\
--	({ t r = *(t*)((insn)->next_byte + n); leXX_to_cpu(t, r); })
-+	({ t r; memcpy(&r, (insn)->next_byte + n, sizeof(t)); leXX_to_cpu(t, r); })
- 
- #define get_next(t, insn)	\
- 	({ if (unlikely(!validate_next(t, insn, 0))) goto err_out; __get_next(t, insn); })
++	if (val < grow_start)
++		val = 0;
++
+ 	vcpu->halt_poll_ns = val;
+ 	trace_kvm_halt_poll_ns_shrink(vcpu->vcpu_id, val, old);
+ }
 -- 
 2.33.0
 
