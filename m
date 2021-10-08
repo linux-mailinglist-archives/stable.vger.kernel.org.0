@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7390F4268FC
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:31:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72DA6426923
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:32:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240347AbhJHLdC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:33:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60598 "EHLO mail.kernel.org"
+        id S241809AbhJHLeK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:34:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240780AbhJHLcF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:32:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 029E06103C;
-        Fri,  8 Oct 2021 11:29:41 +0000 (UTC)
+        id S241293AbhJHLc7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:32:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E10E6137F;
+        Fri,  8 Oct 2021 11:30:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692582;
-        bh=ZdqVEIJ2YVAVjvoOLKa8zLstxZnRqBA6xoOymTyfPPA=;
+        s=korg; t=1633692652;
+        bh=CQOKEx4OOhdguTMSrfdFeCZg+pUPHXjZ7+YAlyYSt80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tYx39rfCYyPsxelYqCbqaVhIPIYq1clvo4OMGR2SOTMGBiSK8kcz6lOCYGVyCN8M9
-         FPw3feucuLD5lauMKmjwPOyEXbp4UYz89msMbPpq7PsjAXVAbZqtD5jRvW71NrzMty
-         LG7vnQlH/7GH13gfHF8sYhJNevR73Yyc4ZK9tW60=
+        b=IXOiawvalU6qP/ecAO2k+eize4E7eii2OEJjQucwq4w+VEQqs+mx0GhU3UwlyOt3Y
+         GJm3/vdRv7ArkGU8CuOKifu56bLowdAuCyJypCSJWoNiPS5Q2u2QlPIS1oXV+I1LwO
+         dEmeeU9jwAblbU12CoEJ7zm+TyvQE7wX5CFFtwO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kate Hsuan <hpa@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        =?UTF-8?q?Krzysztof=20Ol=C4=99dzki?= <ole@ans.pl>
-Subject: [PATCH 4.19 11/12] libata: Add ATA_HORKAGE_NO_NCQ_ON_ATI for Samsung 860 and 870 SSD.
-Date:   Fri,  8 Oct 2021 13:27:59 +0200
-Message-Id: <20211008112714.957481303@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 13/29] usb: dwc2: check return value after calling platform_get_resource()
+Date:   Fri,  8 Oct 2021 13:28:00 +0200
+Message-Id: <20211008112717.388452329@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112714.601107695@linuxfoundation.org>
-References: <20211008112714.601107695@linuxfoundation.org>
+In-Reply-To: <20211008112716.914501436@linuxfoundation.org>
+References: <20211008112716.914501436@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,119 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kate Hsuan <hpa@redhat.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 7a8526a5cd51cf5f070310c6c37dd7293334ac49 upstream.
+[ Upstream commit 856e6e8e0f9300befa87dde09edb578555c99a82 ]
 
-Many users are reporting that the Samsung 860 and 870 SSD are having
-various issues when combined with AMD/ATI (vendor ID 0x1002)  SATA
-controllers and only completely disabling NCQ helps to avoid these
-issues.
+It will cause null-ptr-deref if platform_get_resource() returns NULL,
+we need check the return value.
 
-Always disabling NCQ for Samsung 860/870 SSDs regardless of the host
-SATA adapter vendor will cause I/O performance degradation with well
-behaved adapters. To limit the performance impact to ATI adapters,
-introduce the ATA_HORKAGE_NO_NCQ_ON_ATI flag to force disable NCQ
-only for these adapters.
-
-Also, two libata.force parameters (noncqati and ncqati) are introduced
-to disable and enable the NCQ for the system which equipped with ATI
-SATA adapter and Samsung 860 and 870 SSDs. The user can determine NCQ
-function to be enabled or disabled according to the demand.
-
-After verifying the chipset from the user reports, the issue appears
-on AMD/ATI SB7x0/SB8x0/SB9x0 SATA Controllers and does not appear on
-recent AMD SATA adapters. The vendor ID of ATI should be 0x1002.
-Therefore, ATA_HORKAGE_NO_NCQ_ON_AMD was modified to
-ATA_HORKAGE_NO_NCQ_ON_ATI.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=201693
-Signed-off-by: Kate Hsuan <hpa@redhat.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210903094411.58749-1-hpa@redhat.com
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Krzysztof Olędzki <ole@ans.pl>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20210831084236.1359677-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-core.c |   34 ++++++++++++++++++++++++++++++++--
- include/linux/libata.h    |    1 +
- 2 files changed, 33 insertions(+), 2 deletions(-)
+ drivers/usb/dwc2/hcd.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -2268,6 +2268,25 @@ static void ata_dev_config_ncq_prio(stru
+diff --git a/drivers/usb/dwc2/hcd.c b/drivers/usb/dwc2/hcd.c
+index 6af1dcbc3656..30919f741b7f 100644
+--- a/drivers/usb/dwc2/hcd.c
++++ b/drivers/usb/dwc2/hcd.c
+@@ -5074,6 +5074,10 @@ int dwc2_hcd_init(struct dwc2_hsotg *hsotg)
+ 	hcd->has_tt = 1;
  
- }
- 
-+static bool ata_dev_check_adapter(struct ata_device *dev,
-+				  unsigned short vendor_id)
-+{
-+	struct pci_dev *pcidev = NULL;
-+	struct device *parent_dev = NULL;
-+
-+	for (parent_dev = dev->tdev.parent; parent_dev != NULL;
-+	     parent_dev = parent_dev->parent) {
-+		if (dev_is_pci(parent_dev)) {
-+			pcidev = to_pci_dev(parent_dev);
-+			if (pcidev->vendor == vendor_id)
-+				return true;
-+			break;
-+		}
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res) {
++		retval = -EINVAL;
++		goto error1;
 +	}
-+
-+	return false;
-+}
-+
- static int ata_dev_config_ncq(struct ata_device *dev,
- 			       char *desc, size_t desc_sz)
- {
-@@ -2284,6 +2303,13 @@ static int ata_dev_config_ncq(struct ata
- 		snprintf(desc, desc_sz, "NCQ (not used)");
- 		return 0;
- 	}
-+
-+	if (dev->horkage & ATA_HORKAGE_NO_NCQ_ON_ATI &&
-+	    ata_dev_check_adapter(dev, PCI_VENDOR_ID_ATI)) {
-+		snprintf(desc, desc_sz, "NCQ (not used)");
-+		return 0;
-+	}
-+
- 	if (ap->flags & ATA_FLAG_NCQ) {
- 		hdepth = min(ap->scsi_host->can_queue, ATA_MAX_QUEUE);
- 		dev->flags |= ATA_DFLAG_NCQ;
-@@ -4575,9 +4601,11 @@ static const struct ata_blacklist_entry
- 	{ "Samsung SSD 850*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
- 	{ "Samsung SSD 860*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
--						ATA_HORKAGE_ZERO_AFTER_TRIM, },
-+						ATA_HORKAGE_ZERO_AFTER_TRIM |
-+						ATA_HORKAGE_NO_NCQ_ON_ATI, },
- 	{ "Samsung SSD 870*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
--						ATA_HORKAGE_ZERO_AFTER_TRIM, },
-+						ATA_HORKAGE_ZERO_AFTER_TRIM |
-+						ATA_HORKAGE_NO_NCQ_ON_ATI, },
- 	{ "FCCT*M500*",			NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+ 	hcd->rsrc_start = res->start;
+ 	hcd->rsrc_len = resource_size(res);
  
-@@ -6934,6 +6962,8 @@ static int __init ata_parse_force_one(ch
- 		{ "ncq",	.horkage_off	= ATA_HORKAGE_NONCQ },
- 		{ "noncqtrim",	.horkage_on	= ATA_HORKAGE_NO_NCQ_TRIM },
- 		{ "ncqtrim",	.horkage_off	= ATA_HORKAGE_NO_NCQ_TRIM },
-+		{ "noncqati",	.horkage_on	= ATA_HORKAGE_NO_NCQ_ON_ATI },
-+		{ "ncqati",	.horkage_off	= ATA_HORKAGE_NO_NCQ_ON_ATI },
- 		{ "dump_id",	.horkage_on	= ATA_HORKAGE_DUMP_ID },
- 		{ "pio0",	.xfer_mask	= 1 << (ATA_SHIFT_PIO + 0) },
- 		{ "pio1",	.xfer_mask	= 1 << (ATA_SHIFT_PIO + 1) },
---- a/include/linux/libata.h
-+++ b/include/linux/libata.h
-@@ -440,6 +440,7 @@ enum {
- 	ATA_HORKAGE_NOTRIM	= (1 << 24),	/* don't use TRIM */
- 	ATA_HORKAGE_MAX_SEC_1024 = (1 << 25),	/* Limit max sects to 1024 */
- 	ATA_HORKAGE_MAX_TRIM_128M = (1 << 26),	/* Limit max trim size to 128M */
-+	ATA_HORKAGE_NO_NCQ_ON_ATI = (1 << 27),	/* Disable NCQ on ATI chipset */
- 
- 	 /* DMA mask for user DMA control: User visible values; DO NOT
- 	    renumber */
+-- 
+2.33.0
+
 
 
