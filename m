@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56F1F426984
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:37:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C836426927
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:32:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241148AbhJHLjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:39:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59492 "EHLO mail.kernel.org"
+        id S241876AbhJHLeR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:34:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242675AbhJHLgI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:36:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6929161261;
-        Fri,  8 Oct 2021 11:32:18 +0000 (UTC)
+        id S241285AbhJHLc7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:32:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B6C761374;
+        Fri,  8 Oct 2021 11:30:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692738;
-        bh=xrMAs+IPKkLz+WhNBr+/uWnEYjVSKPnqoj2nhShfunE=;
+        s=korg; t=1633692647;
+        bh=UIb1mYOgGz8ep8P24ertFqEu/OqqtLKGBD+OfVrEhUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I6OQbj1IFHqFGbUx2pDzFQJ5voc8ASfRl7KAkRlyrhtYHKGHQ3lbYCGEoBRSVA8HP
-         5KOTV9eADLB0PGKSfKs1UsNTK5xhGDjPDQJ1rw0Nc+R0QTOklSkj1p+2fnHp6KWxaj
-         oVTb1NW5GCRolGWUVIusN8mGHtLMnwJz2asA5jSM=
+        b=NUsbtjKidmLxTP+XZE0G9ou7m/9Bo3XJNuauW2kfplM5tATBsESKMVgmO0FIeNHaX
+         3N48El3bmLY4CD+WeXcIi5K9YwF0Y+zzkd/aHlTaKxqsrMy/hSkNhWAga8PPNGWWmj
+         od7h6VypOJnTvH8WD7Q3SeQnhbSuwfSh67G6fbrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philip Li <philip.li@intel.com>,
-        kernel test robot <lkp@intel.com>,
-        Li Zhijian <lizhijian@cn.fujitsu.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Christoph Hellwig <hch@lst.de>, Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 22/48] selftests: be sure to make khdr before other targets
+Subject: [PATCH 5.10 11/29] scsi: sd: Free scsi_disk device via put_device()
 Date:   Fri,  8 Oct 2021 13:27:58 +0200
-Message-Id: <20211008112720.761322114@linuxfoundation.org>
+Message-Id: <20211008112717.324941234@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112720.008415452@linuxfoundation.org>
-References: <20211008112720.008415452@linuxfoundation.org>
+In-Reply-To: <20211008112716.914501436@linuxfoundation.org>
+References: <20211008112716.914501436@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zhijian <lizhijian@cn.fujitsu.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 8914a7a247e065438a0ec86a58c1c359223d2c9e ]
+[ Upstream commit 265dfe8ebbabae7959060bd1c3f75c2473b697ed ]
 
-LKP/0Day reported some building errors about kvm, and errors message
-are not always same:
-- lib/x86_64/processor.c:1083:31: error: ‘KVM_CAP_NESTED_STATE’ undeclared
-(first use in this function); did you mean ‘KVM_CAP_PIT_STATE2’?
-- lib/test_util.c:189:30: error: ‘MAP_HUGE_16KB’ undeclared (first use
-in this function); did you mean ‘MAP_HUGE_16GB’?
+After a device is initialized via device_initialize() it should be freed
+via put_device(). sd_probe() currently gets this wrong, fix it up.
 
-Although kvm relies on the khdr, they still be built in parallel when -j
-is specified. In this case, it will cause compiling errors.
-
-Here we mark target khdr as NOTPARALLEL to make it be always built
-first.
-
-CC: Philip Li <philip.li@intel.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Li Zhijian <lizhijian@cn.fujitsu.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210906090112.531442-1-ming.lei@redhat.com
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/lib.mk | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/sd.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/lib.mk b/tools/testing/selftests/lib.mk
-index fa2ac0e56b43..fe7ee2b0f29c 100644
---- a/tools/testing/selftests/lib.mk
-+++ b/tools/testing/selftests/lib.mk
-@@ -48,6 +48,7 @@ ARCH		?= $(SUBARCH)
- # When local build is done, headers are installed in the default
- # INSTALL_HDR_PATH usr/include.
- .PHONY: khdr
-+.NOTPARALLEL:
- khdr:
- ifndef KSFT_KHDR_INSTALL_DONE
- ifeq (1,$(DEFAULT_INSTALL_HDR_PATH))
+diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+index f0c0935d7909..56e291708587 100644
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -3443,15 +3443,16 @@ static int sd_probe(struct device *dev)
+ 	}
+ 
+ 	device_initialize(&sdkp->dev);
+-	sdkp->dev.parent = dev;
++	sdkp->dev.parent = get_device(dev);
+ 	sdkp->dev.class = &sd_disk_class;
+ 	dev_set_name(&sdkp->dev, "%s", dev_name(dev));
+ 
+ 	error = device_add(&sdkp->dev);
+-	if (error)
+-		goto out_free_index;
++	if (error) {
++		put_device(&sdkp->dev);
++		goto out;
++	}
+ 
+-	get_device(dev);
+ 	dev_set_drvdata(dev, sdkp);
+ 
+ 	gd->major = sd_major((index & 0xf0) >> 4);
 -- 
 2.33.0
 
