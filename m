@@ -2,109 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC9C14269D2
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:41:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 663F5426A52
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:58:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242422AbhJHLmI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:42:08 -0400
-Received: from smtp-relay-internal-1.canonical.com ([185.125.188.123]:47364
-        "EHLO smtp-relay-internal-1.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S242450AbhJHLkF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Oct 2021 07:40:05 -0400
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com [209.85.208.69])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 3448F3FFFA
-        for <stable@vger.kernel.org>; Fri,  8 Oct 2021 11:38:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1633693087;
-        bh=3lioRcCn3/5I7Byd/FEr0VTjZpCEaYjPURKLlNwW7t4=;
-        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-         MIME-Version;
-        b=L4m3LXfzJPrmhKKmCayaDbEUQpBkYUWnc2uSQ8jDt5o0ZrnBXtzIIO51mIFMHYP8Q
-         xq/TjhGu+14IAEMTyVaNuivhLnprtbx0LpwyTbc1t/JN0CgGeMZRp9EkJZvI0cbwdn
-         jNHx/mekwZUJDvTJSl8SdIA9NQ4AiGcTqV75bys8AA7MtTA7XhC0vQ4Un6B1IJYWne
-         +3YfZMFsrjowNMAVl8VWpreO+M3S9KYRjf9QNvq3QLr2NW9DFTFq5irNRPE8jT0Alz
-         zKT2OLLKKQ0SJgvT06+g6FUTA1X1gTRuXAY8xzEQ8ZLt9czQ7TCqWRyMHhLNR0iWbg
-         MNtbBR4sEmY7g==
-Received: by mail-ed1-f69.google.com with SMTP id l10-20020a056402230a00b003db6977b694so569478eda.23
-        for <stable@vger.kernel.org>; Fri, 08 Oct 2021 04:38:07 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=3lioRcCn3/5I7Byd/FEr0VTjZpCEaYjPURKLlNwW7t4=;
-        b=j8oOuKcJ6QBPiBbgyhkjN+mqo32/u7mJ8WDShmogh2AdvzezEypdpLZq1IhDSzMjmJ
-         D5JRr5fdN+zBxKFruhXeuT822BG4G1jX3XNT/NwzLj1ZVj7TnbSKtscXd1bl8gYJojE/
-         HQgAhvMlQQauOlTRJVGNuK/1Nf8Ez42N+zSfWpnmSOuO/eHcj2V6vVVos2437gsqPq0o
-         ltdLdDgJ3oWb7jyJ/SsOnZhKU495TIAaxrawmdaW3F5k/rnAOoUSDgHQsiVApGptL2BK
-         jcc9HbHakwVkxBzk4FzUtAIJlUYTAnxduQnEg7g5KOD3ZGSU3js7fDfvy08Tr3lwhYHX
-         1iCg==
-X-Gm-Message-State: AOAM531YUqr5SE2jYX9DvlkybQVjHiWOuH2SlORHYooRDnU9TDMUiyR3
-        EnA4OwQ7DDlW8XAd2zPbvXGV3TPK6mNq9LxIlBpQjERUfnCd4LnpYUGO9QWhCOvKfMEB8fKH2Ie
-        tHkk7TdWDLpP9cpamEzI28i8dTyD+73w0mA==
-X-Received: by 2002:a50:e1c3:: with SMTP id m3mr14475686edl.28.1633693086680;
-        Fri, 08 Oct 2021 04:38:06 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzSgOOTxmIz6/eUaO3XLb/7FHGRRj5wImxJqfZ/8ppuVdIQh/Aapau2ufIxWL+mBrSjYqbxmA==
-X-Received: by 2002:a50:e1c3:: with SMTP id m3mr14475657edl.28.1633693086467;
-        Fri, 08 Oct 2021 04:38:06 -0700 (PDT)
-Received: from localhost.localdomain (xdsl-188-155-186-13.adslplus.ch. [188.155.186.13])
-        by smtp.gmail.com with ESMTPSA id la1sm819948ejc.48.2021.10.08.04.38.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Oct 2021 04:38:05 -0700 (PDT)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-To:     Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Tomasz Figa <tomasz.figa@gmail.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>, linux-clk@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org
-Cc:     Sam Protsenko <semen.protsenko@linaro.org>, stable@vger.kernel.org,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH v4 02/10] regulator: dt-bindings: samsung,s5m8767: correct s5m8767,pmic-buck-default-dvs-idx property
-Date:   Fri,  8 Oct 2021 13:37:14 +0200
-Message-Id: <20211008113723.134648-3-krzysztof.kozlowski@canonical.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211008113723.134648-1-krzysztof.kozlowski@canonical.com>
-References: <20211008113723.134648-1-krzysztof.kozlowski@canonical.com>
+        id S240228AbhJHL7y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:59:54 -0400
+Received: from frasgout.his.huawei.com ([185.176.79.56]:3949 "EHLO
+        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230167AbhJHL7y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Oct 2021 07:59:54 -0400
+Received: from fraeml745-chm.china.huawei.com (unknown [172.18.147.201])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4HQmnS37cSz6H6jV;
+        Fri,  8 Oct 2021 19:54:20 +0800 (CST)
+Received: from lhreml724-chm.china.huawei.com (10.201.108.75) by
+ fraeml745-chm.china.huawei.com (10.206.15.226) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.8; Fri, 8 Oct 2021 13:57:56 +0200
+Received: from [10.47.80.141] (10.47.80.141) by lhreml724-chm.china.huawei.com
+ (10.201.108.75) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.8; Fri, 8 Oct 2021
+ 12:57:55 +0100
+Subject: Re: [PATCH v3] scsi: core: Fix shost->cmd_per_lun calculation in
+ scsi_add_host_with_dma()
+To:     Dexuan Cui <decui@microsoft.com>, <kys@microsoft.com>,
+        <sthemmin@microsoft.com>, <wei.liu@kernel.org>,
+        <jejb@linux.ibm.com>, <martin.petersen@oracle.com>,
+        <haiyangz@microsoft.com>, <ming.lei@redhat.com>,
+        <bvanassche@acm.org>, <linux-scsi@vger.kernel.org>,
+        <linux-hyperv@vger.kernel.org>, <longli@microsoft.com>,
+        <mikelley@microsoft.com>
+CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+References: <20211008043546.6006-1-decui@microsoft.com>
+From:   John Garry <john.garry@huawei.com>
+Message-ID: <8c87879b-ad28-e7bd-71ec-0c8a2ee99e7c@huawei.com>
+Date:   Fri, 8 Oct 2021 13:00:25 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20211008043546.6006-1-decui@microsoft.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.47.80.141]
+X-ClientProxiedBy: lhreml744-chm.china.huawei.com (10.201.108.194) To
+ lhreml724-chm.china.huawei.com (10.201.108.75)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The driver was always parsing "s5m8767,pmic-buck-default-dvs-idx", not
-"s5m8767,pmic-buck234-default-dvs-idx".
+On 08/10/2021 05:35, Dexuan Cui wrote:
+> After commit ea2f0f77538c, a 416-CPU VM running on Hyper-V hangs during
+> boot because the hv_storvsc driver sets scsi_driver.can_queue to an "int"
+> value that exceeds SHRT_MAX, and hence scsi_add_host_with_dma() sets
+> shost->cmd_per_lun to a negative "short" value.
+> 
+> Use min_t(int, ...) to fix the issue.
+> 
+> Fixes: ea2f0f77538c ("scsi: core: Cap scsi_host cmd_per_lun at can_queue")
+> Cc:stable@vger.kernel.org
+> Signed-off-by: Dexuan Cui<decui@microsoft.com>
+> Reviewed-by: Haiyang Zhang<haiyangz@microsoft.com>
+> Reviewed-by: Ming Lei<ming.lei@redhat.com>
 
-Cc: <stable@vger.kernel.org>
-Fixes: 26aec009f6b6 ("regulator: add device tree support for s5m8767")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Acked-by: Rob Herring <robh@kernel.org>
----
- Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Reviewed-by: John Garry <john.garry@huawei.com>
 
-diff --git a/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt b/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
-index d9cff1614f7a..6cd83d920155 100644
---- a/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
-+++ b/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
-@@ -39,7 +39,7 @@ Optional properties of the main device node (the parent!):
- 
- Additional properties required if either of the optional properties are used:
- 
-- - s5m8767,pmic-buck234-default-dvs-idx: Default voltage setting selected from
-+ - s5m8767,pmic-buck-default-dvs-idx: Default voltage setting selected from
-    the possible 8 options selectable by the dvs gpios. The value of this
-    property should be between 0 and 7. If not specified or if out of range, the
-    default value of this property is set to 0.
--- 
-2.30.2
-
+thanks
