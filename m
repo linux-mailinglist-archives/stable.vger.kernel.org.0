@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B816426972
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:36:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 409F84268E6
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:31:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241124AbhJHLhz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:37:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60600 "EHLO mail.kernel.org"
+        id S240840AbhJHLcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:32:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241597AbhJHLf5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:35:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6144661371;
-        Fri,  8 Oct 2021 11:31:52 +0000 (UTC)
+        id S240928AbhJHLbb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:31:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DB066121F;
+        Fri,  8 Oct 2021 11:29:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692712;
-        bh=o1gLY2ZYXf8+Eu+p/sycKXvaHcg7lgTxIaE2Ew7Y0yY=;
+        s=korg; t=1633692565;
+        bh=kFWEvyx4/4RodsJJlPiunVAf+SwF90/+vvNKv5LBeJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k4ALB2IytToUmf7oGjaAVQ3B19uqpe/aBn064wN1yoducFxALMjo83Vc7lZyztQyy
-         8CbvXlSrzuIju3AsezrxSBJgalZ1Ll1R87N/qSDFZQ2z79APxBoLES2THYtIW2tK58
-         3L4HuYITtP88+dH5uiC9Xw6frQ2T4qk+y9WgDcuY=
+        b=axYzPxiLGzIT49IazluASiDahfRbTgz1y+QnsnRpF0DOZSCDXlGomseynA8y0QLVA
+         SIWYmTQ4CxyOBLa8gV1eW+HzdK18PUTv5z/zGQ2PiMjMwoXFsy1an9W98p12175Ndg
+         oNVwhavapFrkNAioT8q88FFqt+RaFHpblwMeXUNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tobias Jakobi <tjakobi@math.uni-bielefeld.de>,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <thomas@weissschuh.net>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Faizel K B <faizel.kb@dicortech.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 11/48] platform/x86: gigabyte-wmi: add support for B550I Aorus Pro AX
+Subject: [PATCH 4.14 06/10] usb: testusb: Fix for showing the connection speed
 Date:   Fri,  8 Oct 2021 13:27:47 +0200
-Message-Id: <20211008112720.403750223@linuxfoundation.org>
+Message-Id: <20211008112714.656412462@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112720.008415452@linuxfoundation.org>
-References: <20211008112720.008415452@linuxfoundation.org>
+In-Reply-To: <20211008112714.445637990@linuxfoundation.org>
+References: <20211008112714.445637990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,33 +39,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobias Jakobi <tjakobi@math.uni-bielefeld.de>
+From: Faizel K B <faizel.kb@dicortech.com>
 
-[ Upstream commit 6f6aab1caf6c7fef46852aaab03f4e8250779e52 ]
+[ Upstream commit f81c08f897adafd2ed43f86f00207ff929f0b2eb ]
 
-Tested with a AMD Ryzen 7 5800X.
+testusb' application which uses 'usbtest' driver reports 'unknown speed'
+from the function 'find_testdev'. The variable 'entry->speed' was not
+updated from  the application. The IOCTL mentioned in the FIXME comment can
+only report whether the connection is low speed or not. Speed is read using
+the IOCTL USBDEVFS_GET_SPEED which reports the proper speed grade.  The
+call is implemented in the function 'handle_testdev' where the file
+descriptor was availble locally. Sample output is given below where 'high
+speed' is printed as the connected speed.
 
-Signed-off-by: Tobias Jakobi <tjakobi@math.uni-bielefeld.de>
-Acked-by: Thomas Weißschuh <thomas@weissschuh.net>
-Link: https://lore.kernel.org/r/20210921100702.3838-1-tjakobi@math.uni-bielefeld.de
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+sudo ./testusb -a
+high speed      /dev/bus/usb/001/011    0
+/dev/bus/usb/001/011 test 0,    0.000015 secs
+/dev/bus/usb/001/011 test 1,    0.194208 secs
+/dev/bus/usb/001/011 test 2,    0.077289 secs
+/dev/bus/usb/001/011 test 3,    0.170604 secs
+/dev/bus/usb/001/011 test 4,    0.108335 secs
+/dev/bus/usb/001/011 test 5,    2.788076 secs
+/dev/bus/usb/001/011 test 6,    2.594610 secs
+/dev/bus/usb/001/011 test 7,    2.905459 secs
+/dev/bus/usb/001/011 test 8,    2.795193 secs
+/dev/bus/usb/001/011 test 9,    8.372651 secs
+/dev/bus/usb/001/011 test 10,    6.919731 secs
+/dev/bus/usb/001/011 test 11,   16.372687 secs
+/dev/bus/usb/001/011 test 12,   16.375233 secs
+/dev/bus/usb/001/011 test 13,    2.977457 secs
+/dev/bus/usb/001/011 test 14 --> 22 (Invalid argument)
+/dev/bus/usb/001/011 test 17,    0.148826 secs
+/dev/bus/usb/001/011 test 18,    0.068718 secs
+/dev/bus/usb/001/011 test 19,    0.125992 secs
+/dev/bus/usb/001/011 test 20,    0.127477 secs
+/dev/bus/usb/001/011 test 21 --> 22 (Invalid argument)
+/dev/bus/usb/001/011 test 24,    4.133763 secs
+/dev/bus/usb/001/011 test 27,    2.140066 secs
+/dev/bus/usb/001/011 test 28,    2.120713 secs
+/dev/bus/usb/001/011 test 29,    0.507762 secs
+
+Signed-off-by: Faizel K B <faizel.kb@dicortech.com>
+Link: https://lore.kernel.org/r/20210902114444.15106-1-faizel.kb@dicortech.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/gigabyte-wmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/usb/testusb.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/platform/x86/gigabyte-wmi.c b/drivers/platform/x86/gigabyte-wmi.c
-index 7f3a03f937f6..d53634c8a6e0 100644
---- a/drivers/platform/x86/gigabyte-wmi.c
-+++ b/drivers/platform/x86/gigabyte-wmi.c
-@@ -144,6 +144,7 @@ static const struct dmi_system_id gigabyte_wmi_known_working_platforms[] = {
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 AORUS ELITE"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 AORUS ELITE V2"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 GAMING X V2"),
-+	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550I AORUS PRO AX"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550M AORUS PRO-P"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550M DS3H"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("Z390 I AORUS PRO WIFI-CF"),
+diff --git a/tools/usb/testusb.c b/tools/usb/testusb.c
+index 2d89b5f686b1..791aadef2d59 100644
+--- a/tools/usb/testusb.c
++++ b/tools/usb/testusb.c
+@@ -278,12 +278,6 @@ nomem:
+ 	}
+ 
+ 	entry->ifnum = ifnum;
+-
+-	/* FIXME update USBDEVFS_CONNECTINFO so it tells about high speed etc */
+-
+-	fprintf(stderr, "%s speed\t%s\t%u\n",
+-		speed(entry->speed), entry->name, entry->ifnum);
+-
+ 	entry->next = testdevs;
+ 	testdevs = entry;
+ 	return 0;
+@@ -312,6 +306,14 @@ static void *handle_testdev (void *arg)
+ 		return 0;
+ 	}
+ 
++	status  =  ioctl(fd, USBDEVFS_GET_SPEED, NULL);
++	if (status < 0)
++		fprintf(stderr, "USBDEVFS_GET_SPEED failed %d\n", status);
++	else
++		dev->speed = status;
++	fprintf(stderr, "%s speed\t%s\t%u\n",
++			speed(dev->speed), dev->name, dev->ifnum);
++
+ restart:
+ 	for (i = 0; i < TEST_CASES; i++) {
+ 		if (dev->test != -1 && dev->test != i)
 -- 
 2.33.0
 
