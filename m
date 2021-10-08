@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46B6C426902
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:31:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D800E42692E
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:32:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240577AbhJHLdK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:33:10 -0400
+        id S240897AbhJHLeV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:34:21 -0400
 Received: from mail.kernel.org ([198.145.29.99]:58592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240891AbhJHLcW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:32:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B87B361073;
-        Fri,  8 Oct 2021 11:30:14 +0000 (UTC)
+        id S240835AbhJHLdD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:33:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 16949613A7;
+        Fri,  8 Oct 2021 11:30:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692615;
-        bh=X7Jx8wRftHR4Xx+n+Ynd+iY4sJtTY0t/te8BqMaAYzQ=;
+        s=korg; t=1633692658;
+        bh=wFYGAkwb4/WUJWCk1IRMUqwJzEIWLJ7Jffepp7pbjqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gVXmkLitALpvcJUle28VaCkjAm6m0PaEf9nsWehsd/y7aXHxJcPPtVN6rE2eTH/E
-         hlDERs+gjmwKStwKSaK4Wr1X7LsDqQVLPy3hmfmekIveBYF9346uEEliMUYhO+CYIQ
-         5repCwXik6KD2Bl4ci5ZxYonbjcWfNRcrR7CTF8w=
+        b=FATfKKqy8kahVlZDDND9PoHt4v7VtVJEpSQQ6QXA54MZSWPkdiXubHpiyyeogEBK0
+         7Nq2lhiuQLOwCixZ+3CRJtnnRExuIxro+AA1LEkfyxQIDNRvC0kQWYA4yKczGQ2Y9p
+         3nCoWQQQo7q9iAMDlNVzdk4NVNfhfz7Sgy2L2rH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fares Mehanna <faresx@amazon.de>,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 13/16] kvm: x86: Add AMD PMU MSRs to msrs_to_save_all[]
+Subject: [PATCH 5.10 16/29] selftests:kvm: fix get_warnings_count() ignoring fscanf() return warn
 Date:   Fri,  8 Oct 2021 13:28:03 +0200
-Message-Id: <20211008112715.907701710@linuxfoundation.org>
+Message-Id: <20211008112717.496142391@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112715.444305067@linuxfoundation.org>
-References: <20211008112715.444305067@linuxfoundation.org>
+In-Reply-To: <20211008112716.914501436@linuxfoundation.org>
+References: <20211008112716.914501436@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fares Mehanna <faresx@amazon.de>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit e1fc1553cd78292ab3521c94c9dd6e3e70e606a1 ]
+[ Upstream commit 39a71f712d8a13728febd8f3cb3f6db7e1fa7221 ]
 
-Intel PMU MSRs is in msrs_to_save_all[], so add AMD PMU MSRs to have a
-consistent behavior between Intel and AMD when using KVM_GET_MSRS,
-KVM_SET_MSRS or KVM_GET_MSR_INDEX_LIST.
+Fix get_warnings_count() to check fscanf() return value to get rid
+of the following warning:
 
-We have to add legacy and new MSRs to handle guests running without
-X86_FEATURE_PERFCTR_CORE.
+x86_64/mmio_warning_test.c: In function ‘get_warnings_count’:
+x86_64/mmio_warning_test.c:85:2: warning: ignoring return value of ‘fscanf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+   85 |  fscanf(f, "%d", &warnings);
+      |  ^~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Signed-off-by: Fares Mehanna <faresx@amazon.de>
-Message-Id: <20210915133951.22389-1-faresx@amazon.de>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ tools/testing/selftests/kvm/x86_64/mmio_warning_test.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index eed058529e4b..dfd70ed34f88 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1239,6 +1239,13 @@ static const u32 msrs_to_save_all[] = {
- 	MSR_ARCH_PERFMON_EVENTSEL0 + 12, MSR_ARCH_PERFMON_EVENTSEL0 + 13,
- 	MSR_ARCH_PERFMON_EVENTSEL0 + 14, MSR_ARCH_PERFMON_EVENTSEL0 + 15,
- 	MSR_ARCH_PERFMON_EVENTSEL0 + 16, MSR_ARCH_PERFMON_EVENTSEL0 + 17,
-+
-+	MSR_K7_EVNTSEL0, MSR_K7_EVNTSEL1, MSR_K7_EVNTSEL2, MSR_K7_EVNTSEL3,
-+	MSR_K7_PERFCTR0, MSR_K7_PERFCTR1, MSR_K7_PERFCTR2, MSR_K7_PERFCTR3,
-+	MSR_F15H_PERF_CTL0, MSR_F15H_PERF_CTL1, MSR_F15H_PERF_CTL2,
-+	MSR_F15H_PERF_CTL3, MSR_F15H_PERF_CTL4, MSR_F15H_PERF_CTL5,
-+	MSR_F15H_PERF_CTR0, MSR_F15H_PERF_CTR1, MSR_F15H_PERF_CTR2,
-+	MSR_F15H_PERF_CTR3, MSR_F15H_PERF_CTR4, MSR_F15H_PERF_CTR5,
- };
+diff --git a/tools/testing/selftests/kvm/x86_64/mmio_warning_test.c b/tools/testing/selftests/kvm/x86_64/mmio_warning_test.c
+index e6480fd5c4bd..8039e1eff938 100644
+--- a/tools/testing/selftests/kvm/x86_64/mmio_warning_test.c
++++ b/tools/testing/selftests/kvm/x86_64/mmio_warning_test.c
+@@ -82,7 +82,8 @@ int get_warnings_count(void)
+ 	FILE *f;
  
- static u32 msrs_to_save[ARRAY_SIZE(msrs_to_save_all)];
+ 	f = popen("dmesg | grep \"WARNING:\" | wc -l", "r");
+-	fscanf(f, "%d", &warnings);
++	if (fscanf(f, "%d", &warnings) < 1)
++		warnings = 0;
+ 	fclose(f);
+ 
+ 	return warnings;
 -- 
 2.33.0
 
