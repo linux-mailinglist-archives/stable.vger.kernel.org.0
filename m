@@ -2,148 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA82842652A
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 09:22:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBD2E426486
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 08:18:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229490AbhJHHYE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 03:24:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33692 "EHLO
+        id S229548AbhJHGUU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 02:20:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232031AbhJHHYA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Oct 2021 03:24:00 -0400
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C08DC061755;
-        Fri,  8 Oct 2021 00:22:06 -0700 (PDT)
-Received: by mail-pl1-x62e.google.com with SMTP id x8so5562097plv.8;
-        Fri, 08 Oct 2021 00:22:06 -0700 (PDT)
+        with ESMTP id S229532AbhJHGUU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Oct 2021 02:20:20 -0400
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE37AC061570
+        for <stable@vger.kernel.org>; Thu,  7 Oct 2021 23:18:25 -0700 (PDT)
+Received: by mail-pg1-x536.google.com with SMTP id g184so2134853pgc.6
+        for <stable@vger.kernel.org>; Thu, 07 Oct 2021 23:18:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=QgZDXufZT6HKl/lBj8C0d09aIeUA5f6RLZG86dMpu7k=;
-        b=M63ZBGUdgFZB/d9TMgxemztWqBUSTyQpUmePUT/8Ns0SQM4XHJkluWs7JRzLIfZRn1
-         iyMJ/dtNf/Kfq9DmK62cvwSMbbKAKyjEOADLu5AYLuRQfZoZRRFdUUsxWrTjbpvSgWfq
-         c595/TZ3wVyRQ2od4m7qnXMBxkVjm0HQ3gRVZ+eA8O29V6FDDBoDfiBXCgPpyNw0070s
-         vTGgIiLIsBb9cFtSVQXTgE5fkqpwW4N3W+xYvYfdTyFVzHtUlelFQ9BtojGbCtu98MlE
-         RDK8iiVPMJCJl+Aa5wl24BXz+VaRuxlKYNf6qn5pLFvmfnFAtdaJsgEQTfZTkZs/E1nS
-         1xlg==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=zi1tCaQHnJRHFmg9DIH2R0MixENxOF4621kGwqNJLw0=;
+        b=W7JGxLX6CqdWGDsUMDGNM2r+zhOORTCSHzOu2wLI/W/xl0PLp6nB9pNyg6IQ6xcxNr
+         EcgBo1FJu0nDlQhlJceHMDYh82GHmzgBCv1BrFRCT+ybRblJvv8dXZsJdEU1iX4zLZRv
+         Tev4teeg1loN/WF7aZNw+VWBJb5rCdVaexFlN2dEJSfcTQSumsU2+33N4rXilPJOwUj8
+         JrcPeUoC3aiSkgxmbAtua0AYziN9TLKJhIn7uiBjSwzUtu4/wreiQct1Ax5CNx3fWQlM
+         TMJtjH95saUIuAn4fcQgjg507v0GYES8ocTQUPjdC69y3q/Ik7iBZFT/zDp1XbRTnQtv
+         Y5ZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=QgZDXufZT6HKl/lBj8C0d09aIeUA5f6RLZG86dMpu7k=;
-        b=lpmw0wPbLOvR/oCkABvlywNgH7Ct92PPy4sGRGxIybkj2wt2VTvXJ9xCep+LpeI3hJ
-         3nguc+a1fqEUZXY8xK5tQVOscaNN0eBQwNcoOMzOz/zgGN21CkJf1PAGbu6q57mrtPOA
-         xfGPJbJcLUzR58NW9rJ/L4u566hH5uH60EqMACvI83JpXQmXYQaQR2hdVtyXO6l26QMN
-         2cjOTq8Bq9CEJpjKNHblW2L7WPExLLH73UQsORfctt8hbubBpMdePU6g3Ys+nG1oXdtW
-         bV37s5Db0QPxk6IX/xJLXVXjcyopoDoxe6bCU+788UvTIZbEh6jtsKB2S58lRmJKvX/G
-         hxxA==
-X-Gm-Message-State: AOAM533rOKYSSavavy85DIOaoYLCibImUkNh4tQC+hzgjSk5RRWNhIiS
-        FNYgQH6698zAyHAotlqOYn4=
-X-Google-Smtp-Source: ABdhPJzGcX/FpZZkyYgmMcL7AezXWg7k6v+xPhh0/XrE/fVqF0dI+yWdSplZlcFoI8NvQgqrTzuHCA==
-X-Received: by 2002:a17:903:1112:b0:13d:ce49:e275 with SMTP id n18-20020a170903111200b0013dce49e275mr8280504plh.5.1633677725365;
-        Fri, 08 Oct 2021 00:22:05 -0700 (PDT)
-Received: from sc2-haas01-esx0118.eng.vmware.com ([66.170.99.1])
-        by smtp.gmail.com with ESMTPSA id f84sm1565319pfa.25.2021.10.08.00.22.04
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=zi1tCaQHnJRHFmg9DIH2R0MixENxOF4621kGwqNJLw0=;
+        b=BursBUMmcZcX9PP5+ryoy1MOoNrEiRr0zPtZLKSwtV8dIiF7vA5NGnZkIXwtVleZ6m
+         q2yR9lCb7ZhMgJr0D4/f0A+0BjZaGctSd3NN4o6LdQb+jytK3FIT7VEQtd1qJ4DpttSs
+         WVqtrrHlU9s6N3eaNMOUPAuZ6QRZV2s2JurkygW8qhS/ep+OBb36wwJ78sn9SjUtHHON
+         +nAPlVITEn2X9CFLbbR51WDee3OF13io9WjwWtfua/i8MHz3gsFl/Wq0+Vx4VHksSJP+
+         tmMxHqLqvQMRLR0WDTUZQ8NrJaxqnFMfhROFQZv2rqvzNpS46y3rjvk8eCl423vzUhvv
+         XdDQ==
+X-Gm-Message-State: AOAM531p+hSQ8JFD0pjrqdkb2QtllUEYkMMiyzDIdzra8c7Jnnn3MdVL
+        MKFcwVtFDjBQS00ktM1C11lYoZ83ceOxXEDK
+X-Google-Smtp-Source: ABdhPJxwk8YFOoo/hjjZMFOinqSiWJy/6UxYfoe+ZWUJoJ927mlsrkBljVp41RIDLs9YyIq/50efyA==
+X-Received: by 2002:a65:5082:: with SMTP id r2mr3124134pgp.353.1633673905124;
+        Thu, 07 Oct 2021 23:18:25 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id u25sm1285995pfh.132.2021.10.07.23.18.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Oct 2021 00:22:04 -0700 (PDT)
-From:   Nadav Amit <nadav.amit@gmail.com>
-X-Google-Original-From: Nadav Amit
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Nadav Amit <namit@vmware.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Peter Xu <peterx@redhat.com>, Jan Kara <jack@suse.cz>,
-        stable@vger.kernel.org
-Subject: [PATCH] mm/userfaultfd: provide unmasked address on page-fault
-Date:   Thu,  7 Oct 2021 16:50:55 -0700
-Message-Id: <20211007235055.469587-1-namit@vmware.com>
-X-Mailer: git-send-email 2.25.1
+        Thu, 07 Oct 2021 23:18:24 -0700 (PDT)
+Message-ID: <615fe2b0.1c69fb81.94776.4a60@mx.google.com>
+Date:   Thu, 07 Oct 2021 23:18:24 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.249-8-g9a91d3213756
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.14
+Subject: stable-rc/queue/4.14 baseline: 109 runs,
+ 1 regressions (v4.14.249-8-g9a91d3213756)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+stable-rc/queue/4.14 baseline: 109 runs, 1 regressions (v4.14.249-8-g9a91d3=
+213756)
 
-Userfaultfd is supposed to provide the full address (i.e., unmasked) of
-the faulting access back to userspace. However, that is not the case for
-quite some time.
+Regressions Summary
+-------------------
 
-Even running "userfaultfd_demo" from the userfaultfd man page provides
-the wrong output (and contradicts the man page). Notice that
-"UFFD_EVENT_PAGEFAULT event" shows the masked address.
-
-	Address returned by mmap() = 0x7fc5e30b3000
-
-	fault_handler_thread():
-	    poll() returns: nready = 1; POLLIN = 1; POLLERR = 0
-	    UFFD_EVENT_PAGEFAULT event: flags = 0; address = 7fc5e30b3000
-		(uffdio_copy.copy returned 4096)
-	Read address 0x7fc5e30b300f in main(): A
-	Read address 0x7fc5e30b340f in main(): A
-	Read address 0x7fc5e30b380f in main(): A
-	Read address 0x7fc5e30b3c0f in main(): A
-
-Add a new "real_address" field to vmf to hold the unmasked address. It
-is possible to keep the unmasked address in the existing address field
-(and mask whenever necessary) instead, but this is likely to cause
-backporting problems of this patch.
-
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: stable@vger.kernel.org
-Fixes: 1a29d85eb0f19 ("mm: use vmf->address instead of of vmf->virtual_address")
-Signed-off-by: Nadav Amit <namit@vmware.com>
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
- fs/userfaultfd.c   | 2 +-
- include/linux/mm.h | 3 ++-
- mm/memory.c        | 1 +
- 3 files changed, 4 insertions(+), 2 deletions(-)
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
 
-diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index 003f0d31743e..1dfc0fcd83c1 100644
---- a/fs/userfaultfd.c
-+++ b/fs/userfaultfd.c
-@@ -481,7 +481,7 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
- 
- 	init_waitqueue_func_entry(&uwq.wq, userfaultfd_wake_function);
- 	uwq.wq.private = current;
--	uwq.msg = userfault_msg(vmf->address, vmf->flags, reason,
-+	uwq.msg = userfault_msg(vmf->real_address, vmf->flags, reason,
- 			ctx->features);
- 	uwq.ctx = ctx;
- 	uwq.waken = false;
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 00bb2d938df4..f3f324e3f2bf 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -523,7 +523,8 @@ struct vm_fault {
- 		struct vm_area_struct *vma;	/* Target VMA */
- 		gfp_t gfp_mask;			/* gfp mask to be used for allocations */
- 		pgoff_t pgoff;			/* Logical page offset based on vma */
--		unsigned long address;		/* Faulting virtual address */
-+		unsigned long address;		/* Faulting virtual address - masked */
-+		unsigned long real_address;	/* Faulting virtual address - unmaked */
- 	};
- 	enum fault_flag flags;		/* FAULT_FLAG_xxx flags
- 					 * XXX: should really be 'const' */
-diff --git a/mm/memory.c b/mm/memory.c
-index 12a7b2094434..3d2d7fdbb7dc 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4594,6 +4594,7 @@ static vm_fault_t __handle_mm_fault(struct vm_area_struct *vma,
- 	struct vm_fault vmf = {
- 		.vma = vma,
- 		.address = address & PAGE_MASK,
-+		.real_address = address,
- 		.flags = flags,
- 		.pgoff = linear_page_index(vma, address),
- 		.gfp_mask = __get_fault_gfp_mask(vma),
--- 
-2.25.1
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.249-8-g9a91d3213756/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.249-8-g9a91d3213756
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9a91d3213756efb919573f88c9c2894aa5a651ee =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/615fa904157187cbda99a321
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.249=
+-8-g9a91d3213756/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.249=
+-8-g9a91d3213756/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/615fa904157187c=
+bda99a327
+        failing since 1 day (last pass: v4.14.248-75-ga54482216787, first f=
+ail: v4.14.248-75-gddb29baac18c)
+        2 lines
+
+    2021-10-08T02:12:01.497488  [   20.485961] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-10-08T02:12:01.540326  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/95
+    2021-10-08T02:12:01.549356  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+d34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
