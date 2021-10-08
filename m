@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D6754268CE
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:29:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2774C4268C6
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:29:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240903AbhJHLb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:31:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58384 "EHLO mail.kernel.org"
+        id S240680AbhJHLbA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:31:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240600AbhJHLav (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:30:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4377161038;
-        Fri,  8 Oct 2021 11:28:56 +0000 (UTC)
+        id S240530AbhJHLap (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:30:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9DC66103C;
+        Fri,  8 Oct 2021 11:28:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692536;
-        bh=QH4WM6JybP8VY6blTEobSCVrUtbDcdaxuYSvThxX7sg=;
+        s=korg; t=1633692530;
+        bh=FpZkEcc8SbED2tSq5JxvTY8RJ7uNoNanaIwUewsclx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n6KrDwSeZsLDQPyWmoizRyZHhxy1sxj3d0nmO+++Xy0+BAsP9s/RS/0627fejA9YZ
-         f5O7YLVQIe/xbUQvdw2uRET/N9gL3ni5ih3jvn/A0Vy6itgg4G9Pi+9LQaQTnl1AJm
-         8gIuRiQyC+bM7htRf4r0mtWodoSM3bbiwaeyzJMg=
+        b=NvMNEJw0i89zPwgJcmCTI4O6kr8HfL1ThqXhOfeuX/cqrwsZHepEcKI3y4goZczBr
+         5Uop0s9gMyGyUJ8qsViMKd1BFJB7+drlbiLpNXOnllcAIvKxHS2o1BJQqcboa9u17f
+         L6NGOorVArPdlHW2hzagSATo+B+xesZrqdoUbtIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 2/8] net: mdio: introduce a shutdown method to mdio device drivers
+        stable@vger.kernel.org, Kate Hsuan <hpa@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        =?UTF-8?q?Krzysztof=20Ol=C4=99dzki?= <ole@ans.pl>
+Subject: [PATCH 4.4 7/7] libata: Add ATA_HORKAGE_NO_NCQ_ON_ATI for Samsung 860 and 870 SSD.
 Date:   Fri,  8 Oct 2021 13:27:39 +0200
-Message-Id: <20211008112714.023146177@linuxfoundation.org>
+Message-Id: <20211008112713.749113978@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112713.941269121@linuxfoundation.org>
-References: <20211008112713.941269121@linuxfoundation.org>
+In-Reply-To: <20211008112713.515980393@linuxfoundation.org>
+References: <20211008112713.515980393@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,77 +42,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Kate Hsuan <hpa@redhat.com>
 
-[ Upstream commit cf9579976f724ad517cc15b7caadea728c7e245c ]
+commit 7a8526a5cd51cf5f070310c6c37dd7293334ac49 upstream.
 
-MDIO-attached devices might have interrupts and other things that might
-need quiesced when we kexec into a new kernel. Things are even more
-creepy when those interrupt lines are shared, and in that case it is
-absolutely mandatory to disable all interrupt sources.
+Many users are reporting that the Samsung 860 and 870 SSD are having
+various issues when combined with AMD/ATI (vendor ID 0x1002)  SATA
+controllers and only completely disabling NCQ helps to avoid these
+issues.
 
-Moreover, MDIO devices might be DSA switches, and DSA needs its own
-shutdown method to unlink from the DSA master, which is a new
-requirement that appeared after commit 2f1e8ea726e9 ("net: dsa: link
-interfaces with the DSA master to get rid of lockdep warnings").
+Always disabling NCQ for Samsung 860/870 SSDs regardless of the host
+SATA adapter vendor will cause I/O performance degradation with well
+behaved adapters. To limit the performance impact to ATI adapters,
+introduce the ATA_HORKAGE_NO_NCQ_ON_ATI flag to force disable NCQ
+only for these adapters.
 
-So introduce a ->shutdown method in the MDIO device driver structure.
+Also, two libata.force parameters (noncqati and ncqati) are introduced
+to disable and enable the NCQ for the system which equipped with ATI
+SATA adapter and Samsung 860 and 870 SSDs. The user can determine NCQ
+function to be enabled or disabled according to the demand.
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+After verifying the chipset from the user reports, the issue appears
+on AMD/ATI SB7x0/SB8x0/SB9x0 SATA Controllers and does not appear on
+recent AMD SATA adapters. The vendor ID of ATI should be 0x1002.
+Therefore, ATA_HORKAGE_NO_NCQ_ON_AMD was modified to
+ATA_HORKAGE_NO_NCQ_ON_ATI.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=201693
+Signed-off-by: Kate Hsuan <hpa@redhat.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210903094411.58749-1-hpa@redhat.com
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Krzysztof Olędzki <ole@ans.pl>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/mdio_device.c | 11 +++++++++++
- include/linux/mdio.h          |  3 +++
- 2 files changed, 14 insertions(+)
+ drivers/ata/libata-core.c |   34 ++++++++++++++++++++++++++++++++--
+ include/linux/libata.h    |    1 +
+ 2 files changed, 33 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/phy/mdio_device.c b/drivers/net/phy/mdio_device.c
-index 9c88e6749b9a..34600b0061bb 100644
---- a/drivers/net/phy/mdio_device.c
-+++ b/drivers/net/phy/mdio_device.c
-@@ -135,6 +135,16 @@ static int mdio_remove(struct device *dev)
- 	return 0;
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -2077,6 +2077,25 @@ static inline u8 ata_dev_knobble(struct
+ 	return ((ap->cbl == ATA_CBL_SATA) && (!ata_id_is_sata(dev->id)));
  }
  
-+static void mdio_shutdown(struct device *dev)
++static bool ata_dev_check_adapter(struct ata_device *dev,
++				  unsigned short vendor_id)
 +{
-+	struct mdio_device *mdiodev = to_mdio_device(dev);
-+	struct device_driver *drv = mdiodev->dev.driver;
-+	struct mdio_driver *mdiodrv = to_mdio_driver(drv);
++	struct pci_dev *pcidev = NULL;
++	struct device *parent_dev = NULL;
 +
-+	if (mdiodrv->shutdown)
-+		mdiodrv->shutdown(mdiodev);
++	for (parent_dev = dev->tdev.parent; parent_dev != NULL;
++	     parent_dev = parent_dev->parent) {
++		if (dev_is_pci(parent_dev)) {
++			pcidev = to_pci_dev(parent_dev);
++			if (pcidev->vendor == vendor_id)
++				return true;
++			break;
++		}
++	}
++
++	return false;
 +}
 +
- /**
-  * mdio_driver_register - register an mdio_driver with the MDIO layer
-  * @new_driver: new mdio_driver to register
-@@ -149,6 +159,7 @@ int mdio_driver_register(struct mdio_driver *drv)
- 	mdiodrv->driver.bus = &mdio_bus_type;
- 	mdiodrv->driver.probe = mdio_probe;
- 	mdiodrv->driver.remove = mdio_remove;
-+	mdiodrv->driver.shutdown = mdio_shutdown;
- 
- 	retval = driver_register(&mdiodrv->driver);
- 	if (retval) {
-diff --git a/include/linux/mdio.h b/include/linux/mdio.h
-index bf9d1d750693..78b3cf50566f 100644
---- a/include/linux/mdio.h
-+++ b/include/linux/mdio.h
-@@ -61,6 +61,9 @@ struct mdio_driver {
- 
- 	/* Clears up any memory if needed */
- 	void (*remove)(struct mdio_device *mdiodev);
+ static int ata_dev_config_ncq(struct ata_device *dev,
+ 			       char *desc, size_t desc_sz)
+ {
+@@ -2093,6 +2112,13 @@ static int ata_dev_config_ncq(struct ata
+ 		snprintf(desc, desc_sz, "NCQ (not used)");
+ 		return 0;
+ 	}
 +
-+	/* Quiesces the device on system shutdown, turns off interrupts etc */
-+	void (*shutdown)(struct mdio_device *mdiodev);
- };
- #define to_mdio_driver(d)						\
- 	container_of(to_mdio_common_driver(d), struct mdio_driver, mdiodrv)
--- 
-2.33.0
-
++	if (dev->horkage & ATA_HORKAGE_NO_NCQ_ON_ATI &&
++	    ata_dev_check_adapter(dev, PCI_VENDOR_ID_ATI)) {
++		snprintf(desc, desc_sz, "NCQ (not used)");
++		return 0;
++	}
++
+ 	if (ap->flags & ATA_FLAG_NCQ) {
+ 		hdepth = min(ap->scsi_host->can_queue, ATA_MAX_QUEUE - 1);
+ 		dev->flags |= ATA_DFLAG_NCQ;
+@@ -4270,9 +4296,11 @@ static const struct ata_blacklist_entry
+ 	{ "Samsung SSD 850*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+ 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+ 	{ "Samsung SSD 860*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+-						ATA_HORKAGE_ZERO_AFTER_TRIM, },
++						ATA_HORKAGE_ZERO_AFTER_TRIM |
++						ATA_HORKAGE_NO_NCQ_ON_ATI, },
+ 	{ "Samsung SSD 870*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+-						ATA_HORKAGE_ZERO_AFTER_TRIM, },
++						ATA_HORKAGE_ZERO_AFTER_TRIM |
++						ATA_HORKAGE_NO_NCQ_ON_ATI, },
+ 	{ "FCCT*M500*",			NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+ 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+ 
+@@ -6520,6 +6548,8 @@ static int __init ata_parse_force_one(ch
+ 		{ "ncq",	.horkage_off	= ATA_HORKAGE_NONCQ },
+ 		{ "noncqtrim",	.horkage_on	= ATA_HORKAGE_NO_NCQ_TRIM },
+ 		{ "ncqtrim",	.horkage_off	= ATA_HORKAGE_NO_NCQ_TRIM },
++		{ "noncqati",	.horkage_on	= ATA_HORKAGE_NO_NCQ_ON_ATI },
++		{ "ncqati",	.horkage_off	= ATA_HORKAGE_NO_NCQ_ON_ATI },
+ 		{ "dump_id",	.horkage_on	= ATA_HORKAGE_DUMP_ID },
+ 		{ "pio0",	.xfer_mask	= 1 << (ATA_SHIFT_PIO + 0) },
+ 		{ "pio1",	.xfer_mask	= 1 << (ATA_SHIFT_PIO + 1) },
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -437,6 +437,7 @@ enum {
+ 	ATA_HORKAGE_NO_NCQ_LOG	= (1 << 23),	/* don't use NCQ for log read */
+ 	ATA_HORKAGE_NOTRIM	= (1 << 24),	/* don't use TRIM */
+ 	ATA_HORKAGE_MAX_SEC_1024 = (1 << 25),	/* Limit max sects to 1024 */
++	ATA_HORKAGE_NO_NCQ_ON_ATI = (1 << 27),	/* Disable NCQ on ATI chipset */
+ 
+ 	 /* DMA mask for user DMA control: User visible values; DO NOT
+ 	    renumber */
 
 
