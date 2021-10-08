@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7570426919
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:32:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2EE54268FA
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:31:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241096AbhJHLeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:34:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60678 "EHLO mail.kernel.org"
+        id S241325AbhJHLdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:33:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241254AbhJHLcz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:32:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD15361177;
-        Fri,  8 Oct 2021 11:30:29 +0000 (UTC)
+        id S240551AbhJHLcK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:32:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 85463611EE;
+        Fri,  8 Oct 2021 11:30:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692630;
-        bh=HR1lGb5HW8Ckm6LELbAuOkrobH/dC4epYWw6Rdlo7Jw=;
+        s=korg; t=1633692602;
+        bh=g1PLHlXTJN7zOvvg4l4JZe0CAIIOBh8AiBjhAxP9lPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NjSXTbYE0jY39ZRW+hFA4R8aOeGWU9prSVQZSSBmb/K7e8DB0pIjAu4s6WCspCqt/
-         pfm1kzSwmg9j7HfOsWnpM5LAaqSxg46EAuJtUsXEcom4IcoSjZZyQxHG1WyU7etNEA
-         TLkxHwoHbVXOIWgMvXRb/Vb069RMT478FMIjqQig=
+        b=aP8WuG3MVkYOTDkTsUPxyctOrbkgNeKL2FuJlDRef5ArU9jBcrUFUix7vHpjU8xys
+         d3nVZjwS8IDu8q1AUMU1CJqGGpMbganyoWM19jgV3JaPddOD1nxPH1QqL5nylBNp7r
+         NZH1T1fkveIAyLv76TihbwQamDS65DrRnFj/vOKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Faizel K B <faizel.kb@dicortech.com>,
+        stable@vger.kernel.org, Brian King <brking@linux.ibm.com>,
+        James Bottomley <jejb@linux.ibm.com>,
+        Wen Xiong <wenxiong@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 06/16] usb: testusb: Fix for showing the connection speed
-Date:   Fri,  8 Oct 2021 13:27:56 +0200
-Message-Id: <20211008112715.668441458@linuxfoundation.org>
+Subject: [PATCH 4.19 09/12] scsi: ses: Retry failed Send/Receive Diagnostic commands
+Date:   Fri,  8 Oct 2021 13:27:57 +0200
+Message-Id: <20211008112714.896268619@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112715.444305067@linuxfoundation.org>
-References: <20211008112715.444305067@linuxfoundation.org>
+In-Reply-To: <20211008112714.601107695@linuxfoundation.org>
+References: <20211008112714.601107695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,86 +42,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Faizel K B <faizel.kb@dicortech.com>
+From: Wen Xiong <wenxiong@linux.ibm.com>
 
-[ Upstream commit f81c08f897adafd2ed43f86f00207ff929f0b2eb ]
+[ Upstream commit fbdac19e642899455b4e64c63aafe2325df7aafa ]
 
-testusb' application which uses 'usbtest' driver reports 'unknown speed'
-from the function 'find_testdev'. The variable 'entry->speed' was not
-updated from  the application. The IOCTL mentioned in the FIXME comment can
-only report whether the connection is low speed or not. Speed is read using
-the IOCTL USBDEVFS_GET_SPEED which reports the proper speed grade.  The
-call is implemented in the function 'handle_testdev' where the file
-descriptor was availble locally. Sample output is given below where 'high
-speed' is printed as the connected speed.
+Setting SCSI logging level with error=3, we saw some errors from enclosues:
 
-sudo ./testusb -a
-high speed      /dev/bus/usb/001/011    0
-/dev/bus/usb/001/011 test 0,    0.000015 secs
-/dev/bus/usb/001/011 test 1,    0.194208 secs
-/dev/bus/usb/001/011 test 2,    0.077289 secs
-/dev/bus/usb/001/011 test 3,    0.170604 secs
-/dev/bus/usb/001/011 test 4,    0.108335 secs
-/dev/bus/usb/001/011 test 5,    2.788076 secs
-/dev/bus/usb/001/011 test 6,    2.594610 secs
-/dev/bus/usb/001/011 test 7,    2.905459 secs
-/dev/bus/usb/001/011 test 8,    2.795193 secs
-/dev/bus/usb/001/011 test 9,    8.372651 secs
-/dev/bus/usb/001/011 test 10,    6.919731 secs
-/dev/bus/usb/001/011 test 11,   16.372687 secs
-/dev/bus/usb/001/011 test 12,   16.375233 secs
-/dev/bus/usb/001/011 test 13,    2.977457 secs
-/dev/bus/usb/001/011 test 14 --> 22 (Invalid argument)
-/dev/bus/usb/001/011 test 17,    0.148826 secs
-/dev/bus/usb/001/011 test 18,    0.068718 secs
-/dev/bus/usb/001/011 test 19,    0.125992 secs
-/dev/bus/usb/001/011 test 20,    0.127477 secs
-/dev/bus/usb/001/011 test 21 --> 22 (Invalid argument)
-/dev/bus/usb/001/011 test 24,    4.133763 secs
-/dev/bus/usb/001/011 test 27,    2.140066 secs
-/dev/bus/usb/001/011 test 28,    2.120713 secs
-/dev/bus/usb/001/011 test 29,    0.507762 secs
+[108017.360833] ses 0:0:9:0: tag#641 Done: NEEDS_RETRY Result: hostbyte=DID_ERROR driverbyte=DRIVER_OK cmd_age=0s
+[108017.360838] ses 0:0:9:0: tag#641 CDB: Receive Diagnostic 1c 01 01 00 20 00
+[108017.427778] ses 0:0:9:0: Power-on or device reset occurred
+[108017.427784] ses 0:0:9:0: tag#641 Done: SUCCESS Result: hostbyte=DID_OK driverbyte=DRIVER_OK cmd_age=0s
+[108017.427788] ses 0:0:9:0: tag#641 CDB: Receive Diagnostic 1c 01 01 00 20 00
+[108017.427791] ses 0:0:9:0: tag#641 Sense Key : Unit Attention [current]
+[108017.427793] ses 0:0:9:0: tag#641 Add. Sense: Bus device reset function occurred
+[108017.427801] ses 0:0:9:0: Failed to get diagnostic page 0x1
+[108017.427804] ses 0:0:9:0: Failed to bind enclosure -19
+[108017.427895] ses 0:0:10:0: Attached Enclosure device
+[108017.427942] ses 0:0:10:0: Attached scsi generic sg18 type 13
 
-Signed-off-by: Faizel K B <faizel.kb@dicortech.com>
-Link: https://lore.kernel.org/r/20210902114444.15106-1-faizel.kb@dicortech.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Retry if the Send/Receive Diagnostic commands complete with a transient
+error status (NOT_READY or UNIT_ATTENTION with ASC 0x29).
+
+Link: https://lore.kernel.org/r/1631849061-10210-2-git-send-email-wenxiong@linux.ibm.com
+Reviewed-by: Brian King <brking@linux.ibm.com>
+Reviewed-by: James Bottomley <jejb@linux.ibm.com>
+Signed-off-by: Wen Xiong <wenxiong@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/usb/testusb.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/scsi/ses.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
-diff --git a/tools/usb/testusb.c b/tools/usb/testusb.c
-index ee8208b2f946..69c3ead25313 100644
---- a/tools/usb/testusb.c
-+++ b/tools/usb/testusb.c
-@@ -265,12 +265,6 @@ nomem:
- 	}
- 
- 	entry->ifnum = ifnum;
--
--	/* FIXME update USBDEVFS_CONNECTINFO so it tells about high speed etc */
--
--	fprintf(stderr, "%s speed\t%s\t%u\n",
--		speed(entry->speed), entry->name, entry->ifnum);
--
- 	entry->next = testdevs;
- 	testdevs = entry;
- 	return 0;
-@@ -299,6 +293,14 @@ static void *handle_testdev (void *arg)
- 		return 0;
- 	}
- 
-+	status  =  ioctl(fd, USBDEVFS_GET_SPEED, NULL);
-+	if (status < 0)
-+		fprintf(stderr, "USBDEVFS_GET_SPEED failed %d\n", status);
-+	else
-+		dev->speed = status;
-+	fprintf(stderr, "%s speed\t%s\t%u\n",
-+			speed(dev->speed), dev->name, dev->ifnum);
+diff --git a/drivers/scsi/ses.c b/drivers/scsi/ses.c
+index 0fc39224ce1e..caf35ca577ce 100644
+--- a/drivers/scsi/ses.c
++++ b/drivers/scsi/ses.c
+@@ -103,9 +103,16 @@ static int ses_recv_diag(struct scsi_device *sdev, int page_code,
+ 		0
+ 	};
+ 	unsigned char recv_page_code;
++	unsigned int retries = SES_RETRIES;
++	struct scsi_sense_hdr sshdr;
 +
- restart:
- 	for (i = 0; i < TEST_CASES; i++) {
- 		if (dev->test != -1 && dev->test != i)
++	do {
++		ret = scsi_execute_req(sdev, cmd, DMA_FROM_DEVICE, buf, bufflen,
++				       &sshdr, SES_TIMEOUT, 1, NULL);
++	} while (ret > 0 && --retries && scsi_sense_valid(&sshdr) &&
++		 (sshdr.sense_key == NOT_READY ||
++		  (sshdr.sense_key == UNIT_ATTENTION && sshdr.asc == 0x29)));
+ 
+-	ret =  scsi_execute_req(sdev, cmd, DMA_FROM_DEVICE, buf, bufflen,
+-				NULL, SES_TIMEOUT, SES_RETRIES, NULL);
+ 	if (unlikely(ret))
+ 		return ret;
+ 
+@@ -137,9 +144,16 @@ static int ses_send_diag(struct scsi_device *sdev, int page_code,
+ 		bufflen & 0xff,
+ 		0
+ 	};
++	struct scsi_sense_hdr sshdr;
++	unsigned int retries = SES_RETRIES;
++
++	do {
++		result = scsi_execute_req(sdev, cmd, DMA_TO_DEVICE, buf, bufflen,
++					  &sshdr, SES_TIMEOUT, 1, NULL);
++	} while (result > 0 && --retries && scsi_sense_valid(&sshdr) &&
++		 (sshdr.sense_key == NOT_READY ||
++		  (sshdr.sense_key == UNIT_ATTENTION && sshdr.asc == 0x29)));
+ 
+-	result = scsi_execute_req(sdev, cmd, DMA_TO_DEVICE, buf, bufflen,
+-				  NULL, SES_TIMEOUT, SES_RETRIES, NULL);
+ 	if (result)
+ 		sdev_printk(KERN_ERR, sdev, "SEND DIAGNOSTIC result: %8x\n",
+ 			    result);
 -- 
 2.33.0
 
