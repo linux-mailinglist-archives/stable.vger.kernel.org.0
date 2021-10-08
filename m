@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB0994268E5
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:31:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5701242691F
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:32:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240361AbhJHLcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:32:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59714 "EHLO mail.kernel.org"
+        id S241768AbhJHLeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:34:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240949AbhJHLbg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:31:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75A5761038;
-        Fri,  8 Oct 2021 11:29:35 +0000 (UTC)
+        id S240452AbhJHLcz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:32:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB4B86120C;
+        Fri,  8 Oct 2021 11:30:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692575;
-        bh=2Sc+hYFpuWB13klQkc59xSGuEuPdy8osJpURZ5drutU=;
+        s=korg; t=1633692641;
+        bh=fvfh8yN3DDXYJ+M12dUjOYlWYBVTtwZpl4APIYlurcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CIak6Tb7VsdTdt4v3f8DP0x7lMSXk/IDon+wVkh5DlGzSQUCXrwMBJTDM5sVEBbVJ
-         IXIuhOlOVuB67i4IzuNIIu/YD3C3qeJJ6YhfBhNC8Mo1qQSoZT174+y5adJbRQIsPu
-         HBU11Hwt09833eI+UCyXua8dBo2A3dO0iIa/d/eE=
+        b=mpkjm8NbnGMH6LzxORhWgwgeQcqZpiRU3g1yV28cVk+HPx04AEbNzSqJCGaAS+sxM
+         JFfE7PNfBeCcfn0P8TI4paYnzZ4YZ0R1Aq8iHm9L6yY864x2/3jyaQHl0r/LlblEFq
+         FxxDe3x7vtRpBVc1kgTkqMmJRplCkBD+0JelONVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Davidlohr Bueso <dbueso@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.14 10/10] lib/timerqueue: Rely on rbtree semantics for next timer
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 01/16] net: mdio: introduce a shutdown method to mdio device drivers
 Date:   Fri,  8 Oct 2021 13:27:51 +0200
-Message-Id: <20211008112714.780766407@linuxfoundation.org>
+Message-Id: <20211008112715.495475328@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112714.445637990@linuxfoundation.org>
-References: <20211008112714.445637990@linuxfoundation.org>
+In-Reply-To: <20211008112715.444305067@linuxfoundation.org>
+References: <20211008112715.444305067@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,132 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davidlohr Bueso <dave@stgolabs.net>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 511885d7061eda3eb1faf3f57dcc936ff75863f1 upstream.
+[ Upstream commit cf9579976f724ad517cc15b7caadea728c7e245c ]
 
-Simplify the timerqueue code by using cached rbtrees and rely on the tree
-leftmost node semantics to get the timer with earliest expiration time.
-This is a drop in conversion, and therefore semantics remain untouched.
+MDIO-attached devices might have interrupts and other things that might
+need quiesced when we kexec into a new kernel. Things are even more
+creepy when those interrupt lines are shared, and in that case it is
+absolutely mandatory to disable all interrupt sources.
 
-The runtime overhead of cached rbtrees is be pretty much the same as the
-current head->next method, noting that when removing the leftmost node,
-a common operation for the timerqueue, the rb_next(leftmost) is O(1) as
-well, so the next timer will either be the right node or its parent.
-Therefore no extra pointer chasing. Finally, the size of the struct
-timerqueue_head remains the same.
+Moreover, MDIO devices might be DSA switches, and DSA needs its own
+shutdown method to unlink from the DSA master, which is a new
+requirement that appeared after commit 2f1e8ea726e9 ("net: dsa: link
+interfaces with the DSA master to get rid of lockdep warnings").
 
-Passes several hours of rcutorture.
+So introduce a ->shutdown method in the MDIO device driver structure.
 
-Signed-off-by: Davidlohr Bueso <dbueso@suse.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190724152323.bojciei3muvfxalm@linux-r8p5
-Reference: CVE-2021-20317
-Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/timerqueue.h |   13 ++++++-------
- lib/timerqueue.c           |   30 ++++++++++++------------------
- 2 files changed, 18 insertions(+), 25 deletions(-)
+ drivers/net/phy/mdio_device.c | 11 +++++++++++
+ include/linux/mdio.h          |  3 +++
+ 2 files changed, 14 insertions(+)
 
---- a/include/linux/timerqueue.h
-+++ b/include/linux/timerqueue.h
-@@ -12,8 +12,7 @@ struct timerqueue_node {
- };
+diff --git a/drivers/net/phy/mdio_device.c b/drivers/net/phy/mdio_device.c
+index c1d345c3cab3..b2dd293fc87e 100644
+--- a/drivers/net/phy/mdio_device.c
++++ b/drivers/net/phy/mdio_device.c
+@@ -180,6 +180,16 @@ static int mdio_remove(struct device *dev)
+ 	return 0;
+ }
  
- struct timerqueue_head {
--	struct rb_root head;
--	struct timerqueue_node *next;
-+	struct rb_root_cached rb_root;
- };
- 
- 
-@@ -29,13 +28,14 @@ extern struct timerqueue_node *timerqueu
-  *
-  * @head: head of timerqueue
-  *
-- * Returns a pointer to the timer node that has the
-- * earliest expiration time.
-+ * Returns a pointer to the timer node that has the earliest expiration time.
-  */
- static inline
- struct timerqueue_node *timerqueue_getnext(struct timerqueue_head *head)
- {
--	return head->next;
-+	struct rb_node *leftmost = rb_first_cached(&head->rb_root);
++static void mdio_shutdown(struct device *dev)
++{
++	struct mdio_device *mdiodev = to_mdio_device(dev);
++	struct device_driver *drv = mdiodev->dev.driver;
++	struct mdio_driver *mdiodrv = to_mdio_driver(drv);
 +
-+	return rb_entry(leftmost, struct timerqueue_node, node);
- }
- 
- static inline void timerqueue_init(struct timerqueue_node *node)
-@@ -45,7 +45,6 @@ static inline void timerqueue_init(struc
- 
- static inline void timerqueue_init_head(struct timerqueue_head *head)
- {
--	head->head = RB_ROOT;
--	head->next = NULL;
-+	head->rb_root = RB_ROOT_CACHED;
- }
- #endif /* _LINUX_TIMERQUEUE_H */
---- a/lib/timerqueue.c
-+++ b/lib/timerqueue.c
-@@ -38,9 +38,10 @@
-  */
- bool timerqueue_add(struct timerqueue_head *head, struct timerqueue_node *node)
- {
--	struct rb_node **p = &head->head.rb_node;
-+	struct rb_node **p = &head->rb_root.rb_root.rb_node;
- 	struct rb_node *parent = NULL;
--	struct timerqueue_node  *ptr;
-+	struct timerqueue_node *ptr;
-+	bool leftmost = true;
- 
- 	/* Make sure we don't add nodes that are already added */
- 	WARN_ON_ONCE(!RB_EMPTY_NODE(&node->node));
-@@ -48,19 +49,17 @@ bool timerqueue_add(struct timerqueue_he
- 	while (*p) {
- 		parent = *p;
- 		ptr = rb_entry(parent, struct timerqueue_node, node);
--		if (node->expires < ptr->expires)
-+		if (node->expires < ptr->expires) {
- 			p = &(*p)->rb_left;
--		else
-+		} else {
- 			p = &(*p)->rb_right;
-+			leftmost = false;
-+		}
- 	}
- 	rb_link_node(&node->node, parent, p);
--	rb_insert_color(&node->node, &head->head);
-+	rb_insert_color_cached(&node->node, &head->rb_root, leftmost);
- 
--	if (!head->next || node->expires < head->next->expires) {
--		head->next = node;
--		return true;
--	}
--	return false;
-+	return leftmost;
- }
- EXPORT_SYMBOL_GPL(timerqueue_add);
- 
-@@ -76,15 +75,10 @@ bool timerqueue_del(struct timerqueue_he
- {
- 	WARN_ON_ONCE(RB_EMPTY_NODE(&node->node));
- 
--	/* update next pointer */
--	if (head->next == node) {
--		struct rb_node *rbn = rb_next(&node->node);
--
--		head->next = rb_entry_safe(rbn, struct timerqueue_node, node);
--	}
--	rb_erase(&node->node, &head->head);
-+	rb_erase_cached(&node->node, &head->rb_root);
- 	RB_CLEAR_NODE(&node->node);
--	return head->next != NULL;
++	if (mdiodrv->shutdown)
++		mdiodrv->shutdown(mdiodev);
++}
 +
-+	return !RB_EMPTY_ROOT(&head->rb_root.rb_root);
- }
- EXPORT_SYMBOL_GPL(timerqueue_del);
+ /**
+  * mdio_driver_register - register an mdio_driver with the MDIO layer
+  * @new_driver: new mdio_driver to register
+@@ -194,6 +204,7 @@ int mdio_driver_register(struct mdio_driver *drv)
+ 	mdiodrv->driver.bus = &mdio_bus_type;
+ 	mdiodrv->driver.probe = mdio_probe;
+ 	mdiodrv->driver.remove = mdio_remove;
++	mdiodrv->driver.shutdown = mdio_shutdown;
  
+ 	retval = driver_register(&mdiodrv->driver);
+ 	if (retval) {
+diff --git a/include/linux/mdio.h b/include/linux/mdio.h
+index a7604248777b..0f1f784de80e 100644
+--- a/include/linux/mdio.h
++++ b/include/linux/mdio.h
+@@ -64,6 +64,9 @@ struct mdio_driver {
+ 
+ 	/* Clears up any memory if needed */
+ 	void (*remove)(struct mdio_device *mdiodev);
++
++	/* Quiesces the device on system shutdown, turns off interrupts etc */
++	void (*shutdown)(struct mdio_device *mdiodev);
+ };
+ #define to_mdio_driver(d)						\
+ 	container_of(to_mdio_common_driver(d), struct mdio_driver, mdiodrv)
+-- 
+2.33.0
+
 
 
