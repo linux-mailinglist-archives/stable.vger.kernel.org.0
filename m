@@ -2,123 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7148C4268E4
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:31:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 004FB4268D1
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:29:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240629AbhJHLc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:32:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59712 "EHLO mail.kernel.org"
+        id S240578AbhJHLbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:31:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240946AbhJHLbg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:31:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E78A6120C;
-        Fri,  8 Oct 2021 11:29:33 +0000 (UTC)
+        id S240620AbhJHLa4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:30:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9923D61042;
+        Fri,  8 Oct 2021 11:29:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692573;
-        bh=yQ8uQrfIoW4oGG8ACTtjnTx7C/9vE+fOg8e9k2on/kg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=2cl8YC1j5NDzOk50ChWhARM9lVarR3XcfDaV0k2sWA4LvluuHJ6qSaRoGQ+BxnoxR
-         9DM25SP0IC4FT091rvHmjtrm91CjVLeTPNO2EITdBKMYIsvJC8TKkkus0/Gw43MdWN
-         +/Yalx85YmdGyAnLodTmJuiyB3QEL+dXpwVLv2wI=
+        s=korg; t=1633692541;
+        bh=DD1/RWx0Jf0U3/++KX4FgO2svGaoEtvE0J5b5DS9k0o=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=LlLarduMhTpAAX6rOEyyUpsBIsVKZk03j48xvZ/GirPBNSmwIzH/VGNv7tpJhPZhe
+         mtBsdsS9LNLyk2LnoacgJQeJl+fRaioj/RbkXNkIuT1CHvFH/4IG36KEfqUlUCzVgl
+         i8jsfhOLaFmvNXlWOC0VFft8yVQD2pLhE8HXQq44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.14 00/10] 4.14.250-rc1 review
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        David Miller <davem@davemloft.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 4/8] sparc64: fix pci_iounmap() when CONFIG_PCI is not set
 Date:   Fri,  8 Oct 2021 13:27:41 +0200
-Message-Id: <20211008112714.445637990@linuxfoundation.org>
+Message-Id: <20211008112714.095856853@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-MIME-Version: 1.0
+In-Reply-To: <20211008112713.941269121@linuxfoundation.org>
+References: <20211008112713.941269121@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.250-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.250-rc1
-X-KernelTest-Deadline: 2021-10-10T11:27+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.250 release.
-There are 10 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-Responses should be made by Sun, 10 Oct 2021 11:27:07 +0000.
-Anything received after that time might be too late.
+[ Upstream commit d8b1e10a2b8efaf71d151aa756052fbf2f3b6d57 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.250-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+Guenter reported [1] that the pci_iounmap() changes remain problematic,
+with sparc64 allnoconfig and tinyconfig still not building due to the
+header file changes and confusion with the arch-specific pci_iounmap()
+implementation.
 
-thanks,
+I'm pretty convinced that sparc should just use GENERIC_IOMAP instead of
+doing its own thing, since it turns out that the sparc64 version of
+pci_iounmap() is somewhat buggy (see [2]).  But in the meantime, this
+just fixes the build by avoiding the trivial re-definition of the empty
+case.
 
-greg k-h
+Link: https://lore.kernel.org/lkml/20210920134424.GA346531@roeck-us.net/ [1]
+Link: https://lore.kernel.org/lkml/CAHk-=wgheheFx9myQyy5osh79BAazvmvYURAtub2gQtMvLrhqQ@mail.gmail.com/ [2]
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Cc: David Miller <davem@davemloft.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/sparc/lib/iomap.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
--------------
-Pseudo-Shortlog of commits:
+diff --git a/arch/sparc/lib/iomap.c b/arch/sparc/lib/iomap.c
+index c4d42a50ebc0..fa4abbaf27de 100644
+--- a/arch/sparc/lib/iomap.c
++++ b/arch/sparc/lib/iomap.c
+@@ -18,8 +18,10 @@ void ioport_unmap(void __iomem *addr)
+ EXPORT_SYMBOL(ioport_map);
+ EXPORT_SYMBOL(ioport_unmap);
+ 
++#ifdef CONFIG_PCI
+ void pci_iounmap(struct pci_dev *dev, void __iomem * addr)
+ {
+ 	/* nothing to do */
+ }
+ EXPORT_SYMBOL(pci_iounmap);
++#endif
+-- 
+2.33.0
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.250-rc1
-
-Davidlohr Bueso <dave@stgolabs.net>
-    lib/timerqueue: Rely on rbtree semantics for next timer
-
-Kate Hsuan <hpa@redhat.com>
-    libata: Add ATA_HORKAGE_NO_NCQ_ON_ATI for Samsung 860 and 870 SSD.
-
-Wen Xiong <wenxiong@linux.ibm.com>
-    scsi: ses: Retry failed Send/Receive Diagnostic commands
-
-Yang Yingliang <yangyingliang@huawei.com>
-    usb: dwc2: check return value after calling platform_get_resource()
-
-Faizel K B <faizel.kb@dicortech.com>
-    usb: testusb: Fix for showing the connection speed
-
-Ming Lei <ming.lei@redhat.com>
-    scsi: sd: Free scsi_disk device via put_device()
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    ext2: fix sleeping in atomic bugs on error
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    sparc64: fix pci_iounmap() when CONFIG_PCI is not set
-
-Jan Beulich <jbeulich@suse.com>
-    xen-netback: correct success/error reporting for the SKB-with-fraglist case
-
-Vladimir Oltean <vladimir.oltean@nxp.com>
-    net: mdio: introduce a shutdown method to mdio device drivers
-
-
--------------
-
-Diffstat:
-
- Makefile                          |  4 ++--
- arch/sparc/lib/iomap.c            |  2 ++
- drivers/ata/libata-core.c         | 34 ++++++++++++++++++++++++++++++++--
- drivers/net/phy/mdio_device.c     | 11 +++++++++++
- drivers/net/xen-netback/netback.c |  2 +-
- drivers/scsi/sd.c                 |  9 +++++----
- drivers/scsi/ses.c                | 22 ++++++++++++++++++----
- drivers/usb/dwc2/hcd.c            |  4 ++++
- fs/ext2/balloc.c                  | 14 ++++++--------
- include/linux/libata.h            |  1 +
- include/linux/mdio.h              |  3 +++
- include/linux/timerqueue.h        | 13 ++++++-------
- lib/timerqueue.c                  | 30 ++++++++++++------------------
- tools/usb/testusb.c               | 14 ++++++++------
- 14 files changed, 111 insertions(+), 52 deletions(-)
 
 
