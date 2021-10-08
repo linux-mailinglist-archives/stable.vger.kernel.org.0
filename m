@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AD444268F0
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:31:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 590D9426925
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:32:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240749AbhJHLcy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:32:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59314 "EHLO mail.kernel.org"
+        id S241314AbhJHLeN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:34:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240764AbhJHLcF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:32:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD5F461040;
-        Fri,  8 Oct 2021 11:29:39 +0000 (UTC)
+        id S240587AbhJHLc7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:32:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66ECB61381;
+        Fri,  8 Oct 2021 11:30:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692580;
-        bh=vItgBdU7Zpij+YFPmETvQ4GYWk6GNPFn4Vv0M4mh/zk=;
+        s=korg; t=1633692649;
+        bh=HR1lGb5HW8Ckm6LELbAuOkrobH/dC4epYWw6Rdlo7Jw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q7681ysmjOPaH2HSFoX5WNPY1Q0ioF17DPV1+XiS34sx0mTKMsfH53tMVYYFApqfR
-         LALutJjqKa1KI3AyX10yVkZPyKU7ncMBNLcjnNPLf//zIx/d5GjNBpWbfYeGW7HsUe
-         lR6ybRp9y78IlxcOldMhNavbitI9zZPWqeyN4mzg=
+        b=AFKGosoPHXU06xPW7UieaCqpC+GO0pWLRUZlFPnrAnZPEXsoFrAWNcV3pVy9p87eI
+         JlAOH4UGh9o82wMIJ6F9VQy51ZnwuoVET8sRLJ9YvIWcqyWdQXGCERTNqX+mxMTMo7
+         qWG4I9jkUo5fjgdW0XyEta4fDfEMRJb88xZW2eqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Changbin Du <changbin.du@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Faizel K B <faizel.kb@dicortech.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 10/12] tools/vm/page-types: remove dependency on opt_file for idle page tracking
-Date:   Fri,  8 Oct 2021 13:27:58 +0200
-Message-Id: <20211008112714.924979518@linuxfoundation.org>
+Subject: [PATCH 5.10 12/29] usb: testusb: Fix for showing the connection speed
+Date:   Fri,  8 Oct 2021 13:27:59 +0200
+Message-Id: <20211008112717.357344171@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112714.601107695@linuxfoundation.org>
-References: <20211008112714.601107695@linuxfoundation.org>
+In-Reply-To: <20211008112716.914501436@linuxfoundation.org>
+References: <20211008112716.914501436@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +39,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changbin Du <changbin.du@gmail.com>
+From: Faizel K B <faizel.kb@dicortech.com>
 
-[ Upstream commit ebaeab2fe87987cef28eb5ab174c42cd28594387 ]
+[ Upstream commit f81c08f897adafd2ed43f86f00207ff929f0b2eb ]
 
-Idle page tracking can also be used for process address space, not only
-file mappings.
+testusb' application which uses 'usbtest' driver reports 'unknown speed'
+from the function 'find_testdev'. The variable 'entry->speed' was not
+updated from  the application. The IOCTL mentioned in the FIXME comment can
+only report whether the connection is low speed or not. Speed is read using
+the IOCTL USBDEVFS_GET_SPEED which reports the proper speed grade.  The
+call is implemented in the function 'handle_testdev' where the file
+descriptor was availble locally. Sample output is given below where 'high
+speed' is printed as the connected speed.
 
-Without this change, using with '-i' option for process address space
-encounters below errors reported.
+sudo ./testusb -a
+high speed      /dev/bus/usb/001/011    0
+/dev/bus/usb/001/011 test 0,    0.000015 secs
+/dev/bus/usb/001/011 test 1,    0.194208 secs
+/dev/bus/usb/001/011 test 2,    0.077289 secs
+/dev/bus/usb/001/011 test 3,    0.170604 secs
+/dev/bus/usb/001/011 test 4,    0.108335 secs
+/dev/bus/usb/001/011 test 5,    2.788076 secs
+/dev/bus/usb/001/011 test 6,    2.594610 secs
+/dev/bus/usb/001/011 test 7,    2.905459 secs
+/dev/bus/usb/001/011 test 8,    2.795193 secs
+/dev/bus/usb/001/011 test 9,    8.372651 secs
+/dev/bus/usb/001/011 test 10,    6.919731 secs
+/dev/bus/usb/001/011 test 11,   16.372687 secs
+/dev/bus/usb/001/011 test 12,   16.375233 secs
+/dev/bus/usb/001/011 test 13,    2.977457 secs
+/dev/bus/usb/001/011 test 14 --> 22 (Invalid argument)
+/dev/bus/usb/001/011 test 17,    0.148826 secs
+/dev/bus/usb/001/011 test 18,    0.068718 secs
+/dev/bus/usb/001/011 test 19,    0.125992 secs
+/dev/bus/usb/001/011 test 20,    0.127477 secs
+/dev/bus/usb/001/011 test 21 --> 22 (Invalid argument)
+/dev/bus/usb/001/011 test 24,    4.133763 secs
+/dev/bus/usb/001/011 test 27,    2.140066 secs
+/dev/bus/usb/001/011 test 28,    2.120713 secs
+/dev/bus/usb/001/011 test 29,    0.507762 secs
 
-  $ sudo ./page-types -p $(pidof bash) -i
-  mark page idle: Bad file descriptor
-  mark page idle: Bad file descriptor
-  mark page idle: Bad file descriptor
-  mark page idle: Bad file descriptor
-  ...
-
-Link: https://lkml.kernel.org/r/20210917032826.10669-1-changbin.du@gmail.com
-Signed-off-by: Changbin Du <changbin.du@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Faizel K B <faizel.kb@dicortech.com>
+Link: https://lore.kernel.org/r/20210902114444.15106-1-faizel.kb@dicortech.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/vm/page-types.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/usb/testusb.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/tools/vm/page-types.c b/tools/vm/page-types.c
-index 1ff3a6c0367b..89063b967b6b 100644
---- a/tools/vm/page-types.c
-+++ b/tools/vm/page-types.c
-@@ -1341,7 +1341,7 @@ int main(int argc, char *argv[])
- 	if (opt_list && opt_list_mapcnt)
- 		kpagecount_fd = checked_open(PROC_KPAGECOUNT, O_RDONLY);
+diff --git a/tools/usb/testusb.c b/tools/usb/testusb.c
+index ee8208b2f946..69c3ead25313 100644
+--- a/tools/usb/testusb.c
++++ b/tools/usb/testusb.c
+@@ -265,12 +265,6 @@ nomem:
+ 	}
  
--	if (opt_mark_idle && opt_file)
-+	if (opt_mark_idle)
- 		page_idle_fd = checked_open(SYS_KERNEL_MM_PAGE_IDLE, O_RDWR);
+ 	entry->ifnum = ifnum;
+-
+-	/* FIXME update USBDEVFS_CONNECTINFO so it tells about high speed etc */
+-
+-	fprintf(stderr, "%s speed\t%s\t%u\n",
+-		speed(entry->speed), entry->name, entry->ifnum);
+-
+ 	entry->next = testdevs;
+ 	testdevs = entry;
+ 	return 0;
+@@ -299,6 +293,14 @@ static void *handle_testdev (void *arg)
+ 		return 0;
+ 	}
  
- 	if (opt_list && opt_pid)
++	status  =  ioctl(fd, USBDEVFS_GET_SPEED, NULL);
++	if (status < 0)
++		fprintf(stderr, "USBDEVFS_GET_SPEED failed %d\n", status);
++	else
++		dev->speed = status;
++	fprintf(stderr, "%s speed\t%s\t%u\n",
++			speed(dev->speed), dev->name, dev->ifnum);
++
+ restart:
+ 	for (i = 0; i < TEST_CASES; i++) {
+ 		if (dev->test != -1 && dev->test != i)
 -- 
 2.33.0
 
