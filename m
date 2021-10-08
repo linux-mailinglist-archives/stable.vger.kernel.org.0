@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 752F1426994
+	by mail.lfdr.de (Postfix) with ESMTP id 29EEB426993
 	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:37:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240884AbhJHLjb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:39:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39492 "EHLO mail.kernel.org"
+        id S242180AbhJHLj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:39:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240651AbhJHLhy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240716AbhJHLhy (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 8 Oct 2021 07:37:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA7E56137F;
-        Fri,  8 Oct 2021 11:32:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DEE6613E6;
+        Fri,  8 Oct 2021 11:32:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692758;
-        bh=bv3j4qWxI/q1Epfa4Ktu6EU9MHe7FfcLHo+BUZ/vtl4=;
+        s=korg; t=1633692760;
+        bh=9tzfcVt12E3AJYpIaInQ2Tfai7WKL1gsFLA5d12jAmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ege6+9QbYGvdj2xl86kPdqRDQ4TCguN5UerNyxZIVrIxrFe5yHxfmpsj8vJ4krlsf
-         hua9T2Wt3F4jskiVIoBlOypnSGExWTNSSvpGRV+iD91KDlfpO6x744eU5pcJFD0/Bk
-         n2hHBxhufWC38w2XjvFET6luAHw5T/gCIiVIp+Ec=
+        b=NWTt6sXR7rKhrCQvB5AGcTk4CfFtnmUy2YgqLU+YururtlMRyfNfueoG5m0vQfU72
+         uU4RjYruibqDIYAID/lnWBcDdievlnW0F5NdVsU25GsZxZz+7cS5Vv9ljIfEFIc/Fa
+         LLwQe75liMbuF5rwNrhKwPcLSFjjXXnAc+sSFRBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
-        Daniel Wagner <dwagner@suse.de>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
+        stable@vger.kernel.org, Ansuel Smith <ansuelsmth@gmail.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 30/48] nvme-fc: avoid race between time out and tear down
-Date:   Fri,  8 Oct 2021 13:28:06 +0200
-Message-Id: <20211008112721.028384984@linuxfoundation.org>
+Subject: [PATCH 5.14 31/48] thermal/drivers/tsens: Fix wrong check for tzd in irq handlers
+Date:   Fri,  8 Oct 2021 13:28:07 +0200
+Message-Id: <20211008112721.059846819@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211008112720.008415452@linuxfoundation.org>
 References: <20211008112720.008415452@linuxfoundation.org>
@@ -42,49 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Ansuel Smith <ansuelsmth@gmail.com>
 
-[ Upstream commit e5445dae29d25d7b03e0a10d3d4277a1d0c8119b ]
+[ Upstream commit cf96921876dcee4d6ac07b9de470368a075ba9ad ]
 
-To avoid race between time out and tear down, in tear down process,
-first we quiesce the queue, and then delete the timer and cancel
-the time out work for the queue.
+Some devices can have some thermal sensors disabled from the
+factory. The current two irq handler functions check all the sensor by
+default and the check if the sensor was actually registered is
+wrong. The tzd is actually never set if the registration fails hence
+the IS_ERR check is wrong.
 
-This patch merges the admin and io sync ops into the queue teardown logic
-as shown in the RDMA patch 3017013dcc "nvme-rdma: avoid race between time
-out and tear down". There is no teardown_lock in nvme-fc.
-
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Tested-by: Daniel Wagner <dwagner@suse.de>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Daniel Wagner <dwagner@suse.de>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210907212543.20220-1-ansuelsmth@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/fc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/thermal/qcom/tsens.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
-index b5d9a5507de5..6ebe68396712 100644
---- a/drivers/nvme/host/fc.c
-+++ b/drivers/nvme/host/fc.c
-@@ -2487,6 +2487,7 @@ __nvme_fc_abort_outstanding_ios(struct nvme_fc_ctrl *ctrl, bool start_queues)
- 	 */
- 	if (ctrl->ctrl.queue_count > 1) {
- 		nvme_stop_queues(&ctrl->ctrl);
-+		nvme_sync_io_queues(&ctrl->ctrl);
- 		blk_mq_tagset_busy_iter(&ctrl->tag_set,
- 				nvme_fc_terminate_exchange, &ctrl->ctrl);
- 		blk_mq_tagset_wait_completed_request(&ctrl->tag_set);
-@@ -2510,6 +2511,7 @@ __nvme_fc_abort_outstanding_ios(struct nvme_fc_ctrl *ctrl, bool start_queues)
- 	 * clean up the admin queue. Same thing as above.
- 	 */
- 	blk_mq_quiesce_queue(ctrl->ctrl.admin_q);
-+	blk_sync_queue(ctrl->ctrl.admin_q);
- 	blk_mq_tagset_busy_iter(&ctrl->admin_tag_set,
- 				nvme_fc_terminate_exchange, &ctrl->ctrl);
- 	blk_mq_tagset_wait_completed_request(&ctrl->admin_tag_set);
+diff --git a/drivers/thermal/qcom/tsens.c b/drivers/thermal/qcom/tsens.c
+index 4c7ebd1d3f9c..b1162e566a70 100644
+--- a/drivers/thermal/qcom/tsens.c
++++ b/drivers/thermal/qcom/tsens.c
+@@ -417,7 +417,7 @@ static irqreturn_t tsens_critical_irq_thread(int irq, void *data)
+ 		const struct tsens_sensor *s = &priv->sensor[i];
+ 		u32 hw_id = s->hw_id;
+ 
+-		if (IS_ERR(s->tzd))
++		if (!s->tzd)
+ 			continue;
+ 		if (!tsens_threshold_violated(priv, hw_id, &d))
+ 			continue;
+@@ -467,7 +467,7 @@ static irqreturn_t tsens_irq_thread(int irq, void *data)
+ 		const struct tsens_sensor *s = &priv->sensor[i];
+ 		u32 hw_id = s->hw_id;
+ 
+-		if (IS_ERR(s->tzd))
++		if (!s->tzd)
+ 			continue;
+ 		if (!tsens_threshold_violated(priv, hw_id, &d))
+ 			continue;
 -- 
 2.33.0
 
