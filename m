@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 590D9426925
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:32:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56AE3426989
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:37:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241314AbhJHLeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:34:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59462 "EHLO mail.kernel.org"
+        id S241293AbhJHLjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:39:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240587AbhJHLc7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:32:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66ECB61381;
-        Fri,  8 Oct 2021 11:30:49 +0000 (UTC)
+        id S242672AbhJHLgI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:36:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9766B6121F;
+        Fri,  8 Oct 2021 11:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692649;
-        bh=HR1lGb5HW8Ckm6LELbAuOkrobH/dC4epYWw6Rdlo7Jw=;
+        s=korg; t=1633692741;
+        bh=wFYGAkwb4/WUJWCk1IRMUqwJzEIWLJ7Jffepp7pbjqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AFKGosoPHXU06xPW7UieaCqpC+GO0pWLRUZlFPnrAnZPEXsoFrAWNcV3pVy9p87eI
-         JlAOH4UGh9o82wMIJ6F9VQy51ZnwuoVET8sRLJ9YvIWcqyWdQXGCERTNqX+mxMTMo7
-         qWG4I9jkUo5fjgdW0XyEta4fDfEMRJb88xZW2eqM=
+        b=UpLFIzHOZIUtrtCg9Aqhzdb/TtgUzkHdHhpADVsDMDRntxS+FlRJHt0xsJnxSVbJj
+         SL2P7o5Uzp6fFHgvwVIyXim6bMeLORl27WqwagPYlsckqjZ/j6Jma2MjdzBVWXFXxF
+         cvczdzLC5O5og+yz5XZrY8Sm5fnc828H8JK7XyqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Faizel K B <faizel.kb@dicortech.com>,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 12/29] usb: testusb: Fix for showing the connection speed
+Subject: [PATCH 5.14 23/48] selftests:kvm: fix get_warnings_count() ignoring fscanf() return warn
 Date:   Fri,  8 Oct 2021 13:27:59 +0200
-Message-Id: <20211008112717.357344171@linuxfoundation.org>
+Message-Id: <20211008112720.793084766@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112716.914501436@linuxfoundation.org>
-References: <20211008112716.914501436@linuxfoundation.org>
+In-Reply-To: <20211008112720.008415452@linuxfoundation.org>
+References: <20211008112720.008415452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,86 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Faizel K B <faizel.kb@dicortech.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit f81c08f897adafd2ed43f86f00207ff929f0b2eb ]
+[ Upstream commit 39a71f712d8a13728febd8f3cb3f6db7e1fa7221 ]
 
-testusb' application which uses 'usbtest' driver reports 'unknown speed'
-from the function 'find_testdev'. The variable 'entry->speed' was not
-updated from  the application. The IOCTL mentioned in the FIXME comment can
-only report whether the connection is low speed or not. Speed is read using
-the IOCTL USBDEVFS_GET_SPEED which reports the proper speed grade.  The
-call is implemented in the function 'handle_testdev' where the file
-descriptor was availble locally. Sample output is given below where 'high
-speed' is printed as the connected speed.
+Fix get_warnings_count() to check fscanf() return value to get rid
+of the following warning:
 
-sudo ./testusb -a
-high speed      /dev/bus/usb/001/011    0
-/dev/bus/usb/001/011 test 0,    0.000015 secs
-/dev/bus/usb/001/011 test 1,    0.194208 secs
-/dev/bus/usb/001/011 test 2,    0.077289 secs
-/dev/bus/usb/001/011 test 3,    0.170604 secs
-/dev/bus/usb/001/011 test 4,    0.108335 secs
-/dev/bus/usb/001/011 test 5,    2.788076 secs
-/dev/bus/usb/001/011 test 6,    2.594610 secs
-/dev/bus/usb/001/011 test 7,    2.905459 secs
-/dev/bus/usb/001/011 test 8,    2.795193 secs
-/dev/bus/usb/001/011 test 9,    8.372651 secs
-/dev/bus/usb/001/011 test 10,    6.919731 secs
-/dev/bus/usb/001/011 test 11,   16.372687 secs
-/dev/bus/usb/001/011 test 12,   16.375233 secs
-/dev/bus/usb/001/011 test 13,    2.977457 secs
-/dev/bus/usb/001/011 test 14 --> 22 (Invalid argument)
-/dev/bus/usb/001/011 test 17,    0.148826 secs
-/dev/bus/usb/001/011 test 18,    0.068718 secs
-/dev/bus/usb/001/011 test 19,    0.125992 secs
-/dev/bus/usb/001/011 test 20,    0.127477 secs
-/dev/bus/usb/001/011 test 21 --> 22 (Invalid argument)
-/dev/bus/usb/001/011 test 24,    4.133763 secs
-/dev/bus/usb/001/011 test 27,    2.140066 secs
-/dev/bus/usb/001/011 test 28,    2.120713 secs
-/dev/bus/usb/001/011 test 29,    0.507762 secs
+x86_64/mmio_warning_test.c: In function ‘get_warnings_count’:
+x86_64/mmio_warning_test.c:85:2: warning: ignoring return value of ‘fscanf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+   85 |  fscanf(f, "%d", &warnings);
+      |  ^~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Signed-off-by: Faizel K B <faizel.kb@dicortech.com>
-Link: https://lore.kernel.org/r/20210902114444.15106-1-faizel.kb@dicortech.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/usb/testusb.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ tools/testing/selftests/kvm/x86_64/mmio_warning_test.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/usb/testusb.c b/tools/usb/testusb.c
-index ee8208b2f946..69c3ead25313 100644
---- a/tools/usb/testusb.c
-+++ b/tools/usb/testusb.c
-@@ -265,12 +265,6 @@ nomem:
- 	}
+diff --git a/tools/testing/selftests/kvm/x86_64/mmio_warning_test.c b/tools/testing/selftests/kvm/x86_64/mmio_warning_test.c
+index e6480fd5c4bd..8039e1eff938 100644
+--- a/tools/testing/selftests/kvm/x86_64/mmio_warning_test.c
++++ b/tools/testing/selftests/kvm/x86_64/mmio_warning_test.c
+@@ -82,7 +82,8 @@ int get_warnings_count(void)
+ 	FILE *f;
  
- 	entry->ifnum = ifnum;
--
--	/* FIXME update USBDEVFS_CONNECTINFO so it tells about high speed etc */
--
--	fprintf(stderr, "%s speed\t%s\t%u\n",
--		speed(entry->speed), entry->name, entry->ifnum);
--
- 	entry->next = testdevs;
- 	testdevs = entry;
- 	return 0;
-@@ -299,6 +293,14 @@ static void *handle_testdev (void *arg)
- 		return 0;
- 	}
+ 	f = popen("dmesg | grep \"WARNING:\" | wc -l", "r");
+-	fscanf(f, "%d", &warnings);
++	if (fscanf(f, "%d", &warnings) < 1)
++		warnings = 0;
+ 	fclose(f);
  
-+	status  =  ioctl(fd, USBDEVFS_GET_SPEED, NULL);
-+	if (status < 0)
-+		fprintf(stderr, "USBDEVFS_GET_SPEED failed %d\n", status);
-+	else
-+		dev->speed = status;
-+	fprintf(stderr, "%s speed\t%s\t%u\n",
-+			speed(dev->speed), dev->name, dev->ifnum);
-+
- restart:
- 	for (i = 0; i < TEST_CASES; i++) {
- 		if (dev->test != -1 && dev->test != i)
+ 	return warnings;
 -- 
 2.33.0
 
