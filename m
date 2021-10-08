@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BD3C426C01
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 15:52:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C63C4426C00
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 15:52:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233149AbhJHNyw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 09:54:52 -0400
-Received: from mx0b-0064b401.pphosted.com ([205.220.178.238]:55758 "EHLO
+        id S234001AbhJHNyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 09:54:51 -0400
+Received: from mx0b-0064b401.pphosted.com ([205.220.178.238]:55756 "EHLO
         mx0b-0064b401.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233133AbhJHNyv (ORCPT
+        by vger.kernel.org with ESMTP id S232821AbhJHNyv (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 8 Oct 2021 09:54:51 -0400
 Received: from pps.filterd (m0250811.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 198D3Twa023897;
+        by mx0a-0064b401.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 198D3Twb023897;
         Fri, 8 Oct 2021 13:52:38 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
- subject : date : message-id : content-transfer-encoding : content-type :
- mime-version; s=PPS06212021;
- bh=or3rIdpqmILnPwf7xo0/+TEmq3dUA8vF5D6EnUAhBU4=;
- b=KT2jc9WFOgX7+N2vZZUevyBsrXg94S8aYxlXvMIN8b/5wsM5kZg32s5eFTD9EZPd/Jc8
- qUjL/u1o+h37qEE0G/m8y00vh1Byz68oQhkQtCDGSm4oVmcY1D/FlUbXAD2qrT3afVOZ
- eCbr/9lftbo+hAHtKpGwUK+Bp+9P9PFOawkilsmusPcVJPHM+tDuOMVe+MUXwI9QD/ey
- AwBdXSIf5aoCTNe5wRVIepipdsghfaaeLEzIZwNfjOS/OUmcW6FEe+A7RrXjo8d/35bV
- 9benqRJlPlkf3dAumRngufZJi+GLHFeIh1J+1+L00OME4Sm2/gA9aH51N1/1UJHCyuyA Wg== 
+ subject : date : message-id : in-reply-to : references :
+ content-transfer-encoding : content-type : mime-version; s=PPS06212021;
+ bh=fnu9KlXgcHV39425DiTavUZEW1tasErVX/hZx1lDWz4=;
+ b=ZIEV6lBT/Gowp3tv1HukpSTT0W+Sc3aLNO8PrwpNU4Idy2e9HBHJZ6EzHwxU4XtMD8vu
+ jf7d7I6yM3VjQCfUvKB0WfzICE+35xveypY/6JIJCHsrrqf6oVj75mz8qLoeuaFaNxtm
+ A4M5D1xoL0oFPP3lhRYKCPdTHsI935OTdI0MEQ7Je4M0ggSdWeoiuAmnMduZ12ZK0dFG
+ n4XxuO2fbLl9yBtThg1Ts+rOu2dHLM1rY1NaX2qSfo4xRABB1/Ri/U5eXQDb839FNNV1
+ 4SW3DR/b1ljdELYhRTE+Pi4KEwI2GI+EqlHmQr445kLpQlNfaVdmteqE0gUDwIETDSS+ OQ== 
 Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2177.outbound.protection.outlook.com [104.47.57.177])
-        by mx0a-0064b401.pphosted.com with ESMTP id 3bj9sdgk0b-1
+        by mx0a-0064b401.pphosted.com with ESMTP id 3bj9sdgk0b-2
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Oct 2021 13:52:37 +0000
+        Fri, 08 Oct 2021 13:52:38 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=c6TOhs2aNqQ959jN7H2YgVDMawQZ3haQYjFwZyX4sdkUNo1gd4Z0o8jF23mOG8WWFOHF2IF+wYYmAnQJM1l/QHDh8JBVymLn4xQ2IWzyMwDihICc1tghQBtWXflv0lqwBTrjEJqc4ycY4mDHvbRXTTO17bwZwt2lJvwSDyaS5GywWINimGBhKS28Nl9kx/BwUIdM9zn5E7+RZGv+WRcDbKXoqWE14Qcpi61wP24IeMuVVbnb2tC2eQV1ks5Ng7nhDteNIGwrpwkv9HuRLeWvqfqLKUmlTveaj83ucw1yfeGaASlOf210Q1ReC0BFHpeTXp2GNvc2WalAbr6itESvLg==
+ b=Ok+WO3CfoS7Ug4tIThm1IPNCcZbn0IzJrL6TbFwLnvnyCHZgko/DSQ7RG/PZwNlB4IulndWcbbuTCZhRu4m9hJwuLS5RA4q5LOXrPoTR35h87OMaxFzafGJXTZgTrUwOrKX48p2NDeqDYqyDYLccKc3t9kzG1gmEL/JCafUUZEz8IydtGPoftnq41btwG20iIgGvZzYIXfMe4/l4+McXuPjITHLHuRCpIRpDmk38ClGZY0IpRAEDZUWJlWYlk54ARkZV2nQ8QZqtz6NysEbe11G8JvGBRrs+L2XaApXlWq+s14jZojkeumokUC6Erg/urz8GEi95B7+2k8u1JUxAEA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=or3rIdpqmILnPwf7xo0/+TEmq3dUA8vF5D6EnUAhBU4=;
- b=ZayIAviZdCfIKhsdopoWF9OA065lOZqbpOhLCXWqg0/HfEAcmKuDSpJcmtOj+VmdpvFeeMEFL0eTO/kZFHE5b8MuTUY3/CRwo2haAd2e9hvgMPB/7L/pScAkn1eFY6nVBV1JAbkFQuT2h/G3e/O4Z+bqep2qreXEbfhkCijwwQCl7uyzy0JF5ZgXAFMzFYVylmKS3LxFTJFFJQe3g/g07GJW02PFjL3VTkt9K8LpzjUFQi/C9JJmYkvfdqPl1V0uQbgzB8pMjpV/I6xc4X3MKtxuK3Ctu2PVh1TETO+32X+a8yBuoLYQksRrlZN4nqmCtlEipmA4V4eUmlnC50+5hg==
+ bh=fnu9KlXgcHV39425DiTavUZEW1tasErVX/hZx1lDWz4=;
+ b=gt4rALIMOWjw610GV1V83g6YGMf5rU53G0cde2FU7A1ynZ5lhtG3ioZ4jYw1o+Nz8vFQMSvjHDCh17n8KvYwcV5WGBOwu5BURgkZU7O2kaBR+SixvObXk2YiMdEnt6ZfL6epsj8W8SqVAfTsCphHgMXxnoUupM0sBVqJOpvbYdgtrBIUI2VaUx54TIMmB4Zxz9PnBHOs7HWhSGeb/8rIuQY9wDMvGu1j9EIU9kFu8WtvV1x3d/BuanKchNQp/ouLMU88WDW9NWpxjzoWAq5SKfunkK23A7j4+tlk82vyRZ09M60UPT+Z6r1JjkQ8GqXqtF2yYxt6eVpM8Gonm9FK+A==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=windriver.com; dmarc=pass action=none
  header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
@@ -43,168 +43,1747 @@ Authentication-Results: vger.kernel.org; dkim=none (message not signed)
 Received: from DM4PR11MB5327.namprd11.prod.outlook.com (2603:10b6:5:392::22)
  by DM5PR11MB2059.namprd11.prod.outlook.com (2603:10b6:3:8::21) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4566.20; Fri, 8 Oct 2021 13:52:34 +0000
+ 15.20.4566.20; Fri, 8 Oct 2021 13:52:36 +0000
 Received: from DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::3d20:a9f3:70c4:f286]) by DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::3d20:a9f3:70c4:f286%5]) with mapi id 15.20.4587.022; Fri, 8 Oct 2021
- 13:52:34 +0000
+ 13:52:36 +0000
 From:   Ovidiu Panait <ovidiu.panait@windriver.com>
 To:     stable@vger.kernel.org
 Cc:     piotras@gmail.com, paulburton@kernel.org, daniel@iogearbox.net,
         johan.almbladh@anyfinetworks.com
-Subject: [PATCH 5.4 0/2] bpf, mips: fix CVE-2021-38300
-Date:   Fri,  8 Oct 2021 16:50:57 +0300
-Message-Id: <20211008135059.1114363-1-ovidiu.panait@windriver.com>
+Subject: [PATCH 5.4 1/2] MIPS: BPF: Restore MIPS32 cBPF JIT
+Date:   Fri,  8 Oct 2021 16:50:58 +0300
+Message-Id: <20211008135059.1114363-2-ovidiu.panait@windriver.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20211008135059.1114363-1-ovidiu.panait@windriver.com>
+References: <20211008135059.1114363-1-ovidiu.panait@windriver.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 X-ClientProxiedBy: VI1PR0401CA0008.eurprd04.prod.outlook.com
  (2603:10a6:800:4a::18) To DM4PR11MB5327.namprd11.prod.outlook.com
  (2603:10b6:5:392::22)
 MIME-Version: 1.0
-Received: from otp-linux03.wrs.com (46.97.150.20) by VI1PR0401CA0008.eurprd04.prod.outlook.com (2603:10a6:800:4a::18) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4587.18 via Frontend Transport; Fri, 8 Oct 2021 13:52:33 +0000
+Received: from otp-linux03.wrs.com (46.97.150.20) by VI1PR0401CA0008.eurprd04.prod.outlook.com (2603:10a6:800:4a::18) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4587.18 via Frontend Transport; Fri, 8 Oct 2021 13:52:34 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 0a858fde-fd7f-4bd6-9a71-08d98a62e16b
+X-MS-Office365-Filtering-Correlation-Id: c4e9c6bd-8275-4e94-69de-08d98a62e279
 X-MS-TrafficTypeDiagnostic: DM5PR11MB2059:
-X-Microsoft-Antispam-PRVS: <DM5PR11MB2059D7A441F137DE4E5A3E4CFEB29@DM5PR11MB2059.namprd11.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1060;
+X-Microsoft-Antispam-PRVS: <DM5PR11MB2059FE1D25F1C8440AF01AC5FEB29@DM5PR11MB2059.namprd11.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:1332;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 9iTGX3sWEpvEmcNRDs1bb11HU7QfxzOovQBuveTSqXzzKYrPjiWPmLYvMKLGLn97JwaYnPp882cHO1SUDvYvlYAj0Vkr+AMrhMNmZtzE2xaoQzZKJczqwml9uLCU3BbIvudCNlx83qzE+SCrvzw693MwmUwqEzvcI2GoA1JfP/vDcJe/5KEqAAf769YDX1pdyb5dIGtTQiLC8O+iuNTr8rkGKEkHjpl+yky6MefRodnXuxoaMU9WOZ3aGlYPBmITKUVN9MyfP3HGImGJxhbEKAYg+G5QRO8tj3V86D4wWIuNl4ftHd8HfGoZ43845aE5zVG0rF8WLy6tNkAB7BNG8vsOC192vDtTvo+a2PiPgjSIuSRJ3Ml+PUJ/LPtuENayqDGScSYlGeB6OeyRjchenIPiqOrwtl4l/t7J1wTG9bfMgZiO8+mdVOjUJdRPTM7md1Ru4u/XQY2aghqe8BR3klwDFGp7Vmax23SCXZa244TPPt6wS1mCPOTm+OeVK35uvrW1U0kvfA+qau7Fw/qTfvwH9TgujtfuoJ+d4+Enkjl7A64xmCwec+cy5//+v18IY/xJbvcSLYAEwBP5NY1ctwarziIHzxZB+w/hfZzYbx1rLFJ8Oj1bwmrxcqly99oq7J3OVAJwCK5kcxzKNYS8NxFNM3ip2uUjSh7n15Jtjn3HA7T28muU3/u2ZiC6YrVF88Zcc2l/I0nAM2KpA4mDvA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(4326008)(66476007)(6486002)(66556008)(8676002)(66946007)(38100700002)(956004)(6506007)(2616005)(38350700002)(1076003)(316002)(45080400002)(508600001)(52116002)(5660300002)(44832011)(6512007)(8936002)(83380400001)(36756003)(2906002)(6666004)(6916009)(186003)(26005)(86362001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: wrj0L+KlQHBxNZmS49PJXQ7M8knIQYTcQFG6wiyFfVQJYMaYoNWa9/2bR1hdv2mwXs4M14dxBK+IHl5652In6Kr3p3Sr/o2ulGYRKP0H+aHdMx5cIiWEilef7Kuq9e6ZK9tCemvR7vtZHtbm+uy3tGt3YDjpS5/RXTbrIGpPgwWtIcnQKJc1GIICkOVP5SdYrOcdpU1Jb5ylZg7wNHZyxWi5aMwN3D5jz9bOh9zMNDpoWNiyDahADv9ffTibIiBLSjd6B4zVX7jvan55CVk0GKxv4Je8aIj3W29eCMmFYwH/pWk/dbyaaHdBb+q5DmhmygfV9xsLentLHIa95oe+cP4/mb4fHI46PEzIpICTRmfC8+TcyHtS6fve6OJyJZAaWF+DkHMqHkfE3bB3lzYDlv9xb/ZYEkPqLGZax+IAVcihnfNWZH7euWoupMs690cr+c1AQ9Q7CQRzMhwG97cOZk2t0QPLWzox5DWofWmKvcyhf1xILQCgrcrSl6ahX2p4M0wjtfR/wSa2gfsKpOGtuGvunX0y8SuMgNSr0sNOPI264Bay+WDH9j4aQXfBjKP629LpQe6sVXLYoIX1ApmA0Mfpy8e8LChUdVUMBo2aY5qAjN2+odqbvPPLlz9B0WIIq666HE9lzWh+KOZO+vL2phDUX4VfuMES9S6nLGQqOAm0EuSlXWomR3/MWvr3v+p5mrP7Eh80fMFT9QtC4nKBL4e39Ub7A+lSobi08ZBs2I2Btm3Kll9QfyvwZ+6vZEZ2HDdjYjS1UQA3J5/j5ixEwnQhEQiFItts0INKD9eFcvTBHkLaUJkpgsewUlX+24mZ
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(4326008)(66476007)(6486002)(66556008)(8676002)(66946007)(38100700002)(956004)(6506007)(2616005)(30864003)(38350700002)(1076003)(316002)(45080400002)(508600001)(52116002)(966005)(5660300002)(44832011)(6512007)(8936002)(83380400001)(36756003)(2906002)(6666004)(6916009)(186003)(26005)(86362001)(2004002)(579004);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?lx0FBzEnLRpxKYGCiKcfaOII+d9HnlOqqBMeb7CVwEmUJhXoN2qu+Wao8Lfo?=
- =?us-ascii?Q?f10+O2u0dQlsWYi7ANCzcQNc1kIqcIVBW86oNEYZNyV5eYtwUvc/pr14lg5a?=
- =?us-ascii?Q?HdXk00D7jw5by61KoSpsgEz0QMdmkSpY5cX7C6qejZYn6TOMEKTRGeti3hAU?=
- =?us-ascii?Q?3NFJC80KHRiQzSH6FMkA8k3XPRDUJYsFxwsvsjpxLxViyBzXsb6eEBtp98RB?=
- =?us-ascii?Q?MbemSLwck8XXwoZudHChkOBUIxtIlMYxCXLS7YjZf7k2glw/bMxJwShKFnPG?=
- =?us-ascii?Q?w/1weadH9Xcf9doadN+/GrEVWLPyEPynt5D5k8DhoB81F6cq3t9Phq5qE+PI?=
- =?us-ascii?Q?09MpZKsMeJTvsj3pbPFQCd5WUOGOnZaTE6MYp7qK595EtUOzu4N4WP9bxyk/?=
- =?us-ascii?Q?7LmG/5QKVpU4ef3fw/nktBm8o/16IFsW9b/QaL9YGUH+THeGArZoSrBOaaDT?=
- =?us-ascii?Q?/7ZycZfObZXlUV0Bh6CfnJ0acaSt30t27CdZtUZfSuhw1/bUhibhc7NfCP6e?=
- =?us-ascii?Q?h9/Tmg34x5yPqfELML9w+tDYutiC0khaVn5u9tJeJTmFv6qoosN5dsgjFAn5?=
- =?us-ascii?Q?IxhIa+pYXrMvNMwmM2Ky7O1+WpuX3LlwFYnFKzCucT54tlt4m/TfUfdxvlI6?=
- =?us-ascii?Q?6TD8y0k8s9feHQlidn7V1MC4lATJ0Raq5vI/0Jtph7qa6CS4C8yIpMwgr3b2?=
- =?us-ascii?Q?m1HzRF2tfDY6HsTiukv3QMhpVnTmFkquPpE/9/CPG4PdcHVeuaoGvCLYAsSI?=
- =?us-ascii?Q?OcD2Z09cJlVcF3Nl2MInxDrlbX9u6MZQFwWPNKulJi+uyDCqyC8Ul5nYcElk?=
- =?us-ascii?Q?UmfPMoeDVOxXVlOpd4Lk7sZ/+keYmvQWIjvBUktVdLB2oxTeebY3gL5Tsb+v?=
- =?us-ascii?Q?nUqUujIlQ8aKev1Y8PLmWF9NMf6TuH8MJcqBrijT9iSGtjr2sgGp14sJMmaV?=
- =?us-ascii?Q?dqygTT19ALhHoVVKIH22hI8cCBD1VIhfIQtnemCToqHQAOrrK5hjbWx+dMNo?=
- =?us-ascii?Q?8eksi3CyEiUdfJ9UPz49RD7jGZeb2ijCCm0QmIRzSqQDwMW+Oj0QJ+zlHmP0?=
- =?us-ascii?Q?K9dBRwVDNJw0XVEI8pT6bMzwWy5z+K11udte2j0Tq81ljidbSrimjHUzMWQv?=
- =?us-ascii?Q?J2yjAmhNIaab7CxNC8vtL1UJDEGXYEafT1xwXgrWbPN+9V3RVmbZaR/pZyp3?=
- =?us-ascii?Q?bn+PA6DUtXZRpMHHgsTpVrKJQ9jjCpTG+fkNaStgzcKGKmcSQgZBSfq8sxHt?=
- =?us-ascii?Q?7W1E2jeSdstdFHHhmmREnAVeUWeOlfyZCuUSQdn3BDWoC97ME/5VYAxb0/nv?=
- =?us-ascii?Q?h1aIdUR1NU2Z3FzQzDVbDYiz?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?rwq8/4XRxp3byqXpLFaUcZ4Oi9yKAc1lJji+j58mwq6+oY6sUESCq+rgCEIb?=
+ =?us-ascii?Q?p9TXIzeAebLC+Tqx0lmHopXAMUFhj8sUvxsgxHBsQb2IKE6EhIACd6uZyS5r?=
+ =?us-ascii?Q?LYXWQ+0jd3PQ34MsqDgqshB+5fW6e55q1ASdYa/k9SfhW9a72dmzKZ34VyvN?=
+ =?us-ascii?Q?iTwBmwdwmXoAGfv5IjIrcroOfR3VPew7TqH033e3AFzA0+vh93xnXXDVXCRf?=
+ =?us-ascii?Q?Zm18nxMVzdfDBbwGH4985+qdc3ZmQNEGzcGFSLSqIavjllsNb6BcfeG9gM+6?=
+ =?us-ascii?Q?nSnR7p5vowHGZIuo4HC7PwafGkMAyJPWybXSBXmPci1/jtZQsmrohCVA19Ff?=
+ =?us-ascii?Q?fGNqlIEHIBriQjyWBbf2GCp0zT3wO6NxQxFhf/dRcBEu7+qvwC9EuHrpvkKr?=
+ =?us-ascii?Q?8+fqZ7raKFqNTqS+A6Y4fnozFOAntO3UGPngWoUTwVBMW1yyfktZbxrhX5dR?=
+ =?us-ascii?Q?GI5Lwn98BLhejCtuTxEp4emsqe03ot5R7HMu/xd4e1n8KZVmQE12jT6mCW67?=
+ =?us-ascii?Q?+xRs+k6NoJNL6BfdUfmf4jbM2l0y76C/ZkeMAROgj+pOl7uwm12EAFDYoK3P?=
+ =?us-ascii?Q?0Moa9TabBygbP9Pdr26tN9YsWYgnJYn0rEG5VtXLfhvtQ87ApfASyQ/D4pY5?=
+ =?us-ascii?Q?9TbCd0ZlBEqhy4CSgx/4ecDqUHRZWdkYNv2cpG+S+1jnG2PKijXzHqhvh7oZ?=
+ =?us-ascii?Q?8DmzX04U8MnIRkpqjx3hqLXtlNFNB3rZPeXqm+90zWAePOQwqLTpRMK0xBvG?=
+ =?us-ascii?Q?3iMJuwe26mhhkjNfHANbNrR8+Pule93oMKemPd3AxHs4/JPo4yzlNxvbaqlq?=
+ =?us-ascii?Q?5LsiKNAvRu2I6g7G7QOzOpaOMyPEXjjbOOeLeFXiMjVf5YFB8xIKaTqiE/oO?=
+ =?us-ascii?Q?SISbj3oLlvcR2+wJQSMc+IpPdwN9eRRGBDMxoiPUTPiSf4CoHakIEv4UKRZ7?=
+ =?us-ascii?Q?ivfqB79ze8ZGNyjtEZvuegPl3DaOSA+N5p35y9s3x0vLj6vTzl6DZXPxP/fZ?=
+ =?us-ascii?Q?Tb32GhJ4dGymWPr1Jd4xW9icHcdzzLUb98EmEu53muDyaU6ByJBXatQgWL/h?=
+ =?us-ascii?Q?Azsytp/MKUIq7W1C0T76ocB/0sqQtLB/4rmGiJ13EvLtyLp9yfjHsVEcOLjX?=
+ =?us-ascii?Q?sy0/8lAalNMdpdeWmlAqe7qaiBK7B2AmlcKQdE15pWadCbb5kSeciPjOr70h?=
+ =?us-ascii?Q?r+fqR70erho/HvvIYIqfbg0IpKQee+oi6/3L8IvB70dgnCSk1Nvi4Khn3nV7?=
+ =?us-ascii?Q?pNjjFahPMAIt3M0bwmucuXrEwirq9tiFLEjWO3D/gLuAOVx7mxJGhZMlz+6t?=
+ =?us-ascii?Q?iSKL0BA35NjwaCgwn3NdNg7S?=
 X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0a858fde-fd7f-4bd6-9a71-08d98a62e16b
+X-MS-Exchange-CrossTenant-Network-Message-Id: c4e9c6bd-8275-4e94-69de-08d98a62e279
 X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5327.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Oct 2021 13:52:34.5428
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Oct 2021 13:52:36.3887
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: mtfcUzSTWReejZwifzD1QqbIJUnbNGi3Lp8faSbIm8pq6+qyY0YCui1PP7ig7cxoZHhUROkDhLsrjt2gqP7yc4mYTG05vq+zNk9W6IEBj5o=
+X-MS-Exchange-CrossTenant-UserPrincipalName: mlCs7SAgLH+BKLT/e24Z7T0W095nCPM2IFtlD8TWoVqJ8aU4CsPfpn2joH6hG8LtRkWyV+RW4uHk+0mG2wcN2piJx0PQTKEqbyP5Au19JFI=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR11MB2059
-X-Proofpoint-GUID: X5T4SKQ8zsVj1xLaioW86l_lWUbFtZSz
-X-Proofpoint-ORIG-GUID: X5T4SKQ8zsVj1xLaioW86l_lWUbFtZSz
+X-Proofpoint-GUID: JIV-v_fd-aNRrWx7z7na83ERsoU8qTtt
+X-Proofpoint-ORIG-GUID: JIV-v_fd-aNRrWx7z7na83ERsoU8qTtt
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
  definitions=2021-10-08_03,2021-10-07_02,2020-04-07_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
  suspectscore=0 impostorscore=0 priorityscore=1501 spamscore=0
- lowpriorityscore=0 clxscore=1011 malwarescore=0 phishscore=0 bulkscore=0
- mlxlogscore=811 classifier=spam adjust=0 reason=mlx scancount=1
+ lowpriorityscore=0 clxscore=1015 malwarescore=0 phishscore=0 bulkscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2109230001 definitions=main-2110080082
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-5.2 upstream commit 716850ab104d ("MIPS: eBPF: Initial eBPF support for MIPS32
-architecture.") introduced eBPF JIT support for MIPS32 and removed the cBPF JIT
-interface. However, it was subsequently reverted by the following commits,
-bringing back the old cBPF JIT implementation:
-    f8fffebdea75 ("MIPS: BPF: Disable MIPS32 eBPF JIT")
-    36366e367ee9 ("MIPS: BPF: Restore MIPS32 cBPF JIT")
+From: Paul Burton <paulburton@kernel.org>
 
-    From 36366e367ee9 ("MIPS: BPF: Restore MIPS32 cBPF JIT") commit message:
-    """
-    ...
-    Until these problems are resolved, revert the removal of the cBPF JIT
-    performed by commit 716850ab104d ("MIPS: eBPF: Initial eBPF support for
-    MIPS32 architecture."). Together with commit f8fffebdea75 ("MIPS: BPF:
-    Disable MIPS32 eBPF JIT") this restores MIPS32 BPF JIT behavior back to
-    the same state it was prior to the introduction of the broken eBPF JIT
-    support.
-    """
+commit 36366e367ee93ced84fddb8fae6675e12985f5a4 upstream.
 
-In 5.4, only f8fffebdea75 ("MIPS: BPF: Disable MIPS32 eBPF JIT") was
-backported. This patchseries re-enables cBPF JIT support by backporting the
-second part of 16850ab104d ("MIPS: eBPF: Initial eBPF support for MIPS32
-architecture.") revert and also fixes CVE-2021-38300. Both patches are clean
-cherry-picks.
+Commit 716850ab104d ("MIPS: eBPF: Initial eBPF support for MIPS32
+architecture.") enabled our eBPF JIT for MIPS32 kernels, whereas it has
+previously only been availailable for MIPS64. It was my understanding at
+the time that the BPF test suite was passing & JITing a comparable
+number of tests to our cBPF JIT [1], but it turns out that was not the
+case.
 
-The testcase specified in 37cb28ec7d3a ("bpf, mips: Validate conditional
-branch offsets") commit message now passes in qemu:
+The eBPF JIT has a number of problems on MIPS32:
 
-Before:
--------
-root@qemumips:~# echo 1 > /proc/sys/net/core/bpf_jit_enable
-root@qemumips:~# modprobe test_bpf test_name="BPF_MAXINSNS: exec all MSH"
-[   58.577385] test_bpf: #296 BPF_MAXINSNS: exec all MSH 
-[   58.579267] ------------[ cut here ]------------
-[   58.603827] WARNING: CPU: 0 PID: 166 at arch/mips/mm/uasm-mips.c:210 build_insn+0x4e8/0x520
-[   58.605354] Micro-assembler field overflow
-[   58.606585] Modules linked in: test_bpf(+) i2c_piix4 sch_fq_codel openvswitch nsh nf_conncount nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4
-[   58.608979] CPU: 0 PID: 166 Comm: modprobe Not tainted 5.4.151-yocto-standard+ #3
-[   58.610838] Stack : 00000000 00000000 0000010e 1000a400 80f90000 00000045 0000010f 801978cc
-[   58.612647]         80c40000 0000000b 00000000 00000000 80e051d8 1000a400 8d119950 ffffffff
-[   58.615304]         00000000 00000000 81030000 0000010f 00000000 00000000 00000000 0000ffff
-[   58.617685]         00000000 00000000 00000001 0000010f 00000000 80e60000 00000000 80000000
-[   58.618968]         8d119a8c 00000000 80130000 c0064000 00000000 807742f4 00000001 003871d7
-[   58.620309]         ...
-[   58.621313] Call Trace:
-[   58.622310] [<8010e748>] show_stack+0xb4/0x17c
-[   58.623612] [<80b90cbc>] dump_stack+0xa0/0xcc
-[   58.624755] [<80134a90>] __warn+0xcc/0x11c
-[   58.626008] [<80b85ec0>] warn_slowpath_fmt+0x8c/0xb8
-[   58.629175] [<80121a18>] build_insn+0x4e8/0x520
-[   58.630225] [<80121ba4>] uasm_i_bne+0x1c/0x28
-[   58.687860] [<8012d3a4>] build_body+0x6b8/0x2f38
-[   58.740612] [<8012fd38>] bpf_jit_compile+0x114/0x1e4
-[   58.793484] [<809cb584>] bpf_prepare_filter+0x2b0/0x464
-[   58.843345] [<809cb7b8>] bpf_prog_create+0x80/0xc0
-[   58.894788] [<c00572d8>] test_bpf_init+0x2d8/0xcf8 [test_bpf]
-[   58.946096] [<80100e50>] do_one_initcall+0x54/0x2c4
-[   58.992934] [<801d9850>] do_init_module+0x64/0x240
-[   59.042867] [<801dbc84>] load_module+0x2180/0x27fc
-[   59.093033] [<801dc568>] sys_finit_module+0xe8/0x100
-[   59.142974] [<80117304>] syscall_common+0x34/0x58
-[   59.823417] ---[ end trace af3af640ae837a28 ]---
+- Most notably various code paths still result in emission of MIPS64
+  instructions which will cause reserved instruction exceptions & kernel
+  panics when run on MIPS32 CPUs.
 
-After:
-------
-root@qemumips:~# echo 1 > /proc/sys/net/core/bpf_jit_enable
-root@qemumips:~# modprobe test_bpf test_name="BPF_MAXINSNS: exec all MSH"
-[  215.882154] test_bpf: #296 BPF_MAXINSNS: exec all MSH jited:0 667558 PASS
-[  216.618220] test_bpf: Summary: 1 PASSED, 0 FAILED, [0/1 JIT'ed]
+- The eBPF JIT doesn't account for differences between the O32 ABI used
+  by MIPS32 kernels versus the N64 ABI used by MIPS64 kernels. Notably
+  arguments beyond the first 4 are passed on the stack in O32, and this
+  is entirely unhandled when JITing a BPF_CALL instruction. Stack space
+  must be reserved for arguments even if they all fit in registers, and
+  the callee is free to assume that stack space has been reserved for
+  its use - with the eBPF JIT this is not the case, so calling any
+  function can result in clobbering values on the stack & unpredictable
+  behaviour. Function arguments in eBPF are always 64-bit values which
+  is also entirely unhandled - the JIT still uses a single (32-bit)
+  register per argument. As a result all function arguments are always
+  passed incorrectly when JITing a BPF_CALL instruction, leading to
+  kernel crashes or strange behavior.
 
-Paul Burton (1):
-  MIPS: BPF: Restore MIPS32 cBPF JIT
+- The JIT attempts to bail our on use of ALU64 instructions or 64-bit
+  memory access instructions. The code doing this at the start of
+  build_one_insn() incorrectly checks whether BPF_OP() equals BPF_DW,
+  when it should really be checking BPF_SIZE() & only doing so when
+  BPF_CLASS() is one of BPF_{LD,LDX,ST,STX}. This results in false
+  positives that cause more bailouts than intended, and that in turns
+  hides some of the problems described above.
 
-Piotr Krysiuk (1):
-  bpf, mips: Validate conditional branch offsets
+- The kernel's cBPF->eBPF translation makes heavy use of 64-bit eBPF
+  instructions that the MIPS32 eBPF JIT bails out on, leading to most
+  cBPF programs not being JITed at all.
 
+Until these problems are resolved, revert the removal of the cBPF JIT
+performed by commit 716850ab104d ("MIPS: eBPF: Initial eBPF support for
+MIPS32 architecture."). Together with commit f8fffebdea75 ("MIPS: BPF:
+Disable MIPS32 eBPF JIT") this restores MIPS32 BPF JIT behavior back to
+the same state it was prior to the introduction of the broken eBPF JIT
+support.
+
+[1] https://lore.kernel.org/linux-mips/MWHPR2201MB13583388481F01A422CE7D66D4410@MWHPR2201MB1358.namprd22.prod.outlook.com/
+
+Signed-off-by: Paul Burton <paulburton@kernel.org>
+Fixes: 716850ab104d ("MIPS: eBPF: Initial eBPF support for MIPS32 architecture.")
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Hassan Naveed <hnaveed@wavecomp.com>
+Cc: Tony Ambardar <itugrok@yahoo.com>
+Cc: bpf@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+---
  arch/mips/Kconfig           |    1 +
  arch/mips/net/Makefile      |    1 +
- arch/mips/net/bpf_jit.c     | 1299 +++++++++++++++++++++++++++++++++++
+ arch/mips/net/bpf_jit.c     | 1270 +++++++++++++++++++++++++++++++++++
  arch/mips/net/bpf_jit_asm.S |  285 ++++++++
- 4 files changed, 1586 insertions(+)
+ 4 files changed, 1557 insertions(+)
  create mode 100644 arch/mips/net/bpf_jit.c
  create mode 100644 arch/mips/net/bpf_jit_asm.S
 
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 6ecdc690f733..2bfef67d52c6 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -46,6 +46,7 @@ config MIPS
+ 	select HAVE_ARCH_TRACEHOOK
+ 	select HAVE_ARCH_TRANSPARENT_HUGEPAGE if CPU_SUPPORTS_HUGEPAGES
+ 	select HAVE_ASM_MODVERSIONS
++	select HAVE_CBPF_JIT if !64BIT && !CPU_MICROMIPS
+ 	select HAVE_EBPF_JIT if 64BIT && !CPU_MICROMIPS && TARGET_ISA_REV >= 2
+ 	select HAVE_CONTEXT_TRACKING
+ 	select HAVE_COPY_THREAD_TLS
+diff --git a/arch/mips/net/Makefile b/arch/mips/net/Makefile
+index 2d03af7d6b19..d55912349039 100644
+--- a/arch/mips/net/Makefile
++++ b/arch/mips/net/Makefile
+@@ -1,4 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ # MIPS networking code
+ 
++obj-$(CONFIG_MIPS_CBPF_JIT) += bpf_jit.o bpf_jit_asm.o
+ obj-$(CONFIG_MIPS_EBPF_JIT) += ebpf_jit.o
+diff --git a/arch/mips/net/bpf_jit.c b/arch/mips/net/bpf_jit.c
+new file mode 100644
+index 000000000000..3a0e34f4e615
+--- /dev/null
++++ b/arch/mips/net/bpf_jit.c
+@@ -0,0 +1,1270 @@
++/*
++ * Just-In-Time compiler for BPF filters on MIPS
++ *
++ * Copyright (c) 2014 Imagination Technologies Ltd.
++ * Author: Markos Chandras <markos.chandras@imgtec.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; version 2 of the License.
++ */
++
++#include <linux/bitops.h>
++#include <linux/compiler.h>
++#include <linux/errno.h>
++#include <linux/filter.h>
++#include <linux/if_vlan.h>
++#include <linux/moduleloader.h>
++#include <linux/netdevice.h>
++#include <linux/string.h>
++#include <linux/slab.h>
++#include <linux/types.h>
++#include <asm/asm.h>
++#include <asm/bitops.h>
++#include <asm/cacheflush.h>
++#include <asm/cpu-features.h>
++#include <asm/uasm.h>
++
++#include "bpf_jit.h"
++
++/* ABI
++ * r_skb_hl	SKB header length
++ * r_data	SKB data pointer
++ * r_off	Offset
++ * r_A		BPF register A
++ * r_X		BPF register X
++ * r_skb	*skb
++ * r_M		*scratch memory
++ * r_skb_len	SKB length
++ *
++ * On entry (*bpf_func)(*skb, *filter)
++ * a0 = MIPS_R_A0 = skb;
++ * a1 = MIPS_R_A1 = filter;
++ *
++ * Stack
++ * ...
++ * M[15]
++ * M[14]
++ * M[13]
++ * ...
++ * M[0] <-- r_M
++ * saved reg k-1
++ * saved reg k-2
++ * ...
++ * saved reg 0 <-- r_sp
++ * <no argument area>
++ *
++ *                     Packet layout
++ *
++ * <--------------------- len ------------------------>
++ * <--skb-len(r_skb_hl)-->< ----- skb->data_len ------>
++ * ----------------------------------------------------
++ * |                  skb->data                       |
++ * ----------------------------------------------------
++ */
++
++#define ptr typeof(unsigned long)
++
++#define SCRATCH_OFF(k)		(4 * (k))
++
++/* JIT flags */
++#define SEEN_CALL		(1 << BPF_MEMWORDS)
++#define SEEN_SREG_SFT		(BPF_MEMWORDS + 1)
++#define SEEN_SREG_BASE		(1 << SEEN_SREG_SFT)
++#define SEEN_SREG(x)		(SEEN_SREG_BASE << (x))
++#define SEEN_OFF		SEEN_SREG(2)
++#define SEEN_A			SEEN_SREG(3)
++#define SEEN_X			SEEN_SREG(4)
++#define SEEN_SKB		SEEN_SREG(5)
++#define SEEN_MEM		SEEN_SREG(6)
++/* SEEN_SK_DATA also implies skb_hl an skb_len */
++#define SEEN_SKB_DATA		(SEEN_SREG(7) | SEEN_SREG(1) | SEEN_SREG(0))
++
++/* Arguments used by JIT */
++#define ARGS_USED_BY_JIT	2 /* only applicable to 64-bit */
++
++#define SBIT(x)			(1 << (x)) /* Signed version of BIT() */
++
++/**
++ * struct jit_ctx - JIT context
++ * @skf:		The sk_filter
++ * @prologue_bytes:	Number of bytes for prologue
++ * @idx:		Instruction index
++ * @flags:		JIT flags
++ * @offsets:		Instruction offsets
++ * @target:		Memory location for the compiled filter
++ */
++struct jit_ctx {
++	const struct bpf_prog *skf;
++	unsigned int prologue_bytes;
++	u32 idx;
++	u32 flags;
++	u32 *offsets;
++	u32 *target;
++};
++
++
++static inline int optimize_div(u32 *k)
++{
++	/* power of 2 divides can be implemented with right shift */
++	if (!(*k & (*k-1))) {
++		*k = ilog2(*k);
++		return 1;
++	}
++
++	return 0;
++}
++
++static inline void emit_jit_reg_move(ptr dst, ptr src, struct jit_ctx *ctx);
++
++/* Simply emit the instruction if the JIT memory space has been allocated */
++#define emit_instr(ctx, func, ...)			\
++do {							\
++	if ((ctx)->target != NULL) {			\
++		u32 *p = &(ctx)->target[ctx->idx];	\
++		uasm_i_##func(&p, ##__VA_ARGS__);	\
++	}						\
++	(ctx)->idx++;					\
++} while (0)
++
++/*
++ * Similar to emit_instr but it must be used when we need to emit
++ * 32-bit or 64-bit instructions
++ */
++#define emit_long_instr(ctx, func, ...)			\
++do {							\
++	if ((ctx)->target != NULL) {			\
++		u32 *p = &(ctx)->target[ctx->idx];	\
++		UASM_i_##func(&p, ##__VA_ARGS__);	\
++	}						\
++	(ctx)->idx++;					\
++} while (0)
++
++/* Determine if immediate is within the 16-bit signed range */
++static inline bool is_range16(s32 imm)
++{
++	return !(imm >= SBIT(15) || imm < -SBIT(15));
++}
++
++static inline void emit_addu(unsigned int dst, unsigned int src1,
++			     unsigned int src2, struct jit_ctx *ctx)
++{
++	emit_instr(ctx, addu, dst, src1, src2);
++}
++
++static inline void emit_nop(struct jit_ctx *ctx)
++{
++	emit_instr(ctx, nop);
++}
++
++/* Load a u32 immediate to a register */
++static inline void emit_load_imm(unsigned int dst, u32 imm, struct jit_ctx *ctx)
++{
++	if (ctx->target != NULL) {
++		/* addiu can only handle s16 */
++		if (!is_range16(imm)) {
++			u32 *p = &ctx->target[ctx->idx];
++			uasm_i_lui(&p, r_tmp_imm, (s32)imm >> 16);
++			p = &ctx->target[ctx->idx + 1];
++			uasm_i_ori(&p, dst, r_tmp_imm, imm & 0xffff);
++		} else {
++			u32 *p = &ctx->target[ctx->idx];
++			uasm_i_addiu(&p, dst, r_zero, imm);
++		}
++	}
++	ctx->idx++;
++
++	if (!is_range16(imm))
++		ctx->idx++;
++}
++
++static inline void emit_or(unsigned int dst, unsigned int src1,
++			   unsigned int src2, struct jit_ctx *ctx)
++{
++	emit_instr(ctx, or, dst, src1, src2);
++}
++
++static inline void emit_ori(unsigned int dst, unsigned src, u32 imm,
++			    struct jit_ctx *ctx)
++{
++	if (imm >= BIT(16)) {
++		emit_load_imm(r_tmp, imm, ctx);
++		emit_or(dst, src, r_tmp, ctx);
++	} else {
++		emit_instr(ctx, ori, dst, src, imm);
++	}
++}
++
++static inline void emit_daddiu(unsigned int dst, unsigned int src,
++			       int imm, struct jit_ctx *ctx)
++{
++	/*
++	 * Only used for stack, so the imm is relatively small
++	 * and it fits in 15-bits
++	 */
++	emit_instr(ctx, daddiu, dst, src, imm);
++}
++
++static inline void emit_addiu(unsigned int dst, unsigned int src,
++			      u32 imm, struct jit_ctx *ctx)
++{
++	if (!is_range16(imm)) {
++		emit_load_imm(r_tmp, imm, ctx);
++		emit_addu(dst, r_tmp, src, ctx);
++	} else {
++		emit_instr(ctx, addiu, dst, src, imm);
++	}
++}
++
++static inline void emit_and(unsigned int dst, unsigned int src1,
++			    unsigned int src2, struct jit_ctx *ctx)
++{
++	emit_instr(ctx, and, dst, src1, src2);
++}
++
++static inline void emit_andi(unsigned int dst, unsigned int src,
++			     u32 imm, struct jit_ctx *ctx)
++{
++	/* If imm does not fit in u16 then load it to register */
++	if (imm >= BIT(16)) {
++		emit_load_imm(r_tmp, imm, ctx);
++		emit_and(dst, src, r_tmp, ctx);
++	} else {
++		emit_instr(ctx, andi, dst, src, imm);
++	}
++}
++
++static inline void emit_xor(unsigned int dst, unsigned int src1,
++			    unsigned int src2, struct jit_ctx *ctx)
++{
++	emit_instr(ctx, xor, dst, src1, src2);
++}
++
++static inline void emit_xori(ptr dst, ptr src, u32 imm, struct jit_ctx *ctx)
++{
++	/* If imm does not fit in u16 then load it to register */
++	if (imm >= BIT(16)) {
++		emit_load_imm(r_tmp, imm, ctx);
++		emit_xor(dst, src, r_tmp, ctx);
++	} else {
++		emit_instr(ctx, xori, dst, src, imm);
++	}
++}
++
++static inline void emit_stack_offset(int offset, struct jit_ctx *ctx)
++{
++	emit_long_instr(ctx, ADDIU, r_sp, r_sp, offset);
++}
++
++static inline void emit_subu(unsigned int dst, unsigned int src1,
++			     unsigned int src2, struct jit_ctx *ctx)
++{
++	emit_instr(ctx, subu, dst, src1, src2);
++}
++
++static inline void emit_neg(unsigned int reg, struct jit_ctx *ctx)
++{
++	emit_subu(reg, r_zero, reg, ctx);
++}
++
++static inline void emit_sllv(unsigned int dst, unsigned int src,
++			     unsigned int sa, struct jit_ctx *ctx)
++{
++	emit_instr(ctx, sllv, dst, src, sa);
++}
++
++static inline void emit_sll(unsigned int dst, unsigned int src,
++			    unsigned int sa, struct jit_ctx *ctx)
++{
++	/* sa is 5-bits long */
++	if (sa >= BIT(5))
++		/* Shifting >= 32 results in zero */
++		emit_jit_reg_move(dst, r_zero, ctx);
++	else
++		emit_instr(ctx, sll, dst, src, sa);
++}
++
++static inline void emit_srlv(unsigned int dst, unsigned int src,
++			     unsigned int sa, struct jit_ctx *ctx)
++{
++	emit_instr(ctx, srlv, dst, src, sa);
++}
++
++static inline void emit_srl(unsigned int dst, unsigned int src,
++			    unsigned int sa, struct jit_ctx *ctx)
++{
++	/* sa is 5-bits long */
++	if (sa >= BIT(5))
++		/* Shifting >= 32 results in zero */
++		emit_jit_reg_move(dst, r_zero, ctx);
++	else
++		emit_instr(ctx, srl, dst, src, sa);
++}
++
++static inline void emit_slt(unsigned int dst, unsigned int src1,
++			    unsigned int src2, struct jit_ctx *ctx)
++{
++	emit_instr(ctx, slt, dst, src1, src2);
++}
++
++static inline void emit_sltu(unsigned int dst, unsigned int src1,
++			     unsigned int src2, struct jit_ctx *ctx)
++{
++	emit_instr(ctx, sltu, dst, src1, src2);
++}
++
++static inline void emit_sltiu(unsigned dst, unsigned int src,
++			      unsigned int imm, struct jit_ctx *ctx)
++{
++	/* 16 bit immediate */
++	if (!is_range16((s32)imm)) {
++		emit_load_imm(r_tmp, imm, ctx);
++		emit_sltu(dst, src, r_tmp, ctx);
++	} else {
++		emit_instr(ctx, sltiu, dst, src, imm);
++	}
++
++}
++
++/* Store register on the stack */
++static inline void emit_store_stack_reg(ptr reg, ptr base,
++					unsigned int offset,
++					struct jit_ctx *ctx)
++{
++	emit_long_instr(ctx, SW, reg, offset, base);
++}
++
++static inline void emit_store(ptr reg, ptr base, unsigned int offset,
++			      struct jit_ctx *ctx)
++{
++	emit_instr(ctx, sw, reg, offset, base);
++}
++
++static inline void emit_load_stack_reg(ptr reg, ptr base,
++				       unsigned int offset,
++				       struct jit_ctx *ctx)
++{
++	emit_long_instr(ctx, LW, reg, offset, base);
++}
++
++static inline void emit_load(unsigned int reg, unsigned int base,
++			     unsigned int offset, struct jit_ctx *ctx)
++{
++	emit_instr(ctx, lw, reg, offset, base);
++}
++
++static inline void emit_load_byte(unsigned int reg, unsigned int base,
++				  unsigned int offset, struct jit_ctx *ctx)
++{
++	emit_instr(ctx, lb, reg, offset, base);
++}
++
++static inline void emit_half_load(unsigned int reg, unsigned int base,
++				  unsigned int offset, struct jit_ctx *ctx)
++{
++	emit_instr(ctx, lh, reg, offset, base);
++}
++
++static inline void emit_half_load_unsigned(unsigned int reg, unsigned int base,
++					   unsigned int offset, struct jit_ctx *ctx)
++{
++	emit_instr(ctx, lhu, reg, offset, base);
++}
++
++static inline void emit_mul(unsigned int dst, unsigned int src1,
++			    unsigned int src2, struct jit_ctx *ctx)
++{
++	emit_instr(ctx, mul, dst, src1, src2);
++}
++
++static inline void emit_div(unsigned int dst, unsigned int src,
++			    struct jit_ctx *ctx)
++{
++	if (ctx->target != NULL) {
++		u32 *p = &ctx->target[ctx->idx];
++		uasm_i_divu(&p, dst, src);
++		p = &ctx->target[ctx->idx + 1];
++		uasm_i_mflo(&p, dst);
++	}
++	ctx->idx += 2; /* 2 insts */
++}
++
++static inline void emit_mod(unsigned int dst, unsigned int src,
++			    struct jit_ctx *ctx)
++{
++	if (ctx->target != NULL) {
++		u32 *p = &ctx->target[ctx->idx];
++		uasm_i_divu(&p, dst, src);
++		p = &ctx->target[ctx->idx + 1];
++		uasm_i_mfhi(&p, dst);
++	}
++	ctx->idx += 2; /* 2 insts */
++}
++
++static inline void emit_dsll(unsigned int dst, unsigned int src,
++			     unsigned int sa, struct jit_ctx *ctx)
++{
++	emit_instr(ctx, dsll, dst, src, sa);
++}
++
++static inline void emit_dsrl32(unsigned int dst, unsigned int src,
++			       unsigned int sa, struct jit_ctx *ctx)
++{
++	emit_instr(ctx, dsrl32, dst, src, sa);
++}
++
++static inline void emit_wsbh(unsigned int dst, unsigned int src,
++			     struct jit_ctx *ctx)
++{
++	emit_instr(ctx, wsbh, dst, src);
++}
++
++/* load pointer to register */
++static inline void emit_load_ptr(unsigned int dst, unsigned int src,
++				     int imm, struct jit_ctx *ctx)
++{
++	/* src contains the base addr of the 32/64-pointer */
++	emit_long_instr(ctx, LW, dst, imm, src);
++}
++
++/* load a function pointer to register */
++static inline void emit_load_func(unsigned int reg, ptr imm,
++				  struct jit_ctx *ctx)
++{
++	if (IS_ENABLED(CONFIG_64BIT)) {
++		/* At this point imm is always 64-bit */
++		emit_load_imm(r_tmp, (u64)imm >> 32, ctx);
++		emit_dsll(r_tmp_imm, r_tmp, 16, ctx); /* left shift by 16 */
++		emit_ori(r_tmp, r_tmp_imm, (imm >> 16) & 0xffff, ctx);
++		emit_dsll(r_tmp_imm, r_tmp, 16, ctx); /* left shift by 16 */
++		emit_ori(reg, r_tmp_imm, imm & 0xffff, ctx);
++	} else {
++		emit_load_imm(reg, imm, ctx);
++	}
++}
++
++/* Move to real MIPS register */
++static inline void emit_reg_move(ptr dst, ptr src, struct jit_ctx *ctx)
++{
++	emit_long_instr(ctx, ADDU, dst, src, r_zero);
++}
++
++/* Move to JIT (32-bit) register */
++static inline void emit_jit_reg_move(ptr dst, ptr src, struct jit_ctx *ctx)
++{
++	emit_addu(dst, src, r_zero, ctx);
++}
++
++/* Compute the immediate value for PC-relative branches. */
++static inline u32 b_imm(unsigned int tgt, struct jit_ctx *ctx)
++{
++	if (ctx->target == NULL)
++		return 0;
++
++	/*
++	 * We want a pc-relative branch. We only do forward branches
++	 * so tgt is always after pc. tgt is the instruction offset
++	 * we want to jump to.
++
++	 * Branch on MIPS:
++	 * I: target_offset <- sign_extend(offset)
++	 * I+1: PC += target_offset (delay slot)
++	 *
++	 * ctx->idx currently points to the branch instruction
++	 * but the offset is added to the delay slot so we need
++	 * to subtract 4.
++	 */
++	return ctx->offsets[tgt] -
++		(ctx->idx * 4 - ctx->prologue_bytes) - 4;
++}
++
++static inline void emit_bcond(int cond, unsigned int reg1, unsigned int reg2,
++			     unsigned int imm, struct jit_ctx *ctx)
++{
++	if (ctx->target != NULL) {
++		u32 *p = &ctx->target[ctx->idx];
++
++		switch (cond) {
++		case MIPS_COND_EQ:
++			uasm_i_beq(&p, reg1, reg2, imm);
++			break;
++		case MIPS_COND_NE:
++			uasm_i_bne(&p, reg1, reg2, imm);
++			break;
++		case MIPS_COND_ALL:
++			uasm_i_b(&p, imm);
++			break;
++		default:
++			pr_warn("%s: Unhandled branch conditional: %d\n",
++				__func__, cond);
++		}
++	}
++	ctx->idx++;
++}
++
++static inline void emit_b(unsigned int imm, struct jit_ctx *ctx)
++{
++	emit_bcond(MIPS_COND_ALL, r_zero, r_zero, imm, ctx);
++}
++
++static inline void emit_jalr(unsigned int link, unsigned int reg,
++			     struct jit_ctx *ctx)
++{
++	emit_instr(ctx, jalr, link, reg);
++}
++
++static inline void emit_jr(unsigned int reg, struct jit_ctx *ctx)
++{
++	emit_instr(ctx, jr, reg);
++}
++
++static inline u16 align_sp(unsigned int num)
++{
++	/* Double word alignment for 32-bit, quadword for 64-bit */
++	unsigned int align = IS_ENABLED(CONFIG_64BIT) ? 16 : 8;
++	num = (num + (align - 1)) & -align;
++	return num;
++}
++
++static void save_bpf_jit_regs(struct jit_ctx *ctx, unsigned offset)
++{
++	int i = 0, real_off = 0;
++	u32 sflags, tmp_flags;
++
++	/* Adjust the stack pointer */
++	if (offset)
++		emit_stack_offset(-align_sp(offset), ctx);
++
++	tmp_flags = sflags = ctx->flags >> SEEN_SREG_SFT;
++	/* sflags is essentially a bitmap */
++	while (tmp_flags) {
++		if ((sflags >> i) & 0x1) {
++			emit_store_stack_reg(MIPS_R_S0 + i, r_sp, real_off,
++					     ctx);
++			real_off += SZREG;
++		}
++		i++;
++		tmp_flags >>= 1;
++	}
++
++	/* save return address */
++	if (ctx->flags & SEEN_CALL) {
++		emit_store_stack_reg(r_ra, r_sp, real_off, ctx);
++		real_off += SZREG;
++	}
++
++	/* Setup r_M leaving the alignment gap if necessary */
++	if (ctx->flags & SEEN_MEM) {
++		if (real_off % (SZREG * 2))
++			real_off += SZREG;
++		emit_long_instr(ctx, ADDIU, r_M, r_sp, real_off);
++	}
++}
++
++static void restore_bpf_jit_regs(struct jit_ctx *ctx,
++				 unsigned int offset)
++{
++	int i, real_off = 0;
++	u32 sflags, tmp_flags;
++
++	tmp_flags = sflags = ctx->flags >> SEEN_SREG_SFT;
++	/* sflags is a bitmap */
++	i = 0;
++	while (tmp_flags) {
++		if ((sflags >> i) & 0x1) {
++			emit_load_stack_reg(MIPS_R_S0 + i, r_sp, real_off,
++					    ctx);
++			real_off += SZREG;
++		}
++		i++;
++		tmp_flags >>= 1;
++	}
++
++	/* restore return address */
++	if (ctx->flags & SEEN_CALL)
++		emit_load_stack_reg(r_ra, r_sp, real_off, ctx);
++
++	/* Restore the sp and discard the scrach memory */
++	if (offset)
++		emit_stack_offset(align_sp(offset), ctx);
++}
++
++static unsigned int get_stack_depth(struct jit_ctx *ctx)
++{
++	int sp_off = 0;
++
++
++	/* How may s* regs do we need to preserved? */
++	sp_off += hweight32(ctx->flags >> SEEN_SREG_SFT) * SZREG;
++
++	if (ctx->flags & SEEN_MEM)
++		sp_off += 4 * BPF_MEMWORDS; /* BPF_MEMWORDS are 32-bit */
++
++	if (ctx->flags & SEEN_CALL)
++		sp_off += SZREG; /* Space for our ra register */
++
++	return sp_off;
++}
++
++static void build_prologue(struct jit_ctx *ctx)
++{
++	int sp_off;
++
++	/* Calculate the total offset for the stack pointer */
++	sp_off = get_stack_depth(ctx);
++	save_bpf_jit_regs(ctx, sp_off);
++
++	if (ctx->flags & SEEN_SKB)
++		emit_reg_move(r_skb, MIPS_R_A0, ctx);
++
++	if (ctx->flags & SEEN_SKB_DATA) {
++		/* Load packet length */
++		emit_load(r_skb_len, r_skb, offsetof(struct sk_buff, len),
++			  ctx);
++		emit_load(r_tmp, r_skb, offsetof(struct sk_buff, data_len),
++			  ctx);
++		/* Load the data pointer */
++		emit_load_ptr(r_skb_data, r_skb,
++			      offsetof(struct sk_buff, data), ctx);
++		/* Load the header length */
++		emit_subu(r_skb_hl, r_skb_len, r_tmp, ctx);
++	}
++
++	if (ctx->flags & SEEN_X)
++		emit_jit_reg_move(r_X, r_zero, ctx);
++
++	/*
++	 * Do not leak kernel data to userspace, we only need to clear
++	 * r_A if it is ever used.  In fact if it is never used, we
++	 * will not save/restore it, so clearing it in this case would
++	 * corrupt the state of the caller.
++	 */
++	if (bpf_needs_clear_a(&ctx->skf->insns[0]) &&
++	    (ctx->flags & SEEN_A))
++		emit_jit_reg_move(r_A, r_zero, ctx);
++}
++
++static void build_epilogue(struct jit_ctx *ctx)
++{
++	unsigned int sp_off;
++
++	/* Calculate the total offset for the stack pointer */
++
++	sp_off = get_stack_depth(ctx);
++	restore_bpf_jit_regs(ctx, sp_off);
++
++	/* Return */
++	emit_jr(r_ra, ctx);
++	emit_nop(ctx);
++}
++
++#define CHOOSE_LOAD_FUNC(K, func) \
++	((int)K < 0 ? ((int)K >= SKF_LL_OFF ? func##_negative : func) : \
++	 func##_positive)
++
++static int build_body(struct jit_ctx *ctx)
++{
++	const struct bpf_prog *prog = ctx->skf;
++	const struct sock_filter *inst;
++	unsigned int i, off, condt;
++	u32 k, b_off __maybe_unused;
++	u8 (*sk_load_func)(unsigned long *skb, int offset);
++
++	for (i = 0; i < prog->len; i++) {
++		u16 code;
++
++		inst = &(prog->insns[i]);
++		pr_debug("%s: code->0x%02x, jt->0x%x, jf->0x%x, k->0x%x\n",
++			 __func__, inst->code, inst->jt, inst->jf, inst->k);
++		k = inst->k;
++		code = bpf_anc_helper(inst);
++
++		if (ctx->target == NULL)
++			ctx->offsets[i] = ctx->idx * 4;
++
++		switch (code) {
++		case BPF_LD | BPF_IMM:
++			/* A <- k ==> li r_A, k */
++			ctx->flags |= SEEN_A;
++			emit_load_imm(r_A, k, ctx);
++			break;
++		case BPF_LD | BPF_W | BPF_LEN:
++			BUILD_BUG_ON(FIELD_SIZEOF(struct sk_buff, len) != 4);
++			/* A <- len ==> lw r_A, offset(skb) */
++			ctx->flags |= SEEN_SKB | SEEN_A;
++			off = offsetof(struct sk_buff, len);
++			emit_load(r_A, r_skb, off, ctx);
++			break;
++		case BPF_LD | BPF_MEM:
++			/* A <- M[k] ==> lw r_A, offset(M) */
++			ctx->flags |= SEEN_MEM | SEEN_A;
++			emit_load(r_A, r_M, SCRATCH_OFF(k), ctx);
++			break;
++		case BPF_LD | BPF_W | BPF_ABS:
++			/* A <- P[k:4] */
++			sk_load_func = CHOOSE_LOAD_FUNC(k, sk_load_word);
++			goto load;
++		case BPF_LD | BPF_H | BPF_ABS:
++			/* A <- P[k:2] */
++			sk_load_func = CHOOSE_LOAD_FUNC(k, sk_load_half);
++			goto load;
++		case BPF_LD | BPF_B | BPF_ABS:
++			/* A <- P[k:1] */
++			sk_load_func = CHOOSE_LOAD_FUNC(k, sk_load_byte);
++load:
++			emit_load_imm(r_off, k, ctx);
++load_common:
++			ctx->flags |= SEEN_CALL | SEEN_OFF |
++				SEEN_SKB | SEEN_A | SEEN_SKB_DATA;
++
++			emit_load_func(r_s0, (ptr)sk_load_func, ctx);
++			emit_reg_move(MIPS_R_A0, r_skb, ctx);
++			emit_jalr(MIPS_R_RA, r_s0, ctx);
++			/* Load second argument to delay slot */
++			emit_reg_move(MIPS_R_A1, r_off, ctx);
++			/* Check the error value */
++			emit_bcond(MIPS_COND_EQ, r_ret, 0, b_imm(i + 1, ctx),
++				   ctx);
++			/* Load return register on DS for failures */
++			emit_reg_move(r_ret, r_zero, ctx);
++			/* Return with error */
++			emit_b(b_imm(prog->len, ctx), ctx);
++			emit_nop(ctx);
++			break;
++		case BPF_LD | BPF_W | BPF_IND:
++			/* A <- P[X + k:4] */
++			sk_load_func = sk_load_word;
++			goto load_ind;
++		case BPF_LD | BPF_H | BPF_IND:
++			/* A <- P[X + k:2] */
++			sk_load_func = sk_load_half;
++			goto load_ind;
++		case BPF_LD | BPF_B | BPF_IND:
++			/* A <- P[X + k:1] */
++			sk_load_func = sk_load_byte;
++load_ind:
++			ctx->flags |= SEEN_OFF | SEEN_X;
++			emit_addiu(r_off, r_X, k, ctx);
++			goto load_common;
++		case BPF_LDX | BPF_IMM:
++			/* X <- k */
++			ctx->flags |= SEEN_X;
++			emit_load_imm(r_X, k, ctx);
++			break;
++		case BPF_LDX | BPF_MEM:
++			/* X <- M[k] */
++			ctx->flags |= SEEN_X | SEEN_MEM;
++			emit_load(r_X, r_M, SCRATCH_OFF(k), ctx);
++			break;
++		case BPF_LDX | BPF_W | BPF_LEN:
++			/* X <- len */
++			ctx->flags |= SEEN_X | SEEN_SKB;
++			off = offsetof(struct sk_buff, len);
++			emit_load(r_X, r_skb, off, ctx);
++			break;
++		case BPF_LDX | BPF_B | BPF_MSH:
++			/* X <- 4 * (P[k:1] & 0xf) */
++			ctx->flags |= SEEN_X | SEEN_CALL | SEEN_SKB;
++			/* Load offset to a1 */
++			emit_load_func(r_s0, (ptr)sk_load_byte, ctx);
++			/*
++			 * This may emit two instructions so it may not fit
++			 * in the delay slot. So use a0 in the delay slot.
++			 */
++			emit_load_imm(MIPS_R_A1, k, ctx);
++			emit_jalr(MIPS_R_RA, r_s0, ctx);
++			emit_reg_move(MIPS_R_A0, r_skb, ctx); /* delay slot */
++			/* Check the error value */
++			emit_bcond(MIPS_COND_NE, r_ret, 0,
++				   b_imm(prog->len, ctx), ctx);
++			emit_reg_move(r_ret, r_zero, ctx);
++			/* We are good */
++			/* X <- P[1:K] & 0xf */
++			emit_andi(r_X, r_A, 0xf, ctx);
++			/* X << 2 */
++			emit_b(b_imm(i + 1, ctx), ctx);
++			emit_sll(r_X, r_X, 2, ctx); /* delay slot */
++			break;
++		case BPF_ST:
++			/* M[k] <- A */
++			ctx->flags |= SEEN_MEM | SEEN_A;
++			emit_store(r_A, r_M, SCRATCH_OFF(k), ctx);
++			break;
++		case BPF_STX:
++			/* M[k] <- X */
++			ctx->flags |= SEEN_MEM | SEEN_X;
++			emit_store(r_X, r_M, SCRATCH_OFF(k), ctx);
++			break;
++		case BPF_ALU | BPF_ADD | BPF_K:
++			/* A += K */
++			ctx->flags |= SEEN_A;
++			emit_addiu(r_A, r_A, k, ctx);
++			break;
++		case BPF_ALU | BPF_ADD | BPF_X:
++			/* A += X */
++			ctx->flags |= SEEN_A | SEEN_X;
++			emit_addu(r_A, r_A, r_X, ctx);
++			break;
++		case BPF_ALU | BPF_SUB | BPF_K:
++			/* A -= K */
++			ctx->flags |= SEEN_A;
++			emit_addiu(r_A, r_A, -k, ctx);
++			break;
++		case BPF_ALU | BPF_SUB | BPF_X:
++			/* A -= X */
++			ctx->flags |= SEEN_A | SEEN_X;
++			emit_subu(r_A, r_A, r_X, ctx);
++			break;
++		case BPF_ALU | BPF_MUL | BPF_K:
++			/* A *= K */
++			/* Load K to scratch register before MUL */
++			ctx->flags |= SEEN_A;
++			emit_load_imm(r_s0, k, ctx);
++			emit_mul(r_A, r_A, r_s0, ctx);
++			break;
++		case BPF_ALU | BPF_MUL | BPF_X:
++			/* A *= X */
++			ctx->flags |= SEEN_A | SEEN_X;
++			emit_mul(r_A, r_A, r_X, ctx);
++			break;
++		case BPF_ALU | BPF_DIV | BPF_K:
++			/* A /= k */
++			if (k == 1)
++				break;
++			if (optimize_div(&k)) {
++				ctx->flags |= SEEN_A;
++				emit_srl(r_A, r_A, k, ctx);
++				break;
++			}
++			ctx->flags |= SEEN_A;
++			emit_load_imm(r_s0, k, ctx);
++			emit_div(r_A, r_s0, ctx);
++			break;
++		case BPF_ALU | BPF_MOD | BPF_K:
++			/* A %= k */
++			if (k == 1) {
++				ctx->flags |= SEEN_A;
++				emit_jit_reg_move(r_A, r_zero, ctx);
++			} else {
++				ctx->flags |= SEEN_A;
++				emit_load_imm(r_s0, k, ctx);
++				emit_mod(r_A, r_s0, ctx);
++			}
++			break;
++		case BPF_ALU | BPF_DIV | BPF_X:
++			/* A /= X */
++			ctx->flags |= SEEN_X | SEEN_A;
++			/* Check if r_X is zero */
++			emit_bcond(MIPS_COND_EQ, r_X, r_zero,
++				   b_imm(prog->len, ctx), ctx);
++			emit_load_imm(r_ret, 0, ctx); /* delay slot */
++			emit_div(r_A, r_X, ctx);
++			break;
++		case BPF_ALU | BPF_MOD | BPF_X:
++			/* A %= X */
++			ctx->flags |= SEEN_X | SEEN_A;
++			/* Check if r_X is zero */
++			emit_bcond(MIPS_COND_EQ, r_X, r_zero,
++				   b_imm(prog->len, ctx), ctx);
++			emit_load_imm(r_ret, 0, ctx); /* delay slot */
++			emit_mod(r_A, r_X, ctx);
++			break;
++		case BPF_ALU | BPF_OR | BPF_K:
++			/* A |= K */
++			ctx->flags |= SEEN_A;
++			emit_ori(r_A, r_A, k, ctx);
++			break;
++		case BPF_ALU | BPF_OR | BPF_X:
++			/* A |= X */
++			ctx->flags |= SEEN_A;
++			emit_ori(r_A, r_A, r_X, ctx);
++			break;
++		case BPF_ALU | BPF_XOR | BPF_K:
++			/* A ^= k */
++			ctx->flags |= SEEN_A;
++			emit_xori(r_A, r_A, k, ctx);
++			break;
++		case BPF_ANC | SKF_AD_ALU_XOR_X:
++		case BPF_ALU | BPF_XOR | BPF_X:
++			/* A ^= X */
++			ctx->flags |= SEEN_A;
++			emit_xor(r_A, r_A, r_X, ctx);
++			break;
++		case BPF_ALU | BPF_AND | BPF_K:
++			/* A &= K */
++			ctx->flags |= SEEN_A;
++			emit_andi(r_A, r_A, k, ctx);
++			break;
++		case BPF_ALU | BPF_AND | BPF_X:
++			/* A &= X */
++			ctx->flags |= SEEN_A | SEEN_X;
++			emit_and(r_A, r_A, r_X, ctx);
++			break;
++		case BPF_ALU | BPF_LSH | BPF_K:
++			/* A <<= K */
++			ctx->flags |= SEEN_A;
++			emit_sll(r_A, r_A, k, ctx);
++			break;
++		case BPF_ALU | BPF_LSH | BPF_X:
++			/* A <<= X */
++			ctx->flags |= SEEN_A | SEEN_X;
++			emit_sllv(r_A, r_A, r_X, ctx);
++			break;
++		case BPF_ALU | BPF_RSH | BPF_K:
++			/* A >>= K */
++			ctx->flags |= SEEN_A;
++			emit_srl(r_A, r_A, k, ctx);
++			break;
++		case BPF_ALU | BPF_RSH | BPF_X:
++			ctx->flags |= SEEN_A | SEEN_X;
++			emit_srlv(r_A, r_A, r_X, ctx);
++			break;
++		case BPF_ALU | BPF_NEG:
++			/* A = -A */
++			ctx->flags |= SEEN_A;
++			emit_neg(r_A, ctx);
++			break;
++		case BPF_JMP | BPF_JA:
++			/* pc += K */
++			emit_b(b_imm(i + k + 1, ctx), ctx);
++			emit_nop(ctx);
++			break;
++		case BPF_JMP | BPF_JEQ | BPF_K:
++			/* pc += ( A == K ) ? pc->jt : pc->jf */
++			condt = MIPS_COND_EQ | MIPS_COND_K;
++			goto jmp_cmp;
++		case BPF_JMP | BPF_JEQ | BPF_X:
++			ctx->flags |= SEEN_X;
++			/* pc += ( A == X ) ? pc->jt : pc->jf */
++			condt = MIPS_COND_EQ | MIPS_COND_X;
++			goto jmp_cmp;
++		case BPF_JMP | BPF_JGE | BPF_K:
++			/* pc += ( A >= K ) ? pc->jt : pc->jf */
++			condt = MIPS_COND_GE | MIPS_COND_K;
++			goto jmp_cmp;
++		case BPF_JMP | BPF_JGE | BPF_X:
++			ctx->flags |= SEEN_X;
++			/* pc += ( A >= X ) ? pc->jt : pc->jf */
++			condt = MIPS_COND_GE | MIPS_COND_X;
++			goto jmp_cmp;
++		case BPF_JMP | BPF_JGT | BPF_K:
++			/* pc += ( A > K ) ? pc->jt : pc->jf */
++			condt = MIPS_COND_GT | MIPS_COND_K;
++			goto jmp_cmp;
++		case BPF_JMP | BPF_JGT | BPF_X:
++			ctx->flags |= SEEN_X;
++			/* pc += ( A > X ) ? pc->jt : pc->jf */
++			condt = MIPS_COND_GT | MIPS_COND_X;
++jmp_cmp:
++			/* Greater or Equal */
++			if ((condt & MIPS_COND_GE) ||
++			    (condt & MIPS_COND_GT)) {
++				if (condt & MIPS_COND_K) { /* K */
++					ctx->flags |= SEEN_A;
++					emit_sltiu(r_s0, r_A, k, ctx);
++				} else { /* X */
++					ctx->flags |= SEEN_A |
++						SEEN_X;
++					emit_sltu(r_s0, r_A, r_X, ctx);
++				}
++				/* A < (K|X) ? r_scrach = 1 */
++				b_off = b_imm(i + inst->jf + 1, ctx);
++				emit_bcond(MIPS_COND_NE, r_s0, r_zero, b_off,
++					   ctx);
++				emit_nop(ctx);
++				/* A > (K|X) ? scratch = 0 */
++				if (condt & MIPS_COND_GT) {
++					/* Checking for equality */
++					ctx->flags |= SEEN_A | SEEN_X;
++					if (condt & MIPS_COND_K)
++						emit_load_imm(r_s0, k, ctx);
++					else
++						emit_jit_reg_move(r_s0, r_X,
++								  ctx);
++					b_off = b_imm(i + inst->jf + 1, ctx);
++					emit_bcond(MIPS_COND_EQ, r_A, r_s0,
++						   b_off, ctx);
++					emit_nop(ctx);
++					/* Finally, A > K|X */
++					b_off = b_imm(i + inst->jt + 1, ctx);
++					emit_b(b_off, ctx);
++					emit_nop(ctx);
++				} else {
++					/* A >= (K|X) so jump */
++					b_off = b_imm(i + inst->jt + 1, ctx);
++					emit_b(b_off, ctx);
++					emit_nop(ctx);
++				}
++			} else {
++				/* A == K|X */
++				if (condt & MIPS_COND_K) { /* K */
++					ctx->flags |= SEEN_A;
++					emit_load_imm(r_s0, k, ctx);
++					/* jump true */
++					b_off = b_imm(i + inst->jt + 1, ctx);
++					emit_bcond(MIPS_COND_EQ, r_A, r_s0,
++						   b_off, ctx);
++					emit_nop(ctx);
++					/* jump false */
++					b_off = b_imm(i + inst->jf + 1,
++						      ctx);
++					emit_bcond(MIPS_COND_NE, r_A, r_s0,
++						   b_off, ctx);
++					emit_nop(ctx);
++				} else { /* X */
++					/* jump true */
++					ctx->flags |= SEEN_A | SEEN_X;
++					b_off = b_imm(i + inst->jt + 1,
++						      ctx);
++					emit_bcond(MIPS_COND_EQ, r_A, r_X,
++						   b_off, ctx);
++					emit_nop(ctx);
++					/* jump false */
++					b_off = b_imm(i + inst->jf + 1, ctx);
++					emit_bcond(MIPS_COND_NE, r_A, r_X,
++						   b_off, ctx);
++					emit_nop(ctx);
++				}
++			}
++			break;
++		case BPF_JMP | BPF_JSET | BPF_K:
++			ctx->flags |= SEEN_A;
++			/* pc += (A & K) ? pc -> jt : pc -> jf */
++			emit_load_imm(r_s1, k, ctx);
++			emit_and(r_s0, r_A, r_s1, ctx);
++			/* jump true */
++			b_off = b_imm(i + inst->jt + 1, ctx);
++			emit_bcond(MIPS_COND_NE, r_s0, r_zero, b_off, ctx);
++			emit_nop(ctx);
++			/* jump false */
++			b_off = b_imm(i + inst->jf + 1, ctx);
++			emit_b(b_off, ctx);
++			emit_nop(ctx);
++			break;
++		case BPF_JMP | BPF_JSET | BPF_X:
++			ctx->flags |= SEEN_X | SEEN_A;
++			/* pc += (A & X) ? pc -> jt : pc -> jf */
++			emit_and(r_s0, r_A, r_X, ctx);
++			/* jump true */
++			b_off = b_imm(i + inst->jt + 1, ctx);
++			emit_bcond(MIPS_COND_NE, r_s0, r_zero, b_off, ctx);
++			emit_nop(ctx);
++			/* jump false */
++			b_off = b_imm(i + inst->jf + 1, ctx);
++			emit_b(b_off, ctx);
++			emit_nop(ctx);
++			break;
++		case BPF_RET | BPF_A:
++			ctx->flags |= SEEN_A;
++			if (i != prog->len - 1)
++				/*
++				 * If this is not the last instruction
++				 * then jump to the epilogue
++				 */
++				emit_b(b_imm(prog->len, ctx), ctx);
++			emit_reg_move(r_ret, r_A, ctx); /* delay slot */
++			break;
++		case BPF_RET | BPF_K:
++			/*
++			 * It can emit two instructions so it does not fit on
++			 * the delay slot.
++			 */
++			emit_load_imm(r_ret, k, ctx);
++			if (i != prog->len - 1) {
++				/*
++				 * If this is not the last instruction
++				 * then jump to the epilogue
++				 */
++				emit_b(b_imm(prog->len, ctx), ctx);
++				emit_nop(ctx);
++			}
++			break;
++		case BPF_MISC | BPF_TAX:
++			/* X = A */
++			ctx->flags |= SEEN_X | SEEN_A;
++			emit_jit_reg_move(r_X, r_A, ctx);
++			break;
++		case BPF_MISC | BPF_TXA:
++			/* A = X */
++			ctx->flags |= SEEN_A | SEEN_X;
++			emit_jit_reg_move(r_A, r_X, ctx);
++			break;
++		/* AUX */
++		case BPF_ANC | SKF_AD_PROTOCOL:
++			/* A = ntohs(skb->protocol */
++			ctx->flags |= SEEN_SKB | SEEN_OFF | SEEN_A;
++			BUILD_BUG_ON(FIELD_SIZEOF(struct sk_buff,
++						  protocol) != 2);
++			off = offsetof(struct sk_buff, protocol);
++			emit_half_load(r_A, r_skb, off, ctx);
++#ifdef CONFIG_CPU_LITTLE_ENDIAN
++			/* This needs little endian fixup */
++			if (cpu_has_wsbh) {
++				/* R2 and later have the wsbh instruction */
++				emit_wsbh(r_A, r_A, ctx);
++			} else {
++				/* Get first byte */
++				emit_andi(r_tmp_imm, r_A, 0xff, ctx);
++				/* Shift it */
++				emit_sll(r_tmp, r_tmp_imm, 8, ctx);
++				/* Get second byte */
++				emit_srl(r_tmp_imm, r_A, 8, ctx);
++				emit_andi(r_tmp_imm, r_tmp_imm, 0xff, ctx);
++				/* Put everyting together in r_A */
++				emit_or(r_A, r_tmp, r_tmp_imm, ctx);
++			}
++#endif
++			break;
++		case BPF_ANC | SKF_AD_CPU:
++			ctx->flags |= SEEN_A | SEEN_OFF;
++			/* A = current_thread_info()->cpu */
++			BUILD_BUG_ON(FIELD_SIZEOF(struct thread_info,
++						  cpu) != 4);
++			off = offsetof(struct thread_info, cpu);
++			/* $28/gp points to the thread_info struct */
++			emit_load(r_A, 28, off, ctx);
++			break;
++		case BPF_ANC | SKF_AD_IFINDEX:
++			/* A = skb->dev->ifindex */
++		case BPF_ANC | SKF_AD_HATYPE:
++			/* A = skb->dev->type */
++			ctx->flags |= SEEN_SKB | SEEN_A;
++			off = offsetof(struct sk_buff, dev);
++			/* Load *dev pointer */
++			emit_load_ptr(r_s0, r_skb, off, ctx);
++			/* error (0) in the delay slot */
++			emit_bcond(MIPS_COND_EQ, r_s0, r_zero,
++				   b_imm(prog->len, ctx), ctx);
++			emit_reg_move(r_ret, r_zero, ctx);
++			if (code == (BPF_ANC | SKF_AD_IFINDEX)) {
++				BUILD_BUG_ON(FIELD_SIZEOF(struct net_device, ifindex) != 4);
++				off = offsetof(struct net_device, ifindex);
++				emit_load(r_A, r_s0, off, ctx);
++			} else { /* (code == (BPF_ANC | SKF_AD_HATYPE) */
++				BUILD_BUG_ON(FIELD_SIZEOF(struct net_device, type) != 2);
++				off = offsetof(struct net_device, type);
++				emit_half_load_unsigned(r_A, r_s0, off, ctx);
++			}
++			break;
++		case BPF_ANC | SKF_AD_MARK:
++			ctx->flags |= SEEN_SKB | SEEN_A;
++			BUILD_BUG_ON(FIELD_SIZEOF(struct sk_buff, mark) != 4);
++			off = offsetof(struct sk_buff, mark);
++			emit_load(r_A, r_skb, off, ctx);
++			break;
++		case BPF_ANC | SKF_AD_RXHASH:
++			ctx->flags |= SEEN_SKB | SEEN_A;
++			BUILD_BUG_ON(FIELD_SIZEOF(struct sk_buff, hash) != 4);
++			off = offsetof(struct sk_buff, hash);
++			emit_load(r_A, r_skb, off, ctx);
++			break;
++		case BPF_ANC | SKF_AD_VLAN_TAG:
++			ctx->flags |= SEEN_SKB | SEEN_A;
++			BUILD_BUG_ON(FIELD_SIZEOF(struct sk_buff,
++						  vlan_tci) != 2);
++			off = offsetof(struct sk_buff, vlan_tci);
++			emit_half_load_unsigned(r_A, r_skb, off, ctx);
++			break;
++		case BPF_ANC | SKF_AD_VLAN_TAG_PRESENT:
++			ctx->flags |= SEEN_SKB | SEEN_A;
++			emit_load_byte(r_A, r_skb, PKT_VLAN_PRESENT_OFFSET(), ctx);
++			if (PKT_VLAN_PRESENT_BIT)
++				emit_srl(r_A, r_A, PKT_VLAN_PRESENT_BIT, ctx);
++			if (PKT_VLAN_PRESENT_BIT < 7)
++				emit_andi(r_A, r_A, 1, ctx);
++			break;
++		case BPF_ANC | SKF_AD_PKTTYPE:
++			ctx->flags |= SEEN_SKB;
++
++			emit_load_byte(r_tmp, r_skb, PKT_TYPE_OFFSET(), ctx);
++			/* Keep only the last 3 bits */
++			emit_andi(r_A, r_tmp, PKT_TYPE_MAX, ctx);
++#ifdef __BIG_ENDIAN_BITFIELD
++			/* Get the actual packet type to the lower 3 bits */
++			emit_srl(r_A, r_A, 5, ctx);
++#endif
++			break;
++		case BPF_ANC | SKF_AD_QUEUE:
++			ctx->flags |= SEEN_SKB | SEEN_A;
++			BUILD_BUG_ON(FIELD_SIZEOF(struct sk_buff,
++						  queue_mapping) != 2);
++			BUILD_BUG_ON(offsetof(struct sk_buff,
++					      queue_mapping) > 0xff);
++			off = offsetof(struct sk_buff, queue_mapping);
++			emit_half_load_unsigned(r_A, r_skb, off, ctx);
++			break;
++		default:
++			pr_debug("%s: Unhandled opcode: 0x%02x\n", __FILE__,
++				 inst->code);
++			return -1;
++		}
++	}
++
++	/* compute offsets only during the first pass */
++	if (ctx->target == NULL)
++		ctx->offsets[i] = ctx->idx * 4;
++
++	return 0;
++}
++
++void bpf_jit_compile(struct bpf_prog *fp)
++{
++	struct jit_ctx ctx;
++	unsigned int alloc_size, tmp_idx;
++
++	if (!bpf_jit_enable)
++		return;
++
++	memset(&ctx, 0, sizeof(ctx));
++
++	ctx.offsets = kcalloc(fp->len + 1, sizeof(*ctx.offsets), GFP_KERNEL);
++	if (ctx.offsets == NULL)
++		return;
++
++	ctx.skf = fp;
++
++	if (build_body(&ctx))
++		goto out;
++
++	tmp_idx = ctx.idx;
++	build_prologue(&ctx);
++	ctx.prologue_bytes = (ctx.idx - tmp_idx) * 4;
++	/* just to complete the ctx.idx count */
++	build_epilogue(&ctx);
++
++	alloc_size = 4 * ctx.idx;
++	ctx.target = module_alloc(alloc_size);
++	if (ctx.target == NULL)
++		goto out;
++
++	/* Clean it */
++	memset(ctx.target, 0, alloc_size);
++
++	ctx.idx = 0;
++
++	/* Generate the actual JIT code */
++	build_prologue(&ctx);
++	build_body(&ctx);
++	build_epilogue(&ctx);
++
++	/* Update the icache */
++	flush_icache_range((ptr)ctx.target, (ptr)(ctx.target + ctx.idx));
++
++	if (bpf_jit_enable > 1)
++		/* Dump JIT code */
++		bpf_jit_dump(fp->len, alloc_size, 2, ctx.target);
++
++	fp->bpf_func = (void *)ctx.target;
++	fp->jited = 1;
++
++out:
++	kfree(ctx.offsets);
++}
++
++void bpf_jit_free(struct bpf_prog *fp)
++{
++	if (fp->jited)
++		module_memfree(fp->bpf_func);
++
++	bpf_prog_unlock_free(fp);
++}
+diff --git a/arch/mips/net/bpf_jit_asm.S b/arch/mips/net/bpf_jit_asm.S
+new file mode 100644
+index 000000000000..57154c5883b6
+--- /dev/null
++++ b/arch/mips/net/bpf_jit_asm.S
+@@ -0,0 +1,285 @@
++/*
++ * bpf_jib_asm.S: Packet/header access helper functions for MIPS/MIPS64 BPF
++ * compiler.
++ *
++ * Copyright (C) 2015 Imagination Technologies Ltd.
++ * Author: Markos Chandras <markos.chandras@imgtec.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; version 2 of the License.
++ */
++
++#include <asm/asm.h>
++#include <asm/isa-rev.h>
++#include <asm/regdef.h>
++#include "bpf_jit.h"
++
++/* ABI
++ *
++ * r_skb_hl	skb header length
++ * r_skb_data	skb data
++ * r_off(a1)	offset register
++ * r_A		BPF register A
++ * r_X		PF register X
++ * r_skb(a0)	*skb
++ * r_M		*scratch memory
++ * r_skb_le	skb length
++ * r_s0		Scratch register 0
++ * r_s1		Scratch register 1
++ *
++ * On entry:
++ * a0: *skb
++ * a1: offset (imm or imm + X)
++ *
++ * All non-BPF-ABI registers are free for use. On return, we only
++ * care about r_ret. The BPF-ABI registers are assumed to remain
++ * unmodified during the entire filter operation.
++ */
++
++#define skb	a0
++#define offset	a1
++#define SKF_LL_OFF  (-0x200000) /* Can't include linux/filter.h in assembly */
++
++	/* We know better :) so prevent assembler reordering etc */
++	.set 	noreorder
++
++#define is_offset_negative(TYPE)				\
++	/* If offset is negative we have more work to do */	\
++	slti	t0, offset, 0;					\
++	bgtz	t0, bpf_slow_path_##TYPE##_neg;			\
++	/* Be careful what follows in DS. */
++
++#define is_offset_in_header(SIZE, TYPE)				\
++	/* Reading from header? */				\
++	addiu	$r_s0, $r_skb_hl, -SIZE;			\
++	slt	t0, $r_s0, offset;				\
++	bgtz	t0, bpf_slow_path_##TYPE;			\
++
++LEAF(sk_load_word)
++	is_offset_negative(word)
++FEXPORT(sk_load_word_positive)
++	is_offset_in_header(4, word)
++	/* Offset within header boundaries */
++	PTR_ADDU t1, $r_skb_data, offset
++	.set	reorder
++	lw	$r_A, 0(t1)
++	.set	noreorder
++#ifdef CONFIG_CPU_LITTLE_ENDIAN
++# if MIPS_ISA_REV >= 2
++	wsbh	t0, $r_A
++	rotr	$r_A, t0, 16
++# else
++	sll	t0, $r_A, 24
++	srl	t1, $r_A, 24
++	srl	t2, $r_A, 8
++	or	t0, t0, t1
++	andi	t2, t2, 0xff00
++	andi	t1, $r_A, 0xff00
++	or	t0, t0, t2
++	sll	t1, t1, 8
++	or	$r_A, t0, t1
++# endif
++#endif
++	jr	$r_ra
++	 move	$r_ret, zero
++	END(sk_load_word)
++
++LEAF(sk_load_half)
++	is_offset_negative(half)
++FEXPORT(sk_load_half_positive)
++	is_offset_in_header(2, half)
++	/* Offset within header boundaries */
++	PTR_ADDU t1, $r_skb_data, offset
++	lhu	$r_A, 0(t1)
++#ifdef CONFIG_CPU_LITTLE_ENDIAN
++# if MIPS_ISA_REV >= 2
++	wsbh	$r_A, $r_A
++# else
++	sll	t0, $r_A, 8
++	srl	t1, $r_A, 8
++	andi	t0, t0, 0xff00
++	or	$r_A, t0, t1
++# endif
++#endif
++	jr	$r_ra
++	 move	$r_ret, zero
++	END(sk_load_half)
++
++LEAF(sk_load_byte)
++	is_offset_negative(byte)
++FEXPORT(sk_load_byte_positive)
++	is_offset_in_header(1, byte)
++	/* Offset within header boundaries */
++	PTR_ADDU t1, $r_skb_data, offset
++	lbu	$r_A, 0(t1)
++	jr	$r_ra
++	 move	$r_ret, zero
++	END(sk_load_byte)
++
++/*
++ * call skb_copy_bits:
++ * (prototype in linux/skbuff.h)
++ *
++ * int skb_copy_bits(sk_buff *skb, int offset, void *to, int len)
++ *
++ * o32 mandates we leave 4 spaces for argument registers in case
++ * the callee needs to use them. Even though we don't care about
++ * the argument registers ourselves, we need to allocate that space
++ * to remain ABI compliant since the callee may want to use that space.
++ * We also allocate 2 more spaces for $r_ra and our return register (*to).
++ *
++ * n64 is a bit different. The *caller* will allocate the space to preserve
++ * the arguments. So in 64-bit kernels, we allocate the 4-arg space for no
++ * good reason but it does not matter that much really.
++ *
++ * (void *to) is returned in r_s0
++ *
++ */
++#ifdef CONFIG_CPU_LITTLE_ENDIAN
++#define DS_OFFSET(SIZE) (4 * SZREG)
++#else
++#define DS_OFFSET(SIZE) ((4 * SZREG) + (4 - SIZE))
++#endif
++#define bpf_slow_path_common(SIZE)				\
++	/* Quick check. Are we within reasonable boundaries? */ \
++	LONG_ADDIU	$r_s1, $r_skb_len, -SIZE;		\
++	sltu		$r_s0, offset, $r_s1;			\
++	beqz		$r_s0, fault;				\
++	/* Load 4th argument in DS */				\
++	 LONG_ADDIU	a3, zero, SIZE;				\
++	PTR_ADDIU	$r_sp, $r_sp, -(6 * SZREG);		\
++	PTR_LA		t0, skb_copy_bits;			\
++	PTR_S		$r_ra, (5 * SZREG)($r_sp);		\
++	/* Assign low slot to a2 */				\
++	PTR_ADDIU	a2, $r_sp, DS_OFFSET(SIZE);		\
++	jalr		t0;					\
++	/* Reset our destination slot (DS but it's ok) */	\
++	 INT_S		zero, (4 * SZREG)($r_sp);		\
++	/*							\
++	 * skb_copy_bits returns 0 on success and -EFAULT	\
++	 * on error. Our data live in a2. Do not bother with	\
++	 * our data if an error has been returned.		\
++	 */							\
++	/* Restore our frame */					\
++	PTR_L		$r_ra, (5 * SZREG)($r_sp);		\
++	INT_L		$r_s0, (4 * SZREG)($r_sp);		\
++	bltz		v0, fault;				\
++	 PTR_ADDIU	$r_sp, $r_sp, 6 * SZREG;		\
++	move		$r_ret, zero;				\
++
++NESTED(bpf_slow_path_word, (6 * SZREG), $r_sp)
++	bpf_slow_path_common(4)
++#ifdef CONFIG_CPU_LITTLE_ENDIAN
++# if MIPS_ISA_REV >= 2
++	wsbh	t0, $r_s0
++	jr	$r_ra
++	 rotr	$r_A, t0, 16
++# else
++	sll	t0, $r_s0, 24
++	srl	t1, $r_s0, 24
++	srl	t2, $r_s0, 8
++	or	t0, t0, t1
++	andi	t2, t2, 0xff00
++	andi	t1, $r_s0, 0xff00
++	or	t0, t0, t2
++	sll	t1, t1, 8
++	jr	$r_ra
++	 or	$r_A, t0, t1
++# endif
++#else
++	jr	$r_ra
++	 move	$r_A, $r_s0
++#endif
++
++	END(bpf_slow_path_word)
++
++NESTED(bpf_slow_path_half, (6 * SZREG), $r_sp)
++	bpf_slow_path_common(2)
++#ifdef CONFIG_CPU_LITTLE_ENDIAN
++# if MIPS_ISA_REV >= 2
++	jr	$r_ra
++	 wsbh	$r_A, $r_s0
++# else
++	sll	t0, $r_s0, 8
++	andi	t1, $r_s0, 0xff00
++	andi	t0, t0, 0xff00
++	srl	t1, t1, 8
++	jr	$r_ra
++	 or	$r_A, t0, t1
++# endif
++#else
++	jr	$r_ra
++	 move	$r_A, $r_s0
++#endif
++
++	END(bpf_slow_path_half)
++
++NESTED(bpf_slow_path_byte, (6 * SZREG), $r_sp)
++	bpf_slow_path_common(1)
++	jr	$r_ra
++	 move	$r_A, $r_s0
++
++	END(bpf_slow_path_byte)
++
++/*
++ * Negative entry points
++ */
++	.macro bpf_is_end_of_data
++	li	t0, SKF_LL_OFF
++	/* Reading link layer data? */
++	slt	t1, offset, t0
++	bgtz	t1, fault
++	/* Be careful what follows in DS. */
++	.endm
++/*
++ * call skb_copy_bits:
++ * (prototype in linux/filter.h)
++ *
++ * void *bpf_internal_load_pointer_neg_helper(const struct sk_buff *skb,
++ *                                            int k, unsigned int size)
++ *
++ * see above (bpf_slow_path_common) for ABI restrictions
++ */
++#define bpf_negative_common(SIZE)					\
++	PTR_ADDIU	$r_sp, $r_sp, -(6 * SZREG);			\
++	PTR_LA		t0, bpf_internal_load_pointer_neg_helper;	\
++	PTR_S		$r_ra, (5 * SZREG)($r_sp);			\
++	jalr		t0;						\
++	 li		a2, SIZE;					\
++	PTR_L		$r_ra, (5 * SZREG)($r_sp);			\
++	/* Check return pointer */					\
++	beqz		v0, fault;					\
++	 PTR_ADDIU	$r_sp, $r_sp, 6 * SZREG;			\
++	/* Preserve our pointer */					\
++	move		$r_s0, v0;					\
++	/* Set return value */						\
++	move		$r_ret, zero;					\
++
++bpf_slow_path_word_neg:
++	bpf_is_end_of_data
++NESTED(sk_load_word_negative, (6 * SZREG), $r_sp)
++	bpf_negative_common(4)
++	jr	$r_ra
++	 lw	$r_A, 0($r_s0)
++	END(sk_load_word_negative)
++
++bpf_slow_path_half_neg:
++	bpf_is_end_of_data
++NESTED(sk_load_half_negative, (6 * SZREG), $r_sp)
++	bpf_negative_common(2)
++	jr	$r_ra
++	 lhu	$r_A, 0($r_s0)
++	END(sk_load_half_negative)
++
++bpf_slow_path_byte_neg:
++	bpf_is_end_of_data
++NESTED(sk_load_byte_negative, (6 * SZREG), $r_sp)
++	bpf_negative_common(1)
++	jr	$r_ra
++	 lbu	$r_A, 0($r_s0)
++	END(sk_load_byte_negative)
++
++fault:
++	jr	$r_ra
++	 addiu $r_ret, zero, 1
 -- 
 2.25.1
 
