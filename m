@@ -2,228 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50E2A427192
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 21:51:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BC6E4271B8
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 22:02:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241363AbhJHTw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 15:52:57 -0400
-Received: from alexa-out.qualcomm.com ([129.46.98.28]:54320 "EHLO
-        alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231408AbhJHTw5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Oct 2021 15:52:57 -0400
+        id S231547AbhJHUEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 16:04:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39588 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231408AbhJHUEB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Oct 2021 16:04:01 -0400
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A003C061570
+        for <stable@vger.kernel.org>; Fri,  8 Oct 2021 13:02:05 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id 21so643556plo.13
+        for <stable@vger.kernel.org>; Fri, 08 Oct 2021 13:02:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
-  t=1633722662; x=1665258662;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=TfJzDczDAE0HOweQRmNVvT5eqdVnnTs5zABgaUQ6+n0=;
-  b=EXUSgP0vieUa32aj8Jqmo2cZSlSGHLiQC8xnqOkdAt2lc/UMtf/aLWbg
-   52IKBjd6pf9LCILCoVA8DX9G/HpXLWwH8UgiswZ8np3EaRePiDlg1Pz4s
-   W0aDg9EM4WGCl1gN6zYDJFvEf1aToUybFdtP8qUVjc3lFxpUXp3MRyEre
-   U=;
-Received: from ironmsg08-lv.qualcomm.com ([10.47.202.152])
-  by alexa-out.qualcomm.com with ESMTP; 08 Oct 2021 12:51:01 -0700
-X-QCInternal: smtphost
-Received: from nalasex01a.na.qualcomm.com ([10.47.209.196])
-  by ironmsg08-lv.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Oct 2021 12:51:00 -0700
-Received: from [10.47.233.232] (10.49.16.6) by nalasex01a.na.qualcomm.com
- (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.922.7; Fri, 8 Oct 2021
- 12:51:00 -0700
-Subject: Re: [PATCH v2] thermal: Fix a NULL pointer dereference
-To:     Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Amit Kucheria <amitk@kernel.org>
-CC:     <linux-pm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        David Collins <quic_collinsd@quicinc.com>,
-        Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>,
-        Ram Chandrasekar <rkumbako@codeaurora.org>,
-        <stable@vger.kernel.org>
-References: <1631041289-11804-1-git-send-email-quic_subbaram@quicinc.com>
- <003252f2-510f-e9ea-0032-6034f26aad11@linaro.org>
-From:   Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>
-Message-ID: <16af9946-b662-0bbf-206f-278b7ef98123@quicinc.com>
-Date:   Fri, 8 Oct 2021 12:50:59 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <003252f2-510f-e9ea-0032-6034f26aad11@linaro.org>
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=g9chUJ28i5eywEjmHptUtEinldN+RoLA+OeT4kIGAHo=;
+        b=PT02VT1BhINEN6CbnPJt7UjZLhAxBfX/LjGCkyyehTKIFW0zETpqKgrQH7PokFKLrx
+         iUCwZCzRIktAN9pwCNSsppKIu4v6/Fxlppn+Od7PB/0swelGNMFKOql2rMKw3U/od7m0
+         K1QvEEe833j7VTrch8LvLx8d4K0RHRvGbvCxPIHtLgo3TfxYyPg6SI1YSto6O1q+8p1x
+         U+cCC7bkL0V5DVbumHC/Fc7AcQzpm/5YBgGV04xfo56xApDXkVtmCTXlvojMs88LNtij
+         GNwSCAV+ehaQttPZM7JI1boyP56blYQ1cVGdEKRk95xwXWqS4dLioQ8y76mDLFkb8ITN
+         NuJQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=g9chUJ28i5eywEjmHptUtEinldN+RoLA+OeT4kIGAHo=;
+        b=dL6tve9OB80qdalpvVujTgsX5sEczFaSlg7UaLiQBML1eHGqzK1hHvB3pHYDGMgXj+
+         EYmwe5rrQ1PsThmeur3vbej5xQpF1VRa0NJN2FvCu5ZSo1xIdJhI5O9no63IXPwJzsBd
+         9R9EjPEJ4yBoMx+sw55NWLPsbYGEc72VZH1KEzKn4XZ8QjUEk7DR+vo2AbK2loRn9wYp
+         6Rle40Hm1fxb0WRh/iNybc3XpNr/Re3/MoqXsx7kAyacyU2iyvFeJRl4TDMWyf53xo9H
+         TxYwMnj3pFZZW5oTJtnI/mc5vRrAihpxS6X9y9+wZm96a8xO3Oq0q8phUKUx4D9OFxFs
+         makA==
+X-Gm-Message-State: AOAM531PuDihHVljcldsxNH0lWXyNpev+D34VGYeieshqhhoSGtf86k6
+        cQJrnQMh2BmROBR1YDrG5dr5QVo8OUcl7Hd0
+X-Google-Smtp-Source: ABdhPJz/Jc4o1ogFJ03hl1CEKa0WHKxmjjNlQ2C+ewPOXwF45/JrVhOfypNRFev+lYlPLpiKRmO1Ug==
+X-Received: by 2002:a17:90a:bb13:: with SMTP id u19mr14536064pjr.42.1633723324539;
+        Fri, 08 Oct 2021 13:02:04 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id v2sm86194pje.15.2021.10.08.13.02.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 08 Oct 2021 13:02:04 -0700 (PDT)
+Message-ID: <6160a3bc.1c69fb81.9ce52.05f2@mx.google.com>
+Date:   Fri, 08 Oct 2021 13:02:04 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Originating-IP: [10.49.16.6]
-X-ClientProxiedBy: nalasex01c.na.qualcomm.com (10.47.97.35) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.14.10-49-g24e85a19693f
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.14.y
+Subject: stable-rc/linux-5.14.y baseline: 119 runs,
+ 2 regressions (v5.14.10-49-g24e85a19693f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/6/21 4:08 AM, Daniel Lezcano wrote:
-> On 07/09/2021 21:01, Subbaraman Narayanamurthy wrote:
->> of_parse_thermal_zones() parses the thermal-zones node and registers a
->> thermal_zone device for each subnode. However, if a thermal zone is
->> consuming a thermal sensor and that thermal sensor device hasn't probed
->> yet, an attempt to set trip_point_*_temp for that thermal zone device
->> can cause a NULL pointer dereference. Fix it.
->>
->>  console:/sys/class/thermal/thermal_zone87 # echo 120000 > trip_point_0_temp
->>  ...
->>  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000020
-> I'm still not convinced by the changes.
->
-> Could please tell the commit-id where this is happening and give the
-> procedure to reproduce the bug ?
->
+stable-rc/linux-5.14.y baseline: 119 runs, 2 regressions (v5.14.10-49-g24e8=
+5a19693f)
 
-Here is the commit id where this problem was reported.
-https://android.googlesource.com/kernel/common/+/997d24a932a9b6e2040f39a8dd76e873e6519a1c
+Regressions Summary
+-------------------
 
-BTW, this problem was not 100% reproducible but seems to be a race condition when vendor modules are loaded and thermal HAL or userspace thermal SW is attempting to set trip points on one of the thermal zones and that sensor driver supplying that thermal zone have not completed probing.
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig  | 1       =
+   =
 
-I was able to reproduce the problem manually by disabling the pmk8350_adc_tm device in device tree which supplies to some thermal zone devices (e.g. xo-therm below).
+beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1       =
+   =
 
-pmk8350_adc_tm: adc_tm@3400 {                                  
-    compatible = "qcom,adc-tm7";                           
-    reg = <0x3400>;                                        
-    interrupts = <0x0 0x34 0x0 IRQ_TYPE_EDGE_RISING>;         
-    interrupt-names = "threshold";                         
-    #address-cells = <1>;                                  
-    #size-cells = <0>;                                     
-    #thermal-sensor-cells = <1>;                           
-    status = "disabled"; /* This is what I've added to simulate the problem */                                  
-};
 
-&thermal_zones {
-...
-        xo-therm {                                                             
-                polling-delay-passive = <0>;                                   
-                polling-delay = <0>;                                           
-                thermal-sensors = <&pmk8350_adc_tm PMK8350_ADC7_AMUX_THM1_100K_PU>;
-                trips {
-                    ...
-                };
-};
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.14.y/ker=
+nel/v5.14.10-49-g24e85a19693f/plan/baseline/
 
-With this and reverting my change (which got picked up in internal tree), I can see this.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.14.y
+  Describe: v5.14.10-49-g24e85a19693f
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      24e85a19693f1f7231d0187f165cb4dcbaa95125 =
 
-/sys/class/thermal # cat thermal_zone87/type                                   
-xo-therm
-                                                                       
-/sys/class/thermal # cd thermal_zone87                                         
-/sys/devices/virtual/thermal/thermal_zone87 # ls                               
-available_policies  cdev5_trip_point  mode               trip_point_4_hyst        
-cdev0               cdev5_weight      offset             trip_point_4_temp        
-cdev0_trip_point    cdev6             policy             trip_point_4_type        
-cdev0_weight        cdev6_trip_point  power              trip_point_5_hyst        
-cdev1               cdev6_weight      slope              trip_point_5_temp        
-cdev10              cdev7             subsystem          trip_point_5_type        
-cdev10_trip_point   cdev7_trip_point  sustainable_power  trip_point_6_hyst        
-cdev10_weight       cdev7_weight      temp               trip_point_6_temp        
-cdev1_trip_point    cdev8             trip_point_0_hyst  trip_point_6_type        
-cdev1_weight        cdev8_trip_point  trip_point_0_temp  trip_point_7_hyst        
-cdev2               cdev8_weight      trip_point_0_type  trip_point_7_temp        
-cdev2_trip_point    cdev9             trip_point_1_hyst  trip_point_7_type        
-cdev2_weight        cdev9_trip_point  trip_point_1_temp  trip_point_8_hyst        
-cdev3               cdev9_weight      trip_point_1_type  trip_point_8_temp        
-cdev3_trip_point    emul_temp         trip_point_2_hyst  trip_point_8_type        
-cdev3_weight        integral_cutoff   trip_point_2_temp  type                  
-cdev4               k_d               trip_point_2_type  uevent                
-cdev4_trip_point    k_i               trip_point_3_hyst                        
-cdev4_weight        k_po              trip_point_3_temp                        
-cdev5               k_pu              trip_point_3_type
-                        
-/sys/devices/virtual/thermal/thermal_zone87 # cat trip_point_0_temp            
-125000                                                                         
 
-/sys/devices/virtual/thermal/thermal_zone87 # echo 120000 > trip_point_0_temp  
-[  184.290964][  T211] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000020
-[  184.300896][  T211] Mem abort info:                                         
-[  184.304486][  T211]   ESR = 0x96000006                                      
-[  184.308348][  T211]   EC = 0x25: DABT (current EL), IL = 32 bits            
-[  184.314531][  T211]   SET = 0, FnV = 0                                      
-[  184.318384][  T211]   EA = 0, S1PTW = 0                                     
-[  184.322323][  T211] Data abort info:                                        
-[  184.325993][  T211]   ISV = 0, ISS = 0x00000006                             
-[  184.330655][  T211]   CM = 0, WnR = 0                                       
-[  184.334425][  T211] user pgtable: 4k pages, 39-bit VAs, pgdp=000000081a7a2000
-[  184.341750][  T211] [0000000000000020] pgd=000000081a7a7003, p4d=000000081a7a7003, pud=000000081a7a7003, pmd=0000000000000000
-[  184.353359][  T211] Internal error: Oops: 96000006 [#1] PREEMPT SMP         
-[  184.359797][  T211] Dumping ftrace buffer:                                  
-[  184.364001][  T211]    (ftrace buffer empty)
 
-Hope this helps.
+Test Regressions
+---------------- =
 
->>  ...
->>  Call trace:
->>   of_thermal_set_trip_temp+0x40/0xc4
->>   trip_point_temp_store+0xc0/0x1dc
->>   dev_attr_store+0x38/0x88
->>   sysfs_kf_write+0x64/0xc0
->>   kernfs_fop_write_iter+0x108/0x1d0
->>   vfs_write+0x2f4/0x368
->>   ksys_write+0x7c/0xec
->>   __arm64_sys_write+0x20/0x30
->>   el0_svc_common.llvm.7279915941325364641+0xbc/0x1bc
->>   do_el0_svc+0x28/0xa0
->>   el0_svc+0x14/0x24
->>   el0_sync_handler+0x88/0xec
->>   el0_sync+0x1c0/0x200
->>
->> While at it, fix the possible NULL pointer dereference in other
->> functions as well: of_thermal_get_temp(), of_thermal_set_emul_temp(),
->> of_thermal_get_trend().
->>
->> Cc: stable@vger.kernel.org
->> Suggested-by: David Collins <quic_collinsd@quicinc.com>
->> Signed-off-by: Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>
->> ---
->> Changes for v2:
->> - Added checks in of_thermal_get_temp(), of_thermal_set_emul_temp(), of_thermal_get_trend().
->>
->>  drivers/thermal/thermal_of.c | 9 ++++++---
->>  1 file changed, 6 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/thermal/thermal_of.c b/drivers/thermal/thermal_of.c
->> index 6379f26..9233f7e 100644
->> --- a/drivers/thermal/thermal_of.c
->> +++ b/drivers/thermal/thermal_of.c
->> @@ -89,7 +89,7 @@ static int of_thermal_get_temp(struct thermal_zone_device *tz,
->>  {
->>  	struct __thermal_zone *data = tz->devdata;
->>  
->> -	if (!data->ops->get_temp)
->> +	if (!data->ops || !data->ops->get_temp)
->>  		return -EINVAL;
->>  
->>  	return data->ops->get_temp(data->sensor_data, temp);
->> @@ -186,6 +186,9 @@ static int of_thermal_set_emul_temp(struct thermal_zone_device *tz,
->>  {
->>  	struct __thermal_zone *data = tz->devdata;
->>  
->> +	if (!data->ops || !data->ops->set_emul_temp)
->> +		return -EINVAL;
->> +
->>  	return data->ops->set_emul_temp(data->sensor_data, temp);
->>  }
->>  
->> @@ -194,7 +197,7 @@ static int of_thermal_get_trend(struct thermal_zone_device *tz, int trip,
->>  {
->>  	struct __thermal_zone *data = tz->devdata;
->>  
->> -	if (!data->ops->get_trend)
->> +	if (!data->ops || !data->ops->get_trend)
->>  		return -EINVAL;
->>  
->>  	return data->ops->get_trend(data->sensor_data, trip, trend);
->> @@ -301,7 +304,7 @@ static int of_thermal_set_trip_temp(struct thermal_zone_device *tz, int trip,
->>  	if (trip >= data->ntrips || trip < 0)
->>  		return -EDOM;
->>  
->> -	if (data->ops->set_trip_temp) {
->> +	if (data->ops && data->ops->set_trip_temp) {
->>  		int ret;
->>  
->>  		ret = data->ops->set_trip_temp(data->sensor_data, trip, temp);
->>
->
 
+
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig  | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/616073b15c626bfaa499a2da
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.1=
+0-49-g24e85a19693f/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagl=
+e-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.1=
+0-49-g24e85a19693f/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagl=
+e-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/616073b15c626bfaa499a=
+2db
+        new failure (last pass: v5.14.10) =
+
+ =
+
+
+
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/616070411299d15ea699a312
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.1=
+0-49-g24e85a19693f/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beag=
+le-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.1=
+0-49-g24e85a19693f/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beag=
+le-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/616070411299d15ea699a=
+313
+        failing since 1 day (last pass: v5.14.9-173-gd1d4d31a257c, first fa=
+il: v5.14.10) =
+
+ =20
