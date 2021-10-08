@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A181D42698A
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:37:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E657142695F
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:35:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241320AbhJHLjO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:39:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59432 "EHLO mail.kernel.org"
+        id S241880AbhJHLgY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:36:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242663AbhJHLgI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:36:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1216060FA0;
-        Fri,  8 Oct 2021 11:32:13 +0000 (UTC)
+        id S241171AbhJHLeU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:34:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6EA360F35;
+        Fri,  8 Oct 2021 11:31:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692734;
-        bh=W978VNnoBPO6sW63/1v4s7wCVz59IicxzMl2SC1THb0=;
+        s=korg; t=1633692704;
+        bh=tXM17ftZo6zb9iZvoXX/Qu2JrcVS4VAYlpj1pqVIu9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RnFEG2NoC3vFRNC7OqbBmosCXBhmX8TziNIq3VBgnDobwPlBElk7QR8Wl/k32vUS7
-         tC8KsWyjdGfn/AWeXwfoI29YfWRDeUc4O2+82MTkMlcIF+oUtI/IJG++rPaTldbpmp
-         IU43tDkmwu28rLN7IpSDzSi0T4EuNvQV7nkOwzOM=
+        b=n4cBvzb9WLwm/TpWpsagOrGpY3rQmvj3orXfYeOLP3566KpCBX9vHaPcCpTPViF3N
+         BeOij+yXp2tI6Vn9edEyDfv/N+7KTJt1rOdTVcH4LAEnR+XZz9eOlwOSDCS1gZQT6U
+         s44F5JJOCHAGZ6K9D8uug3+1L9fFQWdVgr0OGuhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ofir Bitton <obitton@habana.ai>,
-        Oded Gabbay <ogabbay@kernel.org>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        David Miller <davem@davemloft.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 20/48] habanalabs: fail collective wait when not supported
+Subject: [PATCH 5.10 09/29] sparc64: fix pci_iounmap() when CONFIG_PCI is not set
 Date:   Fri,  8 Oct 2021 13:27:56 +0200
-Message-Id: <20211008112720.693141759@linuxfoundation.org>
+Message-Id: <20211008112717.253387748@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112720.008415452@linuxfoundation.org>
-References: <20211008112720.008415452@linuxfoundation.org>
+In-Reply-To: <20211008112716.914501436@linuxfoundation.org>
+References: <20211008112716.914501436@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ofir Bitton <obitton@habana.ai>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit d09ff62c820b5950ab9958e77620a8498efe9386 ]
+[ Upstream commit d8b1e10a2b8efaf71d151aa756052fbf2f3b6d57 ]
 
-As collective wait operation is required only when NIC ports are
-available, we disable the option to submit a CS in case all the ports
-are disabled, which is the current situation in the upstream driver.
+Guenter reported [1] that the pci_iounmap() changes remain problematic,
+with sparc64 allnoconfig and tinyconfig still not building due to the
+header file changes and confusion with the arch-specific pci_iounmap()
+implementation.
 
-Signed-off-by: Ofir Bitton <obitton@habana.ai>
-Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+I'm pretty convinced that sparc should just use GENERIC_IOMAP instead of
+doing its own thing, since it turns out that the sparc64 version of
+pci_iounmap() is somewhat buggy (see [2]).  But in the meantime, this
+just fixes the build by avoiding the trivial re-definition of the empty
+case.
+
+Link: https://lore.kernel.org/lkml/20210920134424.GA346531@roeck-us.net/ [1]
+Link: https://lore.kernel.org/lkml/CAHk-=wgheheFx9myQyy5osh79BAazvmvYURAtub2gQtMvLrhqQ@mail.gmail.com/ [2]
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Cc: David Miller <davem@davemloft.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/common/command_submission.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/sparc/lib/iomap.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/misc/habanalabs/common/command_submission.c b/drivers/misc/habanalabs/common/command_submission.c
-index 80c60fb41bbc..d249101106de 100644
---- a/drivers/misc/habanalabs/common/command_submission.c
-+++ b/drivers/misc/habanalabs/common/command_submission.c
-@@ -1727,6 +1727,15 @@ static int cs_ioctl_signal_wait(struct hl_fpriv *hpriv, enum hl_cs_type cs_type,
- 			goto free_cs_chunk_array;
- 		}
+diff --git a/arch/sparc/lib/iomap.c b/arch/sparc/lib/iomap.c
+index c9da9f139694..f3a8cd491ce0 100644
+--- a/arch/sparc/lib/iomap.c
++++ b/arch/sparc/lib/iomap.c
+@@ -19,8 +19,10 @@ void ioport_unmap(void __iomem *addr)
+ EXPORT_SYMBOL(ioport_map);
+ EXPORT_SYMBOL(ioport_unmap);
  
-+		if (!hdev->nic_ports_mask) {
-+			atomic64_inc(&ctx->cs_counters.validation_drop_cnt);
-+			atomic64_inc(&cntr->validation_drop_cnt);
-+			dev_err(hdev->dev,
-+				"Collective operations not supported when NIC ports are disabled");
-+			rc = -EINVAL;
-+			goto free_cs_chunk_array;
-+		}
-+
- 		collective_engine_id = chunk->collective_engine_id;
- 	}
- 
++#ifdef CONFIG_PCI
+ void pci_iounmap(struct pci_dev *dev, void __iomem * addr)
+ {
+ 	/* nothing to do */
+ }
+ EXPORT_SYMBOL(pci_iounmap);
++#endif
 -- 
 2.33.0
 
