@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 278FF4268E3
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:31:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C02E142695A
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:35:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240511AbhJHLcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:32:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58592 "EHLO mail.kernel.org"
+        id S241856AbhJHLgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:36:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240660AbhJHLbg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:31:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 152EC61029;
-        Fri,  8 Oct 2021 11:29:30 +0000 (UTC)
+        id S241274AbhJHLeH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:34:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A197461283;
+        Fri,  8 Oct 2021 11:31:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692571;
-        bh=pTt47VhSMgHL4Y6wUmlqptZk0U9hVMgQBIyORmmJ0I0=;
+        s=korg; t=1633692691;
+        bh=1BDI3ZVdJ/s08tnw6uvuhb79UtVnXik7lPZ9T5LzB1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ebblc5fP8t9PQ9zzyYBAM1lqsIJ5GfD8zTcoT/rEUU7glqzVKfbCOMNZerAdb5msU
-         L/ZwY81B2JRSG5vYX+yagsjksNMZyxMWcJcgvaneLeWQXMWRRIRcjeMEXMmvBTOMKM
-         XXcGD/VUFoaD6odBHr/rm9Ml9JqqcBpfJtd0qXos=
+        b=ROt3RofDPjiQjq8n71dRQZcGSDan/VDdBiagrVT2daBFuai1qm4ce+h5ADTvkFD/b
+         BVMiQg3N7zVazUCZXDM/2RNhtS/5GmTwdVRoh7sCPLI4Mv6x2YnJZnirLT7mV/m+O/
+         SXFVK5jh8Ja09M5awmlBP70V/TcGZsn+09bxRPUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kate Hsuan <hpa@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        =?UTF-8?q?Krzysztof=20Ol=C4=99dzki?= <ole@ans.pl>
-Subject: [PATCH 4.14 09/10] libata: Add ATA_HORKAGE_NO_NCQ_ON_ATI for Samsung 860 and 870 SSD.
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 03/29] platform/x86: touchscreen_dmi: Update info for the Chuwi Hi10 Plus (CWI527) tablet
 Date:   Fri,  8 Oct 2021 13:27:50 +0200
-Message-Id: <20211008112714.751595881@linuxfoundation.org>
+Message-Id: <20211008112717.040167258@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112714.445637990@linuxfoundation.org>
-References: <20211008112714.445637990@linuxfoundation.org>
+In-Reply-To: <20211008112716.914501436@linuxfoundation.org>
+References: <20211008112716.914501436@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,119 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kate Hsuan <hpa@redhat.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 7a8526a5cd51cf5f070310c6c37dd7293334ac49 upstream.
+[ Upstream commit 196159d278ae3b49e7bbb7c76822e6008fd89b97 ]
 
-Many users are reporting that the Samsung 860 and 870 SSD are having
-various issues when combined with AMD/ATI (vendor ID 0x1002)  SATA
-controllers and only completely disabling NCQ helps to avoid these
-issues.
+Add info for getting the firmware directly from the UEFI for the Chuwi Hi10
+Plus (CWI527), so that the user does not need to manually install the
+firmware in /lib/firmware/silead.
 
-Always disabling NCQ for Samsung 860/870 SSDs regardless of the host
-SATA adapter vendor will cause I/O performance degradation with well
-behaved adapters. To limit the performance impact to ATI adapters,
-introduce the ATA_HORKAGE_NO_NCQ_ON_ATI flag to force disable NCQ
-only for these adapters.
+This change will make the touchscreen on these devices work OOTB,
+without requiring any manual setup.
 
-Also, two libata.force parameters (noncqati and ncqati) are introduced
-to disable and enable the NCQ for the system which equipped with ATI
-SATA adapter and Samsung 860 and 870 SSDs. The user can determine NCQ
-function to be enabled or disabled according to the demand.
+Also tweak the min and width/height values a bit for more accurate position
+reporting.
 
-After verifying the chipset from the user reports, the issue appears
-on AMD/ATI SB7x0/SB8x0/SB9x0 SATA Controllers and does not appear on
-recent AMD SATA adapters. The vendor ID of ATI should be 0x1002.
-Therefore, ATA_HORKAGE_NO_NCQ_ON_AMD was modified to
-ATA_HORKAGE_NO_NCQ_ON_ATI.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=201693
-Signed-off-by: Kate Hsuan <hpa@redhat.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210903094411.58749-1-hpa@redhat.com
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Krzysztof Olędzki <ole@ans.pl>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210905130210.32810-2-hdegoede@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-core.c |   34 ++++++++++++++++++++++++++++++++--
- include/linux/libata.h    |    1 +
- 2 files changed, 33 insertions(+), 2 deletions(-)
+ drivers/platform/x86/touchscreen_dmi.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -2276,6 +2276,25 @@ static void ata_dev_config_ncq_prio(stru
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index 4f5d53b585db..59b7e90cd587 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -100,10 +100,10 @@ static const struct ts_dmi_data chuwi_hi10_air_data = {
+ };
  
- }
+ static const struct property_entry chuwi_hi10_plus_props[] = {
+-	PROPERTY_ENTRY_U32("touchscreen-min-x", 0),
+-	PROPERTY_ENTRY_U32("touchscreen-min-y", 5),
+-	PROPERTY_ENTRY_U32("touchscreen-size-x", 1914),
+-	PROPERTY_ENTRY_U32("touchscreen-size-y", 1283),
++	PROPERTY_ENTRY_U32("touchscreen-min-x", 12),
++	PROPERTY_ENTRY_U32("touchscreen-min-y", 10),
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1908),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1270),
+ 	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-chuwi-hi10plus.fw"),
+ 	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
+ 	PROPERTY_ENTRY_BOOL("silead,home-button"),
+@@ -111,6 +111,15 @@ static const struct property_entry chuwi_hi10_plus_props[] = {
+ };
  
-+static bool ata_dev_check_adapter(struct ata_device *dev,
-+				  unsigned short vendor_id)
-+{
-+	struct pci_dev *pcidev = NULL;
-+	struct device *parent_dev = NULL;
-+
-+	for (parent_dev = dev->tdev.parent; parent_dev != NULL;
-+	     parent_dev = parent_dev->parent) {
-+		if (dev_is_pci(parent_dev)) {
-+			pcidev = to_pci_dev(parent_dev);
-+			if (pcidev->vendor == vendor_id)
-+				return true;
-+			break;
-+		}
-+	}
-+
-+	return false;
-+}
-+
- static int ata_dev_config_ncq(struct ata_device *dev,
- 			       char *desc, size_t desc_sz)
- {
-@@ -2292,6 +2311,13 @@ static int ata_dev_config_ncq(struct ata
- 		snprintf(desc, desc_sz, "NCQ (not used)");
- 		return 0;
- 	}
-+
-+	if (dev->horkage & ATA_HORKAGE_NO_NCQ_ON_ATI &&
-+	    ata_dev_check_adapter(dev, PCI_VENDOR_ID_ATI)) {
-+		snprintf(desc, desc_sz, "NCQ (not used)");
-+		return 0;
-+	}
-+
- 	if (ap->flags & ATA_FLAG_NCQ) {
- 		hdepth = min(ap->scsi_host->can_queue, ATA_MAX_QUEUE - 1);
- 		dev->flags |= ATA_DFLAG_NCQ;
-@@ -4565,9 +4591,11 @@ static const struct ata_blacklist_entry
- 	{ "Samsung SSD 850*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
- 	{ "Samsung SSD 860*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
--						ATA_HORKAGE_ZERO_AFTER_TRIM, },
-+						ATA_HORKAGE_ZERO_AFTER_TRIM |
-+						ATA_HORKAGE_NO_NCQ_ON_ATI, },
- 	{ "Samsung SSD 870*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
--						ATA_HORKAGE_ZERO_AFTER_TRIM, },
-+						ATA_HORKAGE_ZERO_AFTER_TRIM |
-+						ATA_HORKAGE_NO_NCQ_ON_ATI, },
- 	{ "FCCT*M500*",			NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
- 
-@@ -6860,6 +6888,8 @@ static int __init ata_parse_force_one(ch
- 		{ "ncq",	.horkage_off	= ATA_HORKAGE_NONCQ },
- 		{ "noncqtrim",	.horkage_on	= ATA_HORKAGE_NO_NCQ_TRIM },
- 		{ "ncqtrim",	.horkage_off	= ATA_HORKAGE_NO_NCQ_TRIM },
-+		{ "noncqati",	.horkage_on	= ATA_HORKAGE_NO_NCQ_ON_ATI },
-+		{ "ncqati",	.horkage_off	= ATA_HORKAGE_NO_NCQ_ON_ATI },
- 		{ "dump_id",	.horkage_on	= ATA_HORKAGE_DUMP_ID },
- 		{ "pio0",	.xfer_mask	= 1 << (ATA_SHIFT_PIO + 0) },
- 		{ "pio1",	.xfer_mask	= 1 << (ATA_SHIFT_PIO + 1) },
---- a/include/linux/libata.h
-+++ b/include/linux/libata.h
-@@ -441,6 +441,7 @@ enum {
- 	ATA_HORKAGE_NOTRIM	= (1 << 24),	/* don't use TRIM */
- 	ATA_HORKAGE_MAX_SEC_1024 = (1 << 25),	/* Limit max sects to 1024 */
- 	ATA_HORKAGE_MAX_TRIM_128M = (1 << 26),	/* Limit max trim size to 128M */
-+	ATA_HORKAGE_NO_NCQ_ON_ATI = (1 << 27),	/* Disable NCQ on ATI chipset */
- 
- 	 /* DMA mask for user DMA control: User visible values; DO NOT
- 	    renumber */
+ static const struct ts_dmi_data chuwi_hi10_plus_data = {
++	.embedded_fw = {
++		.name	= "silead/gsl1680-chuwi-hi10plus.fw",
++		.prefix = { 0xf0, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00 },
++		.length	= 34056,
++		.sha256	= { 0xfd, 0x0a, 0x08, 0x08, 0x3c, 0xa6, 0x34, 0x4e,
++			    0x2c, 0x49, 0x9c, 0xcd, 0x7d, 0x44, 0x9d, 0x38,
++			    0x10, 0x68, 0xb5, 0xbd, 0xb7, 0x2a, 0x63, 0xb5,
++			    0x67, 0x0b, 0x96, 0xbd, 0x89, 0x67, 0x85, 0x09 },
++	},
+ 	.acpi_name      = "MSSL0017:00",
+ 	.properties     = chuwi_hi10_plus_props,
+ };
+-- 
+2.33.0
+
 
 
