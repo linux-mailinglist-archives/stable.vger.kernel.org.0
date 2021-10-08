@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91BED4268DE
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:30:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4E264269A7
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:38:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241147AbhJHLcM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:32:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59312 "EHLO mail.kernel.org"
+        id S242201AbhJHLjm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:39:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240824AbhJHLb0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:31:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2591B610E7;
-        Fri,  8 Oct 2021 11:29:07 +0000 (UTC)
+        id S242505AbhJHLiH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:38:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28811614C8;
+        Fri,  8 Oct 2021 11:32:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692547;
-        bh=g4j72Mh0bdT8fhD8A5kB7UcOUznHv2SleGFFDzh1U20=;
+        s=korg; t=1633692773;
+        bh=oLqGbEu+WoUC+QdQHcbv7bxyB1piSgC6JS6B7+r0nrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p57p5Z2i3ln//yznDea0mm6OHhJVlhqR6/lKSerpjwk3Ac/i3IIfha+z6KlKMPVWJ
-         PD5cTU8iJBY9cLaANZSS1qLKKHGaerjFCKcEGfohmJs6z4lp82EFjf0zH04PijBy6T
-         PQcn18L+KWzF4WWlR5HAVNfD0kwtAQm+Y5XPn30Y=
+        b=1jpw4ausvaqVSfXdH3irFbuOIFQmZbzRl8nTPzKojgG825to2+TNRVQQbHXZkqAOw
+         BCsClLbXDUro28H+gTloXUzfdEXqBWr7QuRNKmWD2za//sPa4s+anG5LgYI61LVJ9/
+         WdTlP58dn4GKViYwaoC10nemI7AW+wSXKWg0uS78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Faizel K B <faizel.kb@dicortech.com>,
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Paul Durrant <paul@xen.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 7/8] usb: testusb: Fix for showing the connection speed
-Date:   Fri,  8 Oct 2021 13:27:44 +0200
-Message-Id: <20211008112714.189216807@linuxfoundation.org>
+Subject: [PATCH 5.14 09/48] xen-netback: correct success/error reporting for the SKB-with-fraglist case
+Date:   Fri,  8 Oct 2021 13:27:45 +0200
+Message-Id: <20211008112720.341922633@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112713.941269121@linuxfoundation.org>
-References: <20211008112713.941269121@linuxfoundation.org>
+In-Reply-To: <20211008112720.008415452@linuxfoundation.org>
+References: <20211008112720.008415452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,86 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Faizel K B <faizel.kb@dicortech.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit f81c08f897adafd2ed43f86f00207ff929f0b2eb ]
+[ Upstream commit 3ede7f84c7c21f93c5eac611d60eba3f2c765e0f ]
 
-testusb' application which uses 'usbtest' driver reports 'unknown speed'
-from the function 'find_testdev'. The variable 'entry->speed' was not
-updated from  the application. The IOCTL mentioned in the FIXME comment can
-only report whether the connection is low speed or not. Speed is read using
-the IOCTL USBDEVFS_GET_SPEED which reports the proper speed grade.  The
-call is implemented in the function 'handle_testdev' where the file
-descriptor was availble locally. Sample output is given below where 'high
-speed' is printed as the connected speed.
+When re-entering the main loop of xenvif_tx_check_gop() a 2nd time, the
+special considerations for the head of the SKB no longer apply. Don't
+mistakenly report ERROR to the frontend for the first entry in the list,
+even if - from all I can tell - this shouldn't matter much as the overall
+transmit will need to be considered failed anyway.
 
-sudo ./testusb -a
-high speed      /dev/bus/usb/001/011    0
-/dev/bus/usb/001/011 test 0,    0.000015 secs
-/dev/bus/usb/001/011 test 1,    0.194208 secs
-/dev/bus/usb/001/011 test 2,    0.077289 secs
-/dev/bus/usb/001/011 test 3,    0.170604 secs
-/dev/bus/usb/001/011 test 4,    0.108335 secs
-/dev/bus/usb/001/011 test 5,    2.788076 secs
-/dev/bus/usb/001/011 test 6,    2.594610 secs
-/dev/bus/usb/001/011 test 7,    2.905459 secs
-/dev/bus/usb/001/011 test 8,    2.795193 secs
-/dev/bus/usb/001/011 test 9,    8.372651 secs
-/dev/bus/usb/001/011 test 10,    6.919731 secs
-/dev/bus/usb/001/011 test 11,   16.372687 secs
-/dev/bus/usb/001/011 test 12,   16.375233 secs
-/dev/bus/usb/001/011 test 13,    2.977457 secs
-/dev/bus/usb/001/011 test 14 --> 22 (Invalid argument)
-/dev/bus/usb/001/011 test 17,    0.148826 secs
-/dev/bus/usb/001/011 test 18,    0.068718 secs
-/dev/bus/usb/001/011 test 19,    0.125992 secs
-/dev/bus/usb/001/011 test 20,    0.127477 secs
-/dev/bus/usb/001/011 test 21 --> 22 (Invalid argument)
-/dev/bus/usb/001/011 test 24,    4.133763 secs
-/dev/bus/usb/001/011 test 27,    2.140066 secs
-/dev/bus/usb/001/011 test 28,    2.120713 secs
-/dev/bus/usb/001/011 test 29,    0.507762 secs
-
-Signed-off-by: Faizel K B <faizel.kb@dicortech.com>
-Link: https://lore.kernel.org/r/20210902114444.15106-1-faizel.kb@dicortech.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Paul Durrant <paul@xen.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/usb/testusb.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/net/xen-netback/netback.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/usb/testusb.c b/tools/usb/testusb.c
-index 0692d99b6d8f..18c895654e76 100644
---- a/tools/usb/testusb.c
-+++ b/tools/usb/testusb.c
-@@ -278,12 +278,6 @@ nomem:
- 	}
- 
- 	entry->ifnum = ifnum;
--
--	/* FIXME update USBDEVFS_CONNECTINFO so it tells about high speed etc */
--
--	fprintf(stderr, "%s speed\t%s\t%u\n",
--		speed(entry->speed), entry->name, entry->ifnum);
--
- 	entry->next = testdevs;
- 	testdevs = entry;
- 	return 0;
-@@ -312,6 +306,14 @@ static void *handle_testdev (void *arg)
- 		return 0;
- 	}
- 
-+	status  =  ioctl(fd, USBDEVFS_GET_SPEED, NULL);
-+	if (status < 0)
-+		fprintf(stderr, "USBDEVFS_GET_SPEED failed %d\n", status);
-+	else
-+		dev->speed = status;
-+	fprintf(stderr, "%s speed\t%s\t%u\n",
-+			speed(dev->speed), dev->name, dev->ifnum);
-+
- restart:
- 	for (i = 0; i < TEST_CASES; i++) {
- 		if (dev->test != -1 && dev->test != i)
+diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
+index 39a01c2a3058..32d5bc4919d8 100644
+--- a/drivers/net/xen-netback/netback.c
++++ b/drivers/net/xen-netback/netback.c
+@@ -499,7 +499,7 @@ check_frags:
+ 				 * the header's copy failed, and they are
+ 				 * sharing a slot, send an error
+ 				 */
+-				if (i == 0 && sharedslot)
++				if (i == 0 && !first_shinfo && sharedslot)
+ 					xenvif_idx_release(queue, pending_idx,
+ 							   XEN_NETIF_RSP_ERROR);
+ 				else
 -- 
 2.33.0
 
