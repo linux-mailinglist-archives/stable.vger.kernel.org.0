@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 004FB4268D1
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:29:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B31A4426998
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:37:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240578AbhJHLbc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:31:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58466 "EHLO mail.kernel.org"
+        id S241396AbhJHLje (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:39:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240620AbhJHLa4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:30:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9923D61042;
-        Fri,  8 Oct 2021 11:29:00 +0000 (UTC)
+        id S240463AbhJHLh5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:37:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F0F1613A7;
+        Fri,  8 Oct 2021 11:32:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692541;
-        bh=DD1/RWx0Jf0U3/++KX4FgO2svGaoEtvE0J5b5DS9k0o=;
+        s=korg; t=1633692764;
+        bh=8hgJn1Ih+9Ernuswh+NV/WK81g7IXRnOXBF10QK3Gsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LlLarduMhTpAAX6rOEyyUpsBIsVKZk03j48xvZ/GirPBNSmwIzH/VGNv7tpJhPZhe
-         mtBsdsS9LNLyk2LnoacgJQeJl+fRaioj/RbkXNkIuT1CHvFH/4IG36KEfqUlUCzVgl
-         i8jsfhOLaFmvNXlWOC0VFft8yVQD2pLhE8HXQq44=
+        b=xTTNdCso78M/LwQG2KZH+AHBV/5ljaLwNuKIM0235McXR8J+kkAtykSeOdADW2uPJ
+         Tcya+o33Tgk+d1t3g3f4oeb/GMC1dvhc9OXmBce+D626yFeZWF6+X63QaUsdoujTah
+         zjOLvegL4uim+z1AeMIcXFZt5LrZqtyzvJLZ7Ga8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        David Miller <davem@davemloft.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 4/8] sparc64: fix pci_iounmap() when CONFIG_PCI is not set
+Subject: [PATCH 5.14 05/48] nfsd: back channel stuck in SEQ4_STATUS_CB_PATH_DOWN
 Date:   Fri,  8 Oct 2021 13:27:41 +0200
-Message-Id: <20211008112714.095856853@linuxfoundation.org>
+Message-Id: <20211008112720.196748309@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112713.941269121@linuxfoundation.org>
-References: <20211008112713.941269121@linuxfoundation.org>
+In-Reply-To: <20211008112720.008415452@linuxfoundation.org>
+References: <20211008112720.008415452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Dai Ngo <dai.ngo@oracle.com>
 
-[ Upstream commit d8b1e10a2b8efaf71d151aa756052fbf2f3b6d57 ]
+[ Upstream commit 02579b2ff8b0becfb51d85a975908ac4ab15fba8 ]
 
-Guenter reported [1] that the pci_iounmap() changes remain problematic,
-with sparc64 allnoconfig and tinyconfig still not building due to the
-header file changes and confusion with the arch-specific pci_iounmap()
-implementation.
+When the back channel enters SEQ4_STATUS_CB_PATH_DOWN state, the client
+recovers by sending BIND_CONN_TO_SESSION but the server fails to recover
+the back channel and leaves it as NFSD4_CB_DOWN.
 
-I'm pretty convinced that sparc should just use GENERIC_IOMAP instead of
-doing its own thing, since it turns out that the sparc64 version of
-pci_iounmap() is somewhat buggy (see [2]).  But in the meantime, this
-just fixes the build by avoiding the trivial re-definition of the empty
-case.
+Fix by enhancing nfsd4_bind_conn_to_session to probe the back channel
+by calling nfsd4_probe_callback.
 
-Link: https://lore.kernel.org/lkml/20210920134424.GA346531@roeck-us.net/ [1]
-Link: https://lore.kernel.org/lkml/CAHk-=wgheheFx9myQyy5osh79BAazvmvYURAtub2gQtMvLrhqQ@mail.gmail.com/ [2]
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Cc: David Miller <davem@davemloft.net>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/lib/iomap.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/nfsd/nfs4state.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/arch/sparc/lib/iomap.c b/arch/sparc/lib/iomap.c
-index c4d42a50ebc0..fa4abbaf27de 100644
---- a/arch/sparc/lib/iomap.c
-+++ b/arch/sparc/lib/iomap.c
-@@ -18,8 +18,10 @@ void ioport_unmap(void __iomem *addr)
- EXPORT_SYMBOL(ioport_map);
- EXPORT_SYMBOL(ioport_unmap);
- 
-+#ifdef CONFIG_PCI
- void pci_iounmap(struct pci_dev *dev, void __iomem * addr)
- {
- 	/* nothing to do */
+diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+index 3d805f5b1f5d..1c33a5255893 100644
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -3570,7 +3570,7 @@ static struct nfsd4_conn *__nfsd4_find_conn(struct svc_xprt *xpt, struct nfsd4_s
  }
- EXPORT_SYMBOL(pci_iounmap);
-+#endif
+ 
+ static __be32 nfsd4_match_existing_connection(struct svc_rqst *rqst,
+-				struct nfsd4_session *session, u32 req)
++		struct nfsd4_session *session, u32 req, struct nfsd4_conn **conn)
+ {
+ 	struct nfs4_client *clp = session->se_client;
+ 	struct svc_xprt *xpt = rqst->rq_xprt;
+@@ -3593,6 +3593,8 @@ static __be32 nfsd4_match_existing_connection(struct svc_rqst *rqst,
+ 	else
+ 		status = nfserr_inval;
+ 	spin_unlock(&clp->cl_lock);
++	if (status == nfs_ok && conn)
++		*conn = c;
+ 	return status;
+ }
+ 
+@@ -3617,8 +3619,16 @@ __be32 nfsd4_bind_conn_to_session(struct svc_rqst *rqstp,
+ 	status = nfserr_wrong_cred;
+ 	if (!nfsd4_mach_creds_match(session->se_client, rqstp))
+ 		goto out;
+-	status = nfsd4_match_existing_connection(rqstp, session, bcts->dir);
+-	if (status == nfs_ok || status == nfserr_inval)
++	status = nfsd4_match_existing_connection(rqstp, session,
++			bcts->dir, &conn);
++	if (status == nfs_ok) {
++		if (bcts->dir == NFS4_CDFC4_FORE_OR_BOTH ||
++				bcts->dir == NFS4_CDFC4_BACK)
++			conn->cn_flags |= NFS4_CDFC4_BACK;
++		nfsd4_probe_callback(session->se_client);
++		goto out;
++	}
++	if (status == nfserr_inval)
+ 		goto out;
+ 	status = nfsd4_map_bcts_dir(&bcts->dir);
+ 	if (status)
 -- 
 2.33.0
 
