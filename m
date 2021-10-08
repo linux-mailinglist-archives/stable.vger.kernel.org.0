@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19964426986
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:37:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D6754268CE
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:29:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240733AbhJHLjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:39:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59462 "EHLO mail.kernel.org"
+        id S240903AbhJHLb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:31:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241722AbhJHLgH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:36:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD2CC6120C;
-        Fri,  8 Oct 2021 11:32:11 +0000 (UTC)
+        id S240600AbhJHLav (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:30:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4377161038;
+        Fri,  8 Oct 2021 11:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692732;
-        bh=mZ1IzySuIkz9ncXQhrJHYYLV/1oXdhU8HZhudSY/knQ=;
+        s=korg; t=1633692536;
+        bh=QH4WM6JybP8VY6blTEobSCVrUtbDcdaxuYSvThxX7sg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jfdNI3KDrk+MoXcqbBcf+8LWX+lUIZpIxdlNiskhsUzANzYzr1ge7htVQgI6qHW3k
-         e7Njf+3HF7z7NQnTTUymKNB+aOE4OXkXjXCiyqwfeFjtT3cywX7xR89HbuFgHCKuvV
-         Cw436pluqWJxA3cflQsRCJU3lS+Cz6ef2oyhmvo8=
+        b=n6KrDwSeZsLDQPyWmoizRyZHhxy1sxj3d0nmO+++Xy0+BAsP9s/RS/0627fejA9YZ
+         f5O7YLVQIe/xbUQvdw2uRET/N9gL3ni5ih3jvn/A0Vy6itgg4G9Pi+9LQaQTnl1AJm
+         8gIuRiQyC+bM7htRf4r0mtWodoSM3bbiwaeyzJMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Markus Suvanto <markus.suvanto@gmail.com>,
-        linux-afs@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 02/48] afs: Add missing vnode validation checks
-Date:   Fri,  8 Oct 2021 13:27:38 +0200
-Message-Id: <20211008112720.094892148@linuxfoundation.org>
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 2/8] net: mdio: introduce a shutdown method to mdio device drivers
+Date:   Fri,  8 Oct 2021 13:27:39 +0200
+Message-Id: <20211008112714.023146177@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112720.008415452@linuxfoundation.org>
-References: <20211008112720.008415452@linuxfoundation.org>
+In-Reply-To: <20211008112713.941269121@linuxfoundation.org>
+References: <20211008112713.941269121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,180 +42,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 3978d816523991dd86cf9aae88c295230a5ea3b2 ]
+[ Upstream commit cf9579976f724ad517cc15b7caadea728c7e245c ]
 
-afs_d_revalidate() should only be validating the directory entry it is
-given and the directory to which that belongs; it shouldn't be validating
-the inode/vnode to which that dentry points.  Besides, validation need to
-be done even if we don't call afs_d_revalidate() - which might be the case
-if we're starting from a file descriptor.
+MDIO-attached devices might have interrupts and other things that might
+need quiesced when we kexec into a new kernel. Things are even more
+creepy when those interrupt lines are shared, and in that case it is
+absolutely mandatory to disable all interrupt sources.
 
-In order for afs_d_revalidate() to be fixed, validation points must be
-added in some other places.  Certain directory operations, such as
-afs_unlink(), already check this, but not all and not all file operations
-either.
+Moreover, MDIO devices might be DSA switches, and DSA needs its own
+shutdown method to unlink from the DSA master, which is a new
+requirement that appeared after commit 2f1e8ea726e9 ("net: dsa: link
+interfaces with the DSA master to get rid of lockdep warnings").
 
-Note that the validation of a vnode not only checks to see if the
-attributes we have are correct, but also gets a promise from the server to
-notify us if that file gets changed by a third party.
+So introduce a ->shutdown method in the MDIO device driver structure.
 
-Add the following checks:
-
- - Check the vnode we're going to make a hard link to.
- - Check the vnode we're going to move/rename.
- - Check the vnode we're going to read from.
- - Check the vnode we're going to write to.
- - Check the vnode we're going to sync.
- - Check the vnode we're going to make a mapped page writable for.
-
-Some of these aren't strictly necessary as we're going to perform a server
-operation that might get the attributes anyway from which we can determine
-if something changed - though it might not get us a callback promise.
-
-Signed-off-by: David Howells <dhowells@redhat.com>
-Tested-by: Markus Suvanto <markus.suvanto@gmail.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/r/163111667354.283156.12720698333342917516.stgit@warthog.procyon.org.uk/
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/dir.c   | 11 +++++++++++
- fs/afs/file.c  | 16 +++++++++++++++-
- fs/afs/write.c | 17 +++++++++++++++--
- 3 files changed, 41 insertions(+), 3 deletions(-)
+ drivers/net/phy/mdio_device.c | 11 +++++++++++
+ include/linux/mdio.h          |  3 +++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/fs/afs/dir.c b/fs/afs/dir.c
-index 54ee54ae36bc..4579bbda4634 100644
---- a/fs/afs/dir.c
-+++ b/fs/afs/dir.c
-@@ -1760,6 +1760,10 @@ static int afs_link(struct dentry *from, struct inode *dir,
- 		goto error;
- 	}
- 
-+	ret = afs_validate(vnode, op->key);
-+	if (ret < 0)
-+		goto error_op;
-+
- 	afs_op_set_vnode(op, 0, dvnode);
- 	afs_op_set_vnode(op, 1, vnode);
- 	op->file[0].dv_delta = 1;
-@@ -1773,6 +1777,8 @@ static int afs_link(struct dentry *from, struct inode *dir,
- 	op->create.reason	= afs_edit_dir_for_link;
- 	return afs_do_sync_operation(op);
- 
-+error_op:
-+	afs_put_operation(op);
- error:
- 	d_drop(dentry);
- 	_leave(" = %d", ret);
-@@ -1957,6 +1963,11 @@ static int afs_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
- 	if (IS_ERR(op))
- 		return PTR_ERR(op);
- 
-+	ret = afs_validate(vnode, op->key);
-+	op->error = ret;
-+	if (ret < 0)
-+		goto error;
-+
- 	afs_op_set_vnode(op, 0, orig_dvnode);
- 	afs_op_set_vnode(op, 1, new_dvnode); /* May be same as orig_dvnode */
- 	op->file[0].dv_delta = 1;
-diff --git a/fs/afs/file.c b/fs/afs/file.c
-index db035ae2a134..5efa1cf2a20a 100644
---- a/fs/afs/file.c
-+++ b/fs/afs/file.c
-@@ -24,12 +24,13 @@ static void afs_invalidatepage(struct page *page, unsigned int offset,
- static int afs_releasepage(struct page *page, gfp_t gfp_flags);
- 
- static void afs_readahead(struct readahead_control *ractl);
-+static ssize_t afs_file_read_iter(struct kiocb *iocb, struct iov_iter *iter);
- 
- const struct file_operations afs_file_operations = {
- 	.open		= afs_open,
- 	.release	= afs_release,
- 	.llseek		= generic_file_llseek,
--	.read_iter	= generic_file_read_iter,
-+	.read_iter	= afs_file_read_iter,
- 	.write_iter	= afs_file_write,
- 	.mmap		= afs_file_mmap,
- 	.splice_read	= generic_file_splice_read,
-@@ -502,3 +503,16 @@ static int afs_file_mmap(struct file *file, struct vm_area_struct *vma)
- 		vma->vm_ops = &afs_vm_ops;
- 	return ret;
+diff --git a/drivers/net/phy/mdio_device.c b/drivers/net/phy/mdio_device.c
+index 9c88e6749b9a..34600b0061bb 100644
+--- a/drivers/net/phy/mdio_device.c
++++ b/drivers/net/phy/mdio_device.c
+@@ -135,6 +135,16 @@ static int mdio_remove(struct device *dev)
+ 	return 0;
  }
-+
-+static ssize_t afs_file_read_iter(struct kiocb *iocb, struct iov_iter *iter)
+ 
++static void mdio_shutdown(struct device *dev)
 +{
-+	struct afs_vnode *vnode = AFS_FS_I(file_inode(iocb->ki_filp));
-+	struct afs_file *af = iocb->ki_filp->private_data;
-+	int ret;
++	struct mdio_device *mdiodev = to_mdio_device(dev);
++	struct device_driver *drv = mdiodev->dev.driver;
++	struct mdio_driver *mdiodrv = to_mdio_driver(drv);
 +
-+	ret = afs_validate(vnode, af->key);
-+	if (ret < 0)
-+		return ret;
-+
-+	return generic_file_read_iter(iocb, iter);
++	if (mdiodrv->shutdown)
++		mdiodrv->shutdown(mdiodev);
 +}
-diff --git a/fs/afs/write.c b/fs/afs/write.c
-index e86f5a245514..2dfe3b3a53d6 100644
---- a/fs/afs/write.c
-+++ b/fs/afs/write.c
-@@ -807,6 +807,7 @@ int afs_writepages(struct address_space *mapping,
- ssize_t afs_file_write(struct kiocb *iocb, struct iov_iter *from)
- {
- 	struct afs_vnode *vnode = AFS_FS_I(file_inode(iocb->ki_filp));
-+	struct afs_file *af = iocb->ki_filp->private_data;
- 	ssize_t result;
- 	size_t count = iov_iter_count(from);
- 
-@@ -822,6 +823,10 @@ ssize_t afs_file_write(struct kiocb *iocb, struct iov_iter *from)
- 	if (!count)
- 		return 0;
- 
-+	result = afs_validate(vnode, af->key);
-+	if (result < 0)
-+		return result;
 +
- 	result = generic_file_write_iter(iocb, from);
+ /**
+  * mdio_driver_register - register an mdio_driver with the MDIO layer
+  * @new_driver: new mdio_driver to register
+@@ -149,6 +159,7 @@ int mdio_driver_register(struct mdio_driver *drv)
+ 	mdiodrv->driver.bus = &mdio_bus_type;
+ 	mdiodrv->driver.probe = mdio_probe;
+ 	mdiodrv->driver.remove = mdio_remove;
++	mdiodrv->driver.shutdown = mdio_shutdown;
  
- 	_leave(" = %zd", result);
-@@ -835,13 +840,18 @@ ssize_t afs_file_write(struct kiocb *iocb, struct iov_iter *from)
-  */
- int afs_fsync(struct file *file, loff_t start, loff_t end, int datasync)
- {
--	struct inode *inode = file_inode(file);
--	struct afs_vnode *vnode = AFS_FS_I(inode);
-+	struct afs_vnode *vnode = AFS_FS_I(file_inode(file));
-+	struct afs_file *af = file->private_data;
-+	int ret;
+ 	retval = driver_register(&mdiodrv->driver);
+ 	if (retval) {
+diff --git a/include/linux/mdio.h b/include/linux/mdio.h
+index bf9d1d750693..78b3cf50566f 100644
+--- a/include/linux/mdio.h
++++ b/include/linux/mdio.h
+@@ -61,6 +61,9 @@ struct mdio_driver {
  
- 	_enter("{%llx:%llu},{n=%pD},%d",
- 	       vnode->fid.vid, vnode->fid.vnode, file,
- 	       datasync);
- 
-+	ret = afs_validate(vnode, af->key);
-+	if (ret < 0)
-+		return ret;
+ 	/* Clears up any memory if needed */
+ 	void (*remove)(struct mdio_device *mdiodev);
 +
- 	return file_write_and_wait_range(file, start, end);
- }
- 
-@@ -855,11 +865,14 @@ vm_fault_t afs_page_mkwrite(struct vm_fault *vmf)
- 	struct file *file = vmf->vma->vm_file;
- 	struct inode *inode = file_inode(file);
- 	struct afs_vnode *vnode = AFS_FS_I(inode);
-+	struct afs_file *af = file->private_data;
- 	unsigned long priv;
- 	vm_fault_t ret = VM_FAULT_RETRY;
- 
- 	_enter("{{%llx:%llu}},{%lx}", vnode->fid.vid, vnode->fid.vnode, page->index);
- 
-+	afs_validate(vnode, af->key);
-+
- 	sb_start_pagefault(inode->i_sb);
- 
- 	/* Wait for the page to be written to the cache before we allow it to
++	/* Quiesces the device on system shutdown, turns off interrupts etc */
++	void (*shutdown)(struct mdio_device *mdiodev);
+ };
+ #define to_mdio_driver(d)						\
+ 	container_of(to_mdio_common_driver(d), struct mdio_driver, mdiodrv)
 -- 
 2.33.0
 
