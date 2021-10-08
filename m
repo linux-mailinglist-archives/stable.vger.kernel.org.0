@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C413426922
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:32:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EED51426900
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:31:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241130AbhJHLeI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:34:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59490 "EHLO mail.kernel.org"
+        id S241379AbhJHLdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:33:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241295AbhJHLc7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:32:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B69396138B;
-        Fri,  8 Oct 2021 11:30:53 +0000 (UTC)
+        id S240877AbhJHLcS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:32:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BE94610E7;
+        Fri,  8 Oct 2021 11:30:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692654;
-        bh=iiC1TPc3R4H6csDVbntvGNR1oBtDbIotCKObjk52h4Q=;
+        s=korg; t=1633692613;
+        bh=0C6W9SS6dd73z7EPUbhKn1NEfkcIH093yC9t/+PUAUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R/rxTguKNWHl33Ayttehw9a6R5ViXHgswCICH5iUCzs8M1XfMhM+GWLMuDHVHNk9E
-         i8a9y9Fxg7WOTqZmWkognncZtsnr3ungyfAyEvEl5+5ZbXhTPJKxFfP8Tfod3WtGse
-         OZktwJ4sCIEVxm/X2l9ETpQCEBKUtg27ZnuwvxnY=
+        b=umG0zKTx5e4i+OFEcI8rmJ6FXBu5WOZ5dRSXGBwqdONT6iZwQg3Qqp0pYfE9teIs6
+         SNGUf3lSfc5u9VI1wz1smYUVlObRlCO/IbGTjSv4bfBj3MQfEVMK5XjNIxDYpcsJlF
+         Xohe3wLWX42dLqfiSH1J0hADeejM/XDp3xew6mUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oded Gabbay <ogabbay@kernel.org>,
+        stable@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 14/29] habanalabs/gaudi: fix LBW RR configuration
-Date:   Fri,  8 Oct 2021 13:28:01 +0200
-Message-Id: <20211008112717.424698604@linuxfoundation.org>
+Subject: [PATCH 5.4 12/16] KVM: do not shrink halt_poll_ns below grow_start
+Date:   Fri,  8 Oct 2021 13:28:02 +0200
+Message-Id: <20211008112715.875188234@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112716.914501436@linuxfoundation.org>
-References: <20211008112716.914501436@linuxfoundation.org>
+In-Reply-To: <20211008112715.444305067@linuxfoundation.org>
+References: <20211008112715.444305067@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,325 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oded Gabbay <ogabbay@kernel.org>
+From: Sergey Senozhatsky <senozhatsky@chromium.org>
 
-[ Upstream commit 0a5ff77bf0a94468d541735f919a633f167787e9 ]
+[ Upstream commit ae232ea460888dc5a8b37e840c553b02521fbf18 ]
 
-Couple of fixes to the LBW RR configuration:
+grow_halt_poll_ns() ignores values between 0 and
+halt_poll_ns_grow_start (10000 by default). However,
+when we shrink halt_poll_ns we may fall way below
+halt_poll_ns_grow_start and endup with halt_poll_ns
+values that don't make a lot of sense: like 1 or 9,
+or 19.
 
-1. Add missing configuration of the SM RR registers in the DMA_IF.
-2. Remove HBW range that doesn't belong.
-3. Add entire gap + DBG area, from end of TPC7 to end of entire
-   DBG space.
+VCPU1 trace (halt_poll_ns_shrink equals 2):
 
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+VCPU1 grow 10000
+VCPU1 shrink 5000
+VCPU1 shrink 2500
+VCPU1 shrink 1250
+VCPU1 shrink 625
+VCPU1 shrink 312
+VCPU1 shrink 156
+VCPU1 shrink 78
+VCPU1 shrink 39
+VCPU1 shrink 19
+VCPU1 shrink 9
+VCPU1 shrink 4
+
+Mirror what grow_halt_poll_ns() does and set halt_poll_ns
+to 0 as soon as new shrink-ed halt_poll_ns value falls
+below halt_poll_ns_grow_start.
+
+Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-Id: <20210902031100.252080-1-senozhatsky@chromium.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../misc/habanalabs/gaudi/gaudi_security.c    | 115 ++++++++++--------
- 1 file changed, 67 insertions(+), 48 deletions(-)
+ virt/kvm/kvm_main.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/misc/habanalabs/gaudi/gaudi_security.c b/drivers/misc/habanalabs/gaudi/gaudi_security.c
-index 2d7add0e5bcc..9343a81d3122 100644
---- a/drivers/misc/habanalabs/gaudi/gaudi_security.c
-+++ b/drivers/misc/habanalabs/gaudi/gaudi_security.c
-@@ -8,16 +8,21 @@
- #include "gaudiP.h"
- #include "../include/gaudi/asic_reg/gaudi_regs.h"
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 77f84cbca740..f31976010622 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2470,15 +2470,19 @@ out:
  
--#define GAUDI_NUMBER_OF_RR_REGS		24
--#define GAUDI_NUMBER_OF_LBW_RANGES	12
-+#define GAUDI_NUMBER_OF_LBW_RR_REGS	28
-+#define GAUDI_NUMBER_OF_HBW_RR_REGS	24
-+#define GAUDI_NUMBER_OF_LBW_RANGES	10
+ static void shrink_halt_poll_ns(struct kvm_vcpu *vcpu)
+ {
+-	unsigned int old, val, shrink;
++	unsigned int old, val, shrink, grow_start;
  
--static u64 gaudi_rr_lbw_hit_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_lbw_hit_aw_regs[GAUDI_NUMBER_OF_LBW_RR_REGS] = {
-+	mmDMA_IF_W_S_SOB_HIT_WPROT,
- 	mmDMA_IF_W_S_DMA0_HIT_WPROT,
- 	mmDMA_IF_W_S_DMA1_HIT_WPROT,
-+	mmDMA_IF_E_S_SOB_HIT_WPROT,
- 	mmDMA_IF_E_S_DMA0_HIT_WPROT,
- 	mmDMA_IF_E_S_DMA1_HIT_WPROT,
-+	mmDMA_IF_W_N_SOB_HIT_WPROT,
- 	mmDMA_IF_W_N_DMA0_HIT_WPROT,
- 	mmDMA_IF_W_N_DMA1_HIT_WPROT,
-+	mmDMA_IF_E_N_SOB_HIT_WPROT,
- 	mmDMA_IF_E_N_DMA0_HIT_WPROT,
- 	mmDMA_IF_E_N_DMA1_HIT_WPROT,
- 	mmSIF_RTR_0_LBW_RANGE_PROT_HIT_AW,
-@@ -38,13 +43,17 @@ static u64 gaudi_rr_lbw_hit_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_7_LBW_RANGE_PROT_HIT_AW,
- };
+ 	old = val = vcpu->halt_poll_ns;
+ 	shrink = READ_ONCE(halt_poll_ns_shrink);
++	grow_start = READ_ONCE(halt_poll_ns_grow_start);
+ 	if (shrink == 0)
+ 		val = 0;
+ 	else
+ 		val /= shrink;
  
--static u64 gaudi_rr_lbw_hit_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_lbw_hit_ar_regs[GAUDI_NUMBER_OF_LBW_RR_REGS] = {
-+	mmDMA_IF_W_S_SOB_HIT_RPROT,
- 	mmDMA_IF_W_S_DMA0_HIT_RPROT,
- 	mmDMA_IF_W_S_DMA1_HIT_RPROT,
-+	mmDMA_IF_E_S_SOB_HIT_RPROT,
- 	mmDMA_IF_E_S_DMA0_HIT_RPROT,
- 	mmDMA_IF_E_S_DMA1_HIT_RPROT,
-+	mmDMA_IF_W_N_SOB_HIT_RPROT,
- 	mmDMA_IF_W_N_DMA0_HIT_RPROT,
- 	mmDMA_IF_W_N_DMA1_HIT_RPROT,
-+	mmDMA_IF_E_N_SOB_HIT_RPROT,
- 	mmDMA_IF_E_N_DMA0_HIT_RPROT,
- 	mmDMA_IF_E_N_DMA1_HIT_RPROT,
- 	mmSIF_RTR_0_LBW_RANGE_PROT_HIT_AR,
-@@ -65,13 +74,17 @@ static u64 gaudi_rr_lbw_hit_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_7_LBW_RANGE_PROT_HIT_AR,
- };
- 
--static u64 gaudi_rr_lbw_min_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_lbw_min_aw_regs[GAUDI_NUMBER_OF_LBW_RR_REGS] = {
-+	mmDMA_IF_W_S_SOB_MIN_WPROT_0,
- 	mmDMA_IF_W_S_DMA0_MIN_WPROT_0,
- 	mmDMA_IF_W_S_DMA1_MIN_WPROT_0,
-+	mmDMA_IF_E_S_SOB_MIN_WPROT_0,
- 	mmDMA_IF_E_S_DMA0_MIN_WPROT_0,
- 	mmDMA_IF_E_S_DMA1_MIN_WPROT_0,
-+	mmDMA_IF_W_N_SOB_MIN_WPROT_0,
- 	mmDMA_IF_W_N_DMA0_MIN_WPROT_0,
- 	mmDMA_IF_W_N_DMA1_MIN_WPROT_0,
-+	mmDMA_IF_E_N_SOB_MIN_WPROT_0,
- 	mmDMA_IF_E_N_DMA0_MIN_WPROT_0,
- 	mmDMA_IF_E_N_DMA1_MIN_WPROT_0,
- 	mmSIF_RTR_0_LBW_RANGE_PROT_MIN_AW_0,
-@@ -92,13 +105,17 @@ static u64 gaudi_rr_lbw_min_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_7_LBW_RANGE_PROT_MIN_AW_0,
- };
- 
--static u64 gaudi_rr_lbw_max_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_lbw_max_aw_regs[GAUDI_NUMBER_OF_LBW_RR_REGS] = {
-+	mmDMA_IF_W_S_SOB_MAX_WPROT_0,
- 	mmDMA_IF_W_S_DMA0_MAX_WPROT_0,
- 	mmDMA_IF_W_S_DMA1_MAX_WPROT_0,
-+	mmDMA_IF_E_S_SOB_MAX_WPROT_0,
- 	mmDMA_IF_E_S_DMA0_MAX_WPROT_0,
- 	mmDMA_IF_E_S_DMA1_MAX_WPROT_0,
-+	mmDMA_IF_W_N_SOB_MAX_WPROT_0,
- 	mmDMA_IF_W_N_DMA0_MAX_WPROT_0,
- 	mmDMA_IF_W_N_DMA1_MAX_WPROT_0,
-+	mmDMA_IF_E_N_SOB_MAX_WPROT_0,
- 	mmDMA_IF_E_N_DMA0_MAX_WPROT_0,
- 	mmDMA_IF_E_N_DMA1_MAX_WPROT_0,
- 	mmSIF_RTR_0_LBW_RANGE_PROT_MAX_AW_0,
-@@ -119,13 +136,17 @@ static u64 gaudi_rr_lbw_max_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_7_LBW_RANGE_PROT_MAX_AW_0,
- };
- 
--static u64 gaudi_rr_lbw_min_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_lbw_min_ar_regs[GAUDI_NUMBER_OF_LBW_RR_REGS] = {
-+	mmDMA_IF_W_S_SOB_MIN_RPROT_0,
- 	mmDMA_IF_W_S_DMA0_MIN_RPROT_0,
- 	mmDMA_IF_W_S_DMA1_MIN_RPROT_0,
-+	mmDMA_IF_E_S_SOB_MIN_RPROT_0,
- 	mmDMA_IF_E_S_DMA0_MIN_RPROT_0,
- 	mmDMA_IF_E_S_DMA1_MIN_RPROT_0,
-+	mmDMA_IF_W_N_SOB_MIN_RPROT_0,
- 	mmDMA_IF_W_N_DMA0_MIN_RPROT_0,
- 	mmDMA_IF_W_N_DMA1_MIN_RPROT_0,
-+	mmDMA_IF_E_N_SOB_MIN_RPROT_0,
- 	mmDMA_IF_E_N_DMA0_MIN_RPROT_0,
- 	mmDMA_IF_E_N_DMA1_MIN_RPROT_0,
- 	mmSIF_RTR_0_LBW_RANGE_PROT_MIN_AR_0,
-@@ -146,13 +167,17 @@ static u64 gaudi_rr_lbw_min_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_7_LBW_RANGE_PROT_MIN_AR_0,
- };
- 
--static u64 gaudi_rr_lbw_max_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_lbw_max_ar_regs[GAUDI_NUMBER_OF_LBW_RR_REGS] = {
-+	mmDMA_IF_W_S_SOB_MAX_RPROT_0,
- 	mmDMA_IF_W_S_DMA0_MAX_RPROT_0,
- 	mmDMA_IF_W_S_DMA1_MAX_RPROT_0,
-+	mmDMA_IF_E_S_SOB_MAX_RPROT_0,
- 	mmDMA_IF_E_S_DMA0_MAX_RPROT_0,
- 	mmDMA_IF_E_S_DMA1_MAX_RPROT_0,
-+	mmDMA_IF_W_N_SOB_MAX_RPROT_0,
- 	mmDMA_IF_W_N_DMA0_MAX_RPROT_0,
- 	mmDMA_IF_W_N_DMA1_MAX_RPROT_0,
-+	mmDMA_IF_E_N_SOB_MAX_RPROT_0,
- 	mmDMA_IF_E_N_DMA0_MAX_RPROT_0,
- 	mmDMA_IF_E_N_DMA1_MAX_RPROT_0,
- 	mmSIF_RTR_0_LBW_RANGE_PROT_MAX_AR_0,
-@@ -173,7 +198,7 @@ static u64 gaudi_rr_lbw_max_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_7_LBW_RANGE_PROT_MAX_AR_0,
- };
- 
--static u64 gaudi_rr_hbw_hit_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_hit_aw_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_HIT_AW,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_HIT_AW,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_HIT_AW,
-@@ -200,7 +225,7 @@ static u64 gaudi_rr_hbw_hit_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_HIT_AW
- };
- 
--static u64 gaudi_rr_hbw_hit_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_hit_ar_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_HIT_AR,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_HIT_AR,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_HIT_AR,
-@@ -227,7 +252,7 @@ static u64 gaudi_rr_hbw_hit_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_HIT_AR
- };
- 
--static u64 gaudi_rr_hbw_base_low_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_base_low_aw_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_BASE_LOW_AW_0,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_BASE_LOW_AW_0,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_BASE_LOW_AW_0,
-@@ -254,7 +279,7 @@ static u64 gaudi_rr_hbw_base_low_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_BASE_LOW_AW_0
- };
- 
--static u64 gaudi_rr_hbw_base_high_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_base_high_aw_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_BASE_HIGH_AW_0,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_BASE_HIGH_AW_0,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_BASE_HIGH_AW_0,
-@@ -281,7 +306,7 @@ static u64 gaudi_rr_hbw_base_high_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_BASE_HIGH_AW_0
- };
- 
--static u64 gaudi_rr_hbw_mask_low_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_mask_low_aw_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_MASK_LOW_AW_0,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_MASK_LOW_AW_0,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_MASK_LOW_AW_0,
-@@ -308,7 +333,7 @@ static u64 gaudi_rr_hbw_mask_low_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_MASK_LOW_AW_0
- };
- 
--static u64 gaudi_rr_hbw_mask_high_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_mask_high_aw_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_MASK_HIGH_AW_0,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_MASK_HIGH_AW_0,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_MASK_HIGH_AW_0,
-@@ -335,7 +360,7 @@ static u64 gaudi_rr_hbw_mask_high_aw_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_MASK_HIGH_AW_0
- };
- 
--static u64 gaudi_rr_hbw_base_low_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_base_low_ar_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_BASE_LOW_AR_0,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_BASE_LOW_AR_0,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_BASE_LOW_AR_0,
-@@ -362,7 +387,7 @@ static u64 gaudi_rr_hbw_base_low_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_BASE_LOW_AR_0
- };
- 
--static u64 gaudi_rr_hbw_base_high_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_base_high_ar_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_BASE_HIGH_AR_0,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_BASE_HIGH_AR_0,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_BASE_HIGH_AR_0,
-@@ -389,7 +414,7 @@ static u64 gaudi_rr_hbw_base_high_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_BASE_HIGH_AR_0
- };
- 
--static u64 gaudi_rr_hbw_mask_low_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_mask_low_ar_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_MASK_LOW_AR_0,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_MASK_LOW_AR_0,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_MASK_LOW_AR_0,
-@@ -416,7 +441,7 @@ static u64 gaudi_rr_hbw_mask_low_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
- 	mmNIF_RTR_CTRL_7_RANGE_SEC_MASK_LOW_AR_0
- };
- 
--static u64 gaudi_rr_hbw_mask_high_ar_regs[GAUDI_NUMBER_OF_RR_REGS] = {
-+static u64 gaudi_rr_hbw_mask_high_ar_regs[GAUDI_NUMBER_OF_HBW_RR_REGS] = {
- 	mmDMA_IF_W_S_DOWN_CH0_RANGE_SEC_MASK_HIGH_AR_0,
- 	mmDMA_IF_W_S_DOWN_CH1_RANGE_SEC_MASK_HIGH_AR_0,
- 	mmDMA_IF_E_S_DOWN_CH0_RANGE_SEC_MASK_HIGH_AR_0,
-@@ -8870,50 +8895,44 @@ static void gaudi_init_range_registers_lbw(struct hl_device *hdev)
- 	u32 lbw_rng_end[GAUDI_NUMBER_OF_LBW_RANGES];
- 	int i, j;
- 
--	lbw_rng_start[0]  = (0xFBFE0000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[0]    = (0xFBFFF000 & 0x3FFFFFF) + 1;
-+	lbw_rng_start[0]  = (0xFC0E8000 & 0x3FFFFFF) - 1; /* 0x000E7FFF */
-+	lbw_rng_end[0]    = (0xFC11FFFF & 0x3FFFFFF) + 1; /* 0x00120000 */
- 
--	lbw_rng_start[1]  = (0xFC0E8000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[1]    = (0xFC120000 & 0x3FFFFFF) + 1;
-+	lbw_rng_start[1]  = (0xFC1E8000 & 0x3FFFFFF) - 1; /* 0x001E7FFF */
-+	lbw_rng_end[1]    = (0xFC48FFFF & 0x3FFFFFF) + 1; /* 0x00490000 */
- 
--	lbw_rng_start[2]  = (0xFC1E8000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[2]    = (0xFC48FFFF & 0x3FFFFFF) + 1;
-+	lbw_rng_start[2]  = (0xFC600000 & 0x3FFFFFF) - 1; /* 0x005FFFFF */
-+	lbw_rng_end[2]    = (0xFCC48FFF & 0x3FFFFFF) + 1; /* 0x00C49000 */
- 
--	lbw_rng_start[3]  = (0xFC600000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[3]    = (0xFCC48FFF & 0x3FFFFFF) + 1;
-+	lbw_rng_start[3]  = (0xFCC4A000 & 0x3FFFFFF) - 1; /* 0x00C49FFF */
-+	lbw_rng_end[3]    = (0xFCCDFFFF & 0x3FFFFFF) + 1; /* 0x00CE0000 */
- 
--	lbw_rng_start[4]  = (0xFCC4A000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[4]    = (0xFCCDFFFF & 0x3FFFFFF) + 1;
-+	lbw_rng_start[4]  = (0xFCCE4000 & 0x3FFFFFF) - 1; /* 0x00CE3FFF */
-+	lbw_rng_end[4]    = (0xFCD1FFFF & 0x3FFFFFF) + 1; /* 0x00D20000 */
- 
--	lbw_rng_start[5]  = (0xFCCE4000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[5]    = (0xFCD1FFFF & 0x3FFFFFF) + 1;
-+	lbw_rng_start[5]  = (0xFCD24000 & 0x3FFFFFF) - 1; /* 0x00D23FFF */
-+	lbw_rng_end[5]    = (0xFCD5FFFF & 0x3FFFFFF) + 1; /* 0x00D60000 */
- 
--	lbw_rng_start[6]  = (0xFCD24000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[6]    = (0xFCD5FFFF & 0x3FFFFFF) + 1;
-+	lbw_rng_start[6]  = (0xFCD64000 & 0x3FFFFFF) - 1; /* 0x00D63FFF */
-+	lbw_rng_end[6]    = (0xFCD9FFFF & 0x3FFFFFF) + 1; /* 0x00DA0000 */
- 
--	lbw_rng_start[7]  = (0xFCD64000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[7]    = (0xFCD9FFFF & 0x3FFFFFF) + 1;
-+	lbw_rng_start[7]  = (0xFCDA4000 & 0x3FFFFFF) - 1; /* 0x00DA3FFF */
-+	lbw_rng_end[7]    = (0xFCDDFFFF & 0x3FFFFFF) + 1; /* 0x00DE0000 */
- 
--	lbw_rng_start[8]  = (0xFCDA4000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[8]    = (0xFCDDFFFF & 0x3FFFFFF) + 1;
-+	lbw_rng_start[8]  = (0xFCDE4000 & 0x3FFFFFF) - 1; /* 0x00DE3FFF */
-+	lbw_rng_end[8]    = (0xFCE05FFF & 0x3FFFFFF) + 1; /* 0x00E06000 */
- 
--	lbw_rng_start[9]  = (0xFCDE4000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[9]    = (0xFCE05FFF & 0x3FFFFFF) + 1;
-+	lbw_rng_start[9]  = (0xFCFC9000 & 0x3FFFFFF) - 1; /* 0x00FC8FFF */
-+	lbw_rng_end[9]    = (0xFFFFFFFE & 0x3FFFFFF) + 1; /* 0x03FFFFFF */
- 
--	lbw_rng_start[10]  = (0xFEC43000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[10]    = (0xFEC43FFF & 0x3FFFFFF) + 1;
--
--	lbw_rng_start[11] = (0xFE484000 & 0x3FFFFFF) - 1;
--	lbw_rng_end[11]   = (0xFE484FFF & 0x3FFFFFF) + 1;
--
--	for (i = 0 ; i < GAUDI_NUMBER_OF_RR_REGS ; i++) {
-+	for (i = 0 ; i < GAUDI_NUMBER_OF_LBW_RR_REGS ; i++) {
- 		WREG32(gaudi_rr_lbw_hit_aw_regs[i],
- 				(1 << GAUDI_NUMBER_OF_LBW_RANGES) - 1);
- 		WREG32(gaudi_rr_lbw_hit_ar_regs[i],
- 				(1 << GAUDI_NUMBER_OF_LBW_RANGES) - 1);
- 	}
- 
--	for (i = 0 ; i < GAUDI_NUMBER_OF_RR_REGS ; i++)
-+	for (i = 0 ; i < GAUDI_NUMBER_OF_LBW_RR_REGS ; i++)
- 		for (j = 0 ; j < GAUDI_NUMBER_OF_LBW_RANGES ; j++) {
- 			WREG32(gaudi_rr_lbw_min_aw_regs[i] + (j << 2),
- 							lbw_rng_start[j]);
-@@ -8960,12 +8979,12 @@ static void gaudi_init_range_registers_hbw(struct hl_device *hdev)
- 	 * 6th range is the host
- 	 */
- 
--	for (i = 0 ; i < GAUDI_NUMBER_OF_RR_REGS ; i++) {
-+	for (i = 0 ; i < GAUDI_NUMBER_OF_HBW_RR_REGS ; i++) {
- 		WREG32(gaudi_rr_hbw_hit_aw_regs[i], 0x1F);
- 		WREG32(gaudi_rr_hbw_hit_ar_regs[i], 0x1D);
- 	}
- 
--	for (i = 0 ; i < GAUDI_NUMBER_OF_RR_REGS ; i++) {
-+	for (i = 0 ; i < GAUDI_NUMBER_OF_HBW_RR_REGS ; i++) {
- 		WREG32(gaudi_rr_hbw_base_low_aw_regs[i], dram_addr_lo);
- 		WREG32(gaudi_rr_hbw_base_low_ar_regs[i], dram_addr_lo);
- 
++	if (val < grow_start)
++		val = 0;
++
+ 	vcpu->halt_poll_ns = val;
+ 	trace_kvm_halt_poll_ns_shrink(vcpu->vcpu_id, val, old);
+ }
 -- 
 2.33.0
 
