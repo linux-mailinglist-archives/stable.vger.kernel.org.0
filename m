@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 717DA426E10
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 17:48:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABC77426E25
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 17:54:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243141AbhJHPuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 11:50:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37306 "EHLO
+        id S243083AbhJHP4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 11:56:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243127AbhJHPuj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Oct 2021 11:50:39 -0400
-Received: from mail-qk1-x736.google.com (mail-qk1-x736.google.com [IPv6:2607:f8b0:4864:20::736])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 868D3C061764
-        for <stable@vger.kernel.org>; Fri,  8 Oct 2021 08:48:44 -0700 (PDT)
-Received: by mail-qk1-x736.google.com with SMTP id 77so8640045qkh.6
-        for <stable@vger.kernel.org>; Fri, 08 Oct 2021 08:48:44 -0700 (PDT)
+        with ESMTP id S243056AbhJHP4O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Oct 2021 11:56:14 -0400
+Received: from mail-qv1-xf2e.google.com (mail-qv1-xf2e.google.com [IPv6:2607:f8b0:4864:20::f2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23418C061762
+        for <stable@vger.kernel.org>; Fri,  8 Oct 2021 08:54:19 -0700 (PDT)
+Received: by mail-qv1-xf2e.google.com with SMTP id jo30so6643460qvb.3
+        for <stable@vger.kernel.org>; Fri, 08 Oct 2021 08:54:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=ndufresne-ca.20210112.gappssmtp.com; s=20210112;
         h=message-id:subject:from:to:cc:date:in-reply-to:references
          :user-agent:mime-version:content-transfer-encoding;
-        bh=l3PEMMPfXxjXjuD/So1WBTTo0/C4bwAxd2b6X1tJZs8=;
-        b=hz44myI2e9hT99CcaOMwcPVlnQnJbFO3h/0o8xHijXj70TxjuCcD0tZhUCfCk+yqXz
-         XwpMs5vk04TCBD7HIVSnK8kf3Oq8Lmo//xOzsYbLjIV3YvvJwK0a5EYvw7JnNvIsemUF
-         yDUx2KPPhAHJ3l79xy2cohXDh3ykEIB4//OacdN6yUQgHVibPtocf3xiesR7r9zVkIpC
-         G0DrmWqg+8xfpT8bFTI4MAurT4OTdlvhgjgmEwBmiDJ+Mw3vj7pkV0gHORF2lySeWuzp
-         qSQmEAdEjCrR4XwB8MBDrKlKJz1OPqYArGJX4gtPSMnz/lzMutKV583HPAYyaYvlbRi6
-         VSzQ==
+        bh=JHQQ/ZPuMNBwfivK9zPtMYjZexbN/EgHfRTfb4X4FQM=;
+        b=WilbUexRA01zQ0bMJZW4pqq0QhYgb4cjNMoYFpt/WN/kAwF2xzUpyfU1vmmjKkQnvx
+         uOROisI1Hd25EaL/aZ4K1rDMkV4aT4ZtcAM3mAqwnnE1WvfK99MCJ6feMHFjtHQT7SjE
+         VV5YT5M4Qo+Uu8Zd5HJaQM4LtKuMVcqpMf0JX9jpDrbdtZmOJ6dnujH4Db/u7CovMjCq
+         DeFsPhEgFBltMLYOMkvGKaUwP0faoEj5P91nNZRBOTdRlQi3FSJBsTKOWNk8jci6DPXN
+         KlDu1ZdeqcrMoQRYjtv8GcVZ1Ky8gx91c3Y4UgfFucJr5iRXsPSkEbZsLiWaNvZKPlf1
+         vRMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
          :references:user-agent:mime-version:content-transfer-encoding;
-        bh=l3PEMMPfXxjXjuD/So1WBTTo0/C4bwAxd2b6X1tJZs8=;
-        b=efwlsv2AaA/RwzXQBVzYGaFQKATCPL7qOF7hJ0OOb1l0INxwOqyZfkwODP2eiT7tPg
-         bftMyR8cOAgluF3LMkbxDnAB5SjCjm7zjGjjquH+mDwsQUwG3JuNUj0tPm4E8z0snv0t
-         N4SRk6A06E5JMoRjkMuTdY42HPsWvKi9mLW5YH7acG6h69/Hj9XFIPDdH58jfFo4QX+g
-         fxj7zMkmTjLumslXzuzk5bB6QiSoxDMbhuvNBQrJAeLexvKbBiOVftURnlxSFCqU/j6t
-         WfLkJOLi6M8fOhbXPfRM7J7FOUAO0sQ1fwfr4eycgXNp0a6F+FUxAULrDOjWzaNntmnX
-         36Cg==
-X-Gm-Message-State: AOAM532tgnAGHShrZp3dkSrdh3A+vI/AEUEkCX4nF+ITNhMPImVGQPLA
-        eja/B5602R6F5tuMfvTkcu2nnd0dzW5s2w==
-X-Google-Smtp-Source: ABdhPJzY04tEl4nAarIutljMkJuT3pDnLioval4mb3+ZBoihi3Uh3E7RjIRdP27pTSBVzuYrLOLRfA==
-X-Received: by 2002:a05:620a:4548:: with SMTP id u8mr3616083qkp.253.1633708123733;
-        Fri, 08 Oct 2021 08:48:43 -0700 (PDT)
+        bh=JHQQ/ZPuMNBwfivK9zPtMYjZexbN/EgHfRTfb4X4FQM=;
+        b=OEInNTB2b+loqYY4oPYp5cAoZ45pL9W9asVl5wkPJ2xJo+RjJJfP8EuIyNxHRAFQC5
+         k/eDwdauC0iRPdH/6SapYQOV30GYMScirZNhNbyvJwkpFvhmoBUw/taR/cBUKcuWIUx0
+         QN6+8ur25qQ/QBaJ7j+dcrFB8EXfnvlr98F0RJbXWT4ZWBGZmR3qKRNWXOP8ljciPT3G
+         +A+jCr9YZwCMk/sKsUMsxZxT/6OHUh8/uDEg8+39jsf8T4sONBM9hZ2KNb2L15OVUvWO
+         ZPCRcSWVULaAEzgKQFPenyAvi/slkMnR2WCwejfrQRJ4nlVljrAHPym/oRz0Ol0Pg3MD
+         UiRA==
+X-Gm-Message-State: AOAM531OoPuTWRcUAgAZanB6FeGLnD4BwxRJ+5QbaGgEpkkAUj0vxcws
+        c1L9efGTEneYrWicwFV2IpSsCw==
+X-Google-Smtp-Source: ABdhPJzVAQ4pK19I9ktgZs5SQ2HXyEEnpkAMWqKmsXbgQremDteXueDeFV7UIfAnw16lGzesZAT+CA==
+X-Received: by 2002:a05:6214:1267:: with SMTP id r7mr10933942qvv.16.1633708458308;
+        Fri, 08 Oct 2021 08:54:18 -0700 (PDT)
 Received: from nicolas-tpx395.localdomain (173-246-12-168.qc.cable.ebox.net. [173.246.12.168])
-        by smtp.gmail.com with ESMTPSA id y6sm2312972qkj.26.2021.10.08.08.48.42
+        by smtp.gmail.com with ESMTPSA id 207sm2261102qkd.56.2021.10.08.08.54.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Oct 2021 08:48:43 -0700 (PDT)
-Message-ID: <44b1a16754d9b44f98da5a02ae1b06bd7adcdcd3.camel@ndufresne.ca>
-Subject: Re: [PATCH 1/2] media: rkvdec: Do not override sizeimage for output
- format
+        Fri, 08 Oct 2021 08:54:18 -0700 (PDT)
+Message-ID: <a2759c8f5ec47bf6a96f69e103994dc20198c39b.camel@ndufresne.ca>
+Subject: Re: [PATCH 2/2] media: rkvdec: Support dynamic resolution changes
 From:   Nicolas Dufresne <nicolas@ndufresne.ca>
 To:     Chen-Yu Tsai <wenst@chromium.org>,
         Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
@@ -59,10 +58,10 @@ Cc:     linux-media@vger.kernel.org, linux-rockchip@lists.infradead.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
         stable@vger.kernel.org
-Date:   Fri, 08 Oct 2021 11:48:42 -0400
-In-Reply-To: <20211008100423.739462-2-wenst@chromium.org>
+Date:   Fri, 08 Oct 2021 11:54:16 -0400
+In-Reply-To: <20211008100423.739462-3-wenst@chromium.org>
 References: <20211008100423.739462-1-wenst@chromium.org>
-         <20211008100423.739462-2-wenst@chromium.org>
+         <20211008100423.739462-3-wenst@chromium.org>
 Content-Type: text/plain; charset="UTF-8"
 User-Agent: Evolution 3.40.4 (3.40.4-1.fc34) 
 MIME-Version: 1.0
@@ -72,49 +71,107 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 Le vendredi 08 octobre 2021 à 18:04 +0800, Chen-Yu Tsai a écrit :
-> The rkvdec H.264 decoder currently overrides sizeimage for the output
-> format. This causes issues when userspace requires and requests a larger
-> buffer, but ends up with one of insufficient size.
+> The mem-to-mem stateless decoder API specifies support for dynamic
+> resolution changes. In particular, the decoder should accept format
+> changes on the OUTPUT queue even when buffers have been allocated,
+> as long as it is not streaming.
+
+As commented in the code, it also requires the CAPTURE side not to be busy, not
+sure if its worth clarifying, I don't really mind.
+
 > 
-> Instead, only provide a default size if none was requested. This fixes
-> the video_decode_accelerator_tests from Chromium failing on the first
-> frame due to insufficient buffer space. It also aligns the behavior
-> of the rkvdec driver with the Hantro and Cedrus drivers.
+> Relax restrictions for S_FMT as described in the previous paragraph,
+> and as long as the codec format remains the same. This aligns it with
+> the Hantro and Cedrus decoders. This change was mostly based on commit
+> ae02d49493b5 ("media: hantro: Fix s_fmt for dynamic resolution changes").
+> 
+> Since rkvdec_s_fmt() is now just a wrapper around the output/capture
+> variants without any additional shared functionality, drop the wrapper
+> and call the respective functions directly.
 > 
 > Fixes: cd33c830448b ("media: rkvdec: Add the rkvdec driver")
 > Cc: <stable@vger.kernel.org>
 > Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-> ---
->  drivers/staging/media/rkvdec/rkvdec-h264.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/staging/media/rkvdec/rkvdec-h264.c b/drivers/staging/media/rkvdec/rkvdec-h264.c
-> index 76e97cbe2512..951e19231da2 100644
-> --- a/drivers/staging/media/rkvdec/rkvdec-h264.c
-> +++ b/drivers/staging/media/rkvdec/rkvdec-h264.c
-> @@ -1015,8 +1015,9 @@ static int rkvdec_h264_adjust_fmt(struct rkvdec_ctx *ctx,
->  	struct v4l2_pix_format_mplane *fmt = &f->fmt.pix_mp;
->  
->  	fmt->num_planes = 1;
-> -	fmt->plane_fmt[0].sizeimage = fmt->width * fmt->height *
-> -				      RKVDEC_H264_MAX_DEPTH_IN_BYTES;
-> +	if (!fmt->plane_fmt[0].sizeimage)
-> +		fmt->plane_fmt[0].sizeimage = fmt->width * fmt->height *
-> +					      RKVDEC_H264_MAX_DEPTH_IN_BYTES;
-
-Note that the test is more strict then the spec, since this behaviour is within
-spec. But in general, the application may have more information about the
-incoming stream, the maximum encoded frame size would even be encoded in the
-container (which is parsed in userspace). So I agree it will be more flexible to
-accept userspace desired size. If that size is too small, userspace will fail at
-filling it in the first place, and decoding won't be possible, that's all.
-
-Perhaps we could make a recommendation in that sense in the spec ?
 
 Reviewed-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 
+> ---
+>  drivers/staging/media/rkvdec/rkvdec.c | 40 +++++++++++++--------------
+>  1 file changed, 20 insertions(+), 20 deletions(-)
+> 
+> diff --git a/drivers/staging/media/rkvdec/rkvdec.c b/drivers/staging/media/rkvdec/rkvdec.c
+> index 7131156c1f2c..3f3f96488d74 100644
+> --- a/drivers/staging/media/rkvdec/rkvdec.c
+> +++ b/drivers/staging/media/rkvdec/rkvdec.c
+> @@ -280,31 +280,20 @@ static int rkvdec_try_output_fmt(struct file *file, void *priv,
 >  	return 0;
 >  }
+>  
+> -static int rkvdec_s_fmt(struct file *file, void *priv,
+> -			struct v4l2_format *f,
+> -			int (*try_fmt)(struct file *, void *,
+> -				       struct v4l2_format *))
+> +static int rkvdec_s_capture_fmt(struct file *file, void *priv,
+> +				struct v4l2_format *f)
+>  {
+>  	struct rkvdec_ctx *ctx = fh_to_rkvdec_ctx(priv);
+>  	struct vb2_queue *vq;
+> +	int ret;
+>  
+> -	if (!try_fmt)
+> -		return -EINVAL;
+> -
+> -	vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx, f->type);
+> +	/* Change not allowed if queue is busy */
+> +	vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx,
+> +			     V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
+>  	if (vb2_is_busy(vq))
+>  		return -EBUSY;
+>  
+> -	return try_fmt(file, priv, f);
+> -}
+> -
+> -static int rkvdec_s_capture_fmt(struct file *file, void *priv,
+> -				struct v4l2_format *f)
+> -{
+> -	struct rkvdec_ctx *ctx = fh_to_rkvdec_ctx(priv);
+> -	int ret;
+> -
+> -	ret = rkvdec_s_fmt(file, priv, f, rkvdec_try_capture_fmt);
+> +	ret = rkvdec_try_capture_fmt(file, priv, f);
+>  	if (ret)
+>  		return ret;
+>  
+> @@ -319,9 +308,20 @@ static int rkvdec_s_output_fmt(struct file *file, void *priv,
+>  	struct v4l2_m2m_ctx *m2m_ctx = ctx->fh.m2m_ctx;
+>  	const struct rkvdec_coded_fmt_desc *desc;
+>  	struct v4l2_format *cap_fmt;
+> -	struct vb2_queue *peer_vq;
+> +	struct vb2_queue *peer_vq, *vq;
+>  	int ret;
+>  
+> +	/*
+> +	 * In order to support dynamic resolution change, the decoder admits
+> +	 * a resolution change, as long as the pixelformat remains. Can't be
+> +	 * done if streaming.
+> +	 */
+> +	vq = v4l2_m2m_get_vq(m2m_ctx, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
+> +	if (vb2_is_streaming(vq) ||
+> +	    (vb2_is_busy(vq) &&
+> +	     f->fmt.pix_mp.pixelformat != ctx->coded_fmt.fmt.pix_mp.pixelformat))
+> +		return -EBUSY;
+> +
+>  	/*
+>  	 * Since format change on the OUTPUT queue will reset the CAPTURE
+>  	 * queue, we can't allow doing so when the CAPTURE queue has buffers
+> @@ -331,7 +331,7 @@ static int rkvdec_s_output_fmt(struct file *file, void *priv,
+>  	if (vb2_is_busy(peer_vq))
+>  		return -EBUSY;
+>  
+> -	ret = rkvdec_s_fmt(file, priv, f, rkvdec_try_output_fmt);
+> +	ret = rkvdec_try_output_fmt(file, priv, f);
+>  	if (ret)
+>  		return ret;
 >  
 
 
