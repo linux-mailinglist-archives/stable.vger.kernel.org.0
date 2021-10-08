@@ -2,128 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9357426755
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 12:02:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30C2642675D
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 12:06:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239628AbhJHKEY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 06:04:24 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:38299 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239609AbhJHKEX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Oct 2021 06:04:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633687347;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=/DYJJAEUu6hqgETTgE/jfMVtd0sOV59xWOXw/Ng2Zkk=;
-        b=AKXG9IFLhoTMN/2h6V8k0izor9Tv4o0cLcBsR5j3ENsjEFV7PkWc6CxN7+ye5hpsDgY6KB
-        2rpQHIUj1oY5fVa50P2hLvbERliQxJ/L1MLGq7O87ZLKPqSgi5+doMM4i30BSYT5dz5SF0
-        YGXBC1CyuIgKZeozr7QN1bNkIyjPKtA=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-89-mP9u8l-bOpy-4H_lnABGcQ-1; Fri, 08 Oct 2021 06:02:25 -0400
-X-MC-Unique: mP9u8l-bOpy-4H_lnABGcQ-1
-Received: by mail-ed1-f69.google.com with SMTP id p20-20020a50cd94000000b003db23619472so8700821edi.19
-        for <stable@vger.kernel.org>; Fri, 08 Oct 2021 03:02:25 -0700 (PDT)
+        id S239596AbhJHKIF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 06:08:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43116 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239517AbhJHKIE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Oct 2021 06:08:04 -0400
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B48ECC061760
+        for <stable@vger.kernel.org>; Fri,  8 Oct 2021 03:06:09 -0700 (PDT)
+Received: by mail-pl1-x62e.google.com with SMTP id n2so5807400plk.12
+        for <stable@vger.kernel.org>; Fri, 08 Oct 2021 03:06:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=KUHB0swnVu/KYbAl644YyqO7PSS/qaz1tm73DfYZaVs=;
+        b=KjcoqE6YX7cIYNyMM5PYyjs3wF5Gr2V320ljZVdIb+8BUaW/8M5CCYKaLtzNoZGRUe
+         uX7RLS8mMIbBVIyHfU4+FZU7qGeetDJtcCyahAW9TugFrTxmLr2rwzbIgcHNJDICBion
+         2QHzwmrXqPVSsePpTXgSsGzmNzcRd3RM8c36k=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=/DYJJAEUu6hqgETTgE/jfMVtd0sOV59xWOXw/Ng2Zkk=;
-        b=5bP0l/IeOIC7Q1VIZUD8UwbaGfApOtwxvRpmiYmficwNnV3ZaeElez1eASS+nzK+4k
-         ZneJIq/I1d2Yy/e/iAZxlHhpwIJj5/wnF83r48S0BxmhWMy0xn2g6EN+R97u8QTYCpVO
-         sIQOA2q9sVGMfNLXliHtNmUdN2K+yljQgBJeqEYb6yIDuPMPZe0o8z3HKOuvmzn7CfEy
-         Sdegp4WndmOOxc7NMCOHJ9Lw/IMvquM6nMLIvN6soX3YM63MVpAbokvwOR8VO2PUL2Ty
-         oCNFUak3i051KV3JQYKDjdTyNj1LcA/CyR297pElKoARVmcKnJDxpL0Xfnf4eO+VtWPm
-         hVkg==
-X-Gm-Message-State: AOAM532UL+KYX3CM43fpZ62vIa4fxU5Z6/oxjHojkif6IrWG4p0fxou3
-        i6y2v4my0zui+66rZaWJXotdSc0eYHTQo1fhptitoA0HL9OPM69P77/0ULEqvDzoo+b47HjLfeG
-        REm6Zn+nAG0En4J0d
-X-Received: by 2002:a05:6402:1157:: with SMTP id g23mr14198457edw.379.1633687344436;
-        Fri, 08 Oct 2021 03:02:24 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzCXcDy+V1Ve+4wDUmBknbIZIJdSTIfRrrkzU3KaFgOcLrOJufywV2OgzBitVmiWIDaj6yP9Q==
-X-Received: by 2002:a05:6402:1157:: with SMTP id g23mr14198441edw.379.1633687344249;
-        Fri, 08 Oct 2021 03:02:24 -0700 (PDT)
-Received: from redhat.com ([2.55.132.170])
-        by smtp.gmail.com with ESMTPSA id l6sm804400edt.21.2021.10.08.03.02.22
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=KUHB0swnVu/KYbAl644YyqO7PSS/qaz1tm73DfYZaVs=;
+        b=OT8osmqQoE5YcWyNZgXsWprledvHeXy24/tTMtwg5h2Qm4FcKsvADIu0/V9Vqj177i
+         9EaPkcanJhtV9GwgBkdbPaBgAoUYKNTp5+UhUZWVEp5okxf4IIBDAPyT7phhsPBMXYdk
+         tGFRyl84q+6P9m8aVmUbpgDAM6Q1izvWSMptYluTfvu6XuMpcCIlYTbhsD8ngiDtenaM
+         hK4fB+Bb6LYm8ibT7pnGmVtucb8JGWGpeTLTe6pu5j/gpVVe3DPzykmsBHorwZwPgw7R
+         oZSlkPFrrNTfKtAZgJTT/9bURc/T3IIXAd+LT9Cf82t0jzU0dtUkwovjQ97h09k7Vxto
+         QGgg==
+X-Gm-Message-State: AOAM530ZaLbtyinhwPa+2JsqSRX8HqSZda9OaTlYqhHcRSWSnw4H0mIw
+        BYZl0DvEyQFuKPNjh4VVVUXFkw==
+X-Google-Smtp-Source: ABdhPJxkBdREzfd4W+kfYcgYxTKjv3LHKdMoe+zGfcZMc2uCzCDqxRU5AMNwaiX+5Rzy51jDyTfhwQ==
+X-Received: by 2002:a17:90a:b706:: with SMTP id l6mr11379699pjr.200.1633687569261;
+        Fri, 08 Oct 2021 03:06:09 -0700 (PDT)
+Received: from wenstp920.tpe.corp.google.com ([2401:fa00:1:10:ad8d:f936:2048:d735])
+        by smtp.gmail.com with ESMTPSA id a7sm2082255pfn.150.2021.10.08.03.06.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Oct 2021 03:02:23 -0700 (PDT)
-Date:   Fri, 8 Oct 2021 06:02:20 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Corentin =?iso-8859-1?Q?No=EBl?= <corentin.noel@collabora.com>,
-        Jason Wang <jasowang@redhat.com>,
-        virtualization@lists.linux-foundation.org,
-        regressions@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Fri, 08 Oct 2021 03:06:08 -0700 (PDT)
+From:   Chen-Yu Tsai <wenst@chromium.org>
+To:     Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc:     Chen-Yu Tsai <wenst@chromium.org>, linux-media@vger.kernel.org,
+        linux-rockchip@lists.infradead.org, linux-staging@lists.linux.dev,
+        linux-kernel@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
         stable@vger.kernel.org
-Subject: Re: virtio-net: kernel panic in virtio_net.c
-Message-ID: <20211008055902-mutt-send-email-mst@kernel.org>
-References: <YV8RTqGSTuVLMFOP@kroah.com>
- <1633623446.6192446-1-xuanzhuo@linux.alibaba.com>
- <YV/8Ia1d9zXvMqqc@kroah.com>
+Subject: [PATCH 1/2] media: rkvdec: Do not override sizeimage for output format
+Date:   Fri,  8 Oct 2021 18:04:22 +0800
+Message-Id: <20211008100423.739462-2-wenst@chromium.org>
+X-Mailer: git-send-email 2.33.0.882.g93a45727a2-goog
+In-Reply-To: <20211008100423.739462-1-wenst@chromium.org>
+References: <20211008100423.739462-1-wenst@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <YV/8Ia1d9zXvMqqc@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 08, 2021 at 10:06:57AM +0200, Greg KH wrote:
-> On Fri, Oct 08, 2021 at 12:17:26AM +0800, Xuan Zhuo wrote:
-> > On Thu, 7 Oct 2021 17:25:02 +0200, Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > On Thu, Oct 07, 2021 at 11:06:12PM +0800, Xuan Zhuo wrote:
-> > > > On Thu, 07 Oct 2021 14:04:22 +0200, Corentin Noël <corentin.noel@collabora.com> wrote:
-> > > > > I've been experiencing crashes with 5.14-rc1 and above that do not
-> > > > > occur with 5.13,
-> > > >
-> > > > I should have fixed this problem before. I don't know why, I just looked at the
-> > > > latest net code, and this commit seems to be lost.
-> > > >
-> > > >      1a8024239dacf53fcf39c0f07fbf2712af22864f virtio-net: fix for skb_over_panic inside big mode
-> > > >
-> > > > Can you test this patch again?
-> > >
-> > > That commit showed up in 5.13-rc5, so 5.14-rc1 and 5.13 should have had
-> > > it in it, right?
-> > >
-> > 
-> > Yes, it may be lost due to conflicts during a certain merge.
-> 
-> Really?  I tried to apply that again to 5.14 and it did not work.  So I
-> do not understand what to do here, can you try to explain it better?
-> 
-> thanks,
-> 
-> greg k-h
+The rkvdec H.264 decoder currently overrides sizeimage for the output
+format. This causes issues when userspace requires and requests a larger
+buffer, but ends up with one of insufficient size.
 
-Hmm, something like the following perhaps then?
-Corentin would you like to try this?
-Warning: untested.
+Instead, only provide a default size if none was requested. This fixes
+the video_decode_accelerator_tests from Chromium failing on the first
+frame due to insufficient buffer space. It also aligns the behavior
+of the rkvdec driver with the Hantro and Cedrus drivers.
 
+Fixes: cd33c830448b ("media: rkvdec: Add the rkvdec driver")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+---
+ drivers/staging/media/rkvdec/rkvdec-h264.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 096c2ac6b7a6..18dd9f6d107d 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -406,12 +406,13 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- 	 * add_recvbuf_mergeable() + get_mergeable_buf_len()
- 	 */
- 	truesize = headroom ? PAGE_SIZE : truesize;
--	tailroom = truesize - len - headroom;
-+	tailroom = truesize - headroom;
- 	buf = p - headroom;
+diff --git a/drivers/staging/media/rkvdec/rkvdec-h264.c b/drivers/staging/media/rkvdec/rkvdec-h264.c
+index 76e97cbe2512..951e19231da2 100644
+--- a/drivers/staging/media/rkvdec/rkvdec-h264.c
++++ b/drivers/staging/media/rkvdec/rkvdec-h264.c
+@@ -1015,8 +1015,9 @@ static int rkvdec_h264_adjust_fmt(struct rkvdec_ctx *ctx,
+ 	struct v4l2_pix_format_mplane *fmt = &f->fmt.pix_mp;
  
- 	len -= hdr_len;
- 	offset += hdr_padded_len;
- 	p += hdr_padded_len;
-+	tailroom -= hdr_padded_len + len;
+ 	fmt->num_planes = 1;
+-	fmt->plane_fmt[0].sizeimage = fmt->width * fmt->height *
+-				      RKVDEC_H264_MAX_DEPTH_IN_BYTES;
++	if (!fmt->plane_fmt[0].sizeimage)
++		fmt->plane_fmt[0].sizeimage = fmt->width * fmt->height *
++					      RKVDEC_H264_MAX_DEPTH_IN_BYTES;
+ 	return 0;
+ }
  
- 	shinfo_size = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
- 
+-- 
+2.33.0.882.g93a45727a2-goog
 
