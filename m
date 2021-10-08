@@ -2,131 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAA14426886
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:17:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 488A64268C1
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:28:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240177AbhJHLTK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:19:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59444 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240082AbhJHLTK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Oct 2021 07:19:10 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A670DC061755;
-        Fri,  8 Oct 2021 04:17:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
-        Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
-        Content-ID:Content-Description:In-Reply-To;
-        bh=MLBczIwgfzeLbScljLp1G7yX9BxWvuTlFh8XrSH1m84=; b=EsWUcNy7X1pxSg/3JppKere+rn
-        Q/LqgISmaCXx5XliS78/WHpuybOwDYcGnyg8+6zOCujnOENeS9MxMeI0yHF8ciMWwprpi106Oe0el
-        2FGvYJ9irJhyN/eRUfx5bNZbg2X84D6RGTQ92hMA7nIX4zTMDBbG3uzjfg5kJ6rOflry5KrOrbQbR
-        +XkfJvP47dp0mtpF1+w5koEaA4Vg37N2fsHFA9qOnXWZ2/w6EmtF4Jlvd9qCGQpHy+Jn78ZXMT/MV
-        yXgISXQUZsjInq3nql3MimkKotV3df/LVtiZdLns5caQAxkY/wCyfkBQUx6E5IM8URQIcB+MTLReu
-        H8Cge1HA==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mYnsD-008eL9-Bp; Fri, 08 Oct 2021 11:17:09 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 04A87300F19;
-        Fri,  8 Oct 2021 13:17:07 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id D20662C4B3CDC; Fri,  8 Oct 2021 13:17:07 +0200 (CEST)
-Message-ID: <20211008111626.090829198@infradead.org>
-User-Agent: quilt/0.66
-Date:   Fri, 08 Oct 2021 13:15:28 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     keescook@chromium.org, jannh@google.com
-Cc:     linux-kernel@vger.kernel.org, peterz@infradead.org,
-        vcaputo@pengaru.com, mingo@redhat.com, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
-        rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de,
-        bristot@redhat.com, akpm@linux-foundation.org,
-        christian.brauner@ubuntu.com, amistry@google.com,
-        Kenta.Tada@sony.com, legion@kernel.org,
-        michael.weiss@aisec.fraunhofer.de, mhocko@suse.com, deller@gmx.de,
-        zhengqi.arch@bytedance.com, me@tobin.cc, tycho@tycho.pizza,
-        tglx@linutronix.de, bp@alien8.de, hpa@zytor.com,
-        mark.rutland@arm.com, axboe@kernel.dk, metze@samba.org,
-        laijs@linux.alibaba.com, luto@kernel.org,
-        dave.hansen@linux.intel.com, ebiederm@xmission.com,
-        ohoono.kwon@samsung.com, kaleshsingh@google.com,
-        yifeifz2@illinois.edu, jpoimboe@redhat.com,
-        linux-hardening@vger.kernel.org, linux-arch@vger.kernel.org,
-        vgupta@kernel.org, linux@armlinux.org.uk, will@kernel.org,
-        guoren@kernel.org, bcain@codeaurora.org, monstr@monstr.eu,
-        tsbogend@alpha.franken.de, nickhu@andestech.com,
-        jonas@southpole.se, mpe@ellerman.id.au, paul.walmsley@sifive.com,
-        hca@linux.ibm.com, ysato@users.sourceforge.jp, davem@davemloft.net,
-        chris@zankel.net, kernel test robot <oliver.sang@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/7] Revert "proc/wchan: use printk format instead of lookup_symbol_name()"
-References: <20211008111527.438276127@infradead.org>
+        id S240394AbhJHLao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:30:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57914 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S240415AbhJHLai (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:30:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2583061038;
+        Fri,  8 Oct 2021 11:28:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1633692523;
+        bh=3cV1bN0wU+N0BwiqBTcFj0uKuvH9NKcIVHEIcEK0K4g=;
+        h=From:To:Cc:Subject:Date:From;
+        b=fscJ7Zv9Da8HVwmcRbxgiVyjdzCTpIRVPtT1aSnMEsay/AFUW2we6JuIgHgPXLgAc
+         VcNA9aDHxdYvjhQ/tT8XPEKDXvYqcp0TPZTCMXiq7y5fLD7iBfvoPq7D1ZGaqxSTR4
+         pmU9ClfyO3DG9BUZV1pdOMOuLxN2cGM/JJQhL1SI=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.4 0/7] 4.4.288-rc1 review
+Date:   Fri,  8 Oct 2021 13:27:32 +0200
+Message-Id: <20211008112713.515980393@linuxfoundation.org>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.288-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.288-rc1
+X-KernelTest-Deadline: 2021-10-10T11:27+00:00
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+This is the start of the stable review cycle for the 4.4.288 release.
+There are 7 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-This reverts commit 152c432b128cb043fc107e8f211195fe94b2159c.
+Responses should be made by Sun, 10 Oct 2021 11:27:07 +0000.
+Anything received after that time might be too late.
 
-When a kernel address couldn't be symbolized for /proc/$pid/wchan, it
-would leak the raw value, a potential information exposure. This is a
-regression compared to the safer pre-v5.12 behavior.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.288-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
 
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Reported-by: Vito Caputo <vcaputo@pengaru.com>
-Reported-by: Jann Horn <jannh@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
----
- fs/proc/base.c |   21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+thanks,
 
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -67,6 +67,7 @@
- #include <linux/mm.h>
- #include <linux/swap.h>
- #include <linux/rcupdate.h>
-+#include <linux/kallsyms.h>
- #include <linux/stacktrace.h>
- #include <linux/resource.h>
- #include <linux/module.h>
-@@ -386,17 +387,19 @@ static int proc_pid_wchan(struct seq_fil
- 			  struct pid *pid, struct task_struct *task)
- {
- 	unsigned long wchan;
-+	char symname[KSYM_NAME_LEN];
- 
--	if (ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS))
--		wchan = get_wchan(task);
--	else
--		wchan = 0;
--
--	if (wchan)
--		seq_printf(m, "%ps", (void *) wchan);
--	else
--		seq_putc(m, '0');
-+	if (!ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS))
-+		goto print0;
- 
-+	wchan = get_wchan(task);
-+	if (wchan && !lookup_symbol_name(wchan, symname)) {
-+		seq_puts(m, symname);
-+		return 0;
-+	}
-+
-+print0:
-+	seq_putc(m, '0');
- 	return 0;
- }
- #endif /* CONFIG_KALLSYMS */
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.288-rc1
+
+Kate Hsuan <hpa@redhat.com>
+    libata: Add ATA_HORKAGE_NO_NCQ_ON_ATI for Samsung 860 and 870 SSD.
+
+Faizel K B <faizel.kb@dicortech.com>
+    usb: testusb: Fix for showing the connection speed
+
+Ming Lei <ming.lei@redhat.com>
+    scsi: sd: Free scsi_disk device via put_device()
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    ext2: fix sleeping in atomic bugs on error
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    sparc64: fix pci_iounmap() when CONFIG_PCI is not set
+
+Jan Beulich <jbeulich@suse.com>
+    xen-netback: correct success/error reporting for the SKB-with-fraglist case
+
+Eric Dumazet <edumazet@google.com>
+    af_unix: fix races in sk_peer_pid and sk_peer_cred accesses
+
+
+-------------
+
+Diffstat:
+
+ Makefile                          |  4 ++--
+ arch/sparc/lib/iomap.c            |  2 ++
+ drivers/ata/libata-core.c         | 34 ++++++++++++++++++++++++++++++++--
+ drivers/net/xen-netback/netback.c |  2 +-
+ drivers/scsi/sd.c                 |  9 +++++----
+ fs/ext2/balloc.c                  | 14 ++++++--------
+ include/linux/libata.h            |  1 +
+ include/net/sock.h                |  2 ++
+ net/core/sock.c                   | 12 +++++++++---
+ net/unix/af_unix.c                | 34 ++++++++++++++++++++++++++++------
+ tools/usb/testusb.c               | 14 ++++++++------
+ 11 files changed, 96 insertions(+), 32 deletions(-)
 
 
