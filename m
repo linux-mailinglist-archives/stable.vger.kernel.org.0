@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C02E142695A
-	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:35:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB0994268E5
+	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:31:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241856AbhJHLgU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:36:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59464 "EHLO mail.kernel.org"
+        id S240361AbhJHLcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:32:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241274AbhJHLeH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Oct 2021 07:34:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A197461283;
-        Fri,  8 Oct 2021 11:31:30 +0000 (UTC)
+        id S240949AbhJHLbg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:31:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75A5761038;
+        Fri,  8 Oct 2021 11:29:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692691;
-        bh=1BDI3ZVdJ/s08tnw6uvuhb79UtVnXik7lPZ9T5LzB1M=;
+        s=korg; t=1633692575;
+        bh=2Sc+hYFpuWB13klQkc59xSGuEuPdy8osJpURZ5drutU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ROt3RofDPjiQjq8n71dRQZcGSDan/VDdBiagrVT2daBFuai1qm4ce+h5ADTvkFD/b
-         BVMiQg3N7zVazUCZXDM/2RNhtS/5GmTwdVRoh7sCPLI4Mv6x2YnJZnirLT7mV/m+O/
-         SXFVK5jh8Ja09M5awmlBP70V/TcGZsn+09bxRPUY=
+        b=CIak6Tb7VsdTdt4v3f8DP0x7lMSXk/IDon+wVkh5DlGzSQUCXrwMBJTDM5sVEBbVJ
+         IXIuhOlOVuB67i4IzuNIIu/YD3C3qeJJ6YhfBhNC8Mo1qQSoZT174+y5adJbRQIsPu
+         HBU11Hwt09833eI+UCyXua8dBo2A3dO0iIa/d/eE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 03/29] platform/x86: touchscreen_dmi: Update info for the Chuwi Hi10 Plus (CWI527) tablet
-Date:   Fri,  8 Oct 2021 13:27:50 +0200
-Message-Id: <20211008112717.040167258@linuxfoundation.org>
+        stable@vger.kernel.org, Davidlohr Bueso <dbueso@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.14 10/10] lib/timerqueue: Rely on rbtree semantics for next timer
+Date:   Fri,  8 Oct 2021 13:27:51 +0200
+Message-Id: <20211008112714.780766407@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211008112716.914501436@linuxfoundation.org>
-References: <20211008112716.914501436@linuxfoundation.org>
+In-Reply-To: <20211008112714.445637990@linuxfoundation.org>
+References: <20211008112714.445637990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,64 +40,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Davidlohr Bueso <dave@stgolabs.net>
 
-[ Upstream commit 196159d278ae3b49e7bbb7c76822e6008fd89b97 ]
+commit 511885d7061eda3eb1faf3f57dcc936ff75863f1 upstream.
 
-Add info for getting the firmware directly from the UEFI for the Chuwi Hi10
-Plus (CWI527), so that the user does not need to manually install the
-firmware in /lib/firmware/silead.
+Simplify the timerqueue code by using cached rbtrees and rely on the tree
+leftmost node semantics to get the timer with earliest expiration time.
+This is a drop in conversion, and therefore semantics remain untouched.
 
-This change will make the touchscreen on these devices work OOTB,
-without requiring any manual setup.
+The runtime overhead of cached rbtrees is be pretty much the same as the
+current head->next method, noting that when removing the leftmost node,
+a common operation for the timerqueue, the rb_next(leftmost) is O(1) as
+well, so the next timer will either be the right node or its parent.
+Therefore no extra pointer chasing. Finally, the size of the struct
+timerqueue_head remains the same.
 
-Also tweak the min and width/height values a bit for more accurate position
-reporting.
+Passes several hours of rcutorture.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210905130210.32810-2-hdegoede@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Davidlohr Bueso <dbueso@suse.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190724152323.bojciei3muvfxalm@linux-r8p5
+Reference: CVE-2021-20317
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/touchscreen_dmi.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ include/linux/timerqueue.h |   13 ++++++-------
+ lib/timerqueue.c           |   30 ++++++++++++------------------
+ 2 files changed, 18 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index 4f5d53b585db..59b7e90cd587 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -100,10 +100,10 @@ static const struct ts_dmi_data chuwi_hi10_air_data = {
+--- a/include/linux/timerqueue.h
++++ b/include/linux/timerqueue.h
+@@ -12,8 +12,7 @@ struct timerqueue_node {
  };
  
- static const struct property_entry chuwi_hi10_plus_props[] = {
--	PROPERTY_ENTRY_U32("touchscreen-min-x", 0),
--	PROPERTY_ENTRY_U32("touchscreen-min-y", 5),
--	PROPERTY_ENTRY_U32("touchscreen-size-x", 1914),
--	PROPERTY_ENTRY_U32("touchscreen-size-y", 1283),
-+	PROPERTY_ENTRY_U32("touchscreen-min-x", 12),
-+	PROPERTY_ENTRY_U32("touchscreen-min-y", 10),
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1908),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 1270),
- 	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-chuwi-hi10plus.fw"),
- 	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
- 	PROPERTY_ENTRY_BOOL("silead,home-button"),
-@@ -111,6 +111,15 @@ static const struct property_entry chuwi_hi10_plus_props[] = {
+ struct timerqueue_head {
+-	struct rb_root head;
+-	struct timerqueue_node *next;
++	struct rb_root_cached rb_root;
  };
  
- static const struct ts_dmi_data chuwi_hi10_plus_data = {
-+	.embedded_fw = {
-+		.name	= "silead/gsl1680-chuwi-hi10plus.fw",
-+		.prefix = { 0xf0, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00 },
-+		.length	= 34056,
-+		.sha256	= { 0xfd, 0x0a, 0x08, 0x08, 0x3c, 0xa6, 0x34, 0x4e,
-+			    0x2c, 0x49, 0x9c, 0xcd, 0x7d, 0x44, 0x9d, 0x38,
-+			    0x10, 0x68, 0xb5, 0xbd, 0xb7, 0x2a, 0x63, 0xb5,
-+			    0x67, 0x0b, 0x96, 0xbd, 0x89, 0x67, 0x85, 0x09 },
-+	},
- 	.acpi_name      = "MSSL0017:00",
- 	.properties     = chuwi_hi10_plus_props,
- };
--- 
-2.33.0
-
+ 
+@@ -29,13 +28,14 @@ extern struct timerqueue_node *timerqueu
+  *
+  * @head: head of timerqueue
+  *
+- * Returns a pointer to the timer node that has the
+- * earliest expiration time.
++ * Returns a pointer to the timer node that has the earliest expiration time.
+  */
+ static inline
+ struct timerqueue_node *timerqueue_getnext(struct timerqueue_head *head)
+ {
+-	return head->next;
++	struct rb_node *leftmost = rb_first_cached(&head->rb_root);
++
++	return rb_entry(leftmost, struct timerqueue_node, node);
+ }
+ 
+ static inline void timerqueue_init(struct timerqueue_node *node)
+@@ -45,7 +45,6 @@ static inline void timerqueue_init(struc
+ 
+ static inline void timerqueue_init_head(struct timerqueue_head *head)
+ {
+-	head->head = RB_ROOT;
+-	head->next = NULL;
++	head->rb_root = RB_ROOT_CACHED;
+ }
+ #endif /* _LINUX_TIMERQUEUE_H */
+--- a/lib/timerqueue.c
++++ b/lib/timerqueue.c
+@@ -38,9 +38,10 @@
+  */
+ bool timerqueue_add(struct timerqueue_head *head, struct timerqueue_node *node)
+ {
+-	struct rb_node **p = &head->head.rb_node;
++	struct rb_node **p = &head->rb_root.rb_root.rb_node;
+ 	struct rb_node *parent = NULL;
+-	struct timerqueue_node  *ptr;
++	struct timerqueue_node *ptr;
++	bool leftmost = true;
+ 
+ 	/* Make sure we don't add nodes that are already added */
+ 	WARN_ON_ONCE(!RB_EMPTY_NODE(&node->node));
+@@ -48,19 +49,17 @@ bool timerqueue_add(struct timerqueue_he
+ 	while (*p) {
+ 		parent = *p;
+ 		ptr = rb_entry(parent, struct timerqueue_node, node);
+-		if (node->expires < ptr->expires)
++		if (node->expires < ptr->expires) {
+ 			p = &(*p)->rb_left;
+-		else
++		} else {
+ 			p = &(*p)->rb_right;
++			leftmost = false;
++		}
+ 	}
+ 	rb_link_node(&node->node, parent, p);
+-	rb_insert_color(&node->node, &head->head);
++	rb_insert_color_cached(&node->node, &head->rb_root, leftmost);
+ 
+-	if (!head->next || node->expires < head->next->expires) {
+-		head->next = node;
+-		return true;
+-	}
+-	return false;
++	return leftmost;
+ }
+ EXPORT_SYMBOL_GPL(timerqueue_add);
+ 
+@@ -76,15 +75,10 @@ bool timerqueue_del(struct timerqueue_he
+ {
+ 	WARN_ON_ONCE(RB_EMPTY_NODE(&node->node));
+ 
+-	/* update next pointer */
+-	if (head->next == node) {
+-		struct rb_node *rbn = rb_next(&node->node);
+-
+-		head->next = rb_entry_safe(rbn, struct timerqueue_node, node);
+-	}
+-	rb_erase(&node->node, &head->head);
++	rb_erase_cached(&node->node, &head->rb_root);
+ 	RB_CLEAR_NODE(&node->node);
+-	return head->next != NULL;
++
++	return !RB_EMPTY_ROOT(&head->rb_root.rb_root);
+ }
+ EXPORT_SYMBOL_GPL(timerqueue_del);
+ 
 
 
