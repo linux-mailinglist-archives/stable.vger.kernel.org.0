@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1133B42699C
+	by mail.lfdr.de (Postfix) with ESMTP id 59B8842699D
 	for <lists+stable@lfdr.de>; Fri,  8 Oct 2021 13:37:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241430AbhJHLjg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Oct 2021 07:39:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39720 "EHLO mail.kernel.org"
+        id S241486AbhJHLjh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Oct 2021 07:39:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242524AbhJHLiJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242525AbhJHLiJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 8 Oct 2021 07:38:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8467561506;
-        Fri,  8 Oct 2021 11:32:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B11E2613D3;
+        Fri,  8 Oct 2021 11:33:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633692780;
-        bh=J+N4+GuPHs+9eKhVz/mss9L3pm6/VT3HUUc/79tPF9I=;
+        s=korg; t=1633692782;
+        bh=ou2hZq+gTZFGBZNdSzyvJdydS0R0X81QWJYNKhU22Bw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W2C+TJy31ay2jspnNB+IZsV41BchC6b0IN9PE8VK33e4MaLKFh7+UvkpCPuS7SgAn
-         APa3X7rHtVi0qixeOi+fpoQnGva2L6BSvRO8JhRAaam6LGXdbgkth0la3E/QBHLUPl
-         WAyOB5TEFja0acacffpxrKdo/imfcaZPBoJ04lh8=
+        b=Qp39TykAPkdUTg9jBUKngW+mRmC/2vgvuv017/rKkLfEWjAStiW5qYGqq5rPteVeP
+         43Oup4LRjHIN9wyAavnVz4WdLIquYvyCq7V437RENg7AfpHtnPdsgnd1s5R1gAWqqo
+         UPkRYXJNW0hHl80db+7+PoSHGxy182h5uWLA3rGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        stable@vger.kernel.org, Fares Mehanna <faresx@amazon.de>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 42/48] KVM: x86: reset pdptrs_from_userspace when exiting smm
-Date:   Fri,  8 Oct 2021 13:28:18 +0200
-Message-Id: <20211008112721.450195654@linuxfoundation.org>
+Subject: [PATCH 5.14 43/48] kvm: x86: Add AMD PMU MSRs to msrs_to_save_all[]
+Date:   Fri,  8 Oct 2021 13:28:19 +0200
+Message-Id: <20211008112721.481354262@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211008112720.008415452@linuxfoundation.org>
 References: <20211008112720.008415452@linuxfoundation.org>
@@ -40,18 +40,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Fares Mehanna <faresx@amazon.de>
 
-[ Upstream commit 37687c403a641f251cb2ef2e7830b88aa0647ba9 ]
+[ Upstream commit e1fc1553cd78292ab3521c94c9dd6e3e70e606a1 ]
 
-When exiting SMM, pdpts are loaded again from the guest memory.
+Intel PMU MSRs is in msrs_to_save_all[], so add AMD PMU MSRs to have a
+consistent behavior between Intel and AMD when using KVM_GET_MSRS,
+KVM_SET_MSRS or KVM_GET_MSR_INDEX_LIST.
 
-This fixes a theoretical bug, when exit from SMM triggers entry to the
-nested guest which re-uses some of the migration
-code which uses this flag as a workaround for a legacy userspace.
+We have to add legacy and new MSRs to handle guests running without
+X86_FEATURE_PERFCTR_CORE.
 
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20210913140954.165665-4-mlevitsk@redhat.com>
+Signed-off-by: Fares Mehanna <faresx@amazon.de>
+Message-Id: <20210915133951.22389-1-faresx@amazon.de>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
@@ -59,23 +60,23 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+)
 
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 6d5d6e93f5c4..07d3d8aa50a9 100644
+index 07d3d8aa50a9..4b0e866e9f08 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -7659,6 +7659,13 @@ static void kvm_smm_changed(struct kvm_vcpu *vcpu, bool entering_smm)
- 
- 		/* Process a latched INIT or SMI, if any.  */
- 		kvm_make_request(KVM_REQ_EVENT, vcpu);
+@@ -1327,6 +1327,13 @@ static const u32 msrs_to_save_all[] = {
+ 	MSR_ARCH_PERFMON_EVENTSEL0 + 12, MSR_ARCH_PERFMON_EVENTSEL0 + 13,
+ 	MSR_ARCH_PERFMON_EVENTSEL0 + 14, MSR_ARCH_PERFMON_EVENTSEL0 + 15,
+ 	MSR_ARCH_PERFMON_EVENTSEL0 + 16, MSR_ARCH_PERFMON_EVENTSEL0 + 17,
 +
-+		/*
-+		 * Even if KVM_SET_SREGS2 loaded PDPTRs out of band,
-+		 * on SMM exit we still need to reload them from
-+		 * guest memory
-+		 */
-+		vcpu->arch.pdptrs_from_userspace = false;
- 	}
++	MSR_K7_EVNTSEL0, MSR_K7_EVNTSEL1, MSR_K7_EVNTSEL2, MSR_K7_EVNTSEL3,
++	MSR_K7_PERFCTR0, MSR_K7_PERFCTR1, MSR_K7_PERFCTR2, MSR_K7_PERFCTR3,
++	MSR_F15H_PERF_CTL0, MSR_F15H_PERF_CTL1, MSR_F15H_PERF_CTL2,
++	MSR_F15H_PERF_CTL3, MSR_F15H_PERF_CTL4, MSR_F15H_PERF_CTL5,
++	MSR_F15H_PERF_CTR0, MSR_F15H_PERF_CTR1, MSR_F15H_PERF_CTR2,
++	MSR_F15H_PERF_CTR3, MSR_F15H_PERF_CTR4, MSR_F15H_PERF_CTR5,
+ };
  
- 	kvm_mmu_reset_context(vcpu);
+ static u32 msrs_to_save[ARRAY_SIZE(msrs_to_save_all)];
 -- 
 2.33.0
 
