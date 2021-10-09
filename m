@@ -2,450 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6041C427A2E
-	for <lists+stable@lfdr.de>; Sat,  9 Oct 2021 14:38:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F21E6427A30
+	for <lists+stable@lfdr.de>; Sat,  9 Oct 2021 14:39:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232982AbhJIMky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Oct 2021 08:40:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37078 "EHLO mail.kernel.org"
+        id S233068AbhJIMk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Oct 2021 08:40:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230418AbhJIMky (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Oct 2021 08:40:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5268B60F59;
-        Sat,  9 Oct 2021 12:38:57 +0000 (UTC)
+        id S233139AbhJIMk5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Oct 2021 08:40:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 371FB60F6C;
+        Sat,  9 Oct 2021 12:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633783137;
-        bh=HPELlrWxypEyOYtqOQgPdL76pAbugtaRXSCeeBHDZ4s=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m7wjcSoKBpbexcJvvzWPHfjWHjaYVT0STQ7rCs0RRVgiDZ0gTuLTPdj3FsVbJgbHt
-         zI+AYFj+Nu7OGTtTByNhv2V1xoIYvbaozCeKotJhqDR/Hpn5K9Mp/uBsNU19zlWqiF
-         xXZaKjaBinoBYedA/+cSix94q2YsxaoMm+D4VxaA=
+        s=korg; t=1633783140;
+        bh=4NumlGnm9f76//1DfX4Q74Gz6aNkl3mJVsiAskgHEh0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=DcF3/jHQufD0wQhxDUbr9L5B4+Uu3PK7hg2JRMWU0Io4K89O5Aj0oOg1i3WGxL5VS
+         8t+HEauffSxIhPRghaATxFAFDOuxbQ1AL3qhAH2DA1yX9YIl/zDzmFGz0Gr3eixomi
+         /0nWSTT5VBAooTuMFXRMyPBZZc90xYhz/x1Szy3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.14.250
-Date:   Sat,  9 Oct 2021 14:38:50 +0200
-Message-Id: <1633783130223126@kroah.com>
+Subject: Linux 4.19.210
+Date:   Sat,  9 Oct 2021 14:38:54 +0200
+Message-Id: <16337831348850@kroah.com>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <163378313021875@kroah.com>
-References: <163378313021875@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index f7559e82d514..7fed41bc6a4f 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 4
- PATCHLEVEL = 14
--SUBLEVEL = 249
-+SUBLEVEL = 250
- EXTRAVERSION =
- NAME = Petit Gorille
- 
-diff --git a/arch/sparc/lib/iomap.c b/arch/sparc/lib/iomap.c
-index c9da9f139694..f3a8cd491ce0 100644
---- a/arch/sparc/lib/iomap.c
-+++ b/arch/sparc/lib/iomap.c
-@@ -19,8 +19,10 @@ void ioport_unmap(void __iomem *addr)
- EXPORT_SYMBOL(ioport_map);
- EXPORT_SYMBOL(ioport_unmap);
- 
-+#ifdef CONFIG_PCI
- void pci_iounmap(struct pci_dev *dev, void __iomem * addr)
- {
- 	/* nothing to do */
- }
- EXPORT_SYMBOL(pci_iounmap);
-+#endif
-diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-index 8310beab6b2f..61dbe6fc29b9 100644
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -2276,6 +2276,25 @@ static void ata_dev_config_ncq_prio(struct ata_device *dev)
- 
- }
- 
-+static bool ata_dev_check_adapter(struct ata_device *dev,
-+				  unsigned short vendor_id)
-+{
-+	struct pci_dev *pcidev = NULL;
-+	struct device *parent_dev = NULL;
-+
-+	for (parent_dev = dev->tdev.parent; parent_dev != NULL;
-+	     parent_dev = parent_dev->parent) {
-+		if (dev_is_pci(parent_dev)) {
-+			pcidev = to_pci_dev(parent_dev);
-+			if (pcidev->vendor == vendor_id)
-+				return true;
-+			break;
-+		}
-+	}
-+
-+	return false;
-+}
-+
- static int ata_dev_config_ncq(struct ata_device *dev,
- 			       char *desc, size_t desc_sz)
- {
-@@ -2292,6 +2311,13 @@ static int ata_dev_config_ncq(struct ata_device *dev,
- 		snprintf(desc, desc_sz, "NCQ (not used)");
- 		return 0;
- 	}
-+
-+	if (dev->horkage & ATA_HORKAGE_NO_NCQ_ON_ATI &&
-+	    ata_dev_check_adapter(dev, PCI_VENDOR_ID_ATI)) {
-+		snprintf(desc, desc_sz, "NCQ (not used)");
-+		return 0;
-+	}
-+
- 	if (ap->flags & ATA_FLAG_NCQ) {
- 		hdepth = min(ap->scsi_host->can_queue, ATA_MAX_QUEUE - 1);
- 		dev->flags |= ATA_DFLAG_NCQ;
-@@ -4565,9 +4591,11 @@ static const struct ata_blacklist_entry ata_device_blacklist [] = {
- 	{ "Samsung SSD 850*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
- 	{ "Samsung SSD 860*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
--						ATA_HORKAGE_ZERO_AFTER_TRIM, },
-+						ATA_HORKAGE_ZERO_AFTER_TRIM |
-+						ATA_HORKAGE_NO_NCQ_ON_ATI, },
- 	{ "Samsung SSD 870*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
--						ATA_HORKAGE_ZERO_AFTER_TRIM, },
-+						ATA_HORKAGE_ZERO_AFTER_TRIM |
-+						ATA_HORKAGE_NO_NCQ_ON_ATI, },
- 	{ "FCCT*M500*",			NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
- 
-@@ -6860,6 +6888,8 @@ static int __init ata_parse_force_one(char **cur,
- 		{ "ncq",	.horkage_off	= ATA_HORKAGE_NONCQ },
- 		{ "noncqtrim",	.horkage_on	= ATA_HORKAGE_NO_NCQ_TRIM },
- 		{ "ncqtrim",	.horkage_off	= ATA_HORKAGE_NO_NCQ_TRIM },
-+		{ "noncqati",	.horkage_on	= ATA_HORKAGE_NO_NCQ_ON_ATI },
-+		{ "ncqati",	.horkage_off	= ATA_HORKAGE_NO_NCQ_ON_ATI },
- 		{ "dump_id",	.horkage_on	= ATA_HORKAGE_DUMP_ID },
- 		{ "pio0",	.xfer_mask	= 1 << (ATA_SHIFT_PIO + 0) },
- 		{ "pio1",	.xfer_mask	= 1 << (ATA_SHIFT_PIO + 1) },
-diff --git a/drivers/net/phy/mdio_device.c b/drivers/net/phy/mdio_device.c
-index e24f28924af8..5265180251ea 100644
---- a/drivers/net/phy/mdio_device.c
-+++ b/drivers/net/phy/mdio_device.c
-@@ -146,6 +146,16 @@ static int mdio_remove(struct device *dev)
- 	return 0;
- }
- 
-+static void mdio_shutdown(struct device *dev)
-+{
-+	struct mdio_device *mdiodev = to_mdio_device(dev);
-+	struct device_driver *drv = mdiodev->dev.driver;
-+	struct mdio_driver *mdiodrv = to_mdio_driver(drv);
-+
-+	if (mdiodrv->shutdown)
-+		mdiodrv->shutdown(mdiodev);
-+}
-+
- /**
-  * mdio_driver_register - register an mdio_driver with the MDIO layer
-  * @new_driver: new mdio_driver to register
-@@ -160,6 +170,7 @@ int mdio_driver_register(struct mdio_driver *drv)
- 	mdiodrv->driver.bus = &mdio_bus_type;
- 	mdiodrv->driver.probe = mdio_probe;
- 	mdiodrv->driver.remove = mdio_remove;
-+	mdiodrv->driver.shutdown = mdio_shutdown;
- 
- 	retval = driver_register(&mdiodrv->driver);
- 	if (retval) {
-diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
-index ad555a9a3eca..e1d6dbb4b770 100644
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -492,7 +492,7 @@ static int xenvif_tx_check_gop(struct xenvif_queue *queue,
- 				 * the header's copy failed, and they are
- 				 * sharing a slot, send an error
- 				 */
--				if (i == 0 && sharedslot)
-+				if (i == 0 && !first_shinfo && sharedslot)
- 					xenvif_idx_release(queue, pending_idx,
- 							   XEN_NETIF_RSP_ERROR);
- 				else
-diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index 49d0720a0b7d..e490cbdaad9b 100644
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -3454,15 +3454,16 @@ static int sd_probe(struct device *dev)
- 	}
- 
- 	device_initialize(&sdkp->dev);
--	sdkp->dev.parent = dev;
-+	sdkp->dev.parent = get_device(dev);
- 	sdkp->dev.class = &sd_disk_class;
- 	dev_set_name(&sdkp->dev, "%s", dev_name(dev));
- 
- 	error = device_add(&sdkp->dev);
--	if (error)
--		goto out_free_index;
-+	if (error) {
-+		put_device(&sdkp->dev);
-+		goto out;
-+	}
- 
--	get_device(dev);
- 	dev_set_drvdata(dev, sdkp);
- 
- 	get_device(&sdkp->dev);	/* prevent release before async_schedule */
-diff --git a/drivers/scsi/ses.c b/drivers/scsi/ses.c
-index 62f04c0511cf..4b993607887c 100644
---- a/drivers/scsi/ses.c
-+++ b/drivers/scsi/ses.c
-@@ -103,9 +103,16 @@ static int ses_recv_diag(struct scsi_device *sdev, int page_code,
- 		0
- 	};
- 	unsigned char recv_page_code;
-+	unsigned int retries = SES_RETRIES;
-+	struct scsi_sense_hdr sshdr;
-+
-+	do {
-+		ret = scsi_execute_req(sdev, cmd, DMA_FROM_DEVICE, buf, bufflen,
-+				       &sshdr, SES_TIMEOUT, 1, NULL);
-+	} while (ret > 0 && --retries && scsi_sense_valid(&sshdr) &&
-+		 (sshdr.sense_key == NOT_READY ||
-+		  (sshdr.sense_key == UNIT_ATTENTION && sshdr.asc == 0x29)));
- 
--	ret =  scsi_execute_req(sdev, cmd, DMA_FROM_DEVICE, buf, bufflen,
--				NULL, SES_TIMEOUT, SES_RETRIES, NULL);
- 	if (unlikely(ret))
- 		return ret;
- 
-@@ -137,9 +144,16 @@ static int ses_send_diag(struct scsi_device *sdev, int page_code,
- 		bufflen & 0xff,
- 		0
- 	};
-+	struct scsi_sense_hdr sshdr;
-+	unsigned int retries = SES_RETRIES;
-+
-+	do {
-+		result = scsi_execute_req(sdev, cmd, DMA_TO_DEVICE, buf, bufflen,
-+					  &sshdr, SES_TIMEOUT, 1, NULL);
-+	} while (result > 0 && --retries && scsi_sense_valid(&sshdr) &&
-+		 (sshdr.sense_key == NOT_READY ||
-+		  (sshdr.sense_key == UNIT_ATTENTION && sshdr.asc == 0x29)));
- 
--	result = scsi_execute_req(sdev, cmd, DMA_TO_DEVICE, buf, bufflen,
--				  NULL, SES_TIMEOUT, SES_RETRIES, NULL);
- 	if (result)
- 		sdev_printk(KERN_ERR, sdev, "SEND DIAGNOSTIC result: %8x\n",
- 			    result);
-diff --git a/drivers/usb/dwc2/hcd.c b/drivers/usb/dwc2/hcd.c
-index ef7f3b013fcb..ba7528916da4 100644
---- a/drivers/usb/dwc2/hcd.c
-+++ b/drivers/usb/dwc2/hcd.c
-@@ -5229,6 +5229,10 @@ int dwc2_hcd_init(struct dwc2_hsotg *hsotg)
- 	hcd->has_tt = 1;
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res) {
-+		retval = -EINVAL;
-+		goto error1;
-+	}
- 	hcd->rsrc_start = res->start;
- 	hcd->rsrc_len = resource_size(res);
- 
-diff --git a/fs/ext2/balloc.c b/fs/ext2/balloc.c
-index e1b3724bebf2..ccd5a7016c19 100644
---- a/fs/ext2/balloc.c
-+++ b/fs/ext2/balloc.c
-@@ -48,10 +48,9 @@ struct ext2_group_desc * ext2_get_group_desc(struct super_block * sb,
- 	struct ext2_sb_info *sbi = EXT2_SB(sb);
- 
- 	if (block_group >= sbi->s_groups_count) {
--		ext2_error (sb, "ext2_get_group_desc",
--			    "block_group >= groups_count - "
--			    "block_group = %d, groups_count = %lu",
--			    block_group, sbi->s_groups_count);
-+		WARN(1, "block_group >= groups_count - "
-+		     "block_group = %d, groups_count = %lu",
-+		     block_group, sbi->s_groups_count);
- 
- 		return NULL;
- 	}
-@@ -59,10 +58,9 @@ struct ext2_group_desc * ext2_get_group_desc(struct super_block * sb,
- 	group_desc = block_group >> EXT2_DESC_PER_BLOCK_BITS(sb);
- 	offset = block_group & (EXT2_DESC_PER_BLOCK(sb) - 1);
- 	if (!sbi->s_group_desc[group_desc]) {
--		ext2_error (sb, "ext2_get_group_desc",
--			    "Group descriptor not loaded - "
--			    "block_group = %d, group_desc = %lu, desc = %lu",
--			     block_group, group_desc, offset);
-+		WARN(1, "Group descriptor not loaded - "
-+		     "block_group = %d, group_desc = %lu, desc = %lu",
-+		      block_group, group_desc, offset);
- 		return NULL;
- 	}
- 
-diff --git a/include/linux/libata.h b/include/linux/libata.h
-index c5c34fd78c5a..23bc460e6d86 100644
---- a/include/linux/libata.h
-+++ b/include/linux/libata.h
-@@ -441,6 +441,7 @@ enum {
- 	ATA_HORKAGE_NOTRIM	= (1 << 24),	/* don't use TRIM */
- 	ATA_HORKAGE_MAX_SEC_1024 = (1 << 25),	/* Limit max sects to 1024 */
- 	ATA_HORKAGE_MAX_TRIM_128M = (1 << 26),	/* Limit max trim size to 128M */
-+	ATA_HORKAGE_NO_NCQ_ON_ATI = (1 << 27),	/* Disable NCQ on ATI chipset */
- 
- 	 /* DMA mask for user DMA control: User visible values; DO NOT
- 	    renumber */
-diff --git a/include/linux/mdio.h b/include/linux/mdio.h
-index ca08ab16ecdc..780c4859ce2d 100644
---- a/include/linux/mdio.h
-+++ b/include/linux/mdio.h
-@@ -63,6 +63,9 @@ struct mdio_driver {
- 
- 	/* Clears up any memory if needed */
- 	void (*remove)(struct mdio_device *mdiodev);
-+
-+	/* Quiesces the device on system shutdown, turns off interrupts etc */
-+	void (*shutdown)(struct mdio_device *mdiodev);
- };
- #define to_mdio_driver(d)						\
- 	container_of(to_mdio_common_driver(d), struct mdio_driver, mdiodrv)
-diff --git a/include/linux/timerqueue.h b/include/linux/timerqueue.h
-index 78b8cc73f12f..aff122f1062a 100644
---- a/include/linux/timerqueue.h
-+++ b/include/linux/timerqueue.h
-@@ -12,8 +12,7 @@ struct timerqueue_node {
- };
- 
- struct timerqueue_head {
--	struct rb_root head;
--	struct timerqueue_node *next;
-+	struct rb_root_cached rb_root;
- };
- 
- 
-@@ -29,13 +28,14 @@ extern struct timerqueue_node *timerqueue_iterate_next(
-  *
-  * @head: head of timerqueue
-  *
-- * Returns a pointer to the timer node that has the
-- * earliest expiration time.
-+ * Returns a pointer to the timer node that has the earliest expiration time.
-  */
- static inline
- struct timerqueue_node *timerqueue_getnext(struct timerqueue_head *head)
- {
--	return head->next;
-+	struct rb_node *leftmost = rb_first_cached(&head->rb_root);
-+
-+	return rb_entry(leftmost, struct timerqueue_node, node);
- }
- 
- static inline void timerqueue_init(struct timerqueue_node *node)
-@@ -45,7 +45,6 @@ static inline void timerqueue_init(struct timerqueue_node *node)
- 
- static inline void timerqueue_init_head(struct timerqueue_head *head)
- {
--	head->head = RB_ROOT;
--	head->next = NULL;
-+	head->rb_root = RB_ROOT_CACHED;
- }
- #endif /* _LINUX_TIMERQUEUE_H */
-diff --git a/lib/timerqueue.c b/lib/timerqueue.c
-index 4a720ed4fdaf..7f8324a639c8 100644
---- a/lib/timerqueue.c
-+++ b/lib/timerqueue.c
-@@ -38,9 +38,10 @@
-  */
- bool timerqueue_add(struct timerqueue_head *head, struct timerqueue_node *node)
- {
--	struct rb_node **p = &head->head.rb_node;
-+	struct rb_node **p = &head->rb_root.rb_root.rb_node;
- 	struct rb_node *parent = NULL;
--	struct timerqueue_node  *ptr;
-+	struct timerqueue_node *ptr;
-+	bool leftmost = true;
- 
- 	/* Make sure we don't add nodes that are already added */
- 	WARN_ON_ONCE(!RB_EMPTY_NODE(&node->node));
-@@ -48,19 +49,17 @@ bool timerqueue_add(struct timerqueue_head *head, struct timerqueue_node *node)
- 	while (*p) {
- 		parent = *p;
- 		ptr = rb_entry(parent, struct timerqueue_node, node);
--		if (node->expires < ptr->expires)
-+		if (node->expires < ptr->expires) {
- 			p = &(*p)->rb_left;
--		else
-+		} else {
- 			p = &(*p)->rb_right;
-+			leftmost = false;
-+		}
- 	}
- 	rb_link_node(&node->node, parent, p);
--	rb_insert_color(&node->node, &head->head);
-+	rb_insert_color_cached(&node->node, &head->rb_root, leftmost);
- 
--	if (!head->next || node->expires < head->next->expires) {
--		head->next = node;
--		return true;
--	}
--	return false;
-+	return leftmost;
- }
- EXPORT_SYMBOL_GPL(timerqueue_add);
- 
-@@ -76,15 +75,10 @@ bool timerqueue_del(struct timerqueue_head *head, struct timerqueue_node *node)
- {
- 	WARN_ON_ONCE(RB_EMPTY_NODE(&node->node));
- 
--	/* update next pointer */
--	if (head->next == node) {
--		struct rb_node *rbn = rb_next(&node->node);
--
--		head->next = rb_entry_safe(rbn, struct timerqueue_node, node);
--	}
--	rb_erase(&node->node, &head->head);
-+	rb_erase_cached(&node->node, &head->rb_root);
- 	RB_CLEAR_NODE(&node->node);
--	return head->next != NULL;
-+
-+	return !RB_EMPTY_ROOT(&head->rb_root.rb_root);
- }
- EXPORT_SYMBOL_GPL(timerqueue_del);
- 
-diff --git a/tools/usb/testusb.c b/tools/usb/testusb.c
-index 2d89b5f686b1..791aadef2d59 100644
---- a/tools/usb/testusb.c
-+++ b/tools/usb/testusb.c
-@@ -278,12 +278,6 @@ static int find_testdev(const char *name, const struct stat *sb, int flag)
- 	}
- 
- 	entry->ifnum = ifnum;
--
--	/* FIXME update USBDEVFS_CONNECTINFO so it tells about high speed etc */
--
--	fprintf(stderr, "%s speed\t%s\t%u\n",
--		speed(entry->speed), entry->name, entry->ifnum);
--
- 	entry->next = testdevs;
- 	testdevs = entry;
- 	return 0;
-@@ -312,6 +306,14 @@ static void *handle_testdev (void *arg)
- 		return 0;
- 	}
- 
-+	status  =  ioctl(fd, USBDEVFS_GET_SPEED, NULL);
-+	if (status < 0)
-+		fprintf(stderr, "USBDEVFS_GET_SPEED failed %d\n", status);
-+	else
-+		dev->speed = status;
-+	fprintf(stderr, "%s speed\t%s\t%u\n",
-+			speed(dev->speed), dev->name, dev->ifnum);
-+
- restart:
- 	for (i = 0; i < TEST_CASES; i++) {
- 		if (dev->test != -1 && dev->test != i)
+I'm announcing the release of the 4.19.210 kernel.
+
+All users of the 4.19 kernel series must upgrade.
+
+The updated 4.19.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                          |    2 +-
+ arch/sparc/lib/iomap.c            |    2 ++
+ drivers/ata/libata-core.c         |   34 ++++++++++++++++++++++++++++++++--
+ drivers/net/phy/mdio_device.c     |   11 +++++++++++
+ drivers/net/xen-netback/netback.c |    2 +-
+ drivers/scsi/sd.c                 |    9 +++++----
+ drivers/scsi/ses.c                |   22 ++++++++++++++++++----
+ drivers/usb/dwc2/hcd.c            |    4 ++++
+ fs/ext2/balloc.c                  |   14 ++++++--------
+ include/linux/libata.h            |    1 +
+ include/linux/mdio.h              |    3 +++
+ include/linux/timerqueue.h        |   13 ++++++-------
+ lib/timerqueue.c                  |   30 ++++++++++++------------------
+ tools/testing/selftests/lib.mk    |    1 +
+ tools/usb/testusb.c               |   14 ++++++++------
+ tools/vm/page-types.c             |    2 +-
+ 16 files changed, 112 insertions(+), 52 deletions(-)
+
+Changbin Du (1):
+      tools/vm/page-types: remove dependency on opt_file for idle page tracking
+
+Dan Carpenter (1):
+      ext2: fix sleeping in atomic bugs on error
+
+Davidlohr Bueso (1):
+      lib/timerqueue: Rely on rbtree semantics for next timer
+
+Faizel K B (1):
+      usb: testusb: Fix for showing the connection speed
+
+Greg Kroah-Hartman (1):
+      Linux 4.19.210
+
+Jan Beulich (1):
+      xen-netback: correct success/error reporting for the SKB-with-fraglist case
+
+Kate Hsuan (1):
+      libata: Add ATA_HORKAGE_NO_NCQ_ON_ATI for Samsung 860 and 870 SSD.
+
+Li Zhijian (1):
+      selftests: be sure to make khdr before other targets
+
+Linus Torvalds (1):
+      sparc64: fix pci_iounmap() when CONFIG_PCI is not set
+
+Ming Lei (1):
+      scsi: sd: Free scsi_disk device via put_device()
+
+Vladimir Oltean (1):
+      net: mdio: introduce a shutdown method to mdio device drivers
+
+Wen Xiong (1):
+      scsi: ses: Retry failed Send/Receive Diagnostic commands
+
+Yang Yingliang (1):
+      usb: dwc2: check return value after calling platform_get_resource()
+
