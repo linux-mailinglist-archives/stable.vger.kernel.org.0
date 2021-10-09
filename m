@@ -2,112 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80730427781
-	for <lists+stable@lfdr.de>; Sat,  9 Oct 2021 07:19:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56A35427800
+	for <lists+stable@lfdr.de>; Sat,  9 Oct 2021 09:59:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231168AbhJIFVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Oct 2021 01:21:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41044 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229596AbhJIFVi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Oct 2021 01:21:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81E8760F6F;
-        Sat,  9 Oct 2021 05:19:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633756782;
-        bh=pUE5rhYEEacp7Estu/aEsIop9rFkTz0XLUt7TITMCkg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0xTJqu6aVf9jaa4PLDGjfFS3RUIyELChdiht3fzkIZ5ZiESPsFFHibGA5cDwzRv8Z
-         mWs9N7bhubOo/AThkvV5tot0U+wVD961DLdlDOdYfi8ctOjwrVj8g1duJQMO0UE4Bm
-         qb4kopNX0ufpuntGQ5bRrlA0jqaXF1MC59+JWPDg=
-Date:   Sat, 9 Oct 2021 07:19:39 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc:     Corentin =?iso-8859-1?Q?No=EBl?= <corentin.noel@collabora.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        virtualization@lists.linux-foundation.org,
-        regressions@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
-        stable@vger.kernel.org
-Subject: Re: virtio-net: kernel panic in virtio_net.c
-Message-ID: <YWEma6YvB2HN9/E/@kroah.com>
-References: <YV/8Ia1d9zXvMqqc@kroah.com>
- <1633710428.4908655-1-xuanzhuo@linux.alibaba.com>
+        id S229683AbhJIIBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Oct 2021 04:01:36 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:58404 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229642AbhJIIBg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 9 Oct 2021 04:01:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1633766379;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=6u97Dq8sBwCpsJ9hCCZ7sWpY+KYop/TEoR6sgGmHBpM=;
+        b=MSuj093E6UA83vgYAi4czAfq4l5hK6eRZwQgQ2B27vmNIu3KYN5XRMlLOfHvAyC5mRpqIM
+        u9Bz4j9XHhqEX9KDTJMw5MFRSPkK4dQXqyHMbn2cgwRZxAby832MfRg+0V9Zvp5truJEEt
+        5g0owePnH+Hvrc/PwEk+oDv0bQyEOqg=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-374-OX3DtVHsOO-agxqmFo-mZA-1; Sat, 09 Oct 2021 03:59:38 -0400
+X-MC-Unique: OX3DtVHsOO-agxqmFo-mZA-1
+Received: by mail-wr1-f69.google.com with SMTP id d13-20020adf9b8d000000b00160a94c235aso9038923wrc.2
+        for <stable@vger.kernel.org>; Sat, 09 Oct 2021 00:59:37 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:to:cc:references:from:organization:subject
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=6u97Dq8sBwCpsJ9hCCZ7sWpY+KYop/TEoR6sgGmHBpM=;
+        b=oz18DWOne7aNfixK91TzP9gfbDGymXXPrh89Kb0Qu5v/g/atnGNfdYWM97SXE8JOCS
+         pyPXMJsQGlaN3xzbDkoNZMKRbuAbwPoV1FuUmvnYCxTH2hUJctW2k6T/I+YIY2S8+qj9
+         M16cTZsoLZoi5jDbHKxxwrPjam6ATTf+eUQYxjIbpkcxZU9L4hQSxL5k8g/sasAGR3OD
+         uxbkVTameN+qJeGmqBkun8Mrot9w2QnLeabwQYfhRjK71dQR9Y1Fi+ODcwc2GGW/8JLI
+         8SNG1V5vcMUAqvVotmZPKEZimWNQ4WakjsJVLcHdqJrAq2v2Vzi24RzS+/zYSxJ6hv+5
+         WiGA==
+X-Gm-Message-State: AOAM533SA3EPCC98M0VWHJhn2dGqIE3YkShe0QsbacSRv9aLe2R7HVYM
+        RAeXa7CaYSg6tgAQOLUZGJ0QhszSdd5s7OHsNOKBZvZw5FUhSPGyQbPXKhQKpSn76Un7cqTdIa+
+        qcjizxlUzIiCZOnLu6h0dh/5C93F9UcBJqcOcN5Ut51BypQN+NEqYtvpZQCVk7RG9
+X-Received: by 2002:adf:bb52:: with SMTP id x18mr9791308wrg.169.1633766376893;
+        Sat, 09 Oct 2021 00:59:36 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxAd1IVbqSYiVzuYLGs0k5bi+qenL3GHYvxiDEdNaXFITlkCF1NELfCH3kViXWbkhF9QA52vg==
+X-Received: by 2002:adf:bb52:: with SMTP id x18mr9791283wrg.169.1633766376585;
+        Sat, 09 Oct 2021 00:59:36 -0700 (PDT)
+Received: from [192.168.3.132] (p4ff236d4.dip0.t-ipconnect.de. [79.242.54.212])
+        by smtp.gmail.com with ESMTPSA id k10sm1473294wrh.64.2021.10.09.00.59.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 09 Oct 2021 00:59:36 -0700 (PDT)
+To:     Nadav Amit <nadav.amit@gmail.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Peter Xu <peterx@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Jan Kara <jack@suse.cz>, stable@vger.kernel.org
+References: <20211007235055.469587-1-namit@vmware.com>
+ <d5a244e9-a04e-8794-e55f-380db5e8c6c4@redhat.com>
+ <E2ADE3F0-74B1-4D1D-80AE-0BBC49D932E6@gmail.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH] mm/userfaultfd: provide unmasked address on page-fault
+Message-ID: <f5ea62e1-cf21-6bd8-37f8-1a0f9637402c@redhat.com>
+Date:   Sat, 9 Oct 2021 09:59:35 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+In-Reply-To: <E2ADE3F0-74B1-4D1D-80AE-0BBC49D932E6@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1633710428.4908655-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Oct 09, 2021 at 12:27:08AM +0800, Xuan Zhuo wrote:
-> On Fri, 8 Oct 2021 10:06:57 +0200, Greg KH <gregkh@linuxfoundation.org> wrote:
-> > On Fri, Oct 08, 2021 at 12:17:26AM +0800, Xuan Zhuo wrote:
-> > > On Thu, 7 Oct 2021 17:25:02 +0200, Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > > On Thu, Oct 07, 2021 at 11:06:12PM +0800, Xuan Zhuo wrote:
-> > > > > On Thu, 07 Oct 2021 14:04:22 +0200, Corentin Noël <corentin.noel@collabora.com> wrote:
-> > > > > > I've been experiencing crashes with 5.14-rc1 and above that do not
-> > > > > > occur with 5.13,
-> > > > >
-> > > > > I should have fixed this problem before. I don't know why, I just looked at the
-> > > > > latest net code, and this commit seems to be lost.
-> > > > >
-> > > > >      1a8024239dacf53fcf39c0f07fbf2712af22864f virtio-net: fix for skb_over_panic inside big mode
-> > > > >
-> > > > > Can you test this patch again?
-> > > >
-> > > > That commit showed up in 5.13-rc5, so 5.14-rc1 and 5.13 should have had
-> > > > it in it, right?
-> > > >
-> > >
-> > > Yes, it may be lost due to conflicts during a certain merge.
-> >
-> > Really?  I tried to apply that again to 5.14 and it did not work.  So I
-> > do not understand what to do here, can you try to explain it better?
+On 09.10.21 00:02, Nadav Amit wrote:
 > 
-> I took a look, and there is actually another missing patch:
 > 
-> A. 8fb7da9e990793299c89ed7a4281c235bfdd31f8 virtio_net: get build_skb() buf by data ptr
-> B. 1a8024239dacf53fcf39c0f07fbf2712af22864f virtio-net: fix for skb_over_panic inside big mode
+>> On Oct 8, 2021, at 1:05 AM, David Hildenbrand <david@redhat.com> wrote:
+>>
+>> On 08.10.21 01:50, Nadav Amit wrote:
+>>> From: Nadav Amit <namit@vmware.com>
+>>> Userfaultfd is supposed to provide the full address (i.e., unmasked) of
+>>> the faulting access back to userspace. However, that is not the case for
+>>> quite some time.
+>>> Even running "userfaultfd_demo" from the userfaultfd man page provides
+>>> the wrong output (and contradicts the man page). Notice that
+>>> "UFFD_EVENT_PAGEFAULT event" shows the masked address.
+>>> 	Address returned by mmap() = 0x7fc5e30b3000
+>>> 	fault_handler_thread():
+>>> 	    poll() returns: nready = 1; POLLIN = 1; POLLERR = 0
+>>> 	    UFFD_EVENT_PAGEFAULT event: flags = 0; address = 7fc5e30b3000
+>>> 		(uffdio_copy.copy returned 4096)
+>>> 	Read address 0x7fc5e30b300f in main(): A
+>>> 	Read address 0x7fc5e30b340f in main(): A
+>>> 	Read address 0x7fc5e30b380f in main(): A
+>>> 	Read address 0x7fc5e30b3c0f in main(): A
+>>> Add a new "real_address" field to vmf to hold the unmasked address. It
+>>> is possible to keep the unmasked address in the existing address field
+>>> (and mask whenever necessary) instead, but this is likely to cause
+>>> backporting problems of this patch.
+>>
+>> Can we be sure that no existing users will rely on this behavior that has been the case since end of 2016 IIRC, one year after UFFD was upstreamed?
 > 
-> A is replaced by another patch:
+> Let me to blow off your mind: how do you be sure that the current behavior does not make applications to misbehave? It might cause performance issues as it did for me or hidden correctness issues.
 > 
-> 	commit c32325b8fdf2f979befb9fd5587918c0d5412db3
-> 	Author: Jakub Kicinski <kuba@kernel.org>
-> 	Date:   Mon Aug 2 10:57:29 2021 -0700
-> 
-> 	    virtio-net: realign page_to_skb() after merges
-> 
-> 	    We ended up merging two versions of the same patch set:
-> 
-> 	    commit 8fb7da9e9907 ("virtio_net: get build_skb() buf by data ptr")
-> 	    commit 5c37711d9f27 ("virtio-net: fix for unable to handle page fault for address")
-> 
-> 	    into net, and
-> 
-> 	    commit 7bf64460e3b2 ("virtio-net: get build_skb() buf by data ptr")
-> 	    commit 6c66c147b9a4 ("virtio-net: fix for unable to handle page fault for address")
-> 
-> 	    into net-next. Redo the merge from commit 126285651b7f ("Merge
-> 	    ra.kernel.org:/pub/scm/linux/kernel/git/netdev/net"), so that
-> 	    the most recent code remains.
-> 
-> 	    Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> 	    Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-> 	    Acked-by: Jason Wang <jasowang@redhat.com>
-> 	    Signed-off-by: David S. Miller <davem@davemloft.net>
-> 
-> So after this patch, patch B can be applied normally.
-> 
-> So on the latest net branch, only lost
-> 
->           1a8024239dacf53fcf39c0f07fbf2712af22864f virtio-net: fix for skb_over_panic inside big mode
 
-Again, I do not know what to do here, can you submit the needed fix to
-the networking developers so this gets fixed?
+Fair point, but now we can speculate what's more likely:
 
-thanks,
+Having an app rely on >4 year old kernel behavior just after the feature 
+was released or having and app rely on kernel behavior that was the case 
+for the last 4 years?
 
-greg k-h
+<offtopic>
+Someone once told me about the unwritten way to remove things from the 
+kernel. 1) Silently break it upstream 2) Wait 2 kernel releases 3) 
+Propose removal of the feature because it's broken and nobody complained.
+<\offtopic>
+
+You might ask "why does David even care?", here is why:
+
+For the records, I *do* have a prototype from last year that breaks with 
+this new behavior as far as I can tell: using uffd in the context of 
+virtio-balloon in QEMU. I just pushed the latest state to a !private 
+github tree:
+   https://github.com/davidhildenbrand/qemu/tree/virtio-balloon-uffd
+
+
+In that code, I made sure that I'm only dealing with 4k pages (because 
+that's the only thing virtio-balloon really can deal with), and during 
+the debugging I figured that the kernel always returns 4k aligned page 
+fault addresses, so I didn't care about masking. I'll reuse the 
+unmodified fault address for UFFDIO_ZEROPAGE()/UFFDIO_COPY()/... which 
+should then fail because:
+
+"
+EINVAL The start or the len field of the ufdio_range structure
+               was not a multiple of the system page size; or len was
+               zero; or the specified range was otherwise invalid.
+"
+
+
+If I'm too lazy to read all documentation, I'm quite sure that there are 
+other people that don't. I don't care to much if this patch breaks that 
+prototype, it's just a prototype after all, but I am concerned that we 
+might break other users in a similar way.
+
+>> I do wonder what the official ABI nowadays is, because man pages aren't necessarily the source of truth.
+> 
+> Documentation/admin-guide/mm/userfaultfd.rst says: "You get the address of the access that triggered the missing page
+> eventâ€.
+> 
+> So it is a bug.
+
+The least thing I would expect in the patch description is a better 
+motivation ("who cares and why" -- I know you have a better motivation 
+that making the doc correct :) ) and a discussion on the chances of this 
+actually breaking other apps (see my example).
+
+I'd sleep better if we'd glue the changed behavior to a new feature 
+flag, but that's just my 2 cents.
+
+-- 
+Thanks,
+
+David / dhildenb
+
