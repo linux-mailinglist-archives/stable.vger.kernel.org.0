@@ -2,32 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 866E1427AA6
-	for <lists+stable@lfdr.de>; Sat,  9 Oct 2021 15:38:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21A69427AB4
+	for <lists+stable@lfdr.de>; Sat,  9 Oct 2021 15:55:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233209AbhJINkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Oct 2021 09:40:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56804 "EHLO mail.kernel.org"
+        id S233374AbhJIN5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Oct 2021 09:57:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233146AbhJINks (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Oct 2021 09:40:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBA2F60184;
-        Sat,  9 Oct 2021 13:38:50 +0000 (UTC)
+        id S233146AbhJIN53 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Oct 2021 09:57:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A07D660F70;
+        Sat,  9 Oct 2021 13:55:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633786731;
-        bh=J1c7Y+Tjny1snJti96l/8k5PKupVEfZQA/aQ0/LS51U=;
+        s=korg; t=1633787732;
+        bh=KwiH/6gASzJmjKYBK2t2iqIl/+38wsCzCVBLWXtI1Sc=;
         h=Subject:To:Cc:From:Date:From;
-        b=cuZrh9ruSGA6pFNQBZ8sEEmTs0bgkCyYMoyr1CMRA4yF/bFMproVh91r5NSx6ELRn
-         zTIhqa+Gt0i/tY6mP+PIq4F3G1Jm/KDjb4xTBVIUfN8SN2dW6J1knwQHHhDXWBWcXQ
-         H1Oap/sEBUjDI0AJlRdltSwLW37ZTrcJr/8F6fv8=
-Subject: FAILED: patch "[PATCH] usb: typec: tcpm: handle SRC_STARTUP state if cc changes" failed to apply to 4.19-stable tree
-To:     xu.yang_2@nxp.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, linux@roeck-us.net,
-        stable@vger.kernel.org
+        b=PD/mAbhTfcqS7cGFbqPShIWEb8f/R2m71d1bhX/j6RGMuvwKF7Wu8oippDWKeMOE2
+         1n06TFbdVLyXdXkJ9A1+LDQl7QgJME6SOZYQs5nymrhB9UjCftRssSd9+4HAf3glkw
+         IXJ495ayQwPFW4cA6NfZ/w1g3EvKjpZs1bQH4VMk=
+Subject: FAILED: patch "[PATCH] ovl: fix missing negative dentry check in ovl_rename()" failed to apply to 4.4-stable tree
+To:     zhengliang6@huawei.com, mszeredi@redhat.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 09 Oct 2021 15:38:48 +0200
-Message-ID: <16337867281195@kroah.com>
+Date:   Sat, 09 Oct 2021 15:55:29 +0200
+Message-ID: <163378772914820@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -47,37 +45,60 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6d91017a295e9790eec02c4e43f020cdb55f5d98 Mon Sep 17 00:00:00 2001
-From: Xu Yang <xu.yang_2@nxp.com>
-Date: Tue, 28 Sep 2021 19:16:39 +0800
-Subject: [PATCH] usb: typec: tcpm: handle SRC_STARTUP state if cc changes
+From a295aef603e109a47af355477326bd41151765b6 Mon Sep 17 00:00:00 2001
+From: Zheng Liang <zhengliang6@huawei.com>
+Date: Fri, 24 Sep 2021 09:16:27 +0800
+Subject: [PATCH] ovl: fix missing negative dentry check in ovl_rename()
 
-TCPM for DRP should do the same action as SRC_ATTACHED when cc changes in
-SRC_STARTUP state. Otherwise, TCPM will transition to SRC_UNATTACHED state
-which is not satisfied with the Type-C spec.
+The following reproducer
 
-Per Type-C spec:
-DRP port should move to Unattached.SNK instead of Unattached.SRC if sink
-removed.
+  mkdir lower upper work merge
+  touch lower/old
+  touch lower/new
+  mount -t overlay overlay -olowerdir=lower,upperdir=upper,workdir=work merge
+  rm merge/new
+  mv merge/old merge/new & unlink upper/new
 
-Fixes: 4b4e02c83167 ("typec: tcpm: Move out of staging")
-cc: <stable@vger.kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Xu Yang <xu.yang_2@nxp.com>
-Link: https://lore.kernel.org/r/20210928111639.3854174-1-xu.yang_2@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+may result in this race:
 
-diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-index a4d37205df54..7f2f3ff1b391 100644
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -4876,6 +4876,7 @@ static void _tcpm_cc_change(struct tcpm_port *port, enum typec_cc_status cc1,
- 			tcpm_set_state(port, SRC_ATTACH_WAIT, 0);
- 		break;
- 	case SRC_ATTACHED:
-+	case SRC_STARTUP:
- 	case SRC_SEND_CAPABILITIES:
- 	case SRC_READY:
- 		if (tcpm_port_is_disconnected(port) ||
+PROCESS A:
+  rename("merge/old", "merge/new");
+  overwrite=true,ovl_lower_positive(old)=true,
+  ovl_dentry_is_whiteout(new)=true -> flags |= RENAME_EXCHANGE
+
+PROCESS B:
+  unlink("upper/new");
+
+PROCESS A:
+  lookup newdentry in new_upperdir
+  call vfs_rename() with negative newdentry and RENAME_EXCHANGE
+
+Fix by adding the missing check for negative newdentry.
+
+Signed-off-by: Zheng Liang <zhengliang6@huawei.com>
+Fixes: e9be9d5e76e3 ("overlay filesystem")
+Cc: <stable@vger.kernel.org> # v3.18
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+
+diff --git a/fs/overlayfs/dir.c b/fs/overlayfs/dir.c
+index 1fefb2b8960e..93c7c267de93 100644
+--- a/fs/overlayfs/dir.c
++++ b/fs/overlayfs/dir.c
+@@ -1219,9 +1219,13 @@ static int ovl_rename(struct user_namespace *mnt_userns, struct inode *olddir,
+ 				goto out_dput;
+ 		}
+ 	} else {
+-		if (!d_is_negative(newdentry) &&
+-		    (!new_opaque || !ovl_is_whiteout(newdentry)))
+-			goto out_dput;
++		if (!d_is_negative(newdentry)) {
++			if (!new_opaque || !ovl_is_whiteout(newdentry))
++				goto out_dput;
++		} else {
++			if (flags & RENAME_EXCHANGE)
++				goto out_dput;
++		}
+ 	}
+ 
+ 	if (olddentry == trap)
 
