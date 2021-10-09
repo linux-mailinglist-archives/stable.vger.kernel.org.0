@@ -2,93 +2,403 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6489A4279EC
-	for <lists+stable@lfdr.de>; Sat,  9 Oct 2021 13:59:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1F4F4279EF
+	for <lists+stable@lfdr.de>; Sat,  9 Oct 2021 13:59:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244905AbhJIMBo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Oct 2021 08:01:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45188 "EHLO mail.kernel.org"
+        id S244910AbhJIMBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Oct 2021 08:01:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244888AbhJIMBn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Oct 2021 08:01:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9835D60F6F;
-        Sat,  9 Oct 2021 11:59:46 +0000 (UTC)
+        id S244927AbhJIMBt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Oct 2021 08:01:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E844860EE9;
+        Sat,  9 Oct 2021 11:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633780787;
-        bh=bemhIUX9rSYHaSfxZZZCx0ZxRzIqirEufz/4qbDh7kg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=O5wxHiWpzOFnYhzE17Dftteh5cuSsJFaywTtiS9IGrNyD19AOAvcESOGgLGY/lUz/
-         xVM4GHb9G7i46XrGtaH4sJtZd+5QsnkI1C5XVPEdHO17akloU8jEvLR9CXf/NuCFHe
-         PyLLQG+fwP9HBY+l/CT0jKZPEtW4GOmM4wPWZE0M=
+        s=korg; t=1633780792;
+        bh=/jh3zZTqcYqhMeqKaZEI3xsZmRvveHbvUWjWCHYA0Rc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=VVgzCBvsspo9uq6XQxJC8LWXlZD7bKRG+HOBSjIPuCLziPcrk8GHYzavHZnN3AZBC
+         dI9kHQHbxwq3qTTMkRhsfl1mPMog4Y5J6fBx5dDGzKOkqDc8t1e8BD+66emhpiluHz
+         zFN5IjjfcfOEWFk21jHIZ85pA3ismOEg8GLwz/e0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.9.286
-Date:   Sat,  9 Oct 2021 13:59:40 +0200
-Message-Id: <1633780781195157@kroah.com>
+Subject: Re: Linux 4.9.286
+Date:   Sat,  9 Oct 2021 13:59:41 +0200
+Message-Id: <1633780781558@kroah.com>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <1633780781195157@kroah.com>
+References: <1633780781195157@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.9.286 kernel.
-
-All users of the 4.9 kernel series must upgrade.
-
-The updated 4.9.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                          |    2 +-
- arch/sparc/lib/iomap.c            |    2 ++
- drivers/ata/libata-core.c         |   34 ++++++++++++++++++++++++++++++++--
- drivers/net/phy/mdio_device.c     |   11 +++++++++++
- drivers/net/xen-netback/netback.c |    2 +-
- drivers/scsi/sd.c                 |    9 +++++----
- fs/ext2/balloc.c                  |   14 ++++++--------
- include/linux/libata.h            |    1 +
- include/linux/mdio.h              |    3 +++
- include/net/sock.h                |    2 ++
- net/core/sock.c                   |   12 +++++++++---
- net/unix/af_unix.c                |   34 ++++++++++++++++++++++++++++------
- tools/usb/testusb.c               |   14 ++++++++------
- 13 files changed, 109 insertions(+), 31 deletions(-)
-
-Dan Carpenter (1):
-      ext2: fix sleeping in atomic bugs on error
-
-Eric Dumazet (1):
-      af_unix: fix races in sk_peer_pid and sk_peer_cred accesses
-
-Faizel K B (1):
-      usb: testusb: Fix for showing the connection speed
-
-Greg Kroah-Hartman (1):
-      Linux 4.9.286
-
-Jan Beulich (1):
-      xen-netback: correct success/error reporting for the SKB-with-fraglist case
-
-Kate Hsuan (1):
-      libata: Add ATA_HORKAGE_NO_NCQ_ON_ATI for Samsung 860 and 870 SSD.
-
-Linus Torvalds (1):
-      sparc64: fix pci_iounmap() when CONFIG_PCI is not set
-
-Ming Lei (1):
-      scsi: sd: Free scsi_disk device via put_device()
-
-Vladimir Oltean (1):
-      net: mdio: introduce a shutdown method to mdio device drivers
-
+diff --git a/Makefile b/Makefile
+index 2ed953d8e0f2..68f2c6f3869e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,6 @@
+ VERSION = 4
+ PATCHLEVEL = 9
+-SUBLEVEL = 285
++SUBLEVEL = 286
+ EXTRAVERSION =
+ NAME = Roaring Lionus
+ 
+diff --git a/arch/sparc/lib/iomap.c b/arch/sparc/lib/iomap.c
+index c4d42a50ebc0..fa4abbaf27de 100644
+--- a/arch/sparc/lib/iomap.c
++++ b/arch/sparc/lib/iomap.c
+@@ -18,8 +18,10 @@ void ioport_unmap(void __iomem *addr)
+ EXPORT_SYMBOL(ioport_map);
+ EXPORT_SYMBOL(ioport_unmap);
+ 
++#ifdef CONFIG_PCI
+ void pci_iounmap(struct pci_dev *dev, void __iomem * addr)
+ {
+ 	/* nothing to do */
+ }
+ EXPORT_SYMBOL(pci_iounmap);
++#endif
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index adbf0486422b..d3804b215ffa 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -2157,6 +2157,25 @@ static void ata_dev_config_ncq_non_data(struct ata_device *dev)
+ 	}
+ }
+ 
++static bool ata_dev_check_adapter(struct ata_device *dev,
++				  unsigned short vendor_id)
++{
++	struct pci_dev *pcidev = NULL;
++	struct device *parent_dev = NULL;
++
++	for (parent_dev = dev->tdev.parent; parent_dev != NULL;
++	     parent_dev = parent_dev->parent) {
++		if (dev_is_pci(parent_dev)) {
++			pcidev = to_pci_dev(parent_dev);
++			if (pcidev->vendor == vendor_id)
++				return true;
++			break;
++		}
++	}
++
++	return false;
++}
++
+ static int ata_dev_config_ncq(struct ata_device *dev,
+ 			       char *desc, size_t desc_sz)
+ {
+@@ -2173,6 +2192,13 @@ static int ata_dev_config_ncq(struct ata_device *dev,
+ 		snprintf(desc, desc_sz, "NCQ (not used)");
+ 		return 0;
+ 	}
++
++	if (dev->horkage & ATA_HORKAGE_NO_NCQ_ON_ATI &&
++	    ata_dev_check_adapter(dev, PCI_VENDOR_ID_ATI)) {
++		snprintf(desc, desc_sz, "NCQ (not used)");
++		return 0;
++	}
++
+ 	if (ap->flags & ATA_FLAG_NCQ) {
+ 		hdepth = min(ap->scsi_host->can_queue, ATA_MAX_QUEUE - 1);
+ 		dev->flags |= ATA_DFLAG_NCQ;
+@@ -4448,9 +4474,11 @@ static const struct ata_blacklist_entry ata_device_blacklist [] = {
+ 	{ "Samsung SSD 850*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+ 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+ 	{ "Samsung SSD 860*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+-						ATA_HORKAGE_ZERO_AFTER_TRIM, },
++						ATA_HORKAGE_ZERO_AFTER_TRIM |
++						ATA_HORKAGE_NO_NCQ_ON_ATI, },
+ 	{ "Samsung SSD 870*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+-						ATA_HORKAGE_ZERO_AFTER_TRIM, },
++						ATA_HORKAGE_ZERO_AFTER_TRIM |
++						ATA_HORKAGE_NO_NCQ_ON_ATI, },
+ 	{ "FCCT*M500*",			NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+ 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+ 
+@@ -6734,6 +6762,8 @@ static int __init ata_parse_force_one(char **cur,
+ 		{ "ncq",	.horkage_off	= ATA_HORKAGE_NONCQ },
+ 		{ "noncqtrim",	.horkage_on	= ATA_HORKAGE_NO_NCQ_TRIM },
+ 		{ "ncqtrim",	.horkage_off	= ATA_HORKAGE_NO_NCQ_TRIM },
++		{ "noncqati",	.horkage_on	= ATA_HORKAGE_NO_NCQ_ON_ATI },
++		{ "ncqati",	.horkage_off	= ATA_HORKAGE_NO_NCQ_ON_ATI },
+ 		{ "dump_id",	.horkage_on	= ATA_HORKAGE_DUMP_ID },
+ 		{ "pio0",	.xfer_mask	= 1 << (ATA_SHIFT_PIO + 0) },
+ 		{ "pio1",	.xfer_mask	= 1 << (ATA_SHIFT_PIO + 1) },
+diff --git a/drivers/net/phy/mdio_device.c b/drivers/net/phy/mdio_device.c
+index 9c88e6749b9a..34600b0061bb 100644
+--- a/drivers/net/phy/mdio_device.c
++++ b/drivers/net/phy/mdio_device.c
+@@ -135,6 +135,16 @@ static int mdio_remove(struct device *dev)
+ 	return 0;
+ }
+ 
++static void mdio_shutdown(struct device *dev)
++{
++	struct mdio_device *mdiodev = to_mdio_device(dev);
++	struct device_driver *drv = mdiodev->dev.driver;
++	struct mdio_driver *mdiodrv = to_mdio_driver(drv);
++
++	if (mdiodrv->shutdown)
++		mdiodrv->shutdown(mdiodev);
++}
++
+ /**
+  * mdio_driver_register - register an mdio_driver with the MDIO layer
+  * @new_driver: new mdio_driver to register
+@@ -149,6 +159,7 @@ int mdio_driver_register(struct mdio_driver *drv)
+ 	mdiodrv->driver.bus = &mdio_bus_type;
+ 	mdiodrv->driver.probe = mdio_probe;
+ 	mdiodrv->driver.remove = mdio_remove;
++	mdiodrv->driver.shutdown = mdio_shutdown;
+ 
+ 	retval = driver_register(&mdiodrv->driver);
+ 	if (retval) {
+diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
+index f7fd8b5a6a8c..3016869b4afd 100644
+--- a/drivers/net/xen-netback/netback.c
++++ b/drivers/net/xen-netback/netback.c
+@@ -492,7 +492,7 @@ static int xenvif_tx_check_gop(struct xenvif_queue *queue,
+ 				 * the header's copy failed, and they are
+ 				 * sharing a slot, send an error
+ 				 */
+-				if (i == 0 && sharedslot)
++				if (i == 0 && !first_shinfo && sharedslot)
+ 					xenvif_idx_release(queue, pending_idx,
+ 							   XEN_NETIF_RSP_ERROR);
+ 				else
+diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+index 671bf1e03ee1..426f1b3aa15e 100644
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -3179,15 +3179,16 @@ static int sd_probe(struct device *dev)
+ 	}
+ 
+ 	device_initialize(&sdkp->dev);
+-	sdkp->dev.parent = dev;
++	sdkp->dev.parent = get_device(dev);
+ 	sdkp->dev.class = &sd_disk_class;
+ 	dev_set_name(&sdkp->dev, "%s", dev_name(dev));
+ 
+ 	error = device_add(&sdkp->dev);
+-	if (error)
+-		goto out_free_index;
++	if (error) {
++		put_device(&sdkp->dev);
++		goto out;
++	}
+ 
+-	get_device(dev);
+ 	dev_set_drvdata(dev, sdkp);
+ 
+ 	get_device(&sdkp->dev);	/* prevent release before async_schedule */
+diff --git a/fs/ext2/balloc.c b/fs/ext2/balloc.c
+index 4c40c0786e16..bd32140bdfee 100644
+--- a/fs/ext2/balloc.c
++++ b/fs/ext2/balloc.c
+@@ -46,10 +46,9 @@ struct ext2_group_desc * ext2_get_group_desc(struct super_block * sb,
+ 	struct ext2_sb_info *sbi = EXT2_SB(sb);
+ 
+ 	if (block_group >= sbi->s_groups_count) {
+-		ext2_error (sb, "ext2_get_group_desc",
+-			    "block_group >= groups_count - "
+-			    "block_group = %d, groups_count = %lu",
+-			    block_group, sbi->s_groups_count);
++		WARN(1, "block_group >= groups_count - "
++		     "block_group = %d, groups_count = %lu",
++		     block_group, sbi->s_groups_count);
+ 
+ 		return NULL;
+ 	}
+@@ -57,10 +56,9 @@ struct ext2_group_desc * ext2_get_group_desc(struct super_block * sb,
+ 	group_desc = block_group >> EXT2_DESC_PER_BLOCK_BITS(sb);
+ 	offset = block_group & (EXT2_DESC_PER_BLOCK(sb) - 1);
+ 	if (!sbi->s_group_desc[group_desc]) {
+-		ext2_error (sb, "ext2_get_group_desc",
+-			    "Group descriptor not loaded - "
+-			    "block_group = %d, group_desc = %lu, desc = %lu",
+-			     block_group, group_desc, offset);
++		WARN(1, "Group descriptor not loaded - "
++		     "block_group = %d, group_desc = %lu, desc = %lu",
++		      block_group, group_desc, offset);
+ 		return NULL;
+ 	}
+ 
+diff --git a/include/linux/libata.h b/include/linux/libata.h
+index 3fabf57fd6e0..de770d11a5c1 100644
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -436,6 +436,7 @@ enum {
+ 	ATA_HORKAGE_NOTRIM	= (1 << 24),	/* don't use TRIM */
+ 	ATA_HORKAGE_MAX_SEC_1024 = (1 << 25),	/* Limit max sects to 1024 */
+ 	ATA_HORKAGE_MAX_TRIM_128M = (1 << 26),	/* Limit max trim size to 128M */
++	ATA_HORKAGE_NO_NCQ_ON_ATI = (1 << 27),	/* Disable NCQ on ATI chipset */
+ 
+ 	 /* DMA mask for user DMA control: User visible values; DO NOT
+ 	    renumber */
+diff --git a/include/linux/mdio.h b/include/linux/mdio.h
+index bf9d1d750693..78b3cf50566f 100644
+--- a/include/linux/mdio.h
++++ b/include/linux/mdio.h
+@@ -61,6 +61,9 @@ struct mdio_driver {
+ 
+ 	/* Clears up any memory if needed */
+ 	void (*remove)(struct mdio_device *mdiodev);
++
++	/* Quiesces the device on system shutdown, turns off interrupts etc */
++	void (*shutdown)(struct mdio_device *mdiodev);
+ };
+ #define to_mdio_driver(d)						\
+ 	container_of(to_mdio_common_driver(d), struct mdio_driver, mdiodrv)
+diff --git a/include/net/sock.h b/include/net/sock.h
+index cf27f3688c39..78c292f15ffc 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -420,8 +420,10 @@ struct sock {
+ 	u32			sk_max_ack_backlog;
+ 	__u32			sk_priority;
+ 	__u32			sk_mark;
++	spinlock_t		sk_peer_lock;
+ 	struct pid		*sk_peer_pid;
+ 	const struct cred	*sk_peer_cred;
++
+ 	long			sk_rcvtimeo;
+ 	long			sk_sndtimeo;
+ 	struct timer_list	sk_timer;
+diff --git a/net/core/sock.c b/net/core/sock.c
+index d468ffb5a31c..1845a37d9f7e 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -1011,7 +1011,6 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
+ }
+ EXPORT_SYMBOL(sock_setsockopt);
+ 
+-
+ static void cred_to_ucred(struct pid *pid, const struct cred *cred,
+ 			  struct ucred *ucred)
+ {
+@@ -1171,7 +1170,11 @@ int sock_getsockopt(struct socket *sock, int level, int optname,
+ 		struct ucred peercred;
+ 		if (len > sizeof(peercred))
+ 			len = sizeof(peercred);
++
++		spin_lock(&sk->sk_peer_lock);
+ 		cred_to_ucred(sk->sk_peer_pid, sk->sk_peer_cred, &peercred);
++		spin_unlock(&sk->sk_peer_lock);
++
+ 		if (copy_to_user(optval, &peercred, len))
+ 			return -EFAULT;
+ 		goto lenout;
+@@ -1439,9 +1442,10 @@ static void __sk_destruct(struct rcu_head *head)
+ 		sk->sk_frag.page = NULL;
+ 	}
+ 
+-	if (sk->sk_peer_cred)
+-		put_cred(sk->sk_peer_cred);
++	/* We do not need to acquire sk->sk_peer_lock, we are the last user. */
++	put_cred(sk->sk_peer_cred);
+ 	put_pid(sk->sk_peer_pid);
++
+ 	if (likely(sk->sk_net_refcnt))
+ 		put_net(sock_net(sk));
+ 	sk_prot_free(sk->sk_prot_creator, sk);
+@@ -2490,6 +2494,8 @@ void sock_init_data(struct socket *sock, struct sock *sk)
+ 
+ 	sk->sk_peer_pid 	=	NULL;
+ 	sk->sk_peer_cred	=	NULL;
++	spin_lock_init(&sk->sk_peer_lock);
++
+ 	sk->sk_write_pending	=	0;
+ 	sk->sk_rcvlowat		=	1;
+ 	sk->sk_rcvtimeo		=	MAX_SCHEDULE_TIMEOUT;
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index 2c643e1919aa..e7e012933714 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -594,20 +594,42 @@ static void unix_release_sock(struct sock *sk, int embrion)
+ 
+ static void init_peercred(struct sock *sk)
+ {
+-	put_pid(sk->sk_peer_pid);
+-	if (sk->sk_peer_cred)
+-		put_cred(sk->sk_peer_cred);
++	const struct cred *old_cred;
++	struct pid *old_pid;
++
++	spin_lock(&sk->sk_peer_lock);
++	old_pid = sk->sk_peer_pid;
++	old_cred = sk->sk_peer_cred;
+ 	sk->sk_peer_pid  = get_pid(task_tgid(current));
+ 	sk->sk_peer_cred = get_current_cred();
++	spin_unlock(&sk->sk_peer_lock);
++
++	put_pid(old_pid);
++	put_cred(old_cred);
+ }
+ 
+ static void copy_peercred(struct sock *sk, struct sock *peersk)
+ {
+-	put_pid(sk->sk_peer_pid);
+-	if (sk->sk_peer_cred)
+-		put_cred(sk->sk_peer_cred);
++	const struct cred *old_cred;
++	struct pid *old_pid;
++
++	if (sk < peersk) {
++		spin_lock(&sk->sk_peer_lock);
++		spin_lock_nested(&peersk->sk_peer_lock, SINGLE_DEPTH_NESTING);
++	} else {
++		spin_lock(&peersk->sk_peer_lock);
++		spin_lock_nested(&sk->sk_peer_lock, SINGLE_DEPTH_NESTING);
++	}
++	old_pid = sk->sk_peer_pid;
++	old_cred = sk->sk_peer_cred;
+ 	sk->sk_peer_pid  = get_pid(peersk->sk_peer_pid);
+ 	sk->sk_peer_cred = get_cred(peersk->sk_peer_cred);
++
++	spin_unlock(&sk->sk_peer_lock);
++	spin_unlock(&peersk->sk_peer_lock);
++
++	put_pid(old_pid);
++	put_cred(old_cred);
+ }
+ 
+ static int unix_listen(struct socket *sock, int backlog)
+diff --git a/tools/usb/testusb.c b/tools/usb/testusb.c
+index 0692d99b6d8f..18c895654e76 100644
+--- a/tools/usb/testusb.c
++++ b/tools/usb/testusb.c
+@@ -278,12 +278,6 @@ static int find_testdev(const char *name, const struct stat *sb, int flag)
+ 	}
+ 
+ 	entry->ifnum = ifnum;
+-
+-	/* FIXME update USBDEVFS_CONNECTINFO so it tells about high speed etc */
+-
+-	fprintf(stderr, "%s speed\t%s\t%u\n",
+-		speed(entry->speed), entry->name, entry->ifnum);
+-
+ 	entry->next = testdevs;
+ 	testdevs = entry;
+ 	return 0;
+@@ -312,6 +306,14 @@ static void *handle_testdev (void *arg)
+ 		return 0;
+ 	}
+ 
++	status  =  ioctl(fd, USBDEVFS_GET_SPEED, NULL);
++	if (status < 0)
++		fprintf(stderr, "USBDEVFS_GET_SPEED failed %d\n", status);
++	else
++		dev->speed = status;
++	fprintf(stderr, "%s speed\t%s\t%u\n",
++			speed(dev->speed), dev->name, dev->ifnum);
++
+ restart:
+ 	for (i = 0; i < TEST_CASES; i++) {
+ 		if (dev->test != -1 && dev->test != i)
