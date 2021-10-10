@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5CA3428071
-	for <lists+stable@lfdr.de>; Sun, 10 Oct 2021 12:22:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB015428072
+	for <lists+stable@lfdr.de>; Sun, 10 Oct 2021 12:22:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231548AbhJJKYA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Oct 2021 06:24:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49612 "EHLO mail.kernel.org"
+        id S231535AbhJJKYK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 Oct 2021 06:24:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231561AbhJJKX7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 10 Oct 2021 06:23:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFBBA61056;
-        Sun, 10 Oct 2021 10:22:00 +0000 (UTC)
+        id S231508AbhJJKYI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 10 Oct 2021 06:24:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20B4F60C51;
+        Sun, 10 Oct 2021 10:22:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633861321;
-        bh=rxUgk+ad2maj/Awa7IN102elepujDhxwJlvoeF1f0vk=;
+        s=korg; t=1633861330;
+        bh=7y1+yZdeMZC6+bSqxMi4FtFSRgSbABb9frMpif2Gz3g=;
         h=Subject:To:Cc:From:Date:From;
-        b=ZG67aqKuhgXZoych4aky2zclZKhohfIq4SX5HE53TYmOz5soYEy4lKoGGciR7Y7nU
-         1IBB3YcUxzM9m0dmeyiOkZZboMaPhtkwkrSao/jJx3tSpnIFmLoDcHAINS/1UfUohJ
-         JY1RYf8WG/H4MtkVvNtuV1fyu2kHplLwThzK+PXo=
-Subject: FAILED: patch "[PATCH] riscv: Flush current cpu icache before other cpus" failed to apply to 5.4-stable tree
+        b=FvzWfKwiv8vqXQOXna3Tm+aKWKmnSIdtTUO4G600b1Dd4AifBQRwel5dofa/Iw6CN
+         ED0Pz2+HDXVD7d6bNnvTrJVsWXzGVfZB5cwhhprhOpCecamf9AGZf+iYSJow7SbTNl
+         9Y2gd8PDb8UmZ65PD+yhvCHSFfuH3Ulugo8EZrCs=
+Subject: FAILED: patch "[PATCH] riscv: Flush current cpu icache before other cpus" failed to apply to 4.19-stable tree
 To:     alex@ghiti.fr, palmerdabbelt@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 10 Oct 2021 12:21:58 +0200
-Message-ID: <163386131850240@kroah.com>
+Date:   Sun, 10 Oct 2021 12:22:00 +0200
+Message-ID: <1633861320227119@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
