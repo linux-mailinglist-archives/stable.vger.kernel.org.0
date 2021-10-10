@@ -2,226 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF588427F38
-	for <lists+stable@lfdr.de>; Sun, 10 Oct 2021 06:49:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD5D9427F3F
+	for <lists+stable@lfdr.de>; Sun, 10 Oct 2021 07:31:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229661AbhJJEvU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Oct 2021 00:51:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48950 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229659AbhJJEvU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 10 Oct 2021 00:51:20 -0400
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99A6BC061570
-        for <stable@vger.kernel.org>; Sat,  9 Oct 2021 21:49:22 -0700 (PDT)
-Received: by mail-pg1-x529.google.com with SMTP id g184so7462656pgc.6
-        for <stable@vger.kernel.org>; Sat, 09 Oct 2021 21:49:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=E0DCdkvO/bPJj5iB1JUmtEl6BkBnTbRyQ+Rqo/mgXlk=;
-        b=lAI5NHzdwSNb0jL0qCpK6WrulgynnsoRk0Ssw3vA5zOwEuUi2lxO2CD1lbv+D3BR+u
-         UDxnx5d9LYQtvSDalUOdeQIoUnkKdhzToqCFTXOCwaZdDoASfpp7haPBlchVF7d+mx84
-         9V0EhTGQH7ESHsOMqkoNpVezQZKIwkCJYkXEeEiJnZKueTAmIl24RSV1N0GossMzHRI3
-         ce2O8+U2oid6X038mRuddakhlW6fD2EtKgUTosddL9VaazMK5NrKyIvTnPeJ8DegDkv7
-         uSlrU64EZ3pv2A5PTlWTLv9MnO2HJxqaklTHPyCoSKSroegdK1CbwP7O4IaDyIxVHUXy
-         JR3g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=E0DCdkvO/bPJj5iB1JUmtEl6BkBnTbRyQ+Rqo/mgXlk=;
-        b=RY8kXViS/JjHr44zc2NTDMJnjekfH35Nj1SwCLhZMLicYxF1NXPe2WhjMEs1KhDsbp
-         uL1DhbUPRGAMhccv/ANCdDln8DJnirNBZewDQH0l7IMsH0XX+e+V28pWb+nLt9JsK0Ay
-         XO8CAslu2QouKrotUaVPJom2IxQFH3d3Ze3ObvOWpUiorUcaKu7FWzceIdDwHLaHhJxk
-         cuiIyAoRyuhpFjSXh7ey9zKuwyNHhv2KqLZ5nL6WHuGjvIEzxghoQeN8Ehph3/KBcEsT
-         MPHjXm3ga/f9FPveKocMoTaOMKBMjlYes+EzsZohcDoyxkXxUwtX59FS7jV0vxX8Zhzp
-         +7aA==
-X-Gm-Message-State: AOAM5322T/APmUMZwyaaW1QHIKPReaEnPILGNw82mQZLUrQgdx0ZTwAH
-        vJU7LLS2ZKSzGU6VwcYUKePoGfu+ct9LT8go
-X-Google-Smtp-Source: ABdhPJxDFb7oB8JRSZ60fF6g9Ps0go0TeSF8xXJdrUsGo3Y4m4fgQfKYcUHf/jKVIRbdPTosLyXTnQ==
-X-Received: by 2002:a63:ce52:: with SMTP id r18mr12253801pgi.350.1633841361880;
-        Sat, 09 Oct 2021 21:49:21 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c11sm3536626pfm.55.2021.10.09.21.49.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 Oct 2021 21:49:21 -0700 (PDT)
-Message-ID: <616270d1.1c69fb81.8d3a9.ab3f@mx.google.com>
-Date:   Sat, 09 Oct 2021 21:49:21 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S230381AbhJJFda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 Oct 2021 01:33:30 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:38936 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230180AbhJJFda (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 10 Oct 2021 01:33:30 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19A5BiEC025590;
+        Sun, 10 Oct 2021 01:29:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=shUZ6uqlQTOHed2KAnYjTi0w/xXr6hUSlmrC1GmJuNI=;
+ b=qavXZzNrbaNTpa1IcpTgPSXomJ7rEtgtIZmWFHX2upg0lG9PX9Ou4Xt56crxT+8WJJor
+ Aw9WCDoO3exGtXBTHUHb0h4fshk44sEhj2HrcFY9xwzhL/gsmyTsEQGx5sJARyz7lAIx
+ P8fMwrqughz5QRMaIbgVaBYhPNuQNRw/aBNJ+ERSlxUEQkUQ8sSVJkxwtj6DPgZKyG44
+ ObzcC9L92eIEz+cMqrsKYifpf5eS7lr7mGXbjhzpwG3PkpDOh0CTr22E6z8kzbfvrjA0
+ KsLF2jhFsgg+E5+aGyMKm5okqjUYTqjeQYCj+8KB2AcWlXvVAqNZLgH4s8sNFOsPeCAz EA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bkstd85tf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 10 Oct 2021 01:29:26 -0400
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19A5TQ0r011505;
+        Sun, 10 Oct 2021 01:29:26 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bkstd85t6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 10 Oct 2021 01:29:26 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19A5R9AN006970;
+        Sun, 10 Oct 2021 05:29:24 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 3bk2q8w0e5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 10 Oct 2021 05:29:24 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19A5TLnO62587264
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 10 Oct 2021 05:29:21 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CB09EA4054;
+        Sun, 10 Oct 2021 05:29:21 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A453FA405C;
+        Sun, 10 Oct 2021 05:29:20 +0000 (GMT)
+Received: from linux.ibm.com (unknown [9.145.54.246])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Sun, 10 Oct 2021 05:29:20 +0000 (GMT)
+Date:   Sun, 10 Oct 2021 08:29:18 +0300
+From:   Mike Rapoport <rppt@linux.ibm.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Nadav Amit <nadav.amit@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Xu <peterx@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, Nadav Amit <namit@vmware.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Jan Kara <jack@suse.cz>, stable@vger.kernel.org
+Subject: Re: [PATCH] mm/userfaultfd: provide unmasked address on page-fault
+Message-ID: <YWJ6Lv4QpJ3Kzynt@linux.ibm.com>
+References: <20211007235055.469587-1-namit@vmware.com>
+ <d5a244e9-a04e-8794-e55f-380db5e8c6c4@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.14.11
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.14.y
-Subject: stable-rc/linux-5.14.y baseline: 193 runs, 4 regressions (v5.14.11)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d5a244e9-a04e-8794-e55f-380db5e8c6c4@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: K_g-r_8Z10k5Tl0NqMdiPO_rmmbBoPg2
+X-Proofpoint-GUID: tO4xLlIrcooGRdes9d51jzYTPheidXTO
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-10_01,2021-10-07_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1011
+ suspectscore=0 mlxscore=0 bulkscore=0 mlxlogscore=673 lowpriorityscore=0
+ malwarescore=0 priorityscore=1501 spamscore=0 phishscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109230001
+ definitions=main-2110100034
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.14.y baseline: 193 runs, 4 regressions (v5.14.11)
+On Fri, Oct 08, 2021 at 10:05:36AM +0200, David Hildenbrand wrote:
+> On 08.10.21 01:50, Nadav Amit wrote:
+> > From: Nadav Amit <namit@vmware.com>
+> > 
+> > Userfaultfd is supposed to provide the full address (i.e., unmasked) of
+> > the faulting access back to userspace. However, that is not the case for
+> > quite some time.
+> > 
+> > Even running "userfaultfd_demo" from the userfaultfd man page provides
+> > the wrong output (and contradicts the man page). Notice that
+> > "UFFD_EVENT_PAGEFAULT event" shows the masked address.
+> > 
+> > 	Address returned by mmap() = 0x7fc5e30b3000
+> > 
+> > 	fault_handler_thread():
+> > 	    poll() returns: nready = 1; POLLIN = 1; POLLERR = 0
+> > 	    UFFD_EVENT_PAGEFAULT event: flags = 0; address = 7fc5e30b3000
+> > 		(uffdio_copy.copy returned 4096)
+> > 	Read address 0x7fc5e30b300f in main(): A
+> > 	Read address 0x7fc5e30b340f in main(): A
+> > 	Read address 0x7fc5e30b380f in main(): A
+> > 	Read address 0x7fc5e30b3c0f in main(): A
+> > 
+> > Add a new "real_address" field to vmf to hold the unmasked address. It
+> > is possible to keep the unmasked address in the existing address field
+> > (and mask whenever necessary) instead, but this is likely to cause
+> > backporting problems of this patch.
+> 
+> Can we be sure that no existing users will rely on this behavior that has
+> been the case since end of 2016 IIRC, one year after UFFD was upstreamed? I
+> do wonder what the official ABI nowadays is, because man pages aren't
+> necessarily the source of truth.
+> 
+> I checked QEMU (postcopy live migration), and I think it should be fine with
+> this change.
 
-Regressions Summary
--------------------
-
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-beagle-xm               | arm   | lab-baylibre | gcc-8    | multi_v7_defcon=
-fig  | 1          =
-
-beagle-xm               | arm   | lab-baylibre | gcc-8    | omap2plus_defco=
-nfig | 1          =
-
-imx8mp-evk              | arm64 | lab-nxp      | gcc-8    | defconfig      =
-     | 1          =
-
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.14.y/ker=
-nel/v5.14.11/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.14.y
-  Describe: v5.14.11
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      924356b31dcbb1d5a4a210d3614372fc4c27e6f3 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-beagle-xm               | arm   | lab-baylibre | gcc-8    | multi_v7_defcon=
-fig  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61623f12f491171bf499a325
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.1=
-1/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.1=
-1/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61623f12f491171bf499a=
-326
-        failing since 1 day (last pass: v5.14.10, first fail: v5.14.10-49-g=
-24e85a19693f) =
-
- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-beagle-xm               | arm   | lab-baylibre | gcc-8    | omap2plus_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61623feeb9e5fe111e99a31d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.1=
-1/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.1=
-1/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61623feeb9e5fe111e99a=
-31e
-        failing since 2 days (last pass: v5.14.9-173-gd1d4d31a257c, first f=
-ail: v5.14.10) =
-
- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-imx8mp-evk              | arm64 | lab-nxp      | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/616240649b8e9cabe899a2f9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.1=
-1/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.1=
-1/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/616240649b8e9cabe899a=
-2fa
-        failing since 2 days (last pass: v5.14.9-173-gd1d4d31a257c, first f=
-ail: v5.14.10) =
-
- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61623f6d8821d895a099a2ea
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.1=
-1/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bananapi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.1=
-1/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bananapi-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61623f6d8821d895a099a=
-2eb
-        failing since 33 days (last pass: v5.14-12-g95dc72bb9c03, first fai=
-l: v5.14.1-15-gafbaa4bb4e04) =
-
- =20
+CRIU is Ok with this change, we anyway mask the address.
+ 
+-- 
+Sincerely yours,
+Mike.
