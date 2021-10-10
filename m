@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 718BC42806D
-	for <lists+stable@lfdr.de>; Sun, 10 Oct 2021 12:21:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 366A142806E
+	for <lists+stable@lfdr.de>; Sun, 10 Oct 2021 12:21:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231496AbhJJKXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Oct 2021 06:23:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49482 "EHLO mail.kernel.org"
+        id S231397AbhJJKXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 Oct 2021 06:23:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231244AbhJJKXi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 10 Oct 2021 06:23:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BC9E61056;
-        Sun, 10 Oct 2021 10:21:39 +0000 (UTC)
+        id S231244AbhJJKXr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 10 Oct 2021 06:23:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F100361078;
+        Sun, 10 Oct 2021 10:21:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633861300;
-        bh=loml9WZvamVAvJz4paWKjq0qSnAYvDi6NBIwTD6FdNI=;
+        s=korg; t=1633861309;
+        bh=jurelLOY489XLk4zJw841bQgZ4hdY1SzEY39h0jS6DI=;
         h=Subject:To:Cc:From:Date:From;
-        b=oS0d9mkFYVH/+2k+sPbPmvfXAZnXIY5FaGdRhkNWi6JSEbS2kJS4Li96JzUycIvyf
-         2Mt2lD4DnJK2/RkQR/fXc/wEtzuPi0M9nUozb8jt/ykl1KqWRVuwlz0TF+DqNKYevS
-         1KhNoNm4RwgioIvKQ43Xd8tcKhUoUX7d/nCluqN0=
-Subject: FAILED: patch "[PATCH] scsi: ufs: core: Fix task management completion" failed to apply to 5.4-stable tree
+        b=Jy34TaNInqqOLm8tM0dW+HUDPOiNCoSfaj/NWoe0ApZKZ0Iu4Nda+/KVVTWDWowF5
+         L3cb0XoWyER27twkBMK85ofUciHG++aqh6heZl0BRI16ZepzJFAlD3yvNRqQcFIlNp
+         +EHeVNnOsfCHZoR6/Xbhs9s1o7eCcJws1tbZWWIY=
+Subject: FAILED: patch "[PATCH] scsi: ufs: core: Fix task management completion" failed to apply to 5.10-stable tree
 To:     adrian.hunter@intel.com, bvanassche@acm.org,
         martin.petersen@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 10 Oct 2021 12:21:38 +0200
-Message-ID: <16338612988264@kroah.com>
+Message-ID: <1633861298236152@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
