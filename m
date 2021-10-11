@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01FDB428F8F
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F8CB428F8D
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237896AbhJKN7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:59:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43326 "EHLO mail.kernel.org"
+        id S237701AbhJKN7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:59:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237584AbhJKN5s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:57:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C868861168;
-        Mon, 11 Oct 2021 13:54:26 +0000 (UTC)
+        id S236894AbhJKN54 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:57:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C713360E8B;
+        Mon, 11 Oct 2021 13:54:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960467;
-        bh=dluHrA7dZOEWcWpE5N3KiE5SD6JVTcOWYXhhW+JahT4=;
+        s=korg; t=1633960470;
+        bh=4RKgkISkbESJlFhvG4on8itP+82lxqG4cBxbchGuLV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JdyB+0ux31D8EDpDqDFOW9bUYzRYlyRVtL7XeJBCoZPbAu8B6pLKHAIza5lKdDkQR
-         Q2nYclGWLdlaTcSijVEc24Z3ouT2Fcta04CpvYQaAIn5DFN5iY0fRp58HdHoTw0a/L
-         kb+d7fEperCtgOPPAwPKjXk6jArK5we7jyjphBNM=
+        b=znPj3isn2JtSy/Xt4VpPU6zxH+y/fs8S+V6mPMwUdiY0kln0weD3l7m2d/cROKF6P
+         Kno4slJ7vBYUTFDGLKlw7QQBCFjMrBRvoWmGxNcF6DcGLiaDuRzlA5NLaMxBso3a+z
+         rNvfCd+H9n13fVsElyh3lIpAllTYDUTlkkYbvPJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Manning <mmanning@vyatta.att-mail.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Christoph Hellwig <hch@lst.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 66/83] net: prefer socket bound to interface when not in VRF
-Date:   Mon, 11 Oct 2021 15:46:26 +0200
-Message-Id: <20211011134510.664399259@linuxfoundation.org>
+Subject: [PATCH 5.10 67/83] powerpc/iommu: Report the correct most efficient DMA mask for PCI devices
+Date:   Mon, 11 Oct 2021 15:46:27 +0200
+Message-Id: <20211011134510.700666693@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
 References: <20211011134508.362906295@linuxfoundation.org>
@@ -42,96 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Manning <mvrmanning@gmail.com>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-[ Upstream commit 8d6c414cd2fb74aa6812e9bfec6178f8246c4f3a ]
+[ Upstream commit 23c216b335d1fbd716076e8263b54a714ea3cf0e ]
 
-The commit 6da5b0f027a8 ("net: ensure unbound datagram socket to be
-chosen when not in a VRF") modified compute_score() so that a device
-match is always made, not just in the case of an l3mdev skb, then
-increments the score also for unbound sockets. This ensures that
-sockets bound to an l3mdev are never selected when not in a VRF.
-But as unbound and bound sockets are now scored equally, this results
-in the last opened socket being selected if there are matches in the
-default VRF for an unbound socket and a socket bound to a dev that is
-not an l3mdev. However, handling prior to this commit was to always
-select the bound socket in this case. Reinstate this handling by
-incrementing the score only for bound sockets. The required isolation
-due to choosing between an unbound socket and a socket bound to an
-l3mdev remains in place due to the device match always being made.
-The same approach is taken for compute_score() for stream sockets.
+According to dma-api.rst, the dma_get_required_mask() helper should return
+"the mask that the platform requires to operate efficiently". Which in
+the case of PPC64 means the bypass mask and not a mask from an IOMMU table
+which is shorter and slower to use due to map/unmap operations (especially
+expensive on "pseries").
 
-Fixes: 6da5b0f027a8 ("net: ensure unbound datagram socket to be chosen when not in a VRF")
-Fixes: e78190581aff ("net: ensure unbound stream socket to be chosen when not in a VRF")
-Signed-off-by: Mike Manning <mmanning@vyatta.att-mail.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/cf0a8523-b362-1edf-ee78-eef63cbbb428@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+However the existing implementation ignores the possibility of bypassing
+and returns the IOMMU table mask on the pseries platform which makes some
+drivers (mpt3sas is one example) choose 32bit DMA even though bypass is
+supported. The powernv platform sort of handles it by having a bigger
+default window with a mask >=40 but it only works as drivers choose
+63/64bit if the required mask is >32 which is rather pointless.
+
+This reintroduces the bypass capability check to let drivers make
+a better choice of the DMA mask.
+
+Fixes: f1565c24b596 ("powerpc: use the generic dma_ops_bypass mode")
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210930034454.95794-1-aik@ozlabs.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/inet_hashtables.c  | 4 +++-
- net/ipv4/udp.c              | 3 ++-
- net/ipv6/inet6_hashtables.c | 2 +-
- net/ipv6/udp.c              | 3 ++-
- 4 files changed, 8 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/dma-iommu.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index 45fb450b4522..f3fd5c911ed0 100644
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -242,8 +242,10 @@ static inline int compute_score(struct sock *sk, struct net *net,
+diff --git a/arch/powerpc/kernel/dma-iommu.c b/arch/powerpc/kernel/dma-iommu.c
+index a1c744194018..9ac0651795cf 100644
+--- a/arch/powerpc/kernel/dma-iommu.c
++++ b/arch/powerpc/kernel/dma-iommu.c
+@@ -117,6 +117,15 @@ u64 dma_iommu_get_required_mask(struct device *dev)
+ 	struct iommu_table *tbl = get_iommu_table_base(dev);
+ 	u64 mask;
  
- 		if (!inet_sk_bound_dev_eq(net, sk->sk_bound_dev_if, dif, sdif))
- 			return -1;
-+		score =  sk->sk_bound_dev_if ? 2 : 1;
++	if (dev_is_pci(dev)) {
++		u64 bypass_mask = dma_direct_get_required_mask(dev);
++
++		if (dma_iommu_dma_supported(dev, bypass_mask)) {
++			dev_info(dev, "%s: returning bypass mask 0x%llx\n", __func__, bypass_mask);
++			return bypass_mask;
++		}
++	}
++
+ 	if (!tbl)
+ 		return 0;
  
--		score = sk->sk_family == PF_INET ? 2 : 1;
-+		if (sk->sk_family == PF_INET)
-+			score++;
- 		if (READ_ONCE(sk->sk_incoming_cpu) == raw_smp_processor_id())
- 			score++;
- 	}
-diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
-index bd7fd9b1f24c..655f0d8a13d3 100644
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -390,7 +390,8 @@ static int compute_score(struct sock *sk, struct net *net,
- 					dif, sdif);
- 	if (!dev_match)
- 		return -1;
--	score += 4;
-+	if (sk->sk_bound_dev_if)
-+		score += 4;
- 
- 	if (READ_ONCE(sk->sk_incoming_cpu) == raw_smp_processor_id())
- 		score++;
-diff --git a/net/ipv6/inet6_hashtables.c b/net/ipv6/inet6_hashtables.c
-index 55c290d55605..67c9114835c8 100644
---- a/net/ipv6/inet6_hashtables.c
-+++ b/net/ipv6/inet6_hashtables.c
-@@ -106,7 +106,7 @@ static inline int compute_score(struct sock *sk, struct net *net,
- 		if (!inet_sk_bound_dev_eq(net, sk->sk_bound_dev_if, dif, sdif))
- 			return -1;
- 
--		score = 1;
-+		score =  sk->sk_bound_dev_if ? 2 : 1;
- 		if (READ_ONCE(sk->sk_incoming_cpu) == raw_smp_processor_id())
- 			score++;
- 	}
-diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
-index 1943ae5103eb..bae6b51a9bd4 100644
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -133,7 +133,8 @@ static int compute_score(struct sock *sk, struct net *net,
- 	dev_match = udp_sk_bound_dev_eq(net, sk->sk_bound_dev_if, dif, sdif);
- 	if (!dev_match)
- 		return -1;
--	score++;
-+	if (sk->sk_bound_dev_if)
-+		score++;
- 
- 	if (READ_ONCE(sk->sk_incoming_cpu) == raw_smp_processor_id())
- 		score++;
 -- 
 2.33.0
 
