@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6124C428EAC
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:49:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA164428F40
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:54:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236392AbhJKNvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:51:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38900 "EHLO mail.kernel.org"
+        id S237389AbhJKN4j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:56:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237276AbhJKNuf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:50:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A72760E8B;
-        Mon, 11 Oct 2021 13:48:27 +0000 (UTC)
+        id S235338AbhJKNyo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:54:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3756610CB;
+        Mon, 11 Oct 2021 13:52:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960107;
-        bh=GgDRqfBeQMUhgmLcfjsJRYdlUheZeSWZePX/uUDmz4c=;
+        s=korg; t=1633960343;
+        bh=q3l7vbbtsJK4uUj/2fRASh/IZJsGxjVAiy8krrP7vUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Od3BxXIPk3fMgcXOqP8PvIYiTlknQFu/+LNfINtQXKnQV/6XzIiq3DHjCpd2p9Jrb
-         LWcuuN21yQ5fYY+kxRBbPGCMVweUqYQeDudqkt6T2tKer9pu5HxzRkwaRnpeH/d/sj
-         fvcH1/VTkEvHHZ1f4lCZkLQa9sf17DuIZgq8EEwU=
+        b=I0NuIJNWGnQhkIv30XRjdfVYZV06IUTsgVGD0GjLlEFkBjvsa6D1VC5Riio6kTFNo
+         VhgukiPPlcbkz9R4UpgqZF/0OBWEyvqnbFW6Pd0UG8/3D5R95Ae0ktVSYVkyrGCSlo
+         3zCXZMSIWPelRmdzK2fe2tLMHGBxsyLCOxjQg75E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Max Filippov <jcmvbkbc@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 23/52] xtensa: call irqchip_init only when CONFIG_USE_OF is selected
+Subject: [PATCH 5.10 32/83] xtensa: use CONFIG_USE_OF instead of CONFIG_OF
 Date:   Mon, 11 Oct 2021 15:45:52 +0200
-Message-Id: <20211011134504.527980469@linuxfoundation.org>
+Message-Id: <20211011134509.476470822@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
-References: <20211011134503.715740503@linuxfoundation.org>
+In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
+References: <20211011134508.362906295@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,63 +40,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 6489f8d0e1d93a3603d8dad8125797559e4cf2a2 ]
+[ Upstream commit d67ed2510d28a1eb33171010d35cf52178cfcbdd ]
 
-During boot time kernel configured with OF=y but USE_OF=n displays the
-following warnings and hangs shortly after starting userspace:
+CONFIG_OF can be set by a randconfig or by a user -- without setting the
+early flattree option (OF_EARLY_FLATTREE).  This causes build errors.
+However, if randconfig or a user sets USE_OF in the Xtensa config,
+the right kconfig symbols are set to fix the build.
 
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 0 at kernel/irq/irqdomain.c:695 irq_create_mapping_affinity+0x29/0xc0
-irq_create_mapping_affinity(, 6) called with NULL domain
-CPU: 0 PID: 0 Comm: swapper Not tainted 5.15.0-rc3-00001-gd67ed2510d28 #30
-Call Trace:
-  __warn+0x69/0xc4
-  warn_slowpath_fmt+0x6c/0x94
-  irq_create_mapping_affinity+0x29/0xc0
-  local_timer_setup+0x40/0x88
-  time_init+0xb1/0xe8
-  start_kernel+0x31d/0x3f4
-  _startup+0x13b/0x13b
----[ end trace 1e6630e1c5eda35b ]---
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 0 at arch/xtensa/kernel/time.c:141 local_timer_setup+0x58/0x88
-error: can't map timer irq
-CPU: 0 PID: 0 Comm: swapper Tainted: G        W         5.15.0-rc3-00001-gd67ed2510d28 #30
-Call Trace:
-  __warn+0x69/0xc4
-  warn_slowpath_fmt+0x6c/0x94
-  local_timer_setup+0x58/0x88
-  time_init+0xb1/0xe8
-  start_kernel+0x31d/0x3f4
-  _startup+0x13b/0x13b
----[ end trace 1e6630e1c5eda35c ]---
-Failed to request irq 0 (timer)
+Fixes these build errors:
 
-Fix that by calling irqchip_init only when CONFIG_USE_OF is selected and
-calling legacy interrupt controller init otherwise.
+../arch/xtensa/kernel/setup.c:67:19: error: ‘__dtb_start’ undeclared here (not in a function); did you mean ‘dtb_start’?
+   67 | void *dtb_start = __dtb_start;
+      |                   ^~~~~~~~~~~
+../arch/xtensa/kernel/setup.c: In function 'xtensa_dt_io_area':
+../arch/xtensa/kernel/setup.c:201:14: error: implicit declaration of function 'of_flat_dt_is_compatible'; did you mean 'of_machine_is_compatible'? [-Werror=implicit-function-declaration]
+  201 |         if (!of_flat_dt_is_compatible(node, "simple-bus"))
+../arch/xtensa/kernel/setup.c:204:18: error: implicit declaration of function 'of_get_flat_dt_prop' [-Werror=implicit-function-declaration]
+  204 |         ranges = of_get_flat_dt_prop(node, "ranges", &len);
+../arch/xtensa/kernel/setup.c:204:16: error: assignment to 'const __be32 *' {aka 'const unsigned int *'} from 'int' makes pointer from integer without a cast [-Werror=int-conversion]
+  204 |         ranges = of_get_flat_dt_prop(node, "ranges", &len);
+      |                ^
+../arch/xtensa/kernel/setup.c: In function 'early_init_devtree':
+../arch/xtensa/kernel/setup.c:228:9: error: implicit declaration of function 'early_init_dt_scan'; did you mean 'early_init_devtree'? [-Werror=implicit-function-declaration]
+  228 |         early_init_dt_scan(params);
+../arch/xtensa/kernel/setup.c:229:9: error: implicit declaration of function 'of_scan_flat_dt' [-Werror=implicit-function-declaration]
+  229 |         of_scan_flat_dt(xtensa_dt_io_area, NULL);
+
+xtensa-elf-ld: arch/xtensa/mm/mmu.o:(.text+0x0): undefined reference to `xtensa_kio_paddr'
 
 Fixes: da844a81779e ("xtensa: add device trees support")
+Fixes: 6cb971114f63 ("xtensa: remap io area defined in device tree")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/kernel/irq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/xtensa/include/asm/kmem_layout.h |  2 +-
+ arch/xtensa/kernel/setup.c            | 12 ++++++------
+ arch/xtensa/mm/mmu.c                  |  2 +-
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/xtensa/kernel/irq.c b/arch/xtensa/kernel/irq.c
-index a48bf2d10ac2..80cc9770a8d2 100644
---- a/arch/xtensa/kernel/irq.c
-+++ b/arch/xtensa/kernel/irq.c
-@@ -145,7 +145,7 @@ unsigned xtensa_get_ext_irq_no(unsigned irq)
+diff --git a/arch/xtensa/include/asm/kmem_layout.h b/arch/xtensa/include/asm/kmem_layout.h
+index 7cbf68ca7106..6fc05cba61a2 100644
+--- a/arch/xtensa/include/asm/kmem_layout.h
++++ b/arch/xtensa/include/asm/kmem_layout.h
+@@ -78,7 +78,7 @@
+ #endif
+ #define XCHAL_KIO_SIZE			0x10000000
  
- void __init init_IRQ(void)
- {
+-#if (!XCHAL_HAVE_PTP_MMU || XCHAL_HAVE_SPANNING_WAY) && defined(CONFIG_OF)
++#if (!XCHAL_HAVE_PTP_MMU || XCHAL_HAVE_SPANNING_WAY) && defined(CONFIG_USE_OF)
+ #define XCHAL_KIO_PADDR			xtensa_get_kio_paddr()
+ #ifndef __ASSEMBLY__
+ extern unsigned long xtensa_kio_paddr;
+diff --git a/arch/xtensa/kernel/setup.c b/arch/xtensa/kernel/setup.c
+index ed184106e4cf..ee9082a142fe 100644
+--- a/arch/xtensa/kernel/setup.c
++++ b/arch/xtensa/kernel/setup.c
+@@ -63,7 +63,7 @@ extern unsigned long initrd_end;
+ extern int initrd_below_start_ok;
+ #endif
+ 
 -#ifdef CONFIG_OF
 +#ifdef CONFIG_USE_OF
- 	irqchip_init();
- #else
- #ifdef CONFIG_HAVE_SMP
+ void *dtb_start = __dtb_start;
+ #endif
+ 
+@@ -125,7 +125,7 @@ __tagtable(BP_TAG_INITRD, parse_tag_initrd);
+ 
+ #endif /* CONFIG_BLK_DEV_INITRD */
+ 
+-#ifdef CONFIG_OF
++#ifdef CONFIG_USE_OF
+ 
+ static int __init parse_tag_fdt(const bp_tag_t *tag)
+ {
+@@ -135,7 +135,7 @@ static int __init parse_tag_fdt(const bp_tag_t *tag)
+ 
+ __tagtable(BP_TAG_FDT, parse_tag_fdt);
+ 
+-#endif /* CONFIG_OF */
++#endif /* CONFIG_USE_OF */
+ 
+ static int __init parse_tag_cmdline(const bp_tag_t* tag)
+ {
+@@ -183,7 +183,7 @@ static int __init parse_bootparam(const bp_tag_t *tag)
+ }
+ #endif
+ 
+-#ifdef CONFIG_OF
++#ifdef CONFIG_USE_OF
+ 
+ #if !XCHAL_HAVE_PTP_MMU || XCHAL_HAVE_SPANNING_WAY
+ unsigned long xtensa_kio_paddr = XCHAL_KIO_DEFAULT_PADDR;
+@@ -232,7 +232,7 @@ void __init early_init_devtree(void *params)
+ 		strlcpy(command_line, boot_command_line, COMMAND_LINE_SIZE);
+ }
+ 
+-#endif /* CONFIG_OF */
++#endif /* CONFIG_USE_OF */
+ 
+ /*
+  * Initialize architecture. (Early stage)
+@@ -253,7 +253,7 @@ void __init init_arch(bp_tag_t *bp_start)
+ 	if (bp_start)
+ 		parse_bootparam(bp_start);
+ 
+-#ifdef CONFIG_OF
++#ifdef CONFIG_USE_OF
+ 	early_init_devtree(dtb_start);
+ #endif
+ 
+diff --git a/arch/xtensa/mm/mmu.c b/arch/xtensa/mm/mmu.c
+index fd2193df8a14..511bb92518f2 100644
+--- a/arch/xtensa/mm/mmu.c
++++ b/arch/xtensa/mm/mmu.c
+@@ -100,7 +100,7 @@ void init_mmu(void)
+ 
+ void init_kio(void)
+ {
+-#if XCHAL_HAVE_PTP_MMU && XCHAL_HAVE_SPANNING_WAY && defined(CONFIG_OF)
++#if XCHAL_HAVE_PTP_MMU && XCHAL_HAVE_SPANNING_WAY && defined(CONFIG_USE_OF)
+ 	/*
+ 	 * Update the IO area mapping in case xtensa_kio_paddr has changed
+ 	 */
 -- 
 2.33.0
 
