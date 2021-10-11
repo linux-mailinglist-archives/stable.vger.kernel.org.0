@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E083D429165
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:16:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DC4F429161
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:16:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243987AbhJKORz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:17:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33640 "EHLO mail.kernel.org"
+        id S244340AbhJKORo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:17:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243754AbhJKONW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:13:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 062D061283;
-        Mon, 11 Oct 2021 14:04:11 +0000 (UTC)
+        id S243778AbhJKONX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:13:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 213EE61350;
+        Mon, 11 Oct 2021 14:04:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633961052;
-        bh=FCNaVITC6lixF0J3EY+udkvO9AKpYGJwewhfAxiyay0=;
+        s=korg; t=1633961055;
+        bh=0JC7Hi9DfOwGRcfDRZqeJPU2hfZoHJL0faAF0oqxeQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mOCGRztbt/CAK/VJXNfCm6JNSbDNgXw+PAaEPSul1AuyZRDMn1qOl02cL7OAnVUir
-         cBe72iNOTjCFzkdIzdew5HNS4Zap/MpMM70mkXEYG4FijtAyGh4xm69FEr0EQOLd+9
-         L8CsFku6L4kVyxNRNVV+Jwa6FPAqlZR9bZNTWrHs=
+        b=abhSclr1ADtMJq7hIyRi/pIq7zJQJuYJA0O3E+LAvJUe26x39m1FJLI9U9b1/4HW5
+         B+dVEdhbC9Sf0TmuHiHO1RnvkyUtgedytkmaRUM7dQTKYU2QrCaTs7W1K+abZnOLLd
+         OYC7n/Y4q0bISE7xpLaBlQdz8kVlWbJo8nCUh1AA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
         Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.14 145/151] x86/Kconfig: Correct reference to MWINCHIP3D
-Date:   Mon, 11 Oct 2021 15:46:57 +0200
-Message-Id: <20211011134522.499564676@linuxfoundation.org>
+Subject: [PATCH 5.14 146/151] x86/sev: Return an error on a returned non-zero SW_EXITINFO1[31:0]
+Date:   Mon, 11 Oct 2021 15:46:58 +0200
+Message-Id: <20211011134522.534816746@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -40,41 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-commit 225bac2dc5d192e55f2c50123ee539b1edf8a411 upstream.
+commit 06f2ac3d4219bbbfd93d79e01966a42053084f11 upstream.
 
-Commit in Fixes intended to exclude the Winchip series and referred to
-CONFIG_WINCHIP3D, but the config symbol is called CONFIG_MWINCHIP3D.
+After returning from a VMGEXIT NAE event, SW_EXITINFO1[31:0] is checked
+for a value of 1, which indicates an error and that SW_EXITINFO2
+contains exception information. However, future versions of the GHCB
+specification may define new values for SW_EXITINFO1[31:0], so really
+any non-zero value should be treated as an error.
 
-Hence, scripts/checkkconfigsymbols.py warns:
-
-WINCHIP3D
-Referencing files: arch/x86/Kconfig
-
-Correct the reference to the intended config symbol.
-
-Fixes: 69b8d3fcabdc ("x86/Kconfig: Exclude i586-class CPUs lacking PAE support from the HIGHMEM64G Kconfig group")
-Suggested-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Fixes: 597cfe48212a ("x86/boot/compressed/64: Setup a GHCB-based VC Exception handler")
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20210803113531.30720-4-lukas.bulwahn@gmail.com
+Cc: <stable@vger.kernel.org> # 5.10+
+Link: https://lkml.kernel.org/r/efc772af831e9e7f517f0439b13b41f56bad8784.1633063321.git.thomas.lendacky@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/sev-shared.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -1400,7 +1400,7 @@ config HIGHMEM4G
- 
- config HIGHMEM64G
- 	bool "64GB"
--	depends on !M486SX && !M486 && !M586 && !M586TSC && !M586MMX && !MGEODE_LX && !MGEODEGX1 && !MCYRIXIII && !MELAN && !MWINCHIPC6 && !WINCHIP3D && !MK6
-+	depends on !M486SX && !M486 && !M586 && !M586TSC && !M586MMX && !MGEODE_LX && !MGEODEGX1 && !MCYRIXIII && !MELAN && !MWINCHIPC6 && !MWINCHIP3D && !MK6
- 	select X86_PAE
- 	help
- 	  Select this if you have a 32-bit processor and more than 4
+--- a/arch/x86/kernel/sev-shared.c
++++ b/arch/x86/kernel/sev-shared.c
+@@ -130,6 +130,8 @@ static enum es_result sev_es_ghcb_hv_cal
+ 		} else {
+ 			ret = ES_VMM_ERROR;
+ 		}
++	} else if (ghcb->save.sw_exit_info_1 & 0xffffffff) {
++		ret = ES_VMM_ERROR;
+ 	} else {
+ 		ret = ES_OK;
+ 	}
 
 
