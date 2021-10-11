@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D98E428F7F
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26083428EEF
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:51:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237204AbhJKN7N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:59:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41068 "EHLO mail.kernel.org"
+        id S236554AbhJKNxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:53:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237916AbhJKN5N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:57:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A18F561050;
-        Mon, 11 Oct 2021 13:53:59 +0000 (UTC)
+        id S237300AbhJKNwL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:52:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 583D360F4B;
+        Mon, 11 Oct 2021 13:50:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960440;
-        bh=/+o8pKia5fG22sirI5SOdT3jsRxnD1yMd6ydaJaHwdY=;
+        s=korg; t=1633960211;
+        bh=AuBVr87Shi6Tg3Fqh1mlcjMeh2zQRTw2nAlNt32fzdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v60gMA9IDMMbQyKmInLLnRiltOuL1L6IopCLAyLkT2BgSTuHw8CH+zukSsCsa54ld
-         fBkLkL/B1mt32CO3q6JGM6T28I5y/jXhy2mAgV1V5NZsgkl2YsoBkq5ZhRqNRhOJd+
-         h7h+6MuWwyBu5w3P5Y2DjxqnKpIrDgMDJg70E+L0=
+        b=lW+em4Vt/L4sbZRdPUFRusps2TXAJORS/Nm1K/AcvWtlKeSoPAhQWEf1EKLKiKpIu
+         ttgWfYm9nZ1KHsG4Lep38lRArO48kxC5IjYmPEo5L50uKjiP6VEwjThLEKdM7tf2kc
+         nxsnQJC/XMcSu8llKcRZdvJckw2uyHJduUrntWJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tao Liu <xliutaox@google.com>,
-        Catherine Sully <csully@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 60/83] gve: Avoid freeing NULL pointer
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.4 51/52] x86/hpet: Use another crystalball to evaluate HPET usability
 Date:   Mon, 11 Oct 2021 15:46:20 +0200
-Message-Id: <20211011134510.460465207@linuxfoundation.org>
+Message-Id: <20211011134505.483011431@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
-References: <20211011134508.362906295@linuxfoundation.org>
+In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
+References: <20211011134503.715740503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,78 +42,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tao Liu <xliutaox@google.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 922aa9bcac92b3ab6a423526a8e785b35a60b441 ]
+commit 6e3cd95234dc1eda488f4f487c281bac8fef4d9b upstream.
 
-Prevent possible crashes when cleaning up after unsuccessful
-initializations.
+On recent Intel systems the HPET stops working when the system reaches PC10
+idle state.
 
-Fixes: 893ce44df5658 ("gve: Add basic driver framework for Compute Engine Virtual NIC")
-Signed-off-by: Tao Liu <xliutaox@google.com>
-Signed-off-by: Catherine Sully <csully@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The approach of adding PCI ids to the early quirks to disable HPET on
+these systems is a whack a mole game which makes no sense.
+
+Check for PC10 instead and force disable HPET if supported. The check is
+overbroad as it does not take ACPI, intel_idle enablement and command
+line parameters into account. That's fine as long as there is at least
+PMTIMER available to calibrate the TSC frequency. The decision can be
+overruled by adding "hpet=force" on the kernel command line.
+
+Remove the related early PCI quirks for affected Ice Cake and Coffin Lake
+systems as they are not longer required. That should also cover all
+other systems, i.e. Tiger Rag and newer generations, which are most
+likely affected by this as well.
+
+Fixes: Yet another hardware trainwreck
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Rafael J. Wysocki <rafael@kernel.org>
+Cc: stable@vger.kernel.org
+Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/google/gve/gve_main.c | 27 ++++++++++++++--------
- 1 file changed, 17 insertions(+), 10 deletions(-)
+ arch/x86/kernel/early-quirks.c |    6 ---
+ arch/x86/kernel/hpet.c         |   81 +++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 81 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/google/gve/gve_main.c b/drivers/net/ethernet/google/gve/gve_main.c
-index 0b714b606ba1..22b2c6a8d08f 100644
---- a/drivers/net/ethernet/google/gve/gve_main.c
-+++ b/drivers/net/ethernet/google/gve/gve_main.c
-@@ -71,6 +71,9 @@ static int gve_alloc_counter_array(struct gve_priv *priv)
+--- a/arch/x86/kernel/early-quirks.c
++++ b/arch/x86/kernel/early-quirks.c
+@@ -710,12 +710,6 @@ static struct chipset early_qrk[] __init
+ 	 */
+ 	{ PCI_VENDOR_ID_INTEL, 0x0f00,
+ 		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+-	{ PCI_VENDOR_ID_INTEL, 0x3e20,
+-		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+-	{ PCI_VENDOR_ID_INTEL, 0x3ec4,
+-		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+-	{ PCI_VENDOR_ID_INTEL, 0x8a12,
+-		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+ 	{ PCI_VENDOR_ID_BROADCOM, 0x4331,
+ 	  PCI_CLASS_NETWORK_OTHER, PCI_ANY_ID, 0, apple_airport_reset},
+ 	{}
+--- a/arch/x86/kernel/hpet.c
++++ b/arch/x86/kernel/hpet.c
+@@ -9,6 +9,7 @@
  
- static void gve_free_counter_array(struct gve_priv *priv)
- {
-+	if (!priv->counter_array)
-+		return;
+ #include <asm/hpet.h>
+ #include <asm/time.h>
++#include <asm/mwait.h>
+ 
+ #undef  pr_fmt
+ #define pr_fmt(fmt) "hpet: " fmt
+@@ -806,6 +807,83 @@ static bool __init hpet_counting(void)
+ 	return false;
+ }
+ 
++static bool __init mwait_pc10_supported(void)
++{
++	unsigned int eax, ebx, ecx, mwait_substates;
 +
- 	dma_free_coherent(&priv->pdev->dev,
- 			  priv->num_event_counters *
- 			  sizeof(*priv->counter_array),
-@@ -131,6 +134,9 @@ static int gve_alloc_stats_report(struct gve_priv *priv)
- 
- static void gve_free_stats_report(struct gve_priv *priv)
- {
-+	if (!priv->stats_report)
-+		return;
++	if (boot_cpu_data.x86_vendor != X86_VENDOR_INTEL)
++		return false;
 +
- 	del_timer_sync(&priv->stats_report_timer);
- 	dma_free_coherent(&priv->pdev->dev, priv->stats_report_len,
- 			  priv->stats_report, priv->stats_report_bus);
-@@ -301,18 +307,19 @@ static void gve_free_notify_blocks(struct gve_priv *priv)
- {
- 	int i;
- 
--	if (priv->msix_vectors) {
--		/* Free the irqs */
--		for (i = 0; i < priv->num_ntfy_blks; i++) {
--			struct gve_notify_block *block = &priv->ntfy_blocks[i];
--			int msix_idx = i;
-+	if (!priv->msix_vectors)
-+		return;
- 
--			irq_set_affinity_hint(priv->msix_vectors[msix_idx].vector,
--					      NULL);
--			free_irq(priv->msix_vectors[msix_idx].vector, block);
--		}
--		free_irq(priv->msix_vectors[priv->mgmt_msix_idx].vector, priv);
-+	/* Free the irqs */
-+	for (i = 0; i < priv->num_ntfy_blks; i++) {
-+		struct gve_notify_block *block = &priv->ntfy_blocks[i];
-+		int msix_idx = i;
++	if (!cpu_feature_enabled(X86_FEATURE_MWAIT))
++		return false;
 +
-+		irq_set_affinity_hint(priv->msix_vectors[msix_idx].vector,
-+				      NULL);
-+		free_irq(priv->msix_vectors[msix_idx].vector, block);
- 	}
-+	free_irq(priv->msix_vectors[priv->mgmt_msix_idx].vector, priv);
- 	dma_free_coherent(&priv->pdev->dev,
- 			  priv->num_ntfy_blks * sizeof(*priv->ntfy_blocks),
- 			  priv->ntfy_blocks, priv->ntfy_block_bus);
--- 
-2.33.0
-
++	if (boot_cpu_data.cpuid_level < CPUID_MWAIT_LEAF)
++		return false;
++
++	cpuid(CPUID_MWAIT_LEAF, &eax, &ebx, &ecx, &mwait_substates);
++
++	return (ecx & CPUID5_ECX_EXTENSIONS_SUPPORTED) &&
++	       (ecx & CPUID5_ECX_INTERRUPT_BREAK) &&
++	       (mwait_substates & (0xF << 28));
++}
++
++/*
++ * Check whether the system supports PC10. If so force disable HPET as that
++ * stops counting in PC10. This check is overbroad as it does not take any
++ * of the following into account:
++ *
++ *	- ACPI tables
++ *	- Enablement of intel_idle
++ *	- Command line arguments which limit intel_idle C-state support
++ *
++ * That's perfectly fine. HPET is a piece of hardware designed by committee
++ * and the only reasons why it is still in use on modern systems is the
++ * fact that it is impossible to reliably query TSC and CPU frequency via
++ * CPUID or firmware.
++ *
++ * If HPET is functional it is useful for calibrating TSC, but this can be
++ * done via PMTIMER as well which seems to be the last remaining timer on
++ * X86/INTEL platforms that has not been completely wreckaged by feature
++ * creep.
++ *
++ * In theory HPET support should be removed altogether, but there are older
++ * systems out there which depend on it because TSC and APIC timer are
++ * dysfunctional in deeper C-states.
++ *
++ * It's only 20 years now that hardware people have been asked to provide
++ * reliable and discoverable facilities which can be used for timekeeping
++ * and per CPU timer interrupts.
++ *
++ * The probability that this problem is going to be solved in the
++ * forseeable future is close to zero, so the kernel has to be cluttered
++ * with heuristics to keep up with the ever growing amount of hardware and
++ * firmware trainwrecks. Hopefully some day hardware people will understand
++ * that the approach of "This can be fixed in software" is not sustainable.
++ * Hope dies last...
++ */
++static bool __init hpet_is_pc10_damaged(void)
++{
++	unsigned long long pcfg;
++
++	/* Check whether PC10 substates are supported */
++	if (!mwait_pc10_supported())
++		return false;
++
++	/* Check whether PC10 is enabled in PKG C-state limit */
++	rdmsrl(MSR_PKG_CST_CONFIG_CONTROL, pcfg);
++	if ((pcfg & 0xF) < 8)
++		return false;
++
++	if (hpet_force_user) {
++		pr_warn("HPET force enabled via command line, but dysfunctional in PC10.\n");
++		return false;
++	}
++
++	pr_info("HPET dysfunctional in PC10. Force disabled.\n");
++	boot_hpet_disable = true;
++	return true;
++}
++
+ /**
+  * hpet_enable - Try to setup the HPET timer. Returns 1 on success.
+  */
+@@ -819,6 +897,9 @@ int __init hpet_enable(void)
+ 	if (!is_hpet_capable())
+ 		return 0;
+ 
++	if (hpet_is_pc10_damaged())
++		return 0;
++
+ 	hpet_set_mapping();
+ 	if (!hpet_virt_address)
+ 		return 0;
 
 
