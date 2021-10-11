@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7EE84290C3
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:10:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E860D4290C1
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:10:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242222AbhJKOMS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:12:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34546 "EHLO mail.kernel.org"
+        id S241845AbhJKOMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:12:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243245AbhJKOKU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238598AbhJKOKU (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 11 Oct 2021 10:10:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 885CC61263;
-        Mon, 11 Oct 2021 14:02:24 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75D9B6115C;
+        Mon, 11 Oct 2021 14:02:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960945;
-        bh=xSHLYnOEtaxgi+sx8YupmQaWj3Bd+u2h2ct+PeAjucw=;
+        s=korg; t=1633960948;
+        bh=CPxWgP9a5q/4Ip6Nzx4G6n/3ul9tIw6KZbcbEi/iPYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LXVYD1gz6SZdF4SsYx/reReClIFVEGbBURVA0Zf8kmtFcMIkF0TThgEy6ZRGstHgO
-         Ws735WxCXur5cYplAFfsyEmioyj290APa0uhlMmrbU2uzxdn8liSIGcOypR4y9wnDJ
-         /YZnmTCSjt5xEzcQLjkWHdzwQaV7z/irnV2pk+Yk=
+        b=FbaUL8GDbH8byjIljQMfwuevo3qovTRt1tCa0GfeMZ4kFrI67z6VT46AFOVVgUdgW
+         nYpBQ8S9M5bzQamZ25usmUSCpOdn3IABfLKoe4HrOYCv46MNoffCpyiJER/tkkbAzl
+         y5gZj7wbxcoyagUiExnajptYUMPRTiueDba89/JY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saleem Abdulrasool <abdulras@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
+        stable@vger.kernel.org, Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 121/151] riscv: explicitly use symbol offsets for VDSO
-Date:   Mon, 11 Oct 2021 15:46:33 +0200
-Message-Id: <20211011134521.730348951@linuxfoundation.org>
+Subject: [PATCH 5.14 122/151] RISC-V: Fix VDSO build for !MMU
+Date:   Mon, 11 Oct 2021 15:46:34 +0200
+Message-Id: <20211011134521.758548651@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -41,166 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saleem Abdulrasool <abdulras@google.com>
+From: Palmer Dabbelt <palmerdabbelt@google.com>
 
-[ Upstream commit fde9c59aebafb91caeed816cc510b56f14aa63ae ]
+[ Upstream commit a290f510a178830a01bfc06e66a54bbe4ece5d2a ]
 
-The current implementation of the `__rt_sigaction` reference computed an
-absolute offset relative to the mapped base of the VDSO.  While this can
-be handled in the medlow model, the medany model cannot handle this as
-it is meant to be position independent.  The current implementation
-relied on the BFD linker relaxing the PC-relative relocation into an
-absolute relocation as it was a near-zero address allowing it to be
-referenced relative to `zero`.
+We don't have a VDSO for the !MMU configurations, so don't try to build
+one.
 
-We now extract the offsets and create a generated header allowing the
-build with LLVM and lld to succeed as we no longer depend on the linker
-rewriting address references near zero.  This change was largely
-modelled after the ARM64 target which does something similar.
-
-Signed-off-by: Saleem Abdulrasool <abdulras@google.com>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
+Fixes: fde9c59aebaf ("riscv: explicitly use symbol offsets for VDSO")
 Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/Makefile                        |  4 ++++
- arch/riscv/include/asm/vdso.h              | 14 ++----------
- arch/riscv/kernel/vdso/Makefile            | 25 ++++++++++------------
- arch/riscv/kernel/vdso/gen_vdso_offsets.sh |  5 +++++
- arch/riscv/kernel/vdso/so2s.sh             |  6 ------
- 5 files changed, 22 insertions(+), 32 deletions(-)
- create mode 100755 arch/riscv/kernel/vdso/gen_vdso_offsets.sh
- delete mode 100755 arch/riscv/kernel/vdso/so2s.sh
+ arch/riscv/Makefile           | 2 ++
+ arch/riscv/include/asm/vdso.h | 9 +++++++++
+ 2 files changed, 11 insertions(+)
 
 diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
-index bc74afdbf31e..e026b2d0a5a4 100644
+index e026b2d0a5a4..83ee0e71204c 100644
 --- a/arch/riscv/Makefile
 +++ b/arch/riscv/Makefile
-@@ -108,6 +108,10 @@ PHONY += vdso_install
+@@ -108,9 +108,11 @@ PHONY += vdso_install
  vdso_install:
  	$(Q)$(MAKE) $(build)=arch/riscv/kernel/vdso $@
  
-+prepare: vdso_prepare
-+vdso_prepare: prepare0
-+	$(Q)$(MAKE) $(build)=arch/riscv/kernel/vdso include/generated/vdso-offsets.h
-+
++ifeq ($(CONFIG_MMU),y)
+ prepare: vdso_prepare
+ vdso_prepare: prepare0
+ 	$(Q)$(MAKE) $(build)=arch/riscv/kernel/vdso include/generated/vdso-offsets.h
++endif
+ 
  ifneq ($(CONFIG_XIP_KERNEL),y)
  ifeq ($(CONFIG_RISCV_M_MODE)$(CONFIG_SOC_CANAAN),yy)
- KBUILD_IMAGE := $(boot)/loader.bin
 diff --git a/arch/riscv/include/asm/vdso.h b/arch/riscv/include/asm/vdso.h
-index 1453a2f563bc..d8d003c2b5a3 100644
+index d8d003c2b5a3..893e47195e30 100644
 --- a/arch/riscv/include/asm/vdso.h
 +++ b/arch/riscv/include/asm/vdso.h
-@@ -9,25 +9,15 @@
+@@ -8,6 +8,13 @@
+ #ifndef _ASM_RISCV_VDSO_H
  #define _ASM_RISCV_VDSO_H
  
++
++/*
++ * All systems with an MMU have a VDSO, but systems without an MMU don't
++ * support shared libraries and therefor don't have one.
++ */
++#ifdef CONFIG_MMU
++
  #include <linux/types.h>
-+#include <generated/vdso-offsets.h>
+ #include <generated/vdso-offsets.h>
  
- #ifndef CONFIG_GENERIC_TIME_VSYSCALL
- struct vdso_data {
- };
- #endif
- 
--/*
-- * The VDSO symbols are mapped into Linux so we can just use regular symbol
-- * addressing to get their offsets in userspace.  The symbols are mapped at an
-- * offset of 0, but since the linker must support setting weak undefined
-- * symbols to the absolute address 0 it also happens to support other low
-- * addresses even when the code model suggests those low addresses would not
-- * otherwise be availiable.
-- */
+@@ -19,6 +26,8 @@ struct vdso_data {
  #define VDSO_SYMBOL(base, name)							\
--({										\
--	extern const char __vdso_##name[];					\
--	(void __user *)((unsigned long)(base) + __vdso_##name);			\
--})
-+	(void __user *)((unsigned long)(base) + __vdso_##name##_offset)
+ 	(void __user *)((unsigned long)(base) + __vdso_##name##_offset)
  
++#endif /* CONFIG_MMU */
++
  asmlinkage long sys_riscv_flush_icache(uintptr_t, uintptr_t, uintptr_t);
  
-diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
-index 24d936c147cd..f8cb9144a284 100644
---- a/arch/riscv/kernel/vdso/Makefile
-+++ b/arch/riscv/kernel/vdso/Makefile
-@@ -23,10 +23,10 @@ ifneq ($(c-gettimeofday-y),)
- endif
- 
- # Build rules
--targets := $(obj-vdso) vdso.so vdso.so.dbg vdso.lds vdso-syms.S
-+targets := $(obj-vdso) vdso.so vdso.so.dbg vdso.lds
- obj-vdso := $(addprefix $(obj)/, $(obj-vdso))
- 
--obj-y += vdso.o vdso-syms.o
-+obj-y += vdso.o
- CPPFLAGS_vdso.lds += -P -C -U$(ARCH)
- 
- # Disable -pg to prevent insert call site
-@@ -43,20 +43,22 @@ $(obj)/vdso.o: $(obj)/vdso.so
- # link rule for the .so file, .lds has to be first
- $(obj)/vdso.so.dbg: $(obj)/vdso.lds $(obj-vdso) FORCE
- 	$(call if_changed,vdsold)
--LDFLAGS_vdso.so.dbg = -shared -s -soname=linux-vdso.so.1 \
-+LDFLAGS_vdso.so.dbg = -shared -S -soname=linux-vdso.so.1 \
- 	--build-id=sha1 --hash-style=both --eh-frame-hdr
- 
--# We also create a special relocatable object that should mirror the symbol
--# table and layout of the linked DSO. With ld --just-symbols we can then
--# refer to these symbols in the kernel code rather than hand-coded addresses.
--$(obj)/vdso-syms.S: $(obj)/vdso.so FORCE
--	$(call if_changed,so2s)
--
- # strip rule for the .so file
- $(obj)/%.so: OBJCOPYFLAGS := -S
- $(obj)/%.so: $(obj)/%.so.dbg FORCE
- 	$(call if_changed,objcopy)
- 
-+# Generate VDSO offsets using helper script
-+gen-vdsosym := $(srctree)/$(src)/gen_vdso_offsets.sh
-+quiet_cmd_vdsosym = VDSOSYM $@
-+	cmd_vdsosym = $(NM) $< | $(gen-vdsosym) | LC_ALL=C sort > $@
-+
-+include/generated/vdso-offsets.h: $(obj)/vdso.so.dbg FORCE
-+	$(call if_changed,vdsosym)
-+
- # actual build commands
- # The DSO images are built using a special linker script
- # Make sure only to export the intended __vdso_xxx symbol offsets.
-@@ -65,11 +67,6 @@ quiet_cmd_vdsold = VDSOLD  $@
-                    $(OBJCOPY) $(patsubst %, -G __vdso_%, $(vdso-syms)) $@.tmp $@ && \
-                    rm $@.tmp
- 
--# Extracts symbol offsets from the VDSO, converting them into an assembly file
--# that contains the same symbols at the same offsets.
--quiet_cmd_so2s = SO2S    $@
--      cmd_so2s = $(NM) -D $< | $(srctree)/$(src)/so2s.sh > $@
--
- # install commands for the unstripped file
- quiet_cmd_vdso_install = INSTALL $@
-       cmd_vdso_install = cp $(obj)/$@.dbg $(MODLIB)/vdso/$@
-diff --git a/arch/riscv/kernel/vdso/gen_vdso_offsets.sh b/arch/riscv/kernel/vdso/gen_vdso_offsets.sh
-new file mode 100755
-index 000000000000..c2e5613f3495
---- /dev/null
-+++ b/arch/riscv/kernel/vdso/gen_vdso_offsets.sh
-@@ -0,0 +1,5 @@
-+#!/bin/sh
-+# SPDX-License-Identifier: GPL-2.0
-+
-+LC_ALL=C
-+sed -n -e 's/^[0]\+\(0[0-9a-fA-F]*\) . \(__vdso_[a-zA-Z0-9_]*\)$/\#define \2_offset\t0x\1/p'
-diff --git a/arch/riscv/kernel/vdso/so2s.sh b/arch/riscv/kernel/vdso/so2s.sh
-deleted file mode 100755
-index e64cb6d9440e..000000000000
---- a/arch/riscv/kernel/vdso/so2s.sh
-+++ /dev/null
-@@ -1,6 +0,0 @@
--#!/bin/sh
--# SPDX-License-Identifier: GPL-2.0+
--# Copyright 2020 Palmer Dabbelt <palmerdabbelt@google.com>
--
--sed 's!\([0-9a-f]*\) T \([a-z0-9_]*\)\(@@LINUX_4.15\)*!.global \2\n.set \2,0x\1!' \
--| grep '^\.'
+ #endif /* _ASM_RISCV_VDSO_H */
 -- 
 2.33.0
 
