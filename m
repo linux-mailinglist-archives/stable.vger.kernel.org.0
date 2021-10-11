@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5A74429065
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:07:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E3FB42900D
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:02:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236251AbhJKOH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:07:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56584 "EHLO mail.kernel.org"
+        id S237854AbhJKOEw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:04:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238479AbhJKOF4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:05:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CED236103C;
-        Mon, 11 Oct 2021 14:00:03 +0000 (UTC)
+        id S238262AbhJKOC0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:02:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C70276115C;
+        Mon, 11 Oct 2021 13:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960804;
-        bh=O4t1blipEXtA6PklmgI0he90SEvJj0aWMpJhp/1WgSs=;
+        s=korg; t=1633960679;
+        bh=vjEoUTvpqGkBkd7kvxIJ1hW1PNYvB9pL/e+cwBLImKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQTA9hetQxjtexaICumss6MFQHG2SP8LHJ+Uw8lU0FLT6Be+e2oYvKEIq/NiJ1a0l
-         smv9UPRDheoKXx9/s3zHo7ogdtg2P71YWMuxIlFrfiivVeZGLAw1oCLYLiemZEJrIm
-         pu3nGnY50fhG5Cyssei/riwJUJOUSb0TWfvJPsaQ=
+        b=a5KKAeB7Ne5AjFGYkJ3Xvpx09rSXGqwza/4iQLaqtLq+Ijii5BMc289lM19Qq102E
+         niJYPW+SJWJEu3xbJzHM6KZfXmxJJ1W4Cz819ajBko5jSIb4KH4lQXrSlKXm/g3Gs+
+         490nf1KYb/5BoHUu5U3VaX14vFY/Kj4KaiM4qr+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandre Ghiti <alex@ghiti.fr>,
-        Palmer Dabbelt <palmerdabbelt@google.com>
-Subject: [PATCH 5.14 035/151] riscv: Flush current cpu icache before other cpus
-Date:   Mon, 11 Oct 2021 15:45:07 +0200
-Message-Id: <20211011134518.984567771@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 036/151] bus: ti-sysc: Add break in switch statement in sysc_init_soc()
+Date:   Mon, 11 Oct 2021 15:45:08 +0200
+Message-Id: <20211011134519.015255537@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -39,79 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Ghiti <alex@ghiti.fr>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit bb8958d5dc79acbd071397abb57b8756375fe1ce upstream.
+[ Upstream commit e879f855e590b40fe3c79f2fbd8f65ca3c724120 ]
 
-On SiFive Unmatched, I recently fell onto the following BUG when booting:
+After commit a6d90e9f2232 ("bus: ti-sysc: AM3: RNG is GP only"), clang
+with -Wimplicit-fallthrough enabled warns:
 
-[    0.000000] ftrace: allocating 36610 entries in 144 pages
-[    0.000000] Oops - illegal instruction [#1]
-[    0.000000] Modules linked in:
-[    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 5.13.1+ #5
-[    0.000000] Hardware name: SiFive HiFive Unmatched A00 (DT)
-[    0.000000] epc : riscv_cpuid_to_hartid_mask+0x6/0xae
-[    0.000000]  ra : __sbi_rfence_v02+0xc8/0x10a
-[    0.000000] epc : ffffffff80007240 ra : ffffffff80009964 sp : ffffffff81803e10
-[    0.000000]  gp : ffffffff81a1ea70 tp : ffffffff8180f500 t0 : ffffffe07fe30000
-[    0.000000]  t1 : 0000000000000004 t2 : 0000000000000000 s0 : ffffffff81803e60
-[    0.000000]  s1 : 0000000000000000 a0 : ffffffff81a22238 a1 : ffffffff81803e10
-[    0.000000]  a2 : 0000000000000000 a3 : 0000000000000000 a4 : 0000000000000000
-[    0.000000]  a5 : 0000000000000000 a6 : ffffffff8000989c a7 : 0000000052464e43
-[    0.000000]  s2 : ffffffff81a220c8 s3 : 0000000000000000 s4 : 0000000000000000
-[    0.000000]  s5 : 0000000000000000 s6 : 0000000200000100 s7 : 0000000000000001
-[    0.000000]  s8 : ffffffe07fe04040 s9 : ffffffff81a22c80 s10: 0000000000001000
-[    0.000000]  s11: 0000000000000004 t3 : 0000000000000001 t4 : 0000000000000008
-[    0.000000]  t5 : ffffffcf04000808 t6 : ffffffe3ffddf188
-[    0.000000] status: 0000000200000100 badaddr: 0000000000000000 cause: 0000000000000002
-[    0.000000] [<ffffffff80007240>] riscv_cpuid_to_hartid_mask+0x6/0xae
-[    0.000000] [<ffffffff80009474>] sbi_remote_fence_i+0x1e/0x26
-[    0.000000] [<ffffffff8000b8f4>] flush_icache_all+0x12/0x1a
-[    0.000000] [<ffffffff8000666c>] patch_text_nosync+0x26/0x32
-[    0.000000] [<ffffffff8000884e>] ftrace_init_nop+0x52/0x8c
-[    0.000000] [<ffffffff800f051e>] ftrace_process_locs.isra.0+0x29c/0x360
-[    0.000000] [<ffffffff80a0e3c6>] ftrace_init+0x80/0x130
-[    0.000000] [<ffffffff80a00f8c>] start_kernel+0x5c4/0x8f6
-[    0.000000] ---[ end trace f67eb9af4d8d492b ]---
-[    0.000000] Kernel panic - not syncing: Attempted to kill the idle task!
-[    0.000000] ---[ end Kernel panic - not syncing: Attempted to kill the idle task! ]---
+drivers/bus/ti-sysc.c:2958:3: warning: unannotated fall-through between
+switch labels [-Wimplicit-fallthrough]
+                default:
+                ^
+drivers/bus/ti-sysc.c:2958:3: note: insert 'break;' to avoid
+fall-through
+                default:
+                ^
+                break;
+1 warning generated.
 
-While ftrace is looping over a list of addresses to patch, it always failed
-when patching the same function: riscv_cpuid_to_hartid_mask. Looking at the
-backtrace, the illegal instruction is encountered in this same function.
-However, patch_text_nosync, after patching the instructions, calls
-flush_icache_range. But looking at what happens in this function:
+Clang's version of this warning is a little bit more pedantic than
+GCC's. Add the missing break to satisfy it to match what has been done
+all over the kernel tree.
 
-flush_icache_range -> flush_icache_all
-                   -> sbi_remote_fence_i
-                   -> __sbi_rfence_v02
-                   -> riscv_cpuid_to_hartid_mask
-
-The icache and dcache of the current cpu are never synchronized between the
-patching of riscv_cpuid_to_hartid_mask and calling this same function.
-
-So fix this by flushing the current cpu's icache before asking for the other
-cpus to do the same.
-
-Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
-Fixes: fab957c11efe ("RISC-V: Atomic and Locking Code")
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a6d90e9f2232 ("bus: ti-sysc: AM3: RNG is GP only")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/mm/cacheflush.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/bus/ti-sysc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/riscv/mm/cacheflush.c
-+++ b/arch/riscv/mm/cacheflush.c
-@@ -16,6 +16,8 @@ static void ipi_remote_fence_i(void *inf
- 
- void flush_icache_all(void)
- {
-+	local_flush_icache_all();
-+
- 	if (IS_ENABLED(CONFIG_RISCV_SBI))
- 		sbi_remote_fence_i(NULL);
- 	else
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index 148a4dd8cb9a..10fcb75df68a 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -2955,6 +2955,7 @@ static int sysc_init_soc(struct sysc *ddata)
+ 			break;
+ 		case SOC_AM3:
+ 			sysc_add_disabled(0x48310000);  /* rng */
++			break;
+ 		default:
+ 			break;
+ 		}
+-- 
+2.33.0
+
 
 
