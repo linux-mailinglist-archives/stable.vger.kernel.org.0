@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 594EE428F1F
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:54:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7108D428EF0
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:51:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235503AbhJKNzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:55:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40706 "EHLO mail.kernel.org"
+        id S236569AbhJKNxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:53:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237582AbhJKNwC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:52:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15D8561076;
-        Mon, 11 Oct 2021 13:50:01 +0000 (UTC)
+        id S237290AbhJKNwK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:52:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6FAD60C49;
+        Mon, 11 Oct 2021 13:50:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960202;
-        bh=FBk/GQbLGbKSsw3T8V70nbKvNWPZz98C+9m0gZvZrPM=;
+        s=korg; t=1633960208;
+        bh=RY+0TqbUFWpr/jiEAPvuKo7HtWP6ZZMQ/NTVq3rkQ+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQzmdmWwkYYdrXREjHNwqw5UAkYCtyRlOecT6maTGLzLIn3rjQUQ80w1cA8seOqHK
-         6+lRCtTZE4qGiI9jkgZuGIv8sC6cTTNi3MPjvpXbR2XcaalltCeR8XuI9VBkPjT92B
-         P8b903BFD4w1rvtOm4QSsVvApJAW3A25hvBvWgJ4=
+        b=pP5rj4FEzrcqSZTPuF2X289Z4oqAxoLPke+LOGb94BIWVeD/TwvLSr/pC4hQkxfzL
+         c0hsslBbzls7Qb9LzSL2yVpLorSkS2cUNUzDP1ojTxUbWASI45gGDq3fKLVFOZp89J
+         2faXkid/uNzZgHV4OhEZHjXZAFuH1qj7djzMF+CE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Song Liu <songliubraving@fb.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 49/52] powerpc/bpf: Fix BPF_MOD when imm == 1
-Date:   Mon, 11 Oct 2021 15:46:18 +0200
-Message-Id: <20211011134505.420785540@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.4 50/52] x86/platform/olpc: Correct ifdef symbol to intended CONFIG_OLPC_XO15_SCI
+Date:   Mon, 11 Oct 2021 15:46:19 +0200
+Message-Id: <20211011134505.451405730@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
 References: <20211011134503.715740503@linuxfoundation.org>
@@ -44,48 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 
-[ Upstream commit 8bbc9d822421d9ac8ff9ed26a3713c9afc69d6c8 ]
+commit 4758fd801f919b8b9acad78d2e49a195ec2be46b upstream.
 
-Only ignore the operation if dividing by 1.
+The refactoring in the commit in Fixes introduced an ifdef
+CONFIG_OLPC_XO1_5_SCI, however the config symbol is actually called
+"CONFIG_OLPC_XO15_SCI".
 
-Fixes: 156d0e290e969c ("powerpc/ebpf/jit: Implement JIT compiler for extended BPF")
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Tested-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Acked-by: Song Liu <songliubraving@fb.com>
-Acked-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/c674ca18c3046885602caebb326213731c675d06.1633464148.git.naveen.n.rao@linux.vnet.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fortunately, ./scripts/checkkconfigsymbols.py warns:
+
+OLPC_XO1_5_SCI
+Referencing files: arch/x86/platform/olpc/olpc.c
+
+Correct this ifdef condition to the intended config symbol.
+
+Fixes: ec9964b48033 ("Platform: OLPC: Move EC-specific functionality out from x86")
+Suggested-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20210803113531.30720-3-lukas.bulwahn@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/net/bpf_jit_comp64.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/x86/platform/olpc/olpc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/net/bpf_jit_comp64.c b/arch/powerpc/net/bpf_jit_comp64.c
-index 20bfd753bcba..a05386318f70 100644
---- a/arch/powerpc/net/bpf_jit_comp64.c
-+++ b/arch/powerpc/net/bpf_jit_comp64.c
-@@ -408,8 +408,14 @@ static int bpf_jit_build_body(struct bpf_prog *fp, u32 *image,
- 		case BPF_ALU64 | BPF_DIV | BPF_K: /* dst /= imm */
- 			if (imm == 0)
- 				return -EINVAL;
--			else if (imm == 1)
--				goto bpf_alu32_trunc;
-+			if (imm == 1) {
-+				if (BPF_OP(code) == BPF_DIV) {
-+					goto bpf_alu32_trunc;
-+				} else {
-+					EMIT(PPC_RAW_LI(dst_reg, 0));
-+					break;
-+				}
-+			}
+--- a/arch/x86/platform/olpc/olpc.c
++++ b/arch/x86/platform/olpc/olpc.c
+@@ -274,7 +274,7 @@ static struct olpc_ec_driver ec_xo1_driv
  
- 			PPC_LI32(b2p[TMP_REG_1], imm);
- 			switch (BPF_CLASS(code)) {
--- 
-2.33.0
-
+ static struct olpc_ec_driver ec_xo1_5_driver = {
+ 	.ec_cmd = olpc_xo1_ec_cmd,
+-#ifdef CONFIG_OLPC_XO1_5_SCI
++#ifdef CONFIG_OLPC_XO15_SCI
+ 	/*
+ 	 * XO-1.5 EC wakeups are available when olpc-xo15-sci driver is
+ 	 * compiled in
 
 
