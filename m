@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65CD5429114
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:13:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97888429153
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:15:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244401AbhJKOPd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:15:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33824 "EHLO mail.kernel.org"
+        id S243260AbhJKORZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:17:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243893AbhJKON1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:13:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A11F611ED;
-        Mon, 11 Oct 2021 14:04:21 +0000 (UTC)
+        id S244369AbhJKOPR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:15:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EE516127C;
+        Mon, 11 Oct 2021 14:05:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633961061;
-        bh=ggH7GQurVOeiMLFk9ni1YWA/jbFlF6TZe4TriG+O3EU=;
+        s=korg; t=1633961110;
+        bh=GgDRqfBeQMUhgmLcfjsJRYdlUheZeSWZePX/uUDmz4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EnytXYeLAbgpoDY0woQssaWYzilnFdTUbvS8/pMMcpFRDAHieDawqQu7I76rJJUEO
-         EZwL6db0x983CtIsg/4AX4npJ/bo8TAfduGiwPNtcNdxR22hgFiYbpcY/nLxzy2Bkq
-         6j4iPOoXi1FTdJcwkt4Th9GMmnwEcSlxOSSeRpx4=
+        b=nGaoEsJ0o9cXVwbRyu/iYUwAnDHfAiQDnq2hlw6qWSaBhTASVqEjOMPGc0//6xIwf
+         wRp4ecPtI9WhaVA7kWjpUkiRhD3dFd5c1PYT7H6Son2AvT/7CFCd70yhQMBy5gIa1r
+         nN1JYGv6F4zuwFkY8rb32S6s/hlOKDaQE/wfg1Vs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.14 148/151] x86/entry: Correct reference to intended CONFIG_64_BIT
-Date:   Mon, 11 Oct 2021 15:47:00 +0200
-Message-Id: <20211011134522.612820816@linuxfoundation.org>
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 11/28] xtensa: call irqchip_init only when CONFIG_USE_OF is selected
+Date:   Mon, 11 Oct 2021 15:47:01 +0200
+Message-Id: <20211011134641.077223735@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
-References: <20211011134517.833565002@linuxfoundation.org>
+In-Reply-To: <20211011134640.711218469@linuxfoundation.org>
+References: <20211011134640.711218469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +39,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-commit 2c861f2b859385e9eaa6e464a8a7435b5a6bf564 upstream.
+[ Upstream commit 6489f8d0e1d93a3603d8dad8125797559e4cf2a2 ]
 
-Commit in Fixes adds a condition with IS_ENABLED(CONFIG_64_BIT),
-but the intended config item is called CONFIG_64BIT, as defined in
-arch/x86/Kconfig.
+During boot time kernel configured with OF=y but USE_OF=n displays the
+following warnings and hangs shortly after starting userspace:
 
-Fortunately, scripts/checkkconfigsymbols.py warns:
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 0 at kernel/irq/irqdomain.c:695 irq_create_mapping_affinity+0x29/0xc0
+irq_create_mapping_affinity(, 6) called with NULL domain
+CPU: 0 PID: 0 Comm: swapper Not tainted 5.15.0-rc3-00001-gd67ed2510d28 #30
+Call Trace:
+  __warn+0x69/0xc4
+  warn_slowpath_fmt+0x6c/0x94
+  irq_create_mapping_affinity+0x29/0xc0
+  local_timer_setup+0x40/0x88
+  time_init+0xb1/0xe8
+  start_kernel+0x31d/0x3f4
+  _startup+0x13b/0x13b
+---[ end trace 1e6630e1c5eda35b ]---
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 0 at arch/xtensa/kernel/time.c:141 local_timer_setup+0x58/0x88
+error: can't map timer irq
+CPU: 0 PID: 0 Comm: swapper Tainted: G        W         5.15.0-rc3-00001-gd67ed2510d28 #30
+Call Trace:
+  __warn+0x69/0xc4
+  warn_slowpath_fmt+0x6c/0x94
+  local_timer_setup+0x58/0x88
+  time_init+0xb1/0xe8
+  start_kernel+0x31d/0x3f4
+  _startup+0x13b/0x13b
+---[ end trace 1e6630e1c5eda35c ]---
+Failed to request irq 0 (timer)
 
-64_BIT
-Referencing files: arch/x86/include/asm/entry-common.h
+Fix that by calling irqchip_init only when CONFIG_USE_OF is selected and
+calling legacy interrupt controller init otherwise.
 
-Correct the reference to the intended config symbol.
-
-Fixes: 662a0221893a ("x86/entry: Fix AC assertion")
-Suggested-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20210803113531.30720-2-lukas.bulwahn@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: da844a81779e ("xtensa: add device trees support")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/entry-common.h |    2 +-
+ arch/xtensa/kernel/irq.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/entry-common.h
-+++ b/arch/x86/include/asm/entry-common.h
-@@ -25,7 +25,7 @@ static __always_inline void arch_check_u
- 		 * For !SMAP hardware we patch out CLAC on entry.
- 		 */
- 		if (boot_cpu_has(X86_FEATURE_SMAP) ||
--		    (IS_ENABLED(CONFIG_64_BIT) && boot_cpu_has(X86_FEATURE_XENPV)))
-+		    (IS_ENABLED(CONFIG_64BIT) && boot_cpu_has(X86_FEATURE_XENPV)))
- 			mask |= X86_EFLAGS_AC;
+diff --git a/arch/xtensa/kernel/irq.c b/arch/xtensa/kernel/irq.c
+index a48bf2d10ac2..80cc9770a8d2 100644
+--- a/arch/xtensa/kernel/irq.c
++++ b/arch/xtensa/kernel/irq.c
+@@ -145,7 +145,7 @@ unsigned xtensa_get_ext_irq_no(unsigned irq)
  
- 		WARN_ON_ONCE(flags & mask);
+ void __init init_IRQ(void)
+ {
+-#ifdef CONFIG_OF
++#ifdef CONFIG_USE_OF
+ 	irqchip_init();
+ #else
+ #ifdef CONFIG_HAVE_SMP
+-- 
+2.33.0
+
 
 
