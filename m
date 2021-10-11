@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83DDB42913A
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:15:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1A97429173
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:17:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241590AbhJKOQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:16:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37968 "EHLO mail.kernel.org"
+        id S238663AbhJKOS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:18:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236716AbhJKOOc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:14:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 153D961352;
-        Mon, 11 Oct 2021 14:04:46 +0000 (UTC)
+        id S243632AbhJKONQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:13:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 049776127A;
+        Mon, 11 Oct 2021 14:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633961087;
-        bh=8fezxCJFjDsKvW5ukJWrJsfQPh+RcvRx3k2yBB2rrpA=;
+        s=korg; t=1633961045;
+        bh=rEVO9h5dPrAKhMXiOAnTdJYD/oNvK73p+rQ5FiH2P6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tulRX9fDnjzP6Ny+2mXdtS63bIvjZN9w8VYIt27aZBlmKDf2a6V3lXoBaDsyO8T7O
-         krhfoCdNGnvK747hXFXkxm7X/A6dAXN+YX78oLyTm1ENWkIELmlrKeYlr+EFG30WXr
-         GrdG2dhmYIKuyi1p3yT6gN6YYeZXqWf3aXsaw8UQ=
+        b=ZVNZhRxFSzqeeP5pTOvSFtp2zKribkGu2+Q5LWProoX3qdTzloYeKH2rmxHIvLXba
+         AIspoFyGgpq533hFOt2XJfG6BLghi3xiWmmo2Fl3w71G5f6LYCBncx/aoIiyYfHzT2
+         yrikKZTSee0meQpqq6iQa23g/N5hKQ37qil6gYtw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.19 04/28] xen/privcmd: fix error handling in mmap-resource processing
-Date:   Mon, 11 Oct 2021 15:46:54 +0200
-Message-Id: <20211011134640.856296875@linuxfoundation.org>
+        stable@vger.kernel.org, Mahesh Salgaonkar <mahesh@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 143/151] pseries/eeh: Fix the kdump kernel crash during eeh_pseries_init
+Date:   Mon, 11 Oct 2021 15:46:55 +0200
+Message-Id: <20211011134522.434323279@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134640.711218469@linuxfoundation.org>
-References: <20211011134640.711218469@linuxfoundation.org>
+In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
+References: <20211011134517.833565002@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Mahesh Salgaonkar <mahesh@linux.ibm.com>
 
-commit e11423d6721dd63b23fb41ade5e8d0b448b17780 upstream.
+[ Upstream commit eb8257a12192f43ffd41bd90932c39dade958042 ]
 
-xen_pfn_t is the same size as int only on 32-bit builds (and not even
-on Arm32). Hence pfns[] can't be used directly to read individual error
-values returned from xen_remap_domain_mfn_array(); every other error
-indicator would be skipped/ignored on 64-bit.
+On pseries LPAR when an empty slot is assigned to partition OR in single
+LPAR mode, kdump kernel crashes during issuing PHB reset.
 
-Fixes: 3ad0876554ca ("xen/privcmd: add IOCTL_PRIVCMD_MMAP_RESOURCE")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In the kdump scenario, we traverse all PHBs and issue reset using the
+pe_config_addr of the first child device present under each PHB. However
+the code assumes that none of the PHB slots can be empty and uses
+list_first_entry() to get the first child device under the PHB. Since
+list_first_entry() expects the list to be non-empty, it returns an
+invalid pci_dn entry and ends up accessing NULL phb pointer under
+pci_dn->phb causing kdump kernel crash.
 
-Link: https://lore.kernel.org/r/aa6d6a67-6889-338a-a910-51e889f792d5@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+This patch fixes the below kdump kernel crash by skipping empty slots:
+
+  audit: initializing netlink subsys (disabled)
+  thermal_sys: Registered thermal governor 'fair_share'
+  thermal_sys: Registered thermal governor 'step_wise'
+  cpuidle: using governor menu
+  pstore: Registered nvram as persistent store backend
+  Issue PHB reset ...
+  audit: type=2000 audit(1631267818.000:1): state=initialized audit_enabled=0 res=1
+  BUG: Kernel NULL pointer dereference on read at 0x00000268
+  Faulting instruction address: 0xc000000008101fb0
+  Oops: Kernel access of bad area, sig: 7 [#1]
+  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA pSeries
+  Modules linked in:
+  CPU: 7 PID: 1 Comm: swapper/7 Not tainted 5.14.0 #1
+  NIP:  c000000008101fb0 LR: c000000009284ccc CTR: c000000008029d70
+  REGS: c00000001161b840 TRAP: 0300   Not tainted  (5.14.0)
+  MSR:  8000000002009033 <SF,VEC,EE,ME,IR,DR,RI,LE>  CR: 28000224  XER: 20040002
+  CFAR: c000000008101f0c DAR: 0000000000000268 DSISR: 00080000 IRQMASK: 0
+  ...
+  NIP pseries_eeh_get_pe_config_addr+0x100/0x1b0
+  LR  __machine_initcall_pseries_eeh_pseries_init+0x2cc/0x350
+  Call Trace:
+    0xc00000001161bb80 (unreliable)
+    __machine_initcall_pseries_eeh_pseries_init+0x2cc/0x350
+    do_one_initcall+0x60/0x2d0
+    kernel_init_freeable+0x350/0x3f8
+    kernel_init+0x3c/0x17c
+    ret_from_kernel_thread+0x5c/0x64
+
+Fixes: 5a090f7c363fd ("powerpc/pseries: PCIE PHB reset")
+Signed-off-by: Mahesh Salgaonkar <mahesh@linux.ibm.com>
+[mpe: Tweak wording and trim oops]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/163215558252.413351.8600189949820258982.stgit@jupiter
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/privcmd.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/powerpc/platforms/pseries/eeh_pseries.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/xen/privcmd.c
-+++ b/drivers/xen/privcmd.c
-@@ -835,11 +835,12 @@ static long privcmd_ioctl_mmap_resource(
- 		unsigned int domid =
- 			(xdata.flags & XENMEM_rsrc_acq_caller_owned) ?
- 			DOMID_SELF : kdata.dom;
--		int num;
-+		int num, *errs = (int *)pfns;
+diff --git a/arch/powerpc/platforms/pseries/eeh_pseries.c b/arch/powerpc/platforms/pseries/eeh_pseries.c
+index bc15200852b7..09fafcf2d3a0 100644
+--- a/arch/powerpc/platforms/pseries/eeh_pseries.c
++++ b/arch/powerpc/platforms/pseries/eeh_pseries.c
+@@ -867,6 +867,10 @@ static int __init eeh_pseries_init(void)
+ 	if (is_kdump_kernel() || reset_devices) {
+ 		pr_info("Issue PHB reset ...\n");
+ 		list_for_each_entry(phb, &hose_list, list_node) {
++			// Skip if the slot is empty
++			if (list_empty(&PCI_DN(phb->dn)->child_list))
++				continue;
++
+ 			pdn = list_first_entry(&PCI_DN(phb->dn)->child_list, struct pci_dn, list);
+ 			config_addr = pseries_eeh_get_pe_config_addr(pdn);
  
-+		BUILD_BUG_ON(sizeof(*errs) > sizeof(*pfns));
- 		num = xen_remap_domain_mfn_array(vma,
- 						 kdata.addr & PAGE_MASK,
--						 pfns, kdata.num, (int *)pfns,
-+						 pfns, kdata.num, errs,
- 						 vma->vm_page_prot,
- 						 domid,
- 						 vma->vm_private_data);
-@@ -849,7 +850,7 @@ static long privcmd_ioctl_mmap_resource(
- 			unsigned int i;
- 
- 			for (i = 0; i < num; i++) {
--				rc = pfns[i];
-+				rc = errs[i];
- 				if (rc < 0)
- 					break;
- 			}
+-- 
+2.33.0
+
 
 
