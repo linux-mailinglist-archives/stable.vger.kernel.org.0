@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E224428EE5
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:51:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DF2E428F7D
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236794AbhJKNxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:53:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39336 "EHLO mail.kernel.org"
+        id S236224AbhJKN7M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:59:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237472AbhJKNvn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:51:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C3956108F;
-        Mon, 11 Oct 2021 13:49:35 +0000 (UTC)
+        id S237493AbhJKN4j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:56:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 52EE160F4B;
+        Mon, 11 Oct 2021 13:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960175;
-        bh=PW2HD1wpq1gDM2nzdxFQXrVs8rLdTE007zrXojCAEL0=;
+        s=korg; t=1633960415;
+        bh=B8WyaYwk9UjC6etQVDB1/Cs/hqSDGRKMuNpP7gzbNQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gaiSN0OSt3ill2qeb7km2gEv1yTWJ4Y4Nd+83bOlYvHogZeeF58v2Oggp1h/Lkx53
-         7mOY2jtp7/AnsTHZ39eldkQ81ia58kbh1x40plmDAfkxgJ3+lgNEIpUAbmNRiQsa/6
-         JIe7EgUUktLt0SIhknoLGGhbsOoSZBOuF2WSdZ3M=
+        b=IR2+RuXV2GpFxfJBEPT5Gddtg3pO4+S8mKG2j9LDukdqSWCDlXp+sRf3H5ae5kinZ
+         w1MYwObJlhsQurgF8duI3sXIUbWz6rpZRt2fowyWQ+Hnbl+24rVZ5nwMv5duaUpu0f
+         OaBQKxlsiQ8l/+HKbnrCgYhT6kEwvUreTMzAneA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        PJ Waskiewicz <pwaskiewicz@jumptrading.com>,
-        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Dave Switzer <david.switzer@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 44/52] i40e: Fix freeing of uninitialized misc IRQ vector
+Subject: [PATCH 5.10 53/83] bus: ti-sysc: Use CLKDM_NOAUTO for dra7 dcan1 for errata i893
 Date:   Mon, 11 Oct 2021 15:46:13 +0200
-Message-Id: <20211011134505.231451483@linuxfoundation.org>
+Message-Id: <20211011134510.226701430@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
-References: <20211011134503.715740503@linuxfoundation.org>
+In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
+References: <20211011134508.362906295@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 2e5a20573a926302b233b0c2e1077f5debc7ab2e ]
+[ Upstream commit b13a270ace2e4c70653aa1d1d0394c553905802f ]
 
-When VSI set up failed in i40e_probe() as part of PF switch set up
-driver was trying to free misc IRQ vectors in
-i40e_clear_interrupt_scheme and produced a kernel Oops:
+Commit 94f6345712b3 ("bus: ti-sysc: Implement quirk handling for
+CLKDM_NOAUTO") should have also added the quirk for dra7 dcan1 in
+addition to dcan2 for errata i893 handling.
 
-   Trying to free already-free IRQ 266
-   WARNING: CPU: 0 PID: 5 at kernel/irq/manage.c:1731 __free_irq+0x9a/0x300
-   Workqueue: events work_for_cpu_fn
-   RIP: 0010:__free_irq+0x9a/0x300
-   Call Trace:
-   ? synchronize_irq+0x3a/0xa0
-   free_irq+0x2e/0x60
-   i40e_clear_interrupt_scheme+0x53/0x190 [i40e]
-   i40e_probe.part.108+0x134b/0x1a40 [i40e]
-   ? kmem_cache_alloc+0x158/0x1c0
-   ? acpi_ut_update_ref_count.part.1+0x8e/0x345
-   ? acpi_ut_update_object_reference+0x15e/0x1e2
-   ? strstr+0x21/0x70
-   ? irq_get_irq_data+0xa/0x20
-   ? mp_check_pin_attr+0x13/0xc0
-   ? irq_get_irq_data+0xa/0x20
-   ? mp_map_pin_to_irq+0xd3/0x2f0
-   ? acpi_register_gsi_ioapic+0x93/0x170
-   ? pci_conf1_read+0xa4/0x100
-   ? pci_bus_read_config_word+0x49/0x70
-   ? do_pci_enable_device+0xcc/0x100
-   local_pci_probe+0x41/0x90
-   work_for_cpu_fn+0x16/0x20
-   process_one_work+0x1a7/0x360
-   worker_thread+0x1cf/0x390
-   ? create_worker+0x1a0/0x1a0
-   kthread+0x112/0x130
-   ? kthread_flush_work_fn+0x10/0x10
-   ret_from_fork+0x1f/0x40
+Let's also pass the quirk flag for legacy mode booting for if "ti,hwmods"
+dts property is used with related dcan hwmod data. This should be only
+needed if anybody needs to git bisect earlier stable trees though.
 
-The problem is that at that point misc IRQ vectors
-were not allocated yet and we get a call trace
-that driver is trying to free already free IRQ vectors.
-
-Add a check in i40e_clear_interrupt_scheme for __I40E_MISC_IRQ_REQUESTED
-PF state before calling i40e_free_misc_vector. This state is set only if
-misc IRQ vectors were properly initialized.
-
-Fixes: c17401a1dd21 ("i40e: use separate state bit for miscellaneous IRQ setup")
-Reported-by: PJ Waskiewicz <pwaskiewicz@jumptrading.com>
-Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Dave Switzer <david.switzer@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 94f6345712b3 ("bus: ti-sysc: Implement quirk handling for CLKDM_NOAUTO")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/mach-omap2/omap_hwmod.c | 2 ++
+ drivers/bus/ti-sysc.c            | 3 +++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 8434067566db..917be10a5cf5 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -4817,7 +4817,8 @@ static void i40e_clear_interrupt_scheme(struct i40e_pf *pf)
- {
- 	int i;
+diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
+index 83d595ebcf1f..9443f129859b 100644
+--- a/arch/arm/mach-omap2/omap_hwmod.c
++++ b/arch/arm/mach-omap2/omap_hwmod.c
+@@ -3618,6 +3618,8 @@ int omap_hwmod_init_module(struct device *dev,
+ 		oh->flags |= HWMOD_SWSUP_SIDLE_ACT;
+ 	if (data->cfg->quirks & SYSC_QUIRK_SWSUP_MSTANDBY)
+ 		oh->flags |= HWMOD_SWSUP_MSTANDBY;
++	if (data->cfg->quirks & SYSC_QUIRK_CLKDM_NOAUTO)
++		oh->flags |= HWMOD_CLKDM_NOAUTO;
  
--	i40e_free_misc_vector(pf);
-+	if (test_bit(__I40E_MISC_IRQ_REQUESTED, pf->state))
-+		i40e_free_misc_vector(pf);
- 
- 	i40e_put_lump(pf->irq_pile, pf->iwarp_base_vector,
- 		      I40E_IWARP_IRQ_PILE_ID);
+ 	error = omap_hwmod_check_module(dev, oh, data, sysc_fields,
+ 					rev_offs, sysc_offs, syss_offs,
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index d2b7338c073f..02341fd66e8d 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -1464,6 +1464,9 @@ static const struct sysc_revision_quirk sysc_revision_quirks[] = {
+ 	/* Quirks that need to be set based on detected module */
+ 	SYSC_QUIRK("aess", 0, 0, 0x10, -ENODEV, 0x40000000, 0xffffffff,
+ 		   SYSC_MODULE_QUIRK_AESS),
++	/* Errata i893 handling for dra7 dcan1 and 2 */
++	SYSC_QUIRK("dcan", 0x4ae3c000, 0x20, -ENODEV, -ENODEV, 0xa3170504, 0xffffffff,
++		   SYSC_QUIRK_CLKDM_NOAUTO),
+ 	SYSC_QUIRK("dcan", 0x48480000, 0x20, -ENODEV, -ENODEV, 0xa3170504, 0xffffffff,
+ 		   SYSC_QUIRK_CLKDM_NOAUTO),
+ 	SYSC_QUIRK("dss", 0x4832a000, 0, 0x10, 0x14, 0x00000020, 0xffffffff,
 -- 
 2.33.0
 
