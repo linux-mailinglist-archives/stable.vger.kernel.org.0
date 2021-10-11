@@ -2,131 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B8AF429792
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 21:31:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 484744297DE
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 21:57:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234722AbhJKTdB convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 11 Oct 2021 15:33:01 -0400
-Received: from mout.kundenserver.de ([212.227.17.13]:48223 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234695AbhJKTdB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 15:33:01 -0400
-Received: from mail-wr1-f44.google.com ([209.85.221.44]) by
- mrelayeu.kundenserver.de (mreue106 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1Mg6qO-1nF7ee22RS-00haXR; Mon, 11 Oct 2021 21:30:58 +0200
-Received: by mail-wr1-f44.google.com with SMTP id k7so59347121wrd.13;
-        Mon, 11 Oct 2021 12:30:58 -0700 (PDT)
-X-Gm-Message-State: AOAM530C/yMkK3RSNAphupHfzMAmQX7th8GtKkD8PRzRuh05bni93STJ
-        tWf5CTm6O181/drXKxmYS3LVF/zGg/BlYRC54Ok=
-X-Google-Smtp-Source: ABdhPJwcQxnL9T+TV2wMdxUlHIwU3SOujQV7rBjgQ4DIIC9hK0k7a7KHDrcmx/pY7AVYRFhw6lDYLfOeEoaaOibETc8=
-X-Received: by 2002:adf:e292:: with SMTP id v18mr2836477wri.369.1633980658161;
- Mon, 11 Oct 2021 12:30:58 -0700 (PDT)
+        id S234763AbhJKT7E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 15:59:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35322 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234822AbhJKT7D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 15:59:03 -0400
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3F5BC061570
+        for <stable@vger.kernel.org>; Mon, 11 Oct 2021 12:57:03 -0700 (PDT)
+Received: by mail-pl1-x62b.google.com with SMTP id x4so12041877pln.5
+        for <stable@vger.kernel.org>; Mon, 11 Oct 2021 12:57:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=jnPUar4P6QQYXStwnPnOBCtYLkXSvZ4OBG6CW8U/0Lk=;
+        b=jAUdO+6AqBKgTFRNHl05hAYTFEDrYySvcThlup77q3te4oK77nDemfrpTPpC1tZqFq
+         eD0Kto5N6e9ac39HfW7ZpOgHE28nph77Kw+xf/hQM04IuqMiGSa3DEbdsQGTAiuxzQ7s
+         +bezOs7p2cHdq04ffQznEjotSA/KATBUzwrqSxphp2oN7l/Uckw4SSmx6NVsK+AhP6H2
+         ERecp38Pvob3RMEegzem0+nigkFqW1JQad/D6XSc3akIWE3QoXiNHoD/Jw5InPt70O/+
+         Z+N6HSRnWhRW4kabTIPWmxIqkIEJcw+dvzHRdJUOoeef/4w7VOveKMqKHBBSkflyNs1H
+         424Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=jnPUar4P6QQYXStwnPnOBCtYLkXSvZ4OBG6CW8U/0Lk=;
+        b=URDcs0ZJxA8shj78SlHjkyFklhU1TJ5bBnhvEGTFwfZ90YNr8TFL799SJ/K1AYYik8
+         ePexfh+//pUstCbO/m6Ctp3ep3xPqn/2XAQrTf9LNH/wVl3LcDKionhzEqaieS38hPUg
+         HvFsnIRIF0jDf2DF+JEG93GQyi65FaEeUIog9O9AczSrixlrGgQD6xkd5b9WhwHzXMp+
+         f1EO6Fvw+P7gSVCD5z0jeUPZEZoAC1VIo+c1Ms+iz2Q5eyR0VbkexKMhNCwxeTzagc+i
+         IPkg9KhLLPyfjT7MayOUyPPTCMRkXi3xG5kClpVz7EK3lWJx0pgS5he2Kq+mxyZKqz1J
+         aZ+Q==
+X-Gm-Message-State: AOAM531fqRFfSVHUVyS+ToNwP8txDWw3vMGoa6+KnPSIegZAI/ojOO7e
+        Fs5cwWTh7csViIh1dpBPr1IeqJFaDTvTpgtn
+X-Google-Smtp-Source: ABdhPJxuwBkmUdivs8sM9r+yP9ov2cezSH58LE0Y53aR4gQq++1teLm98Y3FwqDKniN72yaXYjbAXQ==
+X-Received: by 2002:a17:90b:4f48:: with SMTP id pj8mr1108012pjb.246.1633982222979;
+        Mon, 11 Oct 2021 12:57:02 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s14sm8486488pfg.50.2021.10.11.12.57.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 Oct 2021 12:57:02 -0700 (PDT)
+Message-ID: <6164970e.1c69fb81.ff342.7b5f@mx.google.com>
+Date:   Mon, 11 Oct 2021 12:57:02 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20211011134517.833565002@linuxfoundation.org> <CA+G9fYutz0ZgJ=rrg8=Fd7vh9c7G-SJfF2YoH5wZyGzUHu4Dqw@mail.gmail.com>
-In-Reply-To: <CA+G9fYutz0ZgJ=rrg8=Fd7vh9c7G-SJfF2YoH5wZyGzUHu4Dqw@mail.gmail.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Mon, 11 Oct 2021 21:30:42 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a3WYDbLm40OEMDcDfBJWRqfaWLvVQu4eD8W=UEjkBrpUw@mail.gmail.com>
-Message-ID: <CAK8P3a3WYDbLm40OEMDcDfBJWRqfaWLvVQu4eD8W=UEjkBrpUw@mail.gmail.com>
-Subject: Re: [PATCH 5.14 000/151] 5.14.12-rc1 review
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        lkft-triage@lists.linaro.org,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-Provags-ID: V03:K1:ifwz+T8NPRruzddV4zw4V6SEJxh40ZJrWIe39UNSkUhiKz6piiy
- iFlwxQwY1gOwdp/moFlNAHFpvAco3aaZQoUcRvqsTgJYdLNoCl8K4Kte3HN3azoa2f+Z6Gj
- TjW2Ja15Tupt/jIsOenrCIA+uzRnqtYvRdpgmWYJpXaXdP6n2TiXwJl1/+7CqopeDRm2UrD
- gAjXzTgLkCwpkXlMjCmVA==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:S7LYVrpapiA=:N2MBF1K1Ojk/ASMz9nvxSP
- ZqubP2Zh86XmI59VoMiwovVcFU0q0H2G+mKPlzveHI5axBfWOBV0cAqxESYUBdxfCVYkQ8J0q
- gVXVVdmtrM6ZkQza6d+wyW68fpg8sMWKKDhRhvNZlX4/vL8+Thpxysq5tQKLg2dGoA70bxiBh
- Mvzxld8/YkKZVfqYQIk8BCFOL1coJbsQF3Xfsd5qKox6lRI7J1stqkxfZlYQ3zS0drlhyr+Gb
- T5b1hWwc0HyZ7lkRWrOcShw863NgSaw6eub2Y0Db4YuRnYkqN3taj51t1IQyI5paFYkeQBmrE
- q0Vadmc8JVqtk8ZngqN3PN7jsJ4J5BIV3pREUSwNZHXygW/uridstFXDALUUchwoX/OcbF5aX
- vbQeyS9EYJIf0ccbc1tlgsyuh+Q7i2QlD/WAsWMmK3oEnP+mXxGWikJjN+QI7Li1HAiNoZNYS
- FZB1kH5c+4uUPDPz94fNsca0tlh1Z5xe6oHACjJVmvTFxmJzp69QO7bOv+26LECJxY77CL+Je
- evF37D+hGmus83PBOQ68HqOMv//8JixgpNKrRdqW6eH4HaTDuBCIIRiVAi8kovo/UYK/auGtK
- CKi8X94QElEtKPqx48HGbgWvZBeYKTeqZKQ7z1XQjucskv8xArXaATh6AO4nsR6WlunxCSC6v
- b1upCUP5qUOo3GIUiN1FGfoZd4kmPTTlsSJpQbu2lPSd8EyABZ1/Y295VPmrfiZRQXJV1ExUA
- PURvTC/UqHl1S3ShpdI4opud89n608PEWiCS+w==
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.210-29-gbf6c58e72541
+Subject: stable-rc/linux-4.19.y baseline: 116 runs,
+ 2 regressions (v4.19.210-29-gbf6c58e72541)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 11, 2021 at 8:35 PM Naresh Kamboju
-<naresh.kamboju@linaro.org> wrote:
->
-> On Mon, 11 Oct 2021 at 19:28, Greg Kroah-Hartman
->
-> Results from Linaro’s test farm.
-> Regression found on arm x15 device.
->
-> metadata:
->   git branch: linux-5.14.y
->   git repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
->   git commit: d98305d056b808dd938d2ae6bfd0e3ccac00a106
->   git describe: v5.14.11-152-gd98305d056b8
->   make_kernelversion: 5.14.12-rc1
->   kernel-config: https://builds.tuxbuild.com/1zMbwi83MvhJdKpC0LTvxvIh1Fb/config
->
-> Crash log,
-> [    0.000000] Linux version 5.14.12-rc1 (tuxmake@tuxmake)
-> (arm-linux-gnueabihf-gcc (Debian 11.1.0-1) 11.1.0, GNU ld (GNU
-> Binutils for Debian) 2.36.90.20210705) #1 SMP @1633961260
-> [    0.000000] CPU: ARMv7 Processor [412fc0f2] revision 2 (ARMv7), cr=10c5387d
-> <trim>
-> [    5.403076] Kernel panic - not syncing: stack-protector: Kernel
-> stack is corrupted in: __lock_acquire+0x2520/0x326c
-> [    5.413574] CPU: 0 PID: 6 Comm: kworker/0:0H Not tainted 5.14.12-rc1 #1
-> [    5.420227] Hardware name: Generic DRA74X (Flattened Device Tree)
-> [    5.426361] Backtrace:
-> [    5.428863] [<c153b5e8>] (dump_backtrace) from [<c153b9a8>]
-> (show_stack+0x20/0x24)
-> [    5.436492]  r7:c2109acc r6:00000080 r5:c1c3c52c r4:60000193
-> [    5.442169] [<c153b988>] (show_stack) from [<c1542cf8>]
-> (dump_stack_lvl+0x60/0x78)
-> [    5.449798] [<c1542c98>] (dump_stack_lvl) from [<c1542d28>]
-> (dump_stack+0x18/0x1c)
-> [    5.457427]  r7:c2109acc r6:c1c1d4ac r5:00000000 r4:c23a1aa8
-> [    5.463104] [<c1542d10>] (dump_stack) from [<c153c800>] (panic+0x13c/0x370)
-> [    5.470123] [<c153c6c4>] (panic) from [<c1555854>]
-> (lockdep_hardirqs_on+0x0/0x1d0)
-> [    5.477752]  r3:c28033d0 r2:a519091a r1:c03dc7ec r0:c1c1d4ac
-> [    5.483428]  r7:c2109acc
-> [    5.485992] [<c1555838>] (__stack_chk_fail) from [<c03dc7ec>]
-> (__lock_acquire+0x2520/0x326c)
-> [    5.494476] [<c03da2cc>] (__lock_acquire) from [<c03ddfe0>]
-> (lock_acquire+0x140/0x414)
-> [    5.502471]  r10:60000193 r9:00000080 r8:2ca87000 r7:c31c4128
-> r6:c20935e0 r5:c20935e0
-> [    5.510345]  r4:c31c4000
-> [    5.512878] [<c03ddea0>] (lock_acquire) from [<c03a2e1c>]
-> (account_system_index_time+0xf0/0x284)
-> [    5.521728]  r10:c31c4000 r9:eeb1fa40 r8:eeb1a4f0 r7:00000002
-> r6:c321db80 r5:00000000
->
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
->
-> Full test log link,
-> https://lkft.validation.linaro.org/scheduler/job/3719571#L2392
->
-> zImage:
-> https://builds.tuxbuild.com/1zMbwi83MvhJdKpC0LTvxvIh1Fb/zImage
->
-> Build link,
-> https://builds.tuxbuild.com/1zMbwi83MvhJdKpC0LTvxvIh1Fb/
+stable-rc/linux-4.19.y baseline: 116 runs, 2 regressions (v4.19.210-29-gbf6=
+c58e72541)
 
-It looks like a really long backtrace, and there is something about stack
-corruption, so I wonder if the stack is actually overflowing here. Can
-you see if the same thing happens with Ard's vmap-stack branch from [1]
-or if that shows a different output?
+Regressions Summary
+-------------------
 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/ardb/linux.git/log/?h=arm-vmap-stacks
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | multi_v7_defconfig  | 1       =
+   =
 
-         Arnd
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.210-29-gbf6c58e72541/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.210-29-gbf6c58e72541
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      bf6c58e72541e21b064bb89eb3256274f8cfeba1 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | multi_v7_defconfig  | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61645ff603c6a5297c90dc99
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+10-29-gbf6c58e72541/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-pan=
+da.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+10-29-gbf6c58e72541/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-pan=
+da.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61645ff603c6a5297c90d=
+c9a
+        new failure (last pass: v4.19.209-13-g0cf6c1babdb5) =
+
+ =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61645d292da404cbb890dc98
+
+  Results:     5 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+10-29-gbf6c58e72541/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pa=
+nda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+10-29-gbf6c58e72541/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pa=
+nda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61645d292da404c=
+bb890dc9b
+        failing since 1 day (last pass: v4.19.209-13-g0cf6c1babdb5, first f=
+ail: v4.19.210)
+        2 lines
+
+    2021-10-11T15:49:46.361296  <8>[   22.695343] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-10-11T15:49:46.408665  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/102
+    2021-10-11T15:49:46.417793  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+cf4 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
