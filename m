@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 730E142907B
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:07:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DE8442907C
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:07:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238180AbhJKOJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:09:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57034 "EHLO mail.kernel.org"
+        id S243216AbhJKOJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:09:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240156AbhJKOGn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:06:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 138B861050;
-        Mon, 11 Oct 2021 14:00:26 +0000 (UTC)
+        id S240665AbhJKOHB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:07:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3766D60EB4;
+        Mon, 11 Oct 2021 14:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960827;
-        bh=w7x9mFqiFd5Zyfxp9xbNc30nBdw8VSQASUqtHIGY/3E=;
+        s=korg; t=1633960831;
+        bh=r6Xl0EOex2NdZx3/sumP5y90cIIe5LzVa/vSC+OIIvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q3ocXysu2+W7AbWMIKg8W2rNF8Y3IZjRLqFpbCg0zZxBHRfYs3VWUQg+KWFxeAcUp
-         NRDzqQHz+nhP+OmNpRgcXziDR1eBpPC5+IZS8GAsnNBdXNQrhC7jDGIkWOSr2zmrk7
-         HhD2A2YSFHQ1TAzCHvyuO7f/RSQSGa4g+nklhOWE=
+        b=eHCLtPONeQNNLWEy73f08rJSeR0mjbXUbsrEEU8s9zBjieZTb7Nsav/hiOeB4pF4R
+         fERa0AY1B0Uq+Wg1qIoCBI1qOfvKeRPbQ3yKSNXAj9azhnAgY6UgvNFozt+fCoMWVv
+         AyptJDJK7QQN7HUkexdYhY9FHvyD9MCToXHooNnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Jeffrey Altman <jaltman@auristor.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 087/151] afs: Fix afs_launder_page() to set correct start file position
-Date:   Mon, 11 Oct 2021 15:45:59 +0200
-Message-Id: <20211011134520.651294738@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 088/151] net: bridge: use nla_total_size_64bit() in br_get_linkxstats_size()
+Date:   Mon, 11 Oct 2021 15:46:00 +0200
+Message-Id: <20211011134520.681365035@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -41,52 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 5c0522484eb54b90f2e46a5db8d7a4ff3ff86e5d ]
+[ Upstream commit dbe0b88064494b7bb6a9b2aa7e085b14a3112d44 ]
 
-Fix afs_launder_page() to set the starting position of the StoreData RPC at
-the offset into the page at which the modified data starts instead of at
-the beginning of the page (the iov_iter is correctly offset).
+bridge_fill_linkxstats() is using nla_reserve_64bit().
 
-The offset got lost during the conversion to passing an iov_iter into
-afs_store_data().
+We must use nla_total_size_64bit() instead of nla_total_size()
+for corresponding data structure.
 
-Changes:
-ver #2:
- - Use page_offset() rather than manually calculating it[1].
-
-Fixes: bd80d8a80e12 ("afs: Use ITER_XARRAY for writing")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Jeffrey Altman <jaltman@auristor.com>
-cc: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/r/YST/0e92OdSH0zjg@casper.infradead.org/ [1]
-Link: https://lore.kernel.org/r/162880783179.3421678.7795105718190440134.stgit@warthog.procyon.org.uk/ # v1
-Link: https://lore.kernel.org/r/162937512409.1449272.18441473411207824084.stgit@warthog.procyon.org.uk/ # v1
-Link: https://lore.kernel.org/r/162981148752.1901565.3663780601682206026.stgit@warthog.procyon.org.uk/ # v1
-Link: https://lore.kernel.org/r/163005741670.2472992.2073548908229887941.stgit@warthog.procyon.org.uk/ # v2
-Link: https://lore.kernel.org/r/163221839087.3143591.14278359695763025231.stgit@warthog.procyon.org.uk/ # v2
-Link: https://lore.kernel.org/r/163292980654.4004896.7134735179887998551.stgit@warthog.procyon.org.uk/ # v2
+Fixes: 1080ab95e3c7 ("net: bridge: add support for IGMP/MLD stats and export them via netlink")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Nikolay Aleksandrov <nikolay@nvidia.com>
+Cc: Vivien Didelot <vivien.didelot@gmail.com>
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/write.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/bridge/br_netlink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/afs/write.c b/fs/afs/write.c
-index 2dfe3b3a53d6..f24370f5c774 100644
---- a/fs/afs/write.c
-+++ b/fs/afs/write.c
-@@ -974,8 +974,7 @@ int afs_launder_page(struct page *page)
- 		iov_iter_bvec(&iter, WRITE, bv, 1, bv[0].bv_len);
- 
- 		trace_afs_page_dirty(vnode, tracepoint_string("launder"), page);
--		ret = afs_store_data(vnode, &iter, (loff_t)page->index * PAGE_SIZE,
--				     true);
-+		ret = afs_store_data(vnode, &iter, page_offset(page) + f, true);
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 8642e56059fb..69c0002f413f 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1657,7 +1657,7 @@ static size_t br_get_linkxstats_size(const struct net_device *dev, int attr)
  	}
  
- 	trace_afs_page_dirty(vnode, tracepoint_string("laundered"), page);
+ 	return numvls * nla_total_size(sizeof(struct bridge_vlan_xstats)) +
+-	       nla_total_size(sizeof(struct br_mcast_stats)) +
++	       nla_total_size_64bit(sizeof(struct br_mcast_stats)) +
+ 	       nla_total_size(0);
+ }
+ 
 -- 
 2.33.0
 
