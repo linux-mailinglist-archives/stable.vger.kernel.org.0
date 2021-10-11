@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A804428F1D
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:54:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C6DC428F39
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:54:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236756AbhJKNzM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:55:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40964 "EHLO mail.kernel.org"
+        id S237708AbhJKN4K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:56:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237922AbhJKNx0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:53:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0A4D61076;
-        Mon, 11 Oct 2021 13:51:23 +0000 (UTC)
+        id S235240AbhJKNyS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:54:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4778860EB1;
+        Mon, 11 Oct 2021 13:52:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960284;
-        bh=xC9wzPkV+UCe1k63RuJ6riSk2FznpXUI6E25EIj40CI=;
+        s=korg; t=1633960333;
+        bh=2KTZU7TzMuJ0WGwHs7UbiBL/9066kgzZMrisOoGWRE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gp2Mm0MkHYGTxqAl54p8zumhJMNtoeStqnlNH/h9003QybK9wHSqwLYt9Z+Zk+WPg
-         t8ND+kY2d2W9T2ORd7EXiIOGD5fz87BELFCvEVaTqlIMPbxlPZoPa1IRLyYxI9SbJr
-         QZQp6PX2cx4iXLB3gonSo4yHpHsprWBZgEqNS8sc=
+        b=GSagb/k+9bkXpggtOpnM6RjR1fn3nwE0nfOAtriXnUQbS+rPgbEYOAwgQNg6+qD7p
+         +4An4MpR4QatamSZ9SafMOtDuI2VszVmRGe/kLsizJEO0zLEYrFX7c+Q8F+t6hcXQy
+         AyZyWbx+W87D9e/eCACUwcDALT2itL+CVZxqoGNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Thiery <heiko.thiery@gmail.com>,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Peter Chen <peter.chen@kernel.org>,
-        Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH 5.10 02/83] usb: chipidea: ci_hdrc_imx: Also search for phys phandle
-Date:   Mon, 11 Oct 2021 15:45:22 +0200
-Message-Id: <20211011134508.444745860@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 03/83] USB: cdc-acm: fix racy tty buffer accesses
+Date:   Mon, 11 Oct 2021 15:45:23 +0200
+Message-Id: <20211011134508.482422799@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
 References: <20211011134508.362906295@linuxfoundation.org>
@@ -41,82 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 8253a34bfae3278baca52fc1209b7c29270486ca upstream.
+commit 65a205e6113506e69a503b61d97efec43fc10fd7 upstream.
 
-When passing 'phys' in the devicetree to describe the USB PHY phandle
-(which is the recommended way according to
-Documentation/devicetree/bindings/usb/ci-hdrc-usb2.txt) the
-following NULL pointer dereference is observed on i.MX7 and i.MX8MM:
+A recent change that started reporting break events to the line
+discipline caused the tty-buffer insertions to no longer be serialised
+by inserting events also from the completion handler for the interrupt
+endpoint.
 
-[    1.489344] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000098
-[    1.498170] Mem abort info:
-[    1.500966]   ESR = 0x96000044
-[    1.504030]   EC = 0x25: DABT (current EL), IL = 32 bits
-[    1.509356]   SET = 0, FnV = 0
-[    1.512416]   EA = 0, S1PTW = 0
-[    1.515569]   FSC = 0x04: level 0 translation fault
-[    1.520458] Data abort info:
-[    1.523349]   ISV = 0, ISS = 0x00000044
-[    1.527196]   CM = 0, WnR = 1
-[    1.530176] [0000000000000098] user address but active_mm is swapper
-[    1.536544] Internal error: Oops: 96000044 [#1] PREEMPT SMP
-[    1.542125] Modules linked in:
-[    1.545190] CPU: 3 PID: 7 Comm: kworker/u8:0 Not tainted 5.14.0-dirty #3
-[    1.551901] Hardware name: Kontron i.MX8MM N801X S (DT)
-[    1.557133] Workqueue: events_unbound deferred_probe_work_func
-[    1.562984] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
-[    1.568998] pc : imx7d_charger_detection+0x3f0/0x510
-[    1.573973] lr : imx7d_charger_detection+0x22c/0x510
+Completion calls for distinct endpoints are not guaranteed to be
+serialised. For example, in case a host-controller driver uses
+bottom-half completion, the interrupt and bulk-in completion handlers
+can end up running in parallel on two CPUs (high-and low-prio tasklets,
+respectively) thereby breaking the tty layer's single producer
+assumption.
 
-This happens because the charger functions check for the phy presence
-inside the imx_usbmisc_data structure (data->usb_phy), but the chipidea
-core populates the usb_phy passed via 'phys' inside 'struct ci_hdrc'
-(ci->usb_phy) instead.
+Fix this by holding the read lock also when inserting characters from
+the bulk endpoint.
 
-This causes the NULL pointer dereference inside imx7d_charger_detection().
-
-Fix it by also searching for 'phys' in case 'fsl,usbphy' is not found.
-
-Tested on a imx7s-warp board.
-
-Fixes: 746f316b753a ("usb: chipidea: introduce imx7d USB charger detection")
+Fixes: 08dff274edda ("cdc-acm: fix BREAK rx code path adding necessary calls")
 Cc: stable@vger.kernel.org
-Reported-by: Heiko Thiery <heiko.thiery@gmail.com>
-Tested-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Reviewed-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Acked-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/20210921113754.767631-1-festevam@gmail.com
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210929090937.7410-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/chipidea/ci_hdrc_imx.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/usb/class/cdc-acm.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/usb/chipidea/ci_hdrc_imx.c
-+++ b/drivers/usb/chipidea/ci_hdrc_imx.c
-@@ -425,11 +425,16 @@ static int ci_hdrc_imx_probe(struct plat
- 	data->phy = devm_usb_get_phy_by_phandle(dev, "fsl,usbphy", 0);
- 	if (IS_ERR(data->phy)) {
- 		ret = PTR_ERR(data->phy);
--		/* Return -EINVAL if no usbphy is available */
--		if (ret == -ENODEV)
--			data->phy = NULL;
--		else
--			goto err_clk;
-+		if (ret == -ENODEV) {
-+			data->phy = devm_usb_get_phy_by_phandle(dev, "phys", 0);
-+			if (IS_ERR(data->phy)) {
-+				ret = PTR_ERR(data->phy);
-+				if (ret == -ENODEV)
-+					data->phy = NULL;
-+				else
-+					goto err_clk;
-+			}
-+		}
- 	}
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -475,11 +475,16 @@ static int acm_submit_read_urbs(struct a
  
- 	pdata.usb_phy = data->phy;
+ static void acm_process_read_urb(struct acm *acm, struct urb *urb)
+ {
++	unsigned long flags;
++
+ 	if (!urb->actual_length)
+ 		return;
+ 
++	spin_lock_irqsave(&acm->read_lock, flags);
+ 	tty_insert_flip_string(&acm->port, urb->transfer_buffer,
+ 			urb->actual_length);
++	spin_unlock_irqrestore(&acm->read_lock, flags);
++
+ 	tty_flip_buffer_push(&acm->port);
+ }
+ 
 
 
