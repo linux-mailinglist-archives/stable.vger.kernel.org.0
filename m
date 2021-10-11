@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E3FB42900D
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:02:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE17A429026
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:04:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237854AbhJKOEw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:04:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49804 "EHLO mail.kernel.org"
+        id S237535AbhJKOFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:05:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238262AbhJKOC0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:02:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C70276115C;
-        Mon, 11 Oct 2021 13:57:58 +0000 (UTC)
+        id S239901AbhJKODj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:03:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C329610C8;
+        Mon, 11 Oct 2021 13:58:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960679;
-        bh=vjEoUTvpqGkBkd7kvxIJ1hW1PNYvB9pL/e+cwBLImKo=;
+        s=korg; t=1633960717;
+        bh=GMhc6I8DDQgc0a7x2KGDJiQjriPSHBRYhxMh2YNidh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a5KKAeB7Ne5AjFGYkJ3Xvpx09rSXGqwza/4iQLaqtLq+Ijii5BMc289lM19Qq102E
-         niJYPW+SJWJEu3xbJzHM6KZfXmxJJ1W4Cz819ajBko5jSIb4KH4lQXrSlKXm/g3Gs+
-         490nf1KYb/5BoHUu5U3VaX14vFY/Kj4KaiM4qr+Q=
+        b=bch7Rg7sKyEefCWOonG/Tk/ZX2O6Ndd8+pXYG1l+4qIn1j+UJBwGcYEa3Jnh0e0ZK
+         KykWdLA47sFZ1R1QV1msIvb5eL9qTs7sVcvrUowrSxIvgvt1vexVGSOHfwG9JdXxZ8
+         Cl/MeyiW57PPC54tbG5zU1cR7mtSJ3lOXJLLA1m0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org,
+        Antonio Martorana <amartora@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 036/151] bus: ti-sysc: Add break in switch statement in sysc_init_soc()
-Date:   Mon, 11 Oct 2021 15:45:08 +0200
-Message-Id: <20211011134519.015255537@linuxfoundation.org>
+Subject: [PATCH 5.14 037/151] soc: qcom: socinfo: Fixed argument passed to platform_set_data()
+Date:   Mon, 11 Oct 2021 15:45:09 +0200
+Message-Id: <20211011134519.046785097@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -41,49 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Antonio Martorana <amartora@codeaurora.org>
 
-[ Upstream commit e879f855e590b40fe3c79f2fbd8f65ca3c724120 ]
+[ Upstream commit 9c5a4ec69bbf5951f84ada9e0db9c6c50de61808 ]
 
-After commit a6d90e9f2232 ("bus: ti-sysc: AM3: RNG is GP only"), clang
-with -Wimplicit-fallthrough enabled warns:
+Set qcom_socinfo pointer as data being stored instead of pointer
+to soc_device structure. Aligns with future calls to platform_get_data()
+which expects qcom_socinfo pointer.
 
-drivers/bus/ti-sysc.c:2958:3: warning: unannotated fall-through between
-switch labels [-Wimplicit-fallthrough]
-                default:
-                ^
-drivers/bus/ti-sysc.c:2958:3: note: insert 'break;' to avoid
-fall-through
-                default:
-                ^
-                break;
-1 warning generated.
-
-Clang's version of this warning is a little bit more pedantic than
-GCC's. Add the missing break to satisfy it to match what has been done
-all over the kernel tree.
-
-Fixes: a6d90e9f2232 ("bus: ti-sysc: AM3: RNG is GP only")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: efb448d0a3fc ("soc: qcom: Add socinfo driver")
+Signed-off-by: Antonio Martorana <amartora@codeaurora.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/1629159879-95777-1-git-send-email-amartora@codeaurora.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/ti-sysc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/soc/qcom/socinfo.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index 148a4dd8cb9a..10fcb75df68a 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -2955,6 +2955,7 @@ static int sysc_init_soc(struct sysc *ddata)
- 			break;
- 		case SOC_AM3:
- 			sysc_add_disabled(0x48310000);  /* rng */
-+			break;
- 		default:
- 			break;
- 		}
+diff --git a/drivers/soc/qcom/socinfo.c b/drivers/soc/qcom/socinfo.c
+index b2f049faa3df..a6cffd57d3c7 100644
+--- a/drivers/soc/qcom/socinfo.c
++++ b/drivers/soc/qcom/socinfo.c
+@@ -628,7 +628,7 @@ static int qcom_socinfo_probe(struct platform_device *pdev)
+ 	/* Feed the soc specific unique data into entropy pool */
+ 	add_device_randomness(info, item_size);
+ 
+-	platform_set_drvdata(pdev, qs->soc_dev);
++	platform_set_drvdata(pdev, qs);
+ 
+ 	return 0;
+ }
 -- 
 2.33.0
 
