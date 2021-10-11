@@ -2,157 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E50AF4296F6
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 20:35:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72801429707
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 20:43:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231497AbhJKShO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 14:37:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45434 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229633AbhJKShO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 14:37:14 -0400
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0A41C06161C
-        for <stable@vger.kernel.org>; Mon, 11 Oct 2021 11:35:13 -0700 (PDT)
-Received: by mail-ed1-x52d.google.com with SMTP id d3so43763536edp.3
-        for <stable@vger.kernel.org>; Mon, 11 Oct 2021 11:35:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=fBcgVKoGRggT3Uy1yoJR3Sgr+q930ZEpVWr84lINymY=;
-        b=U2w5rme7IKP7knj8dJyakaJAh2JZn2YZ2n0fH16SWLN7eopx2blwSw0vPRU3ju4YFb
-         5RYfQkSEndKzGS2GrJoEt5sFMGE960e/itzKJFvE05uJg4RiznUVi4cYVS16c2wR/suD
-         ImjzKeSbDv1w9QelJ2920OHt5O0i7CAF/88oPbv0QMXAxgpPrxZEJEMnwQGf4cD4Ewiw
-         svLgDg0rnG87dpYjh/lujnuanQE5prQNgTXd5vIJt04dx48pCFOo2wf4EBjf48hxG9Cy
-         xhukoor/EZi2y00sov/JNxxhejoND+1Q9w9HpotN3k0vWdTv0s3NTgPoxhSrliJgUGqz
-         VU6g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=fBcgVKoGRggT3Uy1yoJR3Sgr+q930ZEpVWr84lINymY=;
-        b=rb0NjigHOtqe22LBHysaK3PTAr9xHEAeM0gQjGu0exFRWivBEM46E2zZuB6zgsK8qk
-         w7ghdykIbLzJ9P7Rn5kSDsBfSJPU8gJlB32dg/IIrY72+obmlDFI4w+txe5GHD7qno3V
-         tDuS6IWFh0bg7zJ88yuiT2hYn5i7fkSH+D1316AfyGxQZWafOJLSZkpQOXXexWXQZebm
-         3lxS/LDLJNt/Dhh+JKqZueO5HesJHxWk6v4tOina8Eyd7ZvCF35nJKpqbtpS4kA8f9iW
-         lH+juvoLoUbINquNa3gZXNfpVivpc7gPtAa7nDmFP+FDt2X6gdjvAmSYKaxVdPvXf/+Y
-         OpZw==
-X-Gm-Message-State: AOAM532YXiZg3Hm3UO6r6RBYkjV2IH3s1jktTnwxYCZGoaEhM0sOxXCF
-        eEgyAoqXHObWAxe3SSGPNDYVgUWIOnGU7jFxbBvjqg==
-X-Google-Smtp-Source: ABdhPJw7VmFf1Z/3+QbHozFM+RW3lJThpIu4lsHhi1z00/AWTWEYk/2ZJ/33dznHy7oECvbIsnZNx4RXVoQFg1e3zdg=
-X-Received: by 2002:a17:906:c7c1:: with SMTP id dc1mr28372064ejb.6.1633977311975;
- Mon, 11 Oct 2021 11:35:11 -0700 (PDT)
+        id S231916AbhJKSpA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 14:45:00 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25292 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229824AbhJKSpA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 14:45:00 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19BIckQq011753;
+        Mon, 11 Oct 2021 14:42:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=0TVdZp8CZyIcGmhupCXobsLVC7Yz9AAA+YCIK7aqVnM=;
+ b=USa9DOqiZTb8DB3blIIO6uSIoqhm0H69izzOF0G5M4FUVc522BBGgDGT3wHLmke0CsEl
+ Yq2E5GkX1JxzLULQRbkocCFdL497L0oZccCV3Z1uIDGM1BzxFsSgRxFXIoJSjaUvaJes
+ mKaHBxkhW/vbUzGeCxFNidAE6hcrKwAG1al8WPEz1tdRQZWlrSpaptc7haaf84JUlOWw
+ /cGFRhgGLDLEENB2JtoGWT/u7i8yWnU+680RQVRJIMq42Bp8lyz5kOr0OqBGzSoZhyRY
+ xePYPeifsPEMi8q8VOTU23p3qzkXYUAEdWHvQK9xyTBfCOttA/S5fTqiLpCQ9T9An2u2 Hw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bmsrjse73-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 11 Oct 2021 14:42:58 -0400
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19BIeVhK019234;
+        Mon, 11 Oct 2021 14:42:58 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bmsrjse6n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 11 Oct 2021 14:42:58 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19BIfqEF030557;
+        Mon, 11 Oct 2021 18:42:56 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3bk2bj0u1q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 11 Oct 2021 18:42:56 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19BIbJtD59244806
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 11 Oct 2021 18:37:19 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DC52742052;
+        Mon, 11 Oct 2021 18:42:52 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D898142045;
+        Mon, 11 Oct 2021 18:42:51 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.45.119])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Mon, 11 Oct 2021 18:42:51 +0000 (GMT)
+Date:   Mon, 11 Oct 2021 20:42:49 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Pierre Morel <pmorel@linux.ibm.com>
+Cc:     Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Michael Mueller <mimu@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        bfu@redhat.com, Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [RFC PATCH 1/1] s390/cio: make ccw_device_dma_* more robust
+Message-ID: <20211011204249.3c53ce2a.pasic@linux.ibm.com>
+In-Reply-To: <466de207-e88d-ea93-beec-fbfe10e63a26@linux.ibm.com>
+References: <20211011115955.2504529-1-pasic@linux.ibm.com>
+        <466de207-e88d-ea93-beec-fbfe10e63a26@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+Content-Type: text/plain; charset=US-ASCII
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: rFoN8xc6J3Czo-dMFnIc_pAlMo6_83_A
+X-Proofpoint-GUID: f3mIXnY0SdR1n0-AW0u5T4jB7f_EPJMt
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-References: <20211011134517.833565002@linuxfoundation.org>
-In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 12 Oct 2021 00:05:00 +0530
-Message-ID: <CA+G9fYutz0ZgJ=rrg8=Fd7vh9c7G-SJfF2YoH5wZyGzUHu4Dqw@mail.gmail.com>
-Subject: Re: [PATCH 5.14 000/151] 5.14.12-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-11_06,2021-10-11_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxscore=0
+ lowpriorityscore=0 malwarescore=0 adultscore=0 bulkscore=0
+ priorityscore=1501 mlxlogscore=999 phishscore=0 clxscore=1015
+ suspectscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2109230001 definitions=main-2110110107
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 11 Oct 2021 at 19:28, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.14.12 release.
-> There are 151 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 13 Oct 2021 13:44:51 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.14.12-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Mon, 11 Oct 2021 15:45:55 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
+
+> > +	if (IS_ERR_OR_NULL(addr))  
+> 
+> I can be wrong but it seems that only dma_alloc_coherent() used in 
+> cio_gp_dma_zalloc() report an error but the error is ignored and used as 
+> a valid pointer.
 
 
-Results from Linaro=E2=80=99s test farm.
-Regression found on arm x15 device.
+https://www.kernel.org/doc/Documentation/DMA-API.txt says:
 
-metadata:
-  git branch: linux-5.14.y
-  git repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-  git commit: d98305d056b808dd938d2ae6bfd0e3ccac00a106
-  git describe: v5.14.11-152-gd98305d056b8
-  make_kernelversion: 5.14.12-rc1
-  kernel-config: https://builds.tuxbuild.com/1zMbwi83MvhJdKpC0LTvxvIh1Fb/co=
-nfig
+Part Ia - Using large DMA-coherent buffers
+------------------------------------------
 
-Crash log,
-[    0.000000] Linux version 5.14.12-rc1 (tuxmake@tuxmake)
-(arm-linux-gnueabihf-gcc (Debian 11.1.0-1) 11.1.0, GNU ld (GNU
-Binutils for Debian) 2.36.90.20210705) #1 SMP @1633961260
-[    0.000000] CPU: ARMv7 Processor [412fc0f2] revision 2 (ARMv7), cr=3D10c=
-5387d
-<trim>
-[    5.403076] Kernel panic - not syncing: stack-protector: Kernel
-stack is corrupted in: __lock_acquire+0x2520/0x326c
-[    5.413574] CPU: 0 PID: 6 Comm: kworker/0:0H Not tainted 5.14.12-rc1 #1
-[    5.420227] Hardware name: Generic DRA74X (Flattened Device Tree)
-[    5.426361] Backtrace:
-[    5.428863] [<c153b5e8>] (dump_backtrace) from [<c153b9a8>]
-(show_stack+0x20/0x24)
-[    5.436492]  r7:c2109acc r6:00000080 r5:c1c3c52c r4:60000193
-[    5.442169] [<c153b988>] (show_stack) from [<c1542cf8>]
-(dump_stack_lvl+0x60/0x78)
-[    5.449798] [<c1542c98>] (dump_stack_lvl) from [<c1542d28>]
-(dump_stack+0x18/0x1c)
-[    5.457427]  r7:c2109acc r6:c1c1d4ac r5:00000000 r4:c23a1aa8
-[    5.463104] [<c1542d10>] (dump_stack) from [<c153c800>] (panic+0x13c/0x3=
-70)
-[    5.470123] [<c153c6c4>] (panic) from [<c1555854>]
-(lockdep_hardirqs_on+0x0/0x1d0)
-[    5.477752]  r3:c28033d0 r2:a519091a r1:c03dc7ec r0:c1c1d4ac
-[    5.483428]  r7:c2109acc
-[    5.485992] [<c1555838>] (__stack_chk_fail) from [<c03dc7ec>]
-(__lock_acquire+0x2520/0x326c)
-[    5.494476] [<c03da2cc>] (__lock_acquire) from [<c03ddfe0>]
-(lock_acquire+0x140/0x414)
-[    5.502471]  r10:60000193 r9:00000080 r8:2ca87000 r7:c31c4128
-r6:c20935e0 r5:c20935e0
-[    5.510345]  r4:c31c4000
-[    5.512878] [<c03ddea0>] (lock_acquire) from [<c03a2e1c>]
-(account_system_index_time+0xf0/0x284)
-[    5.521728]  r10:c31c4000 r9:eeb1fa40 r8:eeb1a4f0 r7:00000002
-r6:c321db80 r5:00000000
+::
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+	void *
+	dma_alloc_coherent(struct device *dev, size_t size,
+			   dma_addr_t *dma_handle, gfp_t flag)
 
-Full test log link,
-https://lkft.validation.linaro.org/scheduler/job/3719571#L2392
+[..]
 
-zImage:
-https://builds.tuxbuild.com/1zMbwi83MvhJdKpC0LTvxvIh1Fb/zImage
+It returns a pointer to the allocated region (in the processor's virtual
+address space) or NULL if the allocation failed.
 
-Build link,
-https://builds.tuxbuild.com/1zMbwi83MvhJdKpC0LTvxvIh1Fb/
+I hope that is still true. If not we should fix cio_gp_dma_zalloc().
 
---=20
-Linaro LKFT
-https://lkft.linaro.org
+> 
+> So shouldn't we modify this function and just test for a NULL address here?
+> 
+
+Isn't IS_ERR_OR_NULL() safer, in a sense that even if we decided to
+eventually return an error code, this piece of code would be robust
+and safe?
+
+We may exploit the knowledge that cio_gp_dma_zalloc() either
+returns NULL or a valid pointer, but doing it like this is IMHO also an
+option.
+
+> here what I mean:---------------------------------
+> 
+> diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+> index 2bc55ccf3f23..b45fbaa7131b 100644
+> --- a/drivers/s390/cio/css.c
+> +++ b/drivers/s390/cio/css.c
+> @@ -1176,7 +1176,7 @@ void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, 
+> struct device *dma_dev,
+>                  chunk_size = round_up(size, PAGE_SIZE);
+>                  addr = (unsigned long) dma_alloc_coherent(dma_dev,
+>                                           chunk_size, &dma_addr, 
+> CIO_DMA_GFP);
+> -               if (!addr)
+> +               if (IS_ERR_OR_NULL(addr))
+>                          return NULL;
+>                  gen_pool_add_virt(gp_dma, addr, dma_addr, chunk_size, -1);
+>                  addr = gen_pool_alloc(gp_dma, size);
+> 
+> ---------------------------------
+> 
+> > +		put_device(&cdev->dev);  
+> 
+> addr is not null if addr is ERR.
+> 
+
+Your point?
+
+> > +	return addr;  
+> 
+> may be return IS_ERR_OR_NULL(addr)? NULL : addr;
+> 
+
+See above. I don't think that is necessary.
+
+> >   }
+> >   EXPORT_SYMBOL(ccw_device_dma_zalloc);
+> >   
+> >   void ccw_device_dma_free(struct ccw_device *cdev, void *cpu_addr, size_t size)
+> >   {
+> > +	if (!cpu_addr)
+> > +		return;  
+> 
+> no need, cpu_addr is already tested in cio_gp_dma_free()
+> 
+
+This is added in because of the put_device(). An alternative would be
+to call cio_gp_dma_free() unconditionally do the check just for the
+put_device(). But I like this one better.
+
+Thanks for your feedback!
+
+Halil
+
+> >   	cio_gp_dma_free(cdev->private->dma_pool, cpu_addr, size);
+> > +	put_device(&cdev->dev);
+> >   }
+> >   EXPORT_SYMBOL(ccw_device_dma_free);
+> >   
+> > 
