@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ACF24290F2
+	by mail.lfdr.de (Postfix) with ESMTP id 2CFB74290F1
 	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:12:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241390AbhJKOOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:14:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34542 "EHLO mail.kernel.org"
+        id S241285AbhJKOON (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:14:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238808AbhJKOMQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241841AbhJKOMQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 11 Oct 2021 10:12:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AF3861168;
-        Mon, 11 Oct 2021 14:03:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BBEBC610C8;
+        Mon, 11 Oct 2021 14:03:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633961011;
-        bh=jRqsfNbvi/+458Oqbhny0QHOj10dPgZclno2gV8++IU=;
+        s=korg; t=1633961014;
+        bh=+S2fTVAapzqKR2kMYhB+gS1yBxRZMlUinhch4n/ZHKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FfCqqysBH1uVj1uT0Pb6+v9ypAkPg6Qw6ne4AO0y8Xo9eKUJ7aJbSnjea2gNDl957
-         6bIwVCa6Qy4ScUnGuBLMYpKcA/uVY9/0YPSzNbegPq/xRLl33019XGPXOMkEoxriVT
-         pJBO88TxAZTcZY12oxXKEXWFZ/le7F7CJGlwOVlY=
+        b=YWJk0iIHinwo+T+52oCwb0X06P2DoI31ycLm61gqHLQNrZYW1/8gfg+COvSf3wXE0
+         XHbDugO5ARU+ENbq+RPu6acj7/YMcothmWunec10fSbTAoSLlGyS0xT+5BRYDtn2iB
+         U+wQVk9Q6qp6/W24/bzKRKSBvWPdKG395APx8ZUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 139/151] powerpc/64s: fix program check interrupt emergency stack path
-Date:   Mon, 11 Oct 2021 15:46:51 +0200
-Message-Id: <20211011134522.300646197@linuxfoundation.org>
+Subject: [PATCH 5.14 140/151] powerpc/traps: do not enable irqs in _exception
+Date:   Mon, 11 Oct 2021 15:46:52 +0200
+Message-Id: <20211011134522.336301949@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -42,140 +42,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 3e607dc4df180b72a38e75030cb0f94d12808712 ]
+[ Upstream commit d0afd44c05f8f4e4c91487c02d43c87a31552462 ]
 
-Emergency stack path was jumping into a 3: label inside the
-__GEN_COMMON_BODY macro for the normal path after it had finished,
-rather than jumping over it. By a small miracle this is the correct
-place to build up a new interrupt frame with the existing stack
-pointer, so things basically worked okay with an added weird looking
-700 trap frame on top (which had the wrong ->nip so it didn't decode
-bug messages either).
+_exception can be called by machine check handlers when the MCE hits
+user code (e.g., pseries and powernv). This will enable local irqs
+because, which is a dicey thing to do in NMI or hard irq context.
 
-Fix this by avoiding using numeric labels when jumping over non-trivial
-macros.
+This seemed to worked out okay because a userspace MCE can basically be
+treated like a synchronous interrupt (after async / imprecise MCEs are
+filtered out). Since NMI and hard irq handlers have started growing
+nmi_enter / irq_enter, and more irq state sanity checks, this has
+started to cause problems (or at least trigger warnings).
 
-Before:
+The Fixes tag to the commit which introduced this rather than try to
+work out exactly which commit was the first that could possibly cause a
+problem because that may be difficult to prove.
 
- LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA PowerNV
- Modules linked in:
- CPU: 0 PID: 88 Comm: sh Not tainted 5.15.0-rc2-00034-ge057cdade6e5 #2637
- NIP:  7265677368657265 LR: c00000000006c0c8 CTR: c0000000000097f0
- REGS: c0000000fffb3a50 TRAP: 0700   Not tainted
- MSR:  9000000000021031 <SF,HV,ME,IR,DR,LE>  CR: 00000700  XER: 20040000
- CFAR: c0000000000098b0 IRQMASK: 0
- GPR00: c00000000006c964 c0000000fffb3cf0 c000000001513800 0000000000000000
- GPR04: 0000000048ab0778 0000000042000000 0000000000000000 0000000000001299
- GPR08: 000001e447c718ec 0000000022424282 0000000000002710 c00000000006bee8
- GPR12: 9000000000009033 c0000000016b0000 00000000000000b0 0000000000000001
- GPR16: 0000000000000000 0000000000000002 0000000000000000 0000000000000ff8
- GPR20: 0000000000001fff 0000000000000007 0000000000000080 00007fff89d90158
- GPR24: 0000000002000000 0000000002000000 0000000000000255 0000000000000300
- GPR28: c000000001270000 0000000042000000 0000000048ab0778 c000000080647e80
- NIP [7265677368657265] 0x7265677368657265
- LR [c00000000006c0c8] ___do_page_fault+0x3f8/0xb10
- Call Trace:
- [c0000000fffb3cf0] [c00000000000bdac] soft_nmi_common+0x13c/0x1d0 (unreliable)
- --- interrupt: 700 at decrementer_common_virt+0xb8/0x230
- NIP:  c0000000000098b8 LR: c00000000006c0c8 CTR: c0000000000097f0
- REGS: c0000000fffb3d60 TRAP: 0700   Not tainted
- MSR:  9000000000021031 <SF,HV,ME,IR,DR,LE>  CR: 22424282  XER: 20040000
- CFAR: c0000000000098b0 IRQMASK: 0
- GPR00: c00000000006c964 0000000000002400 c000000001513800 0000000000000000
- GPR04: 0000000048ab0778 0000000042000000 0000000000000000 0000000000001299
- GPR08: 000001e447c718ec 0000000022424282 0000000000002710 c00000000006bee8
- GPR12: 9000000000009033 c0000000016b0000 00000000000000b0 0000000000000001
- GPR16: 0000000000000000 0000000000000002 0000000000000000 0000000000000ff8
- GPR20: 0000000000001fff 0000000000000007 0000000000000080 00007fff89d90158
- GPR24: 0000000002000000 0000000002000000 0000000000000255 0000000000000300
- GPR28: c000000001270000 0000000042000000 0000000048ab0778 c000000080647e80
- NIP [c0000000000098b8] decrementer_common_virt+0xb8/0x230
- LR [c00000000006c0c8] ___do_page_fault+0x3f8/0xb10
- --- interrupt: 700
- Instruction dump:
- XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
- XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
- ---[ end trace 6d28218e0cc3c949 ]---
-
-After:
-
- ------------[ cut here ]------------
- kernel BUG at arch/powerpc/kernel/exceptions-64s.S:491!
- Oops: Exception in kernel mode, sig: 5 [#1]
- LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA PowerNV
- Modules linked in:
- CPU: 0 PID: 88 Comm: login Not tainted 5.15.0-rc2-00034-ge057cdade6e5-dirty #2638
- NIP:  c0000000000098b8 LR: c00000000006bf04 CTR: c0000000000097f0
- REGS: c0000000fffb3d60 TRAP: 0700   Not tainted
- MSR:  9000000000021031 <SF,HV,ME,IR,DR,LE>  CR: 24482227  XER: 00040000
- CFAR: c0000000000098b0 IRQMASK: 0
- GPR00: c00000000006bf04 0000000000002400 c000000001513800 c000000001271868
- GPR04: 00000000100f0d29 0000000042000000 0000000000000007 0000000000000009
- GPR08: 00000000100f0d29 0000000024482227 0000000000002710 c000000000181b3c
- GPR12: 9000000000009033 c0000000016b0000 00000000100f0d29 c000000005b22f00
- GPR16: 00000000ffff0000 0000000000000001 0000000000000009 00000000100eed90
- GPR20: 00000000100eed90 0000000010000000 000000001000a49c 00000000100f1430
- GPR24: c000000001271868 0000000002000000 0000000000000215 0000000000000300
- GPR28: c000000001271800 0000000042000000 00000000100f0d29 c000000080647860
- NIP [c0000000000098b8] decrementer_common_virt+0xb8/0x230
- LR [c00000000006bf04] ___do_page_fault+0x234/0xb10
- Call Trace:
- Instruction dump:
- 4182000c 39400001 48000008 894d0932 714a0001 39400008 408225fc 718a4000
- 7c2a0b78 3821fcf0 41c20008 e82d0910 <0981fcf0> f92101a0 f9610170 f9810178
- ---[ end trace a5dbd1f5ea4ccc51 ]---
-
-Fixes: 0a882e28468f4 ("powerpc/64s/exception: remove bad stack branch")
+Fixes: 9f2f79e3a3c1 ("powerpc: Disable interrupts in 64-bit kernel FP and vector faults")
 Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211004145642.1331214-2-npiggin@gmail.com
+Link: https://lore.kernel.org/r/20211004145642.1331214-3-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/exceptions-64s.S | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ arch/powerpc/kernel/traps.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
-index 37859e62a8dc..024d9231f88c 100644
---- a/arch/powerpc/kernel/exceptions-64s.S
-+++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -1665,27 +1665,30 @@ EXC_COMMON_BEGIN(program_check_common)
- 	 */
+diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
+index d56254f05e17..4ac85ab15ad7 100644
+--- a/arch/powerpc/kernel/traps.c
++++ b/arch/powerpc/kernel/traps.c
+@@ -341,10 +341,16 @@ static bool exception_common(int signr, struct pt_regs *regs, int code,
+ 		return false;
+ 	}
  
- 	andi.	r10,r12,MSR_PR
--	bne	2f			/* If userspace, go normal path */
-+	bne	.Lnormal_stack		/* If userspace, go normal path */
+-	show_signal_msg(signr, regs, code, addr);
++	/*
++	 * Must not enable interrupts even for user-mode exception, because
++	 * this can be called from machine check, which may be a NMI or IRQ
++	 * which don't like interrupts being enabled. Could check for
++	 * in_hardirq || in_nmi perhaps, but there doesn't seem to be a good
++	 * reason why _exception() should enable irqs for an exception handler,
++	 * the handlers themselves do that directly.
++	 */
  
- 	andis.	r10,r12,(SRR1_PROGTM)@h
--	bne	1f			/* If TM, emergency		*/
-+	bne	.Lemergency_stack	/* If TM, emergency		*/
+-	if (arch_irqs_disabled())
+-		interrupt_cond_local_irq_enable(regs);
++	show_signal_msg(signr, regs, code, addr);
  
- 	cmpdi	r1,-INT_FRAME_SIZE	/* check if r1 is in userspace	*/
--	blt	2f			/* normal path if not		*/
-+	blt	.Lnormal_stack		/* normal path if not		*/
+ 	current->thread.trap_nr = code;
  
- 	/* Use the emergency stack					*/
--1:	andi.	r10,r12,MSR_PR		/* Set CR0 correctly for label	*/
-+.Lemergency_stack:
-+	andi.	r10,r12,MSR_PR		/* Set CR0 correctly for label	*/
- 					/* 3 in EXCEPTION_PROLOG_COMMON	*/
- 	mr	r10,r1			/* Save r1			*/
- 	ld	r1,PACAEMERGSP(r13)	/* Use emergency stack		*/
- 	subi	r1,r1,INT_FRAME_SIZE	/* alloc stack frame		*/
- 	__ISTACK(program_check)=0
- 	__GEN_COMMON_BODY program_check
--	b 3f
--2:
-+	b .Ldo_program_check
-+
-+.Lnormal_stack:
- 	__ISTACK(program_check)=1
- 	__GEN_COMMON_BODY program_check
--3:
-+
-+.Ldo_program_check:
- 	addi	r3,r1,STACK_FRAME_OVERHEAD
- 	bl	program_check_exception
- 	REST_NVGPRS(r1) /* instruction emulation may change GPRs */
 -- 
 2.33.0
 
