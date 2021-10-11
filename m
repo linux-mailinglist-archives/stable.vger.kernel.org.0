@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE2B5428EFB
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:52:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4691C428F56
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:55:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235297AbhJKNxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:53:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41534 "EHLO mail.kernel.org"
+        id S236840AbhJKN5j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:57:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234752AbhJKNwi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:52:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3327460F6E;
-        Mon, 11 Oct 2021 13:50:38 +0000 (UTC)
+        id S236911AbhJKNzm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:55:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9566610C8;
+        Mon, 11 Oct 2021 13:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960238;
-        bh=Z+85R7jN/VSboa1KuvDE4btCrFGwBfc/hklEbIefrss=;
+        s=korg; t=1633960383;
+        bh=Io/4ppa+oQGBnZuwCiFENoxZpM+nqYKIaoBGzVn7u2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wOls78VtH4cyVN4yWa/ntYuRti0hp9agqJby0VMAdiLJDrNBvEd1sW1sA1t+IySfB
-         c0Qpad6jHg1nvb8+Vyx5clFIX8aec9ngplnWhzWpAB77snMH+7LALU7sO3iqPUG1U3
-         kNLn6uWGUh4f8bTKdtvZAI9aW1WKoSbKIXQm8YB0=
+        b=n5D4QDCXOYLtBGrGpc8zw4yffyYG5TKuQe+zUps/Z2fXsynYWcT+e7MLP0KU4RkNi
+         IZQ4VJVUiNH33HoNfs+lgP7kOEZA/yGi0a4/kOviukYzmqtZ8pBnhu84bGcWpvRmHE
+         YZhxMFYNbHwBfYYlz1fcXTXbZHjIyvNUMkP9sI7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Anderson <sean.anderson@seco.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 35/52] net: sfp: Fix typo in state machine debug string
-Date:   Mon, 11 Oct 2021 15:46:04 +0200
-Message-Id: <20211011134504.938591592@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 45/83] dt-bindings: drm/bridge: ti-sn65dsi86: Fix reg value
+Date:   Mon, 11 Oct 2021 15:46:05 +0200
+Message-Id: <20211011134509.959795246@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
-References: <20211011134503.715740503@linuxfoundation.org>
+In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
+References: <20211011134508.362906295@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Anderson <sean.anderson@seco.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 25a9da6641f1f66006e93ddbefee13a437efa8c0 ]
+[ Upstream commit b2d70c0dbf2731a37d1c7bcc86ab2387954d5f56 ]
 
-The string should be "tx_disable" to match the state enum.
+make dtbs_check:
 
-Fixes: 4005a7cb4f55 ("net: phy: sftp: print debug message with text, not numbers")
-Signed-off-by: Sean Anderson <sean.anderson@seco.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+    arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dt.yaml: bridge@2c: reg:0:0: 45 was expected
+
+According to the datasheet, the I2C address can be either 0x2c or 0x2d,
+depending on the ADDR control input.
+
+Fixes: e3896e6dddf0b821 ("dt-bindings: drm/bridge: Document sn65dsi86 bridge bindings")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Link: https://lore.kernel.org/r/08f73c2aa0d4e580303357dfae107d084d962835.1632486753.git.geert+renesas@glider.be
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/sfp.c | 2 +-
+ .../devicetree/bindings/display/bridge/ti,sn65dsi86.yaml        | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/sfp.c b/drivers/net/phy/sfp.c
-index 27b67f12ec45..5657c604602e 100644
---- a/drivers/net/phy/sfp.c
-+++ b/drivers/net/phy/sfp.c
-@@ -115,7 +115,7 @@ static const char * const sm_state_strings[] = {
- 	[SFP_S_LINK_UP] = "link_up",
- 	[SFP_S_TX_FAULT] = "tx_fault",
- 	[SFP_S_REINIT] = "reinit",
--	[SFP_S_TX_DISABLE] = "rx_disable",
-+	[SFP_S_TX_DISABLE] = "tx_disable",
- };
+diff --git a/Documentation/devicetree/bindings/display/bridge/ti,sn65dsi86.yaml b/Documentation/devicetree/bindings/display/bridge/ti,sn65dsi86.yaml
+index f8622bd0f61e..f0e0345da498 100644
+--- a/Documentation/devicetree/bindings/display/bridge/ti,sn65dsi86.yaml
++++ b/Documentation/devicetree/bindings/display/bridge/ti,sn65dsi86.yaml
+@@ -18,7 +18,7 @@ properties:
+     const: ti,sn65dsi86
  
- static const char *sm_state_to_str(unsigned short sm_state)
+   reg:
+-    const: 0x2d
++    enum: [ 0x2c, 0x2d ]
+ 
+   enable-gpios:
+     maxItems: 1
 -- 
 2.33.0
 
