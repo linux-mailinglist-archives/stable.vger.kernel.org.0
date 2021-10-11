@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05E47428EDF
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:50:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAE02428F6A
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237410AbhJKNwh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:52:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39964 "EHLO mail.kernel.org"
+        id S238098AbhJKN6p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:58:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237418AbhJKNvd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:51:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7601B61074;
-        Mon, 11 Oct 2021 13:49:31 +0000 (UTC)
+        id S237070AbhJKN43 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:56:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4C826112D;
+        Mon, 11 Oct 2021 13:53:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960173;
-        bh=pdQvvwBnDEWrkDF6JDaUDfF3DijB3OAIYnaFS56XK/k=;
+        s=korg; t=1633960407;
+        bh=SzGh1Rg94Y+qKrv3/B+mC5SIKGHpGzNVCR/AXa86xLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/IHupSY1A/cVNQ34zGmTuHQ4W7bJjv74r2e4037Jn3iDO7QE4xdTJPxEypmjpJdo
-         DrNb+vELMXdmr+cCJsLQOEUwlZ/rszTkCeMr27ENn+9rNG1TqAd3DBlRFSCh3v3kwx
-         dLI7QuJbzJTdvIZw+J3l01iDI5O7Sx2YXdL/0+QA=
+        b=JS3Q26TUMwC9zc60vUYkPqthcVQ21jERp51Fu2PfOb00Cr5aMNFkN2GQnDNjikvc0
+         7Bl0vOGn7JGGo+JJ0gKo/h/5Wotya8BAxmyIpvBa6JpvYx7i2t+nQa52GnGsFNRZC0
+         Kiflo7mBRxYhChnRfNeYbSY6iD2Sd8LDYAy6T7mw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Assmann <sassmann@redhat.com>,
-        Jiri Benc <jbenc@redhat.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Dave Switzer <david.switzer@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Kajol Jain <kjain@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 43/52] i40e: fix endless loop under rtnl
+Subject: [PATCH 5.10 52/83] perf jevents: Tidy error handling
 Date:   Mon, 11 Oct 2021 15:46:12 +0200
-Message-Id: <20211011134505.199380880@linuxfoundation.org>
+Message-Id: <20211011134510.196249945@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
-References: <20211011134503.715740503@linuxfoundation.org>
+In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
+References: <20211011134508.362906295@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +41,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Benc <jbenc@redhat.com>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit 857b6c6f665cca9828396d9743faf37fd09e9ac3 ]
+[ Upstream commit fa1b41a74d1136cbdd6960f36d7b9c7aa35c8139 ]
 
-The loop in i40e_get_capabilities can never end. The problem is that
-although i40e_aq_discover_capabilities returns with an error if there's
-a firmware problem, the returned error is not checked. There is a check for
-pf->hw.aq.asq_last_status but that value is set to I40E_AQ_RC_OK on most
-firmware problems.
+There is much duplication in the error handling for directory transvering
+for prcessing JSONs.
 
-When i40e_aq_discover_capabilities encounters a firmware problem, it will
-encounter the same problem on its next invocation. As the result, the loop
-becomes endless. We hit this with I40E_ERR_ADMIN_QUEUE_TIMEOUT but looking
-at the code, it can happen with a range of other firmware errors.
+Factor out the common code to tidy a bit.
 
-I don't know what the correct behavior should be: whether the firmware
-should be retried a few times, or whether pf->hw.aq.asq_last_status should
-be always set to the encountered firmware error (but then it would be
-pointless and can be just replaced by the i40e_aq_discover_capabilities
-return value). However, the current behavior with an endless loop under the
-rtnl mutex(!) is unacceptable and Intel has not submitted a fix, although we
-explained the bug to them 7 months ago.
-
-This may not be the best possible fix but it's better than hanging the whole
-system on a firmware bug.
-
-Fixes: 56a62fc86895 ("i40e: init code and hardware support")
-Tested-by: Stefan Assmann <sassmann@redhat.com>
-Signed-off-by: Jiri Benc <jbenc@redhat.com>
-Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Dave Switzer <david.switzer@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Reviewed-By: Kajol Jain<kjain@linux.ibm.com>
+Link: https://lore.kernel.org/r/1603364547-197086-2-git-send-email-john.garry@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/pmu-events/jevents.c | 83 ++++++++++++++-------------------
+ 1 file changed, 35 insertions(+), 48 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 21ab7d2caddf..8434067566db 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -9616,7 +9616,7 @@ static int i40e_get_capabilities(struct i40e_pf *pf,
- 		if (pf->hw.aq.asq_last_status == I40E_AQ_RC_ENOMEM) {
- 			/* retry with a larger buffer */
- 			buf_len = data_size;
--		} else if (pf->hw.aq.asq_last_status != I40E_AQ_RC_OK) {
-+		} else if (pf->hw.aq.asq_last_status != I40E_AQ_RC_OK || err) {
- 			dev_info(&pf->pdev->dev,
- 				 "capability discovery failed, err %s aq_err %s\n",
- 				 i40e_stat_str(&pf->hw, err),
+diff --git a/tools/perf/pmu-events/jevents.c b/tools/perf/pmu-events/jevents.c
+index dcfdf6a322dc..c679a79aef51 100644
+--- a/tools/perf/pmu-events/jevents.c
++++ b/tools/perf/pmu-events/jevents.c
+@@ -1100,12 +1100,13 @@ static int process_one_file(const char *fpath, const struct stat *sb,
+  */
+ int main(int argc, char *argv[])
+ {
+-	int rc, ret = 0;
++	int rc, ret = 0, empty_map = 0;
+ 	int maxfds;
+ 	char ldirname[PATH_MAX];
+ 	const char *arch;
+ 	const char *output_file;
+ 	const char *start_dirname;
++	char *err_string_ext = "";
+ 	struct stat stbuf;
+ 
+ 	prog = basename(argv[0]);
+@@ -1133,7 +1134,8 @@ int main(int argc, char *argv[])
+ 	/* If architecture does not have any event lists, bail out */
+ 	if (stat(ldirname, &stbuf) < 0) {
+ 		pr_info("%s: Arch %s has no PMU event lists\n", prog, arch);
+-		goto empty_map;
++		empty_map = 1;
++		goto err_close_eventsfp;
+ 	}
+ 
+ 	/* Include pmu-events.h first */
+@@ -1150,75 +1152,60 @@ int main(int argc, char *argv[])
+ 	 */
+ 
+ 	maxfds = get_maxfds();
+-	mapfile = NULL;
+ 	rc = nftw(ldirname, preprocess_arch_std_files, maxfds, 0);
+-	if (rc && verbose) {
+-		pr_info("%s: Error preprocessing arch standard files %s\n",
+-			prog, ldirname);
+-		goto empty_map;
+-	} else if (rc < 0) {
+-		/* Make build fail */
+-		fclose(eventsfp);
+-		free_arch_std_events();
+-		return 1;
+-	} else if (rc) {
+-		goto empty_map;
+-	}
++	if (rc)
++		goto err_processing_std_arch_event_dir;
+ 
+ 	rc = nftw(ldirname, process_one_file, maxfds, 0);
+-	if (rc && verbose) {
+-		pr_info("%s: Error walking file tree %s\n", prog, ldirname);
+-		goto empty_map;
+-	} else if (rc < 0) {
+-		/* Make build fail */
+-		fclose(eventsfp);
+-		free_arch_std_events();
+-		ret = 1;
+-		goto out_free_mapfile;
+-	} else if (rc) {
+-		goto empty_map;
+-	}
++	if (rc)
++		goto err_processing_dir;
+ 
+ 	sprintf(ldirname, "%s/test", start_dirname);
+ 
+ 	rc = nftw(ldirname, process_one_file, maxfds, 0);
+-	if (rc && verbose) {
+-		pr_info("%s: Error walking file tree %s rc=%d for test\n",
+-			prog, ldirname, rc);
+-		goto empty_map;
+-	} else if (rc < 0) {
+-		/* Make build fail */
+-		free_arch_std_events();
+-		ret = 1;
+-		goto out_free_mapfile;
+-	} else if (rc) {
+-		goto empty_map;
+-	}
++	if (rc)
++		goto err_processing_dir;
+ 
+ 	if (close_table)
+ 		print_events_table_suffix(eventsfp);
+ 
+ 	if (!mapfile) {
+ 		pr_info("%s: No CPU->JSON mapping?\n", prog);
+-		goto empty_map;
++		empty_map = 1;
++		goto err_close_eventsfp;
+ 	}
+ 
+-	if (process_mapfile(eventsfp, mapfile)) {
++	rc = process_mapfile(eventsfp, mapfile);
++	fclose(eventsfp);
++	if (rc) {
+ 		pr_info("%s: Error processing mapfile %s\n", prog, mapfile);
+ 		/* Make build fail */
+-		fclose(eventsfp);
+-		free_arch_std_events();
+ 		ret = 1;
++		goto err_out;
+ 	}
+ 
++	free_arch_std_events();
++	free(mapfile);
++	return 0;
+ 
+-	goto out_free_mapfile;
+-
+-empty_map:
++err_processing_std_arch_event_dir:
++	err_string_ext = " for std arch event";
++err_processing_dir:
++	if (verbose) {
++		pr_info("%s: Error walking file tree %s%s\n", prog, ldirname,
++			err_string_ext);
++		empty_map = 1;
++	} else if (rc < 0) {
++		ret = 1;
++	} else {
++		empty_map = 1;
++	}
++err_close_eventsfp:
+ 	fclose(eventsfp);
+-	create_empty_mapping(output_file);
++	if (empty_map)
++		create_empty_mapping(output_file);
++err_out:
+ 	free_arch_std_events();
+-out_free_mapfile:
+ 	free(mapfile);
+ 	return ret;
+ }
 -- 
 2.33.0
 
