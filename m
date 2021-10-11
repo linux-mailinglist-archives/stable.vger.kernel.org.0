@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4691C428F56
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:55:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDAA1428EC8
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:49:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236840AbhJKN5j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:57:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39742 "EHLO mail.kernel.org"
+        id S237390AbhJKNvt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:51:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236911AbhJKNzm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:55:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9566610C8;
-        Mon, 11 Oct 2021 13:53:01 +0000 (UTC)
+        id S237366AbhJKNvL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:51:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2F8860F21;
+        Mon, 11 Oct 2021 13:49:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960383;
-        bh=Io/4ppa+oQGBnZuwCiFENoxZpM+nqYKIaoBGzVn7u2A=;
+        s=korg; t=1633960149;
+        bh=fvvCLpnxyuVH+IDAOepqFwkw9uu/56HD6cSdulS1j+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n5D4QDCXOYLtBGrGpc8zw4yffyYG5TKuQe+zUps/Z2fXsynYWcT+e7MLP0KU4RkNi
-         IZQ4VJVUiNH33HoNfs+lgP7kOEZA/yGi0a4/kOviukYzmqtZ8pBnhu84bGcWpvRmHE
-         YZhxMFYNbHwBfYYlz1fcXTXbZHjIyvNUMkP9sI7c=
+        b=KIuwrZiv8ZDRiNO31X+TCvHiaKUBpCNOyMPV95puDG9ayp20tsaRRk5JeJdwDHCxr
+         F/wFOphWqECb6gcMntpF3PO2s5HdWxCnf0qfTsENlCYS6t/eQ2Iackqna/PIlkyioq
+         Kd0kKz1kKscY6dp4vNRhWj1RHJuTVw7Rrr6aRg1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 45/83] dt-bindings: drm/bridge: ti-sn65dsi86: Fix reg value
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 36/52] netlink: annotate data races around nlk->bound
 Date:   Mon, 11 Oct 2021 15:46:05 +0200
-Message-Id: <20211011134509.959795246@linuxfoundation.org>
+Message-Id: <20211011134504.970228383@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
-References: <20211011134508.362906295@linuxfoundation.org>
+In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
+References: <20211011134503.715740503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +41,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit b2d70c0dbf2731a37d1c7bcc86ab2387954d5f56 ]
+[ Upstream commit 7707a4d01a648e4c655101a469c956cb11273655 ]
 
-make dtbs_check:
+While existing code is correct, KCSAN is reporting
+a data-race in netlink_insert / netlink_sendmsg [1]
 
-    arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dt.yaml: bridge@2c: reg:0:0: 45 was expected
+It is correct to read nlk->bound without a lock, as netlink_autobind()
+will acquire all needed locks.
 
-According to the datasheet, the I2C address can be either 0x2c or 0x2d,
-depending on the ADDR control input.
+[1]
+BUG: KCSAN: data-race in netlink_insert / netlink_sendmsg
 
-Fixes: e3896e6dddf0b821 ("dt-bindings: drm/bridge: Document sn65dsi86 bridge bindings")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Link: https://lore.kernel.org/r/08f73c2aa0d4e580303357dfae107d084d962835.1632486753.git.geert+renesas@glider.be
-Signed-off-by: Rob Herring <robh@kernel.org>
+write to 0xffff8881031c8b30 of 1 bytes by task 18752 on cpu 0:
+ netlink_insert+0x5cc/0x7f0 net/netlink/af_netlink.c:597
+ netlink_autobind+0xa9/0x150 net/netlink/af_netlink.c:842
+ netlink_sendmsg+0x479/0x7c0 net/netlink/af_netlink.c:1892
+ sock_sendmsg_nosec net/socket.c:703 [inline]
+ sock_sendmsg net/socket.c:723 [inline]
+ ____sys_sendmsg+0x360/0x4d0 net/socket.c:2392
+ ___sys_sendmsg net/socket.c:2446 [inline]
+ __sys_sendmsg+0x1ed/0x270 net/socket.c:2475
+ __do_sys_sendmsg net/socket.c:2484 [inline]
+ __se_sys_sendmsg net/socket.c:2482 [inline]
+ __x64_sys_sendmsg+0x42/0x50 net/socket.c:2482
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+read to 0xffff8881031c8b30 of 1 bytes by task 18751 on cpu 1:
+ netlink_sendmsg+0x270/0x7c0 net/netlink/af_netlink.c:1891
+ sock_sendmsg_nosec net/socket.c:703 [inline]
+ sock_sendmsg net/socket.c:723 [inline]
+ __sys_sendto+0x2a8/0x370 net/socket.c:2019
+ __do_sys_sendto net/socket.c:2031 [inline]
+ __se_sys_sendto net/socket.c:2027 [inline]
+ __x64_sys_sendto+0x74/0x90 net/socket.c:2027
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0x00 -> 0x01
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 18751 Comm: syz-executor.0 Not tainted 5.14.0-rc1-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: da314c9923fe ("netlink: Replace rhash_portid with bound")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../devicetree/bindings/display/bridge/ti,sn65dsi86.yaml        | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netlink/af_netlink.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/display/bridge/ti,sn65dsi86.yaml b/Documentation/devicetree/bindings/display/bridge/ti,sn65dsi86.yaml
-index f8622bd0f61e..f0e0345da498 100644
---- a/Documentation/devicetree/bindings/display/bridge/ti,sn65dsi86.yaml
-+++ b/Documentation/devicetree/bindings/display/bridge/ti,sn65dsi86.yaml
-@@ -18,7 +18,7 @@ properties:
-     const: ti,sn65dsi86
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index acc76a738cfd..cb35680db9b2 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -585,7 +585,10 @@ static int netlink_insert(struct sock *sk, u32 portid)
  
-   reg:
--    const: 0x2d
-+    enum: [ 0x2c, 0x2d ]
+ 	/* We need to ensure that the socket is hashed and visible. */
+ 	smp_wmb();
+-	nlk_sk(sk)->bound = portid;
++	/* Paired with lockless reads from netlink_bind(),
++	 * netlink_connect() and netlink_sendmsg().
++	 */
++	WRITE_ONCE(nlk_sk(sk)->bound, portid);
  
-   enable-gpios:
-     maxItems: 1
+ err:
+ 	release_sock(sk);
+@@ -1003,7 +1006,8 @@ static int netlink_bind(struct socket *sock, struct sockaddr *addr,
+ 	if (nlk->ngroups < BITS_PER_LONG)
+ 		groups &= (1UL << nlk->ngroups) - 1;
+ 
+-	bound = nlk->bound;
++	/* Paired with WRITE_ONCE() in netlink_insert() */
++	bound = READ_ONCE(nlk->bound);
+ 	if (bound) {
+ 		/* Ensure nlk->portid is up-to-date. */
+ 		smp_rmb();
+@@ -1089,8 +1093,9 @@ static int netlink_connect(struct socket *sock, struct sockaddr *addr,
+ 
+ 	/* No need for barriers here as we return to user-space without
+ 	 * using any of the bound attributes.
++	 * Paired with WRITE_ONCE() in netlink_insert().
+ 	 */
+-	if (!nlk->bound)
++	if (!READ_ONCE(nlk->bound))
+ 		err = netlink_autobind(sock);
+ 
+ 	if (err == 0) {
+@@ -1879,7 +1884,8 @@ static int netlink_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 		dst_group = nlk->dst_group;
+ 	}
+ 
+-	if (!nlk->bound) {
++	/* Paired with WRITE_ONCE() in netlink_insert() */
++	if (!READ_ONCE(nlk->bound)) {
+ 		err = netlink_autobind(sock);
+ 		if (err)
+ 			goto out;
 -- 
 2.33.0
 
