@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDAA1428EC8
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:49:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D920A428F58
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:55:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237390AbhJKNvt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:51:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39388 "EHLO mail.kernel.org"
+        id S237400AbhJKN5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:57:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237366AbhJKNvL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:51:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2F8860F21;
-        Mon, 11 Oct 2021 13:49:08 +0000 (UTC)
+        id S237558AbhJKNzp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:55:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE75260F21;
+        Mon, 11 Oct 2021 13:53:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960149;
-        bh=fvvCLpnxyuVH+IDAOepqFwkw9uu/56HD6cSdulS1j+s=;
+        s=korg; t=1633960386;
+        bh=F0pC2alu8YzzFNBT8eZm6pcLeMPw2Fkncq8pRIRjA54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KIuwrZiv8ZDRiNO31X+TCvHiaKUBpCNOyMPV95puDG9ayp20tsaRRk5JeJdwDHCxr
-         F/wFOphWqECb6gcMntpF3PO2s5HdWxCnf0qfTsENlCYS6t/eQ2Iackqna/PIlkyioq
-         Kd0kKz1kKscY6dp4vNRhWj1RHJuTVw7Rrr6aRg1s=
+        b=qVgbELV5vzhdOjkFwxm2Xtj7iBmLQ4wSB8sG8bM/O9uBeNZYsodHfJqcVz1nQ+O01
+         B/WYpz3rp5V8PVk2EdQQ7mvJXl+iKhs5zF5CeR8uvHk2j0TQ+klFLksWFKKAYk+bYj
+         7RqecapE877jmoUPANdUd5Ns8jR5Aa4eg5d9T/70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 36/52] netlink: annotate data races around nlk->bound
-Date:   Mon, 11 Oct 2021 15:46:05 +0200
-Message-Id: <20211011134504.970228383@linuxfoundation.org>
+Subject: [PATCH 5.10 46/83] ARM: imx6: disable the GIC CPU interface before calling stby-poweroff sequence
+Date:   Mon, 11 Oct 2021 15:46:06 +0200
+Message-Id: <20211011134509.989704649@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
-References: <20211011134503.715740503@linuxfoundation.org>
+In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
+References: <20211011134508.362906295@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,109 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit 7707a4d01a648e4c655101a469c956cb11273655 ]
+[ Upstream commit 783f3db030563f7bcdfe2d26428af98ea1699a8e ]
 
-While existing code is correct, KCSAN is reporting
-a data-race in netlink_insert / netlink_sendmsg [1]
+Any pending interrupt can prevent entering standby based power off state.
+To avoid it, disable the GIC CPU interface.
 
-It is correct to read nlk->bound without a lock, as netlink_autobind()
-will acquire all needed locks.
-
-[1]
-BUG: KCSAN: data-race in netlink_insert / netlink_sendmsg
-
-write to 0xffff8881031c8b30 of 1 bytes by task 18752 on cpu 0:
- netlink_insert+0x5cc/0x7f0 net/netlink/af_netlink.c:597
- netlink_autobind+0xa9/0x150 net/netlink/af_netlink.c:842
- netlink_sendmsg+0x479/0x7c0 net/netlink/af_netlink.c:1892
- sock_sendmsg_nosec net/socket.c:703 [inline]
- sock_sendmsg net/socket.c:723 [inline]
- ____sys_sendmsg+0x360/0x4d0 net/socket.c:2392
- ___sys_sendmsg net/socket.c:2446 [inline]
- __sys_sendmsg+0x1ed/0x270 net/socket.c:2475
- __do_sys_sendmsg net/socket.c:2484 [inline]
- __se_sys_sendmsg net/socket.c:2482 [inline]
- __x64_sys_sendmsg+0x42/0x50 net/socket.c:2482
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-read to 0xffff8881031c8b30 of 1 bytes by task 18751 on cpu 1:
- netlink_sendmsg+0x270/0x7c0 net/netlink/af_netlink.c:1891
- sock_sendmsg_nosec net/socket.c:703 [inline]
- sock_sendmsg net/socket.c:723 [inline]
- __sys_sendto+0x2a8/0x370 net/socket.c:2019
- __do_sys_sendto net/socket.c:2031 [inline]
- __se_sys_sendto net/socket.c:2027 [inline]
- __x64_sys_sendto+0x74/0x90 net/socket.c:2027
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-value changed: 0x00 -> 0x01
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 18751 Comm: syz-executor.0 Not tainted 5.14.0-rc1-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: da314c9923fe ("netlink: Replace rhash_portid with bound")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8148d2136002 ("ARM: imx6: register pm_power_off handler if "fsl,pmic-stby-poweroff" is set")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlink/af_netlink.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ arch/arm/mach-imx/pm-imx6.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index acc76a738cfd..cb35680db9b2 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -585,7 +585,10 @@ static int netlink_insert(struct sock *sk, u32 portid)
+diff --git a/arch/arm/mach-imx/pm-imx6.c b/arch/arm/mach-imx/pm-imx6.c
+index 40c74b4c4d73..e24409c1f5d3 100644
+--- a/arch/arm/mach-imx/pm-imx6.c
++++ b/arch/arm/mach-imx/pm-imx6.c
+@@ -9,6 +9,7 @@
+ #include <linux/io.h>
+ #include <linux/irq.h>
+ #include <linux/genalloc.h>
++#include <linux/irqchip/arm-gic.h>
+ #include <linux/mfd/syscon.h>
+ #include <linux/mfd/syscon/imx6q-iomuxc-gpr.h>
+ #include <linux/of.h>
+@@ -618,6 +619,7 @@ static void __init imx6_pm_common_init(const struct imx6_pm_socdata
  
- 	/* We need to ensure that the socket is hashed and visible. */
- 	smp_wmb();
--	nlk_sk(sk)->bound = portid;
-+	/* Paired with lockless reads from netlink_bind(),
-+	 * netlink_connect() and netlink_sendmsg().
-+	 */
-+	WRITE_ONCE(nlk_sk(sk)->bound, portid);
+ static void imx6_pm_stby_poweroff(void)
+ {
++	gic_cpu_if_down(0);
+ 	imx6_set_lpm(STOP_POWER_OFF);
+ 	imx6q_suspend_finish(0);
  
- err:
- 	release_sock(sk);
-@@ -1003,7 +1006,8 @@ static int netlink_bind(struct socket *sock, struct sockaddr *addr,
- 	if (nlk->ngroups < BITS_PER_LONG)
- 		groups &= (1UL << nlk->ngroups) - 1;
- 
--	bound = nlk->bound;
-+	/* Paired with WRITE_ONCE() in netlink_insert() */
-+	bound = READ_ONCE(nlk->bound);
- 	if (bound) {
- 		/* Ensure nlk->portid is up-to-date. */
- 		smp_rmb();
-@@ -1089,8 +1093,9 @@ static int netlink_connect(struct socket *sock, struct sockaddr *addr,
- 
- 	/* No need for barriers here as we return to user-space without
- 	 * using any of the bound attributes.
-+	 * Paired with WRITE_ONCE() in netlink_insert().
- 	 */
--	if (!nlk->bound)
-+	if (!READ_ONCE(nlk->bound))
- 		err = netlink_autobind(sock);
- 
- 	if (err == 0) {
-@@ -1879,7 +1884,8 @@ static int netlink_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 		dst_group = nlk->dst_group;
- 	}
- 
--	if (!nlk->bound) {
-+	/* Paired with WRITE_ONCE() in netlink_insert() */
-+	if (!READ_ONCE(nlk->bound)) {
- 		err = netlink_autobind(sock);
- 		if (err)
- 			goto out;
 -- 
 2.33.0
 
