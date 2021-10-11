@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54E09429057
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:07:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EB874290B4
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:10:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241373AbhJKOH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:07:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56332 "EHLO mail.kernel.org"
+        id S238770AbhJKOLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:11:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239626AbhJKOFZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:05:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 848EB60EFE;
-        Mon, 11 Oct 2021 13:59:36 +0000 (UTC)
+        id S243173AbhJKOJh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:09:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E251460FD7;
+        Mon, 11 Oct 2021 14:02:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960777;
-        bh=arfcURbsQfppmq91R9DdHmfGPrVagpm0wAbOtRxWn0Q=;
+        s=korg; t=1633960922;
+        bh=X/h6KJktkPQGD1OECIqbeADGGqqjUL3JviKokxonL70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BR7WZhTztuUBViMLn0LjmiyFy/7BaaXKw3Mx8UiB6TTqt3wUzP9Dyh75HmCS65wA9
-         DVLUlv2FEmvr7hQgd/C2rGmbs1ZqZ9x/an5L2Ll2FeClXXuk6Dl2GeDUfDzXKdqbZx
-         M4zx//68YpgO8EhavKjg2G5U5ErLLKgWWNnFaloE=
+        b=RDRMLN7uuEG6rSEQSNMkLC4j8E53+WhKBqN2m4HgulVWmokHm5v9/6M5xWlg+8ADw
+         aLHc4gzbDvX5vjDadrChnTzEh7V85fo1SDGuC7YN4KmDHShFePcwxrcI4P9SKhyQD9
+         vh4k/pKfodei0kC+6MhHAp7flVMFyQY8KbGhFf8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>,
+        Punit Agrawal <punitagrawal@gmail.com>,
+        Michael Riesch <michael.riesch@wolfvision.net>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 070/151] net: mscc: ocelot: fix VCAP filters remaining active after being deleted
-Date:   Mon, 11 Oct 2021 15:45:42 +0200
-Message-Id: <20211011134520.105539598@linuxfoundation.org>
+Subject: [PATCH 5.14 071/151] net: stmmac: dwmac-rk: Fix ethernet on rk3399 based devices
+Date:   Mon, 11 Oct 2021 15:45:43 +0200
+Message-Id: <20211011134520.146492239@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -40,60 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Punit Agrawal <punitagrawal@gmail.com>
 
-[ Upstream commit 019d9329e7481cfaccbd8ed17b1e04ca76970f13 ]
+[ Upstream commit aec3f415f7244b7747a7952596971adb0df2f568 ]
 
-When ocelot_flower.c calls ocelot_vcap_filter_add(), the filter has a
-given filter->id.cookie. This filter is added to the block->rules list.
+Commit 2d26f6e39afb ("net: stmmac: dwmac-rk: fix unbalanced pm_runtime_enable warnings")
+while getting rid of a runtime PM warning ended up breaking ethernet
+on rk3399 based devices. By dropping an extra reference to the device,
+the commit ends up enabling suspend / resume of the ethernet device -
+which appears to be broken.
 
-However, when ocelot_flower.c calls ocelot_vcap_block_find_filter_by_id()
-which passes the cookie as argument, the filter is never found by
-filter->id.cookie when searching through the block->rules list.
+While the issue with runtime pm is being investigated, partially
+revert commit 2d26f6e39afb to restore the network on rk3399.
 
-This is unsurprising, since the filter->id.cookie is an unsigned long,
-but the cookie argument provided to ocelot_vcap_block_find_filter_by_id()
-is a signed int, and the comparison fails.
-
-Fixes: 50c6cc5b9283 ("net: mscc: ocelot: store a namespaced VCAP filter ID")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20210930125330.2078625-1-vladimir.oltean@nxp.com
+Fixes: 2d26f6e39afb ("net: stmmac: dwmac-rk: fix unbalanced pm_runtime_enable warnings")
+Suggested-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Punit Agrawal <punitagrawal@gmail.com>
+Cc: Michael Riesch <michael.riesch@wolfvision.net>
+Tested-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://lore.kernel.org/r/20210929135049.3426058-1-punitagrawal@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mscc/ocelot_vcap.c | 4 ++--
- include/soc/mscc/ocelot_vcap.h          | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot_vcap.c b/drivers/net/ethernet/mscc/ocelot_vcap.c
-index 7945393a0655..99d7376a70a7 100644
---- a/drivers/net/ethernet/mscc/ocelot_vcap.c
-+++ b/drivers/net/ethernet/mscc/ocelot_vcap.c
-@@ -998,8 +998,8 @@ ocelot_vcap_block_find_filter_by_index(struct ocelot_vcap_block *block,
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
+index ed817011a94a..6924a6aacbd5 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
+@@ -21,6 +21,7 @@
+ #include <linux/delay.h>
+ #include <linux/mfd/syscon.h>
+ #include <linux/regmap.h>
++#include <linux/pm_runtime.h>
+ 
+ #include "stmmac_platform.h"
+ 
+@@ -1528,6 +1529,8 @@ static int rk_gmac_powerup(struct rk_priv_data *bsp_priv)
+ 		return ret;
+ 	}
+ 
++	pm_runtime_get_sync(dev);
++
+ 	if (bsp_priv->integrated_phy)
+ 		rk_gmac_integrated_phy_powerup(bsp_priv);
+ 
+@@ -1539,6 +1542,8 @@ static void rk_gmac_powerdown(struct rk_priv_data *gmac)
+ 	if (gmac->integrated_phy)
+ 		rk_gmac_integrated_phy_powerdown(gmac);
+ 
++	pm_runtime_put_sync(&gmac->pdev->dev);
++
+ 	phy_power_on(gmac, false);
+ 	gmac_clk_enable(gmac, false);
  }
- 
- struct ocelot_vcap_filter *
--ocelot_vcap_block_find_filter_by_id(struct ocelot_vcap_block *block, int cookie,
--				    bool tc_offload)
-+ocelot_vcap_block_find_filter_by_id(struct ocelot_vcap_block *block,
-+				    unsigned long cookie, bool tc_offload)
- {
- 	struct ocelot_vcap_filter *filter;
- 
-diff --git a/include/soc/mscc/ocelot_vcap.h b/include/soc/mscc/ocelot_vcap.h
-index 25fd525aaf92..4869ebbd438d 100644
---- a/include/soc/mscc/ocelot_vcap.h
-+++ b/include/soc/mscc/ocelot_vcap.h
-@@ -694,7 +694,7 @@ int ocelot_vcap_filter_add(struct ocelot *ocelot,
- int ocelot_vcap_filter_del(struct ocelot *ocelot,
- 			   struct ocelot_vcap_filter *rule);
- struct ocelot_vcap_filter *
--ocelot_vcap_block_find_filter_by_id(struct ocelot_vcap_block *block, int id,
--				    bool tc_offload);
-+ocelot_vcap_block_find_filter_by_id(struct ocelot_vcap_block *block,
-+				    unsigned long cookie, bool tc_offload);
- 
- #endif /* _OCELOT_VCAP_H_ */
 -- 
 2.33.0
 
