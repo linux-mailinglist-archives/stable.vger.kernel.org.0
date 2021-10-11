@@ -2,154 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7855B429557
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 19:13:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A26A742956C
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 19:17:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233619AbhJKRPl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 13:15:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54836 "EHLO
+        id S233677AbhJKRTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 13:19:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233077AbhJKRPl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 13:15:41 -0400
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0824BC061570;
-        Mon, 11 Oct 2021 10:13:41 -0700 (PDT)
-Received: from zn.tnic (p200300ec2f08bb00e407f16cd758a723.dip0.t-ipconnect.de [IPv6:2003:ec:2f08:bb00:e407:f16c:d758:a723])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 5CE331EC03CA;
-        Mon, 11 Oct 2021 19:13:39 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1633972419;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=UCf+OlFdFEs0sMpCGO70LL+YcIAZ0CdGrQ0tUSfjgfw=;
-        b=qktKU29O+q+Cm4MJQ6B0HdupzpmRhJPxoEHa3a/KOp8JXcfuZx3cop+7QkbCOXkKqB9VhS
-        OZTBLs4MKbMQJ0TqneCOfARPJ0vMpiruhC0p7TSdhqooDUFG9+62DzfAcDdSDrAIoI3WrL
-        9LeBbAk4KDjhy/rsj8GQ8D5nusKkq7o=
-Date:   Mon, 11 Oct 2021 19:13:40 +0200
-From:   Borislav Petkov <bp@alien8.de>
-To:     Tom Lendacky <thomas.lendacky@amd.com>
-Cc:     linux-kernel@vger.kernel.org, x86@kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <jroedel@suse.de>,
-        Brijesh Singh <brijesh.singh@amd.com>, stable@vger.kernel.org
-Subject: [PATCH] x86/sev: Carve out HV call's return value verification
-Message-ID: <YWRwxImd9Qcls/Yy@zn.tnic>
-References: <efc772af831e9e7f517f0439b13b41f56bad8784.1633063321.git.thomas.lendacky@amd.com>
- <YVbYWz+8J7iMTJjc@zn.tnic>
- <00d48af4-1683-350c-c334-08968d455e4c@amd.com>
- <YVcTDM9hshdlUqbN@zn.tnic>
+        with ESMTP id S230077AbhJKRTU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 13:19:20 -0400
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 688D8C061570
+        for <stable@vger.kernel.org>; Mon, 11 Oct 2021 10:17:20 -0700 (PDT)
+Received: by mail-ed1-x535.google.com with SMTP id g10so69782289edj.1
+        for <stable@vger.kernel.org>; Mon, 11 Oct 2021 10:17:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=U0otXV2y5XbiRFTl+VTUE1Rn2Q/EdVlXbDmxI0rU6v8=;
+        b=tLOJJ6fxRtnL4KpCSY3QHaNgy6VnHEvrGi0oWG98M+Zzu62xsSNCv08SEH56U4RNhX
+         slZ9WXSMyHgWoH7VwQZLM1G2x8nJEflaqk4DrgFgMsLRiq9TNZqwqAcSxjQ4oCoP3kUJ
+         Z2o6q8HSodWgAQB5YihoiQ0+Bxqv7g7gTXvlgbtpiRoz3aCtT0OkienMrfXqKN5xfT86
+         94PeyHTQc9+NU12CWnpUi0KJztS2ySA+r3aRnzuX5NFJbQ1qHsgWZdDQgNz1+UyxzHoY
+         g06t0nQ/Ww2tcQbtFyfT4p+8BUsHtS8HosXZKFF344JqbGRBKvelnpL6P2pM6kO1Qz76
+         NJpA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=U0otXV2y5XbiRFTl+VTUE1Rn2Q/EdVlXbDmxI0rU6v8=;
+        b=h9IxYGrPBwU4dBpT2LQtFo4ONVMm4ZOlseyhT6Cf4uSQlgUuj41FHT5MAdzWbG2K/2
+         /xxNoHFKnvmey6LIWsBx3vOfxnVTzzj+SCMAw7e1EMaQGM/AArg8SATCZxs1I0b7gjYJ
+         zBT8rtYGEYNSe4L0uy5rnxCk04w0Zuxz+a/x08cwoQLFdh0FOEvuMvplE+LyQOxpamkF
+         1z3lnVtowDheZBqigVrd56K8yZVdUgk8StSTTLo3vkyZ9Zq88OlUn3Z1sQiROmHXau7Z
+         sgcR9bM3RTIVtTfgioc3YBiJvsMz0bzmsCefHs7rKYv7FezIJuY5Lbkr6CrhOfnDNofK
+         d/sQ==
+X-Gm-Message-State: AOAM531eWAKdX+SwExKOwoEza4VOnBpHPU+IDCsCfTAJQA8FnmJCN4Ve
+        B49LcXLOomeAsRhV0SUhSf19b8DjJ34MlLCEkumDjw==
+X-Google-Smtp-Source: ABdhPJxLGN99sa3B/D5yXgC1k67IFIYt7UU/C8flGFxcNKpEHo6MFV7Yj1SsNO3MdsHIlzOJzNTeGjzeGcRR7sAR/kk=
+X-Received: by 2002:a17:906:7016:: with SMTP id n22mr26595622ejj.567.1633972638776;
+ Mon, 11 Oct 2021 10:17:18 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <YVcTDM9hshdlUqbN@zn.tnic>
+References: <20211011134503.715740503@linuxfoundation.org>
+In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 11 Oct 2021 22:47:06 +0530
+Message-ID: <CA+G9fYsCPt53vxOoCQtM-2tndioDdzdXdgJT9FV2+c0UhwSs3Q@mail.gmail.com>
+Subject: Re: [PATCH 5.4 00/52] 5.4.153-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Song Liu <songliubraving@fb.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Now as a proper patch with typo fixed and tested:
+On Mon, 11 Oct 2021 at 19:19, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.4.153 release.
+> There are 52 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 13 Oct 2021 13:44:51 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.153-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
----
-From: Borislav Petkov <bp@suse.de>
 
-Carve out the verification of the HV call return value into a separate
-helper and make it more readable.
+Following patch caused build failures on stable rc 5.4.
 
-No functional changes.
+> Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+>     powerpc/bpf: Fix BPF_MOD when imm == 1
 
-Signed-off-by: Borislav Petkov <bp@suse.de>
----
- arch/x86/kernel/sev-shared.c | 53 ++++++++++++++++++++----------------
- 1 file changed, 29 insertions(+), 24 deletions(-)
+In file included from arch/powerpc/net/bpf_jit64.h:11,
+                 from arch/powerpc/net/bpf_jit_comp64.c:19:
+arch/powerpc/net/bpf_jit_comp64.c: In function 'bpf_jit_build_body':
+arch/powerpc/net/bpf_jit_comp64.c:415:46: error: implicit declaration
+of function 'PPC_RAW_LI'; did you mean 'PPC_RLWIMI'?
+[-Werror=implicit-function-declaration]
+  415 |                                         EMIT(PPC_RAW_LI(dst_reg, 0));
+      |                                              ^~~~~~~~~~
+arch/powerpc/net/bpf_jit.h:32:34: note: in definition of macro 'PLANT_INSTR'
+   32 |         do { if (d) { (d)[idx] = instr; } idx++; } while (0)
+      |                                  ^~~~~
+arch/powerpc/net/bpf_jit_comp64.c:415:41: note: in expansion of macro 'EMIT'
+  415 |                                         EMIT(PPC_RAW_LI(dst_reg, 0));
+      |                                         ^~~~
+cc1: all warnings being treated as errors
 
-diff --git a/arch/x86/kernel/sev-shared.c b/arch/x86/kernel/sev-shared.c
-index bf1033a62e48..4579c38a11c4 100644
---- a/arch/x86/kernel/sev-shared.c
-+++ b/arch/x86/kernel/sev-shared.c
-@@ -94,25 +94,15 @@ static void vc_finish_insn(struct es_em_ctxt *ctxt)
- 	ctxt->regs->ip += ctxt->insn.length;
- }
- 
--static enum es_result sev_es_ghcb_hv_call(struct ghcb *ghcb,
--					  struct es_em_ctxt *ctxt,
--					  u64 exit_code, u64 exit_info_1,
--					  u64 exit_info_2)
-+static enum es_result verify_exception_info(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
- {
--	enum es_result ret;
-+	u32 ret;
- 
--	/* Fill in protocol and format specifiers */
--	ghcb->protocol_version = GHCB_PROTOCOL_MAX;
--	ghcb->ghcb_usage       = GHCB_DEFAULT_USAGE;
-+	ret = ghcb->save.sw_exit_info_1 & GENMASK_ULL(31, 0);
-+	if (!ret)
-+		return ES_OK;
- 
--	ghcb_set_sw_exit_code(ghcb, exit_code);
--	ghcb_set_sw_exit_info_1(ghcb, exit_info_1);
--	ghcb_set_sw_exit_info_2(ghcb, exit_info_2);
--
--	sev_es_wr_ghcb_msr(__pa(ghcb));
--	VMGEXIT();
--
--	if ((ghcb->save.sw_exit_info_1 & 0xffffffff) == 1) {
-+	if (ret == 1) {
- 		u64 info = ghcb->save.sw_exit_info_2;
- 		unsigned long v;
- 
-@@ -124,19 +114,34 @@ static enum es_result sev_es_ghcb_hv_call(struct ghcb *ghcb,
- 		    ((v == X86_TRAP_GP) || (v == X86_TRAP_UD)) &&
- 		    ((info & SVM_EVTINJ_TYPE_MASK) == SVM_EVTINJ_TYPE_EXEPT)) {
- 			ctxt->fi.vector = v;
-+
- 			if (info & SVM_EVTINJ_VALID_ERR)
- 				ctxt->fi.error_code = info >> 32;
--			ret = ES_EXCEPTION;
--		} else {
--			ret = ES_VMM_ERROR;
-+
-+			return ES_EXCEPTION;
- 		}
--	} else if (ghcb->save.sw_exit_info_1 & 0xffffffff) {
--		ret = ES_VMM_ERROR;
--	} else {
--		ret = ES_OK;
- 	}
- 
--	return ret;
-+	return ES_VMM_ERROR;
-+}
-+
-+static enum es_result sev_es_ghcb_hv_call(struct ghcb *ghcb,
-+					  struct es_em_ctxt *ctxt,
-+					  u64 exit_code, u64 exit_info_1,
-+					  u64 exit_info_2)
-+{
-+	/* Fill in protocol and format specifiers */
-+	ghcb->protocol_version = GHCB_PROTOCOL_MAX;
-+	ghcb->ghcb_usage       = GHCB_DEFAULT_USAGE;
-+
-+	ghcb_set_sw_exit_code(ghcb, exit_code);
-+	ghcb_set_sw_exit_info_1(ghcb, exit_info_1);
-+	ghcb_set_sw_exit_info_2(ghcb, exit_info_2);
-+
-+	sev_es_wr_ghcb_msr(__pa(ghcb));
-+	VMGEXIT();
-+
-+	return verify_exception_info(ghcb, ctxt);
- }
- 
- /*
--- 
-2.29.2
 
+build url:
+https://builds.tuxbuild.com/1zMdjlqarsON688BoMBlpCN2O3m/
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
 -- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+Linaro LKFT
+https://lkft.linaro.org
