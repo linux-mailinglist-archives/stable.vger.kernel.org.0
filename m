@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97888429153
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:15:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47B1F429129
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:15:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243260AbhJKORZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:17:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38590 "EHLO mail.kernel.org"
+        id S244301AbhJKOP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:15:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244369AbhJKOPR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:15:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EE516127C;
-        Mon, 11 Oct 2021 14:05:09 +0000 (UTC)
+        id S243984AbhJKONb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:13:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8409F60C49;
+        Mon, 11 Oct 2021 14:04:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633961110;
-        bh=GgDRqfBeQMUhgmLcfjsJRYdlUheZeSWZePX/uUDmz4c=;
+        s=korg; t=1633961068;
+        bh=sP/k0sPMtXGbC4p13c1Boye9VVTcVoWXLD4I77BSL9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nGaoEsJ0o9cXVwbRyu/iYUwAnDHfAiQDnq2hlw6qWSaBhTASVqEjOMPGc0//6xIwf
-         wRp4ecPtI9WhaVA7kWjpUkiRhD3dFd5c1PYT7H6Son2AvT/7CFCd70yhQMBy5gIa1r
-         nN1JYGv6F4zuwFkY8rb32S6s/hlOKDaQE/wfg1Vs=
+        b=wd2h5MbuZJnU5dNvN5k6u75lW/NIVScjDbsA/Hf+nQ5yQ7QX3VxxzgfFL7pkLQ1M1
+         xDdijYzxPP6AtAaERwrMLZghtjrz0N5PdkHAavAskeiPOsElZn1s/yYGqmMkf9jDle
+         EVVxVVSXD/MMqkylC1+XrW4ecG0XxU6guei0B1bY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 11/28] xtensa: call irqchip_init only when CONFIG_USE_OF is selected
+        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.14 149/151] x86/entry: Clear X86_FEATURE_SMAP when CONFIG_X86_SMAP=n
 Date:   Mon, 11 Oct 2021 15:47:01 +0200
-Message-Id: <20211011134641.077223735@linuxfoundation.org>
+Message-Id: <20211011134522.644823620@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134640.711218469@linuxfoundation.org>
-References: <20211011134640.711218469@linuxfoundation.org>
+In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
+References: <20211011134517.833565002@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,65 +39,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Vegard Nossum <vegard.nossum@oracle.com>
 
-[ Upstream commit 6489f8d0e1d93a3603d8dad8125797559e4cf2a2 ]
+commit 3958b9c34c2729597e182cc606cc43942fd19f7c upstream.
 
-During boot time kernel configured with OF=y but USE_OF=n displays the
-following warnings and hangs shortly after starting userspace:
+Commit
 
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 0 at kernel/irq/irqdomain.c:695 irq_create_mapping_affinity+0x29/0xc0
-irq_create_mapping_affinity(, 6) called with NULL domain
-CPU: 0 PID: 0 Comm: swapper Not tainted 5.15.0-rc3-00001-gd67ed2510d28 #30
-Call Trace:
-  __warn+0x69/0xc4
-  warn_slowpath_fmt+0x6c/0x94
-  irq_create_mapping_affinity+0x29/0xc0
-  local_timer_setup+0x40/0x88
-  time_init+0xb1/0xe8
-  start_kernel+0x31d/0x3f4
-  _startup+0x13b/0x13b
----[ end trace 1e6630e1c5eda35b ]---
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 0 at arch/xtensa/kernel/time.c:141 local_timer_setup+0x58/0x88
-error: can't map timer irq
-CPU: 0 PID: 0 Comm: swapper Tainted: G        W         5.15.0-rc3-00001-gd67ed2510d28 #30
-Call Trace:
-  __warn+0x69/0xc4
-  warn_slowpath_fmt+0x6c/0x94
-  local_timer_setup+0x58/0x88
-  time_init+0xb1/0xe8
-  start_kernel+0x31d/0x3f4
-  _startup+0x13b/0x13b
----[ end trace 1e6630e1c5eda35c ]---
-Failed to request irq 0 (timer)
+  3c73b81a9164 ("x86/entry, selftests: Further improve user entry sanity checks")
 
-Fix that by calling irqchip_init only when CONFIG_USE_OF is selected and
-calling legacy interrupt controller init otherwise.
+added a warning if AC is set when in the kernel.
 
-Fixes: da844a81779e ("xtensa: add device trees support")
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Commit
+
+  662a0221893a3d ("x86/entry: Fix AC assertion")
+
+changed the warning to only fire if the CPU supports SMAP.
+
+However, the warning can still trigger on a machine that supports SMAP
+but where it's disabled in the kernel config and when running the
+syscall_nt selftest, for example:
+
+  ------------[ cut here ]------------
+  WARNING: CPU: 0 PID: 49 at irqentry_enter_from_user_mode
+  CPU: 0 PID: 49 Comm: init Tainted: G                T 5.15.0-rc4+ #98 e6202628ee053b4f310759978284bd8bb0ce6905
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+  RIP: 0010:irqentry_enter_from_user_mode
+  ...
+  Call Trace:
+   ? irqentry_enter
+   ? exc_general_protection
+   ? asm_exc_general_protection
+   ? asm_exc_general_protectio
+
+IS_ENABLED(CONFIG_X86_SMAP) could be added to the warning condition, but
+even this would not be enough in case SMAP is disabled at boot time with
+the "nosmap" parameter.
+
+To be consistent with "nosmap" behaviour, clear X86_FEATURE_SMAP when
+!CONFIG_X86_SMAP.
+
+Found using entry-fuzz + satrandconfig.
+
+ [ bp: Massage commit message. ]
+
+Fixes: 3c73b81a9164 ("x86/entry, selftests: Further improve user entry sanity checks")
+Fixes: 662a0221893a ("x86/entry: Fix AC assertion")
+Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20211003223423.8666-1-vegard.nossum@oracle.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/xtensa/kernel/irq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/cpu/common.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/xtensa/kernel/irq.c b/arch/xtensa/kernel/irq.c
-index a48bf2d10ac2..80cc9770a8d2 100644
---- a/arch/xtensa/kernel/irq.c
-+++ b/arch/xtensa/kernel/irq.c
-@@ -145,7 +145,7 @@ unsigned xtensa_get_ext_irq_no(unsigned irq)
- 
- void __init init_IRQ(void)
- {
--#ifdef CONFIG_OF
-+#ifdef CONFIG_USE_OF
- 	irqchip_init();
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -320,6 +320,7 @@ static __always_inline void setup_smap(s
+ #ifdef CONFIG_X86_SMAP
+ 		cr4_set_bits(X86_CR4_SMAP);
  #else
- #ifdef CONFIG_HAVE_SMP
--- 
-2.33.0
-
++		clear_cpu_cap(c, X86_FEATURE_SMAP);
+ 		cr4_clear_bits(X86_CR4_SMAP);
+ #endif
+ 	}
 
 
