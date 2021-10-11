@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52BA3428F1E
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:54:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2909C428E91
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:47:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238024AbhJKNzM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:55:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40826 "EHLO mail.kernel.org"
+        id S236398AbhJKNts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:49:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237899AbhJKNxX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:53:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E84460F35;
-        Mon, 11 Oct 2021 13:51:20 +0000 (UTC)
+        id S236014AbhJKNth (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:49:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8FD660C49;
+        Mon, 11 Oct 2021 13:47:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960281;
-        bh=wXHgG+Emv8wQo0dWZqsnbCUUB1p1epBxr0Au5ws00RU=;
+        s=korg; t=1633960057;
+        bh=VhVdJO++/fA/CrMBT1l2MTIpN+N+tBrIikvMt4s0sPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XFscpf1gQ0BufX7GaxUHEGYgci83ZqUycSood6ERKre+nUSkdAFatMdKHmx/D3ifG
-         bbCD4mhOVQgTh+3e0PctGVGYPYiOQYwuYh48g8iP3HXUFla/yB+EZzV56jBFnlWiFQ
-         zD2q+2eJ0KYNVXDBXBHr2fWJQnCG9xQebmdiBaac=
+        b=a4AwN+i0qs/yxUHOh518RKdXfpUBpglRC4+fAVaackjKN7ZZFPWCykgUJ/1XL0FyB
+         e0/mfInIA2sVNpMk6NyljYxVsxbDG2S0Ymx4TxweN/mj1TsZJmcmB+GAKw6Zmf/c+c
+         rEHudL/sJwcqNaNQ2qmI8hn0GFf9jtYVaHETY7cY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH 5.10 19/83] ARM: dts: qcom: apq8064: use compatible which contains chipid
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>, Juergen Gross <jgross@suse.com>,
+        Jason Andryuk <jandryuk@gmail.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 5.4 10/52] xen/balloon: fix cancelled balloon action
 Date:   Mon, 11 Oct 2021 15:45:39 +0200
-Message-Id: <20211011134509.020798971@linuxfoundation.org>
+Message-Id: <20211011134504.064748100@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
-References: <20211011134508.362906295@linuxfoundation.org>
+In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
+References: <20211011134503.715740503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +42,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Heidelberg <david@ixit.cz>
+From: Juergen Gross <jgross@suse.com>
 
-commit f5c03f131dae3f06d08464e6157dd461200f78d9 upstream.
+commit 319933a80fd4f07122466a77f93e5019d71be74c upstream.
 
-Also resolves these kernel warnings for APQ8064:
-adreno 4300000.adreno-3xx: Using legacy qcom,chipid binding!
-adreno 4300000.adreno-3xx: Use compatible qcom,adreno-320.2 instead.
+In case a ballooning action is cancelled the new kernel thread handling
+the ballooning might end up in a busy loop.
 
-Tested on Nexus 7 2013, no functional changes.
+Fix that by handling the cancelled action gracefully.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Link: https://lore.kernel.org/r/20210818065317.19822-1-david@ixit.cz
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+While at it introduce a short wait for the BP_WAIT case.
+
+Cc: stable@vger.kernel.org
+Fixes: 8480ed9c2bbd56 ("xen/balloon: use a kernel thread instead a workqueue")
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Tested-by: Jason Andryuk <jandryuk@gmail.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20211005133433.32008-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/qcom-apq8064.dtsi |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/xen/balloon.c |   21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
---- a/arch/arm/boot/dts/qcom-apq8064.dtsi
-+++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
-@@ -1148,7 +1148,7 @@
- 		};
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -508,12 +508,12 @@ static enum bp_state decrease_reservatio
+ }
  
- 		gpu: adreno-3xx@4300000 {
--			compatible = "qcom,adreno-3xx";
-+			compatible = "qcom,adreno-320.2", "qcom,adreno";
- 			reg = <0x04300000 0x20000>;
- 			reg-names = "kgsl_3d0_reg_memory";
- 			interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
-@@ -1163,7 +1163,6 @@
- 			    <&mmcc GFX3D_AHB_CLK>,
- 			    <&mmcc GFX3D_AXI_CLK>,
- 			    <&mmcc MMSS_IMEM_AHB_CLK>;
--			qcom,chipid = <0x03020002>;
+ /*
+- * Stop waiting if either state is not BP_EAGAIN and ballooning action is
+- * needed, or if the credit has changed while state is BP_EAGAIN.
++ * Stop waiting if either state is BP_DONE and ballooning action is
++ * needed, or if the credit has changed while state is not BP_DONE.
+  */
+ static bool balloon_thread_cond(enum bp_state state, long credit)
+ {
+-	if (state != BP_EAGAIN)
++	if (state == BP_DONE)
+ 		credit = 0;
  
- 			iommus = <&gfx3d 0
- 				  &gfx3d 1
+ 	return current_credit() != credit || kthread_should_stop();
+@@ -533,10 +533,19 @@ static int balloon_thread(void *unused)
+ 
+ 	set_freezable();
+ 	for (;;) {
+-		if (state == BP_EAGAIN)
+-			timeout = balloon_stats.schedule_delay * HZ;
+-		else
++		switch (state) {
++		case BP_DONE:
++		case BP_ECANCELED:
+ 			timeout = 3600 * HZ;
++			break;
++		case BP_EAGAIN:
++			timeout = balloon_stats.schedule_delay * HZ;
++			break;
++		case BP_WAIT:
++			timeout = HZ;
++			break;
++		}
++
+ 		credit = current_credit();
+ 
+ 		wait_event_freezable_timeout(balloon_thread_wq,
 
 
