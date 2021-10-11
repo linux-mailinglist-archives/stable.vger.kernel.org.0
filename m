@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAA89429006
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:02:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5A74429065
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:07:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238272AbhJKOEt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:04:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50384 "EHLO mail.kernel.org"
+        id S236251AbhJKOH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:07:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237343AbhJKOBk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:01:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C428610CB;
-        Mon, 11 Oct 2021 13:57:33 +0000 (UTC)
+        id S238479AbhJKOF4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:05:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CED236103C;
+        Mon, 11 Oct 2021 14:00:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960654;
-        bh=E2wnoIg3A0IgF6DpQ/thAvKS1IbG0hS8l5mbO0efTEk=;
+        s=korg; t=1633960804;
+        bh=O4t1blipEXtA6PklmgI0he90SEvJj0aWMpJhp/1WgSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AAjSeBSYe5UWPnmtReUXjJh1DYfWxA+BZbZ4WGZtoAh3c2OLjcwUYgWCDIolNu9kK
-         i/wf0GUPpOzNb3WLFqAPvwxzgiSRFPOB9MJeqR33qYgmFbY6yAf/JmOhNQNiZTOOIf
-         72/LerIipW/5ilQqXoPkI8vNAUtv8CTV4NR36XrI=
+        b=LQTA9hetQxjtexaICumss6MFQHG2SP8LHJ+Uw8lU0FLT6Be+e2oYvKEIq/NiJ1a0l
+         smv9UPRDheoKXx9/s3zHo7ogdtg2P71YWMuxIlFrfiivVeZGLAw1oCLYLiemZEJrIm
+         pu3nGnY50fhG5Cyssei/riwJUJOUSb0TWfvJPsaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.14 034/151] scsi: ufs: core: Fix task management completion
-Date:   Mon, 11 Oct 2021 15:45:06 +0200
-Message-Id: <20211011134518.953631211@linuxfoundation.org>
+        stable@vger.kernel.org, Alexandre Ghiti <alex@ghiti.fr>,
+        Palmer Dabbelt <palmerdabbelt@google.com>
+Subject: [PATCH 5.14 035/151] riscv: Flush current cpu icache before other cpus
+Date:   Mon, 11 Oct 2021 15:45:07 +0200
+Message-Id: <20211011134518.984567771@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -40,153 +39,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Alexandre Ghiti <alex@ghiti.fr>
 
-commit f5ef336fd2e4c36dedae4e7ca66cf5349d6fda62 upstream.
+commit bb8958d5dc79acbd071397abb57b8756375fe1ce upstream.
 
-The UFS driver uses blk_mq_tagset_busy_iter() when identifying task
-management requests to complete, however blk_mq_tagset_busy_iter() doesn't
-work.
+On SiFive Unmatched, I recently fell onto the following BUG when booting:
 
-blk_mq_tagset_busy_iter() only iterates requests dispatched by the block
-layer. That appears as if it might have started since commit 37f4a24c2469
-("blk-mq: centralise related handling into blk_mq_get_driver_tag") which
-removed 'data->hctx->tags->rqs[rq->tag] = rq' from blk_mq_rq_ctx_init()
-which gets called:
+[    0.000000] ftrace: allocating 36610 entries in 144 pages
+[    0.000000] Oops - illegal instruction [#1]
+[    0.000000] Modules linked in:
+[    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 5.13.1+ #5
+[    0.000000] Hardware name: SiFive HiFive Unmatched A00 (DT)
+[    0.000000] epc : riscv_cpuid_to_hartid_mask+0x6/0xae
+[    0.000000]  ra : __sbi_rfence_v02+0xc8/0x10a
+[    0.000000] epc : ffffffff80007240 ra : ffffffff80009964 sp : ffffffff81803e10
+[    0.000000]  gp : ffffffff81a1ea70 tp : ffffffff8180f500 t0 : ffffffe07fe30000
+[    0.000000]  t1 : 0000000000000004 t2 : 0000000000000000 s0 : ffffffff81803e60
+[    0.000000]  s1 : 0000000000000000 a0 : ffffffff81a22238 a1 : ffffffff81803e10
+[    0.000000]  a2 : 0000000000000000 a3 : 0000000000000000 a4 : 0000000000000000
+[    0.000000]  a5 : 0000000000000000 a6 : ffffffff8000989c a7 : 0000000052464e43
+[    0.000000]  s2 : ffffffff81a220c8 s3 : 0000000000000000 s4 : 0000000000000000
+[    0.000000]  s5 : 0000000000000000 s6 : 0000000200000100 s7 : 0000000000000001
+[    0.000000]  s8 : ffffffe07fe04040 s9 : ffffffff81a22c80 s10: 0000000000001000
+[    0.000000]  s11: 0000000000000004 t3 : 0000000000000001 t4 : 0000000000000008
+[    0.000000]  t5 : ffffffcf04000808 t6 : ffffffe3ffddf188
+[    0.000000] status: 0000000200000100 badaddr: 0000000000000000 cause: 0000000000000002
+[    0.000000] [<ffffffff80007240>] riscv_cpuid_to_hartid_mask+0x6/0xae
+[    0.000000] [<ffffffff80009474>] sbi_remote_fence_i+0x1e/0x26
+[    0.000000] [<ffffffff8000b8f4>] flush_icache_all+0x12/0x1a
+[    0.000000] [<ffffffff8000666c>] patch_text_nosync+0x26/0x32
+[    0.000000] [<ffffffff8000884e>] ftrace_init_nop+0x52/0x8c
+[    0.000000] [<ffffffff800f051e>] ftrace_process_locs.isra.0+0x29c/0x360
+[    0.000000] [<ffffffff80a0e3c6>] ftrace_init+0x80/0x130
+[    0.000000] [<ffffffff80a00f8c>] start_kernel+0x5c4/0x8f6
+[    0.000000] ---[ end trace f67eb9af4d8d492b ]---
+[    0.000000] Kernel panic - not syncing: Attempted to kill the idle task!
+[    0.000000] ---[ end Kernel panic - not syncing: Attempted to kill the idle task! ]---
 
-	blk_get_request
-		blk_mq_alloc_request
-			__blk_mq_alloc_request
-				blk_mq_rq_ctx_init
+While ftrace is looping over a list of addresses to patch, it always failed
+when patching the same function: riscv_cpuid_to_hartid_mask. Looking at the
+backtrace, the illegal instruction is encountered in this same function.
+However, patch_text_nosync, after patching the instructions, calls
+flush_icache_range. But looking at what happens in this function:
 
-Since UFS task management requests are not dispatched by the block layer,
-hctx->tags->rqs[rq->tag] remains NULL, and since blk_mq_tagset_busy_iter()
-relies on finding requests using hctx->tags->rqs[rq->tag], UFS task
-management requests are never found by blk_mq_tagset_busy_iter().
+flush_icache_range -> flush_icache_all
+                   -> sbi_remote_fence_i
+                   -> __sbi_rfence_v02
+                   -> riscv_cpuid_to_hartid_mask
 
-By using blk_mq_tagset_busy_iter(), the UFS driver was relying on internal
-details of the block layer, which was fragile and subsequently got
-broken. Fix by removing the use of blk_mq_tagset_busy_iter() and having the
-driver keep track of task management requests.
+The icache and dcache of the current cpu are never synchronized between the
+patching of riscv_cpuid_to_hartid_mask and calling this same function.
 
-Link: https://lore.kernel.org/r/20210922091059.4040-1-adrian.hunter@intel.com
-Fixes: 1235fc569e0b ("scsi: ufs: core: Fix task management request completion timeout")
-Fixes: 69a6c269c097 ("scsi: ufs: Use blk_{get,put}_request() to allocate and free TMFs")
+So fix this by flushing the current cpu's icache before asking for the other
+cpus to do the same.
+
+Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
+Fixes: fab957c11efe ("RISC-V: Atomic and Locking Code")
 Cc: stable@vger.kernel.org
-Tested-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufshcd.c |   52 +++++++++++++++++++---------------------------
- drivers/scsi/ufs/ufshcd.h |    1 
- 2 files changed, 23 insertions(+), 30 deletions(-)
+ arch/riscv/mm/cacheflush.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -6365,27 +6365,6 @@ static irqreturn_t ufshcd_check_errors(s
- 	return retval;
- }
+--- a/arch/riscv/mm/cacheflush.c
++++ b/arch/riscv/mm/cacheflush.c
+@@ -16,6 +16,8 @@ static void ipi_remote_fence_i(void *inf
  
--struct ctm_info {
--	struct ufs_hba	*hba;
--	unsigned long	pending;
--	unsigned int	ncpl;
--};
--
--static bool ufshcd_compl_tm(struct request *req, void *priv, bool reserved)
--{
--	struct ctm_info *const ci = priv;
--	struct completion *c;
--
--	WARN_ON_ONCE(reserved);
--	if (test_bit(req->tag, &ci->pending))
--		return true;
--	ci->ncpl++;
--	c = req->end_io_data;
--	if (c)
--		complete(c);
--	return true;
--}
--
- /**
-  * ufshcd_tmc_handler - handle task management function completion
-  * @hba: per adapter instance
-@@ -6396,18 +6375,24 @@ static bool ufshcd_compl_tm(struct reque
-  */
- static irqreturn_t ufshcd_tmc_handler(struct ufs_hba *hba)
+ void flush_icache_all(void)
  {
--	unsigned long flags;
--	struct request_queue *q = hba->tmf_queue;
--	struct ctm_info ci = {
--		.hba	 = hba,
--	};
-+	unsigned long flags, pending, issued;
-+	irqreturn_t ret = IRQ_NONE;
-+	int tag;
++	local_flush_icache_all();
 +
-+	pending = ufshcd_readl(hba, REG_UTP_TASK_REQ_DOOR_BELL);
- 
- 	spin_lock_irqsave(hba->host->host_lock, flags);
--	ci.pending = ufshcd_readl(hba, REG_UTP_TASK_REQ_DOOR_BELL);
--	blk_mq_tagset_busy_iter(q->tag_set, ufshcd_compl_tm, &ci);
-+	issued = hba->outstanding_tasks & ~pending;
-+	for_each_set_bit(tag, &issued, hba->nutmrs) {
-+		struct request *req = hba->tmf_rqs[tag];
-+		struct completion *c = req->end_io_data;
-+
-+		complete(c);
-+		ret = IRQ_HANDLED;
-+	}
- 	spin_unlock_irqrestore(hba->host->host_lock, flags);
- 
--	return ci.ncpl ? IRQ_HANDLED : IRQ_NONE;
-+	return ret;
- }
- 
- /**
-@@ -6530,9 +6515,9 @@ static int __ufshcd_issue_tm_cmd(struct
- 	ufshcd_hold(hba, false);
- 
- 	spin_lock_irqsave(host->host_lock, flags);
--	blk_mq_start_request(req);
- 
- 	task_tag = req->tag;
-+	hba->tmf_rqs[req->tag] = req;
- 	treq->upiu_req.req_header.dword_0 |= cpu_to_be32(task_tag);
- 
- 	memcpy(hba->utmrdl_base_addr + task_tag, treq, sizeof(*treq));
-@@ -6576,6 +6561,7 @@ static int __ufshcd_issue_tm_cmd(struct
- 	}
- 
- 	spin_lock_irqsave(hba->host->host_lock, flags);
-+	hba->tmf_rqs[req->tag] = NULL;
- 	__clear_bit(task_tag, &hba->outstanding_tasks);
- 	spin_unlock_irqrestore(hba->host->host_lock, flags);
- 
-@@ -9568,6 +9554,12 @@ int ufshcd_init(struct ufs_hba *hba, voi
- 		err = PTR_ERR(hba->tmf_queue);
- 		goto free_tmf_tag_set;
- 	}
-+	hba->tmf_rqs = devm_kcalloc(hba->dev, hba->nutmrs,
-+				    sizeof(*hba->tmf_rqs), GFP_KERNEL);
-+	if (!hba->tmf_rqs) {
-+		err = -ENOMEM;
-+		goto free_tmf_queue;
-+	}
- 
- 	/* Reset the attached device */
- 	ufshcd_device_reset(hba);
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -780,6 +780,7 @@ struct ufs_hba {
- 
- 	struct blk_mq_tag_set tmf_tag_set;
- 	struct request_queue *tmf_queue;
-+	struct request **tmf_rqs;
- 
- 	struct uic_command *active_uic_cmd;
- 	struct mutex uic_cmd_mutex;
+ 	if (IS_ENABLED(CONFIG_RISCV_SBI))
+ 		sbi_remote_fence_i(NULL);
+ 	else
 
 
