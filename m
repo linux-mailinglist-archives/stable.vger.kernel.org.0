@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB0AB429078
+	by mail.lfdr.de (Postfix) with ESMTP id 7E9EE429077
 	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:07:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241281AbhJKOJn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237539AbhJKOJn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 11 Oct 2021 10:09:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55318 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239884AbhJKOGh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:06:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A67AF611EE;
-        Mon, 11 Oct 2021 14:00:20 +0000 (UTC)
+        id S239272AbhJKOGk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:06:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3F8E61214;
+        Mon, 11 Oct 2021 14:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960821;
-        bh=wsUlw5FxxfQRI5voO6jhT8HnMV9BwtU80Pozpv5APxU=;
+        s=korg; t=1633960824;
+        bh=50oME831S3Wg+JzgZ5JeOp45VWeZ+pM3vP9xiNjtWNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+E5eC5eBw+eY91nWtGExf4/CbBfxxO+TkfmwVnUa4K0F0SRePCFGz/qelwzoRyDu
-         effG0FshFAZaCffIDNUYf9RKdtfdU713SHjksroLvVcIWsETgjtoFl1e8bLvWPuhh4
-         chtJtLIIsHuVMVTv21fX5+RK/0KGky1ULEwcF608=
+        b=wZqTxlRiBGbc5UDUhm/2VYFvoNcPqasJiUDU2TSf9U2WnPp+CEQTZBMBBVsSmpc27
+         loCHOegMolWHoibcV1lXhszxQQ9q1gb48al9axrK9YK6HUdM4oT5k2dfD3y1shRuvT
+         jhgkqEjuHy3cniWhuqFJMmCTktigYwq7lfSdbLjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukasz Majczak <lma@semihalf.com>,
-        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>, linux-cachefs@redhat.com,
+        linux-afs@lists.infradead.org, ceph-devel@vger.kernel.org,
+        linux-cifs@vger.kernel.org, linux-nfs@vger.kernel.org,
+        v9fs-developer@lists.sourceforge.net,
+        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 085/151] drm/i915/bdb: Fix version check
-Date:   Mon, 11 Oct 2021 15:45:57 +0200
-Message-Id: <20211011134520.589866937@linuxfoundation.org>
+Subject: [PATCH 5.14 086/151] netfs: Fix READ/WRITE confusion when calling iov_iter_xarray()
+Date:   Mon, 11 Oct 2021 15:45:58 +0200
+Message-Id: <20211011134520.620511034@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -41,84 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukasz Majczak <lma@semihalf.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit fdddf8c3a477f77b3a623f220e78d45e89fc50d5 ]
+[ Upstream commit 330de47d14af0c3995db81cc03cf5ca683d94d81 ]
 
-With patch "drm/i915/vbt: Fix backlight parsing for VBT 234+"
-the size of bdb_lfp_backlight_data structure has been increased,
-causing if-statement in the parse_lfp_backlight function
-that comapres this structure size to the one retrieved from BDB,
-always to fail for older revisions.
-This patch calculates expected size of the structure for a given
-BDB version and compares it with the value gathered from BDB.
-Tested on Chromebook Pixelbook (Nocturne) (reports bdb->version = 221)
+Fix netfs_clear_unread() to pass READ to iov_iter_xarray() instead of WRITE
+(the flag is about the operation accessing the buffer, not what sort of
+access it is doing to the buffer).
 
-Fixes: d381baad29b4 ("drm/i915/vbt: Fix backlight parsing for VBT 234+")
-
-Tested-by: Lukasz Majczak <lma@semihalf.com>
-Signed-off-by: Lukasz Majczak <lma@semihalf.com>
-Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
-Signed-off-by: José Roberto de Souza <jose.souza@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210930134606.227234-1-lma@semihalf.com
-(cherry picked from commit 4378daf5d04eed59724e6d0e74755e17dce2e105)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Fixes: 3d3c95046742 ("netfs: Provide readahead and readpage netfs helpers")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+cc: linux-cachefs@redhat.com
+cc: linux-afs@lists.infradead.org
+cc: ceph-devel@vger.kernel.org
+cc: linux-cifs@vger.kernel.org
+cc: linux-nfs@vger.kernel.org
+cc: v9fs-developer@lists.sourceforge.net
+cc: linux-fsdevel@vger.kernel.org
+cc: linux-mm@kvack.org
+Link: https://lore.kernel.org/r/162729351325.813557.9242842205308443901.stgit@warthog.procyon.org.uk/
+Link: https://lore.kernel.org/r/162886603464.3940407.3790841170414793899.stgit@warthog.procyon.org.uk
+Link: https://lore.kernel.org/r/163239074602.1243337.14154704004485867017.stgit@warthog.procyon.org.uk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_bios.c     | 22 ++++++++++++++-----
- drivers/gpu/drm/i915/display/intel_vbt_defs.h |  5 +++++
- 2 files changed, 21 insertions(+), 6 deletions(-)
+ fs/netfs/read_helper.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_bios.c b/drivers/gpu/drm/i915/display/intel_bios.c
-index aa667fa71158..106f696e50a0 100644
---- a/drivers/gpu/drm/i915/display/intel_bios.c
-+++ b/drivers/gpu/drm/i915/display/intel_bios.c
-@@ -451,13 +451,23 @@ parse_lfp_backlight(struct drm_i915_private *i915,
- 	}
+diff --git a/fs/netfs/read_helper.c b/fs/netfs/read_helper.c
+index 0b6cd3b8734c..994ec22d4040 100644
+--- a/fs/netfs/read_helper.c
++++ b/fs/netfs/read_helper.c
+@@ -150,7 +150,7 @@ static void netfs_clear_unread(struct netfs_read_subrequest *subreq)
+ {
+ 	struct iov_iter iter;
  
- 	i915->vbt.backlight.type = INTEL_BACKLIGHT_DISPLAY_DDI;
--	if (bdb->version >= 191 &&
--	    get_blocksize(backlight_data) >= sizeof(*backlight_data)) {
--		const struct lfp_backlight_control_method *method;
-+	if (bdb->version >= 191) {
-+		size_t exp_size;
- 
--		method = &backlight_data->backlight_control[panel_type];
--		i915->vbt.backlight.type = method->type;
--		i915->vbt.backlight.controller = method->controller;
-+		if (bdb->version >= 236)
-+			exp_size = sizeof(struct bdb_lfp_backlight_data);
-+		else if (bdb->version >= 234)
-+			exp_size = EXP_BDB_LFP_BL_DATA_SIZE_REV_234;
-+		else
-+			exp_size = EXP_BDB_LFP_BL_DATA_SIZE_REV_191;
-+
-+		if (get_blocksize(backlight_data) >= exp_size) {
-+			const struct lfp_backlight_control_method *method;
-+
-+			method = &backlight_data->backlight_control[panel_type];
-+			i915->vbt.backlight.type = method->type;
-+			i915->vbt.backlight.controller = method->controller;
-+		}
- 	}
- 
- 	i915->vbt.backlight.pwm_freq_hz = entry->pwm_freq_hz;
-diff --git a/drivers/gpu/drm/i915/display/intel_vbt_defs.h b/drivers/gpu/drm/i915/display/intel_vbt_defs.h
-index dbe24d7e7375..cf1ffe4a0e46 100644
---- a/drivers/gpu/drm/i915/display/intel_vbt_defs.h
-+++ b/drivers/gpu/drm/i915/display/intel_vbt_defs.h
-@@ -814,6 +814,11 @@ struct lfp_brightness_level {
- 	u16 reserved;
- } __packed;
- 
-+#define EXP_BDB_LFP_BL_DATA_SIZE_REV_191 \
-+	offsetof(struct bdb_lfp_backlight_data, brightness_level)
-+#define EXP_BDB_LFP_BL_DATA_SIZE_REV_234 \
-+	offsetof(struct bdb_lfp_backlight_data, brightness_precision_bits)
-+
- struct bdb_lfp_backlight_data {
- 	u8 entry_size;
- 	struct lfp_backlight_data_entry data[16];
+-	iov_iter_xarray(&iter, WRITE, &subreq->rreq->mapping->i_pages,
++	iov_iter_xarray(&iter, READ, &subreq->rreq->mapping->i_pages,
+ 			subreq->start + subreq->transferred,
+ 			subreq->len   - subreq->transferred);
+ 	iov_iter_zero(iov_iter_count(&iter), &iter);
 -- 
 2.33.0
 
