@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B0BB428F5B
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:56:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38D6B428ED9
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:50:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235364AbhJKN5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:57:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43326 "EHLO mail.kernel.org"
+        id S237730AbhJKNwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:52:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238066AbhJKNzy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:55:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25D7761108;
-        Mon, 11 Oct 2021 13:53:11 +0000 (UTC)
+        id S236433AbhJKNvY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:51:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8340360EB4;
+        Mon, 11 Oct 2021 13:49:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960393;
-        bh=Kyzx9gzkhlh9cQvf98cQU5z7YWyKKORuGEOaduWYYeA=;
+        s=korg; t=1633960164;
+        bh=YHK9LF7MHxvCWm8u3yvM9HZ/76pAoR3qWodjtDuaDJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tt1p1x4gy+YQkzyNuGZdvouYp5tqoyW3zEkyK7c7+Nx9WEZKPiEY0xaIep8WE4ppU
-         H1AKhhAiEHJ3KleDfZ7RhaYkZio1q28oA64+TrNNlJahlLA7gjZHC+/LjboEwYp3ON
-         LvYFeK57hYKT9IV3ZqwzI8ezJoZ/MxTeCU37Ad7g=
+        b=Fnu7iIJYu7JMOW+z+xKWot+1B5W6HDspT50QeN9slb4VxZlywI6a6X5kG+qGWqLzO
+         wM4/Y0UqswHcdiMPMcnCwDygwyD9ZfMPYvPMxJQambdT2zvLbFgjT9lLmzC+xGOWX+
+         KJZHp/3yv/cWwxyRyuwDqFigu4aTwdfzSAbxhiQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        stable@vger.kernel.org, Catherine Sullivan <csully@google.com>,
+        Jeroen de Borst <jeroendb@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 48/83] net: bridge: fix under estimation in br_get_linkxstats_size()
-Date:   Mon, 11 Oct 2021 15:46:08 +0200
-Message-Id: <20211011134510.050199985@linuxfoundation.org>
+Subject: [PATCH 5.4 40/52] gve: Correct available tx qpl check
+Date:   Mon, 11 Oct 2021 15:46:09 +0200
+Message-Id: <20211011134505.101363550@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
-References: <20211011134508.362906295@linuxfoundation.org>
+In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
+References: <20211011134503.715740503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Catherine Sullivan <csully@google.com>
 
-[ Upstream commit 0854a0513321cf70bea5fa483ebcaa983cc7c62e ]
+[ Upstream commit d03477ee10f4bc35d3573cf1823814378ef2dca2 ]
 
-Commit de1799667b00 ("net: bridge: add STP xstats")
-added an additional nla_reserve_64bit() in br_fill_linkxstats(),
-but forgot to update br_get_linkxstats_size() accordingly.
+The qpl_map_size is rounded up to a multiple of sizeof(long), but the
+number of qpls doesn't have to be.
 
-This can trigger the following in rtnl_stats_get()
-
-	WARN_ON(err == -EMSGSIZE);
-
-Fixes: de1799667b00 ("net: bridge: add STP xstats")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Vivien Didelot <vivien.didelot@gmail.com>
-Cc: Nikolay Aleksandrov <nikolay@nvidia.com>
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Fixes: f5cedc84a30d2 ("gve: Add transmit and receive support")
+Signed-off-by: Catherine Sullivan <csully@google.com>
+Signed-off-by: Jeroen de Borst <jeroendb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_netlink.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/google/gve/gve.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index bfe6ab1914c8..31b00ba5dcc8 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -1591,6 +1591,7 @@ static size_t br_get_linkxstats_size(const struct net_device *dev, int attr)
+diff --git a/drivers/net/ethernet/google/gve/gve.h b/drivers/net/ethernet/google/gve/gve.h
+index ebc37e256922..f19edd4c6c5b 100644
+--- a/drivers/net/ethernet/google/gve/gve.h
++++ b/drivers/net/ethernet/google/gve/gve.h
+@@ -391,7 +391,7 @@ struct gve_queue_page_list *gve_assign_rx_qpl(struct gve_priv *priv)
+ 				    gve_num_tx_qpls(priv));
  
- 	return numvls * nla_total_size(sizeof(struct bridge_vlan_xstats)) +
- 	       nla_total_size_64bit(sizeof(struct br_mcast_stats)) +
-+	       (p ? nla_total_size_64bit(sizeof(p->stp_xstats)) : 0) +
- 	       nla_total_size(0);
- }
+ 	/* we are out of rx qpls */
+-	if (id == priv->qpl_cfg.qpl_map_size)
++	if (id == gve_num_tx_qpls(priv) + gve_num_rx_qpls(priv))
+ 		return NULL;
  
+ 	set_bit(id, priv->qpl_cfg.qpl_id_map);
 -- 
 2.33.0
 
