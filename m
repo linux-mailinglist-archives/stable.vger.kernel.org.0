@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F8CB428F8D
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17DA8428FBE
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:00:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237701AbhJKN7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:59:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49798 "EHLO mail.kernel.org"
+        id S238382AbhJKOAr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:00:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236894AbhJKN54 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:57:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C713360E8B;
-        Mon, 11 Oct 2021 13:54:29 +0000 (UTC)
+        id S238513AbhJKN7G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:59:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35B8760F21;
+        Mon, 11 Oct 2021 13:55:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960470;
-        bh=4RKgkISkbESJlFhvG4on8itP+82lxqG4cBxbchGuLV8=;
+        s=korg; t=1633960550;
+        bh=U3D6DLUaluNReYGyOrXxq1MxzjkBLcc8zxKYHBvuGeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=znPj3isn2JtSy/Xt4VpPU6zxH+y/fs8S+V6mPMwUdiY0kln0weD3l7m2d/cROKF6P
-         Kno4slJ7vBYUTFDGLKlw7QQBCFjMrBRvoWmGxNcF6DcGLiaDuRzlA5NLaMxBso3a+z
-         rNvfCd+H9n13fVsElyh3lIpAllTYDUTlkkYbvPJI=
+        b=mwbg+6dWNiZxTb7N/ODRoJE+yANB4QTenO+r9zGtCa3MVdkHstmTzoILM0Pp4XFjp
+         Z5Z5G3aQ+NKfk370SFQnYwWCzlDPewZY2X8OsbJ/EJo++E116ua8Hw4G7H/X4V4rpV
+         gGqVqas2W90CJEDdjmIt9xDUaOhHH6KJAUYXF8rk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Christoph Hellwig <hch@lst.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 67/83] powerpc/iommu: Report the correct most efficient DMA mask for PCI devices
-Date:   Mon, 11 Oct 2021 15:46:27 +0200
-Message-Id: <20211011134510.700666693@linuxfoundation.org>
+        stable@vger.kernel.org, Jamie Iles <quic_jiles@quicinc.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 68/83] i2c: acpi: fix resource leak in reconfiguration device addition
+Date:   Mon, 11 Oct 2021 15:46:28 +0200
+Message-Id: <20211011134510.737882661@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
 References: <20211011134508.362906295@linuxfoundation.org>
@@ -41,56 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Jamie Iles <quic_jiles@quicinc.com>
 
-[ Upstream commit 23c216b335d1fbd716076e8263b54a714ea3cf0e ]
+[ Upstream commit 6558b646ce1c2a872fe1c2c7cb116f05a2c1950f ]
 
-According to dma-api.rst, the dma_get_required_mask() helper should return
-"the mask that the platform requires to operate efficiently". Which in
-the case of PPC64 means the bypass mask and not a mask from an IOMMU table
-which is shorter and slower to use due to map/unmap operations (especially
-expensive on "pseries").
+acpi_i2c_find_adapter_by_handle() calls bus_find_device() which takes a
+reference on the adapter which is never released which will result in a
+reference count leak and render the adapter unremovable.  Make sure to
+put the adapter after creating the client in the same manner that we do
+for OF.
 
-However the existing implementation ignores the possibility of bypassing
-and returns the IOMMU table mask on the pseries platform which makes some
-drivers (mpt3sas is one example) choose 32bit DMA even though bypass is
-supported. The powernv platform sort of handles it by having a bigger
-default window with a mask >=40 but it only works as drivers choose
-63/64bit if the required mask is >32 which is rather pointless.
-
-This reintroduces the bypass capability check to let drivers make
-a better choice of the DMA mask.
-
-Fixes: f1565c24b596 ("powerpc: use the generic dma_ops_bypass mode")
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210930034454.95794-1-aik@ozlabs.ru
+Fixes: 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure notifications")
+Signed-off-by: Jamie Iles <quic_jiles@quicinc.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+[wsa: fixed title]
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/dma-iommu.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/i2c/i2c-core-acpi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/kernel/dma-iommu.c b/arch/powerpc/kernel/dma-iommu.c
-index a1c744194018..9ac0651795cf 100644
---- a/arch/powerpc/kernel/dma-iommu.c
-+++ b/arch/powerpc/kernel/dma-iommu.c
-@@ -117,6 +117,15 @@ u64 dma_iommu_get_required_mask(struct device *dev)
- 	struct iommu_table *tbl = get_iommu_table_base(dev);
- 	u64 mask;
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 37c510d9347a..4b136d871074 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -426,6 +426,7 @@ static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
+ 			break;
  
-+	if (dev_is_pci(dev)) {
-+		u64 bypass_mask = dma_direct_get_required_mask(dev);
-+
-+		if (dma_iommu_dma_supported(dev, bypass_mask)) {
-+			dev_info(dev, "%s: returning bypass mask 0x%llx\n", __func__, bypass_mask);
-+			return bypass_mask;
-+		}
-+	}
-+
- 	if (!tbl)
- 		return 0;
- 
+ 		i2c_acpi_register_device(adapter, adev, &info);
++		put_device(&adapter->dev);
+ 		break;
+ 	case ACPI_RECONFIG_DEVICE_REMOVE:
+ 		if (!acpi_device_enumerated(adev))
 -- 
 2.33.0
 
