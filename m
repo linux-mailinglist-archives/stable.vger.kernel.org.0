@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4F2B428805
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 09:45:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79E11428808
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 09:46:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234503AbhJKHr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 03:47:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40428 "EHLO mail.kernel.org"
+        id S234526AbhJKHsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 03:48:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234494AbhJKHr5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 03:47:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 392B960184;
-        Mon, 11 Oct 2021 07:45:57 +0000 (UTC)
+        id S234602AbhJKHsN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 03:48:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68DEB60EC0;
+        Mon, 11 Oct 2021 07:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633938357;
-        bh=3SOme+N9yN9yTzPG4kWTGaP4Nb+yWZIthhsDtA95K1g=;
+        s=korg; t=1633938373;
+        bh=v81YJ0ceyroCWRaKw0CVb4P0jUBbTvglL4a+PiBXDxo=;
         h=Subject:To:Cc:From:Date:From;
-        b=r4q2Fj2VBzn2TYu0xDia0LLA2I9Jj5vTCIsjZI2Pwl7Mj23VLwCEybOBqMLaJGUDg
-         wu3E7hxpckz4swzOaYsW3YC25nA8Q6u9cu/z+Br0BdykRNSrFaQTPw7LkJwWyYE+qq
-         IJEF5h7vQVCVEUvS7OI4xQRgq/ND+qr6D/iFiB/U=
-Subject: FAILED: patch "[PATCH] x86/resctrl: Free the ctrlval arrays when" failed to apply to 5.14-stable tree
+        b=LOylc03DExITVJdLHq9MPDwIAeK+Psp4coU4CB7PBnJvPwb9Of+QInpljD0Jszk8E
+         cdK51QpBksmotXS0ypSFYWQhBaoX1YurHRS5fmei6CAfxTjlhEzfd7eqYoQJld1hKO
+         tIc4Ureow8HFRee34qN9EDFbOc99zhXUMNia7onk=
+Subject: FAILED: patch "[PATCH] x86/resctrl: Free the ctrlval arrays when" failed to apply to 5.4-stable tree
 To:     james.morse@arm.com, bp@suse.de, reinette.chatre@intel.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Oct 2021 09:45:54 +0200
-Message-ID: <163393835419833@kroah.com>
+Date:   Mon, 11 Oct 2021 09:45:55 +0200
+Message-ID: <163393835529199@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
