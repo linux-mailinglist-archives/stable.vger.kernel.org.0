@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98837428F3C
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:54:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5039428EA8
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:49:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237742AbhJKN43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:56:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39364 "EHLO mail.kernel.org"
+        id S237370AbhJKNvL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:51:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235476AbhJKNyb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:54:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E0BF60F11;
-        Mon, 11 Oct 2021 13:52:16 +0000 (UTC)
+        id S237274AbhJKNuf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:50:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68C8160F35;
+        Mon, 11 Oct 2021 13:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960336;
-        bh=4FxJVdVhKieCEydt0c2Cf/EXCXYWRYaRt97o9ypkH2o=;
+        s=korg; t=1633960103;
+        bh=ClNd6uSN0EqgLvT6FzR81C+1IlmjiccNfJiEPhk1ZX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UquVYUaOQmHcLnF5KBgzHXBCdMFyJUJ/x/CtfnTlfac7Af/jmS9pdJ9iFIEKNMzSh
-         VKfhLUrtRYL9AliEngTQaWTBFOSdPfBepJbykN28eOudKl+hUkY+//s52DiiaqjXU4
-         gTiGRp467Q7g4J+LRff8jEXFY4ZfH8IN/5PpmfDk=
+        b=lG/DUnOS/KqhFkMV84/zuAjgt76/sDmDvfcLbbhc6XT2/BzcAGIjb9Z8GVeiCMB0J
+         1t4Wx6T22GDntgyYcN0Fi80k1OLFv2XOrURhoLpGaTkBQYjdZ7ZGlwqlgBtdK68gYP
+         gKZ+Fr9a4bER683jGVImazp2c9KKf5ybYu2Iy+5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Max Filippov <jcmvbkbc@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 30/83] ath5k: fix building with LEDS=m
-Date:   Mon, 11 Oct 2021 15:45:50 +0200
-Message-Id: <20211011134509.408152192@linuxfoundation.org>
+Subject: [PATCH 5.4 22/52] xtensa: use CONFIG_USE_OF instead of CONFIG_OF
+Date:   Mon, 11 Oct 2021 15:45:51 +0200
+Message-Id: <20211011134504.487816486@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
-References: <20211011134508.362906295@linuxfoundation.org>
+In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
+References: <20211011134503.715740503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,95 +40,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit fb8c3a3c52400512fc8b3b61150057b888c30b0d ]
+[ Upstream commit d67ed2510d28a1eb33171010d35cf52178cfcbdd ]
 
-Randconfig builds still show a failure for the ath5k driver,
-similar to the one that was fixed for ath9k earlier:
+CONFIG_OF can be set by a randconfig or by a user -- without setting the
+early flattree option (OF_EARLY_FLATTREE).  This causes build errors.
+However, if randconfig or a user sets USE_OF in the Xtensa config,
+the right kconfig symbols are set to fix the build.
 
-WARNING: unmet direct dependencies detected for MAC80211_LEDS
-  Depends on [n]: NET [=y] && WIRELESS [=y] && MAC80211 [=y] && (LEDS_CLASS [=m]=y || LEDS_CLASS [=m]=MAC80211 [=y])
-  Selected by [m]:
-  - ATH5K [=m] && NETDEVICES [=y] && WLAN [=y] && WLAN_VENDOR_ATH [=y] && (PCI [=y] || ATH25) && MAC80211 [=y]
-net/mac80211/led.c: In function 'ieee80211_alloc_led_names':
-net/mac80211/led.c:34:22: error: 'struct led_trigger' has no member named 'name'
-   34 |         local->rx_led.name = kasprintf(GFP_KERNEL, "%srx",
-      |                      ^
+Fixes these build errors:
 
-Copying the same logic from my ath9k patch makes this one work
-as well, stubbing out the calls to the LED subsystem.
+../arch/xtensa/kernel/setup.c:67:19: error: ‘__dtb_start’ undeclared here (not in a function); did you mean ‘dtb_start’?
+   67 | void *dtb_start = __dtb_start;
+      |                   ^~~~~~~~~~~
+../arch/xtensa/kernel/setup.c: In function 'xtensa_dt_io_area':
+../arch/xtensa/kernel/setup.c:201:14: error: implicit declaration of function 'of_flat_dt_is_compatible'; did you mean 'of_machine_is_compatible'? [-Werror=implicit-function-declaration]
+  201 |         if (!of_flat_dt_is_compatible(node, "simple-bus"))
+../arch/xtensa/kernel/setup.c:204:18: error: implicit declaration of function 'of_get_flat_dt_prop' [-Werror=implicit-function-declaration]
+  204 |         ranges = of_get_flat_dt_prop(node, "ranges", &len);
+../arch/xtensa/kernel/setup.c:204:16: error: assignment to 'const __be32 *' {aka 'const unsigned int *'} from 'int' makes pointer from integer without a cast [-Werror=int-conversion]
+  204 |         ranges = of_get_flat_dt_prop(node, "ranges", &len);
+      |                ^
+../arch/xtensa/kernel/setup.c: In function 'early_init_devtree':
+../arch/xtensa/kernel/setup.c:228:9: error: implicit declaration of function 'early_init_dt_scan'; did you mean 'early_init_devtree'? [-Werror=implicit-function-declaration]
+  228 |         early_init_dt_scan(params);
+../arch/xtensa/kernel/setup.c:229:9: error: implicit declaration of function 'of_scan_flat_dt' [-Werror=implicit-function-declaration]
+  229 |         of_scan_flat_dt(xtensa_dt_io_area, NULL);
 
-Fixes: b64acb28da83 ("ath9k: fix build error with LEDS_CLASS=m")
-Fixes: 72cdab808714 ("ath9k: Do not select MAC80211_LEDS by default")
-Fixes: 3a078876caee ("ath5k: convert LED code to use mac80211 triggers")
-Link: https://lore.kernel.org/all/20210722105501.1000781-1-arnd@kernel.org/
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210920122359.353810-1-arnd@kernel.org
+xtensa-elf-ld: arch/xtensa/mm/mmu.o:(.text+0x0): undefined reference to `xtensa_kio_paddr'
+
+Fixes: da844a81779e ("xtensa: add device trees support")
+Fixes: 6cb971114f63 ("xtensa: remap io area defined in device tree")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath5k/Kconfig |  4 +---
- drivers/net/wireless/ath/ath5k/led.c   | 10 ++++++----
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ arch/xtensa/include/asm/kmem_layout.h |  2 +-
+ arch/xtensa/kernel/setup.c            | 12 ++++++------
+ arch/xtensa/mm/mmu.c                  |  2 +-
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath5k/Kconfig b/drivers/net/wireless/ath/ath5k/Kconfig
-index f35cd8de228e..6914b37bb0fb 100644
---- a/drivers/net/wireless/ath/ath5k/Kconfig
-+++ b/drivers/net/wireless/ath/ath5k/Kconfig
-@@ -3,9 +3,7 @@ config ATH5K
- 	tristate "Atheros 5xxx wireless cards support"
- 	depends on (PCI || ATH25) && MAC80211
- 	select ATH_COMMON
--	select MAC80211_LEDS
--	select LEDS_CLASS
--	select NEW_LEDS
-+	select MAC80211_LEDS if LEDS_CLASS=y || LEDS_CLASS=MAC80211
- 	select ATH5K_AHB if ATH25
- 	select ATH5K_PCI if !ATH25
- 	help
-diff --git a/drivers/net/wireless/ath/ath5k/led.c b/drivers/net/wireless/ath/ath5k/led.c
-index 6a2a16856763..33e9928af363 100644
---- a/drivers/net/wireless/ath/ath5k/led.c
-+++ b/drivers/net/wireless/ath/ath5k/led.c
-@@ -89,7 +89,8 @@ static const struct pci_device_id ath5k_led_devices[] = {
+diff --git a/arch/xtensa/include/asm/kmem_layout.h b/arch/xtensa/include/asm/kmem_layout.h
+index 7cbf68ca7106..6fc05cba61a2 100644
+--- a/arch/xtensa/include/asm/kmem_layout.h
++++ b/arch/xtensa/include/asm/kmem_layout.h
+@@ -78,7 +78,7 @@
+ #endif
+ #define XCHAL_KIO_SIZE			0x10000000
  
- void ath5k_led_enable(struct ath5k_hw *ah)
- {
--	if (test_bit(ATH_STAT_LEDSOFT, ah->status)) {
-+	if (IS_ENABLED(CONFIG_MAC80211_LEDS) &&
-+	    test_bit(ATH_STAT_LEDSOFT, ah->status)) {
- 		ath5k_hw_set_gpio_output(ah, ah->led_pin);
- 		ath5k_led_off(ah);
- 	}
-@@ -104,7 +105,8 @@ static void ath5k_led_on(struct ath5k_hw *ah)
+-#if (!XCHAL_HAVE_PTP_MMU || XCHAL_HAVE_SPANNING_WAY) && defined(CONFIG_OF)
++#if (!XCHAL_HAVE_PTP_MMU || XCHAL_HAVE_SPANNING_WAY) && defined(CONFIG_USE_OF)
+ #define XCHAL_KIO_PADDR			xtensa_get_kio_paddr()
+ #ifndef __ASSEMBLY__
+ extern unsigned long xtensa_kio_paddr;
+diff --git a/arch/xtensa/kernel/setup.c b/arch/xtensa/kernel/setup.c
+index d08172138369..5a25bc2b8052 100644
+--- a/arch/xtensa/kernel/setup.c
++++ b/arch/xtensa/kernel/setup.c
+@@ -64,7 +64,7 @@ extern unsigned long initrd_end;
+ extern int initrd_below_start_ok;
+ #endif
  
- void ath5k_led_off(struct ath5k_hw *ah)
+-#ifdef CONFIG_OF
++#ifdef CONFIG_USE_OF
+ void *dtb_start = __dtb_start;
+ #endif
+ 
+@@ -126,7 +126,7 @@ __tagtable(BP_TAG_INITRD, parse_tag_initrd);
+ 
+ #endif /* CONFIG_BLK_DEV_INITRD */
+ 
+-#ifdef CONFIG_OF
++#ifdef CONFIG_USE_OF
+ 
+ static int __init parse_tag_fdt(const bp_tag_t *tag)
  {
--	if (!test_bit(ATH_STAT_LEDSOFT, ah->status))
-+	if (!IS_ENABLED(CONFIG_MAC80211_LEDS) ||
-+	    !test_bit(ATH_STAT_LEDSOFT, ah->status))
- 		return;
- 	ath5k_hw_set_gpio(ah, ah->led_pin, !ah->led_on);
+@@ -136,7 +136,7 @@ static int __init parse_tag_fdt(const bp_tag_t *tag)
+ 
+ __tagtable(BP_TAG_FDT, parse_tag_fdt);
+ 
+-#endif /* CONFIG_OF */
++#endif /* CONFIG_USE_OF */
+ 
+ static int __init parse_tag_cmdline(const bp_tag_t* tag)
+ {
+@@ -184,7 +184,7 @@ static int __init parse_bootparam(const bp_tag_t *tag)
  }
-@@ -146,7 +148,7 @@ ath5k_register_led(struct ath5k_hw *ah, struct ath5k_led *led,
- static void
- ath5k_unregister_led(struct ath5k_led *led)
+ #endif
+ 
+-#ifdef CONFIG_OF
++#ifdef CONFIG_USE_OF
+ 
+ #if !XCHAL_HAVE_PTP_MMU || XCHAL_HAVE_SPANNING_WAY
+ unsigned long xtensa_kio_paddr = XCHAL_KIO_DEFAULT_PADDR;
+@@ -233,7 +233,7 @@ void __init early_init_devtree(void *params)
+ 		strlcpy(command_line, boot_command_line, COMMAND_LINE_SIZE);
+ }
+ 
+-#endif /* CONFIG_OF */
++#endif /* CONFIG_USE_OF */
+ 
+ /*
+  * Initialize architecture. (Early stage)
+@@ -254,7 +254,7 @@ void __init init_arch(bp_tag_t *bp_start)
+ 	if (bp_start)
+ 		parse_bootparam(bp_start);
+ 
+-#ifdef CONFIG_OF
++#ifdef CONFIG_USE_OF
+ 	early_init_devtree(dtb_start);
+ #endif
+ 
+diff --git a/arch/xtensa/mm/mmu.c b/arch/xtensa/mm/mmu.c
+index 03678c4afc39..bc858a7f98ba 100644
+--- a/arch/xtensa/mm/mmu.c
++++ b/arch/xtensa/mm/mmu.c
+@@ -101,7 +101,7 @@ void init_mmu(void)
+ 
+ void init_kio(void)
  {
--	if (!led->ah)
-+	if (!IS_ENABLED(CONFIG_MAC80211_LEDS) || !led->ah)
- 		return;
- 	led_classdev_unregister(&led->led_dev);
- 	ath5k_led_off(led->ah);
-@@ -169,7 +171,7 @@ int ath5k_init_leds(struct ath5k_hw *ah)
- 	char name[ATH5K_LED_MAX_NAME_LEN + 1];
- 	const struct pci_device_id *match;
- 
--	if (!ah->pdev)
-+	if (!IS_ENABLED(CONFIG_MAC80211_LEDS) || !ah->pdev)
- 		return 0;
- 
- #ifdef CONFIG_ATH5K_AHB
+-#if XCHAL_HAVE_PTP_MMU && XCHAL_HAVE_SPANNING_WAY && defined(CONFIG_OF)
++#if XCHAL_HAVE_PTP_MMU && XCHAL_HAVE_SPANNING_WAY && defined(CONFIG_USE_OF)
+ 	/*
+ 	 * Update the IO area mapping in case xtensa_kio_paddr has changed
+ 	 */
 -- 
 2.33.0
 
