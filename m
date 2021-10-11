@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 101D9429188
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:18:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFCFD429075
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:07:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237800AbhJKOTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:19:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38590 "EHLO mail.kernel.org"
+        id S238672AbhJKOJm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:09:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243246AbhJKORS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:17:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3275A60E74;
-        Mon, 11 Oct 2021 14:10:08 +0000 (UTC)
+        id S238347AbhJKOGX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:06:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A421E60555;
+        Mon, 11 Oct 2021 14:00:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633961409;
-        bh=2Uizkls3Ogb2nJx7RLxry1IbAk/+co37me2s+vYy/yM=;
+        s=korg; t=1633960818;
+        bh=r/erOr2wd/wJui34zFBL7qz8H06wFIkkeP3HPhTbx60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oPhr7hel00zHOhmVFeRluh5KIuFUMog3yIveoRAqiVY3OCKEHA9mY2eYDJm6rCeMf
-         0gxw/A4RZM9tUoMgj9T2ioEz9tWSLcdPgC+eUTWfptswkzhMx80wZ4JFJu/TIDkYCw
-         pqhwgmWdnzBt37tMplUBJqEZL6UCwd08Qo/RYeLo=
+        b=suK5B5ZQ/pkdu7bnJpUt9/3BZvNSaMYwio4nF7HTWrxWcqBol88btJ6WiuY7T7MFF
+         hSkshDcfqzTusJyPRD/FwcjZo6fBJdUJPzcr6NVbQgqtYtc19TBNs/I4zPnVgCHvpB
+         HTTsLD6yumZV9aY0GgcxkFllcsVUDv1hsy5pZ3k8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>,
-        Imre Deak <imre.deak@intel.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Imre Deak <imre.deak@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 083/151] drm/i915/jsl: Add W/A 1409054076 for JSL
-Date:   Mon, 11 Oct 2021 15:45:55 +0200
-Message-Id: <20211011134520.528122802@linuxfoundation.org>
+Subject: [PATCH 5.14 084/151] drm/i915/tc: Fix TypeC port init/resume time sanitization
+Date:   Mon, 11 Oct 2021 15:45:56 +0200
+Message-Id: <20211011134520.559349738@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -42,144 +43,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>
+From: Imre Deak <imre.deak@intel.com>
 
-[ Upstream commit 544021e3f2aa3c4c6c5aabc58907e8bab69b3762 ]
+[ Upstream commit a532cde31de3cae6ed60e60d6f9379771f652809 ]
 
-When pipe A is disabled and MIPI DSI is enabled on pipe B,
-the AMT KVMR feature will incorrectly see pipe A as enabled.
-Set 0x42080 bit 23=1 before enabling DSI on pipe B and leave
-it set while DSI is enabled on pipe B. No impact to setting
-it all the time.
+Atm during driver loading and system resume TypeC ports are accessed
+before their HW/SW state is synced. Move the TypeC port sanitization to
+the encoder's sync_state hook to fix this.
 
-Changes since V5:
-	- Added reviewed-by
-	- Removed redundant braces and debug message format - Imre
-Changes since V4:
-        - Modified function comment Wa_<number>:icl,jsl,ehl - Lucas
-        - Modified debug message in sync state - Imre
-Changes since V3:
-        - More meaningful name to workaround - Imre
-        - Remove boolean check clear flag
-        - Add WA_verify hook in dsi sync_state
-Changes since V2:
-        - Used REG_BIT, ignored pipe A and used sw state check - Jani
-        - Made function wrapper - Jani
-Changes since V1:
-        - ./dim checkpatch errors addressed
+v2: Handle the encoder disabled case in gen11_dsi_sync_state() as well
+    (Jose, Jani)
 
-Signed-off-by: Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>
-Reviewed-by: Imre Deak <imre.deak@intel.com>
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210615105613.851491-1-tejaskumarx.surendrakumar.upadhyay@intel.com
+Fixes: f9e76a6e68d3 ("drm/i915: Add an encoder hook to sanitize its state during init/resume")
+Cc: José Roberto de Souza <jose.souza@intel.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210929132833.2253961-1-imre.deak@intel.com
+(cherry picked from commit 7194dc998dfffca096c30b3cd39625158608992d)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/icl_dsi.c | 42 ++++++++++++++++++++++++++
- drivers/gpu/drm/i915/i915_reg.h        |  1 +
- 2 files changed, 43 insertions(+)
+ drivers/gpu/drm/i915/display/icl_dsi.c       | 10 ++++++++--
+ drivers/gpu/drm/i915/display/intel_ddi.c     |  8 +++++++-
+ drivers/gpu/drm/i915/display/intel_display.c | 20 +++++---------------
+ 3 files changed, 20 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/gpu/drm/i915/display/icl_dsi.c b/drivers/gpu/drm/i915/display/icl_dsi.c
-index 16812488c5dd..970ba9e7f84e 100644
+index 970ba9e7f84e..13bafa9d49c0 100644
 --- a/drivers/gpu/drm/i915/display/icl_dsi.c
 +++ b/drivers/gpu/drm/i915/display/icl_dsi.c
-@@ -1253,15 +1253,36 @@ static void gen11_dsi_pre_enable(struct intel_atomic_state *state,
- 	gen11_dsi_set_transcoder_timings(encoder, pipe_config);
+@@ -1577,8 +1577,14 @@ static void gen11_dsi_sync_state(struct intel_encoder *encoder,
+ 				 const struct intel_crtc_state *crtc_state)
+ {
+ 	struct drm_i915_private *dev_priv = to_i915(encoder->base.dev);
+-	struct intel_crtc *intel_crtc = to_intel_crtc(crtc_state->uapi.crtc);
+-	enum pipe pipe = intel_crtc->pipe;
++	struct intel_crtc *intel_crtc;
++	enum pipe pipe;
++
++	if (!crtc_state)
++		return;
++
++	intel_crtc = to_intel_crtc(crtc_state->uapi.crtc);
++	pipe = intel_crtc->pipe;
+ 
+ 	/* wa verify 1409054076:icl,jsl,ehl */
+ 	if (DISPLAY_VER(dev_priv) == 11 && pipe == PIPE_B &&
+diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
+index 00dade49665b..89a109f65f38 100644
+--- a/drivers/gpu/drm/i915/display/intel_ddi.c
++++ b/drivers/gpu/drm/i915/display/intel_ddi.c
+@@ -3899,7 +3899,13 @@ void hsw_ddi_get_config(struct intel_encoder *encoder,
+ static void intel_ddi_sync_state(struct intel_encoder *encoder,
+ 				 const struct intel_crtc_state *crtc_state)
+ {
+-	if (intel_crtc_has_dp_encoder(crtc_state))
++	struct drm_i915_private *i915 = to_i915(encoder->base.dev);
++	enum phy phy = intel_port_to_phy(i915, encoder->port);
++
++	if (intel_phy_is_tc(i915, phy))
++		intel_tc_port_sanitize(enc_to_dig_port(encoder));
++
++	if (crtc_state && intel_crtc_has_dp_encoder(crtc_state))
+ 		intel_dp_sync_state(encoder, crtc_state);
  }
  
-+/*
-+ * Wa_1409054076:icl,jsl,ehl
-+ * When pipe A is disabled and MIPI DSI is enabled on pipe B,
-+ * the AMT KVMR feature will incorrectly see pipe A as enabled.
-+ * Set 0x42080 bit 23=1 before enabling DSI on pipe B and leave
-+ * it set while DSI is enabled on pipe B
-+ */
-+static void icl_apply_kvmr_pipe_a_wa(struct intel_encoder *encoder,
-+				     enum pipe pipe, bool enable)
-+{
-+	struct drm_i915_private *dev_priv = to_i915(encoder->base.dev);
+diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+index 0a8a2395c8ac..bb1d2b19be15 100644
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -12933,18 +12933,16 @@ static void intel_modeset_readout_hw_state(struct drm_device *dev)
+ 	readout_plane_state(dev_priv);
+ 
+ 	for_each_intel_encoder(dev, encoder) {
++		struct intel_crtc_state *crtc_state = NULL;
 +
-+	if (DISPLAY_VER(dev_priv) == 11 && pipe == PIPE_B)
-+		intel_de_rmw(dev_priv, CHICKEN_PAR1_1,
-+			     IGNORE_KVMR_PIPE_A,
-+			     enable ? IGNORE_KVMR_PIPE_A : 0);
-+}
- static void gen11_dsi_enable(struct intel_atomic_state *state,
- 			     struct intel_encoder *encoder,
- 			     const struct intel_crtc_state *crtc_state,
- 			     const struct drm_connector_state *conn_state)
- {
- 	struct intel_dsi *intel_dsi = enc_to_intel_dsi(encoder);
-+	struct intel_crtc *crtc = to_intel_crtc(conn_state->crtc);
+ 		pipe = 0;
  
- 	drm_WARN_ON(state->base.dev, crtc_state->has_pch_encoder);
+ 		if (encoder->get_hw_state(encoder, &pipe)) {
+-			struct intel_crtc_state *crtc_state;
+-
+ 			crtc = intel_get_crtc_for_pipe(dev_priv, pipe);
+ 			crtc_state = to_intel_crtc_state(crtc->base.state);
  
-+	/* Wa_1409054076:icl,jsl,ehl */
-+	icl_apply_kvmr_pipe_a_wa(encoder, crtc->pipe, true);
+ 			encoder->base.crtc = &crtc->base;
+ 			intel_encoder_get_config(encoder, crtc_state);
+-			if (encoder->sync_state)
+-				encoder->sync_state(encoder, crtc_state);
+ 
+ 			/* read out to slave crtc as well for bigjoiner */
+ 			if (crtc_state->bigjoiner) {
+@@ -12959,6 +12957,9 @@ static void intel_modeset_readout_hw_state(struct drm_device *dev)
+ 			encoder->base.crtc = NULL;
+ 		}
+ 
++		if (encoder->sync_state)
++			encoder->sync_state(encoder, crtc_state);
 +
- 	/* step6d: enable dsi transcoder */
- 	gen11_dsi_enable_transcoder(encoder);
+ 		drm_dbg_kms(&dev_priv->drm,
+ 			    "[ENCODER:%d:%s] hw state readout: %s, pipe %c\n",
+ 			    encoder->base.base.id, encoder->base.name,
+@@ -13241,17 +13242,6 @@ intel_modeset_setup_hw_state(struct drm_device *dev,
+ 	intel_modeset_readout_hw_state(dev);
  
-@@ -1415,6 +1436,7 @@ static void gen11_dsi_disable(struct intel_atomic_state *state,
- 			      const struct drm_connector_state *old_conn_state)
- {
- 	struct intel_dsi *intel_dsi = enc_to_intel_dsi(encoder);
-+	struct intel_crtc *crtc = to_intel_crtc(old_conn_state->crtc);
+ 	/* HW state is read out, now we need to sanitize this mess. */
+-
+-	/* Sanitize the TypeC port mode upfront, encoders depend on this */
+-	for_each_intel_encoder(dev, encoder) {
+-		enum phy phy = intel_port_to_phy(dev_priv, encoder->port);
+-
+-		/* We need to sanitize only the MST primary port. */
+-		if (encoder->type != INTEL_OUTPUT_DP_MST &&
+-		    intel_phy_is_tc(dev_priv, phy))
+-			intel_tc_port_sanitize(enc_to_dig_port(encoder));
+-	}
+-
+ 	get_encoder_power_domains(dev_priv);
  
- 	/* step1: turn off backlight */
- 	intel_dsi_vbt_exec_sequence(intel_dsi, MIPI_SEQ_BACKLIGHT_OFF);
-@@ -1423,6 +1445,9 @@ static void gen11_dsi_disable(struct intel_atomic_state *state,
- 	/* step2d,e: disable transcoder and wait */
- 	gen11_dsi_disable_transcoder(encoder);
- 
-+	/* Wa_1409054076:icl,jsl,ehl */
-+	icl_apply_kvmr_pipe_a_wa(encoder, crtc->pipe, false);
-+
- 	/* step2f,g: powerdown panel */
- 	gen11_dsi_powerdown_panel(encoder);
- 
-@@ -1548,6 +1573,22 @@ static void gen11_dsi_get_config(struct intel_encoder *encoder,
- 		pipe_config->mode_flags |= I915_MODE_FLAG_DSI_PERIODIC_CMD_MODE;
- }
- 
-+static void gen11_dsi_sync_state(struct intel_encoder *encoder,
-+				 const struct intel_crtc_state *crtc_state)
-+{
-+	struct drm_i915_private *dev_priv = to_i915(encoder->base.dev);
-+	struct intel_crtc *intel_crtc = to_intel_crtc(crtc_state->uapi.crtc);
-+	enum pipe pipe = intel_crtc->pipe;
-+
-+	/* wa verify 1409054076:icl,jsl,ehl */
-+	if (DISPLAY_VER(dev_priv) == 11 && pipe == PIPE_B &&
-+	    !(intel_de_read(dev_priv, CHICKEN_PAR1_1) & IGNORE_KVMR_PIPE_A))
-+		drm_dbg_kms(&dev_priv->drm,
-+			    "[ENCODER:%d:%s] BIOS left IGNORE_KVMR_PIPE_A cleared with pipe B enabled\n",
-+			    encoder->base.base.id,
-+			    encoder->base.name);
-+}
-+
- static int gen11_dsi_dsc_compute_config(struct intel_encoder *encoder,
- 					struct intel_crtc_state *crtc_state)
- {
-@@ -1966,6 +2007,7 @@ void icl_dsi_init(struct drm_i915_private *dev_priv)
- 	encoder->post_disable = gen11_dsi_post_disable;
- 	encoder->port = port;
- 	encoder->get_config = gen11_dsi_get_config;
-+	encoder->sync_state = gen11_dsi_sync_state;
- 	encoder->update_pipe = intel_panel_update_backlight;
- 	encoder->compute_config = gen11_dsi_compute_config;
- 	encoder->get_hw_state = gen11_dsi_get_hw_state;
-diff --git a/drivers/gpu/drm/i915/i915_reg.h b/drivers/gpu/drm/i915/i915_reg.h
-index 7dc58ad08fbb..5aa5ddefd22d 100644
---- a/drivers/gpu/drm/i915/i915_reg.h
-+++ b/drivers/gpu/drm/i915/i915_reg.h
-@@ -8113,6 +8113,7 @@ enum {
- # define CHICKEN3_DGMG_DONE_FIX_DISABLE		(1 << 2)
- 
- #define CHICKEN_PAR1_1			_MMIO(0x42080)
-+#define  IGNORE_KVMR_PIPE_A		REG_BIT(23)
- #define  KBL_ARB_FILL_SPARE_22		REG_BIT(22)
- #define  DIS_RAM_BYPASS_PSR2_MAN_TRACK	(1 << 16)
- #define  SKL_DE_COMPRESSED_HASH_MODE	(1 << 15)
+ 	if (HAS_PCH_IBX(dev_priv))
 -- 
 2.33.0
 
