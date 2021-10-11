@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7074C428FD7
+	by mail.lfdr.de (Postfix) with ESMTP id DB1F8428FD8
 	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:01:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238648AbhJKOBj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:01:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50358 "EHLO mail.kernel.org"
+        id S236985AbhJKOBn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:01:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235542AbhJKN7g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:59:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35DE060EFE;
-        Mon, 11 Oct 2021 13:56:25 +0000 (UTC)
+        id S237698AbhJKN7k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:59:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2FFA60F4B;
+        Mon, 11 Oct 2021 13:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960585;
-        bh=HwKprU92ORmK6ByOOK1Mtexp9Zc6L+J7ZSkS/7jDKbo=;
+        s=korg; t=1633960589;
+        bh=uI2EKXIyFDiJCiGwG1SAnACv0IYFDOjalJyNNkJ8fzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sqiz/8IxyIb0WkiLOCIfZgIgFbE5iLUyR4xRdbxnRZliih51weEIEurS2rLM603XQ
-         aO3IxyvvezCzWcLChNzAU+AxJiD7/XX5aXU+1KknFobeSYFxrX7ONd30SmE+soYi7F
-         SSnGyxvpqCwigYyTyiT5LThkG/3/6lJlxrieynpw=
+        b=NToKh69dqV6ZUqtdHNy0qc9rrtu0wsO4ej9uc7bIb+/Xtp1sh4dFUqeAcw6TGWByM
+         bhIM9QJ3/Y6N9ske3nVVZzGbOIr4S2H3yFKaNEhRZldZIDPMeoXnpGitdz5dhippf8
+         mH8xRY2nQ04pp7EEmwYzQjSjrMydHXVBjsPQ6txc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Charlene Liu <Charlene.Liu@amd.com>,
-        Solomon Chiu <solomon.chiu@amd.com>,
-        Hansen <Hansen.Dsouza@amd.com>,
+        stable@vger.kernel.org, Charlene Liu <charlene.liu@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Zhan Liu <Zhan.Liu@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.14 016/151] drm/amd/display: Fix detection of 4 lane for DPALT
-Date:   Mon, 11 Oct 2021 15:44:48 +0200
-Message-Id: <20211011134518.379826581@linuxfoundation.org>
+Subject: [PATCH 5.14 017/151] drm/amd/display: Fix DCN3 B0 DP Alt Mapping
+Date:   Mon, 11 Oct 2021 15:44:49 +0200
+Message-Id: <20211011134518.411527068@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -41,89 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hansen <Hansen.Dsouza@amd.com>
+From: Liu, Zhan <Zhan.Liu@amd.com>
 
-commit 5a1fef027846e7635b9d320b2cc0b416fd11a3be upstream.
+commit 2fe9a0e1173f4805669e7af34ea25af835274426 upstream.
 
 [Why]
-DPALT detection for B0 PHY has its own set of RDPCSPIPE registers
+DCN3 B0 has a mux, which redirects PHYC and PHYD to PHYF and PHYG.
 
 [How]
-Use RDPCSPIPE registers to detect if DPALT lane is 4 lane
+Fix DIG mapping.
 
-Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
-Acked-by: Solomon Chiu <solomon.chiu@amd.com>
-Signed-off-by: Hansen <Hansen.Dsouza@amd.com>
+Reviewed-by: Charlene Liu <charlene.liu@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Zhan Liu <Zhan.Liu@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
+(cherry picked from commit 4b7786d87fb3adf3e534c4f1e4f824d8700b786b)
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn31/dcn31_dio_link_encoder.c |   33 +++++++++-
- drivers/gpu/drm/amd/display/dc/dcn31/dcn31_dio_link_encoder.h |    3 
- 2 files changed, 35 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_dio_link_encoder.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_dio_link_encoder.c
-@@ -63,6 +63,10 @@
- #define AUX_REG_WRITE(reg_name, val) \
- 			dm_write_reg(CTX, AUX_REG(reg_name), val)
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
+@@ -1284,6 +1284,12 @@ static struct stream_encoder *dcn31_stre
+ 	if (!enc1 || !vpg || !afmt)
+ 		return NULL;
  
-+#ifndef MIN
-+#define MIN(X, Y) ((X) < (Y) ? (X) : (Y))
-+#endif
-+
- void dcn31_link_encoder_set_dio_phy_mux(
- 	struct link_encoder *enc,
- 	enum encoder_type_select sel,
-@@ -217,7 +221,7 @@ static const struct link_encoder_funcs d
- 	.get_dig_frontend = dcn10_get_dig_frontend,
- 	.get_dig_mode = dcn10_get_dig_mode,
- 	.is_in_alt_mode = dcn31_link_encoder_is_in_alt_mode,
--	.get_max_link_cap = dcn20_link_encoder_get_max_link_cap,
-+	.get_max_link_cap = dcn31_link_encoder_get_max_link_cap,
- 	.set_dio_phy_mux = dcn31_link_encoder_set_dio_phy_mux,
- };
- 
-@@ -435,3 +439,30 @@ bool dcn31_link_encoder_is_in_alt_mode(s
- 
- 	return is_usb_c_alt_mode;
- }
-+
-+void dcn31_link_encoder_get_max_link_cap(struct link_encoder *enc,
-+										 struct dc_link_settings *link_settings)
-+{
-+	struct dcn10_link_encoder *enc10 = TO_DCN10_LINK_ENC(enc);
-+	uint32_t is_in_usb_c_dp4_mode = 0;
-+
-+	dcn10_link_encoder_get_max_link_cap(enc, link_settings);
-+
-+	/* in usb c dp2 mode, max lane count is 2 */
-+	if (enc->funcs->is_in_alt_mode && enc->funcs->is_in_alt_mode(enc)) {
-+		if (enc->ctx->asic_id.hw_internal_rev != YELLOW_CARP_B0) {
-+			// [Note] no need to check hw_internal_rev once phy mux selection is ready
-+			REG_GET(RDPCSTX_PHY_CNTL6, RDPCS_PHY_DPALT_DP4, &is_in_usb_c_dp4_mode);
-+		} else {
-+			if ((enc10->base.transmitter == TRANSMITTER_UNIPHY_A)
-+					|| (enc10->base.transmitter == TRANSMITTER_UNIPHY_B)
-+					|| (enc10->base.transmitter == TRANSMITTER_UNIPHY_E)) {
-+				REG_GET(RDPCSTX_PHY_CNTL6, RDPCS_PHY_DPALT_DP4, &is_in_usb_c_dp4_mode);
-+			} else {
-+				REG_GET(RDPCSPIPE_PHY_CNTL6, RDPCS_PHY_DPALT_DP4, &is_in_usb_c_dp4_mode);
-+			}
-+		}
-+		if (!is_in_usb_c_dp4_mode)
-+			link_settings->lane_count = MIN(LANE_COUNT_TWO, link_settings->lane_count);
++	if (ctx->asic_id.chip_family == FAMILY_YELLOW_CARP &&
++			ctx->asic_id.hw_internal_rev == YELLOW_CARP_B0) {
++		if ((eng_id == ENGINE_ID_DIGC) || (eng_id == ENGINE_ID_DIGD))
++			eng_id = eng_id + 3; // For B0 only. C->F, D->G.
 +	}
-+}
---- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_dio_link_encoder.h
-+++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_dio_link_encoder.h
-@@ -252,4 +252,7 @@ void dcn31_link_encoder_disable_output(
- bool dcn31_link_encoder_is_in_alt_mode(
- 	struct link_encoder *enc);
- 
-+void dcn31_link_encoder_get_max_link_cap(struct link_encoder *enc,
-+	struct dc_link_settings *link_settings);
 +
- #endif /* __DC_LINK_ENCODER__DCN31_H__ */
+ 	dcn30_dio_stream_encoder_construct(enc1, ctx, ctx->dc_bios,
+ 					eng_id, vpg, afmt,
+ 					&stream_enc_regs[eng_id],
 
 
