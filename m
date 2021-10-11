@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D41B9428EA6
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:49:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98837428F3C
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:54:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237256AbhJKNvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:51:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38834 "EHLO mail.kernel.org"
+        id S237742AbhJKN43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:56:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237273AbhJKNuf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:50:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7081C60E78;
-        Mon, 11 Oct 2021 13:48:20 +0000 (UTC)
+        id S235476AbhJKNyb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:54:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E0BF60F11;
+        Mon, 11 Oct 2021 13:52:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960101;
-        bh=TlsljXNSGTRmUJEi2e28lyCPPXlU3cElKlNwMKMhxEk=;
+        s=korg; t=1633960336;
+        bh=4FxJVdVhKieCEydt0c2Cf/EXCXYWRYaRt97o9ypkH2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RakoWLwfTtBYiZUybaHzehihISxE/nwEev+0Sb4zbkVt3VDWr2gS7LsqXyHLe3OfZ
-         Yso/2yJonhGueg3PaRl1SyLmhYrPahDjYqDe/EVncXJqHCPk8dpZeTcXhh/+jXlzlr
-         NFfbZG0d+Gy5PhJKaznFDUmwJU1h79zRPG41cPXQ=
+        b=UquVYUaOQmHcLnF5KBgzHXBCdMFyJUJ/x/CtfnTlfac7Af/jmS9pdJ9iFIEKNMzSh
+         VKfhLUrtRYL9AliEngTQaWTBFOSdPfBepJbykN28eOudKl+hUkY+//s52DiiaqjXU4
+         gTiGRp467Q7g4J+LRff8jEXFY4ZfH8IN/5PpmfDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 21/52] xtensa: move XCHAL_KIO_* definitions to kmem_layout.h
+Subject: [PATCH 5.10 30/83] ath5k: fix building with LEDS=m
 Date:   Mon, 11 Oct 2021 15:45:50 +0200
-Message-Id: <20211011134504.449751617@linuxfoundation.org>
+Message-Id: <20211011134509.408152192@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
-References: <20211011134503.715740503@linuxfoundation.org>
+In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
+References: <20211011134508.362906295@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,125 +40,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 6591685d50043f615a1ad7ddd5bb263ef54808fc ]
+[ Upstream commit fb8c3a3c52400512fc8b3b61150057b888c30b0d ]
 
-These address and size definitions define xtensa kernel memory layout,
-move them from vectors.h to the kmem_layout.h
+Randconfig builds still show a failure for the ath5k driver,
+similar to the one that was fixed for ath9k earlier:
 
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+WARNING: unmet direct dependencies detected for MAC80211_LEDS
+  Depends on [n]: NET [=y] && WIRELESS [=y] && MAC80211 [=y] && (LEDS_CLASS [=m]=y || LEDS_CLASS [=m]=MAC80211 [=y])
+  Selected by [m]:
+  - ATH5K [=m] && NETDEVICES [=y] && WLAN [=y] && WLAN_VENDOR_ATH [=y] && (PCI [=y] || ATH25) && MAC80211 [=y]
+net/mac80211/led.c: In function 'ieee80211_alloc_led_names':
+net/mac80211/led.c:34:22: error: 'struct led_trigger' has no member named 'name'
+   34 |         local->rx_led.name = kasprintf(GFP_KERNEL, "%srx",
+      |                      ^
+
+Copying the same logic from my ath9k patch makes this one work
+as well, stubbing out the calls to the LED subsystem.
+
+Fixes: b64acb28da83 ("ath9k: fix build error with LEDS_CLASS=m")
+Fixes: 72cdab808714 ("ath9k: Do not select MAC80211_LEDS by default")
+Fixes: 3a078876caee ("ath5k: convert LED code to use mac80211 triggers")
+Link: https://lore.kernel.org/all/20210722105501.1000781-1-arnd@kernel.org/
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210920122359.353810-1-arnd@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/include/asm/kmem_layout.h | 29 ++++++++++++++++++
- arch/xtensa/include/asm/vectors.h     | 42 ++-------------------------
- 2 files changed, 32 insertions(+), 39 deletions(-)
+ drivers/net/wireless/ath/ath5k/Kconfig |  4 +---
+ drivers/net/wireless/ath/ath5k/led.c   | 10 ++++++----
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/arch/xtensa/include/asm/kmem_layout.h b/arch/xtensa/include/asm/kmem_layout.h
-index 9c12babc016c..7cbf68ca7106 100644
---- a/arch/xtensa/include/asm/kmem_layout.h
-+++ b/arch/xtensa/include/asm/kmem_layout.h
-@@ -11,6 +11,7 @@
- #ifndef _XTENSA_KMEM_LAYOUT_H
- #define _XTENSA_KMEM_LAYOUT_H
+diff --git a/drivers/net/wireless/ath/ath5k/Kconfig b/drivers/net/wireless/ath/ath5k/Kconfig
+index f35cd8de228e..6914b37bb0fb 100644
+--- a/drivers/net/wireless/ath/ath5k/Kconfig
++++ b/drivers/net/wireless/ath/ath5k/Kconfig
+@@ -3,9 +3,7 @@ config ATH5K
+ 	tristate "Atheros 5xxx wireless cards support"
+ 	depends on (PCI || ATH25) && MAC80211
+ 	select ATH_COMMON
+-	select MAC80211_LEDS
+-	select LEDS_CLASS
+-	select NEW_LEDS
++	select MAC80211_LEDS if LEDS_CLASS=y || LEDS_CLASS=MAC80211
+ 	select ATH5K_AHB if ATH25
+ 	select ATH5K_PCI if !ATH25
+ 	help
+diff --git a/drivers/net/wireless/ath/ath5k/led.c b/drivers/net/wireless/ath/ath5k/led.c
+index 6a2a16856763..33e9928af363 100644
+--- a/drivers/net/wireless/ath/ath5k/led.c
++++ b/drivers/net/wireless/ath/ath5k/led.c
+@@ -89,7 +89,8 @@ static const struct pci_device_id ath5k_led_devices[] = {
  
-+#include <asm/core.h>
- #include <asm/types.h>
+ void ath5k_led_enable(struct ath5k_hw *ah)
+ {
+-	if (test_bit(ATH_STAT_LEDSOFT, ah->status)) {
++	if (IS_ENABLED(CONFIG_MAC80211_LEDS) &&
++	    test_bit(ATH_STAT_LEDSOFT, ah->status)) {
+ 		ath5k_hw_set_gpio_output(ah, ah->led_pin);
+ 		ath5k_led_off(ah);
+ 	}
+@@ -104,7 +105,8 @@ static void ath5k_led_on(struct ath5k_hw *ah)
  
- #ifdef CONFIG_MMU
-@@ -65,6 +66,34 @@
+ void ath5k_led_off(struct ath5k_hw *ah)
+ {
+-	if (!test_bit(ATH_STAT_LEDSOFT, ah->status))
++	if (!IS_ENABLED(CONFIG_MAC80211_LEDS) ||
++	    !test_bit(ATH_STAT_LEDSOFT, ah->status))
+ 		return;
+ 	ath5k_hw_set_gpio(ah, ah->led_pin, !ah->led_on);
+ }
+@@ -146,7 +148,7 @@ ath5k_register_led(struct ath5k_hw *ah, struct ath5k_led *led,
+ static void
+ ath5k_unregister_led(struct ath5k_led *led)
+ {
+-	if (!led->ah)
++	if (!IS_ENABLED(CONFIG_MAC80211_LEDS) || !led->ah)
+ 		return;
+ 	led_classdev_unregister(&led->led_dev);
+ 	ath5k_led_off(led->ah);
+@@ -169,7 +171,7 @@ int ath5k_init_leds(struct ath5k_hw *ah)
+ 	char name[ATH5K_LED_MAX_NAME_LEN + 1];
+ 	const struct pci_device_id *match;
  
- #endif
+-	if (!ah->pdev)
++	if (!IS_ENABLED(CONFIG_MAC80211_LEDS) || !ah->pdev)
+ 		return 0;
  
-+/* KIO definition */
-+
-+#if XCHAL_HAVE_PTP_MMU
-+#define XCHAL_KIO_CACHED_VADDR		0xe0000000
-+#define XCHAL_KIO_BYPASS_VADDR		0xf0000000
-+#define XCHAL_KIO_DEFAULT_PADDR		0xf0000000
-+#else
-+#define XCHAL_KIO_BYPASS_VADDR		XCHAL_KIO_PADDR
-+#define XCHAL_KIO_DEFAULT_PADDR		0x90000000
-+#endif
-+#define XCHAL_KIO_SIZE			0x10000000
-+
-+#if (!XCHAL_HAVE_PTP_MMU || XCHAL_HAVE_SPANNING_WAY) && defined(CONFIG_OF)
-+#define XCHAL_KIO_PADDR			xtensa_get_kio_paddr()
-+#ifndef __ASSEMBLY__
-+extern unsigned long xtensa_kio_paddr;
-+
-+static inline unsigned long xtensa_get_kio_paddr(void)
-+{
-+	return xtensa_kio_paddr;
-+}
-+#endif
-+#else
-+#define XCHAL_KIO_PADDR			XCHAL_KIO_DEFAULT_PADDR
-+#endif
-+
-+/* KERNEL_STACK definition */
-+
- #ifndef CONFIG_KASAN
- #define KERNEL_STACK_SHIFT	13
- #else
-diff --git a/arch/xtensa/include/asm/vectors.h b/arch/xtensa/include/asm/vectors.h
-index 79fe3007919e..4220c6dac44f 100644
---- a/arch/xtensa/include/asm/vectors.h
-+++ b/arch/xtensa/include/asm/vectors.h
-@@ -21,50 +21,14 @@
- #include <asm/core.h>
- #include <asm/kmem_layout.h>
- 
--#if XCHAL_HAVE_PTP_MMU
--#define XCHAL_KIO_CACHED_VADDR		0xe0000000
--#define XCHAL_KIO_BYPASS_VADDR		0xf0000000
--#define XCHAL_KIO_DEFAULT_PADDR		0xf0000000
--#else
--#define XCHAL_KIO_BYPASS_VADDR		XCHAL_KIO_PADDR
--#define XCHAL_KIO_DEFAULT_PADDR		0x90000000
--#endif
--#define XCHAL_KIO_SIZE			0x10000000
--
--#if (!XCHAL_HAVE_PTP_MMU || XCHAL_HAVE_SPANNING_WAY) && defined(CONFIG_OF)
--#define XCHAL_KIO_PADDR			xtensa_get_kio_paddr()
--#ifndef __ASSEMBLY__
--extern unsigned long xtensa_kio_paddr;
--
--static inline unsigned long xtensa_get_kio_paddr(void)
--{
--	return xtensa_kio_paddr;
--}
--#endif
--#else
--#define XCHAL_KIO_PADDR			XCHAL_KIO_DEFAULT_PADDR
--#endif
--
--#if defined(CONFIG_MMU)
--
--#if XCHAL_HAVE_PTP_MMU && XCHAL_HAVE_SPANNING_WAY
--/* Image Virtual Start Address */
--#define KERNELOFFSET			(XCHAL_KSEG_CACHED_VADDR + \
--					 CONFIG_KERNEL_LOAD_ADDRESS - \
-+#if defined(CONFIG_MMU) && XCHAL_HAVE_PTP_MMU && XCHAL_HAVE_SPANNING_WAY
-+#define KERNELOFFSET			(CONFIG_KERNEL_LOAD_ADDRESS + \
-+					 XCHAL_KSEG_CACHED_VADDR - \
- 					 XCHAL_KSEG_PADDR)
- #else
- #define KERNELOFFSET			CONFIG_KERNEL_LOAD_ADDRESS
- #endif
- 
--#else /* !defined(CONFIG_MMU) */
--  /* MMU Not being used - Virtual == Physical */
--
--/* Location of the start of the kernel text, _start */
--#define KERNELOFFSET			CONFIG_KERNEL_LOAD_ADDRESS
--
--
--#endif /* CONFIG_MMU */
--
- #define RESET_VECTOR1_VADDR		(XCHAL_RESET_VECTOR1_VADDR)
- #ifdef CONFIG_VECTORS_OFFSET
- #define VECBASE_VADDR			(KERNELOFFSET - CONFIG_VECTORS_OFFSET)
+ #ifdef CONFIG_ATH5K_AHB
 -- 
 2.33.0
 
