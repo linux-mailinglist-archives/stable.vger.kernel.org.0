@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B427429106
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:13:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1A24429107
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:13:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237451AbhJKOO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:14:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35126 "EHLO mail.kernel.org"
+        id S243977AbhJKOO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:14:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239779AbhJKOM5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239831AbhJKOM5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 11 Oct 2021 10:12:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 867EC611C2;
-        Mon, 11 Oct 2021 14:03:53 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C4B360F21;
+        Mon, 11 Oct 2021 14:03:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633961034;
-        bh=i4KSlN2BJLnXvM1TLetSR1zb2SE69fE3rg4S2qP9WGI=;
+        s=korg; t=1633961036;
+        bh=Sa7aI8yrea0RsQR0jfcq3Sd19V1UsA6qiIfmHushLHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wQK+l2n6ZIper7RV7zMs/uhl0G/FBnX1UTv7dkw8QKYd7JMhKy+z/eL53U9JGAAGB
-         KuauGjbJkm+BB6e+A1TUUBeY8u8KZcuiU7cus8JvI+zk2SHSaI/VILg38l723ttsC9
-         UssKl8hBNzFXJNaLQeIy9wsqYv85QFqawol6ZKZw=
+        b=oHlkyDkmZ230AAFFCJJflBk7zZ6H1f+ofK6byszcne0DAtI0kcRJNyliMwULKtZUQ
+         iiqh9dhOOig1q/D6f8dcwp+F5mEkhG75bh3XabUsI/4UFzeBj9c+oLjKMgQpwVOJPf
+         Sv9Gnzeap6gylGyhclaK+66wJjMt+h0JWz2AS3FM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        PJ Waskiewicz <pwaskiewicz@jumptrading.com>,
-        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Dave Switzer <david.switzer@intel.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Stefan Assmann <sassmann@kpanic.de>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 115/151] i40e: Fix freeing of uninitialized misc IRQ vector
-Date:   Mon, 11 Oct 2021 15:46:27 +0200
-Message-Id: <20211011134521.534772209@linuxfoundation.org>
+Subject: [PATCH 5.14 116/151] iavf: fix double unlock of crit_lock
+Date:   Mon, 11 Oct 2021 15:46:28 +0200
+Message-Id: <20211011134521.564466672@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -44,77 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+From: Stefan Assmann <sassmann@kpanic.de>
 
-[ Upstream commit 2e5a20573a926302b233b0c2e1077f5debc7ab2e ]
+[ Upstream commit 54ee39439acd9f8b161703c6ad4f4e1835585277 ]
 
-When VSI set up failed in i40e_probe() as part of PF switch set up
-driver was trying to free misc IRQ vectors in
-i40e_clear_interrupt_scheme and produced a kernel Oops:
+The crit_lock mutex could be unlocked twice as reported here
+https://lists.osuosl.org/pipermail/intel-wired-lan/Week-of-Mon-20210823/025525.html
 
-   Trying to free already-free IRQ 266
-   WARNING: CPU: 0 PID: 5 at kernel/irq/manage.c:1731 __free_irq+0x9a/0x300
-   Workqueue: events work_for_cpu_fn
-   RIP: 0010:__free_irq+0x9a/0x300
-   Call Trace:
-   ? synchronize_irq+0x3a/0xa0
-   free_irq+0x2e/0x60
-   i40e_clear_interrupt_scheme+0x53/0x190 [i40e]
-   i40e_probe.part.108+0x134b/0x1a40 [i40e]
-   ? kmem_cache_alloc+0x158/0x1c0
-   ? acpi_ut_update_ref_count.part.1+0x8e/0x345
-   ? acpi_ut_update_object_reference+0x15e/0x1e2
-   ? strstr+0x21/0x70
-   ? irq_get_irq_data+0xa/0x20
-   ? mp_check_pin_attr+0x13/0xc0
-   ? irq_get_irq_data+0xa/0x20
-   ? mp_map_pin_to_irq+0xd3/0x2f0
-   ? acpi_register_gsi_ioapic+0x93/0x170
-   ? pci_conf1_read+0xa4/0x100
-   ? pci_bus_read_config_word+0x49/0x70
-   ? do_pci_enable_device+0xcc/0x100
-   local_pci_probe+0x41/0x90
-   work_for_cpu_fn+0x16/0x20
-   process_one_work+0x1a7/0x360
-   worker_thread+0x1cf/0x390
-   ? create_worker+0x1a0/0x1a0
-   kthread+0x112/0x130
-   ? kthread_flush_work_fn+0x10/0x10
-   ret_from_fork+0x1f/0x40
+Remove the superfluous unlock. Technically the problem was already
+present before 5ac49f3c2702 as that commit only replaced the locking
+primitive, but no functional change.
 
-The problem is that at that point misc IRQ vectors
-were not allocated yet and we get a call trace
-that driver is trying to free already free IRQ vectors.
-
-Add a check in i40e_clear_interrupt_scheme for __I40E_MISC_IRQ_REQUESTED
-PF state before calling i40e_free_misc_vector. This state is set only if
-misc IRQ vectors were properly initialized.
-
-Fixes: c17401a1dd21 ("i40e: use separate state bit for miscellaneous IRQ setup")
-Reported-by: PJ Waskiewicz <pwaskiewicz@jumptrading.com>
-Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Dave Switzer <david.switzer@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 5ac49f3c2702 ("iavf: use mutexes for locking of critical sections")
+Fixes: bac8486116b0 ("iavf: Refactor the watchdog state machine")
+Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 772dd05a0ae8..5d3d6b1dae7b 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -4868,7 +4868,8 @@ static void i40e_clear_interrupt_scheme(struct i40e_pf *pf)
- {
- 	int i;
- 
--	i40e_free_misc_vector(pf);
-+	if (test_bit(__I40E_MISC_IRQ_REQUESTED, pf->state))
-+		i40e_free_misc_vector(pf);
- 
- 	i40e_put_lump(pf->irq_pile, pf->iwarp_base_vector,
- 		      I40E_IWARP_IRQ_PILE_ID);
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 23762a7ef740..cada4e0e40b4 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -1965,7 +1965,6 @@ static void iavf_watchdog_task(struct work_struct *work)
+ 		}
+ 		adapter->aq_required = 0;
+ 		adapter->current_op = VIRTCHNL_OP_UNKNOWN;
+-		mutex_unlock(&adapter->crit_lock);
+ 		queue_delayed_work(iavf_wq,
+ 				   &adapter->watchdog_task,
+ 				   msecs_to_jiffies(10));
 -- 
 2.33.0
 
