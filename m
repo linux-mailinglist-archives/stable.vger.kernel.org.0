@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB3B1429142
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:15:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01C79429115
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:13:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238484AbhJKOQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:16:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35128 "EHLO mail.kernel.org"
+        id S244251AbhJKOPg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:15:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238595AbhJKOO6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:14:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D41B611CE;
-        Mon, 11 Oct 2021 14:05:02 +0000 (UTC)
+        id S243886AbhJKON1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:13:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D835F6128A;
+        Mon, 11 Oct 2021 14:04:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633961103;
-        bh=fKNquCeiYuxEjn89NaoIFtkQBvcyY+XiXcxROKKjuTQ=;
+        s=korg; t=1633961059;
+        bh=99AyWAF8IJk2ARIKBNNnAEB7qLtTvX0BfrcYa2p3i/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LTJojQpKH8HkM8EeqlxJGn7I59/MP+jdr93Vycc7QHqVW7K0WVA4KW2igoorDpLfw
-         vxtP/jGrm4Jjk1ELa89wh3EhBsPls+xm33HnhlaNKL04ekUO0BzuJvRuGTQqZuy0pW
-         y2EZDCyBr1pLCEqB3C3LcBz6qcz1BZa8xI3cR/+4=
+        b=1yjp0fe7EkEIlfHBU0nf4wso4qrY3RKXqE6K3iISh162lnrB3Ym/I9kEs5EAO/4Hj
+         B12S9+vHwzymRfxVr51ZlR9YHdEBX+1UwzR4MGhAIOfp8codEZBYOXJoElKZrYzbfc
+         6Njnpmcfo0M8eLaNOlflnaRYnrMHWBIZvoZZFaIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH 4.19 09/28] ARM: dts: qcom: apq8064: use compatible which contains chipid
+        stable@vger.kernel.org, Ser Olmy <ser.olmy@protonmail.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.14 147/151] x86/fpu: Restore the masking out of reserved MXCSR bits
 Date:   Mon, 11 Oct 2021 15:46:59 +0200
-Message-Id: <20211011134641.016963116@linuxfoundation.org>
+Message-Id: <20211011134522.575320425@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134640.711218469@linuxfoundation.org>
-References: <20211011134640.711218469@linuxfoundation.org>
+In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
+References: <20211011134517.833565002@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +39,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Heidelberg <david@ixit.cz>
+From: Borislav Petkov <bp@suse.de>
 
-commit f5c03f131dae3f06d08464e6157dd461200f78d9 upstream.
+commit d298b03506d3e161f7492c440babb0bfae35e650 upstream.
 
-Also resolves these kernel warnings for APQ8064:
-adreno 4300000.adreno-3xx: Using legacy qcom,chipid binding!
-adreno 4300000.adreno-3xx: Use compatible qcom,adreno-320.2 instead.
+Ser Olmy reported a boot failure:
 
-Tested on Nexus 7 2013, no functional changes.
+  init[1] bad frame in sigreturn frame:(ptrval) ip:b7c9fbe6 sp:bf933310 orax:ffffffff \
+	  in libc-2.33.so[b7bed000+156000]
+  Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
+  CPU: 0 PID: 1 Comm: init Tainted: G        W         5.14.9 #1
+  Hardware name: Hewlett-Packard HP PC/HP Board, BIOS  JD.00.06 12/06/2001
+  Call Trace:
+   dump_stack_lvl
+   dump_stack
+   panic
+   do_exit.cold
+   do_group_exit
+   get_signal
+   arch_do_signal_or_restart
+   ? force_sig_info_to_task
+   ? force_sig
+   exit_to_user_mode_prepare
+   syscall_exit_to_user_mode
+   do_int80_syscall_32
+   entry_INT80_32
 
+on an old 32-bit Intel CPU:
+
+  vendor_id       : GenuineIntel
+  cpu family      : 6
+  model           : 6
+  model name      : Celeron (Mendocino)
+  stepping        : 5
+  microcode       : 0x3
+
+Ser bisected the problem to the commit in Fixes.
+
+tglx suggested reverting the rejection of invalid MXCSR values which
+this commit introduced and replacing it with what the old code did -
+simply masking them out to zero.
+
+Further debugging confirmed his suggestion:
+
+  fpu->state.fxsave.mxcsr: 0xb7be13b4, mxcsr_feature_mask: 0xffbf
+  WARNING: CPU: 0 PID: 1 at arch/x86/kernel/fpu/signal.c:384 __fpu_restore_sig+0x51f/0x540
+
+so restore the original behavior only for 32-bit kernels where you have
+ancient machines with buggy hardware. For 32-bit programs on 64-bit
+kernels, user space which supplies wrong MXCSR values is considered
+malicious so fail the sigframe restoration there.
+
+Fixes: 6f9866a166cd ("x86/fpu/signal: Let xrstor handle the features to init")
+Reported-by: Ser Olmy <ser.olmy@protonmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Ser Olmy <ser.olmy@protonmail.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Link: https://lore.kernel.org/r/20210818065317.19822-1-david@ixit.cz
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lkml.kernel.org/r/YVtA67jImg3KlBTw@zn.tnic
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/qcom-apq8064.dtsi |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/x86/kernel/fpu/signal.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/arch/arm/boot/dts/qcom-apq8064.dtsi
-+++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
-@@ -1182,7 +1182,7 @@
- 		};
+--- a/arch/x86/kernel/fpu/signal.c
++++ b/arch/x86/kernel/fpu/signal.c
+@@ -379,9 +379,14 @@ static int __fpu_restore_sig(void __user
+ 				     sizeof(fpu->state.fxsave)))
+ 			return -EFAULT;
  
- 		gpu: adreno-3xx@4300000 {
--			compatible = "qcom,adreno-3xx";
-+			compatible = "qcom,adreno-320.2", "qcom,adreno";
- 			reg = <0x04300000 0x20000>;
- 			reg-names = "kgsl_3d0_reg_memory";
- 			interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
-@@ -1197,7 +1197,6 @@
- 			    <&mmcc GFX3D_AHB_CLK>,
- 			    <&mmcc GFX3D_AXI_CLK>,
- 			    <&mmcc MMSS_IMEM_AHB_CLK>;
--			qcom,chipid = <0x03020002>;
+-		/* Reject invalid MXCSR values. */
+-		if (fpu->state.fxsave.mxcsr & ~mxcsr_feature_mask)
+-			return -EINVAL;
++		if (IS_ENABLED(CONFIG_X86_64)) {
++			/* Reject invalid MXCSR values. */
++			if (fpu->state.fxsave.mxcsr & ~mxcsr_feature_mask)
++				return -EINVAL;
++		} else {
++			/* Mask invalid bits out for historical reasons (broken hardware). */
++			fpu->state.fxsave.mxcsr &= ~mxcsr_feature_mask;
++		}
  
- 			iommus = <&gfx3d 0
- 				  &gfx3d 1
+ 		/* Enforce XFEATURE_MASK_FPSSE when XSAVE is enabled */
+ 		if (use_xsave())
 
 
