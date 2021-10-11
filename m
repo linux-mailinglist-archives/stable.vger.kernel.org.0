@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7F4E42904D
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:05:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54E09429057
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:07:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240772AbhJKOHD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:07:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57621 "EHLO mail.kernel.org"
+        id S241373AbhJKOH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:07:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237698AbhJKOFA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:05:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C7BB611F2;
-        Mon, 11 Oct 2021 13:59:33 +0000 (UTC)
+        id S239626AbhJKOFZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:05:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 848EB60EFE;
+        Mon, 11 Oct 2021 13:59:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960773;
-        bh=ctfe0Z8/2YtB7NkTBvaGIbKBy95xDYC8PyDDwW+MqGo=;
+        s=korg; t=1633960777;
+        bh=arfcURbsQfppmq91R9DdHmfGPrVagpm0wAbOtRxWn0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SbD9RWZgmZCS1rTOm0qkPpStFvKdxjTQBVNOz3wj+OKv7gC+o8nzWpn7N8YXFxjuv
-         iuokws+CpOo6wU4wx0cgN7KdH0AYwTE5vfgRPjlgj5pHyXy6sgdeNGtfCxSdx6mxOW
-         QglooB8GNPnWcN0VSAtVv9fCC6cGrSXUQhB+3zgc=
+        b=BR7WZhTztuUBViMLn0LjmiyFy/7BaaXKw3Mx8UiB6TTqt3wUzP9Dyh75HmCS65wA9
+         DVLUlv2FEmvr7hQgd/C2rGmbs1ZqZ9x/an5L2Ll2FeClXXuk6Dl2GeDUfDzXKdqbZx
+         M4zx//68YpgO8EhavKjg2G5U5ErLLKgWWNnFaloE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 069/151] net_sched: fix NULL deref in fifo_set_limit()
-Date:   Mon, 11 Oct 2021 15:45:41 +0200
-Message-Id: <20211011134520.075055280@linuxfoundation.org>
+Subject: [PATCH 5.14 070/151] net: mscc: ocelot: fix VCAP filters remaining active after being deleted
+Date:   Mon, 11 Oct 2021 15:45:42 +0200
+Message-Id: <20211011134520.105539598@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -41,85 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 560ee196fe9e5037e5015e2cdb14b3aecb1cd7dc ]
+[ Upstream commit 019d9329e7481cfaccbd8ed17b1e04ca76970f13 ]
 
-syzbot reported another NULL deref in fifo_set_limit() [1]
+When ocelot_flower.c calls ocelot_vcap_filter_add(), the filter has a
+given filter->id.cookie. This filter is added to the block->rules list.
 
-I could repro the issue with :
+However, when ocelot_flower.c calls ocelot_vcap_block_find_filter_by_id()
+which passes the cookie as argument, the filter is never found by
+filter->id.cookie when searching through the block->rules list.
 
-unshare -n
-tc qd add dev lo root handle 1:0 tbf limit 200000 burst 70000 rate 100Mbit
-tc qd replace dev lo parent 1:0 pfifo_fast
-tc qd change dev lo root handle 1:0 tbf limit 300000 burst 70000 rate 100Mbit
+This is unsurprising, since the filter->id.cookie is an unsigned long,
+but the cookie argument provided to ocelot_vcap_block_find_filter_by_id()
+is a signed int, and the comparison fails.
 
-pfifo_fast does not have a change() operation.
-Make fifo_set_limit() more robust about this.
-
-[1]
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-PGD 1cf99067 P4D 1cf99067 PUD 7ca49067 PMD 0
-Oops: 0010 [#1] PREEMPT SMP KASAN
-CPU: 1 PID: 14443 Comm: syz-executor959 Not tainted 5.15.0-rc3-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:0x0
-Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
-RSP: 0018:ffffc9000e2f7310 EFLAGS: 00010246
-RAX: dffffc0000000000 RBX: ffffffff8d6ecc00 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffff888024c27910 RDI: ffff888071e34000
-RBP: ffff888071e34000 R08: 0000000000000001 R09: ffffffff8fcfb947
-R10: 0000000000000001 R11: 0000000000000000 R12: ffff888024c27910
-R13: ffff888071e34018 R14: 0000000000000000 R15: ffff88801ef74800
-FS:  00007f321d897700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffffffffd6 CR3: 00000000722c3000 CR4: 00000000003506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- fifo_set_limit net/sched/sch_fifo.c:242 [inline]
- fifo_set_limit+0x198/0x210 net/sched/sch_fifo.c:227
- tbf_change+0x6ec/0x16d0 net/sched/sch_tbf.c:418
- qdisc_change net/sched/sch_api.c:1332 [inline]
- tc_modify_qdisc+0xd9a/0x1a60 net/sched/sch_api.c:1634
- rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5572
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2504
- netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1340
- netlink_sendmsg+0x86d/0xdb0 net/netlink/af_netlink.c:1929
- sock_sendmsg_nosec net/socket.c:704 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:724
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2409
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2463
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2492
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Fixes: fb0305ce1b03 ("net-sched: consolidate default fifo qdisc setup")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20210930212239.3430364-1-eric.dumazet@gmail.com
+Fixes: 50c6cc5b9283 ("net: mscc: ocelot: store a namespaced VCAP filter ID")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20210930125330.2078625-1-vladimir.oltean@nxp.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_fifo.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/mscc/ocelot_vcap.c | 4 ++--
+ include/soc/mscc/ocelot_vcap.h          | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/sched/sch_fifo.c b/net/sched/sch_fifo.c
-index a579a4131d22..e1040421b797 100644
---- a/net/sched/sch_fifo.c
-+++ b/net/sched/sch_fifo.c
-@@ -233,6 +233,9 @@ int fifo_set_limit(struct Qdisc *q, unsigned int limit)
- 	if (strncmp(q->ops->id + 1, "fifo", 4) != 0)
- 		return 0;
+diff --git a/drivers/net/ethernet/mscc/ocelot_vcap.c b/drivers/net/ethernet/mscc/ocelot_vcap.c
+index 7945393a0655..99d7376a70a7 100644
+--- a/drivers/net/ethernet/mscc/ocelot_vcap.c
++++ b/drivers/net/ethernet/mscc/ocelot_vcap.c
+@@ -998,8 +998,8 @@ ocelot_vcap_block_find_filter_by_index(struct ocelot_vcap_block *block,
+ }
  
-+	if (!q->ops->change)
-+		return 0;
-+
- 	nla = kmalloc(nla_attr_size(sizeof(struct tc_fifo_qopt)), GFP_KERNEL);
- 	if (nla) {
- 		nla->nla_type = RTM_NEWQDISC;
+ struct ocelot_vcap_filter *
+-ocelot_vcap_block_find_filter_by_id(struct ocelot_vcap_block *block, int cookie,
+-				    bool tc_offload)
++ocelot_vcap_block_find_filter_by_id(struct ocelot_vcap_block *block,
++				    unsigned long cookie, bool tc_offload)
+ {
+ 	struct ocelot_vcap_filter *filter;
+ 
+diff --git a/include/soc/mscc/ocelot_vcap.h b/include/soc/mscc/ocelot_vcap.h
+index 25fd525aaf92..4869ebbd438d 100644
+--- a/include/soc/mscc/ocelot_vcap.h
++++ b/include/soc/mscc/ocelot_vcap.h
+@@ -694,7 +694,7 @@ int ocelot_vcap_filter_add(struct ocelot *ocelot,
+ int ocelot_vcap_filter_del(struct ocelot *ocelot,
+ 			   struct ocelot_vcap_filter *rule);
+ struct ocelot_vcap_filter *
+-ocelot_vcap_block_find_filter_by_id(struct ocelot_vcap_block *block, int id,
+-				    bool tc_offload);
++ocelot_vcap_block_find_filter_by_id(struct ocelot_vcap_block *block,
++				    unsigned long cookie, bool tc_offload);
+ 
+ #endif /* _OCELOT_VCAP_H_ */
 -- 
 2.33.0
 
