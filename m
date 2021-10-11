@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15559429049
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:05:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5928142904C
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:05:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238793AbhJKOGx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:06:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57344 "EHLO mail.kernel.org"
+        id S240724AbhJKOHC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:07:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237693AbhJKOEw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:04:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC3F061177;
-        Mon, 11 Oct 2021 13:59:26 +0000 (UTC)
+        id S237996AbhJKOFA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:05:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3A61611CE;
+        Mon, 11 Oct 2021 13:59:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960767;
-        bh=0AnTTKpBgjamJo8Qw55yMDKW0FGd9c4A6JAyqlAHStg=;
+        s=korg; t=1633960771;
+        bh=4ZuKaxt9DmrfB/UDHzyV2kWzu915lcEmuOr1QnS+O7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OYS+STMWM7Z8ACYhzMfXbimhMVTZUQH4L4Xt3j2LDJnGURStoNmxjwhrs/6vFFkI7
-         nv4yb0FLsQ5bXEF1UxEuItoSTryzoqL0vnFBDzwkLsPxcC/IcJUIsOxD/ZpXlhN1tB
-         W6MU5rQPhh0WQtUAXHn/IiRo7IimQUt3Ja5bSbdQ=
+        b=Ps7X6o6BPuq4Wrv9aRXqwkfbN29MR0u8iIdB8U4rJUMTdXuWSXmNdj1mTpjfJwF4x
+         jBGBKGjb53ywc1bTql/ggSXVM1MwI9Zh+04fBwpOfUkJAxTZpWFknRGOYZSSCfykjg
+         gaQj+aMAaWtyr5E9Y7wmQPD212ucHNNcG83AJcy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
-Subject: [PATCH 5.14 067/151] phy: mdio: fix memory leak
-Date:   Mon, 11 Oct 2021 15:45:39 +0200
-Message-Id: <20211011134520.014574952@linuxfoundation.org>
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 068/151] libbpf: Fix memory leak in strset
+Date:   Mon, 11 Oct 2021 15:45:40 +0200
+Message-Id: <20211011134520.045865698@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -42,56 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit ca6e11c337daf7925ff8a2aac8e84490a8691905 ]
+[ Upstream commit b0e875bac0fab3e7a7431c2eee36a8ccc0c712ac ]
 
-Syzbot reported memory leak in MDIO bus interface, the problem was in
-wrong state logic.
+Free struct strset itself, not just its internal parts.
 
-MDIOBUS_ALLOCATED indicates 2 states:
-	1. Bus is only allocated
-	2. Bus allocated and __mdiobus_register() fails, but
-	   device_register() was called
-
-In case of device_register() has been called we should call put_device()
-to correctly free the memory allocated for this device, but mdiobus_free()
-calls just kfree(dev) in case of MDIOBUS_ALLOCATED state
-
-To avoid this behaviour we need to set bus->state to MDIOBUS_UNREGISTERED
-_before_ calling device_register(), because put_device() should be
-called even in case of device_register() failure.
-
-Link: https://lore.kernel.org/netdev/YVMRWNDZDUOvQjHL@shell.armlinux.org.uk/
-Fixes: 46abc02175b3 ("phylib: give mdio buses a device tree presence")
-Reported-and-tested-by: syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/eceae1429fbf8fa5c73dd2a0d39d525aa905074d.1633024062.git.paskripkin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 90d76d3ececc ("libbpf: Extract internal set-of-strings datastructure APIs")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/bpf/20211001185910.86492-1-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio_bus.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ tools/lib/bpf/strset.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
-index ee8313a4ac71..6865d9319197 100644
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -538,6 +538,13 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
- 	bus->dev.groups = NULL;
- 	dev_set_name(&bus->dev, "%s", bus->id);
+diff --git a/tools/lib/bpf/strset.c b/tools/lib/bpf/strset.c
+index 1fb8b49de1d6..ea655318153f 100644
+--- a/tools/lib/bpf/strset.c
++++ b/tools/lib/bpf/strset.c
+@@ -88,6 +88,7 @@ void strset__free(struct strset *set)
  
-+	/* We need to set state to MDIOBUS_UNREGISTERED to correctly release
-+	 * the device in mdiobus_free()
-+	 *
-+	 * State will be updated later in this function in case of success
-+	 */
-+	bus->state = MDIOBUS_UNREGISTERED;
-+
- 	err = device_register(&bus->dev);
- 	if (err) {
- 		pr_err("mii_bus %s failed to register\n", bus->id);
+ 	hashmap__free(set->strs_hash);
+ 	free(set->strs_data);
++	free(set);
+ }
+ 
+ size_t strset__data_size(const struct strset *set)
 -- 
 2.33.0
 
