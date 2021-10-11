@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 690CD428EDD
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:50:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5630A428F61
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:56:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237255AbhJKNwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:52:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39898 "EHLO mail.kernel.org"
+        id S237671AbhJKN57 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:57:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237312AbhJKNv3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:51:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2E9F60F6E;
-        Mon, 11 Oct 2021 13:49:28 +0000 (UTC)
+        id S235237AbhJKN4K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:56:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20D446103C;
+        Mon, 11 Oct 2021 13:53:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960169;
-        bh=keNjjvzLQJSgEUpmj8FQWPXJPc1fSunGgn1xTTnt5Pg=;
+        s=korg; t=1633960403;
+        bh=k0cc0XDtPoedpZGti/tFpfW0LBpBeerD0iGtfvhrWBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xnZK0D8fQ9bN8/XXA5mYwaLPH/kAGwkgOVTPWf3ZIrBPrCwCq9zQ1fseA8x8ZFaSI
-         emheSCl9xE6T9rpYSv0kxU1GFZqTnERT3u8kDD7t+p0mxf9marTe/0qcsFsTypfMbK
-         Hw8qlmBbQkI9SZ8qNoKt/r4PUUTPnU/+sVjwkf80=
+        b=iajFUkaatzuMAnJy1Vy72vinRgJEop5u7MG9AS3L/yWIt/xa65UdFfByIxdHXUR1y
+         Hzk7nqkKe2/vgqH1ZGG0YqUb7sOwRCH1ot163ddzdexWgagQZu95fVymMibrOcEMTM
+         CtQz5ADkhc6rkBm8sL4R8XDdMKQBwyskBciiK42A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Catherine Sullivan <csully@google.com>,
-        Sagi Shahar <sagis@google.com>,
-        Jon Olson <jonolson@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Luigi Rizzo <lrizzo@google.com>,
-        Jeroen de Borst <jeroendb@google.com>,
-        Tao Liu <xliutaox@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 42/52] gve: fix gve_get_stats()
+Subject: [PATCH 5.10 51/83] netlink: annotate data races around nlk->bound
 Date:   Mon, 11 Oct 2021 15:46:11 +0200
-Message-Id: <20211011134505.163433262@linuxfoundation.org>
+Message-Id: <20211011134510.155411029@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
-References: <20211011134503.715740503@linuxfoundation.org>
+In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
+References: <20211011134508.362906295@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,71 +43,107 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 2f57d4975fa027eabd35fdf23a49f8222ef3abf2 ]
+[ Upstream commit 7707a4d01a648e4c655101a469c956cb11273655 ]
 
-gve_get_stats() can report wrong numbers if/when u64_stats_fetch_retry()
-returns true.
+While existing code is correct, KCSAN is reporting
+a data-race in netlink_insert / netlink_sendmsg [1]
 
-What is needed here is to sample values in temporary variables,
-and only use them after each loop is ended.
+It is correct to read nlk->bound without a lock, as netlink_autobind()
+will acquire all needed locks.
 
-Fixes: f5cedc84a30d ("gve: Add transmit and receive support")
+[1]
+BUG: KCSAN: data-race in netlink_insert / netlink_sendmsg
+
+write to 0xffff8881031c8b30 of 1 bytes by task 18752 on cpu 0:
+ netlink_insert+0x5cc/0x7f0 net/netlink/af_netlink.c:597
+ netlink_autobind+0xa9/0x150 net/netlink/af_netlink.c:842
+ netlink_sendmsg+0x479/0x7c0 net/netlink/af_netlink.c:1892
+ sock_sendmsg_nosec net/socket.c:703 [inline]
+ sock_sendmsg net/socket.c:723 [inline]
+ ____sys_sendmsg+0x360/0x4d0 net/socket.c:2392
+ ___sys_sendmsg net/socket.c:2446 [inline]
+ __sys_sendmsg+0x1ed/0x270 net/socket.c:2475
+ __do_sys_sendmsg net/socket.c:2484 [inline]
+ __se_sys_sendmsg net/socket.c:2482 [inline]
+ __x64_sys_sendmsg+0x42/0x50 net/socket.c:2482
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+read to 0xffff8881031c8b30 of 1 bytes by task 18751 on cpu 1:
+ netlink_sendmsg+0x270/0x7c0 net/netlink/af_netlink.c:1891
+ sock_sendmsg_nosec net/socket.c:703 [inline]
+ sock_sendmsg net/socket.c:723 [inline]
+ __sys_sendto+0x2a8/0x370 net/socket.c:2019
+ __do_sys_sendto net/socket.c:2031 [inline]
+ __se_sys_sendto net/socket.c:2027 [inline]
+ __x64_sys_sendto+0x74/0x90 net/socket.c:2027
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0x00 -> 0x01
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 18751 Comm: syz-executor.0 Not tainted 5.14.0-rc1-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: da314c9923fe ("netlink: Replace rhash_portid with bound")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Catherine Sullivan <csully@google.com>
-Cc: Sagi Shahar <sagis@google.com>
-Cc: Jon Olson <jonolson@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Cc: Luigi Rizzo <lrizzo@google.com>
-Cc: Jeroen de Borst <jeroendb@google.com>
-Cc: Tao Liu <xliutaox@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/google/gve/gve_main.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ net/netlink/af_netlink.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/google/gve/gve_main.c b/drivers/net/ethernet/google/gve/gve_main.c
-index f8dfa7501f65..5b450c6100ad 100644
---- a/drivers/net/ethernet/google/gve/gve_main.c
-+++ b/drivers/net/ethernet/google/gve/gve_main.c
-@@ -30,6 +30,7 @@ static void gve_get_stats(struct net_device *dev, struct rtnl_link_stats64 *s)
- {
- 	struct gve_priv *priv = netdev_priv(dev);
- 	unsigned int start;
-+	u64 packets, bytes;
- 	int ring;
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 8434da3c0487..0886267ea81e 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -586,7 +586,10 @@ static int netlink_insert(struct sock *sk, u32 portid)
  
- 	if (priv->rx) {
-@@ -37,10 +38,12 @@ static void gve_get_stats(struct net_device *dev, struct rtnl_link_stats64 *s)
- 			do {
- 				start =
- 				  u64_stats_fetch_begin(&priv->rx[ring].statss);
--				s->rx_packets += priv->rx[ring].rpackets;
--				s->rx_bytes += priv->rx[ring].rbytes;
-+				packets = priv->rx[ring].rpackets;
-+				bytes = priv->rx[ring].rbytes;
- 			} while (u64_stats_fetch_retry(&priv->rx[ring].statss,
- 						       start));
-+			s->rx_packets += packets;
-+			s->rx_bytes += bytes;
- 		}
+ 	/* We need to ensure that the socket is hashed and visible. */
+ 	smp_wmb();
+-	nlk_sk(sk)->bound = portid;
++	/* Paired with lockless reads from netlink_bind(),
++	 * netlink_connect() and netlink_sendmsg().
++	 */
++	WRITE_ONCE(nlk_sk(sk)->bound, portid);
+ 
+ err:
+ 	release_sock(sk);
+@@ -1004,7 +1007,8 @@ static int netlink_bind(struct socket *sock, struct sockaddr *addr,
+ 	if (nlk->ngroups < BITS_PER_LONG)
+ 		groups &= (1UL << nlk->ngroups) - 1;
+ 
+-	bound = nlk->bound;
++	/* Paired with WRITE_ONCE() in netlink_insert() */
++	bound = READ_ONCE(nlk->bound);
+ 	if (bound) {
+ 		/* Ensure nlk->portid is up-to-date. */
+ 		smp_rmb();
+@@ -1090,8 +1094,9 @@ static int netlink_connect(struct socket *sock, struct sockaddr *addr,
+ 
+ 	/* No need for barriers here as we return to user-space without
+ 	 * using any of the bound attributes.
++	 * Paired with WRITE_ONCE() in netlink_insert().
+ 	 */
+-	if (!nlk->bound)
++	if (!READ_ONCE(nlk->bound))
+ 		err = netlink_autobind(sock);
+ 
+ 	if (err == 0) {
+@@ -1880,7 +1885,8 @@ static int netlink_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 		dst_group = nlk->dst_group;
  	}
- 	if (priv->tx) {
-@@ -48,10 +51,12 @@ static void gve_get_stats(struct net_device *dev, struct rtnl_link_stats64 *s)
- 			do {
- 				start =
- 				  u64_stats_fetch_begin(&priv->tx[ring].statss);
--				s->tx_packets += priv->tx[ring].pkt_done;
--				s->tx_bytes += priv->tx[ring].bytes_done;
-+				packets = priv->tx[ring].pkt_done;
-+				bytes = priv->tx[ring].bytes_done;
- 			} while (u64_stats_fetch_retry(&priv->tx[ring].statss,
- 						       start));
-+			s->tx_packets += packets;
-+			s->tx_bytes += bytes;
- 		}
- 	}
- }
+ 
+-	if (!nlk->bound) {
++	/* Paired with WRITE_ONCE() in netlink_insert() */
++	if (!READ_ONCE(nlk->bound)) {
+ 		err = netlink_autobind(sock);
+ 		if (err)
+ 			goto out;
 -- 
 2.33.0
 
