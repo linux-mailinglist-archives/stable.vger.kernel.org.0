@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C4FE429168
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:16:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B90F429117
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:13:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244108AbhJKOR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:17:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39036 "EHLO mail.kernel.org"
+        id S244439AbhJKOPi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:15:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243060AbhJKOPy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:15:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 248D560F6E;
-        Mon, 11 Oct 2021 14:05:46 +0000 (UTC)
+        id S244036AbhJKONd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:13:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4855860EDF;
+        Mon, 11 Oct 2021 14:04:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633961146;
-        bh=IPGid/75yXg+7JRb6pRPQpFWWSlSgrLrtMJn72uwovM=;
+        s=korg; t=1633961070;
+        bh=zqndhYKowbWUCONueoEbL925Z+Em9LuWtqNphI/M9iM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=umcXZu3yDsznqUuUrzlOXb06VquHSnJ9wm/vJCxM4k9zlgBpErzFOuSCRzgfR1oAZ
-         vJx3knVmAxraQApb2gJJZD7HDMJRszMCofMMOPFdHVdpUU5pTrd22MAU5pBkKm+yp2
-         daU0u2BvIPAdqMuuAoT243XPTC5qChCapKzvT8UQ=
+        b=i8vk2CYylm7Ur9MgJJ2394/ifozF4xDfIfP4uI9ZMgaKH6/xrpalYrghfKEQDFD38
+         2mW1yluUQ78OlCSkODPj7CzVbNe9IhYuKgRJl1z3uIGmP+CQW9RS9bWGQU4CAjlTVn
+         3IoBb2iFKBUS6xkFk3dL/m9wmiGtUXSliOKOSgUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/28] bpf, arm: Fix register clobbering in div/mod implementation
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.14 150/151] x86/hpet: Use another crystalball to evaluate HPET usability
 Date:   Mon, 11 Oct 2021 15:47:02 +0200
-Message-Id: <20211011134641.114041074@linuxfoundation.org>
+Message-Id: <20211011134522.684528124@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134640.711218469@linuxfoundation.org>
-References: <20211011134640.711218469@linuxfoundation.org>
+In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
+References: <20211011134517.833565002@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,94 +42,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 79e3445b38e0cab94264a3894c0c3d57c930b97e ]
+commit 6e3cd95234dc1eda488f4f487c281bac8fef4d9b upstream.
 
-On ARM CPUs that lack div/mod instructions, ALU32 BPF_DIV and BPF_MOD are
-implemented using a call to a helper function. Before, the emitted code
-for those function calls failed to preserve caller-saved ARM registers.
-Since some of those registers happen to be mapped to BPF registers, it
-resulted in eBPF register values being overwritten.
+On recent Intel systems the HPET stops working when the system reaches PC10
+idle state.
 
-This patch emits code to push and pop the remaining caller-saved ARM
-registers r2-r3 into the stack during the div/mod function call. ARM
-registers r0-r1 are used as arguments and return value, and those were
-already saved and restored correctly.
+The approach of adding PCI ids to the early quirks to disable HPET on
+these systems is a whack a mole game which makes no sense.
 
-Fixes: 39c13c204bb1 ("arm: eBPF JIT compiler")
-Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Check for PC10 instead and force disable HPET if supported. The check is
+overbroad as it does not take ACPI, intel_idle enablement and command
+line parameters into account. That's fine as long as there is at least
+PMTIMER available to calibrate the TSC frequency. The decision can be
+overruled by adding "hpet=force" on the kernel command line.
+
+Remove the related early PCI quirks for affected Ice Cake and Coffin Lake
+systems as they are not longer required. That should also cover all
+other systems, i.e. Tiger Rag and newer generations, which are most
+likely affected by this as well.
+
+Fixes: Yet another hardware trainwreck
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Rafael J. Wysocki <rafael@kernel.org>
+Cc: stable@vger.kernel.org
+Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/net/bpf_jit_32.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ arch/x86/kernel/early-quirks.c |    6 ---
+ arch/x86/kernel/hpet.c         |   81 +++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 81 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/net/bpf_jit_32.c b/arch/arm/net/bpf_jit_32.c
-index 79b12e744537..dade3a3ba666 100644
---- a/arch/arm/net/bpf_jit_32.c
-+++ b/arch/arm/net/bpf_jit_32.c
-@@ -39,6 +39,10 @@
-  *                        +-----+
-  *                        |RSVD | JIT scratchpad
-  * current ARM_SP =>      +-----+ <= (BPF_FP - STACK_SIZE + SCRATCH_SIZE)
-+ *                        | ... | caller-saved registers
-+ *                        +-----+
-+ *                        | ... | arguments passed on stack
-+ * ARM_SP during call =>  +-----|
-  *                        |     |
-  *                        | ... | Function call stack
-  *                        |     |
-@@ -66,6 +70,12 @@
-  *
-  * When popping registers off the stack at the end of a BPF function, we
-  * reference them via the current ARM_FP register.
+--- a/arch/x86/kernel/early-quirks.c
++++ b/arch/x86/kernel/early-quirks.c
+@@ -714,12 +714,6 @@ static struct chipset early_qrk[] __init
+ 	 */
+ 	{ PCI_VENDOR_ID_INTEL, 0x0f00,
+ 		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+-	{ PCI_VENDOR_ID_INTEL, 0x3e20,
+-		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+-	{ PCI_VENDOR_ID_INTEL, 0x3ec4,
+-		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+-	{ PCI_VENDOR_ID_INTEL, 0x8a12,
+-		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+ 	{ PCI_VENDOR_ID_BROADCOM, 0x4331,
+ 	  PCI_CLASS_NETWORK_OTHER, PCI_ANY_ID, 0, apple_airport_reset},
+ 	{}
+--- a/arch/x86/kernel/hpet.c
++++ b/arch/x86/kernel/hpet.c
+@@ -10,6 +10,7 @@
+ #include <asm/irq_remapping.h>
+ #include <asm/hpet.h>
+ #include <asm/time.h>
++#include <asm/mwait.h>
+ 
+ #undef  pr_fmt
+ #define pr_fmt(fmt) "hpet: " fmt
+@@ -916,6 +917,83 @@ static bool __init hpet_counting(void)
+ 	return false;
+ }
+ 
++static bool __init mwait_pc10_supported(void)
++{
++	unsigned int eax, ebx, ecx, mwait_substates;
++
++	if (boot_cpu_data.x86_vendor != X86_VENDOR_INTEL)
++		return false;
++
++	if (!cpu_feature_enabled(X86_FEATURE_MWAIT))
++		return false;
++
++	if (boot_cpu_data.cpuid_level < CPUID_MWAIT_LEAF)
++		return false;
++
++	cpuid(CPUID_MWAIT_LEAF, &eax, &ebx, &ecx, &mwait_substates);
++
++	return (ecx & CPUID5_ECX_EXTENSIONS_SUPPORTED) &&
++	       (ecx & CPUID5_ECX_INTERRUPT_BREAK) &&
++	       (mwait_substates & (0xF << 28));
++}
++
++/*
++ * Check whether the system supports PC10. If so force disable HPET as that
++ * stops counting in PC10. This check is overbroad as it does not take any
++ * of the following into account:
 + *
-+ * Some eBPF operations are implemented via a call to a helper function.
-+ * Such calls are "invisible" in the eBPF code, so it is up to the calling
-+ * program to preserve any caller-saved ARM registers during the call. The
-+ * JIT emits code to push and pop those registers onto the stack, immediately
-+ * above the callee stack frame.
++ *	- ACPI tables
++ *	- Enablement of intel_idle
++ *	- Command line arguments which limit intel_idle C-state support
++ *
++ * That's perfectly fine. HPET is a piece of hardware designed by committee
++ * and the only reasons why it is still in use on modern systems is the
++ * fact that it is impossible to reliably query TSC and CPU frequency via
++ * CPUID or firmware.
++ *
++ * If HPET is functional it is useful for calibrating TSC, but this can be
++ * done via PMTIMER as well which seems to be the last remaining timer on
++ * X86/INTEL platforms that has not been completely wreckaged by feature
++ * creep.
++ *
++ * In theory HPET support should be removed altogether, but there are older
++ * systems out there which depend on it because TSC and APIC timer are
++ * dysfunctional in deeper C-states.
++ *
++ * It's only 20 years now that hardware people have been asked to provide
++ * reliable and discoverable facilities which can be used for timekeeping
++ * and per CPU timer interrupts.
++ *
++ * The probability that this problem is going to be solved in the
++ * forseeable future is close to zero, so the kernel has to be cluttered
++ * with heuristics to keep up with the ever growing amount of hardware and
++ * firmware trainwrecks. Hopefully some day hardware people will understand
++ * that the approach of "This can be fixed in software" is not sustainable.
++ * Hope dies last...
++ */
++static bool __init hpet_is_pc10_damaged(void)
++{
++	unsigned long long pcfg;
++
++	/* Check whether PC10 substates are supported */
++	if (!mwait_pc10_supported())
++		return false;
++
++	/* Check whether PC10 is enabled in PKG C-state limit */
++	rdmsrl(MSR_PKG_CST_CONFIG_CONTROL, pcfg);
++	if ((pcfg & 0xF) < 8)
++		return false;
++
++	if (hpet_force_user) {
++		pr_warn("HPET force enabled via command line, but dysfunctional in PC10.\n");
++		return false;
++	}
++
++	pr_info("HPET dysfunctional in PC10. Force disabled.\n");
++	boot_hpet_disable = true;
++	return true;
++}
++
+ /**
+  * hpet_enable - Try to setup the HPET timer. Returns 1 on success.
   */
- #define CALLEE_MASK	(1 << ARM_R4 | 1 << ARM_R5 | 1 << ARM_R6 | \
- 			 1 << ARM_R7 | 1 << ARM_R8 | 1 << ARM_R9 | \
-@@ -73,6 +83,8 @@
- #define CALLEE_PUSH_MASK (CALLEE_MASK | 1 << ARM_LR)
- #define CALLEE_POP_MASK  (CALLEE_MASK | 1 << ARM_PC)
+@@ -929,6 +1007,9 @@ int __init hpet_enable(void)
+ 	if (!is_hpet_capable())
+ 		return 0;
  
-+#define CALLER_MASK	(1 << ARM_R0 | 1 << ARM_R1 | 1 << ARM_R2 | 1 << ARM_R3)
++	if (hpet_is_pc10_damaged())
++		return 0;
 +
- enum {
- 	/* Stack layout - these are offsets from (top of stack - 4) */
- 	BPF_R2_HI,
-@@ -467,6 +479,7 @@ static inline int epilogue_offset(const struct jit_ctx *ctx)
- 
- static inline void emit_udivmod(u8 rd, u8 rm, u8 rn, struct jit_ctx *ctx, u8 op)
- {
-+	const int exclude_mask = BIT(ARM_R0) | BIT(ARM_R1);
- 	const s8 *tmp = bpf2a32[TMP_REG_1];
- 
- #if __LINUX_ARM_ARCH__ == 7
-@@ -498,11 +511,17 @@ static inline void emit_udivmod(u8 rd, u8 rm, u8 rn, struct jit_ctx *ctx, u8 op)
- 		emit(ARM_MOV_R(ARM_R0, rm), ctx);
- 	}
- 
-+	/* Push caller-saved registers on stack */
-+	emit(ARM_PUSH(CALLER_MASK & ~exclude_mask), ctx);
-+
- 	/* Call appropriate function */
- 	emit_mov_i(ARM_IP, op == BPF_DIV ?
- 		   (u32)jit_udiv32 : (u32)jit_mod32, ctx);
- 	emit_blx_r(ARM_IP, ctx);
- 
-+	/* Restore caller-saved registers from stack */
-+	emit(ARM_POP(CALLER_MASK & ~exclude_mask), ctx);
-+
- 	/* Save return value */
- 	if (rd != ARM_R0)
- 		emit(ARM_MOV_R(rd, ARM_R0), ctx);
--- 
-2.33.0
-
+ 	hpet_set_mapping();
+ 	if (!hpet_virt_address)
+ 		return 0;
 
 
