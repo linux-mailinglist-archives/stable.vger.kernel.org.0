@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CFB74290F1
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:12:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5568A42912D
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:15:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241285AbhJKOON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:14:13 -0400
+        id S237649AbhJKOQA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:16:00 -0400
 Received: from mail.kernel.org ([198.145.29.99]:34546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241841AbhJKOMQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:12:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BBEBC610C8;
-        Mon, 11 Oct 2021 14:03:33 +0000 (UTC)
+        id S244287AbhJKONx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:13:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E824A610E7;
+        Mon, 11 Oct 2021 14:04:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633961014;
-        bh=+S2fTVAapzqKR2kMYhB+gS1yBxRZMlUinhch4n/ZHKU=;
+        s=korg; t=1633961082;
+        bh=90j3KqDcIJeIiJ/g/3FQopNbkD1LE4QJBm6HsNbOlU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YWJk0iIHinwo+T+52oCwb0X06P2DoI31ycLm61gqHLQNrZYW1/8gfg+COvSf3wXE0
-         XHbDugO5ARU+ENbq+RPu6acj7/YMcothmWunec10fSbTAoSLlGyS0xT+5BRYDtn2iB
-         U+wQVk9Q6qp6/W24/bzKRKSBvWPdKG395APx8ZUM=
+        b=oVHbJj13xrQjrLHcg3rJTwIS2oNeoq++4twrVj1qtrjmfgGHbzL55Ikl6mEZNExBy
+         5sexlL4j3c24sgALDo/Y7K/vVCCSnFNDAhPQdTky55oLL3aC0CZ59TLa0I4Wd4ywaO
+         ehoykCvowmO4Drn0ceDxXnjjZdZ6IF0GkiFYgRek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 140/151] powerpc/traps: do not enable irqs in _exception
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 02/28] USB: cdc-acm: fix racy tty buffer accesses
 Date:   Mon, 11 Oct 2021 15:46:52 +0200
-Message-Id: <20211011134522.336301949@linuxfoundation.org>
+Message-Id: <20211011134640.794999985@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
-References: <20211011134517.833565002@linuxfoundation.org>
+In-Reply-To: <20211011134640.711218469@linuxfoundation.org>
+References: <20211011134640.711218469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,59 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit d0afd44c05f8f4e4c91487c02d43c87a31552462 ]
+commit 65a205e6113506e69a503b61d97efec43fc10fd7 upstream.
 
-_exception can be called by machine check handlers when the MCE hits
-user code (e.g., pseries and powernv). This will enable local irqs
-because, which is a dicey thing to do in NMI or hard irq context.
+A recent change that started reporting break events to the line
+discipline caused the tty-buffer insertions to no longer be serialised
+by inserting events also from the completion handler for the interrupt
+endpoint.
 
-This seemed to worked out okay because a userspace MCE can basically be
-treated like a synchronous interrupt (after async / imprecise MCEs are
-filtered out). Since NMI and hard irq handlers have started growing
-nmi_enter / irq_enter, and more irq state sanity checks, this has
-started to cause problems (or at least trigger warnings).
+Completion calls for distinct endpoints are not guaranteed to be
+serialised. For example, in case a host-controller driver uses
+bottom-half completion, the interrupt and bulk-in completion handlers
+can end up running in parallel on two CPUs (high-and low-prio tasklets,
+respectively) thereby breaking the tty layer's single producer
+assumption.
 
-The Fixes tag to the commit which introduced this rather than try to
-work out exactly which commit was the first that could possibly cause a
-problem because that may be difficult to prove.
+Fix this by holding the read lock also when inserting characters from
+the bulk endpoint.
 
-Fixes: 9f2f79e3a3c1 ("powerpc: Disable interrupts in 64-bit kernel FP and vector faults")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211004145642.1331214-3-npiggin@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 08dff274edda ("cdc-acm: fix BREAK rx code path adding necessary calls")
+Cc: stable@vger.kernel.org
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210929090937.7410-2-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/traps.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/usb/class/cdc-acm.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
-index d56254f05e17..4ac85ab15ad7 100644
---- a/arch/powerpc/kernel/traps.c
-+++ b/arch/powerpc/kernel/traps.c
-@@ -341,10 +341,16 @@ static bool exception_common(int signr, struct pt_regs *regs, int code,
- 		return false;
- 	}
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -474,11 +474,16 @@ static int acm_submit_read_urbs(struct a
  
--	show_signal_msg(signr, regs, code, addr);
-+	/*
-+	 * Must not enable interrupts even for user-mode exception, because
-+	 * this can be called from machine check, which may be a NMI or IRQ
-+	 * which don't like interrupts being enabled. Could check for
-+	 * in_hardirq || in_nmi perhaps, but there doesn't seem to be a good
-+	 * reason why _exception() should enable irqs for an exception handler,
-+	 * the handlers themselves do that directly.
-+	 */
+ static void acm_process_read_urb(struct acm *acm, struct urb *urb)
+ {
++	unsigned long flags;
++
+ 	if (!urb->actual_length)
+ 		return;
  
--	if (arch_irqs_disabled())
--		interrupt_cond_local_irq_enable(regs);
-+	show_signal_msg(signr, regs, code, addr);
++	spin_lock_irqsave(&acm->read_lock, flags);
+ 	tty_insert_flip_string(&acm->port, urb->transfer_buffer,
+ 			urb->actual_length);
++	spin_unlock_irqrestore(&acm->read_lock, flags);
++
+ 	tty_flip_buffer_push(&acm->port);
+ }
  
- 	current->thread.trap_nr = code;
- 
--- 
-2.33.0
-
 
 
